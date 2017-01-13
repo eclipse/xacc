@@ -1,0 +1,3 @@
+[submodule "tpls/common"]
+	path = tpls/common
+	url = https://github.com/ORNL-QCI/common
