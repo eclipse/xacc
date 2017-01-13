@@ -30,3 +30,6 @@
 /build/
 /.cproject
 /.project
+/.settings/
+**/.ptp*
+**/fire/*

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_w8Gt8Iv0Eeaju_zCqkLRTA" name="XACCModel">
+  <packagedElement xmi:type="uml:Package" xmi:id="_J00XIIv5Eeaju_zCqkLRTA" name="graph">
+    <ownedComment xmi:id="_D1-hAJSHEeaju_zCqkLRTA" annotatedElement="_J00XIIv5Eeaju_zCqkLRTA">
+      <body>Graphs are critical in a large number of extreme-scale, post-Moore's law accelerators. For example, problems and hardware for adiabatic quantum computing can be expressed as graphs, as can circuits for gate-model quantum computation. The graph package provides general graph data structures that can be used throughout XACC to provide suitable abstractions for the programming, compilation, and execution of XACC accelerators. This package provides a templated Graph interface that enables the expression of graphs with user-specified vertex types. It also allows the delegation of graph data structures to third-party libraries like the Boost Graph Library. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_pZPAIIv5Eeaju_zCqkLRTA" name="kernel">
+    <ownedComment xmi:id="_FejjMJSZEeaju_zCqkLRTA" annotatedElement="_pZPAIIv5Eeaju_zCqkLRTA">
+      <body>The kernel package contains the abstractions necessary for users to express a Kernel of functionality that may be executed on an attached post-exascale accelerator. Kernels can contain other Kernels as accelerator code snippets may be composed of other accelerator code snippets. Therefore, the Kernel package may make heavy use of the Graph package. </body>
+    </ownedComment>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_EwvPIJVCEeaju_zCqkLRTA" client="_pZPAIIv5Eeaju_zCqkLRTA" supplier="_rIfXQIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_zEWD8JcEEeaKxMbGdg9yFQ" name="IKernel">
+      <ownedOperation xmi:id="_YbhVwJcFEeaKxMbGdg9yFQ" name="compile"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_1OpYUJcEEeaKxMbGdg9yFQ" name="QPUKernel">
+      <interfaceRealization xmi:id="_6edsIJcEEeaKxMbGdg9yFQ" client="_1OpYUJcEEeaKxMbGdg9yFQ" supplier="_zEWD8JcEEeaKxMbGdg9yFQ" contract="_zEWD8JcEEeaKxMbGdg9yFQ"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_3WsC4JcEEeaKxMbGdg9yFQ" name="NeuroKernel">
+      <interfaceRealization xmi:id="_617J4JcEEeaKxMbGdg9yFQ" client="_3WsC4JcEEeaKxMbGdg9yFQ" supplier="_zEWD8JcEEeaKxMbGdg9yFQ" contract="_zEWD8JcEEeaKxMbGdg9yFQ"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_PZ-cwJcFEeaKxMbGdg9yFQ" visibility="protected" memberEnd="_PZ-cwZcFEeaKxMbGdg9yFQ _PZ-cxJcFEeaKxMbGdg9yFQ" navigableOwnedEnd="_PZ-cxJcFEeaKxMbGdg9yFQ">
+      <name xsi:nil="true"/>
+      <ownedEnd xmi:id="_PZ-cwZcFEeaKxMbGdg9yFQ" name="iKernels" type="_zEWD8JcEEeaKxMbGdg9yFQ" association="_PZ-cwJcFEeaKxMbGdg9yFQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_PZ-cwpcFEeaKxMbGdg9yFQ"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_PZ-cw5cFEeaKxMbGdg9yFQ" value="*"/>
+      </ownedEnd>
+      <ownedEnd xmi:id="_PZ-cxJcFEeaKxMbGdg9yFQ" name="iCompilers" type="_9-CxYJcEEeaKxMbGdg9yFQ" association="_PZ-cwJcFEeaKxMbGdg9yFQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_PZ-cxZcFEeaKxMbGdg9yFQ"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_PZ-cxpcFEeaKxMbGdg9yFQ" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_rIfXQIv5Eeaju_zCqkLRTA" name="compiler">
+    <packagedElement xmi:type="uml:Interface" xmi:id="_9-CxYJcEEeaKxMbGdg9yFQ" name="ICompiler"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_u4678Iv5Eeaju_zCqkLRTA" name="utils">
+    <ownedComment xmi:id="_ltyFAIycEeaju_zCqkLRTA" annotatedElement="_u4678Iv5Eeaju_zCqkLRTA">
+      <body>This package contains commonly used utilities throughout the XACC framework. This can include factory patterns and input parameters. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_anHaMIv6Eeaju_zCqkLRTA" name="AppDev">
+    <eAnnotations xmi:id="_anIBQIv6Eeaju_zCqkLRTA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_anIBQYv6Eeaju_zCqkLRTA" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_gIafkIv6Eeaju_zCqkLRTA" name="Write Kernel">
+    <ownedComment xmi:id="_AVOBcIv_Eeaju_zCqkLRTA" annotatedElement="_gIafkIv6Eeaju_zCqkLRTA">
+      <body>This use case involves writing a new Kernel. Writing a Kernel involves specifying the correct function attribute and populating the function with a domain specific language that is parseable by framework-available compilers. Each Kernel therefore has a type (qpu, neuro, etc) and aggregates a code snippet from a domain specific language. Kernels can contain other Kernels, and containment must adhere to the contraint that all involved Kernels are of the same domain specific language. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_nv2LAIv6Eeaju_zCqkLRTA" memberEnd="_nv8RoIv6Eeaju_zCqkLRTA _nv84sIv6Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_nv8RoIv6Eeaju_zCqkLRTA" type="_anHaMIv6Eeaju_zCqkLRTA" association="_nv2LAIv6Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_nv84sIv6Eeaju_zCqkLRTA" type="_gIafkIv6Eeaju_zCqkLRTA" association="_nv2LAIv6Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_Hc-EEIv7Eeaju_zCqkLRTA" name="Accelerator">
+    <eAnnotations xmi:id="_Hc-EEYv7Eeaju_zCqkLRTA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_Hc-EEov7Eeaju_zCqkLRTA" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_R2cZUIv7Eeaju_zCqkLRTA" name="Add New Compiler">
+    <ownedComment xmi:id="_UsujEJSEEeaju_zCqkLRTA" annotatedElement="_R2cZUIv7Eeaju_zCqkLRTA">
+      <body>This use case enables the efficient creation and injection of new DSL compilers. Users should be able to invoke the framework to create stubbed out skeleton code that is a new Compiler subclass. Injection into the framework through a templated registry pattern, similar to FunctionPass in LLVM.</body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_Wjbs4Iv7Eeaju_zCqkLRTA" name="Execute Hybrid Code">
+    <ownedComment xmi:id="_AjKh4JSGEeaju_zCqkLRTA" annotatedElement="_Wjbs4Iv7Eeaju_zCqkLRTA">
+      <body>This use case allows the actual execution of hybrid code. It is initiated through a simple execution of the result from the Compile Hybrid Code use case, which is just a classical compiled executable. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_bZmKkIv7Eeaju_zCqkLRTA" name="Compile Hybrid Code">
+    <ownedComment xmi:id="_uKWpcJSDEeaju_zCqkLRTA" annotatedElement="_bZmKkIv7Eeaju_zCqkLRTA">
+      <body>The AppDev actor executes a compiler that takes the hybrid source file as input and produces new valid source for the aggregated compiler (gcc, nvcc) that contains Host CPU execution code of the Driver CPU. The compilation process leverages framework-available compilers to map or translate Kernel DSL code to the appropriate machine language for the attached and described Accelerator. This compiled result is then fed into the Host CPU launching mechanism.</body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_tSHEQIv7Eeaju_zCqkLRTA" memberEnd="_tSHEQYv7Eeaju_zCqkLRTA _tSHEQov7Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_tSHEQYv7Eeaju_zCqkLRTA" type="_anHaMIv6Eeaju_zCqkLRTA" association="_tSHEQIv7Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_tSHEQov7Eeaju_zCqkLRTA" type="_Wjbs4Iv7Eeaju_zCqkLRTA" association="_tSHEQIv7Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_tpxWUIv7Eeaju_zCqkLRTA" memberEnd="_tpxWUYv7Eeaju_zCqkLRTA _tpxWUov7Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_tpxWUYv7Eeaju_zCqkLRTA" type="_Wjbs4Iv7Eeaju_zCqkLRTA" association="_tpxWUIv7Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_tpxWUov7Eeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_tpxWUIv7Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_uO3AYIv7Eeaju_zCqkLRTA" memberEnd="_uO3ncIv7Eeaju_zCqkLRTA _uO3ncYv7Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_uO3ncIv7Eeaju_zCqkLRTA" type="_anHaMIv6Eeaju_zCqkLRTA" association="_uO3AYIv7Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_uO3ncYv7Eeaju_zCqkLRTA" type="_bZmKkIv7Eeaju_zCqkLRTA" association="_uO3AYIv7Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ulxEgIv7Eeaju_zCqkLRTA" memberEnd="_ulxrkIv7Eeaju_zCqkLRTA _ulxrkYv7Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_ulxrkIv7Eeaju_zCqkLRTA" type="_anHaMIv6Eeaju_zCqkLRTA" association="_ulxEgIv7Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_ulxrkYv7Eeaju_zCqkLRTA" type="_R2cZUIv7Eeaju_zCqkLRTA" association="_ulxEgIv7Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_EaFFYIv8Eeaju_zCqkLRTA" name="Compute Kernel">
+    <ownedComment xmi:id="_mnjfAJSGEeaju_zCqkLRTA" annotatedElement="_EaFFYIv8Eeaju_zCqkLRTA">
+      <body>This use case is executed by the Driver CPU and acts to physically invoke the attached Accelerator through a vendor-supplied API and return its result. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_HEJe8Iv8Eeaju_zCqkLRTA" memberEnd="_HEJe8Yv8Eeaju_zCqkLRTA _HEJe8ov8Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_HEJe8Yv8Eeaju_zCqkLRTA" type="_Hc-EEIv7Eeaju_zCqkLRTA" association="_HEJe8Iv8Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_HEJe8ov8Eeaju_zCqkLRTA" type="_EaFFYIv8Eeaju_zCqkLRTA" association="_HEJe8Iv8Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_Jo0bIIv8Eeaju_zCqkLRTA" name="Describe Accelerator">
+    <ownedComment xmi:id="_tf6IUIv-Eeaju_zCqkLRTA" annotatedElement="_Jo0bIIv8Eeaju_zCqkLRTA">
+      <body>This use case involves an application developer informing XACC what type of accelerator this application will be interacting with. This can be through some sort of hidden machine file. Things we need to know are accelerator type, driver cpu hostname, simulation or physical. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_M9tTUIv8Eeaju_zCqkLRTA" memberEnd="_M9tTUYv8Eeaju_zCqkLRTA _M9tTUov8Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_M9tTUYv8Eeaju_zCqkLRTA" type="_anHaMIv6Eeaju_zCqkLRTA" association="_M9tTUIv8Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_M9tTUov8Eeaju_zCqkLRTA" type="_Jo0bIIv8Eeaju_zCqkLRTA" association="_M9tTUIv8Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_Oh_wkIv8Eeaju_zCqkLRTA" name="Driver CPU">
+    <eAnnotations xmi:id="_Oh_wkYv8Eeaju_zCqkLRTA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_Oh_wkov8Eeaju_zCqkLRTA" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_XTiesIv8Eeaju_zCqkLRTA" memberEnd="_XTiesYv8Eeaju_zCqkLRTA _XTiesov8Eeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_XTiesYv8Eeaju_zCqkLRTA" type="_Oh_wkIv8Eeaju_zCqkLRTA" association="_XTiesIv8Eeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_XTiesov8Eeaju_zCqkLRTA" type="_EaFFYIv8Eeaju_zCqkLRTA" association="_XTiesIv8Eeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_19UEYIv8Eeaju_zCqkLRTA" name="quantum">
+    <packagedElement xmi:type="uml:Dependency" xmi:id="__R84gIv8Eeaju_zCqkLRTA" client="_19UEYIv8Eeaju_zCqkLRTA" supplier="_J00XIIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_BolYsIv9Eeaju_zCqkLRTA" client="_19UEYIv8Eeaju_zCqkLRTA" supplier="_rIfXQIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_FsAx4Iv9Eeaju_zCqkLRTA" client="_19UEYIv8Eeaju_zCqkLRTA" supplier="_pZPAIIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_GHChAIv9Eeaju_zCqkLRTA" client="_19UEYIv8Eeaju_zCqkLRTA" supplier="_u4678Iv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_YeKCAIycEeaju_zCqkLRTA" client="_19UEYIv8Eeaju_zCqkLRTA" supplier="_VZDSQIycEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_4hkJ0Iv8Eeaju_zCqkLRTA" name="neuromorphic">
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_NisaQIv9Eeaju_zCqkLRTA" client="_4hkJ0Iv8Eeaju_zCqkLRTA" supplier="_J00XIIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_OgI58Iv9Eeaju_zCqkLRTA" client="_4hkJ0Iv8Eeaju_zCqkLRTA" supplier="_u4678Iv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_O2lrEIv9Eeaju_zCqkLRTA" client="_4hkJ0Iv8Eeaju_zCqkLRTA" supplier="_rIfXQIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_Pj3AwIv9Eeaju_zCqkLRTA" client="_4hkJ0Iv8Eeaju_zCqkLRTA" supplier="_pZPAIIv5Eeaju_zCqkLRTA"/>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_YynPEIycEeaju_zCqkLRTA" client="_4hkJ0Iv8Eeaju_zCqkLRTA" supplier="_VZDSQIycEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_VZDSQIycEeaju_zCqkLRTA" name="accelerator">
+    <packagedElement xmi:type="uml:Package" xmi:id="_1Vk8MJcDEeaKxMbGdg9yFQ" name="qvm">
+      <packagedElement xmi:type="uml:Class" xmi:id="_MGUwIJcEEeaKxMbGdg9yFQ" name="QVM">
+        <interfaceRealization xmi:id="_P7mYkJcEEeaKxMbGdg9yFQ" client="_MGUwIJcEEeaKxMbGdg9yFQ" supplier="_9-hvAJcDEeaKxMbGdg9yFQ" contract="_9-hvAJcDEeaKxMbGdg9yFQ"/>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_6vJB4JcDEeaKxMbGdg9yFQ" name="nvm"/>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_9-hvAJcDEeaKxMbGdg9yFQ" name="IAccelerator"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Actor" xmi:id="_67IhoIyeEeaju_zCqkLRTA" name="Host CPU">
+    <eAnnotations xmi:id="_67IhoYyeEeaju_zCqkLRTA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <details xmi:id="_67IhooyeEeaju_zCqkLRTA" key="Human"/>
+    </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:UseCase" xmi:id="_Eudc4IyfEeaju_zCqkLRTA" name="Launch Accelerator Kernel">
+    <ownedComment xmi:id="_hITBAJSGEeaju_zCqkLRTA" annotatedElement="_Eudc4IyfEeaju_zCqkLRTA">
+      <body>This action is executed by the Host CPU. It takes the compiled Kernel result and executes it on the attached Accelerator, through its associated Driver CPU. </body>
+    </ownedComment>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_IR6VgIyfEeaju_zCqkLRTA" memberEnd="_IR6VgYyfEeaju_zCqkLRTA _IR68kIyfEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_IR6VgYyfEeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_IR6VgIyfEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_IR68kIyfEeaju_zCqkLRTA" type="_Eudc4IyfEeaju_zCqkLRTA" association="_IR6VgIyfEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_I5f58IyfEeaju_zCqkLRTA" memberEnd="_I5f58YyfEeaju_zCqkLRTA _I5f58oyfEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_I5f58YyfEeaju_zCqkLRTA" type="_Eudc4IyfEeaju_zCqkLRTA" association="_I5f58IyfEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_I5f58oyfEeaju_zCqkLRTA" type="_Oh_wkIv8Eeaju_zCqkLRTA" association="_I5f58IyfEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_H6U8sJSGEeaju_zCqkLRTA" memberEnd="_H6VjwJSGEeaju_zCqkLRTA _H6VjwZSGEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_H6VjwJSGEeaju_zCqkLRTA" type="_Jo0bIIv8Eeaju_zCqkLRTA" association="_H6U8sJSGEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_H6VjwZSGEeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_H6U8sJSGEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_ITSPQJSGEeaju_zCqkLRTA" memberEnd="_ITSPQZSGEeaju_zCqkLRTA _ITSPQpSGEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_ITSPQZSGEeaju_zCqkLRTA" type="_R2cZUIv7Eeaju_zCqkLRTA" association="_ITSPQJSGEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_ITSPQpSGEeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_ITSPQJSGEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_Iu2J4JSGEeaju_zCqkLRTA" memberEnd="_Iu2J4ZSGEeaju_zCqkLRTA _Iu2J4pSGEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_Iu2J4ZSGEeaju_zCqkLRTA" type="_gIafkIv6Eeaju_zCqkLRTA" association="_Iu2J4JSGEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_Iu2J4pSGEeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_Iu2J4JSGEeaju_zCqkLRTA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_JQb0AJSGEeaju_zCqkLRTA" memberEnd="_JQcbEJSGEeaju_zCqkLRTA _JQcbEZSGEeaju_zCqkLRTA">
+    <ownedEnd xmi:id="_JQcbEJSGEeaju_zCqkLRTA" type="_bZmKkIv7Eeaju_zCqkLRTA" association="_JQb0AJSGEeaju_zCqkLRTA"/>
+    <ownedEnd xmi:id="_JQcbEZSGEeaju_zCqkLRTA" type="_67IhoIyeEeaju_zCqkLRTA" association="_JQb0AJSGEeaju_zCqkLRTA"/>
+  </packagedElement>
+</uml:Model>
