@@ -32,10 +32,17 @@ void ScaffoldCompiler::modifySource() {
 
 std::shared_ptr<IR> ScaffoldCompiler::compile() {
 
+	// Create an instance of our ScaffCC API
+	// so that we can interact with a locally installed
+	// scaffcc executable
 	scaffold::ScaffCCAPI scaffcc;
 
+	// Compile the source code and return the QASM form
+	// This will throw if it fails.
 	auto qasm = scaffcc.getFlatQASMFromSource(kernelSource);
 
+	// Generate a GraphIR instance, ie a graph
+	// tensor references making up this QASM
 	std::cout << "Flat QASM: \n" << qasm << "\n";
 	return std::make_shared<GraphIR>();
 }
