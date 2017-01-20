@@ -35,11 +35,8 @@
 #include "AbstractFactory.hpp"
 #include "Compiler.hpp"
 
-BOOST_AUTO_TEST_CASE(checkScaffoldCompiler) {
-	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
-	BOOST_VERIFY(compiler);
-
-	const std::string src("__qpu__ teleport () {\n"
+// Just some dummy quantum code...
+const std::string src("__qpu__ teleport () {\n"
 						"   qbit qs[3];\n"
 						"   cbit cs[2];\n"
 						"   H(qs[1]);\n"
@@ -48,13 +45,13 @@ BOOST_AUTO_TEST_CASE(checkScaffoldCompiler) {
 						"   H(qs[0]);\n"
 						"   cs[0] = MeasZ(qs[0]);\n"
 						"   cs[1] = MeasZ(qs[1]);\n"
-//						"   if(cs[0]) {\n"
-//						"      X(qs[2]);\n"
-//						"   }\n"
-//						"   if(cs[1]) {\n"
-//						"      Z(qs[2]);\n"
-//						"   }\n"
 						"}\n");
 
-	compiler->compile(src);
+BOOST_AUTO_TEST_CASE(checkScaffoldCompiler) {
+	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
+	BOOST_VERIFY(compiler);
+	auto ir = compiler->compile(src);
+	BOOST_VERIFY(ir);
+
+	// Run some tests on the IR
 }
