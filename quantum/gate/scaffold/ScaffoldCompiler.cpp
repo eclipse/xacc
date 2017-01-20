@@ -74,7 +74,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// Generate a GraphIR instance, ie a graph
 	// tensor references making up this QASM
 	std::cout << "Flat QASM: \n" << qasm << "\n";
-	return std::make_shared<GraphIR>();
+//return std::make_shared<GraphIR>();
 }
 
 } // end namespace quantum
