@@ -37,11 +37,7 @@
 namespace xacc {
 
 template<typename DerivedGraph>
-class GraphIR: public IR {
-
-protected:
-
-	DerivedGraph graph;
+class GraphIR : public IR {
 
 public:
 

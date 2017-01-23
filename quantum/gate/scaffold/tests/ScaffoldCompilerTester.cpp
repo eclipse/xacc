@@ -102,5 +102,4 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 
 	// Scaffold decomposes Rz into H and T gates.
 	BOOST_VERIFY(graphir->order() > 1400);
-
 }
