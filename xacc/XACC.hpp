@@ -31,18 +31,15 @@
 #ifndef XACC_XACC_HPP_
 #define XACC_XACC_HPP_
 
-
-#include "Program.hpp"
+#include "Accelerator.hpp"
 
 namespace xacc {
 
-std::shared_ptr<xacc::Program> createProgram(std::string src, Accelerator& acc,
-		std::string compileArgs) {
+std::vector<IRTransformation> getAcceleratorIndependentTransformations(
+		Accelerator::AcceleratorType& accType) {
+	std::vector<IRTransformation> transformations;
 
-	std::shared_ptr<xacc::Program> program;
-
-	return program;
-
+	return transformations;
 }
 
 }

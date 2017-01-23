@@ -2,6 +2,7 @@
 #include "GraphIR.hpp"
 #include <regex>
 #include "ScaffCCAPI.hpp"
+#include "QasmToGraph.hpp"
 
 namespace xacc {
 
@@ -36,6 +37,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// so that we can interact with a locally installed
 	// scaffcc executable
 	scaffold::ScaffCCAPI scaffcc;
+	using ScaffoldGraphIR = GraphIR<Graph<CircuitNode>>;
 
 	// Compile the source code and return the QASM form
 	// This will throw if it fails.
@@ -44,7 +46,15 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// Generate a GraphIR instance, ie a graph
 	// tensor references making up this QASM
 	std::cout << "Flat QASM: \n" << qasm << "\n";
-	return std::make_shared<GraphIR>();
+
+	// Get the Qasm as a Graph...
+	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
+
+	// Create a GraphIR instance from that graph
+	auto graphIR = std::make_shared<ScaffoldGraphIR>(circuitGraph);
+
+	// Return the IR.
+	return graphIR;
 }
 
 } // end namespace quantum

@@ -34,27 +34,73 @@
 #include <boost/test/included/unit_test.hpp>
 #include "AbstractFactory.hpp"
 #include "Compiler.hpp"
+#include "QasmToGraph.hpp"
+#include "GraphIR.hpp"
+#include "ScaffoldCompiler.hpp"
 
-BOOST_AUTO_TEST_CASE(checkScaffoldCompiler) {
+using namespace qci::common;
+using namespace xacc::quantum;
+
+BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
+	using GraphType = Graph<CircuitNode>;
+
 	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
 	BOOST_VERIFY(compiler);
 
-	const std::string src("__qpu__ teleport () {\n"
-						"   qbit qs[3];\n"
-						"   cbit cs[2];\n"
-						"   H(qs[1]);\n"
-						"   CNOT(qs[1],qs[2]);\n"
-						"   CNOT(qs[0], qs[1]);\n"
+	const std::string src("__qpu__ eprCreation () {\n"
+						"   qbit qs[2];\n"
 						"   H(qs[0]);\n"
-						"   cs[0] = MeasZ(qs[0]);\n"
-						"   cs[1] = MeasZ(qs[1]);\n"
-//						"   if(cs[0]) {\n"
-//						"      X(qs[2]);\n"
-//						"   }\n"
-//						"   if(cs[1]) {\n"
-//						"      Z(qs[2]);\n"
-//						"   }\n"
+						"   CNOT(qs[0],qs[1]);\n"
 						"}\n");
 
-	compiler->compile(src);
+	auto ir = compiler->compile(src);
+	BOOST_VERIFY(ir);
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+	BOOST_VERIFY(graphir);
+
+	// The above code should produce a graph
+	// with 3 nodes (initial qubits state, Hadamard, and CNot),
+	// with 3 edges (q0 lifeline to H, q0 lifeline from H to CNot,
+	// and q1 lifeline to CNot)
+	BOOST_VERIFY(graphir->order() == 3);
+	BOOST_VERIFY(graphir->size() == 3);
+
+}
+
+BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
+	using GraphType = Graph<CircuitNode>;
+
+	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
+	BOOST_VERIFY(compiler);
+
+	const std::string src("__qpu__ threeBitQFT () {\n"
+						"   qbit q[3];\n"
+						"   H(q[0]);\n"
+						"   T(q[0]);\n"
+						"   Rz(q[1],3.1415 / 4.0);\n"
+						"   CNOT(q[1], q[0]);\n"
+						"   Rz(q[1], -1.0 * 3.1415 / 4.0);\n"
+						"   CNOT(q[1], q[0]);\n"
+						"   Rz(q[0], 3.1415 / 8.0);\n"
+						"   Rz(q[2], 3.1415 / 8.0);\n"
+						"   CNOT(q[2], q[0]);\n"
+						"   Rz(q[2], -1.0 * 3.1415 / 4.0);\n"
+						"   CNOT(q[2], q[0]);\n"
+						"   H(q[1]);\n"
+						"   T(q[1]);\n"
+						"   Rz(q[2],3.1415 / 4.0);\n"
+						"   CNOT(q[2], q[1]);\n"
+						"   Rz(q[2], -1.0 * 3.1415 / 4.0);\n"
+						"   CNOT(q[2], q[1]);\n"
+						"   H(q[2]);\n"
+						"}\n");
+
+	auto ir = compiler->compile(src);
+	BOOST_VERIFY(ir);
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+	BOOST_VERIFY(graphir);
+
+	// Scaffold decomposes Rz into H and T gates.
+	BOOST_VERIFY(graphir->order() > 1400);
+
 }

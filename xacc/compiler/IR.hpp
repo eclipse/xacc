@@ -32,7 +32,6 @@
 #define XACC_COMPILER_IR_HPP_
 
 #include "AbstractFactory.hpp"
-#include "QCIError.hpp"
 
 namespace xacc {
 

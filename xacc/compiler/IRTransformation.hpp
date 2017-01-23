@@ -31,15 +31,14 @@
 #ifndef XACC_COMPILER_IRTRANSLATION_HPP_
 #define XACC_COMPILER_IRTRANSLATION_HPP_
 
-#include "AbstractFactory.hpp"
-#include "QCIError.hpp"
+#include "IR.hpp"
 
 namespace xacc {
 
-class IRTranslation {
+class IRTransformation {
 public:
-	virtual IR * translate(IR * ir) = 0;
-	virtual ~IRTranslation() {}
+	virtual void transform(IR& ir) = 0;
+	virtual ~IRTransformation() {}
 };
 
 }

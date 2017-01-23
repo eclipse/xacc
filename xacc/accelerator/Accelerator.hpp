@@ -32,12 +32,18 @@
 #define XACC_ACCELERATOR_HPP_
 
 #include <string>
+#include "IRTransformation.hpp"
 
 namespace xacc {
 
 class Accelerator {
 
 public:
+	enum AcceleratorType { qpu_gate, qpu_aqc, npu };
+
+	virtual AcceleratorType getType() = 0;
+
+	virtual std::vector<IRTransformation> getIRTransformations() = 0;
 
 	template<typename T>
 	T executeKernel(std::string accArgs) {

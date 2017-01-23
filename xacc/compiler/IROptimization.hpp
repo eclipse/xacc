@@ -31,14 +31,13 @@
 #ifndef XACC_COMPILER_IROPTIMIZATION_HPP_
 #define XACC_COMPILER_IROPTIMIZATION_HPP_
 
-#include "AbstractFactory.hpp"
-#include "QCIError.hpp"
+#include "IR.hpp"
 
 namespace xacc {
 
 class IROptimization {
 public:
-	virtual IR * optimize(IR * ir) = 0;
+	virtual void optimize(IR& ir) = 0;
 	virtual ~IROptimization() {}
 };
 

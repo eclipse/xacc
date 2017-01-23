@@ -42,6 +42,7 @@
 #include <algorithm>
 #include "QCIError.hpp"
 #include "XaccUtils.hpp"
+#include "XACC.hpp"
 
 using namespace boost::program_options;
 using namespace qci::common;
@@ -57,14 +58,15 @@ protected:
 
 	std::string src;
 
-	Accelerator accelerator;
+	std::shared_ptr<Accelerator> accelerator;
 
 	std::shared_ptr<options_description> compilerOptions;
 
 public:
 
-	Program(Accelerator& acc, const std::string& sourceFile) :
-			accelerator(acc), src(sourceFile) {
+	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
+			src(sourceFile) {
+		accelerator = std::move(acc);
 		compilerOptions = std::make_shared<options_description>(
 				"XACC Compiler Options");
 		compilerOptions->add_options()("help", "Help Message")("compiler",
@@ -103,8 +105,22 @@ public:
 		}
 
 		// Execute IR Translations and Optimizations
+		// FIXME GET LIST OF TRANSFORMATION FROM
+		auto acceleratorType = accelerator->getType();
+		auto defaultTransforms = getAcceleratorIndependentTransformations(acceleratorType);
+		auto accDepTransforms = accelerator->getIRTransformations();
+
+		for (IRTransformation& t : defaultTransforms) {
+			t.transform(*ir.get());
+		}
+
+		for (IRTransformation& t : accDepTransforms) {
+			t.transform(*ir.get());
+		}
 
 		// Create Kernel from IR
+
+		return;
 	}
 
 	void getKernel(std::string& name) {}

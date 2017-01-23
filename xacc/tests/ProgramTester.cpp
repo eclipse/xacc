@@ -38,6 +38,14 @@ using namespace xacc;
 
 class FakeAccelerator : public Accelerator {
 
+public:
+
+	virtual AcceleratorType getType() { return qpu_gate; }
+
+	virtual std::vector<IRTransformation> getIRTransformations() {std::vector<IRTransformation> v; return v;}
+
+	virtual ~FakeAccelerator() {}
+
 };
 
 class FakeIR: public IR {
@@ -79,7 +87,8 @@ BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 					"		}"
 					"}");
 
-	FakeAccelerator acc;
+	auto acc = std::make_shared<FakeAccelerator>();
+
 	Program prog(acc, src);
 	prog.build("--compiler dummy");
 
