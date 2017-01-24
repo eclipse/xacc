@@ -65,6 +65,8 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 	BOOST_VERIFY(graphir->order() == 4);
 	BOOST_VERIFY(graphir->size() == 5);
 
+	graphir->persist(std::cout);
+
 }
 
 BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
@@ -99,4 +101,6 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 	// nodes and 17 edges...
 	BOOST_VERIFY(graphir->order() == 12);
 	BOOST_VERIFY(graphir->size() == 17);
+
+	graphir->persist(std::cout);
 }

@@ -62,7 +62,7 @@ public:
 	}
 
 	virtual void persist(std::ostream& outStream) {
-
+		graph.write(outStream);
 	}
 
 };

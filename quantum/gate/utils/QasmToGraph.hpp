@@ -63,7 +63,7 @@ const boost::unordered_map<std::string, SupportedGates> strToGate =
 const boost::unordered_map<SupportedGates, std::string> gateToStr =
 		map_list_of(H, "h")(CNot, "cnot")(C_Z, "c_z")(C_X, "c_x")(Measure,
 				"measure")(X, "x")(Y, "y")(Z, "z")(T, "t")(S, "s")(ZZ, "zz")(SS,
-						"ss")(Swap, "swap")(Toffoli, "toffoli");
+						"ss")(Swap, "swap")(Toffoli, "toffoli")(FinalState, "FinalState")(InitialState, "InitialState");
 /**
  * CircuitNode subclasses QCIVertex to provide the following
  * parameters in the given order:
@@ -71,8 +71,16 @@ const boost::unordered_map<SupportedGates, std::string> gateToStr =
  * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
  * Qubit Ids that the gate acts on
  */
-class CircuitNode: public qci::common::QCIVertex<SupportedGates, int, int,
+class CircuitNode: public qci::common::QCIVertex<std::string, int, int,
 		std::vector<int>> {
+public:
+	CircuitNode() :
+			QCIVertex() {
+		propertyNames[0] = "Gate";
+		propertyNames[1] = "Circuit Layer";
+		propertyNames[2] = "Gate Vertex Id";
+		propertyNames[3] = "Gate Acting Qubits";
+	}
 };
 
 /**
@@ -103,7 +111,7 @@ public:
 		std::regex newLineDelim("\n"), spaceDelim(" ");
 		std::regex qubitDeclarations("\\s*qubit\\s*\\w+");
 		std::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
-		int nQubits = 0, qbitId = 0, layer = 0, gateId = 1;
+		int nQubits = 0, qbitId = 0, layer = 1, gateId = 1;
 		qasmLines = {first, last};
 
 		// Let's now loop over the qubit declarations,
@@ -128,7 +136,7 @@ public:
 		// First create a starting node for the initial
 		// wave function - it should have nQubits outgoing
 		// edges
-		graph.addVertex(SupportedGates::InitialState, 0, 0, allQbitIds);
+		graph.addVertex(gateToStr.at(SupportedGates::InitialState), 0, 0, allQbitIds);
 
 		std::vector<CircuitNode> gateOperations;
 		for (auto line : qasmLines) {
@@ -147,8 +155,8 @@ public:
 				auto g = boost::to_lower_copy(gateCommand[0]);
 				boost::trim(g);
 				if (g == "measz") g = "measure";
-				auto s = strToGate.at(g);
-				std::get<0>(node.properties) = s;
+//				auto s = strToGate.at(g);
+				std::get<0>(node.properties) = g;
 
 				// If not a 2 qubit gate, and if the acting
 				// qubit is different than the last one, then
@@ -188,7 +196,7 @@ public:
 		}
 
 		// Add a final layer for the graph sink
-		graph.addVertex(SupportedGates::FinalState, layer+1, gateId, allQbitIds);
+		graph.addVertex(gateToStr.at(SupportedGates::FinalState), layer+1, gateId, allQbitIds);
 
 		// Set how many layers are in this circuit
 		int maxLayer = layer;
@@ -196,7 +204,7 @@ public:
 		// Print info...
 		for (auto cn : gateOperations) {
 			std::cout << "Gate Operation: \n";
-			std::cout << "\tName: " << gateToStr.at(std::get<0>(cn.properties)) << "\n";
+			std::cout << "\tName: " << std::get<0>(cn.properties) << "\n";
 			std::cout << "\tLayer: " << std::get<1>(cn.properties) << "\n";
 			std::cout << "\tGate Vertex Id: " << std::get<2>(cn.properties) << "\n";
 			std::cout << "\tActing Qubits: ";
@@ -245,7 +253,7 @@ public:
 			int nQubitsActing = std::get<3>(gate.properties).size();
 			int gateDegree = graph.degree(currentGateId);
 			for (int j = gateDegree; j < 2 * nQubitsActing; j++) {
-				graph.addEdge(gateId, gateId);
+				graph.addEdge(currentGateId, gateId);
 				counter++;
 			}
 
@@ -297,8 +305,7 @@ private:
 		} else if (!noGateAtQOnL) {
 			return true;
 		} else if (!gates.empty()
-				&& (gateToStr.at(
-						std::get<0>(gates[gates.size() - 1].properties))
+				&& (std::get<0>(gates[gates.size() - 1].properties)
 						== "measure") && g != "measure") {
 			return true;
 		}
