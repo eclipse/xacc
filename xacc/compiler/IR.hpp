@@ -32,6 +32,7 @@
 #define XACC_COMPILER_IR_HPP_
 
 #include "AbstractFactory.hpp"
+#include <ostream>
 
 namespace xacc {
 
@@ -41,6 +42,7 @@ namespace xacc {
 class IR {
 public:
 	virtual std::string toString() = 0;
+	virtual void persist(std::ostream& outStream) = 0;
 	virtual ~IR() {}
 };
 

@@ -59,11 +59,11 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 	BOOST_VERIFY(graphir);
 
 	// The above code should produce a graph
-	// with 3 nodes (initial qubits state, Hadamard, and CNot),
+	// with 4 nodes (initial qubits state, Hadamard, and CNot, sink final state),
 	// with 3 edges (q0 lifeline to H, q0 lifeline from H to CNot,
 	// and q1 lifeline to CNot)
-	BOOST_VERIFY(graphir->order() == 3);
-	BOOST_VERIFY(graphir->size() == 3);
+	BOOST_VERIFY(graphir->order() == 4);
+	BOOST_VERIFY(graphir->size() == 5);
 
 }
 
@@ -73,26 +73,21 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
 	BOOST_VERIFY(compiler);
 
-	const std::string src("__qpu__ threeBitQFT () {\n"
+	const std::string src("__qpu__ teleport () {\n"
 						"   qbit q[3];\n"
-						"   H(q[0]);\n"
-						"   T(q[0]);\n"
-						"   Rz(q[1],3.1415 / 4.0);\n"
-						"   CNOT(q[1], q[0]);\n"
-						"   Rz(q[1], -1.0 * 3.1415 / 4.0);\n"
-						"   CNOT(q[1], q[0]);\n"
-						"   Rz(q[0], 3.1415 / 8.0);\n"
-						"   Rz(q[2], 3.1415 / 8.0);\n"
-						"   CNOT(q[2], q[0]);\n"
-						"   Rz(q[2], -1.0 * 3.1415 / 4.0);\n"
-						"   CNOT(q[2], q[0]);\n"
+						"   cbit c[2];\n"
 						"   H(q[1]);\n"
-						"   T(q[1]);\n"
-						"   Rz(q[2],3.1415 / 4.0);\n"
-						"   CNOT(q[2], q[1]);\n"
-						"   Rz(q[2], -1.0 * 3.1415 / 4.0);\n"
+						"   CNOT(q[1],q[2]);\n"
+						"   CNOT(q[0],q[1]);\n"
+						"   H(q[0]);\n"
+						"   MeasZ(q[0]);\n"
+						"   MeasZ(q[1]);\n"
+						"   // Cz\n"
+						"   H(q[2]);\n"
 						"   CNOT(q[2], q[1]);\n"
 						"   H(q[2]);\n"
+						"   // CX = CNOT\n"
+						"   CNOT(q[2], q[0]);\n"
 						"}\n");
 
 	auto ir = compiler->compile(src);
@@ -100,6 +95,8 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
 	BOOST_VERIFY(graphir);
 
-	// Scaffold decomposes Rz into H and T gates.
-	BOOST_VERIFY(graphir->order() > 1400);
+	// I drew this out on paper, we should have 12
+	// nodes and 17 edges...
+	BOOST_VERIFY(graphir->order() == 12);
+	BOOST_VERIFY(graphir->size() == 17);
 }

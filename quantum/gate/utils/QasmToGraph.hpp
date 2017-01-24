@@ -42,32 +42,59 @@ namespace quantum {
 
 using boost::assign::map_list_of;
 
+/**
+ * Enumeration of gates we support
+ */
 enum SupportedGates {
-	H, CNot, C_Z, C_X, Measure, X, Y, Z, T, S, ZZ, SS, Swap, Toffoli, InitialState
+	H, CNot, C_Z, C_X, Measure, X, Y, Z, T, S, ZZ, SS, Swap, Toffoli, InitialState, FinalState
 };
 
+/**
+ * Create a string to SupportedGates mapping
+ */
 const boost::unordered_map<std::string, SupportedGates> strToGate =
 		map_list_of("h", H)("cnot", CNot)("c_z", C_Z)("c_x", C_X)("measure",
 				Measure)("x", X)("y", Y)("z", Z)("t", T)("s", S)("zz", ZZ)("ss",
 				SS)("swap", Swap)("toffoli", Toffoli);
 
+/**
+ * Create a SupportedGates to string mapping
+ */
 const boost::unordered_map<SupportedGates, std::string> gateToStr =
 		map_list_of(H, "h")(CNot, "cnot")(C_Z, "c_z")(C_X, "c_x")(Measure,
 				"measure")(X, "x")(Y, "y")(Z, "z")(T, "t")(S, "s")(ZZ, "zz")(SS,
 						"ss")(Swap, "swap")(Toffoli, "toffoli");
 /**
- * Params - gate name, layer (ie time sequence), vertex id,
- * qubit ids that gate acts on
+ * CircuitNode subclasses QCIVertex to provide the following
+ * parameters in the given order:
+ *
+ * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
+ * Qubit Ids that the gate acts on
  */
-class CircuitNode : public qci::common::QCIVertex<SupportedGates, int, int, std::vector<int>> {};
+class CircuitNode: public qci::common::QCIVertex<SupportedGates, int, int,
+		std::vector<int>> {
+};
 
+/**
+ * The QasmToGraph class provides a static
+ * utility method that maps a flat qasm string
+ * to a QCI Common Graph data structure.
+ */
 class QasmToGraph {
 
 public:
 
+	/**
+	 * Create a Graph data structure that models a quantum
+	 * circuit from the provided qasm string.
+	 *
+	 * @param flatQasmStr The qasm to be converted to a Graph.
+	 * @return graph Graph modeling a quantum circuit.
+	 */
 	static qci::common::Graph<CircuitNode> getCircuitGraph(
 			const std::string& flatQasmStr) {
 
+		// Local Declarations
 		using namespace qci::common;
 		Graph<CircuitNode> graph;
 		std::map<std::string, int> qubitVarNameToId;
@@ -76,7 +103,7 @@ public:
 		std::regex newLineDelim("\n"), spaceDelim(" ");
 		std::regex qubitDeclarations("\\s*qubit\\s*\\w+");
 		std::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
-		int nQubits = 0, qbitId = 0, layer = 1, gateId = 1;
+		int nQubits = 0, qbitId = 0, layer = 0, gateId = 1;
 		qasmLines = {first, last};
 
 		// Let's now loop over the qubit declarations,
@@ -93,11 +120,10 @@ public:
 			qbitId++;
 		}
 
+		// Set the number of qubits
 		nQubits = qubitVarNameToId.size();
 
 		std::cout << "Number of Qubits is " << nQubits << std::endl;
-
-		// Fill the Graph...
 
 		// First create a starting node for the initial
 		// wave function - it should have nQubits outgoing
@@ -107,31 +133,39 @@ public:
 		std::vector<CircuitNode> gateOperations;
 		for (auto line : qasmLines) {
 			// If this is a gate line...
-			if (!boost::contains(line, "qubit")) {
-				std::sregex_token_iterator first { line.begin(),
-						line.end(), spaceDelim, -1 }, last;
-				std::vector<std::string> gateCommand = {first, last};
-
-				// If we have a > 2 qubit gate, make a new layer
-				if (boost::contains(gateCommand[1], ",")) {
-					layer++;
-				}
+			if (!boost::contains(line, "qubit") && !boost::contains(line, "cbit")) {
 
 				// Create a new CircuitNode
 				CircuitNode node;
 
+				// Split the current qasm command at the spaces
+				std::sregex_token_iterator first { line.begin(),
+						line.end(), spaceDelim, -1 }, last;
+				std::vector<std::string> gateCommand = {first, last};
+
 				// Set the gate as a lowercase gate name string
 				auto g = boost::to_lower_copy(gateCommand[0]);
 				boost::trim(g);
+				if (g == "measz") g = "measure";
 				auto s = strToGate.at(g);
 				std::get<0>(node.properties) = s;
+
+				// If not a 2 qubit gate, and if the acting
+				// qubit is different than the last one, then
+				// keep the layer the same, otherwise increment
+				if (incrementLayer(gateCommand, qubitVarNameToId,
+						gateOperations, layer)) {
+					layer++;
+				}
 
 				// Set the current layer
 				std::get<1>(node.properties) = layer;
 
+				// Set the gate vertex id
 				std::get<2>(node.properties) = gateId;
 				gateId++;
 
+				// Set the qubits this gate acts on
 				std::vector<int> actingQubits;
 				if (!boost::contains(gateCommand[1], ",")) {
 					actingQubits.push_back(qubitVarNameToId[gateCommand[1]]);
@@ -146,10 +180,15 @@ public:
 				// Set the acting qubits
 				std::get<3>(node.properties) = actingQubits;
 
+				// Add this gate to the local vector
+				// and to the graph
 				gateOperations.push_back(node);
 				graph.addVertex(node);
 			}
 		}
+
+		// Add a final layer for the graph sink
+		graph.addVertex(SupportedGates::FinalState, layer+1, gateId, allQbitIds);
 
 		// Set how many layers are in this circuit
 		int maxLayer = layer;
@@ -163,11 +202,7 @@ public:
 			std::cout << "\tActing Qubits: ";
 			std::vector<int> qubits = std::get<3>(cn.properties);
 			for (auto v : qubits) {
-				if (!(v == *qubits.end())) {
-					std::cout << v << ", ";
-				} else {
-					std::cout << v;
-				}
+				std::cout << v << ", ";
 			}
 			std::cout << "\n\n";
 		}
@@ -178,19 +213,8 @@ public:
 		for (int i = 0 ; i < nQubits; i++) {
 			qubitToCurrentGateId[i] = 0;
 		}
-//		std::vector<CircuitNode> layerOneGates;
-//		std::copy_if(gateOperations.begin(), gateOperations.end(),
-//				std::back_inserter(layerOneGates),
-//				[](const CircuitNode& c) {return std::get<1>(c.properties) == 1;});
-//		for (auto i : layerOneGates) {
-//			std::vector<int> actingQubits = std::get<3>(i.properties);
-//			for (auto qubit : actingQubits) {
-//				graph.addEdge(0, std::get<2>(i.properties));
-//				qubitToCurrentGateId[qubit] = std::get<2>(i.properties);
-//			}
-//		}
 
-		int currentLayer = 1;
+		int currentLayer = 0;
 		while (currentLayer <= maxLayer) {
 			std::vector<CircuitNode> currentLayerGates;
 			std::copy_if(gateOperations.begin(), gateOperations.end(),
@@ -209,13 +233,78 @@ public:
 			currentLayer++;
 		}
 
+		// Add a graph sink - ie a final node representing
+		// the final system state
+		int counter = 0;
 
-		// Then we can go through and assign edges
-		// to all vertices
+		// Walk the list downward, skip first node since is
+		// the graph sink
+		for (int i = gateOperations.size() - 1; i >= 0; i--) {
+			auto gate = gateOperations[i];
+			int currentGateId = std::get<2>(gate.properties);
+			int nQubitsActing = std::get<3>(gate.properties).size();
+			int gateDegree = graph.degree(currentGateId);
+			for (int j = gateDegree; j < 2 * nQubitsActing; j++) {
+				graph.addEdge(gateId, gateId);
+				counter++;
+			}
+
+			// Break early if we can...
+			if (counter == nQubits)
+				break;
+		}
 
 		return graph;
 	}
 
+private:
+
+	/**
+	 * This method determines if a new layer should be added to the circuit.
+	 *
+	 * @param gateCommand
+	 * @param qubitVarNameToId
+	 * @param gates
+	 * @param currentLayer
+	 * @return
+	 */
+	static bool incrementLayer(const std::vector<std::string>& gateCommand,
+			std::map<std::string, int>& qubitVarNameToId,
+			const std::vector<CircuitNode>& gates, const int& currentLayer) {
+
+		bool oneQubitGate = !boost::contains(gateCommand[1], ","), noGateAtQOnL = true;
+		auto g = boost::to_lower_copy(gateCommand[0]);
+		boost::trim(g);
+		if (g == "measz") g = "measure";
+
+
+		std::vector<CircuitNode> thisLayerGates;
+		std::copy_if(gates.begin(), gates.end(),
+				std::back_inserter(thisLayerGates),
+				[&](const CircuitNode& c) {return std::get<1>(c.properties) == currentLayer;});
+
+		for (auto layerGate : thisLayerGates) {
+			std::vector<int> qubits = std::get<3>(layerGate.properties);
+			for (auto q : qubits) {
+				if (qubitVarNameToId[gateCommand[1]] == q) {
+					noGateAtQOnL = false;
+				}
+			}
+		}
+
+		if (!oneQubitGate) {
+			return true;
+		} else if (!noGateAtQOnL) {
+			return true;
+		} else if (!gates.empty()
+				&& (gateToStr.at(
+						std::get<0>(gates[gates.size() - 1].properties))
+						== "measure") && g != "measure") {
+			return true;
+		}
+
+		return false;
+	}
 };
 }
 }

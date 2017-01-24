@@ -41,6 +41,7 @@ public:
 	FakeIR() {
 	}
 	virtual std::string toString() { return std::string();}
+	virtual void persist(std::ostream& stream) {}
 };
 class FakeCompiler: public Compiler<FakeCompiler> {
 	friend Compiler<FakeCompiler>;

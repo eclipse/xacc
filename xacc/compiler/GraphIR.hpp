@@ -31,7 +31,7 @@
 #ifndef QUANTUM_GRAPHIR_HPP_
 #define QUANTUM_GRAPHIR_HPP_
 
-#include "Compiler.hpp"
+#include "IR.hpp"
 #include "Graph.hpp"
 
 namespace xacc {
@@ -59,6 +59,10 @@ public:
 
 	virtual std::string toString() {
 		return "";
+	}
+
+	virtual void persist(std::ostream& outStream) {
+
 	}
 
 };

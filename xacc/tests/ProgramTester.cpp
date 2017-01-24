@@ -53,7 +53,9 @@ public:
 	FakeIR() {
 	}
 	virtual std::string toString() { return std::string();}
+	virtual void persist(std::ostream& stream) {}
 };
+
 class DummyCompiler : public Compiler<DummyCompiler> {
 public:
 	virtual std::shared_ptr<IR> compile() {
