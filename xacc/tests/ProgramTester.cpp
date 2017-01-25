@@ -54,6 +54,8 @@ public:
 	}
 	virtual std::string toString() { return std::string();}
 	virtual void persist(std::ostream& stream) {}
+	virtual void read(std::istream& inStream) {}
+
 };
 
 class DummyCompiler : public Compiler<DummyCompiler> {

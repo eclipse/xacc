@@ -70,7 +70,7 @@ int main (int argc, char** argv) {
 
 	auto ibm_qpu = std::make_shared<IBM5Qubit>();
 	xacc::Program quantumProgram(ibm_qpu, src);
-	quantumProgram.build("--compiler scaffold --writeIR teleport.xaccir");
+	quantumProgram.build("--compiler scaffold --writeIR teleport.xir");
 
 	// FIXME Get Kernel, execute, get result
 

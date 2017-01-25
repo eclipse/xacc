@@ -65,6 +65,11 @@ public:
 		graph.write(outStream);
 	}
 
+	virtual void read(std::istream& inStream) {
+
+	}
+
+
 };
 }
 
