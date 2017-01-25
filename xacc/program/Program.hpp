@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the <organization> nor the
+ *   * Neither the name of the xacc nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -43,6 +43,7 @@
 #include "QCIError.hpp"
 #include "XaccUtils.hpp"
 #include "XACC.hpp"
+#include <fstream>
 
 using namespace boost::program_options;
 using namespace qci::common;
@@ -50,20 +51,44 @@ using namespace qci::common;
 namespace xacc {
 
 /**
- *
+ * The Program is  the main entrypoint for the XACC
+ * API. Users with accelerator kernels must construct a
+ * valid Program to be compiled and executed on the
+ * attached accelerator. Programs must be given the
+ * Accelerator reference to be used and kernel source
+ * code at construction time.
  */
 class Program {
 
 protected:
 
+	/**
+	 * Reference to the source accelerator
+	 * kernel code to be compiled and executed
+	 */
 	std::string src;
 
+	/**
+	 * Reference to the attached Accelerator to
+	 * use in this compilation and execution
+	 */
 	std::shared_ptr<Accelerator> accelerator;
 
+	/**
+	 * Reference to a set of compiler command
+	 * line options.
+	 */
 	std::shared_ptr<options_description> compilerOptions;
 
 public:
 
+	/**
+	 * The Constructor, takes the Accelerator
+	 * to execute on, and the source to compile and execute
+	 *
+	 * @param acc Attached Accelerator to execute
+	 * @param sourceFile The kernel source code
+	 */
 	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
 			src(sourceFile) {
 		accelerator = std::move(acc);
@@ -71,9 +96,18 @@ public:
 				"XACC Compiler Options");
 		compilerOptions->add_options()("help", "Help Message")("compiler",
 				value<std::string>()->default_value("scaffold"),
-				"Indicate the compiler to be used.");
+				"Indicate the compiler to be used.")
+				("writeIR", value<std::string>(), "Persist generated IR to provided file name.");
 	}
 
+	/**
+	 * Execute the compilation mechanism on the provided program
+	 * source kernel code to produce XACC IR that can be executed
+	 * on the attached Accelerator.
+	 *
+	 * @param compilerArgStr Arguments for the compiler's execution
+	 * @param runtimeArgs Runtime values for kernel arguments
+	 */
 	template<typename ... RuntimeArgs>
 	void build(const std::string& compilerArgStr, RuntimeArgs ... runtimeArgs) {
 
@@ -104,21 +138,26 @@ public:
 			QCIError("Bad source string or something.\n");
 		}
 
+		// Write the IR to file if the user requests it
+		if (compileParameters.count("writeIR")) {
+			auto fileStr = compileParameters["writeIR"].as<std::string>();
+			std::ofstream ostr(fileStr);
+			ir->persist(ostr);
+		}
+
 		// Execute IR Translations and Optimizations
 		// FIXME GET LIST OF TRANSFORMATION FROM
 		auto acceleratorType = accelerator->getType();
 		auto defaultTransforms = getAcceleratorIndependentTransformations(acceleratorType);
 		auto accDepTransforms = accelerator->getIRTransformations();
-
 		for (IRTransformation& t : defaultTransforms) {
 			t.transform(*ir.get());
 		}
-
 		for (IRTransformation& t : accDepTransforms) {
 			t.transform(*ir.get());
 		}
 
-		// Create Kernel from IR
+		// FIXME Create Kernel from IR
 
 		return;
 	}

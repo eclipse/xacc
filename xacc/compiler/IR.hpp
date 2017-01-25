@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the <organization> nor the
+ *   * Neither the name of the xacc nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -32,7 +32,7 @@
 #define XACC_COMPILER_IR_HPP_
 
 #include "AbstractFactory.hpp"
-#include <ostream>
+#include <iostream>
 
 namespace xacc {
 
@@ -43,6 +43,7 @@ class IR {
 public:
 	virtual std::string toString() = 0;
 	virtual void persist(std::ostream& outStream) = 0;
+	virtual void read(std::istream& inStream) = 0;
 	virtual ~IR() {}
 };
 

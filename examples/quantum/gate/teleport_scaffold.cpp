@@ -28,20 +28,54 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
+#include "Program.hpp"
 
-set (PACKAGE_NAME "Scaffold XACC Runtime")
-set (PACKAGE_DESCIPTION "Scaffold XACC Programming Framework")
-set (LIBRARY_NAME xacc-scaffold)
+/**
+ * FIXME For now, create a fake accelerator
+ * This will later come from QVM
+ */
+class IBM5Qubit: public xacc::Accelerator {
+public:
+	virtual AcceleratorType getType() {
+		return AcceleratorType::qpu_gate;
+	}
+	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
+		std::vector<xacc::IRTransformation> v;
+		return v;
+	}
+	virtual ~IBM5Qubit() {
+	}
+};
 
-file (GLOB HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src("__qpu__ teleport () {\n"
+						"   qbit q[3];\n"
+						"   cbit c[2];\n"
+						"   H(q[1]);\n"
+						"   CNOT(q[1],q[2]);\n"
+						"   CNOT(q[0],q[1]);\n"
+						"   H(q[0]);\n"
+						"   MeasZ(q[0]);\n"
+						"   MeasZ(q[1]);\n"
+						"   // cZ\n"
+						"   H(q[2]);\n"
+						"   CNOT(q[2], q[1]);\n"
+						"   H(q[2]);\n"
+						"   // cX = CNOT\n"
+						"   CNOT(q[2], q[0]);\n"
+						"}\n");
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+int main (int argc, char** argv) {
 
-install(FILES ${HEADERS} DESTINATION include)
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+	auto ibm_qpu = std::make_shared<IBM5Qubit>();
+	xacc::Program quantumProgram(ibm_qpu, src);
+	quantumProgram.build("--compiler scaffold --writeIR teleport.xaccir");
 
-# Gather tests
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/../utils" "${LIBRARY_NAME}")
+	// FIXME Get Kernel, execute, get result
+
+	return 0;
+}
+
+
 
