@@ -4,16 +4,7 @@ services:
   - docker
 
 before_install:
-  - docker pull hello-world
-  - docker run
-        --detach --tty
-        --name=test-machine
-        --volume ${TRAVIS_BUILD_DIR}:/scratch/source/xacc
-        --env TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
-        --env CTEST_BUILD_NAME="$(curl -s https://raw.githubusercontent.com/ORNL-CEES/Cap/master/docker/get_build_info.sh | bash)"
-        hello-world
+  - docker build -t xacc/xacc-fedora -f docker/fedora/Dockerfile
   - docker ps -a
   - env
 
-script:
-  - echo "Hello World"
