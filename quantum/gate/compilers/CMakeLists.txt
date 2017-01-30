@@ -28,13 +28,9 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-
-add_subdirectory(compilers)
-add_subdirectory(accelerators)
-add_subdirectory(utils)
+add_subdirectory(scaffold)
 
 # Gather tests
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
+#file (GLOB test_files tests/*.cpp)
+#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
 

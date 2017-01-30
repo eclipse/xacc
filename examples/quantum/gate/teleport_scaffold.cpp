@@ -79,7 +79,7 @@ int main (int argc, char** argv) {
 	// Create a reference to the IBM5Qubit Accelerator
 	auto ibm_qpu = std::make_shared<IBM5Qubit>();
 
-	// Allocate some qubits...
+	// Allocate some qubits, give them a unique identifier...
 	auto qreg = ibm_qpu->allocate<xacc::quantum::Qubits<3>>("qreg");
 
 	// Construct a new Program

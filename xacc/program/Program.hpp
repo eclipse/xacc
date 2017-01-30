@@ -80,6 +80,9 @@ protected:
 	 */
 	std::shared_ptr<options_description> compilerOptions;
 
+	/**
+	 *
+	 */
 	std::shared_ptr<IR> xaccIR;
 
 public:
