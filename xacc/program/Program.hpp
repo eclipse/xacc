@@ -150,8 +150,7 @@ public:
 			xaccIR->persist(ostr);
 		}
 
-		// Execute IR Translations and Optimizations
-		// FIXME GET LIST OF TRANSFORMATION FROM
+		// Execute IR Translations
 		auto acceleratorType = accelerator->getType();
 		auto defaultTransforms = getAcceleratorIndependentTransformations(acceleratorType);
 		auto accDepTransforms = accelerator->getIRTransformations();

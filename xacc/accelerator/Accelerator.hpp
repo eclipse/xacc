@@ -57,20 +57,21 @@ public:
 	 * Reference to the number of bits
 	 */
 	static constexpr int N = Number;
+
+	/**
+	 * Return the current state of the bits
+	 * @return
+	 */
+	std::bitset<(size_t) Number> toBits() {
+		return bits;
+	}
+
 private:
 
 	/**
 	 *  The bits themselves
 	 */
 	std::bitset<(size_t)Number> bits;
-
-	/**
-	 * Return the current state of the bits
-	 * @return
-	 */
-	std::bitset<(size_t)Number> toBits() {
-		return bits;
-	}
 
 };
 
@@ -87,7 +88,7 @@ private:
  * instances that transform XACC IR to be amenable to execution
  * on the hardware.
  */
-class Accelerator {
+class Accelerator : public qci::common::QCIObject {
 
 public:
 

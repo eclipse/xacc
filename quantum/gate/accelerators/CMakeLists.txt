@@ -28,11 +28,10 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-#add_subdirectory(compilers)
-#add_subdirectory(accelerators)
-#add_subdirectory(utils)
+
+include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensor)
 
 # Gather tests
-#file (GLOB test_files tests/*.cpp)
-#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
+file (GLOB test_files tests/*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen" "${Boost_LIBRARIES}")
 
