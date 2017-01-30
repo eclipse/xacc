@@ -41,19 +41,49 @@
 using namespace qci::common;
 using namespace xacc::quantum;
 
+template<const int n>
+class FakeAccelerator: public xacc::Accelerator {
+public:
+	virtual int getAllocationSize() {
+		return n;
+	}
+
+	virtual const std::string getVariableName() {
+		return "qreg";
+	}
+	virtual AcceleratorType getType() {
+		return AcceleratorType::qpu_gate;
+	}
+	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
+		std::vector<xacc::IRTransformation> v;
+		return v;
+	}
+	virtual void execute(const std::shared_ptr<xacc::IR> ir) {
+	}
+	virtual ~FakeAccelerator() {
+	}
+
+protected:
+	bool canAllocate(const int N) {
+		return true;
+	}
+};
+
+
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 	using GraphType = Graph<CircuitNode>;
+	auto accelerator = std::make_shared<FakeAccelerator<2>>();
 
 	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
 	BOOST_VERIFY(compiler);
 
 	const std::string src("__qpu__ eprCreation () {\n"
-						"   qbit qs[2];\n"
-						"   H(qs[0]);\n"
-						"   CNOT(qs[0],qs[1]);\n"
+//						"   qbit qs[2];\n"
+						"   H(qreg[0]);\n"
+						"   CNOT(qreg[0],qreg[1]);\n"
 						"}\n");
 
-	auto ir = compiler->compile(src);
+	auto ir = compiler->compile(src, accelerator);
 	BOOST_VERIFY(ir);
 	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
 	BOOST_VERIFY(graphir);
@@ -71,28 +101,30 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 	using GraphType = Graph<CircuitNode>;
+	auto accelerator = std::make_shared<FakeAccelerator<3>>();
 
-	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
+	auto compiler =
+			qci::common::AbstractFactory::createAndCast<xacc::ICompiler>(
+					"compiler", "scaffold");
 	BOOST_VERIFY(compiler);
 
 	const std::string src("__qpu__ teleport () {\n"
-						"   qbit q[3];\n"
-						"   cbit c[2];\n"
-						"   H(q[1]);\n"
-						"   CNOT(q[1],q[2]);\n"
-						"   CNOT(q[0],q[1]);\n"
-						"   H(q[0]);\n"
-						"   MeasZ(q[0]);\n"
-						"   MeasZ(q[1]);\n"
+//						"   qbit q[3];\n"
+						"   H(qreg[1]);\n"
+						"   CNOT(qreg[1],qreg[2]);\n"
+						"   CNOT(qreg[0],qreg[1]);\n"
+						"   H(qreg[0]);\n"
+						"   MeasZ(qreg[0]);\n"
+						"   MeasZ(qreg[1]);\n"
 						"   // Cz\n"
-						"   H(q[2]);\n"
-						"   CNOT(q[2], q[1]);\n"
-						"   H(q[2]);\n"
+						"   H(qreg[2]);\n"
+						"   CNOT(qreg[2], qreg[1]);\n"
+						"   H(qreg[2]);\n"
 						"   // CX = CNOT\n"
-						"   CNOT(q[2], q[0]);\n"
+						"   CNOT(qreg[2], qreg[0]);\n"
 						"}\n");
 
-	auto ir = compiler->compile(src);
+	auto ir = compiler->compile(src, accelerator);
 	BOOST_VERIFY(ir);
 	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
 	BOOST_VERIFY(graphir);

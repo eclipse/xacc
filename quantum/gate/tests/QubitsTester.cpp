@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the <organization> nor the
+ *   * Neither the name of the xacc nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -29,57 +29,18 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ProgramTester
+#define BOOST_TEST_MODULE QubitsTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "Compiler.hpp"
+#include "Qubits.hpp"
 
-using namespace xacc;
+using namespace qci::common;
+using namespace xacc::quantum;
 
-class FakeIR: public IR {
-public:
-	FakeIR() {
-	}
-	virtual std::string toString() { return std::string();}
-	virtual void persist(std::ostream& stream) {}
-	virtual void read(std::istream& inStream) {}
-};
-class FakeCompiler: public Compiler<FakeCompiler> {
-	friend Compiler<FakeCompiler>;
-
-protected:
-	virtual std::shared_ptr<IR> compile() {
-		return std::make_shared<FakeIR>();
-	}
-
-	virtual void modifySource() {
-
-	}
-
-public:
-
-	virtual ~FakeCompiler() {
-	}
-};
-
-BOOST_AUTO_TEST_CASE(checkCompile) {
-
-	const std::string src("__qpu__ void teleport() {"
-					"       qbit qs[3];"
-					"		H(q[1]);"
-					"		CNot(q[1],q[2]);"
-					"		CNot(q[0], q[1]);"
-					"		H(q[1]);"
-					"		if(q[1].measure()) {"
-					"			X(q[2]);"
-					"		}"
-					"		if(q[1].measure()) {"
-					"			Z(q[2]);"
-					"		}"
-					"}");
-
-	auto compiler = std::shared_ptr<ICompiler>(new FakeCompiler());
-//	auto ir = compiler->compile(src);
-//	BOOST_VERIFY(ir);
+BOOST_AUTO_TEST_CASE(checkConstruction) {
+	Qubits<3> qubits;
+	BOOST_VERIFY(qubits.N == 3);
+	std::bitset<3> bits;
+	BOOST_VERIFY(bits == qubits.toBits());
 }
 

@@ -30,3 +30,8 @@
 #**********************************************************************************/
 add_subdirectory(scaffold)
 add_subdirectory(utils)
+
+# Gather tests
+file (GLOB test_files tests/*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
+

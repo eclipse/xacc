@@ -35,6 +35,8 @@ set (LIBRARY_NAME xacc-scaffold)
 file (GLOB HEADERS *.hpp)
 file (GLOB SRC *.cpp)
 
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
+
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 install(FILES ${HEADERS} DESTINATION include)

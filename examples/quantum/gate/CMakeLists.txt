@@ -28,5 +28,6 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
 add_executable(teleport_scaffold teleport_scaffold.cpp)
 target_link_libraries(teleport_scaffold xacc-scaffold ${Boost_LIBRARIES})

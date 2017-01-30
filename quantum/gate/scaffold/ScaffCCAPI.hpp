@@ -73,7 +73,7 @@ public:
 			// Execute the scaffold compiler
 			std::system("scaffcc -fp .tmpSrcFile.scaffold");
 
-			// Remove the temporary source file, we don't need it anymroe
+			// Remove the temporary source file, we don't need it anymore
 			std::remove(".tmpSrcFile.scaffold");
 
 			// Read in the generated QASM

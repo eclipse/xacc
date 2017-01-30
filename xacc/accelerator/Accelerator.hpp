@@ -33,9 +33,25 @@
 
 #include <string>
 #include "IRTransformation.hpp"
+#include <array>
+#include <bitset>
 
 namespace xacc {
 
+template<const int Number>
+class AcceleratorBits {
+public:
+	static constexpr int N = Number;
+	std::bitset<(size_t)Number> bits;
+	std::bitset<(size_t)Number> toBits() {
+		return bits;
+	}
+
+};
+
+/**
+ *
+ */
 class Accelerator {
 
 public:
@@ -45,12 +61,41 @@ public:
 
 	virtual std::vector<IRTransformation> getIRTransformations() = 0;
 
-	template<typename T>
-	T executeKernel(std::string accArgs) {
+	virtual void execute(const std::shared_ptr<IR> ir) = 0;
 
+	/**
+	 *
+	 * @return
+	 */
+	template<typename BitsType>
+	BitsType allocate(const std::string& variableNameId) {
+		static_assert(std::is_base_of<AcceleratorBits<BitsType::N>, BitsType>::value, "");
+		if (!canAllocate(BitsType::N)) {
+			QCIError("Error in allocated requested bits");
+		}
+		BitsType bits;
+		NBitsAllocated = BitsType::N;
+		bitVarId = variableNameId;
+		return bits;
+	}
+
+	virtual int getAllocationSize() {
+		return NBitsAllocated;
+	}
+
+	virtual const std::string getVariableName() {
+		return bitVarId;
 	}
 
 	virtual ~Accelerator() {}
+
+protected:
+
+	int NBitsAllocated = 0;
+
+	std::string bitVarId;
+
+	virtual bool canAllocate(const int NBits) = 0;
 };
 }
 #endif

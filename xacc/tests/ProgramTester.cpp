@@ -43,9 +43,11 @@ public:
 	virtual AcceleratorType getType() { return qpu_gate; }
 
 	virtual std::vector<IRTransformation> getIRTransformations() {std::vector<IRTransformation> v; return v;}
-
+	virtual void execute(const std::shared_ptr<IR> ir) {}
+	virtual bool canAllocate(const int NBits) {
+		return true;
+	}
 	virtual ~FakeAccelerator() {}
-
 };
 
 class FakeIR: public IR {

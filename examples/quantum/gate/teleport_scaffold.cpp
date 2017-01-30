@@ -29,6 +29,7 @@
  *
  **********************************************************************************/
 #include "Program.hpp"
+#include "Qubits.hpp"
 
 /**
  * FIXME For now, create a fake accelerator
@@ -43,36 +44,58 @@ public:
 		std::vector<xacc::IRTransformation> v;
 		return v;
 	}
+	virtual void execute(const std::shared_ptr<xacc::IR> ir) {
+	}
 	virtual ~IBM5Qubit() {
+	}
+
+protected:
+	bool canAllocate(const int N) {
+		return true;
 	}
 };
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
 const std::string src("__qpu__ teleport () {\n"
-						"   qbit q[3];\n"
-						"   cbit c[2];\n"
-						"   H(q[1]);\n"
-						"   CNOT(q[1],q[2]);\n"
-						"   CNOT(q[0],q[1]);\n"
-						"   H(q[0]);\n"
-						"   MeasZ(q[0]);\n"
-						"   MeasZ(q[1]);\n"
+						"   // Initialize qubit to 1\n"
+						"   X(qreg[0]);\n"
+						"   H(qreg[1]);\n"
+						"   CNOT(qreg[1],qreg[2]);\n"
+						"   CNOT(qreg[0],qreg[1]);\n"
+						"   H(qreg[0]);\n"
+						"   MeasZ(qreg[0]);\n"
+						"   MeasZ(qreg[1]);\n"
 						"   // cZ\n"
-						"   H(q[2]);\n"
-						"   CNOT(q[2], q[1]);\n"
-						"   H(q[2]);\n"
+						"   H(qreg[2]);\n"
+						"   CNOT(qreg[2], qreg[1]);\n"
+						"   H(qreg[2]);\n"
 						"   // cX = CNOT\n"
-						"   CNOT(q[2], q[0]);\n"
+						"   CNOT(qreg[2], qreg[0]);\n"
 						"}\n");
 
 int main (int argc, char** argv) {
 
+	// Create a reference to the IBM5Qubit Accelerator
 	auto ibm_qpu = std::make_shared<IBM5Qubit>();
+
+	// Allocate some qubits...
+	auto qreg = ibm_qpu->allocate<xacc::quantum::Qubits<3>>("qreg");
+
+	// Construct a new Program
 	xacc::Program quantumProgram(ibm_qpu, src);
+
+	// Build the program
 	quantumProgram.build("--compiler scaffold --writeIR teleport.xir");
 
-	// FIXME Get Kernel, execute, get result
+	// Retrieve the constructed kernel
+	auto teleport = quantumProgram.getKernel("teleport");
+
+	// Execute the kernel!
+	teleport();
+
+	// Get the execution result
+	auto bits = qreg.toBits();
 
 	return 0;
 }

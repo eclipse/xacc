@@ -36,6 +36,8 @@
 #include "AbstractFactory.hpp"
 #include "QCIError.hpp"
 #include "IR.hpp"
+#include "Accelerator.hpp"
+#include <ostream>
 
 using namespace qci::common;
 
@@ -55,7 +57,8 @@ public:
 	 * @param src
 	 * @return
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
+	virtual std::shared_ptr<IR> compile(const std::string& src,
+			const std::shared_ptr<Accelerator>& accelerator) = 0;
 };
 
 /**
@@ -80,11 +83,14 @@ public:
 	 * @param src The kernel source string.
 	 * @return ir Intermediate representation for provided source kernel code.
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src) {
+	virtual std::shared_ptr<IR> compile(const std::string& src,
+			const std::shared_ptr<Accelerator>& acc) {
 
 		// Set the provided kernel source string
 		// so derived types can have reference to it
 		kernelSource =  src;
+
+		hardware = acc;
 
 		// Xacc requires that clients provide
 		// only the body code for an attached
@@ -100,9 +106,17 @@ public:
 
 protected:
 
-	std::string kernelSource;
+protected:
 
 	/**
+	 *
+	 */
+	std::string kernelSource;
+
+	std::shared_ptr<Accelerator> hardware;
+
+	/**
+	 *
 	 * Derived types implementing compile should perform language
 	 * specific compilation and return a shared pointer to an
 	 * intermediate representation IR instance.

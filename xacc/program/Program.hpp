@@ -80,6 +80,8 @@ protected:
 	 */
 	std::shared_ptr<options_description> compilerOptions;
 
+	std::shared_ptr<IR> xaccIR;
+
 public:
 
 	/**
@@ -131,10 +133,10 @@ public:
 		}
 
 		// Execute the compilation
-		auto ir = compiler->compile(src);
+		auto xaccIR = compiler->compile(src, accelerator);
 
 		// Validate the compilation
-		if (!ir) {
+		if (!xaccIR) {
 			QCIError("Bad source string or something.\n");
 		}
 
@@ -142,7 +144,7 @@ public:
 		if (compileParameters.count("writeIR")) {
 			auto fileStr = compileParameters["writeIR"].as<std::string>();
 			std::ofstream ostr(fileStr);
-			ir->persist(ostr);
+			xaccIR->persist(ostr);
 		}
 
 		// Execute IR Translations and Optimizations
@@ -151,18 +153,30 @@ public:
 		auto defaultTransforms = getAcceleratorIndependentTransformations(acceleratorType);
 		auto accDepTransforms = accelerator->getIRTransformations();
 		for (IRTransformation& t : defaultTransforms) {
-			t.transform(*ir.get());
+			t.transform(*xaccIR.get());
 		}
 		for (IRTransformation& t : accDepTransforms) {
-			t.transform(*ir.get());
+			t.transform(*xaccIR.get());
 		}
-
-		// FIXME Create Kernel from IR
 
 		return;
 	}
 
-	void getKernel(std::string& name) {}
+	/**
+	 *
+	 * @param name
+	 * @param args
+	 * @return
+	 */
+	template<typename ... RuntimeArgs>
+	std::function<void(RuntimeArgs...)> getKernel(const std::string& name,
+			RuntimeArgs ... args) {
+		return [&]() {
+			std::cout << "HELLO WORLD FROM KERNEL\n";
+			accelerator->execute(xaccIR, args...);
+			return;
+		};
+	}
 };
 
 }
