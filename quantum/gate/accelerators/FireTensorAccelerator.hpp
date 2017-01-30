@@ -40,12 +40,23 @@
 namespace xacc {
 namespace quantum {
 
+using namespace fire;
+
+double sqrt2 = std::sqrt(2.0);
+
 /**
  *
  */
 class FireTensorAccelerator : public Accelerator {
 public:
 
+	FireTensorAccelerator() {
+		Tensor<2> h(2,2), cnot(4,4);
+		h.setValues({{1.0/sqrt2,1.0/sqrt2},{1.0/sqrt2,-1.0/sqrt2}});
+		cnot.setValues({{1, 0, 0, 0},{0, 1, 0, 0}, {0, 0, 0, 1}, {0, 0, 1, 0}});
+		gates.emplace("h",h);
+		gates.emplace("cnot",cnot);
+	}
 	virtual AcceleratorType getType() {
 		return AcceleratorType::qpu_gate;
 	}
@@ -65,6 +76,36 @@ public:
 			QCIError("Invalid IR - this Accelerator on accepts GraphIR<Graph<CircuitNode>>.");
 		}
 
+		std::vector<CircuitNode> gateOperations;
+		// Get the Graph
+		auto graph = graphir->getGraph();
+		int nNodes = graph.order(), layer = 1;
+		int finalLayer = graph.getVertexProperty<1>(nNodes - 1);
+
+		for (int i = 0; i < nNodes; i++) {
+			CircuitNode n;
+			n.properties = graph.getVertexProperties(i);
+			gateOperations.emplace_back(n);
+		}
+
+		while (layer < finalLayer) {
+
+			std::vector<CircuitNode> currentLayerGates;
+			std::copy_if(gateOperations.begin(), gateOperations.end(),
+					std::back_inserter(currentLayerGates),
+					[&](const CircuitNode& c) {return std::get<1>(c.properties) == layer;});
+
+			// Can parallize this...
+			for (auto n : currentLayerGates) {
+				auto gateName = std::get<0>(n.properties);
+				auto actingQubits = std::get<3>(n.properties);
+			}
+
+
+			layer++;
+		}
+
+
 	}
 
 	virtual ~FireTensorAccelerator() {
@@ -75,6 +116,7 @@ protected:
 		return true;
 	}
 
+	std::map<std::string, Tensor<2>> gates;
 };
 }
 }
