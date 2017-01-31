@@ -28,56 +28,59 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_FIRETENSORACCELERATOR_HPP_
-#define QUANTUM_GATE_ACCELERATORS_FIRETENSORACCELERATOR_HPP_
+#ifndef QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
+#define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 
-#include "Accelerator.hpp"
-#include "Tensor.hpp"
-#include "Graph.hpp"
+#include "QPUGate.hpp"
 #include "QasmToGraph.hpp"
 #include "GraphIR.hpp"
+#include <unsupported/Eigen/KroneckerProduct>
 
 namespace xacc {
 namespace quantum {
 
-using namespace fire;
-
 double sqrt2 = std::sqrt(2.0);
+using GraphType = qci::common::Graph<CircuitNode>;
+using QuantumGraphIR = xacc::GraphIR<GraphType>;
 
 /**
  *
  */
-class FireTensorAccelerator : public Accelerator {
+template<const int NQubits>
+class EigenAccelerator : public QPUGate<NQubits> {
 public:
 
-	FireTensorAccelerator() {
-		Tensor<2> h(2,2), cnot(4,4);
-		h.setValues({{1.0/sqrt2,1.0/sqrt2},{1.0/sqrt2,-1.0/sqrt2}});
-		cnot.setValues({{1, 0, 0, 0},{0, 1, 0, 0}, {0, 0, 0, 1}, {0, 0, 1, 0}});
-		gates.emplace("h",h);
-		gates.emplace("cnot",cnot);
-	}
-	virtual AcceleratorType getType() {
-		return AcceleratorType::qpu_gate;
+	/**
+	 * The constructor, create tensor gates
+	 */
+	EigenAccelerator() {
+		Eigen::MatrixXcd h(2,2), cnot(4,4), I(2,2), x(2,2);
+		h << 1.0/sqrt2,1.0/sqrt2, 1.0/sqrt2,-1.0/sqrt2;
+		cnot << 1, 0, 0, 0,0, 1, 0, 0,0, 0, 0, 1, 0, 0, 1, 0;
+		x << 0, 1, 1, 0;
+		I << 1,0,0,1;
+		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("h",h));
+		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("cnot",cnot));
+		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("I",I));
+		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("x",x));
 	}
 
-	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
-		std::vector<xacc::IRTransformation> v;
-		return v;
-	}
-
+	/**
+	 *
+	 * @param ir
+	 */
 	virtual void execute(const std::shared_ptr<xacc::IR> ir) {
 
-		using GraphType = qci::common::Graph<CircuitNode>;
+		auto qubitsType = std::dynamic_pointer_cast<Qubits<NQubits>>(this->bits);
 
 		// Cast to a GraphIR, if we can...
-		auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+		auto graphir = std::dynamic_pointer_cast<QuantumGraphIR>(ir);
 		if (!graphir) {
-			QCIError("Invalid IR - this Accelerator on accepts GraphIR<Graph<CircuitNode>>.");
+			QCIError("Invalid IR - this Accelerator only accepts GraphIR<Graph<CircuitNode>>.");
 		}
 
-		std::vector<CircuitNode> gateOperations;
 		// Get the Graph
+		std::vector<CircuitNode> gateOperations;
 		auto graph = graphir->getGraph();
 		int nNodes = graph.order(), layer = 1;
 		int finalLayer = graph.getVertexProperty<1>(nNodes - 1);
@@ -88,6 +91,10 @@ public:
 			gateOperations.emplace_back(n);
 		}
 
+
+		Eigen::MatrixXcd U = Eigen::MatrixXcd::Identity(std::pow(2, NQubits),
+				std::pow(2, NQubits));
+
 		while (layer < finalLayer) {
 
 			std::vector<CircuitNode> currentLayerGates;
@@ -95,32 +102,63 @@ public:
 					std::back_inserter(currentLayerGates),
 					[&](const CircuitNode& c) {return std::get<1>(c.properties) == layer;});
 
-			// Can parallize this...
-			for (auto n : currentLayerGates) {
-				auto gateName = std::get<0>(n.properties);
-				auto actingQubits = std::get<3>(n.properties);
+			std::vector<Eigen::MatrixXcd> productList(NQubits);
+			for (int i = 0; i < NQubits; i++) {
+				productList[i] = gates["I"];
 			}
 
+			// Can parallize this...
+			for (auto n : currentLayerGates) {
+
+				auto gateName = std::get<0>(n.properties);
+				auto actingQubits = std::get<3>(n.properties);
+
+				if (gateName != "measure") {
+					auto gate = gates[gateName];
+
+					if (actingQubits.size() == 1) {
+						productList[actingQubits[0]] = gate;
+					} else if (actingQubits.size() == 2) {
+						productList[actingQubits[0]] = gate;
+						productList.erase(productList.begin() + actingQubits[1]);
+					} else {
+						QCIError("Can only simulate one and two qubit gates.");
+					}
+				} else {
+					// Setup measurement gate
+				}
+
+				// Create a total unitary for this layer of the circuit
+				Eigen::MatrixXcd result = productList[0];
+				for (int i = 1; i < productList.size(); i++) {
+					result = kroneckerProduct(result, productList[i]).eval();
+				}
+				assert(result.rows() == std::pow(2, NQubits) && result.cols() == std::pow(2,NQubits));
+
+				// Update the circuit unitary matrix
+				U = result * U;
+
+			}
 
 			layer++;
 		}
 
-
+		qubitsType->applyUnitary(U);
 	}
 
-	virtual ~FireTensorAccelerator() {
+	/**
+	 * The destructor
+	 */
+	virtual ~EigenAccelerator() {
 	}
 
 protected:
-	bool canAllocate(const int N) {
-		return true;
-	}
 
-	std::map<std::string, Tensor<2>> gates;
+	std::map<std::string, Eigen::MatrixXcd> gates;
 };
 }
 }
 
 
 
-#endif /* QUANTUM_GATE_ACCELERATORS_FIRETENSORACCELERATOR_HPP_ */
+#endif

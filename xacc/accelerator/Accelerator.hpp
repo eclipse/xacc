@@ -39,6 +39,22 @@
 namespace xacc {
 
 /**
+ * Utility structs to help determine if
+ * we have been given valid Vertices.
+ */
+template<typename T, typename = void>
+struct is_valid_bitstype: std::false_type {
+};
+template<typename T>
+struct is_valid_bitstype<T, decltype(std::declval<T>().N, void())> : std::true_type {
+};
+
+/**
+ * The types of Accelerators that XACC interacts with
+ */
+enum AcceleratorType { qpu_gate, qpu_aqc, npu };
+
+/**
  * The AcceleratorBits class provides a common
  * base class for allocating accelerator-specific
  * bit resources (for example, qubits). It takes an
@@ -62,9 +78,11 @@ public:
 	 * Return the current state of the bits
 	 * @return
 	 */
-	std::bitset<(size_t) Number> toBits() {
+	virtual std::bitset<(size_t) Number> toBits() {
 		return bits;
 	}
+
+	virtual ~AcceleratorBits() {}
 
 private:
 
@@ -75,28 +93,8 @@ private:
 
 };
 
-/**
- * The Accelerator class provides a high-level abstraction
- * for XACC's interaction with attached post-exascale
- * accelerators (quantum and neuromorphic processing units).
- *
- * Derived Accelerators must provide a valid execute implementation
- * that takes XACC IR and executes it on the attached hardware or
- * simulator.
- *
- * Derived Accelerators must provide a list of IRTransformation
- * instances that transform XACC IR to be amenable to execution
- * on the hardware.
- */
-class Accelerator : public qci::common::QCIObject {
-
+class IAccelerator : public qci::common::QCIObject {
 public:
-
-	/**
-	 * The types of Accelerators that XACC interacts with
-	 */
-	enum AcceleratorType { qpu_gate, qpu_aqc, npu };
-
 	/**
 	 * Return the type of this Accelerator.
 	 *
@@ -119,17 +117,53 @@ public:
 	virtual void execute(const std::shared_ptr<IR> ir) = 0;
 
 	/**
+	 * Return the number of bits that the user most recently
+	 * requested.
+	 *
+	 * @return nBits The number of requested bits
+	 */
+	virtual int getAllocationSize() = 0;
+
+	/**
+	 * Return the variable name provided upon bit allocation
+	 * (for example - qreg for gate model quantum bits in (qbit qreg[2];))
+	 *
+	 * @return varName The name of the bits allocated.
+	 */
+	virtual const std::string getVariableName() = 0;
+};
+
+/**
+ * The Accelerator class provides a high-level abstraction
+ * for XACC's interaction with attached post-exascale
+ * accelerators (quantum and neuromorphic processing units).
+ *
+ * Derived Accelerators must provide a valid execute implementation
+ * that takes XACC IR and executes it on the attached hardware or
+ * simulator.
+ *
+ * Derived Accelerators must provide a list of IRTransformation
+ * instances that transform XACC IR to be amenable to execution
+ * on the hardware.
+ */
+template<typename BitsType>
+class Accelerator : public IAccelerator {
+
+	static_assert(is_valid_bitstype<BitsType>::value, "Derived BitsType parameter must contain N int member for number of bits.");
+	static_assert(std::is_base_of<AcceleratorBits<BitsType::N>, BitsType>::value, "");
+
+public:
+
+	/**
 	 * Allocate bit resources (if needed).
 	 *
 	 * @return bits The AcceleratorBits derived type
 	 */
-	template<typename BitsType>
-	BitsType allocate(const std::string& variableNameId) {
-		static_assert(std::is_base_of<AcceleratorBits<BitsType::N>, BitsType>::value, "");
+	std::shared_ptr<BitsType> allocate(const std::string& variableNameId) {
 		if (!canAllocate(BitsType::N)) {
 			QCIError("Error in allocated requested bits");
 		}
-		BitsType bits;
+		bits = std::make_shared<BitsType>();
 		NBitsAllocated = BitsType::N;
 		bitVarId = variableNameId;
 		return bits;
@@ -174,12 +208,19 @@ protected:
 	std::string bitVarId;
 
 	/**
+	 *
+	 */
+	std::shared_ptr<BitsType> bits;
+
+	/**
 	 * Return true if this Accelerator can allocate
 	 * the provided number of bits.
 	 * @param NBits The number of bits to allocate
 	 * @return canAllocate True if can allocate, false if not.
 	 */
 	virtual bool canAllocate(const int NBits) = 0;
+
+
 };
 }
 #endif

@@ -31,16 +31,13 @@
 #ifndef XACC_XACC_HPP_
 #define XACC_XACC_HPP_
 
+#include <iostream>
+#include <memory>
 #include "Accelerator.hpp"
+#include "Program.hpp"
+#include "AbstractFactory.hpp"
 
 namespace xacc {
-
-std::vector<IRTransformation> getAcceleratorIndependentTransformations(
-		Accelerator::AcceleratorType& accType) {
-	std::vector<IRTransformation> transformations;
-
-	return transformations;
-}
 
 }
 

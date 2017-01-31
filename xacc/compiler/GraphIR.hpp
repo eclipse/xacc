@@ -45,6 +45,8 @@ protected:
 
 public:
 
+	GraphIR() {}
+
 	GraphIR(DerivedGraph& g) :
 			graph(g) {
 	}
@@ -66,7 +68,7 @@ public:
 	}
 
 	virtual void read(std::istream& inStream) {
-
+		graph.read(inStream);
 	}
 
 	DerivedGraph& getGraph() {

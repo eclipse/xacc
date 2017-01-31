@@ -28,13 +28,56 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE FireTensorAcceleratorTester
+#ifndef QUANTUM_GATE_ACCELERATORS_QPUGATE_HPP_
+#define QUANTUM_GATE_ACCELERATORS_QPU_HPP_
 
-#include <boost/test/included/unit_test.hpp>
-#include "FireTensorAccelerator.hpp"
+#include "Accelerator.hpp"
+#include "Qubits.hpp"
 
+namespace xacc {
+namespace quantum {
 
-BOOST_AUTO_TEST_CASE(checkConstruction) {
+/**
+ *
+ */
+template<const int NQubits>
+class QPUGate: virtual public Accelerator<Qubits<NQubits>> {
+public:
+
+	/**
+	 * This Accelerator models QPU Gate accelerators.
+	 * @return
+	 */
+	virtual AcceleratorType getType() {
+		return AcceleratorType::qpu_gate;
+	}
+
+	/**
+	 * We have no need to transform the IR for this Accelerator,
+	 * so return an empty list
+	 * @return
+	 */
+	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
+		std::vector<xacc::IRTransformation> v;
+		return v;
+	}
+
+	virtual ~QPUGate() {}
+
+protected:
+
+	/**
+	 * This Accelerator can allocate any number of
+	 * qubits (at a great computational cost...)
+	 *
+	 * @param N
+	 * @return
+	 */
+	bool canAllocate(const int N) {
+		return N <= NQubits;
+	}
+};
+
 }
-
+}
+#endif

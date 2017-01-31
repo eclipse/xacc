@@ -40,26 +40,6 @@ namespace quantum {
 
 void ScaffoldCompiler::modifySource() {
 
-	// Execute default QuantumCompiler method
-	auto qubitTypeStr = std::string("qbit");
-	auto nBits = this->hardware->getAllocationSize();
-	auto varName = this->hardware->getVariableName();
-	std::cout << "HELLO WORLD: " << nBits << ", " << varName << "\n";
-	std::string qubitAllocationSrc = qubitTypeStr + " " + varName + "["
-			+ std::to_string(nBits) + "];\n";
-
-	std::vector<std::string> srcLines;
-	boost::split(srcLines, this->kernelSource, boost::is_any_of("\n"));
-
-    // First line should be function __qpu__ call, next one
-    // is where we should put the qubit allocation src
-    srcLines.insert(srcLines.begin() + 1, qubitAllocationSrc);
-
-    // Merge all into new kernel source string
-    std::stringstream combine;
-    std::for_each(srcLines.begin(), srcLines.end(), [&](const std::string& elem) { combine << elem << "\n"; });
-    this->kernelSource = combine.str();
-
 	// Here we assume we've been given just
 	// the body of the quantum code, as part
 	// of an xacc __qpu__ kernel function.

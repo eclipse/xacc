@@ -28,17 +28,17 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#include "Program.hpp"
-#include "Qubits.hpp"
+#include "XACC.hpp"
+#include "EigenAccelerator.hpp"
 
 /**
  * FIXME For now, create a fake accelerator
  * This will later come from QVM
  */
-class IBM5Qubit: public xacc::Accelerator {
+class IBM5Qubit: public xacc::quantum::QPUGate<5> {
 public:
-	virtual AcceleratorType getType() {
-		return AcceleratorType::qpu_gate;
+	virtual xacc::AcceleratorType getType() {
+		return xacc::AcceleratorType::qpu_gate;
 	}
 	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
 		std::vector<xacc::IRTransformation> v;
@@ -77,10 +77,10 @@ const std::string src("__qpu__ teleport () {\n"
 int main (int argc, char** argv) {
 
 	// Create a reference to the IBM5Qubit Accelerator
-	auto ibm_qpu = std::make_shared<IBM5Qubit>();
+	auto ibm_qpu = std::make_shared<xacc::quantum::EigenAccelerator<3>>();
 
 	// Allocate some qubits, give them a unique identifier...
-	auto qreg = ibm_qpu->allocate<xacc::quantum::Qubits<3>>("qreg");
+	auto qreg = ibm_qpu->allocate("qreg");
 
 	// Construct a new Program
 	xacc::Program quantumProgram(ibm_qpu, src);
@@ -95,7 +95,8 @@ int main (int argc, char** argv) {
 	teleport();
 
 	// Get the execution result
-	auto bits = qreg.toBits();
+	qreg->printState(std::cout);
+	auto bits = qreg->toBits();
 
 	return 0;
 }

@@ -52,6 +52,9 @@ protected:
 		return std::make_shared<FakeIR>();
 	}
 
+	virtual std::string getBitType() {
+		return "qbit";
+	}
 	virtual void modifySource() {
 
 	}

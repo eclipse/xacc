@@ -36,7 +36,7 @@
 
 using namespace xacc;
 
-class FakeAccelerator : public Accelerator {
+class FakeAccelerator : public Accelerator<AcceleratorBits<5>> {
 
 public:
 
@@ -68,6 +68,9 @@ public:
 
 	virtual void modifySource() {
 
+	}
+	virtual std::string getBitType() {
+		return "hello";
 	}
 
 	virtual ~DummyCompiler() {

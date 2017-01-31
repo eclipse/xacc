@@ -61,6 +61,14 @@ public:
 	virtual std::shared_ptr<IR> compile();
 
 	/**
+	 *
+	 * @return
+	 */
+	virtual std::string getBitType() {
+		return "qbit";
+	}
+
+	/**
 	 * This method is intended to modify the incoming
 	 * source code to be compiled to be amenable to the
 	 * Scaffold compiler.

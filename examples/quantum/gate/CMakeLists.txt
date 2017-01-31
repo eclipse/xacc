@@ -29,5 +29,11 @@
 #
 #**********************************************************************************/
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/eigenaccelerator)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+
 add_executable(teleport_scaffold teleport_scaffold.cpp)
 target_link_libraries(teleport_scaffold xacc-scaffold ${Boost_LIBRARIES})

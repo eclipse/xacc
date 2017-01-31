@@ -57,8 +57,13 @@ public:
 	 * @param src
 	 * @return
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src,
-			const std::shared_ptr<Accelerator>& accelerator) = 0;
+	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual std::string getBitType() = 0;
 };
 
 /**
@@ -83,14 +88,11 @@ public:
 	 * @param src The kernel source string.
 	 * @return ir Intermediate representation for provided source kernel code.
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src,
-			const std::shared_ptr<Accelerator>& acc) {
+	virtual std::shared_ptr<IR> compile(const std::string& src) {
 
 		// Set the provided kernel source string
 		// so derived types can have reference to it
 		kernelSource =  src;
-
-		hardware = acc;
 
 		// Xacc requires that clients provide
 		// only the body code for an attached
@@ -102,9 +104,15 @@ public:
 		return getAsDerived().compile();
 	}
 
-	virtual ~Compiler() {}
+	/**
+	 *
+	 * @return
+	 */
+	virtual std::string getBitType() {
+		QCIError("getBitType must be overridden by derived types.\n");
+	}
 
-protected:
+	virtual ~Compiler() {}
 
 protected:
 
@@ -112,8 +120,6 @@ protected:
 	 *
 	 */
 	std::string kernelSource;
-
-	std::shared_ptr<Accelerator> hardware;
 
 	/**
 	 *

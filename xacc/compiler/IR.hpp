@@ -30,9 +30,8 @@
  **********************************************************************************/
 #ifndef XACC_COMPILER_IR_HPP_
 #define XACC_COMPILER_IR_HPP_
-
-#include "AbstractFactory.hpp"
 #include <iostream>
+#include "AbstractFactory.hpp"
 
 namespace xacc {
 

@@ -33,22 +33,28 @@
 
 #include <string>
 #include <vector>
-#include "Compiler.hpp"
-#include "Kernel.hpp"
-#include "Accelerator.hpp"
+#include <fstream>
 #include <memory>
 #include <queue>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include "QCIError.hpp"
 #include "XaccUtils.hpp"
-#include "XACC.hpp"
-#include <fstream>
+#include "Compiler.hpp"
+#include "Accelerator.hpp"
 
 using namespace boost::program_options;
 using namespace qci::common;
 
 namespace xacc {
+
+std::vector<IRTransformation> getAcceleratorIndependentTransformations(
+		AcceleratorType& accType) {
+	std::vector<IRTransformation> transformations;
+
+	return transformations;
+}
 
 /**
  * The Program is  the main entrypoint for the XACC
@@ -58,6 +64,7 @@ namespace xacc {
  * Accelerator reference to be used and kernel source
  * code at construction time.
  */
+//template<typename AccType>
 class Program {
 
 protected:
@@ -72,7 +79,7 @@ protected:
 	 * Reference to the attached Accelerator to
 	 * use in this compilation and execution
 	 */
-	std::shared_ptr<Accelerator> accelerator;
+	std::shared_ptr<IAccelerator> accelerator;
 
 	/**
 	 * Reference to a set of compiler command
@@ -94,7 +101,7 @@ public:
 	 * @param acc Attached Accelerator to execute
 	 * @param sourceFile The kernel source code
 	 */
-	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
+	Program(std::shared_ptr<IAccelerator> acc, const std::string& sourceFile) :
 			src(sourceFile) {
 		accelerator = std::move(acc);
 		compilerOptions = std::make_shared<options_description>(
@@ -135,8 +142,29 @@ public:
 			QCIError("Invalid Compiler.\n");
 		}
 
+		// Update source with hardware bits information...
+		// FIXME Make this more robust in the future...
+		auto bitTypeStr = compiler->getBitType();
+		auto nBits = accelerator->getAllocationSize();
+		auto varName = accelerator->getVariableName();
+		std::cout << "HELLO WORLD: " << nBits << ", " << varName << "\n";
+		std::string bitAllocationSrc = bitTypeStr + " " + varName + "["
+				+ std::to_string(nBits) + "];\n";
+
+		std::vector<std::string> srcLines;
+		boost::split(srcLines, src, boost::is_any_of("\n"));
+
+	    // First line should be function __qpu__ call, next one
+	    // is where we should put the qubit allocation src
+	    srcLines.insert(srcLines.begin() + 1, bitAllocationSrc);
+
+	    // Merge all into new kernel source string
+	    std::stringstream combine;
+	    std::for_each(srcLines.begin(), srcLines.end(), [&](const std::string& elem) { combine << elem << "\n"; });
+	    src = combine.str();
+
 		// Execute the compilation
-		auto xaccIR = compiler->compile(src, accelerator);
+		xaccIR = compiler->compile(src);
 
 		// Validate the compilation
 		if (!xaccIR) {
