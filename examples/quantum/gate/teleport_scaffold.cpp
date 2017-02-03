@@ -31,59 +31,33 @@
 #include "XACC.hpp"
 #include "EigenAccelerator.hpp"
 
-/**
- * FIXME For now, create a fake accelerator
- * This will later come from QVM
- */
-class IBM5Qubit: public xacc::quantum::QPUGate<5> {
-public:
-	virtual xacc::AcceleratorType getType() {
-		return xacc::AcceleratorType::qpu_gate;
-	}
-	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
-		std::vector<xacc::IRTransformation> v;
-		return v;
-	}
-	virtual void execute(const std::shared_ptr<xacc::IR> ir) {
-	}
-	virtual ~IBM5Qubit() {
-	}
-
-protected:
-	bool canAllocate(const int N) {
-		return true;
-	}
-};
-
 // Quantum Kernel executing teleportation of
 // qubit state to another.
 const std::string src("__qpu__ teleport () {\n"
-						"   // Initialize qubit to 1\n"
+						"   cbit creg[2];\n"
 						"   X(qreg[0]);\n"
 						"   H(qreg[1]);\n"
 						"   CNOT(qreg[1],qreg[2]);\n"
 						"   CNOT(qreg[0],qreg[1]);\n"
 						"   H(qreg[0]);\n"
-						"   MeasZ(qreg[0]);\n"
-						"   MeasZ(qreg[1]);\n"
-						"   // cZ\n"
-						"   H(qreg[2]);\n"
-						"   CNOT(qreg[2], qreg[1]);\n"
-						"   H(qreg[2]);\n"
-						"   // cX = CNOT\n"
-						"   CNOT(qreg[2], qreg[0]);\n"
+						"   creg[0] = MeasZ(qreg[0]);\n"
+						"   creg[1] = MeasZ(qreg[1]);\n"
+						"   if(creg[0] == 1) Z(qreg[2]);\n"
+						"   if (creg[1] == 1) X(qreg[2]);\n"
 						"}\n");
 
 int main (int argc, char** argv) {
 
-	// Create a reference to the IBM5Qubit Accelerator
-	auto ibm_qpu = std::make_shared<xacc::quantum::EigenAccelerator<3>>();
+	using Simple3QubitAcc = xacc::quantum::EigenAccelerator<3>;
+
+	// Create a reference to the 3 qubit simulation Accelerator
+	auto qpu = std::make_shared<Simple3QubitAcc>();
 
 	// Allocate some qubits, give them a unique identifier...
-	auto qreg = ibm_qpu->allocate("qreg");
+	auto qreg = qpu->allocate("qreg");
 
 	// Construct a new Program
-	xacc::Program quantumProgram(ibm_qpu, src);
+	xacc::Program quantumProgram(qpu, src);
 
 	// Build the program
 	quantumProgram.build("--compiler scaffold --writeIR teleport.xir");
@@ -96,7 +70,6 @@ int main (int argc, char** argv) {
 
 	// Get the execution result
 	qreg->printState(std::cout);
-	auto bits = qreg->toBits();
 
 	return 0;
 }

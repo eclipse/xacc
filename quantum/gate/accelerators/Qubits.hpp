@@ -23,14 +23,27 @@ protected:
 public:
 	Qubits() :
 			state((int) std::pow(2, NumberOfQubits)) {
+		// Initialize to |000...000> state
+		state.setZero();
+		state(0) = 1.0;
 	}
 
 	void applyUnitary(Eigen::MatrixXcd& U) {
 		state = U * state;
 	}
 
+	QubitState& getState() {
+		return state;
+	}
+
+	void setState(QubitState& st) {
+		state = st;
+	}
+
 	void printState(std::ostream& stream) {
-		stream << state << "\n";
+		for (int i = 0; i < state.rows(); i++) {
+			stream << std::bitset<NumberOfQubits>(i).to_string() << " -> " << state(i) << "\n";
+		}
 	}
 };
 }

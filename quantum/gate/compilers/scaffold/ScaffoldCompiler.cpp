@@ -49,7 +49,11 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource.erase(kernelSource.find("__qpu__"), 7);
 	kernelSource = std::string("module ") + kernelSource;
 
-	std::string qubitAllocationLine = "   qbit qreg[3];\n";
+	std::string qubitAllocationLine;// = "   qbit qreg[3];\n";
+
+	std::regex qbitName("qbit\\s.*");
+	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
+				qbitName)).str() + "\n";
 
 	// conditional on measurements
 	// FIXME FOR NOW WE ONLY ACCEPT format
@@ -59,7 +63,6 @@ void ScaffoldCompiler::modifySource() {
 	std::regex ifstmts("if\\s?\\(\\w+\\[\\w+\\]\\s?=.*\\s?\\)\\s?");
 	for (auto i = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
 			ifstmts); i != std::sregex_iterator(); ++i) {
-		std::cout << "HELLO WORLD: " << (*i).str() << "\n";
 		std::vector<std::string> splitVec;
 		std::string ifLine = (*i).str();
 		boost::trim(ifLine);

@@ -186,18 +186,18 @@ public:
 		int maxLayer = layer+1;
 
 		// Print info...
-		for (auto cn : gateOperations) {
-			std::cout << "Gate Operation: \n";
-			std::cout << "\tName: " << std::get<0>(cn.properties) << "\n";
-			std::cout << "\tLayer: " << std::get<1>(cn.properties) << "\n";
-			std::cout << "\tGate Vertex Id: " << std::get<2>(cn.properties) << "\n";
-			std::cout << "\tActing Qubits: ";
-			std::vector<int> qubits = std::get<3>(cn.properties);
-			for (auto v : qubits) {
-				std::cout << v << ", ";
-			}
-			std::cout << "\n\n";
-		}
+//		for (auto cn : gateOperations) {
+//			std::cout << "Gate Operation: \n";
+//			std::cout << "\tName: " << std::get<0>(cn.properties) << "\n";
+//			std::cout << "\tLayer: " << std::get<1>(cn.properties) << "\n";
+//			std::cout << "\tGate Vertex Id: " << std::get<2>(cn.properties) << "\n";
+//			std::cout << "\tActing Qubits: ";
+//			std::vector<int> qubits = std::get<3>(cn.properties);
+//			for (auto v : qubits) {
+//				std::cout << v << ", ";
+//			}
+//			std::cout << "\n\n";
+//		}
 
 		generateEdgesFromLayer(1, graph, gateOperations, 0);
 
@@ -250,7 +250,7 @@ public:
 		for (auto g : conditionalGraphs) {
 			CircuitNode node;
 			std::get<0>(node.properties) = "conditional";
-			std::get<2>(node.properties) = measurementIds[counter];
+			std::get<2>(node.properties) = id;//measurementIds[counter];
 			std::get<3>(node.properties) = measurementQubits[counter];
 			mainGraph.addVertex(node);
 
