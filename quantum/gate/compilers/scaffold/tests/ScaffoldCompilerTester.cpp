@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 }
 
-BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
+BOOST_AUTO_TEST_CASE(checkCodeWithMeasurementIf) {
 	using GraphType = Graph<CircuitNode>;
 
 	auto compiler =
@@ -79,18 +79,15 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 
 	const std::string src("__qpu__ teleport () {\n"
 						"   qbit qreg[3];\n"
+						"   cbit creg[2];\n"
 						"   H(qreg[1]);\n"
 						"   CNOT(qreg[1],qreg[2]);\n"
 						"   CNOT(qreg[0],qreg[1]);\n"
 						"   H(qreg[0]);\n"
-						"   MeasZ(qreg[0]);\n"
-						"   MeasZ(qreg[1]);\n"
-						"   // Cz\n"
-						"   H(qreg[2]);\n"
-						"   CNOT(qreg[2], qreg[1]);\n"
-						"   H(qreg[2]);\n"
-						"   // CX = CNOT\n"
-						"   CNOT(qreg[2], qreg[0]);\n"
+						"   creg[0] = MeasZ(qreg[0]);\n"
+						"   creg[1] = MeasZ(qreg[1]);\n"
+						"   if(creg[0] == 1) Z(qreg[2]);\n"
+						"   if (creg[1] == 1) X(qreg[2]);\n"
 						"}\n");
 
 	auto ir = compiler->compile(src);
@@ -98,10 +95,8 @@ BOOST_AUTO_TEST_CASE(checkAnotherSimpleCompile) {
 	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
 	BOOST_VERIFY(graphir);
 
-	// I drew this out on paper, we should have 12
-	// nodes and 17 edges...
-	BOOST_VERIFY(graphir->order() == 12);
-	BOOST_VERIFY(graphir->size() == 17);
-
 	graphir->persist(std::cout);
+	BOOST_VERIFY(graphir->order() == 16);
+	BOOST_VERIFY(graphir->size() == 23);
+
 }

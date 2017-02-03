@@ -33,39 +33,11 @@
 
 #include "Graph.hpp"
 #include <regex>
-#include <boost/unordered_map.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace xacc {
 namespace quantum {
 
-using boost::assign::map_list_of;
-
-/**
- * Enumeration of gates we support
- */
-enum SupportedGates {
-	H, CNot, C_Z, C_X, Measure, X, Y, Z,
-	T, S, ZZ, SS, Swap, Toffoli, InitialState,
-	FinalState
-};
-
-/**
- * Create a string to SupportedGates mapping
- */
-const boost::unordered_map<std::string, SupportedGates> strToGate =
-		map_list_of("h", H)("cnot", CNot)("c_z", C_Z)("c_x", C_X)("measure",
-				Measure)("x", X)("y", Y)("z", Z)("t", T)("s", S)("zz", ZZ)("ss",
-				SS)("swap", Swap)("toffoli", Toffoli);
-
-/**
- * Create a SupportedGates to string mapping
- */
-const boost::unordered_map<SupportedGates, std::string> gateToStr =
-		map_list_of(H, "h")(CNot, "cnot")(C_Z, "c_z")(C_X, "c_x")(Measure,
-				"measure")(X, "x")(Y, "y")(Z, "z")(T, "t")(S, "s")(ZZ, "zz")(SS,
-						"ss")(Swap, "swap")(Toffoli, "toffoli")(FinalState, "FinalState")(InitialState, "InitialState");
 /**
  * CircuitNode subclasses QCIVertex to provide the following
  * parameters in the given order:
@@ -74,7 +46,7 @@ const boost::unordered_map<SupportedGates, std::string> gateToStr =
  * Qubit Ids that the gate acts on
  */
 class CircuitNode: public qci::common::QCIVertex<std::string, int, int,
-		std::vector<int>> {
+		std::vector<int>, bool> {
 public:
 	CircuitNode() :
 			QCIVertex() {
@@ -82,6 +54,11 @@ public:
 		propertyNames[1] = "Circuit Layer";
 		propertyNames[2] = "Gate Vertex Id";
 		propertyNames[3] = "Gate Acting Qubits";
+		propertyNames[4] = "Enabled";
+
+		// by default all circuit nodes
+		// are enabled and
+		std::get<4>(properties) = true;
 	}
 };
 
@@ -133,12 +110,10 @@ public:
 		// Set the number of qubits
 		nQubits = qubitVarNameToId.size();
 
-		std::cout << "Number of Qubits is " << nQubits << std::endl;
-
 		// First create a starting node for the initial
 		// wave function - it should have nQubits outgoing
 		// edges
-		graph.addVertex(gateToStr.at(SupportedGates::InitialState), 0, 0, allQbitIds);
+		graph.addVertex("InitialState", 0, 0, allQbitIds, true);
 
 		std::vector<CircuitNode> gateOperations;
 		for (auto line : qasmLines) {
@@ -157,7 +132,6 @@ public:
 				auto g = boost::to_lower_copy(gateCommand[0]);
 				boost::trim(g);
 				if (g == "measz") g = "measure";
-//				auto s = strToGate.at(g);
 				std::get<0>(node.properties) = g;
 
 				// If not a 2 qubit gate, and if the acting
@@ -198,10 +172,18 @@ public:
 		}
 
 		// Add a final layer for the graph sink
-		graph.addVertex(gateToStr.at(SupportedGates::FinalState), layer+1, gateId, allQbitIds);
+		CircuitNode finalNode;
+		std::get<0>(finalNode.properties) = "FinalState";
+		std::get<1>(finalNode.properties) = layer+1;
+		std::get<2>(finalNode.properties) = gateId;
+		std::get<3>(finalNode.properties) = allQbitIds;
+		std::get<4>(finalNode.properties) = true;
+
+		graph.addVertex(finalNode);
+		gateOperations.push_back(finalNode);
 
 		// Set how many layers are in this circuit
-		int maxLayer = layer;
+		int maxLayer = layer+1;
 
 		// Print info...
 		for (auto cn : gateOperations) {
@@ -217,14 +199,123 @@ public:
 			std::cout << "\n\n";
 		}
 
-		// Add an edge between the initial state node
-		// and the layer 1 gates
-		std::map<int,int> qubitToCurrentGateId;
-		for (int i = 0 ; i < nQubits; i++) {
-			qubitToCurrentGateId[i] = 0;
+		generateEdgesFromLayer(1, graph, gateOperations, 0);
+
+		return graph;
+	}
+
+	/**
+	 * Create connecting conditional nodes that link the main
+	 * circuit graph to subsequent conditional graphs. The conditional
+	 * nodes can be used by Accelerators to figure out if the condition
+	 * code should be executed or not.
+	 * s
+	 * @param mainGraph
+	 * @param conditionalGraphs
+	 */
+	static void linkConditionalQasm(qci::common::Graph<CircuitNode>& mainGraph,
+			std::vector<qci::common::Graph<CircuitNode>> conditionalGraphs) {
+
+		// At this point we have a main circuit graph,
+		// and one or more smaller conditional graphs (each with
+		// initial and final state nodes.
+
+		// We need to loop through the conditional graphs and
+		// pull out the gate vertices (skip initial final state nodes)
+		// and add them to the main graph after some conditional nodes
+
+		// NOTE We assume that the ith conditionalGraph corresponds to the ith
+		// measurement gate...
+		std::vector<int> measurementIds;
+		std::vector<std::vector<int>>measurementQubits;
+		for (int i = 0; i < mainGraph.order(); i++) {
+			if (mainGraph.getVertexProperty<0>(i) == "measure") {
+				measurementIds.push_back(mainGraph.getVertexProperty<2>(i));
+				measurementQubits.push_back(mainGraph.getVertexProperty<3>(i));
+			}
 		}
 
-		int currentLayer = 0;
+		assert (measurementIds.size() == conditionalGraphs.size());
+
+		int counter = 0;
+		int finalIdMainGraph = mainGraph.getVertexProperty<2>(mainGraph.order() - 1);
+		int finalLayerMainGraph = mainGraph.getVertexProperty<1>(mainGraph.order() - 1);
+		int layer = finalLayerMainGraph + 1;
+		int id = finalIdMainGraph + 1;
+
+		// By default all conditional graph nodes should be disabled
+		// Conditional nodes should have acting qubits set to the
+		// measured qubit, and gate vertex id set to the measurement
+		// gate vertex id.
+		for (auto g : conditionalGraphs) {
+			CircuitNode node;
+			std::get<0>(node.properties) = "conditional";
+			std::get<2>(node.properties) = measurementIds[counter];
+			std::get<3>(node.properties) = measurementQubits[counter];
+			mainGraph.addVertex(node);
+
+			// Connect the main graph to the cond node
+			mainGraph.addEdge(finalIdMainGraph, id);
+
+			id++;
+
+			std::vector<CircuitNode> newGates;
+			int initialStateId, initialStateLayer;
+			for (int i = 0; i < g.order(); i++) {
+				CircuitNode newVert;
+				newVert.properties = g.getVertexProperties(i);
+				std::get<0>(newVert.properties) = g.getVertexProperty<0>(i);
+				std::get<1>(newVert.properties) = layer+g.getVertexProperty<1>(i);
+				std::get<2>(newVert.properties) = id;
+				std::get<3>(newVert.properties) = g.getVertexProperty<3>(i);
+				std::get<4>(newVert.properties) = false;
+				mainGraph.addVertex(newVert);
+				newGates.push_back(newVert);
+
+				// Connect conditional node with first node here
+				if(i == 0) mainGraph.addEdge(id - 1, id);
+				if(i == 0) initialStateId = id;
+				if (i == 0) initialStateLayer = std::get<1>(newVert.properties);
+
+				id++;
+			}
+
+			generateEdgesFromLayer(initialStateLayer+1, mainGraph, newGates, initialStateId);
+
+			// Set the new layer for the next conditional node
+			layer = mainGraph.getVertexProperty<1>(id - 1) + 1;
+			counter++;
+		}
+
+
+
+
+	}
+
+private:
+
+	/**
+	 * Generate all edges for the circuit graph starting at
+	 * the given layer.
+	 *
+	 * @param layer
+	 * @param graph
+	 * @param gateOperations
+	 * @param initialStateId
+	 */
+	static void generateEdgesFromLayer(const int layer,
+			qci::common::Graph<CircuitNode>& graph,
+			std::vector<CircuitNode>& gateOperations, int initialStateId) {
+
+		int nQubits = std::get<3>(graph.getVertexProperties(0)).size();
+		int maxLayer = std::get<1>(gateOperations[gateOperations.size() - 1].properties);
+
+		std::map<int,int> qubitToCurrentGateId;
+		for (int i = 0 ; i < nQubits; i++) {
+			qubitToCurrentGateId[i] = initialStateId;
+		}
+
+		int currentLayer = layer;
 		while (currentLayer <= maxLayer) {
 			std::vector<CircuitNode> currentLayerGates;
 			std::copy_if(gateOperations.begin(), gateOperations.end(),
@@ -242,33 +333,7 @@ public:
 
 			currentLayer++;
 		}
-
-		// Add a graph sink - ie a final node representing
-		// the final system state
-		int counter = 0;
-
-		// Walk the list downward, skip first node since is
-		// the graph sink
-		for (int i = gateOperations.size() - 1; i >= 0; i--) {
-			auto gate = gateOperations[i];
-			int currentGateId = std::get<2>(gate.properties);
-			int nQubitsActing = std::get<3>(gate.properties).size();
-			int gateDegree = graph.degree(currentGateId);
-			for (int j = gateDegree; j < 2 * nQubitsActing; j++) {
-				graph.addEdge(currentGateId, gateId);
-				counter++;
-			}
-
-			// Break early if we can...
-			if (counter == nQubits)
-				break;
-		}
-
-		return graph;
 	}
-
-private:
-
 	/**
 	 * This method determines if a new layer should be added to the circuit.
 	 *

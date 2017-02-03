@@ -80,6 +80,13 @@ public:
 	 */
 	virtual ~ScaffoldCompiler() {}
 
+protected:
+
+	/**
+	 * Reference to potential conditional code
+	 */
+	std::vector<std::string> conditionalCodeSegments;
+
 };
 
 }

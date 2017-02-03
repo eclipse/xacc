@@ -33,6 +33,7 @@
 #include <regex>
 #include "ScaffCCAPI.hpp"
 #include "QasmToGraph.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace xacc {
 
@@ -47,6 +48,38 @@ void ScaffoldCompiler::modifySource() {
 	// First off, replace __qpu__ with 'module '
 	kernelSource.erase(kernelSource.find("__qpu__"), 7);
 	kernelSource = std::string("module ") + kernelSource;
+
+	std::string qubitAllocationLine = "   qbit qreg[3];\n";
+
+	// conditional on measurements
+	// FIXME FOR NOW WE ONLY ACCEPT format
+	// 'if (creg[0] == 1) GATEOP'
+	int counter = 1;
+	std::vector<std::string> ifLines;
+	std::regex ifstmts("if\\s?\\(\\w+\\[\\w+\\]\\s?=.*\\s?\\)\\s?");
+	for (auto i = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
+			ifstmts); i != std::sregex_iterator(); ++i) {
+		std::cout << "HELLO WORLD: " << (*i).str() << "\n";
+		std::vector<std::string> splitVec;
+		std::string ifLine = (*i).str();
+		boost::trim(ifLine);
+		boost::split(splitVec, ifLine, boost::is_any_of(" "));
+		conditionalCodeSegments.push_back("module foo" + std::to_string(counter) + "() {\n"
+				+ qubitAllocationLine + "   " + splitVec[splitVec.size()-1] + ";\n}\nint main() {\n"
+						"   foo" + std::to_string(counter) + "();\n}");
+		counter++;
+
+		ifLines.push_back(ifLine + ";\n");
+	}
+
+	for (auto s : conditionalCodeSegments) {
+		std::cout << s << "\n";
+	}
+
+	for (auto s : ifLines) {
+		auto idx = kernelSource.find(s);
+		kernelSource.erase(idx, s.size());
+	}
 
 	// Get the kernel name
 	std::regex functionName("((\\w+)\\s*\\()\\s*");
@@ -79,6 +112,25 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 
 	// Get the Qasm as a Graph...
 	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
+
+	// HERE we have main circuit graph, before conditional
+	// if branches... So then for each conditional code statement,
+	// get its circuit graph and add it to the main graph after
+	// the addition of a COND conditional node that will enable the
+	// conditional nodes if the measured cbit is a 1.
+
+	// So a COND node needs to know the gate id of the measurement gate
+	// and the nodes to mark enabled if the measurement is a 1,
+	if (!conditionalCodeSegments.empty()) {
+		std::vector<qci::common::Graph<CircuitNode>> condGraphs;
+		for (auto cond : conditionalCodeSegments) {
+			auto condQasm = scaffcc.getFlatQASMFromSource(cond);
+			auto g = QasmToGraph::getCircuitGraph(condQasm);
+			condGraphs.push_back(g);
+		}
+
+		QasmToGraph::linkConditionalQasm(circuitGraph, condGraphs);
+	}
 
 	// Create a GraphIR instance from that graph
 	auto graphIR = std::make_shared<ScaffoldGraphIR>(circuitGraph);
