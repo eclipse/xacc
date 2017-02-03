@@ -42,8 +42,8 @@ const std::string src("__qpu__ teleport () {\n"
 						"   H(qreg[0]);\n"
 						"   creg[0] = MeasZ(qreg[0]);\n"
 						"   creg[1] = MeasZ(qreg[1]);\n"
-						"   if(creg[0] == 1) Z(qreg[2]);\n"
 						"   if (creg[1] == 1) X(qreg[2]);\n"
+						"   if(creg[0] == 1) Z(qreg[2]);\n"
 						"}\n");
 
 int main (int argc, char** argv) {

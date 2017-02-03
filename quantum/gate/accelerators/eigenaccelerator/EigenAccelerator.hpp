@@ -55,19 +55,21 @@ public:
 	 * The constructor, create tensor gates
 	 */
 	EigenAccelerator() {
-		Eigen::MatrixXcd h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2);
+		Eigen::MatrixXcd h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2), z(2,2);
 		h << 1.0/sqrt2,1.0/sqrt2, 1.0/sqrt2,-1.0/sqrt2;
 		cnot << 1, 0, 0, 0,0, 1, 0, 0,0, 0, 0, 1, 0, 0, 1, 0;
 		x << 0, 1, 1, 0;
 		I << 1,0,0,1;
 		p0 << 1, 0, 0, 0;
 		p1 << 0, 0, 0, 1;
+		z << 1, 0, 0, -1;
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("h",h));
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("cnot",cnot));
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("I",I));
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("x",x));
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("p0",p0));
 		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("p1",p1));
+		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("z",z));
 	}
 
 	/**
@@ -142,11 +144,11 @@ public:
 					// set their enabled state to true
 					for (int i = currentNodeId+1; i < nNodes; i++) {
 						// Once we hit the next final state node, then break out
-						if (graph.getVertexProperty<0>(i) == "FinalState") {
+						if (std::get<0>(gateOperations[i].properties) == "FinalState") {
 							break;
 						}
 						std::cout << "Enabling " << graph.getVertexProperty<0>(i) << "\n";
-						graph.setVertexProperty<4>(i, true);
+						std::get<4>(gateOperations[i].properties) = true;
 					}
 				}
 
