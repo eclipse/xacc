@@ -99,9 +99,9 @@ public:
 			gateOperations.emplace_back(n);
 		}
 
-		std::cout << "Initial State:\n";
-		qubits->printState(std::cout);
-		std::cout << "\n";
+//		std::cout << "Initial State:\n";
+//		qubits->printState(std::cout);
+//		std::cout << "\n";
 
 		for (auto gate : gateOperations) {
 
@@ -147,7 +147,7 @@ public:
 						if (std::get<0>(gateOperations[i].properties) == "FinalState") {
 							break;
 						}
-						std::cout << "Enabling " << graph.getVertexProperty<0>(i) << "\n";
+//						std::cout << "Enabling " << graph.getVertexProperty<0>(i) << "\n";
 						std::get<4>(gateOperations[i].properties) = true;
 					}
 				}
@@ -164,14 +164,16 @@ public:
 					temp = kroneckerProduct(temp, productList[i]).eval();
 				}
 
+				// Get probability qubit is a 0
 				auto temp2 = temp * rho;
 				auto probZero = temp2.trace();
+
+				// Make the measurement random...
 				std::random_device rd;
 				std::mt19937 mt(rd());
 				std::uniform_real_distribution<double> dist(0, 1.0);
 				int result;
 				auto val = dist(mt);
-				std::cout << "Val: " << val << "\n";
 				if (val < std::real(probZero)) {
 					result = 0;
 					Eigen::VectorXcd newState = (temp * qubits->getState());
@@ -190,7 +192,7 @@ public:
 					qubits->setState(newState);
 				}
 
-				std::cout << "Measured qubit " << actingQubits[0] << " to be a " << result << ": prob was " << probZero << "\n";
+//				std::cout << "Measured qubit " << actingQubits[0] << " to be a " << result << ": prob was " << probZero << "\n";
 				qubitIdToMeasuredResult.insert(std::make_pair(actingQubits[0], result));
 
 			} else {
@@ -240,67 +242,12 @@ public:
 
 					qubits->applyUnitary(localU);
 
-					std::cout << "Current State after " << gateName << ":\n";
-					qubits->printState(std::cout);
-					std::cout << "\n" << localU << "\n";
+//					std::cout << "Current State after " << gateName << ":\n";
+//					qubits->printState(std::cout);
+//					std::cout << "\n" << localU << "\n";
 				}
 			}
 		}
-//
-//		while (layer < finalLayer) {
-//
-//			std::vector<CircuitNode> currentLayerGates;
-//			std::copy_if(gateOperations.begin(), gateOperations.end(),
-//					std::back_inserter(currentLayerGates),
-//					[&](const CircuitNode& c) {return std::get<1>(c.properties) == layer;});
-//
-//			std::vector<Eigen::MatrixXcd> productList(NQubits);
-//			for (int i = 0; i < NQubits; i++) {
-//				productList[i] = gates["I"];
-//			}
-//
-//			// Can parallize this...
-//			for (auto n : currentLayerGates) {
-//
-//				auto gateName = std::get<0>(n.properties);
-//				auto actingQubits = std::get<3>(n.properties);
-//
-//				if (gateName != "measure" || gateName != "FinalState" || gateName != "InitialState") {
-//					auto gate = gates[gateName];
-//
-//					if (actingQubits.size() == 1) {
-//						productList[actingQubits[0]] = gate;
-//					} else if (actingQubits.size() == 2) {
-//						productList[actingQubits[0]] = gate;
-//						productList.erase(productList.begin() + actingQubits[1]);
-//					} else {
-//						QCIError("Can only simulate one and two qubit gates.");
-//					}
-//				} else {
-//
-//					if (gateName == "conditional") {
-//
-//					} else if (gateName == "measure") {
-//
-//					}
-//				}
-//
-//				// Create a total unitary for this layer of the circuit
-//				Eigen::MatrixXcd result = productList[0];
-//				for (int i = 1; i < productList.size(); i++) {
-//					result = kroneckerProduct(result, productList[i]).eval();
-//				}
-//				assert(result.rows() == std::pow(2, NQubits) && result.cols() == std::pow(2,NQubits));
-//
-//				// Update the circuit unitary matrix
-//				U = result * U;
-//
-//			}
-//
-//			layer++;
-//		}
-//
-//		qubitsType->applyUnitary(U);
 	}
 
 	/**

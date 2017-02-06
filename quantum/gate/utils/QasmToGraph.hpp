@@ -225,7 +225,7 @@ public:
 		// and add them to the main graph after some conditional nodes
 
 		// NOTE We assume that the ith conditionalGraph corresponds to the ith
-		// measurement gate...
+		// measurement gate... WRONG!!!!
 		std::vector<int> measurementIds;
 		std::vector<std::vector<int>>measurementQubits;
 		for (int i = 0; i < mainGraph.order(); i++) {
