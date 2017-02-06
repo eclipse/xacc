@@ -36,7 +36,6 @@
 #include "AbstractFactory.hpp"
 #include "QCIError.hpp"
 #include "IR.hpp"
-#include "Accelerator.hpp"
 #include <ostream>
 
 using namespace qci::common;

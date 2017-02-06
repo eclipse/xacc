@@ -48,7 +48,7 @@ using QuantumGraphIR = xacc::GraphIR<GraphType>;
  *
  */
 template<const int NQubits>
-class EigenAccelerator : public QPUGate<NQubits> {
+class EigenAccelerator : virtual public QPUGate<NQubits> {
 public:
 
 	/**
@@ -262,6 +262,7 @@ protected:
 };
 }
 }
+
 
 
 

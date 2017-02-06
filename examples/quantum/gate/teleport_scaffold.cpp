@@ -51,13 +51,16 @@ const std::string src("__qpu__ teleport () {\n"
 int main (int argc, char** argv) {
 
 	// Create a convenient alias...
-	using Simple3QubitAcc = xacc::quantum::EigenAccelerator<3>;
+	using Simple6QubitAcc = xacc::quantum::EigenAccelerator<6>;
 
 	// Create a reference to the 3 qubit simulation Accelerator
-	auto qpu = std::make_shared<Simple3QubitAcc>();
+	auto qpu = std::make_shared<Simple6QubitAcc>();
 
 	// Allocate some qubits, give them a unique identifier...
 	auto qreg = qpu->allocate("qreg");
+
+	auto qreg2 = qpu->allocate("qreg", 0, 1, 2);
+
 
 	// Construct a new Program
 	xacc::Program quantumProgram(qpu, src);

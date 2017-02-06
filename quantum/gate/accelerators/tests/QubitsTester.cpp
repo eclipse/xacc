@@ -41,6 +41,6 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 	Qubits<3> qubits;
 	BOOST_VERIFY(qubits.N == 3);
 	std::bitset<3> bits;
-	BOOST_VERIFY(bits == qubits.toBits());
+	BOOST_VERIFY(bits == qubits.measure());
 }
 

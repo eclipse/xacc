@@ -185,20 +185,6 @@ public:
 		// Set how many layers are in this circuit
 		int maxLayer = layer+1;
 
-		// Print info...
-//		for (auto cn : gateOperations) {
-//			std::cout << "Gate Operation: \n";
-//			std::cout << "\tName: " << std::get<0>(cn.properties) << "\n";
-//			std::cout << "\tLayer: " << std::get<1>(cn.properties) << "\n";
-//			std::cout << "\tGate Vertex Id: " << std::get<2>(cn.properties) << "\n";
-//			std::cout << "\tActing Qubits: ";
-//			std::vector<int> qubits = std::get<3>(cn.properties);
-//			for (auto v : qubits) {
-//				std::cout << v << ", ";
-//			}
-//			std::cout << "\n\n";
-//		}
-
 		generateEdgesFromLayer(1, graph, gateOperations, 0);
 
 		return graph;
@@ -214,7 +200,8 @@ public:
 	 * @param conditionalGraphs
 	 */
 	static void linkConditionalQasm(qci::common::Graph<CircuitNode>& mainGraph,
-			std::vector<qci::common::Graph<CircuitNode>>& conditionalGraphs, std::vector<int>& conditionalQubits) {
+			std::vector<qci::common::Graph<CircuitNode>>& conditionalGraphs,
+			std::vector<int>& conditionalQubits) {
 
 		// At this point we have a main circuit graph,
 		// and one or more smaller conditional graphs (each with

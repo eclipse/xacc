@@ -20,12 +20,31 @@ protected:
 
 	QubitState state;
 
+	QubitState subState;
+
+	bool usingSubstate;
+
 public:
+
 	Qubits() :
-			state((int) std::pow(2, NumberOfQubits)) {
+			state((int) std::pow(2, NumberOfQubits)), usingSubstate(false) {
 		// Initialize to |000...000> state
 		state.setZero();
 		state(0) = 1.0;
+	}
+
+	template<typename ... ActiveBits>
+	Qubits(QubitState& currentState, ActiveBits ... activeBits) :
+			state(currentState), subState((int) std::pow(2, sizeof...(ActiveBits))),
+			usingSubstate(true) {
+
+	}
+
+	template<typename... SubBits>
+	auto allocateSubset(
+			SubBits... subset) -> decltype(std::shared_ptr<Qubits<sizeof...(SubBits)>>()) {
+		auto qubits = std::make_shared<Qubits<sizeof...(SubBits)>>(state, subset...);
+		return qubits;
 	}
 
 	void applyUnitary(Eigen::MatrixXcd& U) {

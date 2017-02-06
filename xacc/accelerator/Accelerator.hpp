@@ -78,18 +78,25 @@ public:
 	 * Return the current state of the bits
 	 * @return
 	 */
-	virtual std::bitset<(size_t) Number> toBits() {
+	virtual std::bitset<(size_t) Number> measure() {
 		return bits;
 	}
 
+	template<typename... SubBits>
+	auto allocateSubset(
+			SubBits ... subset) ->
+			decltype(std::shared_ptr<AcceleratorBits<sizeof...(SubBits)>>()) {
+	}
 	virtual ~AcceleratorBits() {}
 
-private:
+protected:
 
 	/**
 	 *  The bits themselves
 	 */
 	std::bitset<(size_t)Number> bits;
+
+	std::vector<int> activeBits;
 
 };
 
@@ -146,11 +153,11 @@ public:
  * instances that transform XACC IR to be amenable to execution
  * on the hardware.
  */
-template<typename BitsType>
+template<typename TotalBits>
 class Accelerator : public IAccelerator {
 
-	static_assert(is_valid_bitstype<BitsType>::value, "Derived BitsType parameter must contain N int member for number of bits.");
-	static_assert(std::is_base_of<AcceleratorBits<BitsType::N>, BitsType>::value, "");
+	static_assert(is_valid_bitstype<TotalBits>::value, "Derived BitsType parameter must contain N int member for number of bits.");
+	static_assert(std::is_base_of<AcceleratorBits<TotalBits::N>, TotalBits>::value, "");
 
 public:
 
@@ -159,14 +166,36 @@ public:
 	 *
 	 * @return bits The AcceleratorBits derived type
 	 */
-	std::shared_ptr<BitsType> allocate(const std::string& variableNameId) {
-		if (!canAllocate(BitsType::N)) {
+	std::shared_ptr<TotalBits> allocate(const std::string& variableNameId) {
+		if (!canAllocate(TotalBits::N)) {
 			QCIError("Error in allocated requested bits");
 		}
-		bits = std::make_shared<BitsType>();
-		NBitsAllocated = BitsType::N;
+		bits = std::make_shared<TotalBits>();
+		NBitsAllocated = TotalBits::N;
 		bitVarId = variableNameId;
 		return bits;
+	}
+
+	/**
+	 * Allocate some subset of Accelerator bit resources.
+	 *
+	 * @param variableNameId
+	 * @param bitList
+	 * @return
+	 */
+	template<typename... SubBits>
+	auto allocate(const std::string& variableNameId,
+			SubBits... bitList) -> decltype(std::declval<TotalBits>().allocateSubset(bitList...)) {
+		// FIXME CHECK THAT THEY PASSED IN LIST OF INTS
+		if (!canAllocate(sizeof...(SubBits))) {
+			QCIError("Error in allocated requested bits");
+		}
+
+		auto subsetBits = bits->allocateSubset(bitList...);
+		NBitsAllocated = (int) sizeof...(SubBits);
+		bitVarId = variableNameId;
+
+		return subsetBits;
 	}
 
 	/**
@@ -210,7 +239,7 @@ protected:
 	/**
 	 *
 	 */
-	std::shared_ptr<BitsType> bits;
+	std::shared_ptr<TotalBits> bits;
 
 	/**
 	 * Return true if this Accelerator can allocate

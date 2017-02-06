@@ -53,12 +53,13 @@ void ScaffoldCompiler::modifySource() {
 	std::map<int, int> cbitToQubit;
 
 	std::regex qbitName("qbit\\s.*");
-	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
-				qbitName)).str() + "\n";
-	  std::vector<std::string> splitQbit;
-	    boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
+	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(),
+			kernelSource.end(), qbitName)).str() + "\n";
+	std::vector<std::string> splitQbit;
+	boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
     auto qbitVarName = splitQbit[1].substr(0, splitQbit[1].find_first_of("["));
 
+    // Create Cbit to Qbit mapping
 	std::regex cbitName("cbit\\s.*");
 	auto it = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
 			cbitName);
@@ -167,10 +168,6 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// Compile the source code and return the QASM form
 	// This will throw if it fails.
 	auto qasm = scaffcc.getFlatQASMFromSource(kernelSource);
-
-	// Generate a GraphIR instance, ie a graph
-	// tensor references making up this QASM
-//	std::cout << "Flat QASM: \n" << qasm << "\n";
 
 	// Get the Qasm as a Graph...
 	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
