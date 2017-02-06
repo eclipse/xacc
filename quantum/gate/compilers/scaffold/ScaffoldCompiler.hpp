@@ -86,6 +86,7 @@ protected:
 	 * Reference to potential conditional code
 	 */
 	std::vector<std::string> conditionalCodeSegments;
+	std::vector<int> conditionalCodeSegmentActingQubits;
 
 };
 

@@ -214,7 +214,7 @@ public:
 	 * @param conditionalGraphs
 	 */
 	static void linkConditionalQasm(qci::common::Graph<CircuitNode>& mainGraph,
-			std::vector<qci::common::Graph<CircuitNode>> conditionalGraphs) {
+			std::vector<qci::common::Graph<CircuitNode>>& conditionalGraphs, std::vector<int>& conditionalQubits) {
 
 		// At this point we have a main circuit graph,
 		// and one or more smaller conditional graphs (each with
@@ -224,18 +224,7 @@ public:
 		// pull out the gate vertices (skip initial final state nodes)
 		// and add them to the main graph after some conditional nodes
 
-		// NOTE We assume that the ith conditionalGraph corresponds to the ith
-		// measurement gate... WRONG!!!!
-		std::vector<int> measurementIds;
-		std::vector<std::vector<int>>measurementQubits;
-		for (int i = 0; i < mainGraph.order(); i++) {
-			if (mainGraph.getVertexProperty<0>(i) == "measure") {
-				measurementIds.push_back(mainGraph.getVertexProperty<2>(i));
-				measurementQubits.push_back(mainGraph.getVertexProperty<3>(i));
-			}
-		}
-
-		assert (measurementIds.size() == conditionalGraphs.size());
+		assert (conditionalQubits.size() == conditionalGraphs.size());
 
 		int counter = 0;
 		int finalIdMainGraph = mainGraph.getVertexProperty<2>(mainGraph.order() - 1);
@@ -250,8 +239,8 @@ public:
 		for (auto g : conditionalGraphs) {
 			CircuitNode node;
 			std::get<0>(node.properties) = "conditional";
-			std::get<2>(node.properties) = id;//measurementIds[counter];
-			std::get<3>(node.properties) = measurementQubits[counter];
+			std::get<2>(node.properties) = id;
+			std::get<3>(node.properties) = std::vector<int> {conditionalQubits[counter]};
 			mainGraph.addVertex(node);
 
 			// Connect the main graph to the cond node

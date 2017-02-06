@@ -49,11 +49,47 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource.erase(kernelSource.find("__qpu__"), 7);
 	kernelSource = std::string("module ") + kernelSource;
 
-	std::string qubitAllocationLine;// = "   qbit qreg[3];\n";
+	std::string qubitAllocationLine, cbitAllocationLine;// = "   qbit qreg[3];\n";
 
 	std::regex qbitName("qbit\\s.*");
 	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
 				qbitName)).str() + "\n";
+	  std::vector<std::string> splitQbit;
+	    boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
+    auto qbitVarName = splitQbit[1].substr(0, splitQbit[1].find_first_of("["));
+
+    std::regex cbitName("cbit\\s.*");
+    cbitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
+                            cbitName)).str() + "\n";
+    std::vector<std::string> splitCbit;
+    boost::split(splitCbit, cbitAllocationLine, boost::is_any_of(" "));
+    auto cbitVarName = splitCbit[1].substr(0, splitCbit[1].find_first_of("["));
+
+    std::regex measurements(".*Meas.*");
+    std::map<int, int> cbitToQubit;
+    for (auto i = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
+                    measurements); i != std::sregex_iterator(); ++i) {
+            auto measurement = (*i).str();
+            boost::trim(measurement);
+
+            boost::erase_all(measurement, "MeasZ");
+            boost::erase_all(measurement, "(");
+            boost::erase_all(measurement, ")");
+            boost::erase_all(measurement, cbitVarName);
+            boost::erase_all(measurement, qbitVarName);
+            // Should now have [#] = [#]
+            boost::erase_all(measurement, "[");
+            boost::erase_all(measurement, "]");
+
+            std::vector<std::string> splitVec;
+            boost::split(splitVec, measurement, boost::is_any_of("="));
+            auto cbit = splitVec[0];
+            auto qbit = splitVec[1];
+            boost::trim(cbit);
+            boost::trim(qbit);
+
+            cbitToQubit.insert(std::make_pair(std::stoi(cbit), std::stoi(qbit)));
+    }
 
 	// conditional on measurements
 	// FIXME FOR NOW WE ONLY ACCEPT format
@@ -73,12 +109,28 @@ void ScaffoldCompiler::modifySource() {
 		counter++;
 
 		ifLines.push_back(ifLine + ";\n");
+
+        // Also get which cbit this conditional code belongs to
+		int measurementGateId = -1;
+		for (auto s : splitVec) {
+			if (boost::contains(s, cbitVarName)) {
+				boost::erase_all(s, "(");
+
+				boost::erase_all(s, cbitVarName);
+				boost::erase_all(s, "[");
+				boost::erase_all(s, "]");
+
+				conditionalCodeSegmentActingQubits.push_back(cbitToQubit[std::stoi(s)]);
+
+				break;
+			}
+		}
+
 	}
 
-	for (auto s : conditionalCodeSegments) {
-		std::cout << s << "\n";
-	}
-
+	// Erase the if lines from the main source
+	// they are going to be represented with
+	// conditional graphs.
 	for (auto s : ifLines) {
 		auto idx = kernelSource.find(s);
 		kernelSource.erase(idx, s.size());
@@ -94,7 +146,7 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource = kernelSource + std::string("\nint main() {\n   ") + fName
 			+ std::string(");\n}");
 
-	std::cout << "\n" << kernelSource << "\n";
+//	std::cout << "\n" << kernelSource << "\n";
 }
 
 std::shared_ptr<IR> ScaffoldCompiler::compile() {
@@ -111,7 +163,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 
 	// Generate a GraphIR instance, ie a graph
 	// tensor references making up this QASM
-	std::cout << "Flat QASM: \n" << qasm << "\n";
+//	std::cout << "Flat QASM: \n" << qasm << "\n";
 
 	// Get the Qasm as a Graph...
 	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
@@ -121,6 +173,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// get its circuit graph and add it to the main graph after
 	// the addition of a COND conditional node that will enable the
 	// conditional nodes if the measured cbit is a 1.
+
+	// Get measurement acting qubits
 
 	// So a COND node needs to know the gate id of the measurement gate
 	// and the nodes to mark enabled if the measurement is a 1,
@@ -132,7 +186,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 			condGraphs.push_back(g);
 		}
 
-		QasmToGraph::linkConditionalQasm(circuitGraph, condGraphs);
+		QasmToGraph::linkConditionalQasm(circuitGraph, condGraphs,
+				conditionalCodeSegmentActingQubits);
 	}
 
 	// Create a GraphIR instance from that graph

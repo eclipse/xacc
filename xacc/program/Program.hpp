@@ -64,7 +64,6 @@ std::vector<IRTransformation> getAcceleratorIndependentTransformations(
  * Accelerator reference to be used and kernel source
  * code at construction time.
  */
-//template<typename AccType>
 class Program {
 
 protected:
@@ -147,7 +146,6 @@ public:
 		auto bitTypeStr = compiler->getBitType();
 		auto nBits = accelerator->getAllocationSize();
 		auto varName = accelerator->getVariableName();
-		std::cout << "HELLO WORLD: " << nBits << ", " << varName << "\n";
 		std::string bitAllocationSrc = bitTypeStr + " " + varName + "["
 				+ std::to_string(nBits) + "];\n";
 
@@ -202,7 +200,6 @@ public:
 	std::function<void(RuntimeArgs...)> getKernel(const std::string& name,
 			RuntimeArgs ... args) {
 		return [&]() {
-			std::cout << "HELLO WORLD FROM KERNEL\n";
 			accelerator->execute(xaccIR, args...);
 			return;
 		};
