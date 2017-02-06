@@ -49,7 +49,8 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource.erase(kernelSource.find("__qpu__"), 7);
 	kernelSource = std::string("module ") + kernelSource;
 
-	std::string qubitAllocationLine, cbitAllocationLine;// = "   qbit qreg[3];\n";
+	std::string qubitAllocationLine, cbitAllocationLine, cbitVarName;
+	std::map<int, int> cbitToQubit;
 
 	std::regex qbitName("qbit\\s.*");
 	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
@@ -58,38 +59,44 @@ void ScaffoldCompiler::modifySource() {
 	    boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
     auto qbitVarName = splitQbit[1].substr(0, splitQbit[1].find_first_of("["));
 
-    std::regex cbitName("cbit\\s.*");
-    cbitAllocationLine = (*std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
-                            cbitName)).str() + "\n";
-    std::vector<std::string> splitCbit;
-    boost::split(splitCbit, cbitAllocationLine, boost::is_any_of(" "));
-    auto cbitVarName = splitCbit[1].substr(0, splitCbit[1].find_first_of("["));
+	std::regex cbitName("cbit\\s.*");
+	auto it = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
+			cbitName);
+	if (it != std::sregex_iterator()) {
+		cbitAllocationLine = (*std::sregex_iterator(kernelSource.begin(),
+				kernelSource.end(), cbitName)).str() + "\n";
+		std::vector<std::string> splitCbit;
+		boost::split(splitCbit, cbitAllocationLine, boost::is_any_of(" "));
+		cbitVarName = splitCbit[1].substr(0,
+				splitCbit[1].find_first_of("["));
 
-    std::regex measurements(".*Meas.*");
-    std::map<int, int> cbitToQubit;
-    for (auto i = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
-                    measurements); i != std::sregex_iterator(); ++i) {
-            auto measurement = (*i).str();
-            boost::trim(measurement);
+		std::regex measurements(".*Meas.*");
+		for (auto i = std::sregex_iterator(kernelSource.begin(),
+				kernelSource.end(), measurements); i != std::sregex_iterator();
+				++i) {
+			auto measurement = (*i).str();
+			boost::trim(measurement);
 
-            boost::erase_all(measurement, "MeasZ");
-            boost::erase_all(measurement, "(");
-            boost::erase_all(measurement, ")");
-            boost::erase_all(measurement, cbitVarName);
-            boost::erase_all(measurement, qbitVarName);
-            // Should now have [#] = [#]
-            boost::erase_all(measurement, "[");
-            boost::erase_all(measurement, "]");
+			boost::erase_all(measurement, "MeasZ");
+			boost::erase_all(measurement, "(");
+			boost::erase_all(measurement, ")");
+			boost::erase_all(measurement, cbitVarName);
+			boost::erase_all(measurement, qbitVarName);
+			// Should now have [#] = [#]
+			boost::erase_all(measurement, "[");
+			boost::erase_all(measurement, "]");
 
-            std::vector<std::string> splitVec;
-            boost::split(splitVec, measurement, boost::is_any_of("="));
-            auto cbit = splitVec[0];
-            auto qbit = splitVec[1];
-            boost::trim(cbit);
-            boost::trim(qbit);
+			std::vector<std::string> splitVec;
+			boost::split(splitVec, measurement, boost::is_any_of("="));
+			auto cbit = splitVec[0];
+			auto qbit = splitVec[1];
+			boost::trim(cbit);
+			boost::trim(qbit);
 
-            cbitToQubit.insert(std::make_pair(std::stoi(cbit), std::stoi(qbit)));
-    }
+			cbitToQubit.insert(
+					std::make_pair(std::stoi(cbit), std::stoi(qbit)));
+		}
+	}
 
 	// conditional on measurements
 	// FIXME FOR NOW WE ONLY ACCEPT format
