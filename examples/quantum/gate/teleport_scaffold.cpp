@@ -59,9 +59,6 @@ int main (int argc, char** argv) {
 	// Allocate some qubits, give them a unique identifier...
 	auto qreg = qpu->allocate("qreg");
 
-	auto qreg2 = qpu->allocate("qreg", 0, 1, 2);
-
-
 	// Construct a new Program
 	xacc::Program quantumProgram(qpu, src);
 
