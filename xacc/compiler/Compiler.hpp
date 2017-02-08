@@ -37,6 +37,8 @@
 #include "QCIError.hpp"
 #include "IR.hpp"
 #include <ostream>
+#include <boost/algorithm/string.hpp>
+#include "Accelerator.hpp"
 
 using namespace qci::common;
 
@@ -50,6 +52,14 @@ namespace xacc {
 class ICompiler : public qci::common::QCIObject {
 public:
 	virtual ~ICompiler() {}
+
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
+	virtual std::shared_ptr<IR> compile(const std::string& src,
+			std::shared_ptr<IAccelerator>& accelerator) = 0;
 
 	/**
 	 *
@@ -87,12 +97,67 @@ public:
 	 * @param src The kernel source string.
 	 * @return ir Intermediate representation for provided source kernel code.
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src) {
+	virtual std::shared_ptr<IR> compile(const std::string& src,
+			std::shared_ptr<IAccelerator>& acc) {
 
 		// Set the provided kernel source string
 		// so derived types can have reference to it
 		kernelSource =  src;
 
+		accelerator = acc;
+
+		auto bitTypeStr = getAsDerived().getBitType();
+		auto firstParen = kernelSource.find_first_of('(');
+		auto secondParen = kernelSource.find_first_of(')', firstParen);
+		auto functionArguments = kernelSource.substr(firstParen+1, (secondParen-firstParen)-1);
+
+		if (!functionArguments.empty()) {
+			// First search the prototype to see if it has
+			// and argument that declares the accelerator bit buffer
+			// to use in the kernel
+			std::vector<std::string> splitArgs, splitTypeVar;
+			boost::split(splitArgs, functionArguments, boost::is_any_of(","));
+			std::string varName;
+			for (int i = 0; i < splitArgs.size(); i++) {
+				// split type from var name
+				auto s = splitArgs[i];
+				boost::split(splitTypeVar, s, boost::is_any_of(" "));
+				auto type = splitTypeVar[0];
+				auto var = splitTypeVar[1];
+				boost::trim(type);
+				boost::trim(var);
+				typeToVarKernelArgs.insert(std::make_pair(type, var));
+				if (boost::contains(type, bitTypeStr)) {
+					varName = var;
+				}
+			}
+
+			if (typeToVarKernelArgs.find(bitTypeStr)
+					!= typeToVarKernelArgs.end()) {
+				auto nBits = accelerator->getBufferSize(varName);
+				boost::replace_first(kernelSource,
+						std::string(bitTypeStr + " " + varName),
+						std::string(
+								bitTypeStr + " " + varName + "["
+										+ std::to_string(nBits) + "]"));
+
+				// Replace the varname in the map with varName[#]
+				typeToVarKernelArgs[bitTypeStr] = varName + "["
+						+ std::to_string(nBits) + "]";
+			}
+		}
+		// Xacc requires that clients provide
+		// only the body code for an attached
+		// accelerator... Some language compilers
+		// need to make updates to make that code
+		// amenable to their specific compilation.
+		modifySource();
+
+		return getAsDerived().compile();
+	}
+
+	virtual std::shared_ptr<IR> compile(const std::string& src) {
+		kernelSource = src;
 		// Xacc requires that clients provide
 		// only the body code for an attached
 		// accelerator... Some language compilers
@@ -120,6 +185,9 @@ protected:
 	 */
 	std::string kernelSource;
 
+	std::map<std::string, std::string> typeToVarKernelArgs;
+
+	std::shared_ptr<IAccelerator> accelerator;
 	/**
 	 *
 	 * Derived types implementing compile should perform language

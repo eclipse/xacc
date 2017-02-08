@@ -41,7 +41,7 @@ using namespace xacc::quantum;
 BOOST_AUTO_TEST_CASE(checkConstruction) {
 
 	EigenAccelerator<3> acc;
-	auto qreg = acc.allocate("qreg");
+//	auto qreg = acc.allocate("qreg");
 
 
 	// Create a graph IR modeling a

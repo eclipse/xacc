@@ -32,15 +32,11 @@
 #define BOOST_TEST_MODULE QubitsTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "Qubits.hpp"
+#include "SimulatedQubits.hpp"
 
 using namespace qci::common;
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkConstruction) {
-	Qubits<3> qubits;
-	BOOST_VERIFY(qubits.N == 3);
-	std::bitset<3> bits;
-	BOOST_VERIFY(bits == qubits.measure());
 }
 

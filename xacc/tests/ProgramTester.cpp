@@ -36,17 +36,14 @@
 
 using namespace xacc;
 
-class FakeAccelerator : public Accelerator<AcceleratorBits<5>> {
+class FakeAccelerator : public Accelerator<AcceleratorBuffer> {
 
 public:
 
 	virtual AcceleratorType getType() { return qpu_gate; }
 
 	virtual std::vector<IRTransformation> getIRTransformations() {std::vector<IRTransformation> v; return v;}
-	virtual void execute(const std::shared_ptr<IR> ir) {}
-	virtual bool canAllocate(const int NBits) {
-		return true;
-	}
+	virtual void execute(const std::string& bufferId, const std::shared_ptr<IR> ir) {}
 	virtual ~FakeAccelerator() {}
 };
 
@@ -83,7 +80,7 @@ REGISTER_QCIOBJECT_WITH_QCITYPE(DummyCompiler, "compiler",
 BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 
 	const std::string src("__qpu__ void teleport() {"
-					"       qbit qs[3];"
+					"       qbit q[3];"
 					"		H(q[1]);"
 					"		CNot(q[1],q[2]);"
 					"		CNot(q[0], q[1]);"
@@ -97,10 +94,8 @@ BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 					"}");
 
 	auto acc = std::make_shared<FakeAccelerator>();
-
+	acc->createBuffer("qreg");
 	Program prog(acc, src);
 	prog.build("--compiler dummy");
-
-//	auto kernel = prog.getKernel("teleport");
 }
 

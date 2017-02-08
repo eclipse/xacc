@@ -66,39 +66,64 @@ enum AcceleratorType { qpu_gate, qpu_aqc, npu };
  *
  * @author Alex McCaskey
  */
-template<const int Number>
-class AcceleratorBits {
+class AcceleratorBuffer {
 public:
-	/**
-	 * Reference to the number of bits
-	 */
-	static constexpr int N = Number;
-
-	/**
-	 * Return the current state of the bits
-	 * @return
-	 */
-	virtual std::bitset<(size_t) Number> measure() {
-		return bits;
+	AcceleratorBuffer(const std::string& str) :
+			bufferId(str) {
 	}
-
-	template<typename... SubBits>
-	auto allocateSubset(
-			SubBits ... subset) ->
-			decltype(std::shared_ptr<AcceleratorBits<sizeof...(SubBits)>>()) {
+	AcceleratorBuffer(const std::string& str, const int N) :
+			bufferId(str), bufferSize(N) {
 	}
-	virtual ~AcceleratorBits() {}
+	template<typename ... Indices>
+	AcceleratorBuffer(const std::string& str, int firstIndex,
+			Indices ... indices) :
+			bufferId(str), bufferSize(1 + sizeof...(indices)) {
+	}
+	int size() {
+		return bufferSize;
+	}
+	std::string name() {
+		return bufferId;
+	}
 
 protected:
 
-	/**
-	 *  The bits themselves
-	 */
-	std::bitset<(size_t)Number> bits;
-
-	std::vector<int> activeBits;
-
+	int bufferSize = 0;
+	std::string bufferId;
 };
+//template<const int Number>
+//class AcceleratorBits {
+//public:
+//	/**
+//	 * Reference to the number of bits
+//	 */
+//	static constexpr int N = Number;
+//
+//	/**
+//	 * Return the current state of the bits
+//	 * @return
+//	 */
+//	virtual std::bitset<(size_t) Number> measure() {
+//		return bits;
+//	}
+//
+//	template<typename... SubBits>
+//	auto allocateSubset(
+//			SubBits ... subset) ->
+//			decltype(std::shared_ptr<AcceleratorBits<sizeof...(SubBits)>>()) {
+//	}
+//	virtual ~AcceleratorBits() {}
+//
+//protected:
+//
+//	/**
+//	 *  The bits themselves
+//	 */
+//	std::bitset<(size_t)Number> bits;
+//
+//	std::vector<int> activeBits;
+//
+//};
 
 class IAccelerator : public qci::common::QCIObject {
 public:
@@ -121,7 +146,7 @@ public:
 	 *
 	 * @param ir
 	 */
-	virtual void execute(const std::shared_ptr<IR> ir) = 0;
+	virtual void execute(const std::string& bufferId, const std::shared_ptr<IR> ir) = 0;
 
 	/**
 	 * Return the number of bits that the user most recently
@@ -129,15 +154,14 @@ public:
 	 *
 	 * @return nBits The number of requested bits
 	 */
-	virtual int getAllocationSize() = 0;
+	virtual int getBufferSize(const std::string& id) = 0;
 
-	/**
-	 * Return the variable name provided upon bit allocation
-	 * (for example - qreg for gate model quantum bits in (qbit qreg[2];))
-	 *
-	 * @return varName The name of the bits allocated.
-	 */
-	virtual const std::string getVariableName() = 0;
+	virtual int getBufferSize() = 0;
+
+protected:
+
+	virtual bool isValidBufferSize(const int NBits) {return true;}
+
 };
 
 /**
@@ -153,49 +177,57 @@ public:
  * instances that transform XACC IR to be amenable to execution
  * on the hardware.
  */
-template<typename TotalBits>
+template<typename BitsType>
 class Accelerator : public IAccelerator {
 
-	static_assert(is_valid_bitstype<TotalBits>::value, "Derived BitsType parameter must contain N int member for number of bits.");
-	static_assert(std::is_base_of<AcceleratorBits<TotalBits::N>, TotalBits>::value, "");
+	static_assert(std::is_base_of<AcceleratorBuffer, BitsType>::value, "");
+
+	using BitsTypePtr = std::shared_ptr<BitsType>;
 
 public:
 
-	/**
-	 * Allocate bit resources (if needed).
-	 *
-	 * @return bits The AcceleratorBits derived type
-	 */
-	std::shared_ptr<TotalBits> allocate(const std::string& variableNameId) {
-		if (!canAllocate(TotalBits::N)) {
-			QCIError("Error in allocated requested bits");
-		}
-		bits = std::make_shared<TotalBits>();
-		NBitsAllocated = TotalBits::N;
-		bitVarId = variableNameId;
-		return bits;
+	Accelerator() {
+		totalSystemBuffer = std::make_shared<BitsType>("default");
+		allocatedBuffers.insert(std::make_pair("default", totalSystemBuffer));
 	}
 
-	/**
-	 * Allocate some subset of Accelerator bit resources.
-	 *
-	 * @param variableNameId
-	 * @param bitList
-	 * @return
-	 */
-	template<typename... SubBits>
-	auto allocate(const std::string& variableNameId,
-			SubBits... bitList) -> decltype(std::declval<TotalBits>().allocateSubset(bitList...)) {
-		// FIXME CHECK THAT THEY PASSED IN LIST OF INTS
-		if (!canAllocate(sizeof...(SubBits))) {
-			QCIError("Error in allocated requested bits");
+	BitsTypePtr createBuffer(const std::string& varId) {
+		if (isValidBufferVarId(varId)) {
+			auto buffer = std::make_shared<BitsType>(varId);
+			allocatedBuffers.insert(std::make_pair(varId, buffer));
+			return buffer;
+		} else {
+			QCIError("Invalid buffer variable name.");
 		}
+	}
 
-		auto subsetBits = bits->allocateSubset(bitList...);
-		NBitsAllocated = (int) sizeof...(SubBits);
-		bitVarId = variableNameId;
+	BitsTypePtr createBuffer(const std::string& varId, const int size) {
+		if (!isValidBufferVarId(varId)) {
+			QCIError("Invalid buffer variable name.");
+		}
+		if (!isValidBufferSize(size)) {
+			QCIError("Invalid buffer size.");
+		}
+		auto buffer = std::make_shared<BitsType>(varId, size);
+		allocatedBuffers.insert(std::make_pair(varId, buffer));
+		return buffer;
+	}
 
-		return subsetBits;
+	template<typename... Indices>
+	BitsTypePtr createBuffer(const std::string& varId, int firstIndex,
+			Indices ... indices) {
+		if (!isValidBufferVarId(varId)) {
+			QCIError("Invalid buffer variable name.");
+		}
+		if (!isValidBufferSize(sizeof...(indices) + 1)) {
+			QCIError("Invalid buffer size.");
+		}
+		if (!validIndices(indices...)) {
+			QCIError("Invalid buffer indices.");
+		}
+		auto buffer = std::make_shared<BitsType>(varId, firstIndex, indices...);
+		allocatedBuffers.insert(std::make_pair(varId, buffer));
+		return buffer;
 	}
 
 	/**
@@ -204,19 +236,18 @@ public:
 	 *
 	 * @return nBits The number of requested bits
 	 */
-	virtual int getAllocationSize() {
-		return NBitsAllocated;
+	virtual int getBufferSize(const std::string& id) {
+		return allocatedBuffers[id]->size();
 	}
 
-	/**
-	 * Return the variable name provided upon bit allocation
-	 * (for example - qreg for gate model quantum bits in (qbit qreg[2];))
-	 *
-	 * @return varName The name of the bits allocated.
-	 */
-	virtual const std::string getVariableName() {
-		return bitVarId;
+	virtual int getBufferSize() {
+		return allocatedBuffers["default"]->size();
 	}
+
+	BitsTypePtr getExistingBuffer(const std::string& varId) {
+		return allocatedBuffers[varId];
+	}
+
 
 	/**
 	 * Destructor
@@ -225,31 +256,20 @@ public:
 
 protected:
 
-	/**
-	 * The number of bits allocated upon the most
-	 * recent user request for bit resources.
-	 */
-	int NBitsAllocated = 0;
+	std::map<std::string, BitsTypePtr> allocatedBuffers;
 
-	/**
-	 * The variable name of the bits
-	 */
-	std::string bitVarId;
+	BitsTypePtr totalSystemBuffer;
 
-	/**
-	 *
-	 */
-	std::shared_ptr<TotalBits> bits;
+	bool isValidBufferVarId(const std::string& str) {
+		return allocatedBuffers.find(str) == std::end(allocatedBuffers);
+	}
 
-	/**
-	 * Return true if this Accelerator can allocate
-	 * the provided number of bits.
-	 * @param NBits The number of bits to allocate
-	 * @return canAllocate True if can allocate, false if not.
-	 */
-	virtual bool canAllocate(const int NBits) = 0;
-
+	template<typename... Indices>
+	bool validIndices(int firstIndex, Indices... indices) {
+		return false;
+	}
 
 };
+
 }
 #endif

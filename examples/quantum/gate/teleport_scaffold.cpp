@@ -33,7 +33,7 @@
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
-const std::string src("__qpu__ teleport () {\n"
+const std::string src("__qpu__ teleport (qbit qreg) {\n"
 						"   cbit creg[2];\n"
 						"   // Init qubit 0 to 1\n"
 						"   X(qreg[0]);\n"
@@ -57,22 +57,24 @@ int main (int argc, char** argv) {
 	auto qpu = std::make_shared<Simple6QubitAcc>();
 
 	// Allocate some qubits, give them a unique identifier...
-	auto qreg = qpu->allocate("qreg");
+	auto qubitReg = qpu->createBuffer("qreg", 3);
+	using QubitRegisterType = decltype(qubitReg);
 
 	// Construct a new Program
 	xacc::Program quantumProgram(qpu, src);
 
 	// Build the program
-	quantumProgram.build("--compiler scaffold --writeIR teleport.xir");
+	quantumProgram.build("--compiler scaffold "
+			"--writeIR teleport.xir");
 
 	// Retrieve the constructed kernel
-	auto teleport = quantumProgram.getKernel("teleport");
+	auto teleport = quantumProgram.getKernel<QubitRegisterType>("teleport");
 
 	// Execute the kernel!
-	teleport();
+	teleport(qubitReg);
 
 	// Get the execution result
-	qreg->printState(std::cout);
+	qubitReg->printBufferState(std::cout);
 
 	return 0;
 }

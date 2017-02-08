@@ -141,39 +141,12 @@ public:
 			QCIError("Invalid Compiler.\n");
 		}
 
-		// Update source with hardware bits information...
-		// FIXME Make this more robust in the future...
-		auto bitTypeStr = compiler->getBitType();
-		auto nBits = accelerator->getAllocationSize();
-		auto varName = accelerator->getVariableName();
-		std::string bitAllocationSrc = bitTypeStr + " " + varName + "["
-				+ std::to_string(nBits) + "];\n";
-
-		std::vector<std::string> srcLines;
-		boost::split(srcLines, src, boost::is_any_of("\n"));
-
-	    // First line should be function __qpu__ call, next one
-	    // is where we should put the qubit allocation src
-	    srcLines.insert(srcLines.begin() + 1, bitAllocationSrc);
-
-	    // Merge all into new kernel source string
-	    std::stringstream combine;
-	    std::for_each(srcLines.begin(), srcLines.end(), [&](const std::string& elem) { combine << elem << "\n"; });
-	    src = combine.str();
-
 		// Execute the compilation
-		xaccIR = compiler->compile(src);
+		xaccIR = compiler->compile(src, accelerator);
 
 		// Validate the compilation
 		if (!xaccIR) {
 			QCIError("Bad source string or something.\n");
-		}
-
-		// Write the IR to file if the user requests it
-		if (compileParameters.count("writeIR")) {
-			auto fileStr = compileParameters["writeIR"].as<std::string>();
-			std::ofstream ostr(fileStr);
-			xaccIR->persist(ostr);
 		}
 
 		// Execute IR Translations
@@ -187,6 +160,13 @@ public:
 			t.transform(*xaccIR.get());
 		}
 
+		// Write the IR to file if the user requests it
+		if (compileParameters.count("writeIR")) {
+			auto fileStr = compileParameters["writeIR"].as<std::string>();
+			std::ofstream ostr(fileStr);
+			xaccIR->persist(ostr);
+		}
+
 		return;
 	}
 
@@ -196,11 +176,10 @@ public:
 	 * @param args
 	 * @return
 	 */
-	template<typename ... RuntimeArgs>
-	std::function<void(RuntimeArgs...)> getKernel(const std::string& name,
-			RuntimeArgs ... args) {
-		return [&]() {
-			accelerator->execute(xaccIR, args...);
+	template<typename BitsType, typename ... RuntimeArgs>
+	std::function<void(BitsType, RuntimeArgs...)> getKernel(const std::string& kernelName) {
+		return [&](BitsType bits, RuntimeArgs... args) {
+			accelerator->execute(bits->name(), xaccIR);
 			return;
 		};
 	}

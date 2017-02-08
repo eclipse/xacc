@@ -32,7 +32,6 @@
 #define QUANTUM_GATE_ACCELERATORS_QPU_HPP_
 
 #include "Accelerator.hpp"
-#include "Qubits.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -40,8 +39,8 @@ namespace quantum {
 /**
  *
  */
-template<const int NQubits>
-class QPUGate: virtual public Accelerator<Qubits<NQubits>> {
+template<typename BitsType>
+class QPUGate: virtual public Accelerator<BitsType> {
 public:
 
 	/**
@@ -63,19 +62,6 @@ public:
 	}
 
 	virtual ~QPUGate() {}
-
-protected:
-
-	/**
-	 * This Accelerator can allocate any number of
-	 * qubits (at a great computational cost...)
-	 *
-	 * @param N
-	 * @return
-	 */
-	bool canAllocate(const int N) {
-		return N <= NQubits;
-	}
 };
 
 }

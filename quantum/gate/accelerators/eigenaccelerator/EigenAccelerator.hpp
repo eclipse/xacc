@@ -34,6 +34,7 @@
 #include "QPUGate.hpp"
 #include "QasmToGraph.hpp"
 #include "GraphIR.hpp"
+#include "SimulatedQubits.hpp"
 #include <unsupported/Eigen/KroneckerProduct>
 #include <random>
 
@@ -48,7 +49,7 @@ using QuantumGraphIR = xacc::GraphIR<GraphType>;
  *
  */
 template<const int NQubits>
-class EigenAccelerator : virtual public QPUGate<NQubits> {
+class EigenAccelerator : virtual public QPUGate<SimulatedQubits<NQubits>> {
 public:
 
 	/**
@@ -76,9 +77,14 @@ public:
 	 *
 	 * @param ir
 	 */
-	virtual void execute(const std::shared_ptr<xacc::IR> ir) {
+	virtual void execute(const std::string& bufferId, const std::shared_ptr<xacc::IR> ir) {
 
-		auto qubits = std::dynamic_pointer_cast<Qubits<NQubits>>(this->bits);
+		auto qubits = this->allocatedBuffers[bufferId];
+		if (!qubits) {
+			QCIError("Invalid buffer id. Could not get qubit buffer.");
+		}
+
+		int nQubits = qubits->size();
 
 		// Cast to a GraphIR, if we can...
 		auto graphir = std::dynamic_pointer_cast<QuantumGraphIR>(ir);
@@ -111,8 +117,8 @@ public:
 			}
 
 			// Create a list of nQubits Identity gates
-			std::vector<Eigen::MatrixXcd> productList(NQubits);
-			for (int i = 0; i < NQubits; i++) {
+			std::vector<Eigen::MatrixXcd> productList(nQubits);
+			for (int i = 0; i < nQubits; i++) {
 				productList[i] = gates["I"];
 			}
 
@@ -238,7 +244,7 @@ public:
 					}
 
 					// Make sure that localU is the correct size
-					assert(localU.rows() == std::pow(2, NQubits) && localU.cols() == std::pow(2,NQubits));
+					assert(localU.rows() == std::pow(2, nQubits) && localU.cols() == std::pow(2,nQubits));
 
 					qubits->applyUnitary(localU);
 
@@ -248,6 +254,9 @@ public:
 				}
 			}
 		}
+
+		// Map buffer state to accelerator system state
+
 	}
 
 	/**

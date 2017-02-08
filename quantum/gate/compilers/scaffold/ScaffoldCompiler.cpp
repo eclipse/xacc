@@ -49,15 +49,20 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource.erase(kernelSource.find("__qpu__"), 7);
 	kernelSource = std::string("module ") + kernelSource;
 
-	std::string qubitAllocationLine, cbitAllocationLine, cbitVarName;
+	std::string qubitAllocationLine, cbitAllocationLine, cbitVarName, qbitVarName;
 	std::map<int, int> cbitToQubit;
 
-	std::regex qbitName("qbit\\s.*");
-	qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(),
-			kernelSource.end(), qbitName)).str() + "\n";
-	std::vector<std::string> splitQbit;
-	boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
-    auto qbitVarName = splitQbit[1].substr(0, splitQbit[1].find_first_of("["));
+	if (typeToVarKernelArgs.find("qbit") != typeToVarKernelArgs.end()) {
+		qubitAllocationLine = "qbit " + typeToVarKernelArgs["qbit"] + ";\n";
+		qbitVarName = typeToVarKernelArgs["qbit"].substr(0, typeToVarKernelArgs["qbit"].find_first_of("["));
+	} else {
+		std::regex qbitName("qbit\\s.*");
+		qubitAllocationLine = (*std::sregex_iterator(kernelSource.begin(),
+				kernelSource.end(), qbitName)).str() + "\n";
+		std::vector<std::string> splitQbit;
+		boost::split(splitQbit, qubitAllocationLine, boost::is_any_of(" "));
+		qbitVarName = splitQbit[1].substr(0, splitQbit[1].find_first_of("["));
+	}
 
     // Create Cbit to Qbit mapping
 	std::regex cbitName("cbit\\s.*");
@@ -150,8 +155,27 @@ void ScaffoldCompiler::modifySource() {
 			functionName);
 	std::string fName = (*begin).str();
 
+	std::string qbitAllocation = "", fargs;
+	if (this->typeToVarKernelArgs.find("qbit") != this->typeToVarKernelArgs.end()) {
+		auto varName = this->typeToVarKernelArgs["qbit"];
+		qbitAllocation = "qbit " + varName + ";\n   ";
+	}
+
+	for (auto i = typeToVarKernelArgs.begin(); i != typeToVarKernelArgs.end(); ++i) {
+		if ("qbit" == i->first) {
+			fargs += i->second.substr(0, i->second.find_first_of("[")) + ",";
+		} else {
+			fargs += i->second + ",";
+		}
+	}
+
+	if (!fargs.empty()) {
+		fargs = fargs.substr(0, fargs.size()-1);
+		boost::replace_first(fName, "(", "(" + fargs);
+	}
+
 	// Now wrap in a main function for ScaffCC
-	kernelSource = kernelSource + std::string("\nint main() {\n   ") + fName
+	kernelSource = kernelSource + std::string("\nint main() {\n   ") + qbitAllocation + fName
 			+ std::string(");\n}");
 
 //	std::cout << "\n" << kernelSource << "\n";
