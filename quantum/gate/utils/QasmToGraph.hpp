@@ -62,6 +62,83 @@ public:
 	}
 };
 
+class QuantumCircuit : virtual public qci::common::Graph<CircuitNode> {
+public:
+
+	virtual void read(std::istream& stream) {
+		std::string content { std::istreambuf_iterator<char>(stream),
+				std::istreambuf_iterator<char>() };
+
+		std::vector<std::string> lines, sections;
+		boost::split(sections, content, boost::is_any_of("}"));
+
+		// Sections should be size 2 for a valid dot file
+		boost::split(lines, sections[0], boost::is_any_of("\n"));
+		for (auto line : lines) {
+			if (boost::contains(line, "label")) {
+				CircuitNode v;
+				std::vector<std::string> labelLineSplit, attrSplit;
+				boost::split(labelLineSplit, line, boost::is_any_of("="));
+				auto attributes = labelLineSplit[1].substr(1, labelLineSplit.size()-3);
+				boost::split(attrSplit, attributes, boost::is_any_of(","));
+
+				std::tuple<std::string, int, int, std::vector<int>, bool> props;
+
+				std::map<std::string, std::string> attrMap;
+				for (auto a : attrSplit) {
+					std::vector<std::string> eqsplit;
+					boost::split(eqsplit, a, boost::is_any_of("="));
+
+					if (eqsplit[0] == "Gate") {
+						std::get<0>(v.properties) = eqsplit[1];
+					} else if (eqsplit[0] == "Circuit Layer") {
+						std::get<1>(v.properties) = std::stoi(eqsplit[1]);
+					} else if (eqsplit[0] == "Vertex Id") {
+						std::get<2>(v.properties) = std::stoi(eqsplit[1]);
+					} else if (eqsplit[0] == "Gate Acting Qubits") {
+						auto qubitsStr = eqsplit[1];
+						boost::replace_all(qubitsStr, "[", "");
+						boost::replace_all(qubitsStr, "[", "");
+						std::vector<std::string> elementsStr;
+						std::vector<int> qubits;
+						boost::split(elementsStr, qubitsStr,
+								boost::is_any_of(" "));
+						for (auto element : elementsStr) {
+							qubits.push_back(std::stoi(element));
+						}
+						std::get<3>(v.properties) = qubits;
+					} else if (eqsplit[0] == "Enabled") {
+						std::get<4>(v.properties) = (bool) std::stoi(
+								eqsplit[1]);
+					}
+
+					std::cout << "adding vertex " << std::get<0>(v.properties)
+							<< ", " << std::get<1>(v.properties) << ", "
+							<< std::get<2>(v.properties) << ", "
+							<< std::get<4>(v.properties) << "\n";
+					this->addVertex(v);
+				}
+
+			}
+		}
+
+		// Now add the edges
+		lines.clear();
+		boost::split(lines, sections[1], boost::is_any_of(";\n"));
+		for (auto line : lines) {
+			boost::trim(line);
+			if (line == "}") continue;
+			std::vector<std::string> vertexPairs;
+			boost::split(vertexPairs, line, boost::is_any_of("--"));
+			this->addEdge(std::stoi(vertexPairs[0]), std::stoi(vertexPairs[1]));
+			std::cout << "Adding Edge between " << vertexPairs[0] << " and " << vertexPairs[1] << "\n";
+		}
+	}
+
+
+	virtual ~QuantumCircuit() {}
+};
+
 /**
  * The QasmToGraph class provides a static
  * utility method that maps a flat qasm string
