@@ -29,7 +29,7 @@
  *
  **********************************************************************************/
 #include "XACC.hpp"
-#include "EigenAccelerator.hpp"
+#include "FireTensorAccelerator.hpp"
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
@@ -51,7 +51,7 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 int main (int argc, char** argv) {
 
 	// Create a convenient alias...
-	using Simple6QubitAcc = xacc::quantum::EigenAccelerator<6>;
+	using Simple6QubitAcc = xacc::quantum::FireTensorAccelerator<6>;
 
 	// Create a reference to the 3 qubit simulation Accelerator
 	auto qpu = std::make_shared<Simple6QubitAcc>();

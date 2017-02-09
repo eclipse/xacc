@@ -29,7 +29,7 @@
 #
 #**********************************************************************************/
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/eigenaccelerator)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/firetensoraccelerator)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl)

@@ -35,7 +35,6 @@
 #include "QasmToGraph.hpp"
 #include "GraphIR.hpp"
 #include "SimulatedQubits.hpp"
-#include <unsupported/Eigen/KroneckerProduct>
 #include <random>
 
 namespace xacc {
@@ -46,44 +45,52 @@ using GraphType = qci::common::Graph<CircuitNode>;
 using QuantumGraphIR = xacc::GraphIR<GraphType>;
 
 /**
- *
+ * The FireTensorAccelerator is an XACC Accelerator that simulates
+ * gate based quantum computing circuits. It models the QPUGate Accelerator
+ * with SimulatedQubit AcceleratorBuffer. It relies on the Fire Scientific Computing
+ * Framework's tensor module to model a specific set of quantum gates. It uses these
+ * tensors to build up the unitary matrix described by the circuit.
  */
 template<const int NQubits>
-class EigenAccelerator : virtual public QPUGate<SimulatedQubits<NQubits>> {
+class FireTensorAccelerator : virtual public QPUGate<SimulatedQubits<NQubits>> {
 public:
 
 	/**
 	 * The constructor, create tensor gates
 	 */
-	EigenAccelerator() {
-		Eigen::MatrixXcd h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2), z(2,2);
-		h << 1.0/sqrt2,1.0/sqrt2, 1.0/sqrt2,-1.0/sqrt2;
-		cnot << 1, 0, 0, 0,0, 1, 0, 0,0, 0, 0, 1, 0, 0, 1, 0;
-		x << 0, 1, 1, 0;
-		I << 1,0,0,1;
-		p0 << 1, 0, 0, 0;
-		p1 << 0, 0, 0, 1;
-		z << 1, 0, 0, -1;
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("h",h));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("cnot",cnot));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("I",I));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("x",x));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("p0",p0));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("p1",p1));
-		gates.insert(std::map<std::string, Eigen::MatrixXcd>::value_type("z",z));
+	FireTensorAccelerator() {
+		fire::Tensor<2> h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2), z(2,2);
+		h.setValues({{1.0/sqrt2, 1.0/sqrt2},{1.0/sqrt2,-1.0/sqrt2}});
+		cnot.setValues({{1,0,0,0},{0,0,1,0},{0,0,0,1},{0,0,1,0}});
+		x.setValues({{0, 1},{1, 0}});
+		I.setValues({{1,0},{0,1}});
+		p0.setValues({{1,0},{0,0}});
+		p1.setValues({{0,0},{0,1}});
+		z.setValues({{1,0},{0,-1}});
+		gates.insert(std::make_pair("h",h));
+		gates.insert(std::make_pair("cont",cnot));
+		gates.insert(std::make_pair("x",x));
+		gates.insert(std::make_pair("I",I));
+		gates.insert(std::make_pair("p0",p0));
+		gates.insert(std::make_pair("p1",p1));
+		gates.insert(std::make_pair("z",z));
 	}
 
 	/**
+	 * Execute the simulation. Requires both a valid SimulatedQubits buffer and
+	 * Graph IR instance modeling the quantum circuit.
 	 *
 	 * @param ir
 	 */
 	virtual void execute(const std::string& bufferId, const std::shared_ptr<xacc::IR> ir) {
 
+		// Get the requested qubit buffer
 		auto qubits = this->allocatedBuffers[bufferId];
 		if (!qubits) {
 			QCIError("Invalid buffer id. Could not get qubit buffer.");
 		}
 
+		// Set the size
 		int nQubits = qubits->size();
 
 		// Cast to a GraphIR, if we can...
@@ -92,23 +99,21 @@ public:
 			QCIError("Invalid IR - this Accelerator only accepts GraphIR<Graph<CircuitNode>>.");
 		}
 
-		// Get the Graph
+		// Get the Graph and related info
 		std::vector<CircuitNode> gateOperations;
 		std::map<int, int> qubitIdToMeasuredResult;
 		auto graph = graphir->getGraph();
 		int nNodes = graph.order(), layer = 1;
 		int finalLayer = graph.getVertexProperty<1>(nNodes - 1);
 
+		// Get a vector of all gates
 		for (int i = 0; i < nNodes; i++) {
 			CircuitNode n;
 			n.properties = graph.getVertexProperties(i);
 			gateOperations.emplace_back(n);
 		}
 
-//		std::cout << "Initial State:\n";
-//		qubits->printState(std::cout);
-//		std::cout << "\n";
-
+		// Loop over all gates in the circuit
 		for (auto gate : gateOperations) {
 
 			// Skip disabled gates...
@@ -117,16 +122,17 @@ public:
 			}
 
 			// Create a list of nQubits Identity gates
-			std::vector<Eigen::MatrixXcd> productList(nQubits);
+			std::vector<fire::Tensor<2>> productList;
 			for (int i = 0; i < nQubits; i++) {
-				productList[i] = gates["I"];
+				productList.push_back(gates.at("I"));
 			}
 
-			// Create a local U gate
-			Eigen::MatrixXcd localU;
+			// Create a local U gate, initialized to identity
+			fire::Tensor<2> localU = gates.at("I");
 
 			// Get the current gate anme
 			auto gateName = std::get<0>(gate.properties);
+
 			// Get the qubits we're acting on...
 			auto actingQubits = std::get<3>(gate.properties);
 
@@ -153,26 +159,28 @@ public:
 						if (std::get<0>(gateOperations[i].properties) == "FinalState") {
 							break;
 						}
-//						std::cout << "Enabling " << graph.getVertexProperty<0>(i) << "\n";
 						std::get<4>(gateOperations[i].properties) = true;
 					}
 				}
 
 			} else if (gateName == "measure") {
 
-				// get rho
-				auto rho = qubits->getState() * qubits->getState().transpose();
+				// get rho - outer product of state with itself
+				auto rho = qubits->getState() * qubits->getState();
 
-				productList[actingQubits[0]] = gates["p0"];
 				// Create a total unitary for this layer of the circuit
-				auto temp = productList[0];
+				productList.at(actingQubits[0]) = gates.at("p0");
+				auto Pi0 = productList.at(0);
 				for (int i = 1; i < productList.size(); i++) {
-					temp = kroneckerProduct(temp, productList[i]).eval();
+					Pi0 = Pi0.kronProd(productList.at(i));
 				}
 
 				// Get probability qubit is a 0
-				auto temp2 = temp * rho;
-				auto probZero = temp2.trace();
+				double probZero = 0.0;
+				std::array<IndexPair, 1> contractionIndices;
+				contractionIndices[0] = std::make_pair(1, 0);
+				auto Prob0 = Pi0.contract(rho, contractionIndices);
+				for (int i = 0; i < Prob0.dimension(0); i++) probZero += Prob0(i,i);
 
 				// Make the measurement random...
 				std::random_device rd;
@@ -182,23 +190,21 @@ public:
 				auto val = dist(mt);
 				if (val < std::real(probZero)) {
 					result = 0;
-					Eigen::VectorXcd newState = (temp * qubits->getState());
-					newState.normalize();
-					qubits->setState(newState);
+					qubits->applyUnitary(Pi0);
+					qubits->normalize();
 				} else {
 					result = 1;
-					productList[actingQubits[0]] = gates["p1"];
+					productList.at(actingQubits[0]) = gates.at("p1");
 					// Create a total unitary for this layer of the circuit
-					auto temp = productList[0];
+					auto Pi1 = productList.at(0);
 					for (int i = 1; i < productList.size(); i++) {
-						temp = kroneckerProduct(temp, productList[i]).eval();
+						Pi1 = Pi1.kronProd(productList.at(i));
 					}
-					Eigen::VectorXcd newState = (temp * qubits->getState());
-					newState.normalize();
-					qubits->setState(newState);
+					qubits->applyUnitary(Pi1);
+					qubits->normalize();
 				}
 
-//				std::cout << "Measured qubit " << actingQubits[0] << " to be a " << result << ": prob was " << probZero << "\n";
+				// Record the measurement result
 				qubitIdToMeasuredResult.insert(std::make_pair(actingQubits[0], result));
 
 			} else {
@@ -209,65 +215,62 @@ public:
 
 						// If this is a one qubit gate, just replace
 						// the currect I in the list with the gate
-						productList[actingQubits[0]] = gates[gateName];
+						productList.at(actingQubits[0]) = gates.at(gateName);
 
 						// Create a total unitary for this layer of the circuit
-						localU = productList[0];
+						localU = productList.at(0);
 						for (int i = 1; i < productList.size(); i++) {
-							localU =
-									kroneckerProduct(localU, productList[i]).eval();
+							localU = localU.kronProd(productList.at(i));
 						}
 
 					} else if (actingQubits.size() == 2) {
 						// If this is a 2 qubit gate, then we need t
 						// to construct Kron(P0, I, ..., I) + Kron(P1, I, ..., Gate, ..., I)
-						productList[actingQubits[0]] = gates["p0"];
-						localU = productList[0];
+						productList.at(actingQubits[0]) = gates.at("p0");
+						localU = productList.at(0);
 						for (int i = 1; i < productList.size(); i++) {
-							localU =
-									kroneckerProduct(localU, productList[i]).eval();
+							localU = localU.kronProd(productList.at(i));
 						}
 
 						// Now create the second term in the sum
-						productList[actingQubits[0]] = gates["p1"];
-						productList[actingQubits[1]] = gates[gateName == "cnot" ? "x" : "I"];
-						auto temp = productList[0];
+						productList.at(actingQubits[0]) = gates.at("p1");
+						productList.at(actingQubits[1]) = gates.at(gateName == "cnot" ? "x" : "I");
+						auto temp = productList.at(0);
 						for (int i = 1; i < productList.size(); i++) {
-							temp =
-									kroneckerProduct(temp, productList[i]).eval();
+							temp = temp.kronProd(productList.at(i));
 						}
 
 						// Sum them up
-						localU += temp;
+						localU = localU + temp;
 					} else {
 						QCIError("Can only simulate one and two qubit gates.");
 					}
 
 					// Make sure that localU is the correct size
-					assert(localU.rows() == std::pow(2, nQubits) && localU.cols() == std::pow(2,nQubits));
+					assert(
+							localU.dimension(0) == std::pow(2, nQubits)
+									&& localU.dimension(1)
+											== std::pow(2, nQubits));
 
+					// Appy the unitary and update th state
 					qubits->applyUnitary(localU);
 
-//					std::cout << "Current State after " << gateName << ":\n";
-//					qubits->printState(std::cout);
-//					std::cout << "\n" << localU << "\n";
 				}
 			}
 		}
-
-		// Map buffer state to accelerator system state
-
 	}
 
 	/**
 	 * The destructor
 	 */
-	virtual ~EigenAccelerator() {
-	}
+	virtual ~FireTensorAccelerator() {}
 
 protected:
 
-	std::map<std::string, Eigen::MatrixXcd> gates;
+	/**
+	 * Mapping of gate names to actual gate matrices.
+	 */
+	std::map<std::string, fire::Tensor<2>> gates;
 };
 }
 }

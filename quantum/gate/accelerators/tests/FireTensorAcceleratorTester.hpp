@@ -33,14 +33,14 @@
 
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
-#include "EigenAccelerator.hpp"
+#include "FireTensorAccelerator.hpp"
 #include "GraphIR.hpp"
 
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkConstruction) {
 
-	EigenAccelerator<3> acc;
+	FireTensorAccelerator<3> acc;
 //	auto qreg = acc.allocate("qreg");
 
 

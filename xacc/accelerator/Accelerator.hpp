@@ -55,14 +55,6 @@ struct is_valid_bitstype<T, decltype(std::declval<T>().N, void())> : std::true_t
 enum AcceleratorType { qpu_gate, qpu_aqc, npu };
 
 /**
- * The AcceleratorBits class provides a common
- * base class for allocating accelerator-specific
- * bit resources (for example, qubits). It takes an
- * integer template parameter at construction that indicates
- * the number of bits this AcceleratorBits models.
- *
- * Derived Accelerators should define a subclass of this
- * class that models the hardware.
  *
  * @author Alex McCaskey
  */
@@ -91,39 +83,6 @@ protected:
 	int bufferSize = 0;
 	std::string bufferId;
 };
-//template<const int Number>
-//class AcceleratorBits {
-//public:
-//	/**
-//	 * Reference to the number of bits
-//	 */
-//	static constexpr int N = Number;
-//
-//	/**
-//	 * Return the current state of the bits
-//	 * @return
-//	 */
-//	virtual std::bitset<(size_t) Number> measure() {
-//		return bits;
-//	}
-//
-//	template<typename... SubBits>
-//	auto allocateSubset(
-//			SubBits ... subset) ->
-//			decltype(std::shared_ptr<AcceleratorBits<sizeof...(SubBits)>>()) {
-//	}
-//	virtual ~AcceleratorBits() {}
-//
-//protected:
-//
-//	/**
-//	 *  The bits themselves
-//	 */
-//	std::bitset<(size_t)Number> bits;
-//
-//	std::vector<int> activeBits;
-//
-//};
 
 class IAccelerator : public qci::common::QCIObject {
 public:
