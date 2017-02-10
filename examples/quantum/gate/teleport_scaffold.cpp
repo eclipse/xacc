@@ -53,7 +53,7 @@ int main (int argc, char** argv) {
 	// Create a convenient alias for our simulator...
 	using CircuitSimulator = xacc::quantum::FireTensorAccelerator<6>;
 
-	// Create a reference to the 3 qubit simulation Accelerator
+	// Create a reference to the 6 qubit simulation Accelerator
 	auto qpu = std::make_shared<CircuitSimulator>();
 
 	// Allocate 3 qubits, give them a unique identifier...
