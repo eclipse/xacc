@@ -1,6 +1,6 @@
 ---
 layout: post
-title: XACC Scaffold Modifications and Enhancementsl
+title: XACC Scaffold Modifications and Enhancements
 permalink: /design/xacc_scaffold
 category: design
 ---
