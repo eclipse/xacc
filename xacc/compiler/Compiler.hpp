@@ -121,6 +121,7 @@ public:
 			for (int i = 0; i < splitArgs.size(); i++) {
 				// split type from var name
 				auto s = splitArgs[i];
+				boost::trim(s);
 				boost::split(splitTypeVar, s, boost::is_any_of(" "));
 				auto type = splitTypeVar[0];
 				auto var = splitTypeVar[1];
@@ -156,6 +157,11 @@ public:
 		return getAsDerived().compile();
 	}
 
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
 	virtual std::shared_ptr<IR> compile(const std::string& src) {
 		kernelSource = src;
 		// Xacc requires that clients provide
@@ -185,20 +191,15 @@ protected:
 	 */
 	std::string kernelSource;
 
-	std::map<std::string, std::string> typeToVarKernelArgs;
-
-	std::shared_ptr<IAccelerator> accelerator;
 	/**
 	 *
-	 * Derived types implementing compile should perform language
-	 * specific compilation and return a shared pointer to an
-	 * intermediate representation IR instance.
-	 *
-	 * @return
 	 */
-	virtual std::shared_ptr<IR> compile() {
-		QCIError("Compile must be overridden by derived types.\n");
-	}
+	std::map<std::string, std::string> typeToVarKernelArgs;
+
+	/**
+	 *
+	 */
+	std::shared_ptr<IAccelerator> accelerator;
 
 	/**
 	 *

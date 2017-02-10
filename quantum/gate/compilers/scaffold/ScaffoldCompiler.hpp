@@ -69,13 +69,6 @@ public:
 	}
 
 	/**
-	 * This method is intended to modify the incoming
-	 * source code to be compiled to be amenable to the
-	 * Scaffold compiler.
-	 */
-	virtual void modifySource();
-
-	/**
 	 * The destructor
 	 */
 	virtual ~ScaffoldCompiler() {}
@@ -83,9 +76,20 @@ public:
 protected:
 
 	/**
+	 * This method is intended to modify the incoming
+	 * source code to be compiled to be amenable to the
+	 * Scaffold compiler.
+	 */
+	virtual void modifySource();
+
+	/**
 	 * Reference to potential conditional code
 	 */
 	std::vector<std::string> conditionalCodeSegments;
+
+	/**
+	 *
+	 */
 	std::vector<int> conditionalCodeSegmentActingQubits;
 
 };

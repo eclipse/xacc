@@ -33,29 +33,10 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "Program.hpp"
+#include "FakeIR.hpp"
+#include "FakeAccelerator.hpp"
 
 using namespace xacc;
-
-class FakeAccelerator : public Accelerator<AcceleratorBuffer> {
-
-public:
-
-	virtual AcceleratorType getType() { return qpu_gate; }
-
-	virtual std::vector<IRTransformation> getIRTransformations() {std::vector<IRTransformation> v; return v;}
-	virtual void execute(const std::string& bufferId, const std::shared_ptr<IR> ir) {}
-	virtual ~FakeAccelerator() {}
-};
-
-class FakeIR: public IR {
-public:
-	FakeIR() {
-	}
-	virtual std::string toString() { return std::string();}
-	virtual void persist(std::ostream& stream) {}
-	virtual void read(std::istream& inStream) {}
-
-};
 
 class DummyCompiler : public Compiler<DummyCompiler> {
 public:

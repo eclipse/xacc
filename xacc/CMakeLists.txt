@@ -41,7 +41,7 @@ file (GLOB SRC program/*.cpp compiler/*.cpp accelerator/*.cpp)
 file(GLOB test_files tests/*Tester.cpp)
 
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator" "${Boost_LIBRARIES}")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/tests;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator" "${Boost_LIBRARIES}")
 
 
 install(FILES ${HEADERS} DESTINATION include)

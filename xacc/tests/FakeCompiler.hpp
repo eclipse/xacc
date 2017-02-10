@@ -28,36 +28,35 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE CompilerTester
+#ifndef XACC_TESTS_FAKECOMPILER_HPP_
+#define XACC_TESTS_FAKECOMPILER_HPP_
 
-#include <boost/test/included/unit_test.hpp>
 #include "Compiler.hpp"
-#include "FakeCompiler.hpp"
-#include "FakeAccelerator.hpp"
+#include "FakeIR.hpp"
 
 using namespace xacc;
 
-BOOST_AUTO_TEST_CASE(checkKernelArgs) {
+class FakeCompiler: public Compiler<FakeCompiler> {
+public:
+	virtual std::shared_ptr<IR> compile() {
+		return std::make_shared<FakeIR>();
+	}
 
-	auto acc = std::make_shared<FakeAccelerator>();
-	auto qreg = acc->createBuffer("qreg", 3);
+	virtual void modifySource() {
 
-	const std::string src("__qpu__ void function(qbit qreg, double phi) {\n"
-			"}\n");
+	}
 
-	auto compiler = std::shared_ptr<ICompiler>(new FakeCompiler());
+	std::map<std::string, std::string> getTypeToVarArgs() {
+		return typeToVarKernelArgs;
+	}
 
-	auto a = std::dynamic_pointer_cast<IAccelerator>(acc);
-	compiler->compile(src, a);
+	virtual std::string getBitType() {
+		return "qbit";
+	}
 
-	auto asFake = std::dynamic_pointer_cast<FakeCompiler>(compiler);
+	virtual ~FakeCompiler() {
+	}
+};
 
-	auto argMap = asFake->getTypeToVarArgs();
 
-	BOOST_VERIFY(argMap.find("double") != argMap.end());
-	BOOST_VERIFY(argMap.find("qbit") != argMap.end());
-	BOOST_VERIFY(argMap["qbit"] == "qreg[3]");
-	BOOST_VERIFY(argMap["double"] == "phi");
-
-}
+#endif
