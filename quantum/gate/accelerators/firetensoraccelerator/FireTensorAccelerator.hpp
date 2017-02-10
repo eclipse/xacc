@@ -32,8 +32,8 @@
 #define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 
 #include "QPUGate.hpp"
-#include "QasmToGraph.hpp"
 #include "GraphIR.hpp"
+#include "QuantumCircuit.hpp"
 #include "SimulatedQubits.hpp"
 #include <random>
 
@@ -41,8 +41,7 @@ namespace xacc {
 namespace quantum {
 
 double sqrt2 = std::sqrt(2.0);
-using GraphType = qci::common::Graph<CircuitNode>;
-using QuantumGraphIR = xacc::GraphIR<GraphType>;
+using QuantumGraphIR = xacc::GraphIR<QuantumCircuit>;
 
 /**
  * The FireTensorAccelerator is an XACC Accelerator that simulates

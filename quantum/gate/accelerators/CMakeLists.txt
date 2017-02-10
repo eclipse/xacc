@@ -34,5 +34,5 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/eigenaccelerator;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen" "${Boost_LIBRARIES}")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/firetensoraccelerator;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen" "${Boost_LIBRARIES}")
 

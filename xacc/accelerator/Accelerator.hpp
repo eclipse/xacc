@@ -139,7 +139,9 @@ protected:
 template<typename BitsType>
 class Accelerator : public IAccelerator {
 
-	static_assert(std::is_base_of<AcceleratorBuffer, BitsType>::value, "");
+	static_assert(std::is_base_of<AcceleratorBuffer, BitsType>::value, "Accelerators "
+			"can only be instantiated with a valid AcceleratorBuffer type as "
+			"the template parameter.");
 
 	using BitsTypePtr = std::shared_ptr<BitsType>;
 

@@ -42,7 +42,7 @@ using namespace qci::common;
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
-	using GraphType = Graph<CircuitNode>;
+	using GraphType = QuantumCircuit;
 
 	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
 	BOOST_VERIFY(compiler);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 }
 
 BOOST_AUTO_TEST_CASE(checkCodeWithMeasurementIf) {
-	using GraphType = Graph<CircuitNode>;
+	using GraphType = QuantumCircuit;
 
 	auto compiler =
 			qci::common::AbstractFactory::createAndCast<xacc::ICompiler>(

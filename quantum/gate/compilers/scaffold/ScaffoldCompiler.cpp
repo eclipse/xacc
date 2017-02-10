@@ -33,7 +33,7 @@
 #include <regex>
 #include "ScaffCCAPI.hpp"
 #include "QasmToGraph.hpp"
-#include <boost/algorithm/string.hpp>
+#include "QuantumCircuit.hpp"
 
 namespace xacc {
 
@@ -187,7 +187,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// so that we can interact with a locally installed
 	// scaffcc executable
 	scaffold::ScaffCCAPI scaffcc;
-	using ScaffoldGraphIR = GraphIR<Graph<CircuitNode>>;
+	using ScaffoldGraphIR = GraphIR<QuantumCircuit>;
 
 	// Compile the source code and return the QASM form
 	// This will throw if it fails.
@@ -207,7 +207,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// So a COND node needs to know the gate id of the measurement gate
 	// and the nodes to mark enabled if the measurement is a 1,
 	if (!conditionalCodeSegments.empty()) {
-		std::vector<qci::common::Graph<CircuitNode>> condGraphs;
+		std::vector<QuantumCircuit> condGraphs;
 		for (auto cond : conditionalCodeSegments) {
 			auto condQasm = scaffcc.getFlatQASMFromSource(cond);
 			auto g = QasmToGraph::getCircuitGraph(condQasm);

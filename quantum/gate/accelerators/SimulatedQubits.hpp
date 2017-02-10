@@ -42,6 +42,7 @@ public:
 					(int) std::pow(2, TotalNumberOfQubits)) {
 		// Initialize to |000...000> state
 		bufferState(0) = 1.0;
+		this->bufferSize = TotalNumberOfQubits;
 	}
 
 	/**
@@ -105,18 +106,38 @@ public:
 	}
 
 	/**
+	 * Allocating this buffer type is only valid
+	 * if N <= TotalNumberOfQubits.
+	 * @param N
+	 * @return
+	 */
+	virtual bool isValidBufferSize(const int N) {
+		return N <= TotalNumberOfQubits;
+	}
+
+	/**
 	 * Print the state to the provided output stream.
 	 *
 	 * @param stream
 	 */
 	void printBufferState(std::ostream& stream) {
-		for (int i = 0; i < bufferState.dimension(0); i++) {
-			stream
-					<< std::bitset<TotalNumberOfQubits>(i).to_string().substr(
-							size(), TotalNumberOfQubits) << " -> "
-					<< bufferState(i) << "\n";
+		if (size() < TotalNumberOfQubits) {
+			for (int i = 0; i < bufferState.dimension(0); i++) {
+				stream
+						<< std::bitset<TotalNumberOfQubits>(i).to_string().substr(
+								size(), TotalNumberOfQubits) << " -> "
+						<< bufferState(i) << "\n";
+			}
+		} else {
+			for (int i = 0; i < bufferState.dimension(0); i++) {
+
+				stream << std::bitset<TotalNumberOfQubits>(i).to_string()
+						<< " -> " << bufferState(i) << "\n";
+			}
 		}
 	}
+
+	virtual ~SimulatedQubits() {}
 };
 }
 }
