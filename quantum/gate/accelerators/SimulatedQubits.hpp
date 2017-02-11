@@ -9,7 +9,7 @@ namespace xacc {
 
 namespace quantum {
 
-using QubitState = fire::Tensor<1>;
+using QubitState = fire::Tensor<1, fire::EigenProvider, std::complex<double>>;
 using IndexPair = std::pair<int,int>;
 
 /**
@@ -68,7 +68,7 @@ public:
 	 *
 	 * @param U
 	 */
-	void applyUnitary(fire::Tensor<2>& U) {
+	void applyUnitary(fire::Tensor<2, fire::EigenProvider, std::complex<double>>& U) {
 		assert(
 				U.dimension(0) == bufferState.dimension(0)
 						&& U.dimension(1) == bufferState.dimension(0));
@@ -83,7 +83,7 @@ public:
 	void normalize() {
 		double sum = 0.0;
 		for (int i = 0; i < bufferState.dimension(0); i++)
-			sum += bufferState(i) * bufferState(i);
+			sum += std::real(bufferState(i) * bufferState(i));
 		for (int i = 0; i < bufferState.dimension(0); i++)
 			bufferState(i) = bufferState(i) / std::sqrt(sum);
 	}

@@ -97,9 +97,9 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 	graphir->read(iss);
 	acc.execute("qreg", graphir);
 
-	BOOST_VERIFY(qreg->getState()(1) * qreg->getState()(1) == 1 ||
-			qreg->getState()(5) * qreg->getState()(5) == 1 ||
-			qreg->getState()(3) * qreg->getState()(3) == 1 ||
-			qreg->getState()(7) * qreg->getState()(7) == 1);
+	BOOST_VERIFY(std::real(qreg->getState()(1) * qreg->getState()(1)) == 1 ||
+			std::real(qreg->getState()(5) * qreg->getState()(5)) == 1 ||
+			std::real(qreg->getState()(3) * qreg->getState()(3)) == 1 ||
+			std::real(qreg->getState()(7) * qreg->getState()(7)) == 1);
 }
 

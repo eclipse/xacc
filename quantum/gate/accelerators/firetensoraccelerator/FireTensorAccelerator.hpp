@@ -58,7 +58,7 @@ public:
 	 * The constructor, create tensor gates
 	 */
 	FireTensorAccelerator() {
-		fire::Tensor<2> h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2), z(2,2);
+		fire::Tensor<2, fire::EigenProvider, std::complex<double>> h(2,2), cnot(4,4), I(2,2), x(2,2), p0(2,2), p1(2,2), z(2,2);
 		h.setValues({{1.0/sqrt2, 1.0/sqrt2},{1.0/sqrt2,-1.0/sqrt2}});
 		cnot.setValues({{1,0,0,0},{0,0,1,0},{0,0,0,1},{0,0,1,0}});
 		x.setValues({{0, 1},{1, 0}});
@@ -121,13 +121,13 @@ public:
 			}
 
 			// Create a list of nQubits Identity gates
-			std::vector<fire::Tensor<2>> productList;
+			std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>> productList;
 			for (int i = 0; i < nQubits; i++) {
 				productList.push_back(gates.at("I"));
 			}
 
 			// Create a local U gate, initialized to identity
-			fire::Tensor<2> localU = gates.at("I");
+			fire::Tensor<2, fire::EigenProvider, std::complex<double>> localU = gates.at("I");
 
 			// Get the current gate anme
 			auto gateName = std::get<0>(gate.properties);
@@ -179,7 +179,7 @@ public:
 				std::array<IndexPair, 1> contractionIndices;
 				contractionIndices[0] = std::make_pair(1, 0);
 				auto Prob0 = Pi0.contract(rho, contractionIndices);
-				for (int i = 0; i < Prob0.dimension(0); i++) probZero += Prob0(i,i);
+				for (int i = 0; i < Prob0.dimension(0); i++) probZero += std::real(Prob0(i,i));
 
 				// Make the measurement random...
 				std::random_device rd;
@@ -269,7 +269,7 @@ protected:
 	/**
 	 * Mapping of gate names to actual gate matrices.
 	 */
-	std::map<std::string, fire::Tensor<2>> gates;
+	std::map<std::string, fire::Tensor<2, fire::EigenProvider, std::complex<double>>> gates;
 };
 }
 }
