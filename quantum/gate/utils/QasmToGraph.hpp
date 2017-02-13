@@ -103,6 +103,7 @@ public:
 						line.end(), spaceDelim, -1 }, last;
 				std::vector<std::string> gateCommand = {first, last};
 
+				std::cout << "GSTER: " << gateCommand[0] << "\n";
 				// Set the gate as a lowercase gate name string
 				auto g = boost::to_lower_copy(gateCommand[0]);
 				boost::trim(g);

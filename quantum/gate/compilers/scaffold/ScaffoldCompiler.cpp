@@ -155,17 +155,17 @@ void ScaffoldCompiler::modifySource() {
 			functionName);
 	std::string fName = (*begin).str();
 
-	std::string qbitAllocation = "", fargs;
-	if (this->typeToVarKernelArgs.find("qbit") != this->typeToVarKernelArgs.end()) {
-		auto varName = this->typeToVarKernelArgs["qbit"];
-		qbitAllocation = "qbit " + varName + ";\n   ";
-	}
-
-	for (auto i = typeToVarKernelArgs.begin(); i != typeToVarKernelArgs.end(); ++i) {
-		if ("qbit" == i->first) {
-			fargs += i->second.substr(0, i->second.find_first_of("[")) + ",";
+	std::string varAllocation = "", fargs;
+	for (auto i : orderOfArgs) {
+		auto key = i;
+		auto value = typeToVarKernelArgs[i];
+		if ("qbit" == key) {
+			varAllocation += key + " " + value + ";\n   ";
+			fargs += value.substr(0, value.find_first_of("[")) + ",";
 		} else {
-			fargs += i->second + ",";
+
+			varAllocation += key + " " + value + " = 0;\n   ";
+			fargs += value + ",";
 		}
 	}
 
@@ -175,10 +175,10 @@ void ScaffoldCompiler::modifySource() {
 	}
 
 	// Now wrap in a main function for ScaffCC
-	kernelSource = kernelSource + std::string("\nint main() {\n   ") + qbitAllocation + fName
+	kernelSource = kernelSource + std::string("\nint main() {\n   ") + varAllocation + fName
 			+ std::string(");\n}");
 
-//	std::cout << "\n" << kernelSource << "\n";
+	std::cout << "\n" << kernelSource << "\n";
 }
 
 std::shared_ptr<IR> ScaffoldCompiler::compile() {

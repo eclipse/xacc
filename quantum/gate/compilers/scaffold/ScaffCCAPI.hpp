@@ -71,7 +71,7 @@ public:
 			tempSrcFile.close();
 
 			// Execute the scaffold compiler
-			std::system("scaffcc -fp .tmpSrcFile.scaffold &> /dev/null");
+			std::system("scaffcc -fRp .tmpSrcFile.scaffold &> /dev/null");
 
 			// Remove the temporary source file, we don't need it anymore
 			std::remove(".tmpSrcFile.scaffold");

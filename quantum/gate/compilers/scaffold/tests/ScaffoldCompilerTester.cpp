@@ -100,3 +100,24 @@ BOOST_AUTO_TEST_CASE(checkCodeWithMeasurementIf) {
 	BOOST_VERIFY(graphir->size() == 23);
 
 }
+
+BOOST_AUTO_TEST_CASE(checkCodeWithArgument) {
+	using GraphType = QuantumCircuit;
+
+	auto compiler =
+			qci::common::AbstractFactory::createAndCast<xacc::ICompiler>(
+					"compiler", "scaffold");
+	BOOST_VERIFY(compiler);
+
+	const std::string src("__qpu__ kernel (qbit qreg[1], double phi) {\n"
+//						"   qbit qreg[1];\n"
+						"   Rz(qreg[0], phi);\n"
+						"}\n");
+
+	auto ir = compiler->compile(src);
+	BOOST_VERIFY(ir);
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+	BOOST_VERIFY(graphir);
+
+	graphir->persist(std::cout);
+}

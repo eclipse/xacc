@@ -104,37 +104,19 @@ public:
 		// so derived types can have reference to it
 		kernelSource =  src;
 
+		kernelArgsToMap();
+
+		// Set the accelerator
 		accelerator = acc;
 
+		// Get the bit variable type string
 		auto bitTypeStr = getAsDerived().getBitType();
-		auto firstParen = kernelSource.find_first_of('(');
-		auto secondParen = kernelSource.find_first_of(')', firstParen);
-		auto functionArguments = kernelSource.substr(firstParen+1, (secondParen-firstParen)-1);
 
-		if (!functionArguments.empty()) {
-			// First search the prototype to see if it has
-			// and argument that declares the accelerator bit buffer
-			// to use in the kernel
-			std::vector<std::string> splitArgs, splitTypeVar;
-			boost::split(splitArgs, functionArguments, boost::is_any_of(","));
-			std::string varName;
-			for (int i = 0; i < splitArgs.size(); i++) {
-				// split type from var name
-				auto s = splitArgs[i];
-				boost::trim(s);
-				boost::split(splitTypeVar, s, boost::is_any_of(" "));
-				auto type = splitTypeVar[0];
-				auto var = splitTypeVar[1];
-				boost::trim(type);
-				boost::trim(var);
-				typeToVarKernelArgs.insert(std::make_pair(type, var));
-				if (boost::contains(type, bitTypeStr)) {
-					varName = var;
-				}
-			}
-
-			if (typeToVarKernelArgs.find(bitTypeStr)
-					!= typeToVarKernelArgs.end()) {
+		// Get the qubit variable name, if it exists
+		std::string varName;
+		for (auto it = typeToVarKernelArgs.begin(); it != typeToVarKernelArgs.end(); it++) {
+			if (boost::contains(it->first, bitTypeStr)) {
+				varName = it->second;
 				auto nBits = accelerator->getBufferSize(varName);
 				boost::replace_first(kernelSource,
 						std::string(bitTypeStr + " " + varName),
@@ -147,6 +129,7 @@ public:
 						+ std::to_string(nBits) + "]";
 			}
 		}
+
 		// Xacc requires that clients provide
 		// only the body code for an attached
 		// accelerator... Some language compilers
@@ -164,6 +147,9 @@ public:
 	 */
 	virtual std::shared_ptr<IR> compile(const std::string& src) {
 		kernelSource = src;
+
+		kernelArgsToMap();
+
 		// Xacc requires that clients provide
 		// only the body code for an attached
 		// accelerator... Some language compilers
@@ -196,11 +182,43 @@ protected:
 	 */
 	std::map<std::string, std::string> typeToVarKernelArgs;
 
+	std::vector<std::string> orderOfArgs;
+
 	/**
 	 *
 	 */
 	std::shared_ptr<IAccelerator> accelerator;
 
+	void kernelArgsToMap() {
+
+		auto firstParen = kernelSource.find_first_of('(');
+		auto secondParen = kernelSource.find_first_of(')', firstParen);
+		auto functionArguments = kernelSource.substr(firstParen+1, (secondParen-firstParen)-1);
+		int counter = 0;
+
+		if (!functionArguments.empty()) {
+			// First search the prototype to see if it has
+			// and argument that declares the accelerator bit buffer
+			// to use in the kernel
+			std::vector<std::string> splitArgs, splitTypeVar;
+			boost::split(splitArgs, functionArguments, boost::is_any_of(","));
+			std::string varName;
+			for (int i = 0; i < splitArgs.size(); i++) {
+				// split type from var name
+				auto s = splitArgs[i];
+				boost::trim(s);
+				boost::split(splitTypeVar, s, boost::is_any_of(" "));
+				auto type = splitTypeVar[0];
+				auto var = splitTypeVar[1];
+				boost::trim(type);
+				boost::trim(var);
+				std::cout << "Adding " << type << ", " << var << "\n";
+				typeToVarKernelArgs.insert(std::make_pair(type, var));
+				orderOfArgs.push_back(type);
+			}
+
+		}
+	}
 	/**
 	 *
 	 */
