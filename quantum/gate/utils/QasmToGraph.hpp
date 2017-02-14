@@ -139,14 +139,18 @@ public:
 					// FIXME Need to differentiate between qubits and parameters here
 					// First we need the qubit register variable name
 
-
-					std::vector<std::string> splitComma;
+					int counter = 0;
+					std::vector<std::string> splitComma, props;
 					boost::split(splitComma, gateCommand[1], boost::is_any_of(","));
 					for (auto segment : splitComma) {
 						if (boost::contains(segment, qubitVarName)) {
 							actingQubits.push_back(qubitVarNameToId[segment]);
 						} else {
+							std::cout << "Adding param " << g << ", " << segment << "\n";
 							// This is not a qubit, it must be a parameter for gate
+							props.push_back("PARAM_" + std::to_string(counter));
+							std::get<5>(node.properties) = props;
+							counter++;
 						}
 					}
 				}

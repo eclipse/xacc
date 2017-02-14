@@ -92,6 +92,8 @@ protected:
 	 */
 	std::vector<int> conditionalCodeSegmentActingQubits;
 
+	std::map<int, std::vector<std::string>> gateIdToParameterMap;
+
 };
 
 }

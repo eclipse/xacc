@@ -58,6 +58,7 @@ public:
 		// by default all circuit nodes
 		// are enabled and
 		std::get<4>(properties) = true;
+
 	}
 };
 
