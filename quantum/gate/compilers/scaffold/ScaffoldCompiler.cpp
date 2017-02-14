@@ -193,6 +193,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// This will throw if it fails.
 	auto qasm = scaffcc.getFlatQASMFromSource(kernelSource);
 
+	std::cout << "QASM:\n" << qasm << "\n";
+
 	// Get the Qasm as a Graph...
 	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
 

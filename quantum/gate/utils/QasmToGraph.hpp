@@ -66,6 +66,7 @@ public:
 		std::regex qubitDeclarations("\\s*qubit\\s*\\w+");
 		std::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
 		int nQubits = 0, qbitId = 0, layer = 1, gateId = 1;
+		std::string qubitVarName;
 		qasmLines = {first, last};
 
 		// Let's now loop over the qubit declarations,
@@ -78,6 +79,10 @@ public:
 			std::sregex_token_iterator first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
 			std::vector<std::string> splitQubitLine = {first, last};
 			qubitVarNameToId[splitQubitLine[1]] = qbitId;
+			splitQubitLine[1].erase(
+			  std::remove_if(splitQubitLine[1].begin(), splitQubitLine[1].end(), &isdigit),
+			  splitQubitLine[1].end());
+			qubitVarName = splitQubitLine[1];
 			allQbitIds.push_back(qbitId);
 			qbitId++;
 		}
@@ -88,7 +93,7 @@ public:
 		// First create a starting node for the initial
 		// wave function - it should have nQubits outgoing
 		// edges
-		graph.addVertex("InitialState", 0, 0, allQbitIds, true);
+		graph.addVertex("InitialState", 0, 0, allQbitIds, true, std::vector<std::string>{});
 
 		std::vector<CircuitNode> gateOperations;
 		for (auto line : qasmLines) {
@@ -103,7 +108,6 @@ public:
 						line.end(), spaceDelim, -1 }, last;
 				std::vector<std::string> gateCommand = {first, last};
 
-				std::cout << "GSTER: " << gateCommand[0] << "\n";
 				// Set the gate as a lowercase gate name string
 				auto g = boost::to_lower_copy(gateCommand[0]);
 				boost::trim(g);
@@ -130,10 +134,20 @@ public:
 				if (!boost::contains(gateCommand[1], ",")) {
 					actingQubits.push_back(qubitVarNameToId[gateCommand[1]]);
 				} else {
-					std::vector<std::string> qbits;
-					boost::split(qbits, gateCommand[1], boost::is_any_of(","));
-					for (auto q : qbits) {
-						actingQubits.push_back(qubitVarNameToId[q]);
+
+
+					// FIXME Need to differentiate between qubits and parameters here
+					// First we need the qubit register variable name
+
+
+					std::vector<std::string> splitComma;
+					boost::split(splitComma, gateCommand[1], boost::is_any_of(","));
+					for (auto segment : splitComma) {
+						if (boost::contains(segment, qubitVarName)) {
+							actingQubits.push_back(qubitVarNameToId[segment]);
+						} else {
+							// This is not a qubit, it must be a parameter for gate
+						}
 					}
 				}
 

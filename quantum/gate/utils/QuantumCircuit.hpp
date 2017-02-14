@@ -41,10 +41,10 @@ namespace quantum {
  * parameters in the given order:
  *
  * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
- * Qubit Ids that the gate acts on
+ * Qubit Ids that the gate acts on, enabled state, vector of parameters names
  */
 class CircuitNode: public qci::common::QCIVertex<std::string, int, int,
-		std::vector<int>, bool> {
+		std::vector<int>, bool, std::vector<std::string>> {
 public:
 	CircuitNode() :
 			QCIVertex() {
@@ -53,6 +53,7 @@ public:
 		propertyNames[2] = "Gate Vertex Id";
 		propertyNames[3] = "Gate Acting Qubits";
 		propertyNames[4] = "Enabled";
+		propertyNames[5] = "RuntimeParameters";
 
 		// by default all circuit nodes
 		// are enabled and

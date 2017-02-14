@@ -110,7 +110,6 @@ BOOST_AUTO_TEST_CASE(checkCodeWithArgument) {
 	BOOST_VERIFY(compiler);
 
 	const std::string src("__qpu__ kernel (qbit qreg[1], double phi) {\n"
-//						"   qbit qreg[1];\n"
 						"   Rz(qreg[0], phi);\n"
 						"}\n");
 
