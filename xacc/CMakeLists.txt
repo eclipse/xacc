@@ -28,7 +28,7 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-set (PACKAGE_NAME "XACC Runtime")
+set (PACKAGE_NAME "XACC Core Runtime")
 set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 

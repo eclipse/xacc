@@ -35,7 +35,19 @@
 #include "QasmToGraph.hpp"
 BOOST_AUTO_TEST_CASE(checkConversion) {
 	const std::string qasm =
-			"qubit qreg0\nqubit qreg1\nqubit qreg2\nH qreg1\nCNOT qreg1,qreg2\nCNOT qreg0,qreg1\nH qreg0\nMeasZ qreg0\nMeasZ qreg1\nH qreg2\nCNOT qreg2,qreg1\nH qreg2\nCNOT qreg2,qreg0";
+			"qubit qreg0\n"
+			"qubit qreg1\n"
+			"qubit qreg2\n"
+			"H qreg1\n"
+			"CNOT qreg1,qreg2\n"
+			"CNOT qreg0,qreg1\n"
+			"H qreg0\n"
+			"MeasZ qreg0\n"
+			"MeasZ qreg1\n"
+			"H qreg2\n"
+			"CNOT qreg2,qreg1\n"
+			"H qreg2\n"
+			"CNOT qreg2,qreg0";
 	auto graph = xacc::quantum::QasmToGraph::getCircuitGraph(qasm);
 	// FIXME Need to create a graph to check against
 }

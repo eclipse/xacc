@@ -157,8 +157,7 @@ BOOST_AUTO_TEST_CASE(checkTeleportScaffold) {
 
 	// Build the program using Scaffold comipler
 	// and output the Graph Intermediate Representation
-	quantumProgram.build("--compiler scaffold "
-			"--writeIR teleport.xir");
+	quantumProgram.build("--compiler scaffold");
 
 	// Retrieve the created kernel. It takes a
 	// qubit register as input
