@@ -146,7 +146,6 @@ public:
 						if (boost::contains(segment, qubitVarName)) {
 							actingQubits.push_back(qubitVarNameToId[segment]);
 						} else {
-							std::cout << "Adding param " << g << ", " << segment << "\n";
 							// This is not a qubit, it must be a parameter for gate
 							props.push_back("PARAM_" + std::to_string(counter));
 							std::get<5>(node.properties) = props;

@@ -54,6 +54,18 @@ struct is_valid_bitstype<T, decltype(std::declval<T>().N, void())> : std::true_t
  */
 enum AcceleratorType { qpu_gate, qpu_aqc, npu };
 
+
+class RuntimeType {
+public:
+
+};
+
+template<typename T>
+class ConcreteRuntimeType :  public RuntimeType {
+public:
+	T value;
+};
+
 /**
  *
  * @author Alex McCaskey
@@ -117,9 +129,25 @@ public:
 
 	virtual int getBufferSize() = 0;
 
+	template<typename T>
+	void setRuntimeParameter(const std::string& name, T param) {
+		auto type = std::make_shared<ConcreteRuntimeType<T>>();
+		type->value = param;
+		runtimeParameters.insert(std::make_pair(name, type));
+	}
+
+	template<typename T>
+	T getRuntimeParameter(const std::string& name) {
+		auto rp = runtimeParameters[name];
+		auto cp = std::static_pointer_cast<ConcreteRuntimeType<T>>(rp);
+		return cp->value;
+	}
+
 protected:
 
 	virtual bool isValidBufferSize(const int NBits) {return true;}
+
+	std::map<std::string, std::shared_ptr<RuntimeType>> runtimeParameters;
 
 };
 

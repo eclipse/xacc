@@ -149,20 +149,17 @@ void ScaffoldCompiler::modifySource() {
 		kernelSource.erase(idx, s.size());
 	}
 
-	std::cout << "KERNELSRC: \n" << kernelSource << "\n";
 	std::regex gates("\\s+*\\w+\\(.*");
 	it = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
 			gates);
 	counter = 0;
 	for (auto it = std::sregex_iterator(kernelSource.begin(), kernelSource.end(),
 			gates); it != std::sregex_iterator(); ++it) {
-		std::cout << "GateLine? " << (*it).str() << "\n";
 		auto gateLine = (*it).str();
 		auto firstParen = gateLine.find_first_of('(');
 		auto secondParen = gateLine.find_first_of(')', firstParen);
 		auto functionArguments = gateLine.substr(firstParen+1, (secondParen-firstParen)-1);
 		auto args = gateLine.substr(firstParen+1, (secondParen-firstParen)-1);
-		std::cout << "Args for this gate are " << args << "\n";
 		std::vector<std::string> splitArgs;
 		boost::split(splitArgs, args, boost::is_any_of(","));
 		std::vector<std::string> params;
@@ -173,9 +170,8 @@ void ScaffoldCompiler::modifySource() {
 				params.push_back(a);
 			}
 		}
-
 		gateIdToParameterMap.insert(std::make_pair(counter, params));
-
+		counter++;
 	}
 
 	// Get the kernel name
@@ -207,7 +203,7 @@ void ScaffoldCompiler::modifySource() {
 	kernelSource = kernelSource + std::string("\nint main() {\n   ") + varAllocation + fName
 			+ std::string(");\n}");
 
-	std::cout << "\n" << kernelSource << "\n";
+//	std::cout << "\n" << kernelSource << "\n";
 }
 
 std::shared_ptr<IR> ScaffoldCompiler::compile() {
@@ -222,28 +218,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 	// This will throw if it fails.
 	auto qasm = scaffcc.getFlatQASMFromSource(kernelSource);
 
-	std::cout << "QASM:\n" << qasm << "\n";
-
 	// Get the Qasm as a Graph...
 	auto circuitGraph = QasmToGraph::getCircuitGraph(qasm);
-
-	int counter = 0;
-	for (int i = 0; i < circuitGraph.order(); i++) {
-		auto props = circuitGraph.getVertexProperties(i);
-		auto gateName = std::get<0>(props);
-		if (gateName != "InitialState" && gateName != "FinalState") {
-			auto possibleParams = std::get<5>(props);
-			if (!possibleParams.empty()) {
-				// This is a parameterized gate
-				for (int j = 0; j < possibleParams.size(); j++) {
-					possibleParams[j] = gateIdToParameterMap[counter][j];
-					std::cout << "Setting " << gateName << " param names to " << gateIdToParameterMap[counter][j] << "\n";
-				}
-			}
-			counter++;
-		}
-	}
-
 
 	// HERE we have main circuit graph, before conditional
 	// if branches... So then for each conditional code statement,
@@ -267,6 +243,23 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 				conditionalCodeSegmentActingQubits);
 	}
 
+	// Modify the graph to reflect gate dependence on runtime variables.
+	int counter = 0;
+	for (int i = 0; i < circuitGraph.order(); i++) {
+		auto props = circuitGraph.getVertexProperties(i);
+		auto gateName = std::get<0>(props);
+		if (gateName != "InitialState" && gateName != "FinalState"
+				&& gateName != "conditional") {
+			std::vector<std::string> possibleParams = std::get<5>(props);
+			if (!possibleParams.empty()) {
+				// This is a parameterized gate
+				for (int j = 0; j < possibleParams.size(); j++) {
+					std::get<5>(circuitGraph.getVertex(i).properties)[j] = gateIdToParameterMap[counter][j];
+				}
+			}
+			counter++;
+		}
+	}
 
 	// Create a GraphIR instance from that graph
 	auto graphIR = std::make_shared<ScaffoldGraphIR>(circuitGraph);

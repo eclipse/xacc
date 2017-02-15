@@ -68,6 +68,7 @@ public:
 	 */
 	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
 
+	virtual std::vector<std::string> getKernelArgumentVariableNames() = 0;
 	/**
 	 *
 	 * @return
@@ -168,6 +169,10 @@ public:
 		QCIError("getBitType must be overridden by derived types.\n");
 	}
 
+	virtual std::vector<std::string> getKernelArgumentVariableNames() {
+		return orderedVarNames;
+	}
+
 	virtual ~Compiler() {}
 
 protected:
@@ -183,6 +188,8 @@ protected:
 	std::map<std::string, std::string> typeToVarKernelArgs;
 
 	std::vector<std::string> orderOfArgs;
+
+	std::vector<std::string> orderedVarNames;
 
 	/**
 	 *
@@ -212,9 +219,9 @@ protected:
 				auto var = splitTypeVar[1];
 				boost::trim(type);
 				boost::trim(var);
-				std::cout << "Adding " << type << ", " << var << "\n";
 				typeToVarKernelArgs.insert(std::make_pair(type, var));
 				orderOfArgs.push_back(type);
+				orderedVarNames.push_back(var);
 			}
 
 		}

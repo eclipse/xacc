@@ -91,6 +91,9 @@ protected:
 	 */
 	std::shared_ptr<IR> xaccIR;
 
+	std::shared_ptr<ICompiler> compiler;
+
+
 public:
 
 	/**
@@ -132,7 +135,7 @@ public:
 		auto compilerToRun = compileParameters["compiler"].as<std::string>();
 
 		// Create the appropriate compiler
-		auto compiler = std::shared_ptr<ICompiler>(
+		compiler = std::shared_ptr<ICompiler>(
 				qci::common::AbstractFactory::createAndCast<ICompiler>(
 						"compiler", compilerToRun));
 
@@ -179,6 +182,17 @@ public:
 	template<typename BitsType, typename ... RuntimeArgs>
 	std::function<void(BitsType, RuntimeArgs...)> getKernel(const std::string& kernelName) {
 		return [&](BitsType bits, RuntimeArgs... args) {
+			if (sizeof...(RuntimeArgs) > 0) {
+				auto argTuple = std::make_tuple<RuntimeArgs...>(args...);
+				auto argumentNames = compiler->getKernelArgumentVariableNames();
+				assert(argumentNames.size()-1 == sizeof...(RuntimeArgs));
+				int counter = 1;
+				xacc::for_each(argTuple, [&](auto element) {
+					accelerator->setRuntimeParameter(argumentNames[counter], element);
+					counter++;
+				});
+			}
+
 			accelerator->execute(bits->name(), xaccIR);
 			return;
 		};

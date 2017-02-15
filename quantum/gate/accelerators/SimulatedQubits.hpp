@@ -125,7 +125,7 @@ public:
 			for (int i = 0; i < bufferState.dimension(0); i++) {
 				stream
 						<< std::bitset<TotalNumberOfQubits>(i).to_string().substr(
-								size(), TotalNumberOfQubits) << " -> "
+								TotalNumberOfQubits - size(), TotalNumberOfQubits) << " -> "
 						<< bufferState(i) << "\n";
 			}
 		} else {

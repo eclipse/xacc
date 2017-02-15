@@ -210,6 +210,11 @@ public:
 				if (gateName != "FinalState" && gateName != "InitialState") {
 					// Regular Gate operations...
 
+					if (isParameterized(gate)) {
+						auto g = getParameterizedGate(gate);
+						gates.insert(std::make_pair(gateName, g));
+					}
+
 					if (actingQubits.size() == 1) {
 
 						// If this is a one qubit gate, just replace
@@ -266,6 +271,29 @@ public:
 
 protected:
 
+	bool isParameterized(CircuitNode& node) {
+		return !std::get<5>(node.properties).empty();
+	}
+
+	fire::Tensor<2, fire::EigenProvider, std::complex<double>> getParameterizedGate(
+			CircuitNode& node) {
+		fire::Tensor<2, fire::EigenProvider, std::complex<double>> g(2, 2);
+		if (std::get<0>(node.properties) == "rz") {
+
+			// Fixme... How to avoid the double here???
+
+			auto param = this->template getRuntimeParameter<double>(
+					std::get<5>(node.properties)[0]);
+			std::complex<double> i(0, 1);
+			auto rotation = std::exp(i * param);
+			g.setValues( { { 1, 0 }, { 0, rotation } });
+		} else {
+			QCIError("We don't know what this gate is... yet.");
+		}
+
+		return g;
+
+	}
 	/**
 	 * Mapping of gate names to actual gate matrices.
 	 */
