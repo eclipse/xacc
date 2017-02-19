@@ -46,12 +46,11 @@ endif()
 
 find_package(MPI REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
-#find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM 3.8.1 REQUIRED)
 
-#message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-#message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-#message(STATUS "LLVM Includes: ${LLVM_INCLUDE_DIRS}")
-#message(STATUS "LLVM Definitions: ${LLVM_DEFINITIONS}")
+message(STATUS "Found LLVM ${LLVM_ROOT_DIR}")
+message(STATUS "LLVM Includes: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM LIBRARIES: ${LLVM_LIBRARIES}")
 
 message(STATUS "Found Boost Headers = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries = ${Boost_LIBRARIES}")
