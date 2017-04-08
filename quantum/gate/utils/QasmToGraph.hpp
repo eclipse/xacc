@@ -57,7 +57,6 @@ public:
 			const std::string& flatQasmStr) {
 
 		// Local Declarations
-		using namespace qci::common;
 		QuantumCircuit graph;
 		std::map<std::string, int> qubitVarNameToId;
 		std::vector<std::string> qasmLines;

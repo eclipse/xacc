@@ -41,7 +41,7 @@ file (GLOB SRC program/*.cpp compiler/*.cpp accelerator/*.cpp)
 file(GLOB test_files tests/*Tester.cpp)
 
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/tests;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/firetensoraccelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators;${CMAKE_SOURCE_DIR}/quantum/gate/utils;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/tpls/eigen" "${Boost_LIBRARIES};xacc-scaffold")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/tests;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/firetensoraccelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators;${CMAKE_SOURCE_DIR}/quantum/gate/utils;${CMAKE_SOURCE_DIR}/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen" "${Boost_LIBRARIES};xacc-scaffold")
 
 
 install(FILES ${HEADERS} DESTINATION include)

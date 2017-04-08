@@ -43,11 +43,11 @@ namespace quantum {
  * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
  * Qubit Ids that the gate acts on, enabled state, vector of parameters names
  */
-class CircuitNode: public qci::common::QCIVertex<std::string, int, int,
+class CircuitNode: public XACCVertex<std::string, int, int,
 		std::vector<int>, bool, std::vector<std::string>> {
 public:
 	CircuitNode() :
-			QCIVertex() {
+			XACCVertex() {
 		propertyNames[0] = "Gate";
 		propertyNames[1] = "Circuit Layer";
 		propertyNames[2] = "Gate Vertex Id";
@@ -67,7 +67,7 @@ public:
  * its Vertex template parameter as a CircuitNode. It adds the
  * ability to read QuantumCircuits from a graphviz dot file.
  */
-class QuantumCircuit : virtual public qci::common::Graph<CircuitNode> {
+class QuantumCircuit : virtual public Graph<CircuitNode> {
 public:
 
 	virtual void read(std::istream& stream) {

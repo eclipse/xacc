@@ -34,7 +34,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include "SimulatedQubits.hpp"
 
-using namespace qci::common;
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkConstruction) {

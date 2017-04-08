@@ -32,6 +32,7 @@
 #define XACC_TESTS_FAKEACCELERATOR_HPP_
 
 #include "Accelerator.hpp"
+#include "IR.hpp"
 
 using namespace xacc;
 

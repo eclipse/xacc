@@ -39,13 +39,12 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
-#include "QCIError.hpp"
+#include "XACCError.hpp"
 #include "XaccUtils.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 
 using namespace boost::program_options;
-using namespace qci::common;
 
 namespace xacc {
 
@@ -91,7 +90,7 @@ protected:
 	 */
 	std::shared_ptr<IR> xaccIR;
 
-	std::shared_ptr<ICompiler> compiler;
+	std::shared_ptr<Compiler> compiler;
 
 
 public:
@@ -135,13 +134,13 @@ public:
 		auto compilerToRun = compileParameters["compiler"].as<std::string>();
 
 		// Create the appropriate compiler
-		compiler = std::shared_ptr<ICompiler>(
-				qci::common::AbstractFactory::createAndCast<ICompiler>(
+		compiler = std::shared_ptr<Compiler>(
+				xacc::XACCFactory::createAndCast<Compiler>(
 						"compiler", compilerToRun));
 
 		// Make sure we got a valid
 		if (!compiler) {
-			QCIError("Invalid Compiler.\n");
+			XACCError("Invalid Compiler.\n");
 		}
 
 		// Execute the compilation
@@ -149,7 +148,7 @@ public:
 
 		// Validate the compilation
 		if (!xaccIR) {
-			QCIError("Bad source string or something.\n");
+			XACCError("Bad source string or something.\n");
 		}
 
 		// Execute IR Translations
@@ -184,11 +183,11 @@ public:
 		return [&](BitsType bits, RuntimeArgs... args) {
 			if (sizeof...(RuntimeArgs) > 0) {
 				auto argTuple = std::make_tuple<RuntimeArgs...>(args...);
-				auto argumentNames = compiler->getKernelArgumentVariableNames();
-				assert(argumentNames.size()-1 == sizeof...(RuntimeArgs));
+//				auto argumentNames = compiler->getKernelArgumentVariableNames();
+//				assert(argumentNames.size()-1 == sizeof...(RuntimeArgs));
 				int counter = 1;
 				xacc::for_each(argTuple, [&](auto element) {
-					accelerator->setRuntimeParameter(argumentNames[counter], element);
+//					accelerator->setRuntimeParameter(argumentNames[counter], element);
 					counter++;
 				});
 			}

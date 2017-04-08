@@ -32,30 +32,43 @@
 #define BOOST_TEST_MODULE ScaffoldCompilerTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "AbstractFactory.hpp"
-#include "Compiler.hpp"
-#include "QasmToGraph.hpp"
-#include "GraphIR.hpp"
 #include "ScaffoldCompiler.hpp"
+#include "XACCFactory.hpp"
 
-using namespace qci::common;
 using namespace xacc::quantum;
+using GraphType = QuantumCircuit;
+
+struct F {
+	F() :
+			compiler(
+					xacc::XACCFactory::createAndCast<xacc::Compiler>("compiler",
+							"scaffold")) {
+		BOOST_TEST_MESSAGE("setup fixture");
+		BOOST_VERIFY(compiler);
+	}
+	~F() {
+		BOOST_TEST_MESSAGE("teardown fixture");
+	}
+
+	std::shared_ptr<xacc::Compiler> compiler;
+};
+
+//____________________________________________________________________________//
+
+BOOST_FIXTURE_TEST_SUITE( s, F )
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
-	using GraphType = QuantumCircuit;
-
-	auto compiler = qci::common::AbstractFactory::createAndCast<xacc::ICompiler>("compiler", "scaffold");
-	BOOST_VERIFY(compiler);
 
 	const std::string src("__qpu__ eprCreation () {\n"
-						"   qbit qreg[2];\n"
-						"   H(qreg[0]);\n"
-						"   CNOT(qreg[0],qreg[1]);\n"
-						"}\n");
+			"   qbit qreg[2];\n"
+			"   H(qreg[0]);\n"
+			"   CNOT(qreg[0],qreg[1]);\n"
+			"}\n");
 
 	auto ir = compiler->compile(src);
 	BOOST_VERIFY(ir);
-	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<QuantumCircuit>>(ir);
 	BOOST_VERIFY(graphir);
 
 	// The above code should produce a graph
@@ -70,29 +83,22 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 }
 
 BOOST_AUTO_TEST_CASE(checkCodeWithMeasurementIf) {
-	using GraphType = QuantumCircuit;
-
-	auto compiler =
-			qci::common::AbstractFactory::createAndCast<xacc::ICompiler>(
-					"compiler", "scaffold");
-	BOOST_VERIFY(compiler);
-
 	const std::string src("__qpu__ teleport () {\n"
-						"   qbit qreg[3];\n"
-						"   cbit creg[2];\n"
-						"   H(qreg[1]);\n"
-						"   CNOT(qreg[1],qreg[2]);\n"
-						"   CNOT(qreg[0],qreg[1]);\n"
-						"   H(qreg[0]);\n"
-						"   creg[0] = MeasZ(qreg[0]);\n"
-						"   creg[1] = MeasZ(qreg[1]);\n"
-						"   if (creg[0] == 1) Z(qreg[2]);\n"
-						"   if (creg[1] == 1) X(qreg[2]);\n"
-						"}\n");
+			"   qbit qreg[3];\n"
+			"   cbit creg[2];\n"
+			"   H(qreg[1]);\n"
+			"   CNOT(qreg[1],qreg[2]);\n"
+			"   CNOT(qreg[0],qreg[1]);\n"
+			"   H(qreg[0]);\n"
+			"   creg[0] = MeasZ(qreg[0]);\n"
+			"   creg[1] = MeasZ(qreg[1]);\n"
+			"   if (creg[0] == 1) Z(qreg[2]);\n"
+			"   if (creg[1] == 1) X(qreg[2]);\n"
+			"}\n");
 
 	auto ir = compiler->compile(src);
 	BOOST_VERIFY(ir);
-	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<QuantumCircuit>>(ir);
 	BOOST_VERIFY(graphir);
 
 	graphir->persist(std::cout);
@@ -102,21 +108,17 @@ BOOST_AUTO_TEST_CASE(checkCodeWithMeasurementIf) {
 }
 
 BOOST_AUTO_TEST_CASE(checkCodeWithArgument) {
-	using GraphType = QuantumCircuit;
-
-	auto compiler =
-			qci::common::AbstractFactory::createAndCast<xacc::ICompiler>(
-					"compiler", "scaffold");
-	BOOST_VERIFY(compiler);
 
 	const std::string src("__qpu__ kernel (qbit qreg[1], double phi) {\n"
-						"   Rz(qreg[0], phi);\n"
-						"}\n");
+			"   Rz(qreg[0], phi);\n"
+			"}\n");
 
 	auto ir = compiler->compile(src);
 	BOOST_VERIFY(ir);
-	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<GraphType>>(ir);
+	auto graphir = std::dynamic_pointer_cast<xacc::GraphIR<QuantumCircuit>>(ir);
 	BOOST_VERIFY(graphir);
 
 	graphir->persist(std::cout);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

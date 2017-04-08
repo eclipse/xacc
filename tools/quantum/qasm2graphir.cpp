@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	std::ofstream outputStream(outputFileName);
 	std::stringstream ss;
 	if (!inputStream) {
-		QCIError("Invalid input qasm file");
+		XACCError("Invalid input qasm file");
 	}
 
 	ss << inputStream.rdbuf();

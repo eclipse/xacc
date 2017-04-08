@@ -36,18 +36,22 @@
 
 using namespace xacc;
 
-class FakeCompiler: public Compiler<FakeCompiler> {
+class FakeCompiler: public Compiler {
 public:
-	virtual std::shared_ptr<IR> compile() {
+
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
+				std::shared_ptr<IAccelerator> acc) {
 		return std::make_shared<FakeIR>();
+
+	}
+
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src) {
+		return std::make_shared<FakeIR>();
+
 	}
 
 	virtual void modifySource() {
 
-	}
-
-	std::map<std::string, std::string> getTypeToVarArgs() {
-		return typeToVarKernelArgs;
 	}
 
 	virtual std::string getBitType() {

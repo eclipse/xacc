@@ -33,6 +33,7 @@
 
 #include <string>
 #include "IRTransformation.hpp"
+#include "XACCFactory.hpp"
 #include <array>
 #include <bitset>
 
@@ -96,7 +97,7 @@ protected:
 	std::string bufferId;
 };
 
-class IAccelerator : public qci::common::QCIObject {
+class IAccelerator : public xacc::XACCObject {
 public:
 	/**
 	 * Return the type of this Accelerator.
@@ -186,16 +187,16 @@ public:
 			allocatedBuffers.insert(std::make_pair(varId, buffer));
 			return buffer;
 		} else {
-			QCIError("Invalid buffer variable name.");
+			XACCError("Invalid buffer variable name.");
 		}
 	}
 
 	BitsTypePtr createBuffer(const std::string& varId, const int size) {
 		if (!isValidBufferVarId(varId)) {
-			QCIError("Invalid buffer variable name.");
+			XACCError("Invalid buffer variable name.");
 		}
 		if (!isValidBufferSize(size)) {
-			QCIError("Invalid buffer size.");
+			XACCError("Invalid buffer size.");
 		}
 		auto buffer = std::make_shared<BitsType>(varId, size);
 		allocatedBuffers.insert(std::make_pair(varId, buffer));
@@ -206,13 +207,13 @@ public:
 	BitsTypePtr createBuffer(const std::string& varId, int firstIndex,
 			Indices ... indices) {
 		if (!isValidBufferVarId(varId)) {
-			QCIError("Invalid buffer variable name.");
+			XACCError("Invalid buffer variable name.");
 		}
 		if (!isValidBufferSize(sizeof...(indices) + 1)) {
-			QCIError("Invalid buffer size.");
+			XACCError("Invalid buffer size.");
 		}
 		if (!validIndices(indices...)) {
-			QCIError("Invalid buffer indices.");
+			XACCError("Invalid buffer indices.");
 		}
 		auto buffer = std::make_shared<BitsType>(varId, firstIndex, indices...);
 		allocatedBuffers.insert(std::make_pair(varId, buffer));

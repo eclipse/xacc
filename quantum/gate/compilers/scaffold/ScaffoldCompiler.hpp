@@ -31,13 +31,14 @@
 #ifndef QUANTUM_SCAFFOLDCOMPILER_HPP_
 #define QUANTUM_SCAFFOLDCOMPILER_HPP_
 
-#include <iostream>
-#include <memory>
-#include "AbstractFactory.hpp"
 #include "Compiler.hpp"
-#include "QCIError.hpp"
-
-using namespace qci::common;
+#include "XACCError.hpp"
+#include <boost/algorithm/string.hpp>
+#include "Accelerator.hpp"
+#include "GraphIR.hpp"
+#include "ScaffCCAPI.hpp"
+#include "QasmToGraph.hpp"
+#include "QuantumCircuit.hpp"
 
 namespace xacc {
 
@@ -49,7 +50,7 @@ namespace quantum {
  * to handle generation of quantum assembly language (or QASM)
  * using an installed Scaffold compiler.
  */
-class ScaffoldCompiler : public Compiler<ScaffoldCompiler> {
+class ScaffoldCompiler : public xacc::Compiler {
 
 public:
 
@@ -58,7 +59,10 @@ public:
 	 * XACC intermediate representation instance.
 	 * @return ir XACC intermediate representation
 	 */
-	virtual std::shared_ptr<IR> compile();
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
+			std::shared_ptr<IAccelerator> acc);
+
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 
 	/**
 	 *
@@ -94,6 +98,49 @@ protected:
 
 	std::map<int, std::vector<std::string>> gateIdToParameterMap;
 
+	/**
+	 *
+	 */
+	std::map<std::string, std::string> typeToVarKernelArgs;
+
+	std::vector<std::string> orderOfArgs;
+
+	std::vector<std::string> orderedVarNames;
+
+	virtual std::vector<std::string> getKernelArgumentVariableNames() {
+		return orderedVarNames;
+	}
+
+	void kernelArgsToMap() {
+
+			auto firstParen = kernelSource.find_first_of('(');
+			auto secondParen = kernelSource.find_first_of(')', firstParen);
+			auto functionArguments = kernelSource.substr(firstParen+1, (secondParen-firstParen)-1);
+			int counter = 0;
+
+			if (!functionArguments.empty()) {
+				// First search the prototype to see if it has
+				// and argument that declares the accelerator bit buffer
+				// to use in the kernel
+				std::vector<std::string> splitArgs, splitTypeVar;
+				boost::split(splitArgs, functionArguments, boost::is_any_of(","));
+				std::string varName;
+				for (int i = 0; i < splitArgs.size(); i++) {
+					// split type from var name
+					auto s = splitArgs[i];
+					boost::trim(s);
+					boost::split(splitTypeVar, s, boost::is_any_of(" "));
+					auto type = splitTypeVar[0];
+					auto var = splitTypeVar[1];
+					boost::trim(type);
+					boost::trim(var);
+					typeToVarKernelArgs.insert(std::make_pair(type, var));
+					orderOfArgs.push_back(type);
+					orderedVarNames.push_back(var);
+				}
+
+			}
+		}
 };
 
 }

@@ -38,9 +38,9 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/common)
-  message(STATUS "Common found in tpls")
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tpls/common/tpls/fire/cmake/Modules")
+if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
+  message(STATUS "Fire found in tpls")
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tpls/fire/cmake/Modules")
   include(tests)
 endif() 
 
@@ -67,9 +67,6 @@ include_directories("${CMAKE_SOURCE_DIR}/xacc/compiler")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/program")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/accelerator")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/utils")
-include_directories("${CMAKE_SOURCE_DIR}/tpls/common/factory")
-include_directories("${CMAKE_SOURCE_DIR}/tpls/common/graph")
-include_directories("${CMAKE_SOURCE_DIR}/tpls/common/exception")
 
 add_subdirectory(tpls)
 add_subdirectory(xacc)

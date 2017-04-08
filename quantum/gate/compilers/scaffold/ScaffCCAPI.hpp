@@ -32,11 +32,9 @@
 #define QUANTUM_GATE_SCAFFOLD_SCAFFCCAPI_HPP_
 
 #include <cstdlib>
-#include "QCIError.hpp"
+#include "XACCError.hpp"
 #include <iostream>
 #include <fstream>
-
-using namespace qci::common;
 
 namespace scaffold {
 
@@ -88,7 +86,7 @@ public:
 			// Return the QASM
 			return qasm;
 		} else {
-			QCIError(
+			XACCError(
 					"Cannot find scaffold compiler. Make sure scaffcc is in PATH and executable.")
 		}
 	}

@@ -86,7 +86,7 @@ public:
 		// Get the requested qubit buffer
 		auto qubits = this->allocatedBuffers[bufferId];
 		if (!qubits) {
-			QCIError("Invalid buffer id. Could not get qubit buffer.");
+			XACCError("Invalid buffer id. Could not get qubit buffer.");
 		}
 
 		// Set the size
@@ -95,7 +95,7 @@ public:
 		// Cast to a GraphIR, if we can...
 		auto graphir = std::dynamic_pointer_cast<QuantumGraphIR>(ir);
 		if (!graphir) {
-			QCIError("Invalid IR - this Accelerator only accepts GraphIR<Graph<CircuitNode>>.");
+			XACCError("Invalid IR - this Accelerator only accepts GraphIR<Graph<CircuitNode>>.");
 		}
 
 		// Get the Graph and related info
@@ -144,7 +144,7 @@ public:
 				auto qubitWeNeed = std::get<3>(gate.properties)[0];
 				auto qubitFound = qubitIdToMeasuredResult.find(qubitWeNeed);
 				if (qubitFound == qubitIdToMeasuredResult.end()) {
-					QCIError("Invalid conditional node - this qubit has not been measured.");
+					XACCError("Invalid conditional node - this qubit has not been measured.");
 				}
 
 				auto result = qubitIdToMeasuredResult[qubitWeNeed];
@@ -247,7 +247,7 @@ public:
 						// Sum them up
 						localU = localU + temp;
 					} else {
-						QCIError("Can only simulate one and two qubit gates.");
+						XACCError("Can only simulate one and two qubit gates.");
 					}
 
 					// Make sure that localU is the correct size
@@ -288,7 +288,7 @@ protected:
 			auto rotation = std::exp(i * param);
 			g.setValues( { { 1, 0 }, { 0, rotation } });
 		} else {
-			QCIError("We don't know what this gate is... yet.");
+			XACCError("We don't know what this gate is... yet.");
 		}
 
 		return g;

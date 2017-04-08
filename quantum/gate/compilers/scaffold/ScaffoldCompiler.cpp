@@ -29,11 +29,8 @@
  *
  **********************************************************************************/
 #include "ScaffoldCompiler.hpp"
-#include "GraphIR.hpp"
 #include <regex>
-#include "ScaffCCAPI.hpp"
-#include "QasmToGraph.hpp"
-#include "QuantumCircuit.hpp"
+
 
 namespace xacc {
 
@@ -206,7 +203,51 @@ void ScaffoldCompiler::modifySource() {
 //	std::cout << "\n" << kernelSource << "\n";
 }
 
-std::shared_ptr<IR> ScaffoldCompiler::compile() {
+
+
+std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
+		std::shared_ptr<IAccelerator> acc) {
+
+	kernelSource = src;
+
+	kernelArgsToMap();
+
+	// Set the accelerator
+	accelerator = acc;
+
+	// Get the bit variable type string
+	auto bitTypeStr = getBitType();
+
+	// Get the qubit variable name, if it exists
+	std::string varName;
+	for (auto it = typeToVarKernelArgs.begin(); it != typeToVarKernelArgs.end();
+			it++) {
+		if (boost::contains(it->first, bitTypeStr)) {
+			varName = it->second;
+			auto nBits = accelerator->getBufferSize(varName);
+			boost::replace_first(kernelSource,
+					std::string(bitTypeStr + " " + varName),
+					std::string(
+							bitTypeStr + " " + varName + "["
+									+ std::to_string(nBits) + "]"));
+
+			// Replace the varname in the map with varName[#]
+			typeToVarKernelArgs[bitTypeStr] = varName + "["
+					+ std::to_string(nBits) + "]";
+		}
+	}
+
+	return compile(kernelSource);
+}
+std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
+
+	kernelSource = src;
+
+	if (!accelerator) {
+		kernelArgsToMap();
+	}
+
+	modifySource();
 
 	// Create an instance of our ScaffCC API
 	// so that we can interact with a locally installed
@@ -273,6 +314,6 @@ std::shared_ptr<IR> ScaffoldCompiler::compile() {
 } // end namespace xacc
 
 // Required in CPP file to be discovered by factory pattern
-REGISTER_QCIOBJECT_WITH_QCITYPE(xacc::quantum::ScaffoldCompiler, "compiler",
+REGISTER_XACCOBJECT_WITH_XACCTYPE(xacc::quantum::ScaffoldCompiler, "compiler",
 		"scaffold");
 

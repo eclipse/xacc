@@ -35,7 +35,6 @@
 #include <memory>
 #include "Accelerator.hpp"
 #include "Program.hpp"
-#include "AbstractFactory.hpp"
 
 namespace xacc {
 
