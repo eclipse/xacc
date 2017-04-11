@@ -32,7 +32,7 @@
 #define BOOST_TEST_MODULE ProgramTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "Program.hpp"
+#include "XACC.hpp"
 #include "FakeIR.hpp"
 #include "FakeAccelerator.hpp"
 #include "FireTensorAccelerator.hpp"
@@ -42,7 +42,7 @@ using namespace xacc;
 class DummyCompiler : public Compiler {
 public:
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
-			std::shared_ptr<IAccelerator> acc) {
+			std::shared_ptr<Accelerator> acc) {
 		return std::make_shared<FakeIR>();
 
 	}
@@ -85,7 +85,8 @@ BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 	auto acc = std::make_shared<FakeAccelerator>();
 	acc->createBuffer("qreg");
 	Program prog(acc, src);
-	prog.build("--compiler dummy");
+	auto k = prog.getKernel("teleport");
+//	prog.build("--compiler dummy");
 }
 
 BOOST_AUTO_TEST_CASE(checkRuntimeGateParameter) {
@@ -149,36 +150,31 @@ BOOST_AUTO_TEST_CASE(checkTeleportScaffold) {
 			"   if (creg[1] == 1) X(qreg[2]);\n"
 			"}\n");
 
-	// Create a convenient alias for our simulator...
-	using CircuitSimulator = xacc::quantum::FireTensorAccelerator<6>;
-
+	xacc::Initialize();
 	// Create a reference to the 6 qubit simulation Accelerator
-	auto qpu = std::make_shared<CircuitSimulator>();
+	auto qpu = xacc::getAccelerator("firetensor");
 
 	// Allocate 3 qubits, give them a unique identifier...
 	auto qreg = qpu->createBuffer("qreg", 3);
-	using QubitRegisterType = decltype(qreg);
 
 	// Construct a new XACC Program
 	xacc::Program quantumProgram(qpu, src);
 
-	// Build the program using Scaffold comipler
-	// and output the Graph Intermediate Representation
-	quantumProgram.build("--compiler scaffold");
-
 	// Retrieve the created kernel. It takes a
 	// qubit register as input
-	auto teleport = quantumProgram.getKernel<QubitRegisterType>("teleport");
+	auto teleport = quantumProgram.getKernel("teleport");
 
 	// Execute the kernel with the qubit register!
 	teleport(qreg);
 
+	xacc::Finalize();
 	// Pretty print the resultant state
-	qreg->printBufferState(std::cout);
+	auto simqreg = std::static_pointer_cast<xacc::quantum::SimulatedQubits<10>>(qreg);
+	simqreg->print();
 
-	BOOST_VERIFY(std::real(qreg->getState()(1) * qreg->getState()(1)) == 1 ||
-				std::real(qreg->getState()(5) * qreg->getState()(5)) == 1 ||
-				std::real(qreg->getState()(3) * qreg->getState()(3)) == 1 ||
-				std::real(qreg->getState()(7) * qreg->getState()(7)) == 1);
+	BOOST_VERIFY(std::real(simqreg->getState()(1) * simqreg->getState()(1)) == 1 ||
+				std::real(simqreg->getState()(5) * simqreg->getState()(5)) == 1 ||
+				std::real(simqreg->getState()(3) * simqreg->getState()(3)) == 1 ||
+				std::real(simqreg->getState()(7) * simqreg->getState()(7)) == 1);
 
 }

@@ -55,7 +55,7 @@ public:
 	 * @return ir Intermediate representation for provided source kernel code.
 	 */
 	virtual std::shared_ptr<IR> compile(const std::string& src,
-			std::shared_ptr<IAccelerator> acc) = 0;
+			std::shared_ptr<Accelerator> acc) = 0;
 
 	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
 
@@ -71,7 +71,7 @@ protected:
 	/**
 	 *
 	 */
-	std::shared_ptr<IAccelerator> accelerator;
+	std::shared_ptr<Accelerator> accelerator;
 };
 
 /**

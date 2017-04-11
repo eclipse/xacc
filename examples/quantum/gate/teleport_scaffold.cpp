@@ -50,36 +50,29 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 
 int main (int argc, char** argv) {
 
+	// Initialize the XACC Framework
 	xacc::Initialize();
 
-	// Create a convenient alias for our simulator...
-	using CircuitSimulator = xacc::quantum::FireTensorAccelerator<6>;
+	// Create a reference to the 10 qubit simulation Accelerator
+	auto qpu = xacc::getAccelerator("firetensor");
 
-	// Create a reference to the 6 qubit simulation Accelerator
-	auto qpu = std::make_shared<CircuitSimulator>();
-
-	// Allocate 3 qubits, give them a unique identifier...
+	// Allocate a register of qubits
 	auto qubitReg = qpu->createBuffer("qreg", 3);
-	using QubitRegisterType = decltype(qubitReg);
 
-	// Construct a new XACC Program
-	xacc::Program quantumProgram(qpu, src);
+	// Create a Program
+	xacc::Program program(qpu, src);
 
-	// Build the program using Scaffold comipler
-	// and output the Graph Intermediate Representation
-	quantumProgram.build("--compiler scaffold "
-			"--writeIR teleport.xir");
+	// Request the quantum kernel representing
+	// the above source code
+	auto teleport = program.getKernel("teleport");
 
-	// Retrieve the created kernel. It takes a 
-	// qubit register as input
-	auto teleport = quantumProgram.getKernel<QubitRegisterType>("teleport");
-
-	// Execute the kernel with the qubit register!
+	// Execute!
 	teleport(qubitReg);
 
-	// Pretty print the resultant state
-	qubitReg->printBufferState(std::cout);
+	// Look at results
+	qubitReg->print();
 
+	// Finalize the XACC Framework
 	xacc::Finalize();
 
 	return 0;

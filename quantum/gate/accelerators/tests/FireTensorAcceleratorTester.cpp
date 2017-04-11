@@ -40,8 +40,8 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkConstruction) {
 
-	FireTensorAccelerator<3> acc;
-	auto qreg = acc.createBuffer("qreg", 3);
+	FireTensorAccelerator acc;
+	auto qreg1 = acc.createBuffer("qreg", 3);
 
 	// Create a graph IR modeling a
 	// quantum teleportation kernel
@@ -95,7 +95,9 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 
 	auto graphir = std::make_shared<xacc::GraphIR<QuantumCircuit>>();
 	graphir->read(iss);
-	acc.execute("qreg", graphir);
+	acc.execute(qreg1, graphir);
+
+	auto qreg = std::static_pointer_cast<SimulatedQubits<10>>(qreg1);
 
 	BOOST_VERIFY(std::real(qreg->getState()(1) * qreg->getState()(1)) == 1 ||
 			std::real(qreg->getState()(5) * qreg->getState()(5)) == 1 ||

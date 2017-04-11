@@ -60,7 +60,7 @@ public:
 	 * @return ir XACC intermediate representation
 	 */
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
-			std::shared_ptr<IAccelerator> acc);
+			std::shared_ptr<Accelerator> acc);
 
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 

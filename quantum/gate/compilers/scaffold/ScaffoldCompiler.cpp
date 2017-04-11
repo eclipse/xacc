@@ -206,7 +206,7 @@ void ScaffoldCompiler::modifySource() {
 
 
 std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
-		std::shared_ptr<IAccelerator> acc) {
+		std::shared_ptr<Accelerator> acc) {
 
 	kernelSource = src;
 
@@ -224,7 +224,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 			it++) {
 		if (boost::contains(it->first, bitTypeStr)) {
 			varName = it->second;
-			auto nBits = accelerator->getBufferSize(varName);
+			boost::trim(varName);
+			auto nBits = accelerator->getBuffer(varName)->size();
 			boost::replace_first(kernelSource,
 					std::string(bitTypeStr + " " + varName),
 					std::string(
@@ -313,9 +314,6 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 
 } // end namespace xacc
 //
-//// Required in CPP file to be discovered by factory pattern
-//REGISTER_XACCOBJECT_WITH_XACCTYPE(xacc::quantum::ScaffoldCompiler, "compiler",
-//		"scaffold");
 
 // Register the ScaffoldCompiler with the CompilerRegistry.
 static xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> X("scaffold");

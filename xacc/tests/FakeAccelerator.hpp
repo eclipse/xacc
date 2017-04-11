@@ -36,7 +36,7 @@
 
 using namespace xacc;
 
-class FakeAccelerator: virtual public Accelerator<AcceleratorBuffer> {
+class FakeAccelerator: virtual public Accelerator {
 
 public:
 
@@ -44,11 +44,29 @@ public:
 		return qpu_gate;
 	}
 
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId) {
+		auto buffer = std::make_shared<AcceleratorBuffer>(varId);
+		return buffer;
+	}
+
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId,
+			const int size) {
+		if (!isValidBufferSize(size)) {
+			XACCError("Invalid buffer size.");
+		}
+		auto buffer = std::make_shared<AcceleratorBuffer>(varId, size);
+		return buffer;
+	}
+
+	virtual bool isValidBufferSize(const int NBits) {
+		return NBits <= 10;
+	}
+
 	virtual std::vector<IRTransformation> getIRTransformations() {
 		std::vector<IRTransformation> v;
 		return v;
 	}
-	virtual void execute(const std::string& bufferId,
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 			const std::shared_ptr<IR> ir) {
 	}
 	virtual ~FakeAccelerator() {

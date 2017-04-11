@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <sstream>
+#include "spdlog/spdlog.h"
 
 namespace xacc {
 
@@ -29,7 +30,8 @@ public:
 
 #define XACCError(errorMsg)												\
 	{																	\
-    	throw xacc::XACCException("\n\n XACC Error caught! \n\n"	\
+		spdlog::get("console")->error(std::string(errorMsg)); 			\
+    	throw xacc::XACCException("\n\n XACC Error caught! \n\n"	    \
             	+ std::string(errorMsg) + "\n\n");						\
 	}
 

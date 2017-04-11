@@ -48,7 +48,7 @@ namespace xacc {
  * that the Registry return a new created instance of
  * the template parameter T.
  */
-template<typename T>
+template<typename T, typename... TArgs>
 class Registry : public Singleton<Registry<T>> {
 protected:
 

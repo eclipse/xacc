@@ -38,6 +38,8 @@
 
 namespace xacc {
 
+bool xaccFrameworkInitialized = false;
+
 /**
  * This method should be called by
  * clients to initialize the XACC framework.
@@ -50,7 +52,28 @@ void Initialize() {
 	auto compilerRegistry = xacc::CompilerRegistry::instance();
 	auto s = compilerRegistry->size();
 	console->info("\t[xacc::compiler] XACC has " + std::to_string(s) + " Compiler" + (s==1 ? "" : "s") + " available.");
+	xacc::xaccFrameworkInitialized = true;
 }
+
+std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
+	if (!xacc::xaccFrameworkInitialized) {
+		XACCError("XACC not initialized before use. Please execute xacc::Initialize() before using API.");
+	}
+	auto acc = AcceleratorRegistry::instance()->create(name);
+	if (acc) {
+		return acc;
+	} else {
+		XACCError("Invalid Accelerator. Could not find " + name + " in Accelerator Registry.");
+	}
+}
+
+//template<typename ... RuntimeArgs>
+//std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> createKernel(
+//		const std::string& kernelName, std::shared_ptr<Accelerator> acc,
+//		const std::string& src) {
+//	xacc::Program p(acc, src);
+//	return p.getKernel<RuntimeArgs...>(kernelName);
+//}
 
 /**
  * This method should be called by clients to
@@ -61,6 +84,7 @@ void Finalize() {
 	auto console = spdlog::get("console");
 	console->info("[xacc] XACC Finalizing\n\tCleaning up Compiler Registry.");
 	xacc::CompilerRegistry::instance()->destroy();
+	xacc::xaccFrameworkInitialized = false;
 }
 }
 

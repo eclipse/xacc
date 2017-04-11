@@ -50,9 +50,28 @@ using QuantumGraphIR = xacc::GraphIR<QuantumCircuit>;
  * Framework's tensor module to model a specific set of quantum gates. It uses these
  * tensors to build up the unitary matrix described by the circuit.
  */
-template<const int NQubits>
-class FireTensorAccelerator : virtual public QPUGate<SimulatedQubits<NQubits>> {
+class FireTensorAccelerator : virtual public QPUGate {
 public:
+
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId) {
+		auto buffer = std::make_shared<SimulatedQubits<10>>(varId);
+		storeBuffer(varId, buffer);
+		return buffer;
+	}
+
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId,
+			const int size) {
+		if (!isValidBufferSize(size)) {
+			XACCError("Invalid buffer size.");
+		}
+		auto buffer = std::make_shared<SimulatedQubits<10>>(varId, size);
+		storeBuffer(varId, buffer);
+		return buffer;
+	}
+
+	virtual bool isValidBufferSize(const int NBits) {
+		return NBits <= 10;
+	}
 
 	/**
 	 * The constructor, create tensor gates
@@ -81,13 +100,10 @@ public:
 	 *
 	 * @param ir
 	 */
-	virtual void execute(const std::string& bufferId, const std::shared_ptr<xacc::IR> ir) {
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::IR> ir) {
 
-		// Get the requested qubit buffer
-		auto qubits = this->allocatedBuffers[bufferId];
-		if (!qubits) {
-			XACCError("Invalid buffer id. Could not get qubit buffer.");
-		}
+
+		auto qubits = std::static_pointer_cast<SimulatedQubits<10>>(buffer);
 
 		// Set the size
 		int nQubits = qubits->size();
@@ -210,11 +226,6 @@ public:
 				if (gateName != "FinalState" && gateName != "InitialState") {
 					// Regular Gate operations...
 
-					if (isParameterized(gate)) {
-						auto g = getParameterizedGate(gate);
-						gates.insert(std::make_pair(gateName, g));
-					}
-
 					if (actingQubits.size() == 1) {
 
 						// If this is a one qubit gate, just replace
@@ -271,34 +282,16 @@ public:
 
 protected:
 
-	bool isParameterized(CircuitNode& node) {
-		return !std::get<5>(node.properties).empty();
-	}
-
-	fire::Tensor<2, fire::EigenProvider, std::complex<double>> getParameterizedGate(
-			CircuitNode& node) {
-		fire::Tensor<2, fire::EigenProvider, std::complex<double>> g(2, 2);
-		if (std::get<0>(node.properties) == "rz") {
-
-			// Fixme... How to avoid the double here???
-
-			auto param = this->template getRuntimeParameter<double>(
-					std::get<5>(node.properties)[0]);
-			std::complex<double> i(0, 1);
-			auto rotation = std::exp(i * param);
-			g.setValues( { { 1, 0 }, { 0, rotation } });
-		} else {
-			XACCError("We don't know what this gate is... yet.");
-		}
-
-		return g;
-
-	}
 	/**
 	 * Mapping of gate names to actual gate matrices.
 	 */
 	std::map<std::string, fire::Tensor<2, fire::EigenProvider, std::complex<double>>> gates;
 };
+
+
+// Register the ScaffoldCompiler with the CompilerRegistry.
+static xacc::RegisterAccelerator<xacc::quantum::FireTensorAccelerator> X("firetensor");
+
 }
 }
 

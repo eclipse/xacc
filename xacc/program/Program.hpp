@@ -77,7 +77,7 @@ protected:
 	 * Reference to the attached Accelerator to
 	 * use in this compilation and execution
 	 */
-	std::shared_ptr<IAccelerator> accelerator;
+	std::shared_ptr<Accelerator> accelerator;
 
 	/**
 	 * Reference to a set of compiler command
@@ -93,26 +93,6 @@ protected:
 	std::shared_ptr<Compiler> compiler;
 
 
-public:
-
-	/**
-	 * The Constructor, takes the Accelerator
-	 * to execute on, and the source to compile and execute
-	 *
-	 * @param acc Attached Accelerator to execute
-	 * @param sourceFile The kernel source code
-	 */
-	Program(std::shared_ptr<IAccelerator> acc, const std::string& sourceFile) :
-			src(sourceFile) {
-		accelerator = std::move(acc);
-		compilerOptions = std::make_shared<options_description>(
-				"XACC Compiler Options");
-		compilerOptions->add_options()("help", "Help Message")("compiler",
-				value<std::string>()->default_value("scaffold"),
-				"Indicate the compiler to be used.")
-				("writeIR", value<std::string>(), "Persist generated IR to provided file name.");
-	}
-
 	/**
 	 * Execute the compilation mechanism on the provided program
 	 * source kernel code to produce XACC IR that can be executed
@@ -123,7 +103,6 @@ public:
 	 */
 	template<typename ... RuntimeArgs>
 	void build(const std::string& compilerArgStr, RuntimeArgs ... runtimeArgs) {
-
 		// Get the user-specified compiler parameters as a map
 		variables_map compileParameters;
 		store(
@@ -135,7 +114,6 @@ public:
 
 		// Create the appropriate compiler
 		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
-
 		// Make sure we got a valid
 		if (!compiler) {
 			XACCError("Invalid Compiler.\n");
@@ -170,27 +148,37 @@ public:
 		return;
 	}
 
+public:
+
+	/**
+	 * The Constructor, takes the Accelerator
+	 * to execute on, and the source to compile and execute
+	 *
+	 * @param acc Attached Accelerator to execute
+	 * @param sourceFile The kernel source code
+	 */
+	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
+			src(sourceFile) {
+		accelerator = std::move(acc);
+		compilerOptions = std::make_shared<options_description>(
+				"XACC Compiler Options");
+		compilerOptions->add_options()("help", "Help Message")("compiler",
+				value<std::string>()->default_value("scaffold"),
+				"Indicate the compiler to be used.")
+				("writeIR", value<std::string>(), "Persist generated IR to provided file name.");
+	}
+
 	/**
 	 *
 	 * @param name
 	 * @param args
 	 * @return
 	 */
-	template<typename BitsType, typename ... RuntimeArgs>
-	std::function<void(BitsType, RuntimeArgs...)> getKernel(const std::string& kernelName) {
-		return [&](BitsType bits, RuntimeArgs... args) {
-			if (sizeof...(RuntimeArgs) > 0) {
-				auto argTuple = std::make_tuple<RuntimeArgs...>(args...);
-//				auto argumentNames = compiler->getKernelArgumentVariableNames();
-//				assert(argumentNames.size()-1 == sizeof...(RuntimeArgs));
-				int counter = 1;
-				xacc::for_each(argTuple, [&](auto element) {
-//					accelerator->setRuntimeParameter(argumentNames[counter], element);
-					counter++;
-				});
-			}
-
-			accelerator->execute(bits->name(), xaccIR);
+	template<typename ... RuntimeArgs>
+	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(const std::string& kernelName) {
+		return [&](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
+			build("--compiler scaffold", args...);
+			accelerator->execute(buffer, xaccIR);
 			return;
 		};
 	}

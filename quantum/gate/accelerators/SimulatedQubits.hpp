@@ -1,9 +1,10 @@
 #ifndef QUANTUM_GATE_SIMULATEDQUBITS_HPP_
 #define QUANTUM_GATE_SIMULATEDQUBITS_HPP_
 
-#include "Accelerator.hpp"
+#include "AcceleratorBuffer.hpp"
 #include <complex>
 #include "Tensor.hpp"
+#include <bitset>
 
 namespace xacc {
 
@@ -120,7 +121,7 @@ public:
 	 *
 	 * @param stream
 	 */
-	void printBufferState(std::ostream& stream) {
+	virtual void print(std::ostream& stream) {
 		if (size() < TotalNumberOfQubits) {
 			for (int i = 0; i < bufferState.dimension(0); i++) {
 				stream
@@ -135,6 +136,23 @@ public:
 						<< " -> " << bufferState(i) << "\n";
 			}
 		}
+	}
+
+	virtual void print() {
+		auto console = spdlog::get("console");
+		if (size() < TotalNumberOfQubits) {
+					for (int i = 0; i < bufferState.dimension(0); i++) {
+						console->info(std::bitset<TotalNumberOfQubits>(i).to_string().substr(
+										TotalNumberOfQubits - size(), TotalNumberOfQubits) + " -> "
+								+ std::to_string(std::real(bufferState(i))));
+					}
+				} else {
+					for (int i = 0; i < bufferState.dimension(0); i++) {
+
+						console->info(std::bitset<TotalNumberOfQubits>(i).to_string()
+								+ " -> " + std::to_string(std::real(bufferState(i))));
+					}
+				}
 	}
 
 	virtual ~SimulatedQubits() {}

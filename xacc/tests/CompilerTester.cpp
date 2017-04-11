@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(checkKernelArgs) {
 
 	auto compiler = std::shared_ptr<Compiler>(new FakeCompiler());
 
-	auto a = std::dynamic_pointer_cast<IAccelerator>(acc);
+	auto a = std::dynamic_pointer_cast<Accelerator>(acc);
 	compiler->compile(src, a);
 
 	auto asFake = std::dynamic_pointer_cast<FakeCompiler>(compiler);

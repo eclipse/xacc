@@ -35,71 +35,40 @@
 #include <vector>
 #include <array>
 #include <bitset>
+#include "spdlog/spdlog.h"
 #include "IRTransformation.hpp"
 #include "XACCError.hpp"
+#include "AcceleratorBuffer.hpp"
+#include "Registry.hpp"
 
 namespace xacc {
 
 /**
- * Utility structs to help determine if
- * we have been given valid Vertices.
- */
-template<typename T, typename = void>
-struct is_valid_bitstype: std::false_type {
-};
-template<typename T>
-struct is_valid_bitstype<T, decltype(std::declval<T>().N, void())> : std::true_type {
-};
-
-/**
  * The types of Accelerators that XACC interacts with
  */
-enum AcceleratorType { qpu_gate, qpu_aqc, npu };
-
-
-class RuntimeType {
-public:
-
-};
-
-template<typename T>
-class ConcreteRuntimeType :  public RuntimeType {
-public:
-	T value;
+enum AcceleratorType {
+	qpu_gate, qpu_aqc, npu
 };
 
 /**
+ * The Accelerator class provides a high-level abstraction
+ * for XACC's interaction with attached post-exascale
+ * accelerators (quantum and neuromorphic processing units).
  *
- * @author Alex McCaskey
+ * Derived Accelerators must provide a valid execute implementation
+ * that takes XACC IR and executes it on the attached hardware or
+ * simulator.
+ *
+ * Derived Accelerators must provide a list of IRTransformation
+ * instances that transform XACC IR to be amenable to execution
+ * on the hardware.
+ *
+ * STORE ALLOCATED BUFFERS
  */
-class AcceleratorBuffer {
+class Accelerator {
+
 public:
-	AcceleratorBuffer(const std::string& str) :
-			bufferId(str) {
-	}
-	AcceleratorBuffer(const std::string& str, const int N) :
-			bufferId(str), bufferSize(N) {
-	}
-	template<typename ... Indices>
-	AcceleratorBuffer(const std::string& str, int firstIndex,
-			Indices ... indices) :
-			bufferId(str), bufferSize(1 + sizeof...(indices)) {
-	}
-	int size() {
-		return bufferSize;
-	}
-	std::string name() {
-		return bufferId;
-	}
 
-protected:
-
-	int bufferSize = 0;
-	std::string bufferId;
-};
-
-class IAccelerator {
-public:
 	/**
 	 * Return the type of this Accelerator.
 	 *
@@ -119,149 +88,55 @@ public:
 	 *
 	 * @param ir
 	 */
-	virtual void execute(const std::string& bufferId, const std::shared_ptr<IR> ir) = 0;
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+			const std::shared_ptr<IR> ir) = 0;
 
-	/**
-	 * Return the number of bits that the user most recently
-	 * requested.
-	 *
-	 * @return nBits The number of requested bits
-	 */
-	virtual int getBufferSize(const std::string& id) = 0;
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId) = 0;
 
-	virtual int getBufferSize() = 0;
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId, const int size) = 0;
 
-	template<typename T>
-	void setRuntimeParameter(const std::string& name, T param) {
-		auto type = std::make_shared<ConcreteRuntimeType<T>>();
-		type->value = param;
-		runtimeParameters.insert(std::make_pair(name, type));
-	}
-
-	template<typename T>
-	T getRuntimeParameter(const std::string& name) {
-		auto rp = runtimeParameters[name];
-		auto cp = std::static_pointer_cast<ConcreteRuntimeType<T>>(rp);
-		return cp->value;
-	}
-
-	virtual ~IAccelerator() {}
-protected:
-
-	virtual bool isValidBufferSize(const int NBits) {return true;}
-
-	std::map<std::string, std::shared_ptr<RuntimeType>> runtimeParameters;
-
-};
-
-/**
- * The Accelerator class provides a high-level abstraction
- * for XACC's interaction with attached post-exascale
- * accelerators (quantum and neuromorphic processing units).
- *
- * Derived Accelerators must provide a valid execute implementation
- * that takes XACC IR and executes it on the attached hardware or
- * simulator.
- *
- * Derived Accelerators must provide a list of IRTransformation
- * instances that transform XACC IR to be amenable to execution
- * on the hardware.
- */
-template<typename BitsType>
-class Accelerator : public IAccelerator {
-
-	static_assert(std::is_base_of<AcceleratorBuffer, BitsType>::value, "Accelerators "
-			"can only be instantiated with a valid AcceleratorBuffer type as "
-			"the template parameter.");
-
-	using BitsTypePtr = std::shared_ptr<BitsType>;
-
-public:
-
-	Accelerator() {
-		totalSystemBuffer = std::make_shared<BitsType>("default");
-		allocatedBuffers.insert(std::make_pair("default", totalSystemBuffer));
-	}
-
-	BitsTypePtr createBuffer(const std::string& varId) {
-		if (isValidBufferVarId(varId)) {
-			auto buffer = std::make_shared<BitsType>(varId);
-			allocatedBuffers.insert(std::make_pair(varId, buffer));
-			return buffer;
+	virtual std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string& varid) {
+		if (isValidBuffer(varid)) {
+			return allocatedBuffers[varid];
 		} else {
-			XACCError("Invalid buffer variable name.");
+			XACCError("Could not find AcceleratorBuffer with id " + varid);
 		}
 	}
 
-	BitsTypePtr createBuffer(const std::string& varId, const int size) {
-		if (!isValidBufferVarId(varId)) {
-			XACCError("Invalid buffer variable name.");
-		}
-		if (!isValidBufferSize(size)) {
-			XACCError("Invalid buffer size.");
-		}
-		auto buffer = std::make_shared<BitsType>(varId, size);
-		allocatedBuffers.insert(std::make_pair(varId, buffer));
-		return buffer;
-	}
-
-	template<typename... Indices>
-	BitsTypePtr createBuffer(const std::string& varId, int firstIndex,
-			Indices ... indices) {
-		if (!isValidBufferVarId(varId)) {
-			XACCError("Invalid buffer variable name.");
-		}
-		if (!isValidBufferSize(sizeof...(indices) + 1)) {
-			XACCError("Invalid buffer size.");
-		}
-		if (!validIndices(indices...)) {
-			XACCError("Invalid buffer indices.");
-		}
-		auto buffer = std::make_shared<BitsType>(varId, firstIndex, indices...);
-		allocatedBuffers.insert(std::make_pair(varId, buffer));
-		return buffer;
-	}
-
-	/**
-	 * Return the number of bits that the user most recently
-	 * requested.
-	 *
-	 * @return nBits The number of requested bits
-	 */
-	virtual int getBufferSize(const std::string& id) {
-		return allocatedBuffers[id]->size();
-	}
-
-	virtual int getBufferSize() {
-		return allocatedBuffers["default"]->size();
-	}
-
-	BitsTypePtr getExistingBuffer(const std::string& varId) {
-		return allocatedBuffers[varId];
-	}
-
+	virtual bool isValidBufferSize(const int NBits) = 0;
 
 	/**
 	 * Destructor
 	 */
-	virtual ~Accelerator() {}
+	virtual ~Accelerator() {
+	}
 
 protected:
 
-	std::map<std::string, BitsTypePtr> allocatedBuffers;
-
-	BitsTypePtr totalSystemBuffer;
-
-	bool isValidBufferVarId(const std::string& str) {
-		return allocatedBuffers.find(str) == std::end(allocatedBuffers);
+	void storeBuffer(const std::string& id, std::shared_ptr<AcceleratorBuffer> b) {
+		allocatedBuffers.insert(std::make_pair(id, b));
 	}
 
-	template<typename... Indices>
-	bool validIndices(int firstIndex, Indices... indices) {
-		return false;
+private:
+
+	std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocatedBuffers;
+
+	bool isValidBuffer(const std::string& str) {
+		return allocatedBuffers.find(str) != allocatedBuffers.end();
 	}
 
 };
 
+using AcceleratorRegistry = Registry<Accelerator>;
+template<typename T>
+class RegisterAccelerator {
+public:
+	RegisterAccelerator(const std::string& name) {
+		AcceleratorRegistry::instance()->add(name,
+				(std::function<std::shared_ptr<xacc::Accelerator>()>) ([]() {
+					return std::make_shared<T>();
+				}));
+	}
+};
 }
 #endif

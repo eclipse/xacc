@@ -39,8 +39,8 @@ namespace quantum {
 /**
  *
  */
-template<typename BitsType>
-class QPUGate: virtual public Accelerator<BitsType> {
+//template<typename BitsType>
+class QPUGate: virtual public Accelerator {
 public:
 
 	/**
