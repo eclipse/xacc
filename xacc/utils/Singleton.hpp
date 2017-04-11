@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the xacc nor the
+ *   * Neither the name of the <organization> nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -28,72 +28,63 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef XACC_COMPILER_HPP_
-#define XACC_COMPILER_HPP_
+
+#ifndef XACC_UTILS_SINGLETON_HPP_
+#define XACC_UTILS_SINGLETON_HPP_
 
 #include <memory>
-#include <iostream>
-#include "Registry.hpp"
-#include "IR.hpp"
-#include "Accelerator.hpp"
+#include <string>
 
 namespace xacc {
 
 /**
- *
+ * Singleton provides a templated implementation of
+ * the Singleton Design Pattern. This class takes a template parameter
+ * and provides behviour around that template that models
+ * a singleton - ie there is only one instance available during runtime.
  */
-class Compiler {
-
+template<class T>
+class Singleton {
 public:
+	/**
+	 * Return the single instance of T
+	 * @return
+	 */
+	static T* instance() {
+		if (!instance_) {
+			instance_ = new T();
+		}
+		return instance_;
+	}
 
 	/**
-	 * The Compiler.compile method is in charge of modifying
-	 * the source code to be amenable to compilation by derived
-	 * types.
-	 *
-	 * @param src The kernel source string.
-	 * @return ir Intermediate representation for provided source kernel code.
+	 * Destroy the single instance of T
 	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src,
-			std::shared_ptr<IAccelerator> acc) = 0;
-
-	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
-
-	virtual ~Compiler() {}
-
+	static void destroy() {
+		delete instance_;
+		instance_ = nullptr;
+	}
 protected:
+	/**
+	 * Reference to the single T instance
+	 */
+	static T* instance_;
 
 	/**
-	 *
+	 * constructor
 	 */
-	std::string kernelSource;
+	inline explicit Singleton() {
+	}
 
 	/**
-	 *
+	 * destructor
 	 */
-	std::shared_ptr<IAccelerator> accelerator;
-};
-
-/**
- * Compiler Registry is just an alias for a
- * Registry of Compilers.
- */
-using CompilerRegistry = Registry<Compiler>;
-
-/**
- * The RegisterCompiler class simply provides
- * a convenience constructor that adds the provided template
- * parameter type to the CompilerRegistry.
- */
-template<typename T>
-class RegisterCompiler {
-public:
-	RegisterCompiler(const std::string& name) {
-		CompilerRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Compiler>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+	virtual ~Singleton() {
 	}
 };
+
+template<class T> T* Singleton<T>::instance_ = nullptr;
+
 }
+
 #endif

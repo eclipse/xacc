@@ -134,9 +134,7 @@ public:
 		auto compilerToRun = compileParameters["compiler"].as<std::string>();
 
 		// Create the appropriate compiler
-		compiler = std::shared_ptr<Compiler>(
-				xacc::XACCFactory::createAndCast<Compiler>(
-						"compiler", compilerToRun));
+		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
 
 		// Make sure we got a valid
 		if (!compiler) {

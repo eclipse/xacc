@@ -33,16 +33,13 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "ScaffoldCompiler.hpp"
-#include "XACCFactory.hpp"
 
 using namespace xacc::quantum;
 using GraphType = QuantumCircuit;
 
 struct F {
 	F() :
-			compiler(
-					xacc::XACCFactory::createAndCast<xacc::Compiler>("compiler",
-							"scaffold")) {
+			compiler(xacc::CompilerRegistry::instance()->create("scaffold")) {
 		BOOST_TEST_MESSAGE("setup fixture");
 		BOOST_VERIFY(compiler);
 	}

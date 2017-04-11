@@ -50,6 +50,8 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 
 int main (int argc, char** argv) {
 
+	xacc::Initialize();
+
 	// Create a convenient alias for our simulator...
 	using CircuitSimulator = xacc::quantum::FireTensorAccelerator<6>;
 
@@ -77,6 +79,8 @@ int main (int argc, char** argv) {
 
 	// Pretty print the resultant state
 	qubitReg->printBufferState(std::cout);
+
+	xacc::Finalize();
 
 	return 0;
 }

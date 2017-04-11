@@ -32,10 +32,11 @@
 #define XACC_ACCELERATOR_HPP_
 
 #include <string>
-#include "IRTransformation.hpp"
-#include "XACCFactory.hpp"
+#include <vector>
 #include <array>
 #include <bitset>
+#include "IRTransformation.hpp"
+#include "XACCError.hpp"
 
 namespace xacc {
 
@@ -97,7 +98,7 @@ protected:
 	std::string bufferId;
 };
 
-class IAccelerator : public xacc::XACCObject {
+class IAccelerator {
 public:
 	/**
 	 * Return the type of this Accelerator.
@@ -144,6 +145,7 @@ public:
 		return cp->value;
 	}
 
+	virtual ~IAccelerator() {}
 protected:
 
 	virtual bool isValidBufferSize(const int NBits) {return true;}

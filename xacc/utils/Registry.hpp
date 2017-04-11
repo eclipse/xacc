@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the xacc nor the
+ *   * Neither the name of the <organization> nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -28,72 +28,79 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef XACC_COMPILER_HPP_
-#define XACC_COMPILER_HPP_
+#ifndef XACC_UTILS_REGISTRY_HPP_
+#define XACC_UTILS_REGISTRY_HPP_
 
-#include <memory>
-#include <iostream>
-#include "Registry.hpp"
-#include "IR.hpp"
-#include "Accelerator.hpp"
+#include "Singleton.hpp"
+#include "XACCError.hpp"
+#include <map>
 
 namespace xacc {
 
 /**
+ * Registry is a Singleton that provides a
+ * mapping of string ids to creation functions that
+ * create and return the provided Registry template
+ * parameter T.
  *
+ * Clients can add new creation functions to be placed
+ * in the map with a unique name key, and can request
+ * that the Registry return a new created instance of
+ * the template parameter T.
  */
-class Compiler {
-
-public:
-
-	/**
-	 * The Compiler.compile method is in charge of modifying
-	 * the source code to be amenable to compilation by derived
-	 * types.
-	 *
-	 * @param src The kernel source string.
-	 * @return ir Intermediate representation for provided source kernel code.
-	 */
-	virtual std::shared_ptr<IR> compile(const std::string& src,
-			std::shared_ptr<IAccelerator> acc) = 0;
-
-	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
-
-	virtual ~Compiler() {}
-
+template<typename T>
+class Registry : public Singleton<Registry<T>> {
 protected:
 
 	/**
-	 *
+	 * Reference to the database of creation functions
+	 * for classes of superclass type T.
 	 */
-	std::string kernelSource;
+	std::map<std::string, std::function<std::shared_ptr<T>()>> registry;
+
+public:
 
 	/**
+	 * Add a new creation function to the Registry, keyed
+	 * on the provided string id.
 	 *
+	 * @param id
+	 * @param f
+	 * @return
 	 */
-	std::shared_ptr<IAccelerator> accelerator;
-};
+	bool add(const std::string& id, std::function<std::shared_ptr<T>()> f) {
+		bool s = registry.insert(std::make_pair(id, f)).second;
+		if (!s) {
+			XACCError("Could not add " + id + " to the Registry.");
+		} else {
+			return s;
+		}
+	}
 
-/**
- * Compiler Registry is just an alias for a
- * Registry of Compilers.
- */
-using CompilerRegistry = Registry<Compiler>;
+	/**
+	 * Create an instance of T by using the creation
+	 * function found at the given key string id.
+	 * @param id
+	 * @return
+	 */
+	std::shared_ptr<T> create(const std::string& id) {
+		auto search = registry.find(id);
+		if (search != registry.end()) {
+			return registry[id]();
+		} else {
+			XACCError("Invalid Registry map id string - " + id);
+		}
+	}
 
-/**
- * The RegisterCompiler class simply provides
- * a convenience constructor that adds the provided template
- * parameter type to the CompilerRegistry.
- */
-template<typename T>
-class RegisterCompiler {
-public:
-	RegisterCompiler(const std::string& name) {
-		CompilerRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Compiler>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+	/**
+	 * Return the number of creation functions
+	 * this registry contains.
+	 * @return
+	 */
+	std::size_t size() {
+		return registry.size();
 	}
 };
 }
+
 #endif

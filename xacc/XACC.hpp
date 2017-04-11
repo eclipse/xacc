@@ -33,12 +33,36 @@
 
 #include <iostream>
 #include <memory>
-#include "Accelerator.hpp"
+#include "spdlog/spdlog.h"
 #include "Program.hpp"
 
 namespace xacc {
 
+/**
+ * This method should be called by
+ * clients to initialize the XACC framework.
+ * It should be called before using any of the
+ * XACC API.
+ */
+void Initialize() {
+	auto console = spdlog::stdout_logger_mt("console", true);
+	console->info("[xacc] Initializing XACC Framework");
+	auto compilerRegistry = xacc::CompilerRegistry::instance();
+	auto s = compilerRegistry->size();
+	console->info("\t[xacc::compiler] XACC has " + std::to_string(s) + " Compiler" + (s==1 ? "" : "s") + " available.");
+}
+
+/**
+ * This method should be called by clients to
+ * clean up and finalize the XACC framework. It should
+ * be called after using the XACC API.
+ */
+void Finalize() {
+	auto console = spdlog::get("console");
+	console->info("[xacc] XACC Finalizing\n\tCleaning up Compiler Registry.");
+	xacc::CompilerRegistry::instance()->destroy();
+}
 }
 
 
-#endif /* XACC_XACC_HPP_ */
+#endif

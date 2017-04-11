@@ -63,8 +63,8 @@ public:
 	}
 };
 
-REGISTER_XACCOBJECT_WITH_XACCTYPE(DummyCompiler, "compiler",
-		"dummy");
+// Register the ScaffoldCompiler with the CompilerRegistry.
+static xacc::RegisterCompiler<DummyCompiler> X("dummy");
 
 BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 

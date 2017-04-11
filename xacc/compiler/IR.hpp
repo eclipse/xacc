@@ -31,7 +31,6 @@
 #ifndef XACC_COMPILER_IR_HPP_
 #define XACC_COMPILER_IR_HPP_
 #include <iostream>
-#include "XACCFactory.hpp"
 
 namespace xacc {
 
