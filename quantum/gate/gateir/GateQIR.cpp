@@ -28,43 +28,36 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
-
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "GateQIR.hpp"
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
-public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
-
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
-	}
-};
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
+void GateQIR::generateGraph() {
 
 }
-#endif
+
+std::string GateQIR::toString() {
+
+}
+
+void GateQIR::persist(std::ostream& outStream) {
+
+}
+
+// FOR IR
+void GateQIR::load(std::istream& inStream) {
+
+}
+
+// FOR GRAPH
+void GateQIR::read(std::istream& stream) {
+
+}
+
+
+}
+}
+
+
+

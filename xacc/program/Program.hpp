@@ -126,6 +126,9 @@ protected:
 			XACCError("Invalid Compiler.\n");
 		}
 
+		// Update src with runtimeArgs...
+
+
 		// Execute the compilation
 		xaccIR = compiler->compile(src, accelerator);
 

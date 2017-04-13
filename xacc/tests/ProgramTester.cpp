@@ -36,6 +36,7 @@
 #include "FakeIR.hpp"
 #include "FakeAccelerator.hpp"
 #include "FireTensorAccelerator.hpp"
+#include "XACCError.hpp"
 
 using namespace xacc;
 

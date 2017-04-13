@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,12 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE QInstructionTester
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include <boost/test/included/unit_test.hpp>
 
-namespace xacc {
+BOOST_AUTO_TEST_CASE(checkReadGraph) {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
-public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
-
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
-	}
-};
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
 
 }
-#endif

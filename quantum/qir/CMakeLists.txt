@@ -28,8 +28,20 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/qir)
 
-add_subdirectory(qir)
-add_subdirectory(gate)
+set (PACKAGE_NAME "XACC Quantum IR Runtime")
+set (PACKAGE_DESCIPTION "XACC Quantum Intermediate Representation")
+set (LIBRARY_NAME xacc-qir)
+
+file (GLOB HEADERS *.hpp)
+file (GLOB SRC *.cpp)
+
+add_library(${LIBRARY_NAME} SHARED ${SRC})
+
+install(FILES ${HEADERS} DESTINATION include)
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+# Gather tests
+file (GLOB test_files tests/*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
 

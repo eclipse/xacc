@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,48 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE GateQIRTester
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include <boost/test/included/unit_test.hpp>
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
+#include "Rz.hpp"
+#include "GateQIR.hpp"
 
-namespace xacc {
+using namespace xacc::quantum;
 
-class XACCException: public std::exception {
-protected:
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	std::string errorMessage;
+	const std::string expectedQasm =
+			"qubit qreg0\n"
+			"qubit qreg1\n"
+			"qubit qreg2\n"
+			"H qreg1\n"
+			"CNOT qreg1,qreg2\n"
+			"CNOT qreg0,qreg1\n"
+			"H qreg0\n"
+			"MeasZ qreg0\n"
+			"MeasZ qreg1\n"
+			"H qreg2\n"
+			"CNOT qreg2,qreg1\n"
+			"H qreg2\n"
+			"CNOT qreg2,qreg0";
 
-public:
+	auto qir = std::make_shared<GateQIR>();
 
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
+	auto accBuffer = std::make_shared<AcceleratorBuffer>("qreg", 3);
+	qir->setAcceleratorBuffer(accBuffer);
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
+	auto rz = std::make_shared<Rz>(0, 0, 0, 3.14);
 
-	~XACCException() throw () {
-	}
-};
+	BOOST_VERIFY(rz->getParameter(0) == 3.14);
 
-#define XACC_Abort do {std::abort();} while(0);
+	qir->addInstruction(rz);
 
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
+	BOOST_VERIFY(qir->nInstructions() == 1);
+
+	std::cout << rz->getParameter(0) << "\n";
+
 
 }
-#endif

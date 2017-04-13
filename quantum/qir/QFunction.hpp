@@ -28,43 +28,85 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_IR_QFUNCTION_HPP_
+#define QUANTUM_GATE_IR_QFUNCTION_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "QInstruction.hpp"
 
 namespace xacc {
+namespace quantum {
+class QFunction: public virtual QInstruction {
 
-class XACCException: public std::exception {
+	using InstPtr = std::shared_ptr<QInstruction>;
+
 protected:
 
-	std::string errorMessage;
+	std::vector<std::shared_ptr<QInstruction>> instructions;
+
+	std::string functionName;
+
+	int functionId;
+
+	std::vector<int> qbits;
 
 public:
 
-	XACCException(std::string error) :
-			errorMessage(error) {
+	QFunction() :
+			functionName("UNKNOWN"), functionId(-1), qbits(
+					std::vector<int> { }), instructions(
+					std::vector<InstPtr> { }) {
 	}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
+	QFunction(int id, const std::string name);
+
+	/**
+	 * Add an instruction to this quantum
+	 * intermediate representation.
+	 *
+	 * @param instruction
+	 */
+	virtual void addInstruction(InstPtr instruction);
+
+	/**
+	 * Replace the given current quantum instruction
+	 * with the new replacingInst quantum Instruction.
+	 *
+	 * @param currentInst
+	 * @param replacingInst
+	 */
+	virtual void replaceInstruction(InstPtr currentInst,
+			InstPtr replacingInst);
+
+	/**
+	 * Replace the given current quantum instruction
+	 * with the new replacingInst quantum Instruction.
+	 *
+	 * @param currentInst
+	 * @param replacingInst
+	 */
+	virtual void replaceInstruction(int instId,
+			InstPtr replacingInst);
+
+	virtual const int getId() {
+		return functionId;
 	}
 
-	~XACCException() throw () {
+	virtual const std::string getName() {
+		return functionName;
+	}
+
+	virtual const std::vector<int> qubits() {
+		return qbits;
+	}
+
+	virtual const std::string toString(const std::string bufferVarName);
+
+	virtual void accept(QInstructionVisitor& visitor);
+
+	const int nInstructions() {
+		return instructions.size();
 	}
 };
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
 }
-#endif
+}
+#endif /* QUANTUM_GATE_IR_QFUNCTION_HPP_ */

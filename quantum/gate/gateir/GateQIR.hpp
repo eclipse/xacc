@@ -28,43 +28,96 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_GATEQIR_HPP_
+#define QUANTUM_GATE_GATEQIR_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "../../qir/QIR.hpp"
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
+/**
+ * CircuitNode subclasses QCIVertex to provide the following
+ * parameters in the given order:
+ *
+ * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
+ * Qubit Ids that the gate acts on, enabled state, vector of parameters names
+ */
+class CircuitNode: public XACCVertex<std::string, int, int,
+		std::vector<int>, bool, std::vector<std::string>> {
 public:
+	CircuitNode() :
+			XACCVertex() {
+		propertyNames[0] = "Gate";
+		propertyNames[1] = "Circuit Layer";
+		propertyNames[2] = "Gate Vertex Id";
+		propertyNames[3] = "Gate Acting Qubits";
+		propertyNames[4] = "Enabled";
+		propertyNames[5] = "RuntimeParameters";
 
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
+		// by default all circuit nodes
+		// are enabled and
+		std::get<4>(properties) = true;
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
 	}
 };
 
-#define XACC_Abort do {std::abort();} while(0);
+/**
+ *
+ */
+class GateQIR: public virtual xacc::quantum::QIR<xacc::quantum::CircuitNode> {
 
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
+public:
 
+	GateQIR() : QFunction() {}
+
+	GateQIR(int id, const std::string name) : QFunction(id, name) {}
+
+	/**
+	 *
+	 */
+	virtual void generateGraph();
+
+	/**
+	 * Return a string representation of this
+	 * intermediate representation
+	 * @return
+	 */
+	virtual std::string toString();
+
+	/**
+	 * Persist this IR instance to the given
+	 * output stream.
+	 *
+	 * @param outStream
+	 */
+	virtual void persist(std::ostream& outStream);
+
+	/**
+	 * Create this IR instance from the given input
+	 * stream.
+	 *
+	 * @param inStream
+	 */
+	virtual void load(std::istream& inStream);
+
+	/**
+	 * This is the implementation of the Graph.read method...
+	 *
+	 * Read in a graphviz dot graph from the given input
+	 * stream. This is left for subclasses.
+	 *
+	 * @param stream
+	 */
+	virtual void read(std::istream& stream);
+
+	/**
+	 * The destructor
+	 */
+	virtual ~GateQIR() {
+	}
+
+};
+}
 }
 #endif

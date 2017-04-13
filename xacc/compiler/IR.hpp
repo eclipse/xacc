@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,61 @@
 #ifndef XACC_COMPILER_IR_HPP_
 #define XACC_COMPILER_IR_HPP_
 #include <iostream>
+#include "AcceleratorBuffer.hpp"
 
 namespace xacc {
 
 /**
+ * The IR interface simply provides methods for
+ * reading and writing intermediate representation
+ * instances. It is left
+ * to subclasses to model Accelerator-specific
+ * intermediate representations.
  *
  */
 class IR {
+
+protected:
+
+	/**
+	 *
+	 */
+	std::shared_ptr<AcceleratorBuffer> buffer;
+
 public:
+
+	/**
+	 *
+	 * @param buf
+	 */
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) { buffer = buf;}
+
+	/**
+	 * Return a string representation of this
+	 * intermediate representation
+	 * @return
+	 */
 	virtual std::string toString() = 0;
+
+	/**
+	 * Persist this IR instance to the given
+	 * output stream.
+	 *
+	 * @param outStream
+	 */
 	virtual void persist(std::ostream& outStream) = 0;
-	virtual void read(std::istream& inStream) = 0;
+
+	/**
+	 * Create this IR instance from the given input
+	 * stream.
+	 *
+	 * @param inStream
+	 */
+	virtual void load(std::istream& inStream) = 0;
+
+	/**
+	 * The destructor
+	 */
 	virtual ~IR() {}
 };
 

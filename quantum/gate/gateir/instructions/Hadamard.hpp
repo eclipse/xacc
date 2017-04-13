@@ -28,43 +28,30 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
+#define QUANTUM_GATE_IR_HADAMARD_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "GateInstruction.hpp"
+class QInstructionVisitor;
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
+/**
+ *
+ */
+class Hadamard : public virtual GateInstruction {
 public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
+	Hadamard(int id, int layer, int qbit) :
+			GateInstruction(id, layer, "H", std::vector<int> { qbit }) {
 	}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
+	virtual void accept(QInstructionVisitor& visitor) {
 
-	~XACCException() throw () {
 	}
 };
 
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
 }
-#endif
+}
+
+#endif /* QUANTUM_GATE_IR_HADAMARD_HPP_ */

@@ -28,43 +28,30 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
+#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "GateInstruction.hpp"
+class QInstructionVisitor;
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
+/**
+ *
+ */
+class CNOT: public virtual GateInstruction {
 public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
+	CNOT(int id, int layer, int srcqbit, int tgtqbit) :
+			GateInstruction(id, layer, "CNOT", std::vector<int> { srcqbit,
+					tgtqbit }) {
 	}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
+	virtual void accept(QInstructionVisitor& visitor) {
+
 	}
 
-	~XACCException() throw () {
-	}
 };
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
 }
-#endif
+}
+#endif /* QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_ */

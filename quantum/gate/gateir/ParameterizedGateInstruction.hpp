@@ -28,43 +28,53 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
+#define QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "GateInstruction.hpp"
+#include "XACCError.hpp"
 
 namespace xacc {
-
-class XACCException: public std::exception {
+namespace quantum {
+template<typename ... InstructionParameter>
+class ParameterizedGateInstruction: public virtual GateInstruction {
 protected:
-
-	std::string errorMessage;
+	std::tuple<InstructionParameter...> params;
 
 public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
+	ParameterizedGateInstruction(int id, int layer, std::string name,
+			std::vector<int> qubts, InstructionParameter ... pars) :
+			GateInstruction(id, layer, name, qubts), params(
+					std::make_tuple(pars...)) {
 	}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
+	auto getParameter(const std::size_t idx) {
+		if(idx + 1 > sizeof...(InstructionParameter)) {
+			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+		}
+		return xacc::runtime_get(params, idx);
 	}
 
-	~XACCException() throw () {
+	virtual const std::string toString(const std::string bufferVarName) {
+		auto str = gateName;
+		str += "(";
+		xacc::for_each(params, [&](auto element) {
+			str += std::to_string(element) + ",";
+		});
+		str += str.substr(0, str.length() - 1) + ") ";
+
+		for (auto q : qubits()) {
+			str += bufferVarName + std::to_string(q) + ",";
+		}
+
+		// Remove trailing comma
+		str = str.substr(0, str.length() - 1);
+
+		return str;
 	}
+
 };
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
 }
-#endif
+}
+
+#endif /* QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_ */

@@ -29,7 +29,10 @@
 #
 #**********************************************************************************/
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateir)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateir/instructions)
 
+add_subdirectory(gateir)
 add_subdirectory(compilers)
 add_subdirectory(accelerators)
 add_subdirectory(utils)

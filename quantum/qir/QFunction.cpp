@@ -28,43 +28,39 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
-
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "QFunction.hpp"
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
-public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
-
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
-	}
-};
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
+QFunction::QFunction(int id, const std::string name) :
+		functionId(id), functionName(name) {
 
 }
-#endif
+
+void QFunction::accept(QInstructionVisitor& visitor) {
+	return;
+}
+
+void QFunction::addInstruction(InstPtr instruction) {
+	instructions.push_back(instruction);
+}
+
+void QFunction::replaceInstruction(InstPtr currentInst,
+		InstPtr replacingInst) {
+
+}
+
+void QFunction::replaceInstruction(int instId, InstPtr replacingInst) {
+
+}
+
+const std::string QFunction::toString(const std::string bufferVarName) {
+
+}
+
+}
+}
+
+
+

@@ -28,43 +28,33 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
+#define QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "QInstruction.hpp"
+#include "CNOT.hpp"
+#include "Hadamard.hpp"
+#include "Rz.hpp"
+#include "QFunction.hpp"
 
 namespace xacc {
 
-class XACCException: public std::exception {
-protected:
+namespace quantum {
 
-	std::string errorMessage;
-
+/**
+ *
+ */
+class QInstructionVisitor {
 public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
-
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
-	}
+	virtual void visit(QFunction* function) = 0;
+	virtual void visit(Hadamard* function) = 0;
+	virtual void visit(CNOT* function) = 0;
+	virtual void visit(Rz* function) = 0;
+	virtual ~QInstructionVisitor() {}
 };
 
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
+}
 
 }
+
 #endif

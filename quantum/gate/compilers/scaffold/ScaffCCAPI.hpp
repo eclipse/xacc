@@ -87,7 +87,7 @@ public:
 			return qasm;
 		} else {
 			XACCError(
-					"Cannot find scaffold compiler. Make sure scaffcc is in PATH and executable.")
+					"Cannot find scaffold compiler. Make sure scaffcc is in PATH and executable.");
 		}
 	}
 };

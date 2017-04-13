@@ -28,43 +28,64 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_
+#define QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "QInstruction.hpp"
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
+class GateInstruction: public virtual QInstruction {
+
 protected:
-
-	std::string errorMessage;
-
+	int gateId;
+	std::string gateName;
+	int circuitLayer;
+	std::vector<int> qbits;
 public:
 
-	XACCException(std::string error) :
-			errorMessage(error) {
+	GateInstruction() :
+			gateId(0), gateName("UNKNOWN"), circuitLayer(0), qbits(
+					std::vector<int> { }) {
 	}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
+	GateInstruction(int id, int layer, std::string name, std::vector<int> qubts) :
+			gateId(id), circuitLayer(layer), gateName(name), qbits(qubts) {
 	}
 
-	~XACCException() throw () {
+	virtual const int getId() {
+		return gateId;
+	}
+	virtual const std::string getName() {
+		return gateName;
+	}
+	virtual const int layer() {
+		return circuitLayer;
+	}
+
+	virtual const std::vector<int> qubits() {
+		return qbits;
+	}
+
+	virtual const std::string toString(const std::string bufferVarName) {
+		auto str = gateName + " ";
+		for (auto q : qubits()) {
+			str += bufferVarName + std::to_string(q) + ",";
+		}
+
+		// Remove trailing comma
+		str = str.substr(0, str.length() - 1);
+
+		return str;
+	}
+
+	virtual ~GateInstruction() {
 	}
 };
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
 }
-#endif
+}
+
+
+
+#endif /* QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_ */

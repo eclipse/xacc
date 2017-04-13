@@ -67,13 +67,14 @@ public:
 		graph.write(outStream);
 	}
 
-	virtual void read(std::istream& inStream) {
+	virtual void load(std::istream& inStream) {
 		graph.read(inStream);
 	}
 
 	DerivedGraph& getGraph() {
 		return graph;
 	}
+
 
 };
 }

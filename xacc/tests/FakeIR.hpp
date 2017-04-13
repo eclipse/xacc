@@ -39,7 +39,7 @@ public:
 	}
 	virtual std::string toString() { return std::string();}
 	virtual void persist(std::ostream& stream) {}
-	virtual void read(std::istream& inStream) {}
+	virtual void load(std::istream& inStream) {}
 };
 
 #endif

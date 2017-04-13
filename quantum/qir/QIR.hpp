@@ -28,43 +28,37 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef UTILS_XACCERROR_HPP_
-#define UTILS_XACCERROR_HPP_
+#ifndef QUANTUM_QIR_HPP_
+#define QUANTUM_QIR_HPP_
 
-#include <exception>
-#include <sstream>
-#include "spdlog/spdlog.h"
+#include "QFunction.hpp"
+#include "Graph.hpp"
+#include "IR.hpp"
 
 namespace xacc {
+namespace quantum {
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
+/**
+ *
+ */
+template<typename VertexType>
+class QIR: public virtual xacc::Graph<VertexType>,
+		public virtual QFunction,
+		public virtual xacc::IR {
 public:
 
-	XACCException(std::string error) :
-			errorMessage(error) {
-	}
+	QIR() {}
 
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
+	/**
+	 *
+	 */
+	virtual void generateGraph() = 0;
 
-	~XACCException() throw () {
-	}
+	/**
+	 *
+	 */
+	virtual ~QIR() {}
 };
-
-#define XACC_Abort do {std::abort();} while(0);
-
-#define XACCError(errorMsg)												\
-	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
-		using namespace xacc; \
-    	throw XACCException("\n\n XACC Error caught! \n\n"	    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
+}
 }
 #endif

@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 	std::istringstream iss(irstr);
 
 	auto graphir = std::make_shared<xacc::GraphIR<QuantumCircuit>>();
-	graphir->read(iss);
+	graphir->load(iss);
 	acc.execute(qreg1, graphir);
 
 	auto qreg = std::static_pointer_cast<SimulatedQubits<10>>(qreg1);

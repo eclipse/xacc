@@ -1,3 +1,33 @@
+/***********************************************************************************
+ * Copyright (c) 2017, UT-Battelle
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the name of the xacc nor the
+ *     names of its contributors may be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Contributors:
+ *   Initial API and implementation - Alex McCaskey
+ *
+ **********************************************************************************/
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -47,5 +77,34 @@ void for_each(Tuple&& tuple, F&& f) {
     constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
     for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
                   std::make_index_sequence<N>{});
+}
+
+template<
+  typename Tuple,
+  typename Indices=std::make_index_sequence<std::tuple_size<Tuple>::value>>
+struct runtime_get_func_table;
+
+template<typename Tuple,size_t ... Indices>
+struct runtime_get_func_table<Tuple,std::index_sequence<Indices...>>{
+    using return_type=typename std::tuple_element<0,Tuple>::type&;
+    using get_func_ptr=return_type (*)(Tuple&) noexcept;
+    static constexpr get_func_ptr table[std::tuple_size<Tuple>::value]={
+        &std::get<Indices>...
+    };
+};
+
+template<typename Tuple,size_t ... Indices>
+constexpr typename
+runtime_get_func_table<Tuple,std::index_sequence<Indices...>>::get_func_ptr
+runtime_get_func_table<Tuple,std::index_sequence<Indices...>>::table[std::tuple_size<Tuple>::value];
+
+template<typename Tuple>
+constexpr
+typename std::tuple_element<0,typename std::remove_reference<Tuple>::type>::type&
+runtime_get(Tuple&& t,size_t index){
+    using tuple_type=typename std::remove_reference<Tuple>::type;
+    if(index>=std::tuple_size<tuple_type>::value)
+        throw std::runtime_error("Out of range");
+    return runtime_get_func_table<tuple_type>::table[index](t);
 }
 }
