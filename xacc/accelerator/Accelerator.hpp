@@ -63,7 +63,13 @@ enum AcceleratorType {
  * instances that transform XACC IR to be amenable to execution
  * on the hardware.
  *
- * STORE ALLOCATED BUFFERS
+ * Derived Accelerators must provide implementations of createBuffer
+ * that provide a valid AcceleratorBuffer instance modeling the
+ * hardware memory or bits being computed on. Upon creating an
+ * AcceleratorBuffer, derived Accelerator implementations must
+ * call the protected storeBuffer method to store the AcceleratorBuffer
+ * for future reference by Compilers and clients of Accelerator.
+ *
  */
 class Accelerator {
 
@@ -84,18 +90,47 @@ public:
 	virtual std::vector<IRTransformation> getIRTransformations() = 0;
 
 	/**
-	 * Execute the provided XACC IR on this attached Accelerator.
+	 * Execute the provided XACC IR on the provided AcceleratorBuffer.
 	 *
+	 * @param buffer
 	 * @param ir
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 			const std::shared_ptr<IR> ir) = 0;
 
-	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId) = 0;
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string. This string serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId
+	 * @return
+	 */
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+			const std::string& varId) = 0;
 
-	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId, const int size) = 0;
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string and of the given number of bits.
+	 * The string id serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId
+	 * @param size
+	 * @return
+	 */
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+			const std::string& varId, const int size) = 0;
 
-	virtual std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string& varid) {
+	/**
+	 * Return the stored AcceleratorBuffer with the provided
+	 * string id.
+	 *
+	 * @param varid
+	 * @return
+	 */
+	virtual std::shared_ptr<AcceleratorBuffer> getBuffer(
+			const std::string& varid) {
 		if (isValidBuffer(varid)) {
 			return allocatedBuffers[varid];
 		} else {
@@ -103,6 +138,12 @@ public:
 		}
 	}
 
+	/**
+	 * Return true if this Accelerator can allocated
+	 * NBits number of bits.
+	 * @param NBits
+	 * @return
+	 */
 	virtual bool isValidBufferSize(const int NBits) = 0;
 
 	/**
@@ -113,21 +154,52 @@ public:
 
 protected:
 
-	void storeBuffer(const std::string& id, std::shared_ptr<AcceleratorBuffer> b) {
+	/**
+	 * This protected method is to be used by derived
+	 * Accelerators to store any created AcceleratorBuffer.
+	 *
+	 * @param id
+	 * @param b
+	 */
+	void storeBuffer(const std::string& id,
+			std::shared_ptr<AcceleratorBuffer> b) {
 		allocatedBuffers.insert(std::make_pair(id, b));
 	}
 
 private:
 
+	/**
+	 * The mapping of string ids to created AcceleratorBuffers.
+	 */
 	std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocatedBuffers;
 
+	/**
+	 * Private utility method to indicate whether there exists
+	 * an AcceleratorBuffer with the provided string id.
+	 * @param str
+	 * @return
+	 */
 	bool isValidBuffer(const std::string& str) {
 		return allocatedBuffers.find(str) != allocatedBuffers.end();
 	}
 
 };
 
+/**
+ * Create an alias for a Registry of Accelerators.
+ */
 using AcceleratorRegistry = Registry<Accelerator>;
+
+/**
+ * RegisterAccelerator is a convenience class for
+ * registering custom derived Accelerator classes.
+ *
+ * Creators of Accelerator subclasses create an instance
+ * of this class with their Accelerator subclass as the template
+ * parameter to register their Accelerator with XACC. This instance
+ * must be created in the CPP implementation file for the Accelerator
+ * and at global scope.
+ */
 template<typename T>
 class RegisterAccelerator {
 public:

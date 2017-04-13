@@ -48,15 +48,19 @@ using namespace boost::program_options;
 
 namespace xacc {
 
+/**
+ * Placeholder, soon we will have Acc Independent transformations...
+ * @param accType
+ * @return
+ */
 std::vector<IRTransformation> getAcceleratorIndependentTransformations(
 		AcceleratorType& accType) {
 	std::vector<IRTransformation> transformations;
-
 	return transformations;
 }
 
 /**
- * The Program is  the main entrypoint for the XACC
+ * The Program is the main entrypoint for the XACC
  * API. Users with accelerator kernels must construct a
  * valid Program to be compiled and executed on the
  * attached accelerator. Programs must be given the
@@ -86,12 +90,15 @@ protected:
 	std::shared_ptr<options_description> compilerOptions;
 
 	/**
-	 *
+	 * Reference to the XACC IR instance that is
+	 * created by the Compiler
 	 */
 	std::shared_ptr<IR> xaccIR;
 
+	/**
+	 * Reference to the compiler
+	 */
 	std::shared_ptr<Compiler> compiler;
-
 
 	/**
 	 * Execute the compilation mechanism on the provided program
@@ -129,7 +136,8 @@ protected:
 
 		// Execute IR Translations
 		auto acceleratorType = accelerator->getType();
-		auto defaultTransforms = getAcceleratorIndependentTransformations(acceleratorType);
+		auto defaultTransforms = getAcceleratorIndependentTransformations(
+				acceleratorType);
 		auto accDepTransforms = accelerator->getIRTransformations();
 		for (IRTransformation& t : defaultTransforms) {
 			t.transform(*xaccIR.get());
@@ -164,18 +172,22 @@ public:
 				"XACC Compiler Options");
 		compilerOptions->add_options()("help", "Help Message")("compiler",
 				value<std::string>()->default_value("scaffold"),
-				"Indicate the compiler to be used.")
-				("writeIR", value<std::string>(), "Persist generated IR to provided file name.");
+				"Indicate the compiler to be used.")("writeIR",
+				value<std::string>(),
+				"Persist generated IR to provided file name.");
 	}
 
 	/**
+	 * Return an executable version of the quantum kernel
+	 * referenced by the kernelName string.
 	 *
 	 * @param name
 	 * @param args
 	 * @return
 	 */
 	template<typename ... RuntimeArgs>
-	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(const std::string& kernelName) {
+	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(
+			const std::string& kernelName) {
 		return [&](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
 			build("--compiler scaffold", args...);
 			accelerator->execute(buffer, xaccIR);
