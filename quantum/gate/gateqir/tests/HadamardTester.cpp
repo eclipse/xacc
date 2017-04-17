@@ -1,3 +1,4 @@
+
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -29,47 +30,30 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GateQIRTester
+#define BOOST_TEST_MODULE HadamardTester
 
 #include <boost/test/included/unit_test.hpp>
 #include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
-#include "GateQIR.hpp"
 
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	const std::string expectedQasm =
-			"qubit qreg0\n"
-			"qubit qreg1\n"
-			"qubit qreg2\n"
-			"H qreg1\n"
-			"CNOT qreg1,qreg2\n"
-			"CNOT qreg0,qreg1\n"
-			"H qreg0\n"
-			"MeasZ qreg0\n"
-			"MeasZ qreg1\n"
-			"H qreg2\n"
-			"CNOT qreg2,qreg1\n"
-			"H qreg2\n"
-			"CNOT qreg2,qreg0";
+	Hadamard h(0, 0, 0);
+	BOOST_VERIFY(h.toString("qreg") == "H qreg0");
+	BOOST_VERIFY(h.getId() == 0);
+	BOOST_VERIFY(h.layer() == 0);
+	BOOST_VERIFY(h.qubits().size() == 1);
+	BOOST_VERIFY(h.qubits()[0] == 0);
+	BOOST_VERIFY(h.getName() == "H");
 
-	auto qir = std::make_shared<GateQIR>();
-
-	auto accBuffer = std::make_shared<AcceleratorBuffer>("qreg", 3);
-	qir->setAcceleratorBuffer(accBuffer);
-
-	auto rz = std::make_shared<Rz>(0, 0, 0, 3.14);
-
-	BOOST_VERIFY(rz->getParameter(0) == 3.14);
-
-	qir->addInstruction(rz);
-
-	BOOST_VERIFY(qir->nInstructions() == 1);
-
-	std::cout << rz->getParameter(0) << "\n";
+	Hadamard h2(3, 22, 44);
+	BOOST_VERIFY(h2.toString("qreg") == "H qreg44");
+	BOOST_VERIFY(h2.getId() == 3);
+	BOOST_VERIFY(h2.layer() == 22);
+	BOOST_VERIFY(h2.qubits().size() == 1);
+	BOOST_VERIFY(h2.qubits()[0] == 44);
+	BOOST_VERIFY(h2.getName() == "H");
 
 
 }

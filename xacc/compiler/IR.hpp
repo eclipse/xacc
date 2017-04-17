@@ -47,18 +47,13 @@ class IR {
 
 protected:
 
-	/**
-	 *
-	 */
-	std::shared_ptr<AcceleratorBuffer> buffer;
-
 public:
 
 	/**
 	 *
 	 * @param buf
 	 */
-	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) { buffer = buf;}
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) = 0;
 
 	/**
 	 * Return a string representation of this

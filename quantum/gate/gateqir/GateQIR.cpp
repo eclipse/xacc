@@ -39,6 +39,17 @@ void GateQIR::generateGraph() {
 
 std::string GateQIR::toString() {
 
+	int nQubits = buffer->size();
+	auto bufVarName = buffer->name();
+	std::string retStr = "";
+	for (int i = 0; i < nQubits; i++) {
+		retStr += "qubit " + bufVarName + std::to_string(i) + "\n";
+	}
+	for (auto f : kernels) {
+		retStr += f->toString(bufVarName);
+	}
+
+	return retStr;
 }
 
 void GateQIR::persist(std::ostream& outStream) {

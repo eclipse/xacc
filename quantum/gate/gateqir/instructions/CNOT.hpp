@@ -28,12 +28,11 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
+#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
+#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
 
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include "../../gateqir/GateInstruction.hpp"
+class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
@@ -41,32 +40,18 @@ namespace quantum {
 /**
  *
  */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
+class CNOT: public virtual GateInstruction {
 public:
+	CNOT(int id, int layer, int srcqbit, int tgtqbit) :
+			GateInstruction(id, layer, "CNOT", std::vector<int> { srcqbit,
+					tgtqbit }) {
+	}
 
-	QIR() {}
+	virtual void accept(QInstructionVisitor& visitor) {
 
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
-
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
-
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
-
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
-
-protected:
-
-	std::vector<std::shared_ptr<QFunction>> kernels;
+	}
 
 };
 }
 }
-#endif
+#endif /* QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_ */

@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,45 +29,33 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE HadamardTester
 
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include <boost/test/included/unit_test.hpp>
+#include "CNOT.hpp"
 
-namespace xacc {
-namespace quantum {
+using namespace xacc::quantum;
 
-/**
- *
- */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
-public:
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	QIR() {}
+	CNOT h(0, 0, 0, 1);
+	BOOST_VERIFY(h.toString("qreg") == "CNOT qreg0,qreg1");
+	BOOST_VERIFY(h.getId() == 0);
+	BOOST_VERIFY(h.layer() == 0);
+	BOOST_VERIFY(h.qubits().size() == 2);
+	BOOST_VERIFY(h.qubits()[0] == 0);
+	BOOST_VERIFY(h.qubits()[1] == 1);
+	BOOST_VERIFY(h.getName() == "CNOT");
 
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
+	CNOT h2(3, 22, 44, 46);
+	BOOST_VERIFY(h2.toString("qreg") == "CNOT qreg44,qreg46");
+	BOOST_VERIFY(h2.getId() == 3);
+	BOOST_VERIFY(h2.layer() == 22);
+	BOOST_VERIFY(h2.qubits().size() == 2);
+	BOOST_VERIFY(h2.qubits()[0] == 44);
+	BOOST_VERIFY(h2.qubits()[1] == 46);
+	BOOST_VERIFY(h2.getName() == "CNOT");
 
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
 
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
-
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
-
-protected:
-
-	std::vector<std::shared_ptr<QFunction>> kernels;
-
-};
 }
-}
-#endif

@@ -28,12 +28,11 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
+#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
+#define QUANTUM_GATE_IR_HADAMARD_HPP_
 
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include "../../gateqir/GateInstruction.hpp"
+class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
@@ -41,32 +40,18 @@ namespace quantum {
 /**
  *
  */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
+class Hadamard : public virtual GateInstruction {
 public:
+	Hadamard(int id, int layer, int qbit) :
+			GateInstruction(id, layer, "H", std::vector<int> { qbit }) {
+	}
 
-	QIR() {}
+	virtual void accept(QInstructionVisitor& visitor) {
 
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
-
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
-
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
-
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
-
-protected:
-
-	std::vector<std::shared_ptr<QFunction>> kernels;
-
+	}
 };
+
 }
 }
-#endif
+
+#endif /* QUANTUM_GATE_IR_HADAMARD_HPP_ */

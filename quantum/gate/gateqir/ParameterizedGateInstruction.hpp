@@ -28,45 +28,51 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
+#ifndef QUANTUM_GATE_GATEQIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
+#define QUANTUM_GATE_GATEQIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
 
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include "GateInstruction.hpp"
+#include "XACCError.hpp"
+#include "XaccUtils.hpp"
 
 namespace xacc {
 namespace quantum {
-
-/**
- *
- */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
-public:
-
-	QIR() {}
-
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
-
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
-
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
-
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
-
+template<typename ... InstructionParameter>
+class ParameterizedGateInstruction: public virtual GateInstruction {
 protected:
+	std::tuple<InstructionParameter...> params;
 
-	std::vector<std::shared_ptr<QFunction>> kernels;
+public:
+	ParameterizedGateInstruction(InstructionParameter ... pars) :
+			params(std::make_tuple(pars...)) {
+	}
+
+	auto getParameter(const std::size_t idx) {
+		if (idx + 1 > sizeof...(InstructionParameter)) {
+			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+		}
+		return xacc::tuple_runtime_get(params, idx);
+	}
+
+	virtual const std::string toString(const std::string bufferVarName) {
+		auto str = gateName;
+		str += "(";
+		xacc::tuple_for_each(params, [&](auto element) {
+			str += std::to_string(element) + ",";
+		});
+		str = str.substr(0, str.length() - 1) + ") ";
+
+		for (auto q : qubits()) {
+			str += bufferVarName + std::to_string(q) + ",";
+		}
+
+		// Remove trailing comma
+		str = str.substr(0, str.length() - 1);
+
+		return str;
+	}
 
 };
-}
-}
+}}
+
 #endif

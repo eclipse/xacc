@@ -31,7 +31,7 @@
 #ifndef QUANTUM_GATE_GATEQIR_HPP_
 #define QUANTUM_GATE_GATEQIR_HPP_
 
-#include "../../qir/QIR.hpp"
+#include "QIR.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -43,8 +43,8 @@ namespace quantum {
  * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
  * Qubit Ids that the gate acts on, enabled state, vector of parameters names
  */
-class CircuitNode: public XACCVertex<std::string, int, int,
-		std::vector<int>, bool, std::vector<std::string>> {
+class CircuitNode: public XACCVertex<std::string, int, int, std::vector<int>,
+		bool, std::vector<std::string>> {
 public:
 	CircuitNode() :
 			XACCVertex() {
@@ -67,12 +67,25 @@ public:
  */
 class GateQIR: public virtual xacc::quantum::QIR<xacc::quantum::CircuitNode> {
 
+protected:
+
+	/**
+	 *
+	 */
+	std::shared_ptr<AcceleratorBuffer> buffer;
+
 public:
 
-	GateQIR() : QFunction() {}
+	GateQIR() {
+	}
 
-	GateQIR(int id, const std::string name) : QFunction(id, name) {}
+	GateQIR(std::shared_ptr<AcceleratorBuffer> buf) :
+			buffer(buf) {
+	}
 
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {
+		buffer = buf;
+	}
 	/**
 	 *
 	 */

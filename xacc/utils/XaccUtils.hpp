@@ -73,7 +73,7 @@ void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
 }
 
 template <typename Tuple, typename F>
-void for_each(Tuple&& tuple, F&& f) {
+void tuple_for_each(Tuple&& tuple, F&& f) {
     constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
     for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
                   std::make_index_sequence<N>{});
@@ -101,7 +101,7 @@ runtime_get_func_table<Tuple,std::index_sequence<Indices...>>::table[std::tuple_
 template<typename Tuple>
 constexpr
 typename std::tuple_element<0,typename std::remove_reference<Tuple>::type>::type&
-runtime_get(Tuple&& t,size_t index){
+tuple_runtime_get(Tuple&& t,size_t index){
     using tuple_type=typename std::remove_reference<Tuple>::type;
     if(index>=std::tuple_size<tuple_type>::value)
         throw std::runtime_error("Out of range");

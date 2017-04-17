@@ -31,9 +31,10 @@
 #ifndef QUANTUM_GATE_IR_QINSTRUCTION_HPP_
 #define QUANTUM_GATE_IR_QINSTRUCTION_HPP_
 
+#include <memory>
 #include <string>
 #include <vector>
-#include "XaccUtils.hpp"
+
 class QInstructionVisitor;
 
 namespace xacc {

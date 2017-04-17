@@ -40,6 +40,7 @@ public:
 	virtual std::string toString() { return std::string();}
 	virtual void persist(std::ostream& stream) {}
 	virtual void load(std::istream& inStream) {}
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {}
 };
 
 #endif

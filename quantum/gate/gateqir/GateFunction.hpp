@@ -28,39 +28,72 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
+#ifndef QUANTUM_GATEQIR_QFUNCTION_HPP_
+#define QUANTUM_GATEQIR_QFUNCTION_HPP_
+
 #include "QFunction.hpp"
 
 namespace xacc {
 namespace quantum {
 
-QFunction::QFunction(int id, const std::string name) :
-		functionId(id), functionName(name) {
+class GateFunction: public virtual QFunction {
 
+protected:
+
+	std::vector<std::shared_ptr<QInstruction>> instructions;
+
+	std::string functionName;
+
+	int functionId;
+
+	std::vector<int> qbits;
+
+public:
+
+	GateFunction();
+
+	GateFunction(int id, const std::string name);
+
+	/**
+	 * Add an instruction to this quantum
+	 * intermediate representation.
+	 *
+	 * @param instruction
+	 */
+	virtual void addInstruction(InstPtr instruction);
+
+	/**
+	 * Replace the given current quantum instruction
+	 * with the new replacingInst quantum Instruction.
+	 *
+	 * @param currentInst
+	 * @param replacingInst
+	 */
+	virtual void replaceInstruction(InstPtr currentInst,
+			InstPtr replacingInst);
+
+	/**
+	 * Replace the given current quantum instruction
+	 * with the new replacingInst quantum Instruction.
+	 *
+	 * @param currentInst
+	 * @param replacingInst
+	 */
+	virtual void replaceInstruction(int instId,
+			InstPtr replacingInst);
+
+	virtual const int getId();
+
+	virtual const std::string getName();
+
+	virtual const std::vector<int> qubits();
+
+	virtual const std::string toString(const std::string bufferVarName);
+
+	virtual void accept(QInstructionVisitor& visitor);
+
+	const int nInstructions();
+};
 }
-
-void QFunction::accept(QInstructionVisitor& visitor) {
-	return;
 }
-
-void QFunction::addInstruction(InstPtr instruction) {
-	instructions.push_back(instruction);
-}
-
-void QFunction::replaceInstruction(InstPtr currentInst,
-		InstPtr replacingInst) {
-
-}
-
-void QFunction::replaceInstruction(int instId, InstPtr replacingInst) {
-
-}
-
-const std::string QFunction::toString(const std::string bufferVarName) {
-
-}
-
-}
-}
-
-
-
+#endif /* QUANTUM_GATE_IR_QFUNCTION_HPP_ */

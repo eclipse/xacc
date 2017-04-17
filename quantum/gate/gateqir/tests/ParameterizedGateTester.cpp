@@ -29,11 +29,27 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE QInstructionTester
+#define BOOST_TEST_MODULE ParameterizedGateTester
 
 #include <boost/test/included/unit_test.hpp>
+#include "ParameterizedGateInstruction.hpp"
 
-BOOST_AUTO_TEST_CASE(checkReadGraph) {
+using namespace xacc::quantum;
 
+class DummyGate: public virtual ParameterizedGateInstruction<double, double> {
+public:
+	DummyGate(int id, int layer, int qbit, double param1, double param2) :
+			ParameterizedGateInstruction(param1, param2), GateInstruction(id, layer, "Dummy",std::vector<int>{qbit}){
+	}
 
+	virtual void accept(QInstructionVisitor& visitor) {
+
+	}
+
+};
+
+BOOST_AUTO_TEST_CASE(checkParameterizedGate) {
+	auto dgate = std::make_shared<DummyGate>(0, 0, 0, 3.14, 33.3);
+	BOOST_VERIFY(dgate->getParameter(0) == 3.14);
+	BOOST_VERIFY(dgate->getParameter(1) == 33.3);
 }

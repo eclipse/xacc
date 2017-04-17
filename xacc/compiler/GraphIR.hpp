@@ -51,6 +51,7 @@ public:
 			graph(g) {
 	}
 
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {}
 	virtual int order() {
 		return graph.order();
 	}

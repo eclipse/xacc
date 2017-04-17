@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,53 +28,14 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
-#define QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE QFunctionTester
 
-#include "GateInstruction.hpp"
-#include "XACCError.hpp"
+#include <boost/test/included/unit_test.hpp>
 
-namespace xacc {
-namespace quantum {
-template<typename ... InstructionParameter>
-class ParameterizedGateInstruction: public virtual GateInstruction {
-protected:
-	std::tuple<InstructionParameter...> params;
+#include "QFunction.hpp"
 
-public:
-	ParameterizedGateInstruction(int id, int layer, std::string name,
-			std::vector<int> qubts, InstructionParameter ... pars) :
-			GateInstruction(id, layer, name, qubts), params(
-					std::make_tuple(pars...)) {
-	}
+using namespace xacc::quantum;
 
-	auto getParameter(const std::size_t idx) {
-		if(idx + 1 > sizeof...(InstructionParameter)) {
-			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
-		}
-		return xacc::runtime_get(params, idx);
-	}
-
-	virtual const std::string toString(const std::string bufferVarName) {
-		auto str = gateName;
-		str += "(";
-		xacc::for_each(params, [&](auto element) {
-			str += std::to_string(element) + ",";
-		});
-		str += str.substr(0, str.length() - 1) + ") ";
-
-		for (auto q : qubits()) {
-			str += bufferVarName + std::to_string(q) + ",";
-		}
-
-		// Remove trailing comma
-		str = str.substr(0, str.length() - 1);
-
-		return str;
-	}
-
-};
+BOOST_AUTO_TEST_CASE(checkConstruct) {
 }
-}
-
-#endif /* QUANTUM_GATE_GATEIR_PARAMETERIZEDGATEINSTRUCTION_HPP_ */

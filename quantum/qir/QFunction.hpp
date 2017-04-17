@@ -28,36 +28,22 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_QFUNCTION_HPP_
-#define QUANTUM_GATE_IR_QFUNCTION_HPP_
+#ifndef QUANTUM_QIR_QFUNCTION_HPP_
+#define QUANTUM_QIR_QFUNCTION_HPP_
 
 #include "QInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
+using InstPtr = std::shared_ptr<QInstruction>;
 class QFunction: public virtual QInstruction {
 
-	using InstPtr = std::shared_ptr<QInstruction>;
-
-protected:
-
-	std::vector<std::shared_ptr<QInstruction>> instructions;
-
-	std::string functionName;
-
-	int functionId;
-
-	std::vector<int> qbits;
 
 public:
 
-	QFunction() :
-			functionName("UNKNOWN"), functionId(-1), qbits(
-					std::vector<int> { }), instructions(
-					std::vector<InstPtr> { }) {
-	}
+	QFunction() {}
 
-	QFunction(int id, const std::string name);
+	QFunction(int id, const std::string name) {}
 
 	/**
 	 * Add an instruction to this quantum
@@ -65,7 +51,7 @@ public:
 	 *
 	 * @param instruction
 	 */
-	virtual void addInstruction(InstPtr instruction);
+	virtual void addInstruction(InstPtr instruction) = 0;
 
 	/**
 	 * Replace the given current quantum instruction
@@ -75,7 +61,7 @@ public:
 	 * @param replacingInst
 	 */
 	virtual void replaceInstruction(InstPtr currentInst,
-			InstPtr replacingInst);
+			InstPtr replacingInst) = 0;
 
 	/**
 	 * Replace the given current quantum instruction
@@ -85,28 +71,10 @@ public:
 	 * @param replacingInst
 	 */
 	virtual void replaceInstruction(int instId,
-			InstPtr replacingInst);
+			InstPtr replacingInst) = 0;
 
-	virtual const int getId() {
-		return functionId;
-	}
-
-	virtual const std::string getName() {
-		return functionName;
-	}
-
-	virtual const std::vector<int> qubits() {
-		return qbits;
-	}
-
-	virtual const std::string toString(const std::string bufferVarName);
-
-	virtual void accept(QInstructionVisitor& visitor);
-
-	const int nInstructions() {
-		return instructions.size();
-	}
+	virtual const int nInstructions() = 0;
 };
 }
 }
-#endif /* QUANTUM_GATE_IR_QFUNCTION_HPP_ */
+#endif

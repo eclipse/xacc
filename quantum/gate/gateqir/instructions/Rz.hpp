@@ -28,64 +28,27 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_
-#define QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_
+#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RZ_HPP_
+#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RZ_HPP_
 
-#include "QInstruction.hpp"
+#include "ParameterizedGateInstruction.hpp"
+class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
-
-class GateInstruction: public virtual QInstruction {
-
-protected:
-	int gateId;
-	std::string gateName;
-	int circuitLayer;
-	std::vector<int> qbits;
+class Rz: public virtual ParameterizedGateInstruction<double> {
 public:
-
-	GateInstruction() :
-			gateId(0), gateName("UNKNOWN"), circuitLayer(0), qbits(
-					std::vector<int> { }) {
+	Rz(int id, int layer, int qbit, double theta) :
+			ParameterizedGateInstruction<double>(theta), GateInstruction(id,
+					layer, "Rz", std::vector<int> { qbit }) {
 	}
 
-	GateInstruction(int id, int layer, std::string name, std::vector<int> qubts) :
-			gateId(id), circuitLayer(layer), gateName(name), qbits(qubts) {
+	virtual void accept(QInstructionVisitor& visitor) {
+
 	}
 
-	virtual const int getId() {
-		return gateId;
-	}
-	virtual const std::string getName() {
-		return gateName;
-	}
-	virtual const int layer() {
-		return circuitLayer;
-	}
-
-	virtual const std::vector<int> qubits() {
-		return qbits;
-	}
-
-	virtual const std::string toString(const std::string bufferVarName) {
-		auto str = gateName + " ";
-		for (auto q : qubits()) {
-			str += bufferVarName + std::to_string(q) + ",";
-		}
-
-		// Remove trailing comma
-		str = str.substr(0, str.length() - 1);
-
-		return str;
-	}
-
-	virtual ~GateInstruction() {
-	}
 };
 }
 }
 
-
-
-#endif /* QUANTUM_GATE_GATEIR_GATEINSTRUCTION_HPP_ */
+#endif

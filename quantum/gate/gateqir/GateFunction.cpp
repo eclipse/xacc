@@ -28,45 +28,59 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
-
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include "GateFunction.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
-public:
+GateFunction::GateFunction(int id, const std::string name) :
+		functionId(id), functionName(name) {
 
-	QIR() {}
+}
 
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
+void GateFunction::accept(QInstructionVisitor& visitor) {
+	return;
+}
 
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
+void GateFunction::addInstruction(InstPtr instruction) {
+	instructions.push_back(instruction);
+}
 
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
+void GateFunction::replaceInstruction(InstPtr currentInst,
+		InstPtr replacingInst) {
 
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
+}
 
-protected:
+void GateFunction::replaceInstruction(int instId, InstPtr replacingInst) {
 
-	std::vector<std::shared_ptr<QFunction>> kernels;
+}
 
-};
+const std::string GateFunction::toString(const std::string bufferVarName) {
+
+	std::string retStr = "";
+
+	for (auto i : instructions) {
+		retStr += i->toString(bufferVarName) + "\n";
+	}
+
+	return retStr;
+}
+
+const int GateFunction::getId() {
+	return functionId;
+}
+
+const std::string GateFunction::getName() {
+	return functionName;
+}
+
+const std::vector<int> GateFunction::qubits() {
+	return qbits;
+}
+
+const int GateFunction::nInstructions() {
+	return instructions.size();
 }
 }
-#endif
+}
+

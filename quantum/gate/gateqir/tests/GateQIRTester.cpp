@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,30 +29,44 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
-#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE GateQIRTester
 
-#include "GateInstruction.hpp"
-class QInstructionVisitor;
+#include <boost/test/included/unit_test.hpp>
+#include "GateFunction.hpp"
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
+#include "Rz.hpp"
+#include "GateQIR.hpp"
 
-namespace xacc {
-namespace quantum {
+using namespace xacc::quantum;
 
-/**
- *
- */
-class CNOT: public virtual GateInstruction {
-public:
-	CNOT(int id, int layer, int srcqbit, int tgtqbit) :
-			GateInstruction(id, layer, "CNOT", std::vector<int> { srcqbit,
-					tgtqbit }) {
-	}
+BOOST_AUTO_TEST_CASE(checkCreationToString) {
 
-	virtual void accept(QInstructionVisitor& visitor) {
+	const std::string expectedQasm =
+			"qubit qreg0\n"
+			"qubit qreg1\n"
+			"qubit qreg2\n"
+			"H qreg1\n"
+			"CNOT qreg1,qreg2\n"
+			"CNOT qreg0,qreg1\n"
+			"H qreg0\n";
 
-	}
+	auto buf = std::make_shared<AcceleratorBuffer>("qreg", 3);
+	auto qir = std::make_shared<GateQIR>(buf);
 
-};
+	auto f = std::make_shared<GateFunction>(0, "foo");
+	auto h = std::make_shared<Hadamard>(0, 0, 1);
+	auto cn1 = std::make_shared<CNOT>(1, 1, 1, 2);
+	auto cn2 = std::make_shared<CNOT>(2, 2, 0, 1);
+	auto h2 = std::make_shared<Hadamard>(3, 3, 0);
+	f->addInstruction(h);
+	f->addInstruction(cn1);
+	f->addInstruction(cn2);
+	f->addInstruction(h2);
+
+	qir->addQuantumKernel(f);
+
+	BOOST_VERIFY(qir->toString() == expectedQasm);
+
 }
-}
-#endif /* QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_ */

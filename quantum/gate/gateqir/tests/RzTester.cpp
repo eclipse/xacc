@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,45 +29,33 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_HPP_
-#define QUANTUM_QIR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE RzTester
 
-#include "QFunction.hpp"
-#include "Graph.hpp"
-#include "IR.hpp"
+#include <boost/test/included/unit_test.hpp>
+#include "Rz.hpp"
 
-namespace xacc {
-namespace quantum {
+using namespace xacc::quantum;
 
-/**
- *
- */
-template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
-public:
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	QIR() {}
+	Rz rz(0, 0, 0, 3.14);
+	BOOST_VERIFY(rz.getParameter(0) == 3.14);
+	BOOST_VERIFY(rz.toString("qreg") == "Rz(3.140000) qreg0");
+	BOOST_VERIFY(rz.getId() == 0);
+	BOOST_VERIFY(rz.layer() == 0);
+	BOOST_VERIFY(rz.qubits().size() == 1);
+	BOOST_VERIFY(rz.qubits()[0] == 0);
+	BOOST_VERIFY(rz.getName() == "Rz");
 
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
+	Rz rz2(3, 22, 44, 1.71234);
+	BOOST_VERIFY(rz2.getParameter(0) == 1.71234);
+	BOOST_VERIFY(rz2.toString("qreg") == "Rz(1.712340) qreg44");
+	BOOST_VERIFY(rz2.getId() == 3);
+	BOOST_VERIFY(rz2.layer() == 22);
+	BOOST_VERIFY(rz2.qubits().size() == 1);
+	BOOST_VERIFY(rz2.qubits()[0] == 44);
+	BOOST_VERIFY(rz2.getName() == "Rz");
 
-	/**
-	 *
-	 */
-	virtual void generateGraph() = 0;
 
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
-
-	/**
-	 *
-	 */
-	virtual ~QIR() {}
-
-protected:
-
-	std::vector<std::shared_ptr<QFunction>> kernels;
-
-};
 }
-}
-#endif
