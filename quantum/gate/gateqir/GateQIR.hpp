@@ -63,6 +63,9 @@ public:
 };
 
 /**
+ * The GateQIR is an implementation of the QIR for gate model quantum
+ * computing. It provides a Graph node type that models a quantum
+ * circuit gate (CircuitNode).
  *
  */
 class GateQIR: public virtual xacc::quantum::QIR<xacc::quantum::CircuitNode> {
@@ -70,24 +73,39 @@ class GateQIR: public virtual xacc::quantum::QIR<xacc::quantum::CircuitNode> {
 protected:
 
 	/**
-	 *
+	 * Reference to the AcceleratorBuffer that this
+	 * QIR operates on.
 	 */
 	std::shared_ptr<AcceleratorBuffer> buffer;
 
 public:
 
+	/**
+	 * The nullary Constructor
+	 */
 	GateQIR() {
 	}
 
+	/**
+	 * The constructor, takes an accelerator buffer at construction.
+	 * @param buf
+	 */
 	GateQIR(std::shared_ptr<AcceleratorBuffer> buf) :
 			buffer(buf) {
 	}
 
+	/**
+	 * Provide a new AcceleratorBuffer for this Gate QIR.
+	 * @param buf
+	 */
 	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {
 		buffer = buf;
 	}
+
 	/**
-	 *
+	 * This method takes the list of quantum instructions that this
+	 * QIR contains and creates a graph representation of the
+	 * quantum circuit.
 	 */
 	virtual void generateGraph();
 
@@ -130,6 +148,45 @@ public:
 	virtual ~GateQIR() {
 	}
 
+private:
+
+	/**
+	 * This method determines if a new layer should be added to the circuit.
+	 *
+	 * @param gateCommand
+	 * @param qubitVarNameToId
+	 * @param gates
+	 * @param currentLayer
+	 * @return
+	 */
+	bool incrementLayer(const std::vector<std::string>& gateCommand,
+			std::map<std::string, int>& qubitVarNameToId,
+			const std::vector<CircuitNode>& gates, const int& currentLayer);
+
+	/**
+	 * Generate all edges for the circuit graph starting at
+	 * the given layer.
+	 *
+	 * @param layer
+	 * @param graph
+	 * @param gateOperations
+	 * @param initialStateId
+	 */
+	void generateEdgesFromLayer(const int layer,
+			std::vector<CircuitNode>& gateOperations, int initialStateId);
+
+	/**
+	 * Create connecting conditional nodes that link the main
+	 * circuit graph to subsequent conditional graphs. The conditional
+	 * nodes can be used by Accelerators to figure out if the condition
+	 * code should be executed or not.
+	 * s
+	 * @param mainGraph
+	 * @param conditionalGraphs
+	 */
+//	static void linkConditionalQasm(QuantumCircuit& mainGraph,
+//			std::vector<QuantumCircuit>& conditionalGraphs,
+//			std::vector<int>& conditionalQubits);
 };
 }
 }

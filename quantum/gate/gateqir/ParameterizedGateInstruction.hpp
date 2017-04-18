@@ -37,16 +37,40 @@
 
 namespace xacc {
 namespace quantum {
+
+/**
+ * The ParamaterizedGateInstruction is a GateInstruction that is
+ * templated on a list of variadic parameters that model the
+ * instructions gate parameters. For example, this class could be
+ * subclassed to provide a rotation gate with an angle theta
+ * (ParamaterizedGateInstruction<double>).
+ */
 template<typename ... InstructionParameter>
 class ParameterizedGateInstruction: public virtual GateInstruction {
+
 protected:
+
+	/**
+	 * The paramaters that this gate instruction requires.
+	 */
 	std::tuple<InstructionParameter...> params;
 
 public:
+
+	/**
+	 * The constructor, takes the parameters
+	 * @param pars
+	 */
 	ParameterizedGateInstruction(InstructionParameter ... pars) :
 			params(std::make_tuple(pars...)) {
 	}
 
+	/**
+	 * Return the gate parameter at the given index.
+	 *
+	 * @param idx
+	 * @return
+	 */
 	auto getParameter(const std::size_t idx) {
 		if (idx + 1 > sizeof...(InstructionParameter)) {
 			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
@@ -54,6 +78,13 @@ public:
 		return xacc::tuple_runtime_get(params, idx);
 	}
 
+	/**
+	 * Return an assembly-like string representation for this
+	 * instruction.
+	 *
+	 * @param bufferVarName
+	 * @return
+	 */
 	virtual const std::string toString(const std::string bufferVarName) {
 		auto str = gateName;
 		str += "(";

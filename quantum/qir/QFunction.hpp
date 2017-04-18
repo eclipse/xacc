@@ -36,13 +36,31 @@
 namespace xacc {
 namespace quantum {
 using InstPtr = std::shared_ptr<QInstruction>;
-class QFunction: public virtual QInstruction {
 
+/**
+ * The QFunction is a realization of the QInstruction
+ * interface that contains further QInstructions. This
+ * interface forms the parental nodes of a tree of
+ * quantum instructions. To add or remove child
+ * instructions, this class provides addInstruction and
+ * replaceInstruction methods.
+ *
+ */
+class QFunction: public virtual QInstruction {
 
 public:
 
+	/**
+	 * The Constructor
+	 */
 	QFunction() {}
 
+	/**
+	 * The constructor, takes the id of this
+	 * function and its name.
+	 * @param id
+	 * @param name
+	 */
 	QFunction(int id, const std::string name) {}
 
 	/**
@@ -73,6 +91,12 @@ public:
 	virtual void replaceInstruction(int instId,
 			InstPtr replacingInst) = 0;
 
+	/**
+	 * Return the number of instructions this
+	 * QFunction contains.
+	 *
+	 * @return
+	 */
 	virtual const int nInstructions() = 0;
 };
 }

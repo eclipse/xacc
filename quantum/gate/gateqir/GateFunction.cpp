@@ -56,13 +56,10 @@ void GateFunction::replaceInstruction(int instId, InstPtr replacingInst) {
 }
 
 const std::string GateFunction::toString(const std::string bufferVarName) {
-
 	std::string retStr = "";
-
 	for (auto i : instructions) {
 		retStr += i->toString(bufferVarName) + "\n";
 	}
-
 	return retStr;
 }
 

@@ -39,31 +39,62 @@ namespace xacc {
 namespace quantum {
 
 /**
+ * QIR represents a quantum intermediate representation. It is
+ * an abstract class. It does not implement the IR interface methods, but leaves them for
+ * further implementations of this class.
+ * It also specifies a method for adding quantum kernels, represented
+ * as the QIR QFunction class, to this IR instance.
  *
+ * Furthermore, QIR is a Graph whose node type can be provided
+ * at compile time with the VertexType template parameter. All quantum
+ * intermediate representations have a dual list/graph nature. QIR therefore
+ * specifies a generateGraph method for subclasses to implement to produce a graph
+ * representation of the instruction-like intermediate representation.
  */
 template<typename VertexType>
-class QIR: public virtual xacc::Graph<VertexType>,
-		public virtual xacc::IR {
+class QIR: public virtual xacc::Graph<VertexType>, public virtual xacc::IR {
 public:
 
-	QIR() {}
-
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) : IR(buf) {}
+	/**
+	 * The nullary constructor
+	 */
+	QIR() {
+	}
 
 	/**
-	 *
+	 * The constructor, takes the AcceleratorBuffer
+	 * this IR works on.
+	 * @param buf
+	 */
+	QIR(std::shared_ptr<AcceleratorBuffer> buf) :
+			IR(buf) {
+	}
+
+	/**
+	 * From this IR's list of instructions, construct an
+	 * equivalent graph representation.
 	 */
 	virtual void generateGraph() = 0;
 
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {kernels.push_back(kernel);}
+	/**
+	 * Add a quantum function to this intermediate representation.
+	 * @param kernel
+	 */
+	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {
+		kernels.push_back(kernel);
+	}
 
 	/**
-	 *
+	 * The destructor
 	 */
-	virtual ~QIR() {}
+	virtual ~QIR() {
+	}
 
 protected:
 
+	/**
+	 * Reference to this QIR's list of quantum functions
+	 */
 	std::vector<std::shared_ptr<QFunction>> kernels;
 
 };

@@ -31,11 +31,11 @@
 #ifndef QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
 #define QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
 
-#include "../gate/gateqir/instructions/CNOT.hpp"
-#include "../gate/gateqir/instructions/Hadamard.hpp"
-#include "../gate/gateqir/instructions/Rz.hpp"
+#include "CNOT.hpp"
+#include "Hadamard.hpp"
+#include "Rz.hpp"
 #include "QInstruction.hpp"
-#include "QFunction.hpp"
+#include "GateFunction.hpp"
 
 namespace xacc {
 

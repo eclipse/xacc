@@ -36,11 +36,13 @@
 namespace xacc {
 
 /**
- * The IR interface simply provides methods for
- * reading and writing intermediate representation
- * instances. It is left
- * to subclasses to model Accelerator-specific
- * intermediate representations.
+ * The IR interface is the base interface for
+ * derived accelerator-specific intermediate representations.
+ * At this level, an intermediate representation can be
+ * persisted to an assembly-like string, can be read in from
+ * file, and can be persisted to file. Since all XACC
+ * intermediate representations operate on an Accelerator Buffer,
+ * the IR interface also provides a setter for such a buffer.
  *
  */
 class IR {
@@ -50,13 +52,14 @@ protected:
 public:
 
 	/**
-	 *
+	 * Provide the AcceleratorBuffer that this IR operates on.
 	 * @param buf
 	 */
-	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) = 0;
+	virtual void setAcceleratorBuffer(
+			std::shared_ptr<AcceleratorBuffer> buf) = 0;
 
 	/**
-	 * Return a string representation of this
+	 * Return a assembly-like string representation of this
 	 * intermediate representation
 	 * @return
 	 */
@@ -81,7 +84,8 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~IR() {}
+	virtual ~IR() {
+	}
 };
 
 }

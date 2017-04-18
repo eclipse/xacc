@@ -41,15 +41,60 @@ namespace xacc {
 namespace quantum {
 
 /**
+ * The QInstruction interface provides the methods necessary
+ * to model a quantum instruction. All quantum instructions have a
+ * unique integer id, a name, and a list of qubits that the instruction acts on.
+ * Implementations of toString must return a assembly-like string
+ * representation of the instruction.
  *
+ * QInstructions can be visited by the QInstructionVisitor to
+ * provide QInstruction-subtype specific information at runtime.
+ *
+ * QInstructions, together with QFunctions, are structured as a
+ * Composite pattern - a tree of quantum instructions, whereby nodes
+ * are QFunctions (which contain QInstructions) and leaves are
+ * non-composed QInstructions.
  */
 class QInstruction {
 public:
+
+	/**
+	 * Return the id of this instruction.
+	 * @return
+	 */
 	virtual const int getId() = 0;
+
+	/**
+	 * Return the name of this instruction.
+	 * @return
+	 */
 	virtual const std::string getName() = 0;
+
+	/**
+	 * Return the qubits that this instruction acts on.
+	 * @return
+	 */
 	virtual const std::vector<int> qubits() = 0;
+
+	/**
+	 * Return the assembly-like string representation of this
+	 * instruction.
+	 * @param bufferVarName The buffer variable name.
+	 * @return
+	 */
 	virtual const std::string toString(const std::string bufferVarName) = 0;
+
+	/**
+	 * This method should simply be implemented to invoke the
+	 * visit() method on the provided QInstructionVisitor.
+	 *
+	 * @param visitor
+	 */
 	virtual void accept(QInstructionVisitor& visitor) = 0;
+
+	/**
+	 * The destructor
+	 */
 	virtual ~QInstruction() {
 	}
 };

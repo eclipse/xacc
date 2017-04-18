@@ -37,40 +37,95 @@ namespace xacc {
 namespace quantum {
 
 /**
- *
+ * The GateInstruction is an implementation of QInstruction
+ * for gate-model quantum computing.
  */
 class GateInstruction: public virtual QInstruction {
 
 protected:
+
+	/**
+	 * Reference to this instructions id
+	 */
 	int gateId;
+
+	/**
+	 * Reference to this instructions name
+	 */
 	std::string gateName;
+
+	/**
+	 * Reference to the circuit layer for this instruction.
+	 */
 	int circuitLayer;
+
+	/**
+	 * Reference to the qubits this instruction acts on
+	 */
 	std::vector<int> qbits;
+
 public:
 
+	/**
+	 * The nullary contructor.
+	 */
 	GateInstruction() :
 			gateId(0), gateName("UNKNOWN"), circuitLayer(0), qbits(
 					std::vector<int> { }) {
 	}
 
+	/**
+	 * The constructor, takes the id, name, layer, and qubits
+	 * this instruction acts on.
+	 *
+	 * @param id
+	 * @param layer
+	 * @param name
+	 * @param qubts
+	 */
 	GateInstruction(int id, int layer, std::string name, std::vector<int> qubts) :
 			gateId(id), circuitLayer(layer), gateName(name), qbits(qubts) {
 	}
 
+	/**
+	 * Return the unique instruction id.
+	 * @return
+	 */
 	virtual const int getId() {
 		return gateId;
 	}
+
+	/**
+	 * Return the instruction name.
+	 * @return
+	 */
 	virtual const std::string getName() {
 		return gateName;
 	}
+
+	/**
+	 * Return the instruction layer.
+	 *
+	 * @return
+	 */
 	virtual const int layer() {
 		return circuitLayer;
 	}
 
+	/**
+	 * Return the list of qubits this instruction acts on.
+	 * @return
+	 */
 	virtual const std::vector<int> qubits() {
 		return qbits;
 	}
 
+	/**
+	 * Return this instruction's assembly-like string
+	 * representation.
+	 * @param bufferVarName
+	 * @return
+	 */
 	virtual const std::string toString(const std::string bufferVarName) {
 		auto str = gateName + " ";
 		for (auto q : qubits()) {
@@ -83,6 +138,9 @@ public:
 		return str;
 	}
 
+	/**
+	 * The destructor
+	 */
 	virtual ~GateInstruction() {
 	}
 };

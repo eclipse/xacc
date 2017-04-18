@@ -32,26 +32,54 @@
 #define QUANTUM_GATEQIR_QFUNCTION_HPP_
 
 #include "QFunction.hpp"
+#include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
 
+/**
+ * The GateFunction is a QFunction for gate-model
+ * quantum computing. It is composed of QInstructions that
+ * are themselves derivations of the GateInstruction class.
+ */
 class GateFunction: public virtual QFunction {
 
 protected:
 
+	/**
+	 * The list of QInstructions that this GateFunction
+	 * contains.
+	 */
 	std::vector<std::shared_ptr<QInstruction>> instructions;
 
+	/**
+	 * The name of this function
+	 */
 	std::string functionName;
 
+	/**
+	 * The unique id integer for this function
+	 */
 	int functionId;
 
+	/**
+	 * The list of qubits this function acts on.
+	 */
 	std::vector<int> qbits;
 
 public:
 
+	/**
+	 * The nullary constructor.
+	 */
 	GateFunction();
 
+	/**
+	 * The constructor, takes the function unique id and its name.
+	 *
+	 * @param id
+	 * @param name
+	 */
 	GateFunction(int id, const std::string name);
 
 	/**
@@ -82,16 +110,43 @@ public:
 	virtual void replaceInstruction(int instId,
 			InstPtr replacingInst);
 
+	/**
+	 * Return the id of this function
+	 * @return
+	 */
 	virtual const int getId();
 
+	/**
+	 * Return the name of this function
+	 * @return
+	 */
 	virtual const std::string getName();
 
+	/**
+	 * Return the qubits this function acts on.
+	 * @return
+	 */
 	virtual const std::vector<int> qubits();
 
+	/**
+	 * Return an assembly-like string representation for this function .
+	 * @param bufferVarName
+	 * @return
+	 */
 	virtual const std::string toString(const std::string bufferVarName);
 
+	/**
+	 * This method should simply be implemented to invoke the
+	 * visit() method on the provided QInstructionVisitor.
+	 *
+	 * @param visitor
+	 */
 	virtual void accept(QInstructionVisitor& visitor);
 
+	/**
+	 * Return the number of instructions in this function.
+	 * @return
+	 */
 	const int nInstructions();
 };
 }
