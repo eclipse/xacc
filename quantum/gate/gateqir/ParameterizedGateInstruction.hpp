@@ -104,6 +104,27 @@ public:
 	}
 
 };
-}}
+/**
+ */
+template<typename... Params>
+using ParameterizedGateInstructionRegistry = Registry<ParameterizedGateInstruction<Params...>, int, int, std::vector<int>, Params...>;
+
+/**
+ */
+template<typename T, typename... Params>
+class RegisterParameterizedGateInstruction {
+public:
+	RegisterParameterizedGateInstruction(const std::string& name) {
+		ParameterizedGateInstructionRegistry<Params...>::instance()->add(name,
+				(std::function<
+						std::shared_ptr<xacc::quantum::ParameterizedGateInstruction<Params...>>(int,
+								int, std::vector<int>, Params...)>) ([](int id, int layer, std::vector<int> qubits, Params... args) {
+					return std::make_shared<T>(id, layer, qubits, args...);
+				}));
+	}
+};
+
+}
+}
 
 #endif

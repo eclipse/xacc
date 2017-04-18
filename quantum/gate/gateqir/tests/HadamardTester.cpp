@@ -57,3 +57,10 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 
 }
+
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	auto hadamard = GateInstructionRegistry::instance()->create("H", 1, 1, std::vector<int>{0});
+
+	BOOST_VERIFY(hadamard->getId() == 1);
+}

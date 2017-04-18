@@ -49,14 +49,14 @@ namespace xacc {
  * the template parameter T.
  */
 template<typename T, typename... TArgs>
-class Registry : public Singleton<Registry<T>> {
+class Registry : public Singleton<Registry<T, TArgs...>> {
 protected:
 
 	/**
 	 * Reference to the database of creation functions
 	 * for classes of superclass type T.
 	 */
-	std::map<std::string, std::function<std::shared_ptr<T>()>> registry;
+	std::map<std::string, std::function<std::shared_ptr<T>(TArgs...)>> registry;
 
 public:
 
@@ -68,7 +68,7 @@ public:
 	 * @param f
 	 * @return
 	 */
-	bool add(const std::string& id, std::function<std::shared_ptr<T>()> f) {
+	bool add(const std::string& id, std::function<std::shared_ptr<T>(TArgs...)> f) {
 		bool s = registry.insert(std::make_pair(id, f)).second;
 		if (!s) {
 			XACCError("Could not add " + id + " to the Registry.");
@@ -83,10 +83,10 @@ public:
 	 * @param id
 	 * @return
 	 */
-	std::shared_ptr<T> create(const std::string& id) {
+	std::shared_ptr<T> create(const std::string& id, TArgs... args) {
 		auto search = registry.find(id);
 		if (search != registry.end()) {
-			return registry[id]();
+			return registry[id](args...);
 		} else {
 			XACCError("Invalid Registry map id string - " + id);
 		}

@@ -59,3 +59,11 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 
 }
+
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	auto rz = ParameterizedGateInstructionRegistry<double>::instance()->create("Rz", 1, 1, std::vector<int>{0}, 3.14);
+//
+	BOOST_VERIFY(rz->getName() == "Rz");
+	BOOST_VERIFY(rz->getParameter(0) == 3.14);
+}

@@ -42,6 +42,10 @@ namespace quantum {
  */
 class Hadamard : public virtual GateInstruction {
 public:
+	Hadamard(int id, int layer, std::vector<int> qbit) :
+		GateInstruction(id, layer, "H", qbit) {
+	}
+
 	Hadamard(int id, int layer, int qbit) :
 			GateInstruction(id, layer, "H", std::vector<int> { qbit }) {
 	}
@@ -50,6 +54,8 @@ public:
 
 	}
 };
+
+RegisterGateInstruction<Hadamard> HTEMP("H");
 
 }
 }

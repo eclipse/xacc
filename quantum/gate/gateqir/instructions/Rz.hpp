@@ -38,6 +38,10 @@ namespace xacc {
 namespace quantum {
 class Rz: public virtual ParameterizedGateInstruction<double> {
 public:
+	Rz(int id, int layer, std::vector<int> qbits, double theta) :
+			ParameterizedGateInstruction<double>(theta), GateInstruction(id,
+					layer, "Rz", qbits) {
+	}
 	Rz(int id, int layer, int qbit, double theta) :
 			ParameterizedGateInstruction<double>(theta), GateInstruction(id,
 					layer, "Rz", std::vector<int> { qbit }) {
@@ -48,6 +52,8 @@ public:
 	}
 
 };
+
+RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
 }
 }
 

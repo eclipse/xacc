@@ -31,7 +31,7 @@
 #ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
 #define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
 
-#include "../../gateqir/GateInstruction.hpp"
+#include "GateInstruction.hpp"
 class QInstructionVisitor;
 
 namespace xacc {
@@ -42,6 +42,10 @@ namespace quantum {
  */
 class CNOT: public virtual GateInstruction {
 public:
+	CNOT(int id, int layer, std::vector<int> qbits) :
+			GateInstruction(id, layer, "CNOT", qbits) {
+	}
+
 	CNOT(int id, int layer, int srcqbit, int tgtqbit) :
 			GateInstruction(id, layer, "CNOT", std::vector<int> { srcqbit,
 					tgtqbit }) {
@@ -52,6 +56,9 @@ public:
 	}
 
 };
+
+RegisterGateInstruction<CNOT> CNOTTEMP("CNOT");
+
 }
 }
 #endif /* QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_ */

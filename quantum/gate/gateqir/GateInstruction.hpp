@@ -32,6 +32,7 @@
 #define QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
 
 #include "QInstruction.hpp"
+#include "Registry.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -72,6 +73,10 @@ public:
 	GateInstruction() :
 			gateId(0), gateName("UNKNOWN"), circuitLayer(0), qbits(
 					std::vector<int> { }) {
+	}
+
+	GateInstruction(int id, int layer, std::vector<int> qubts) :
+			gateId(id), circuitLayer(layer), gateName("UNKNOWN"), qbits(qubts) {
 	}
 
 	/**
@@ -144,9 +149,26 @@ public:
 	virtual ~GateInstruction() {
 	}
 };
+
+/**
+ */
+using GateInstructionRegistry = Registry<GateInstruction, int, int, std::vector<int>>;
+
+/**
+ */
+template<typename T>
+class RegisterGateInstruction {
+public:
+	RegisterGateInstruction(const std::string& name) {
+		GateInstructionRegistry::instance()->add(name,
+				(std::function<
+						std::shared_ptr<xacc::quantum::GateInstruction>(int,
+								int, std::vector<int>)>) ([](int id, int layer, std::vector<int> qubits) {
+					return std::make_shared<T>(id, layer, qubits);
+				}));
+	}
+};
 }
 }
-
-
 
 #endif /* QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_ */
