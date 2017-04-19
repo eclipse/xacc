@@ -62,53 +62,10 @@
 #include "clang/Frontend/DiagnosticOptions.h"
 #include "clang/Frontend/TextDiagnosticPrinter.h"
 
+#include "MyASTConsumer.hpp"
+
 using namespace clang;
 
-// By implementing RecursiveASTVisitor, we can specify which AST nodes
-// we're interested in by overriding relevant methods.
-class MyASTVisitor : public RecursiveASTVisitor<MyASTVisitor> {
-public:
-
-  bool VisitStmt(Stmt *s) {
-    // Only care about If statements.
-    if (isa<IfStmt>(s)) {
-      IfStmt *IfStatement = cast<IfStmt>(s);
-      Stmt *Then = IfStatement->getThen();
-
-      IfStatement->dump();
-    }
-
-    return true;
-  }
-
-  bool VisitFunctionDecl(FunctionDecl *f) {
-    // Only function definitions (with bodies), not declarations.
-    if (f->hasBody()) {
-    }
-
-    return true;
-  }
-
-};
-
-// Implementation of the ASTConsumer interface for reading an AST produced
-// by the Clang parser.
-class MyASTConsumer : public ASTConsumer {
-public:
-  MyASTConsumer() : Visitor(std::make_shared<MyASTVisitor>()) {}
-
-  // Override the method that gets called for each parsed top-level
-  // declaration.
-  virtual bool HandleTopLevelDecl(DeclGroupRef DR) {
-    for (DeclGroupRef::iterator b = DR.begin(), e = DR.end(); b != e; ++b)
-      // Traverse the declaration using our AST visitor.
-      Visitor->TraverseDecl(*b);
-    return true;
-  }
-
-private:
-  std::shared_ptr<MyASTVisitor> Visitor;
-};
 namespace scaffold {
 
 /**
