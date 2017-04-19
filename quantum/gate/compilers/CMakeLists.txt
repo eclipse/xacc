@@ -29,6 +29,7 @@
 #
 #**********************************************************************************/
 add_subdirectory(scaffold)
+add_subdirectory(improvedscaffold)
 
 # Gather tests
 #file (GLOB test_files tests/*.cpp)
