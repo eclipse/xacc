@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,28 +29,32 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
-#define QUANTUM_GATE_IR_HADAMARD_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE MeasureTester
 
-#include "GateInstruction.hpp"
-class QInstructionVisitor;
+#include <boost/test/included/unit_test.hpp>
+#include "Measure.hpp"
 
-namespace xacc {
-namespace quantum {
+using namespace xacc::quantum;
 
-/**
- *
- */
-class Hadamard : public virtual GateInstruction {
-public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	Hadamard(int id, int layer, int qbit);
+	Measure meas(0, 0, 0, 1);
+	BOOST_VERIFY(meas.getParameter(0) == 1);
+	BOOST_VERIFY(meas.toString("qreg") == "Measure qreg0");
+	BOOST_VERIFY(meas.getId() == 0);
+	BOOST_VERIFY(meas.layer() == 0);
+	BOOST_VERIFY(meas.qubits().size() == 1);
+	BOOST_VERIFY(meas.qubits()[0] == 0);
+	BOOST_VERIFY(meas.getName() == "Measure");
 
-	virtual void accept(QInstructionVisitor& visitor);
-};
 
 }
-}
 
-#endif
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	auto meas = ParameterizedGateInstructionRegistry<int>::instance()->create("Measure", 1, 1, std::vector<int>{0}, 1);
+//
+	BOOST_VERIFY(meas->getName() == "Measure");
+	BOOST_VERIFY(meas->getParameter(0) == 1);
+}

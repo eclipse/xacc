@@ -84,6 +84,18 @@ public:
 		kernels.push_back(kernel);
 	}
 
+	virtual const int numberOfKernels() {
+		return kernels.size();
+	}
+
+	virtual std::shared_ptr<QFunction> getKernel(const std::string& name) {
+		for (auto f : kernels) {
+			if (f->getName() == name) {
+				return f;
+			}
+		}
+		XACCError("Invalid kernel name.");
+	}
 	/**
 	 * The destructor
 	 */

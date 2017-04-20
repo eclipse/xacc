@@ -35,7 +35,8 @@
 #include "XACCError.hpp"
 #include <boost/algorithm/string.hpp>
 #include "Accelerator.hpp"
-#include "ImprovedScaffCCAPI.hpp"
+
+#include "ScaffoldASTConsumer.hpp"
 
 namespace xacc {
 
@@ -47,9 +48,11 @@ namespace quantum {
  * to handle generation of quantum assembly language (or QASM)
  * using an installed Scaffold compiler.
  */
-class ImprovedScaffoldCompiler : public xacc::Compiler {
+class ImprovedScaffoldCompiler: public xacc::Compiler {
 
 public:
+
+	ImprovedScaffoldCompiler();
 
 	/**
 	 * Execute the Scaffold compiler to generate an
@@ -76,12 +79,11 @@ public:
 
 protected:
 
-	/**
-	 * This method is intended to modify the incoming
-	 * source code to be compiled to be amenable to the
-	 * Scaffold compiler.
-	 */
-	virtual void modifySource();
+	std::string cbitVarName;
+	std::string qbitVarName;
+
+	std::shared_ptr<clang::CompilerInstance> CI;
+	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
 
 	/**
 	 * Reference to potential conditional code

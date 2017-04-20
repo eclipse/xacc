@@ -33,7 +33,7 @@ set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
 set (LIBRARY_NAME xacc-gateqir)
 
 file (GLOB HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+file (GLOB SRC *.cpp instructions/*.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
@@ -42,5 +42,5 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/instructions" "${LIBRARY_NAME};${Boost_LIBRARIES}")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/instructions" "${LIBRARY_NAME};${Boost_LIBRARIES};xacc-gateqir")
 

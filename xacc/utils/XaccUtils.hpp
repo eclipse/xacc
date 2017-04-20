@@ -28,6 +28,9 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
+#ifndef XACC_UTILS_XACCUTILS_HPP_
+#define XACC_UTILS_XACCUTILS_HPP_
+
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -52,7 +55,7 @@ OutputIterator copy_if(InputIterator first, InputIterator last,
  *
  * @return Vector of tokens
  */
-std::vector<std::string> tokenize(const std::string& input) {
+inline std::vector<std::string> tokenize(const std::string& input) {
 	typedef boost::escaped_list_separator<char> separator_type;
 	separator_type separator("\\", "= ", "\"\'");
 	// Tokenize the input.
@@ -108,3 +111,4 @@ tuple_runtime_get(Tuple&& t,size_t index){
     return runtime_get_func_table<tuple_type>::table[index](t);
 }
 }
+#endif

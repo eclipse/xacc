@@ -32,41 +32,68 @@
 #include "ImprovedScaffold.hpp"
 #include "GateQIR.hpp"
 
+using namespace clang;
+
 namespace xacc {
 
 namespace quantum {
 
-void ImprovedScaffoldCompiler::modifySource() {
-
-	// Here we assume we've been given just
-	// the body of the quantum code, as part
-	// of an xacc __qpu__ kernel function.
-
-	// First off, replace __qpu__ with 'module '
-	kernelSource.erase(kernelSource.find("__qpu__"), 7);
-	kernelSource = std::string("module ") + kernelSource;
-
-//	std::cout << "\n" << kernelSource << "\n";
+ImprovedScaffoldCompiler::ImprovedScaffoldCompiler() {
+	CI = std::make_shared<CompilerInstance>();
+	CI->createDiagnostics(0, 0);
+	TargetOptions targetOptions;
+	targetOptions.Triple = llvm::sys::getDefaultTargetTriple();
+	TargetInfo *pTargetInfo = TargetInfo::CreateTargetInfo(CI->getDiagnostics(),
+			targetOptions);
+	CI->setTarget(pTargetInfo);
+	CI->createFileManager();
+	CI->createSourceManager(CI->getFileManager());
+	CI->createPreprocessor();
+	CI->getPreprocessorOpts().UsePredefines = false;
+	CI->createASTContext();
 }
-
-
 
 std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src,
 		std::shared_ptr<Accelerator> acc) {
-
 
 	return std::make_shared<GateQIR>();
 }
 
 std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
 
-	return std::make_shared<GateQIR>();
+	kernelSource = src;
+
+	if (boost::contains(kernelSource, "__qpu__")) {
+		kernelSource.erase(kernelSource.find("__qpu__"), 7);
+		kernelSource = std::string("module") + kernelSource;
+		std::cout << "\n" << kernelSource << "\n";
+	}
+
+	// Create a temporary scaffold source file
+	std::ofstream tempSrcFile(".tmpSrcFile.scaffold");
+	tempSrcFile << kernelSource;
+	tempSrcFile.close();
+
+	const FileEntry *pFile = CI->getFileManager().getFile(
+			".tmpSrcFile.scaffold");
+	CI->getSourceManager().createMainFileID(pFile);
+	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
+			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
+
+	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();//&CI->getASTContext());
+	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
+
+	auto qirFunction = consumer->getFunction();
+
+	auto qir = std::make_shared<GateQIR>();
+
+	qir->addQuantumKernel(qirFunction);
+
+	return qir;
 }
 
-} // end namespace quantum
+}
 
-} // end namespace xacc
-//
-
-// Register the ScaffoldCompiler with the CompilerRegistry.
-static xacc::RegisterCompiler<xacc::quantum::ImprovedScaffoldCompiler> X("improvedscaffold");
+}
+static xacc::RegisterCompiler<xacc::quantum::ImprovedScaffoldCompiler> X(
+		"improvedscaffold");

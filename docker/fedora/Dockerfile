@@ -1,5 +1,5 @@
 from mccaskey/base-fedora-gcc6
-run dnf -y install spdlog llvm-devel libstdc++-static clang-devel \
+run dnf -y install spdlog libstdc++-static \
     https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
     && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && rm -rf /projects/xacc/tpls/fire/.git \ 

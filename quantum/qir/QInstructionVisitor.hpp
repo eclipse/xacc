@@ -34,6 +34,7 @@
 #include "CNOT.hpp"
 #include "Hadamard.hpp"
 #include "Rz.hpp"
+#include "X.hpp"
 #include "QInstruction.hpp"
 #include "GateFunction.hpp"
 
@@ -50,6 +51,7 @@ public:
 	virtual void visit(Hadamard* function) = 0;
 	virtual void visit(CNOT* function) = 0;
 	virtual void visit(Rz* function) = 0;
+	virtual void visit(X* function) = 0;
 	virtual ~QInstructionVisitor() {}
 };
 

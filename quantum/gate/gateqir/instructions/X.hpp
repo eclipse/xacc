@@ -28,8 +28,8 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
-#define QUANTUM_GATE_IR_HADAMARD_HPP_
+#ifndef QUANTUM_GATE_IR_X_HPP_
+#define QUANTUM_GATE_IR_X_HPP_
 
 #include "GateInstruction.hpp"
 class QInstructionVisitor;
@@ -40,14 +40,15 @@ namespace quantum {
 /**
  *
  */
-class Hadamard : public virtual GateInstruction {
+class X : public virtual GateInstruction {
 public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
+	X(int id, int layer, std::vector<int> qbit);
 
-	Hadamard(int id, int layer, int qbit);
+	X(int id, int layer, int qbit);
 
 	virtual void accept(QInstructionVisitor& visitor);
 };
+
 
 }
 }

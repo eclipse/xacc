@@ -34,7 +34,7 @@
 #include "Singleton.hpp"
 #include "XACCError.hpp"
 #include <map>
-
+#include <iostream>
 namespace xacc {
 
 /**

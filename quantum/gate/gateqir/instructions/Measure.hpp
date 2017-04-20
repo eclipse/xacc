@@ -28,10 +28,10 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
-#define QUANTUM_GATE_IR_HADAMARD_HPP_
+#ifndef QUANTUM_GATE_IR_MEASURE_HPP_
+#define QUANTUM_GATE_IR_MEASURE_HPP_
 
-#include "GateInstruction.hpp"
+#include "ParameterizedGateInstruction.hpp"
 class QInstructionVisitor;
 
 namespace xacc {
@@ -40,13 +40,15 @@ namespace quantum {
 /**
  *
  */
-class Hadamard : public virtual GateInstruction {
+class Measure : public virtual ParameterizedGateInstruction<int> {
 public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
+	Measure(int id, int layer, std::vector<int> qbit, int classicalIdx);
 
-	Hadamard(int id, int layer, int qbit);
+	Measure(int id, int layer, int qbit, int classicalIdx);
 
 	virtual void accept(QInstructionVisitor& visitor);
+
+	virtual const std::string toString(const std::string bufferVarName);
 };
 
 }

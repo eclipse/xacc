@@ -30,16 +30,19 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ScaffoldCompilerTester
+#define BOOST_TEST_MODULE ImprovedScaffoldCompilerTester
 
 #include <boost/test/included/unit_test.hpp>
 #include "ImprovedScaffold.hpp"
+#include "GateQIR.hpp"
 
 using namespace xacc::quantum;
 
 struct F {
 	F() :
-			compiler(xacc::CompilerRegistry::instance()->create("improvedscaffold")) {
+			compiler(
+					xacc::CompilerRegistry::instance()->create(
+							"improvedscaffold")) {
 		BOOST_TEST_MESSAGE("setup fixture");
 		BOOST_VERIFY(compiler);
 	}
@@ -56,23 +59,48 @@ BOOST_FIXTURE_TEST_SUITE( s, F )
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
-	const std::string src("module eprCreation (qbit qreg[2]) {\n"
-			"   H(qreg[0]);\n"
-			"   CNOT(qreg[0],qreg[1]);\n"
-			"}\n");
+	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
+		"   cbit creg[2];\n"
+		"   // Init qubit 0 to 1\n"
+		"   X(qreg[0]);\n"
+		"   // Now teleport...\n"
+		"   H(qreg[1]);\n"
+		"   CNOT(qreg[1],qreg[2]);\n"
+		"   CNOT(qreg[0],qreg[1]);\n"
+		"   H(qreg[0]);\n"
+		"}\n");
 
-	scaffold::ImprovedScaffCCAPI api(src);
+	auto qir = compiler->compile(src);
 
-	auto fNames = api.getFunctionNames();
-	for (auto f : fNames) {
-		std::cout <<"F: " << f << "\n";
-	}
+	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
 
-	BOOST_VERIFY(fNames.size() ==1);
-	BOOST_VERIFY(fNames[0] == "eprCreation");
+	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
+
+
+	auto k = gateqir->getKernel("teleport");
+	BOOST_VERIFY(k->nInstructions() == 5);
+
+	std::cout << "STR: \n\n" << k->toString("qreg") << "\n";
 }
 
-BOOST_AUTO_TEST_CASE(checkFindIfStmts) {
+BOOST_AUTO_TEST_CASE(checkWithRzParameterized) {
+	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
+		"   Rz(qreg[0], 3.1415);\n"
+		"}\n");
+
+	auto qir = compiler->compile(src);
+	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
+
+	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
+
+
+	auto k = gateqir->getKernel("teleport");
+	BOOST_VERIFY(k->nInstructions() == 1);
+	std::cout << "STR: \n\n" << k->toString("qreg") << "\n";
+}
+
+BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
+
 	const std::string src("module teleport (qbit qreg[3]) {\n"
 		"   cbit creg[2];\n"
 		"   // Init qubit 0 to 1\n"
@@ -85,12 +113,17 @@ BOOST_AUTO_TEST_CASE(checkFindIfStmts) {
 		"   creg[0] = MeasZ(qreg[0]);\n"
 		"   creg[1] = MeasZ(qreg[1]);\n"
 		"   if (creg[0] == 1) Z(qreg[2]);\n"
-		"   if (creg[1] == 1) X(qreg[2]);\n"
+//		"   if (creg[1] == 1) X(qreg[2]);\n"
 		"}\n");
 
-	scaffold::ImprovedScaffCCAPI api(src);
+	auto qir = compiler->compile(src);
+	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
 
-	api.checkIfStmts();
+	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
+
+	auto k = gateqir->getKernel("teleport");
+	std::cout << "STR: \n\n" << k->toString("qreg") << "\n";
 
 }
+
 BOOST_AUTO_TEST_SUITE_END()

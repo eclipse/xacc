@@ -28,28 +28,23 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
-#define QUANTUM_GATE_IR_HADAMARD_HPP_
-
-#include "GateInstruction.hpp"
-class QInstructionVisitor;
+#include "Rz.hpp"
 
 namespace xacc {
 namespace quantum {
-
-/**
- *
- */
-class Hadamard : public virtual GateInstruction {
-public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
-
-	Hadamard(int id, int layer, int qbit);
-
-	virtual void accept(QInstructionVisitor& visitor);
-};
-
+Rz::Rz(int id, int layer, std::vector<int> qbits, double theta) :
+		ParameterizedGateInstruction<double>(theta), GateInstruction(id, layer,
+				"Rz", qbits) {
 }
+Rz::Rz(int id, int layer, int qbit, double theta) :
+		ParameterizedGateInstruction<double>(theta), GateInstruction(id, layer,
+				"Rz", std::vector<int> { qbit }) {
 }
 
-#endif
+void Rz::accept(QInstructionVisitor& visitor) {
+
+}
+
+RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
+}
+}

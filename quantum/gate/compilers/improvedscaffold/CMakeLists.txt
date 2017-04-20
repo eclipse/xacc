@@ -37,7 +37,7 @@ file (GLOB SRC *.cpp)
 
 set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -O3 -w -fomit-frame-pointer -fvisibility-inlines-hidden -fPIC -Woverloaded-virtual -Wcast-qual")
 
-set_source_files_properties(MyASTConsumer.cpp PROPERTIES COMPILE_FLAGS -fno-rtti)
+set_source_files_properties(ScaffoldASTConsumer.cpp PROPERTIES COMPILE_FLAGS -fno-rtti)
 
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
 include_directories(/usr/local/scaffold/include)

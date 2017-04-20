@@ -42,23 +42,13 @@ namespace quantum {
  */
 class CNOT: public virtual GateInstruction {
 public:
-	CNOT(int id, int layer, std::vector<int> qbits) :
-			GateInstruction(id, layer, "CNOT", qbits) {
-	}
+	CNOT(int id, int layer, std::vector<int> qbits);
 
-	CNOT(int id, int layer, int srcqbit, int tgtqbit) :
-			GateInstruction(id, layer, "CNOT", std::vector<int> { srcqbit,
-					tgtqbit }) {
-	}
+	CNOT(int id, int layer, int srcqbit, int tgtqbit);
 
-	virtual void accept(QInstructionVisitor& visitor) {
-
-	}
-
+	virtual void accept(QInstructionVisitor& visitor);
 };
 
-RegisterGateInstruction<CNOT> CNOTTEMP("CNOT");
-
 }
 }
-#endif /* QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_ */
+#endif

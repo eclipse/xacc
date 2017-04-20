@@ -28,28 +28,25 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_HADAMARD_HPP_
-#define QUANTUM_GATE_IR_HADAMARD_HPP_
-
-#include "GateInstruction.hpp"
-class QInstructionVisitor;
+#include "CNOT.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
-class Hadamard : public virtual GateInstruction {
-public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
+CNOT::CNOT(int id, int layer, std::vector<int> qbits) :
+		GateInstruction(id, layer, "CNOT", qbits) {
+}
 
-	Hadamard(int id, int layer, int qbit);
+CNOT::CNOT(int id, int layer, int srcqbit, int tgtqbit) :
+		GateInstruction(id, layer, "CNOT",
+				std::vector<int> { srcqbit, tgtqbit }) {
+}
 
-	virtual void accept(QInstructionVisitor& visitor);
-};
+void CNOT::accept(QInstructionVisitor& visitor) {
+
+}
+
+RegisterGateInstruction<CNOT> CNOTTEMP("CNOT");
 
 }
 }
-
-#endif
