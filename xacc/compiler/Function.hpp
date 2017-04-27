@@ -28,35 +28,41 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
-#define QUANTUM_GATE_IR_QINSTRUCTIONVISITOR_HPP_
+#ifndef XACC_COMPILER_FUNCTION_HPP_
+#define XACC_COMPILER_FUNCTION_HPP_
+#include <iostream>
 
-#include "CNOT.hpp"
-#include "Hadamard.hpp"
-#include "Rz.hpp"
-#include "X.hpp"
-#include "QInstruction.hpp"
-#include "GateFunction.hpp"
+#include "Instruction.hpp"
 
 namespace xacc {
 
-namespace quantum {
+using InstPtr = std::shared_ptr<Instruction>;
 
 /**
  *
  */
-class QInstructionVisitor {
+class Function : public virtual Instruction {
 public:
-	virtual void visit(QFunction* function) = 0;
-	virtual void visit(Hadamard* function) = 0;
-	virtual void visit(CNOT* function) = 0;
-	virtual void visit(Rz* function) = 0;
-	virtual void visit(X* function) = 0;
-	virtual ~QInstructionVisitor() {}
+
+	virtual const int nInstructions() = 0;
+
+	virtual InstPtr getInstruction(const int idx) = 0;
+
+	virtual std::list<InstPtr> getInstructions() = 0;
+
+	virtual void removeInstruction(const int idx) = 0;
+
+	virtual void replaceInstruction(const int idx, InstPtr newInst) = 0;
+
+	virtual void addInstruction(InstPtr instruction) = 0;
+
+	virtual bool isComposite() { return true; }
+
+	/**
+	 * The destructor
+	 */
+	virtual ~Function() {}
 };
 
 }
-
-}
-
 #endif

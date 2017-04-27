@@ -1,3 +1,4 @@
+
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -29,13 +30,36 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE QFunctionTester
+#define BOOST_TEST_MODULE ConditionalFunctionTester
 
 #include <boost/test/included/unit_test.hpp>
-
-#include "QFunction.hpp"
+#include "ConditionalFunction.hpp"
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
+#include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkConstruct) {
+
+BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
+
+	ConditionalFunction f(0);
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
+
+	f.addConditionalInstruction(h);
+	f.addConditionalInstruction(cn1);
+	f.addConditionalInstruction(cn2);
+	f.addConditionalInstruction(h2);
+	BOOST_VERIFY(f.nInstructions() == 0);
+
+	f.evaluate(0);
+	BOOST_VERIFY(f.nInstructions() == 0);
+
+	f.evaluate(1);
+	BOOST_VERIFY(f.nInstructions() == 4);
+
 }
+

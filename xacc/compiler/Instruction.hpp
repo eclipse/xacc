@@ -28,77 +28,61 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_QIR_QFUNCTION_HPP_
-#define QUANTUM_QIR_QFUNCTION_HPP_
-
-#include "QInstruction.hpp"
+#ifndef XACC_COMPILER_INSTRUCTION_HPP_
+#define XACC_COMPILER_INSTRUCTION_HPP_
+#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
 
 namespace xacc {
-namespace quantum {
-using InstPtr = std::shared_ptr<QInstruction>;
 
 /**
- * The QFunction is a realization of the QInstruction
- * interface that contains further QInstructions. This
- * interface forms the parental nodes of a tree of
- * quantum instructions. To add or remove child
- * instructions, this class provides addInstruction and
- * replaceInstruction methods.
+ * This class is to be subclassed. Subclasses
+ * should add appropriate derived instruction
+ * visit classes.
+ */
+class InstructionVisitor {};
+
+/**
  *
  */
-class QFunction: public virtual QInstruction {
+class Instruction {
 
 public:
 
 	/**
-	 * The Constructor
-	 */
-	QFunction() {}
-
-	/**
-	 * The constructor, takes the id of this
-	 * function and its name.
-	 * @param id
-	 * @param name
-	 */
-	QFunction(int id, const std::string name) {}
-
-	/**
-	 * Add an instruction to this quantum
-	 * intermediate representation.
-	 *
-	 * @param instruction
-	 */
-	virtual void addInstruction(InstPtr instruction) = 0;
-
-	/**
-	 * Replace the given current quantum instruction
-	 * with the new replacingInst quantum Instruction.
-	 *
-	 * @param currentInst
-	 * @param replacingInst
-	 */
-	virtual void replaceInstruction(InstPtr currentInst,
-			InstPtr replacingInst) = 0;
-
-	/**
-	 * Replace the given current quantum instruction
-	 * with the new replacingInst quantum Instruction.
-	 *
-	 * @param currentInst
-	 * @param replacingInst
-	 */
-	virtual void replaceInstruction(int instId,
-			InstPtr replacingInst) = 0;
-
-	/**
-	 * Return the number of instructions this
-	 * QFunction contains.
 	 *
 	 * @return
 	 */
-	virtual const int nInstructions() = 0;
+	virtual const std::string getName() = 0;
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual const std::string toString(const std::string& bufferVarName) = 0;
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual const std::vector<int> bits() = 0;
+
+	virtual bool isComposite() { return false; }
+
+	/**
+	 *
+	 * @param visitor
+	 */
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor) = 0;
+
+	/**
+	 * The destructor
+	 */
+	virtual ~Instruction() {
+	}
 };
-}
+
 }
 #endif

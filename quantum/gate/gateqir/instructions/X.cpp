@@ -33,15 +33,15 @@
 namespace xacc {
 namespace quantum {
 
-X::X(int id, int layer, std::vector<int> qbit) :
-		GateInstruction(id, layer, "X", qbit) {
+X::X(std::vector<int> qbit) :
+		GateInstruction("X", qbit) {
 }
 
-X::X(int id, int layer, int qbit) :
-		GateInstruction(id, layer, "X", std::vector<int> { qbit }) {
+X::X(int qbit) :
+		X(std::vector<int> { qbit }) {
 }
 
-void X::accept(QInstructionVisitor& visitor) {
+void X::accept(std::shared_ptr<InstructionVisitor> visitor) {
 
 }
 

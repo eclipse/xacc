@@ -36,6 +36,7 @@
 //#include "GateQIR.hpp"
 //
 #include "GateFunction.hpp"
+#include "ConditionalFunction.hpp"
 
 using namespace clang;
 
@@ -65,11 +66,13 @@ protected:
 	std::string cbitVarName;
 	std::string qbitVarName;
 
-	int currentInstId = 0;
-	int currentInstLayer = 0;
 	std::shared_ptr<xacc::quantum::GateFunction> function;
+	std::shared_ptr<xacc::quantum::ConditionalFunction> currentConditional;
 
 	int nCallExprToSkip = 0;
+
+	std::map<std::string, int> cbitRegToMeasuredQubit;
+
 };
 
 }

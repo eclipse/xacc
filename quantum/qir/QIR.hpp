@@ -31,9 +31,9 @@
 #ifndef QUANTUM_QIR_HPP_
 #define QUANTUM_QIR_HPP_
 
-#include "QFunction.hpp"
 #include "Graph.hpp"
 #include "IR.hpp"
+#include "Function.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -80,7 +80,7 @@ public:
 	 * Add a quantum function to this intermediate representation.
 	 * @param kernel
 	 */
-	virtual void addQuantumKernel(std::shared_ptr<QFunction> kernel) {
+	virtual void addQuantumKernel(std::shared_ptr<Function> kernel) {
 		kernels.push_back(kernel);
 	}
 
@@ -88,7 +88,7 @@ public:
 		return kernels.size();
 	}
 
-	virtual std::shared_ptr<QFunction> getKernel(const std::string& name) {
+	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
 		for (auto f : kernels) {
 			if (f->getName() == name) {
 				return f;
@@ -107,7 +107,7 @@ protected:
 	/**
 	 * Reference to this QIR's list of quantum functions
 	 */
-	std::vector<std::shared_ptr<QFunction>> kernels;
+	std::vector<std::shared_ptr<Function>> kernels;
 
 };
 }

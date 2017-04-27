@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -39,28 +38,26 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	X h(0, 0, 0);
-	BOOST_VERIFY(h.toString("qreg") == "X qreg0");
-	BOOST_VERIFY(h.getId() == 0);
-	BOOST_VERIFY(h.layer() == 0);
-	BOOST_VERIFY(h.qubits().size() == 1);
-	BOOST_VERIFY(h.qubits()[0] == 0);
-	BOOST_VERIFY(h.getName() == "X");
+	X x(0);
+	BOOST_VERIFY(x.toString("qreg") == "X qreg0");
+	BOOST_VERIFY(x.bits().size() == 1);
+	BOOST_VERIFY(x.bits()[0] == 0);
+	BOOST_VERIFY(x.getName() == "X");
 
-	X h2(3, 22, 44);
-	BOOST_VERIFY(h2.toString("qreg") == "X qreg44");
-	BOOST_VERIFY(h2.getId() == 3);
-	BOOST_VERIFY(h2.layer() == 22);
-	BOOST_VERIFY(h2.qubits().size() == 1);
-	BOOST_VERIFY(h2.qubits()[0] == 44);
-	BOOST_VERIFY(h2.getName() == "X");
-
+	X x2(44);
+	BOOST_VERIFY(x2.toString("qreg") == "X qreg44");
+	BOOST_VERIFY(x2.bits().size() == 1);
+	BOOST_VERIFY(x2.bits()[0] == 44);
+	BOOST_VERIFY(x2.getName() == "X");
 
 }
 
 BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
 
-	auto x = GateInstructionRegistry::instance()->create("X", 1, 1, std::vector<int>{0});
-
-	BOOST_VERIFY(x->getId() == 1);
+	auto x = GateInstructionRegistry::instance()->create("X", std::vector<int> {
+			0 });
+	BOOST_VERIFY(x->toString("qreg") == "X qreg0");
+	BOOST_VERIFY(x->bits().size() == 1);
+	BOOST_VERIFY(x->bits()[0] == 0);
+	BOOST_VERIFY(x->getName() == "X");
 }

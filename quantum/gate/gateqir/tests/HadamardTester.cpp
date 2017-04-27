@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -39,28 +38,26 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	Hadamard h(0, 0, 0);
+	Hadamard h(0);
 	BOOST_VERIFY(h.toString("qreg") == "H qreg0");
-	BOOST_VERIFY(h.getId() == 0);
-	BOOST_VERIFY(h.layer() == 0);
-	BOOST_VERIFY(h.qubits().size() == 1);
-	BOOST_VERIFY(h.qubits()[0] == 0);
+	BOOST_VERIFY(h.bits().size() == 1);
+	BOOST_VERIFY(h.bits()[0] == 0);
 	BOOST_VERIFY(h.getName() == "H");
 
-	Hadamard h2(3, 22, 44);
+	Hadamard h2(44);
 	BOOST_VERIFY(h2.toString("qreg") == "H qreg44");
-	BOOST_VERIFY(h2.getId() == 3);
-	BOOST_VERIFY(h2.layer() == 22);
-	BOOST_VERIFY(h2.qubits().size() == 1);
-	BOOST_VERIFY(h2.qubits()[0] == 44);
+	BOOST_VERIFY(h2.bits().size() == 1);
+	BOOST_VERIFY(h2.bits()[0] == 44);
 	BOOST_VERIFY(h2.getName() == "H");
-
 
 }
 
 BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
 
-	auto hadamard = GateInstructionRegistry::instance()->create("H", 1, 1, std::vector<int>{0});
+	auto hadamard = GateInstructionRegistry::instance()->create("H",
+			std::vector<int> { 0 });
+	BOOST_VERIFY(hadamard->bits().size() == 1);
+	BOOST_VERIFY(hadamard->bits()[0] == 0);
+	BOOST_VERIFY(hadamard->getName() == "H");
 
-	BOOST_VERIFY(hadamard->getId() == 1);
 }

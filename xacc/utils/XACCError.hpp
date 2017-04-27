@@ -46,6 +46,7 @@ public:
 
 	XACCException(std::string error) :
 			errorMessage(error) {
+		spdlog::get("console")->error(errorMessage);			\
 	}
 
 	virtual const char * what() const throw () {
@@ -60,7 +61,6 @@ public:
 
 #define XACCError(errorMsg)												\
 	do {																\
-		spdlog::get("console")->error(std::string(errorMsg));			\
 		using namespace xacc; \
     	throw XACCException("\n\n XACC Error caught! \n\n"	    \
             	+ std::string(errorMsg) + "\n\n");						\

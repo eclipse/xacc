@@ -39,22 +39,18 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	Rz rz(0, 0, 0, 3.14);
+	Rz rz(0, 3.14);
 	BOOST_VERIFY(rz.getParameter(0) == 3.14);
 	BOOST_VERIFY(rz.toString("qreg") == "Rz(3.140000) qreg0");
-	BOOST_VERIFY(rz.getId() == 0);
-	BOOST_VERIFY(rz.layer() == 0);
-	BOOST_VERIFY(rz.qubits().size() == 1);
-	BOOST_VERIFY(rz.qubits()[0] == 0);
+	BOOST_VERIFY(rz.bits().size() == 1);
+	BOOST_VERIFY(rz.bits()[0] == 0);
 	BOOST_VERIFY(rz.getName() == "Rz");
 
-	Rz rz2(3, 22, 44, 1.71234);
+	Rz rz2(44, 1.71234);
 	BOOST_VERIFY(rz2.getParameter(0) == 1.71234);
 	BOOST_VERIFY(rz2.toString("qreg") == "Rz(1.712340) qreg44");
-	BOOST_VERIFY(rz2.getId() == 3);
-	BOOST_VERIFY(rz2.layer() == 22);
-	BOOST_VERIFY(rz2.qubits().size() == 1);
-	BOOST_VERIFY(rz2.qubits()[0] == 44);
+	BOOST_VERIFY(rz2.bits().size() == 1);
+	BOOST_VERIFY(rz2.bits()[0] == 44);
 	BOOST_VERIFY(rz2.getName() == "Rz");
 
 
@@ -62,8 +58,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
 
-	auto rz = ParameterizedGateInstructionRegistry<double>::instance()->create("Rz", 1, 1, std::vector<int>{0}, 3.14);
-//
+	auto rz = ParameterizedGateInstructionRegistry<double>::instance()->create("Rz", std::vector<int>{0}, 3.14);
 	BOOST_VERIFY(rz->getName() == "Rz");
 	BOOST_VERIFY(rz->getParameter(0) == 3.14);
 }

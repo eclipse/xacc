@@ -42,13 +42,13 @@ namespace quantum {
  */
 class Measure : public virtual ParameterizedGateInstruction<int> {
 public:
-	Measure(int id, int layer, std::vector<int> qbit, int classicalIdx);
+	Measure(std::vector<int> qbit, int classicalIdx);
 
-	Measure(int id, int layer, int qbit, int classicalIdx);
+	Measure(int qbit, int classicalIdx);
 
-	virtual void accept(QInstructionVisitor& visitor);
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 
-	virtual const std::string toString(const std::string bufferVarName);
+	virtual const std::string toString(const std::string& bufferVarName);
 };
 
 }

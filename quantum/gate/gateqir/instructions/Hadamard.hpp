@@ -42,11 +42,9 @@ namespace quantum {
  */
 class Hadamard : public virtual GateInstruction {
 public:
-	Hadamard(int id, int layer, std::vector<int> qbit);
-
-	Hadamard(int id, int layer, int qbit);
-
-	virtual void accept(QInstructionVisitor& visitor);
+	Hadamard(std::vector<int> qbits);
+	Hadamard(int qbit);
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 };
 
 }

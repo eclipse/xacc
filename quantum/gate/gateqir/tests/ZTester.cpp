@@ -39,20 +39,16 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(czeckCreation) {
 
-	Z z(0, 0, 0);
+	Z z(0);
 	BOOST_VERIFY(z.toString("qreg") == "Z qreg0");
-	BOOST_VERIFY(z.getId() == 0);
-	BOOST_VERIFY(z.layer() == 0);
-	BOOST_VERIFY(z.qubits().size() == 1);
-	BOOST_VERIFY(z.qubits()[0] == 0);
+	BOOST_VERIFY(z.bits().size() == 1);
+	BOOST_VERIFY(z.bits()[0] == 0);
 	BOOST_VERIFY(z.getName() == "Z");
 
-	Z z2(3, 22, 44);
+	Z z2(44);
 	BOOST_VERIFY(z2.toString("qreg") == "Z qreg44");
-	BOOST_VERIFY(z2.getId() == 3);
-	BOOST_VERIFY(z2.layer() == 22);
-	BOOST_VERIFY(z2.qubits().size() == 1);
-	BOOST_VERIFY(z2.qubits()[0] == 44);
+	BOOST_VERIFY(z2.bits().size() == 1);
+	BOOST_VERIFY(z2.bits()[0] == 44);
 	BOOST_VERIFY(z2.getName() == "Z");
 
 
@@ -60,7 +56,8 @@ BOOST_AUTO_TEST_CASE(czeckCreation) {
 
 BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
 
-	auto x = GateInstructionRegistry::instance()->create("Z", 1, 1, std::vector<int>{0});
-
-	BOOST_VERIFY(x->getId() == 1);
+	auto z = GateInstructionRegistry::instance()->create("Z", std::vector<int>{0});
+	BOOST_VERIFY(z->bits().size() == 1);
+	BOOST_VERIFY(z->bits()[0] == 0);
+	BOOST_VERIFY(z->getName() == "Z");
 }

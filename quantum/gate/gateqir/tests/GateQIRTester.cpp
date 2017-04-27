@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE(checkCreationToString) {
 	auto buf = std::make_shared<AcceleratorBuffer>("qreg", 3);
 	auto qir = std::make_shared<GateQIR>(buf);
 
-	auto f = std::make_shared<GateFunction>(0, "foo");
-	auto h = std::make_shared<Hadamard>(0, 0, 1);
-	auto cn1 = std::make_shared<CNOT>(1, 1, 1, 2);
-	auto cn2 = std::make_shared<CNOT>(2, 2, 0, 1);
-	auto h2 = std::make_shared<Hadamard>(3, 3, 0);
+	auto f = std::make_shared<GateFunction>("foo");
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
 	f->addInstruction(h);
 	f->addInstruction(cn1);
 	f->addInstruction(cn2);
@@ -210,11 +210,11 @@ BOOST_AUTO_TEST_CASE(checkGenerateGraph) {
 	auto buf = std::make_shared<AcceleratorBuffer>("qreg", 3);
 	auto qir = std::make_shared<GateQIR>(buf);
 
-	auto f = std::make_shared<GateFunction>(0, "foo");
-	auto h = std::make_shared<Hadamard>(0, 0, 1);
-	auto cn1 = std::make_shared<CNOT>(1, 1, 1, 2);
-	auto cn2 = std::make_shared<CNOT>(2, 2, 0, 1);
-	auto h2 = std::make_shared<Hadamard>(3, 3, 0);
+	auto f = std::make_shared<GateFunction>("foo");
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
 	f->addInstruction(h);
 	f->addInstruction(cn1);
 	f->addInstruction(cn2);

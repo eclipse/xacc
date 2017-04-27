@@ -31,8 +31,8 @@
 #ifndef QUANTUM_GATEQIR_QFUNCTION_HPP_
 #define QUANTUM_GATEQIR_QFUNCTION_HPP_
 
-#include "QFunction.hpp"
-#include "GateInstruction.hpp"
+#include "Function.hpp"
+#include "XACCError.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -42,37 +42,18 @@ namespace quantum {
  * quantum computing. It is composed of QInstructions that
  * are themselves derivations of the GateInstruction class.
  */
-class GateFunction: public virtual QFunction {
+class GateFunction: public virtual Function {
 
 protected:
-
-	/**
-	 * The list of QInstructions that this GateFunction
-	 * contains.
-	 */
-	std::vector<std::shared_ptr<QInstruction>> instructions;
 
 	/**
 	 * The name of this function
 	 */
 	std::string functionName;
 
-	/**
-	 * The unique id integer for this function
-	 */
-	int functionId;
-
-	/**
-	 * The list of qubits this function acts on.
-	 */
-	std::vector<int> qbits;
+	std::list<InstPtr> instructions;
 
 public:
-
-	/**
-	 * The nullary constructor.
-	 */
-	GateFunction();
 
 	/**
 	 * The constructor, takes the function unique id and its name.
@@ -80,7 +61,27 @@ public:
 	 * @param id
 	 * @param name
 	 */
-	GateFunction(int id, const std::string name);
+	GateFunction(const std::string& name) : functionName(name) {}
+
+	virtual const int nInstructions() {
+		return instructions.size();
+	}
+
+	virtual InstPtr getInstruction(const int idx) {
+		if (instructions.size() > idx) {
+			return *std::next(instructions.begin(), idx);
+		} else {
+			XACCError("Invalid instruction index.");
+		}
+	}
+
+	virtual std::list<InstPtr> getInstructions() {
+		return instructions;
+	}
+
+	virtual void removeInstruction(const int idx) {
+		instructions.remove(getInstruction(idx));
+	}
 
 	/**
 	 * Add an instruction to this quantum
@@ -88,7 +89,9 @@ public:
 	 *
 	 * @param instruction
 	 */
-	virtual void addInstruction(InstPtr instruction);
+	virtual void addInstruction(InstPtr instruction) {
+		instructions.push_back(instruction);
+	}
 
 	/**
 	 * Replace the given current quantum instruction
@@ -97,43 +100,39 @@ public:
 	 * @param currentInst
 	 * @param replacingInst
 	 */
-	virtual void replaceInstruction(InstPtr currentInst,
-			InstPtr replacingInst);
-
-	/**
-	 * Replace the given current quantum instruction
-	 * with the new replacingInst quantum Instruction.
-	 *
-	 * @param currentInst
-	 * @param replacingInst
-	 */
-	virtual void replaceInstruction(int instId,
-			InstPtr replacingInst);
-
-	/**
-	 * Return the id of this function
-	 * @return
-	 */
-	virtual const int getId();
+	virtual void replaceInstruction(const int idx, InstPtr replacingInst) {
+		std::replace(instructions.begin(), instructions.end(),
+				getInstruction(idx), replacingInst);
+	}
 
 	/**
 	 * Return the name of this function
 	 * @return
 	 */
-	virtual const std::string getName();
+	virtual const std::string getName() {
+		return functionName;
+	}
 
 	/**
 	 * Return the qubits this function acts on.
 	 * @return
 	 */
-	virtual const std::vector<int> qubits();
+	virtual const std::vector<int> bits() {
+		return std::vector<int> { };
+	}
 
 	/**
 	 * Return an assembly-like string representation for this function .
 	 * @param bufferVarName
 	 * @return
 	 */
-	virtual const std::string toString(const std::string bufferVarName);
+	virtual const std::string toString(const std::string& bufferVarName) {
+		std::string retStr = "";
+		for (auto i : instructions) {
+			retStr += i->toString(bufferVarName) + "\n";
+		}
+		return retStr;
+	}
 
 	/**
 	 * This method should simply be implemented to invoke the
@@ -141,13 +140,9 @@ public:
 	 *
 	 * @param visitor
 	 */
-	virtual void accept(QInstructionVisitor& visitor);
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor) {
+	}
 
-	/**
-	 * Return the number of instructions in this function.
-	 * @return
-	 */
-	const int nInstructions();
 };
 }
 }

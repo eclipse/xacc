@@ -32,16 +32,15 @@
 #define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RZ_HPP_
 
 #include "ParameterizedGateInstruction.hpp"
-class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
 class Rz: public virtual ParameterizedGateInstruction<double> {
 public:
-	Rz(int id, int layer, std::vector<int> qbits, double theta);
-	Rz(int id, int layer, int qbit, double theta);
+	Rz(std::vector<int> qbits, double theta);
+	Rz(int qbit, double theta);
 
-	virtual void accept(QInstructionVisitor& visitor);
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 };
 }
 }

@@ -32,16 +32,15 @@
 
 namespace xacc {
 namespace quantum {
-Rz::Rz(int id, int layer, std::vector<int> qbits, double theta) :
-		ParameterizedGateInstruction<double>(theta), GateInstruction(id, layer,
-				"Rz", qbits) {
+Rz::Rz(std::vector<int> qbits, double theta) :
+		ParameterizedGateInstruction<double>(theta), GateInstruction("Rz",
+				qbits) {
 }
-Rz::Rz(int id, int layer, int qbit, double theta) :
-		ParameterizedGateInstruction<double>(theta), GateInstruction(id, layer,
-				"Rz", std::vector<int> { qbit }) {
+Rz::Rz(int qbit, double theta) :
+		Rz(std::vector<int> { qbit }, theta) {
 }
 
-void Rz::accept(QInstructionVisitor& visitor) {
+void Rz::accept(std::shared_ptr<InstructionVisitor> visitor) {
 
 }
 

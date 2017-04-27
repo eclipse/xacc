@@ -36,6 +36,7 @@
 #include "GateFunction.hpp"
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
+#include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;
 
@@ -45,24 +46,69 @@ const std::string expectedQasm =
 		"CNOT qreg0,qreg1\n"
 		"H qreg0\n";
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 
-	GateFunction f(0, "foo");
-	BOOST_VERIFY(f.getId() == 0);
+	GateFunction f("foo");
 	BOOST_VERIFY(f.getName() == "foo");
 	BOOST_VERIFY(f.nInstructions() == 0);
 
-	auto h = std::make_shared<Hadamard>(0, 0, 1);
-	auto cn1 = std::make_shared<CNOT>(1, 1, 1, 2);
-	auto cn2 = std::make_shared<CNOT>(2, 2, 0, 1);
-	auto h2 = std::make_shared<Hadamard>(3, 3, 0);
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
 
 	f.addInstruction(h);
 	f.addInstruction(cn1);
 	f.addInstruction(cn2);
 	f.addInstruction(h2);
-
 	BOOST_VERIFY(f.nInstructions() == 4);
-
 	BOOST_VERIFY(f.toString("qreg") == expectedQasm);
+
+	f.removeInstruction(0);
+	BOOST_VERIFY(f.nInstructions() == 3);
+
+	const std::string removeExpectedQasm =
+			"CNOT qreg1,qreg2\n"
+			"CNOT qreg0,qreg1\n"
+			"H qreg0\n";
+	BOOST_VERIFY(f.toString("qreg") == removeExpectedQasm);
+
+
+	f.replaceInstruction(0, h);
+	const std::string replaceExpectedQasm = "H qreg1\n"
+			"CNOT qreg0,qreg1\n"
+			"H qreg0\n";
+	BOOST_VERIFY(f.toString("qreg") == replaceExpectedQasm);
+
+	f.replaceInstruction(2, cn1);
+	const std::string replaceExpectedQasm2 = "H qreg1\n"
+			"CNOT qreg0,qreg1\n"
+			"CNOT qreg1,qreg2\n";
+	BOOST_VERIFY(f.toString("qreg") == replaceExpectedQasm2);
+
 }
+
+BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
+	auto f = std::make_shared<GateFunction>("foo");
+	auto g = std::make_shared<GateFunction>("goo");
+
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
+
+	g->addInstruction(cn1);
+	g->addInstruction(cn2);
+
+	f->addInstruction(h);
+	f->addInstruction(g);
+	f->addInstruction(h2);
+
+	xacc::InstructionIterator it(f);
+	while(it.hasNext()) {
+		auto inst = it.next();
+		if (!inst->isComposite()) std::cout << inst->getName() << "\n";
+	}
+
+}
+

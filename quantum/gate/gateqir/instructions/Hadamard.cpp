@@ -33,15 +33,15 @@
 namespace xacc {
 namespace quantum {
 
-Hadamard::Hadamard(int id, int layer, std::vector<int> qbit) :
-		GateInstruction(id, layer, "H", qbit) {
+Hadamard::Hadamard(std::vector<int> qbits) :
+		GateInstruction("H", qbits) {
 }
 
-Hadamard::Hadamard(int id, int layer, int qbit) :
-		GateInstruction(id, layer, "H", std::vector<int> { qbit }) {
+Hadamard::Hadamard(int qbit) :
+		Hadamard(std::vector<int> { qbit }) {
 }
 
-void Hadamard::accept(QInstructionVisitor& visitor) {
+void Hadamard::accept(std::shared_ptr<InstructionVisitor> visitor) {
 
 }
 

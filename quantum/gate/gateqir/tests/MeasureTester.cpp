@@ -39,13 +39,11 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
-	Measure meas(0, 0, 0, 1);
+	Measure meas(0, 1);
 	BOOST_VERIFY(meas.getParameter(0) == 1);
 	BOOST_VERIFY(meas.toString("qreg") == "Measure qreg0");
-	BOOST_VERIFY(meas.getId() == 0);
-	BOOST_VERIFY(meas.layer() == 0);
-	BOOST_VERIFY(meas.qubits().size() == 1);
-	BOOST_VERIFY(meas.qubits()[0] == 0);
+	BOOST_VERIFY(meas.bits().size() == 1);
+	BOOST_VERIFY(meas.bits()[0] == 0);
 	BOOST_VERIFY(meas.getName() == "Measure");
 
 
@@ -53,8 +51,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
 
-	auto meas = ParameterizedGateInstructionRegistry<int>::instance()->create("Measure", 1, 1, std::vector<int>{0}, 1);
-//
+	auto meas = ParameterizedGateInstructionRegistry<int>::instance()->create("Measure", std::vector<int>{0}, 1);
 	BOOST_VERIFY(meas->getName() == "Measure");
 	BOOST_VERIFY(meas->getParameter(0) == 1);
 }

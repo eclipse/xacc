@@ -33,22 +33,20 @@
 namespace xacc {
 namespace quantum {
 
-Measure::Measure(int id, int layer, std::vector<int> qbit, int classicalIdx) :
-		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction(id,
-				layer, "Measure", qbit) {
+Measure::Measure(std::vector<int> qbit, int classicalIdx) :
+		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction("Measure", qbit) {
 }
 
-Measure::Measure(int id, int layer, int qbit, int classicalIdx) :
-		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction(id,
-				layer, "Measure", std::vector<int> { qbit }) {
+Measure::Measure(int qbit, int classicalIdx) :
+		Measure(std::vector<int> { qbit }, classicalIdx) {
 }
 
-void Measure::accept(QInstructionVisitor& visitor) {
+void Measure::accept(std::shared_ptr<InstructionVisitor> visitor) {
 
 }
 
-const std::string Measure::toString(const std::string bufferVarName) {
-	return gateName + " " + bufferVarName + std::to_string(qubits()[0]);
+const std::string Measure::toString(const std::string& bufferVarName) {
+	return gateName + " " + bufferVarName + std::to_string(bits()[0]);
 }
 
 RegisterParameterizedGateInstruction<Measure, int> MEASURETEMP("Measure");

@@ -62,7 +62,7 @@ public:
 	 * @param pars
 	 */
 	ParameterizedGateInstruction(InstructionParameter ... pars) :
-			params(std::make_tuple(pars...)) {
+			params(std::make_tuple(pars...)), GateInstruction(std::vector<int>{}) {
 	}
 
 	/**
@@ -85,7 +85,7 @@ public:
 	 * @param bufferVarName
 	 * @return
 	 */
-	virtual const std::string toString(const std::string bufferVarName) {
+	virtual const std::string toString(const std::string& bufferVarName) {
 		auto str = gateName;
 		str += "(";
 		xacc::tuple_for_each(params, [&](auto element) {
@@ -93,7 +93,7 @@ public:
 		});
 		str = str.substr(0, str.length() - 1) + ") ";
 
-		for (auto q : qubits()) {
+		for (auto q : bits()) {
 			str += bufferVarName + std::to_string(q) + ",";
 		}
 
@@ -106,20 +106,21 @@ public:
 };
 /**
  */
-template<typename... Params>
-using ParameterizedGateInstructionRegistry = Registry<ParameterizedGateInstruction<Params...>, int, int, std::vector<int>, Params...>;
+template<typename ... Params>
+using ParameterizedGateInstructionRegistry = Registry<ParameterizedGateInstruction<Params...>, std::vector<int>, Params...>;
 
 /**
  */
-template<typename T, typename... Params>
+template<typename T, typename ... Params>
 class RegisterParameterizedGateInstruction {
 public:
 	RegisterParameterizedGateInstruction(const std::string& name) {
 		ParameterizedGateInstructionRegistry<Params...>::instance()->add(name,
 				(std::function<
-						std::shared_ptr<xacc::quantum::ParameterizedGateInstruction<Params...>>(int,
-								int, std::vector<int>, Params...)>) ([](int id, int layer, std::vector<int> qubits, Params... args) {
-					return std::make_shared<T>(id, layer, qubits, args...);
+						std::shared_ptr<
+								xacc::quantum::ParameterizedGateInstruction<
+										Params...>>(std::vector<int>, Params...)>) ([](std::vector<int> qubits, Params... args) {
+					return std::make_shared<T>(qubits, args...);
 				}));
 	}
 };

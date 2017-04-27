@@ -33,16 +33,15 @@
 namespace xacc {
 namespace quantum {
 
-CNOT::CNOT(int id, int layer, std::vector<int> qbits) :
-		GateInstruction(id, layer, "CNOT", qbits) {
+CNOT::CNOT(std::vector<int> qbits) :
+		GateInstruction("CNOT", qbits) {
 }
 
-CNOT::CNOT(int id, int layer, int srcqbit, int tgtqbit) :
-		GateInstruction(id, layer, "CNOT",
-				std::vector<int> { srcqbit, tgtqbit }) {
+CNOT::CNOT(int srcqbit, int tgtqbit) :
+		CNOT(std::vector<int> { srcqbit, tgtqbit }) {
 }
 
-void CNOT::accept(QInstructionVisitor& visitor) {
+void CNOT::accept(std::shared_ptr<InstructionVisitor> visitor) {
 
 }
 

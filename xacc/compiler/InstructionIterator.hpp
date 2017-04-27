@@ -28,56 +28,66 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#include "GateFunction.hpp"
+#ifndef XACC_COMPILER_INSTRUCTIONITERATOR_HPP_
+#define XACC_COMPILER_INSTRUCTIONITERATOR_HPP_
+#include <stack>
+#include "Function.hpp"
 
 namespace xacc {
-namespace quantum {
 
-GateFunction::GateFunction(int id, const std::string name) :
-		functionId(id), functionName(name) {
+/**
+ * The InstructionIterator provides a mechanism for
+ * a pre-order traversal of an Instruction tree.
+ */
+class InstructionIterator {
 
-}
+protected:
 
-void GateFunction::accept(QInstructionVisitor& visitor) {
-	return;
-}
+	/**
+	 * The root of the tree, a function
+	 */
+	std::shared_ptr<Instruction> root;
 
-void GateFunction::addInstruction(InstPtr instruction) {
-	instructions.push_back(instruction);
-}
+	/**
+	 * A stack used to implement the tree traversal
+	 */
+	std::stack<std::shared_ptr<Instruction>> instStack;
 
-void GateFunction::replaceInstruction(InstPtr currentInst,
-		InstPtr replacingInst) {
+public:
 
-}
-
-void GateFunction::replaceInstruction(int instId, InstPtr replacingInst) {
-
-}
-
-const std::string GateFunction::toString(const std::string bufferVarName) {
-	std::string retStr = "";
-	for (auto i : instructions) {
-		retStr += i->toString(bufferVarName) + "\n";
+	/**
+	 * The constructor, takes the root of the tree
+	 * as input.
+	 *
+	 * @param r
+	 */
+	InstructionIterator(std::shared_ptr<Instruction> r) : root(r){
+		instStack.push(root);
 	}
-	return retStr;
-}
 
-const int GateFunction::getId() {
-	return functionId;
-}
+	/**
+	 * Return true if there are still instructions left to traverse.
+	 * @return
+	 */
+	bool hasNext() {
+		return !instStack.empty();
+	}
 
-const std::string GateFunction::getName() {
-	return functionName;
+	/**
+	 * Return the next Instruction in the tree.
+	 * @return
+	 */
+	std::shared_ptr<Instruction> next() {
+		std::shared_ptr<Instruction> next = instStack.top();
+		instStack.pop();
+		auto f = std::dynamic_pointer_cast<Function>(next);
+		if (f) {
+			for (int i = f->nInstructions() - 1; i >= 0; i--) {
+				instStack.push(f->getInstruction(i));
+			}
+		}
+		return next;
+	}
+};
 }
-
-const std::vector<int> GateFunction::qubits() {
-	return qbits;
-}
-
-const int GateFunction::nInstructions() {
-	return instructions.size();
-}
-}
-}
-
+#endif

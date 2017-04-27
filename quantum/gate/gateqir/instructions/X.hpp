@@ -32,7 +32,6 @@
 #define QUANTUM_GATE_IR_X_HPP_
 
 #include "GateInstruction.hpp"
-class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
@@ -42,11 +41,11 @@ namespace quantum {
  */
 class X : public virtual GateInstruction {
 public:
-	X(int id, int layer, std::vector<int> qbit);
+	X(std::vector<int> qbit);
 
-	X(int id, int layer, int qbit);
+	X(int qbit);
 
-	virtual void accept(QInstructionVisitor& visitor);
+	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 };
 
 

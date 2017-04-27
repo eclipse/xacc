@@ -31,34 +31,22 @@
 #ifndef QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
 #define QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
 
-#include "QInstruction.hpp"
+#include "Instruction.hpp"
 #include "Registry.hpp"
 
 namespace xacc {
 namespace quantum {
 
 /**
- * The GateInstruction is an implementation of QInstruction
- * for gate-model quantum computing.
  */
-class GateInstruction: public virtual QInstruction {
+class GateInstruction: public virtual Instruction {
 
 protected:
-
-	/**
-	 * Reference to this instructions id
-	 */
-	int gateId;
 
 	/**
 	 * Reference to this instructions name
 	 */
 	std::string gateName;
-
-	/**
-	 * Reference to the circuit layer for this instruction.
-	 */
-	int circuitLayer;
 
 	/**
 	 * Reference to the qubits this instruction acts on
@@ -67,16 +55,8 @@ protected:
 
 public:
 
-	/**
-	 * The nullary contructor.
-	 */
-	GateInstruction() :
-			gateId(0), gateName("UNKNOWN"), circuitLayer(0), qbits(
-					std::vector<int> { }) {
-	}
-
-	GateInstruction(int id, int layer, std::vector<int> qubts) :
-			gateId(id), circuitLayer(layer), gateName("UNKNOWN"), qbits(qubts) {
+	GateInstruction(std::vector<int> qubts) :
+			gateName("UNKNOWN"), qbits(qubts) {
 	}
 
 	/**
@@ -88,16 +68,8 @@ public:
 	 * @param name
 	 * @param qubts
 	 */
-	GateInstruction(int id, int layer, std::string name, std::vector<int> qubts) :
-			gateId(id), circuitLayer(layer), gateName(name), qbits(qubts) {
-	}
-
-	/**
-	 * Return the unique instruction id.
-	 * @return
-	 */
-	virtual const int getId() {
-		return gateId;
+	GateInstruction(std::string name, std::vector<int> qubts) :
+			gateName(name), qbits(qubts) {
 	}
 
 	/**
@@ -109,19 +81,10 @@ public:
 	}
 
 	/**
-	 * Return the instruction layer.
-	 *
-	 * @return
-	 */
-	virtual const int layer() {
-		return circuitLayer;
-	}
-
-	/**
 	 * Return the list of qubits this instruction acts on.
 	 * @return
 	 */
-	virtual const std::vector<int> qubits() {
+	virtual const std::vector<int> bits() {
 		return qbits;
 	}
 
@@ -131,9 +94,9 @@ public:
 	 * @param bufferVarName
 	 * @return
 	 */
-	virtual const std::string toString(const std::string bufferVarName) {
+	virtual const std::string toString(const std::string& bufferVarName) {
 		auto str = gateName + " ";
-		for (auto q : qubits()) {
+		for (auto q : bits()) {
 			str += bufferVarName + std::to_string(q) + ",";
 		}
 
@@ -152,7 +115,7 @@ public:
 
 /**
  */
-using GateInstructionRegistry = Registry<GateInstruction, int, int, std::vector<int>>;
+using GateInstructionRegistry = Registry<GateInstruction, std::vector<int>>;
 
 /**
  */
@@ -162,13 +125,13 @@ public:
 	RegisterGateInstruction(const std::string& name) {
 		GateInstructionRegistry::instance()->add(name,
 				(std::function<
-						std::shared_ptr<xacc::quantum::GateInstruction>(int,
-								int, std::vector<int>)>) ([](int id, int layer, std::vector<int> qubits) {
-					return std::make_shared<T>(id, layer, qubits);
+						std::shared_ptr<xacc::quantum::GateInstruction>(
+								std::vector<int>)>) ([](std::vector<int> qubits) {
+					return std::make_shared<T>(qubits);
 				}));
 	}
 };
 }
 }
 
-#endif /* QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_ */
+#endif

@@ -26,7 +26,7 @@ bool ScaffoldASTConsumer::VisitDecl(Decl *d) {
 		}
 	} else if (isa<FunctionDecl>(d)) {
 		auto c = cast<FunctionDecl>(d);
-		function = std::make_shared<xacc::quantum::GateFunction>(0,
+		function = std::make_shared<xacc::quantum::GateFunction>(
 				c->getDeclName().getAsString());
 	}
 	return true;
@@ -51,12 +51,14 @@ bool ScaffoldASTConsumer::VisitStmt(Stmt *s) {
 				std::string str;
 				llvm::raw_string_ostream s(str);
 				LHS->printPretty(s, nullptr, policy);
+				std::cout << "LHS IF: " << s.str() << "\n";
 				if (boost::contains(s.str(), cbitVarName)) {
 
 					auto RHS = binOp->getRHS();
 					std::string rhsstr;
 					llvm::raw_string_ostream rhss(rhsstr);
 					RHS->printPretty(rhss, nullptr, policy);
+					std::cout << "RHS IF: " << rhss.str() << "\n";
 
 					auto thenCode = ifStmt->getThen();
 					std::string thenStr;
@@ -70,6 +72,14 @@ bool ScaffoldASTConsumer::VisitStmt(Stmt *s) {
 					boost::replace_all(then, "}\n", "");
 					boost::replace_all(then, "    ", "");
 					boost::trim(then);
+
+					int conditionalQubit = cbitRegToMeasuredQubit[s.str()];
+					currentConditional = std::make_shared<xacc::quantum::ConditionalFunction>(conditionalQubit);
+
+					std::vector<std::string> vec;
+					boost::split(vec, then, boost::is_any_of("\n"));
+					nCallExprToSkip = vec.size();
+					std::cout << "NCALLEXPRTOSKIP = " << nCallExprToSkip << "\n";
 				}
 			}
 		}
@@ -113,27 +123,39 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 		if (isParameterizedInst) {
 			if (params.size() == 1) {
 				inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-						double>::instance()->create(gateName, currentInstId,
-						currentInstLayer, qubits, params[0]);
+						double>::instance()->create(gateName, qubits,
+						params[0]);
 			} else if (params.size() == 2) {
 				inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-						double, double>::instance()->create(gateName,
-						currentInstId, currentInstLayer, qubits, params[0],
-						params[1]);
+						double, double>::instance()->create(gateName, qubits,
+						params[0], params[1]);
 			} else {
 				XACCError(
 						"Can only handle 1 and 2 parameter gates... and only doubles... for now.");
 			}
-			std::cout << "CREATED A " << gateName << " gate\n";
+			std::cout << "CREATED A " << gateName << " parameterized gate\n";
 
 		} else if (gateName != "MeasZ") {
 
 			inst = xacc::quantum::GateInstructionRegistry::instance()->create(
-					gateName, currentInstId, currentInstLayer, qubits);
+					gateName, qubits);
 			std::cout << "CREATED A " << gateName << " gate\n";
 		}
 
-		if (gateName != "MeasZ") function->addInstruction(inst);
+		if (gateName != "MeasZ") {
+
+			if (nCallExprToSkip == 0) {
+				function->addInstruction(inst);
+			} else {
+				std::cout << "Adding Conditional Inst: " << gateName << "\n";
+				currentConditional->addConditionalInstruction(inst);
+				nCallExprToSkip--;
+
+				if (nCallExprToSkip == 0) {
+					function->addInstruction(currentConditional);
+				}
+			}
+		}
 	}
 
 	return true;
@@ -161,23 +183,26 @@ bool ScaffoldASTConsumer::VisitBinaryOperator(BinaryOperator * b) {
 			std::cout << "HELLO BINOP LHS: " << lhsString << "\n";
 
 			boost::replace_all(lhsString, cbitVarName, "");
-			boost::replace_all(lhsString, "[","");
+			boost::replace_all(lhsString, "[", "");
 			boost::replace_all(lhsString, "]", "");
 
 			boost::replace_all(rhsString, "MeasZ", "");
-			boost::replace_all(rhsString, "(","");
+			boost::replace_all(rhsString, "(", "");
 			boost::replace_all(rhsString, ")", "");
 			boost::replace_all(rhsString, qbitVarName, "");
-			boost::replace_all(rhsString, "[","");
+			boost::replace_all(rhsString, "[", "");
 			boost::replace_all(rhsString, "]", "");
 
 			// lhsString now just contains the classical index bit
 			auto inst =
 					xacc::quantum::ParameterizedGateInstructionRegistry<int>::instance()->create(
-							"Measure", currentInstId, currentInstLayer,
+							"Measure",
 							std::vector<int> { std::stoi(rhsString) },
 							std::stoi(lhsString));
 
+			cbitRegToMeasuredQubit.insert(std::make_pair(lhsString, std::stoi(rhsString)));
+
+			std::cout << "ADDING A MEASUREMENT GATE " << lhsString << "\n";
 			function->addInstruction(inst);
 
 		}
