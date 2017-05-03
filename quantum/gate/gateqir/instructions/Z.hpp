@@ -28,7 +28,7 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR__HPP_
+#ifndef QUANTUM_GATE_IR_Z_HPP_
 #define QUANTUM_GATE_IR_Z_HPP_
 
 #include "GateInstruction.hpp"

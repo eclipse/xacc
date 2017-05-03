@@ -31,7 +31,7 @@
 #ifndef XACC_COMPILER_FUNCTION_HPP_
 #define XACC_COMPILER_FUNCTION_HPP_
 #include <iostream>
-
+#include <list>
 #include "Instruction.hpp"
 
 namespace xacc {

@@ -148,7 +148,7 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 				function->addInstruction(inst);
 			} else {
 				std::cout << "Adding Conditional Inst: " << gateName << "\n";
-				currentConditional->addConditionalInstruction(inst);
+				currentConditional->addInstruction(inst);
 				nCallExprToSkip--;
 
 				if (nCallExprToSkip == 0) {

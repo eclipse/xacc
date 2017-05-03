@@ -49,17 +49,25 @@ BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 	auto cn2 = std::make_shared<CNOT>(0, 1);
 	auto h2 = std::make_shared<Hadamard>(0);
 
-	f.addConditionalInstruction(h);
-	f.addConditionalInstruction(cn1);
-	f.addConditionalInstruction(cn2);
-	f.addConditionalInstruction(h2);
-	BOOST_VERIFY(f.nInstructions() == 0);
+	f.addInstruction(h);
+	f.addInstruction(cn1);
+	f.addInstruction(cn2);
+	f.addInstruction(h2);
+	BOOST_VERIFY(f.nInstructions() == 4);
+
+	for (auto i : f.getInstructions()) {
+		BOOST_VERIFY(!i->isEnabled());
+	}
 
 	f.evaluate(0);
-	BOOST_VERIFY(f.nInstructions() == 0);
+	for (auto i : f.getInstructions()) {
+		BOOST_VERIFY(!i->isEnabled());
+	}
 
 	f.evaluate(1);
-	BOOST_VERIFY(f.nInstructions() == 4);
+	for (auto i : f.getInstructions()) {
+		BOOST_VERIFY(i->isEnabled());
+	}
 
 }
 

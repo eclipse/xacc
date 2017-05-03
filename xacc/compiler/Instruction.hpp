@@ -37,12 +37,18 @@
 
 namespace xacc {
 
+class Instruction;
+
 /**
  * This class is to be subclassed. Subclasses
  * should add appropriate derived instruction
  * visit classes.
  */
-class InstructionVisitor {};
+class InstructionVisitor {
+public:
+	virtual void visit(Instruction& inst) = 0;
+	virtual ~InstructionVisitor() {}
+};
 
 /**
  *
@@ -70,6 +76,11 @@ public:
 	virtual const std::vector<int> bits() = 0;
 
 	virtual bool isComposite() { return false; }
+
+	virtual bool isEnabled() { return true; }
+
+	virtual void disable() {}
+	virtual void enable() {}
 
 	/**
 	 *

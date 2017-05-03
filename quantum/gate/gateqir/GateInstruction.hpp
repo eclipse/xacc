@@ -53,6 +53,8 @@ protected:
 	 */
 	std::vector<int> qbits;
 
+	bool enabled = true;
+
 public:
 
 	GateInstruction(std::vector<int> qubts) :
@@ -104,6 +106,18 @@ public:
 		str = str.substr(0, str.length() - 1);
 
 		return str;
+	}
+
+	virtual bool isEnabled() {
+		return enabled;
+	}
+
+	virtual void disable() {
+		enabled = false;
+	}
+
+	virtual void enable() {
+		enabled = true;
 	}
 
 	/**

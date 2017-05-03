@@ -32,6 +32,8 @@ set (PACKAGE_NAME "XACC Quantum Gate IR Runtime")
 set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
 set (LIBRARY_NAME xacc-gateqir)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/functions)
+
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
 

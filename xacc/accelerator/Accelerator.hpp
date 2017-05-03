@@ -31,15 +31,16 @@
 #ifndef XACC_ACCELERATOR_HPP_
 #define XACC_ACCELERATOR_HPP_
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <array>
 #include <bitset>
-#include "spdlog/spdlog.h"
+#include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
 #include "XACCError.hpp"
-#include "AcceleratorBuffer.hpp"
 #include "Registry.hpp"
+#include "Function.hpp"
 
 namespace xacc {
 
@@ -90,14 +91,15 @@ public:
 	virtual std::vector<IRTransformation> getIRTransformations() = 0;
 
 	/**
-	 * Execute the provided XACC IR on the provided AcceleratorBuffer.
+	 * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
 	 *
 	 * @param buffer
 	 * @param ir
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-			const std::shared_ptr<IR> ir) = 0;
-
+				const std::shared_ptr<Function> function) = 0;
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+					const std::shared_ptr<IR> function) {}
 	/**
 	 * Create, store, and return an AcceleratorBuffer with the given
 	 * variable id string. This string serves as a unique identifier

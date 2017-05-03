@@ -80,7 +80,7 @@ public:
 	 * Add a quantum function to this intermediate representation.
 	 * @param kernel
 	 */
-	virtual void addQuantumKernel(std::shared_ptr<Function> kernel) {
+	virtual void addKernel(std::shared_ptr<Function> kernel) {
 		kernels.push_back(kernel);
 	}
 

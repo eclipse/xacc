@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,46 +30,51 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE FireTensorAcceleratorTester
+#define BOOST_TEST_MODULE ConditionalFunctionTester
 
-#include <memory>
 #include <boost/test/included/unit_test.hpp>
-#include "FireTensorAccelerator.hpp"
-#include "GraphIR.hpp"
+#include "InstructionIterator.hpp"
+
+#include "GateInstructionVisitor.hpp"
+#include "XaccUtils.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkKernelExecution) {
-
-	FireTensorAccelerator acc;
-	auto qreg1 = acc.createBuffer("qreg", 3);
+BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 	auto f = std::make_shared<GateFunction>("foo");
 
-	auto x = std::make_shared<X>(0);
 	auto h = std::make_shared<Hadamard>(1);
 	auto cn1 = std::make_shared<CNOT>(1, 2);
 	auto cn2 = std::make_shared<CNOT>(0, 1);
 	auto h2 = std::make_shared<Hadamard>(0);
-	auto m0 = std::make_shared<Measure>(0, 0);
-	auto m1 = std::make_shared<Measure>(1,1);
 
-	auto cond1 = std::make_shared<ConditionalFunction>(0);
-	auto z = std::make_shared<Z>(2);
-	cond1->addInstruction(z);
-	auto cond2 = std::make_shared<ConditionalFunction>(1);
-	auto x2 = std::make_shared<X>(2);
-	cond2->addInstruction(x2);
-
-	f->addInstruction(x);
 	f->addInstruction(h);
 	f->addInstruction(cn1);
 	f->addInstruction(cn2);
 	f->addInstruction(h2);
-	f->addInstruction(m0);
-	f->addInstruction(m1);
-	f->addInstruction(cond1);
-	f->addInstruction(cond2);
 
-	acc.execute(qreg1, f);
+	auto hVisit = [&](Hadamard& h) {
+		std::cout << "I AM A HADAMARD\n";
+	};
+	auto cnotVisit = [&](CNOT& h) {
+		std::cout << "I AM A CNOT\n";
+	};
+	auto gFVisit = [&](GateFunction& h) {
+		std::cout << "I AM A GATE FUNCTION\n";
+	};
+	auto baseInstVisit = [&](xacc::Instruction& h) {
+		std::cout << "ALL I KNOW IS I AM A INSTRUCTION\n";
+	};
+
+//	auto visitor = xacc::quantum::createGateInstructionVisitor(hVisit,
+//			cnotVisit, nullVisit<X>(), nullVisit<Measure>(), gFVisit,
+//			nullVisit<xacc::Instruction>());
+//	xacc::InstructionIterator it(f);
+//
+//	while (it.hasNext()) {
+//		auto nextInst = it.next();
+//		nextInst->accept(visitor);
+//	}
 
 }
+

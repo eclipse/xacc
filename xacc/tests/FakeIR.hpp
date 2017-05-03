@@ -41,6 +41,12 @@ public:
 	virtual void persist(std::ostream& stream) {}
 	virtual void load(std::istream& inStream) {}
 	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {}
+	virtual void addKernel(std::shared_ptr<Function> kernel) {
+
+	}
+	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
+
+	}
 };
 
 #endif

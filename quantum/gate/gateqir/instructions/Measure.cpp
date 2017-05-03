@@ -29,12 +29,14 @@
  *
  **********************************************************************************/
 #include "Measure.hpp"
+#include "GateInstructionVisitor.hpp"
 
 namespace xacc {
 namespace quantum {
 
 Measure::Measure(std::vector<int> qbit, int classicalIdx) :
-		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction("Measure", qbit) {
+		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction(
+				"Measure", qbit) {
 }
 
 Measure::Measure(int qbit, int classicalIdx) :
@@ -42,7 +44,12 @@ Measure::Measure(int qbit, int classicalIdx) :
 }
 
 void Measure::accept(std::shared_ptr<InstructionVisitor> visitor) {
-
+	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
+	if (v) {
+		v->visit(*this);
+	} else {
+		visitor->visit(*this);
+	}
 }
 
 const std::string Measure::toString(const std::string& bufferVarName) {

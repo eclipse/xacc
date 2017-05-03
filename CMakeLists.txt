@@ -38,6 +38,9 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
+#set (ScaffoldClang_ROOT_DIR "/usr/local/scaffold/build/Release+Asserts/bin")
+#set (ScaffoldClang_HOST_TARGET "x86_64-unknown-linux-gnu")
+
 if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
   message(STATUS "Fire found in tpls")
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tpls/fire/cmake/Modules")
@@ -46,14 +49,12 @@ endif()
 
 find_package(MPI REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
-#find_package(LLVM 3.8.1 REQUIRED)
-
-#message(STATUS "Found LLVM ${LLVM_ROOT_DIR}")
-#message(STATUS "LLVM Includes: ${LLVM_INCLUDE_DIRS}")
-#message(STATUS "LLVM LIBRARIES: ${LLVM_LIBRARIES}")
+#find_package(ScaffoldClang REQUIRED)
 
 message(STATUS "Found Boost Headers = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries = ${Boost_LIBRARIES}")
+
+message (STATUS "Found Scaffold/Clang Headers = ${ScaffoldClang_INCLUDE_DIRS}")
 
 find_package(OpenMP)
 if (OPENMP_FOUND)

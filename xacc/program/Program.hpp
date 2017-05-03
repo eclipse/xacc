@@ -193,6 +193,7 @@ public:
 			const std::string& kernelName) {
 		return [&](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
 			build("--compiler scaffold", args...);
+			auto fToExec = xaccIR->getKernel(kernelName);
 			accelerator->execute(buffer, xaccIR);
 			return;
 		};

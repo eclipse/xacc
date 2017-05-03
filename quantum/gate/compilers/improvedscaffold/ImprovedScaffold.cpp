@@ -87,7 +87,7 @@ std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
 
 	auto qir = std::make_shared<GateQIR>();
 
-	qir->addQuantumKernel(qirFunction);
+	qir->addKernel(qirFunction);
 
 	return qir;
 }

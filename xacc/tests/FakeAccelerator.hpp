@@ -67,8 +67,8 @@ public:
 		return v;
 	}
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-			const std::shared_ptr<IR> ir) {
-	}
+				const std::shared_ptr<Function> ir) {
+		}
 	virtual ~FakeAccelerator() {
 	}
 };

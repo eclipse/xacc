@@ -31,8 +31,23 @@
 
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensor)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
+
+set (PACKAGE_NAME "Fire Tensor XACC Accelerator")
+set (PACKAGE_DESCIPTION "Fire Tensor XACC Accelerator Framework")
+set (LIBRARY_NAME xacc-firetensor)
+
+file (GLOB_RECURSE HEADERS *.hpp)
+file (GLOB SRC firetensoraccelerator/*.cpp)
+
+add_library(${LIBRARY_NAME} SHARED ${SRC})
+
+install(FILES ${HEADERS} DESTINATION include)
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/firetensoraccelerator;${CMAKE_SOURCE_DIR}/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen" "${Boost_LIBRARIES}")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/firetensoraccelerator;${CMAKE_SOURCE_DIR}/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen" "${Boost_LIBRARIES};xacc-gateqir;xacc-firetensor")
 

@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(checkCreationToString) {
 	f->addInstruction(cn2);
 	f->addInstruction(h2);
 
-	qir->addQuantumKernel(f);
+	qir->addKernel(f);
 
 	BOOST_VERIFY(qir->toString() == expectedQasm);
 }
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(checkGenerateGraph) {
 	f->addInstruction(cn2);
 	f->addInstruction(h2);
 
-	qir->addQuantumKernel(f);
+	qir->addKernel(f);
 
 	qir->generateGraph();
 

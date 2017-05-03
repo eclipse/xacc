@@ -76,6 +76,10 @@ public:
 		return graph;
 	}
 
+	virtual void addKernel(std::shared_ptr<Function> kernel) {}
+	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
+	}
+
 
 };
 }
