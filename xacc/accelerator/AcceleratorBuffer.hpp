@@ -33,14 +33,13 @@
 
 #include <string>
 #include <iostream>
-#include "XACCError.hpp"
+#include "Utils.hpp"
 
 enum class AcceleratorBitState {ZERO, ONE, UNKNOWN};
 class AcceleratorBit {
 public:
 	AcceleratorBit() :state(AcceleratorBitState::UNKNOWN){}
 	void update(int zeroOrOne) {
-		std::cout << "HOWDY\n";
 		state = (zeroOrOne == 0 ? AcceleratorBitState::ZERO : AcceleratorBitState::ONE);
 	}
 	AcceleratorBitState getState() {

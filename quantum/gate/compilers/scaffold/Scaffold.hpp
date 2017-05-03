@@ -32,7 +32,7 @@
 #define QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
 
 #include "Compiler.hpp"
-#include "XACCError.hpp"
+#include "Utils.hpp"
 #include <boost/algorithm/string.hpp>
 
 #include "../scaffold/ScaffoldASTConsumer.hpp"

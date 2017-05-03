@@ -32,7 +32,7 @@
 #define XACC_UTILS_REGISTRY_HPP_
 
 #include "Singleton.hpp"
-#include "XACCError.hpp"
+#include "Utils.hpp"
 #include <map>
 #include <iostream>
 namespace xacc {

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 #include "ParameterizedGateInstruction.hpp"
+#include "Utils.hpp"
+
+using namespace xacc;
 
 namespace scaffold {
 
@@ -20,10 +23,10 @@ bool ScaffoldASTConsumer::VisitDecl(Decl *d) {
 		auto varType = varDecl->getType().getAsString();
 		if (boost::contains(varType, "cbit")) {
 			cbitVarName = varDecl->getDeclName().getAsString();
-			std::cout << "Found " << cbitVarName << "\n";
+//			std::cout << "Found " << cbitVarName << "\n";
 		} else if (boost::contains(varType, "qbit")) {
 			qbitVarName = varDecl->getDeclName().getAsString();
-			std::cout << "Found " << qbitVarName << "\n";
+//			std::cout << "Found " << qbitVarName << "\n";
 		}
 	} else if (isa<FunctionDecl>(d)) {
 		auto c = cast<FunctionDecl>(d);
@@ -42,7 +45,7 @@ bool ScaffoldASTConsumer::VisitStmt(Stmt *s) {
 		std::string ifStr;
 		llvm::raw_string_ostream ifS(ifStr);
 		ifStmt->printPretty(ifS, nullptr, policy);
-		std::cout << "HELLO IF:\n" << ifS.str() << "\n";
+//		std::cout << "HELLO IF:\n" << ifS.str() << "\n";
 
 		if (const auto binOp = llvm::dyn_cast<BinaryOperator>(
 				ifStmt->getCond())) {
@@ -52,21 +55,21 @@ bool ScaffoldASTConsumer::VisitStmt(Stmt *s) {
 				std::string str;
 				llvm::raw_string_ostream s(str);
 				LHS->printPretty(s, nullptr, policy);
-				std::cout << "LHS IF: " << s.str() << "\n";
+//				std::cout << "LHS IF: " << s.str() << "\n";
 				if (boost::contains(s.str(), cbitVarName)) {
 
 					auto RHS = binOp->getRHS();
 					std::string rhsstr;
 					llvm::raw_string_ostream rhss(rhsstr);
 					RHS->printPretty(rhss, nullptr, policy);
-					std::cout << "RHS IF: " << rhss.str() << "\n";
+//					std::cout << "RHS IF: " << rhss.str() << "\n";
 
 					auto thenCode = ifStmt->getThen();
 					std::string thenStr;
 					llvm::raw_string_ostream thenS(thenStr);
 					thenCode->printPretty(thenS, nullptr, policy);
 					auto then = thenS.str();
-					std::cout << "ThenStmt:\n" << then << "\n";
+//					std::cout << "ThenStmt:\n" << then << "\n";
 					then.erase(std::remove(then.begin(), then.end(), '\t'),
 							then.end());
 					boost::replace_all(then, "{\n", "");
@@ -75,12 +78,14 @@ bool ScaffoldASTConsumer::VisitStmt(Stmt *s) {
 					boost::trim(then);
 
 					int conditionalQubit = cbitRegToMeasuredQubit[s.str()];
-					currentConditional = std::make_shared<xacc::quantum::ConditionalFunction>(conditionalQubit);
+					currentConditional = std::make_shared<
+							xacc::quantum::ConditionalFunction>(
+							conditionalQubit);
 
 					std::vector<std::string> vec;
 					boost::split(vec, then, boost::is_any_of("\n"));
 					nCallExprToSkip = vec.size();
-					std::cout << "NCALLEXPRTOSKIP = " << nCallExprToSkip << "\n";
+//					std::cout << "NCALLEXPRTOSKIP = " << nCallExprToSkip << "\n";
 				}
 			}
 		}
@@ -97,7 +102,6 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 	if (t != NULL) {
 		bool isParameterizedInst = false;
 		auto fd = c->getDirectCallee();
-		std::cout << "HOWDY: " << fd->getNameInfo().getAsString() << "\n";
 		auto gateName = fd->getNameInfo().getAsString();
 		std::vector<int> qubits;
 		std::vector<double> params;
@@ -106,7 +110,7 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 			llvm::raw_string_ostream argstream(arg);
 			i->printPretty(argstream, nullptr, policy);
 			auto argStr = argstream.str();
-			std::cout << "Arg: " << argstream.str() << "\n";
+//			std::cout << "Arg: " << argstream.str() << "\n";
 
 			if (boost::contains(argStr, qbitVarName)) {
 				boost::replace_all(argStr, qbitVarName, "");
@@ -134,13 +138,12 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 				XACCError(
 						"Can only handle 1 and 2 parameter gates... and only doubles... for now.");
 			}
-			std::cout << "CREATED A " << gateName << " parameterized gate\n";
+//			std::cout << "CREATED A " << gateName << " parameterized gate\n";
 
 		} else if (gateName != "MeasZ") {
 
 			inst = xacc::quantum::GateInstructionRegistry::instance()->create(
 					gateName, qubits);
-			std::cout << "CREATED A " << gateName << " gate\n";
 		}
 
 		if (gateName != "MeasZ") {
@@ -148,7 +151,7 @@ bool ScaffoldASTConsumer::VisitCallExpr(CallExpr* c) {
 			if (nCallExprToSkip == 0) {
 				function->addInstruction(inst);
 			} else {
-				std::cout << "Adding Conditional Inst: " << gateName << "\n";
+//				std::cout << "Adding Conditional Inst: " << gateName << "\n";
 				currentConditional->addInstruction(inst);
 				nCallExprToSkip--;
 
@@ -173,7 +176,6 @@ bool ScaffoldASTConsumer::VisitBinaryOperator(BinaryOperator * b) {
 		llvm::raw_string_ostream rhss(rhsstr);
 		rhs->printPretty(rhss, nullptr, policy);
 		auto rhsString = rhss.str();
-		std::cout << "HELLO BINOP: " << rhsString << "\n";
 
 		if (boost::contains(rhsString, "MeasZ")) {
 			auto lhs = b->getLHS();
@@ -181,7 +183,7 @@ bool ScaffoldASTConsumer::VisitBinaryOperator(BinaryOperator * b) {
 			llvm::raw_string_ostream lhss(lhsstr);
 			lhs->printPretty(lhss, nullptr, policy);
 			auto lhsString = lhss.str();
-			std::cout << "HELLO BINOP LHS: " << lhsString << "\n";
+//			std::cout << "HELLO BINOP LHS: " << lhsString << "\n";
 
 			boost::replace_all(lhsString, cbitVarName, "");
 			boost::replace_all(lhsString, "[", "");
@@ -201,9 +203,10 @@ bool ScaffoldASTConsumer::VisitBinaryOperator(BinaryOperator * b) {
 							std::vector<int> { std::stoi(rhsString) },
 							std::stoi(lhsString));
 
-			cbitRegToMeasuredQubit.insert(std::make_pair(lhsString, std::stoi(rhsString)));
+			cbitRegToMeasuredQubit.insert(
+					std::make_pair(lhss.str(), std::stoi(rhsString)));
 
-			std::cout << "ADDING A MEASUREMENT GATE " << lhsString << "\n";
+//			std::cout << "ADDING A MEASUREMENT GATE " << lhss.str() << "\n";
 			function->addInstruction(inst);
 
 		}

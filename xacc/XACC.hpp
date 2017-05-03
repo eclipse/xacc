@@ -33,7 +33,7 @@
 
 #include <iostream>
 #include <memory>
-#include "spdlog/spdlog.h"
+#include "Utils.hpp"
 #include "Program.hpp"
 
 namespace xacc {
@@ -47,11 +47,14 @@ bool xaccFrameworkInitialized = false;
  * XACC API.
  */
 void Initialize() {
-	auto console = spdlog::stdout_logger_mt("console", true);
-	console->info("[xacc] Initializing XACC Framework");
+	auto console = spdlog::stdout_logger_mt("xacc-console", true);
+	XACCInfo("[xacc] Initializing XACC Framework");
 	auto compilerRegistry = xacc::CompilerRegistry::instance();
+	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
 	auto s = compilerRegistry->size();
-	console->info("\t[xacc::compiler] XACC has " + std::to_string(s) + " Compiler" + (s==1 ? "" : "s") + " available.");
+	auto a = acceleratorRegistry->size();
+	XACCInfo("[xacc::compiler] XACC has " + std::to_string(s) + " Compiler" + (s==1 ? "" : "s") + " available.");
+	XACCInfo("[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator" + (s==1 ? "" : "s") + " available.");
 	xacc::xaccFrameworkInitialized = true;
 }
 
@@ -67,23 +70,16 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	}
 }
 
-//template<typename ... RuntimeArgs>
-//std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> createKernel(
-//		const std::string& kernelName, std::shared_ptr<Accelerator> acc,
-//		const std::string& src) {
-//	xacc::Program p(acc, src);
-//	return p.getKernel<RuntimeArgs...>(kernelName);
-//}
-
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should
  * be called after using the XACC API.
  */
 void Finalize() {
-	auto console = spdlog::get("console");
-	console->info("[xacc] XACC Finalizing\n\tCleaning up Compiler Registry.");
+	XACCInfo("[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
+			"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 	xacc::CompilerRegistry::instance()->destroy();
+	xacc::AcceleratorRegistry::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
 }
 }

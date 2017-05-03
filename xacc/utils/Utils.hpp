@@ -28,11 +28,12 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef XACC_UTILS_XACCUTILS_HPP_
-#define XACC_UTILS_XACCUTILS_HPP_
+#ifndef XACC_UTILS_UTILS_HPP_
+#define XACC_UTILS_UTILS_HPP_
 
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
+#include "spdlog/spdlog.h"
 
 namespace xacc {
 
@@ -110,5 +111,52 @@ tuple_runtime_get(Tuple&& t,size_t index){
         throw std::runtime_error("Out of range");
     return runtime_get_func_table<tuple_type>::table[index](t);
 }
+
+
+class XACCException: public std::exception {
+protected:
+
+	std::string errorMessage;
+
+public:
+
+	XACCException(std::string error) :
+			errorMessage(error) {
+		spdlog::get("xacc-console")->error(errorMessage);			\
+	}
+
+	virtual const char * what() const throw () {
+		return errorMessage.c_str();
+	}
+
+	~XACCException() throw () {
+	}
+};
+
+#define XACC_Abort do {std::abort();} while(0);
+
+class XACCInfoT {
+public:
+	static void printInfo(const std::string& msg) {
+		auto c = spdlog::get("xacc-console");
+		if (c) {
+			c->info(msg);
+		}
+	}
+};
+
+#define XACCError(errorMsg)												\
+	do {																\
+		using namespace xacc; 											\
+    	throw XACCException("\n\n XACC Error caught! \n\n"	 		    \
+            	+ std::string(errorMsg) + "\n\n");						\
+	} while(0)
+
+#define XACCInfo(infoMsg)												\
+	do {																\
+		xacc::XACCInfoT::printInfo(std::string(infoMsg));						\
+	} while(0)
+
+
 }
 #endif

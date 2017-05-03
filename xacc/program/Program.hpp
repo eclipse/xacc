@@ -39,8 +39,8 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
-#include "XACCError.hpp"
-#include "XaccUtils.hpp"
+
+#include "Utils.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 
@@ -121,11 +121,12 @@ protected:
 
 		// Create the appropriate compiler
 		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
-		std::cout << "Executing " << compiler->getName() << " compiler.\n";
 		// Make sure we got a valid
 		if (!compiler) {
 			XACCError("Invalid Compiler.\n");
 		}
+
+		XACCInfo("Executing "+ compiler->getName() + " compiler.");
 
 		// Execute the compilation
 		xaccIR = compiler->compile(src, accelerator);

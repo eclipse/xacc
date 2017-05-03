@@ -34,7 +34,6 @@
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
 #include "FireTensorAccelerator.hpp"
-#include "GraphIR.hpp"
 
 using namespace xacc::quantum;
 

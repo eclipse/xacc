@@ -32,7 +32,7 @@
 #define QUANTUM_GATEQIR_QFUNCTION_HPP_
 
 #include "Function.hpp"
-#include "XACCError.hpp"
+#include "Utils.hpp"
 
 namespace xacc {
 namespace quantum {

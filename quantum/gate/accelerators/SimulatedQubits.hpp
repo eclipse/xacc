@@ -35,7 +35,6 @@
 #include <complex>
 #include "Tensor.hpp"
 #include <bitset>
-#include "spdlog/spdlog.h"
 
 namespace xacc {
 
@@ -169,20 +168,22 @@ public:
 	}
 
 	virtual void print() {
-		auto console = spdlog::get("console");
 		if (size() < TotalNumberOfQubits) {
-					for (int i = 0; i < bufferState.dimension(0); i++) {
-						console->info(std::bitset<TotalNumberOfQubits>(i).to_string().substr(
-										TotalNumberOfQubits - size(), TotalNumberOfQubits) + " -> "
+			for (int i = 0; i < bufferState.dimension(0); i++) {
+				XACCInfo(
+						std::bitset<TotalNumberOfQubits>(i).to_string().substr(
+								TotalNumberOfQubits - size(),
+								TotalNumberOfQubits) + " -> "
 								+ std::to_string(std::real(bufferState(i))));
-					}
-				} else {
-					for (int i = 0; i < bufferState.dimension(0); i++) {
+			}
+		} else {
+			for (int i = 0; i < bufferState.dimension(0); i++) {
 
-						console->info(std::bitset<TotalNumberOfQubits>(i).to_string()
-								+ " -> " + std::to_string(std::real(bufferState(i))));
-					}
-				}
+				XACCInfo(
+						std::bitset<TotalNumberOfQubits>(i).to_string() + " -> "
+								+ std::to_string(std::real(bufferState(i))));
+			}
+		}
 	}
 
 	virtual ~SimulatedQubits() {}

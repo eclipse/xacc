@@ -31,6 +31,7 @@
 #ifndef QUANTUM_GATE_GATEQIR_GATEINSTRUCTIONVISITOR_HPP_
 #define QUANTUM_GATE_GATEQIR_GATEINSTRUCTIONVISITOR_HPP_
 
+#include "../../../xacc/utils/Utils.hpp"
 #include "Hadamard.hpp"
 #include "Measure.hpp"
 #include "CNOT.hpp"
@@ -38,7 +39,6 @@
 #include "Z.hpp"
 #include "X.hpp"
 #include "ConditionalFunction.hpp"
-#include "XaccUtils.hpp"
 
 namespace xacc {
 namespace quantum {

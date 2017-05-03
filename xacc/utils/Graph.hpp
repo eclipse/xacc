@@ -40,7 +40,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <numeric>
-#include "XACCError.hpp"
+#include "Utils.hpp"
 #include <utility>
 
 using namespace boost;

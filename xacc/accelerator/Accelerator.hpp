@@ -38,7 +38,6 @@
 #include <bitset>
 #include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
-#include "XACCError.hpp"
 #include "Registry.hpp"
 #include "Function.hpp"
 

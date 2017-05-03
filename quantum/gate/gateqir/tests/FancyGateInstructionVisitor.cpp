@@ -36,7 +36,7 @@
 #include "InstructionIterator.hpp"
 
 #include "GateInstructionVisitor.hpp"
-#include "XaccUtils.hpp"
+#include "../../../../xacc/utils/Utils.hpp"
 
 using namespace xacc::quantum;
 

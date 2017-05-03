@@ -43,8 +43,9 @@ namespace xacc {
 namespace quantum {
 
 double sqrt2 = std::sqrt(2.0);
-using QuantumGraphIR = xacc::GraphIR<QuantumCircuit>;
-using TensorMap = 	std::map<std::string, fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
+using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
+using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
+
 /**
  * The FireTensorAccelerator is an XACC Accelerator that simulates
  * gate based quantum computing circuits. It models the QPUGate Accelerator
@@ -55,17 +56,36 @@ using TensorMap = 	std::map<std::string, fire::Tensor<2, fire::EigenProvider, st
 class FireTensorAccelerator : virtual public QPUGate {
 public:
 
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string. This string serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId
+	 * @return
+	 */
 	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId);
 
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string and of the given number of bits.
+	 * The string id serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId
+	 * @param size
+	 * @return
+	 */
 	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId,
 			const int size);
 
-	virtual bool isValidBufferSize(const int NBits);
-
 	/**
-	 * The constructor, create tensor gates
+	 * Return true if this Accelerator can allocated
+	 * NBits number of bits.
+	 * @param NBits
+	 * @return
 	 */
-	FireTensorAccelerator();
+	virtual bool isValidBufferSize(const int NBits);
 
 	/**
 	 * Execute the simulation. Requires both a valid SimulatedQubits buffer and
@@ -74,19 +94,12 @@ public:
 	 * @param ir
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
-	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::IR> kernel);
 
 	/**
 	 * The destructor
 	 */
 	virtual ~FireTensorAccelerator() {}
 
-protected:
-
-	/**
-	 * Mapping of gate names to actual gate matrices.
-	 */
-	TensorMap gates;
 };
 
 
