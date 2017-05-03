@@ -39,19 +39,18 @@ set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FO
 
 set_source_files_properties(ScaffoldASTConsumer.cpp PROPERTIES COMPILE_FLAGS -fno-rtti)
 
+include_directories(${CLANG_INCLUDE_DIRS})
+include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
-include_directories(/usr/local/scaffold/include)
-include_directories(/usr/local/scaffold/build/include)
-include_directories(/usr/local/scaffold/build/tools/clang/include)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
-link_directories("/usr/local/scaffold/build/Release+Asserts/lib")
+link_directories(${CLANG_LIBRARY_DIRS})
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "/usr/local/scaffold/include;/usr/local/scaffold/build/include;${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_SOURCE_DIR}/quantum/gate/utils" "${LIBRARY_NAME};xacc-gateqir;clangTooling;clangFrontendTool;clangFrontend;clangDriver;clangSerialization;clangCodeGen;clangParse;clangSema;clangStaticAnalyzerFrontend;clangStaticAnalyzerCheckers;clangStaticAnalyzerCore;clangAnalysis;clangARCMigrate;clangEdit;clangAST;clangLex;clangBasic;LLVMAsmParser;LLVMInstrumentation;LLVMLinker;LLVMArchive;LLVMBitReader;LLVMDebugInfo;LLVMJIT;LLVMipo;LLVMVectorize;LLVMBitWriter;LLVMTableGen;LLVMHexagonCodeGen;LLVMHexagonDesc;LLVMHexagonInfo;LLVMHexagonAsmPrinter;LLVMPTXCodeGen;LLVMPTXDesc;LLVMPTXInfo;LLVMPTXAsmPrinter;LLVMMBlazeDisassembler;LLVMMBlazeAsmParser;LLVMMBlazeCodeGen;LLVMMBlazeDesc;LLVMMBlazeInfo;LLVMMBlazeAsmPrinter;LLVMCppBackendCodeGen;LLVMCppBackendInfo;LLVMMSP430CodeGen;LLVMMSP430Desc;LLVMMSP430Info;LLVMMSP430AsmPrinter;LLVMXCoreCodeGen;LLVMXCoreDesc;LLVMXCoreInfo;LLVMCellSPUCodeGen;LLVMCellSPUDesc;LLVMCellSPUInfo;LLVMMipsDisassembler;LLVMMipsAsmParser;LLVMMipsCodeGen;LLVMMipsDesc;LLVMMipsInfo;LLVMMipsAsmPrinter;LLVMARMDisassembler;LLVMARMAsmParser;LLVMARMCodeGen;LLVMARMDesc;LLVMARMInfo;LLVMARMAsmPrinter;LLVMPowerPCCodeGen;LLVMPowerPCDesc;LLVMPowerPCInfo;LLVMPowerPCAsmPrinter;LLVMSparcCodeGen;LLVMSparcDesc;LLVMSparcInfo;LLVMX86AsmParser;LLVMX86Disassembler;LLVMX86CodeGen;LLVMSelectionDAG;LLVMAsmPrinter;LLVMX86Desc;LLVMX86Info;LLVMX86AsmPrinter;LLVMX86Utils;gtest_main;gtest;LLVMMCDisassembler;LLVMMCParser;LLVMInterpreter;LLVMCodeGen;LLVMScalarOpts;LLVMInstCombine;LLVMTransformUtils;LLVMipa;LLVMAnalysis;LLVMMCJIT;LLVMRuntimeDyld;LLVMExecutionEngine;LLVMTarget;LLVMMC;LLVMObject;LLVMCore;LLVMSupport;dl;pthread")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};xacc-gateqir;${CLANG_LIBS};${LLVM_LIBS};dl;pthread")
 

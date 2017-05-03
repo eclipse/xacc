@@ -49,12 +49,15 @@ endif()
 
 find_package(MPI REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
-#find_package(ScaffoldClang REQUIRED)
-
 message(STATUS "Found Boost Headers = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries = ${Boost_LIBRARIES}")
 
-message (STATUS "Found Scaffold/Clang Headers = ${ScaffoldClang_INCLUDE_DIRS}")
+if (NOT LLVM_ROOT) 
+   # By default, users should install scaffold package from 
+   # us, so it will be in this location
+   set (LLVM_ROOT /usr/local/scaffold/build/Release+Asserts)  
+endif()
+find_package(Clang REQUIRED)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)

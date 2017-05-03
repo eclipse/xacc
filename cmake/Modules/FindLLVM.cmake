@@ -1,259 +1,144 @@
-# - Find LLVM headers and libraries.
-# This module locates LLVM and adapts the llvm-config output for use with
-# CMake.
+# Find the native LLVM includes and libraries
 #
-# A given list of COMPONENTS is passed to llvm-config.
+# Defines the following variables
+#  LLVM_INCLUDE_DIRS   - where to find llvm include files
+#  LLVM_LIBRARY_DIRS   - where to find llvm libs
+#  LLVM_CFLAGS         - llvm compiler flags
+#  LLVM_LFLAGS         - llvm linker flags
+#  LLVM_MODULE_LIBS    - list of llvm libs for working with modules.
+#  LLVM_INSTALL_PREFIX - LLVM installation prefix
+#  LLVM_FOUND          - True if llvm found.
+#  LLVM_VERSION        - Version string ("llvm-config --version")
 #
-# The following variables are defined:
-#  LLVM_FOUND          - true if LLVM was found
-#  LLVM_CXXFLAGS       - C++ compiler flags for files that include LLVM headers.
-#  LLVM_HOST_TARGET    - Target triple used to configure LLVM.
-#  LLVM_INCLUDE_DIRS   - Directory containing LLVM include files.
-#  LLVM_LDFLAGS        - Linker flags to add when linking against LLVM
-#                        (includes -LLLVM_LIBRARY_DIRS).
-#  LLVM_LIBRARIES      - Full paths to the library files to link against.
-#  LLVM_LIBRARY_DIRS   - Directory containing LLVM libraries.
-#  LLVM_ROOT_DIR       - The root directory of the LLVM installation.
-#                        llvm-config is searched for in ${LLVM_ROOT_DIR}/bin.
-#  LLVM_VERSION_MAJOR  - Major version of LLVM.
-#  LLVM_VERSION_MINOR  - Minor version of LLVM.
-#  LLVM_VERSION_STRING - Full LLVM version string (e.g. 2.9).
+# This module reads hints about search locations from variables
+#  LLVM_ROOT           - Preferred LLVM installation prefix (containing bin/, lib/, ...)
 #
-# Note: The variable names were chosen in conformance with the offical CMake
-# guidelines, see ${CMAKE_ROOT}/Modules/readme.txt.
+#  Note: One may specify these as environment variables if they are not specified as
+#   CMake variables or cache entries.
 
-# Try suffixed versions to pick up the newest LLVM install available on Debian
-# derivatives.
-# We also want an user-specified LLVM_ROOT_DIR to take precedence over the
-# system default locations such as /usr/local/bin. Executing find_program()
-# multiples times is the approach recommended in the docs.
-set(llvm_config_names llvm-config-5.0 llvm-config50
-                      llvm-config-4.0 llvm-config40
-                      llvm-config-3.9 llvm-config39
-                      llvm-config-3.8 llvm-config38
-                      llvm-config-3.7 llvm-config37
-                      llvm-config-3.6 llvm-config36
-                      llvm-config-3.5 llvm-config35
-                      llvm-config)
-find_program(LLVM_CONFIG
-    NAMES ${llvm_config_names}
-    PATHS ${LLVM_ROOT_DIR}/bin NO_DEFAULT_PATH
-    DOC "Path to llvm-config tool.")
-find_program(LLVM_CONFIG NAMES ${llvm_config_names})
+#=============================================================================
+# Copyright 2014 Kevin Funk <kfunk@kde.org>
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file Copyright.txt for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+#=============================================================================
 
-# Prints a warning/failure message depending on the required/quiet flags. Copied
-# from FindPackageHandleStandardArgs.cmake because it doesn't seem to be exposed.
-macro(_LLVM_FAIL _msg)
-  if(LLVM_FIND_REQUIRED)
-    message(FATAL_ERROR "${_msg}")
-  else()
-    if(NOT LLVM_FIND_QUIETLY)
-      message(STATUS "${_msg}")
+if (NOT LLVM_ROOT AND DEFINED ENV{LLVM_ROOT})
+    file(TO_CMAKE_PATH "$ENV{LLVM_ROOT}" LLVM_ROOT)
+endif()
+
+# if the user specified LLVM_ROOT, use that and fail otherwise
+if (LLVM_ROOT)
+  find_program(LLVM_CONFIG_EXECUTABLE NAMES llvm-config HINTS ${LLVM_ROOT}/bin DOC "llvm-config executable" NO_DEFAULT_PATH)
+else()
+  # find llvm-config, prefer the one with a version suffix, e.g. llvm-config-3.5
+  # note: FreeBSD installs llvm-config as llvm-config35 and so on
+  # note: on some distributions, only 'llvm-config' is shipped, so let's always try to fallback on that
+  string(REPLACE "." "" LLVM_FIND_VERSION_CONCAT ${LLVM_FIND_VERSION})
+  find_program(LLVM_CONFIG_EXECUTABLE NAMES llvm-config-${LLVM_FIND_VERSION} llvm-config${LLVM_FIND_VERSION_CONCAT} llvm-config DOC "llvm-config executable")
+
+  # other distributions don't ship llvm-config, but only some llvm-config-VERSION binary
+  # try to deduce installed LLVM version by looking up llvm-nm in PATH and *then* find llvm-config-VERSION via that
+  if (NOT LLVM_CONFIG_EXECUTABLE)
+    find_program(_llvmNmExecutable llvm-nm)
+    if (_llvmNmExecutable)
+      execute_process(COMMAND ${_llvmNmExecutable} --version OUTPUT_VARIABLE _out)
+      string(REGEX REPLACE ".*LLVM version ([^ \n]+).*" "\\1" _versionString "${_out}")
+      find_program(LLVM_CONFIG_EXECUTABLE NAMES llvm-config-${_versionString} DOC "llvm-config executable")
     endif()
   endif()
-endmacro()
+endif()
 
+set(LLVM_FOUND FALSE)
 
-if ((WIN32 AND NOT(MINGW OR CYGWIN)) OR NOT LLVM_CONFIG)
-    if (WIN32)
-        # A bit of a sanity check:
-        if( NOT EXISTS ${LLVM_ROOT_DIR}/include/llvm )
-            message(FATAL_ERROR "LLVM_ROOT_DIR (${LLVM_ROOT_DIR}) is not a valid LLVM install")
-        endif()
-        # We incorporate the CMake features provided by LLVM:
-        set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${LLVM_ROOT_DIR}/share/llvm/cmake;${LLVM_ROOT_DIR}/lib/cmake/llvm")
-        include(LLVMConfig)
-        # Set properties
-        set(LLVM_HOST_TARGET ${TARGET_TRIPLE})
-        set(LLVM_VERSION_STRING ${LLVM_PACKAGE_VERSION})
-        set(LLVM_CXXFLAGS ${LLVM_DEFINITIONS})
-        set(LLVM_LDFLAGS "")
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "all-targets" index)
-        list(APPEND LLVM_FIND_COMPONENTS ${LLVM_TARGETS_TO_BUILD})
-        # Work around LLVM bug 21016
-        list(FIND LLVM_TARGETS_TO_BUILD "X86" TARGET_X86)
-        if(TARGET_X86 GREATER -1)
-            list(APPEND LLVM_FIND_COMPONENTS x86utils)
-        endif()
-        # Similar to the work around above, but for AArch64
-        list(FIND LLVM_TARGETS_TO_BUILD "AArch64" TARGET_AArch64)
-        if(TARGET_AArch64 GREATER -1)
-            list(APPEND LLVM_FIND_COMPONENTS AArch64Utils)
-        endif()
-        # Similar to the work around above, but for AMDGPU
-        list(FIND LLVM_TARGETS_TO_BUILD "AMDGPU" TARGET_AMDGPU)
-        if(TARGET_AMDGPU GREATER -1)
-            list(APPEND LLVM_FIND_COMPONENTS AMDGPUUtils)
-        endif()
-        if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-6][\\.0-9A-Za-z]*")
-            # Versions below 3.7 do not support components debuginfo[dwarf|pdb]
-            # Only debuginfo is available
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfodwarf" index)
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfopdb" index)
-            list(APPEND LLVM_FIND_COMPONENTS "debuginfo")
-        endif()
-        if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-8][\\.0-9A-Za-z]*")
-            # Versions below 3.9 do not support components debuginfocodeview, globalisel
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfocodeview" index)
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "globalisel" index)
-        endif()
-        if(${LLVM_VERSION_STRING} MATCHES "^3\\.[8-9][\\.0-9A-Za-z]*")
-            # Versions beginning with 3.8 do not support component ipa
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "ipa" index)
-        endif()
-        if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-9][\\.0-9A-Za-z]*")
-            # Versions below 4.0 do not support component debuginfomsf
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfomsf" index)
-        endif()
-        if(${LLVM_VERSION_STRING} MATCHES "^[4-9]\\.[\\.0-9A-Za-z]*")
-            # Versions beginning with 4. do not support component ipa
-            list(REMOVE_ITEM LLVM_FIND_COMPONENTS "ipa" index)
-        endif()
+if (LLVM_CONFIG_EXECUTABLE)
+  # verify that we've found the correct version of llvm-config
+  execute_process(COMMAND ${LLVM_CONFIG_EXECUTABLE} --version
+    OUTPUT_VARIABLE LLVM_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-        if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-4][\\.0-9A-Za-z]*")
-            llvm_map_components_to_libraries(tmplibs ${LLVM_FIND_COMPONENTS})
-        else()
-            llvm_map_components_to_libnames(tmplibs ${LLVM_FIND_COMPONENTS})
-        endif()
-        if(MSVC)
-            set(LLVM_LDFLAGS "-LIBPATH:\"${LLVM_LIBRARY_DIRS}\"")
-            foreach(lib ${tmplibs})
-                list(APPEND LLVM_LIBRARIES "${CMAKE_STATIC_LIBRARY_PREFIX}${lib}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-            endforeach()
-        else()
-            # Rely on the library search path being set correctly via -L on
-            # MinGW and others, as the library list returned by
-            # llvm_map_components_to_libraries also includes imagehlp and psapi.
-            set(LLVM_LDFLAGS "-L${LLVM_LIBRARY_DIRS}")
-            set(LLVM_LIBRARIES ${tmplibs})
-        endif()
-
-        # When using the CMake LLVM module, LLVM_DEFINITIONS is a list
-        # instead of a string. Later, the list seperators would entirely
-        # disappear, replace them by spaces instead. A better fix would be
-        # to switch to add_definitions() instead of throwing strings around.
-        string(REPLACE ";" " " LLVM_CXXFLAGS "${LLVM_CXXFLAGS}")
-    else()
-        if (NOT LLVM_FIND_QUIETLY)
-            message(WARNING "Could not find llvm-config (LLVM >= ${LLVM_FIND_VERSION}). Try manually setting LLVM_CONFIG to the llvm-config executable of the installation to use.")
-        endif()
-    endif()
+  if (NOT LLVM_VERSION)
+    set(_LLVM_ERROR_MESSAGE "Failed to parse version from llvm-config")
+  elseif (LLVM_FIND_VERSION VERSION_GREATER LLVM_VERSION)
+    set(_LLVM_ERROR_MESSAGE "LLVM version too old: ${LLVM_VERSION}")
+  else()
+    set(LLVM_FOUND TRUE)
+  endif()
 else()
-    macro(llvm_set var flag)
-       if(LLVM_FIND_QUIETLY)
-            set(_quiet_arg ERROR_QUIET)
-        endif()
-        set(result_code)
-        execute_process(
-            COMMAND ${LLVM_CONFIG} --${flag}
-            RESULT_VARIABLE result_code
-            OUTPUT_VARIABLE LLVM_${var}
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ${_quiet_arg}
-        )
-        if(result_code)
-            _LLVM_FAIL("Failed to execute llvm-config ('${LLVM_CONFIG}', result code: '${result_code})'")
-        else()
-            if(${ARGV2})
-                file(TO_CMAKE_PATH "${LLVM_${var}}" LLVM_${var})
-            endif()
-        endif()
-    endmacro()
-    macro(llvm_set_libs var flag)
-       if(LLVM_FIND_QUIETLY)
-            set(_quiet_arg ERROR_QUIET)
-        endif()
-        set(result_code)
-        execute_process(
-            COMMAND ${LLVM_CONFIG} --${flag} ${LLVM_FIND_COMPONENTS}
-            RESULT_VARIABLE result_code
-            OUTPUT_VARIABLE tmplibs
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ${_quiet_arg}
-        )
-        if(result_code)
-            _LLVM_FAIL("Failed to execute llvm-config ('${LLVM_CONFIG}', result code: '${result_code})'")
-        else()        
-            file(TO_CMAKE_PATH "${tmplibs}" tmplibs)
-            string(REGEX MATCHALL "${pattern}[^ ]+" LLVM_${var} ${tmplibs})
-        endif()
-    endmacro()
-
-    llvm_set(VERSION_STRING version)
-    llvm_set(CXXFLAGS cxxflags)
-    llvm_set(HOST_TARGET host-target)
-    llvm_set(INCLUDE_DIRS includedir true)
-    llvm_set(ROOT_DIR prefix true)
-    llvm_set(ENABLE_ASSERTIONS assertion-mode)
-
-    if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-6][\\.0-9A-Za-z]*")
-        # Versions below 3.7 do not support components debuginfo[dwarf|pdb]
-        # Only debuginfo is available
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfodwarf" index)
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfopdb" index)
-        list(APPEND LLVM_FIND_COMPONENTS "debuginfo")
-    endif()
-    if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-8][\\.0-9A-Za-z]*")
-        # Versions below 3.9 do not support components debuginfocodeview, globalisel
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfocodeview" index)
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "globalisel" index)
-    endif()
-    if(${LLVM_VERSION_STRING} MATCHES "^3\\.[8-9][\\.0-9A-Za-z]*")
-        # Versions beginning with 3.8 do not support component ipa
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "ipa" index)
-    endif()
-    if(${LLVM_VERSION_STRING} MATCHES "^3\\.[0-9][\\.0-9A-Za-z]*")
-        # Versions below 4.0 do not support component debuginfomsf
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "debuginfomsf" index)
-    endif()
-    if(${LLVM_VERSION_STRING} MATCHES "^[4-9]\\.[\\.0-9A-Za-z]*")
-        # Versions beginning with 4. do not support component ipa
-        list(REMOVE_ITEM LLVM_FIND_COMPONENTS "ipa" index)
-    endif()
-
-    llvm_set(LDFLAGS ldflags)
-    if(NOT ${LLVM_VERSION_STRING} MATCHES "^3\\.[0-4][\\.0-9A-Za-z]*")
-        # In LLVM 3.5+, the system library dependencies (e.g. "-lz") are accessed
-        # using the separate "--system-libs" flag.
-        llvm_set(SYSTEM_LIBS system-libs)
-        string(REPLACE "\n" " " LLVM_LDFLAGS "${LLVM_LDFLAGS} ${LLVM_SYSTEM_LIBS}")
-    endif()
-    llvm_set(LIBRARY_DIRS libdir true)
-    llvm_set_libs(LIBRARIES libs)
-    # LLVM bug: llvm-config --libs tablegen returns -lLLVM-3.8.0
-    # but code for it is not in shared library
-    if("${LLVM_FIND_COMPONENTS}" MATCHES "tablegen")
-        if (NOT "${LLVM_LIBRARIES}" MATCHES "LLVMTableGen")
-            set(LLVM_LIBRARIES "${LLVM_LIBRARIES};-lLLVMTableGen")
-        endif()
-    endif()
-    llvm_set(TARGETS_TO_BUILD targets-built)
-    string(REGEX MATCHALL "${pattern}[^ ]+" LLVM_TARGETS_TO_BUILD ${LLVM_TARGETS_TO_BUILD})
+  set(_LLVM_ERROR_MESSAGE "Could NOT find 'llvm-config' executable")
 endif()
 
-# On CMake builds of LLVM, the output of llvm-config --cxxflags does not
-# include -fno-rtti, leading to linker errors. Be sure to add it.
-if(CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
-    if(NOT ${LLVM_CXXFLAGS} MATCHES "-fno-rtti")
-        set(LLVM_CXXFLAGS "${LLVM_CXXFLAGS} -fno-rtti")
-    endif()
+if (LLVM_FOUND)
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --includedir
+    OUTPUT_VARIABLE LLVM_INCLUDE_DIRS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --libdir
+    OUTPUT_VARIABLE LLVM_LIBRARY_DIRS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --cppflags
+    OUTPUT_VARIABLE LLVM_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --ldflags
+    OUTPUT_VARIABLE LLVM_LFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --libs core bitreader asmparser analysis
+    OUTPUT_VARIABLE LLVM_MODULE_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --libs
+    OUTPUT_VARIABLE LLVM_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --prefix
+    OUTPUT_VARIABLE LLVM_INSTALL_PREFIX
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  # potentially add include dir from binary dir for non-installed LLVM
+  execute_process(
+    COMMAND ${LLVM_CONFIG_EXECUTABLE} --src-root
+    OUTPUT_VARIABLE _llvmSourceRoot
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  string(FIND "${LLVM_INCLUDE_DIRS}" "${_llvmSourceRoot}" _llvmIsInstalled)
+  if (NOT _llvmIsInstalled)
+    list(APPEND LLVM_INCLUDE_DIRS "${LLVM_INSTALL_PREFIX}/include")
+  endif()
 endif()
 
-string(REGEX REPLACE "([0-9]+).*" "\\1" LLVM_VERSION_MAJOR "${LLVM_VERSION_STRING}" )
-string(REGEX REPLACE "[0-9]+\\.([0-9]+).*[A-Za-z]*" "\\1" LLVM_VERSION_MINOR "${LLVM_VERSION_STRING}" )
-
-if (${LLVM_VERSION_STRING} VERSION_LESS ${LLVM_FIND_VERSION})
-    message(FATAL_ERROR "Unsupported LLVM version found ${LLVM_VERSION_STRING}. At least version ${LLVM_FIND_VERSION} is required.")
+if (LLVM_FIND_REQUIRED AND NOT LLVM_FOUND)
+  message(FATAL_ERROR "Could not find LLVM: ${_LLVM_ERROR_MESSAGE}")
+elseif(_LLVM_ERROR_MESSAGE)
+  message(STATUS "Could not find LLVM: ${_LLVM_ERROR_MESSAGE}")
 endif()
 
-# Use the default CMake facilities for handling QUIET/REQUIRED.
-include(FindPackageHandleStandardArgs)
-
-if(${CMAKE_VERSION} VERSION_LESS "2.8.4")
-  # The VERSION_VAR argument is not supported on pre-2.8.4, work around this.
-  set(VERSION_VAR dummy)
+if (LLVM_FOUND)
+  string(REGEX REPLACE "-lLLVMScaffold" "${LLVM_ROOT}/lib/Scaffold.so" LLVM_LIBS ${LLVM_LIBS})
+    string(REGEX REPLACE "-lLLVMIntelJITEvents " "" LLVM_LIBS ${LLVM_LIBS})
+    string(REGEX REPLACE "-lLLVMOProfileJIT " "" LLVM_LIBS ${LLVM_LIBS})
+  
+  message(STATUS "Found LLVM (version: ${LLVM_VERSION}): (using ${LLVM_CONFIG_EXECUTABLE})")
+  message(STATUS "  Include dirs:   ${LLVM_INCLUDE_DIRS}")
+  message(STATUS "  LLVM libraries: ${LLVM_LIBS}")
 endif()
-
-find_package_handle_standard_args(LLVM
-    REQUIRED_VARS LLVM_ROOT_DIR LLVM_HOST_TARGET
-    VERSION_VAR LLVM_VERSION_STRING)
