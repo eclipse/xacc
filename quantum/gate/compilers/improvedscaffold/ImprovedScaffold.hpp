@@ -62,14 +62,19 @@ public:
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
 			std::shared_ptr<Accelerator> acc);
 
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 
 	/**
-	 *
-	 * @return
+	 * Return the name of this Compiler
+	 * @return name Compiler name
 	 */
-	virtual std::string getBitType() {
-		return "qbit";
+	virtual const std::string getName() {
+		return "ImprovedScaffold";
 	}
 
 	/**
@@ -79,67 +84,17 @@ public:
 
 protected:
 
-	std::string cbitVarName;
-	std::string qbitVarName;
-
+	/**
+	 * Reference to the Scaffold Clang Compiler
+	 */
 	std::shared_ptr<clang::CompilerInstance> CI;
+
+	/**
+	 * Reference to our AST Consumer, this gives us the
+	 * compiled IR Function and the Qubit Variable Name
+	 */
 	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
 
-	/**
-	 * Reference to potential conditional code
-	 */
-	std::vector<std::string> conditionalCodeSegments;
-
-	/**
-	 *
-	 */
-	std::vector<int> conditionalCodeSegmentActingQubits;
-
-	std::map<int, std::vector<std::string>> gateIdToParameterMap;
-
-	/**
-	 *
-	 */
-	std::map<std::string, std::string> typeToVarKernelArgs;
-
-	std::vector<std::string> orderOfArgs;
-
-	std::vector<std::string> orderedVarNames;
-
-	virtual std::vector<std::string> getKernelArgumentVariableNames() {
-		return orderedVarNames;
-	}
-
-	void kernelArgsToMap() {
-
-			auto firstParen = kernelSource.find_first_of('(');
-			auto secondParen = kernelSource.find_first_of(')', firstParen);
-			auto functionArguments = kernelSource.substr(firstParen+1, (secondParen-firstParen)-1);
-			int counter = 0;
-
-			if (!functionArguments.empty()) {
-				// First search the prototype to see if it has
-				// and argument that declares the accelerator bit buffer
-				// to use in the kernel
-				std::vector<std::string> splitArgs, splitTypeVar;
-				boost::split(splitArgs, functionArguments, boost::is_any_of(","));
-				std::string varName;
-				for (int i = 0; i < splitArgs.size(); i++) {
-					// split type from var name
-					auto s = splitArgs[i];
-					boost::trim(s);
-					boost::split(splitTypeVar, s, boost::is_any_of(" "));
-					auto type = splitTypeVar[0];
-					auto var = splitTypeVar[1];
-					boost::trim(type);
-					boost::trim(var);
-					typeToVarKernelArgs.insert(std::make_pair(type, var));
-					orderOfArgs.push_back(type);
-					orderedVarNames.push_back(var);
-				}
-
-			}
-		}
 };
 
 }

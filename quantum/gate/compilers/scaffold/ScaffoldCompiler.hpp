@@ -64,6 +64,10 @@ public:
 
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 
+	virtual const std::string getName() {
+		return "Scaffold";
+	}
+
 	/**
 	 *
 	 * @return

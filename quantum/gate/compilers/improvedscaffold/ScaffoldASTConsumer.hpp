@@ -54,8 +54,12 @@ public:
 	bool VisitDecl(clang::Decl *d);
 	bool VisitCallExpr(CallExpr * c);
 	bool VisitBinaryOperator(BinaryOperator *b);
-	auto getFunction() {
+	std::shared_ptr<xacc::Function> getFunction() {
 		return function;
+	}
+
+	const std::string getQubitVariableName() {
+		return qbitVarName;
 	}
 
 	virtual ~ScaffoldASTConsumer() {

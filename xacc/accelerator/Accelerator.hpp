@@ -98,8 +98,7 @@ public:
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				const std::shared_ptr<Function> function) = 0;
-	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-					const std::shared_ptr<IR> function) {}
+
 	/**
 	 * Create, store, and return an AcceleratorBuffer with the given
 	 * variable id string. This string serves as a unique identifier

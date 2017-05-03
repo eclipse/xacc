@@ -96,12 +96,10 @@ BOOST_AUTO_TEST_CASE(checkWithRzParameterized) {
 
 	auto k = gateqir->getKernel("teleport");
 	BOOST_VERIFY(k->nInstructions() == 1);
-	std::cout << "STR: \n\n" << k->toString("qreg") << "\n";
 }
 
 BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 
-	std::cout <<" CHECKING WITH MEASUREMNT IF\n";
 	const std::string src("module teleport (qbit qreg[3]) {\n"
 		"   cbit creg[2];\n"
 		"   // Init qubit 0 to 1\n"
@@ -123,9 +121,6 @@ BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
 
 	auto k = gateqir->getKernel("teleport");
-	std::cout << "STR: \n\n" << k->toString("qreg") << "\n";
-
-
 
 }
 

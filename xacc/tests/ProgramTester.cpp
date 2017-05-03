@@ -52,6 +52,9 @@ public:
 		return std::make_shared<FakeIR>();
 
 	}
+	virtual const std::string getName() {
+		return "Dummy";
+	}
 
 	virtual void modifySource() {
 
@@ -88,94 +91,4 @@ BOOST_AUTO_TEST_CASE(checkBuildRuntimeArguments) {
 	Program prog(acc, src);
 	auto k = prog.getKernel("teleport");
 //	prog.build("--compiler dummy");
-}
-
-BOOST_AUTO_TEST_CASE(checkRuntimeGateParameter) {
-
-	// Quantum Kernel executing a parameterized gate
-//	const std::string src("__qpu__ rotate (qbit qreg, double phi) {\n"
-//			"   H(qreg[0]);\n"
-//			"   Rz(qreg[0], phi);\n"
-//			"}\n");
-//
-//	// Create a convenient alias for our simulator...
-//	using CircuitSimulator = xacc::quantum::FireTensorAccelerator<6>;
-//
-//	// Create a reference to the 6 qubit simulation Accelerator
-//	auto qpu = std::make_shared<CircuitSimulator>();
-//
-//	// Allocate 1 qubit, give them a unique identifier...
-//	auto qubitReg = qpu->createBuffer("qreg", 1);
-//	using QubitRegisterType = decltype(qubitReg);
-//
-//	// Construct a new XACC Program
-//	xacc::Program quantumProgram(qpu, src);
-//
-//	// Build the program using Scaffold comipler
-//	// and output the Graph Intermediate Representation
-//	quantumProgram.build("--compiler scaffold");
-//
-//	// Retrieve the created kernel. It takes a
-//	// qubit register as input
-//	auto rotate = quantumProgram.getKernel<QubitRegisterType, double&>(
-//			"teleport");
-//
-//	// Execute the kernel with the qubit register!
-//	double angle = std::acos(-1) / 4.0;
-//	rotate(qubitReg, angle);
-//
-//	// Pretty print the resultant state
-//	qubitReg->printBufferState(std::cout);
-//
-//	BOOST_VERIFY(std::real(qubitReg->getState()(0)) == (1.0/std::sqrt(2.0)));
-//	BOOST_VERIFY(std::real(qubitReg->getState()(1)) == 0.5);
-//	BOOST_VERIFY(std::fabs(std::imag(qubitReg->getState()(1)) - 0.5) < 1e-6);
-
-}
-
-BOOST_AUTO_TEST_CASE(checkTeleportScaffold) {
-	// Quantum Kernel executing teleportation of
-	// qubit state to another.
-	const std::string src("__qpu__ teleport (qbit qreg) {\n"
-			"   cbit creg[2];\n"
-			"   // Init qubit 0 to 1\n"
-			"   X(qreg[0]);\n"
-			"   // Now teleport...\n"
-			"   H(qreg[1]);\n"
-			"   CNOT(qreg[1],qreg[2]);\n"
-			"   CNOT(qreg[0],qreg[1]);\n"
-			"   H(qreg[0]);\n"
-			"   creg[0] = MeasZ(qreg[0]);\n"
-			"   creg[1] = MeasZ(qreg[1]);\n"
-			"   if (creg[0] == 1) Z(qreg[2]);\n"
-			"   if (creg[1] == 1) X(qreg[2]);\n"
-			"}\n");
-
-	xacc::Initialize();
-	// Create a reference to the 6 qubit simulation Accelerator
-	auto qpu = xacc::getAccelerator("firetensor");
-
-	// Allocate 3 qubits, give them a unique identifier...
-	auto qreg = qpu->createBuffer("qreg", 3);
-
-	// Construct a new XACC Program
-	xacc::Program quantumProgram(qpu, src);
-
-	// Retrieve the created kernel. It takes a
-	// qubit register as input
-	auto teleport = quantumProgram.getKernel("teleport");
-
-	// Execute the kernel with the qubit register!
-	teleport(qreg);
-
-	xacc::Finalize();
-	// Pretty print the resultant state
-	auto simqreg = std::static_pointer_cast<xacc::quantum::SimulatedQubits<10>>(qreg);
-	simqreg->print();
-
-	BOOST_VERIFY(std::real(simqreg->getState()(1) * simqreg->getState()(1)) == 1 ||
-				std::real(simqreg->getState()(5) * simqreg->getState()(5)) == 1 ||
-				std::real(simqreg->getState()(3) * simqreg->getState()(3)) == 1 ||
-				std::real(simqreg->getState()(7) * simqreg->getState()(7)) == 1);
-
 }

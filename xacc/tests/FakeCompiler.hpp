@@ -50,6 +50,10 @@ public:
 
 	}
 
+	virtual const std::string getName() {
+		return "Fake";
+	}
+
 	virtual void modifySource() {
 
 	}

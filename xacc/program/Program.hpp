@@ -121,13 +121,11 @@ protected:
 
 		// Create the appropriate compiler
 		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
+		std::cout << "Executing " << compiler->getName() << " compiler.\n";
 		// Make sure we got a valid
 		if (!compiler) {
 			XACCError("Invalid Compiler.\n");
 		}
-
-		// Update src with runtimeArgs...
-
 
 		// Execute the compilation
 		xaccIR = compiler->compile(src, accelerator);
@@ -192,9 +190,9 @@ public:
 	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(
 			const std::string& kernelName) {
 		return [&](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
-			build("--compiler scaffold", args...);
+			build("--compiler improvedscaffold", args...);
 			auto fToExec = xaccIR->getKernel(kernelName);
-			accelerator->execute(buffer, xaccIR);
+			accelerator->execute(buffer, fToExec);
 			return;
 		};
 	}

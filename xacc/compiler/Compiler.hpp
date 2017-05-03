@@ -75,6 +75,12 @@ public:
 	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
 
 	/**
+	 * Return the name of this Compiler
+	 * @return name Compiler name
+	 */
+	virtual const std::string getName() = 0;
+
+	/**
 	 * The destructor
 	 */
 	virtual ~Compiler() {}

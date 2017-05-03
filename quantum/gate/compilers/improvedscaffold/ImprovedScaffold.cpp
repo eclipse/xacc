@@ -56,7 +56,89 @@ ImprovedScaffoldCompiler::ImprovedScaffoldCompiler() {
 std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src,
 		std::shared_ptr<Accelerator> acc) {
 
-	return std::make_shared<GateQIR>();
+	// Set the Kernel Source code
+	kernelSource = src;
+
+	// Replace the __qpu__ attribute with module
+	if (boost::contains(kernelSource, "__qpu__")) {
+		kernelSource.erase(kernelSource.find("__qpu__"), 7);
+		kernelSource = std::string("module") + kernelSource;
+	}
+
+	// Make a copy, and then delete the body
+	// of the kernel in that copy, leaving
+	// just the functionDeclaration(qbit qvar) {}
+	auto copyOfSrc = kernelSource;
+	auto firstIdx = copyOfSrc.find_first_of("{");
+	auto lastIdx = copyOfSrc.find_last_of("}");
+	copyOfSrc.erase(firstIdx+1, lastIdx);
+	copyOfSrc = copyOfSrc + "}";
+
+	// Now we just want to get the qubit variable name,
+	// so lets compile the function declaration
+
+	// Create a temporary scaffold source file
+	std::ofstream tempSrcFile(".tmpSrcFile.scaffold");
+	tempSrcFile << copyOfSrc;
+	tempSrcFile.close();
+	const FileEntry *pFile = CI->getFileManager().getFile(
+			".tmpSrcFile.scaffold");
+	CI->getSourceManager().createMainFileID(pFile);
+	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
+			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
+	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
+	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
+	std::remove(".tmpSrcFile.scaffold");
+
+	// Get the Qubit variable name
+	auto qubitVarName = consumer->getQubitVariableName();
+
+	// Update the kernelSource with the correct
+	// number of qubits in this variable
+	auto nBits = acc->getBuffer(qubitVarName)->size();
+	auto searchFor = "qbit " + qubitVarName;
+	auto replaceWith = "qbit " + qubitVarName + "[" + std::to_string(nBits) + "]";
+	boost::replace_all(kernelSource, searchFor, replaceWith);
+
+	// Create a compiler all over again
+	CI = std::make_shared<CompilerInstance>();
+	CI->createDiagnostics(0, 0);
+	TargetOptions targetOptions;
+	targetOptions.Triple = llvm::sys::getDefaultTargetTriple();
+	TargetInfo *pTargetInfo = TargetInfo::CreateTargetInfo(CI->getDiagnostics(),
+			targetOptions);
+	CI->setTarget(pTargetInfo);
+	CI->createFileManager();
+	CI->createSourceManager(CI->getFileManager());
+	CI->createPreprocessor();
+	CI->getPreprocessorOpts().UsePredefines = false;
+	CI->createASTContext();
+
+	// Create a source file with all the code in it
+	std::ofstream tempSrcFile2(".tmpSrcFile2.scaffold");
+	tempSrcFile2 << kernelSource;
+	tempSrcFile2.close();
+	const FileEntry *pFile2 = CI->getFileManager().getFile(
+			".tmpSrcFile2.scaffold");
+	CI->getSourceManager().createMainFileID(pFile2);
+	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
+			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
+
+	// Compile the code!
+	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
+	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
+
+	// Get the IR Function representation
+	auto qirFunction = consumer->getFunction();
+
+	// Create a Quantum IR instance
+	auto qir = std::make_shared<GateQIR>();
+
+	// Give the function to the IR
+	qir->addKernel(qirFunction);
+
+	// Return...
+	return qir;
 }
 
 std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
@@ -80,13 +162,14 @@ std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
 	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
 			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
 
-	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();//&CI->getASTContext());
+	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 
 	auto qirFunction = consumer->getFunction();
 
 	auto qir = std::make_shared<GateQIR>();
 
+	std::cout << "HELLO WORLD ADDING : " << qirFunction->getName() << "\n";
 	qir->addKernel(qirFunction);
 
 	return qir;
