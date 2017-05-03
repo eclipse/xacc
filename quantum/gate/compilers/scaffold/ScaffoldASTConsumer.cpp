@@ -1,4 +1,5 @@
-#include "ScaffoldASTConsumer.hpp"
+#include "../scaffold/ScaffoldASTConsumer.hpp"
+
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 #include "ParameterizedGateInstruction.hpp"

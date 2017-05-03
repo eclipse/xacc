@@ -41,5 +41,5 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
 link_directories(${CLANG_LIBRARY_DIRS})
 
 add_executable(teleport_scaffold teleport_scaffold.cpp)
-target_link_libraries(teleport_scaffold xacc-improved-scaffold ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES} xacc-firetensor xacc-gateqir dl pthread)
+target_link_libraries(teleport_scaffold xacc-scaffold ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES} xacc-firetensor xacc-gateqir dl pthread)
 

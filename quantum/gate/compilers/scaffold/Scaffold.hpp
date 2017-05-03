@@ -28,72 +28,77 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_SCAFFOLD_SCAFFCCAPI_HPP_
-#define QUANTUM_GATE_SCAFFOLD_SCAFFCCAPI_HPP_
+#ifndef QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
+#define QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
 
-#include <cstdlib>
+#include "Compiler.hpp"
 #include "XACCError.hpp"
-#include <iostream>
-#include <fstream>
+#include <boost/algorithm/string.hpp>
 
-namespace scaffold {
+#include "../scaffold/ScaffoldASTConsumer.hpp"
+#include "Accelerator.hpp"
+
+
+namespace xacc {
+
+namespace quantum {
 
 /**
- * The ScaffCCAPI is a simple utility class that provides
- * methods for interacting with an installed Scaffold compiler.
- * It's main function is to take user-specified XACC kernel
- * source code and compile it to flatted QASM using the
- * Scaffold compiler.
+ * The Scaffold compiler is a subclass of the XACC
+ * Compiler that implements the compile() and modifySource() methods
+ * to handle generation of quantum assembly language (or QASM)
+ * using an installed Scaffold compiler.
  */
-class ScaffCCAPI {
+class ScaffoldCompiler: public xacc::Compiler {
 
 public:
 
+	ScaffoldCompiler();
+
 	/**
-	 * Return a string containing flatted QASM representing
-	 * the provided high level Scaffold source code. This method
-	 * assumes that the Scaffold compiler is on the current user's
-	 * PATH and is called scaffcc.
-	 *
-	 * @param source The scaffold kernel source code.
-	 * @return flattenedQASM The QASM representation of the given source.
+	 * Execute the Scaffold compiler to generate an
+	 * XACC intermediate representation instance.
+	 * @return ir XACC intermediate representation
 	 */
-	std::string getFlatQASMFromSource(const std::string& source) {
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
+			std::shared_ptr<Accelerator> acc);
 
-		// Check if scaffcc exists on the PATH
-		if (std::system("which scaffcc > /dev/null 2>&1") == 0) {
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 
-			// Create a temporary scaffold soruce file
-			std::ofstream tempSrcFile(".tmpSrcFile.scaffold");
-			tempSrcFile << source;
-			tempSrcFile.close();
-
-			// Execute the scaffold compiler
-			std::system("scaffcc -fRp .tmpSrcFile.scaffold &> /dev/null");
-
-			// Remove the temporary source file, we don't need it anymore
-			std::remove(".tmpSrcFile.scaffold");
-
-			// Read in the generated QASM
-			std::ifstream flatQASM(".tmpSrcFile.qasmf");
-			std::string qasm((std::istreambuf_iterator<char>(flatQASM)),
-					std::istreambuf_iterator<char>());
-
-			// Remove created scaffold files.
-			std::remove(".tmpSrcFile.qasmf");
-			std::remove(".tmpSrcFile.qasmh");
-
-			// Return the QASM
-			return qasm;
-		} else {
-			XACCError(
-					"Cannot find scaffold compiler. Make sure scaffcc is in PATH and executable.");
-		}
+	/**
+	 * Return the name of this Compiler
+	 * @return name Compiler name
+	 */
+	virtual const std::string getName() {
+		return "Scaffold";
 	}
+
+	/**
+	 * The destructor
+	 */
+	virtual ~ScaffoldCompiler() {}
+
+protected:
+
+	/**
+	 * Reference to the Scaffold Clang Compiler
+	 */
+	std::shared_ptr<clang::CompilerInstance> CI;
+
+	/**
+	 * Reference to our AST Consumer, this gives us the
+	 * compiled IR Function and the Qubit Variable Name
+	 */
+	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
+
 };
 
 }
 
-
-
+}
 #endif

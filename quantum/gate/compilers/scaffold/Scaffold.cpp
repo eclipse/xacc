@@ -29,8 +29,8 @@
  *
  **********************************************************************************/
 #include <regex>
-#include "ImprovedScaffold.hpp"
 #include "GateQIR.hpp"
+#include "Scaffold.hpp"
 
 using namespace clang;
 
@@ -38,7 +38,7 @@ namespace xacc {
 
 namespace quantum {
 
-ImprovedScaffoldCompiler::ImprovedScaffoldCompiler() {
+ScaffoldCompiler::ScaffoldCompiler() {
 	CI = std::make_shared<CompilerInstance>();
 	CI->createDiagnostics(0, 0);
 	TargetOptions targetOptions;
@@ -53,7 +53,7 @@ ImprovedScaffoldCompiler::ImprovedScaffoldCompiler() {
 	CI->createASTContext();
 }
 
-std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src,
+std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 		std::shared_ptr<Accelerator> acc) {
 
 	// Set the Kernel Source code
@@ -141,7 +141,7 @@ std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src,
 	return qir;
 }
 
-std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
+std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 
 	kernelSource = src;
 
@@ -178,5 +178,5 @@ std::shared_ptr<IR> ImprovedScaffoldCompiler::compile(const std::string& src) {
 }
 
 }
-static xacc::RegisterCompiler<xacc::quantum::ImprovedScaffoldCompiler> X(
-		"improvedscaffold");
+static xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> X(
+		"scaffold");

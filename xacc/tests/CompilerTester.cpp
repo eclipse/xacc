@@ -53,11 +53,4 @@ BOOST_AUTO_TEST_CASE(checkKernelArgs) {
 
 	auto asFake = std::dynamic_pointer_cast<FakeCompiler>(compiler);
 
-//	auto argMap = asFake->getTypeToVarArgs();
-//
-//	BOOST_VERIFY(argMap.find("double") != argMap.end());
-//	BOOST_VERIFY(argMap.find("qbit") != argMap.end());
-//	BOOST_VERIFY(argMap["qbit"] == "qreg[3]");
-//	BOOST_VERIFY(argMap["double"] == "phi");
-
 }
