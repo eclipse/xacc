@@ -47,7 +47,7 @@ bool xaccFrameworkInitialized = false;
  * XACC API.
  */
 void Initialize() {
-	auto console = spdlog::stdout_logger_mt("xacc-console", true);
+	auto console = spdlog::stdout_logger_mt("xacc-console");
 	XACCInfo("[xacc] Initializing XACC Framework");
 	auto compilerRegistry = xacc::CompilerRegistry::instance();
 	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
