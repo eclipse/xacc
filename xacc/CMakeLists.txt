@@ -28,21 +28,16 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-set (PACKAGE_NAME "XACC Core Runtime")
+set (PACKAGE_NAME "XACC Specification")
 set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
-file (GLOB HEADERS program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
-file (GLOB SRC program/*.cpp compiler/*.cpp accelerator/*.cpp)
-
-#add_library(${LIBRARY_NAME} SHARED ${SRC})
+file (GLOB HEADERS ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
 
 # Get the test files
 file(GLOB test_files tests/*Tester.cpp)
 
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/tests;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/firetensoraccelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators;${CMAKE_SOURCE_DIR}/quantum/gate/utils;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions;${CMAKE_SOURCE_DIR}/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen" "${Boost_LIBRARIES};xacc-firetensor;xacc-gateqir")
-
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils;${CMAKE_CURRENT_SOURCE_DIR}/compiler;${CMAKE_CURRENT_SOURCE_DIR}/program;${CMAKE_CURRENT_SOURCE_DIR}/accelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators/firetensoraccelerator;${CMAKE_SOURCE_DIR}/quantum/gate/accelerators;${CMAKE_SOURCE_DIR}/quantum/gate/utils;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions;${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions;${CMAKE_SOURCE_DIR}/tpls/fire/tensors;${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl;${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen" "${Boost_LIBRARIES};xacc-firetensor;xacc-gateqir")
 
 install(FILES ${HEADERS} DESTINATION include)
-#install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

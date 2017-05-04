@@ -32,12 +32,63 @@
 #define BOOST_TEST_MODULE ProgramTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "XACC.hpp"
-#include "FakeIR.hpp"
-#include "FakeAccelerator.hpp"
-#include "FireTensorAccelerator.hpp"
+#include "Program.hpp"
 
 using namespace xacc;
+
+class FakeIR: public IR {
+public:
+	FakeIR() {
+	}
+	virtual std::string toString() { return std::string();}
+	virtual void persist(std::ostream& stream) {}
+	virtual void load(std::istream& inStream) {}
+	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {}
+	virtual void addKernel(std::shared_ptr<Function> kernel) {
+
+	}
+	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
+
+	}
+};
+
+class FakeAccelerator: virtual public Accelerator {
+
+public:
+
+	virtual AcceleratorType getType() {
+		return qpu_gate;
+	}
+
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId) {
+		auto buffer = std::make_shared<AcceleratorBuffer>(varId);
+		return buffer;
+	}
+
+	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId,
+			const int size) {
+		if (!isValidBufferSize(size)) {
+			XACCError("Invalid buffer size.");
+		}
+		auto buffer = std::make_shared<AcceleratorBuffer>(varId, size);
+		return buffer;
+	}
+
+	virtual bool isValidBufferSize(const int NBits) {
+		return NBits <= 10;
+	}
+
+	virtual std::vector<IRTransformation> getIRTransformations() {
+		std::vector<IRTransformation> v;
+		return v;
+	}
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+				const std::shared_ptr<Function> ir) {
+		}
+	virtual ~FakeAccelerator() {
+	}
+};
+
 
 class DummyCompiler : public Compiler {
 public:

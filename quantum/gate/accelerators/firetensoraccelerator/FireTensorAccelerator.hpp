@@ -32,7 +32,6 @@
 #define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 
 #include "QPUGate.hpp"
-#include "GraphIR.hpp"
 #include "QuantumCircuit.hpp"
 #include "SimulatedQubits.hpp"
 #include <random>
