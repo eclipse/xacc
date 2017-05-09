@@ -45,7 +45,10 @@ public:
 
 	X(int qbit);
 
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+
+	DEFINE_VISITABLE()
+
 };
 
 

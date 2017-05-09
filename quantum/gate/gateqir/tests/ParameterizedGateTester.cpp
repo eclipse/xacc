@@ -34,6 +34,8 @@
 #include <boost/test/included/unit_test.hpp>
 #include "ParameterizedGateInstruction.hpp"
 
+using namespace xacc;
+
 using namespace xacc::quantum;
 
 class DummyGate: public virtual ParameterizedGateInstruction<double, double> {
@@ -43,9 +45,7 @@ public:
 					"Dummy", std::vector<int> { qbit }) {
 	}
 
-	virtual void accept(std::shared_ptr<xacc::InstructionVisitor> visitor) {
-
-	}
+	DEFINE_VISITABLE()
 
 };
 

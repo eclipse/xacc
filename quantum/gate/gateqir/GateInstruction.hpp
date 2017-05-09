@@ -57,6 +57,8 @@ protected:
 
 public:
 
+	GateInstruction() = delete;
+
 	GateInstruction(std::vector<int> qubts) :
 			gateName("UNKNOWN"), qbits(qubts) {
 	}

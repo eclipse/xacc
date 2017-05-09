@@ -29,7 +29,6 @@
  *
  **********************************************************************************/
 #include "Rz.hpp"
-#include "GateInstructionVisitor.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -40,15 +39,15 @@ Rz::Rz(std::vector<int> qbits, double theta) :
 Rz::Rz(int qbit, double theta) :
 		Rz(std::vector<int> { qbit }, theta) {
 }
-
-void Rz::accept(std::shared_ptr<InstructionVisitor> visitor) {
-	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-	if (v) {
-//		v->visit(*this);
-	} else {
-		visitor->visit(*this);
-	}
-}
+//
+//void Rz::accept(std::shared_ptr<InstructionVisitor> visitor) {
+//	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
+//	if (v) {
+////		v->visit(*this);
+//	} else {
+//		visitor->visit(*this);
+//	}
+//}
 
 RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
 }

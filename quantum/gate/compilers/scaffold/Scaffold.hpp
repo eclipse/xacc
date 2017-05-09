@@ -35,7 +35,7 @@
 #include "Utils.hpp"
 #include <boost/algorithm/string.hpp>
 
-#include "../scaffold/ScaffoldASTConsumer.hpp"
+#include "ScaffoldASTConsumer.hpp"
 #include "Accelerator.hpp"
 
 

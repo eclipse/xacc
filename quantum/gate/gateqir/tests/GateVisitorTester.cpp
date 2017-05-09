@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -30,51 +29,36 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ConditionalFunctionTester
+#define BOOST_TEST_MODULE FateVisitorTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "InstructionIterator.hpp"
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
 
-#include "GateInstructionVisitor.hpp"
-#include "../../../../xacc/utils/Utils.hpp"
+using namespace xacc;
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
-	auto f = std::make_shared<GateFunction>("foo");
+class TestVisitor:
+		public BaseInstructionVisitor, // ALWAYS REQUIRED
+		public InstructionVisitor<CNOT>,
+		public InstructionVisitor<Hadamard> {
+public:
 
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-	auto cn2 = std::make_shared<CNOT>(0, 1);
-	auto h2 = std::make_shared<Hadamard>(0);
+	virtual void visit(CNOT& cnot) {
+		std::cout << "HELLO WORLD CNOT\n";
+	}
 
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-	f->addInstruction(cn2);
-	f->addInstruction(h2);
+    virtual void visit(Hadamard& h) {
+		std::cout << "HELLO WORLD HADAMARD\n";
+	}
 
-	auto hVisit = [&](Hadamard& h) {
-		std::cout << "I AM A HADAMARD\n";
-	};
-	auto cnotVisit = [&](CNOT& h) {
-		std::cout << "I AM A CNOT\n";
-	};
-	auto gFVisit = [&](GateFunction& h) {
-		std::cout << "I AM A GATE FUNCTION\n";
-	};
-	auto baseInstVisit = [&](xacc::Instruction& h) {
-		std::cout << "ALL I KNOW IS I AM A INSTRUCTION\n";
-	};
+};
 
-//	auto visitor = xacc::quantum::createGateInstructionVisitor(hVisit,
-//			cnotVisit, nullVisit<X>(), nullVisit<Measure>(), gFVisit,
-//			nullVisit<xacc::Instruction>());
-//	xacc::InstructionIterator it(f);
-//
-//	while (it.hasNext()) {
-//		auto nextInst = it.next();
-//		nextInst->accept(visitor);
-//	}
-
+BOOST_AUTO_TEST_CASE(checkVisit) {
+	auto v = std::make_shared<TestVisitor>();
+	std::shared_ptr<GateInstruction> c = std::make_shared<CNOT>(0,1);
+	std::shared_ptr<GateInstruction> h = std::make_shared<Hadamard>(0);
+	c->accept(v);
+	h->accept(v);
 }
-

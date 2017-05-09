@@ -1,5 +1,4 @@
 #include "ConditionalFunction.hpp"
-#include "GateInstructionVisitor.hpp"
 namespace xacc {
 namespace quantum {
 
@@ -24,18 +23,12 @@ void ConditionalFunction::evaluate(const int accBitState) {
 	}
 }
 
-void ConditionalFunction::accept(std::shared_ptr<InstructionVisitor> visitor) {
-	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-	if (v) {
-		v->visit(*this);
-	} else {
-		visitor->visit(*this);
-	}
-}
-
 const std::string ConditionalFunction::toString(
 		const std::string& bufferVarName) {
 	return "";
 }
+
+//RegisterGateFunction<ConditionalFunction, int> CONDTEMP("Conditional");
+
 }
 }

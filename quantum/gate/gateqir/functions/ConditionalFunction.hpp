@@ -20,9 +20,11 @@ public:
 
 	const int getConditionalQubit();
 	void evaluate(const int accBitState);
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 
 	virtual const std::string toString(const std::string& bufferVarName);
+
+	DEFINE_VISITABLE()
+
 };
 }
 }

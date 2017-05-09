@@ -32,7 +32,6 @@
 #define QUANTUM_GATE_IR_MEASURE_HPP_
 
 #include "ParameterizedGateInstruction.hpp"
-class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
@@ -46,9 +45,10 @@ public:
 
 	Measure(int qbit, int classicalIdx);
 
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
-
 	virtual const std::string toString(const std::string& bufferVarName);
+
+	DEFINE_VISITABLE()
+
 };
 
 }

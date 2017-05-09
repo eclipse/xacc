@@ -31,6 +31,7 @@
 #ifndef QUANTUM_GATEQIR_QFUNCTION_HPP_
 #define QUANTUM_GATEQIR_QFUNCTION_HPP_
 
+#include "Registry.hpp"
 #include "Function.hpp"
 #include "Utils.hpp"
 
@@ -134,13 +135,14 @@ public:
 		return retStr;
 	}
 
+	DEFINE_VISITABLE()
 	/**
 	 * This method should simply be implemented to invoke the
 	 * visit() method on the provided QInstructionVisitor.
 	 *
 	 * @param visitor
 	 */
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
 //	{
 //		auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
 //		if (v) {
@@ -151,6 +153,27 @@ public:
 //	}
 
 };
+
+///**
+// */
+//template<typename... Ts>
+//using GateFunctionRegistry = Registry<GateFunction, Ts...>;
+//
+///**
+// */
+//template<typename T, typename... Ts>
+//class RegisterGateFunction {
+//public:
+//	RegisterGateFunction(const std::string& name) {
+//		GateFunctionRegistry<Ts...>::instance()->add(name,
+//				(std::function<
+//						std::shared_ptr<xacc::quantum::GateFunction>(
+//								Ts...)>) ([](Ts... args) {
+//					return std::make_shared<T>(args...);
+//				}));
+//	}
+//};
 }
 }
-#endif /* QUANTUM_GATE_IR_QFUNCTION_HPP_ */
+
+#endif

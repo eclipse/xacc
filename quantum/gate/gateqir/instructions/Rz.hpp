@@ -40,7 +40,8 @@ public:
 	Rz(std::vector<int> qbits, double theta);
 	Rz(int qbit, double theta);
 
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+	DEFINE_VISITABLE()
+
 };
 }
 }

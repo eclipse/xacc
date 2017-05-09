@@ -31,12 +31,21 @@
 #ifndef QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 
+#include "Hadamard.hpp"
+#include "Measure.hpp"
+#include "CNOT.hpp"
+#include "Rz.hpp"
+#include "Z.hpp"
+#include "X.hpp"
+#include "ConditionalFunction.hpp"
+#include "Z.hpp"
 #include "QPUGate.hpp"
 #include "QuantumCircuit.hpp"
 #include "SimulatedQubits.hpp"
 #include <random>
 #include "InstructionIterator.hpp"
-#include "GateInstructionVisitor.hpp"
+
+using namespace xacc;
 
 namespace xacc {
 namespace quantum {
@@ -44,6 +53,48 @@ namespace quantum {
 double sqrt2 = std::sqrt(2.0);
 using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
 using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
+
+class FunctionalGateInstructionVisitor: public BaseInstructionVisitor,
+		public InstructionVisitor<CNOT>,
+		public InstructionVisitor<Hadamard>,
+		public InstructionVisitor<X>,
+		public InstructionVisitor<Z>,
+		public InstructionVisitor<Measure>,
+		public InstructionVisitor<ConditionalFunction> {
+protected:
+	std::function<void(Hadamard&)> hAction;
+	std::function<void(CNOT&)> cnotAction;
+	std::function<void(X&)> xAction;
+	std::function<void(Z&)> zAction;
+	std::function<void(Measure&)> measureAction;
+	std::function<void(ConditionalFunction&)> condAction;
+
+public:
+	template<typename HF, typename CNF, typename XF, typename MF, typename ZF, typename CF>
+	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, MF m, ZF z, CF c) :
+			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(m), condAction(c) {
+	}
+
+	void visit(Hadamard& h) {
+		hAction(h);
+	}
+	void visit(CNOT& cn) {
+		cnotAction(cn);
+	}
+	void visit(X& x) {
+		xAction(x);
+	}
+	void visit(Z& z) {
+		zAction(z);
+	}
+	void visit(Measure& m) {
+		measureAction(m);
+	}
+	void visit(ConditionalFunction& c) {
+		condAction(c);
+	}
+	virtual ~FunctionalGateInstructionVisitor() {}
+};
 
 /**
  * The FireTensorAccelerator is an XACC Accelerator that simulates

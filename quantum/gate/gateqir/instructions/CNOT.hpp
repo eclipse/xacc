@@ -45,7 +45,7 @@ public:
 
 	CNOT(int srcqbit, int tgtqbit);
 
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+	DEFINE_VISITABLE()
 };
 
 }

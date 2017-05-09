@@ -34,26 +34,48 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include "Utils.hpp"
 
 namespace xacc {
 
-class Instruction;
-
 /**
- * This class is to be subclassed. Subclasses
- * should add appropriate derived instruction
- * visit classes.
  */
+class BaseInstructionVisitor {
+public:
+	virtual ~BaseInstructionVisitor() {}
+};
+
+template<class T>
 class InstructionVisitor {
 public:
-	virtual void visit(Instruction& inst) = 0;
+	virtual void visit(T&) = 0;
 	virtual ~InstructionVisitor() {}
+};
+
+class BaseInstructionVisitable {
+public:
+	virtual void accept(std::shared_ptr<BaseInstructionVisitor> visitor) = 0;
+	virtual ~BaseInstructionVisitable() {}
+protected:
+	template<class T>
+	static void acceptImpl(T& visited, std::shared_ptr<BaseInstructionVisitor> visitor) {
+		auto castedVisitor = std::dynamic_pointer_cast<InstructionVisitor<T>>(visitor);
+		if (castedVisitor) {
+			castedVisitor->visit(visited);
+			return;
+		}
+	}
+
+#define DEFINE_VISITABLE() \
+            virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
+                { acceptImpl(*this, v); }
+
 };
 
 /**
  *
  */
-class Instruction {
+class Instruction : public BaseInstructionVisitable {
 
 public:
 
@@ -86,7 +108,7 @@ public:
 	 *
 	 * @param visitor
 	 */
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor) = 0;
+//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor) = 0;
 
 	/**
 	 * The destructor

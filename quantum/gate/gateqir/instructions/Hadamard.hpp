@@ -32,10 +32,11 @@
 #define QUANTUM_GATE_IR_HADAMARD_HPP_
 
 #include "GateInstruction.hpp"
-class QInstructionVisitor;
 
 namespace xacc {
 namespace quantum {
+
+class Hadamard;
 
 /**
  *
@@ -44,7 +45,9 @@ class Hadamard : public virtual GateInstruction {
 public:
 	Hadamard(std::vector<int> qbits);
 	Hadamard(int qbit);
-	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+
+	DEFINE_VISITABLE()
+
 };
 
 }
