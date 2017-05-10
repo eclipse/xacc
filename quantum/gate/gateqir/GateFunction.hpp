@@ -136,6 +136,7 @@ public:
 	}
 
 	DEFINE_VISITABLE()
+
 	/**
 	 * This method should simply be implemented to invoke the
 	 * visit() method on the provided QInstructionVisitor.

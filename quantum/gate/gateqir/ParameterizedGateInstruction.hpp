@@ -102,6 +102,9 @@ public:
 		return str;
 	}
 
+	DEFINE_VISITABLE()
+
+
 };
 /**
  */

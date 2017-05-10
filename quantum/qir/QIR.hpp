@@ -62,19 +62,10 @@ public:
 	}
 
 	/**
-	 * The constructor, takes the AcceleratorBuffer
-	 * this IR works on.
-	 * @param buf
-	 */
-	QIR(std::shared_ptr<AcceleratorBuffer> buf) :
-			IR(buf) {
-	}
-
-	/**
 	 * From this IR's list of instructions, construct an
 	 * equivalent graph representation.
 	 */
-	virtual void generateGraph() = 0;
+	virtual void generateGraph(const std::string& kernelName) = 0;
 
 	/**
 	 * Add a quantum function to this intermediate representation.

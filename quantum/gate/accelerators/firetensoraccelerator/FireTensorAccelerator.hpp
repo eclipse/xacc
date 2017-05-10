@@ -70,9 +70,11 @@ protected:
 	std::function<void(ConditionalFunction&)> condAction;
 
 public:
-	template<typename HF, typename CNF, typename XF, typename MF, typename ZF, typename CF>
+	template<typename HF, typename CNF, typename XF, typename MF, typename ZF,
+			typename CF>
 	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, MF m, ZF z, CF c) :
-			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(m), condAction(c) {
+			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(
+					m), condAction(c) {
 	}
 
 	void visit(Hadamard& h) {

@@ -222,11 +222,9 @@ void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	// Create a Visitor that will execute our lambdas when
 	// we encounter one
-//	auto visitor = std::make_shared<GateInstructionVisitor>(hadamard, cnot, x,
-//			measure, z, cond);
-
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
 			cnot, x, measure, z, cond);
+
 	// Our QIR is really a tree structure
 	// so create a pre-order tree traversal
 	// InstructionIterator to walk it

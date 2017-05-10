@@ -32,12 +32,17 @@
 #include <boost/algorithm/string.hpp>
 #include <regex>
 
+#include "rapidjson/prettywriter.h"
+
+using namespace rapidjson;
+
 namespace xacc {
 namespace quantum {
 
-void GateQIR::generateGraph() {
-	// Local Declarations
-	auto flatQasmStr = toString();
+void GateQIR::generateGraph(const std::string& kernelName) {
+
+
+	auto flatQasmStr = toAssemblyString(kernelName, "qreg");
 
 	std::map<std::string, int> qubitVarNameToId;
 	std::vector<std::string> qasmLines;
@@ -233,21 +238,45 @@ bool GateQIR::incrementLayer(const std::vector<std::string>& gateCommand,
 }
 
 
-std::string GateQIR::toString() {
-	int nQubits = buffer->size();
-	auto bufVarName = buffer->name();
+std::string GateQIR::toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) {
 	std::string retStr = "";
-	for (int i = 0; i < nQubits; i++) {
-		retStr += "qubit " + bufVarName + std::to_string(i) + "\n";
+	auto kernel = getKernel(kernelName);
+
+	std::set<int> qubitsUsed;
+	InstructionIterator it(kernel);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+
+		// If enabled, invoke the accept
+		// method which kicks off the visitor
+		// to execute the appropriate lambda.
+		if (nextInst->isEnabled() && !nextInst->isComposite()) {
+
+			for (auto qi : nextInst->bits()) {
+				qubitsUsed.insert(qi);
+			}
+		}
+	}
+
+	for (auto qi : qubitsUsed) {
+		retStr += "qubit " + accBufferVarName + std::to_string(qi) + "\n";
 	}
 	for (auto f : kernels) {
-		retStr += f->toString(bufVarName);
+		retStr += f->toString(accBufferVarName);
 	}
 	return retStr;
 }
 
 void GateQIR::persist(std::ostream& outStream) {
-	write(outStream);
+	StringBuffer sb;
+	PrettyWriter<StringBuffer> writer(sb);
+
+	serializeJson(writer);
+
+	outStream << sb.GetString();
+
+	return;
 }
 
 // FOR IR

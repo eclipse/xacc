@@ -51,9 +51,7 @@ BOOST_AUTO_TEST_CASE(checkCreationToString) {
 			"CNOT qreg0,qreg1\n"
 			"H qreg0\n";
 
-	auto buf = std::make_shared<AcceleratorBuffer>("qreg", 3);
-	auto qir = std::make_shared<GateQIR>(buf);
-
+	auto qir = std::make_shared<GateQIR>();
 	auto f = std::make_shared<GateFunction>("foo");
 	auto h = std::make_shared<Hadamard>(1);
 	auto cn1 = std::make_shared<CNOT>(1, 2);
@@ -65,8 +63,30 @@ BOOST_AUTO_TEST_CASE(checkCreationToString) {
 	f->addInstruction(h2);
 
 	qir->addKernel(f);
+	BOOST_VERIFY(qir->toAssemblyString("foo", "qreg") == expectedQasm);
+}
 
-	BOOST_VERIFY(qir->toString() == expectedQasm);
+BOOST_AUTO_TEST_CASE(checkSerialization) {
+	auto qir = std::make_shared<GateQIR>();
+	auto f = std::make_shared<GateFunction>("foo");
+
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
+
+	f->addInstruction(h);
+	f->addInstruction(cn1);
+	f->addInstruction(cn2);
+	f->addInstruction(h2);
+
+	qir->addKernel(f);
+
+	std::stringstream ss;
+	qir->persist(ss);
+
+	std::cout << "HELLO: \n" << ss.str() << "\n";
+
 }
 
 BOOST_AUTO_TEST_CASE(checkReadGraph) {
@@ -207,8 +227,7 @@ BOOST_AUTO_TEST_CASE(checkReadGraph) {
 }
 
 BOOST_AUTO_TEST_CASE(checkGenerateGraph) {
-	auto buf = std::make_shared<AcceleratorBuffer>("qreg", 3);
-	auto qir = std::make_shared<GateQIR>(buf);
+	auto qir = std::make_shared<GateQIR>();
 
 	auto f = std::make_shared<GateFunction>("foo");
 	auto h = std::make_shared<Hadamard>(1);
@@ -222,10 +241,10 @@ BOOST_AUTO_TEST_CASE(checkGenerateGraph) {
 
 	qir->addKernel(f);
 
-	qir->generateGraph();
+	qir->generateGraph("foo");
 
 	std::stringstream ss;
-	qir->persist(ss);
+	qir->write(ss);
 
 	std::string expected = "graph G {\n"
 			"{\n"

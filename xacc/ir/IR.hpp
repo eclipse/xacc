@@ -53,18 +53,11 @@ protected:
 public:
 
 	/**
-	 * Provide the AcceleratorBuffer that this IR operates on.
-	 * @param buf
-	 */
-	virtual void setAcceleratorBuffer(
-			std::shared_ptr<AcceleratorBuffer> buf) = 0;
-
-	/**
 	 * Return a assembly-like string representation of this
 	 * intermediate representation
 	 * @return
 	 */
-	virtual std::string toString() = 0;
+	virtual std::string toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) = 0;
 
 	/**
 	 * Persist this IR instance to the given

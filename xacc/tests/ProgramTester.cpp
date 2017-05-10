@@ -40,10 +40,11 @@ class FakeIR: public IR {
 public:
 	FakeIR() {
 	}
-	virtual std::string toString() { return std::string();}
+	virtual std::string toAssemblyString(const std::string& kernelName,
+			const std::string& accBufferVarName) {
+		return std::string();}
 	virtual void persist(std::ostream& stream) {}
 	virtual void load(std::istream& inStream) {}
-	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {}
 	virtual void addKernel(std::shared_ptr<Function> kernel) {
 
 	}

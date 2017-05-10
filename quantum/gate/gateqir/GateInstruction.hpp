@@ -122,6 +122,23 @@ public:
 		enabled = true;
 	}
 
+	DEFINE_VISITABLE()
+
+//	virtual void serializeJson(PrettyWriter<StringBuffer> writer) {
+//		writer.StartObject();
+//		writer.String("gate");
+//		writer.String(gateName.c_str());
+//		writer.String("enabled");
+//		writer.Bool(enabled);
+//		writer.String("qubits");
+//		writer.StartArray();
+//		for (auto qi : bits()) {
+//			writer.Int(qi);
+//		}
+//		writer.EndArray();
+//		writer.EndObject();
+//	}
+
 	/**
 	 * The destructor
 	 */

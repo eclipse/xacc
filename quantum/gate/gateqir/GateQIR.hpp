@@ -32,6 +32,14 @@
 #define QUANTUM_GATE_GATEQIR_HPP_
 
 #include "QIR.hpp"
+#include "GateInstruction.hpp"
+#include "GateFunction.hpp"
+#include "InstructionIterator.hpp"
+
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
+
+#define RAPIDJSON_HAS_STDSTRING 1
 
 namespace xacc {
 namespace quantum {
@@ -62,21 +70,69 @@ public:
 	}
 };
 
+template<typename Writer>
+class JsonSerializerGateVisitor:
+		public BaseInstructionVisitor,
+		public InstructionVisitor<GateFunction>,
+		public InstructionVisitor<Hadamard>,
+		public InstructionVisitor<CNOT> {
+
+protected:
+	Writer& writer;
+	int nFuncInsts = 0;
+public:
+
+	JsonSerializerGateVisitor(Writer& w) : writer(w) {}
+
+	void baseGateInst(GateInstruction& inst) {
+		writer.StartObject();
+		writer.String("gate");
+		writer.String(inst.getName().c_str());
+		writer.String("enabled");
+		writer.Bool(inst.isEnabled());
+		writer.String("qubits");
+		writer.StartArray();
+		for (auto qi : inst.bits()) {
+			writer.Int(qi);
+		}
+		writer.EndArray();
+		writer.EndObject();
+		nFuncInsts--;
+		if (nFuncInsts == 0) {
+			endFunction();
+		}
+	}
+
+	void visit(Hadamard& h) {
+		baseGateInst(dynamic_cast<GateInstruction&>(h));
+	}
+	void visit(CNOT& cn) {
+		baseGateInst(dynamic_cast<GateInstruction&>(cn));
+	}
+
+	void visit(GateFunction& function) {
+		writer.StartObject();
+		writer.String("function");
+		writer.String(function.getName());
+
+		writer.String("instructions");
+		writer.StartArray();
+		nFuncInsts = function.nInstructions();
+	}
+private:
+
+	void endFunction() {
+		writer.EndArray();
+		writer.EndObject();
+	}
+};
 /**
  * The GateQIR is an implementation of the QIR for gate model quantum
  * computing. It provides a Graph node type that models a quantum
  * circuit gate (CircuitNode).
  *
  */
-class GateQIR: public virtual xacc::quantum::QIR<xacc::quantum::CircuitNode> {
-
-protected:
-
-	/**
-	 * Reference to the AcceleratorBuffer that this
-	 * QIR operates on.
-	 */
-	std::shared_ptr<AcceleratorBuffer> buffer;
+class GateQIR: public virtual QIR<xacc::quantum::CircuitNode> {
 
 public:
 
@@ -87,34 +143,18 @@ public:
 	}
 
 	/**
-	 * The constructor, takes an accelerator buffer at construction.
-	 * @param buf
-	 */
-	GateQIR(std::shared_ptr<AcceleratorBuffer> buf) :
-			buffer(buf) {
-	}
-
-	/**
-	 * Provide a new AcceleratorBuffer for this Gate QIR.
-	 * @param buf
-	 */
-	virtual void setAcceleratorBuffer(std::shared_ptr<AcceleratorBuffer> buf) {
-		buffer = buf;
-	}
-
-	/**
 	 * This method takes the list of quantum instructions that this
 	 * QIR contains and creates a graph representation of the
 	 * quantum circuit.
 	 */
-	virtual void generateGraph();
+	virtual void generateGraph(const std::string& kernelName);
 
 	/**
 	 * Return a string representation of this
 	 * intermediate representation
 	 * @return
 	 */
-	virtual std::string toString();
+	virtual std::string toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName);
 
 	/**
 	 * Persist this IR instance to the given
@@ -150,6 +190,27 @@ public:
 
 private:
 
+	template<typename Writer>
+	void serializeJson(Writer& writer) {
+		std::string retStr = "";
+		auto visitor = std::make_shared<JsonSerializerGateVisitor<Writer>>(
+				writer);
+
+		writer.StartArray();
+		for (auto kernel : kernels) {
+			InstructionIterator it(kernel);
+			while (it.hasNext()) {
+				// Get the next node in the tree
+				auto nextInst = it.next();
+
+				if (nextInst->isEnabled()) {
+					nextInst->accept(visitor);
+				}
+			}
+		}
+		writer.EndArray();
+
+	}
 	/**
 	 * This method determines if a new layer should be added to the circuit.
 	 *
