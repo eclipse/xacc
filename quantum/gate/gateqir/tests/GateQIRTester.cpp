@@ -34,9 +34,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "GateFunction.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
 #include "GateQIR.hpp"
 
 using namespace xacc::quantum;
@@ -70,15 +67,33 @@ BOOST_AUTO_TEST_CASE(checkSerialization) {
 	auto qir = std::make_shared<GateQIR>();
 	auto f = std::make_shared<GateFunction>("foo");
 
+	auto x = std::make_shared<X>(0);
 	auto h = std::make_shared<Hadamard>(1);
 	auto cn1 = std::make_shared<CNOT>(1, 2);
 	auto cn2 = std::make_shared<CNOT>(0, 1);
 	auto h2 = std::make_shared<Hadamard>(0);
+	auto m0 = std::make_shared<Measure>(0, 0);
+	auto m1 = std::make_shared<Measure>(1,1);
 
+	auto rz = std::make_shared<Rz>(1, 3.1415);
+
+	auto cond1 = std::make_shared<ConditionalFunction>(0);
+	auto z = std::make_shared<Z>(2);
+	cond1->addInstruction(z);
+	auto cond2 = std::make_shared<ConditionalFunction>(1);
+	auto x2 = std::make_shared<X>(2);
+	cond2->addInstruction(x2);
+
+	f->addInstruction(x);
 	f->addInstruction(h);
 	f->addInstruction(cn1);
 	f->addInstruction(cn2);
 	f->addInstruction(h2);
+	f->addInstruction(rz);
+	f->addInstruction(m0);
+	f->addInstruction(m1);
+	f->addInstruction(cond1);
+	f->addInstruction(cond2);
 
 	qir->addKernel(f);
 

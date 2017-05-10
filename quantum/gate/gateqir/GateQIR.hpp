@@ -38,6 +38,11 @@
 
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
+#include "X.hpp"
+#include "Z.hpp"
+#include "ConditionalFunction.hpp"
+#include "Rz.hpp"
+#include "Measure.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -75,16 +80,24 @@ class JsonSerializerGateVisitor:
 		public BaseInstructionVisitor,
 		public InstructionVisitor<GateFunction>,
 		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<CNOT> {
+		public InstructionVisitor<CNOT>,
+		public InstructionVisitor<Rz>,
+		public InstructionVisitor<ConditionalFunction>,
+		public InstructionVisitor<X>,
+		public InstructionVisitor<Z>,
+		public InstructionVisitor<Measure> {
 
 protected:
 	Writer& writer;
-	int nFuncInsts = 0;
+	std::string currentFuncName;
+	std::string previousFuncName;
+	std::map<std::string, int> subInstMap;
+
 public:
 
 	JsonSerializerGateVisitor(Writer& w) : writer(w) {}
 
-	void baseGateInst(GateInstruction& inst) {
+	void baseGateInst(GateInstruction& inst, bool endObject = true) {
 		writer.StartObject();
 		writer.String("gate");
 		writer.String(inst.getName().c_str());
@@ -96,10 +109,15 @@ public:
 			writer.Int(qi);
 		}
 		writer.EndArray();
-		writer.EndObject();
-		nFuncInsts--;
-		if (nFuncInsts == 0) {
+		if (endObject) {
+			writer.EndObject();
+		}
+
+		subInstMap[currentFuncName]--;
+		if (subInstMap[currentFuncName] == 0) {
+			std::cout << "ENDING " << currentFuncName << ", setting " << previousFuncName << "\n";
 			endFunction();
+			currentFuncName = previousFuncName;
 		}
 	}
 
@@ -107,6 +125,42 @@ public:
 		baseGateInst(dynamic_cast<GateInstruction&>(h));
 	}
 	void visit(CNOT& cn) {
+		baseGateInst(dynamic_cast<GateInstruction&>(cn));
+	}
+	void visit(Rz& rz) {
+		baseGateInst(dynamic_cast<GateInstruction&>(rz), false);
+		writer.String("angle");
+		writer.Double(rz.getParameter(0));
+		writer.EndObject();
+	}
+	void visit(ConditionalFunction& cn) {
+		writer.StartObject();
+		writer.String("conditional_function");
+		writer.String(cn.getName());
+
+		writer.String("conditional_qubit");
+		writer.Int(cn.getConditionalQubit());
+		writer.String("instructions");
+		writer.StartArray();
+
+		subInstMap.insert(std::make_pair(cn.getName(), cn.nInstructions()));
+		previousFuncName = currentFuncName;
+		currentFuncName = cn.getName();
+
+	}
+
+	void visit(Measure& cn) {
+		//		baseGateInst(dynamic_cast<GateInstruction&>(cn));
+		baseGateInst(dynamic_cast<GateInstruction&>(cn), false);
+		writer.String("classicalBitIdx");
+		writer.Int(cn.getParameter(0));
+		writer.EndObject();
+	}
+
+	void visit(X& cn) {
+		baseGateInst(dynamic_cast<GateInstruction&>(cn));
+	}
+	void visit(Z& cn) {
 		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 	}
 
@@ -117,7 +171,8 @@ public:
 
 		writer.String("instructions");
 		writer.StartArray();
-		nFuncInsts = function.nInstructions();
+		subInstMap.insert(std::make_pair(function.getName(), function.nInstructions()));
+		currentFuncName = function.getName();
 	}
 private:
 
@@ -202,11 +257,11 @@ private:
 			while (it.hasNext()) {
 				// Get the next node in the tree
 				auto nextInst = it.next();
-
-				if (nextInst->isEnabled()) {
-					nextInst->accept(visitor);
-				}
+				nextInst->accept(visitor);
 			}
+
+			writer.EndArray();
+			writer.EndObject();
 		}
 		writer.EndArray();
 
