@@ -1,6 +1,3 @@
 [submodule "tpls/fire"]
 	path = tpls/fire
 	url = https://github.com/jayjaybillings/fire
-[submodule "tpls/rapidjson"]
-	path = tpls/rapidjson
-	url = https://github.com/miloyip/rapidjson
