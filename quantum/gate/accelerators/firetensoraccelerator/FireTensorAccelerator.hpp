@@ -30,6 +30,7 @@
  **********************************************************************************/
 #ifndef QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
+#include <boost/dll/alias.hpp>
 
 #include "Hadamard.hpp"
 #include "Measure.hpp"
@@ -147,6 +148,10 @@ public:
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
 
+	static void registerAccelerator() {
+		xacc::RegisterAccelerator<xacc::quantum::FireTensorAccelerator> FIRETEMP(
+				"firetensor");
+	}
 	/**
 	 * The destructor
 	 */
@@ -154,6 +159,10 @@ public:
 
 };
 
+BOOST_DLL_ALIAS(
+    xacc::quantum::FireTensorAccelerator::registerAccelerator,
+	registerAccelerator
+)
 
 }
 }

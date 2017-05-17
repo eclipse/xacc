@@ -48,7 +48,7 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
 endif() 
 
 find_package(MPI REQUIRED)
-find_package(Boost COMPONENTS system program_options REQUIRED)
+find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
 message(STATUS "Found Boost Headers = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries = ${Boost_LIBRARIES}")
 
@@ -66,6 +66,7 @@ endif()
 
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(tpls/boost-dll)
 include_directories("${CMAKE_SOURCE_DIR}/xacc")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/ir")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/compiler")

@@ -35,9 +35,7 @@ set (LIBRARY_NAME xacc-scaffold)
 file (GLOB HEADERS *.hpp)
 file (GLOB SRC *.cpp)
 
-set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -O3 -w -fomit-frame-pointer -fvisibility-inlines-hidden -fPIC -Woverloaded-virtual -Wcast-qual")
-
-#set_source_files_properties(ScaffoldASTConsumer.cpp PROPERTIES COMPILE_FLAGS -fno-rtti)
+set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -O3 -w -fomit-frame-pointer -fvisibility-inlines-hidden -fPIC -Woverloaded-virtual -Wcast-qual -rdynamic")
 
 include_directories(${CLANG_INCLUDE_DIRS})
 include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
@@ -45,10 +43,13 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
+
 install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
-link_directories(${CLANG_LIBRARY_DIRS})
+link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
+
+target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS})
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)

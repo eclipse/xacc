@@ -135,8 +135,9 @@ endif()
 
 if (LLVM_FOUND)
   string(REGEX REPLACE "-lLLVMScaffold" "${LLVM_ROOT}/lib/Scaffold.so" LLVM_LIBS ${LLVM_LIBS})
-    string(REGEX REPLACE "-lLLVMIntelJITEvents " "" LLVM_LIBS ${LLVM_LIBS})
-    string(REGEX REPLACE "-lLLVMOProfileJIT " "" LLVM_LIBS ${LLVM_LIBS})
+  string(REGEX REPLACE "-lLLVMIntelJITEvents " "" LLVM_LIBS ${LLVM_LIBS})
+  string(REGEX REPLACE "-lLLVMOProfileJIT " "" LLVM_LIBS ${LLVM_LIBS})
+  string(REGEX REPLACE "-lLLVM" "-L${LLVM_ROOT}/lib -lLLVM" LLVM_LIBS ${LLVM_LIBS})
   
   message(STATUS "Found LLVM (version: ${LLVM_VERSION}): (using ${LLVM_CONFIG_EXECUTABLE})")
   message(STATUS "  Include dirs:   ${LLVM_INCLUDE_DIRS}")

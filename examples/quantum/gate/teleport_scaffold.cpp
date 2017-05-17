@@ -29,7 +29,6 @@
  *
  **********************************************************************************/
 #include "XACC.hpp"
-#include "FireTensorAccelerator.hpp"
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
@@ -51,7 +50,7 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 int main (int argc, char** argv) {
 
 	// Initialize the XACC Framework
-	xacc::Initialize();
+	xacc::Initialize(argc, argv);
 
 	// Create a reference to the 10 qubit simulation Accelerator
 	auto qpu = xacc::getAccelerator("firetensor");

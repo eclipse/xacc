@@ -28,84 +28,24 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef XACC_UTILS_REGISTRY_HPP_
-#define XACC_UTILS_REGISTRY_HPP_
+#ifndef XACC_UTILS_RUNTIMEOPTIONS_HPP_
+#define XACC_UTILS_RUNTIMEOPTIONS_HPP_
 
 #include "Singleton.hpp"
-#include "Utils.hpp"
 #include <map>
-#include <iostream>
+
 namespace xacc {
 
-/**
- * Registry is a Singleton that provides a
- * mapping of string ids to creation functions that
- * create and return the provided Registry template
- * parameter T.
- *
- * Clients can add new creation functions to be placed
- * in the map with a unique name key, and can request
- * that the Registry return a new created instance of
- * the template parameter T.
- */
-template<typename T, typename... TArgs>
-class Registry : public Singleton<Registry<T, TArgs...>> {
-protected:
-
-	/**
-	 * Reference to the database of creation functions
-	 * for classes of superclass type T.
-	 */
-	std::map<std::string, std::function<std::shared_ptr<T>(TArgs...)>> registry;
+class RuntimeOptions: public Singleton<RuntimeOptions>, public std::map<
+		std::string, std::string> {
 
 public:
 
-	/**
-	 * Add a new creation function to the Registry, keyed
-	 * on the provided string id.
-	 *
-	 * @param id
-	 * @param f
-	 * @return
-	 */
-	bool add(const std::string& id,
-			std::function<std::shared_ptr<T>(TArgs...)> f) {
-		if (registry.find(id) != registry.end()) {
-			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
-			return true;
-		}
-		bool s = registry.insert(std::make_pair(id, f)).second;
-		if (!s) {
-			XACCError("Could not add " + id + " to the Registry.");
-		} else {
-			return s;
-		}
-	}
-
-	/**
-	 * Create an instance of T by using the creation
-	 * function found at the given key string id.
-	 * @param id
-	 * @return
-	 */
-	std::shared_ptr<T> create(const std::string& id, TArgs... args) {
-		auto search = registry.find(id);
-		if (search != registry.end()) {
-			return registry[id](args...);
-		} else {
-			XACCError("Invalid Registry map id string - " + id);
-		}
-	}
-
-	/**
-	 * Return the number of creation functions
-	 * this registry contains.
-	 * @return
-	 */
-	std::size_t size() {
-		return registry.size();
+	bool exists(const std::string& key) {
+		return find(key) != end();
 	}
 };
 }
 
-#endif
+
+#endif /* XACC_UTILS_RUNTIMEOPTIONS_HPP_ */

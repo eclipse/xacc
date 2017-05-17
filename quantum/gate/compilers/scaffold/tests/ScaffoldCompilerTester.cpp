@@ -33,16 +33,14 @@
 #define BOOST_TEST_MODULE ScaffoldCompilerTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "../Scaffold.hpp"
+#include "Scaffold.hpp"
 #include "GateQIR.hpp"
 
 using namespace xacc::quantum;
 
 struct F {
 	F() :
-			compiler(
-					xacc::CompilerRegistry::instance()->create(
-							"scaffold")) {
+			compiler(std::make_shared<ScaffoldCompiler>()) {
 		BOOST_TEST_MESSAGE("setup fixture");
 		BOOST_VERIFY(compiler);
 	}
@@ -123,5 +121,58 @@ BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 	auto k = gateqir->getKernel("teleport");
 
 }
+/*
+BOOST_AUTO_TEST_CASE(checkMultipleFunction) {
+	const std::string src(
+		"module PhasePi8 (qbit bit[1]) {\n"
+		"   Rz(bit[0], -1*3.1415/8);\n"
+		"}\n"
+		"module cT(qbit ctrl[1], qbit target[1]) {\n"
+		"  PhasePi8(ctrl[0]);\n"
+//		"  Rz(target[0], 3.1415/8.0);\n"
+//		"  CNOT(target[0], ctrl[0]);\n"
+//		"  Rz(target[0], -1*3.1415/8);"
+//		"  CNOT(target[0], ctrl[0]);\n"
+		"}\n"
+		"module cS( qbit ctrl[1], qbit target[1]) {\n"
+//		"  T(ctrl[0]);\n"
+//		"  Rz(target[0], 3.1415/4);\n"
+//		"  CNOT(target[0], ctrl[0]);\n"
+//		"  Rz(target[0], -1*3.1415/4);\n"
+//		"  CNOT(target[0], ctrl[0]);\n"
+		"}\n"
+		"module cRz(qbit ctrl[1], qbit target[1], const double angle) {\n"
+//		"  Rz(target[0], -1*angle/2);\n"
+//		"  CNOT(target[0], ctrl[0]);\n"
+//		"  Rz(target[0], angle/2);\n"
+//		"  CNOT(target[0], ctrl[0]);\n"
+		"}\n"
+		"module qft5(qbit bit[5]) {\n"
+//		"  H(bit[0]);\n"
+//		"  cS(bit[0], bit[1]);\n"
+//		"  H(bit[1]);\n"
+//		"  cT(bit[0], bit[2]);\n"
+//		"  cS(bit[1], bit[2]);\n"
+//		"  H(bit[2]);\n"
+//		"  cRz(bit[0], bit[3], 3.1415/8);\n"
+//		"  cT(bit[1], bit[3]);\n"
+//		"  cS(bit[2], bit[3]);\n"
+//		"  H(bit[3]);\n"
+//		"  cRz(bit[0], bit[4], 3.1415/16);\n"
+//		"  cRz(bit[0], bit[4], 3.1415/8);\n"
+//		"  cT(bit[2], bit[4]);\n"
+//		"  cS(bit[3], bit[4]);\n"
+//		"  H(bit[4]);\n"
+		"}");
+
+	auto qir = compiler->compile(src);
+	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
+
+	std::stringstream ss;
+
+	qir->persist(ss);
+	std::cout << "HELLO:\n" << ss.str() << "\n";
+
+}*/
 
 BOOST_AUTO_TEST_SUITE_END()

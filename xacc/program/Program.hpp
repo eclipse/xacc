@@ -43,6 +43,7 @@
 #include "Utils.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
+#include "RuntimeOptions.hpp"
 
 using namespace boost::program_options;
 
@@ -110,6 +111,7 @@ protected:
 	 */
 	template<typename ... RuntimeArgs>
 	void build(const std::string& compilerArgStr, RuntimeArgs ... runtimeArgs) {
+		auto runtimeOptions = RuntimeOptions::instance();
 		// Get the user-specified compiler parameters as a map
 		variables_map compileParameters;
 		store(
@@ -149,8 +151,8 @@ protected:
 		}
 
 		// Write the IR to file if the user requests it
-		if (compileParameters.count("writeIR")) {
-			auto fileStr = compileParameters["writeIR"].as<std::string>();
+		if (runtimeOptions->exists("writeIR")) {
+			auto fileStr = (*runtimeOptions)["writeIR"];
 			std::ofstream ostr(fileStr);
 			xaccIR->persist(ostr);
 		}

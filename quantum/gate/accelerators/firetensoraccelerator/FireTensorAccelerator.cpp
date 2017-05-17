@@ -225,6 +225,8 @@ void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
 			cnot, x, measure, z, cond);
 
+	XACCInfo("Execution Fire Tensor Accelerator Simulation.");
+
 	// Our QIR is really a tree structure
 	// so create a pre-order tree traversal
 	// InstructionIterator to walk it
@@ -241,10 +243,6 @@ void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		}
 	}
 }
-
-// Register the ScaffoldCompiler with the CompilerRegistry.
-static xacc::RegisterAccelerator<xacc::quantum::FireTensorAccelerator> FIRETEMP(
-		"firetensor");
 
 }
 }

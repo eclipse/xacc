@@ -115,7 +115,6 @@ public:
 
 		subInstMap[currentFuncName]--;
 		if (subInstMap[currentFuncName] == 0) {
-			std::cout << "ENDING " << currentFuncName << ", setting " << previousFuncName << "\n";
 			endFunction();
 			currentFuncName = previousFuncName;
 		}

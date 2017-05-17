@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,15 @@
 #include <iostream>
 #include <memory>
 #include "Utils.hpp"
+#include "Compiler.hpp"
+#include "Accelerator.hpp"
+#include "CLIParser.hpp"
 #include "Program.hpp"
 
 namespace xacc {
 
 bool xaccFrameworkInitialized = false;
+auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
 
 /**
  * This method should be called by
@@ -46,27 +50,47 @@ bool xaccFrameworkInitialized = false;
  * It should be called before using any of the
  * XACC API.
  */
-void Initialize() {
-	auto console = spdlog::stdout_logger_mt("xacc-console");
+void Initialize(int argc, char** argv) {
 	XACCInfo("[xacc] Initializing XACC Framework");
+
+	// Parse any user-supplied command line options
+	CLIParser parser(argc, argv);
+	parser.parse();
+
+	// Get reference to our compiler and accelerator registries
 	auto compilerRegistry = xacc::CompilerRegistry::instance();
 	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
+
+	// Check that we have some
 	auto s = compilerRegistry->size();
 	auto a = acceleratorRegistry->size();
-	XACCInfo("[xacc::compiler] XACC has " + std::to_string(s) + " Compiler" + (s==1 ? "" : "s") + " available.");
-	XACCInfo("[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator" + (s==1 ? "" : "s") + " available.");
+	if (s == 0) XACCError("There are no Compiler instances available. Exiting.");
+	if (a == 0) XACCError("There are no Accelerator instances available. Exiting.");
+
+	XACCInfo(
+			"[xacc::compiler] XACC has " + std::to_string(s) + " Compiler"
+					+ ((s == 1 || s == 0) ? "" : "s") + " available.");
+	XACCInfo(
+			"[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator"
+					+ ((s == 0 || s == 1) ? "" : "s") + " available.");
+
+	// We're good if we make it here, so indicate that we've been
+	// initialized
 	xacc::xaccFrameworkInitialized = true;
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError("XACC not initialized before use. Please execute xacc::Initialize() before using API.");
+		XACCError(
+				"XACC not initialized before use. Please execute xacc::Initialize() before using API.");
 	}
 	auto acc = AcceleratorRegistry::instance()->create(name);
 	if (acc) {
 		return acc;
 	} else {
-		XACCError("Invalid Accelerator. Could not find " + name + " in Accelerator Registry.");
+		XACCError(
+				"Invalid Accelerator. Could not find " + name
+						+ " in Accelerator Registry.");
 	}
 }
 
@@ -76,8 +100,9 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
  * be called after using the XACC API.
  */
 void Finalize() {
-	XACCInfo("[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
-			"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+	XACCInfo(
+			"[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
+					"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 	xacc::CompilerRegistry::instance()->destroy();
 	xacc::AcceleratorRegistry::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
