@@ -64,6 +64,10 @@ if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
+install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include)
+
+include_directories(${CMAKE_BINARY_DIR})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(tpls/boost-dll)

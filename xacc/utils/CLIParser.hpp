@@ -37,6 +37,7 @@
 #include <boost/dll.hpp>
 #include <boost/program_options.hpp>
 #include "RuntimeOptions.hpp"
+#include "xacc_config.hpp"
 
 using namespace boost::program_options;
 
@@ -74,6 +75,40 @@ public:
 		if (compileParameters.count("help")) {
 			std::cout << *compilerOptions.get() << "\n";
 			exit(0);
+		}
+
+		// Load all default Compilers and Accelerators,
+		// ie those in XACC INSTALL DIR/lib
+		boost::filesystem::path xaccPath(
+				std::string(XACC_INSTALL_DIR) + std::string("/lib"));
+		if (boost::filesystem::exists(xaccPath)) {
+			boost::filesystem::directory_iterator end_itr;
+
+			// cycle through the directory
+			for (boost::filesystem::directory_iterator itr(xaccPath);
+					itr != end_itr; ++itr) {
+				auto p = itr->path();
+				if (itr->path().extension() == ".so") {
+					namespace dll = boost::dll;
+					dll::shared_library lib(p,
+							dll::load_mode::append_decorations);
+					if (lib.has("registerCompiler")) {
+						typedef void (RegisterCompiler)();
+						auto regFunc =
+								boost::dll::import_alias<RegisterCompiler>(p,
+										"registerCompiler",
+										dll::load_mode::append_decorations);
+						regFunc();
+					}
+					if (lib.has("registerAccelerator")) {
+						typedef void (RegisterAccelerator)();
+						auto regFunc = boost::dll::import_alias<
+								RegisterAccelerator>(p, "registerAccelerator",
+								dll::load_mode::append_decorations);
+						regFunc();
+					}
+				}
+			}
 		}
 
 		if (compileParameters.count("loadCompiler")) {

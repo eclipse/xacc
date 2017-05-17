@@ -1,0 +1,6 @@
+#ifndef XACC_CONFIG_HPP
+#define XACC_CONFIG_HPP
+
+#define XACC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
+
+#endif
