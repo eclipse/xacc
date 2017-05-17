@@ -44,6 +44,8 @@ file (GLOB SRC firetensoraccelerator/*.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
+target_link_libraries(${LIBRARY_NAME} xacc-gateqir)
+
 install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 

@@ -49,7 +49,7 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
 
-target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS})
+target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} xacc-gateqir)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
