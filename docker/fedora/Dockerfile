@@ -4,4 +4,4 @@ run dnf -y install spdlog \
     && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && rm -rf /projects/xacc/tpls/fire/.git \ 
     && source /etc/bashrc && module load mpi/mpich-x86_64 && cd /projects/xacc && mkdir build \
-    && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && && make install && ctest
+    && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install && ctest
