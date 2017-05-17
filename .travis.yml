@@ -5,6 +5,7 @@ services:
 
 before_install:
   - docker build -t xacc/xacc-fedora -f docker/fedora/Dockerfile .
+  - docker build -t xacc/xacc-ubuntu -f docker/ubuntu/Dockerfile .
   - docker ps -a
   - env
   
