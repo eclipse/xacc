@@ -33,7 +33,7 @@
 #define BOOST_TEST_MODULE ScaffoldCompilerTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "Scaffold.hpp"
+#include "ScaffoldCompiler.hpp"
 #include "GateQIR.hpp"
 
 using namespace xacc::quantum;

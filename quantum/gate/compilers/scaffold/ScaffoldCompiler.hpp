@@ -34,6 +34,7 @@
 #include "Compiler.hpp"
 #include "Utils.hpp"
 #include <boost/algorithm/string.hpp>
+#include <boost/dll/alias.hpp>
 
 #include "ScaffoldASTConsumer.hpp"
 #include "Accelerator.hpp"
@@ -79,6 +80,14 @@ public:
 	}
 
 	/**
+	 * Register this Compiler with the framework.
+	 */
+	static void registerCompiler() {
+		xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> Scaffold(
+				"scaffold");
+	}
+
+	/**
 	 * The destructor
 	 */
 	virtual ~ScaffoldCompiler() {}
@@ -97,6 +106,14 @@ protected:
 	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
 
 };
+
+
+// Create an alias to search for.
+BOOST_DLL_ALIAS(
+    xacc::quantum::ScaffoldCompiler::registerCompiler,
+	registerCompiler
+)
+
 
 }
 

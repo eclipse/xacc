@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,12 @@
 #define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
 #include <boost/dll/alias.hpp>
 
-#include "Hadamard.hpp"
-#include "Measure.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
-#include "Z.hpp"
-#include "X.hpp"
-#include "ConditionalFunction.hpp"
-#include "Z.hpp"
 #include "QPUGate.hpp"
-#include "QuantumCircuit.hpp"
 #include "SimulatedQubits.hpp"
-#include <random>
 #include "InstructionIterator.hpp"
+#include "FunctionalGateInstructionVisitor.hpp"
+
+#include <random>
 
 using namespace xacc;
 
@@ -54,50 +47,6 @@ namespace quantum {
 double sqrt2 = std::sqrt(2.0);
 using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
 using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
-
-class FunctionalGateInstructionVisitor: public BaseInstructionVisitor,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<Measure>,
-		public InstructionVisitor<ConditionalFunction> {
-protected:
-	std::function<void(Hadamard&)> hAction;
-	std::function<void(CNOT&)> cnotAction;
-	std::function<void(X&)> xAction;
-	std::function<void(Z&)> zAction;
-	std::function<void(Measure&)> measureAction;
-	std::function<void(ConditionalFunction&)> condAction;
-
-public:
-	template<typename HF, typename CNF, typename XF, typename MF, typename ZF,
-			typename CF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, MF m, ZF z, CF c) :
-			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(
-					m), condAction(c) {
-	}
-
-	void visit(Hadamard& h) {
-		hAction(h);
-	}
-	void visit(CNOT& cn) {
-		cnotAction(cn);
-	}
-	void visit(X& x) {
-		xAction(x);
-	}
-	void visit(Z& z) {
-		zAction(z);
-	}
-	void visit(Measure& m) {
-		measureAction(m);
-	}
-	void visit(ConditionalFunction& c) {
-		condAction(c);
-	}
-	virtual ~FunctionalGateInstructionVisitor() {}
-};
 
 /**
  * The FireTensorAccelerator is an XACC Accelerator that simulates
@@ -148,10 +97,14 @@ public:
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
 
+	/**
+	 * Register this Accelerator with the framework.
+	 */
 	static void registerAccelerator() {
 		xacc::RegisterAccelerator<xacc::quantum::FireTensorAccelerator> FIRETEMP(
 				"firetensor");
 	}
+
 	/**
 	 * The destructor
 	 */
@@ -159,6 +112,7 @@ public:
 
 };
 
+// Create an alias to search for.
 BOOST_DLL_ALIAS(
     xacc::quantum::FireTensorAccelerator::registerAccelerator,
 	registerAccelerator

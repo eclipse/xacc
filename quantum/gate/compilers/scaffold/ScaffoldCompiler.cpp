@@ -30,7 +30,7 @@
  **********************************************************************************/
 #include <regex>
 #include "GateQIR.hpp"
-#include "Scaffold.hpp"
+#include "ScaffoldCompiler.hpp"
 
 using namespace clang;
 
@@ -169,7 +169,6 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 
 	auto qir = std::make_shared<GateQIR>();
 
-	std::cout << "HELLO WORLD ADDING : " << qirFunction->getName() << "\n";
 	qir->addKernel(qirFunction);
 
 	return qir;
@@ -178,5 +177,5 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 }
 
 }
-static xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> X(
-		"scaffold");
+//static xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> X(
+//		"scaffold");

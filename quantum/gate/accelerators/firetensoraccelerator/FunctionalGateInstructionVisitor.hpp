@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,42 +28,71 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_QPUGATE_HPP_
-#define QUANTUM_GATE_ACCELERATORS_QPUGATE_HPP_
+#ifndef FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
+#define FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
 
-#include "Accelerator.hpp"
+#include "Hadamard.hpp"
+#include "Measure.hpp"
+#include "CNOT.hpp"
+#include "Rz.hpp"
+#include "Z.hpp"
+#include "X.hpp"
+#include "ConditionalFunction.hpp"
+#include "Z.hpp"
+
+using namespace xacc;
 
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
-//template<typename BitsType>
-class QPUGate: virtual public Accelerator {
+class FunctionalGateInstructionVisitor: public BaseInstructionVisitor,
+		public InstructionVisitor<CNOT>,
+		public InstructionVisitor<Hadamard>,
+		public InstructionVisitor<X>,
+		public InstructionVisitor<Z>,
+		public InstructionVisitor<Measure>,
+		public InstructionVisitor<ConditionalFunction> {
+protected:
+	std::function<void(Hadamard&)> hAction;
+	std::function<void(CNOT&)> cnotAction;
+	std::function<void(X&)> xAction;
+	std::function<void(Z&)> zAction;
+	std::function<void(Measure&)> measureAction;
+	std::function<void(ConditionalFunction&)> condAction;
+
 public:
-
-	/**
-	 * This Accelerator models QPU Gate accelerators.
-	 * @return
-	 */
-	virtual AcceleratorType getType() {
-		return AcceleratorType::qpu_gate;
+	template<typename HF, typename CNF, typename XF, typename MF, typename ZF,
+			typename CF>
+	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, MF m, ZF z, CF c) :
+			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(
+					m), condAction(c) {
 	}
 
-	/**
-	 * We have no need to transform the IR for this Accelerator,
-	 * so return an empty list
-	 * @return
-	 */
-	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
-		std::vector<xacc::IRTransformation> v;
-		return v;
+	void visit(Hadamard& h) {
+		hAction(h);
 	}
-
-	virtual ~QPUGate() {}
+	void visit(CNOT& cn) {
+		cnotAction(cn);
+	}
+	void visit(X& x) {
+		xAction(x);
+	}
+	void visit(Z& z) {
+		zAction(z);
+	}
+	void visit(Measure& m) {
+		measureAction(m);
+	}
+	void visit(ConditionalFunction& c) {
+		condAction(c);
+	}
+	virtual ~FunctionalGateInstructionVisitor() {}
 };
 
 }
 }
+
+
+
+
 #endif
