@@ -40,6 +40,7 @@
 #include "IRTransformation.hpp"
 #include "Registry.hpp"
 #include "Function.hpp"
+#include <boost/dll/alias.hpp>
 
 namespace xacc {
 
@@ -210,5 +211,8 @@ public:
 				}));
 	}
 };
+
+#define RegisterAccelerator(TYPE) BOOST_DLL_ALIAS(TYPE::registerAccelerator, registerAccelerator)
+
 }
 #endif

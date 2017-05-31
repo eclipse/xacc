@@ -28,86 +28,49 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
-#define QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
-
-#include "Compiler.hpp"
-#include "Utils.hpp"
+#include <regex>
+#include "DWaveCompiler.hpp"
 #include <boost/algorithm/string.hpp>
-
-#include "ScaffoldASTConsumer.hpp"
 
 namespace xacc {
 
 namespace quantum {
 
-/**
- * The Scaffold compiler is a subclass of the XACC
- * Compiler that implements the compile() and modifySource() methods
- * to handle generation of quantum assembly language (or QASM)
- * using an installed Scaffold compiler.
- */
-class ScaffoldCompiler: public xacc::Compiler {
+DWaveCompiler::DWaveCompiler() {
+}
 
-public:
+std::shared_ptr<IR> DWaveCompiler::compile(const std::string& src,
+		std::shared_ptr<Accelerator> acc) {
 
-	ScaffoldCompiler();
+	// Set the Kernel Source code
+	kernelSource = src;
 
-	/**
-	 * Execute the Scaffold compiler to generate an
-	 * XACC intermediate representation instance.
-	 * @return ir XACC intermediate representation
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
-			std::shared_ptr<Accelerator> acc);
-
-	/**
-	 *
-	 * @param src
-	 * @return
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
-
-	/**
-	 * Return the name of this Compiler
-	 * @return name Compiler name
-	 */
-	virtual const std::string getName() {
-		return "Scaffold";
+	// Replace the __qpu__ attribute with module
+	if (boost::contains(kernelSource, "__qpu__")) {
+		kernelSource.erase(kernelSource.find("__qpu__"), 7);
+		kernelSource = std::string("module") + kernelSource;
 	}
 
-	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> Scaffold(
-				"scaffold");
+}
+
+std::shared_ptr<IR> DWaveCompiler::compile(const std::string& src) {
+
+	kernelSource = src;
+
+	if (boost::contains(kernelSource, "__qpu__")) {
+		kernelSource.erase(kernelSource.find("__qpu__"), 7);
+		kernelSource = std::string("module") + kernelSource;
+		std::cout << "\n" << kernelSource << "\n";
 	}
 
-	/**
-	 * The destructor
-	 */
-	virtual ~ScaffoldCompiler() {}
+	auto embeddingAlgoReg = xacc::quantum::EmbeddingAlgorithmRegistry::instance();
 
-protected:
+	std::cout << "WE HAVE " << embeddingAlgoReg->size() << " algorithm impls\n";
 
-	/**
-	 * Reference to the Scaffold Clang Compiler
-	 */
-	std::shared_ptr<clang::CompilerInstance> CI;
-
-	/**
-	 * Reference to our AST Consumer, this gives us the
-	 * compiled IR Function and the Qubit Variable Name
-	 */
-	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
-
-};
-
-// Create an alias to search for.
-RegisterCompiler(xacc::quantum::ScaffoldCompiler)
+	return std::make_shared<DWaveIR>();
 
 }
 
 }
-#endif
+
+}

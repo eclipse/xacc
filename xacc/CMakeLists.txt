@@ -32,7 +32,7 @@ set (PACKAGE_NAME "XACC Specification")
 set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
-file (GLOB HEADERS ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
+file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
 
 # Get the test files
 file(GLOB test_files tests/*Tester.cpp)

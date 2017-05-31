@@ -107,6 +107,14 @@ public:
 								dll::load_mode::append_decorations);
 						regFunc();
 					}
+					if (lib.has("registerEmbeddingAlgorithm")) {
+						typedef void (RegisterEmbeddingAlgorithm)();
+						auto regFunc = boost::dll::import_alias<
+								RegisterEmbeddingAlgorithm>(p,
+								"registerEmbeddingAlgorithm",
+								dll::load_mode::append_decorations);
+						regFunc();
+					}
 				}
 			}
 		}

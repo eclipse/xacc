@@ -1,3 +1,4 @@
+
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -28,86 +29,41 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
-#define QUANTUM_IMPROVEDSCAFFOLDCOMPILER_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE DWaveCompilerTester
 
-#include "Compiler.hpp"
-#include "Utils.hpp"
-#include <boost/algorithm/string.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include "DWaveCompiler.hpp"
+#include "XACC.hpp"
 
-#include "ScaffoldASTConsumer.hpp"
+using namespace xacc::quantum;
 
-namespace xacc {
-
-namespace quantum {
-
-/**
- * The Scaffold compiler is a subclass of the XACC
- * Compiler that implements the compile() and modifySource() methods
- * to handle generation of quantum assembly language (or QASM)
- * using an installed Scaffold compiler.
- */
-class ScaffoldCompiler: public xacc::Compiler {
-
-public:
-
-	ScaffoldCompiler();
-
-	/**
-	 * Execute the Scaffold compiler to generate an
-	 * XACC intermediate representation instance.
-	 * @return ir XACC intermediate representation
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
-			std::shared_ptr<Accelerator> acc);
-
-	/**
-	 *
-	 * @param src
-	 * @return
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
-
-	/**
-	 * Return the name of this Compiler
-	 * @return name Compiler name
-	 */
-	virtual const std::string getName() {
-		return "Scaffold";
+struct F {
+	F() :
+			compiler(std::make_shared<DWaveCompiler>()) {
+		BOOST_TEST_MESSAGE("setup fixture");
+		BOOST_VERIFY(compiler);
+	}
+	~F() {
+		BOOST_TEST_MESSAGE("teardown fixture");
 	}
 
-	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> Scaffold(
-				"scaffold");
-	}
-
-	/**
-	 * The destructor
-	 */
-	virtual ~ScaffoldCompiler() {}
-
-protected:
-
-	/**
-	 * Reference to the Scaffold Clang Compiler
-	 */
-	std::shared_ptr<clang::CompilerInstance> CI;
-
-	/**
-	 * Reference to our AST Consumer, this gives us the
-	 * compiled IR Function and the Qubit Variable Name
-	 */
-	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
-
+	std::shared_ptr<xacc::Compiler> compiler;
 };
 
-// Create an alias to search for.
-RegisterCompiler(xacc::quantum::ScaffoldCompiler)
+//____________________________________________________________________________//
 
+BOOST_FIXTURE_TEST_SUITE( s, F )
+
+BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
+
+	auto argc = boost::unit_test::framework::master_test_suite().argc;
+	auto argv = boost::unit_test::framework::master_test_suite().argv;
+	xacc::Initialize(argc, argv);
+
+	compiler->compile("");
+
+	xacc::Finalize();
 }
 
-}
-#endif
+BOOST_AUTO_TEST_SUITE_END()

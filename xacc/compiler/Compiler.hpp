@@ -35,6 +35,7 @@
 #include <iostream>
 #include "Registry.hpp"
 #include "IR.hpp"
+#include <boost/dll/alias.hpp>
 #include "Accelerator.hpp"
 
 namespace xacc {
@@ -125,5 +126,8 @@ public:
 				}));
 	}
 };
+
+#define RegisterCompiler(TYPE) BOOST_DLL_ALIAS(TYPE::registerCompiler, registerCompiler)
+
 }
 #endif

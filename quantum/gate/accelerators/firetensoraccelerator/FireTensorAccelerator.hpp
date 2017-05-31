@@ -113,10 +113,7 @@ public:
 };
 
 // Create an alias to search for.
-BOOST_DLL_ALIAS(
-    xacc::quantum::FireTensorAccelerator::registerAccelerator,
-	registerAccelerator
-)
+RegisterAccelerator(xacc::quantum::FireTensorAccelerator)
 
 }
 }
