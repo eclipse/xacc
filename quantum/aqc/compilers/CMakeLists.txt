@@ -42,5 +42,5 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};dl;pthread")
+#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};dl;pthread")
 
