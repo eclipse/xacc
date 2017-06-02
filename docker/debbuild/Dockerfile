@@ -15,4 +15,4 @@ run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL
 
 run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc && cp -r /xacc/build/xacc_install/* usr/local/xacc/ \
    && fpm -s dir -t deb --name xacc --version 1.0 --depends libboost-all-dev --depends gcc-6 --depends g++-6 --depends mpich \ 
-   --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
+   --depends libspdlog-dev --depends cmake --depends git --depends make --depends libtool --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
