@@ -28,32 +28,22 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
-#define QUANTUM_GATE_ACCELERATORS_EIGENACCELERATOR_HPP_
-#include <boost/dll/alias.hpp>
+#ifndef QUANTUM_GATE_ACCELERATORS_RIGETTIACCELERATOR_HPP_
+#define QUANTUM_GATE_ACCELERATORS_RIGETTIACCELERATOR_HPP_
 
+#include "AcceleratorBuffer.hpp"
 #include "QPUGate.hpp"
-#include "SimulatedQubits.hpp"
 #include "InstructionIterator.hpp"
-#include "FunctionalGateInstructionVisitor.hpp"
+#include "QuilVisitor.hpp"
 
-#include <random>
+using namespace xacc;
 
 namespace xacc {
 namespace quantum {
 
-double sqrt2 = std::sqrt(2.0);
-using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
-using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
-
 /**
- * The FireTensorAccelerator is an XACC Accelerator that simulates
- * gate based quantum computing circuits. It models the QPUGate Accelerator
- * with SimulatedQubit AcceleratorBuffer. It relies on the Fire Scientific Computing
- * Framework's tensor module to model a specific set of quantum gates. It uses these
- * tensors to build up the unitary matrix described by the circuit.
  */
-class FireTensorAccelerator : virtual public QPUGate {
+class RigettiAccelerator : virtual public QPUGate {
 public:
 
 	/**
@@ -88,8 +78,6 @@ public:
 	virtual bool isValidBufferSize(const int NBits);
 
 	/**
-	 * Execute the simulation. Requires both a valid SimulatedQubits buffer and
-	 * XACC IR Function instance modeling the quantum circuit.
 	 *
 	 * @param ir
 	 */
@@ -99,19 +87,19 @@ public:
 	 * Register this Accelerator with the framework.
 	 */
 	static void registerAccelerator() {
-		xacc::RegisterAccelerator<xacc::quantum::FireTensorAccelerator> FIRETEMP(
-				"firetensor");
+		xacc::RegisterAccelerator<xacc::quantum::RigettiAccelerator> RIGETTITEMP(
+				"rigetti");
 	}
 
 	/**
 	 * The destructor
 	 */
-	virtual ~FireTensorAccelerator() {}
+	virtual ~RigettiAccelerator() {}
 
 };
 
 // Create an alias to search for.
-RegisterAccelerator(xacc::quantum::FireTensorAccelerator)
+RegisterAccelerator(xacc::quantum::RigettiAccelerator)
 
 }
 }
