@@ -37,14 +37,15 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators)
 
+find_package(OpenSSL)
+
+if (OPENSSL_FOUND)
 set (PACKAGE_NAME "Rigetti XACC Accelerator")
 set (PACKAGE_DESCIPTION "Rigetti XACC Accelerator Framework")
 set (LIBRARY_NAME xacc-rigetti)
 
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp)
-
-find_package(OpenSSL REQUIRED)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
@@ -56,4 +57,4 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 # Gather tests
 file (GLOB test_files tests/*.cpp)
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-gateqir;xacc-rigetti")
-
+endif()

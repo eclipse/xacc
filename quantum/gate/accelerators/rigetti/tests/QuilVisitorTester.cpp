@@ -29,64 +29,18 @@
  *
  **********************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE RigettiAcceleratorTester
+#define BOOST_TEST_MODULE QuilVisitorTester
 
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
-#include "RigettiAccelerator.hpp"
+#include "QuilVisitor.hpp"
+#include "InstructionIterator.hpp"
 
+using namespace xacc;
 using namespace xacc::quantum;
 
-class FakeHttpClient: public fire::util::INetworkingTool {
+BOOST_AUTO_TEST_CASE(checkIRToQuil) {
 
-public:
-
-	bool postOccured = false;
-
-	virtual std::string get(const std::string& relativePath,
-			const std::map<std::string, std::string>& header = std::map<
-					std::string, std::string>()) {
-		return "";
-	}
-
-	/**
-	 * Issue an HTTP Post command at the given relative path with
-	 * the provided message. Clients can provide a map of header key values to modify the
-	 * POST request.
-	 *
-	 * @param relativePath The path relative to the hostname/port provided to this NetworkingTool
-	 * @param message The message to post
-	 * @param header The map of additional HTTP POST header information
-	 * @return success Boolean indicating if post was successful
-	 *
-	 */
-	virtual bool post(const std::string& relativePath,
-			const std::string& message,
-			const std::map<std::string, std::string>& header = std::map<
-					std::string, std::string>()) {
-		postOccured = true;
-		return true;
-	}
-
-	virtual std::string getLastStatusCode() {
-		return "200 Ok";
-	}
-
-	virtual std::string getLastRequestMessage() {
-		return "We all good.\n";
-	}
-
-};
-BOOST_AUTO_TEST_CASE(checkKernelExecution) {
-
-	auto options = RuntimeOptions::instance();
-	options->insert(std::make_pair("api-key", "fakekey"));
-	options->insert(std::make_pair("type", "faketype"));
-
-	auto client = std::make_shared<FakeHttpClient>();
-	RigettiAccelerator acc(client);
-
-	auto qreg1 = acc.createBuffer("qreg", 3);
 	auto f = std::make_shared<GateFunction>("foo");
 
 	auto x = std::make_shared<X>(0);
@@ -114,8 +68,37 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 	f->addInstruction(cond1);
 	f->addInstruction(cond2);
 
-	acc.execute(qreg1, f);
 
-	BOOST_VERIFY(client->postOccured);
+	// Create the Instruction Visitor that is going
+	// to map our IR to Quil.
+	auto visitor = std::make_shared<QuilVisitor>();
+
+	// Our QIR is really a tree structure
+	// so create a pre-order tree traversal
+	// InstructionIterator to walk it
+	InstructionIterator it(f);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled())
+			nextInst->accept(visitor);
+	}
+
+	std::string expectedQuil =
+			"X 0\n"
+			"H 1\n"
+			"CNOT 1 2\n"
+			"CNOT 0 1\n"
+			"H 0\n"
+			"MEASURE 0 [0]\n"
+			"MEASURE 1 [1]\n"
+			"JUMP-UNLESS @conditional_0 [0]\n"
+			"Z 2\n"
+			"LABEL @conditional_0\n"
+			"JUMP-UNLESS @conditional_1 [1]\n"
+			"X 2\n"
+			"LABEL @conditional_1\n";
+
+	BOOST_VERIFY(expectedQuil == visitor->getQuilString());
 }
 

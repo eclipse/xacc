@@ -43,6 +43,7 @@ link_directories(${CLANG_LIBRARY_DIRS})
 add_executable(teleport_scaffold_firetensor teleport_scaffold_firetensor.cpp)
 target_link_libraries(teleport_scaffold_firetensor ${Boost_LIBRARIES} dl)
 
+if (TARGET xacc-rigetti)
 add_executable(teleport_scaffold_rigetti teleport_scaffold_rigetti.cpp)
 target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} dl)
-
+endif()

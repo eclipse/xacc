@@ -35,6 +35,9 @@
 #include "QPUGate.hpp"
 #include "InstructionIterator.hpp"
 #include "QuilVisitor.hpp"
+#include "AsioNetworkingTool.hpp"
+#include "RuntimeOptions.hpp"
+#include <boost/algorithm/string.hpp>
 
 using namespace xacc;
 
@@ -90,7 +93,8 @@ public:
 				"Provide the Rigetti Forest API key.")("type",
 				value<std::string>(),
 				"Provide the execution type: multishot, wavefunction, "
-				"multishot-measure, ping, or version.");
+				"multishot-measure, ping, or version.")
+				("trials", value<std::string>(), "Provide the number of trials to execute.");
 		return desc;
 	}
 
@@ -102,10 +106,25 @@ public:
 				"rigetti");
 	}
 
+	RigettiAccelerator() :
+			httpClient(
+					std::make_shared<
+							fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
+							"api.rigetti.com", false)) {
+	}
+
+	RigettiAccelerator(std::shared_ptr<fire::util::INetworkingTool> http) :
+			httpClient(http) {
+	}
+
 	/**
 	 * The destructor
 	 */
 	virtual ~RigettiAccelerator() {}
+
+protected:
+
+	std::shared_ptr<fire::util::INetworkingTool> httpClient;
 
 };
 
