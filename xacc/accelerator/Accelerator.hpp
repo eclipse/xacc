@@ -40,6 +40,7 @@
 #include "IRTransformation.hpp"
 #include "Registry.hpp"
 #include "Function.hpp"
+#include "OptionsProvider.hpp"
 #include <boost/dll/alias.hpp>
 
 namespace xacc {
@@ -72,7 +73,7 @@ enum AcceleratorType {
  * for future reference by Compilers and clients of Accelerator.
  *
  */
-class Accelerator {
+class Accelerator : public OptionsProvider {
 
 public:
 
@@ -146,6 +147,13 @@ public:
 	 * @return
 	 */
 	virtual bool isValidBufferSize(const int NBits) = 0;
+
+	/**
+	 *
+	 */
+	virtual std::shared_ptr<options_description> getOptions() {
+		return std::make_shared<options_description>();
+	}
 
 	/**
 	 * Destructor

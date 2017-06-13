@@ -83,6 +83,14 @@ public:
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
 
+	virtual std::shared_ptr<options_description> getOptions() {
+		auto desc = std::make_shared<options_description>(
+				"Rigetti Accelerator Options");
+		desc->add_options()("api-key", value<std::string>(),
+				"Provide the Rigetti Forest API key.");
+		return desc;
+	}
+
 	/**
 	 * Register this Accelerator with the framework.
 	 */

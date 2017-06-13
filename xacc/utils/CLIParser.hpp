@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-
 #ifndef XACC_UTILS_CLIPARSER_HPP_
 #define XACC_UTILS_CLIPARSER_HPP_
 
@@ -68,14 +67,6 @@ public:
 				value<std::string>(), "Persist generated IR to provided file name.")(
 				"loadCompiler", value<std::string>(), "Load a XACC plugin")
 				("loadAccelerator", value<std::string>(), "Load an XACC Accelerator");
-
-		variables_map compileParameters;
-		store(parse_command_line(argc, argv, *compilerOptions.get()), compileParameters);
-
-		if (compileParameters.count("help")) {
-			std::cout << *compilerOptions.get() << "\n";
-			exit(0);
-		}
 
 		// Load all default Compilers and Accelerators,
 		// ie those in XACC INSTALL DIR/lib
@@ -119,6 +110,23 @@ public:
 			}
 		}
 
+		// Add Accelerator specific options
+		auto registeredIds = AcceleratorRegistry::instance()->getRegisteredIds();
+		for (auto s : registeredIds) {
+			{
+				compilerOptions->add(
+						*(AcceleratorRegistry::instance()->create(s)->getOptions().get()));
+			}
+		}
+
+		// Parse the command line options
+		variables_map compileParameters;
+		store(parse_command_line(argc, argv, *compilerOptions.get()), compileParameters);
+		if (compileParameters.count("help")) {
+			std::cout << *compilerOptions.get() << "\n";
+			exit(0);
+		}
+
 		if (compileParameters.count("loadCompiler")) {
 			auto loadPath = compileParameters["loadCompiler"].as<std::string>();
 			boost::filesystem::path p(loadPath);
@@ -130,6 +138,7 @@ public:
 						"registerCompiler", dll::load_mode::append_decorations);
 				regFunc();
 			}
+			compileParameters.erase("loadCompiler");
 		}
 
 		if (compileParameters.count("loadAccelerator")) {
@@ -143,12 +152,13 @@ public:
 						"registerAccelerator", dll::load_mode::append_decorations);
 				regFunc();
 			}
+			compileParameters.erase("loadAccelerator");
 		}
 
-		if (compileParameters.count("writeIR")) {
-			runtimeOptions->insert(
-					std::make_pair("writeIR",
-							compileParameters["writeIR"].as<std::string>()));
+		// Add all other string options to the global runtime option
+
+		for (auto it = compileParameters.begin(); it != compileParameters.end(); ++it) {
+			runtimeOptions->insert(std::make_pair(it->first, it->second.as<std::string>()));
 		}
 	}
 

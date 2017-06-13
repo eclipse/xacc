@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the xacc nor the
+ *   * Neither the name of the <organization> nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -28,46 +28,28 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE RigettiAcceleratorTester
+#ifndef XACC_UTILS_OPTIONSPROVIDER_HPP_
+#define XACC_UTILS_OPTIONSPROVIDER_HPP_
 
 #include <memory>
-#include <boost/test/included/unit_test.hpp>
-#include "RigettiAccelerator.hpp"
+#include <boost/program_options.hpp>
 
-using namespace xacc::quantum;
+using namespace boost::program_options;
 
-BOOST_AUTO_TEST_CASE(checkKernelExecution) {
+namespace xacc {
 
-	RigettiAccelerator acc;
-	auto qreg1 = acc.createBuffer("qreg", 3);
-	auto f = std::make_shared<GateFunction>("foo");
+/**
+ *
+ */
+class OptionsProvider {
 
-	auto x = std::make_shared<X>(0);
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-	auto cn2 = std::make_shared<CNOT>(0, 1);
-	auto h2 = std::make_shared<Hadamard>(0);
-	auto m0 = std::make_shared<Measure>(0, 0);
-	auto m1 = std::make_shared<Measure>(1,1);
+public:
 
-	auto cond1 = std::make_shared<ConditionalFunction>(0);
-	auto z = std::make_shared<Z>(2);
-	cond1->addInstruction(z);
-	auto cond2 = std::make_shared<ConditionalFunction>(1);
-	auto x2 = std::make_shared<X>(2);
-	cond2->addInstruction(x2);
+	virtual std::shared_ptr<options_description> getOptions() = 0;
 
-	f->addInstruction(x);
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-	f->addInstruction(cn2);
-	f->addInstruction(h2);
-	f->addInstruction(m0);
-	f->addInstruction(m1);
-	f->addInstruction(cond1);
-	f->addInstruction(cond2);
+	virtual ~OptionsProvider() {}
 
-//	acc.execute(qreg1, f);
+};
 
 }
+#endif

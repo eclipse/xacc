@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,46 +28,54 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE RigettiAcceleratorTester
+#include "XACC.hpp"
 
-#include <memory>
-#include <boost/test/included/unit_test.hpp>
-#include "RigettiAccelerator.hpp"
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src("__qpu__ teleport (qbit qreg) {\n"
+	"   cbit creg[2];\n"
+	"   // Init qubit 0 to 1\n"
+	"   X(qreg[0]);\n"
+	"   // Now teleport...\n"
+	"   H(qreg[1]);\n"
+	"   CNOT(qreg[1],qreg[2]);\n"
+	"   CNOT(qreg[0],qreg[1]);\n"
+	"   H(qreg[0]);\n"
+	"   creg[0] = MeasZ(qreg[0]);\n"
+	"   creg[1] = MeasZ(qreg[1]);\n"
+	"   if (creg[0] == 1) Z(qreg[2]);\n"
+	"   if (creg[1] == 1) X(qreg[2]);\n"
+	"}\n");
 
-using namespace xacc::quantum;
+int main (int argc, char** argv) {
 
-BOOST_AUTO_TEST_CASE(checkKernelExecution) {
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-	RigettiAccelerator acc;
-	auto qreg1 = acc.createBuffer("qreg", 3);
-	auto f = std::make_shared<GateFunction>("foo");
+	// Create a reference to the 10 qubit simulation Accelerator
+	auto qpu = xacc::getAccelerator("rigetti");
 
-	auto x = std::make_shared<X>(0);
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-	auto cn2 = std::make_shared<CNOT>(0, 1);
-	auto h2 = std::make_shared<Hadamard>(0);
-	auto m0 = std::make_shared<Measure>(0, 0);
-	auto m1 = std::make_shared<Measure>(1,1);
+	// Allocate a register of qubits
+	auto qubitReg = qpu->createBuffer("qreg", 3);
 
-	auto cond1 = std::make_shared<ConditionalFunction>(0);
-	auto z = std::make_shared<Z>(2);
-	cond1->addInstruction(z);
-	auto cond2 = std::make_shared<ConditionalFunction>(1);
-	auto x2 = std::make_shared<X>(2);
-	cond2->addInstruction(x2);
+	// Create a Program
+	xacc::Program program(qpu, src);
 
-	f->addInstruction(x);
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-	f->addInstruction(cn2);
-	f->addInstruction(h2);
-	f->addInstruction(m0);
-	f->addInstruction(m1);
-	f->addInstruction(cond1);
-	f->addInstruction(cond2);
+	// Request the quantum kernel representing
+	// the above source code
+	auto teleport = program.getKernel("teleport");
 
-//	acc.execute(qreg1, f);
+	// Execute!
+	teleport(qubitReg);
 
+	// Look at results
+	qubitReg->print();
+
+	// Finalize the XACC Framework
+	xacc::Finalize();
+
+	return 0;
 }
+
+
+

@@ -44,9 +44,11 @@ set (LIBRARY_NAME xacc-rigetti)
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp)
 
+find_package(OpenSSL REQUIRED)
+
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_link_libraries(${LIBRARY_NAME} xacc-gateqir)
+target_link_libraries(${LIBRARY_NAME} ${OPENSSL_LIBRARIES} xacc-gateqir)
 
 install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

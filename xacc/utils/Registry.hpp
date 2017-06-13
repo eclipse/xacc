@@ -98,6 +98,21 @@ public:
 	}
 
 	/**
+	 * Return the keys from the registry map.
+	 */
+	std::vector<std::string> getRegisteredIds() {
+		std::vector<std::string> keys;
+
+		std::transform(registry.begin(), registry.end(),
+				std::back_inserter(keys),
+				std::bind(
+						&std::map<std::string,
+								std::function<std::shared_ptr<T>(TArgs...)>>::value_type::first,
+						std::placeholders::_1));
+		return keys;
+	}
+
+	/**
 	 * Return the number of creation functions
 	 * this registry contains.
 	 * @return

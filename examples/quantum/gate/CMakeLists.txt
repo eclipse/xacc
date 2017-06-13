@@ -40,6 +40,9 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
 
 link_directories(${CLANG_LIBRARY_DIRS})
 
-add_executable(teleport_scaffold teleport_scaffold.cpp)
-target_link_libraries(teleport_scaffold ${Boost_LIBRARIES} dl)
+add_executable(teleport_scaffold_firetensor teleport_scaffold_firetensor.cpp)
+target_link_libraries(teleport_scaffold_firetensor ${Boost_LIBRARIES} dl)
+
+add_executable(teleport_scaffold_rigetti teleport_scaffold_rigetti.cpp)
+target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} dl)
 
