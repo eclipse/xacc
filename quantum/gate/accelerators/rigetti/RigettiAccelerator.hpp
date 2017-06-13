@@ -38,6 +38,7 @@
 #include "AsioNetworkingTool.hpp"
 #include "RuntimeOptions.hpp"
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace xacc;
 
@@ -45,6 +46,12 @@ namespace xacc {
 namespace quantum {
 
 /**
+ * The RigettiAccelerator is a QPUGate Accelerator that
+ * provides an execute implementation that maps XACC IR
+ * to an equivalent Quil string, and executes it on the
+ * Rigetti superconducting quantum chip at api.rigetti.com/qvm
+ * through Fire's HTTP Client utilities.
+ *
  */
 class RigettiAccelerator : virtual public QPUGate {
 public:
@@ -81,16 +88,24 @@ public:
 	virtual bool isValidBufferSize(const int NBits);
 
 	/**
+	 * Execute the kernel on the provided AcceleratorBuffer through a
+	 * HTTP Post of Quil instructions to the Rigetti QPU at api.rigetti.com/qvm
 	 *
 	 * @param ir
 	 */
-	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+			const std::shared_ptr<xacc::Function> kernel);
 
+	/**
+	 * Return all relevant RigettiAccelerator runtime options.
+	 * Users can set the api-key, execution type, and number of triels
+	 * from the command line with these options.
+	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		auto desc = std::make_shared<options_description>(
 				"Rigetti Accelerator Options");
 		desc->add_options()("api-key", value<std::string>(),
-				"Provide the Rigetti Forest API key.")("type",
+				"Provide the Rigetti Forest API key. This is used if $HOME/.pyquil_config is not found")("type",
 				value<std::string>(),
 				"Provide the execution type: multishot, wavefunction, "
 				"multishot-measure, ping, or version.")
@@ -125,6 +140,21 @@ public:
 protected:
 
 	std::shared_ptr<fire::util::INetworkingTool> httpClient;
+
+private:
+
+	/**
+	 * Private utility to search for the Rigetti
+	 * API key in $HOME/.pyquil_config, $PYQUIL_CONFIG,
+	 * or --api-key command line arg
+	 */
+	void searchAPIKey(std::string& key);
+
+	/**
+	 * Private utility to search for key in the config
+	 * file.
+	 */
+	void findApiKeyInFile(std::string& key, boost::filesystem::path &p);
 
 };
 

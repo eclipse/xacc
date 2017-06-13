@@ -29,6 +29,7 @@
  *
  **********************************************************************************/
 #include "RigettiAccelerator.hpp"
+#include <boost/filesystem.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -79,13 +80,8 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		if (nextInst->isEnabled()) nextInst->accept(visitor);
 	}
 
-	// Ensure that the user has provided an api-key
-	if (!options->exists("api-key")) {
-		XACCError("Cannot execute kernel on Rigetti chip without API Key.");
-	}
-
-	// Set the API Key
-	apiKey = (*options)["api-key"];
+	// Search for the API key
+	searchAPIKey(apiKey);
 
 	// Set the execution type if the user provided it
 	if (options->exists("type")) {
@@ -139,6 +135,57 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	// Process results... to come
 }
 
+void RigettiAccelerator::searchAPIKey(std::string& key) {
+
+	// Search for the API Key in $HOME/.pyquil_config,
+	// $PYQUIL_CONFIG, or in the command line argument --api-key
+	auto options = RuntimeOptions::instance();
+	boost::filesystem::path pyquilConfig(
+			std::string(getenv("HOME")) + "/.pyquil_config");
+	if (boost::filesystem::exists(pyquilConfig)) {
+		findApiKeyInFile(key, pyquilConfig);
+	} else if (const char * nonStandardPath = getenv("PYQUIL_CONFIG")) {
+		boost::filesystem::path nonStandardPyquilConfig(
+						nonStandardPath);
+		findApiKeyInFile(key, nonStandardPyquilConfig);
+	} else {
+
+		// Ensure that the user has provided an api-key
+		if (!options->exists("api-key")) {
+			XACCError("Cannot execute kernel on Rigetti chip without API Key.");
+		}
+
+		// Set the API Key
+		key = (*options)["api-key"];
+	}
+
+	// If its still empty, then we have a problem
+	if (key.empty()) {
+		XACCError("Error. The API Key is empty. Please place it "
+				"in your $HOME/.pyquil_config file, $PYQUIL_CONFIG env var, "
+				"or provide --api-key argument.");
+	}
+}
+
+void RigettiAccelerator::findApiKeyInFile(std::string& apiKey,
+		boost::filesystem::path &p) {
+	std::ifstream stream(p.string());
+	std::string contents(
+			(std::istreambuf_iterator<char>(stream)),
+			std::istreambuf_iterator<char>());
+
+	std::vector<std::string> lines;
+	boost::split(lines, contents, boost::is_any_of("\n"));
+	for (auto l : lines) {
+		if (boost::contains(l, "key")) {
+			std::vector<std::string> split;
+			boost::split(split, l, boost::is_any_of(":"));
+			auto key = split[1];
+			boost::trim(key);
+			apiKey = key;
+		}
+	}
+}
 }
 }
 
