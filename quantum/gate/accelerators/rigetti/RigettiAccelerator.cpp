@@ -30,6 +30,8 @@
  **********************************************************************************/
 #include "RigettiAccelerator.hpp"
 #include "AsioNetworkingTool.hpp"
+#include "RuntimeOptions.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -58,6 +60,12 @@ bool RigettiAccelerator::isValidBufferSize(const int NBits) {
 void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		const std::shared_ptr<xacc::Function> kernel) {
 
+	auto options = RuntimeOptions::instance();
+	std::string type = "multishot";
+	std::string jsonStr = "", apiKey = "";
+	std::string trials = "10";
+	std::map<std::string, std::string> headers;
+
 	auto visitor = std::make_shared<QuilVisitor>();
 
 	// Our QIR is really a tree structure
@@ -70,9 +78,55 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		if (nextInst->isEnabled()) nextInst->accept(visitor);
 	}
 
-	std::cout << "The QuilString is \n" << visitor->getQuilString() << "\n";
+	if (!options->exists("api-key")) {
+		XACCError("Cannot execute kernel on Rigetti chip without API Key.");
+	}
+
+	apiKey = (*options)["api-key"];
+
+	// Set the execution type if the user provided it
+	if (options->exists("type")) {
+		type = (*options)["type"];
+	}
+
+	// Set the trials number if user provided it
+	if (options->exists("trials")) {
+		trials = (*options)["trials"];
+	}
+
+	if (type == "ping") {
+		jsonStr += "{ \"type\" : \"ping\" }";
+	} else if (type == "version") {
+		jsonStr += "{ \"type\" : \"version\" }";
+	} else {
+		auto quilStr = visitor->getQuilString();
+		boost::replace_all(quilStr, "\n", "\\n");
+
+		// Create the Json String
+		jsonStr += "{ \"type\" : \"" + type + "\", \"addresses\" : "
+				+ visitor->getClassicalAddresses()
+				+ ", \"quil-instructions\" : \"" + quilStr
+				+ (type == "wavefunction" ? "" : "\", \"trials\" : " + trials)
+				+ " }";
+
+	}
+
+	headers.insert(std::make_pair("Content-type", "application/json"));
+	headers.insert(std::make_pair("Accept", "application/octet-stream"));
+	headers.insert(std::make_pair("x-api-key", apiKey));
 
 
+	XACCInfo("Rigetti Json Payload = " + jsonStr);
+	auto httpClient = std::make_shared<
+			fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
+			"api.rigetti.com", false);
+	bool success = httpClient->post("/qvm", jsonStr, headers);
+
+	if (!success) {
+		XACCError("Error in HTTPS Post.\n" + httpClient->getLastStatusCode() + "\n" + httpClient->getLastRequestMessage());
+	}
+
+	XACCInfo("\n\tSuccessful HTTP Post to Rigetti.\n\t" + httpClient->getLastRequestMessage());
 }
 
 }

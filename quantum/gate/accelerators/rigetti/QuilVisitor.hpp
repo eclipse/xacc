@@ -25,7 +25,7 @@ class QuilVisitor: public BaseInstructionVisitor,
 protected:
 
 	std::string quilStr;
-
+	std::string classicalAddresses;
 public:
 	QuilVisitor() {
 	}
@@ -49,6 +49,7 @@ public:
 	void visit(Measure& m) {
 		int classicalBitIdx = m.getParameter(0);
 		quilStr += "MEASURE " + std::to_string(m.bits()[0]) + " [" + std::to_string(classicalBitIdx) + "]\n";
+		classicalAddresses += std::to_string(classicalBitIdx) + ", ";
 	}
 
 	void visit(ConditionalFunction& c) {
@@ -58,11 +59,16 @@ public:
 			inst->accept(visitor);
 		}
 		quilStr += visitor->getQuilString();
-		quilStr += "LABEL " + c.getName() + "\n";
+		quilStr += "LABEL @" + c.getName() + "\n";
 	}
 
 	std::string getQuilString() {
 		return quilStr;
+	}
+
+	std::string getClassicalAddresses() {
+		auto retStr = classicalAddresses.substr(0, classicalAddresses.size() - 2);
+		return "[" + retStr + "]";
 	}
 
 	virtual ~QuilVisitor() {}

@@ -87,7 +87,10 @@ public:
 		auto desc = std::make_shared<options_description>(
 				"Rigetti Accelerator Options");
 		desc->add_options()("api-key", value<std::string>(),
-				"Provide the Rigetti Forest API key.");
+				"Provide the Rigetti Forest API key.")("type",
+				value<std::string>(),
+				"Provide the execution type: multishot, wavefunction, "
+				"multishot-measure, ping, or version.");
 		return desc;
 	}
 

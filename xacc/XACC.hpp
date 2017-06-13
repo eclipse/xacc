@@ -101,7 +101,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
  */
 void Finalize() {
 	XACCInfo(
-			"[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
+			"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 					"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 	xacc::CompilerRegistry::instance()->destroy();
 	xacc::AcceleratorRegistry::instance()->destroy();
