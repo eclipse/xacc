@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Build
-url: https://ornl-qci.github.io/xacc/build
+permalink: /build/
+category: "build"
 ---
 
-XACC Build Instructions
