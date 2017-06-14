@@ -28,7 +28,10 @@ algorithms in a manner that best suits their research and application.
 It will enable the execution of those programmed algorithms on a number 
 of differing hardware types. 
 
-![Figure 1: Diagram describing Quantum Accelerator Intermediate Representation (IR). This IR enables the XACC Specification standard's language and hardware interoperability.](https://github.com/ORNL-QCI/xacc/blob/master/docs/assets/acc_ir.png)
+<figure>
+<img src="/xacc/assets/acc_ir.png" {% if include.alt %} alt="{{ include.alt }}" {% endif %} {% if include.width %} width="{{ include.width }}" {% endif %}/>
+<figcaption>Figure 1: Diagram describing Quantum Accelerator Intermediate Representation (IR). This IR enables the XACC Specification standard's language and hardware interoperability.</figcaption>
+</figure>
 
 The XACC Specification defines a novel intermediate representation 
 that promotes the overall integration of existing programming 
@@ -49,7 +52,10 @@ to the Accelerator Bits that they operate on. Instructions can
 operate on one or many Accelerator Bits. Instructions can be in 
 an enabled or disabled state to aid in the definition of conditional branching. 
 
-![Figure 2](https://github.com/ORNL-QCI/xacc/blob/master/docs/assets/acc_ir_spec.png)
+<figure>
+<img src="/xacc/assets/acc_ir_spec.png" {% if include.alt %} alt="{{ include.alt }}" {% endif %} {% if include.width %} width="{{ include.width }}" {% endif %}/>
+<figcaption>Figure 2.</figcaption>
+</figure>
 
 To provide a mechanism for expressing kernels of instructions, the 
 specification defines a Function interface. The Function interface 
