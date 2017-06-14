@@ -1,21 +1,22 @@
-# Welcome to Jekyll!
+# Permalinks
 #
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
+# Use of `relative_permalinks` ensures post links from the index work properly.
+permalink:           pretty
+relative_permalinks: true
 
-title: XACC
-email: hemangsk@gmail.com
-description: "A framework for programming extreme-scale accelerators for Post-Moore's Law heterogeneous computing."
-url: "https://ORNL-QCI.github.io"
-baseurl: "/xacc"
-twitter_username: amccaskey2223
-github_username:  amccaskey
+# Setup
+title:               XACC
+tagline:             'eXtreme-scale ACCelerator programming'
+description:         'XACC is a programming framework and specification enabling quantum acceleration in existing classical computing in a manner that is language and hardware agnostic.'
+url:                 http://ornl-qci.github.io/xacc
+baseurl:             ''
+paginate:            5
 
-# Build settings
-markdown: kramdown
+# About/contact
+author:
+  name:              Alex McCaskey
+  url:               https://twitter.com/amccaskey2223
+  email:             mccaskeyaj@ornl.gov
 
-# Sass support
-sass:
-    sass_dir: _sass
+# Custom vars
+version:             0.0.1

@@ -1,26 +1,12 @@
 ---
 layout: page
-title : About
-permalink: /about/
+title: About
 ---
-<!--- Pull all articles from the "about category and post them -->
-<div class="home">
 
-  {% for post in site.categories.about %}
-  <div class="post postContent">
-    <div  class="postDate"><time datetime="{{ post.date | date_to_xmlschema }}" itemprop="datePublished">{{ post.date | date: "%b %-d, %Y" }}</time>
-    </div>
-    <div class="postDay">
-      {{post.tag}}
-    </div>
-    <br>
-    <div class="postTitle">
-    <a class='postLink' href="{{site.url}}{{site.baseurl}}{{post.url}}">{{post.title}}</a>
-    </div>
-    <div class="postExt">
-   {{ post.content | strip_html | truncatewords:20}}
-    </div>
-  </div>
-  {% endfor %}
-</div>
-
+XACC is a programming framework for extreme-scale accelerator architectures 
+that integrates alongside existing conventional classical applications. It 
+is a pluggable framework for programming languages and accelerators developed 
+for next-gen computing hardware architectures like quantum and neuromorphic 
+computing. It lets computational scientists efficiently off-load classically 
+intractable work to attached accelerators through a user-friendly kernel API. 
+XACC makes post-exascale hybrid programming approachable for domain computational scientists.
