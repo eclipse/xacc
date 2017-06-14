@@ -45,7 +45,7 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 	"   creg[1] = MeasZ(qreg[1]);\n"
 	"   if (creg[0] == 1) Z(qreg[2]);\n"
 	"   if (creg[1] == 1) X(qreg[2]);\n"
-	"   // Check that 3rd qubit is a 1"
+	"   // Check that 3rd qubit is a 1\n"
 	"   creg[2] = MeasZ(qreg[2]);\n"
 	"}\n");
 
