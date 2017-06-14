@@ -30,6 +30,7 @@
  **********************************************************************************/
 #include "RigettiAccelerator.hpp"
 #include <boost/filesystem.hpp>
+#include <fstream>
 
 namespace xacc {
 namespace quantum {
