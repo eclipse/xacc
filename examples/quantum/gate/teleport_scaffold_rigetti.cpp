@@ -33,7 +33,7 @@
 // Quantum Kernel executing teleportation of
 // qubit state to another.
 const std::string src("__qpu__ teleport (qbit qreg) {\n"
-	"   cbit creg[2];\n"
+	"   cbit creg[3];\n"
 	"   // Init qubit 0 to 1\n"
 	"   X(qreg[0]);\n"
 	"   // Now teleport...\n"
@@ -45,6 +45,8 @@ const std::string src("__qpu__ teleport (qbit qreg) {\n"
 	"   creg[1] = MeasZ(qreg[1]);\n"
 	"   if (creg[0] == 1) Z(qreg[2]);\n"
 	"   if (creg[1] == 1) X(qreg[2]);\n"
+	"   // Check that 3rd qubit is a 1"
+	"   creg[2] = MeasZ(qreg[2]);\n"
 	"}\n");
 
 int main (int argc, char** argv) {
@@ -52,10 +54,11 @@ int main (int argc, char** argv) {
 	// Initialize the XACC Framework
 	xacc::Initialize(argc, argv);
 
-	// Create a reference to the 10 qubit simulation Accelerator
+	// Create a reference to the Rigetti 
+	// QPU at api.rigetti.com/qvm
 	auto qpu = xacc::getAccelerator("rigetti");
 
-	// Allocate a register of qubits
+	// Allocate a register of 3 qubits
 	auto qubitReg = qpu->createBuffer("qreg", 3);
 
 	// Create a Program
@@ -67,9 +70,6 @@ int main (int argc, char** argv) {
 
 	// Execute!
 	teleport(qubitReg);
-
-	// Look at results
-	qubitReg->print();
 
 	// Finalize the XACC Framework
 	xacc::Finalize();
