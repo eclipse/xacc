@@ -1,6 +1,7 @@
 ---
 layout: page
 title: About
+permalink: /about/
 ---
 
 XACC is a programming framework for extreme-scale accelerator architectures 

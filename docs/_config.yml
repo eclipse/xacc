@@ -6,8 +6,8 @@ permalink:           pretty
 title:               XACC
 tagline:             'eXtreme-scale ACCelerator programming'
 description:         'XACC is a programming framework and specification enabling quantum acceleration in existing classical computing in a manner that is language and hardware agnostic.'
-url:                 https://ornl-qci.github.io/xacc
-baseurl:             ''
+url:                 "https://ornl-qci.github.io"
+baseurl:             '/xacc'
 paginate:            5
 
 # About/contact
