@@ -86,13 +86,13 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	searchAPIKey(apiKey);
 
 	// Set the execution type if the user provided it
-	if (options->exists("type")) {
-		type = (*options)["type"];
+	if (options->exists("rigetti-type")) {
+		type = (*options)["rigetti-type"];
 	}
 
 	// Set the trials number if user provided it
-	if (options->exists("trials")) {
-		trials = (*options)["trials"];
+	if (options->exists("rigetti-trials")) {
+		trials = (*options)["rigetti-trials"];
 	}
 
 	// Construct the JSON payload string
@@ -260,7 +260,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                 wf[i] = complex(re, im)
 		 */
 
-	} else if (type == "multishot") {
+	} else if (type == "multishot" || type == "ping" || type == "version") {
 
 		std::stringstream ss;
 		ss << postResponse.content.rdbuf();
@@ -288,12 +288,12 @@ void RigettiAccelerator::searchAPIKey(std::string& key) {
 	} else {
 
 		// Ensure that the user has provided an api-key
-		if (!options->exists("api-key")) {
+		if (!options->exists("rigetti-api-key")) {
 			XACCError("Cannot execute kernel on Rigetti chip without API Key.");
 		}
 
 		// Set the API Key
-		key = (*options)["api-key"];
+		key = (*options)["rigetti-api-key"];
 	}
 
 	// If its still empty, then we have a problem

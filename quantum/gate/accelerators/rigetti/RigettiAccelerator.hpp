@@ -104,12 +104,12 @@ public:
 	virtual std::shared_ptr<options_description> getOptions() {
 		auto desc = std::make_shared<options_description>(
 				"Rigetti Accelerator Options");
-		desc->add_options()("api-key", value<std::string>(),
-				"Provide the Rigetti Forest API key. This is used if $HOME/.pyquil_config is not found")("type",
+		desc->add_options()("rigetti-api-key", value<std::string>(),
+				"Provide the Rigetti Forest API key. This is used if $HOME/.pyquil_config is not found")("rigetti-type",
 				value<std::string>(),
 				"Provide the execution type: multishot, wavefunction, "
 				"multishot-measure, ping, or version.")
-				("trials", value<std::string>(), "Provide the number of trials to execute.");
+				("rigetti-trials", value<std::string>(), "Provide the number of trials to execute.");
 		return desc;
 	}
 

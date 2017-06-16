@@ -77,8 +77,8 @@ public:
 BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 
 	auto options = RuntimeOptions::instance();
-	options->insert(std::make_pair("api-key", "fakekey"));
-	options->insert(std::make_pair("type", "faketype"));
+	options->insert(std::make_pair("rigetti-api-key", "fakekey"));
+	options->insert(std::make_pair("rigetti-type", "faketype"));
 
 	auto client = std::make_shared<FakeHttpClient>();
 	RigettiAccelerator acc(client);
