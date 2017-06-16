@@ -53,6 +53,8 @@ if (CLANG_FOUND AND LLVM_FOUND)
    include_directories(${CLANG_INCLUDE_DIRS})
    include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 

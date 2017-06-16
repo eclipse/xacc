@@ -31,10 +31,11 @@
 #ifndef QUANTUM_GATE_GATEQIR_HPP_
 #define QUANTUM_GATE_GATEQIR_HPP_
 
-#include "QIR.hpp"
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "InstructionIterator.hpp"
+#include "Graph.hpp"
+#include "IR.hpp"
 
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
@@ -186,7 +187,7 @@ private:
  * circuit gate (CircuitNode).
  *
  */
-class GateQIR: public virtual QIR<xacc::quantum::CircuitNode> {
+class GateQIR: public virtual xacc::IR, public Graph<CircuitNode> {
 
 public:
 
@@ -202,6 +203,27 @@ public:
 	 * quantum circuit.
 	 */
 	virtual void generateGraph(const std::string& kernelName);
+
+	/**
+	 * Add a quantum function to this intermediate representation.
+	 * @param kernel
+	 */
+	virtual void addKernel(std::shared_ptr<Function> kernel) {
+		kernels.push_back(kernel);
+	}
+
+	virtual const int numberOfKernels() {
+		return kernels.size();
+	}
+
+	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
+		for (auto f : kernels) {
+			if (f->getName() == name) {
+				return f;
+			}
+		}
+		XACCError("Invalid kernel name.");
+	}
 
 	/**
 	 * Return a string representation of this
@@ -241,6 +263,13 @@ public:
 	 */
 	virtual ~GateQIR() {
 	}
+
+protected:
+
+	/**
+	 * Reference to this QIR's list of quantum functions
+	 */
+	std::vector<std::shared_ptr<Function>> kernels;
 
 private:
 

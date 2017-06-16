@@ -34,7 +34,6 @@
 #include "clang/Frontend/TextDiagnosticPrinter.h"
 
 #include "GateInstruction.hpp"
-#include "ParameterizedGateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "ConditionalFunction.hpp"
 

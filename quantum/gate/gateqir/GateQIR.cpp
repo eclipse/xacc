@@ -41,7 +41,6 @@ namespace quantum {
 
 void GateQIR::generateGraph(const std::string& kernelName) {
 
-
 	auto flatQasmStr = toAssemblyString(kernelName, "qreg");
 
 	std::map<std::string, int> qubitVarNameToId;

@@ -32,7 +32,7 @@
 #define BOOST_TEST_MODULE ParameterizedGateTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "ParameterizedGateInstruction.hpp"
+#include "GateInstruction.hpp"
 
 using namespace xacc;
 

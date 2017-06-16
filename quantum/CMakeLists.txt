@@ -28,9 +28,7 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/qir)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 
-add_subdirectory(qir)
 add_subdirectory(gate)
 add_subdirectory(aqc)
