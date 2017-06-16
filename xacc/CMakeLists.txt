@@ -40,4 +40,4 @@ file(GLOB test_files tests/*Tester.cpp)
 # Add the tests
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
 
-install(FILES ${HEADERS} DESTINATION include)
+install(FILES ${HEADERS} DESTINATION include/xacc)

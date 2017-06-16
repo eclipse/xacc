@@ -76,7 +76,9 @@ public:
 	virtual void load(std::istream& inStream) = 0;
 
 	virtual void addKernel(std::shared_ptr<Function> kernel) = 0;
+
 	virtual std::shared_ptr<Function> getKernel(const std::string& name) = 0;
+
 	/**
 	 * The destructor
 	 */

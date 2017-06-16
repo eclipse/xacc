@@ -192,7 +192,7 @@ public:
 	template<typename ... RuntimeArgs>
 	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(
 			const std::string& kernelName) {
-		return [&](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
+		return [=](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
 			build("--compiler scaffold", args...);
 			auto fToExec = xaccIR->getKernel(kernelName);
 			accelerator->execute(buffer, fToExec);

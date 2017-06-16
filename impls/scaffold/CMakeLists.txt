@@ -58,7 +58,7 @@ if (CLANG_FOUND AND LLVM_FOUND)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   install(FILES ${HEADERS} DESTINATION include)
+   #install(FILES ${HEADERS} DESTINATION include)
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
    link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})

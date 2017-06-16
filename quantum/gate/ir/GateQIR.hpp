@@ -174,6 +174,7 @@ public:
 		subInstMap.insert(std::make_pair(function.getName(), function.nInstructions()));
 		currentFuncName = function.getName();
 	}
+
 private:
 
 	void endFunction() {

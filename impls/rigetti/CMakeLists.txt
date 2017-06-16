@@ -51,7 +51,7 @@ if (OPENSSL_FOUND)
 
    target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gate-ir)
 
-   install(FILES ${HEADERS} DESTINATION include)
+   #install(FILES ${HEADERS} DESTINATION include)
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
    # Gather tests

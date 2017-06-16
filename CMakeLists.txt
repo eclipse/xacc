@@ -40,6 +40,7 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Modify our CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
   message(STATUS "Fire found in tpls")
@@ -53,7 +54,7 @@ find_package(MPI REQUIRED)
 # We require Boost
 find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
 
-# Look for OpenMP
+# Look for OpenMP, add it we find it
 find_package(OpenMP)
 if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -61,7 +62,7 @@ endif()
 
 # Create a xacc config header file
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
-install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include)
+install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 
 # Include dirs that everyone will use
 include_directories(${CMAKE_BINARY_DIR})
@@ -82,3 +83,10 @@ add_subdirectory(quantum)
 add_subdirectory(impls)
 add_subdirectory(tools)
 add_subdirectory(examples)
+
+# Install the config file for external projects to use
+# This is cool, users just add find_package(XACC REQUIRED) to 
+# their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
+# and CMake loads include paths, libs, etc
+install(FILES cmake/xacc-config.cmake DESTINATION .)
+

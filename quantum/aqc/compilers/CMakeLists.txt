@@ -37,7 +37,7 @@ file (GLOB SRC *.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-install(FILES ${HEADERS} DESTINATION include)
+install(FILES ${HEADERS} DESTINATION include/quantum/aqc)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests

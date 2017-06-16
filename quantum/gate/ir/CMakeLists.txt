@@ -40,7 +40,7 @@ file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-install(FILES ${HEADERS} DESTINATION include)
+install(FILES ${HEADERS} DESTINATION include/quantum/gate)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
