@@ -82,7 +82,6 @@ add_subdirectory(xacc)
 add_subdirectory(quantum)
 add_subdirectory(impls)
 add_subdirectory(tools)
-add_subdirectory(examples)
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 

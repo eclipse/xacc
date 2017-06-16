@@ -28,18 +28,9 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
-
-link_directories(${CLANG_LIBRARY_DIRS})
-
 if (TARGET xacc-scaffold)
    add_executable(teleport_scaffold_simpleaccelerator teleport_scaffold_simpleaccelerator.cpp)
    target_link_libraries(teleport_scaffold_simpleaccelerator ${Boost_LIBRARIES} dl)
-
-   if (TARGET xacc-rigetti)
-     add_executable(teleport_scaffold_rigetti teleport_scaffold_rigetti.cpp)
-     target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} dl)
-   endif()
+   
+   install(TARGETS teleport_scaffold_simpleaccelerator DESTINATION examples)
 endif()

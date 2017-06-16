@@ -28,4 +28,9 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-add_subdirectory(quantum)
+if (TARGET xacc-scaffold)
+   add_executable(teleport_scaffold_rigetti teleport_scaffold_rigetti.cpp)
+   target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} dl)
+   
+   install(TARGETS teleport_scaffold_rigetti DESTINATION examples)
+endif()
