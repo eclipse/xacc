@@ -32,12 +32,10 @@
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/accelerators)
 
 set (PACKAGE_NAME "Simple XACC Accelerator")
 set (PACKAGE_DESCIPTION "Simple XACC Accelerator Framework")
@@ -48,12 +46,12 @@ file (GLOB SRC *.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_link_libraries(${LIBRARY_NAME} xacc-gateqir)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc-gate-ir)
 
 install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-gateqir;xacc-simpleaccelerator")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-simpleaccelerator")
 

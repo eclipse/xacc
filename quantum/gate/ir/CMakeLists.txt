@@ -30,9 +30,10 @@
 #**********************************************************************************/
 set (PACKAGE_NAME "XACC Quantum Gate IR Runtime")
 set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
-set (LIBRARY_NAME xacc-gateqir)
+set (LIBRARY_NAME xacc-gate-ir)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/functions)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/instructions)
 
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
@@ -44,5 +45,5 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/instructions;${CMAKE_CURRENT_SOURCE_DIR}/functions" "${LIBRARY_NAME};${Boost_LIBRARIES};xacc-gateqir")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};xacc-gate-ir")
 

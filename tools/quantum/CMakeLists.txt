@@ -29,8 +29,8 @@
 #
 #**********************************************************************************/
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 
 add_executable(qasm2qir qasm2qir.cpp)
-target_link_libraries(qasm2qir ${Boost_LIBRARIES} xacc-gateqir)
+target_link_libraries(qasm2qir ${Boost_LIBRARIES} xacc-gate-ir)

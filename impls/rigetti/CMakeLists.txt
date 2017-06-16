@@ -33,9 +33,9 @@ find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
 
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/instructions)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/gateqir/functions)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/functions)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -49,12 +49,12 @@ if (OPENSSL_FOUND)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gateqir)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gate-ir)
 
    install(FILES ${HEADERS} DESTINATION include)
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-gateqir;xacc-rigetti")
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-gate-ir;xacc-rigetti")
 endif()

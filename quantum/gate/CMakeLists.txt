@@ -29,10 +29,10 @@
 #
 #**********************************************************************************/
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateqir)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateqir/instructions)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/instructions)
 
-add_subdirectory(gateqir)
+add_subdirectory(ir)
 add_subdirectory(utils)
 
 
