@@ -21,7 +21,7 @@ and the Software and Applications Team from Rigetti have begun collaborating in
 an effort to expose the Rigetti QPU and programming tools to XACC and its user 
 community. This article describes the results of that work - specifically, a 
 new XACC Accelerator implementation that executes quantum kernels on the 
-physical Rigetti QPU. For a tutorial on how to use XACC and the Rigetti 
+Rigetti QVM. For a tutorial on how to use XACC and the Rigetti 
 Accelerator, check out [Rigetti Tutorial](https://ornl-qci.github.io/xacc/tutorials/rigetti).
 
 
