@@ -60,20 +60,17 @@ public:
 	 * @return success Boolean indicating if post was successful
 	 *
 	 */
-	virtual bool post(const std::string& relativePath,
+	virtual fire::util::PostResponse post(const std::string& relativePath,
 			const std::string& message,
 			const std::map<std::string, std::string>& header = std::map<
 					std::string, std::string>()) {
 		postOccured = true;
-		return true;
-	}
+		std::stringstream ss;
+		ss << "HELLO\n";
+		fire::util::PostResponse r(ss);
+		r.successful = true;
 
-	virtual std::string getLastStatusCode() {
-		return "200 Ok";
-	}
-
-	virtual std::string getLastRequestMessage() {
-		return "We all good.\n";
+		return r;
 	}
 
 };

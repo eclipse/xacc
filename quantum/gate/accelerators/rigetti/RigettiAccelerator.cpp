@@ -31,6 +31,7 @@
 #include "RigettiAccelerator.hpp"
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <iomanip>
 
 namespace xacc {
 namespace quantum {
@@ -109,7 +110,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		jsonStr += "{ \"type\" : \"" + type + "\", \"addresses\" : "
 				+ visitor->getClassicalAddresses()
 				+ ", \"quil-instructions\" : \"" + quilStr
-				+ (type == "wavefunction" ? "" : "\", \"trials\" : " + trials)
+				+ (type == "wavefunction" ? "\"" : "\", \"trials\" : " + trials)
 				+ " }";
 
 	}
@@ -122,18 +123,153 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	XACCInfo("Rigetti Json Payload = " + jsonStr);
 
 	// Execute the HTTP Post!
-	bool success = httpClient->post("/qvm", jsonStr, headers);
+	auto postResponse = httpClient->post("/qvm", jsonStr, headers);
 
 	// Check that it succeeded
-	if (!success) {
-		XACCError("Error in HTTPS Post.\n" + httpClient->getLastStatusCode()
-				+ "\n" + httpClient->getLastRequestMessage());
+	if (!postResponse.successful) {
+		XACCError("Error in HTTPS Post.\n" + postResponse.status_code);
 	}
 
-	XACCInfo("\n\tSuccessful HTTP Post to Rigetti.\n\t"
-			+ httpClient->getLastRequestMessage());
+	XACCInfo("Successful HTTP Post to Rigetti.");
 
 	// Process results... to come
+
+	if (type == "wavefunction") {
+		std::istream& str = postResponse.content;
+
+		char buf[postResponse.contentLength];
+		str.read(buf, postResponse.contentLength);
+
+//		unsigned char buf[] = {
+//		  0x05, // classical measurement octets - 0x05 is 5 which is 1 0 1 // make sense for teleport
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Re component 0
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Im component 0
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Re 0x3f = 63 = 1 1 1 1 1 1, 0xf0 = 15 = 1 1 1 1
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//		  0x0a // new line
+//		};
+
+		// What to do with this???
+		auto roundToNextMultiple = [](int n, int m) -> int {
+			return ((n + m - 1) / m) * m;
+		};
+
+		auto getBits = [](auto o) -> std::bitset<8> {
+    	    if  (!(0 <= o <= 255)) XACCError("invalid byte");
+    	    std::bitset<8> bits;
+    	    for (int i = 0; i < 8; i++) {
+    	        if (1 == o & 1) {
+    	            bits[i] = 1;
+    	        }
+    	        o = o >> 1;
+    	    }
+    	    return bits;
+		};
+
+		int numOctets = postResponse.contentLength;
+		int numAddresses = visitor->getNumberOfAddresses();
+		int numMemoryOctets = roundToNextMultiple(numAddresses, 8) / 8;
+		int numWFOctets = numOctets - numMemoryOctets;
+
+		assert(numWFOctets / 16 == std::pow(2, buffer->size()));
+
+		std::cout << "NUM MEM OCT: " << numMemoryOctets << ", " << numAddresses << ", " << numWFOctets << "\n";
+		std::vector<int> temp;
+		for (int i = 0; i < numMemoryOctets; i++) {
+		    std::stringstream ss;
+		    ss << buf[i];
+		    unsigned long long n;
+		    ss >> n;
+		    std::bitset<8> bits(n);
+//			auto bits = getBits(buf[i]);
+			for (int j = 0; j < 8; j++) {
+				temp.push_back(bits[j]);
+			}
+		}
+
+		std::vector<int> mem(temp.begin(), temp.begin() + numAddresses);
+
+		std::cout << "Classical Measurements: ";
+		for (auto i : mem) {
+			std::cout << i << " ";
+		}
+		std::cout << "\n";
+
+		union Converter { uint64_t i; double d; };
+
+		auto getDouble = [&] (std::bitset<64> const& bs) -> double{
+		    Converter c;
+		    c.i = bs.to_ullong();
+		    return c.d;
+		};
+
+		int p = numMemoryOctets;
+		while (p < numOctets) {
+
+			// Get subset of the binary buffer
+			char re_be[8], im_be[8];
+			std::memcpy(re_be, &buf[p], sizeof(double));
+			std::memcpy(im_be, &buf[p+8], sizeof(double));
+
+			double re = *reinterpret_cast<double*>(re_be);
+			double im = *reinterpret_cast<double*>(im_be);
+
+			std::cout << p << ": " << "(" << re << ", " << im << ")\n";
+
+			p+=16;
+
+		}
+
+		/*
+		 * def recover_complexes(coef_string):
+            num_octets = len(coef_string)
+            num_addresses = len(classical_addresses)
+            num_memory_octets = _round_to_next_multiple(num_addresses, 8) // 8
+            num_wavefunction_octets = num_octets - num_memory_octets
+
+            # Parse the classical memory
+            mem = []
+            for i in range(num_memory_octets):
+                # Python 3 oddity: indexing coef_string with a single
+                # index returns an int. If you request a slice it keeps
+                # it as a bytestring.
+                octet = struct.unpack('B', coef_string[i:i+1])[0]
+                mem.extend(_octet_bits(octet))
+
+            mem = mem[0:num_addresses]
+
+            # Parse the wavefunction
+            wf = np.zeros(num_wavefunction_octets // OCTETS_PER_COMPLEX_DOUBLE, dtype=np.cfloat)
+            for i, p in enumerate(range(num_memory_octets, num_octets, OCTETS_PER_COMPLEX_DOUBLE)):
+                re_be = coef_string[p: p + OCTETS_PER_DOUBLE_FLOAT]
+                im_be = coef_string[p + OCTETS_PER_DOUBLE_FLOAT: p + OCTETS_PER_COMPLEX_DOUBLE]
+                re = struct.unpack('>d', re_be)[0]
+                im = struct.unpack('>d', im_be)[0]
+                wf[i] = complex(re, im)
+		 */
+
+	} else if (type == "multishot") {
+
+		std::stringstream ss;
+		ss << postResponse.content.rdbuf();
+
+		XACCInfo("Rigetti QVM Response:\n\t" + ss.str());
+
+	} else {
+		// do nothing
+	}
 }
 
 void RigettiAccelerator::searchAPIKey(std::string& key) {

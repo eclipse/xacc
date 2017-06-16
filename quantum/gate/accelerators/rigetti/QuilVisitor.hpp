@@ -72,6 +72,7 @@ protected:
 	 */
 	std::string classicalAddresses;
 
+	int numAddresses = 0;
 public:
 
 	/**
@@ -108,6 +109,7 @@ public:
 		int classicalBitIdx = m.getParameter(0);
 		quilStr += "MEASURE " + std::to_string(m.bits()[0]) + " [" + std::to_string(classicalBitIdx) + "]\n";
 		classicalAddresses += std::to_string(classicalBitIdx) + ", ";
+		numAddresses++;
 	}
 
 	/**
@@ -139,6 +141,9 @@ public:
 		return "[" + retStr + "]";
 	}
 
+	int getNumberOfAddresses() {
+		return numAddresses;
+	}
 	/**
 	 * The destructor
 	 */
