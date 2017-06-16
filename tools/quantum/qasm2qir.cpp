@@ -30,7 +30,6 @@
  **********************************************************************************/
 #include "GateFunction.hpp"
 #include "GateInstruction.hpp"
-#include "ParameterizedGateInstruction.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <fstream>

@@ -1,3 +1,4 @@
+
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -32,7 +33,7 @@
 #define BOOST_TEST_MODULE QubitsTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "SimulatedQubits.hpp"
+#include "../../simple-simulator/SimulatedQubits.hpp"
 
 using namespace xacc::quantum;
 

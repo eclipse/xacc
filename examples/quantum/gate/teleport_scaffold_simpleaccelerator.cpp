@@ -28,42 +28,54 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_QPUGATE_HPP_
-#define QUANTUM_GATE_ACCELERATORS_QPUGATE_HPP_
+#include "XACC.hpp"
 
-#include "Accelerator.hpp"
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src("__qpu__ teleport (qbit qreg) {\n"
+	"   cbit creg[2];\n"
+	"   // Init qubit 0 to 1\n"
+	"   X(qreg[0]);\n"
+	"   // Now teleport...\n"
+	"   H(qreg[1]);\n"
+	"   CNOT(qreg[1],qreg[2]);\n"
+	"   CNOT(qreg[0],qreg[1]);\n"
+	"   H(qreg[0]);\n"
+	"   creg[0] = MeasZ(qreg[0]);\n"
+	"   creg[1] = MeasZ(qreg[1]);\n"
+	"   if (creg[0] == 1) Z(qreg[2]);\n"
+	"   if (creg[1] == 1) X(qreg[2]);\n"
+	"}\n");
 
-namespace xacc {
-namespace quantum {
+int main (int argc, char** argv) {
 
-/**
- *
- */
-//template<typename BitsType>
-class QPUGate: virtual public Accelerator {
-public:
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-	/**
-	 * This Accelerator models QPU Gate accelerators.
-	 * @return
-	 */
-	virtual AcceleratorType getType() {
-		return AcceleratorType::qpu_gate;
-	}
+	// Create a reference to the 10 qubit simulation Accelerator
+	auto qpu = xacc::getAccelerator("simple");
 
-	/**
-	 * We have no need to transform the IR for this Accelerator,
-	 * so return an empty list
-	 * @return
-	 */
-	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
-		std::vector<xacc::IRTransformation> v;
-		return v;
-	}
+	// Allocate a register of qubits
+	auto qubitReg = qpu->createBuffer("qreg", 3);
 
-	virtual ~QPUGate() {}
-};
+	// Create a Program
+	xacc::Program program(qpu, src);
 
+	// Request the quantum kernel representing
+	// the above source code
+	auto teleport = program.getKernel("teleport");
+
+	// Execute!
+	teleport(qubitReg);
+
+	// Look at results
+	qubitReg->print();
+
+	// Finalize the XACC Framework
+	xacc::Finalize();
+
+	return 0;
 }
-}
-#endif
+
+
+

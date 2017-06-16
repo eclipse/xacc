@@ -31,11 +31,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateqir)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateqir/instructions)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/gateqir/functions)
 
 add_subdirectory(gateqir)
-add_subdirectory(compilers)
-add_subdirectory(accelerators)
 add_subdirectory(utils)
 
 

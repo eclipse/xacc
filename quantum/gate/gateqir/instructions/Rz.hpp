@@ -31,7 +31,7 @@
 #ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RZ_HPP_
 #define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RZ_HPP_
 
-#include "ParameterizedGateInstruction.hpp"
+#include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {

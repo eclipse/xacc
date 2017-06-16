@@ -28,9 +28,9 @@
 #=============================================================================
 
 if (${Clang_FIND_REQUIRED})
-    find_package(LLVM ${Clang_FIND_VERSION} REQUIRED)
+    find_package(ScaffoldLLVM ${Clang_FIND_VERSION} REQUIRED)
 else ()
-    find_package(LLVM ${Clang_FIND_VERSION})
+    find_package(ScaffoldLLVM ${Clang_FIND_VERSION})
 endif ()
 
 set(CLANG_FOUND FALSE)
@@ -99,8 +99,8 @@ if(CLANG_FOUND)
 
   message(STATUS "Found Clang (LLVM version: ${LLVM_VERSION})")
   message(STATUS "  Include dirs:       ${CLANG_INCLUDE_DIRS}")
-  message(STATUS "  Clang libraries:    ${CLANG_LIBS}")
-  message(STATUS "  Libclang C library: ${CLANG_LIBCLANG_LIB}")
+  #message(STATUS "  Clang libraries:    ${CLANG_LIBS}")
+  #message(STATUS "  Libclang C library: ${CLANG_LIBCLANG_LIB}")
 else()
   if(Clang_FIND_REQUIRED)
     message(FATAL_ERROR "Could NOT find Clang")

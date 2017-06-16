@@ -28,19 +28,19 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#include "FireTensorAccelerator.hpp"
+#include "SimpleAccelerator.hpp"
 
 namespace xacc {
 namespace quantum {
 
-std::shared_ptr<AcceleratorBuffer> FireTensorAccelerator::createBuffer(
+std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
 		const std::string& varId) {
 	auto buffer = std::make_shared<SimulatedQubits<10>>(varId);
 	storeBuffer(varId, buffer);
 	return buffer;
 }
 
-std::shared_ptr<AcceleratorBuffer> FireTensorAccelerator::createBuffer(
+std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
 		const std::string& varId, const int size) {
 	if (!isValidBufferSize(size)) {
 		XACCError("Invalid buffer size.");
@@ -50,11 +50,11 @@ std::shared_ptr<AcceleratorBuffer> FireTensorAccelerator::createBuffer(
 	return buffer;
 }
 
-bool FireTensorAccelerator::isValidBufferSize(const int NBits) {
+bool SimpleAccelerator::isValidBufferSize(const int NBits) {
 	return NBits <= 10;
 }
 
-void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
+void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		const std::shared_ptr<xacc::Function> kernel) {
 
 	// Cast to what we know should be SimulatedQubits
@@ -62,7 +62,7 @@ void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	if (!qubits) {
 		XACCError("Invalid derived AcceleratorBuffer passed to "
-				"FireTensorAccelerator. Must be of type SimulatedQubits<10>.");
+				"SimpleAccelerator. Must be of type SimulatedQubits<10>.");
 	}
 
 	// Create a lambda for each type of gate we may encounter,
@@ -225,7 +225,7 @@ void FireTensorAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
 			cnot, x, measure, z, cond);
 
-	XACCInfo("Execution Fire Tensor Accelerator Simulation.");
+	XACCInfo("Execution Simple Accelerator Simulation.");
 
 	// Our QIR is really a tree structure
 	// so create a pre-order tree traversal

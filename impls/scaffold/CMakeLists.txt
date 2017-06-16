@@ -28,31 +28,42 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-set (PACKAGE_NAME "Scaffold XACC Runtime")
-set (PACKAGE_DESCIPTION "Scaffold XACC Programming Framework")
-set (LIBRARY_NAME xacc-scaffold)
 
-file (GLOB HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 
-set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -O3 -w -fomit-frame-pointer -fvisibility-inlines-hidden -fPIC -Woverloaded-virtual -Wcast-qual -rdynamic")
+if (NOT LLVM_ROOT) 
+   # By default, users should install scaffold package from 
+   # us, so it will be in this location
+   set (LLVM_ROOT /usr/local/scaffold/build/Release+Asserts)  
+endif()
 
-include_directories(${CLANG_INCLUDE_DIRS})
-include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
+find_package(ScaffoldClang)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+if (CLANG_FOUND AND LLVM_FOUND)
 
+   set (PACKAGE_NAME "Scaffold XACC Runtime")
+   set (PACKAGE_DESCIPTION "Scaffold XACC Programming Framework")
+   set (LIBRARY_NAME xacc-scaffold)
 
-install(FILES ${HEADERS} DESTINATION include)
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+   file (GLOB HEADERS *.hpp)
+   file (GLOB SRC *.cpp)
 
-link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
+   set(CMAKE_CXX_FLAGS "-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -O3 -w -fomit-frame-pointer -fvisibility-inlines-hidden -fPIC -Woverloaded-virtual -Wcast-qual -rdynamic")
 
-target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} xacc-gateqir)
+   include_directories(${CLANG_INCLUDE_DIRS})
+   include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
 
-# Gather tests
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};xacc-gateqir;${CLANG_LIBS};${LLVM_LIBS};dl;pthread")
-#add_tests_with_flags("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};xacc-gateqir;${CLANG_LIBS};${LLVM_LIBS};dl;pthread" "-fno-rtti")
+   add_library(${LIBRARY_NAME} SHARED ${SRC})
 
+   install(FILES ${HEADERS} DESTINATION include)
+   install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+   link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
+
+   target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} xacc-gateqir)
+
+   # Gather tests
+   file (GLOB test_files tests/*.cpp)
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};xacc-gateqir;${CLANG_LIBS};${LLVM_LIBS};dl;pthread")
+endif()

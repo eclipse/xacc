@@ -28,32 +28,31 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_RIGETTIACCELERATOR_HPP_
-#define QUANTUM_GATE_ACCELERATORS_RIGETTIACCELERATOR_HPP_
+#ifndef QUANTUM_GATE_ACCELERATORS_SIMPLEACCELERATOR_HPP_
+#define QUANTUM_GATE_ACCELERATORS_SIMPLEACCELERATOR_HPP_
+#include <boost/dll/alias.hpp>
 
-#include "AcceleratorBuffer.hpp"
-#include "QPUGate.hpp"
+#include "Accelerator.hpp"
 #include "InstructionIterator.hpp"
-#include "QuilVisitor.hpp"
-#include "AsioNetworkingTool.hpp"
-#include "RuntimeOptions.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-
-using namespace xacc;
+#include <random>
+#include "FunctionalGateInstructionVisitor.hpp"
+#include "SimulatedQubits.hpp"
 
 namespace xacc {
 namespace quantum {
 
+double sqrt2 = std::sqrt(2.0);
+using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
+using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
+
 /**
- * The RigettiAccelerator is a QPUGate Accelerator that
- * provides an execute implementation that maps XACC IR
- * to an equivalent Quil string, and executes it on the
- * Rigetti superconducting quantum chip at api.rigetti.com/qvm
- * through Fire's HTTP Client utilities.
- *
+ * The SimpleTensorAccelerator is an XACC Accelerator that simulates
+ * gate based quantum computing circuits. It models the QPUGate Accelerator
+ * with SimulatedQubit AcceleratorBuffer. It relies on the Fire Scientific Computing
+ * Framework's tensor module to model a specific set of quantum gates. It uses these
+ * tensors to build up the unitary matrix described by the circuit.
  */
-class RigettiAccelerator : virtual public QPUGate {
+class SimpleAccelerator : virtual public Accelerator {
 public:
 
 	/**
@@ -88,78 +87,48 @@ public:
 	virtual bool isValidBufferSize(const int NBits);
 
 	/**
-	 * Execute the kernel on the provided AcceleratorBuffer through a
-	 * HTTP Post of Quil instructions to the Rigetti QPU at api.rigetti.com/qvm
+	 * Execute the simulation. Requires both a valid SimulatedQubits buffer and
+	 * XACC IR Function instance modeling the quantum circuit.
 	 *
 	 * @param ir
 	 */
-	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-			const std::shared_ptr<xacc::Function> kernel);
+	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<xacc::Function> kernel);
 
 	/**
-	 * Return all relevant RigettiAccelerator runtime options.
-	 * Users can set the api-key, execution type, and number of triels
-	 * from the command line with these options.
+	 * This Accelerator models QPU Gate accelerators.
+	 * @return
 	 */
-	virtual std::shared_ptr<options_description> getOptions() {
-		auto desc = std::make_shared<options_description>(
-				"Rigetti Accelerator Options");
-		desc->add_options()("rigetti-api-key", value<std::string>(),
-				"Provide the Rigetti Forest API key. This is used if $HOME/.pyquil_config is not found")("rigetti-type",
-				value<std::string>(),
-				"Provide the execution type: multishot, wavefunction, "
-				"multishot-measure, ping, or version.")
-				("rigetti-trials", value<std::string>(), "Provide the number of trials to execute.");
-		return desc;
+	virtual AcceleratorType getType() {
+		return AcceleratorType::qpu_gate;
+	}
+
+	/**
+	 * We have no need to transform the IR for this Accelerator,
+	 * so return an empty list
+	 * @return
+	 */
+	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
+		std::vector<xacc::IRTransformation> v;
+		return v;
 	}
 
 	/**
 	 * Register this Accelerator with the framework.
 	 */
 	static void registerAccelerator() {
-		xacc::RegisterAccelerator<xacc::quantum::RigettiAccelerator> RIGETTITEMP(
-				"rigetti");
-	}
-
-	RigettiAccelerator() :
-			httpClient(
-					std::make_shared<
-							fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
-							"api.rigetti.com", false)) {
-	}
-
-	RigettiAccelerator(std::shared_ptr<fire::util::INetworkingTool> http) :
-			httpClient(http) {
+		xacc::RegisterAccelerator<xacc::quantum::SimpleAccelerator> SIMPLETEMP(
+				"simple");
 	}
 
 	/**
 	 * The destructor
 	 */
-	virtual ~RigettiAccelerator() {}
-
-protected:
-
-	std::shared_ptr<fire::util::INetworkingTool> httpClient;
-
-private:
-
-	/**
-	 * Private utility to search for the Rigetti
-	 * API key in $HOME/.pyquil_config, $PYQUIL_CONFIG,
-	 * or --api-key command line arg
-	 */
-	void searchAPIKey(std::string& key);
-
-	/**
-	 * Private utility to search for key in the config
-	 * file.
-	 */
-	void findApiKeyInFile(std::string& key, boost::filesystem::path &p);
+	virtual ~SimpleAccelerator() {}
 
 };
 
 // Create an alias to search for.
-RegisterAccelerator(xacc::quantum::RigettiAccelerator)
+RegisterAccelerator(xacc::quantum::SimpleAccelerator)
 
 }
 }

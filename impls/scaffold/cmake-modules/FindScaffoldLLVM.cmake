@@ -141,5 +141,5 @@ if (LLVM_FOUND)
   
   message(STATUS "Found LLVM (version: ${LLVM_VERSION}): (using ${LLVM_CONFIG_EXECUTABLE})")
   message(STATUS "  Include dirs:   ${LLVM_INCLUDE_DIRS}")
-  message(STATUS "  LLVM libraries: ${LLVM_LIBS}")
+  #message(STATUS "  LLVM libraries: ${LLVM_LIBS}")
 endif()

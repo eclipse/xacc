@@ -124,26 +124,82 @@ public:
 
 	DEFINE_VISITABLE()
 
-//	virtual void serializeJson(PrettyWriter<StringBuffer> writer) {
-//		writer.StartObject();
-//		writer.String("gate");
-//		writer.String(gateName.c_str());
-//		writer.String("enabled");
-//		writer.Bool(enabled);
-//		writer.String("qubits");
-//		writer.StartArray();
-//		for (auto qi : bits()) {
-//			writer.Int(qi);
-//		}
-//		writer.EndArray();
-//		writer.EndObject();
-//	}
 
 	/**
 	 * The destructor
 	 */
 	virtual ~GateInstruction() {
 	}
+};
+
+/**
+ * The ParamaterizedGateInstruction is a GateInstruction that is
+ * templated on a list of variadic parameters that model the
+ * instructions gate parameters. For example, this class could be
+ * subclassed to provide a rotation gate with an angle theta
+ * (ParamaterizedGateInstruction<double>).
+ */
+template<typename ... InstructionParameter>
+class ParameterizedGateInstruction: public virtual GateInstruction {
+
+protected:
+
+	/**
+	 * The paramaters that this gate instruction requires.
+	 */
+	std::tuple<InstructionParameter...> params;
+
+public:
+
+	/**
+	 * The constructor, takes the parameters
+	 * @param pars
+	 */
+	ParameterizedGateInstruction(InstructionParameter ... pars) :
+			params(std::make_tuple(pars...)), GateInstruction(std::vector<int>{}) {
+	}
+
+	/**
+	 * Return the gate parameter at the given index.
+	 *
+	 * @param idx
+	 * @return
+	 */
+	auto getParameter(const std::size_t idx) {
+		if (idx + 1 > sizeof...(InstructionParameter)) {
+			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+		}
+		return xacc::tuple_runtime_get(params, idx);
+	}
+
+	/**
+	 * Return an assembly-like string representation for this
+	 * instruction.
+	 *
+	 * @param bufferVarName
+	 * @return
+	 */
+	virtual const std::string toString(const std::string& bufferVarName) {
+		auto str = gateName;
+		str += "(";
+		xacc::tuple_for_each(params, [&](auto element) {
+			str += std::to_string(element) + ",";
+		});
+		str = str.substr(0, str.length() - 1) + ") ";
+
+		for (auto q : bits()) {
+			str += bufferVarName + std::to_string(q) + ",";
+		}
+
+		// Remove trailing comma
+		str = str.substr(0, str.length() - 1);
+
+		return str;
+	}
+
+	DEFINE_VISITABLE()
+
+
 };
 
 /**
@@ -164,6 +220,28 @@ public:
 				}));
 	}
 };
+
+/**
+ */
+template<typename ... Params>
+using ParameterizedGateInstructionRegistry = Registry<ParameterizedGateInstruction<Params...>, std::vector<int>, Params...>;
+
+/**
+ */
+template<typename T, typename ... Params>
+class RegisterParameterizedGateInstruction {
+public:
+	RegisterParameterizedGateInstruction(const std::string& name) {
+		ParameterizedGateInstructionRegistry<Params...>::instance()->add(name,
+				(std::function<
+						std::shared_ptr<
+								xacc::quantum::ParameterizedGateInstruction<
+										Params...>>(std::vector<int>, Params...)>) ([](std::vector<int> qubits, Params... args) {
+					return std::make_shared<T>(qubits, args...);
+				}));
+	}
+};
+
 }
 }
 

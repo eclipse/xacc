@@ -36,40 +36,34 @@ set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
+# Make sure all build libraries have reference to their dependents
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
-
-#set (ScaffoldClang_ROOT_DIR "/usr/local/scaffold/build/Release+Asserts/bin")
-#set (ScaffoldClang_HOST_TARGET "x86_64-unknown-linux-gnu")
-
 if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
   message(STATUS "Fire found in tpls")
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/tpls/fire/cmake/Modules")
   include(tests)
 endif() 
 
+# We require MPI
 find_package(MPI REQUIRED)
+
+# We require Boost
 find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
-message(STATUS "Found Boost Headers = ${Boost_INCLUDE_DIRS}")
-message(STATUS "Found Boost Libraries = ${Boost_LIBRARIES}")
 
-if (NOT LLVM_ROOT) 
-   # By default, users should install scaffold package from 
-   # us, so it will be in this location
-   set (LLVM_ROOT /usr/local/scaffold/build/Release+Asserts)  
-endif()
-find_package(Clang REQUIRED)
-
+# Look for OpenMP
 find_package(OpenMP)
 if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+# Create a xacc config header file
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
 install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include)
 
+# Include dirs that everyone will use
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
@@ -81,8 +75,10 @@ include_directories("${CMAKE_SOURCE_DIR}/xacc/program")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/accelerator")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/utils")
 
+# Add subdirectories
 add_subdirectory(tpls)
 add_subdirectory(xacc)
 add_subdirectory(quantum)
+add_subdirectory(impls)
 add_subdirectory(tools)
 add_subdirectory(examples)
