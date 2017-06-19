@@ -73,7 +73,6 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 		boost::trim(quilLine);
 
 		if (!boost::starts_with(quilLine, "#")) {
-			std::cout << "L: " << quilLine << "\n";
 			std::vector<std::string> splitSpaces;
 			std::vector<int> qubits;
 
@@ -112,6 +111,7 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 				auto label = splitSpaces[1];
 				if (label == currentLabel) {
 					isConditional = false;
+					f->addInstruction(currentConditional);
 				}
 				continue;
 			} else {
@@ -125,11 +125,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 			}
 
 			if (isConditional) {
-				std::cout << "Adding CONDITIONAL " << instruction->getName() << "\n";
 				currentConditional->addInstruction(instruction);
-				std::cout << "ADDED IT\n";
 			} else {
-				std::cout << "Adding " << gateName << "\n";
 				f->addInstruction(instruction);
 			}
 

@@ -150,7 +150,6 @@ public:
 	}
 
 	void visit(Measure& cn) {
-		//		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 		baseGateInst(dynamic_cast<GateInstruction&>(cn), false);
 		writer.String("classicalBitIdx");
 		writer.Int(cn.getParameter(0));

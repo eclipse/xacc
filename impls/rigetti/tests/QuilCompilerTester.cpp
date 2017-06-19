@@ -51,6 +51,25 @@ struct F {
 	std::shared_ptr<xacc::Compiler> compiler;
 };
 
+template<typename GateType>
+class CountGateVisitor : public xacc::BaseInstructionVisitor,
+public xacc::InstructionVisitor<GateType> {
+public:
+	int count = 0;
+	virtual void visit(GateType& gate) {
+		count++;
+	}
+};
+
+template<typename Visitor>
+void countGates(Visitor visitor, std::shared_ptr<xacc::Function> function) {
+	xacc::InstructionIterator it(function);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled()) nextInst->accept(visitor);
+	}
+}
 //____________________________________________________________________________//
 
 BOOST_FIXTURE_TEST_SUITE( s, F )
@@ -59,6 +78,7 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 
 	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
 			"   # Prepare a bell state\n"
+			"   X 0\n"
 			"   H 1\n"
 			"   CNOT 1 2\n"
 			"   # Teleport qubit 0 to qubit 2\n"
@@ -77,9 +97,29 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 	auto ir = compiler->compile(src);
 	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
 
+	auto function = qir->getKernel("name");
+
 	BOOST_VERIFY(qir->numberOfKernels() == 1);
 
-//	qir->persist(std::cout);
+	BOOST_VERIFY(function->nInstructions() == 9);
+
+	auto hadamardVisitor = std::make_shared<CountGateVisitor<Hadamard>>();
+	auto cnotVisitor = std::make_shared<CountGateVisitor<CNOT>>();
+	auto measureVisitor = std::make_shared<CountGateVisitor<Measure>>();
+	auto conditionalVisitor = std::make_shared<CountGateVisitor<ConditionalFunction>>();
+	auto xVisitor = std::make_shared<CountGateVisitor<X>>();
+
+	countGates(hadamardVisitor, function);
+	countGates(cnotVisitor, function);
+	countGates(measureVisitor, function);
+	countGates(conditionalVisitor, function);
+	countGates(xVisitor, function);
+
+	BOOST_VERIFY(hadamardVisitor->count == 2);
+	BOOST_VERIFY(cnotVisitor->count == 2);
+	BOOST_VERIFY(measureVisitor->count == 2);
+	BOOST_VERIFY(conditionalVisitor->count == 2);
+	BOOST_VERIFY(xVisitor->count = 1);
 
 }
 
