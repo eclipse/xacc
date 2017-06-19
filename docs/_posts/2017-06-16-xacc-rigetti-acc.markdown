@@ -10,7 +10,7 @@ category: accelerators
 Rigetti Computing, Inc [(rigetti.com)](rigetti.com) is a recently founded startup that is focused on 
 developing quantum computing hardware and software and bring it to market. 
 They are working to build a cloud quantum computing platform for AI and 
-computational chemistry. They currently have a 4 qubit superconducting QPU 
+computational chemistry. They currently have a QVM simulation server 
 that can be accessed via a REST API with a private API key. They 
 are also working hard to provide open source programming tools for 
 interfacing with the QPU - specifically, the pyquil python framework
@@ -21,7 +21,7 @@ and the Software and Applications Team from Rigetti have begun collaborating in
 an effort to expose the Rigetti QPU and programming tools to XACC and its user 
 community. This article describes the results of that work - specifically, a 
 new XACC Accelerator implementation that executes quantum kernels on the 
-Rigetti QVM. For a tutorial on how to use XACC and the Rigetti 
+Rigetti QVM server. For a tutorial on how to use XACC and the Rigetti 
 Accelerator, check out [Rigetti Tutorial](https://ornl-qci.github.io/xacc/tutorials/rigetti).
 
 
