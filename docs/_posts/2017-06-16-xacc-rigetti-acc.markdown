@@ -16,7 +16,7 @@ also done great work as of late in providing open source programming tools for
 interfacing with their QVM - specifically, the PyQuil python framework
 [PyQuil](https://github.com/rigetticomputing/pyquil). 
 
-Recently, the ORNL QCI [(quantum.ornl.gov)](https://quantum.ornl.gov), the XACC project, 
+Recently, the ORNL QCI [(quantum.ornl.gov)](http://quantum.ornl.gov), the XACC project, 
 and the Software and Applications Team from Rigetti have begun collaborating in 
 an effort to expose the Rigetti QVM server and programming tools to XACC and its user 
 community. This article describes the results of that work - specifically, a 
