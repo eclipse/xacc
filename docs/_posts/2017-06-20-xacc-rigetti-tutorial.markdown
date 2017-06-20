@@ -40,6 +40,9 @@ To install XACC, run the following (note here we are using a Fedora 25 Linux ins
 dnf install -y openssl-devel https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
     http://eclipseice.ornl.gov/downloads/xacc/rpms/x86_64/xacc-1.0-1.fc25.x86_64.rpm
 ```
+Note that we are also installing the Scaffold quantum programming language. XACC has support 
+for a Scaffold Compiler instance, and we will use it in this tutorial as our main 
+quantum kernel programming language. 
 
 Create a new directory called test-xacc-rigetti and cd into it. Let's now create a 
 test-xacc-rigetti.cpp file and get it started with the following boilerplate code: 
