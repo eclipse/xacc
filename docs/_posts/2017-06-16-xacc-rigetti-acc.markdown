@@ -11,28 +11,27 @@ Rigetti Computing, Inc [(rigetti.com)](rigetti.com) is a recently founded startu
 developing quantum computing hardware and software and bring it to market. 
 They are working to build a cloud quantum computing platform for AI and 
 computational chemistry. They currently have a QVM simulation server 
-that can be accessed via a REST API with a private API key. They 
-are also working hard to provide open source programming tools for 
-interfacing with the QPU - specifically, the pyquil python framework
+that can be accessed via a REST API with a private API key. Rigetti has 
+also done great work as of late in providing open source programming tools for 
+interfacing with their QVM - specifically, the PyQuil python framework
 [PyQuil](https://github.com/rigetticomputing/pyquil). 
 
 Recently, the ORNL QCI [(quantum.ornl.gov)](quantum.ornl.gov), the XACC project, 
 and the Software and Applications Team from Rigetti have begun collaborating in 
-an effort to expose the Rigetti QPU and programming tools to XACC and its user 
+an effort to expose the Rigetti QVM server and programming tools to XACC and its user 
 community. This article describes the results of that work - specifically, a 
 new XACC Accelerator implementation that executes quantum kernels on the 
-Rigetti QVM server. For a tutorial on how to use XACC and the Rigetti 
+Rigetti QVM server. For a more hands-on tutorial on how to use XACC and the Rigetti 
 Accelerator, check out [Rigetti Tutorial](https://ornl-qci.github.io/xacc/tutorials/rigetti).
-
 
 ## RigettiAccelerator
 
 The RigettiAccelerator is an implementation or realization of the pluggable 
 XACC Accelerator interface. The RigettAccelerator class architecture diagram is 
-shown in Figure 1. The RigettiAccelerator's implementation of the Accelerator::execute method 
-is charged with two primary tasks: (1) the translation of the XACC IR (found in the provided 
-Function instance) to an equivalent Quil string, and (2) constructing and executing an 
-appropriate HTTPS Post on the [(api.rigetti.com)](api.rigetti.com) server. The only remaining 
+shown in Figure 1. The RigettiAccelerator's implementation of the Accelerator::execute() method 
+is charged with two primary tasks: (1) the translation of the XACC IR to an equivalent 
+Quil string, and (2) constructing and executing an 
+appropriate HTTPS Post on the Rigetti QVM server. The only remaining 
 thing to do once those two tasks are complete is to processes the resultant response from the server. 
 
 <figure>
@@ -45,8 +44,8 @@ thing to do once those two tasks are complete is to processes the resultant resp
 For a good explanation on the structure of the XACC Intermediate Representation 
 check out [XACC IR](https://ornl-qci.github.io/xacc/xacc_spec/ir_spec). Basically, 
 at its core, the XACC IR provides a tree-like, in-memory representation and API for a 
-compiled quantum kernel. This leaves of this tree are XACC Instructions and the nodes 
-of this tree are XACC Functions, which are composed of further child Instructions. The 
+compiled quantum kernel. The leaves of this tree are XACC Instructions and the nodes 
+of the tree are XACC Functions, which are composed of further child Instructions. The 
 XACC Quantum IR implementation provides a number of standard gate Instruction implementations 
 (Hadamard, CNOT, rotations, etc...) These serve as the leaves of the IR tree. These 
 instruction implementations know nothing of the Quil intermediate language and it would be tedious 
@@ -62,12 +61,14 @@ Therefore, mapping to Quil simply involves walking the IR tree, and telling each
 accept the visitor: 
 
 ```cpp
+auto visitor = std::make_shared<QuilVisitor>();
 InstructionIterator it(kernel);
 while (it.hasNext()) {
    // Get the next node in the tree
    auto nextInst = it.next();
    if (nextInst->isEnabled()) nextInst->accept(visitor);
 }
+auto quilStr = visitor->getQuilString();
 ```
 
 The visitor implementation is known as the QuilVisitor, and its visit methods look like this (Hadamard for example):
@@ -91,6 +92,8 @@ void visit(ConditionalFunction& c) {
 }
 
 ```
+After walking the IR tree, the Quil representation is produced with a call to getQuilString().
+
 
 # Executing Quil code on Rigetti QVM
 
@@ -99,7 +102,7 @@ on the Rigetti QVM. The main task here is to construct the proper JSON payload s
 that contains information about the type of the execution, the classical memory address 
 indices, and the Quil instructions string. The types of execution that the QVM allows are 
 multishot, multishot-measure, wavefunction, and expectation. In this work, we have primarily focused 
-on the multishot method (wavefunction support is being worked on). If the execution type is 
+on the multishot method. If the execution type is 
 multishot, then we can provide a further JSON key that is an integer that gives the 
 number of executions of the Quil code to run. 
 
