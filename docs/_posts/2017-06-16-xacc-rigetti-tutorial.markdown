@@ -157,6 +157,100 @@ auto teleport = program.getKernel("teleport");
 teleport(qubitReg);
 ```
 
-The code above
+The code above starts by getting a reference to the RigettiAccelerator (see [RigettiAccelerator](https://ornl-qci.github.io/xacc/accelerators/rigetti)). With that reference, we then allocate a register of qubits 
+to operate the teleport kernel on. Next, we instantiate an XACC Program instance, which keeps track of the 
+desired Accelerator and the source code to be compiled. The Program instance orchestrates the compilation of the 
+quantum kernel to produce the XACC intermediate representation, and then handles the creation of an 
+executable classical kernel function that offloads the compiled quantum code to the specified Accelerator. 
+Finally, the user requests a reference to the executable kernel functor, and executes it on the 
+provided register of qubits. 
+
+The total test-xacc-rigetti.cpp file should look like this: 
+```cpp
+#include "XACC.hpp"
+
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src("__qpu__ teleport (qbit qreg) {\n"
+"   cbit creg[3];\n"
+"   // Init qubit 0 to 1\n"
+"   X(qreg[0]);\n"
+"   // Now teleport...\n"
+"   H(qreg[1]);\n"
+"   CNOT(qreg[1],qreg[2]);\n"
+"   CNOT(qreg[0],qreg[1]);\n"
+"   H(qreg[0]);\n"
+"   creg[0] = MeasZ(qreg[0]);\n"
+"   creg[1] = MeasZ(qreg[1]);\n"
+"   if (creg[0] == 1) Z(qreg[2]);\n"
+"   if (creg[1] == 1) X(qreg[2]);\n"
+"   // Check that 3rd qubit is a 1\n"
+"   creg[2] = MeasZ(qreg[2]);\n"
+"}\n");
+
+int main (int argc, char** argv) {
+
+// Initialize the XACC Framework
+xacc::Initialize(argc, argv);
+
+// Create a reference to the Rigetti 
+// QPU at api.rigetti.com/qvm
+auto qpu = xacc::getAccelerator("rigetti");
+
+// Allocate a register of 3 qubits
+auto qubitReg = qpu->createBuffer("qreg", 3);
+
+// Create a Program
+xacc::Program program(qpu, src);
+
+// Request the quantum kernel representing
+// the above source code
+auto teleport = program.getKernel("teleport");
+
+// Execute!
+teleport(qubitReg);
+
+// Finalize the XACC Framework
+xacc::Finalize();
+
+return 0;
+}
+```
+
+Now, to build simple run: 
+```bash
+cd test-xacc-rigetti/build
+make
+```
+
+To execute this code on the Rigetti QVM, you must provide your API key. You can do this 
+the same way you do with PyQuil (in your $HOME/.pyquil_config file, or in the $PYQUIL_CONFIG 
+environment variable). You can also pass your API key to the XACC executable through the 
+--rigetti-api-key command line argument: 
+
+```bash
+$ ./test-xacc-rigetti --rigetti-api-key KEY
+[2017-06-20 17:43:38.744] [xacc-console] [info] [xacc] Initializing XACC Framework
+[2017-06-20 17:43:38.760] [xacc-console] [info] [xacc::compiler] XACC has 3 Compilers available.
+[2017-06-20 17:43:38.760] [xacc-console] [info] [xacc::accelerator] XACC has 2 Accelerators available.
+[2017-06-20 17:43:38.766] [xacc-console] [info] Executing Scaffold compiler.
+[2017-06-20 17:43:38.770] [xacc-console] [info] Rigetti Json Payload = { "type" : "multishot", "addresses" : [0, 1, 2], "quil-instructions" : "X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n", "trials" : 10 }
+[2017-06-20 17:43:40.439] [xacc-console] [info] Successful HTTP Post to Rigetti.
+[2017-06-20 17:43:40.439] [xacc-console] [info] Rigetti QVM Response:
+[[0,1,1],[1,1,1],[1,1,1],[0,1,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[0,0,1],[0,0,1]]
+[2017-06-20 17:43:40.439] [xacc-console] [info]
+[xacc] XACC Finalizing
+[xacc::compiler] Cleaning up Compiler Registry.
+[xacc::accelerator] Cleaning up Accelerator Registry.
+```
+
+You should see the console text printed above. 
+
+
+
+
+
+
+
 
 
