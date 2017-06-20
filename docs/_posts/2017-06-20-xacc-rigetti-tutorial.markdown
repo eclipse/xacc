@@ -246,8 +246,26 @@ $ ./test-xacc-rigetti --rigetti-api-key KEY
 
 You should see the console text printed above. 
 
+You can also tailor the number of executions that occur for the multishot execution type: 
 
 
+```bash
+$ ./test-xacc-rigetti --rigetti-trials 1000
+[2017-06-20 17:50:57.285] [xacc-console] [info] [xacc] Initializing XACC Framework
+[2017-06-20 17:50:57.301] [xacc-console] [info] [xacc::compiler] XACC has 3 Compilers available.
+[2017-06-20 17:50:57.301] [xacc-console] [info] [xacc::accelerator] XACC has 2 Accelerators available.
+[2017-06-20 17:50:57.307] [xacc-console] [info] Executing Scaffold compiler.
+[2017-06-20 17:50:57.310] [xacc-console] [info] Rigetti Json Payload = { "type" : "multishot", "addresses" : [0, 1, 2], "quil-instructions" : "X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n", "trials" : 100 }
+[2017-06-20 17:50:57.909] [xacc-console] [info] Successful HTTP Post to Rigetti.
+[2017-06-20 17:50:57.909] [xacc-console] [info] Rigetti QVM Response:
+[[1,0,1],[0,0,1],[1,1,1],[0,1,1],[1,0,1],[0,1,1],[0,0,1],[1,1,1],[1,0,1],[1,0,1],[0,0,1],[1,0,1],[1,1,1],[0,1,1],[0,0,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[1,1,1],[1,0,1],[0,0,1],[0,0,1],[1,0,1],[0,1,1],[0,0,1],[1,1,1],[0,0,1],[0,1,1],[1,1,1],[1,0,1],[1,0,1],[0,1,1],[0,1,1],[1,1,1],[1,1,1],[1,1,1],[0,1,1],[1,1,1],[1,0,1],[1,0,1],[1,1,1],[1,1,1],[0,0,1],[1,1,1],[0,0,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[1,0,1],[0,0,1],[1,1,1],[0,1,1],[0,1,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1],[1,0,1],[0,1,1],[0,0,1],[0,1,1],[1,0,1],[0,1,1],[1,0,1],[0,0,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[1,1,1],[0,1,1],[1,0,1],[1,1,1],[0,1,1],[1,0,1],[1,0,1],[0,0,1],[1,0,1],[0,0,1],[0,0,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[0,1,1],[1,0,1],[1,1,1],[1,1,1],[0,1,1],[0,1,1],[0,1,1]]
+[2017-06-20 17:50:57.910] [xacc-console] [info]
+[xacc] XACC Finalizing
+[xacc::compiler] Cleaning up Compiler Registry.
+[xacc::accelerator] Cleaning up Accelerator Registry.
+```
+
+Note above we let XACC find the API Key in the standard .pyquil_config file. 
 
 
 
