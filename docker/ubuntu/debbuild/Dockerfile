@@ -11,8 +11,8 @@ run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL
     apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | \
     sed "s/.*ends:\ //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb \
     && apt-get -y install libssl-dev libspdlog-dev && git clone --recursive https://github.com/ORNL-QCI/xacc \
-    && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/xacc_install && make && make install
+    && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
 
-run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc && cp -r /xacc/build/xacc_install/* usr/local/xacc/ \
+run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc && cp -r /usr/local/xacc/* usr/local/xacc/ \
    && fpm -s dir -t deb --name xacc --version 1.0 --depends libboost-all-dev --depends gcc-6 --depends g++-6 --depends mpich \ 
    --depends libspdlog-dev --depends cmake --depends git --depends make --depends libtool --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
