@@ -36,7 +36,6 @@
 #include <fstream>
 #include <memory>
 #include <queue>
-#include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 
@@ -44,8 +43,6 @@
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 #include "RuntimeOptions.hpp"
-
-using namespace boost::program_options;
 
 namespace xacc {
 
@@ -85,12 +82,6 @@ protected:
 	std::shared_ptr<Accelerator> accelerator;
 
 	/**
-	 * Reference to a set of compiler command
-	 * line options.
-	 */
-	std::shared_ptr<options_description> compilerOptions;
-
-	/**
 	 * Reference to the XACC IR instance that is
 	 * created by the Compiler
 	 */
@@ -110,16 +101,12 @@ protected:
 	 * @param runtimeArgs Runtime values for kernel arguments
 	 */
 	template<typename ... RuntimeArgs>
-	void build(const std::string& compilerArgStr, RuntimeArgs ... runtimeArgs) {
+	void build(RuntimeArgs ... runtimeArgs) {
+		// Get reference to the runtime options
 		auto runtimeOptions = RuntimeOptions::instance();
-		// Get the user-specified compiler parameters as a map
-		variables_map compileParameters;
-		store(
-				command_line_parser(tokenize(compilerArgStr)).options(
-						*compilerOptions.get()).run(), compileParameters);
 
-		// Get the compiler name
-		auto compilerToRun = compileParameters["compiler"].as<std::string>();
+		// Get the compiler that has been requested.
+		auto compilerToRun = (*runtimeOptions)["compiler"];
 
 		// Create the appropriate compiler
 		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
@@ -170,15 +157,7 @@ public:
 	 * @param sourceFile The kernel source code
 	 */
 	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
-			src(sourceFile) {
-		accelerator = std::move(acc);
-		compilerOptions = std::make_shared<options_description>(
-				"XACC Compiler Options");
-		compilerOptions->add_options()("help", "Help Message")("compiler",
-				value<std::string>()->default_value("scaffold"),
-				"Indicate the compiler to be used.")("writeIR",
-				value<std::string>(),
-				"Persist generated IR to provided file name.");
+			src(sourceFile), accelerator(std::move(acc)) {
 	}
 
 	/**
@@ -193,7 +172,7 @@ public:
 	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(
 			const std::string& kernelName) {
 		return [=](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
-			build("--compiler scaffold", args...);
+			build(args...);
 			auto fToExec = xaccIR->getKernel(kernelName);
 			accelerator->execute(buffer, fToExec);
 			return;

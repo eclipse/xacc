@@ -45,8 +45,6 @@
 #include "Rz.hpp"
 #include "Measure.hpp"
 
-#define RAPIDJSON_HAS_STDSTRING 1
-
 namespace xacc {
 namespace quantum {
 
@@ -76,111 +74,6 @@ public:
 	}
 };
 
-template<typename Writer>
-class JsonSerializerGateVisitor:
-		public BaseInstructionVisitor,
-		public InstructionVisitor<GateFunction>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Rz>,
-		public InstructionVisitor<ConditionalFunction>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<Measure> {
-
-protected:
-	Writer& writer;
-	std::string currentFuncName;
-	std::string previousFuncName;
-	std::map<std::string, int> subInstMap;
-
-public:
-
-	JsonSerializerGateVisitor(Writer& w) : writer(w) {}
-
-	void baseGateInst(GateInstruction& inst, bool endObject = true) {
-		writer.StartObject();
-		writer.String("gate");
-		writer.String(inst.getName().c_str());
-		writer.String("enabled");
-		writer.Bool(inst.isEnabled());
-		writer.String("qubits");
-		writer.StartArray();
-		for (auto qi : inst.bits()) {
-			writer.Int(qi);
-		}
-		writer.EndArray();
-		if (endObject) {
-			writer.EndObject();
-		}
-
-		subInstMap[currentFuncName]--;
-		if (subInstMap[currentFuncName] == 0) {
-			endFunction();
-			currentFuncName = previousFuncName;
-		}
-	}
-
-	void visit(Hadamard& h) {
-		baseGateInst(dynamic_cast<GateInstruction&>(h));
-	}
-	void visit(CNOT& cn) {
-		baseGateInst(dynamic_cast<GateInstruction&>(cn));
-	}
-	void visit(Rz& rz) {
-		baseGateInst(dynamic_cast<GateInstruction&>(rz), false);
-		writer.String("angle");
-		writer.Double(rz.getParameter(0));
-		writer.EndObject();
-	}
-	void visit(ConditionalFunction& cn) {
-		writer.StartObject();
-		writer.String("conditional_function");
-		writer.String(cn.getName());
-
-		writer.String("conditional_qubit");
-		writer.Int(cn.getConditionalQubit());
-		writer.String("instructions");
-		writer.StartArray();
-
-		subInstMap.insert(std::make_pair(cn.getName(), cn.nInstructions()));
-		previousFuncName = currentFuncName;
-		currentFuncName = cn.getName();
-
-	}
-
-	void visit(Measure& cn) {
-		baseGateInst(dynamic_cast<GateInstruction&>(cn), false);
-		writer.String("classicalBitIdx");
-		writer.Int(cn.getParameter(0));
-		writer.EndObject();
-	}
-
-	void visit(X& cn) {
-		baseGateInst(dynamic_cast<GateInstruction&>(cn));
-	}
-	void visit(Z& cn) {
-		baseGateInst(dynamic_cast<GateInstruction&>(cn));
-	}
-
-	void visit(GateFunction& function) {
-		writer.StartObject();
-		writer.String("function");
-		writer.String(function.getName());
-
-		writer.String("instructions");
-		writer.StartArray();
-		subInstMap.insert(std::make_pair(function.getName(), function.nInstructions()));
-		currentFuncName = function.getName();
-	}
-
-private:
-
-	void endFunction() {
-		writer.EndArray();
-		writer.EndObject();
-	}
-};
 /**
  * The GateQIR is an implementation of the QIR for gate model quantum
  * computing. It provides a Graph node type that models a quantum
@@ -273,27 +166,6 @@ protected:
 
 private:
 
-	template<typename Writer>
-	void serializeJson(Writer& writer) {
-		std::string retStr = "";
-		auto visitor = std::make_shared<JsonSerializerGateVisitor<Writer>>(
-				writer);
-
-		writer.StartArray();
-		for (auto kernel : kernels) {
-			InstructionIterator it(kernel);
-			while (it.hasNext()) {
-				// Get the next node in the tree
-				auto nextInst = it.next();
-				nextInst->accept(visitor);
-			}
-
-			writer.EndArray();
-			writer.EndObject();
-		}
-		writer.EndArray();
-
-	}
 	/**
 	 * This method determines if a new layer should be added to the circuit.
 	 *

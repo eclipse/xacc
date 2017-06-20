@@ -55,6 +55,8 @@ public:
 class BaseInstructionVisitable {
 public:
 	virtual void accept(std::shared_ptr<BaseInstructionVisitor> visitor) = 0;
+	virtual void accept(BaseInstructionVisitor* visitor) = 0;
+
 	virtual ~BaseInstructionVisitable() {}
 protected:
 	template<class T>
@@ -66,9 +68,20 @@ protected:
 		}
 	}
 
+	template<class T>
+	static void acceptImpl(T& visited, BaseInstructionVisitor* visitor) {
+		auto castedVisitor = dynamic_cast<InstructionVisitor<T>*>(visitor);
+		if (castedVisitor) {
+			castedVisitor->visit(visited);
+			return;
+		}
+	}
+
 #define DEFINE_VISITABLE() \
             virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
-                { acceptImpl(*this, v); }
+                { acceptImpl(*this, v); } \
+			virtual void accept(BaseInstructionVisitor* v) \
+				{ acceptImpl(*this, v); }
 
 };
 

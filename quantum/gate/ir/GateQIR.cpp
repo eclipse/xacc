@@ -31,10 +31,7 @@
 #include "GateQIR.hpp"
 #include <boost/algorithm/string.hpp>
 #include <regex>
-
-#include "rapidjson/prettywriter.h"
-
-using namespace rapidjson;
+#include "JsonVisitor.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -268,12 +265,16 @@ std::string GateQIR::toAssemblyString(const std::string& kernelName, const std::
 }
 
 void GateQIR::persist(std::ostream& outStream) {
-	StringBuffer sb;
-	PrettyWriter<StringBuffer> writer(sb);
 
-	serializeJson(writer);
+	JsonVisitor visitor(kernels[0]);
+	outStream << visitor.write();
 
-	outStream << sb.GetString();
+//	StringBuffer sb;
+//	PrettyWriter<StringBuffer> writer(sb);
+//
+//	serializeJson(writer);
+//
+//	outStream << sb.GetString();
 
 	return;
 }

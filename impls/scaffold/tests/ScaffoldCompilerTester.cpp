@@ -121,6 +121,25 @@ BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 	auto k = gateqir->getKernel("teleport");
 
 }
+
+BOOST_AUTO_TEST_CASE(checkWithParameter) {
+	const std::string src("module gateWithParam (qbit qreg[3], double phi) {\n"
+		"   // Init qubit 0 to 1\n"
+		"   X(qreg[0]);\n"
+		"   // Now teleport...\n"
+		"   H(qreg[1]);\n"
+		"   Rz(qreg[2], phi);\n"
+		"}\n");
+
+	auto qir = compiler->compile(src);
+	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
+	auto f = gateqir->getKernel("gateWithParam");
+
+	BOOST_VERIFY(f->nInstructions() == 3);
+
+	gateqir->persist(std::cout);
+}
+
 /*
 BOOST_AUTO_TEST_CASE(checkMultipleFunction) {
 	const std::string src(
