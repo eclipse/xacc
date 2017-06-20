@@ -55,7 +55,6 @@ int main(int argc, char** argv) {
 
    // ... Code to come ...
 
-
    // Finalize the framework. 
    xacc::Finalize();
 }
