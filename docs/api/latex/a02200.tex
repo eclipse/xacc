@@ -1,0 +1,70 @@
+\hypertarget{a02200}{}\section{Generic\+String\+Stream$<$ Encoding $>$ Struct Template Reference}
+\label{a02200}\index{Generic\+String\+Stream$<$ Encoding $>$@{Generic\+String\+Stream$<$ Encoding $>$}}
+
+
+Read-\/only string stream.  
+
+
+
+
+{\ttfamily \#include $<$stream.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02200_a4289aca895330084ff3168e37e4f08bd}\label{a02200_a4289aca895330084ff3168e37e4f08bd}} 
+typedef Encoding\+::\+Ch {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02200_a6b20885ed64e33f5d081a1e83b07da06}\label{a02200_a6b20885ed64e33f5d081a1e83b07da06}} 
+{\bfseries Generic\+String\+Stream} (const Ch $\ast$src)
+\item 
+\mbox{\Hypertarget{a02200_a0c8fea9c2740c2953af9b3bb28bd469b}\label{a02200_a0c8fea9c2740c2953af9b3bb28bd469b}} 
+Ch {\bfseries Peek} () const
+\item 
+\mbox{\Hypertarget{a02200_a0d26e3e77e4fca64a87c2d71f48ac5e5}\label{a02200_a0d26e3e77e4fca64a87c2d71f48ac5e5}} 
+Ch {\bfseries Take} ()
+\item 
+\mbox{\Hypertarget{a02200_abc73d04baf4c7c58f383bc52536e8ac4}\label{a02200_abc73d04baf4c7c58f383bc52536e8ac4}} 
+size\+\_\+t {\bfseries Tell} () const
+\item 
+\mbox{\Hypertarget{a02200_a88c908b4dac9773240ce4bca4b6dd837}\label{a02200_a88c908b4dac9773240ce4bca4b6dd837}} 
+Ch $\ast$ {\bfseries Put\+Begin} ()
+\item 
+\mbox{\Hypertarget{a02200_aaa59dc5313151a4125bf7840f87a33eb}\label{a02200_aaa59dc5313151a4125bf7840f87a33eb}} 
+void {\bfseries Put} (Ch)
+\item 
+\mbox{\Hypertarget{a02200_a5ff1a870d9334cd054cf4ca34c86ddc3}\label{a02200_a5ff1a870d9334cd054cf4ca34c86ddc3}} 
+void {\bfseries Flush} ()
+\item 
+\mbox{\Hypertarget{a02200_a07b942bacda494afb3b2f7629cef14af}\label{a02200_a07b942bacda494afb3b2f7629cef14af}} 
+size\+\_\+t {\bfseries Put\+End} (Ch $\ast$)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02200_aeda813798e3f2d6bfdac86afc11b6b80}\label{a02200_aeda813798e3f2d6bfdac86afc11b6b80}} 
+const Ch $\ast$ \hyperlink{a02200_aeda813798e3f2d6bfdac86afc11b6b80}{src\+\_\+}
+\begin{DoxyCompactList}\small\item\em Current read position. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02200_a3c86ef1e1f0655028cb8a3afce11ee4f}\label{a02200_a3c86ef1e1f0655028cb8a3afce11ee4f}} 
+const Ch $\ast$ \hyperlink{a02200_a3c86ef1e1f0655028cb8a3afce11ee4f}{head\+\_\+}
+\begin{DoxyCompactList}\small\item\em Original head of the string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Encoding$>$\newline
+struct Generic\+String\+Stream$<$ Encoding $>$}
+
+Read-\/only string stream. 
+
+\begin{DoxyNote}{Note}
+implements Stream concept 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+stream.\+h\end{DoxyCompactItemize}

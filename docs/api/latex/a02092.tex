@@ -1,0 +1,37 @@
+\hypertarget{a02092}{}\section{Generic\+Value$<$ Encoding, Allocator $>$\+:\+:Short\+String Struct Reference}
+\label{a02092}\index{Generic\+Value$<$ Encoding, Allocator $>$\+::\+Short\+String@{Generic\+Value$<$ Encoding, Allocator $>$\+::\+Short\+String}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02092_a6e60100ae63574bcea80c878f757da91}\label{a02092_a6e60100ae63574bcea80c878f757da91}} 
+enum \{ {\bfseries Max\+Chars} = sizeof(static\+\_\+cast$<$Flag$\ast$$>$(0)-\/$>$payload) / sizeof(Ch), 
+{\bfseries Max\+Size} = Max\+Chars -\/ 1, 
+{\bfseries Len\+Pos} = Max\+Size
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02092_adbfe8461e0cb0ccb2cb3825489e743c2}\label{a02092_adbfe8461e0cb0ccb2cb3825489e743c2}} 
+void {\bfseries Set\+Length} (\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len)
+\item 
+\mbox{\Hypertarget{a02092_a4aa295331ab0d019fd64f8f5d57d450b}\label{a02092_a4aa295331ab0d019fd64f8f5d57d450b}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries Get\+Length} () const
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02092_a73e40f625c1abbd84f95ac7fff8365f7}\label{a02092_a73e40f625c1abbd84f95ac7fff8365f7}} 
+static bool {\bfseries Usable} (\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02092_a444e24523d4cc33830d18a2cfcfd333b}\label{a02092_a444e24523d4cc33830d18a2cfcfd333b}} 
+\hyperlink{a01992_ade0e0ce64ccd5d852da57a35e720bafb}{Ch} {\bfseries str} \mbox{[}Max\+Chars\mbox{]}
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00476}{document.\+h}\end{DoxyCompactItemize}

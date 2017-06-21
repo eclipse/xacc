@@ -1,0 +1,47 @@
+\hypertarget{a02568}{}\section{rapidjson\+:\+:Allocator Class Reference}
+\label{a02568}\index{rapidjson\+::\+Allocator@{rapidjson\+::\+Allocator}}
+
+
+Concept for allocating, resizing and freeing memory block.  
+
+
+
+
+{\ttfamily \#include $<$allocators.\+h$>$}
+
+
+
+\subsection{Detailed Description}
+Concept for allocating, resizing and freeing memory block. 
+
+Note that Malloc() and Realloc() are non-\/static but Free() is static.
+
+So if an allocator need to support Free(), it needs to put its pointer in the header of memory block.
+
+
+\begin{DoxyCode}
+concept Allocator \{
+    \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keywordtype}{bool} kNeedFree;    
+
+    \textcolor{comment}{// Allocate a memory block.}
+    \textcolor{comment}{// \(\backslash\)param size of the memory block in bytes.}
+    \textcolor{comment}{// \(\backslash\)returns pointer to the memory block.}
+    \textcolor{keywordtype}{void}* Malloc(\textcolor{keywordtype}{size\_t} size);
+
+    \textcolor{comment}{// Resize a memory block.}
+    \textcolor{comment}{// \(\backslash\)param originalPtr The pointer to current memory block. Null pointer is permitted.}
+    \textcolor{comment}{// \(\backslash\)param originalSize The current size in bytes. (Design issue: since some allocator may not book-keep
+       this, explicitly pass to it can save memory.)}
+    \textcolor{comment}{// \(\backslash\)param newSize the new size in bytes.}
+    \textcolor{keywordtype}{void}* Realloc(\textcolor{keywordtype}{void}* originalPtr, \textcolor{keywordtype}{size\_t} originalSize, \textcolor{keywordtype}{size\_t} newSize);
+
+    \textcolor{comment}{// Free a memory block.}
+    \textcolor{comment}{// \(\backslash\)param pointer to the memory block. Null pointer is permitted.}
+    \textcolor{keyword}{static} \textcolor{keywordtype}{void} Free(\textcolor{keywordtype}{void} *ptr);
+\};
+\end{DoxyCode}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+allocators.\+h\end{DoxyCompactItemize}

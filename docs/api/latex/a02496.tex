@@ -1,0 +1,139 @@
+\hypertarget{a02496}{}\section{Fake\+Accelerator Class Reference}
+\label{a02496}\index{Fake\+Accelerator@{Fake\+Accelerator}}
+Inheritance diagram for Fake\+Accelerator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a02496}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual Accelerator\+Type \hyperlink{a02496_abde88dbbf4410bf1c2c3826999e32d47}{get\+Type} ()
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a02444}{Accelerator\+Buffer} $>$ \hyperlink{a02496_ae39580fdc83ce9f4df0967382398950e}{create\+Buffer} (const std\+::string \&var\+Id)
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a02444}{Accelerator\+Buffer} $>$ \hyperlink{a02496_a09f29b893338dfb0a56dd183cf6949fe}{create\+Buffer} (const std\+::string \&var\+Id, const int size)
+\item 
+virtual bool \hyperlink{a02496_a7a6e63d282dc38fc53c3f3d46ca2ba9b}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
+\item 
+virtual std\+::vector$<$ \hyperlink{a02484}{I\+R\+Transformation} $>$ \hyperlink{a02496_a6be5485b52606b4543d7e08eda4d6b69}{get\+I\+R\+Transformations} ()
+\item 
+virtual void \hyperlink{a02496_a22c71bda017235865f1b7d4cc5e911fa}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a02444}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{Function} $>$ ir)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a02496_ae39580fdc83ce9f4df0967382398950e}\label{a02496_ae39580fdc83ce9f4df0967382398950e}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{create\+Buffer()}{createBuffer()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\hyperlink{a02444}{Accelerator\+Buffer}$>$ Fake\+Accelerator\+::create\+Buffer (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{var\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Create, store, and return an \hyperlink{a02444}{Accelerator\+Buffer} with the given variable id string. This string serves as a unique identifier for future lookups and reuse of the \hyperlink{a02444}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02432_aab5046e8d83ab390302e0f49533e95fc}{xacc\+::\+Accelerator}.
+
+\mbox{\Hypertarget{a02496_a09f29b893338dfb0a56dd183cf6949fe}\label{a02496_a09f29b893338dfb0a56dd183cf6949fe}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{create\+Buffer()}{createBuffer()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\hyperlink{a02444}{Accelerator\+Buffer}$>$ Fake\+Accelerator\+::create\+Buffer (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{var\+Id,  }\item[{const int}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Create, store, and return an \hyperlink{a02444}{Accelerator\+Buffer} with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a02444}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+{\em size} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02432_a064a2dbd58338364115c260267806945}{xacc\+::\+Accelerator}.
+
+\mbox{\Hypertarget{a02496_a22c71bda017235865f1b7d4cc5e911fa}\label{a02496_a22c71bda017235865f1b7d4cc5e911fa}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!execute@{execute}}
+\index{execute@{execute}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{execute()}{execute()}}
+{\footnotesize\ttfamily virtual void Fake\+Accelerator\+::execute (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a02444}{Accelerator\+Buffer} $>$}]{buffer,  }\item[{const std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{Function} $>$}]{function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Execute the provided X\+A\+CC IR Function on the provided \hyperlink{a02444}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & \\
+\hline
+{\em ir} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a02432_a89b3f3e6294f228abf03a410b0fb1674}{xacc\+::\+Accelerator}.
+
+\mbox{\Hypertarget{a02496_a6be5485b52606b4543d7e08eda4d6b69}\label{a02496_a6be5485b52606b4543d7e08eda4d6b69}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
+\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{get\+I\+R\+Transformations()}{getIRTransformations()}}
+{\footnotesize\ttfamily virtual std\+::vector$<$\hyperlink{a02484}{I\+R\+Transformation}$>$ Fake\+Accelerator\+::get\+I\+R\+Transformations (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return any IR Transformations that must be applied to ensure the compiled IR is amenable to execution on this Accelerator. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02432_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accelerator}.
+
+\mbox{\Hypertarget{a02496_abde88dbbf4410bf1c2c3826999e32d47}\label{a02496_abde88dbbf4410bf1c2c3826999e32d47}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!get\+Type@{get\+Type}}
+\index{get\+Type@{get\+Type}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{get\+Type()}{getType()}}
+{\footnotesize\ttfamily virtual Accelerator\+Type Fake\+Accelerator\+::get\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the type of this Accelerator.
+
+\begin{DoxyReturn}{Returns}
+type The Accelerator type -\/ Gate or A\+QC Q\+PU, or N\+PU 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02432_aaffc3e4bb9880eb5041b1b58ee4c2665}{xacc\+::\+Accelerator}.
+
+\mbox{\Hypertarget{a02496_a7a6e63d282dc38fc53c3f3d46ca2ba9b}\label{a02496_a7a6e63d282dc38fc53c3f3d46ca2ba9b}} 
+\index{Fake\+Accelerator@{Fake\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
+\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!Fake\+Accelerator@{Fake\+Accelerator}}
+\subsubsection{\texorpdfstring{is\+Valid\+Buffer\+Size()}{isValidBufferSize()}}
+{\footnotesize\ttfamily virtual bool Fake\+Accelerator\+::is\+Valid\+Buffer\+Size (\begin{DoxyParamCaption}\item[{const int}]{N\+Bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return true if this Accelerator can allocated N\+Bits number of bits. 
+\begin{DoxyParams}{Parameters}
+{\em N\+Bits} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02432_ae51584850faeec77299058383977ddeb}{xacc\+::\+Accelerator}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Program\+Tester.\+cpp\end{DoxyCompactItemize}

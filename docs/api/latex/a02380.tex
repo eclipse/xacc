@@ -1,0 +1,94 @@
+\hypertarget{a02380}{}\section{internal\+:\+:Schema\+Validation\+Context$<$ Schema\+Document\+Type $>$ Struct Template Reference}
+\label{a02380}\index{internal\+::\+Schema\+Validation\+Context$<$ Schema\+Document\+Type $>$@{internal\+::\+Schema\+Validation\+Context$<$ Schema\+Document\+Type $>$}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02380_a4fb1b8fe7ecb9d4608e6b0ac0716826c}\label{a02380_a4fb1b8fe7ecb9d4608e6b0ac0716826c}} 
+enum {\bfseries Pattern\+Validator\+Type} \{ {\bfseries k\+Pattern\+Validator\+Only}, 
+{\bfseries k\+Pattern\+Validator\+With\+Property}, 
+{\bfseries k\+Pattern\+Validator\+With\+Additional\+Property}
+ \}
+\item 
+\mbox{\Hypertarget{a02380_a79b155ab3711b97b6e33ced450614397}\label{a02380_a79b155ab3711b97b6e33ced450614397}} 
+typedef \hyperlink{a02356}{Schema}$<$ Schema\+Document\+Type $>$ {\bfseries Schema\+Type}
+\item 
+\mbox{\Hypertarget{a02380_a33fa91fd8e880d1adb9b891fe441f110}\label{a02380_a33fa91fd8e880d1adb9b891fe441f110}} 
+typedef \hyperlink{a02364}{I\+Schema\+State\+Factory}$<$ \hyperlink{a02356}{Schema\+Type} $>$ {\bfseries Schema\+Validator\+Factory\+Type}
+\item 
+\mbox{\Hypertarget{a02380_acc134e808d3a4dbe8834eb1a3e98e816}\label{a02380_acc134e808d3a4dbe8834eb1a3e98e816}} 
+typedef Schema\+Type\+::\+Value\+Type {\bfseries Value\+Type}
+\item 
+\mbox{\Hypertarget{a02380_abd905cd1513b117f1db68b58d6c41daf}\label{a02380_abd905cd1513b117f1db68b58d6c41daf}} 
+typedef Value\+Type\+::\+Ch {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02380_a4adc8f66779626c9da4a56e7a87dcfac}\label{a02380_a4adc8f66779626c9da4a56e7a87dcfac}} 
+{\bfseries Schema\+Validation\+Context} (\hyperlink{a02364}{Schema\+Validator\+Factory\+Type} \&f, const \hyperlink{a02356}{Schema\+Type} $\ast$s)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02380_ae2661ad92602b4f12fbffadb3dab502e}\label{a02380_ae2661ad92602b4f12fbffadb3dab502e}} 
+\hyperlink{a02364}{Schema\+Validator\+Factory\+Type} \& {\bfseries factory}
+\item 
+\mbox{\Hypertarget{a02380_af44336e8a612b77a0091cc57f8de1734}\label{a02380_af44336e8a612b77a0091cc57f8de1734}} 
+const \hyperlink{a02356}{Schema\+Type} $\ast$ {\bfseries schema}
+\item 
+\mbox{\Hypertarget{a02380_a34865d65fb3cbb01bc497d0efade0458}\label{a02380_a34865d65fb3cbb01bc497d0efade0458}} 
+const \hyperlink{a02356}{Schema\+Type} $\ast$ {\bfseries value\+Schema}
+\item 
+\mbox{\Hypertarget{a02380_a9f6a91ee46c70e55f287b1e9b219df21}\label{a02380_a9f6a91ee46c70e55f287b1e9b219df21}} 
+const Ch $\ast$ {\bfseries invalid\+Keyword}
+\item 
+\mbox{\Hypertarget{a02380_a4b419775e207cf72834f895dc30ac596}\label{a02380_a4b419775e207cf72834f895dc30ac596}} 
+void $\ast$ {\bfseries hasher}
+\item 
+\mbox{\Hypertarget{a02380_a5b6ec1a5fde2215de14a65fcbb06edde}\label{a02380_a5b6ec1a5fde2215de14a65fcbb06edde}} 
+void $\ast$ {\bfseries array\+Element\+Hash\+Codes}
+\item 
+\mbox{\Hypertarget{a02380_a1d215b80511f602ebece5c83b875cdd9}\label{a02380_a1d215b80511f602ebece5c83b875cdd9}} 
+\hyperlink{a02360}{I\+Schema\+Validator} $\ast$$\ast$ {\bfseries validators}
+\item 
+\mbox{\Hypertarget{a02380_a10e5e97640846f3c23eaaba0506bb4f7}\label{a02380_a10e5e97640846f3c23eaaba0506bb4f7}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries validator\+Count}
+\item 
+\mbox{\Hypertarget{a02380_a758565f674e8fb2066ff0f89ee67a174}\label{a02380_a758565f674e8fb2066ff0f89ee67a174}} 
+\hyperlink{a02360}{I\+Schema\+Validator} $\ast$$\ast$ {\bfseries pattern\+Properties\+Validators}
+\item 
+\mbox{\Hypertarget{a02380_a2b8a521d60d39472a1550b535028a353}\label{a02380_a2b8a521d60d39472a1550b535028a353}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries pattern\+Properties\+Validator\+Count}
+\item 
+\mbox{\Hypertarget{a02380_a12c48f172fbaae2e883f9eb2614d860e}\label{a02380_a12c48f172fbaae2e883f9eb2614d860e}} 
+const \hyperlink{a02356}{Schema\+Type} $\ast$$\ast$ {\bfseries pattern\+Properties\+Schemas}
+\item 
+\mbox{\Hypertarget{a02380_a77d48b63f006479ab8c77f8192558441}\label{a02380_a77d48b63f006479ab8c77f8192558441}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries pattern\+Properties\+Schema\+Count}
+\item 
+\mbox{\Hypertarget{a02380_acc1ba6a63e678d0efff8a63d617c4d0d}\label{a02380_acc1ba6a63e678d0efff8a63d617c4d0d}} 
+Pattern\+Validator\+Type {\bfseries value\+Pattern\+Validator\+Type}
+\item 
+\mbox{\Hypertarget{a02380_add156192946b251ded2e11e24cfa9898}\label{a02380_add156192946b251ded2e11e24cfa9898}} 
+Pattern\+Validator\+Type {\bfseries object\+Pattern\+Validator\+Type}
+\item 
+\mbox{\Hypertarget{a02380_a213dd0b8a746b1548bb28b12a17c2c1e}\label{a02380_a213dd0b8a746b1548bb28b12a17c2c1e}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries array\+Element\+Index}
+\item 
+\mbox{\Hypertarget{a02380_a3e58787498af48ecceb97c47fb592d47}\label{a02380_a3e58787498af48ecceb97c47fb592d47}} 
+bool $\ast$ {\bfseries property\+Exist}
+\item 
+\mbox{\Hypertarget{a02380_af18fc4ef754e8a52732e152854f06341}\label{a02380_af18fc4ef754e8a52732e152854f06341}} 
+bool {\bfseries in\+Array}
+\item 
+\mbox{\Hypertarget{a02380_a23e93ca88653ed878e3ddf290fc6bd9f}\label{a02380_a23e93ca88653ed878e3ddf290fc6bd9f}} 
+bool {\bfseries value\+Uniqueness}
+\item 
+\mbox{\Hypertarget{a02380_a0864c5e8155fe0064f17e8dcb31d93c7}\label{a02380_a0864c5e8155fe0064f17e8dcb31d93c7}} 
+bool {\bfseries array\+Uniqueness}
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+schema.\+h\end{DoxyCompactItemize}

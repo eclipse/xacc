@@ -1,0 +1,43 @@
+\hypertarget{a01952}{}\section{Simple\+Web\+:\+:Server\+Base$<$ socket\+\_\+type $>$\+:\+:Config Class Reference}
+\label{a01952}\index{Simple\+Web\+::\+Server\+Base$<$ socket\+\_\+type $>$\+::\+Config@{Simple\+Web\+::\+Server\+Base$<$ socket\+\_\+type $>$\+::\+Config}}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01952_aa80030952ff056db08f736d5537bd2c9}\label{a01952_aa80030952ff056db08f736d5537bd2c9}} 
+unsigned short \hyperlink{a01952_aa80030952ff056db08f736d5537bd2c9}{port}
+\begin{DoxyCompactList}\small\item\em Port number to use. Defaults to 80 for H\+T\+TP and 443 for H\+T\+T\+PS. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a01952_abfbbfc38bfd2887739676424509dbb45}\label{a01952_abfbbfc38bfd2887739676424509dbb45}} 
+size\+\_\+t \hyperlink{a01952_abfbbfc38bfd2887739676424509dbb45}{thread\+\_\+pool\+\_\+size} =1
+\begin{DoxyCompactList}\small\item\em Number of threads that the server will use when start() is called. Defaults to 1 thread. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a01952_aa27e09c83d7e26dff6e72e8d1084d5a0}\label{a01952_aa27e09c83d7e26dff6e72e8d1084d5a0}} 
+size\+\_\+t \hyperlink{a01952_aa27e09c83d7e26dff6e72e8d1084d5a0}{timeout\+\_\+request} =5
+\begin{DoxyCompactList}\small\item\em Timeout on request handling. Defaults to 5 seconds. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a01952_ac1f74ff91196c3a72446786b54a77b58}\label{a01952_ac1f74ff91196c3a72446786b54a77b58}} 
+size\+\_\+t \hyperlink{a01952_ac1f74ff91196c3a72446786b54a77b58}{timeout\+\_\+content} =300
+\begin{DoxyCompactList}\small\item\em Timeout on content handling. Defaults to 300 seconds. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{a01952_add7a705aca3533bf0371708b19bb691c}{address}
+\item 
+\mbox{\Hypertarget{a01952_aab9c347da5390b176d37dac2dfbd9fae}\label{a01952_aab9c347da5390b176d37dac2dfbd9fae}} 
+bool \hyperlink{a01952_aab9c347da5390b176d37dac2dfbd9fae}{reuse\+\_\+address} =true
+\begin{DoxyCompactList}\small\item\em Set to false to avoid binding the socket to an address that is already in use. Defaults to true. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01952_a01d54a7e16ca437c98ec571deca98dfc}\label{a01952_a01d54a7e16ca437c98ec571deca98dfc}} 
+class {\bfseries Server\+Base$<$ socket\+\_\+type $>$}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01952_add7a705aca3533bf0371708b19bb691c}\label{a01952_add7a705aca3533bf0371708b19bb691c}} 
+\index{Simple\+Web\+::\+Server\+Base\+::\+Config@{Simple\+Web\+::\+Server\+Base\+::\+Config}!address@{address}}
+\index{address@{address}!Simple\+Web\+::\+Server\+Base\+::\+Config@{Simple\+Web\+::\+Server\+Base\+::\+Config}}
+\subsubsection{\texorpdfstring{address}{address}}
+{\footnotesize\ttfamily template$<$class socket\+\_\+type$>$ \\
+std\+::string \hyperlink{a01936}{Simple\+Web\+::\+Server\+Base}$<$ socket\+\_\+type $>$\+::Config\+::address}
+
+I\+Pv4 address in dotted decimal form or I\+Pv6 address in hexadecimal notation. If empty, the address will be any address. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+server\+\_\+http.\+hpp\end{DoxyCompactItemize}

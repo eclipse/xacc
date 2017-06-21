@@ -1,0 +1,52 @@
+\hypertarget{a02572}{}\section{rapidjson\+:\+:Encoding Class Reference}
+\label{a02572}\index{rapidjson\+::\+Encoding@{rapidjson\+::\+Encoding}}
+
+
+Concept for encoding of Unicode characters.  
+
+
+
+
+{\ttfamily \#include $<$encodings.\+h$>$}
+
+
+
+\subsection{Detailed Description}
+Concept for encoding of Unicode characters. 
+
+
+\begin{DoxyCode}
+concept Encoding \{
+    \textcolor{keyword}{typename} Ch;    
+
+    \textcolor{keyword}{enum} \{ supportUnicode = 1 \}; \textcolor{comment}{// or 0 if not supporting unicode}
+
+    \textcolor{keyword}{template}<\textcolor{keyword}{typename} OutputStream>
+    \textcolor{keyword}{static} \textcolor{keywordtype}{void} Encode(OutputStream& os, \textcolor{keywordtype}{unsigned} codepoint);
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} InputStream>
+    \textcolor{keyword}{static} \textcolor{keywordtype}{bool} Decode(InputStream& is, \textcolor{keywordtype}{unsigned}* codepoint);
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} InputStream, \textcolor{keyword}{typename} OutputStream>
+    \textcolor{keyword}{static} \textcolor{keywordtype}{bool} Validate(InputStream& is, OutputStream& os);
+
+    \textcolor{comment}{// The following functions are deal with byte streams.}
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} InputByteStream>
+    \textcolor{keyword}{static} CharType TakeBOM(InputByteStream& is);
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} InputByteStream>
+    \textcolor{keyword}{static} Ch Take(InputByteStream& is);
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} OutputByteStream>
+    \textcolor{keyword}{static} \textcolor{keywordtype}{void} PutBOM(OutputByteStream& os);
+
+    \textcolor{keyword}{template} <\textcolor{keyword}{typename} OutputByteStream>
+    \textcolor{keyword}{static} \textcolor{keywordtype}{void} Put(OutputByteStream& os, Ch c);
+\};
+\end{DoxyCode}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodings.\+h\end{DoxyCompactItemize}

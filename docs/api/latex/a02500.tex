@@ -1,0 +1,85 @@
+\hypertarget{a02500}{}\section{Dummy\+Compiler Class Reference}
+\label{a02500}\index{Dummy\+Compiler@{Dummy\+Compiler}}
+Inheritance diagram for Dummy\+Compiler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a02500}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a02480}{xacc\+::\+IR} $>$ \hyperlink{a02500_acc75af818d62ba22d1dd7de3b66c4baf}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a02432}{Accelerator} $>$ acc)
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a02480}{xacc\+::\+IR} $>$ \hyperlink{a02500_a40d7cc3bbc72a2ce9362136b3b83245c}{compile} (const std\+::string \&src)
+\item 
+virtual const std\+::string \hyperlink{a02500_a76460cb78671dc2cf42f2bebf8fb80c7}{get\+Name} ()
+\item 
+\mbox{\Hypertarget{a02500_a9f58a296f96aa340fc73b267f8c80fb0}\label{a02500_a9f58a296f96aa340fc73b267f8c80fb0}} 
+virtual void {\bfseries modify\+Source} ()
+\item 
+\mbox{\Hypertarget{a02500_a1a9739b20fb26d1f440bdd6cdfab0d8a}\label{a02500_a1a9739b20fb26d1f440bdd6cdfab0d8a}} 
+virtual std\+::string {\bfseries get\+Bit\+Type} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a02500_acc75af818d62ba22d1dd7de3b66c4baf}\label{a02500_acc75af818d62ba22d1dd7de3b66c4baf}} 
+\index{Dummy\+Compiler@{Dummy\+Compiler}!compile@{compile}}
+\index{compile@{compile}!Dummy\+Compiler@{Dummy\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a02480}{xacc\+::\+IR}$>$ Dummy\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a02432}{Accelerator} $>$}]{acc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the Accelerator that this source code is intended for.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The kernel source string. \\
+\hline
+{\em acc} & The Accelerator this code will be executed on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ir Intermediate representation for provided source kernel code. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02448_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
+
+\mbox{\Hypertarget{a02500_a40d7cc3bbc72a2ce9362136b3b83245c}\label{a02500_a40d7cc3bbc72a2ce9362136b3b83245c}} 
+\index{Dummy\+Compiler@{Dummy\+Compiler}!compile@{compile}}
+\index{compile@{compile}!Dummy\+Compiler@{Dummy\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a02480}{xacc\+::\+IR}$>$ Dummy\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. 
+\begin{DoxyParams}{Parameters}
+{\em src} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02448_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
+
+\mbox{\Hypertarget{a02500_a76460cb78671dc2cf42f2bebf8fb80c7}\label{a02500_a76460cb78671dc2cf42f2bebf8fb80c7}} 
+\index{Dummy\+Compiler@{Dummy\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!Dummy\+Compiler@{Dummy\+Compiler}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string Dummy\+Compiler\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the name of this Compiler \begin{DoxyReturn}{Returns}
+name Compiler name 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02448_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Program\+Tester.\+cpp\end{DoxyCompactItemize}

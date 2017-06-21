@@ -1,0 +1,152 @@
+\hypertarget{a02460}{}\section{xacc\+:\+:Instruction Class Reference}
+\label{a02460}\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+
+
+{\ttfamily \#include $<$Instruction.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Instruction\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.008130cm]{a02460}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual const std\+::string \hyperlink{a02460_ac7ff23f693e2276edbf3fdac5452792c}{get\+Name} ()=0
+\item 
+virtual const std\+::string \hyperlink{a02460_ae94c2d089908294c1d410b14c96817ae}{to\+String} (const std\+::string \&buffer\+Var\+Name)=0
+\item 
+virtual const std\+::vector$<$ int $>$ \hyperlink{a02460_a819f32e94c3e1c9e69a0061aaf8d86dc}{bits} ()=0
+\item 
+virtual bool \hyperlink{a02460_a4383f1036d0fcfe890ab9c613dbd5f38}{is\+Composite} ()
+\item 
+virtual bool \hyperlink{a02460_ad02a1cf7220577124720b7a51424cea7}{is\+Enabled} ()
+\item 
+virtual void \hyperlink{a02460_a6e528da15e05a94cc1d7db268c483271}{disable} ()
+\item 
+virtual void \hyperlink{a02460_a0b4f2e5a591af28342a3c08e4305e24f}{enable} ()
+\item 
+virtual \hyperlink{a02460_ae22c935e8113bce63d1d0e214cda4d61}{$\sim$\+Instruction} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a02460}{Instruction} interface is the base of all X\+A\+CC Intermediate Representation Instructions for post-\/\+Moore\textquotesingle{}s law accelerated computing. The \hyperlink{a02460}{Instruction}, at its core, provides an \hyperlink{a02460}{Instruction} name and a set of next-\/gen bits that the \hyperlink{a02460}{Instruction} operates on. Instructions can also be enabled or disabled. Instructions implement \hyperlink{a02476}{Base\+Instruction\+Visitable} to enable visitor pattern functionality across all \hyperlink{a02460}{Instruction} subclasses. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a02460_ae22c935e8113bce63d1d0e214cda4d61}\label{a02460_ae22c935e8113bce63d1d0e214cda4d61}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!````~Instruction@{$\sim$\+Instruction}}
+\index{````~Instruction@{$\sim$\+Instruction}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{$\sim$\+Instruction()}{~Instruction()}}
+{\footnotesize\ttfamily virtual xacc\+::\+Instruction\+::$\sim$\+Instruction (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+The destructor 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a02460_a819f32e94c3e1c9e69a0061aaf8d86dc}\label{a02460_a819f32e94c3e1c9e69a0061aaf8d86dc}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!bits@{bits}}
+\index{bits@{bits}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{bits()}{bits()}}
+{\footnotesize\ttfamily virtual const std\+::vector$<$int$>$ xacc\+::\+Instruction\+::bits (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Return the indices of the bits that this \hyperlink{a02460}{Instruction} operates on.
+
+\begin{DoxyReturn}{Returns}
+bits The bits this \hyperlink{a02460}{Instruction} operates on. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a01272_aba03de68b76a9e120705c3c389c714a1}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a01276_ad32ad03dfc516e00093030e60178003d}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+\mbox{\Hypertarget{a02460_a6e528da15e05a94cc1d7db268c483271}\label{a02460_a6e528da15e05a94cc1d7db268c483271}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!disable@{disable}}
+\index{disable@{disable}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{disable()}{disable()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Instruction\+::disable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Disable this \hyperlink{a02460}{Instruction} 
+
+Reimplemented in \hyperlink{a01276_a63ce138dd71fb43d303f5600fefb7215}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+\mbox{\Hypertarget{a02460_a0b4f2e5a591af28342a3c08e4305e24f}\label{a02460_a0b4f2e5a591af28342a3c08e4305e24f}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!enable@{enable}}
+\index{enable@{enable}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{enable()}{enable()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Instruction\+::enable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Enable this \hyperlink{a02460}{Instruction}. 
+
+Reimplemented in \hyperlink{a01276_a7a80474b7fd465271b3313432db2e608}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+\mbox{\Hypertarget{a02460_ac7ff23f693e2276edbf3fdac5452792c}\label{a02460_ac7ff23f693e2276edbf3fdac5452792c}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Instruction\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Return the name of this \hyperlink{a02460}{Instruction}
+
+\begin{DoxyReturn}{Returns}
+name The name of this \hyperlink{a02460}{Instruction} 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a01272_af42efb6191267164717d53c469e15d3a}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a01276_a0db03b9e46eeba1134f0ca2b83ccc842}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+\mbox{\Hypertarget{a02460_a4383f1036d0fcfe890ab9c613dbd5f38}\label{a02460_a4383f1036d0fcfe890ab9c613dbd5f38}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!is\+Composite@{is\+Composite}}
+\index{is\+Composite@{is\+Composite}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{is\+Composite()}{isComposite()}}
+{\footnotesize\ttfamily virtual bool xacc\+::\+Instruction\+::is\+Composite (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Returns true if this \hyperlink{a02460}{Instruction} is composite, ie, contains other Instructions.
+
+\begin{DoxyReturn}{Returns}
+is\+Composite True if this is a composite \hyperlink{a02460}{Instruction} 
+\end{DoxyReturn}
+
+
+Reimplemented in \hyperlink{a02456_aa75500c657b5c3e0e36213e1506aad97}{xacc\+::\+Function}.
+
+\mbox{\Hypertarget{a02460_ad02a1cf7220577124720b7a51424cea7}\label{a02460_ad02a1cf7220577124720b7a51424cea7}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!is\+Enabled@{is\+Enabled}}
+\index{is\+Enabled@{is\+Enabled}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{is\+Enabled()}{isEnabled()}}
+{\footnotesize\ttfamily virtual bool xacc\+::\+Instruction\+::is\+Enabled (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Returns true if this \hyperlink{a02460}{Instruction} is enabled
+
+\begin{DoxyReturn}{Returns}
+enabled True if this \hyperlink{a02460}{Instruction} is enabled. 
+\end{DoxyReturn}
+
+
+Reimplemented in \hyperlink{a01276_a0a821be322b0c848b01c55f91fc8f484}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+\mbox{\Hypertarget{a02460_ae94c2d089908294c1d410b14c96817ae}\label{a02460_ae94c2d089908294c1d410b14c96817ae}} 
+\index{xacc\+::\+Instruction@{xacc\+::\+Instruction}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::\+Instruction@{xacc\+::\+Instruction}}
+\subsubsection{\texorpdfstring{to\+String()}{toString()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Instruction\+::to\+String (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{buffer\+Var\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Persist this \hyperlink{a02460}{Instruction} to an assembly-\/like string.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+Var\+Name} & The name of the \hyperlink{a02444}{Accelerator\+Buffer} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+str The assembly-\/like string. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$}, \hyperlink{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ double $>$}, \hyperlink{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ int $>$}, \hyperlink{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ double, double $>$}, \hyperlink{a01272_aa1950776ae84bad2d0795a0441f910e7}{xacc\+::quantum\+::\+Gate\+Function}, \hyperlink{a01276_a089a5da67ff40ac1a6f56e64589822d9}{xacc\+::quantum\+::\+Gate\+Instruction}, \hyperlink{a01312_a1c51a5d68294dcb2ba1a9fbea63a730f}{xacc\+::quantum\+::\+Measure}, and \hyperlink{a01304_aca7a5f849fece6fc28a904efee9a3370}{xacc\+::quantum\+::\+Conditional\+Function}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Instruction.\+hpp\end{DoxyCompactItemize}

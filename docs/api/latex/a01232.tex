@@ -1,0 +1,61 @@
+\hypertarget{a01232}{}\section{scaffold\+:\+:Scaffold\+A\+S\+T\+Consumer Class Reference}
+\label{a01232}\index{scaffold\+::\+Scaffold\+A\+S\+T\+Consumer@{scaffold\+::\+Scaffold\+A\+S\+T\+Consumer}}
+Inheritance diagram for scaffold\+:\+:Scaffold\+A\+S\+T\+Consumer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.717791cm]{a01232}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01232_a14020b09423a4efb0f992ace1d482a57}\label{a01232_a14020b09423a4efb0f992ace1d482a57}} 
+virtual bool {\bfseries Handle\+Top\+Level\+Decl} (Decl\+Group\+Ref DR)
+\item 
+\mbox{\Hypertarget{a01232_a3269dcedd2f3175837a94acbf74901d1}\label{a01232_a3269dcedd2f3175837a94acbf74901d1}} 
+bool {\bfseries Visit\+Stmt} (clang\+::\+Stmt $\ast$s)
+\item 
+\mbox{\Hypertarget{a01232_aa1c7cd8940ee725b88cc84256d19f555}\label{a01232_aa1c7cd8940ee725b88cc84256d19f555}} 
+bool {\bfseries Visit\+Decl} (clang\+::\+Decl $\ast$d)
+\item 
+\mbox{\Hypertarget{a01232_a91844fe528e854e205429f3b5d2b0e47}\label{a01232_a91844fe528e854e205429f3b5d2b0e47}} 
+bool {\bfseries Visit\+Call\+Expr} (Call\+Expr $\ast$c)
+\item 
+\mbox{\Hypertarget{a01232_a598a634d96ffb4217bb0938720e669d2}\label{a01232_a598a634d96ffb4217bb0938720e669d2}} 
+bool {\bfseries Visit\+Binary\+Operator} (Binary\+Operator $\ast$b)
+\item 
+\mbox{\Hypertarget{a01232_a76277d0f3010fb735623f620d79f7128}\label{a01232_a76277d0f3010fb735623f620d79f7128}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{xacc\+::\+Function} $>$ {\bfseries get\+Function} ()
+\item 
+\mbox{\Hypertarget{a01232_ab1d779aee8690e77e7c9a89f93c41a1f}\label{a01232_ab1d779aee8690e77e7c9a89f93c41a1f}} 
+const std\+::string {\bfseries get\+Qubit\+Variable\+Name} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01232_a98ef6d976c6cd91e260a007cbcb6e144}\label{a01232_a98ef6d976c6cd91e260a007cbcb6e144}} 
+std\+::string {\bfseries cbit\+Var\+Name}
+\item 
+\mbox{\Hypertarget{a01232_a460cb6b66543f4992290b6c660cded01}\label{a01232_a460cb6b66543f4992290b6c660cded01}} 
+std\+::string {\bfseries qbit\+Var\+Name}
+\item 
+\mbox{\Hypertarget{a01232_ace1ed18d3d08ad8ebb203dfe0022aed1}\label{a01232_ace1ed18d3d08ad8ebb203dfe0022aed1}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01272}{xacc\+::quantum\+::\+Gate\+Function} $>$ {\bfseries function}
+\item 
+\mbox{\Hypertarget{a01232_ad71adbc4b269b38f714e6bf9be1b773e}\label{a01232_ad71adbc4b269b38f714e6bf9be1b773e}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01304}{xacc\+::quantum\+::\+Conditional\+Function} $>$ {\bfseries current\+Conditional}
+\item 
+\mbox{\Hypertarget{a01232_a967b4790cda7cc44f99acc01310e5ef1}\label{a01232_a967b4790cda7cc44f99acc01310e5ef1}} 
+int {\bfseries n\+Call\+Expr\+To\+Skip} = 0
+\item 
+\mbox{\Hypertarget{a01232_a5d8b7ce3a8208dd0be810bd1832d7648}\label{a01232_a5d8b7ce3a8208dd0be810bd1832d7648}} 
+std\+::map$<$ std\+::string, int $>$ {\bfseries cbit\+Reg\+To\+Measured\+Qubit}
+\item 
+\mbox{\Hypertarget{a01232_ab17e34f8ea118332be0b2bca86c9474d}\label{a01232_ab17e34f8ea118332be0b2bca86c9474d}} 
+std\+::vector$<$ \hyperlink{a01228}{Kernel\+Parameter} $>$ {\bfseries parameters}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Scaffold\+A\+S\+T\+Consumer.\+hpp\end{DoxyCompactItemize}

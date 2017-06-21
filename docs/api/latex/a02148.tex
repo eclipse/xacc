@@ -1,0 +1,71 @@
+\hypertarget{a02148}{}\section{U\+T\+F16$<$ Char\+Type $>$ Struct Template Reference}
+\label{a02148}\index{U\+T\+F16$<$ Char\+Type $>$@{U\+T\+F16$<$ Char\+Type $>$}}
+
+
+U\+T\+F-\/16 encoding.  
+
+
+
+
+{\ttfamily \#include $<$encodings.\+h$>$}
+
+Inheritance diagram for U\+T\+F16$<$ Char\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a02148}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02148_aa70dffba89030cb6d8a28625e5e65431}\label{a02148_aa70dffba89030cb6d8a28625e5e65431}} 
+enum \{ {\bfseries support\+Unicode} = 1
+ \}
+\item 
+\mbox{\Hypertarget{a02148_a811680d50447c98be4fd94c0a27504bb}\label{a02148_a811680d50447c98be4fd94c0a27504bb}} 
+typedef Char\+Type {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02148_a04aeeefa5dcba7c5156bc78a5c1f1557}\label{a02148_a04aeeefa5dcba7c5156bc78a5c1f1557}} 
+{\bfseries R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+S\+T\+A\+T\+I\+C\+\_\+\+A\+S\+S\+E\+RT} (sizeof(Ch) $>$=2)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02148_a9d8ded01244e30d037c4afa10ee2b30e}\label{a02148_a9d8ded01244e30d037c4afa10ee2b30e}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02148_aa67661e756c273871b574e7133b7fc63}\label{a02148_aa67661e756c273871b574e7133b7fc63}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode\+Unsafe} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02148_a124c79dfd9f9b4c3fb65bd55ba17b4be}\label{a02148_a124c79dfd9f9b4c3fb65bd55ba17b4be}} 
+{\footnotesize template$<$typename Input\+Stream $>$ }\\static bool {\bfseries Decode} (Input\+Stream \&is, unsigned $\ast$codepoint)
+\item 
+\mbox{\Hypertarget{a02148_a7516184ed5dce10c0e7895bec124d97d}\label{a02148_a7516184ed5dce10c0e7895bec124d97d}} 
+{\footnotesize template$<$typename Input\+Stream , typename Output\+Stream $>$ }\\static bool {\bfseries Validate} (Input\+Stream \&is, Output\+Stream \&os)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Char\+Type = wchar\+\_\+t$>$\newline
+struct U\+T\+F16$<$ Char\+Type $>$}
+
+U\+T\+F-\/16 encoding. 
+
+\href{http://en.wikipedia.org/wiki/UTF-16}{\tt http\+://en.\+wikipedia.\+org/wiki/\+U\+T\+F-\/16} \href{http://tools.ietf.org/html/rfc2781}{\tt http\+://tools.\+ietf.\+org/html/rfc2781} 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Char\+Type} & Type for storing 16-\/bit U\+T\+F-\/16 data. Default is wchar\+\_\+t. C++11 may use char16\+\_\+t instead. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyNote}{Note}
+implements Encoding concept
+
+For in-\/memory access, no need to concern endianness. The code units and code points are represented by C\+PU\textquotesingle{}s endianness. For streaming, use \hyperlink{a02152}{U\+T\+F16\+LE} and \hyperlink{a02156}{U\+T\+F16\+BE}, which handle endianness. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodings.\+h\end{DoxyCompactItemize}

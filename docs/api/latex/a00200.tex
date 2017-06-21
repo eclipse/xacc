@@ -1,0 +1,190 @@
+\hypertarget{a00200}{}\section{alias.\+hpp File Reference}
+\label{a00200}\index{alias.\+hpp@{alias.\+hpp}}
+
+
+Includes alias methods and macro. You can include this header or \hyperlink{a00269}{boost/dll/shared\+\_\+library.\+hpp} to reduce dependencies in case you do not use the refcountable functions.  
+
+
+{\ttfamily \#include $<$boost/config.\+hpp$>$}\newline
+{\ttfamily \#include $<$boost/static\+\_\+assert.\+hpp$>$}\newline
+{\ttfamily \#include $<$boost/predef/compiler.\+h$>$}\newline
+{\ttfamily \#include $<$boost/predef/os.\+h$>$}\newline
+{\ttfamily \#include $<$boost/dll/detail/aggressive\+\_\+ptr\+\_\+cast.\+hpp$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{a00200_a18e217f7c26bce9cb08c64f41fbd6178}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY}~\+\_\+\+\_\+attribute\+\_\+\+\_\+((weak))
+\begin{DoxyCompactList}\small\item\em Macro that allows linker to select any occurrence of this symbol instead of failing with \textquotesingle{}multiple definitions\textquotesingle{} error at linktime. \end{DoxyCompactList}\item 
+\#define \hyperlink{a00200_a77c8964c8b614e76a662bb500babac74}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON}(Section\+Name,  Permissions)
+\begin{DoxyCompactList}\small\item\em Macro that puts symbol to a specific section. On Mac\+OS all the sections are put into \char`\"{}\+\_\+\+\_\+\+D\+A\+T\+A\char`\"{} segment. \end{DoxyCompactList}\item 
+\#define \hyperlink{a00200_ad9f8b1de81ae3b24cd938c7bacb27eef}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS}(Function\+Or\+Var,  Alias\+Name)~\hyperlink{a00200_af10683bc3be11abe1957b186fcec2bd2}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}(Function\+Or\+Var, Alias\+Name, boostdll)       \textbackslash{}
+\begin{DoxyCompactList}\small\item\em Makes an alias name for exported function or variable. \end{DoxyCompactList}\item 
+\#define \hyperlink{a00200_af10683bc3be11abe1957b186fcec2bd2}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}(Function\+Or\+Var,  Alias\+Name,  Section\+Name)
+\begin{DoxyCompactList}\small\item\em Same as \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS\} but puts alias name into the user specified section. \end{DoxyCompactList}\item 
+\#define \hyperlink{a00200_af6db740861079eab68b0629d98d74cd8}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS}(Function\+Or\+Var)
+\begin{DoxyCompactList}\small\item\em Exports variable or function with unmangled alias name. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Includes alias methods and macro. You can include this header or \hyperlink{a00269}{boost/dll/shared\+\_\+library.\+hpp} to reduce dependencies in case you do not use the refcountable functions. 
+
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{a00200_ad9f8b1de81ae3b24cd938c7bacb27eef}\label{a00200_ad9f8b1de81ae3b24cd938c7bacb27eef}} 
+\index{alias.\+hpp@{alias.\+hpp}!B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS}}
+\index{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS}!alias.\+hpp@{alias.\+hpp}}
+\subsubsection{\texorpdfstring{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS}{BOOST\_DLL\_ALIAS}}
+{\footnotesize\ttfamily \#define B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS(\begin{DoxyParamCaption}\item[{}]{Function\+Or\+Var,  }\item[{}]{Alias\+Name }\end{DoxyParamCaption})~\hyperlink{a00200_af10683bc3be11abe1957b186fcec2bd2}{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}(Function\+Or\+Var, Alias\+Name, boostdll)       \textbackslash{}}
+
+
+
+Makes an alias name for exported function or variable. 
+
+This macro is useful in cases of long mangled C++ names. For example some {\ttfamily void boost\+::foo(std\+::sting)} function name will change to something like {\ttfamily N5boost\+N3foosE} after mangling. Importing function by {\ttfamily N5boost\+N3foosE} name does not looks user friendly, especially assuming the fact that different compilers have different mangling schemes. Alias\+Name is the name that won\textquotesingle{}t be mangled and can be used as a portable import name.
+
+Can be used in any namespace, including global. Function\+Or\+Var must be fully qualified, so that address of it could be taken. Multiple different aliases for a single variable/function are allowed.
+
+Make sure that Alias\+Names are unique per library/executable. Functions or variables in global namespace must not have names same as Alias\+Names.
+
+Same Alias\+Name in different translation units must point to the same Function\+Or\+Var.
+
+Puts all the aliases into the {\bfseries \char`\"{}boostdll\char`\"{}} read only section of the binary. Equal to \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED\}(Function\+Or\+Var, Alias\+Name, boostdll).
+
+
+\begin{DoxyParams}{Parameters}
+{\em Function\+Or\+Var} & Function or variable for which an alias must be made. \\
+\hline
+{\em Alias\+Name} & Name of the alias. Must be a valid C identifier.\\
+\hline
+\end{DoxyParams}
+{\bfseries Example\+:} 
+\begin{DoxyCode}
+\textcolor{keyword}{namespace }\hyperlink{a01792}{foo} \{
+  \textcolor{keywordtype}{void} bar(std::string&);
+
+  \hyperlink{a00200_ad9f8b1de81ae3b24cd938c7bacb27eef}{BOOST\_DLL\_ALIAS}(foo::bar, foo\_bar)
+\}
+
+\hyperlink{a00200_ad9f8b1de81ae3b24cd938c7bacb27eef}{BOOST\_DLL\_ALIAS}(foo::bar, foo\_bar\_another\_alias\_name)
+\end{DoxyCode}
+
+
+{\bfseries See\+:} \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED\} for making alias in a specific section. \mbox{\Hypertarget{a00200_af10683bc3be11abe1957b186fcec2bd2}\label{a00200_af10683bc3be11abe1957b186fcec2bd2}} 
+\index{alias.\+hpp@{alias.\+hpp}!B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}}
+\index{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}!alias.\+hpp@{alias.\+hpp}}
+\subsubsection{\texorpdfstring{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED}{BOOST\_DLL\_ALIAS\_SECTIONED}}
+{\footnotesize\ttfamily \#define B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+A\+S\+\_\+\+S\+E\+C\+T\+I\+O\+N\+ED(\begin{DoxyParamCaption}\item[{}]{Function\+Or\+Var,  }\item[{}]{Alias\+Name,  }\item[{}]{Section\+Name }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}
+\textcolor{keyword}{namespace }\_autoaliases \{                                                                    \(\backslash\)
+        extern \textcolor{stringliteral}{"C"} BOOST\_SYMBOL\_EXPORT \textcolor{keyword}{const} \textcolor{keywordtype}{void} *AliasName;                                   \(\backslash\)
+        BOOST\_DLL\_SECTION(SectionName, read) BOOST\_DLL\_SELECTANY                                \(\backslash\)
+        const \textcolor{keywordtype}{void} * AliasName = \textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const }\textcolor{keywordtype}{void}*\textcolor{keyword}{>}(\textcolor{keyword}{reinterpret\_cast<}intptr\_t\textcolor{keyword}{>}(      \(\backslash\)
+            &FunctionOrVar                                                                      \(\backslash\)
+        ));                                                                                     \(\backslash\)
+    \} \textcolor{comment}{/* namespace \_autoaliases */}                                                              \(\backslash\)
+\end{DoxyCode}
+
+
+Same as \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS\} but puts alias name into the user specified section. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Function\+Or\+Var} & Function or variable for which an alias must be made. \\
+\hline
+{\em Alias\+Name} & Name of the alias. Must be a valid C identifier. \\
+\hline
+{\em Section\+Name} & Name of the section. Must be a valid C identifier without quotes not longer than 8 bytes.\\
+\hline
+\end{DoxyParams}
+{\bfseries Example\+:} 
+\begin{DoxyCode}
+\textcolor{keyword}{namespace }\hyperlink{a01792}{foo} \{
+  \textcolor{keywordtype}{void} bar(std::string&);
+
+  \hyperlink{a00200_af10683bc3be11abe1957b186fcec2bd2}{BOOST\_DLL\_ALIAS\_SECTIONED}(foo::bar, foo\_bar, sect\_1) \textcolor{comment}{// section "sect\_1" now
+       exports "foo\_bar"}
+\}
+\end{DoxyCode}
+ \mbox{\Hypertarget{a00200_af6db740861079eab68b0629d98d74cd8}\label{a00200_af6db740861079eab68b0629d98d74cd8}} 
+\index{alias.\+hpp@{alias.\+hpp}!B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS}}
+\index{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS}!alias.\+hpp@{alias.\+hpp}}
+\subsubsection{\texorpdfstring{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS}{BOOST\_DLL\_AUTO\_ALIAS}}
+{\footnotesize\ttfamily \#define B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+U\+T\+O\+\_\+\+A\+L\+I\+AS(\begin{DoxyParamCaption}\item[{}]{Function\+Or\+Var }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}
+\textcolor{keyword}{namespace }\_autoaliases \{                                                                    \(\backslash\)
+        BOOST\_DLL\_SELECTANY \textcolor{keyword}{const} \textcolor{keywordtype}{void} * dummy\_ ## FunctionOrVar                                \(\backslash\)
+            = \textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const }\textcolor{keywordtype}{void}*\textcolor{keyword}{>}(\textcolor{keyword}{reinterpret\_cast<}intptr\_t\textcolor{keyword}{>}(                         \(\backslash\)
+                &FunctionOrVar                                                                  \(\backslash\)
+            ));                                                                                 \(\backslash\)
+        extern \textcolor{stringliteral}{"C"} BOOST\_SYMBOL\_EXPORT \textcolor{keyword}{const} \textcolor{keywordtype}{void} *FunctionOrVar;                               \(\backslash\)
+        BOOST\_DLL\_SECTION(boostdll, read) BOOST\_DLL\_SELECTANY                                   \(\backslash\)
+        const \textcolor{keywordtype}{void} * FunctionOrVar = dummy\_ ## FunctionOrVar;                                   \(\backslash\)
+    \} \textcolor{comment}{/* namespace \_autoaliases */}                                                              \(\backslash\)
+\end{DoxyCode}
+
+
+Exports variable or function with unmangled alias name. 
+
+This macro is useful in cases of long mangled C++ names. For example some {\ttfamily void boost\+::foo(std\+::sting)} function name will change to something like {\ttfamily N5boost\+N3foosE} after mangling. Importing function by {\ttfamily N5boost\+N3foosE} name does not looks user friendly, especially assuming the fact that different compilers have different mangling schemes.$\ast$
+
+Must be used in scope where Function\+Or\+Var declared. Function\+Or\+Var must be a valid C name, which means that it must not contain {\ttfamily \+:\+:}.
+
+Functions or variables in global namespace must not have names same as Function\+Or\+Var.
+
+Puts all the aliases into the {\bfseries \char`\"{}boostdll\char`\"{}} read only section of the binary. Almost same as \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS\}(Function\+Or\+Var, Function\+Or\+Var).
+
+
+\begin{DoxyParams}{Parameters}
+{\em Function\+Or\+Var} & Function or variable for which an unmangled alias must be made.\\
+\hline
+\end{DoxyParams}
+{\bfseries Example\+:} 
+\begin{DoxyCode}
+\textcolor{keyword}{namespace }\hyperlink{a01792}{foo} \{
+  \textcolor{keywordtype}{void} bar(std::string&);
+  \hyperlink{a00200_af6db740861079eab68b0629d98d74cd8}{BOOST\_DLL\_AUTO\_ALIAS}(bar)
+\}
+\end{DoxyCode}
+
+
+{\bfseries See\+:} \{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+A\+L\+I\+AS\} for making an alias with different names. \mbox{\Hypertarget{a00200_a77c8964c8b614e76a662bb500babac74}\label{a00200_a77c8964c8b614e76a662bb500babac74}} 
+\index{alias.\+hpp@{alias.\+hpp}!B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON}}
+\index{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON}!alias.\+hpp@{alias.\+hpp}}
+\subsubsection{\texorpdfstring{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON}{BOOST\_DLL\_SECTION}}
+{\footnotesize\ttfamily \#define B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+C\+T\+I\+ON(\begin{DoxyParamCaption}\item[{}]{Section\+Name,  }\item[{}]{Permissions }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}
+BOOST\_STATIC\_ASSERT\_MSG(                                                                    \(\backslash\)
+        \textcolor{keyword}{sizeof}(#SectionName) < 10,                                                              \(\backslash\)
+        \textcolor{stringliteral}{"Some platforms require section names to be at most 8 bytest"}                           \(\backslash\)
+    );                                                                                          \(\backslash\)
+    \_\_attribute\_\_ ((section (#SectionName)))                                                    \(\backslash\)
+\end{DoxyCode}
+
+
+Macro that puts symbol to a specific section. On Mac\+OS all the sections are put into \char`\"{}\+\_\+\+\_\+\+D\+A\+T\+A\char`\"{} segment. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Section\+Name} & Name of the section. Must be a valid C identifier without quotes not longer than 8 bytes. \\
+\hline
+{\em Permissions} & Can be \char`\"{}read\char`\"{} or \char`\"{}write\char`\"{} (without quotes!). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{a00200_a18e217f7c26bce9cb08c64f41fbd6178}\label{a00200_a18e217f7c26bce9cb08c64f41fbd6178}} 
+\index{alias.\+hpp@{alias.\+hpp}!B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY}}
+\index{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY@{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY}!alias.\+hpp@{alias.\+hpp}}
+\subsubsection{\texorpdfstring{B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY}{BOOST\_DLL\_SELECTANY}}
+{\footnotesize\ttfamily \#define B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+S\+E\+L\+E\+C\+T\+A\+NY~\+\_\+\+\_\+attribute\+\_\+\+\_\+((weak))}
+
+
+
+Macro that allows linker to select any occurrence of this symbol instead of failing with \textquotesingle{}multiple definitions\textquotesingle{} error at linktime. 
+
+This macro does not work on Android, I\+BM XL C/\+C++ and Min\+G\+W+\+Windows because of linker problems with exporting weak symbols (See \href{https://code.google.com/p/android/issues/detail?id=70206,}{\tt https\+://code.\+google.\+com/p/android/issues/detail?id=70206,} \href{https://sourceware.org/bugzilla/show_bug.cgi?id=17480}{\tt https\+://sourceware.\+org/bugzilla/show\+\_\+bug.\+cgi?id=17480}) 

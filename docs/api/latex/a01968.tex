@@ -1,0 +1,143 @@
+\hypertarget{a01968}{}\section{fire\+:\+:util\+:\+:Asio\+Networking\+Tool$<$ P\+R\+O\+T\+O\+C\+OL $>$ Class Template Reference}
+\label{a01968}\index{fire\+::util\+::\+Asio\+Networking\+Tool$<$ P\+R\+O\+T\+O\+C\+O\+L $>$@{fire\+::util\+::\+Asio\+Networking\+Tool$<$ P\+R\+O\+T\+O\+C\+O\+L $>$}}
+
+
+{\ttfamily \#include $<$Asio\+Networking\+Tool.\+hpp$>$}
+
+Inheritance diagram for fire\+:\+:util\+:\+:Asio\+Networking\+Tool$<$ P\+R\+O\+T\+O\+C\+OL $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a01968}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a01968_a5edd72ce9937e052a82e7564500b3861}{Asio\+Networking\+Tool} (std\+::string host, int p)
+\item 
+\mbox{\Hypertarget{a01968_a5826de4a9e051ec854ad7be3a48ac86d}\label{a01968_a5826de4a9e051ec854ad7be3a48ac86d}} 
+{\bfseries Asio\+Networking\+Tool} (std\+::string host\+\_\+and\+\_\+port, bool verify\+Cert=true, const std\+::string \&cert\+\_\+file=std\+::string(), const std\+::string \&private\+\_\+key\+\_\+file=std\+::string(), const std\+::string \&verify\+\_\+file=std\+::string())
+\item 
+virtual \hyperlink{a01968_afc51c728e1bd136b6729ac892df490ab}{$\sim$\+Asio\+Networking\+Tool} ()
+\item 
+virtual std\+::string \hyperlink{a01968_a40fed691e6b520a8e0f55734466896ca}{get} (const std\+::string \&relative\+Path, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+virtual \hyperlink{a01972}{Post\+Response} \hyperlink{a01968_a930b5535c0c68f54d01d4de36cc854a0}{post} (const std\+::string \&relative\+Path, const std\+::string \&message, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+std\+::string \hyperlink{a01968_a93d3f6e729eb9980102770f922ca7af4}{base64\+\_\+encode} (char const $\ast$bytes\+\_\+to\+\_\+encode, int in\+\_\+len)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01908}{Web\+Client} $>$ \hyperlink{a01968_a57412dca950e86b857ee4795a9b6517e}{client}
+\item 
+\mbox{\Hypertarget{a01968_a613f571530390cf1d05538c658c13b9e}\label{a01968_a613f571530390cf1d05538c658c13b9e}} 
+std\+::shared\+\_\+ptr$<$ Response\+Type $>$ {\bfseries response}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename P\+R\+O\+T\+O\+C\+OL$>$\newline
+class fire\+::util\+::\+Asio\+Networking\+Tool$<$ P\+R\+O\+T\+O\+C\+O\+L $>$}
+
+The Asio\+Networkign\+Tool is a realization of the \hyperlink{a01976}{I\+Networking\+Tool} interface that uses the B\+O\+O\+ST Asio library to post/get http requests. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01968_a5edd72ce9937e052a82e7564500b3861}\label{a01968_a5edd72ce9937e052a82e7564500b3861}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!Asio\+Networking\+Tool@{Asio\+Networking\+Tool}}
+\index{Asio\+Networking\+Tool@{Asio\+Networking\+Tool}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{Asio\+Networking\+Tool()}{AsioNetworkingTool()}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+\hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::\hyperlink{a01968}{Asio\+Networking\+Tool} (\begin{DoxyParamCaption}\item[{std\+::string}]{host,  }\item[{int}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The constructor \mbox{\Hypertarget{a01968_afc51c728e1bd136b6729ac892df490ab}\label{a01968_afc51c728e1bd136b6729ac892df490ab}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!````~Asio\+Networking\+Tool@{$\sim$\+Asio\+Networking\+Tool}}
+\index{````~Asio\+Networking\+Tool@{$\sim$\+Asio\+Networking\+Tool}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{$\sim$\+Asio\+Networking\+Tool()}{~AsioNetworkingTool()}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+virtual \hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::$\sim$\hyperlink{a01968}{Asio\+Networking\+Tool} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+The destructor 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a01968_a93d3f6e729eb9980102770f922ca7af4}\label{a01968_a93d3f6e729eb9980102770f922ca7af4}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!base64\+\_\+encode@{base64\+\_\+encode}}
+\index{base64\+\_\+encode@{base64\+\_\+encode}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{base64\+\_\+encode()}{base64\_encode()}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+std\+::string \hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::base64\+\_\+encode (\begin{DoxyParamCaption}\item[{char const $\ast$}]{bytes\+\_\+to\+\_\+encode,  }\item[{int}]{in\+\_\+len }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em bytes\+\_\+to\+\_\+encode} & \\
+\hline
+{\em in\+\_\+len} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\mbox{\Hypertarget{a01968_a40fed691e6b520a8e0f55734466896ca}\label{a01968_a40fed691e6b520a8e0f55734466896ca}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!get@{get}}
+\index{get@{get}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+virtual std\+::string \hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::get (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{relative\+Path,  }\item[{const std\+::map$<$ std\+::string, std\+::string $>$ \&}]{header = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string$>$()} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the last received status code.
+
+\begin{DoxyReturn}{Returns}
+code The status code as a string Issue an H\+T\+TP G\+ET Command at the given relative path. Clients can provide a map of header key values to modify the G\+ET request.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em relative\+Path} & The path relative to the hostname/port provided to this Networking\+Tool \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The contents at the U\+RL or an error message if one took place. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01976_a58e9426e58cbb9c3b975b9d3e6c1f78f}{fire\+::util\+::\+I\+Networking\+Tool}.
+
+\mbox{\Hypertarget{a01968_a930b5535c0c68f54d01d4de36cc854a0}\label{a01968_a930b5535c0c68f54d01d4de36cc854a0}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!post@{post}}
+\index{post@{post}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{post()}{post()}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+virtual \hyperlink{a01972}{Post\+Response} \hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::post (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{relative\+Path,  }\item[{const std\+::string \&}]{message,  }\item[{const std\+::map$<$ std\+::string, std\+::string $>$ \&}]{header = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string$>$()} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Issue an H\+T\+TP Post command at the given relative path with the provided message. Clients can provide a map of header key values to modify the P\+O\+ST request.
+
+
+\begin{DoxyParams}{Parameters}
+{\em relative\+Path} & The path relative to the hostname/port provided to this Networking\+Tool \\
+\hline
+{\em message} & The message to post \\
+\hline
+{\em header} & The map of additional H\+T\+TP P\+O\+ST header information \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success Boolean indicating if post was successful 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01976_aa585d9b27c43f698203e6c6ec1ee05ce}{fire\+::util\+::\+I\+Networking\+Tool}.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01968_a57412dca950e86b857ee4795a9b6517e}\label{a01968_a57412dca950e86b857ee4795a9b6517e}} 
+\index{fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}!client@{client}}
+\index{client@{client}!fire\+::util\+::\+Asio\+Networking\+Tool@{fire\+::util\+::\+Asio\+Networking\+Tool}}
+\subsubsection{\texorpdfstring{client}{client}}
+{\footnotesize\ttfamily template$<$typename P\+R\+O\+T\+O\+C\+OL $>$ \\
+std\+::shared\+\_\+ptr$<$\hyperlink{a01908}{Web\+Client}$>$ \hyperlink{a01968}{fire\+::util\+::\+Asio\+Networking\+Tool}$<$ P\+R\+O\+T\+O\+C\+OL $>$\+::client\hspace{0.3cm}{\ttfamily [protected]}}
+
+Reference to the asio client we will use 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Asio\+Networking\+Tool.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,95 @@
+\hypertarget{a02208}{}\section{Generic\+String\+Buffer$<$ Encoding, Allocator $>$ Class Template Reference}
+\label{a02208}\index{Generic\+String\+Buffer$<$ Encoding, Allocator $>$@{Generic\+String\+Buffer$<$ Encoding, Allocator $>$}}
+
+
+Represents an in-\/memory output stream.  
+
+
+
+
+{\ttfamily \#include $<$stringbuffer.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02208_a735b75db076ffe86d0d294be49655d46}\label{a02208_a735b75db076ffe86d0d294be49655d46}} 
+typedef Encoding\+::\+Ch {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02208_a62f5ea1a53a2a3f98088f8c152b6183e}\label{a02208_a62f5ea1a53a2a3f98088f8c152b6183e}} 
+{\bfseries Generic\+String\+Buffer} (Allocator $\ast$allocator=0, size\+\_\+t capacity=k\+Default\+Capacity)
+\item 
+\mbox{\Hypertarget{a02208_a8be5c8fadccacdcf40e20220f38e0afa}\label{a02208_a8be5c8fadccacdcf40e20220f38e0afa}} 
+void {\bfseries Put} (Ch c)
+\item 
+\mbox{\Hypertarget{a02208_a9225468d11fdddfc3a9a4e48bf4d3ba4}\label{a02208_a9225468d11fdddfc3a9a4e48bf4d3ba4}} 
+void {\bfseries Put\+Unsafe} (Ch c)
+\item 
+\mbox{\Hypertarget{a02208_a28bb539487db17b07314a532f3b8847c}\label{a02208_a28bb539487db17b07314a532f3b8847c}} 
+void {\bfseries Flush} ()
+\item 
+\mbox{\Hypertarget{a02208_a42f15c959046d899cb74c3120a6995f9}\label{a02208_a42f15c959046d899cb74c3120a6995f9}} 
+void {\bfseries Clear} ()
+\item 
+\mbox{\Hypertarget{a02208_a0dbdb77489b95923795011a24f705be5}\label{a02208_a0dbdb77489b95923795011a24f705be5}} 
+void {\bfseries Shrink\+To\+Fit} ()
+\item 
+\mbox{\Hypertarget{a02208_a4d6becae201b98c122746298882a318f}\label{a02208_a4d6becae201b98c122746298882a318f}} 
+void {\bfseries Reserve} (size\+\_\+t count)
+\item 
+\mbox{\Hypertarget{a02208_a49fd10cdd5dd97a4cf9813d01334d660}\label{a02208_a49fd10cdd5dd97a4cf9813d01334d660}} 
+Ch $\ast$ {\bfseries Push} (size\+\_\+t count)
+\item 
+\mbox{\Hypertarget{a02208_a4e396f55323ca54f949685c7c6ef2060}\label{a02208_a4e396f55323ca54f949685c7c6ef2060}} 
+Ch $\ast$ {\bfseries Push\+Unsafe} (size\+\_\+t count)
+\item 
+\mbox{\Hypertarget{a02208_a0038e53ba03c271bc4cbbac403ec4de4}\label{a02208_a0038e53ba03c271bc4cbbac403ec4de4}} 
+void {\bfseries Pop} (size\+\_\+t count)
+\item 
+\mbox{\Hypertarget{a02208_ab06b8c5f1385bd3dfd4caea8b7510f0b}\label{a02208_ab06b8c5f1385bd3dfd4caea8b7510f0b}} 
+const Ch $\ast$ {\bfseries Get\+String} () const
+\item 
+\mbox{\Hypertarget{a02208_a725e862b9a78375f5363b0b61ad789f3}\label{a02208_a725e862b9a78375f5363b0b61ad789f3}} 
+size\+\_\+t \hyperlink{a02208_a725e862b9a78375f5363b0b61ad789f3}{Get\+Size} () const
+\begin{DoxyCompactList}\small\item\em Get the size of string in bytes in the string buffer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02208_ad324b8154be3354dda3aa4a0a7361499}\label{a02208_ad324b8154be3354dda3aa4a0a7361499}} 
+size\+\_\+t \hyperlink{a02208_ad324b8154be3354dda3aa4a0a7361499}{Get\+Length} () const
+\begin{DoxyCompactList}\small\item\em Get the length of string in Ch in the string buffer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02208_aaef716643febb9de5957dbf8ff904409}\label{a02208_aaef716643febb9de5957dbf8ff904409}} 
+\hyperlink{a02288}{internal\+::\+Stack}$<$ Allocator $>$ {\bfseries stack\+\_\+}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02208_ae74f9df854dd5a7db4315ef44b016d22}\label{a02208_ae74f9df854dd5a7db4315ef44b016d22}} 
+static const size\+\_\+t {\bfseries k\+Default\+Capacity} = 256
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Encoding, typename Allocator = Crt\+Allocator$>$\newline
+class Generic\+String\+Buffer$<$ Encoding, Allocator $>$}
+
+Represents an in-\/memory output stream. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Encoding} & Encoding of the stream. \\
+\hline
+{\em Allocator} & type for allocating memory buffer. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyNote}{Note}
+implements Stream concept 
+\end{DoxyNote}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+stringbuffer.\+h\end{DoxyCompactItemize}

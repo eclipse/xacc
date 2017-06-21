@@ -1,0 +1,122 @@
+\hypertarget{a02492}{}\section{Fake\+IR Class Reference}
+\label{a02492}\index{Fake\+IR@{Fake\+IR}}
+Inheritance diagram for Fake\+IR\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a02492}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::string \hyperlink{a02492_ac8b4fa63654de7830e2a6110559ffd87}{to\+Assembly\+String} (const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)
+\item 
+virtual void \hyperlink{a02492_a459bd7e4a007ab80678df279eb038b51}{persist} (std\+::ostream \&stream)
+\item 
+virtual void \hyperlink{a02492_ad079b5e83c97bc7fae776679e0f93a1e}{load} (std\+::istream \&in\+Stream)
+\item 
+virtual void \hyperlink{a02492_a526ef10e1ee21f5552b1ca61872f541a}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{Function} $>$ kernel)
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{Function} $>$ \hyperlink{a02492_a351b9a1f9fb748612f5a39007c421efc}{get\+Kernel} (const std\+::string \&name)
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a02492_a526ef10e1ee21f5552b1ca61872f541a}\label{a02492_a526ef10e1ee21f5552b1ca61872f541a}} 
+\index{Fake\+IR@{Fake\+IR}!add\+Kernel@{add\+Kernel}}
+\index{add\+Kernel@{add\+Kernel}!Fake\+IR@{Fake\+IR}}
+\subsubsection{\texorpdfstring{add\+Kernel()}{addKernel()}}
+{\footnotesize\ttfamily virtual void Fake\+I\+R\+::add\+Kernel (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a02456}{Function} $>$}]{kernel }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Add a new kernel to this IR instance.
+
+
+\begin{DoxyParams}{Parameters}
+{\em kernel} & The Function instance to add as a new kernel \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a02480_abbbf8e6993c518597de32cd05d49d737}{xacc\+::\+IR}.
+
+\mbox{\Hypertarget{a02492_a351b9a1f9fb748612f5a39007c421efc}\label{a02492_a351b9a1f9fb748612f5a39007c421efc}} 
+\index{Fake\+IR@{Fake\+IR}!get\+Kernel@{get\+Kernel}}
+\index{get\+Kernel@{get\+Kernel}!Fake\+IR@{Fake\+IR}}
+\subsubsection{\texorpdfstring{get\+Kernel()}{getKernel()}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a02456}{Function}$>$ Fake\+I\+R\+::get\+Kernel (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the kernel with the given name.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The name of the kernel to return. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+kernel The kernel with given name. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02480_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
+
+\mbox{\Hypertarget{a02492_ad079b5e83c97bc7fae776679e0f93a1e}\label{a02492_ad079b5e83c97bc7fae776679e0f93a1e}} 
+\index{Fake\+IR@{Fake\+IR}!load@{load}}
+\index{load@{load}!Fake\+IR@{Fake\+IR}}
+\subsubsection{\texorpdfstring{load()}{load()}}
+{\footnotesize\ttfamily virtual void Fake\+I\+R\+::load (\begin{DoxyParamCaption}\item[{std\+::istream \&}]{in\+Stream }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Create this IR instance from the given input stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em in\+Stream} & The input stream to read from. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a02480_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
+
+\mbox{\Hypertarget{a02492_a459bd7e4a007ab80678df279eb038b51}\label{a02492_a459bd7e4a007ab80678df279eb038b51}} 
+\index{Fake\+IR@{Fake\+IR}!persist@{persist}}
+\index{persist@{persist}!Fake\+IR@{Fake\+IR}}
+\subsubsection{\texorpdfstring{persist()}{persist()}}
+{\footnotesize\ttfamily virtual void Fake\+I\+R\+::persist (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out\+Stream }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Persist this IR instance to the given output stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em out\+Stream} & The output stream to persist to. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a02480_a414b72224d88473ad6190bb88102a3ea}{xacc\+::\+IR}.
+
+\mbox{\Hypertarget{a02492_ac8b4fa63654de7830e2a6110559ffd87}\label{a02492_ac8b4fa63654de7830e2a6110559ffd87}} 
+\index{Fake\+IR@{Fake\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
+\index{to\+Assembly\+String@{to\+Assembly\+String}!Fake\+IR@{Fake\+IR}}
+\subsubsection{\texorpdfstring{to\+Assembly\+String()}{toAssemblyString()}}
+{\footnotesize\ttfamily virtual std\+::string Fake\+I\+R\+::to\+Assembly\+String (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{kernel\+Name,  }\item[{const std\+::string \&}]{acc\+Buffer\+Var\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return a assembly-\/like string representation of this intermediate representation
+
+
+\begin{DoxyParams}{Parameters}
+{\em kernel\+Name} & The name of hte kernel to persist to string \\
+\hline
+{\em acc\+Buffer\+Var\+Name} & The name of the \hyperlink{a02444}{Accelerator\+Buffer} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a02480_a8356cdff1919b88eabeb84fd7450cdb6}{xacc\+::\+IR}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Program\+Tester.\+cpp\end{DoxyCompactItemize}

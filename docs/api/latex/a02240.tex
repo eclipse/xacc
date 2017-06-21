@@ -1,0 +1,106 @@
+\hypertarget{a02240}{}\section{Generic\+Schema\+Document$<$ ValueT, Allocator $>$ Class Template Reference}
+\label{a02240}\index{Generic\+Schema\+Document$<$ Value\+T, Allocator $>$@{Generic\+Schema\+Document$<$ Value\+T, Allocator $>$}}
+
+
+J\+S\+ON schema document.  
+
+
+
+
+{\ttfamily \#include $<$schema.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02240_ae246f1b6573a5a8a2c0d73d4eb64d53a}\label{a02240_ae246f1b6573a5a8a2c0d73d4eb64d53a}} 
+typedef ValueT {\bfseries Value\+Type}
+\item 
+\mbox{\Hypertarget{a02240_aa53ca323efce50f88aea6fa0d03e9785}\label{a02240_aa53ca323efce50f88aea6fa0d03e9785}} 
+typedef \hyperlink{a02236}{I\+Generic\+Remote\+Schema\+Document\+Provider}$<$ \hyperlink{a02240}{Generic\+Schema\+Document} $>$ {\bfseries I\+Remote\+Schema\+Document\+Provider\+Type}
+\item 
+\mbox{\Hypertarget{a02240_ac0d88adf8c86917d8bc9563ffdab6a6d}\label{a02240_ac0d88adf8c86917d8bc9563ffdab6a6d}} 
+typedef Allocator {\bfseries Allocator\+Type}
+\item 
+\mbox{\Hypertarget{a02240_ad0293c28c9ffe80ab1f8ec86efee35c8}\label{a02240_ad0293c28c9ffe80ab1f8ec86efee35c8}} 
+typedef Value\+Type\+::\+Encoding\+Type {\bfseries Encoding\+Type}
+\item 
+\mbox{\Hypertarget{a02240_ab1dec56a78b29649eb8e4b85b101ec7c}\label{a02240_ab1dec56a78b29649eb8e4b85b101ec7c}} 
+typedef Encoding\+Type\+::\+Ch {\bfseries Ch}
+\item 
+\mbox{\Hypertarget{a02240_acaf115202b159a2eb72c97c3dc6c3895}\label{a02240_acaf115202b159a2eb72c97c3dc6c3895}} 
+typedef \hyperlink{a02356}{internal\+::\+Schema}$<$ \hyperlink{a02240}{Generic\+Schema\+Document} $>$ {\bfseries Schema\+Type}
+\item 
+\mbox{\Hypertarget{a02240_aeb62f562d4dc024402b00f97cbcef747}\label{a02240_aeb62f562d4dc024402b00f97cbcef747}} 
+typedef \hyperlink{a02232}{Generic\+Pointer}$<$ Value\+Type, Allocator $>$ {\bfseries Pointer\+Type}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a02240_a5577c9b9a7a898207a50db891388231c}{Generic\+Schema\+Document} (const Value\+Type \&document, \hyperlink{a02236}{I\+Remote\+Schema\+Document\+Provider\+Type} $\ast$remote\+Provider=0, Allocator $\ast$allocator=0)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02240_a6a54dfd1aec0f560f7e47e08f3fcb8f1}\label{a02240_a6a54dfd1aec0f560f7e47e08f3fcb8f1}} 
+\hyperlink{a02240_a6a54dfd1aec0f560f7e47e08f3fcb8f1}{$\sim$\+Generic\+Schema\+Document} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02240_a3b86ad6eab393014cc5b3c52da5c4bc2}\label{a02240_a3b86ad6eab393014cc5b3c52da5c4bc2}} 
+const \hyperlink{a02356}{Schema\+Type} \& \hyperlink{a02240_a3b86ad6eab393014cc5b3c52da5c4bc2}{Get\+Root} () const
+\begin{DoxyCompactList}\small\item\em Get the root schema. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02240_a706511849688d9245fc37109f02a03c4}\label{a02240_a706511849688d9245fc37109f02a03c4}} 
+class {\bfseries internal\+::\+Schema$<$ Generic\+Schema\+Document $>$}
+\item 
+\mbox{\Hypertarget{a02240_afcc03e6ba8f1a819e1a028c31ad38347}\label{a02240_afcc03e6ba8f1a819e1a028c31ad38347}} 
+{\footnotesize template$<$typename , typename , typename $>$ }\\class {\bfseries Generic\+Schema\+Validator}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename ValueT, typename Allocator = Crt\+Allocator$>$\newline
+class Generic\+Schema\+Document$<$ Value\+T, Allocator $>$}
+
+J\+S\+ON schema document. 
+
+A J\+S\+ON schema document is a compiled version of a J\+S\+ON schema. It is basically a tree of \hyperlink{a02356}{internal\+::\+Schema}.
+
+\begin{DoxyNote}{Note}
+This is an immutable class (i.\+e. its instance cannot be modified after construction). 
+\end{DoxyNote}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em ValueT} & Type of J\+S\+ON value (e.\+g. {\ttfamily Value} ), which also determine the encoding. \\
+\hline
+{\em Allocator} & Allocator type for allocating memory of this document. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a02240_a5577c9b9a7a898207a50db891388231c}\label{a02240_a5577c9b9a7a898207a50db891388231c}} 
+\index{Generic\+Schema\+Document@{Generic\+Schema\+Document}!Generic\+Schema\+Document@{Generic\+Schema\+Document}}
+\index{Generic\+Schema\+Document@{Generic\+Schema\+Document}!Generic\+Schema\+Document@{Generic\+Schema\+Document}}
+\subsubsection{\texorpdfstring{Generic\+Schema\+Document()}{GenericSchemaDocument()}}
+{\footnotesize\ttfamily template$<$typename ValueT , typename Allocator  = Crt\+Allocator$>$ \\
+\hyperlink{a02240}{Generic\+Schema\+Document}$<$ ValueT, Allocator $>$\+::\hyperlink{a02240}{Generic\+Schema\+Document} (\begin{DoxyParamCaption}\item[{const Value\+Type \&}]{document,  }\item[{\hyperlink{a02236}{I\+Remote\+Schema\+Document\+Provider\+Type} $\ast$}]{remote\+Provider = {\ttfamily 0},  }\item[{Allocator $\ast$}]{allocator = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Constructor. 
+
+Compile a J\+S\+ON document into schema document.
+
+
+\begin{DoxyParams}{Parameters}
+{\em document} & A J\+S\+ON document as source. \\
+\hline
+{\em remote\+Provider} & An optional remote schema document provider for resolving remote reference. Can be null. \\
+\hline
+{\em allocator} & An optional allocator instance for allocating memory. Can be null. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+schema.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,69 @@
+\hypertarget{a02172}{}\section{A\+S\+C\+II$<$ Char\+Type $>$ Struct Template Reference}
+\label{a02172}\index{A\+S\+C\+I\+I$<$ Char\+Type $>$@{A\+S\+C\+I\+I$<$ Char\+Type $>$}}
+
+
+\hyperlink{a02172}{A\+S\+C\+II} encoding.  
+
+
+
+
+{\ttfamily \#include $<$encodings.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02172_aefbadfc95efabb96ad4f64a99d2f11b4}\label{a02172_aefbadfc95efabb96ad4f64a99d2f11b4}} 
+enum \{ {\bfseries support\+Unicode} = 0
+ \}
+\item 
+\mbox{\Hypertarget{a02172_a1baf6e7914f165be952c30db664cefb4}\label{a02172_a1baf6e7914f165be952c30db664cefb4}} 
+typedef Char\+Type {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02172_af56b1605fe233c54693facc7de457f72}\label{a02172_af56b1605fe233c54693facc7de457f72}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02172_afeb90d6f04771067b83b35a0f366af46}\label{a02172_afeb90d6f04771067b83b35a0f366af46}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode\+Unsafe} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02172_a44844bbfd0a4fc282993fd72f3f58eee}\label{a02172_a44844bbfd0a4fc282993fd72f3f58eee}} 
+{\footnotesize template$<$typename Input\+Stream $>$ }\\static bool {\bfseries Decode} (Input\+Stream \&is, unsigned $\ast$codepoint)
+\item 
+\mbox{\Hypertarget{a02172_a398680588a09e6ce9b56e32195047c78}\label{a02172_a398680588a09e6ce9b56e32195047c78}} 
+{\footnotesize template$<$typename Input\+Stream , typename Output\+Stream $>$ }\\static bool {\bfseries Validate} (Input\+Stream \&is, Output\+Stream \&os)
+\item 
+\mbox{\Hypertarget{a02172_aad78500eb98f45582a4df020e3fb2278}\label{a02172_aad78500eb98f45582a4df020e3fb2278}} 
+{\footnotesize template$<$typename Input\+Byte\+Stream $>$ }\\static Char\+Type {\bfseries Take\+B\+OM} (Input\+Byte\+Stream \&is)
+\item 
+\mbox{\Hypertarget{a02172_ab1b9fdf0a5c05658d62fded913d923a3}\label{a02172_ab1b9fdf0a5c05658d62fded913d923a3}} 
+{\footnotesize template$<$typename Input\+Byte\+Stream $>$ }\\static Ch {\bfseries Take} (Input\+Byte\+Stream \&is)
+\item 
+\mbox{\Hypertarget{a02172_a3036dc1d604039c3224ca0a890ee0134}\label{a02172_a3036dc1d604039c3224ca0a890ee0134}} 
+{\footnotesize template$<$typename Output\+Byte\+Stream $>$ }\\static void {\bfseries Put\+B\+OM} (Output\+Byte\+Stream \&os)
+\item 
+\mbox{\Hypertarget{a02172_a218b244b9cd961ea6c5775a734cec20e}\label{a02172_a218b244b9cd961ea6c5775a734cec20e}} 
+{\footnotesize template$<$typename Output\+Byte\+Stream $>$ }\\static void {\bfseries Put} (Output\+Byte\+Stream \&os, Ch c)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Char\+Type = char$>$\newline
+struct A\+S\+C\+I\+I$<$ Char\+Type $>$}
+
+\hyperlink{a02172}{A\+S\+C\+II} encoding. 
+
+\href{http://en.wikipedia.org/wiki/ASCII}{\tt http\+://en.\+wikipedia.\+org/wiki/\+A\+S\+C\+II} 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Char\+Type} & Code unit for storing 7-\/bit \hyperlink{a02172}{A\+S\+C\+II} data. Default is char. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyNote}{Note}
+implements Encoding concept 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodings.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,40 @@
+\hypertarget{a02308}{}\section{Generic\+Pointer$<$ Value\+Type, Allocator $>$\+:\+:Token Struct Reference}
+\label{a02308}\index{Generic\+Pointer$<$ Value\+Type, Allocator $>$\+::\+Token@{Generic\+Pointer$<$ Value\+Type, Allocator $>$\+::\+Token}}
+
+
+A token is the basic units of internal representation.  
+
+
+
+
+{\ttfamily \#include $<$pointer.\+h$>$}
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02308_a8aa9b13bd66addb0c0512cfcae72174c}\label{a02308_a8aa9b13bd66addb0c0512cfcae72174c}} 
+const \hyperlink{a02232_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$ \hyperlink{a02308_a8aa9b13bd66addb0c0512cfcae72174c}{name}
+\begin{DoxyCompactList}\small\item\em Name of the token. It has null character at the end but it can contain null character. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02308_a67383574032a3289d34002bb2d95df6d}\label{a02308_a67383574032a3289d34002bb2d95df6d}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} \hyperlink{a02308_a67383574032a3289d34002bb2d95df6d}{length}
+\begin{DoxyCompactList}\small\item\em Length of the name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02308_a0ce571cfe3f3da942a5912bb2cd24dcf}\label{a02308_a0ce571cfe3f3da942a5912bb2cd24dcf}} 
+\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} \hyperlink{a02308_a0ce571cfe3f3da942a5912bb2cd24dcf}{index}
+\begin{DoxyCompactList}\small\item\em A valid array index, if it is not equal to k\+Pointer\+Invalid\+Index. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$\newline
+struct Generic\+Pointer$<$ Value\+Type, Allocator $>$\+::\+Token}
+
+A token is the basic units of internal representation. 
+
+A J\+S\+ON pointer string representation \char`\"{}/foo/123\char`\"{} is parsed to two tokens\+: \char`\"{}foo\char`\"{} and 123. 123 will be represented in both numeric form and string form. They are resolved according to the actual value type (object or array).
+
+For token that are not numbers, or the numeric value is out of bound (greater than limits of Size\+Type), they are only treated as string form (i.\+e. the token\textquotesingle{}s index will be equal to k\+Pointer\+Invalid\+Index).
+
+This struct is public so that user can create a Pointer without parsing and allocation, using a special constructor. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+pointer.\+h\end{DoxyCompactItemize}

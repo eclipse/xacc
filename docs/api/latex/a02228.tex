@@ -1,0 +1,234 @@
+\hypertarget{a02228}{}\section{Pretty\+Writer$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$ Class Template Reference}
+\label{a02228}\index{Pretty\+Writer$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$@{Pretty\+Writer$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$}}
+
+
+\hyperlink{a02224}{Writer} with indentation and spacing.  
+
+
+
+
+{\ttfamily \#include $<$prettywriter.\+h$>$}
+
+Inheritance diagram for Pretty\+Writer$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a02228}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02228_a6eecc5c896dcdaffca739dcd39d13a17}\label{a02228_a6eecc5c896dcdaffca739dcd39d13a17}} 
+typedef \hyperlink{a02224}{Writer}$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$ {\bfseries Base}
+\item 
+\mbox{\Hypertarget{a02228_ae35c89bda4c5d59d3ff6efcf2fea45a3}\label{a02228_ae35c89bda4c5d59d3ff6efcf2fea45a3}} 
+typedef Base\+::\+Ch {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a02228_a928ac2a5235b8877048ebdd5f35a556f}{Pretty\+Writer} (Output\+Stream \&os, Stack\+Allocator $\ast$allocator=0, size\+\_\+t level\+Depth=Base\+::k\+Default\+Level\+Depth)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02228_a4a9077e0300c6b0e1c830a58c1e738d2}\label{a02228_a4a9077e0300c6b0e1c830a58c1e738d2}} 
+{\bfseries Pretty\+Writer} (Stack\+Allocator $\ast$allocator=0, size\+\_\+t level\+Depth=Base\+::k\+Default\+Level\+Depth)
+\item 
+\hyperlink{a02228}{Pretty\+Writer} \& \hyperlink{a02228_ad307b4c8d61af25042d0adcd0910c19a}{Set\+Indent} (Ch indent\+Char, unsigned indent\+Char\+Count)
+\begin{DoxyCompactList}\small\item\em Set custom indentation. \end{DoxyCompactList}\item 
+\hyperlink{a02228}{Pretty\+Writer} \& \hyperlink{a02228_a1ff9dbeff9b9c724080cb65987a41b73}{Set\+Format\+Options} (Pretty\+Format\+Options options)
+\begin{DoxyCompactList}\small\item\em Set pretty writer formatting options. \end{DoxyCompactList}\item 
+bool \hyperlink{a02228_a440890a72408a150ef46edda6becdc94}{Raw\+Value} (const Ch $\ast$json, size\+\_\+t length, \hyperlink{a00560_a1d1cfd8ffb84e947f82999c682b666a7}{Type} type)
+\begin{DoxyCompactList}\small\item\em Write a raw J\+S\+ON value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{Indent}\textbf{ Implementation of Handler}\par
+{\em \begin{DoxySeeAlso}{See also}
+Handler 
+\end{DoxySeeAlso}
+}\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02228_aa144f2d0f0c3c69248cdbe957349528c}\label{a02228_aa144f2d0f0c3c69248cdbe957349528c}} 
+bool {\bfseries Null} ()
+\item 
+\mbox{\Hypertarget{a02228_a6e765ee7ada5ed40f317c78a98f6f90b}\label{a02228_a6e765ee7ada5ed40f317c78a98f6f90b}} 
+bool {\bfseries Bool} (bool b)
+\item 
+\mbox{\Hypertarget{a02228_aa1815263e61cb7af3b6dfba480a0f481}\label{a02228_aa1815263e61cb7af3b6dfba480a0f481}} 
+bool {\bfseries Int} (int i)
+\item 
+\mbox{\Hypertarget{a02228_a8c82302877a5588eae77eb7d042c49ef}\label{a02228_a8c82302877a5588eae77eb7d042c49ef}} 
+bool {\bfseries Uint} (unsigned u)
+\item 
+\mbox{\Hypertarget{a02228_ad42b797429f4ee19efdce610f5aff976}\label{a02228_ad42b797429f4ee19efdce610f5aff976}} 
+bool {\bfseries Int64} (int64\+\_\+t i64)
+\item 
+\mbox{\Hypertarget{a02228_aba75ac1f13c2629b2a55ffbf3d8a116c}\label{a02228_aba75ac1f13c2629b2a55ffbf3d8a116c}} 
+bool {\bfseries Uint64} (uint64\+\_\+t u64)
+\item 
+\mbox{\Hypertarget{a02228_ad9d592e86b985da666665926e87db415}\label{a02228_ad9d592e86b985da666665926e87db415}} 
+bool {\bfseries Double} (double d)
+\item 
+\mbox{\Hypertarget{a02228_a3941bc21d6a261ca8a86eff330db30ef}\label{a02228_a3941bc21d6a261ca8a86eff330db30ef}} 
+bool {\bfseries Raw\+Number} (const Ch $\ast$str, \hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, bool copy=false)
+\item 
+\mbox{\Hypertarget{a02228_ae544ccfe35dd7e80ed694873062409f6}\label{a02228_ae544ccfe35dd7e80ed694873062409f6}} 
+bool {\bfseries String} (const Ch $\ast$str, \hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, bool copy=false)
+\item 
+\mbox{\Hypertarget{a02228_a27bdda225dc152b8974e44c1df7525b7}\label{a02228_a27bdda225dc152b8974e44c1df7525b7}} 
+bool {\bfseries Start\+Object} ()
+\item 
+\mbox{\Hypertarget{a02228_a20ecbe1d31a871e4da4a3899b40ad3cd}\label{a02228_a20ecbe1d31a871e4da4a3899b40ad3cd}} 
+bool {\bfseries Key} (const Ch $\ast$str, \hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, bool copy=false)
+\item 
+\mbox{\Hypertarget{a02228_a6bfdfa4193193ef763cce5c592c4d20c}\label{a02228_a6bfdfa4193193ef763cce5c592c4d20c}} 
+bool {\bfseries End\+Object} (\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} member\+Count=0)
+\item 
+\mbox{\Hypertarget{a02228_aec7fdf4798a3af5e31c147633f4798ed}\label{a02228_aec7fdf4798a3af5e31c147633f4798ed}} 
+bool {\bfseries Start\+Array} ()
+\item 
+\mbox{\Hypertarget{a02228_a1e9d97fc950d349f55abd864c787ff37}\label{a02228_a1e9d97fc950d349f55abd864c787ff37}} 
+bool {\bfseries End\+Array} (\hyperlink{a00560_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} member\+Count=0)
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Convenience extensions}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02228_a7e85689355a827d273f272c26b447225}\label{a02228_a7e85689355a827d273f272c26b447225}} 
+bool \hyperlink{a02228_a7e85689355a827d273f272c26b447225}{String} (const Ch $\ast$str)
+\begin{DoxyCompactList}\small\item\em Simpler but slower overload. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{a02228_a4b2a2a6eef02c12d7a3fd77966bd4499}\label{a02228_a4b2a2a6eef02c12d7a3fd77966bd4499}} 
+bool {\bfseries Key} (const Ch $\ast$str)
+\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02228_a09709ffa3b545e007631ecfd35029843}\label{a02228_a09709ffa3b545e007631ecfd35029843}} 
+void {\bfseries Pretty\+Prefix} (\hyperlink{a00560_a1d1cfd8ffb84e947f82999c682b666a7}{Type} type)
+\item 
+\mbox{\Hypertarget{a02228_a6f244ecc94fd5b134d424033b1574b7e}\label{a02228_a6f244ecc94fd5b134d424033b1574b7e}} 
+void {\bfseries Write\+Indent} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02228_aaa3f6380daa8466a5101ed18fc33bf04}\label{a02228_aaa3f6380daa8466a5101ed18fc33bf04}} 
+Ch {\bfseries indent\+Char\+\_\+}
+\item 
+\mbox{\Hypertarget{a02228_a7d00b9716ef3cd7e34ae1b744c968f13}\label{a02228_a7d00b9716ef3cd7e34ae1b744c968f13}} 
+unsigned {\bfseries indent\+Char\+Count\+\_\+}
+\item 
+\mbox{\Hypertarget{a02228_a15505ed4ea0fa85d339b3a987f1a3aaf}\label{a02228_a15505ed4ea0fa85d339b3a987f1a3aaf}} 
+Pretty\+Format\+Options {\bfseries format\+Options\+\_\+}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Output\+Stream, typename Source\+Encoding = U\+T\+F8$<$$>$, typename Target\+Encoding = U\+T\+F8$<$$>$, typename Stack\+Allocator = Crt\+Allocator, unsigned write\+Flags = k\+Write\+Default\+Flags$>$\newline
+class Pretty\+Writer$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$}
+
+\hyperlink{a02224}{Writer} with indentation and spacing. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Output\+Stream} & Type of ouptut os. \\
+\hline
+{\em Source\+Encoding} & Encoding of source string. \\
+\hline
+{\em Target\+Encoding} & Encoding of output stream. \\
+\hline
+{\em Stack\+Allocator} & Type of allocator for allocating memory of stack. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a02228_a928ac2a5235b8877048ebdd5f35a556f}\label{a02228_a928ac2a5235b8877048ebdd5f35a556f}} 
+\index{Pretty\+Writer@{Pretty\+Writer}!Pretty\+Writer@{Pretty\+Writer}}
+\index{Pretty\+Writer@{Pretty\+Writer}!Pretty\+Writer@{Pretty\+Writer}}
+\subsubsection{\texorpdfstring{Pretty\+Writer()}{PrettyWriter()}}
+{\footnotesize\ttfamily template$<$typename Output\+Stream , typename Source\+Encoding  = U\+T\+F8$<$$>$, typename Target\+Encoding  = U\+T\+F8$<$$>$, typename Stack\+Allocator  = Crt\+Allocator, unsigned write\+Flags = k\+Write\+Default\+Flags$>$ \\
+\hyperlink{a02228}{Pretty\+Writer}$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$\+::\hyperlink{a02228}{Pretty\+Writer} (\begin{DoxyParamCaption}\item[{Output\+Stream \&}]{os,  }\item[{Stack\+Allocator $\ast$}]{allocator = {\ttfamily 0},  }\item[{size\+\_\+t}]{level\+Depth = {\ttfamily Base\+:\+:kDefaultLevelDepth} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em os} & Output stream. \\
+\hline
+{\em allocator} & User supplied allocator. If it is null, it will create a private one. \\
+\hline
+{\em level\+Depth} & Initial capacity of stack. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a02228_a440890a72408a150ef46edda6becdc94}\label{a02228_a440890a72408a150ef46edda6becdc94}} 
+\index{Pretty\+Writer@{Pretty\+Writer}!Raw\+Value@{Raw\+Value}}
+\index{Raw\+Value@{Raw\+Value}!Pretty\+Writer@{Pretty\+Writer}}
+\subsubsection{\texorpdfstring{Raw\+Value()}{RawValue()}}
+{\footnotesize\ttfamily template$<$typename Output\+Stream , typename Source\+Encoding  = U\+T\+F8$<$$>$, typename Target\+Encoding  = U\+T\+F8$<$$>$, typename Stack\+Allocator  = Crt\+Allocator, unsigned write\+Flags = k\+Write\+Default\+Flags$>$ \\
+bool \hyperlink{a02228}{Pretty\+Writer}$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$\+::Raw\+Value (\begin{DoxyParamCaption}\item[{const Ch $\ast$}]{json,  }\item[{size\+\_\+t}]{length,  }\item[{\hyperlink{a00560_a1d1cfd8ffb84e947f82999c682b666a7}{Type}}]{type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Write a raw J\+S\+ON value. 
+
+For user to write a stringified J\+S\+ON as a value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em json} & A well-\/formed J\+S\+ON value. It should not contain null character within \mbox{[}0, length -\/ 1\mbox{]} range. \\
+\hline
+{\em length} & Length of the json. \\
+\hline
+{\em type} & Type of the root of json. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+When using \hyperlink{a02228_a440890a72408a150ef46edda6becdc94}{Pretty\+Writer\+::\+Raw\+Value()}, the result json may not be indented correctly. 
+\end{DoxyNote}
+\mbox{\Hypertarget{a02228_a1ff9dbeff9b9c724080cb65987a41b73}\label{a02228_a1ff9dbeff9b9c724080cb65987a41b73}} 
+\index{Pretty\+Writer@{Pretty\+Writer}!Set\+Format\+Options@{Set\+Format\+Options}}
+\index{Set\+Format\+Options@{Set\+Format\+Options}!Pretty\+Writer@{Pretty\+Writer}}
+\subsubsection{\texorpdfstring{Set\+Format\+Options()}{SetFormatOptions()}}
+{\footnotesize\ttfamily template$<$typename Output\+Stream , typename Source\+Encoding  = U\+T\+F8$<$$>$, typename Target\+Encoding  = U\+T\+F8$<$$>$, typename Stack\+Allocator  = Crt\+Allocator, unsigned write\+Flags = k\+Write\+Default\+Flags$>$ \\
+\hyperlink{a02228}{Pretty\+Writer}\& \hyperlink{a02228}{Pretty\+Writer}$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$\+::Set\+Format\+Options (\begin{DoxyParamCaption}\item[{Pretty\+Format\+Options}]{options }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set pretty writer formatting options. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em options} & Formatting options. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{a02228_ad307b4c8d61af25042d0adcd0910c19a}\label{a02228_ad307b4c8d61af25042d0adcd0910c19a}} 
+\index{Pretty\+Writer@{Pretty\+Writer}!Set\+Indent@{Set\+Indent}}
+\index{Set\+Indent@{Set\+Indent}!Pretty\+Writer@{Pretty\+Writer}}
+\subsubsection{\texorpdfstring{Set\+Indent()}{SetIndent()}}
+{\footnotesize\ttfamily template$<$typename Output\+Stream , typename Source\+Encoding  = U\+T\+F8$<$$>$, typename Target\+Encoding  = U\+T\+F8$<$$>$, typename Stack\+Allocator  = Crt\+Allocator, unsigned write\+Flags = k\+Write\+Default\+Flags$>$ \\
+\hyperlink{a02228}{Pretty\+Writer}\& \hyperlink{a02228}{Pretty\+Writer}$<$ Output\+Stream, Source\+Encoding, Target\+Encoding, Stack\+Allocator, write\+Flags $>$\+::Set\+Indent (\begin{DoxyParamCaption}\item[{Ch}]{indent\+Char,  }\item[{unsigned}]{indent\+Char\+Count }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set custom indentation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em indent\+Char} & Character for indentation. Must be whitespace character (\textquotesingle{} \textquotesingle{}, \textquotesingle{}\textbackslash{}t\textquotesingle{}, \textquotesingle{}\textbackslash{}n\textquotesingle{}, \textquotesingle{}\textbackslash{}r\textquotesingle{}). \\
+\hline
+{\em indent\+Char\+Count} & Number of indent characters for each indentation level. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The default indentation is 4 spaces. 
+\end{DoxyNote}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+prettywriter.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,82 @@
+\hypertarget{a01624}{}\section{boost\+:\+:dll\+:\+:detail\+:\+:shared\+\_\+library\+\_\+impl Class Reference}
+\label{a01624}\index{boost\+::dll\+::detail\+::shared\+\_\+library\+\_\+impl@{boost\+::dll\+::detail\+::shared\+\_\+library\+\_\+impl}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01624_a0fb8d4c1967616c6f9c82ce3d70e11c6}\label{a01624_a0fb8d4c1967616c6f9c82ce3d70e11c6}} 
+typedef void $\ast$ {\bfseries native\+\_\+handle\+\_\+t}
+\item 
+\mbox{\Hypertarget{a01624_a2a11230bd7993f39e4fd73ed78a89463}\label{a01624_a2a11230bd7993f39e4fd73ed78a89463}} 
+typedef boost\+::detail\+::winapi\+::\+H\+M\+O\+D\+U\+L\+E\+\_\+ {\bfseries native\+\_\+handle\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01624_a45d5bb26fa73a9639618bab3e343f114}\label{a01624_a45d5bb26fa73a9639618bab3e343f114}} 
+{\bfseries shared\+\_\+library\+\_\+impl} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01624}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a4516d0b76678a60333cb5ccbf7cc52c2}\label{a01624_a4516d0b76678a60333cb5ccbf7cc52c2}} 
+\hyperlink{a01624}{shared\+\_\+library\+\_\+impl} \& {\bfseries operator=} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01624}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a2c3bbcf10638f5fdeb13b1f194431ac5}\label{a01624_a2c3bbcf10638f5fdeb13b1f194431ac5}} 
+void {\bfseries load} (boost\+::filesystem\+::path sl, \hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+\mbox{\Hypertarget{a01624_a3729718e9c72b30a85087a89b642becb}\label{a01624_a3729718e9c72b30a85087a89b642becb}} 
+bool {\bfseries is\+\_\+loaded} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a78b3736f4aab0a61fd07a45eb5a54c52}\label{a01624_a78b3736f4aab0a61fd07a45eb5a54c52}} 
+void {\bfseries unload} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a7d87e32878fd68cd3c59531c5b6dcaf1}\label{a01624_a7d87e32878fd68cd3c59531c5b6dcaf1}} 
+void {\bfseries swap} (\hyperlink{a01624}{shared\+\_\+library\+\_\+impl} \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_afefd81d306682e1e540bdaddbd58c8b3}\label{a01624_afefd81d306682e1e540bdaddbd58c8b3}} 
+boost\+::filesystem\+::path {\bfseries full\+\_\+module\+\_\+path} (boost\+::system\+::error\+\_\+code \&ec) const
+\item 
+\mbox{\Hypertarget{a01624_a79bc56fc8e9c4fb98993893b491986a8}\label{a01624_a79bc56fc8e9c4fb98993893b491986a8}} 
+void $\ast$ {\bfseries symbol\+\_\+addr} (const char $\ast$sb, boost\+::system\+::error\+\_\+code \&ec) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a0517caf0566e0bbc2573a9e9f427fa92}\label{a01624_a0517caf0566e0bbc2573a9e9f427fa92}} 
+native\+\_\+handle\+\_\+t {\bfseries native} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a45d5bb26fa73a9639618bab3e343f114}\label{a01624_a45d5bb26fa73a9639618bab3e343f114}} 
+{\bfseries shared\+\_\+library\+\_\+impl} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01624}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a4516d0b76678a60333cb5ccbf7cc52c2}\label{a01624_a4516d0b76678a60333cb5ccbf7cc52c2}} 
+\hyperlink{a01624}{shared\+\_\+library\+\_\+impl} \& {\bfseries operator=} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01624}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a2c3bbcf10638f5fdeb13b1f194431ac5}\label{a01624_a2c3bbcf10638f5fdeb13b1f194431ac5}} 
+void {\bfseries load} (boost\+::filesystem\+::path sl, \hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+\mbox{\Hypertarget{a01624_a3729718e9c72b30a85087a89b642becb}\label{a01624_a3729718e9c72b30a85087a89b642becb}} 
+bool {\bfseries is\+\_\+loaded} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a78b3736f4aab0a61fd07a45eb5a54c52}\label{a01624_a78b3736f4aab0a61fd07a45eb5a54c52}} 
+void {\bfseries unload} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a7d87e32878fd68cd3c59531c5b6dcaf1}\label{a01624_a7d87e32878fd68cd3c59531c5b6dcaf1}} 
+void {\bfseries swap} (\hyperlink{a01624}{shared\+\_\+library\+\_\+impl} \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_afefd81d306682e1e540bdaddbd58c8b3}\label{a01624_afefd81d306682e1e540bdaddbd58c8b3}} 
+boost\+::filesystem\+::path {\bfseries full\+\_\+module\+\_\+path} (boost\+::system\+::error\+\_\+code \&ec) const
+\item 
+\mbox{\Hypertarget{a01624_a79bc56fc8e9c4fb98993893b491986a8}\label{a01624_a79bc56fc8e9c4fb98993893b491986a8}} 
+void $\ast$ {\bfseries symbol\+\_\+addr} (const char $\ast$sb, boost\+::system\+::error\+\_\+code \&ec) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\mbox{\Hypertarget{a01624_a0517caf0566e0bbc2573a9e9f427fa92}\label{a01624_a0517caf0566e0bbc2573a9e9f427fa92}} 
+native\+\_\+handle\+\_\+t {\bfseries native} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01624_a07728a8e1ad349b2fa59a12560583e25}\label{a01624_a07728a8e1ad349b2fa59a12560583e25}} 
+static boost\+::filesystem\+::path {\bfseries suffix} ()
+\item 
+\mbox{\Hypertarget{a01624_a07728a8e1ad349b2fa59a12560583e25}\label{a01624_a07728a8e1ad349b2fa59a12560583e25}} 
+static boost\+::filesystem\+::path {\bfseries suffix} ()
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+posix/shared\+\_\+library\+\_\+impl.\+hpp\end{DoxyCompactItemize}

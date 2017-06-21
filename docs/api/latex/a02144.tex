@@ -1,0 +1,72 @@
+\hypertarget{a02144}{}\section{U\+T\+F8$<$ Char\+Type $>$ Struct Template Reference}
+\label{a02144}\index{U\+T\+F8$<$ Char\+Type $>$@{U\+T\+F8$<$ Char\+Type $>$}}
+
+
+U\+T\+F-\/8 encoding.  
+
+
+
+
+{\ttfamily \#include $<$encodings.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02144_aa1182a425f45e5e3aa5f0f8379f5e2ef}\label{a02144_aa1182a425f45e5e3aa5f0f8379f5e2ef}} 
+enum \{ {\bfseries support\+Unicode} = 1
+ \}
+\item 
+\mbox{\Hypertarget{a02144_a8e78c8113f3660178d8121b7d3e55890}\label{a02144_a8e78c8113f3660178d8121b7d3e55890}} 
+typedef Char\+Type {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02144_af286ed19ca60d261a9b11b65bee1298b}\label{a02144_af286ed19ca60d261a9b11b65bee1298b}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02144_aac6bdaf03c114265384b2ae3e425e7a8}\label{a02144_aac6bdaf03c114265384b2ae3e425e7a8}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static void {\bfseries Encode\+Unsafe} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02144_a17c6badb31acf4f784111c886737fb17}\label{a02144_a17c6badb31acf4f784111c886737fb17}} 
+{\footnotesize template$<$typename Input\+Stream $>$ }\\static bool {\bfseries Decode} (Input\+Stream \&is, unsigned $\ast$codepoint)
+\item 
+\mbox{\Hypertarget{a02144_a9e2e7e37d819baeb5e643654c6e61e33}\label{a02144_a9e2e7e37d819baeb5e643654c6e61e33}} 
+{\footnotesize template$<$typename Input\+Stream , typename Output\+Stream $>$ }\\static bool {\bfseries Validate} (Input\+Stream \&is, Output\+Stream \&os)
+\item 
+\mbox{\Hypertarget{a02144_ac06bbf38df41adb0c7b9eaa93f85cc38}\label{a02144_ac06bbf38df41adb0c7b9eaa93f85cc38}} 
+static unsigned char {\bfseries Get\+Range} (unsigned char c)
+\item 
+\mbox{\Hypertarget{a02144_a1b2359d6ea50ae32fefc9b28e9878a31}\label{a02144_a1b2359d6ea50ae32fefc9b28e9878a31}} 
+{\footnotesize template$<$typename Input\+Byte\+Stream $>$ }\\static Char\+Type {\bfseries Take\+B\+OM} (Input\+Byte\+Stream \&is)
+\item 
+\mbox{\Hypertarget{a02144_a5b2561a5031c8a699e593cd51b2c6864}\label{a02144_a5b2561a5031c8a699e593cd51b2c6864}} 
+{\footnotesize template$<$typename Input\+Byte\+Stream $>$ }\\static Ch {\bfseries Take} (Input\+Byte\+Stream \&is)
+\item 
+\mbox{\Hypertarget{a02144_a6b171e5f0662ad81d498875bbdbc536a}\label{a02144_a6b171e5f0662ad81d498875bbdbc536a}} 
+{\footnotesize template$<$typename Output\+Byte\+Stream $>$ }\\static void {\bfseries Put\+B\+OM} (Output\+Byte\+Stream \&os)
+\item 
+\mbox{\Hypertarget{a02144_ab24c23227413798e9be28a21eb26fe51}\label{a02144_ab24c23227413798e9be28a21eb26fe51}} 
+{\footnotesize template$<$typename Output\+Byte\+Stream $>$ }\\static void {\bfseries Put} (Output\+Byte\+Stream \&os, Ch c)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Char\+Type = char$>$\newline
+struct U\+T\+F8$<$ Char\+Type $>$}
+
+U\+T\+F-\/8 encoding. 
+
+\href{http://en.wikipedia.org/wiki/UTF-8}{\tt http\+://en.\+wikipedia.\+org/wiki/\+U\+T\+F-\/8} \href{http://tools.ietf.org/html/rfc3629}{\tt http\+://tools.\+ietf.\+org/html/rfc3629} 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Char\+Type} & Code unit for storing 8-\/bit U\+T\+F-\/8 data. Default is char. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyNote}{Note}
+implements Encoding concept 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodings.\+h\end{DoxyCompactItemize}

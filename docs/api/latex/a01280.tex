@@ -1,0 +1,108 @@
+\hypertarget{a01280}{}\section{xacc\+:\+:quantum\+:\+:Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$ Class Template Reference}
+\label{a01280}\index{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$}}
+
+
+{\ttfamily \#include $<$Gate\+Instruction.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{a01280}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a01280_a004d67fcad0ce85851914fc2ccc3d20f}{Parameterized\+Gate\+Instruction} (Instruction\+Parameter ... pars)
+\item 
+auto \hyperlink{a01280_aab4a5f7e905928a96d6a1c3203ea42be}{get\+Parameter} (const std\+::size\+\_\+t idx)
+\item 
+virtual const std\+::string \hyperlink{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}{to\+String} (const std\+::string \&buffer\+Var\+Name)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::tuple$<$ Instruction\+Parameter... $>$ \hyperlink{a01280_ad33ab03e231b8e54cc1e087f08401e32}{params}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename ... Instruction\+Parameter$>$\newline
+class xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction$<$ Instruction\+Parameter $>$}
+
+The Paramaterized\+Gate\+Instruction is a \hyperlink{a01276}{Gate\+Instruction} that is templated on a list of variadic parameters that model the instructions gate parameters. For example, this class could be subclassed to provide a rotation gate with an angle theta (Paramaterized\+Gate\+Instruction$<$double$>$). 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01280_a004d67fcad0ce85851914fc2ccc3d20f}\label{a01280_a004d67fcad0ce85851914fc2ccc3d20f}} 
+\index{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}!Parameterized\+Gate\+Instruction@{Parameterized\+Gate\+Instruction}}
+\index{Parameterized\+Gate\+Instruction@{Parameterized\+Gate\+Instruction}!xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}}
+\subsubsection{\texorpdfstring{Parameterized\+Gate\+Instruction()}{ParameterizedGateInstruction()}}
+{\footnotesize\ttfamily template$<$typename ... Instruction\+Parameter$>$ \\
+\hyperlink{a01280}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}$<$ Instruction\+Parameter $>$\+::\hyperlink{a01280}{Parameterized\+Gate\+Instruction} (\begin{DoxyParamCaption}\item[{Instruction\+Parameter ...}]{pars }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The constructor, takes the parameters 
+\begin{DoxyParams}{Parameters}
+{\em pars} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a01280_aab4a5f7e905928a96d6a1c3203ea42be}\label{a01280_aab4a5f7e905928a96d6a1c3203ea42be}} 
+\index{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}!get\+Parameter@{get\+Parameter}}
+\index{get\+Parameter@{get\+Parameter}!xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}}
+\subsubsection{\texorpdfstring{get\+Parameter()}{getParameter()}}
+{\footnotesize\ttfamily template$<$typename ... Instruction\+Parameter$>$ \\
+auto \hyperlink{a01280}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}$<$ Instruction\+Parameter $>$\+::get\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::size\+\_\+t}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Return the gate parameter at the given index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\mbox{\Hypertarget{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}\label{a01280_aaccc4a20d58d2ac5c31abe7e325b8f77}} 
+\index{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}}
+\subsubsection{\texorpdfstring{to\+String()}{toString()}}
+{\footnotesize\ttfamily template$<$typename ... Instruction\+Parameter$>$ \\
+virtual const std\+::string \hyperlink{a01280}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}$<$ Instruction\+Parameter $>$\+::to\+String (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{buffer\+Var\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return an assembly-\/like string representation for this instruction.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+Var\+Name} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a01276_a089a5da67ff40ac1a6f56e64589822d9}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+
+
+Reimplemented in \hyperlink{a01312_a1c51a5d68294dcb2ba1a9fbea63a730f}{xacc\+::quantum\+::\+Measure}.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01280_ad33ab03e231b8e54cc1e087f08401e32}\label{a01280_ad33ab03e231b8e54cc1e087f08401e32}} 
+\index{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}!params@{params}}
+\index{params@{params}!xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction@{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}}
+\subsubsection{\texorpdfstring{params}{params}}
+{\footnotesize\ttfamily template$<$typename ... Instruction\+Parameter$>$ \\
+std\+::tuple$<$Instruction\+Parameter...$>$ \hyperlink{a01280}{xacc\+::quantum\+::\+Parameterized\+Gate\+Instruction}$<$ Instruction\+Parameter $>$\+::params\hspace{0.3cm}{\ttfamily [protected]}}
+
+The paramaters that this gate instruction requires. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Gate\+Instruction.\+hpp\end{DoxyCompactItemize}

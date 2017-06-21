@@ -1,0 +1,52 @@
+\hypertarget{a02176}{}\section{Auto\+U\+TF$<$ Char\+Type $>$ Struct Template Reference}
+\label{a02176}\index{Auto\+U\+T\+F$<$ Char\+Type $>$@{Auto\+U\+T\+F$<$ Char\+Type $>$}}
+
+
+Dynamically select encoding according to stream\textquotesingle{}s runtime-\/specified U\+TF encoding type.  
+
+
+
+
+{\ttfamily \#include $<$encodings.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02176_aacfa2cfd9ad903c9c7110803c4037a7d}\label{a02176_aacfa2cfd9ad903c9c7110803c4037a7d}} 
+enum \{ {\bfseries support\+Unicode} = 1
+ \}
+\item 
+\mbox{\Hypertarget{a02176_a0609343de776df3bc31b4c980eb3cf1c}\label{a02176_a0609343de776df3bc31b4c980eb3cf1c}} 
+typedef Char\+Type {\bfseries Ch}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a02176_a414946115261f886e74dd42cb4b98781}\label{a02176_a414946115261f886e74dd42cb4b98781}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+F\+O\+R\+C\+E\+I\+N\+L\+I\+NE void {\bfseries Encode} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02176_a05f5dcd1f153b61b763e44ed452de251}\label{a02176_a05f5dcd1f153b61b763e44ed452de251}} 
+{\footnotesize template$<$typename Output\+Stream $>$ }\\static R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+F\+O\+R\+C\+E\+I\+N\+L\+I\+NE void {\bfseries Encode\+Unsafe} (Output\+Stream \&os, unsigned codepoint)
+\item 
+\mbox{\Hypertarget{a02176_aa5e3c1dc23dbb75f6442ff69500a35b0}\label{a02176_aa5e3c1dc23dbb75f6442ff69500a35b0}} 
+{\footnotesize template$<$typename Input\+Stream $>$ }\\static R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+F\+O\+R\+C\+E\+I\+N\+L\+I\+NE bool {\bfseries Decode} (Input\+Stream \&is, unsigned $\ast$codepoint)
+\item 
+\mbox{\Hypertarget{a02176_a36dd6f226d6a07c12161e21c0aff20b1}\label{a02176_a36dd6f226d6a07c12161e21c0aff20b1}} 
+{\footnotesize template$<$typename Input\+Stream , typename Output\+Stream $>$ }\\static R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+F\+O\+R\+C\+E\+I\+N\+L\+I\+NE bool {\bfseries Validate} (Input\+Stream \&is, Output\+Stream \&os)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Char\+Type$>$\newline
+struct Auto\+U\+T\+F$<$ Char\+Type $>$}
+
+Dynamically select encoding according to stream\textquotesingle{}s runtime-\/specified U\+TF encoding type. 
+
+\begin{DoxyNote}{Note}
+This class can be used with Auto\+U\+T\+F\+Inputt\+Stream and \hyperlink{a02140}{Auto\+U\+T\+F\+Output\+Stream}, which provides Get\+Type(). 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodings.\+h\end{DoxyCompactItemize}
