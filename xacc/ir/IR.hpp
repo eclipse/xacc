@@ -55,6 +55,9 @@ public:
 	/**
 	 * Return a assembly-like string representation of this
 	 * intermediate representation
+	 *
+	 * @param kernelName The name of hte kernel to persist to string
+	 * @param accBufferVarName The name of the AcceleratorBuffer
 	 * @return
 	 */
 	virtual std::string toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) = 0;
@@ -63,7 +66,7 @@ public:
 	 * Persist this IR instance to the given
 	 * output stream.
 	 *
-	 * @param outStream
+	 * @param outStream The output stream to persist to.
 	 */
 	virtual void persist(std::ostream& outStream) = 0;
 
@@ -71,12 +74,23 @@ public:
 	 * Create this IR instance from the given input
 	 * stream.
 	 *
-	 * @param inStream
+	 * @param inStream The input stream to read from.
 	 */
 	virtual void load(std::istream& inStream) = 0;
 
+	/**
+	 * Add a new kernel to this IR instance.
+	 *
+	 * @param kernel The Function instance to add as a new kernel
+	 */
 	virtual void addKernel(std::shared_ptr<Function> kernel) = 0;
 
+	/**
+	 * Return the kernel with the given name.
+	 *
+	 * @param name The name of the kernel to return.
+	 * @return kernel The kernel with given name.
+	 */
 	virtual std::shared_ptr<Function> getKernel(const std::string& name) = 0;
 
 	/**

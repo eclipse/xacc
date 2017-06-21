@@ -35,57 +35,19 @@
 #include <string>
 #include <memory>
 #include "Utils.hpp"
+#include "InstructionVisitor.hpp"
 
 namespace xacc {
 
 /**
- */
-class BaseInstructionVisitor {
-public:
-	virtual ~BaseInstructionVisitor() {}
-};
-
-template<class T>
-class InstructionVisitor {
-public:
-	virtual void visit(T&) = 0;
-	virtual ~InstructionVisitor() {}
-};
-
-class BaseInstructionVisitable {
-public:
-	virtual void accept(std::shared_ptr<BaseInstructionVisitor> visitor) = 0;
-	virtual void accept(BaseInstructionVisitor* visitor) = 0;
-
-	virtual ~BaseInstructionVisitable() {}
-protected:
-	template<class T>
-	static void acceptImpl(T& visited, std::shared_ptr<BaseInstructionVisitor> visitor) {
-		auto castedVisitor = std::dynamic_pointer_cast<InstructionVisitor<T>>(visitor);
-		if (castedVisitor) {
-			castedVisitor->visit(visited);
-			return;
-		}
-	}
-
-	template<class T>
-	static void acceptImpl(T& visited, BaseInstructionVisitor* visitor) {
-		auto castedVisitor = dynamic_cast<InstructionVisitor<T>*>(visitor);
-		if (castedVisitor) {
-			castedVisitor->visit(visited);
-			return;
-		}
-	}
-
-#define DEFINE_VISITABLE() \
-            virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
-                { acceptImpl(*this, v); } \
-			virtual void accept(BaseInstructionVisitor* v) \
-				{ acceptImpl(*this, v); }
-
-};
-
-/**
+ * The Instruction interface is the base of all
+ * XACC Intermediate Representation Instructions for
+ * post-Moore's law accelerated computing. The Instruction, at
+ * its core, provides an Instruction name and a set of
+ * next-gen bits that the Instruction operates on. Instructions
+ * can also be enabled or disabled. Instructions implement
+ * BaseInstructionVisitable to enable visitor pattern
+ * functionality across all Instruction subclasses.
  *
  */
 class Instruction : public BaseInstructionVisitable {
@@ -93,35 +55,54 @@ class Instruction : public BaseInstructionVisitable {
 public:
 
 	/**
+	 * Return the name of this Instruction
 	 *
-	 * @return
+	 * @return name The name of this Instruction
 	 */
 	virtual const std::string getName() = 0;
 
 	/**
+	 * Persist this Instruction to an assembly-like
+	 * string.
 	 *
-	 * @return
+	 * @param bufferVarName The name of the AcceleratorBuffer
+	 * @return str The assembly-like string.
 	 */
 	virtual const std::string toString(const std::string& bufferVarName) = 0;
 
 	/**
+	 * Return the indices of the bits that this Instruction
+	 * operates on.
 	 *
-	 * @return
+	 * @return bits The bits this Instruction operates on.
 	 */
 	virtual const std::vector<int> bits() = 0;
 
+	/**
+	 * Returns true if this Instruction is composite,
+	 * ie, contains other Instructions.
+	 *
+	 * @return isComposite True if this is a composite Instruction
+	 */
 	virtual bool isComposite() { return false; }
 
+	/**
+	 * Returns true if this Instruction is enabled
+	 *
+	 * @return enabled True if this Instruction is enabled.
+	 */
 	virtual bool isEnabled() { return true; }
 
+	/**
+	 * Disable this Instruction
+	 */
+
 	virtual void disable() {}
-	virtual void enable() {}
 
 	/**
-	 *
-	 * @param visitor
+	 * Enable this Instruction.
 	 */
-//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor) = 0;
+	virtual void enable() {}
 
 	/**
 	 * The destructor

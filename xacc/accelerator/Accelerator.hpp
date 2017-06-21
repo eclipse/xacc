@@ -149,7 +149,8 @@ public:
 	virtual bool isValidBufferSize(const int NBits) = 0;
 
 	/**
-	 *
+	 * Return an empty options_description, this is for
+	 * subclasses to implement.
 	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		return std::make_shared<options_description>();

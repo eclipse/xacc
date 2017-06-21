@@ -97,11 +97,11 @@ protected:
 	 * source kernel code to produce XACC IR that can be executed
 	 * on the attached Accelerator.
 	 *
-	 * @param compilerArgStr Arguments for the compiler's execution
 	 * @param runtimeArgs Runtime values for kernel arguments
 	 */
 	template<typename ... RuntimeArgs>
 	void build(RuntimeArgs ... runtimeArgs) {
+
 		// Get reference to the runtime options
 		auto runtimeOptions = RuntimeOptions::instance();
 
@@ -110,6 +110,7 @@ protected:
 
 		// Create the appropriate compiler
 		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
+
 		// Make sure we got a valid
 		if (!compiler) {
 			XACCError("Invalid Compiler.\n");

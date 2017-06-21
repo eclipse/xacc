@@ -39,14 +39,25 @@ using namespace boost::program_options;
 namespace xacc {
 
 /**
- *
+ * The OptionsProvider interface enables derived subclasses
+ * to provide a description of any and all command line options
+ * that they can take to drive and control their execution and
+ * behavior.
  */
 class OptionsProvider {
 
 public:
 
+	/**
+	 * Return a Boost options_description instance that
+	 * describes the options available for this
+	 * derived subclass.
+	 */
 	virtual std::shared_ptr<options_description> getOptions() = 0;
 
+	/**
+	 * The destructor
+	 */
 	virtual ~OptionsProvider() {}
 
 };

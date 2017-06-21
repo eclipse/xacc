@@ -39,23 +39,62 @@ namespace xacc {
 using InstPtr = std::shared_ptr<Instruction>;
 
 /**
- *
+ * The Function is an Instruction that contains further
+ * child Instructions.
  */
 class Function : public virtual Instruction {
 public:
 
+	/**
+	 * Return the number of Instructions that this Function contains.
+	 *
+	 * @return nInst The number of instructions
+	 */
 	virtual const int nInstructions() = 0;
 
+	/**
+	 * Return the Instruction at the given index.
+	 *
+	 * @param idx The desired Instruction index
+	 * @return inst The instruction at the given index.
+	 */
 	virtual InstPtr getInstruction(const int idx) = 0;
 
+	/**
+	 * Return all Instructions in this Function
+	 *
+	 * @return insts The list of this Function's Instructions
+	 */
 	virtual std::list<InstPtr> getInstructions() = 0;
 
+	/**
+	 * Remove the Instruction at the given index.
+	 *
+	 * @param idx The index of the Instruction to remove.
+	 */
 	virtual void removeInstruction(const int idx) = 0;
 
+	/**
+	 * Replace the Instruction at the given index with the given new Instruction.
+	 *
+	 * @param idx The index of the Instruction to replace.
+	 * @param newInst The new Instruction to replace with.
+	 */
 	virtual void replaceInstruction(const int idx, InstPtr newInst) = 0;
 
+	/**
+	 * Add an Instruction to this Function.
+	 *
+	 * @param instruction The instruction to add.
+	 */
 	virtual void addInstruction(InstPtr instruction) = 0;
 
+	/**
+	 * Return true always to indicate that the
+	 * Function is composite.
+	 *
+	 * @return composite True indicating this is a composite Instruction.
+	 */
 	virtual bool isComposite() { return true; }
 
 	/**

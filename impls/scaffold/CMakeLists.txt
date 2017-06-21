@@ -63,7 +63,7 @@ if (CLANG_FOUND AND LLVM_FOUND)
 
    link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
 
-   target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} xacc-gate-ir)
+   target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES} xacc-gate-ir)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)

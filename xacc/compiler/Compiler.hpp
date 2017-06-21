@@ -48,7 +48,7 @@ namespace xacc {
  * compiler-specific compilation mechanism, and returns a valid
  * XACC IR instance modeling the result of the compilation.
  */
-class Compiler {
+class Compiler : public OptionsProvider {
 
 public:
 
@@ -80,6 +80,14 @@ public:
 	 * @return name Compiler name
 	 */
 	virtual const std::string getName() = 0;
+
+	/**
+	 * Return an empty options_description, this is for
+	 * subclasses to implement.
+	 */
+	virtual std::shared_ptr<options_description> getOptions() {
+		return std::make_shared<options_description>();
+	}
 
 	/**
 	 * The destructor

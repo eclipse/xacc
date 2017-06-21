@@ -152,12 +152,12 @@ public:
 			llvm::raw_string_ostream argstream(arg);
 			clang::FunctionDecl::param_iterator pBegin = c->param_begin();
 			clang::FunctionDecl::param_iterator pEnd = c->param_end();
-			std::cout << "TRYING FUNC " << c->getDeclName().getAsString() << " params " << c->param_size() << "\n";
+//			std::cout << "TRYING FUNC " << c->getDeclName().getAsString() << " params " << c->param_size() << "\n";
 			for (auto i = pBegin; i != pEnd; ++i) {
 				KernelParameter p;
 				p.type = (*i)->getType().getAsString();
 				p.varName = (*i)->getNameAsString();
-				std::cout << "HELLO World: " << (*i)->getType().getAsString() << " : " << (*i)->getNameAsString() << "\n";
+//				std::cout << "HELLO World: " << (*i)->getType().getAsString() << " : " << (*i)->getNameAsString() << "\n";
 				parameters.push_back(p);
 			}
 		}
@@ -180,7 +180,7 @@ public:
 				llvm::raw_string_ostream argstream(arg);
 				i->printPretty(argstream, nullptr, policy);
 				auto argStr = argstream.str();
-				std::cout << "Arg: " << argstream.str() << "\n";
+//				std::cout << "Arg: " << argstream.str() << "\n";
 
 				if (boost::contains(argStr, qbitVarName)) {
 					boost::replace_all(argStr, qbitVarName, "");
@@ -197,7 +197,6 @@ public:
 						double d = boost::lexical_cast<double>(argStr);
 						params.push_back(d);
 					} catch (const boost::bad_lexical_cast &) {
-						std::cout << "SETTING 0\n";
 						params.push_back(0.0);
 					}
 
@@ -205,7 +204,6 @@ public:
 				}
 			}
 
-			std::cout << "WE HAVE " << qubits.size() << " qubit(s) and " << params.size() << " param(s).\n";
 			std::shared_ptr<xacc::quantum::GateInstruction> inst;
 			if (isParameterizedInst) {
 				if (params.size() == 1) {

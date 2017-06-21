@@ -48,7 +48,7 @@ class Singleton {
 public:
 	/**
 	 * Return the single instance of T
-	 * @return
+	 * @return instance The singleton instance
 	 */
 	static T* instance() {
 		if (!instance_) {

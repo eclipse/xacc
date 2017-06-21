@@ -36,11 +36,23 @@
 
 namespace xacc {
 
+/**
+ * The RuntimeOptions class is a Singleton mapping of string
+ * keys to string values. It is used throughout XACC to
+ * provide and share runtime options that are provided from
+ * XACC users via the command line.
+ */
 class RuntimeOptions: public Singleton<RuntimeOptions>, public std::map<
 		std::string, std::string> {
 
 public:
 
+	/**
+	 * Convenience method to get whether the
+	 * give key exists in the RuntimeOptions.
+	 *
+	 * @param key The key to check exists
+	 */
 	bool exists(const std::string& key) {
 		return find(key) != end();
 	}
@@ -48,4 +60,4 @@ public:
 }
 
 
-#endif /* XACC_UTILS_RUNTIMEOPTIONS_HPP_ */
+#endif

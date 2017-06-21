@@ -43,22 +43,49 @@ using namespace boost::program_options;
 namespace xacc {
 
 /**
+ * The role of the CLIParser is to parse all command line
+ * options provided to an XACC-enabled program. It takes upon
+ * construction to available argc and argv variables from the
+ * command line, and parses them to fill the RuntimeOptions
+ * singleton and load any XACC Compiler or Accelerator plugins.
+ *
+ * It also queries all available OptionProviders to display
+ * all available options to the XACC user.
  */
 class CLIParser {
 
 protected:
 
+	/**
+	 * Argc, number of arguments
+	 */
 	int argc;
+
+	/**
+	 * Argv, the command line arguments
+	 */
 	char** argv;
 
 public:
 
+	/**
+	 * The constructor
+	 */
 	CLIParser(int arc, char** arv) : argc(arc), argv(arv) {}
 
+	/**
+	 * Parse the command line options. Provide a Boost options_description
+	 * built up and provided by all available OptionsProviders. This
+	 * method also loads all Compilers and Accelerators available
+	 * in the XACC_INSTALL_DIR.
+	 */
 	void parse() {
 
+		// Get a reference to the RuntimeOptions
 		auto runtimeOptions = RuntimeOptions::instance();
 
+		// Create a base options_description, we will add
+		// to this with all OptionsProviders
 		auto compilerOptions = std::make_shared<options_description>(
 				"XACC Options");
 		compilerOptions->add_options()("help", "Help Message")("compiler",
@@ -79,7 +106,7 @@ public:
 			for (boost::filesystem::directory_iterator itr(xaccPath);
 					itr != end_itr; ++itr) {
 				auto p = itr->path();
-				if (itr->path().extension() == ".so") {
+				if (p.extension() == ".so") {
 					namespace dll = boost::dll;
 					dll::shared_library lib(p,
 							dll::load_mode::append_decorations);
@@ -119,6 +146,15 @@ public:
 			}
 		}
 
+		// Add all Compiler specific options
+		registeredIds = CompilerRegistry::instance()->getRegisteredIds();
+		for (auto s : registeredIds) {
+			{
+				compilerOptions->add(
+						*(CompilerRegistry::instance()->create(s)->getOptions().get()));
+			}
+		}
+
 		// Parse the command line options
 		variables_map compileParameters;
 		store(parse_command_line(argc, argv, *compilerOptions.get()), compileParameters);
@@ -127,6 +163,8 @@ public:
 			exit(0);
 		}
 
+		// If the user provides a path to a compiler plugin,
+		// then load it
 		if (compileParameters.count("loadCompiler")) {
 			auto loadPath = compileParameters["loadCompiler"].as<std::string>();
 			boost::filesystem::path p(loadPath);
@@ -141,6 +179,8 @@ public:
 			compileParameters.erase("loadCompiler");
 		}
 
+		// If the user provides a path to a accelerator plugin,
+		// then load it
 		if (compileParameters.count("loadAccelerator")) {
 			auto loadPath = compileParameters["loadAccelerator"].as<std::string>();
 			boost::filesystem::path p(loadPath);
@@ -156,9 +196,10 @@ public:
 		}
 
 		// Add all other string options to the global runtime option
-
-		for (auto it = compileParameters.begin(); it != compileParameters.end(); ++it) {
-			runtimeOptions->insert(std::make_pair(it->first, it->second.as<std::string>()));
+		for (auto it = compileParameters.begin(); it != compileParameters.end();
+				++it) {
+			runtimeOptions->insert(
+					std::make_pair(it->first, it->second.as<std::string>()));
 		}
 	}
 

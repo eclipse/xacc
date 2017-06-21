@@ -47,6 +47,7 @@ namespace xacc {
  * in the map with a unique name key, and can request
  * that the Registry return a new created instance of
  * the template parameter T.
+ *
  */
 template<typename T, typename... TArgs>
 class Registry : public Singleton<Registry<T, TArgs...>> {
@@ -64,9 +65,9 @@ public:
 	 * Add a new creation function to the Registry, keyed
 	 * on the provided string id.
 	 *
-	 * @param id
-	 * @param f
-	 * @return
+	 * @param id The Id of the creation function
+	 * @param f The object's creation function
+	 * @return success Bool indicating if this creator was added successfully.
 	 */
 	bool add(const std::string& id,
 			std::function<std::shared_ptr<T>(TArgs...)> f) {
@@ -85,8 +86,9 @@ public:
 	/**
 	 * Create an instance of T by using the creation
 	 * function found at the given key string id.
-	 * @param id
-	 * @return
+	 *
+	 * @param id The Id of the creation function
+	 * @return object Shared Pointer for the created object.
 	 */
 	std::shared_ptr<T> create(const std::string& id, TArgs... args) {
 		auto search = registry.find(id);
@@ -99,6 +101,8 @@ public:
 
 	/**
 	 * Return the keys from the registry map.
+	 *
+	 * @return ids The registered creator Ids
 	 */
 	std::vector<std::string> getRegisteredIds() {
 		std::vector<std::string> keys;
@@ -115,7 +119,8 @@ public:
 	/**
 	 * Return the number of creation functions
 	 * this registry contains.
-	 * @return
+	 *
+	 * @return size The number of creators in this Registry
 	 */
 	std::size_t size() {
 		return registry.size();
