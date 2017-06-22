@@ -39,13 +39,18 @@ namespace quantum {
 /**
  *
  */
-class Measure : public virtual ParameterizedGateInstruction<int> {
+class Measure : public GateInstruction {
 public:
-	Measure(std::vector<int> qbit, int classicalIdx);
+
+	Measure(std::vector<int> qbit);
 
 	Measure(int qbit, int classicalIdx);
 
 	virtual const std::string toString(const std::string& bufferVarName);
+
+	int getClassicalBitIndex() {
+		return boost::get<int>(parameters[0]);
+	}
 
 	DEFINE_VISITABLE()
 

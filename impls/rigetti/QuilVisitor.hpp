@@ -106,7 +106,7 @@ public:
 	 * Visit Measurement gates
 	 */
 	void visit(Measure& m) {
-		int classicalBitIdx = m.getParameter(0);
+		int classicalBitIdx = m.getClassicalBitIndex();
 		quilStr += "MEASURE " + std::to_string(m.bits()[0]) + " [" + std::to_string(classicalBitIdx) + "]\n";
 		classicalAddresses += std::to_string(classicalBitIdx) + ", ";
 		numAddresses++;

@@ -54,6 +54,8 @@ protected:
 
 	std::list<InstPtr> instructions;
 
+	std::vector<InstructionParameter> parameters;
+
 public:
 
 	/**
@@ -63,6 +65,10 @@ public:
 	 * @param name
 	 */
 	GateFunction(const std::string& name) : functionName(name) {}
+	GateFunction(const std::string& name,
+			std::vector<InstructionParameter> params) :
+			functionName(name), parameters(params) {
+	}
 
 	virtual const int nInstructions() {
 		return instructions.size();
@@ -133,6 +139,32 @@ public:
 			retStr += i->toString(bufferVarName) + "\n";
 		}
 		return retStr;
+	}
+
+	virtual InstructionParameter getParameter(const int idx) {
+		if (idx + 1 > parameters.size()) {
+			XACCError(
+					"Invalid Parameter requested.");
+		}
+
+		return parameters[idx];
+	}
+
+	virtual void setParameter(const int idx, InstructionParameter& p) {
+		if (idx + 1 > parameters.size()) {
+			XACCError(
+					"Invalid Parameter requested.");
+		}
+
+		parameters[idx] = p;
+	}
+
+	virtual bool isParameterized() {
+		return nParameters() > 0;
+	}
+
+	virtual const int nParameters() {
+		return parameters.size();
 	}
 
 	DEFINE_VISITABLE()

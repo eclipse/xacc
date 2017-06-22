@@ -33,29 +33,22 @@
 namespace xacc {
 namespace quantum {
 
-Measure::Measure(std::vector<int> qbit, int classicalIdx) :
-		ParameterizedGateInstruction<int>(classicalIdx), GateInstruction(
-				"Measure", qbit) {
+Measure::Measure(std::vector<int> qbit) :
+		GateInstruction("Measure", qbit, std::vector<InstructionParameter> {
+				InstructionParameter(0) }) {
 }
 
 Measure::Measure(int qbit, int classicalIdx) :
-		Measure(std::vector<int> { qbit }, classicalIdx) {
+		GateInstruction("Measure", std::vector<int> { qbit },
+				std::vector<InstructionParameter> { InstructionParameter(
+						classicalIdx) }) {
 }
-//
-//void Measure::accept(std::shared_ptr<InstructionVisitor> visitor) {
-//	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-//	if (v) {
-//		v->visit(*this);
-//	} else {
-//		visitor->visit(*this);
-//	}
-//}
 
 const std::string Measure::toString(const std::string& bufferVarName) {
 	return gateName + " " + bufferVarName + std::to_string(bits()[0]);
 }
 
-RegisterParameterizedGateInstruction<Measure, int> MEASURETEMP("Measure");
+RegisterGateInstruction<Measure> MEASURETEMP("Measure");
 
 }
 }

@@ -35,9 +35,9 @@
 
 namespace xacc {
 namespace quantum {
-class Rz: public virtual ParameterizedGateInstruction<double> {
+class Rz: public virtual GateInstruction {
 public:
-	Rz(std::vector<int> qbits, double theta);
+	Rz(std::vector<int> qbits);
 	Rz(int qbit, double theta);
 
 	DEFINE_VISITABLE()

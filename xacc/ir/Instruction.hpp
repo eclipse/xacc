@@ -34,10 +34,13 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <boost/variant.hpp>
 #include "Utils.hpp"
 #include "InstructionVisitor.hpp"
 
 namespace xacc {
+
+using InstructionParameter = boost::variant<int, double, float, std::string>;
 
 /**
  * The Instruction interface is the base of all
@@ -78,6 +81,15 @@ public:
 	 */
 	virtual const std::vector<int> bits() = 0;
 
+	virtual InstructionParameter getParameter(const int idx) = 0;
+
+	virtual void setParameter(const int idx, InstructionParameter& p) = 0;
+
+	virtual const int nParameters() = 0;
+
+	virtual bool isParameterized() {
+		return false;
+	}
 	/**
 	 * Returns true if this Instruction is composite,
 	 * ie, contains other Instructions.

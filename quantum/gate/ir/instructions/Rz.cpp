@@ -32,23 +32,19 @@
 
 namespace xacc {
 namespace quantum {
-Rz::Rz(std::vector<int> qbits, double theta) :
-		ParameterizedGateInstruction<double>(theta), GateInstruction("Rz",
-				qbits) {
-}
-Rz::Rz(int qbit, double theta) :
-		Rz(std::vector<int> { qbit }, theta) {
-}
-//
-//void Rz::accept(std::shared_ptr<InstructionVisitor> visitor) {
-//	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-//	if (v) {
-////		v->visit(*this);
-//	} else {
-//		visitor->visit(*this);
-//	}
-//}
 
-RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
+Rz::Rz(int qbit, double theta) :
+		GateInstruction("Rz", std::vector<int> { qbit },
+				std::vector<InstructionParameter> { InstructionParameter(theta) }) {
+}
+
+Rz::Rz(std::vector<int> qbits) :
+		GateInstruction("Rz", qbits, std::vector<InstructionParameter> {
+				InstructionParameter(0.0) }) {
+
+}
+
+RegisterGateInstruction<Rz> RZTEMP("Rz");
+//RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
 }
 }

@@ -99,7 +99,10 @@ public:
 	void visit(Rz& rz) {
 		baseGateInst(dynamic_cast<GateInstruction&>(rz), false);
 		writer->String("angle");
-		writer->Double(rz.getParameter(0));
+		auto p = rz.getParameter(0);
+		p.which() == 1 ? // Rz's parameter can only be of type double or string
+				writer->Double(boost::get<double>(p)) :
+				writer->String(boost::get<std::string>(p));
 		writer->EndObject();
 	}
 
@@ -136,7 +139,7 @@ public:
 	void visit(Measure& cn) {
 		baseGateInst(dynamic_cast<GateInstruction&>(cn), false);
 		writer->String("classicalBitIdx");
-		writer->Int(cn.getParameter(0));
+		writer->Int(cn.getClassicalBitIndex());
 		writer->EndObject();
 	}
 

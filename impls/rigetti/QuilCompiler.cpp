@@ -64,7 +64,6 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 	bool isConditional = false;
 	std::shared_ptr<xacc::Instruction> instruction;
 	auto gateRegistry = xacc::quantum::GateInstructionRegistry::instance();
-	auto oneParamRegistry = xacc::quantum::ParameterizedGateInstructionRegistry<int>::instance();
 	std::vector<std::shared_ptr<xacc::Instruction>> measurements;
 	std::string currentLabel;
 	std::shared_ptr<ConditionalFunction> currentConditional;
@@ -86,7 +85,9 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 				boost::replace_all(splitSpaces[2], "[", "");
 				boost::replace_all(splitSpaces[2], "]", "");
 				int classicalBit = std::stoi(splitSpaces[2]);
-				instruction = oneParamRegistry->create("Measure", qubits, classicalBit);
+				instruction = gateRegistry->create("Measure", qubits);
+				xacc::InstructionParameter p(classicalBit);
+				instruction->setParameter(0,p);
 				measurements.push_back(instruction);
 			} else if (gateName == "JUMP-UNLESS") {
 				isConditional = true;
@@ -96,9 +97,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 				auto classicalIdx = std::stoi(splitSpaces[2]);
 				int conditionalQubit = -1;
 				for (auto m : measurements) {
-					auto measure = std::dynamic_pointer_cast<xacc::quantum::ParameterizedGateInstruction<int>>(m);
-					if (measure->getParameter(0) == classicalIdx) {
-						conditionalQubit = measure->bits()[0];
+					if (boost::get<int>(m->getParameter(0)) == classicalIdx) {
+						conditionalQubit = m->bits()[0];
 						break;
 					}
 				}

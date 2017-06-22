@@ -119,16 +119,17 @@ int main(int argc, char** argv) {
 				std::shared_ptr<xacc::Instruction> inst;
 				if (gateCommand[0] == "MeasZ" || gateCommand[0] == "MeasX"
 						|| gateCommand[0] == "Measure") {
-					inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-							int>::instance()->create("Measure", actingQubits,
-							c);
+					inst = xacc::quantum::GateInstructionRegistry::instance()->create("Measure", actingQubits);
+					xacc::InstructionParameter p(c);
+					inst->setParameter(0, p);
 					c++;
 				} else {
 					if (gateCommand[0] == "T") {
 						inst =
-								xacc::quantum::ParameterizedGateInstructionRegistry<
-										double>::instance()->create("Rz",
-										actingQubits, (3.1415 / 4.0));
+								xacc::quantum::GateInstructionRegistry::instance()->create("Rz",
+										actingQubits);
+						xacc::InstructionParameter p((3.1415 / 4.0));
+						inst->setParameter(0, p);
 					} else {
 						inst =
 								xacc::quantum::GateInstructionRegistry::instance()->create(
@@ -163,21 +164,17 @@ int main(int argc, char** argv) {
 					function->addInstruction(inst);
 				} else {
 					std::shared_ptr<xacc::Instruction> inst;
-					// We only allow parameters of size 2 and doubles
-					if (props.size() == 1) {
-						inst =
-								xacc::quantum::ParameterizedGateInstructionRegistry<
-										double>::instance()->create(
-										gateCommand[0], actingQubits,
-										props[0]);
-					} else if (props.size() == 2) {
-						inst =
-								xacc::quantum::ParameterizedGateInstructionRegistry<
-										double, double>::instance()->create(
-										gateCommand[0], actingQubits,
-										props[0],
-										props[1]);
+
+					inst =
+													xacc::quantum::GateInstructionRegistry::instance()->create(
+															gateCommand[0], actingQubits);
+					int counter = 0;
+					for (auto p : props) {
+						xacc::InstructionParameter prop(p);
+						inst->setParameter(counter, prop);
+						counter++;
 					}
+
 					function->addInstruction(inst);
 				}
 			}

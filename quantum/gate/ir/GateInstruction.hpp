@@ -33,6 +33,7 @@
 
 #include "Instruction.hpp"
 #include "Registry.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -55,12 +56,14 @@ protected:
 
 	bool enabled = true;
 
+	std::vector<InstructionParameter> parameters;
+
 public:
 
 	GateInstruction() = delete;
 
 	GateInstruction(std::vector<int> qubts) :
-			gateName("UNKNOWN"), qbits(qubts) {
+			gateName("UNKNOWN"), qbits(qubts), parameters(std::vector<InstructionParameter>{}) {
 	}
 
 	/**
@@ -73,7 +76,12 @@ public:
 	 * @param qubts
 	 */
 	GateInstruction(std::string name, std::vector<int> qubts) :
-			gateName(name), qbits(qubts) {
+			gateName(name), qbits(qubts), parameters(std::vector<InstructionParameter>{}) {
+	}
+
+	GateInstruction(std::string name, std::vector<int> qubts,
+			std::vector<InstructionParameter> params) :
+			gateName(name), qbits(qubts), parameters(params) {
 	}
 
 	/**
@@ -99,7 +107,17 @@ public:
 	 * @return
 	 */
 	virtual const std::string toString(const std::string& bufferVarName) {
-		auto str = gateName + " ";
+		auto str = gateName;
+		if (!parameters.empty()) {
+			str += "(";
+			for (auto p : parameters) {
+				str += boost::lexical_cast<std::string>(p) + ",";
+			}
+			str = str.substr(0, str.length() - 1) + ") ";
+		} else {
+			str += " ";
+		}
+
 		for (auto q : bits()) {
 			str += bufferVarName + std::to_string(q) + ",";
 		}
@@ -108,6 +126,7 @@ public:
 		str = str.substr(0, str.length() - 1);
 
 		return str;
+
 	}
 
 	virtual bool isEnabled() {
@@ -122,6 +141,30 @@ public:
 		enabled = true;
 	}
 
+	virtual InstructionParameter getParameter(const int idx) {
+		if (idx + 1 > parameters.size()) {
+			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+		}
+
+		return parameters[idx];
+	}
+
+	virtual void setParameter(const int idx, InstructionParameter& p) {
+		if (idx + 1 > parameters.size()) {
+			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+		}
+
+		parameters[idx] = p;
+	}
+
+	virtual bool isParameterized() {
+		return nParameters() > 0;
+	}
+
+	virtual const int nParameters() {
+		return parameters.size();
+	}
+
 	DEFINE_VISITABLE()
 
 
@@ -130,76 +173,6 @@ public:
 	 */
 	virtual ~GateInstruction() {
 	}
-};
-
-/**
- * The ParamaterizedGateInstruction is a GateInstruction that is
- * templated on a list of variadic parameters that model the
- * instructions gate parameters. For example, this class could be
- * subclassed to provide a rotation gate with an angle theta
- * (ParamaterizedGateInstruction<double>).
- */
-template<typename ... InstructionParameter>
-class ParameterizedGateInstruction: public virtual GateInstruction {
-
-protected:
-
-	/**
-	 * The paramaters that this gate instruction requires.
-	 */
-	std::tuple<InstructionParameter...> params;
-
-public:
-
-	/**
-	 * The constructor, takes the parameters
-	 * @param pars
-	 */
-	ParameterizedGateInstruction(InstructionParameter ... pars) :
-			params(std::make_tuple(pars...)), GateInstruction(std::vector<int>{}) {
-	}
-
-	/**
-	 * Return the gate parameter at the given index.
-	 *
-	 * @param idx
-	 * @return
-	 */
-	auto getParameter(const std::size_t idx) {
-		if (idx + 1 > sizeof...(InstructionParameter)) {
-			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
-		}
-		return xacc::tuple_runtime_get(params, idx);
-	}
-
-	/**
-	 * Return an assembly-like string representation for this
-	 * instruction.
-	 *
-	 * @param bufferVarName
-	 * @return
-	 */
-	virtual const std::string toString(const std::string& bufferVarName) {
-		auto str = gateName;
-		str += "(";
-		xacc::tuple_for_each(params, [&](auto element) {
-			str += std::to_string(element) + ",";
-		});
-		str = str.substr(0, str.length() - 1) + ") ";
-
-		for (auto q : bits()) {
-			str += bufferVarName + std::to_string(q) + ",";
-		}
-
-		// Remove trailing comma
-		str = str.substr(0, str.length() - 1);
-
-		return str;
-	}
-
-	DEFINE_VISITABLE()
-
-
 };
 
 /**
@@ -221,26 +194,6 @@ public:
 	}
 };
 
-/**
- */
-template<typename ... Params>
-using ParameterizedGateInstructionRegistry = Registry<ParameterizedGateInstruction<Params...>, std::vector<int>, Params...>;
-
-/**
- */
-template<typename T, typename ... Params>
-class RegisterParameterizedGateInstruction {
-public:
-	RegisterParameterizedGateInstruction(const std::string& name) {
-		ParameterizedGateInstructionRegistry<Params...>::instance()->add(name,
-				(std::function<
-						std::shared_ptr<
-								xacc::quantum::ParameterizedGateInstruction<
-										Params...>>(std::vector<int>, Params...)>) ([](std::vector<int> qubits, Params... args) {
-					return std::make_shared<T>(qubits, args...);
-				}));
-	}
-};
 
 }
 }

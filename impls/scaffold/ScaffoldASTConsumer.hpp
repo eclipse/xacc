@@ -174,7 +174,7 @@ public:
 			auto fd = c->getDirectCallee();
 			auto gateName = fd->getNameInfo().getAsString();
 			std::vector<int> qubits;
-			std::vector<double> params;
+			std::vector<xacc::InstructionParameter> params;
 			for (auto i = c->arg_begin(); i != c->arg_end(); ++i) {
 				std::string arg;
 				llvm::raw_string_ostream argstream(arg);
@@ -197,26 +197,19 @@ public:
 						double d = boost::lexical_cast<double>(argStr);
 						params.push_back(d);
 					} catch (const boost::bad_lexical_cast &) {
-						params.push_back(0.0);
+						params.push_back(argStr);
 					}
-
-//					params.push_back(std::stod(argStr));
 				}
 			}
 
 			std::shared_ptr<xacc::quantum::GateInstruction> inst;
 			if (isParameterizedInst) {
-				if (params.size() == 1) {
-					inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-							double>::instance()->create(gateName, qubits,
-							params[0]);
-				} else if (params.size() == 2) {
-					inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-							double, double>::instance()->create(gateName,
-							qubits, params[0], params[1]);
-				} else {
-					XACCError(
-							"Can only handle 1 and 2 parameter gates... and only doubles... for now.");
+
+				int idx = 0;
+				inst = xacc::quantum::GateInstructionRegistry::instance()->create(gateName, qubits);
+				for (auto p : params) {
+					inst->setParameter(idx, p);
+					idx++;
 				}
 
 			} else if (gateName != "MeasZ") {
@@ -276,9 +269,13 @@ public:
 				boost::replace_all(rhsString, "]", "");
 
 				// lhsString now just contains the classical index bit
-				auto inst = xacc::quantum::ParameterizedGateInstructionRegistry<
-						int>::instance()->create("Measure", std::vector<int> {
-						std::stoi(rhsString) }, std::stoi(lhsString));
+				auto inst =
+						xacc::quantum::GateInstructionRegistry::instance()->create(
+								"Measure",
+								std::vector<int> { std::stoi(rhsString) });
+//				, std::stoi(lhsString));
+				xacc::InstructionParameter classicalIdx(std::stoi(lhsString));
+				inst->setParameter(0, classicalIdx);
 
 				cbitRegToMeasuredQubit.insert(
 						std::make_pair(lhss.str(), std::stoi(rhsString)));
