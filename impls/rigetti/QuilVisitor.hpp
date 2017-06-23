@@ -32,14 +32,7 @@
 #define QUANTUM_GATE_ACCELERATORS_RIGETTI_QUILVISITOR_HPP_
 
 #include <memory>
-#include "Hadamard.hpp"
-#include "Measure.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
-#include "Z.hpp"
-#include "X.hpp"
-#include "ConditionalFunction.hpp"
-#include "Z.hpp"
+#include "AllGateVisitor.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -51,13 +44,7 @@ namespace quantum {
  * superconducting quantum computer.
  *
  */
-class QuilVisitor: public BaseInstructionVisitor,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<Measure>,
-		public InstructionVisitor<ConditionalFunction> {
+class QuilVisitor: public AllGateVisitor {
 protected:
 
 	/**
@@ -95,6 +82,10 @@ public:
 		quilStr += "X " + std::to_string(x.bits()[0]) + "\n";
 	}
 
+	void visit(Y& y) {
+		quilStr += "Y " + std::to_string(y.bits()[0]) + "\n";
+	}
+
 	/**
 	 * Visit Z gates
 	 */
@@ -125,6 +116,27 @@ public:
 		quilStr += "LABEL @" + c.getName() + "\n";
 	}
 
+	void visit(Rx& rx) {
+		quilStr += "RX("
+				+ std::to_string(boost::get<double>(rx.getParameter(0)))
+				+ ") " + std::to_string(rx.bits()[0]) + "\n";
+	}
+
+	void visit(Ry& ry) {
+		quilStr += "RY("
+				+ std::to_string(boost::get<double>(ry.getParameter(0)))
+				+ ") " + std::to_string(ry.bits()[0]) + "\n";
+	}
+
+	void visit(Rz& rz) {
+		quilStr += "RZ("
+				+ std::to_string(boost::get<double>(rz.getParameter(0)))
+				+ ") " + std::to_string(rz.bits()[0]) + "\n";
+	}
+
+	void visit(GateFunction& f) {
+		return;
+	}
 	/**
 	 * Return the quil string
 	 */

@@ -34,6 +34,7 @@ find_package(OpenSSL)
 if (OPENSSL_FOUND)
 
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/functions)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
