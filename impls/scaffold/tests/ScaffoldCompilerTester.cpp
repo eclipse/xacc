@@ -136,7 +136,15 @@ BOOST_AUTO_TEST_CASE(checkWithParameter) {
 	auto f = gateqir->getKernel("gateWithParam");
 
 	BOOST_VERIFY(f->nInstructions() == 3);
+	BOOST_VERIFY(f->nParameters() == 1);
 
+	gateqir->persist(std::cout);
+
+	xacc::InstructionParameter p(3.14);
+	std::vector<xacc::InstructionParameter> params{p};
+	f->evaluateVariableParameters(params);
+
+	std::cout << "\n\n";
 	gateqir->persist(std::cout);
 }
 

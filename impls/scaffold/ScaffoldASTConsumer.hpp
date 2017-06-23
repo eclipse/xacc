@@ -41,12 +41,6 @@ using namespace clang;
 
 namespace scaffold {
 
-class KernelParameter {
-public:
-	std::string type;
-	std::string varName;
-};
-
 class ScaffoldASTConsumer: public clang::ASTConsumer,
 		public clang::RecursiveASTVisitor<ScaffoldASTConsumer> {
 
@@ -61,8 +55,6 @@ protected:
 	int nCallExprToSkip = 0;
 
 	std::map<std::string, int> cbitRegToMeasuredQubit;
-
-	std::vector<KernelParameter> parameters;
 
 public:
 
@@ -140,26 +132,24 @@ public:
 				//			std::cout << "Found " << cbitVarName << "\n";
 			} else if (boost::contains(varType, "qbit")) {
 				qbitVarName = varDecl->getDeclName().getAsString();
+				boost::trim(qbitVarName);
 				//			std::cout << "Found " << qbitVarName << "\n";
 			}
 		} else if (isa<FunctionDecl>(d)) {
 			auto c = cast<FunctionDecl>(d);
-			function = std::make_shared<xacc::quantum::GateFunction>(
-					c->getDeclName().getAsString());
-			clang::LangOptions lo;
-				clang::PrintingPolicy policy(lo);
-			std::string arg;
-			llvm::raw_string_ostream argstream(arg);
+
+			// Skip first parameter since its supposed to be the qubit register
+			std::vector<xacc::InstructionParameter> parameters;
 			clang::FunctionDecl::param_iterator pBegin = c->param_begin();
 			clang::FunctionDecl::param_iterator pEnd = c->param_end();
-//			std::cout << "TRYING FUNC " << c->getDeclName().getAsString() << " params " << c->param_size() << "\n";
-			for (auto i = pBegin; i != pEnd; ++i) {
-				KernelParameter p;
-				p.type = (*i)->getType().getAsString();
-				p.varName = (*i)->getNameAsString();
-//				std::cout << "HELLO World: " << (*i)->getType().getAsString() << " : " << (*i)->getNameAsString() << "\n";
+			for (auto i = pBegin+1; i != pEnd; ++i) {
+				auto paramName = (*i)->getNameAsString();
+				boost::trim(paramName);
+				xacc::InstructionParameter p(paramName);
 				parameters.push_back(p);
 			}
+			function = std::make_shared<xacc::quantum::GateFunction>(
+					c->getDeclName().getAsString(), parameters);
 		}
 		return true;
 	}

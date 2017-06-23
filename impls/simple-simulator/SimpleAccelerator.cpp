@@ -29,6 +29,7 @@
  *
  **********************************************************************************/
 #include "SimpleAccelerator.hpp"
+#include <complex>
 
 namespace xacc {
 namespace quantum {
@@ -220,10 +221,33 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				std::to_string(bufResultAsInt));
 	};
 
+	auto rz = [&] (Rz& rZGate) {
+		const std::complex<double> i(0, 1);
+		double angle = boost::get<double>(rZGate.getParameter(0));
+		auto matElement = std::exp(i * angle);
+		ComplexTensor rz(2,2), I(2,2);
+		I.setValues( { {1, 0}, {0, 1}});
+		rz.setValues( { {1, 0}, {0, matElement}});
+		auto actingQubits = rZGate.bits();
+		ProductList productList;
+		for (int j = 0; j < qubits->size(); j++) {
+			productList.push_back(I);
+		}
+		// If this is a one qubit gate, just replace
+		// the currect I in the list with the gate
+		productList.at(actingQubits[0]) = rz;
+		// Create a total unitary for this layer of the circuit
+		ComplexTensor localU = productList.at(0);
+		for (int j = 1; j < productList.size(); j++) {
+			localU = localU.kronProd(productList.at(j));
+		}
+		qubits->applyUnitary(localU);
+	};
+
 	// Create a Visitor that will execute our lambdas when
 	// we encounter one
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
-			cnot, x, measure, z, cond);
+			cnot, x, measure, z, cond, rz);
 
 	XACCInfo("Execution Simple Accelerator Simulation.");
 

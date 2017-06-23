@@ -36,6 +36,7 @@
 #include "GateFunction.hpp"
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
+#include "Rz.hpp"
 #include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;
@@ -112,3 +113,35 @@ BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
 
 }
 
+BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
+
+	xacc::InstructionParameter p("phi");
+	xacc::InstructionParameter fParam("phi");
+
+	BOOST_VERIFY(p == fParam);
+
+	auto rz = std::make_shared<Rz>(std::vector<int>{0});
+	rz->setParameter(0, p);
+
+	GateFunction f("foo", std::vector<xacc::InstructionParameter>{fParam});
+
+	f.addInstruction(rz);
+
+	std::cout << f.toString("qreg") << "\n";
+
+	xacc::InstructionParameter runtimeValue(3.1415);
+
+	f.evaluateVariableParameters(std::vector<xacc::InstructionParameter>{runtimeValue});
+
+	BOOST_VERIFY(boost::get<double>(f.getInstruction(0)->getParameter(0)) == 3.1415);
+
+	std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
+
+	xacc::InstructionParameter runtimeValue2(6.28);
+
+	f.evaluateVariableParameters(std::vector<xacc::InstructionParameter>{runtimeValue2});
+
+	std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
+
+
+}

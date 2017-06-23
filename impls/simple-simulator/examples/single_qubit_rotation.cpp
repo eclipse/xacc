@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,78 +28,53 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
-#define FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
+#include "XACC.hpp"
 
-#include "Hadamard.hpp"
-#include "Measure.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
-#include "Z.hpp"
-#include "X.hpp"
-#include "ConditionalFunction.hpp"
-#include "Z.hpp"
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src("__qpu__ rotate (qbit qreg, double phi) {\n"
+	"   X(qreg[0]);\n"
+	"   Rz(qreg[0], phi);\n"
+	"   MeasZ(qreg[0]);\n"
+	"}\n");
 
-using namespace xacc;
+const double pi = 3.1415926;
 
-namespace xacc {
-namespace quantum {
+int main (int argc, char** argv) {
 
-class FunctionalGateInstructionVisitor: public BaseInstructionVisitor,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<Measure>,
-		public InstructionVisitor<ConditionalFunction>,
-		public InstructionVisitor<Rz> {
-protected:
-	std::function<void(Hadamard&)> hAction;
-	std::function<void(CNOT&)> cnotAction;
-	std::function<void(X&)> xAction;
-	std::function<void(Z&)> zAction;
-	std::function<void(Measure&)> measureAction;
-	std::function<void(ConditionalFunction&)> condAction;
-	std::function<void(Rz&)> rzAction;
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-public:
-	template<typename HF, typename CNF, typename XF, typename MF, typename ZF,
-			typename CF, typename RZF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, MF m, ZF z, CF c, RZF rz) :
-			hAction(h), cnotAction(cn), xAction(x), zAction(z), measureAction(
-					m), condAction(c), rzAction(rz) {
+	// Create a reference to the 10 qubit simulation Accelerator
+	auto qpu = xacc::getAccelerator("simple");
+
+	// Allocate a register of qubits
+	auto qubitReg = qpu->createBuffer("qreg", 1);
+
+	// Create a Program
+	xacc::Program program(qpu, src);
+
+	// Request the quantum kernel representing
+	// the above source code
+	auto rotate = program.getKernel<double>("rotate");
+
+	std::vector<double> angles {pi / 2.0, pi};
+
+	for (auto angle : angles) {
+
+		// Execute!
+		rotate(qubitReg, angle);
+
+		// Look at results
+		qubitReg->print(std::cout);
+
 	}
 
-	void visit(Hadamard& h) {
-		hAction(h);
-	}
-	void visit(CNOT& cn) {
-		cnotAction(cn);
-	}
-	void visit(X& x) {
-		xAction(x);
-	}
-	void visit(Z& z) {
-		zAction(z);
-	}
-	void visit(Measure& m) {
-		measureAction(m);
-	}
-	void visit(ConditionalFunction& c) {
-		condAction(c);
-	}
+	// Finalize the XACC Framework
+	xacc::Finalize();
 
-	void visit(Rz& rz) {
-		rzAction(rz);
-	}
-
-	virtual ~FunctionalGateInstructionVisitor() {}
-};
-
-}
+	return 0;
 }
 
 
 
-
-#endif

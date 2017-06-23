@@ -35,6 +35,7 @@
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
 #include "SimpleAccelerator.hpp"
+#include "JsonVisitor.hpp"
 
 using namespace xacc::quantum;
 
@@ -70,5 +71,70 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 	f->addInstruction(cond2);
 
 	acc.execute(qreg1, f);
+
+}
+
+template<typename ... RuntimeArgs>
+std::function<void(RuntimeArgs...)> setParams(
+		std::shared_ptr<Function> kernel) {
+
+	// Create a lambda that executes the kernel on the Accelerator.
+	return [=](RuntimeArgs... args) {
+
+		if (sizeof...(RuntimeArgs) > 0) {
+			// Store the runtime parameters in a tuple
+			auto argsTuple = std::make_tuple(args...);
+
+			// Loop through the tuple, and add InstructionParameters
+			// to the parameters vector.
+			std::vector<InstructionParameter> parameters;
+			xacc::tuple_for_each(argsTuple, [&](auto value) {
+				parameters.push_back(InstructionParameter(value));
+			});
+
+			// Evaluate all Variable Parameters
+			kernel->evaluateVariableParameters(parameters);
+		}
+
+		return;
+	};
+}
+
+BOOST_AUTO_TEST_CASE(checkExecuteKernelWithParameters) {
+
+	SimpleAccelerator acc;
+	auto qreg1 = acc.createBuffer("qreg", 3);
+
+	InstructionParameter fParam("phi");
+	InstructionParameter rzParam("phi");
+	auto kernel = std::make_shared<GateFunction>("foo",
+			std::vector<InstructionParameter>{fParam});
+
+	auto rz = std::make_shared<Rz>(std::vector<int> { 2 });
+	rz->setParameter(0, rzParam);
+
+	kernel->addInstruction(rz);
+
+	JsonVisitor visitor(kernel);
+	std::cout << visitor.write() << "\n";
+	BOOST_VERIFY(boost::get<std::string>(kernel->getInstruction(0)->getParameter(0)) == "phi");
+
+	auto k = setParams<double>(kernel);
+	k(3.1415);
+
+	JsonVisitor visitor2(kernel);
+
+	std::cout << "set new param:\n" << visitor2.write() << "\n";
+	BOOST_VERIFY(boost::get<double>(kernel->getInstruction(0)->getParameter(0)) == 3.1415);
+
+	for (double i = 0.0; i < 4; i+=1.0) {
+		k(i);
+		JsonVisitor visitor3(kernel);
+
+		std::cout << "set new param " << i << ":\n" << visitor3.write() << "\n";
+		BOOST_VERIFY(boost::get<double>(kernel->getInstruction(0)->getParameter(0)) == i);
+	}
+
+
 
 }

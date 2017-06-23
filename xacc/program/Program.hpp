@@ -97,10 +97,8 @@ protected:
 	 * source kernel code to produce XACC IR that can be executed
 	 * on the attached Accelerator.
 	 *
-	 * @param runtimeArgs Runtime values for kernel arguments
 	 */
-	template<typename ... RuntimeArgs>
-	void build(RuntimeArgs ... runtimeArgs) {
+	void build() {
 
 		// Get reference to the runtime options
 		auto runtimeOptions = RuntimeOptions::instance();
@@ -139,8 +137,8 @@ protected:
 		}
 
 		// Write the IR to file if the user requests it
-		if (runtimeOptions->exists("writeIR")) {
-			auto fileStr = (*runtimeOptions)["writeIR"];
+		if (runtimeOptions->exists("persist-ir")) {
+			auto fileStr = (*runtimeOptions)["persist-ir"];
 			std::ofstream ostr(fileStr);
 			xaccIR->persist(ostr);
 		}
@@ -172,10 +170,34 @@ public:
 	template<typename ... RuntimeArgs>
 	std::function<void(std::shared_ptr<AcceleratorBuffer>, RuntimeArgs...)> getKernel(
 			const std::string& kernelName) {
+
+		// Build the kernel with the appropriate compiler
+		build();
+
+		// Create a lambda that executes the kernel on the Accelerator.
 		return [=](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
-			build(args...);
-			auto fToExec = xaccIR->getKernel(kernelName);
-			accelerator->execute(buffer, fToExec);
+
+			// Get the Function for the Kernel from the IR
+			auto kernel = xaccIR->getKernel(kernelName);
+
+			if (sizeof...(RuntimeArgs) > 0) {
+				// Store the runtime parameters in a tuple
+				auto argsTuple = std::make_tuple(args...);
+
+				// Loop through the tuple, and add InstructionParameters
+				// to the parameters vector.
+				std::vector<InstructionParameter> parameters;
+				xacc::tuple_for_each(argsTuple, [&](auto value) {
+					parameters.push_back(InstructionParameter(value));
+				});
+
+				// Evaluate all Variable Parameters
+				kernel->evaluateVariableParameters(parameters);
+			}
+
+			// Execute the Kernel on the Accelerator
+			accelerator->execute(buffer, kernel);
+
 			return;
 		};
 	}

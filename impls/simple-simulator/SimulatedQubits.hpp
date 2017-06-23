@@ -156,13 +156,13 @@ public:
 				stream
 						<< std::bitset<TotalNumberOfQubits>(i).to_string().substr(
 								TotalNumberOfQubits - size(), TotalNumberOfQubits) << " -> "
-						<< std::fabs(bufferState(i)) << "\n";
+						<< bufferState(i) << "\n";
 			}
 		} else {
 			for (int i = 0; i < bufferState.dimension(0); i++) {
 
 				stream << std::bitset<TotalNumberOfQubits>(i).to_string()
-						<< " -> " << std::fabs(bufferState(i)) << "\n";
+						<< " -> " << bufferState(i) << "\n";
 			}
 		}
 	}
@@ -181,7 +181,7 @@ public:
 
 				XACCInfo(
 						std::bitset<TotalNumberOfQubits>(i).to_string() + " -> "
-								+ std::to_string(std::real(std::fabs(bufferState(i)))));
+								+ std::to_string(std::fabs(bufferState(i))));
 			}
 		}
 	}

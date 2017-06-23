@@ -64,7 +64,10 @@ public:
 	 * @param id
 	 * @param name
 	 */
-	GateFunction(const std::string& name) : functionName(name) {}
+	GateFunction(const std::string& name) :
+			functionName(name), parameters(
+					std::vector<InstructionParameter> { }) {
+	}
 	GateFunction(const std::string& name,
 			std::vector<InstructionParameter> params) :
 			functionName(name), parameters(params) {
@@ -167,45 +170,52 @@ public:
 		return parameters.size();
 	}
 
+	std::map<int,int> cachedVariableInstructions;
+
+	virtual void evaluateVariableParameters(std::vector<InstructionParameter> runtimeParameters) {
+		for (auto inst : instructions) {
+			if (inst->isComposite()) {
+				std::dynamic_pointer_cast<Function>(inst)->evaluateVariableParameters(
+						runtimeParameters);
+			} else {
+
+				if (inst->isParameterized()) {
+
+					for (int i = 0; i < inst->nParameters(); i++) {
+						auto param = inst->getParameter(i);
+
+						// See if this is a string parameter
+						if (param.which() == 3) {
+							auto variable = boost::get<std::string>(param);
+							// Get index
+
+							auto it = std::find(parameters.begin(),
+									parameters.end(), param);
+							if (it == parameters.end()) {
+								std::cout << "COULD NOT FIND VARIABLE\n";
+								XACCError("Variable " + variable + " not found in Function parameters.");
+							} else {
+								auto index = std::distance(parameters.begin(),
+										it);
+								inst->setParameter(index, runtimeParameters[index]);
+								cachedVariableInstructions.insert(std::make_pair(i, index));
+							}
+						} else {
+							// See if we have a cached instruction
+							if (cachedVariableInstructions.find(i) != cachedVariableInstructions.end()) {
+								auto idx = cachedVariableInstructions[i];
+								inst->setParameter(idx, runtimeParameters[idx]);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	DEFINE_VISITABLE()
 
-	/**
-	 * This method should simply be implemented to invoke the
-	 * visit() method on the provided QInstructionVisitor.
-	 *
-	 * @param visitor
-	 */
-//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
-//	{
-//		auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-//		if (v) {
-//			v->visit(*this);
-//		} else {
-//			visitor->visit(*this);
-//		}
-//	}
-
 };
-
-///**
-// */
-//template<typename... Ts>
-//using GateFunctionRegistry = Registry<GateFunction, Ts...>;
-//
-///**
-// */
-//template<typename T, typename... Ts>
-//class RegisterGateFunction {
-//public:
-//	RegisterGateFunction(const std::string& name) {
-//		GateFunctionRegistry<Ts...>::instance()->add(name,
-//				(std::function<
-//						std::shared_ptr<xacc::quantum::GateFunction>(
-//								Ts...)>) ([](Ts... args) {
-//					return std::make_shared<T>(args...);
-//				}));
-//	}
-//};
 }
 }
 

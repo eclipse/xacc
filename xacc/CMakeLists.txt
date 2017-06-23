@@ -35,9 +35,9 @@ set (LIBRARY_NAME xacc)
 file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
 
 # Get the test files
-file(GLOB test_files tests/*Tester.cpp)
+#file(GLOB test_files tests/*Tester.cpp)
 
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
+#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES}")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)

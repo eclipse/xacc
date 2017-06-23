@@ -32,5 +32,9 @@ if (TARGET xacc-scaffold)
    add_executable(teleport_scaffold_simpleaccelerator teleport_scaffold_simpleaccelerator.cpp)
    target_link_libraries(teleport_scaffold_simpleaccelerator ${Boost_LIBRARIES} dl)
    
+   add_executable(single_qubit_rotation single_qubit_rotation.cpp)
+   target_link_libraries(single_qubit_rotation ${Boost_LIBRARIES} dl)
+   
+   install(TARGETS single_qubit_rotation DESTINATION examples)
    install(TARGETS teleport_scaffold_simpleaccelerator DESTINATION examples)
 endif()

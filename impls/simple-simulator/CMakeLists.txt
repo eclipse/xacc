@@ -34,6 +34,8 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 

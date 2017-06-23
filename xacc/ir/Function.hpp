@@ -97,6 +97,8 @@ public:
 	 */
 	virtual bool isComposite() { return true; }
 
+	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) = 0;
+
 	/**
 	 * The destructor
 	 */
