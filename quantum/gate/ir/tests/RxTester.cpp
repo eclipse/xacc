@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,82 +29,39 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
-#define FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE RxTester
 
-#include "AllGateVisitor.hpp"
+#include <boost/test/included/unit_test.hpp>
+#include "Rx.hpp"
 
-using namespace xacc;
+using namespace xacc::quantum;
 
-namespace xacc {
-namespace quantum {
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-class FunctionalGateInstructionVisitor: public AllGateVisitor {
-protected:
-	std::function<void(Hadamard&)> hAction;
-	std::function<void(CNOT&)> cnotAction;
-	std::function<void(X&)> xAction;
-	std::function<void(Y&)> yAction;
-	std::function<void(Z&)> zAction;
-	std::function<void(Measure&)> measureAction;
-	std::function<void(ConditionalFunction&)> condAction;
-	std::function<void(Rx&)> rxAction;
-	std::function<void(Ry&)> ryAction;
-	std::function<void(Rz&)> rzAction;
+	Rx rx(0, 3.14);
+	BOOST_VERIFY(boost::get<double>(rx.getParameter(0)) == 3.14);
+	BOOST_VERIFY(rx.toString("qreg") == "Rx(3.14) qreg0");
+	BOOST_VERIFY(rx.bits().size() == 1);
+	BOOST_VERIFY(rx.bits()[0] == 0);
+	BOOST_VERIFY(rx.getName() == "Rx");
 
-public:
-	template<typename HF, typename CNF, typename XF,  typename YF, typename ZF,
-			typename RXF, typename RYF, typename RZF, typename MF, typename CF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, YF y, ZF z, RXF rx, RYF ry, RZF rz, MF m, CF c) :
-			hAction(h), cnotAction(cn), xAction(x), yAction(y), zAction(z), measureAction(
-					m), condAction(c), rxAction(rx), ryAction(ry), rzAction(rz) {
-	}
+	Rx rx2(44, 1.71234);
 
-	void visit(Hadamard& h) {
-		hAction(h);
-	}
-	void visit(CNOT& cn) {
-		cnotAction(cn);
-	}
-	void visit(X& x) {
-		xAction(x);
-	}
+	BOOST_VERIFY(boost::get<double>(rx2.getParameter(0)) == 1.71234);
+	BOOST_VERIFY(rx2.toString("qreg") == "Rx(1.71234) qreg44");
+	BOOST_VERIFY(rx2.bits().size() == 1);
+	BOOST_VERIFY(rx2.bits()[0] == 44);
+	BOOST_VERIFY(rx2.getName() == "Rx");
 
-	void visit(Y& y) {
-		yAction(y);
-	}
-
-	void visit(Z& z) {
-		zAction(z);
-	}
-	void visit(Measure& m) {
-		measureAction(m);
-	}
-	void visit(ConditionalFunction& c) {
-		condAction(c);
-	}
-
-	void visit(Rx& rx) {
-		rxAction(rx);
-	}
-	void visit(Ry& ry) {
-		ryAction(ry);
-	}
-
-	void visit(Rz& rz) {
-		rzAction(rz);
-	}
-
-	void visit(GateFunction& f) {
-		return;
-	}
-	virtual ~FunctionalGateInstructionVisitor() {}
-};
 
 }
+
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	xacc::InstructionParameter p = 3.1415;
+	auto rx = GateInstructionRegistry::instance()->create("Rx", std::vector<int>{0});
+	rx->setParameter(0, p);
+	BOOST_VERIFY(rx->getName() == "Rx");
+	BOOST_VERIFY(boost::get<double>(rx->getParameter(0)) == 3.1415);
 }
-
-
-
-
-#endif

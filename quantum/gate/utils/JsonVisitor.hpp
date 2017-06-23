@@ -93,13 +93,35 @@ public:
 	void visit(Hadamard& h) {
 		baseGateInst(dynamic_cast<GateInstruction&>(h));
 	}
+
 	void visit(CNOT& cn) {
 		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 	}
+
 	void visit(Rz& rz) {
 		baseGateInst(dynamic_cast<GateInstruction&>(rz), false);
 		writer->String("angle");
 		auto p = rz.getParameter(0);
+		p.which() == 1 ? // Rz's parameter can only be of type double or string
+				writer->Double(boost::get<double>(p)) :
+				writer->String(boost::get<std::string>(p));
+		writer->EndObject();
+	}
+
+	void visit(Rx& rx) {
+		baseGateInst(dynamic_cast<GateInstruction&>(rx), false);
+		writer->String("angle");
+		auto p = rx.getParameter(0);
+		p.which() == 1 ? // Rz's parameter can only be of type double or string
+				writer->Double(boost::get<double>(p)) :
+				writer->String(boost::get<std::string>(p));
+		writer->EndObject();
+	}
+
+	void visit(Ry& ry) {
+		baseGateInst(dynamic_cast<GateInstruction&>(ry), false);
+		writer->String("angle");
+		auto p = ry.getParameter(0);
 		p.which() == 1 ? // Rz's parameter can only be of type double or string
 				writer->Double(boost::get<double>(p)) :
 				writer->String(boost::get<std::string>(p));
@@ -146,8 +168,13 @@ public:
 	void visit(X& cn) {
 		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 	}
-	void visit(Z& cn) {
-		baseGateInst(dynamic_cast<GateInstruction&>(cn));
+
+	void visit(Y& y) {
+		baseGateInst(dynamic_cast<GateInstruction&>(y));
+	}
+
+	void visit(Z& z) {
+		baseGateInst(dynamic_cast<GateInstruction&>(z));
 	}
 
 	void visit(GateFunction& function) {

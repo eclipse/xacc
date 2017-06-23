@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,82 +28,36 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
-#define FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE YTester
 
-#include "AllGateVisitor.hpp"
+#include <boost/test/included/unit_test.hpp>
+#include "Y.hpp"
 
-using namespace xacc;
+using namespace xacc::quantum;
 
-namespace xacc {
-namespace quantum {
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-class FunctionalGateInstructionVisitor: public AllGateVisitor {
-protected:
-	std::function<void(Hadamard&)> hAction;
-	std::function<void(CNOT&)> cnotAction;
-	std::function<void(X&)> xAction;
-	std::function<void(Y&)> yAction;
-	std::function<void(Z&)> zAction;
-	std::function<void(Measure&)> measureAction;
-	std::function<void(ConditionalFunction&)> condAction;
-	std::function<void(Rx&)> rxAction;
-	std::function<void(Ry&)> ryAction;
-	std::function<void(Rz&)> rzAction;
+	Y y(0);
+	BOOST_VERIFY(y.toString("qreg") == "Y qreg0");
+	BOOST_VERIFY(y.bits().size() == 1);
+	BOOST_VERIFY(y.bits()[0] == 0);
+	BOOST_VERIFY(y.getName() == "Y");
 
-public:
-	template<typename HF, typename CNF, typename XF,  typename YF, typename ZF,
-			typename RXF, typename RYF, typename RZF, typename MF, typename CF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, YF y, ZF z, RXF rx, RYF ry, RZF rz, MF m, CF c) :
-			hAction(h), cnotAction(cn), xAction(x), yAction(y), zAction(z), measureAction(
-					m), condAction(c), rxAction(rx), ryAction(ry), rzAction(rz) {
-	}
-
-	void visit(Hadamard& h) {
-		hAction(h);
-	}
-	void visit(CNOT& cn) {
-		cnotAction(cn);
-	}
-	void visit(X& x) {
-		xAction(x);
-	}
-
-	void visit(Y& y) {
-		yAction(y);
-	}
-
-	void visit(Z& z) {
-		zAction(z);
-	}
-	void visit(Measure& m) {
-		measureAction(m);
-	}
-	void visit(ConditionalFunction& c) {
-		condAction(c);
-	}
-
-	void visit(Rx& rx) {
-		rxAction(rx);
-	}
-	void visit(Ry& ry) {
-		ryAction(ry);
-	}
-
-	void visit(Rz& rz) {
-		rzAction(rz);
-	}
-
-	void visit(GateFunction& f) {
-		return;
-	}
-	virtual ~FunctionalGateInstructionVisitor() {}
-};
+	Y y2(44);
+	BOOST_VERIFY(y2.toString("qreg") == "Y qreg44");
+	BOOST_VERIFY(y2.bits().size() == 1);
+	BOOST_VERIFY(y2.bits()[0] == 44);
+	BOOST_VERIFY(y2.getName() == "Y");
 
 }
+
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	auto y = GateInstructionRegistry::instance()->create("Y", std::vector<int> {
+			0 });
+	BOOST_VERIFY(y->toString("qreg") == "Y qreg0");
+	BOOST_VERIFY(y->bits().size() == 1);
+	BOOST_VERIFY(y->bits()[0] == 0);
+	BOOST_VERIFY(y->getName() == "Y");
 }
-
-
-
-
-#endif

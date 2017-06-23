@@ -28,82 +28,29 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
-#define FUNCTIONALGATEINSTRUCTIONVISITOR_HPP_
+#ifndef QUANTUM_GATE_IR_Y_HPP_
+#define QUANTUM_GATE_IR_Y_HPP_
 
-#include "AllGateVisitor.hpp"
-
-using namespace xacc;
+#include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
 
-class FunctionalGateInstructionVisitor: public AllGateVisitor {
-protected:
-	std::function<void(Hadamard&)> hAction;
-	std::function<void(CNOT&)> cnotAction;
-	std::function<void(X&)> xAction;
-	std::function<void(Y&)> yAction;
-	std::function<void(Z&)> zAction;
-	std::function<void(Measure&)> measureAction;
-	std::function<void(ConditionalFunction&)> condAction;
-	std::function<void(Rx&)> rxAction;
-	std::function<void(Ry&)> ryAction;
-	std::function<void(Rz&)> rzAction;
-
+/**
+ *
+ */
+class Y : public virtual GateInstruction {
 public:
-	template<typename HF, typename CNF, typename XF,  typename YF, typename ZF,
-			typename RXF, typename RYF, typename RZF, typename MF, typename CF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, YF y, ZF z, RXF rx, RYF ry, RZF rz, MF m, CF c) :
-			hAction(h), cnotAction(cn), xAction(x), yAction(y), zAction(z), measureAction(
-					m), condAction(c), rxAction(rx), ryAction(ry), rzAction(rz) {
-	}
+	Y(std::vector<int> qbit);
 
-	void visit(Hadamard& h) {
-		hAction(h);
-	}
-	void visit(CNOT& cn) {
-		cnotAction(cn);
-	}
-	void visit(X& x) {
-		xAction(x);
-	}
+	Y(int qbit);
 
-	void visit(Y& y) {
-		yAction(y);
-	}
+	DEFINE_VISITABLE()
 
-	void visit(Z& z) {
-		zAction(z);
-	}
-	void visit(Measure& m) {
-		measureAction(m);
-	}
-	void visit(ConditionalFunction& c) {
-		condAction(c);
-	}
-
-	void visit(Rx& rx) {
-		rxAction(rx);
-	}
-	void visit(Ry& ry) {
-		ryAction(ry);
-	}
-
-	void visit(Rz& rz) {
-		rzAction(rz);
-	}
-
-	void visit(GateFunction& f) {
-		return;
-	}
-	virtual ~FunctionalGateInstructionVisitor() {}
 };
 
+
 }
 }
-
-
-
 
 #endif

@@ -139,6 +139,27 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		qubits->applyUnitary(localU);
 	};
 
+	auto y = [&] (Y& yGate) {
+		ComplexTensor y(2,2), I(2,2);
+		I.setValues( { { 1, 0 }, { 0, 1 } });
+		y.setValues( { { 0, 1 }, { 1, 0 } });
+		auto actingQubits = yGate.bits();
+		ProductList productList;
+		for (int j = 0; j < qubits->size(); j++) {
+			productList.push_back(I);
+		}
+		// If this is a one qubit gate, just replace
+		// the currect I in the list with the gate
+		productList.at(actingQubits[0]) = y;
+		// Create a total unitary for this layer of the circuit
+		ComplexTensor localU = productList.at(0);
+		for (int j = 1; j < productList.size(); j++) {
+			localU = localU.kronProd(productList.at(j));
+		}
+		qubits->applyUnitary(localU);
+	};
+
+
 	auto z = [&] (Z& zGate) {
 		ComplexTensor z(2,2), I(2,2);
 		I.setValues( { { 1, 0 }, { 0, 1 } });
@@ -221,13 +242,74 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				std::to_string(bufResultAsInt));
 	};
 
+	auto rx = [&] (Rx& rXGate) {
+		const std::complex<double> i(0, 1);
+		double angle = boost::get<double>(rXGate.getParameter(0));
+
+		auto mat11 = std::cos(angle / 2.0);
+		auto mat22 = mat11;
+		auto mat12 = -1.0 * i * std::sin(angle / 2.0);
+		auto mat21 = mat12;
+
+		ComplexTensor rx(2,2), I(2,2);
+		I.setValues( { {1, 0}, {0, 1}});
+		rx.setValues( { {mat11, mat12}, {mat21, mat22}});
+
+		auto actingQubits = rXGate.bits();
+		ProductList productList;
+		for (int j = 0; j < qubits->size(); j++) {
+			productList.push_back(I);
+		}
+		// If this is a one qubit gate, just replace
+		// the currect I in the list with the gate
+		productList.at(actingQubits[0]) = rx;
+		// Create a total unitary for this layer of the circuit
+		ComplexTensor localU = productList.at(0);
+		for (int j = 1; j < productList.size(); j++) {
+			localU = localU.kronProd(productList.at(j));
+		}
+		qubits->applyUnitary(localU);
+	};
+
+	auto ry = [&] (Ry& rYGate) {
+		const std::complex<double> i(0, 1);
+		double angle = boost::get<double>(rYGate.getParameter(0));
+
+		auto mat11 = std::cos(angle / 2.0);
+		auto mat22 = mat11;
+		auto mat12 = -1.0 * std::sin(angle / 2.0);
+		auto mat21 = -1.0 * mat12;
+
+		ComplexTensor ry(2,2), I(2,2);
+		I.setValues( { {1, 0}, {0, 1}});
+		ry.setValues( { {mat11, mat12}, {mat21, mat22}});
+
+		auto actingQubits = rYGate.bits();
+		ProductList productList;
+		for (int j = 0; j < qubits->size(); j++) {
+			productList.push_back(I);
+		}
+		// If this is a one qubit gate, just replace
+		// the currect I in the list with the gate
+		productList.at(actingQubits[0]) = ry;
+		// Create a total unitary for this layer of the circuit
+		ComplexTensor localU = productList.at(0);
+		for (int j = 1; j < productList.size(); j++) {
+			localU = localU.kronProd(productList.at(j));
+		}
+		qubits->applyUnitary(localU);
+	};
+
 	auto rz = [&] (Rz& rZGate) {
 		const std::complex<double> i(0, 1);
 		double angle = boost::get<double>(rZGate.getParameter(0));
-		auto matElement = std::exp(i * angle);
+		auto matElement11 = std::exp(-1.0 * i * angle);
+		auto matElement12 = std::exp(i * angle);
+
 		ComplexTensor rz(2,2), I(2,2);
 		I.setValues( { {1, 0}, {0, 1}});
-		rz.setValues( { {1, 0}, {0, matElement}});
+		rz.setValues( { {matElement11, 0.0}, {0.0, matElement12}});
+
 		auto actingQubits = rZGate.bits();
 		ProductList productList;
 		for (int j = 0; j < qubits->size(); j++) {
@@ -244,10 +326,33 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		qubits->applyUnitary(localU);
 	};
 
+//	auto cphase = [&] (Rz& rZGate) {
+//		const std::complex<double> i(0, 1);
+//		double angle = boost::get<double>(rZGate.getParameter(0));
+//		auto matElement = std::exp(i * angle);
+//		ComplexTensor rz(2,2), I(2,2);
+//		I.setValues( { {1, 0}, {0, 1}});
+//		rz.setValues( { {1, 0}, {0, matElement}});
+//		auto actingQubits = rZGate.bits();
+//		ProductList productList;
+//		for (int j = 0; j < qubits->size(); j++) {
+//			productList.push_back(I);
+//		}
+//		// If this is a one qubit gate, just replace
+//		// the currect I in the list with the gate
+//		productList.at(actingQubits[0]) = rz;
+//		// Create a total unitary for this layer of the circuit
+//		ComplexTensor localU = productList.at(0);
+//		for (int j = 1; j < productList.size(); j++) {
+//			localU = localU.kronProd(productList.at(j));
+//		}
+//		qubits->applyUnitary(localU);
+//	};
+
 	// Create a Visitor that will execute our lambdas when
 	// we encounter one
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
-			cnot, x, measure, z, cond, rz);
+			cnot, x, y, z, rx, ry, rz, measure, cond);
 
 	XACCInfo("Execution Simple Accelerator Simulation.");
 

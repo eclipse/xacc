@@ -35,9 +35,12 @@
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
 #include "X.hpp"
+#include "Y.hpp"
 #include "Z.hpp"
 #include "ConditionalFunction.hpp"
 #include "Rz.hpp"
+#include "Rx.hpp"
+#include "Ry.hpp"
 #include "Measure.hpp"
 
 namespace xacc {
@@ -52,8 +55,11 @@ class AllGateVisitor:
 		public InstructionVisitor<Hadamard>,
 		public InstructionVisitor<CNOT>,
 		public InstructionVisitor<Rz>,
+		public InstructionVisitor<Rx>,
+		public InstructionVisitor<Ry>,
 		public InstructionVisitor<ConditionalFunction>,
 		public InstructionVisitor<X>,
+		public InstructionVisitor<Y>,
 		public InstructionVisitor<Z>,
 		public InstructionVisitor<Measure> {
 
