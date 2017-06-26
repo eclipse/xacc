@@ -32,6 +32,7 @@
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
+// test
 const std::string src("__qpu__ teleport (qbit qreg) {\n"
 	"   cbit creg[3];\n"
 	"   // Init qubit 0 to 1\n"
