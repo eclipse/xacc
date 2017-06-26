@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,10 +14,10 @@
  *     derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EZPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EZEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -28,29 +28,31 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_IR_Z_HPP_
-#define QUANTUM_GATE_IR_Z_HPP_
+#include "XACC.hpp"
+#include "GateFunction.hpp"
 
-#include "GateInstruction.hpp"
+int main (int argc, char** argv) {
 
-namespace xacc {
-namespace quantum {
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-/**
- *
- */
-class Z : public virtual GateInstruction {
-public:
-	Z(std::vector<int> qbit);
+	// Create a reference to the Rigetti 
+	// QPU at api.rigetti.com/qvm
+	auto qpu = xacc::getAccelerator("rigetti");
 
-	Z(int qbit);
+	// Allocate a register of 3 qubits
+	auto qubitReg = qpu->createBuffer("qreg", 1);
 
-	DEFINE_VISITABLE()
+	// This is just a placeholder function
+	auto f = std::make_shared<xacc::quantum::GateFunction>("rabi");
 
-};
+	qpu->execute(qubitReg, f);
 
+	// Finalize the XACC Framework
+	xacc::Finalize();
 
+	return 0;
 }
-}
 
-#endif
+
+

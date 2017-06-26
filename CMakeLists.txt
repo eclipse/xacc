@@ -52,7 +52,8 @@ endif()
 find_package(MPI REQUIRED)
 
 # We require Boost
-find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
+find_package(PythonLibs REQUIRED)
+find_package(Boost COMPONENTS system program_options filesystem python REQUIRED)
 
 # Look for OpenMP, add it we find it
 find_package(OpenMP)

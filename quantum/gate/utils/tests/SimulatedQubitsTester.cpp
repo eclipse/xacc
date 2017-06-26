@@ -33,7 +33,7 @@
 #define BOOST_TEST_MODULE QubitsTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "../../simple-simulator/SimulatedQubits.hpp"
+#include "SimulatedQubits.hpp"
 
 using namespace xacc::quantum;
 

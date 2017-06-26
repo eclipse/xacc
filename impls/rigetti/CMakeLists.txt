@@ -33,6 +33,14 @@ find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
 
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+
+   include_directories(${PYTHON_INCLUDE_DIR})
+   
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
+   
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
@@ -50,7 +58,7 @@ if (OPENSSL_FOUND)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gate-ir)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gate-ir ${PYTHON_LIBRARY})
 
    #install(FILES ${HEADERS} DESTINATION include)
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
