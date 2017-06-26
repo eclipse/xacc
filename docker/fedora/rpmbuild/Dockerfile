@@ -3,7 +3,7 @@ maintainer Alex McCaskey <mccaskeyaj@ornl.gov>
 run mkdir -p /projects
 workdir /projects
 run dnf install -y https://github.com/genereese/togo/releases/download/v2.3r7/togo-2.3-7.noarch.rpm \
-   gcc-c++ openssl openssl-devel cmake mpich-devel boost-mpich-devel make git wget \
+   python-devel gcc-c++ openssl openssl-devel cmake mpich-devel boost-mpich-devel make git wget \
    https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \ 
    spdlog && git clone --recursive https://github.com/ORNL-QCI/xacc \ 
    && source /etc/bashrc && module load mpi/mpich-x86_64 && cd xacc && mkdir build \

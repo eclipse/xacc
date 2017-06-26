@@ -10,7 +10,7 @@ run apt-get -y upgrade && apt-get -y update && apt-get install -y software-prope
 run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb && \
     apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | \
     sed "s/.*ends:\ //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb \
-    && apt-get -y install libssl-dev libspdlog-dev && git clone --recursive https://github.com/ORNL-QCI/xacc \
+    && apt-get -y install python-dev libssl-dev libspdlog-dev && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
 
 run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc && cp -r /usr/local/xacc/* usr/local/xacc/ \
