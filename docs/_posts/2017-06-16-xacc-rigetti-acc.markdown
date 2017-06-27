@@ -83,7 +83,8 @@ or for a more complicated gate Instruction:
 ```cpp
 void visit(ConditionalFunction& c) {
    auto visitor = std::make_shared<QuilVisitor>();
-   quilStr += "JUMP-UNLESS @" + c.getName() + " [" + std::to_string(c.getConditionalQubit()) + "]\n";
+   auto classicalBitIdx = qubitToClassicalBitIndex[c.getConditionalQubit()]; // populated in visit(Measure)
+   quilStr += "JUMP-UNLESS @" + c.getName() + " [" + std::to_string(classicalBitIdx) + "]\n";
    for (auto inst : c.getInstructions()) {
       inst->accept(visitor);
    }
