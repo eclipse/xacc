@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: CrtAllocator Class Reference</title>
+        <title>XACC: xacc::Singleton&lt; T &gt; Class Template Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,49 +89,180 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00068.html">Singleton</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
-<a href="a00848.html">List of all members</a>  </div>
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-static-attribs">Static Protected Attributes</a> &#124;
+<a href="a00293.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">CrtAllocator Class Reference</div>  </div>
+<div class="title">xacc::Singleton&lt; T &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>C-runtime library allocator.  
- <a href="a00068.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00389_source.html">allocators.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00240_source.html">Singleton.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:acd720631f8c094041afa6c7951f0d935"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd720631f8c094041afa6c7951f0d935"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>Malloc</b> (size_t size)</td></tr>
-<tr class="separator:acd720631f8c094041afa6c7951f0d935"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a646bb6f68afe773a62a22f7f14f83e97"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a646bb6f68afe773a62a22f7f14f83e97"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>Realloc</b> (void *originalPtr, size_t originalSize, size_t newSize)</td></tr>
-<tr class="separator:a646bb6f68afe773a62a22f7f14f83e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a5043907058d906dcb1291e9491560373"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5043907058d906dcb1291e9491560373"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>Free</b> (void *ptr)</td></tr>
-<tr class="separator:a5043907058d906dcb1291e9491560373"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4c30f303439e702389c9d088abb3f23"><td class="memItemLeft" align="right" valign="top">static T *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#ae4c30f303439e702389c9d088abb3f23">instance</a> ()</td></tr>
+<tr class="separator:ae4c30f303439e702389c9d088abb3f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbc654f5f90a2abc85f0010496335942"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#abbc654f5f90a2abc85f0010496335942">destroy</a> ()</td></tr>
+<tr class="separator:abbc654f5f90a2abc85f0010496335942"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
-Static Public Attributes</h2></td></tr>
-<tr class="memitem:ac7df8398c529290f0cd5950d9492f524"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7df8398c529290f0cd5950d9492f524"></a>
-static const bool&#160;</td><td class="memItemRight" valign="bottom"><b>kNeedFree</b> = true</td></tr>
-<tr class="separator:ac7df8398c529290f0cd5950d9492f524"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:afd62caabc41babdd98ab9af2253ec371"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#afd62caabc41babdd98ab9af2253ec371">Singleton</a> ()</td></tr>
+<tr class="separator:afd62caabc41babdd98ab9af2253ec371"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75a032ec71f88d6986461b47f3fb2600"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a75a032ec71f88d6986461b47f3fb2600">~Singleton</a> ()</td></tr>
+<tr class="separator:a75a032ec71f88d6986461b47f3fb2600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-attribs"></a>
+Static Protected Attributes</h2></td></tr>
+<tr class="memitem:a863885efab9990f06f699567648dfa26"><td class="memItemLeft" align="right" valign="top">static T *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a863885efab9990f06f699567648dfa26">instance_</a> = nullptr</td></tr>
+<tr class="separator:a863885efab9990f06f699567648dfa26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>C-runtime library allocator. </p>
-<p>This class is just wrapper for standard C library memory routines. </p><dl class="section note"><dt>Note</dt><dd>implements Allocator concept </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00389_source.html">allocators.h</a></li>
+<div class="textblock"><h3>template&lt;class T&gt;<br />
+class xacc::Singleton&lt; T &gt;</h3>
+
+<p><a class="el" href="a00068.html">Singleton</a> provides a templated implementation of the <a class="el" href="a00068.html">Singleton</a> Design Pattern. This class takes a template parameter and provides behviour around that template that models a singleton - ie there is only one instance available during runtime. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="afd62caabc41babdd98ab9af2253ec371"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="a00068.html">xacc::Singleton</a>&lt; T &gt;::<a class="el" href="a00068.html">Singleton</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>constructor </p>
+
+</div>
+</div>
+<a class="anchor" id="a75a032ec71f88d6986461b47f3fb2600"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="a00068.html">xacc::Singleton</a>&lt; T &gt;::~<a class="el" href="a00068.html">Singleton</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>destructor </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="abbc654f5f90a2abc85f0010496335942"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void <a class="el" href="a00068.html">xacc::Singleton</a>&lt; T &gt;::destroy </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Destroy the single instance of T </p>
+
+</div>
+</div>
+<a class="anchor" id="ae4c30f303439e702389c9d088abb3f23"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static T* <a class="el" href="a00068.html">xacc::Singleton</a>&lt; T &gt;::instance </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the single instance of T </p><dl class="section return"><dt>Returns</dt><dd>instance The singleton instance </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a863885efab9990f06f699567648dfa26"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">T * <a class="el" href="a00068.html">xacc::Singleton</a>&lt; T &gt;::instance_ = nullptr</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reference to the single T instance </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00240_source.html">Singleton.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

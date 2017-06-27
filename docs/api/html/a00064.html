@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: boost::dll::detail::constructor&lt; Class(Args...)&gt; Struct Template Reference</title>
+        <title>XACC: scaffold::ScaffoldASTConsumer Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,104 +91,77 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>boost</b></li><li class="navelem"><b>dll</b></li><li class="navelem"><b>detail</b></li><li class="navelem"><a class="el" href="a00064.html">constructor&lt; Class(Args...)&gt;</a></li>  </ul>
+<li class="navelem"><b>scaffold</b></li><li class="navelem"><a class="el" href="a00064.html">ScaffoldASTConsumer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="a00922.html">List of all members</a>  </div>
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="a00271.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">boost::dll::detail::constructor&lt; Class(Args...)&gt; Struct Template Reference</div>  </div>
+<div class="title">scaffold::ScaffoldASTConsumer Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Inheritance diagram for scaffold::ScaffoldASTConsumer:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00064.png" usemap="#scaffold::ScaffoldASTConsumer_map" alt=""/>
+  <map id="scaffold::ScaffoldASTConsumer_map" name="scaffold::ScaffoldASTConsumer_map">
+</map>
+ </div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:ab765d8c7c083efce92a933c806a41e81"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab765d8c7c083efce92a933c806a41e81"></a>
-typedef <a class="el" href="a00131.html">detail::get_mem_fn_type</a>&lt; Class, void(Args...)&gt;::mem_fn&#160;</td><td class="memItemRight" valign="bottom"><b>standard_t</b></td></tr>
-<tr class="separator:ab765d8c7c083efce92a933c806a41e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19159ea77e5c102bd216195b32045677"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19159ea77e5c102bd216195b32045677"></a>
-typedef Class *(*&#160;</td><td class="memItemRight" valign="bottom"><b>allocating_t</b>) (Args...)</td></tr>
-<tr class="separator:a19159ea77e5c102bd216195b32045677"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2b0dbd4b6c5fb1c8fa284b64f85e3caa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b0dbd4b6c5fb1c8fa284b64f85e3caa"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a2b0dbd4b6c5fb1c8fa284b64f85e3caa">call_standard</a> (Class *const ptr, Args...args)</td></tr>
-<tr class="memdesc:a2b0dbd4b6c5fb1c8fa284b64f85e3caa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call the standard contructor. <br /></td></tr>
-<tr class="separator:a2b0dbd4b6c5fb1c8fa284b64f85e3caa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9674344355e9759b8f60a4eb92e718af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9674344355e9759b8f60a4eb92e718af"></a>
-Class *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a9674344355e9759b8f60a4eb92e718af">call_allocating</a> (Args...args)</td></tr>
-<tr class="memdesc:a9674344355e9759b8f60a4eb92e718af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call the deleting destructor. <br /></td></tr>
-<tr class="separator:a9674344355e9759b8f60a4eb92e718af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bb649c5d51e8ae9656db16b65776f1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2bb649c5d51e8ae9656db16b65776f1c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a2bb649c5d51e8ae9656db16b65776f1c">has_allocating</a> () const </td></tr>
-<tr class="memdesc:a2bb649c5d51e8ae9656db16b65776f1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">True if a allocating constructor could be loaded. <br /></td></tr>
-<tr class="separator:a2bb649c5d51e8ae9656db16b65776f1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a383752514de8d2f1ffdd142f642e54a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a383752514de8d2f1ffdd142f642e54a3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a383752514de8d2f1ffdd142f642e54a3">has_standard</a> () const </td></tr>
-<tr class="memdesc:a383752514de8d2f1ffdd142f642e54a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">True if a standard constructor could be loaded. <br /></td></tr>
-<tr class="separator:a383752514de8d2f1ffdd142f642e54a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af65e82bd30161ccf3ea05f87193c3fa1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af65e82bd30161ccf3ea05f87193c3fa1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#af65e82bd30161ccf3ea05f87193c3fa1">is_empty</a> () const </td></tr>
-<tr class="memdesc:af65e82bd30161ccf3ea05f87193c3fa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">False if neither the allocating nor the standard constructor is available. <br /></td></tr>
-<tr class="separator:af65e82bd30161ccf3ea05f87193c3fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ae77617757558a1b0177d6a2cae9827"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6ae77617757558a1b0177d6a2cae9827"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>constructor</b> (const <a class="el" href="a00063.html">constructor</a> &amp;)=default</td></tr>
-<tr class="separator:a6ae77617757558a1b0177d6a2cae9827"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a403d27f9f509c0ce4e66d4713ca2affc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a403d27f9f509c0ce4e66d4713ca2affc"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>constructor</b> (standard_t <a class="el" href="a00064.html#a6cbccda8c81959e8e3bba7da28cada5d">standard</a>, allocating_t <a class="el" href="a00064.html#a13c90a276dc453ca83da117ffc552362">allocating</a>=nullptr)</td></tr>
-<tr class="separator:a403d27f9f509c0ce4e66d4713ca2affc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14020b09423a4efb0f992ace1d482a57"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a14020b09423a4efb0f992ace1d482a57"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleTopLevelDecl</b> (DeclGroupRef DR)</td></tr>
+<tr class="separator:a14020b09423a4efb0f992ace1d482a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3269dcedd2f3175837a94acbf74901d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3269dcedd2f3175837a94acbf74901d1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitStmt</b> (clang::Stmt *s)</td></tr>
+<tr class="separator:a3269dcedd2f3175837a94acbf74901d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1c7cd8940ee725b88cc84256d19f555"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa1c7cd8940ee725b88cc84256d19f555"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitDecl</b> (clang::Decl *d)</td></tr>
+<tr class="separator:aa1c7cd8940ee725b88cc84256d19f555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91844fe528e854e205429f3b5d2b0e47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a91844fe528e854e205429f3b5d2b0e47"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitCallExpr</b> (CallExpr *c)</td></tr>
+<tr class="separator:a91844fe528e854e205429f3b5d2b0e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a598a634d96ffb4217bb0938720e669d2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a598a634d96ffb4217bb0938720e669d2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitBinaryOperator</b> (BinaryOperator *b)</td></tr>
+<tr class="separator:a598a634d96ffb4217bb0938720e669d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92d059cda85ffeafc8a35ed50a8d5f17"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92d059cda85ffeafc8a35ed50a8d5f17"></a>
+std::shared_ptr&lt; <a class="el" href="a00041.html">xacc::IR</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getIR</b> ()</td></tr>
+<tr class="separator:a92d059cda85ffeafc8a35ed50a8d5f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1d779aee8690e77e7c9a89f93c41a1f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1d779aee8690e77e7c9a89f93c41a1f"></a>
+const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getQubitVariableName</b> ()</td></tr>
+<tr class="separator:ab1d779aee8690e77e7c9a89f93c41a1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a6cbccda8c81959e8e3bba7da28cada5d"><td class="memItemLeft" align="right" valign="top">standard_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a6cbccda8c81959e8e3bba7da28cada5d">standard</a></td></tr>
-<tr class="memdesc:a6cbccda8c81959e8e3bba7da28cada5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The standard, i.e. not allocating constructor.  <a href="#a6cbccda8c81959e8e3bba7da28cada5d">More...</a><br /></td></tr>
-<tr class="separator:a6cbccda8c81959e8e3bba7da28cada5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13c90a276dc453ca83da117ffc552362"><td class="memItemLeft" align="right" valign="top">allocating_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00064.html#a13c90a276dc453ca83da117ffc552362">allocating</a></td></tr>
-<tr class="memdesc:a13c90a276dc453ca83da117ffc552362"><td class="mdescLeft">&#160;</td><td class="mdescRight">The allocating constructor.  <a href="#a13c90a276dc453ca83da117ffc552362">More...</a><br /></td></tr>
-<tr class="separator:a13c90a276dc453ca83da117ffc552362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a98ef6d976c6cd91e260a007cbcb6e144"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a98ef6d976c6cd91e260a007cbcb6e144"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>cbitVarName</b></td></tr>
+<tr class="separator:a98ef6d976c6cd91e260a007cbcb6e144"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a460cb6b66543f4992290b6c660cded01"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a460cb6b66543f4992290b6c660cded01"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>qbitVarName</b></td></tr>
+<tr class="separator:a460cb6b66543f4992290b6c660cded01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7a79b315525765a51b6b8882212e59e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa7a79b315525765a51b6b8882212e59e"></a>
+std::shared_ptr&lt; <a class="el" href="a00034.html">xacc::quantum::GateQIR</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ir</b></td></tr>
+<tr class="separator:aa7a79b315525765a51b6b8882212e59e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace1ed18d3d08ad8ebb203dfe0022aed1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace1ed18d3d08ad8ebb203dfe0022aed1"></a>
+std::shared_ptr&lt; <a class="el" href="a00032.html">xacc::quantum::GateFunction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>function</b></td></tr>
+<tr class="separator:ace1ed18d3d08ad8ebb203dfe0022aed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad71adbc4b269b38f714e6bf9be1b773e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad71adbc4b269b38f714e6bf9be1b773e"></a>
+std::shared_ptr&lt; <a class="el" href="a00021.html">xacc::quantum::ConditionalFunction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>currentConditional</b></td></tr>
+<tr class="separator:ad71adbc4b269b38f714e6bf9be1b773e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a967b4790cda7cc44f99acc01310e5ef1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a967b4790cda7cc44f99acc01310e5ef1"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>nCallExprToSkip</b> = 0</td></tr>
+<tr class="separator:a967b4790cda7cc44f99acc01310e5ef1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d8b7ce3a8208dd0be810bd1832d7648"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5d8b7ce3a8208dd0be810bd1832d7648"></a>
+std::map&lt; std::string, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>cbitRegToMeasuredQubit</b></td></tr>
+<tr class="separator:a5d8b7ce3a8208dd0be810bd1832d7648"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a13c90a276dc453ca83da117ffc552362"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Class , typename... Args&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">allocating_t <a class="el" href="a00063.html">boost::dll::detail::constructor</a>&lt; Class(Args...)&gt;::allocating</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The allocating constructor. </p>
-<dl class="section warning"><dt>Warning</dt><dd>May differ with the compiler. Use constructor::call_allocating instead. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a6cbccda8c81959e8e3bba7da28cada5d"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Class , typename... Args&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">standard_t <a class="el" href="a00063.html">boost::dll::detail::constructor</a>&lt; Class(Args...)&gt;::standard</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The standard, i.e. not allocating constructor. </p>
-<dl class="section warning"><dt>Warning</dt><dd>May differ with the compiler. Use constructor::call_standard instead. </dd></dl>
-
-</div>
-</div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00465_source.html">ctor_dtor.hpp</a></li>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00230_source.html">ScaffoldASTConsumer.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

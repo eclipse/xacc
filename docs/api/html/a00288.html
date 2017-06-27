@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: StreamTraits&lt; Stream &gt; Struct Template Reference</title>
+        <title>XACC: Member List</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,56 +89,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00052.html">RegisterAccelerator</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
-<a href="a00902.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">StreamTraits&lt; Stream &gt; Struct Template Reference</div>  </div>
+<div class="title">xacc::RegisterAccelerator&lt; T &gt; Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Provides additional information for stream.  
- <a href="a00288.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00746_source.html">stream.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:a817c100072225c8cf4f6570bb8be4364"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>copyOptimization</b> = 0
- }<tr class="memdesc:a817c100072225c8cf4f6570bb8be4364"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether to make local copy of stream for optimization during parsing.  <a href="a00288.html#a817c100072225c8cf4f6570bb8be4364">More...</a><br /></td></tr>
-</td></tr>
-<tr class="separator:a817c100072225c8cf4f6570bb8be4364"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename Stream&gt;<br />
-struct StreamTraits&lt; Stream &gt;</h3>
-
-<p>Provides additional information for stream. </p>
-<p>By using traits pattern, this type provides a default configuration for stream. For custom stream, this type can be specialized for other configuration. See TEST(Reader, CustomStringStream) in readertest.cpp for example. </p>
-</div><h2 class="groupheader">Member Enumeration Documentation</h2>
-<a class="anchor" id="a817c100072225c8cf4f6570bb8be4364"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Stream &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Whether to make local copy of stream for optimization during parsing. </p>
-<p>By default, for safety, streams do not use local copy optimization. Stream that can be copied fast should specialize this, like StreamTraits&lt;StringStream&gt;. </p>
-
-</div>
-</div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00746_source.html">stream.h</a></li>
-</ul>
-</div><!-- contents -->
+<p>This is the complete list of members for <a class="el" href="a00052.html">xacc::RegisterAccelerator&lt; T &gt;</a>, including all inherited members.</p>
+<table class="directory">
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>RegisterAccelerator</b>(const std::string &amp;name) (defined in <a class="el" href="a00052.html">xacc::RegisterAccelerator&lt; T &gt;</a>)</td><td class="entry"><a class="el" href="a00052.html">xacc::RegisterAccelerator&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+</table></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

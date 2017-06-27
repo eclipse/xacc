@@ -1,34 +1,35 @@
+\hypertarget{a00016}{}\section{xacc\+:\+:Base\+Instruction\+Visitor Class Reference}
+\label{a00016}\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
 
 
- layout\+: post title\+: Astrophysics Species \hyperlink{a00038}{A\+S\+C\+II} File Format permalink\+: /science/astrophysics/species-\/ascii-\/format \subsection*{category\+: science }
+{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
 
-Simulations of thermonuclear networks in astrophysics require lists of species that react with each other. Fire supports a legacy \hyperlink{a00038}{A\+S\+C\+II} format with a 4-\/line specification for a species. See \hyperlink{a00740_source}{Species.\+h} for ful details on each required value.
-
-The first line specifies the
-
-
-\begin{DoxyItemize}
-\item species name -\/ a string
-\item mass number -\/ an integer
-\item atomic number -\/ an integer
-\item neutron number -\/ an integer
-\item mass fraction -\/ a double
-\item mass excess -\/ a double
-\end{DoxyItemize}
-
-The second through fourth lines specify parameters for the partition function. Each line contains eight double precision numbers separated by spaces.
-
-Here is a sample for 4\+He and 12C.
+Inheritance diagram for xacc\+:\+:Base\+Instruction\+Visitor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.478873cm]{a00016}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \hyperlink{a00016_aa6f5104f5868fe1eca9be4dc4036eba4}{$\sim$\+Base\+Instruction\+Visitor} ()
+\end{DoxyCompactItemize}
 
 
-\begin{DoxyCode}
-1 4He 4 2 2 0.0 2.425
-2 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-3 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-4 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-5 12C 12 6 6 0.0416666 0.0
-6 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-7 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-8 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-\end{DoxyCode}
- 
+\subsection{Detailed Description}
+The \hyperlink{a00016}{Base\+Instruction\+Visitor} is a base class for all classes that are \hyperlink{a00037}{Instruction} visitors. It basically provides a means for passing instruction visitor handles in a polymorphic manner. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}!````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}}
+\index{````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}!xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
+\subsubsection[{\texorpdfstring{$\sim$\+Base\+Instruction\+Visitor()}{~BaseInstructionVisitor()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Base\+Instruction\+Visitor\+::$\sim$\+Base\+Instruction\+Visitor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00016_aa6f5104f5868fe1eca9be4dc4036eba4}{}\label{a00016_aa6f5104f5868fe1eca9be4dc4036eba4}
+The destructor 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}

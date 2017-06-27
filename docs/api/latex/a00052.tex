@@ -1,24 +1,25 @@
-\hypertarget{a00052}{}\section{xacc\+:\+:quantum\+:\+:Circuit\+Node Class Reference}
-\label{a00052}\index{xacc\+::quantum\+::\+Circuit\+Node@{xacc\+::quantum\+::\+Circuit\+Node}}
+\hypertarget{a00052}{}\section{xacc\+:\+:Register\+Accelerator$<$ T $>$ Class Template Reference}
+\label{a00052}\index{xacc\+::\+Register\+Accelerator$<$ T $>$@{xacc\+::\+Register\+Accelerator$<$ T $>$}}
 
 
-{\ttfamily \#include $<$Gate\+Q\+I\+R.\+hpp$>$}
+{\ttfamily \#include $<$Accelerator.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Circuit\+Node\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=1.060606cm]{a00052}
-\end{center}
-\end{figure}
-\subsection*{Additional Inherited Members}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Register\+Accelerator} (const std\+::string \&name)\hypertarget{a00052_a329df136d447a887e9794ea078d04706}{}\label{a00052_a329df136d447a887e9794ea078d04706}
+
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\hyperlink{a00052}{Circuit\+Node} subclasses Q\+C\+I\+Vertex to provide the following parameters in the given order\+:
+\subsubsection*{template$<$typename T$>$\\*
+class xacc\+::\+Register\+Accelerator$<$ T $>$}
 
-Parameters\+: Gate, Layer (ie time sequence), Gate Vertex Id, Qubit Ids that the gate acts on, enabled state, vector of parameters names 
+\hyperlink{a00052}{Register\+Accelerator} is a convenience class for registering custom derived \hyperlink{a00011}{Accelerator} classes.
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+Creators of \hyperlink{a00011}{Accelerator} subclasses create an instance of this class with their \hyperlink{a00011}{Accelerator} subclass as the template parameter to register their \hyperlink{a00011}{Accelerator} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00011}{Accelerator} and at global scope. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Gate\+Q\+I\+R.\+hpp\item 
-Quantum\+Circuit.\+hpp\end{DoxyCompactItemize}
+Accelerator.\+hpp\end{DoxyCompactItemize}

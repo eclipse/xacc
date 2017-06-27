@@ -1,41 +1,171 @@
-\hypertarget{a00066}{}\section{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+:\+:Converter Class Reference}
-\label{a00066}\index{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$\+::\+Converter@{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$\+::\+Converter}}
+\hypertarget{a00066}{}\section{xacc\+:\+:quantum\+:\+:Simple\+Accelerator Class Reference}
+\label{a00066}\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
 
 
-{\ttfamily \#include $<$Simple\+Ini.\+h$>$}
+{\ttfamily \#include $<$Simple\+Accelerator.\+hpp$>$}
 
-Inheritance diagram for C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+:\+:Converter\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Simple\+Accelerator\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=2.000000cm]{a00066}
+\includegraphics[height=3.000000cm]{a00066}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Converter} (bool a\+\_\+b\+Store\+Is\+Utf8)\hypertarget{a00066_ab8e740b211e4ece127d4d25773ba7e42}{}\label{a00066_ab8e740b211e4ece127d4d25773ba7e42}
-
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ \hyperlink{a00066_a46445d77d4b8ad2689571d0db6604380}{create\+Buffer} (const std\+::string \&var\+Id)
 \item 
-{\bfseries Converter} (const \hyperlink{a00066}{Converter} \&rhs)\hypertarget{a00066_a2f6e993014ed5d60c6e890e55beb0805}{}\label{a00066_a2f6e993014ed5d60c6e890e55beb0805}
-
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ \hyperlink{a00066_adb9393692e9f484df241aa5d014030d1}{create\+Buffer} (const std\+::string \&var\+Id, const int size)
 \item 
-\hyperlink{a00066}{Converter} \& {\bfseries operator=} (const \hyperlink{a00066}{Converter} \&rhs)\hypertarget{a00066_af858c01c6a7e4ce9fafd18abc9e0ac1b}{}\label{a00066_af858c01c6a7e4ce9fafd18abc9e0ac1b}
-
+virtual bool \hyperlink{a00066_a60b9db2d6aed235857c45413a070338e}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
 \item 
-bool {\bfseries Convert\+To\+Store} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+psz\+String)\hypertarget{a00066_a4e4186867214b54326cf622e323c9f2f}{}\label{a00066_a4e4186867214b54326cf622e323c9f2f}
-
+virtual void \hyperlink{a00066_a3089b15fbbaa83abf2941bd3b8d2d3c6}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00030}{xacc\+::\+Function} $>$ kernel)
 \item 
-const char $\ast$ {\bfseries Data} ()\hypertarget{a00066_a918bbd4f861a2872e148bc9481ac80bb}{}\label{a00066_a918bbd4f861a2872e148bc9481ac80bb}
-
+virtual Accelerator\+Type \hyperlink{a00066_ad76eeb0bbd7de21aad5bd20d20970a98}{get\+Type} ()
+\item 
+virtual std\+::vector$<$ \hyperlink{a00042}{xacc\+::\+I\+R\+Transformation} $>$ \hyperlink{a00066_afc49c9e7973ba6c6ff9761c36198323d}{get\+I\+R\+Transformations} ()
+\item 
+virtual \hyperlink{a00066_a7ff286def924fafdff2066d12858e60c}{$\sim$\+Simple\+Accelerator} ()
 \end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{a00066_a1cfa3381a56ca6f431b4722162ccb63d}{register\+Accelerator} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$class S\+I\+\_\+\+C\+H\+AR, class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER$>$\\*
-class C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$\+::\+Converter}
+The Simple\+Tensor\+Accelerator is an X\+A\+CC \hyperlink{a00011}{Accelerator} that simulates gate based quantum computing circuits. It models the Q\+P\+U\+Gate \hyperlink{a00011}{Accelerator} with Simulated\+Qubit \hyperlink{a00013}{Accelerator\+Buffer}. It relies on the Fire Scientific Computing Framework\textquotesingle{}s tensor module to model a specific set of quantum gates. It uses these tensors to build up the unitary matrix described by the circuit. 
 
-Characterset conversion utility class to convert strings to the same format as is used for the storage. 
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!````~Simple\+Accelerator@{$\sim$\+Simple\+Accelerator}}
+\index{````~Simple\+Accelerator@{$\sim$\+Simple\+Accelerator}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{$\sim$\+Simple\+Accelerator()}{~SimpleAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Simple\+Accelerator\+::$\sim$\+Simple\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00066_a7ff286def924fafdff2066d12858e60c}{}\label{a00066_a7ff286def924fafdff2066d12858e60c}
+The destructor 
 
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id)}{createBuffer(const std::string \&varId)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00066_a46445d77d4b8ad2689571d0db6604380}{}\label{a00066_a46445d77d4b8ad2689571d0db6604380}
+Create, store, and return an \hyperlink{a00013}{Accelerator\+Buffer} with the given variable id string. This string serves as a unique identifier for future lookups and reuse of the \hyperlink{a00013}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00011_aab5046e8d83ab390302e0f49533e95fc}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id, const int size)}{createBuffer(const std::string \&varId, const int size)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id, }
+\item[{const int}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00066_adb9393692e9f484df241aa5d014030d1}{}\label{a00066_adb9393692e9f484df241aa5d014030d1}
+Create, store, and return an \hyperlink{a00013}{Accelerator\+Buffer} with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a00013}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+{\em size} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00011_a064a2dbd58338364115c260267806945}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!execute@{execute}}
+\index{execute@{execute}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{execute(std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ buffer, const std\+::shared\+\_\+ptr$<$ xacc\+::\+Function $>$ kernel)}{execute(std::shared\_ptr< AcceleratorBuffer > buffer, const std::shared\_ptr< xacc::Function > kernel)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Simple\+Accelerator\+::execute (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{buffer, }
+\item[{const std\+::shared\+\_\+ptr$<$ {\bf xacc\+::\+Function} $>$}]{kernel}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00066_a3089b15fbbaa83abf2941bd3b8d2d3c6}{}\label{a00066_a3089b15fbbaa83abf2941bd3b8d2d3c6}
+Execute the simulation. Requires both a valid \hyperlink{a00067}{Simulated\+Qubits} buffer and X\+A\+CC \hyperlink{a00041}{IR} \hyperlink{a00030}{Function} instance modeling the quantum circuit.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ir} & \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
+\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+I\+R\+Transformations()}{getIRTransformations()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<${\bf xacc\+::\+I\+R\+Transformation}$>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::get\+I\+R\+Transformations (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00066_afc49c9e7973ba6c6ff9761c36198323d}{}\label{a00066_afc49c9e7973ba6c6ff9761c36198323d}
+We have no need to transform the \hyperlink{a00041}{IR} for this \hyperlink{a00011}{Accelerator}, so return an empty list \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00011_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!get\+Type@{get\+Type}}
+\index{get\+Type@{get\+Type}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Type()}{getType()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Accelerator\+Type xacc\+::quantum\+::\+Simple\+Accelerator\+::get\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00066_ad76eeb0bbd7de21aad5bd20d20970a98}{}\label{a00066_ad76eeb0bbd7de21aad5bd20d20970a98}
+This \hyperlink{a00011}{Accelerator} models Q\+PU Gate accelerators. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00011_aaffc3e4bb9880eb5041b1b58ee4c2665}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
+\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{is\+Valid\+Buffer\+Size(const int N\+Bits)}{isValidBufferSize(const int NBits)}}]{\setlength{\rightskip}{0pt plus 5cm}bool xacc\+::quantum\+::\+Simple\+Accelerator\+::is\+Valid\+Buffer\+Size (
+\begin{DoxyParamCaption}
+\item[{const int}]{N\+Bits}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00066_a60b9db2d6aed235857c45413a070338e}{}\label{a00066_a60b9db2d6aed235857c45413a070338e}
+Return true if this \hyperlink{a00011}{Accelerator} can allocated N\+Bits number of bits. 
+\begin{DoxyParams}{Parameters}
+{\em N\+Bits} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00011_ae51584850faeec77299058383977ddeb}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!register\+Accelerator@{register\+Accelerator}}
+\index{register\+Accelerator@{register\+Accelerator}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\subsubsection[{\texorpdfstring{register\+Accelerator()}{registerAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Simple\+Accelerator\+::register\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00066_a1cfa3381a56ca6f431b4722162ccb63d}{}\label{a00066_a1cfa3381a56ca6f431b4722162ccb63d}
+Register this \hyperlink{a00011}{Accelerator} with the framework. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Simple\+Ini.\+h\end{DoxyCompactItemize}
+Simple\+Accelerator.\+hpp\item 
+Simple\+Accelerator.\+cpp\end{DoxyCompactItemize}

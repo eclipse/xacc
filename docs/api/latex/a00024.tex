@@ -1,66 +1,103 @@
-Fire is a framework for scientific computing. It includes various reusable tools and utilities. This includes
-\begin{DoxyItemize}
-\item parsers
-\item steppers
-\end{DoxyItemize}
-
-It also includes domain-\/specific classes for nuclear reaction network simulations in nuclear astrophysics.
-
-\subsection*{Documentation}
-
-Documentation in Fire is generated via Doxygen by running \char`\"{}make doc\char`\"{} during the build. The documentation is viewable \href{http://www.jayjaybillings.com/fire}{\tt online}. The full A\+PI documentation is available at \href{http://www.jayjaybillings.com/fire/api/html/}{\tt the A\+PI reference page}.
-
-You can run \char`\"{}make doc\char`\"{} from build directory to generate the A\+PI documentation. Doxygen handles most of the required documentation without developer intervention. This means that in some cases there may be classes that seem to have minimal documentation in the source, like classes that implement interfaces and provide no additional functionality, but are in fact quite well documented by Doxygen. Most I\+D\+Es will also auto-\/generate descriptions for developers too, so the author(s) see no need to cover every piece of code with comments.
-
-\subsection*{Prerequisites}
-
-You will need git and cmake to build Fire.
-
-\subsection*{Checkout and build}
-
-From a shell, execute the following commands to compile the code\+:
-
-
-\begin{DoxyCode}
-1 git clone https://github.com/jayjaybillings/fire
-2 mkdir fire-build
-3 cd fire-build
-4 cmake ../fire -DCMAKE\_BUILD\_TYPE=Debug -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE\_ECLIPSE\_VERSION=4.5
-5 make
-\end{DoxyCode}
+\hypertarget{a00024}{}\section{xacc\+:\+:quantum\+:\+:D\+Wave\+Compiler Class Reference}
+\label{a00024}\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+Wave\+Compiler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a00024}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}{compile} (const std\+::string \&src)
+\item 
+virtual const std\+::string \hyperlink{a00024_a8a180031ae563e1a9aac611e8066c181}{get\+Name} ()
+\item 
+virtual \hyperlink{a00024_acc0ab28f787b8f4cbeb63c594a247e50}{$\sim$\+D\+Wave\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{a00024_a5b221649f22a9bb4d4a304a6522d071f}{register\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
-If you would like to use M\+A\+G\+MA for solvers, you need to modify the cmake argument with the path to the M\+A\+G\+MA installation. Your configuration statement should look like the following\+:
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!````~D\+Wave\+Compiler@{$\sim$\+D\+Wave\+Compiler}}
+\index{````~D\+Wave\+Compiler@{$\sim$\+D\+Wave\+Compiler}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+\subsubsection[{\texorpdfstring{$\sim$\+D\+Wave\+Compiler()}{~DWaveCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+D\+Wave\+Compiler\+::$\sim$\+D\+Wave\+Compiler (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00024_acc0ab28f787b8f4cbeb63c594a247e50}{}\label{a00024_acc0ab28f787b8f4cbeb63c594a247e50}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+D\+Wave\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}{}\label{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the \hyperlink{a00011}{Accelerator} that this source code is intended for.
 
 
-\begin{DoxyCode}
-1 cmake ../fire -DCMAKE\_BUILD\_TYPE=Debug -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE\_ECLIPSE\_VERSION=4.5
-       MAGMA\_ROOT=/usr/local/lib
-\end{DoxyCode}
+\begin{DoxyParams}{Parameters}
+{\em src} & The kernel source string. \\
+\hline
+{\em acc} & The \hyperlink{a00011}{Accelerator} this code will be executed on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ir Intermediate representation for provided source kernel code. 
+\end{DoxyReturn}
 
 
-The above will get the code running, but it will not run the tests or generate the documentation. Issue the following commands to do that\+: 
-\begin{DoxyCode}
-1 make test
-2 make doc
-\end{DoxyCode}
+Implements \hyperlink{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
+
+\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)}{compile(const std::string \&src)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+D\+Wave\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}{}\label{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
 
 
-Build flags, such as -\/\+Wall, can be set by prepending the C\+X\+X\+\_\+\+F\+L\+A\+GS variable to the cmake command as such
+Implements \hyperlink{a00020_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
+
+\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+D\+Wave\+Compiler\+::get\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00024_a8a180031ae563e1a9aac611e8066c181}{}\label{a00024_a8a180031ae563e1a9aac611e8066c181}
+Return the name of this \hyperlink{a00020}{Compiler} \begin{DoxyReturn}{Returns}
+name \hyperlink{a00020}{Compiler} name 
+\end{DoxyReturn}
 
 
-\begin{DoxyCode}
-1 CXX\_FLAGS='-Wall' cmake ../fire -DCMAKE\_BUILD\_TYPE=Debug -G"Eclipse CDT4 - Unix Makefiles"
-       -DCMAKE\_ECLIPSE\_VERSION=4.5
-\end{DoxyCode}
+Implements \hyperlink{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
 
+\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!register\+Compiler@{register\+Compiler}}
+\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
+\subsubsection[{\texorpdfstring{register\+Compiler()}{registerCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+D\+Wave\+Compiler\+::register\+Compiler (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00024_a5b221649f22a9bb4d4a304a6522d071f}{}\label{a00024_a5b221649f22a9bb4d4a304a6522d071f}
+Register this \hyperlink{a00020}{Compiler} with the framework. 
 
-Optimization flags should be handled by setting -\/\+D\+C\+M\+A\+K\+E\+\_\+\+B\+U\+I\+L\+D\+\_\+\+T\+Y\+PE=Release instead of Debug. Likewise, an optimized build with debug information can be acheived by setting -\/\+D\+C\+M\+A\+K\+E\+\_\+\+B\+U\+I\+L\+D\+\_\+\+T\+Y\+PE=Rel\+With\+Debug\+Info.
-
-\subsection*{License}
-
-See the L\+I\+C\+E\+N\+SE file licensing and copyright information. In short, 3-\/clause B\+SD.
-
-\subsection*{Questions}
-
-Questions can be directed to me at jayjaybillings $<$at$>$ gmail $<$dot$>$ com. 
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+D\+Wave\+Compiler.\+hpp\item 
+D\+Wave\+Compiler.\+cpp\end{DoxyCompactItemize}

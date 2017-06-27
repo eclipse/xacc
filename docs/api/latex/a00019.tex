@@ -1,47 +1,24 @@
+\hypertarget{a00019}{}\section{xacc\+:\+:quantum\+:\+:C\+N\+OT Class Reference}
+\label{a00019}\index{xacc\+::quantum\+::\+C\+N\+OT@{xacc\+::quantum\+::\+C\+N\+OT}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:C\+N\+OT\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{a00019}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries C\+N\+OT} (std\+::vector$<$ int $>$ \hyperlink{a00033_a2a56be6c2519ea65df4d06f4abae1393}{qbits})\hypertarget{a00019_ad3d460779a27affa317dd4f3a88268b3}{}\label{a00019_ad3d460779a27affa317dd4f3a88268b3}
+
+\item 
+{\bfseries C\+N\+OT} (int srcqbit, int tgtqbit)\hypertarget{a00019_a15efcb44477dde4b6151fe1776a73ddc}{}\label{a00019_a15efcb44477dde4b6151fe1776a73ddc}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
- layout\+: post title\+: Solving Problems permalink\+: /science/solving-\/problems \subsection*{category\+: science }
-
-\section*{T\+H\+E\+SE A\+RE N\+O\+T\+ES}
-
-Nothing good here. Just trying to sketch some things out.
-
-\char`\"{}\+Systems\char`\"{} are systems of partial or ordinary differential equations.
-
-\char`\"{}\+Solvers\char`\"{} are routines for factorizing matrices.
-
-\char`\"{}\+Methods\char`\"{} are methods used for solving partial differential equations including finite difference, finite element, particle and other types.
-
-Most codes make no distinction between these three classes, but Fire does because the flexibility afforded by such a distinction is very valuable. Such a distinction makes it possible to modify each class separately without interfering with the others. This means that if the description of the P\+D\+Es change, it will not affect the method that solves those P\+D\+Es or the factorization routines used to solve the matrix.
-
-\subsubsection*{Systems}
-
-
-\begin{DoxyItemize}
-\item R\+HS data
-\item L\+HS Operators
-\item Boundary Conditions -\/ Can this work if the geometry/mesh is not known at this point? Do we need to have separate F\+E/\+FD System subclasses?
-\item Initial Conditions -\/ Same.
-\item Method
-\end{DoxyItemize}
-
-{\bfseries Problems}
-
-
-\begin{DoxyItemize}
-\item If my Method owns my discretization, what does a System really mean?
-\item How do boundary conditions work? They would typically be defined on the boundaries of the mesh, but as defined the system knows nothing about that.
-\end{DoxyItemize}
-
-\subsubsection*{Methods}
-
-
-\begin{DoxyItemize}
-\item Geometry
-\item Mesh
-\item Grid
-\end{DoxyItemize}
-
-All this stuff is optional depending on the method type
-
-\section*{None of this is a great idea to me.}
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+N\+O\+T.\+hpp\item 
+C\+N\+O\+T.\+cpp\end{DoxyCompactItemize}

@@ -1,17 +1,101 @@
-\hypertarget{a00050}{}\section{case\+\_\+insensitive\+\_\+equals Class Reference}
-\label{a00050}\index{case\+\_\+insensitive\+\_\+equals@{case\+\_\+insensitive\+\_\+equals}}
+\hypertarget{a00050}{}\section{xacc\+:\+:quantum\+:\+:Quil\+Compiler Class Reference}
+\label{a00050}\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Quil\+Compiler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a00050}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-bool {\bfseries operator()} (const std\+::string \&key1, const std\+::string \&key2) const \hypertarget{a00050_a4110d72a3ecfd3bd8ab698dd13c877d3}{}\label{a00050_a4110d72a3ecfd3bd8ab698dd13c877d3}
-
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00050_a2421482415ca4e09963ea4ecddff8100}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)
 \item 
-bool {\bfseries operator()} (const std\+::string \&key1, const std\+::string \&key2) const \hypertarget{a00050_a4110d72a3ecfd3bd8ab698dd13c877d3}{}\label{a00050_a4110d72a3ecfd3bd8ab698dd13c877d3}
-
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00050_adf4d321ecb0df3fa7728999f941c83b2}{compile} (const std\+::string \&src)
+\item 
+virtual const std\+::string \hyperlink{a00050_ae7d52140b6dd52730edc6e38ae48f437}{get\+Name} ()
+\item 
+virtual \hyperlink{a00050_a0866a9f695f28c90ac1f4754374f3bfe}{$\sim$\+Quil\+Compiler} ()
 \end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{a00050_aaec99a14bede717bf02a0f65af2a3c69}{register\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!````~Quil\+Compiler@{$\sim$\+Quil\+Compiler}}
+\index{````~Quil\+Compiler@{$\sim$\+Quil\+Compiler}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+\subsubsection[{\texorpdfstring{$\sim$\+Quil\+Compiler()}{~QuilCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Quil\+Compiler\+::$\sim$\+Quil\+Compiler (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_a0866a9f695f28c90ac1f4754374f3bfe}{}\label{a00050_a0866a9f695f28c90ac1f4754374f3bfe}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Quil\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00050_a2421482415ca4e09963ea4ecddff8100}{}\label{a00050_a2421482415ca4e09963ea4ecddff8100}
+Translate Quil to the X\+A\+CC intermediate representation.
+
+\begin{DoxyReturn}{Returns}
+ir X\+A\+CC intermediate representation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
+
+\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)}{compile(const std::string \&src)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Quil\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00050_adf4d321ecb0df3fa7728999f941c83b2}{}\label{a00050_adf4d321ecb0df3fa7728999f941c83b2}
+
+\begin{DoxyParams}{Parameters}
+{\em src} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00020_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
+
+\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Quil\+Compiler\+::get\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_ae7d52140b6dd52730edc6e38ae48f437}{}\label{a00050_ae7d52140b6dd52730edc6e38ae48f437}
+Return the name of this \hyperlink{a00020}{Compiler} \begin{DoxyReturn}{Returns}
+name \hyperlink{a00020}{Compiler} name 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
+
+\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!register\+Compiler@{register\+Compiler}}
+\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
+\subsubsection[{\texorpdfstring{register\+Compiler()}{registerCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Quil\+Compiler\+::register\+Compiler (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00050_aaec99a14bede717bf02a0f65af2a3c69}{}\label{a00050_aaec99a14bede717bf02a0f65af2a3c69}
+Register this \hyperlink{a00020}{Compiler} with the framework. 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-client\+\_\+http.\+hpp\item 
-server\+\_\+http.\+hpp\end{DoxyCompactItemize}
+Quil\+Compiler.\+hpp\item 
+Quil\+Compiler.\+cpp\end{DoxyCompactItemize}

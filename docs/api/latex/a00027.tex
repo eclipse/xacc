@@ -1,0 +1,78 @@
+\hypertarget{a00027}{}\section{xacc\+:\+:quantum\+:\+:Embedding\+Algorithm Class Reference}
+\label{a00027}\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+
+
+{\ttfamily \#include $<$Embedding\+Algorithm.\+hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00027_abad06507eef6b63af0884e3a96145c69}{Embedding\+Algorithm} ()
+\item 
+virtual \hyperlink{a00027_aa43660ad5d4c4b3ac67863892c33dc51}{$\sim$\+Embedding\+Algorithm} ()
+\item 
+virtual std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00027_a67158c0f4925ff6b85698efec61e1175}{embed} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00035}{D\+Wave\+Graph} $>$ problem, std\+::shared\+\_\+ptr$<$ \hyperlink{a00035}{D\+Wave\+Graph} $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())=0
+\item 
+virtual std\+::string \hyperlink{a00027_a21079dc8ee37792977f5fd209e3f3b19}{name} ()=0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00027}{Embedding\+Algorithm} class provides an interface for minor graph embedding algorithms. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!Embedding\+Algorithm@{Embedding\+Algorithm}}
+\index{Embedding\+Algorithm@{Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{Embedding\+Algorithm()}{EmbeddingAlgorithm()}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Embedding\+Algorithm\+::\+Embedding\+Algorithm (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00027_abad06507eef6b63af0884e3a96145c69}{}\label{a00027_abad06507eef6b63af0884e3a96145c69}
+The Constructor \index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}}
+\index{````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{$\sim$\+Embedding\+Algorithm()}{~EmbeddingAlgorithm()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Embedding\+Algorithm\+::$\sim$\+Embedding\+Algorithm (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00027_aa43660ad5d4c4b3ac67863892c33dc51}{}\label{a00027_aa43660ad5d4c4b3ac67863892c33dc51}
+The Destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!embed@{embed}}
+\index{embed@{embed}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{embed(std\+::shared\+\_\+ptr$<$ D\+Wave\+Graph $>$ problem, std\+::shared\+\_\+ptr$<$ D\+Wave\+Graph $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())=0}{embed(std::shared\_ptr< DWaveGraph > problem, std::shared\_ptr< DWaveGraph > hardware, std::map< std::string, std::string > params=std::map< std::string, std::string >())=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::map$<$int, std\+::list$<$int$>$ $>$ xacc\+::quantum\+::\+Embedding\+Algorithm\+::embed (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf D\+Wave\+Graph} $>$}]{problem, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf D\+Wave\+Graph} $>$}]{hardware, }
+\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{params = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string~$>$()}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00027_a67158c0f4925ff6b85698efec61e1175}{}\label{a00027_a67158c0f4925ff6b85698efec61e1175}
+Implementations of \hyperlink{a00027}{Embedding\+Algorithm} implement this method to provide a valid minor graph embedding of the given problem graph into the given hardware graph.
+
+
+\begin{DoxyParams}{Parameters}
+{\em problem} & The problem graph to be embedded into the hardware graph \\
+\hline
+{\em hardware} & The hardware graph. \\
+\hline
+{\em params} & Any key-\/value string parameters to influence the algorithm. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+embedding A mapping of problem vertex indices to the list of hardware vertices they map to 
+\end{DoxyReturn}
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!name@{name}}
+\index{name@{name}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{name()=0}{name()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string xacc\+::quantum\+::\+Embedding\+Algorithm\+::name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00027_a21079dc8ee37792977f5fd209e3f3b19}{}\label{a00027_a21079dc8ee37792977f5fd209e3f3b19}
+Return the name of this Embedding Algorithm \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Embedding\+Algorithm.\+hpp\end{DoxyCompactItemize}

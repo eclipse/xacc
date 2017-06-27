@@ -1,116 +1,65 @@
+\hypertarget{a00013}{}\section{Accelerator\+Buffer Class Reference}
+\label{a00013}\index{Accelerator\+Buffer@{Accelerator\+Buffer}}
 
 
- layout\+: post title\+: Tests permalink\+: /about/tests \subsection*{category\+: about }
+{\ttfamily \#include $<$Accelerator\+Buffer.\+hpp$>$}
 
-Testing is extremely important in the design of Fire. There are a lot of different types of tests in Fire and, more or less, \href{https://en.wikipedia.org/wiki/Test-driven_development}{\tt test driven development} drives the design of Fire.
+Inheritance diagram for Accelerator\+Buffer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00013}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Accelerator\+Buffer} (const std\+::string \&str)\hypertarget{a00013_a5115079c3f3f8d32e713f78a91c93a7a}{}\label{a00013_a5115079c3f3f8d32e713f78a91c93a7a}
 
-Tests can be found in the $\ast$/tests$\ast$ subdirectory of any particular module of Fire. C\+Make\+Lists.\+txt files use the {\itshape tests.\+cmake} module in the {\itshape cmake} folder to configure and build tests.
+\item 
+{\bfseries Accelerator\+Buffer} (const std\+::string \&str, const int N)\hypertarget{a00013_a6947082735241791c5170d677042da4a}{}\label{a00013_a6947082735241791c5170d677042da4a}
 
-\section*{Types of Tests}
+\item 
+{\footnotesize template$<$typename... Indices$>$ }\\{\bfseries Accelerator\+Buffer} (const std\+::string \&str, int first\+Index, Indices...\+indices)\hypertarget{a00013_afe8b2a7e0b7b7992f45fe7021d106b66}{}\label{a00013_afe8b2a7e0b7b7992f45fe7021d106b66}
 
-Fire contains a lot of unit tests.
+\item 
+int {\bfseries size} ()\hypertarget{a00013_a249eae9f3b83072e5b101ba23f900e81}{}\label{a00013_a249eae9f3b83072e5b101ba23f900e81}
 
-\section*{Running Tests}
+\item 
+std\+::string {\bfseries name} ()\hypertarget{a00013_a3373218e4d430d061ba75135bf14ede3}{}\label{a00013_a3373218e4d430d061ba75135bf14ede3}
 
-Fire combines C\+Make\textquotesingle{}s testing system, C\+Test, and Boost\textquotesingle{}s Unit Testing Framework for testing.
+\item 
+void {\bfseries reset\+Buffer} ()\hypertarget{a00013_aa5080c9a975871858b39d3394e867e77}{}\label{a00013_aa5080c9a975871858b39d3394e867e77}
 
-You can run the tests in Fire in your build directory after the build by simply executing
+\item 
+void {\bfseries update\+Bit} (const int idx, int zero\+Or\+One)\hypertarget{a00013_a689855524e630049db6120a1493a3c45}{}\label{a00013_a689855524e630049db6120a1493a3c45}
 
+\item 
+Accelerator\+Bit\+State {\bfseries get\+Accelerator\+Bit\+State} (const int idx)\hypertarget{a00013_a29ece4f7b671308b89c06f3ac8e74b9e}{}\label{a00013_a29ece4f7b671308b89c06f3ac8e74b9e}
 
-\begin{DoxyCode}
-1 make test
-\end{DoxyCode}
+\item 
+virtual void {\bfseries print} ()\hypertarget{a00013_a3776733a3196bca276988d4cc50a135a}{}\label{a00013_a3776733a3196bca276988d4cc50a135a}
 
+\item 
+virtual void {\bfseries print} (std\+::ostream \&stream)\hypertarget{a00013_a6f2cf905960a528fc829904a3c176c6e}{}\label{a00013_a6f2cf905960a528fc829904a3c176c6e}
 
-Since Fire\textquotesingle{}s build system is built on cmake, you can also execute the tests using ctest. For example, you can execute
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string {\bfseries buffer\+Id}\hypertarget{a00013_adca17dc5025c067a927aefd6a5cbe51b}{}\label{a00013_adca17dc5025c067a927aefd6a5cbe51b}
 
+\item 
+std\+::vector$<$ \hyperlink{a00012}{Accelerator\+Bit} $>$ {\bfseries bits}\hypertarget{a00013_a36b3300cbada4e54e9e68d1c7c135c9b}{}\label{a00013_a36b3300cbada4e54e9e68d1c7c135c9b}
 
-\begin{DoxyCode}
-1 ctest
-\end{DoxyCode}
-
-
-You can also run individual tests manually. For example, you can run a test in the astrophysics module like so, assuming you start in your build directory,
-
-
-\begin{DoxyCode}
-1 cd astrophysics
-2 ./myTest
-\end{DoxyCode}
-
-
-\subsubsection*{Where to run?}
-
-All tests in fire are written to run from the directory where they are built, not the top-\/level build directory. For example, all astrophysics tests should be run from the astrophysics directory, all parser tests should be run from the parsers directory, etc. This makes it possible for the test code to very simply interact with test data files without any special requirements for finding those test data files.
-
-The custom C\+Make code in Fire that generates your test (see cmake/tests.\+cmake), configures ctest so that when you run it from the build directory it secretly executes in the appropriate subdirectory. So, if you run \char`\"{}make test,\char`\"{} the build quietly changes into the appropriate directory to run the test. Make sure that you follow the third example above for manually running your test in the proper directory if you need to run individual tests.
-
-\subsubsection*{Executing By Label}
-
-You can run subsets of Fire\textquotesingle{}s tests by passing the labels of the tests that you want to run to ctest. The following command will execute all of the \char`\"{}astrophysics\char`\"{} tests in Fire.
-
-
-\begin{DoxyCode}
-1 ctest -L FireAstro
-\end{DoxyCode}
+\end{DoxyCompactItemize}
 
 
-The valid labels are the C\+Make module names defined for each packaged in its C\+Make\+Lists.\+txt file.
-
-\subsubsection*{On N\+Vidia Optimus Cards with Linux}
-
-N\+Vidia\textquotesingle{}s Optimus Technology requires special care and feeding on Linux. If you have this setup and your system is configure correctly, you need only modify the above command by adding the \char`\"{}optirun\char`\"{} prefix
-
-
-\begin{DoxyCode}
-1 optirun make test
-\end{DoxyCode}
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
 
 
-If you do not use this command, you may see segmentation faults or other errors. The alternative to optirun, called \char`\"{}primusrun,\char`\"{} may or may not work. (Sometimes it works for the author and sometimes it doesn\textquotesingle{}t.)
-
-\section*{Verbose Output}
-
-Boost unit tests do not print all of their output by default. Neither does ctest. This makes debugging with stdout difficult! The level of output is controlled by environment variables that must be set before the tests run. For example, running a test without this variable will look something like
-
-
-\begin{DoxyCode}
-1 $ ./DelimitedTextParserTest 
-2 Running 2 test cases...
-3 
-4 *** No errors detected
-\end{DoxyCode}
- but running it with the log level set to \char`\"{}all\char`\"{} will have different output,
-
-
-\begin{DoxyCode}
-1 BOOST\_TEST\_LOG\_LEVEL=all ./DelimitedTextParserTest 
-2 Running 2 test cases...
-3 Entering test suite "Parsers"
-4 Entering test case "checkCSV"
-5 Configuring fixture.
-6 Fixture configured.
-7 fire/parsers/tests/DelimitedTextParserTest.cpp(94): info: check 3 == data.size() passed
-8 fire/parsers/tests/DelimitedTextParserTest.cpp(96): info: check 3 == dataEntry.size() passed
-9 
-10 ...
-11 
-12 fire/parsers/tests/DelimitedTextParserTest.cpp(114): info: check 8729.9 == dataEntry[3] passed
-13 Leaving test case "checkCSV"; testing time: 1005mks
-14 Entering test case "checkSpace"
-15 Leaving test case "checkSpace"; testing time: 805mks
-16 Leaving test suite "Parsers"
-17 
-18 *** No errors detected
-\end{DoxyCode}
-
-
-Detailed information on the log levels of the Boost Unit Testing Framework are available on their \href{http://www.boost.org/doc/libs/1_34_1/libs/test/doc/components/utf/parameters/log_level.html}{\tt log level parameter page}.
-
-To get ctest to display all of this information, the C\+T\+E\+S\+T\+\_\+\+O\+U\+T\+P\+U\+T\+\_\+\+O\+N\+\_\+\+F\+A\+I\+L\+U\+RE flag can be combined with the B\+O\+O\+ST log level to display all the information
-
-
-\begin{DoxyCode}
-1 CTEST\_OUTPUT\_ON\_FAILURE=1 BOOST\_TEST\_LOG\_LEVEL=all make test
-\end{DoxyCode}
- 
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Accelerator\+Buffer.\+hpp\end{DoxyCompactItemize}

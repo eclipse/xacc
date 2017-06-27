@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: SimpleWeb::ClientBase&lt; socket_type &gt; Class Template Reference</title>
+        <title>XACC: xacc::Registry&lt; T, TArgs &gt; Class Template Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,104 +91,238 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="a00828.html">SimpleWeb</a></li><li class="navelem"><a class="el" href="a00056.html">ClientBase</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00056.html">Registry</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
-<a href="a01046.html">List of all members</a>  </div>
+<a href="a00290.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">SimpleWeb::ClientBase&lt; socket_type &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+<div class="title">xacc::Registry&lt; T, TArgs &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="a00216_source.html">Registry.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for SimpleWeb::ClientBase&lt; socket_type &gt;:</div>
+Inheritance diagram for xacc::Registry&lt; T, TArgs &gt;:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00056.png" usemap="#SimpleWeb::ClientBase_3C_20socket_5Ftype_20_3E_map" alt=""/>
-  <map id="SimpleWeb::ClientBase_3C_20socket_5Ftype_20_3E_map" name="SimpleWeb::ClientBase&lt; socket_type &gt;_map">
-<area href="a00053.html" alt="SimpleWeb::Client&lt; socket_type &gt;" shape="rect" coords="0,56,231,80"/>
+  <img src="a00056.png" usemap="#xacc::Registry_3C_20T_2C_20TArgs_20_3E_map" alt=""/>
+  <map id="xacc::Registry_3C_20T_2C_20TArgs_20_3E_map" name="xacc::Registry&lt; T, TArgs &gt;_map">
+<area href="a00068.html" alt="xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;" shape="rect" coords="0,0,253,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00061.html">Config</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00250.html">Response</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac8a838ace77f0a1a19b8cb03bdba7e74"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac8a838ace77f0a1a19b8cb03bdba7e74"></a>
-std::shared_ptr&lt; <a class="el" href="a00250.html">Response</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>request</b> (const std::string &amp;request_type, const std::string &amp;path=&quot;/&quot;, boost::string_ref content=&quot;&quot;, const std::map&lt; std::string, std::string &gt; &amp;header=std::map&lt; std::string, std::string &gt;())</td></tr>
-<tr class="separator:ac8a838ace77f0a1a19b8cb03bdba7e74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca6cb17dbea9adf0cf1daf9d1ea70f76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca6cb17dbea9adf0cf1daf9d1ea70f76"></a>
-std::shared_ptr&lt; <a class="el" href="a00250.html">Response</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>request</b> (const std::string &amp;request_type, const std::string &amp;path, std::iostream &amp;content, const std::map&lt; std::string, std::string &gt; &amp;header=std::map&lt; std::string, std::string &gt;())</td></tr>
-<tr class="separator:aca6cb17dbea9adf0cf1daf9d1ea70f76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad21735a9bda2fae6aedd811efae981e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad21735a9bda2fae6aedd811efae981e1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>close</b> ()</td></tr>
-<tr class="separator:ad21735a9bda2fae6aedd811efae981e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:af17ddd25319c4f9029969441dfd54eff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af17ddd25319c4f9029969441dfd54eff"></a>
-<a class="el" href="a00061.html">Config</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#af17ddd25319c4f9029969441dfd54eff">config</a></td></tr>
-<tr class="memdesc:af17ddd25319c4f9029969441dfd54eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set before calling request. <br /></td></tr>
-<tr class="separator:af17ddd25319c4f9029969441dfd54eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a4a74d44c9df44d0d469ad453bdac43bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a74d44c9df44d0d469ad453bdac43bf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ClientBase</b> (const std::string &amp;host_port, unsigned short default_port)</td></tr>
-<tr class="separator:a4a74d44c9df44d0d469ad453bdac43bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac511a8e5de870f533f8c28270c82dbfa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac511a8e5de870f533f8c28270c82dbfa"></a>
-std::pair&lt; std::string, unsigned short &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>parse_host_port</b> (const std::string &amp;host_port, unsigned short default_port)</td></tr>
-<tr class="separator:ac511a8e5de870f533f8c28270c82dbfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c1f364a57eaef8fd10c29a82e475010"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4c1f364a57eaef8fd10c29a82e475010"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>connect</b> ()=0</td></tr>
-<tr class="separator:a4c1f364a57eaef8fd10c29a82e475010"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab76f469e8f909bf046a80d5afad70469"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab76f469e8f909bf046a80d5afad70469"></a>
-std::shared_ptr&lt; boost::asio::deadline_timer &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_timeout_timer</b> (std::size_t timeout=0)</td></tr>
-<tr class="separator:ab76f469e8f909bf046a80d5afad70469"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc47dec013e8a0e77950fa3412c8f07e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc47dec013e8a0e77950fa3412c8f07e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>parse_response_header</b> (const std::shared_ptr&lt; <a class="el" href="a00250.html">Response</a> &gt; &amp;response) const </td></tr>
-<tr class="separator:acc47dec013e8a0e77950fa3412c8f07e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa5ddce26ed4c7570a764e2ff003fa25"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa5ddce26ed4c7570a764e2ff003fa25"></a>
-std::shared_ptr&lt; <a class="el" href="a00250.html">Response</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>request_read</b> ()</td></tr>
-<tr class="separator:afa5ddce26ed4c7570a764e2ff003fa25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7fa171a9555114e702cafb3f85bc7d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7fa171a9555114e702cafb3f85bc7d5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>request_read_chunked</b> (const std::shared_ptr&lt; <a class="el" href="a00250.html">Response</a> &gt; &amp;response, boost::asio::streambuf &amp;streambuf)</td></tr>
-<tr class="separator:ae7fa171a9555114e702cafb3f85bc7d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aa172c2603171db067b40bd62ba53c6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a9aa172c2603171db067b40bd62ba53c6">add</a> (const std::string &amp;id, std::function&lt; std::shared_ptr&lt; T &gt;(TArgs...)&gt; f)</td></tr>
+<tr class="separator:a9aa172c2603171db067b40bd62ba53c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecccbd5534276cbdd1553e43c942219b"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#aecccbd5534276cbdd1553e43c942219b">create</a> (const std::string &amp;id, TArgs...args)</td></tr>
+<tr class="separator:aecccbd5534276cbdd1553e43c942219b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bff6f5c50534375abc4026662d69d2e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a8bff6f5c50534375abc4026662d69d2e">getRegisteredIds</a> ()</td></tr>
+<tr class="separator:a8bff6f5c50534375abc4026662d69d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2352dd7c6c85ae5c5e232b577dfa2544"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a2352dd7c6c85ae5c5e232b577dfa2544">size</a> ()</td></tr>
+<tr class="separator:a2352dd7c6c85ae5c5e232b577dfa2544"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:abe07c05fed46efc9e6aa76736961ae20"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe07c05fed46efc9e6aa76736961ae20"></a>
-boost::asio::io_service&#160;</td><td class="memItemRight" valign="bottom"><b>io_service</b></td></tr>
-<tr class="separator:abe07c05fed46efc9e6aa76736961ae20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2001dc43f4c3ef1f07a86eea8fbf8082"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2001dc43f4c3ef1f07a86eea8fbf8082"></a>
-boost::asio::ip::tcp::resolver&#160;</td><td class="memItemRight" valign="bottom"><b>resolver</b></td></tr>
-<tr class="separator:a2001dc43f4c3ef1f07a86eea8fbf8082"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48b0e61c61cfc3d5307a0101cc30a28e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48b0e61c61cfc3d5307a0101cc30a28e"></a>
-std::unique_ptr&lt; socket_type &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>socket</b></td></tr>
-<tr class="separator:a48b0e61c61cfc3d5307a0101cc30a28e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c0d5c3d38f4a6a21b67918199b498da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c0d5c3d38f4a6a21b67918199b498da"></a>
-std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>socket_mutex</b></td></tr>
-<tr class="separator:a2c0d5c3d38f4a6a21b67918199b498da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4436f29ffdce0b29b210cbecd972ffef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4436f29ffdce0b29b210cbecd972ffef"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>host</b></td></tr>
-<tr class="separator:a4436f29ffdce0b29b210cbecd972ffef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aadd3336b64a1f8d559af656554ddd0e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aadd3336b64a1f8d559af656554ddd0e9"></a>
-unsigned short&#160;</td><td class="memItemRight" valign="bottom"><b>port</b></td></tr>
-<tr class="separator:aadd3336b64a1f8d559af656554ddd0e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46460ecacc7facb6936b3c1ec6d618d7"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::string, std::function&lt; std::shared_ptr&lt; T &gt;TArgs...)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a46460ecacc7facb6936b3c1ec6d618d7">registry</a></td></tr>
+<tr class="separator:a46460ecacc7facb6936b3c1ec6d618d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_static_methods_a00068"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_a00068')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td></tr>
+<tr class="memitem:ae4c30f303439e702389c9d088abb3f23 inherit pub_static_methods_a00068"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="a00056.html">Registry</a>&lt; T, TArgs... &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#ae4c30f303439e702389c9d088abb3f23">instance</a> ()</td></tr>
+<tr class="separator:ae4c30f303439e702389c9d088abb3f23 inherit pub_static_methods_a00068"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbc654f5f90a2abc85f0010496335942 inherit pub_static_methods_a00068"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#abbc654f5f90a2abc85f0010496335942">destroy</a> ()</td></tr>
+<tr class="separator:abbc654f5f90a2abc85f0010496335942 inherit pub_static_methods_a00068"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_a00068"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_a00068')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td></tr>
+<tr class="memitem:afd62caabc41babdd98ab9af2253ec371 inherit pro_methods_a00068"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#afd62caabc41babdd98ab9af2253ec371">Singleton</a> ()</td></tr>
+<tr class="separator:afd62caabc41babdd98ab9af2253ec371 inherit pro_methods_a00068"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75a032ec71f88d6986461b47f3fb2600 inherit pro_methods_a00068"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a75a032ec71f88d6986461b47f3fb2600">~Singleton</a> ()</td></tr>
+<tr class="separator:a75a032ec71f88d6986461b47f3fb2600 inherit pro_methods_a00068"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_static_attribs_a00068"><td colspan="2" onclick="javascript:toggleInherit('pro_static_attribs_a00068')"><img src="closed.png" alt="-"/>&#160;Static Protected Attributes inherited from <a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td></tr>
+<tr class="memitem:a863885efab9990f06f699567648dfa26 inherit pro_static_attribs_a00068"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="a00056.html">Registry</a>&lt; T, TArgs... &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00068.html#a863885efab9990f06f699567648dfa26">instance_</a></td></tr>
+<tr class="separator:a863885efab9990f06f699567648dfa26 inherit pro_static_attribs_a00068"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;typename T, typename... TArgs&gt;<br />
+class xacc::Registry&lt; T, TArgs &gt;</h3>
+
+<p><a class="el" href="a00056.html">Registry</a> is a <a class="el" href="a00068.html">Singleton</a> that provides a mapping of string ids to creation functions that create and return the provided <a class="el" href="a00056.html">Registry</a> template parameter T.</p>
+<p>Clients can add new creation functions to be placed in the map with a unique name key, and can request that the <a class="el" href="a00056.html">Registry</a> return a new created instance of the template parameter T. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a9aa172c2603171db067b40bd62ba53c6"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename... TArgs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="a00056.html">xacc::Registry</a>&lt; T, TArgs &gt;::add </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; std::shared_ptr&lt; T &gt;(TArgs...)&gt;&#160;</td>
+          <td class="paramname"><em>f</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Add a new creation function to the <a class="el" href="a00056.html">Registry</a>, keyed on the provided string id.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>The Id of the creation function </td></tr>
+    <tr><td class="paramname">f</td><td>The object's creation function </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>success Bool indicating if this creator was added successfully. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aecccbd5534276cbdd1553e43c942219b"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename... TArgs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt;T&gt; <a class="el" href="a00056.html">xacc::Registry</a>&lt; T, TArgs &gt;::create </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TArgs...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create an instance of T by using the creation function found at the given key string id.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>The Id of the creation function </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>object Shared Pointer for the created object. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8bff6f5c50534375abc4026662d69d2e"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename... TArgs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::string&gt; <a class="el" href="a00056.html">xacc::Registry</a>&lt; T, TArgs &gt;::getRegisteredIds </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the keys from the registry map.</p>
+<dl class="section return"><dt>Returns</dt><dd>ids The registered creator Ids </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2352dd7c6c85ae5c5e232b577dfa2544"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename... TArgs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t <a class="el" href="a00056.html">xacc::Registry</a>&lt; T, TArgs &gt;::size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the number of creation functions this registry contains.</p>
+<dl class="section return"><dt>Returns</dt><dd>size The number of creators in this <a class="el" href="a00056.html">Registry</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a46460ecacc7facb6936b3c1ec6d618d7"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T, typename... TArgs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;std::string, std::function&lt;std::shared_ptr&lt;T&gt;TArgs...)&gt; &gt; <a class="el" href="a00056.html">xacc::Registry</a>&lt; T, TArgs &gt;::registry</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Reference to the database of creation functions for classes of superclass type T. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00421_source.html">client_http.hpp</a></li>
+<li><a class="el" href="a00216_source.html">Registry.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

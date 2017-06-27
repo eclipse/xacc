@@ -1,8 +1,130 @@
+\hypertarget{a00020}{}\section{xacc\+:\+:Compiler Class Reference}
+\label{a00020}\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}}
 
 
- layout\+: page title \+: About \subsection*{permalink\+: /about/ }
+{\ttfamily \#include $<$Compiler.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Compiler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.772277cm]{a00020}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{IR} $>$ \hyperlink{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{IR} $>$ \hyperlink{a00020_a9092f5f779b570c91569b59621280c04}{compile} (const std\+::string \&src)=0
+\item 
+virtual const std\+::string \hyperlink{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{get\+Name} ()=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00020_a9f5a8965c9c2dd895016d18264ebbe92}{get\+Options} ()
+\item 
+virtual \hyperlink{a00020_a5d0b012687d9b44893872eaa81e47b38}{$\sim$\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{a00020_a0ad81c816c09e5113d03cdc02165c453}{kernel\+Source}
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ \hyperlink{a00020_ad4cbb467fa7e377bac6c054ffcb22b7c}{accelerator}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00020}{Compiler} class provides an extensible interface for injecting custom compilation mechanisms into the X\+A\+CC framework. Implementations provide a compile method that takes the kernel source code string, performs compiler-\/specific compilation mechanism, and returns a valid X\+A\+CC \hyperlink{a00041}{IR} instance modeling the result of the compilation. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!````~Compiler@{$\sim$\+Compiler}}
+\index{````~Compiler@{$\sim$\+Compiler}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{$\sim$\+Compiler()}{~Compiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Compiler\+::$\sim$\+Compiler (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00020_a5d0b012687d9b44893872eaa81e47b38}{}\label{a00020_a5d0b012687d9b44893872eaa81e47b38}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)=0}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf IR}$>$ xacc\+::\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{}\label{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the \hyperlink{a00011}{Accelerator} that this source code is intended for.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The kernel source string. \\
+\hline
+{\em acc} & The \hyperlink{a00011}{Accelerator} this code will be executed on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ir Intermediate representation for provided source kernel code. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00065_a7caede75bb2304ba405966651b115543}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00050_a2421482415ca4e09963ea4ecddff8100}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}{xacc\+::quantum\+::\+D\+Wave\+Compiler}.
+
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)=0}{compile(const std::string \&src)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf IR}$>$ xacc\+::\+Compiler\+::compile (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{src}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00020_a9092f5f779b570c91569b59621280c04}{}\label{a00020_a9092f5f779b570c91569b59621280c04}
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. 
+\begin{DoxyParams}{Parameters}
+{\em src} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00065_a3736ecc229fe6acdd4c991e85d7a1f08}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00050_adf4d321ecb0df3fa7728999f941c83b2}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}{xacc\+::quantum\+::\+D\+Wave\+Compiler}.
+
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{get\+Name()=0}{getName()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::\+Compiler\+::get\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{}\label{a00020_a87fca9100e6462122f5b687c3a0fb3fb}
+Return the name of this \hyperlink{a00020}{Compiler} \begin{DoxyReturn}{Returns}
+name \hyperlink{a00020}{Compiler} name 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00065_a3f537054a3924a1d14f4ceb0f0181161}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00050_ae7d52140b6dd52730edc6e38ae48f437}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00024_a8a180031ae563e1a9aac611e8066c181}{xacc\+::quantum\+::\+D\+Wave\+Compiler}.
+
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{get\+Options()}{getOptions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Compiler\+::get\+Options (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00020_a9f5a8965c9c2dd895016d18264ebbe92}{}\label{a00020_a9f5a8965c9c2dd895016d18264ebbe92}
+Return an empty options\+\_\+description, this is for subclasses to implement. 
+
+Implements \hyperlink{a00046_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
 
 
 
- \{\% for post in site.\+categories.\+about \%\}  $<$time datetime=\char`\"{}\{\{ post.\+date $\vert$ date\+\_\+to\+\_\+xmlschema \}\}\char`\"{} itemprop=\char`\"{}date\+Published\char`\"{}$>$\{\{ post.\+date $\vert$ date\+: \char`\"{}\%b \%-\/d, \%\+Y\char`\"{} \}\}$<$/time$>$   \{\{post.\+tag\}\}  ~\newline
-  \href{{{site.url}}{{site.baseurl}}{{post.url}}}{\tt \{\{post.\+title\}\}}   \{\{ post.\+content $\vert$ strip\+\_\+html $\vert$ truncatewords\+:20\}\}   \{\% endfor \%\}  
+\subsection{Member Data Documentation}
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!accelerator@{accelerator}}
+\index{accelerator@{accelerator}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{accelerator}{accelerator}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf Accelerator}$>$ xacc\+::\+Compiler\+::accelerator\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00020_ad4cbb467fa7e377bac6c054ffcb22b7c}{}\label{a00020_ad4cbb467fa7e377bac6c054ffcb22b7c}
+Reference to the \hyperlink{a00011}{Accelerator} that this compiler is targeting. \index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!kernel\+Source@{kernel\+Source}}
+\index{kernel\+Source@{kernel\+Source}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection[{\texorpdfstring{kernel\+Source}{kernelSource}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::\+Compiler\+::kernel\+Source\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00020_a0ad81c816c09e5113d03cdc02165c453}{}\label{a00020_a0ad81c816c09e5113d03cdc02165c453}
+Reference to the provided kernel source code string 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Compiler.\+hpp\end{DoxyCompactItemize}

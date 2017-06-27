@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: 2016-11-13-Notes-On-Getting-Eclipse-To-Work</title>
+        <title>XACC: xacc::quantum::CircuitNode Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -46,10 +46,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -69,6 +67,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
+    </ul>
+  </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -83,22 +89,53 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00017.html">CircuitNode</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="a00298.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">2016-11-13-Notes-On-Getting-Eclipse-To-Work </div>  </div>
+<div class="title">xacc::quantum::CircuitNode Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><hr/>
-<p> layout: post title: Notes on Getting Eclipse to Work permalink: /about/eclipse-bugs </p><h2>category: about </h2>
-<p>It should go without saying that I think Fire should be developed in Eclipse, especially given my role in the Eclipse community. But... that does not mean that I am above acknowledging that Eclipse can have some extremely annoying errors.</p>
-<h3>Getting the indexer to work properly</h3>
-<p>If the indexer does not work for your project, make sure that you are opening the project from the subdirectory in the FIRE-Debug-build or FIRE-Release-build projects created by CMake instead of the straight FIRE project. The difference is that the default project does not properly configure the builders and toolset, but the CMake project does.</p>
-<h3>Autocompletion doesn't work</h3>
-<p>Autocompletion in C++ projects often breaks in Eclipse. One trick that works is to follow edit "Window-&gt;Preferences-&gt;C/C++-&gt;Editor-&gt;Content Assist-&gt;Advanced" and make sure that "Parsing Based Proposals" is checked in both menus.</p>
-<h3>Autocompletion with variables declared using the auto keyword</h3>
-<p>Sorry, you're out of luck! Eclipse CDT is not currently able to discover what the type is of a variable declared with auto in C++11. The CDT project lead, Doug Schaefer, says that there is a lot of work going into the new features. </p>
-</div></div><!-- contents -->
+
+<p><code>#include &lt;<a class="el" href="a00123_source.html">GateQIR.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for xacc::quantum::CircuitNode:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00017.png" usemap="#xacc::quantum::CircuitNode_map" alt=""/>
+  <map id="xacc::quantum::CircuitNode_map" name="xacc::quantum::CircuitNode_map">
+<area href="a00073.html" alt="xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;" shape="rect" coords="0,0,520,24"/>
+<area href="a00073.html" alt="xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;" shape="rect" coords="530,0,1050,24"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_methods_a00073"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00073')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00073.html">xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;</a></td></tr>
+<tr class="memitem:a7a7c4d60a277c3c0998f3911d128eaa5 inherit pub_methods_a00073"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a7c4d60a277c3c0998f3911d128eaa5"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getPropertyName</b> (const int index)</td></tr>
+<tr class="separator:a7a7c4d60a277c3c0998f3911d128eaa5 inherit pub_methods_a00073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_a00073"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_a00073')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="a00073.html">xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;</a></td></tr>
+<tr class="memitem:ad97a32f3cfcceef3eb0725a1a185025b inherit pub_attribs_a00073"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad97a32f3cfcceef3eb0725a1a185025b"></a>
+std::tuple&lt; Properties... &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>properties</b></td></tr>
+<tr class="separator:ad97a32f3cfcceef3eb0725a1a185025b inherit pub_attribs_a00073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9107342e37aaa5d7936d7e457051f461 inherit pub_attribs_a00073"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9107342e37aaa5d7936d7e457051f461"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>propertyNames</b></td></tr>
+<tr class="separator:a9107342e37aaa5d7936d7e457051f461 inherit pub_attribs_a00073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p><a class="el" href="a00017.html">CircuitNode</a> subclasses QCIVertex to provide the following parameters in the given order:</p>
+<p>Parameters: Gate, Layer (ie time sequence), Gate Vertex Id, Qubit Ids that the gate acts on, enabled state, vector of parameters names </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="a00123_source.html">GateQIR.hpp</a></li>
+<li><a class="el" href="a00198_source.html">QuantumCircuit.hpp</a></li>
+</ul>
+</div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

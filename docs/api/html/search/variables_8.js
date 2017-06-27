@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['hashcode',['hashcode',['../a00291.html#a73631052aeb72fbabb6eaab0175f858e',1,'GenericValue::String']]],
-  ['head_5f',['head_',['../a00129.html#a3c86ef1e1f0655028cb8a3afce11ee4f',1,'GenericStringStream']]],
-  ['hostname',['hostName',['../a00156.html#ab7380b440faa49daffb65ca030380cde',1,'fire::util::INetworkingTool']]]
+  ['qbits',['qbits',['../a00033.html#a2a56be6c2519ea65df4d06f4abae1393',1,'xacc::quantum::GateInstruction']]],
+  ['quilstr',['quilStr',['../a00051.html#afd04300ce4dab03448a09f9bee448ca6',1,'xacc::quantum::QuilVisitor']]]
 ];

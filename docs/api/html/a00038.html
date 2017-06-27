@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: ASCII&lt; CharType &gt; Struct Template Reference</title>
+        <title>XACC: xacc::InstructionIterator Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,80 +89,167 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00038.html">InstructionIterator</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="a00837.html">List of all members</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="a00282.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">ASCII&lt; CharType &gt; Struct Template Reference</div>  </div>
+<div class="title">xacc::InstructionIterator Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="a00038.html" title="ASCII encoding. ">ASCII</a> encoding.  
- <a href="a00038.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00488_source.html">encodings.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00132_source.html">InstructionIterator.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:aefbadfc95efabb96ad4f64a99d2f11b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefbadfc95efabb96ad4f64a99d2f11b4"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>supportUnicode</b> = 0
- }</td></tr>
-<tr class="separator:aefbadfc95efabb96ad4f64a99d2f11b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1baf6e7914f165be952c30db664cefb4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1baf6e7914f165be952c30db664cefb4"></a>
-typedef CharType&#160;</td><td class="memItemRight" valign="bottom"><b>Ch</b></td></tr>
-<tr class="separator:a1baf6e7914f165be952c30db664cefb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:af61abf612341ab1454a1c43239b2da16"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00038.html#af61abf612341ab1454a1c43239b2da16">InstructionIterator</a> (std::shared_ptr&lt; <a class="el" href="a00037.html">Instruction</a> &gt; r)</td></tr>
+<tr class="separator:af61abf612341ab1454a1c43239b2da16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fa6c8cff43e7b224211d4f7954a4152"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00038.html#a7fa6c8cff43e7b224211d4f7954a4152">hasNext</a> ()</td></tr>
+<tr class="separator:a7fa6c8cff43e7b224211d4f7954a4152"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a2e2b1543650760a869460ebcd4382b"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="a00037.html">Instruction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00038.html#a0a2e2b1543650760a869460ebcd4382b">next</a> ()</td></tr>
+<tr class="separator:a0a2e2b1543650760a869460ebcd4382b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:af56b1605fe233c54693facc7de457f72"><td class="memTemplParams" colspan="2"><a class="anchor" id="af56b1605fe233c54693facc7de457f72"></a>
-template&lt;typename OutputStream &gt; </td></tr>
-<tr class="memitem:af56b1605fe233c54693facc7de457f72"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Encode</b> (OutputStream &amp;os, unsigned codepoint)</td></tr>
-<tr class="separator:af56b1605fe233c54693facc7de457f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afeb90d6f04771067b83b35a0f366af46"><td class="memTemplParams" colspan="2"><a class="anchor" id="afeb90d6f04771067b83b35a0f366af46"></a>
-template&lt;typename OutputStream &gt; </td></tr>
-<tr class="memitem:afeb90d6f04771067b83b35a0f366af46"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>EncodeUnsafe</b> (OutputStream &amp;os, unsigned codepoint)</td></tr>
-<tr class="separator:afeb90d6f04771067b83b35a0f366af46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44844bbfd0a4fc282993fd72f3f58eee"><td class="memTemplParams" colspan="2"><a class="anchor" id="a44844bbfd0a4fc282993fd72f3f58eee"></a>
-template&lt;typename InputStream &gt; </td></tr>
-<tr class="memitem:a44844bbfd0a4fc282993fd72f3f58eee"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Decode</b> (InputStream &amp;is, unsigned *codepoint)</td></tr>
-<tr class="separator:a44844bbfd0a4fc282993fd72f3f58eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a398680588a09e6ce9b56e32195047c78"><td class="memTemplParams" colspan="2"><a class="anchor" id="a398680588a09e6ce9b56e32195047c78"></a>
-template&lt;typename InputStream , typename OutputStream &gt; </td></tr>
-<tr class="memitem:a398680588a09e6ce9b56e32195047c78"><td class="memTemplItemLeft" align="right" valign="top">static bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Validate</b> (InputStream &amp;is, OutputStream &amp;os)</td></tr>
-<tr class="separator:a398680588a09e6ce9b56e32195047c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad78500eb98f45582a4df020e3fb2278"><td class="memTemplParams" colspan="2"><a class="anchor" id="aad78500eb98f45582a4df020e3fb2278"></a>
-template&lt;typename InputByteStream &gt; </td></tr>
-<tr class="memitem:aad78500eb98f45582a4df020e3fb2278"><td class="memTemplItemLeft" align="right" valign="top">static CharType&#160;</td><td class="memTemplItemRight" valign="bottom"><b>TakeBOM</b> (InputByteStream &amp;is)</td></tr>
-<tr class="separator:aad78500eb98f45582a4df020e3fb2278"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1b9fdf0a5c05658d62fded913d923a3"><td class="memTemplParams" colspan="2"><a class="anchor" id="ab1b9fdf0a5c05658d62fded913d923a3"></a>
-template&lt;typename InputByteStream &gt; </td></tr>
-<tr class="memitem:ab1b9fdf0a5c05658d62fded913d923a3"><td class="memTemplItemLeft" align="right" valign="top">static Ch&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Take</b> (InputByteStream &amp;is)</td></tr>
-<tr class="separator:ab1b9fdf0a5c05658d62fded913d923a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3036dc1d604039c3224ca0a890ee0134"><td class="memTemplParams" colspan="2"><a class="anchor" id="a3036dc1d604039c3224ca0a890ee0134"></a>
-template&lt;typename OutputByteStream &gt; </td></tr>
-<tr class="memitem:a3036dc1d604039c3224ca0a890ee0134"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>PutBOM</b> (OutputByteStream &amp;os)</td></tr>
-<tr class="separator:a3036dc1d604039c3224ca0a890ee0134"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a218b244b9cd961ea6c5775a734cec20e"><td class="memTemplParams" colspan="2"><a class="anchor" id="a218b244b9cd961ea6c5775a734cec20e"></a>
-template&lt;typename OutputByteStream &gt; </td></tr>
-<tr class="memitem:a218b244b9cd961ea6c5775a734cec20e"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>Put</b> (OutputByteStream &amp;os, Ch c)</td></tr>
-<tr class="separator:a218b244b9cd961ea6c5775a734cec20e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a9d7aee1cb9058dd4a29c8fc71eeda57d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="a00037.html">Instruction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00038.html#a9d7aee1cb9058dd4a29c8fc71eeda57d">root</a></td></tr>
+<tr class="separator:a9d7aee1cb9058dd4a29c8fc71eeda57d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7af48509e563e8865131692c3b71edf0"><td class="memItemLeft" align="right" valign="top">std::stack&lt; std::shared_ptr&lt; <a class="el" href="a00037.html">Instruction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00038.html#a7af48509e563e8865131692c3b71edf0">instStack</a></td></tr>
+<tr class="separator:a7af48509e563e8865131692c3b71edf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename CharType = char&gt;<br />
-struct ASCII&lt; CharType &gt;</h3>
-
-<p><a class="el" href="a00038.html" title="ASCII encoding. ">ASCII</a> encoding. </p>
-<p><a href="http://en.wikipedia.org/wiki/ASCII">http://en.wikipedia.org/wiki/ASCII</a> </p><dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">CharType</td><td>Code unit for storing 7-bit <a class="el" href="a00038.html" title="ASCII encoding. ">ASCII</a> data. Default is char. </td></tr>
+<div class="textblock"><p>The <a class="el" href="a00038.html">InstructionIterator</a> provides a mechanism for a pre-order traversal of an <a class="el" href="a00037.html">Instruction</a> tree. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="af61abf612341ab1454a1c43239b2da16"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">xacc::InstructionIterator::InstructionIterator </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00037.html">Instruction</a> &gt;&#160;</td>
+          <td class="paramname"><em>r</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The constructor, takes the root of the tree as input.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>implements Encoding concept </dd></dl>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00488_source.html">encodings.h</a></li>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a7fa6c8cff43e7b224211d4f7954a4152"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool xacc::InstructionIterator::hasNext </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return true if there are still instructions left to traverse. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a0a2e2b1543650760a869460ebcd4382b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt;<a class="el" href="a00037.html">Instruction</a>&gt; xacc::InstructionIterator::next </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the next <a class="el" href="a00037.html">Instruction</a> in the tree. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a7af48509e563e8865131692c3b71edf0"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::stack&lt;std::shared_ptr&lt;<a class="el" href="a00037.html">Instruction</a>&gt; &gt; xacc::InstructionIterator::instStack</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A stack used to implement the tree traversal </p>
+
+</div>
+</div>
+<a class="anchor" id="a9d7aee1cb9058dd4a29c8fc71eeda57d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt;<a class="el" href="a00037.html">Instruction</a>&gt; xacc::InstructionIterator::root</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The root of the tree, a function </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00132_source.html">InstructionIterator.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

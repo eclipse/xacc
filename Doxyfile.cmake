@@ -853,6 +853,9 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */eigen/*
+EXCLUDE_PATTERNS += */fire/*
+EXCLUDE_PATTERNS += */rapidjson/*
+EXCLUDE_PATTERNS += */boost-dll/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

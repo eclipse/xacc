@@ -1,8 +1,0 @@
-
-
- layout\+: page title \+: About \subsection*{permalink\+: /about/ }
-
-
-
- \{\% for post in site.\+categories.\+about \%\}  $<$time datetime=\char`\"{}\{\{ post.\+date $\vert$ date\+\_\+to\+\_\+xmlschema \}\}\char`\"{} itemprop=\char`\"{}date\+Published\char`\"{}$>$\{\{ post.\+date $\vert$ date\+: \char`\"{}\%b \%-\/d, \%\+Y\char`\"{} \}\}$<$/time$>$   \{\{post.\+tag\}\}  ~\newline
-  \href{{{site.url}}{{site.baseurl}}{{post.url}}}{\tt \{\{post.\+title\}\}}   \{\{ post.\+content $\vert$ strip\+\_\+html $\vert$ truncatewords\+:20\}\}   \{\% endfor \%\}  

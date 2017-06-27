@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: xacc::Accelerator Class Reference</title>
+        <title>XACC: xacc::Function Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,68 +91,98 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00030.html">Accelerator</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00030.html">Function</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="a01057.html">List of all members</a>  </div>
+<a href="a00278.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::Accelerator Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+<div class="title">xacc::Function Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00356_source.html">Accelerator.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00117_source.html">Function.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for xacc::Accelerator:</div>
+Inheritance diagram for xacc::Function:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00030.png" usemap="#xacc::Accelerator_map" alt=""/>
-  <map id="xacc::Accelerator_map" name="xacc::Accelerator_map">
-<area href="a00228.html" alt="xacc::OptionsProvider" shape="rect" coords="105,0,306,24"/>
-<area href="a00252.html" alt="xacc::quantum::RigettiAccelerator" shape="rect" coords="0,112,201,136"/>
-<area href="a00278.html" alt="xacc::quantum::SimpleAccelerator" shape="rect" coords="211,112,412,136"/>
+  <img src="a00030.png" usemap="#xacc::Function_map" alt=""/>
+  <map id="xacc::Function_map" name="xacc::Function_map">
+<area href="a00037.html" alt="xacc::Instruction" shape="rect" coords="0,56,209,80"/>
+<area href="a00015.html" alt="xacc::BaseInstructionVisitable" shape="rect" coords="0,0,209,24"/>
+<area href="a00032.html" alt="xacc::quantum::GateFunction" shape="rect" coords="0,168,209,192"/>
+<area href="a00021.html" alt="xacc::quantum::ConditionalFunction" shape="rect" coords="0,224,209,248"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aaffc3e4bb9880eb5041b1b58ee4c2665"><td class="memItemLeft" align="right" valign="top">virtual AcceleratorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aaffc3e4bb9880eb5041b1b58ee4c2665">getType</a> ()=0</td></tr>
-<tr class="separator:aaffc3e4bb9880eb5041b1b58ee4c2665"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e4a642dcb24e552675bcbeff1e1b04"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="a00168.html">IRTransformation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#ad6e4a642dcb24e552675bcbeff1e1b04">getIRTransformations</a> ()=0</td></tr>
-<tr class="separator:ad6e4a642dcb24e552675bcbeff1e1b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89b3f3e6294f228abf03a410b0fb1674"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a89b3f3e6294f228abf03a410b0fb1674">execute</a> (std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt; buffer, const std::shared_ptr&lt; <a class="el" href="a00106.html">Function</a> &gt; function)=0</td></tr>
-<tr class="separator:a89b3f3e6294f228abf03a410b0fb1674"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab5046e8d83ab390302e0f49533e95fc"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aab5046e8d83ab390302e0f49533e95fc">createBuffer</a> (const std::string &amp;varId)=0</td></tr>
-<tr class="separator:aab5046e8d83ab390302e0f49533e95fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a064a2dbd58338364115c260267806945"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a064a2dbd58338364115c260267806945">createBuffer</a> (const std::string &amp;varId, const int size)=0</td></tr>
-<tr class="separator:a064a2dbd58338364115c260267806945"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3820be326e28a553fed1a824f4d41d0"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#ab3820be326e28a553fed1a824f4d41d0">getBuffer</a> (const std::string &amp;varid)</td></tr>
-<tr class="separator:ab3820be326e28a553fed1a824f4d41d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae51584850faeec77299058383977ddeb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#ae51584850faeec77299058383977ddeb">isValidBufferSize</a> (const int NBits)=0</td></tr>
-<tr class="separator:ae51584850faeec77299058383977ddeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98c9eda6b54367c75667ecfbbf167979"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; options_description &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a98c9eda6b54367c75667ecfbbf167979">getOptions</a> ()</td></tr>
-<tr class="separator:a98c9eda6b54367c75667ecfbbf167979"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed88ab0d71b765f0b0f512684ccd4b55"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aed88ab0d71b765f0b0f512684ccd4b55">~Accelerator</a> ()</td></tr>
-<tr class="separator:aed88ab0d71b765f0b0f512684ccd4b55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00228"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00228')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00228.html">xacc::OptionsProvider</a></td></tr>
-<tr class="memitem:a7782757b419792ff346f563517eed8b8 inherit pub_methods_a00228"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00228.html#a7782757b419792ff346f563517eed8b8">~OptionsProvider</a> ()</td></tr>
-<tr class="separator:a7782757b419792ff346f563517eed8b8 inherit pub_methods_a00228"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8901985525f59713e14c61713e07c086"><td class="memItemLeft" align="right" valign="top">virtual const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a8901985525f59713e14c61713e07c086">nInstructions</a> ()=0</td></tr>
+<tr class="separator:a8901985525f59713e14c61713e07c086"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa549fc91b5a05f26d8139954a7e0ed5"><td class="memItemLeft" align="right" valign="top">virtual InstPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#afa549fc91b5a05f26d8139954a7e0ed5">getInstruction</a> (const int idx)=0</td></tr>
+<tr class="separator:afa549fc91b5a05f26d8139954a7e0ed5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf80bd3d49113a92b520785572663032"><td class="memItemLeft" align="right" valign="top">virtual std::list&lt; InstPtr &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aaf80bd3d49113a92b520785572663032">getInstructions</a> ()=0</td></tr>
+<tr class="separator:aaf80bd3d49113a92b520785572663032"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6478b09bb28e194bb555b3180737733"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#ab6478b09bb28e194bb555b3180737733">removeInstruction</a> (const int idx)=0</td></tr>
+<tr class="separator:ab6478b09bb28e194bb555b3180737733"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ef6a4923a6734f90f6ee3d94d263af0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a2ef6a4923a6734f90f6ee3d94d263af0">replaceInstruction</a> (const int idx, InstPtr newInst)=0</td></tr>
+<tr class="separator:a2ef6a4923a6734f90f6ee3d94d263af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8c9ec2d08be75c69399d4254b0216f5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aa8c9ec2d08be75c69399d4254b0216f5">addInstruction</a> (InstPtr instruction)=0</td></tr>
+<tr class="separator:aa8c9ec2d08be75c69399d4254b0216f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa75500c657b5c3e0e36213e1506aad97"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#aa75500c657b5c3e0e36213e1506aad97">isComposite</a> ()</td></tr>
+<tr class="separator:aa75500c657b5c3e0e36213e1506aad97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6ae9453027789a2aaec30e59c9e45e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6ae9453027789a2aaec30e59c9e45e3"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>evaluateVariableParameters</b> (std::vector&lt; InstructionParameter &gt; parameters)=0</td></tr>
+<tr class="separator:af6ae9453027789a2aaec30e59c9e45e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04b25ba4da1ddfa4ec4ec6d6ffb25bc3"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#a04b25ba4da1ddfa4ec4ec6d6ffb25bc3">~Function</a> ()</td></tr>
+<tr class="separator:a04b25ba4da1ddfa4ec4ec6d6ffb25bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a00037"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00037')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00037.html">xacc::Instruction</a></td></tr>
+<tr class="memitem:ac7ff23f693e2276edbf3fdac5452792c inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual const std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ac7ff23f693e2276edbf3fdac5452792c">getName</a> ()=0</td></tr>
+<tr class="separator:ac7ff23f693e2276edbf3fdac5452792c inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae94c2d089908294c1d410b14c96817ae inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual const std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ae94c2d089908294c1d410b14c96817ae">toString</a> (const std::string &amp;bufferVarName)=0</td></tr>
+<tr class="separator:ae94c2d089908294c1d410b14c96817ae inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a819f32e94c3e1c9e69a0061aaf8d86dc inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual const std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a819f32e94c3e1c9e69a0061aaf8d86dc">bits</a> ()=0</td></tr>
+<tr class="separator:a819f32e94c3e1c9e69a0061aaf8d86dc inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0d9de97a4833a042379647f83c33ab6 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual InstructionParameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#aa0d9de97a4833a042379647f83c33ab6">getParameter</a> (const int idx)=0</td></tr>
+<tr class="separator:aa0d9de97a4833a042379647f83c33ab6 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a407a0ac662fa0b1ec3e301e8ff9bade7 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a407a0ac662fa0b1ec3e301e8ff9bade7">setParameter</a> (const int idx, InstructionParameter &amp;isnt)=0</td></tr>
+<tr class="separator:a407a0ac662fa0b1ec3e301e8ff9bade7 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad54585d13c04ffd20296fff7ab8107ff inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ad54585d13c04ffd20296fff7ab8107ff">nParameters</a> ()=0</td></tr>
+<tr class="separator:ad54585d13c04ffd20296fff7ab8107ff inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b24d8ae485369fc2b2df7a3224a5e26 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a7b24d8ae485369fc2b2df7a3224a5e26">isParameterized</a> ()</td></tr>
+<tr class="separator:a7b24d8ae485369fc2b2df7a3224a5e26 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad02a1cf7220577124720b7a51424cea7 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ad02a1cf7220577124720b7a51424cea7">isEnabled</a> ()</td></tr>
+<tr class="separator:ad02a1cf7220577124720b7a51424cea7 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e528da15e05a94cc1d7db268c483271 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a6e528da15e05a94cc1d7db268c483271">disable</a> ()</td></tr>
+<tr class="separator:a6e528da15e05a94cc1d7db268c483271 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b4f2e5a591af28342a3c08e4305e24f inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a0b4f2e5a591af28342a3c08e4305e24f">enable</a> ()</td></tr>
+<tr class="separator:a0b4f2e5a591af28342a3c08e4305e24f inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae22c935e8113bce63d1d0e214cda4d61 inherit pub_methods_a00037"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#ae22c935e8113bce63d1d0e214cda4d61">~Instruction</a> ()</td></tr>
+<tr class="separator:ae22c935e8113bce63d1d0e214cda4d61 inherit pub_methods_a00037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a00015"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00015')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00015.html">xacc::BaseInstructionVisitable</a></td></tr>
+<tr class="memitem:a4ae295a7f83d57c6f1f912adc90274ea inherit pub_methods_a00015"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00015.html#a4ae295a7f83d57c6f1f912adc90274ea">accept</a> (std::shared_ptr&lt; <a class="el" href="a00016.html">BaseInstructionVisitor</a> &gt; visitor)=0</td></tr>
+<tr class="separator:a4ae295a7f83d57c6f1f912adc90274ea inherit pub_methods_a00015"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6b9ad95c14580cc86ca87cd464262c3 inherit pub_methods_a00015"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00015.html#ad6b9ad95c14580cc86ca87cd464262c3">accept</a> (<a class="el" href="a00016.html">BaseInstructionVisitor</a> *visitor)=0</td></tr>
+<tr class="separator:ad6b9ad95c14580cc86ca87cd464262c3 inherit pub_methods_a00015"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a291d247b18ea7620dd8d97dfb595f4 inherit pub_methods_a00015"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00015.html#a3a291d247b18ea7620dd8d97dfb595f4">~BaseInstructionVisitable</a> ()</td></tr>
+<tr class="separator:a3a291d247b18ea7620dd8d97dfb595f4 inherit pub_methods_a00015"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:ac3e781f42ec25e460174d4c41ea26b94"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00030.html#ac3e781f42ec25e460174d4c41ea26b94">storeBuffer</a> (const std::string &amp;id, std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt; b)</td></tr>
-<tr class="separator:ac3e781f42ec25e460174d4c41ea26b94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_static_methods_a00015"><td colspan="2" onclick="javascript:toggleInherit('pro_static_methods_a00015')"><img src="closed.png" alt="-"/>&#160;Static Protected Member Functions inherited from <a class="el" href="a00015.html">xacc::BaseInstructionVisitable</a></td></tr>
+<tr class="memitem:a2f18b9fcb48f42d190a9f5180b7b59c5 inherit pro_static_methods_a00015"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a2f18b9fcb48f42d190a9f5180b7b59c5 inherit pro_static_methods_a00015"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="a00015.html#a2f18b9fcb48f42d190a9f5180b7b59c5">acceptImpl</a> (T &amp;visited, std::shared_ptr&lt; <a class="el" href="a00016.html">BaseInstructionVisitor</a> &gt; visitor)</td></tr>
+<tr class="separator:a2f18b9fcb48f42d190a9f5180b7b59c5 inherit pro_static_methods_a00015"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80c7bb995faa54644f822fa48176c6cb inherit pro_static_methods_a00015"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a80c7bb995faa54644f822fa48176c6cb inherit pro_static_methods_a00015"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="a00015.html#a80c7bb995faa54644f822fa48176c6cb">acceptImpl</a> (T &amp;visited, <a class="el" href="a00016.html">BaseInstructionVisitor</a> *visitor)</td></tr>
+<tr class="separator:a80c7bb995faa54644f822fa48176c6cb inherit pro_static_methods_a00015"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="a00030.html">Accelerator</a> class provides a high-level abstraction for XACC's interaction with attached post-exascale accelerators (quantum and neuromorphic processing units).</p>
-<p>Derived Accelerators must provide a valid execute implementation that takes XACC <a class="el" href="a00167.html">IR</a> and executes it on the attached hardware or simulator.</p>
-<p>Derived Accelerators must provide a list of <a class="el" href="a00168.html">IRTransformation</a> instances that transform XACC <a class="el" href="a00167.html">IR</a> to be amenable to execution on the hardware.</p>
-<p>Derived Accelerators must provide implementations of createBuffer that provide a valid <a class="el" href="a00032.html">AcceleratorBuffer</a> instance modeling the hardware memory or bits being computed on. Upon creating an <a class="el" href="a00032.html">AcceleratorBuffer</a>, derived <a class="el" href="a00030.html">Accelerator</a> implementations must call the protected storeBuffer method to store the <a class="el" href="a00032.html">AcceleratorBuffer</a> for future reference by Compilers and clients of <a class="el" href="a00030.html">Accelerator</a>. </p>
+<div class="textblock"><p>The <a class="el" href="a00030.html">Function</a> is an <a class="el" href="a00037.html">Instruction</a> that contains further child Instructions. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="aed88ab0d71b765f0b0f512684ccd4b55"></a>
+<a class="anchor" id="a04b25ba4da1ddfa4ec4ec6d6ffb25bc3"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -162,7 +190,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual xacc::Accelerator::~Accelerator </td>
+          <td class="memname">virtual xacc::Function::~Function </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -174,12 +202,12 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Destructor </p>
+<p>The destructor </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="aab5046e8d83ab390302e0f49533e95fc"></a>
+<a class="anchor" id="aa8c9ec2d08be75c69399d4254b0216f5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -187,10 +215,10 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a00032.html">AcceleratorBuffer</a>&gt; xacc::Accelerator::createBuffer </td>
+          <td class="memname">virtual void xacc::Function::addInstruction </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>varId</em></td><td>)</td>
+          <td class="paramtype">InstPtr&#160;</td>
+          <td class="paramname"><em>instruction</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -200,20 +228,19 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Create, store, and return an <a class="el" href="a00032.html">AcceleratorBuffer</a> with the given variable id string. This string serves as a unique identifier for future lookups and reuse of the <a class="el" href="a00032.html">AcceleratorBuffer</a>.</p>
+<p>Add an <a class="el" href="a00037.html">Instruction</a> to this <a class="el" href="a00030.html">Function</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">varId</td><td></td></tr>
+    <tr><td class="paramname">instruction</td><td>The instruction to add. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
-<p>Implemented in <a class="el" href="a00252.html#ada3ceb986e51ab5aa721f2a08e083cd6">xacc::quantum::RigettiAccelerator</a>, and <a class="el" href="a00278.html#a46445d77d4b8ad2689571d0db6604380">xacc::quantum::SimpleAccelerator</a>.</p>
+<p>Implemented in <a class="el" href="a00032.html#a892fb69a10f0a7cb5abdab4cca61b80a">xacc::quantum::GateFunction</a>, and <a class="el" href="a00021.html#a6aedad20f96390880efdc0a476b3273f">xacc::quantum::ConditionalFunction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a064a2dbd58338364115c260267806945"></a>
+<a class="anchor" id="afa549fc91b5a05f26d8139954a7e0ed5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -221,21 +248,11 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a00032.html">AcceleratorBuffer</a>&gt; xacc::Accelerator::createBuffer </td>
+          <td class="memname">virtual InstPtr xacc::Function::getInstruction </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>varId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>size</em>&#160;</td>
-        </tr>
-        <tr>
+          <td class="paramname"><em>idx</em></td><td>)</td>
           <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -244,21 +261,20 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Create, store, and return an <a class="el" href="a00032.html">AcceleratorBuffer</a> with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the <a class="el" href="a00032.html">AcceleratorBuffer</a>.</p>
+<p>Return the <a class="el" href="a00037.html">Instruction</a> at the given index.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">varId</td><td></td></tr>
-    <tr><td class="paramname">size</td><td></td></tr>
+    <tr><td class="paramname">idx</td><td>The desired <a class="el" href="a00037.html">Instruction</a> index </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>inst The instruction at the given index. </dd></dl>
 
-<p>Implemented in <a class="el" href="a00252.html#a731551c94b1abef40d2cf032e8712df6">xacc::quantum::RigettiAccelerator</a>, and <a class="el" href="a00278.html#adb9393692e9f484df241aa5d014030d1">xacc::quantum::SimpleAccelerator</a>.</p>
+<p>Implemented in <a class="el" href="a00032.html#a841d656eed8aa9b4c0eec3f1da38069c">xacc::quantum::GateFunction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a89b3f3e6294f228abf03a410b0fb1674"></a>
+<a class="anchor" id="aaf80bd3d49113a92b520785572663032"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -266,81 +282,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void xacc::Accelerator::execute </td>
-          <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt;&#160;</td>
-          <td class="paramname"><em>buffer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="a00106.html">Function</a> &gt;&#160;</td>
-          <td class="paramname"><em>function</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Execute the provided XACC <a class="el" href="a00167.html">IR</a> <a class="el" href="a00106.html">Function</a> on the provided <a class="el" href="a00032.html">AcceleratorBuffer</a>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">buffer</td><td></td></tr>
-    <tr><td class="paramname">ir</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="ab3820be326e28a553fed1a824f4d41d0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a00032.html">AcceleratorBuffer</a>&gt; xacc::Accelerator::getBuffer </td>
-          <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>varid</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Return the stored <a class="el" href="a00032.html">AcceleratorBuffer</a> with the provided string id.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">varid</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ad6e4a642dcb24e552675bcbeff1e1b04"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual std::vector&lt;<a class="el" href="a00168.html">IRTransformation</a>&gt; xacc::Accelerator::getIRTransformations </td>
+          <td class="memname">virtual std::list&lt;InstPtr&gt; xacc::Function::getInstructions </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -352,13 +294,14 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return any <a class="el" href="a00167.html">IR</a> Transformations that must be applied to ensure the compiled <a class="el" href="a00167.html">IR</a> is amenable to execution on this <a class="el" href="a00030.html">Accelerator</a>. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<p>Return all Instructions in this <a class="el" href="a00030.html">Function</a></p>
+<dl class="section return"><dt>Returns</dt><dd>insts The list of this <a class="el" href="a00030.html">Function</a>'s Instructions </dd></dl>
 
-<p>Implemented in <a class="el" href="a00252.html#a443683a1dfb000603c640b2ee303cf66">xacc::quantum::RigettiAccelerator</a>, and <a class="el" href="a00278.html#afc49c9e7973ba6c6ff9761c36198323d">xacc::quantum::SimpleAccelerator</a>.</p>
+<p>Implemented in <a class="el" href="a00032.html#aebce6a9e64aed7f4aff86df752bacfe2">xacc::quantum::GateFunction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a98c9eda6b54367c75667ecfbbf167979"></a>
+<a class="anchor" id="aa75500c657b5c3e0e36213e1506aad97"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -366,7 +309,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual std::shared_ptr&lt;options_description&gt; xacc::Accelerator::getOptions </td>
+          <td class="memname">virtual bool xacc::Function::isComposite </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -378,15 +321,14 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return an empty options_description, this is for subclasses to implement. </p>
+<p>Return true always to indicate that the <a class="el" href="a00030.html">Function</a> is composite.</p>
+<dl class="section return"><dt>Returns</dt><dd>composite True indicating this is a composite <a class="el" href="a00037.html">Instruction</a>. </dd></dl>
 
-<p>Implements <a class="el" href="a00228.html#a6d150954f852109bfe2c1ae90222926f">xacc::OptionsProvider</a>.</p>
-
-<p>Reimplemented in <a class="el" href="a00252.html#a9ee9e62aecbccf193894ca3388676f9f">xacc::quantum::RigettiAccelerator</a>.</p>
+<p>Reimplemented from <a class="el" href="a00037.html#a4383f1036d0fcfe890ab9c613dbd5f38">xacc::Instruction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="aaffc3e4bb9880eb5041b1b58ee4c2665"></a>
+<a class="anchor" id="a8901985525f59713e14c61713e07c086"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -394,7 +336,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual AcceleratorType xacc::Accelerator::getType </td>
+          <td class="memname">virtual const int xacc::Function::nInstructions </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -406,14 +348,14 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return the type of this <a class="el" href="a00030.html">Accelerator</a>.</p>
-<dl class="section return"><dt>Returns</dt><dd>type The <a class="el" href="a00030.html">Accelerator</a> type - Gate or AQC QPU, or NPU </dd></dl>
+<p>Return the number of Instructions that this <a class="el" href="a00030.html">Function</a> contains.</p>
+<dl class="section return"><dt>Returns</dt><dd>nInst The number of instructions </dd></dl>
 
-<p>Implemented in <a class="el" href="a00252.html#aab0d4674da5273d55407b9ab77cde890">xacc::quantum::RigettiAccelerator</a>, and <a class="el" href="a00278.html#ad76eeb0bbd7de21aad5bd20d20970a98">xacc::quantum::SimpleAccelerator</a>.</p>
+<p>Implemented in <a class="el" href="a00032.html#aa70b26156c060fec71316fe5e98bb102">xacc::quantum::GateFunction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ae51584850faeec77299058383977ddeb"></a>
+<a class="anchor" id="ab6478b09bb28e194bb555b3180737733"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -421,10 +363,10 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool xacc::Accelerator::isValidBufferSize </td>
+          <td class="memname">virtual void xacc::Function::removeInstruction </td>
           <td>(</td>
           <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>NBits</em></td><td>)</td>
+          <td class="paramname"><em>idx</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -434,19 +376,19 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return true if this <a class="el" href="a00030.html">Accelerator</a> can allocated NBits number of bits. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Remove the <a class="el" href="a00037.html">Instruction</a> at the given index.</p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">NBits</td><td></td></tr>
+    <tr><td class="paramname">idx</td><td>The index of the <a class="el" href="a00037.html">Instruction</a> to remove. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
-<p>Implemented in <a class="el" href="a00252.html#a61352c07062597aad2393fbeed4cc025">xacc::quantum::RigettiAccelerator</a>, and <a class="el" href="a00278.html#a60b9db2d6aed235857c45413a070338e">xacc::quantum::SimpleAccelerator</a>.</p>
+<p>Implemented in <a class="el" href="a00032.html#a44ca35d081577de9ad2930f93c01e89d">xacc::quantum::GateFunction</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ac3e781f42ec25e460174d4c41ea26b94"></a>
+<a class="anchor" id="a2ef6a4923a6734f90f6ee3d94d263af0"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -454,16 +396,16 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void xacc::Accelerator::storeBuffer </td>
+          <td class="memname">virtual void xacc::Function::replaceInstruction </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>id</em>, </td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>idx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00032.html">AcceleratorBuffer</a> &gt;&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
+          <td class="paramtype">InstPtr&#160;</td>
+          <td class="paramname"><em>newInst</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -473,23 +415,25 @@ Protected Member Functions</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This protected method is to be used by derived Accelerators to store any created <a class="el" href="a00032.html">AcceleratorBuffer</a>.</p>
+<p>Replace the <a class="el" href="a00037.html">Instruction</a> at the given index with the given new <a class="el" href="a00037.html">Instruction</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">id</td><td></td></tr>
-    <tr><td class="paramname">b</td><td></td></tr>
+    <tr><td class="paramname">idx</td><td>The index of the <a class="el" href="a00037.html">Instruction</a> to replace. </td></tr>
+    <tr><td class="paramname">newInst</td><td>The new <a class="el" href="a00037.html">Instruction</a> to replace with. </td></tr>
   </table>
   </dd>
 </dl>
+
+<p>Implemented in <a class="el" href="a00032.html#a182fdfabbf546ae89e4f2384bafb45c9">xacc::quantum::GateFunction</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00356_source.html">Accelerator.hpp</a></li>
+<li><a class="el" href="a00117_source.html">Function.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

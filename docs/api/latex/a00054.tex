@@ -1,26 +1,25 @@
-\hypertarget{a00054}{}\section{Simple\+Web\+:\+:Client$<$ H\+T\+TP $>$ Class Template Reference}
-\label{a00054}\index{Simple\+Web\+::\+Client$<$ H\+T\+T\+P $>$@{Simple\+Web\+::\+Client$<$ H\+T\+T\+P $>$}}
-Inheritance diagram for Simple\+Web\+:\+:Client$<$ H\+T\+TP $>$\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=2.000000cm]{a00054}
-\end{center}
-\end{figure}
+\hypertarget{a00054}{}\section{xacc\+:\+:quantum\+:\+:Register\+Embedding\+Algorithm$<$ T $>$ Class Template Reference}
+\label{a00054}\index{xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$@{xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$}}
+
+
+{\ttfamily \#include $<$Embedding\+Algorithm.\+hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Client} (const std\+::string \&server\+\_\+port\+\_\+path)\hypertarget{a00054_a47655afc849e459096743876391dae17}{}\label{a00054_a47655afc849e459096743876391dae17}
+{\bfseries Register\+Embedding\+Algorithm} (const std\+::string \&name)\hypertarget{a00054_a0b849a815e56d04c22e04b8c2f43f3d3}{}\label{a00054_a0b849a815e56d04c22e04b8c2f43f3d3}
 
 \end{DoxyCompactItemize}
-\subsection*{Protected Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-void {\bfseries connect} ()\hypertarget{a00054_aebed110274c94b539e2d0a857c24991d}{}\label{a00054_aebed110274c94b539e2d0a857c24991d}
 
-\end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\\*
+class xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$}
+
+\hyperlink{a00054}{Register\+Embedding\+Algorithm} is a convenience class for registering custom derived \hyperlink{a00027}{Embedding\+Algorithm} classes.
+
+Creators of \hyperlink{a00027}{Embedding\+Algorithm} subclasses create an instance of this class with their \hyperlink{a00027}{Embedding\+Algorithm} subclass as the template parameter to register their \hyperlink{a00027}{Embedding\+Algorithm} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00027}{Embedding\+Algorithm} and at global scope. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-client\+\_\+http.\+hpp\end{DoxyCompactItemize}
+Embedding\+Algorithm.\+hpp\end{DoxyCompactItemize}
