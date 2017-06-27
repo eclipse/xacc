@@ -1,0 +1,800 @@
+\hypertarget{a00281}{}\section{boost\+:\+:dll\+:\+:experimental\+:\+:smart\+\_\+library Class Reference}
+\label{a00281}\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+
+
+This class is an extension of \hyperlink{a00271}{shared\+\_\+library}, which allows to load C++ symbols.  
+
+
+
+
+{\ttfamily \#include $<$smart\+\_\+library.\+hpp$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+using {\bfseries mangled\+\_\+storage} = \hyperlink{a00214}{detail\+::mangled\+\_\+storage\+\_\+impl}\hypertarget{a00281_a65625089fb4e558286ca48bdab2d8511}{}\label{a00281_a65625089fb4e558286ca48bdab2d8511}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{a00271}{shared\+\_\+library} \& \hyperlink{a00281_a250a3fd1bf0c5285f640c567e5128e7f}{shared\+\_\+lib} () const 
+\item 
+const \hyperlink{a00214}{mangled\+\_\+storage} \& \hyperlink{a00281_a31df130e5d9060dd16d3abb0f2a4f5db}{symbol\+\_\+storage} () const 
+\item 
+\hyperlink{a00214}{mangled\+\_\+storage} \& \hyperlink{a00281_acfa6c8fc1336c5e9c153f72125c13998}{symbol\+\_\+storage} ()\hypertarget{a00281_acfa6c8fc1336c5e9c153f72125c13998}{}\label{a00281_acfa6c8fc1336c5e9c153f72125c13998}
+
+\begin{DoxyCompactList}\small\item\em Overload, for current development. \end{DoxyCompactList}\item 
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\+\_\+library} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281_af88521398a2110952dd5d0820b3b4deb}{smart\+\_\+library} (const boost\+::filesystem\+::path \&lib\+\_\+path, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode=load\+\_\+mode\+::default\+\_\+mode)
+\item 
+\hyperlink{a00281_a9f3200c39d61f10b1a3001adbf2ecd0b}{smart\+\_\+library} (const boost\+::filesystem\+::path \&lib\+\_\+path, boost\+::system\+::error\+\_\+code \&ec, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode=load\+\_\+mode\+::default\+\_\+mode)
+\item 
+\hyperlink{a00281_a941e7e08eaf01af2d6fd83f04465b4b6}{smart\+\_\+library} (const boost\+::filesystem\+::path \&lib\+\_\+path, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+\hyperlink{a00281_aba01915dd665585b9a694878a8f2d9b8}{smart\+\_\+library} (const \hyperlink{a00281}{smart\+\_\+library} \&lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281_a4788c9d72aa2f5108d6273b0ec6cc5d9}{smart\+\_\+library} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00281}{smart\+\_\+library}) lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281_a5d3a9bc4a90fd70313ed193ec090d5f0}{smart\+\_\+library} (const \hyperlink{a00271}{shared\+\_\+library} \&lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281_a87ba6326545541fe3c016488ec168e82}{smart\+\_\+library} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00271}{shared\+\_\+library}) lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281_ae832b6930c08e751321df14ad7a9a190}{$\sim$smart\+\_\+library} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+void \hyperlink{a00281_af80edac534fd278f4f162ac3abadfc2b}{load} (const boost\+::filesystem\+::path \&lib\+\_\+path, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode=load\+\_\+mode\+::default\+\_\+mode)
+\item 
+void \hyperlink{a00281_a0743160736368974a420326665b3dc84}{load} (const boost\+::filesystem\+::path \&lib\+\_\+path, boost\+::system\+::error\+\_\+code \&ec, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode=load\+\_\+mode\+::default\+\_\+mode)
+\item 
+void \hyperlink{a00281_a08af5d7544f4fa43985254c3924df3bd}{load} (const boost\+::filesystem\+::path \&lib\+\_\+path, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+{\footnotesize template$<$typename T $>$ }\\T \& \hyperlink{a00281_ace3f83412522eb73003c51f000ef40d6}{get\+\_\+variable} (const std\+::string \&name) const 
+\item 
+{\footnotesize template$<$typename Func $>$ }\\Func \& \hyperlink{a00281_a260ef5b56e36ae2ac98488c6769620be}{get\+\_\+function} (const std\+::string \&name) const 
+\item 
+{\footnotesize template$<$typename Class , typename Func $>$ }\\\hyperlink{a00131}{boost\+::dll\+::detail\+::get\+\_\+mem\+\_\+fn\+\_\+type}$<$ Class, Func $>$\+::mem\+\_\+fn \hyperlink{a00281_aa966268c4992264a8e446dafb53738f3}{get\+\_\+mem\+\_\+fn} (const std\+::string \&name) const 
+\item 
+{\footnotesize template$<$typename Signature $>$ }\\\hyperlink{a00063}{constructor}$<$ Signature $>$ \hyperlink{a00281_af05c4ae49b019197dfba5379477cf24c}{get\+\_\+constructor} () const 
+\item 
+{\footnotesize template$<$typename Class $>$ }\\\hyperlink{a00076}{destructor}$<$ Class $>$ \hyperlink{a00281_a908cd431011d74ab3f6ea1984f99da83}{get\+\_\+destructor} () const 
+\item 
+{\footnotesize template$<$typename Class $>$ }\\const std\+::type\+\_\+info \& \hyperlink{a00281_a0f201c41218443de1e0096490f7843b2}{get\+\_\+type\+\_\+info} () const 
+\item 
+{\footnotesize template$<$typename Alias $>$ }\\void \hyperlink{a00281_aa19292156eb6497e10f108fb614d9939}{add\+\_\+type\+\_\+alias} (const std\+::string \&name)
+\item 
+void \hyperlink{a00281_a2b96d7817794a2adabe1f7bb22be5483}{unload} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+bool \hyperlink{a00281_abe903598b2f65c04360d58943cc08255}{is\+\_\+loaded} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+bool \hyperlink{a00281_a57ba8c8f9d05415bb4698fa05bdd9153}{operator!} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+bool \hyperlink{a00281_a14d92d1f096a99ee1f59a6e6ac9c635c}{has} (const char $\ast$symbol\+\_\+name) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\begin{DoxyCompactList}\small\item\em bool() const \end{DoxyCompactList}\item 
+bool \hyperlink{a00281_a9263542eeb995ab16f85901d90d1f868}{has} (const std\+::string \&symbol\+\_\+name) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\item 
+\hyperlink{a00281}{smart\+\_\+library} \& \hyperlink{a00281_a0e0a4b60a6f388ad6d97bddee1b2b9d6}{assign} (const \hyperlink{a00281}{smart\+\_\+library} \&lib)
+\item 
+void \hyperlink{a00281_a437a1b5c2f71728147fcda529b553051}{swap} (\hyperlink{a00281}{smart\+\_\+library} \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class is an extension of \hyperlink{a00271}{shared\+\_\+library}, which allows to load C++ symbols. 
+
+This class allows type safe loading of overloaded functions, member-\/functions, constructors and variables. It also allows to overwrite classes so they can be loaded, while being declared with different names.
+
+\begin{DoxyWarning}{Warning}
+Is still very experimental.
+\end{DoxyWarning}
+Currently known limitations\+:
+
+Member functions must be defined outside of the class to be exported. That is\+: 
+\begin{DoxyCode}
+\textcolor{comment}{//not exported:}
+\textcolor{keyword}{struct }BOOST\_SYMBOL\_EXPORT my\_class \{ \textcolor{keywordtype}{void} func() \{\}\};
+\textcolor{comment}{//exported}
+\textcolor{keyword}{struct }BOOST\_SYMBOL\_EXPORT my\_class \{ \textcolor{keywordtype}{void} func();\};
+\textcolor{keywordtype}{void} my\_class::func() \{\};
+\end{DoxyCode}
+
+
+With the current analysis, the first version does get exported in M\+S\+VC. Min\+GW also does export it, B\+O\+O\+S\+T\+\_\+\+S\+Y\+M\+B\+O\+L\+\_\+\+E\+X\+P\+O\+RT is written before it. To allow this on windows one can use B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+M\+E\+M\+B\+E\+R\+\_\+\+E\+X\+P\+O\+RT for this, so that Min\+GW and M\+S\+VC can provide those functions. This does however not work with gcc on linux.
+
+Direct initialization of members. On linux the following member variable i will not be initialized when using the allocating contructor\+: 
+\begin{DoxyCode}
+\textcolor{keyword}{struct }BOOST\_SYMBOL\_EXPORT my\_class \{ \textcolor{keywordtype}{int} i; my\_class() : i(42) \{\} \};
+\end{DoxyCode}
+
+
+This does however not happen when the value is set inside the constructor function. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library() B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{smart\_library() BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{}\label{a00281_af1fa4c4ed871e889f92f4c11d574d91f}
+
+
+
+
+Creates in anstance that does not reference any D\+L\+L/\+D\+SO.
+
+\begin{DoxyPostcond}{Postcondition}
+this-\/$>$\hyperlink{a00281_abe903598b2f65c04360d58943cc08255}{is\+\_\+loaded()} returns false. 
+\end{DoxyPostcond}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(const boost\+::filesystem\+::path \&lib\+\_\+path, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)}{smart\_library(const boost::filesystem::path \&lib\_path, load\_mode::type mode=load\_mode::default\_mode)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_af88521398a2110952dd5d0820b3b4deb}{}\label{a00281_af88521398a2110952dd5d0820b3b4deb}
+
+
+
+
+Loads a library by specified path with a specified mode.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib\+\_\+path} & Library file name. Can handle std\+::string, const char$\ast$, std\+::wstring, const wchar\+\_\+t$\ast$ or boost\+::filesystem\+::path. \\
+\hline
+{\em mode} & A mode that will be used on library load. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error,std\+::bad\+\_\+alloc} & in case of insufficient memory. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(const boost\+::filesystem\+::path \&lib\+\_\+path, boost\+::system\+::error\+\_\+code \&ec, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)}{smart\_library(const boost::filesystem::path \&lib\_path, boost::system::error\_code \&ec, load\_mode::type mode=load\_mode::default\_mode)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a9f3200c39d61f10b1a3001adbf2ecd0b}{}\label{a00281_a9f3200c39d61f10b1a3001adbf2ecd0b}
+
+
+
+
+Loads a library by specified path with a specified mode.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib\+\_\+path} & Library file name. Can handle std\+::string, const char$\ast$, std\+::wstring, const wchar\+\_\+t$\ast$ or boost\+::filesystem\+::path. \\
+\hline
+{\em mode} & A mode that will be used on library load. \\
+\hline
+{\em ec} & Variable that will be set to the result of the operation. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::bad\+\_\+alloc} & in case of insufficient memory. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(const boost\+::filesystem\+::path \&lib\+\_\+path, load\+\_\+mode\+::type mode, boost\+::system\+::error\+\_\+code \&ec)}{smart\_library(const boost::filesystem::path \&lib\_path, load\_mode::type mode, boost::system::error\_code \&ec)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a941e7e08eaf01af2d6fd83f04465b4b6}{}\label{a00281_a941e7e08eaf01af2d6fd83f04465b4b6}
+
+
+
+
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(const smart\+\_\+library \&lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{smart\_library(const smart\_library \&lib) BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{const {\bf smart\+\_\+library} \&}]{lib}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_aba01915dd665585b9a694878a8f2d9b8}{}\label{a00281_aba01915dd665585b9a694878a8f2d9b8}
+copy a \hyperlink{a00281}{smart\+\_\+library} object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib} & A \hyperlink{a00281}{smart\+\_\+library} to move from.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(\+B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+E\+F(smart\+\_\+library) lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{smart\_library(BOOST\_RV\_REF(smart\_library) lib) BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF({\bf smart\+\_\+library})}]{lib}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a4788c9d72aa2f5108d6273b0ec6cc5d9}{}\label{a00281_a4788c9d72aa2f5108d6273b0ec6cc5d9}
+Move a \hyperlink{a00281}{smart\+\_\+library} object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib} & A \hyperlink{a00281}{smart\+\_\+library} to move from.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(const shared\+\_\+library \&lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{smart\_library(const shared\_library \&lib) BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{const {\bf shared\+\_\+library} \&}]{lib}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}\hypertarget{a00281_a5d3a9bc4a90fd70313ed193ec090d5f0}{}\label{a00281_a5d3a9bc4a90fd70313ed193ec090d5f0}
+Construct from a \hyperlink{a00271}{shared\+\_\+library} object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib} & A \hyperlink{a00271}{shared\+\_\+library} to move from.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!smart\+\_\+library@{smart\+\_\+library}}
+\index{smart\+\_\+library@{smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{smart\+\_\+library(\+B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+E\+F(shared\+\_\+library) lib) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{smart\_library(BOOST\_RV\_REF(shared\_library) lib) BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::smart\+\_\+library (
+\begin{DoxyParamCaption}
+\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF({\bf shared\+\_\+library})}]{lib}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}\hypertarget{a00281_a87ba6326545541fe3c016488ec168e82}{}\label{a00281_a87ba6326545541fe3c016488ec168e82}
+Construct from a \hyperlink{a00271}{shared\+\_\+library} object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib} & A \hyperlink{a00271}{shared\+\_\+library} to move from.\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!````~smart\+\_\+library@{$\sim$smart\+\_\+library}}
+\index{````~smart\+\_\+library@{$\sim$smart\+\_\+library}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{$\sim$smart\+\_\+library() B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{~smart\_library() BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::dll\+::experimental\+::smart\+\_\+library\+::$\sim$smart\+\_\+library (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_ae832b6930c08e751321df14ad7a9a190}{}\label{a00281_ae832b6930c08e751321df14ad7a9a190}
+Destroys the \hyperlink{a00281}{smart\+\_\+library}. {\ttfamily \hyperlink{a00281_a2b96d7817794a2adabe1f7bb22be5483}{unload()}} is called if the D\+L\+L/\+D\+SO was loaded. If library was loaded multiple times by different instances of \hyperlink{a00271}{shared\+\_\+library}, the actual D\+L\+L/\+D\+SO won\textquotesingle{}t be unloaded until there is at least one instance of \hyperlink{a00271}{shared\+\_\+library}.
+
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+
+
+\subsection{Member Function Documentation}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!add\+\_\+type\+\_\+alias@{add\+\_\+type\+\_\+alias}}
+\index{add\+\_\+type\+\_\+alias@{add\+\_\+type\+\_\+alias}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{add\+\_\+type\+\_\+alias(const std\+::string \&name)}{add\_type\_alias(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Alias $>$ void boost\+::dll\+::experimental\+::smart\+\_\+library\+::add\+\_\+type\+\_\+alias (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_aa19292156eb6497e10f108fb614d9939}{}\label{a00281_aa19292156eb6497e10f108fb614d9939}
+This function can be used to add a type alias.
+
+This is to be used, when a class shall be imported, which is not declared on the host side.
+
+Example\+: 
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+
+lib.add\_type\_alias<MyAlias>(\textcolor{stringliteral}{"MyClass"}); \textcolor{comment}{//when using MyAlias, the library will look for MyClass}
+
+\textcolor{comment}{//get the destructor of MyClass}
+destructor<MyAlias> dtor = lib.get\_destructor<MyAlias>();
+\end{DoxyCode}
+
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the class the alias is for.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyAttention}{Attention}
+If the alias-\/type is not large enough for the imported class, it will result in undefined behaviour. 
+\end{DoxyAttention}
+\begin{DoxyWarning}{Warning}
+The alias will only be applied for the type signature, it will not replace the token in the scoped name. 
+\end{DoxyWarning}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!assign@{assign}}
+\index{assign@{assign}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{assign(const smart\+\_\+library \&lib)}{assign(const smart\_library \&lib)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf smart\+\_\+library}\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::assign (
+\begin{DoxyParamCaption}
+\item[{const {\bf smart\+\_\+library} \&}]{lib}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a0e0a4b60a6f388ad6d97bddee1b2b9d6}{}\label{a00281_a0e0a4b60a6f388ad6d97bddee1b2b9d6}
+
+
+
+
+Makes $\ast$this share the same shared object as lib. If $\ast$this is loaded, then unloads it.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib} & A library instance to assign from. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyPostcond}{Postcondition}
+lib.\+location() == this-\/$>$location() 
+\end{DoxyPostcond}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error,std\+::bad\+\_\+alloc} & in case of insufficient memory. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+constructor@{get\+\_\+constructor}}
+\index{get\+\_\+constructor@{get\+\_\+constructor}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+constructor() const }{get\_constructor() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Signature $>$ {\bf constructor}$<$Signature$>$ boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+constructor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_af05c4ae49b019197dfba5379477cf24c}{}\label{a00281_af05c4ae49b019197dfba5379477cf24c}
+Load a constructor from the referenced library.
+
+{\bfseries Example} (import class is My\+Class, which is available inside the library and the host)\+:
+
+
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+
+constructor<MyClass(\textcolor{keywordtype}{int})    f1 = lib.\hyperlink{a00281_aa966268c4992264a8e446dafb53738f3}{get\_mem\_fn}<MyClass(\textcolor{keywordtype}{int})>();
+\end{DoxyCode}
+
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Signature} & Signature of the function, required for determining the overload. The return type is the class which this is the constructor of. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A constructor object.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+destructor@{get\+\_\+destructor}}
+\index{get\+\_\+destructor@{get\+\_\+destructor}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+destructor() const }{get\_destructor() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Class $>$ {\bf destructor}$<$Class$>$ boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+destructor (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a908cd431011d74ab3f6ea1984f99da83}{}\label{a00281_a908cd431011d74ab3f6ea1984f99da83}
+Load a destructor from the referenced library.
+
+{\bfseries Example} (import class is My\+Class, which is available inside the library and the host)\+:
+
+
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+
+destructor<MyClass>     f1 = lib.get\_mem\_fn<MyClass>();
+\end{DoxyCode}
+
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Class} & The class whichs destructor shall be loaded \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A destructor object.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+function@{get\+\_\+function}}
+\index{get\+\_\+function@{get\+\_\+function}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+function(const std\+::string \&name) const }{get\_function(const std::string \&name) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Func $>$ Func\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+function (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a260ef5b56e36ae2ac98488c6769620be}{}\label{a00281_a260ef5b56e36ae2ac98488c6769620be}
+Load a function from the referenced library.
+
+{\bfseries Example\+:} 
+
+
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+\textcolor{keyword}{typedef} int      (&add\_ints)(int, int);
+\textcolor{keyword}{typedef} double (&add\_doubles)(double, double);
+add\_ints     f1 = lib.get\_function<int(\textcolor{keywordtype}{int}, \textcolor{keywordtype}{int})>         (\textcolor{stringliteral}{"func\_name"});
+add\_doubles  f2 = lib.get\_function<double(\textcolor{keywordtype}{double}, \textcolor{keywordtype}{double})>(\textcolor{stringliteral}{"func\_name"});
+\end{DoxyCode}
+
+
+\begin{DoxyNote}{Note}
+When mangled, M\+S\+VC will also check the return type.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the function. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Func} & Type of the function, required for determining the overload \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A reference to the function of type \hyperlink{a00098}{F}.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+mem\+\_\+fn@{get\+\_\+mem\+\_\+fn}}
+\index{get\+\_\+mem\+\_\+fn@{get\+\_\+mem\+\_\+fn}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+mem\+\_\+fn(const std\+::string \&name) const }{get\_mem\_fn(const std::string \&name) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Class , typename Func $>$ {\bf boost\+::dll\+::detail\+::get\+\_\+mem\+\_\+fn\+\_\+type}$<$Class, Func$>$\+::mem\+\_\+fn boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+mem\+\_\+fn (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_aa966268c4992264a8e446dafb53738f3}{}\label{a00281_aa966268c4992264a8e446dafb53738f3}
+Load a member-\/function from the referenced library.
+
+{\bfseries Example} (import class is My\+Class, which is available inside the library and the host)\+:
+
+
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+
+\textcolor{keyword}{typedef} \textcolor{keywordtype}{int}      MyClass(*func)(int);
+\textcolor{keyword}{typedef} \textcolor{keywordtype}{int}   MyClass(*func\_const)(int) \textcolor{keyword}{const};
+
+add\_ints     f1 = lib.get\_mem\_fn<MyClass, int(\textcolor{keywordtype}{int})>              (\textcolor{stringliteral}{"MyClass::function"});
+add\_doubles  f2 = lib.get\_mem\_fn<\textcolor{keyword}{const} MyClass, double(\textcolor{keywordtype}{double})>(\textcolor{stringliteral}{"MyClass::function"});
+\end{DoxyCode}
+
+
+\begin{DoxyNote}{Note}
+When mangled, M\+S\+VC will also check the return type.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the function. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Class} & The class the function is a member of. If Class is const, the function will be assumed as taking a const this-\/pointer. The same applies for volatile. \\
+\hline
+{\em Func} & Signature of the function, required for determining the overload \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the member-\/function with the signature provided
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+type\+\_\+info@{get\+\_\+type\+\_\+info}}
+\index{get\+\_\+type\+\_\+info@{get\+\_\+type\+\_\+info}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+type\+\_\+info() const }{get\_type\_info() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Class $>$ const std\+::type\+\_\+info\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+type\+\_\+info (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a0f201c41218443de1e0096490f7843b2}{}\label{a00281_a0f201c41218443de1e0096490f7843b2}
+Load the typeinfo of the given type.
+
+{\bfseries Example} (import class is My\+Class, which is available inside the library and the host)\+:
+
+
+\begin{DoxyCode}
+\hyperlink{a00281_af1fa4c4ed871e889f92f4c11d574d91f}{smart\_library} lib(\textcolor{stringliteral}{"test\_lib.so"});
+
+std::type\_info &ti = lib.get\_Type\_info<MyClass>();
+\end{DoxyCode}
+
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Class} & The class whichs typeinfo shall be loaded \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A reference to a type\+\_\+info object.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!get\+\_\+variable@{get\+\_\+variable}}
+\index{get\+\_\+variable@{get\+\_\+variable}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{get\+\_\+variable(const std\+::string \&name) const }{get\_variable(const std::string \&name) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T $>$ T\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::get\+\_\+variable (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_ace3f83412522eb73003c51f000ef40d6}{}\label{a00281_ace3f83412522eb73003c51f000ef40d6}
+Load a variable from the referenced library.
+
+Unlinke \hyperlink{a00271_afdbfd857893e7edde7c0e6b32c7144b3}{shared\+\_\+library\+::get} this function will also load scoped variables, which also includes static class members.
+
+\begin{DoxyNote}{Note}
+When mangled, M\+S\+VC will also check the type.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the variable \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Type of the variable \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyReturn}{Returns}
+A reference to the variable of type T.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!has@{has}}
+\index{has@{has}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{has(const char $\ast$symbol\+\_\+name) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{has(const char *symbol\_name) const BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}bool boost\+::dll\+::experimental\+::smart\+\_\+library\+::has (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{symbol\+\_\+name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a14d92d1f096a99ee1f59a6e6ac9c635c}{}\label{a00281_a14d92d1f096a99ee1f59a6e6ac9c635c}
+
+
+bool() const 
+
+bool() const  Check if an library is loaded.
+
+\begin{DoxyReturn}{Returns}
+true if a library has been loaded. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+Search for a given symbol on loaded library. Works for all symbols, including alias names.
+
+
+\begin{DoxyParams}{Parameters}
+{\em symbol\+\_\+name} & Null-\/terminated symbol name. Can handle std\+::string, char$\ast$, const char$\ast$. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily true} if the loaded library contains a symbol with a given name. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!has@{has}}
+\index{has@{has}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{has(const std\+::string \&symbol\+\_\+name) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{has(const std::string \&symbol\_name) const BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}bool boost\+::dll\+::experimental\+::smart\+\_\+library\+::has (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{symbol\+\_\+name}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a9263542eeb995ab16f85901d90d1f868}{}\label{a00281_a9263542eeb995ab16f85901d90d1f868}
+
+
+
+
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!is\+\_\+loaded@{is\+\_\+loaded}}
+\index{is\+\_\+loaded@{is\+\_\+loaded}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{is\+\_\+loaded() const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{is\_loaded() const BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}bool boost\+::dll\+::experimental\+::smart\+\_\+library\+::is\+\_\+loaded (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_abe903598b2f65c04360d58943cc08255}{}\label{a00281_abe903598b2f65c04360d58943cc08255}
+
+
+
+
+Check if an library is loaded.
+
+\begin{DoxyReturn}{Returns}
+true if a library has been loaded. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!load@{load}}
+\index{load@{load}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{load(const boost\+::filesystem\+::path \&lib\+\_\+path, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)}{load(const boost::filesystem::path \&lib\_path, load\_mode::type mode=load\_mode::default\_mode)}}]{\setlength{\rightskip}{0pt plus 5cm}void boost\+::dll\+::experimental\+::smart\+\_\+library\+::load (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_af80edac534fd278f4f162ac3abadfc2b}{}\label{a00281_af80edac534fd278f4f162ac3abadfc2b}
+
+
+
+
+Loads a library by specified path with a specified mode.
+
+Note that if some library is already loaded in this instance, load will call \hyperlink{a00281_a2b96d7817794a2adabe1f7bb22be5483}{unload()} and then load the new provided library.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib\+\_\+path} & Library file name. Can handle std\+::string, const char$\ast$, std\+::wstring, const wchar\+\_\+t$\ast$ or boost\+::filesystem\+::path. \\
+\hline
+{\em mode} & A mode that will be used on library load. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em boost\+::system\+::system\+\_\+error,std\+::bad\+\_\+alloc} & in case of insufficient memory. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!load@{load}}
+\index{load@{load}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{load(const boost\+::filesystem\+::path \&lib\+\_\+path, boost\+::system\+::error\+\_\+code \&ec, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)}{load(const boost::filesystem::path \&lib\_path, boost::system::error\_code \&ec, load\_mode::type mode=load\_mode::default\_mode)}}]{\setlength{\rightskip}{0pt plus 5cm}void boost\+::dll\+::experimental\+::smart\+\_\+library\+::load (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a0743160736368974a420326665b3dc84}{}\label{a00281_a0743160736368974a420326665b3dc84}
+
+
+
+
+Loads a library by specified path with a specified mode.
+
+Note that if some library is already loaded in this instance, load will call \hyperlink{a00281_a2b96d7817794a2adabe1f7bb22be5483}{unload()} and then load the new provided library.
+
+
+\begin{DoxyParams}{Parameters}
+{\em lib\+\_\+path} & Library file name. Can handle std\+::string, const char$\ast$, std\+::wstring, const wchar\+\_\+t$\ast$ or boost\+::filesystem\+::path. \\
+\hline
+{\em ec} & Variable that will be set to the result of the operation. \\
+\hline
+{\em mode} & A mode that will be used on library load. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::bad\+\_\+alloc} & in case of insufficient memory. \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!load@{load}}
+\index{load@{load}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{load(const boost\+::filesystem\+::path \&lib\+\_\+path, load\+\_\+mode\+::type mode, boost\+::system\+::error\+\_\+code \&ec)}{load(const boost::filesystem::path \&lib\_path, load\_mode::type mode, boost::system::error\_code \&ec)}}]{\setlength{\rightskip}{0pt plus 5cm}void boost\+::dll\+::experimental\+::smart\+\_\+library\+::load (
+\begin{DoxyParamCaption}
+\item[{const boost\+::filesystem\+::path \&}]{lib\+\_\+path, }
+\item[{{\bf load\+\_\+mode\+::type}}]{mode, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a08af5d7544f4fa43985254c3924df3bd}{}\label{a00281_a08af5d7544f4fa43985254c3924df3bd}
+
+
+
+
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!operator"!@{operator"!}}
+\index{operator"!@{operator"!}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{operator"!() const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{operator!() const BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}bool boost\+::dll\+::experimental\+::smart\+\_\+library\+::operator! (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a57ba8c8f9d05415bb4698fa05bdd9153}{}\label{a00281_a57ba8c8f9d05415bb4698fa05bdd9153}
+
+
+
+
+Check if an library is not loaded.
+
+\begin{DoxyReturn}{Returns}
+true if a library has not been loaded. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!shared\+\_\+lib@{shared\+\_\+lib}}
+\index{shared\+\_\+lib@{shared\+\_\+lib}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{shared\+\_\+lib() const }{shared\_lib() const }}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf shared\+\_\+library}\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::shared\+\_\+lib (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a250a3fd1bf0c5285f640c567e5128e7f}{}\label{a00281_a250a3fd1bf0c5285f640c567e5128e7f}
+Get the underlying \hyperlink{a00271}{shared\+\_\+library} \index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!swap@{swap}}
+\index{swap@{swap}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{swap(smart\+\_\+library \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{swap(smart\_library \&rhs) BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}void boost\+::dll\+::experimental\+::smart\+\_\+library\+::swap (
+\begin{DoxyParamCaption}
+\item[{{\bf smart\+\_\+library} \&}]{rhs}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a437a1b5c2f71728147fcda529b553051}{}\label{a00281_a437a1b5c2f71728147fcda529b553051}
+
+
+
+
+Swaps two libraries. Does not invalidate existing symbols and functions loaded from libraries.
+
+
+\begin{DoxyParams}{Parameters}
+{\em rhs} & Library to swap with. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!symbol\+\_\+storage@{symbol\+\_\+storage}}
+\index{symbol\+\_\+storage@{symbol\+\_\+storage}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{symbol\+\_\+storage() const }{symbol\_storage() const }}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf mangled\+\_\+storage}\& boost\+::dll\+::experimental\+::smart\+\_\+library\+::symbol\+\_\+storage (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a31df130e5d9060dd16d3abb0f2a4f5db}{}\label{a00281_a31df130e5d9060dd16d3abb0f2a4f5db}
+Acces to the mangled storage, which is created on construction.
+
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+\index{boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}!unload@{unload}}
+\index{unload@{unload}!boost\+::dll\+::experimental\+::smart\+\_\+library@{boost\+::dll\+::experimental\+::smart\+\_\+library}}
+\subsubsection[{\texorpdfstring{unload() B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT}{unload() BOOST\_NOEXCEPT}}]{\setlength{\rightskip}{0pt plus 5cm}void boost\+::dll\+::experimental\+::smart\+\_\+library\+::unload (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00281_a2b96d7817794a2adabe1f7bb22be5483}{}\label{a00281_a2b96d7817794a2adabe1f7bb22be5483}
+
+
+
+
+Unloads a shared library. If library was loaded multiple times by different instances, the actual D\+L\+L/\+D\+SO won\textquotesingle{}t be unloaded until there is at least one instance that references the D\+L\+L/\+D\+SO.
+
+\begin{DoxyPostcond}{Postcondition}
+this-\/$>$\hyperlink{a00281_abe903598b2f65c04360d58943cc08255}{is\+\_\+loaded()} returns false. 
+\end{DoxyPostcond}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Nothing.} & \\
+\hline
+\end{DoxyExceptions}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00738}{smart\+\_\+library.\+hpp}\end{DoxyCompactItemize}

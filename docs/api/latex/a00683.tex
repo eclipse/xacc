@@ -1,0 +1,128 @@
+\hypertarget{a00683}{}\section{reader.\+h File Reference}
+\label{a00683}\index{reader.\+h@{reader.\+h}}
+{\ttfamily \#include \char`\"{}allocators.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}stream.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}encodedstream.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}internal/meta.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}internal/stack.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}internal/strtod.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$limits$>$}\\*
+{\ttfamily \#include \char`\"{}error/error.\+h\char`\"{}}\\*
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{a00045}{Base\+Reader\+Handler$<$ Encoding, Derived $>$}
+\begin{DoxyCompactList}\small\item\em Default implementation of Handler. \end{DoxyCompactList}\item 
+class \hyperlink{a00285}{internal\+::\+Stream\+Local\+Copy$<$ Stream, int $>$}
+\item 
+class \hyperlink{a00287}{internal\+::\+Stream\+Local\+Copy$<$ Stream, 1 $>$}
+\begin{DoxyCompactList}\small\item\em Do copy optimization. \end{DoxyCompactList}\item 
+class \hyperlink{a00286}{internal\+::\+Stream\+Local\+Copy$<$ Stream, 0 $>$}
+\begin{DoxyCompactList}\small\item\em Keep reference. \end{DoxyCompactList}\item 
+class \hyperlink{a00122}{Generic\+Reader$<$ Source\+Encoding, Target\+Encoding, Stack\+Allocator $>$}
+\begin{DoxyCompactList}\small\item\em S\+A\+X-\/style J\+S\+ON parser. Use \hyperlink{a00683_a84f3b66a66647f4ac4267078359188ba}{Reader} for \hyperlink{a00333}{U\+T\+F8} encoding and default allocator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{a00832_ga7f8c4265b2edda78568ae3338aaf1461}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+O\+R\+\_\+\+N\+O\+R\+E\+T\+U\+RN}(parse\+Error\+Code,  offset)
+\begin{DoxyCompactList}\small\item\em Macro to indicate a parse error. \end{DoxyCompactList}\item 
+\#define \hyperlink{a00832_gae3689840fa6e89a241313f33b602f865}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+P\+A\+R\+S\+E\+\_\+\+E\+R\+R\+OR}(parse\+Error\+Code,  offset)
+\begin{DoxyCompactList}\small\item\em (Internal) macro to indicate and handle a parse error. \end{DoxyCompactList}\item 
+\#define {\bfseries R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+P\+A\+R\+S\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+F\+L\+A\+GS}~\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a1af603dc5f65bb815316589e782bc71a}{k\+Parse\+No\+Flags}\hypertarget{a00683_a77005e892e6601599beaf421b0395c31}{}\label{a00683_a77005e892e6601599beaf421b0395c31}
+
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{a00122}{Generic\+Reader}$<$ \hyperlink{a00333}{U\+T\+F8}$<$$>$, \hyperlink{a00333}{U\+T\+F8}$<$$>$ $>$ \hyperlink{a00683_a84f3b66a66647f4ac4267078359188ba}{Reader}\hypertarget{a00683_a84f3b66a66647f4ac4267078359188ba}{}\label{a00683_a84f3b66a66647f4ac4267078359188ba}
+
+\begin{DoxyCompactList}\small\item\em Reader with \hyperlink{a00333}{U\+T\+F8} encoding and default allocator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450}{Parse\+Flag} \{ \\*
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a1af603dc5f65bb815316589e782bc71a}{k\+Parse\+No\+Flags} = 0, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a13188bd483b4df0b6582bebe2aeb5b01}{k\+Parse\+Insitu\+Flag} = 1, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a9b3baa16346575d2dc072b23a88e1928}{k\+Parse\+Validate\+Encoding\+Flag} = 2, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450aadb14f5a3b6b33e28055e913a2eae5e9}{k\+Parse\+Iterative\+Flag} = 4, 
+\\*
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450af77d115d3bbed0a448b6b335f3b93b36}{k\+Parse\+Stop\+When\+Done\+Flag} = 8, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a057fbeacafb16bb7d24c9998262cae46}{k\+Parse\+Full\+Precision\+Flag} = 16, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a245d1b6af730f47f0e7bd27078f5e8c1}{k\+Parse\+Comments\+Flag} = 32, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450aa951ab03a51b32b60164436bc280cf01}{k\+Parse\+Numbers\+As\+Strings\+Flag} = 64, 
+\\*
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a953d6381de950e25c8c97ad54f52370a}{k\+Parse\+Trailing\+Commas\+Flag} = 128, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a9849d65c1d3edd796bd75897c6a37eb6}{k\+Parse\+Nan\+And\+Inf\+Flag} = 256, 
+\hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450a9104b0946d648e9467cb7a967401ec80}{k\+Parse\+Default\+Flags} = R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+P\+A\+R\+S\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+F\+L\+A\+GS
+ \}\begin{DoxyCompactList}\small\item\em Combination of parse\+Flags. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Input\+Stream $>$ }\\void \hyperlink{a00683_a60338858b2582eca23f3e509a2d82e0e}{Skip\+Whitespace} (Input\+Stream \&is)
+\begin{DoxyCompactList}\small\item\em Skip the J\+S\+ON white spaces in a stream. \end{DoxyCompactList}\item 
+const char $\ast$ {\bfseries Skip\+Whitespace} (const char $\ast$p, const char $\ast$end)\hypertarget{a00683_a64051745304fce07e8b95a71776bab92}{}\label{a00683_a64051745304fce07e8b95a71776bab92}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\index{reader.\+h@{reader.\+h}!Parse\+Flag@{Parse\+Flag}}
+\index{Parse\+Flag@{Parse\+Flag}!reader.\+h@{reader.\+h}}
+\subsubsection[{\texorpdfstring{Parse\+Flag}{ParseFlag}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Parse\+Flag}}\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450}
+
+
+Combination of parse\+Flags. 
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{a00122_a0c450620d14ff1824e58bb7bd9b42099}{Reader\+::\+Parse}, \hyperlink{a00115_aadee36db7064cc9894a75c848831cdae}{Document\+::\+Parse}, \hyperlink{a00115_a301f8f297a5a0da4b6be5459ad766f75}{Document\+::\+Parse\+Insitu}, \hyperlink{a00115_afe94c0abc83a20f2d7dc1ba7677e6238}{Document\+::\+Parse\+Stream} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{k\+Parse\+No\+Flags@{k\+Parse\+No\+Flags}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+No\+Flags@{k\+Parse\+No\+Flags}}\item[{\em 
+k\+Parse\+No\+Flags\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a1af603dc5f65bb815316589e782bc71a}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a1af603dc5f65bb815316589e782bc71a}
+}]No flags are set. \index{k\+Parse\+Insitu\+Flag@{k\+Parse\+Insitu\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Insitu\+Flag@{k\+Parse\+Insitu\+Flag}}\item[{\em 
+k\+Parse\+Insitu\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a13188bd483b4df0b6582bebe2aeb5b01}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a13188bd483b4df0b6582bebe2aeb5b01}
+}]In-\/situ(destructive) parsing. \index{k\+Parse\+Validate\+Encoding\+Flag@{k\+Parse\+Validate\+Encoding\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Validate\+Encoding\+Flag@{k\+Parse\+Validate\+Encoding\+Flag}}\item[{\em 
+k\+Parse\+Validate\+Encoding\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a9b3baa16346575d2dc072b23a88e1928}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a9b3baa16346575d2dc072b23a88e1928}
+}]Validate encoding of J\+S\+ON strings. \index{k\+Parse\+Iterative\+Flag@{k\+Parse\+Iterative\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Iterative\+Flag@{k\+Parse\+Iterative\+Flag}}\item[{\em 
+k\+Parse\+Iterative\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450aadb14f5a3b6b33e28055e913a2eae5e9}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450aadb14f5a3b6b33e28055e913a2eae5e9}
+}]Iterative(constant complexity in terms of function call stack size) parsing. \index{k\+Parse\+Stop\+When\+Done\+Flag@{k\+Parse\+Stop\+When\+Done\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Stop\+When\+Done\+Flag@{k\+Parse\+Stop\+When\+Done\+Flag}}\item[{\em 
+k\+Parse\+Stop\+When\+Done\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450af77d115d3bbed0a448b6b335f3b93b36}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450af77d115d3bbed0a448b6b335f3b93b36}
+}]After parsing a complete J\+S\+ON root from stream, stop further processing the rest of stream. When this flag is used, parser will not generate k\+Parse\+Error\+Document\+Root\+Not\+Singular error. \index{k\+Parse\+Full\+Precision\+Flag@{k\+Parse\+Full\+Precision\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Full\+Precision\+Flag@{k\+Parse\+Full\+Precision\+Flag}}\item[{\em 
+k\+Parse\+Full\+Precision\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a057fbeacafb16bb7d24c9998262cae46}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a057fbeacafb16bb7d24c9998262cae46}
+}]Parse number in full precision (but slower). \index{k\+Parse\+Comments\+Flag@{k\+Parse\+Comments\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Comments\+Flag@{k\+Parse\+Comments\+Flag}}\item[{\em 
+k\+Parse\+Comments\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a245d1b6af730f47f0e7bd27078f5e8c1}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a245d1b6af730f47f0e7bd27078f5e8c1}
+}]Allow one-\/line (//) and multi-\/line (/$\ast$$\ast$/) comments. \index{k\+Parse\+Numbers\+As\+Strings\+Flag@{k\+Parse\+Numbers\+As\+Strings\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Numbers\+As\+Strings\+Flag@{k\+Parse\+Numbers\+As\+Strings\+Flag}}\item[{\em 
+k\+Parse\+Numbers\+As\+Strings\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450aa951ab03a51b32b60164436bc280cf01}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450aa951ab03a51b32b60164436bc280cf01}
+}]Parse all numbers (ints/doubles) as strings. \index{k\+Parse\+Trailing\+Commas\+Flag@{k\+Parse\+Trailing\+Commas\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Trailing\+Commas\+Flag@{k\+Parse\+Trailing\+Commas\+Flag}}\item[{\em 
+k\+Parse\+Trailing\+Commas\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a953d6381de950e25c8c97ad54f52370a}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a953d6381de950e25c8c97ad54f52370a}
+}]Allow trailing commas at the end of objects and arrays. \index{k\+Parse\+Nan\+And\+Inf\+Flag@{k\+Parse\+Nan\+And\+Inf\+Flag}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Nan\+And\+Inf\+Flag@{k\+Parse\+Nan\+And\+Inf\+Flag}}\item[{\em 
+k\+Parse\+Nan\+And\+Inf\+Flag\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a9849d65c1d3edd796bd75897c6a37eb6}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a9849d65c1d3edd796bd75897c6a37eb6}
+}]Allow parsing NaN, Inf, Infinity, -\/\+Inf and -\/\+Infinity as doubles. \index{k\+Parse\+Default\+Flags@{k\+Parse\+Default\+Flags}!reader.\+h@{reader.\+h}}\index{reader.\+h@{reader.\+h}!k\+Parse\+Default\+Flags@{k\+Parse\+Default\+Flags}}\item[{\em 
+k\+Parse\+Default\+Flags\hypertarget{a00683_ab7be7dabe6ffcba60fad441505583450a9104b0946d648e9467cb7a967401ec80}{}\label{a00683_ab7be7dabe6ffcba60fad441505583450a9104b0946d648e9467cb7a967401ec80}
+}]Default parse flags. Can be customized by defining R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+P\+A\+R\+S\+E\+\_\+\+D\+E\+F\+A\+U\+L\+T\+\_\+\+F\+L\+A\+GS. \end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{reader.\+h@{reader.\+h}!Skip\+Whitespace@{Skip\+Whitespace}}
+\index{Skip\+Whitespace@{Skip\+Whitespace}!reader.\+h@{reader.\+h}}
+\subsubsection[{\texorpdfstring{Skip\+Whitespace(\+Input\+Stream \&is)}{SkipWhitespace(InputStream \&is)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Input\+Stream $>$ void Skip\+Whitespace (
+\begin{DoxyParamCaption}
+\item[{Input\+Stream \&}]{is}
+\end{DoxyParamCaption}
+)}\hypertarget{a00683_a60338858b2582eca23f3e509a2d82e0e}{}\label{a00683_a60338858b2582eca23f3e509a2d82e0e}
+
+
+Skip the J\+S\+ON white spaces in a stream. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & A input stream for skipping white spaces. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+This function has S\+S\+E2/\+S\+S\+E4.\+2 specialization. 
+\end{DoxyNote}

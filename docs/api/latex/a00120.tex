@@ -1,0 +1,156 @@
+\hypertarget{a00120}{}\section{Generic\+Object$<$ Const, ValueT $>$ Class Template Reference}
+\label{a00120}\index{Generic\+Object$<$ Const, Value\+T $>$@{Generic\+Object$<$ Const, Value\+T $>$}}
+
+
+Helper class for accessing Value of object type.  
+
+
+
+
+{\ttfamily \#include $<$document.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{a00120}{Generic\+Object}$<$ true, ValueT $>$ {\bfseries Const\+Object}\hypertarget{a00120_aeee588f9a85e88cac89b7c4dfb6b0bd3}{}\label{a00120_aeee588f9a85e88cac89b7c4dfb6b0bd3}
+
+\item 
+typedef \hyperlink{a00120}{Generic\+Object}$<$ false, ValueT $>$ {\bfseries Object}\hypertarget{a00120_ae8f5673d0cf8e7ebfd2d4f6ab27b632d}{}\label{a00120_ae8f5673d0cf8e7ebfd2d4f6ab27b632d}
+
+\item 
+typedef ValueT {\bfseries Plain\+Type}\hypertarget{a00120_a4c25f4a5f696745c418b91ad9f577f12}{}\label{a00120_a4c25f4a5f696745c418b91ad9f577f12}
+
+\item 
+typedef internal\+::\+Maybe\+Add\+Const$<$ Const, Plain\+Type $>$\+::\hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type} {\bfseries Value\+Type}\hypertarget{a00120_a930aa30f89caee7ba7bff60bf9dc21b1}{}\label{a00120_a930aa30f89caee7ba7bff60bf9dc21b1}
+
+\item 
+typedef \hyperlink{a00118}{Generic\+Member\+Iterator}$<$ Const, typename Value\+T\+::\+Encoding\+Type, typename Value\+T\+::\+Allocator\+Type $>$ {\bfseries Member\+Iterator}\hypertarget{a00120_a1f531d70f8d57ed30199ac445b5935e6}{}\label{a00120_a1f531d70f8d57ed30199ac445b5935e6}
+
+\item 
+typedef \hyperlink{a00118}{Generic\+Member\+Iterator}$<$ true, typename Value\+T\+::\+Encoding\+Type, typename Value\+T\+::\+Allocator\+Type $>$ {\bfseries Const\+Member\+Iterator}\hypertarget{a00120_af16706c0ad32b957c56e7d0541628cd5}{}\label{a00120_af16706c0ad32b957c56e7d0541628cd5}
+
+\item 
+typedef Value\+Type\+::\+Allocator\+Type {\bfseries Allocator\+Type}\hypertarget{a00120_a00c8cee952d5ebadc5e1c309aa489ad9}{}\label{a00120_a00c8cee952d5ebadc5e1c309aa489ad9}
+
+\item 
+typedef Value\+Type\+::\+String\+Ref\+Type {\bfseries String\+Ref\+Type}\hypertarget{a00120_a9b8381fc96f5f89b2163b052ed66cc59}{}\label{a00120_a9b8381fc96f5f89b2163b052ed66cc59}
+
+\item 
+typedef Value\+Type\+::\+Encoding\+Type {\bfseries Encoding\+Type}\hypertarget{a00120_a96ebfdde095e2ce42535d15ae5dc58ef}{}\label{a00120_a96ebfdde095e2ce42535d15ae5dc58ef}
+
+\item 
+typedef Value\+Type\+::\+Ch {\bfseries Ch}\hypertarget{a00120_ac6747e5baa13e15bcea1658b5624647a}{}\label{a00120_ac6747e5baa13e15bcea1658b5624647a}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Generic\+Object} (const \hyperlink{a00120}{Generic\+Object} \&rhs)\hypertarget{a00120_a10173c42d0e8a71ca0e3ae75d800887a}{}\label{a00120_a10173c42d0e8a71ca0e3ae75d800887a}
+
+\item 
+\hyperlink{a00120}{Generic\+Object} \& {\bfseries operator=} (const \hyperlink{a00120}{Generic\+Object} \&rhs)\hypertarget{a00120_af8984f76d6f3b13039c6d3b8e217f747}{}\label{a00120_af8984f76d6f3b13039c6d3b8e217f747}
+
+\item 
+\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} {\bfseries Member\+Count} () const \hypertarget{a00120_ab3772740b811ed417924cebdace1d190}{}\label{a00120_ab3772740b811ed417924cebdace1d190}
+
+\item 
+bool {\bfseries Object\+Empty} () const \hypertarget{a00120_a410e5dfd7fa047852ecb4b719a74f842}{}\label{a00120_a410e5dfd7fa047852ecb4b719a74f842}
+
+\item 
+{\footnotesize template$<$typename T $>$ }\\Value\+Type \& {\bfseries operator\mbox{[}$\,$\mbox{]}} (T $\ast$name) const \hypertarget{a00120_af3db47f1615353d0c5ce974c2fbe7885}{}\label{a00120_af3db47f1615353d0c5ce974c2fbe7885}
+
+\item 
+{\footnotesize template$<$typename Source\+Allocator $>$ }\\Value\+Type \& {\bfseries operator\mbox{[}$\,$\mbox{]}} (const \hyperlink{a00130}{Generic\+Value}$<$ Encoding\+Type, Source\+Allocator $>$ \&name) const \hypertarget{a00120_aac0937f20bfdc94380641bb02cefbf98}{}\label{a00120_aac0937f20bfdc94380641bb02cefbf98}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Member\+Begin} () const \hypertarget{a00120_abf56b2ac9cface0dffd21b541acb9511}{}\label{a00120_abf56b2ac9cface0dffd21b541acb9511}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Member\+End} () const \hypertarget{a00120_a7dedae79a478db0aeb4e01df4c788f3a}{}\label{a00120_a7dedae79a478db0aeb4e01df4c788f3a}
+
+\item 
+bool {\bfseries Has\+Member} (const Ch $\ast$name) const \hypertarget{a00120_a545cbb3d1e99a48fd7a40ebeac1d10da}{}\label{a00120_a545cbb3d1e99a48fd7a40ebeac1d10da}
+
+\item 
+{\footnotesize template$<$typename Source\+Allocator $>$ }\\bool {\bfseries Has\+Member} (const \hyperlink{a00130}{Generic\+Value}$<$ Encoding\+Type, Source\+Allocator $>$ \&name) const \hypertarget{a00120_a946712fa1b4fc9ab551a63d17d671f47}{}\label{a00120_a946712fa1b4fc9ab551a63d17d671f47}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Find\+Member} (const Ch $\ast$name) const \hypertarget{a00120_a6713425c66b7f05e4ac5d251a8f5b708}{}\label{a00120_a6713425c66b7f05e4ac5d251a8f5b708}
+
+\item 
+{\footnotesize template$<$typename Source\+Allocator $>$ }\\\hyperlink{a00118}{Member\+Iterator} {\bfseries Find\+Member} (const \hyperlink{a00130}{Generic\+Value}$<$ Encoding\+Type, Source\+Allocator $>$ \&name) const \hypertarget{a00120_a3eca7c61d4d2b728de83ffdb1f35e45a}{}\label{a00120_a3eca7c61d4d2b728de83ffdb1f35e45a}
+
+\item 
+\hyperlink{a00120}{Generic\+Object} {\bfseries Add\+Member} (Value\+Type \&name, Value\+Type \&value, Allocator\+Type \&allocator) const \hypertarget{a00120_a59554f8232c7c2a74d8043f4b4b20ec2}{}\label{a00120_a59554f8232c7c2a74d8043f4b4b20ec2}
+
+\item 
+\hyperlink{a00120}{Generic\+Object} {\bfseries Add\+Member} (Value\+Type \&name, String\+Ref\+Type value, Allocator\+Type \&allocator) const \hypertarget{a00120_a33df672a1ecafa47c2d7ed3c765738c1}{}\label{a00120_a33df672a1ecafa47c2d7ed3c765738c1}
+
+\item 
+{\footnotesize template$<$typename T $>$ }\\{\bfseries R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, \hyperlink{a00184}{internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$),(Value\+Type \&)) Add\+Member(Value\+Type \&name\hypertarget{a00120_a98ebcec632c41442d89cd8634b7ecc47}{}\label{a00120_a98ebcec632c41442d89cd8634b7ecc47}
+
+\item 
+\hyperlink{a00120}{Generic\+Object} {\bfseries Add\+Member} (String\+Ref\+Type name, Value\+Type \&value, Allocator\+Type \&allocator) const \hypertarget{a00120_a245647b72d87ffe6142d1c656f0e92d8}{}\label{a00120_a245647b72d87ffe6142d1c656f0e92d8}
+
+\item 
+\hyperlink{a00120}{Generic\+Object} {\bfseries Add\+Member} (String\+Ref\+Type name, String\+Ref\+Type value, Allocator\+Type \&allocator) const \hypertarget{a00120_a5cb6c166992abe5674a287bbc02d8f2f}{}\label{a00120_a5cb6c166992abe5674a287bbc02d8f2f}
+
+\item 
+{\footnotesize template$<$typename T $>$ }\\{\bfseries R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, \hyperlink{a00184}{internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$),(\hyperlink{a00120}{Generic\+Object})) Add\+Member(String\+Ref\+Type name\hypertarget{a00120_af361a4b677882964789201fc605541d0}{}\label{a00120_af361a4b677882964789201fc605541d0}
+
+\item 
+void {\bfseries Remove\+All\+Members} ()\hypertarget{a00120_a129ce3843a6658e620a7f740d9f44ee1}{}\label{a00120_a129ce3843a6658e620a7f740d9f44ee1}
+
+\item 
+bool {\bfseries Remove\+Member} (const Ch $\ast$name) const \hypertarget{a00120_a64bfcf1671efa5de04cc7659a014a29d}{}\label{a00120_a64bfcf1671efa5de04cc7659a014a29d}
+
+\item 
+{\footnotesize template$<$typename Source\+Allocator $>$ }\\bool {\bfseries Remove\+Member} (const \hyperlink{a00130}{Generic\+Value}$<$ Encoding\+Type, Source\+Allocator $>$ \&name) const \hypertarget{a00120_acca9953e3c2e6df16d7685572ac3fe9d}{}\label{a00120_acca9953e3c2e6df16d7685572ac3fe9d}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Remove\+Member} (\hyperlink{a00118}{Member\+Iterator} m) const \hypertarget{a00120_a2489d8522f3c38324df69f6184cd639a}{}\label{a00120_a2489d8522f3c38324df69f6184cd639a}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Erase\+Member} (\hyperlink{a00118}{Const\+Member\+Iterator} pos) const \hypertarget{a00120_a85ed6e1f586c775a02aaa99d0deabcb4}{}\label{a00120_a85ed6e1f586c775a02aaa99d0deabcb4}
+
+\item 
+\hyperlink{a00118}{Member\+Iterator} {\bfseries Erase\+Member} (\hyperlink{a00118}{Const\+Member\+Iterator} first, \hyperlink{a00118}{Const\+Member\+Iterator} last) const \hypertarget{a00120_a04c3ce4a9076ab2f7e8f6c5031456c29}{}\label{a00120_a04c3ce4a9076ab2f7e8f6c5031456c29}
+
+\item 
+bool {\bfseries Erase\+Member} (const Ch $\ast$name) const \hypertarget{a00120_abcf63f10bbc634620e03bf8b375fa6fd}{}\label{a00120_abcf63f10bbc634620e03bf8b375fa6fd}
+
+\item 
+{\footnotesize template$<$typename Source\+Allocator $>$ }\\bool {\bfseries Erase\+Member} (const \hyperlink{a00130}{Generic\+Value}$<$ Encoding\+Type, Source\+Allocator $>$ \&name) const \hypertarget{a00120_afda9d121d16de8b70f7bf09621851218}{}\label{a00120_afda9d121d16de8b70f7bf09621851218}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+T {\bfseries value}\hypertarget{a00120_a131538fbbacbc0a3a5ad15dbea66394f}{}\label{a00120_a131538fbbacbc0a3a5ad15dbea66394f}
+
+\item 
+T Allocator\+Type \&allocator {\bfseries const} \{ value\+\_\+.\+Add\+Member(name, value, allocator)\hypertarget{a00120_af70c9646b5e422306c33e98b3d8783a7}{}\label{a00120_af70c9646b5e422306c33e98b3d8783a7}
+
+\item 
+return $\ast$ {\bfseries this}\hypertarget{a00120_a719a0e5501da825e6f86ce12b46446cb}{}\label{a00120_a719a0e5501da825e6f86ce12b46446cb}
+
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename , typename $>$ }\\class {\bfseries Generic\+Value}\hypertarget{a00120_a899449e1a645b5e377af059fb61113d8}{}\label{a00120_a899449e1a645b5e377af059fb61113d8}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$bool Const, typename ValueT$>$\\*
+class Generic\+Object$<$ Const, Value\+T $>$}
+
+Helper class for accessing Value of object type. 
+
+Instance of this helper class is obtained by {\ttfamily Generic\+Value\+::\+Get\+Object()}. In addition to all A\+P\+Is for array type, it provides range-\/based for loop if {\ttfamily R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+H\+A\+S\+\_\+\+C\+X\+X11\+\_\+\+R\+A\+N\+G\+E\+\_\+\+F\+OR=1}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00473}{document.\+h}\end{DoxyCompactItemize}

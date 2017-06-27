@@ -1,0 +1,73 @@
+\hypertarget{a00076}{}\section{boost\+:\+:dll\+:\+:detail\+:\+:destructor$<$ Class $>$ Struct Template Reference}
+\label{a00076}\index{boost\+::dll\+::detail\+::destructor$<$ Class $>$@{boost\+::dll\+::detail\+::destructor$<$ Class $>$}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef void($\ast$ {\bfseries type}) (Class $\ast$const)\hypertarget{a00076_a155dbf742e9c6499f52041d0b9f061be}{}\label{a00076_a155dbf742e9c6499f52041d0b9f061be}
+
+\item 
+typedef type {\bfseries standard\+\_\+t}\hypertarget{a00076_a6a72bebfcaef05b746a9b4cf93d66c50}{}\label{a00076_a6a72bebfcaef05b746a9b4cf93d66c50}
+
+\item 
+typedef type {\bfseries deleting\+\_\+t}\hypertarget{a00076_aff7ad402a5e8d7c8d1d086f73f3acf88}{}\label{a00076_aff7ad402a5e8d7c8d1d086f73f3acf88}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{a00076_a95d55018849080c7d4c771b564e9b04e}{call\+\_\+standard} (Class $\ast$const ptr)\hypertarget{a00076_a95d55018849080c7d4c771b564e9b04e}{}\label{a00076_a95d55018849080c7d4c771b564e9b04e}
+
+\begin{DoxyCompactList}\small\item\em Call the standard contructor. \end{DoxyCompactList}\item 
+void \hyperlink{a00076_aabc107ff82b8a6f7e5aed5bd84080b1f}{call\+\_\+deleting} (Class $\ast$const ptr)\hypertarget{a00076_aabc107ff82b8a6f7e5aed5bd84080b1f}{}\label{a00076_aabc107ff82b8a6f7e5aed5bd84080b1f}
+
+\begin{DoxyCompactList}\small\item\em Call the deleting destructor. \end{DoxyCompactList}\item 
+bool \hyperlink{a00076_a294eee52606f8fdfbff528adbc50c3ea}{has\+\_\+deleting} () const \hypertarget{a00076_a294eee52606f8fdfbff528adbc50c3ea}{}\label{a00076_a294eee52606f8fdfbff528adbc50c3ea}
+
+\begin{DoxyCompactList}\small\item\em True if a deleting destructor could be loaded. \end{DoxyCompactList}\item 
+bool \hyperlink{a00076_a3efe4b3476a9157740a5a8840ae39186}{has\+\_\+standard} () const \hypertarget{a00076_a3efe4b3476a9157740a5a8840ae39186}{}\label{a00076_a3efe4b3476a9157740a5a8840ae39186}
+
+\begin{DoxyCompactList}\small\item\em True if a standard destructor could be loaded. \end{DoxyCompactList}\item 
+bool \hyperlink{a00076_adf4ce5f7e9d65a0ec22abf8109f0a5c3}{is\+\_\+empty} () const \hypertarget{a00076_adf4ce5f7e9d65a0ec22abf8109f0a5c3}{}\label{a00076_adf4ce5f7e9d65a0ec22abf8109f0a5c3}
+
+\begin{DoxyCompactList}\small\item\em False if neither the deleting nor the standard destructor is available. \end{DoxyCompactList}\item 
+\hyperlink{a00076_a45248a911612597c871150e12ad3208b}{destructor} (const \hyperlink{a00076}{destructor} \&)=default\hypertarget{a00076_a45248a911612597c871150e12ad3208b}{}\label{a00076_a45248a911612597c871150e12ad3208b}
+
+\begin{DoxyCompactList}\small\item\em Copy destructor. \end{DoxyCompactList}\item 
+\hyperlink{a00076_abc1f0cdcc708f43049b7d11727e24f24}{destructor} (const standard\+\_\+t \&\hyperlink{a00076_a5c588780f2142ca3492ea78c62fe472c}{standard}, const deleting\+\_\+t \&\hyperlink{a00076_a96ad279626c7f9b845d47582f9f88dc0}{deleting}=nullptr)\hypertarget{a00076_abc1f0cdcc708f43049b7d11727e24f24}{}\label{a00076_abc1f0cdcc708f43049b7d11727e24f24}
+
+\begin{DoxyCompactList}\small\item\em Construct it from both the standard destructor and the allocating destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+standard\+\_\+t \hyperlink{a00076_a5c588780f2142ca3492ea78c62fe472c}{standard}
+\begin{DoxyCompactList}\small\item\em The standard, i.\+e. not deleting destructor. \end{DoxyCompactList}\item 
+deleting\+\_\+t \hyperlink{a00076_a96ad279626c7f9b845d47582f9f88dc0}{deleting}
+\begin{DoxyCompactList}\small\item\em The deleting destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Member Data Documentation}
+\index{boost\+::dll\+::detail\+::destructor@{boost\+::dll\+::detail\+::destructor}!deleting@{deleting}}
+\index{deleting@{deleting}!boost\+::dll\+::detail\+::destructor@{boost\+::dll\+::detail\+::destructor}}
+\subsubsection[{\texorpdfstring{deleting}{deleting}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Class$>$ deleting\+\_\+t {\bf boost\+::dll\+::detail\+::destructor}$<$ Class $>$\+::deleting}\hypertarget{a00076_a96ad279626c7f9b845d47582f9f88dc0}{}\label{a00076_a96ad279626c7f9b845d47582f9f88dc0}
+
+
+The deleting destructor. 
+
+\begin{DoxyWarning}{Warning}
+May differ with the compiler. Use destructor\+::call\+\_\+deallocating instead. 
+\end{DoxyWarning}
+\index{boost\+::dll\+::detail\+::destructor@{boost\+::dll\+::detail\+::destructor}!standard@{standard}}
+\index{standard@{standard}!boost\+::dll\+::detail\+::destructor@{boost\+::dll\+::detail\+::destructor}}
+\subsubsection[{\texorpdfstring{standard}{standard}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Class$>$ standard\+\_\+t {\bf boost\+::dll\+::detail\+::destructor}$<$ Class $>$\+::standard}\hypertarget{a00076_a5c588780f2142ca3492ea78c62fe472c}{}\label{a00076_a5c588780f2142ca3492ea78c62fe472c}
+
+
+The standard, i.\+e. not deleting destructor. 
+
+\begin{DoxyWarning}{Warning}
+May differ with the compiler. Use \hyperlink{a00076_a95d55018849080c7d4c771b564e9b04e}{destructor\+::call\+\_\+standard} instead. 
+\end{DoxyWarning}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+ctor\+\_\+dtor.\+hpp\end{DoxyCompactItemize}

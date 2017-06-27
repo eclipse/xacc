@@ -1,0 +1,64 @@
+\hypertarget{a00092}{}\section{Encoded\+Input\+Stream$<$ Encoding, Input\+Byte\+Stream $>$ Class Template Reference}
+\label{a00092}\index{Encoded\+Input\+Stream$<$ Encoding, Input\+Byte\+Stream $>$@{Encoded\+Input\+Stream$<$ Encoding, Input\+Byte\+Stream $>$}}
+
+
+Input byte stream wrapper with a statically bound encoding.  
+
+
+
+
+{\ttfamily \#include $<$encodedstream.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Encoding\+::\+Ch {\bfseries Ch}\hypertarget{a00092_acc387a1364390da244bbb1ab07bdceca}{}\label{a00092_acc387a1364390da244bbb1ab07bdceca}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Encoded\+Input\+Stream} (Input\+Byte\+Stream \&is)\hypertarget{a00092_a17f8e629500f6ae71cb72d1d63bf41fd}{}\label{a00092_a17f8e629500f6ae71cb72d1d63bf41fd}
+
+\item 
+Ch {\bfseries Peek} () const \hypertarget{a00092_abda3b0c141254343f4c481f67d52b423}{}\label{a00092_abda3b0c141254343f4c481f67d52b423}
+
+\item 
+Ch {\bfseries Take} ()\hypertarget{a00092_ab42cd57581bf62e42af471583e5b8377}{}\label{a00092_ab42cd57581bf62e42af471583e5b8377}
+
+\item 
+size\+\_\+t {\bfseries Tell} () const \hypertarget{a00092_a34cdb99fd81cd211f71903348e9c986f}{}\label{a00092_a34cdb99fd81cd211f71903348e9c986f}
+
+\item 
+void {\bfseries Put} (Ch)\hypertarget{a00092_afea36b666a44bd4adeabfcab7b68a322}{}\label{a00092_afea36b666a44bd4adeabfcab7b68a322}
+
+\item 
+void {\bfseries Flush} ()\hypertarget{a00092_aa4415bf4b97dd01e8c3de0ad7a161724}{}\label{a00092_aa4415bf4b97dd01e8c3de0ad7a161724}
+
+\item 
+Ch $\ast$ {\bfseries Put\+Begin} ()\hypertarget{a00092_ad97f7a549a8622c61b7fb2c63fedd69b}{}\label{a00092_ad97f7a549a8622c61b7fb2c63fedd69b}
+
+\item 
+size\+\_\+t {\bfseries Put\+End} (Ch $\ast$)\hypertarget{a00092_a83fe5ed281413d6005d1b324730e8bed}{}\label{a00092_a83fe5ed281413d6005d1b324730e8bed}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Encoding, typename Input\+Byte\+Stream$>$\\*
+class Encoded\+Input\+Stream$<$ Encoding, Input\+Byte\+Stream $>$}
+
+Input byte stream wrapper with a statically bound encoding. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Encoding} & The interpretation of encoding of the stream. Either \hyperlink{a00333}{U\+T\+F8}, \hyperlink{a00329}{U\+T\+F16\+LE}, \hyperlink{a00328}{U\+T\+F16\+BE}, \hyperlink{a00332}{U\+T\+F32\+LE}, \hyperlink{a00331}{U\+T\+F32\+BE}. \\
+\hline
+{\em Input\+Byte\+Stream} & Type of input byte stream. For example, \hyperlink{a00101}{File\+Read\+Stream}. \\
+\hline
+\end{DoxyTemplParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+encodedstream.\+h\end{DoxyCompactItemize}

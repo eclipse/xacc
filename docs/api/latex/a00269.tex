@@ -1,40 +1,38 @@
-\hypertarget{a00269}{}\section{shared\+\_\+library.\+hpp File Reference}
-\label{a00269}\index{shared\+\_\+library.\+hpp@{shared\+\_\+library.\+hpp}}
-
-
-Contains the \hyperlink{a01708}{boost\+::dll\+::shared\+\_\+library} class, core class for all the D\+L\+L/\+D\+SO operations.  
-
-
-{\ttfamily \#include $<$boost/config.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/predef/os.\+h$>$}\newline
-{\ttfamily \#include $<$boost/utility/enable\+\_\+if.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/type\+\_\+traits/is\+\_\+member\+\_\+pointer.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/utility/explicit\+\_\+operator\+\_\+bool.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/dll/detail/system\+\_\+error.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/dll/detail/aggressive\+\_\+ptr\+\_\+cast.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/dll/detail/posix/shared\+\_\+library\+\_\+impl.\+hpp$>$}\newline
-\subsection*{Classes}
+\hypertarget{a00269}{}\section{Simple\+Web\+:\+:Server$<$ H\+T\+T\+PS $>$ Class Template Reference}
+\label{a00269}\index{Simple\+Web\+::\+Server$<$ H\+T\+T\+P\+S $>$@{Simple\+Web\+::\+Server$<$ H\+T\+T\+P\+S $>$}}
+Inheritance diagram for Simple\+Web\+:\+:Server$<$ H\+T\+T\+PS $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00269}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-class \hyperlink{a01708}{boost\+::dll\+::shared\+\_\+library}
-\begin{DoxyCompactList}\small\item\em This class can be used to load a Dynamic link libraries (D\+LL\textquotesingle{}s) or Shared Libraries, also know as dynamic shared objects (D\+SO\textquotesingle{}s) and get their exported symbols (functions and variables). \end{DoxyCompactList}\end{DoxyCompactItemize}
-\subsection*{Functions}
+D\+E\+P\+R\+E\+C\+A\+T\+ED {\bfseries Server} (unsigned short port, size\+\_\+t thread\+\_\+pool\+\_\+size, const std\+::string \&cert\+\_\+file, const std\+::string \&private\+\_\+key\+\_\+file, long timeout\+\_\+request=5, long timeout\+\_\+content=300, const std\+::string \&verify\+\_\+file=std\+::string())\hypertarget{a00269_a1a5530e96cd973de3dc987034ca61b54}{}\label{a00269_a1a5530e96cd973de3dc987034ca61b54}
+
+\item 
+{\bfseries Server} (const std\+::string \&cert\+\_\+file, const std\+::string \&private\+\_\+key\+\_\+file, const std\+::string \&verify\+\_\+file=std\+::string())\hypertarget{a00269_a15bb179287dfaa18da16b8877174e8d6}{}\label{a00269_a15bb179287dfaa18da16b8877174e8d6}
+
+\item 
+void {\bfseries start} ()\hypertarget{a00269_a6a740b3fdbbbf178f540e27942cc93fc}{}\label{a00269_a6a740b3fdbbbf178f540e27942cc93fc}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a00269_ad7233544269202b94686d41bea52d0ac}\label{a00269_ad7233544269202b94686d41bea52d0ac}} 
-bool \hyperlink{a00269_ad7233544269202b94686d41bea52d0ac}{boost\+::dll\+::operator==} (const shared\+\_\+library \&lhs, const shared\+\_\+library \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
-\begin{DoxyCompactList}\small\item\em Very fast equality check that compares the actual D\+L\+L/\+D\+SO objects. Throws nothing. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{a00269_aa9ae3e7be3360300ed88c56f9768a398}\label{a00269_aa9ae3e7be3360300ed88c56f9768a398}} 
-bool \hyperlink{a00269_aa9ae3e7be3360300ed88c56f9768a398}{boost\+::dll\+::operator!=} (const shared\+\_\+library \&lhs, const shared\+\_\+library \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
-\begin{DoxyCompactList}\small\item\em Very fast inequality check that compares the actual D\+L\+L/\+D\+SO objects. Throws nothing. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{a00269_a623bee5ffa66c763e20d2333fa4e21a9}\label{a00269_a623bee5ffa66c763e20d2333fa4e21a9}} 
-bool \hyperlink{a00269_a623bee5ffa66c763e20d2333fa4e21a9}{boost\+::dll\+::operator$<$} (const shared\+\_\+library \&lhs, const shared\+\_\+library \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
-\begin{DoxyCompactList}\small\item\em Compare the actual D\+L\+L/\+D\+SO objects without any guarantee to be stable between runs. Throws nothing. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{a00269_aa1a3e7ddd810a581916551d8275c5e3f}\label{a00269_aa1a3e7ddd810a581916551d8275c5e3f}} 
-void \hyperlink{a00269_aa1a3e7ddd810a581916551d8275c5e3f}{boost\+::dll\+::swap} (shared\+\_\+library \&lhs, shared\+\_\+library \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
-\begin{DoxyCompactList}\small\item\em Swaps two shared libraries. Does not invalidate symbols and functions loaded from libraries. Throws nothing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+void {\bfseries accept} ()\hypertarget{a00269_af722d2884eafafada7073feb7793c422}{}\label{a00269_af722d2884eafafada7073feb7793c422}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+boost\+::asio\+::ssl\+::context {\bfseries context}\hypertarget{a00269_ade0b1e6f826fd76ba6c6253d352fd93c}{}\label{a00269_ade0b1e6f826fd76ba6c6253d352fd93c}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
-\subsection{Detailed Description}
-Contains the \hyperlink{a01708}{boost\+::dll\+::shared\+\_\+library} class, core class for all the D\+L\+L/\+D\+SO operations. 
-
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+server\+\_\+https.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,45 @@
+\hypertarget{a00068}{}\section{Crt\+Allocator Class Reference}
+\label{a00068}\index{Crt\+Allocator@{Crt\+Allocator}}
+
+
+C-\/runtime library allocator.  
+
+
+
+
+{\ttfamily \#include $<$allocators.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void $\ast$ {\bfseries Malloc} (size\+\_\+t size)\hypertarget{a00068_acd720631f8c094041afa6c7951f0d935}{}\label{a00068_acd720631f8c094041afa6c7951f0d935}
+
+\item 
+void $\ast$ {\bfseries Realloc} (void $\ast$original\+Ptr, size\+\_\+t original\+Size, size\+\_\+t new\+Size)\hypertarget{a00068_a646bb6f68afe773a62a22f7f14f83e97}{}\label{a00068_a646bb6f68afe773a62a22f7f14f83e97}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void {\bfseries Free} (void $\ast$ptr)\hypertarget{a00068_a5043907058d906dcb1291e9491560373}{}\label{a00068_a5043907058d906dcb1291e9491560373}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const bool {\bfseries k\+Need\+Free} = true\hypertarget{a00068_ac7df8398c529290f0cd5950d9492f524}{}\label{a00068_ac7df8398c529290f0cd5950d9492f524}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+C-\/runtime library allocator. 
+
+This class is just wrapper for standard C library memory routines. \begin{DoxyNote}{Note}
+implements Allocator concept 
+\end{DoxyNote}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+allocators.\+h\end{DoxyCompactItemize}

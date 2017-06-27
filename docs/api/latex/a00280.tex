@@ -1,0 +1,79 @@
+\hypertarget{a00280}{}\section{xacc\+:\+:Singleton$<$ T $>$ Class Template Reference}
+\label{a00280}\index{xacc\+::\+Singleton$<$ T $>$@{xacc\+::\+Singleton$<$ T $>$}}
+
+
+{\ttfamily \#include $<$Singleton.\+hpp$>$}
+
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static T $\ast$ \hyperlink{a00280_ae4c30f303439e702389c9d088abb3f23}{instance} ()
+\item 
+static void \hyperlink{a00280_abbc654f5f90a2abc85f0010496335942}{destroy} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00280_afd62caabc41babdd98ab9af2253ec371}{Singleton} ()
+\item 
+virtual \hyperlink{a00280_a75a032ec71f88d6986461b47f3fb2600}{$\sim$\+Singleton} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static T $\ast$ \hyperlink{a00280_a863885efab9990f06f699567648dfa26}{instance\+\_\+} = nullptr
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$\\*
+class xacc\+::\+Singleton$<$ T $>$}
+
+\hyperlink{a00280}{Singleton} provides a templated implementation of the \hyperlink{a00280}{Singleton} Design Pattern. This class takes a template parameter and provides behviour around that template that models a singleton -\/ ie there is only one instance available during runtime. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Singleton@{xacc\+::\+Singleton}!Singleton@{Singleton}}
+\index{Singleton@{Singleton}!xacc\+::\+Singleton@{xacc\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{Singleton()}{Singleton()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ {\bf xacc\+::\+Singleton}$<$ T $>$\+::{\bf Singleton} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}, {\ttfamily [protected]}}\hypertarget{a00280_afd62caabc41babdd98ab9af2253ec371}{}\label{a00280_afd62caabc41babdd98ab9af2253ec371}
+constructor \index{xacc\+::\+Singleton@{xacc\+::\+Singleton}!````~Singleton@{$\sim$\+Singleton}}
+\index{````~Singleton@{$\sim$\+Singleton}!xacc\+::\+Singleton@{xacc\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{$\sim$\+Singleton()}{~Singleton()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ virtual {\bf xacc\+::\+Singleton}$<$ T $>$\+::$\sim${\bf Singleton} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}\hypertarget{a00280_a75a032ec71f88d6986461b47f3fb2600}{}\label{a00280_a75a032ec71f88d6986461b47f3fb2600}
+destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Singleton@{xacc\+::\+Singleton}!destroy@{destroy}}
+\index{destroy@{destroy}!xacc\+::\+Singleton@{xacc\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{destroy()}{destroy()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static void {\bf xacc\+::\+Singleton}$<$ T $>$\+::destroy (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00280_abbc654f5f90a2abc85f0010496335942}{}\label{a00280_abbc654f5f90a2abc85f0010496335942}
+Destroy the single instance of T \index{xacc\+::\+Singleton@{xacc\+::\+Singleton}!instance@{instance}}
+\index{instance@{instance}!xacc\+::\+Singleton@{xacc\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{instance()}{instance()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ static T$\ast$ {\bf xacc\+::\+Singleton}$<$ T $>$\+::instance (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00280_ae4c30f303439e702389c9d088abb3f23}{}\label{a00280_ae4c30f303439e702389c9d088abb3f23}
+Return the single instance of T \begin{DoxyReturn}{Returns}
+instance The singleton instance 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::\+Singleton@{xacc\+::\+Singleton}!instance\+\_\+@{instance\+\_\+}}
+\index{instance\+\_\+@{instance\+\_\+}!xacc\+::\+Singleton@{xacc\+::\+Singleton}}
+\subsubsection[{\texorpdfstring{instance\+\_\+}{instance\_}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T$>$ T $\ast$ {\bf xacc\+::\+Singleton}$<$ T $>$\+::instance\+\_\+ = nullptr\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}\hypertarget{a00280_a863885efab9990f06f699567648dfa26}{}\label{a00280_a863885efab9990f06f699567648dfa26}
+Reference to the single T instance 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Singleton.\+hpp\end{DoxyCompactItemize}

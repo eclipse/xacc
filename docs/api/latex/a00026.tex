@@ -1,0 +1,175 @@
+A cross-\/platform library that provides a simple A\+PI to read and write I\+N\+I-\/style configuration files. It supports data files in \hyperlink{a00038}{A\+S\+C\+II}, M\+B\+CS and Unicode. It is designed explicitly to be portable to any platform and has been tested on Windows, Win\+CE and Linux. Released as open-\/source and free using the M\+IT licence.
+
+\section*{Feature Summary}
+
+
+\begin{DoxyItemize}
+\item M\+IT Licence allows free use in all software (including G\+PL and commercial)
+\item multi-\/platform (Windows 95/98/\+M\+E/\+N\+T/2\+K/\+X\+P/2003, Windows CE, Linux, Unix)
+\item loading and saving of I\+N\+I-\/style configuration files
+\item configuration files can have any newline format on all platforms
+\item liberal acceptance of file format
+\begin{DoxyItemize}
+\item key/values with no section
+\item removal of whitespace around sections, keys and values
+\end{DoxyItemize}
+\item support for multi-\/line values (values with embedded newline characters)
+\item optional support for multiple keys with the same name
+\item optional case-\/insensitive sections and keys (for \hyperlink{a00038}{A\+S\+C\+II} characters only)
+\item saves files with sections and keys in the same order as they were loaded
+\item preserves comments on the file, section and keys where possible.
+\item supports both char or wchar\+\_\+t programming interfaces
+\item supports both M\+B\+CS (system locale) and U\+T\+F-\/8 file encodings
+\item system locale does not need to be U\+T\+F-\/8 on Linux/\+Unix to load U\+T\+F-\/8 file
+\item support for non-\/\+A\+S\+C\+II characters in section, keys, values and comments
+\item support for non-\/standard character types or file encodings via user-\/written converter classes
+\item support for adding/modifying values programmatically
+\item compiles cleanly in the following compilers\+:
+\begin{DoxyItemize}
+\item Windows/\+V\+C6 (warning level 3)
+\item Windows/\+V\+C.\+N\+ET 2003 (warning level 4)
+\item Windows/\+VC 2005 (warning level 4)
+\item Linux/gcc (-\/\+Wall)
+\item Windows/\+Min\+GW G\+CC
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\section*{Documentation}
+
+Full documentation of the interface is available in doxygen format.
+
+\section*{Examples}
+
+These snippets are included with the distribution in the file snippets.\+cpp.
+
+\subsubsection*{S\+I\+M\+P\+LE U\+S\+A\+GE}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 CSimpleIniA ini;
+3 ini.SetUnicode();
+4 ini.LoadFile("myfile.ini");
+5 const char * pVal = ini.GetValue("section", "key", "default");
+6 ini.SetValue("section", "key", "newvalue");
+\end{DoxyCode}
+
+
+\subsubsection*{L\+O\+A\+D\+I\+NG D\+A\+TA}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // load from a data file
+3 CSimpleIniA ini(a\_bIsUtf8, a\_bUseMultiKey, a\_bUseMultiLine);
+4 SI\_Error rc = ini.LoadFile(a\_pszFile);
+5 if (rc < 0) return false;
+6 
+7 // load from a string
+8 std::string strData;
+9 rc = ini.LoadData(strData.c\_str(), strData.size());
+10 if (rc < 0) return false;
+\end{DoxyCode}
+
+
+\subsubsection*{G\+E\+T\+T\+I\+NG S\+E\+C\+T\+I\+O\+NS A\+ND K\+E\+YS}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // get all sections
+3 CSimpleIniA::TNamesDepend sections;
+4 ini.GetAllSections(sections);
+5 
+6 // get all keys in a section
+7 CSimpleIniA::TNamesDepend keys;
+8 ini.GetAllKeys("section-name", keys);
+\end{DoxyCode}
+
+
+\subsubsection*{G\+E\+T\+T\+I\+NG V\+A\+L\+U\+ES}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // get the value of a key
+3 const char * pszValue = ini.GetValue("section-name", 
+4     "key-name", NULL /*default*/);
+5 
+6 // get the value of a key which may have multiple 
+7 // values. If bHasMultipleValues is true, then just 
+8 // one value has been returned
+9 bool bHasMultipleValues;
+10 pszValue = ini.GetValue("section-name", "key-name", 
+11     NULL /*default*/, &amp;bHasMultipleValues);
+12 
+13 // get all values of a key with multiple values
+14 CSimpleIniA::TNamesDepend values;
+15 ini.GetAllValues("section-name", "key-name", values);
+16 
+17 // sort the values into the original load order
+18 values.sort(CSimpleIniA::Entry::LoadOrder());
+19 
+20 // output all of the items
+21 CSimpleIniA::TNamesDepend::const\_iterator i;
+22 for (i = values.begin(); i != values.end(); ++i) \{ 
+23     printf("key-name = '%s'\(\backslash\)n", i->pItem);
+24 \}
+\end{DoxyCode}
+
+
+\subsubsection*{M\+O\+D\+I\+F\+Y\+I\+NG D\+A\+TA}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // adding a new section
+3 rc = ini.SetValue("new-section", NULL, NULL);
+4 if (rc < 0) return false;
+5 printf("section: %s\(\backslash\)n", rc == SI\_INSERTED ? 
+6     "inserted" : "updated");
+7 
+8 // adding a new key ("new-section" will be added 
+9 // automatically if it doesn't already exist)
+10 rc = ini.SetValue("new-section", "new-key", "value");
+11 if (rc < 0) return false;
+12 printf("key: %s\(\backslash\)n", rc == SI\_INSERTED ? 
+13     "inserted" : "updated");
+14 
+15 // changing the value of a key
+16 rc = ini.SetValue("section", "key", "updated-value");
+17 if (rc < 0) return false;
+18 printf("key: %s\(\backslash\)n", rc == SI\_INSERTED ? 
+19     "inserted" : "updated");
+\end{DoxyCode}
+
+
+\subsubsection*{D\+E\+L\+E\+T\+I\+NG D\+A\+TA}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // deleting a key from a section. Optionally the entire
+3 // section may be deleted if it is now empty.
+4 ini.Delete("section-name", "key-name", 
+5     true /*delete the section if empty*/);
+6 
+7 // deleting an entire section and all keys in it
+8 ini.Delete("section-name", NULL);
+\end{DoxyCode}
+
+
+\subsubsection*{S\+A\+V\+I\+NG D\+A\+TA}
+
+
+\begin{DoxyCode}
+1 \{c++\}
+2 // save the data to a string
+3 rc = ini.Save(strData);
+4 if (rc < 0) return false;
+5 
+6 // save the data back to the file
+7 rc = ini.SaveFile(a\_pszFile);
+8 if (rc < 0) return false;
+\end{DoxyCode}
+ 

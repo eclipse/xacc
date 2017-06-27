@@ -1,238 +1,33 @@
-\hypertarget{a00254}{}\section{import.\+hpp File Reference}
-\label{a00254}\index{import.\+hpp@{import.\+hpp}}
-
-
-Contains all the boost\+::dll\+::import$\ast$ reference counting functions that hold a shared pointer to the instance of \hyperlink{a01708}{boost\+::dll\+::shared\+\_\+library}.  
-
-
-{\ttfamily \#include $<$boost/config.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/utility/enable\+\_\+if.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/type\+\_\+traits/is\+\_\+object.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/make\+\_\+shared.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/dll/shared\+\_\+library.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/utility/addressof.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/move/move.\+hpp$>$}\newline
-\subsection*{Classes}
+\hypertarget{a00254}{}\section{xacc\+:\+:runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+:\+:index\+\_\+sequence$<$ Indices... $>$ $>$ Struct Template Reference}
+\label{a00254}\index{xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$@{xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$}}
+\subsection*{Public Types}
 \begin{DoxyCompactItemize}
 \item 
-class \hyperlink{a01632}{boost\+::dll\+::detail\+::library\+\_\+function$<$ T $>$}
+using {\bfseries return\+\_\+type} = typename std\+::tuple\+\_\+element$<$ 0, Tuple $>$\+::type \&\hypertarget{a00254_a1d2e9cd7910527e3c4f0162500f067a7}{}\label{a00254_a1d2e9cd7910527e3c4f0162500f067a7}
+
 \item 
-struct \hyperlink{a01636}{boost\+::dll\+::detail\+::import\+\_\+type$<$ T, class $>$}
-\item 
-struct \hyperlink{a01640}{boost\+::dll\+::detail\+::import\+\_\+type$<$ T, typename boost\+::disable\+\_\+if$<$ boost\+::is\+\_\+object$<$ T $>$ $>$\+::type $>$}
-\item 
-struct \hyperlink{a01644}{boost\+::dll\+::detail\+::import\+\_\+type$<$ T, typename boost\+::enable\+\_\+if$<$ boost\+::is\+\_\+object$<$ T $>$ $>$\+::type $>$}
+using {\bfseries get\+\_\+func\+\_\+ptr} = return\+\_\+type($\ast$)(Tuple \&) noexcept\hypertarget{a00254_afba5cf89694dc07b12aaabf6388a4427}{}\label{a00254_afba5cf89694dc07b12aaabf6388a4427}
+
 \end{DoxyCompactItemize}
-\subsection*{Macros}
+\subsection*{Static Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a00254_a970b9f65fd3a27056507924072cfa150}\label{a00254_a970b9f65fd3a27056507924072cfa150}} 
-\#define {\bfseries B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE}~inline typename \hyperlink{a01636}{boost\+::dll\+::detail\+::import\+\_\+type}$<$T$>$\+::type
-\end{DoxyCompactItemize}
-\subsection*{Functions}
-\begin{DoxyCompactItemize}
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_ade82cd3690b6f9f21ce1f92563c04694}{boost\+::dll\+::import} (const boost\+::filesystem\+::path \&lib, const char $\ast$name, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_aabe8a061e53eb6ec4ea80ff5eb7a9c29}{boost\+::dll\+::import} (const boost\+::filesystem\+::path \&lib, const std\+::string \&name, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a1feb1943049297f6177c9e80d1f96202}{boost\+::dll\+::import} (const shared\+\_\+library \&lib, const char $\ast$name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a7697764076cbe4d8e7705b2a4710c76f}{boost\+::dll\+::import} (const shared\+\_\+library \&lib, const std\+::string \&name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a6008e873f45aa7cc22b8d556670a6b85}{boost\+::dll\+::import} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(shared\+\_\+library) lib, const char $\ast$name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a3a30149253feebe550a411593bfb90b5}{boost\+::dll\+::import} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(shared\+\_\+library) lib, const std\+::string \&name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a31e7946affed32f3bebb416ccca9b454}{boost\+::dll\+::import\+\_\+alias} (const boost\+::filesystem\+::path \&lib, const char $\ast$name, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a5ad71130573fdd290315a87d95fb92c8}{boost\+::dll\+::import\+\_\+alias} (const boost\+::filesystem\+::path \&lib, const std\+::string \&name, load\+\_\+mode\+::type mode=load\+\_\+mode\+::default\+\_\+mode)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_aefeda3de57b4871b66bd42ee1199e6fe}{boost\+::dll\+::import\+\_\+alias} (const shared\+\_\+library \&lib, const char $\ast$name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_a30560963e2e72d0314053673c30b137e}{boost\+::dll\+::import\+\_\+alias} (const shared\+\_\+library \&lib, const std\+::string \&name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_ae6a8129836f1674c746a4af58c7e7104}{boost\+::dll\+::import\+\_\+alias} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(shared\+\_\+library) lib, const char $\ast$name)
-\item 
-{\footnotesize template$<$class T $>$ }\\B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE \hyperlink{a00254_aeafedb58798e9bf6b793f3b54ac7bcfd}{boost\+::dll\+::import\+\_\+alias} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(shared\+\_\+library) lib, const std\+::string \&name)
+static constexpr get\+\_\+func\+\_\+ptr {\bfseries table} \mbox{[}std\+::tuple\+\_\+size$<$ Tuple $>$\+::value\mbox{]}
 \end{DoxyCompactItemize}
 
 
-\subsection{Detailed Description}
-Contains all the boost\+::dll\+::import$\ast$ reference counting functions that hold a shared pointer to the instance of \hyperlink{a01708}{boost\+::dll\+::shared\+\_\+library}. 
-
-
-
-\subsection{Function Documentation}
-\mbox{\Hypertarget{a00254_file_ade82cd3690b6f9f21ce1f92563c04694}\label{a00254_file_ade82cd3690b6f9f21ce1f92563c04694}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{const boost\+::filesystem\+::path \&}]{lib,  }\item[{const char $\ast$}]{name,  }\item[{\hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode} }\end{DoxyParamCaption})}
-
-Returns callable object or boost\+::shared\+\_\+ptr$<$\+T$>$ that holds the symbol imported from the loaded library. Returned value refcounts usage of the loaded shared library, so that it won\textquotesingle{}t get unload until all copies of return value are not destroyed.
-
-This call will succeed if call to \{shared\+\_\+library\}{\ttfamily \+::has(const char$\ast$ )} function with the same symbol name returned {\ttfamily true}.
-
-For importing symbols by {\bfseries alias} names use \{import\+\_\+alias\} method.
-
-{\bfseries Examples\+:} 
-
-
+\subsection{Member Data Documentation}
+\index{xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$@{xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$}!table@{table}}
+\index{table@{table}!xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$@{xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$}}
+\subsubsection[{\texorpdfstring{table}{table}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Tuple , size\+\_\+t... Indices$>$ constexpr {\bf runtime\+\_\+get\+\_\+func\+\_\+table}$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$\+::get\+\_\+func\+\_\+ptr {\bf xacc\+::runtime\+\_\+get\+\_\+func\+\_\+table}$<$ Tuple, std\+::index\+\_\+sequence$<$ Indices... $>$ $>$\+::table\hspace{0.3cm}{\ttfamily [static]}}\hypertarget{a00254_a80921470cc04db92bab9127ae768d759}{}\label{a00254_a80921470cc04db92bab9127ae768d759}
+{\bfseries Initial value\+:}
 \begin{DoxyCode}
-boost::function<int(int)> f = import<int(int)>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_func\_name"});
-
-\textcolor{keyword}{auto} f\_cpp11 = import<int(int)>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_func\_name"});
+=\{
+        &std::get<Indices>...
+    \}
 \end{DoxyCode}
 
 
-
-\begin{DoxyCode}
-boost::shared\_ptr<int> i = import<int>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_name"});
-\end{DoxyCode}
-
-
-{\bfseries Template} {\bfseries parameter} {\bfseries T\+:} Type of the symbol that we are going to import. Must be explicitly specified.
-
-
-\begin{DoxyParams}{Parameters}
-{\em lib} & Path to shared library or shared library to load function from. \\
-\hline
-{\em name} & Null-\/terminated C or C++ mangled name of the function to import. Can handle std\+::string, char$\ast$, const char$\ast$. \\
-\hline
-{\em mode} & An mode that will be used on library load.\\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-callable object if T is a function type, or boost\+::shared\+\_\+ptr$<$\+T$>$ if T is an object type.
-\end{DoxyReturn}
-
-\begin{DoxyExceptions}{Exceptions}
-{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. Overload that accepts path also throws std\+::bad\+\_\+alloc in case of insufficient memory. \\
-\hline
-\end{DoxyExceptions}
-\mbox{\Hypertarget{a00254_file_aabe8a061e53eb6ec4ea80ff5eb7a9c29}\label{a00254_file_aabe8a061e53eb6ec4ea80ff5eb7a9c29}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{const boost\+::filesystem\+::path \&}]{lib,  }\item[{const std\+::string \&}]{name,  }\item[{\hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode} }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a1feb1943049297f6177c9e80d1f96202}\label{a00254_file_a1feb1943049297f6177c9e80d1f96202}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{const \hyperlink{a01708}{shared\+\_\+library} \&}]{lib,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a7697764076cbe4d8e7705b2a4710c76f}\label{a00254_file_a7697764076cbe4d8e7705b2a4710c76f}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{const \hyperlink{a01708}{shared\+\_\+library} \&}]{lib,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a6008e873f45aa7cc22b8d556670a6b85}\label{a00254_file_a6008e873f45aa7cc22b8d556670a6b85}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01708}{shared\+\_\+library})}]{lib,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a3a30149253feebe550a411593bfb90b5}\label{a00254_file_a3a30149253feebe550a411593bfb90b5}} 
-\index{import.\+hpp@{import.\+hpp}!import@{import}}
-\index{import@{import}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import()}{import()}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import (\begin{DoxyParamCaption}\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01708}{shared\+\_\+library})}]{lib,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a31e7946affed32f3bebb416ccca9b454}\label{a00254_file_a31e7946affed32f3bebb416ccca9b454}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{const boost\+::filesystem\+::path \&}]{lib,  }\item[{const char $\ast$}]{name,  }\item[{\hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode} }\end{DoxyParamCaption})}
-
-Returns callable object or boost\+::shared\+\_\+ptr$<$\+T$>$ that holds the symbol imported from the loaded library. Returned value refcounts usage of the loaded shared library, so that it won\textquotesingle{}t get unload until all copies of return value are not destroyed.
-
-This call will succeed if call to \{shared\+\_\+library\}{\ttfamily \+::has(const char$\ast$ )} function with the same symbol name returned {\ttfamily true}.
-
-For importing symbols by {\bfseries non} {\bfseries alias} names use \{import\} method.
-
-{\bfseries Examples\+:} 
-
-
-\begin{DoxyCode}
-boost::function<int(int)> f = import\_alias<int(int)>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_func\_alias\_name"});
-
-\textcolor{keyword}{auto} f\_cpp11 = import\_alias<int(int)>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_func\_alias\_name"});
-\end{DoxyCode}
-
-
-
-\begin{DoxyCode}
-boost::shared\_ptr<int> i = import\_alias<int>(\textcolor{stringliteral}{"test\_lib.so"}, \textcolor{stringliteral}{"integer\_alias\_name"});
-\end{DoxyCode}
-
-
-
-\begin{DoxyCode}
-\end{DoxyCode}
-
-
-{\bfseries Template} {\bfseries parameter} {\bfseries T\+:} Type of the symbol alias that we are going to import. Must be explicitly specified.
-
-
-\begin{DoxyParams}{Parameters}
-{\em lib} & Path to shared library or shared library to load function from. \\
-\hline
-{\em name} & Null-\/terminated C or C++ mangled name of the function or variable to import. Can handle std\+::string, char$\ast$, const char$\ast$. \\
-\hline
-{\em mode} & An mode that will be used on library load.\\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-callable object if T is a function type, or boost\+::shared\+\_\+ptr$<$\+T$>$ if T is an object type.
-\end{DoxyReturn}
-
-\begin{DoxyExceptions}{Exceptions}
-{\em boost\+::system\+::system\+\_\+error} & if symbol does not exist or if the D\+L\+L/\+D\+SO was not loaded. Overload that accepts path also throws std\+::bad\+\_\+alloc in case of insufficient memory. \\
-\hline
-\end{DoxyExceptions}
-\mbox{\Hypertarget{a00254_file_a5ad71130573fdd290315a87d95fb92c8}\label{a00254_file_a5ad71130573fdd290315a87d95fb92c8}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{const boost\+::filesystem\+::path \&}]{lib,  }\item[{const std\+::string \&}]{name,  }\item[{\hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type}}]{mode = {\ttfamily load\+\_\+mode\+:\+:default\+\_\+mode} }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_aefeda3de57b4871b66bd42ee1199e6fe}\label{a00254_file_aefeda3de57b4871b66bd42ee1199e6fe}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{const \hyperlink{a01708}{shared\+\_\+library} \&}]{lib,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_a30560963e2e72d0314053673c30b137e}\label{a00254_file_a30560963e2e72d0314053673c30b137e}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{const \hyperlink{a01708}{shared\+\_\+library} \&}]{lib,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_ae6a8129836f1674c746a4af58c7e7104}\label{a00254_file_ae6a8129836f1674c746a4af58c7e7104}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01708}{shared\+\_\+library})}]{lib,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \mbox{\Hypertarget{a00254_file_aeafedb58798e9bf6b793f3b54ac7bcfd}\label{a00254_file_aeafedb58798e9bf6b793f3b54ac7bcfd}} 
-\index{import.\+hpp@{import.\+hpp}!import\+\_\+alias@{import\+\_\+alias}}
-\index{import\+\_\+alias@{import\+\_\+alias}!import.\+hpp@{import.\+hpp}}
-\subsubsection{\texorpdfstring{import\+\_\+alias()}{import\_alias()}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-B\+O\+O\+S\+T\+\_\+\+D\+L\+L\+\_\+\+I\+M\+P\+O\+R\+T\+\_\+\+R\+E\+S\+U\+L\+T\+\_\+\+T\+Y\+PE boost\+::dll\+::import\+\_\+alias (\begin{DoxyParamCaption}\item[{B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a01708}{shared\+\_\+library})}]{lib,  }\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})}
-
-This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. 
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Utils.\+hpp\end{DoxyCompactItemize}

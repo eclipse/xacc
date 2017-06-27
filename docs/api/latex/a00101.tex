@@ -1,0 +1,84 @@
+\hypertarget{a00101}{}\section{File\+Read\+Stream Class Reference}
+\label{a00101}\index{File\+Read\+Stream@{File\+Read\+Stream}}
+
+
+File byte stream for input using fread().  
+
+
+
+
+{\ttfamily \#include $<$filereadstream.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef char \hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch}\hypertarget{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{}\label{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}
+
+\begin{DoxyCompactList}\small\item\em Character type (byte). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00101_adf91191843d50b900f43cb4f35f16f67}{File\+Read\+Stream} (std\+::\+F\+I\+LE $\ast$fp, char $\ast$buffer, size\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch} {\bfseries Peek} () const \hypertarget{a00101_ab129c5d15343488caf60b4fee48024fb}{}\label{a00101_ab129c5d15343488caf60b4fee48024fb}
+
+\item 
+\hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch} {\bfseries Take} ()\hypertarget{a00101_addcbccc9d86ccbbe6d8e876ba595dbcb}{}\label{a00101_addcbccc9d86ccbbe6d8e876ba595dbcb}
+
+\item 
+size\+\_\+t {\bfseries Tell} () const \hypertarget{a00101_a9a2f09eb66ae912c4d5f472bdfdd92ce}{}\label{a00101_a9a2f09eb66ae912c4d5f472bdfdd92ce}
+
+\item 
+void {\bfseries Put} (\hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch})\hypertarget{a00101_a4f2eac5b08033b1527bff517be657a36}{}\label{a00101_a4f2eac5b08033b1527bff517be657a36}
+
+\item 
+void {\bfseries Flush} ()\hypertarget{a00101_acd031e3f578b23bc2a792ac41e1e95ae}{}\label{a00101_acd031e3f578b23bc2a792ac41e1e95ae}
+
+\item 
+\hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch} $\ast$ {\bfseries Put\+Begin} ()\hypertarget{a00101_ac985850ab75f204dc08a01d12a8ef5c6}{}\label{a00101_ac985850ab75f204dc08a01d12a8ef5c6}
+
+\item 
+size\+\_\+t {\bfseries Put\+End} (\hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch} $\ast$)\hypertarget{a00101_a886660c89f698ff913d641d61466108f}{}\label{a00101_a886660c89f698ff913d641d61466108f}
+
+\item 
+const \hyperlink{a00101_ae1f83d9ca3c76d1d151af0b6c427f046}{Ch} $\ast$ {\bfseries Peek4} () const \hypertarget{a00101_a33ebc2af3a7dea770c70e9c1d53f0f91}{}\label{a00101_a33ebc2af3a7dea770c70e9c1d53f0f91}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+File byte stream for input using fread(). 
+
+\begin{DoxyNote}{Note}
+implements Stream concept 
+\end{DoxyNote}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{File\+Read\+Stream@{File\+Read\+Stream}!File\+Read\+Stream@{File\+Read\+Stream}}
+\index{File\+Read\+Stream@{File\+Read\+Stream}!File\+Read\+Stream@{File\+Read\+Stream}}
+\subsubsection[{\texorpdfstring{File\+Read\+Stream(std\+::\+F\+I\+L\+E $\ast$fp, char $\ast$buffer, size\+\_\+t buffer\+Size)}{FileReadStream(std::FILE *fp, char *buffer, size\_t bufferSize)}}]{\setlength{\rightskip}{0pt plus 5cm}File\+Read\+Stream\+::\+File\+Read\+Stream (
+\begin{DoxyParamCaption}
+\item[{std\+::\+F\+I\+LE $\ast$}]{fp, }
+\item[{char $\ast$}]{buffer, }
+\item[{size\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00101_adf91191843d50b900f43cb4f35f16f67}{}\label{a00101_adf91191843d50b900f43cb4f35f16f67}
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fp} & File pointer opened for read. \\
+\hline
+{\em buffer} & user-\/supplied buffer. \\
+\hline
+{\em buffer\+Size} & size of buffer in bytes. Must $>$=4 bytes. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+filereadstream.\+h\end{DoxyCompactItemize}

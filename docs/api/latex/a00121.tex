@@ -1,0 +1,444 @@
+\hypertarget{a00121}{}\section{Generic\+Pointer$<$ Value\+Type, Allocator $>$ Class Template Reference}
+\label{a00121}\index{Generic\+Pointer$<$ Value\+Type, Allocator $>$@{Generic\+Pointer$<$ Value\+Type, Allocator $>$}}
+
+
+Represents a J\+S\+ON Pointer. Use Pointer for \hyperlink{a00333}{U\+T\+F8} encoding and default allocator.  
+
+
+
+
+{\ttfamily \#include $<$pointer.\+h$>$}
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{a00305}{Token}
+\begin{DoxyCompactList}\small\item\em A token is the basic units of internal representation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Value\+Type\+::\+Encoding\+Type \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}\hypertarget{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{}\label{a00121_a4b802da797a7a0b615fd9611cedb7c3b}
+
+\begin{DoxyCompactList}\small\item\em Encoding type from Value. \end{DoxyCompactList}\item 
+typedef Value\+Type\+::\+Ch \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch}\hypertarget{a00121_ab292356c11b4015c98d21b966b11f285}{}\label{a00121_ab292356c11b4015c98d21b966b11f285}
+
+\begin{DoxyCompactList}\small\item\em Character type from Value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+Allocator stack\+Allocator {\bfseries R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, \hyperlink{a00184}{internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$),(Value\+Type \&)) Get\+With\+Default(\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}\hypertarget{a00121_aebf325c6fde06adfc4d959b507d7f170}{}\label{a00121_aebf325c6fde06adfc4d959b507d7f170}
+
+\item 
+bool \hyperlink{a00121_aa8fd4b1259fc500188f4162571b280ec}{Erase} (Value\+Type \&root) const 
+\begin{DoxyCompactList}\small\item\em Erase a value in a subtree. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{Indent}{\bf Constructors and destructor.}\par
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00121_a5d85b7dc82719643e8f7adccd5a74fbe}{Generic\+Pointer} (Allocator $\ast$allocator=0)\hypertarget{a00121_a5d85b7dc82719643e8f7adccd5a74fbe}{}\label{a00121_a5d85b7dc82719643e8f7adccd5a74fbe}
+
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\hyperlink{a00121_a4ad549b8a826c3c2dedf03fcc07be9b0}{Generic\+Pointer} (const \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$source, Allocator $\ast$allocator=0)
+\begin{DoxyCompactList}\small\item\em Constructor that parses a string or U\+RI fragment representation. \end{DoxyCompactList}\item 
+\hyperlink{a00121_a9c05684ea95306aac7626e70cb3946cc}{Generic\+Pointer} (const \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$source, size\+\_\+t length, Allocator $\ast$allocator=0)
+\begin{DoxyCompactList}\small\item\em Constructor that parses a string or U\+RI fragment representation, with length of the source string. \end{DoxyCompactList}\item 
+\hyperlink{a00121_a524a9921eff68f389a817a20ca7f1d84}{Generic\+Pointer} (const \hyperlink{a00305}{Token} $\ast$tokens, size\+\_\+t token\+Count)
+\begin{DoxyCompactList}\small\item\em Constructor with user-\/supplied tokens. \end{DoxyCompactList}\item 
+\hyperlink{a00121_a18d671bb793c6b843d5496b2b130cb70}{Generic\+Pointer} (const \hyperlink{a00121}{Generic\+Pointer} \&rhs, Allocator $\ast$allocator=0)\hypertarget{a00121_a18d671bb793c6b843d5496b2b130cb70}{}\label{a00121_a18d671bb793c6b843d5496b2b130cb70}
+
+\begin{DoxyCompactList}\small\item\em Copy constructor. \end{DoxyCompactList}\item 
+\hyperlink{a00121_acf3eb2f7c4ebf9256f638aafa17534cb}{$\sim$\+Generic\+Pointer} ()\hypertarget{a00121_acf3eb2f7c4ebf9256f638aafa17534cb}{}\label{a00121_acf3eb2f7c4ebf9256f638aafa17534cb}
+
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\hyperlink{a00121}{Generic\+Pointer} \& \hyperlink{a00121_a1d0174a6e72daa4024da9e08ce1e7951}{operator=} (const \hyperlink{a00121}{Generic\+Pointer} \&rhs)\hypertarget{a00121_a1d0174a6e72daa4024da9e08ce1e7951}{}\label{a00121_a1d0174a6e72daa4024da9e08ce1e7951}
+
+\begin{DoxyCompactList}\small\item\em Assignment operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}{\bf Append token}\par
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00121}{Generic\+Pointer} \hyperlink{a00121_a6d55ac55724890527e583f26b2774f02}{Append} (const \hyperlink{a00305}{Token} \&token, Allocator $\ast$allocator=0) const 
+\begin{DoxyCompactList}\small\item\em Append a token and return a new Pointer. \end{DoxyCompactList}\item 
+\hyperlink{a00121}{Generic\+Pointer} \hyperlink{a00121_a0f2c0586fd945bf25a5da228d085f74b}{Append} (const \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$name, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, Allocator $\ast$allocator=0) const 
+\begin{DoxyCompactList}\small\item\em Append a name token with length, and return a new Pointer. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\\hyperlink{a00121_aaf4d7d852098878d24188d134182d42f}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Not\+Expr$<$ internal\+::\+Is\+Same$<$ typename internal\+::\+Remove\+Const$<$ T $>$\+::\hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type}, \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $>$ $>$),(\hyperlink{a00121}{Generic\+Pointer})) \hyperlink{a00121_a6d55ac55724890527e583f26b2774f02}{Append}(T $\ast$name
+\begin{DoxyCompactList}\small\item\em Append a name token without length, and return a new Pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}{\bf Swap a value}\par
+\begin{DoxyCompactItemize}
+\item 
+Value\+Type \& \hyperlink{a00121_a25a063290bcf607694430d6b05ac9157}{Swap} (Value\+Type \&root, Value\+Type \&value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const 
+\begin{DoxyCompactList}\small\item\em Swap a value with a value in a subtree. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename stack\+Allocator $>$ }\\Value\+Type \& \hyperlink{a00121_a403b64d9a3ff51ba5f21b038838564bb}{Swap} (\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}, typename Value\+Type\+::\+Allocator\+Type, stack\+Allocator $>$ \&document, Value\+Type \&value) const \hypertarget{a00121_a403b64d9a3ff51ba5f21b038838564bb}{}\label{a00121_a403b64d9a3ff51ba5f21b038838564bb}
+
+\begin{DoxyCompactList}\small\item\em Swap a value with a value in a document. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{Indent}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Allocator $\ast$ {\bfseries allocator}\hypertarget{a00121_aeb61ba8e67260b43090791eeca8b90e0}{}\label{a00121_aeb61ba8e67260b43090791eeca8b90e0}
+
+\item 
+Allocator stack\+Allocator stack\+Allocator \& {\bfseries document}\hypertarget{a00121_a646e2825228e0d8331e3a49d7382202b}{}\label{a00121_a646e2825228e0d8331e3a49d7382202b}
+
+\item 
+Allocator stack\+Allocator stack\+Allocator T default\+Value {\bfseries const}
+\end{DoxyCompactItemize}
+\subsection*{Set a value}
+\begin{DoxyCompactItemize}
+\item 
+T {\bfseries value}\hypertarget{a00121_a08ef35da0ea9a51d8265a360f0c34540}{}\label{a00121_a08ef35da0ea9a51d8265a360f0c34540}
+
+\item 
+T Value\+Type\+::\+Allocator\+Type \&allocator {\bfseries const}
+\item 
+stack\+Allocator \& {\bfseries document}\hypertarget{a00121_afd073c4e3be53fd7ec08aec9f75fbaa9}{}\label{a00121_afd073c4e3be53fd7ec08aec9f75fbaa9}
+
+\item 
+stack\+Allocator T value {\bfseries const}
+\item 
+Value\+Type \& \hyperlink{a00121_adf0aa776e072b41d301e2a834ac2c2b5}{Set} (Value\+Type \&root, Value\+Type \&value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const 
+\begin{DoxyCompactList}\small\item\em Set a value in a subtree, with move semantics. \end{DoxyCompactList}\item 
+Value\+Type \& \hyperlink{a00121_a80ceefa779d8d8e4699c433eb40ef1fa}{Set} (Value\+Type \&root, const Value\+Type \&value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const \hypertarget{a00121_a80ceefa779d8d8e4699c433eb40ef1fa}{}\label{a00121_a80ceefa779d8d8e4699c433eb40ef1fa}
+
+\begin{DoxyCompactList}\small\item\em Set a value in a subtree, with copy semantics. \end{DoxyCompactList}\item 
+Value\+Type \& \hyperlink{a00121_ae62ceea598633d21ad648b431b23c26a}{Set} (Value\+Type \&root, const \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const \hypertarget{a00121_ae62ceea598633d21ad648b431b23c26a}{}\label{a00121_ae62ceea598633d21ad648b431b23c26a}
+
+\begin{DoxyCompactList}\small\item\em Set a null-\/terminated string in a subtree. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T $>$ }\\\hyperlink{a00121_a914bbdd96e2a248e035b8ebd68526369}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, \hyperlink{a00184}{internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$),(Value\+Type \&)) \hyperlink{a00121_adf0aa776e072b41d301e2a834ac2c2b5}{Set}(Value\+Type \&root
+\begin{DoxyCompactList}\small\item\em Set a primitive value in a subtree. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename stack\+Allocator $>$ }\\Value\+Type \& \hyperlink{a00121_a49e879bd98bddbe7300f152a070d5604}{Set} (\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}, typename Value\+Type\+::\+Allocator\+Type, stack\+Allocator $>$ \&document, Value\+Type \&value) const \hypertarget{a00121_a49e879bd98bddbe7300f152a070d5604}{}\label{a00121_a49e879bd98bddbe7300f152a070d5604}
+
+\begin{DoxyCompactList}\small\item\em Set a value in a document, with move semantics. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename stack\+Allocator $>$ }\\Value\+Type \& \hyperlink{a00121_afa59f450284e5cc6f989dab4b8344168}{Set} (\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}, typename Value\+Type\+::\+Allocator\+Type, stack\+Allocator $>$ \&document, const Value\+Type \&value) const \hypertarget{a00121_afa59f450284e5cc6f989dab4b8344168}{}\label{a00121_afa59f450284e5cc6f989dab4b8344168}
+
+\begin{DoxyCompactList}\small\item\em Set a value in a document, with copy semantics. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename stack\+Allocator $>$ }\\Value\+Type \& \hyperlink{a00121_a09a5893890650b15939322a5d962c70a}{Set} (\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}, typename Value\+Type\+::\+Allocator\+Type, stack\+Allocator $>$ \&document, const \hyperlink{a00121_ab292356c11b4015c98d21b966b11f285}{Ch} $\ast$value) const \hypertarget{a00121_a09a5893890650b15939322a5d962c70a}{}\label{a00121_a09a5893890650b15939322a5d962c70a}
+
+\begin{DoxyCompactList}\small\item\em Set a null-\/terminated string in a document. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename T , typename stack\+Allocator $>$ }\\\hyperlink{a00121_a1bb4a253f33687734e5b20795632a801}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN} ((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, \hyperlink{a00184}{internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$),(Value\+Type \&)) \hyperlink{a00121_adf0aa776e072b41d301e2a834ac2c2b5}{Set}(\hyperlink{a00115}{Generic\+Document}$<$ \hyperlink{a00121_a4b802da797a7a0b615fd9611cedb7c3b}{Encoding\+Type}
+\begin{DoxyCompactList}\small\item\em Set a primitive value in a document. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$\\*
+class Generic\+Pointer$<$ Value\+Type, Allocator $>$}
+
+Represents a J\+S\+ON Pointer. Use Pointer for \hyperlink{a00333}{U\+T\+F8} encoding and default allocator. 
+
+This class implements R\+FC 6901 \char`\"{}\+Java\+Script Object Notation (\+J\+S\+O\+N) Pointer\char`\"{} (\href{https://tools.ietf.org/html/rfc6901}{\tt https\+://tools.\+ietf.\+org/html/rfc6901}).
+
+A J\+S\+ON pointer is for identifying a specific value in a J\+S\+ON document (\hyperlink{a00115}{Generic\+Document}). It can simplify coding of D\+OM tree manipulation, because it can access multiple-\/level depth of D\+OM tree with single A\+PI call.
+
+After it parses a string representation (e.\+g. \char`\"{}/foo/0\char`\"{} or U\+RI fragment representation (e.\+g. \char`\"{}\#/foo/0\char`\"{}) into its internal representation (tokens), it can be used to resolve a specific value in multiple documents, or sub-\/tree of documents.
+
+Contrary to \hyperlink{a00130}{Generic\+Value}, Pointer can be copy constructed and copy assigned. Apart from assignment, a Pointer cannot be modified after construction.
+
+Although Pointer is very convenient, please aware that constructing Pointer involves parsing and dynamic memory allocation. A special constructor with user-\/ supplied tokens eliminates these.
+
+\hyperlink{a00121}{Generic\+Pointer} depends on \hyperlink{a00115}{Generic\+Document} and \hyperlink{a00130}{Generic\+Value}.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Value\+Type} & The value type of the D\+OM tree. E.\+g. \hyperlink{a00130}{Generic\+Value}$<$U\+T\+F8$<$$>$ $>$ \\
+\hline
+{\em Allocator} & The allocator type for allocating memory for internal representation.\\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyNote}{Note}
+\hyperlink{a00121}{Generic\+Pointer} uses same encoding of Value\+Type. However, Allocator of \hyperlink{a00121}{Generic\+Pointer} is independent of Allocator of Value. 
+\end{DoxyNote}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Generic\+Pointer(const Ch $\ast$source, Allocator $\ast$allocator=0)}{GenericPointer(const Ch *source, Allocator *allocator=0)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::{\bf Generic\+Pointer} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Ch} $\ast$}]{source, }
+\item[{Allocator $\ast$}]{allocator = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}\hypertarget{a00121_a4ad549b8a826c3c2dedf03fcc07be9b0}{}\label{a00121_a4ad549b8a826c3c2dedf03fcc07be9b0}
+
+
+Constructor that parses a string or U\+RI fragment representation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & A null-\/terminated, string or U\+RI fragment representation of J\+S\+ON pointer. \\
+\hline
+{\em allocator} & User supplied allocator for this pointer. If no allocator is provided, it creates a self-\/owned one. \\
+\hline
+\end{DoxyParams}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Generic\+Pointer(const Ch $\ast$source, size\+\_\+t length, Allocator $\ast$allocator=0)}{GenericPointer(const Ch *source, size\_t length, Allocator *allocator=0)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::{\bf Generic\+Pointer} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Ch} $\ast$}]{source, }
+\item[{size\+\_\+t}]{length, }
+\item[{Allocator $\ast$}]{allocator = {\ttfamily 0}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_a9c05684ea95306aac7626e70cb3946cc}{}\label{a00121_a9c05684ea95306aac7626e70cb3946cc}
+
+
+Constructor that parses a string or U\+RI fragment representation, with length of the source string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & A string or U\+RI fragment representation of J\+S\+ON pointer. \\
+\hline
+{\em length} & Length of source. \\
+\hline
+{\em allocator} & User supplied allocator for this pointer. If no allocator is provided, it creates a self-\/owned one. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Slightly faster than the overload without length. 
+\end{DoxyNote}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\index{Generic\+Pointer@{Generic\+Pointer}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Generic\+Pointer(const Token $\ast$tokens, size\+\_\+t token\+Count)}{GenericPointer(const Token *tokens, size\_t tokenCount)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::{\bf Generic\+Pointer} (
+\begin{DoxyParamCaption}
+\item[{const {\bf Token} $\ast$}]{tokens, }
+\item[{size\+\_\+t}]{token\+Count}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_a524a9921eff68f389a817a20ca7f1d84}{}\label{a00121_a524a9921eff68f389a817a20ca7f1d84}
+
+
+Constructor with user-\/supplied tokens. 
+
+This constructor let user supplies const array of tokens. This prevents the parsing process and eliminates allocation. This is preferred for memory constrained environments.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tokens} & An constant array of tokens representing the J\+S\+ON pointer. \\
+\hline
+{\em token\+Count} & Number of tokens.\\
+\hline
+\end{DoxyParams}
+{\bfseries Example} 
+\begin{DoxyCode}
+\textcolor{preprocessor}{#define NAME(s) \{ s, sizeof(s) / sizeof(s[0]) - 1, kPointerInvalidIndex \}}
+\textcolor{preprocessor}{#define INDEX(i) \{ #i, sizeof(#i) - 1, i \}}
+
+\textcolor{keyword}{static} \textcolor{keyword}{const} \hyperlink{a00305}{Pointer::Token} kTokens[] = \{ NAME(\textcolor{stringliteral}{"foo"}), INDEX(123) \};
+\textcolor{keyword}{static} \textcolor{keyword}{const} \hyperlink{a00121}{Pointer} p(kTokens, \textcolor{keyword}{sizeof}(kTokens) / \textcolor{keyword}{sizeof}(kTokens[0]));
+\textcolor{comment}{// Equivalent to static const Pointer p("/foo/123");}
+
+\textcolor{preprocessor}{#undef NAME}
+\textcolor{preprocessor}{#undef INDEX}
+\end{DoxyCode}
+ 
+
+\subsection{Member Function Documentation}
+\index{Generic\+Pointer@{Generic\+Pointer}!Append@{Append}}
+\index{Append@{Append}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Append(const Token \&token, Allocator $\ast$allocator=0) const }{Append(const Token \&token, Allocator *allocator=0) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ {\bf Generic\+Pointer} {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::Append (
+\begin{DoxyParamCaption}
+\item[{const {\bf Token} \&}]{token, }
+\item[{Allocator $\ast$}]{allocator = {\ttfamily 0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_a6d55ac55724890527e583f26b2774f02}{}\label{a00121_a6d55ac55724890527e583f26b2774f02}
+
+
+Append a token and return a new Pointer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em token} & \hyperlink{a00305}{Token} to be appended. \\
+\hline
+{\em allocator} & Allocator for the newly return Pointer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new Pointer with appended token. 
+\end{DoxyReturn}
+\index{Generic\+Pointer@{Generic\+Pointer}!Append@{Append}}
+\index{Append@{Append}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Append(const Ch $\ast$name, Size\+Type length, Allocator $\ast$allocator=0) const }{Append(const Ch *name, SizeType length, Allocator *allocator=0) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ {\bf Generic\+Pointer} {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::Append (
+\begin{DoxyParamCaption}
+\item[{const {\bf Ch} $\ast$}]{name, }
+\item[{{\bf Size\+Type}}]{length, }
+\item[{Allocator $\ast$}]{allocator = {\ttfamily 0}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_a0f2c0586fd945bf25a5da228d085f74b}{}\label{a00121_a0f2c0586fd945bf25a5da228d085f74b}
+
+
+Append a name token with length, and return a new Pointer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name to be appended. \\
+\hline
+{\em length} & Length of name. \\
+\hline
+{\em allocator} & Allocator for the newly return Pointer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new Pointer with appended token. 
+\end{DoxyReturn}
+\index{Generic\+Pointer@{Generic\+Pointer}!Erase@{Erase}}
+\index{Erase@{Erase}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Erase(\+Value\+Type \&root) const }{Erase(ValueType \&root) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ bool {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::Erase (
+\begin{DoxyParamCaption}
+\item[{Value\+Type \&}]{root}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_aa8fd4b1259fc500188f4162571b280ec}{}\label{a00121_aa8fd4b1259fc500188f4162571b280ec}
+
+
+Erase a value in a subtree. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em root} & Root value of a D\+OM sub-\/tree to be resolved. It can be any value other than document root. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether the resolved value is found and erased.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Erasing with an empty pointer {\ttfamily Pointer}(\char`\"{}\char`\"{}), i.\+e. the root, always fail and return false. 
+\end{DoxyNote}
+\index{Generic\+Pointer@{Generic\+Pointer}!R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}}
+\index{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+R\+N((internal\+::\+Not\+Expr$<$ internal\+::\+Is\+Same$<$ typename internal\+::\+Remove\+Const$<$ T $>$\+::\+Type, Ch $>$ $>$),(\+Generic\+Pointer)) Append(\+T $\ast$name}{RAPIDJSON\_DISABLEIF\_RETURN((internal::NotExpr< internal::IsSame< typename internal::RemoveConst< T >::Type, Ch > >),(GenericPointer)) Append(T *name}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ template$<$typename T $>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN (
+\begin{DoxyParamCaption}
+\item[{(internal\+::\+Not\+Expr$<$ internal\+::\+Is\+Same$<$ typename internal\+::\+Remove\+Const$<$ T $>$\+::{\bf Type}, {\bf Ch} $>$ $>$)}]{, }
+\item[{({\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$)}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00121_aaf4d7d852098878d24188d134182d42f}{}\label{a00121_aaf4d7d852098878d24188d134182d42f}
+
+
+Append a name token without length, and return a new Pointer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name (const Ch$\ast$) to be appended. \\
+\hline
+{\em allocator} & Allocator for the newly return Pointer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new Pointer with appended token. 
+\end{DoxyReturn}
+\index{Generic\+Pointer@{Generic\+Pointer}!R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}}
+\index{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+R\+N((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, internal\+::\+Is\+Generic\+Value$<$ T $>$ $>$),(\+Value\+Type \&)) Set(\+Value\+Type \&root}{RAPIDJSON\_DISABLEIF\_RETURN((internal::OrExpr< internal::IsPointer< T >, internal::IsGenericValue< T > >),(ValueType \&)) Set(ValueType \&root}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ template$<$typename T $>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN (
+\begin{DoxyParamCaption}
+\item[{(internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, {\bf internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$)}]{, }
+\item[{(Value\+Type \&)}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00121_a914bbdd96e2a248e035b8ebd68526369}{}\label{a00121_a914bbdd96e2a248e035b8ebd68526369}
+
+
+Set a primitive value in a subtree. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Either \hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type}, {\ttfamily int}, {\ttfamily unsigned}, {\ttfamily int64\+\_\+t}, {\ttfamily uint64\+\_\+t}, {\ttfamily bool} \\
+\hline
+\end{DoxyTemplParams}
+\index{Generic\+Pointer@{Generic\+Pointer}!R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}}
+\index{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN@{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+R\+N((internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, internal\+::\+Is\+Generic\+Value$<$ T $>$ $>$),(\+Value\+Type \&)) Set(\+Generic\+Document$<$ Encoding\+Type}{RAPIDJSON\_DISABLEIF\_RETURN((internal::OrExpr< internal::IsPointer< T >, internal::IsGenericValue< T > >),(ValueType \&)) Set(GenericDocument< EncodingType}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ template$<$typename T , typename stack\+Allocator $>$ {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+D\+I\+S\+A\+B\+L\+E\+I\+F\+\_\+\+R\+E\+T\+U\+RN (
+\begin{DoxyParamCaption}
+\item[{(internal\+::\+Or\+Expr$<$ internal\+::\+Is\+Pointer$<$ T $>$, {\bf internal\+::\+Is\+Generic\+Value}$<$ T $>$ $>$)}]{, }
+\item[{(Value\+Type \&)}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00121_a1bb4a253f33687734e5b20795632a801}{}\label{a00121_a1bb4a253f33687734e5b20795632a801}
+
+
+Set a primitive value in a document. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Either \hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type}, {\ttfamily int}, {\ttfamily unsigned}, {\ttfamily int64\+\_\+t}, {\ttfamily uint64\+\_\+t}, {\ttfamily bool} \\
+\hline
+\end{DoxyTemplParams}
+\index{Generic\+Pointer@{Generic\+Pointer}!Set@{Set}}
+\index{Set@{Set}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Set(\+Value\+Type \&root, Value\+Type \&value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const }{Set(ValueType \&root, ValueType \&value, typename ValueType::AllocatorType \&allocator) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ Value\+Type\& {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::Set (
+\begin{DoxyParamCaption}
+\item[{Value\+Type \&}]{root, }
+\item[{Value\+Type \&}]{value, }
+\item[{typename Value\+Type\+::\+Allocator\+Type \&}]{allocator}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_adf0aa776e072b41d301e2a834ac2c2b5}{}\label{a00121_adf0aa776e072b41d301e2a834ac2c2b5}
+
+
+Set a value in a subtree, with move semantics. 
+
+It creates all parents if they are not exist or types are different to the tokens. So this function always succeeds but potentially remove existing values.
+
+
+\begin{DoxyParams}{Parameters}
+{\em root} & Root value of a D\+OM sub-\/tree to be resolved. It can be any value other than document root. \\
+\hline
+{\em value} & Value to be set. \\
+\hline
+{\em allocator} & Allocator for creating the values if the specified value or its parents are not exist. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+Create() 
+\end{DoxySeeAlso}
+\index{Generic\+Pointer@{Generic\+Pointer}!Swap@{Swap}}
+\index{Swap@{Swap}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{Swap(\+Value\+Type \&root, Value\+Type \&value, typename Value\+Type\+::\+Allocator\+Type \&allocator) const }{Swap(ValueType \&root, ValueType \&value, typename ValueType::AllocatorType \&allocator) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ Value\+Type\& {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::Swap (
+\begin{DoxyParamCaption}
+\item[{Value\+Type \&}]{root, }
+\item[{Value\+Type \&}]{value, }
+\item[{typename Value\+Type\+::\+Allocator\+Type \&}]{allocator}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00121_a25a063290bcf607694430d6b05ac9157}{}\label{a00121_a25a063290bcf607694430d6b05ac9157}
+
+
+Swap a value with a value in a subtree. 
+
+It creates all parents if they are not exist or types are different to the tokens. So this function always succeeds but potentially remove existing values.
+
+
+\begin{DoxyParams}{Parameters}
+{\em root} & Root value of a D\+OM sub-\/tree to be resolved. It can be any value other than document root. \\
+\hline
+{\em value} & Value to be swapped. \\
+\hline
+{\em allocator} & Allocator for creating the values if the specified value or its parents are not exist. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+Create() 
+\end{DoxySeeAlso}
+
+
+\subsection{Member Data Documentation}
+\index{Generic\+Pointer@{Generic\+Pointer}!const@{const}}
+\index{const@{const}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{const}{const}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ Allocator stack\+Allocator stack\+Allocator T default\+Value {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::const}\hypertarget{a00121_ad6e06cd83cf52e045c7e07a67078e973}{}\label{a00121_ad6e06cd83cf52e045c7e07a67078e973}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+\{
+        \textcolor{keywordflow}{return} GetWithDefault(document, defaultValue, document.GetAllocator())
+\end{DoxyCode}
+\index{Generic\+Pointer@{Generic\+Pointer}!const@{const}}
+\index{const@{const}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{const}{const}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ T Value\+Type\+::\+Allocator\+Type\& allocator {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::const}\hypertarget{a00121_ace82428d4ad958b05a52480d949b32fa}{}\label{a00121_ace82428d4ad958b05a52480d949b32fa}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+\{
+        \textcolor{keywordflow}{return} Create(root, allocator) = ValueType(value).Move()
+\end{DoxyCode}
+\index{Generic\+Pointer@{Generic\+Pointer}!const@{const}}
+\index{const@{const}!Generic\+Pointer@{Generic\+Pointer}}
+\subsubsection[{\texorpdfstring{const}{const}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Value\+Type, typename Allocator = Crt\+Allocator$>$ stack\+Allocator T value {\bf Generic\+Pointer}$<$ Value\+Type, Allocator $>$\+::const}\hypertarget{a00121_abb1b141cfe93b7159842b5cad60d1be3}{}\label{a00121_abb1b141cfe93b7159842b5cad60d1be3}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+\{
+            \textcolor{keywordflow}{return} Create(document) = value
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+pointer.\+h\end{DoxyCompactItemize}
