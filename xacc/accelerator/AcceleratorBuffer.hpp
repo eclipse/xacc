@@ -31,6 +31,7 @@
 #ifndef XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 #define XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 
+#include <boost/dynamic_bitset.hpp>
 #include <string>
 #include <iostream>
 #include "Utils.hpp"
@@ -82,6 +83,15 @@ public:
 		bits[idx].update(zeroOrOne);
 	}
 
+  void appendMeasurement(const boost::dynamic_bitset<>& measurement){
+	  measurements.push_back(measurement);
+        }
+
+  void getAverage(){
+
+  }
+  
+  
 	AcceleratorBitState getAcceleratorBitState(const int idx) {
 		return bits[idx].getState();
 	}
@@ -94,7 +104,7 @@ public:
 	virtual ~AcceleratorBuffer() {}
 
 protected:
-
+        std::vector<boost::dynamic_bitset<>> measurements;
 	std::string bufferId;
 	std::vector<AcceleratorBit> bits;
 };
