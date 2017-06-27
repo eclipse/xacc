@@ -129,16 +129,8 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 
 	// Get the IR Function representation
-	auto qirFunction = consumer->getFunction();
+	return consumer->getIR();
 
-	// Create a Quantum IR instance
-	auto qir = std::make_shared<GateQIR>();
-
-	// Give the function to the IR
-	qir->addKernel(qirFunction);
-
-	// Return...
-	return qir;
 }
 
 std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
@@ -165,13 +157,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 
-	auto qirFunction = consumer->getFunction();
-
-	auto qir = std::make_shared<GateQIR>();
-
-	qir->addKernel(qirFunction);
-
-	return qir;
+	return consumer->getIR();
 }
 
 }

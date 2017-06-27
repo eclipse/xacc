@@ -36,6 +36,7 @@
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "ConditionalFunction.hpp"
+#include "GateQIR.hpp"
 
 using namespace clang;
 
@@ -49,6 +50,8 @@ protected:
 	std::string cbitVarName;
 	std::string qbitVarName;
 
+	std::shared_ptr<xacc::quantum::GateQIR> ir;
+
 	std::shared_ptr<xacc::quantum::GateFunction> function;
 	std::shared_ptr<xacc::quantum::ConditionalFunction> currentConditional;
 
@@ -57,6 +60,8 @@ protected:
 	std::map<std::string, int> cbitRegToMeasuredQubit;
 
 public:
+
+	ScaffoldASTConsumer() : ir(std::make_shared<xacc::quantum::GateQIR>()) {}
 
 	// Override the method that gets called for each parsed top-level
 	// declaration.
@@ -150,6 +155,7 @@ public:
 			}
 			function = std::make_shared<xacc::quantum::GateFunction>(
 					c->getDeclName().getAsString(), parameters);
+			ir->addKernel(function);
 		}
 		return true;
 	}
@@ -163,50 +169,62 @@ public:
 			bool isParameterizedInst = false;
 			auto fd = c->getDirectCallee();
 			auto gateName = fd->getNameInfo().getAsString();
-			std::vector<int> qubits;
-			std::vector<xacc::InstructionParameter> params;
-			for (auto i = c->arg_begin(); i != c->arg_end(); ++i) {
-				std::string arg;
-				llvm::raw_string_ostream argstream(arg);
-				i->printPretty(argstream, nullptr, policy);
-				auto argStr = argstream.str();
+			auto gateRegistry = xacc::quantum::GateInstructionRegistry::instance();
+			auto availableGates = gateRegistry->getRegisteredIds();
+			std::shared_ptr<xacc::Instruction> inst;
+
+			if (!std::any_of(availableGates.cbegin(), availableGates.cend(),
+					[=](std::string i) {return i == gateName;})) {
+
+				if (ir->kernelExists(gateName)) {
+					inst = ir->getKernel(gateName);
+				}
+
+			} else {
+
+				std::vector<int> qubits;
+				std::vector<xacc::InstructionParameter> params;
+				for (auto i = c->arg_begin(); i != c->arg_end(); ++i) {
+					std::string arg;
+					llvm::raw_string_ostream argstream(arg);
+					i->printPretty(argstream, nullptr, policy);
+					auto argStr = argstream.str();
 //				std::cout << "Arg: " << argstream.str() << "\n";
 
-				if (boost::contains(argStr, qbitVarName)) {
-					boost::replace_all(argStr, qbitVarName, "");
-					boost::replace_all(argStr, "[", "");
-					boost::replace_all(argStr, "]", "");
-					qubits.push_back(std::stoi(argStr));
-				} else {
-					// This is a gate parameter!!!
-					isParameterizedInst = true;
+					if (boost::contains(argStr, qbitVarName)) {
+						boost::replace_all(argStr, qbitVarName, "");
+						boost::replace_all(argStr, "[", "");
+						boost::replace_all(argStr, "]", "");
+						qubits.push_back(std::stoi(argStr));
+					} else {
+						// This is a gate parameter!!!
+						isParameterizedInst = true;
 
-					// This parameter could just be a hard-coded value
-					// or it could be a reference to a variable parameter...
-					try {
-						double d = boost::lexical_cast<double>(argStr);
-						params.push_back(d);
-					} catch (const boost::bad_lexical_cast &) {
-						params.push_back(argStr);
+						// This parameter could just be a hard-coded value
+						// or it could be a reference to a variable parameter...
+						try {
+							double d = boost::lexical_cast<double>(argStr);
+							params.push_back(d);
+						} catch (const boost::bad_lexical_cast &) {
+							params.push_back(argStr);
+						}
 					}
 				}
-			}
 
-			std::shared_ptr<xacc::quantum::GateInstruction> inst;
-			if (isParameterizedInst) {
+				if (isParameterizedInst) {
 
-				int idx = 0;
-				inst = xacc::quantum::GateInstructionRegistry::instance()->create(gateName, qubits);
-				for (auto p : params) {
-					inst->setParameter(idx, p);
-					idx++;
+					int idx = 0;
+					inst = gateRegistry->create(gateName, qubits);
+					for (auto p : params) {
+						inst->setParameter(idx, p);
+						idx++;
+					}
+
+				} else if (gateName != "MeasZ") {
+
+					inst = gateRegistry->create(gateName, qubits);
 				}
 
-			} else if (gateName != "MeasZ") {
-
-				inst =
-						xacc::quantum::GateInstructionRegistry::instance()->create(
-								gateName, qubits);
 			}
 
 			if (gateName != "MeasZ") {
@@ -278,8 +296,8 @@ public:
 
 		return true;
 	}
-	std::shared_ptr<xacc::Function> getFunction() {
-		return function;
+	std::shared_ptr<xacc::IR> getIR() {
+		return ir;
 	}
 
 	const std::string getQubitVariableName() {

@@ -14,7 +14,7 @@ run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "A
    && sed -i -r "s/(Version: *).*/\11.0/" spec/header && sed -i -r "s/(Summary: *).*/\1XACC - eXtreme-scale ACCelerator programming environment./" spec/header \
    && sed -i -r "s/(Release: *).*/\11.fc25/" spec/header && sed -i -r "s/(License: *).*/\1BSD/" spec/header \
    && sed -i -r "s/(Buildarch: *).*/\1x86_64/" spec/header && sed -i -r "s/(Group: *).*/\1Development\/System/" spec/header \
-   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cmake git make libtool spdlog mpich-devel boost-mpich-devel/" spec/header \
+   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cmake python-devel git make libtool spdlog mpich-devel boost-mpich-devel/" spec/header \
    && sed -i -r '/Requires/s/^#//g' spec/header \
    && togo build package && cp rpms/*.rpm /projects/ \
    && cat spec/header

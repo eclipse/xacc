@@ -148,6 +148,52 @@ BOOST_AUTO_TEST_CASE(checkWithParameter) {
 	gateqir->persist(std::cout);
 }
 
+BOOST_AUTO_TEST_CASE(checkTwoFunctions) {
+	const std::string src(
+		"module init(qbit qreg[3], double phi) {\n"
+		"   Rz(qreg[0], phi);\n"
+		"}\n"
+		"\n"
+		"module gateWithParam (qbit qreg[3], double phi) {\n"
+		"   init(qreg, phi);\n"
+		"   H(qreg[1]);\n"
+		"   X(qreg[0]);\n"
+		"}\n");
+
+	auto qir = compiler->compile(src);
+
+	qir->persist(std::cout);
+
+}
+BOOST_AUTO_TEST_CASE(checkTeleportWithFunctions) {
+
+	const std::string src2(
+			"module init(qbit qreg[3]) {\n"
+			"   X(qreg[0]);\n"
+			"}\n"
+			"module createBellPair(qbit qreg[3]) {\n"
+			"   H(qreg[1]);\n"
+			"   CNOT(qreg[1], qreg[2]);\n"
+			"}\n"
+			"module teleport (qbit qreg[3]) {\n"
+			"   cbit creg[2];\n"
+			"   // Init qubit 0 to 1\n"
+			"   init(qreg);\n"
+			"   // create bell pair\n"
+			"   createBellPair(qreg);\n"
+			"   // Now teleport...\n"
+			"   CNOT(qreg[0],qreg[1]);\n"
+			"   H(qreg[0]);\n"
+			"   creg[0] = MeasZ(qreg[0]);\n"
+			"   creg[1] = MeasZ(qreg[1]);\n"
+			"   if (creg[0] == 1) Z(qreg[2]);\n"
+			"   if (creg[1] == 1) X(qreg[2]);\n"
+			"}\n");
+
+		auto qir2 = compiler->compile(src2);
+
+		qir2->persist(std::cout);
+}
 /*
 BOOST_AUTO_TEST_CASE(checkMultipleFunction) {
 	const std::string src(

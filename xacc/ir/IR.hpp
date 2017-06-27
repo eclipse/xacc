@@ -86,6 +86,14 @@ public:
 	virtual void addKernel(std::shared_ptr<Function> kernel) = 0;
 
 	/**
+	 * Return true if the kernel with given name exists in this IR.
+	 *
+	 * @param name The name of the kernel to return.
+	 * @return exists True if kernel exists.
+	 */
+	virtual bool kernelExists(const std::string& name) = 0;
+
+	/**
 	 * Return the kernel with the given name.
 	 *
 	 * @param name The name of the kernel to return.
