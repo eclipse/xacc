@@ -135,7 +135,12 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	} else if (type == "pyquillow") {
 
 		// Gotta do a post, then a get for this one
-		jsonStr = "{\"machine\": \"QPU\", \"program\": {\"qcid\": 5, \"stop\": 1.0, \"start\": 0.0, \"step\": 0.04, \"experiment\": \"rabi\", \"time\": 100.0, \"type\": \"pyquillow\", \"device_id\": \"Z12-13-C4a2\"}, \"userId\": \""+userId+"\", \"results\": \"\", \"jobId\": \"\"}";
+		jsonStr = "{\"machine\": \"QPU\", \"program\": {\"qcid\": 5, "
+				"\"stop\": 1.0, \"start\": 0.0, \"step\": 0.04, "
+				"\"experiment\": \"rabi\", \"time\": 100.0, \"type\": "
+				"\"pyquillow\", \"device_id\": \"Z12-13-C4a2\"}, "
+				"\"userId\": \""+userId+"\", \"results\": \"\", "
+						"\"jobId\": \"\"}";
 
 	} else {
 
@@ -191,6 +196,9 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		main_namespace["coef_string"] = std::string(buf, postResponse.contentLength);
 		main_namespace["num_addresses"] = visitor->getNumberOfAddresses();
 
+		// NOTE: This is taken from pyquil wavefunction implementation
+		// just using for now because I can't figure out parsing the
+		// binary just yet :(
 		const std::string code =
 				"import base64\n"
 				"import json\n"

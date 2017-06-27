@@ -59,7 +59,11 @@ protected:
 	 */
 	std::string classicalAddresses;
 
+	std::map<int, int> qubitToClassicalBitIndex;
+
+
 	int numAddresses = 0;
+
 public:
 
 	/**
@@ -82,6 +86,9 @@ public:
 		quilStr += "X " + std::to_string(x.bits()[0]) + "\n";
 	}
 
+	/**
+	 *
+	 */
 	void visit(Y& y) {
 		quilStr += "Y " + std::to_string(y.bits()[0]) + "\n";
 	}
@@ -101,6 +108,7 @@ public:
 		quilStr += "MEASURE " + std::to_string(m.bits()[0]) + " [" + std::to_string(classicalBitIdx) + "]\n";
 		classicalAddresses += std::to_string(classicalBitIdx) + ", ";
 		numAddresses++;
+		qubitToClassicalBitIndex.insert(std::make_pair(m.bits()[0], classicalBitIdx));
 	}
 
 	/**
@@ -108,7 +116,8 @@ public:
 	 */
 	void visit(ConditionalFunction& c) {
 		auto visitor = std::make_shared<QuilVisitor>();
-		quilStr += "JUMP-UNLESS @" + c.getName() + " [" + std::to_string(c.getConditionalQubit()) + "]\n";
+		auto classicalBitIdx = qubitToClassicalBitIndex[c.getConditionalQubit()];
+		quilStr += "JUMP-UNLESS @" + c.getName() + " [" + std::to_string(classicalBitIdx) + "]\n";
 		for (auto inst : c.getInstructions()) {
 			inst->accept(visitor);
 		}
