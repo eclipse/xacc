@@ -138,11 +138,15 @@ public:
 				"rigetti");
 	}
 
-	RigettiAccelerator() :
-			httpClient(
-					std::make_shared<
-							fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
-							"api.rigetti.com", false)) {
+	RigettiAccelerator() : httpClient(std::make_shared<
+			fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
+			"api.rigetti.com", false)) {
+		auto runtimeOptions = RuntimeOptions::instance();
+		if (runtimeOptions->exists("rigetti-type") && (*runtimeOptions)["rigetti-type"] == "pyquillow") {
+			httpClient = std::make_shared<
+					fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
+					"job.rigetti.com", false);
+		}
 	}
 
 	RigettiAccelerator(std::shared_ptr<fire::util::INetworkingTool> http) :
@@ -165,13 +169,13 @@ private:
 	 * API key in $HOME/.pyquil_config, $PYQUIL_CONFIG,
 	 * or --api-key command line arg
 	 */
-	void searchAPIKey(std::string& key);
+	void searchAPIKey(std::string& key, std::string& id);
 
 	/**
 	 * Private utility to search for key in the config
 	 * file.
 	 */
-	void findApiKeyInFile(std::string& key, boost::filesystem::path &p);
+	void findApiKeyInFile(std::string& key, std::string& id, boost::filesystem::path &p);
 
 };
 

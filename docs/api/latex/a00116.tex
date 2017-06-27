@@ -1,0 +1,79 @@
+\hypertarget{a00116}{}\section{Generic\+Insitu\+String\+Stream$<$ Encoding $>$ Struct Template Reference}
+\label{a00116}\index{Generic\+Insitu\+String\+Stream$<$ Encoding $>$@{Generic\+Insitu\+String\+Stream$<$ Encoding $>$}}
+
+
+A read-\/write string stream.  
+
+
+
+
+{\ttfamily \#include $<$stream.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Encoding\+::\+Ch {\bfseries Ch}\hypertarget{a00116_a277308a58f551f11d0d9a20823702b5a}{}\label{a00116_a277308a58f551f11d0d9a20823702b5a}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Generic\+Insitu\+String\+Stream} (Ch $\ast$src)\hypertarget{a00116_ad8b8417f0501ac261c7232023292c183}{}\label{a00116_ad8b8417f0501ac261c7232023292c183}
+
+\item 
+Ch {\bfseries Peek} ()\hypertarget{a00116_ae21ba3ff4595ccd5caa4a9858e793f3f}{}\label{a00116_ae21ba3ff4595ccd5caa4a9858e793f3f}
+
+\item 
+Ch {\bfseries Take} ()\hypertarget{a00116_afde4e46663225e4c32cfdbcd261f321e}{}\label{a00116_afde4e46663225e4c32cfdbcd261f321e}
+
+\item 
+size\+\_\+t {\bfseries Tell} ()\hypertarget{a00116_aa9a84abb24e8c93b683a2e7bfea309db}{}\label{a00116_aa9a84abb24e8c93b683a2e7bfea309db}
+
+\item 
+void {\bfseries Put} (Ch c)\hypertarget{a00116_a74f92f9a4c34bd65aab4b99f519a543a}{}\label{a00116_a74f92f9a4c34bd65aab4b99f519a543a}
+
+\item 
+Ch $\ast$ {\bfseries Put\+Begin} ()\hypertarget{a00116_afc671072f56eb6e8d9009061c6565dd4}{}\label{a00116_afc671072f56eb6e8d9009061c6565dd4}
+
+\item 
+size\+\_\+t {\bfseries Put\+End} (Ch $\ast$begin)\hypertarget{a00116_a93702b08ff29c66bde389b0d4e9efa5a}{}\label{a00116_a93702b08ff29c66bde389b0d4e9efa5a}
+
+\item 
+void {\bfseries Flush} ()\hypertarget{a00116_a53597dc98a03a6a051c37c4f1046bd04}{}\label{a00116_a53597dc98a03a6a051c37c4f1046bd04}
+
+\item 
+Ch $\ast$ {\bfseries Push} (size\+\_\+t count)\hypertarget{a00116_af91a643e5a93292bc0fbda33320caf20}{}\label{a00116_af91a643e5a93292bc0fbda33320caf20}
+
+\item 
+void {\bfseries Pop} (size\+\_\+t count)\hypertarget{a00116_ad2c56d9dd64268ad72aab95f981fd761}{}\label{a00116_ad2c56d9dd64268ad72aab95f981fd761}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Ch $\ast$ {\bfseries src\+\_\+}\hypertarget{a00116_af3cc551dd07fcca39db84459f4d4e718}{}\label{a00116_af3cc551dd07fcca39db84459f4d4e718}
+
+\item 
+Ch $\ast$ {\bfseries dst\+\_\+}\hypertarget{a00116_ab0e7a73638a7a8db81aa9b26714b0e3b}{}\label{a00116_ab0e7a73638a7a8db81aa9b26714b0e3b}
+
+\item 
+Ch $\ast$ {\bfseries head\+\_\+}\hypertarget{a00116_af5a7116bdd9bfde5141c298a5b7566b0}{}\label{a00116_af5a7116bdd9bfde5141c298a5b7566b0}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Encoding$>$\\*
+struct Generic\+Insitu\+String\+Stream$<$ Encoding $>$}
+
+A read-\/write string stream. 
+
+This string stream is particularly designed for in-\/situ parsing. \begin{DoxyNote}{Note}
+implements Stream concept 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+stream.\+h\end{DoxyCompactItemize}

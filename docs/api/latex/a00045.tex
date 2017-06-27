@@ -1,0 +1,85 @@
+\hypertarget{a00045}{}\section{Base\+Reader\+Handler$<$ Encoding, Derived $>$ Struct Template Reference}
+\label{a00045}\index{Base\+Reader\+Handler$<$ Encoding, Derived $>$@{Base\+Reader\+Handler$<$ Encoding, Derived $>$}}
+
+
+Default implementation of Handler.  
+
+
+
+
+{\ttfamily \#include $<$reader.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Encoding\+::\+Ch {\bfseries Ch}\hypertarget{a00045_a8302c755dd3560c8c5bac99162c28214}{}\label{a00045_a8302c755dd3560c8c5bac99162c28214}
+
+\item 
+typedef internal\+::\+Select\+If$<$ internal\+::\+Is\+Same$<$ Derived, void $>$, \hyperlink{a00045}{Base\+Reader\+Handler}, Derived $>$\+::\hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type} {\bfseries Override}\hypertarget{a00045_a7b6c70d9bf7483b2de5d249f1593776a}{}\label{a00045_a7b6c70d9bf7483b2de5d249f1593776a}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool {\bfseries Default} ()\hypertarget{a00045_a836437f6ccc37f08ff933f009b18a78c}{}\label{a00045_a836437f6ccc37f08ff933f009b18a78c}
+
+\item 
+bool {\bfseries Null} ()\hypertarget{a00045_ae2ebbde4628bf3659ddc5d18520935f5}{}\label{a00045_ae2ebbde4628bf3659ddc5d18520935f5}
+
+\item 
+bool {\bfseries Bool} (bool)\hypertarget{a00045_aa1c3ce42dbb856b3349792dc9d963587}{}\label{a00045_aa1c3ce42dbb856b3349792dc9d963587}
+
+\item 
+bool {\bfseries Int} (int)\hypertarget{a00045_a85e813aaf7189a2f87bd53953324fafc}{}\label{a00045_a85e813aaf7189a2f87bd53953324fafc}
+
+\item 
+bool {\bfseries Uint} (unsigned)\hypertarget{a00045_a0e683306cbb7b4e350a35c18c5246f2a}{}\label{a00045_a0e683306cbb7b4e350a35c18c5246f2a}
+
+\item 
+bool {\bfseries Int64} (int64\+\_\+t)\hypertarget{a00045_a04011733ea584739c97ad5c6afa15a35}{}\label{a00045_a04011733ea584739c97ad5c6afa15a35}
+
+\item 
+bool {\bfseries Uint64} (uint64\+\_\+t)\hypertarget{a00045_a351aa3cd81856a487c21022e9cc64d2b}{}\label{a00045_a351aa3cd81856a487c21022e9cc64d2b}
+
+\item 
+bool {\bfseries Double} (double)\hypertarget{a00045_a8156ea6ae5b8cd23a8b700e92a8af1eb}{}\label{a00045_a8156ea6ae5b8cd23a8b700e92a8af1eb}
+
+\item 
+bool \hyperlink{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}{Raw\+Number} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len, bool copy)\hypertarget{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}{}\label{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}
+
+\begin{DoxyCompactList}\small\item\em enabled via k\+Parse\+Numbers\+As\+Strings\+Flag, string is not null-\/terminated (use length) \end{DoxyCompactList}\item 
+bool {\bfseries String} (const Ch $\ast$, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type}, bool)\hypertarget{a00045_a3ac69e6326d0aeef7b1f2619742bbe00}{}\label{a00045_a3ac69e6326d0aeef7b1f2619742bbe00}
+
+\item 
+bool {\bfseries Start\+Object} ()\hypertarget{a00045_ab0a7d9bcececb8d6ed748656f67f4917}{}\label{a00045_ab0a7d9bcececb8d6ed748656f67f4917}
+
+\item 
+bool {\bfseries Key} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len, bool copy)\hypertarget{a00045_abc50b2e7e411b7b731715e05cd01e2eb}{}\label{a00045_abc50b2e7e411b7b731715e05cd01e2eb}
+
+\item 
+bool {\bfseries End\+Object} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type})\hypertarget{a00045_a0406cee0af26bc3a0b7fb2414537b0ab}{}\label{a00045_a0406cee0af26bc3a0b7fb2414537b0ab}
+
+\item 
+bool {\bfseries Start\+Array} ()\hypertarget{a00045_a9dbb1143a250a904bb18a174553a3a00}{}\label{a00045_a9dbb1143a250a904bb18a174553a3a00}
+
+\item 
+bool {\bfseries End\+Array} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type})\hypertarget{a00045_ae9d60a8779b6a77a7f283d64961879fb}{}\label{a00045_ae9d60a8779b6a77a7f283d64961879fb}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Encoding = U\+T\+F8$<$$>$, typename Derived = void$>$\\*
+struct Base\+Reader\+Handler$<$ Encoding, Derived $>$}
+
+Default implementation of Handler. 
+
+This can be used as base class of any reader handler. \begin{DoxyNote}{Note}
+implements Handler concept 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+\hyperlink{a00683}{reader.\+h}\end{DoxyCompactItemize}

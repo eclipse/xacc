@@ -1,0 +1,158 @@
+\hypertarget{a00705}{}\section{runtime\+\_\+symbol\+\_\+info.\+hpp File Reference}
+\label{a00705}\index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+
+
+Provides methods for getting acceptable by \hyperlink{a00271}{boost\+::dll\+::shared\+\_\+library} location of symbol, source line or program.  
+
+
+{\ttfamily \#include $<$boost/config.\+hpp$>$}\\*
+{\ttfamily \#include $<$boost/predef/os.\+h$>$}\\*
+{\ttfamily \#include $<$boost/predef/compiler/visualc.\+h$>$}\\*
+{\ttfamily \#include $<$boost/dll/detail/aggressive\+\_\+ptr\+\_\+cast.\+hpp$>$}\\*
+{\ttfamily \#include $<$dlfcn.\+h$>$}\\*
+{\ttfamily \#include $<$boost/dll/detail/posix/program\+\_\+location\+\_\+impl.\+hpp$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T $>$ }\\boost\+::filesystem\+::path \hyperlink{a00705_a1a70f04489d9c27a7c12a663681a2557}{boost\+::dll\+::symbol\+\_\+location\+\_\+ptr} (T ptr\+\_\+to\+\_\+symbol, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+{\footnotesize template$<$class T $>$ }\\boost\+::filesystem\+::path \hyperlink{a00705_ae6aac347e0e9cbae31c26f52ebb0ce85}{boost\+::dll\+::symbol\+\_\+location\+\_\+ptr} (T ptr\+\_\+to\+\_\+symbol)
+\item 
+{\footnotesize template$<$class T $>$ }\\boost\+::filesystem\+::path \hyperlink{a00705_a91b824b8cdf4e600546d636fd09672f9}{boost\+::dll\+::symbol\+\_\+location} (const T \&symbol, boost\+::system\+::error\+\_\+code \&ec)
+\item 
+{\footnotesize template$<$class T $>$ }\\boost\+::filesystem\+::path \hyperlink{a00705_ada9f78ac87565980f6c639f3b2e30892}{boost\+::dll\+::symbol\+\_\+location} (const T \&symbol)
+\item 
+boost\+::filesystem\+::path \hyperlink{a00705_a2e682f5c6e64ed097bf29e4490334ddf}{boost\+::dll\+::program\+\_\+location} (boost\+::system\+::error\+\_\+code \&ec)
+\item 
+boost\+::filesystem\+::path \hyperlink{a00705_af400fcad737237876fc4a30969936063}{boost\+::dll\+::program\+\_\+location} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Provides methods for getting acceptable by \hyperlink{a00271}{boost\+::dll\+::shared\+\_\+library} location of symbol, source line or program. 
+
+
+
+\subsection{Function Documentation}
+\index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!program\+\_\+location@{program\+\_\+location}}
+\index{program\+\_\+location@{program\+\_\+location}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{program\+\_\+location(boost\+::system\+::error\+\_\+code \&ec)}{program\_location(boost::system::error\_code \&ec)}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::filesystem\+::path boost\+::dll\+::program\+\_\+location (
+\begin{DoxyParamCaption}
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_a2e682f5c6e64ed097bf29e4490334ddf}{}\label{a00705_file_a2e682f5c6e64ed097bf29e4490334ddf}
+On success returns full path and name of the currently running program (the one which contains the {\ttfamily main()} function).
+
+Return value can be used as a parameter for \hyperlink{a00271}{shared\+\_\+library}. See Tutorial \char`\"{}\+Linking plugin into the executable\char`\"{} for usage example. Flag \textquotesingle{}-\/rdynamic\textquotesingle{} must be used when linking the plugin into the executable on Linux OS.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ec} & Variable that will be set to the result of the operation. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::bad\+\_\+alloc} & in case of insufficient memory. Overload that does not accept boost\+::system\+::error\+\_\+code also throws boost\+::system\+::system\+\_\+error. \\
+\hline
+\end{DoxyExceptions}
+\index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!program\+\_\+location@{program\+\_\+location}}
+\index{program\+\_\+location@{program\+\_\+location}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{program\+\_\+location()}{program\_location()}}]{\setlength{\rightskip}{0pt plus 5cm}boost\+::filesystem\+::path boost\+::dll\+::program\+\_\+location (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_af400fcad737237876fc4a30969936063}{}\label{a00705_file_af400fcad737237876fc4a30969936063}
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!symbol\+\_\+location@{symbol\+\_\+location}}
+\index{symbol\+\_\+location@{symbol\+\_\+location}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{symbol\+\_\+location(const T \&symbol, boost\+::system\+::error\+\_\+code \&ec)}{symbol\_location(const T \&symbol, boost::system::error\_code \&ec)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ boost\+::filesystem\+::path boost\+::dll\+::symbol\+\_\+location (
+\begin{DoxyParamCaption}
+\item[{const T \&}]{symbol, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_a91b824b8cdf4e600546d636fd09672f9}{}\label{a00705_file_a91b824b8cdf4e600546d636fd09672f9}
+On success returns full path and name of the binary object that holds symbol.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Type of the symbol, must not be explicitly specified. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em symbol} & Symbol which location is to be determined. \\
+\hline
+{\em ec} & Variable that will be set to the result of the operation. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Path to the binary object that holds symbol or empty path in case error. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::bad\+\_\+alloc} & in case of insufficient memory. Overload that does not accept boost\+::system\+::error\+\_\+code also throws boost\+::system\+::system\+\_\+error.\\
+\hline
+\end{DoxyExceptions}
+{\bfseries Examples\+:} 
+\begin{DoxyCode}
+\textcolor{keywordtype}{int} var;
+\textcolor{keywordtype}{void} \hyperlink{a00105}{foo}() \{\}
+
+\textcolor{keywordtype}{int} main() \{
+   dll::symbol\_location(var);                     \textcolor{comment}{// returns program location}
+   dll::symbol\_location(\hyperlink{a00105}{foo});                     \textcolor{comment}{// returns program location}
+   dll::symbol\_location(std::cerr);               \textcolor{comment}{// returns location of libstdc++:
+       "/usr/lib/x86\_64-linux-gnu/libstdc++.so.6"}
+   dll::symbol\_location(std::placeholders::\_1);   \textcolor{comment}{// returns location of libstdc++:
+       "/usr/lib/x86\_64-linux-gnu/libstdc++.so.6"}
+   dll::symbol\_location(std::puts);               \textcolor{comment}{// returns location of libc:
+       "/lib/x86\_64-linux-gnu/libc.so.6"}
+\}
+\end{DoxyCode}
+ \index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!symbol\+\_\+location@{symbol\+\_\+location}}
+\index{symbol\+\_\+location@{symbol\+\_\+location}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{symbol\+\_\+location(const T \&symbol)}{symbol\_location(const T \&symbol)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ boost\+::filesystem\+::path boost\+::dll\+::symbol\+\_\+location (
+\begin{DoxyParamCaption}
+\item[{const T \&}]{symbol}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_ada9f78ac87565980f6c639f3b2e30892}{}\label{a00705_file_ada9f78ac87565980f6c639f3b2e30892}
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. \index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!symbol\+\_\+location\+\_\+ptr@{symbol\+\_\+location\+\_\+ptr}}
+\index{symbol\+\_\+location\+\_\+ptr@{symbol\+\_\+location\+\_\+ptr}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{symbol\+\_\+location\+\_\+ptr(\+T ptr\+\_\+to\+\_\+symbol, boost\+::system\+::error\+\_\+code \&ec)}{symbol\_location\_ptr(T ptr\_to\_symbol, boost::system::error\_code \&ec)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ boost\+::filesystem\+::path boost\+::dll\+::symbol\+\_\+location\+\_\+ptr (
+\begin{DoxyParamCaption}
+\item[{T}]{ptr\+\_\+to\+\_\+symbol, }
+\item[{boost\+::system\+::error\+\_\+code \&}]{ec}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_a1a70f04489d9c27a7c12a663681a2557}{}\label{a00705_file_a1a70f04489d9c27a7c12a663681a2557}
+On success returns full path and name to the binary object that holds symbol pointed by ptr\+\_\+to\+\_\+symbol.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ptr\+\_\+to\+\_\+symbol} & Pointer to symbol which location is to be determined. \\
+\hline
+{\em ec} & Variable that will be set to the result of the operation. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Path to the binary object that holds symbol or empty path in case error. 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::bad\+\_\+alloc} & in case of insufficient memory. Overload that does not accept boost\+::system\+::error\+\_\+code also throws boost\+::system\+::system\+\_\+error.\\
+\hline
+\end{DoxyExceptions}
+{\bfseries Examples\+:} 
+\begin{DoxyCode}
+\textcolor{keywordtype}{int} main() \{
+   dll::symbol\_location\_ptr(std::set\_terminate(0));       \textcolor{comment}{// returns
+       "/some/path/libmy\_terminate\_handler.so"}
+   dll::symbol\_location\_ptr(::signal(SIGSEGV, SIG\_DFL));  \textcolor{comment}{// returns "/some/path/libmy\_symbol\_handler.so"}
+\}
+\end{DoxyCode}
+ \index{runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}!symbol\+\_\+location\+\_\+ptr@{symbol\+\_\+location\+\_\+ptr}}
+\index{symbol\+\_\+location\+\_\+ptr@{symbol\+\_\+location\+\_\+ptr}!runtime\+\_\+symbol\+\_\+info.\+hpp@{runtime\+\_\+symbol\+\_\+info.\+hpp}}
+\subsubsection[{\texorpdfstring{symbol\+\_\+location\+\_\+ptr(\+T ptr\+\_\+to\+\_\+symbol)}{symbol\_location\_ptr(T ptr\_to\_symbol)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class T $>$ boost\+::filesystem\+::path boost\+::dll\+::symbol\+\_\+location\+\_\+ptr (
+\begin{DoxyParamCaption}
+\item[{T}]{ptr\+\_\+to\+\_\+symbol}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00705_file_ae6aac347e0e9cbae31c26f52ebb0ce85}{}\label{a00705_file_ae6aac347e0e9cbae31c26f52ebb0ce85}
+This is an overloaded member function, provided for convenience. It differs from the above function only in what argument(s) it accepts. 

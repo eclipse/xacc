@@ -36,4 +36,9 @@ if (TARGET xacc-scaffold)
    target_link_libraries(h2qve_scaffold_rigetti ${Boost_LIBRARIES} dl)
    
    install(TARGETS teleport_scaffold_rigetti DESTINATION examples)
+   
+   add_executable(rabi_qpu_experiment rabi_qpu_experiment.cpp)
+   target_link_libraries(rabi_qpu_experiment ${Boost_LIBRARIES} dl)
+   
+   install(TARGETS rabi_qpu_experiment DESTINATION examples)
 endif()

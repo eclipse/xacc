@@ -41,6 +41,10 @@ public:
 
 		}
 
+		virtual bool kernelExists(const std::string& name) {
+			return false;
+		}
+
 		virtual std::shared_ptr<Function> getKernel(const std::string& name) {
 		}
 

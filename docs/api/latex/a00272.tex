@@ -1,73 +1,82 @@
-\hypertarget{a00272}{}\section{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp File Reference}
-\label{a00272}\index{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp@{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp}}
-
-
-Contains only the boost\+::dll\+::load\+\_\+mode\+::type enum and operators related to it.  
-
-
-{\ttfamily \#include $<$boost/config.\+hpp$>$}\newline
-{\ttfamily \#include $<$boost/predef/os.\+h$>$}\newline
-{\ttfamily \#include $<$boost/predef/library/c.\+h$>$}\newline
-{\ttfamily \#include $<$dlfcn.\+h$>$}\newline
-\subsection*{Enumerations}
+\hypertarget{a00272}{}\section{boost\+:\+:dll\+:\+:detail\+:\+:shared\+\_\+library\+\_\+impl Class Reference}
+\label{a00272}\index{boost\+::dll\+::detail\+::shared\+\_\+library\+\_\+impl@{boost\+::dll\+::detail\+::shared\+\_\+library\+\_\+impl}}
+\subsection*{Public Types}
 \begin{DoxyCompactItemize}
 \item 
-enum \hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{boost\+::dll\+::load\+\_\+mode\+::type} \{ \newline
-{\bfseries default\+\_\+mode} = 0, 
-{\bfseries dont\+\_\+resolve\+\_\+dll\+\_\+references} = 0, 
-{\bfseries load\+\_\+ignore\+\_\+code\+\_\+authz\+\_\+level} = 0, 
-{\bfseries load\+\_\+with\+\_\+altered\+\_\+search\+\_\+path} = 0, 
-\newline
-{\bfseries rtld\+\_\+lazy} = R\+T\+L\+D\+\_\+\+L\+A\+ZY, 
-{\bfseries rtld\+\_\+now} = R\+T\+L\+D\+\_\+\+N\+OW, 
-{\bfseries rtld\+\_\+global} = R\+T\+L\+D\+\_\+\+G\+L\+O\+B\+AL, 
-{\bfseries rtld\+\_\+local} = R\+T\+L\+D\+\_\+\+L\+O\+C\+AL, 
-\newline
-{\bfseries rtld\+\_\+deepbind} = R\+T\+L\+D\+\_\+\+D\+E\+E\+P\+B\+I\+ND, 
-{\bfseries append\+\_\+decorations} = 0x00800000, 
-{\bfseries search\+\_\+system\+\_\+folders} = (append\+\_\+decorations $<$$<$ 1)
- \}
+typedef void $\ast$ {\bfseries native\+\_\+handle\+\_\+t}\hypertarget{a00272_a0fb8d4c1967616c6f9c82ce3d70e11c6}{}\label{a00272_a0fb8d4c1967616c6f9c82ce3d70e11c6}
+
+\item 
+typedef boost\+::detail\+::winapi\+::\+H\+M\+O\+D\+U\+L\+E\+\_\+ {\bfseries native\+\_\+handle\+\_\+t}\hypertarget{a00272_a2a11230bd7993f39e4fd73ed78a89463}{}\label{a00272_a2a11230bd7993f39e4fd73ed78a89463}
+
 \end{DoxyCompactItemize}
-\subsection*{Functions}
+\subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a00272_affd5b229588eb423b018e50119809564}\label{a00272_affd5b229588eb423b018e50119809564}} 
-B\+O\+O\+S\+T\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type \hyperlink{a00272_affd5b229588eb423b018e50119809564}{boost\+::dll\+::load\+\_\+mode\+::operator$\vert$} (type left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
-\begin{DoxyCompactList}\small\item\em Free operators for load\+\_\+mode\+::type flag manipulation. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{a00272_a8a56194d67dabdf7edc67d3292ed80e9}\label{a00272_a8a56194d67dabdf7edc67d3292ed80e9}} 
-B\+O\+O\+S\+T\+\_\+\+C\+X\+X14\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type \& {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator$\vert$=} (type \&left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+{\bfseries shared\+\_\+library\+\_\+impl} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00272}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a45d5bb26fa73a9639618bab3e343f114}{}\label{a00272_a45d5bb26fa73a9639618bab3e343f114}
+
 \item 
-\mbox{\Hypertarget{a00272_adf95e65a7838c018a16827ac62e74bed}\label{a00272_adf95e65a7838c018a16827ac62e74bed}} 
-B\+O\+O\+S\+T\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator \&} (type left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+\hyperlink{a00272}{shared\+\_\+library\+\_\+impl} \& {\bfseries operator=} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00272}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a4516d0b76678a60333cb5ccbf7cc52c2}{}\label{a00272_a4516d0b76678a60333cb5ccbf7cc52c2}
+
 \item 
-\mbox{\Hypertarget{a00272_a52abc2ae37ed78808d3bb86bcfbca00f}\label{a00272_a52abc2ae37ed78808d3bb86bcfbca00f}} 
-B\+O\+O\+S\+T\+\_\+\+C\+X\+X14\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type \& {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator \&=} (type \&left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+void {\bfseries load} (boost\+::filesystem\+::path sl, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)\hypertarget{a00272_a2c3bbcf10638f5fdeb13b1f194431ac5}{}\label{a00272_a2c3bbcf10638f5fdeb13b1f194431ac5}
+
 \item 
-\mbox{\Hypertarget{a00272_a1562aeea90b163e98ee50ad849df2397}\label{a00272_a1562aeea90b163e98ee50ad849df2397}} 
-B\+O\+O\+S\+T\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator$^\wedge$} (type left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+bool {\bfseries is\+\_\+loaded} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a3729718e9c72b30a85087a89b642becb}{}\label{a00272_a3729718e9c72b30a85087a89b642becb}
+
 \item 
-\mbox{\Hypertarget{a00272_a3da32e46729782111a72e2e3aa7490fb}\label{a00272_a3da32e46729782111a72e2e3aa7490fb}} 
-B\+O\+O\+S\+T\+\_\+\+C\+X\+X14\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type \& {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator$^\wedge$=} (type \&left, type right) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+void {\bfseries unload} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a78b3736f4aab0a61fd07a45eb5a54c52}{}\label{a00272_a78b3736f4aab0a61fd07a45eb5a54c52}
+
 \item 
-\mbox{\Hypertarget{a00272_a081f141841a6896b40cf39d233118922}\label{a00272_a081f141841a6896b40cf39d233118922}} 
-B\+O\+O\+S\+T\+\_\+\+C\+O\+N\+S\+T\+E\+X\+PR type {\bfseries boost\+::dll\+::load\+\_\+mode\+::operator$\sim$} (type left) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT
+void {\bfseries swap} (\hyperlink{a00272}{shared\+\_\+library\+\_\+impl} \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a7d87e32878fd68cd3c59531c5b6dcaf1}{}\label{a00272_a7d87e32878fd68cd3c59531c5b6dcaf1}
+
+\item 
+boost\+::filesystem\+::path {\bfseries full\+\_\+module\+\_\+path} (boost\+::system\+::error\+\_\+code \&ec) const \hypertarget{a00272_a67a07a86c8455bf7c5cde77d69e5f994}{}\label{a00272_a67a07a86c8455bf7c5cde77d69e5f994}
+
+\item 
+void $\ast$ {\bfseries symbol\+\_\+addr} (const char $\ast$sb, boost\+::system\+::error\+\_\+code \&ec) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a79bc56fc8e9c4fb98993893b491986a8}{}\label{a00272_a79bc56fc8e9c4fb98993893b491986a8}
+
+\item 
+native\+\_\+handle\+\_\+t {\bfseries native} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a0517caf0566e0bbc2573a9e9f427fa92}{}\label{a00272_a0517caf0566e0bbc2573a9e9f427fa92}
+
+\item 
+{\bfseries shared\+\_\+library\+\_\+impl} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00272}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a45d5bb26fa73a9639618bab3e343f114}{}\label{a00272_a45d5bb26fa73a9639618bab3e343f114}
+
+\item 
+\hyperlink{a00272}{shared\+\_\+library\+\_\+impl} \& {\bfseries operator=} (B\+O\+O\+S\+T\+\_\+\+R\+V\+\_\+\+R\+EF(\hyperlink{a00272}{shared\+\_\+library\+\_\+impl}) sl) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a4516d0b76678a60333cb5ccbf7cc52c2}{}\label{a00272_a4516d0b76678a60333cb5ccbf7cc52c2}
+
+\item 
+void {\bfseries load} (boost\+::filesystem\+::path sl, \hyperlink{a00729_a1918a602801479bc0bade54ff5665129}{load\+\_\+mode\+::type} mode, boost\+::system\+::error\+\_\+code \&ec)\hypertarget{a00272_a2c3bbcf10638f5fdeb13b1f194431ac5}{}\label{a00272_a2c3bbcf10638f5fdeb13b1f194431ac5}
+
+\item 
+bool {\bfseries is\+\_\+loaded} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a3729718e9c72b30a85087a89b642becb}{}\label{a00272_a3729718e9c72b30a85087a89b642becb}
+
+\item 
+void {\bfseries unload} () B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a78b3736f4aab0a61fd07a45eb5a54c52}{}\label{a00272_a78b3736f4aab0a61fd07a45eb5a54c52}
+
+\item 
+void {\bfseries swap} (\hyperlink{a00272}{shared\+\_\+library\+\_\+impl} \&rhs) B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a7d87e32878fd68cd3c59531c5b6dcaf1}{}\label{a00272_a7d87e32878fd68cd3c59531c5b6dcaf1}
+
+\item 
+boost\+::filesystem\+::path {\bfseries full\+\_\+module\+\_\+path} (boost\+::system\+::error\+\_\+code \&ec) const \hypertarget{a00272_a67a07a86c8455bf7c5cde77d69e5f994}{}\label{a00272_a67a07a86c8455bf7c5cde77d69e5f994}
+
+\item 
+void $\ast$ {\bfseries symbol\+\_\+addr} (const char $\ast$sb, boost\+::system\+::error\+\_\+code \&ec) const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a79bc56fc8e9c4fb98993893b491986a8}{}\label{a00272_a79bc56fc8e9c4fb98993893b491986a8}
+
+\item 
+native\+\_\+handle\+\_\+t {\bfseries native} () const B\+O\+O\+S\+T\+\_\+\+N\+O\+E\+X\+C\+E\+PT\hypertarget{a00272_a0517caf0566e0bbc2573a9e9f427fa92}{}\label{a00272_a0517caf0566e0bbc2573a9e9f427fa92}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static boost\+::filesystem\+::path {\bfseries suffix} ()\hypertarget{a00272_a07728a8e1ad349b2fa59a12560583e25}{}\label{a00272_a07728a8e1ad349b2fa59a12560583e25}
+
+\item 
+static boost\+::filesystem\+::path {\bfseries suffix} ()\hypertarget{a00272_a07728a8e1ad349b2fa59a12560583e25}{}\label{a00272_a07728a8e1ad349b2fa59a12560583e25}
+
 \end{DoxyCompactItemize}
 
 
-\subsection{Detailed Description}
-Contains only the boost\+::dll\+::load\+\_\+mode\+::type enum and operators related to it. 
-
-
-
-\subsection{Enumeration Type Documentation}
-\mbox{\Hypertarget{a00272_file_a1918a602801479bc0bade54ff5665129}\label{a00272_file_a1918a602801479bc0bade54ff5665129}} 
-\index{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp@{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp}!type@{type}}
-\index{type@{type}!shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp@{shared\+\_\+library\+\_\+load\+\_\+mode.\+hpp}}
-\subsubsection{\texorpdfstring{type}{type}}
-{\footnotesize\ttfamily enum \hyperlink{a00272_a1918a602801479bc0bade54ff5665129}{boost\+::dll\+::load\+\_\+mode\+::type}}
-
-Library load modes.
-
-Each of system family provides own modes. Flags not supported by a particular platform will be silently ignored.
-
-For a detailed description of platform specific options see\+: \href{http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx}{\tt Windows specific options}, \href{http://pubs.opengroup.org/onlinepubs/000095399/functions/dlopen.html}{\tt P\+O\+S\+IX specific options}. 
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+posix/shared\+\_\+library\+\_\+impl.\+hpp\end{DoxyCompactItemize}

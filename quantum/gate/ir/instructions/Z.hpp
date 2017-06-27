@@ -45,8 +45,6 @@ public:
 
 	Z(int qbit);
 
-//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
-
 	DEFINE_VISITABLE()
 
 };

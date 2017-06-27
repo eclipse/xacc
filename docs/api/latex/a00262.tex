@@ -1,0 +1,93 @@
+\hypertarget{a00262}{}\section{Schema\+Validating\+Reader$<$ parse\+Flags, Input\+Stream, Source\+Encoding, Schema\+Document\+Type, Stack\+Allocator $>$ Class Template Reference}
+\label{a00262}\index{Schema\+Validating\+Reader$<$ parse\+Flags, Input\+Stream, Source\+Encoding, Schema\+Document\+Type, Stack\+Allocator $>$@{Schema\+Validating\+Reader$<$ parse\+Flags, Input\+Stream, Source\+Encoding, Schema\+Document\+Type, Stack\+Allocator $>$}}
+
+
+A helper class for parsing with validation.  
+
+
+
+
+{\ttfamily \#include $<$schema.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Schema\+Document\+Type\+::\+Pointer\+Type {\bfseries Pointer\+Type}\hypertarget{a00262_a30ecf1b20ca5a1b79e0d5f4ceb3bf198}{}\label{a00262_a30ecf1b20ca5a1b79e0d5f4ceb3bf198}
+
+\item 
+typedef Input\+Stream\+::\+Ch {\bfseries Ch}\hypertarget{a00262_a6eb6f887a49dbb400800ab4fc01f02c7}{}\label{a00262_a6eb6f887a49dbb400800ab4fc01f02c7}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00262_ae7945b71687ad3dd13b9c3d096892eac}{Schema\+Validating\+Reader} (Input\+Stream \&is, const Schema\+Document\+Type \&sd)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename Handler $>$ }\\bool {\bfseries operator()} (Handler \&handler)\hypertarget{a00262_a7135d8d53aacd850fbce2901cca4a4c3}{}\label{a00262_a7135d8d53aacd850fbce2901cca4a4c3}
+
+\item 
+const \hyperlink{a00230}{Parse\+Result} \& {\bfseries Get\+Parse\+Result} () const \hypertarget{a00262_aa5445bcfe27eaa55b28961a0ad6e86c1}{}\label{a00262_aa5445bcfe27eaa55b28961a0ad6e86c1}
+
+\item 
+bool {\bfseries Is\+Valid} () const \hypertarget{a00262_a01576a2c4ee21a6c73071e5f445dc0bd}{}\label{a00262_a01576a2c4ee21a6c73071e5f445dc0bd}
+
+\item 
+const Pointer\+Type \& {\bfseries Get\+Invalid\+Schema\+Pointer} () const \hypertarget{a00262_aaf450fe1f71af00a783d197e81ec6786}{}\label{a00262_aaf450fe1f71af00a783d197e81ec6786}
+
+\item 
+const Ch $\ast$ {\bfseries Get\+Invalid\+Schema\+Keyword} () const \hypertarget{a00262_ac040fa8a06b5950b40f907cc5fbec201}{}\label{a00262_ac040fa8a06b5950b40f907cc5fbec201}
+
+\item 
+const Pointer\+Type \& {\bfseries Get\+Invalid\+Document\+Pointer} () const \hypertarget{a00262_a8e5fb64a2b4c76572501c3b3e611e0fb}{}\label{a00262_a8e5fb64a2b4c76572501c3b3e611e0fb}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$unsigned parse\+Flags, typename Input\+Stream, typename Source\+Encoding, typename Schema\+Document\+Type = Schema\+Document, typename Stack\+Allocator = Crt\+Allocator$>$\\*
+class Schema\+Validating\+Reader$<$ parse\+Flags, Input\+Stream, Source\+Encoding, Schema\+Document\+Type, Stack\+Allocator $>$}
+
+A helper class for parsing with validation. 
+
+This helper class is a functor, designed as a parameter of \hyperlink{a00115_a36fbc7d0a9595d26e0d2c8859d207d1f}{Generic\+Document\+::\+Populate()}.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em parse\+Flags} & Combination of \hyperlink{a00683_ab7be7dabe6ffcba60fad441505583450}{Parse\+Flag}. \\
+\hline
+{\em Input\+Stream} & Type of input stream, implementing Stream concept. \\
+\hline
+{\em Source\+Encoding} & Encoding of the input stream. \\
+\hline
+{\em Schema\+Document\+Type} & Type of schema document. \\
+\hline
+{\em Stack\+Allocator} & Allocator type for stack. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Schema\+Validating\+Reader@{Schema\+Validating\+Reader}!Schema\+Validating\+Reader@{Schema\+Validating\+Reader}}
+\index{Schema\+Validating\+Reader@{Schema\+Validating\+Reader}!Schema\+Validating\+Reader@{Schema\+Validating\+Reader}}
+\subsubsection[{\texorpdfstring{Schema\+Validating\+Reader(\+Input\+Stream \&is, const Schema\+Document\+Type \&sd)}{SchemaValidatingReader(InputStream \&is, const SchemaDocumentType \&sd)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$unsigned parse\+Flags, typename Input\+Stream , typename Source\+Encoding , typename Schema\+Document\+Type  = Schema\+Document, typename Stack\+Allocator  = Crt\+Allocator$>$ {\bf Schema\+Validating\+Reader}$<$ parse\+Flags, Input\+Stream, Source\+Encoding, Schema\+Document\+Type, Stack\+Allocator $>$\+::{\bf Schema\+Validating\+Reader} (
+\begin{DoxyParamCaption}
+\item[{Input\+Stream \&}]{is, }
+\item[{const Schema\+Document\+Type \&}]{sd}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00262_ae7945b71687ad3dd13b9c3d096892eac}{}\label{a00262_ae7945b71687ad3dd13b9c3d096892eac}
+
+
+Constructor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em is} & Input stream. \\
+\hline
+{\em sd} & Schema document. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+schema.\+h\end{DoxyCompactItemize}

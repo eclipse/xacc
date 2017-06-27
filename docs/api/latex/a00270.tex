@@ -1,0 +1,95 @@
+\hypertarget{a00270}{}\section{Simple\+Web\+:\+:Server\+Base$<$ socket\+\_\+type $>$ Class Template Reference}
+\label{a00270}\index{Simple\+Web\+::\+Server\+Base$<$ socket\+\_\+type $>$@{Simple\+Web\+::\+Server\+Base$<$ socket\+\_\+type $>$}}
+Inheritance diagram for Simple\+Web\+:\+:Server\+Base$<$ socket\+\_\+type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00270}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{a00062}{Config}
+\item 
+class \hyperlink{a00065}{Content}
+\item 
+class \hyperlink{a00249}{Request}
+\item 
+class \hyperlink{a00251}{Response}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void {\bfseries start} ()\hypertarget{a00270_a759d6dae5fa77c47a36f7355fd33f8f7}{}\label{a00270_a759d6dae5fa77c47a36f7355fd33f8f7}
+
+\item 
+void {\bfseries stop} ()\hypertarget{a00270_a0667e44595f6c23016bee67c646ccc85}{}\label{a00270_a0667e44595f6c23016bee67c646ccc85}
+
+\item 
+void \hyperlink{a00270_a280a8bc7b02810811dd78934bf467212}{send} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00251}{Response} $>$ \&response, const std\+::function$<$ void(const boost\+::system\+::error\+\_\+code \&)$>$ \&callback=nullptr) const \hypertarget{a00270_a280a8bc7b02810811dd78934bf467212}{}\label{a00270_a280a8bc7b02810811dd78934bf467212}
+
+\begin{DoxyCompactList}\small\item\em Use this function if you need to recursively send parts of a longer message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00062}{Config} \hyperlink{a00270_a3d4b2de8f6c2d79229c97a67acf67ad6}{config}\hypertarget{a00270_a3d4b2de8f6c2d79229c97a67acf67ad6}{}\label{a00270_a3d4b2de8f6c2d79229c97a67acf67ad6}
+
+\begin{DoxyCompactList}\small\item\em Set before calling start(). \end{DoxyCompactList}\item 
+std\+::map$<$ regex\+\_\+orderable, std\+::map$<$ std\+::string, std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00251}{Response} $>$, std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00249}{Request} $>$)$>$ $>$ $>$ \hyperlink{a00270_a9cbd951ffa528ddab83352c6654695e3}{resource}\hypertarget{a00270_a9cbd951ffa528ddab83352c6654695e3}{}\label{a00270_a9cbd951ffa528ddab83352c6654695e3}
+
+\begin{DoxyCompactList}\small\item\em Warning\+: do not add or remove resources after start() is called. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::string, std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00251}{Response} $>$, std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00249}{Request} $>$)$>$ $>$ {\bfseries default\+\_\+resource}\hypertarget{a00270_aba7325dbe6c66f5f715e1a279031aec1}{}\label{a00270_aba7325dbe6c66f5f715e1a279031aec1}
+
+\item 
+std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00249}{Request} $>$, const boost\+::system\+::error\+\_\+code \&)$>$ {\bfseries on\+\_\+error}\hypertarget{a00270_a0b9db69afcddb17c2f1799dd0176bd8f}{}\label{a00270_a0b9db69afcddb17c2f1799dd0176bd8f}
+
+\item 
+std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ socket\+\_\+type $>$ socket, std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00249}{Request} $>$)$>$ {\bfseries on\+\_\+upgrade}\hypertarget{a00270_aff30e694dcf328a6d578b165c71dbf53}{}\label{a00270_aff30e694dcf328a6d578b165c71dbf53}
+
+\item 
+std\+::shared\+\_\+ptr$<$ boost\+::asio\+::io\+\_\+service $>$ \hyperlink{a00270_ae143e11ee462828c80b0397ce06bd320}{io\+\_\+service}
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Server\+Base} (unsigned short port)\hypertarget{a00270_a0921fc51a3c799f477facb41620cc86d}{}\label{a00270_a0921fc51a3c799f477facb41620cc86d}
+
+\item 
+virtual void {\bfseries accept} ()=0\hypertarget{a00270_a55c6ad458eee385419d4e25351c985b7}{}\label{a00270_a55c6ad458eee385419d4e25351c985b7}
+
+\item 
+std\+::shared\+\_\+ptr$<$ boost\+::asio\+::deadline\+\_\+timer $>$ {\bfseries get\+\_\+timeout\+\_\+timer} (const std\+::shared\+\_\+ptr$<$ socket\+\_\+type $>$ \&socket, long seconds)\hypertarget{a00270_a1d169b7f5ac71f21aad9dbd85b240aa5}{}\label{a00270_a1d169b7f5ac71f21aad9dbd85b240aa5}
+
+\item 
+void {\bfseries read\+\_\+request\+\_\+and\+\_\+content} (const std\+::shared\+\_\+ptr$<$ socket\+\_\+type $>$ \&socket)\hypertarget{a00270_ade9c42906515330975d07741f5534520}{}\label{a00270_ade9c42906515330975d07741f5534520}
+
+\item 
+bool {\bfseries parse\+\_\+request} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00249}{Request} $>$ \&request) const \hypertarget{a00270_a3a83c58b0dca2db9f7d2042dd3b9eae9}{}\label{a00270_a3a83c58b0dca2db9f7d2042dd3b9eae9}
+
+\item 
+void {\bfseries find\+\_\+resource} (const std\+::shared\+\_\+ptr$<$ socket\+\_\+type $>$ \&socket, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00249}{Request} $>$ \&request)\hypertarget{a00270_a88b13e82485ec8aaa7d2bccfcb0917d3}{}\label{a00270_a88b13e82485ec8aaa7d2bccfcb0917d3}
+
+\item 
+void {\bfseries write\+\_\+response} (const std\+::shared\+\_\+ptr$<$ socket\+\_\+type $>$ \&socket, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00249}{Request} $>$ \&request, std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00251}{Response} $>$,                                                                                                                                   std\+::shared\+\_\+ptr$<$ typename \hyperlink{a00270}{Server\+Base}$<$ socket\+\_\+type $>$\+::\hyperlink{a00249}{Request} $>$)$>$ \&resource\+\_\+function)\hypertarget{a00270_a40b5dd2eb2ec3e83069d4e11e9b35a8b}{}\label{a00270_a40b5dd2eb2ec3e83069d4e11e9b35a8b}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::unique\+\_\+ptr$<$ boost\+::asio\+::ip\+::tcp\+::acceptor $>$ {\bfseries acceptor}\hypertarget{a00270_abe1382243197862e6458b4c1505b6db8}{}\label{a00270_abe1382243197862e6458b4c1505b6db8}
+
+\item 
+std\+::vector$<$ std\+::thread $>$ {\bfseries threads}\hypertarget{a00270_aa23ee1c2fa4809d032be37ae7e605249}{}\label{a00270_aa23ee1c2fa4809d032be37ae7e605249}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Data Documentation}
+\index{Simple\+Web\+::\+Server\+Base@{Simple\+Web\+::\+Server\+Base}!io\+\_\+service@{io\+\_\+service}}
+\index{io\+\_\+service@{io\+\_\+service}!Simple\+Web\+::\+Server\+Base@{Simple\+Web\+::\+Server\+Base}}
+\subsubsection[{\texorpdfstring{io\+\_\+service}{io\_service}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class socket\+\_\+type$>$ std\+::shared\+\_\+ptr$<$boost\+::asio\+::io\+\_\+service$>$ {\bf Simple\+Web\+::\+Server\+Base}$<$ socket\+\_\+type $>$\+::io\+\_\+service}\hypertarget{a00270_ae143e11ee462828c80b0397ce06bd320}{}\label{a00270_ae143e11ee462828c80b0397ce06bd320}
+If you have your own boost\+::asio\+::io\+\_\+service, store its pointer here before running start(). You might also want to set config.\+thread\+\_\+pool\+\_\+size to 0. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+server\+\_\+http.\+hpp\end{DoxyCompactItemize}

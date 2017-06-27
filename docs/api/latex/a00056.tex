@@ -1,0 +1,83 @@
+\hypertarget{a00056}{}\section{Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$ Class Template Reference}
+\label{a00056}\index{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$@{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$}}
+Inheritance diagram for Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00056}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{a00061}{Config}
+\item 
+class \hyperlink{a00250}{Response}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path=\char`\"{}/\char`\"{}, boost\+::string\+\_\+ref content=\char`\"{}\char`\"{}, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())\hypertarget{a00056_ac8a838ace77f0a1a19b8cb03bdba7e74}{}\label{a00056_ac8a838ace77f0a1a19b8cb03bdba7e74}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path, std\+::iostream \&content, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())\hypertarget{a00056_aca6cb17dbea9adf0cf1daf9d1ea70f76}{}\label{a00056_aca6cb17dbea9adf0cf1daf9d1ea70f76}
+
+\item 
+void {\bfseries close} ()\hypertarget{a00056_ad21735a9bda2fae6aedd811efae981e1}{}\label{a00056_ad21735a9bda2fae6aedd811efae981e1}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00061}{Config} \hyperlink{a00056_af17ddd25319c4f9029969441dfd54eff}{config}\hypertarget{a00056_af17ddd25319c4f9029969441dfd54eff}{}\label{a00056_af17ddd25319c4f9029969441dfd54eff}
+
+\begin{DoxyCompactList}\small\item\em Set before calling request. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Client\+Base} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)\hypertarget{a00056_a4a74d44c9df44d0d469ad453bdac43bf}{}\label{a00056_a4a74d44c9df44d0d469ad453bdac43bf}
+
+\item 
+std\+::pair$<$ std\+::string, unsigned short $>$ {\bfseries parse\+\_\+host\+\_\+port} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)\hypertarget{a00056_ac511a8e5de870f533f8c28270c82dbfa}{}\label{a00056_ac511a8e5de870f533f8c28270c82dbfa}
+
+\item 
+virtual void {\bfseries connect} ()=0\hypertarget{a00056_a4c1f364a57eaef8fd10c29a82e475010}{}\label{a00056_a4c1f364a57eaef8fd10c29a82e475010}
+
+\item 
+std\+::shared\+\_\+ptr$<$ boost\+::asio\+::deadline\+\_\+timer $>$ {\bfseries get\+\_\+timeout\+\_\+timer} (std\+::size\+\_\+t timeout=0)\hypertarget{a00056_ab76f469e8f909bf046a80d5afad70469}{}\label{a00056_ab76f469e8f909bf046a80d5afad70469}
+
+\item 
+void {\bfseries parse\+\_\+response\+\_\+header} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ \&response) const \hypertarget{a00056_acc47dec013e8a0e77950fa3412c8f07e}{}\label{a00056_acc47dec013e8a0e77950fa3412c8f07e}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request\+\_\+read} ()\hypertarget{a00056_afa5ddce26ed4c7570a764e2ff003fa25}{}\label{a00056_afa5ddce26ed4c7570a764e2ff003fa25}
+
+\item 
+void {\bfseries request\+\_\+read\+\_\+chunked} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ \&response, boost\+::asio\+::streambuf \&streambuf)\hypertarget{a00056_ae7fa171a9555114e702cafb3f85bc7d5}{}\label{a00056_ae7fa171a9555114e702cafb3f85bc7d5}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+boost\+::asio\+::io\+\_\+service {\bfseries io\+\_\+service}\hypertarget{a00056_abe07c05fed46efc9e6aa76736961ae20}{}\label{a00056_abe07c05fed46efc9e6aa76736961ae20}
+
+\item 
+boost\+::asio\+::ip\+::tcp\+::resolver {\bfseries resolver}\hypertarget{a00056_a2001dc43f4c3ef1f07a86eea8fbf8082}{}\label{a00056_a2001dc43f4c3ef1f07a86eea8fbf8082}
+
+\item 
+std\+::unique\+\_\+ptr$<$ socket\+\_\+type $>$ {\bfseries socket}\hypertarget{a00056_a48b0e61c61cfc3d5307a0101cc30a28e}{}\label{a00056_a48b0e61c61cfc3d5307a0101cc30a28e}
+
+\item 
+std\+::mutex {\bfseries socket\+\_\+mutex}\hypertarget{a00056_a2c0d5c3d38f4a6a21b67918199b498da}{}\label{a00056_a2c0d5c3d38f4a6a21b67918199b498da}
+
+\item 
+std\+::string {\bfseries host}\hypertarget{a00056_a4436f29ffdce0b29b210cbecd972ffef}{}\label{a00056_a4436f29ffdce0b29b210cbecd972ffef}
+
+\item 
+unsigned short {\bfseries port}\hypertarget{a00056_aadd3336b64a1f8d559af656554ddd0e9}{}\label{a00056_aadd3336b64a1f8d559af656554ddd0e9}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+client\+\_\+http.\+hpp\end{DoxyCompactItemize}

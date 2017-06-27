@@ -1,0 +1,856 @@
+\hypertarget{a00069}{}\section{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ Class Template Reference}
+\label{a00069}\index{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$@{C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$}}
+
+
+{\ttfamily \#include $<$Simple\+Ini.\+h$>$}
+
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{a00066}{Converter}
+\item 
+struct \hyperlink{a00096}{Entry}
+\item 
+class \hyperlink{a00102}{File\+Writer}
+\item 
+class \hyperlink{a00229}{Output\+Writer}
+\item 
+class \hyperlink{a00297}{String\+Writer}
+\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef S\+I\+\_\+\+C\+H\+AR {\bfseries S\+I\+\_\+\+C\+H\+A\+R\+\_\+T}\hypertarget{a00069_ad7ffad7e87da2303a05b885e95bc74fa}{}\label{a00069_ad7ffad7e87da2303a05b885e95bc74fa}
+
+\item 
+typedef std\+::multimap$<$ \hyperlink{a00096}{Entry}, const S\+I\+\_\+\+C\+H\+AR $\ast$, typename \hyperlink{a00189}{Entry\+::\+Key\+Order} $>$ \hyperlink{a00069_ae7f0e11d84617214bd479de6332c80e6}{T\+Key\+Val}
+\item 
+typedef std\+::map$<$ \hyperlink{a00096}{Entry}, \hyperlink{a00069_ae7f0e11d84617214bd479de6332c80e6}{T\+Key\+Val}, typename \hyperlink{a00189}{Entry\+::\+Key\+Order} $>$ \hyperlink{a00069_a2e7963455f680abd0d6901786495a665}{T\+Section}
+\item 
+typedef std\+::list$<$ \hyperlink{a00096}{Entry} $>$ \hyperlink{a00069_a391b3f3751e06cd9e9de4fb16ac14342}{T\+Names\+Depend}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00069_af878d0a2aa780255b621e95f58f691d8}{C\+Simple\+Ini\+Templ} (bool a\+\_\+b\+Is\+Utf8=false, bool a\+\_\+b\+Multi\+Key=false, bool a\+\_\+b\+Multi\+Line=false)
+\item 
+\hyperlink{a00069_a8c933adc1d46bb663caeb6f9dee5aa12}{$\sim$\+C\+Simple\+Ini\+Templ} ()
+\item 
+void \hyperlink{a00069_a89b34d38be4518e9ed91c634a41b8055}{Reset} ()
+\item 
+bool \hyperlink{a00069_acaada2b1ab734fc7dd8780ba7f376c26}{Is\+Empty} () const 
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_aebb6e5fff76efc05ca6cc4b7b56481a3}{Load\+File} (const char $\ast$a\+\_\+psz\+File)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_a7ccb65e82fa347b42b59330968f826ae}{Load\+File} (F\+I\+LE $\ast$a\+\_\+fp\+File)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_a174244fd3e09ff78da05fe46be86e714}{Load\+Data} (const std\+::string \&a\+\_\+str\+Data)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_aa797cf47cec05906f07d5065882af4d3}{Load\+Data} (const char $\ast$a\+\_\+p\+Data, size\+\_\+t a\+\_\+u\+Data\+Len)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_a1449e083d968790ef7479de24edddba0}{Save\+File} (const char $\ast$a\+\_\+psz\+File, bool a\+\_\+b\+Add\+Signature=true) const 
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_af3f26b331a0f9d7f071d7b4aa8038758}{Save\+File} (F\+I\+LE $\ast$a\+\_\+p\+File, bool a\+\_\+b\+Add\+Signature=false) const 
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_a5fea5d590edbb5eef694991c7c355915}{Save} (\hyperlink{a00229}{Output\+Writer} \&a\+\_\+o\+Output, bool a\+\_\+b\+Add\+Signature=false) const 
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_af944674fb44473ede150a3bcdc103d63}{Save} (std\+::string \&a\+\_\+s\+Buffer, bool a\+\_\+b\+Add\+Signature=false) const 
+\item 
+void \hyperlink{a00069_a65b01b5bf88d0dfe3ba51f12278cbcb8}{Get\+All\+Sections} (\hyperlink{a00069_a391b3f3751e06cd9e9de4fb16ac14342}{T\+Names\+Depend} \&a\+\_\+names) const 
+\item 
+bool \hyperlink{a00069_a8cf1357d78d28653b68790ab5d5b45f1}{Get\+All\+Keys} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, \hyperlink{a00069_a391b3f3751e06cd9e9de4fb16ac14342}{T\+Names\+Depend} \&a\+\_\+names) const 
+\item 
+bool \hyperlink{a00069_a263c85a8cd839c315fefc078e048257b}{Get\+All\+Values} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, \hyperlink{a00069_a391b3f3751e06cd9e9de4fb16ac14342}{T\+Names\+Depend} \&a\+\_\+values) const 
+\item 
+int \hyperlink{a00069_a2e612d67d1e1631c157af6291ac8c348}{Get\+Section\+Size} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section) const 
+\item 
+const \hyperlink{a00069_ae7f0e11d84617214bd479de6332c80e6}{T\+Key\+Val} $\ast$ \hyperlink{a00069_a795e2fcbad3472055aedfe188f4f8d33}{Get\+Section} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section) const 
+\item 
+const S\+I\+\_\+\+C\+H\+AR $\ast$ \hyperlink{a00069_a39999339113e9395d5e2c6b02ef5c618}{Get\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Default=N\+U\+LL, bool $\ast$a\+\_\+p\+Has\+Multiple=N\+U\+LL) const 
+\item 
+long \hyperlink{a00069_a994c6b29bb8b4c16a4b1a7f4c8b2b3f4}{Get\+Long\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, long a\+\_\+n\+Default=0, bool $\ast$a\+\_\+p\+Has\+Multiple=N\+U\+LL) const 
+\item 
+double \hyperlink{a00069_a6ce7c77a1d5d64dc289927a5c2659e78}{Get\+Double\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, double a\+\_\+n\+Default=0, bool $\ast$a\+\_\+p\+Has\+Multiple=N\+U\+LL) const 
+\item 
+bool \hyperlink{a00069_af0a8cffb0b7f6ca04e3eed9ab4660666}{Get\+Bool\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Default=false, bool $\ast$a\+\_\+p\+Has\+Multiple=N\+U\+LL) const 
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_aa2014a3dc8fdd638316cf1d3611796ab}{Set\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Value, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Comment=N\+U\+LL, bool a\+\_\+b\+Force\+Replace=false)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_ab2238be407232e4bba0f1343e4793e4e}{Set\+Long\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, long a\+\_\+n\+Value, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Comment=N\+U\+LL, bool a\+\_\+b\+Use\+Hex=false, bool a\+\_\+b\+Force\+Replace=false)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_af92ba0b8067553ab693c62a370de6534}{Set\+Double\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, double a\+\_\+n\+Value, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Comment=N\+U\+LL, bool a\+\_\+b\+Force\+Replace=false)
+\item 
+S\+I\+\_\+\+Error \hyperlink{a00069_a48ae136fa20c5d7eb7ab0b75342b27cf}{Set\+Bool\+Value} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Value, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Comment=N\+U\+LL, bool a\+\_\+b\+Force\+Replace=false)
+\item 
+bool \hyperlink{a00069_aa5c1cdd0b306434d9e9f1422888049da}{Delete} (const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+AR $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Remove\+Empty=false)
+\item 
+\hyperlink{a00066}{Converter} \hyperlink{a00069_a98442d01db35187f2770f0a91042cce8}{Get\+Converter} () const 
+\end{DoxyCompactItemize}
+\begin{Indent}{\bf Settings}\par
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{a00069_aa9a15a66de893571014f661f89cb4d4b}{Set\+Unicode} (bool a\+\_\+b\+Is\+Utf8=true)
+\item 
+bool \hyperlink{a00069_aa18f29d67107392a9e9f361def892c71}{Is\+Unicode} () const 
+\item 
+void \hyperlink{a00069_ac3cfaf072a64f960bdcb7ddf2edc52b6}{Set\+Multi\+Key} (bool a\+\_\+b\+Allow\+Multi\+Key=true)
+\item 
+bool \hyperlink{a00069_a8069b3c574949b78fe0274ae803f0685}{Is\+Multi\+Key} () const 
+\item 
+void \hyperlink{a00069_aa7214b76600790053a5c715e9730aab0}{Set\+Multi\+Line} (bool a\+\_\+b\+Allow\+Multi\+Line=true)
+\item 
+bool \hyperlink{a00069_a805dba3689efd63f8c4485a5f2e89090}{Is\+Multi\+Line} () const 
+\item 
+void \hyperlink{a00069_ae3c0eae2dcd84a42c99bb86ae103662c}{Set\+Spaces} (bool a\+\_\+b\+Spaces=true)
+\item 
+bool \hyperlink{a00069_a9c967faf796cf5babea67e97975bed9b}{Using\+Spaces} () const 
+\end{DoxyCompactItemize}
+\end{Indent}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class S\+I\+\_\+\+C\+H\+AR, class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER$>$\\*
+class C\+Simple\+Ini\+Templ$<$ S\+I\+\_\+\+C\+H\+A\+R, S\+I\+\_\+\+S\+T\+R\+L\+E\+S\+S, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+E\+R $>$}
+
+Simple I\+NI file reader.
+
+This can be instantiated with the choice of unicode or native characterset, and case sensitive or insensitive comparisons of section and key names. The supported combinations are pre-\/defined with the following typedefs\+:
+
+\tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*3{|X[-1]}|}
+\hline
+\rowcolor{\tableheadbgcolor}{\bf Interface }&{\bf Case-\/sensitive }&{\bf Typedef }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\rowcolor{\tableheadbgcolor}{\bf Interface }&{\bf Case-\/sensitive }&{\bf Typedef }\\\cline{1-3}
+\endhead
+char &No &C\+Simple\+IniA \\\cline{1-3}
+char &Yes &C\+Simple\+Ini\+CaseA \\\cline{1-3}
+wchar\+\_\+t &No &C\+Simple\+IniW \\\cline{1-3}
+wchar\+\_\+t &Yes &C\+Simple\+Ini\+CaseW \\\cline{1-3}
+\end{longtabu}
+
+
+Note that using other types for the S\+I\+\_\+\+C\+H\+AR is supported. For instance, unsigned char, unsigned short, etc. Note that where the alternative type is a different size to char/wchar\+\_\+t you may need to supply new helper classes for S\+I\+\_\+\+S\+T\+R\+L\+E\+SS and S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER. 
+
+\subsection{Member Typedef Documentation}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!T\+Key\+Val@{T\+Key\+Val}}
+\index{T\+Key\+Val@{T\+Key\+Val}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{T\+Key\+Val}{TKeyVal}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ typedef std\+::multimap$<${\bf Entry},const S\+I\+\_\+\+C\+H\+AR $\ast$,typename {\bf Entry\+::\+Key\+Order}$>$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::{\bf T\+Key\+Val}}\hypertarget{a00069_ae7f0e11d84617214bd479de6332c80e6}{}\label{a00069_ae7f0e11d84617214bd479de6332c80e6}
+map keys to values \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!T\+Names\+Depend@{T\+Names\+Depend}}
+\index{T\+Names\+Depend@{T\+Names\+Depend}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{T\+Names\+Depend}{TNamesDepend}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ typedef std\+::list$<${\bf Entry}$>$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::{\bf T\+Names\+Depend}}\hypertarget{a00069_a391b3f3751e06cd9e9de4fb16ac14342}{}\label{a00069_a391b3f3751e06cd9e9de4fb16ac14342}
+set of dependent string pointers. Note that these pointers are dependent on memory owned by C\+Simple\+Ini. \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!T\+Section@{T\+Section}}
+\index{T\+Section@{T\+Section}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{T\+Section}{TSection}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ typedef std\+::map$<${\bf Entry},{\bf T\+Key\+Val},typename {\bf Entry\+::\+Key\+Order}$>$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::{\bf T\+Section}}\hypertarget{a00069_a2e7963455f680abd0d6901786495a665}{}\label{a00069_a2e7963455f680abd0d6901786495a665}
+map sections to key/value map 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{C\+Simple\+Ini\+Templ(bool a\+\_\+b\+Is\+Utf8=false, bool a\+\_\+b\+Multi\+Key=false, bool a\+\_\+b\+Multi\+Line=false)}{CSimpleIniTempl(bool a\_bIsUtf8=false, bool a\_bMultiKey=false, bool a\_bMultiLine=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::{\bf C\+Simple\+Ini\+Templ} (
+\begin{DoxyParamCaption}
+\item[{bool}]{a\+\_\+b\+Is\+Utf8 = {\ttfamily false}, }
+\item[{bool}]{a\+\_\+b\+Multi\+Key = {\ttfamily false}, }
+\item[{bool}]{a\+\_\+b\+Multi\+Line = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_af878d0a2aa780255b621e95f58f691d8}{}\label{a00069_af878d0a2aa780255b621e95f58f691d8}
+Default constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+b\+Is\+Utf8} & See the method \hyperlink{a00069_aa9a15a66de893571014f661f89cb4d4b}{Set\+Unicode()} for details. \\
+\hline
+{\em a\+\_\+b\+Multi\+Key} & See the method \hyperlink{a00069_ac3cfaf072a64f960bdcb7ddf2edc52b6}{Set\+Multi\+Key()} for details. \\
+\hline
+{\em a\+\_\+b\+Multi\+Line} & See the method \hyperlink{a00069_aa7214b76600790053a5c715e9730aab0}{Set\+Multi\+Line()} for details. \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!````~C\+Simple\+Ini\+Templ@{$\sim$\+C\+Simple\+Ini\+Templ}}
+\index{````~C\+Simple\+Ini\+Templ@{$\sim$\+C\+Simple\+Ini\+Templ}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{$\sim$\+C\+Simple\+Ini\+Templ()}{~CSimpleIniTempl()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::$\sim${\bf C\+Simple\+Ini\+Templ} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_a8c933adc1d46bb663caeb6f9dee5aa12}{}\label{a00069_a8c933adc1d46bb663caeb6f9dee5aa12}
+Destructor 
+
+\subsection{Member Function Documentation}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Delete@{Delete}}
+\index{Delete@{Delete}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Delete(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Remove\+Empty=false)}{Delete(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, bool a\_bRemoveEmpty=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Delete (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{bool}]{a\+\_\+b\+Remove\+Empty = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_aa5c1cdd0b306434d9e9f1422888049da}{}\label{a00069_aa5c1cdd0b306434d9e9f1422888049da}
+Delete an entire section, or a key from a section. Note that the data returned by Get\+Section is invalid and must not be used after anything has been deleted from that section using this method. Note when multiple keys is enabled, this will delete all keys with that name; there is no way to selectively delete individual key/values in this situation.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to delete key from, or if a\+\_\+p\+Key is N\+U\+LL, the section to remove. \\
+\hline
+{\em a\+\_\+p\+Key} & Key to remove from the section. Set to N\+U\+LL to remove the entire section. \\
+\hline
+{\em a\+\_\+b\+Remove\+Empty} & If the section is empty after this key has been deleted, should the empty section be removed?\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true Key or section was deleted. 
+
+false Key or section was not found. 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+All\+Keys@{Get\+All\+Keys}}
+\index{Get\+All\+Keys@{Get\+All\+Keys}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+All\+Keys(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, T\+Names\+Depend \&a\+\_\+names) const }{GetAllKeys(const SI\_CHAR *a\_pSection, TNamesDepend \&a\_names) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+All\+Keys (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{{\bf T\+Names\+Depend} \&}]{a\+\_\+names}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a8cf1357d78d28653b68790ab5d5b45f1}{}\label{a00069_a8cf1357d78d28653b68790ab5d5b45f1}
+Retrieve all unique key names in a section. The sort order of the returned strings is N\+OT D\+E\+F\+I\+N\+ED. You can sort the names into the load order if desired. Search this file for \char`\"{}.\+sort\char`\"{} for an example. Only unique key names are returned.
+
+N\+O\+T\+E! This structure contains only pointers to strings. The actual string data is stored in memory owned by C\+Simple\+Ini. Ensure that the C\+Simple\+Ini object is not destroyed or \hyperlink{a00069_a89b34d38be4518e9ed91c634a41b8055}{Reset()} while these strings are in use!
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to request data for \\
+\hline
+{\em a\+\_\+names} & List that will receive all of the key names. See note above!\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true Section was found. 
+
+false Matching section was not found. 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+All\+Sections@{Get\+All\+Sections}}
+\index{Get\+All\+Sections@{Get\+All\+Sections}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+All\+Sections(\+T\+Names\+Depend \&a\+\_\+names) const }{GetAllSections(TNamesDepend \&a\_names) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+All\+Sections (
+\begin{DoxyParamCaption}
+\item[{{\bf T\+Names\+Depend} \&}]{a\+\_\+names}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a65b01b5bf88d0dfe3ba51f12278cbcb8}{}\label{a00069_a65b01b5bf88d0dfe3ba51f12278cbcb8}
+Retrieve all section names. The list is returned as an S\+TL vector of names and can be iterated or searched as necessary. Note that the sort order of the returned strings is N\+OT D\+E\+F\+I\+N\+ED. You can sort the names into the load order if desired. Search this file for \char`\"{}.\+sort\char`\"{} for an example.
+
+N\+O\+T\+E! This structure contains only pointers to strings. The actual string data is stored in memory owned by C\+Simple\+Ini. Ensure that the C\+Simple\+Ini object is not destroyed or \hyperlink{a00069_a89b34d38be4518e9ed91c634a41b8055}{Reset()} while these pointers are in use!
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+names} & Vector that will receive all of the section names. See note above! \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+All\+Values@{Get\+All\+Values}}
+\index{Get\+All\+Values@{Get\+All\+Values}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+All\+Values(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, T\+Names\+Depend \&a\+\_\+values) const }{GetAllValues(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, TNamesDepend \&a\_values) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+All\+Values (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{{\bf T\+Names\+Depend} \&}]{a\+\_\+values}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a263c85a8cd839c315fefc078e048257b}{}\label{a00069_a263c85a8cd839c315fefc078e048257b}
+Retrieve all values for a specific key. This method can be used when multiple keys are both enabled and disabled. Note that the sort order of the returned strings is N\+OT D\+E\+F\+I\+N\+ED. You can sort the names into the load order if desired. Search this file for \char`\"{}.\+sort\char`\"{} for an example.
+
+N\+O\+T\+E! The returned values are pointers to string data stored in memory owned by C\+Simple\+Ini. Ensure that the C\+Simple\+Ini object is not destroyed or Reset while you are using this pointer!
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to search \\
+\hline
+{\em a\+\_\+p\+Key} & Key to search for \\
+\hline
+{\em a\+\_\+values} & List to return if the key is not found\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true Key was found. 
+
+false Matching section/key was not found. 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Bool\+Value@{Get\+Bool\+Value}}
+\index{Get\+Bool\+Value@{Get\+Bool\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Bool\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Default=false, bool $\ast$a\+\_\+p\+Has\+Multiple=\+N\+U\+L\+L) const }{GetBoolValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, bool a\_bDefault=false, bool *a\_pHasMultiple=NULL) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Bool\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{bool}]{a\+\_\+b\+Default = {\ttfamily false}, }
+\item[{bool $\ast$}]{a\+\_\+p\+Has\+Multiple = {\ttfamily NULL}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_af0a8cffb0b7f6ca04e3eed9ab4660666}{}\label{a00069_af0a8cffb0b7f6ca04e3eed9ab4660666}
+Retrieve a boolean value for a specific key. If multiple keys are enabled (see Set\+Multi\+Key) then only the first value associated with that key will be returned, see Get\+All\+Values for getting all values with multikey.
+
+Strings starting with \char`\"{}t\char`\"{}, \char`\"{}y\char`\"{}, \char`\"{}on\char`\"{} or \char`\"{}1\char`\"{} are returned as logically true. Strings starting with \char`\"{}f\char`\"{}, \char`\"{}n\char`\"{}, \char`\"{}of\char`\"{} or \char`\"{}0\char`\"{} are returned as logically false. For all other values the default is returned. Character comparisons are case-\/insensitive.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to search \\
+\hline
+{\em a\+\_\+p\+Key} & Key to search for \\
+\hline
+{\em a\+\_\+b\+Default} & Value to return if the key is not found \\
+\hline
+{\em a\+\_\+p\+Has\+Multiple} & Optionally receive notification of if there are multiple entries for this key.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a\+\_\+n\+Default Key was not found in the section 
+
+other Value of the key 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Converter@{Get\+Converter}}
+\index{Get\+Converter@{Get\+Converter}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Converter() const }{GetConverter() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ {\bf Converter} {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Converter (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_a98442d01db35187f2770f0a91042cce8}{}\label{a00069_a98442d01db35187f2770f0a91042cce8}
+Return a conversion object to convert text to the same encoding as is used by the \hyperlink{a00069_a5fea5d590edbb5eef694991c7c355915}{Save()}, \hyperlink{a00069_a1449e083d968790ef7479de24edddba0}{Save\+File()} and Save\+String() functions. Use this to prepare the strings that you wish to append or prepend to the output I\+NI data. \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Double\+Value@{Get\+Double\+Value}}
+\index{Get\+Double\+Value@{Get\+Double\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Double\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, double a\+\_\+n\+Default=0, bool $\ast$a\+\_\+p\+Has\+Multiple=\+N\+U\+L\+L) const }{GetDoubleValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, double a\_nDefault=0, bool *a\_pHasMultiple=NULL) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ double {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Double\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{double}]{a\+\_\+n\+Default = {\ttfamily 0}, }
+\item[{bool $\ast$}]{a\+\_\+p\+Has\+Multiple = {\ttfamily NULL}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a6ce7c77a1d5d64dc289927a5c2659e78}{}\label{a00069_a6ce7c77a1d5d64dc289927a5c2659e78}
+Retrieve a numeric value for a specific key. If multiple keys are enabled (see Set\+Multi\+Key) then only the first value associated with that key will be returned, see Get\+All\+Values for getting all values with multikey.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to search \\
+\hline
+{\em a\+\_\+p\+Key} & Key to search for \\
+\hline
+{\em a\+\_\+n\+Default} & Value to return if the key is not found \\
+\hline
+{\em a\+\_\+p\+Has\+Multiple} & Optionally receive notification of if there are multiple entries for this key.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a\+\_\+n\+Default Key was not found in the section 
+
+other Value of the key 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Long\+Value@{Get\+Long\+Value}}
+\index{Get\+Long\+Value@{Get\+Long\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Long\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, long a\+\_\+n\+Default=0, bool $\ast$a\+\_\+p\+Has\+Multiple=\+N\+U\+L\+L) const }{GetLongValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, long a\_nDefault=0, bool *a\_pHasMultiple=NULL) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ long {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Long\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{long}]{a\+\_\+n\+Default = {\ttfamily 0}, }
+\item[{bool $\ast$}]{a\+\_\+p\+Has\+Multiple = {\ttfamily NULL}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a994c6b29bb8b4c16a4b1a7f4c8b2b3f4}{}\label{a00069_a994c6b29bb8b4c16a4b1a7f4c8b2b3f4}
+Retrieve a numeric value for a specific key. If multiple keys are enabled (see Set\+Multi\+Key) then only the first value associated with that key will be returned, see Get\+All\+Values for getting all values with multikey.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to search \\
+\hline
+{\em a\+\_\+p\+Key} & Key to search for \\
+\hline
+{\em a\+\_\+n\+Default} & Value to return if the key is not found \\
+\hline
+{\em a\+\_\+p\+Has\+Multiple} & Optionally receive notification of if there are multiple entries for this key.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a\+\_\+n\+Default Key was not found in the section 
+
+other Value of the key 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Section@{Get\+Section}}
+\index{Get\+Section@{Get\+Section}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Section(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section) const }{GetSection(const SI\_CHAR *a\_pSection) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ const {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::{\bf T\+Key\+Val} $\ast$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Section (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a795e2fcbad3472055aedfe188f4f8d33}{}\label{a00069_a795e2fcbad3472055aedfe188f4f8d33}
+Retrieve all key and value pairs for a section. The data is returned as a pointer to an S\+TL map and can be iterated or searched as desired. Note that multiple entries for the same key may exist when multiple keys have been enabled.
+
+N\+O\+T\+E! This structure contains only pointers to strings. The actual string data is stored in memory owned by C\+Simple\+Ini. Ensure that the C\+Simple\+Ini object is not destroyed or \hyperlink{a00069_a89b34d38be4518e9ed91c634a41b8055}{Reset()} while these strings are in use!
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Name of the section to return \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+boolean Was a section matching the supplied name found. 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Section\+Size@{Get\+Section\+Size}}
+\index{Get\+Section\+Size@{Get\+Section\+Size}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Section\+Size(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section) const }{GetSectionSize(const SI\_CHAR *a\_pSection) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ int {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Section\+Size (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a2e612d67d1e1631c157af6291ac8c348}{}\label{a00069_a2e612d67d1e1631c157af6291ac8c348}
+Query the number of keys in a specific section. Note that if multiple keys are enabled, then this value may be different to the number of keys returned by Get\+All\+Keys.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to request data for\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+-\/1 Section does not exist in the file 
+
+$>$=0 Number of keys in the section 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Get\+Value@{Get\+Value}}
+\index{Get\+Value@{Get\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Get\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Default=\+N\+U\+L\+L, bool $\ast$a\+\_\+p\+Has\+Multiple=\+N\+U\+L\+L) const }{GetValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, const SI\_CHAR *a\_pDefault=NULL, bool *a\_pHasMultiple=NULL) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ const S\+I\+\_\+\+C\+H\+AR $\ast$ {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Get\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Default = {\ttfamily NULL}, }
+\item[{bool $\ast$}]{a\+\_\+p\+Has\+Multiple = {\ttfamily NULL}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a39999339113e9395d5e2c6b02ef5c618}{}\label{a00069_a39999339113e9395d5e2c6b02ef5c618}
+Retrieve the value for a specific key. If multiple keys are enabled (see Set\+Multi\+Key) then only the first value associated with that key will be returned, see Get\+All\+Values for getting all values with multikey.
+
+N\+O\+T\+E! The returned value is a pointer to string data stored in memory owned by C\+Simple\+Ini. Ensure that the C\+Simple\+Ini object is not destroyed or Reset while you are using this pointer!
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to search \\
+\hline
+{\em a\+\_\+p\+Key} & Key to search for \\
+\hline
+{\em a\+\_\+p\+Default} & Value to return if the key is not found \\
+\hline
+{\em a\+\_\+p\+Has\+Multiple} & Optionally receive notification of if there are multiple entries for this key.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a\+\_\+p\+Default Key was not found in the section 
+
+other Value of the key 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Is\+Empty@{Is\+Empty}}
+\index{Is\+Empty@{Is\+Empty}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Is\+Empty() const }{IsEmpty() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Is\+Empty (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_acaada2b1ab734fc7dd8780ba7f376c26}{}\label{a00069_acaada2b1ab734fc7dd8780ba7f376c26}
+Has any data been loaded \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Is\+Multi\+Key@{Is\+Multi\+Key}}
+\index{Is\+Multi\+Key@{Is\+Multi\+Key}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Is\+Multi\+Key() const }{IsMultiKey() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Is\+Multi\+Key (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_a8069b3c574949b78fe0274ae803f0685}{}\label{a00069_a8069b3c574949b78fe0274ae803f0685}
+Get the storage format of the I\+NI data. \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Is\+Multi\+Line@{Is\+Multi\+Line}}
+\index{Is\+Multi\+Line@{Is\+Multi\+Line}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Is\+Multi\+Line() const }{IsMultiLine() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Is\+Multi\+Line (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_a805dba3689efd63f8c4485a5f2e89090}{}\label{a00069_a805dba3689efd63f8c4485a5f2e89090}
+Query the status of multi-\/line data \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Is\+Unicode@{Is\+Unicode}}
+\index{Is\+Unicode@{Is\+Unicode}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Is\+Unicode() const }{IsUnicode() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Is\+Unicode (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_aa18f29d67107392a9e9f361def892c71}{}\label{a00069_aa18f29d67107392a9e9f361def892c71}
+Get the storage format of the I\+NI data. \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Load\+Data@{Load\+Data}}
+\index{Load\+Data@{Load\+Data}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Load\+Data(const std\+::string \&a\+\_\+str\+Data)}{LoadData(const std::string \&a\_strData)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Load\+Data (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{a\+\_\+str\+Data}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_a174244fd3e09ff78da05fe46be86e714}{}\label{a00069_a174244fd3e09ff78da05fe46be86e714}
+Load I\+NI file data direct from a std\+::string
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+str\+Data} & Data to be loaded\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Load\+Data@{Load\+Data}}
+\index{Load\+Data@{Load\+Data}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Load\+Data(const char $\ast$a\+\_\+p\+Data, size\+\_\+t a\+\_\+u\+Data\+Len)}{LoadData(const char *a\_pData, size\_t a\_uDataLen)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Load\+Data (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{a\+\_\+p\+Data, }
+\item[{size\+\_\+t}]{a\+\_\+u\+Data\+Len}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_aa797cf47cec05906f07d5065882af4d3}{}\label{a00069_aa797cf47cec05906f07d5065882af4d3}
+Load I\+NI file data direct from memory
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Data} & Data to be loaded \\
+\hline
+{\em a\+\_\+u\+Data\+Len} & Length of the data in bytes\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Load\+File@{Load\+File}}
+\index{Load\+File@{Load\+File}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Load\+File(const char $\ast$a\+\_\+psz\+File)}{LoadFile(const char *a\_pszFile)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Load\+File (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{a\+\_\+psz\+File}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_aebb6e5fff76efc05ca6cc4b7b56481a3}{}\label{a00069_aebb6e5fff76efc05ca6cc4b7b56481a3}
+Load an I\+NI file from disk into memory
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+psz\+File} & Path of the file to be loaded. This will be passed to fopen() and so must be a valid path for the current platform.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Load\+File@{Load\+File}}
+\index{Load\+File@{Load\+File}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Load\+File(\+F\+I\+L\+E $\ast$a\+\_\+fp\+File)}{LoadFile(FILE *a\_fpFile)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Load\+File (
+\begin{DoxyParamCaption}
+\item[{F\+I\+LE $\ast$}]{a\+\_\+fp\+File}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_a7ccb65e82fa347b42b59330968f826ae}{}\label{a00069_a7ccb65e82fa347b42b59330968f826ae}
+Load the file from a file pointer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+fp\+File} & Valid file pointer to read the file data from. The file will be read until end of file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Reset@{Reset}}
+\index{Reset@{Reset}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Reset()}{Reset()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_a89b34d38be4518e9ed91c634a41b8055}{}\label{a00069_a89b34d38be4518e9ed91c634a41b8055}
+Deallocate all memory stored by this object \index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Save@{Save}}
+\index{Save@{Save}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Save(\+Output\+Writer \&a\+\_\+o\+Output, bool a\+\_\+b\+Add\+Signature=false) const }{Save(OutputWriter \&a\_oOutput, bool a\_bAddSignature=false) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Save (
+\begin{DoxyParamCaption}
+\item[{{\bf Output\+Writer} \&}]{a\+\_\+o\+Output, }
+\item[{bool}]{a\+\_\+b\+Add\+Signature = {\ttfamily false}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a5fea5d590edbb5eef694991c7c355915}{}\label{a00069_a5fea5d590edbb5eef694991c7c355915}
+Save the I\+NI data. The data will be written to the output device in a format appropriate to the current data, selected by\+:
+
+\tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*2{|X[-1]}|}
+\hline
+\rowcolor{\tableheadbgcolor}{\bf S\+I\+\_\+\+C\+H\+AR }&{\bf F\+O\+R\+M\+AT }\\\cline{1-2}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\rowcolor{\tableheadbgcolor}{\bf S\+I\+\_\+\+C\+H\+AR }&{\bf F\+O\+R\+M\+AT }\\\cline{1-2}
+\endhead
+char &same format as when loaded (M\+B\+CS or U\+T\+F-\/8) \\\cline{1-2}
+wchar\+\_\+t &U\+T\+F-\/8 \\\cline{1-2}
+other &U\+T\+F-\/8 \\\cline{1-2}
+\end{longtabu}
+
+
+Note that comments from the original data is preserved as per the documentation on comments. The order of the sections and values from the original file will be preserved.
+
+Any data prepended or appended to the output device must use the the same format (M\+B\+CS or U\+T\+F-\/8). You may use the \hyperlink{a00069_a98442d01db35187f2770f0a91042cce8}{Get\+Converter()} method to convert text to the correct format regardless of the output format being used by Simple\+Ini.
+
+To add a B\+OM to U\+T\+F-\/8 data, write it out manually at the very beginning like is done in Save\+File when a\+\_\+b\+Use\+B\+OM is true.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+o\+Output} & Output writer to write the data to.\\
+\hline
+{\em a\+\_\+b\+Add\+Signature} & Prepend the U\+T\+F-\/8 B\+OM if the output data is in U\+T\+F-\/8 format. If it is not U\+T\+F-\/8 then this value is ignored. Do not set this to true if anything has already been written to the \hyperlink{a00229}{Output\+Writer}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Save@{Save}}
+\index{Save@{Save}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Save(std\+::string \&a\+\_\+s\+Buffer, bool a\+\_\+b\+Add\+Signature=false) const }{Save(std::string \&a\_sBuffer, bool a\_bAddSignature=false) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Save (
+\begin{DoxyParamCaption}
+\item[{std\+::string \&}]{a\+\_\+s\+Buffer, }
+\item[{bool}]{a\+\_\+b\+Add\+Signature = {\ttfamily false}}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_af944674fb44473ede150a3bcdc103d63}{}\label{a00069_af944674fb44473ede150a3bcdc103d63}
+Append the I\+NI data to a string. See \hyperlink{a00069_a5fea5d590edbb5eef694991c7c355915}{Save()} for details.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+s\+Buffer} & String to have the I\+NI data appended to.\\
+\hline
+{\em a\+\_\+b\+Add\+Signature} & Prepend the U\+T\+F-\/8 B\+OM if the output data is in U\+T\+F-\/8 format. If it is not U\+T\+F-\/8 then this value is ignored. Do not set this to true if anything has already been written to the string.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Save\+File@{Save\+File}}
+\index{Save\+File@{Save\+File}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Save\+File(const char $\ast$a\+\_\+psz\+File, bool a\+\_\+b\+Add\+Signature=true) const }{SaveFile(const char *a\_pszFile, bool a\_bAddSignature=true) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Save\+File (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{a\+\_\+psz\+File, }
+\item[{bool}]{a\+\_\+b\+Add\+Signature = {\ttfamily true}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_a1449e083d968790ef7479de24edddba0}{}\label{a00069_a1449e083d968790ef7479de24edddba0}
+Save an I\+NI file from memory to disk
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+psz\+File} & Path of the file to be saved. This will be passed to fopen() and so must be a valid path for the current platform.\\
+\hline
+{\em a\+\_\+b\+Add\+Signature} & Prepend the U\+T\+F-\/8 B\+OM if the output data is in U\+T\+F-\/8 format. If it is not U\+T\+F-\/8 then this parameter is ignored.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Save\+File@{Save\+File}}
+\index{Save\+File@{Save\+File}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Save\+File(\+F\+I\+L\+E $\ast$a\+\_\+p\+File, bool a\+\_\+b\+Add\+Signature=false) const }{SaveFile(FILE *a\_pFile, bool a\_bAddSignature=false) const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Save\+File (
+\begin{DoxyParamCaption}
+\item[{F\+I\+LE $\ast$}]{a\+\_\+p\+File, }
+\item[{bool}]{a\+\_\+b\+Add\+Signature = {\ttfamily false}}
+\end{DoxyParamCaption}
+) const}\hypertarget{a00069_af3f26b331a0f9d7f071d7b4aa8038758}{}\label{a00069_af3f26b331a0f9d7f071d7b4aa8038758}
+Save the I\+NI data to a file. See \hyperlink{a00069_a5fea5d590edbb5eef694991c7c355915}{Save()} for details.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+File} & Handle to a file. File should be opened for binary output.\\
+\hline
+{\em a\+\_\+b\+Add\+Signature} & Prepend the U\+T\+F-\/8 B\+OM if the output data is in U\+T\+F-\/8 format. If it is not U\+T\+F-\/8 then this value is ignored. Do not set this to true if anything has already been written to the file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Bool\+Value@{Set\+Bool\+Value}}
+\index{Set\+Bool\+Value@{Set\+Bool\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Bool\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, bool a\+\_\+b\+Value, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Comment=\+N\+U\+L\+L, bool a\+\_\+b\+Force\+Replace=false)}{SetBoolValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, bool a\_bValue, const SI\_CHAR *a\_pComment=NULL, bool a\_bForceReplace=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Bool\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{bool}]{a\+\_\+b\+Value, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Comment = {\ttfamily NULL}, }
+\item[{bool}]{a\+\_\+b\+Force\+Replace = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_a48ae136fa20c5d7eb7ab0b75342b27cf}{}\label{a00069_a48ae136fa20c5d7eb7ab0b75342b27cf}
+Add or update a boolean value. This will always insert when multiple keys are enabled.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to add or update \\
+\hline
+{\em a\+\_\+p\+Key} & Key to add or update. \\
+\hline
+{\em a\+\_\+b\+Value} & Value to set. \\
+\hline
+{\em a\+\_\+p\+Comment} & Comment to be associated with the key. See the notes on \hyperlink{a00069_aa2014a3dc8fdd638316cf1d3611796ab}{Set\+Value()} for comments. \\
+\hline
+{\em a\+\_\+b\+Force\+Replace} & Should all existing values in a multi-\/key I\+NI file be replaced with this entry. This option has no effect if not using multi-\/key files. The difference between Delete/\+Set\+Bool\+Value and Set\+Bool\+Value with a\+\_\+b\+Force\+Replace = true, is that the load order and comment will be preserved this way.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+
+S\+I\+\_\+\+U\+P\+D\+A\+T\+ED Value was updated 
+
+S\+I\+\_\+\+I\+N\+S\+E\+R\+T\+ED Value was inserted 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Double\+Value@{Set\+Double\+Value}}
+\index{Set\+Double\+Value@{Set\+Double\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Double\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, double a\+\_\+n\+Value, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Comment=\+N\+U\+L\+L, bool a\+\_\+b\+Force\+Replace=false)}{SetDoubleValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, double a\_nValue, const SI\_CHAR *a\_pComment=NULL, bool a\_bForceReplace=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Double\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{double}]{a\+\_\+n\+Value, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Comment = {\ttfamily NULL}, }
+\item[{bool}]{a\+\_\+b\+Force\+Replace = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_af92ba0b8067553ab693c62a370de6534}{}\label{a00069_af92ba0b8067553ab693c62a370de6534}
+Add or update a double value. This will always insert when multiple keys are enabled.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to add or update \\
+\hline
+{\em a\+\_\+p\+Key} & Key to add or update. \\
+\hline
+{\em a\+\_\+n\+Value} & Value to set. \\
+\hline
+{\em a\+\_\+p\+Comment} & Comment to be associated with the key. See the notes on \hyperlink{a00069_aa2014a3dc8fdd638316cf1d3611796ab}{Set\+Value()} for comments. \\
+\hline
+{\em a\+\_\+b\+Force\+Replace} & Should all existing values in a multi-\/key I\+NI file be replaced with this entry. This option has no effect if not using multi-\/key files. The difference between Delete/\+Set\+Double\+Value and Set\+Double\+Value with a\+\_\+b\+Force\+Replace = true, is that the load order and comment will be preserved this way.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+
+S\+I\+\_\+\+U\+P\+D\+A\+T\+ED Value was updated 
+
+S\+I\+\_\+\+I\+N\+S\+E\+R\+T\+ED Value was inserted 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Long\+Value@{Set\+Long\+Value}}
+\index{Set\+Long\+Value@{Set\+Long\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Long\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, long a\+\_\+n\+Value, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Comment=\+N\+U\+L\+L, bool a\+\_\+b\+Use\+Hex=false, bool a\+\_\+b\+Force\+Replace=false)}{SetLongValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, long a\_nValue, const SI\_CHAR *a\_pComment=NULL, bool a\_bUseHex=false, bool a\_bForceReplace=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Long\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{long}]{a\+\_\+n\+Value, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Comment = {\ttfamily NULL}, }
+\item[{bool}]{a\+\_\+b\+Use\+Hex = {\ttfamily false}, }
+\item[{bool}]{a\+\_\+b\+Force\+Replace = {\ttfamily false}}
+\end{DoxyParamCaption}
+)}\hypertarget{a00069_ab2238be407232e4bba0f1343e4793e4e}{}\label{a00069_ab2238be407232e4bba0f1343e4793e4e}
+Add or update a numeric value. This will always insert when multiple keys are enabled.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to add or update \\
+\hline
+{\em a\+\_\+p\+Key} & Key to add or update. \\
+\hline
+{\em a\+\_\+n\+Value} & Value to set. \\
+\hline
+{\em a\+\_\+p\+Comment} & Comment to be associated with the key. See the notes on \hyperlink{a00069_aa2014a3dc8fdd638316cf1d3611796ab}{Set\+Value()} for comments. \\
+\hline
+{\em a\+\_\+b\+Use\+Hex} & By default the value will be written to the file in decimal format. Set this to true to write it as hexadecimal. \\
+\hline
+{\em a\+\_\+b\+Force\+Replace} & Should all existing values in a multi-\/key I\+NI file be replaced with this entry. This option has no effect if not using multi-\/key files. The difference between Delete/\+Set\+Long\+Value and Set\+Long\+Value with a\+\_\+b\+Force\+Replace = true, is that the load order and comment will be preserved this way.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+
+S\+I\+\_\+\+U\+P\+D\+A\+T\+ED Value was updated 
+
+S\+I\+\_\+\+I\+N\+S\+E\+R\+T\+ED Value was inserted 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Multi\+Key@{Set\+Multi\+Key}}
+\index{Set\+Multi\+Key@{Set\+Multi\+Key}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Multi\+Key(bool a\+\_\+b\+Allow\+Multi\+Key=true)}{SetMultiKey(bool a\_bAllowMultiKey=true)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Multi\+Key (
+\begin{DoxyParamCaption}
+\item[{bool}]{a\+\_\+b\+Allow\+Multi\+Key = {\ttfamily true}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_ac3cfaf072a64f960bdcb7ddf2edc52b6}{}\label{a00069_ac3cfaf072a64f960bdcb7ddf2edc52b6}
+Should multiple identical keys be permitted in the file. If set to false then the last value encountered will be used as the value of the key. If set to true, then all values will be available to be queried. For example, with the following input\+:
+
+
+\begin{DoxyPre}
+[section]
+test=value1
+test=value2
+\end{DoxyPre}
+
+
+Then with Set\+Multi\+Key(true), both of the values \char`\"{}value1\char`\"{} and \char`\"{}value2\char`\"{} will be returned for the key test. If Set\+Multi\+Key(false) is used, then the value for \char`\"{}test\char`\"{} will only be \char`\"{}value2\char`\"{}. This value may be changed at any time.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+b\+Allow\+Multi\+Key} & Allow multi-\/keys in the source? \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Multi\+Line@{Set\+Multi\+Line}}
+\index{Set\+Multi\+Line@{Set\+Multi\+Line}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Multi\+Line(bool a\+\_\+b\+Allow\+Multi\+Line=true)}{SetMultiLine(bool a\_bAllowMultiLine=true)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Multi\+Line (
+\begin{DoxyParamCaption}
+\item[{bool}]{a\+\_\+b\+Allow\+Multi\+Line = {\ttfamily true}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_aa7214b76600790053a5c715e9730aab0}{}\label{a00069_aa7214b76600790053a5c715e9730aab0}
+Should data values be permitted to span multiple lines in the file. If set to false then the multi-\/line construct $<$$<$$<$T\+AG as a value will be returned as is instead of loading the data. This value may be changed at any time.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+b\+Allow\+Multi\+Line} & Allow multi-\/line values in the source? \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Spaces@{Set\+Spaces}}
+\index{Set\+Spaces@{Set\+Spaces}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Spaces(bool a\+\_\+b\+Spaces=true)}{SetSpaces(bool a\_bSpaces=true)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Spaces (
+\begin{DoxyParamCaption}
+\item[{bool}]{a\+\_\+b\+Spaces = {\ttfamily true}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_ae3c0eae2dcd84a42c99bb86ae103662c}{}\label{a00069_ae3c0eae2dcd84a42c99bb86ae103662c}
+Should spaces be added around the equals sign when writing key/value pairs out. When true, the result will be \char`\"{}key = value\char`\"{}. When false, the result will be \char`\"{}key=value\char`\"{}. This value may be changed at any time.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+b\+Spaces} & Add spaces around the equals sign? \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Unicode@{Set\+Unicode}}
+\index{Set\+Unicode@{Set\+Unicode}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Unicode(bool a\+\_\+b\+Is\+Utf8=true)}{SetUnicode(bool a\_bIsUtf8=true)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ void {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Unicode (
+\begin{DoxyParamCaption}
+\item[{bool}]{a\+\_\+b\+Is\+Utf8 = {\ttfamily true}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_aa9a15a66de893571014f661f89cb4d4b}{}\label{a00069_aa9a15a66de893571014f661f89cb4d4b}
+Set the storage format of the I\+NI data. This affects both the loading and saving of the I\+NI data using all of the Load/\+Save A\+PI functions. This value cannot be changed after any I\+NI data has been loaded.
+
+If the file is not set to Unicode (U\+T\+F-\/8), then the data encoding is assumed to be the OS native encoding. This encoding is the system locale on Linux/\+Unix and the legacy M\+B\+CS encoding on Windows N\+T/2\+K/\+XP. If the storage format is set to Unicode then the file will be loaded as U\+T\+F-\/8 encoded data regardless of the native file encoding. If S\+I\+\_\+\+C\+H\+AR == char then all of the char$\ast$ parameters take and return U\+T\+F-\/8 encoded data regardless of the system locale.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+b\+Is\+Utf8} & Assume U\+T\+F-\/8 encoding for the source? \\
+\hline
+\end{DoxyParams}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Set\+Value@{Set\+Value}}
+\index{Set\+Value@{Set\+Value}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Set\+Value(const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Section, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Key, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Value, const S\+I\+\_\+\+C\+H\+A\+R $\ast$a\+\_\+p\+Comment=\+N\+U\+L\+L, bool a\+\_\+b\+Force\+Replace=false)}{SetValue(const SI\_CHAR *a\_pSection, const SI\_CHAR *a\_pKey, const SI\_CHAR *a\_pValue, const SI\_CHAR *a\_pComment=NULL, bool a\_bForceReplace=false)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ S\+I\+\_\+\+Error {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Set\+Value (
+\begin{DoxyParamCaption}
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Section, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Key, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Value, }
+\item[{const S\+I\+\_\+\+C\+H\+AR $\ast$}]{a\+\_\+p\+Comment = {\ttfamily NULL}, }
+\item[{bool}]{a\+\_\+b\+Force\+Replace = {\ttfamily false}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_aa2014a3dc8fdd638316cf1d3611796ab}{}\label{a00069_aa2014a3dc8fdd638316cf1d3611796ab}
+Add or update a section or value. This will always insert when multiple keys are enabled.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+\_\+p\+Section} & Section to add or update \\
+\hline
+{\em a\+\_\+p\+Key} & Key to add or update. Set to N\+U\+LL to create an empty section. \\
+\hline
+{\em a\+\_\+p\+Value} & Value to set. Set to N\+U\+LL to create an empty section. \\
+\hline
+{\em a\+\_\+p\+Comment} & Comment to be associated with the section or the key. If a\+\_\+p\+Key is N\+U\+LL then it will be associated with the section, otherwise the key. Note that a comment may be set O\+N\+LY when the section or key is first created (i.\+e. when this function returns the value S\+I\+\_\+\+I\+N\+S\+E\+R\+T\+ED). If you wish to create a section with a comment then you need to create the section separately to the key. The comment string must be in full comment form already (have a comment character starting every line). \\
+\hline
+{\em a\+\_\+b\+Force\+Replace} & Should all existing values in a multi-\/key I\+NI file be replaced with this entry. This option has no effect if not using multi-\/key files. The difference between Delete/\+Set\+Value and Set\+Value with a\+\_\+b\+Force\+Replace = true, is that the load order and comment will be preserved this way.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+I\+\_\+\+Error See error definitions 
+
+S\+I\+\_\+\+U\+P\+D\+A\+T\+ED Value was updated 
+
+S\+I\+\_\+\+I\+N\+S\+E\+R\+T\+ED Value was inserted 
+\end{DoxyReturn}
+\index{C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}!Using\+Spaces@{Using\+Spaces}}
+\index{Using\+Spaces@{Using\+Spaces}!C\+Simple\+Ini\+Templ@{C\+Simple\+Ini\+Templ}}
+\subsubsection[{\texorpdfstring{Using\+Spaces() const }{UsingSpaces() const }}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class S\+I\+\_\+\+C\+H\+AR , class S\+I\+\_\+\+S\+T\+R\+L\+E\+SS , class S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$ bool {\bf C\+Simple\+Ini\+Templ}$<$ S\+I\+\_\+\+C\+H\+AR, S\+I\+\_\+\+S\+T\+R\+L\+E\+SS, S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+ER $>$\+::Using\+Spaces (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00069_a9c967faf796cf5babea67e97975bed9b}{}\label{a00069_a9c967faf796cf5babea67e97975bed9b}
+Query the status of spaces output 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Simple\+Ini.\+h\end{DoxyCompactItemize}

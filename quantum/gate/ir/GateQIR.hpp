@@ -118,6 +118,11 @@ public:
 		XACCError("Invalid kernel name.");
 	}
 
+	virtual bool kernelExists(const std::string& name) {
+		return std::any_of(kernels.cbegin(), kernels.cend(),
+				[=](std::shared_ptr<Function> i) {return i->getName() == name;});
+	}
+
 	/**
 	 * Return a string representation of this
 	 * intermediate representation

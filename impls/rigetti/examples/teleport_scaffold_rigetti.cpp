@@ -72,6 +72,8 @@ int main (int argc, char** argv) {
 	// Execute!
 	teleport(qubitReg);
 
+	qubitReg->print(std::cout);
+
 	// Finalize the XACC Framework
 	xacc::Finalize();
 

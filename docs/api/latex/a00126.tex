@@ -1,0 +1,199 @@
+\hypertarget{a00126}{}\section{Generic\+Schema\+Validator$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$ Class Template Reference}
+\label{a00126}\index{Generic\+Schema\+Validator$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$@{Generic\+Schema\+Validator$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$}}
+
+
+J\+S\+ON Schema Validator.  
+
+
+
+
+{\ttfamily \#include $<$schema.\+h$>$}
+
+Inheritance diagram for Generic\+Schema\+Validator$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.135903cm]{a00126}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Schema\+Document\+Type\+::\+Schema\+Type {\bfseries Schema\+Type}\hypertarget{a00126_ac79628f00f6720bbabb70b44f0d076a0}{}\label{a00126_ac79628f00f6720bbabb70b44f0d076a0}
+
+\item 
+typedef Schema\+Document\+Type\+::\+Pointer\+Type {\bfseries Pointer\+Type}\hypertarget{a00126_ae0c6c9a9c0ff6bae80e75c6705f2668b}{}\label{a00126_ae0c6c9a9c0ff6bae80e75c6705f2668b}
+
+\item 
+typedef Schema\+Type\+::\+Encoding\+Type {\bfseries Encoding\+Type}\hypertarget{a00126_acf1c5361bb96da87d23167d8720b1ea5}{}\label{a00126_acf1c5361bb96da87d23167d8720b1ea5}
+
+\item 
+typedef Encoding\+Type\+::\+Ch {\bfseries Ch}\hypertarget{a00126_a8b7dab5a0cda9cc0adaefb4401d260c1}{}\label{a00126_a8b7dab5a0cda9cc0adaefb4401d260c1}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00126_a202ee6fdbe5ae9eab3e77a81ecdfeb6d}{Generic\+Schema\+Validator} (const Schema\+Document\+Type \&schema\+Document, State\+Allocator $\ast$allocator=0, size\+\_\+t schema\+Stack\+Capacity=k\+Default\+Schema\+Stack\+Capacity, size\+\_\+t document\+Stack\+Capacity=k\+Default\+Document\+Stack\+Capacity)
+\begin{DoxyCompactList}\small\item\em Constructor without output handler. \end{DoxyCompactList}\item 
+\hyperlink{a00126_ac2027be8ca55b01cd6f38b45f4e233b4}{Generic\+Schema\+Validator} (const Schema\+Document\+Type \&schema\+Document, Output\+Handler \&output\+Handler, State\+Allocator $\ast$allocator=0, size\+\_\+t schema\+Stack\+Capacity=k\+Default\+Schema\+Stack\+Capacity, size\+\_\+t document\+Stack\+Capacity=k\+Default\+Document\+Stack\+Capacity)
+\begin{DoxyCompactList}\small\item\em Constructor with output handler. \end{DoxyCompactList}\item 
+\hyperlink{a00126_a3eab83d483a50efb0c0390adf3291963}{$\sim$\+Generic\+Schema\+Validator} ()\hypertarget{a00126_a3eab83d483a50efb0c0390adf3291963}{}\label{a00126_a3eab83d483a50efb0c0390adf3291963}
+
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \hyperlink{a00126_a49efbbe098cb77728be3d48cafed17e4}{Reset} ()\hypertarget{a00126_a49efbbe098cb77728be3d48cafed17e4}{}\label{a00126_a49efbbe098cb77728be3d48cafed17e4}
+
+\begin{DoxyCompactList}\small\item\em Reset the internal states. \end{DoxyCompactList}\item 
+virtual bool \hyperlink{a00126_ae1559e9448b51a2de30cd39d431179f4}{Is\+Valid} () const \hypertarget{a00126_ae1559e9448b51a2de30cd39d431179f4}{}\label{a00126_ae1559e9448b51a2de30cd39d431179f4}
+
+\begin{DoxyCompactList}\small\item\em Checks whether the current state is valid. \end{DoxyCompactList}\item 
+Pointer\+Type \hyperlink{a00126_a39879de53c70fd5d3c018b61d1235681}{Get\+Invalid\+Schema\+Pointer} () const \hypertarget{a00126_a39879de53c70fd5d3c018b61d1235681}{}\label{a00126_a39879de53c70fd5d3c018b61d1235681}
+
+\begin{DoxyCompactList}\small\item\em Gets the J\+S\+ON pointer pointed to the invalid schema. \end{DoxyCompactList}\item 
+const Ch $\ast$ \hyperlink{a00126_a016b23047ed66bac570e378fbaaf839b}{Get\+Invalid\+Schema\+Keyword} () const \hypertarget{a00126_a016b23047ed66bac570e378fbaaf839b}{}\label{a00126_a016b23047ed66bac570e378fbaaf839b}
+
+\begin{DoxyCompactList}\small\item\em Gets the keyword of invalid schema. \end{DoxyCompactList}\item 
+Pointer\+Type \hyperlink{a00126_ae65727ef84d82f3e31e1f57543e71320}{Get\+Invalid\+Document\+Pointer} () const \hypertarget{a00126_ae65727ef84d82f3e31e1f57543e71320}{}\label{a00126_ae65727ef84d82f3e31e1f57543e71320}
+
+\begin{DoxyCompactList}\small\item\em Gets the J\+S\+ON pointer pointed to the invalid value. \end{DoxyCompactList}\item 
+bool {\bfseries Null} ()\hypertarget{a00126_a7137af73e934f50c66cbb8a9aa802ea6}{}\label{a00126_a7137af73e934f50c66cbb8a9aa802ea6}
+
+\item 
+bool {\bfseries Bool} (bool b)\hypertarget{a00126_aa25fa7456f2f308a105e400f01a4afde}{}\label{a00126_aa25fa7456f2f308a105e400f01a4afde}
+
+\item 
+bool {\bfseries Int} (int i)\hypertarget{a00126_ad823c29990225661a4df69d34647b659}{}\label{a00126_ad823c29990225661a4df69d34647b659}
+
+\item 
+bool {\bfseries Uint} (unsigned u)\hypertarget{a00126_aa688665c5274f93543c84a4b6cabe8da}{}\label{a00126_aa688665c5274f93543c84a4b6cabe8da}
+
+\item 
+bool {\bfseries Int64} (int64\+\_\+t i)\hypertarget{a00126_ac5a9e416e18129a7b787f251019a828f}{}\label{a00126_ac5a9e416e18129a7b787f251019a828f}
+
+\item 
+bool {\bfseries Uint64} (uint64\+\_\+t u)\hypertarget{a00126_abfc56c58cf0b65318e376fc5f2879292}{}\label{a00126_abfc56c58cf0b65318e376fc5f2879292}
+
+\item 
+bool {\bfseries Double} (double d)\hypertarget{a00126_aed0532dbda3ac6f3ca7196af06066b86}{}\label{a00126_aed0532dbda3ac6f3ca7196af06066b86}
+
+\item 
+bool {\bfseries Raw\+Number} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, bool copy)\hypertarget{a00126_ae4f024145421d2c1dde08a9de528722a}{}\label{a00126_ae4f024145421d2c1dde08a9de528722a}
+
+\item 
+bool {\bfseries String} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} length, bool copy)\hypertarget{a00126_a33cf3f83307a8fea38c3238ef75c3d58}{}\label{a00126_a33cf3f83307a8fea38c3238ef75c3d58}
+
+\item 
+bool {\bfseries Start\+Object} ()\hypertarget{a00126_a59972d612c3d37aae9a30222e428d216}{}\label{a00126_a59972d612c3d37aae9a30222e428d216}
+
+\item 
+bool {\bfseries Key} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len, bool copy)\hypertarget{a00126_a6d08b458216ec4a09eed9d94800d05c1}{}\label{a00126_a6d08b458216ec4a09eed9d94800d05c1}
+
+\item 
+bool {\bfseries End\+Object} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} member\+Count)\hypertarget{a00126_aa89e14f0f731f6acdec22a0f7e003037}{}\label{a00126_aa89e14f0f731f6acdec22a0f7e003037}
+
+\item 
+bool {\bfseries Start\+Array} ()\hypertarget{a00126_aba13751f802531ed8cbd850778ea993c}{}\label{a00126_aba13751f802531ed8cbd850778ea993c}
+
+\item 
+bool {\bfseries End\+Array} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} element\+Count)\hypertarget{a00126_a67b501f0f65d40e0086ca8216882b34f}{}\label{a00126_a67b501f0f65d40e0086ca8216882b34f}
+
+\item 
+virtual I\+Schema\+Validator $\ast$ {\bfseries Create\+Schema\+Validator} (const Schema\+Type \&root)\hypertarget{a00126_af074f9c8f2cfc07e1b3d3f8862e7ef11}{}\label{a00126_af074f9c8f2cfc07e1b3d3f8862e7ef11}
+
+\item 
+virtual void {\bfseries Destroy\+Schema\+Validator} (I\+Schema\+Validator $\ast$validator)\hypertarget{a00126_ae24fa298e328f1fd7dda2ef6267156d2}{}\label{a00126_ae24fa298e328f1fd7dda2ef6267156d2}
+
+\item 
+virtual void $\ast$ {\bfseries Create\+Hasher} ()\hypertarget{a00126_abc377481583ca2095fb784be88887faa}{}\label{a00126_abc377481583ca2095fb784be88887faa}
+
+\item 
+virtual uint64\+\_\+t {\bfseries Get\+Hash\+Code} (void $\ast$hasher)\hypertarget{a00126_ac01c45982a1f512e1ca06fe5544b0c0f}{}\label{a00126_ac01c45982a1f512e1ca06fe5544b0c0f}
+
+\item 
+virtual void {\bfseries Destrory\+Hasher} (void $\ast$hasher)\hypertarget{a00126_a007eef58be575dc562543d069ddd2710}{}\label{a00126_a007eef58be575dc562543d069ddd2710}
+
+\item 
+virtual void $\ast$ {\bfseries Malloc\+State} (size\+\_\+t size)\hypertarget{a00126_a7c999dfb3118aaa08495d60eee6d3732}{}\label{a00126_a7c999dfb3118aaa08495d60eee6d3732}
+
+\item 
+virtual void {\bfseries Free\+State} (void $\ast$p)\hypertarget{a00126_a4e250737a411af2969a9e585a7da4187}{}\label{a00126_a4e250737a411af2969a9e585a7da4187}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Schema\+Document\+Type, typename Output\+Handler = Base\+Reader\+Handler$<$typename Schema\+Document\+Type\+::\+Schema\+Type\+::\+Encoding\+Type$>$, typename State\+Allocator = Crt\+Allocator$>$\\*
+class Generic\+Schema\+Validator$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$}
+
+J\+S\+ON Schema Validator. 
+
+A S\+AX style J\+S\+ON schema validator. It uses a {\ttfamily \hyperlink{a00125}{Generic\+Schema\+Document}} to validate S\+AX events. It delegates the incoming S\+AX events to an output handler. The default output handler does nothing. It can be reused multiple times by calling {\ttfamily \hyperlink{a00126_a49efbbe098cb77728be3d48cafed17e4}{Reset()}}.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Schema\+Document\+Type} & Type of schema document. \\
+\hline
+{\em Output\+Handler} & Type of output handler. Default handler does nothing. \\
+\hline
+{\em State\+Allocator} & Allocator for storing the internal validation states. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Generic\+Schema\+Validator@{Generic\+Schema\+Validator}!Generic\+Schema\+Validator@{Generic\+Schema\+Validator}}
+\index{Generic\+Schema\+Validator@{Generic\+Schema\+Validator}!Generic\+Schema\+Validator@{Generic\+Schema\+Validator}}
+\subsubsection[{\texorpdfstring{Generic\+Schema\+Validator(const Schema\+Document\+Type \&schema\+Document, State\+Allocator $\ast$allocator=0, size\+\_\+t schema\+Stack\+Capacity=k\+Default\+Schema\+Stack\+Capacity, size\+\_\+t document\+Stack\+Capacity=k\+Default\+Document\+Stack\+Capacity)}{GenericSchemaValidator(const SchemaDocumentType \&schemaDocument, StateAllocator *allocator=0, size\_t schemaStackCapacity=kDefaultSchemaStackCapacity, size\_t documentStackCapacity=kDefaultDocumentStackCapacity)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Schema\+Document\+Type, typename Output\+Handler = Base\+Reader\+Handler$<$typename Schema\+Document\+Type\+::\+Schema\+Type\+::\+Encoding\+Type$>$, typename State\+Allocator = Crt\+Allocator$>$ {\bf Generic\+Schema\+Validator}$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$\+::{\bf Generic\+Schema\+Validator} (
+\begin{DoxyParamCaption}
+\item[{const Schema\+Document\+Type \&}]{schema\+Document, }
+\item[{State\+Allocator $\ast$}]{allocator = {\ttfamily 0}, }
+\item[{size\+\_\+t}]{schema\+Stack\+Capacity = {\ttfamily kDefaultSchemaStackCapacity}, }
+\item[{size\+\_\+t}]{document\+Stack\+Capacity = {\ttfamily kDefaultDocumentStackCapacity}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00126_a202ee6fdbe5ae9eab3e77a81ecdfeb6d}{}\label{a00126_a202ee6fdbe5ae9eab3e77a81ecdfeb6d}
+
+
+Constructor without output handler. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em schema\+Document} & The schema document to conform to. \\
+\hline
+{\em allocator} & Optional allocator for storing internal validation states. \\
+\hline
+{\em schema\+Stack\+Capacity} & Optional initial capacity of schema path stack. \\
+\hline
+{\em document\+Stack\+Capacity} & Optional initial capacity of document path stack. \\
+\hline
+\end{DoxyParams}
+\index{Generic\+Schema\+Validator@{Generic\+Schema\+Validator}!Generic\+Schema\+Validator@{Generic\+Schema\+Validator}}
+\index{Generic\+Schema\+Validator@{Generic\+Schema\+Validator}!Generic\+Schema\+Validator@{Generic\+Schema\+Validator}}
+\subsubsection[{\texorpdfstring{Generic\+Schema\+Validator(const Schema\+Document\+Type \&schema\+Document, Output\+Handler \&output\+Handler, State\+Allocator $\ast$allocator=0, size\+\_\+t schema\+Stack\+Capacity=k\+Default\+Schema\+Stack\+Capacity, size\+\_\+t document\+Stack\+Capacity=k\+Default\+Document\+Stack\+Capacity)}{GenericSchemaValidator(const SchemaDocumentType \&schemaDocument, OutputHandler \&outputHandler, StateAllocator *allocator=0, size\_t schemaStackCapacity=kDefaultSchemaStackCapacity, size\_t documentStackCapacity=kDefaultDocumentStackCapacity)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Schema\+Document\+Type, typename Output\+Handler = Base\+Reader\+Handler$<$typename Schema\+Document\+Type\+::\+Schema\+Type\+::\+Encoding\+Type$>$, typename State\+Allocator = Crt\+Allocator$>$ {\bf Generic\+Schema\+Validator}$<$ Schema\+Document\+Type, Output\+Handler, State\+Allocator $>$\+::{\bf Generic\+Schema\+Validator} (
+\begin{DoxyParamCaption}
+\item[{const Schema\+Document\+Type \&}]{schema\+Document, }
+\item[{Output\+Handler \&}]{output\+Handler, }
+\item[{State\+Allocator $\ast$}]{allocator = {\ttfamily 0}, }
+\item[{size\+\_\+t}]{schema\+Stack\+Capacity = {\ttfamily kDefaultSchemaStackCapacity}, }
+\item[{size\+\_\+t}]{document\+Stack\+Capacity = {\ttfamily kDefaultDocumentStackCapacity}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00126_ac2027be8ca55b01cd6f38b45f4e233b4}{}\label{a00126_ac2027be8ca55b01cd6f38b45f4e233b4}
+
+
+Constructor with output handler. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em schema\+Document} & The schema document to conform to. \\
+\hline
+{\em allocator} & Optional allocator for storing internal validation states. \\
+\hline
+{\em schema\+Stack\+Capacity} & Optional initial capacity of schema path stack. \\
+\hline
+{\em document\+Stack\+Capacity} & Optional initial capacity of document path stack. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fwd.\+h\item 
+schema.\+h\end{DoxyCompactItemize}

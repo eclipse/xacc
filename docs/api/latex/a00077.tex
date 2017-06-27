@@ -1,0 +1,82 @@
+\hypertarget{a00077}{}\section{internal\+:\+:Diy\+Fp Struct Reference}
+\label{a00077}\index{internal\+::\+Diy\+Fp@{internal\+::\+Diy\+Fp}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Diy\+Fp} (uint64\+\_\+t fp, int exp)\hypertarget{a00077_a9a8f2f5c49dfa0dee4a527f0829cc2e5}{}\label{a00077_a9a8f2f5c49dfa0dee4a527f0829cc2e5}
+
+\item 
+{\bfseries Diy\+Fp} (double d)\hypertarget{a00077_adc132c7da4c8e3ee5ae12efdcf6dbf7c}{}\label{a00077_adc132c7da4c8e3ee5ae12efdcf6dbf7c}
+
+\item 
+\hyperlink{a00077}{Diy\+Fp} {\bfseries operator-\/} (const \hyperlink{a00077}{Diy\+Fp} \&rhs) const \hypertarget{a00077_ade3efb95107203f2327fc3d5a802d4b7}{}\label{a00077_ade3efb95107203f2327fc3d5a802d4b7}
+
+\item 
+\hyperlink{a00077}{Diy\+Fp} \hyperlink{a00077_ab536022d225b3014c98517a2dec4b986}{operator$\ast$} (const \hyperlink{a00077}{Diy\+Fp} \&rhs) const 
+\item 
+\hyperlink{a00077}{Diy\+Fp} {\bfseries Normalize} () const \hypertarget{a00077_adae1948b1bb65d950cd3801a4a2bb7fd}{}\label{a00077_adae1948b1bb65d950cd3801a4a2bb7fd}
+
+\item 
+\hyperlink{a00077}{Diy\+Fp} {\bfseries Normalize\+Boundary} () const \hypertarget{a00077_a1a4589d19230c9930d7f3dd5a9b7f7e7}{}\label{a00077_a1a4589d19230c9930d7f3dd5a9b7f7e7}
+
+\item 
+void {\bfseries Normalized\+Boundaries} (\hyperlink{a00077}{Diy\+Fp} $\ast$minus, \hyperlink{a00077}{Diy\+Fp} $\ast$plus) const \hypertarget{a00077_a64e623c1742d1d5ad551ab456f0deb62}{}\label{a00077_a64e623c1742d1d5ad551ab456f0deb62}
+
+\item 
+double {\bfseries To\+Double} () const \hypertarget{a00077_a9bbdcfcf5d1b3a7b16a8f5f860d74038}{}\label{a00077_a9bbdcfcf5d1b3a7b16a8f5f860d74038}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+uint64\+\_\+t {\bfseries f}\hypertarget{a00077_a09b9217a86e8a2e6aa8d2d48fc351008}{}\label{a00077_a09b9217a86e8a2e6aa8d2d48fc351008}
+
+\item 
+int {\bfseries e}\hypertarget{a00077_afa9db335eeb61c7f966d888d89b1e6f2}{}\label{a00077_afa9db335eeb61c7f966d888d89b1e6f2}
+
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const int {\bfseries k\+Diy\+Significand\+Size} = 64\hypertarget{a00077_aac30e0c32d43425ac403281fc9b0cee4}{}\label{a00077_aac30e0c32d43425ac403281fc9b0cee4}
+
+\item 
+static const int {\bfseries k\+Dp\+Significand\+Size} = 52\hypertarget{a00077_a037aed0fa0b66af0a13657418edef19e}{}\label{a00077_a037aed0fa0b66af0a13657418edef19e}
+
+\item 
+static const int {\bfseries k\+Dp\+Exponent\+Bias} = 0x3\+F\+F + k\+Dp\+Significand\+Size\hypertarget{a00077_a38b6f864ae0859d43fa96c3ff27959be}{}\label{a00077_a38b6f864ae0859d43fa96c3ff27959be}
+
+\item 
+static const int {\bfseries k\+Dp\+Max\+Exponent} = 0x7\+F\+F -\/ k\+Dp\+Exponent\+Bias\hypertarget{a00077_a80535a5594dae96fc482757a54162c7d}{}\label{a00077_a80535a5594dae96fc482757a54162c7d}
+
+\item 
+static const int {\bfseries k\+Dp\+Min\+Exponent} = -\/k\+Dp\+Exponent\+Bias\hypertarget{a00077_a9ad1b0cdbab318e45d2bc48e64707ef3}{}\label{a00077_a9ad1b0cdbab318e45d2bc48e64707ef3}
+
+\item 
+static const int {\bfseries k\+Dp\+Denormal\+Exponent} = -\/k\+Dp\+Exponent\+Bias + 1\hypertarget{a00077_a994f16a1247a290cfc3a875715e3a92b}{}\label{a00077_a994f16a1247a290cfc3a875715e3a92b}
+
+\item 
+static const uint64\+\_\+t {\bfseries k\+Dp\+Exponent\+Mask} = \hyperlink{a00677_aaee1245f375a71be1ac9b8a07ba5fb8f}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+U\+I\+N\+T64\+\_\+\+C2}(0x7\+F\+F00000, 0x00000000)\hypertarget{a00077_aaacbf068c44275f4451db750938bd1d3}{}\label{a00077_aaacbf068c44275f4451db750938bd1d3}
+
+\item 
+static const uint64\+\_\+t {\bfseries k\+Dp\+Significand\+Mask} = \hyperlink{a00677_aaee1245f375a71be1ac9b8a07ba5fb8f}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+U\+I\+N\+T64\+\_\+\+C2}(0x000\+F\+F\+F\+F\+F, 0x\+F\+F\+F\+F\+F\+F\+F\+F)\hypertarget{a00077_a841ef0ae29ccd2889e7f96aad76b0179}{}\label{a00077_a841ef0ae29ccd2889e7f96aad76b0179}
+
+\item 
+static const uint64\+\_\+t {\bfseries k\+Dp\+Hidden\+Bit} = \hyperlink{a00677_aaee1245f375a71be1ac9b8a07ba5fb8f}{R\+A\+P\+I\+D\+J\+S\+O\+N\+\_\+\+U\+I\+N\+T64\+\_\+\+C2}(0x00100000, 0x00000000)\hypertarget{a00077_a43ea451ce20095b1ff53cccf132ca15f}{}\label{a00077_a43ea451ce20095b1ff53cccf132ca15f}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\index{internal\+::\+Diy\+Fp@{internal\+::\+Diy\+Fp}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!internal\+::\+Diy\+Fp@{internal\+::\+Diy\+Fp}}
+\subsubsection[{\texorpdfstring{operator$\ast$(const Diy\+Fp \&rhs) const }{operator*(const DiyFp \&rhs) const }}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Diy\+Fp} internal\+::\+Diy\+Fp\+::operator$\ast$ (
+\begin{DoxyParamCaption}
+\item[{const {\bf Diy\+Fp} \&}]{rhs}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00077_ab536022d225b3014c98517a2dec4b986}{}\label{a00077_ab536022d225b3014c98517a2dec4b986}
+mult\+\_\+round 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+diyfp.\+h\end{DoxyCompactItemize}

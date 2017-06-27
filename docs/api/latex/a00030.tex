@@ -1,0 +1,225 @@
+\hypertarget{a00030}{}\section{xacc\+:\+:Accelerator Class Reference}
+\label{a00030}\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+
+
+{\ttfamily \#include $<$Accelerator.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Accelerator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a00030}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual Accelerator\+Type \hyperlink{a00030_aaffc3e4bb9880eb5041b1b58ee4c2665}{get\+Type} ()=0
+\item 
+virtual std\+::vector$<$ \hyperlink{a00168}{I\+R\+Transformation} $>$ \hyperlink{a00030_ad6e4a642dcb24e552675bcbeff1e1b04}{get\+I\+R\+Transformations} ()=0
+\item 
+virtual void \hyperlink{a00030_a89b3f3e6294f228abf03a410b0fb1674}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00032}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00106}{Function} $>$ function)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00032}{Accelerator\+Buffer} $>$ \hyperlink{a00030_aab5046e8d83ab390302e0f49533e95fc}{create\+Buffer} (const std\+::string \&var\+Id)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00032}{Accelerator\+Buffer} $>$ \hyperlink{a00030_a064a2dbd58338364115c260267806945}{create\+Buffer} (const std\+::string \&var\+Id, const int size)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00032}{Accelerator\+Buffer} $>$ \hyperlink{a00030_ab3820be326e28a553fed1a824f4d41d0}{get\+Buffer} (const std\+::string \&varid)
+\item 
+virtual bool \hyperlink{a00030_ae51584850faeec77299058383977ddeb}{is\+Valid\+Buffer\+Size} (const int N\+Bits)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00030_a98c9eda6b54367c75667ecfbbf167979}{get\+Options} ()
+\item 
+virtual \hyperlink{a00030_aed88ab0d71b765f0b0f512684ccd4b55}{$\sim$\+Accelerator} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{a00030_ac3e781f42ec25e460174d4c41ea26b94}{store\+Buffer} (const std\+::string \&id, std\+::shared\+\_\+ptr$<$ \hyperlink{a00032}{Accelerator\+Buffer} $>$ b)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00030}{Accelerator} class provides a high-\/level abstraction for X\+A\+CC\textquotesingle{}s interaction with attached post-\/exascale accelerators (quantum and neuromorphic processing units).
+
+Derived Accelerators must provide a valid execute implementation that takes X\+A\+CC \hyperlink{a00167}{IR} and executes it on the attached hardware or simulator.
+
+Derived Accelerators must provide a list of \hyperlink{a00168}{I\+R\+Transformation} instances that transform X\+A\+CC \hyperlink{a00167}{IR} to be amenable to execution on the hardware.
+
+Derived Accelerators must provide implementations of create\+Buffer that provide a valid \hyperlink{a00032}{Accelerator\+Buffer} instance modeling the hardware memory or bits being computed on. Upon creating an \hyperlink{a00032}{Accelerator\+Buffer}, derived \hyperlink{a00030}{Accelerator} implementations must call the protected store\+Buffer method to store the \hyperlink{a00032}{Accelerator\+Buffer} for future reference by Compilers and clients of \hyperlink{a00030}{Accelerator}. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!````~Accelerator@{$\sim$\+Accelerator}}
+\index{````~Accelerator@{$\sim$\+Accelerator}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{$\sim$\+Accelerator()}{~Accelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Accelerator\+::$\sim$\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00030_aed88ab0d71b765f0b0f512684ccd4b55}{}\label{a00030_aed88ab0d71b765f0b0f512684ccd4b55}
+Destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id)=0}{createBuffer(const std::string \&varId)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Accelerator\+Buffer}$>$ xacc\+::\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_aab5046e8d83ab390302e0f49533e95fc}{}\label{a00030_aab5046e8d83ab390302e0f49533e95fc}
+Create, store, and return an \hyperlink{a00032}{Accelerator\+Buffer} with the given variable id string. This string serves as a unique identifier for future lookups and reuse of the \hyperlink{a00032}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00252_ada3ceb986e51ab5aa721f2a08e083cd6}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00278_a46445d77d4b8ad2689571d0db6604380}{xacc\+::quantum\+::\+Simple\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id, const int size)=0}{createBuffer(const std::string \&varId, const int size)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Accelerator\+Buffer}$>$ xacc\+::\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id, }
+\item[{const int}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_a064a2dbd58338364115c260267806945}{}\label{a00030_a064a2dbd58338364115c260267806945}
+Create, store, and return an \hyperlink{a00032}{Accelerator\+Buffer} with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a00032}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+{\em size} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00252_a731551c94b1abef40d2cf032e8712df6}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00278_adb9393692e9f484df241aa5d014030d1}{xacc\+::quantum\+::\+Simple\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!execute@{execute}}
+\index{execute@{execute}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{execute(std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ buffer, const std\+::shared\+\_\+ptr$<$ Function $>$ function)=0}{execute(std::shared\_ptr< AcceleratorBuffer > buffer, const std::shared\_ptr< Function > function)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+Accelerator\+::execute (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{buffer, }
+\item[{const std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{function}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_a89b3f3e6294f228abf03a410b0fb1674}{}\label{a00030_a89b3f3e6294f228abf03a410b0fb1674}
+Execute the provided X\+A\+CC \hyperlink{a00167}{IR} \hyperlink{a00106}{Function} on the provided \hyperlink{a00032}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & \\
+\hline
+{\em ir} & \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!get\+Buffer@{get\+Buffer}}
+\index{get\+Buffer@{get\+Buffer}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Buffer(const std\+::string \&varid)}{getBuffer(const std::string \&varid)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Accelerator\+Buffer}$>$ xacc\+::\+Accelerator\+::get\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{varid}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00030_ab3820be326e28a553fed1a824f4d41d0}{}\label{a00030_ab3820be326e28a553fed1a824f4d41d0}
+Return the stored \hyperlink{a00032}{Accelerator\+Buffer} with the provided string id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em varid} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
+\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+I\+R\+Transformations()=0}{getIRTransformations()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<${\bf I\+R\+Transformation}$>$ xacc\+::\+Accelerator\+::get\+I\+R\+Transformations (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_ad6e4a642dcb24e552675bcbeff1e1b04}{}\label{a00030_ad6e4a642dcb24e552675bcbeff1e1b04}
+Return any \hyperlink{a00167}{IR} Transformations that must be applied to ensure the compiled \hyperlink{a00167}{IR} is amenable to execution on this \hyperlink{a00030}{Accelerator}. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00252_a443683a1dfb000603c640b2ee303cf66}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00278_afc49c9e7973ba6c6ff9761c36198323d}{xacc\+::quantum\+::\+Simple\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Options()}{getOptions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Accelerator\+::get\+Options (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00030_a98c9eda6b54367c75667ecfbbf167979}{}\label{a00030_a98c9eda6b54367c75667ecfbbf167979}
+Return an empty options\+\_\+description, this is for subclasses to implement. 
+
+Implements \hyperlink{a00228_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
+
+
+
+Reimplemented in \hyperlink{a00252_a9ee9e62aecbccf193894ca3388676f9f}{xacc\+::quantum\+::\+Rigetti\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!get\+Type@{get\+Type}}
+\index{get\+Type@{get\+Type}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Type()=0}{getType()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Accelerator\+Type xacc\+::\+Accelerator\+::get\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_aaffc3e4bb9880eb5041b1b58ee4c2665}{}\label{a00030_aaffc3e4bb9880eb5041b1b58ee4c2665}
+Return the type of this \hyperlink{a00030}{Accelerator}.
+
+\begin{DoxyReturn}{Returns}
+type The \hyperlink{a00030}{Accelerator} type -\/ Gate or A\+QC Q\+PU, or N\+PU 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00252_aab0d4674da5273d55407b9ab77cde890}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00278_ad76eeb0bbd7de21aad5bd20d20970a98}{xacc\+::quantum\+::\+Simple\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
+\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{is\+Valid\+Buffer\+Size(const int N\+Bits)=0}{isValidBufferSize(const int NBits)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::\+Accelerator\+::is\+Valid\+Buffer\+Size (
+\begin{DoxyParamCaption}
+\item[{const int}]{N\+Bits}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_ae51584850faeec77299058383977ddeb}{}\label{a00030_ae51584850faeec77299058383977ddeb}
+Return true if this \hyperlink{a00030}{Accelerator} can allocated N\+Bits number of bits. 
+\begin{DoxyParams}{Parameters}
+{\em N\+Bits} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00252_a61352c07062597aad2393fbeed4cc025}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00278_a60b9db2d6aed235857c45413a070338e}{xacc\+::quantum\+::\+Simple\+Accelerator}.
+
+\index{xacc\+::\+Accelerator@{xacc\+::\+Accelerator}!store\+Buffer@{store\+Buffer}}
+\index{store\+Buffer@{store\+Buffer}!xacc\+::\+Accelerator@{xacc\+::\+Accelerator}}
+\subsubsection[{\texorpdfstring{store\+Buffer(const std\+::string \&id, std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ b)}{storeBuffer(const std::string \&id, std::shared\_ptr< AcceleratorBuffer > b)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::\+Accelerator\+::store\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{b}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\hypertarget{a00030_ac3e781f42ec25e460174d4c41ea26b94}{}\label{a00030_ac3e781f42ec25e460174d4c41ea26b94}
+This protected method is to be used by derived Accelerators to store any created \hyperlink{a00032}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & \\
+\hline
+{\em b} & \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Accelerator.\+hpp\end{DoxyCompactItemize}

@@ -98,3 +98,32 @@ BOOST_AUTO_TEST_CASE(checkTeleportSerialization) {
 	std::cout << "HELLO: \n" << json << "\n";
 
 }
+
+BOOST_AUTO_TEST_CASE(checkFunctionWithFunction) {
+
+	auto f = std::make_shared<GateFunction>("foo");
+	auto init = std::make_shared<GateFunction>("init");
+
+	xacc::InstructionParameter p = "phi";
+	auto rz = GateInstructionRegistry::instance()->create("Rz", std::vector<int>{0});
+	rz->setParameter(0, p);
+
+	init->addInstruction(rz);
+
+	f->addInstruction(init);
+
+	auto x = std::make_shared<X>(0);
+	auto h = std::make_shared<Hadamard>(1);
+
+	f->addInstruction(x);
+	f->addInstruction(h);
+
+	JsonVisitor visitor(f);
+
+	auto json = visitor.write();
+
+	std::cout << "HELLO: \n" << json << "\n";
+
+
+
+}

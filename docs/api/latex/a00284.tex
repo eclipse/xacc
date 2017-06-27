@@ -1,0 +1,45 @@
+\hypertarget{a00284}{}\section{rapidjson\+:\+:Stream Class Reference}
+\label{a00284}\index{rapidjson\+::\+Stream@{rapidjson\+::\+Stream}}
+
+
+Concept for reading and writing characters.  
+
+
+
+
+{\ttfamily \#include $<$stream.\+h$>$}
+
+
+
+\subsection{Detailed Description}
+Concept for reading and writing characters. 
+
+For read-\/only stream, no need to implement Put\+Begin(), Put(), Flush() and Put\+End().
+
+For write-\/only stream, only need to implement Put() and Flush().
+
+
+\begin{DoxyCode}
+concept Stream \{
+    \textcolor{keyword}{typename} Ch;    
+
+    Ch Peek() \textcolor{keyword}{const};
+
+    Ch Take();
+
+    \textcolor{keywordtype}{size\_t} Tell();
+
+    Ch* PutBegin();
+
+    \textcolor{keywordtype}{void} Put(Ch c);
+
+    \textcolor{keywordtype}{void} Flush();
+
+    \textcolor{keywordtype}{size\_t} PutEnd(Ch* begin);
+\}
+\end{DoxyCode}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+stream.\+h\end{DoxyCompactItemize}

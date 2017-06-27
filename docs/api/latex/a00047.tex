@@ -1,0 +1,76 @@
+\hypertarget{a00047}{}\section{Basic\+O\+Stream\+Wrapper$<$ Stream\+Type $>$ Class Template Reference}
+\label{a00047}\index{Basic\+O\+Stream\+Wrapper$<$ Stream\+Type $>$@{Basic\+O\+Stream\+Wrapper$<$ Stream\+Type $>$}}
+
+
+Wrapper of {\ttfamily std\+::basic\+\_\+ostream} into Rapid\+J\+S\+ON\textquotesingle{}s Stream concept.  
+
+
+
+
+{\ttfamily \#include $<$ostreamwrapper.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef Stream\+Type\+::char\+\_\+type {\bfseries Ch}\hypertarget{a00047_aafc6276f1f5cc0b8d45d137584d380bb}{}\label{a00047_aafc6276f1f5cc0b8d45d137584d380bb}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Basic\+O\+Stream\+Wrapper} (Stream\+Type \&stream)\hypertarget{a00047_a067a516c13b7c9d4dacef598d32779ef}{}\label{a00047_a067a516c13b7c9d4dacef598d32779ef}
+
+\item 
+void {\bfseries Put} (Ch c)\hypertarget{a00047_a7d3ba9d651fbe27fe05387f512154ea8}{}\label{a00047_a7d3ba9d651fbe27fe05387f512154ea8}
+
+\item 
+void {\bfseries Flush} ()\hypertarget{a00047_a1c48a8b7520b0ab6ca34e665b928b56d}{}\label{a00047_a1c48a8b7520b0ab6ca34e665b928b56d}
+
+\item 
+char {\bfseries Peek} () const \hypertarget{a00047_a81eda65252d99c350d754bb702526dae}{}\label{a00047_a81eda65252d99c350d754bb702526dae}
+
+\item 
+char {\bfseries Take} ()\hypertarget{a00047_a54be63e8d24f4d82329b860a907f65fe}{}\label{a00047_a54be63e8d24f4d82329b860a907f65fe}
+
+\item 
+size\+\_\+t {\bfseries Tell} () const \hypertarget{a00047_ab5f119855c8591b650fbcbeb99be677e}{}\label{a00047_ab5f119855c8591b650fbcbeb99be677e}
+
+\item 
+char $\ast$ {\bfseries Put\+Begin} ()\hypertarget{a00047_a564b7b727bdab12185e7a7bd1ac5e822}{}\label{a00047_a564b7b727bdab12185e7a7bd1ac5e822}
+
+\item 
+size\+\_\+t {\bfseries Put\+End} (char $\ast$)\hypertarget{a00047_a1da108e43a5a517c4484821fced1fca0}{}\label{a00047_a1da108e43a5a517c4484821fced1fca0}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Stream\+Type$>$\\*
+class Basic\+O\+Stream\+Wrapper$<$ Stream\+Type $>$}
+
+Wrapper of {\ttfamily std\+::basic\+\_\+ostream} into Rapid\+J\+S\+ON\textquotesingle{}s Stream concept. 
+
+The classes can be wrapped including but not limited to\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily std\+::ostringstream} 
+\item {\ttfamily std\+::stringstream} 
+\item {\ttfamily std\+::wpstringstream} 
+\item {\ttfamily std\+::wstringstream} 
+\item {\ttfamily std\+::ifstream} 
+\item {\ttfamily std\+::fstream} 
+\item {\ttfamily std\+::wofstream} 
+\item {\ttfamily std\+::wfstream} 
+\end{DoxyItemize}
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Stream\+Type} & Class derived from {\ttfamily std\+::basic\+\_\+ostream}. \\
+\hline
+\end{DoxyTemplParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+ostreamwrapper.\+h\end{DoxyCompactItemize}

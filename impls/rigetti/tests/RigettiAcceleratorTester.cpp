@@ -43,10 +43,15 @@ public:
 
 	bool postOccured = false;
 
-	virtual std::string get(const std::string& relativePath,
+	virtual fire::util::HttpResponse get(const std::string& relativePath,
 			const std::map<std::string, std::string>& header = std::map<
 					std::string, std::string>()) {
-		return "";
+		std::stringstream ss;
+		ss << "HELLO\n";
+		fire::util::HttpResponse r(ss);
+		r.successful = true;
+
+		return r;
 	}
 
 	/**
@@ -60,14 +65,14 @@ public:
 	 * @return success Boolean indicating if post was successful
 	 *
 	 */
-	virtual fire::util::PostResponse post(const std::string& relativePath,
+	virtual fire::util::HttpResponse post(const std::string& relativePath,
 			const std::string& message,
 			const std::map<std::string, std::string>& header = std::map<
 					std::string, std::string>()) {
 		postOccured = true;
 		std::stringstream ss;
 		ss << "HELLO\n";
-		fire::util::PostResponse r(ss);
+		fire::util::HttpResponse r(ss);
 		r.successful = true;
 
 		return r;
