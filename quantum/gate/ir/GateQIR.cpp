@@ -266,7 +266,7 @@ std::string GateQIR::toAssemblyString(const std::string& kernelName, const std::
 
 void GateQIR::persist(std::ostream& outStream) {
 
-	JsonVisitor visitor(kernels[0]);
+	JsonVisitor visitor(kernels);
 	outStream << visitor.write();
 
 //	StringBuffer sb;

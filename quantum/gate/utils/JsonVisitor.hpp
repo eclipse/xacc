@@ -57,37 +57,83 @@ protected:
 	std::shared_ptr<Function> function;
 	std::shared_ptr<InstructionIterator> topLevelInstructionIterator;
 
+	std::vector<std::shared_ptr<Function>> functions;
+
 public:
 
-	JsonVisitor(std::shared_ptr<xacc::Function> f) : buffer(std::make_shared<StringBuffer>()),
-			writer(std::make_shared<PrettyWriter<StringBuffer>>(*buffer.get())), function(f) {
+	JsonVisitor(std::shared_ptr<xacc::Function> f) :
+			buffer(std::make_shared<StringBuffer>()), writer(
+					std::make_shared<PrettyWriter<StringBuffer>>(
+							*buffer.get())), function(f) {
+	}
+
+	JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs) :
+			buffer(std::make_shared<StringBuffer>()), writer(
+					std::make_shared<PrettyWriter<StringBuffer>>(
+							*buffer.get())), functions(fs) {
 	}
 
 	std::string write() {
-		// This is a Function, start it as an Object
 		writer->StartObject();
-		writer->String("function");
-		writer->String(function->getName());
 
-		// All functions have instructions, start
-		// that array here.
-		writer->String("instructions");
+		writer->String("kernels");
 		writer->StartArray();
+		for (auto f : functions) {
+			// This is a Function, start it as an Object
+			writer->StartObject();
 
-		topLevelInstructionIterator = std::make_shared<xacc::InstructionIterator>(function);
-		while (topLevelInstructionIterator->hasNext()) {
-			// Get the next node in the tree
-			auto nextInst = topLevelInstructionIterator->next();
-			nextInst->accept(this);
+			writer->String("function");
+			writer->String(f->getName());
+
+			// All functions have instructions, start
+			// that array here.
+			writer->String("instructions");
+			writer->StartArray();
+
+			topLevelInstructionIterator = std::make_shared<
+					xacc::InstructionIterator>(f);
+			while (topLevelInstructionIterator->hasNext()) {
+				// Get the next node in the tree
+				auto nextInst = topLevelInstructionIterator->next();
+				nextInst->accept(this);
+			}
+
+			// End Instructions
+			writer->EndArray();
+
+			// End Function
+			writer->EndObject();
 		}
-
-		// End Instructions
 		writer->EndArray();
-
-		// End Function
 		writer->EndObject();
 		return buffer->GetString();
 	}
+
+//	std::string write() {
+//		// This is a Function, start it as an Object
+//		writer->StartObject();
+//		writer->String("function");
+//		writer->String(function->getName());
+//
+//		// All functions have instructions, start
+//		// that array here.
+//		writer->String("instructions");
+//		writer->StartArray();
+//
+//		topLevelInstructionIterator = std::make_shared<xacc::InstructionIterator>(function);
+//		while (topLevelInstructionIterator->hasNext()) {
+//			// Get the next node in the tree
+//			auto nextInst = topLevelInstructionIterator->next();
+//			nextInst->accept(this);
+//		}
+//
+//		// End Instructions
+//		writer->EndArray();
+//
+//		// End Function
+//		writer->EndObject();
+//		return buffer->GetString();
+//	}
 
 
 	void visit(Hadamard& h) {
@@ -115,9 +161,12 @@ public:
 		baseGateInst(dynamic_cast<GateInstruction&>(rx), false);
 		writer->String("angle");
 		auto p = rx.getParameter(0);
-		p.which() == 1 ? // Rz's parameter can only be of type double or string
-				writer->Double(boost::get<double>(p)) :
-				writer->String(boost::get<std::string>(p));
+		switch(p.which()) {
+					case 0: writer->Int(boost::get<int>(p));break;
+					case 1: writer->Double(boost::get<double>(p));break;
+					case 2: writer->Double((double)boost::get<float>(p));break;
+					case 3: writer->String(boost::get<std::string>(p));break;
+				}
 		writer->EndObject();
 	}
 

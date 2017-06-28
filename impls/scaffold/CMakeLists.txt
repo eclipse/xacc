@@ -54,6 +54,8 @@ if (CLANG_FOUND AND LLVM_FOUND)
    include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})

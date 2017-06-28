@@ -101,6 +101,8 @@ public:
 	 */
 	virtual std::shared_ptr<Function> getKernel(const std::string& name) = 0;
 
+	virtual std::vector<std::shared_ptr<Function>> getKernels() = 0;
+
 	/**
 	 * The destructor
 	 */

@@ -124,6 +124,4 @@ BOOST_AUTO_TEST_CASE(checkFunctionWithFunction) {
 
 	std::cout << "HELLO: \n" << json << "\n";
 
-
-
 }

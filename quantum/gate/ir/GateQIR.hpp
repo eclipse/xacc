@@ -156,6 +156,10 @@ public:
 	 */
 	virtual void read(std::istream& stream);
 
+	virtual std::vector<std::shared_ptr<Function>> getKernels() {
+		return kernels;
+	}
+
 	/**
 	 * The destructor
 	 */

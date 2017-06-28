@@ -34,6 +34,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "ScaffoldCompiler.hpp"
 #include "GateQIR.hpp"
+#include "JsonVisitor.hpp"
 
 using namespace xacc::quantum;
 
@@ -188,6 +189,60 @@ BOOST_AUTO_TEST_CASE(checkTeleportWithFunctions) {
 	auto qir2 = compiler->compile(src2);
 
 	qir2->persist(std::cout);
+}
+
+
+BOOST_AUTO_TEST_CASE(checkVQEExample) {
+	const std::string src(""
+		"module initializeState(qbit qreg[2], float theta) {\n"
+		"   Rx(qreg[0], 1.57079);\n"
+		"   Ry(qreg[1], 1.57079);\n"
+		"   Rx(qreg[0], -1.57079);\n"
+		"   CNOT(qreg[0], qreg[1]);\n"
+		"   Rz(qreg[0], theta);\n"
+		"   CNOT(qreg[0], qreg[1]);\n"
+		"   Ry(qreg[1], -1.57079);\n"
+		"   Rx(qreg[0], 1.57079);\n"
+		"}\n"
+		""
+		"module g1Term (qbit qreg[2], float theta) {\n"
+		"   initializeState(qreg, theta);\n"
+		"   cbit creg[2];\n"
+		"   creg[0] = MeasZ(qreg[0]);\n"
+		"   creg[1] = MeasZ(qreg[1]);\n"
+		"}\n"
+		""
+		"module g4Term(qbit qreg[2], float theta) {\n"
+		"   initializeState(qreg, theta);\n"
+		"   cbit creg[2];\n"
+		"   Rx(qreg[0], -1.57079);\n"
+		"   Rx(qreg[1], -1.57079);\n"
+		"   creg[0] = MeasZ(qreg[0]);\n"
+		"   creg[1] = MeasZ(qreg[1]);\n"
+		"}\n"
+		""
+		"module g5Term(qbit qreg[2], float theta) {\n"
+		"   initializeState(qreg, theta);\n"
+		"   cbit creg[2];\n"
+		"   H(qreg[0]);\n"
+		"   H(qreg[1]);\n"
+		"   creg[0] = MeasZ(qreg[0]);\n"
+		"   creg[1] = MeasZ(qreg[1]);\n"
+		"}\n"
+		"");
+
+	ScaffoldCompiler compiler;
+	auto ir = compiler.compile(src);
+
+//	for (auto k : ir->getKernels()) {
+//		JsonVisitor v(k);
+//		std::cout << v.write() << "\n";
+//	}
+	JsonVisitor visitor(ir->getKernels());
+
+	std::cout << "HI:\n" << visitor.write() << "\n";
+
+
 }
 
 /*

@@ -48,7 +48,9 @@ public:
 		virtual std::shared_ptr<Function> getKernel(const std::string& name) {
 		}
 
+		virtual std::vector<std::shared_ptr<Function>> getKernels() {
 
+		}
 };
 
 }
