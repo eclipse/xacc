@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: 2016-11-12-astrophysics-species-ascii-format</title>
+        <title>XACC: xacc::BaseInstructionVisitor Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -46,10 +46,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
-      <li><a href="annotated.html"><span>Classes</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -69,6 +67,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
+    </ul>
+  </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -83,27 +89,72 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00016.html">BaseInstructionVisitor</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="a00274.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">2016-11-12-astrophysics-species-ascii-format </div>  </div>
+<div class="title">xacc::BaseInstructionVisitor Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><hr/>
-<p> layout: post title: Astrophysics Species <a class="el" href="a00038.html" title="ASCII encoding. ">ASCII</a> File Format permalink: /science/astrophysics/species-ascii-format </p><h2>category: science </h2>
-<p>Simulations of thermonuclear networks in astrophysics require lists of species that react with each other. Fire supports a legacy <a class="el" href="a00038.html" title="ASCII encoding. ">ASCII</a> format with a 4-line specification for a species. See <a class="el" href="a00740_source.html">Species.h</a> for ful details on each required value.</p>
-<p>The first line specifies the</p>
-<ul>
-<li>species name - a string</li>
-<li>mass number - an integer</li>
-<li>atomic number - an integer</li>
-<li>neutron number - an integer</li>
-<li>mass fraction - a double</li>
-<li>mass excess - a double</li>
+
+<p><code>#include &lt;<a class="el" href="a00133_source.html">InstructionVisitor.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for xacc::BaseInstructionVisitor:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00016.png" usemap="#xacc::BaseInstructionVisitor_map" alt=""/>
+  <map id="xacc::BaseInstructionVisitor_map" name="xacc::BaseInstructionVisitor_map">
+<area href="a00022.html" alt="CountGateVisitor&lt; GateType &gt;" shape="rect" coords="0,56,276,80"/>
+<area href="a00069.html" alt="TestVisitor" shape="rect" coords="286,56,562,80"/>
+<area href="a00014.html" alt="xacc::quantum::AllGateVisitor" shape="rect" coords="572,56,848,80"/>
+<area href="a00031.html" alt="xacc::quantum::FunctionalGateInstructionVisitor" shape="rect" coords="286,112,562,136"/>
+<area href="a00044.html" alt="xacc::quantum::JsonVisitor" shape="rect" coords="572,112,848,136"/>
+<area href="a00051.html" alt="xacc::quantum::QuilVisitor" shape="rect" coords="858,112,1134,136"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:aa6f5104f5868fe1eca9be4dc4036eba4"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00016.html#aa6f5104f5868fe1eca9be4dc4036eba4">~BaseInstructionVisitor</a> ()</td></tr>
+<tr class="separator:aa6f5104f5868fe1eca9be4dc4036eba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The <a class="el" href="a00016.html">BaseInstructionVisitor</a> is a base class for all classes that are <a class="el" href="a00037.html">Instruction</a> visitors. It basically provides a means for passing instruction visitor handles in a polymorphic manner. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="aa6f5104f5868fe1eca9be4dc4036eba4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual xacc::BaseInstructionVisitor::~BaseInstructionVisitor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The destructor </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00133_source.html">InstructionVisitor.hpp</a></li>
 </ul>
-<p>The second through fourth lines specify parameters for the partition function. Each line contains eight double precision numbers separated by spaces.</p>
-<p>Here is a sample for 4He and 12C.</p>
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;4He 4 2 2 0.0 2.425</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;12C 12 6 6 0.0416666 0.0</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</div></div><!-- fragment --> </div></div><!-- contents -->
+</div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

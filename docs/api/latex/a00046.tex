@@ -1,79 +1,51 @@
-\hypertarget{a00046}{}\section{Basic\+I\+Stream\+Wrapper$<$ Stream\+Type $>$ Class Template Reference}
-\label{a00046}\index{Basic\+I\+Stream\+Wrapper$<$ Stream\+Type $>$@{Basic\+I\+Stream\+Wrapper$<$ Stream\+Type $>$}}
+\hypertarget{a00046}{}\section{xacc\+:\+:Options\+Provider Class Reference}
+\label{a00046}\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
 
 
-Wrapper of {\ttfamily std\+::basic\+\_\+istream} into Rapid\+J\+S\+ON\textquotesingle{}s Stream concept.  
+{\ttfamily \#include $<$Options\+Provider.\+hpp$>$}
 
-
-
-
-{\ttfamily \#include $<$istreamwrapper.\+h$>$}
-
-\subsection*{Public Types}
-\begin{DoxyCompactItemize}
-\item 
-typedef Stream\+Type\+::char\+\_\+type {\bfseries Ch}\hypertarget{a00046_a88e4288ecdaa0d31ddf4e5917b9aa8d7}{}\label{a00046_a88e4288ecdaa0d31ddf4e5917b9aa8d7}
-
-\end{DoxyCompactItemize}
+Inheritance diagram for xacc\+:\+:Options\+Provider\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.607656cm]{a00046}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Basic\+I\+Stream\+Wrapper} (Stream\+Type \&stream)\hypertarget{a00046_a3e9a2dd2b6b28243f8f2a911f67cdf56}{}\label{a00046_a3e9a2dd2b6b28243f8f2a911f67cdf56}
-
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00046_a6d150954f852109bfe2c1ae90222926f}{get\+Options} ()=0
 \item 
-Ch {\bfseries Peek} () const \hypertarget{a00046_ae0c3f22e0955034c3dc90c2398ff4742}{}\label{a00046_ae0c3f22e0955034c3dc90c2398ff4742}
-
-\item 
-Ch {\bfseries Take} ()\hypertarget{a00046_afb71f0329d0abbbc9b22ebeb5c1464d1}{}\label{a00046_afb71f0329d0abbbc9b22ebeb5c1464d1}
-
-\item 
-size\+\_\+t {\bfseries Tell} () const \hypertarget{a00046_a7da87efb1177bfaa131f33c0cb2873fc}{}\label{a00046_a7da87efb1177bfaa131f33c0cb2873fc}
-
-\item 
-Ch $\ast$ {\bfseries Put\+Begin} ()\hypertarget{a00046_a62a3fc10b009ea231fb9d2dc958c539c}{}\label{a00046_a62a3fc10b009ea231fb9d2dc958c539c}
-
-\item 
-void {\bfseries Put} (Ch)\hypertarget{a00046_afa71cb2f5b7668837d0a81e3bce55e69}{}\label{a00046_afa71cb2f5b7668837d0a81e3bce55e69}
-
-\item 
-void {\bfseries Flush} ()\hypertarget{a00046_a37d5e4cd8fdf3c83dad50737e95886a9}{}\label{a00046_a37d5e4cd8fdf3c83dad50737e95886a9}
-
-\item 
-size\+\_\+t {\bfseries Put\+End} (Ch $\ast$)\hypertarget{a00046_ab2ead53490207a1cb0bdd674a03957f3}{}\label{a00046_ab2ead53490207a1cb0bdd674a03957f3}
-
-\item 
-const Ch $\ast$ {\bfseries Peek4} () const \hypertarget{a00046_aaae0c7e7f2d06eb1638cce33ed664f31}{}\label{a00046_aaae0c7e7f2d06eb1638cce33ed664f31}
-
+virtual \hyperlink{a00046_a7782757b419792ff346f563517eed8b8}{$\sim$\+Options\+Provider} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$typename Stream\+Type$>$\\*
-class Basic\+I\+Stream\+Wrapper$<$ Stream\+Type $>$}
+The \hyperlink{a00046}{Options\+Provider} interface enables derived subclasses to provide a description of any and all command line options that they can take to drive and control their execution and behavior. 
 
-Wrapper of {\ttfamily std\+::basic\+\_\+istream} into Rapid\+J\+S\+ON\textquotesingle{}s Stream concept. 
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!````~Options\+Provider@{$\sim$\+Options\+Provider}}
+\index{````~Options\+Provider@{$\sim$\+Options\+Provider}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+\subsubsection[{\texorpdfstring{$\sim$\+Options\+Provider()}{~OptionsProvider()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Options\+Provider\+::$\sim$\+Options\+Provider (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00046_a7782757b419792ff346f563517eed8b8}{}\label{a00046_a7782757b419792ff346f563517eed8b8}
+The destructor 
 
-The classes can be wrapped including but not limited to\+:
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+\subsubsection[{\texorpdfstring{get\+Options()=0}{getOptions()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Options\+Provider\+::get\+Options (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00046_a6d150954f852109bfe2c1ae90222926f}{}\label{a00046_a6d150954f852109bfe2c1ae90222926f}
+Return a Boost options\+\_\+description instance that describes the options available for this derived subclass. 
 
+Implemented in \hyperlink{a00011_a98c9eda6b54367c75667ecfbbf167979}{xacc\+::\+Accelerator}, \hyperlink{a00057_a9ee9e62aecbccf193894ca3388676f9f}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, and \hyperlink{a00020_a9f5a8965c9c2dd895016d18264ebbe92}{xacc\+::\+Compiler}.
 
-\begin{DoxyItemize}
-\item {\ttfamily std\+::istringstream} 
-\item {\ttfamily std\+::stringstream} 
-\item {\ttfamily std\+::wistringstream} 
-\item {\ttfamily std\+::wstringstream} 
-\item {\ttfamily std\+::ifstream} 
-\item {\ttfamily std\+::fstream} 
-\item {\ttfamily std\+::wifstream} 
-\item {\ttfamily std\+::wfstream} 
-\end{DoxyItemize}
-
-
-\begin{DoxyTemplParams}{Template Parameters}
-{\em Stream\+Type} & Class derived from {\ttfamily std\+::basic\+\_\+istream}. \\
-\hline
-\end{DoxyTemplParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-istreamwrapper.\+h\end{DoxyCompactItemize}
+Options\+Provider.\+hpp\end{DoxyCompactItemize}

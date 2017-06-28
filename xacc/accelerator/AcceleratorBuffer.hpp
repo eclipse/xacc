@@ -36,17 +36,45 @@
 #include <iostream>
 #include "Utils.hpp"
 
+namespace xacc {
+
+// Our Accelerator Bits can be a 1, 0, or unknown
 enum class AcceleratorBitState {ZERO, ONE, UNKNOWN};
+
+/**
+ * The AcceleratorBit wraps an AcceleratorBitSate
+ * and provides a mechanism for updating that state.
+ *
+ * @author Alex McCaskey
+ */
 class AcceleratorBit {
+
 public:
+
+	/**
+	 * The constructor, all bits are initialized to unknown state
+	 */
 	AcceleratorBit() :state(AcceleratorBitState::UNKNOWN){}
+
+	/**
+	 * Update the Bit state to a one or zero
+	 */
 	void update(int zeroOrOne) {
 		state = (zeroOrOne == 0 ? AcceleratorBitState::ZERO : AcceleratorBitState::ONE);
 	}
+
+	/**
+	 * Return the value of this state
+	 */
 	AcceleratorBitState getState() {
 		return state;
 	}
+
 protected:
+
+	/**
+	 * The bit state
+	 */
 	AcceleratorBitState state;
 };
 
@@ -57,9 +85,7 @@ protected:
 class AcceleratorBuffer {
 
 public:
-	AcceleratorBuffer(const std::string& str) :
-			bufferId(str), bits(std::vector<AcceleratorBit> { }) {
-	}
+
 	AcceleratorBuffer(const std::string& str, const int N) :
 			bufferId(str), bits(std::vector<AcceleratorBit>(N)) {
 	}
@@ -79,15 +105,16 @@ public:
 
 	void resetBuffer() {
 	}
+
 	void updateBit(const int idx, int zeroOrOne) {
 		bits[idx].update(zeroOrOne);
 	}
 
-  	void appendMeasurement(const boost::dynamic_bitset<>& measurement){
+  void appendMeasurement(const boost::dynamic_bitset<>& measurement){
 		measurements.push_back(measurement);
-        }
+  }
 
-  	double getAverage() const {
+  double getAverage() const {
 		//std::assert(measurements.size()>0);
 		std::stringstream ss;
 		double aver = 0.;
@@ -118,8 +145,7 @@ public:
 		}
 		XACCInfo(ss.str());
 		return aver;
-  	}
-  
+ }
   
 	AcceleratorBitState getAcceleratorBitState(const int idx) {
 		return bits[idx].getState();
@@ -133,10 +159,14 @@ public:
 	virtual ~AcceleratorBuffer() {}
 
 protected:
-        std::vector<boost::dynamic_bitset<>> measurements;
+  
+  std::vector<boost::dynamic_bitset<>> measurements;
+  
 	std::string bufferId;
+
 	std::vector<AcceleratorBit> bits;
 };
 
+}
 
-#endif /* XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_ */
+#endif

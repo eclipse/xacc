@@ -100,7 +100,7 @@ protected:
 	 * Reference to our AST Consumer, this gives us the
 	 * compiled IR Function and the Qubit Variable Name
 	 */
-	std::shared_ptr<scaffold::ScaffoldASTConsumer> consumer;
+	std::shared_ptr<ScaffoldASTConsumer> consumer;
 
 };
 

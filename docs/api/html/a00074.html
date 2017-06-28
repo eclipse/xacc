@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: boost::dll::experimental::detail::deleter&lt; T &gt; Struct Template Reference</title>
+        <title>XACC: xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter Class Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,39 +91,44 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>boost</b></li><li class="navelem"><b>dll</b></li><li class="navelem"><b>experimental</b></li><li class="navelem"><b>detail</b></li><li class="navelem"><a class="el" href="a00074.html">deleter</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00035.html">Graph</a></li><li class="navelem"><a class="el" href="a00074.html">XACCVertexPropertiesWriter</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="a00963.html">List of all members</a>  </div>
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="a00280.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">boost::dll::experimental::detail::deleter&lt; T &gt; Struct Template Reference</div>  </div>
+<div class="title">xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="a00126_source.html">Graph.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:adccf6c423819a9ef6b7fe4dc568c2c7c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adccf6c423819a9ef6b7fe4dc568c2c7c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>deleter</b> (const <a class="el" href="a00076.html">destructor</a>&lt; T &gt; &amp;dtor, bool use_deleting=false)</td></tr>
-<tr class="separator:adccf6c423819a9ef6b7fe4dc568c2c7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af99da33db6b4418227c035f53098c85f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af99da33db6b4418227c035f53098c85f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (T *t)</td></tr>
-<tr class="separator:af99da33db6b4418227c035f53098c85f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f8d68a2293a5b545d5a3eb0220e25ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f8d68a2293a5b545d5a3eb0220e25ef"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>XACCVertexPropertiesWriter</b> (adj_list &amp;list)</td></tr>
+<tr class="separator:a5f8d68a2293a5b545d5a3eb0220e25ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abafd279805601c438fe608f620b149a3"><td class="memTemplParams" colspan="2"><a class="anchor" id="abafd279805601c438fe608f620b149a3"></a>
+template&lt;class BoostVertex &gt; </td></tr>
+<tr class="memitem:abafd279805601c438fe608f620b149a3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator()</b> (std::ostream &amp;out, const BoostVertex &amp;v) const </td></tr>
+<tr class="separator:abafd279805601c438fe608f620b149a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a586c2758249157c72ce2b71bb79e4efd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a586c2758249157c72ce2b71bb79e4efd"></a>
-<a class="el" href="a00076.html">destructor</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>dtor</b></td></tr>
-<tr class="separator:a586c2758249157c72ce2b71bb79e4efd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cb9ec367d2685a7a21947618468a5d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1cb9ec367d2685a7a21947618468a5d9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>use_deleting</b></td></tr>
-<tr class="separator:a1cb9ec367d2685a7a21947618468a5d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:ac74a285698deb2e93f028474c5c92085"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac74a285698deb2e93f028474c5c92085"></a>
+adj_list&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b></td></tr>
+<tr class="separator:ac74a285698deb2e93f028474c5c92085"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00571_source.html">import_class.hpp</a></li>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;typename Vertex, GraphType type = Undirected&gt;<br />
+class xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter</h3>
+
+<p>This is a custom utility class for writing XACCVertices with user-defined properties. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00126_source.html">Graph.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

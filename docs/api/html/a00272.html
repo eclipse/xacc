@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: boost::dll::detail::shared_library_impl Class Reference</title>
+        <title>XACC: Member List</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,99 +91,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>boost</b></li><li class="navelem"><b>dll</b></li><li class="navelem"><b>detail</b></li><li class="navelem"><a class="el" href="a00272.html">shared_library_impl</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00011.html">Accelerator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="a00958.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">boost::dll::detail::shared_library_impl Class Reference</div>  </div>
+<div class="title">xacc::Accelerator Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:a0fb8d4c1967616c6f9c82ce3d70e11c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0fb8d4c1967616c6f9c82ce3d70e11c6"></a>
-typedef void *&#160;</td><td class="memItemRight" valign="bottom"><b>native_handle_t</b></td></tr>
-<tr class="separator:a0fb8d4c1967616c6f9c82ce3d70e11c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a11230bd7993f39e4fd73ed78a89463"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a11230bd7993f39e4fd73ed78a89463"></a>
-typedef boost::detail::winapi::HMODULE_&#160;</td><td class="memItemRight" valign="bottom"><b>native_handle_t</b></td></tr>
-<tr class="separator:a2a11230bd7993f39e4fd73ed78a89463"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:a45d5bb26fa73a9639618bab3e343f114"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45d5bb26fa73a9639618bab3e343f114"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>shared_library_impl</b> (BOOST_RV_REF(<a class="el" href="a00272.html">shared_library_impl</a>) sl) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a45d5bb26fa73a9639618bab3e343f114"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4516d0b76678a60333cb5ccbf7cc52c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4516d0b76678a60333cb5ccbf7cc52c2"></a>
-<a class="el" href="a00272.html">shared_library_impl</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (BOOST_RV_REF(<a class="el" href="a00272.html">shared_library_impl</a>) sl) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a4516d0b76678a60333cb5ccbf7cc52c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c3bbcf10638f5fdeb13b1f194431ac5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c3bbcf10638f5fdeb13b1f194431ac5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (boost::filesystem::path sl, <a class="el" href="a00729.html#a1918a602801479bc0bade54ff5665129">load_mode::type</a> mode, boost::system::error_code &amp;ec)</td></tr>
-<tr class="separator:a2c3bbcf10638f5fdeb13b1f194431ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3729718e9c72b30a85087a89b642becb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3729718e9c72b30a85087a89b642becb"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_loaded</b> () const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a3729718e9c72b30a85087a89b642becb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78b3736f4aab0a61fd07a45eb5a54c52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78b3736f4aab0a61fd07a45eb5a54c52"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>unload</b> () BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a78b3736f4aab0a61fd07a45eb5a54c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d87e32878fd68cd3c59531c5b6dcaf1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d87e32878fd68cd3c59531c5b6dcaf1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>swap</b> (<a class="el" href="a00272.html">shared_library_impl</a> &amp;rhs) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a7d87e32878fd68cd3c59531c5b6dcaf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67a07a86c8455bf7c5cde77d69e5f994"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67a07a86c8455bf7c5cde77d69e5f994"></a>
-boost::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><b>full_module_path</b> (boost::system::error_code &amp;ec) const </td></tr>
-<tr class="separator:a67a07a86c8455bf7c5cde77d69e5f994"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79bc56fc8e9c4fb98993893b491986a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79bc56fc8e9c4fb98993893b491986a8"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_addr</b> (const char *sb, boost::system::error_code &amp;ec) const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a79bc56fc8e9c4fb98993893b491986a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0517caf0566e0bbc2573a9e9f427fa92"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0517caf0566e0bbc2573a9e9f427fa92"></a>
-native_handle_t&#160;</td><td class="memItemRight" valign="bottom"><b>native</b> () const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a0517caf0566e0bbc2573a9e9f427fa92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45d5bb26fa73a9639618bab3e343f114"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45d5bb26fa73a9639618bab3e343f114"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>shared_library_impl</b> (BOOST_RV_REF(<a class="el" href="a00272.html">shared_library_impl</a>) sl) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a45d5bb26fa73a9639618bab3e343f114"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4516d0b76678a60333cb5ccbf7cc52c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4516d0b76678a60333cb5ccbf7cc52c2"></a>
-<a class="el" href="a00272.html">shared_library_impl</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (BOOST_RV_REF(<a class="el" href="a00272.html">shared_library_impl</a>) sl) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a4516d0b76678a60333cb5ccbf7cc52c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c3bbcf10638f5fdeb13b1f194431ac5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c3bbcf10638f5fdeb13b1f194431ac5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (boost::filesystem::path sl, <a class="el" href="a00729.html#a1918a602801479bc0bade54ff5665129">load_mode::type</a> mode, boost::system::error_code &amp;ec)</td></tr>
-<tr class="separator:a2c3bbcf10638f5fdeb13b1f194431ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3729718e9c72b30a85087a89b642becb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3729718e9c72b30a85087a89b642becb"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_loaded</b> () const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a3729718e9c72b30a85087a89b642becb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78b3736f4aab0a61fd07a45eb5a54c52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78b3736f4aab0a61fd07a45eb5a54c52"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>unload</b> () BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a78b3736f4aab0a61fd07a45eb5a54c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d87e32878fd68cd3c59531c5b6dcaf1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d87e32878fd68cd3c59531c5b6dcaf1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>swap</b> (<a class="el" href="a00272.html">shared_library_impl</a> &amp;rhs) BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a7d87e32878fd68cd3c59531c5b6dcaf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67a07a86c8455bf7c5cde77d69e5f994"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67a07a86c8455bf7c5cde77d69e5f994"></a>
-boost::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><b>full_module_path</b> (boost::system::error_code &amp;ec) const </td></tr>
-<tr class="separator:a67a07a86c8455bf7c5cde77d69e5f994"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79bc56fc8e9c4fb98993893b491986a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79bc56fc8e9c4fb98993893b491986a8"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_addr</b> (const char *sb, boost::system::error_code &amp;ec) const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a79bc56fc8e9c4fb98993893b491986a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0517caf0566e0bbc2573a9e9f427fa92"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0517caf0566e0bbc2573a9e9f427fa92"></a>
-native_handle_t&#160;</td><td class="memItemRight" valign="bottom"><b>native</b> () const BOOST_NOEXCEPT</td></tr>
-<tr class="separator:a0517caf0566e0bbc2573a9e9f427fa92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a07728a8e1ad349b2fa59a12560583e25"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07728a8e1ad349b2fa59a12560583e25"></a>
-static boost::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><b>suffix</b> ()</td></tr>
-<tr class="separator:a07728a8e1ad349b2fa59a12560583e25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07728a8e1ad349b2fa59a12560583e25"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07728a8e1ad349b2fa59a12560583e25"></a>
-static boost::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><b>suffix</b> ()</td></tr>
-<tr class="separator:a07728a8e1ad349b2fa59a12560583e25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00727_source.html">posix/shared_library_impl.hpp</a></li>
-</ul>
-</div><!-- contents -->
+
+<p>This is the complete list of members for <a class="el" href="a00011.html">xacc::Accelerator</a>, including all inherited members.</p>
+<table class="directory">
+  <tr class="even"><td class="entry"><a class="el" href="a00011.html#aab5046e8d83ab390302e0f49533e95fc">createBuffer</a>(const std::string &amp;varId)=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00011.html#a064a2dbd58338364115c260267806945">createBuffer</a>(const std::string &amp;varId, const int size)=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00011.html#a89b3f3e6294f228abf03a410b0fb1674">execute</a>(std::shared_ptr&lt; AcceleratorBuffer &gt; buffer, const std::shared_ptr&lt; Function &gt; function)=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00011.html#ab3820be326e28a553fed1a824f4d41d0">getBuffer</a>(const std::string &amp;varid)</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00011.html#ad6e4a642dcb24e552675bcbeff1e1b04">getIRTransformations</a>()=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00011.html#a98c9eda6b54367c75667ecfbbf167979">getOptions</a>()</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00011.html#aaffc3e4bb9880eb5041b1b58ee4c2665">getType</a>()=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00011.html#ae51584850faeec77299058383977ddeb">isValidBufferSize</a>(const int NBits)=0</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00011.html#ac3e781f42ec25e460174d4c41ea26b94">storeBuffer</a>(const std::string &amp;id, std::shared_ptr&lt; AcceleratorBuffer &gt; b)</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00011.html#aed88ab0d71b765f0b0f512684ccd4b55">~Accelerator</a>()</td><td class="entry"><a class="el" href="a00011.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00046.html#a7782757b419792ff346f563517eed8b8">~OptionsProvider</a>()</td><td class="entry"><a class="el" href="a00046.html">xacc::OptionsProvider</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+</table></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

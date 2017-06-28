@@ -1,83 +1,113 @@
-\hypertarget{a00056}{}\section{Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$ Class Template Reference}
-\label{a00056}\index{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$@{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$}}
-Inheritance diagram for Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$\+:\begin{figure}[H]
+\hypertarget{a00056}{}\section{xacc\+:\+:Registry$<$ T, T\+Args $>$ Class Template Reference}
+\label{a00056}\index{xacc\+::\+Registry$<$ T, T\+Args $>$@{xacc\+::\+Registry$<$ T, T\+Args $>$}}
+
+
+{\ttfamily \#include $<$Registry.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Registry$<$ T, T\+Args $>$\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[height=2.000000cm]{a00056}
 \end{center}
 \end{figure}
-\subsection*{Classes}
-\begin{DoxyCompactItemize}
-\item 
-class \hyperlink{a00061}{Config}
-\item 
-class \hyperlink{a00250}{Response}
-\end{DoxyCompactItemize}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path=\char`\"{}/\char`\"{}, boost\+::string\+\_\+ref content=\char`\"{}\char`\"{}, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())\hypertarget{a00056_ac8a838ace77f0a1a19b8cb03bdba7e74}{}\label{a00056_ac8a838ace77f0a1a19b8cb03bdba7e74}
-
+bool \hyperlink{a00056_a9aa172c2603171db067b40bd62ba53c6}{add} (const std\+::string \&id, std\+::function$<$ std\+::shared\+\_\+ptr$<$ T $>$(T\+Args...)$>$ f)
 \item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path, std\+::iostream \&content, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())\hypertarget{a00056_aca6cb17dbea9adf0cf1daf9d1ea70f76}{}\label{a00056_aca6cb17dbea9adf0cf1daf9d1ea70f76}
-
+std\+::shared\+\_\+ptr$<$ T $>$ \hyperlink{a00056_aecccbd5534276cbdd1553e43c942219b}{create} (const std\+::string \&id, T\+Args...\+args)
 \item 
-void {\bfseries close} ()\hypertarget{a00056_ad21735a9bda2fae6aedd811efae981e1}{}\label{a00056_ad21735a9bda2fae6aedd811efae981e1}
-
-\end{DoxyCompactItemize}
-\subsection*{Public Attributes}
-\begin{DoxyCompactItemize}
+std\+::vector$<$ std\+::string $>$ \hyperlink{a00056_a8bff6f5c50534375abc4026662d69d2e}{get\+Registered\+Ids} ()
 \item 
-\hyperlink{a00061}{Config} \hyperlink{a00056_af17ddd25319c4f9029969441dfd54eff}{config}\hypertarget{a00056_af17ddd25319c4f9029969441dfd54eff}{}\label{a00056_af17ddd25319c4f9029969441dfd54eff}
-
-\begin{DoxyCompactList}\small\item\em Set before calling request. \end{DoxyCompactList}\end{DoxyCompactItemize}
-\subsection*{Protected Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-{\bfseries Client\+Base} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)\hypertarget{a00056_a4a74d44c9df44d0d469ad453bdac43bf}{}\label{a00056_a4a74d44c9df44d0d469ad453bdac43bf}
-
-\item 
-std\+::pair$<$ std\+::string, unsigned short $>$ {\bfseries parse\+\_\+host\+\_\+port} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)\hypertarget{a00056_ac511a8e5de870f533f8c28270c82dbfa}{}\label{a00056_ac511a8e5de870f533f8c28270c82dbfa}
-
-\item 
-virtual void {\bfseries connect} ()=0\hypertarget{a00056_a4c1f364a57eaef8fd10c29a82e475010}{}\label{a00056_a4c1f364a57eaef8fd10c29a82e475010}
-
-\item 
-std\+::shared\+\_\+ptr$<$ boost\+::asio\+::deadline\+\_\+timer $>$ {\bfseries get\+\_\+timeout\+\_\+timer} (std\+::size\+\_\+t timeout=0)\hypertarget{a00056_ab76f469e8f909bf046a80d5afad70469}{}\label{a00056_ab76f469e8f909bf046a80d5afad70469}
-
-\item 
-void {\bfseries parse\+\_\+response\+\_\+header} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ \&response) const \hypertarget{a00056_acc47dec013e8a0e77950fa3412c8f07e}{}\label{a00056_acc47dec013e8a0e77950fa3412c8f07e}
-
-\item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ {\bfseries request\+\_\+read} ()\hypertarget{a00056_afa5ddce26ed4c7570a764e2ff003fa25}{}\label{a00056_afa5ddce26ed4c7570a764e2ff003fa25}
-
-\item 
-void {\bfseries request\+\_\+read\+\_\+chunked} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a00250}{Response} $>$ \&response, boost\+::asio\+::streambuf \&streambuf)\hypertarget{a00056_ae7fa171a9555114e702cafb3f85bc7d5}{}\label{a00056_ae7fa171a9555114e702cafb3f85bc7d5}
-
+std\+::size\+\_\+t \hyperlink{a00056_a2352dd7c6c85ae5c5e232b577dfa2544}{size} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-boost\+::asio\+::io\+\_\+service {\bfseries io\+\_\+service}\hypertarget{a00056_abe07c05fed46efc9e6aa76736961ae20}{}\label{a00056_abe07c05fed46efc9e6aa76736961ae20}
-
-\item 
-boost\+::asio\+::ip\+::tcp\+::resolver {\bfseries resolver}\hypertarget{a00056_a2001dc43f4c3ef1f07a86eea8fbf8082}{}\label{a00056_a2001dc43f4c3ef1f07a86eea8fbf8082}
-
-\item 
-std\+::unique\+\_\+ptr$<$ socket\+\_\+type $>$ {\bfseries socket}\hypertarget{a00056_a48b0e61c61cfc3d5307a0101cc30a28e}{}\label{a00056_a48b0e61c61cfc3d5307a0101cc30a28e}
-
-\item 
-std\+::mutex {\bfseries socket\+\_\+mutex}\hypertarget{a00056_a2c0d5c3d38f4a6a21b67918199b498da}{}\label{a00056_a2c0d5c3d38f4a6a21b67918199b498da}
-
-\item 
-std\+::string {\bfseries host}\hypertarget{a00056_a4436f29ffdce0b29b210cbecd972ffef}{}\label{a00056_a4436f29ffdce0b29b210cbecd972ffef}
-
-\item 
-unsigned short {\bfseries port}\hypertarget{a00056_aadd3336b64a1f8d559af656554ddd0e9}{}\label{a00056_aadd3336b64a1f8d559af656554ddd0e9}
-
+std\+::map$<$ std\+::string, std\+::function$<$ std\+::shared\+\_\+ptr$<$ T $>$T\+Args...)$>$ $>$ \hyperlink{a00056_a46460ecacc7facb6936b3c1ec6d618d7}{registry}
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T, typename... T\+Args$>$\\*
+class xacc\+::\+Registry$<$ T, T\+Args $>$}
+
+\hyperlink{a00056}{Registry} is a \hyperlink{a00068}{Singleton} that provides a mapping of string ids to creation functions that create and return the provided \hyperlink{a00056}{Registry} template parameter T.
+
+Clients can add new creation functions to be placed in the map with a unique name key, and can request that the \hyperlink{a00056}{Registry} return a new created instance of the template parameter T. 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!add@{add}}
+\index{add@{add}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{add(const std\+::string \&id, std\+::function$<$ std\+::shared\+\_\+ptr$<$ T $>$(\+T\+Args...)$>$ f)}{add(const std::string \&id, std::function< std::shared\_ptr< T >(TArgs...)> f)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ bool {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::add (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{std\+::function$<$ std\+::shared\+\_\+ptr$<$ T $>$(T\+Args...)$>$}]{f}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00056_a9aa172c2603171db067b40bd62ba53c6}{}\label{a00056_a9aa172c2603171db067b40bd62ba53c6}
+Add a new creation function to the \hyperlink{a00056}{Registry}, keyed on the provided string id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The Id of the creation function \\
+\hline
+{\em f} & The object\textquotesingle{}s creation function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success Bool indicating if this creator was added successfully. 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!create@{create}}
+\index{create@{create}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{create(const std\+::string \&id, T\+Args...\+args)}{create(const std::string \&id, TArgs...args)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::shared\+\_\+ptr$<$T$>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::create (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{T\+Args...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00056_aecccbd5534276cbdd1553e43c942219b}{}\label{a00056_aecccbd5534276cbdd1553e43c942219b}
+Create an instance of T by using the creation function found at the given key string id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The Id of the creation function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+object Shared Pointer for the created object. 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!get\+Registered\+Ids@{get\+Registered\+Ids}}
+\index{get\+Registered\+Ids@{get\+Registered\+Ids}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{get\+Registered\+Ids()}{getRegisteredIds()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::vector$<$std\+::string$>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::get\+Registered\+Ids (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00056_a8bff6f5c50534375abc4026662d69d2e}{}\label{a00056_a8bff6f5c50534375abc4026662d69d2e}
+Return the keys from the registry map.
+
+\begin{DoxyReturn}{Returns}
+ids The registered creator Ids 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!size@{size}}
+\index{size@{size}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{size()}{size()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::size\+\_\+t {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00056_a2352dd7c6c85ae5c5e232b577dfa2544}{}\label{a00056_a2352dd7c6c85ae5c5e232b577dfa2544}
+Return the number of creation functions this registry contains.
+
+\begin{DoxyReturn}{Returns}
+size The number of creators in this \hyperlink{a00056}{Registry} 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!registry@{registry}}
+\index{registry@{registry}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{registry}{registry}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::map$<$std\+::string, std\+::function$<$std\+::shared\+\_\+ptr$<$T$>$T\+Args...)$>$ $>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::registry\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00056_a46460ecacc7facb6936b3c1ec6d618d7}{}\label{a00056_a46460ecacc7facb6936b3c1ec6d618d7}
+Reference to the database of creation functions for classes of superclass type T. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-client\+\_\+http.\+hpp\end{DoxyCompactItemize}
+Registry.\+hpp\end{DoxyCompactItemize}

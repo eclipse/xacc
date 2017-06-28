@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -58,22 +57,21 @@ BOOST_FIXTURE_TEST_SUITE( s, F )
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
-		"   cbit creg[2];\n"
-		"   // Init qubit 0 to 1\n"
-		"   X(qreg[0]);\n"
-		"   // Now teleport...\n"
-		"   H(qreg[1]);\n"
-		"   CNOT(qreg[1],qreg[2]);\n"
-		"   CNOT(qreg[0],qreg[1]);\n"
-		"   H(qreg[0]);\n"
-		"}\n");
+			"   cbit creg[2];\n"
+			"   // Init qubit 0 to 1\n"
+			"   X(qreg[0]);\n"
+			"   // Now teleport...\n"
+			"   H(qreg[1]);\n"
+			"   CNOT(qreg[1],qreg[2]);\n"
+			"   CNOT(qreg[0],qreg[1]);\n"
+			"   H(qreg[0]);\n"
+			"}\n");
 
 	auto qir = compiler->compile(src);
 
 	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
 
 	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
-
 
 	auto k = gateqir->getKernel("teleport");
 	BOOST_VERIFY(k->nInstructions() == 5);
@@ -83,14 +81,13 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 BOOST_AUTO_TEST_CASE(checkWithRzParameterized) {
 	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
-		"   Rz(qreg[0], 3.1415);\n"
-		"}\n");
+			"   Rz(qreg[0], 3.1415);\n"
+			"}\n");
 
 	auto qir = compiler->compile(src);
 	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
 
 	BOOST_VERIFY(gateqir->numberOfKernels() == 1);
-
 
 	auto k = gateqir->getKernel("teleport");
 	BOOST_VERIFY(k->nInstructions() == 1);
@@ -99,19 +96,19 @@ BOOST_AUTO_TEST_CASE(checkWithRzParameterized) {
 BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 
 	const std::string src("module teleport (qbit qreg[3]) {\n"
-		"   cbit creg[2];\n"
-		"   // Init qubit 0 to 1\n"
-		"   X(qreg[0]);\n"
-		"   // Now teleport...\n"
-		"   H(qreg[1]);\n"
-		"   CNOT(qreg[1],qreg[2]);\n"
-		"   CNOT(qreg[0],qreg[1]);\n"
-		"   H(qreg[0]);\n"
-		"   creg[0] = MeasZ(qreg[0]);\n"
-		"   creg[1] = MeasZ(qreg[1]);\n"
-		"   if (creg[0] == 1) Z(qreg[2]);\n"
-		"   if (creg[1] == 1) X(qreg[2]);\n"
-		"}\n");
+			"   cbit creg[2];\n"
+			"   // Init qubit 0 to 1\n"
+			"   X(qreg[0]);\n"
+			"   // Now teleport...\n"
+			"   H(qreg[1]);\n"
+			"   CNOT(qreg[1],qreg[2]);\n"
+			"   CNOT(qreg[0],qreg[1]);\n"
+			"   H(qreg[0]);\n"
+			"   creg[0] = MeasZ(qreg[0]);\n"
+			"   creg[1] = MeasZ(qreg[1]);\n"
+			"   if (creg[0] == 1) Z(qreg[2]);\n"
+			"   if (creg[1] == 1) X(qreg[2]);\n"
+			"}\n");
 
 	auto qir = compiler->compile(src);
 	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
@@ -124,12 +121,12 @@ BOOST_AUTO_TEST_CASE(checkWithMeasurementIf) {
 
 BOOST_AUTO_TEST_CASE(checkWithParameter) {
 	const std::string src("module gateWithParam (qbit qreg[3], double phi) {\n"
-		"   // Init qubit 0 to 1\n"
-		"   X(qreg[0]);\n"
-		"   // Now teleport...\n"
-		"   H(qreg[1]);\n"
-		"   Rz(qreg[2], phi);\n"
-		"}\n");
+			"   // Init qubit 0 to 1\n"
+			"   X(qreg[0]);\n"
+			"   // Now teleport...\n"
+			"   H(qreg[1]);\n"
+			"   Rz(qreg[2], phi);\n"
+			"}\n");
 
 	auto qir = compiler->compile(src);
 	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
@@ -141,7 +138,7 @@ BOOST_AUTO_TEST_CASE(checkWithParameter) {
 	gateqir->persist(std::cout);
 
 	xacc::InstructionParameter p(3.14);
-	std::vector<xacc::InstructionParameter> params{p};
+	std::vector<xacc::InstructionParameter> params { p };
 	f->evaluateVariableParameters(params);
 
 	std::cout << "\n\n";
@@ -149,16 +146,15 @@ BOOST_AUTO_TEST_CASE(checkWithParameter) {
 }
 
 BOOST_AUTO_TEST_CASE(checkTwoFunctions) {
-	const std::string src(
-		"module init(qbit qreg[3], double phi) {\n"
-		"   Rz(qreg[0], phi);\n"
-		"}\n"
-		"\n"
-		"module gateWithParam (qbit qreg[3], double phi) {\n"
-		"   init(qreg, phi);\n"
-		"   H(qreg[1]);\n"
-		"   X(qreg[0]);\n"
-		"}\n");
+	const std::string src("module init(qbit qreg[3], double phi) {\n"
+			"   Rz(qreg[0], phi);\n"
+			"}\n"
+			"\n"
+			"module gateWithParam (qbit qreg[3], double phi) {\n"
+			"   init(qreg, phi);\n"
+			"   H(qreg[1]);\n"
+			"   X(qreg[0]);\n"
+			"}\n");
 
 	auto qir = compiler->compile(src);
 
@@ -167,8 +163,7 @@ BOOST_AUTO_TEST_CASE(checkTwoFunctions) {
 }
 BOOST_AUTO_TEST_CASE(checkTeleportWithFunctions) {
 
-	const std::string src2(
-			"module init(qbit qreg[3]) {\n"
+	const std::string src2("module init(qbit qreg[3]) {\n"
 			"   X(qreg[0]);\n"
 			"}\n"
 			"module createBellPair(qbit qreg[3]) {\n"
@@ -190,62 +185,63 @@ BOOST_AUTO_TEST_CASE(checkTeleportWithFunctions) {
 			"   if (creg[1] == 1) X(qreg[2]);\n"
 			"}\n");
 
-		auto qir2 = compiler->compile(src2);
+	auto qir2 = compiler->compile(src2);
 
-		qir2->persist(std::cout);
+	qir2->persist(std::cout);
 }
+
 /*
-BOOST_AUTO_TEST_CASE(checkMultipleFunction) {
-	const std::string src(
-		"module PhasePi8 (qbit bit[1]) {\n"
-		"   Rz(bit[0], -1*3.1415/8);\n"
-		"}\n"
-		"module cT(qbit ctrl[1], qbit target[1]) {\n"
-		"  PhasePi8(ctrl[0]);\n"
-//		"  Rz(target[0], 3.1415/8.0);\n"
-//		"  CNOT(target[0], ctrl[0]);\n"
-//		"  Rz(target[0], -1*3.1415/8);"
-//		"  CNOT(target[0], ctrl[0]);\n"
-		"}\n"
-		"module cS( qbit ctrl[1], qbit target[1]) {\n"
-//		"  T(ctrl[0]);\n"
-//		"  Rz(target[0], 3.1415/4);\n"
-//		"  CNOT(target[0], ctrl[0]);\n"
-//		"  Rz(target[0], -1*3.1415/4);\n"
-//		"  CNOT(target[0], ctrl[0]);\n"
-		"}\n"
-		"module cRz(qbit ctrl[1], qbit target[1], const double angle) {\n"
-//		"  Rz(target[0], -1*angle/2);\n"
-//		"  CNOT(target[0], ctrl[0]);\n"
-//		"  Rz(target[0], angle/2);\n"
-//		"  CNOT(target[0], ctrl[0]);\n"
-		"}\n"
-		"module qft5(qbit bit[5]) {\n"
-//		"  H(bit[0]);\n"
-//		"  cS(bit[0], bit[1]);\n"
-//		"  H(bit[1]);\n"
-//		"  cT(bit[0], bit[2]);\n"
-//		"  cS(bit[1], bit[2]);\n"
-//		"  H(bit[2]);\n"
-//		"  cRz(bit[0], bit[3], 3.1415/8);\n"
-//		"  cT(bit[1], bit[3]);\n"
-//		"  cS(bit[2], bit[3]);\n"
-//		"  H(bit[3]);\n"
-//		"  cRz(bit[0], bit[4], 3.1415/16);\n"
-//		"  cRz(bit[0], bit[4], 3.1415/8);\n"
-//		"  cT(bit[2], bit[4]);\n"
-//		"  cS(bit[3], bit[4]);\n"
-//		"  H(bit[4]);\n"
-		"}");
+ BOOST_AUTO_TEST_CASE(checkMultipleFunction) {
+ const std::string src(
+ "module PhasePi8 (qbit bit[1]) {\n"
+ "   Rz(bit[0], -1*3.1415/8);\n"
+ "}\n"
+ "module cT(qbit ctrl[1], qbit target[1]) {\n"
+ "  PhasePi8(ctrl[0]);\n"
+ //		"  Rz(target[0], 3.1415/8.0);\n"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ //		"  Rz(target[0], -1*3.1415/8);"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ "}\n"
+ "module cS( qbit ctrl[1], qbit target[1]) {\n"
+ //		"  T(ctrl[0]);\n"
+ //		"  Rz(target[0], 3.1415/4);\n"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ //		"  Rz(target[0], -1*3.1415/4);\n"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ "}\n"
+ "module cRz(qbit ctrl[1], qbit target[1], const double angle) {\n"
+ //		"  Rz(target[0], -1*angle/2);\n"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ //		"  Rz(target[0], angle/2);\n"
+ //		"  CNOT(target[0], ctrl[0]);\n"
+ "}\n"
+ "module qft5(qbit bit[5]) {\n"
+ //		"  H(bit[0]);\n"
+ //		"  cS(bit[0], bit[1]);\n"
+ //		"  H(bit[1]);\n"
+ //		"  cT(bit[0], bit[2]);\n"
+ //		"  cS(bit[1], bit[2]);\n"
+ //		"  H(bit[2]);\n"
+ //		"  cRz(bit[0], bit[3], 3.1415/8);\n"
+ //		"  cT(bit[1], bit[3]);\n"
+ //		"  cS(bit[2], bit[3]);\n"
+ //		"  H(bit[3]);\n"
+ //		"  cRz(bit[0], bit[4], 3.1415/16);\n"
+ //		"  cRz(bit[0], bit[4], 3.1415/8);\n"
+ //		"  cT(bit[2], bit[4]);\n"
+ //		"  cS(bit[3], bit[4]);\n"
+ //		"  H(bit[4]);\n"
+ "}");
 
-	auto qir = compiler->compile(src);
-	auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
+ auto qir = compiler->compile(src);
+ auto gateqir = std::dynamic_pointer_cast<GateQIR>(qir);
 
-	std::stringstream ss;
+ std::stringstream ss;
 
-	qir->persist(ss);
-	std::cout << "HELLO:\n" << ss.str() << "\n";
+ qir->persist(ss);
+ std::cout << "HELLO:\n" << ss.str() << "\n";
 
-}*/
+ }*/
 
 BOOST_AUTO_TEST_SUITE_END()

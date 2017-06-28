@@ -1,85 +1,51 @@
-\hypertarget{a00045}{}\section{Base\+Reader\+Handler$<$ Encoding, Derived $>$ Struct Template Reference}
-\label{a00045}\index{Base\+Reader\+Handler$<$ Encoding, Derived $>$@{Base\+Reader\+Handler$<$ Encoding, Derived $>$}}
-
-
-Default implementation of Handler.  
-
-
-
-
-{\ttfamily \#include $<$reader.\+h$>$}
-
-\subsection*{Public Types}
-\begin{DoxyCompactItemize}
-\item 
-typedef Encoding\+::\+Ch {\bfseries Ch}\hypertarget{a00045_a8302c755dd3560c8c5bac99162c28214}{}\label{a00045_a8302c755dd3560c8c5bac99162c28214}
-
-\item 
-typedef internal\+::\+Select\+If$<$ internal\+::\+Is\+Same$<$ Derived, void $>$, \hyperlink{a00045}{Base\+Reader\+Handler}, Derived $>$\+::\hyperlink{a00677_a1d1cfd8ffb84e947f82999c682b666a7}{Type} {\bfseries Override}\hypertarget{a00045_a7b6c70d9bf7483b2de5d249f1593776a}{}\label{a00045_a7b6c70d9bf7483b2de5d249f1593776a}
-
-\end{DoxyCompactItemize}
+\hypertarget{a00045}{}\section{xacc\+:\+:quantum\+:\+:Measure Class Reference}
+\label{a00045}\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Measure\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{a00045}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-bool {\bfseries Default} ()\hypertarget{a00045_a836437f6ccc37f08ff933f009b18a78c}{}\label{a00045_a836437f6ccc37f08ff933f009b18a78c}
+{\bfseries Measure} (std\+::vector$<$ int $>$ qbit)\hypertarget{a00045_afe330a0eea029d842ff9c88a817dcc7d}{}\label{a00045_afe330a0eea029d842ff9c88a817dcc7d}
 
 \item 
-bool {\bfseries Null} ()\hypertarget{a00045_ae2ebbde4628bf3659ddc5d18520935f5}{}\label{a00045_ae2ebbde4628bf3659ddc5d18520935f5}
+{\bfseries Measure} (int qbit, int classical\+Idx)\hypertarget{a00045_a9b8d9edca8ad2c3fb132780200f17335}{}\label{a00045_a9b8d9edca8ad2c3fb132780200f17335}
 
 \item 
-bool {\bfseries Bool} (bool)\hypertarget{a00045_aa1c3ce42dbb856b3349792dc9d963587}{}\label{a00045_aa1c3ce42dbb856b3349792dc9d963587}
-
+virtual const std\+::string \hyperlink{a00045_a1c51a5d68294dcb2ba1a9fbea63a730f}{to\+String} (const std\+::string \&buffer\+Var\+Name)
 \item 
-bool {\bfseries Int} (int)\hypertarget{a00045_a85e813aaf7189a2f87bd53953324fafc}{}\label{a00045_a85e813aaf7189a2f87bd53953324fafc}
-
-\item 
-bool {\bfseries Uint} (unsigned)\hypertarget{a00045_a0e683306cbb7b4e350a35c18c5246f2a}{}\label{a00045_a0e683306cbb7b4e350a35c18c5246f2a}
-
-\item 
-bool {\bfseries Int64} (int64\+\_\+t)\hypertarget{a00045_a04011733ea584739c97ad5c6afa15a35}{}\label{a00045_a04011733ea584739c97ad5c6afa15a35}
-
-\item 
-bool {\bfseries Uint64} (uint64\+\_\+t)\hypertarget{a00045_a351aa3cd81856a487c21022e9cc64d2b}{}\label{a00045_a351aa3cd81856a487c21022e9cc64d2b}
-
-\item 
-bool {\bfseries Double} (double)\hypertarget{a00045_a8156ea6ae5b8cd23a8b700e92a8af1eb}{}\label{a00045_a8156ea6ae5b8cd23a8b700e92a8af1eb}
-
-\item 
-bool \hyperlink{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}{Raw\+Number} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len, bool copy)\hypertarget{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}{}\label{a00045_a9ed0d83d5e6c8f5e4b32ca3735ff0bb7}
-
-\begin{DoxyCompactList}\small\item\em enabled via k\+Parse\+Numbers\+As\+Strings\+Flag, string is not null-\/terminated (use length) \end{DoxyCompactList}\item 
-bool {\bfseries String} (const Ch $\ast$, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type}, bool)\hypertarget{a00045_a3ac69e6326d0aeef7b1f2619742bbe00}{}\label{a00045_a3ac69e6326d0aeef7b1f2619742bbe00}
-
-\item 
-bool {\bfseries Start\+Object} ()\hypertarget{a00045_ab0a7d9bcececb8d6ed748656f67f4917}{}\label{a00045_ab0a7d9bcececb8d6ed748656f67f4917}
-
-\item 
-bool {\bfseries Key} (const Ch $\ast$str, \hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type} len, bool copy)\hypertarget{a00045_abc50b2e7e411b7b731715e05cd01e2eb}{}\label{a00045_abc50b2e7e411b7b731715e05cd01e2eb}
-
-\item 
-bool {\bfseries End\+Object} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type})\hypertarget{a00045_a0406cee0af26bc3a0b7fb2414537b0ab}{}\label{a00045_a0406cee0af26bc3a0b7fb2414537b0ab}
-
-\item 
-bool {\bfseries Start\+Array} ()\hypertarget{a00045_a9dbb1143a250a904bb18a174553a3a00}{}\label{a00045_a9dbb1143a250a904bb18a174553a3a00}
-
-\item 
-bool {\bfseries End\+Array} (\hyperlink{a00677_a5ed6e6e67250fadbd041127e6386dcb5}{Size\+Type})\hypertarget{a00045_ae9d60a8779b6a77a7f283d64961879fb}{}\label{a00045_ae9d60a8779b6a77a7f283d64961879fb}
+int {\bfseries get\+Classical\+Bit\+Index} ()\hypertarget{a00045_a0cb3c94731544042807236ade36fddd0}{}\label{a00045_a0cb3c94731544042807236ade36fddd0}
 
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
-\subsection{Detailed Description}
-\subsubsection*{template$<$typename Encoding = U\+T\+F8$<$$>$, typename Derived = void$>$\\*
-struct Base\+Reader\+Handler$<$ Encoding, Derived $>$}
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
+\subsubsection[{\texorpdfstring{to\+String(const std\+::string \&buffer\+Var\+Name)}{toString(const std::string \&bufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}const std\+::string xacc\+::quantum\+::\+Measure\+::to\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{buffer\+Var\+Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00045_a1c51a5d68294dcb2ba1a9fbea63a730f}{}\label{a00045_a1c51a5d68294dcb2ba1a9fbea63a730f}
+Return this instruction\textquotesingle{}s assembly-\/like string representation. 
+\begin{DoxyParams}{Parameters}
+{\em buffer\+Var\+Name} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
 
-Default implementation of Handler. 
-
-This can be used as base class of any reader handler. \begin{DoxyNote}{Note}
-implements Handler concept 
-\end{DoxyNote}
+\end{DoxyReturn}
 
 
-The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+Reimplemented from \hyperlink{a00033_a089a5da67ff40ac1a6f56e64589822d9}{xacc\+::quantum\+::\+Gate\+Instruction}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-fwd.\+h\item 
-\hyperlink{a00683}{reader.\+h}\end{DoxyCompactItemize}
+Measure.\+hpp\item 
+Measure.\+cpp\end{DoxyCompactItemize}

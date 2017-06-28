@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: StreamTraits&lt; GenericStringStream&lt; Encoding &gt; &gt; Struct Template Reference</title>
+        <title>XACC: Member List</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -91,26 +89,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00056.html">Registry</a></li>  </ul>
+</div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
-<a href="a00904.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">StreamTraits&lt; GenericStringStream&lt; Encoding &gt; &gt; Struct Template Reference</div>  </div>
+<div class="title">xacc::Registry&lt; T, TArgs &gt; Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:ac76bff6668c9e5f2a5929c5ca81c73e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac76bff6668c9e5f2a5929c5ca81c73e9"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>copyOptimization</b> = 1
- }</td></tr>
-<tr class="separator:ac76bff6668c9e5f2a5929c5ca81c73e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00746_source.html">stream.h</a></li>
-</ul>
-</div><!-- contents -->
+
+<p>This is the complete list of members for <a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a>, including all inherited members.</p>
+<table class="directory">
+  <tr class="even"><td class="entry"><a class="el" href="a00056.html#a9aa172c2603171db067b40bd62ba53c6">add</a>(const std::string &amp;id, std::function&lt; std::shared_ptr&lt; T &gt;(TArgs...)&gt; f)</td><td class="entry"><a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00056.html#aecccbd5534276cbdd1553e43c942219b">create</a>(const std::string &amp;id, TArgs...args)</td><td class="entry"><a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00068.html#abbc654f5f90a2abc85f0010496335942">destroy</a>()</td><td class="entry"><a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00056.html#a8bff6f5c50534375abc4026662d69d2e">getRegisteredIds</a>()</td><td class="entry"><a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00068.html#ae4c30f303439e702389c9d088abb3f23">instance</a>()</td><td class="entry"><a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00068.html#a863885efab9990f06f699567648dfa26">instance_</a></td><td class="entry"><a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">static</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00056.html#a46460ecacc7facb6936b3c1ec6d618d7">registry</a></td><td class="entry"><a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00068.html#afd62caabc41babdd98ab9af2253ec371">Singleton</a>()</td><td class="entry"><a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00056.html#a2352dd7c6c85ae5c5e232b577dfa2544">size</a>()</td><td class="entry"><a class="el" href="a00056.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00068.html#a75a032ec71f88d6986461b47f3fb2600">~Singleton</a>()</td><td class="entry"><a class="el" href="a00068.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></td></tr>
+</table></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: GenericPointer&lt; ValueType, Allocator &gt;::Token Struct Reference</title>
+        <title>XACC: Member List</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,50 +91,64 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="a00121.html">GenericPointer</a></li><li class="navelem"><a class="el" href="a00305.html">Token</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00031.html">FunctionalGateInstructionVisitor</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="a00874.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">GenericPointer&lt; ValueType, Allocator &gt;::Token Struct Reference</div>  </div>
+<div class="title">xacc::quantum::FunctionalGateInstructionVisitor Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>A token is the basic units of internal representation.  
- <a href="a00305.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="a00659_source.html">pointer.h</a>&gt;</code></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a8aa9b13bd66addb0c0512cfcae72174c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8aa9b13bd66addb0c0512cfcae72174c"></a>
-const <a class="el" href="a00121.html#ab292356c11b4015c98d21b966b11f285">Ch</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00305.html#a8aa9b13bd66addb0c0512cfcae72174c">name</a></td></tr>
-<tr class="memdesc:a8aa9b13bd66addb0c0512cfcae72174c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the token. It has null character at the end but it can contain null character. <br /></td></tr>
-<tr class="separator:a8aa9b13bd66addb0c0512cfcae72174c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a67383574032a3289d34002bb2d95df6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67383574032a3289d34002bb2d95df6d"></a>
-<a class="el" href="a00677.html#a5ed6e6e67250fadbd041127e6386dcb5">SizeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00305.html#a67383574032a3289d34002bb2d95df6d">length</a></td></tr>
-<tr class="memdesc:a67383574032a3289d34002bb2d95df6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of the name. <br /></td></tr>
-<tr class="separator:a67383574032a3289d34002bb2d95df6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ce571cfe3f3da942a5912bb2cd24dcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ce571cfe3f3da942a5912bb2cd24dcf"></a>
-<a class="el" href="a00677.html#a5ed6e6e67250fadbd041127e6386dcb5">SizeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00305.html#a0ce571cfe3f3da942a5912bb2cd24dcf">index</a></td></tr>
-<tr class="memdesc:a0ce571cfe3f3da942a5912bb2cd24dcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">A valid array index, if it is not equal to kPointerInvalidIndex. <br /></td></tr>
-<tr class="separator:a0ce571cfe3f3da942a5912bb2cd24dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename ValueType, typename Allocator = CrtAllocator&gt;<br />
-struct GenericPointer&lt; ValueType, Allocator &gt;::Token</h3>
-
-<p>A token is the basic units of internal representation. </p>
-<p>A JSON pointer string representation "/foo/123" is parsed to two tokens: "foo" and 123. 123 will be represented in both numeric form and string form. They are resolved according to the actual value type (object or array).</p>
-<p>For token that are not numbers, or the numeric value is out of bound (greater than limits of SizeType), they are only treated as string form (i.e. the token's index will be equal to kPointerInvalidIndex).</p>
-<p>This struct is public so that user can create a Pointer without parsing and allocation, using a special constructor. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00659_source.html">pointer.h</a></li>
-</ul>
-</div><!-- contents -->
+<p>This is the complete list of members for <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>, including all inherited members.</p>
+<table class="directory">
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>cnotAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>condAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>FunctionalGateInstructionVisitor</b>(HF h, CNF cn, XF x, YF y, ZF z, RXF rx, RYF ry, RZF rz, MF m, CF c) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>hAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>measureAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>rxAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>ryAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>rzAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(Hadamard &amp;h) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>visit</b>(CNOT &amp;cn) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(X &amp;x) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>visit</b>(Y &amp;y) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(Z &amp;z) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>visit</b>(Measure &amp;m) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(ConditionalFunction &amp;c) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>visit</b>(Rx &amp;rx) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(Ry &amp;ry) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>visit</b>(Rz &amp;rz) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>visit</b>(GateFunction &amp;f) (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(GateFunction &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; GateFunction &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Hadamard &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Hadamard &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(CNOT &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; CNOT &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Rz &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Rz &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Rx &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Rx &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Ry &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Ry &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(ConditionalFunction &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; ConditionalFunction &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(X &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; X &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Y &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Y &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Z &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Z &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#af0fead298f5bfbb8e6680433063e2c4b">xacc::quantum::AllGateVisitor::visit</a>(Measure &amp;)=0</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Measure &gt;</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>xAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>yAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>zAction</b> (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00016.html#aa6f5104f5868fe1eca9be4dc4036eba4">~BaseInstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00016.html">xacc::BaseInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~FunctionalGateInstructionVisitor</b>() (defined in <a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a>)</td><td class="entry"><a class="el" href="a00031.html">xacc::quantum::FunctionalGateInstructionVisitor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; GateFunction &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; GateFunction &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Hadamard &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Hadamard &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; CNOT &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; CNOT &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Rz &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Rz &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Rx &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Rx &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Ry &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Ry &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; ConditionalFunction &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; ConditionalFunction &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; X &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; X &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Y &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Y &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Z &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Z &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00039.html#adf624df25964d0be1a56af58639c9e1d">InstructionVisitor&lt; Measure &gt;::~InstructionVisitor</a>()</td><td class="entry"><a class="el" href="a00039.html">xacc::InstructionVisitor&lt; Measure &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+</table></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->
 <!-- start footer part -->
 </div>

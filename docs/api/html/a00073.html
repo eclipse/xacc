@@ -8,7 +8,7 @@
         <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
         <meta name="generator" content="Doxygen 1.8.11"/>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <title>XACC: xacc::DefaultEdge Struct Reference</title>
+        <title>XACC: xacc::XACCVertex&lt; Properties &gt; Class Template Reference</title>
         <link href="tabs.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="dynsections.js"></script>
         <link href="search/search.css" rel="stylesheet" type="text/css"/>
@@ -47,8 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="modules.html"><span>Modules</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -93,30 +91,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00073.html">DefaultEdge</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00073.html">XACCVertex</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="a01062.html">List of all members</a>  </div>
+<a href="a00296.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::DefaultEdge Struct Reference</div>  </div>
+<div class="title">xacc::XACCVertex&lt; Properties &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00561_source.html">Graph.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00126_source.html">Graph.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a7a7c4d60a277c3c0998f3911d128eaa5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a7c4d60a277c3c0998f3911d128eaa5"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getPropertyName</b> (const int index)</td></tr>
+<tr class="separator:a7a7c4d60a277c3c0998f3911d128eaa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a71d942e4d65d04a2e611759121845e71"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a71d942e4d65d04a2e611759121845e71"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>weight</b> = 0.0</td></tr>
-<tr class="separator:a71d942e4d65d04a2e611759121845e71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad97a32f3cfcceef3eb0725a1a185025b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad97a32f3cfcceef3eb0725a1a185025b"></a>
+std::tuple&lt; Properties... &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>properties</b></td></tr>
+<tr class="separator:ad97a32f3cfcceef3eb0725a1a185025b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9107342e37aaa5d7936d7e457051f461"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9107342e37aaa5d7936d7e457051f461"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>propertyNames</b></td></tr>
+<tr class="separator:a9107342e37aaa5d7936d7e457051f461"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>For now, we only allow Edges with weight property. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li><a class="el" href="a00561_source.html">Graph.hpp</a></li>
+<div class="textblock"><h3>template&lt;typename... Properties&gt;<br />
+class xacc::XACCVertex&lt; Properties &gt;</h3>
+
+<p>The base class of all QCI Vertices for the QCI Common <a class="el" href="a00035.html">Graph</a> class. All Vertices must keep track of a set of properties, stored as a tuple. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00126_source.html">Graph.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.8-->

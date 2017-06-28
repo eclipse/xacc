@@ -102,17 +102,6 @@ public:
 
 	/**
 	 * Create, store, and return an AcceleratorBuffer with the given
-	 * variable id string. This string serves as a unique identifier
-	 * for future lookups and reuse of the AcceleratorBuffer.
-	 *
-	 * @param varId
-	 * @return
-	 */
-	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
-			const std::string& varId) = 0;
-
-	/**
-	 * Create, store, and return an AcceleratorBuffer with the given
 	 * variable id string and of the given number of bits.
 	 * The string id serves as a unique identifier
 	 * for future lookups and reuse of the AcceleratorBuffer.
