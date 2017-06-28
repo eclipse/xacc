@@ -40,8 +40,8 @@
 
 using namespace clang;
 
-namespace scaffold {
-
+namespace xacc {
+namespace quantum {
 class ScaffoldASTConsumer: public clang::ASTConsumer,
 		public clang::RecursiveASTVisitor<ScaffoldASTConsumer> {
 
@@ -308,7 +308,7 @@ public:
 	}
 
 };
-
+}
 }
 
 #endif

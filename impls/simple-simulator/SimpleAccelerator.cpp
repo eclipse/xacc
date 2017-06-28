@@ -35,18 +35,11 @@ namespace xacc {
 namespace quantum {
 
 std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
-		const std::string& varId) {
-	auto buffer = std::make_shared<SimulatedQubits<10>>(varId);
-	storeBuffer(varId, buffer);
-	return buffer;
-}
-
-std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
 		const std::string& varId, const int size) {
 	if (!isValidBufferSize(size)) {
 		XACCError("Invalid buffer size.");
 	}
-	auto buffer = std::make_shared<SimulatedQubits<10>>(varId, size);
+	auto buffer = std::make_shared<SimulatedQubits>(varId, size);
 	storeBuffer(varId, buffer);
 	return buffer;
 }
@@ -59,7 +52,7 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		const std::shared_ptr<xacc::Function> kernel) {
 
 	// Cast to what we know should be SimulatedQubits
-	auto qubits = std::static_pointer_cast<SimulatedQubits<10>>(buffer);
+	auto qubits = std::static_pointer_cast<SimulatedQubits>(buffer);
 
 	if (!qubits) {
 		XACCError("Invalid derived AcceleratorBuffer passed to "

@@ -51,7 +51,6 @@ using IndexPair = std::pair<int,int>;
  * It provides an interface for applying unitary operations on the
  * qubit buffer state.
  */
-template<const int TotalNumberOfQubits>
 class SimulatedQubits: public AcceleratorBuffer {
 protected:
 
@@ -63,29 +62,19 @@ protected:
 public:
 
 	/**
-	 * The Constructor, creates a state of size
-	 * 2^TotalNumberOfQubits.
-	 *
-	 * @param str
-	 */
-	SimulatedQubits(const std::string& str) :
-			AcceleratorBuffer(str, TotalNumberOfQubits), bufferState(
-					(int) std::pow(2, TotalNumberOfQubits)) {
-		// Initialize to |000...000> state
-		bufferState(0) = 1.0;
-	}
-
-	/**
 	 * The Constructor, creates a state with given size
 	 * N.
-	 * @param str
-	 * @param N
+	 * @param str Variable name of this buffer
+	 * @param N The number of qubits to model
 	 */
 	SimulatedQubits(const std::string& str, const int N) :
 			AcceleratorBuffer(str, N), bufferState((int) std::pow(2, N)) {
 		bufferState(0) = 1.0;
 	}
 
+	/**
+	 * The constructor
+	 */
 	template<typename ... Indices>
 	SimulatedQubits(const std::string& str, int firstIndex, Indices ... indices) :
 			AcceleratorBuffer(str, firstIndex, indices...), bufferState(
@@ -96,7 +85,7 @@ public:
 	 * Apply the given unitary matrix to this qubit
 	 * buffer state.
 	 *
-	 * @param U
+	 * @param U The unitary matrix to apply to this state
 	 */
 	void applyUnitary(fire::Tensor<2, fire::EigenProvider, std::complex<double>>& U) {
 		assert(
@@ -112,16 +101,18 @@ public:
 	 */
 	void normalize() {
 		double sum = 0.0;
-		for (int i = 0; i < bufferState.dimension(0); i++)
+		for (int i = 0; i < bufferState.dimension(0); i++) {
 			sum += std::real(bufferState(i) * bufferState(i));
-		for (int i = 0; i < bufferState.dimension(0); i++)
+		}
+		for (int i = 0; i < bufferState.dimension(0); i++) {
 			bufferState(i) = bufferState(i) / std::sqrt(sum);
+		}
 	}
 
 	/**
 	 * Return the current state
 	 *
-	 * @return
+	 * @return state This state vector
 	 */
 	QubitState& getState() {
 		return bufferState;
@@ -129,63 +120,68 @@ public:
 
 	/**
 	 * Set the state.
-	 * @param st
+	 * @param st The state to set on this buffer.
 	 */
 	void setState(QubitState& st) {
 		bufferState = st;
 	}
 
 	/**
-	 * Allocating this buffer type is only valid
-	 * if N <= TotalNumberOfQubits.
-	 * @param N
-	 * @return
+	 * Print the state to the provided output stream.
+	 *
+	 * @param stream The output stream to print to
 	 */
-	virtual bool isValidBufferSize(const int N) {
-		return N <= TotalNumberOfQubits;
+	virtual void print(std::ostream& stream) {
+
+		std::vector<std::string> bitStrings;
+		std::function<void(std::string, int)> getStrings;
+		getStrings = [&](std::string s, int digitsLeft) {
+			if( digitsLeft == 0 ) {
+				bitStrings.push_back( s );
+			} else {
+				getStrings( s + "0", digitsLeft - 1 );
+				getStrings( s + "1", digitsLeft - 1 );
+			}
+		};
+
+		getStrings("", size());
+
+		for (int i = 0; i < bufferState.dimension(0); i++) {
+
+			stream << bitStrings[i] << " -> " << bufferState(i) << "\n";
+		}
 	}
 
 	/**
-	 * Print the state to the provided output stream.
-	 *
-	 * @param stream
+	 * Print to XACC Info
 	 */
-	virtual void print(std::ostream& stream) {
-		if (size() < TotalNumberOfQubits) {
-			for (int i = 0; i < bufferState.dimension(0); i++) {
-				stream
-						<< std::bitset<TotalNumberOfQubits>(i).to_string().substr(
-								TotalNumberOfQubits - size(), TotalNumberOfQubits) << " -> "
-						<< bufferState(i) << "\n";
-			}
-		} else {
-			for (int i = 0; i < bufferState.dimension(0); i++) {
-
-				stream << std::bitset<TotalNumberOfQubits>(i).to_string()
-						<< " -> " << bufferState(i) << "\n";
-			}
-		}
-	}
-
 	virtual void print() {
-		if (size() < TotalNumberOfQubits) {
-			for (int i = 0; i < bufferState.dimension(0); i++) {
-				XACCInfo(
-						std::bitset<TotalNumberOfQubits>(i).to_string().substr(
-								TotalNumberOfQubits - size(),
-								TotalNumberOfQubits) + " -> "
-								+ std::to_string(std::real(std::fabs(bufferState(i)))));
-			}
-		} else {
-			for (int i = 0; i < bufferState.dimension(0); i++) {
 
-				XACCInfo(
-						std::bitset<TotalNumberOfQubits>(i).to_string() + " -> "
-								+ std::to_string(std::fabs(bufferState(i))));
+		std::vector<std::string> bitStrings;
+		std::function<void(std::string, int)> getStrings;
+		getStrings = [&](std::string s, int digitsLeft) {
+			if( digitsLeft == 0 ) {
+				bitStrings.push_back( s );
+			} else {
+				getStrings( s + "0", digitsLeft - 1 );
+				getStrings( s + "1", digitsLeft - 1 );
 			}
+		};
+
+		getStrings("", size());
+
+		for (int i = 0; i < bufferState.dimension(0); i++) {
+
+			XACCInfo(
+					bitStrings[i] + " -> ("
+							+ std::to_string(std::real(bufferState(i))) + ", "
+							+ std::to_string(std::imag(bufferState(i))) + ")");
 		}
 	}
 
+	/**
+	 * The destructor
+	 */
 	virtual ~SimulatedQubits() {}
 };
 }

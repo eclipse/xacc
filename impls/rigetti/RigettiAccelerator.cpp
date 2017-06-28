@@ -51,20 +51,6 @@ namespace xacc {
 namespace quantum {
 
 std::shared_ptr<AcceleratorBuffer> RigettiAccelerator::createBuffer(
-		const std::string& varId) {
-
-	std::shared_ptr<AcceleratorBuffer> buffer;
-	if ((*RuntimeOptions::instance())["rigetti-type"] == "wavefunction") {
-		buffer = std::make_shared<SimulatedQubits<10>>(varId);
-	} else {
-		buffer = std::make_shared<AcceleratorBuffer>(varId);
-	}
-
-	storeBuffer(varId, buffer);
-	return buffer;
-}
-
-std::shared_ptr<AcceleratorBuffer> RigettiAccelerator::createBuffer(
 		const std::string& varId, const int size) {
 	if (!isValidBufferSize(size)) {
 		XACCError("Invalid buffer size.");
@@ -72,7 +58,7 @@ std::shared_ptr<AcceleratorBuffer> RigettiAccelerator::createBuffer(
 
 	std::shared_ptr<AcceleratorBuffer> buffer;
 	if ((*RuntimeOptions::instance())["rigetti-type"] == "wavefunction") {
-		buffer = std::make_shared<SimulatedQubits<10>>(varId, size);
+		buffer = std::make_shared<SimulatedQubits>(varId, size);
 	} else {
 		buffer = std::make_shared<AcceleratorBuffer>(varId, size);
 	}
@@ -180,7 +166,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	if (type == "wavefunction") {
 
-		auto qubits = std::dynamic_pointer_cast<SimulatedQubits<10>>(buffer);
+		auto qubits = std::dynamic_pointer_cast<SimulatedQubits>(buffer);
 
 		std::istream& str = postResponse.content;
 

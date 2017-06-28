@@ -86,7 +86,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 	CI->getSourceManager().createMainFileID(pFile);
 	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
 			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
-	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
+	consumer = std::make_shared<ScaffoldASTConsumer>();
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 	std::remove(".tmpSrcFile.scaffold");
 
@@ -125,7 +125,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
 
 	// Compile the code!
-	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
+	consumer = std::make_shared<ScaffoldASTConsumer>();
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 
 	// Get the IR Function representation
@@ -154,7 +154,7 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 	CI->getASTContext().BuiltinInfo.InitializeBuiltins(
 			CI->getPreprocessor().getIdentifierTable(), CI->getLangOpts());
 
-	consumer = std::make_shared<scaffold::ScaffoldASTConsumer>();
+	consumer = std::make_shared<ScaffoldASTConsumer>();
 	clang::ParseAST(CI->getPreprocessor(), consumer.get(), CI->getASTContext());
 
 	return consumer->getIR();
