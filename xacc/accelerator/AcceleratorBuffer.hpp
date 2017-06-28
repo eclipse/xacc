@@ -31,6 +31,7 @@
 #ifndef XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 #define XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 
+#include <boost/dynamic_bitset.hpp>
 #include <string>
 #include <iostream>
 #include "Utils.hpp"
@@ -109,7 +110,43 @@ public:
 		bits[idx].update(zeroOrOne);
 	}
 
+  void appendMeasurement(const boost::dynamic_bitset<>& measurement){
+		measurements.push_back(measurement);
+  }
 
+  double getAverage() const {
+		//std::assert(measurements.size()>0);
+		std::stringstream ss;
+		double aver = 0.;
+		long n_measurements = measurements.size();
+		unsigned long tmp;
+		bool odd;
+		for(unsigned long bucket=0; bucket<(1UL<<measurements[0].size()); ++bucket){
+			long count = 0;      // use bucket to "collect"(i.e. count)
+			for(const auto outcome : measurements){
+				if (outcome.to_ulong()==bucket) {
+					count++;
+				}
+			}
+			double p = double(count)/n_measurements;
+			ss<<"p= "<<p<<std::endl;
+			tmp = bucket;
+			odd = false;
+			while(tmp){
+				odd = ! odd;
+				tmp = tmp & (tmp -1);
+			}
+			
+			if(!odd){
+				aver += p;
+			}else{
+				aver -= p;
+			} 
+		}
+		XACCInfo(ss.str());
+		return aver;
+ }
+  
 	AcceleratorBitState getAcceleratorBitState(const int idx) {
 		return bits[idx].getState();
 	}
@@ -122,6 +159,9 @@ public:
 	virtual ~AcceleratorBuffer() {}
 
 protected:
+  
+  std::vector<boost::dynamic_bitset<>> measurements;
+  
 	std::string bufferId;
 
 	std::vector<AcceleratorBit> bits;

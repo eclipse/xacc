@@ -322,6 +322,45 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		csvFile.close();
 
 	} else if (type == "multishot" || type == "ping" || type == "version") {
+		if (type == "multishot"){
+	       
+		  std::stringstream ss, oss;
+		  
+		  ss<<postResponse.content.rdbuf();
+		  std::string resp_str = ss.str();
+
+		  int i_qbit = -1;
+		  boost::dynamic_bitset<> outcome(buffer->size());
+		  for(int i=0; i<resp_str.size(); ++i){
+		    char c = resp_str[i];
+		    if (c=='['){ // begin of a measurement
+		      i_qbit = 0;
+		      outcome.reset();
+		      continue;
+		    }
+
+		    if (i_qbit>0 && c==']'){ // end of a measurement
+		      // i_qbit>0 assure some results collected outcome
+		      oss<<outcome<<std::endl; // debug      
+		      buffer->appendMeasurement(outcome);
+		      i_qbit = -1; 
+		      continue;
+		    }
+
+		    if(c=='1'||c=='0'){
+		      outcome[i_qbit] = (c=='1');
+		      i_qbit++;
+		    }
+		  }
+
+		  
+		  oss<<">>>>>>>>>>>>>"<<std::endl;
+		  for(std::string tmp; std::getline(ss,tmp,','); ){
+		    oss<<tmp<<std::endl;
+		  }
+		  XACCInfo(oss.str());
+		}
+
 		std::stringstream ss;
 		ss << postResponse.content.rdbuf();
 		XACCInfo("Rigetti QVM Response:\n\t" + ss.str());

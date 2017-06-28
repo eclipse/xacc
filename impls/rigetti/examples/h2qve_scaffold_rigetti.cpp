@@ -32,23 +32,34 @@
 
 // Quantum Kernel executing teleportation of
 // qubit state to another.
-// test
-const std::string src("__qpu__ teleport (qbit qreg) {\n"
+//const std::string src("__qpu__ teleport (qbit qreg) {\n"
+//	"   cbit creg[3];\n"
+//	"   // Init qubit 0 to 1\n"
+//	"   X(qreg[0]);\n"
+//	"   // Now teleport...\n"
+//	"   H(qreg[1]);\n"
+//	"   CNOT(qreg[1],qreg[2]);\n"
+//	"   CNOT(qreg[0],qreg[1]);\n"
+//	"   H(qreg[0]);\n"
+//	"   creg[0] = MeasZ(qreg[0]);\n"
+//	"   creg[1] = MeasZ(qreg[1]);\n"
+//	"   if (creg[0] == 1) Z(qreg[2]);\n"
+//	"   if (creg[1] == 1) X(qreg[2]);\n"
+//	"   // Check that 3rd qubit is a 1\n"
+//	"   creg[2] = MeasZ(qreg[2]);\n"
+//	"}\n");
+
+const std::string src("__qpu__ teleport (qbit qreg, double phi) {\n"
 	"   cbit creg[3];\n"
-	"   // Init qubit 0 to 1\n"
-	"   X(qreg[0]);\n"
-	"   // Now teleport...\n"
-	"   H(qreg[1]);\n"
-	"   CNOT(qreg[1],qreg[2]);\n"
-	"   CNOT(qreg[0],qreg[1]);\n"
-	"   H(qreg[0]);\n"
+	"   H(qreg[0]);  \n"
+	"   X(qreg[1]);  \n"
+	"   CNOT(qreg[0], qreg[1]); \n"
+	"   // Rz(qreg[1],phi);\n"  // general rotation
 	"   creg[0] = MeasZ(qreg[0]);\n"
 	"   creg[1] = MeasZ(qreg[1]);\n"
-	"   if (creg[0] == 1) Z(qreg[2]);\n"
-	"   if (creg[1] == 1) X(qreg[2]);\n"
-	"   // Check that 3rd qubit is a 1\n"
-	"   creg[2] = MeasZ(qreg[2]);\n"
 	"}\n");
+
+
 
 int main (int argc, char** argv) {
 
@@ -67,12 +78,19 @@ int main (int argc, char** argv) {
 
 	// Request the quantum kernel representing
 	// the above source code
-	auto teleport = program.getKernel("teleport");
+	auto teleport = program.getKernel<double>("teleport");
+	
+	float phi = 0.;
+	teleport(qubitReg, 0.);
 
 	// Execute!
-	teleport(qubitReg);
-
-	qubitReg->print(std::cout);
+//	for(float phi=0.; phi<=3.1415926; phi+=.8){
+//		teleport(qubitReg, phi);
+//		auto aver = qubitReg->getAverage();
+//		std::stringstream ss;
+//		ss<<"aver = "<<aver;
+//		XACCInfo(ss.str());
+//	}
 
 	// Finalize the XACC Framework
 	xacc::Finalize();
