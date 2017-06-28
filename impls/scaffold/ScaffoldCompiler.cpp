@@ -61,10 +61,13 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src,
 
 	// Replace the __qpu__ attribute with module
 	if (boost::contains(kernelSource, "__qpu__")) {
-		kernelSource.erase(kernelSource.find("__qpu__"), 7);
-		kernelSource = std::string("module") + kernelSource;
+
+		boost::replace_all(kernelSource, "__qpu__", "module");
+//		kernelSource.erase(kernelSource.find("__qpu__"), 7);
+//		kernelSource = std::string("module") + kernelSource;
 	}
 
+	std::cout << "HELLO WORLD: \n" << kernelSource << "\n";
 	// Make a copy, and then delete the body
 	// of the kernel in that copy, leaving
 	// just the functionDeclaration(qbit qvar) {}

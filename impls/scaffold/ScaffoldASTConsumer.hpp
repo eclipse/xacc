@@ -155,6 +155,7 @@ public:
 			}
 			function = std::make_shared<xacc::quantum::GateFunction>(
 					c->getDeclName().getAsString(), parameters);
+			std::cout << "Adding " << function->getName() << " to the IR.\n";
 			ir->addKernel(function);
 		}
 		return true;
