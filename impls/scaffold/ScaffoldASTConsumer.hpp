@@ -263,7 +263,6 @@ public:
 				llvm::raw_string_ostream lhss(lhsstr);
 				lhs->printPretty(lhss, nullptr, policy);
 				auto lhsString = lhss.str();
-				//			std::cout << "HELLO BINOP LHS: " << lhsString << "\n";
 
 				boost::replace_all(lhsString, cbitVarName, "");
 				boost::replace_all(lhsString, "[", "");
@@ -281,14 +280,12 @@ public:
 						xacc::quantum::GateInstructionRegistry::instance()->create(
 								"Measure",
 								std::vector<int> { std::stoi(rhsString) });
-//				, std::stoi(lhsString));
 				xacc::InstructionParameter classicalIdx(std::stoi(lhsString));
 				inst->setParameter(0, classicalIdx);
 
 				cbitRegToMeasuredQubit.insert(
 						std::make_pair(lhss.str(), std::stoi(rhsString)));
 
-				//			std::cout << "ADDING A MEASUREMENT GATE " << lhss.str() << "\n";
 				function->addInstruction(inst);
 
 			}

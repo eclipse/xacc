@@ -49,12 +49,12 @@
 //	"   creg[2] = MeasZ(qreg[2]);\n"
 //	"}\n");
 
-const std::string src("__qpu__ teleport (qbit qreg, double phi) {\n"
-	"   cbit creg[3];\n"
+const std::string src("__qpu__ teleport (qbit qreg, float phi) {\n"
+	"   cbit creg[2];\n"
 	"   H(qreg[0]);  \n"
 	"   X(qreg[1]);  \n"
-	"   CNOT(qreg[0], qreg[1]); \n"
-	"   // Rz(qreg[1],phi);\n"  // general rotation
+	"   CNOT(qreg[0], qreg[1]);\n"
+	"   Rz(qreg[1], phi);\n"  // general rotation
 	"   creg[0] = MeasZ(qreg[0]);\n"
 	"   creg[1] = MeasZ(qreg[1]);\n"
 	"}\n");
@@ -78,7 +78,7 @@ int main (int argc, char** argv) {
 
 	// Request the quantum kernel representing
 	// the above source code
-	auto teleport = program.getKernel<double>("teleport");
+	auto teleport = program.getKernel<float>("teleport");
 	
 	float phi = 0.;
 	teleport(qubitReg, 0.);

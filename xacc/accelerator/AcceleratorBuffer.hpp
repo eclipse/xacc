@@ -33,13 +33,16 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include "Utils.hpp"
 
 namespace xacc {
 
 // Our Accelerator Bits can be a 1, 0, or unknown
-enum class AcceleratorBitState {ZERO, ONE, UNKNOWN};
+enum class AcceleratorBitState {
+	ZERO, ONE, UNKNOWN
+};
 
 /**
  * The AcceleratorBit wraps an AcceleratorBitSate
@@ -54,13 +57,17 @@ public:
 	/**
 	 * The constructor, all bits are initialized to unknown state
 	 */
-	AcceleratorBit() :state(AcceleratorBitState::UNKNOWN){}
+	AcceleratorBit() :
+			state(AcceleratorBitState::UNKNOWN) {
+	}
 
 	/**
 	 * Update the Bit state to a one or zero
 	 */
 	void update(int zeroOrOne) {
-		state = (zeroOrOne == 0 ? AcceleratorBitState::ZERO : AcceleratorBitState::ONE);
+		state = (
+				zeroOrOne == 0 ?
+						AcceleratorBitState::ZERO : AcceleratorBitState::ONE);
 	}
 
 	/**
@@ -110,43 +117,44 @@ public:
 		bits[idx].update(zeroOrOne);
 	}
 
-  void appendMeasurement(const boost::dynamic_bitset<>& measurement){
+	void appendMeasurement(const boost::dynamic_bitset<>& measurement) {
 		measurements.push_back(measurement);
-  }
+	}
 
-  double getAverage() const {
+	double getAverage() const {
 		//std::assert(measurements.size()>0);
 		std::stringstream ss;
 		double aver = 0.;
 		long n_measurements = measurements.size();
 		unsigned long tmp;
 		bool odd;
-		for(unsigned long bucket=0; bucket<(1UL<<measurements[0].size()); ++bucket){
+		for (unsigned long bucket = 0; bucket < (1UL << measurements[0].size());
+				++bucket) {
 			long count = 0;      // use bucket to "collect"(i.e. count)
-			for(const auto outcome : measurements){
-				if (outcome.to_ulong()==bucket) {
+			for (const auto outcome : measurements) {
+				if (outcome.to_ulong() == bucket) {
 					count++;
 				}
 			}
-			double p = double(count)/n_measurements;
-			ss<<"p= "<<p<<std::endl;
+			double p = double(count) / n_measurements;
+			ss << "p= " << p << std::endl;
 			tmp = bucket;
 			odd = false;
-			while(tmp){
-				odd = ! odd;
-				tmp = tmp & (tmp -1);
+			while (tmp) {
+				odd = !odd;
+				tmp = tmp & (tmp - 1);
 			}
-			
-			if(!odd){
+
+			if (!odd) {
 				aver += p;
-			}else{
+			} else {
 				aver -= p;
-			} 
+			}
 		}
 		XACCInfo(ss.str());
 		return aver;
- }
-  
+	}
+
 	AcceleratorBitState getAcceleratorBitState(const int idx) {
 		return bits[idx].getState();
 	}
@@ -156,12 +164,13 @@ public:
 	virtual void print(std::ostream& stream) {
 	}
 
-	virtual ~AcceleratorBuffer() {}
+	virtual ~AcceleratorBuffer() {
+	}
 
 protected:
-  
-  std::vector<boost::dynamic_bitset<>> measurements;
-  
+
+	std::vector<boost::dynamic_bitset<>> measurements;
+
 	std::string bufferId;
 
 	std::vector<AcceleratorBit> bits;

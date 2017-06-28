@@ -126,20 +126,23 @@ public:
 	}
 
 	void visit(Rx& rx) {
+		auto angleStr = boost::lexical_cast<std::string>(rx.getParameter(0));
 		quilStr += "RX("
-				+ std::to_string(boost::get<double>(rx.getParameter(0)))
+				+ angleStr
 				+ ") " + std::to_string(rx.bits()[0]) + "\n";
 	}
 
 	void visit(Ry& ry) {
+		auto angleStr = boost::lexical_cast<std::string>(ry.getParameter(0));
 		quilStr += "RY("
-				+ std::to_string(boost::get<double>(ry.getParameter(0)))
+				+ angleStr
 				+ ") " + std::to_string(ry.bits()[0]) + "\n";
 	}
 
 	void visit(Rz& rz) {
+		auto angleStr = boost::lexical_cast<std::string>(rz.getParameter(0));
 		quilStr += "RZ("
-				+ std::to_string(boost::get<double>(rz.getParameter(0)))
+				+ angleStr
 				+ ") " + std::to_string(rz.bits()[0]) + "\n";
 	}
 

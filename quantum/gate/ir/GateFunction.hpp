@@ -179,7 +179,7 @@ public:
 						runtimeParameters);
 			} else {
 
-				if (inst->isParameterized()) {
+				if (inst->isParameterized() && inst->getName() != "Measure") {
 
 					for (int i = 0; i < inst->nParameters(); i++) {
 						auto param = inst->getParameter(i);
@@ -192,7 +192,6 @@ public:
 							auto it = std::find(parameters.begin(),
 									parameters.end(), param);
 							if (it == parameters.end()) {
-								std::cout << "COULD NOT FIND VARIABLE\n";
 								XACCError("Variable " + variable + " not found in Function parameters.");
 							} else {
 								auto index = std::distance(parameters.begin(),

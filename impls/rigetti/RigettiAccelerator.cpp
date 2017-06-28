@@ -36,6 +36,7 @@
 #include <codecvt>
 #include <memory>
 #include <boost/python.hpp>
+#include "GateQIR.hpp"
 
 
 #define RAPIDJSON_HAS_STDSTRING 1
