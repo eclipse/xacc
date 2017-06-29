@@ -184,6 +184,20 @@ public:
 		writer->EndObject();
 	}
 
+	void visit(CPhase& cp) {
+		baseGateInst(dynamic_cast<GateInstruction&>(cp), false);
+		writer->String("angle");
+		auto p = cp.getParameter(0);
+
+		switch(p.which()) {
+			case 0: writer->Int(boost::get<int>(p));break;
+			case 1: writer->Double(boost::get<double>(p));break;
+			case 2: writer->Double((double)boost::get<float>(p));break;
+			case 3: writer->String(boost::get<std::string>(p));break;
+		}
+		writer->EndObject();
+	}
+
 	void visit(ConditionalFunction& cn) {
 		writer->StartObject();
 		writer->String("conditional_function");

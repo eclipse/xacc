@@ -146,6 +146,13 @@ public:
 				+ ") " + std::to_string(rz.bits()[0]) + "\n";
 	}
 
+	void visit(CPhase& cp) {
+		auto angleStr = boost::lexical_cast<std::string>(cp.getParameter(0));
+		quilStr += "CPHASE("
+				+ angleStr
+				+ ") " + std::to_string(cp.bits()[0]) + " " + std::to_string(cp.bits()[1]) + "\n";
+	}
+
 	void visit(GateFunction& f) {
 		return;
 	}

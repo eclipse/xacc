@@ -56,7 +56,7 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	if (!qubits) {
 		XACCError("Invalid derived AcceleratorBuffer passed to "
-				"SimpleAccelerator. Must be of type SimulatedQubits<10>.");
+				"SimpleAccelerator. Must be of type SimulatedQubits.");
 	}
 
 	// Create a lambda for each type of gate we may encounter,
@@ -319,51 +319,54 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		qubits->applyUnitary(localU);
 	};
 
-//	auto cphase = [&] (Rz& rZGate) {
-//		const std::complex<double> i(0, 1);
-//		double angle = boost::get<double>(rZGate.getParameter(0));
-//		auto matElement = std::exp(i * angle);
-//		ComplexTensor rz(2,2), I(2,2);
-//		I.setValues( { {1, 0}, {0, 1}});
-//		rz.setValues( { {1, 0}, {0, matElement}});
-//		auto actingQubits = rZGate.bits();
-//		ProductList productList;
-//		for (int j = 0; j < qubits->size(); j++) {
-//			productList.push_back(I);
-//		}
-//		// If this is a one qubit gate, just replace
-//		// the currect I in the list with the gate
-//		productList.at(actingQubits[0]) = rz;
-//		// Create a total unitary for this layer of the circuit
-//		ComplexTensor localU = productList.at(0);
-//		for (int j = 1; j < productList.size(); j++) {
-//			localU = localU.kronProd(productList.at(j));
-//		}
-//		qubits->applyUnitary(localU);
-//	};
+	auto cphase = [&] (CPhase& cpGate) {
+		const std::complex<double> i(0, 1);
+		double angle = boost::get<double>(cpGate.getParameter(0));
+		auto matElement = std::exp(i * angle);
+		ComplexTensor rz(2,2), I(2,2);
+		I.setValues( { {1, 0}, {0, 1}});
+		rz.setValues( { {1, 0}, {0, matElement}});
+		auto actingQubits = cpGate.bits();
+		ProductList productList;
+		for (int j = 0; j < qubits->size(); j++) {
+			productList.push_back(I);
+		}
+		// If this is a one qubit gate, just replace
+		// the currect I in the list with the gate
+		productList.at(actingQubits[0]) = rz;
+		// Create a total unitary for this layer of the circuit
+		ComplexTensor localU = productList.at(0);
+		for (int j = 1; j < productList.size(); j++) {
+			localU = localU.kronProd(productList.at(j));
+		}
+		qubits->applyUnitary(localU);
+	};
 
 	// Create a Visitor that will execute our lambdas when
 	// we encounter one
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
-			cnot, x, y, z, rx, ry, rz, measure, cond);
+			cnot, x, y, z, rx, ry, rz, measure, cond, cphase);
 
 	XACCInfo("Execution Simple Accelerator Simulation.");
 
-	// Our QIR is really a tree structure
-	// so create a pre-order tree traversal
-	// InstructionIterator to walk it
-	InstructionIterator it(kernel);
-	while (it.hasNext()) {
-		// Get the next node in the tree
-		auto nextInst = it.next();
+		// Our QIR is really a tree structure
+		// so create a pre-order tree traversal
+		// InstructionIterator to walk it
+		InstructionIterator it(kernel);
+		while (it.hasNext()) {
+			// Get the next node in the tree
+			auto nextInst = it.next();
 
-		// If enabled, invoke the accept
-		// method which kicks off the visitor
-		// to execute the appropriate lambda.
-		if (nextInst->isEnabled()) {
-			nextInst->accept(visitor);
+			// If enabled, invoke the accept
+			// method which kicks off the visitor
+			// to execute the appropriate lambda.
+			if (nextInst->isEnabled()) {
+				nextInst->accept(visitor);
+			}
 		}
-	}
+
+//		qubits->getAcceleratorBitState()
+
 }
 
 }

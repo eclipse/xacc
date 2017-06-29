@@ -1,5 +1,6 @@
+
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,44 +29,40 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ALLGATEVISITOR_HPP_
-#define QUANTUM_GATE_ALLGATEVISITOR_HPP_
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE CPhaseTester
 
-#include "InstructionIterator.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Y.hpp"
-#include "Z.hpp"
-#include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Rx.hpp"
-#include "Ry.hpp"
+#include <boost/test/included/unit_test.hpp>
 #include "CPhase.hpp"
-#include "Measure.hpp"
 
-namespace xacc {
-namespace quantum {
+using namespace xacc::quantum;
 
-/**
- * FIXME write this
- */
-class AllGateVisitor:
-		public BaseInstructionVisitor,
-		public InstructionVisitor<GateFunction>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Rz>,
-		public InstructionVisitor<Rx>,
-		public InstructionVisitor<Ry>,
-		public InstructionVisitor<ConditionalFunction>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Y>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<CPhase>,
-		public InstructionVisitor<Measure> {
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
-};
+	CPhase cp(0, 1, 3.14);
+	BOOST_VERIFY(boost::get<double>(cp.getParameter(0)) == 3.14);
+	BOOST_VERIFY(cp.toString("qreg") == "CPhase(3.14) qreg0 qreg1");
+	BOOST_VERIFY(cp.bits().size() == 2);
+	BOOST_VERIFY(cp.bits()[0] == 0);
+	BOOST_VERIFY(cp.bits()[1] == 1);
+	BOOST_VERIFY(cp.getName() == "CPhase");
+
+	CPhase cp2(44, 45, 1.71234);
+
+	BOOST_VERIFY(boost::get<double>(cp2.getParameter(0)) == 1.71234);
+	BOOST_VERIFY(cp2.toString("qreg") == "CPhase(1.71234) qreg44 qreg45");
+	BOOST_VERIFY(cp2.bits().size() == 2);
+	BOOST_VERIFY(cp2.bits()[0] == 44);
+	BOOST_VERIFY(cp2.bits()[1] == 45);
+	BOOST_VERIFY(cp2.getName() == "CPhase");
+
 }
+
+BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
+
+	xacc::InstructionParameter p = 3.1415;
+	auto cp = GateInstructionRegistry::instance()->create("CPhase", std::vector<int>{0, 1});
+	cp->setParameter(0, p);
+	BOOST_VERIFY(cp->getName() == "CPhase");
+	BOOST_VERIFY(boost::get<double>(cp->getParameter(0)) == 3.1415);
 }
-#endif

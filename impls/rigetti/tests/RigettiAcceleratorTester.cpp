@@ -34,6 +34,7 @@
 #include <memory>
 #include <boost/test/included/unit_test.hpp>
 #include "RigettiAccelerator.hpp"
+#include "JsonVisitor.hpp"
 
 using namespace xacc::quantum;
 
@@ -120,4 +121,143 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 
 	BOOST_VERIFY(client->postOccured);
 }
+
+BOOST_AUTO_TEST_CASE(buildQFT) {
+
+	std::function<std::vector<std::shared_ptr<Instruction>>(std::vector<int>&)> coreqft;
+
+	coreqft =
+			[&](std::vector<int>& qubits) -> std::vector<std::shared_ptr<Instruction>> {
+
+				// Get the first qubit
+				auto q = qubits[0];
+
+				// If we have only one left, then
+				// just return a hadamard, if not,
+				// then we need to build up some cphase gates
+				if (qubits.size() == 1) {
+					auto hadamard = GateInstructionRegistry::instance()->create("H", std::vector<int> {q});
+					return std::vector<std::shared_ptr<Instruction>>{hadamard};
+				} else {
+
+					// Get the 1 the N qubits
+					std::vector<int> qs(qubits.begin()+1, qubits.end());
+
+					// Compute the number of qubits
+					auto n = 1 + qs.size();
+
+					// Build up a list of cphase gates
+					std::vector<std::shared_ptr<GateInstruction>> cphaseGates;
+					int idx = 0;
+					for (int i = n-1; i > 0; --i) {
+						auto q_idx = qs[idx];
+						auto angle = 3.1415926 / std::pow(2, n - i);
+						InstructionParameter p(angle);
+						auto cp = GateInstructionRegistry::instance()->create("CPhase", std::vector<int> {q, q_idx});
+						cp->setParameter(0, p);
+						cphaseGates.push_back(cp);
+						idx++;
+					}
+
+					// Recursively build these up...
+					auto insts = coreqft(qs);
+
+					// Reverse the cphase gates
+					std::reverse(cphaseGates.begin(), cphaseGates.end());
+
+					// Add them to the return list
+					for (auto cp : cphaseGates) {
+						insts.push_back(cp);
+					}
+
+					// add a final hadamard...
+					insts.push_back(GateInstructionRegistry::instance()->create("H", std::vector<int> {q}));
+
+					// and return
+					return insts;
+				}
+			};
+
+	std::vector<int> qbits {0, 1, 2};
+	auto qftInstructions = coreqft(qbits);
+
+	auto qftKernel = std::make_shared<GateFunction>("foo");
+	for (auto i : qftInstructions) {
+		qftKernel->addInstruction(i);
+	}
+
+	JsonVisitor v(qftKernel);
+	std::cout << v.write() << "\n";
+
+	std::string expectedQuil(
+			"H 2\n"
+			"CPHASE(1.5708) 1 2\n"
+			"H 1\n"
+			"CPHASE(0.785398) 0 2\n"
+			"CPHASE(1.5708) 0 1\n"
+			"H 0\n");
+
+	auto quilV = std::make_shared<QuilVisitor>();
+
+	InstructionIterator it(qftKernel);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+
+		// If enabled, invoke the accept
+		// method which kicks off the visitor
+		// to execute the appropriate lambda.
+		if (nextInst->isEnabled()) {
+			nextInst->accept(quilV);
+		}
+	}
+
+	BOOST_VERIFY(quilV->getQuilString() == expectedQuil);
+
+	expectedQuil =
+			"H 4\n"
+			"CPHASE(1.5708) 3 4\n"
+			"H 3\n"
+			"CPHASE(0.785398) 2 4\n"
+			"CPHASE(1.5708) 2 3\n"
+			"H 2\n"
+			"CPHASE(0.392699) 1 4\n"
+			"CPHASE(0.785398) 1 3\n"
+			"CPHASE(1.5708) 1 2\n"
+			"H 1\n"
+			"CPHASE(0.19635) 0 4\n"
+			"CPHASE(0.392699) 0 3\n"
+			"CPHASE(0.785398) 0 2\n"
+			"CPHASE(1.57078) 0 1\n"
+			"H 0\n";
+
+	std::vector<int> qbits5 {0, 1, 2, 3, 4};
+	auto qft5Instructions = coreqft(qbits5);
+	auto qft5Kernel = std::make_shared<GateFunction>("foo");
+	for (auto i : qft5Instructions) {
+		qft5Kernel->addInstruction(i);
+	}
+
+	JsonVisitor v5(qft5Kernel);
+	std::cout << v5.write() << "\n";
+
+	auto quilV5 = std::make_shared<QuilVisitor>();
+
+	InstructionIterator it5(qft5Kernel);
+	while (it5.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it5.next();
+
+		// If enabled, invoke the accept
+		// method which kicks off the visitor
+		// to execute the appropriate lambda.
+		if (nextInst->isEnabled()) {
+			nextInst->accept(quilV5);
+		}
+	}
+
+	std::cout << quilV5->getQuilString() << "\n" << expectedQuil << "\n";
+	BOOST_VERIFY(quilV5->getQuilString() == expectedQuil);
+}
+
 
