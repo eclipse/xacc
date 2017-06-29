@@ -240,6 +240,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		std::string res = extract<std::string>(main_namespace["extractStr"]);
 		std::string measStr = extract<std::string>(main_namespace["measStr"]);
 
+		std::cout << "MEASUREMENT STR: " << measStr << "\n";
 		Py_Finalize();
 
 		int i = 0;
@@ -328,6 +329,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		  
 		  ss<<postResponse.content.rdbuf();
 		  std::string resp_str = ss.str();
+		  std::cout << "Rigetti Response Str:\n" << resp_str << "\n";
 
 		  int i_qbit = -1;
 		  boost::dynamic_bitset<> outcome(buffer->size());
@@ -358,7 +360,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		  for(std::string tmp; std::getline(ss,tmp,','); ){
 		    oss<<tmp<<std::endl;
 		  }
-		  XACCInfo(oss.str());
+//		  XACCInfo(oss.str());
 
 
 	} else if (type == "ping" || type == "version") {

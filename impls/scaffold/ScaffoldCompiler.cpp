@@ -136,10 +136,9 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 
 	kernelSource = src;
 
+	// Replace the __qpu__ attribute with module
 	if (boost::contains(kernelSource, "__qpu__")) {
-		kernelSource.erase(kernelSource.find("__qpu__"), 7);
-		kernelSource = std::string("module") + kernelSource;
-		std::cout << "\n" << kernelSource << "\n";
+		boost::replace_all(kernelSource, "__qpu__", "module");
 	}
 
 	// Create a temporary scaffold source file

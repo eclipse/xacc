@@ -64,7 +64,7 @@ public:
 	JsonVisitor(std::shared_ptr<xacc::Function> f) :
 			buffer(std::make_shared<StringBuffer>()), writer(
 					std::make_shared<PrettyWriter<StringBuffer>>(
-							*buffer.get())), function(f) {
+							*buffer.get())), functions{f} {
 	}
 
 	JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs) :

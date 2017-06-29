@@ -56,6 +56,11 @@ protected:
 
 	std::vector<InstructionParameter> parameters;
 
+	/**
+	 * Map of Instruction Index to ( Instruction's Runtime Parameter Index, Dependent Variable name)
+	 */
+	std::map<int, std::pair<int, std::string>> cachedVariableInstructions;
+
 public:
 
 	/**
@@ -146,8 +151,7 @@ public:
 
 	virtual InstructionParameter getParameter(const int idx) {
 		if (idx + 1 > parameters.size()) {
-			XACCError(
-					"Invalid Parameter requested.");
+			XACCError("Invalid Parameter requested.");
 		}
 
 		return parameters[idx];
@@ -155,8 +159,7 @@ public:
 
 	virtual void setParameter(const int idx, InstructionParameter& p) {
 		if (idx + 1 > parameters.size()) {
-			XACCError(
-					"Invalid Parameter requested.");
+			XACCError("Invalid Parameter requested.");
 		}
 
 		parameters[idx] = p;
@@ -170,45 +173,60 @@ public:
 		return parameters.size();
 	}
 
-	std::map<int,int> cachedVariableInstructions;
 
-	virtual void evaluateVariableParameters(std::vector<InstructionParameter> runtimeParameters) {
+	virtual void evaluateVariableParameters(
+			std::vector<InstructionParameter> runtimeParameters) {
+
+		std::map<std::string, InstructionParameter> varToValMap;
+
+		int i = 0;
+		for (auto funcParam : parameters) {
+			varToValMap.insert(
+					std::make_pair(boost::get<std::string>(funcParam),
+							runtimeParameters[i]));
+			i++;
+		}
+
+		for (const auto& gateIdVarName : cachedVariableInstructions) {
+			auto inst = getInstruction(gateIdVarName.first);
+			auto varInstDependsOn = gateIdVarName.second.second;
+			auto instParamIdx = gateIdVarName.second.first;
+
+			int indexOfRuntimeParam, counter = 0;
+			for (auto p : parameters) {
+				if (boost::get<std::string>(p) == varInstDependsOn) {
+					indexOfRuntimeParam = counter;
+					break;
+				}
+				counter++;
+			}
+
+			inst->setParameter(instParamIdx, runtimeParameters[indexOfRuntimeParam]);
+		}
+
+		i = 0;
 		for (auto inst : instructions) {
 			if (inst->isComposite()) {
 				std::dynamic_pointer_cast<Function>(inst)->evaluateVariableParameters(
 						runtimeParameters);
-			} else {
+			} else if (inst->isParameterized() && inst->getName() != "Measure") {
 
-				if (inst->isParameterized() && inst->getName() != "Measure") {
+				for (int j = 0; j < inst->nParameters(); ++j) {
+					auto instParam = inst->getParameter(j);
 
-					for (int i = 0; i < inst->nParameters(); i++) {
-						auto param = inst->getParameter(i);
+					if (instParam.which() == 3) {
+						// This is a variable
+						auto variable = boost::get<std::string>(instParam);
 
-						// See if this is a string parameter
-						if (param.which() == 3) {
-							auto variable = boost::get<std::string>(param);
-							// Get index
+						auto runtimeParameter = varToValMap[variable];
 
-							auto it = std::find(parameters.begin(),
-									parameters.end(), param);
-							if (it == parameters.end()) {
-								XACCError("Variable " + variable + " not found in Function parameters.");
-							} else {
-								auto index = std::distance(parameters.begin(),
-										it);
-								inst->setParameter(index, runtimeParameters[index]);
-								cachedVariableInstructions.insert(std::make_pair(i, index));
-							}
-						} else {
-							// See if we have a cached instruction
-							if (cachedVariableInstructions.find(i) != cachedVariableInstructions.end()) {
-								auto idx = cachedVariableInstructions[i];
-								inst->setParameter(idx, runtimeParameters[idx]);
-							}
-						}
+						inst->setParameter(j, runtimeParameter);
+
+						cachedVariableInstructions.insert(std::make_pair(i, std::make_pair(j, variable)));
 					}
 				}
 			}
+			i++;
 		}
 	}
 

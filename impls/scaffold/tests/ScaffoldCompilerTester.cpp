@@ -194,25 +194,25 @@ BOOST_AUTO_TEST_CASE(checkTeleportWithFunctions) {
 
 BOOST_AUTO_TEST_CASE(checkVQEExample) {
 	const std::string src(""
-		"module initializeState(qbit qreg[2], float theta) {\n"
+		"__qpu__ initializeState(qbit qreg[2], float theta) {\n"
 		"   Rx(qreg[0], 1.57079);\n"
 		"   Ry(qreg[1], 1.57079);\n"
-		"   Rx(qreg[0], -1.57079);\n"
-		"   CNOT(qreg[0], qreg[1]);\n"
+		"   Rx(qreg[0], 7.8539752);\n"
+		"   CNOT(qreg[1], qreg[0]);\n"
 		"   Rz(qreg[0], theta);\n"
-		"   CNOT(qreg[0], qreg[1]);\n"
-		"   Ry(qreg[1], -1.57079);\n"
+		"   CNOT(qreg[1], qreg[0]);\n"
+		"   Ry(qreg[1], 7.8539752);\n"
 		"   Rx(qreg[0], 1.57079);\n"
 		"}\n"
 		""
-		"module g1Term (qbit qreg[2], float theta) {\n"
+		"__qpu__ g1Term (qbit qreg[2], float theta) {\n"
 		"   initializeState(qreg, theta);\n"
 		"   cbit creg[2];\n"
-		"   creg[0] = MeasZ(qreg[0]);\n"
 		"   creg[1] = MeasZ(qreg[1]);\n"
+		"   creg[0] = MeasZ(qreg[0]);\n"
 		"}\n"
 		""
-		"module g4Term(qbit qreg[2], float theta) {\n"
+		"__qpu__ g4Term(qbit qreg[2], float theta) {\n"
 		"   initializeState(qreg, theta);\n"
 		"   cbit creg[2];\n"
 		"   Rx(qreg[0], -1.57079);\n"
@@ -221,26 +221,39 @@ BOOST_AUTO_TEST_CASE(checkVQEExample) {
 		"   creg[1] = MeasZ(qreg[1]);\n"
 		"}\n"
 		""
-		"module g5Term(qbit qreg[2], float theta) {\n"
+		"__qpu__ g5Term(qbit qreg[2], float theta) {\n"
 		"   initializeState(qreg, theta);\n"
 		"   cbit creg[2];\n"
 		"   H(qreg[0]);\n"
 		"   H(qreg[1]);\n"
 		"   creg[0] = MeasZ(qreg[0]);\n"
 		"   creg[1] = MeasZ(qreg[1]);\n"
-		"}\n"
-		"");
+		"}\n");
 
 	ScaffoldCompiler compiler;
 	auto ir = compiler.compile(src);
-
-//	for (auto k : ir->getKernels()) {
-//		JsonVisitor v(k);
-//		std::cout << v.write() << "\n";
-//	}
 	JsonVisitor visitor(ir->getKernels());
 
 	std::cout << "HI:\n" << visitor.write() << "\n";
+
+
+	auto k = ir->getKernel("initializeState");
+
+	xacc::InstructionParameter p(22.2);
+	std::vector<xacc::InstructionParameter> pars{p};
+	k->evaluateVariableParameters(pars);
+
+	JsonVisitor v(k);
+
+	std::cout << "AfterParams:\n" << v.write() << "\n";
+
+	xacc::InstructionParameter p2(44.2);
+	std::vector<xacc::InstructionParameter> pars2{p2};
+	k->evaluateVariableParameters(pars2);
+
+	JsonVisitor v2(k);
+
+	std::cout << "AfterParams2:\n" << v2.write() << "\n";
 
 
 }
