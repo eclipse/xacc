@@ -153,6 +153,10 @@ public:
 				+ ") " + std::to_string(cp.bits()[0]) + " " + std::to_string(cp.bits()[1]) + "\n";
 	}
 
+	void visit(Swap& s) {
+		quilStr += "SWAP " + std::to_string(s.bits()[0]) + " " + std::to_string(s.bits()[1]) + "\n";
+	}
+
 	void visit(GateFunction& f) {
 		return;
 	}

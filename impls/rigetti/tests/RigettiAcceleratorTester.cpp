@@ -124,8 +124,20 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 
 BOOST_AUTO_TEST_CASE(buildQFT) {
 
-	std::function<std::vector<std::shared_ptr<Instruction>>(std::vector<int>&)> coreqft;
+	auto bitReversal =
+			[](std::vector<int> qubits) -> std::vector<std::shared_ptr<Instruction>> {
+				std::vector<std::shared_ptr<Instruction>> swaps;
+				auto endStart = qubits.size() - 1;
+				for (auto i = 0; i < std::floor(qubits.size() / 2.0); ++i) {
+					swaps.push_back(GateInstructionRegistry::instance()->create("Swap", std::vector<int> {qubits[i], qubits[endStart]}));
+					endStart--;
+				}
 
+				return swaps;
+
+			};
+
+	std::function<std::vector<std::shared_ptr<Instruction>>(std::vector<int>&)> coreqft;
 	coreqft =
 			[&](std::vector<int>& qubits) -> std::vector<std::shared_ptr<Instruction>> {
 
@@ -181,13 +193,18 @@ BOOST_AUTO_TEST_CASE(buildQFT) {
 	std::vector<int> qbits {0, 1, 2};
 	auto qftInstructions = coreqft(qbits);
 
+	auto swaps = bitReversal(qbits);
+	for (auto s : swaps) {
+		qftInstructions.push_back(s);
+	}
+
 	auto qftKernel = std::make_shared<GateFunction>("foo");
 	for (auto i : qftInstructions) {
 		qftKernel->addInstruction(i);
 	}
 
-	JsonVisitor v(qftKernel);
-	std::cout << v.write() << "\n";
+//	JsonVisitor v(qftKernel);
+//	std::cout << v.write() << "\n";
 
 	std::string expectedQuil(
 			"H 2\n"
@@ -195,7 +212,8 @@ BOOST_AUTO_TEST_CASE(buildQFT) {
 			"H 1\n"
 			"CPHASE(0.785398) 0 2\n"
 			"CPHASE(1.5708) 0 1\n"
-			"H 0\n");
+			"H 0\n"
+			"SWAP 0 2\n");
 
 	auto quilV = std::make_shared<QuilVisitor>();
 
@@ -211,6 +229,7 @@ BOOST_AUTO_TEST_CASE(buildQFT) {
 			nextInst->accept(quilV);
 		}
 	}
+	std::cout << quilV->getQuilString() << "\n" << expectedQuil << "\n";
 
 	BOOST_VERIFY(quilV->getQuilString() == expectedQuil);
 
@@ -229,17 +248,26 @@ BOOST_AUTO_TEST_CASE(buildQFT) {
 			"CPHASE(0.392699) 0 3\n"
 			"CPHASE(0.785398) 0 2\n"
 			"CPHASE(1.57078) 0 1\n"
-			"H 0\n";
+			"H 0\n"
+			"SWAP 0 4\n"
+			"SWAP 1 3\n";
 
 	std::vector<int> qbits5 {0, 1, 2, 3, 4};
 	auto qft5Instructions = coreqft(qbits5);
+
+	swaps = bitReversal(qbits5);
+	for (auto s : swaps) {
+		qft5Instructions.push_back(s);
+	}
+
 	auto qft5Kernel = std::make_shared<GateFunction>("foo");
 	for (auto i : qft5Instructions) {
 		qft5Kernel->addInstruction(i);
 	}
 
-	JsonVisitor v5(qft5Kernel);
-	std::cout << v5.write() << "\n";
+
+//	JsonVisitor v5(qft5Kernel);
+//	std::cout << v5.write() << "\n";
 
 	auto quilV5 = std::make_shared<QuilVisitor>();
 

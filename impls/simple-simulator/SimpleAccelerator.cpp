@@ -342,28 +342,32 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		qubits->applyUnitary(localU);
 	};
 
+	auto swap = [&] (Swap& swapGate) {
+		XACCError("Swap Gate not implemented yet.");
+	};
+
 	// Create a Visitor that will execute our lambdas when
 	// we encounter one
 	auto visitor = std::make_shared<FunctionalGateInstructionVisitor>(hadamard,
-			cnot, x, y, z, rx, ry, rz, measure, cond, cphase);
+			cnot, x, y, z, rx, ry, rz, measure, cond, cphase, swap);
 
 	XACCInfo("Execution Simple Accelerator Simulation.");
 
-		// Our QIR is really a tree structure
-		// so create a pre-order tree traversal
-		// InstructionIterator to walk it
-		InstructionIterator it(kernel);
-		while (it.hasNext()) {
-			// Get the next node in the tree
-			auto nextInst = it.next();
+	// Our QIR is really a tree structure
+	// so create a pre-order tree traversal
+	// InstructionIterator to walk it
+	InstructionIterator it(kernel);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
 
-			// If enabled, invoke the accept
-			// method which kicks off the visitor
-			// to execute the appropriate lambda.
-			if (nextInst->isEnabled()) {
-				nextInst->accept(visitor);
-			}
+		// If enabled, invoke the accept
+		// method which kicks off the visitor
+		// to execute the appropriate lambda.
+		if (nextInst->isEnabled()) {
+			nextInst->accept(visitor);
 		}
+	}
 
 //		qubits->getAcceleratorBitState()
 

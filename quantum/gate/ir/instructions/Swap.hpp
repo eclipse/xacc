@@ -28,46 +28,22 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_GATE_ALLGATEVISITOR_HPP_
-#define QUANTUM_GATE_ALLGATEVISITOR_HPP_
+#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_SWAP_HPP_
+#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_SWAP_HPP_
 
-#include "InstructionIterator.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Y.hpp"
-#include "Z.hpp"
-#include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Rx.hpp"
-#include "Ry.hpp"
-#include "CPhase.hpp"
-#include "Swap.hpp"
-#include "Measure.hpp"
+#include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
+class Swap: public virtual GateInstruction {
+public:
+	Swap(std::vector<int> qbits);
+	Swap(int controlQubit, int targetQubit);
 
-/**
- * FIXME write this
- */
-class AllGateVisitor:
-		public BaseInstructionVisitor,
-		public InstructionVisitor<GateFunction>,
-		public InstructionVisitor<Hadamard>,
-		public InstructionVisitor<CNOT>,
-		public InstructionVisitor<Rz>,
-		public InstructionVisitor<Rx>,
-		public InstructionVisitor<Ry>,
-		public InstructionVisitor<ConditionalFunction>,
-		public InstructionVisitor<X>,
-		public InstructionVisitor<Y>,
-		public InstructionVisitor<Z>,
-		public InstructionVisitor<CPhase>,
-		public InstructionVisitor<Swap>,
-		public InstructionVisitor<Measure> {
+	DEFINE_VISITABLE()
 
 };
 }
 }
+
 #endif

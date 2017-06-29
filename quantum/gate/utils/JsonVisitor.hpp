@@ -144,6 +144,10 @@ public:
 		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 	}
 
+	void visit(Swap& s) {
+		baseGateInst(dynamic_cast<GateInstruction&>(s));
+	}
+
 	void visit(Rz& rz) {
 		baseGateInst(dynamic_cast<GateInstruction&>(rz), false);
 		writer->String("angle");
