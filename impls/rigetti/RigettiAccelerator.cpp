@@ -329,10 +329,10 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		  
 		  ss<<postResponse.content.rdbuf();
 		  std::string resp_str = ss.str();
-		  std::cout << "Rigetti Response Str:\n" << resp_str << "\n";
+		  XACCInfo("Rigetti Response Str:\n" + resp_str + "\n");
 
 		  int i_qbit = -1;
-		  boost::dynamic_bitset<> outcome(buffer->size());
+		  boost::dynamic_bitset<> outcome(visitor->getNumberOfAddresses());
 		  for(int i=0; i<resp_str.size(); ++i){
 		    char c = resp_str[i];
 		    if (c=='['){ // begin of a measurement
@@ -343,7 +343,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 		    if (i_qbit>0 && c==']'){ // end of a measurement
 		      // i_qbit>0 assure some results collected outcome
-		      oss<<outcome<<std::endl; // debug      
+		      oss<<outcome<<std::endl; // debug
 		      buffer->appendMeasurement(outcome);
 		      i_qbit = -1; 
 		      continue;

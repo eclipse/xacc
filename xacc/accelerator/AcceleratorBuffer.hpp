@@ -111,6 +111,7 @@ public:
 	}
 
 	void resetBuffer() {
+		measurements.clear();
 	}
 
 	void updateBit(const int idx, int zeroOrOne) {
@@ -151,7 +152,7 @@ public:
 				aver -= p;
 			}
 		}
-		XACCInfo(ss.str());
+//		XACCInfo(ss.str());
 		return aver;
 	}
 
