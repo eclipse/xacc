@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 	CPhase cp(0, 1, 3.14);
 	BOOST_VERIFY(boost::get<double>(cp.getParameter(0)) == 3.14);
-	BOOST_VERIFY(cp.toString("qreg") == "CPhase(3.14) qreg0 qreg1");
+	BOOST_VERIFY(cp.toString("qreg") == "CPhase(3.14) qreg0,qreg1");
 	BOOST_VERIFY(cp.bits().size() == 2);
 	BOOST_VERIFY(cp.bits()[0] == 0);
 	BOOST_VERIFY(cp.bits()[1] == 1);
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	CPhase cp2(44, 45, 1.71234);
 
 	BOOST_VERIFY(boost::get<double>(cp2.getParameter(0)) == 1.71234);
-	BOOST_VERIFY(cp2.toString("qreg") == "CPhase(1.71234) qreg44 qreg45");
+	BOOST_VERIFY(cp2.toString("qreg") == "CPhase(1.71234) qreg44,qreg45");
 	BOOST_VERIFY(cp2.bits().size() == 2);
 	BOOST_VERIFY(cp2.bits()[0] == 44);
 	BOOST_VERIFY(cp2.bits()[1] == 45);

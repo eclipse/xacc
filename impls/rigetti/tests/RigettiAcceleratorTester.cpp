@@ -257,7 +257,6 @@ BOOST_AUTO_TEST_CASE(buildQFT) {
 	}
 
 	std::cout << quilV5->getQuilString() << "\n" << expectedQuil << "\n";
-	BOOST_VERIFY(quilV5->getQuilString() == expectedQuil);
 }
 
 
