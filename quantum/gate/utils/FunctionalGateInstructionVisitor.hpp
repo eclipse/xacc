@@ -51,13 +51,17 @@ protected:
 	std::function<void(Ry&)> ryAction;
 	std::function<void(Rz&)> rzAction;
 	std::function<void(CPhase&)> cpAction;
+	std::function<void(Swap&)> swAction;
 
 public:
-	template<typename HF, typename CNF, typename XF,  typename YF, typename ZF,
-			typename RXF, typename RYF, typename RZF, typename MF, typename CF, typename CPF>
-	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, YF y, ZF z, RXF rx, RYF ry, RZF rz, MF m, CF c, CPF cp) :
+	template<typename HF, typename CNF, typename XF, typename YF, typename ZF,
+			typename RXF, typename RYF, typename RZF, typename MF, typename CF,
+			typename CPF, typename SWAPF>
+	FunctionalGateInstructionVisitor(HF h, CNF cn, XF x, YF y, ZF z, RXF rx,
+			RYF ry, RZF rz, MF m, CF c, CPF cp, SWAPF sw) :
 			hAction(h), cnotAction(cn), xAction(x), yAction(y), zAction(z), measureAction(
-					m), condAction(c), rxAction(rx), ryAction(ry), rzAction(rz), cpAction(cp) {
+					m), condAction(c), rxAction(rx), ryAction(ry), rzAction(rz), cpAction(
+					cp), swAction(sw) {
 	}
 
 	void visit(Hadamard& h) {
@@ -102,13 +106,16 @@ public:
 	void visit(GateFunction& f) {
 		return;
 	}
-	virtual ~FunctionalGateInstructionVisitor() {}
+
+	void visit(Swap& s) {
+		swAction(s);
+	}
+
+	virtual ~FunctionalGateInstructionVisitor() {
+	}
 };
 
 }
 }
-
-
-
 
 #endif
