@@ -83,6 +83,16 @@ public:
 	virtual void replaceInstruction(const int idx, InstPtr newInst) = 0;
 
 	/**
+	 * Insert a new Instruction at the given index. All previous
+	 * instructions are pushed back, ie their new indices are
+	 * currentIndex + 1.
+	 *
+	 * @param idx The index where the new instruction should be inserted
+	 * @param newInst The new Instruction to insert.
+	 */
+	virtual void insertInstruction(const int idx, InstPtr newInst) = 0;
+
+	/**
 	 * Add an Instruction to this Function.
 	 *
 	 * @param instruction The instruction to add.

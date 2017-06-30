@@ -75,7 +75,8 @@ public:
 			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
-		bool s = registry.insert(std::make_pair(id, f)).second;
+		std::cout << "ADDING " << id << " to registry\n";
+		bool s = registry.insert(std::make_pair(id, std::move(f))).second;
 		if (!s) {
 			XACCError("Could not add " + id + " to the Registry.");
 		} else {
@@ -93,6 +94,7 @@ public:
 	std::shared_ptr<T> create(const std::string& id, TArgs... args) {
 		auto search = registry.find(id);
 		if (search != registry.end()) {
+			std::cout << "Creating " << id << ".\n";
 			return registry[id](args...);
 		} else {
 			XACCError("Invalid Registry map id string - " + id);

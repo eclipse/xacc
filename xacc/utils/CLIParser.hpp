@@ -37,6 +37,7 @@
 #include <boost/program_options.hpp>
 #include "RuntimeOptions.hpp"
 #include "xacc_config.hpp"
+#include "Preprocessor.hpp"
 
 using namespace boost::program_options;
 
@@ -83,6 +84,8 @@ public:
 
 		// Get a reference to the RuntimeOptions
 		auto runtimeOptions = RuntimeOptions::instance();
+
+		auto inst = PreprocessorRegistry::instance();
 
 		// Create a base options_description, we will add
 		// to this with all OptionsProviders
@@ -132,6 +135,14 @@ public:
 						auto regFunc = boost::dll::import_alias<
 								RegisterEmbeddingAlgorithm>(p,
 								"registerEmbeddingAlgorithm",
+								dll::load_mode::append_decorations);
+						regFunc();
+					}
+					if (lib.has("registerPreprocessor")) {
+						typedef void (RegisterPreprocessor)();
+						auto regFunc = boost::dll::import_alias<
+								RegisterPreprocessor>(p,
+								"registerPreprocessor",
 								dll::load_mode::append_decorations);
 						regFunc();
 					}

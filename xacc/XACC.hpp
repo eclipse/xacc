@@ -38,6 +38,7 @@
 #include "Accelerator.hpp"
 #include "CLIParser.hpp"
 #include "Program.hpp"
+#include "Preprocessor.hpp"
 
 namespace xacc {
 
@@ -53,17 +54,19 @@ auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
 void Initialize(int argc, char** argv) {
 	XACCInfo("[xacc] Initializing XACC Framework");
 
+	// Get reference to our compiler and accelerator registries
+	auto compilerRegistry = xacc::CompilerRegistry::instance();
+	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
+	auto preprocessorRegistry = xacc::PreprocessorRegistry::instance();
+
 	// Parse any user-supplied command line options
 	CLIParser parser(argc, argv);
 	parser.parse();
 
-	// Get reference to our compiler and accelerator registries
-	auto compilerRegistry = xacc::CompilerRegistry::instance();
-	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
-
 	// Check that we have some
 	auto s = compilerRegistry->size();
 	auto a = acceleratorRegistry->size();
+	auto ps = preprocessorRegistry->size();
 	if (s == 0) XACCError("There are no Compiler instances available. Exiting.");
 	if (a == 0) XACCError("There are no Accelerator instances available. Exiting.");
 
@@ -73,7 +76,13 @@ void Initialize(int argc, char** argv) {
 	XACCInfo(
 			"[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator"
 					+ ((s == 0 || s == 1) ? "" : "s") + " available.");
+	XACCInfo(
+			"[xacc::preprocessor] XACC has " + std::to_string(ps) + " Preprocessor"
+					+ ((ps == 0 || ps == 1) ? "" : "s") + " available.");
 
+	for (auto x : preprocessorRegistry->getRegisteredIds()) {
+		std::cout << "HEY WORLD " << x << "\n";
+	}
 	// We're good if we make it here, so indicate that we've been
 	// initialized
 	xacc::xaccFrameworkInitialized = true;
@@ -105,6 +114,7 @@ void Finalize() {
 					"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 	xacc::CompilerRegistry::instance()->destroy();
 	xacc::AcceleratorRegistry::instance()->destroy();
+	xacc::PreprocessorRegistry::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
 }
 }

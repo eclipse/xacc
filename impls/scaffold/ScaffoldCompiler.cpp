@@ -31,6 +31,7 @@
 #include <regex>
 #include "GateQIR.hpp"
 #include "ScaffoldCompiler.hpp"
+#include "ScaffoldIRToSrcVisitor.hpp"
 
 using namespace clang;
 
@@ -159,10 +160,18 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 }
 
 const std::string ScaffoldCompiler::translate(std::shared_ptr<Function> function) {
-	std::string srcString = "";
 
+	auto visitor = std::make_shared<ScaffoldIRToSrcVisitor>("");
+	InstructionIterator it(function);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled()) {
+			nextInst->accept(visitor);
+		}
+	}
 
-	return srcString;
+	return visitor->getScaffoldString();
 }
 
 

@@ -130,6 +130,19 @@ public:
 	}
 
 	/**
+	 * Return all allocated AcceleratorBuffer variable names.
+	 *
+	 * @return varNames The buffer variable names
+	 */
+	virtual std::vector<std::string> getAllocatedBufferNames() {
+		std::vector<std::string> names;
+		for (auto b : allocatedBuffers) {
+			names.push_back(b.first);
+		}
+
+		return names;
+	}
+	/**
 	 * Return true if this Accelerator can allocated
 	 * NBits number of bits.
 	 * @param NBits

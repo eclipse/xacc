@@ -120,6 +120,11 @@ public:
 				getInstruction(idx), replacingInst);
 	}
 
+	virtual void insertInstruction(const int idx, InstPtr newInst) {
+		auto iter = std::next(instructions.begin(), idx);
+		instructions.insert(iter, newInst);
+	}
+
 	/**
 	 * Return the name of this function
 	 * @return
