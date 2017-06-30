@@ -158,8 +158,15 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 	return consumer->getIR();
 }
 
+const std::string ScaffoldCompiler::translate(std::shared_ptr<Function> function) {
+	std::string srcString = "";
+
+
+	return srcString;
+}
+
+
+
 }
 
 }
-//static xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> X(
-//		"scaffold");

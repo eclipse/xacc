@@ -157,6 +157,10 @@ public:
 		parameters[idx] = p;
 	}
 
+	virtual std::vector<InstructionParameter> getParameters() {
+		return parameters;
+	}
+
 	virtual bool isParameterized() {
 		return nParameters() > 0;
 	}

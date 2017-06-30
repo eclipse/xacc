@@ -93,6 +93,8 @@ public:
 	 */
 	virtual InstructionParameter getParameter(const int idx) = 0;
 
+	virtual std::vector<InstructionParameter> getParameters() = 0;
+
 	/**
 	 * Set this Instruction's parameter at the given index.
 	 *

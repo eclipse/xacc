@@ -69,6 +69,15 @@ public:
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
 
 	/**
+	 * This produces a Scaffold source code representation of the
+	 * given IR Function
+	 *
+	 * @param function The XACC IR Function to translate
+	 * @return src The source code as a string
+	 */
+	virtual const std::string translate(std::shared_ptr<Function> function);
+
+	/**
 	 * Return the name of this Compiler
 	 * @return name Compiler name
 	 */

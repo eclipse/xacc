@@ -76,6 +76,16 @@ public:
 	virtual std::shared_ptr<IR> compile(const std::string& src) = 0;
 
 	/**
+	 * This method is to be implemented by derived Compilers and
+	 * is in charge of taking the provided Function IR and converting
+	 * it to source code in this Compiler's language.
+	 *
+	 * @param function The XACC IR Function to translate
+	 * @return src The source code as a string
+	 */
+	virtual const std::string translate(std::shared_ptr<Function> function) = 0;
+
+	/**
 	 * Return the name of this Compiler
 	 * @return name Compiler name
 	 */

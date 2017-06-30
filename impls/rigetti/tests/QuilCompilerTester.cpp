@@ -35,6 +35,9 @@
 #include <boost/test/included/unit_test.hpp>
 #include "QuilCompiler.hpp"
 #include "GateQIR.hpp"
+#include "QuilVisitor.hpp"
+
+using namespace xacc;
 
 using namespace xacc::quantum;
 
@@ -122,5 +125,65 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 	BOOST_VERIFY(xVisitor->count = 1);
 
 }
+
+BOOST_AUTO_TEST_CASE(checkTranslateIR) {
+
+	auto f = std::make_shared<GateFunction>("foo");
+
+	auto x = std::make_shared<X>(0);
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+	auto cn2 = std::make_shared<CNOT>(0, 1);
+	auto h2 = std::make_shared<Hadamard>(0);
+	auto m0 = std::make_shared<Measure>(0, 0);
+	auto m1 = std::make_shared<Measure>(1, 1);
+
+	auto cond1 = std::make_shared<ConditionalFunction>(0);
+	auto z = std::make_shared<Z>(2);
+	cond1->addInstruction(z);
+	auto cond2 = std::make_shared<ConditionalFunction>(1);
+	auto x2 = std::make_shared<X>(2);
+	cond2->addInstruction(x2);
+
+	auto rz = std::make_shared<Rz>(0, 3.1415);
+	auto swap = std::make_shared<Swap>(0, 1);
+	auto cphase = std::make_shared<CPhase>(1, 2, 3.1415926);
+
+	InstructionParameter p("theta");
+	auto varCphase = std::make_shared<CPhase>(std::vector<int> { 1, 2 });
+	varCphase->setParameter(0, p);
+
+	f->addInstruction(x);
+	f->addInstruction(h);
+	f->addInstruction(cn1);
+	f->addInstruction(cn2);
+	f->addInstruction(h2);
+	f->addInstruction(m0);
+	f->addInstruction(m1);
+	f->addInstruction(cond1);
+	f->addInstruction(cond2);
+
+	std::string src = compiler->translate(f);
+
+
+	const std::string expected(
+			"X 0\n"
+			"H 1\n"
+			"CNOT 1 2\n"
+			"CNOT 0 1\n"
+			"H 0\n"
+			"MEASURE 0 [0]\n"
+			"MEASURE 1 [1]\n"
+			"JUMP-UNLESS @conditional_0 [0]\n"
+			"Z 2\n"
+			"LABEL @conditional_0\n"
+			"JUMP-UNLESS @conditional_1 [1]\n"
+			"X 2\n"
+			"LABEL @conditional_1\n");
+
+	BOOST_VERIFY(expected == src);
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

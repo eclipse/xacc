@@ -30,6 +30,7 @@
  **********************************************************************************/
 #include "GateQIR.hpp"
 #include "QuilCompiler.hpp"
+#include "QuilVisitor.hpp"
 
 namespace xacc {
 
@@ -136,6 +137,20 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 	ir->addKernel(f);
 
 	return ir;
+}
+
+const std::string QuilCompiler::translate(std::shared_ptr<Function> function) {
+	auto visitor = std::make_shared<QuilVisitor>();
+	InstructionIterator it(function);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled()) {
+			nextInst->accept(visitor);
+		}
+	}
+
+	return visitor->getQuilString();
 }
 
 }

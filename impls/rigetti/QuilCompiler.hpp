@@ -81,6 +81,15 @@ public:
 	}
 
 	/**
+	 * This produces a Quil source code representation of the
+	 * given IR Function
+	 *
+	 * @param function The XACC IR Function to translate
+	 * @return src The source code as a string
+	 */
+	virtual const std::string translate(std::shared_ptr<Function> function);
+
+	/**
 	 * The destructor
 	 */
 	virtual ~QuilCompiler() {}

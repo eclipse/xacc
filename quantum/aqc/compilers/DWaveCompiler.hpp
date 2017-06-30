@@ -52,6 +52,9 @@ public:
 				"DWave");
 	}
 
+	virtual const std::string translate(std::shared_ptr<Function> function) {
+
+	};
 	/**
 	 * The destructor
 	 */
