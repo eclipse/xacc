@@ -44,6 +44,8 @@ file (GLOB SRC compiler/*.cpp ir/*.cpp ir/instructions/*.cpp utils/*.cpp ir/algo
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
+
 add_subdirectory(compiler)
 add_subdirectory(ir)
 add_subdirectory(utils)
