@@ -1,4 +1,27 @@
 var searchData=
 [
-  ['visit',['visit',['../a01079.html#a5470d573fdcfd691c100fcbfeeed45db',1,'xacc::quantum::QuilVisitor::visit(Hadamard &amp;h)'],['../a01079.html#ac51ed9d947d3fa00525eb79b2bbc9021',1,'xacc::quantum::QuilVisitor::visit(CNOT &amp;cn)'],['../a01079.html#a0b1a31a900f87a3f91f640ab5caec126',1,'xacc::quantum::QuilVisitor::visit(X &amp;x)'],['../a01079.html#af429121067a397eeac17328fc0244859',1,'xacc::quantum::QuilVisitor::visit(Z &amp;z)'],['../a01079.html#acbe2afe1c9741112d1f9196681f8b896',1,'xacc::quantum::QuilVisitor::visit(Measure &amp;m)'],['../a01079.html#a7665ecdf9984374f52d30d7767649cf9',1,'xacc::quantum::QuilVisitor::visit(ConditionalFunction &amp;c)'],['../a01091.html#a144f1e4e6d24c450e0a941fa650c1f48',1,'CountGateVisitor::visit()'],['../a01107.html#af66cbe08e183c8b53817cda5251d0498',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(Hadamard &amp;h)'],['../a01107.html#a81b16c7a7da2c84174796ef4cc39b312',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(CNOT &amp;cn)'],['../a01107.html#a1a414fa079f0e3ba8cd0f97c7928e88f',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(X &amp;x)'],['../a01107.html#a444936ec9134a0ea400cd2f1b145ba4d',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(Z &amp;z)'],['../a01107.html#a99e7176144810f5d6e38d98d2725afff',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(Measure &amp;m)'],['../a01107.html#a1646dbfaf919432c2c3d8eb86e9f81e4',1,'xacc::quantum::ScaffoldIRToSrcVisitor::visit(ConditionalFunction &amp;c)'],['../a01491.html#af0fead298f5bfbb8e6680433063e2c4b',1,'xacc::InstructionVisitor::visit()']]]
+  ['_7eaccelerator',['~Accelerator',['../a01084.html#aed88ab0d71b765f0b0f512684ccd4b55',1,'xacc::Accelerator']]],
+  ['_7ealgorithmgenerator',['~AlgorithmGenerator',['../a01116.html#a096f66aa8d65f5aa3276915768159579',1,'xacc::AlgorithmGenerator']]],
+  ['_7ebaseinstructionvisitable',['~BaseInstructionVisitable',['../a01144.html#a3a291d247b18ea7620dd8d97dfb595f4',1,'xacc::BaseInstructionVisitable']]],
+  ['_7ebaseinstructionvisitor',['~BaseInstructionVisitor',['../a01136.html#aa6f5104f5868fe1eca9be4dc4036eba4',1,'xacc::BaseInstructionVisitor']]],
+  ['_7ecompiler',['~Compiler',['../a01100.html#a5d0b012687d9b44893872eaa81e47b38',1,'xacc::Compiler']]],
+  ['_7edwavecompiler',['~DWaveCompiler',['../a00948.html#acc0ab28f787b8f4cbeb63c594a247e50',1,'xacc::quantum::DWaveCompiler']]],
+  ['_7eembeddingalgorithm',['~EmbeddingAlgorithm',['../a00956.html#aa43660ad5d4c4b3ac67863892c33dc51',1,'xacc::quantum::EmbeddingAlgorithm']]],
+  ['_7efunction',['~Function',['../a01124.html#a04b25ba4da1ddfa4ec4ec6d6ffb25bc3',1,'xacc::Function']]],
+  ['_7egateinstruction',['~GateInstruction',['../a00992.html#ab8a75144074b27262fc33c77db4528b7',1,'xacc::quantum::GateInstruction']]],
+  ['_7egateqir',['~GateQIR',['../a01004.html#ac88db03f1dd29e2d36aaa6c01a130008',1,'xacc::quantum::GateQIR']]],
+  ['_7einstruction',['~Instruction',['../a01128.html#ae22c935e8113bce63d1d0e214cda4d61',1,'xacc::Instruction']]],
+  ['_7einstructionvisitor',['~InstructionVisitor',['../a01140.html#adf624df25964d0be1a56af58639c9e1d',1,'xacc::InstructionVisitor']]],
+  ['_7einverseqft',['~InverseQFT',['../a00980.html#a731c10d28046424be74e4c0daa31d016',1,'xacc::quantum::InverseQFT']]],
+  ['_7eir',['~IR',['../a01148.html#a09a76d71092254acae07e19fa2f34921',1,'xacc::IR']]],
+  ['_7eoptionsprovider',['~OptionsProvider',['../a01192.html#a7782757b419792ff346f563517eed8b8',1,'xacc::OptionsProvider']]],
+  ['_7eqft',['~QFT',['../a00984.html#a2f585738386f9a3744498983cd1f094e',1,'xacc::quantum::QFT']]],
+  ['_7equilcompiler',['~QuilCompiler',['../a00908.html#a0866a9f695f28c90ac1f4754374f3bfe',1,'xacc::quantum::QuilCompiler']]],
+  ['_7equilvisitor',['~QuilVisitor',['../a00912.html#a90dcced4e75c7b45c287fb4edc58ed01',1,'xacc::quantum::QuilVisitor']]],
+  ['_7erigettiaccelerator',['~RigettiAccelerator',['../a00916.html#a7c86895d1c29afa8b7e18476144a3fcf',1,'xacc::quantum::RigettiAccelerator']]],
+  ['_7escaffoldcompiler',['~ScaffoldCompiler',['../a00936.html#afb26398b07377ab9ddebc43a9376a6dd',1,'xacc::quantum::ScaffoldCompiler']]],
+  ['_7escaffoldirtosrcvisitor',['~ScaffoldIRToSrcVisitor',['../a00940.html#a366cddf574488b3bf0df1fe991806753',1,'xacc::quantum::ScaffoldIRToSrcVisitor']]],
+  ['_7esimpleaccelerator',['~SimpleAccelerator',['../a00944.html#a7ff286def924fafdff2066d12858e60c',1,'xacc::quantum::SimpleAccelerator']]],
+  ['_7esimulatedqubits',['~SimulatedQubits',['../a01080.html#aebf6f30a6d8c84971091d87908680e7e',1,'xacc::quantum::SimulatedQubits']]],
+  ['_7esingleton',['~Singleton',['../a01204.html#a75a032ec71f88d6986461b47f3fb2600',1,'xacc::Singleton']]]
 ];

@@ -1096,7 +1096,8 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/header.html
+HTML_HEADER            = 
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1106,7 +1107,8 @@ HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstr
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/footer.html
+HTML_FOOTER            = 
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of

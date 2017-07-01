@@ -1,11 +1,12 @@
 var searchData=
 [
-  ['parse',['parse',['../a01271.html#a686df5548771cae833d5e721442a821a',1,'fire::DelimitedTextParser::parse()'],['../a01279.html#a31b6bad01e65ed4bb5f1ba297616c641',1,'fire::INIPropertyParser::parse()'],['../a01283.html#af36ac6eedd8c27d2f418869193d7d03c',1,'fire::IParser::parse()'],['../a01291.html#abd8929aea06c2dda40256d2e58236650',1,'fire::LocalParser::parse()'],['../a01511.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser::parse()'],['../a01291.html#a34fd9ffb0196c612c75b5288ed5e219b',1,'fire::LocalParser::parse()'],['../a01291.html#ae904e264fe16708b3e434adea59e1b88',1,'fire::LocalParser::parse()'],['../a01271.html#a773fa7ed28cb9d8c384ad94bd81fc93f',1,'fire::DelimitedTextParser::parse()'],['../a00521.html#a2b47cfd8a5d8711cdc55e1397487b90b',1,'fire::parse()']]],
-  ['persist',['persist',['../a01131.html#adac268c6fa2234902efeb9b3c07c0ac2',1,'xacc::quantum::DWaveIR::persist()'],['../a01171.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a01499.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
-  ['post',['post',['../a01095.html#af775ada9f2a4e0939f06b733acb5e8ed',1,'FakeHttpClient']]],
-  ['print',['print',['../a01247.html#a9252d30be0563f36bf1ff839c7104cd7',1,'xacc::quantum::SimulatedQubits::print(std::ostream &amp;stream)'],['../a01247.html#a32922bd2ccc64bba601c07a3c136cc3d',1,'xacc::quantum::SimulatedQubits::print()'],['../a01347.html#a98fae67b5aa6dfdc9ccc429e72a92d64',1,'fire::Tensor::print()'],['../a01351.html#afeb68ff9e9a371b44ea902ae26b9c132',1,'fire::TensorProvider::print()']]],
-  ['printtensor',['printTensor',['../a01339.html#a607ad28d9f0b8b7f639dc1b0693dfd03',1,'fire::EigenTensorProvider']]],
-  ['process',['process',['../a01135.html#ad4f9ba1f83ea45ed376f36e3853c668d',1,'xacc::quantum::KernelReplacementPreprocessor::process()'],['../a01459.html#ae59b5a2963f8bcc84b590a83f4749e19',1,'xacc::Preprocessor::process()']]],
-  ['profilestepper',['ProfileStepper',['../a01267.html#a5bba5babbcb293b5e6a535cc4d06c55f',1,'fire::ProfileStepper']]],
-  ['program',['Program',['../a01507.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program']]]
+  ['setedgeweight',['setEdgeWeight',['../a01184.html#aaf1edd0f038f6cca1c3c9ece35d3ec05',1,'xacc::Graph']]],
+  ['setparameter',['setParameter',['../a00988.html#ab8d9789b46e92e27a9d7c9c5b7e3683c',1,'xacc::quantum::GateFunction::setParameter()'],['../a00992.html#afb8f7582d7520c77d61b9016753f5669',1,'xacc::quantum::GateInstruction::setParameter()'],['../a01128.html#a407a0ac662fa0b1ec3e301e8ff9bade7',1,'xacc::Instruction::setParameter()']]],
+  ['setstate',['setState',['../a01080.html#a8cd74c239c1fcecb3d03d6989732d5fe',1,'xacc::quantum::SimulatedQubits']]],
+  ['setvertexproperties',['setVertexProperties',['../a01184.html#a26cc1d1d4e1e23b206dcd23b6ef4a8cc',1,'xacc::Graph']]],
+  ['setvertexproperty',['setVertexProperty',['../a01184.html#aeeb65835e8a16ebba34da08ea8016fac',1,'xacc::Graph']]],
+  ['simulatedqubits',['SimulatedQubits',['../a01080.html#abb0419229628210a1c187b76be6edc30',1,'xacc::quantum::SimulatedQubits::SimulatedQubits(const std::string &amp;str, const int N)'],['../a01080.html#a812afe5bad306acfe2b46e05098040a4',1,'xacc::quantum::SimulatedQubits::SimulatedQubits(const std::string &amp;str, int firstIndex, Indices ... indices)']]],
+  ['singleton',['Singleton',['../a01204.html#afd62caabc41babdd98ab9af2253ec371',1,'xacc::Singleton']]],
+  ['size',['size',['../a01184.html#ae3138d390f1d1c7d335144b59df2ddac',1,'xacc::Graph::size()'],['../a01196.html#a2352dd7c6c85ae5c5e232b577dfa2544',1,'xacc::Registry::size()']]],
+  ['storebuffer',['storeBuffer',['../a01084.html#ac3e781f42ec25e460174d4c41ea26b94',1,'xacc::Accelerator']]]
 ];

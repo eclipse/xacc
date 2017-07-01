@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['name',['name',['../a01123.html#a21079dc8ee37792977f5fd209e3f3b19',1,'xacc::quantum::EmbeddingAlgorithm']]],
-  ['next',['next',['../a01483.html#a0a2e2b1543650760a869460ebcd4382b',1,'xacc::InstructionIterator']]],
-  ['ninstructions',['nInstructions',['../a01155.html#aa70b26156c060fec71316fe5e98bb102',1,'xacc::quantum::GateFunction::nInstructions()'],['../a01475.html#a8901985525f59713e14c61713e07c086',1,'xacc::Function::nInstructions()']]],
-  ['normalize',['normalize',['../a01247.html#a09ee499769bb1eedaf08d6b5c29f9791',1,'xacc::quantum::SimulatedQubits']]],
-  ['nparameters',['nParameters',['../a01155.html#ad0bffcbc0884d81d6bdddf55385fc6c9',1,'xacc::quantum::GateFunction::nParameters()'],['../a01159.html#a3752912b2c402668ca4814e21d4bbd26',1,'xacc::quantum::GateInstruction::nParameters()'],['../a01479.html#ad54585d13c04ffd20296fff7ab8107ff',1,'xacc::Instruction::nParameters()']]]
+  ['parse',['parse',['../a01160.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser']]],
+  ['persist',['persist',['../a00964.html#adac268c6fa2234902efeb9b3c07c0ac2',1,'xacc::quantum::DWaveIR::persist()'],['../a01004.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a01148.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
+  ['post',['post',['../a00928.html#af775ada9f2a4e0939f06b733acb5e8ed',1,'FakeHttpClient']]],
+  ['print',['print',['../a01080.html#a9252d30be0563f36bf1ff839c7104cd7',1,'xacc::quantum::SimulatedQubits::print(std::ostream &amp;stream)'],['../a01080.html#a32922bd2ccc64bba601c07a3c136cc3d',1,'xacc::quantum::SimulatedQubits::print()']]],
+  ['process',['process',['../a00968.html#ad4f9ba1f83ea45ed376f36e3853c668d',1,'xacc::quantum::KernelReplacementPreprocessor::process()'],['../a01108.html#ae59b5a2963f8bcc84b590a83f4749e19',1,'xacc::Preprocessor::process()']]],
+  ['program',['Program',['../a01156.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program']]]
 ];

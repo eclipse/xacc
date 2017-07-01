@@ -1,11 +1,13 @@
 var searchData=
 [
-  ['tensor',['Tensor',['../a01347.html',1,'fire']]],
-  ['tensor_3c_201_2c_20fire_3a_3aeigenprovider_2c_20std_3a_3acomplex_3c_20double_20_3e_20_3e',['Tensor&lt; 1, fire::EigenProvider, std::complex&lt; double &gt; &gt;',['../a01347.html',1,'fire']]],
-  ['tensorprovider',['TensorProvider',['../a01351.html',1,'fire']]],
-  ['tensorprovider_3c_20eigentensorprovider_3c_20rank_2c_20scalar_20_3e_20_3e',['TensorProvider&lt; EigenTensorProvider&lt; Rank, Scalar &gt; &gt;',['../a01351.html',1,'fire']]],
-  ['tensorshape',['TensorShape',['../a01359.html',1,'fire']]],
-  ['test',['Test',['../a01431.html',1,'']]],
-  ['teststruct',['TestStruct',['../a01315.html',1,'']]],
-  ['testvisitor',['TestVisitor',['../a01223.html',1,'']]]
+  ['x',['X',['../a01044.html',1,'xacc::quantum']]],
+  ['xaccexception',['XACCException',['../a01240.html',1,'xacc']]],
+  ['xaccinfot',['XACCInfoT',['../a01244.html',1,'xacc']]],
+  ['xaccvertex',['XACCVertex',['../a01172.html',1,'xacc']]],
+  ['xaccvertex_3c_20double_20_3e',['XACCVertex&lt; double &gt;',['../a01172.html',1,'xacc']]],
+  ['xaccvertex_3c_20std_3a_3astring_20_3e',['XACCVertex&lt; std::string &gt;',['../a01172.html',1,'xacc']]],
+  ['xaccvertex_3c_20std_3a_3astring_2c_20double_2c_20int_2c_20float_20_3e',['XACCVertex&lt; std::string, double, int, float &gt;',['../a01172.html',1,'xacc']]],
+  ['xaccvertex_3c_20std_3a_3astring_2c_20int_2c_20int_2c_20std_3a_3avector_3c_20int_20_3e_2c_20bool_2c_20std_3a_3avector_3c_20std_3a_3astring_20_3e_20_3e',['XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;',['../a01172.html',1,'xacc']]],
+  ['xaccvertex_3c_20std_3a_3avector_3c_20int_20_3e_20_3e',['XACCVertex&lt; std::vector&lt; int &gt; &gt;',['../a01172.html',1,'xacc']]],
+  ['xaccvertexpropertieswriter',['XACCVertexPropertiesWriter',['../a01188.html',1,'xacc::Graph']]]
 ];

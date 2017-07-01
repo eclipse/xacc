@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['linkconditionalqasm',['linkConditionalQasm',['../a01239.html#a902304cac3a5a6126b982e9dc9585428',1,'xacc::quantum::QasmToGraph']]],
-  ['load',['load',['../a01131.html#a94d814172ec30c7ed32e6ab52bc2a41a',1,'xacc::quantum::DWaveIR::load()'],['../a01171.html#a07f26eeb362ac480d20da6cdc8c8fb39',1,'xacc::quantum::GateQIR::load()'],['../a01255.html#aa9b4de0566ab0b0f148677d8b97e8c49',1,'fire::astrophysics::ReactionNetwork::load()'],['../a01499.html#a444c2e4dc0faac500fb70fa93997e9bc',1,'xacc::IR::load()']]],
-  ['loaddata',['LoadData',['../a01383.html#a174244fd3e09ff78da05fe46be86e714',1,'CSimpleIniTempl::LoadData(const std::string &amp;a_strData)'],['../a01383.html#aa797cf47cec05906f07d5065882af4d3',1,'CSimpleIniTempl::LoadData(const char *a_pData, size_t a_uDataLen)']]],
-  ['loadfile',['LoadFile',['../a01383.html#aebb6e5fff76efc05ca6cc4b7b56481a3',1,'CSimpleIniTempl::LoadFile(const char *a_pszFile)'],['../a01383.html#a7ccb65e82fa347b42b59330968f826ae',1,'CSimpleIniTempl::LoadFile(FILE *a_fpFile)']]]
+  ['name',['name',['../a00956.html#a21079dc8ee37792977f5fd209e3f3b19',1,'xacc::quantum::EmbeddingAlgorithm']]],
+  ['next',['next',['../a01132.html#a0a2e2b1543650760a869460ebcd4382b',1,'xacc::InstructionIterator']]],
+  ['ninstructions',['nInstructions',['../a00988.html#aa70b26156c060fec71316fe5e98bb102',1,'xacc::quantum::GateFunction::nInstructions()'],['../a01124.html#a8901985525f59713e14c61713e07c086',1,'xacc::Function::nInstructions()']]],
+  ['normalize',['normalize',['../a01080.html#a09ee499769bb1eedaf08d6b5c29f9791',1,'xacc::quantum::SimulatedQubits']]],
+  ['nparameters',['nParameters',['../a00988.html#ad0bffcbc0884d81d6bdddf55385fc6c9',1,'xacc::quantum::GateFunction::nParameters()'],['../a00992.html#a3752912b2c402668ca4814e21d4bbd26',1,'xacc::quantum::GateInstruction::nParameters()'],['../a01128.html#ad54585d13c04ffd20296fff7ab8107ff',1,'xacc::Instruction::nParameters()']]]
 ];

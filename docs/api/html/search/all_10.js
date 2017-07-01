@@ -1,11 +1,10 @@
 var searchData=
 [
-  ['operator_21_3d',['operator!=',['../a01347.html#a53ac3eadb4a5047c56e749b7e7c4d53d',1,'fire::Tensor']]],
-  ['operator_28_29',['operator()',['../a01347.html#a07cc44df958ab73a79d15c6d96fa5544',1,'fire::Tensor']]],
-  ['operator_2a',['operator*',['../a01347.html#a67952b93c6812069d521522bf9b3b887',1,'fire::Tensor::operator*(OtherDerived &amp;other)'],['../a01347.html#a6de8950823ff713b7226e332b02f15f8',1,'fire::Tensor::operator*(Scalar val)']]],
-  ['operator_2b',['operator+',['../a01347.html#a20377472ae56dcaa2c0f67feb13900e7',1,'fire::Tensor']]],
-  ['operator_3d_3d',['operator==',['../a01347.html#a5f24a2528292de76b6c52e2cc99acf9c',1,'fire::Tensor']]],
-  ['optionsprovider',['OptionsProvider',['../a01543.html',1,'xacc']]],
-  ['order',['order',['../a01535.html#a50fca47e555122b5bb72e93e719484b4',1,'xacc::Graph']]],
-  ['outputwriter',['OutputWriter',['../a01399.html',1,'CSimpleIniTempl']]]
+  ['parse',['parse',['../a01160.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser']]],
+  ['persist',['persist',['../a00964.html#adac268c6fa2234902efeb9b3c07c0ac2',1,'xacc::quantum::DWaveIR::persist()'],['../a01004.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a01148.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
+  ['post',['post',['../a00928.html#af775ada9f2a4e0939f06b733acb5e8ed',1,'FakeHttpClient']]],
+  ['preprocessor',['Preprocessor',['../a01108.html',1,'xacc']]],
+  ['print',['print',['../a01080.html#a9252d30be0563f36bf1ff839c7104cd7',1,'xacc::quantum::SimulatedQubits::print(std::ostream &amp;stream)'],['../a01080.html#a32922bd2ccc64bba601c07a3c136cc3d',1,'xacc::quantum::SimulatedQubits::print()']]],
+  ['process',['process',['../a00968.html#ad4f9ba1f83ea45ed376f36e3853c668d',1,'xacc::quantum::KernelReplacementPreprocessor::process()'],['../a01108.html#ae59b5a2963f8bcc84b590a83f4749e19',1,'xacc::Preprocessor::process()']]],
+  ['program',['Program',['../a01156.html',1,'xacc::Program'],['../a01156.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program::Program()']]]
 ];
