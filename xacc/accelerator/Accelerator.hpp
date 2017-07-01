@@ -72,6 +72,7 @@ enum AcceleratorType {
  * call the protected storeBuffer method to store the AcceleratorBuffer
  * for future reference by Compilers and clients of Accelerator.
  *
+ * @author Alex McCaskey
  */
 class Accelerator : public OptionsProvider {
 
@@ -87,15 +88,16 @@ public:
 	/**
 	 * Return any IR Transformations that must be applied to ensure
 	 * the compiled IR is amenable to execution on this Accelerator.
-	 * @return
+	 *
+	 * @return transformations The IR transformations this Accelerator exposes
 	 */
 	virtual std::vector<IRTransformation> getIRTransformations() = 0;
 
 	/**
 	 * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
 	 *
-	 * @param buffer
-	 * @param ir
+	 * @param buffer The buffer of bits this Accelerator should operate on.
+	 * @param function The kernel to execute.
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				const std::shared_ptr<Function> function) = 0;
@@ -106,9 +108,9 @@ public:
 	 * The string id serves as a unique identifier
 	 * for future lookups and reuse of the AcceleratorBuffer.
 	 *
-	 * @param varId
-	 * @param size
-	 * @return
+	 * @param varId The variable name of the created buffer
+	 * @param size The number of bits in the created buffer
+	 * @return buffer The buffer instance created.
 	 */
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 			const std::string& varId, const int size) = 0;
@@ -117,8 +119,8 @@ public:
 	 * Return the stored AcceleratorBuffer with the provided
 	 * string id.
 	 *
-	 * @param varid
-	 * @return
+	 * @param varid The variable name of the created buffer
+	 * @return buffer The buffer with given varid.
 	 */
 	virtual std::shared_ptr<AcceleratorBuffer> getBuffer(
 			const std::string& varid) {
@@ -142,13 +144,6 @@ public:
 
 		return names;
 	}
-	/**
-	 * Return true if this Accelerator can allocated
-	 * NBits number of bits.
-	 * @param NBits
-	 * @return
-	 */
-	virtual bool isValidBufferSize(const int NBits) = 0;
 
 	/**
 	 * Return an empty options_description, this is for
@@ -167,11 +162,21 @@ public:
 protected:
 
 	/**
+	 * Return true if this Accelerator can allocated
+	 * NBits number of bits. This is meant to be implemented
+	 * and used by subclasses.
+	 *
+	 * @param NBits The number of bits to allocate
+	 * @return valid True if size is valid.
+	 */
+	virtual bool isValidBufferSize(const int NBits) = 0;
+
+	/**
 	 * This protected method is to be used by derived
 	 * Accelerators to store any created AcceleratorBuffer.
 	 *
-	 * @param id
-	 * @param b
+	 * @param id The variable name of the buffer to store
+	 * @param b The buffer to store
 	 */
 	void storeBuffer(const std::string& id,
 			std::shared_ptr<AcceleratorBuffer> b) {

@@ -101,6 +101,11 @@ public:
 	 */
 	virtual std::shared_ptr<Function> getKernel(const std::string& name) = 0;
 
+	/**
+	 * Return all of this IR instance's kernels.
+	 *
+	 * @return kernels The kernels this IR contains.
+	 */
 	virtual std::vector<std::shared_ptr<Function>> getKernels() = 0;
 
 	/**

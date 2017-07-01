@@ -86,6 +86,10 @@ protected:
 };
 
 /**
+ * The AcceleratorBuffer models an allocated buffer of
+ * bits that are operated on by a kernel. As such,
+ * the AcceleratorBuffer's primary role is to store
+ * Accelerator execution results.
  *
  * @author Alex McCaskey
  */
@@ -93,6 +97,9 @@ class AcceleratorBuffer {
 
 public:
 
+	/**
+	 * The Constructor
+	 */
 	AcceleratorBuffer(const std::string& str, const int N) :
 			bufferId(str), bits(std::vector<AcceleratorBit>(N)) {
 	}

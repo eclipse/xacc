@@ -41,6 +41,8 @@ using InstPtr = std::shared_ptr<Instruction>;
 /**
  * The Function is an Instruction that contains further
  * child Instructions.
+ *
+ * @author Alex McCaskey
  */
 class Function : public virtual Instruction {
 public:
@@ -108,11 +110,13 @@ public:
 	virtual bool isComposite() { return true; }
 
 	/**
+	 * This method is used to evaluate this Function's parameterized
+	 * Instructions that have string variable InstructionParameters.
+	 * These parameters are updated with the given runtime parameters.
 	 *
+	 * @param parameters The runtime parameters
 	 */
 	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) = 0;
-
-//	virtual void persist(std::ostream& stream) = 0;
 
 	/**
 	 * The destructor

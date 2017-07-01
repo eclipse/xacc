@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

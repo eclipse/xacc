@@ -40,6 +40,9 @@
 
 namespace xacc {
 
+/**
+ * InstructionParameters can be ints, doubles, floats, or strings (for variables)
+ */
 using InstructionParameter = boost::variant<int, double, float, std::string>;
 
 /**
@@ -93,6 +96,11 @@ public:
 	 */
 	virtual InstructionParameter getParameter(const int idx) = 0;
 
+	/**
+	 * Return all of this Instruction's parameters.
+	 *
+	 * @return params This instructions parameters.
+	 */
 	virtual std::vector<InstructionParameter> getParameters() = 0;
 
 	/**

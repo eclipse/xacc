@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ const std::string src("__qpu__ qft (qbit qreg) {\n"
 	"   // Testing out new Kernel\n"
 	"   // Replacement Preprocessor!\n"
 	"   xacc::QFT(qreg);\n"
+	"   xacc::InverseQFT(qreg);\n"
 	"}\n");
 
 int main (int argc, char** argv) {
