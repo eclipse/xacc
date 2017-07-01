@@ -1,61 +1,81 @@
-\hypertarget{a01099}{}\section{xacc\+:\+:quantum\+:\+:Scaffold\+A\+S\+T\+Consumer Class Reference}
-\label{a01099}\index{xacc\+::quantum\+::\+Scaffold\+A\+S\+T\+Consumer@{xacc\+::quantum\+::\+Scaffold\+A\+S\+T\+Consumer}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Scaffold\+A\+S\+T\+Consumer\+:\begin{figure}[H]
+\hypertarget{a01099}{}\section{xacc\+:\+:Accelerator\+Buffer Class Reference}
+\label{a01099}\index{xacc\+::\+Accelerator\+Buffer@{xacc\+::\+Accelerator\+Buffer}}
+
+
+{\ttfamily \#include $<$Accelerator\+Buffer.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Accelerator\+Buffer\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=1.717791cm]{a01099}
+\includegraphics[height=2.000000cm]{a01099}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a01099_ae846fd40684f3a1f820b8711e1204089}\label{a01099_ae846fd40684f3a1f820b8711e1204089}} 
-virtual bool {\bfseries Handle\+Top\+Level\+Decl} (Decl\+Group\+Ref DR)
+\hyperlink{a01099_ab606d8af942120d60b51a4fffcd75c98}{Accelerator\+Buffer} (const std\+::string \&str, const int N)
 \item 
-\mbox{\Hypertarget{a01099_a6693c27f68332d8142fbdcb405e3259b}\label{a01099_a6693c27f68332d8142fbdcb405e3259b}} 
-bool {\bfseries Visit\+Stmt} (clang\+::\+Stmt $\ast$s)
+\mbox{\Hypertarget{a01099_ae6fc59d8a9abf1efce40427c7ba12c57}\label{a01099_ae6fc59d8a9abf1efce40427c7ba12c57}} 
+{\footnotesize template$<$typename ... Indices$>$ }\\{\bfseries Accelerator\+Buffer} (const std\+::string \&str, int first\+Index, Indices ... indices)
 \item 
-\mbox{\Hypertarget{a01099_ae6a05fe567cd8ea15feb694dbb898c33}\label{a01099_ae6a05fe567cd8ea15feb694dbb898c33}} 
-bool {\bfseries Visit\+Decl} (clang\+::\+Decl $\ast$d)
+\mbox{\Hypertarget{a01099_aa2a3101c2e3ae3550172bf49f9587f3b}\label{a01099_aa2a3101c2e3ae3550172bf49f9587f3b}} 
+int {\bfseries size} ()
 \item 
-\mbox{\Hypertarget{a01099_a1478fc9e887b04d2ad2aa8347ef6bbcb}\label{a01099_a1478fc9e887b04d2ad2aa8347ef6bbcb}} 
-bool {\bfseries Visit\+Call\+Expr} (Call\+Expr $\ast$c)
+\mbox{\Hypertarget{a01099_ad5b646e9efc21b6d0bcc22cd6f649c22}\label{a01099_ad5b646e9efc21b6d0bcc22cd6f649c22}} 
+std\+::string {\bfseries name} ()
 \item 
-\mbox{\Hypertarget{a01099_a3f2f070888678caf53e57041b4f5ddd6}\label{a01099_a3f2f070888678caf53e57041b4f5ddd6}} 
-bool {\bfseries Visit\+Binary\+Operator} (Binary\+Operator $\ast$b)
+\mbox{\Hypertarget{a01099_aa6d6e9cfee6170333c1f03507345743f}\label{a01099_aa6d6e9cfee6170333c1f03507345743f}} 
+void {\bfseries reset\+Buffer} ()
 \item 
-\mbox{\Hypertarget{a01099_af9dbfa7c52b8a7de99132257e154e29a}\label{a01099_af9dbfa7c52b8a7de99132257e154e29a}} 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01499}{xacc\+::\+IR} $>$ {\bfseries get\+IR} ()
+\mbox{\Hypertarget{a01099_a4bc0edbe9aa0d463f67ddcc38265066f}\label{a01099_a4bc0edbe9aa0d463f67ddcc38265066f}} 
+void {\bfseries update\+Bit} (const int idx, int zero\+Or\+One)
 \item 
-\mbox{\Hypertarget{a01099_aa301f0bcae6fb5a1c17557ba08144cb4}\label{a01099_aa301f0bcae6fb5a1c17557ba08144cb4}} 
-const std\+::string {\bfseries get\+Qubit\+Variable\+Name} ()
+\mbox{\Hypertarget{a01099_ac161c4f984f774d08197871094aabc67}\label{a01099_ac161c4f984f774d08197871094aabc67}} 
+void {\bfseries append\+Measurement} (const boost\+::dynamic\+\_\+bitset$<$$>$ \&measurement)
+\item 
+\mbox{\Hypertarget{a01099_aaddd3a5968067dd230f48dacc8d6a747}\label{a01099_aaddd3a5968067dd230f48dacc8d6a747}} 
+double {\bfseries get\+Average} () const
+\item 
+\mbox{\Hypertarget{a01099_aba6ef359f3117faa98f0eb8da90d909e}\label{a01099_aba6ef359f3117faa98f0eb8da90d909e}} 
+Accelerator\+Bit\+State {\bfseries get\+Accelerator\+Bit\+State} (const int idx)
+\item 
+\mbox{\Hypertarget{a01099_add0835e188f0eda4f1b68a28ddc79786}\label{a01099_add0835e188f0eda4f1b68a28ddc79786}} 
+virtual void {\bfseries print} ()
+\item 
+\mbox{\Hypertarget{a01099_a7c59462451223772b41ef232b06a7dfa}\label{a01099_a7c59462451223772b41ef232b06a7dfa}} 
+virtual void {\bfseries print} (std\+::ostream \&stream)
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a01099_a62efc9fb3166e7f9d0a7ccb71dc5eb59}\label{a01099_a62efc9fb3166e7f9d0a7ccb71dc5eb59}} 
-std\+::string {\bfseries cbit\+Var\+Name}
+\mbox{\Hypertarget{a01099_a5464b23a964985df2547f657877c9ea5}\label{a01099_a5464b23a964985df2547f657877c9ea5}} 
+std\+::vector$<$ boost\+::dynamic\+\_\+bitset$<$$>$ $>$ {\bfseries measurements}
 \item 
-\mbox{\Hypertarget{a01099_aaa908356dd67cb918d7cc913783760f9}\label{a01099_aaa908356dd67cb918d7cc913783760f9}} 
-std\+::string {\bfseries qbit\+Var\+Name}
+\mbox{\Hypertarget{a01099_a3198e034d07d9b77b62da03e6592a221}\label{a01099_a3198e034d07d9b77b62da03e6592a221}} 
+std\+::string {\bfseries buffer\+Id}
 \item 
-\mbox{\Hypertarget{a01099_addb230351a9ceaeb55496adc57f2b748}\label{a01099_addb230351a9ceaeb55496adc57f2b748}} 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01171}{xacc\+::quantum\+::\+Gate\+Q\+IR} $>$ {\bfseries ir}
-\item 
-\mbox{\Hypertarget{a01099_a78d4c0227cf55778cb05f2262357c3a9}\label{a01099_a78d4c0227cf55778cb05f2262357c3a9}} 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01155}{xacc\+::quantum\+::\+Gate\+Function} $>$ {\bfseries function}
-\item 
-\mbox{\Hypertarget{a01099_a481378bd7158942633a555500871b363}\label{a01099_a481378bd7158942633a555500871b363}} 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01179}{xacc\+::quantum\+::\+Conditional\+Function} $>$ {\bfseries current\+Conditional}
-\item 
-\mbox{\Hypertarget{a01099_a3be085dc66ddcf3f6e0530a17b26e66a}\label{a01099_a3be085dc66ddcf3f6e0530a17b26e66a}} 
-int {\bfseries n\+Call\+Expr\+To\+Skip} = 0
-\item 
-\mbox{\Hypertarget{a01099_a6675849cfdd92413a688c6999dda40a8}\label{a01099_a6675849cfdd92413a688c6999dda40a8}} 
-std\+::map$<$ std\+::string, int $>$ {\bfseries cbit\+Reg\+To\+Measured\+Qubit}
+\mbox{\Hypertarget{a01099_ab6dbb8c22f8adc6aba34b00a84066854}\label{a01099_ab6dbb8c22f8adc6aba34b00a84066854}} 
+std\+::vector$<$ \hyperlink{a01095}{Accelerator\+Bit} $>$ {\bfseries bits}
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+The \hyperlink{a01099}{Accelerator\+Buffer} models an allocated buffer of bits that are operated on by a kernel. As such, the \hyperlink{a01099}{Accelerator\+Buffer}\textquotesingle{}s primary role is to store \hyperlink{a01087}{Accelerator} execution results.
+
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01099_ab606d8af942120d60b51a4fffcd75c98}\label{a01099_ab606d8af942120d60b51a4fffcd75c98}} 
+\index{xacc\+::\+Accelerator\+Buffer@{xacc\+::\+Accelerator\+Buffer}!Accelerator\+Buffer@{Accelerator\+Buffer}}
+\index{Accelerator\+Buffer@{Accelerator\+Buffer}!xacc\+::\+Accelerator\+Buffer@{xacc\+::\+Accelerator\+Buffer}}
+\subsubsection{\texorpdfstring{Accelerator\+Buffer()}{AcceleratorBuffer()}}
+{\footnotesize\ttfamily xacc\+::\+Accelerator\+Buffer\+::\+Accelerator\+Buffer (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{str,  }\item[{const int}]{N }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The Constructor 
+
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Scaffold\+A\+S\+T\+Consumer.\+hpp\end{DoxyCompactItemize}
+Accelerator\+Buffer.\+hpp\end{DoxyCompactItemize}

@@ -36,6 +36,7 @@
 #include "QuilCompiler.hpp"
 #include "GateQIR.hpp"
 #include "QuilVisitor.hpp"
+#include "CountGatesOfTypeVisitor.hpp"
 
 using namespace xacc;
 
@@ -53,26 +54,26 @@ struct F {
 
 	std::shared_ptr<xacc::Compiler> compiler;
 };
-
-template<typename GateType>
-class CountGateVisitor : public xacc::BaseInstructionVisitor,
-public xacc::InstructionVisitor<GateType> {
-public:
-	int count = 0;
-	virtual void visit(GateType& gate) {
-		count++;
-	}
-};
-
-template<typename Visitor>
-void countGates(Visitor visitor, std::shared_ptr<xacc::Function> function) {
-	xacc::InstructionIterator it(function);
-	while (it.hasNext()) {
-		// Get the next node in the tree
-		auto nextInst = it.next();
-		if (nextInst->isEnabled()) nextInst->accept(visitor);
-	}
-}
+//
+//template<typename GateType>
+//class CountGateVisitor : public xacc::BaseInstructionVisitor,
+//public xacc::InstructionVisitor<GateType> {
+//public:
+//	int count = 0;
+//	virtual void visit(GateType& gate) {
+//		count++;
+//	}
+//};
+//
+//template<typename Visitor>
+//void countGates(Visitor visitor, std::shared_ptr<xacc::Function> function) {
+//	xacc::InstructionIterator it(function);
+//	while (it.hasNext()) {
+//		// Get the next node in the tree
+//		auto nextInst = it.next();
+//		if (nextInst->isEnabled()) nextInst->accept(visitor);
+//	}
+//}
 //____________________________________________________________________________//
 
 BOOST_FIXTURE_TEST_SUITE( s, F )
@@ -106,23 +107,17 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 
 	BOOST_VERIFY(function->nInstructions() == 9);
 
-	auto hadamardVisitor = std::make_shared<CountGateVisitor<Hadamard>>();
-	auto cnotVisitor = std::make_shared<CountGateVisitor<CNOT>>();
-	auto measureVisitor = std::make_shared<CountGateVisitor<Measure>>();
-	auto conditionalVisitor = std::make_shared<CountGateVisitor<ConditionalFunction>>();
-	auto xVisitor = std::make_shared<CountGateVisitor<X>>();
+	auto hadamardVisitor = std::make_shared<CountGatesOfTypeVisitor<Hadamard>>(function);
+	auto cnotVisitor = std::make_shared<CountGatesOfTypeVisitor<CNOT>>(function);
+	auto measureVisitor = std::make_shared<CountGatesOfTypeVisitor<Measure>>(function);
+	auto conditionalVisitor = std::make_shared<CountGatesOfTypeVisitor<ConditionalFunction>>(function);
+	auto xVisitor = std::make_shared<CountGatesOfTypeVisitor<X>>(function);
 
-	countGates(hadamardVisitor, function);
-	countGates(cnotVisitor, function);
-	countGates(measureVisitor, function);
-	countGates(conditionalVisitor, function);
-	countGates(xVisitor, function);
-
-	BOOST_VERIFY(hadamardVisitor->count == 2);
-	BOOST_VERIFY(cnotVisitor->count == 2);
-	BOOST_VERIFY(measureVisitor->count == 2);
-	BOOST_VERIFY(conditionalVisitor->count == 2);
-	BOOST_VERIFY(xVisitor->count = 1);
+	BOOST_VERIFY(hadamardVisitor->countGates() == 2);
+	BOOST_VERIFY(cnotVisitor->countGates() == 2);
+	BOOST_VERIFY(measureVisitor->countGates() == 2);
+	BOOST_VERIFY(conditionalVisitor->countGates() == 2);
+	BOOST_VERIFY(xVisitor->countGates() == 1);
 
 }
 

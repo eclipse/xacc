@@ -1,24 +1,32 @@
-\hypertarget{a01175}{}\section{xacc\+:\+:quantum\+:\+:C\+N\+OT Class Reference}
-\label{a01175}\index{xacc\+::quantum\+::\+C\+N\+OT@{xacc\+::quantum\+::\+C\+N\+OT}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:C\+N\+OT\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=4.000000cm]{a01175}
-\end{center}
-\end{figure}
+\hypertarget{a01175}{}\section{xacc\+:\+:X\+A\+C\+C\+Vertex$<$ Properties $>$ Class Template Reference}
+\label{a01175}\index{xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$@{xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$}}
+
+
+{\ttfamily \#include $<$Graph.\+hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a01175_ad3d460779a27affa317dd4f3a88268b3}\label{a01175_ad3d460779a27affa317dd4f3a88268b3}} 
-{\bfseries C\+N\+OT} (std\+::vector$<$ int $>$ \hyperlink{a01159_a2a56be6c2519ea65df4d06f4abae1393}{qbits})
-\item 
-\mbox{\Hypertarget{a01175_a15efcb44477dde4b6151fe1776a73ddc}\label{a01175_a15efcb44477dde4b6151fe1776a73ddc}} 
-{\bfseries C\+N\+OT} (int srcqbit, int tgtqbit)
+\mbox{\Hypertarget{a01175_a7a7c4d60a277c3c0998f3911d128eaa5}\label{a01175_a7a7c4d60a277c3c0998f3911d128eaa5}} 
+std\+::string {\bfseries get\+Property\+Name} (const int index)
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
-
-
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
 \item 
-C\+N\+O\+T.\+hpp\item 
-C\+N\+O\+T.\+cpp\end{DoxyCompactItemize}
+\mbox{\Hypertarget{a01175_ad97a32f3cfcceef3eb0725a1a185025b}\label{a01175_ad97a32f3cfcceef3eb0725a1a185025b}} 
+std\+::tuple$<$ Properties... $>$ {\bfseries properties}
+\item 
+\mbox{\Hypertarget{a01175_a9107342e37aaa5d7936d7e457051f461}\label{a01175_a9107342e37aaa5d7936d7e457051f461}} 
+std\+::vector$<$ std\+::string $>$ {\bfseries property\+Names}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename ... Properties$>$\newline
+class xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$}
+
+The base class of all Q\+CI Vertices for the Q\+CI Common \hyperlink{a01187}{Graph} class. All Vertices must keep track of a set of properties, stored as a tuple. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Graph.\+hpp\end{DoxyCompactItemize}

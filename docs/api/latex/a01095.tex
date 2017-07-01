@@ -1,50 +1,66 @@
-\hypertarget{a01095}{}\section{Fake\+Http\+Client Class Reference}
-\label{a01095}\index{Fake\+Http\+Client@{Fake\+Http\+Client}}
-Inheritance diagram for Fake\+Http\+Client\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=2.000000cm]{a01095}
-\end{center}
-\end{figure}
+\hypertarget{a01095}{}\section{xacc\+:\+:Accelerator\+Bit Class Reference}
+\label{a01095}\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+
+
+{\ttfamily \#include $<$Accelerator\+Buffer.\+hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a01095_aa69081dbfa2351dbc9d01434df577568}\label{a01095_aa69081dbfa2351dbc9d01434df577568}} 
-virtual fire\+::util\+::\+Http\+Response {\bfseries get} (const std\+::string \&relative\+Path, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+\hyperlink{a01095_a9a124c230c5cabeab53bac0820c0221a}{Accelerator\+Bit} ()
 \item 
-virtual fire\+::util\+::\+Http\+Response \hyperlink{a01095_af775ada9f2a4e0939f06b733acb5e8ed}{post} (const std\+::string \&relative\+Path, const std\+::string \&message, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+void \hyperlink{a01095_aa63a24980e831b9325a36836ab1c5495}{update} (int zero\+Or\+One)
+\item 
+Accelerator\+Bit\+State \hyperlink{a01095_a4a8dcc4fa02a5619f583961460c77057}{get\+State} ()
 \end{DoxyCompactItemize}
-\subsection*{Public Attributes}
+\subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{a01095_aa4f56c4906c5c5654f05778b97860441}\label{a01095_aa4f56c4906c5c5654f05778b97860441}} 
-bool {\bfseries post\+Occured} = false
+Accelerator\+Bit\+State \hyperlink{a01095_a4632123ac31aeed0dc97c65f8c792a85}{state}
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+The \hyperlink{a01095}{Accelerator\+Bit} wraps an Accelerator\+Bit\+Sate and provides a mechanism for updating that state.
+
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01095_a9a124c230c5cabeab53bac0820c0221a}\label{a01095_a9a124c230c5cabeab53bac0820c0221a}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!Accelerator\+Bit@{Accelerator\+Bit}}
+\index{Accelerator\+Bit@{Accelerator\+Bit}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{Accelerator\+Bit()}{AcceleratorBit()}}
+{\footnotesize\ttfamily xacc\+::\+Accelerator\+Bit\+::\+Accelerator\+Bit (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The constructor, all bits are initialized to unknown state 
+
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01095_af775ada9f2a4e0939f06b733acb5e8ed}\label{a01095_af775ada9f2a4e0939f06b733acb5e8ed}} 
-\index{Fake\+Http\+Client@{Fake\+Http\+Client}!post@{post}}
-\index{post@{post}!Fake\+Http\+Client@{Fake\+Http\+Client}}
-\subsubsection{\texorpdfstring{post()}{post()}}
-{\footnotesize\ttfamily virtual fire\+::util\+::\+Http\+Response Fake\+Http\+Client\+::post (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{relative\+Path,  }\item[{const std\+::string \&}]{message,  }\item[{const std\+::map$<$ std\+::string, std\+::string $>$ \&}]{header = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string$>$()} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01095_a4a8dcc4fa02a5619f583961460c77057}\label{a01095_a4a8dcc4fa02a5619f583961460c77057}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!get\+State@{get\+State}}
+\index{get\+State@{get\+State}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{get\+State()}{getState()}}
+{\footnotesize\ttfamily Accelerator\+Bit\+State xacc\+::\+Accelerator\+Bit\+::get\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-Issue an H\+T\+TP Post command at the given relative path with the provided message. Clients can provide a map of header key values to modify the P\+O\+ST request.
+Return the value of this state \mbox{\Hypertarget{a01095_aa63a24980e831b9325a36836ab1c5495}\label{a01095_aa63a24980e831b9325a36836ab1c5495}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!update@{update}}
+\index{update@{update}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void xacc\+::\+Accelerator\+Bit\+::update (\begin{DoxyParamCaption}\item[{int}]{zero\+Or\+One }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
+Update the Bit state to a one or zero 
 
-\begin{DoxyParams}{Parameters}
-{\em relative\+Path} & The path relative to the hostname/port provided to this Networking\+Tool \\
-\hline
-{\em message} & The message to post \\
-\hline
-{\em header} & The map of additional H\+T\+TP P\+O\+ST header information \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-success Boolean indicating if post was successful 
-\end{DoxyReturn}
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01095_a4632123ac31aeed0dc97c65f8c792a85}\label{a01095_a4632123ac31aeed0dc97c65f8c792a85}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!state@{state}}
+\index{state@{state}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{state}{state}}
+{\footnotesize\ttfamily Accelerator\+Bit\+State xacc\+::\+Accelerator\+Bit\+::state\hspace{0.3cm}{\ttfamily [protected]}}
 
+The bit state 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Rigetti\+Accelerator\+Tester.\+cpp\end{DoxyCompactItemize}
+Accelerator\+Buffer.\+hpp\end{DoxyCompactItemize}

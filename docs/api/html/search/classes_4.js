@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['embeddingalgorithm',['EmbeddingAlgorithm',['../a00956.html',1,'xacc::quantum']]]
+  ['embeddingalgorithm',['EmbeddingAlgorithm',['../a00955.html',1,'xacc::quantum']]]
 ];

@@ -1,121 +1,48 @@
-\hypertarget{a01143}{}\section{Dummy\+Accelerator Class Reference}
-\label{a01143}\index{Dummy\+Accelerator@{Dummy\+Accelerator}}
-Inheritance diagram for Dummy\+Accelerator\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=3.000000cm]{a01143}
-\end{center}
-\end{figure}
+\hypertarget{a01143}{}\section{xacc\+:\+:Instruction\+Visitor$<$ T $>$ Class Template Reference}
+\label{a01143}\index{xacc\+::\+Instruction\+Visitor$<$ T $>$@{xacc\+::\+Instruction\+Visitor$<$ T $>$}}
+
+
+{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual Accelerator\+Type \hyperlink{a01143_acdfe3e856f2bacc9e0dc1a51782a52e3}{get\+Type} ()
+virtual void \hyperlink{a01143_af0fead298f5bfbb8e6680433063e2c4b}{visit} (T \&)=0
 \item 
-virtual std\+::vector$<$ \hyperlink{a01503}{I\+R\+Transformation} $>$ \hyperlink{a01143_aac0e2ae753064701468fa1188ac7549f}{get\+I\+R\+Transformations} ()
-\item 
-virtual void \hyperlink{a01143_a389ba22af5d0d964f5d5367f01712b3c}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01447}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a01475}{Function} $>$ function)
-\item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01447}{Accelerator\+Buffer} $>$ \hyperlink{a01143_aa645e7ba6343aa9812836d1e141bd7c8}{create\+Buffer} (const std\+::string \&var\+Id, const int size)
-\item 
-virtual bool \hyperlink{a01143_a831ad0c71864920cc49a00d29768af8c}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
+virtual \hyperlink{a01143_adf624df25964d0be1a56af58639c9e1d}{$\sim$\+Instruction\+Visitor} ()
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class T$>$\newline
+class xacc\+::\+Instruction\+Visitor$<$ T $>$}
+
+The \hyperlink{a01143}{Instruction\+Visitor} provides a visit method for the provided template parameter. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01143_adf624df25964d0be1a56af58639c9e1d}\label{a01143_adf624df25964d0be1a56af58639c9e1d}} 
+\index{xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}!````~Instruction\+Visitor@{$\sim$\+Instruction\+Visitor}}
+\index{````~Instruction\+Visitor@{$\sim$\+Instruction\+Visitor}!xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}}
+\subsubsection{\texorpdfstring{$\sim$\+Instruction\+Visitor()}{~InstructionVisitor()}}
+{\footnotesize\ttfamily template$<$class T$>$ \\
+virtual \hyperlink{a01143}{xacc\+::\+Instruction\+Visitor}$<$ T $>$\+::$\sim$\hyperlink{a01143}{Instruction\+Visitor} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+The destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01143_aa645e7ba6343aa9812836d1e141bd7c8}\label{a01143_aa645e7ba6343aa9812836d1e141bd7c8}} 
-\index{Dummy\+Accelerator@{Dummy\+Accelerator}!create\+Buffer@{create\+Buffer}}
-\index{create\+Buffer@{create\+Buffer}!Dummy\+Accelerator@{Dummy\+Accelerator}}
-\subsubsection{\texorpdfstring{create\+Buffer()}{createBuffer()}}
-{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01447}{Accelerator\+Buffer}$>$ Dummy\+Accelerator\+::create\+Buffer (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{var\+Id,  }\item[{const int}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01143_af0fead298f5bfbb8e6680433063e2c4b}\label{a01143_af0fead298f5bfbb8e6680433063e2c4b}} 
+\index{xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}}
+{\footnotesize\ttfamily template$<$class T$>$ \\
+virtual void \hyperlink{a01143}{xacc\+::\+Instruction\+Visitor}$<$ T $>$\+::visit (\begin{DoxyParamCaption}\item[{T \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Create, store, and return an Accelerator\+Buffer with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the Accelerator\+Buffer.
+This method should be implemented by subclasses to perform Visitor-\/specific behavior on the given instance of the template parameter T. 
 
-
-\begin{DoxyParams}{Parameters}
-{\em var\+Id} & The variable name of the created buffer \\
-\hline
-{\em size} & The number of bits in the created buffer \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-buffer The buffer instance created. 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a01435_a064a2dbd58338364115c260267806945}{xacc\+::\+Accelerator}.
-
-\mbox{\Hypertarget{a01143_a389ba22af5d0d964f5d5367f01712b3c}\label{a01143_a389ba22af5d0d964f5d5367f01712b3c}} 
-\index{Dummy\+Accelerator@{Dummy\+Accelerator}!execute@{execute}}
-\index{execute@{execute}!Dummy\+Accelerator@{Dummy\+Accelerator}}
-\subsubsection{\texorpdfstring{execute()}{execute()}}
-{\footnotesize\ttfamily virtual void Dummy\+Accelerator\+::execute (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01447}{Accelerator\+Buffer} $>$}]{buffer,  }\item[{const std\+::shared\+\_\+ptr$<$ \hyperlink{a01475}{Function} $>$}]{function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-Execute the provided X\+A\+CC IR Function on the provided Accelerator\+Buffer.
-
-
-\begin{DoxyParams}{Parameters}
-{\em buffer} & The buffer of bits this Accelerator should operate on. \\
-\hline
-{\em function} & The kernel to execute. \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a01435_a89b3f3e6294f228abf03a410b0fb1674}{xacc\+::\+Accelerator}.
-
-\mbox{\Hypertarget{a01143_aac0e2ae753064701468fa1188ac7549f}\label{a01143_aac0e2ae753064701468fa1188ac7549f}} 
-\index{Dummy\+Accelerator@{Dummy\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
-\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!Dummy\+Accelerator@{Dummy\+Accelerator}}
-\subsubsection{\texorpdfstring{get\+I\+R\+Transformations()}{getIRTransformations()}}
-{\footnotesize\ttfamily virtual std\+::vector$<$\hyperlink{a01503}{I\+R\+Transformation}$>$ Dummy\+Accelerator\+::get\+I\+R\+Transformations (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-Return any IR Transformations that must be applied to ensure the compiled IR is amenable to execution on this Accelerator.
-
-\begin{DoxyReturn}{Returns}
-transformations The IR transformations this Accelerator exposes 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a01435_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accelerator}.
-
-\mbox{\Hypertarget{a01143_acdfe3e856f2bacc9e0dc1a51782a52e3}\label{a01143_acdfe3e856f2bacc9e0dc1a51782a52e3}} 
-\index{Dummy\+Accelerator@{Dummy\+Accelerator}!get\+Type@{get\+Type}}
-\index{get\+Type@{get\+Type}!Dummy\+Accelerator@{Dummy\+Accelerator}}
-\subsubsection{\texorpdfstring{get\+Type()}{getType()}}
-{\footnotesize\ttfamily virtual Accelerator\+Type Dummy\+Accelerator\+::get\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-Return the type of this Accelerator.
-
-\begin{DoxyReturn}{Returns}
-type The Accelerator type -\/ Gate or A\+QC Q\+PU, or N\+PU 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a01435_aaffc3e4bb9880eb5041b1b58ee4c2665}{xacc\+::\+Accelerator}.
-
-\mbox{\Hypertarget{a01143_a831ad0c71864920cc49a00d29768af8c}\label{a01143_a831ad0c71864920cc49a00d29768af8c}} 
-\index{Dummy\+Accelerator@{Dummy\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
-\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!Dummy\+Accelerator@{Dummy\+Accelerator}}
-\subsubsection{\texorpdfstring{is\+Valid\+Buffer\+Size()}{isValidBufferSize()}}
-{\footnotesize\ttfamily virtual bool Dummy\+Accelerator\+::is\+Valid\+Buffer\+Size (\begin{DoxyParamCaption}\item[{const int}]{N\+Bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-Return true if this Accelerator can allocated N\+Bits number of bits. This is meant to be implemented and used by subclasses.
-
-
-\begin{DoxyParams}{Parameters}
-{\em N\+Bits} & The number of bits to allocate \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-valid True if size is valid. 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a01435_ae51584850faeec77299058383977ddeb}{xacc\+::\+Accelerator}.
+Implemented in \hyperlink{a01063_a9c40e6cb4b74e2d6714c531ffc3b2909}{xacc\+::quantum\+::\+Count\+Gates\+Of\+Type\+Visitor$<$ Gate\+Type $>$}.
 
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Kernel\+Replacement\+Preprocessor\+Tester.\+cpp\end{DoxyCompactItemize}
+Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
