@@ -1,22 +1,6 @@
 var searchData=
 [
-  ['_7eaccelerator',['~Accelerator',['../a00011.html#aed88ab0d71b765f0b0f512684ccd4b55',1,'xacc::Accelerator']]],
-  ['_7ebaseinstructionvisitable',['~BaseInstructionVisitable',['../a00015.html#a3a291d247b18ea7620dd8d97dfb595f4',1,'xacc::BaseInstructionVisitable']]],
-  ['_7ebaseinstructionvisitor',['~BaseInstructionVisitor',['../a00016.html#aa6f5104f5868fe1eca9be4dc4036eba4',1,'xacc::BaseInstructionVisitor']]],
-  ['_7ecompiler',['~Compiler',['../a00020.html#a5d0b012687d9b44893872eaa81e47b38',1,'xacc::Compiler']]],
-  ['_7edwavecompiler',['~DWaveCompiler',['../a00024.html#acc0ab28f787b8f4cbeb63c594a247e50',1,'xacc::quantum::DWaveCompiler']]],
-  ['_7eembeddingalgorithm',['~EmbeddingAlgorithm',['../a00027.html#aa43660ad5d4c4b3ac67863892c33dc51',1,'xacc::quantum::EmbeddingAlgorithm']]],
-  ['_7efunction',['~Function',['../a00030.html#a04b25ba4da1ddfa4ec4ec6d6ffb25bc3',1,'xacc::Function']]],
-  ['_7egateinstruction',['~GateInstruction',['../a00033.html#ab8a75144074b27262fc33c77db4528b7',1,'xacc::quantum::GateInstruction']]],
-  ['_7egateqir',['~GateQIR',['../a00034.html#ac88db03f1dd29e2d36aaa6c01a130008',1,'xacc::quantum::GateQIR']]],
-  ['_7einstruction',['~Instruction',['../a00037.html#ae22c935e8113bce63d1d0e214cda4d61',1,'xacc::Instruction']]],
-  ['_7einstructionvisitor',['~InstructionVisitor',['../a00039.html#adf624df25964d0be1a56af58639c9e1d',1,'xacc::InstructionVisitor']]],
-  ['_7eir',['~IR',['../a00041.html#a09a76d71092254acae07e19fa2f34921',1,'xacc::IR']]],
-  ['_7eoptionsprovider',['~OptionsProvider',['../a00046.html#a7782757b419792ff346f563517eed8b8',1,'xacc::OptionsProvider']]],
-  ['_7equilcompiler',['~QuilCompiler',['../a00050.html#a0866a9f695f28c90ac1f4754374f3bfe',1,'xacc::quantum::QuilCompiler']]],
-  ['_7equilvisitor',['~QuilVisitor',['../a00051.html#a90dcced4e75c7b45c287fb4edc58ed01',1,'xacc::quantum::QuilVisitor']]],
-  ['_7erigettiaccelerator',['~RigettiAccelerator',['../a00057.html#a7c86895d1c29afa8b7e18476144a3fcf',1,'xacc::quantum::RigettiAccelerator']]],
-  ['_7escaffoldcompiler',['~ScaffoldCompiler',['../a00065.html#afb26398b07377ab9ddebc43a9376a6dd',1,'xacc::quantum::ScaffoldCompiler']]],
-  ['_7esimpleaccelerator',['~SimpleAccelerator',['../a00066.html#a7ff286def924fafdff2066d12858e60c',1,'xacc::quantum::SimpleAccelerator']]],
-  ['_7esingleton',['~Singleton',['../a00068.html#a75a032ec71f88d6986461b47f3fb2600',1,'xacc::Singleton']]]
+  ['update',['update',['../a01443.html#aa63a24980e831b9325a36836ab1c5495',1,'xacc::AcceleratorBit']]],
+  ['updatestep',['updateStep',['../a01263.html#a44dfccb90ee5ef6e080b54113c215458',1,'fire::IStepper::updateStep()'],['../a01267.html#a2c13fd4da5550f1e58df2b54bbfe4c2c',1,'fire::ProfileStepper::updateStep()']]],
+  ['usingspaces',['UsingSpaces',['../a01383.html#a92203e0c21f8d71e5d1621a18ee0be50',1,'CSimpleIniTempl']]]
 ];

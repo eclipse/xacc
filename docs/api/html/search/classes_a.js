@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['measure',['Measure',['../a00045.html',1,'xacc::quantum']]]
+  ['kernelreplacementpreprocessor',['KernelReplacementPreprocessor',['../a01135.html',1,'xacc::quantum']]],
+  ['keyorder',['KeyOrder',['../a01391.html',1,'CSimpleIniTempl::Entry']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['order',['order',['../a00035.html#a50fca47e555122b5bb72e93e719484b4',1,'xacc::Graph']]]
+  ['make_5ftensor_5freference',['make_tensor_reference',['../a00521.html#aaab26473f8b0cb78cff67ae06ff7ce80',1,'fire']]],
+  ['multiplybyscalar',['multiplyByScalar',['../a01351.html#a589c2d2b02b0783682173930a81f7901',1,'fire::TensorProvider']]]
 ];

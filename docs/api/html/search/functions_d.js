@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['read',['read',['../a00034.html#a26019e2f1e13e64645e29aee86ac58b1',1,'xacc::quantum::GateQIR::read()'],['../a00049.html#af7a7f4a487d493fe8a4ed1f76cefd731',1,'xacc::quantum::QuantumCircuit::read()'],['../a00035.html#abdd3e67dc08c223821d809bc8914164a',1,'xacc::Graph::read()']]],
-  ['registeraccelerator',['registerAccelerator',['../a00057.html#a757d25e0e7fe0f53635b97a97d74265c',1,'xacc::quantum::RigettiAccelerator::registerAccelerator()'],['../a00066.html#a1cfa3381a56ca6f431b4722162ccb63d',1,'xacc::quantum::SimpleAccelerator::registerAccelerator()']]],
-  ['registercompiler',['registerCompiler',['../a00050.html#aaec99a14bede717bf02a0f65af2a3c69',1,'xacc::quantum::QuilCompiler::registerCompiler()'],['../a00065.html#aed16dda1e919e5af6de9953a656f62ce',1,'xacc::quantum::ScaffoldCompiler::registerCompiler()'],['../a00024.html#a5b221649f22a9bb4d4a304a6522d071f',1,'xacc::quantum::DWaveCompiler::registerCompiler()']]],
-  ['removeinstruction',['removeInstruction',['../a00032.html#a44ca35d081577de9ad2930f93c01e89d',1,'xacc::quantum::GateFunction::removeInstruction()'],['../a00030.html#ab6478b09bb28e194bb555b3180737733',1,'xacc::Function::removeInstruction()']]],
-  ['replaceinstruction',['replaceInstruction',['../a00032.html#a182fdfabbf546ae89e4f2384bafb45c9',1,'xacc::quantum::GateFunction::replaceInstruction()'],['../a00030.html#a2ef6a4923a6734f90f6ee3d94d263af0',1,'xacc::Function::replaceInstruction()']]]
+  ['operator_21_3d',['operator!=',['../a01347.html#a53ac3eadb4a5047c56e749b7e7c4d53d',1,'fire::Tensor']]],
+  ['operator_28_29',['operator()',['../a01347.html#a07cc44df958ab73a79d15c6d96fa5544',1,'fire::Tensor']]],
+  ['operator_2a',['operator*',['../a01347.html#a67952b93c6812069d521522bf9b3b887',1,'fire::Tensor::operator*(OtherDerived &amp;other)'],['../a01347.html#a6de8950823ff713b7226e332b02f15f8',1,'fire::Tensor::operator*(Scalar val)']]],
+  ['operator_2b',['operator+',['../a01347.html#a20377472ae56dcaa2c0f67feb13900e7',1,'fire::Tensor']]],
+  ['operator_3d_3d',['operator==',['../a01347.html#a5f24a2528292de76b6c52e2cc99acf9c',1,'fire::Tensor']]],
+  ['order',['order',['../a01535.html#a50fca47e555122b5bb72e93e719484b4',1,'xacc::Graph']]]
 ];

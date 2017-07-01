@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['baseinstructionvisitable',['BaseInstructionVisitable',['../a00015.html',1,'xacc']]],
-  ['baseinstructionvisitor',['BaseInstructionVisitor',['../a00016.html',1,'xacc']]]
+  ['badvertex',['BadVertex',['../a01559.html',1,'']]],
+  ['baseinstructionvisitable',['BaseInstructionVisitable',['../a01495.html',1,'xacc']]],
+  ['baseinstructionvisitor',['BaseInstructionVisitor',['../a01487.html',1,'xacc']]],
+  ['blockgenerator',['BlockGenerator',['../a01323.html',1,'']]]
 ];

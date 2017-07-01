@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['linkconditionalqasm',['linkConditionalQasm',['../a00048.html#a902304cac3a5a6126b982e9dc9585428',1,'xacc::quantum::QasmToGraph']]],
-  ['load',['load',['../a00025.html#a94d814172ec30c7ed32e6ab52bc2a41a',1,'xacc::quantum::DWaveIR::load()'],['../a00034.html#a07f26eeb362ac480d20da6cdc8c8fb39',1,'xacc::quantum::GateQIR::load()'],['../a00041.html#a444c2e4dc0faac500fb70fa93997e9bc',1,'xacc::IR::load()']]]
+  ['kernelexists',['kernelExists',['../a01131.html#ace9b8c6f4f29e32c8482fec4eacb637a',1,'xacc::quantum::DWaveIR::kernelExists()'],['../a01171.html#a692f95099caa7c024110a3f035941dca',1,'xacc::quantum::GateQIR::kernelExists()'],['../a01499.html#afc9ccf5126f3fed19c2e879133b2f6d8',1,'xacc::IR::kernelExists()']]],
+  ['kernelreplacementpreprocessor',['KernelReplacementPreprocessor',['../a01135.html',1,'xacc::quantum']]],
+  ['kernels',['kernels',['../a01171.html#ae75a4af0ce455eee1ce316c16426a661',1,'xacc::quantum::GateQIR']]],
+  ['kernelsource',['kernelSource',['../a01451.html#a0ad81c816c09e5113d03cdc02165c453',1,'xacc::Compiler']]],
+  ['keyorder',['KeyOrder',['../a01391.html',1,'CSimpleIniTempl::Entry']]],
+  ['kronprod',['kronProd',['../a01347.html#a4d6f3d2766de29fba08f0d53bc87cf3a',1,'fire::Tensor']]]
 ];

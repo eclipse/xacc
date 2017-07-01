@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['parse',['parse',['../a00018.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser']]],
-  ['persist',['persist',['../a00025.html#adac268c6fa2234902efeb9b3c07c0ac2',1,'xacc::quantum::DWaveIR::persist()'],['../a00034.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a00041.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
-  ['post',['post',['../a00029.html#af775ada9f2a4e0939f06b733acb5e8ed',1,'FakeHttpClient']]],
-  ['print',['print',['../a00067.html#ad9a39b44161fa0309167b9791ed10945',1,'xacc::quantum::SimulatedQubits']]],
-  ['program',['Program',['../a00047.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program']]],
-  ['program',['Program',['../a00047.html',1,'xacc']]]
+  ['operator_21_3d',['operator!=',['../a01347.html#a53ac3eadb4a5047c56e749b7e7c4d53d',1,'fire::Tensor']]],
+  ['operator_28_29',['operator()',['../a01347.html#a07cc44df958ab73a79d15c6d96fa5544',1,'fire::Tensor']]],
+  ['operator_2a',['operator*',['../a01347.html#a67952b93c6812069d521522bf9b3b887',1,'fire::Tensor::operator*(OtherDerived &amp;other)'],['../a01347.html#a6de8950823ff713b7226e332b02f15f8',1,'fire::Tensor::operator*(Scalar val)']]],
+  ['operator_2b',['operator+',['../a01347.html#a20377472ae56dcaa2c0f67feb13900e7',1,'fire::Tensor']]],
+  ['operator_3d_3d',['operator==',['../a01347.html#a5f24a2528292de76b6c52e2cc99acf9c',1,'fire::Tensor']]],
+  ['optionsprovider',['OptionsProvider',['../a01543.html',1,'xacc']]],
+  ['order',['order',['../a01535.html#a50fca47e555122b5bb72e93e719484b4',1,'xacc::Graph']]],
+  ['outputwriter',['OutputWriter',['../a01399.html',1,'CSimpleIniTempl']]]
 ];

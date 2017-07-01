@@ -1,4 +1,8 @@
 var searchData=
 [
-  ['visit',['visit',['../a00051.html#a5470d573fdcfd691c100fcbfeeed45db',1,'xacc::quantum::QuilVisitor::visit(Hadamard &amp;h)'],['../a00051.html#ac51ed9d947d3fa00525eb79b2bbc9021',1,'xacc::quantum::QuilVisitor::visit(CNOT &amp;cn)'],['../a00051.html#a0b1a31a900f87a3f91f640ab5caec126',1,'xacc::quantum::QuilVisitor::visit(X &amp;x)'],['../a00051.html#af429121067a397eeac17328fc0244859',1,'xacc::quantum::QuilVisitor::visit(Z &amp;z)'],['../a00051.html#acbe2afe1c9741112d1f9196681f8b896',1,'xacc::quantum::QuilVisitor::visit(Measure &amp;m)'],['../a00051.html#a7665ecdf9984374f52d30d7767649cf9',1,'xacc::quantum::QuilVisitor::visit(ConditionalFunction &amp;c)'],['../a00022.html#a144f1e4e6d24c450e0a941fa650c1f48',1,'CountGateVisitor::visit()'],['../a00039.html#af0fead298f5bfbb8e6680433063e2c4b',1,'xacc::InstructionVisitor::visit()']]]
+  ['update_20so_20we_20can_20get_20gcc_206',['update so we can get gcc 6',['../a01915.html',1,'']]],
+  ['update',['update',['../a01443.html#aa63a24980e831b9325a36836ab1c5495',1,'xacc::AcceleratorBit']]],
+  ['updatestep',['updateStep',['../a01263.html#a44dfccb90ee5ef6e080b54113c215458',1,'fire::IStepper::updateStep()'],['../a01267.html#a2c13fd4da5550f1e58df2b54bbfe4c2c',1,'fire::ProfileStepper::updateStep()']]],
+  ['userdata',['UserData',['../a01331.html',1,'']]],
+  ['usingspaces',['UsingSpaces',['../a01383.html#a92203e0c21f8d71e5d1621a18ee0be50',1,'CSimpleIniTempl']]]
 ];

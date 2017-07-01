@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['qasmtograph',['QasmToGraph',['../a00048.html',1,'xacc::quantum']]],
-  ['quantumcircuit',['QuantumCircuit',['../a00049.html',1,'xacc::quantum']]],
-  ['quilcompiler',['QuilCompiler',['../a00050.html',1,'xacc::quantum']]],
-  ['quilvisitor',['QuilVisitor',['../a00051.html',1,'xacc::quantum']]]
+  ['optionsprovider',['OptionsProvider',['../a01543.html',1,'xacc']]],
+  ['outputwriter',['OutputWriter',['../a01399.html',1,'CSimpleIniTempl']]]
 ];
