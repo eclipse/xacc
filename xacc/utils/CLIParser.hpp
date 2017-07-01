@@ -138,14 +138,14 @@ public:
 								dll::load_mode::append_decorations);
 						regFunc();
 					}
-					if (lib.has("registerPreprocessor")) {
-						typedef void (RegisterPreprocessor)();
-						auto regFunc = boost::dll::import_alias<
-								RegisterPreprocessor>(p,
-								"registerPreprocessor",
-								dll::load_mode::append_decorations);
-						regFunc();
-					}
+//					if (lib.has("registerPreprocessor")) {
+//						typedef void (RegisterPreprocessor)();
+//						auto regFunc = boost::dll::import_alias<
+//								RegisterPreprocessor>(p,
+//								"registerPreprocessor",
+//								dll::load_mode::append_decorations);
+//						regFunc();
+//					}
 				}
 			}
 		}

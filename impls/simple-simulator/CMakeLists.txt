@@ -48,7 +48,7 @@ file (GLOB SRC *.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc-gate-ir)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc-quantum-gate)
 
 #install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

@@ -80,9 +80,6 @@ void Initialize(int argc, char** argv) {
 			"[xacc::preprocessor] XACC has " + std::to_string(ps) + " Preprocessor"
 					+ ((ps == 0 || ps == 1) ? "" : "s") + " available.");
 
-	for (auto x : preprocessorRegistry->getRegisteredIds()) {
-		std::cout << "HEY WORLD " << x << "\n";
-	}
 	// We're good if we make it here, so indicate that we've been
 	// initialized
 	xacc::xaccFrameworkInitialized = true;

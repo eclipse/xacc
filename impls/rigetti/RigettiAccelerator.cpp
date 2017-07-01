@@ -229,6 +229,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				"   re = struct.unpack('>d', re_be)[0]\n"
 				"   im = struct.unpack('>d', im_be)[0]\n"
 				"   wf[i] = complex(re, im)\n"
+				"   print re, im\n"
 				"   extractStr += str(re) + ', ' + str(im) + '\\n'";
 
 		try {
@@ -254,6 +255,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				auto im = splitOnComma[1];
 				boost::trim(re);
 				boost::trim(im);
+				std::cout << "OURS: " << re << ", " << im << "\n";
 				std::complex<double> d(std::stod(re), std::stod(im));
 				qubits->getState()(i) = d;
 				i++;

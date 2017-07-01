@@ -28,12 +28,25 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
+set (PACKAGE_NAME "XACC Gate Model Quantum Computing Runtime")
+set (PACKAGE_DESCIPTION "Runtime library for gate model quantum computing")
+
+set (LIBRARY_NAME xacc-quantum-gate)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/instructions)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/algorithms)
+
+file (GLOB_RECURSE HEADERS *.hpp)
+file (GLOB SRC compiler/*.cpp ir/*.cpp ir/instructions/*.cpp utils/*.cpp ir/algorithms/*.cpp)
+
+add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 add_subdirectory(compiler)
 add_subdirectory(ir)
 add_subdirectory(utils)
 
-
+install(FILES ${HEADERS} DESTINATION include/quantum/gate)
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

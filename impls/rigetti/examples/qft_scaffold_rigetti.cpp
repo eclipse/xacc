@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,80 +28,43 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IMPLS_RIGETTI_QUILCOMPILER_HPP_
-#define IMPLS_RIGETTI_QUILCOMPILER_HPP_
+#include "XACC.hpp"
 
+const std::string src("__qpu__ qft (qbit qreg) {\n"
+	"   // Testing out new Kernel\n"
+	"   // Replacement Preprocessor!\n"
+	"   xacc::QFT(qreg);\n"
+	"}\n");
 
-#include "Compiler.hpp"
-#include "Utils.hpp"
-#include <boost/algorithm/string.hpp>
+int main (int argc, char** argv) {
 
-namespace xacc {
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-namespace quantum {
+	// Create a reference to the Rigetti 
+	// QPU at api.rigetti.com/qvm
+	auto qpu = xacc::getAccelerator("rigetti");
 
-/**
- */
-class QuilCompiler: public xacc::Compiler {
+	// Allocate a register of 3 qubits
+	auto qubitReg = qpu->createBuffer("qreg", 3);
 
-public:
+	// Create a Program
+	xacc::Program program(qpu, src);
 
-	QuilCompiler();
+	// Request the quantum kernel representing
+	// the above source code
+	auto qft = program.getKernel("qft");
 
-	/**
-	 * Translate Quil to the
-	 * XACC intermediate representation.
-	 *
-	 * @return ir XACC intermediate representation
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
-			std::shared_ptr<Accelerator> acc);
+	// Execute!
+	qft(qubitReg);
 
-	/**
-	 *
-	 * @param src
-	 * @return
-	 */
-	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
+	qubitReg->print(std::cout);
 
-	/**
-	 * Return the name of this Compiler
-	 * @return name Compiler name
-	 */
-	virtual const std::string getName() {
-		return "quil";
-	}
+	// Finalize the XACC Framework
+	xacc::Finalize();
 
-	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::QuilCompiler> quilTEMP(
-				"quil");
-	}
-
-	/**
-	 * This produces a Quil source code representation of the
-	 * given IR Function
-	 *
-	 * @param function The XACC IR Function to translate
-	 * @return src The source code as a string
-	 */
-	virtual const std::string translate(const std::string& bufferVariable,
-			std::shared_ptr<Function> function);
-
-	/**
-	 * The destructor
-	 */
-	virtual ~QuilCompiler() {}
-
-};
-
-// Create an alias to search for.
-RegisterCompiler(xacc::quantum::QuilCompiler)
-
+	return 0;
 }
 
-}
 
-#endif
+

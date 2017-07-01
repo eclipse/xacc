@@ -37,21 +37,9 @@ public:
 		return "kernel-replacement";
 	}
 
-	/**
-	 * Register this Preprocessor with the framework.
-	 */
-	static void registerPreprocessor() {
-		std::cout << "REGISTERING PreProcessor\n";
-		xacc::RegisterPreprocessor<xacc::quantum::KernelReplacementPreprocessor> KernelReplacement(
-				"kernel-replacement");
-	}
-
 	virtual ~KernelReplacementPreprocessor() {}
 
 };
-
-// Create an alias to search for.
-RegisterPreprocessor(xacc::quantum::KernelReplacementPreprocessor)
 
 }
 

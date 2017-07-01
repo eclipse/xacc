@@ -68,7 +68,6 @@ public:
 	RegisterPreprocessor(const std::string& name) {
 		PreprocessorRegistry::instance()->add(name,
 				(std::function<std::shared_ptr<xacc::Preprocessor>()>) ([]() {
-					std::cout << "I AM TRYING TO CREATE THIS THING\n";
 					return std::make_shared<T>();
 				}));
 	}

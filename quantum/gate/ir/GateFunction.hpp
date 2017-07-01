@@ -242,6 +242,7 @@ public:
 	DEFINE_VISITABLE()
 
 };
+
 }
 }
 

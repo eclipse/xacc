@@ -159,9 +159,10 @@ std::shared_ptr<IR> ScaffoldCompiler::compile(const std::string& src) {
 	return consumer->getIR();
 }
 
-const std::string ScaffoldCompiler::translate(std::shared_ptr<Function> function) {
+const std::string ScaffoldCompiler::translate(const std::string& bufferVariable,
+		std::shared_ptr<Function> function) {
 
-	auto visitor = std::make_shared<ScaffoldIRToSrcVisitor>("");
+	auto visitor = std::make_shared<ScaffoldIRToSrcVisitor>(bufferVariable);
 	InstructionIterator it(function);
 	while (it.hasNext()) {
 		// Get the next node in the tree

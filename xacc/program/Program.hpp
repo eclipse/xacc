@@ -61,10 +61,6 @@ std::vector<IRTransformation> getAcceleratorIndependentTransformations(
 std::vector<std::shared_ptr<Preprocessor>> getDefaultPreprocessors(AcceleratorType accType) {
 	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
 	auto ppRegistry = PreprocessorRegistry::instance();
-	std::cout << "We have " << ppRegistry->size() << " preprocessors\n";
-	for (auto s : ppRegistry->getRegisteredIds()) {
-		std::cout << "HI: " << s << "\n";
-	}
 	if (accType == AcceleratorType::qpu_gate) {
 		preprocessors.push_back(
 				ppRegistry->create("kernel-replacement"));
@@ -130,15 +126,12 @@ protected:
 			XACCError("Invalid Compiler.\n");
 		}
 
-		// Before compiling, run any preprocessors
-		auto ppRegistry = PreprocessorRegistry::instance();
-		auto pp = ppRegistry->create("kernel-replacement");
-		src = pp->process(src, compiler, accelerator);
-
-//		auto defaultPPs = getDefaultPreprocessors(accelerator->getType());
-//		for (auto preprocessor : defaultPPs) {
-//			src = preprocessor->process(src, compiler, accelerator);
-//		}
+		// Before compiling, run preprocessors
+		auto defaultPPs = getDefaultPreprocessors(accelerator->getType());
+		for (auto preprocessor : defaultPPs) {
+			src = preprocessor->process(src, compiler, accelerator);
+//			std::cout << "Src after process:\n" << src << "\n";
+		}
 
 		XACCInfo("Executing "+ compiler->getName() + " compiler.");
 

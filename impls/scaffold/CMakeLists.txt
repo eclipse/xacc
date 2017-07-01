@@ -54,6 +54,7 @@ if (CLANG_FOUND AND LLVM_FOUND)
    include_directories(${CLANG_INCLUDE_DIRS}/extra-tools)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+      include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/compiler)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
@@ -65,9 +66,9 @@ if (CLANG_FOUND AND LLVM_FOUND)
 
    link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
 
-   target_link_libraries(${LIBRARY_NAME} ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES} xacc-gate-ir)
+   target_link_libraries(${LIBRARY_NAME} xacc-quantum-gate ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES})
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};xacc-gate-ir;${CLANG_LIBS};${LLVM_LIBS};dl;pthread")
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${CLANG_LIBS};${LLVM_LIBS};dl;pthread")
 endif()

@@ -28,22 +28,20 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-set (PACKAGE_NAME "XACC Quantum Gate IR Runtime")
-set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
-set (LIBRARY_NAME xacc-gate-ir)
+#set (PACKAGE_NAME "XACC Quantum Gate IR Runtime")
+#set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
+#set (LIBRARY_NAME xacc-gate-ir)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/instructions)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/instructions)
 
-file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
+#file (GLOB_RECURSE HEADERS *.hpp)
+#file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+#add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-install(FILES ${HEADERS} DESTINATION include/quantum/gate)
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};xacc-gate-ir")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};xacc-quantum-gate")
 

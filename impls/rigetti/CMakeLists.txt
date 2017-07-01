@@ -58,14 +58,14 @@ if (OPENSSL_FOUND)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-gate-ir ${PYTHON_LIBRARY})
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-quantum-gate ${PYTHON_LIBRARY})
 
    #install(FILES ${HEADERS} DESTINATION include)
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-gate-ir;xacc-rigetti")
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti")
    
    add_subdirectory(examples)
 endif()

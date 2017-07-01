@@ -52,7 +52,8 @@ public:
 				"DWave");
 	}
 
-	virtual const std::string translate(std::shared_ptr<Function> function) {
+	virtual const std::string translate(const std::string& bufferVariable,
+			std::shared_ptr<Function> function) {
 
 	};
 	/**

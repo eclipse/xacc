@@ -83,7 +83,8 @@ public:
 	 * @param function The XACC IR Function to translate
 	 * @return src The source code as a string
 	 */
-	virtual const std::string translate(std::shared_ptr<Function> function) = 0;
+	virtual const std::string translate(const std::string& bufferVariable,
+			std::shared_ptr<Function> function) = 0;
 
 	/**
 	 * Return the name of this Compiler

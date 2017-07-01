@@ -139,7 +139,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 	return ir;
 }
 
-const std::string QuilCompiler::translate(std::shared_ptr<Function> function) {
+const std::string QuilCompiler::translate(const std::string& bufferVariable,
+		std::shared_ptr<Function> function) {
 	auto visitor = std::make_shared<QuilVisitor>();
 	InstructionIterator it(function);
 	while (it.hasNext()) {

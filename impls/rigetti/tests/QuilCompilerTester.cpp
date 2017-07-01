@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(checkTranslateIR) {
 	f->addInstruction(cond1);
 	f->addInstruction(cond2);
 
-	std::string src = compiler->translate(f);
+	std::string src = compiler->translate("", f);
 
 
 	const std::string expected(

@@ -131,3 +131,60 @@ BOOST_AUTO_TEST_CASE(checkIRToScaffold) {
 	BOOST_VERIFY(expectedStr == visitor->getScaffoldString());
 }
 
+BOOST_AUTO_TEST_CASE(checkQFT) {
+
+	auto h1 = std::make_shared<Hadamard>(2);
+	auto cphase1 = std::make_shared<CPhase>(1, 2, 1.5707963);
+	auto h2 = std::make_shared<Hadamard>(2);
+	auto cphase2 = std::make_shared<CPhase>(0, 2, 0.78539815);
+	auto cphase3 = std::make_shared<CPhase>(0, 1, 1.5707963);
+	auto h3 = std::make_shared<Hadamard>(0);
+	auto swap = std::make_shared<Swap>(0, 2);
+
+	auto expectedF = std::make_shared<GateFunction>("qft");
+	expectedF->addInstruction(h1);
+	expectedF->addInstruction(cphase1);
+	expectedF->addInstruction(h2);
+	expectedF->addInstruction(cphase2);
+	expectedF->addInstruction(cphase3);
+	expectedF->addInstruction(h3);
+	expectedF->addInstruction(swap);
+
+	auto visitor = std::make_shared<ScaffoldIRToSrcVisitor>("qreg");
+	InstructionIterator it(expectedF);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled())
+			nextInst->accept(visitor);
+	}
+
+	std::string expected = "H(qreg[2]);\n"
+			"// BEGIN CPHASE GATE\n"
+			"Rz(qreg[2],0.785398);\n"
+			"CNOT(qreg[2],qreg[1]);\n"
+			"Rz(qreg[2],-0.785398);\n"
+			"CNOT(qreg[2],qreg[1]);\n"
+			"// END CPHASE GATE\n"
+			"H(qreg[2]);\n"
+			"// BEGIN CPHASE GATE\n"
+			"Rz(qreg[2],0.392699);\n"
+			"CNOT(qreg[2],qreg[0]);\n"
+			"Rz(qreg[2],-0.392699);\n"
+			"CNOT(qreg[2],qreg[0]);\n"
+			"// END CPHASE GATE\n"
+			"// BEGIN CPHASE GATE\n"
+			"Rz(qreg[1],0.785398);\n"
+			"CNOT(qreg[1],qreg[0]);\n"
+			"Rz(qreg[1],-0.785398);\n"
+			"CNOT(qreg[1],qreg[0]);\n"
+			"// END CPHASE GATE\n"
+			"H(qreg[0]);\n"
+			"// BEGIN SWAP 0 2\n"
+			"CNOT(qreg[2],qreg[0]);\n"
+			"CNOT(qreg[0],qreg[2]);\n"
+			"CNOT(qreg[2],qreg[0]);\n"
+			"// END SWAP 0 2\n";
+
+	BOOST_VERIFY(expected == visitor->getScaffoldString());
+}
