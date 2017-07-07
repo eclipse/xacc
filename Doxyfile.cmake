@@ -871,7 +871,11 @@ EXCLUDE_SYMBOLS        += Fake*
 EXCLUDE_SYMBOLS        += Dummy*
 EXCLUDE_SYMBOLS        += F
 EXCLUDE_SYMBOLS        += TestVisitor
-
+EXCLUDE_SYMBOLS        += is_valid_vertex*
+EXCLUDE_SYMBOLS        += runtime_get*
+EXCLUDE_SYMBOLS        += XACCException
+EXCLUDE_SYMBOLS        += XACCInfoT
+EXCLUDE_SYMBOLS        += int_
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

@@ -492,7 +492,6 @@
           <topic label="~InstructionVisitor" href="a01143.html#adf624df25964d0be1a56af58639c9e1d"/>
           <topic label="visit" href="a01143.html#af0fead298f5bfbb8e6680433063e2c4b"/>
         </topic>
-        <topic label="int_" href="a01183.html"/>
         <topic label="IR" href="a01151.html">
           <topic label="~IR" href="a01151.html#a09a76d71092254acae07e19fa2f34921"/>
           <topic label="addKernel" href="a01151.html#abbbf8e6993c518597de32cd05d49d737"/>
@@ -507,8 +506,6 @@
           <topic label="~IRTransformation" href="a01155.html#a6c270da5366e762d91eaede929815118"/>
           <topic label="transform" href="a01155.html#accc69cba97f39aa3e51f81fec3ccf258"/>
         </topic>
-        <topic label="is_valid_vertex" href="a01167.html"/>
-        <topic label="is_valid_vertex&lt; T, decltype(std::declval&lt; T &gt;().properties, void())&gt;" href="a01171.html"/>
         <topic label="OptionsProvider" href="a01195.html">
           <topic label="~OptionsProvider" href="a01195.html#a7782757b419792ff346f563517eed8b8"/>
           <topic label="getOptions" href="a01195.html#a6d150954f852109bfe2c1ae90222926f"/>
@@ -547,25 +544,12 @@
           <topic label="size" href="a01199.html#a2352dd7c6c85ae5c5e232b577dfa2544"/>
           <topic label="registry" href="a01199.html#a46460ecacc7facb6936b3c1ec6d618d7"/>
         </topic>
-        <topic label="runtime_get_func_table" href="a01235.html"/>
-        <topic label="runtime_get_func_table&lt; Tuple, std::index_sequence&lt; Indices... &gt; &gt;" href="a01239.html">
-          <topic label="get_func_ptr" href="a01239.html#afba5cf89694dc07b12aaabf6388a4427"/>
-          <topic label="return_type" href="a01239.html#a1d2e9cd7910527e3c4f0162500f067a7"/>
-        </topic>
         <topic label="RuntimeOptions" href="a01203.html">
           <topic label="exists" href="a01203.html#a3603aecb87461efedd0fabbef966c80c"/>
         </topic>
         <topic label="Singleton" href="a01207.html">
           <topic label="Singleton" href="a01207.html#afd62caabc41babdd98ab9af2253ec371"/>
           <topic label="~Singleton" href="a01207.html#a75a032ec71f88d6986461b47f3fb2600"/>
-        </topic>
-        <topic label="XACCException" href="a01243.html">
-          <topic label="XACCException" href="a01243.html#ab62415ce6e1dd25fb1a074f5741007c9"/>
-          <topic label="~XACCException" href="a01243.html#a111c4af77c27b0ecba196899a63cf473"/>
-          <topic label="what" href="a01243.html#a86612df9215beec1933229c5dddc12e5"/>
-          <topic label="errorMessage" href="a01243.html#a31f64c6fb215570571b9b4a3d47eadd0"/>
-        </topic>
-        <topic label="XACCInfoT" href="a01247.html">
         </topic>
         <topic label="XACCVertex" href="a01175.html">
           <topic label="XACCVertex" href="a01175.html#a83a087e7134ef6792d953a5a1ae183ff"/>
@@ -622,12 +606,6 @@
       <topic label="xacc::CLIParser" href="a01163.html"/>
       <topic label="xacc::DefaultEdge" href="a01179.html"/>
       <topic label="xacc::quantum::EmbeddingAlgorithm" href="a00955.html"/>
-      <topic label="std::exception">
-        <topic label="xacc::XACCException" href="a01243.html"/>
-      </topic>
-      <topic label="false_type">
-        <topic label="xacc::is_valid_vertex&lt; T, typename &gt;" href="a01167.html"/>
-      </topic>
       <topic label="xacc::Graph&lt; Vertex, type &gt;" href="a01187.html"/>
       <topic label="xacc::Graph&lt; CircuitNode &gt;" href="a01187.html">
         <topic label="xacc::quantum::GateQIR" href="a01003.html"/>
@@ -677,7 +655,6 @@
       <topic label="xacc::InstructionVisitor&lt; Z &gt;" href="a01143.html">
         <topic label="xacc::quantum::AllGateVisitor" href="a01059.html"/>
       </topic>
-      <topic label="xacc::int_&lt; size_t &gt;" href="a01183.html"/>
       <topic label="xacc::IR" href="a01151.html">
         <topic label="xacc::quantum::DWaveIR" href="a00963.html"/>
         <topic label="xacc::quantum::GateQIR" href="a01003.html"/>
@@ -711,8 +688,6 @@
       <topic label="xacc::quantum::RegisterEmbeddingAlgorithm&lt; T &gt;" href="a00959.html"/>
       <topic label="xacc::quantum::RegisterGateInstruction&lt; T &gt;" href="a00995.html"/>
       <topic label="xacc::RegisterPreprocessor&lt; T &gt;" href="a01115.html"/>
-      <topic label="xacc::runtime_get_func_table&lt; Tuple, Indices &gt;" href="a01235.html"/>
-      <topic label="xacc::runtime_get_func_table&lt; Tuple, std::index_sequence&lt; Indices... &gt; &gt;" href="a01239.html"/>
       <topic label="xacc::Singleton&lt; T &gt;" href="a01207.html"/>
       <topic label="xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;" href="a01207.html">
         <topic label="xacc::Registry&lt; T, TArgs... &gt;" href="a01199.html"/>
@@ -721,10 +696,6 @@
       <topic label="xacc::Singleton&lt; RuntimeOptions &gt;" href="a01207.html">
         <topic label="xacc::RuntimeOptions" href="a01203.html"/>
       </topic>
-      <topic label="true_type">
-        <topic label="xacc::is_valid_vertex&lt; T, decltype(std::declval&lt; T &gt;().properties, void())&gt;" href="a01171.html"/>
-      </topic>
-      <topic label="xacc::XACCInfoT" href="a01247.html"/>
       <topic label="xacc::XACCVertex&lt; Properties &gt;" href="a01175.html"/>
       <topic label="xacc::XACCVertex&lt; double &gt;" href="a01175.html">
         <topic label="xacc::quantum::DWaveVertex" href="a00951.html"/>

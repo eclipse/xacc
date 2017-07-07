@@ -1,8 +1,6 @@
 var searchData=
 [
   ['x',['X',['../a01043.html',1,'xacc::quantum']]],
-  ['xaccexception',['XACCException',['../a01243.html',1,'xacc']]],
-  ['xaccinfot',['XACCInfoT',['../a01247.html',1,'xacc']]],
   ['xaccvertex',['XACCVertex',['../a01175.html',1,'xacc']]],
   ['xaccvertex_3c_20double_20_3e',['XACCVertex&lt; double &gt;',['../a01175.html',1,'xacc']]],
   ['xaccvertex_3c_20std_3a_3astring_20_3e',['XACCVertex&lt; std::string &gt;',['../a01175.html',1,'xacc']]],

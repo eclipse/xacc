@@ -17,10 +17,7 @@ var searchData=
   ['instructionvisitor_3c_20x_20_3e',['InstructionVisitor&lt; X &gt;',['../a01143.html',1,'xacc']]],
   ['instructionvisitor_3c_20y_20_3e',['InstructionVisitor&lt; Y &gt;',['../a01143.html',1,'xacc']]],
   ['instructionvisitor_3c_20z_20_3e',['InstructionVisitor&lt; Z &gt;',['../a01143.html',1,'xacc']]],
-  ['int_5f',['int_',['../a01183.html',1,'xacc']]],
   ['inverseqft',['InverseQFT',['../a00979.html',1,'xacc::quantum']]],
   ['ir',['IR',['../a01151.html',1,'xacc']]],
-  ['irtransformation',['IRTransformation',['../a01155.html',1,'xacc']]],
-  ['is_5fvalid_5fvertex',['is_valid_vertex',['../a01167.html',1,'xacc']]],
-  ['is_5fvalid_5fvertex_3c_20t_2c_20decltype_28std_3a_3adeclval_3c_20t_20_3e_28_29_2eproperties_2c_20void_28_29_29_3e',['is_valid_vertex&lt; T, decltype(std::declval&lt; T &gt;().properties, void())&gt;',['../a01171.html',1,'xacc']]]
+  ['irtransformation',['IRTransformation',['../a01155.html',1,'xacc']]]
 ];

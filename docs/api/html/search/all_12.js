@@ -21,8 +21,6 @@ var searchData=
   ['replaceinstruction',['replaceInstruction',['../a00987.html#a182fdfabbf546ae89e4f2384bafb45c9',1,'xacc::quantum::GateFunction::replaceInstruction()'],['../a01127.html#a2ef6a4923a6734f90f6ee3d94d263af0',1,'xacc::Function::replaceInstruction()']]],
   ['rigettiaccelerator',['RigettiAccelerator',['../a00919.html',1,'xacc::quantum']]],
   ['root',['root',['../a01135.html#a9d7aee1cb9058dd4a29c8fc71eeda57d',1,'xacc::InstructionIterator']]],
-  ['runtime_5fget_5ffunc_5ftable',['runtime_get_func_table',['../a01235.html',1,'xacc']]],
-  ['runtime_5fget_5ffunc_5ftable_3c_20tuple_2c_20std_3a_3aindex_5fsequence_3c_20indices_2e_2e_2e_20_3e_20_3e',['runtime_get_func_table&lt; Tuple, std::index_sequence&lt; Indices... &gt; &gt;',['../a01239.html',1,'xacc']]],
   ['runtimeoptions',['RuntimeOptions',['../a01203.html',1,'xacc']]],
   ['rx',['Rx',['../a01027.html',1,'xacc::quantum']]],
   ['ry',['Ry',['../a01031.html',1,'xacc::quantum']]],
