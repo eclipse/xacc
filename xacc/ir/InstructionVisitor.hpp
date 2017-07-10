@@ -138,6 +138,11 @@ protected:
 			virtual void accept(BaseInstructionVisitor* v) \
 				{ acceptImpl(*this, v); }
 
+#define EMPTY_DEFINE_VISITABLE() \
+		virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
+		{ } \
+		virtual void accept(BaseInstructionVisitor* v) \
+		{}
 };
 
 }

@@ -1,11 +1,25 @@
-#ifndef QUANTUM_AQC_IR_DWAVEIR_HPP_
-#define QUANTUM_AQC_IR_DWAVEIR_HPP_
+#ifndef QUANTUM_AQC_IR_DWIR_HPP_
+#define QUANTUM_AQC_IR_DWIR_HPP_
 
 #include "IR.hpp"
+#include "Graph.hpp"
 
 namespace xacc {
 namespace quantum {
-class DWaveIR : public virtual IR {
+
+using DWVertex = XACCVertex<double>;
+
+class DWGraph :public Graph<DWVertex> {
+public:
+
+	virtual void read(std::istream& stream) {
+	}
+
+	virtual ~DWGraph() {}
+
+};
+
+class DWIR : public virtual IR {
 
 public:
 	/**
@@ -56,4 +70,4 @@ public:
 }
 }
 
-#endif /* QUANTUM_AQC_IR_DWAVEIR_HPP_ */
+#endif /* QUANTUM_AQC_IR_DWIR_HPP_ */

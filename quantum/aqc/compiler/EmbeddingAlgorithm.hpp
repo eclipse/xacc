@@ -28,8 +28,8 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef QUANTUM_AQC_COMPILERS_EMBEDDINGALGORITHM_HPP_
-#define QUANTUM_AQC_COMPILERS_EMBEDDINGALGORITHM_HPP_
+#ifndef QUANTUM_AQC_COMPILER_EMBEDDINGALGORITHM_HPP_
+#define QUANTUM_AQC_COMPILER_EMBEDDINGALGORITHM_HPP_
 
 #include <boost/dll.hpp>
 #include <map>

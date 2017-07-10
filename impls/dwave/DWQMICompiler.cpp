@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -29,41 +28,75 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DWaveCompilerTester
+#include <regex>
+#include <boost/algorithm/string.hpp>
+#include "DWQMICompiler.hpp"
+#include "DWKernel.hpp"
 
-#include <boost/test/included/unit_test.hpp>
-#include "DWaveCompiler.hpp"
-#include "XACC.hpp"
+namespace xacc {
 
-using namespace xacc::quantum;
+namespace quantum {
 
-struct F {
-	F() :
-			compiler(std::make_shared<DWaveCompiler>()) {
-		BOOST_TEST_MESSAGE("setup fixture");
-		BOOST_VERIFY(compiler);
-	}
-	~F() {
-		BOOST_TEST_MESSAGE("teardown fixture");
-	}
-
-	std::shared_ptr<xacc::Compiler> compiler;
-};
-
-//____________________________________________________________________________//
-
-BOOST_FIXTURE_TEST_SUITE( s, F )
-
-BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
-
-	auto argc = boost::unit_test::framework::master_test_suite().argc;
-	auto argv = boost::unit_test::framework::master_test_suite().argv;
-	xacc::Initialize(argc, argv);
-
-	compiler->compile("");
-
-	xacc::Finalize();
+DWQMICompiler::DWQMICompiler() {
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
+		std::shared_ptr<Accelerator> acc) {
+
+	// Set the Kernel Source code
+	kernelSource = src;
+
+	return std::make_shared<DWIR>();
+}
+
+std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src) {
+
+	kernelSource = src;
+
+	// Here we expect we have a kernel, only one kernel,
+	// and that it is just machine level instructions
+	// So just pick out where the opening and closing
+	// brackets are, and then get the text between them.
+
+	// First off, split the string into lines
+	std::vector<std::string> lines;
+
+	boost::split(lines, src, boost::is_any_of("\n"));
+
+	auto firstCodeLine = lines.begin() + 1;
+	auto lastCodeLine = lines.end() - 1;
+	std::vector<std::string> qmiStrVec(firstCodeLine, lastCodeLine);
+
+	auto dwKernel = std::make_shared<DWKernel>();
+
+	for (auto qmi : qmiStrVec) {
+		std::cout << "LINE: " << qmi << "\n";
+
+		boost::trim(qmi);
+
+		if (!qmi.empty()) {
+			std::vector<std::string> splitOnSpaces;
+			boost::split(splitOnSpaces, qmi, boost::is_any_of(" "));
+
+			auto qbit1 = std::stoi(splitOnSpaces[0]);
+			auto qbit2 = std::stoi(splitOnSpaces[1]);
+			auto weight = std::stod(splitOnSpaces[2]);
+
+			auto dwqmi = std::make_shared<DWQMI>(qbit1, qbit2, weight);
+
+			dwKernel->addInstruction(dwqmi);
+		}
+
+	}
+
+	auto ir = std::make_shared<DWIR>();
+
+//	ir->addKernel(ir);
+
+	return ir;
+
+}
+
+}
+
+}

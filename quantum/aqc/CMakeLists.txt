@@ -28,7 +28,23 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
+set (PACKAGE_NAME "XACC Adiabatic Quantum Computing and Quantum Annealing Runtime")
+set (PACKAGE_DESCIPTION "Runtime library for aqc and qa")
+
+set (LIBRARY_NAME xacc-quantum-aqc)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
-add_subdirectory(compilers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 
+file (GLOB_RECURSE HEADERS *.hpp)
+file (GLOB SRC ir/*.cpp compiler/*.cpp)
 
+#add_library(${LIBRARY_NAME} SHARED ${SRC})
+
+#target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
+
+add_subdirectory(ir)
+add_subdirectory(compiler)
+
+install(FILES ${HEADERS} DESTINATION include/quantum/aqc)
+#install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

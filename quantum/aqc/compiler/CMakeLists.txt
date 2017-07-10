@@ -1,5 +1,5 @@
 #***********************************************************************************
-# Copyright (c) 2016, UT-Battelle
+# Copyright (c) 2017, UT-Battelle
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,19 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-add_subdirectory(scaffold)
-add_subdirectory(rigetti)
-add_subdirectory(simple-simulator)
-add_subdirectory(dwave)
+set (PACKAGE_NAME "DWave Compiler XACC Runtime")
+set (PACKAGE_DESCIPTION "DWave Compiler XACC Programming Framework")
+set (LIBRARY_NAME xacc-dwavecompiler)
+
+file (GLOB HEADERS *.hpp)
+file (GLOB SRC *.cpp)
+
+#add_library(${LIBRARY_NAME} SHARED ${SRC})
+
+install(FILES ${HEADERS} DESTINATION include/quantum/aqc)
+#install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+# Gather tests
+file (GLOB test_files tests/*.cpp)
+#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${LIBRARY_NAME};${Boost_LIBRARIES};dl;pthread")
+

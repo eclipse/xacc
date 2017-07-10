@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,49 +28,67 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#include <regex>
-#include "DWaveCompiler.hpp"
-#include <boost/algorithm/string.hpp>
+#ifndef QUANTUM_AQC_COMPILERS_DWQMICOMPILER_HPP_
+#define QUANTUM_AQC_COMPILERS_DWQMICOMPILER_HPP_
+
+#include "Compiler.hpp"
+#include "Utils.hpp"
+#include "DWIR.hpp"
 
 namespace xacc {
 
 namespace quantum {
 
-DWaveCompiler::DWaveCompiler() {
-}
+/**
+ */
+class DWQMICompiler: public xacc::Compiler {
 
-std::shared_ptr<IR> DWaveCompiler::compile(const std::string& src,
-		std::shared_ptr<Accelerator> acc) {
+public:
 
-	// Set the Kernel Source code
-	kernelSource = src;
+	DWQMICompiler();
 
-	// Replace the __qpu__ attribute with module
-	if (boost::contains(kernelSource, "__qpu__")) {
-		kernelSource.erase(kernelSource.find("__qpu__"), 7);
-		kernelSource = std::string("module") + kernelSource;
+	/**
+	 */
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
+			std::shared_ptr<Accelerator> acc);
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
+
+	/**
+	 * Return the name of this Compiler
+	 * @return name Compiler name
+	 */
+	virtual const std::string getName() {
+		return "dwave-qmi";
 	}
 
-}
-
-std::shared_ptr<IR> DWaveCompiler::compile(const std::string& src) {
-
-	kernelSource = src;
-
-	if (boost::contains(kernelSource, "__qpu__")) {
-		kernelSource.erase(kernelSource.find("__qpu__"), 7);
-		kernelSource = std::string("module") + kernelSource;
-		std::cout << "\n" << kernelSource << "\n";
+	/**
+	 * Register this Compiler with the framework.
+	 */
+	static void registerCompiler() {
+		xacc::RegisterCompiler<xacc::quantum::DWQMICompiler> Scaffold(
+				"dwave-qmi");
 	}
 
-	auto embeddingAlgoReg = xacc::quantum::EmbeddingAlgorithmRegistry::instance();
+	virtual const std::string translate(const std::string& bufferVariable,
+			std::shared_ptr<Function> function) {
+		XACCError("DWQMICompiler::translate - Method not implemented");
+	};
+	/**
+	 * The destructor
+	 */
+	virtual ~DWQMICompiler() {}
 
-	std::cout << "WE HAVE " << embeddingAlgoReg->size() << " algorithm impls\n";
+};
 
-	return std::make_shared<DWaveIR>();
+RegisterCompiler(xacc::quantum::DWQMICompiler)
 
 }
 
 }
 
-}
+#endif
