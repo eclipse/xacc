@@ -1,21 +1,42 @@
-\hypertarget{a01227}{}\section{xacc\+:\+:quantum\+:\+:All\+Gate\+Visitor Class Reference}
-\label{a01227}\index{xacc\+::quantum\+::\+All\+Gate\+Visitor@{xacc\+::quantum\+::\+All\+Gate\+Visitor}}
+\hypertarget{a01227}{}\section{xacc\+:\+:Runtime\+Options Class Reference}
+\label{a01227}\index{xacc\+::\+Runtime\+Options@{xacc\+::\+Runtime\+Options}}
 
 
-{\ttfamily \#include $<$All\+Gate\+Visitor.\+hpp$>$}
+{\ttfamily \#include $<$Runtime\+Options.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:All\+Gate\+Visitor\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:Runtime\+Options\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=7.887324cm]{a01227}
+\includegraphics[height=2.000000cm]{a01227}
 \end{center}
 \end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{a01227_a3603aecb87461efedd0fabbef966c80c}{exists} (const std\+::string \&key)
+\end{DoxyCompactItemize}
 \subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-F\+I\+X\+ME write this 
+The \hyperlink{a01227}{Runtime\+Options} class is a \hyperlink{a01231}{Singleton} mapping of string keys to string values. It is used throughout X\+A\+CC to provide and share runtime options that are provided from X\+A\+CC users via the command line. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a01227_a3603aecb87461efedd0fabbef966c80c}\label{a01227_a3603aecb87461efedd0fabbef966c80c}} 
+\index{xacc\+::\+Runtime\+Options@{xacc\+::\+Runtime\+Options}!exists@{exists}}
+\index{exists@{exists}!xacc\+::\+Runtime\+Options@{xacc\+::\+Runtime\+Options}}
+\subsubsection{\texorpdfstring{exists()}{exists()}}
+{\footnotesize\ttfamily bool xacc\+::\+Runtime\+Options\+::exists (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Convenience method to get whether the give key exists in the \hyperlink{a01227}{Runtime\+Options}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & The key to check exists \\
+\hline
+\end{DoxyParams}
+
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-All\+Gate\+Visitor.\+hpp\end{DoxyCompactItemize}
+Runtime\+Options.\+hpp\end{DoxyCompactItemize}

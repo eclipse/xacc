@@ -59,21 +59,25 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01175.html">XACCVertex</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01175.html">IR</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">xacc::XACCVertex&lt; Properties &gt; Member List</div>  </div>
+<div class="title">xacc::IR Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="a01175.html">xacc::IR</a>, including all inherited members.</p>
 <table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>getPropertyName</b>(const int index) (defined in <a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a>)</td><td class="entry"><a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>properties</b> (defined in <a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a>)</td><td class="entry"><a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>propertyNames</b> (defined in <a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a>)</td><td class="entry"><a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>XACCVertex</b>() (defined in <a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a>)</td><td class="entry"><a class="el" href="a01175.html">xacc::XACCVertex&lt; Properties &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01175.html#abbbf8e6993c518597de32cd05d49d737">addKernel</a>(std::shared_ptr&lt; Function &gt; kernel)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01175.html#a6f49b4ba4b3a15142b04873284885f0d">getKernel</a>(const std::string &amp;name)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01175.html#a88c50bfc5b279145360ddc0c3a703b9b">getKernels</a>()=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01175.html#afc9ccf5126f3fed19c2e879133b2f6d8">kernelExists</a>(const std::string &amp;name)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01175.html#a444c2e4dc0faac500fb70fa93997e9bc">load</a>(std::istream &amp;inStream)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01175.html#a414b72224d88473ad6190bb88102a3ea">persist</a>(std::ostream &amp;outStream)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01175.html#a8356cdff1919b88eabeb84fd7450cdb6">toAssemblyString</a>(const std::string &amp;kernelName, const std::string &amp;accBufferVarName)=0</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01175.html#a09a76d71092254acae07e19fa2f34921">~IR</a>()</td><td class="entry"><a class="el" href="a01175.html">xacc::IR</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

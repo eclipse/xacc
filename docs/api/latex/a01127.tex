@@ -1,215 +1,152 @@
-\hypertarget{a01127}{}\section{xacc\+:\+:Function Class Reference}
-\label{a01127}\index{xacc\+::\+Function@{xacc\+::\+Function}}
+\hypertarget{a01127}{}\section{xacc\+:\+:Compiler Class Reference}
+\label{a01127}\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}}
 
 
-{\ttfamily \#include $<$Function.\+hpp$>$}
+{\ttfamily \#include $<$Compiler.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Function\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:Compiler\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=5.000000cm]{a01127}
+\includegraphics[height=2.772277cm]{a01127}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual const int \hyperlink{a01127_a8901985525f59713e14c61713e07c086}{n\+Instructions} ()=0
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{IR} $>$ \hyperlink{a01127_a546a40c95bb93af6a0c0ac48dbeaffc8}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$ acc)=0
 \item 
-virtual Inst\+Ptr \hyperlink{a01127_afa549fc91b5a05f26d8139954a7e0ed5}{get\+Instruction} (const int idx)=0
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{IR} $>$ \hyperlink{a01127_a9092f5f779b570c91569b59621280c04}{compile} (const std\+::string \&src)=0
 \item 
-virtual std\+::list$<$ Inst\+Ptr $>$ \hyperlink{a01127_aaf80bd3d49113a92b520785572663032}{get\+Instructions} ()=0
+virtual const std\+::string \hyperlink{a01127_aeedbe58a33fed29e4d7694ae743e25e7}{translate} (const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ \hyperlink{a01151}{Function} $>$ function)=0
 \item 
-virtual void \hyperlink{a01127_ab6478b09bb28e194bb555b3180737733}{remove\+Instruction} (const int idx)=0
+virtual const std\+::string \hyperlink{a01127_a87fca9100e6462122f5b687c3a0fb3fb}{get\+Name} ()=0
 \item 
-virtual void \hyperlink{a01127_a2ef6a4923a6734f90f6ee3d94d263af0}{replace\+Instruction} (const int idx, Inst\+Ptr new\+Inst)=0
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a01127_a9f5a8965c9c2dd895016d18264ebbe92}{get\+Options} ()
 \item 
-virtual void \hyperlink{a01127_acde702e44bdbc2759b338365218d7ebe}{insert\+Instruction} (const int idx, Inst\+Ptr new\+Inst)=0
-\item 
-virtual void \hyperlink{a01127_aa8c9ec2d08be75c69399d4254b0216f5}{add\+Instruction} (Inst\+Ptr instruction)=0
-\item 
-virtual bool \hyperlink{a01127_aa75500c657b5c3e0e36213e1506aad97}{is\+Composite} ()
-\item 
-virtual void \hyperlink{a01127_af6ae9453027789a2aaec30e59c9e45e3}{evaluate\+Variable\+Parameters} (std\+::vector$<$ Instruction\+Parameter $>$ parameters)=0
-\item 
-virtual \hyperlink{a01127_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}{$\sim$\+Function} ()
+virtual \hyperlink{a01127_a5d0b012687d9b44893872eaa81e47b38}{$\sim$\+Compiler} ()
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{a01127_a0ad81c816c09e5113d03cdc02165c453}{kernel\+Source}
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$ \hyperlink{a01127_ad4cbb467fa7e377bac6c054ffcb22b7c}{accelerator}
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a01127}{Function} is an \hyperlink{a01131}{Instruction} that contains further child Instructions.
-
-\begin{DoxyAuthor}{Author}
-Alex Mc\+Caskey 
-\end{DoxyAuthor}
-
+The \hyperlink{a01127}{Compiler} class provides an extensible interface for injecting custom compilation mechanisms into the X\+A\+CC framework. Implementations provide a compile method that takes the kernel source code string, performs compiler-\/specific compilation mechanism, and returns a valid X\+A\+CC \hyperlink{a01175}{IR} instance modeling the result of the compilation. 
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01127_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}\label{a01127_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!````~Function@{$\sim$\+Function}}
-\index{````~Function@{$\sim$\+Function}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{$\sim$\+Function()}{~Function()}}
-{\footnotesize\ttfamily virtual xacc\+::\+Function\+::$\sim$\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01127_a5d0b012687d9b44893872eaa81e47b38}\label{a01127_a5d0b012687d9b44893872eaa81e47b38}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!````~Compiler@{$\sim$\+Compiler}}
+\index{````~Compiler@{$\sim$\+Compiler}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{$\sim$\+Compiler()}{~Compiler()}}
+{\footnotesize\ttfamily virtual xacc\+::\+Compiler\+::$\sim$\+Compiler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
 
 The destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01127_aa8c9ec2d08be75c69399d4254b0216f5}\label{a01127_aa8c9ec2d08be75c69399d4254b0216f5}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!add\+Instruction@{add\+Instruction}}
-\index{add\+Instruction@{add\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{add\+Instruction()}{addInstruction()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::add\+Instruction (\begin{DoxyParamCaption}\item[{Inst\+Ptr}]{instruction }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01127_a546a40c95bb93af6a0c0ac48dbeaffc8}\label{a01127_a546a40c95bb93af6a0c0ac48dbeaffc8}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01175}{IR}$>$ xacc\+::\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$}]{acc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Add an \hyperlink{a01131}{Instruction} to this \hyperlink{a01127}{Function}.
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the \hyperlink{a01111}{Accelerator} that this source code is intended for.
 
 
 \begin{DoxyParams}{Parameters}
-{\em instruction} & The instruction to add. \\
+{\em src} & The kernel source string. \\
 \hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00987_a892fb69a10f0a7cb5abdab4cca61b80a}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a01011_a6aedad20f96390880efdc0a476b3273f}{xacc\+::quantum\+::\+Conditional\+Function}.
-
-\mbox{\Hypertarget{a01127_af6ae9453027789a2aaec30e59c9e45e3}\label{a01127_af6ae9453027789a2aaec30e59c9e45e3}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}}
-\index{evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{evaluate\+Variable\+Parameters()}{evaluateVariableParameters()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::evaluate\+Variable\+Parameters (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Instruction\+Parameter $>$}]{parameters }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-This method is used to evaluate this \hyperlink{a01127}{Function}\textquotesingle{}s parameterized Instructions that have string variable Instruction\+Parameters. These parameters are updated with the given runtime parameters.
-
-
-\begin{DoxyParams}{Parameters}
-{\em parameters} & The runtime parameters \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00987_a4bcbd2c8c4b615d74e4a4d39952fd411}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\mbox{\Hypertarget{a01127_afa549fc91b5a05f26d8139954a7e0ed5}\label{a01127_afa549fc91b5a05f26d8139954a7e0ed5}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instruction@{get\+Instruction}}
-\index{get\+Instruction@{get\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{get\+Instruction()}{getInstruction()}}
-{\footnotesize\ttfamily virtual Inst\+Ptr xacc\+::\+Function\+::get\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Return the \hyperlink{a01131}{Instruction} at the given index.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The desired \hyperlink{a01131}{Instruction} index \\
+{\em acc} & The \hyperlink{a01111}{Accelerator} this code will be executed on \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-inst The instruction at the given index. 
+ir Intermediate representation for provided source kernel code. 
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00987_a841d656eed8aa9b4c0eec3f1da38069c}{xacc\+::quantum\+::\+Gate\+Function}.
+Implemented in \hyperlink{a00951_a7caede75bb2304ba405966651b115543}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00931_a2421482415ca4e09963ea4ecddff8100}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00923_a0df05642f1a6fd44ce7f1c0396d50c9c}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}.
 
-\mbox{\Hypertarget{a01127_aaf80bd3d49113a92b520785572663032}\label{a01127_aaf80bd3d49113a92b520785572663032}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instructions@{get\+Instructions}}
-\index{get\+Instructions@{get\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{get\+Instructions()}{getInstructions()}}
-{\footnotesize\ttfamily virtual std\+::list$<$Inst\+Ptr$>$ xacc\+::\+Function\+::get\+Instructions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01127_a9092f5f779b570c91569b59621280c04}\label{a01127_a9092f5f779b570c91569b59621280c04}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01175}{IR}$>$ xacc\+::\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Return all Instructions in this \hyperlink{a01127}{Function}
-
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. 
+\begin{DoxyParams}{Parameters}
+{\em src} & \\
+\hline
+\end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-insts The list of this \hyperlink{a01127}{Function}\textquotesingle{}s Instructions 
+
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00987_aebce6a9e64aed7f4aff86df752bacfe2}{xacc\+::quantum\+::\+Gate\+Function}.
+Implemented in \hyperlink{a00951_a3736ecc229fe6acdd4c991e85d7a1f08}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00931_adf4d321ecb0df3fa7728999f941c83b2}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00923_aa22591343b5509bf2c3a5820130ba906}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}.
 
-\mbox{\Hypertarget{a01127_acde702e44bdbc2759b338365218d7ebe}\label{a01127_acde702e44bdbc2759b338365218d7ebe}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!insert\+Instruction@{insert\+Instruction}}
-\index{insert\+Instruction@{insert\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{insert\+Instruction()}{insertInstruction()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::insert\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx,  }\item[{Inst\+Ptr}]{new\+Inst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01127_a87fca9100e6462122f5b687c3a0fb3fb}\label{a01127_a87fca9100e6462122f5b687c3a0fb3fb}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Compiler\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Insert a new \hyperlink{a01131}{Instruction} at the given index. All previous instructions are pushed back, ie their new indices are current\+Index + 1.
+Return the name of this \hyperlink{a01127}{Compiler} \begin{DoxyReturn}{Returns}
+name \hyperlink{a01127}{Compiler} name 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00951_a3f537054a3924a1d14f4ceb0f0181161}{xacc\+::quantum\+::\+Scaffold\+Compiler}, \hyperlink{a00931_ae7d52140b6dd52730edc6e38ae48f437}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00923_aed42de96f8e0dd94b6de183f28aee419}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}.
+
+\mbox{\Hypertarget{a01127_a9f5a8965c9c2dd895016d18264ebbe92}\label{a01127_a9f5a8965c9c2dd895016d18264ebbe92}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{get\+Options()}{getOptions()}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Compiler\+::get\+Options (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return an empty options\+\_\+description, this is for subclasses to implement. 
+
+Implements \hyperlink{a01219_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
+
+\mbox{\Hypertarget{a01127_aeedbe58a33fed29e4d7694ae743e25e7}\label{a01127_aeedbe58a33fed29e4d7694ae743e25e7}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!translate@{translate}}
+\index{translate@{translate}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{translate()}{translate()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Compiler\+::translate (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{buffer\+Variable,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01151}{Function} $>$}]{function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+This method is to be implemented by derived Compilers and is in charge of taking the provided \hyperlink{a01151}{Function} \hyperlink{a01175}{IR} and converting it to source code in this \hyperlink{a01127}{Compiler}\textquotesingle{}s language.
 
 
 \begin{DoxyParams}{Parameters}
-{\em idx} & The index where the new instruction should be inserted \\
-\hline
-{\em new\+Inst} & The new \hyperlink{a01131}{Instruction} to insert. \\
+{\em function} & The X\+A\+CC \hyperlink{a01175}{IR} \hyperlink{a01151}{Function} to translate \\
 \hline
 \end{DoxyParams}
-
-
-Implemented in \hyperlink{a00987_aed3b963f1c4eb3215ca46af48d78f588}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\mbox{\Hypertarget{a01127_aa75500c657b5c3e0e36213e1506aad97}\label{a01127_aa75500c657b5c3e0e36213e1506aad97}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!is\+Composite@{is\+Composite}}
-\index{is\+Composite@{is\+Composite}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{is\+Composite()}{isComposite()}}
-{\footnotesize\ttfamily virtual bool xacc\+::\+Function\+::is\+Composite (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-Return true always to indicate that the \hyperlink{a01127}{Function} is composite.
-
 \begin{DoxyReturn}{Returns}
-composite True indicating this is a composite \hyperlink{a01131}{Instruction}. 
+src The source code as a string 
 \end{DoxyReturn}
 
 
-Reimplemented from \hyperlink{a01131_a4383f1036d0fcfe890ab9c613dbd5f38}{xacc\+::\+Instruction}.
-
-\mbox{\Hypertarget{a01127_a8901985525f59713e14c61713e07c086}\label{a01127_a8901985525f59713e14c61713e07c086}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!n\+Instructions@{n\+Instructions}}
-\index{n\+Instructions@{n\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{n\+Instructions()}{nInstructions()}}
-{\footnotesize\ttfamily virtual const int xacc\+::\+Function\+::n\+Instructions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Return the number of Instructions that this \hyperlink{a01127}{Function} contains.
-
-\begin{DoxyReturn}{Returns}
-n\+Inst The number of instructions 
-\end{DoxyReturn}
+Implemented in \hyperlink{a00931_a66ca00bbb1f30e7bc6dd86b1e267b93b}{xacc\+::quantum\+::\+Quil\+Compiler}, \hyperlink{a00951_ac7ca2941e987ba579c6f50cfbd7fb0dc}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00923_a56a345539665099329209b3b5f6810c9}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}.
 
 
-Implemented in \hyperlink{a00987_aa70b26156c060fec71316fe5e98bb102}{xacc\+::quantum\+::\+Gate\+Function}.
 
-\mbox{\Hypertarget{a01127_ab6478b09bb28e194bb555b3180737733}\label{a01127_ab6478b09bb28e194bb555b3180737733}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!remove\+Instruction@{remove\+Instruction}}
-\index{remove\+Instruction@{remove\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{remove\+Instruction()}{removeInstruction()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::remove\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01127_ad4cbb467fa7e377bac6c054ffcb22b7c}\label{a01127_ad4cbb467fa7e377bac6c054ffcb22b7c}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!accelerator@{accelerator}}
+\index{accelerator@{accelerator}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{accelerator}{accelerator}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\hyperlink{a01111}{Accelerator}$>$ xacc\+::\+Compiler\+::accelerator\hspace{0.3cm}{\ttfamily [protected]}}
 
-Remove the \hyperlink{a01131}{Instruction} at the given index.
+Reference to the \hyperlink{a01111}{Accelerator} that this compiler is targeting. \mbox{\Hypertarget{a01127_a0ad81c816c09e5113d03cdc02165c453}\label{a01127_a0ad81c816c09e5113d03cdc02165c453}} 
+\index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!kernel\+Source@{kernel\+Source}}
+\index{kernel\+Source@{kernel\+Source}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
+\subsubsection{\texorpdfstring{kernel\+Source}{kernelSource}}
+{\footnotesize\ttfamily std\+::string xacc\+::\+Compiler\+::kernel\+Source\hspace{0.3cm}{\ttfamily [protected]}}
 
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index of the \hyperlink{a01131}{Instruction} to remove. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00987_a44ca35d081577de9ad2930f93c01e89d}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\mbox{\Hypertarget{a01127_a2ef6a4923a6734f90f6ee3d94d263af0}\label{a01127_a2ef6a4923a6734f90f6ee3d94d263af0}} 
-\index{xacc\+::\+Function@{xacc\+::\+Function}!replace\+Instruction@{replace\+Instruction}}
-\index{replace\+Instruction@{replace\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection{\texorpdfstring{replace\+Instruction()}{replaceInstruction()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::replace\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx,  }\item[{Inst\+Ptr}]{new\+Inst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Replace the \hyperlink{a01131}{Instruction} at the given index with the given new \hyperlink{a01131}{Instruction}.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index of the \hyperlink{a01131}{Instruction} to replace. \\
-\hline
-{\em new\+Inst} & The new \hyperlink{a01131}{Instruction} to replace with. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00987_a182fdfabbf546ae89e4f2384bafb45c9}{xacc\+::quantum\+::\+Gate\+Function}.
-
-
+Reference to the provided kernel source code string 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Function.\+hpp\end{DoxyCompactItemize}
+Compiler.\+hpp\end{DoxyCompactItemize}

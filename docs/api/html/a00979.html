@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XACC: xacc::quantum::InverseQFT Class Reference</title>
+<title>XACC: xacc::quantum::DWIR Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -59,7 +59,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00979.html">InverseQFT</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00979.html">DWIR</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -67,36 +67,42 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="a00976.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::quantum::InverseQFT Class Reference</div>  </div>
+<div class="title">xacc::quantum::DWIR Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p><code>#include &lt;<a class="el" href="a00113_source.html">InverseQFT.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for xacc::quantum::InverseQFT:</div>
+Inheritance diagram for xacc::quantum::DWIR:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00979.png" usemap="#xacc::quantum::InverseQFT_map" alt=""/>
-  <map id="xacc::quantum::InverseQFT_map" name="xacc::quantum::InverseQFT_map">
-<area href="a01119.html" alt="xacc::AlgorithmGenerator" shape="rect" coords="0,0,164,24"/>
+  <img src="a00979.png" usemap="#xacc::quantum::DWIR_map" alt=""/>
+  <map id="xacc::quantum::DWIR_map" name="xacc::quantum::DWIR_map">
+<area href="a01175.html" alt="xacc::IR" shape="rect" coords="0,0,128,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af42e466bf02dbd60670d20aa55cfb08d"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a01127.html">Function</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#af42e466bf02dbd60670d20aa55cfb08d">generateAlgorithm</a> (std::vector&lt; int &gt; qubits)</td></tr>
-<tr class="separator:af42e466bf02dbd60670d20aa55cfb08d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a731c10d28046424be74e4c0daa31d016"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#a731c10d28046424be74e4c0daa31d016">~InverseQFT</a> ()</td></tr>
-<tr class="separator:a731c10d28046424be74e4c0daa31d016"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a01119"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a01119')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a01119.html">xacc::AlgorithmGenerator</a></td></tr>
-<tr class="memitem:a096f66aa8d65f5aa3276915768159579 inherit pub_methods_a01119"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a01119.html#a096f66aa8d65f5aa3276915768159579">~AlgorithmGenerator</a> ()</td></tr>
-<tr class="separator:a096f66aa8d65f5aa3276915768159579 inherit pub_methods_a01119"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a880cb60197577ea31115331e3a030e3e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#a880cb60197577ea31115331e3a030e3e">toAssemblyString</a> (const std::string &amp;kernelName, const std::string &amp;accBufferVarName)</td></tr>
+<tr class="separator:a880cb60197577ea31115331e3a030e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcbfd0a4cf697843391c65cbd9a82080"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#abcbfd0a4cf697843391c65cbd9a82080">persist</a> (std::ostream &amp;outStream)</td></tr>
+<tr class="separator:abcbfd0a4cf697843391c65cbd9a82080"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b388d719d565bb902c979807d3d0d47"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#a8b388d719d565bb902c979807d3d0d47">load</a> (std::istream &amp;inStream)</td></tr>
+<tr class="separator:a8b388d719d565bb902c979807d3d0d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1bef18e1e9568d1313b03149aab8c1b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#af1bef18e1e9568d1313b03149aab8c1b">addKernel</a> (std::shared_ptr&lt; <a class="el" href="a01151.html">Function</a> &gt; kernel)</td></tr>
+<tr class="separator:af1bef18e1e9568d1313b03149aab8c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5e8861d3bc0845bb015af6208f5f396"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#ab5e8861d3bc0845bb015af6208f5f396">kernelExists</a> (const std::string &amp;name)</td></tr>
+<tr class="separator:ab5e8861d3bc0845bb015af6208f5f396"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38d8bdd24250749bc38ad31f8512fcfc"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a01151.html">Function</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#a38d8bdd24250749bc38ad31f8512fcfc">getKernel</a> (const std::string &amp;name)</td></tr>
+<tr class="separator:a38d8bdd24250749bc38ad31f8512fcfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66e22c5dc95ec46045476864012ad08f"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; std::shared_ptr&lt; <a class="el" href="a01151.html">Function</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00979.html#a66e22c5dc95ec46045476864012ad08f">getKernels</a> ()</td></tr>
+<tr class="separator:a66e22c5dc95ec46045476864012ad08f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a01175"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a01175')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a01175.html">xacc::IR</a></td></tr>
+<tr class="memitem:a09a76d71092254acae07e19fa2f34921 inherit pub_methods_a01175"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a01175.html#a09a76d71092254acae07e19fa2f34921">~IR</a> ()</td></tr>
+<tr class="separator:a09a76d71092254acae07e19fa2f34921 inherit pub_methods_a01175"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="a00979.html">InverseQFT</a> is a realization of the <a class="el" href="a01119.html">AlgorithmGenerator</a> interface that produces an XACC <a class="el" href="a01151.html">IR</a> representation of the Inverse Quantum Fourier Transform. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a731c10d28046424be74e4c0daa31d016"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a731c10d28046424be74e4c0daa31d016">&#9670;&nbsp;</a></span>~InverseQFT()</h2>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="af1bef18e1e9568d1313b03149aab8c1b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1bef18e1e9568d1313b03149aab8c1b">&#9670;&nbsp;</a></span>addKernel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -105,7 +111,78 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual xacc::quantum::InverseQFT::~InverseQFT </td>
+          <td class="memname">virtual void xacc::quantum::DWIR::addKernel </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a01151.html">Function</a> &gt;&#160;</td>
+          <td class="paramname"><em>kernel</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Add a new kernel to this <a class="el" href="a01175.html">IR</a> instance.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">kernel</td><td>The <a class="el" href="a01151.html">Function</a> instance to add as a new kernel </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="a01175.html#abbbf8e6993c518597de32cd05d49d737">xacc::IR</a>.</p>
+
+</div>
+</div>
+<a id="a38d8bdd24250749bc38ad31f8512fcfc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38d8bdd24250749bc38ad31f8512fcfc">&#9670;&nbsp;</a></span>getKernel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a01151.html">Function</a>&gt; xacc::quantum::DWIR::getKernel </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the kernel with the given name.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name of the kernel to return. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>kernel The kernel with given name. </dd></dl>
+
+<p>Implements <a class="el" href="a01175.html#a6f49b4ba4b3a15142b04873284885f0d">xacc::IR</a>.</p>
+
+</div>
+</div>
+<a id="a66e22c5dc95ec46045476864012ad08f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66e22c5dc95ec46045476864012ad08f">&#9670;&nbsp;</a></span>getKernels()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::vector&lt;std::shared_ptr&lt;<a class="el" href="a01151.html">Function</a>&gt; &gt; xacc::quantum::DWIR::getKernels </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -117,13 +194,15 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>The destructor </p>
+<p>Return all of this <a class="el" href="a01175.html">IR</a> instance's kernels.</p>
+<dl class="section return"><dt>Returns</dt><dd>kernels The kernels this <a class="el" href="a01175.html">IR</a> contains. </dd></dl>
+
+<p>Implements <a class="el" href="a01175.html#a88c50bfc5b279145360ddc0c3a703b9b">xacc::IR</a>.</p>
 
 </div>
 </div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="af42e466bf02dbd60670d20aa55cfb08d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af42e466bf02dbd60670d20aa55cfb08d">&#9670;&nbsp;</a></span>generateAlgorithm()</h2>
+<a id="ab5e8861d3bc0845bb015af6208f5f396"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5e8861d3bc0845bb015af6208f5f396">&#9670;&nbsp;</a></span>kernelExists()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -132,35 +211,143 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="a01127.html">Function</a> &gt; xacc::quantum::InverseQFT::generateAlgorithm </td>
+          <td class="memname">virtual bool xacc::quantum::DWIR::kernelExists </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
-          <td class="paramname"><em>qubits</em></td><td>)</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This implementation returns a <a class="el" href="a01127.html">Function</a> <a class="el" href="a01151.html">IR</a> representation of the inverse quantum fourier transform.</p>
+<p>Return true if the kernel with given name exists in this <a class="el" href="a01175.html">IR</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">bits</td><td>The bits this algorithm operates on </td></tr>
+    <tr><td class="paramname">name</td><td>The name of the kernel to return. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>function The algorithm represented as an <a class="el" href="a01151.html">IR</a> <a class="el" href="a01127.html">Function</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>exists True if kernel exists. </dd></dl>
 
-<p>Implements <a class="el" href="a01119.html#a73023c06f0f0c62ad56ab4187b18b096">xacc::AlgorithmGenerator</a>.</p>
+<p>Implements <a class="el" href="a01175.html#afc9ccf5126f3fed19c2e879133b2f6d8">xacc::IR</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="a00113_source.html">InverseQFT.hpp</a></li>
-<li>InverseQFT.cpp</li>
+<a id="a8b388d719d565bb902c979807d3d0d47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b388d719d565bb902c979807d3d0d47">&#9670;&nbsp;</a></span>load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void xacc::quantum::DWIR::load </td>
+          <td>(</td>
+          <td class="paramtype">std::istream &amp;&#160;</td>
+          <td class="paramname"><em>inStream</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create this <a class="el" href="a01175.html">IR</a> instance from the given input stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inStream</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="a01175.html#a444c2e4dc0faac500fb70fa93997e9bc">xacc::IR</a>.</p>
+
+</div>
+</div>
+<a id="abcbfd0a4cf697843391c65cbd9a82080"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcbfd0a4cf697843391c65cbd9a82080">&#9670;&nbsp;</a></span>persist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void xacc::quantum::DWIR::persist </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>outStream</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Persist this <a class="el" href="a01175.html">IR</a> instance to the given output stream.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">outStream</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="a01175.html#a414b72224d88473ad6190bb88102a3ea">xacc::IR</a>.</p>
+
+</div>
+</div>
+<a id="a880cb60197577ea31115331e3a030e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a880cb60197577ea31115331e3a030e3e">&#9670;&nbsp;</a></span>toAssemblyString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::string xacc::quantum::DWIR::toAssemblyString </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>kernelName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>accBufferVarName</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return a assembly-like string representation of this intermediate representation </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="a01175.html#a8356cdff1919b88eabeb84fd7450cdb6">xacc::IR</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00098_source.html">DWIR.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

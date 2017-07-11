@@ -1,0 +1,119 @@
+\hypertarget{a00923}{}\section{xacc\+:\+:quantum\+:\+:D\+W\+Q\+M\+I\+Compiler Class Reference}
+\label{a00923}\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+W\+Q\+M\+I\+Compiler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a00923}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{xacc\+::\+IR} $>$ \hyperlink{a00923_a0df05642f1a6fd44ce7f1c0396d50c9c}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$ acc)
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{xacc\+::\+IR} $>$ \hyperlink{a00923_aa22591343b5509bf2c3a5820130ba906}{compile} (const std\+::string \&src)
+\item 
+virtual const std\+::string \hyperlink{a00923_aed42de96f8e0dd94b6de183f28aee419}{get\+Name} ()
+\item 
+virtual const std\+::string \hyperlink{a00923_a56a345539665099329209b3b5f6810c9}{translate} (const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ \hyperlink{a01151}{Function} $>$ function)
+\item 
+virtual \hyperlink{a00923_a86f9135f7dc1c3246970e2a7f6540b5c}{$\sim$\+D\+W\+Q\+M\+I\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{a00923_a421daa5286f31e2b5ab4c141a34c94cd}{register\+Compiler} ()
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a00923_a86f9135f7dc1c3246970e2a7f6540b5c}\label{a00923_a86f9135f7dc1c3246970e2a7f6540b5c}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!````~D\+W\+Q\+M\+I\+Compiler@{$\sim$\+D\+W\+Q\+M\+I\+Compiler}}
+\index{````~D\+W\+Q\+M\+I\+Compiler@{$\sim$\+D\+W\+Q\+M\+I\+Compiler}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{$\sim$\+D\+W\+Q\+M\+I\+Compiler()}{~DWQMICompiler()}}
+{\footnotesize\ttfamily virtual xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::$\sim$\+D\+W\+Q\+M\+I\+Compiler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+The destructor 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a00923_a0df05642f1a6fd44ce7f1c0396d50c9c}\label{a00923_a0df05642f1a6fd44ce7f1c0396d50c9c}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{IR} $>$ xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$}]{acc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the \hyperlink{a01111}{Accelerator} that this source code is intended for.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The kernel source string. \\
+\hline
+{\em acc} & The \hyperlink{a01111}{Accelerator} this code will be executed on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ir Intermediate representation for provided source kernel code. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01127_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
+
+\mbox{\Hypertarget{a00923_aa22591343b5509bf2c3a5820130ba906}\label{a00923_aa22591343b5509bf2c3a5820130ba906}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!compile@{compile}}
+\index{compile@{compile}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{compile()}{compile()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \hyperlink{a01175}{IR} $>$ xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::compile (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{src }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01127_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
+
+\mbox{\Hypertarget{a00923_aed42de96f8e0dd94b6de183f28aee419}\label{a00923_aed42de96f8e0dd94b6de183f28aee419}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the name of this \hyperlink{a01127}{Compiler} \begin{DoxyReturn}{Returns}
+name \hyperlink{a01127}{Compiler} name 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01127_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
+
+\mbox{\Hypertarget{a00923_a421daa5286f31e2b5ab4c141a34c94cd}\label{a00923_a421daa5286f31e2b5ab4c141a34c94cd}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!register\+Compiler@{register\+Compiler}}
+\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{register\+Compiler()}{registerCompiler()}}
+{\footnotesize\ttfamily static void xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::register\+Compiler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Register this \hyperlink{a01127}{Compiler} with the framework. \mbox{\Hypertarget{a00923_a56a345539665099329209b3b5f6810c9}\label{a00923_a56a345539665099329209b3b5f6810c9}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}!translate@{translate}}
+\index{translate@{translate}!xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler@{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}}
+\subsubsection{\texorpdfstring{translate()}{translate()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler\+::translate (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{buffer\+Variable,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01151}{Function} $>$}]{function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+This method is to be implemented by derived Compilers and is in charge of taking the provided \hyperlink{a01151}{Function} \hyperlink{a01175}{IR} and converting it to source code in this \hyperlink{a01127}{Compiler}\textquotesingle{}s language.
+
+
+\begin{DoxyParams}{Parameters}
+{\em function} & The X\+A\+CC \hyperlink{a01175}{IR} \hyperlink{a01151}{Function} to translate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+src The source code as a string 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01127_aeedbe58a33fed29e4d7694ae743e25e7}{xacc\+::\+Compiler}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+D\+W\+Q\+M\+I\+Compiler.\+hpp\item 
+D\+W\+Q\+M\+I\+Compiler.\+cpp\end{DoxyCompactItemize}

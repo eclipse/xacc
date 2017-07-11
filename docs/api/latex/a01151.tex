@@ -1,179 +1,215 @@
-\hypertarget{a01151}{}\section{xacc\+:\+:IR Class Reference}
-\label{a01151}\index{xacc\+::\+IR@{xacc\+::\+IR}}
+\hypertarget{a01151}{}\section{xacc\+:\+:Function Class Reference}
+\label{a01151}\index{xacc\+::\+Function@{xacc\+::\+Function}}
 
 
-{\ttfamily \#include $<$I\+R.\+hpp$>$}
+{\ttfamily \#include $<$Function.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:IR\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:Function\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=2.000000cm]{a01151}
+\includegraphics[height=5.000000cm]{a01151}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::string \hyperlink{a01151_a8356cdff1919b88eabeb84fd7450cdb6}{to\+Assembly\+String} (const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)=0
+virtual const int \hyperlink{a01151_a8901985525f59713e14c61713e07c086}{n\+Instructions} ()=0
 \item 
-virtual void \hyperlink{a01151_a414b72224d88473ad6190bb88102a3ea}{persist} (std\+::ostream \&out\+Stream)=0
+virtual Inst\+Ptr \hyperlink{a01151_afa549fc91b5a05f26d8139954a7e0ed5}{get\+Instruction} (const int idx)=0
 \item 
-virtual void \hyperlink{a01151_a444c2e4dc0faac500fb70fa93997e9bc}{load} (std\+::istream \&in\+Stream)=0
+virtual std\+::list$<$ Inst\+Ptr $>$ \hyperlink{a01151_aaf80bd3d49113a92b520785572663032}{get\+Instructions} ()=0
 \item 
-virtual void \hyperlink{a01151_abbbf8e6993c518597de32cd05d49d737}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Function} $>$ kernel)=0
+virtual void \hyperlink{a01151_ab6478b09bb28e194bb555b3180737733}{remove\+Instruction} (const int idx)=0
 \item 
-virtual bool \hyperlink{a01151_afc9ccf5126f3fed19c2e879133b2f6d8}{kernel\+Exists} (const std\+::string \&name)=0
+virtual void \hyperlink{a01151_a2ef6a4923a6734f90f6ee3d94d263af0}{replace\+Instruction} (const int idx, Inst\+Ptr new\+Inst)=0
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Function} $>$ \hyperlink{a01151_a6f49b4ba4b3a15142b04873284885f0d}{get\+Kernel} (const std\+::string \&name)=0
+virtual void \hyperlink{a01151_acde702e44bdbc2759b338365218d7ebe}{insert\+Instruction} (const int idx, Inst\+Ptr new\+Inst)=0
 \item 
-virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Function} $>$ $>$ \hyperlink{a01151_a88c50bfc5b279145360ddc0c3a703b9b}{get\+Kernels} ()=0
+virtual void \hyperlink{a01151_aa8c9ec2d08be75c69399d4254b0216f5}{add\+Instruction} (Inst\+Ptr instruction)=0
 \item 
-virtual \hyperlink{a01151_a09a76d71092254acae07e19fa2f34921}{$\sim$\+IR} ()
+virtual bool \hyperlink{a01151_aa75500c657b5c3e0e36213e1506aad97}{is\+Composite} ()
+\item 
+virtual void \hyperlink{a01151_af6ae9453027789a2aaec30e59c9e45e3}{evaluate\+Variable\+Parameters} (std\+::vector$<$ Instruction\+Parameter $>$ parameters)=0
+\item 
+virtual \hyperlink{a01151_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}{$\sim$\+Function} ()
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a01151}{IR} interface is the base interface for derived accelerator-\/specific intermediate representations. At this level, an intermediate representation can be persisted to an assembly-\/like string, can be read in from file, and can be persisted to file. Since all X\+A\+CC intermediate representations operate on an \hyperlink{a01087}{Accelerator} Buffer, the \hyperlink{a01151}{IR} interface also provides a setter for such a buffer. 
+The \hyperlink{a01151}{Function} is an \hyperlink{a01155}{Instruction} that contains further child Instructions.
+
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01151_a09a76d71092254acae07e19fa2f34921}\label{a01151_a09a76d71092254acae07e19fa2f34921}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!````~IR@{$\sim$\+IR}}
-\index{````~IR@{$\sim$\+IR}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{$\sim$\+I\+R()}{~IR()}}
-{\footnotesize\ttfamily virtual xacc\+::\+I\+R\+::$\sim$\+IR (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01151_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}\label{a01151_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!````~Function@{$\sim$\+Function}}
+\index{````~Function@{$\sim$\+Function}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{$\sim$\+Function()}{~Function()}}
+{\footnotesize\ttfamily virtual xacc\+::\+Function\+::$\sim$\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
 
 The destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01151_abbbf8e6993c518597de32cd05d49d737}\label{a01151_abbbf8e6993c518597de32cd05d49d737}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!add\+Kernel@{add\+Kernel}}
-\index{add\+Kernel@{add\+Kernel}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{add\+Kernel()}{addKernel()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+I\+R\+::add\+Kernel (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Function} $>$}]{kernel }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01151_aa8c9ec2d08be75c69399d4254b0216f5}\label{a01151_aa8c9ec2d08be75c69399d4254b0216f5}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!add\+Instruction@{add\+Instruction}}
+\index{add\+Instruction@{add\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{add\+Instruction()}{addInstruction()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::add\+Instruction (\begin{DoxyParamCaption}\item[{Inst\+Ptr}]{instruction }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Add a new kernel to this \hyperlink{a01151}{IR} instance.
+Add an \hyperlink{a01155}{Instruction} to this \hyperlink{a01151}{Function}.
 
 
 \begin{DoxyParams}{Parameters}
-{\em kernel} & The \hyperlink{a01127}{Function} instance to add as a new kernel \\
+{\em instruction} & The instruction to add. \\
 \hline
 \end{DoxyParams}
 
 
-Implemented in \hyperlink{a01003_aa6ed2cf2cbcfec8105c327a4fa95346f}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_a7e1ddff2771233dc45f60a6b7e15ef63}{xacc\+::quantum\+::\+D\+Wave\+IR}.
+Implemented in \hyperlink{a01011_a892fb69a10f0a7cb5abdab4cca61b80a}{xacc\+::quantum\+::\+Gate\+Function}, \hyperlink{a00983_a4c3043d6971999c3a09e797fc55deb6c}{xacc\+::quantum\+::\+D\+W\+Kernel}, and \hyperlink{a01035_a6aedad20f96390880efdc0a476b3273f}{xacc\+::quantum\+::\+Conditional\+Function}.
 
-\mbox{\Hypertarget{a01151_a6f49b4ba4b3a15142b04873284885f0d}\label{a01151_a6f49b4ba4b3a15142b04873284885f0d}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!get\+Kernel@{get\+Kernel}}
-\index{get\+Kernel@{get\+Kernel}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{get\+Kernel()}{getKernel()}}
-{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01127}{Function}$>$ xacc\+::\+I\+R\+::get\+Kernel (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01151_af6ae9453027789a2aaec30e59c9e45e3}\label{a01151_af6ae9453027789a2aaec30e59c9e45e3}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}}
+\index{evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{evaluate\+Variable\+Parameters()}{evaluateVariableParameters()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::evaluate\+Variable\+Parameters (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Instruction\+Parameter $>$}]{parameters }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Return the kernel with the given name.
+This method is used to evaluate this \hyperlink{a01151}{Function}\textquotesingle{}s parameterized Instructions that have string variable Instruction\+Parameters. These parameters are updated with the given runtime parameters.
 
 
 \begin{DoxyParams}{Parameters}
-{\em name} & The name of the kernel to return. \\
+{\em parameters} & The runtime parameters \\
 \hline
 \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-kernel The kernel with given name. 
-\end{DoxyReturn}
 
 
-Implemented in \hyperlink{a01003_a194758b6edcc3ae0c7fe8004f9bfe690}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_ac4295dfef98c94d7154a4fd39a6e5d1c}{xacc\+::quantum\+::\+D\+Wave\+IR}.
+Implemented in \hyperlink{a01011_a4bcbd2c8c4b615d74e4a4d39952fd411}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_a09ffac417d4ecbbd82d7a680ad8dfcce}{xacc\+::quantum\+::\+D\+W\+Kernel}.
 
-\mbox{\Hypertarget{a01151_a88c50bfc5b279145360ddc0c3a703b9b}\label{a01151_a88c50bfc5b279145360ddc0c3a703b9b}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!get\+Kernels@{get\+Kernels}}
-\index{get\+Kernels@{get\+Kernels}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{get\+Kernels()}{getKernels()}}
-{\footnotesize\ttfamily virtual std\+::vector$<$std\+::shared\+\_\+ptr$<$\hyperlink{a01127}{Function}$>$ $>$ xacc\+::\+I\+R\+::get\+Kernels (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01151_afa549fc91b5a05f26d8139954a7e0ed5}\label{a01151_afa549fc91b5a05f26d8139954a7e0ed5}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instruction@{get\+Instruction}}
+\index{get\+Instruction@{get\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+Instruction()}{getInstruction()}}
+{\footnotesize\ttfamily virtual Inst\+Ptr xacc\+::\+Function\+::get\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Return all of this \hyperlink{a01151}{IR} instance\textquotesingle{}s kernels.
-
-\begin{DoxyReturn}{Returns}
-kernels The kernels this \hyperlink{a01151}{IR} contains. 
-\end{DoxyReturn}
-
-
-Implemented in \hyperlink{a01003_a4ace7ee5ebef84b1f39aaf5ed12c6cc6}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_accffbb279cb1f67e0fe79c603fe7a949}{xacc\+::quantum\+::\+D\+Wave\+IR}.
-
-\mbox{\Hypertarget{a01151_afc9ccf5126f3fed19c2e879133b2f6d8}\label{a01151_afc9ccf5126f3fed19c2e879133b2f6d8}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!kernel\+Exists@{kernel\+Exists}}
-\index{kernel\+Exists@{kernel\+Exists}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{kernel\+Exists()}{kernelExists()}}
-{\footnotesize\ttfamily virtual bool xacc\+::\+I\+R\+::kernel\+Exists (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Return true if the kernel with given name exists in this \hyperlink{a01151}{IR}.
+Return the \hyperlink{a01155}{Instruction} at the given index.
 
 
 \begin{DoxyParams}{Parameters}
-{\em name} & The name of the kernel to return. \\
+{\em idx} & The desired \hyperlink{a01155}{Instruction} index \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-exists True if kernel exists. 
+inst The instruction at the given index. 
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a01003_a692f95099caa7c024110a3f035941dca}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_ace9b8c6f4f29e32c8482fec4eacb637a}{xacc\+::quantum\+::\+D\+Wave\+IR}.
+Implemented in \hyperlink{a01011_a841d656eed8aa9b4c0eec3f1da38069c}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_a00f23cd2e15ea6b9d00d4f3dbe1540f8}{xacc\+::quantum\+::\+D\+W\+Kernel}.
 
-\mbox{\Hypertarget{a01151_a444c2e4dc0faac500fb70fa93997e9bc}\label{a01151_a444c2e4dc0faac500fb70fa93997e9bc}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!load@{load}}
-\index{load@{load}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{load()}{load()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+I\+R\+::load (\begin{DoxyParamCaption}\item[{std\+::istream \&}]{in\+Stream }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01151_aaf80bd3d49113a92b520785572663032}\label{a01151_aaf80bd3d49113a92b520785572663032}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instructions@{get\+Instructions}}
+\index{get\+Instructions@{get\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{get\+Instructions()}{getInstructions()}}
+{\footnotesize\ttfamily virtual std\+::list$<$Inst\+Ptr$>$ xacc\+::\+Function\+::get\+Instructions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Create this \hyperlink{a01151}{IR} instance from the given input stream.
+Return all Instructions in this \hyperlink{a01151}{Function}
 
-
-\begin{DoxyParams}{Parameters}
-{\em in\+Stream} & The input stream to read from. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a01003_a07f26eeb362ac480d20da6cdc8c8fb39}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_a94d814172ec30c7ed32e6ab52bc2a41a}{xacc\+::quantum\+::\+D\+Wave\+IR}.
-
-\mbox{\Hypertarget{a01151_a414b72224d88473ad6190bb88102a3ea}\label{a01151_a414b72224d88473ad6190bb88102a3ea}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!persist@{persist}}
-\index{persist@{persist}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{persist()}{persist()}}
-{\footnotesize\ttfamily virtual void xacc\+::\+I\+R\+::persist (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{out\+Stream }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Persist this \hyperlink{a01151}{IR} instance to the given output stream.
-
-
-\begin{DoxyParams}{Parameters}
-{\em out\+Stream} & The output stream to persist to. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a01003_a40e1d07e4dfd3794ef53fca3cdbdca61}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_adac268c6fa2234902efeb9b3c07c0ac2}{xacc\+::quantum\+::\+D\+Wave\+IR}.
-
-\mbox{\Hypertarget{a01151_a8356cdff1919b88eabeb84fd7450cdb6}\label{a01151_a8356cdff1919b88eabeb84fd7450cdb6}} 
-\index{xacc\+::\+IR@{xacc\+::\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
-\index{to\+Assembly\+String@{to\+Assembly\+String}!xacc\+::\+IR@{xacc\+::\+IR}}
-\subsubsection{\texorpdfstring{to\+Assembly\+String()}{toAssemblyString()}}
-{\footnotesize\ttfamily virtual std\+::string xacc\+::\+I\+R\+::to\+Assembly\+String (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{kernel\+Name,  }\item[{const std\+::string \&}]{acc\+Buffer\+Var\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Return a assembly-\/like string representation of this intermediate representation
-
-
-\begin{DoxyParams}{Parameters}
-{\em kernel\+Name} & The name of hte kernel to persist to string \\
-\hline
-{\em acc\+Buffer\+Var\+Name} & The name of the \hyperlink{a01099}{Accelerator\+Buffer} \\
-\hline
-\end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-
+insts The list of this \hyperlink{a01151}{Function}\textquotesingle{}s Instructions 
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a01003_a7153f7e9f516d43af3d5d4f95d60bd86}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00963_ac19ad098d5bbfe769809c10e26ebebc6}{xacc\+::quantum\+::\+D\+Wave\+IR}.
+Implemented in \hyperlink{a01011_aebce6a9e64aed7f4aff86df752bacfe2}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_abbb8f2b1c78623c377524e45d581d018}{xacc\+::quantum\+::\+D\+W\+Kernel}.
+
+\mbox{\Hypertarget{a01151_acde702e44bdbc2759b338365218d7ebe}\label{a01151_acde702e44bdbc2759b338365218d7ebe}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!insert\+Instruction@{insert\+Instruction}}
+\index{insert\+Instruction@{insert\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{insert\+Instruction()}{insertInstruction()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::insert\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx,  }\item[{Inst\+Ptr}]{new\+Inst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Insert a new \hyperlink{a01155}{Instruction} at the given index. All previous instructions are pushed back, ie their new indices are current\+Index + 1.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & The index where the new instruction should be inserted \\
+\hline
+{\em new\+Inst} & The new \hyperlink{a01155}{Instruction} to insert. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a01011_aed3b963f1c4eb3215ca46af48d78f588}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_a1627af0141f70fc4a3cd500a13fb31b8}{xacc\+::quantum\+::\+D\+W\+Kernel}.
+
+\mbox{\Hypertarget{a01151_aa75500c657b5c3e0e36213e1506aad97}\label{a01151_aa75500c657b5c3e0e36213e1506aad97}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!is\+Composite@{is\+Composite}}
+\index{is\+Composite@{is\+Composite}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{is\+Composite()}{isComposite()}}
+{\footnotesize\ttfamily virtual bool xacc\+::\+Function\+::is\+Composite (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return true always to indicate that the \hyperlink{a01151}{Function} is composite.
+
+\begin{DoxyReturn}{Returns}
+composite True indicating this is a composite \hyperlink{a01155}{Instruction}. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a01155_a4383f1036d0fcfe890ab9c613dbd5f38}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01151_a8901985525f59713e14c61713e07c086}\label{a01151_a8901985525f59713e14c61713e07c086}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!n\+Instructions@{n\+Instructions}}
+\index{n\+Instructions@{n\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{n\+Instructions()}{nInstructions()}}
+{\footnotesize\ttfamily virtual const int xacc\+::\+Function\+::n\+Instructions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Return the number of Instructions that this \hyperlink{a01151}{Function} contains.
+
+\begin{DoxyReturn}{Returns}
+n\+Inst The number of instructions 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a01011_aa70b26156c060fec71316fe5e98bb102}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_a79aecc7419a20b8779372ef36fc24806}{xacc\+::quantum\+::\+D\+W\+Kernel}.
+
+\mbox{\Hypertarget{a01151_ab6478b09bb28e194bb555b3180737733}\label{a01151_ab6478b09bb28e194bb555b3180737733}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!remove\+Instruction@{remove\+Instruction}}
+\index{remove\+Instruction@{remove\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{remove\+Instruction()}{removeInstruction()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::remove\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Remove the \hyperlink{a01155}{Instruction} at the given index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & The index of the \hyperlink{a01155}{Instruction} to remove. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a01011_a44ca35d081577de9ad2930f93c01e89d}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_af2bcfd679e6cb89194f3f0bff8622b99}{xacc\+::quantum\+::\+D\+W\+Kernel}.
+
+\mbox{\Hypertarget{a01151_a2ef6a4923a6734f90f6ee3d94d263af0}\label{a01151_a2ef6a4923a6734f90f6ee3d94d263af0}} 
+\index{xacc\+::\+Function@{xacc\+::\+Function}!replace\+Instruction@{replace\+Instruction}}
+\index{replace\+Instruction@{replace\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
+\subsubsection{\texorpdfstring{replace\+Instruction()}{replaceInstruction()}}
+{\footnotesize\ttfamily virtual void xacc\+::\+Function\+::replace\+Instruction (\begin{DoxyParamCaption}\item[{const int}]{idx,  }\item[{Inst\+Ptr}]{new\+Inst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Replace the \hyperlink{a01155}{Instruction} at the given index with the given new \hyperlink{a01155}{Instruction}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & The index of the \hyperlink{a01155}{Instruction} to replace. \\
+\hline
+{\em new\+Inst} & The new \hyperlink{a01155}{Instruction} to replace with. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a01011_a182fdfabbf546ae89e4f2384bafb45c9}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00983_a75eb3560d2f81c9a5ae1cf765deb0e83}{xacc\+::quantum\+::\+D\+W\+Kernel}.
 
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-I\+R.\+hpp\end{DoxyCompactItemize}
+Function.\+hpp\end{DoxyCompactItemize}

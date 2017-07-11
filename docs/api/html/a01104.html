@@ -59,18 +59,40 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01107.html">RegisterCompiler</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a01107.html">SimulatedQubits</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">xacc::RegisterCompiler&lt; T &gt; Member List</div>  </div>
+<div class="title">xacc::quantum::SimulatedQubits Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="a01107.html">xacc::RegisterCompiler&lt; T &gt;</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a>, including all inherited members.</p>
 <table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>RegisterCompiler</b>(const std::string &amp;name) (defined in <a class="el" href="a01107.html">xacc::RegisterCompiler&lt; T &gt;</a>)</td><td class="entry"><a class="el" href="a01107.html">xacc::RegisterCompiler&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01123.html#ab606d8af942120d60b51a4fffcd75c98">AcceleratorBuffer</a>(const std::string &amp;str, const int N)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>AcceleratorBuffer</b>(const std::string &amp;str, int firstIndex, Indices ... indices) (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>appendMeasurement</b>(const boost::dynamic_bitset&lt;&gt; &amp;measurement) (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01107.html#a3f4518d0135101141bf92d7e31f4fddc">applyUnitary</a>(fire::Tensor&lt; 2, fire::EigenProvider, std::complex&lt; double &gt;&gt; &amp;U)</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>bits</b> (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>bufferId</b> (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#a630bea50ee06fd59f74450f01f95e489">bufferState</a></td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>getAcceleratorBitState</b>(const int idx) (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>getAverage</b>() const (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01107.html#a405577717ca200ed9e524c04209e0216">getState</a>()</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>measurements</b> (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>name</b>() (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#a09ee499769bb1eedaf08d6b5c29f9791">normalize</a>()</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01107.html#a9252d30be0563f36bf1ff839c7104cd7">print</a>(std::ostream &amp;stream)</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#a32922bd2ccc64bba601c07a3c136cc3d">print</a>()</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>resetBuffer</b>() (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#a8cd74c239c1fcecb3d03d6989732d5fe">setState</a>(QubitState &amp;st)</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01107.html#abb0419229628210a1c187b76be6edc30">SimulatedQubits</a>(const std::string &amp;str, const int N)</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#a812afe5bad306acfe2b46e05098040a4">SimulatedQubits</a>(const std::string &amp;str, int firstIndex, Indices ... indices)</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>size</b>() (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>updateBit</b>(const int idx, int zeroOrOne) (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>~AcceleratorBuffer</b>() (defined in <a class="el" href="a01123.html">xacc::AcceleratorBuffer</a>)</td><td class="entry"><a class="el" href="a01123.html">xacc::AcceleratorBuffer</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01107.html#aebf6f30a6d8c84971091d87908680e7e">~SimulatedQubits</a>()</td><td class="entry"><a class="el" href="a01107.html">xacc::quantum::SimulatedQubits</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

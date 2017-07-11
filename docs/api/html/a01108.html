@@ -59,22 +59,28 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01111.html">Preprocessor</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01111.html">Accelerator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">xacc::Preprocessor Member List</div>  </div>
+<div class="title">xacc::Accelerator Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="a01111.html">xacc::Preprocessor</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="a01111.html">xacc::Accelerator</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="a01111.html#a36671f4c062d61e230306edc404774cd">getName</a>()=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Preprocessor</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="a01111.html#a96f5600ea47628b66917c7b90250e7f1">getOptions</a>()</td><td class="entry"><a class="el" href="a01111.html">xacc::Preprocessor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="a01111.html#ae59b5a2963f8bcc84b590a83f4749e19">process</a>(const std::string &amp;source, std::shared_ptr&lt; Compiler &gt; compiler, std::shared_ptr&lt; Accelerator &gt; accelerator)=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Preprocessor</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="a01195.html#a7782757b419792ff346f563517eed8b8">~OptionsProvider</a>()</td><td class="entry"><a class="el" href="a01195.html">xacc::OptionsProvider</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~Preprocessor</b>() (defined in <a class="el" href="a01111.html">xacc::Preprocessor</a>)</td><td class="entry"><a class="el" href="a01111.html">xacc::Preprocessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01111.html#a064a2dbd58338364115c260267806945">createBuffer</a>(const std::string &amp;varId, const int size)=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01111.html#a89b3f3e6294f228abf03a410b0fb1674">execute</a>(std::shared_ptr&lt; AcceleratorBuffer &gt; buffer, const std::shared_ptr&lt; Function &gt; function)=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01111.html#ae1463d7e405df89fa4af47e8922f4b82">getAllocatedBufferNames</a>()</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01111.html#ab3820be326e28a553fed1a824f4d41d0">getBuffer</a>(const std::string &amp;varid)</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01111.html#ad6e4a642dcb24e552675bcbeff1e1b04">getIRTransformations</a>()=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01111.html#a98c9eda6b54367c75667ecfbbf167979">getOptions</a>()</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01111.html#aaffc3e4bb9880eb5041b1b58ee4c2665">getType</a>()=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01111.html#ae51584850faeec77299058383977ddeb">isValidBufferSize</a>(const int NBits)=0</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01111.html#ac3e781f42ec25e460174d4c41ea26b94">storeBuffer</a>(const std::string &amp;id, std::shared_ptr&lt; AcceleratorBuffer &gt; b)</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a01111.html#aed88ab0d71b765f0b0f512684ccd4b55">~Accelerator</a>()</td><td class="entry"><a class="el" href="a01111.html">xacc::Accelerator</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a01219.html#a7782757b419792ff346f563517eed8b8">~OptionsProvider</a>()</td><td class="entry"><a class="el" href="a01219.html">xacc::OptionsProvider</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

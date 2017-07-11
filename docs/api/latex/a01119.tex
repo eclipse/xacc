@@ -1,26 +1,27 @@
-\hypertarget{a01119}{}\section{xacc\+:\+:Algorithm\+Generator Class Reference}
-\label{a01119}\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
+\hypertarget{a01119}{}\section{xacc\+:\+:Accelerator\+Bit Class Reference}
+\label{a01119}\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
 
 
-{\ttfamily \#include $<$Algorithm\+Generator.\+hpp$>$}
+{\ttfamily \#include $<$Accelerator\+Buffer.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Algorithm\+Generator\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=2.000000cm]{a01119}
-\end{center}
-\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Function} $>$ \hyperlink{a01119_a73023c06f0f0c62ad56ab4187b18b096}{generate\+Algorithm} (std\+::vector$<$ int $>$ bits)=0
+\hyperlink{a01119_a9a124c230c5cabeab53bac0820c0221a}{Accelerator\+Bit} ()
 \item 
-virtual \hyperlink{a01119_a096f66aa8d65f5aa3276915768159579}{$\sim$\+Algorithm\+Generator} ()
+void \hyperlink{a01119_aa63a24980e831b9325a36836ab1c5495}{update} (int zero\+Or\+One)
+\item 
+Accelerator\+Bit\+State \hyperlink{a01119_a4a8dcc4fa02a5619f583961460c77057}{get\+State} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Accelerator\+Bit\+State \hyperlink{a01119_a4632123ac31aeed0dc97c65f8c792a85}{state}
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a01119}{Algorithm\+Generator} interface provides a mechanism for generating algorithms modeled as an X\+A\+CC \hyperlink{a01127}{Function} instance.
+The \hyperlink{a01119}{Accelerator\+Bit} wraps an Accelerator\+Bit\+Sate and provides a mechanism for updating that state.
 
 \begin{DoxyAuthor}{Author}
 Alex Mc\+Caskey 
@@ -28,37 +29,38 @@ Alex Mc\+Caskey
 
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01119_a096f66aa8d65f5aa3276915768159579}\label{a01119_a096f66aa8d65f5aa3276915768159579}} 
-\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}!````~Algorithm\+Generator@{$\sim$\+Algorithm\+Generator}}
-\index{````~Algorithm\+Generator@{$\sim$\+Algorithm\+Generator}!xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
-\subsubsection{\texorpdfstring{$\sim$\+Algorithm\+Generator()}{~AlgorithmGenerator()}}
-{\footnotesize\ttfamily virtual xacc\+::\+Algorithm\+Generator\+::$\sim$\+Algorithm\+Generator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01119_a9a124c230c5cabeab53bac0820c0221a}\label{a01119_a9a124c230c5cabeab53bac0820c0221a}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!Accelerator\+Bit@{Accelerator\+Bit}}
+\index{Accelerator\+Bit@{Accelerator\+Bit}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{Accelerator\+Bit()}{AcceleratorBit()}}
+{\footnotesize\ttfamily xacc\+::\+Accelerator\+Bit\+::\+Accelerator\+Bit (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-The destructor 
+The constructor, all bits are initialized to unknown state 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01119_a73023c06f0f0c62ad56ab4187b18b096}\label{a01119_a73023c06f0f0c62ad56ab4187b18b096}} 
-\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}!generate\+Algorithm@{generate\+Algorithm}}
-\index{generate\+Algorithm@{generate\+Algorithm}!xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
-\subsubsection{\texorpdfstring{generate\+Algorithm()}{generateAlgorithm()}}
-{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01127}{Function}$>$ xacc\+::\+Algorithm\+Generator\+::generate\+Algorithm (\begin{DoxyParamCaption}\item[{std\+::vector$<$ int $>$}]{bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01119_a4a8dcc4fa02a5619f583961460c77057}\label{a01119_a4a8dcc4fa02a5619f583961460c77057}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!get\+State@{get\+State}}
+\index{get\+State@{get\+State}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{get\+State()}{getState()}}
+{\footnotesize\ttfamily Accelerator\+Bit\+State xacc\+::\+Accelerator\+Bit\+::get\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-Implementations of this method generate a \hyperlink{a01127}{Function} \hyperlink{a01151}{IR} instance corresponding to the implementation\textquotesingle{}s modeled algorithm. The algorithm is specified to operate over the provided bits.
+Return the value of this state \mbox{\Hypertarget{a01119_aa63a24980e831b9325a36836ab1c5495}\label{a01119_aa63a24980e831b9325a36836ab1c5495}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!update@{update}}
+\index{update@{update}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void xacc\+::\+Accelerator\+Bit\+::update (\begin{DoxyParamCaption}\item[{int}]{zero\+Or\+One }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
+Update the Bit state to a one or zero 
 
-\begin{DoxyParams}{Parameters}
-{\em bits} & The bits this algorithm operates on \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-function The algorithm represented as an \hyperlink{a01151}{IR} \hyperlink{a01127}{Function} 
-\end{DoxyReturn}
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01119_a4632123ac31aeed0dc97c65f8c792a85}\label{a01119_a4632123ac31aeed0dc97c65f8c792a85}} 
+\index{xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}!state@{state}}
+\index{state@{state}!xacc\+::\+Accelerator\+Bit@{xacc\+::\+Accelerator\+Bit}}
+\subsubsection{\texorpdfstring{state}{state}}
+{\footnotesize\ttfamily Accelerator\+Bit\+State xacc\+::\+Accelerator\+Bit\+::state\hspace{0.3cm}{\ttfamily [protected]}}
 
-
-Implemented in \hyperlink{a00983_ac093c288bc9fc069464fc3fd2cc0ac21}{xacc\+::quantum\+::\+Q\+FT}, and \hyperlink{a00979_af42e466bf02dbd60670d20aa55cfb08d}{xacc\+::quantum\+::\+Inverse\+Q\+FT}.
-
-
+The bit state 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Algorithm\+Generator.\+hpp\end{DoxyCompactItemize}
+Accelerator\+Buffer.\+hpp\end{DoxyCompactItemize}

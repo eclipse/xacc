@@ -1,82 +1,81 @@
-\hypertarget{a01135}{}\section{xacc\+:\+:Instruction\+Iterator Class Reference}
-\label{a01135}\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\hypertarget{a01135}{}\section{xacc\+:\+:Preprocessor Class Reference}
+\label{a01135}\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
 
 
-{\ttfamily \#include $<$Instruction\+Iterator.\+hpp$>$}
+{\ttfamily \#include $<$Preprocessor.\+hpp$>$}
 
+Inheritance diagram for xacc\+:\+:Preprocessor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a01135}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{a01135_af61abf612341ab1454a1c43239b2da16}{Instruction\+Iterator} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01131}{Instruction} $>$ r)
+virtual const std\+::string \hyperlink{a01135_ae59b5a2963f8bcc84b590a83f4749e19}{process} (const std\+::string \&source, std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Compiler} $>$ compiler, std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$ accelerator)=0
 \item 
-bool \hyperlink{a01135_a7fa6c8cff43e7b224211d4f7954a4152}{has\+Next} ()
+virtual const std\+::string \hyperlink{a01135_a36671f4c062d61e230306edc404774cd}{get\+Name} ()=0
 \item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01131}{Instruction} $>$ \hyperlink{a01135_a0a2e2b1543650760a869460ebcd4382b}{next} ()
-\end{DoxyCompactItemize}
-\subsection*{Protected Attributes}
-\begin{DoxyCompactItemize}
-\item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a01131}{Instruction} $>$ \hyperlink{a01135_a9d7aee1cb9058dd4a29c8fc71eeda57d}{root}
-\item 
-std\+::stack$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a01131}{Instruction} $>$ $>$ \hyperlink{a01135_a7af48509e563e8865131692c3b71edf0}{inst\+Stack}
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a01135_a96f5600ea47628b66917c7b90250e7f1}{get\+Options} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a01135}{Instruction\+Iterator} provides a mechanism for a pre-\/order traversal of an \hyperlink{a01131}{Instruction} tree. 
+The \hyperlink{a01135}{Preprocessor} interface provides a mechanism for processing quantum kernel source code before compilation takes place. Realizations of this interface implement the process method which takes as input the source code to process, and the compiler and accelerator this code is targeted at. 
 
-\subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01135_af61abf612341ab1454a1c43239b2da16}\label{a01135_af61abf612341ab1454a1c43239b2da16}} 
-\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!Instruction\+Iterator@{Instruction\+Iterator}}
-\index{Instruction\+Iterator@{Instruction\+Iterator}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
-\subsubsection{\texorpdfstring{Instruction\+Iterator()}{InstructionIterator()}}
-{\footnotesize\ttfamily xacc\+::\+Instruction\+Iterator\+::\+Instruction\+Iterator (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01131}{Instruction} $>$}]{r }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a01135_a36671f4c062d61e230306edc404774cd}\label{a01135_a36671f4c062d61e230306edc404774cd}} 
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Preprocessor\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-The constructor, takes the root of the tree as input.
+Return the name of this \hyperlink{a01135}{Preprocessor}
+
+\begin{DoxyReturn}{Returns}
+name The name of this preprocessor 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00991_af74db6b7f3adeb7d203777f5ce450491}{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}.
+
+\mbox{\Hypertarget{a01135_a96f5600ea47628b66917c7b90250e7f1}\label{a01135_a96f5600ea47628b66917c7b90250e7f1}} 
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection{\texorpdfstring{get\+Options()}{getOptions()}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Preprocessor\+::get\+Options (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return an empty options\+\_\+description, this is for subclasses to implement. 
+
+Implements \hyperlink{a01219_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
+
+\mbox{\Hypertarget{a01135_ae59b5a2963f8bcc84b590a83f4749e19}\label{a01135_ae59b5a2963f8bcc84b590a83f4749e19}} 
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!process@{process}}
+\index{process@{process}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection{\texorpdfstring{process()}{process()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::\+Preprocessor\+::process (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{source,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01127}{Compiler} $>$}]{compiler,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01111}{Accelerator} $>$}]{accelerator }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+This method is to be implemented by subclasses to take in a kernel source string and process it in an isomorphic manner, and returns the processed source code.
 
 
 \begin{DoxyParams}{Parameters}
-{\em r} & \\
+{\em src} & The unprocessed kernel source code \\
+\hline
+{\em compiler} & The compiler being used to compile the code \\
+\hline
+{\em accelerator} & The \hyperlink{a01111}{Accelerator} this code will be run on\\
 \hline
 \end{DoxyParams}
-
-
-\subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01135_a7fa6c8cff43e7b224211d4f7954a4152}\label{a01135_a7fa6c8cff43e7b224211d4f7954a4152}} 
-\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!has\+Next@{has\+Next}}
-\index{has\+Next@{has\+Next}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
-\subsubsection{\texorpdfstring{has\+Next()}{hasNext()}}
-{\footnotesize\ttfamily bool xacc\+::\+Instruction\+Iterator\+::has\+Next (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-Return true if there are still instructions left to traverse. \begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-\mbox{\Hypertarget{a01135_a0a2e2b1543650760a869460ebcd4382b}\label{a01135_a0a2e2b1543650760a869460ebcd4382b}} 
-\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!next@{next}}
-\index{next@{next}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
-\subsubsection{\texorpdfstring{next()}{next()}}
-{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\hyperlink{a01131}{Instruction}$>$ xacc\+::\+Instruction\+Iterator\+::next (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-Return the next \hyperlink{a01131}{Instruction} in the tree. \begin{DoxyReturn}{Returns}
-
+\begin{DoxyReturn}{Returns}
+processed\+Src The processed kernel source code 
 \end{DoxyReturn}
 
 
-\subsection{Member Data Documentation}
-\mbox{\Hypertarget{a01135_a7af48509e563e8865131692c3b71edf0}\label{a01135_a7af48509e563e8865131692c3b71edf0}} 
-\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!inst\+Stack@{inst\+Stack}}
-\index{inst\+Stack@{inst\+Stack}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
-\subsubsection{\texorpdfstring{inst\+Stack}{instStack}}
-{\footnotesize\ttfamily std\+::stack$<$std\+::shared\+\_\+ptr$<$\hyperlink{a01131}{Instruction}$>$ $>$ xacc\+::\+Instruction\+Iterator\+::inst\+Stack\hspace{0.3cm}{\ttfamily [protected]}}
+Implemented in \hyperlink{a00991_ad4f9ba1f83ea45ed376f36e3853c668d}{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}.
 
-A stack used to implement the tree traversal \mbox{\Hypertarget{a01135_a9d7aee1cb9058dd4a29c8fc71eeda57d}\label{a01135_a9d7aee1cb9058dd4a29c8fc71eeda57d}} 
-\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!root@{root}}
-\index{root@{root}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
-\subsubsection{\texorpdfstring{root}{root}}
-{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\hyperlink{a01131}{Instruction}$>$ xacc\+::\+Instruction\+Iterator\+::root\hspace{0.3cm}{\ttfamily [protected]}}
 
-The root of the tree, a function 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Instruction\+Iterator.\+hpp\end{DoxyCompactItemize}
+Preprocessor.\+hpp\end{DoxyCompactItemize}

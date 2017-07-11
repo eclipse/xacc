@@ -173,11 +173,11 @@
 
 boxfont setfont
 1 boundaspect scale
-(xacc::quantum::ConditionalFunction) cw
 (xacc::quantum::GateFunction) cw
 (xacc::Function) cw
 (xacc::Instruction) cw
 (xacc::BaseInstructionVisitable) cw
+(xacc::quantum::ConditionalFunction) cw
 /boxwidth boxwidth marginwidth 2 mul add def
 /xspacing boxwidth distx add def
 /yspacing boxheight disty add def
@@ -189,10 +189,7 @@ boundx scalefactor div boundy scalefactor div scale
 
 % ----- classes -----
 
- (xacc::quantum::ConditionalFunction) 0.000000 0.000000 box
-dashed
  (xacc::quantum::GateFunction) 0.000000 1.000000 box
-solid
 dashed
  (xacc::Function) 0.000000 2.000000 box
 solid
@@ -200,13 +197,10 @@ dashed
  (xacc::Instruction) 0.000000 3.000000 box
 solid
  (xacc::BaseInstructionVisitable) 0.000000 4.000000 box
+ (xacc::quantum::ConditionalFunction) 0.000000 0.000000 box
 
 % ----- relations -----
 
-solid
-0 0.000000 0.000000 out
-solid
-1 0.000000 1.000000 in
 solid
 0 0.000000 1.000000 out
 solid
@@ -219,3 +213,7 @@ solid
 0 0.000000 3.000000 out
 solid
 1 0.000000 4.000000 in
+solid
+1 0.000000 0.250000 out
+solid
+0 0.000000 0.750000 in

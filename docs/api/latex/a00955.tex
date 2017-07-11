@@ -1,72 +1,149 @@
-\hypertarget{a00955}{}\section{xacc\+:\+:quantum\+:\+:Embedding\+Algorithm Class Reference}
-\label{a00955}\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\hypertarget{a00955}{}\section{xacc\+:\+:quantum\+:\+:Scaffold\+I\+R\+To\+Src\+Visitor Class Reference}
+\label{a00955}\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
 
 
-{\ttfamily \#include $<$Embedding\+Algorithm.\+hpp$>$}
+{\ttfamily \#include $<$Scaffold\+I\+R\+To\+Src\+Visitor.\+hpp$>$}
 
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Scaffold\+I\+R\+To\+Src\+Visitor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{a00955}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{a00955_abad06507eef6b63af0884e3a96145c69}{Embedding\+Algorithm} ()
+\mbox{\Hypertarget{a00955_a38e9a5775397847973f78856e4b0031e}\label{a00955_a38e9a5775397847973f78856e4b0031e}} 
+{\bfseries Scaffold\+I\+R\+To\+Src\+Visitor} (std\+::string var)
 \item 
-virtual \hyperlink{a00955_aa43660ad5d4c4b3ac67863892c33dc51}{$\sim$\+Embedding\+Algorithm} ()
+void \hyperlink{a00955_af66cbe08e183c8b53817cda5251d0498}{visit} (\hyperlink{a01043}{Hadamard} \&h)
 \item 
-virtual std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00955_a67158c0f4925ff6b85698efec61e1175}{embed} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01187}{D\+Wave\+Graph} $>$ problem, std\+::shared\+\_\+ptr$<$ \hyperlink{a01187}{D\+Wave\+Graph} $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())=0
+void \hyperlink{a00955_a81b16c7a7da2c84174796ef4cc39b312}{visit} (\hyperlink{a01031}{C\+N\+OT} \&cn)
 \item 
-virtual std\+::string \hyperlink{a00955_a21079dc8ee37792977f5fd209e3f3b19}{name} ()=0
+void \hyperlink{a00955_a1a414fa079f0e3ba8cd0f97c7928e88f}{visit} (\hyperlink{a01067}{X} \&x)
+\item 
+\mbox{\Hypertarget{a00955_a9130f70ceaa42bdc3c29c8b0bbdcc3b5}\label{a00955_a9130f70ceaa42bdc3c29c8b0bbdcc3b5}} 
+void {\bfseries visit} (\hyperlink{a01071}{Y} \&y)
+\item 
+void \hyperlink{a00955_a444936ec9134a0ea400cd2f1b145ba4d}{visit} (\hyperlink{a01075}{Z} \&z)
+\item 
+void \hyperlink{a00955_a99e7176144810f5d6e38d98d2725afff}{visit} (\hyperlink{a01047}{Measure} \&m)
+\item 
+void \hyperlink{a00955_a1646dbfaf919432c2c3d8eb86e9f81e4}{visit} (\hyperlink{a01035}{Conditional\+Function} \&c)
+\item 
+\mbox{\Hypertarget{a00955_afc1ace9f5cb4783117a68b173c069d15}\label{a00955_afc1ace9f5cb4783117a68b173c069d15}} 
+void {\bfseries visit} (\hyperlink{a01051}{Rx} \&rx)
+\item 
+\mbox{\Hypertarget{a00955_a08539d478a1b496244288477ccee8011}\label{a00955_a08539d478a1b496244288477ccee8011}} 
+void {\bfseries visit} (\hyperlink{a01055}{Ry} \&ry)
+\item 
+\mbox{\Hypertarget{a00955_a855cbf9e83b050ae65e95c4a36f02de9}\label{a00955_a855cbf9e83b050ae65e95c4a36f02de9}} 
+void {\bfseries visit} (\hyperlink{a01059}{Rz} \&rz)
+\item 
+\mbox{\Hypertarget{a00955_a4d8e2c6d867d812aeca192ebc65a45ce}\label{a00955_a4d8e2c6d867d812aeca192ebc65a45ce}} 
+void {\bfseries visit} (\hyperlink{a01039}{C\+Phase} \&cp)
+\item 
+\mbox{\Hypertarget{a00955_a502e0145245e4aa00af4f76e1b201e7a}\label{a00955_a502e0145245e4aa00af4f76e1b201e7a}} 
+void {\bfseries visit} (\hyperlink{a01063}{Swap} \&s)
+\item 
+\mbox{\Hypertarget{a00955_adf65b4117c2dfd3242c5c214eef608c5}\label{a00955_adf65b4117c2dfd3242c5c214eef608c5}} 
+void {\bfseries visit} (\hyperlink{a01011}{Gate\+Function} \&f)
+\item 
+std\+::string \hyperlink{a00955_ad721b67dae6360ce210d6c73feec7920}{get\+Scaffold\+String} ()
+\item 
+virtual \hyperlink{a00955_a366cddf574488b3bf0df1fe991806753}{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a00955_afa951f637b70233cfded3c05177e2b56}\label{a00955_afa951f637b70233cfded3c05177e2b56}} 
+void {\bfseries base\+Instruction} (std\+::string gate\+Name, std\+::vector$<$ int $>$ qubits)
+\item 
+\mbox{\Hypertarget{a00955_a23d8435f4696290c32afdae1abfbff30}\label{a00955_a23d8435f4696290c32afdae1abfbff30}} 
+void {\bfseries base\+Parameterized\+Instruction} (std\+::string gate\+Name, std\+::vector$<$ int $>$ qubits, std\+::vector$<$ Instruction\+Parameter $>$ params)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{a00955_a4b4c3b769a275d544beb26b1894e476a}{scaffold\+Str}
+\item 
+\mbox{\Hypertarget{a00955_ab538cf6fe8606e9832310a8195b67dce}\label{a00955_ab538cf6fe8606e9832310a8195b67dce}} 
+std\+::string {\bfseries qubit\+Var\+Name}
+\item 
+\mbox{\Hypertarget{a00955_ae7d177fa9830942f63ef86fd2f69f715}\label{a00955_ae7d177fa9830942f63ef86fd2f69f715}} 
+int {\bfseries n\+Measurements} = 0
+\item 
+\mbox{\Hypertarget{a00955_a76945624d8d67487d410a11a91e97681}\label{a00955_a76945624d8d67487d410a11a91e97681}} 
+std\+::map$<$ int, int $>$ {\bfseries qubit\+To\+Classical\+Bit\+Index}
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00955}{Embedding\+Algorithm} class provides an interface for minor graph embedding algorithms. 
+The \hyperlink{a00935}{Quil\+Visitor} is an \hyperlink{a01167}{Instruction\+Visitor} that visits quantum gate instructions and creates an equivalent Quil string that can be executed by the Rigetti superconducting quantum computer. 
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a00955_abad06507eef6b63af0884e3a96145c69}\label{a00955_abad06507eef6b63af0884e3a96145c69}} 
-\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!Embedding\+Algorithm@{Embedding\+Algorithm}}
-\index{Embedding\+Algorithm@{Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
-\subsubsection{\texorpdfstring{Embedding\+Algorithm()}{EmbeddingAlgorithm()}}
-{\footnotesize\ttfamily xacc\+::quantum\+::\+Embedding\+Algorithm\+::\+Embedding\+Algorithm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\mbox{\Hypertarget{a00955_a366cddf574488b3bf0df1fe991806753}\label{a00955_a366cddf574488b3bf0df1fe991806753}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!````~Scaffold\+I\+R\+To\+Src\+Visitor@{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\index{````~Scaffold\+I\+R\+To\+Src\+Visitor@{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor()}{~ScaffoldIRToSrcVisitor()}}
+{\footnotesize\ttfamily virtual xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
 
-The Constructor \mbox{\Hypertarget{a00955_aa43660ad5d4c4b3ac67863892c33dc51}\label{a00955_aa43660ad5d4c4b3ac67863892c33dc51}} 
-\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}}
-\index{````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
-\subsubsection{\texorpdfstring{$\sim$\+Embedding\+Algorithm()}{~EmbeddingAlgorithm()}}
-{\footnotesize\ttfamily virtual xacc\+::quantum\+::\+Embedding\+Algorithm\+::$\sim$\+Embedding\+Algorithm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
-
-The Destructor 
+The destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a00955_a67158c0f4925ff6b85698efec61e1175}\label{a00955_a67158c0f4925ff6b85698efec61e1175}} 
-\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!embed@{embed}}
-\index{embed@{embed}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
-\subsubsection{\texorpdfstring{embed()}{embed()}}
-{\footnotesize\ttfamily virtual std\+::map$<$int, std\+::list$<$int$>$ $>$ xacc\+::quantum\+::\+Embedding\+Algorithm\+::embed (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01187}{D\+Wave\+Graph} $>$}]{problem,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01187}{D\+Wave\+Graph} $>$}]{hardware,  }\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{params = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string~$>$()} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a00955_ad721b67dae6360ce210d6c73feec7920}\label{a00955_ad721b67dae6360ce210d6c73feec7920}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!get\+Scaffold\+String@{get\+Scaffold\+String}}
+\index{get\+Scaffold\+String@{get\+Scaffold\+String}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{get\+Scaffold\+String()}{getScaffoldString()}}
+{\footnotesize\ttfamily std\+::string xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::get\+Scaffold\+String (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-Implementations of \hyperlink{a00955}{Embedding\+Algorithm} implement this method to provide a valid minor graph embedding of the given problem graph into the given hardware graph.
+Return the quil string \mbox{\Hypertarget{a00955_af66cbe08e183c8b53817cda5251d0498}\label{a00955_af66cbe08e183c8b53817cda5251d0498}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01043}{Hadamard} \&}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
+Visit hadamard gates \mbox{\Hypertarget{a00955_a81b16c7a7da2c84174796ef4cc39b312}\label{a00955_a81b16c7a7da2c84174796ef4cc39b312}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01031}{C\+N\+OT} \&}]{cn }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-\begin{DoxyParams}{Parameters}
-{\em problem} & The problem graph to be embedded into the hardware graph \\
-\hline
-{\em hardware} & The hardware graph. \\
-\hline
-{\em params} & Any key-\/value string parameters to influence the algorithm. \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-embedding A mapping of problem vertex indices to the list of hardware vertices they map to 
-\end{DoxyReturn}
-\mbox{\Hypertarget{a00955_a21079dc8ee37792977f5fd209e3f3b19}\label{a00955_a21079dc8ee37792977f5fd209e3f3b19}} 
-\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!name@{name}}
-\index{name@{name}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
-\subsubsection{\texorpdfstring{name()}{name()}}
-{\footnotesize\ttfamily virtual std\+::string xacc\+::quantum\+::\+Embedding\+Algorithm\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+Visit \hyperlink{a01031}{C\+N\+OT} gates \mbox{\Hypertarget{a00955_a1a414fa079f0e3ba8cd0f97c7928e88f}\label{a00955_a1a414fa079f0e3ba8cd0f97c7928e88f}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01067}{X} \&}]{x }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-Return the name of this Embedding Algorithm \begin{DoxyReturn}{Returns}
+Visit \hyperlink{a01067}{X} gates \mbox{\Hypertarget{a00955_a444936ec9134a0ea400cd2f1b145ba4d}\label{a00955_a444936ec9134a0ea400cd2f1b145ba4d}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01075}{Z} \&}]{z }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-\end{DoxyReturn}
+Visit \hyperlink{a01075}{Z} gates \mbox{\Hypertarget{a00955_a99e7176144810f5d6e38d98d2725afff}\label{a00955_a99e7176144810f5d6e38d98d2725afff}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01047}{Measure} \&}]{m }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
+Visit Measurement gates \mbox{\Hypertarget{a00955_a1646dbfaf919432c2c3d8eb86e9f81e4}\label{a00955_a1646dbfaf919432c2c3d8eb86e9f81e4}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{visit()}{visit()}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
+{\footnotesize\ttfamily void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (\begin{DoxyParamCaption}\item[{\hyperlink{a01035}{Conditional\+Function} \&}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Visit Conditional functions 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a00955_a4b4c3b769a275d544beb26b1894e476a}\label{a00955_a4b4c3b769a275d544beb26b1894e476a}} 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!scaffold\+Str@{scaffold\+Str}}
+\index{scaffold\+Str@{scaffold\+Str}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection{\texorpdfstring{scaffold\+Str}{scaffoldStr}}
+{\footnotesize\ttfamily std\+::string xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::scaffold\+Str\hspace{0.3cm}{\ttfamily [protected]}}
+
+Reference to the Quil string this visitor is trying to construct 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Embedding\+Algorithm.\+hpp\end{DoxyCompactItemize}
+Scaffold\+I\+R\+To\+Src\+Visitor.\+hpp\end{DoxyCompactItemize}

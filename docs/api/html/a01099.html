@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XACC: xacc::AcceleratorBuffer Class Reference</title>
+<title>XACC: xacc::quantum::QasmToGraph Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -59,84 +59,32 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01099.html">AcceleratorBuffer</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a01099.html">QasmToGraph</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="a01096.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::AcceleratorBuffer Class Reference</div>  </div>
+<div class="title">xacc::quantum::QasmToGraph Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00296_source.html">AcceleratorBuffer.hpp</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for xacc::AcceleratorBuffer:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="a01099.png" usemap="#xacc::AcceleratorBuffer_map" alt=""/>
-  <map id="xacc::AcceleratorBuffer_map" name="xacc::AcceleratorBuffer_map">
-<area href="a01083.html" alt="xacc::quantum::SimulatedQubits" shape="rect" coords="0,56,187,80"/>
-</map>
- </div></div>
+<p><code>#include &lt;<a class="el" href="a00281_source.html">QasmToGraph.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
-Public Member Functions</h2></td></tr>
-<tr class="memitem:ab606d8af942120d60b51a4fffcd75c98"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a01099.html#ab606d8af942120d60b51a4fffcd75c98">AcceleratorBuffer</a> (const std::string &amp;str, const int N)</td></tr>
-<tr class="separator:ab606d8af942120d60b51a4fffcd75c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6fc59d8a9abf1efce40427c7ba12c57"><td class="memTemplParams" colspan="2"><a id="ae6fc59d8a9abf1efce40427c7ba12c57"></a>
-template&lt;typename ... Indices&gt; </td></tr>
-<tr class="memitem:ae6fc59d8a9abf1efce40427c7ba12c57"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AcceleratorBuffer</b> (const std::string &amp;str, int firstIndex, Indices ... indices)</td></tr>
-<tr class="separator:ae6fc59d8a9abf1efce40427c7ba12c57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2a3101c2e3ae3550172bf49f9587f3b"><td class="memItemLeft" align="right" valign="top"><a id="aa2a3101c2e3ae3550172bf49f9587f3b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> ()</td></tr>
-<tr class="separator:aa2a3101c2e3ae3550172bf49f9587f3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5b646e9efc21b6d0bcc22cd6f649c22"><td class="memItemLeft" align="right" valign="top"><a id="ad5b646e9efc21b6d0bcc22cd6f649c22"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> ()</td></tr>
-<tr class="separator:ad5b646e9efc21b6d0bcc22cd6f649c22"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6d6e9cfee6170333c1f03507345743f"><td class="memItemLeft" align="right" valign="top"><a id="aa6d6e9cfee6170333c1f03507345743f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resetBuffer</b> ()</td></tr>
-<tr class="separator:aa6d6e9cfee6170333c1f03507345743f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bc0edbe9aa0d463f67ddcc38265066f"><td class="memItemLeft" align="right" valign="top"><a id="a4bc0edbe9aa0d463f67ddcc38265066f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateBit</b> (const int idx, int zeroOrOne)</td></tr>
-<tr class="separator:a4bc0edbe9aa0d463f67ddcc38265066f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac161c4f984f774d08197871094aabc67"><td class="memItemLeft" align="right" valign="top"><a id="ac161c4f984f774d08197871094aabc67"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>appendMeasurement</b> (const boost::dynamic_bitset&lt;&gt; &amp;measurement)</td></tr>
-<tr class="separator:ac161c4f984f774d08197871094aabc67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaddd3a5968067dd230f48dacc8d6a747"><td class="memItemLeft" align="right" valign="top"><a id="aaddd3a5968067dd230f48dacc8d6a747"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>getAverage</b> () const</td></tr>
-<tr class="separator:aaddd3a5968067dd230f48dacc8d6a747"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba6ef359f3117faa98f0eb8da90d909e"><td class="memItemLeft" align="right" valign="top"><a id="aba6ef359f3117faa98f0eb8da90d909e"></a>
-AcceleratorBitState&#160;</td><td class="memItemRight" valign="bottom"><b>getAcceleratorBitState</b> (const int idx)</td></tr>
-<tr class="separator:aba6ef359f3117faa98f0eb8da90d909e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add0835e188f0eda4f1b68a28ddc79786"><td class="memItemLeft" align="right" valign="top"><a id="add0835e188f0eda4f1b68a28ddc79786"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> ()</td></tr>
-<tr class="separator:add0835e188f0eda4f1b68a28ddc79786"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c59462451223772b41ef232b06a7dfa"><td class="memItemLeft" align="right" valign="top"><a id="a7c59462451223772b41ef232b06a7dfa"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> (std::ostream &amp;stream)</td></tr>
-<tr class="separator:a7c59462451223772b41ef232b06a7dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a5464b23a964985df2547f657877c9ea5"><td class="memItemLeft" align="right" valign="top"><a id="a5464b23a964985df2547f657877c9ea5"></a>
-std::vector&lt; boost::dynamic_bitset&lt;&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>measurements</b></td></tr>
-<tr class="separator:a5464b23a964985df2547f657877c9ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3198e034d07d9b77b62da03e6592a221"><td class="memItemLeft" align="right" valign="top"><a id="a3198e034d07d9b77b62da03e6592a221"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>bufferId</b></td></tr>
-<tr class="separator:a3198e034d07d9b77b62da03e6592a221"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6dbb8c22f8adc6aba34b00a84066854"><td class="memItemLeft" align="right" valign="top"><a id="ab6dbb8c22f8adc6aba34b00a84066854"></a>
-std::vector&lt; <a class="el" href="a01095.html">AcceleratorBit</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bits</b></td></tr>
-<tr class="separator:ab6dbb8c22f8adc6aba34b00a84066854"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:afb1504dc99595be4e15f9094bce1656c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="a01103.html">QuantumCircuit</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a01099.html#afb1504dc99595be4e15f9094bce1656c">getCircuitGraph</a> (const std::string &amp;flatQasmStr)</td></tr>
+<tr class="separator:afb1504dc99595be4e15f9094bce1656c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a902304cac3a5a6126b982e9dc9585428"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a01099.html#a902304cac3a5a6126b982e9dc9585428">linkConditionalQasm</a> (<a class="el" href="a01103.html">QuantumCircuit</a> &amp;mainGraph, std::vector&lt; <a class="el" href="a01103.html">QuantumCircuit</a> &gt; &amp;conditionalGraphs, std::vector&lt; int &gt; &amp;conditionalQubits)</td></tr>
+<tr class="separator:a902304cac3a5a6126b982e9dc9585428"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="a01099.html">AcceleratorBuffer</a> models an allocated buffer of bits that are operated on by a kernel. As such, the <a class="el" href="a01099.html">AcceleratorBuffer</a>'s primary role is to store <a class="el" href="a01087.html">Accelerator</a> execution results.</p>
-<dl class="section author"><dt>Author</dt><dd>Alex McCaskey </dd></dl>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab606d8af942120d60b51a4fffcd75c98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab606d8af942120d60b51a4fffcd75c98">&#9670;&nbsp;</a></span>AcceleratorBuffer()</h2>
+<div class="textblock"><p>The <a class="el" href="a01099.html">QasmToGraph</a> class provides a static utility method that maps a flat qasm string to a QCI Common <a class="el" href="a01211.html">Graph</a> data structure. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="afb1504dc99595be4e15f9094bce1656c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb1504dc99595be4e15f9094bce1656c">&#9670;&nbsp;</a></span>getCircuitGraph()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -145,16 +93,56 @@ std::vector&lt; <a class="el" href="a01095.html">AcceleratorBit</a> &gt;&#160;</
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">xacc::AcceleratorBuffer::AcceleratorBuffer </td>
+          <td class="memname">static <a class="el" href="a01103.html">QuantumCircuit</a> xacc::quantum::QasmToGraph::getCircuitGraph </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>str</em>, </td>
+          <td class="paramname"><em>flatQasmStr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create a <a class="el" href="a01211.html">Graph</a> data structure that models a quantum circuit from the provided qasm string.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">flatQasmStr</td><td>The qasm to be converted to a <a class="el" href="a01211.html">Graph</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>graph <a class="el" href="a01211.html">Graph</a> modeling a quantum circuit. </dd></dl>
+
+</div>
+</div>
+<a id="a902304cac3a5a6126b982e9dc9585428"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a902304cac3a5a6126b982e9dc9585428">&#9670;&nbsp;</a></span>linkConditionalQasm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void xacc::quantum::QasmToGraph::linkConditionalQasm </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="a01103.html">QuantumCircuit</a> &amp;&#160;</td>
+          <td class="paramname"><em>mainGraph</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>N</em>&#160;</td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="a01103.html">QuantumCircuit</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>conditionalGraphs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; int &gt; &amp;&#160;</td>
+          <td class="paramname"><em>conditionalQubits</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -164,16 +152,22 @@ std::vector&lt; <a class="el" href="a01095.html">AcceleratorBit</a> &gt;&#160;</
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>The Constructor </p>
+<p>Create connecting conditional nodes that link the main circuit graph to subsequent conditional graphs. The conditional nodes can be used by Accelerators to figure out if the condition code should be executed or not. s </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mainGraph</td><td></td></tr>
+    <tr><td class="paramname">conditionalGraphs</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00296_source.html">AcceleratorBuffer.hpp</a></li>
+<li><a class="el" href="a00281_source.html">QasmToGraph.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

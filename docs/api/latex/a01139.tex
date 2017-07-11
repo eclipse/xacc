@@ -1,34 +1,25 @@
-\hypertarget{a01139}{}\section{xacc\+:\+:Base\+Instruction\+Visitor Class Reference}
-\label{a01139}\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
+\hypertarget{a01139}{}\section{xacc\+:\+:Register\+Preprocessor$<$ T $>$ Class Template Reference}
+\label{a01139}\index{xacc\+::\+Register\+Preprocessor$<$ T $>$@{xacc\+::\+Register\+Preprocessor$<$ T $>$}}
 
 
-{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
+{\ttfamily \#include $<$Preprocessor.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Base\+Instruction\+Visitor\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=1.288344cm]{a01139}
-\end{center}
-\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual \hyperlink{a01139_aa6f5104f5868fe1eca9be4dc4036eba4}{$\sim$\+Base\+Instruction\+Visitor} ()
+\mbox{\Hypertarget{a01139_a360d5ffa16ef3a96c3bc61fa897ffe3c}\label{a01139_a360d5ffa16ef3a96c3bc61fa897ffe3c}} 
+{\bfseries Register\+Preprocessor} (const std\+::string \&name)
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a01139}{Base\+Instruction\+Visitor} is a base class for all classes that are \hyperlink{a01131}{Instruction} visitors. It basically provides a means for passing instruction visitor handles in a polymorphic manner. 
+\subsubsection*{template$<$typename T$>$\newline
+class xacc\+::\+Register\+Preprocessor$<$ T $>$}
 
-\subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01139_aa6f5104f5868fe1eca9be4dc4036eba4}\label{a01139_aa6f5104f5868fe1eca9be4dc4036eba4}} 
-\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}!````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}}
-\index{````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}!xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
-\subsubsection{\texorpdfstring{$\sim$\+Base\+Instruction\+Visitor()}{~BaseInstructionVisitor()}}
-{\footnotesize\ttfamily virtual xacc\+::\+Base\+Instruction\+Visitor\+::$\sim$\+Base\+Instruction\+Visitor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\hyperlink{a01139}{Register\+Preprocessor} is a convenience class for registering custom derived \hyperlink{a01135}{Preprocessor} classes.
 
-The destructor 
+Creators of \hyperlink{a01135}{Preprocessor} subclasses create an instance of this class with their \hyperlink{a01135}{Preprocessor} subclass as the template parameter to register their \hyperlink{a01135}{Preprocessor} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a01135}{Preprocessor} and at global scope. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
+Preprocessor.\+hpp\end{DoxyCompactItemize}

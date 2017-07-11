@@ -1,48 +1,64 @@
-\hypertarget{a01143}{}\section{xacc\+:\+:Instruction\+Visitor$<$ T $>$ Class Template Reference}
-\label{a01143}\index{xacc\+::\+Instruction\+Visitor$<$ T $>$@{xacc\+::\+Instruction\+Visitor$<$ T $>$}}
+\hypertarget{a01143}{}\section{xacc\+:\+:Algorithm\+Generator Class Reference}
+\label{a01143}\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
 
 
-{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
+{\ttfamily \#include $<$Algorithm\+Generator.\+hpp$>$}
 
+Inheritance diagram for xacc\+:\+:Algorithm\+Generator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a01143}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual void \hyperlink{a01143_af0fead298f5bfbb8e6680433063e2c4b}{visit} (T \&)=0
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a01151}{Function} $>$ \hyperlink{a01143_a73023c06f0f0c62ad56ab4187b18b096}{generate\+Algorithm} (std\+::vector$<$ int $>$ bits)=0
 \item 
-virtual \hyperlink{a01143_adf624df25964d0be1a56af58639c9e1d}{$\sim$\+Instruction\+Visitor} ()
+virtual \hyperlink{a01143_a096f66aa8d65f5aa3276915768159579}{$\sim$\+Algorithm\+Generator} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$class T$>$\newline
-class xacc\+::\+Instruction\+Visitor$<$ T $>$}
+The \hyperlink{a01143}{Algorithm\+Generator} interface provides a mechanism for generating algorithms modeled as an X\+A\+CC \hyperlink{a01151}{Function} instance.
 
-The \hyperlink{a01143}{Instruction\+Visitor} provides a visit method for the provided template parameter. 
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01143_adf624df25964d0be1a56af58639c9e1d}\label{a01143_adf624df25964d0be1a56af58639c9e1d}} 
-\index{xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}!````~Instruction\+Visitor@{$\sim$\+Instruction\+Visitor}}
-\index{````~Instruction\+Visitor@{$\sim$\+Instruction\+Visitor}!xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}}
-\subsubsection{\texorpdfstring{$\sim$\+Instruction\+Visitor()}{~InstructionVisitor()}}
-{\footnotesize\ttfamily template$<$class T$>$ \\
-virtual \hyperlink{a01143}{xacc\+::\+Instruction\+Visitor}$<$ T $>$\+::$\sim$\hyperlink{a01143}{Instruction\+Visitor} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a01143_a096f66aa8d65f5aa3276915768159579}\label{a01143_a096f66aa8d65f5aa3276915768159579}} 
+\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}!````~Algorithm\+Generator@{$\sim$\+Algorithm\+Generator}}
+\index{````~Algorithm\+Generator@{$\sim$\+Algorithm\+Generator}!xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
+\subsubsection{\texorpdfstring{$\sim$\+Algorithm\+Generator()}{~AlgorithmGenerator()}}
+{\footnotesize\ttfamily virtual xacc\+::\+Algorithm\+Generator\+::$\sim$\+Algorithm\+Generator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
 
 The destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01143_af0fead298f5bfbb8e6680433063e2c4b}\label{a01143_af0fead298f5bfbb8e6680433063e2c4b}} 
-\index{xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}!visit@{visit}}
-\index{visit@{visit}!xacc\+::\+Instruction\+Visitor@{xacc\+::\+Instruction\+Visitor}}
-\subsubsection{\texorpdfstring{visit()}{visit()}}
-{\footnotesize\ttfamily template$<$class T$>$ \\
-virtual void \hyperlink{a01143}{xacc\+::\+Instruction\+Visitor}$<$ T $>$\+::visit (\begin{DoxyParamCaption}\item[{T \&}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+\mbox{\Hypertarget{a01143_a73023c06f0f0c62ad56ab4187b18b096}\label{a01143_a73023c06f0f0c62ad56ab4187b18b096}} 
+\index{xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}!generate\+Algorithm@{generate\+Algorithm}}
+\index{generate\+Algorithm@{generate\+Algorithm}!xacc\+::\+Algorithm\+Generator@{xacc\+::\+Algorithm\+Generator}}
+\subsubsection{\texorpdfstring{generate\+Algorithm()}{generateAlgorithm()}}
+{\footnotesize\ttfamily virtual std\+::shared\+\_\+ptr$<$\hyperlink{a01151}{Function}$>$ xacc\+::\+Algorithm\+Generator\+::generate\+Algorithm (\begin{DoxyParamCaption}\item[{std\+::vector$<$ int $>$}]{bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-This method should be implemented by subclasses to perform Visitor-\/specific behavior on the given instance of the template parameter T. 
+Implementations of this method generate a \hyperlink{a01151}{Function} \hyperlink{a01175}{IR} instance corresponding to the implementation\textquotesingle{}s modeled algorithm. The algorithm is specified to operate over the provided bits.
 
-Implemented in \hyperlink{a01063_a9c40e6cb4b74e2d6714c531ffc3b2909}{xacc\+::quantum\+::\+Count\+Gates\+Of\+Type\+Visitor$<$ Gate\+Type $>$}.
+
+\begin{DoxyParams}{Parameters}
+{\em bits} & The bits this algorithm operates on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+function The algorithm represented as an \hyperlink{a01175}{IR} \hyperlink{a01151}{Function} 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a01007_ac093c288bc9fc069464fc3fd2cc0ac21}{xacc\+::quantum\+::\+Q\+FT}, and \hyperlink{a01003_af42e466bf02dbd60670d20aa55cfb08d}{xacc\+::quantum\+::\+Inverse\+Q\+FT}.
 
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
+Algorithm\+Generator.\+hpp\end{DoxyCompactItemize}

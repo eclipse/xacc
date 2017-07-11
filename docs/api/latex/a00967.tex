@@ -1,70 +1,72 @@
-\hypertarget{a00967}{}\section{xacc\+:\+:quantum\+:\+:Kernel\+Replacement\+Preprocessor Class Reference}
-\label{a00967}\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
+\hypertarget{a00967}{}\section{xacc\+:\+:quantum\+:\+:Embedding\+Algorithm Class Reference}
+\label{a00967}\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
 
 
-{\ttfamily \#include $<$Kernel\+Replacement\+Preprocessor.\+hpp$>$}
+{\ttfamily \#include $<$Embedding\+Algorithm.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Kernel\+Replacement\+Preprocessor\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=3.000000cm]{a00967}
-\end{center}
-\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual const std\+::string \hyperlink{a00967_ad4f9ba1f83ea45ed376f36e3853c668d}{process} (const std\+::string \&source, std\+::shared\+\_\+ptr$<$ \hyperlink{a01103}{Compiler} $>$ compiler, std\+::shared\+\_\+ptr$<$ \hyperlink{a01087}{Accelerator} $>$ accelerator)
+\hyperlink{a00967_abad06507eef6b63af0884e3a96145c69}{Embedding\+Algorithm} ()
 \item 
-virtual const std\+::string \hyperlink{a00967_af74db6b7f3adeb7d203777f5ce450491}{get\+Name} ()
+virtual \hyperlink{a00967_aa43660ad5d4c4b3ac67863892c33dc51}{$\sim$\+Embedding\+Algorithm} ()
+\item 
+virtual std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00967_a67158c0f4925ff6b85698efec61e1175}{embed} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01211}{D\+Wave\+Graph} $>$ problem, std\+::shared\+\_\+ptr$<$ \hyperlink{a01211}{D\+Wave\+Graph} $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())=0
+\item 
+virtual std\+::string \hyperlink{a00967_a21079dc8ee37792977f5fd209e3f3b19}{name} ()=0
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00967}{Kernel\+Replacement\+Preprocessor} is a preprocessor for gate model quantum computing that analyzing quantum kernel source code and looks for occurrences of \textquotesingle{}xacc\+::\+F\+U\+N\+C\+T\+I\+ON\textquotesingle{} strings (for example, xacc\+::\+Q\+F\+T(qreg)).
+The \hyperlink{a00967}{Embedding\+Algorithm} class provides an interface for minor graph embedding algorithms. 
 
-Once one of these occurrences is found, this preprocessor queries the \hyperlink{a01119}{Algorithm\+Generator} \hyperlink{a01199}{Registry} for any available Algorithm\+Generators with that name. If such an \hyperlink{a01119}{Algorithm\+Generator} exists, it generates the X\+A\+CC \hyperlink{a01151}{IR} instance for that algorithm, translates the \hyperlink{a01151}{IR} to the \hyperlink{a01103}{Compiler}\textquotesingle{}s source code representation, and replaces the \textquotesingle{}xacc\+::\+F\+U\+N\+C\+T\+I\+ON\textquotesingle{} occurrence with the new source code. 
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a00967_abad06507eef6b63af0884e3a96145c69}\label{a00967_abad06507eef6b63af0884e3a96145c69}} 
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!Embedding\+Algorithm@{Embedding\+Algorithm}}
+\index{Embedding\+Algorithm@{Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection{\texorpdfstring{Embedding\+Algorithm()}{EmbeddingAlgorithm()}}
+{\footnotesize\ttfamily xacc\+::quantum\+::\+Embedding\+Algorithm\+::\+Embedding\+Algorithm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The Constructor \mbox{\Hypertarget{a00967_aa43660ad5d4c4b3ac67863892c33dc51}\label{a00967_aa43660ad5d4c4b3ac67863892c33dc51}} 
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}}
+\index{````~Embedding\+Algorithm@{$\sim$\+Embedding\+Algorithm}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection{\texorpdfstring{$\sim$\+Embedding\+Algorithm()}{~EmbeddingAlgorithm()}}
+{\footnotesize\ttfamily virtual xacc\+::quantum\+::\+Embedding\+Algorithm\+::$\sim$\+Embedding\+Algorithm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+The Destructor 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{a00967_af74db6b7f3adeb7d203777f5ce450491}\label{a00967_af74db6b7f3adeb7d203777f5ce450491}} 
-\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
-\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
-{\footnotesize\ttfamily virtual const std\+::string xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\mbox{\Hypertarget{a00967_a67158c0f4925ff6b85698efec61e1175}\label{a00967_a67158c0f4925ff6b85698efec61e1175}} 
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!embed@{embed}}
+\index{embed@{embed}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection{\texorpdfstring{embed()}{embed()}}
+{\footnotesize\ttfamily virtual std\+::map$<$int, std\+::list$<$int$>$ $>$ xacc\+::quantum\+::\+Embedding\+Algorithm\+::embed (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01211}{D\+Wave\+Graph} $>$}]{problem,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01211}{D\+Wave\+Graph} $>$}]{hardware,  }\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{params = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string~$>$()} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
 
-Return the name of this \hyperlink{a01111}{Preprocessor} \begin{DoxyReturn}{Returns}
-name \hyperlink{a01111}{Preprocessor} name 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a01111_a36671f4c062d61e230306edc404774cd}{xacc\+::\+Preprocessor}.
-
-\mbox{\Hypertarget{a00967_ad4f9ba1f83ea45ed376f36e3853c668d}\label{a00967_ad4f9ba1f83ea45ed376f36e3853c668d}} 
-\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}!process@{process}}
-\index{process@{process}!xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
-\subsubsection{\texorpdfstring{process()}{process()}}
-{\footnotesize\ttfamily const std\+::string xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor\+::process (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{source,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01103}{Compiler} $>$}]{compiler,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01087}{Accelerator} $>$}]{accelerator }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
-
-This method replaces xacc\+::\+F\+U\+N\+C\+T\+I\+ON references with actual Compiler-\/specific source code.
+Implementations of \hyperlink{a00967}{Embedding\+Algorithm} implement this method to provide a valid minor graph embedding of the given problem graph into the given hardware graph.
 
 
 \begin{DoxyParams}{Parameters}
-{\em src} & The unprocessed kernel source code \\
+{\em problem} & The problem graph to be embedded into the hardware graph \\
 \hline
-{\em compiler} & The compiler being used to compile the code \\
+{\em hardware} & The hardware graph. \\
 \hline
-{\em accelerator} & The \hyperlink{a01087}{Accelerator} this code will be run on\\
+{\em params} & Any key-\/value string parameters to influence the algorithm. \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-processed\+Src The processed kernel source code 
+embedding A mapping of problem vertex indices to the list of hardware vertices they map to 
+\end{DoxyReturn}
+\mbox{\Hypertarget{a00967_a21079dc8ee37792977f5fd209e3f3b19}\label{a00967_a21079dc8ee37792977f5fd209e3f3b19}} 
+\index{xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}!name@{name}}
+\index{name@{name}!xacc\+::quantum\+::\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Embedding\+Algorithm}}
+\subsubsection{\texorpdfstring{name()}{name()}}
+{\footnotesize\ttfamily virtual std\+::string xacc\+::quantum\+::\+Embedding\+Algorithm\+::name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Return the name of this Embedding Algorithm \begin{DoxyReturn}{Returns}
+
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a01111_ae59b5a2963f8bcc84b590a83f4749e19}{xacc\+::\+Preprocessor}.
-
-
-
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Kernel\+Replacement\+Preprocessor.\+hpp\item 
-Kernel\+Replacement\+Preprocessor.\+cpp\end{DoxyCompactItemize}
+Embedding\+Algorithm.\+hpp\end{DoxyCompactItemize}

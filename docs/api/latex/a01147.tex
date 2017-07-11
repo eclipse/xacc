@@ -1,84 +1,25 @@
-\hypertarget{a01147}{}\section{xacc\+:\+:Base\+Instruction\+Visitable Class Reference}
-\label{a01147}\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
+\hypertarget{a01147}{}\section{xacc\+:\+:Register\+Algorithm\+Generator$<$ T $>$ Class Template Reference}
+\label{a01147}\index{xacc\+::\+Register\+Algorithm\+Generator$<$ T $>$@{xacc\+::\+Register\+Algorithm\+Generator$<$ T $>$}}
 
 
-{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
+{\ttfamily \#include $<$Algorithm\+Generator.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Base\+Instruction\+Visitable\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=12.000000cm]{a01147}
-\end{center}
-\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual void \hyperlink{a01147_a4ae295a7f83d57c6f1f912adc90274ea}{accept} (std\+::shared\+\_\+ptr$<$ \hyperlink{a01139}{Base\+Instruction\+Visitor} $>$ visitor)=0
-\item 
-virtual void \hyperlink{a01147_ad6b9ad95c14580cc86ca87cd464262c3}{accept} (\hyperlink{a01139}{Base\+Instruction\+Visitor} $\ast$visitor)=0
-\item 
-virtual \hyperlink{a01147_a3a291d247b18ea7620dd8d97dfb595f4}{$\sim$\+Base\+Instruction\+Visitable} ()
-\end{DoxyCompactItemize}
-\subsection*{Static Protected Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-{\footnotesize template$<$class T $>$ }\\static void \hyperlink{a01147_a2f18b9fcb48f42d190a9f5180b7b59c5}{accept\+Impl} (T \&visited, std\+::shared\+\_\+ptr$<$ \hyperlink{a01139}{Base\+Instruction\+Visitor} $>$ visitor)
-\item 
-{\footnotesize template$<$class T $>$ }\\static void \hyperlink{a01147_a80c7bb995faa54644f822fa48176c6cb}{accept\+Impl} (T \&visited, \hyperlink{a01139}{Base\+Instruction\+Visitor} $\ast$visitor)
+\mbox{\Hypertarget{a01147_af439cc4d7c8d6628a979129a5c1411df}\label{a01147_af439cc4d7c8d6628a979129a5c1411df}} 
+{\bfseries Register\+Algorithm\+Generator} (const std\+::string \&name)
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\hyperlink{a01147}{Base\+Instruction\+Visitable} is an interface that is to be implemented by any and all Instructions that want to be available for visitation. Derivations of this class simply inherit from \hyperlink{a01147}{Base\+Instruction\+Visitable} and declare the D\+E\+F\+I\+N\+E\+\_\+\+V\+I\+S\+I\+T\+A\+B\+LE macro alongside the rest of the classes member methods. 
+\subsubsection*{template$<$typename T$>$\newline
+class xacc\+::\+Register\+Algorithm\+Generator$<$ T $>$}
 
-\subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{a01147_a3a291d247b18ea7620dd8d97dfb595f4}\label{a01147_a3a291d247b18ea7620dd8d97dfb595f4}} 
-\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}!````~Base\+Instruction\+Visitable@{$\sim$\+Base\+Instruction\+Visitable}}
-\index{````~Base\+Instruction\+Visitable@{$\sim$\+Base\+Instruction\+Visitable}!xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
-\subsubsection{\texorpdfstring{$\sim$\+Base\+Instruction\+Visitable()}{~BaseInstructionVisitable()}}
-{\footnotesize\ttfamily virtual xacc\+::\+Base\+Instruction\+Visitable\+::$\sim$\+Base\+Instruction\+Visitable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+\hyperlink{a01147}{Register\+Algorithm\+Generator} is a convenience class for registering custom derived \hyperlink{a01143}{Algorithm\+Generator} classes.
 
-The Destructor 
-
-\subsection{Member Function Documentation}
-\mbox{\Hypertarget{a01147_a4ae295a7f83d57c6f1f912adc90274ea}\label{a01147_a4ae295a7f83d57c6f1f912adc90274ea}} 
-\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}!accept@{accept}}
-\index{accept@{accept}!xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
-\subsubsection{\texorpdfstring{accept()}{accept()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Base\+Instruction\+Visitable\+::accept (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01139}{Base\+Instruction\+Visitor} $>$}]{visitor }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Accept the provided \hyperlink{a01139}{Base\+Instruction\+Visitor} as a shared pointer. 
-\begin{DoxyParams}{Parameters}
-{\em visitor} & The visitor to invoke visit() on. \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{a01147_ad6b9ad95c14580cc86ca87cd464262c3}\label{a01147_ad6b9ad95c14580cc86ca87cd464262c3}} 
-\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}!accept@{accept}}
-\index{accept@{accept}!xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
-\subsubsection{\texorpdfstring{accept()}{accept()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily virtual void xacc\+::\+Base\+Instruction\+Visitable\+::accept (\begin{DoxyParamCaption}\item[{\hyperlink{a01139}{Base\+Instruction\+Visitor} $\ast$}]{visitor }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
-
-Accept the provided \hyperlink{a01139}{Base\+Instruction\+Visitor} as a raw pointer. 
-\begin{DoxyParams}{Parameters}
-{\em visitor} & The visitor to invoke visit() on. \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{a01147_a2f18b9fcb48f42d190a9f5180b7b59c5}\label{a01147_a2f18b9fcb48f42d190a9f5180b7b59c5}} 
-\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}!accept\+Impl@{accept\+Impl}}
-\index{accept\+Impl@{accept\+Impl}!xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
-\subsubsection{\texorpdfstring{accept\+Impl()}{acceptImpl()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-static void xacc\+::\+Base\+Instruction\+Visitable\+::accept\+Impl (\begin{DoxyParamCaption}\item[{T \&}]{visited,  }\item[{std\+::shared\+\_\+ptr$<$ \hyperlink{a01139}{Base\+Instruction\+Visitor} $>$}]{visitor }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}, {\ttfamily [protected]}}
-
-This method is invoked by the D\+E\+F\+I\+N\+E\+\_\+\+V\+I\+S\+I\+T\+A\+B\+LE macro to invoke the visit method on the provided visitor. This method takes the visitor as a shared pointer. \mbox{\Hypertarget{a01147_a80c7bb995faa54644f822fa48176c6cb}\label{a01147_a80c7bb995faa54644f822fa48176c6cb}} 
-\index{xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}!accept\+Impl@{accept\+Impl}}
-\index{accept\+Impl@{accept\+Impl}!xacc\+::\+Base\+Instruction\+Visitable@{xacc\+::\+Base\+Instruction\+Visitable}}
-\subsubsection{\texorpdfstring{accept\+Impl()}{acceptImpl()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
-{\footnotesize\ttfamily template$<$class T $>$ \\
-static void xacc\+::\+Base\+Instruction\+Visitable\+::accept\+Impl (\begin{DoxyParamCaption}\item[{T \&}]{visited,  }\item[{\hyperlink{a01139}{Base\+Instruction\+Visitor} $\ast$}]{visitor }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}, {\ttfamily [protected]}}
-
-This method is invoked by the D\+E\+F\+I\+N\+E\+\_\+\+V\+I\+S\+I\+T\+A\+B\+LE macro to invoke the visit method on the provided visitor. This method takes the visitor as a raw pointer. 
+Creators of \hyperlink{a01143}{Algorithm\+Generator} subclasses create an instance of this class with their \hyperlink{a01143}{Algorithm\+Generator} subclass as the template parameter to register their \hyperlink{a01143}{Algorithm\+Generator} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a01143}{Algorithm\+Generator} and at global scope. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
+Algorithm\+Generator.\+hpp\end{DoxyCompactItemize}
