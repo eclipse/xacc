@@ -38,27 +38,10 @@
 #include <string>
 #include "Utils.hpp"
 #include "Registry.hpp"
-#include "Graph.hpp"
+#include "DWGraph.hpp"
 
 namespace xacc {
 namespace quantum {
-
-/**
- * The DWaveVertex is a subclass of the XACCVertex that
- * keeps track of one vertex parameter - the qubit
- * bias parameter. XACCVertex already keeps track
- * of edge weights.
- */
-class DWaveVertex: public XACCVertex<double> {
-public:
-	DWaveVertex() :
-			XACCVertex() {
-		propertyNames[0] = "bias";
-	}
-};
-
-// Alias for Graphs of DWave Vertices
-using DWaveGraph = Graph<DWaveVertex>;
 
 /**
  * The EmbeddingAlgorithm class provides an interface
@@ -89,8 +72,8 @@ public:
 	 * @param params Any key-value string parameters to influence the algorithm.
 	 * @return embedding A mapping of problem vertex indices to the list of hardware vertices they map to
 	 */
-	virtual std::map<int, std::list<int>> embed(std::shared_ptr<DWaveGraph> problem,
-			std::shared_ptr<DWaveGraph> hardware,
+	virtual std::map<int, std::list<int>> embed(std::shared_ptr<DWGraph> problem,
+			std::shared_ptr<AcceleratorGraph> hardware,
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>()) = 0;
 

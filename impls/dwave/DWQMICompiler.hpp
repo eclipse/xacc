@@ -34,6 +34,8 @@
 #include "Compiler.hpp"
 #include "Utils.hpp"
 #include "DWIR.hpp"
+#include "DWGraph.hpp"
+#include "EmbeddingAlgorithm.hpp"
 
 namespace xacc {
 
@@ -66,6 +68,14 @@ public:
 		return "dwave-qmi";
 	}
 
+	virtual std::shared_ptr<options_description> getOptions() {
+		auto desc = std::make_shared<options_description>(
+				"D-Wave QMI Compiler Options");
+		desc->add_options()("dwave-embedding", value<std::string>(),
+				"Provide the name of the Embedding Algorithm to use during compilation.");
+		return desc;
+	}
+
 	/**
 	 * Register this Compiler with the framework.
 	 */
@@ -78,6 +88,7 @@ public:
 			std::shared_ptr<Function> function) {
 		XACCError("DWQMICompiler::translate - Method not implemented");
 	};
+
 	/**
 	 * The destructor
 	 */

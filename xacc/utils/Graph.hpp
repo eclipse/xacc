@@ -414,6 +414,26 @@ public:
 		return num_vertices(*_graph.get());
 	}
 
+	std::list<int> getNeighborList(const int index) {
+		std::list<int> l;
+
+		typedef typename boost::property_map<adj_list, boost::vertex_index_t>::type IndexMap;
+		IndexMap indexMap = get(boost::vertex_index, *_graph.get());
+
+		typedef typename boost::graph_traits<adj_list>::adjacency_iterator adjacency_iterator;
+
+		std::pair<adjacency_iterator, adjacency_iterator> neighbors =
+				boost::adjacent_vertices(vertex(index, *_graph.get()),
+						*_graph.get());
+
+		for (; neighbors.first != neighbors.second; ++neighbors.first) {
+			std::cout << indexMap[*neighbors.first] << " ";
+			int neighborIdx = indexMap[*neighbors.first];
+			l.push_back(neighborIdx);
+		}
+
+		return l;
+	}
 	/**
 	 * Write this graph in a graphviz dot format to the
 	 * provided ostream.

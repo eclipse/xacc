@@ -115,6 +115,8 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 	BOOST_VERIFY(3.3 == graph.getVertexProperty<0>(0));
 	graph.setVertexProperty<0>(1, 33.3);
 	BOOST_VERIFY(33.3 == graph.getVertexProperty<0>(1));
+
+	graph.getNeighborList(0);
 }
 
 BOOST_AUTO_TEST_CASE(checkAddVertexWithProperties) {

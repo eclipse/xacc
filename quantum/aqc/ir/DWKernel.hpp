@@ -40,6 +40,8 @@ namespace xacc {
 namespace quantum {
 
 /**
+ * The DWKernel is an XACC Function that contains
+ * DWQMI Instructions.
  */
 class DWKernel: public virtual Function {
 

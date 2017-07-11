@@ -42,8 +42,11 @@
 #include "Function.hpp"
 #include "OptionsProvider.hpp"
 #include <boost/dll/alias.hpp>
+#include "Graph.hpp"
 
 namespace xacc {
+
+using AcceleratorGraph = Graph<XACCVertex<>>;
 
 /**
  * The types of Accelerators that XACC interacts with
@@ -143,6 +146,15 @@ public:
 		}
 
 		return names;
+	}
+
+	/**
+	 * Return the graph structure for this Accelerator.
+	 *
+	 * @return connectivityGraph The graph structure of this Accelerator
+	 */
+	virtual std::shared_ptr<AcceleratorGraph> getAcceleratorConnectivity() {
+		return std::make_shared<AcceleratorGraph>();
 	}
 
 	/**

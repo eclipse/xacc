@@ -51,22 +51,101 @@ struct F {
 	std::shared_ptr<xacc::Compiler> compiler;
 };
 
+class FakeDWAcc : public xacc::Accelerator {
+public:
+
+	virtual std::shared_ptr<xacc::AcceleratorGraph> getAcceleratorConnectivity() {
+		return K44Bipartite().getAcceleratorGraph();
+	}
+
+	virtual xacc::AcceleratorType getType() {
+		return xacc::AcceleratorType::qpu_aqc;
+	}
+
+	virtual bool isValidBufferSize(const int nBits) {
+		return true;
+	}
+
+	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
+
+	};
+
+	/**
+	 * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
+	 *
+	 * @param buffer The buffer of bits this Accelerator should operate on.
+	 * @param function The kernel to execute.
+	 */
+	virtual void execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
+				const std::shared_ptr<xacc::Function> function) {
+	}
+
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string and of the given number of bits.
+	 * The string id serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId The variable name of the created buffer
+	 * @param size The number of bits in the created buffer
+	 * @return buffer The buffer instance created.
+	 */
+	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
+			const std::string& varId, const int size) {
+
+	}
+};
+
+class FakeEmbedding : public EmbeddingAlgorithm {
+public:
+
+	virtual std::map<int, std::list<int>> embed(
+			std::shared_ptr<DWGraph> problem, std::shared_ptr<xacc::AcceleratorGraph> hardware,
+			std::map<std::string, std::string> params = std::map<std::string,
+					std::string>()) override {
+		std::map<int, std::list<int>> embedding;
+		embedding.insert(std::make_pair(0, std::list<int>{0, 4}));
+		embedding.insert(std::make_pair(1, std::list<int>{1}));
+		embedding.insert(std::make_pair(2, std::list<int>{5}));
+
+		return embedding;
+	}
+
+	/**
+	 * Return the name of this Embedding Algorithm
+	 * @return
+	 */
+	virtual std::string name() {
+		return "fake-embedding";
+	}
+
+};
 //____________________________________________________________________________//
 
 BOOST_FIXTURE_TEST_SUITE( s, F )
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
+	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(), []() { return std::make_shared<FakeEmbedding>(); });
 
 	const std::string simpleQMI =
 			"__qpu__ dwaveKernel() {\n"
 			"   0 0 0.98\n"
 			"   1 1 .33\n"
+			"   2 2 .44\n"
 			"   0 1 .22\n"
+			"   0 2 .55\n"
+			"   1 2 .11\n"
 			"}";
 
-	auto ir = compiler->compile(simpleQMI);
+	auto options = xacc::RuntimeOptions::instance();
+	options->insert(std::make_pair("dwave-embedding", "fake-embedding"));
 
+	auto acc = std::make_shared<FakeDWAcc>();
+
+	auto ir = compiler->compile(simpleQMI, acc);
+
+	std::cout << "STR:\n" << ir->getKernel("dw-kernel")->toString("") << "\n";
 
 
 }

@@ -39,21 +39,69 @@ namespace xacc {
 
 namespace quantum {
 
+/**
+ * The DWQMI (D=Wave Quantum Machine Instruction) class is an XACC
+ * Instruction that models a logical problem or hardware bias or
+ * connection for an optimization problem to be solved on
+ * the D-Wave QPU. It keeps track of 2 bits indices, if both
+ * are the same index then this DWQMI Instruction models
+ * a bias value, and if they are different indices,
+ * then this Instruction models a logical coupling.
+ *
+ * Note that this class can model both problem bias/couplings and
+ * hardware bias/couplings. The hardware bias/couplings result from
+ * a minor graph embedding computation.
+ *
+ */
 class DWQMI : public Instruction {
 
 protected:
 
+	/**
+	 * The qubits involved in this Instruction
+	 */
 	std::vector<int> qubits;
 
+	/**
+	 * The bias or coupling value.
+	 */
 	InstructionParameter parameter;
 
+	/**
+	 * Is this Instruction enabled or disabled.
+	 *
+	 */
 	bool enabled = true;
+
 public:
 
+	/**
+	 * The Constructor, takes one qubit
+	 * indicating this is a bias value, initialized to 0.0
+	 *
+	 * @param qbit The bit index
+	 */
 	DWQMI(int qbit) : qubits(std::vector<int>{qbit, qbit}), parameter(0.0) {}
 
+	/**
+	 * The Constructor, takes one qubit
+	 * indicating this is a bias value, but
+	 * set to the provided bias.
+	 *
+	 * @param qbit The bit index
+	 * @param param The bias value
+	 */
 	DWQMI(int qbit, double param) : qubits(std::vector<int>{qbit, qbit}), parameter(param) {}
 
+	/**
+	 * The Constructor, takes two qubit indices
+	 * to indicate that this is a coupler, with
+	 * value given by the provided parameter.
+	 *
+	 * @param qbit1 The bit index
+	 * @param qbit2 The bit index
+	 * @param param The coupling weight
+	 */
 	DWQMI(int qbit1, int qbit2, double param) : qubits(std::vector<int>{qbit1, qbit2}), parameter(param) {}
 
 	/**
