@@ -1,21 +1,21 @@
-# Gravity
 
+# XACC - eXtreme-scale ACCelerator programming framework
 
-If there's any issue you are facing in setting up this theme I'm there for you. Just create an issue in this repository (http://github.com/hemangsk/Gravity), (https://help.github.com/articles/creating-an-issue/) and I'll get back to you asap.
+XACC is a programming framework for extreme-scale, post-exascale accelerator architectures that integrates alongside existing conventional applications. It is a pluggable framework for programming languages developed for next-gen computing hardware architectures like quantum and neuromorphic computing. It lets computational scientists efficiently off-load classically intractable work to attached accelerators through user-friendly Kernel definitions. XACC makes post-exascale hybrid programming approachable for domain computational scientists.
 
-![alt tag](https://farm2.staticflickr.com/1593/25549169123_cfb392bfe9.jpg)
+Documentation
+-------------
 
-![alt-tag](https://farm8.staticflickr.com/7295/26900743846_10e9a0ba71_o.png)
-![alt-tag](https://farm8.staticflickr.com/7675/26840339222_b078607576_o.png)
-![alt-tag](https://farm2.staticflickr.com/1592/26151881165_3f351e5fd1.jpg)
+* [Website and Documentation ](http://ORNL-QCI.github.io/xacc)
 
+Questions, Bug Reporting, and Issue Tracking
+--------------------------------------------
 
+Questions, bug reporting and issue tracking are provided by GitHub. Please
+report all bugs by creating a new issue with the bug tag. You can ask
+questions by creating a new issue with the question tag.
 
-![alt-tag](https://farm2.staticflickr.com/1674/25549273413_3872aa3b1e_o.png)
+License
+-------
 
-
-
-![alt-tag](https://farm2.staticflickr.com/1590/26563924866_ec40fd1ccd_o.png)
-
-![alt-tag](https://farm2.staticflickr.com/1565/25879042020_03acf3c968_o.png)
-
+XACC has a BSD 3-clause open-source license.
