@@ -82,8 +82,15 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		}
 	}
 
+	// Now we have a qubits set. If we used 0-N qubits,
+	// then this set size will be N, but if we skipped some
+	// bits, then it will be < N. Get the maximum int in this set
+	// so we can see if any were skipped.
+	int maxBitIdx = *qubits.rbegin();
+	maxBitIdx++;
+
 	// Create a graph representation of the problem
-	auto problemGraph = std::make_shared<DWGraph>(qubits.size());
+	auto problemGraph = std::make_shared<DWGraph>(maxBitIdx);
 	for (auto inst : instructions) {
 		auto qbit1 = inst->bits()[0];
 		auto qbit2 = inst->bits()[1];
@@ -93,6 +100,7 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		} else {
 			problemGraph->addEdge(qbit1, qbit2,
 					weightOrBias);
+
 		}
 	}
 
@@ -109,14 +117,14 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 
 	auto countEdgesBetweenSubTrees = [&](std::list<int> Ti, std::list<int> Tj) -> int {
 		int nEdges = 0;
-			for (auto i : Ti) {
-				for (auto j : Tj) {
-					if (hardwareGraph->edgeExists(i, j)) {
-						nEdges++;
-					}
+		for (auto i : Ti) {
+			for (auto j : Tj) {
+				if (hardwareGraph->edgeExists(i, j)) {
+					nEdges++;
 				}
 			}
-			return nEdges;
+		}
+		return nEdges;
 	};
 
 	auto subTreeContains = [](std::list<int> tree, int i) -> bool {
@@ -136,8 +144,7 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 
 	for (int i = 0; i < nHardwareVerts; i++) {
 		for (int j = 0; j < nHardwareVerts; j++) {
-			if (hardwareGraph->edgeExists(i,j) && i < j && i != j) {
-
+			if (hardwareGraph->edgeExists(i, j) && i < j && i != j) {
 				for (int pi = 0; pi < problemGraph->order(); pi++) {
 					for (int pj = 0; pj < problemGraph->order(); pj++) {
 
@@ -147,21 +154,30 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 						if (subTreeContains(Ti, i) && subTreeContains(Tj, j)) {
 							double newWeight = 0.0;
 							if (pi != pj) {
-								newWeight = problemGraph->getEdgeWeight(pi, pj)
+								// If problem edge does not exist,
+								// Graph.getEdgeWeight retusn 0.0;
+								newWeight = problemGraph->getEdgeWeight(pi,
+										pj)
 										/ countEdgesBetweenSubTrees(Ti, Tj);
-
 							} else {
 								// ferro-magnetic coupling parameter that ensures that physical
 								// qubits representing one logical qubit remain highly correlated.
-								for (auto neighbor : problemGraph->getNeighborList(pi)) {
-									newWeight += std::fabs(problemGraph->getEdgeWeight(pi, neighbor));
+								for (auto neighbor : problemGraph->getNeighborList(
+										pi)) {
+									newWeight += std::fabs(
+											problemGraph->getEdgeWeight(pi,
+													neighbor));
 								}
-								newWeight = std::get<0>(problemGraph->getVertexProperties(pi)) + newWeight - 1.0;
+								newWeight = std::get<0>(
+										problemGraph->getVertexProperties(pi))
+										+ newWeight - 1.0;
 							}
 
-							auto embeddedInst = std::make_shared<DWQMI>(i,
-																	j, newWeight);
-							dwKernel->addInstruction(embeddedInst);
+							if (std::fabs(newWeight) > 1e-4) {
+								auto embeddedInst = std::make_shared<DWQMI>(i,
+										j, newWeight);
+								dwKernel->addInstruction(embeddedInst);
+							}
 
 						}
 					}

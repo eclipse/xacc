@@ -341,7 +341,11 @@ public:
 	 */
 	double getEdgeWeight(const int srcIndex, const int tgtIndex) {
 		auto e = edge(vertex(srcIndex, *_graph.get()), vertex(tgtIndex, *_graph.get()), *_graph.get());
-		return (*_graph.get())[e.first].weight;
+		if (e.second) {
+			return (*_graph.get())[e.first].weight;
+		} else {
+			return 0.0;
+		}
 	}
 
 	/**

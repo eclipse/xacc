@@ -39,7 +39,7 @@ public:
 		auto retGraph = std::make_shared<AcceleratorGraph>(order());
 		for (int i = 0; i < order(); i++) {
 			for (int j = 0; j < order(); j++) {
-				if (i < j) {
+				if (i < j && edgeExists(i,j)) {
 					retGraph->addEdge(i, j);
 				}
 			}
