@@ -148,9 +148,11 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	headers.insert(std::make_pair("Content-type", "application/json"));
 	headers.insert(std::make_pair("Accept", "application/octet-stream"));
 	headers.insert(std::make_pair("x-api-key", apiKey));
-	headers.insert(std::make_pair("x-user-id", "a8827b3f-459f-471f-911b-721e1444d62b"));
+	headers.insert(std::make_pair("x-user-id", userId));
 
 	XACCInfo("Rigetti Json Payload = " + jsonStr);
+
+	std::cout << "JSON:\n" << jsonStr << "\n";
 
 	// Execute the HTTP Post!
 	auto relativePath = type == "pyquillow" ? "/beta/job" : "/qvm";

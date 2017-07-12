@@ -162,7 +162,7 @@ public:
 	 * @param inst The instruction.
 	 */
 	virtual void setParameter(const int idx, InstructionParameter& inst) {
-		XACCError("Cannot change DWQMI Parameter.");
+		parameter = inst;
 	}
 
 	/**

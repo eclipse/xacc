@@ -29,29 +29,34 @@
 #
 #**********************************************************************************/
 
-include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
-include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
+find_package(OpenSSL)
 
-include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+if (OPENSSL_FOUND)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
 
-set (PACKAGE_NAME "XACC D-Wave Compiler and Accelerator Support")
-set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
-set (LIBRARY_NAME xacc-dwave)
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
+   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
 
-file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+   set (PACKAGE_NAME "XACC D-Wave Compiler and Accelerator Support")
+   set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
+   set (LIBRARY_NAME xacc-dwave)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+   file (GLOB_RECURSE HEADERS *.hpp)
+   file (GLOB SRC *.cpp)
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
+   add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES})
 
-# Gather tests
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread")
+   install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
+   # Gather tests
+   file (GLOB test_files tests/*.cpp)
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread")
+endif()
 #add_subdirectory(examples)
 
 

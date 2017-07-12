@@ -138,6 +138,28 @@ public:
 		return ss.str();
 	}
 
+	std::vector<double> getAllBiases() {
+		std::vector<double> biases;
+		for (auto i : instructions) {
+			if (i->bits()[0] == i->bits()[1]) {
+				biases.push_back(boost::get<double>(i->getParameter(0)));
+			}
+		}
+
+		return biases;
+	}
+
+	std::vector<double> getAllCouplers() {
+		std::vector<double> weights;
+		for (auto i : instructions) {
+			if (i->bits()[0] != i->bits()[1]) {
+				weights.push_back(boost::get<double>(i->getParameter(0)));
+			}
+		}
+
+		return weights;
+	}
+
 	virtual InstructionParameter getParameter(const int idx) {
 		XACCError("DWKernel does not contain runtime parameters.");
 	}
