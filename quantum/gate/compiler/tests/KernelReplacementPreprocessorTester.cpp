@@ -97,6 +97,10 @@ public:
 		return AcceleratorType::qpu_gate;
 	}
 
+	virtual void initialize() {
+
+	}
+
 	virtual std::vector<IRTransformation> getIRTransformations() {
 		std::vector<IRTransformation> ts;
 		return ts;
@@ -114,6 +118,12 @@ public:
 		return b;
 	}
 
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId) {
+			auto b = std::make_shared<AcceleratorBuffer>(varId, 3);
+			storeBuffer(varId, b);
+			return b;
+		}
 	virtual bool isValidBufferSize(const int NBits) {
 		return true;
 	}

@@ -68,6 +68,12 @@ public:
 	std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string& varId,
 			const int size);
 
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId);
+
+	virtual void initialize() {
+
+	}
 	/**
 	 * Return true if this Accelerator can allocated
 	 * NBits number of bits.

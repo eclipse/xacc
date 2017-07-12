@@ -142,6 +142,9 @@ public:
 	}
 
 	DWAccelerator() {
+	}
+
+	virtual void initialize() {
 		auto options = RuntimeOptions::instance();
 		searchAPIKey(apiKey, url);
 		auto tempURL = url;
@@ -168,6 +171,7 @@ public:
 			for (auto i = 0; i < document.Size(); i++) {
 				DWSolver solver;
 				solver.name = document[i]["id"].GetString();
+				boost::trim(solver.name);
 				solver.description = document[i]["description"].GetString();
 				if (document[i]["properties"].FindMember("j_range") != document[i]["properties"].MemberEnd()) {
 					solver.jRangeMin = document[i]["properties"]["j_range"][0].GetDouble();
@@ -177,9 +181,26 @@ public:
 
 				}
 				solver.nQubits = document[i]["properties"]["num_qubits"].GetInt();
+				std::cout << "INSERTING: " << solver.name << "\n";
 				availableSolvers.insert(std::make_pair(solver.name, solver));
 			}
 		}
+	}
+
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId) {
+		auto options = RuntimeOptions::instance();
+		std::string solverName = "DW_2000Q_VFYC";
+		if (options->exists("dwave-solver")) {
+			solverName = (*options)["dwave-solver"];
+		}
+		if (!availableSolvers.count(solverName)) {
+			XACCError(solverName + " is not available for creating a buffer.");
+		}
+		auto solver = availableSolvers[solverName];
+		auto buffer = std::make_shared<AcceleratorBuffer>(varId, solver.nQubits);
+		storeBuffer(varId, buffer);
+		return buffer;
 	}
 
 	/**
@@ -212,6 +233,7 @@ private:
 };
 
 // Create an alias to search for.
+RegisterAccelerator(xacc::quantum::DWAccelerator)
 
 }
 }

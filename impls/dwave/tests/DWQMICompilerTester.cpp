@@ -57,6 +57,13 @@ public:
 
 	};
 
+	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
+			const std::string& varId) {
+	}
+
+	virtual void initialize() {
+
+	}
 	/**
 	 * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
 	 *

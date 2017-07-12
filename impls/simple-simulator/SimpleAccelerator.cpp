@@ -34,6 +34,13 @@
 namespace xacc {
 namespace quantum {
 
+
+std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
+			const std::string& varId) {
+
+	XACCError("NOT IMPLEMENTED YET");
+}
+
 std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
 		const std::string& varId, const int size) {
 	if (!isValidBufferSize(size)) {

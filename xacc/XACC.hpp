@@ -92,6 +92,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	}
 	auto acc = AcceleratorRegistry::instance()->create(name);
 	if (acc) {
+		acc->initialize();
 		return acc;
 	} else {
 		XACCError(

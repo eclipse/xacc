@@ -81,6 +81,8 @@ class Accelerator : public OptionsProvider {
 
 public:
 
+	virtual void initialize() = 0;
+
 	/**
 	 * Return the type of this Accelerator.
 	 *
@@ -104,6 +106,9 @@ public:
 	 */
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				const std::shared_ptr<Function> function) = 0;
+
+	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId) = 0;
 
 	/**
 	 * Create, store, and return an AcceleratorBuffer with the given

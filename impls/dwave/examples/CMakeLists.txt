@@ -28,37 +28,7 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-
-find_package(OpenSSL)
-
-if (OPENSSL_FOUND)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
-
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
-
-   set (PACKAGE_NAME "XACC D-Wave Compiler and Accelerator Support")
-   set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
-   set (LIBRARY_NAME xacc-dwave)
-
-   file (GLOB_RECURSE HEADERS *.hpp)
-   file (GLOB SRC *.cpp)
-
-   add_library(${LIBRARY_NAME} SHARED ${SRC})
-
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES})
-
-   install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
-
-   # Gather tests
-   file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread")
+add_executable(dwave-simple-example dwave-simple-example.cpp)
+target_link_libraries(dwave-simple-example ${Boost_LIBRARIES} dl)
    
-   add_subdirectory(examples)
-endif()
-#add_subdirectory(examples)
-
-
+install(TARGETS dwave-simple-example DESTINATION examples)
