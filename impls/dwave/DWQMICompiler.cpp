@@ -46,7 +46,6 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 
 	auto runtimeOptions = RuntimeOptions::instance();
 	auto hardwareGraph = acc->getAcceleratorConnectivity();
-	auto dwKernel = std::make_shared<DWKernel>();
 	std::set<int> qubits;
 	std::vector<std::shared_ptr<DWQMI>> instructions;
 	int nHardwareVerts = hardwareGraph->order();
@@ -61,8 +60,14 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	// brackets are, and then get the text between them.
 
 	// First off, split the string into lines
-	std::vector<std::string> lines;
+	std::vector<std::string> lines, fLineSpaces;
 	boost::split(lines, src, boost::is_any_of("\n"));
+	auto functionLine = lines[0];
+	boost::split(fLineSpaces, functionLine, boost::is_any_of(" "));
+	auto fName = fLineSpaces[1];
+	boost::trim(fName);
+	fName = fName.substr(0, fName.find_first_of("("));
+	auto dwKernel = std::make_shared<DWKernel>(fName);
 	auto firstCodeLine = lines.begin() + 1;
 	auto lastCodeLine = lines.end() - 1;
 	std::vector<std::string> qmiStrVec(firstCodeLine, lastCodeLine);

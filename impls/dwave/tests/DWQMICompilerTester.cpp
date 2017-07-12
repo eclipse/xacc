@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 	auto ir = compiler->compile(simpleQMI, acc);
 
-	auto qmi = ir->getKernel("dw-kernel")->toString("");
+	auto qmi = ir->getKernel("dwaveKernel")->toString("");
 
 	const std::string expectedQMI = "0 0 0.49\n"
 			"4 4 0.49\n"
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 
 	auto ir = compiler->compile(shor15QMI, acc);
 
-	auto qmi = ir->getKernel("dw-kernel")->toString("");
+	auto qmi = ir->getKernel("shor15")->toString("");
 
 	std::cout << qmi << "\n";
 

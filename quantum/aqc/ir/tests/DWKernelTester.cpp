@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE(checkDWKernelConstruction) {
 	auto qmi2 = std::make_shared<DWQMI>(0);
 	auto qmi3 = std::make_shared<DWQMI>(22, 3.3);
 
-	DWKernel kernel;
+	DWKernel kernel("foo");
 	kernel.addInstruction(qmi);
 	kernel.addInstruction(qmi2);
 	kernel.addInstruction(qmi3);
 
 	BOOST_VERIFY(kernel.nInstructions() == 3);
-	BOOST_VERIFY(kernel.getName() == "dw-kernel");
+	BOOST_VERIFY(kernel.getName() == "foo");
 	BOOST_VERIFY(kernel.getInstruction(0) == qmi);
 	BOOST_VERIFY(kernel.getInstruction(1) == qmi2);
 	BOOST_VERIFY(kernel.getInstruction(2) == qmi3);

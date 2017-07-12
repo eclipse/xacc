@@ -9,6 +9,7 @@
 #define QUANTUM_AQC_IR_DWGRAPH_HPP_
 
 #include "Graph.hpp"
+#include "Accelerator.hpp"
 
 namespace xacc {
 
@@ -94,10 +95,10 @@ public:
 	virtual ~CompleteGraph() {}
 };
 
-class Chimera : public DWGraph {
+class ChimeraGraph : public DWGraph {
 public:
 
-	Chimera(int gridSize) : DWGraph(8 * gridSize * gridSize) {
+	ChimeraGraph(int gridSize) : DWGraph(8 * gridSize * gridSize) {
 		// We are going to assign a tuple of ints to each vertex
 		std::map<std::tuple<int, int, int, int>, int> vertexTuples;
 		int i, j, k, l, v = 0;
@@ -156,7 +157,7 @@ public:
 		}
 	}
 
-	virtual ~Chimera() {}
+	virtual ~ChimeraGraph() {}
 };
 }
 

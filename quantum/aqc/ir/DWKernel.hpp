@@ -49,6 +49,8 @@ protected:
 
 	std::list<InstPtr> instructions;
 
+	std::string name;
+
 public:
 
 	/**
@@ -57,7 +59,7 @@ public:
 	 * @param id
 	 * @param name
 	 */
-	DWKernel() {
+	DWKernel(std::string kernelName) : name(kernelName) {
 	}
 
 	virtual const int nInstructions() {
@@ -112,7 +114,7 @@ public:
 	 * @return
 	 */
 	virtual const std::string getName() {
-		return "dw-kernel";
+		return name;
 	}
 
 	/**
