@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 	auto ir = compiler->compile(simpleQMI, acc);
 
-	std::cout << "STR:\n" << ir->getKernel("dw-kernel")->toString("") << "\n";
+//	std::cout << "STR:\n" << ir->getKernel("dw-kernel")->toString("") << "\n";
 
 
 }

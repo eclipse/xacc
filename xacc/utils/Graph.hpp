@@ -427,7 +427,7 @@ public:
 						*_graph.get());
 
 		for (; neighbors.first != neighbors.second; ++neighbors.first) {
-			std::cout << indexMap[*neighbors.first] << " ";
+//			std::cout << indexMap[*neighbors.first] << " ";
 			int neighborIdx = indexMap[*neighbors.first];
 			l.push_back(neighborIdx);
 		}

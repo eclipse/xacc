@@ -134,8 +134,6 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		}
 	}
 
-	std::cout << "NHARDWARE: " << nHardwareVerts << ", " << problemGraph->order() << "\n";
-
 	for (int i = 0; i < nHardwareVerts; i++) {
 		for (int j = 0; j < nHardwareVerts; j++) {
 			if (hardwareGraph->edgeExists(i,j) && i < j && i != j) {
@@ -161,23 +159,16 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 								newWeight = std::get<0>(problemGraph->getVertexProperties(pi)) + newWeight - 1.0;
 							}
 
-							std::cout << "Adding a Edge Instruction.\n";
 							auto embeddedInst = std::make_shared<DWQMI>(i,
 																	j, newWeight);
 							dwKernel->addInstruction(embeddedInst);
 
 						}
-//						else {
-//							std::cout << "SUBTREE DID NOT CONTAIN: " << i << " and " << j << "\n";
-//						}
 					}
 				}
-			} else {
-				std::cout << "Edge did not exist between " << i << ", " << j << "\n";
 			}
 		}
 	}
-
 
 	auto ir = std::make_shared<DWIR>();
 	ir->addKernel(dwKernel);
