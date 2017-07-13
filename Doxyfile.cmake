@@ -1106,7 +1106,7 @@ HTML_FILE_EXTENSION    = .html
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_HEADER            = 
-#@CMAKE_CURRENT_SOURCE_DIR@/docs/docs-doxygen/doxygen-bootstrapped/header.html
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1117,7 +1117,7 @@ HTML_HEADER            =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_FOOTER            = 
-#@CMAKE_CURRENT_SOURCE_DIR@/docs/docs-doxygen/doxygen-bootstrapped/footer.html
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1142,7 +1142,7 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/docs/docs-doxygen/doxygen-bootstrapped/customdoxygen.css
+HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/customdoxygen.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1152,7 +1152,7 @@ HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/docs/docs-doxygen/doxygen-bo
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/docs/docs-doxygen/doxygen-bootstrapped/doxy-boot.js
+HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/doxy-boot.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
