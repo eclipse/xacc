@@ -1,25 +1,8 @@
 var searchData=
 [
-  ['accelerator',['Accelerator',['../a01613.html',1,'xacc::Accelerator'],['../a01629.html#ad4cbb467fa7e377bac6c054ffcb22b7c',1,'xacc::Compiler::accelerator()'],['../a01685.html#a10c948629c84f23dd426c04a9a518155',1,'xacc::Program::accelerator()']]],
-  ['acceleratorbit',['AcceleratorBit',['../a01621.html',1,'xacc::AcceleratorBit'],['../a01621.html#a9a124c230c5cabeab53bac0820c0221a',1,'xacc::AcceleratorBit::AcceleratorBit()']]],
-  ['acceleratorbuffer',['AcceleratorBuffer',['../a01625.html',1,'xacc::AcceleratorBuffer'],['../a01625.html#ab606d8af942120d60b51a4fffcd75c98',1,'xacc::AcceleratorBuffer::AcceleratorBuffer()']]],
-  ['accept',['accept',['../a01673.html#a4ae295a7f83d57c6f1f912adc90274ea',1,'xacc::BaseInstructionVisitable::accept(std::shared_ptr&lt; BaseInstructionVisitor &gt; visitor)=0'],['../a01673.html#ad6b9ad95c14580cc86ca87cd464262c3',1,'xacc::BaseInstructionVisitable::accept(BaseInstructionVisitor *visitor)=0']]],
-  ['acceptimpl',['acceptImpl',['../a01673.html#a2f18b9fcb48f42d190a9f5180b7b59c5',1,'xacc::BaseInstructionVisitable::acceptImpl(T &amp;visited, std::shared_ptr&lt; BaseInstructionVisitor &gt; visitor)'],['../a01673.html#a80c7bb995faa54644f822fa48176c6cb',1,'xacc::BaseInstructionVisitable::acceptImpl(T &amp;visited, BaseInstructionVisitor *visitor)']]],
-  ['add',['add',['../a01437.html#a957d54e0259b1ea798a47389af4b8379',1,'fire::EigenTensorProvider::add()'],['../a01725.html#a9aa172c2603171db067b40bd62ba53c6',1,'xacc::Registry::add()']]],
-  ['addedge',['addEdge',['../a01713.html#a69ddb8cdc899ba47174f0e65b60a75dd',1,'xacc::Graph::addEdge(const int srcIndex, const int tgtIndex, const double edgeWeight)'],['../a01713.html#ae9dcc413d7e9b774b6bf2963c261f5fa',1,'xacc::Graph::addEdge(const int srcIndex, const int tgtIndex)']]],
-  ['addinstruction',['addInstruction',['../a01221.html#a4c3043d6971999c3a09e797fc55deb6c',1,'xacc::quantum::DWKernel::addInstruction()'],['../a01249.html#a892fb69a10f0a7cb5abdab4cca61b80a',1,'xacc::quantum::GateFunction::addInstruction()'],['../a01273.html#a6aedad20f96390880efdc0a476b3273f',1,'xacc::quantum::ConditionalFunction::addInstruction()'],['../a01653.html#aa8c9ec2d08be75c69399d4254b0216f5',1,'xacc::Function::addInstruction()']]],
-  ['addkernel',['addKernel',['../a01217.html#af1bef18e1e9568d1313b03149aab8c1b',1,'xacc::quantum::DWIR::addKernel()'],['../a01265.html#aa6ed2cf2cbcfec8105c327a4fa95346f',1,'xacc::quantum::GateQIR::addKernel()'],['../a01677.html#abbbf8e6993c518597de32cd05d49d737',1,'xacc::IR::addKernel()']]],
-  ['address',['address',['../a01585.html#add7a705aca3533bf0371708b19bb691c',1,'SimpleWeb::ServerBase::Config']]],
-  ['addtensors',['addTensors',['../a01449.html#a20324b2a35a2fa85a56907a239154cf0',1,'fire::TensorProvider']]],
-  ['addvertex',['addVertex',['../a01713.html#a99f45a817a10a62dd5f2f8c9a1734d8a',1,'xacc::Graph::addVertex()'],['../a01713.html#a65ccbb34312ab8d6a168f608e10d2b23',1,'xacc::Graph::addVertex(Properties ... properties)']]],
-  ['algorithmgenerator',['AlgorithmGenerator',['../a01645.html',1,'xacc']]],
-  ['allgatevisitor',['AllGateVisitor',['../a01321.html',1,'xacc::quantum']]],
-  ['applyunitary',['applyUnitary',['../a01345.html#a3f4518d0135101141bf92d7e31f4fddc',1,'xacc::quantum::SimulatedQubits']]],
-  ['argc',['argc',['../a01689.html#afba175b92e7bc49e19660ef541db8cd5',1,'xacc::CLIParser']]],
-  ['argv',['argv',['../a01689.html#aa269b5c9a78f2fe3e4ac48012eb3cc06',1,'xacc::CLIParser']]],
-  ['array_5fsize',['array_size',['../a01461.html',1,'fire']]],
-  ['array_5fsize_3c_20std_3a_3aarray_3c_20t_2c_20n_20_3e_20_3e',['array_size&lt; std::array&lt; T, N &gt; &gt;',['../a01465.html',1,'fire']]],
-  ['asionetworkingtool',['AsioNetworkingTool',['../a01601.html',1,'fire::util::AsioNetworkingTool&lt; PROTOCOL &gt;'],['../a01601.html#a5edd72ce9937e052a82e7564500b3861',1,'fire::util::AsioNetworkingTool::AsioNetworkingTool()']]],
-  ['atomicnumber',['atomicNumber',['../a01357.html#a01796faa4262d2225c4cf3b714afde81',1,'fire::astrophysics::Species']]],
-  ['about',['about',['../a02182.html',1,'']]]
+  ['baseinstructionvisitable',['BaseInstructionVisitable',['../a01171.html',1,'xacc']]],
+  ['baseinstructionvisitor',['BaseInstructionVisitor',['../a01163.html',1,'xacc']]],
+  ['bits',['bits',['../a00983.html#adae68964db6acd8b4c2267c270a8ec58',1,'xacc::quantum::DWKernel::bits()'],['../a00987.html#a76939c29e4763d10c57ea9a270229421',1,'xacc::quantum::DWQMI::bits()'],['../a01011.html#aba03de68b76a9e120705c3c389c714a1',1,'xacc::quantum::GateFunction::bits()'],['../a01015.html#ad32ad03dfc516e00093030e60178003d',1,'xacc::quantum::GateInstruction::bits()'],['../a01155.html#a819f32e94c3e1c9e69a0061aaf8d86dc',1,'xacc::Instruction::bits()']]],
+  ['bufferstate',['bufferState',['../a01107.html#a630bea50ee06fd59f74450f01f95e489',1,'xacc::quantum::SimulatedQubits']]],
+  ['build',['build',['../a01183.html#a53079c7886c0be065968bcf6674d1516',1,'xacc::Program']]]
 ];

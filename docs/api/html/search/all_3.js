@@ -1,11 +1,17 @@
 var searchData=
 [
-  ['base64_5fencode',['base64_encode',['../a01609.html#ab93be61530f01e64cb3c688976a6887b',1,'fire::util::INetworkingTool']]],
-  ['baseinstructionvisitable',['BaseInstructionVisitable',['../a01673.html',1,'xacc']]],
-  ['baseinstructionvisitor',['BaseInstructionVisitor',['../a01665.html',1,'xacc']]],
-  ['bits',['bits',['../a01221.html#adae68964db6acd8b4c2267c270a8ec58',1,'xacc::quantum::DWKernel::bits()'],['../a01225.html#a76939c29e4763d10c57ea9a270229421',1,'xacc::quantum::DWQMI::bits()'],['../a01249.html#aba03de68b76a9e120705c3c389c714a1',1,'xacc::quantum::GateFunction::bits()'],['../a01253.html#ad32ad03dfc516e00093030e60178003d',1,'xacc::quantum::GateInstruction::bits()'],['../a01657.html#a819f32e94c3e1c9e69a0061aaf8d86dc',1,'xacc::Instruction::bits()']]],
-  ['blockgenerator',['BlockGenerator',['../a01421.html',1,'']]],
-  ['bufferstate',['bufferState',['../a01345.html#a630bea50ee06fd59f74450f01f95e489',1,'xacc::quantum::SimulatedQubits']]],
-  ['build',['build',['../a01685.html#a53079c7886c0be065968bcf6674d1516',1,'xacc::Program::build()'],['../a00572.html#abca66b4f2a1543308b663714bd8b4855',1,'fire::build(const vector&lt; string &gt; &amp;lines)'],['../a00572.html#aaf82cc265522a41ebc36e8405e0c7559',1,'fire::build(const string &amp;source)'],['../a00572.html#a138f22945f7a7ec642432fd24a94b414',1,'fire::build(const string &amp;source)'],['../a00572.html#a5c0e80ce60cddb0a4ac83333b41fded1',1,'fire::build()'],['../a00572.html#a45fa78347513e865dc6c767cff0b4ef1',1,'fire::build(K values)'],['../a00572.html#a624f274bd6de1d7b829c9883ac3397cd',1,'fire::build(const std::string &amp;source)']]],
-  ['buildfluxmaps',['buildFluxMaps',['../a01353.html#aa0c06237ae72e698aee9cf72d0032fd8',1,'fire::astrophysics::ReactionNetwork']]]
+  ['cachedvariableinstructions',['cachedVariableInstructions',['../a01011.html#a186fadb9c8b90481eaa260bdd81b37b9',1,'xacc::quantum::GateFunction']]],
+  ['ci',['CI',['../a00951.html#af7a3a73eaab025a0ea72cc9335d8fbb4',1,'xacc::quantum::ScaffoldCompiler']]],
+  ['circuitnode',['CircuitNode',['../a01023.html',1,'xacc::quantum']]],
+  ['classicaladdresses',['classicalAddresses',['../a00935.html#a93e648797062568ff2ae0345f8843ddd',1,'xacc::quantum::QuilVisitor']]],
+  ['cliparser',['CLIParser',['../a01187.html',1,'xacc::CLIParser'],['../a01187.html#a3b170552b44c8a18dcd109cc6550df50',1,'xacc::CLIParser::CLIParser()']]],
+  ['cnot',['CNOT',['../a01031.html',1,'xacc::quantum']]],
+  ['compile',['compile',['../a00923.html#a0df05642f1a6fd44ce7f1c0396d50c9c',1,'xacc::quantum::DWQMICompiler::compile(const std::string &amp;src, std::shared_ptr&lt; Accelerator &gt; acc)'],['../a00923.html#aa22591343b5509bf2c3a5820130ba906',1,'xacc::quantum::DWQMICompiler::compile(const std::string &amp;src)'],['../a00931.html#a2421482415ca4e09963ea4ecddff8100',1,'xacc::quantum::QuilCompiler::compile(const std::string &amp;src, std::shared_ptr&lt; Accelerator &gt; acc)'],['../a00931.html#adf4d321ecb0df3fa7728999f941c83b2',1,'xacc::quantum::QuilCompiler::compile(const std::string &amp;src)'],['../a00951.html#a7caede75bb2304ba405966651b115543',1,'xacc::quantum::ScaffoldCompiler::compile(const std::string &amp;src, std::shared_ptr&lt; Accelerator &gt; acc)'],['../a00951.html#a3736ecc229fe6acdd4c991e85d7a1f08',1,'xacc::quantum::ScaffoldCompiler::compile(const std::string &amp;src)'],['../a01127.html#a546a40c95bb93af6a0c0ac48dbeaffc8',1,'xacc::Compiler::compile(const std::string &amp;src, std::shared_ptr&lt; Accelerator &gt; acc)=0'],['../a01127.html#a9092f5f779b570c91569b59621280c04',1,'xacc::Compiler::compile(const std::string &amp;src)=0']]],
+  ['compiler',['Compiler',['../a01127.html',1,'xacc::Compiler'],['../a01183.html#a0d2ae2522bb0daad0eea7871fc4e2061',1,'xacc::Program::compiler()']]],
+  ['conditionalfunction',['ConditionalFunction',['../a01035.html',1,'xacc::quantum']]],
+  ['consumer',['consumer',['../a00951.html#ab1c4d36e58b97de50208e74a92d8ceb1',1,'xacc::quantum::ScaffoldCompiler']]],
+  ['countgatesoftypevisitor',['CountGatesOfTypeVisitor',['../a01087.html',1,'xacc::quantum']]],
+  ['cphase',['CPhase',['../a01039.html',1,'xacc::quantum']]],
+  ['create',['create',['../a01223.html#a3e71cc8d0effd065252608ee1ccdf207',1,'xacc::Registry']]],
+  ['createbuffer',['createBuffer',['../a00939.html#a731551c94b1abef40d2cf032e8712df6',1,'xacc::quantum::RigettiAccelerator::createBuffer()'],['../a00959.html#adb9393692e9f484df241aa5d014030d1',1,'xacc::quantum::SimpleAccelerator::createBuffer()'],['../a01111.html#a064a2dbd58338364115c260267806945',1,'xacc::Accelerator::createBuffer()']]]
 ];

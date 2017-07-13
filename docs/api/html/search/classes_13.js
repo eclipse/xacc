@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['userdata',['UserData',['../a01429.html',1,'']]]
+  ['z',['Z',['../a01075.html',1,'xacc::quantum']]]
 ];

@@ -1,21 +1,4 @@
 var searchData=
 [
-  ['initialize',['initialize',['../a01449.html#ae0139d4ca954975b26bb6b9aede81635',1,'fire::TensorProvider']]],
-  ['initializefromreference',['initializeFromReference',['../a01449.html#ab8f986a7fa520b2d9174091d2839356d',1,'fire::TensorProvider']]],
-  ['initializetensorbackend',['initializeTensorBackend',['../a01437.html#a5d7147962e2e85c0789b90cced1c6393',1,'fire::EigenTensorProvider']]],
-  ['initializetensorbackendwithreference',['initializeTensorBackendWithReference',['../a01437.html#a284d6bb6a8539c5776e00d2a377d188e',1,'fire::EigenTensorProvider']]],
-  ['insertinstruction',['insertInstruction',['../a01221.html#a1627af0141f70fc4a3cd500a13fb31b8',1,'xacc::quantum::DWKernel::insertInstruction()'],['../a01249.html#aed3b963f1c4eb3215ca46af48d78f588',1,'xacc::quantum::GateFunction::insertInstruction()'],['../a01653.html#acde702e44bdbc2759b338365218d7ebe',1,'xacc::Function::insertInstruction()']]],
-  ['instance',['instance',['../a01733.html#ae4c30f303439e702389c9d088abb3f23',1,'xacc::Singleton']]],
-  ['instructioniterator',['InstructionIterator',['../a01661.html#af61abf612341ab1454a1c43239b2da16',1,'xacc::InstructionIterator']]],
-  ['iscomposite',['isComposite',['../a01225.html#ad2b3b4ee72dee48150bf78d92c52e5e0',1,'xacc::quantum::DWQMI::isComposite()'],['../a01653.html#aa75500c657b5c3e0e36213e1506aad97',1,'xacc::Function::isComposite()'],['../a01657.html#a4383f1036d0fcfe890ab9c613dbd5f38',1,'xacc::Instruction::isComposite()']]],
-  ['isempty',['IsEmpty',['../a01481.html#a54bbe9727db17b368a0a75abd5e52d1c',1,'CSimpleIniTempl']]],
-  ['isenabled',['isEnabled',['../a01225.html#aea76901b30d85172ef26fc317b4c0ed7',1,'xacc::quantum::DWQMI::isEnabled()'],['../a01253.html#a0a821be322b0c848b01c55f91fc8f484',1,'xacc::quantum::GateInstruction::isEnabled()'],['../a01657.html#ad02a1cf7220577124720b7a51424cea7',1,'xacc::Instruction::isEnabled()']]],
-  ['isfile',['isFile',['../a01373.html#a091d5cf56bf8f407854ef87f460b2958',1,'fire::ILocalParser::isFile()'],['../a01381.html#a616c42c85d781c916e97f0ad8f1e9010',1,'fire::IParser::isFile()']]],
-  ['islocal',['isLocal',['../a01373.html#a770acae6e216de3a9c7140a12de25d58',1,'fire::ILocalParser::isLocal()'],['../a01381.html#a97b9e58493b3cadbc63e670b0b0e759f',1,'fire::IParser::isLocal()']]],
-  ['ismultikey',['IsMultiKey',['../a01481.html#a494b30fbdda5e78afdb25451743df935',1,'CSimpleIniTempl']]],
-  ['ismultiline',['IsMultiLine',['../a01481.html#afadd3818363ec7e66ca369ef486ec979',1,'CSimpleIniTempl']]],
-  ['isparallel',['isParallel',['../a01373.html#ad46898c516adcce38acbb4800dc9777b',1,'fire::ILocalParser::isParallel()'],['../a01381.html#a83d2882a466d694fb0aea3d846bcbed4',1,'fire::IParser::isParallel()']]],
-  ['isparameterized',['isParameterized',['../a01221.html#a8957ea368244ed4a4ebd85f6bfecb785',1,'xacc::quantum::DWKernel::isParameterized()'],['../a01225.html#aee43b2e499f122dfe250b529a3f77add',1,'xacc::quantum::DWQMI::isParameterized()'],['../a01249.html#afad47903e0ed55ddbfa827ef8408a94b',1,'xacc::quantum::GateFunction::isParameterized()'],['../a01253.html#afe7aeeb398262931e156bcb3950f8188',1,'xacc::quantum::GateInstruction::isParameterized()'],['../a01657.html#a7b24d8ae485369fc2b2df7a3224a5e26',1,'xacc::Instruction::isParameterized()']]],
-  ['isunicode',['IsUnicode',['../a01481.html#a40b4ee04251bd343ada5c4a4c508cd43',1,'CSimpleIniTempl']]],
-  ['isvalidbuffersize',['isValidBufferSize',['../a01133.html#a4c2ee30212a919d8ddf7f9555df25195',1,'xacc::quantum::DWAccelerator::isValidBufferSize()'],['../a01165.html#a61352c07062597aad2393fbeed4cc025',1,'xacc::quantum::RigettiAccelerator::isValidBufferSize()'],['../a01185.html#a60b9db2d6aed235857c45413a070338e',1,'xacc::quantum::SimpleAccelerator::isValidBufferSize()'],['../a01613.html#ae51584850faeec77299058383977ddeb',1,'xacc::Accelerator::isValidBufferSize()']]]
+  ['kernelexists',['kernelExists',['../a00979.html#ab5e8861d3bc0845bb015af6208f5f396',1,'xacc::quantum::DWIR::kernelExists()'],['../a01027.html#a692f95099caa7c024110a3f035941dca',1,'xacc::quantum::GateQIR::kernelExists()'],['../a01175.html#afc9ccf5126f3fed19c2e879133b2f6d8',1,'xacc::IR::kernelExists()']]]
 ];
