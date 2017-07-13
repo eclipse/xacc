@@ -137,8 +137,9 @@ public:
 	 * Register this Accelerator with the framework.
 	 */
 	static void registerAccelerator() {
+		DWAccelerator acc;
 		xacc::RegisterAccelerator<xacc::quantum::DWAccelerator> DWTEMP(
-				"d-wave");
+				"d-wave", acc.getOptions());
 	}
 
 	DWAccelerator() {

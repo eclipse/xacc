@@ -144,6 +144,12 @@ public:
 					return std::make_shared<T>();
 				}));
 	}
+	RegisterCompiler(const std::string& name, std::shared_ptr<options_description> options) {
+		CompilerRegistry::instance()->add(name,
+				(std::function<std::shared_ptr<xacc::Compiler>()>) ([]() {
+					return std::make_shared<T>();
+				}), options);
+	}
 };
 
 #define RegisterCompiler(TYPE) BOOST_DLL_ALIAS(TYPE::registerCompiler, registerCompiler)

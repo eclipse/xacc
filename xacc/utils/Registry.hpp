@@ -35,6 +35,9 @@
 #include "Utils.hpp"
 #include <map>
 #include <iostream>
+#include <boost/program_options.hpp>
+using namespace boost::program_options;
+
 namespace xacc {
 
 /**
@@ -59,6 +62,8 @@ protected:
 	 */
 	std::map<std::string, std::function<std::shared_ptr<T>(TArgs...)>> registry;
 
+	std::map<std::string, std::shared_ptr<options_description>> registryOptions;
+
 public:
 
 	/**
@@ -80,6 +85,31 @@ public:
 			XACCError("Could not add " + id + " to the Registry.");
 		} else {
 			return s;
+		}
+	}
+
+	/**
+	 * Add a new creation function to the Registry, keyed
+	 * on the provided string id, and related
+	 * command line options for the object to be created.
+	 *
+	 * @param id The Id of the creation function
+	 * @param f The object's creation function
+	 * @param options The objects command line options
+	 * @return success Bool indicating if this creator was added successfully.
+	 */
+	bool add(const std::string& id,
+			std::function<std::shared_ptr<T>(TArgs...)> f, std::shared_ptr<options_description> options) {
+		if (registry.find(id) != registry.end()) {
+			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
+			return true;
+		}
+		bool s = registry.insert(std::make_pair(id, std::move(f))).second;
+		bool s2 = registryOptions.insert(std::make_pair(id, std::move(options))).second;
+		if (!s || ! s2) {
+			XACCError("Could not add " + id + " to the Registry.");
+		} else {
+			return true;
 		}
 	}
 
@@ -116,6 +146,19 @@ public:
 		return keys;
 	}
 
+
+	std::vector<std::shared_ptr<options_description>> getRegisteredOptions() {
+		std::vector<std::shared_ptr<options_description>> values;
+
+		auto getSecond = [](const std::pair<std::string, std::shared_ptr<options_description>>& key_val) {
+			return key_val.second;
+		};
+		std::transform(registryOptions.begin(), registryOptions.end(), std::back_inserter(values),
+		               getSecond);
+
+		return values;
+
+	}
 	/**
 	 * Return the number of creation functions
 	 * this registry contains.

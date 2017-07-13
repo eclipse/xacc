@@ -130,8 +130,9 @@ public:
 	 * Register this Accelerator with the framework.
 	 */
 	static void registerAccelerator() {
+		RigettiAccelerator acc;
 		xacc::RegisterAccelerator<xacc::quantum::RigettiAccelerator> RIGETTITEMP(
-				"rigetti");
+				"rigetti", acc.getOptions());
 	}
 
 	RigettiAccelerator() : httpClient(std::make_shared<

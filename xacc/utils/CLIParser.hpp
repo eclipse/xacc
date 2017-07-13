@@ -138,34 +138,18 @@ public:
 								dll::load_mode::append_decorations);
 						regFunc();
 					}
-//					if (lib.has("registerPreprocessor")) {
-//						typedef void (RegisterPreprocessor)();
-//						auto regFunc = boost::dll::import_alias<
-//								RegisterPreprocessor>(p,
-//								"registerPreprocessor",
-//								dll::load_mode::append_decorations);
-//						regFunc();
-//					}
 				}
 			}
 		}
 
-		// Add Accelerator specific options
-		auto registeredIds = AcceleratorRegistry::instance()->getRegisteredIds();
-		for (auto s : registeredIds) {
-			{
-				compilerOptions->add(
-						*(AcceleratorRegistry::instance()->create(s)->getOptions().get()));
-			}
-		}
+		auto registeredAccOptions = AcceleratorRegistry::instance()->getRegisteredOptions();
+		auto registeredCompilerOptions = CompilerRegistry::instance()->getRegisteredOptions();
 
-		// Add all Compiler specific options
-		registeredIds = CompilerRegistry::instance()->getRegisteredIds();
-		for (auto s : registeredIds) {
-			{
-				compilerOptions->add(
-						*(CompilerRegistry::instance()->create(s)->getOptions().get()));
-			}
+		for (auto s : registeredAccOptions) {
+			compilerOptions->add(*s.get());
+		}
+		for (auto s : registeredCompilerOptions) {
+			compilerOptions->add(*s.get());
 		}
 
 		// Parse the command line options

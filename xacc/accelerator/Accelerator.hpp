@@ -81,6 +81,13 @@ class Accelerator : public OptionsProvider {
 
 public:
 
+	/**
+	 * Initialize this Accelerator. This method is called
+	 * by the XACC framework after an Accelerator has been
+	 * requested and created. Perform any work you need
+	 * done before execution here.
+	 *
+	 */
 	virtual void initialize() = 0;
 
 	/**
@@ -107,6 +114,15 @@ public:
 	virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				const std::shared_ptr<Function> function) = 0;
 
+	/**
+	 * Create, store, and return an AcceleratorBuffer with the given
+	 * variable id string. This method returns all available
+	 * qubits for this Accelerator. The string id serves as a unique identifier
+	 * for future lookups and reuse of the AcceleratorBuffer.
+	 *
+	 * @param varId The variable name of the created buffer
+	 * @return buffer The buffer instance created.
+	 */
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 				const std::string& varId) = 0;
 
@@ -242,6 +258,12 @@ public:
 				(std::function<std::shared_ptr<xacc::Accelerator>()>) ([]() {
 					return std::make_shared<T>();
 				}));
+	}
+	RegisterAccelerator(const std::string& name, std::shared_ptr<options_description> options) {
+		AcceleratorRegistry::instance()->add(name,
+				(std::function<std::shared_ptr<xacc::Accelerator>()>) ([]() {
+					return std::make_shared<T>();
+				}), options);
 	}
 };
 
