@@ -1,20 +1,138 @@
-\href{https://travis-ci.org/ORNL-QCI/xacc}{\tt }
+\tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*{2}{|X[-1]}|}
+\hline
+\textbf{ Library }&Simple\+Ini \\\cline{1-2}
+\textbf{ File }&\hyperlink{a00473_source}{Simple\+Ini.\+h} \\\cline{1-2}
+\textbf{ Author }&Brodie Thiesfield \mbox{[}code at jellycan dot com\mbox{]} \\\cline{1-2}
+\textbf{ Source }&\href{https://github.com/brofield/simpleini}{\tt https\+://github.\+com/brofield/simpleini} \\\cline{1-2}
+\textbf{ Version }&4.\+17 \\\cline{1-2}
+\end{longtabu}
 
-\section*{X\+A\+CC -\/ e $\ast$$\ast$\+\_\+\+X\+\_\+$\ast$$\ast$ treme-\/scale $\ast$$\ast$\+\_\+\+A\+C\+C\+\_\+$\ast$$\ast$ elerator programming framework}
 
-X\+A\+CC is a programming framework for extreme-\/scale, post-\/exascale accelerator architectures that integrates alongside existing conventional applications. It is a pluggable framework for programming languages developed for next-\/gen computing hardware architectures like quantum and neuromorphic computing. It lets computational scientists efficiently off-\/load classically intractable work to attached accelerators through user-\/friendly Kernel definitions. X\+A\+CC makes post-\/exascale hybrid programming approachable for domain computational scientists.
-
-\subsection*{Documentation }
-
+Jump to the \hyperlink{a01481}{C\+Simple\+Ini } interface documentation.\hypertarget{index_intro}{}\section{I\+N\+T\+R\+O\+D\+U\+C\+T\+I\+ON}\label{index_intro}
+This component allows an I\+N\+I-\/style configuration file to be used on both Windows and Linux/\+Unix. It is fast, simple and source code using this component will compile unchanged on either OS.\hypertarget{index_features}{}\section{F\+E\+A\+T\+U\+R\+ES}\label{index_features}
 
 \begin{DoxyItemize}
-\item \href{http://ORNL-QCI.github.io/xacc}{\tt Website and Documentation}
+\item M\+IT Licence allows free use in all software (including G\+PL and commercial)
+\item multi-\/platform (Windows 95/98/\+M\+E/\+N\+T/2\+K/\+X\+P/2003, Windows CE, Linux, Unix)
+\item loading and saving of I\+N\+I-\/style configuration files
+\item configuration files can have any newline format on all platforms
+\item liberal acceptance of file format
+\begin{DoxyItemize}
+\item key/values with no section
+\item removal of whitespace around sections, keys and values
 \end{DoxyItemize}
+\item support for multi-\/line values (values with embedded newline characters)
+\item optional support for multiple keys with the same name
+\item optional case-\/insensitive sections and keys (for A\+S\+C\+II characters only)
+\item saves files with sections and keys in the same order as they were loaded
+\item preserves comments on the file, section and keys where possible.
+\item supports both char or wchar\+\_\+t programming interfaces
+\item supports both M\+B\+CS (system locale) and U\+T\+F-\/8 file encodings
+\item system locale does not need to be U\+T\+F-\/8 on Linux/\+Unix to load U\+T\+F-\/8 file
+\item support for non-\/\+A\+S\+C\+II characters in section, keys, values and comments
+\item support for non-\/standard character types or file encodings via user-\/written converter classes
+\item support for adding/modifying values programmatically
+\item compiles cleanly in the following compilers\+:
+\begin{DoxyItemize}
+\item Windows/\+V\+C6 (warning level 3)
+\item Windows/\+V\+C.\+N\+ET 2003 (warning level 4)
+\item Windows/\+VC 2005 (warning level 4)
+\item Linux/gcc (-\/\+Wall)
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{index_usage}{}\section{U\+S\+A\+G\+E S\+U\+M\+M\+A\+RY}\label{index_usage}
 
-\subsection*{Questions, Bug Reporting, and Issue Tracking }
+\begin{DoxyEnumerate}
+\item Define the appropriate symbol for the converter you wish to use and include the \hyperlink{a00473_source}{Simple\+Ini.\+h} header file. If no specific converter is defined then the default converter is used. The default conversion mode uses S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+W\+I\+N32 on Windows and S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+G\+E\+N\+E\+R\+IC on all other platforms. If you are using I\+CU then S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+I\+CU is supported on all platforms.
+\item Declare an instance the appropriate class. Note that the following definitions are just shortcuts for commonly used types. Other types (P\+R\+Unichar, unsigned short, unsigned char) are also possible. \tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*{5}{|X[-1]}|}
+\hline
+\rowcolor{\tableheadbgcolor}\textbf{ Interface }&\textbf{ Case-\/sensitive }&\textbf{ Load U\+T\+F-\/8 }&\textbf{ Load M\+B\+CS }&\textbf{ Typedef }\\\cline{1-5}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\rowcolor{\tableheadbgcolor}\textbf{ Interface }&\textbf{ Case-\/sensitive }&\textbf{ Load U\+T\+F-\/8 }&\textbf{ Load M\+B\+CS }&\textbf{ Typedef }\\\cline{1-5}
+\endhead
+\rowcolor{\tableheadbgcolor}\textbf{ S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+G\+E\+N\+E\+R\+IC }\\\cline{1-5}
+char &No &Yes &Yes \#1 &C\+Simple\+IniA \\\cline{1-5}
+char &Yes &Yes &Yes &C\+Simple\+Ini\+CaseA \\\cline{1-5}
+wchar\+\_\+t &No &Yes &Yes &C\+Simple\+IniW \\\cline{1-5}
+wchar\+\_\+t &Yes &Yes &Yes &C\+Simple\+Ini\+CaseW \\\cline{1-5}
+\rowcolor{\tableheadbgcolor}\textbf{ S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+W\+I\+N32 }\\\cline{1-5}
+char &No &No \#2 &Yes &C\+Simple\+IniA \\\cline{1-5}
+char &Yes &Yes &Yes &C\+Simple\+Ini\+CaseA \\\cline{1-5}
+wchar\+\_\+t &No &Yes &Yes &C\+Simple\+IniW \\\cline{1-5}
+wchar\+\_\+t &Yes &Yes &Yes &C\+Simple\+Ini\+CaseW \\\cline{1-5}
+\rowcolor{\tableheadbgcolor}\textbf{ S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+I\+CU }\\\cline{1-5}
+char &No &Yes &Yes &C\+Simple\+IniA \\\cline{1-5}
+char &Yes &Yes &Yes &C\+Simple\+Ini\+CaseA \\\cline{1-5}
+U\+Char &No &Yes &Yes &C\+Simple\+IniW \\\cline{1-5}
+U\+Char &Yes &Yes &Yes &C\+Simple\+Ini\+CaseW \\\cline{1-5}
+\end{longtabu}
+\#1 On Windows you are better to use C\+Simple\+IniA with S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+W\+I\+N32.~\newline
+ \#2 Only affects Windows. On Windows this uses M\+B\+CS functions and so may fold case incorrectly leading to uncertain results.
+\item Call Load\+Data() or Load\+File() to load and parse the I\+NI configuration file
+\item Access and modify the data of the file using the following functions \tabulinesep=1mm
+\begin{longtabu} spread 0pt [c]{*{2}{|X[-1]}|}
+\hline
+Get\+All\+Sections &Return all section names \\\cline{1-2}
+Get\+All\+Keys &Return all key names within a section \\\cline{1-2}
+Get\+All\+Values &Return all values within a section \& key \\\cline{1-2}
+Get\+Section &Return all key names and values in a section \\\cline{1-2}
+Get\+Section\+Size &Return the number of keys in a section \\\cline{1-2}
+Get\+Value &Return a value for a section \& key \\\cline{1-2}
+Set\+Value &Add or update a value for a section \& key \\\cline{1-2}
+Delete &Remove a section, or a key from a section \\\cline{1-2}
+\end{longtabu}
 
-Questions, bug reporting and issue tracking are provided by Git\+Hub. Please report all bugs by creating a new issue with the bug tag. You can ask questions by creating a new issue with the question tag.
+\item Call Save() or Save\+File() to save the I\+NI configuration data
+\end{DoxyEnumerate}\hypertarget{index_iostreams}{}\section{I\+O S\+T\+R\+E\+A\+MS}\label{index_iostreams}
+Simple\+Ini supports reading from and writing to S\+TL IO streams. Enable this by defining S\+I\+\_\+\+S\+U\+P\+P\+O\+R\+T\+\_\+\+I\+O\+S\+T\+R\+E\+A\+MS before including the \hyperlink{a00473_source}{Simple\+Ini.\+h} header file. Ensure that if the streams are backed by a file (e.\+g. ifstream or ofstream) then the flag ios\+\_\+base\+::binary has been used when the file was opened.\hypertarget{index_multiline}{}\section{M\+U\+L\+T\+I-\/\+L\+I\+N\+E V\+A\+L\+U\+ES}\label{index_multiline}
+Values that span multiple lines are created using the following format.
 
-\subsection*{License }
 
-X\+A\+CC has a \mbox{[}B\+SD 3-\/clause open-\/source license\mbox{]}(L\+I\+C\+E\+N\+SE). 
+\begin{DoxyPre}
+    key = <<<ENDTAG
+    .... multiline value ....
+    ENDTAG
+    \end{DoxyPre}
+
+
+Note the following\+:
+\begin{DoxyItemize}
+\item The text used for E\+N\+D\+T\+AG can be anything and is used to find where the multi-\/line text ends.
+\item The newline after E\+N\+D\+T\+AG in the start tag, and the newline before E\+N\+D\+T\+AG in the end tag is not included in the data value.
+\item The ending tag must be on it\textquotesingle{}s own line with no whitespace before or after it.
+\item The multi-\/line value is modified at load so that each line in the value is delimited by a single \textquotesingle{}\textbackslash{}n\textquotesingle{} character on all platforms. At save time it will be converted into the newline format used by the current platform.
+\end{DoxyItemize}\hypertarget{index_comments}{}\section{C\+O\+M\+M\+E\+N\+TS}\label{index_comments}
+Comments are preserved in the file within the following restrictions\+:
+\begin{DoxyItemize}
+\item Every file may have a single \char`\"{}file comment\char`\"{}. It must start with the first character in the file, and will end with the first non-\/comment line in the file.
+\item Every section may have a single \char`\"{}section comment\char`\"{}. It will start with the first comment line following the file comment, or the last data entry. It ends at the beginning of the section.
+\item Every key may have a single \char`\"{}key comment\char`\"{}. This comment will start with the first comment line following the section start, or the file comment if there is no section name.
+\item Comments are set at the time that the file, section or key is first created. The only way to modify a comment on a section or a key is to delete that entry and recreate it with the new comment. There is no way to change the file comment.
+\end{DoxyItemize}\hypertarget{index_save}{}\section{S\+A\+V\+E O\+R\+D\+ER}\label{index_save}
+The sections and keys are written out in the same order as they were read in from the file. Sections and keys added to the data after the file has been loaded will be added to the end of the file when it is written. There is no way to specify the location of a section or key other than in first-\/created, first-\/saved order.\hypertarget{index_notes}{}\section{N\+O\+T\+ES}\label{index_notes}
+
+\begin{DoxyItemize}
+\item To load U\+T\+F-\/8 data on Windows 95, you need to use Microsoft Layer for Unicode, or S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+G\+E\+N\+E\+R\+IC, or S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+I\+CU.
+\item When using S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+G\+E\+N\+E\+R\+IC, Convert\+U\+T\+F.\+c must be compiled and linked.
+\item When using S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+I\+CU, I\+CU header files must be on the include path and icuuc.\+lib must be linked in.
+\item To load a U\+T\+F-\/8 file on Windows A\+ND expose it with S\+I\+\_\+\+C\+H\+AR == char, you should use S\+I\+\_\+\+C\+O\+N\+V\+E\+R\+T\+\_\+\+G\+E\+N\+E\+R\+IC.
+\item The collation (sorting) order used for sections and keys returned from iterators is N\+OT D\+E\+F\+I\+N\+ED. If collation order of the text is important then it should be done yourself by either supplying a replacement S\+I\+\_\+\+S\+T\+R\+L\+E\+SS class, or by sorting the strings external to this library.
+\item Usage of the $<$mbstring.\+h$>$ header on Windows can be disabled by defining S\+I\+\_\+\+N\+O\+\_\+\+M\+B\+CS. This is defined automatically on Windows CE platforms.
+\end{DoxyItemize}\hypertarget{index_contrib}{}\section{C\+O\+N\+T\+R\+I\+B\+U\+T\+I\+O\+NS}\label{index_contrib}
+
+\begin{DoxyItemize}
+\item 2010/05/03\+: Tobias Gehrig\+: added Get\+Double\+Value()
+\end{DoxyItemize}\hypertarget{index_licence}{}\section{M\+I\+T L\+I\+C\+E\+N\+CE}\label{index_licence}
+The licence text below is the boilerplate \char`\"{}\+M\+I\+T Licence\char`\"{} used from\+: \href{http://www.opensource.org/licenses/mit-license.php}{\tt http\+://www.\+opensource.\+org/licenses/mit-\/license.\+php}
+
+Copyright (c) 2006-\/2012, Brodie Thiesfield
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \char`\"{}\+Software\char`\"{}), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions\+:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+T\+HE S\+O\+F\+T\+W\+A\+RE IS P\+R\+O\+V\+I\+D\+ED \char`\"{}\+A\+S I\+S\char`\"{}, W\+I\+T\+H\+O\+UT W\+A\+R\+R\+A\+N\+TY OF A\+NY K\+I\+ND, E\+X\+P\+R\+E\+SS OR I\+M\+P\+L\+I\+ED, I\+N\+C\+L\+U\+D\+I\+NG B\+UT N\+OT L\+I\+M\+I\+T\+ED TO T\+HE W\+A\+R\+R\+A\+N\+T\+I\+ES OF M\+E\+R\+C\+H\+A\+N\+T\+A\+B\+I\+L\+I\+TY, F\+I\+T\+N\+E\+SS F\+OR A P\+A\+R\+T\+I\+C\+U\+L\+AR P\+U\+R\+P\+O\+SE A\+ND N\+O\+N\+I\+N\+F\+R\+I\+N\+G\+E\+M\+E\+NT. IN NO E\+V\+E\+NT S\+H\+A\+LL T\+HE A\+U\+T\+H\+O\+RS OR C\+O\+P\+Y\+R\+I\+G\+HT H\+O\+L\+D\+E\+RS BE L\+I\+A\+B\+LE F\+OR A\+NY C\+L\+A\+IM, D\+A\+M\+A\+G\+ES OR O\+T\+H\+ER L\+I\+A\+B\+I\+L\+I\+TY, W\+H\+E\+T\+H\+ER IN AN A\+C\+T\+I\+ON OF C\+O\+N\+T\+R\+A\+CT, T\+O\+RT OR O\+T\+H\+E\+R\+W\+I\+SE, A\+R\+I\+S\+I\+NG F\+R\+OM, O\+UT OF OR IN C\+O\+N\+N\+E\+C\+T\+I\+ON W\+I\+TH T\+HE S\+O\+F\+T\+W\+A\+RE OR T\+HE U\+SE OR O\+T\+H\+ER D\+E\+A\+L\+I\+N\+GS IN T\+HE S\+O\+F\+T\+W\+A\+RE. 

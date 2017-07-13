@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['parse',['parse',['../a01187.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser']]],
-  ['persist',['persist',['../a00979.html#abcbfd0a4cf697843391c65cbd9a82080',1,'xacc::quantum::DWIR::persist()'],['../a01027.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a01175.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
-  ['preprocessor',['Preprocessor',['../a01135.html',1,'xacc']]],
-  ['print',['print',['../a01107.html#a9252d30be0563f36bf1ff839c7104cd7',1,'xacc::quantum::SimulatedQubits::print(std::ostream &amp;stream)'],['../a01107.html#a32922bd2ccc64bba601c07a3c136cc3d',1,'xacc::quantum::SimulatedQubits::print()']]],
-  ['process',['process',['../a00991.html#ad4f9ba1f83ea45ed376f36e3853c668d',1,'xacc::quantum::KernelReplacementPreprocessor::process()'],['../a01135.html#ae59b5a2963f8bcc84b590a83f4749e19',1,'xacc::Preprocessor::process()']]],
-  ['program',['Program',['../a01183.html',1,'xacc::Program'],['../a01183.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program::Program()']]]
+  ['operator_21_3d',['operator!=',['../a01445.html#a53ac3eadb4a5047c56e749b7e7c4d53d',1,'fire::Tensor']]],
+  ['operator_28_29',['operator()',['../a01445.html#a07cc44df958ab73a79d15c6d96fa5544',1,'fire::Tensor']]],
+  ['operator_2a',['operator*',['../a01445.html#a67952b93c6812069d521522bf9b3b887',1,'fire::Tensor::operator*(OtherDerived &amp;other)'],['../a01445.html#a6de8950823ff713b7226e332b02f15f8',1,'fire::Tensor::operator*(Scalar val)']]],
+  ['operator_2b',['operator+',['../a01445.html#a20377472ae56dcaa2c0f67feb13900e7',1,'fire::Tensor']]],
+  ['operator_3d_3d',['operator==',['../a01445.html#a5f24a2528292de76b6c52e2cc99acf9c',1,'fire::Tensor']]],
+  ['optionsprovider',['OptionsProvider',['../a01721.html',1,'xacc']]],
+  ['order',['order',['../a01713.html#a50fca47e555122b5bb72e93e719484b4',1,'xacc::Graph']]],
+  ['outputwriter',['OutputWriter',['../a01497.html',1,'CSimpleIniTempl']]]
 ];

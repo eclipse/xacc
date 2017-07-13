@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['scaffoldstr',['scaffoldStr',['../a00955.html#a4b4c3b769a275d544beb26b1894e476a',1,'xacc::quantum::ScaffoldIRToSrcVisitor']]],
-  ['src',['src',['../a01183.html#aae78160f9f9e52a3e0c9b342996a7202',1,'xacc::Program']]],
-  ['state',['state',['../a01119.html#a4632123ac31aeed0dc97c65f8c792a85',1,'xacc::AcceleratorBit']]]
+  ['kernels',['kernels',['../a01217.html#abcb04ec3a152c3f22e5a757a9aecabf2',1,'xacc::quantum::DWIR::kernels()'],['../a01265.html#ae75a4af0ce455eee1ce316c16426a661',1,'xacc::quantum::GateQIR::kernels()']]],
+  ['kernelsource',['kernelSource',['../a01629.html#a0ad81c816c09e5113d03cdc02165c453',1,'xacc::Compiler']]]
 ];

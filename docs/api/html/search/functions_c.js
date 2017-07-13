@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['parse',['parse',['../a01187.html#a9731a7f55a0ff2a0164e30f626797016',1,'xacc::CLIParser']]],
-  ['persist',['persist',['../a00979.html#abcbfd0a4cf697843391c65cbd9a82080',1,'xacc::quantum::DWIR::persist()'],['../a01027.html#a40e1d07e4dfd3794ef53fca3cdbdca61',1,'xacc::quantum::GateQIR::persist()'],['../a01175.html#a414b72224d88473ad6190bb88102a3ea',1,'xacc::IR::persist()']]],
-  ['print',['print',['../a01107.html#a9252d30be0563f36bf1ff839c7104cd7',1,'xacc::quantum::SimulatedQubits::print(std::ostream &amp;stream)'],['../a01107.html#a32922bd2ccc64bba601c07a3c136cc3d',1,'xacc::quantum::SimulatedQubits::print()']]],
-  ['process',['process',['../a00991.html#ad4f9ba1f83ea45ed376f36e3853c668d',1,'xacc::quantum::KernelReplacementPreprocessor::process()'],['../a01135.html#ae59b5a2963f8bcc84b590a83f4749e19',1,'xacc::Preprocessor::process()']]],
-  ['program',['Program',['../a01183.html#a6d20079fde67a3ef145315e762249115',1,'xacc::Program']]]
+  ['name',['name',['../a01153.html#a367d7fb040def889895303a600021675',1,'Shor15FakeEmbedding::name()'],['../a01189.html#a21079dc8ee37792977f5fd209e3f3b19',1,'xacc::quantum::EmbeddingAlgorithm::name()']]],
+  ['next',['next',['../a01661.html#a0a2e2b1543650760a869460ebcd4382b',1,'xacc::InstructionIterator']]],
+  ['ninstructions',['nInstructions',['../a01221.html#a79aecc7419a20b8779372ef36fc24806',1,'xacc::quantum::DWKernel::nInstructions()'],['../a01249.html#aa70b26156c060fec71316fe5e98bb102',1,'xacc::quantum::GateFunction::nInstructions()'],['../a01653.html#a8901985525f59713e14c61713e07c086',1,'xacc::Function::nInstructions()']]],
+  ['normalize',['normalize',['../a01345.html#a09ee499769bb1eedaf08d6b5c29f9791',1,'xacc::quantum::SimulatedQubits']]],
+  ['nparameters',['nParameters',['../a01221.html#a029429948329b94c1d89f32cf5c486d4',1,'xacc::quantum::DWKernel::nParameters()'],['../a01225.html#afdfc8b852ba29c2b21c5c368098ffc4c',1,'xacc::quantum::DWQMI::nParameters()'],['../a01249.html#ad0bffcbc0884d81d6bdddf55385fc6c9',1,'xacc::quantum::GateFunction::nParameters()'],['../a01253.html#a3752912b2c402668ca4814e21d4bbd26',1,'xacc::quantum::GateInstruction::nParameters()'],['../a01657.html#ad54585d13c04ffd20296fff7ab8107ff',1,'xacc::Instruction::nParameters()']]]
 ];

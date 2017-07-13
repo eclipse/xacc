@@ -1,0 +1,321 @@
+\hypertarget{a01225}{}\section{xacc\+:\+:quantum\+:\+:D\+W\+Q\+MI Class Reference}
+\label{a01225}\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+
+
+{\ttfamily \#include $<$D\+W\+Q\+M\+I.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+W\+Q\+MI\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a01225}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a01225_a7fa74443cf18934c1f166e8343eada48}{D\+W\+Q\+MI} (int qbit)
+\item 
+\hyperlink{a01225_a219507677fcdf59ee0ddfa8c78e59539}{D\+W\+Q\+MI} (int qbit, double param)
+\item 
+\hyperlink{a01225_aabe1dbbc737114b2f96434592e1f115a}{D\+W\+Q\+MI} (int qbit1, int qbit2, double param)
+\item 
+virtual const std\+::string \hyperlink{a01225_ad93428eb61adade7bb99c7633bb02aca}{get\+Name} ()
+\item 
+virtual const std\+::string \hyperlink{a01225_a8d8742bb6743cf6e49f95966d05bbec2}{to\+String} (const std\+::string \&buffer\+Var\+Name)
+\item 
+virtual const std\+::vector$<$ int $>$ \hyperlink{a01225_a76939c29e4763d10c57ea9a270229421}{bits} ()
+\item 
+virtual Instruction\+Parameter \hyperlink{a01225_aa15882df55d3f0af3a2ec9d72a2db4c0}{get\+Parameter} (const int idx)
+\item 
+virtual std\+::vector$<$ Instruction\+Parameter $>$ \hyperlink{a01225_a896d9a4e2876129c2cf81ef028daf1ff}{get\+Parameters} ()
+\item 
+virtual void \hyperlink{a01225_a194b5b9f58262774fde0285f4c3f60af}{set\+Parameter} (const int idx, Instruction\+Parameter \&inst)
+\item 
+virtual const int \hyperlink{a01225_afdfc8b852ba29c2b21c5c368098ffc4c}{n\+Parameters} ()
+\item 
+virtual bool \hyperlink{a01225_aee43b2e499f122dfe250b529a3f77add}{is\+Parameterized} ()
+\item 
+virtual bool \hyperlink{a01225_ad2b3b4ee72dee48150bf78d92c52e5e0}{is\+Composite} ()
+\item 
+virtual bool \hyperlink{a01225_aea76901b30d85172ef26fc317b4c0ed7}{is\+Enabled} ()
+\item 
+virtual void \hyperlink{a01225_af6d9120d8f60984767a330d5cfe9140f}{disable} ()
+\item 
+virtual void \hyperlink{a01225_ae4f563cead75aaa43f06db83e90ee855}{enable} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ int $>$ \hyperlink{a01225_a5fc6e587225f365b150ef58fc7d2ed32}{qubits}
+\item 
+Instruction\+Parameter \hyperlink{a01225_a30249f83412fb56f7c8be9ec0ad726a9}{parameter}
+\item 
+bool \hyperlink{a01225_ae06f0e1952dea7381cbae3cd3954de1f}{enabled} = true
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a01225}{D\+W\+Q\+MI} (D=Wave Quantum Machine \hyperlink{a01657}{Instruction}) class is an X\+A\+CC \hyperlink{a01657}{Instruction} that models a logical problem or hardware bias or connection for an optimization problem to be solved on the D-\/\+Wave Q\+PU. It keeps track of 2 bits indices, if both are the same index then this \hyperlink{a01225}{D\+W\+Q\+MI} \hyperlink{a01657}{Instruction} models a bias value, and if they are different indices, then this \hyperlink{a01657}{Instruction} models a logical coupling.
+
+Note that this class can model both problem bias/couplings and hardware bias/couplings. The hardware bias/couplings result from a minor graph embedding computation. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{a01225_a7fa74443cf18934c1f166e8343eada48}\label{a01225_a7fa74443cf18934c1f166e8343eada48}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!D\+W\+Q\+MI@{D\+W\+Q\+MI}}
+\index{D\+W\+Q\+MI@{D\+W\+Q\+MI}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{D\+W\+Q\+M\+I()}{DWQMI()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::\+D\+W\+Q\+MI (\begin{DoxyParamCaption}\item[{int}]{qbit }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The Constructor, takes one qubit indicating this is a bias value, initialized to 0.\+0
+
+
+\begin{DoxyParams}{Parameters}
+{\em qbit} & The bit index \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{a01225_a219507677fcdf59ee0ddfa8c78e59539}\label{a01225_a219507677fcdf59ee0ddfa8c78e59539}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!D\+W\+Q\+MI@{D\+W\+Q\+MI}}
+\index{D\+W\+Q\+MI@{D\+W\+Q\+MI}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{D\+W\+Q\+M\+I()}{DWQMI()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::\+D\+W\+Q\+MI (\begin{DoxyParamCaption}\item[{int}]{qbit,  }\item[{double}]{param }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The Constructor, takes one qubit indicating this is a bias value, but set to the provided bias.
+
+
+\begin{DoxyParams}{Parameters}
+{\em qbit} & The bit index \\
+\hline
+{\em param} & The bias value \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{a01225_aabe1dbbc737114b2f96434592e1f115a}\label{a01225_aabe1dbbc737114b2f96434592e1f115a}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!D\+W\+Q\+MI@{D\+W\+Q\+MI}}
+\index{D\+W\+Q\+MI@{D\+W\+Q\+MI}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{D\+W\+Q\+M\+I()}{DWQMI()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::\+D\+W\+Q\+MI (\begin{DoxyParamCaption}\item[{int}]{qbit1,  }\item[{int}]{qbit2,  }\item[{double}]{param }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The Constructor, takes two qubit indices to indicate that this is a coupler, with value given by the provided parameter.
+
+
+\begin{DoxyParams}{Parameters}
+{\em qbit1} & The bit index \\
+\hline
+{\em qbit2} & The bit index \\
+\hline
+{\em param} & The coupling weight \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{a01225_a76939c29e4763d10c57ea9a270229421}\label{a01225_a76939c29e4763d10c57ea9a270229421}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!bits@{bits}}
+\index{bits@{bits}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{bits()}{bits()}}
+{\footnotesize\ttfamily virtual const std\+::vector$<$int$>$ xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::bits (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the indices of the bits that this \hyperlink{a01657}{Instruction} operates on.
+
+\begin{DoxyReturn}{Returns}
+bits The bits this \hyperlink{a01657}{Instruction} operates on. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_a819f32e94c3e1c9e69a0061aaf8d86dc}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_af6d9120d8f60984767a330d5cfe9140f}\label{a01225_af6d9120d8f60984767a330d5cfe9140f}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!disable@{disable}}
+\index{disable@{disable}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{disable()}{disable()}}
+{\footnotesize\ttfamily virtual void xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::disable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Disable this \hyperlink{a01657}{Instruction} 
+
+Reimplemented from \hyperlink{a01657_a6e528da15e05a94cc1d7db268c483271}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_ae4f563cead75aaa43f06db83e90ee855}\label{a01225_ae4f563cead75aaa43f06db83e90ee855}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!enable@{enable}}
+\index{enable@{enable}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{enable()}{enable()}}
+{\footnotesize\ttfamily virtual void xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::enable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Enable this \hyperlink{a01657}{Instruction}. 
+
+Reimplemented from \hyperlink{a01657_a0b4f2e5a591af28342a3c08e4305e24f}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_ad93428eb61adade7bb99c7633bb02aca}\label{a01225_ad93428eb61adade7bb99c7633bb02aca}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{get\+Name()}{getName()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the name of this \hyperlink{a01657}{Instruction}
+
+\begin{DoxyReturn}{Returns}
+name The name of this \hyperlink{a01657}{Instruction} 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_ac7ff23f693e2276edbf3fdac5452792c}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_aa15882df55d3f0af3a2ec9d72a2db4c0}\label{a01225_aa15882df55d3f0af3a2ec9d72a2db4c0}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!get\+Parameter@{get\+Parameter}}
+\index{get\+Parameter@{get\+Parameter}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{get\+Parameter()}{getParameter()}}
+{\footnotesize\ttfamily virtual Instruction\+Parameter xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::get\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return this \hyperlink{a01657}{Instruction}\textquotesingle{}s parameter at the given index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & The index of the parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+param The Instruction\+Parameter at the given index. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_aa0d9de97a4833a042379647f83c33ab6}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_a896d9a4e2876129c2cf81ef028daf1ff}\label{a01225_a896d9a4e2876129c2cf81ef028daf1ff}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!get\+Parameters@{get\+Parameters}}
+\index{get\+Parameters@{get\+Parameters}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{get\+Parameters()}{getParameters()}}
+{\footnotesize\ttfamily virtual std\+::vector$<$Instruction\+Parameter$>$ xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::get\+Parameters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return all of this \hyperlink{a01657}{Instruction}\textquotesingle{}s parameters.
+
+\begin{DoxyReturn}{Returns}
+params This instructions parameters. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_aeb67c67713896e8f27a5c7dd531f3340}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_ad2b3b4ee72dee48150bf78d92c52e5e0}\label{a01225_ad2b3b4ee72dee48150bf78d92c52e5e0}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!is\+Composite@{is\+Composite}}
+\index{is\+Composite@{is\+Composite}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{is\+Composite()}{isComposite()}}
+{\footnotesize\ttfamily virtual bool xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::is\+Composite (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Returns true if this \hyperlink{a01657}{Instruction} is composite, ie, contains other Instructions.
+
+\begin{DoxyReturn}{Returns}
+is\+Composite True if this is a composite \hyperlink{a01657}{Instruction} 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a01657_a4383f1036d0fcfe890ab9c613dbd5f38}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_aea76901b30d85172ef26fc317b4c0ed7}\label{a01225_aea76901b30d85172ef26fc317b4c0ed7}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!is\+Enabled@{is\+Enabled}}
+\index{is\+Enabled@{is\+Enabled}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{is\+Enabled()}{isEnabled()}}
+{\footnotesize\ttfamily virtual bool xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::is\+Enabled (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Returns true if this \hyperlink{a01657}{Instruction} is enabled
+
+\begin{DoxyReturn}{Returns}
+enabled True if this \hyperlink{a01657}{Instruction} is enabled. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a01657_ad02a1cf7220577124720b7a51424cea7}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_aee43b2e499f122dfe250b529a3f77add}\label{a01225_aee43b2e499f122dfe250b529a3f77add}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!is\+Parameterized@{is\+Parameterized}}
+\index{is\+Parameterized@{is\+Parameterized}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{is\+Parameterized()}{isParameterized()}}
+{\footnotesize\ttfamily virtual bool xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::is\+Parameterized (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return true if this \hyperlink{a01657}{Instruction} is parameterized.
+
+\begin{DoxyReturn}{Returns}
+parameterized True if this \hyperlink{a01657}{Instruction} has parameters. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a01657_a7b24d8ae485369fc2b2df7a3224a5e26}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_afdfc8b852ba29c2b21c5c368098ffc4c}\label{a01225_afdfc8b852ba29c2b21c5c368098ffc4c}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!n\+Parameters@{n\+Parameters}}
+\index{n\+Parameters@{n\+Parameters}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{n\+Parameters()}{nParameters()}}
+{\footnotesize\ttfamily virtual const int xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::n\+Parameters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Return the number of Instruction\+Parameters this \hyperlink{a01657}{Instruction} contains.
+
+\begin{DoxyReturn}{Returns}
+n\+Insts The number of instructions. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_ad54585d13c04ffd20296fff7ab8107ff}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_a194b5b9f58262774fde0285f4c3f60af}\label{a01225_a194b5b9f58262774fde0285f4c3f60af}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!set\+Parameter@{set\+Parameter}}
+\index{set\+Parameter@{set\+Parameter}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{set\+Parameter()}{setParameter()}}
+{\footnotesize\ttfamily virtual void xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::set\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{idx,  }\item[{Instruction\+Parameter \&}]{inst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Set this \hyperlink{a01657}{Instruction}\textquotesingle{}s parameter at the given index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em idx} & The index of the parameter \\
+\hline
+{\em inst} & The instruction. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a01657_a407a0ac662fa0b1ec3e301e8ff9bade7}{xacc\+::\+Instruction}.
+
+\mbox{\Hypertarget{a01225_a8d8742bb6743cf6e49f95966d05bbec2}\label{a01225_a8d8742bb6743cf6e49f95966d05bbec2}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{to\+String()}{toString()}}
+{\footnotesize\ttfamily virtual const std\+::string xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::to\+String (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{buffer\+Var\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Persist this \hyperlink{a01657}{Instruction} to an assembly-\/like string.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+Var\+Name} & The name of the \hyperlink{a01625}{Accelerator\+Buffer} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+str The assembly-\/like string. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a01657_ae94c2d089908294c1d410b14c96817ae}{xacc\+::\+Instruction}.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{a01225_ae06f0e1952dea7381cbae3cd3954de1f}\label{a01225_ae06f0e1952dea7381cbae3cd3954de1f}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!enabled@{enabled}}
+\index{enabled@{enabled}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{enabled}{enabled}}
+{\footnotesize\ttfamily bool xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::enabled = true\hspace{0.3cm}{\ttfamily [protected]}}
+
+Is this \hyperlink{a01657}{Instruction} enabled or disabled. \mbox{\Hypertarget{a01225_a30249f83412fb56f7c8be9ec0ad726a9}\label{a01225_a30249f83412fb56f7c8be9ec0ad726a9}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!parameter@{parameter}}
+\index{parameter@{parameter}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{parameter}{parameter}}
+{\footnotesize\ttfamily Instruction\+Parameter xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::parameter\hspace{0.3cm}{\ttfamily [protected]}}
+
+The bias or coupling value. \mbox{\Hypertarget{a01225_a5fc6e587225f365b150ef58fc7d2ed32}\label{a01225_a5fc6e587225f365b150ef58fc7d2ed32}} 
+\index{xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}!qubits@{qubits}}
+\index{qubits@{qubits}!xacc\+::quantum\+::\+D\+W\+Q\+MI@{xacc\+::quantum\+::\+D\+W\+Q\+MI}}
+\subsubsection{\texorpdfstring{qubits}{qubits}}
+{\footnotesize\ttfamily std\+::vector$<$int$>$ xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+::qubits\hspace{0.3cm}{\ttfamily [protected]}}
+
+The qubits involved in this \hyperlink{a01657}{Instruction} 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+D\+W\+Q\+M\+I.\+hpp\end{DoxyCompactItemize}

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>XACC: Member List</title>
+<title>XACC: xacc::quantum::ScaffoldASTConsumer Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -59,19 +59,79 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a01176.html">DefaultEdge</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a01173.html">ScaffoldASTConsumer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="a01170.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::DefaultEdge Member List</div>  </div>
+<div class="title">xacc::quantum::ScaffoldASTConsumer Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p>This is the complete list of members for <a class="el" href="a01176.html">xacc::DefaultEdge</a>, including all inherited members.</p>
-<table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>weight</b> (defined in <a class="el" href="a01176.html">xacc::DefaultEdge</a>)</td><td class="entry"><a class="el" href="a01176.html">xacc::DefaultEdge</a></td><td class="entry"></td></tr>
-</table></div><!-- contents -->
+<div class="dynheader">
+Inheritance diagram for xacc::quantum::ScaffoldASTConsumer:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a01173.png" usemap="#xacc::quantum::ScaffoldASTConsumer_map" alt=""/>
+  <map id="xacc::quantum::ScaffoldASTConsumer_map" name="xacc::quantum::ScaffoldASTConsumer_map">
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ae846fd40684f3a1f820b8711e1204089"><td class="memItemLeft" align="right" valign="top"><a id="ae846fd40684f3a1f820b8711e1204089"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleTopLevelDecl</b> (DeclGroupRef DR)</td></tr>
+<tr class="separator:ae846fd40684f3a1f820b8711e1204089"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6693c27f68332d8142fbdcb405e3259b"><td class="memItemLeft" align="right" valign="top"><a id="a6693c27f68332d8142fbdcb405e3259b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitStmt</b> (clang::Stmt *s)</td></tr>
+<tr class="separator:a6693c27f68332d8142fbdcb405e3259b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6a05fe567cd8ea15feb694dbb898c33"><td class="memItemLeft" align="right" valign="top"><a id="ae6a05fe567cd8ea15feb694dbb898c33"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitDecl</b> (clang::Decl *d)</td></tr>
+<tr class="separator:ae6a05fe567cd8ea15feb694dbb898c33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1478fc9e887b04d2ad2aa8347ef6bbcb"><td class="memItemLeft" align="right" valign="top"><a id="a1478fc9e887b04d2ad2aa8347ef6bbcb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitCallExpr</b> (CallExpr *c)</td></tr>
+<tr class="separator:a1478fc9e887b04d2ad2aa8347ef6bbcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f2f070888678caf53e57041b4f5ddd6"><td class="memItemLeft" align="right" valign="top"><a id="a3f2f070888678caf53e57041b4f5ddd6"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>VisitBinaryOperator</b> (BinaryOperator *b)</td></tr>
+<tr class="separator:a3f2f070888678caf53e57041b4f5ddd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9dbfa7c52b8a7de99132257e154e29a"><td class="memItemLeft" align="right" valign="top"><a id="af9dbfa7c52b8a7de99132257e154e29a"></a>
+std::shared_ptr&lt; <a class="el" href="a01677.html">xacc::IR</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getIR</b> ()</td></tr>
+<tr class="separator:af9dbfa7c52b8a7de99132257e154e29a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa301f0bcae6fb5a1c17557ba08144cb4"><td class="memItemLeft" align="right" valign="top"><a id="aa301f0bcae6fb5a1c17557ba08144cb4"></a>
+const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getQubitVariableName</b> ()</td></tr>
+<tr class="separator:aa301f0bcae6fb5a1c17557ba08144cb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a62efc9fb3166e7f9d0a7ccb71dc5eb59"><td class="memItemLeft" align="right" valign="top"><a id="a62efc9fb3166e7f9d0a7ccb71dc5eb59"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>cbitVarName</b></td></tr>
+<tr class="separator:a62efc9fb3166e7f9d0a7ccb71dc5eb59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa908356dd67cb918d7cc913783760f9"><td class="memItemLeft" align="right" valign="top"><a id="aaa908356dd67cb918d7cc913783760f9"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>qbitVarName</b></td></tr>
+<tr class="separator:aaa908356dd67cb918d7cc913783760f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addb230351a9ceaeb55496adc57f2b748"><td class="memItemLeft" align="right" valign="top"><a id="addb230351a9ceaeb55496adc57f2b748"></a>
+std::shared_ptr&lt; <a class="el" href="a01265.html">xacc::quantum::GateQIR</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ir</b></td></tr>
+<tr class="separator:addb230351a9ceaeb55496adc57f2b748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78d4c0227cf55778cb05f2262357c3a9"><td class="memItemLeft" align="right" valign="top"><a id="a78d4c0227cf55778cb05f2262357c3a9"></a>
+std::shared_ptr&lt; <a class="el" href="a01249.html">xacc::quantum::GateFunction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>function</b></td></tr>
+<tr class="separator:a78d4c0227cf55778cb05f2262357c3a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a481378bd7158942633a555500871b363"><td class="memItemLeft" align="right" valign="top"><a id="a481378bd7158942633a555500871b363"></a>
+std::shared_ptr&lt; <a class="el" href="a01273.html">xacc::quantum::ConditionalFunction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>currentConditional</b></td></tr>
+<tr class="separator:a481378bd7158942633a555500871b363"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3be085dc66ddcf3f6e0530a17b26e66a"><td class="memItemLeft" align="right" valign="top"><a id="a3be085dc66ddcf3f6e0530a17b26e66a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>nCallExprToSkip</b> = 0</td></tr>
+<tr class="separator:a3be085dc66ddcf3f6e0530a17b26e66a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6675849cfdd92413a688c6999dda40a8"><td class="memItemLeft" align="right" valign="top"><a id="a6675849cfdd92413a688c6999dda40a8"></a>
+std::map&lt; std::string, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>cbitRegToMeasuredQubit</b></td></tr>
+<tr class="separator:a6675849cfdd92413a688c6999dda40a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00071_source.html">ScaffoldASTConsumer.hpp</a></li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

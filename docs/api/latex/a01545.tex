@@ -1,0 +1,83 @@
+\hypertarget{a01545}{}\section{Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$ Class Template Reference}
+\label{a01545}\index{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$@{Simple\+Web\+::\+Client\+Base$<$ socket\+\_\+type $>$}}
+Inheritance diagram for Simple\+Web\+:\+:Client\+Base$<$ socket\+\_\+type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a01545}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{a01553}{Config}
+\item 
+class \hyperlink{a01549}{Response}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01545_ac8a838ace77f0a1a19b8cb03bdba7e74}\label{a01545_ac8a838ace77f0a1a19b8cb03bdba7e74}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01549}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path=\char`\"{}/\char`\"{}, boost\+::string\+\_\+ref content=\char`\"{}\char`\"{}, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+\mbox{\Hypertarget{a01545_aca6cb17dbea9adf0cf1daf9d1ea70f76}\label{a01545_aca6cb17dbea9adf0cf1daf9d1ea70f76}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01549}{Response} $>$ {\bfseries request} (const std\+::string \&request\+\_\+type, const std\+::string \&path, std\+::iostream \&content, const std\+::map$<$ std\+::string, std\+::string $>$ \&header=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+\mbox{\Hypertarget{a01545_ad21735a9bda2fae6aedd811efae981e1}\label{a01545_ad21735a9bda2fae6aedd811efae981e1}} 
+void {\bfseries close} ()
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01545_af17ddd25319c4f9029969441dfd54eff}\label{a01545_af17ddd25319c4f9029969441dfd54eff}} 
+\hyperlink{a01553}{Config} \hyperlink{a01545_af17ddd25319c4f9029969441dfd54eff}{config}
+\begin{DoxyCompactList}\small\item\em Set before calling request. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01545_a4a74d44c9df44d0d469ad453bdac43bf}\label{a01545_a4a74d44c9df44d0d469ad453bdac43bf}} 
+{\bfseries Client\+Base} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)
+\item 
+\mbox{\Hypertarget{a01545_ac511a8e5de870f533f8c28270c82dbfa}\label{a01545_ac511a8e5de870f533f8c28270c82dbfa}} 
+std\+::pair$<$ std\+::string, unsigned short $>$ {\bfseries parse\+\_\+host\+\_\+port} (const std\+::string \&host\+\_\+port, unsigned short default\+\_\+port)
+\item 
+\mbox{\Hypertarget{a01545_a4c1f364a57eaef8fd10c29a82e475010}\label{a01545_a4c1f364a57eaef8fd10c29a82e475010}} 
+virtual void {\bfseries connect} ()=0
+\item 
+\mbox{\Hypertarget{a01545_ab76f469e8f909bf046a80d5afad70469}\label{a01545_ab76f469e8f909bf046a80d5afad70469}} 
+std\+::shared\+\_\+ptr$<$ boost\+::asio\+::deadline\+\_\+timer $>$ {\bfseries get\+\_\+timeout\+\_\+timer} (std\+::size\+\_\+t timeout=0)
+\item 
+\mbox{\Hypertarget{a01545_af11668a7cbf1a4e51f694c853cb70afe}\label{a01545_af11668a7cbf1a4e51f694c853cb70afe}} 
+void {\bfseries parse\+\_\+response\+\_\+header} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a01549}{Response} $>$ \&response) const
+\item 
+\mbox{\Hypertarget{a01545_afa5ddce26ed4c7570a764e2ff003fa25}\label{a01545_afa5ddce26ed4c7570a764e2ff003fa25}} 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a01549}{Response} $>$ {\bfseries request\+\_\+read} ()
+\item 
+\mbox{\Hypertarget{a01545_ae7fa171a9555114e702cafb3f85bc7d5}\label{a01545_ae7fa171a9555114e702cafb3f85bc7d5}} 
+void {\bfseries request\+\_\+read\+\_\+chunked} (const std\+::shared\+\_\+ptr$<$ \hyperlink{a01549}{Response} $>$ \&response, boost\+::asio\+::streambuf \&streambuf)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{a01545_abe07c05fed46efc9e6aa76736961ae20}\label{a01545_abe07c05fed46efc9e6aa76736961ae20}} 
+boost\+::asio\+::io\+\_\+service {\bfseries io\+\_\+service}
+\item 
+\mbox{\Hypertarget{a01545_a2001dc43f4c3ef1f07a86eea8fbf8082}\label{a01545_a2001dc43f4c3ef1f07a86eea8fbf8082}} 
+boost\+::asio\+::ip\+::tcp\+::resolver {\bfseries resolver}
+\item 
+\mbox{\Hypertarget{a01545_a48b0e61c61cfc3d5307a0101cc30a28e}\label{a01545_a48b0e61c61cfc3d5307a0101cc30a28e}} 
+std\+::unique\+\_\+ptr$<$ socket\+\_\+type $>$ {\bfseries socket}
+\item 
+\mbox{\Hypertarget{a01545_a2c0d5c3d38f4a6a21b67918199b498da}\label{a01545_a2c0d5c3d38f4a6a21b67918199b498da}} 
+std\+::mutex {\bfseries socket\+\_\+mutex}
+\item 
+\mbox{\Hypertarget{a01545_a4436f29ffdce0b29b210cbecd972ffef}\label{a01545_a4436f29ffdce0b29b210cbecd972ffef}} 
+std\+::string {\bfseries host}
+\item 
+\mbox{\Hypertarget{a01545_aadd3336b64a1f8d559af656554ddd0e9}\label{a01545_aadd3336b64a1f8d559af656554ddd0e9}} 
+unsigned short {\bfseries port}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+client\+\_\+http.\+hpp\end{DoxyCompactItemize}
