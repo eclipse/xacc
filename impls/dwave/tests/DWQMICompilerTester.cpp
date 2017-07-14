@@ -144,8 +144,8 @@ public:
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
-	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),
-			[]() {return std::make_shared<FakeEmbedding>();});
+	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
+			[]() {return std::make_shared<FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 
 	EmbeddingAlgorithmRegistry::instance()->add(Shor15FakeEmbedding().name(),
-			[]() {return std::make_shared<Shor15FakeEmbedding>();});
+			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>([]() {return std::make_shared<Shor15FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 

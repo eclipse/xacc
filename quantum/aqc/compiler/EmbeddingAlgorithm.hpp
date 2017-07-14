@@ -105,12 +105,15 @@ template<typename T>
 class RegisterEmbeddingAlgorithm {
 public:
 	RegisterEmbeddingAlgorithm(const std::string& name) {
-		EmbeddingAlgorithmRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::quantum::EmbeddingAlgorithm>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+		EmbeddingAlgorithmRegistry::CreatorFunctionPtr f = std::make_shared<
+				EmbeddingAlgorithmRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		EmbeddingAlgorithmRegistry::instance()->add(name, f);
 	}
 };
+
+#define RegisterEmbeddingAlgorithm(TYPE) BOOST_DLL_ALIAS(TYPE::registerEmbeddingAlgorithm, registerEmbeddingAlgorithm)
 
 }
 

@@ -49,7 +49,7 @@ if (OPENSSL_FOUND)
 
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES})
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-quantum-aqc)
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 

@@ -80,8 +80,9 @@ public:
 	 * Register this Compiler with the framework.
 	 */
 	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::DWQMICompiler> Scaffold(
-				"dwave-qmi");
+		DWQMICompiler c;
+		xacc::RegisterCompiler<xacc::quantum::DWQMICompiler> DWQMITEMP(
+				"dwave-qmi", c.getOptions());
 	}
 
 	virtual const std::string translate(const std::string& bufferVariable,

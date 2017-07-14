@@ -84,8 +84,10 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 	auto options = RuntimeOptions::instance();
 
 //	DWAccelerator acc;
+//	acc.initialize();
+//	auto buffer = acc.createBuffer("qubits", 1);
 
-	auto f = std::make_shared<DWKernel>("shor15");
+	auto f = std::make_shared<DWKernel>("simple");
 
 	f->addInstruction(std::make_shared<DWQMI>(0, 0, 20));
 	f->addInstruction(std::make_shared<DWQMI>(1, 1, 50));
@@ -102,7 +104,7 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 	f->addInstruction(std::make_shared<DWQMI>(1, 6, -128));
 	f->addInstruction(std::make_shared<DWQMI>(2, 6, -128));
 
-//	acc.execute(acc.createBuffer("qubits", 1), f);
+//	acc.execute(, f);
 
 //	BOOST_VERIFY(client->postOccured);
 }

@@ -80,6 +80,7 @@ public:
 struct DefaultEdge {
 	double weight = 0.0;
 };
+typedef boost::property<boost::edge_weight_t, double> EdgeWeightProperty;
 
 enum GraphType {
 	Undirected, Directed
@@ -137,10 +138,10 @@ class Graph {
 	using graph_type = typename std::conditional<(type == GraphType::Undirected), undirectedS, directedS>::type;
 
 	// Setup some easy to use aliases
-	using adj_list = adjacency_list<vecS, vecS, graph_type, Vertex, DefaultEdge>;
+	using adj_list = adjacency_list<vecS, vecS, graph_type, Vertex, EdgeWeightProperty>;
 	using BoostGraph = std::shared_ptr<adj_list>;
-	using vertex_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, DefaultEdge>>::vertex_descriptor;
-	using edge_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, DefaultEdge>>::edge_descriptor;
+	using vertex_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, EdgeWeightProperty>>::vertex_descriptor;
+	using edge_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, EdgeWeightProperty>>::edge_descriptor;
 
 protected:
 
@@ -228,9 +229,12 @@ public:
 		auto edgeBoolPair = add_edge(vertex(srcIndex, *_graph.get()),
 				vertex(tgtIndex, *_graph.get()), *_graph.get());
 		if (!edgeBoolPair.second) {
-
+			XACCError("Failed to add an edge between " + std::to_string(srcIndex) + " and " + std::to_string(tgtIndex));
 		}
-		(*_graph.get())[edgeBoolPair.first].weight = edgeWeight;
+
+		boost::put(boost::edge_weight_t(), *_graph.get(), edgeBoolPair.first, edgeWeight);
+//		(*_graph.get())[edgeBoolPair.first].weight = edgeWeight;
+//		std::cout << "EDGE WEIGHT SET\n";
 	}
 
 	/**
@@ -328,7 +332,8 @@ public:
 	 */
 	void setEdgeWeight(const int srcIndex, const int tgtIndex, const double weight) {
 		auto e = edge(vertex(srcIndex, *_graph.get()), vertex(tgtIndex, *_graph.get()), *_graph.get());
-		(*_graph.get())[e.first].weight = weight;
+		boost::put(boost::edge_weight_t(), *_graph.get(), e.first, weight);
+//		(*_graph.get())[e.first].weight = weight;
 	}
 
 	/**
@@ -342,7 +347,8 @@ public:
 	double getEdgeWeight(const int srcIndex, const int tgtIndex) {
 		auto e = edge(vertex(srcIndex, *_graph.get()), vertex(tgtIndex, *_graph.get()), *_graph.get());
 		if (e.second) {
-			return (*_graph.get())[e.first].weight;
+			auto weight = get(boost::edge_weight_t(), *_graph.get(), e.first);
+			return weight;
 		} else {
 			return 0.0;
 		}
@@ -357,8 +363,10 @@ public:
 	 * @return exists Boolean indicating if edge exists or not
 	 */
 	bool edgeExists(const int srcIndex, const int tgtIndex) {
-		return edge(vertex(srcIndex, *_graph.get()),
-				vertex(tgtIndex, *_graph.get()), *_graph.get()).second;
+		auto v1 = vertex(srcIndex, *_graph.get());
+		auto v2 = vertex(tgtIndex, *_graph.get());
+		auto p = edge(v1, v2, *_graph.get());
+		return p.second;
 	}
 
 	/**

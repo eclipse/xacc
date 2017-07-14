@@ -53,13 +53,10 @@ int main (int argc, char** argv) {
 	// Initialize the XACC Framework
 	xacc::Initialize(argc, argv);
 
-	std::cout << "GETTING THE ACC\n";
-	auto qpu = xacc::getAccelerator("d-wave");
-	std::cout << "GOT THE ACC\n";
+	auto qpu = xacc::getAccelerator("dwave");
 
 	auto qubits = qpu->createBuffer("qbits");
 
-	std::cout << "CREATED THE BUFFER\n";
 	// Create a Program
 	xacc::Program program(qpu, src);
 

@@ -28,19 +28,6 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-#set (PACKAGE_NAME "Quantum XACC Gate Compiler Runtime")
-#set (PACKAGE_DESCIPTION "Quantum XACC Gate Compiler Utilities")
-#set (LIBRARY_NAME xacc-gate-compiler)
-
-#file (GLOB HEADERS *.hpp)
-#file (GLOB SRC *.cpp)
-
-#add_library(${LIBRARY_NAME} SHARED ${SRC})
-
-#install(FILES ${HEADERS} DESTINATION include/quantum/gate)
-#install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
-
-
 # Gather tests
 file (GLOB test_files tests/*.cpp)
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-quantum-gate")

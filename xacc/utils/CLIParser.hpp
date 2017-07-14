@@ -111,7 +111,9 @@ public:
 			for (boost::filesystem::directory_iterator itr(xaccPath);
 					itr != end_itr; ++itr) {
 				auto p = itr->path();
-				if (p.extension() == ".so") {
+				if (p.extension() == ".so"
+						&& !boost::contains(p.string(), "xacc-quantum-aqc")
+						&& !boost::contains(p.string(), "xacc-quantum-gate")) {
 					namespace dll = boost::dll;
 					dll::shared_library lib(p,
 							dll::load_mode::append_decorations);
@@ -127,14 +129,6 @@ public:
 						typedef void (RegisterAccelerator)();
 						auto regFunc = boost::dll::import_alias<
 								RegisterAccelerator>(p, "registerAccelerator",
-								dll::load_mode::append_decorations);
-						regFunc();
-					}
-					if (lib.has("registerEmbeddingAlgorithm")) {
-						typedef void (RegisterEmbeddingAlgorithm)();
-						auto regFunc = boost::dll::import_alias<
-								RegisterEmbeddingAlgorithm>(p,
-								"registerEmbeddingAlgorithm",
 								dll::load_mode::append_decorations);
 						regFunc();
 					}

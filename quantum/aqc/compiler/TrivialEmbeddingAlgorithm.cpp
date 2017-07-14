@@ -28,63 +28,44 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-
-#include "Registry.hpp"
-#include "Function.hpp"
+#include "TrivialEmbeddingAlgorithm.hpp"
 
 namespace xacc {
+namespace quantum {
+std::map<int, std::list<int>> TrivialEmbeddingAlgorithm::embed(
+		std::shared_ptr<DWGraph> problem,
+		std::shared_ptr<xacc::AcceleratorGraph> hdware,
+		std::map<std::string, std::string> params) {
 
-/**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
- *
- * @author Alex McCaskey
- */
-class AlgorithmGenerator {
-
-public:
-
-	/**
-	 * Implementations of this method generate a Function IR
-	 * instance corresponding to the implementation's modeled
-	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
-	 *
-	 * @param bits The bits this algorithm operates on
-	 * @return function The algorithm represented as an IR Function
-	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
-
-	/**
-	 * The destructor
-	 */
-	virtual ~AlgorithmGenerator() {}
-};
-
-using AlgorithmGeneratorRegistry = Registry<AlgorithmGenerator>;
-
-/**
- * RegisterAlgorithmGenerator is a convenience class for
- * registering custom derived AlgorithmGenerator classes.
- *
- * Creators of AlgorithmGenerator subclasses create an instance
- * of this class with their AlgorithmGenerator subclass as the template
- * parameter to register their AlgorithmGenerator with XACC. This instance
- * must be created in the CPP implementation file for the AlgorithmGenerator
- * and at global scope.
- */
-template<typename T>
-class RegisterAlgorithmGenerator {
-public:
-	RegisterAlgorithmGenerator(const std::string& name) {
-		AlgorithmGeneratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AlgorithmGeneratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AlgorithmGeneratorRegistry::instance()->add(name, f);
+	std::map<int, std::list<int>> xaccEmbedding;
+	bool failHard = true;
+	if (params.count("failhard")) {
+		failHard = params["failhard"] == "false" ? false : true;
 	}
-};
+
+	for (int i = 0; i < problem->order(); i++) {
+		for (int j = 0; j < problem->order(); j++) {
+			if (i < j && i != j
+					&& (problem->edgeExists(i, j) && !hdware->edgeExists(i, j))) {
+				if (failHard) {
+					XACCError(
+							"Trivial Embedding not possible, there is no hardware edge corresponding to ("
+									+ std::to_string(i) + ", "
+									+ std::to_string(j) + ") problem edge.");
+				} else {
+					XACCInfo("This embedding failed, but user requested to not fail hard. Returning empty embedding.");
+					xaccEmbedding.clear();
+					return xaccEmbedding;
+				}
+			}
+		}
+		xaccEmbedding.insert(std::make_pair(i, std::list<int>{i}));
+	}
+
+	return xaccEmbedding;
 }
-#endif
+
+xacc::quantum::RegisterEmbeddingAlgorithm<TrivialEmbeddingAlgorithm> TRIVEMB(
+				"trivial");
+}
+}

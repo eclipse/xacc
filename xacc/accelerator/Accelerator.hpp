@@ -254,16 +254,19 @@ template<typename T>
 class RegisterAccelerator {
 public:
 	RegisterAccelerator(const std::string& name) {
-		AcceleratorRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Accelerator>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
+				AcceleratorRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		AcceleratorRegistry::instance()->add(name, f);
 	}
-	RegisterAccelerator(const std::string& name, std::shared_ptr<options_description> options) {
-		AcceleratorRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Accelerator>()>) ([]() {
-					return std::make_shared<T>();
-				}), options);
+	RegisterAccelerator(const std::string& name,
+			std::shared_ptr<options_description> options) {
+		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
+				AcceleratorRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		AcceleratorRegistry::instance()->add(name, f, options);
 	}
 };
 

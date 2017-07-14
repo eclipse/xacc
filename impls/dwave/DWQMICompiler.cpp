@@ -105,7 +105,6 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		} else {
 			problemGraph->addEdge(qbit1, qbit2,
 					weightOrBias);
-
 		}
 	}
 

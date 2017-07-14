@@ -158,8 +158,62 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	std::cout << "COMPLETEDMESSAGE:\n" << message << "\n";
 
 
+	/**
+	 * Looks like we now want document["answer"]["energies"].GetArray(),
+	 * and document["answer"]["num_occurrences"].GetArray(), and
+	 * document["answer"]["solutions"]. Then we have to decode
+	 * solutions string
+	 */
 
 
+}
+
+void DWAccelerator::initialize() {
+	auto options = RuntimeOptions::instance();
+	searchAPIKey(apiKey, url);
+	auto tempURL = url;
+	boost::replace_all(tempURL, "https://", "");
+	boost::replace_all(tempURL, "/sapi", "");
+
+	// Set up the extra HTTP headers we are going to need
+	headers.insert(std::make_pair("X-Auth-Token", apiKey));
+	headers.insert(std::make_pair("Content-type", "application/x-www-form-urlencoded"));
+	headers.insert(std::make_pair("Accept", "*/*"));
+
+	// Get the Remote URL Solver data...
+	auto getSolverClient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>(tempURL, false);
+	auto r = getSolverClient.get("/sapi/solvers/remote", headers);
+
+	std::stringstream ss;
+	ss << r.content.rdbuf();
+	auto message = ss.str();
+
+	Document document;
+	document.Parse(message.c_str());
+
+	if (document.IsArray()) {
+		for (auto i = 0; i < document.Size(); i++) {
+			DWSolver solver;
+			solver.name = document[i]["id"].GetString();
+			boost::trim(solver.name);
+			solver.description = document[i]["description"].GetString();
+			if (document[i]["properties"].FindMember("j_range") != document[i]["properties"].MemberEnd()) {
+				solver.jRangeMin = document[i]["properties"]["j_range"][0].GetDouble();
+				solver.jRangeMax = document[i]["properties"]["j_range"][1].GetDouble();
+				solver.hRangeMin = document[i]["properties"]["h_range"][0].GetDouble();
+				solver.hRangeMax = document[i]["properties"]["h_range"][1].GetDouble();
+
+			}
+			solver.nQubits = document[i]["properties"]["num_qubits"].GetInt();
+
+			// Get the connectivity
+			auto couplers = document[i]["properties"]["couplers"].GetArray();
+			for (int j = 0; j < couplers.Size(); j++) {
+				solver.edges.push_back(std::make_pair(couplers[j][0].GetInt(), couplers[j][1].GetInt()));
+			}
+			availableSolvers.insert(std::make_pair(solver.name, solver));
+		}
+	}
 }
 
 void DWAccelerator::searchAPIKey(std::string& key, std::string& url) {
@@ -223,6 +277,35 @@ void DWAccelerator::findApiKeyInFile(std::string& apiKey, std::string& url,
 			url = key;
 		}
 	}
+}
+
+/**
+ * Return the graph structure for this Accelerator.
+ *
+ * @return connectivityGraph The graph structure of this Accelerator
+ */
+std::shared_ptr<AcceleratorGraph> DWAccelerator::getAcceleratorConnectivity() {
+	auto options = RuntimeOptions::instance();
+	std::string solverName = "DW_2000Q_VFYC";
+
+	if (options->exists("dwave-solver")) {
+		solverName = (*options)["dwave-solver"];
+	}
+
+	if (!availableSolvers.count(solverName)) {
+		XACCError(solverName + " is not available.");
+	}
+
+	auto solver = availableSolvers[solverName];
+
+	auto graph = std::make_shared<AcceleratorGraph>(solver.nQubits);
+
+	for (auto es : solver.edges) {
+		graph->addEdge(es.first, es.second);
+	}
+
+	return graph;
+
 }
 }
 }

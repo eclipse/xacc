@@ -59,6 +59,7 @@ struct DWSolver {
 	double hRangeMin;
 	double hRangeMax;
 	int nQubits;
+	std::vector<std::pair<int,int>> edges;
 };
 
 /**
@@ -87,6 +88,13 @@ public:
 	 * @return
 	 */
 	virtual bool isValidBufferSize(const int NBits);
+
+	/**
+	 * Return the graph structure for this Accelerator.
+	 *
+	 * @return connectivityGraph The graph structure of this Accelerator
+	 */
+	virtual std::shared_ptr<AcceleratorGraph> getAcceleratorConnectivity();
 
 	/**
 	 * Execute the kernel on the provided AcceleratorBuffer through a
@@ -139,13 +147,13 @@ public:
 	static void registerAccelerator() {
 		DWAccelerator acc;
 		xacc::RegisterAccelerator<xacc::quantum::DWAccelerator> DWTEMP(
-				"d-wave", acc.getOptions());
+				"dwave", acc.getOptions());
 	}
 
 	DWAccelerator() {
 	}
 
-	virtual void initialize() {
+	virtual void initialize(); /* {
 		auto options = RuntimeOptions::instance();
 		searchAPIKey(apiKey, url);
 		auto tempURL = url;
@@ -155,7 +163,7 @@ public:
 		// Set up the extra HTTP headers we are going to need
 		headers.insert(std::make_pair("X-Auth-Token", apiKey));
 		headers.insert(std::make_pair("Content-type", "application/x-www-form-urlencoded"));
-		headers.insert(std::make_pair("Accept", "*/*"));
+		headers.insert(std::make_pair("Accept", "**"));
 
 		// Get the Remote URL Solver data...
 		auto getSolverClient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>(tempURL, false);
@@ -165,6 +173,7 @@ public:
 		ss << r.content.rdbuf();
 		auto message = ss.str();
 
+		std::cout << "MESSAGE:\n" << message << "\n";
 		Document document;
 		document.Parse(message.c_str());
 
@@ -182,11 +191,15 @@ public:
 
 				}
 				solver.nQubits = document[i]["properties"]["num_qubits"].GetInt();
+
+				// Get the connectivity
+				auto couplers = document[i]["properties"]["parameters"]["couplers"].GetArray();
+				std::cout << "HELLO WORLD: " << couplers.Size() << "\n";
 				std::cout << "INSERTING: " << solver.name << "\n";
 				availableSolvers.insert(std::make_pair(solver.name, solver));
 			}
 		}
-	}
+	}*/
 
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 				const std::string& varId) {

@@ -33,9 +33,11 @@
 
 #include "Singleton.hpp"
 #include "Utils.hpp"
+#include "RuntimeOptions.hpp"
 #include <map>
 #include <iostream>
 #include <boost/program_options.hpp>
+
 using namespace boost::program_options;
 
 namespace xacc {
@@ -54,17 +56,11 @@ namespace xacc {
  */
 template<typename T, typename... TArgs>
 class Registry : public Singleton<Registry<T, TArgs...>> {
-protected:
-
-	/**
-	 * Reference to the database of creation functions
-	 * for classes of superclass type T.
-	 */
-	std::map<std::string, std::function<std::shared_ptr<T>(TArgs...)>> registry;
-
-	std::map<std::string, std::shared_ptr<options_description>> registryOptions;
 
 public:
+
+	using CreatorFunction = std::function<std::shared_ptr<T>(TArgs...)>;
+	using CreatorFunctionPtr = std::shared_ptr<CreatorFunction>;
 
 	/**
 	 * Add a new creation function to the Registry, keyed
@@ -75,12 +71,14 @@ public:
 	 * @return success Bool indicating if this creator was added successfully.
 	 */
 	bool add(const std::string& id,
-			std::function<std::shared_ptr<T>(TArgs...)> f) {
+			CreatorFunctionPtr f) {
 		if (registry.find(id) != registry.end()) {
 			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
-		bool s = registry.insert(std::make_pair(id, std::move(f))).second;
+
+		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCInfo("Registry adding " + id);
+		bool s = registry.emplace(std::make_pair(id, f)).second;
 		if (!s) {
 			XACCError("Could not add " + id + " to the Registry.");
 		} else {
@@ -99,12 +97,13 @@ public:
 	 * @return success Bool indicating if this creator was added successfully.
 	 */
 	bool add(const std::string& id,
-			std::function<std::shared_ptr<T>(TArgs...)> f, std::shared_ptr<options_description> options) {
+			CreatorFunctionPtr f, std::shared_ptr<options_description> options) {
 		if (registry.find(id) != registry.end()) {
 			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
-		bool s = registry.insert(std::make_pair(id, std::move(f))).second;
+		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCInfo("Registry adding " + id);
+		bool s = registry.emplace(std::make_pair(id, f)).second;
 		bool s2 = registryOptions.insert(std::make_pair(id, std::move(options))).second;
 		if (!s || ! s2) {
 			XACCError("Could not add " + id + " to the Registry.");
@@ -123,7 +122,7 @@ public:
 	std::shared_ptr<T> create(const std::string& id, TArgs... args) {
 		auto search = registry.find(id);
 		if (search != registry.end()) {
-			return registry[id](args...);
+			return registry[id]->operator()(args...);
 		} else {
 			XACCError("Invalid Registry map id string - " + id);
 		}
@@ -141,7 +140,7 @@ public:
 				std::back_inserter(keys),
 				std::bind(
 						&std::map<std::string,
-								std::function<std::shared_ptr<T>(TArgs...)>>::value_type::first,
+						CreatorFunctionPtr>::value_type::first,
 						std::placeholders::_1));
 		return keys;
 	}
@@ -168,6 +167,16 @@ public:
 	std::size_t size() {
 		return registry.size();
 	}
+
+protected:
+
+	/**
+	 * Reference to the database of creation functions
+	 * for classes of superclass type T.
+	 */
+	std::map<std::string, CreatorFunctionPtr> registry;
+
+	std::map<std::string, std::shared_ptr<options_description>> registryOptions;
 };
 }
 

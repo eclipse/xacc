@@ -139,16 +139,19 @@ template<typename T>
 class RegisterCompiler {
 public:
 	RegisterCompiler(const std::string& name) {
-		CompilerRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Compiler>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
+				CompilerRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		CompilerRegistry::instance()->add(name, f);
 	}
-	RegisterCompiler(const std::string& name, std::shared_ptr<options_description> options) {
-		CompilerRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Compiler>()>) ([]() {
-					return std::make_shared<T>();
-				}), options);
+	RegisterCompiler(const std::string& name,
+			std::shared_ptr<options_description> options) {
+		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
+				CompilerRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		CompilerRegistry::instance()->add(name, f, options);
 	}
 };
 

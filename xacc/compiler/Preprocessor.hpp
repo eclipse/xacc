@@ -100,10 +100,11 @@ template<typename T>
 class RegisterPreprocessor {
 public:
 	RegisterPreprocessor(const std::string& name) {
-		PreprocessorRegistry::instance()->add(name,
-				(std::function<std::shared_ptr<xacc::Preprocessor>()>) ([]() {
-					return std::make_shared<T>();
-				}));
+		PreprocessorRegistry::CreatorFunctionPtr f = std::make_shared<
+				PreprocessorRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		PreprocessorRegistry::instance()->add(name, f);
 	}
 };
 

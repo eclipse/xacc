@@ -28,63 +28,67 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
+#ifndef QUANTUM_AQC_COMPILER_TRIVIALEMBEDDINGALGORITHM_HPP_
+#define QUANTUM_AQC_COMPILER_TRIVIALEMBEDDINGALGORITHM_HPP_
 
-#include "Registry.hpp"
-#include "Function.hpp"
+#include "EmbeddingAlgorithm.hpp"
 
 namespace xacc {
+namespace quantum {
 
 /**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
+ * The EmbeddingAlgorithm class provides an interface
+ * for minor graph embedding algorithms.
  *
- * @author Alex McCaskey
  */
-class AlgorithmGenerator {
+class TrivialEmbeddingAlgorithm : public EmbeddingAlgorithm {
 
 public:
 
 	/**
-	 * Implementations of this method generate a Function IR
-	 * instance corresponding to the implementation's modeled
-	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
+	 * The Constructor
+	 */
+	TrivialEmbeddingAlgorithm() {}
+
+	/**
+	 * The Destructor
+	 */
+	virtual ~TrivialEmbeddingAlgorithm() {}
+
+	/**
+	 * Implementations of EmbeddingAlgorithm implement this method to
+	 * provide a valid minor graph embedding of the given problem
+	 * graph into the given hardware graph.
 	 *
-	 * @param bits The bits this algorithm operates on
-	 * @return function The algorithm represented as an IR Function
+	 * @param problem The problem graph to be embedded into the hardware graph
+	 * @param hardware The hardware graph.
+	 * @param params Any key-value string parameters to influence the algorithm.
+	 * @return embedding A mapping of problem vertex indices to the list of hardware vertices they map to
 	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
+	virtual std::map<int, std::list<int>> embed(std::shared_ptr<DWGraph> problem,
+			std::shared_ptr<AcceleratorGraph> hardware,
+			std::map<std::string, std::string> params = std::map<std::string,
+					std::string>());
 
 	/**
-	 * The destructor
+	 * Return the name of this Embedding Algorithm
+	 * @return
 	 */
-	virtual ~AlgorithmGenerator() {}
-};
-
-using AlgorithmGeneratorRegistry = Registry<AlgorithmGenerator>;
-
-/**
- * RegisterAlgorithmGenerator is a convenience class for
- * registering custom derived AlgorithmGenerator classes.
- *
- * Creators of AlgorithmGenerator subclasses create an instance
- * of this class with their AlgorithmGenerator subclass as the template
- * parameter to register their AlgorithmGenerator with XACC. This instance
- * must be created in the CPP implementation file for the AlgorithmGenerator
- * and at global scope.
- */
-template<typename T>
-class RegisterAlgorithmGenerator {
-public:
-	RegisterAlgorithmGenerator(const std::string& name) {
-		AlgorithmGeneratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AlgorithmGeneratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AlgorithmGeneratorRegistry::instance()->add(name, f);
+	virtual std::string name() {
+		return "trivial";
 	}
+
+//	static void registerEmbeddingAlgorithm() {
+//		xacc::quantum::RegisterEmbeddingAlgorithm<TrivialEmbeddingAlgorithm> TRIVEMB(
+//				"trivial");
+//	}
 };
+
+//RegisterEmbeddingAlgorithm(xacc::quantum::TrivialEmbeddingAlgorithm);
+
 }
+
+}
+
+
 #endif
