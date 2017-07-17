@@ -249,6 +249,12 @@ public:
 				vertex(tgtIndex, *_graph.get()), *_graph.get());
 	}
 
+	void removeEdge(const int srcIndex, const int tgtIndex) {
+		auto v = vertex(srcIndex, *_graph.get());
+		auto u = vertex(tgtIndex, *_graph.get());
+		remove_edge(v, u, *_graph.get());
+
+	}
 	/**
 	 * Add a vertex to this Graph.
 	 */

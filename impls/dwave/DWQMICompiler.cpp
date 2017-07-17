@@ -33,6 +33,7 @@
 #include "DWQMICompiler.hpp"
 #include "DWKernel.hpp"
 #include "RuntimeOptions.hpp"
+#include "AQCAcceleratorBuffer.hpp"
 
 namespace xacc {
 
@@ -53,6 +54,14 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	// Set the Kernel Source code
 	kernelSource = src;
 
+	// Here we assume, there is just one allocation
+	// of qubits for the D-Wave -- all of them.
+//	auto bufName = acc->getAllocatedBufferNames()[0];
+//	auto buffer = acc->getBuffer(bufName);
+//	auto aqcBuffer = std::dynamic_pointer_cast<AQCAcceleratorBuffer>(buffer);
+//	if (!aqcBuffer) {
+//		XACCError("Invalid AcceleratorBuffer passed to DW QMI Compiler. Must be an AQCAcceleratorBuffer.");
+//	}
 
 	// Here we expect we have a kernel, only one kernel,
 	// and that it is just machine level instructions
@@ -118,6 +127,9 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 
 	// Compute the minor graph embedding
 	auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
+
+	// Add the embedding to the AcceleratorBuffer
+//	aqcBuffer->setEmbedding(embedding);
 
 	auto countEdgesBetweenSubTrees = [&](std::list<int> Ti, std::list<int> Tj) -> int {
 		int nEdges = 0;

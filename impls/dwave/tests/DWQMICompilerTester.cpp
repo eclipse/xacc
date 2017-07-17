@@ -35,6 +35,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "DWQMICompiler.hpp"
 #include "XACC.hpp"
+#include "AQCAcceleratorBuffer.hpp"
 
 using namespace xacc::quantum;
 
@@ -59,6 +60,8 @@ public:
 
 	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
 			const std::string& varId) {
+		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, 1);
+		storeBuffer(varId, b);
 	}
 
 	virtual void initialize() {
@@ -86,6 +89,7 @@ public:
 	 */
 	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
 			const std::string& varId, const int size) {
+		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, size);
 
 	}
 };
@@ -114,7 +118,7 @@ public:
 
 };
 
-class Shor15FakeEmbedding : public EmbeddingAlgorithm {
+class Factoring15FakeEmbedding : public EmbeddingAlgorithm {
 public:
 
 	virtual std::map<int, std::list<int>> embed(
@@ -184,13 +188,13 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 
-	EmbeddingAlgorithmRegistry::instance()->add(Shor15FakeEmbedding().name(),
-			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>([]() {return std::make_shared<Shor15FakeEmbedding>();}));
+	EmbeddingAlgorithmRegistry::instance()->add(Factoring15FakeEmbedding().name(),
+			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>([]() {return std::make_shared<Factoring15FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 
 	const std::string shor15QMI =
-			"__qpu__ shor15() {\n"
+			"__qpu__ factor15() {\n"
 			"   0 0 20\n"
 			"   1 1 50\n"
 			"   2 2 60\n"
@@ -215,10 +219,11 @@ BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 	}
 
 	auto acc = std::make_shared<FakeDWAcc>();
+	acc->createBuffer("hello");
 
 	auto ir = compiler->compile(shor15QMI, acc);
 
-	auto qmi = ir->getKernel("shor15")->toString("");
+	auto qmi = ir->getKernel("factor15")->toString("");
 
 	std::cout << qmi << "\n";
 
