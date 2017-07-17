@@ -60,19 +60,33 @@ protected:
 	/**
 	 * Argc, number of arguments
 	 */
-	int argc;
+//	int argc;
 
 	/**
 	 * Argv, the command line arguments
 	 */
-	char** argv;
+//	char** argv;
+
+	std::shared_ptr<options_description> xaccOptions;
 
 public:
 
 	/**
 	 * The constructor
 	 */
-	CLIParser(int arc, char** arv) : argc(arc), argv(arv) {}
+	CLIParser() :
+			 xaccOptions(
+					std::make_shared<options_description>("XACC Options")) {
+		xaccOptions->add_options()
+						("help", "Help Message")
+						("compiler",value<std::string>()->default_value("scaffold"),"Indicate the compiler to be used.")
+						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
+						("load-compiler", value<std::string>(), "Load a XACC plugin")
+						("load-accelerator", value<std::string>(), "Load an XACC Accelerator")
+						("list-compilers", "List all available XACC Compilers")
+						("list-accelerators", "List all available XACC Accelerators")
+						("verbose-registry", "Print registry actions");
+	}
 
 	/**
 	 * Parse the command line options. Provide a Boost options_description
@@ -80,25 +94,10 @@ public:
 	 * method also loads all Compilers and Accelerators available
 	 * in the XACC_INSTALL_DIR.
 	 */
-	void parse() {
+	void parse(int argc, char** argv) {
 
 		// Get a reference to the RuntimeOptions
 		auto runtimeOptions = RuntimeOptions::instance();
-
-		auto inst = PreprocessorRegistry::instance();
-
-		// Create a base options_description, we will add
-		// to this with all OptionsProviders
-		auto compilerOptions = std::make_shared<options_description>(
-				"XACC Options");
-		compilerOptions->add_options()
-				("help", "Help Message")
-				("compiler",value<std::string>()->default_value("scaffold"),"Indicate the compiler to be used.")
-				("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
-				("load-compiler", value<std::string>(), "Load a XACC plugin")
-				("load-accelerator", value<std::string>(), "Load an XACC Accelerator")
-				("list-compilers", "List all available XACC Compilers")
-				("list-accelerators", "List all available XACC Accelerators");
 
 		// Load all default Compilers and Accelerators,
 		// ie those in XACC INSTALL DIR/lib
@@ -140,17 +139,17 @@ public:
 		auto registeredCompilerOptions = CompilerRegistry::instance()->getRegisteredOptions();
 
 		for (auto s : registeredAccOptions) {
-			compilerOptions->add(*s.get());
+			xaccOptions->add(*s.get());
 		}
 		for (auto s : registeredCompilerOptions) {
-			compilerOptions->add(*s.get());
+			xaccOptions->add(*s.get());
 		}
 
 		// Parse the command line options
 		variables_map clArgs;
-		store(parse_command_line(argc, argv, *compilerOptions.get()), clArgs);
+		store(parse_command_line(argc, argv, *xaccOptions.get()), clArgs);
 		if (clArgs.count("help")) {
-			std::cout << *compilerOptions.get() << "\n";
+			std::cout << *xaccOptions.get() << "\n";
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
@@ -225,6 +224,10 @@ public:
 			runtimeOptions->insert(
 					std::make_pair(it->first, it->second.as<std::string>()));
 		}
+	}
+
+	void addStringOption(const std::string key, const std::string description = "") {
+		xaccOptions->add_options()(key.c_str(), value<std::string>(), description.c_str());
 	}
 
 };

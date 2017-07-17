@@ -49,8 +49,8 @@ public:
 		return retGraph;
 	}
 
-	std::string toKernelSource() {
-		std::string src;
+	std::string toKernelSource(const std::string& kernelName) {
+		std::string src = "__qpu__ " + kernelName + "() {\n";
 		for (int i = 0; i < order(); i++) {
 			src += std::to_string(i) + " " + std::to_string(i) + " "
 					+ std::to_string(getVertexProperty<0>(i)) + "\n";
@@ -64,7 +64,7 @@ public:
 			}
 		}
 
-		return src;
+		return src + "}\n";
 	}
 
 	virtual ~DWGraph() {}

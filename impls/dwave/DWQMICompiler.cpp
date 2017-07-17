@@ -75,7 +75,7 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	// Loop over the lines to create DWQMI
 	for (auto qmi : qmiStrVec) {
 		boost::trim(qmi);
-		if (!qmi.empty()) {
+		if (!qmi.empty() && (std::string::npos != qmi.find_first_of("0123456789"))) {
 			std::vector<std::string> splitOnSpaces;
 			boost::split(splitOnSpaces, qmi, boost::is_any_of(" "));
 			auto qbit1 = std::stoi(splitOnSpaces[0]);

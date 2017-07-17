@@ -153,53 +153,7 @@ public:
 	DWAccelerator() {
 	}
 
-	virtual void initialize(); /* {
-		auto options = RuntimeOptions::instance();
-		searchAPIKey(apiKey, url);
-		auto tempURL = url;
-		boost::replace_all(tempURL, "https://", "");
-		boost::replace_all(tempURL, "/sapi", "");
-
-		// Set up the extra HTTP headers we are going to need
-		headers.insert(std::make_pair("X-Auth-Token", apiKey));
-		headers.insert(std::make_pair("Content-type", "application/x-www-form-urlencoded"));
-		headers.insert(std::make_pair("Accept", "**"));
-
-		// Get the Remote URL Solver data...
-		auto getSolverClient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>(tempURL, false);
-		auto r = getSolverClient.get("/sapi/solvers/remote", headers);
-
-		std::stringstream ss;
-		ss << r.content.rdbuf();
-		auto message = ss.str();
-
-		std::cout << "MESSAGE:\n" << message << "\n";
-		Document document;
-		document.Parse(message.c_str());
-
-		if (document.IsArray()) {
-			for (auto i = 0; i < document.Size(); i++) {
-				DWSolver solver;
-				solver.name = document[i]["id"].GetString();
-				boost::trim(solver.name);
-				solver.description = document[i]["description"].GetString();
-				if (document[i]["properties"].FindMember("j_range") != document[i]["properties"].MemberEnd()) {
-					solver.jRangeMin = document[i]["properties"]["j_range"][0].GetDouble();
-					solver.jRangeMax = document[i]["properties"]["j_range"][1].GetDouble();
-					solver.hRangeMin = document[i]["properties"]["h_range"][0].GetDouble();
-					solver.hRangeMax = document[i]["properties"]["h_range"][1].GetDouble();
-
-				}
-				solver.nQubits = document[i]["properties"]["num_qubits"].GetInt();
-
-				// Get the connectivity
-				auto couplers = document[i]["properties"]["parameters"]["couplers"].GetArray();
-				std::cout << "HELLO WORLD: " << couplers.Size() << "\n";
-				std::cout << "INSERTING: " << solver.name << "\n";
-				availableSolvers.insert(std::make_pair(solver.name, solver));
-			}
-		}
-	}*/
+	virtual void initialize();
 
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 				const std::string& varId) {

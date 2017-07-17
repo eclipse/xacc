@@ -44,6 +44,7 @@ namespace xacc {
 
 bool xaccFrameworkInitialized = false;
 auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
+auto xaccCLParser = std::make_shared<CLIParser>();
 
 /**
  * This method should be called by
@@ -60,8 +61,8 @@ void Initialize(int argc, char** argv) {
 	auto preprocessorRegistry = xacc::PreprocessorRegistry::instance();
 
 	// Parse any user-supplied command line options
-	CLIParser parser(argc, argv);
-	parser.parse();
+//	CLIParser parser(argc, argv);
+	xaccCLParser->parse(argc, argv);
 
 	// Check that we have some
 	auto s = compilerRegistry->size();
@@ -83,6 +84,10 @@ void Initialize(int argc, char** argv) {
 	// We're good if we make it here, so indicate that we've been
 	// initialized
 	xacc::xaccFrameworkInitialized = true;
+}
+
+void addCommandLineOption(const std::string& optionName, const std::string& optionDescription = "") {
+	xaccCLParser->addStringOption(optionName, optionDescription);
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
