@@ -49,6 +49,24 @@ public:
 		return retGraph;
 	}
 
+	std::string toKernelSource() {
+		std::string src;
+		for (int i = 0; i < order(); i++) {
+			src += std::to_string(i) + " " + std::to_string(i) + " "
+					+ std::to_string(getVertexProperty<0>(i)) + "\n";
+		}
+		for (int i = 0; i < order(); i++) {
+			for (int j = 0; j < order(); j++) {
+				if (i < j && edgeExists(i, j)) {
+					src += std::to_string(i) + " " + std::to_string(j) + " "
+							+ std::to_string(getEdgeWeight(i, j)) + "\n";
+				}
+			}
+		}
+
+		return src;
+	}
+
 	virtual ~DWGraph() {}
 };
 

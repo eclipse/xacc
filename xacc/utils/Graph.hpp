@@ -458,12 +458,29 @@ public:
 		boost::write_graphviz(ss, *_graph.get(), writer);
 		auto str = ss.str();
 		// Modify the style...
-		str = str.insert(9, "\n{\nnode [shape=box style=filled]");
+		str = str.insert(9, "\nnode [shape=box style=filled]");
 
 		std::vector<std::string> splitVec;
 		boost::split(splitVec, str, boost::is_any_of("\n"));
-		splitVec.insert(splitVec.begin() + 3 + order(), "}");
+		splitVec.insert(splitVec.begin() + 2 + order(), "}\n");
 
+//		std::cout << "HELLO:\n " << str << "\n";
+		for (auto s : splitVec) {
+			if (boost::contains(s, "--")) {
+				// THis is an edge
+				std::vector<std::string> splitEdge;
+				boost::split(splitEdge, s, boost::is_any_of("--"));
+				auto e1Str = splitEdge[0];
+				auto e2Str = splitEdge[2].substr(0, splitEdge[2].size() - 2);
+				auto e1Idx = std::stod(e1Str);
+				auto e2Idx = std::stod(e2Str);
+				auto news = e1Str + "--" + e2Str + " [label=\"weight=" + std::to_string(getEdgeWeight(e1Idx, e2Idx))+ "\"];";
+				boost::replace_all(str, s, news);
+			}
+		}
+
+		splitVec.clear();
+		boost::split(splitVec, str, boost::is_any_of("\n"));
 		std::stringstream combine;
 		std::for_each(splitVec.begin(), splitVec.end(), [&](const std::string& elem) { combine << elem << "\n"; });
 		stream << combine.str().substr(0, combine.str().size() - 2);

@@ -292,12 +292,20 @@ void GateQIR::read(std::istream& stream) {
 	std::string content { std::istreambuf_iterator<char>(stream),
 			std::istreambuf_iterator<char>() };
 
-	std::vector<std::string> lines, sections;
-	boost::split(sections, content, boost::is_any_of("}"));
+	std::vector<std::string> lines, sectionOne, sectionTwo;
+	boost::split(lines, content, boost::is_any_of("\n"));
+
+	for (auto l : lines) {
+		if (boost::contains(l, "label") && boost::contains(l, "--")){
+			sectionTwo.push_back(l);
+		} else if (boost::contains(l, "label")) {
+			sectionOne.push_back(l);
+		}
+	}
 
 	// Sections should be size 2 for a valid dot file
-	boost::split(lines, sections[0], boost::is_any_of("\n"));
-	for (auto line : lines) {
+//	boost::split(lines, sections[0], boost::is_any_of("\n"));
+	for (auto line : sectionOne) {
 		if (boost::contains(line, "label")) {
 			CircuitNode v;
 
@@ -344,8 +352,8 @@ void GateQIR::read(std::istream& stream) {
 
 	// Now add the edges
 	lines.clear();
-	boost::split(lines, sections[1], boost::is_any_of(";\n"));
-	for (auto line : lines) {
+//	boost::split(lines, sections[1], boost::is_any_of(";\n"));
+	for (auto line : sectionTwo) {
 		boost::trim(line);
 		if (line == "}" || line.empty())
 			continue;
