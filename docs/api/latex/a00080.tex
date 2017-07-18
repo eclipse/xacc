@@ -1,0 +1,96 @@
+\hypertarget{a00080}{}\section{nlohmann\+:\+:basic\+\_\+json$<$ Object\+Type, Array\+Type, String\+Type, Boolean\+Type, Number\+Integer\+Type, Number\+Unsigned\+Type, Number\+Float\+Type, Allocator\+Type $>$\+:\+:json\+\_\+reverse\+\_\+iterator$<$ Base $>$ Class Template Reference}
+\label{a00080}\index{nlohmann\+::basic\+\_\+json$<$ Object\+Type, Array\+Type, String\+Type, Boolean\+Type, Number\+Integer\+Type, Number\+Unsigned\+Type, Number\+Float\+Type, Allocator\+Type $>$\+::json\+\_\+reverse\+\_\+iterator$<$ Base $>$@{nlohmann\+::basic\+\_\+json$<$ Object\+Type, Array\+Type, String\+Type, Boolean\+Type, Number\+Integer\+Type, Number\+Unsigned\+Type, Number\+Float\+Type, Allocator\+Type $>$\+::json\+\_\+reverse\+\_\+iterator$<$ Base $>$}}
+
+
+a template for a reverse iterator class  
+
+
+
+
+{\ttfamily \#include $<$json.\+hpp$>$}
+
+Inheritance diagram for nlohmann\+:\+:basic\+\_\+json$<$ Object\+Type, Array\+Type, String\+Type, Boolean\+Type, Number\+Integer\+Type, Number\+Unsigned\+Type, Number\+Float\+Type, Allocator\+Type $>$\+:\+:json\+\_\+reverse\+\_\+iterator$<$ Base $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.036078cm]{a00080}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+using \hyperlink{a00080_a9ebc4c99e6fc90c965af0f39ad2ca70e}{base\+\_\+iterator} = std\+::reverse\+\_\+iterator$<$ Base $>$\hypertarget{a00080_a9ebc4c99e6fc90c965af0f39ad2ca70e}{}\label{a00080_a9ebc4c99e6fc90c965af0f39ad2ca70e}
+
+\begin{DoxyCompactList}\small\item\em shortcut to the reverse iterator adaptor \end{DoxyCompactList}\item 
+using \hyperlink{a00080_a7265535f39299824f9712a2ca15013c3}{reference} = typename Base\+::reference\hypertarget{a00080_a7265535f39299824f9712a2ca15013c3}{}\label{a00080_a7265535f39299824f9712a2ca15013c3}
+
+\begin{DoxyCompactList}\small\item\em the reference type for the pointed-\/to element \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00080_a86c97bbb8ebe19aef4656cf796e30e99}{json\+\_\+reverse\+\_\+iterator} (const typename base\+\_\+iterator\+::iterator\+\_\+type \&it) noexcept\hypertarget{a00080_a86c97bbb8ebe19aef4656cf796e30e99}{}\label{a00080_a86c97bbb8ebe19aef4656cf796e30e99}
+
+\begin{DoxyCompactList}\small\item\em create reverse iterator from iterator \end{DoxyCompactList}\item 
+\hyperlink{a00080_a530f042e2ab1c83dddfc344931b0375a}{json\+\_\+reverse\+\_\+iterator} (const \hyperlink{a00080_a9ebc4c99e6fc90c965af0f39ad2ca70e}{base\+\_\+iterator} \&it) noexcept\hypertarget{a00080_a530f042e2ab1c83dddfc344931b0375a}{}\label{a00080_a530f042e2ab1c83dddfc344931b0375a}
+
+\begin{DoxyCompactList}\small\item\em create reverse iterator from base class \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \hyperlink{a00080_a545a8204cfd6836eb85abc3113a0bb28}{operator++} (int)\hypertarget{a00080_a545a8204cfd6836eb85abc3113a0bb28}{}\label{a00080_a545a8204cfd6836eb85abc3113a0bb28}
+
+\begin{DoxyCompactList}\small\item\em post-\/increment (it++) \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \& \hyperlink{a00080_a4aede52d6ee253a510897518b59e09c0}{operator++} ()\hypertarget{a00080_a4aede52d6ee253a510897518b59e09c0}{}\label{a00080_a4aede52d6ee253a510897518b59e09c0}
+
+\begin{DoxyCompactList}\small\item\em pre-\/increment (++it) \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \hyperlink{a00080_a693439bffe56a9a8cf53bc4a06b911ff}{operator-\/-\/} (int)\hypertarget{a00080_a693439bffe56a9a8cf53bc4a06b911ff}{}\label{a00080_a693439bffe56a9a8cf53bc4a06b911ff}
+
+\begin{DoxyCompactList}\small\item\em post-\/decrement (it--) \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \& \hyperlink{a00080_a563a7bd281e9919798d18396107fb05c}{operator-\/-\/} ()\hypertarget{a00080_a563a7bd281e9919798d18396107fb05c}{}\label{a00080_a563a7bd281e9919798d18396107fb05c}
+
+\begin{DoxyCompactList}\small\item\em pre-\/decrement (--it) \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \& \hyperlink{a00080_a9accc9dd9f9033f50c0ab6bcf337ffe0}{operator+=} (\hyperlink{a00025_aec316934a555dd1acdd3600e5d4a4cdf}{difference\+\_\+type} i)\hypertarget{a00080_a9accc9dd9f9033f50c0ab6bcf337ffe0}{}\label{a00080_a9accc9dd9f9033f50c0ab6bcf337ffe0}
+
+\begin{DoxyCompactList}\small\item\em add to iterator \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \hyperlink{a00080_a99ee137dab7e5c948457f6a5321b54b1}{operator+} (\hyperlink{a00025_aec316934a555dd1acdd3600e5d4a4cdf}{difference\+\_\+type} i) const \hypertarget{a00080_a99ee137dab7e5c948457f6a5321b54b1}{}\label{a00080_a99ee137dab7e5c948457f6a5321b54b1}
+
+\begin{DoxyCompactList}\small\item\em add to iterator \end{DoxyCompactList}\item 
+\hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \hyperlink{a00080_ac2634bee082633671125e909dffad40a}{operator-\/} (\hyperlink{a00025_aec316934a555dd1acdd3600e5d4a4cdf}{difference\+\_\+type} i) const \hypertarget{a00080_ac2634bee082633671125e909dffad40a}{}\label{a00080_ac2634bee082633671125e909dffad40a}
+
+\begin{DoxyCompactList}\small\item\em subtract from iterator \end{DoxyCompactList}\item 
+\hyperlink{a00025_aec316934a555dd1acdd3600e5d4a4cdf}{difference\+\_\+type} \hyperlink{a00080_a115fae3dd8ae02669fedae0545ce1cbc}{operator-\/} (const \hyperlink{a00080}{json\+\_\+reverse\+\_\+iterator} \&other) const \hypertarget{a00080_a115fae3dd8ae02669fedae0545ce1cbc}{}\label{a00080_a115fae3dd8ae02669fedae0545ce1cbc}
+
+\begin{DoxyCompactList}\small\item\em return difference \end{DoxyCompactList}\item 
+\hyperlink{a00080_a7265535f39299824f9712a2ca15013c3}{reference} \hyperlink{a00080_ad4ec2bbb8347e7aa3b58e616fd6c7f40}{operator\mbox{[}$\,$\mbox{]}} (\hyperlink{a00025_aec316934a555dd1acdd3600e5d4a4cdf}{difference\+\_\+type} n) const \hypertarget{a00080_ad4ec2bbb8347e7aa3b58e616fd6c7f40}{}\label{a00080_ad4ec2bbb8347e7aa3b58e616fd6c7f40}
+
+\begin{DoxyCompactList}\small\item\em access to successor \end{DoxyCompactList}\item 
+object\+\_\+t\+::key\+\_\+type \hyperlink{a00080_acecae6d237fcf14c909fb42b9d2e2955}{key} () const \hypertarget{a00080_acecae6d237fcf14c909fb42b9d2e2955}{}\label{a00080_acecae6d237fcf14c909fb42b9d2e2955}
+
+\begin{DoxyCompactList}\small\item\em return the key of an object iterator \end{DoxyCompactList}\item 
+\hyperlink{a00080_a7265535f39299824f9712a2ca15013c3}{reference} \hyperlink{a00080_aca5116682e206dac48f8a56716a3280b}{value} () const \hypertarget{a00080_aca5116682e206dac48f8a56716a3280b}{}\label{a00080_aca5116682e206dac48f8a56716a3280b}
+
+\begin{DoxyCompactList}\small\item\em return the value of an iterator \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$template$<$ typename U, typename V, typename...\+Args $>$ class Object\+Type = std\+::map, template$<$ typename U, typename...\+Args $>$ class Array\+Type = std\+::vector, class String\+Type = std\+::string, class Boolean\+Type = bool, class Number\+Integer\+Type = int64\+\_\+t, class Number\+Unsigned\+Type = uint64\+\_\+t, class Number\+Float\+Type = double, template$<$ typename U $>$ class Allocator\+Type = std\+::allocator$>$\\*
+template$<$typename Base$>$\\*
+class nlohmann\+::basic\+\_\+json$<$ Object\+Type, Array\+Type, String\+Type, Boolean\+Type, Number\+Integer\+Type, Number\+Unsigned\+Type, Number\+Float\+Type, Allocator\+Type $>$\+::json\+\_\+reverse\+\_\+iterator$<$ Base $>$}
+
+a template for a reverse iterator class 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Base} & the base iterator type to reverse. Valid types are \hyperlink{a00079}{iterator} (to create \hyperlink{a00025_a2f1f83aa187a56dc5ec7a7027065ac8a}{reverse\+\_\+iterator}) and \hyperlink{a00038}{const\+\_\+iterator} (to create \hyperlink{a00025_ae336fff01f4b78e3e16e5008dc8dbc00}{const\+\_\+reverse\+\_\+iterator}).\\
+\hline
+\end{DoxyTemplParams}
+The class satisfies the following concept requirements\+:
+\begin{DoxyItemize}
+\item \href{http://en.cppreference.com/w/cpp/concept/RandomAccessIterator}{\tt Random\+Access\+Iterator}\+: The iterator that can be moved to point (forward and backward) to any element in constant time.
+\item \href{http://en.cppreference.com/w/cpp/concept/OutputIterator}{\tt Output\+Iterator}\+: It is possible to write to the pointed-\/to element (only if {\itshape Base} is \hyperlink{a00079}{iterator}).
+\end{DoxyItemize}
+
+\begin{DoxySince}{Since}
+version 1.\+0.\+0 
+\end{DoxySince}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+json.\+hpp\end{DoxyCompactItemize}

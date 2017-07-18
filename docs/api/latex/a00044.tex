@@ -1,83 +1,171 @@
-\hypertarget{a00044}{}\section{xacc\+:\+:quantum\+:\+:Json\+Visitor Class Reference}
-\label{a00044}\index{xacc\+::quantum\+::\+Json\+Visitor@{xacc\+::quantum\+::\+Json\+Visitor}}
-
-
-{\ttfamily \#include $<$Json\+Visitor.\+hpp$>$}
-
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Json\+Visitor\+:\begin{figure}[H]
+\hypertarget{a00044}{}\section{xacc\+:\+:quantum\+:\+:D\+W\+IR Class Reference}
+\label{a00044}\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+W\+IR\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=12.000000cm]{a00044}
+\includegraphics[height=2.000000cm]{a00044}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Json\+Visitor} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00030}{xacc\+::\+Function} $>$ f)\hypertarget{a00044_a7b2bf70217828adf6457e3fee7e13056}{}\label{a00044_a7b2bf70217828adf6457e3fee7e13056}
-
+virtual std\+::string \hyperlink{a00044_a880cb60197577ea31115331e3a030e3e}{to\+Assembly\+String} (const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)
 \item 
-std\+::string {\bfseries write} ()\hypertarget{a00044_a78e2b6c71755a0fed97de43e0b7edc82}{}\label{a00044_a78e2b6c71755a0fed97de43e0b7edc82}
-
+virtual void \hyperlink{a00044_abcbfd0a4cf697843391c65cbd9a82080}{persist} (std\+::ostream \&out\+Stream)
 \item 
-void {\bfseries visit} (\hyperlink{a00036}{Hadamard} \&h)\hypertarget{a00044_afdebbabdbae5ecb3a508f02ffe056fd4}{}\label{a00044_afdebbabdbae5ecb3a508f02ffe056fd4}
-
+virtual void \hyperlink{a00044_a8b388d719d565bb902c979807d3d0d47}{load} (std\+::istream \&in\+Stream)
 \item 
-void {\bfseries visit} (\hyperlink{a00019}{C\+N\+OT} \&cn)\hypertarget{a00044_a83c17c122c0e02242189b3564290f3e9}{}\label{a00044_a83c17c122c0e02242189b3564290f3e9}
-
+virtual void \hyperlink{a00044_af1bef18e1e9568d1313b03149aab8c1b}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00059}{Function} $>$ kernel)
 \item 
-void {\bfseries visit} (\hyperlink{a00063}{Rz} \&rz)\hypertarget{a00044_a76c3593f3933631c2dbca74b7b216534}{}\label{a00044_a76c3593f3933631c2dbca74b7b216534}
-
+virtual bool \hyperlink{a00044_ab5e8861d3bc0845bb015af6208f5f396}{kernel\+Exists} (const std\+::string \&name)
 \item 
-void {\bfseries visit} (\hyperlink{a00061}{Rx} \&rx)\hypertarget{a00044_ad73ac1911e894f315fcee802673a30da}{}\label{a00044_ad73ac1911e894f315fcee802673a30da}
-
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00059}{Function} $>$ \hyperlink{a00044_a38d8bdd24250749bc38ad31f8512fcfc}{get\+Kernel} (const std\+::string \&name)
 \item 
-void {\bfseries visit} (\hyperlink{a00062}{Ry} \&ry)\hypertarget{a00044_a0e744d9db4c2d16196b17f91a84f8767}{}\label{a00044_a0e744d9db4c2d16196b17f91a84f8767}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00021}{Conditional\+Function} \&cn)\hypertarget{a00044_aea63f829d8c926e567ef6a09a0ca779e}{}\label{a00044_aea63f829d8c926e567ef6a09a0ca779e}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00045}{Measure} \&cn)\hypertarget{a00044_a71a9c4b78152af3366f8ee93b2e4d9da}{}\label{a00044_a71a9c4b78152af3366f8ee93b2e4d9da}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00070}{X} \&cn)\hypertarget{a00044_a2862d01b12da46374c16a3baf33bb4ca}{}\label{a00044_a2862d01b12da46374c16a3baf33bb4ca}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00075}{Y} \&y)\hypertarget{a00044_a5f08b133da5ae583b40d3324220e68e3}{}\label{a00044_a5f08b133da5ae583b40d3324220e68e3}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00076}{Z} \&z)\hypertarget{a00044_a1e1a24feb419b275e2873575242ecbfd}{}\label{a00044_a1e1a24feb419b275e2873575242ecbfd}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00032}{Gate\+Function} \&function)\hypertarget{a00044_af80f9bd5dda7f53279baa9823c715f60}{}\label{a00044_af80f9bd5dda7f53279baa9823c715f60}
-
-\end{DoxyCompactItemize}
-\subsection*{Protected Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-void {\bfseries base\+Gate\+Inst} (\hyperlink{a00033}{Gate\+Instruction} \&inst, bool end\+Object=true)\hypertarget{a00044_adf4795f80bf4773af8babb9ee7d38c96}{}\label{a00044_adf4795f80bf4773af8babb9ee7d38c96}
-
+virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00059}{Function} $>$ $>$ \hyperlink{a00044_a66e22c5dc95ec46045476864012ad08f}{get\+Kernels} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::shared\+\_\+ptr$<$ String\+Buffer $>$ {\bfseries buffer}\hypertarget{a00044_a79e14ac35a004c64f3b6a5c684d73598}{}\label{a00044_a79e14ac35a004c64f3b6a5c684d73598}
-
-\item 
-std\+::shared\+\_\+ptr$<$ Writer $>$ {\bfseries writer}\hypertarget{a00044_a4433a92e0c5a1ede71223c275a495241}{}\label{a00044_a4433a92e0c5a1ede71223c275a495241}
-
-\item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00030}{Function} $>$ {\bfseries function}\hypertarget{a00044_ae943110fac6aa057637fbdf76c39ba9c}{}\label{a00044_ae943110fac6aa057637fbdf76c39ba9c}
-
-\item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Instruction\+Iterator} $>$ {\bfseries top\+Level\+Instruction\+Iterator}\hypertarget{a00044_a84ac738710890faa124c0df935bc51d5}{}\label{a00044_a84ac738710890faa124c0df935bc51d5}
-
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00059}{Function} $>$ $>$ \hyperlink{a00044_abcb04ec3a152c3f22e5a757a9aecabf2}{kernels}
 \end{DoxyCompactItemize}
 
 
-\subsection{Detailed Description}
-F\+I\+X\+ME write this 
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!add\+Kernel@{add\+Kernel}}
+\index{add\+Kernel@{add\+Kernel}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{add\+Kernel(std\+::shared\+\_\+ptr$<$ Function $>$ kernel)}{addKernel(std::shared\_ptr< Function > kernel)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+D\+W\+I\+R\+::add\+Kernel (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{kernel}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_af1bef18e1e9568d1313b03149aab8c1b}{}\label{a00044_af1bef18e1e9568d1313b03149aab8c1b}
+Add a new kernel to this \hyperlink{a00077}{IR} instance.
+
+
+\begin{DoxyParams}{Parameters}
+{\em kernel} & The \hyperlink{a00059}{Function} instance to add as a new kernel \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a00077_abbbf8e6993c518597de32cd05d49d737}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!get\+Kernel@{get\+Kernel}}
+\index{get\+Kernel@{get\+Kernel}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{get\+Kernel(const std\+::string \&name)}{getKernel(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Function}$>$ xacc\+::quantum\+::\+D\+W\+I\+R\+::get\+Kernel (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_a38d8bdd24250749bc38ad31f8512fcfc}{}\label{a00044_a38d8bdd24250749bc38ad31f8512fcfc}
+Return the kernel with the given name.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The name of the kernel to return. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+kernel The kernel with given name. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00077_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!get\+Kernels@{get\+Kernels}}
+\index{get\+Kernels@{get\+Kernels}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{get\+Kernels()}{getKernels()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<$std\+::shared\+\_\+ptr$<${\bf Function}$>$ $>$ xacc\+::quantum\+::\+D\+W\+I\+R\+::get\+Kernels (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_a66e22c5dc95ec46045476864012ad08f}{}\label{a00044_a66e22c5dc95ec46045476864012ad08f}
+Return all of this \hyperlink{a00077}{IR} instance\textquotesingle{}s kernels.
+
+\begin{DoxyReturn}{Returns}
+kernels The kernels this \hyperlink{a00077}{IR} contains. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00077_a88c50bfc5b279145360ddc0c3a703b9b}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!kernel\+Exists@{kernel\+Exists}}
+\index{kernel\+Exists@{kernel\+Exists}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{kernel\+Exists(const std\+::string \&name)}{kernelExists(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::quantum\+::\+D\+W\+I\+R\+::kernel\+Exists (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_ab5e8861d3bc0845bb015af6208f5f396}{}\label{a00044_ab5e8861d3bc0845bb015af6208f5f396}
+Return true if the kernel with given name exists in this \hyperlink{a00077}{IR}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The name of the kernel to return. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+exists True if kernel exists. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00077_afc9ccf5126f3fed19c2e879133b2f6d8}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!load@{load}}
+\index{load@{load}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{load(std\+::istream \&in\+Stream)}{load(std::istream \&inStream)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+D\+W\+I\+R\+::load (
+\begin{DoxyParamCaption}
+\item[{std\+::istream \&}]{in\+Stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_a8b388d719d565bb902c979807d3d0d47}{}\label{a00044_a8b388d719d565bb902c979807d3d0d47}
+Create this \hyperlink{a00077}{IR} instance from the given input stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em in\+Stream} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a00077_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!persist@{persist}}
+\index{persist@{persist}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{persist(std\+::ostream \&out\+Stream)}{persist(std::ostream \&outStream)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+D\+W\+I\+R\+::persist (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{out\+Stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_abcbfd0a4cf697843391c65cbd9a82080}{}\label{a00044_abcbfd0a4cf697843391c65cbd9a82080}
+Persist this \hyperlink{a00077}{IR} instance to the given output stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em out\+Stream} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a00077_a414b72224d88473ad6190bb88102a3ea}{xacc\+::\+IR}.
+
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
+\index{to\+Assembly\+String@{to\+Assembly\+String}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{to\+Assembly\+String(const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)}{toAssemblyString(const std::string \&kernelName, const std::string \&accBufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string xacc\+::quantum\+::\+D\+W\+I\+R\+::to\+Assembly\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{kernel\+Name, }
+\item[{const std\+::string \&}]{acc\+Buffer\+Var\+Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00044_a880cb60197577ea31115331e3a030e3e}{}\label{a00044_a880cb60197577ea31115331e3a030e3e}
+Return a assembly-\/like string representation of this intermediate representation \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00077_a8356cdff1919b88eabeb84fd7450cdb6}{xacc\+::\+IR}.
+
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!kernels@{kernels}}
+\index{kernels@{kernels}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
+\subsubsection[{\texorpdfstring{kernels}{kernels}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$std\+::shared\+\_\+ptr$<${\bf Function}$>$ $>$ xacc\+::quantum\+::\+D\+W\+I\+R\+::kernels\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00044_abcb04ec3a152c3f22e5a757a9aecabf2}{}\label{a00044_abcb04ec3a152c3f22e5a757a9aecabf2}
+Reference to this Q\+IR\textquotesingle{}s list of quantum functions 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Json\+Visitor.\+hpp\end{DoxyCompactItemize}
+D\+W\+I\+R.\+hpp\end{DoxyCompactItemize}

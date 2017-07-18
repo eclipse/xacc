@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['accelerator',['accelerator',['../a01127.html#ad4cbb467fa7e377bac6c054ffcb22b7c',1,'xacc::Compiler::accelerator()'],['../a01183.html#a10c948629c84f23dd426c04a9a518155',1,'xacc::Program::accelerator()']]],
-  ['argc',['argc',['../a01187.html#afba175b92e7bc49e19660ef541db8cd5',1,'xacc::CLIParser']]],
-  ['argv',['argv',['../a01187.html#aa269b5c9a78f2fe3e4ac48012eb3cc06',1,'xacc::CLIParser']]]
+  ['accelerator',['accelerator',['../a00034.html#ad4cbb467fa7e377bac6c054ffcb22b7c',1,'xacc::Compiler::accelerator()'],['../a00095.html#a10c948629c84f23dd426c04a9a518155',1,'xacc::Program::accelerator()']]],
+  ['apikey',['apiKey',['../a00042.html#a6b9ca421d7efeed09ff9acb9f77d9dd8',1,'xacc::quantum::DWAccelerator']]],
+  ['availablesolvers',['availableSolvers',['../a00042.html#ac19954e3df9e77184717c9be8a2ed4c5',1,'xacc::quantum::DWAccelerator']]]
 ];

@@ -1,25 +1,116 @@
-\hypertarget{a00053}{}\section{xacc\+:\+:Register\+Compiler$<$ T $>$ Class Template Reference}
-\label{a00053}\index{xacc\+::\+Register\+Compiler$<$ T $>$@{xacc\+::\+Register\+Compiler$<$ T $>$}}
+\hypertarget{a00053}{}\section{Embedding\+Algorithm\+Factory Class Reference}
+\label{a00053}\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
 
 
-{\ttfamily \#include $<$Compiler.\+hpp$>$}
+{\ttfamily \#include $<$Embedding\+Algorithm\+Factory.\+hpp$>$}
 
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Register\+Compiler} (const std\+::string \&name)\hypertarget{a00053_a41f5c1abd570b3867b9790cdc02f3355}{}\label{a00053_a41f5c1abd570b3867b9790cdc02f3355}
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00071}{I\+Embedding\+Algorithm} $>$ \hyperlink{a00053_a19e9ec2636073705e65c1039c8879be7}{create\+Embedding\+Algorithm} (std\+::string type, \hyperlink{a00076}{I\+Quell\+E\+Graph} \&prob, \hyperlink{a00076}{I\+Quell\+E\+Graph} \&hardware)
+\item 
+{\footnotesize template$<$typename T $>$ }\\void \hyperlink{a00053_aec39e8d4edc3715f3980db5d13252f3b}{reg} (const std\+::string \&name)
+\item 
+std\+::vector$<$ std\+::string $>$ {\bfseries list\+Embedding\+Algorithms} ()\hypertarget{a00053_ab19e4f507f0ac05a0b37ae75c68b6df4}{}\label{a00053_ab19e4f507f0ac05a0b37ae75c68b6df4}
 
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::shared\+\_\+ptr$<$ \hyperlink{a00053}{Embedding\+Algorithm\+Factory} $>$ \hyperlink{a00053_a1fccee9971df2df4870cd1333798b3da}{instance} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00053_ac19af2c293caa47ea46a0122f3e81e28}{Embedding\+Algorithm\+Factory} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ std\+::string, build\+Ptr $>$ \hyperlink{a00053_aa3bbf5d1683ddd7194f981f0af67e95a}{registration\+Map}
+\end{DoxyCompactItemize}
+\subsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::shared\+\_\+ptr$<$ \hyperlink{a00053}{Embedding\+Algorithm\+Factory} $>$ \hyperlink{a00053_ad675ae385b8ffb8fb4eafe0253967ed9}{factory\+Instance} = 0
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$typename T$>$\\*
-class xacc\+::\+Register\+Compiler$<$ T $>$}
+The \hyperlink{a00053}{Embedding\+Algorithm\+Factory} is a singleton that dynamically registers I\+Embedding\+Algorithms and provides a mechanism for clients to create them by just knowing the string name of the class. 
 
-\hyperlink{a00053}{Register\+Compiler} is a convenience class for registering custom derived \hyperlink{a00020}{Compiler} classes.
+\subsection{Constructor \& Destructor Documentation}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{Embedding\+Algorithm\+Factory()}{EmbeddingAlgorithmFactory()}}]{\setlength{\rightskip}{0pt plus 5cm}Embedding\+Algorithm\+Factory\+::\+Embedding\+Algorithm\+Factory (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\hypertarget{a00053_ac19af2c293caa47ea46a0122f3e81e28}{}\label{a00053_ac19af2c293caa47ea46a0122f3e81e28}
+The Constructor 
 
-Creators of \hyperlink{a00020}{Compiler} subclasses create an instance of this class with their \hyperlink{a00020}{Compiler} subclass as the template parameter to register their \hyperlink{a00020}{Compiler} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00020}{Compiler} and at global scope. 
+\subsection{Member Function Documentation}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!create\+Embedding\+Algorithm@{create\+Embedding\+Algorithm}}
+\index{create\+Embedding\+Algorithm@{create\+Embedding\+Algorithm}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{create\+Embedding\+Algorithm(std\+::string type, I\+Quell\+E\+Graph \&prob, I\+Quell\+E\+Graph \&hardware)}{createEmbeddingAlgorithm(std::string type, IQuellEGraph \&prob, IQuellEGraph \&hardware)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf I\+Embedding\+Algorithm}$>$ Embedding\+Algorithm\+Factory\+::create\+Embedding\+Algorithm (
+\begin{DoxyParamCaption}
+\item[{std\+::string}]{type, }
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{prob, }
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{hardware}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00053_a19e9ec2636073705e65c1039c8879be7}{}\label{a00053_a19e9ec2636073705e65c1039c8879be7}
+Create the \hyperlink{a00071}{I\+Embedding\+Algorithm} corresponding to the provided string type and problem/hardware graphs.
 
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+
+\begin{DoxyParams}{Parameters}
+{\em type} & \\
+\hline
+{\em prob} & \\
+\hline
+{\em hardware} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!instance@{instance}}
+\index{instance@{instance}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{instance()}{instance()}}]{\setlength{\rightskip}{0pt plus 5cm}static std\+::shared\+\_\+ptr$<${\bf Embedding\+Algorithm\+Factory}$>$ Embedding\+Algorithm\+Factory\+::instance (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00053_a1fccee9971df2df4870cd1333798b3da}{}\label{a00053_a1fccee9971df2df4870cd1333798b3da}
+Return the singleton instance for this factory.
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!reg@{reg}}
+\index{reg@{reg}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{reg(const std\+::string \&name)}{reg(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T $>$ void Embedding\+Algorithm\+Factory\+::reg (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00053_aec39e8d4edc3715f3980db5d13252f3b}{}\label{a00053_aec39e8d4edc3715f3980db5d13252f3b}
+Register a new \hyperlink{a00071}{I\+Embedding\+Algorithm} with the factory.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!factory\+Instance@{factory\+Instance}}
+\index{factory\+Instance@{factory\+Instance}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{factory\+Instance}{factoryInstance}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Embedding\+Algorithm\+Factory} $>$ Embedding\+Algorithm\+Factory\+::factory\+Instance = 0\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}\hypertarget{a00053_ad675ae385b8ffb8fb4eafe0253967ed9}{}\label{a00053_ad675ae385b8ffb8fb4eafe0253967ed9}
+Reference to the singleton instance \index{Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}!registration\+Map@{registration\+Map}}
+\index{registration\+Map@{registration\+Map}!Embedding\+Algorithm\+Factory@{Embedding\+Algorithm\+Factory}}
+\subsubsection[{\texorpdfstring{registration\+Map}{registrationMap}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$std\+::string, build\+Ptr$>$ Embedding\+Algorithm\+Factory\+::registration\+Map\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00053_aa3bbf5d1683ddd7194f981f0af67e95a}{}\label{a00053_aa3bbf5d1683ddd7194f981f0af67e95a}
+Reference to the registration map. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Compiler.\+hpp\end{DoxyCompactItemize}
+Embedding\+Algorithm\+Factory.\+hpp\item 
+Embedding\+Algorithm\+Factory.\+cpp\end{DoxyCompactItemize}

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['instance_5f',['instance_',['../a01231.html#a863885efab9990f06f699567648dfa26',1,'xacc::Singleton']]],
-  ['inststack',['instStack',['../a01159.html#a7af48509e563e8865131692c3b71edf0',1,'xacc::InstructionIterator']]]
+  ['factoryinstance',['factoryInstance',['../a00053.html#ad675ae385b8ffb8fb4eafe0253967ed9',1,'EmbeddingAlgorithmFactory']]],
+  ['functionname',['functionName',['../a00061.html#aea17cb1ca610bb5b8eadb0642c32b937',1,'xacc::quantum::GateFunction']]]
 ];

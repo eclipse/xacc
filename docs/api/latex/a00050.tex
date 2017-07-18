@@ -1,6 +1,10 @@
-\hypertarget{a00050}{}\section{xacc\+:\+:quantum\+:\+:Quil\+Compiler Class Reference}
-\label{a00050}\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Quil\+Compiler\+:\begin{figure}[H]
+\hypertarget{a00050}{}\section{Embedding Class Reference}
+\label{a00050}\index{Embedding@{Embedding}}
+
+
+{\ttfamily \#include $<$Embedding.\+hpp$>$}
+
+Inheritance diagram for Embedding\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[height=3.000000cm]{a00050}
@@ -9,93 +13,107 @@ Inheritance diagram for xacc\+:\+:quantum\+:\+:Quil\+Compiler\+:\begin{figure}[H
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00050_a2421482415ca4e09963ea4ecddff8100}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)
+\hyperlink{a00050_ac59278c6a34aa4811f34779c0500173d}{Embedding} (\hyperlink{a00076}{I\+Quell\+E\+Graph} \&problem\+Graph, \hyperlink{a00076}{I\+Quell\+E\+Graph} \&hardware\+Graph)
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00050_adf4d321ecb0df3fa7728999f941c83b2}{compile} (const std\+::string \&src)
+virtual bool \hyperlink{a00050_ab4a56ed9d02ebc5abaae2a7bdfbe5206}{is\+Valid} ()=0
 \item 
-virtual const std\+::string \hyperlink{a00050_ae7d52140b6dd52730edc6e38ae48f437}{get\+Name} ()
+void \hyperlink{a00050_a3817f8a9fe8deded8c4ba6ff3d239140}{set\+Debug} (bool d)
 \item 
-virtual \hyperlink{a00050_a0866a9f695f28c90ac1f4754374f3bfe}{$\sim$\+Quil\+Compiler} ()
+void \hyperlink{a00050_a1139883ba65f945053ad8e284ef82746}{print\+Embedding} (std\+::ostream \&stream)
+\item 
+virtual \hyperlink{a00050_af94a48684f9b7227be2f48dd08584d66}{$\sim$\+Embedding} ()
 \end{DoxyCompactItemize}
-\subsection*{Static Public Member Functions}
+\subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-static void \hyperlink{a00050_aaec99a14bede717bf02a0f65af2a3c69}{register\+Compiler} ()
+\hyperlink{a00076}{I\+Quell\+E\+Graph} \& \hyperlink{a00050_a0ccb9d65884b3ef699699882b2745af9}{problem}
+\item 
+\hyperlink{a00076}{I\+Quell\+E\+Graph} \& \hyperlink{a00050_a511a70c0b460d5baad91794dbc60ab09}{hardware}
+\item 
+bool \hyperlink{a00050_af9fa67f1edc38349bb70e5e78d0f3fbd}{debug}
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00050}{Embedding} class serves as a mapping of problem vertices to a set of vertices located in the hardware graph. Embeddings must be instantiated with the given problem and hardware graphs, and can indicate whether or not they are valid embeddings. It is up to clients and subclasses to construct the embedding mapping.
+
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!````~Quil\+Compiler@{$\sim$\+Quil\+Compiler}}
-\index{````~Quil\+Compiler@{$\sim$\+Quil\+Compiler}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-\subsubsection[{\texorpdfstring{$\sim$\+Quil\+Compiler()}{~QuilCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Quil\+Compiler\+::$\sim$\+Quil\+Compiler (
+\index{Embedding@{Embedding}!Embedding@{Embedding}}
+\index{Embedding@{Embedding}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{Embedding(\+I\+Quell\+E\+Graph \&problem\+Graph, I\+Quell\+E\+Graph \&hardware\+Graph)}{Embedding(IQuellEGraph \&problemGraph, IQuellEGraph \&hardwareGraph)}}]{\setlength{\rightskip}{0pt plus 5cm}Embedding\+::\+Embedding (
+\begin{DoxyParamCaption}
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{problem\+Graph, }
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{hardware\+Graph}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00050_ac59278c6a34aa4811f34779c0500173d}{}\label{a00050_ac59278c6a34aa4811f34779c0500173d}
+The Constructor, takes the problem and hardware graphs represented in this embedding.
+
+
+\begin{DoxyParams}{Parameters}
+{\em problem\+Graph} & \\
+\hline
+{\em hardware\+Graph} & \\
+\hline
+\end{DoxyParams}
+\index{Embedding@{Embedding}!````~Embedding@{$\sim$\+Embedding}}
+\index{````~Embedding@{$\sim$\+Embedding}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{$\sim$\+Embedding()}{~Embedding()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Embedding\+::$\sim$\+Embedding (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_a0866a9f695f28c90ac1f4754374f3bfe}{}\label{a00050_a0866a9f695f28c90ac1f4754374f3bfe}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_af94a48684f9b7227be2f48dd08584d66}{}\label{a00050_af94a48684f9b7227be2f48dd08584d66}
 The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Quil\+Compiler\+::compile (
+\index{Embedding@{Embedding}!is\+Valid@{is\+Valid}}
+\index{is\+Valid@{is\+Valid}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{is\+Valid()=0}{isValid()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool Embedding\+::is\+Valid (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00050_a2421482415ca4e09963ea4ecddff8100}{}\label{a00050_a2421482415ca4e09963ea4ecddff8100}
-Translate Quil to the X\+A\+CC intermediate representation.
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_ab4a56ed9d02ebc5abaae2a7bdfbe5206}{}\label{a00050_ab4a56ed9d02ebc5abaae2a7bdfbe5206}
+This method returns true if this \hyperlink{a00050}{Embedding} is valid given the provided hardware and problem graphs.
 
-\begin{DoxyReturn}{Returns}
-ir X\+A\+CC intermediate representation 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)}{compile(const std::string \&src)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Quil\+Compiler\+::compile (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00050_adf4d321ecb0df3fa7728999f941c83b2}{}\label{a00050_adf4d321ecb0df3fa7728999f941c83b2}
-
-\begin{DoxyParams}{Parameters}
-{\em src} & \\
-\hline
-\end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00020_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
+Implemented in \hyperlink{a00092_a74606fda2c0542c2d197146787969bd4}{Parallel\+C\+M\+R\+Embedding}.
 
-\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Quil\+Compiler\+::get\+Name (
+\index{Embedding@{Embedding}!print\+Embedding@{print\+Embedding}}
+\index{print\+Embedding@{print\+Embedding}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{print\+Embedding(std\+::ostream \&stream)}{printEmbedding(std::ostream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}void Embedding\+::print\+Embedding (
 \begin{DoxyParamCaption}
-{}
+\item[{std\+::ostream \&}]{stream}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_ae7d52140b6dd52730edc6e38ae48f437}{}\label{a00050_ae7d52140b6dd52730edc6e38ae48f437}
-Return the name of this \hyperlink{a00020}{Compiler} \begin{DoxyReturn}{Returns}
-name \hyperlink{a00020}{Compiler} name 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}!register\+Compiler@{register\+Compiler}}
-\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+Quil\+Compiler@{xacc\+::quantum\+::\+Quil\+Compiler}}
-\subsubsection[{\texorpdfstring{register\+Compiler()}{registerCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Quil\+Compiler\+::register\+Compiler (
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00050_a1139883ba65f945053ad8e284ef82746}{}\label{a00050_a1139883ba65f945053ad8e284ef82746}
+Print the embedding to the given stream. \index{Embedding@{Embedding}!set\+Debug@{set\+Debug}}
+\index{set\+Debug@{set\+Debug}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{set\+Debug(bool d)}{setDebug(bool d)}}]{\setlength{\rightskip}{0pt plus 5cm}void Embedding\+::set\+Debug (
 \begin{DoxyParamCaption}
-{}
+\item[{bool}]{d}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00050_aaec99a14bede717bf02a0f65af2a3c69}{}\label{a00050_aaec99a14bede717bf02a0f65af2a3c69}
-Register this \hyperlink{a00020}{Compiler} with the framework. 
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00050_a3817f8a9fe8deded8c4ba6ff3d239140}{}\label{a00050_a3817f8a9fe8deded8c4ba6ff3d239140}
+Turn on/off debug printing. 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\subsection{Member Data Documentation}
+\index{Embedding@{Embedding}!debug@{debug}}
+\index{debug@{debug}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{debug}{debug}}]{\setlength{\rightskip}{0pt plus 5cm}bool Embedding\+::debug\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00050_af9fa67f1edc38349bb70e5e78d0f3fbd}{}\label{a00050_af9fa67f1edc38349bb70e5e78d0f3fbd}
+Flag indicating whether we should print debug information \index{Embedding@{Embedding}!hardware@{hardware}}
+\index{hardware@{hardware}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{hardware}{hardware}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+Quell\+E\+Graph}\& Embedding\+::hardware\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00050_a511a70c0b460d5baad91794dbc60ab09}{}\label{a00050_a511a70c0b460d5baad91794dbc60ab09}
+This graph represents the graph that is being embedded into, commonly the hardware graph. \index{Embedding@{Embedding}!problem@{problem}}
+\index{problem@{problem}!Embedding@{Embedding}}
+\subsubsection[{\texorpdfstring{problem}{problem}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+Quell\+E\+Graph}\& Embedding\+::problem\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00050_a0ccb9d65884b3ef699699882b2745af9}{}\label{a00050_a0ccb9d65884b3ef699699882b2745af9}
+This graph represents the graph that is being embedded, commonly the problem graph. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Quil\+Compiler.\+hpp\item 
-Quil\+Compiler.\+cpp\end{DoxyCompactItemize}
+Embedding.\+hpp\end{DoxyCompactItemize}

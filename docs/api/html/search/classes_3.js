@@ -1,10 +1,12 @@
 var searchData=
 [
-  ['defaultedge',['DefaultEdge',['../a01203.html',1,'xacc']]],
-  ['dwavevertex',['DWaveVertex',['../a00963.html',1,'xacc::quantum']]],
-  ['dwgraph',['DWGraph',['../a00975.html',1,'xacc::quantum']]],
-  ['dwir',['DWIR',['../a00979.html',1,'xacc::quantum']]],
-  ['dwkernel',['DWKernel',['../a00983.html',1,'xacc::quantum']]],
-  ['dwqmi',['DWQMI',['../a00987.html',1,'xacc::quantum']]],
-  ['dwqmicompiler',['DWQMICompiler',['../a00923.html',1,'xacc::quantum']]]
+  ['defaultedge',['DefaultEdge',['../a00041.html',1,'xacc']]],
+  ['dwaccelerator',['DWAccelerator',['../a00042.html',1,'xacc::quantum']]],
+  ['dwgraph',['DWGraph',['../a00043.html',1,'xacc::quantum']]],
+  ['dwir',['DWIR',['../a00044.html',1,'xacc::quantum']]],
+  ['dwkernel',['DWKernel',['../a00045.html',1,'xacc::quantum']]],
+  ['dwqmi',['DWQMI',['../a00046.html',1,'xacc::quantum']]],
+  ['dwqmicompiler',['DWQMICompiler',['../a00047.html',1,'xacc::quantum']]],
+  ['dwsolver',['DWSolver',['../a00048.html',1,'xacc::quantum']]],
+  ['dwvertex',['DWVertex',['../a00049.html',1,'xacc::quantum']]]
 ];

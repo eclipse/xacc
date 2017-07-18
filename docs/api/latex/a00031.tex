@@ -1,85 +1,145 @@
-\hypertarget{a00031}{}\section{xacc\+:\+:quantum\+:\+:Functional\+Gate\+Instruction\+Visitor Class Reference}
-\label{a00031}\index{xacc\+::quantum\+::\+Functional\+Gate\+Instruction\+Visitor@{xacc\+::quantum\+::\+Functional\+Gate\+Instruction\+Visitor}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Functional\+Gate\+Instruction\+Visitor\+:\begin{figure}[H]
+\hypertarget{a00031}{}\section{C\+MR Class Reference}
+\label{a00031}\index{C\+MR@{C\+MR}}
+
+
+{\ttfamily \#include $<$C\+M\+R.\+hpp$>$}
+
+Inheritance diagram for C\+MR\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=12.000000cm]{a00031}
+\includegraphics[height=2.000000cm]{a00031}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\footnotesize template$<$typename HF , typename C\+NF , typename XF , typename YF , typename ZF , typename R\+XF , typename R\+YF , typename R\+ZF , typename MF , typename CF $>$ }\\{\bfseries Functional\+Gate\+Instruction\+Visitor} (HF h, C\+NF cn, XF x, YF y, ZF z, R\+XF rx, R\+YF ry, R\+ZF rz, MF m, CF c)\hypertarget{a00031_ab9e838d9bedab46a5ea54c9a0b99ef8a}{}\label{a00031_ab9e838d9bedab46a5ea54c9a0b99ef8a}
+\hyperlink{a00031_aa3afc56561c2fc51701ee308991099db}{C\+MR} (\hyperlink{a00076}{I\+Quell\+E\+Graph} \&prob, \hyperlink{a00076}{I\+Quell\+E\+Graph} \&\hyperlink{a00071_aacf081e6ad5824b339b212844eb61b63}{hardware})
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00050}{Embedding} $>$ \hyperlink{a00031_ae9f07427738d39c3f5f93e09c8178673}{compute\+Embedding} (std\+::map$<$ std\+::string, std\+::string $>$ parameters=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+virtual std\+::string \hyperlink{a00031_a87e38fff11368b67d18671debcf1adcc}{get\+Algorithm\+Name} ()
+\item 
+int {\bfseries get\+Total\+Size} ()\hypertarget{a00031_a982fe78ed280508a0b615d468c114ae6}{}\label{a00031_a982fe78ed280508a0b615d468c114ae6}
 
 \item 
-void {\bfseries visit} (\hyperlink{a00036}{Hadamard} \&h)\hypertarget{a00031_ac5245d34429dc112e7cd0e371108fcb5}{}\label{a00031_ac5245d34429dc112e7cd0e371108fcb5}
+virtual int {\bfseries get\+Number\+Of\+Vertices\+Used} ()\hypertarget{a00031_acfce8a8e0728c7b6561c819cb2fcf971}{}\label{a00031_acfce8a8e0728c7b6561c819cb2fcf971}
 
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
 \item 
-void {\bfseries visit} (\hyperlink{a00019}{C\+N\+OT} \&cn)\hypertarget{a00031_ad4eddafe8ca3906cd4aa5b98087a789a}{}\label{a00031_ad4eddafe8ca3906cd4aa5b98087a789a}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00070}{X} \&x)\hypertarget{a00031_ac5d184daee7e755c9ede67b34bc2d091}{}\label{a00031_ac5d184daee7e755c9ede67b34bc2d091}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00075}{Y} \&y)\hypertarget{a00031_a11dfa753a155346a45d7116a78c8f39f}{}\label{a00031_a11dfa753a155346a45d7116a78c8f39f}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00076}{Z} \&z)\hypertarget{a00031_a4baf19da581fa9875739a227aba9cf60}{}\label{a00031_a4baf19da581fa9875739a227aba9cf60}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00045}{Measure} \&m)\hypertarget{a00031_ad946faf8e2b6eff3e9e142907ec8e05a}{}\label{a00031_ad946faf8e2b6eff3e9e142907ec8e05a}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00021}{Conditional\+Function} \&c)\hypertarget{a00031_a5cdb38902c241e7ae672a2631f1d61f3}{}\label{a00031_a5cdb38902c241e7ae672a2631f1d61f3}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00061}{Rx} \&rx)\hypertarget{a00031_a6eb99e4b488773c750b7d9734ac1e885}{}\label{a00031_a6eb99e4b488773c750b7d9734ac1e885}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00062}{Ry} \&ry)\hypertarget{a00031_aa22aad7b316386f5ef35672337c05ffc}{}\label{a00031_aa22aad7b316386f5ef35672337c05ffc}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00063}{Rz} \&rz)\hypertarget{a00031_a8857ecf8f8f1b6143da8f31a722fe03e}{}\label{a00031_a8857ecf8f8f1b6143da8f31a722fe03e}
-
-\item 
-void {\bfseries visit} (\hyperlink{a00032}{Gate\+Function} \&f)\hypertarget{a00031_ad7d15225cf258fe59660ba828baff357}{}\label{a00031_ad7d15225cf258fe59660ba828baff357}
-
+bool \hyperlink{a00031_a0636b043d3167207f64dc555f536f087}{is\+Improving} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::function$<$ void(\hyperlink{a00036}{Hadamard} \&)$>$ {\bfseries h\+Action}\hypertarget{a00031_a02f1401c9b0d1da801027f3bc0b5227e}{}\label{a00031_a02f1401c9b0d1da801027f3bc0b5227e}
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00092}{Parallel\+C\+M\+R\+Embedding} $>$ \hyperlink{a00031_a1c39d36e454ec454611f47245ddd8221}{embedding}
+\item 
+int \hyperlink{a00031_a620261e04b1b60f5412de7f7a3d60125}{total\+Size}
+\item 
+int \hyperlink{a00031_a514e46dd106cda11ad355e423bc8f1a6}{last\+Iter\+Total\+Size}
+\item 
+int \hyperlink{a00031_a81bea6884182203db7e4ed7f410ff92e}{max\+N\+Problem\+Verts\+Represented\+AtG}
+\item 
+int \hyperlink{a00031_ae15bd2ea367c0d931acf4aa7f102e7fe}{last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG}
+\item 
+int {\bfseries last\+Iter\+Num\+Max\+Overfills}\hypertarget{a00031_a544003be4838ee31e7a8c8fc9c9dd534}{}\label{a00031_a544003be4838ee31e7a8c8fc9c9dd534}
 
 \item 
-std\+::function$<$ void(\hyperlink{a00019}{C\+N\+OT} \&)$>$ {\bfseries cnot\+Action}\hypertarget{a00031_a4d6bd8c2fd1af775ed08946942f60a0b}{}\label{a00031_a4d6bd8c2fd1af775ed08946942f60a0b}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00070}{X} \&)$>$ {\bfseries x\+Action}\hypertarget{a00031_a9e0295434a2224b776609b057147a9af}{}\label{a00031_a9e0295434a2224b776609b057147a9af}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00075}{Y} \&)$>$ {\bfseries y\+Action}\hypertarget{a00031_ae78f91a5cc9a7006f6bb1acee1c00501}{}\label{a00031_ae78f91a5cc9a7006f6bb1acee1c00501}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00076}{Z} \&)$>$ {\bfseries z\+Action}\hypertarget{a00031_ae197f358e3d0777feb3656455e2ee672}{}\label{a00031_ae197f358e3d0777feb3656455e2ee672}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00045}{Measure} \&)$>$ {\bfseries measure\+Action}\hypertarget{a00031_a239748abedd67c7b30cad12e545d1926}{}\label{a00031_a239748abedd67c7b30cad12e545d1926}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00021}{Conditional\+Function} \&)$>$ {\bfseries cond\+Action}\hypertarget{a00031_a5c0595a70b1f7ae50f3e29a985e249e9}{}\label{a00031_a5c0595a70b1f7ae50f3e29a985e249e9}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00061}{Rx} \&)$>$ {\bfseries rx\+Action}\hypertarget{a00031_ab79bb3eb3050d1c599061863bb2e219e}{}\label{a00031_ab79bb3eb3050d1c599061863bb2e219e}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00062}{Ry} \&)$>$ {\bfseries ry\+Action}\hypertarget{a00031_a229b7d9aae52638c6eff04bd16bb9973}{}\label{a00031_a229b7d9aae52638c6eff04bd16bb9973}
-
-\item 
-std\+::function$<$ void(\hyperlink{a00063}{Rz} \&)$>$ {\bfseries rz\+Action}\hypertarget{a00031_a586ab5721150c67ad3ced46e2a236b44}{}\label{a00031_a586ab5721150c67ad3ced46e2a236b44}
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00026}{B\+G\+L\+Quell\+E\+Graph} $>$ {\bfseries virtual\+Hardware}\hypertarget{a00031_a8110eec88cbe9be0d9adbf7a2c99a66b}{}\label{a00031_a8110eec88cbe9be0d9adbf7a2c99a66b}
 
 \end{DoxyCompactItemize}
 
 
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{C\+MR@{C\+MR}!C\+MR@{C\+MR}}
+\index{C\+MR@{C\+MR}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{C\+M\+R(\+I\+Quell\+E\+Graph \&prob, I\+Quell\+E\+Graph \&hardware)}{CMR(IQuellEGraph \&prob, IQuellEGraph \&hardware)}}]{\setlength{\rightskip}{0pt plus 5cm}C\+M\+R\+::\+C\+MR (
+\begin{DoxyParamCaption}
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{prob, }
+\item[{{\bf I\+Quell\+E\+Graph} \&}]{hardware}
+\end{DoxyParamCaption}
+)}\hypertarget{a00031_aa3afc56561c2fc51701ee308991099db}{}\label{a00031_aa3afc56561c2fc51701ee308991099db}
+The Constructor, takes the problem and hardware used in this minor graph embedding.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prob} & \\
+\hline
+{\em hardware} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{C\+MR@{C\+MR}!compute\+Embedding@{compute\+Embedding}}
+\index{compute\+Embedding@{compute\+Embedding}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{compute\+Embedding(std\+::map$<$ std\+::string, std\+::string $>$ parameters=std\+::map$<$ std\+::string, std\+::string $>$())}{computeEmbedding(std::map< std::string, std::string > parameters=std::map< std::string, std::string >())}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Embedding} $>$ C\+M\+R\+::compute\+Embedding (
+\begin{DoxyParamCaption}
+\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{parameters = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string$>$()}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00031_ae9f07427738d39c3f5f93e09c8178673}{}\label{a00031_ae9f07427738d39c3f5f93e09c8178673}
+Compute this embedding.
+
+
+\begin{DoxyParams}{Parameters}
+{\em parameters} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{a00071_a0a56d5731381551efcb4c088bca6c817}{I\+Embedding\+Algorithm}.
+
+\index{C\+MR@{C\+MR}!get\+Algorithm\+Name@{get\+Algorithm\+Name}}
+\index{get\+Algorithm\+Name@{get\+Algorithm\+Name}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{get\+Algorithm\+Name()}{getAlgorithmName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string C\+M\+R\+::get\+Algorithm\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_a87e38fff11368b67d18671debcf1adcc}{}\label{a00031_a87e38fff11368b67d18671debcf1adcc}
+Return the name of this \hyperlink{a00050}{Embedding} Algorithm.
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00071_aac9fc812fb7e84b8a379ab5f60167f2c}{I\+Embedding\+Algorithm}.
+
+\index{C\+MR@{C\+MR}!is\+Improving@{is\+Improving}}
+\index{is\+Improving@{is\+Improving}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{is\+Improving()}{isImproving()}}]{\setlength{\rightskip}{0pt plus 5cm}bool C\+M\+R\+::is\+Improving (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_a0636b043d3167207f64dc555f536f087}{}\label{a00031_a0636b043d3167207f64dc555f536f087}
+Return true if the \hyperlink{a00050}{Embedding} Vertex Models are improving. 
+
+\subsection{Member Data Documentation}
+\index{C\+MR@{C\+MR}!embedding@{embedding}}
+\index{embedding@{embedding}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{embedding}{embedding}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf Parallel\+C\+M\+R\+Embedding}$>$ C\+M\+R\+::embedding\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_a1c39d36e454ec454611f47245ddd8221}{}\label{a00031_a1c39d36e454ec454611f47245ddd8221}
+Reference to the \hyperlink{a00050}{Embedding} object that does the heavy lifting. \index{C\+MR@{C\+MR}!last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG@{last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG}}
+\index{last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG@{last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG}{lastIterMaxNProblemVertsRepresentedAtG}}]{\setlength{\rightskip}{0pt plus 5cm}int C\+M\+R\+::last\+Iter\+Max\+N\+Problem\+Verts\+Represented\+AtG\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_ae15bd2ea367c0d931acf4aa7f102e7fe}{}\label{a00031_ae15bd2ea367c0d931acf4aa7f102e7fe}
+Reference to the last iterations maximum number of problem vertices represented at a given hardware vertex. \index{C\+MR@{C\+MR}!last\+Iter\+Total\+Size@{last\+Iter\+Total\+Size}}
+\index{last\+Iter\+Total\+Size@{last\+Iter\+Total\+Size}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{last\+Iter\+Total\+Size}{lastIterTotalSize}}]{\setlength{\rightskip}{0pt plus 5cm}int C\+M\+R\+::last\+Iter\+Total\+Size\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_a514e46dd106cda11ad355e423bc8f1a6}{}\label{a00031_a514e46dd106cda11ad355e423bc8f1a6}
+Reference to the total size from the last iteration. \index{C\+MR@{C\+MR}!max\+N\+Problem\+Verts\+Represented\+AtG@{max\+N\+Problem\+Verts\+Represented\+AtG}}
+\index{max\+N\+Problem\+Verts\+Represented\+AtG@{max\+N\+Problem\+Verts\+Represented\+AtG}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{max\+N\+Problem\+Verts\+Represented\+AtG}{maxNProblemVertsRepresentedAtG}}]{\setlength{\rightskip}{0pt plus 5cm}int C\+M\+R\+::max\+N\+Problem\+Verts\+Represented\+AtG\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_a81bea6884182203db7e4ed7f410ff92e}{}\label{a00031_a81bea6884182203db7e4ed7f410ff92e}
+The maximum number of problem vertices represented a given hardware vertex. \index{C\+MR@{C\+MR}!total\+Size@{total\+Size}}
+\index{total\+Size@{total\+Size}!C\+MR@{C\+MR}}
+\subsubsection[{\texorpdfstring{total\+Size}{totalSize}}]{\setlength{\rightskip}{0pt plus 5cm}int C\+M\+R\+::total\+Size\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00031_a620261e04b1b60f5412de7f7a3d60125}{}\label{a00031_a620261e04b1b60f5412de7f7a3d60125}
+The total size of the \hyperlink{a00050}{Embedding}, ie the sum of the number of vertices in each computed Vertex Model 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Functional\+Gate\+Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
+build/quelle/aqc/embedding/impl/cmr/\+C\+M\+R.\+hpp\item 
+build/quelle/aqc/embedding/impl/cmr/\+C\+M\+R.\+cpp\end{DoxyCompactItemize}

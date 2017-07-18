@@ -1,0 +1,454 @@
+
+
+\href{https://travis-ci.org/nlohmann/json}{\tt } \href{https://ci.appveyor.com/project/nlohmann/json}{\tt } \href{https://coveralls.io/r/nlohmann/json}{\tt } \href{http://melpon.org/wandbox/permlink/wuiuqYiYqRTdI3rG}{\tt } \href{http://nlohmann.github.io/json}{\tt } \href{https://raw.githubusercontent.com/nlohmann/json/master/LICENSE.MIT}{\tt } \href{https://github.com/nlohmann/json/releases}{\tt } \href{http://github.com/nlohmann/json/issues}{\tt }
+
+\subsection*{Design goals}
+
+There are myriads of \href{http://json.org}{\tt J\+S\+ON} libraries out there, and each may even have its reason to exist. Our class had these design goals\+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries Intuitive syntax}. In languages such as Python, J\+S\+ON feels like a first class data type. We used all the operator magic of modern C++ to achieve the same feeling in your code. Check out the \href{#examples}{\tt examples below} and you know, what I mean.
+\item {\bfseries Trivial integration}. Our whole code consists of a single header file {\ttfamily \hyperlink{a00257_source}{json.\+hpp}}. That\textquotesingle{}s it. No library, no subproject, no dependencies, no complex build system. The class is written in vanilla C++11. All in all, everything should require no adjustment of your compiler flags or project settings.
+\item {\bfseries Serious testing}. Our class is heavily \href{https://github.com/nlohmann/json/blob/master/test/json_unit.cc}{\tt unit-\/tested} and covers \href{https://coveralls.io/r/nlohmann/json}{\tt 100\%} of the code, including all exceptional behavior. Furthermore, we checked with \href{http://valgrind.org}{\tt Valgrind} that there are no memory leaks.
+\end{DoxyItemize}
+
+Other aspects were not so important to us\+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries Memory efficiency}. Each J\+S\+ON object has an overhead of one pointer (the maximal size of a union) and one enumeration element (1 byte). The default generalization uses the following C++ data types\+: {\ttfamily std\+::string} for strings, {\ttfamily int64\+\_\+t}, {\ttfamily uint64\+\_\+t} or {\ttfamily double} for numbers, {\ttfamily std\+::map} for objects, {\ttfamily std\+::vector} for arrays, and {\ttfamily bool} for Booleans. However, you can template the generalized class {\ttfamily basic\+\_\+json} to your needs.
+\item {\bfseries Speed}. We currently implement the parser as naive \href{http://en.wikipedia.org/wiki/Recursive_descent_parser}{\tt recursive descent parser} with hand coded string handling. It is fast enough, but a \href{http://en.wikipedia.org/wiki/LALR_parser}{\tt L\+A\+L\+R-\/parser} with a decent regular expression processor should be even faster (but would consist of more files which makes the integration harder).
+\end{DoxyItemize}
+
+See the \href{https://github.com/nlohmann/json/blob/master/.github/CONTRIBUTING.md#please-dont}{\tt contribution guidelines} for more information.
+
+\subsection*{Integration}
+
+The single required source, file {\ttfamily \hyperlink{a00257_source}{json.\+hpp}} is in the {\ttfamily src} directory or \href{https://github.com/nlohmann/json/releases}{\tt released here}. All you need to do is add
+
+
+\begin{DoxyCode}
+\textcolor{preprocessor}{#include "json.hpp"}
+
+\textcolor{comment}{// for convenience}
+\textcolor{keyword}{using} \hyperlink{a00025}{json} = \hyperlink{a00434_a2bfd99e845a2e5cd90aeaf1b1431f474}{nlohmann::json};
+\end{DoxyCode}
+
+
+to the files you want to use J\+S\+ON objects. That\textquotesingle{}s it. Do not forget to set the necessary switches to enable C++11 (e.\+g., {\ttfamily -\/std=c++11} for G\+CC and Clang).
+
+\subsection*{Supported compilers}
+
+Though it\textquotesingle{}s 2016 already, the support for C++11 is still a bit sparse. Currently, the following compilers are known to work\+:
+
+
+\begin{DoxyItemize}
+\item G\+CC 4.\+9 -\/ 6.\+0 (and possibly later)
+\item Clang 3.\+4 -\/ 3.\+9 (and possibly later)
+\item Microsoft Visual C++ 14.\+0 RC (and possibly later)
+\end{DoxyItemize}
+
+I would be happy to learn about other compilers/versions.
+
+Please note\+:
+
+
+\begin{DoxyItemize}
+\item G\+CC 4.\+8 does not work because of two bugs (\href{https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55817}{\tt 55817} and \href{https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57824}{\tt 57824}) in the C++11 support.
+\item For G\+CC running on Min\+GW or Android S\+DK, the error `\textquotesingle{}to\+\_\+string\textquotesingle{} is not a member of \textquotesingle{}std\textquotesingle{}{\ttfamily (or similarly, for}strtod`) may occur. Note this is not an issue with the code, but rather with the compiler itself. Please refer to \href{http://tehsausage.com/mingw-to-string}{\tt this site} and \href{https://github.com/nlohmann/json/issues/136}{\tt this discussion} for information on how to fix this bug.
+\end{DoxyItemize}
+
+\subsection*{Examples}
+
+Here are some examples to give you an idea how to use the class.
+
+Assume you want to create the J\+S\+ON object
+
+
+\begin{DoxyCode}
+1 \{
+2   "pi": 3.141,
+3   "happy": true,
+4   "name": "Niels",
+5   "nothing": null,
+6   "answer": \{
+7     "everything": 42
+8   \},
+9   "list": [1, 0, 2],
+10   "object": \{
+11     "currency": "USD",
+12     "value": 42.99
+13   \}
+14 \}
+\end{DoxyCode}
+
+
+With the J\+S\+ON class, you could write\+:
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// create an empty structure (null)}
+\hyperlink{a00025}{json} j;
+
+\textcolor{comment}{// add a number that is stored as double (note the implicit conversion of j to an object)}
+j[\textcolor{stringliteral}{"pi"}] = 3.141;
+
+\textcolor{comment}{// add a Boolean that is stored as bool}
+j[\textcolor{stringliteral}{"happy"}] = \textcolor{keyword}{true};
+
+\textcolor{comment}{// add a string that is stored as std::string}
+j[\textcolor{stringliteral}{"name"}] = \textcolor{stringliteral}{"Niels"};
+
+\textcolor{comment}{// add another null object by passing nullptr}
+j[\textcolor{stringliteral}{"nothing"}] = \textcolor{keyword}{nullptr};
+
+\textcolor{comment}{// add an object inside the object}
+j[\textcolor{stringliteral}{"answer"}][\textcolor{stringliteral}{"everything"}] = 42;
+
+\textcolor{comment}{// add an array that is stored as std::vector (using an initializer list)}
+j[\textcolor{stringliteral}{"list"}] = \{ 1, 0, 2 \};
+
+\textcolor{comment}{// add another object (using an initializer list of pairs)}
+j[\textcolor{stringliteral}{"object"}] = \{ \{\textcolor{stringliteral}{"currency"}, \textcolor{stringliteral}{"USD"}\}, \{\textcolor{stringliteral}{"value"}, 42.99\} \};
+
+\textcolor{comment}{// instead, you could also write (which looks very similar to the JSON above)}
+\hyperlink{a00025}{json} j2 = \{
+  \{\textcolor{stringliteral}{"pi"}, 3.141\},
+  \{\textcolor{stringliteral}{"happy"}, \textcolor{keyword}{true}\},
+  \{\textcolor{stringliteral}{"name"}, \textcolor{stringliteral}{"Niels"}\},
+  \{\textcolor{stringliteral}{"nothing"}, \textcolor{keyword}{nullptr}\},
+  \{\textcolor{stringliteral}{"answer"}, \{
+    \{\textcolor{stringliteral}{"everything"}, 42\}
+  \}\},
+  \{\textcolor{stringliteral}{"list"}, \{1, 0, 2\}\},
+  \{\textcolor{stringliteral}{"object"}, \{
+    \{\textcolor{stringliteral}{"currency"}, \textcolor{stringliteral}{"USD"}\},
+    \{\textcolor{stringliteral}{"value"}, 42.99\}
+  \}\}
+\};
+\end{DoxyCode}
+
+
+Note that in all these cases, you never need to \char`\"{}tell\char`\"{} the compiler which J\+S\+ON value you want to use. If you want to be explicit or express some edge cases, the functions {\ttfamily \hyperlink{a00025_a5685815624b086caa532f41e853d4b0f}{json\+::array}} and {\ttfamily \hyperlink{a00025_ad25b2f8c21e241e2d63455537a9294ff}{json\+::object}} will help\+:
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// a way to express the empty array []}
+\hyperlink{a00025}{json} empty\_array\_explicit = \hyperlink{a00025_a5685815624b086caa532f41e853d4b0f}{json::array}();
+
+\textcolor{comment}{// ways to express the empty object \{\}}
+\hyperlink{a00025}{json} empty\_object\_implicit = \hyperlink{a00025}{json}(\{\});
+\hyperlink{a00025}{json} empty\_object\_explicit = \hyperlink{a00025_ad25b2f8c21e241e2d63455537a9294ff}{json::object}();
+
+\textcolor{comment}{// a way to express an \_array\_ of key/value pairs [["currency", "USD"], ["value", 42.99]]}
+\hyperlink{a00025}{json} array\_not\_object = \{ \hyperlink{a00025_a5685815624b086caa532f41e853d4b0f}{json::array}(\{\textcolor{stringliteral}{"currency"}, \textcolor{stringliteral}{"USD"}\}), 
+      \hyperlink{a00025_a5685815624b086caa532f41e853d4b0f}{json::array}(\{\textcolor{stringliteral}{"value"}, 42.99\}) \};
+\end{DoxyCode}
+
+
+\subsubsection*{Serialization / Deserialization}
+
+You can create an object (deserialization) by appending {\ttfamily \+\_\+json} to a string literal\+:
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// create object from string literal}
+\hyperlink{a00025}{json} j = \textcolor{stringliteral}{"\{ \(\backslash\)"happy\(\backslash\)": true, \(\backslash\)"pi\(\backslash\)": 3.141 \}"}\_json;
+
+\textcolor{comment}{// or even nicer (thanks http://isocpp.org/blog/2015/01/json-for-modern-cpp)}
+\textcolor{keyword}{auto} j2 = R\textcolor{stringliteral}{"(}
+\textcolor{stringliteral}{  \{}
+\textcolor{stringliteral}{    "happy": true,}
+\textcolor{stringliteral}{    "pi": 3.141}
+\textcolor{stringliteral}{  \}}
+\textcolor{stringliteral}{)"\_json;}
+\textcolor{stringliteral}{}
+\textcolor{stringliteral}{}\textcolor{comment}{// or explicitly}
+\textcolor{keyword}{auto} j3 = \hyperlink{a00025_a35303ad045a06c2a79dc28ac29652e86}{json::parse}(\textcolor{stringliteral}{"\{ \(\backslash\)"happy\(\backslash\)": true, \(\backslash\)"pi\(\backslash\)": 3.141 \}"});
+\end{DoxyCode}
+
+
+You can also get a string representation (serialize)\+:
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// explicit conversion to string}
+std::string s = j.\hyperlink{a00025_a805e3f3a2f374da0e14942eec7400e40}{dump}();    \textcolor{comment}{// \{\(\backslash\)"happy\(\backslash\)":true,\(\backslash\)"pi\(\backslash\)":3.141\}}
+
+\textcolor{comment}{// serialization with pretty printing}
+\textcolor{comment}{// pass in the amount of spaces to indent}
+std::cout << j.\hyperlink{a00025_a805e3f3a2f374da0e14942eec7400e40}{dump}(4) << std::endl;
+\textcolor{comment}{// \{}
+\textcolor{comment}{//     "happy": true,}
+\textcolor{comment}{//     "pi": 3.141}
+\textcolor{comment}{// \}}
+\end{DoxyCode}
+
+
+You can also use streams to serialize and deserialize\+:
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// deserialize from standard input}
+\hyperlink{a00025}{json} j;
+std::cin >> j;
+
+\textcolor{comment}{// serialize to standard output}
+std::cout << j;
+
+\textcolor{comment}{// the setw manipulator was overloaded to set the indentation for pretty printing}
+std::cout << std::setw(4) << j << std::endl;
+\end{DoxyCode}
+
+
+These operators work for any subclasses of {\ttfamily std\+::istream} or {\ttfamily std\+::ostream}.
+
+\subsubsection*{S\+T\+L-\/like access}
+
+We designed the J\+S\+ON class to behave just like an S\+TL container. In fact, it satisfies the \href{http://en.cppreference.com/w/cpp/concept/ReversibleContainer}{\tt {\bfseries Reversible\+Container}} requirement.
+
+
+\begin{DoxyCode}
+\textcolor{comment}{// create an array using push\_back}
+\hyperlink{a00025}{json} j;
+j.\hyperlink{a00025_a486b96adbf4886c38e38c952394a220f}{push\_back}(\textcolor{stringliteral}{"foo"});
+j.\hyperlink{a00025_a486b96adbf4886c38e38c952394a220f}{push\_back}(1);
+j.\hyperlink{a00025_a486b96adbf4886c38e38c952394a220f}{push\_back}(\textcolor{keyword}{true});
+
+\textcolor{comment}{// iterate the array}
+\textcolor{keywordflow}{for} (\hyperlink{a00079}{json::iterator} it = j.\hyperlink{a00025_ad4e381c54039607be08d7af41a1f6ad1}{begin}(); it != j.\hyperlink{a00025_a12ccf14d39ddae52f6c7e126105a230b}{end}(); ++it) \{
+  std::cout << *it << \textcolor{charliteral}{'\(\backslash\)n'};
+\}
+
+\textcolor{comment}{// range-based for}
+\textcolor{keywordflow}{for} (\textcolor{keyword}{auto} element : j) \{
+  std::cout << element << \textcolor{charliteral}{'\(\backslash\)n'};
+\}
+
+\textcolor{comment}{// getter/setter}
+\textcolor{keyword}{const} std::string tmp = j[0];
+j[1] = 42;
+\textcolor{keywordtype}{bool} foo = j.at(2);
+
+\textcolor{comment}{// other stuff}
+j.size();     \textcolor{comment}{// 3 entries}
+j.empty();    \textcolor{comment}{// false}
+j.type();     \textcolor{comment}{// json::value\_t::array}
+j.clear();    \textcolor{comment}{// the array is empty again}
+
+\textcolor{comment}{// convenience type checkers}
+j.is\_null();
+j.is\_boolean();
+j.is\_number();
+j.is\_object();
+j.is\_array();
+j.is\_string();
+
+\textcolor{comment}{// comparison}
+j == \textcolor{stringliteral}{"[\(\backslash\)"foo\(\backslash\)", 1, true]"}\_json;  \textcolor{comment}{// true}
+
+\textcolor{comment}{// create an object}
+\hyperlink{a00025}{json} o;
+o[\textcolor{stringliteral}{"foo"}] = 23;
+o[\textcolor{stringliteral}{"bar"}] = \textcolor{keyword}{false};
+o[\textcolor{stringliteral}{"baz"}] = 3.141;
+
+\textcolor{comment}{// special iterator member functions for objects}
+\textcolor{keywordflow}{for} (\hyperlink{a00079}{json::iterator} it = o.\hyperlink{a00025_ad4e381c54039607be08d7af41a1f6ad1}{begin}(); it != o.\hyperlink{a00025_a12ccf14d39ddae52f6c7e126105a230b}{end}(); ++it) \{
+  std::cout << it.key() << \textcolor{stringliteral}{" : "} << it.\hyperlink{a00025_a0a2cbbd95862a623e7dc5c37e67dead0}{value}() << \textcolor{stringliteral}{"\(\backslash\)n"};
+\}
+
+\textcolor{comment}{// find an entry}
+\textcolor{keywordflow}{if} (o.\hyperlink{a00025_affe7e160e7bb06eed83c8b437af4692f}{find}(\textcolor{stringliteral}{"foo"}) != o.\hyperlink{a00025_a12ccf14d39ddae52f6c7e126105a230b}{end}()) \{
+  \textcolor{comment}{// there is an entry with key "foo"}
+\}
+
+\textcolor{comment}{// or simpler using count()}
+\textcolor{keywordtype}{int} foo\_present = o.\hyperlink{a00025_a51b0036310d8aa5858fecc0d91127f27}{count}(\textcolor{stringliteral}{"foo"}); \textcolor{comment}{// 1}
+\textcolor{keywordtype}{int} fob\_present = o.\hyperlink{a00025_a51b0036310d8aa5858fecc0d91127f27}{count}(\textcolor{stringliteral}{"fob"}); \textcolor{comment}{// 0}
+
+\textcolor{comment}{// delete an entry}
+o.\hyperlink{a00025_a45e789042a23138eba2b69f34df9fc45}{erase}(\textcolor{stringliteral}{"foo"});
+\end{DoxyCode}
+
+
+\subsubsection*{Conversion from S\+TL containers}
+
+Any sequence container ({\ttfamily std\+::array}, {\ttfamily std\+::vector}, {\ttfamily std\+::deque}, {\ttfamily std\+::forward\+\_\+list}, {\ttfamily std\+::list}) whose values can be used to construct J\+S\+ON types (e.\+g., integers, floating point numbers, Booleans, string types, or again S\+TL containers described in this section) can be used to create a J\+S\+ON array. The same holds for similar associative containers ({\ttfamily std\+::set}, {\ttfamily std\+::multiset}, {\ttfamily std\+::unordered\+\_\+set}, {\ttfamily std\+::unordered\+\_\+multiset}), but in these cases the order of the elements of the array depends how the elements are ordered in the respective S\+TL container.
+
+
+\begin{DoxyCode}
+std::vector<int> c\_vector \{1, 2, 3, 4\};
+\hyperlink{a00025}{json} j\_vec(c\_vector);
+\textcolor{comment}{// [1, 2, 3, 4]}
+
+std::deque<double> c\_deque \{1.2, 2.3, 3.4, 5.6\};
+\hyperlink{a00025}{json} j\_deque(c\_deque);
+\textcolor{comment}{// [1.2, 2.3, 3.4, 5.6]}
+
+std::list<bool> c\_list \{\textcolor{keyword}{true}, \textcolor{keyword}{true}, \textcolor{keyword}{false}, \textcolor{keyword}{true}\};
+\hyperlink{a00025}{json} j\_list(c\_list);
+\textcolor{comment}{// [true, true, false, true]}
+
+std::forward\_list<int64\_t> c\_flist \{12345678909876, 23456789098765, 34567890987654, 45678909876543\};
+\hyperlink{a00025}{json} j\_flist(c\_flist);
+\textcolor{comment}{// [12345678909876, 23456789098765, 34567890987654, 45678909876543]}
+
+std::array<unsigned long, 4> c\_array \{\{1, 2, 3, 4\}\};
+\hyperlink{a00025}{json} j\_array(c\_array);
+\textcolor{comment}{// [1, 2, 3, 4]}
+
+std::set<std::string> c\_set \{\textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"two"}, \textcolor{stringliteral}{"three"}, \textcolor{stringliteral}{"four"}, \textcolor{stringliteral}{"one"}\};
+\hyperlink{a00025}{json} j\_set(c\_set); \textcolor{comment}{// only one entry for "one" is used}
+\textcolor{comment}{// ["four", "one", "three", "two"]}
+
+std::unordered\_set<std::string> c\_uset \{\textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"two"}, \textcolor{stringliteral}{"three"}, \textcolor{stringliteral}{"four"}, \textcolor{stringliteral}{"one"}\};
+\hyperlink{a00025}{json} j\_uset(c\_uset); \textcolor{comment}{// only one entry for "one" is used}
+\textcolor{comment}{// maybe ["two", "three", "four", "one"]}
+
+std::multiset<std::string> c\_mset \{\textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"two"}, \textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"four"}\};
+\hyperlink{a00025}{json} j\_mset(c\_mset); \textcolor{comment}{// only one entry for "one" is used}
+\textcolor{comment}{// maybe ["one", "two", "four"]}
+
+std::unordered\_multiset<std::string> c\_umset \{\textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"two"}, \textcolor{stringliteral}{"one"}, \textcolor{stringliteral}{"four"}\};
+\hyperlink{a00025}{json} j\_umset(c\_umset); \textcolor{comment}{// both entries for "one" are used}
+\textcolor{comment}{// maybe ["one", "two", "one", "four"]}
+\end{DoxyCode}
+
+
+Likewise, any associative key-\/value containers ({\ttfamily std\+::map}, {\ttfamily std\+::multimap}, {\ttfamily std\+::unordered\+\_\+map}, {\ttfamily std\+::unordered\+\_\+multimap}) whose keys are can construct an {\ttfamily std\+::string} and whose values can be used to construct J\+S\+ON types (see examples above) can be used to to create a J\+S\+ON object. Note that in case of multimaps only one key is used in the J\+S\+ON object and the value depends on the internal order of the S\+TL container.
+
+
+\begin{DoxyCode}
+std::map<std::string, int> c\_map \{ \{\textcolor{stringliteral}{"one"}, 1\}, \{\textcolor{stringliteral}{"two"}, 2\}, \{\textcolor{stringliteral}{"three"}, 3\} \};
+\hyperlink{a00025}{json} j\_map(c\_map);
+\textcolor{comment}{// \{"one": 1, "two": 2, "three": 3\}}
+
+std::unordered\_map<const char*, double> c\_umap \{ \{\textcolor{stringliteral}{"one"}, 1.2\}, \{\textcolor{stringliteral}{"two"}, 2.3\}, \{\textcolor{stringliteral}{"three"}, 3.4\} \};
+\hyperlink{a00025}{json} j\_umap(c\_umap);
+\textcolor{comment}{// \{"one": 1.2, "two": 2.3, "three": 3.4\}}
+
+std::multimap<std::string, bool> c\_mmap \{ \{\textcolor{stringliteral}{"one"}, \textcolor{keyword}{true}\}, \{\textcolor{stringliteral}{"two"}, \textcolor{keyword}{true}\}, \{\textcolor{stringliteral}{"three"}, \textcolor{keyword}{false}\}, \{\textcolor{stringliteral}{"three"}, \textcolor{keyword}{true}\} \}
+      ;
+\hyperlink{a00025}{json} j\_mmap(c\_mmap); \textcolor{comment}{// only one entry for key "three" is used}
+\textcolor{comment}{// maybe \{"one": true, "two": true, "three": true\}}
+
+std::unordered\_multimap<std::string, bool> c\_ummap \{ \{\textcolor{stringliteral}{"one"}, \textcolor{keyword}{true}\}, \{\textcolor{stringliteral}{"two"}, \textcolor{keyword}{true}\}, \{\textcolor{stringliteral}{"three"}, \textcolor{keyword}{false}\}, \{\textcolor{stringliteral}{"
+      three"}, \textcolor{keyword}{true}\} \};
+\hyperlink{a00025}{json} j\_ummap(c\_ummap); \textcolor{comment}{// only one entry for key "three" is used}
+\textcolor{comment}{// maybe \{"one": true, "two": true, "three": true\}}
+\end{DoxyCode}
+
+
+\subsubsection*{Implicit conversions}
+
+The type of the J\+S\+ON object is determined automatically by the expression to store. Likewise, the stored value is implicitly converted.
+
+
+\begin{DoxyCode}
+std::string s1 = \textcolor{stringliteral}{"Hello, world!"};
+\hyperlink{a00025}{json} js = s1;
+std::string s2 = js;
+
+\textcolor{comment}{// Booleans}
+\textcolor{keywordtype}{bool} b1 = \textcolor{keyword}{true};
+\hyperlink{a00025}{json} jb = b1;
+\textcolor{keywordtype}{bool} b2 = jb;
+
+\textcolor{comment}{// numbers}
+\textcolor{keywordtype}{int} i = 42;
+\hyperlink{a00025}{json} jn = i;
+\textcolor{keywordtype}{double} f = jn;
+
+\textcolor{comment}{// etc.}
+\end{DoxyCode}
+
+
+You can also explicitly ask for the value\+:
+
+
+\begin{DoxyCode}
+std::string vs = js.\hyperlink{a00025_a20bfb2ca6d4c421c74bb3e53328cd437}{get}<std::string>();
+\textcolor{keywordtype}{bool} vb = jb.\hyperlink{a00025_a20bfb2ca6d4c421c74bb3e53328cd437}{get}<\textcolor{keywordtype}{bool}>();
+\textcolor{keywordtype}{int} vi = jn.\hyperlink{a00025_a20bfb2ca6d4c421c74bb3e53328cd437}{get}<\textcolor{keywordtype}{int}>();
+
+\textcolor{comment}{// etc.}
+\end{DoxyCode}
+
+
+\subsection*{License}
+
+
+
+The class is licensed under the \href{http://opensource.org/licenses/MIT}{\tt M\+IT License}\+:
+
+Copyright \copyright{} 2013-\/2016 \href{http://nlohmann.me}{\tt Niels Lohmann}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \char`\"{}\+Software\char`\"{}), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions\+:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+T\+HE S\+O\+F\+T\+W\+A\+RE IS P\+R\+O\+V\+I\+D\+ED \char`\"{}\+A\+S I\+S\char`\"{}, W\+I\+T\+H\+O\+UT W\+A\+R\+R\+A\+N\+TY OF A\+NY K\+I\+ND, E\+X\+P\+R\+E\+SS OR I\+M\+P\+L\+I\+ED, I\+N\+C\+L\+U\+D\+I\+NG B\+UT N\+OT L\+I\+M\+I\+T\+ED TO T\+HE W\+A\+R\+R\+A\+N\+T\+I\+ES OF M\+E\+R\+C\+H\+A\+N\+T\+A\+B\+I\+L\+I\+TY, F\+I\+T\+N\+E\+SS F\+OR A P\+A\+R\+T\+I\+C\+U\+L\+AR P\+U\+R\+P\+O\+SE A\+ND N\+O\+N\+I\+N\+F\+R\+I\+N\+G\+E\+M\+E\+NT. IN NO E\+V\+E\+NT S\+H\+A\+LL T\+HE A\+U\+T\+H\+O\+RS OR C\+O\+P\+Y\+R\+I\+G\+HT H\+O\+L\+D\+E\+RS BE L\+I\+A\+B\+LE F\+OR A\+NY C\+L\+A\+IM, D\+A\+M\+A\+G\+ES OR O\+T\+H\+ER L\+I\+A\+B\+I\+L\+I\+TY, W\+H\+E\+T\+H\+ER IN AN A\+C\+T\+I\+ON OF C\+O\+N\+T\+R\+A\+CT, T\+O\+RT OR O\+T\+H\+E\+R\+W\+I\+SE, A\+R\+I\+S\+I\+NG F\+R\+OM, O\+UT OF OR IN C\+O\+N\+N\+E\+C\+T\+I\+ON W\+I\+TH T\+HE S\+O\+F\+T\+W\+A\+RE OR T\+HE U\+SE OR O\+T\+H\+ER D\+E\+A\+L\+I\+N\+GS IN T\+HE S\+O\+F\+T\+W\+A\+RE.
+
+\subsection*{Thanks}
+
+I deeply appreciate the help of the following people.
+
+
+\begin{DoxyItemize}
+\item \href{https://github.com/Teemperor}{\tt Teemperor} implemented C\+Make support and lcov integration, realized escape and Unicode handling in the string parser, and fixed the J\+S\+ON serialization.
+\item \href{https://github.com/elliotgoodrich}{\tt elliotgoodrich} fixed an issue with double deletion in the iterator classes.
+\item \href{https://github.com/kirkshoop}{\tt kirkshoop} made the iterators of the class composable to other libraries.
+\item \href{https://github.com/wanwc}{\tt wancw} fixed a bug that hindered the class to compile with Clang.
+\item Tomas Åblad found a bug in the iterator implementation.
+\item \href{https://github.com/jrandall}{\tt Joshua C. Randall} fixed a bug in the floating-\/point serialization.
+\item \href{https://github.com/aburgh}{\tt Aaron Burghardt} implemented code to parse streams incrementally. Furthermore, he greatly improved the parser class by allowing the definition of a filter function to discard undesired elements while parsing.
+\item \href{https://github.com/dkopecek}{\tt Daniel Kopeček} fixed a bug in the compilation with G\+CC 5.\+0.
+\item \href{https://github.com/Florianjw}{\tt Florian Weber} fixed a bug in and improved the performance of the comparison operators.
+\item \href{https://github.com/EricMCornelius}{\tt Eric Cornelius} pointed out a bug in the handling with NaN and infinity values. He also improved the performance of the string escaping.
+\item \href{https://github.com/likebeta}{\tt 易思龙} implemented a conversion from anonymous enums.
+\item \href{https://github.com/kepkin}{\tt kepkin} patiently pushed forward the support for Microsoft Visual studio.
+\item \href{https://github.com/gregmarr}{\tt gregmarr} simplified the implementation of reverse iterators and helped with numerous hints and improvements.
+\item \href{https://github.com/caiovlp}{\tt Caio Luppi} fixed a bug in the Unicode handling.
+\item \href{https://github.com/dariomt}{\tt dariomt} fixed some typos in the examples.
+\item \href{https://github.com/d-frey}{\tt Daniel Frey} cleaned up some pointers and implemented exception-\/safe memory allocation.
+\item \href{https://github.com/ColinH}{\tt Colin Hirsch} took care of a small namespace issue.
+\item \href{https://github.com/whoshuu}{\tt Huu Nguyen} correct a variable name in the documentation.
+\item \href{https://github.com/silverweed}{\tt Silverweed} overloaded {\ttfamily parse()} to accept an rvalue reference.
+\item \href{https://github.com/dariomt}{\tt dariomt} fixed a subtlety in M\+S\+VC type support and implemented the {\ttfamily get\+\_\+ref()} function to get a reference to stored values.
+\item \href{https://github.com/ZahlGraf}{\tt Zahl\+Graf} added a workaround that allows compilation using Android N\+DK.
+\item \href{https://github.com/whackashoe}{\tt whackashoe} replaced a function that was marked as unsafe by Visual Studio.
+\item \href{https://github.com/406345}{\tt 406345} fixed two small warnings.
+\item \href{https://github.com/glenfe}{\tt Glen Fernandes} noted a potential portability problem in the {\ttfamily has\+\_\+mapped\+\_\+type} function.
+\item \href{https://github.com/nibroc}{\tt Corbin Hughes} fixed some typos in the contribution guidelines.
+\item \href{https://github.com/twelsby}{\tt twelsby} fixed the array subscript operator, an issue that failed the M\+S\+VC build, and floating-\/point parsing/dumping. He further added support for unsigned integer numbers.
+\item \href{https://github.com/vog}{\tt Volker Diels-\/\+Grabsch} fixed a link in the R\+E\+A\+D\+ME file.
+\item \href{https://github.com/msm-}{\tt msm-\/} added support for american fuzzy lop.
+\end{DoxyItemize}
+
+Thanks a lot for helping out!
+
+\subsection*{Notes}
+
+
+\begin{DoxyItemize}
+\item The code contains numerous debug {\bfseries assertions} which can be switched off by defining the preprocessor macro {\ttfamily N\+D\+E\+B\+UG}, see the \href{http://en.cppreference.com/w/cpp/error/assert}{\tt documentation of {\ttfamily assert}}.
+\item As the exact type of a number is not defined in the \href{http://rfc7159.net/rfc7159}{\tt J\+S\+ON specification}, this library tries to choose the best fitting C++ number type automatically. As a result, the type {\ttfamily double} may be used to store numbers which may yield \href{https://github.com/nlohmann/json/issues/181}{\tt {\bfseries floating-\/point exceptions}} in certain rare situations if floating-\/point exceptions have been unmasked in the calling code. These exceptions are not caused by the library and need to be fixed in the calling code, such as by re-\/masking the exceptions prior to calling library functions.
+\end{DoxyItemize}
+
+\subsection*{Execute unit tests}
+
+To compile and run the tests, you need to execute
+
+
+\begin{DoxyCode}
+1 $ make
+2 $ ./json\_unit "*"
+3 
+4 ===============================================================================
+5 All tests passed (3344278 assertions in 29 test cases)
+\end{DoxyCode}
+
+
+For more information, have a look at the file \href{https://github.com/nlohmann/json/blob/master/.travis.yml}{\tt .travis.\+yml}. 

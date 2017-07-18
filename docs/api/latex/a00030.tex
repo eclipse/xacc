@@ -1,182 +1,58 @@
-\hypertarget{a00030}{}\section{xacc\+:\+:Function Class Reference}
-\label{a00030}\index{xacc\+::\+Function@{xacc\+::\+Function}}
+\hypertarget{a00030}{}\section{xacc\+:\+:C\+L\+I\+Parser Class Reference}
+\label{a00030}\index{xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}}
 
 
-{\ttfamily \#include $<$Function.\+hpp$>$}
+{\ttfamily \#include $<$C\+L\+I\+Parser.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Function\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=5.000000cm]{a00030}
-\end{center}
-\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual const int \hyperlink{a00030_a8901985525f59713e14c61713e07c086}{n\+Instructions} ()=0
+\hyperlink{a00030_a041f8ba22cf5e1dd1fdcdc6c9223b405}{C\+L\+I\+Parser} ()
 \item 
-virtual Inst\+Ptr \hyperlink{a00030_afa549fc91b5a05f26d8139954a7e0ed5}{get\+Instruction} (const int idx)=0
+void \hyperlink{a00030_ae6499c8c7da9b4f453757dd86028a14f}{parse} (int argc, char $\ast$$\ast$argv)
 \item 
-virtual std\+::list$<$ Inst\+Ptr $>$ \hyperlink{a00030_aaf80bd3d49113a92b520785572663032}{get\+Instructions} ()=0
-\item 
-virtual void \hyperlink{a00030_ab6478b09bb28e194bb555b3180737733}{remove\+Instruction} (const int idx)=0
-\item 
-virtual void \hyperlink{a00030_a2ef6a4923a6734f90f6ee3d94d263af0}{replace\+Instruction} (const int idx, Inst\+Ptr new\+Inst)=0
-\item 
-virtual void \hyperlink{a00030_aa8c9ec2d08be75c69399d4254b0216f5}{add\+Instruction} (Inst\+Ptr instruction)=0
-\item 
-virtual bool \hyperlink{a00030_aa75500c657b5c3e0e36213e1506aad97}{is\+Composite} ()
-\item 
-virtual void {\bfseries evaluate\+Variable\+Parameters} (std\+::vector$<$ Instruction\+Parameter $>$ parameters)=0\hypertarget{a00030_af6ae9453027789a2aaec30e59c9e45e3}{}\label{a00030_af6ae9453027789a2aaec30e59c9e45e3}
+void {\bfseries add\+String\+Option} (const std\+::string key, const std\+::string description=\char`\"{}\char`\"{})\hypertarget{a00030_a793192114817fb3a9221232eab0307fd}{}\label{a00030_a793192114817fb3a9221232eab0307fd}
 
-\item 
-virtual \hyperlink{a00030_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}{$\sim$\+Function} ()
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00030_a0f1564966cc40c340027aecb386c4469}{xacc\+Options}
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00030}{Function} is an \hyperlink{a00037}{Instruction} that contains further child Instructions. 
+The role of the \hyperlink{a00030}{C\+L\+I\+Parser} is to parse all command line options provided to an X\+A\+C\+C-\/enabled program. It takes upon construction to available argc and argv variables from the command line, and parses them to fill the \hyperlink{a00113}{Runtime\+Options} singleton and load any X\+A\+CC \hyperlink{a00034}{Compiler} or \hyperlink{a00017}{Accelerator} plugins.
+
+It also queries all available Option\+Providers to display all available options to the X\+A\+CC user. 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::\+Function@{xacc\+::\+Function}!````~Function@{$\sim$\+Function}}
-\index{````~Function@{$\sim$\+Function}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{$\sim$\+Function()}{~Function()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Function\+::$\sim$\+Function (
+\index{xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}!C\+L\+I\+Parser@{C\+L\+I\+Parser}}
+\index{C\+L\+I\+Parser@{C\+L\+I\+Parser}!xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}}
+\subsubsection[{\texorpdfstring{C\+L\+I\+Parser()}{CLIParser()}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::\+C\+L\+I\+Parser\+::\+C\+L\+I\+Parser (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00030_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}{}\label{a00030_a04b25ba4da1ddfa4ec4ec6d6ffb25bc3}
-The destructor 
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00030_a041f8ba22cf5e1dd1fdcdc6c9223b405}{}\label{a00030_a041f8ba22cf5e1dd1fdcdc6c9223b405}
+The constructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::\+Function@{xacc\+::\+Function}!add\+Instruction@{add\+Instruction}}
-\index{add\+Instruction@{add\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{add\+Instruction(\+Inst\+Ptr instruction)=0}{addInstruction(InstPtr instruction)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+Function\+::add\+Instruction (
+\index{xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}!parse@{parse}}
+\index{parse@{parse}!xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}}
+\subsubsection[{\texorpdfstring{parse(int argc, char $\ast$$\ast$argv)}{parse(int argc, char **argv)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::\+C\+L\+I\+Parser\+::parse (
 \begin{DoxyParamCaption}
-\item[{Inst\+Ptr}]{instruction}
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_aa8c9ec2d08be75c69399d4254b0216f5}{}\label{a00030_aa8c9ec2d08be75c69399d4254b0216f5}
-Add an \hyperlink{a00037}{Instruction} to this \hyperlink{a00030}{Function}.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00030_ae6499c8c7da9b4f453757dd86028a14f}{}\label{a00030_ae6499c8c7da9b4f453757dd86028a14f}
+Parse the command line options. Provide a Boost options\+\_\+description built up and provided by all available Options\+Providers. This method also loads all Compilers and Accelerators available in the X\+A\+C\+C\+\_\+\+I\+N\+S\+T\+A\+L\+L\+\_\+\+D\+IR. 
 
-
-\begin{DoxyParams}{Parameters}
-{\em instruction} & The instruction to add. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00032_a892fb69a10f0a7cb5abdab4cca61b80a}{xacc\+::quantum\+::\+Gate\+Function}, and \hyperlink{a00021_a6aedad20f96390880efdc0a476b3273f}{xacc\+::quantum\+::\+Conditional\+Function}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instruction@{get\+Instruction}}
-\index{get\+Instruction@{get\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{get\+Instruction(const int idx)=0}{getInstruction(const int idx)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Inst\+Ptr xacc\+::\+Function\+::get\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_afa549fc91b5a05f26d8139954a7e0ed5}{}\label{a00030_afa549fc91b5a05f26d8139954a7e0ed5}
-Return the \hyperlink{a00037}{Instruction} at the given index.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The desired \hyperlink{a00037}{Instruction} index \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-inst The instruction at the given index. 
-\end{DoxyReturn}
-
-
-Implemented in \hyperlink{a00032_a841d656eed8aa9b4c0eec3f1da38069c}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!get\+Instructions@{get\+Instructions}}
-\index{get\+Instructions@{get\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{get\+Instructions()=0}{getInstructions()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::list$<$Inst\+Ptr$>$ xacc\+::\+Function\+::get\+Instructions (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_aaf80bd3d49113a92b520785572663032}{}\label{a00030_aaf80bd3d49113a92b520785572663032}
-Return all Instructions in this \hyperlink{a00030}{Function}
-
-\begin{DoxyReturn}{Returns}
-insts The list of this \hyperlink{a00030}{Function}\textquotesingle{}s Instructions 
-\end{DoxyReturn}
-
-
-Implemented in \hyperlink{a00032_aebce6a9e64aed7f4aff86df752bacfe2}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!is\+Composite@{is\+Composite}}
-\index{is\+Composite@{is\+Composite}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{is\+Composite()}{isComposite()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::\+Function\+::is\+Composite (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00030_aa75500c657b5c3e0e36213e1506aad97}{}\label{a00030_aa75500c657b5c3e0e36213e1506aad97}
-Return true always to indicate that the \hyperlink{a00030}{Function} is composite.
-
-\begin{DoxyReturn}{Returns}
-composite True indicating this is a composite \hyperlink{a00037}{Instruction}. 
-\end{DoxyReturn}
-
-
-Reimplemented from \hyperlink{a00037_a4383f1036d0fcfe890ab9c613dbd5f38}{xacc\+::\+Instruction}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!n\+Instructions@{n\+Instructions}}
-\index{n\+Instructions@{n\+Instructions}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{n\+Instructions()=0}{nInstructions()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const int xacc\+::\+Function\+::n\+Instructions (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_a8901985525f59713e14c61713e07c086}{}\label{a00030_a8901985525f59713e14c61713e07c086}
-Return the number of Instructions that this \hyperlink{a00030}{Function} contains.
-
-\begin{DoxyReturn}{Returns}
-n\+Inst The number of instructions 
-\end{DoxyReturn}
-
-
-Implemented in \hyperlink{a00032_aa70b26156c060fec71316fe5e98bb102}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!remove\+Instruction@{remove\+Instruction}}
-\index{remove\+Instruction@{remove\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{remove\+Instruction(const int idx)=0}{removeInstruction(const int idx)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+Function\+::remove\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_ab6478b09bb28e194bb555b3180737733}{}\label{a00030_ab6478b09bb28e194bb555b3180737733}
-Remove the \hyperlink{a00037}{Instruction} at the given index.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index of the \hyperlink{a00037}{Instruction} to remove. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00032_a44ca35d081577de9ad2930f93c01e89d}{xacc\+::quantum\+::\+Gate\+Function}.
-
-\index{xacc\+::\+Function@{xacc\+::\+Function}!replace\+Instruction@{replace\+Instruction}}
-\index{replace\+Instruction@{replace\+Instruction}!xacc\+::\+Function@{xacc\+::\+Function}}
-\subsubsection[{\texorpdfstring{replace\+Instruction(const int idx, Inst\+Ptr new\+Inst)=0}{replaceInstruction(const int idx, InstPtr newInst)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+Function\+::replace\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx, }
-\item[{Inst\+Ptr}]{new\+Inst}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00030_a2ef6a4923a6734f90f6ee3d94d263af0}{}\label{a00030_a2ef6a4923a6734f90f6ee3d94d263af0}
-Replace the \hyperlink{a00037}{Instruction} at the given index with the given new \hyperlink{a00037}{Instruction}.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index of the \hyperlink{a00037}{Instruction} to replace. \\
-\hline
-{\em new\+Inst} & The new \hyperlink{a00037}{Instruction} to replace with. \\
-\hline
-\end{DoxyParams}
-
-
-Implemented in \hyperlink{a00032_a182fdfabbf546ae89e4f2384bafb45c9}{xacc\+::quantum\+::\+Gate\+Function}.
-
-
+\subsection{Member Data Documentation}
+\index{xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}!xacc\+Options@{xacc\+Options}}
+\index{xacc\+Options@{xacc\+Options}!xacc\+::\+C\+L\+I\+Parser@{xacc\+::\+C\+L\+I\+Parser}}
+\subsubsection[{\texorpdfstring{xacc\+Options}{xaccOptions}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+C\+L\+I\+Parser\+::xacc\+Options\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00030_a0f1564966cc40c340027aecb386c4469}{}\label{a00030_a0f1564966cc40c340027aecb386c4469}
+Argc, number of arguments Argv, the command line arguments 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Function.\+hpp\end{DoxyCompactItemize}
+C\+L\+I\+Parser.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,373 @@
+\hypertarget{a00100}{}\section{Quell\+E\+Graph Class Reference}
+\label{a00100}\index{Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00100_a9d92d1de06bf78f5d3eb233480c472ca}{Quell\+E\+Graph} (int \hyperlink{a00100_aedbe28d892ab9e08522395cd1b63c612}{n\+Vertices}, mpi\+::communicator \&comm)
+\item 
+\hyperlink{a00100_a4fe13d4ae18899f2d50d986e206134a1}{Quell\+E\+Graph} (std\+::istream \&file\+Stream, mpi\+::communicator \&comm)
+\item 
+{\bfseries Quell\+E\+Graph} (int \hyperlink{a00100_aedbe28d892ab9e08522395cd1b63c612}{n\+Vertices})\hypertarget{a00100_a8e0181767b0fd906ea388708019358cd}{}\label{a00100_a8e0181767b0fd906ea388708019358cd}
+
+\item 
+virtual void \hyperlink{a00100_a8bbf5275751043a6fc9b1789a5796399}{add\+Edge} (int src\+Index, int tgt\+Index, double weight)
+\item 
+virtual void \hyperlink{a00100_afacc841dd74387c1d033029bc895f674}{add\+Edge} (int src\+Index, int tgt\+Index)
+\item 
+virtual double \hyperlink{a00100_ab6951a05af9c0e381b517a57fbc79b5c}{get\+Edge\+Weight} (int src\+Local\+Idx, int tgt\+Local\+Idx)
+\item 
+virtual void \hyperlink{a00100_a732628340e77593d26b5d1a6b8ef6e1a}{set\+Edge\+Weight} (int src\+Index, int tgt\+Index, double weight)
+\item 
+virtual void \hyperlink{a00100_abb3fe8a9c07ce0852ba5956a5b337561}{set\+Edge\+Weight} (Vertex \&src, Vertex \&tgt, double weight)
+\item 
+virtual void \hyperlink{a00100_a35a4275ddbc78a9dac06db2c1ca43506}{set\+Vertex\+Bias} (int index, double bias)
+\item 
+virtual void \hyperlink{a00100_a4b33d0531343947e867457c5bff9d222}{set\+Vertex\+Bias} (Vertex \&vert, double bias)
+\item 
+virtual double \hyperlink{a00100_ae00a3e7e7fd96620663ef6b5a1376515}{get\+Vertex\+Bias} (int index)
+\item 
+virtual double \hyperlink{a00100_a297058d5e41d7daf0f2ee8963f2a0f72}{get\+Vertex\+Bias} (Vertex \&vert)
+\item 
+virtual int \hyperlink{a00100_a01ee0f71326e4bac6ff192fb5ea56f89}{get\+Number\+Of\+Vertices} ()
+\item 
+virtual Graph \& \hyperlink{a00100_a1ab19edb9d268e27f07b40ba1e1b810f}{get\+P\+B\+G\+L\+Graph} ()
+\item 
+int \hyperlink{a00100_a3654204ef61a7fcefdaee4015fa40812}{get\+Diameter} ()
+\item 
+bool \hyperlink{a00100_aebf1ab34ca7018f47194a18baf3fac75}{edge\+Exists} (int src\+Idx, int tgt\+Idx)
+\item 
+mpi\+::communicator \& \hyperlink{a00100_a7f9bcedbc62895ac213b32557cd05e01}{get\+Communicator} ()
+\item 
+int \hyperlink{a00100_a54c3f8b912c6a177dfda9f8502219650}{get\+Vertex\+Degree} (int index)
+\item 
+virtual \hyperlink{a00100_a1018911bcafb69cee4d64b562f3bc5a6}{$\sim$\+Quell\+E\+Graph} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Graph $\ast$ \hyperlink{a00100_a6d06d2e18af59d496531f9cf3b1d62a4}{graph}
+\item 
+int \hyperlink{a00100_aedbe28d892ab9e08522395cd1b63c612}{n\+Vertices}
+\item 
+mpi\+::communicator \& \hyperlink{a00100_abaf47f32f5722caa50a241188802bfd9}{comm\+World}
+\item 
+int {\bfseries rank}\hypertarget{a00100_a24e46dd596648bfa039501ea7eb1adfd}{}\label{a00100_a24e46dd596648bfa039501ea7eb1adfd}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00100}{Quell\+E\+Graph} models an undirected weighted graph. It serves as the base class for all graph-\/related data structures in QuellE, such as adiabatic quantum computing problem inputs, hardware configurations, minor graph embeddings, and Ising parameters used as the machine-\/level instructions for an adiabatic quantum computer.
+
+Its graph functionality is provided through delegation to the Boost distributed adjacency list, which also provides native parallelism for this graph.
+
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{Quell\+E\+Graph(int n\+Vertices, mpi\+::communicator \&comm)}{QuellEGraph(int nVertices, mpi::communicator \&comm)}}]{\setlength{\rightskip}{0pt plus 5cm}Quell\+E\+Graph\+::\+Quell\+E\+Graph (
+\begin{DoxyParamCaption}
+\item[{int}]{n\+Vertices, }
+\item[{mpi\+::communicator \&}]{comm}
+\end{DoxyParamCaption}
+)}\hypertarget{a00100_a9d92d1de06bf78f5d3eb233480c472ca}{}\label{a00100_a9d92d1de06bf78f5d3eb233480c472ca}
+The constructor, requires the number of vertices in this graph and the world communicator object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em n\+Vertices} & The size of this graph, the number of vertices. \\
+\hline
+{\em comm} & The M\+PI communicator object. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{Quell\+E\+Graph(std\+::istream \&file\+Stream, mpi\+::communicator \&comm)}{QuellEGraph(std::istream \&fileStream, mpi::communicator \&comm)}}]{\setlength{\rightskip}{0pt plus 5cm}Quell\+E\+Graph\+::\+Quell\+E\+Graph (
+\begin{DoxyParamCaption}
+\item[{std\+::istream \&}]{file\+Stream, }
+\item[{mpi\+::communicator \&}]{comm}
+\end{DoxyParamCaption}
+)}\hypertarget{a00100_a4fe13d4ae18899f2d50d986e206134a1}{}\label{a00100_a4fe13d4ae18899f2d50d986e206134a1}
+This constructor let\textquotesingle{}s users create a new \hyperlink{a00100}{Quell\+E\+Graph} from a file stream that is Metis-\/graph formatted.
+
+
+\begin{DoxyParams}{Parameters}
+{\em file\+Stream} & \\
+\hline
+{\em comm} & \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!````~Quell\+E\+Graph@{$\sim$\+Quell\+E\+Graph}}
+\index{````~Quell\+E\+Graph@{$\sim$\+Quell\+E\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{$\sim$\+Quell\+E\+Graph()}{~QuellEGraph()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Quell\+E\+Graph\+::$\sim$\+Quell\+E\+Graph (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a1018911bcafb69cee4d64b562f3bc5a6}{}\label{a00100_a1018911bcafb69cee4d64b562f3bc5a6}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!add\+Edge@{add\+Edge}}
+\index{add\+Edge@{add\+Edge}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Edge(int src\+Index, int tgt\+Index, double weight)}{addEdge(int srcIndex, int tgtIndex, double weight)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::add\+Edge (
+\begin{DoxyParamCaption}
+\item[{int}]{src\+Index, }
+\item[{int}]{tgt\+Index, }
+\item[{double}]{weight}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a8bbf5275751043a6fc9b1789a5796399}{}\label{a00100_a8bbf5275751043a6fc9b1789a5796399}
+The copy constructor. This operation creates a new edge between the vertices corresponding to the given source and target indices. It also assigns the provided weight to the newly created edge.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Index} & The source vertex index for the edge. \\
+\hline
+{\em tgt\+Index} & The target vertex index for the edge. \\
+\hline
+{\em weight} & The weight to put on the edge. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!add\+Edge@{add\+Edge}}
+\index{add\+Edge@{add\+Edge}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Edge(int src\+Index, int tgt\+Index)}{addEdge(int srcIndex, int tgtIndex)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::add\+Edge (
+\begin{DoxyParamCaption}
+\item[{int}]{src\+Index, }
+\item[{int}]{tgt\+Index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_afacc841dd74387c1d033029bc895f674}{}\label{a00100_afacc841dd74387c1d033029bc895f674}
+This operation creates a new edge between the vertices corresponding to the given source and target indices. It also assigns the edge\textquotesingle{}s weight to 1.\+0.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Index} & The source vertex index for the edge. \\
+\hline
+{\em tgt\+Index} & The target vertex index for the edge. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!edge\+Exists@{edge\+Exists}}
+\index{edge\+Exists@{edge\+Exists}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{edge\+Exists(int src\+Idx, int tgt\+Idx)}{edgeExists(int srcIdx, int tgtIdx)}}]{\setlength{\rightskip}{0pt plus 5cm}bool Quell\+E\+Graph\+::edge\+Exists (
+\begin{DoxyParamCaption}
+\item[{int}]{src\+Idx, }
+\item[{int}]{tgt\+Idx}
+\end{DoxyParamCaption}
+)}\hypertarget{a00100_aebf1ab34ca7018f47194a18baf3fac75}{}\label{a00100_aebf1ab34ca7018f47194a18baf3fac75}
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Idx} & \\
+\hline
+{\em tgt\+Idx} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Communicator@{get\+Communicator}}
+\index{get\+Communicator@{get\+Communicator}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Communicator()}{getCommunicator()}}]{\setlength{\rightskip}{0pt plus 5cm}mpi\+::communicator\& Quell\+E\+Graph\+::get\+Communicator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00100_a7f9bcedbc62895ac213b32557cd05e01}{}\label{a00100_a7f9bcedbc62895ac213b32557cd05e01}
+Return the communicator.
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Diameter@{get\+Diameter}}
+\index{get\+Diameter@{get\+Diameter}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Diameter()}{getDiameter()}}]{\setlength{\rightskip}{0pt plus 5cm}int Quell\+E\+Graph\+::get\+Diameter (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{a00100_a3654204ef61a7fcefdaee4015fa40812}{}\label{a00100_a3654204ef61a7fcefdaee4015fa40812}
+This operation returns the diameter of this graph using a breadth-\/first-\/search distance calculation algorithm.
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Edge\+Weight@{get\+Edge\+Weight}}
+\index{get\+Edge\+Weight@{get\+Edge\+Weight}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Edge\+Weight(int src\+Local\+Idx, int tgt\+Local\+Idx)}{getEdgeWeight(int srcLocalIdx, int tgtLocalIdx)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual double Quell\+E\+Graph\+::get\+Edge\+Weight (
+\begin{DoxyParamCaption}
+\item[{int}]{src\+Local\+Idx, }
+\item[{int}]{tgt\+Local\+Idx}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_ab6951a05af9c0e381b517a57fbc79b5c}{}\label{a00100_ab6951a05af9c0e381b517a57fbc79b5c}
+This operation returns the weight of the edge with vertices given by the provided source and target indices.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Local\+Idx} & The source vertex index for this edge. \\
+\hline
+{\em tgt\+Local\+Idx} & The target vertex index for this edge. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+weight The weight of the edge. 
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Number\+Of\+Vertices@{get\+Number\+Of\+Vertices}}
+\index{get\+Number\+Of\+Vertices@{get\+Number\+Of\+Vertices}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Number\+Of\+Vertices()}{getNumberOfVertices()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual int Quell\+E\+Graph\+::get\+Number\+Of\+Vertices (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00100_a01ee0f71326e4bac6ff192fb5ea56f89}{}\label{a00100_a01ee0f71326e4bac6ff192fb5ea56f89}
+This operation returns the number of vertices in the graph.
+
+\begin{DoxyReturn}{Returns}
+n\+Vertices The number of vertices in this graph. 
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+P\+B\+G\+L\+Graph@{get\+P\+B\+G\+L\+Graph}}
+\index{get\+P\+B\+G\+L\+Graph@{get\+P\+B\+G\+L\+Graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+P\+B\+G\+L\+Graph()}{getPBGLGraph()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Graph\& Quell\+E\+Graph\+::get\+P\+B\+G\+L\+Graph (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00100_a1ab19edb9d268e27f07b40ba1e1b810f}{}\label{a00100_a1ab19edb9d268e27f07b40ba1e1b810f}
+Return a reference to the P\+B\+GL graph.
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Vertex\+Bias@{get\+Vertex\+Bias}}
+\index{get\+Vertex\+Bias@{get\+Vertex\+Bias}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Vertex\+Bias(int index)}{getVertexBias(int index)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual double Quell\+E\+Graph\+::get\+Vertex\+Bias (
+\begin{DoxyParamCaption}
+\item[{int}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_ae00a3e7e7fd96620663ef6b5a1376515}{}\label{a00100_ae00a3e7e7fd96620663ef6b5a1376515}
+Return the bias value for the vertex at the given index. Note that this index must be local to the calling process.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the vertex on the local process. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bias The bias value. 
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Vertex\+Bias@{get\+Vertex\+Bias}}
+\index{get\+Vertex\+Bias@{get\+Vertex\+Bias}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Vertex\+Bias(\+Vertex \&vert)}{getVertexBias(Vertex \&vert)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual double Quell\+E\+Graph\+::get\+Vertex\+Bias (
+\begin{DoxyParamCaption}
+\item[{Vertex \&}]{vert}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a297058d5e41d7daf0f2ee8963f2a0f72}{}\label{a00100_a297058d5e41d7daf0f2ee8963f2a0f72}
+Return the bias value for the vertex.
+
+
+\begin{DoxyParams}{Parameters}
+{\em vert} & The vertex. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bias The bias value. 
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!get\+Vertex\+Degree@{get\+Vertex\+Degree}}
+\index{get\+Vertex\+Degree@{get\+Vertex\+Degree}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Vertex\+Degree(int index)}{getVertexDegree(int index)}}]{\setlength{\rightskip}{0pt plus 5cm}int Quell\+E\+Graph\+::get\+Vertex\+Degree (
+\begin{DoxyParamCaption}
+\item[{int}]{index}
+\end{DoxyParamCaption}
+)}\hypertarget{a00100_a54c3f8b912c6a177dfda9f8502219650}{}\label{a00100_a54c3f8b912c6a177dfda9f8502219650}
+Return the degree of the vertex with given index.
+
+\begin{DoxyReturn}{Returns}
+degree The number of connections this vertex has. 
+\end{DoxyReturn}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!set\+Edge\+Weight@{set\+Edge\+Weight}}
+\index{set\+Edge\+Weight@{set\+Edge\+Weight}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Edge\+Weight(int src\+Index, int tgt\+Index, double weight)}{setEdgeWeight(int srcIndex, int tgtIndex, double weight)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::set\+Edge\+Weight (
+\begin{DoxyParamCaption}
+\item[{int}]{src\+Index, }
+\item[{int}]{tgt\+Index, }
+\item[{double}]{weight}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a732628340e77593d26b5d1a6b8ef6e1a}{}\label{a00100_a732628340e77593d26b5d1a6b8ef6e1a}
+This operation modifies the weight of the edge with vertices with the provided source and target index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Index} & The index of the edge\textquotesingle{}s source vertex. \\
+\hline
+{\em tgt\+Index} & The index of the edge\textquotesingle{}s target vertex. \\
+\hline
+{\em weight} & The new weight. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!set\+Edge\+Weight@{set\+Edge\+Weight}}
+\index{set\+Edge\+Weight@{set\+Edge\+Weight}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Edge\+Weight(\+Vertex \&src, Vertex \&tgt, double weight)}{setEdgeWeight(Vertex \&src, Vertex \&tgt, double weight)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::set\+Edge\+Weight (
+\begin{DoxyParamCaption}
+\item[{Vertex \&}]{src, }
+\item[{Vertex \&}]{tgt, }
+\item[{double}]{weight}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_abb3fe8a9c07ce0852ba5956a5b337561}{}\label{a00100_abb3fe8a9c07ce0852ba5956a5b337561}
+This operation modifies the weight of the edge with vertices with the provided source and target vertices.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The edge\textquotesingle{}s source vertex. \\
+\hline
+{\em tgt} & The edge\textquotesingle{}s target vertex. \\
+\hline
+{\em weight} & The new weight. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!set\+Vertex\+Bias@{set\+Vertex\+Bias}}
+\index{set\+Vertex\+Bias@{set\+Vertex\+Bias}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Vertex\+Bias(int index, double bias)}{setVertexBias(int index, double bias)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::set\+Vertex\+Bias (
+\begin{DoxyParamCaption}
+\item[{int}]{index, }
+\item[{double}]{bias}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a35a4275ddbc78a9dac06db2c1ca43506}{}\label{a00100_a35a4275ddbc78a9dac06db2c1ca43506}
+Set the bias value for the vertex at the given index. Note that the index provided must be an index that is local to the calling process.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the vertex on the local process \\
+\hline
+{\em bias} & The value of the bias. \\
+\hline
+\end{DoxyParams}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!set\+Vertex\+Bias@{set\+Vertex\+Bias}}
+\index{set\+Vertex\+Bias@{set\+Vertex\+Bias}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Vertex\+Bias(\+Vertex \&vert, double bias)}{setVertexBias(Vertex \&vert, double bias)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Quell\+E\+Graph\+::set\+Vertex\+Bias (
+\begin{DoxyParamCaption}
+\item[{Vertex \&}]{vert, }
+\item[{double}]{bias}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00100_a4b33d0531343947e867457c5bff9d222}{}\label{a00100_a4b33d0531343947e867457c5bff9d222}
+Set the bias value for the vertex.
+
+
+\begin{DoxyParams}{Parameters}
+{\em vert} & The vertex \\
+\hline
+{\em bias} & The value of the bias. \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{Quell\+E\+Graph@{Quell\+E\+Graph}!comm\+World@{comm\+World}}
+\index{comm\+World@{comm\+World}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{comm\+World}{commWorld}}]{\setlength{\rightskip}{0pt plus 5cm}mpi\+::communicator\& Quell\+E\+Graph\+::comm\+World\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00100_abaf47f32f5722caa50a241188802bfd9}{}\label{a00100_abaf47f32f5722caa50a241188802bfd9}
+Reference to the M\+PI communicator. \index{Quell\+E\+Graph@{Quell\+E\+Graph}!graph@{graph}}
+\index{graph@{graph}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{graph}{graph}}]{\setlength{\rightskip}{0pt plus 5cm}Graph$\ast$ Quell\+E\+Graph\+::graph\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00100_a6d06d2e18af59d496531f9cf3b1d62a4}{}\label{a00100_a6d06d2e18af59d496531f9cf3b1d62a4}
+Reference to the P\+B\+GL distributed graph object that this \hyperlink{a00100}{Quell\+E\+Graph} leverages. \index{Quell\+E\+Graph@{Quell\+E\+Graph}!n\+Vertices@{n\+Vertices}}
+\index{n\+Vertices@{n\+Vertices}!Quell\+E\+Graph@{Quell\+E\+Graph}}
+\subsubsection[{\texorpdfstring{n\+Vertices}{nVertices}}]{\setlength{\rightskip}{0pt plus 5cm}int Quell\+E\+Graph\+::n\+Vertices\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00100_aedbe28d892ab9e08522395cd1b63c612}{}\label{a00100_aedbe28d892ab9e08522395cd1b63c612}
+Reference to the number of vertices in this graph. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Quell\+E\+Graph.\+ipp\end{DoxyCompactItemize}

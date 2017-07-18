@@ -1,763 +1,1471 @@
 <toc label="XACC" topic="index.html">
-  <topic label="README" href="a01536.html"/>
-  <topic label="README" href="a01537.html"/>
-  <topic label="README" href="a01538.html"/>
-  <topic label="update so we can get gcc 6" href="a01539.html"/>
-  <topic label="README" href="a01540.html"/>
-  <topic label="README" href="a01541.html"/>
-  <topic label="README" href="a01542.html"/>
-  <topic label="README" href="a01543.html"/>
-  <topic label="README" href="a01544.html"/>
-  <topic label="README" href="a01545.html"/>
+  <topic label="Building QuellE Docker Image" href="a00002.html"/>
+  <topic label="PyQCC - Python Wrapper for QuellE Compilation" href="a00003.html"/>
+  <topic label="Building Prerequisites (Mac OS X)" href="a00004.html"/>
+  <topic label="Change Log" href="a00005.html"/>
+  <topic label="README" href="a00006.html"/>
+  <topic label="README" href="a00007.html"/>
+  <topic label="README" href="a00008.html"/>
+  <topic label="README" href="a00009.html"/>
+  <topic label="update so we can get gcc 6" href="a00010.html"/>
+  <topic label="README" href="a00011.html"/>
+  <topic label="README" href="a00012.html"/>
+  <topic label="README" href="a00013.html"/>
+  <topic label="README" href="a00014.html"/>
+  <topic label="README" href="a00015.html"/>
+  <topic label="README" href="a00016.html"/>
+  <topic label="Namespaces">
+    <topic label="Namespace List" href="namespaces.html">
+      <topic label="boost" href="a00426.html"/>
+      <topic label="nlohmann" href="a00434.html"/>
+    </topic>
+    <topic label="Namespace Members" href="namespacemembers.html">
+      <topic label="All" href="namespacemembers.html"/>
+      <topic label="Typedefs" href="namespacemembers_type.html"/>
+    </topic>
+  </topic>
   <topic label="Classes" href="annotated.html">
     <topic label="Class List" href="annotated.html">
+      <topic label="boost" href="a00426.html">
+        <topic label="serialization">
+          <topic label="Serialize" href="a00121.html">
+          </topic>
+          <topic label="Serialize&lt; 0 &gt;" href="a00122.html">
+          </topic>
+        </topic>
+      </topic>
+      <topic label="nlohmann" href="a00434.html">
+        <topic label="basic_json" href="a00025.html">
+          <topic label="const_iterator" href="a00038.html">
+            <topic label="difference_type" href="a00038.html#a49d7c3e9ef3280df03052cce988b792f"/>
+            <topic label="iterator_category" href="a00038.html#a821560d64f50525162097f19b1392e7f"/>
+            <topic label="pointer" href="a00038.html#a1da96fc3054d547e7706d3a2f073f389"/>
+            <topic label="reference" href="a00038.html#aefd248cac6493eed1e6ff53ba6a63eb2"/>
+            <topic label="value_type" href="a00038.html#a9ea0497199b1e96ce9cadd1f202ec343"/>
+            <topic label="const_iterator" href="a00038.html#ac6fdaff67857f82a623e5cc253917639"/>
+            <topic label="const_iterator" href="a00038.html#a23de834b11bd895209aa65c100ab9ceb"/>
+            <topic label="const_iterator" href="a00038.html#a6b950c6bc081ac1ec1540ec05ceb2603"/>
+            <topic label="const_iterator" href="a00038.html#a18c35a6735d3da96b4fc026421c05dd8"/>
+            <topic label="key" href="a00038.html#a5d4320e24fcb7df041ff2c95d976dba0"/>
+            <topic label="operator!=" href="a00038.html#a9e4c6e48e3c2f3ff357ef8215b8c8fca"/>
+            <topic label="operator*" href="a00038.html#ab3029a1a83cf46dc28ad443bbad0c74d"/>
+            <topic label="operator+" href="a00038.html#a7a80257f2303210b0a5d056fc0b30b40"/>
+            <topic label="operator++" href="a00038.html#a8dbaec5bf8ccba3225520356629061cb"/>
+            <topic label="operator++" href="a00038.html#a8fbb15efd97599209a7def77af8e748e"/>
+            <topic label="operator+=" href="a00038.html#a0d5820d1dda9dea3bbeb029cacf68522"/>
+            <topic label="operator-" href="a00038.html#abc4552ba2fe39e7901a83dd6d4dec151"/>
+            <topic label="operator-" href="a00038.html#a5e4d98a8f95e2eccde8cd48c19efa196"/>
+            <topic label="operator--" href="a00038.html#a6cab1c2ed7e2a014980e2a5717f43a64"/>
+            <topic label="operator--" href="a00038.html#adeb2ff3fdf3cc301b72db109934c9199"/>
+            <topic label="operator-=" href="a00038.html#aefac8f3e390ac917f021761f4a8f8e71"/>
+            <topic label="operator-&gt;" href="a00038.html#a8be837e4d902887676dd837abe9098d3"/>
+            <topic label="operator&lt;" href="a00038.html#a65f491b515e5967e9c0b40289e3c0ff3"/>
+            <topic label="operator&lt;=" href="a00038.html#a6b682f09787eff62f03493d45aa05902"/>
+            <topic label="operator=" href="a00038.html#a5521515067b6597cb0b55a9c547a7a2b"/>
+            <topic label="operator==" href="a00038.html#ab4c0b9baaec9ebc4837158e272f6c803"/>
+            <topic label="operator&gt;" href="a00038.html#acb6cd0ff760933afeb7f93e5207f3646"/>
+            <topic label="operator&gt;=" href="a00038.html#af6941c3711dabb2e64960dd57e00d201"/>
+            <topic label="operator[]" href="a00038.html#a7bd530bfbbc58ac77308c087120c21fa"/>
+            <topic label="value" href="a00038.html#ac75e80d30b6169ee2a29ec93fb4d2acd"/>
+            <topic label="basic_json" href="a00038.html#ada3100cdb8700566051828f1355fa745"/>
+          </topic>
+          <topic label="iterator" href="a00079.html">
+            <topic label="base_iterator" href="a00079.html#ac48754e4dc48d65d95294bd170dcd857"/>
+            <topic label="pointer" href="a00079.html#a3aae1df93a78b201d98e178c1c7d02a7"/>
+            <topic label="reference" href="a00079.html#a97aff5d71246774267a81066460dd1cf"/>
+            <topic label="iterator" href="a00079.html#a47fb2dbbbfaf65c0ccfa99aeaed920a1"/>
+            <topic label="iterator" href="a00079.html#a085fe0d8cf459b5b1ae7b518b933ae7d"/>
+            <topic label="iterator" href="a00079.html#a1de0975e812c83e74d118b3e1063f335"/>
+            <topic label="operator*" href="a00079.html#ab07728b4da636eda0a24e0a51b8b46d7"/>
+            <topic label="operator+" href="a00079.html#a56952f8d5702541f0d88e6a764d2ae36"/>
+            <topic label="operator++" href="a00079.html#a2943e49b3d88e6ee5793c5923ab2ede9"/>
+            <topic label="operator++" href="a00079.html#a050b7fa21051ea57e5b0cc03668b5d4a"/>
+            <topic label="operator+=" href="a00079.html#ae0c848dbc0af1cde15771d45d775b27c"/>
+            <topic label="operator-" href="a00079.html#a790f550ff168095c83c2e459c575916c"/>
+            <topic label="operator-" href="a00079.html#a9f3940ac5fb2c6ff8045ed59b8a0866f"/>
+            <topic label="operator--" href="a00079.html#ab4f238aa5fcf452b1884b748b0395b1f"/>
+            <topic label="operator--" href="a00079.html#ab3679dc63b3a59edb98b1c2b96d8683c"/>
+            <topic label="operator-=" href="a00079.html#afe86d48d3e4e5ebdaaec162b3cf0e95c"/>
+            <topic label="operator-&gt;" href="a00079.html#ae58cd597336ad125d9615cff87fcd87e"/>
+            <topic label="operator=" href="a00079.html#a3db892729714c4e7eaf60c00ee96e2e9"/>
+            <topic label="operator[]" href="a00079.html#a7e01532727c10f87926dac4eb8e170f4"/>
+            <topic label="value" href="a00079.html#a8ffbf287736048e683f58306fdb8701f"/>
+          </topic>
+          <topic label="json_reverse_iterator" href="a00080.html">
+            <topic label="base_iterator" href="a00080.html#a9ebc4c99e6fc90c965af0f39ad2ca70e"/>
+            <topic label="reference" href="a00080.html#a7265535f39299824f9712a2ca15013c3"/>
+            <topic label="json_reverse_iterator" href="a00080.html#a86c97bbb8ebe19aef4656cf796e30e99"/>
+            <topic label="json_reverse_iterator" href="a00080.html#a530f042e2ab1c83dddfc344931b0375a"/>
+            <topic label="key" href="a00080.html#acecae6d237fcf14c909fb42b9d2e2955"/>
+            <topic label="operator+" href="a00080.html#a99ee137dab7e5c948457f6a5321b54b1"/>
+            <topic label="operator++" href="a00080.html#a545a8204cfd6836eb85abc3113a0bb28"/>
+            <topic label="operator++" href="a00080.html#a4aede52d6ee253a510897518b59e09c0"/>
+            <topic label="operator+=" href="a00080.html#a9accc9dd9f9033f50c0ab6bcf337ffe0"/>
+            <topic label="operator-" href="a00080.html#ac2634bee082633671125e909dffad40a"/>
+            <topic label="operator-" href="a00080.html#a115fae3dd8ae02669fedae0545ce1cbc"/>
+            <topic label="operator--" href="a00080.html#a693439bffe56a9a8cf53bc4a06b911ff"/>
+            <topic label="operator--" href="a00080.html#a563a7bd281e9919798d18396107fb05c"/>
+            <topic label="operator[]" href="a00080.html#ad4ec2bbb8347e7aa3b58e616fd6c7f40"/>
+            <topic label="value" href="a00080.html#aca5116682e206dac48f8a56716a3280b"/>
+          </topic>
+          <topic label="allocator_type" href="a00025.html#aa44ce84b9ac506b905b8fb56c9a0989d"/>
+          <topic label="array_t" href="a00025.html#ab00b882d39306d663c23dab110f5cae0"/>
+          <topic label="boolean_t" href="a00025.html#af3bc3e83aa162d7ba4df16a949872723"/>
+          <topic label="const_pointer" href="a00025.html#a06efb200b69942eacd1ea22d0f6ccebb"/>
+          <topic label="const_reference" href="a00025.html#af677a29b0e66edc9f66e5167e4667071"/>
+          <topic label="const_reverse_iterator" href="a00025.html#ae336fff01f4b78e3e16e5008dc8dbc00"/>
+          <topic label="difference_type" href="a00025.html#aec316934a555dd1acdd3600e5d4a4cdf"/>
+          <topic label="number_float_t" href="a00025.html#a74a0013e847fdc574b48f931f0e757e1"/>
+          <topic label="number_integer_t" href="a00025.html#ac4b10b2364f26ce47bdb9a413ff04a59"/>
+          <topic label="number_unsigned_t" href="a00025.html#a60a04166c122072ab11eaf9845d9cd1d"/>
+          <topic label="object_t" href="a00025.html#a0ac9894c9de8dc551cf2e5f1c605537f"/>
+          <topic label="parser_callback_t" href="a00025.html#a9e35475e2027520a78e09f460dbe048a"/>
+          <topic label="pointer" href="a00025.html#a9d1b58099dc64695fcf2847ab0b2a7c7"/>
+          <topic label="reference" href="a00025.html#a3ec8e17be8732fe436e9d6733f52b7a3"/>
+          <topic label="reverse_iterator" href="a00025.html#a2f1f83aa187a56dc5ec7a7027065ac8a"/>
+          <topic label="size_type" href="a00025.html#a1579a8f72a230358d6cd1a6e8a62859b"/>
+          <topic label="string_t" href="a00025.html#ab63e618bbb0371042b1bec17f5891f42"/>
+          <topic label="value_type" href="a00025.html#ac8d45b57874b4a6e9c07f7d3b5daa1f9"/>
+          <topic label="parse_event_t" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafe">
+            <topic label="object_start" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafeae73f17027cb0acbb537f29d0a6944b26"/>
+            <topic label="object_end" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafeaf63e2a2468a37aa4f394fcc3bcb8249c"/>
+            <topic label="array_start" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafeaa4388a3d92419edbb1c6efd4d52461f3"/>
+            <topic label="array_end" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafea49642fb732aa2e112188fba1f9d3ef7f"/>
+            <topic label="key" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafea3c6e0b8a9c15224a8228b9a98ca1531d"/>
+            <topic label="value" href="a00025.html#aea1c863b719b4ca5b77188c171bbfafea2063c1608d6e0baf80249c42e2be5804"/>
+          </topic>
+          <topic label="value_t" href="a00025.html#a231b02148577b69a154b2ce2c87a5522">
+            <topic label="null" href="a00025.html#a231b02148577b69a154b2ce2c87a5522a37a6259cc0c1dae299a7866489dff0bd"/>
+            <topic label="object" href="a00025.html#a231b02148577b69a154b2ce2c87a5522aa8cfde6331bd59eb2ac96f8911c4b666"/>
+            <topic label="array" href="a00025.html#a231b02148577b69a154b2ce2c87a5522af1f713c9e000f5d3f280adbd124df4f5"/>
+            <topic label="string" href="a00025.html#a231b02148577b69a154b2ce2c87a5522ab45cffe084dd3d20d928bee85e7b0f21"/>
+            <topic label="boolean" href="a00025.html#a231b02148577b69a154b2ce2c87a5522a84e2c64f38f78ba3ea5c905ab5a2da27"/>
+            <topic label="number_integer" href="a00025.html#a231b02148577b69a154b2ce2c87a5522a5763da164f8659d94a56e29df64b4bcc"/>
+            <topic label="number_unsigned" href="a00025.html#a231b02148577b69a154b2ce2c87a5522adce7cc8ec29055c4158828921f2f265e"/>
+            <topic label="number_float" href="a00025.html#a231b02148577b69a154b2ce2c87a5522ad9966ecb59667235a57b4b999a649eef"/>
+            <topic label="discarded" href="a00025.html#a231b02148577b69a154b2ce2c87a5522a94708897ec9db8647dfe695714c98e46"/>
+          </topic>
+          <topic label="basic_json" href="a00025.html#a8f77085bd98c97a983d9ba12efbf6148"/>
+          <topic label="basic_json" href="a00025.html#a53771a7a4f2787125e55f64448f24ce6"/>
+          <topic label="basic_json" href="a00025.html#ade0e56c8c320d7f342e7a5697e6d6f7e"/>
+          <topic label="basic_json" href="a00025.html#a9af5ea68c88f423ddf35216aff7f1813"/>
+          <topic label="basic_json" href="a00025.html#ab7be2bc58ae0c2c2c30d40f15d6399f8"/>
+          <topic label="basic_json" href="a00025.html#a3aaf41d385f0d9a93deb92f9b14ae0cf"/>
+          <topic label="basic_json" href="a00025.html#a81aaaab0f3b326afda2d226daab4f1e1"/>
+          <topic label="basic_json" href="a00025.html#ab8b43d92a042dde96c28aeea81dd52de"/>
+          <topic label="basic_json" href="a00025.html#a3654da9a84deaf61899c4eee5b93c2c5"/>
+          <topic label="basic_json" href="a00025.html#ae85d91b0620650bcd9993e09d0e287d9"/>
+          <topic label="basic_json" href="a00025.html#aac36af84d907b5c3e469af889661620a"/>
+          <topic label="basic_json" href="a00025.html#a0d838bc7ffca6017f51167e0a8ffd9b6"/>
+          <topic label="basic_json" href="a00025.html#a70ae1f0747f5b7a89979512866474f1a"/>
+          <topic label="basic_json" href="a00025.html#ad2eddc2c13ab084f067eaba65d381ad2"/>
+          <topic label="basic_json" href="a00025.html#a85b09b03916d3d1e73373f49cdd4136d"/>
+          <topic label="basic_json" href="a00025.html#a68a5f34b164a07b8ced13fcf2b7ec834"/>
+          <topic label="basic_json" href="a00025.html#a2badcf191deabf579abcf8d3654da26f"/>
+          <topic label="basic_json" href="a00025.html#a4bbdfd6dd8d2e6fc9ac5d81ef61ba3fe"/>
+          <topic label="basic_json" href="a00025.html#afeb998aec45296bc2050bd1c41ef41eb"/>
+          <topic label="basic_json" href="a00025.html#a112a2d8e76345ea64f71e2985fee4c52"/>
+          <topic label="basic_json" href="a00025.html#af7acf3838a79363356f24538941a559c"/>
+          <topic label="basic_json" href="a00025.html#a9857835334d38ba04959e348ca6be208"/>
+          <topic label="basic_json" href="a00025.html#a4ab93491f82545342562c7ee7e3166c7"/>
+          <topic label="basic_json" href="a00025.html#a73e150cbcba5643cb89de8f515eb64e2"/>
+          <topic label="~basic_json" href="a00025.html#a947b5b2a832e490858dbdddfe7085831"/>
+          <topic label="at" href="a00025.html#a214a8c22d616fd3567b88932c07436c9"/>
+          <topic label="at" href="a00025.html#ab31368c0b67f8e4f291a45e6498018be"/>
+          <topic label="at" href="a00025.html#a7ed92d56cb313b243c1917696ffdf074"/>
+          <topic label="at" href="a00025.html#a674de1ee73e6bf4843fc5dc1351fb726"/>
+          <topic label="back" href="a00025.html#a71b1d38ef402dfee58fba1fe01fa67f5"/>
+          <topic label="back" href="a00025.html#a098482190447461f47f80b99bf2519f6"/>
+          <topic label="begin" href="a00025.html#ad4e381c54039607be08d7af41a1f6ad1"/>
+          <topic label="begin" href="a00025.html#a86a477c16dac3bdd4929fee2db394256"/>
+          <topic label="cbegin" href="a00025.html#aa7205e1926d3aea98adeced91b0ff5fb"/>
+          <topic label="cend" href="a00025.html#a19dfb04c297ffb5f0ef84abfa4a5a087"/>
+          <topic label="clear" href="a00025.html#ad6e51670e9c0052856f3fee01df5c44f"/>
+          <topic label="count" href="a00025.html#a51b0036310d8aa5858fecc0d91127f27"/>
+          <topic label="crbegin" href="a00025.html#a43c08a393368eb674d0dcdbe301aafe3"/>
+          <topic label="crend" href="a00025.html#aae7eb3b91d7f68e86396c5c6b683445f"/>
+          <topic label="dump" href="a00025.html#a805e3f3a2f374da0e14942eec7400e40"/>
+          <topic label="empty" href="a00025.html#a90239431815c94b0a334f7f4c55eb859"/>
+          <topic label="end" href="a00025.html#a12ccf14d39ddae52f6c7e126105a230b"/>
+          <topic label="end" href="a00025.html#a68f0a8c4618d57523384ec7ecd2f5819"/>
+          <topic label="erase" href="a00025.html#a45e789042a23138eba2b69f34df9fc45"/>
+          <topic label="erase" href="a00025.html#a263a9ecde33a1f2ff63dcd15d5e42cb7"/>
+          <topic label="erase" href="a00025.html#aa36e72ffc3241b960fe9186d19e03bc3"/>
+          <topic label="erase" href="a00025.html#a3da254c422ede5495f2815c5e48c00c5"/>
+          <topic label="find" href="a00025.html#affe7e160e7bb06eed83c8b437af4692f"/>
+          <topic label="find" href="a00025.html#aaa687595d7627925fbf6d6eb97e2021e"/>
+          <topic label="front" href="a00025.html#aa45753034bea87f9d2c0c42ace9ff75c"/>
+          <topic label="front" href="a00025.html#a8032645ce3109a7a4899badd90fa3480"/>
+          <topic label="get" href="a00025.html#a20bfb2ca6d4c421c74bb3e53328cd437"/>
+          <topic label="get" href="a00025.html#ac5693cff1df0775cd3fbe960412cde4b"/>
+          <topic label="get" href="a00025.html#a363da77bc39cae041d59ee334ac4f41b"/>
+          <topic label="get_ptr" href="a00025.html#a7ab11375ed2e29c2fcb6119386851445"/>
+          <topic label="get_ptr" href="a00025.html#aad65e0bc388897192bf361c24c1d6dda"/>
+          <topic label="get_ref" href="a00025.html#a4f332e90f3cae562d0c3fa6ba48f74f9"/>
+          <topic label="get_ref" href="a00025.html#aa669d997ddc03566de5438781254b32b"/>
+          <topic label="insert" href="a00025.html#a7f7bbb3a9efef2e2442f538a24c1c47b"/>
+          <topic label="insert" href="a00025.html#a8468efcfcd95db15f46887b29924ed5c"/>
+          <topic label="insert" href="a00025.html#a624025acfcf64364d98424402b837bc6"/>
+          <topic label="insert" href="a00025.html#aeaa0644fd6b99af364e772092268dfd6"/>
+          <topic label="insert" href="a00025.html#aadb4e5be88221e5e28cdb752332f3d13"/>
+          <topic label="is_array" href="a00025.html#a1af360cb513cc32f28e80ddd0b9d7666"/>
+          <topic label="is_boolean" href="a00025.html#a8f7e67d903f918cd08261219fb47a9f0"/>
+          <topic label="is_discarded" href="a00025.html#a66c051561828b2c4eeaad896a72bec99"/>
+          <topic label="is_null" href="a00025.html#a685d9d6a8a45bfcb8455b147257cdffb"/>
+          <topic label="is_number" href="a00025.html#a1407f91b4689bbc56d1a3c401a5bb649"/>
+          <topic label="is_number_float" href="a00025.html#a628733b45cd0e32bd59efea149f40b4b"/>
+          <topic label="is_number_integer" href="a00025.html#a87499fdb56ca6f0df2242c3335c3dc9b"/>
+          <topic label="is_number_unsigned" href="a00025.html#a693b411d9c5ad0d168a0013cfb80b8e5"/>
+          <topic label="is_object" href="a00025.html#a0d96ff13001977a93d65f0a97279d316"/>
+          <topic label="is_primitive" href="a00025.html#a7c774ef0eceff6d06095f617e2dbd488"/>
+          <topic label="is_string" href="a00025.html#ab22c8d61eca51f0308c263487bd35f03"/>
+          <topic label="is_structured" href="a00025.html#a558b345044c38a9f6ad522592cc700c8"/>
+          <topic label="max_size" href="a00025.html#ad5514a7435f246fc5335856465022a7a"/>
+          <topic label="operator value_t" href="a00025.html#a101cd941eb8a5c299660449c71d0e75e"/>
+          <topic label="operator ValueType" href="a00025.html#aef496a56163710084e13612ab73e6ed2"/>
+          <topic label="operator+=" href="a00025.html#a1c1aa2d148a3e4ce0d4e50cf5b894f41"/>
+          <topic label="operator+=" href="a00025.html#a80c21170db6b5ffd9274b3f351cebadc"/>
+          <topic label="operator+=" href="a00025.html#a9486a272e034c0548305d7a12f3045e6"/>
+          <topic label="operator=" href="a00025.html#a7c3182cfabc0bdd9f3a14216fe0e8154"/>
+          <topic label="operator[]" href="a00025.html#a59732a1de287a7301cca19a7a7748159"/>
+          <topic label="operator[]" href="a00025.html#a99f2e765029e51dd0fff018650f92eea"/>
+          <topic label="operator[]" href="a00025.html#a92fbb711a36b5ce78ee228b26787c034"/>
+          <topic label="operator[]" href="a00025.html#a2e26bd0b0168abb61f67ad5bcd5b9fa1"/>
+          <topic label="operator[]" href="a00025.html#a140b8251f82e99ad279dcad5c977e26b"/>
+          <topic label="operator[]" href="a00025.html#ad9cd312208273fb3fb2adf1f6d8d34ae"/>
+          <topic label="operator[]" href="a00025.html#ac7c006e2345a76859c4802db7d130e0e"/>
+          <topic label="operator[]" href="a00025.html#aa6fd72df1ce9f80e61012784c598456e"/>
+          <topic label="push_back" href="a00025.html#a486b96adbf4886c38e38c952394a220f"/>
+          <topic label="push_back" href="a00025.html#a6f3dfd3e83a1e907d7946b47fcd7ceba"/>
+          <topic label="push_back" href="a00025.html#a5212588544f6d2266384c3be9bfda0c5"/>
+          <topic label="rbegin" href="a00025.html#a62ccf5b9b3674aec2403fbc02da03db8"/>
+          <topic label="rbegin" href="a00025.html#a4635e8c6d5a4599f12a76368e325acd8"/>
+          <topic label="rend" href="a00025.html#aaa160a960dd3dd90856a72b1d8dbe707"/>
+          <topic label="rend" href="a00025.html#a018ea61dbc973192d2ffc6bccc50696b"/>
+          <topic label="size" href="a00025.html#a01833b332b68d9af1f7cd7a816c39e49"/>
+          <topic label="swap" href="a00025.html#af77614992e38b355b9213940051cc582"/>
+          <topic label="swap" href="a00025.html#a8209621de6184d9eabe136b7c8f61935"/>
+          <topic label="swap" href="a00025.html#a38ee0f09a318d003add75e0787040794"/>
+          <topic label="swap" href="a00025.html#a86089c703a2e563b9f760c2f8408efa7"/>
+          <topic label="type" href="a00025.html#a848cbae3bd3502ffbf738320bf5eb3aa"/>
+          <topic label="value" href="a00025.html#a0a2cbbd95862a623e7dc5c37e67dead0"/>
+          <topic label="value" href="a00025.html#af071057ebab57744f5767eb369e99d42"/>
+          <topic label="operator!=" href="a00025.html#a6e2e21da48f5d9471716cd868a068327"/>
+          <topic label="operator!=" href="a00025.html#ae347859ec88176ef76a0cbe5b4514fcf"/>
+          <topic label="operator!=" href="a00025.html#a7f97a91ad8f1d5cf0b9213bd24f247c4"/>
+          <topic label="operator&lt;" href="a00025.html#a24d7df0b5b41319dbab2713d3641faf7"/>
+          <topic label="operator&lt;" href="a00025.html#aacd442b66140c764c594ac8ad7dfd5b3"/>
+          <topic label="operator&lt;&lt;" href="a00025.html#a5e34c5435e557d0bf666bd7311211405"/>
+          <topic label="operator&lt;&lt;" href="a00025.html#a60ca396028b8d9714c6e10efbf475af6"/>
+          <topic label="operator&lt;=" href="a00025.html#a5c8bb5200f5eac10d31e26be46e5b1ac"/>
+          <topic label="operator==" href="a00025.html#a122640e7e2db1814fc7bbb3c122ec76e"/>
+          <topic label="operator==" href="a00025.html#a9730b9f7bc2150e641fe20198d4477c7"/>
+          <topic label="operator==" href="a00025.html#a98e05a2c9b8f74bd60442772cddeee52"/>
+          <topic label="operator&gt;" href="a00025.html#a87db51b6b936fb2ea293cdbc8702dcb8"/>
+          <topic label="operator&gt;=" href="a00025.html#a74a943800c7f103d0990d7eef82c6453"/>
+          <topic label="operator&gt;&gt;" href="a00025.html#a34d6a60dd99e9f33b8273a1c8db5669b"/>
+          <topic label="operator&gt;&gt;" href="a00025.html#aaf363408931d76472ded14017e59c9e8"/>
+        </topic>
+      </topic>
+      <topic label="std">
+        <topic label="hash&lt; nlohmann::json &gt;" href="a00067.html">
+          <topic label="operator()" href="a00067.html#afd03f6ad53db22868ca4163a8200b2f9"/>
+        </topic>
+      </topic>
       <topic label="xacc">
         <topic label="quantum">
-          <topic label="AllGateVisitor" href="a01083.html"/>
-          <topic label="CircuitNode" href="a01023.html">
-            <topic label="CircuitNode" href="a01023.html#ab91f399b49d6b211fa772496e6243379"/>
-            <topic label="CircuitNode" href="a01023.html#ab91f399b49d6b211fa772496e6243379"/>
+          <topic label="AllGateVisitor" href="a00021.html"/>
+          <topic label="AQCAcceleratorBuffer" href="a00022.html">
+            <topic label="AQCAcceleratorBuffer" href="a00022.html#ac2f9ea58140a27741b4dc8fceaa1ca5c"/>
+            <topic label="AQCAcceleratorBuffer" href="a00022.html#a628c742acf1d20fc8fe9b69f9be7b2c6"/>
+            <topic label="getEmbedding" href="a00022.html#ae98155c023d1b31b3b55a8c8e4ec6bc6"/>
+            <topic label="setEmbedding" href="a00022.html#a23992d11bdb6f093c0ce3f743677d4d9"/>
+            <topic label="embedding" href="a00022.html#a26fd739244b0346cc3398eef31b11264"/>
+            <topic label="energies" href="a00022.html#abe6d781724e197df449d8dfcde60e1a4"/>
           </topic>
-          <topic label="CNOT" href="a01031.html">
-            <topic label="CNOT" href="a01031.html#ad3d460779a27affa317dd4f3a88268b3"/>
-            <topic label="CNOT" href="a01031.html#a15efcb44477dde4b6151fe1776a73ddc"/>
+          <topic label="ChimeraGraph" href="a00028.html">
+            <topic label="ChimeraGraph" href="a00028.html#a64f23e464ba85d6625fe1fc2d2608052"/>
+            <topic label="~ChimeraGraph" href="a00028.html#a5eff4c2d956b6f4d1328dacef7aca03a"/>
           </topic>
-          <topic label="ConditionalFunction" href="a01035.html">
-            <topic label="ConditionalFunction" href="a01035.html#aa28610a08ae04d62ccdd8359433100c3"/>
-            <topic label="addInstruction" href="a01035.html#a6aedad20f96390880efdc0a476b3273f"/>
-            <topic label="evaluate" href="a01035.html#a709c236a5beb62d9a3bd5265196fb6c9"/>
-            <topic label="getConditionalQubit" href="a01035.html#a804317333b6677a041a3071b5108c0df"/>
-            <topic label="toString" href="a01035.html#aca7a5f849fece6fc28a904efee9a3370"/>
-            <topic label="qbitIdx" href="a01035.html#a0310536801417c0eded28a4dea1efa44"/>
+          <topic label="CircuitNode" href="a00029.html">
+            <topic label="CircuitNode" href="a00029.html#ab91f399b49d6b211fa772496e6243379"/>
+            <topic label="CircuitNode" href="a00029.html#ab91f399b49d6b211fa772496e6243379"/>
           </topic>
-          <topic label="CountGatesOfTypeVisitor" href="a01087.html">
-            <topic label="CountGatesOfTypeVisitor" href="a01087.html#a4c2507e3ee4fe51e7ff4501bf5569cfc"/>
-            <topic label="countGates" href="a01087.html#a8a1a17ed50cd6727c2eb07976f886389"/>
-            <topic label="visit" href="a01087.html#a9c40e6cb4b74e2d6714c531ffc3b2909"/>
-            <topic label="count" href="a01087.html#ae3d8ae4c40c1552ee68aa6e5002e42bd"/>
-            <topic label="function" href="a01087.html#a202ab6e0e365af735da706fe972333e7"/>
+          <topic label="CMR" href="a00032.html">
+            <topic label="CMR" href="a00032.html#abe156c108cf9452662b4f94e832c1612"/>
+            <topic label="embed" href="a00032.html#a3408b5b72c426b4733ea4b0a19feb2f4"/>
+            <topic label="isImproving" href="a00032.html#a0636b043d3167207f64dc555f536f087"/>
+            <topic label="name" href="a00032.html#a06abf96899ccbfb4e2e0b2c72f978854"/>
+            <topic label="embedding" href="a00032.html#aa1dc893f548705b0866b369d2d6dde4c"/>
+            <topic label="lastIterMaxNProblemVertsRepresentedAtG" href="a00032.html#aa3a607bf9eeedbc43cfa37624ac57ecd"/>
+            <topic label="lastIterNumMaxOverfills" href="a00032.html#ac0e7819659cf9966593050853b041b0a"/>
+            <topic label="lastIterTotalSize" href="a00032.html#a5d970ff227505a02cee0a331df66f5a0"/>
+            <topic label="maxNProblemVertsRepresentedAtG" href="a00032.html#a0bfae593986c4b99fcfc5c7d58cb03d3"/>
+            <topic label="totalSize" href="a00032.html#ac394cc5299f299d2d441c0e1cb9b1d17"/>
+            <topic label="virtualHardware" href="a00032.html#a9f20090240711be97766be35f05dd0bc"/>
           </topic>
-          <topic label="CPhase" href="a01039.html">
-            <topic label="CPhase" href="a01039.html#a5899f838bc4b892d179f51fcf0ac4cc8"/>
-            <topic label="CPhase" href="a01039.html#af642f499455f0065279a1e1d178c818f"/>
+          <topic label="CNOT" href="a00033.html">
+            <topic label="CNOT" href="a00033.html#ad3d460779a27affa317dd4f3a88268b3"/>
+            <topic label="CNOT" href="a00033.html#a15efcb44477dde4b6151fe1776a73ddc"/>
           </topic>
-          <topic label="DWaveVertex" href="a00963.html">
-            <topic label="DWaveVertex" href="a00963.html#a4a095eea5c6c1d71310120f3e8550698"/>
+          <topic label="CompleteGraph" href="a00036.html">
+            <topic label="CompleteGraph" href="a00036.html#a70eeb65709e217e61bb0066365579c39"/>
+            <topic label="~CompleteGraph" href="a00036.html#acf799e8393781edd9a1b759e64606b0d"/>
           </topic>
-          <topic label="DWGraph" href="a00975.html">
-            <topic label="~DWGraph" href="a00975.html#a7bf3ceacf9124077bd28f1203c7fb390"/>
-            <topic label="read" href="a00975.html#a008ef5c6434494fddb4ec8f0f4895c75"/>
+          <topic label="ConditionalFunction" href="a00037.html">
+            <topic label="ConditionalFunction" href="a00037.html#aa28610a08ae04d62ccdd8359433100c3"/>
+            <topic label="addInstruction" href="a00037.html#a6aedad20f96390880efdc0a476b3273f"/>
+            <topic label="evaluate" href="a00037.html#a709c236a5beb62d9a3bd5265196fb6c9"/>
+            <topic label="getConditionalQubit" href="a00037.html#a804317333b6677a041a3071b5108c0df"/>
+            <topic label="toString" href="a00037.html#aca7a5f849fece6fc28a904efee9a3370"/>
+            <topic label="qbitIdx" href="a00037.html#a0310536801417c0eded28a4dea1efa44"/>
           </topic>
-          <topic label="DWIR" href="a00979.html">
-            <topic label="addKernel" href="a00979.html#af1bef18e1e9568d1313b03149aab8c1b"/>
-            <topic label="getKernel" href="a00979.html#a38d8bdd24250749bc38ad31f8512fcfc"/>
-            <topic label="getKernels" href="a00979.html#a66e22c5dc95ec46045476864012ad08f"/>
-            <topic label="kernelExists" href="a00979.html#ab5e8861d3bc0845bb015af6208f5f396"/>
-            <topic label="load" href="a00979.html#a8b388d719d565bb902c979807d3d0d47"/>
-            <topic label="persist" href="a00979.html#abcbfd0a4cf697843391c65cbd9a82080"/>
-            <topic label="toAssemblyString" href="a00979.html#a880cb60197577ea31115331e3a030e3e"/>
+          <topic label="CountGatesOfTypeVisitor" href="a00039.html">
+            <topic label="CountGatesOfTypeVisitor" href="a00039.html#a4c2507e3ee4fe51e7ff4501bf5569cfc"/>
+            <topic label="countGates" href="a00039.html#a8a1a17ed50cd6727c2eb07976f886389"/>
+            <topic label="visit" href="a00039.html#a9c40e6cb4b74e2d6714c531ffc3b2909"/>
+            <topic label="count" href="a00039.html#ae3d8ae4c40c1552ee68aa6e5002e42bd"/>
+            <topic label="function" href="a00039.html#a202ab6e0e365af735da706fe972333e7"/>
           </topic>
-          <topic label="DWKernel" href="a00983.html">
-            <topic label="DWKernel" href="a00983.html#aadd3221d4787dd639e7e26006a7ca183"/>
-            <topic label="addInstruction" href="a00983.html#a4c3043d6971999c3a09e797fc55deb6c"/>
-            <topic label="bits" href="a00983.html#adae68964db6acd8b4c2267c270a8ec58"/>
-            <topic label="evaluateVariableParameters" href="a00983.html#a09ffac417d4ecbbd82d7a680ad8dfcce"/>
-            <topic label="getInstruction" href="a00983.html#a00f23cd2e15ea6b9d00d4f3dbe1540f8"/>
-            <topic label="getInstructions" href="a00983.html#abbb8f2b1c78623c377524e45d581d018"/>
-            <topic label="getName" href="a00983.html#a7f0c4d3c73029566561cf56a474bcbbd"/>
-            <topic label="getParameter" href="a00983.html#a81711b7db284aba35d6952e4d1d15d41"/>
-            <topic label="getParameters" href="a00983.html#a829462cff34e2257da06afd8a2051a8e"/>
-            <topic label="insertInstruction" href="a00983.html#a1627af0141f70fc4a3cd500a13fb31b8"/>
-            <topic label="isParameterized" href="a00983.html#a8957ea368244ed4a4ebd85f6bfecb785"/>
-            <topic label="nInstructions" href="a00983.html#a79aecc7419a20b8779372ef36fc24806"/>
-            <topic label="nParameters" href="a00983.html#a029429948329b94c1d89f32cf5c486d4"/>
-            <topic label="removeInstruction" href="a00983.html#af2bcfd679e6cb89194f3f0bff8622b99"/>
-            <topic label="replaceInstruction" href="a00983.html#a75eb3560d2f81c9a5ae1cf765deb0e83"/>
-            <topic label="setParameter" href="a00983.html#adf89cdd1f54e183c4cff36b338b2be8d"/>
-            <topic label="toString" href="a00983.html#adbc3fdd080ebba20bc620b8832979f16"/>
-            <topic label="instructions" href="a00983.html#a38e434be6ef46a1ff43744632ae59ea8"/>
+          <topic label="CPhase" href="a00040.html">
+            <topic label="CPhase" href="a00040.html#a5899f838bc4b892d179f51fcf0ac4cc8"/>
+            <topic label="CPhase" href="a00040.html#af642f499455f0065279a1e1d178c818f"/>
           </topic>
-          <topic label="DWQMI" href="a00987.html">
-            <topic label="DWQMI" href="a00987.html#a7fa74443cf18934c1f166e8343eada48"/>
-            <topic label="DWQMI" href="a00987.html#a219507677fcdf59ee0ddfa8c78e59539"/>
-            <topic label="DWQMI" href="a00987.html#aabe1dbbc737114b2f96434592e1f115a"/>
-            <topic label="bits" href="a00987.html#a76939c29e4763d10c57ea9a270229421"/>
-            <topic label="disable" href="a00987.html#af6d9120d8f60984767a330d5cfe9140f"/>
-            <topic label="enable" href="a00987.html#ae4f563cead75aaa43f06db83e90ee855"/>
-            <topic label="getName" href="a00987.html#ad93428eb61adade7bb99c7633bb02aca"/>
-            <topic label="getParameter" href="a00987.html#aa15882df55d3f0af3a2ec9d72a2db4c0"/>
-            <topic label="getParameters" href="a00987.html#a896d9a4e2876129c2cf81ef028daf1ff"/>
-            <topic label="isComposite" href="a00987.html#ad2b3b4ee72dee48150bf78d92c52e5e0"/>
-            <topic label="isEnabled" href="a00987.html#aea76901b30d85172ef26fc317b4c0ed7"/>
-            <topic label="isParameterized" href="a00987.html#aee43b2e499f122dfe250b529a3f77add"/>
-            <topic label="nParameters" href="a00987.html#afdfc8b852ba29c2b21c5c368098ffc4c"/>
-            <topic label="setParameter" href="a00987.html#a194b5b9f58262774fde0285f4c3f60af"/>
-            <topic label="toString" href="a00987.html#a8d8742bb6743cf6e49f95966d05bbec2"/>
-            <topic label="enabled" href="a00987.html#ae06f0e1952dea7381cbae3cd3954de1f"/>
-            <topic label="parameter" href="a00987.html#a30249f83412fb56f7c8be9ec0ad726a9"/>
-            <topic label="qubits" href="a00987.html#a5fc6e587225f365b150ef58fc7d2ed32"/>
+          <topic label="DWAccelerator" href="a00042.html">
+            <topic label="DWAccelerator" href="a00042.html#ad6924d7e9812df5e4676109352ee74a7"/>
+            <topic label="~DWAccelerator" href="a00042.html#ad06f92a271d445c2a1ff8364faa3617b"/>
+            <topic label="createBuffer" href="a00042.html#a718d7cb51a35e694d960385e1ea2f99f"/>
+            <topic label="createBuffer" href="a00042.html#add60637a4b3c055e7f2ffa3bf8e320ac"/>
+            <topic label="execute" href="a00042.html#aa8d770acb2708b3ee1cd1f21bd0cc668"/>
+            <topic label="getAcceleratorConnectivity" href="a00042.html#a006afa60749790681fc76beddc254926"/>
+            <topic label="getIRTransformations" href="a00042.html#a89da20bd079a22d6581ea2da2293b973"/>
+            <topic label="getOptions" href="a00042.html#a09926db9f99706307ae6ce5b56845bca"/>
+            <topic label="getType" href="a00042.html#abe50e427b4bec0460cc238405cb569f9"/>
+            <topic label="initialize" href="a00042.html#acaefd5747409f31cf5c3e42d98475ce2"/>
+            <topic label="isValidBufferSize" href="a00042.html#a4c2ee30212a919d8ddf7f9555df25195"/>
+            <topic label="apiKey" href="a00042.html#a6b9ca421d7efeed09ff9acb9f77d9dd8"/>
+            <topic label="availableSolvers" href="a00042.html#ac19954e3df9e77184717c9be8a2ed4c5"/>
+            <topic label="headers" href="a00042.html#a031df31e3ff84f33ea9a76bfc0f9277c"/>
+            <topic label="url" href="a00042.html#a934db80f3cf6aa68158a66bc053c0c27"/>
           </topic>
-          <topic label="DWQMICompiler" href="a00923.html">
-            <topic label="DWQMICompiler" href="a00923.html#a1f285f3eaec09363d9439676dbdfbd6a"/>
-            <topic label="~DWQMICompiler" href="a00923.html#a86f9135f7dc1c3246970e2a7f6540b5c"/>
-            <topic label="compile" href="a00923.html#a0df05642f1a6fd44ce7f1c0396d50c9c"/>
-            <topic label="compile" href="a00923.html#aa22591343b5509bf2c3a5820130ba906"/>
-            <topic label="getName" href="a00923.html#aed42de96f8e0dd94b6de183f28aee419"/>
-            <topic label="translate" href="a00923.html#a56a345539665099329209b3b5f6810c9"/>
+          <topic label="DWGraph" href="a00043.html">
+            <topic label="DWGraph" href="a00043.html#adc891c7ec39fbb480d9102c3b0458e4c"/>
+            <topic label="~DWGraph" href="a00043.html#a7bf3ceacf9124077bd28f1203c7fb390"/>
+            <topic label="getAcceleratorGraph" href="a00043.html#acdce3a79dfc4e296c215ac95f6fef8f5"/>
+            <topic label="toKernelSource" href="a00043.html#a636bf17193ae20ae6355755dacafdf98"/>
           </topic>
-          <topic label="EmbeddingAlgorithm" href="a00967.html">
-            <topic label="EmbeddingAlgorithm" href="a00967.html#abad06507eef6b63af0884e3a96145c69"/>
-            <topic label="~EmbeddingAlgorithm" href="a00967.html#aa43660ad5d4c4b3ac67863892c33dc51"/>
-            <topic label="embed" href="a00967.html#a67158c0f4925ff6b85698efec61e1175"/>
-            <topic label="name" href="a00967.html#a21079dc8ee37792977f5fd209e3f3b19"/>
+          <topic label="DWIR" href="a00044.html">
+            <topic label="addKernel" href="a00044.html#af1bef18e1e9568d1313b03149aab8c1b"/>
+            <topic label="getKernel" href="a00044.html#a38d8bdd24250749bc38ad31f8512fcfc"/>
+            <topic label="getKernels" href="a00044.html#a66e22c5dc95ec46045476864012ad08f"/>
+            <topic label="kernelExists" href="a00044.html#ab5e8861d3bc0845bb015af6208f5f396"/>
+            <topic label="load" href="a00044.html#a8b388d719d565bb902c979807d3d0d47"/>
+            <topic label="persist" href="a00044.html#abcbfd0a4cf697843391c65cbd9a82080"/>
+            <topic label="toAssemblyString" href="a00044.html#a880cb60197577ea31115331e3a030e3e"/>
+            <topic label="kernels" href="a00044.html#abcb04ec3a152c3f22e5a757a9aecabf2"/>
           </topic>
-          <topic label="FunctionalGateInstructionVisitor" href="a01091.html">
-            <topic label="FunctionalGateInstructionVisitor" href="a01091.html#a4e3c27cd6b1acf063967b7b09a1eca09"/>
-            <topic label="~FunctionalGateInstructionVisitor" href="a01091.html#aafd2af1f38b7e08d401c59b4afb2b8f1"/>
-            <topic label="visit" href="a01091.html#ac5245d34429dc112e7cd0e371108fcb5"/>
-            <topic label="visit" href="a01091.html#ad4eddafe8ca3906cd4aa5b98087a789a"/>
-            <topic label="visit" href="a01091.html#ac5d184daee7e755c9ede67b34bc2d091"/>
-            <topic label="visit" href="a01091.html#a11dfa753a155346a45d7116a78c8f39f"/>
-            <topic label="visit" href="a01091.html#a4baf19da581fa9875739a227aba9cf60"/>
-            <topic label="visit" href="a01091.html#ad946faf8e2b6eff3e9e142907ec8e05a"/>
-            <topic label="visit" href="a01091.html#a5cdb38902c241e7ae672a2631f1d61f3"/>
-            <topic label="visit" href="a01091.html#a6eb99e4b488773c750b7d9734ac1e885"/>
-            <topic label="visit" href="a01091.html#aa22aad7b316386f5ef35672337c05ffc"/>
-            <topic label="visit" href="a01091.html#a5475eece7afe380512a1a0215b92d302"/>
-            <topic label="visit" href="a01091.html#a8857ecf8f8f1b6143da8f31a722fe03e"/>
-            <topic label="visit" href="a01091.html#ad7d15225cf258fe59660ba828baff357"/>
-            <topic label="visit" href="a01091.html#a30f46be43607813996c9cc090c1a5a16"/>
-            <topic label="cnotAction" href="a01091.html#a4d6bd8c2fd1af775ed08946942f60a0b"/>
-            <topic label="condAction" href="a01091.html#a5c0595a70b1f7ae50f3e29a985e249e9"/>
-            <topic label="cpAction" href="a01091.html#a5b88a0c9789e7b6d44527b2df6819ac5"/>
-            <topic label="hAction" href="a01091.html#a02f1401c9b0d1da801027f3bc0b5227e"/>
-            <topic label="measureAction" href="a01091.html#a239748abedd67c7b30cad12e545d1926"/>
-            <topic label="rxAction" href="a01091.html#ab79bb3eb3050d1c599061863bb2e219e"/>
-            <topic label="ryAction" href="a01091.html#a229b7d9aae52638c6eff04bd16bb9973"/>
-            <topic label="rzAction" href="a01091.html#a586ab5721150c67ad3ced46e2a236b44"/>
-            <topic label="swAction" href="a01091.html#a5060cd4c2b1b259e32bda0e7ecc78e85"/>
-            <topic label="xAction" href="a01091.html#a9e0295434a2224b776609b057147a9af"/>
-            <topic label="yAction" href="a01091.html#ae78f91a5cc9a7006f6bb1acee1c00501"/>
-            <topic label="zAction" href="a01091.html#ae197f358e3d0777feb3656455e2ee672"/>
+          <topic label="DWKernel" href="a00045.html">
+            <topic label="DWKernel" href="a00045.html#a76a4dfadb973abbc93d1afefc6839ad8"/>
+            <topic label="addInstruction" href="a00045.html#a4c3043d6971999c3a09e797fc55deb6c"/>
+            <topic label="bits" href="a00045.html#adae68964db6acd8b4c2267c270a8ec58"/>
+            <topic label="evaluateVariableParameters" href="a00045.html#a09ffac417d4ecbbd82d7a680ad8dfcce"/>
+            <topic label="getAllBiases" href="a00045.html#a9ee05b3d7689bbf837bdb7737f9745f4"/>
+            <topic label="getAllCouplers" href="a00045.html#a7df03ecec9c1821433daa3aa092cbd4d"/>
+            <topic label="getInstruction" href="a00045.html#a00f23cd2e15ea6b9d00d4f3dbe1540f8"/>
+            <topic label="getInstructions" href="a00045.html#abbb8f2b1c78623c377524e45d581d018"/>
+            <topic label="getName" href="a00045.html#a7f0c4d3c73029566561cf56a474bcbbd"/>
+            <topic label="getParameter" href="a00045.html#a81711b7db284aba35d6952e4d1d15d41"/>
+            <topic label="getParameters" href="a00045.html#a829462cff34e2257da06afd8a2051a8e"/>
+            <topic label="insertInstruction" href="a00045.html#a1627af0141f70fc4a3cd500a13fb31b8"/>
+            <topic label="isParameterized" href="a00045.html#a8957ea368244ed4a4ebd85f6bfecb785"/>
+            <topic label="nInstructions" href="a00045.html#a79aecc7419a20b8779372ef36fc24806"/>
+            <topic label="nParameters" href="a00045.html#a029429948329b94c1d89f32cf5c486d4"/>
+            <topic label="removeInstruction" href="a00045.html#af2bcfd679e6cb89194f3f0bff8622b99"/>
+            <topic label="replaceInstruction" href="a00045.html#a75eb3560d2f81c9a5ae1cf765deb0e83"/>
+            <topic label="setParameter" href="a00045.html#adf89cdd1f54e183c4cff36b338b2be8d"/>
+            <topic label="toString" href="a00045.html#adbc3fdd080ebba20bc620b8832979f16"/>
+            <topic label="instructions" href="a00045.html#a38e434be6ef46a1ff43744632ae59ea8"/>
+            <topic label="name" href="a00045.html#a0df03f85cc3b8a4cd1a7fc839d4d303c"/>
           </topic>
-          <topic label="GateFunction" href="a01011.html">
-            <topic label="GateFunction" href="a01011.html#a77545e72bd53268f609888654fcd8eee"/>
-            <topic label="GateFunction" href="a01011.html#a0b1b3fb51a5b0f1bcb1b10692ab2e595"/>
-            <topic label="addInstruction" href="a01011.html#a892fb69a10f0a7cb5abdab4cca61b80a"/>
-            <topic label="bits" href="a01011.html#aba03de68b76a9e120705c3c389c714a1"/>
-            <topic label="evaluateVariableParameters" href="a01011.html#a4bcbd2c8c4b615d74e4a4d39952fd411"/>
-            <topic label="getInstruction" href="a01011.html#a841d656eed8aa9b4c0eec3f1da38069c"/>
-            <topic label="getInstructions" href="a01011.html#aebce6a9e64aed7f4aff86df752bacfe2"/>
-            <topic label="getName" href="a01011.html#af42efb6191267164717d53c469e15d3a"/>
-            <topic label="getParameter" href="a01011.html#a5991903323e412777bedc4f0c862eb63"/>
-            <topic label="getParameters" href="a01011.html#af7aabfe699a4dced576ff7fafff969d5"/>
-            <topic label="insertInstruction" href="a01011.html#aed3b963f1c4eb3215ca46af48d78f588"/>
-            <topic label="isParameterized" href="a01011.html#afad47903e0ed55ddbfa827ef8408a94b"/>
-            <topic label="nInstructions" href="a01011.html#aa70b26156c060fec71316fe5e98bb102"/>
-            <topic label="nParameters" href="a01011.html#ad0bffcbc0884d81d6bdddf55385fc6c9"/>
-            <topic label="removeInstruction" href="a01011.html#a44ca35d081577de9ad2930f93c01e89d"/>
-            <topic label="replaceInstruction" href="a01011.html#a182fdfabbf546ae89e4f2384bafb45c9"/>
-            <topic label="setParameter" href="a01011.html#ab8d9789b46e92e27a9d7c9c5b7e3683c"/>
-            <topic label="toString" href="a01011.html#aa1950776ae84bad2d0795a0441f910e7"/>
-            <topic label="cachedVariableInstructions" href="a01011.html#a186fadb9c8b90481eaa260bdd81b37b9"/>
-            <topic label="functionName" href="a01011.html#aea17cb1ca610bb5b8eadb0642c32b937"/>
-            <topic label="instructions" href="a01011.html#aa2334b23541206ed02023ec28f5e4ac7"/>
-            <topic label="parameters" href="a01011.html#a2f53b483afa8d6b357f2550b8f1a3a9c"/>
+          <topic label="DWQMI" href="a00046.html">
+            <topic label="DWQMI" href="a00046.html#a7fa74443cf18934c1f166e8343eada48"/>
+            <topic label="DWQMI" href="a00046.html#a219507677fcdf59ee0ddfa8c78e59539"/>
+            <topic label="DWQMI" href="a00046.html#aabe1dbbc737114b2f96434592e1f115a"/>
+            <topic label="bits" href="a00046.html#a76939c29e4763d10c57ea9a270229421"/>
+            <topic label="disable" href="a00046.html#af6d9120d8f60984767a330d5cfe9140f"/>
+            <topic label="enable" href="a00046.html#ae4f563cead75aaa43f06db83e90ee855"/>
+            <topic label="getName" href="a00046.html#ad93428eb61adade7bb99c7633bb02aca"/>
+            <topic label="getParameter" href="a00046.html#aa15882df55d3f0af3a2ec9d72a2db4c0"/>
+            <topic label="getParameters" href="a00046.html#a896d9a4e2876129c2cf81ef028daf1ff"/>
+            <topic label="isComposite" href="a00046.html#ad2b3b4ee72dee48150bf78d92c52e5e0"/>
+            <topic label="isEnabled" href="a00046.html#aea76901b30d85172ef26fc317b4c0ed7"/>
+            <topic label="isParameterized" href="a00046.html#aee43b2e499f122dfe250b529a3f77add"/>
+            <topic label="nParameters" href="a00046.html#afdfc8b852ba29c2b21c5c368098ffc4c"/>
+            <topic label="setParameter" href="a00046.html#a194b5b9f58262774fde0285f4c3f60af"/>
+            <topic label="toString" href="a00046.html#a8d8742bb6743cf6e49f95966d05bbec2"/>
+            <topic label="enabled" href="a00046.html#ae06f0e1952dea7381cbae3cd3954de1f"/>
+            <topic label="parameter" href="a00046.html#a30249f83412fb56f7c8be9ec0ad726a9"/>
+            <topic label="qubits" href="a00046.html#a5fc6e587225f365b150ef58fc7d2ed32"/>
           </topic>
-          <topic label="GateInstruction" href="a01015.html">
-            <topic label="GateInstruction" href="a01015.html#af1aaaa15b266c894d0b5ca8b1e522b97"/>
-            <topic label="GateInstruction" href="a01015.html#a951ac3f44fcfbcf187bb73ba7438b472"/>
-            <topic label="GateInstruction" href="a01015.html#a9b8543b79576c69ab8578ab6228134d7"/>
-            <topic label="GateInstruction" href="a01015.html#a37aaeebdb14747b0afd7d00cf285343e"/>
-            <topic label="~GateInstruction" href="a01015.html#ab8a75144074b27262fc33c77db4528b7"/>
-            <topic label="bits" href="a01015.html#ad32ad03dfc516e00093030e60178003d"/>
-            <topic label="disable" href="a01015.html#a63ce138dd71fb43d303f5600fefb7215"/>
-            <topic label="enable" href="a01015.html#a7a80474b7fd465271b3313432db2e608"/>
-            <topic label="getName" href="a01015.html#a0db03b9e46eeba1134f0ca2b83ccc842"/>
-            <topic label="getParameter" href="a01015.html#addd6185279fe99fbdc3d4efd96e42162"/>
-            <topic label="getParameters" href="a01015.html#a8584444f9577283f6844ab32bdc4db72"/>
-            <topic label="isEnabled" href="a01015.html#a0a821be322b0c848b01c55f91fc8f484"/>
-            <topic label="isParameterized" href="a01015.html#afe7aeeb398262931e156bcb3950f8188"/>
-            <topic label="nParameters" href="a01015.html#a3752912b2c402668ca4814e21d4bbd26"/>
-            <topic label="setParameter" href="a01015.html#afb8f7582d7520c77d61b9016753f5669"/>
-            <topic label="toString" href="a01015.html#a089a5da67ff40ac1a6f56e64589822d9"/>
-            <topic label="enabled" href="a01015.html#aa1039a127aa645a5c2206ef64e20b37a"/>
-            <topic label="gateName" href="a01015.html#a9961e6979139ced70300188cf2e4ad3f"/>
-            <topic label="parameters" href="a01015.html#a191e4c405f8413b7e8fc86fde07c0dd1"/>
-            <topic label="qbits" href="a01015.html#a2a56be6c2519ea65df4d06f4abae1393"/>
+          <topic label="DWQMICompiler" href="a00047.html">
+            <topic label="DWQMICompiler" href="a00047.html#a1f285f3eaec09363d9439676dbdfbd6a"/>
+            <topic label="~DWQMICompiler" href="a00047.html#a86f9135f7dc1c3246970e2a7f6540b5c"/>
+            <topic label="compile" href="a00047.html#a0df05642f1a6fd44ce7f1c0396d50c9c"/>
+            <topic label="compile" href="a00047.html#aa22591343b5509bf2c3a5820130ba906"/>
+            <topic label="getName" href="a00047.html#aed42de96f8e0dd94b6de183f28aee419"/>
+            <topic label="getOptions" href="a00047.html#a0851334cc33b5b1da2694150a0a1a43c"/>
+            <topic label="translate" href="a00047.html#a56a345539665099329209b3b5f6810c9"/>
           </topic>
-          <topic label="GateQIR" href="a01027.html">
-            <topic label="GateQIR" href="a01027.html#afb99f610a6b123538c659169c131a634"/>
-            <topic label="~GateQIR" href="a01027.html#ac88db03f1dd29e2d36aaa6c01a130008"/>
-            <topic label="addKernel" href="a01027.html#aa6ed2cf2cbcfec8105c327a4fa95346f"/>
-            <topic label="generateGraph" href="a01027.html#ad1ddd6105346dd9fc78648fd812285ed"/>
-            <topic label="getKernel" href="a01027.html#a194758b6edcc3ae0c7fe8004f9bfe690"/>
-            <topic label="getKernels" href="a01027.html#a4ace7ee5ebef84b1f39aaf5ed12c6cc6"/>
-            <topic label="kernelExists" href="a01027.html#a692f95099caa7c024110a3f035941dca"/>
-            <topic label="load" href="a01027.html#a07f26eeb362ac480d20da6cdc8c8fb39"/>
-            <topic label="numberOfKernels" href="a01027.html#aca6be85526b14f500e7f98954dd6da5c"/>
-            <topic label="persist" href="a01027.html#a40e1d07e4dfd3794ef53fca3cdbdca61"/>
-            <topic label="read" href="a01027.html#a26019e2f1e13e64645e29aee86ac58b1"/>
-            <topic label="toAssemblyString" href="a01027.html#a7153f7e9f516d43af3d5d4f95d60bd86"/>
-            <topic label="kernels" href="a01027.html#ae75a4af0ce455eee1ce316c16426a661"/>
+          <topic label="DWSolver" href="a00048.html">
+            <topic label="description" href="a00048.html#a9bb9449a6ea09e11892f910a4bfd2e08"/>
+            <topic label="edges" href="a00048.html#ae02cbfe68c982e50e80bcd2612c8c148"/>
+            <topic label="hRangeMax" href="a00048.html#a13dd875ceb06c7545fe20cde15ffac70"/>
+            <topic label="hRangeMin" href="a00048.html#abf475612dac8f64a7f88cfa976c393f0"/>
+            <topic label="jRangeMax" href="a00048.html#aa881af1344ff55a4991c152f768ed9d6"/>
+            <topic label="jRangeMin" href="a00048.html#a45fc23af53f44759afec0257d9878ba0"/>
+            <topic label="name" href="a00048.html#a8a5b629dc83790a855d429c82266b772"/>
+            <topic label="nQubits" href="a00048.html#a2908c913f5c5e3ade6551056aaadafbf"/>
           </topic>
-          <topic label="Hadamard" href="a01043.html">
-            <topic label="Hadamard" href="a01043.html#a1f26925eeb4a52ca7e52dd9158fe7005"/>
-            <topic label="Hadamard" href="a01043.html#aac4e06aae35583bcce39b6b178948364"/>
+          <topic label="DWVertex" href="a00049.html">
+            <topic label="DWVertex" href="a00049.html#a8df32be01594ca091176d04fd9c2559f"/>
           </topic>
-          <topic label="InverseQFT" href="a01003.html">
-            <topic label="~InverseQFT" href="a01003.html#a731c10d28046424be74e4c0daa31d016"/>
-            <topic label="generateAlgorithm" href="a01003.html#af42e466bf02dbd60670d20aa55cfb08d"/>
+          <topic label="Embedding" href="a00051.html">
+            <topic label="Embedding" href="a00051.html#ad9dae98746e1b14ece04b55e2285721d"/>
+            <topic label="~Embedding" href="a00051.html#a951e505df505d8ef46dc528ad8f52b41"/>
+            <topic label="isValid" href="a00051.html#a030d542b458d1ba93f3b1f13bc603cdb"/>
+            <topic label="setDebug" href="a00051.html#ab3f10710c26f020468de75e54e079677"/>
+            <topic label="debug" href="a00051.html#afd3c0e306d2b805e52d0a2e529ef286e"/>
+            <topic label="hardware" href="a00051.html#a63d22756b8ad0f1a689b46d17a0ce81e"/>
+            <topic label="problem" href="a00051.html#a152cc78570c229fb272565fb60b00d42"/>
           </topic>
-          <topic label="JsonVisitor" href="a01095.html">
-            <topic label="JsonVisitor" href="a01095.html#a7b2bf70217828adf6457e3fee7e13056"/>
-            <topic label="JsonVisitor" href="a01095.html#a7f2a81b621eaf97f3f7773b566320d02"/>
-            <topic label="baseGateInst" href="a01095.html#adf4795f80bf4773af8babb9ee7d38c96"/>
-            <topic label="visit" href="a01095.html#afdebbabdbae5ecb3a508f02ffe056fd4"/>
-            <topic label="visit" href="a01095.html#a83c17c122c0e02242189b3564290f3e9"/>
-            <topic label="visit" href="a01095.html#afd0b13a59603da5209f84f4b72f77a1a"/>
-            <topic label="visit" href="a01095.html#a76c3593f3933631c2dbca74b7b216534"/>
-            <topic label="visit" href="a01095.html#ad73ac1911e894f315fcee802673a30da"/>
-            <topic label="visit" href="a01095.html#a0e744d9db4c2d16196b17f91a84f8767"/>
-            <topic label="visit" href="a01095.html#aaac9aeecf38aa3e4dae4f43e3884b6d7"/>
-            <topic label="visit" href="a01095.html#aea63f829d8c926e567ef6a09a0ca779e"/>
-            <topic label="visit" href="a01095.html#a71a9c4b78152af3366f8ee93b2e4d9da"/>
-            <topic label="visit" href="a01095.html#a2862d01b12da46374c16a3baf33bb4ca"/>
-            <topic label="visit" href="a01095.html#a5f08b133da5ae583b40d3324220e68e3"/>
-            <topic label="visit" href="a01095.html#a1e1a24feb419b275e2873575242ecbfd"/>
-            <topic label="visit" href="a01095.html#af80f9bd5dda7f53279baa9823c715f60"/>
-            <topic label="write" href="a01095.html#a78e2b6c71755a0fed97de43e0b7edc82"/>
-            <topic label="buffer" href="a01095.html#a79e14ac35a004c64f3b6a5c684d73598"/>
-            <topic label="function" href="a01095.html#ae943110fac6aa057637fbdf76c39ba9c"/>
-            <topic label="functions" href="a01095.html#a3f883a147fed57e8b241a2700f4602d9"/>
-            <topic label="topLevelInstructionIterator" href="a01095.html#a84ac738710890faa124c0df935bc51d5"/>
-            <topic label="writer" href="a01095.html#a4433a92e0c5a1ede71223c275a495241"/>
+          <topic label="EmbeddingAlgorithm" href="a00052.html">
+            <topic label="EmbeddingAlgorithm" href="a00052.html#abad06507eef6b63af0884e3a96145c69"/>
+            <topic label="~EmbeddingAlgorithm" href="a00052.html#aa43660ad5d4c4b3ac67863892c33dc51"/>
+            <topic label="embed" href="a00052.html#a6fca277e217884ff79802770189276fe"/>
+            <topic label="name" href="a00052.html#a21079dc8ee37792977f5fd209e3f3b19"/>
           </topic>
-          <topic label="KernelReplacementPreprocessor" href="a00991.html">
-            <topic label="KernelReplacementPreprocessor" href="a00991.html#a504414979de4c2037241dc5db1ccf766"/>
-            <topic label="getName" href="a00991.html#af74db6b7f3adeb7d203777f5ce450491"/>
-            <topic label="process" href="a00991.html#ad4f9ba1f83ea45ed376f36e3853c668d"/>
+          <topic label="ExecutionModel" href="a00055.html">
+            <topic label="ExecutionModel" href="a00055.html#afdd39eb2ed21da621a39408fcd338e3d"/>
+            <topic label="~ExecutionModel" href="a00055.html#afe0320cd2a4ad29687519d5b428cdea1"/>
+            <topic label="computePaths" href="a00055.html#a915f6510b64d78969ade339c98c7c632"/>
+            <topic label="computeRootNode" href="a00055.html#a3f42ece0479cf77455bf1b9055c1c29a"/>
+            <topic label="adjacentGhosts" href="a00055.html#af0c63456084191272e9fc20211745de8"/>
+            <topic label="adjacentModels" href="a00055.html#ac9795537a9331472692dfbb5e4ca0eb5"/>
+            <topic label="adjacentProblemVerts" href="a00055.html#a8531d1ae712743122761cbb9bbe75254"/>
+            <topic label="embedding" href="a00055.html#a34598c554963c39c2c561c6d3d783a30"/>
           </topic>
-          <topic label="Measure" href="a01047.html">
-            <topic label="Measure" href="a01047.html#afe330a0eea029d842ff9c88a817dcc7d"/>
-            <topic label="Measure" href="a01047.html#a9b8d9edca8ad2c3fb132780200f17335"/>
-            <topic label="getClassicalBitIndex" href="a01047.html#a0cb3c94731544042807236ade36fddd0"/>
-            <topic label="toString" href="a01047.html#a1c51a5d68294dcb2ba1a9fbea63a730f"/>
+          <topic label="ExecutionModelFactory" href="a00057.html">
+            <topic label="ExecutionModelFactory" href="a00057.html#a713460674369dcba12e93e7e10d162f7"/>
+            <topic label="~ExecutionModelFactory" href="a00057.html#a44e339d062ed682b2f277a6db58455f1"/>
+            <topic label="getModel" href="a00057.html#a730ee21c5ee3baad954834946e92ecd2"/>
           </topic>
-          <topic label="QasmToGraph" href="a01099.html">
+          <topic label="FunctionalGateInstructionVisitor" href="a00060.html">
+            <topic label="FunctionalGateInstructionVisitor" href="a00060.html#a4e3c27cd6b1acf063967b7b09a1eca09"/>
+            <topic label="~FunctionalGateInstructionVisitor" href="a00060.html#aafd2af1f38b7e08d401c59b4afb2b8f1"/>
+            <topic label="visit" href="a00060.html#ac5245d34429dc112e7cd0e371108fcb5"/>
+            <topic label="visit" href="a00060.html#ad4eddafe8ca3906cd4aa5b98087a789a"/>
+            <topic label="visit" href="a00060.html#ac5d184daee7e755c9ede67b34bc2d091"/>
+            <topic label="visit" href="a00060.html#a11dfa753a155346a45d7116a78c8f39f"/>
+            <topic label="visit" href="a00060.html#a4baf19da581fa9875739a227aba9cf60"/>
+            <topic label="visit" href="a00060.html#ad946faf8e2b6eff3e9e142907ec8e05a"/>
+            <topic label="visit" href="a00060.html#a5cdb38902c241e7ae672a2631f1d61f3"/>
+            <topic label="visit" href="a00060.html#a6eb99e4b488773c750b7d9734ac1e885"/>
+            <topic label="visit" href="a00060.html#aa22aad7b316386f5ef35672337c05ffc"/>
+            <topic label="visit" href="a00060.html#a5475eece7afe380512a1a0215b92d302"/>
+            <topic label="visit" href="a00060.html#a8857ecf8f8f1b6143da8f31a722fe03e"/>
+            <topic label="visit" href="a00060.html#ad7d15225cf258fe59660ba828baff357"/>
+            <topic label="visit" href="a00060.html#a30f46be43607813996c9cc090c1a5a16"/>
+            <topic label="cnotAction" href="a00060.html#a4d6bd8c2fd1af775ed08946942f60a0b"/>
+            <topic label="condAction" href="a00060.html#a5c0595a70b1f7ae50f3e29a985e249e9"/>
+            <topic label="cpAction" href="a00060.html#a5b88a0c9789e7b6d44527b2df6819ac5"/>
+            <topic label="hAction" href="a00060.html#a02f1401c9b0d1da801027f3bc0b5227e"/>
+            <topic label="measureAction" href="a00060.html#a239748abedd67c7b30cad12e545d1926"/>
+            <topic label="rxAction" href="a00060.html#ab79bb3eb3050d1c599061863bb2e219e"/>
+            <topic label="ryAction" href="a00060.html#a229b7d9aae52638c6eff04bd16bb9973"/>
+            <topic label="rzAction" href="a00060.html#a586ab5721150c67ad3ced46e2a236b44"/>
+            <topic label="swAction" href="a00060.html#a5060cd4c2b1b259e32bda0e7ecc78e85"/>
+            <topic label="xAction" href="a00060.html#a9e0295434a2224b776609b057147a9af"/>
+            <topic label="yAction" href="a00060.html#ae78f91a5cc9a7006f6bb1acee1c00501"/>
+            <topic label="zAction" href="a00060.html#ae197f358e3d0777feb3656455e2ee672"/>
           </topic>
-          <topic label="QFT" href="a01007.html">
-            <topic label="~QFT" href="a01007.html#a2f585738386f9a3744498983cd1f094e"/>
-            <topic label="generateAlgorithm" href="a01007.html#ac093c288bc9fc069464fc3fd2cc0ac21"/>
+          <topic label="GateFunction" href="a00061.html">
+            <topic label="GateFunction" href="a00061.html#a77545e72bd53268f609888654fcd8eee"/>
+            <topic label="GateFunction" href="a00061.html#a0b1b3fb51a5b0f1bcb1b10692ab2e595"/>
+            <topic label="addInstruction" href="a00061.html#a892fb69a10f0a7cb5abdab4cca61b80a"/>
+            <topic label="bits" href="a00061.html#aba03de68b76a9e120705c3c389c714a1"/>
+            <topic label="evaluateVariableParameters" href="a00061.html#a4bcbd2c8c4b615d74e4a4d39952fd411"/>
+            <topic label="getInstruction" href="a00061.html#a841d656eed8aa9b4c0eec3f1da38069c"/>
+            <topic label="getInstructions" href="a00061.html#aebce6a9e64aed7f4aff86df752bacfe2"/>
+            <topic label="getName" href="a00061.html#af42efb6191267164717d53c469e15d3a"/>
+            <topic label="getParameter" href="a00061.html#a5991903323e412777bedc4f0c862eb63"/>
+            <topic label="getParameters" href="a00061.html#af7aabfe699a4dced576ff7fafff969d5"/>
+            <topic label="insertInstruction" href="a00061.html#aed3b963f1c4eb3215ca46af48d78f588"/>
+            <topic label="isParameterized" href="a00061.html#afad47903e0ed55ddbfa827ef8408a94b"/>
+            <topic label="nInstructions" href="a00061.html#aa70b26156c060fec71316fe5e98bb102"/>
+            <topic label="nParameters" href="a00061.html#ad0bffcbc0884d81d6bdddf55385fc6c9"/>
+            <topic label="removeInstruction" href="a00061.html#a44ca35d081577de9ad2930f93c01e89d"/>
+            <topic label="replaceInstruction" href="a00061.html#a182fdfabbf546ae89e4f2384bafb45c9"/>
+            <topic label="setParameter" href="a00061.html#ab8d9789b46e92e27a9d7c9c5b7e3683c"/>
+            <topic label="toString" href="a00061.html#aa1950776ae84bad2d0795a0441f910e7"/>
+            <topic label="cachedVariableInstructions" href="a00061.html#a186fadb9c8b90481eaa260bdd81b37b9"/>
+            <topic label="functionName" href="a00061.html#aea17cb1ca610bb5b8eadb0642c32b937"/>
+            <topic label="instructions" href="a00061.html#aa2334b23541206ed02023ec28f5e4ac7"/>
+            <topic label="parameters" href="a00061.html#a2f53b483afa8d6b357f2550b8f1a3a9c"/>
           </topic>
-          <topic label="QuantumCircuit" href="a01103.html">
-            <topic label="~QuantumCircuit" href="a01103.html#a188d126a39a597acece48902cd62a9a4"/>
-            <topic label="read" href="a01103.html#af7a7f4a487d493fe8a4ed1f76cefd731"/>
+          <topic label="GateInstruction" href="a00062.html">
+            <topic label="GateInstruction" href="a00062.html#af1aaaa15b266c894d0b5ca8b1e522b97"/>
+            <topic label="GateInstruction" href="a00062.html#a951ac3f44fcfbcf187bb73ba7438b472"/>
+            <topic label="GateInstruction" href="a00062.html#a9b8543b79576c69ab8578ab6228134d7"/>
+            <topic label="GateInstruction" href="a00062.html#a37aaeebdb14747b0afd7d00cf285343e"/>
+            <topic label="~GateInstruction" href="a00062.html#ab8a75144074b27262fc33c77db4528b7"/>
+            <topic label="bits" href="a00062.html#ad32ad03dfc516e00093030e60178003d"/>
+            <topic label="disable" href="a00062.html#a63ce138dd71fb43d303f5600fefb7215"/>
+            <topic label="enable" href="a00062.html#a7a80474b7fd465271b3313432db2e608"/>
+            <topic label="getName" href="a00062.html#a0db03b9e46eeba1134f0ca2b83ccc842"/>
+            <topic label="getParameter" href="a00062.html#addd6185279fe99fbdc3d4efd96e42162"/>
+            <topic label="getParameters" href="a00062.html#a8584444f9577283f6844ab32bdc4db72"/>
+            <topic label="isEnabled" href="a00062.html#a0a821be322b0c848b01c55f91fc8f484"/>
+            <topic label="isParameterized" href="a00062.html#afe7aeeb398262931e156bcb3950f8188"/>
+            <topic label="nParameters" href="a00062.html#a3752912b2c402668ca4814e21d4bbd26"/>
+            <topic label="setParameter" href="a00062.html#afb8f7582d7520c77d61b9016753f5669"/>
+            <topic label="toString" href="a00062.html#a089a5da67ff40ac1a6f56e64589822d9"/>
+            <topic label="enabled" href="a00062.html#aa1039a127aa645a5c2206ef64e20b37a"/>
+            <topic label="gateName" href="a00062.html#a9961e6979139ced70300188cf2e4ad3f"/>
+            <topic label="parameters" href="a00062.html#a191e4c405f8413b7e8fc86fde07c0dd1"/>
+            <topic label="qbits" href="a00062.html#a2a56be6c2519ea65df4d06f4abae1393"/>
           </topic>
-          <topic label="QuilCompiler" href="a00931.html">
-            <topic label="QuilCompiler" href="a00931.html#a6875f58e552477bb6ba5ac389104979d"/>
-            <topic label="~QuilCompiler" href="a00931.html#a0866a9f695f28c90ac1f4754374f3bfe"/>
-            <topic label="compile" href="a00931.html#a2421482415ca4e09963ea4ecddff8100"/>
-            <topic label="compile" href="a00931.html#adf4d321ecb0df3fa7728999f941c83b2"/>
-            <topic label="getName" href="a00931.html#ae7d52140b6dd52730edc6e38ae48f437"/>
-            <topic label="translate" href="a00931.html#a66ca00bbb1f30e7bc6dd86b1e267b93b"/>
+          <topic label="GateQIR" href="a00063.html">
+            <topic label="GateQIR" href="a00063.html#afb99f610a6b123538c659169c131a634"/>
+            <topic label="~GateQIR" href="a00063.html#ac88db03f1dd29e2d36aaa6c01a130008"/>
+            <topic label="addKernel" href="a00063.html#aa6ed2cf2cbcfec8105c327a4fa95346f"/>
+            <topic label="generateGraph" href="a00063.html#ad1ddd6105346dd9fc78648fd812285ed"/>
+            <topic label="getKernel" href="a00063.html#a194758b6edcc3ae0c7fe8004f9bfe690"/>
+            <topic label="getKernels" href="a00063.html#a4ace7ee5ebef84b1f39aaf5ed12c6cc6"/>
+            <topic label="kernelExists" href="a00063.html#a692f95099caa7c024110a3f035941dca"/>
+            <topic label="load" href="a00063.html#a07f26eeb362ac480d20da6cdc8c8fb39"/>
+            <topic label="numberOfKernels" href="a00063.html#aca6be85526b14f500e7f98954dd6da5c"/>
+            <topic label="persist" href="a00063.html#a40e1d07e4dfd3794ef53fca3cdbdca61"/>
+            <topic label="read" href="a00063.html#a26019e2f1e13e64645e29aee86ac58b1"/>
+            <topic label="toAssemblyString" href="a00063.html#a7153f7e9f516d43af3d5d4f95d60bd86"/>
+            <topic label="kernels" href="a00063.html#ae75a4af0ce455eee1ce316c16426a661"/>
           </topic>
-          <topic label="QuilVisitor" href="a00935.html">
-            <topic label="~QuilVisitor" href="a00935.html#a90dcced4e75c7b45c287fb4edc58ed01"/>
-            <topic label="getClassicalAddresses" href="a00935.html#ab4a1c6a92772a09c22068ced7d3dc76c"/>
-            <topic label="getNumberOfAddresses" href="a00935.html#a561aabf6de48ae9aee4fbe868f1c5da1"/>
-            <topic label="getQuilString" href="a00935.html#a9808ecc5766ea2c387107dff6b64cdb8"/>
-            <topic label="visit" href="a00935.html#a5470d573fdcfd691c100fcbfeeed45db"/>
-            <topic label="visit" href="a00935.html#ac51ed9d947d3fa00525eb79b2bbc9021"/>
-            <topic label="visit" href="a00935.html#a0b1a31a900f87a3f91f640ab5caec126"/>
-            <topic label="visit" href="a00935.html#a403f2d506425ee5a0098b1b54de7e4e8"/>
-            <topic label="visit" href="a00935.html#af429121067a397eeac17328fc0244859"/>
-            <topic label="visit" href="a00935.html#acbe2afe1c9741112d1f9196681f8b896"/>
-            <topic label="visit" href="a00935.html#a7665ecdf9984374f52d30d7767649cf9"/>
-            <topic label="visit" href="a00935.html#a81a75fb24d368aeb8396d2cbde0bbfb4"/>
-            <topic label="visit" href="a00935.html#ad74c7ec734670c2a5478ebb40e097bfc"/>
-            <topic label="visit" href="a00935.html#aa3823bdeb4d930f753d4b421730c5912"/>
-            <topic label="visit" href="a00935.html#a7a043f72038fec08ac64d375a663e96d"/>
-            <topic label="visit" href="a00935.html#a2b822a63888043498203dd0b0c935a51"/>
-            <topic label="visit" href="a00935.html#addedb7635dd200885904611e4cae39d4"/>
-            <topic label="classicalAddresses" href="a00935.html#a93e648797062568ff2ae0345f8843ddd"/>
-            <topic label="numAddresses" href="a00935.html#ada92b9a834de74d79c22e1c5e88509ec"/>
-            <topic label="qubitToClassicalBitIndex" href="a00935.html#abc613802d6ea40a54c6e75df227a28bb"/>
-            <topic label="quilStr" href="a00935.html#afd04300ce4dab03448a09f9bee448ca6"/>
+          <topic label="Hadamard" href="a00066.html">
+            <topic label="Hadamard" href="a00066.html#a1f26925eeb4a52ca7e52dd9158fe7005"/>
+            <topic label="Hadamard" href="a00066.html#aac4e06aae35583bcce39b6b178948364"/>
           </topic>
-          <topic label="RegisterEmbeddingAlgorithm" href="a00971.html">
-            <topic label="RegisterEmbeddingAlgorithm" href="a00971.html#a0b849a815e56d04c22e04b8c2f43f3d3"/>
+          <topic label="HUBO" href="a00069.html">
+            <topic label="~HUBO" href="a00069.html#a005d6122a7eb88fdd5889f154dc997bc"/>
+            <topic label="mapResults" href="a00069.html#a050aac403fabc54ff2726e28a8409194"/>
+            <topic label="reduceToQubo" href="a00069.html#ac1ef765d10ab355dd22d32e8259f0fea"/>
           </topic>
-          <topic label="RegisterGateInstruction" href="a01019.html">
-            <topic label="RegisterGateInstruction" href="a01019.html#aad394924e098f0cc8da5cc7f211acd7a"/>
+          <topic label="InverseQFT" href="a00075.html">
+            <topic label="~InverseQFT" href="a00075.html#a731c10d28046424be74e4c0daa31d016"/>
+            <topic label="generateAlgorithm" href="a00075.html#af42e466bf02dbd60670d20aa55cfb08d"/>
           </topic>
-          <topic label="RigettiAccelerator" href="a00939.html">
-            <topic label="RigettiAccelerator" href="a00939.html#a7b9733da63d9d00d3a7ae9f3fbf76ce4"/>
-            <topic label="RigettiAccelerator" href="a00939.html#aa92ba39441ec9c261fbddee23a84d6ac"/>
-            <topic label="~RigettiAccelerator" href="a00939.html#a7c86895d1c29afa8b7e18476144a3fcf"/>
-            <topic label="createBuffer" href="a00939.html#a731551c94b1abef40d2cf032e8712df6"/>
-            <topic label="execute" href="a00939.html#afce7bbd1b0f04300a9920952e9d12ef4"/>
-            <topic label="getIRTransformations" href="a00939.html#a443683a1dfb000603c640b2ee303cf66"/>
-            <topic label="getOptions" href="a00939.html#a9ee9e62aecbccf193894ca3388676f9f"/>
-            <topic label="getType" href="a00939.html#aab0d4674da5273d55407b9ab77cde890"/>
-            <topic label="isValidBufferSize" href="a00939.html#a61352c07062597aad2393fbeed4cc025"/>
-            <topic label="httpClient" href="a00939.html#add34bdf35f40e3d00da366795eaa7fcb"/>
+          <topic label="JsonVisitor" href="a00081.html">
+            <topic label="JsonVisitor" href="a00081.html#a7b2bf70217828adf6457e3fee7e13056"/>
+            <topic label="JsonVisitor" href="a00081.html#a7f2a81b621eaf97f3f7773b566320d02"/>
+            <topic label="baseGateInst" href="a00081.html#adf4795f80bf4773af8babb9ee7d38c96"/>
+            <topic label="visit" href="a00081.html#afdebbabdbae5ecb3a508f02ffe056fd4"/>
+            <topic label="visit" href="a00081.html#a83c17c122c0e02242189b3564290f3e9"/>
+            <topic label="visit" href="a00081.html#afd0b13a59603da5209f84f4b72f77a1a"/>
+            <topic label="visit" href="a00081.html#a76c3593f3933631c2dbca74b7b216534"/>
+            <topic label="visit" href="a00081.html#ad73ac1911e894f315fcee802673a30da"/>
+            <topic label="visit" href="a00081.html#a0e744d9db4c2d16196b17f91a84f8767"/>
+            <topic label="visit" href="a00081.html#aaac9aeecf38aa3e4dae4f43e3884b6d7"/>
+            <topic label="visit" href="a00081.html#aea63f829d8c926e567ef6a09a0ca779e"/>
+            <topic label="visit" href="a00081.html#a71a9c4b78152af3366f8ee93b2e4d9da"/>
+            <topic label="visit" href="a00081.html#a2862d01b12da46374c16a3baf33bb4ca"/>
+            <topic label="visit" href="a00081.html#a5f08b133da5ae583b40d3324220e68e3"/>
+            <topic label="visit" href="a00081.html#a1e1a24feb419b275e2873575242ecbfd"/>
+            <topic label="visit" href="a00081.html#af80f9bd5dda7f53279baa9823c715f60"/>
+            <topic label="write" href="a00081.html#a78e2b6c71755a0fed97de43e0b7edc82"/>
+            <topic label="buffer" href="a00081.html#a79e14ac35a004c64f3b6a5c684d73598"/>
+            <topic label="function" href="a00081.html#ae943110fac6aa057637fbdf76c39ba9c"/>
+            <topic label="functions" href="a00081.html#a3f883a147fed57e8b241a2700f4602d9"/>
+            <topic label="topLevelInstructionIterator" href="a00081.html#a84ac738710890faa124c0df935bc51d5"/>
+            <topic label="writer" href="a00081.html#a4433a92e0c5a1ede71223c275a495241"/>
           </topic>
-          <topic label="Rx" href="a01051.html">
-            <topic label="Rx" href="a01051.html#a03babfe938a6cbf7f744fcd31a52d92d"/>
-            <topic label="Rx" href="a01051.html#a01667b11d34d5621b98ebff9a07d9bbf"/>
+          <topic label="K44Bipartite" href="a00083.html">
+            <topic label="K44Bipartite" href="a00083.html#a057f90f3fd7fad2835055d1ac8c74656"/>
+            <topic label="~K44Bipartite" href="a00083.html#aca9ba3f2e33f7dd558855f9e84629a1c"/>
           </topic>
-          <topic label="Ry" href="a01055.html">
-            <topic label="Ry" href="a01055.html#a542e1c0576a8e784f6cece4c77598486"/>
-            <topic label="Ry" href="a01055.html#a1cb81fe622168ba8d79fa2a78b5b0006"/>
+          <topic label="KernelReplacementPreprocessor" href="a00084.html">
+            <topic label="KernelReplacementPreprocessor" href="a00084.html#a504414979de4c2037241dc5db1ccf766"/>
+            <topic label="getName" href="a00084.html#af74db6b7f3adeb7d203777f5ce450491"/>
+            <topic label="process" href="a00084.html#ad4f9ba1f83ea45ed376f36e3853c668d"/>
           </topic>
-          <topic label="Rz" href="a01059.html">
-            <topic label="Rz" href="a01059.html#a7ce912c7f9c9e8f4e7e60f9dba95538b"/>
-            <topic label="Rz" href="a01059.html#ae30eaf75feb8f896c22043629d21b834"/>
+          <topic label="Measure" href="a00085.html">
+            <topic label="Measure" href="a00085.html#afe330a0eea029d842ff9c88a817dcc7d"/>
+            <topic label="Measure" href="a00085.html#a9b8d9edca8ad2c3fb132780200f17335"/>
+            <topic label="getClassicalBitIndex" href="a00085.html#a0cb3c94731544042807236ade36fddd0"/>
+            <topic label="toString" href="a00085.html#a1c51a5d68294dcb2ba1a9fbea63a730f"/>
           </topic>
-          <topic label="ScaffoldASTConsumer" href="a00947.html">
-            <topic label="ScaffoldASTConsumer" href="a00947.html#a0fe68951f498357f6f5e75cc34af4030"/>
-            <topic label="~ScaffoldASTConsumer" href="a00947.html#af87d3ae2c6473180ce51619886cbb199"/>
-            <topic label="getIR" href="a00947.html#af9dbfa7c52b8a7de99132257e154e29a"/>
-            <topic label="getQubitVariableName" href="a00947.html#aa301f0bcae6fb5a1c17557ba08144cb4"/>
-            <topic label="HandleTopLevelDecl" href="a00947.html#ae846fd40684f3a1f820b8711e1204089"/>
-            <topic label="VisitBinaryOperator" href="a00947.html#a3f2f070888678caf53e57041b4f5ddd6"/>
-            <topic label="VisitCallExpr" href="a00947.html#a1478fc9e887b04d2ad2aa8347ef6bbcb"/>
-            <topic label="VisitDecl" href="a00947.html#ae6a05fe567cd8ea15feb694dbb898c33"/>
-            <topic label="VisitStmt" href="a00947.html#a6693c27f68332d8142fbdcb405e3259b"/>
-            <topic label="cbitRegToMeasuredQubit" href="a00947.html#a6675849cfdd92413a688c6999dda40a8"/>
-            <topic label="cbitVarName" href="a00947.html#a62efc9fb3166e7f9d0a7ccb71dc5eb59"/>
-            <topic label="currentConditional" href="a00947.html#a481378bd7158942633a555500871b363"/>
-            <topic label="function" href="a00947.html#a78d4c0227cf55778cb05f2262357c3a9"/>
-            <topic label="ir" href="a00947.html#addb230351a9ceaeb55496adc57f2b748"/>
-            <topic label="nCallExprToSkip" href="a00947.html#a3be085dc66ddcf3f6e0530a17b26e66a"/>
-            <topic label="qbitVarName" href="a00947.html#aaa908356dd67cb918d7cc913783760f9"/>
+          <topic label="ParallelCMREmbedding" href="a00093.html">
+            <topic label="ParallelCMREmbedding" href="a00093.html#a7bad0996c759a5c3a8f325b4c3eb7b90"/>
+            <topic label="addToVertexModel" href="a00093.html#a55ba8c7ae717cbfa8a57503116536344"/>
+            <topic label="computeVertexModel" href="a00093.html#a2d9a99786af28f38134f0243d231bb35"/>
+            <topic label="getHardware" href="a00093.html#a385340fd3fe411251d2529fbc2f4a5a4"/>
+            <topic label="getNRepresented" href="a00093.html#a7f18154f9ba79fb4bee03543e75cddb5"/>
+            <topic label="getProblem" href="a00093.html#a0b8aec8a62d1c552174bce92a080cc04"/>
+            <topic label="getProbToGhostMap" href="a00093.html#aa835ef8197250447500f2e17c618a353"/>
+            <topic label="isGhostVertex" href="a00093.html#a6fbb695c060ff00be3134c874ff82a6c"/>
+            <topic label="isValid" href="a00093.html#a74606fda2c0542c2d197146787969bd4"/>
+            <topic label="isVertexUsed" href="a00093.html#a70955f1c3534bc9da12c3956b11a7820"/>
+            <topic label="setExecutionModel" href="a00093.html#a51a93e8c46a997c48c7514763770c079"/>
+            <topic label="setGhostVertices" href="a00093.html#ae5a7423f3c2655a8c2364bc5c389b796"/>
+            <topic label="comm" href="a00093.html#a2bb97f1bc1a2791e06eb094fc631a056"/>
+            <topic label="computedRandomVertex" href="a00093.html#a7adc585f5a21989029dc395a9fd5b821"/>
+            <topic label="executionModel" href="a00093.html#a0c17fd8d18fa8d30b4e11a0521b9edfd"/>
+            <topic label="hardwareDiameter" href="a00093.html#aaa15f33fe4407f8508015cbf8e614782"/>
+            <topic label="localVertices" href="a00093.html#a116a73f60557e233a41da7a46d8175db"/>
+            <topic label="probVertsToGhostVerts" href="a00093.html#ae16bfd68d24b66ac42c466bdd332d761"/>
+            <topic label="rank" href="a00093.html#a25e19b46e2ece70638325eefecf5c5b9"/>
+            <topic label="vertexUseCount" href="a00093.html#abfa929179ced4ddb425f76c238e560f8"/>
           </topic>
-          <topic label="ScaffoldCompiler" href="a00951.html">
-            <topic label="ScaffoldCompiler" href="a00951.html#ad3f39c29d63e876ca3c980177102c1cf"/>
-            <topic label="~ScaffoldCompiler" href="a00951.html#afb26398b07377ab9ddebc43a9376a6dd"/>
-            <topic label="compile" href="a00951.html#a7caede75bb2304ba405966651b115543"/>
-            <topic label="compile" href="a00951.html#a3736ecc229fe6acdd4c991e85d7a1f08"/>
-            <topic label="getName" href="a00951.html#a3f537054a3924a1d14f4ceb0f0181161"/>
-            <topic label="translate" href="a00951.html#ac7ca2941e987ba579c6f50cfbd7fb0dc"/>
-            <topic label="CI" href="a00951.html#af7a3a73eaab025a0ea72cc9335d8fbb4"/>
-            <topic label="consumer" href="a00951.html#ab1c4d36e58b97de50208e74a92d8ceb1"/>
+          <topic label="QasmToGraph" href="a00097.html">
           </topic>
-          <topic label="ScaffoldIRToSrcVisitor" href="a00955.html">
-            <topic label="ScaffoldIRToSrcVisitor" href="a00955.html#a38e9a5775397847973f78856e4b0031e"/>
-            <topic label="~ScaffoldIRToSrcVisitor" href="a00955.html#a366cddf574488b3bf0df1fe991806753"/>
-            <topic label="baseInstruction" href="a00955.html#afa951f637b70233cfded3c05177e2b56"/>
-            <topic label="baseParameterizedInstruction" href="a00955.html#a23d8435f4696290c32afdae1abfbff30"/>
-            <topic label="getScaffoldString" href="a00955.html#ad721b67dae6360ce210d6c73feec7920"/>
-            <topic label="visit" href="a00955.html#af66cbe08e183c8b53817cda5251d0498"/>
-            <topic label="visit" href="a00955.html#a81b16c7a7da2c84174796ef4cc39b312"/>
-            <topic label="visit" href="a00955.html#a1a414fa079f0e3ba8cd0f97c7928e88f"/>
-            <topic label="visit" href="a00955.html#a9130f70ceaa42bdc3c29c8b0bbdcc3b5"/>
-            <topic label="visit" href="a00955.html#a444936ec9134a0ea400cd2f1b145ba4d"/>
-            <topic label="visit" href="a00955.html#a99e7176144810f5d6e38d98d2725afff"/>
-            <topic label="visit" href="a00955.html#a1646dbfaf919432c2c3d8eb86e9f81e4"/>
-            <topic label="visit" href="a00955.html#afc1ace9f5cb4783117a68b173c069d15"/>
-            <topic label="visit" href="a00955.html#a08539d478a1b496244288477ccee8011"/>
-            <topic label="visit" href="a00955.html#a855cbf9e83b050ae65e95c4a36f02de9"/>
-            <topic label="visit" href="a00955.html#a4d8e2c6d867d812aeca192ebc65a45ce"/>
-            <topic label="visit" href="a00955.html#a502e0145245e4aa00af4f76e1b201e7a"/>
-            <topic label="visit" href="a00955.html#adf65b4117c2dfd3242c5c214eef608c5"/>
-            <topic label="nMeasurements" href="a00955.html#ae7d177fa9830942f63ef86fd2f69f715"/>
-            <topic label="qubitToClassicalBitIndex" href="a00955.html#a76945624d8d67487d410a11a91e97681"/>
-            <topic label="qubitVarName" href="a00955.html#ab538cf6fe8606e9832310a8195b67dce"/>
-            <topic label="scaffoldStr" href="a00955.html#a4b4c3b769a275d544beb26b1894e476a"/>
+          <topic label="QFT" href="a00098.html">
+            <topic label="~QFT" href="a00098.html#a2f585738386f9a3744498983cd1f094e"/>
+            <topic label="generateAlgorithm" href="a00098.html#ac093c288bc9fc069464fc3fd2cc0ac21"/>
           </topic>
-          <topic label="SimpleAccelerator" href="a00959.html">
-            <topic label="~SimpleAccelerator" href="a00959.html#a7ff286def924fafdff2066d12858e60c"/>
-            <topic label="createBuffer" href="a00959.html#adb9393692e9f484df241aa5d014030d1"/>
-            <topic label="execute" href="a00959.html#a3089b15fbbaa83abf2941bd3b8d2d3c6"/>
-            <topic label="getIRTransformations" href="a00959.html#afc49c9e7973ba6c6ff9761c36198323d"/>
-            <topic label="getType" href="a00959.html#ad76eeb0bbd7de21aad5bd20d20970a98"/>
-            <topic label="isValidBufferSize" href="a00959.html#a60b9db2d6aed235857c45413a070338e"/>
+          <topic label="QuantumCircuit" href="a00099.html">
+            <topic label="~QuantumCircuit" href="a00099.html#a188d126a39a597acece48902cd62a9a4"/>
+            <topic label="read" href="a00099.html#af7a7f4a487d493fe8a4ed1f76cefd731"/>
           </topic>
-          <topic label="SimulatedQubits" href="a01107.html">
-            <topic label="SimulatedQubits" href="a01107.html#abb0419229628210a1c187b76be6edc30"/>
-            <topic label="SimulatedQubits" href="a01107.html#a812afe5bad306acfe2b46e05098040a4"/>
-            <topic label="~SimulatedQubits" href="a01107.html#aebf6f30a6d8c84971091d87908680e7e"/>
-            <topic label="applyUnitary" href="a01107.html#a3f4518d0135101141bf92d7e31f4fddc"/>
-            <topic label="getState" href="a01107.html#a405577717ca200ed9e524c04209e0216"/>
-            <topic label="normalize" href="a01107.html#a09ee499769bb1eedaf08d6b5c29f9791"/>
-            <topic label="print" href="a01107.html#a9252d30be0563f36bf1ff839c7104cd7"/>
-            <topic label="print" href="a01107.html#a32922bd2ccc64bba601c07a3c136cc3d"/>
-            <topic label="setState" href="a01107.html#a8cd74c239c1fcecb3d03d6989732d5fe"/>
-            <topic label="bufferState" href="a01107.html#a630bea50ee06fd59f74450f01f95e489"/>
+          <topic label="QuilCompiler" href="a00102.html">
+            <topic label="QuilCompiler" href="a00102.html#a6875f58e552477bb6ba5ac389104979d"/>
+            <topic label="~QuilCompiler" href="a00102.html#a0866a9f695f28c90ac1f4754374f3bfe"/>
+            <topic label="compile" href="a00102.html#a2421482415ca4e09963ea4ecddff8100"/>
+            <topic label="compile" href="a00102.html#adf4d321ecb0df3fa7728999f941c83b2"/>
+            <topic label="getName" href="a00102.html#ae7d52140b6dd52730edc6e38ae48f437"/>
+            <topic label="translate" href="a00102.html#a66ca00bbb1f30e7bc6dd86b1e267b93b"/>
           </topic>
-          <topic label="Swap" href="a01063.html">
-            <topic label="Swap" href="a01063.html#a5c35a23a635f235a5615be65e769c121"/>
-            <topic label="Swap" href="a01063.html#ac19efe303b798e14441a2c235b5ba7f3"/>
+          <topic label="QuilVisitor" href="a00103.html">
+            <topic label="~QuilVisitor" href="a00103.html#a90dcced4e75c7b45c287fb4edc58ed01"/>
+            <topic label="getClassicalAddresses" href="a00103.html#ab4a1c6a92772a09c22068ced7d3dc76c"/>
+            <topic label="getNumberOfAddresses" href="a00103.html#a561aabf6de48ae9aee4fbe868f1c5da1"/>
+            <topic label="getQuilString" href="a00103.html#a9808ecc5766ea2c387107dff6b64cdb8"/>
+            <topic label="visit" href="a00103.html#a5470d573fdcfd691c100fcbfeeed45db"/>
+            <topic label="visit" href="a00103.html#ac51ed9d947d3fa00525eb79b2bbc9021"/>
+            <topic label="visit" href="a00103.html#a0b1a31a900f87a3f91f640ab5caec126"/>
+            <topic label="visit" href="a00103.html#a403f2d506425ee5a0098b1b54de7e4e8"/>
+            <topic label="visit" href="a00103.html#af429121067a397eeac17328fc0244859"/>
+            <topic label="visit" href="a00103.html#acbe2afe1c9741112d1f9196681f8b896"/>
+            <topic label="visit" href="a00103.html#a7665ecdf9984374f52d30d7767649cf9"/>
+            <topic label="visit" href="a00103.html#a81a75fb24d368aeb8396d2cbde0bbfb4"/>
+            <topic label="visit" href="a00103.html#ad74c7ec734670c2a5478ebb40e097bfc"/>
+            <topic label="visit" href="a00103.html#aa3823bdeb4d930f753d4b421730c5912"/>
+            <topic label="visit" href="a00103.html#a7a043f72038fec08ac64d375a663e96d"/>
+            <topic label="visit" href="a00103.html#a2b822a63888043498203dd0b0c935a51"/>
+            <topic label="visit" href="a00103.html#addedb7635dd200885904611e4cae39d4"/>
+            <topic label="classicalAddresses" href="a00103.html#a93e648797062568ff2ae0345f8843ddd"/>
+            <topic label="numAddresses" href="a00103.html#ada92b9a834de74d79c22e1c5e88509ec"/>
+            <topic label="qubitToClassicalBitIndex" href="a00103.html#abc613802d6ea40a54c6e75df227a28bb"/>
+            <topic label="quilStr" href="a00103.html#afd04300ce4dab03448a09f9bee448ca6"/>
           </topic>
-          <topic label="X" href="a01067.html">
-            <topic label="X" href="a01067.html#aedc541a302602154847118f73b040510"/>
-            <topic label="X" href="a01067.html#a1159bd01929b59277b4524ccfcfd7440"/>
+          <topic label="RegisterEmbeddingAlgorithm" href="a00108.html">
+            <topic label="RegisterEmbeddingAlgorithm" href="a00108.html#a0b849a815e56d04c22e04b8c2f43f3d3"/>
           </topic>
-          <topic label="Y" href="a01071.html">
-            <topic label="Y" href="a01071.html#a7959be0aa8221c0b1ba445771f5ecf0a"/>
-            <topic label="Y" href="a01071.html#aea2b37ac45208cbf6a47e0074e4a9653"/>
+          <topic label="RegisterGateInstruction" href="a00109.html">
+            <topic label="RegisterGateInstruction" href="a00109.html#aad394924e098f0cc8da5cc7f211acd7a"/>
           </topic>
-          <topic label="Z" href="a01075.html">
-            <topic label="Z" href="a01075.html#a5f1d311b357faed8c2665fe20cf24aeb"/>
-            <topic label="Z" href="a01075.html#aa1bb7e533e7595e9ecd06879a2f8d2de"/>
+          <topic label="RigettiAccelerator" href="a00112.html">
+            <topic label="RigettiAccelerator" href="a00112.html#a7b9733da63d9d00d3a7ae9f3fbf76ce4"/>
+            <topic label="RigettiAccelerator" href="a00112.html#aa92ba39441ec9c261fbddee23a84d6ac"/>
+            <topic label="~RigettiAccelerator" href="a00112.html#a7c86895d1c29afa8b7e18476144a3fcf"/>
+            <topic label="createBuffer" href="a00112.html#a731551c94b1abef40d2cf032e8712df6"/>
+            <topic label="createBuffer" href="a00112.html#ada3ceb986e51ab5aa721f2a08e083cd6"/>
+            <topic label="execute" href="a00112.html#afce7bbd1b0f04300a9920952e9d12ef4"/>
+            <topic label="getIRTransformations" href="a00112.html#a443683a1dfb000603c640b2ee303cf66"/>
+            <topic label="getOptions" href="a00112.html#a9ee9e62aecbccf193894ca3388676f9f"/>
+            <topic label="getType" href="a00112.html#aab0d4674da5273d55407b9ab77cde890"/>
+            <topic label="initialize" href="a00112.html#ab8b6af9bb9dcb110201e9ee5cac74b4f"/>
+            <topic label="isValidBufferSize" href="a00112.html#a61352c07062597aad2393fbeed4cc025"/>
+            <topic label="httpClient" href="a00112.html#add34bdf35f40e3d00da366795eaa7fcb"/>
+          </topic>
+          <topic label="Rx" href="a00114.html">
+            <topic label="Rx" href="a00114.html#a03babfe938a6cbf7f744fcd31a52d92d"/>
+            <topic label="Rx" href="a00114.html#a01667b11d34d5621b98ebff9a07d9bbf"/>
+          </topic>
+          <topic label="Ry" href="a00115.html">
+            <topic label="Ry" href="a00115.html#a542e1c0576a8e784f6cece4c77598486"/>
+            <topic label="Ry" href="a00115.html#a1cb81fe622168ba8d79fa2a78b5b0006"/>
+          </topic>
+          <topic label="Rz" href="a00116.html">
+            <topic label="Rz" href="a00116.html#a7ce912c7f9c9e8f4e7e60f9dba95538b"/>
+            <topic label="Rz" href="a00116.html#ae30eaf75feb8f896c22043629d21b834"/>
+          </topic>
+          <topic label="ScaffoldASTConsumer" href="a00117.html">
+            <topic label="ScaffoldASTConsumer" href="a00117.html#a0fe68951f498357f6f5e75cc34af4030"/>
+            <topic label="~ScaffoldASTConsumer" href="a00117.html#af87d3ae2c6473180ce51619886cbb199"/>
+            <topic label="getIR" href="a00117.html#af9dbfa7c52b8a7de99132257e154e29a"/>
+            <topic label="getQubitVariableName" href="a00117.html#aa301f0bcae6fb5a1c17557ba08144cb4"/>
+            <topic label="HandleTopLevelDecl" href="a00117.html#ae846fd40684f3a1f820b8711e1204089"/>
+            <topic label="VisitBinaryOperator" href="a00117.html#a3f2f070888678caf53e57041b4f5ddd6"/>
+            <topic label="VisitCallExpr" href="a00117.html#a1478fc9e887b04d2ad2aa8347ef6bbcb"/>
+            <topic label="VisitDecl" href="a00117.html#ae6a05fe567cd8ea15feb694dbb898c33"/>
+            <topic label="VisitStmt" href="a00117.html#a6693c27f68332d8142fbdcb405e3259b"/>
+            <topic label="cbitRegToMeasuredQubit" href="a00117.html#a6675849cfdd92413a688c6999dda40a8"/>
+            <topic label="cbitVarName" href="a00117.html#a62efc9fb3166e7f9d0a7ccb71dc5eb59"/>
+            <topic label="currentConditional" href="a00117.html#a481378bd7158942633a555500871b363"/>
+            <topic label="function" href="a00117.html#a78d4c0227cf55778cb05f2262357c3a9"/>
+            <topic label="ir" href="a00117.html#addb230351a9ceaeb55496adc57f2b748"/>
+            <topic label="nCallExprToSkip" href="a00117.html#a3be085dc66ddcf3f6e0530a17b26e66a"/>
+            <topic label="qbitVarName" href="a00117.html#aaa908356dd67cb918d7cc913783760f9"/>
+          </topic>
+          <topic label="ScaffoldCompiler" href="a00118.html">
+            <topic label="ScaffoldCompiler" href="a00118.html#ad3f39c29d63e876ca3c980177102c1cf"/>
+            <topic label="~ScaffoldCompiler" href="a00118.html#afb26398b07377ab9ddebc43a9376a6dd"/>
+            <topic label="compile" href="a00118.html#a7caede75bb2304ba405966651b115543"/>
+            <topic label="compile" href="a00118.html#a3736ecc229fe6acdd4c991e85d7a1f08"/>
+            <topic label="getName" href="a00118.html#a3f537054a3924a1d14f4ceb0f0181161"/>
+            <topic label="translate" href="a00118.html#ac7ca2941e987ba579c6f50cfbd7fb0dc"/>
+            <topic label="CI" href="a00118.html#af7a3a73eaab025a0ea72cc9335d8fbb4"/>
+            <topic label="consumer" href="a00118.html#ab1c4d36e58b97de50208e74a92d8ceb1"/>
+          </topic>
+          <topic label="ScaffoldIRToSrcVisitor" href="a00119.html">
+            <topic label="ScaffoldIRToSrcVisitor" href="a00119.html#a38e9a5775397847973f78856e4b0031e"/>
+            <topic label="~ScaffoldIRToSrcVisitor" href="a00119.html#a366cddf574488b3bf0df1fe991806753"/>
+            <topic label="baseInstruction" href="a00119.html#afa951f637b70233cfded3c05177e2b56"/>
+            <topic label="baseParameterizedInstruction" href="a00119.html#a23d8435f4696290c32afdae1abfbff30"/>
+            <topic label="getScaffoldString" href="a00119.html#ad721b67dae6360ce210d6c73feec7920"/>
+            <topic label="visit" href="a00119.html#af66cbe08e183c8b53817cda5251d0498"/>
+            <topic label="visit" href="a00119.html#a81b16c7a7da2c84174796ef4cc39b312"/>
+            <topic label="visit" href="a00119.html#a1a414fa079f0e3ba8cd0f97c7928e88f"/>
+            <topic label="visit" href="a00119.html#a9130f70ceaa42bdc3c29c8b0bbdcc3b5"/>
+            <topic label="visit" href="a00119.html#a444936ec9134a0ea400cd2f1b145ba4d"/>
+            <topic label="visit" href="a00119.html#a99e7176144810f5d6e38d98d2725afff"/>
+            <topic label="visit" href="a00119.html#a1646dbfaf919432c2c3d8eb86e9f81e4"/>
+            <topic label="visit" href="a00119.html#afc1ace9f5cb4783117a68b173c069d15"/>
+            <topic label="visit" href="a00119.html#a08539d478a1b496244288477ccee8011"/>
+            <topic label="visit" href="a00119.html#a855cbf9e83b050ae65e95c4a36f02de9"/>
+            <topic label="visit" href="a00119.html#a4d8e2c6d867d812aeca192ebc65a45ce"/>
+            <topic label="visit" href="a00119.html#a502e0145245e4aa00af4f76e1b201e7a"/>
+            <topic label="visit" href="a00119.html#adf65b4117c2dfd3242c5c214eef608c5"/>
+            <topic label="nMeasurements" href="a00119.html#ae7d177fa9830942f63ef86fd2f69f715"/>
+            <topic label="qubitToClassicalBitIndex" href="a00119.html#a76945624d8d67487d410a11a91e97681"/>
+            <topic label="qubitVarName" href="a00119.html#ab538cf6fe8606e9832310a8195b67dce"/>
+            <topic label="scaffoldStr" href="a00119.html#a4b4c3b769a275d544beb26b1894e476a"/>
+          </topic>
+          <topic label="SimpleAccelerator" href="a00123.html">
+            <topic label="~SimpleAccelerator" href="a00123.html#a7ff286def924fafdff2066d12858e60c"/>
+            <topic label="createBuffer" href="a00123.html#adb9393692e9f484df241aa5d014030d1"/>
+            <topic label="createBuffer" href="a00123.html#a46445d77d4b8ad2689571d0db6604380"/>
+            <topic label="execute" href="a00123.html#a3089b15fbbaa83abf2941bd3b8d2d3c6"/>
+            <topic label="getIRTransformations" href="a00123.html#afc49c9e7973ba6c6ff9761c36198323d"/>
+            <topic label="getType" href="a00123.html#ad76eeb0bbd7de21aad5bd20d20970a98"/>
+            <topic label="initialize" href="a00123.html#a392e3b30523f5f681127e7e98887108c"/>
+            <topic label="isValidBufferSize" href="a00123.html#a60b9db2d6aed235857c45413a070338e"/>
+          </topic>
+          <topic label="SimulatedQubits" href="a00124.html">
+            <topic label="SimulatedQubits" href="a00124.html#abb0419229628210a1c187b76be6edc30"/>
+            <topic label="SimulatedQubits" href="a00124.html#ae11d09c17316adb09b93cc866969dba8"/>
+            <topic label="~SimulatedQubits" href="a00124.html#aebf6f30a6d8c84971091d87908680e7e"/>
+            <topic label="applyUnitary" href="a00124.html#a3f4518d0135101141bf92d7e31f4fddc"/>
+            <topic label="getState" href="a00124.html#a405577717ca200ed9e524c04209e0216"/>
+            <topic label="normalize" href="a00124.html#a09ee499769bb1eedaf08d6b5c29f9791"/>
+            <topic label="print" href="a00124.html#a9252d30be0563f36bf1ff839c7104cd7"/>
+            <topic label="print" href="a00124.html#a32922bd2ccc64bba601c07a3c136cc3d"/>
+            <topic label="setState" href="a00124.html#a8cd74c239c1fcecb3d03d6989732d5fe"/>
+            <topic label="bufferState" href="a00124.html#a630bea50ee06fd59f74450f01f95e489"/>
+          </topic>
+          <topic label="Swap" href="a00126.html">
+            <topic label="Swap" href="a00126.html#a5c35a23a635f235a5615be65e769c121"/>
+            <topic label="Swap" href="a00126.html#ac19efe303b798e14441a2c235b5ba7f3"/>
+          </topic>
+          <topic label="TrivialEmbeddingAlgorithm" href="a00127.html">
+            <topic label="TrivialEmbeddingAlgorithm" href="a00127.html#aa704a3dc5825db1b023c54d84ec0f883"/>
+            <topic label="~TrivialEmbeddingAlgorithm" href="a00127.html#a692614cae332c77ae46e059b66d6f79c"/>
+            <topic label="embed" href="a00127.html#a09e162a745528ffa3ea847dd5afee45b"/>
+            <topic label="name" href="a00127.html#a5d3e8c56b53cda9c682dedc534bf38fb"/>
+          </topic>
+          <topic label="X" href="a00131.html">
+            <topic label="X" href="a00131.html#aedc541a302602154847118f73b040510"/>
+            <topic label="X" href="a00131.html#a1159bd01929b59277b4524ccfcfd7440"/>
+          </topic>
+          <topic label="Y" href="a00134.html">
+            <topic label="Y" href="a00134.html#a7959be0aa8221c0b1ba445771f5ecf0a"/>
+            <topic label="Y" href="a00134.html#aea2b37ac45208cbf6a47e0074e4a9653"/>
+          </topic>
+          <topic label="Z" href="a00135.html">
+            <topic label="Z" href="a00135.html#a5f1d311b357faed8c2665fe20cf24aeb"/>
+            <topic label="Z" href="a00135.html#aa1bb7e533e7595e9ecd06879a2f8d2de"/>
           </topic>
         </topic>
-        <topic label="Accelerator" href="a01111.html">
-          <topic label="~Accelerator" href="a01111.html#aed88ab0d71b765f0b0f512684ccd4b55"/>
-          <topic label="createBuffer" href="a01111.html#a064a2dbd58338364115c260267806945"/>
-          <topic label="execute" href="a01111.html#a89b3f3e6294f228abf03a410b0fb1674"/>
-          <topic label="getAllocatedBufferNames" href="a01111.html#ae1463d7e405df89fa4af47e8922f4b82"/>
-          <topic label="getBuffer" href="a01111.html#ab3820be326e28a553fed1a824f4d41d0"/>
-          <topic label="getIRTransformations" href="a01111.html#ad6e4a642dcb24e552675bcbeff1e1b04"/>
-          <topic label="getOptions" href="a01111.html#a98c9eda6b54367c75667ecfbbf167979"/>
-          <topic label="getType" href="a01111.html#aaffc3e4bb9880eb5041b1b58ee4c2665"/>
-          <topic label="isValidBufferSize" href="a01111.html#ae51584850faeec77299058383977ddeb"/>
-          <topic label="storeBuffer" href="a01111.html#ac3e781f42ec25e460174d4c41ea26b94"/>
+        <topic label="Accelerator" href="a00017.html">
+          <topic label="~Accelerator" href="a00017.html#aed88ab0d71b765f0b0f512684ccd4b55"/>
+          <topic label="createBuffer" href="a00017.html#aab5046e8d83ab390302e0f49533e95fc"/>
+          <topic label="createBuffer" href="a00017.html#a064a2dbd58338364115c260267806945"/>
+          <topic label="execute" href="a00017.html#a89b3f3e6294f228abf03a410b0fb1674"/>
+          <topic label="getAcceleratorConnectivity" href="a00017.html#adfed940ce1fa476b009344ddf5a4bbc3"/>
+          <topic label="getAllocatedBufferNames" href="a00017.html#ae1463d7e405df89fa4af47e8922f4b82"/>
+          <topic label="getBuffer" href="a00017.html#ab3820be326e28a553fed1a824f4d41d0"/>
+          <topic label="getIRTransformations" href="a00017.html#ad6e4a642dcb24e552675bcbeff1e1b04"/>
+          <topic label="getOptions" href="a00017.html#a98c9eda6b54367c75667ecfbbf167979"/>
+          <topic label="getType" href="a00017.html#aaffc3e4bb9880eb5041b1b58ee4c2665"/>
+          <topic label="initialize" href="a00017.html#a8cdc6f0c5a660013c29c07657a06303b"/>
+          <topic label="isValidBufferSize" href="a00017.html#ae51584850faeec77299058383977ddeb"/>
+          <topic label="storeBuffer" href="a00017.html#ac3e781f42ec25e460174d4c41ea26b94"/>
         </topic>
-        <topic label="AcceleratorBit" href="a01119.html">
-          <topic label="AcceleratorBit" href="a01119.html#a9a124c230c5cabeab53bac0820c0221a"/>
-          <topic label="getState" href="a01119.html#a4a8dcc4fa02a5619f583961460c77057"/>
-          <topic label="update" href="a01119.html#aa63a24980e831b9325a36836ab1c5495"/>
-          <topic label="state" href="a01119.html#a4632123ac31aeed0dc97c65f8c792a85"/>
+        <topic label="AcceleratorBit" href="a00018.html">
+          <topic label="AcceleratorBit" href="a00018.html#a9a124c230c5cabeab53bac0820c0221a"/>
+          <topic label="getState" href="a00018.html#a4a8dcc4fa02a5619f583961460c77057"/>
+          <topic label="update" href="a00018.html#aa63a24980e831b9325a36836ab1c5495"/>
+          <topic label="state" href="a00018.html#a4632123ac31aeed0dc97c65f8c792a85"/>
         </topic>
-        <topic label="AcceleratorBuffer" href="a01123.html">
-          <topic label="AcceleratorBuffer" href="a01123.html#ab606d8af942120d60b51a4fffcd75c98"/>
-          <topic label="AcceleratorBuffer" href="a01123.html#ae6fc59d8a9abf1efce40427c7ba12c57"/>
-          <topic label="~AcceleratorBuffer" href="a01123.html#aed8891809cf7741491ea213d5010cb70"/>
-          <topic label="appendMeasurement" href="a01123.html#ac161c4f984f774d08197871094aabc67"/>
-          <topic label="getAcceleratorBitState" href="a01123.html#aba6ef359f3117faa98f0eb8da90d909e"/>
-          <topic label="getAverage" href="a01123.html#aaddd3a5968067dd230f48dacc8d6a747"/>
-          <topic label="name" href="a01123.html#ad5b646e9efc21b6d0bcc22cd6f649c22"/>
-          <topic label="print" href="a01123.html#add0835e188f0eda4f1b68a28ddc79786"/>
-          <topic label="print" href="a01123.html#a7c59462451223772b41ef232b06a7dfa"/>
-          <topic label="resetBuffer" href="a01123.html#aa6d6e9cfee6170333c1f03507345743f"/>
-          <topic label="size" href="a01123.html#aa2a3101c2e3ae3550172bf49f9587f3b"/>
-          <topic label="updateBit" href="a01123.html#a4bc0edbe9aa0d463f67ddcc38265066f"/>
-          <topic label="bits" href="a01123.html#ab6dbb8c22f8adc6aba34b00a84066854"/>
-          <topic label="bufferId" href="a01123.html#a3198e034d07d9b77b62da03e6592a221"/>
-          <topic label="measurements" href="a01123.html#a5464b23a964985df2547f657877c9ea5"/>
+        <topic label="AcceleratorBuffer" href="a00019.html">
+          <topic label="AcceleratorBuffer" href="a00019.html#ab606d8af942120d60b51a4fffcd75c98"/>
+          <topic label="AcceleratorBuffer" href="a00019.html#ac550d89390562095c56aa1b14ae85001"/>
+          <topic label="~AcceleratorBuffer" href="a00019.html#aed8891809cf7741491ea213d5010cb70"/>
+          <topic label="appendMeasurement" href="a00019.html#ac161c4f984f774d08197871094aabc67"/>
+          <topic label="getAcceleratorBitState" href="a00019.html#aba6ef359f3117faa98f0eb8da90d909e"/>
+          <topic label="getAverage" href="a00019.html#a97cf3cc4e1aaa8ac3cee7817860f77c1"/>
+          <topic label="name" href="a00019.html#ad5b646e9efc21b6d0bcc22cd6f649c22"/>
+          <topic label="print" href="a00019.html#add0835e188f0eda4f1b68a28ddc79786"/>
+          <topic label="print" href="a00019.html#a7c59462451223772b41ef232b06a7dfa"/>
+          <topic label="resetBuffer" href="a00019.html#aa6d6e9cfee6170333c1f03507345743f"/>
+          <topic label="size" href="a00019.html#aa2a3101c2e3ae3550172bf49f9587f3b"/>
+          <topic label="updateBit" href="a00019.html#a4bc0edbe9aa0d463f67ddcc38265066f"/>
+          <topic label="bits" href="a00019.html#ab6dbb8c22f8adc6aba34b00a84066854"/>
+          <topic label="bufferId" href="a00019.html#a3198e034d07d9b77b62da03e6592a221"/>
+          <topic label="measurements" href="a00019.html#a5464b23a964985df2547f657877c9ea5"/>
         </topic>
-        <topic label="AlgorithmGenerator" href="a01143.html">
-          <topic label="~AlgorithmGenerator" href="a01143.html#a096f66aa8d65f5aa3276915768159579"/>
-          <topic label="generateAlgorithm" href="a01143.html#a73023c06f0f0c62ad56ab4187b18b096"/>
+        <topic label="AlgorithmGenerator" href="a00020.html">
+          <topic label="~AlgorithmGenerator" href="a00020.html#a096f66aa8d65f5aa3276915768159579"/>
+          <topic label="generateAlgorithm" href="a00020.html#a73023c06f0f0c62ad56ab4187b18b096"/>
         </topic>
-        <topic label="BaseInstructionVisitable" href="a01171.html">
-          <topic label="~BaseInstructionVisitable" href="a01171.html#a3a291d247b18ea7620dd8d97dfb595f4"/>
-          <topic label="accept" href="a01171.html#a4ae295a7f83d57c6f1f912adc90274ea"/>
-          <topic label="accept" href="a01171.html#ad6b9ad95c14580cc86ca87cd464262c3"/>
+        <topic label="BaseInstructionVisitable" href="a00023.html">
+          <topic label="~BaseInstructionVisitable" href="a00023.html#a3a291d247b18ea7620dd8d97dfb595f4"/>
+          <topic label="accept" href="a00023.html#a4ae295a7f83d57c6f1f912adc90274ea"/>
+          <topic label="accept" href="a00023.html#ad6b9ad95c14580cc86ca87cd464262c3"/>
         </topic>
-        <topic label="BaseInstructionVisitor" href="a01163.html">
-          <topic label="~BaseInstructionVisitor" href="a01163.html#aa6f5104f5868fe1eca9be4dc4036eba4"/>
+        <topic label="BaseInstructionVisitor" href="a00024.html">
+          <topic label="~BaseInstructionVisitor" href="a00024.html#aa6f5104f5868fe1eca9be4dc4036eba4"/>
         </topic>
-        <topic label="CLIParser" href="a01187.html">
-          <topic label="CLIParser" href="a01187.html#a3b170552b44c8a18dcd109cc6550df50"/>
-          <topic label="parse" href="a01187.html#a9731a7f55a0ff2a0164e30f626797016"/>
-          <topic label="argc" href="a01187.html#afba175b92e7bc49e19660ef541db8cd5"/>
-          <topic label="argv" href="a01187.html#aa269b5c9a78f2fe3e4ac48012eb3cc06"/>
+        <topic label="CLIParser" href="a00030.html">
+          <topic label="CLIParser" href="a00030.html#a041f8ba22cf5e1dd1fdcdc6c9223b405"/>
+          <topic label="addStringOption" href="a00030.html#a793192114817fb3a9221232eab0307fd"/>
+          <topic label="parse" href="a00030.html#ae6499c8c7da9b4f453757dd86028a14f"/>
+          <topic label="xaccOptions" href="a00030.html#a0f1564966cc40c340027aecb386c4469"/>
         </topic>
-        <topic label="Compiler" href="a01127.html">
-          <topic label="~Compiler" href="a01127.html#a5d0b012687d9b44893872eaa81e47b38"/>
-          <topic label="compile" href="a01127.html#a546a40c95bb93af6a0c0ac48dbeaffc8"/>
-          <topic label="compile" href="a01127.html#a9092f5f779b570c91569b59621280c04"/>
-          <topic label="getName" href="a01127.html#a87fca9100e6462122f5b687c3a0fb3fb"/>
-          <topic label="getOptions" href="a01127.html#a9f5a8965c9c2dd895016d18264ebbe92"/>
-          <topic label="translate" href="a01127.html#aeedbe58a33fed29e4d7694ae743e25e7"/>
-          <topic label="accelerator" href="a01127.html#ad4cbb467fa7e377bac6c054ffcb22b7c"/>
-          <topic label="kernelSource" href="a01127.html#a0ad81c816c09e5113d03cdc02165c453"/>
+        <topic label="Compiler" href="a00034.html">
+          <topic label="~Compiler" href="a00034.html#a5d0b012687d9b44893872eaa81e47b38"/>
+          <topic label="compile" href="a00034.html#a546a40c95bb93af6a0c0ac48dbeaffc8"/>
+          <topic label="compile" href="a00034.html#a9092f5f779b570c91569b59621280c04"/>
+          <topic label="getName" href="a00034.html#a87fca9100e6462122f5b687c3a0fb3fb"/>
+          <topic label="getOptions" href="a00034.html#a9f5a8965c9c2dd895016d18264ebbe92"/>
+          <topic label="translate" href="a00034.html#aeedbe58a33fed29e4d7694ae743e25e7"/>
+          <topic label="accelerator" href="a00034.html#ad4cbb467fa7e377bac6c054ffcb22b7c"/>
+          <topic label="kernelSource" href="a00034.html#a0ad81c816c09e5113d03cdc02165c453"/>
         </topic>
-        <topic label="DefaultEdge" href="a01203.html">
-          <topic label="weight" href="a01203.html#a71d942e4d65d04a2e611759121845e71"/>
+        <topic label="DefaultEdge" href="a00041.html">
+          <topic label="weight" href="a00041.html#a71d942e4d65d04a2e611759121845e71"/>
         </topic>
-        <topic label="Function" href="a01151.html">
-          <topic label="~Function" href="a01151.html#a04b25ba4da1ddfa4ec4ec6d6ffb25bc3"/>
-          <topic label="addInstruction" href="a01151.html#aa8c9ec2d08be75c69399d4254b0216f5"/>
-          <topic label="evaluateVariableParameters" href="a01151.html#af6ae9453027789a2aaec30e59c9e45e3"/>
-          <topic label="getInstruction" href="a01151.html#afa549fc91b5a05f26d8139954a7e0ed5"/>
-          <topic label="getInstructions" href="a01151.html#aaf80bd3d49113a92b520785572663032"/>
-          <topic label="insertInstruction" href="a01151.html#acde702e44bdbc2759b338365218d7ebe"/>
-          <topic label="isComposite" href="a01151.html#aa75500c657b5c3e0e36213e1506aad97"/>
-          <topic label="nInstructions" href="a01151.html#a8901985525f59713e14c61713e07c086"/>
-          <topic label="removeInstruction" href="a01151.html#ab6478b09bb28e194bb555b3180737733"/>
-          <topic label="replaceInstruction" href="a01151.html#a2ef6a4923a6734f90f6ee3d94d263af0"/>
+        <topic label="Function" href="a00059.html">
+          <topic label="~Function" href="a00059.html#a04b25ba4da1ddfa4ec4ec6d6ffb25bc3"/>
+          <topic label="addInstruction" href="a00059.html#aa8c9ec2d08be75c69399d4254b0216f5"/>
+          <topic label="evaluateVariableParameters" href="a00059.html#af6ae9453027789a2aaec30e59c9e45e3"/>
+          <topic label="getInstruction" href="a00059.html#afa549fc91b5a05f26d8139954a7e0ed5"/>
+          <topic label="getInstructions" href="a00059.html#aaf80bd3d49113a92b520785572663032"/>
+          <topic label="insertInstruction" href="a00059.html#acde702e44bdbc2759b338365218d7ebe"/>
+          <topic label="isComposite" href="a00059.html#aa75500c657b5c3e0e36213e1506aad97"/>
+          <topic label="nInstructions" href="a00059.html#a8901985525f59713e14c61713e07c086"/>
+          <topic label="removeInstruction" href="a00059.html#ab6478b09bb28e194bb555b3180737733"/>
+          <topic label="replaceInstruction" href="a00059.html#a2ef6a4923a6734f90f6ee3d94d263af0"/>
         </topic>
-        <topic label="Graph" href="a01211.html">
-          <topic label="XACCVertexPropertiesWriter" href="a01215.html">
-            <topic label="XACCVertexPropertiesWriter" href="a01215.html#a5f8d68a2293a5b545d5a3eb0220e25ef"/>
-            <topic label="operator()" href="a01215.html#ac34176c2e0995e13e3f1c3c1ebb4d637"/>
-            <topic label="graph" href="a01215.html#ac74a285698deb2e93f028474c5c92085"/>
+        <topic label="Graph" href="a00064.html">
+          <topic label="XACCVertexPropertiesWriter" href="a00133.html">
+            <topic label="XACCVertexPropertiesWriter" href="a00133.html#a5f8d68a2293a5b545d5a3eb0220e25ef"/>
+            <topic label="operator()" href="a00133.html#abafd279805601c438fe608f620b149a3"/>
+            <topic label="graph" href="a00133.html#ac74a285698deb2e93f028474c5c92085"/>
           </topic>
-          <topic label="Graph" href="a01211.html#a168a916da7346d0af307a75121f80ca4"/>
-          <topic label="Graph" href="a01211.html#ab513bb56f7a3ede4891aafc586a31717"/>
-          <topic label="addEdge" href="a01211.html#a69ddb8cdc899ba47174f0e65b60a75dd"/>
-          <topic label="addEdge" href="a01211.html#ae9dcc413d7e9b774b6bf2963c261f5fa"/>
-          <topic label="addVertex" href="a01211.html#a99f45a817a10a62dd5f2f8c9a1734d8a"/>
-          <topic label="addVertex" href="a01211.html#a65ccbb34312ab8d6a168f608e10d2b23"/>
-          <topic label="addVertex" href="a01211.html#a2eef95bbacd0a7194dea4f81beb1cb37"/>
-          <topic label="degree" href="a01211.html#afd0f6cc800e0d81f8c168d47c927cf02"/>
-          <topic label="diameter" href="a01211.html#a9da48591a9d5ec658ae8c62204821ea7"/>
-          <topic label="edgeExists" href="a01211.html#acb5a6e586e58dbef53d84631134a1cdf"/>
-          <topic label="getEdgeWeight" href="a01211.html#a917e439598a91ace852ad67bba029f5c"/>
-          <topic label="getVertex" href="a01211.html#a401589d879abd25f69e38fd197138531"/>
-          <topic label="getVertexProperties" href="a01211.html#abe1f333b2c9a9f597fb68c00bf44e7f7"/>
-          <topic label="getVertexProperty" href="a01211.html#a394f58c21a234393f08b4c3a565a5940"/>
-          <topic label="order" href="a01211.html#a50fca47e555122b5bb72e93e719484b4"/>
-          <topic label="read" href="a01211.html#abdd3e67dc08c223821d809bc8914164a"/>
-          <topic label="setEdgeWeight" href="a01211.html#aaf1edd0f038f6cca1c3c9ece35d3ec05"/>
-          <topic label="setVertexProperties" href="a01211.html#a26cc1d1d4e1e23b206dcd23b6ef4a8cc"/>
-          <topic label="setVertexProperty" href="a01211.html#aeeb65835e8a16ebba34da08ea8016fac"/>
-          <topic label="size" href="a01211.html#ae3138d390f1d1c7d335144b59df2ddac"/>
-          <topic label="write" href="a01211.html#a56dbba0529135ffdebb4ac3fbdb69252"/>
-          <topic label="_graph" href="a01211.html#acc3a072e3a30cdb8107b571170d96694"/>
+          <topic label="Graph" href="a00064.html#a168a916da7346d0af307a75121f80ca4"/>
+          <topic label="Graph" href="a00064.html#ab513bb56f7a3ede4891aafc586a31717"/>
+          <topic label="addEdge" href="a00064.html#a69ddb8cdc899ba47174f0e65b60a75dd"/>
+          <topic label="addEdge" href="a00064.html#ae9dcc413d7e9b774b6bf2963c261f5fa"/>
+          <topic label="addVertex" href="a00064.html#a99f45a817a10a62dd5f2f8c9a1734d8a"/>
+          <topic label="addVertex" href="a00064.html#aa96658ad91d64e71cbd7a88d479bf7e4"/>
+          <topic label="addVertex" href="a00064.html#a2eef95bbacd0a7194dea4f81beb1cb37"/>
+          <topic label="degree" href="a00064.html#afd0f6cc800e0d81f8c168d47c927cf02"/>
+          <topic label="diameter" href="a00064.html#a9da48591a9d5ec658ae8c62204821ea7"/>
+          <topic label="edgeExists" href="a00064.html#acb5a6e586e58dbef53d84631134a1cdf"/>
+          <topic label="getEdgeWeight" href="a00064.html#a917e439598a91ace852ad67bba029f5c"/>
+          <topic label="getNeighborList" href="a00064.html#a0e2ea9abc71a4f5d0b6d2f796a64a23b"/>
+          <topic label="getVertex" href="a00064.html#a401589d879abd25f69e38fd197138531"/>
+          <topic label="getVertexProperties" href="a00064.html#abe1f333b2c9a9f597fb68c00bf44e7f7"/>
+          <topic label="getVertexProperty" href="a00064.html#a394f58c21a234393f08b4c3a565a5940"/>
+          <topic label="order" href="a00064.html#a50fca47e555122b5bb72e93e719484b4"/>
+          <topic label="read" href="a00064.html#abdd3e67dc08c223821d809bc8914164a"/>
+          <topic label="removeEdge" href="a00064.html#ab146ca29c8c4edc8c36c2328927663ec"/>
+          <topic label="setEdgeWeight" href="a00064.html#aaf1edd0f038f6cca1c3c9ece35d3ec05"/>
+          <topic label="setVertexProperties" href="a00064.html#abe79a4cb96d48abcd03df01dae73fcc3"/>
+          <topic label="setVertexProperty" href="a00064.html#aeeb65835e8a16ebba34da08ea8016fac"/>
+          <topic label="size" href="a00064.html#ae3138d390f1d1c7d335144b59df2ddac"/>
+          <topic label="write" href="a00064.html#a56dbba0529135ffdebb4ac3fbdb69252"/>
+          <topic label="_graph" href="a00064.html#acc3a072e3a30cdb8107b571170d96694"/>
         </topic>
-        <topic label="Instruction" href="a01155.html">
-          <topic label="~Instruction" href="a01155.html#ae22c935e8113bce63d1d0e214cda4d61"/>
-          <topic label="bits" href="a01155.html#a819f32e94c3e1c9e69a0061aaf8d86dc"/>
-          <topic label="disable" href="a01155.html#a6e528da15e05a94cc1d7db268c483271"/>
-          <topic label="enable" href="a01155.html#a0b4f2e5a591af28342a3c08e4305e24f"/>
-          <topic label="getName" href="a01155.html#ac7ff23f693e2276edbf3fdac5452792c"/>
-          <topic label="getParameter" href="a01155.html#aa0d9de97a4833a042379647f83c33ab6"/>
-          <topic label="getParameters" href="a01155.html#aeb67c67713896e8f27a5c7dd531f3340"/>
-          <topic label="isComposite" href="a01155.html#a4383f1036d0fcfe890ab9c613dbd5f38"/>
-          <topic label="isEnabled" href="a01155.html#ad02a1cf7220577124720b7a51424cea7"/>
-          <topic label="isParameterized" href="a01155.html#a7b24d8ae485369fc2b2df7a3224a5e26"/>
-          <topic label="nParameters" href="a01155.html#ad54585d13c04ffd20296fff7ab8107ff"/>
-          <topic label="setParameter" href="a01155.html#a407a0ac662fa0b1ec3e301e8ff9bade7"/>
-          <topic label="toString" href="a01155.html#ae94c2d089908294c1d410b14c96817ae"/>
+        <topic label="Instruction" href="a00072.html">
+          <topic label="~Instruction" href="a00072.html#ae22c935e8113bce63d1d0e214cda4d61"/>
+          <topic label="bits" href="a00072.html#a819f32e94c3e1c9e69a0061aaf8d86dc"/>
+          <topic label="disable" href="a00072.html#a6e528da15e05a94cc1d7db268c483271"/>
+          <topic label="enable" href="a00072.html#a0b4f2e5a591af28342a3c08e4305e24f"/>
+          <topic label="getName" href="a00072.html#ac7ff23f693e2276edbf3fdac5452792c"/>
+          <topic label="getParameter" href="a00072.html#aa0d9de97a4833a042379647f83c33ab6"/>
+          <topic label="getParameters" href="a00072.html#aeb67c67713896e8f27a5c7dd531f3340"/>
+          <topic label="isComposite" href="a00072.html#a4383f1036d0fcfe890ab9c613dbd5f38"/>
+          <topic label="isEnabled" href="a00072.html#ad02a1cf7220577124720b7a51424cea7"/>
+          <topic label="isParameterized" href="a00072.html#a7b24d8ae485369fc2b2df7a3224a5e26"/>
+          <topic label="nParameters" href="a00072.html#ad54585d13c04ffd20296fff7ab8107ff"/>
+          <topic label="setParameter" href="a00072.html#a407a0ac662fa0b1ec3e301e8ff9bade7"/>
+          <topic label="toString" href="a00072.html#ae94c2d089908294c1d410b14c96817ae"/>
         </topic>
-        <topic label="InstructionIterator" href="a01159.html">
-          <topic label="InstructionIterator" href="a01159.html#af61abf612341ab1454a1c43239b2da16"/>
-          <topic label="hasNext" href="a01159.html#a7fa6c8cff43e7b224211d4f7954a4152"/>
-          <topic label="next" href="a01159.html#a0a2e2b1543650760a869460ebcd4382b"/>
-          <topic label="instStack" href="a01159.html#a7af48509e563e8865131692c3b71edf0"/>
-          <topic label="root" href="a01159.html#a9d7aee1cb9058dd4a29c8fc71eeda57d"/>
+        <topic label="InstructionIterator" href="a00073.html">
+          <topic label="InstructionIterator" href="a00073.html#af61abf612341ab1454a1c43239b2da16"/>
+          <topic label="hasNext" href="a00073.html#a7fa6c8cff43e7b224211d4f7954a4152"/>
+          <topic label="next" href="a00073.html#a0a2e2b1543650760a869460ebcd4382b"/>
+          <topic label="instStack" href="a00073.html#a7af48509e563e8865131692c3b71edf0"/>
+          <topic label="root" href="a00073.html#a9d7aee1cb9058dd4a29c8fc71eeda57d"/>
         </topic>
-        <topic label="InstructionVisitor" href="a01167.html">
-          <topic label="~InstructionVisitor" href="a01167.html#adf624df25964d0be1a56af58639c9e1d"/>
-          <topic label="visit" href="a01167.html#af0fead298f5bfbb8e6680433063e2c4b"/>
+        <topic label="InstructionVisitor" href="a00074.html">
+          <topic label="~InstructionVisitor" href="a00074.html#adf624df25964d0be1a56af58639c9e1d"/>
+          <topic label="visit" href="a00074.html#af0fead298f5bfbb8e6680433063e2c4b"/>
         </topic>
-        <topic label="IR" href="a01175.html">
-          <topic label="~IR" href="a01175.html#a09a76d71092254acae07e19fa2f34921"/>
-          <topic label="addKernel" href="a01175.html#abbbf8e6993c518597de32cd05d49d737"/>
-          <topic label="getKernel" href="a01175.html#a6f49b4ba4b3a15142b04873284885f0d"/>
-          <topic label="getKernels" href="a01175.html#a88c50bfc5b279145360ddc0c3a703b9b"/>
-          <topic label="kernelExists" href="a01175.html#afc9ccf5126f3fed19c2e879133b2f6d8"/>
-          <topic label="load" href="a01175.html#a444c2e4dc0faac500fb70fa93997e9bc"/>
-          <topic label="persist" href="a01175.html#a414b72224d88473ad6190bb88102a3ea"/>
-          <topic label="toAssemblyString" href="a01175.html#a8356cdff1919b88eabeb84fd7450cdb6"/>
+        <topic label="IR" href="a00077.html">
+          <topic label="~IR" href="a00077.html#a09a76d71092254acae07e19fa2f34921"/>
+          <topic label="addKernel" href="a00077.html#abbbf8e6993c518597de32cd05d49d737"/>
+          <topic label="getKernel" href="a00077.html#a6f49b4ba4b3a15142b04873284885f0d"/>
+          <topic label="getKernels" href="a00077.html#a88c50bfc5b279145360ddc0c3a703b9b"/>
+          <topic label="kernelExists" href="a00077.html#afc9ccf5126f3fed19c2e879133b2f6d8"/>
+          <topic label="load" href="a00077.html#a444c2e4dc0faac500fb70fa93997e9bc"/>
+          <topic label="persist" href="a00077.html#a414b72224d88473ad6190bb88102a3ea"/>
+          <topic label="toAssemblyString" href="a00077.html#a8356cdff1919b88eabeb84fd7450cdb6"/>
         </topic>
-        <topic label="IRTransformation" href="a01179.html">
-          <topic label="~IRTransformation" href="a01179.html#a6c270da5366e762d91eaede929815118"/>
-          <topic label="transform" href="a01179.html#accc69cba97f39aa3e51f81fec3ccf258"/>
+        <topic label="IRTransformation" href="a00078.html">
+          <topic label="~IRTransformation" href="a00078.html#a6c270da5366e762d91eaede929815118"/>
+          <topic label="transform" href="a00078.html#accc69cba97f39aa3e51f81fec3ccf258"/>
         </topic>
-        <topic label="OptionsProvider" href="a01219.html">
-          <topic label="~OptionsProvider" href="a01219.html#a7782757b419792ff346f563517eed8b8"/>
-          <topic label="getOptions" href="a01219.html#a6d150954f852109bfe2c1ae90222926f"/>
+        <topic label="OptionsProvider" href="a00091.html">
+          <topic label="~OptionsProvider" href="a00091.html#a7782757b419792ff346f563517eed8b8"/>
+          <topic label="getOptions" href="a00091.html#a6d150954f852109bfe2c1ae90222926f"/>
         </topic>
-        <topic label="Preprocessor" href="a01135.html">
-          <topic label="~Preprocessor" href="a01135.html#a13ac06260d93cf231d87d953791e3504"/>
-          <topic label="getName" href="a01135.html#a36671f4c062d61e230306edc404774cd"/>
-          <topic label="getOptions" href="a01135.html#a96f5600ea47628b66917c7b90250e7f1"/>
-          <topic label="process" href="a01135.html#ae59b5a2963f8bcc84b590a83f4749e19"/>
+        <topic label="Preprocessor" href="a00094.html">
+          <topic label="~Preprocessor" href="a00094.html#a13ac06260d93cf231d87d953791e3504"/>
+          <topic label="getName" href="a00094.html#a36671f4c062d61e230306edc404774cd"/>
+          <topic label="getOptions" href="a00094.html#a96f5600ea47628b66917c7b90250e7f1"/>
+          <topic label="process" href="a00094.html#ae59b5a2963f8bcc84b590a83f4749e19"/>
         </topic>
-        <topic label="Program" href="a01183.html">
-          <topic label="Program" href="a01183.html#a6d20079fde67a3ef145315e762249115"/>
-          <topic label="build" href="a01183.html#a53079c7886c0be065968bcf6674d1516"/>
-          <topic label="getKernel" href="a01183.html#abf5023c9f01cac8a506bdef86760e8f1"/>
-          <topic label="accelerator" href="a01183.html#a10c948629c84f23dd426c04a9a518155"/>
-          <topic label="compiler" href="a01183.html#a0d2ae2522bb0daad0eea7871fc4e2061"/>
-          <topic label="src" href="a01183.html#aae78160f9f9e52a3e0c9b342996a7202"/>
-          <topic label="xaccIR" href="a01183.html#a5681f0989fc1c3fced8e30e815d6511c"/>
+        <topic label="Program" href="a00095.html">
+          <topic label="Program" href="a00095.html#a6d20079fde67a3ef145315e762249115"/>
+          <topic label="build" href="a00095.html#a53079c7886c0be065968bcf6674d1516"/>
+          <topic label="getKernel" href="a00095.html#abf5023c9f01cac8a506bdef86760e8f1"/>
+          <topic label="accelerator" href="a00095.html#a10c948629c84f23dd426c04a9a518155"/>
+          <topic label="compiler" href="a00095.html#a0d2ae2522bb0daad0eea7871fc4e2061"/>
+          <topic label="src" href="a00095.html#aae78160f9f9e52a3e0c9b342996a7202"/>
+          <topic label="xaccIR" href="a00095.html#a5681f0989fc1c3fced8e30e815d6511c"/>
         </topic>
-        <topic label="RegisterAccelerator" href="a01115.html">
-          <topic label="RegisterAccelerator" href="a01115.html#a329df136d447a887e9794ea078d04706"/>
+        <topic label="RegisterAccelerator" href="a00105.html">
+          <topic label="RegisterAccelerator" href="a00105.html#a329df136d447a887e9794ea078d04706"/>
+          <topic label="RegisterAccelerator" href="a00105.html#a753204b9774ff46ff5443a9709f46eed"/>
         </topic>
-        <topic label="RegisterAlgorithmGenerator" href="a01147.html">
-          <topic label="RegisterAlgorithmGenerator" href="a01147.html#af439cc4d7c8d6628a979129a5c1411df"/>
+        <topic label="RegisterAlgorithmGenerator" href="a00106.html">
+          <topic label="RegisterAlgorithmGenerator" href="a00106.html#af439cc4d7c8d6628a979129a5c1411df"/>
         </topic>
-        <topic label="RegisterCompiler" href="a01131.html">
-          <topic label="RegisterCompiler" href="a01131.html#a41f5c1abd570b3867b9790cdc02f3355"/>
+        <topic label="RegisterCompiler" href="a00107.html">
+          <topic label="RegisterCompiler" href="a00107.html#a41f5c1abd570b3867b9790cdc02f3355"/>
+          <topic label="RegisterCompiler" href="a00107.html#a3489e8cf59f2b0c14e4e2037b61bc368"/>
         </topic>
-        <topic label="RegisterPreprocessor" href="a01139.html">
-          <topic label="RegisterPreprocessor" href="a01139.html#a360d5ffa16ef3a96c3bc61fa897ffe3c"/>
+        <topic label="RegisterPreprocessor" href="a00110.html">
+          <topic label="RegisterPreprocessor" href="a00110.html#a360d5ffa16ef3a96c3bc61fa897ffe3c"/>
         </topic>
-        <topic label="Registry" href="a01223.html">
-          <topic label="add" href="a01223.html#a9aa172c2603171db067b40bd62ba53c6"/>
-          <topic label="create" href="a01223.html#a3e71cc8d0effd065252608ee1ccdf207"/>
-          <topic label="getRegisteredIds" href="a01223.html#a8bff6f5c50534375abc4026662d69d2e"/>
-          <topic label="size" href="a01223.html#a2352dd7c6c85ae5c5e232b577dfa2544"/>
-          <topic label="registry" href="a01223.html#a46460ecacc7facb6936b3c1ec6d618d7"/>
+        <topic label="Registry" href="a00111.html">
+          <topic label="CreatorFunction" href="a00111.html#a784134d683dee924996e12d32a6da16c"/>
+          <topic label="CreatorFunctionPtr" href="a00111.html#a2e7d22d66dcc4644e01bcc398a3e23cc"/>
+          <topic label="add" href="a00111.html#a5ec7144ddc944674313badd32452fecc"/>
+          <topic label="add" href="a00111.html#a51d98b5cf6e2722655a2f597b436aa80"/>
+          <topic label="create" href="a00111.html#aecccbd5534276cbdd1553e43c942219b"/>
+          <topic label="getRegisteredIds" href="a00111.html#a8bff6f5c50534375abc4026662d69d2e"/>
+          <topic label="getRegisteredOptions" href="a00111.html#ad1fef83142cd38d0727471c15507a0ea"/>
+          <topic label="size" href="a00111.html#a2352dd7c6c85ae5c5e232b577dfa2544"/>
+          <topic label="registry" href="a00111.html#a7eeb7a09aafaef2012b6d0bff13c922e"/>
+          <topic label="registryOptions" href="a00111.html#a790075e0e023308e5e74247fb0229a04"/>
         </topic>
-        <topic label="RuntimeOptions" href="a01227.html">
-          <topic label="exists" href="a01227.html#a3603aecb87461efedd0fabbef966c80c"/>
+        <topic label="RuntimeOptions" href="a00113.html">
+          <topic label="exists" href="a00113.html#a3603aecb87461efedd0fabbef966c80c"/>
         </topic>
-        <topic label="Singleton" href="a01231.html">
-          <topic label="Singleton" href="a01231.html#afd62caabc41babdd98ab9af2253ec371"/>
-          <topic label="~Singleton" href="a01231.html#a75a032ec71f88d6986461b47f3fb2600"/>
+        <topic label="Singleton" href="a00125.html">
+          <topic label="Singleton" href="a00125.html#afd62caabc41babdd98ab9af2253ec371"/>
+          <topic label="~Singleton" href="a00125.html#a75a032ec71f88d6986461b47f3fb2600"/>
         </topic>
-        <topic label="XACCVertex" href="a01199.html">
-          <topic label="XACCVertex" href="a01199.html#a83a087e7134ef6792d953a5a1ae183ff"/>
-          <topic label="getPropertyName" href="a01199.html#a7a7c4d60a277c3c0998f3911d128eaa5"/>
-          <topic label="properties" href="a01199.html#ad97a32f3cfcceef3eb0725a1a185025b"/>
-          <topic label="propertyNames" href="a01199.html#a9107342e37aaa5d7936d7e457051f461"/>
+        <topic label="XACCVertex" href="a00132.html">
+          <topic label="XACCVertex" href="a00132.html#a83a087e7134ef6792d953a5a1ae183ff"/>
+          <topic label="getPropertyName" href="a00132.html#a7a7c4d60a277c3c0998f3911d128eaa5"/>
+          <topic label="properties" href="a00132.html#ad97a32f3cfcceef3eb0725a1a185025b"/>
+          <topic label="propertyNames" href="a00132.html#a9107342e37aaa5d7936d7e457051f461"/>
         </topic>
+      </topic>
+      <topic label="BGLQuellEGraph" href="a00026.html">
+        <topic label="BGLQuellEGraph" href="a00026.html#ab09417df7a8fce4f9fcf5bae13e72e14"/>
+        <topic label="BGLQuellEGraph" href="a00026.html#a092cb3ddac1b9b54893e0c052f268eaf"/>
+        <topic label="BGLQuellEGraph" href="a00026.html#a97ca6c29526536eb48064dd01486c9bd"/>
+        <topic label="~BGLQuellEGraph" href="a00026.html#af05274ea2425f3ab8efd1e4ca4fd9307"/>
+        <topic label="addEdge" href="a00026.html#a2d039fc735fa1afdec68eff073037f60"/>
+        <topic label="addEdge" href="a00026.html#acd3e75f0138adbce7e67ce0e755daf9e"/>
+        <topic label="computeShortestPaths" href="a00026.html#a02c3683954f510d5a83beb4d8638f9bb"/>
+        <topic label="edgeExists" href="a00026.html#ab5d9a2cf988e6150a62620546cda3153"/>
+        <topic label="getBias" href="a00026.html#a75abe194426ea258e401abb4aaa0a9e1"/>
+        <topic label="getCommunicator" href="a00026.html#ae0f04cd2431f82446421f7127e60d3c6"/>
+        <topic label="getDegree" href="a00026.html#a2b5f52940eadbe2d26cf0923e65b4338"/>
+        <topic label="getDiameter" href="a00026.html#a40de3399ac7ca7a95959359ceb5a135a"/>
+        <topic label="getEdgeWeight" href="a00026.html#a091e3f15fca98364ed98291c29b413e1"/>
+        <topic label="getRawGraph" href="a00026.html#a0e655fce4310baffd51efed981f508fd"/>
+        <topic label="removeEdge" href="a00026.html#a1343d67726155e07c018c4e865b3a297"/>
+        <topic label="setBias" href="a00026.html#a0412d3e16ba2a84a27b8b050121353f1"/>
+        <topic label="setEdgeWeight" href="a00026.html#a276ac9e0bb24369a0d5211a17020398e"/>
+        <topic label="size" href="a00026.html#a28ca112a3524ae9f7e371c6db3e39485"/>
+        <topic label="comm" href="a00026.html#ad007738515db8d9f5e2db4e6a3207876"/>
+        <topic label="graph" href="a00026.html#a63dbb11983c6bb5882787558d3ad64bc"/>
+      </topic>
+      <topic label="Chimera" href="a00027.html">
+        <topic label="Chimera" href="a00027.html#a7cfe2760d4af1eb7c16f02799cdeb3a6"/>
+      </topic>
+      <topic label="CMR" href="a00031.html">
+        <topic label="CMR" href="a00031.html#aa3afc56561c2fc51701ee308991099db"/>
+        <topic label="computeEmbedding" href="a00031.html#ae9f07427738d39c3f5f93e09c8178673"/>
+        <topic label="getAlgorithmName" href="a00031.html#a87e38fff11368b67d18671debcf1adcc"/>
+        <topic label="getNumberOfVerticesUsed" href="a00031.html#acfce8a8e0728c7b6561c819cb2fcf971"/>
+        <topic label="getTotalSize" href="a00031.html#a982fe78ed280508a0b615d468c114ae6"/>
+        <topic label="isImproving" href="a00031.html#a0636b043d3167207f64dc555f536f087"/>
+        <topic label="embedding" href="a00031.html#a1c39d36e454ec454611f47245ddd8221"/>
+        <topic label="lastIterMaxNProblemVertsRepresentedAtG" href="a00031.html#ae15bd2ea367c0d931acf4aa7f102e7fe"/>
+        <topic label="lastIterNumMaxOverfills" href="a00031.html#a544003be4838ee31e7a8c8fc9c9dd534"/>
+        <topic label="lastIterTotalSize" href="a00031.html#a514e46dd106cda11ad355e423bc8f1a6"/>
+        <topic label="maxNProblemVertsRepresentedAtG" href="a00031.html#a81bea6884182203db7e4ed7f410ff92e"/>
+        <topic label="totalSize" href="a00031.html#a620261e04b1b60f5412de7f7a3d60125"/>
+        <topic label="virtualHardware" href="a00031.html#a8110eec88cbe9be0d9adbf7a2c99a66b"/>
+      </topic>
+      <topic label="CompleteGraph" href="a00035.html">
+        <topic label="CompleteGraph" href="a00035.html#ac1643761c88b85059e332a68c557fb43"/>
+      </topic>
+      <topic label="Embedding" href="a00050.html">
+        <topic label="Embedding" href="a00050.html#ac59278c6a34aa4811f34779c0500173d"/>
+        <topic label="~Embedding" href="a00050.html#af94a48684f9b7227be2f48dd08584d66"/>
+        <topic label="isValid" href="a00050.html#ab4a56ed9d02ebc5abaae2a7bdfbe5206"/>
+        <topic label="printEmbedding" href="a00050.html#a1139883ba65f945053ad8e284ef82746"/>
+        <topic label="setDebug" href="a00050.html#a3817f8a9fe8deded8c4ba6ff3d239140"/>
+        <topic label="debug" href="a00050.html#af9fa67f1edc38349bb70e5e78d0f3fbd"/>
+        <topic label="hardware" href="a00050.html#a511a70c0b460d5baad91794dbc60ab09"/>
+        <topic label="problem" href="a00050.html#a0ccb9d65884b3ef699699882b2745af9"/>
+      </topic>
+      <topic label="EmbeddingAlgorithmFactory" href="a00053.html">
+        <topic label="EmbeddingAlgorithmFactory" href="a00053.html#ac19af2c293caa47ea46a0122f3e81e28"/>
+        <topic label="createEmbeddingAlgorithm" href="a00053.html#a19e9ec2636073705e65c1039c8879be7"/>
+        <topic label="listEmbeddingAlgorithms" href="a00053.html#ab19e4f507f0ac05a0b37ae75c68b6df4"/>
+        <topic label="reg" href="a00053.html#aec39e8d4edc3715f3980db5d13252f3b"/>
+        <topic label="registrationMap" href="a00053.html#aa3bbf5d1683ddd7194f981f0af67e95a"/>
+      </topic>
+      <topic label="ExecutionModel" href="a00054.html">
+        <topic label="ExecutionModel" href="a00054.html#a21c52f721b0b94d2729b63ab9bdaa960"/>
+        <topic label="~ExecutionModel" href="a00054.html#a814c36def7e19817ccd2859d234ad09c"/>
+        <topic label="computePaths" href="a00054.html#a316ba5002335237f8d4c5ceed798c3e8"/>
+        <topic label="computeRootNode" href="a00054.html#a1934dabaaea4ec5ef2724386455dc5b8"/>
+        <topic label="adjacentGhosts" href="a00054.html#a35796743fbab23f8a9feedb823774639"/>
+        <topic label="adjacentModels" href="a00054.html#a754c7a96930bd04e932303f2a99c86a9"/>
+        <topic label="adjacentProblemVerts" href="a00054.html#adaca100d7732c37639dc127386139df2"/>
+        <topic label="embedding" href="a00054.html#a91a42038ba365fafa1cce719f1744886"/>
+      </topic>
+      <topic label="ExecutionModelFactory" href="a00056.html">
+        <topic label="ExecutionModelFactory" href="a00056.html#ae32745846c9002d42820d9eda11afd81"/>
+        <topic label="~ExecutionModelFactory" href="a00056.html#a8b5d3b4568f70862dc6fbfaf457151f6"/>
+        <topic label="getModel" href="a00056.html#a8b5453eff94d48d1b31dfb5b1c8f705d"/>
+      </topic>
+      <topic label="Factoring15FakeEmbedding" href="a00058.html">
+        <topic label="embed" href="a00058.html#ab0bcf3d0b023ece1a74411c42c0a187e"/>
+        <topic label="name" href="a00058.html#a2fc78d2c2960cb0900b9224c8a2baf61"/>
+      </topic>
+      <topic label="GraphIsomorphism" href="a00065.html">
+      </topic>
+      <topic label="HopfieldProblem" href="a00068.html">
+        <topic label="HopfieldProblem" href="a00068.html#af15b3c15b64730214e12243f5665c37f"/>
+        <topic label="getIsingForm" href="a00068.html#ad20a83fbc11b016f02f9dcfeae81780c"/>
+        <topic label="getProblemName" href="a00068.html#abe9f917903ba220c43190f75b8d19cce"/>
+      </topic>
+      <topic label="IAQCProblem" href="a00070.html">
+        <topic label="IAQCProblem" href="a00070.html#a1be1e8872cca48daf6fadca97e4ee6da"/>
+        <topic label="~IAQCProblem" href="a00070.html#a07188ab60a3af607fc656bd06f25f2ef"/>
+        <topic label="getIsingForm" href="a00070.html#a9249fffc88888fe380449eb0ba91370a"/>
+        <topic label="getProblemName" href="a00070.html#a7a9b51abf3ac37c5388cdd4f179d43ea"/>
+        <topic label="commWorld" href="a00070.html#a07463b104572e3d63dcf39b416f8701e"/>
+      </topic>
+      <topic label="IEmbeddingAlgorithm" href="a00071.html">
+        <topic label="IEmbeddingAlgorithm" href="a00071.html#af5fcf01601ceff6a9782d8ef2918f7f5"/>
+        <topic label="~IEmbeddingAlgorithm" href="a00071.html#a0a28540eb6e6cb7f302e785fd2e8f05b"/>
+        <topic label="computeEmbedding" href="a00071.html#a0a56d5731381551efcb4c088bca6c817"/>
+        <topic label="getAlgorithmName" href="a00071.html#aac9fc812fb7e84b8a379ab5f60167f2c"/>
+        <topic label="getNumberOfVerticesUsed" href="a00071.html#a764c83e4d19b7608693177e2e720cd49"/>
+        <topic label="hardware" href="a00071.html#aacf081e6ad5824b339b212844eb61b63"/>
+        <topic label="problem" href="a00071.html#a279b1546d6d308ccfa104a70fb6f8474"/>
+      </topic>
+      <topic label="IQuellEGraph" href="a00076.html">
+        <topic label="IQuellEGraph" href="a00076.html#ac065b4d432b0c6ec3a13e42cc68aa20b"/>
+        <topic label="IQuellEGraph" href="a00076.html#a6b48a0ef9f45576a76b17120989d2010"/>
+        <topic label="IQuellEGraph" href="a00076.html#a685a746863199945d2f1a54294631b94"/>
+        <topic label="~IQuellEGraph" href="a00076.html#a362ba11a16d9c3cd749ef090d11ed22e"/>
+        <topic label="addEdge" href="a00076.html#af4cfe0f4a87f8beff287c46d05622fcf"/>
+        <topic label="addEdge" href="a00076.html#a80a286007b70ccb9cfcd625893c1e9e4"/>
+        <topic label="computeShortestPaths" href="a00076.html#a7efdd6c12b6c4068c472a59e8a507dd6"/>
+        <topic label="edgeExists" href="a00076.html#a12c0ce7cb02250a54e62ebf52eb40f50"/>
+        <topic label="getBias" href="a00076.html#a5dc512ede77ec02b09f49d3dae251490"/>
+        <topic label="getCommunicator" href="a00076.html#a14115edf10d1aa5f647e564a895738af"/>
+        <topic label="getDegree" href="a00076.html#a5662f92a689dd68297d466d20fdc380a"/>
+        <topic label="getDiameter" href="a00076.html#a3190e49d715ddfd85691d1217d52c733"/>
+        <topic label="getEdgeWeight" href="a00076.html#aedb391f2d8779e997d96189a896c202e"/>
+        <topic label="removeEdge" href="a00076.html#a516dd1e34370a04a24824e374d4d2286"/>
+        <topic label="setBias" href="a00076.html#ac6185f23e474c74424f1f2d4c8bfac9f"/>
+        <topic label="setEdgeWeight" href="a00076.html#a1fbc422e979b9e34a71af3a5846776fb"/>
+        <topic label="size" href="a00076.html#a6ff128af05ee8ed24ce85d71af3cd0a0"/>
+      </topic>
+      <topic label="K44Bipartite" href="a00082.html">
+        <topic label="K44Bipartite" href="a00082.html#a21dbec576f813853ea035eba8330c63c"/>
+      </topic>
+      <topic label="MPIExecutionModel" href="a00086.html">
+        <topic label="MPIExecutionModel" href="a00086.html#ab0e43099474e961b76936322b6733322"/>
+        <topic label="computePaths" href="a00086.html#ad3b1a2f6f182aa55a1a59ebc068d1a73"/>
+        <topic label="computeRootNode" href="a00086.html#a32469805d53aa6d9b32bce8514597810"/>
+      </topic>
+      <topic label="MPIFixture" href="a00087.html">
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="MPIFixture" href="a00087.html#a0e3c48c48f558b1082865b32118379d3"/>
+        <topic label="~MPIFixture" href="a00087.html#a9420de62f38f3855413f5768cb8ef7f2"/>
+        <topic label="env" href="a00087.html#ababa6710359cb4d3da33b33aab8eafab"/>
+      </topic>
+      <topic label="MSCEmbedding" href="a00088.html">
+        <topic label="MSCEmbedding" href="a00088.html#a121cd4bb6ed8a7f520070482a2954c46"/>
+        <topic label="computeEmbedding" href="a00088.html#ad1d4dd78521d916ce370ab4b109c5222"/>
+        <topic label="getAlgorithmName" href="a00088.html#a584852f9b912480086b27c1f1f14274e"/>
+      </topic>
+      <topic label="NasaChimera" href="a00089.html">
+        <topic label="NasaChimera" href="a00089.html#a65634697fd572aeb83c51a0a62baaed5"/>
+        <topic label="getJsonConfig" href="a00089.html#a630151064ad04f934a708ba69628b1f4"/>
+        <topic label="indexMap" href="a00089.html#af611a712ed6448df899b867da40fe968"/>
+      </topic>
+      <topic label="OpenMP_MPIExecutionModel" href="a00090.html">
+        <topic label="OpenMP_MPIExecutionModel" href="a00090.html#a6026a68ba49eb929784ac116c6581c34"/>
+        <topic label="OpenMP_MPIExecutionModel" href="a00090.html#a6026a68ba49eb929784ac116c6581c34"/>
+        <topic label="computePaths" href="a00090.html#aa673c61e71fa3246a79ee5ce41be01b8"/>
+        <topic label="computePaths" href="a00090.html#a7febfa9f71cbabbb18e76489a051e54a"/>
+        <topic label="computeRootNode" href="a00090.html#a552757725618db3523e5c7d583eafcba"/>
+        <topic label="computeRootNode" href="a00090.html#a5ab98063e4c317de38062314b9927492"/>
+      </topic>
+      <topic label="ParallelCMREmbedding" href="a00092.html">
+        <topic label="ParallelCMREmbedding" href="a00092.html#a6ab507aaa1e75a180a5f441ae0012b0f"/>
+        <topic label="addToVertexModel" href="a00092.html#a55ba8c7ae717cbfa8a57503116536344"/>
+        <topic label="computeVertexModel" href="a00092.html#a2d9a99786af28f38134f0243d231bb35"/>
+        <topic label="getHardware" href="a00092.html#a8241fc3cd03161d4c7ae946daace1fcd"/>
+        <topic label="getNRepresented" href="a00092.html#a7f18154f9ba79fb4bee03543e75cddb5"/>
+        <topic label="getProblem" href="a00092.html#a6ed60ea935d3c07e5f94001d2174a211"/>
+        <topic label="getProbToGhostMap" href="a00092.html#a014aaa01072712f879bc8902704597a1"/>
+        <topic label="isGhostVertex" href="a00092.html#a6fbb695c060ff00be3134c874ff82a6c"/>
+        <topic label="isValid" href="a00092.html#a74606fda2c0542c2d197146787969bd4"/>
+        <topic label="isVertexUsed" href="a00092.html#a70955f1c3534bc9da12c3956b11a7820"/>
+        <topic label="setExecutionModel" href="a00092.html#a9fd83176631007efcd276666f8f36323"/>
+        <topic label="setGhostVertices" href="a00092.html#a59414001df28a664b1e6da35d297731d"/>
+        <topic label="comm" href="a00092.html#ab667532e867c02b209e740d21eec809b"/>
+        <topic label="computedRandomVertex" href="a00092.html#a49d40d2aad441146abdaa190bcba19ab"/>
+        <topic label="executionModel" href="a00092.html#a7ecbad6b40b43e024c57a4c41e8f13c6"/>
+        <topic label="hardwareDiameter" href="a00092.html#a814ee2e5bf56df5d71065346c534aff3"/>
+        <topic label="localVertices" href="a00092.html#a7f81e1e5a286768177b71c8dffa7e9f6"/>
+        <topic label="probVertsToGhostVerts" href="a00092.html#af3c4dd74e7391233b124c1836295c6da"/>
+        <topic label="rank" href="a00092.html#a9d7285ee6c360563991d258977e9e1e9"/>
+        <topic label="vertexUseCount" href="a00092.html#a7ab60092ad202fbd2af3ed738e2a440b"/>
+      </topic>
+      <topic label="PyQCC" href="a00096.html">
+        <topic label="PyQCC" href="a00096.html#a19e513cad8f966ce27f959673b554df4"/>
+        <topic label="PyQCC" href="a00096.html#ac8a08b39e11d30068730c92304e11741"/>
+        <topic label="~PyQCC" href="a00096.html#ae19871bbd4e2c3acf4b3ffac499198f1"/>
+        <topic label="compile" href="a00096.html#a3228138cb902025e8e601edf4fcd8d66"/>
+      </topic>
+      <topic label="QuellEGraph" href="a00100.html">
+        <topic label="QuellEGraph" href="a00100.html#a9d92d1de06bf78f5d3eb233480c472ca"/>
+        <topic label="QuellEGraph" href="a00100.html#a4fe13d4ae18899f2d50d986e206134a1"/>
+        <topic label="QuellEGraph" href="a00100.html#a8e0181767b0fd906ea388708019358cd"/>
+        <topic label="~QuellEGraph" href="a00100.html#a1018911bcafb69cee4d64b562f3bc5a6"/>
+        <topic label="addEdge" href="a00100.html#a8bbf5275751043a6fc9b1789a5796399"/>
+        <topic label="addEdge" href="a00100.html#afacc841dd74387c1d033029bc895f674"/>
+        <topic label="edgeExists" href="a00100.html#aebf1ab34ca7018f47194a18baf3fac75"/>
+        <topic label="getCommunicator" href="a00100.html#a7f9bcedbc62895ac213b32557cd05e01"/>
+        <topic label="getDiameter" href="a00100.html#a3654204ef61a7fcefdaee4015fa40812"/>
+        <topic label="getEdgeWeight" href="a00100.html#ab6951a05af9c0e381b517a57fbc79b5c"/>
+        <topic label="getNumberOfVertices" href="a00100.html#a01ee0f71326e4bac6ff192fb5ea56f89"/>
+        <topic label="getPBGLGraph" href="a00100.html#a1ab19edb9d268e27f07b40ba1e1b810f"/>
+        <topic label="getVertexBias" href="a00100.html#ae00a3e7e7fd96620663ef6b5a1376515"/>
+        <topic label="getVertexBias" href="a00100.html#a297058d5e41d7daf0f2ee8963f2a0f72"/>
+        <topic label="getVertexDegree" href="a00100.html#a54c3f8b912c6a177dfda9f8502219650"/>
+        <topic label="setEdgeWeight" href="a00100.html#a732628340e77593d26b5d1a6b8ef6e1a"/>
+        <topic label="setEdgeWeight" href="a00100.html#abb3fe8a9c07ce0852ba5956a5b337561"/>
+        <topic label="setVertexBias" href="a00100.html#a35a4275ddbc78a9dac06db2c1ca43506"/>
+        <topic label="setVertexBias" href="a00100.html#a4b33d0531343947e867457c5bff9d222"/>
+        <topic label="commWorld" href="a00100.html#abaf47f32f5722caa50a241188802bfd9"/>
+        <topic label="graph" href="a00100.html#a6d06d2e18af59d496531f9cf3b1d62a4"/>
+        <topic label="nVertices" href="a00100.html#aedbe28d892ab9e08522395cd1b63c612"/>
+        <topic label="rank" href="a00100.html#a24e46dd596648bfa039501ea7eb1adfd"/>
+      </topic>
+      <topic label="QuellEGraphFactory" href="a00101.html">
+        <topic label="createQuellEGraph" href="a00101.html#a224ef56cb020e11a9bd1ad3faec5f606"/>
+        <topic label="createQuellEGraph" href="a00101.html#a528e7317d26bf71f4888f23e09fe7812"/>
+      </topic>
+      <topic label="RandomGraph" href="a00104.html">
+        <topic label="RandomGraph" href="a00104.html#ac0c674c867b017c1bdf18386d6656f7e"/>
+      </topic>
+      <topic label="second_t" href="a00120.html">
+        <topic label="operator()" href="a00120.html#a4c4452e56c4e12c7e43776c490eb3ba0"/>
+      </topic>
+      <topic label="vector_add_elements" href="a00128.html">
+        <topic label="operator()" href="a00128.html#ac23491b25efc57a4abc9831263f8dd1b"/>
+        <topic label="operator()" href="a00128.html#ac23491b25efc57a4abc9831263f8dd1b"/>
+        <topic label="operator()" href="a00128.html#ac23491b25efc57a4abc9831263f8dd1b"/>
+      </topic>
+      <topic label="vector_merge" href="a00129.html">
+        <topic label="operator()" href="a00129.html#add126c9cc0bc4348cb95346e752f130a"/>
+        <topic label="operator()" href="a00129.html#add126c9cc0bc4348cb95346e752f130a"/>
+        <topic label="operator()" href="a00129.html#add126c9cc0bc4348cb95346e752f130a"/>
+      </topic>
+      <topic label="VertexBiasDeltaStepping" href="a00130.html">
+        <topic label="VertexBiasDeltaStepping" href="a00130.html#a49fd30c46349eac3b2e7ce3fb26a0902"/>
+        <topic label="run" href="a00130.html#afdd3b9b7a0b356b62d3124a5b642ec63"/>
       </topic>
     </topic>
     <topic label="Class Index" href="classes.html"/>
     <topic label="Class Hierarchy" href="hierarchy.html">
-      <topic label="xacc::AcceleratorBit" href="a01119.html"/>
-      <topic label="xacc::AcceleratorBuffer" href="a01123.html">
-        <topic label="xacc::quantum::SimulatedQubits" href="a01107.html"/>
+      <topic label="xacc::AcceleratorBit" href="a00018.html"/>
+      <topic label="xacc::AcceleratorBuffer" href="a00019.html">
+        <topic label="xacc::quantum::AQCAcceleratorBuffer" href="a00022.html"/>
+        <topic label="xacc::quantum::SimulatedQubits" href="a00124.html"/>
       </topic>
-      <topic label="xacc::AlgorithmGenerator" href="a01143.html">
-        <topic label="xacc::quantum::InverseQFT" href="a01003.html"/>
-        <topic label="xacc::quantum::QFT" href="a01007.html"/>
+      <topic label="xacc::AlgorithmGenerator" href="a00020.html">
+        <topic label="xacc::quantum::InverseQFT" href="a00075.html"/>
+        <topic label="xacc::quantum::QFT" href="a00098.html"/>
       </topic>
       <topic label="ASTConsumer">
-        <topic label="xacc::quantum::ScaffoldASTConsumer" href="a00947.html"/>
+        <topic label="xacc::quantum::ScaffoldASTConsumer" href="a00117.html"/>
       </topic>
-      <topic label="xacc::BaseInstructionVisitable" href="a01171.html">
-        <topic label="xacc::Instruction" href="a01155.html">
-          <topic label="xacc::Function" href="a01151.html">
-            <topic label="xacc::quantum::DWKernel" href="a00983.html"/>
-            <topic label="xacc::quantum::GateFunction" href="a01011.html">
-              <topic label="xacc::quantum::ConditionalFunction" href="a01035.html"/>
+      <topic label="xacc::BaseInstructionVisitable" href="a00023.html">
+        <topic label="xacc::Instruction" href="a00072.html">
+          <topic label="xacc::Function" href="a00059.html">
+            <topic label="xacc::quantum::DWKernel" href="a00045.html"/>
+            <topic label="xacc::quantum::GateFunction" href="a00061.html">
+              <topic label="xacc::quantum::ConditionalFunction" href="a00037.html"/>
             </topic>
           </topic>
-          <topic label="xacc::quantum::DWQMI" href="a00987.html"/>
-          <topic label="xacc::quantum::GateInstruction" href="a01015.html">
-            <topic label="xacc::quantum::CNOT" href="a01031.html"/>
-            <topic label="xacc::quantum::CPhase" href="a01039.html"/>
-            <topic label="xacc::quantum::Hadamard" href="a01043.html"/>
-            <topic label="xacc::quantum::Measure" href="a01047.html"/>
-            <topic label="xacc::quantum::Rx" href="a01051.html"/>
-            <topic label="xacc::quantum::Ry" href="a01055.html"/>
-            <topic label="xacc::quantum::Rz" href="a01059.html"/>
-            <topic label="xacc::quantum::Swap" href="a01063.html"/>
-            <topic label="xacc::quantum::X" href="a01067.html"/>
-            <topic label="xacc::quantum::Y" href="a01071.html"/>
-            <topic label="xacc::quantum::Z" href="a01075.html"/>
+          <topic label="xacc::quantum::DWQMI" href="a00046.html"/>
+          <topic label="xacc::quantum::GateInstruction" href="a00062.html">
+            <topic label="xacc::quantum::CNOT" href="a00033.html"/>
+            <topic label="xacc::quantum::CPhase" href="a00040.html"/>
+            <topic label="xacc::quantum::Hadamard" href="a00066.html"/>
+            <topic label="xacc::quantum::Measure" href="a00085.html"/>
+            <topic label="xacc::quantum::Rx" href="a00114.html"/>
+            <topic label="xacc::quantum::Ry" href="a00115.html"/>
+            <topic label="xacc::quantum::Rz" href="a00116.html"/>
+            <topic label="xacc::quantum::Swap" href="a00126.html"/>
+            <topic label="xacc::quantum::X" href="a00131.html"/>
+            <topic label="xacc::quantum::Y" href="a00134.html"/>
+            <topic label="xacc::quantum::Z" href="a00135.html"/>
           </topic>
         </topic>
       </topic>
-      <topic label="xacc::BaseInstructionVisitor" href="a01163.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html">
-          <topic label="xacc::quantum::FunctionalGateInstructionVisitor" href="a01091.html"/>
-          <topic label="xacc::quantum::JsonVisitor" href="a01095.html"/>
-          <topic label="xacc::quantum::QuilVisitor" href="a00935.html"/>
-          <topic label="xacc::quantum::ScaffoldIRToSrcVisitor" href="a00955.html"/>
+      <topic label="xacc::BaseInstructionVisitor" href="a00024.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html">
+          <topic label="xacc::quantum::FunctionalGateInstructionVisitor" href="a00060.html"/>
+          <topic label="xacc::quantum::JsonVisitor" href="a00081.html"/>
+          <topic label="xacc::quantum::QuilVisitor" href="a00103.html"/>
+          <topic label="xacc::quantum::ScaffoldIRToSrcVisitor" href="a00119.html"/>
         </topic>
-        <topic label="xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;" href="a01087.html"/>
+        <topic label="xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;" href="a00039.html"/>
       </topic>
-      <topic label="xacc::CLIParser" href="a01187.html"/>
-      <topic label="xacc::DefaultEdge" href="a01203.html"/>
-      <topic label="xacc::quantum::EmbeddingAlgorithm" href="a00967.html"/>
-      <topic label="xacc::Graph&lt; Vertex, type &gt;" href="a01211.html"/>
-      <topic label="xacc::Graph&lt; CircuitNode &gt;" href="a01211.html">
-        <topic label="xacc::quantum::GateQIR" href="a01027.html"/>
-        <topic label="xacc::quantum::QuantumCircuit" href="a01103.html"/>
+      <topic label="nlohmann::basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType &gt;" href="a00025.html"/>
+      <topic label="xacc::CLIParser" href="a00030.html"/>
+      <topic label="xacc::DefaultEdge" href="a00041.html"/>
+      <topic label="xacc::quantum::DWSolver" href="a00048.html"/>
+      <topic label="xacc::quantum::EmbeddingAlgorithm" href="a00052.html">
+        <topic label="Factoring15FakeEmbedding" href="a00058.html"/>
+        <topic label="xacc::quantum::CMR" href="a00032.html"/>
+        <topic label="xacc::quantum::TrivialEmbeddingAlgorithm" href="a00127.html"/>
       </topic>
-      <topic label="xacc::Graph&lt; DWVertex &gt;" href="a01211.html">
-        <topic label="xacc::quantum::DWGraph" href="a00975.html"/>
+      <topic label="EmbeddingAlgorithmFactory" href="a00053.html"/>
+      <topic label="ExecutionModel" href="a00054.html">
+        <topic label="MPIExecutionModel" href="a00086.html"/>
+        <topic label="OpenMP_MPIExecutionModel" href="a00090.html"/>
+        <topic label="OpenMP_MPIExecutionModel" href="a00090.html"/>
       </topic>
-      <topic label="xacc::InstructionIterator" href="a01159.html"/>
-      <topic label="xacc::InstructionVisitor&lt; T &gt;" href="a01167.html"/>
-      <topic label="xacc::InstructionVisitor&lt; CNOT &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::quantum::ExecutionModel" href="a00055.html"/>
+      <topic label="ExecutionModelFactory" href="a00056.html"/>
+      <topic label="xacc::quantum::ExecutionModelFactory" href="a00057.html"/>
+      <topic label="xacc::Graph&lt; Vertex, type &gt;" href="a00064.html"/>
+      <topic label="xacc::Graph&lt; CircuitNode &gt;" href="a00064.html">
+        <topic label="xacc::quantum::GateQIR" href="a00063.html"/>
+        <topic label="xacc::quantum::QuantumCircuit" href="a00099.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; ConditionalFunction &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::Graph&lt; DWVertex &gt;" href="a00064.html">
+        <topic label="xacc::quantum::DWGraph" href="a00043.html">
+          <topic label="xacc::quantum::ChimeraGraph" href="a00028.html"/>
+          <topic label="xacc::quantum::CompleteGraph" href="a00036.html"/>
+          <topic label="xacc::quantum::K44Bipartite" href="a00083.html"/>
+        </topic>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; CPhase &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="std::hash&lt; nlohmann::json &gt;" href="a00067.html"/>
+      <topic label="xacc::quantum::HUBO&lt; ResultType &gt;" href="a00069.html"/>
+      <topic label="IAQCProblem" href="a00070.html">
+        <topic label="GraphIsomorphism" href="a00065.html"/>
+        <topic label="HopfieldProblem" href="a00068.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; GateFunction &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="IEmbeddingAlgorithm" href="a00071.html">
+        <topic label="CMR" href="a00031.html"/>
+        <topic label="MSCEmbedding" href="a00088.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; GateType &gt;" href="a01167.html">
-        <topic label="xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;" href="a01087.html"/>
+      <topic label="xacc::InstructionIterator" href="a00073.html"/>
+      <topic label="xacc::InstructionVisitor&lt; T &gt;" href="a00074.html"/>
+      <topic label="xacc::InstructionVisitor&lt; CNOT &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Hadamard &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; ConditionalFunction &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Measure &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; CPhase &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Rx &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; GateFunction &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Ry &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; GateType &gt;" href="a00074.html">
+        <topic label="xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;" href="a00039.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Rz &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Hadamard &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Swap &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Measure &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; X &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Rx &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Y &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Ry &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::InstructionVisitor&lt; Z &gt;" href="a01167.html">
-        <topic label="xacc::quantum::AllGateVisitor" href="a01083.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Rz &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::IR" href="a01175.html">
-        <topic label="xacc::quantum::DWIR" href="a00979.html"/>
-        <topic label="xacc::quantum::GateQIR" href="a01027.html"/>
+      <topic label="xacc::InstructionVisitor&lt; Swap &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
       </topic>
-      <topic label="xacc::IRTransformation" href="a01179.html"/>
+      <topic label="xacc::InstructionVisitor&lt; X &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
+      </topic>
+      <topic label="xacc::InstructionVisitor&lt; Y &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
+      </topic>
+      <topic label="xacc::InstructionVisitor&lt; Z &gt;" href="a00074.html">
+        <topic label="xacc::quantum::AllGateVisitor" href="a00021.html"/>
+      </topic>
+      <topic label="IQuellEGraph" href="a00076.html">
+        <topic label="BGLQuellEGraph" href="a00026.html">
+          <topic label="Chimera" href="a00027.html"/>
+          <topic label="CompleteGraph" href="a00035.html"/>
+          <topic label="K44Bipartite" href="a00082.html"/>
+          <topic label="NasaChimera" href="a00089.html"/>
+          <topic label="RandomGraph" href="a00104.html"/>
+        </topic>
+      </topic>
+      <topic label="xacc::IR" href="a00077.html">
+        <topic label="xacc::quantum::DWIR" href="a00044.html"/>
+        <topic label="xacc::quantum::GateQIR" href="a00063.html"/>
+      </topic>
+      <topic label="xacc::IRTransformation" href="a00078.html"/>
+      <topic label="iterator">
+        <topic label="nlohmann::basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType &gt;::const_iterator" href="a00038.html">
+          <topic label="nlohmann::basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType &gt;::iterator" href="a00079.html"/>
+        </topic>
+      </topic>
       <topic label="std::map&lt; K, T &gt;">
-        <topic label="xacc::RuntimeOptions" href="a01227.html"/>
+        <topic label="Embedding" href="a00050.html">
+          <topic label="ParallelCMREmbedding" href="a00092.html"/>
+        </topic>
+        <topic label="xacc::quantum::Embedding" href="a00051.html">
+          <topic label="xacc::quantum::ParallelCMREmbedding" href="a00093.html"/>
+        </topic>
+        <topic label="xacc::RuntimeOptions" href="a00113.html"/>
       </topic>
-      <topic label="xacc::OptionsProvider" href="a01219.html">
-        <topic label="xacc::Accelerator" href="a01111.html">
-          <topic label="xacc::quantum::RigettiAccelerator" href="a00939.html"/>
-          <topic label="xacc::quantum::SimpleAccelerator" href="a00959.html"/>
+      <topic label="MPIFixture" href="a00087.html"/>
+      <topic label="xacc::OptionsProvider" href="a00091.html">
+        <topic label="xacc::Accelerator" href="a00017.html">
+          <topic label="xacc::quantum::DWAccelerator" href="a00042.html"/>
+          <topic label="xacc::quantum::RigettiAccelerator" href="a00112.html"/>
+          <topic label="xacc::quantum::SimpleAccelerator" href="a00123.html"/>
         </topic>
-        <topic label="xacc::Compiler" href="a01127.html">
-          <topic label="xacc::quantum::DWQMICompiler" href="a00923.html"/>
-          <topic label="xacc::quantum::QuilCompiler" href="a00931.html"/>
-          <topic label="xacc::quantum::ScaffoldCompiler" href="a00951.html"/>
+        <topic label="xacc::Compiler" href="a00034.html">
+          <topic label="xacc::quantum::DWQMICompiler" href="a00047.html"/>
+          <topic label="xacc::quantum::QuilCompiler" href="a00102.html"/>
+          <topic label="xacc::quantum::ScaffoldCompiler" href="a00118.html"/>
         </topic>
-        <topic label="xacc::Preprocessor" href="a01135.html">
-          <topic label="xacc::quantum::KernelReplacementPreprocessor" href="a00991.html"/>
+        <topic label="xacc::Preprocessor" href="a00094.html">
+          <topic label="xacc::quantum::KernelReplacementPreprocessor" href="a00084.html"/>
         </topic>
       </topic>
-      <topic label="xacc::Program" href="a01183.html"/>
-      <topic label="xacc::quantum::QasmToGraph" href="a01099.html"/>
+      <topic label="xacc::Program" href="a00095.html"/>
+      <topic label="PyQCC" href="a00096.html"/>
+      <topic label="xacc::quantum::QasmToGraph" href="a00097.html"/>
+      <topic label="QuellEGraph" href="a00100.html"/>
+      <topic label="QuellEGraphFactory" href="a00101.html"/>
       <topic label="RecursiveASTVisitor">
-        <topic label="xacc::quantum::ScaffoldASTConsumer" href="a00947.html"/>
+        <topic label="xacc::quantum::ScaffoldASTConsumer" href="a00117.html"/>
       </topic>
-      <topic label="xacc::RegisterAccelerator&lt; T &gt;" href="a01115.html"/>
-      <topic label="xacc::RegisterAlgorithmGenerator&lt; T &gt;" href="a01147.html"/>
-      <topic label="xacc::RegisterCompiler&lt; T &gt;" href="a01131.html"/>
-      <topic label="xacc::quantum::RegisterEmbeddingAlgorithm&lt; T &gt;" href="a00971.html"/>
-      <topic label="xacc::quantum::RegisterGateInstruction&lt; T &gt;" href="a01019.html"/>
-      <topic label="xacc::RegisterPreprocessor&lt; T &gt;" href="a01139.html"/>
-      <topic label="xacc::Singleton&lt; T &gt;" href="a01231.html"/>
-      <topic label="xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;" href="a01231.html">
-        <topic label="xacc::Registry&lt; T, TArgs... &gt;" href="a01223.html"/>
-        <topic label="xacc::Registry&lt; T, TArgs &gt;" href="a01223.html"/>
+      <topic label="xacc::RegisterAccelerator&lt; T &gt;" href="a00105.html"/>
+      <topic label="xacc::RegisterAlgorithmGenerator&lt; T &gt;" href="a00106.html"/>
+      <topic label="xacc::RegisterCompiler&lt; T &gt;" href="a00107.html"/>
+      <topic label="xacc::quantum::RegisterEmbeddingAlgorithm&lt; T &gt;" href="a00108.html"/>
+      <topic label="xacc::quantum::RegisterGateInstruction&lt; T &gt;" href="a00109.html"/>
+      <topic label="xacc::RegisterPreprocessor&lt; T &gt;" href="a00110.html"/>
+      <topic label="reverse_iterator">
+        <topic label="nlohmann::basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType &gt;::json_reverse_iterator&lt; Base &gt;" href="a00080.html"/>
       </topic>
-      <topic label="xacc::Singleton&lt; RuntimeOptions &gt;" href="a01231.html">
-        <topic label="xacc::RuntimeOptions" href="a01227.html"/>
+      <topic label="second_t&lt; tPair &gt;" href="a00120.html"/>
+      <topic label="boost::serialization::Serialize&lt; N &gt;" href="a00121.html"/>
+      <topic label="boost::serialization::Serialize&lt; 0 &gt;" href="a00122.html"/>
+      <topic label="xacc::Singleton&lt; T &gt;" href="a00125.html"/>
+      <topic label="xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;" href="a00125.html">
+        <topic label="xacc::Registry&lt; T, TArgs... &gt;" href="a00111.html"/>
+        <topic label="xacc::Registry&lt; T, TArgs &gt;" href="a00111.html"/>
       </topic>
-      <topic label="xacc::XACCVertex&lt; Properties &gt;" href="a01199.html"/>
-      <topic label="xacc::XACCVertex&lt; double &gt;" href="a01199.html">
-        <topic label="xacc::quantum::DWaveVertex" href="a00963.html"/>
+      <topic label="xacc::Singleton&lt; RuntimeOptions &gt;" href="a00125.html">
+        <topic label="xacc::RuntimeOptions" href="a00113.html"/>
       </topic>
-      <topic label="xacc::XACCVertex&lt; std::string &gt;" href="a01199.html"/>
-      <topic label="xacc::XACCVertex&lt; std::string, double, int, float &gt;" href="a01199.html"/>
-      <topic label="xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;" href="a01199.html">
-        <topic label="xacc::quantum::CircuitNode" href="a01023.html"/>
-        <topic label="xacc::quantum::CircuitNode" href="a01023.html"/>
+      <topic label="vector_add_elements&lt; T &gt;" href="a00128.html"/>
+      <topic label="vector_merge&lt; T &gt;" href="a00129.html"/>
+      <topic label="VertexBiasDeltaStepping&lt; Graph, PredecessorMap, DistanceMap, BiasMap &gt;" href="a00130.html"/>
+      <topic label="xacc::XACCVertex&lt; Properties &gt;" href="a00132.html"/>
+      <topic label="xacc::XACCVertex&lt; double &gt;" href="a00132.html">
+        <topic label="xacc::quantum::DWVertex" href="a00049.html"/>
       </topic>
-      <topic label="xacc::XACCVertex&lt; std::vector&lt; int &gt; &gt;" href="a01199.html"/>
-      <topic label="xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter" href="a01215.html"/>
+      <topic label="xacc::XACCVertex&lt; std::string &gt;" href="a00132.html"/>
+      <topic label="xacc::XACCVertex&lt; std::string, double, int, float &gt;" href="a00132.html"/>
+      <topic label="xacc::XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;" href="a00132.html">
+        <topic label="xacc::quantum::CircuitNode" href="a00029.html"/>
+        <topic label="xacc::quantum::CircuitNode" href="a00029.html"/>
+      </topic>
+      <topic label="xacc::XACCVertex&lt; std::vector&lt; int &gt; &gt;" href="a00132.html"/>
+      <topic label="xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter" href="a00133.html"/>
     </topic>
     <topic label="Class Members" href="functions.html">
       <topic label="All" href="functions.html">
@@ -771,8 +1479,10 @@
         <topic label="g" href="functions_g.html"/>
         <topic label="h" href="functions_h.html"/>
         <topic label="i" href="functions_i.html"/>
+        <topic label="j" href="functions_j.html"/>
         <topic label="k" href="functions_k.html"/>
         <topic label="l" href="functions_l.html"/>
+        <topic label="m" href="functions_m.html"/>
         <topic label="n" href="functions_n.html"/>
         <topic label="o" href="functions_o.html"/>
         <topic label="p" href="functions_p.html"/>
@@ -792,14 +1502,18 @@
         <topic label="c" href="functions_func_c.html"/>
         <topic label="d" href="functions_func_d.html"/>
         <topic label="e" href="functions_func_e.html"/>
+        <topic label="f" href="functions_func_f.html"/>
         <topic label="g" href="functions_func_g.html"/>
         <topic label="h" href="functions_func_h.html"/>
         <topic label="i" href="functions_func_i.html"/>
+        <topic label="j" href="functions_func_j.html"/>
         <topic label="k" href="functions_func_k.html"/>
         <topic label="l" href="functions_func_l.html"/>
+        <topic label="m" href="functions_func_m.html"/>
         <topic label="n" href="functions_func_n.html"/>
         <topic label="o" href="functions_func_o.html"/>
         <topic label="p" href="functions_func_p.html"/>
+        <topic label="q" href="functions_func_q.html"/>
         <topic label="r" href="functions_func_r.html"/>
         <topic label="s" href="functions_func_s.html"/>
         <topic label="t" href="functions_func_t.html"/>
@@ -809,68 +1523,105 @@
         <topic label="~" href="functions_func_0x7e.html"/>
       </topic>
       <topic label="Variables" href="functions_vars.html"/>
+      <topic label="Typedefs" href="functions_type.html"/>
+      <topic label="Enumerations" href="functions_enum.html"/>
+      <topic label="Related Functions" href="functions_rela.html"/>
     </topic>
   </topic>
   <topic label="Files">
     <topic label="File List" href="files.html">
-      <topic label="Accelerator.hpp" href="a00305_source.html"/>
-      <topic label="AcceleratorBuffer.hpp" href="a00308_source.html"/>
-      <topic label="AlgorithmGenerator.hpp" href="a00317_source.html"/>
-      <topic label="AllGateVisitor.hpp" href="a00269_source.html"/>
-      <topic label="CLIParser.hpp" href="a00341_source.html"/>
-      <topic label="CNOT.hpp" href="a00149_source.html"/>
-      <topic label="Compiler.hpp" href="a00311_source.html"/>
-      <topic label="ConditionalFunction.hpp" href="a00155_source.html"/>
-      <topic label="CountGatesOfTypeVisitor.hpp" href="a00272_source.html"/>
-      <topic label="CPhase.hpp" href="a00161_source.html"/>
-      <topic label="DWIR.hpp" href="a00098_source.html"/>
-      <topic label="DWKernel.hpp" href="a00101_source.html"/>
-      <topic label="DWQMI.hpp" href="a00104_source.html"/>
-      <topic label="DWQMICompiler.hpp" href="a00017_source.html"/>
-      <topic label="EmbeddingAlgorithm.hpp" href="a00095_source.html"/>
-      <topic label="Function.hpp" href="a00320_source.html"/>
-      <topic label="FunctionalGateInstructionVisitor.hpp" href="a00275_source.html"/>
-      <topic label="GateFunction.hpp" href="a00134_source.html"/>
-      <topic label="GateInstruction.hpp" href="a00137_source.html"/>
-      <topic label="GateQIR.hpp" href="a00143_source.html"/>
-      <topic label="Graph.hpp" href="a00344_source.html"/>
-      <topic label="Hadamard.hpp" href="a00167_source.html"/>
-      <topic label="Instruction.hpp" href="a00323_source.html"/>
-      <topic label="InstructionIterator.hpp" href="a00326_source.html"/>
-      <topic label="InstructionVisitor.hpp" href="a00329_source.html"/>
-      <topic label="InverseQFT.hpp" href="a00125_source.html"/>
-      <topic label="IR.hpp" href="a00332_source.html"/>
-      <topic label="IRTransformation.hpp" href="a00335_source.html"/>
-      <topic label="JsonVisitor.hpp" href="a00278_source.html"/>
-      <topic label="KernelReplacementPreprocessor.hpp" href="a00116_source.html"/>
-      <topic label="Measure.hpp" href="a00173_source.html"/>
-      <topic label="OptionsProvider.hpp" href="a00347_source.html"/>
-      <topic label="Preprocessor.hpp" href="a00314_source.html"/>
-      <topic label="Program.hpp" href="a00338_source.html"/>
-      <topic label="QasmToGraph.hpp" href="a00281_source.html"/>
-      <topic label="QFT.hpp" href="a00131_source.html"/>
-      <topic label="QuantumCircuit.hpp" href="a00284_source.html"/>
-      <topic label="QuilCompiler.hpp" href="a00038_source.html"/>
-      <topic label="QuilVisitor.hpp" href="a00041_source.html"/>
-      <topic label="Registry.hpp" href="a00350_source.html"/>
-      <topic label="RigettiAccelerator.hpp" href="a00047_source.html"/>
-      <topic label="RuntimeOptions.hpp" href="a00353_source.html"/>
-      <topic label="Rx.hpp" href="a00179_source.html"/>
-      <topic label="Ry.hpp" href="a00185_source.html"/>
-      <topic label="Rz.hpp" href="a00191_source.html"/>
-      <topic label="ScaffoldASTConsumer.hpp" href="a00059_source.html"/>
-      <topic label="ScaffoldCompiler.hpp" href="a00065_source.html"/>
-      <topic label="ScaffoldIRToSrcVisitor.hpp" href="a00068_source.html"/>
-      <topic label="SimpleAccelerator.hpp" href="a00089_source.html"/>
-      <topic label="SimulatedQubits.hpp" href="a00287_source.html"/>
-      <topic label="Singleton.hpp" href="a00356_source.html"/>
-      <topic label="Swap.hpp" href="a00197_source.html"/>
-      <topic label="Utils.hpp" href="a00362_source.html"/>
-      <topic label="X.hpp" href="a00203_source.html"/>
-      <topic label="XACC.hpp" href="a00365_source.html"/>
-      <topic label="xacc_config.hpp" href="a00008_source.html"/>
-      <topic label="Y.hpp" href="a00209_source.html"/>
-      <topic label="Z.hpp" href="a00215_source.html"/>
+      <topic label="Accelerator.hpp" href="a00136_source.html"/>
+      <topic label="AcceleratorBuffer.hpp" href="a00137_source.html"/>
+      <topic label="AlgorithmGenerator.hpp" href="a00138_source.html"/>
+      <topic label="AllGateVisitor.hpp" href="a00139_source.html"/>
+      <topic label="AQCAcceleratorBuffer.hpp" href="a00140_source.html"/>
+      <topic label="BGLQuellEGraph.hpp" href="a00144_source.html"/>
+      <topic label="Chimera.hpp" href="a00147_source.html"/>
+      <topic label="CLIParser.hpp" href="a00149_source.html"/>
+      <topic label="build/quelle/aqc/embedding/impl/cmr/CMR.hpp" href="a00183_source.html"/>
+      <topic label="quantum/aqc/compiler/cmr/CMR.hpp" href="a00184_source.html"/>
+      <topic label="CNOT.hpp" href="a00187_source.html"/>
+      <topic label="Compiler.hpp" href="a00189_source.html"/>
+      <topic label="CompleteGraph.hpp" href="a00190_source.html"/>
+      <topic label="ConditionalFunction.hpp" href="a00193_source.html"/>
+      <topic label="CountGatesOfTypeVisitor.hpp" href="a00196_source.html"/>
+      <topic label="CPhase.hpp" href="a00198_source.html"/>
+      <topic label="DWAccelerator.hpp" href="a00203_source.html"/>
+      <topic label="DWGraph.hpp" href="a00206_source.html"/>
+      <topic label="DWIR.hpp" href="a00207_source.html"/>
+      <topic label="DWKernel.hpp" href="a00208_source.html"/>
+      <topic label="DWQMI.hpp" href="a00210_source.html"/>
+      <topic label="DWQMICompiler.hpp" href="a00212_source.html"/>
+      <topic label="Embedding.hpp" href="a00215_source.html"/>
+      <topic label="EmbeddingAlgorithm.hpp" href="a00216_source.html"/>
+      <topic label="EmbeddingAlgorithmFactory.hpp" href="a00218_source.html"/>
+      <topic label="build/quelle/aqc/embedding/impl/cmr/ExecutionModel.hpp" href="a00219_source.html"/>
+      <topic label="quantum/aqc/compiler/cmr/ExecutionModel.hpp" href="a00220_source.html"/>
+      <topic label="build/quelle/aqc/embedding/impl/cmr/ExecutionModelFactory.hpp" href="a00221_source.html"/>
+      <topic label="quantum/aqc/compiler/cmr/ExecutionModelFactory.hpp" href="a00222_source.html"/>
+      <topic label="Function.hpp" href="a00224_source.html"/>
+      <topic label="FunctionalGateInstructionVisitor.hpp" href="a00225_source.html"/>
+      <topic label="GateFunction.hpp" href="a00226_source.html"/>
+      <topic label="GateInstruction.hpp" href="a00228_source.html"/>
+      <topic label="GateQIR.hpp" href="a00230_source.html"/>
+      <topic label="Graph.hpp" href="a00233_source.html"/>
+      <topic label="GraphIsomorphism.hpp" href="a00235_source.html"/>
+      <topic label="Hadamard.hpp" href="a00239_source.html"/>
+      <topic label="HopfieldProblem.hpp" href="a00242_source.html"/>
+      <topic label="HUBO.hpp" href="a00244_source.html"/>
+      <topic label="IAQCProblem.hpp" href="a00245_source.html"/>
+      <topic label="IEmbeddingAlgorithm.hpp" href="a00246_source.html"/>
+      <topic label="Instruction.hpp" href="a00248_source.html"/>
+      <topic label="InstructionIterator.hpp" href="a00249_source.html"/>
+      <topic label="InstructionVisitor.hpp" href="a00250_source.html"/>
+      <topic label="InverseQFT.hpp" href="a00252_source.html"/>
+      <topic label="IQuellEGraph.hpp" href="a00254_source.html"/>
+      <topic label="IR.hpp" href="a00255_source.html"/>
+      <topic label="IRTransformation.hpp" href="a00256_source.html"/>
+      <topic label="json.hpp" href="a00257_source.html"/>
+      <topic label="JsonVisitor.hpp" href="a00258_source.html"/>
+      <topic label="K44Bipartite.hpp" href="a00260_source.html"/>
+      <topic label="KernelReplacementPreprocessor.hpp" href="a00262_source.html"/>
+      <topic label="Measure.hpp" href="a00315_source.html"/>
+      <topic label="MPIExecutionModel.hpp" href="a00318_source.html"/>
+      <topic label="MSCEmbedding.hpp" href="a00320_source.html"/>
+      <topic label="NasaChimera.hpp" href="a00321_source.html"/>
+      <topic label="build/quelle/aqc/embedding/impl/cmr/OpenMP_MPIExecutionModel.hpp" href="a00325_source.html"/>
+      <topic label="quantum/aqc/compiler/cmr/OpenMP_MPIExecutionModel.hpp" href="a00326_source.html"/>
+      <topic label="OptionsProvider.hpp" href="a00327_source.html"/>
+      <topic label="build/quelle/aqc/embedding/impl/cmr/ParallelCMREmbedding.hpp" href="a00331_source.html"/>
+      <topic label="quantum/aqc/compiler/cmr/ParallelCMREmbedding.hpp" href="a00332_source.html"/>
+      <topic label="Preprocessor.hpp" href="a00334_source.html"/>
+      <topic label="Program.hpp" href="a00335_source.html"/>
+      <topic label="PyQCC.hpp" href="a00337_source.html"/>
+      <topic label="QasmToGraph.hpp" href="a00339_source.html"/>
+      <topic label="QFT.hpp" href="a00342_source.html"/>
+      <topic label="QuantumCircuit.hpp" href="a00346_source.html"/>
+      <topic label="QuellEGraphFactory.hpp" href="a00351_source.html"/>
+      <topic label="QuilCompiler.hpp" href="a00353_source.html"/>
+      <topic label="QuilVisitor.hpp" href="a00355_source.html"/>
+      <topic label="RandomGraph.hpp" href="a00358_source.html"/>
+      <topic label="Registry.hpp" href="a00374_source.html"/>
+      <topic label="RigettiAccelerator.hpp" href="a00376_source.html"/>
+      <topic label="RuntimeOptions.hpp" href="a00378_source.html"/>
+      <topic label="Rx.hpp" href="a00380_source.html"/>
+      <topic label="Ry.hpp" href="a00383_source.html"/>
+      <topic label="Rz.hpp" href="a00386_source.html"/>
+      <topic label="ScaffoldASTConsumer.hpp" href="a00388_source.html"/>
+      <topic label="ScaffoldCompiler.hpp" href="a00390_source.html"/>
+      <topic label="ScaffoldIRToSrcVisitor.hpp" href="a00392_source.html"/>
+      <topic label="SimpleAccelerator.hpp" href="a00395_source.html"/>
+      <topic label="SimulatedQubits.hpp" href="a00397_source.html"/>
+      <topic label="Singleton.hpp" href="a00400_source.html"/>
+      <topic label="Swap.hpp" href="a00402_source.html"/>
+      <topic label="TrivialEmbeddingAlgorithm.hpp" href="a00409_source.html"/>
+      <topic label="Utils.hpp" href="a00412_source.html"/>
+      <topic label="VertexBiasDeltaStepping.hpp" href="a00413_source.html"/>
+      <topic label="X.hpp" href="a00415_source.html"/>
+      <topic label="XACC.hpp" href="a00416_source.html"/>
+      <topic label="xacc_config.hpp" href="a00417_source.html"/>
+      <topic label="Y.hpp" href="a00420_source.html"/>
+      <topic label="Z.hpp" href="a00423_source.html"/>
     </topic>
   </topic>
 </toc>

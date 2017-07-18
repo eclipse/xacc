@@ -1,57 +1,41 @@
-\hypertarget{a00048}{}\section{xacc\+:\+:quantum\+:\+:Qasm\+To\+Graph Class Reference}
-\label{a00048}\index{xacc\+::quantum\+::\+Qasm\+To\+Graph@{xacc\+::quantum\+::\+Qasm\+To\+Graph}}
+\hypertarget{a00048}{}\section{xacc\+:\+:quantum\+:\+:D\+W\+Solver Struct Reference}
+\label{a00048}\index{xacc\+::quantum\+::\+D\+W\+Solver@{xacc\+::quantum\+::\+D\+W\+Solver}}
 
 
-{\ttfamily \#include $<$Qasm\+To\+Graph.\+hpp$>$}
+{\ttfamily \#include $<$D\+W\+Accelerator.\+hpp$>$}
 
-\subsection*{Static Public Member Functions}
+\subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-static \hyperlink{a00049}{Quantum\+Circuit} \hyperlink{a00048_afb1504dc99595be4e15f9094bce1656c}{get\+Circuit\+Graph} (const std\+::string \&flat\+Qasm\+Str)
+std\+::string {\bfseries name}\hypertarget{a00048_a8a5b629dc83790a855d429c82266b772}{}\label{a00048_a8a5b629dc83790a855d429c82266b772}
+
 \item 
-static void \hyperlink{a00048_a902304cac3a5a6126b982e9dc9585428}{link\+Conditional\+Qasm} (\hyperlink{a00049}{Quantum\+Circuit} \&main\+Graph, std\+::vector$<$ \hyperlink{a00049}{Quantum\+Circuit} $>$ \&conditional\+Graphs, std\+::vector$<$ int $>$ \&conditional\+Qubits)
+std\+::string {\bfseries description}\hypertarget{a00048_a9bb9449a6ea09e11892f910a4bfd2e08}{}\label{a00048_a9bb9449a6ea09e11892f910a4bfd2e08}
+
+\item 
+double {\bfseries j\+Range\+Min}\hypertarget{a00048_a45fc23af53f44759afec0257d9878ba0}{}\label{a00048_a45fc23af53f44759afec0257d9878ba0}
+
+\item 
+double {\bfseries j\+Range\+Max}\hypertarget{a00048_aa881af1344ff55a4991c152f768ed9d6}{}\label{a00048_aa881af1344ff55a4991c152f768ed9d6}
+
+\item 
+double {\bfseries h\+Range\+Min}\hypertarget{a00048_abf475612dac8f64a7f88cfa976c393f0}{}\label{a00048_abf475612dac8f64a7f88cfa976c393f0}
+
+\item 
+double {\bfseries h\+Range\+Max}\hypertarget{a00048_a13dd875ceb06c7545fe20cde15ffac70}{}\label{a00048_a13dd875ceb06c7545fe20cde15ffac70}
+
+\item 
+int {\bfseries n\+Qubits}\hypertarget{a00048_a2908c913f5c5e3ade6551056aaadafbf}{}\label{a00048_a2908c913f5c5e3ade6551056aaadafbf}
+
+\item 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ {\bfseries edges}\hypertarget{a00048_ae02cbfe68c982e50e80bcd2612c8c148}{}\label{a00048_ae02cbfe68c982e50e80bcd2612c8c148}
+
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00048}{Qasm\+To\+Graph} class provides a static utility method that maps a flat qasm string to a Q\+CI Common \hyperlink{a00035}{Graph} data structure. 
+Wrapper for information related to the remote D-\/\+Wave solver. 
 
-\subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Qasm\+To\+Graph@{xacc\+::quantum\+::\+Qasm\+To\+Graph}!get\+Circuit\+Graph@{get\+Circuit\+Graph}}
-\index{get\+Circuit\+Graph@{get\+Circuit\+Graph}!xacc\+::quantum\+::\+Qasm\+To\+Graph@{xacc\+::quantum\+::\+Qasm\+To\+Graph}}
-\subsubsection[{\texorpdfstring{get\+Circuit\+Graph(const std\+::string \&flat\+Qasm\+Str)}{getCircuitGraph(const std::string \&flatQasmStr)}}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf Quantum\+Circuit} xacc\+::quantum\+::\+Qasm\+To\+Graph\+::get\+Circuit\+Graph (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{flat\+Qasm\+Str}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00048_afb1504dc99595be4e15f9094bce1656c}{}\label{a00048_afb1504dc99595be4e15f9094bce1656c}
-Create a \hyperlink{a00035}{Graph} data structure that models a quantum circuit from the provided qasm string.
-
-
-\begin{DoxyParams}{Parameters}
-{\em flat\+Qasm\+Str} & The qasm to be converted to a \hyperlink{a00035}{Graph}. \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-graph \hyperlink{a00035}{Graph} modeling a quantum circuit. 
-\end{DoxyReturn}
-\index{xacc\+::quantum\+::\+Qasm\+To\+Graph@{xacc\+::quantum\+::\+Qasm\+To\+Graph}!link\+Conditional\+Qasm@{link\+Conditional\+Qasm}}
-\index{link\+Conditional\+Qasm@{link\+Conditional\+Qasm}!xacc\+::quantum\+::\+Qasm\+To\+Graph@{xacc\+::quantum\+::\+Qasm\+To\+Graph}}
-\subsubsection[{\texorpdfstring{link\+Conditional\+Qasm(\+Quantum\+Circuit \&main\+Graph, std\+::vector$<$ Quantum\+Circuit $>$ \&conditional\+Graphs, std\+::vector$<$ int $>$ \&conditional\+Qubits)}{linkConditionalQasm(QuantumCircuit \&mainGraph, std::vector< QuantumCircuit > \&conditionalGraphs, std::vector< int > \&conditionalQubits)}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Qasm\+To\+Graph\+::link\+Conditional\+Qasm (
-\begin{DoxyParamCaption}
-\item[{{\bf Quantum\+Circuit} \&}]{main\+Graph, }
-\item[{std\+::vector$<$ {\bf Quantum\+Circuit} $>$ \&}]{conditional\+Graphs, }
-\item[{std\+::vector$<$ int $>$ \&}]{conditional\+Qubits}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00048_a902304cac3a5a6126b982e9dc9585428}{}\label{a00048_a902304cac3a5a6126b982e9dc9585428}
-Create connecting conditional nodes that link the main circuit graph to subsequent conditional graphs. The conditional nodes can be used by Accelerators to figure out if the condition code should be executed or not. s 
-\begin{DoxyParams}{Parameters}
-{\em main\+Graph} & \\
-\hline
-{\em conditional\+Graphs} & \\
-\hline
-\end{DoxyParams}
-
-
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Qasm\+To\+Graph.\+hpp\end{DoxyCompactItemize}
+D\+W\+Accelerator.\+hpp\end{DoxyCompactItemize}

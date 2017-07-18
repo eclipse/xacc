@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['kernels',['kernels',['../a01027.html#ae75a4af0ce455eee1ce316c16426a661',1,'xacc::quantum::GateQIR']]],
-  ['kernelsource',['kernelSource',['../a01127.html#a0ad81c816c09e5113d03cdc02165c453',1,'xacc::Compiler']]]
+  ['gatename',['gateName',['../a00062.html#a9961e6979139ced70300188cf2e4ad3f',1,'xacc::quantum::GateInstruction']]],
+  ['graph',['graph',['../a00100.html#a6d06d2e18af59d496531f9cf3b1d62a4',1,'QuellEGraph']]]
 ];

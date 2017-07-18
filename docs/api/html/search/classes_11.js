@@ -1,11 +1,15 @@
 var searchData=
 [
-  ['x',['X',['../a01067.html',1,'xacc::quantum']]],
-  ['xaccvertex',['XACCVertex',['../a01199.html',1,'xacc']]],
-  ['xaccvertex_3c_20double_20_3e',['XACCVertex&lt; double &gt;',['../a01199.html',1,'xacc']]],
-  ['xaccvertex_3c_20std_3a_3astring_20_3e',['XACCVertex&lt; std::string &gt;',['../a01199.html',1,'xacc']]],
-  ['xaccvertex_3c_20std_3a_3astring_2c_20double_2c_20int_2c_20float_20_3e',['XACCVertex&lt; std::string, double, int, float &gt;',['../a01199.html',1,'xacc']]],
-  ['xaccvertex_3c_20std_3a_3astring_2c_20int_2c_20int_2c_20std_3a_3avector_3c_20int_20_3e_2c_20bool_2c_20std_3a_3avector_3c_20std_3a_3astring_20_3e_20_3e',['XACCVertex&lt; std::string, int, int, std::vector&lt; int &gt;, bool, std::vector&lt; std::string &gt; &gt;',['../a01199.html',1,'xacc']]],
-  ['xaccvertex_3c_20std_3a_3avector_3c_20int_20_3e_20_3e',['XACCVertex&lt; std::vector&lt; int &gt; &gt;',['../a01199.html',1,'xacc']]],
-  ['xaccvertexpropertieswriter',['XACCVertexPropertiesWriter',['../a01215.html',1,'xacc::Graph']]]
+  ['scaffoldastconsumer',['ScaffoldASTConsumer',['../a00117.html',1,'xacc::quantum']]],
+  ['scaffoldcompiler',['ScaffoldCompiler',['../a00118.html',1,'xacc::quantum']]],
+  ['scaffoldirtosrcvisitor',['ScaffoldIRToSrcVisitor',['../a00119.html',1,'xacc::quantum']]],
+  ['second_5ft',['second_t',['../a00120.html',1,'']]],
+  ['serialize',['Serialize',['../a00121.html',1,'boost::serialization']]],
+  ['serialize_3c_200_20_3e',['Serialize&lt; 0 &gt;',['../a00122.html',1,'boost::serialization']]],
+  ['simpleaccelerator',['SimpleAccelerator',['../a00123.html',1,'xacc::quantum']]],
+  ['simulatedqubits',['SimulatedQubits',['../a00124.html',1,'xacc::quantum']]],
+  ['singleton',['Singleton',['../a00125.html',1,'xacc']]],
+  ['singleton_3c_20registry_3c_20t_2c_20targs_2e_2e_2e_20_3e_20_3e',['Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;',['../a00125.html',1,'xacc']]],
+  ['singleton_3c_20runtimeoptions_20_3e',['Singleton&lt; RuntimeOptions &gt;',['../a00125.html',1,'xacc']]],
+  ['swap',['Swap',['../a00126.html',1,'xacc::quantum']]]
 ];

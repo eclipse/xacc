@@ -1,24 +1,87 @@
-\hypertarget{a00070}{}\section{xacc\+:\+:quantum\+:\+:X Class Reference}
-\label{a00070}\index{xacc\+::quantum\+::X@{xacc\+::quantum\+::X}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:X\+:\begin{figure}[H]
+\hypertarget{a00070}{}\section{I\+A\+Q\+C\+Problem Class Reference}
+\label{a00070}\index{I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}}
+
+
+{\ttfamily \#include $<$I\+A\+Q\+C\+Problem.\+hpp$>$}
+
+Inheritance diagram for I\+A\+Q\+C\+Problem\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=4.000000cm]{a00070}
+\includegraphics[height=2.000000cm]{a00070}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries X} (std\+::vector$<$ int $>$ qbit)\hypertarget{a00070_aedc541a302602154847118f73b040510}{}\label{a00070_aedc541a302602154847118f73b040510}
+{\bfseries I\+A\+Q\+C\+Problem} (mpi\+::communicator comm)\hypertarget{a00070_a1be1e8872cca48daf6fadca97e4ee6da}{}\label{a00070_a1be1e8872cca48daf6fadca97e4ee6da}
 
 \item 
-{\bfseries X} (int qbit)\hypertarget{a00070_a1159bd01929b59277b4524ccfcfd7440}{}\label{a00070_a1159bd01929b59277b4524ccfcfd7440}
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00076}{I\+Quell\+E\+Graph} $>$ \hyperlink{a00070_a9249fffc88888fe380449eb0ba91370a}{get\+Ising\+Form} (std\+::map$<$ std\+::string, std\+::string $>$ parameters=std\+::map$<$ std\+::string, std\+::string $>$())=0
+\item 
+virtual std\+::string \hyperlink{a00070_a7a9b51abf3ac37c5388cdd4f179d43ea}{get\+Problem\+Name} ()=0
+\item 
+virtual \hyperlink{a00070_a07188ab60a3af607fc656bd06f25f2ef}{$\sim$\+I\+A\+Q\+C\+Problem} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+mpi\+::communicator {\bfseries comm\+World}\hypertarget{a00070_a07463b104572e3d63dcf39b416f8701e}{}\label{a00070_a07463b104572e3d63dcf39b416f8701e}
 
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Alex Mc\+Caskey 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}!````~I\+A\+Q\+C\+Problem@{$\sim$\+I\+A\+Q\+C\+Problem}}
+\index{````~I\+A\+Q\+C\+Problem@{$\sim$\+I\+A\+Q\+C\+Problem}!I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}}
+\subsubsection[{\texorpdfstring{$\sim$\+I\+A\+Q\+C\+Problem()}{~IAQCProblem()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual I\+A\+Q\+C\+Problem\+::$\sim$\+I\+A\+Q\+C\+Problem (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00070_a07188ab60a3af607fc656bd06f25f2ef}{}\label{a00070_a07188ab60a3af607fc656bd06f25f2ef}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}!get\+Ising\+Form@{get\+Ising\+Form}}
+\index{get\+Ising\+Form@{get\+Ising\+Form}!I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}}
+\subsubsection[{\texorpdfstring{get\+Ising\+Form(std\+::map$<$ std\+::string, std\+::string $>$ parameters=std\+::map$<$ std\+::string, std\+::string $>$())=0}{getIsingForm(std::map< std::string, std::string > parameters=std::map< std::string, std::string >())=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf I\+Quell\+E\+Graph}$>$ I\+A\+Q\+C\+Problem\+::get\+Ising\+Form (
+\begin{DoxyParamCaption}
+\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{parameters = {\ttfamily std\+:\+:map$<$~std\+:\+:string,~std\+:\+:string~$>$()}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00070_a9249fffc88888fe380449eb0ba91370a}{}\label{a00070_a9249fffc88888fe380449eb0ba91370a}
+
+\begin{DoxyParams}{Parameters}
+{\em parameters} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00068_ad20a83fbc11b016f02f9dcfeae81780c}{Hopfield\+Problem}.
+
+\index{I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}!get\+Problem\+Name@{get\+Problem\+Name}}
+\index{get\+Problem\+Name@{get\+Problem\+Name}!I\+A\+Q\+C\+Problem@{I\+A\+Q\+C\+Problem}}
+\subsubsection[{\texorpdfstring{get\+Problem\+Name()=0}{getProblemName()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string I\+A\+Q\+C\+Problem\+::get\+Problem\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00070_a7a9b51abf3ac37c5388cdd4f179d43ea}{}\label{a00070_a7a9b51abf3ac37c5388cdd4f179d43ea}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00068_abe9f917903ba220c43190f75b8d19cce}{Hopfield\+Problem}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-X.\+hpp\item 
-X.\+cpp\end{DoxyCompactItemize}
+I\+A\+Q\+C\+Problem.\+hpp\end{DoxyCompactItemize}

@@ -5,7 +5,7 @@
 %%For: 
 %Magnification: 1.00
 %%Orientation: Portrait
-%%BoundingBox: 0 0 500 172.413793
+%%BoundingBox: 0 0 500 104.166667
 %%Pages: 0
 %%BeginSetup
 %%EndSetup
@@ -19,13 +19,13 @@
 /marginwidth 10 def
 /distx 20 def
 /disty 40 def
-/boundaspect 2.900000 def  % aspect ratio of the BoundingBox (width/height)
+/boundaspect 4.800000 def  % aspect ratio of the BoundingBox (width/height)
 /boundx 500 def
 /boundy boundx boundaspect div def
 /xspacing 0 def
 /yspacing 0 def
-/rows 2 def
-/cols 1 def
+/rows 3 def
+/cols 3 def
 /scalefactor 0 def
 /boxfont /Times-Roman findfont fontheight scalefont def
 
@@ -173,8 +173,11 @@
 
 boxfont setfont
 1 boundaspect scale
-(xacc::is_valid_vertex< T, typename >) cw
-(false_type) cw
+(xacc::quantum::DWGraph) cw
+(xacc::Graph< DWVertex >) cw
+(xacc::quantum::ChimeraGraph) cw
+(xacc::quantum::CompleteGraph) cw
+(xacc::quantum::K44Bipartite) cw
 /boxwidth boxwidth marginwidth 2 mul add def
 /xspacing boxwidth distx add def
 /yspacing boxheight disty add def
@@ -186,12 +189,25 @@ boundx scalefactor div boundy scalefactor div scale
 
 % ----- classes -----
 
- (xacc::is_valid_vertex< T, typename >) 0.000000 0.000000 box
- (false_type) 0.000000 1.000000 box
+ (xacc::quantum::DWGraph) 1.000000 1.000000 box
+ (xacc::Graph< DWVertex >) 1.000000 2.000000 box
+ (xacc::quantum::ChimeraGraph) 0.000000 0.000000 box
+ (xacc::quantum::CompleteGraph) 1.000000 0.000000 box
+ (xacc::quantum::K44Bipartite) 2.000000 0.000000 box
 
 % ----- relations -----
 
 solid
-0 0.000000 0.000000 out
+0 1.000000 1.000000 out
 solid
-1 0.000000 1.000000 in
+1 1.000000 2.000000 in
+solid
+1 1.000000 0.250000 out
+solid
+0.000000 2.000000 1.000000 conn
+solid
+0 0.000000 0.750000 in
+solid
+0 1.000000 0.750000 in
+solid
+0 2.000000 0.750000 in

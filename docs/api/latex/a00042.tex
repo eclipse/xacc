@@ -1,13 +1,250 @@
-\hypertarget{a00042}{}\section{xacc\+:\+:I\+R\+Transformation Class Reference}
-\label{a00042}\index{xacc\+::\+I\+R\+Transformation@{xacc\+::\+I\+R\+Transformation}}
+\hypertarget{a00042}{}\section{xacc\+:\+:quantum\+:\+:D\+W\+Accelerator Class Reference}
+\label{a00042}\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+
+
+{\ttfamily \#include $<$D\+W\+Accelerator.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+W\+Accelerator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{a00042}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual void {\bfseries transform} (\hyperlink{a00041}{IR} \&ir)=0\hypertarget{a00042_accc69cba97f39aa3e51f81fec3ccf258}{}\label{a00042_accc69cba97f39aa3e51f81fec3ccf258}
-
-\end{DoxyCompactItemize}
-
-
-The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\hyperlink{a00042_ad6924d7e9812df5e4676109352ee74a7}{D\+W\+Accelerator} ()
 \item 
-I\+R\+Transformation.\+hpp\end{DoxyCompactItemize}
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00019}{Accelerator\+Buffer} $>$ \hyperlink{a00042_a718d7cb51a35e694d960385e1ea2f99f}{create\+Buffer} (const std\+::string \&var\+Id, const int size)
+\item 
+virtual bool \hyperlink{a00042_a4c2ee30212a919d8ddf7f9555df25195}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00064}{Accelerator\+Graph} $>$ \hyperlink{a00042_a006afa60749790681fc76beddc254926}{get\+Accelerator\+Connectivity} ()
+\item 
+virtual void \hyperlink{a00042_aa8d770acb2708b3ee1cd1f21bd0cc668}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00019}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00059}{xacc\+::\+Function} $>$ kernel)
+\item 
+virtual Accelerator\+Type \hyperlink{a00042_abe50e427b4bec0460cc238405cb569f9}{get\+Type} ()
+\item 
+virtual std\+::vector$<$ \hyperlink{a00078}{xacc\+::\+I\+R\+Transformation} $>$ \hyperlink{a00042_a89da20bd079a22d6581ea2da2293b973}{get\+I\+R\+Transformations} ()
+\item 
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00042_a09926db9f99706307ae6ce5b56845bca}{get\+Options} ()
+\item 
+virtual void \hyperlink{a00042_acaefd5747409f31cf5c3e42d98475ce2}{initialize} ()
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00019}{Accelerator\+Buffer} $>$ \hyperlink{a00042_add60637a4b3c055e7f2ffa3bf8e320ac}{create\+Buffer} (const std\+::string \&var\+Id)
+\item 
+virtual \hyperlink{a00042_ad06f92a271d445c2a1ff8364faa3617b}{$\sim$\+D\+W\+Accelerator} ()
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{a00042_aece856713312dd2c882eee12392b04fa}{register\+Accelerator} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \hyperlink{a00042_a6b9ca421d7efeed09ff9acb9f77d9dd8}{api\+Key}
+\item 
+std\+::string \hyperlink{a00042_a934db80f3cf6aa68158a66bc053c0c27}{url}
+\item 
+std\+::map$<$ std\+::string, std\+::string $>$ \hyperlink{a00042_a031df31e3ff84f33ea9a76bfc0f9277c}{headers}
+\item 
+std\+::map$<$ std\+::string, \hyperlink{a00048}{D\+W\+Solver} $>$ \hyperlink{a00042_ac19954e3df9e77184717c9be8a2ed4c5}{available\+Solvers}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00042}{D\+W\+Accelerator} is an X\+A\+CC \hyperlink{a00017}{Accelerator} that takes D-\/\+Wave \hyperlink{a00077}{IR} and executes the quantum machine instructions via remote H\+T\+TP invocations. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!D\+W\+Accelerator@{D\+W\+Accelerator}}
+\index{D\+W\+Accelerator@{D\+W\+Accelerator}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{D\+W\+Accelerator()}{DWAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+D\+W\+Accelerator\+::\+D\+W\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00042_ad6924d7e9812df5e4676109352ee74a7}{}\label{a00042_ad6924d7e9812df5e4676109352ee74a7}
+The constructor \index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!````~D\+W\+Accelerator@{$\sim$\+D\+W\+Accelerator}}
+\index{````~D\+W\+Accelerator@{$\sim$\+D\+W\+Accelerator}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{$\sim$\+D\+W\+Accelerator()}{~DWAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+D\+W\+Accelerator\+::$\sim$\+D\+W\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00042_ad06f92a271d445c2a1ff8364faa3617b}{}\label{a00042_ad06f92a271d445c2a1ff8364faa3617b}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id, const int size)}{createBuffer(const std::string \&varId, const int size)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id, }
+\item[{const int}]{size}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00042_a718d7cb51a35e694d960385e1ea2f99f}{}\label{a00042_a718d7cb51a35e694d960385e1ea2f99f}
+Create, store, and return an \hyperlink{a00019}{Accelerator\+Buffer} with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a00019}{Accelerator\+Buffer}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & \\
+\hline
+{\em size} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00017_a064a2dbd58338364115c260267806945}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!create\+Buffer@{create\+Buffer}}
+\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id)}{createBuffer(const std::string \&varId)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Accelerator\+Buffer}$>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::create\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{var\+Id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00042_add60637a4b3c055e7f2ffa3bf8e320ac}{}\label{a00042_add60637a4b3c055e7f2ffa3bf8e320ac}
+Create and return an \hyperlink{a00022}{A\+Q\+C\+Accelerator\+Buffer} of size dictated by the current solver being used.
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Id} & The name of this buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+buffer The \hyperlink{a00019}{Accelerator\+Buffer} 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00017_aab5046e8d83ab390302e0f49533e95fc}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!execute@{execute}}
+\index{execute@{execute}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{execute(std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ buffer, const std\+::shared\+\_\+ptr$<$ xacc\+::\+Function $>$ kernel)}{execute(std::shared\_ptr< AcceleratorBuffer > buffer, const std::shared\_ptr< xacc::Function > kernel)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+D\+W\+Accelerator\+::execute (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{buffer, }
+\item[{const std\+::shared\+\_\+ptr$<$ {\bf xacc\+::\+Function} $>$}]{kernel}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00042_aa8d770acb2708b3ee1cd1f21bd0cc668}{}\label{a00042_aa8d770acb2708b3ee1cd1f21bd0cc668}
+Execute the kernel on the provided \hyperlink{a00019}{Accelerator\+Buffer} through a H\+T\+TP Post of Quil instructions to the Rigetti Q\+PU at api.\+rigetti.\+com/qvm
+
+
+\begin{DoxyParams}{Parameters}
+{\em ir} & \\
+\hline
+\end{DoxyParams}
+Looks like we now want document\mbox{[}\char`\"{}answer\char`\"{}\mbox{]}\mbox{[}\char`\"{}energies\char`\"{}\mbox{]}.Get\+Array(), and document\mbox{[}\char`\"{}answer\char`\"{}\mbox{]}\mbox{[}\char`\"{}num\+\_\+occurrences\char`\"{}\mbox{]}.Get\+Array(), and document\mbox{[}\char`\"{}answer\char`\"{}\mbox{]}\mbox{[}\char`\"{}solutions\char`\"{}\mbox{]}. Then we have to decode solutions string\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!get\+Accelerator\+Connectivity@{get\+Accelerator\+Connectivity}}
+\index{get\+Accelerator\+Connectivity@{get\+Accelerator\+Connectivity}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Accelerator\+Connectivity()}{getAcceleratorConnectivity()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Graph} $>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::get\+Accelerator\+Connectivity (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00042_a006afa60749790681fc76beddc254926}{}\label{a00042_a006afa60749790681fc76beddc254926}
+Return the graph structure for this \hyperlink{a00017}{Accelerator}.
+
+\begin{DoxyReturn}{Returns}
+connectivity\+Graph The graph structure of this \hyperlink{a00017}{Accelerator} 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{a00017_adfed940ce1fa476b009344ddf5a4bbc3}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
+\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+I\+R\+Transformations()}{getIRTransformations()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<${\bf xacc\+::\+I\+R\+Transformation}$>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::get\+I\+R\+Transformations (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00042_a89da20bd079a22d6581ea2da2293b973}{}\label{a00042_a89da20bd079a22d6581ea2da2293b973}
+We have no need to transform the \hyperlink{a00077}{IR} for this \hyperlink{a00017}{Accelerator}, so return an empty list, for now. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00017_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Options()}{getOptions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::get\+Options (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00042_a09926db9f99706307ae6ce5b56845bca}{}\label{a00042_a09926db9f99706307ae6ce5b56845bca}
+Return all relevant \hyperlink{a00112}{Rigetti\+Accelerator} runtime options. Users can set the api-\/key, execution type, and number of triels from the command line with these options. 
+
+Reimplemented from \hyperlink{a00017_a98c9eda6b54367c75667ecfbbf167979}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!get\+Type@{get\+Type}}
+\index{get\+Type@{get\+Type}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{get\+Type()}{getType()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Accelerator\+Type xacc\+::quantum\+::\+D\+W\+Accelerator\+::get\+Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00042_abe50e427b4bec0460cc238405cb569f9}{}\label{a00042_abe50e427b4bec0460cc238405cb569f9}
+This \hyperlink{a00017}{Accelerator} models Q\+PU Gate accelerators. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00017_aaffc3e4bb9880eb5041b1b58ee4c2665}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!initialize@{initialize}}
+\index{initialize@{initialize}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{initialize()}{initialize()}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+D\+W\+Accelerator\+::initialize (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00042_acaefd5747409f31cf5c3e42d98475ce2}{}\label{a00042_acaefd5747409f31cf5c3e42d98475ce2}
+Initialize this \hyperlink{a00042}{D\+W\+Accelerator} with information about the remote Qubist solvers 
+
+Implements \hyperlink{a00017_a8cdc6f0c5a660013c29c07657a06303b}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
+\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{is\+Valid\+Buffer\+Size(const int N\+Bits)}{isValidBufferSize(const int NBits)}}]{\setlength{\rightskip}{0pt plus 5cm}bool xacc\+::quantum\+::\+D\+W\+Accelerator\+::is\+Valid\+Buffer\+Size (
+\begin{DoxyParamCaption}
+\item[{const int}]{N\+Bits}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00042_a4c2ee30212a919d8ddf7f9555df25195}{}\label{a00042_a4c2ee30212a919d8ddf7f9555df25195}
+Return true if this \hyperlink{a00017}{Accelerator} can allocated N\+Bits number of bits. 
+\begin{DoxyParams}{Parameters}
+{\em N\+Bits} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00017_ae51584850faeec77299058383977ddeb}{xacc\+::\+Accelerator}.
+
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!register\+Accelerator@{register\+Accelerator}}
+\index{register\+Accelerator@{register\+Accelerator}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{register\+Accelerator()}{registerAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+D\+W\+Accelerator\+::register\+Accelerator (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00042_aece856713312dd2c882eee12392b04fa}{}\label{a00042_aece856713312dd2c882eee12392b04fa}
+Register this \hyperlink{a00017}{Accelerator} with the framework. 
+
+\subsection{Member Data Documentation}
+\index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!api\+Key@{api\+Key}}
+\index{api\+Key@{api\+Key}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{api\+Key}{apiKey}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+D\+W\+Accelerator\+::api\+Key\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00042_a6b9ca421d7efeed09ff9acb9f77d9dd8}{}\label{a00042_a6b9ca421d7efeed09ff9acb9f77d9dd8}
+Reference to the D-\/\+Wave A\+PI Token \index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!available\+Solvers@{available\+Solvers}}
+\index{available\+Solvers@{available\+Solvers}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{available\+Solvers}{availableSolvers}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$std\+::string, {\bf D\+W\+Solver}$>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::available\+Solvers\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00042_ac19954e3df9e77184717c9be8a2ed4c5}{}\label{a00042_ac19954e3df9e77184717c9be8a2ed4c5}
+Reference to the mapping of solver names to Solver Type. \index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!headers@{headers}}
+\index{headers@{headers}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{headers}{headers}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$std\+::string, std\+::string$>$ xacc\+::quantum\+::\+D\+W\+Accelerator\+::headers\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00042_a031df31e3ff84f33ea9a76bfc0f9277c}{}\label{a00042_a031df31e3ff84f33ea9a76bfc0f9277c}
+Reference to the H\+T\+TP Post/\+Get headers \index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!url@{url}}
+\index{url@{url}!xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}}
+\subsubsection[{\texorpdfstring{url}{url}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+D\+W\+Accelerator\+::url\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00042_a934db80f3cf6aa68158a66bc053c0c27}{}\label{a00042_a934db80f3cf6aa68158a66bc053c0c27}
+Reference to the remote D-\/\+Wave Qubist U\+RL 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+D\+W\+Accelerator.\+hpp\item 
+D\+W\+Accelerator.\+cpp\end{DoxyCompactItemize}

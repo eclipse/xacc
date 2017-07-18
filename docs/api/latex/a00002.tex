@@ -1,0 +1,42 @@
+To build the QuellE Docker image, simply execute the provided build\+Quell\+E\+Docker.\+sh script with your code-\/int.\+ornl.\+gov Git\+Lab Private Token passed as an argument\+:
+
+\begin{quote}
+./build\+Quell\+E\+Docker T\+O\+K\+EN \end{quote}
+
+
+You can find this token at \href{https://code-int.ornl.gov/profile/account}{\tt https\+://code-\/int.\+ornl.\+gov/profile/account}. Simply copy that token and paste it as the argument to the script.
+
+\section*{Running the QuellE Docker Container}
+
+To create a new QuellE container, run the following\+:
+
+\begin{quote}
+docker run -\/it mccaskey/quelle bash \end{quote}
+
+
+This will put your terminal into an interactive terminal session within the QuellE container. The tests and qcc QuellE Compiler are located in /quelle/build.
+
+\section*{Running the QuellE Compiler with Docker}
+
+To run the quelle\+Compiler executable to compute the minor graph embedding of a problem graph into a hardware graph, execute the following\+:
+
+\begin{quote}
+docker run mccaskey/quelle /quelle/build/qcc --complete 5 --h\+Name \hyperlink{a00082}{K44\+Bipartite} --e O\+R\+N\+L\+C\+M\+R\+Heuristic \end{quote}
+
+
+Or, for a more complicated example
+
+\begin{quote}
+docker run mccaskey/quelle /quelle/build/qcc --complete 20 --h\+Name \hyperlink{a00089}{Nasa\+Chimera} --e O\+R\+N\+L\+C\+M\+R\+Heuristic \end{quote}
+
+
+Or, to run in parallel with M\+PI
+
+\begin{quote}
+docker run mccaskey/quelle mpiexec -\/np 2 /quelle/build/qcc --complete 20 --h\+Name \hyperlink{a00089}{Nasa\+Chimera} --e O\+R\+N\+L\+C\+M\+R\+Heuristic \end{quote}
+
+
+In order to create a truly ephemeral container, ie deletes itself after execution, pass --rm to the run command\+:
+
+\begin{quote}
+docker run --rm mccaskey/quelle /quelle/build/qcc --complete 5 --h\+Name \hyperlink{a00082}{K44\+Bipartite} --e O\+R\+N\+L\+C\+M\+R\+Heuristic\end{quote}

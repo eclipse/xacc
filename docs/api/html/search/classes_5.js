@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['function',['Function',['../a01151.html',1,'xacc']]],
-  ['functionalgateinstructionvisitor',['FunctionalGateInstructionVisitor',['../a01091.html',1,'xacc::quantum']]]
+  ['factoring15fakeembedding',['Factoring15FakeEmbedding',['../a00058.html',1,'']]],
+  ['function',['Function',['../a00059.html',1,'xacc']]],
+  ['functionalgateinstructionvisitor',['FunctionalGateInstructionVisitor',['../a00060.html',1,'xacc::quantum']]]
 ];

@@ -1,0 +1,46 @@
+Building QuellE on a system with Python installed in a default location (you can also inform the QuellE build of where your python install is located, check out cmake --help-\/module Find\+Python\+Libs) will enable the build of \hyperlink{a00096}{Py\+Q\+CC} -\/ a thin python wrapper for the QuellE minor graph embedding mechanism.
+
+After you build QuellE, you should have a shared object called libpyqcc.\+so in the build/python directory (make install coming soon!). Add this library to your P\+Y\+T\+H\+O\+N\+P\+A\+TH, or just run the python script leveraging \hyperlink{a00096}{Py\+Q\+CC} from a directory that contains libpyqcc.\+so.
+
+\section*{Example \hyperlink{a00096}{Py\+Q\+CC} Usage}
+
+Below is an example python script demonstrating how to use \hyperlink{a00096}{Py\+Q\+CC}. Note libpyqcc.\+so should be in your P\+Y\+T\+H\+O\+N\+P\+A\+TH or in the same directory as the script using \hyperlink{a00096}{Py\+Q\+CC}.
+
+
+\begin{DoxyCode}
+1 # import quelle!
+2 from libpyqcc import PyQCC
+3 
+4 # Create a PyQCC instance. PyQCC requires
+5 # construction with the desired hardware 
+6 # graph type
+7 qcc = PyQCC('K44Bipartite')
+8 
+9 # Construct the Problem Adjacency List
+10 probAdj = []
+11 probAdj.append([1,2,3,4])
+12 probAdj.append([0,2,3,4])
+13 probAdj.append([0,1,3,4])
+14 probAdj.append([0,1,2,4])
+15 probAdj.append([0,1,2,3])
+16 
+17 # Execute the embedding algorithm
+18 emb = qcc.compile(probAdj)
+19 
+20 # Display Results
+21 print 'Complete-5 in K44Bipartite Embedding:\(\backslash\)n'
+22 print emb
+23 
+24 # Try it again with a bigger graph 
+25 # (this is to demonstrate how to create 
+26 # a Chimera NxNx8 graph)
+27 qcc2 = PyQCC('Chimera',12)
+28 
+29 # Execute
+30 emb2 = qcc2.compile(probAdj)
+31 
+32 # Display Results
+33 print 'Complete-5 in 12x12x8 Chimera Embedding:\(\backslash\)n'
+34 print emb2
+\end{DoxyCode}
+ 

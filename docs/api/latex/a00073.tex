@@ -1,32 +1,79 @@
-\hypertarget{a00073}{}\section{xacc\+:\+:X\+A\+C\+C\+Vertex$<$ Properties $>$ Class Template Reference}
-\label{a00073}\index{xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$@{xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$}}
+\hypertarget{a00073}{}\section{xacc\+:\+:Instruction\+Iterator Class Reference}
+\label{a00073}\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
 
 
-{\ttfamily \#include $<$Graph.\+hpp$>$}
+{\ttfamily \#include $<$Instruction\+Iterator.\+hpp$>$}
 
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-std\+::string {\bfseries get\+Property\+Name} (const int index)\hypertarget{a00073_a7a7c4d60a277c3c0998f3911d128eaa5}{}\label{a00073_a7a7c4d60a277c3c0998f3911d128eaa5}
-
+\hyperlink{a00073_af61abf612341ab1454a1c43239b2da16}{Instruction\+Iterator} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00072}{Instruction} $>$ r)
+\item 
+bool \hyperlink{a00073_a7fa6c8cff43e7b224211d4f7954a4152}{has\+Next} ()
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00072}{Instruction} $>$ \hyperlink{a00073_a0a2e2b1543650760a869460ebcd4382b}{next} ()
 \end{DoxyCompactItemize}
-\subsection*{Public Attributes}
+\subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::tuple$<$ Properties... $>$ {\bfseries properties}\hypertarget{a00073_ad97a32f3cfcceef3eb0725a1a185025b}{}\label{a00073_ad97a32f3cfcceef3eb0725a1a185025b}
-
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00072}{Instruction} $>$ \hyperlink{a00073_a9d7aee1cb9058dd4a29c8fc71eeda57d}{root}
 \item 
-std\+::vector$<$ std\+::string $>$ {\bfseries property\+Names}\hypertarget{a00073_a9107342e37aaa5d7936d7e457051f461}{}\label{a00073_a9107342e37aaa5d7936d7e457051f461}
-
+std\+::stack$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00072}{Instruction} $>$ $>$ \hyperlink{a00073_a7af48509e563e8865131692c3b71edf0}{inst\+Stack}
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$typename... Properties$>$\\*
-class xacc\+::\+X\+A\+C\+C\+Vertex$<$ Properties $>$}
+The \hyperlink{a00073}{Instruction\+Iterator} provides a mechanism for a pre-\/order traversal of an \hyperlink{a00072}{Instruction} tree. 
 
-The base class of all Q\+CI Vertices for the Q\+CI Common \hyperlink{a00035}{Graph} class. All Vertices must keep track of a set of properties, stored as a tuple. 
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!Instruction\+Iterator@{Instruction\+Iterator}}
+\index{Instruction\+Iterator@{Instruction\+Iterator}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\subsubsection[{\texorpdfstring{Instruction\+Iterator(std\+::shared\+\_\+ptr$<$ Instruction $>$ r)}{InstructionIterator(std::shared\_ptr< Instruction > r)}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::\+Instruction\+Iterator\+::\+Instruction\+Iterator (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Instruction} $>$}]{r}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00073_af61abf612341ab1454a1c43239b2da16}{}\label{a00073_af61abf612341ab1454a1c43239b2da16}
+The constructor, takes the root of the tree as input.
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!has\+Next@{has\+Next}}
+\index{has\+Next@{has\+Next}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\subsubsection[{\texorpdfstring{has\+Next()}{hasNext()}}]{\setlength{\rightskip}{0pt plus 5cm}bool xacc\+::\+Instruction\+Iterator\+::has\+Next (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00073_a7fa6c8cff43e7b224211d4f7954a4152}{}\label{a00073_a7fa6c8cff43e7b224211d4f7954a4152}
+Return true if there are still instructions left to traverse. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!next@{next}}
+\index{next@{next}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\subsubsection[{\texorpdfstring{next()}{next()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf Instruction}$>$ xacc\+::\+Instruction\+Iterator\+::next (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00073_a0a2e2b1543650760a869460ebcd4382b}{}\label{a00073_a0a2e2b1543650760a869460ebcd4382b}
+Return the next \hyperlink{a00072}{Instruction} in the tree. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!inst\+Stack@{inst\+Stack}}
+\index{inst\+Stack@{inst\+Stack}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\subsubsection[{\texorpdfstring{inst\+Stack}{instStack}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::stack$<$std\+::shared\+\_\+ptr$<${\bf Instruction}$>$ $>$ xacc\+::\+Instruction\+Iterator\+::inst\+Stack\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00073_a7af48509e563e8865131692c3b71edf0}{}\label{a00073_a7af48509e563e8865131692c3b71edf0}
+A stack used to implement the tree traversal \index{xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}!root@{root}}
+\index{root@{root}!xacc\+::\+Instruction\+Iterator@{xacc\+::\+Instruction\+Iterator}}
+\subsubsection[{\texorpdfstring{root}{root}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf Instruction}$>$ xacc\+::\+Instruction\+Iterator\+::root\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00073_a9d7aee1cb9058dd4a29c8fc71eeda57d}{}\label{a00073_a9d7aee1cb9058dd4a29c8fc71eeda57d}
+The root of the tree, a function 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Graph.\+hpp\end{DoxyCompactItemize}
+Instruction\+Iterator.\+hpp\end{DoxyCompactItemize}

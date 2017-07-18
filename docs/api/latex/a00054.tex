@@ -1,25 +1,40 @@
-\hypertarget{a00054}{}\section{xacc\+:\+:quantum\+:\+:Register\+Embedding\+Algorithm$<$ T $>$ Class Template Reference}
-\label{a00054}\index{xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$@{xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$}}
-
-
-{\ttfamily \#include $<$Embedding\+Algorithm.\+hpp$>$}
-
+\hypertarget{a00054}{}\section{Execution\+Model Class Reference}
+\label{a00054}\index{Execution\+Model@{Execution\+Model}}
+Inheritance diagram for Execution\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.975309cm]{a00054}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Register\+Embedding\+Algorithm} (const std\+::string \&name)\hypertarget{a00054_a0b849a815e56d04c22e04b8c2f43f3d3}{}\label{a00054_a0b849a815e56d04c22e04b8c2f43f3d3}
+{\bfseries Execution\+Model} (\hyperlink{a00092}{Parallel\+C\+M\+R\+Embedding} \&emb)\hypertarget{a00054_a21c52f721b0b94d2729b63ab9bdaa960}{}\label{a00054_a21c52f721b0b94d2729b63ab9bdaa960}
+
+\item 
+virtual int {\bfseries compute\+Root\+Node} (int problem\+Vertex)=0\hypertarget{a00054_a1934dabaaea4ec5ef2724386455dc5b8}{}\label{a00054_a1934dabaaea4ec5ef2724386455dc5b8}
+
+\item 
+virtual std\+::vector$<$ Path $>$ {\bfseries compute\+Paths} (int g\+Star)=0\hypertarget{a00054_a316ba5002335237f8d4c5ceed798c3e8}{}\label{a00054_a316ba5002335237f8d4c5ceed798c3e8}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::vector$<$ int $>$ $>$ {\bfseries adjacent\+Models}\hypertarget{a00054_a754c7a96930bd04e932303f2a99c86a9}{}\label{a00054_a754c7a96930bd04e932303f2a99c86a9}
+
+\item 
+std\+::vector$<$ int $>$ {\bfseries adjacent\+Ghosts}\hypertarget{a00054_a35796743fbab23f8a9feedb823774639}{}\label{a00054_a35796743fbab23f8a9feedb823774639}
+
+\item 
+std\+::vector$<$ int $>$ {\bfseries adjacent\+Problem\+Verts}\hypertarget{a00054_adaca100d7732c37639dc127386139df2}{}\label{a00054_adaca100d7732c37639dc127386139df2}
+
+\item 
+\hyperlink{a00092}{Parallel\+C\+M\+R\+Embedding} \& {\bfseries embedding}\hypertarget{a00054_a91a42038ba365fafa1cce719f1744886}{}\label{a00054_a91a42038ba365fafa1cce719f1744886}
 
 \end{DoxyCompactItemize}
 
 
-\subsection{Detailed Description}
-\subsubsection*{template$<$typename T$>$\\*
-class xacc\+::quantum\+::\+Register\+Embedding\+Algorithm$<$ T $>$}
-
-\hyperlink{a00054}{Register\+Embedding\+Algorithm} is a convenience class for registering custom derived \hyperlink{a00027}{Embedding\+Algorithm} classes.
-
-Creators of \hyperlink{a00027}{Embedding\+Algorithm} subclasses create an instance of this class with their \hyperlink{a00027}{Embedding\+Algorithm} subclass as the template parameter to register their \hyperlink{a00027}{Embedding\+Algorithm} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00027}{Embedding\+Algorithm} and at global scope. 
-
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Embedding\+Algorithm.\+hpp\end{DoxyCompactItemize}
+build/quelle/aqc/embedding/impl/cmr/\+Execution\+Model.\+hpp\end{DoxyCompactItemize}

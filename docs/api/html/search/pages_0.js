@@ -1,12 +1,5 @@
 var searchData=
 [
-  ['readme',['README',['../a01536.html',1,'']]],
-  ['readme',['README',['../a01537.html',1,'']]],
-  ['readme',['README',['../a01538.html',1,'']]],
-  ['readme',['README',['../a01540.html',1,'']]],
-  ['readme',['README',['../a01541.html',1,'']]],
-  ['readme',['README',['../a01542.html',1,'']]],
-  ['readme',['README',['../a01543.html',1,'']]],
-  ['readme',['README',['../a01544.html',1,'']]],
-  ['readme',['README',['../a01545.html',1,'']]]
+  ['building_20quelle_20docker_20image',['Building QuellE Docker Image',['../a00002.html',1,'']]],
+  ['building_20prerequisites_20_28mac_20os_20x_29',['Building Prerequisites (Mac OS X)',['../a00004.html',1,'']]]
 ];

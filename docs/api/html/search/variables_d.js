@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['qbits',['qbits',['../a01159.html#a2a56be6c2519ea65df4d06f4abae1393',1,'xacc::quantum::GateInstruction']]],
-  ['quilstr',['quilStr',['../a01079.html#afd04300ce4dab03448a09f9bee448ca6',1,'xacc::quantum::QuilVisitor']]]
+  ['nvertices',['nVertices',['../a00100.html#aedbe28d892ab9e08522395cd1b63c612',1,'QuellEGraph']]]
 ];

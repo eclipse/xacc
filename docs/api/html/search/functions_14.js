@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['write',['write',['../a01535.html#a56dbba0529135ffdebb4ac3fbdb69252',1,'xacc::Graph']]]
+  ['update',['update',['../a00018.html#aa63a24980e831b9325a36836ab1c5495',1,'xacc::AcceleratorBit']]]
 ];

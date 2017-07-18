@@ -1,0 +1,184 @@
+All notable changes to this project will be documented in this file. This project adheres to \href{http://semver.org/}{\tt Semantic Versioning}.
+
+\subsection*{\href{https://github.com/nlohmann/json/tree/HEAD}{\tt Unreleased}}
+
+\href{https://github.com/nlohmann/json/compare/v1.1.0...HEAD}{\tt Full Changelog}
+
+
+\begin{DoxyItemize}
+\item Provide a F\+AQ \href{https://github.com/nlohmann/json/issues/163}{\tt \#163}
+\item Issue \#178 -\/ Extending support to full uint64\+\_\+t/int64\+\_\+t range and unsigned type (updated) \href{https://github.com/nlohmann/json/pull/193}{\tt \#193} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Small bugs in \hyperlink{a00257_source}{json.\+hpp} (get\+\_\+number) and unit.\+cpp (non-\/standard integer type test) \href{https://github.com/nlohmann/json/issues/199}{\tt \#199}
+\item G\+C\+C/clang floating point parsing bug in strtod() \href{https://github.com/nlohmann/json/issues/195}{\tt \#195}
+\item Bugs in miloyip/nativejson-\/benchmark\+: roundtrips \href{https://github.com/nlohmann/json/issues/187}{\tt \#187}
+\item Floating point exceptions \href{https://github.com/nlohmann/json/issues/181}{\tt \#181}
+\item Implicit assignment to std\+::string fails \href{https://github.com/nlohmann/json/issues/144}{\tt \#144}
+\item Issue \#195 -\/ update Travis to Trusty due to gcc/clang strtod() bug \href{https://github.com/nlohmann/json/pull/196}{\tt \#196} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Integer conversion to unsigned \href{https://github.com/nlohmann/json/issues/178}{\tt \#178}
+\item Fixed issue \#199 -\/ Small bugs in \hyperlink{a00257_source}{json.\+hpp} (get\+\_\+number) and unit.\+cpp (non-\/standard integer type test) \href{https://github.com/nlohmann/json/pull/200}{\tt \#200} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Fix broken link \href{https://github.com/nlohmann/json/pull/197}{\tt \#197} (\href{https://github.com/vog}{\tt vog})
+\end{DoxyItemize}
+
+\subsection*{\href{https://github.com/nlohmann/json/releases/tag/v1.1.0}{\tt v1.\+1.\+0} (2016-\/01-\/24)}
+
+\href{https://github.com/nlohmann/json/compare/v1.0.0...v1.1.0}{\tt Full Changelog}
+
+
+\begin{DoxyItemize}
+\item J\+S\+ON performance benchmark comparision \href{https://github.com/nlohmann/json/issues/177}{\tt \#177}
+\item Since re2c is often ignored in pull requests, it may make sense to make a contributing.\+md file \href{https://github.com/nlohmann/json/issues/175}{\tt \#175}
+\item Add assertions \href{https://github.com/nlohmann/json/issues/168}{\tt \#168}
+\item range based for loop for objects \href{https://github.com/nlohmann/json/issues/83}{\tt \#83}
+\item Implementation of get\+\_\+ref() \href{https://github.com/nlohmann/json/pull/184}{\tt \#184} (\href{https://github.com/dariomt}{\tt dariomt})
+\item Small error in pull \#185 \href{https://github.com/nlohmann/json/issues/194}{\tt \#194}
+\item Bugs in miloyip/nativejson-\/benchmark\+: floating-\/point parsing \href{https://github.com/nlohmann/json/issues/186}{\tt \#186}
+\item Cannot index by key of type static constexpr const char$\ast$ \href{https://github.com/nlohmann/json/issues/171}{\tt \#171}
+\item Fixed Issue \#171 -\/ added two extra template overloads of operator\mbox{[}\mbox{]} for T$\ast$ arguments \href{https://github.com/nlohmann/json/pull/189}{\tt \#189} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Fixed issue \#167 -\/ removed operator Value\+Type() condition for V\+S2015 \href{https://github.com/nlohmann/json/pull/188}{\tt \#188} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Floating point equality \href{https://github.com/nlohmann/json/issues/185}{\tt \#185}
+\item Unused variables in catch \href{https://github.com/nlohmann/json/issues/180}{\tt \#180}
+\item Typo in documentation \href{https://github.com/nlohmann/json/issues/179}{\tt \#179}
+\item Android? \href{https://github.com/nlohmann/json/issues/172}{\tt \#172}
+\item M\+S\+VC 2015 build fails when attempting to compare object\+\_\+t \href{https://github.com/nlohmann/json/issues/167}{\tt \#167}
+\item Member detector is not portable \href{https://github.com/nlohmann/json/issues/166}{\tt \#166}
+\item Unnecessary const\+\_\+cast \href{https://github.com/nlohmann/json/issues/162}{\tt \#162}
+\item Consider submitting this to the Boost Library Incubator \href{https://github.com/nlohmann/json/issues/66}{\tt \#66}
+\item Fixed Issue \#186 -\/ add strto(f$\vert$d$\vert$ld) overload wrappers, \char`\"{}-\/0.\+0\char`\"{} special case and FP trailing zero \href{https://github.com/nlohmann/json/pull/191}{\tt \#191} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Issue \#185 -\/ remove approx() and use \#pragma to kill warnings \href{https://github.com/nlohmann/json/pull/190}{\tt \#190} (\href{https://github.com/twelsby}{\tt twelsby})
+\item Fixed some typos in C\+O\+N\+T\+R\+I\+B\+U\+T\+I\+N\+G.\+md \href{https://github.com/nlohmann/json/pull/182}{\tt \#182} (\href{https://github.com/nibroc}{\tt nibroc})
+\end{DoxyItemize}
+
+\subsection*{\href{https://github.com/nlohmann/json/releases/tag/v1.0.0}{\tt v1.\+0.\+0} (2015-\/12-\/27)}
+
+\href{https://github.com/nlohmann/json/compare/v1.0.0-rc1...v1.0.0}{\tt Full Changelog}
+
+
+\begin{DoxyItemize}
+\item add key name to exception \href{https://github.com/nlohmann/json/issues/160}{\tt \#160}
+\item prevent \hyperlink{a00257_source}{json.\+hpp} from emitting compiler warnings \href{https://github.com/nlohmann/json/issues/154}{\tt \#154}
+\item json\+::parse(string) does not check utf8 bom \href{https://github.com/nlohmann/json/issues/152}{\tt \#152}
+\item unsigned 64bit values output as signed \href{https://github.com/nlohmann/json/issues/151}{\tt \#151}
+\item Wish feature\+: json5 \href{https://github.com/nlohmann/json/issues/150}{\tt \#150}
+\item overload of at() with default value \href{https://github.com/nlohmann/json/issues/133}{\tt \#133}
+\item Memory leak in face of exceptions \href{https://github.com/nlohmann/json/issues/118}{\tt \#118}
+\item Find and Count for arrays \href{https://github.com/nlohmann/json/issues/117}{\tt \#117}
+\item dynamically constructing an arbitrarily nested object \href{https://github.com/nlohmann/json/issues/114}{\tt \#114}
+\item object field accessors \href{https://github.com/nlohmann/json/issues/103}{\tt \#103}
+\item v8pp and json \href{https://github.com/nlohmann/json/issues/95}{\tt \#95}
+\item Wishlist \href{https://github.com/nlohmann/json/issues/65}{\tt \#65}
+\item Windows/\+Visual Studio (through 2013) is unsupported \href{https://github.com/nlohmann/json/issues/62}{\tt \#62}
+\item Bug in basic\+\_\+json\+::operator\mbox{[}$\,$\mbox{]} const overload \href{https://github.com/nlohmann/json/issues/135}{\tt \#135}
+\item wrong enable\+\_\+if for const pointer (instead of pointer-\/to-\/const) \href{https://github.com/nlohmann/json/issues/134}{\tt \#134}
+\item Visual Studio 14 Debug assertion failed \href{https://github.com/nlohmann/json/issues/125}{\tt \#125}
+\item Compile error with g++ 4.\+9.\+3 cygwin 64-\/bit \href{https://github.com/nlohmann/json/issues/112}{\tt \#112}
+\item error\+: unterminated raw string \href{https://github.com/nlohmann/json/issues/109}{\tt \#109}
+\item \mbox{[}clang-\/3.\+6.\+2\mbox{]} string/sstream with number to json issue \href{https://github.com/nlohmann/json/issues/107}{\tt \#107}
+\item Getting member discarding qualifyer \href{https://github.com/nlohmann/json/issues/159}{\tt \#159}
+\item basic\+\_\+json\+::iterator\+::value() output includes quotes while basic\+\_\+json\+::iterator\+::key() doesn\textquotesingle{}t \href{https://github.com/nlohmann/json/issues/158}{\tt \#158}
+\item Indexing {\ttfamily const basic\textbackslash{}\+\_\+json\textbackslash{}$<$\textbackslash{}$>$} with {\ttfamily const basic\textbackslash{}\+\_\+string\textbackslash{}$<$char\textbackslash{}$>$} \href{https://github.com/nlohmann/json/issues/157}{\tt \#157}
+\item token\+\_\+type\+\_\+name(token\+\_\+type t)\+: not all control paths return a value \href{https://github.com/nlohmann/json/issues/156}{\tt \#156}
+\item Unable to compile on M\+S\+VC 2015 with S\+DL checking enabled\+: This function or variable may be unsafe. \href{https://github.com/nlohmann/json/issues/149}{\tt \#149}
+\item dump() convert strings encoded by utf-\/8 to shift-\/jis on windows 10. \href{https://github.com/nlohmann/json/issues/147}{\tt \#147}
+\item Unable to get field names in a json object \href{https://github.com/nlohmann/json/issues/145}{\tt \#145}
+\item \hyperlink{a00257_source}{json.\+hpp}\+:5746\+:32\+: error\+: \textquotesingle{}to\+\_\+string\textquotesingle{} is not a member of \textquotesingle{}std\textquotesingle{} \href{https://github.com/nlohmann/json/issues/136}{\tt \#136}
+\item Returning any data type \href{https://github.com/nlohmann/json/issues/113}{\tt \#113}
+\item vector$<$json$>$ copy constructor really weird \href{https://github.com/nlohmann/json/issues/108}{\tt \#108}
+\item maintaining order of keys during iteration \href{https://github.com/nlohmann/json/issues/106}{\tt \#106}
+\item Replace sprintf with hex function, this fixes \#149 \href{https://github.com/nlohmann/json/pull/153}{\tt \#153} (\href{https://github.com/whackashoe}{\tt whackashoe})
+\item Fix character skipping after a surrogate pair \href{https://github.com/nlohmann/json/pull/146}{\tt \#146} (\href{https://github.com/robertmrk}{\tt robertmrk})
+\item Detect correctly pointer-\/to-\/const \href{https://github.com/nlohmann/json/pull/137}{\tt \#137} (\href{https://github.com/dariomt}{\tt dariomt})
+\item disabled \char`\"{}\+Copy\+Assignable\char`\"{} test for M\+S\+VC in Debug mode, see \#125 \href{https://github.com/nlohmann/json/pull/131}{\tt \#131} (\href{https://github.com/dariomt}{\tt dariomt})
+\item removed stream operator for iterator, resolution for \#125 \href{https://github.com/nlohmann/json/pull/130}{\tt \#130} (\href{https://github.com/dariomt}{\tt dariomt})
+\item fixed typos in comments for examples \href{https://github.com/nlohmann/json/pull/129}{\tt \#129} (\href{https://github.com/dariomt}{\tt dariomt})
+\item Remove superfluous inefficiency \href{https://github.com/nlohmann/json/pull/126}{\tt \#126} (\href{https://github.com/d-frey}{\tt d-\/frey})
+\item remove invalid parameter \textquotesingle{}-\/stdlib=libc++\textquotesingle{} in C\+Make\+Lists.\+txt \href{https://github.com/nlohmann/json/pull/124}{\tt \#124} (\href{https://github.com/emvivre}{\tt emvivre})
+\item exception-\/safe object creation, fixes \#118 \href{https://github.com/nlohmann/json/pull/122}{\tt \#122} (\href{https://github.com/d-frey}{\tt d-\/frey})
+\item Fix small oversight. \href{https://github.com/nlohmann/json/pull/121}{\tt \#121} (\href{https://github.com/ColinH}{\tt ColinH})
+\item Overload parse() to accept an rvalue reference \href{https://github.com/nlohmann/json/pull/120}{\tt \#120} (\href{https://github.com/silverweed}{\tt silverweed})
+\item Use the right variable name in doc string \href{https://github.com/nlohmann/json/pull/115}{\tt \#115} (\href{https://github.com/whoshuu}{\tt whoshuu})
+\end{DoxyItemize}
+
+\subsection*{\href{https://github.com/nlohmann/json/releases/tag/v1.0.0-rc1}{\tt v1.\+0.\+0-\/rc1} (2015-\/07-\/26)}
+
+
+\begin{DoxyItemize}
+\item Adjust wording to J\+S\+ON R\+FC \href{https://github.com/nlohmann/json/issues/97}{\tt \#97}
+\item access by (const) reference \href{https://github.com/nlohmann/json/issues/91}{\tt \#91}
+\item is\+\_\+integer and is\+\_\+float tests \href{https://github.com/nlohmann/json/issues/90}{\tt \#90}
+\item Min\+GW have no std\+::to\+\_\+string \href{https://github.com/nlohmann/json/issues/80}{\tt \#80}
+\item erase elements using iterators \href{https://github.com/nlohmann/json/issues/57}{\tt \#57}
+\item Removing item from array \href{https://github.com/nlohmann/json/issues/56}{\tt \#56}
+\item Serialize/\+Deserialize like P\+HP? \href{https://github.com/nlohmann/json/issues/55}{\tt \#55}
+\item Document erase, count, and iterators key and value \href{https://github.com/nlohmann/json/issues/52}{\tt \#52}
+\item Supported compilers \href{https://github.com/nlohmann/json/issues/50}{\tt \#50}
+\item Use non-\/member begin/end \href{https://github.com/nlohmann/json/issues/48}{\tt \#48}
+\item Erase key \href{https://github.com/nlohmann/json/issues/47}{\tt \#47}
+\item Key iterator \href{https://github.com/nlohmann/json/issues/46}{\tt \#46}
+\item Add count member function \href{https://github.com/nlohmann/json/issues/45}{\tt \#45}
+\item Printing attribute names \href{https://github.com/nlohmann/json/issues/39}{\tt \#39}
+\item Avoid using spaces when encoding without pretty print \href{https://github.com/nlohmann/json/issues/31}{\tt \#31}
+\item Cannot encode long numbers \href{https://github.com/nlohmann/json/issues/30}{\tt \#30}
+\item Creating an empty array \href{https://github.com/nlohmann/json/issues/27}{\tt \#27}
+\item Custom allocator support \href{https://github.com/nlohmann/json/issues/25}{\tt \#25}
+\item create a header-\/only version \href{https://github.com/nlohmann/json/issues/16}{\tt \#16}
+\item Add to\+\_\+string overload for indentation \href{https://github.com/nlohmann/json/issues/13}{\tt \#13}
+\item move code into namespace \href{https://github.com/nlohmann/json/issues/9}{\tt \#9}
+\item free functions for explicit objects and arrays in initializer lists \href{https://github.com/nlohmann/json/issues/8}{\tt \#8}
+\item Test case coverage \href{https://github.com/nlohmann/json/issues/2}{\tt \#2}
+\item Parse streams incrementally. \href{https://github.com/nlohmann/json/pull/40}{\tt \#40} (\href{https://github.com/aburgh}{\tt aburgh})
+\item Binary string causes numbers to be dumped as hex \href{https://github.com/nlohmann/json/issues/101}{\tt \#101}
+\item failed to iterator json object with reverse\+\_\+iterator \href{https://github.com/nlohmann/json/issues/100}{\tt \#100}
+\item static analysis warnings \href{https://github.com/nlohmann/json/issues/94}{\tt \#94}
+\item reverse\+\_\+iterator operator inheritance problem \href{https://github.com/nlohmann/json/issues/93}{\tt \#93}
+\item Nonstandard integer type \href{https://github.com/nlohmann/json/issues/89}{\tt \#89}
+\item lexer\+::get\+\_\+number return N\+AN \href{https://github.com/nlohmann/json/issues/82}{\tt \#82}
+\item Handle infinity and NaN cases \href{https://github.com/nlohmann/json/issues/70}{\tt \#70}
+\item errors in g++-\/4.8.\+1 \href{https://github.com/nlohmann/json/issues/68}{\tt \#68}
+\item Double quotation mark is not parsed correctly \href{https://github.com/nlohmann/json/issues/60}{\tt \#60}
+\item Do not use std\+::to\+\_\+string \href{https://github.com/nlohmann/json/issues/51}{\tt \#51}
+\item Confused about iterating through json objects \href{https://github.com/nlohmann/json/issues/49}{\tt \#49}
+\item Problem getting vector (array) of strings \href{https://github.com/nlohmann/json/issues/44}{\tt \#44}
+\item Compilation error due to assuming that private=public \href{https://github.com/nlohmann/json/issues/43}{\tt \#43}
+\item Use of deprecated implicit copy constructor \href{https://github.com/nlohmann/json/issues/42}{\tt \#42}
+\item dumping a small number\+\_\+float just outputs 0.\+000000 \href{https://github.com/nlohmann/json/issues/37}{\tt \#37}
+\item Avoid using spaces when encoding without pretty print \href{https://github.com/nlohmann/json/issues/31}{\tt \#31}
+\item Cannot encode long numbers \href{https://github.com/nlohmann/json/issues/30}{\tt \#30}
+\item segmentation fault when iterating over empty arrays/objects \href{https://github.com/nlohmann/json/issues/28}{\tt \#28}
+\item Improper parsing of J\+S\+ON string \char`\"{}\textbackslash{}\textbackslash{}\char`\"{} \href{https://github.com/nlohmann/json/issues/17}{\tt \#17}
+\item Don\textquotesingle{}t return \char`\"{}const values\char`\"{} \href{https://github.com/nlohmann/json/issues/15}{\tt \#15}
+\item string parser does not recognize uncompliant strings \href{https://github.com/nlohmann/json/issues/12}{\tt \#12}
+\item free functions for explicit objects and arrays in initializer lists \href{https://github.com/nlohmann/json/issues/8}{\tt \#8}
+\item Runtime error in Travis job \href{https://github.com/nlohmann/json/issues/1}{\tt \#1}
+\item Fix compilation of json\+\_\+unit with G\+CC 5 \href{https://github.com/nlohmann/json/pull/59}{\tt \#59} (\href{https://github.com/dkopecek}{\tt dkopecek})
+\item Finish documenting the public interface in Doxygen \href{https://github.com/nlohmann/json/issues/102}{\tt \#102}
+\item \textquotesingle{}noexcept\textquotesingle{} \+: unknown override specifier \href{https://github.com/nlohmann/json/issues/99}{\tt \#99}
+\item Keys when iterating over objects \href{https://github.com/nlohmann/json/issues/67}{\tt \#67}
+\item Complete brief documentation \href{https://github.com/nlohmann/json/issues/61}{\tt \#61}
+\item Get coverage back to 100\% \href{https://github.com/nlohmann/json/issues/58}{\tt \#58}
+\item possible double-\/free in find function \href{https://github.com/nlohmann/json/issues/11}{\tt \#11}
+\item U\+T\+F-\/8 encoding/deconding/testing \href{https://github.com/nlohmann/json/issues/10}{\tt \#10}
+\item Add unit tests \href{https://github.com/nlohmann/json/issues/4}{\tt \#4}
+\item Drop C++98 support \href{https://github.com/nlohmann/json/issues/3}{\tt \#3}
+\item Keyword \textquotesingle{}inline\textquotesingle{} is useless when member functions are defined in headers \href{https://github.com/nlohmann/json/pull/87}{\tt \#87} (\href{https://github.com/ahamez}{\tt ahamez})
+\item Remove useless typename \href{https://github.com/nlohmann/json/pull/86}{\tt \#86} (\href{https://github.com/ahamez}{\tt ahamez})
+\item Avoid warning with Xcode\textquotesingle{}s clang \href{https://github.com/nlohmann/json/pull/85}{\tt \#85} (\href{https://github.com/ahamez}{\tt ahamez})
+\item Fix typos \href{https://github.com/nlohmann/json/pull/73}{\tt \#73} (\href{https://github.com/aqnouch}{\tt aqnouch})
+\item Replace {\ttfamily default\textbackslash{}\+\_\+callback} function with {\ttfamily nullptr} and check for null… \href{https://github.com/nlohmann/json/pull/72}{\tt \#72} (\href{https://github.com/aburgh}{\tt aburgh})
+\item support enum \href{https://github.com/nlohmann/json/pull/71}{\tt \#71} (\href{https://github.com/likebeta}{\tt likebeta})
+\item Fix performance regression introduced with the parsing callback feature. \href{https://github.com/nlohmann/json/pull/69}{\tt \#69} (\href{https://github.com/aburgh}{\tt aburgh})
+\item Improve the implementations of the comparission-\/operators \href{https://github.com/nlohmann/json/pull/63}{\tt \#63} (\href{https://github.com/Florianjw}{\tt Florianjw})
+\item Feature/small float serialization \href{https://github.com/nlohmann/json/pull/38}{\tt \#38} (\href{https://github.com/jrandall}{\tt jrandall})
+\item template version with re2c scanner \href{https://github.com/nlohmann/json/pull/36}{\tt \#36} (\href{https://github.com/nlohmann}{\tt nlohmann})
+\item more descriptive documentation in example \href{https://github.com/nlohmann/json/pull/33}{\tt \#33} (\href{https://github.com/luxe}{\tt luxe})
+\item Fix string conversion under Clang \href{https://github.com/nlohmann/json/pull/26}{\tt \#26} (\href{https://github.com/wancw}{\tt wancw})
+\item Fixed dumping of strings \href{https://github.com/nlohmann/json/pull/24}{\tt \#24} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item Added a remark to the readme that coverage is G\+CC only for now \href{https://github.com/nlohmann/json/pull/23}{\tt \#23} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item Unicode escaping \href{https://github.com/nlohmann/json/pull/22}{\tt \#22} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item Implemented the J\+S\+ON spec for string parsing for everything but the  escaping \href{https://github.com/nlohmann/json/pull/21}{\tt \#21} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item add the std iterator typedefs to iterator and const\+\_\+iterator \href{https://github.com/nlohmann/json/pull/19}{\tt \#19} (\href{https://github.com/kirkshoop}{\tt kirkshoop})
+\item Fixed escaped quotes \href{https://github.com/nlohmann/json/pull/18}{\tt \#18} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item Fix double delete on std\+::bad\+\_\+alloc exception \href{https://github.com/nlohmann/json/pull/14}{\tt \#14} (\href{https://github.com/elliotgoodrich}{\tt elliotgoodrich})
+\item Added C\+Make and lcov \href{https://github.com/nlohmann/json/pull/6}{\tt \#6} (\href{https://github.com/Teemperor}{\tt Teemperor})
+\item Version 2.\+0 \href{https://github.com/nlohmann/json/pull/5}{\tt \#5} (\href{https://github.com/nlohmann}{\tt nlohmann})
+\item {\itshape This Change Log was automatically generated by \href{https://github.com/skywinder/Github-Changelog-Generator}{\tt github\+\_\+changelog\+\_\+generator}} 
+\end{DoxyItemize}

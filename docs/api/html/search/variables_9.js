@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['registry',['registry',['../a01223.html#a46460ecacc7facb6936b3c1ec6d618d7',1,'xacc::Registry']]],
-  ['root',['root',['../a01159.html#a9d7aee1cb9058dd4a29c8fc71eeda57d',1,'xacc::InstructionIterator']]]
+  ['instance_5f',['instance_',['../a00125.html#a863885efab9990f06f699567648dfa26',1,'xacc::Singleton']]],
+  ['inststack',['instStack',['../a00073.html#a7af48509e563e8865131692c3b71edf0',1,'xacc::InstructionIterator']]]
 ];

@@ -1,103 +1,35 @@
-\hypertarget{a00024}{}\section{xacc\+:\+:quantum\+:\+:D\+Wave\+Compiler Class Reference}
-\label{a00024}\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:D\+Wave\+Compiler\+:\begin{figure}[H]
+\hypertarget{a00024}{}\section{xacc\+:\+:Base\+Instruction\+Visitor Class Reference}
+\label{a00024}\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
+
+
+{\ttfamily \#include $<$Instruction\+Visitor.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Base\+Instruction\+Visitor\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=3.000000cm]{a00024}
+\includegraphics[height=1.288344cm]{a00024}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)
-\item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00041}{xacc\+::\+IR} $>$ \hyperlink{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}{compile} (const std\+::string \&src)
-\item 
-virtual const std\+::string \hyperlink{a00024_a8a180031ae563e1a9aac611e8066c181}{get\+Name} ()
-\item 
-virtual \hyperlink{a00024_acc0ab28f787b8f4cbeb63c594a247e50}{$\sim$\+D\+Wave\+Compiler} ()
+virtual \hyperlink{a00024_aa6f5104f5868fe1eca9be4dc4036eba4}{$\sim$\+Base\+Instruction\+Visitor} ()
 \end{DoxyCompactItemize}
-\subsection*{Static Public Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-static void \hyperlink{a00024_a5b221649f22a9bb4d4a304a6522d071f}{register\+Compiler} ()
-\end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
+
+\subsection{Detailed Description}
+The \hyperlink{a00024}{Base\+Instruction\+Visitor} is a base class for all classes that are \hyperlink{a00072}{Instruction} visitors. It basically provides a means for passing instruction visitor handles in a polymorphic manner. 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!````~D\+Wave\+Compiler@{$\sim$\+D\+Wave\+Compiler}}
-\index{````~D\+Wave\+Compiler@{$\sim$\+D\+Wave\+Compiler}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-\subsubsection[{\texorpdfstring{$\sim$\+D\+Wave\+Compiler()}{~DWaveCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+D\+Wave\+Compiler\+::$\sim$\+D\+Wave\+Compiler (
+\index{xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}!````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}}
+\index{````~Base\+Instruction\+Visitor@{$\sim$\+Base\+Instruction\+Visitor}!xacc\+::\+Base\+Instruction\+Visitor@{xacc\+::\+Base\+Instruction\+Visitor}}
+\subsubsection[{\texorpdfstring{$\sim$\+Base\+Instruction\+Visitor()}{~BaseInstructionVisitor()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Base\+Instruction\+Visitor\+::$\sim$\+Base\+Instruction\+Visitor (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00024_acc0ab28f787b8f4cbeb63c594a247e50}{}\label{a00024_acc0ab28f787b8f4cbeb63c594a247e50}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00024_aa6f5104f5868fe1eca9be4dc4036eba4}{}\label{a00024_aa6f5104f5868fe1eca9be4dc4036eba4}
 The destructor 
 
-\subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+D\+Wave\+Compiler\+::compile (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}{}\label{a00024_a0f7f6b10b4a881cb27b36eaa6d39e7b1}
-This method is to be implemented by derived Compilers and is in charge of executing the compilation mechanism on the provided source string. Implementations also are given access to the \hyperlink{a00011}{Accelerator} that this source code is intended for.
-
-
-\begin{DoxyParams}{Parameters}
-{\em src} & The kernel source string. \\
-\hline
-{\em acc} & The \hyperlink{a00011}{Accelerator} this code will be executed on \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-ir Intermediate representation for provided source kernel code. 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00020_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)}{compile(const std::string \&src)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+D\+Wave\+Compiler\+::compile (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}{}\label{a00024_a893e1d1c81a8aaf6e2435c9bceab575e}
-\begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00020_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+D\+Wave\+Compiler\+::get\+Name (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00024_a8a180031ae563e1a9aac611e8066c181}{}\label{a00024_a8a180031ae563e1a9aac611e8066c181}
-Return the name of this \hyperlink{a00020}{Compiler} \begin{DoxyReturn}{Returns}
-name \hyperlink{a00020}{Compiler} name 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00020_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}!register\+Compiler@{register\+Compiler}}
-\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+D\+Wave\+Compiler@{xacc\+::quantum\+::\+D\+Wave\+Compiler}}
-\subsubsection[{\texorpdfstring{register\+Compiler()}{registerCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+D\+Wave\+Compiler\+::register\+Compiler (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00024_a5b221649f22a9bb4d4a304a6522d071f}{}\label{a00024_a5b221649f22a9bb4d4a304a6522d071f}
-Register this \hyperlink{a00020}{Compiler} with the framework. 
-
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-D\+Wave\+Compiler.\+hpp\item 
-D\+Wave\+Compiler.\+cpp\end{DoxyCompactItemize}
+Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}
