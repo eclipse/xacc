@@ -65,6 +65,11 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		XACCError("Invalid kernel.");
 	}
 
+	auto aqcBuffer = std::dynamic_pointer_cast<AQCAcceleratorBuffer>(buffer);
+	if (!aqcBuffer) {
+		XACCError("Invalid Accelerator Buffer.");
+	}
+
 	std::vector<std::string> splitLines;
 	boost::split(splitLines, dwKernel->toString(""), boost::is_any_of("\n"));
 	auto nQMILines = splitLines.size();
@@ -108,7 +113,7 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 			+ trials + "} }]";
 	boost::replace_all(jsonStr, "\n", "\\n");
 
-	std::cout << "HELLO:\n" << jsonStr << "\n\n\n";
+	std::cout << "\nJsonPost= " << jsonStr << "\n\n\n";
 	auto newclient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>("qubist.dwavesys.com", false);
 	auto postResponse = newclient.post("/sapi/problems/", jsonStr, headers);
 
@@ -120,7 +125,7 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	ss2 << postResponse.content.rdbuf();
 	auto message = ss2.str();
 
-	std::cout << "REPSONSE:\n" << message << "\n";
+	std::cout << "D-Wave Server Response = " << message << "\n";
 
 	Document document;
 	document.Parse(message.c_str());
@@ -155,7 +160,7 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	}
 	std::cout << "\n";
 
-	std::cout << "COMPLETEDMESSAGE:\n" << message << "\n";
+	std::cout << "\nJob Completion Results " << message << "\n";
 
 
 	/**
@@ -165,7 +170,58 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	 * solutions string
 	 */
 
+	Document doc;
+	doc.Parse(message.c_str());
 
+	if (doc["status"] == "COMPLETED") {
+		std::vector<double> energies;
+		std::vector<int> numOccurrences, active_vars;
+		auto energyArray = doc["answer"]["energies"].GetArray();
+		auto numOccArray = doc["answer"]["num_occurrences"].GetArray();
+		for (int i = 0; i < energyArray.Size(); i++) {
+			energies.push_back(energyArray[i].GetDouble());
+			numOccurrences.push_back(numOccArray[i].GetInt());
+		}
+
+		auto solutionsStrEncoded = std::string(doc["answer"]["solutions"].GetString());
+		auto decoded = newclient.base64_decode(solutionsStrEncoded);
+		std::string bitStr = "";
+		std::stringstream ss;
+		for (std::size_t i = 0; i < decoded.size(); ++i) {
+			ss << std::bitset<8>(decoded.c_str()[i]);
+		}
+
+		bitStr = ss.str();
+
+		auto activeVarsSize = doc["answer"]["active_variables"].GetArray().Size();
+		auto activeVars = doc["answer"]["active_variables"].GetArray();
+		for (int i = 0; i < activeVarsSize; i++) {
+			active_vars.push_back(activeVars[i].GetInt());
+		}
+
+		auto nBitsPerMeasurementPadded = ((activeVarsSize + 8 - 1) / 8) * 8;
+		auto nPadBits = nBitsPerMeasurementPadded - activeVarsSize;
+		int counter = 0;
+		for (int i = 0; i < bitStr.size(); i += nBitsPerMeasurementPadded) {
+			auto subBuffer = bitStr.substr(i, nBitsPerMeasurementPadded);
+			boost::dynamic_bitset<> bset(subBuffer.substr(0, activeVarsSize));
+			counter++;
+			aqcBuffer->appendMeasurement(bset);
+		}
+
+		aqcBuffer->setEnergies(energies);
+		aqcBuffer->setNumberOfOccurrences(numOccurrences);
+		aqcBuffer->setActiveVariableIndices(active_vars);
+
+		std::cout << "NExecs: " << aqcBuffer->getNumberOfExecutions() << "\n";
+		std::cout << "Min Meas: " << aqcBuffer->getLowestEnergy() << ", " << aqcBuffer->getLowestEnergyMeasurement() << "\n";
+		std::cout << "Max Prob Meas: " << aqcBuffer->getMostProbableEnergy() << ", " << aqcBuffer->getMostProbableMeasurement() << "\n";
+
+	} else {
+		XACCError("Error in executing D-Wave QPU.");
+	}
+
+	return;
 }
 
 void DWAccelerator::initialize() {

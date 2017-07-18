@@ -57,6 +57,16 @@ protected:
 	 */
 	std::vector<double> energies;
 
+	/**
+	 * The number of occurrences for each energy/measurement
+	 */
+	std::vector<int> numOccurrences;
+
+	/**
+	 * This list of active qubit indices.
+	 */
+	std::vector<int> activeVarIndices;
+
 public:
 
 	/**
@@ -99,6 +109,52 @@ public:
 		return embedding;
 	}
 
+	void setEnergies(std::vector<double> en) {
+		energies = en;
+	}
+
+	std::vector<double> getEnergies() {
+		return energies;
+	}
+
+	void setNumberOfOccurrences(std::vector<int> en) {
+		numOccurrences = en;
+	}
+
+	std::vector<int> getNumberOfOccurrences() {
+		return numOccurrences;
+	}
+
+	void setActiveVariableIndices(std::vector<int> activeVars) {
+		activeVarIndices = activeVars;
+	}
+
+	std::vector<int> getActiveVariableIndices() {
+		return activeVarIndices;
+	}
+
+	int getNumberOfExecutions() {
+		return std::accumulate(numOccurrences.rbegin(), numOccurrences.rend(), 0);
+	}
+
+	boost::dynamic_bitset<> getLowestEnergyMeasurement() {
+		auto minIt = std::min_element(energies.begin(), energies.end());
+		return measurements[std::distance(energies.begin(), minIt)];
+	}
+
+	double getLowestEnergy() {
+		return *std::min_element(energies.begin(), energies.end());
+	}
+
+	double getMostProbableEnergy() {
+		auto maxIt = std::max_element(numOccurrences.begin(), numOccurrences.end());
+		return energies[std::distance(numOccurrences.begin(), maxIt)];
+	}
+
+	boost::dynamic_bitset<> getMostProbableMeasurement() {
+		auto maxIt = std::max_element(numOccurrences.begin(), numOccurrences.end());
+		return measurements[std::distance(numOccurrences.begin(), maxIt)];
+	}
 };
 
 }
