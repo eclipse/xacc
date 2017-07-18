@@ -38,6 +38,7 @@
 #include <boost/filesystem.hpp>
 #include "DWKernel.hpp"
 #include "DWQMI.hpp"
+#include "AQCAcceleratorBuffer.hpp"
 
 
 #define RAPIDJSON_HAS_STDSTRING 1
@@ -51,6 +52,10 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+/**
+ * Wrapper for information related to the remote
+ * D-Wave solver.
+ */
 struct DWSolver {
 	std::string name;
 	std::string description;
@@ -63,10 +68,17 @@ struct DWSolver {
 };
 
 /**
- *
+ * The DWAccelerator is an XACC Accelerator that
+ * takes D-Wave IR and executes the quantum machine
+ * instructions via remote HTTP invocations.
  */
-class DWAccelerator : virtual public Accelerator {
+class DWAccelerator : public Accelerator {
 public:
+
+	/**
+	 * The constructor
+	 */
+	DWAccelerator() {}
 
 	/**
 	 * Create, store, and return an AcceleratorBuffer with the given
@@ -150,11 +162,19 @@ public:
 				"dwave", acc.getOptions());
 	}
 
-	DWAccelerator() {
-	}
-
+	/**
+	 * Initialize this DWAccelerator with information
+	 * about the remote Qubist solvers
+	 */
 	virtual void initialize();
 
+	/**
+	 * Create and return an AQCAcceleratorBuffer of size
+	 * dictated by the current solver being used.
+	 *
+	 * @param varId The name of this buffer
+	 * @return buffer The AcceleratorBuffer
+	 */
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 				const std::string& varId) {
 		auto options = RuntimeOptions::instance();
@@ -166,7 +186,7 @@ public:
 			XACCError(solverName + " is not available for creating a buffer.");
 		}
 		auto solver = availableSolvers[solverName];
-		auto buffer = std::make_shared<AcceleratorBuffer>(varId, solver.nQubits);
+		auto buffer = std::make_shared<AQCAcceleratorBuffer>(varId, solver.nQubits);
 		storeBuffer(varId, buffer);
 		return buffer;
 	}
@@ -178,9 +198,25 @@ public:
 
 protected:
 
+	/**
+	 * Reference to the D-Wave API Token
+	 */
 	std::string apiKey;
+
+	/**
+	 * Reference to the remote D-Wave Qubist URL
+	 */
 	std::string url;
+
+	/**
+	 * Reference to the HTTP Post/Get headers
+	 */
 	std::map<std::string, std::string> headers;
+
+	/**
+	 * Reference to the mapping of solver names
+	 * to Solver Type.
+	 */
 	std::map<std::string, DWSolver> availableSolvers;
 
 private:

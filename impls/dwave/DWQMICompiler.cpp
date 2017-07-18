@@ -39,9 +39,6 @@ namespace xacc {
 
 namespace quantum {
 
-DWQMICompiler::DWQMICompiler() {
-}
-
 std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		std::shared_ptr<Accelerator> acc) {
 

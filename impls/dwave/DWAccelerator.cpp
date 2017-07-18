@@ -48,7 +48,7 @@ std::shared_ptr<AcceleratorBuffer> DWAccelerator::createBuffer(
 		XACCError("Invalid buffer size.");
 	}
 
-	auto buffer = std::make_shared<AcceleratorBuffer>(varId, size);
+	auto buffer = std::make_shared<AQCAcceleratorBuffer>(varId, size);
 	storeBuffer(varId, buffer);
 	return buffer;
 }

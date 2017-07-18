@@ -42,19 +42,38 @@ namespace xacc {
 namespace quantum {
 
 /**
+ * The DWQMICompiler is an XACC Compiler that compiles
+ * D-Wave quantum machine instructions to produce an
+ * appropriate Ising form for execution on the D-Wave QPU.
+ *
+ * This compilation leverages XACC EmbeddingAlgorithms to
+ * compute the minor graph embedding represented by the
+ * input source kernel code to output the embedded Ising
+ * graph for D-Wave execution.
  */
 class DWQMICompiler: public xacc::Compiler {
 
 public:
 
-	DWQMICompiler();
+	/**
+	 * The Compiler.
+	 */
+	DWQMICompiler() {}
 
 	/**
+	 * Compile the given kernel code for the
+	 * given D-Wave Accelerator.
+	 *
+	 * @param src The QMI source code
+	 * @param acc Reference to the D-Wave Accelerator
+	 * @return
 	 */
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src,
 			std::shared_ptr<Accelerator> acc);
 
 	/**
+	 * This method is not implemented - we must always have
+	 * D-Wave Accelerator connectivity information for compilation.
 	 *
 	 * @return
 	 */
@@ -68,6 +87,11 @@ public:
 		return "dwave-qmi";
 	}
 
+	/**
+	 * Return the command line options for this compiler
+	 *
+	 * @return options Description of command line options.
+	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		auto desc = std::make_shared<options_description>(
 				"D-Wave QMI Compiler Options");
@@ -85,6 +109,12 @@ public:
 				"dwave-qmi", c.getOptions());
 	}
 
+	/**
+	 * We don't allow translations for the DW Compiler.
+	 * @param bufferVariable
+	 * @param function
+	 * @return
+	 */
 	virtual const std::string translate(const std::string& bufferVariable,
 			std::shared_ptr<Function> function) {
 		XACCError("DWQMICompiler::translate - Method not implemented");
