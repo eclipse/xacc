@@ -1,51 +1,86 @@
-\hypertarget{a00057}{}\section{xacc\+:\+:Options\+Provider Class Reference}
-\label{a00057}\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+\hypertarget{a00057}{}\section{xacc\+:\+:Preprocessor Class Reference}
+\label{a00057}\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
 
 
-{\ttfamily \#include $<$Options\+Provider.\+hpp$>$}
+{\ttfamily \#include $<$Preprocessor.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:Options\+Provider\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:Preprocessor\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=0.824742cm]{a00057}
+\includegraphics[height=3.000000cm]{a00057}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00057_a6d150954f852109bfe2c1ae90222926f}{get\+Options} ()=0
+virtual const std\+::string \hyperlink{a00057_ae59b5a2963f8bcc84b590a83f4749e19}{process} (const std\+::string \&source, std\+::shared\+\_\+ptr$<$ \hyperlink{a00023}{Compiler} $>$ compiler, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ accelerator)=0
 \item 
-virtual \hyperlink{a00057_a7782757b419792ff346f563517eed8b8}{$\sim$\+Options\+Provider} ()
+virtual const std\+::string \hyperlink{a00057_a36671f4c062d61e230306edc404774cd}{get\+Name} ()=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00057_a96f5600ea47628b66917c7b90250e7f1}{get\+Options} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00057}{Options\+Provider} interface enables derived subclasses to provide a description of any and all command line options that they can take to drive and control their execution and behavior. 
-
-\subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!````~Options\+Provider@{$\sim$\+Options\+Provider}}
-\index{````~Options\+Provider@{$\sim$\+Options\+Provider}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
-\subsubsection[{\texorpdfstring{$\sim$\+Options\+Provider()}{~OptionsProvider()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Options\+Provider\+::$\sim$\+Options\+Provider (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00057_a7782757b419792ff346f563517eed8b8}{}\label{a00057_a7782757b419792ff346f563517eed8b8}
-The destructor 
+The \hyperlink{a00057}{Preprocessor} interface provides a mechanism for processing quantum kernel source code before compilation takes place. Realizations of this interface implement the process method which takes as input the source code to process, and the compiler and accelerator this code is targeted at. 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!get\+Options@{get\+Options}}
-\index{get\+Options@{get\+Options}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
-\subsubsection[{\texorpdfstring{get\+Options()=0}{getOptions()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Options\+Provider\+::get\+Options (
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection[{\texorpdfstring{get\+Name()=0}{getName()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::\+Preprocessor\+::get\+Name (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00057_a6d150954f852109bfe2c1ae90222926f}{}\label{a00057_a6d150954f852109bfe2c1ae90222926f}
-Return a Boost options\+\_\+description instance that describes the options available for this derived subclass. 
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00057_a36671f4c062d61e230306edc404774cd}{}\label{a00057_a36671f4c062d61e230306edc404774cd}
+Return the name of this \hyperlink{a00057}{Preprocessor}
 
-Implemented in \hyperlink{a00011_a98c9eda6b54367c75667ecfbbf167979}{xacc\+::\+Accelerator}, \hyperlink{a00029_a09926db9f99706307ae6ce5b56845bca}{xacc\+::quantum\+::\+D\+W\+Accelerator}, \hyperlink{a00072_a9ee9e62aecbccf193894ca3388676f9f}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, \hyperlink{a00023_a9f5a8965c9c2dd895016d18264ebbe92}{xacc\+::\+Compiler}, \hyperlink{a00034_a0851334cc33b5b1da2694150a0a1a43c}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, and \hyperlink{a00058_a96f5600ea47628b66917c7b90250e7f1}{xacc\+::\+Preprocessor}.
+\begin{DoxyReturn}{Returns}
+name The name of this preprocessor 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00054_af74db6b7f3adeb7d203777f5ce450491}{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}.
+
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection[{\texorpdfstring{get\+Options()}{getOptions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Preprocessor\+::get\+Options (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00057_a96f5600ea47628b66917c7b90250e7f1}{}\label{a00057_a96f5600ea47628b66917c7b90250e7f1}
+Return an empty options\+\_\+description, this is for subclasses to implement. 
+
+Implements \hyperlink{a00056_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
+
+\index{xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}!process@{process}}
+\index{process@{process}!xacc\+::\+Preprocessor@{xacc\+::\+Preprocessor}}
+\subsubsection[{\texorpdfstring{process(const std\+::string \&source, std\+::shared\+\_\+ptr$<$ Compiler $>$ compiler, std\+::shared\+\_\+ptr$<$ Accelerator $>$ accelerator)=0}{process(const std::string \&source, std::shared\_ptr< Compiler > compiler, std::shared\_ptr< Accelerator > accelerator)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::\+Preprocessor\+::process (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{source, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Compiler} $>$}]{compiler, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{accelerator}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00057_ae59b5a2963f8bcc84b590a83f4749e19}{}\label{a00057_ae59b5a2963f8bcc84b590a83f4749e19}
+This method is to be implemented by subclasses to take in a kernel source string and process it in an isomorphic manner, and returns the processed source code.
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The unprocessed kernel source code \\
+\hline
+{\em compiler} & The compiler being used to compile the code \\
+\hline
+{\em accelerator} & The \hyperlink{a00011}{Accelerator} this code will be run on\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+processed\+Src The processed kernel source code 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00054_ad4f9ba1f83ea45ed376f36e3853c668d}{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}.
 
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Options\+Provider.\+hpp\end{DoxyCompactItemize}
+Preprocessor.\+hpp\end{DoxyCompactItemize}

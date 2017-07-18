@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['trivialembeddingalgorithm',['TrivialEmbeddingAlgorithm',['../a00084.html',1,'xacc::quantum']]]
+  ['trivialembeddingalgorithm',['TrivialEmbeddingAlgorithm',['../a00083.html',1,'xacc::quantum']]]
 ];

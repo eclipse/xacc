@@ -1,10 +1,10 @@
 var searchData=
 [
   ['defaultedge',['DefaultEdge',['../a00028.html',1,'xacc']]],
-  ['degree',['degree',['../a00044.html#afd0f6cc800e0d81f8c168d47c927cf02',1,'xacc::Graph']]],
-  ['destroy',['destroy',['../a00082.html#abbc654f5f90a2abc85f0010496335942',1,'xacc::Singleton']]],
-  ['diameter',['diameter',['../a00044.html#a9da48591a9d5ec658ae8c62204821ea7',1,'xacc::Graph']]],
-  ['disable',['disable',['../a00033.html#af6d9120d8f60984767a330d5cfe9140f',1,'xacc::quantum::DWQMI::disable()'],['../a00042.html#a63ce138dd71fb43d303f5600fefb7215',1,'xacc::quantum::GateInstruction::disable()'],['../a00047.html#a6e528da15e05a94cc1d7db268c483271',1,'xacc::Instruction::disable()']]],
+  ['degree',['degree',['../a00043.html#afd0f6cc800e0d81f8c168d47c927cf02',1,'xacc::Graph']]],
+  ['destroy',['destroy',['../a00081.html#abbc654f5f90a2abc85f0010496335942',1,'xacc::Singleton']]],
+  ['diameter',['diameter',['../a00043.html#a9da48591a9d5ec658ae8c62204821ea7',1,'xacc::Graph']]],
+  ['disable',['disable',['../a00033.html#af6d9120d8f60984767a330d5cfe9140f',1,'xacc::quantum::DWQMI::disable()'],['../a00041.html#a63ce138dd71fb43d303f5600fefb7215',1,'xacc::quantum::GateInstruction::disable()'],['../a00046.html#a6e528da15e05a94cc1d7db268c483271',1,'xacc::Instruction::disable()']]],
   ['dwaccelerator',['DWAccelerator',['../a00029.html',1,'xacc::quantum']]],
   ['dwaccelerator',['DWAccelerator',['../a00029.html#ad6924d7e9812df5e4676109352ee74a7',1,'xacc::quantum::DWAccelerator']]],
   ['dwgraph',['DWGraph',['../a00030.html',1,'xacc::quantum']]],

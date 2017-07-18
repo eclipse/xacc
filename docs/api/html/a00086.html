@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>XACC: xacc::XACCVertex&lt; Properties &gt; Class Template Reference</title>
+<title>XACC: xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -83,43 +83,44 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00086.html">XACCVertex</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00043.html">Graph</a></li><li class="navelem"><a class="el" href="a00086.html">XACCVertexPropertiesWriter</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="a00345.html">List of all members</a>  </div>
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="a00327.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::XACCVertex&lt; Properties &gt; Class Template Reference</div>  </div>
+<div class="title">xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00157_source.html">Graph.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00156_source.html">Graph.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7a7c4d60a277c3c0998f3911d128eaa5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a7c4d60a277c3c0998f3911d128eaa5"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getPropertyName</b> (const int index)</td></tr>
-<tr class="separator:a7a7c4d60a277c3c0998f3911d128eaa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f8d68a2293a5b545d5a3eb0220e25ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f8d68a2293a5b545d5a3eb0220e25ef"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>XACCVertexPropertiesWriter</b> (adj_list &amp;list)</td></tr>
+<tr class="separator:a5f8d68a2293a5b545d5a3eb0220e25ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abafd279805601c438fe608f620b149a3"><td class="memTemplParams" colspan="2"><a class="anchor" id="abafd279805601c438fe608f620b149a3"></a>
+template&lt;class BoostVertex &gt; </td></tr>
+<tr class="memitem:abafd279805601c438fe608f620b149a3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator()</b> (std::ostream &amp;out, const BoostVertex &amp;v) const </td></tr>
+<tr class="separator:abafd279805601c438fe608f620b149a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ad97a32f3cfcceef3eb0725a1a185025b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad97a32f3cfcceef3eb0725a1a185025b"></a>
-std::tuple&lt; Properties... &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>properties</b></td></tr>
-<tr class="separator:ad97a32f3cfcceef3eb0725a1a185025b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9107342e37aaa5d7936d7e457051f461"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9107342e37aaa5d7936d7e457051f461"></a>
-std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>propertyNames</b></td></tr>
-<tr class="separator:a9107342e37aaa5d7936d7e457051f461"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:ac74a285698deb2e93f028474c5c92085"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac74a285698deb2e93f028474c5c92085"></a>
+adj_list&#160;</td><td class="memItemRight" valign="bottom"><b>graph</b></td></tr>
+<tr class="separator:ac74a285698deb2e93f028474c5c92085"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename... Properties&gt;<br />
-class xacc::XACCVertex&lt; Properties &gt;</h3>
+<div class="textblock"><h3>template&lt;typename Vertex, GraphType type = Undirected&gt;<br />
+class xacc::Graph&lt; Vertex, type &gt;::XACCVertexPropertiesWriter</h3>
 
-<p>The base class of all QCI Vertices for the QCI Common <a class="el" href="a00044.html">Graph</a> class. All Vertices must keep track of a set of properties, stored as a tuple. </p>
+<p>This is a custom utility class for writing XACCVertices with user-defined properties. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00157_source.html">Graph.hpp</a></li>
+<li><a class="el" href="a00156_source.html">Graph.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

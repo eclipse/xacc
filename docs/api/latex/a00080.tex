@@ -1,184 +1,165 @@
-\hypertarget{a00080}{}\section{xacc\+:\+:quantum\+:\+:Simple\+Accelerator Class Reference}
-\label{a00080}\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
+\hypertarget{a00080}{}\section{xacc\+:\+:quantum\+:\+:Simulated\+Qubits Class Reference}
+\label{a00080}\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
 
 
-{\ttfamily \#include $<$Simple\+Accelerator.\+hpp$>$}
+{\ttfamily \#include $<$Simulated\+Qubits.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Simple\+Accelerator\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Simulated\+Qubits\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=3.000000cm]{a00080}
+\includegraphics[height=2.000000cm]{a00080}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ \hyperlink{a00080_adb9393692e9f484df241aa5d014030d1}{create\+Buffer} (const std\+::string \&var\+Id, const int size)
+\hyperlink{a00080_abb0419229628210a1c187b76be6edc30}{Simulated\+Qubits} (const std\+::string \&str, const int N)
 \item 
-virtual void \hyperlink{a00080_a392e3b30523f5f681127e7e98887108c}{initialize} ()
+{\footnotesize template$<$typename... Indices$>$ }\\\hyperlink{a00080_ae11d09c17316adb09b93cc866969dba8}{Simulated\+Qubits} (const std\+::string \&str, int first\+Index, Indices...\+indices)
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ \hyperlink{a00080_a46445d77d4b8ad2689571d0db6604380}{create\+Buffer} (const std\+::string \&var\+Id)
+void \hyperlink{a00080_a3f4518d0135101141bf92d7e31f4fddc}{apply\+Unitary} (fire\+::\+Tensor$<$ 2, fire\+::\+Eigen\+Provider, std\+::complex$<$ double $>$$>$ \&U)
 \item 
-virtual bool \hyperlink{a00080_a60b9db2d6aed235857c45413a070338e}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
+void \hyperlink{a00080_a09ee499769bb1eedaf08d6b5c29f9791}{normalize} ()
 \item 
-virtual void \hyperlink{a00080_a3089b15fbbaa83abf2941bd3b8d2d3c6}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{xacc\+::\+Function} $>$ kernel)
+Qubit\+State \& \hyperlink{a00080_a405577717ca200ed9e524c04209e0216}{get\+State} ()
 \item 
-virtual Accelerator\+Type \hyperlink{a00080_ad76eeb0bbd7de21aad5bd20d20970a98}{get\+Type} ()
+void \hyperlink{a00080_a8cd74c239c1fcecb3d03d6989732d5fe}{set\+State} (Qubit\+State \&st)
 \item 
-virtual std\+::vector$<$ \hyperlink{a00052}{xacc\+::\+I\+R\+Transformation} $>$ \hyperlink{a00080_afc49c9e7973ba6c6ff9761c36198323d}{get\+I\+R\+Transformations} ()
+virtual void \hyperlink{a00080_a9252d30be0563f36bf1ff839c7104cd7}{print} (std\+::ostream \&stream)
 \item 
-virtual \hyperlink{a00080_a7ff286def924fafdff2066d12858e60c}{$\sim$\+Simple\+Accelerator} ()
+virtual void \hyperlink{a00080_a32922bd2ccc64bba601c07a3c136cc3d}{print} ()
+\item 
+virtual \hyperlink{a00080_aebf6f30a6d8c84971091d87908680e7e}{$\sim$\+Simulated\+Qubits} ()
 \end{DoxyCompactItemize}
-\subsection*{Static Public Member Functions}
+\subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-static void \hyperlink{a00080_a1cfa3381a56ca6f431b4722162ccb63d}{register\+Accelerator} ()
+Qubit\+State \hyperlink{a00080_a630bea50ee06fd59f74450f01f95e489}{buffer\+State}
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-The Simple\+Tensor\+Accelerator is an X\+A\+CC \hyperlink{a00011}{Accelerator} that simulates gate based quantum computing circuits. It models the Q\+P\+U\+Gate \hyperlink{a00011}{Accelerator} with Simulated\+Qubit \hyperlink{a00013}{Accelerator\+Buffer}. It relies on the Fire Scientific Computing Framework\textquotesingle{}s tensor module to model a specific set of quantum gates. It uses these tensors to build up the unitary matrix described by the circuit. 
+\hyperlink{a00080}{Simulated\+Qubits} is an \hyperlink{a00013}{Accelerator\+Buffer} that models simulated qubits. As such, it keeps track of the state of the qubit buffer using a Rank 1 Fire Tensor.
+
+It provides an interface for applying unitary operations on the qubit buffer state. 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!````~Simple\+Accelerator@{$\sim$\+Simple\+Accelerator}}
-\index{````~Simple\+Accelerator@{$\sim$\+Simple\+Accelerator}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{$\sim$\+Simple\+Accelerator()}{~SimpleAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Simple\+Accelerator\+::$\sim$\+Simple\+Accelerator (
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!Simulated\+Qubits@{Simulated\+Qubits}}
+\index{Simulated\+Qubits@{Simulated\+Qubits}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{Simulated\+Qubits(const std\+::string \&str, const int N)}{SimulatedQubits(const std::string \&str, const int N)}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Simulated\+Qubits\+::\+Simulated\+Qubits (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str, }
+\item[{const int}]{N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_abb0419229628210a1c187b76be6edc30}{}\label{a00080_abb0419229628210a1c187b76be6edc30}
+The Constructor, creates a state with given size N. 
+\begin{DoxyParams}{Parameters}
+{\em str} & Variable name of this buffer \\
+\hline
+{\em N} & The number of qubits to model \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!Simulated\+Qubits@{Simulated\+Qubits}}
+\index{Simulated\+Qubits@{Simulated\+Qubits}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{Simulated\+Qubits(const std\+::string \&str, int first\+Index, Indices...\+indices)}{SimulatedQubits(const std::string \&str, int firstIndex, Indices...indices)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename... Indices$>$ xacc\+::quantum\+::\+Simulated\+Qubits\+::\+Simulated\+Qubits (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str, }
+\item[{int}]{first\+Index, }
+\item[{Indices...}]{indices}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_ae11d09c17316adb09b93cc866969dba8}{}\label{a00080_ae11d09c17316adb09b93cc866969dba8}
+The constructor \index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!````~Simulated\+Qubits@{$\sim$\+Simulated\+Qubits}}
+\index{````~Simulated\+Qubits@{$\sim$\+Simulated\+Qubits}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{$\sim$\+Simulated\+Qubits()}{~SimulatedQubits()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Simulated\+Qubits\+::$\sim$\+Simulated\+Qubits (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_a7ff286def924fafdff2066d12858e60c}{}\label{a00080_a7ff286def924fafdff2066d12858e60c}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_aebf6f30a6d8c84971091d87908680e7e}{}\label{a00080_aebf6f30a6d8c84971091d87908680e7e}
 The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!create\+Buffer@{create\+Buffer}}
-\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id, const int size)}{createBuffer(const std::string \&varId, const int size)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::create\+Buffer (
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!apply\+Unitary@{apply\+Unitary}}
+\index{apply\+Unitary@{apply\+Unitary}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{apply\+Unitary(fire\+::\+Tensor$<$ 2, fire\+::\+Eigen\+Provider, std\+::complex$<$ double $>$$>$ \&\+U)}{applyUnitary(fire::Tensor< 2, fire::EigenProvider, std::complex< double >> \&U)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Simulated\+Qubits\+::apply\+Unitary (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{var\+Id, }
-\item[{const int}]{size}
+\item[{fire\+::\+Tensor$<$ 2, fire\+::\+Eigen\+Provider, std\+::complex$<$ double $>$$>$ \&}]{U}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00080_adb9393692e9f484df241aa5d014030d1}{}\label{a00080_adb9393692e9f484df241aa5d014030d1}
-Create, store, and return an \hyperlink{a00013}{Accelerator\+Buffer} with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a00013}{Accelerator\+Buffer}.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_a3f4518d0135101141bf92d7e31f4fddc}{}\label{a00080_a3f4518d0135101141bf92d7e31f4fddc}
+Apply the given unitary matrix to this qubit buffer state.
 
 
 \begin{DoxyParams}{Parameters}
-{\em var\+Id} & \\
-\hline
-{\em size} & \\
+{\em U} & The unitary matrix to apply to this state \\
 \hline
 \end{DoxyParams}
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!get\+State@{get\+State}}
+\index{get\+State@{get\+State}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{get\+State()}{getState()}}]{\setlength{\rightskip}{0pt plus 5cm}Qubit\+State\& xacc\+::quantum\+::\+Simulated\+Qubits\+::get\+State (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_a405577717ca200ed9e524c04209e0216}{}\label{a00080_a405577717ca200ed9e524c04209e0216}
+Return the current state
+
 \begin{DoxyReturn}{Returns}
-
+state This state vector 
 \end{DoxyReturn}
-
-
-Implements \hyperlink{a00011_a064a2dbd58338364115c260267806945}{xacc\+::\+Accelerator}.
-
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!create\+Buffer@{create\+Buffer}}
-\index{create\+Buffer@{create\+Buffer}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{create\+Buffer(const std\+::string \&var\+Id)}{createBuffer(const std::string \&varId)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::create\+Buffer (
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!normalize@{normalize}}
+\index{normalize@{normalize}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{normalize()}{normalize()}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Simulated\+Qubits\+::normalize (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{var\+Id}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00080_a46445d77d4b8ad2689571d0db6604380}{}\label{a00080_a46445d77d4b8ad2689571d0db6604380}
-Create, store, and return an \hyperlink{a00013}{Accelerator\+Buffer} with the given variable id string. This method returns all available qubits for this \hyperlink{a00011}{Accelerator}. The string id serves as a unique identifier for future lookups and reuse of the \hyperlink{a00013}{Accelerator\+Buffer}.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_a09ee499769bb1eedaf08d6b5c29f9791}{}\label{a00080_a09ee499769bb1eedaf08d6b5c29f9791}
+Normalize the state. \index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!print@{print}}
+\index{print@{print}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{print(std\+::ostream \&stream)}{print(std::ostream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Simulated\+Qubits\+::print (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_a9252d30be0563f36bf1ff839c7104cd7}{}\label{a00080_a9252d30be0563f36bf1ff839c7104cd7}
+Print the state to the provided output stream.
 
 
 \begin{DoxyParams}{Parameters}
-{\em var\+Id} & The variable name of the created buffer \\
+{\em stream} & The output stream to print to \\
 \hline
 \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-buffer The buffer instance created. 
-\end{DoxyReturn}
 
 
-Implements \hyperlink{a00011_aab5046e8d83ab390302e0f49533e95fc}{xacc\+::\+Accelerator}.
+Reimplemented from \hyperlink{a00013}{xacc\+::\+Accelerator\+Buffer}.
 
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!execute@{execute}}
-\index{execute@{execute}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{execute(std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ buffer, const std\+::shared\+\_\+ptr$<$ xacc\+::\+Function $>$ kernel)}{execute(std::shared\_ptr< AcceleratorBuffer > buffer, const std::shared\_ptr< xacc::Function > kernel)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Simple\+Accelerator\+::execute (
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!print@{print}}
+\index{print@{print}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{print()}{print()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Simulated\+Qubits\+::print (
 \begin{DoxyParamCaption}
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{buffer, }
-\item[{const std\+::shared\+\_\+ptr$<$ {\bf xacc\+::\+Function} $>$}]{kernel}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00080_a3089b15fbbaa83abf2941bd3b8d2d3c6}{}\label{a00080_a3089b15fbbaa83abf2941bd3b8d2d3c6}
-Execute the simulation. Requires both a valid \hyperlink{a00081}{Simulated\+Qubits} buffer and X\+A\+CC \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} instance modeling the quantum circuit.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_a32922bd2ccc64bba601c07a3c136cc3d}{}\label{a00080_a32922bd2ccc64bba601c07a3c136cc3d}
+Print to X\+A\+CC Info 
 
+Reimplemented from \hyperlink{a00013}{xacc\+::\+Accelerator\+Buffer}.
 
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!set\+State@{set\+State}}
+\index{set\+State@{set\+State}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{set\+State(\+Qubit\+State \&st)}{setState(QubitState \&st)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Simulated\+Qubits\+::set\+State (
+\begin{DoxyParamCaption}
+\item[{Qubit\+State \&}]{st}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00080_a8cd74c239c1fcecb3d03d6989732d5fe}{}\label{a00080_a8cd74c239c1fcecb3d03d6989732d5fe}
+Set the state. 
 \begin{DoxyParams}{Parameters}
-{\em ir} & \\
+{\em st} & The state to set on this buffer. \\
 \hline
 \end{DoxyParams}
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!get\+I\+R\+Transformations@{get\+I\+R\+Transformations}}
-\index{get\+I\+R\+Transformations@{get\+I\+R\+Transformations}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{get\+I\+R\+Transformations()}{getIRTransformations()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<${\bf xacc\+::\+I\+R\+Transformation}$>$ xacc\+::quantum\+::\+Simple\+Accelerator\+::get\+I\+R\+Transformations (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_afc49c9e7973ba6c6ff9761c36198323d}{}\label{a00080_afc49c9e7973ba6c6ff9761c36198323d}
-We have no need to transform the \hyperlink{a00051}{IR} for this \hyperlink{a00011}{Accelerator}, so return an empty list \begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
 
 
-Implements \hyperlink{a00011_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accelerator}.
+\subsection{Member Data Documentation}
+\index{xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}!buffer\+State@{buffer\+State}}
+\index{buffer\+State@{buffer\+State}!xacc\+::quantum\+::\+Simulated\+Qubits@{xacc\+::quantum\+::\+Simulated\+Qubits}}
+\subsubsection[{\texorpdfstring{buffer\+State}{bufferState}}]{\setlength{\rightskip}{0pt plus 5cm}Qubit\+State xacc\+::quantum\+::\+Simulated\+Qubits\+::buffer\+State\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00080_a630bea50ee06fd59f74450f01f95e489}{}\label{a00080_a630bea50ee06fd59f74450f01f95e489}
+The qubit buffer state. 
 
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!get\+Type@{get\+Type}}
-\index{get\+Type@{get\+Type}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{get\+Type()}{getType()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Accelerator\+Type xacc\+::quantum\+::\+Simple\+Accelerator\+::get\+Type (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_ad76eeb0bbd7de21aad5bd20d20970a98}{}\label{a00080_ad76eeb0bbd7de21aad5bd20d20970a98}
-This \hyperlink{a00011}{Accelerator} models Q\+PU Gate accelerators. \begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00011_aaffc3e4bb9880eb5041b1b58ee4c2665}{xacc\+::\+Accelerator}.
-
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!initialize@{initialize}}
-\index{initialize@{initialize}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{initialize()}{initialize()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Simple\+Accelerator\+::initialize (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00080_a392e3b30523f5f681127e7e98887108c}{}\label{a00080_a392e3b30523f5f681127e7e98887108c}
-Initialize this \hyperlink{a00011}{Accelerator}. This method is called by the X\+A\+CC framework after an \hyperlink{a00011}{Accelerator} has been requested and created. Perform any work you need done before execution here. 
-
-Implements \hyperlink{a00011_a8cdc6f0c5a660013c29c07657a06303b}{xacc\+::\+Accelerator}.
-
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}}
-\index{is\+Valid\+Buffer\+Size@{is\+Valid\+Buffer\+Size}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{is\+Valid\+Buffer\+Size(const int N\+Bits)}{isValidBufferSize(const int NBits)}}]{\setlength{\rightskip}{0pt plus 5cm}bool xacc\+::quantum\+::\+Simple\+Accelerator\+::is\+Valid\+Buffer\+Size (
-\begin{DoxyParamCaption}
-\item[{const int}]{N\+Bits}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00080_a60b9db2d6aed235857c45413a070338e}{}\label{a00080_a60b9db2d6aed235857c45413a070338e}
-Return true if this \hyperlink{a00011}{Accelerator} can allocated N\+Bits number of bits. 
-\begin{DoxyParams}{Parameters}
-{\em N\+Bits} & \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00011_ae51584850faeec77299058383977ddeb}{xacc\+::\+Accelerator}.
-
-\index{xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}!register\+Accelerator@{register\+Accelerator}}
-\index{register\+Accelerator@{register\+Accelerator}!xacc\+::quantum\+::\+Simple\+Accelerator@{xacc\+::quantum\+::\+Simple\+Accelerator}}
-\subsubsection[{\texorpdfstring{register\+Accelerator()}{registerAccelerator()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Simple\+Accelerator\+::register\+Accelerator (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00080_a1cfa3381a56ca6f431b4722162ccb63d}{}\label{a00080_a1cfa3381a56ca6f431b4722162ccb63d}
-Register this \hyperlink{a00011}{Accelerator} with the framework. 
-
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Simple\+Accelerator.\+hpp\item 
-Simple\+Accelerator.\+cpp\end{DoxyCompactItemize}
+Simulated\+Qubits.\+hpp\end{DoxyCompactItemize}

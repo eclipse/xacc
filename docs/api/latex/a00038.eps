@@ -5,7 +5,7 @@
 %%For: 
 %Magnification: 1.00
 %%Orientation: Portrait
-%%BoundingBox: 0 0 500 181.818182
+%%BoundingBox: 0 0 500 230.414747
 %%Pages: 0
 %%BeginSetup
 %%EndSetup
@@ -19,13 +19,13 @@
 /marginwidth 10 def
 /distx 20 def
 /disty 40 def
-/boundaspect 2.750000 def  % aspect ratio of the BoundingBox (width/height)
+/boundaspect 2.170000 def  % aspect ratio of the BoundingBox (width/height)
 /boundx 500 def
 /boundy boundx boundaspect div def
 /xspacing 0 def
 /yspacing 0 def
-/rows 2 def
-/cols 1 def
+/rows 5 def
+/cols 2 def
 /scalefactor 0 def
 /boxfont /Times-Roman findfont fontheight scalefont def
 
@@ -173,8 +173,12 @@
 
 boxfont setfont
 1 boundaspect scale
-(Factoring15FakeEmbedding) cw
-(xacc::quantum::EmbeddingAlgorithm) cw
+(xacc::Function) cw
+(xacc::Instruction) cw
+(xacc::BaseInstructionVisitable) cw
+(xacc::quantum::DWKernel) cw
+(xacc::quantum::GateFunction) cw
+(xacc::quantum::ConditionalFunction) cw
 /boxwidth boxwidth marginwidth 2 mul add def
 /xspacing boxwidth distx add def
 /yspacing boxheight disty add def
@@ -186,12 +190,34 @@ boundx scalefactor div boundy scalefactor div scale
 
 % ----- classes -----
 
- (Factoring15FakeEmbedding) 0.000000 0.000000 box
- (xacc::quantum::EmbeddingAlgorithm) 0.000000 1.000000 box
+ (xacc::Function) 0.500000 2.000000 box
+dashed
+ (xacc::Instruction) 0.500000 3.000000 box
+solid
+ (xacc::BaseInstructionVisitable) 0.500000 4.000000 box
+ (xacc::quantum::DWKernel) 0.000000 1.000000 box
+ (xacc::quantum::GateFunction) 1.000000 1.000000 box
+ (xacc::quantum::ConditionalFunction) 1.000000 0.000000 box
 
 % ----- relations -----
 
 solid
-0 0.000000 0.000000 out
+0 0.500000 2.000000 out
 solid
-1 0.000000 1.000000 in
+1 0.500000 3.000000 in
+solid
+0 0.500000 3.000000 out
+solid
+1 0.500000 4.000000 in
+solid
+1 0.500000 1.250000 out
+solid
+0.000000 1.000000 2.000000 conn
+solid
+0 0.000000 1.750000 in
+solid
+0 1.000000 1.750000 in
+solid
+1 1.000000 0.250000 out
+solid
+0 1.000000 0.750000 in

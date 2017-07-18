@@ -15,18 +15,18 @@ virtual void \hyperlink{a00031_abcbfd0a4cf697843391c65cbd9a82080}{persist} (std\
 \item 
 virtual void \hyperlink{a00031_a8b388d719d565bb902c979807d3d0d47}{load} (std\+::istream \&in\+Stream)
 \item 
-virtual void \hyperlink{a00031_af1bef18e1e9568d1313b03149aab8c1b}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ kernel)
+virtual void \hyperlink{a00031_af1bef18e1e9568d1313b03149aab8c1b}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ kernel)
 \item 
 virtual bool \hyperlink{a00031_ab5e8861d3bc0845bb015af6208f5f396}{kernel\+Exists} (const std\+::string \&name)
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ \hyperlink{a00031_a38d8bdd24250749bc38ad31f8512fcfc}{get\+Kernel} (const std\+::string \&name)
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ \hyperlink{a00031_a38d8bdd24250749bc38ad31f8512fcfc}{get\+Kernel} (const std\+::string \&name)
 \item 
-virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ $>$ \hyperlink{a00031_a66e22c5dc95ec46045476864012ad08f}{get\+Kernels} ()
+virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ $>$ \hyperlink{a00031_a66e22c5dc95ec46045476864012ad08f}{get\+Kernels} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ $>$ \hyperlink{a00031_abcb04ec3a152c3f22e5a757a9aecabf2}{kernels}
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ $>$ \hyperlink{a00031_abcb04ec3a152c3f22e5a757a9aecabf2}{kernels}
 \end{DoxyCompactItemize}
 
 
@@ -38,16 +38,16 @@ std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ $>$ 
 \item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{kernel}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_af1bef18e1e9568d1313b03149aab8c1b}{}\label{a00031_af1bef18e1e9568d1313b03149aab8c1b}
-Add a new kernel to this \hyperlink{a00051}{IR} instance.
+Add a new kernel to this \hyperlink{a00050}{IR} instance.
 
 
 \begin{DoxyParams}{Parameters}
-{\em kernel} & The \hyperlink{a00039}{Function} instance to add as a new kernel \\
+{\em kernel} & The \hyperlink{a00038}{Function} instance to add as a new kernel \\
 \hline
 \end{DoxyParams}
 
 
-Implements \hyperlink{a00051_abbbf8e6993c518597de32cd05d49d737}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_abbbf8e6993c518597de32cd05d49d737}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!get\+Kernel@{get\+Kernel}}
 \index{get\+Kernel@{get\+Kernel}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -68,7 +68,7 @@ kernel The kernel with given name.
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00051_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!get\+Kernels@{get\+Kernels}}
 \index{get\+Kernels@{get\+Kernels}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -77,14 +77,14 @@ Implements \hyperlink{a00051_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
 {}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_a66e22c5dc95ec46045476864012ad08f}{}\label{a00031_a66e22c5dc95ec46045476864012ad08f}
-Return all of this \hyperlink{a00051}{IR} instance\textquotesingle{}s kernels.
+Return all of this \hyperlink{a00050}{IR} instance\textquotesingle{}s kernels.
 
 \begin{DoxyReturn}{Returns}
-kernels The kernels this \hyperlink{a00051}{IR} contains. 
+kernels The kernels this \hyperlink{a00050}{IR} contains. 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00051_a88c50bfc5b279145360ddc0c3a703b9b}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_a88c50bfc5b279145360ddc0c3a703b9b}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!kernel\+Exists@{kernel\+Exists}}
 \index{kernel\+Exists@{kernel\+Exists}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -93,7 +93,7 @@ Implements \hyperlink{a00051_a88c50bfc5b279145360ddc0c3a703b9b}{xacc\+::\+IR}.
 \item[{const std\+::string \&}]{name}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_ab5e8861d3bc0845bb015af6208f5f396}{}\label{a00031_ab5e8861d3bc0845bb015af6208f5f396}
-Return true if the kernel with given name exists in this \hyperlink{a00051}{IR}.
+Return true if the kernel with given name exists in this \hyperlink{a00050}{IR}.
 
 
 \begin{DoxyParams}{Parameters}
@@ -105,7 +105,7 @@ exists True if kernel exists.
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00051_afc9ccf5126f3fed19c2e879133b2f6d8}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_afc9ccf5126f3fed19c2e879133b2f6d8}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!load@{load}}
 \index{load@{load}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -114,7 +114,7 @@ Implements \hyperlink{a00051_afc9ccf5126f3fed19c2e879133b2f6d8}{xacc\+::\+IR}.
 \item[{std\+::istream \&}]{in\+Stream}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_a8b388d719d565bb902c979807d3d0d47}{}\label{a00031_a8b388d719d565bb902c979807d3d0d47}
-Create this \hyperlink{a00051}{IR} instance from the given input stream.
+Create this \hyperlink{a00050}{IR} instance from the given input stream.
 
 
 \begin{DoxyParams}{Parameters}
@@ -123,7 +123,7 @@ Create this \hyperlink{a00051}{IR} instance from the given input stream.
 \end{DoxyParams}
 
 
-Implements \hyperlink{a00051_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!persist@{persist}}
 \index{persist@{persist}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -132,7 +132,7 @@ Implements \hyperlink{a00051_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
 \item[{std\+::ostream \&}]{out\+Stream}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00031_abcbfd0a4cf697843391c65cbd9a82080}{}\label{a00031_abcbfd0a4cf697843391c65cbd9a82080}
-Persist this \hyperlink{a00051}{IR} instance to the given output stream.
+Persist this \hyperlink{a00050}{IR} instance to the given output stream.
 
 
 \begin{DoxyParams}{Parameters}
@@ -141,7 +141,7 @@ Persist this \hyperlink{a00051}{IR} instance to the given output stream.
 \end{DoxyParams}
 
 
-Implements \hyperlink{a00051_a414b72224d88473ad6190bb88102a3ea}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_a414b72224d88473ad6190bb88102a3ea}{xacc\+::\+IR}.
 
 \index{xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
 \index{to\+Assembly\+String@{to\+Assembly\+String}!xacc\+::quantum\+::\+D\+W\+IR@{xacc\+::quantum\+::\+D\+W\+IR}}
@@ -156,7 +156,7 @@ Return a assembly-\/like string representation of this intermediate representati
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00051_a8356cdff1919b88eabeb84fd7450cdb6}{xacc\+::\+IR}.
+Implements \hyperlink{a00050_a8356cdff1919b88eabeb84fd7450cdb6}{xacc\+::\+IR}.
 
 
 

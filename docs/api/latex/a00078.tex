@@ -1,145 +1,154 @@
-\hypertarget{a00078}{}\section{xacc\+:\+:quantum\+:\+:Scaffold\+Compiler Class Reference}
-\label{a00078}\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
+\hypertarget{a00078}{}\section{xacc\+:\+:quantum\+:\+:Scaffold\+I\+R\+To\+Src\+Visitor Class Reference}
+\label{a00078}\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
 
 
-{\ttfamily \#include $<$Scaffold\+Compiler.\+hpp$>$}
+{\ttfamily \#include $<$Scaffold\+I\+R\+To\+Src\+Visitor.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Scaffold\+Compiler\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Scaffold\+I\+R\+To\+Src\+Visitor\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=3.000000cm]{a00078}
+\includegraphics[height=12.000000cm]{a00078}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00051}{xacc\+::\+IR} $>$ \hyperlink{a00078_a7caede75bb2304ba405966651b115543}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)
+{\bfseries Scaffold\+I\+R\+To\+Src\+Visitor} (std\+::string var)\hypertarget{a00078_a38e9a5775397847973f78856e4b0031e}{}\label{a00078_a38e9a5775397847973f78856e4b0031e}
+
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00051}{xacc\+::\+IR} $>$ \hyperlink{a00078_a3736ecc229fe6acdd4c991e85d7a1f08}{compile} (const std\+::string \&src)
+void \hyperlink{a00078_af66cbe08e183c8b53817cda5251d0498}{visit} (\hyperlink{a00044}{Hadamard} \&h)
 \item 
-virtual const std\+::string \hyperlink{a00078_ac7ca2941e987ba579c6f50cfbd7fb0dc}{translate} (const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ function)
+void \hyperlink{a00078_a81b16c7a7da2c84174796ef4cc39b312}{visit} (\hyperlink{a00022}{C\+N\+OT} \&cn)
 \item 
-virtual const std\+::string \hyperlink{a00078_a3f537054a3924a1d14f4ceb0f0181161}{get\+Name} ()
+void \hyperlink{a00078_a1a414fa079f0e3ba8cd0f97c7928e88f}{visit} (\hyperlink{a00084}{X} \&x)
 \item 
-virtual \hyperlink{a00078_afb26398b07377ab9ddebc43a9376a6dd}{$\sim$\+Scaffold\+Compiler} ()
+void {\bfseries visit} (\hyperlink{a00087}{Y} \&y)\hypertarget{a00078_a9130f70ceaa42bdc3c29c8b0bbdcc3b5}{}\label{a00078_a9130f70ceaa42bdc3c29c8b0bbdcc3b5}
+
+\item 
+void \hyperlink{a00078_a444936ec9134a0ea400cd2f1b145ba4d}{visit} (\hyperlink{a00088}{Z} \&z)
+\item 
+void \hyperlink{a00078_a99e7176144810f5d6e38d98d2725afff}{visit} (\hyperlink{a00055}{Measure} \&m)
+\item 
+void \hyperlink{a00078_a1646dbfaf919432c2c3d8eb86e9f81e4}{visit} (\hyperlink{a00025}{Conditional\+Function} \&c)
+\item 
+void {\bfseries visit} (\hyperlink{a00073}{Rx} \&rx)\hypertarget{a00078_afc1ace9f5cb4783117a68b173c069d15}{}\label{a00078_afc1ace9f5cb4783117a68b173c069d15}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00074}{Ry} \&ry)\hypertarget{a00078_a08539d478a1b496244288477ccee8011}{}\label{a00078_a08539d478a1b496244288477ccee8011}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00075}{Rz} \&rz)\hypertarget{a00078_a855cbf9e83b050ae65e95c4a36f02de9}{}\label{a00078_a855cbf9e83b050ae65e95c4a36f02de9}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00027}{C\+Phase} \&cp)\hypertarget{a00078_a4d8e2c6d867d812aeca192ebc65a45ce}{}\label{a00078_a4d8e2c6d867d812aeca192ebc65a45ce}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00082}{Swap} \&s)\hypertarget{a00078_a502e0145245e4aa00af4f76e1b201e7a}{}\label{a00078_a502e0145245e4aa00af4f76e1b201e7a}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00040}{Gate\+Function} \&f)\hypertarget{a00078_adf65b4117c2dfd3242c5c214eef608c5}{}\label{a00078_adf65b4117c2dfd3242c5c214eef608c5}
+
+\item 
+std\+::string \hyperlink{a00078_ad721b67dae6360ce210d6c73feec7920}{get\+Scaffold\+String} ()
+\item 
+virtual \hyperlink{a00078_a366cddf574488b3bf0df1fe991806753}{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor} ()
 \end{DoxyCompactItemize}
-\subsection*{Static Public Member Functions}
+\subsection*{Protected Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-static void \hyperlink{a00078_aed16dda1e919e5af6de9953a656f62ce}{register\+Compiler} ()
+void {\bfseries base\+Instruction} (std\+::string gate\+Name, std\+::vector$<$ int $>$ qubits)\hypertarget{a00078_afa951f637b70233cfded3c05177e2b56}{}\label{a00078_afa951f637b70233cfded3c05177e2b56}
+
+\item 
+void {\bfseries base\+Parameterized\+Instruction} (std\+::string gate\+Name, std\+::vector$<$ int $>$ qubits, std\+::vector$<$ Instruction\+Parameter $>$ params)\hypertarget{a00078_a23d8435f4696290c32afdae1abfbff30}{}\label{a00078_a23d8435f4696290c32afdae1abfbff30}
+
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::shared\+\_\+ptr$<$ clang\+::\+Compiler\+Instance $>$ \hyperlink{a00078_af7a3a73eaab025a0ea72cc9335d8fbb4}{CI}
+std\+::string \hyperlink{a00078_a4b4c3b769a275d544beb26b1894e476a}{scaffold\+Str}
 \item 
-std\+::shared\+\_\+ptr$<$ \hyperlink{a00077}{Scaffold\+A\+S\+T\+Consumer} $>$ \hyperlink{a00078_ab1c4d36e58b97de50208e74a92d8ceb1}{consumer}
+std\+::string {\bfseries qubit\+Var\+Name}\hypertarget{a00078_ab538cf6fe8606e9832310a8195b67dce}{}\label{a00078_ab538cf6fe8606e9832310a8195b67dce}
+
+\item 
+int {\bfseries n\+Measurements} = 0\hypertarget{a00078_ae7d177fa9830942f63ef86fd2f69f715}{}\label{a00078_ae7d177fa9830942f63ef86fd2f69f715}
+
+\item 
+std\+::map$<$ int, int $>$ {\bfseries qubit\+To\+Classical\+Bit\+Index}\hypertarget{a00078_a76945624d8d67487d410a11a91e97681}{}\label{a00078_a76945624d8d67487d410a11a91e97681}
+
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The Scaffold compiler is a subclass of the X\+A\+CC \hyperlink{a00023}{Compiler} that implements the \hyperlink{a00078_a7caede75bb2304ba405966651b115543}{compile()} and modify\+Source() methods to handle generation of quantum assembly language (or Q\+A\+SM) using an installed Scaffold compiler. 
+The \hyperlink{a00063}{Quil\+Visitor} is an \hyperlink{a00048}{Instruction\+Visitor} that visits quantum gate instructions and creates an equivalent Quil string that can be executed by the Rigetti superconducting quantum computer. 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!````~Scaffold\+Compiler@{$\sim$\+Scaffold\+Compiler}}
-\index{````~Scaffold\+Compiler@{$\sim$\+Scaffold\+Compiler}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{$\sim$\+Scaffold\+Compiler()}{~ScaffoldCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Scaffold\+Compiler\+::$\sim$\+Scaffold\+Compiler (
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!````~Scaffold\+I\+R\+To\+Src\+Visitor@{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\index{````~Scaffold\+I\+R\+To\+Src\+Visitor@{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor()}{~ScaffoldIRToSrcVisitor()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::$\sim$\+Scaffold\+I\+R\+To\+Src\+Visitor (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00078_afb26398b07377ab9ddebc43a9376a6dd}{}\label{a00078_afb26398b07377ab9ddebc43a9376a6dd}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00078_a366cddf574488b3bf0df1fe991806753}{}\label{a00078_a366cddf574488b3bf0df1fe991806753}
 The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src, std\+::shared\+\_\+ptr$<$ Accelerator $>$ acc)}{compile(const std::string \&src, std::shared\_ptr< Accelerator > acc)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Scaffold\+Compiler\+::compile (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{acc}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00078_a7caede75bb2304ba405966651b115543}{}\label{a00078_a7caede75bb2304ba405966651b115543}
-Execute the Scaffold compiler to generate an X\+A\+CC intermediate representation instance. \begin{DoxyReturn}{Returns}
-ir X\+A\+CC intermediate representation 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00023_a546a40c95bb93af6a0c0ac48dbeaffc8}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!compile@{compile}}
-\index{compile@{compile}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{compile(const std\+::string \&src)}{compile(const std::string \&src)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf IR} $>$ xacc\+::quantum\+::\+Scaffold\+Compiler\+::compile (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{src}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00078_a3736ecc229fe6acdd4c991e85d7a1f08}{}\label{a00078_a3736ecc229fe6acdd4c991e85d7a1f08}
-
-\begin{DoxyParams}{Parameters}
-{\em src} & \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00023_a9092f5f779b570c91569b59621280c04}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Scaffold\+Compiler\+::get\+Name (
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!get\+Scaffold\+String@{get\+Scaffold\+String}}
+\index{get\+Scaffold\+String@{get\+Scaffold\+String}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{get\+Scaffold\+String()}{getScaffoldString()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::get\+Scaffold\+String (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00078_a3f537054a3924a1d14f4ceb0f0181161}{}\label{a00078_a3f537054a3924a1d14f4ceb0f0181161}
-Return the name of this \hyperlink{a00023}{Compiler} \begin{DoxyReturn}{Returns}
-name \hyperlink{a00023}{Compiler} name 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00023_a87fca9100e6462122f5b687c3a0fb3fb}{xacc\+::\+Compiler}.
-
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!register\+Compiler@{register\+Compiler}}
-\index{register\+Compiler@{register\+Compiler}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{register\+Compiler()}{registerCompiler()}}]{\setlength{\rightskip}{0pt plus 5cm}static void xacc\+::quantum\+::\+Scaffold\+Compiler\+::register\+Compiler (
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_ad721b67dae6360ce210d6c73feec7920}{}\label{a00078_ad721b67dae6360ce210d6c73feec7920}
+Return the quil string \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+Hadamard \&h)}{visit(Hadamard \&h)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
 \begin{DoxyParamCaption}
-{}
+\item[{{\bf Hadamard} \&}]{h}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}\hypertarget{a00078_aed16dda1e919e5af6de9953a656f62ce}{}\label{a00078_aed16dda1e919e5af6de9953a656f62ce}
-Register this \hyperlink{a00023}{Compiler} with the framework. \index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!translate@{translate}}
-\index{translate@{translate}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{translate(const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ Function $>$ function)}{translate(const std::string \&bufferVariable, std::shared\_ptr< Function > function)}}]{\setlength{\rightskip}{0pt plus 5cm}const std\+::string xacc\+::quantum\+::\+Scaffold\+Compiler\+::translate (
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_af66cbe08e183c8b53817cda5251d0498}{}\label{a00078_af66cbe08e183c8b53817cda5251d0498}
+Visit hadamard gates \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+C\+N\+O\+T \&cn)}{visit(CNOT \&cn)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{buffer\+Variable, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{function}
+\item[{{\bf C\+N\+OT} \&}]{cn}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00078_ac7ca2941e987ba579c6f50cfbd7fb0dc}{}\label{a00078_ac7ca2941e987ba579c6f50cfbd7fb0dc}
-This produces a Scaffold source code representation of the given \hyperlink{a00051}{IR} \hyperlink{a00039}{Function}
-
-
-\begin{DoxyParams}{Parameters}
-{\em function} & The X\+A\+CC \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} to translate \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-src The source code as a string 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00023_aeedbe58a33fed29e4d7694ae743e25e7}{xacc\+::\+Compiler}.
-
-
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_a81b16c7a7da2c84174796ef4cc39b312}{}\label{a00078_a81b16c7a7da2c84174796ef4cc39b312}
+Visit \hyperlink{a00022}{C\+N\+OT} gates \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+X \&x)}{visit(X \&x)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
+\begin{DoxyParamCaption}
+\item[{{\bf X} \&}]{x}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_a1a414fa079f0e3ba8cd0f97c7928e88f}{}\label{a00078_a1a414fa079f0e3ba8cd0f97c7928e88f}
+Visit \hyperlink{a00084}{X} gates \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+Z \&z)}{visit(Z \&z)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
+\begin{DoxyParamCaption}
+\item[{{\bf Z} \&}]{z}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_a444936ec9134a0ea400cd2f1b145ba4d}{}\label{a00078_a444936ec9134a0ea400cd2f1b145ba4d}
+Visit \hyperlink{a00088}{Z} gates \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+Measure \&m)}{visit(Measure \&m)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
+\begin{DoxyParamCaption}
+\item[{{\bf Measure} \&}]{m}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_a99e7176144810f5d6e38d98d2725afff}{}\label{a00078_a99e7176144810f5d6e38d98d2725afff}
+Visit Measurement gates \index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!visit@{visit}}
+\index{visit@{visit}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{visit(\+Conditional\+Function \&c)}{visit(ConditionalFunction \&c)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::visit (
+\begin{DoxyParamCaption}
+\item[{{\bf Conditional\+Function} \&}]{c}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00078_a1646dbfaf919432c2c3d8eb86e9f81e4}{}\label{a00078_a1646dbfaf919432c2c3d8eb86e9f81e4}
+Visit Conditional functions 
 
 \subsection{Member Data Documentation}
-\index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!CI@{CI}}
-\index{CI@{CI}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{CI}{CI}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$clang\+::\+Compiler\+Instance$>$ xacc\+::quantum\+::\+Scaffold\+Compiler\+::\+CI\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00078_af7a3a73eaab025a0ea72cc9335d8fbb4}{}\label{a00078_af7a3a73eaab025a0ea72cc9335d8fbb4}
-Reference to the Scaffold Clang \hyperlink{a00023}{Compiler} \index{xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}!consumer@{consumer}}
-\index{consumer@{consumer}!xacc\+::quantum\+::\+Scaffold\+Compiler@{xacc\+::quantum\+::\+Scaffold\+Compiler}}
-\subsubsection[{\texorpdfstring{consumer}{consumer}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<${\bf Scaffold\+A\+S\+T\+Consumer}$>$ xacc\+::quantum\+::\+Scaffold\+Compiler\+::consumer\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00078_ab1c4d36e58b97de50208e74a92d8ceb1}{}\label{a00078_ab1c4d36e58b97de50208e74a92d8ceb1}
-Reference to our A\+ST Consumer, this gives us the compiled \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} and the Qubit Variable Name 
+\index{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}!scaffold\+Str@{scaffold\+Str}}
+\index{scaffold\+Str@{scaffold\+Str}!xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor@{xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor}}
+\subsubsection[{\texorpdfstring{scaffold\+Str}{scaffoldStr}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+Scaffold\+I\+R\+To\+Src\+Visitor\+::scaffold\+Str\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00078_a4b4c3b769a275d544beb26b1894e476a}{}\label{a00078_a4b4c3b769a275d544beb26b1894e476a}
+Reference to the Quil string this visitor is trying to construct 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Scaffold\+Compiler.\+hpp\item 
-Scaffold\+Compiler.\+cpp\end{DoxyCompactItemize}
+Scaffold\+I\+R\+To\+Src\+Visitor.\+hpp\end{DoxyCompactItemize}

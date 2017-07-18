@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>XACC: xacc::quantum::ScaffoldIRToSrcVisitor Class Reference</title>
+<title>XACC: xacc::quantum::SimpleAccelerator Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -83,183 +83,81 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00079.html">ScaffoldIRToSrcVisitor</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00079.html">SimpleAccelerator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a> &#124;
-<a href="a00388.html">List of all members</a>  </div>
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="a00387.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::quantum::ScaffoldIRToSrcVisitor Class Reference</div>  </div>
+<div class="title">xacc::quantum::SimpleAccelerator Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00279_source.html">ScaffoldIRToSrcVisitor.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00281_source.html">SimpleAccelerator.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for xacc::quantum::ScaffoldIRToSrcVisitor:</div>
+Inheritance diagram for xacc::quantum::SimpleAccelerator:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="a00079.png" usemap="#xacc::quantum::ScaffoldIRToSrcVisitor_map" alt=""/>
-  <map id="xacc::quantum::ScaffoldIRToSrcVisitor_map" name="xacc::quantum::ScaffoldIRToSrcVisitor_map">
-<area href="a00015.html" alt="xacc::quantum::AllGateVisitor" shape="rect" coords="0,784,275,808"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Measure &gt;" shape="rect" coords="285,728,560,752"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Swap &gt;" shape="rect" coords="285,672,560,696"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; CPhase &gt;" shape="rect" coords="285,616,560,640"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Z &gt;" shape="rect" coords="285,560,560,584"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Y &gt;" shape="rect" coords="285,504,560,528"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; X &gt;" shape="rect" coords="285,448,560,472"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; ConditionalFunction &gt;" shape="rect" coords="285,392,560,416"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Ry &gt;" shape="rect" coords="285,336,560,360"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Rx &gt;" shape="rect" coords="285,280,560,304"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Rz &gt;" shape="rect" coords="285,224,560,248"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; CNOT &gt;" shape="rect" coords="285,168,560,192"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; Hadamard &gt;" shape="rect" coords="285,112,560,136"/>
-<area href="a00049.html" alt="xacc::InstructionVisitor&lt; GateFunction &gt;" shape="rect" coords="285,56,560,80"/>
-<area href="a00018.html" alt="xacc::BaseInstructionVisitor" shape="rect" coords="285,0,560,24"/>
+  <img src="a00079.png" usemap="#xacc::quantum::SimpleAccelerator_map" alt=""/>
+  <map id="xacc::quantum::SimpleAccelerator_map" name="xacc::quantum::SimpleAccelerator_map">
+<area href="a00011.html" alt="xacc::Accelerator" shape="rect" coords="0,56,201,80"/>
+<area href="a00056.html" alt="xacc::OptionsProvider" shape="rect" coords="0,0,201,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a38e9a5775397847973f78856e4b0031e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a38e9a5775397847973f78856e4b0031e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ScaffoldIRToSrcVisitor</b> (std::string var)</td></tr>
-<tr class="separator:a38e9a5775397847973f78856e4b0031e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af66cbe08e183c8b53817cda5251d0498"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#af66cbe08e183c8b53817cda5251d0498">visit</a> (<a class="el" href="a00045.html">Hadamard</a> &amp;h)</td></tr>
-<tr class="separator:af66cbe08e183c8b53817cda5251d0498"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81b16c7a7da2c84174796ef4cc39b312"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a81b16c7a7da2c84174796ef4cc39b312">visit</a> (<a class="el" href="a00022.html">CNOT</a> &amp;cn)</td></tr>
-<tr class="separator:a81b16c7a7da2c84174796ef4cc39b312"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a414fa079f0e3ba8cd0f97c7928e88f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a1a414fa079f0e3ba8cd0f97c7928e88f">visit</a> (<a class="el" href="a00085.html">X</a> &amp;x)</td></tr>
-<tr class="separator:a1a414fa079f0e3ba8cd0f97c7928e88f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9130f70ceaa42bdc3c29c8b0bbdcc3b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9130f70ceaa42bdc3c29c8b0bbdcc3b5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00088.html">Y</a> &amp;y)</td></tr>
-<tr class="separator:a9130f70ceaa42bdc3c29c8b0bbdcc3b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a444936ec9134a0ea400cd2f1b145ba4d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a444936ec9134a0ea400cd2f1b145ba4d">visit</a> (<a class="el" href="a00089.html">Z</a> &amp;z)</td></tr>
-<tr class="separator:a444936ec9134a0ea400cd2f1b145ba4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99e7176144810f5d6e38d98d2725afff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a99e7176144810f5d6e38d98d2725afff">visit</a> (<a class="el" href="a00056.html">Measure</a> &amp;m)</td></tr>
-<tr class="separator:a99e7176144810f5d6e38d98d2725afff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1646dbfaf919432c2c3d8eb86e9f81e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a1646dbfaf919432c2c3d8eb86e9f81e4">visit</a> (<a class="el" href="a00025.html">ConditionalFunction</a> &amp;c)</td></tr>
-<tr class="separator:a1646dbfaf919432c2c3d8eb86e9f81e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc1ace9f5cb4783117a68b173c069d15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc1ace9f5cb4783117a68b173c069d15"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00074.html">Rx</a> &amp;rx)</td></tr>
-<tr class="separator:afc1ace9f5cb4783117a68b173c069d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08539d478a1b496244288477ccee8011"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08539d478a1b496244288477ccee8011"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00075.html">Ry</a> &amp;ry)</td></tr>
-<tr class="separator:a08539d478a1b496244288477ccee8011"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a855cbf9e83b050ae65e95c4a36f02de9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a855cbf9e83b050ae65e95c4a36f02de9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00076.html">Rz</a> &amp;rz)</td></tr>
-<tr class="separator:a855cbf9e83b050ae65e95c4a36f02de9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d8e2c6d867d812aeca192ebc65a45ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d8e2c6d867d812aeca192ebc65a45ce"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00027.html">CPhase</a> &amp;cp)</td></tr>
-<tr class="separator:a4d8e2c6d867d812aeca192ebc65a45ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a502e0145245e4aa00af4f76e1b201e7a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a502e0145245e4aa00af4f76e1b201e7a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00083.html">Swap</a> &amp;s)</td></tr>
-<tr class="separator:a502e0145245e4aa00af4f76e1b201e7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf65b4117c2dfd3242c5c214eef608c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adf65b4117c2dfd3242c5c214eef608c5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>visit</b> (<a class="el" href="a00041.html">GateFunction</a> &amp;f)</td></tr>
-<tr class="separator:adf65b4117c2dfd3242c5c214eef608c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad721b67dae6360ce210d6c73feec7920"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#ad721b67dae6360ce210d6c73feec7920">getScaffoldString</a> ()</td></tr>
-<tr class="separator:ad721b67dae6360ce210d6c73feec7920"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a366cddf574488b3bf0df1fe991806753"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a366cddf574488b3bf0df1fe991806753">~ScaffoldIRToSrcVisitor</a> ()</td></tr>
-<tr class="separator:a366cddf574488b3bf0df1fe991806753"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00018"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00018')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00018.html">xacc::BaseInstructionVisitor</a></td></tr>
-<tr class="memitem:aa6f5104f5868fe1eca9be4dc4036eba4 inherit pub_methods_a00018"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00018.html#aa6f5104f5868fe1eca9be4dc4036eba4">~BaseInstructionVisitor</a> ()</td></tr>
-<tr class="separator:aa6f5104f5868fe1eca9be4dc4036eba4 inherit pub_methods_a00018"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; GateFunction &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (GateFunction &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Hadamard &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Hadamard &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; CNOT &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (CNOT &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Rz &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Rz &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Rx &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Rx &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Ry &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Ry &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; ConditionalFunction &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (ConditionalFunction &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; X &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (X &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Y &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Y &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Z &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Z &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; CPhase &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (CPhase &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Swap &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Swap &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_a00049"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00049')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00049.html">xacc::InstructionVisitor&lt; Measure &gt;</a></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (Measure &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d inherit pub_methods_a00049"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb9393692e9f484df241aa5d014030d1"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#adb9393692e9f484df241aa5d014030d1">createBuffer</a> (const std::string &amp;varId, const int size)</td></tr>
+<tr class="separator:adb9393692e9f484df241aa5d014030d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a392e3b30523f5f681127e7e98887108c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a392e3b30523f5f681127e7e98887108c">initialize</a> ()</td></tr>
+<tr class="separator:a392e3b30523f5f681127e7e98887108c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46445d77d4b8ad2689571d0db6604380"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a46445d77d4b8ad2689571d0db6604380">createBuffer</a> (const std::string &amp;varId)</td></tr>
+<tr class="separator:a46445d77d4b8ad2689571d0db6604380"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60b9db2d6aed235857c45413a070338e"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a60b9db2d6aed235857c45413a070338e">isValidBufferSize</a> (const int NBits)</td></tr>
+<tr class="separator:a60b9db2d6aed235857c45413a070338e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3089b15fbbaa83abf2941bd3b8d2d3c6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a3089b15fbbaa83abf2941bd3b8d2d3c6">execute</a> (std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt; buffer, const std::shared_ptr&lt; <a class="el" href="a00038.html">xacc::Function</a> &gt; kernel)</td></tr>
+<tr class="separator:a3089b15fbbaa83abf2941bd3b8d2d3c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad76eeb0bbd7de21aad5bd20d20970a98"><td class="memItemLeft" align="right" valign="top">virtual AcceleratorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#ad76eeb0bbd7de21aad5bd20d20970a98">getType</a> ()</td></tr>
+<tr class="separator:ad76eeb0bbd7de21aad5bd20d20970a98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc49c9e7973ba6c6ff9761c36198323d"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="a00051.html">xacc::IRTransformation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#afc49c9e7973ba6c6ff9761c36198323d">getIRTransformations</a> ()</td></tr>
+<tr class="separator:afc49c9e7973ba6c6ff9761c36198323d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ff286def924fafdff2066d12858e60c"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a7ff286def924fafdff2066d12858e60c">~SimpleAccelerator</a> ()</td></tr>
+<tr class="separator:a7ff286def924fafdff2066d12858e60c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a00011"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00011')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00011.html">xacc::Accelerator</a></td></tr>
+<tr class="memitem:a89b3f3e6294f228abf03a410b0fb1674 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#a89b3f3e6294f228abf03a410b0fb1674">execute</a> (std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt; buffer, const std::shared_ptr&lt; <a class="el" href="a00038.html">Function</a> &gt; function)=0</td></tr>
+<tr class="separator:a89b3f3e6294f228abf03a410b0fb1674 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3820be326e28a553fed1a824f4d41d0 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#ab3820be326e28a553fed1a824f4d41d0">getBuffer</a> (const std::string &amp;varid)</td></tr>
+<tr class="separator:ab3820be326e28a553fed1a824f4d41d0 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1463d7e405df89fa4af47e8922f4b82 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#ae1463d7e405df89fa4af47e8922f4b82">getAllocatedBufferNames</a> ()</td></tr>
+<tr class="separator:ae1463d7e405df89fa4af47e8922f4b82 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfed940ce1fa476b009344ddf5a4bbc3 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00043.html">AcceleratorGraph</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#adfed940ce1fa476b009344ddf5a4bbc3">getAcceleratorConnectivity</a> ()</td></tr>
+<tr class="separator:adfed940ce1fa476b009344ddf5a4bbc3 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98c9eda6b54367c75667ecfbbf167979 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; options_description &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#a98c9eda6b54367c75667ecfbbf167979">getOptions</a> ()</td></tr>
+<tr class="separator:a98c9eda6b54367c75667ecfbbf167979 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed88ab0d71b765f0b0f512684ccd4b55 inherit pub_methods_a00011"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#aed88ab0d71b765f0b0f512684ccd4b55">~Accelerator</a> ()</td></tr>
+<tr class="separator:aed88ab0d71b765f0b0f512684ccd4b55 inherit pub_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a00056"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00056')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00056.html">xacc::OptionsProvider</a></td></tr>
+<tr class="memitem:a7782757b419792ff346f563517eed8b8 inherit pub_methods_a00056"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00056.html#a7782757b419792ff346f563517eed8b8">~OptionsProvider</a> ()</td></tr>
+<tr class="separator:a7782757b419792ff346f563517eed8b8 inherit pub_methods_a00056"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:afa951f637b70233cfded3c05177e2b56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa951f637b70233cfded3c05177e2b56"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>baseInstruction</b> (std::string gateName, std::vector&lt; int &gt; qubits)</td></tr>
-<tr class="separator:afa951f637b70233cfded3c05177e2b56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23d8435f4696290c32afdae1abfbff30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23d8435f4696290c32afdae1abfbff30"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>baseParameterizedInstruction</b> (std::string gateName, std::vector&lt; int &gt; qubits, std::vector&lt; InstructionParameter &gt; params)</td></tr>
-<tr class="separator:a23d8435f4696290c32afdae1abfbff30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a1cfa3381a56ca6f431b4722162ccb63d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a1cfa3381a56ca6f431b4722162ccb63d">registerAccelerator</a> ()</td></tr>
+<tr class="separator:a1cfa3381a56ca6f431b4722162ccb63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a4b4c3b769a275d544beb26b1894e476a"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00079.html#a4b4c3b769a275d544beb26b1894e476a">scaffoldStr</a></td></tr>
-<tr class="separator:a4b4c3b769a275d544beb26b1894e476a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab538cf6fe8606e9832310a8195b67dce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab538cf6fe8606e9832310a8195b67dce"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>qubitVarName</b></td></tr>
-<tr class="separator:ab538cf6fe8606e9832310a8195b67dce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7d177fa9830942f63ef86fd2f69f715"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae7d177fa9830942f63ef86fd2f69f715"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>nMeasurements</b> = 0</td></tr>
-<tr class="separator:ae7d177fa9830942f63ef86fd2f69f715"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76945624d8d67487d410a11a91e97681"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76945624d8d67487d410a11a91e97681"></a>
-std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>qubitToClassicalBitIndex</b></td></tr>
-<tr class="separator:a76945624d8d67487d410a11a91e97681"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_methods_a00011"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_a00011')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="a00011.html">xacc::Accelerator</a></td></tr>
+<tr class="memitem:ac3e781f42ec25e460174d4c41ea26b94 inherit pro_methods_a00011"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00011.html#ac3e781f42ec25e460174d4c41ea26b94">storeBuffer</a> (const std::string &amp;id, std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt; b)</td></tr>
+<tr class="separator:ac3e781f42ec25e460174d4c41ea26b94 inherit pro_methods_a00011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="a00064.html">QuilVisitor</a> is an <a class="el" href="a00049.html">InstructionVisitor</a> that visits quantum gate instructions and creates an equivalent Quil string that can be executed by the Rigetti superconducting quantum computer. </p>
+<div class="textblock"><p>The SimpleTensorAccelerator is an XACC <a class="el" href="a00011.html">Accelerator</a> that simulates gate based quantum computing circuits. It models the QPUGate <a class="el" href="a00011.html">Accelerator</a> with SimulatedQubit <a class="el" href="a00013.html">AcceleratorBuffer</a>. It relies on the Fire Scientific Computing Framework's tensor module to model a specific set of quantum gates. It uses these tensors to build up the unitary matrix described by the circuit. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a366cddf574488b3bf0df1fe991806753"></a>
+<a class="anchor" id="a7ff286def924fafdff2066d12858e60c"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -267,7 +165,7 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual xacc::quantum::ScaffoldIRToSrcVisitor::~ScaffoldIRToSrcVisitor </td>
+          <td class="memname">virtual xacc::quantum::SimpleAccelerator::~SimpleAccelerator </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -284,7 +182,7 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="ad721b67dae6360ce210d6c73feec7920"></a>
+<a class="anchor" id="adb9393692e9f484df241aa5d014030d1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -292,7 +190,127 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string xacc::quantum::ScaffoldIRToSrcVisitor::getScaffoldString </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt; xacc::quantum::SimpleAccelerator::createBuffer </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>varId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create, store, and return an <a class="el" href="a00013.html">AcceleratorBuffer</a> with the given variable id string and of the given number of bits. The string id serves as a unique identifier for future lookups and reuse of the <a class="el" href="a00013.html">AcceleratorBuffer</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">varId</td><td></td></tr>
+    <tr><td class="paramname">size</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#a064a2dbd58338364115c260267806945">xacc::Accelerator</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a46445d77d4b8ad2689571d0db6604380"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt; xacc::quantum::SimpleAccelerator::createBuffer </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>varId</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create, store, and return an <a class="el" href="a00013.html">AcceleratorBuffer</a> with the given variable id string. This method returns all available qubits for this <a class="el" href="a00011.html">Accelerator</a>. The string id serves as a unique identifier for future lookups and reuse of the <a class="el" href="a00013.html">AcceleratorBuffer</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">varId</td><td>The variable name of the created buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>buffer The buffer instance created. </dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#aab5046e8d83ab390302e0f49533e95fc">xacc::Accelerator</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a3089b15fbbaa83abf2941bd3b8d2d3c6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void xacc::quantum::SimpleAccelerator::execute </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00013.html">AcceleratorBuffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="a00038.html">xacc::Function</a> &gt;&#160;</td>
+          <td class="paramname"><em>kernel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Execute the simulation. Requires both a valid <a class="el" href="a00080.html">SimulatedQubits</a> buffer and XACC <a class="el" href="a00050.html">IR</a> <a class="el" href="a00038.html">Function</a> instance modeling the quantum circuit.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ir</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="afc49c9e7973ba6c6ff9761c36198323d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::vector&lt;<a class="el" href="a00051.html">xacc::IRTransformation</a>&gt; xacc::quantum::SimpleAccelerator::getIRTransformations </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -300,15 +318,17 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return the quil string </p>
+<p>We have no need to transform the <a class="el" href="a00050.html">IR</a> for this <a class="el" href="a00011.html">Accelerator</a>, so return an empty list </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#ad6e4a642dcb24e552675bcbeff1e1b04">xacc::Accelerator</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af66cbe08e183c8b53817cda5251d0498"></a>
+<a class="anchor" id="ad76eeb0bbd7de21aad5bd20d20970a98"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -316,24 +336,25 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
+          <td class="memname">virtual AcceleratorType xacc::quantum::SimpleAccelerator::getType </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="a00045.html">Hadamard</a> &amp;&#160;</td>
-          <td class="paramname"><em>h</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Visit hadamard gates </p>
+<p>This <a class="el" href="a00011.html">Accelerator</a> models QPU Gate accelerators. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#aaffc3e4bb9880eb5041b1b58ee4c2665">xacc::Accelerator</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a81b16c7a7da2c84174796ef4cc39b312"></a>
+<a class="anchor" id="a392e3b30523f5f681127e7e98887108c"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -341,24 +362,25 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
+          <td class="memname">virtual void xacc::quantum::SimpleAccelerator::initialize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="a00022.html">CNOT</a> &amp;&#160;</td>
-          <td class="paramname"><em>cn</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Visit <a class="el" href="a00022.html">CNOT</a> gates </p>
+<p>Initialize this <a class="el" href="a00011.html">Accelerator</a>. This method is called by the XACC framework after an <a class="el" href="a00011.html">Accelerator</a> has been requested and created. Perform any work you need done before execution here. </p>
+
+<p>Implements <a class="el" href="a00011.html#a8cdc6f0c5a660013c29c07657a06303b">xacc::Accelerator</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a1a414fa079f0e3ba8cd0f97c7928e88f"></a>
+<a class="anchor" id="a60b9db2d6aed235857c45413a070338e"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -366,24 +388,32 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
+          <td class="memname">bool xacc::quantum::SimpleAccelerator::isValidBufferSize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="a00085.html">X</a> &amp;&#160;</td>
-          <td class="paramname"><em>x</em></td><td>)</td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>NBits</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Visit <a class="el" href="a00085.html">X</a> gates </p>
+<p>Return true if this <a class="el" href="a00011.html">Accelerator</a> can allocated NBits number of bits. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">NBits</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="a00011.html#ae51584850faeec77299058383977ddeb">xacc::Accelerator</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a444936ec9134a0ea400cd2f1b145ba4d"></a>
+<a class="anchor" id="a1cfa3381a56ca6f431b4722162ccb63d"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -391,97 +421,25 @@ std::map&lt; int, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
+          <td class="memname">static void xacc::quantum::SimpleAccelerator::registerAccelerator </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="a00089.html">Z</a> &amp;&#160;</td>
-          <td class="paramname"><em>z</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Visit <a class="el" href="a00089.html">Z</a> gates </p>
+<p>Register this <a class="el" href="a00011.html">Accelerator</a> with the framework. </p>
 
 </div>
 </div>
-<a class="anchor" id="a99e7176144810f5d6e38d98d2725afff"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00056.html">Measure</a> &amp;&#160;</td>
-          <td class="paramname"><em>m</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Visit Measurement gates </p>
-
-</div>
-</div>
-<a class="anchor" id="a1646dbfaf919432c2c3d8eb86e9f81e4"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void xacc::quantum::ScaffoldIRToSrcVisitor::visit </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="a00025.html">ConditionalFunction</a> &amp;&#160;</td>
-          <td class="paramname"><em>c</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Visit Conditional functions </p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a4b4c3b769a275d544beb26b1894e476a"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string xacc::quantum::ScaffoldIRToSrcVisitor::scaffoldStr</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Reference to the Quil string this visitor is trying to construct </p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00279_source.html">ScaffoldIRToSrcVisitor.hpp</a></li>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="a00281_source.html">SimpleAccelerator.hpp</a></li>
+<li>SimpleAccelerator.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

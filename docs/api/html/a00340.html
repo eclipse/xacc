@@ -83,19 +83,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00067.html">RegisterCompiler</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00070.html">Registry</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">xacc::RegisterCompiler&lt; T &gt; Member List</div>  </div>
+<div class="title">xacc::Registry&lt; T, TArgs &gt; Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="a00067.html">xacc::RegisterCompiler&lt; T &gt;</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a>, including all inherited members.</p>
 <table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>RegisterCompiler</b>(const std::string &amp;name) (defined in <a class="el" href="a00067.html">xacc::RegisterCompiler&lt; T &gt;</a>)</td><td class="entry"><a class="el" href="a00067.html">xacc::RegisterCompiler&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>RegisterCompiler</b>(const std::string &amp;name, std::shared_ptr&lt; options_description &gt; options) (defined in <a class="el" href="a00067.html">xacc::RegisterCompiler&lt; T &gt;</a>)</td><td class="entry"><a class="el" href="a00067.html">xacc::RegisterCompiler&lt; T &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00070.html#a5ec7144ddc944674313badd32452fecc">add</a>(const std::string &amp;id, CreatorFunctionPtr f)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00070.html#a51d98b5cf6e2722655a2f597b436aa80">add</a>(const std::string &amp;id, CreatorFunctionPtr f, std::shared_ptr&lt; options_description &gt; options)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00070.html#aecccbd5534276cbdd1553e43c942219b">create</a>(const std::string &amp;id, TArgs...args)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>CreatorFunction</b> typedef (defined in <a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a>)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>CreatorFunctionPtr</b> typedef (defined in <a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a>)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="a00081.html#abbc654f5f90a2abc85f0010496335942">destroy</a>()</td><td class="entry"><a class="el" href="a00081.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00070.html#a8bff6f5c50534375abc4026662d69d2e">getRegisteredIds</a>()</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>getRegisteredOptions</b>() (defined in <a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a>)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00081.html#ae4c30f303439e702389c9d088abb3f23">instance</a>()</td><td class="entry"><a class="el" href="a00081.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">static</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00081.html#a863885efab9990f06f699567648dfa26">instance_</a></td><td class="entry"><a class="el" href="a00081.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">static</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00070.html#a7eeb7a09aafaef2012b6d0bff13c922e">registry</a></td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>registryOptions</b> (defined in <a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a>)</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00081.html#afd62caabc41babdd98ab9af2253ec371">Singleton</a>()</td><td class="entry"><a class="el" href="a00081.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="a00070.html#a2352dd7c6c85ae5c5e232b577dfa2544">size</a>()</td><td class="entry"><a class="el" href="a00070.html">xacc::Registry&lt; T, TArgs &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="a00081.html#a75a032ec71f88d6986461b47f3fb2600">~Singleton</a>()</td><td class="entry"><a class="el" href="a00081.html">xacc::Singleton&lt; Registry&lt; T, TArgs... &gt; &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

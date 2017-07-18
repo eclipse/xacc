@@ -1,10 +1,10 @@
-\hypertarget{a00050}{}\section{xacc\+:\+:quantum\+:\+:Inverse\+Q\+FT Class Reference}
-\label{a00050}\index{xacc\+::quantum\+::\+Inverse\+Q\+FT@{xacc\+::quantum\+::\+Inverse\+Q\+FT}}
+\hypertarget{a00050}{}\section{xacc\+:\+:IR Class Reference}
+\label{a00050}\index{xacc\+::\+IR@{xacc\+::\+IR}}
 
 
-{\ttfamily \#include $<$Inverse\+Q\+F\+T.\+hpp$>$}
+{\ttfamily \#include $<$I\+R.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Inverse\+Q\+FT\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:IR\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[height=2.000000cm]{a00050}
@@ -13,50 +13,176 @@ Inheritance diagram for xacc\+:\+:quantum\+:\+:Inverse\+Q\+FT\+:\begin{figure}[H
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ \hyperlink{a00050_af42e466bf02dbd60670d20aa55cfb08d}{generate\+Algorithm} (std\+::vector$<$ int $>$ qubits)
+virtual std\+::string \hyperlink{a00050_a8356cdff1919b88eabeb84fd7450cdb6}{to\+Assembly\+String} (const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)=0
 \item 
-virtual \hyperlink{a00050_a731c10d28046424be74e4c0daa31d016}{$\sim$\+Inverse\+Q\+FT} ()
+virtual void \hyperlink{a00050_a414b72224d88473ad6190bb88102a3ea}{persist} (std\+::ostream \&out\+Stream)=0
+\item 
+virtual void \hyperlink{a00050_a444c2e4dc0faac500fb70fa93997e9bc}{load} (std\+::istream \&in\+Stream)=0
+\item 
+virtual void \hyperlink{a00050_abbbf8e6993c518597de32cd05d49d737}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ kernel)=0
+\item 
+virtual bool \hyperlink{a00050_afc9ccf5126f3fed19c2e879133b2f6d8}{kernel\+Exists} (const std\+::string \&name)=0
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ \hyperlink{a00050_a6f49b4ba4b3a15142b04873284885f0d}{get\+Kernel} (const std\+::string \&name)=0
+\item 
+virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ $>$ \hyperlink{a00050_a88c50bfc5b279145360ddc0c3a703b9b}{get\+Kernels} ()=0
+\item 
+virtual \hyperlink{a00050_a09a76d71092254acae07e19fa2f34921}{$\sim$\+IR} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-\hyperlink{a00050}{Inverse\+Q\+FT} is a realization of the \hyperlink{a00014}{Algorithm\+Generator} interface that produces an X\+A\+CC \hyperlink{a00051}{IR} representation of the Inverse Quantum Fourier Transform. 
+The \hyperlink{a00050}{IR} interface is the base interface for derived accelerator-\/specific intermediate representations. At this level, an intermediate representation can be persisted to an assembly-\/like string, can be read in from file, and can be persisted to file. Since all X\+A\+CC intermediate representations operate on an \hyperlink{a00011}{Accelerator} Buffer, the \hyperlink{a00050}{IR} interface also provides a setter for such a buffer. 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Inverse\+Q\+FT@{xacc\+::quantum\+::\+Inverse\+Q\+FT}!````~Inverse\+Q\+FT@{$\sim$\+Inverse\+Q\+FT}}
-\index{````~Inverse\+Q\+FT@{$\sim$\+Inverse\+Q\+FT}!xacc\+::quantum\+::\+Inverse\+Q\+FT@{xacc\+::quantum\+::\+Inverse\+Q\+FT}}
-\subsubsection[{\texorpdfstring{$\sim$\+Inverse\+Q\+F\+T()}{~InverseQFT()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Inverse\+Q\+F\+T\+::$\sim$\+Inverse\+Q\+FT (
+\index{xacc\+::\+IR@{xacc\+::\+IR}!````~IR@{$\sim$\+IR}}
+\index{````~IR@{$\sim$\+IR}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{$\sim$\+I\+R()}{~IR()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+I\+R\+::$\sim$\+IR (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_a731c10d28046424be74e4c0daa31d016}{}\label{a00050_a731c10d28046424be74e4c0daa31d016}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00050_a09a76d71092254acae07e19fa2f34921}{}\label{a00050_a09a76d71092254acae07e19fa2f34921}
 The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Inverse\+Q\+FT@{xacc\+::quantum\+::\+Inverse\+Q\+FT}!generate\+Algorithm@{generate\+Algorithm}}
-\index{generate\+Algorithm@{generate\+Algorithm}!xacc\+::quantum\+::\+Inverse\+Q\+FT@{xacc\+::quantum\+::\+Inverse\+Q\+FT}}
-\subsubsection[{\texorpdfstring{generate\+Algorithm(std\+::vector$<$ int $>$ qubits)}{generateAlgorithm(std::vector< int > qubits)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Function} $>$ xacc\+::quantum\+::\+Inverse\+Q\+F\+T\+::generate\+Algorithm (
+\index{xacc\+::\+IR@{xacc\+::\+IR}!add\+Kernel@{add\+Kernel}}
+\index{add\+Kernel@{add\+Kernel}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{add\+Kernel(std\+::shared\+\_\+ptr$<$ Function $>$ kernel)=0}{addKernel(std::shared\_ptr< Function > kernel)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+I\+R\+::add\+Kernel (
 \begin{DoxyParamCaption}
-\item[{std\+::vector$<$ int $>$}]{qubits}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{kernel}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00050_af42e466bf02dbd60670d20aa55cfb08d}{}\label{a00050_af42e466bf02dbd60670d20aa55cfb08d}
-This implementation returns a \hyperlink{a00039}{Function} \hyperlink{a00051}{IR} representation of the inverse quantum fourier transform.
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_abbbf8e6993c518597de32cd05d49d737}{}\label{a00050_abbbf8e6993c518597de32cd05d49d737}
+Add a new kernel to this \hyperlink{a00050}{IR} instance.
 
 
 \begin{DoxyParams}{Parameters}
-{\em bits} & The bits this algorithm operates on \\
+{\em kernel} & The \hyperlink{a00038}{Function} instance to add as a new kernel \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a00042_aa6ed2cf2cbcfec8105c327a4fa95346f}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_af1bef18e1e9568d1313b03149aab8c1b}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!get\+Kernel@{get\+Kernel}}
+\index{get\+Kernel@{get\+Kernel}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{get\+Kernel(const std\+::string \&name)=0}{getKernel(const std::string \&name)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Function}$>$ xacc\+::\+I\+R\+::get\+Kernel (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_a6f49b4ba4b3a15142b04873284885f0d}{}\label{a00050_a6f49b4ba4b3a15142b04873284885f0d}
+Return the kernel with the given name.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The name of the kernel to return. \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-function The algorithm represented as an \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} 
+kernel The kernel with given name. 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00014_a73023c06f0f0c62ad56ab4187b18b096}{xacc\+::\+Algorithm\+Generator}.
+Implemented in \hyperlink{a00042_a194758b6edcc3ae0c7fe8004f9bfe690}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_a38d8bdd24250749bc38ad31f8512fcfc}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!get\+Kernels@{get\+Kernels}}
+\index{get\+Kernels@{get\+Kernels}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{get\+Kernels()=0}{getKernels()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<$std\+::shared\+\_\+ptr$<${\bf Function}$>$ $>$ xacc\+::\+I\+R\+::get\+Kernels (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_a88c50bfc5b279145360ddc0c3a703b9b}{}\label{a00050_a88c50bfc5b279145360ddc0c3a703b9b}
+Return all of this \hyperlink{a00050}{IR} instance\textquotesingle{}s kernels.
+
+\begin{DoxyReturn}{Returns}
+kernels The kernels this \hyperlink{a00050}{IR} contains. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00042_a4ace7ee5ebef84b1f39aaf5ed12c6cc6}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_a66e22c5dc95ec46045476864012ad08f}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!kernel\+Exists@{kernel\+Exists}}
+\index{kernel\+Exists@{kernel\+Exists}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{kernel\+Exists(const std\+::string \&name)=0}{kernelExists(const std::string \&name)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::\+I\+R\+::kernel\+Exists (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_afc9ccf5126f3fed19c2e879133b2f6d8}{}\label{a00050_afc9ccf5126f3fed19c2e879133b2f6d8}
+Return true if the kernel with given name exists in this \hyperlink{a00050}{IR}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & The name of the kernel to return. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+exists True if kernel exists. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00042_a692f95099caa7c024110a3f035941dca}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_ab5e8861d3bc0845bb015af6208f5f396}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!load@{load}}
+\index{load@{load}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{load(std\+::istream \&in\+Stream)=0}{load(std::istream \&inStream)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+I\+R\+::load (
+\begin{DoxyParamCaption}
+\item[{std\+::istream \&}]{in\+Stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_a444c2e4dc0faac500fb70fa93997e9bc}{}\label{a00050_a444c2e4dc0faac500fb70fa93997e9bc}
+Create this \hyperlink{a00050}{IR} instance from the given input stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em in\+Stream} & The input stream to read from. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a00042_a07f26eeb362ac480d20da6cdc8c8fb39}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_a8b388d719d565bb902c979807d3d0d47}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!persist@{persist}}
+\index{persist@{persist}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{persist(std\+::ostream \&out\+Stream)=0}{persist(std::ostream \&outStream)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::\+I\+R\+::persist (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{out\+Stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_a414b72224d88473ad6190bb88102a3ea}{}\label{a00050_a414b72224d88473ad6190bb88102a3ea}
+Persist this \hyperlink{a00050}{IR} instance to the given output stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em out\+Stream} & The output stream to persist to. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \hyperlink{a00042_a40e1d07e4dfd3794ef53fca3cdbdca61}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_abcbfd0a4cf697843391c65cbd9a82080}{xacc\+::quantum\+::\+D\+W\+IR}.
+
+\index{xacc\+::\+IR@{xacc\+::\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
+\index{to\+Assembly\+String@{to\+Assembly\+String}!xacc\+::\+IR@{xacc\+::\+IR}}
+\subsubsection[{\texorpdfstring{to\+Assembly\+String(const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)=0}{toAssemblyString(const std::string \&kernelName, const std::string \&accBufferVarName)=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string xacc\+::\+I\+R\+::to\+Assembly\+String (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{kernel\+Name, }
+\item[{const std\+::string \&}]{acc\+Buffer\+Var\+Name}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00050_a8356cdff1919b88eabeb84fd7450cdb6}{}\label{a00050_a8356cdff1919b88eabeb84fd7450cdb6}
+Return a assembly-\/like string representation of this intermediate representation
+
+
+\begin{DoxyParams}{Parameters}
+{\em kernel\+Name} & The name of hte kernel to persist to string \\
+\hline
+{\em acc\+Buffer\+Var\+Name} & The name of the \hyperlink{a00013}{Accelerator\+Buffer} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{a00042_a7153f7e9f516d43af3d5d4f95d60bd86}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00031_a880cb60197577ea31115331e3a030e3e}{xacc\+::quantum\+::\+D\+W\+IR}.
 
 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Inverse\+Q\+F\+T.\+hpp\item 
-Inverse\+Q\+F\+T.\+cpp\end{DoxyCompactItemize}
+I\+R.\+hpp\end{DoxyCompactItemize}

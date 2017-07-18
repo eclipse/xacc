@@ -1,74 +1,51 @@
-\hypertarget{a00055}{}\section{xacc\+:\+:quantum\+:\+:Kernel\+Replacement\+Preprocessor Class Reference}
-\label{a00055}\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
-
-
-{\ttfamily \#include $<$Kernel\+Replacement\+Preprocessor.\+hpp$>$}
-
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Kernel\+Replacement\+Preprocessor\+:\begin{figure}[H]
+\hypertarget{a00055}{}\section{xacc\+:\+:quantum\+:\+:Measure Class Reference}
+\label{a00055}\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Measure\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=3.000000cm]{a00055}
+\includegraphics[height=4.000000cm]{a00055}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual const std\+::string \hyperlink{a00055_ad4f9ba1f83ea45ed376f36e3853c668d}{process} (const std\+::string \&source, std\+::shared\+\_\+ptr$<$ \hyperlink{a00023}{Compiler} $>$ compiler, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ accelerator)
+{\bfseries Measure} (std\+::vector$<$ int $>$ qbit)\hypertarget{a00055_afe330a0eea029d842ff9c88a817dcc7d}{}\label{a00055_afe330a0eea029d842ff9c88a817dcc7d}
+
 \item 
-virtual const std\+::string \hyperlink{a00055_af74db6b7f3adeb7d203777f5ce450491}{get\+Name} ()
+{\bfseries Measure} (int qbit, int classical\+Idx)\hypertarget{a00055_a9b8d9edca8ad2c3fb132780200f17335}{}\label{a00055_a9b8d9edca8ad2c3fb132780200f17335}
+
+\item 
+virtual const std\+::string \hyperlink{a00055_a1c51a5d68294dcb2ba1a9fbea63a730f}{to\+String} (const std\+::string \&buffer\+Var\+Name)
+\item 
+int {\bfseries get\+Classical\+Bit\+Index} ()\hypertarget{a00055_a0cb3c94731544042807236ade36fddd0}{}\label{a00055_a0cb3c94731544042807236ade36fddd0}
+
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
-
-\subsection{Detailed Description}
-The \hyperlink{a00055}{Kernel\+Replacement\+Preprocessor} is a preprocessor for gate model quantum computing that analyzing quantum kernel source code and looks for occurrences of \textquotesingle{}xacc\+::\+F\+U\+N\+C\+T\+I\+ON\textquotesingle{} strings (for example, xacc\+::\+Q\+F\+T(qreg)).
-
-Once one of these occurrences is found, this preprocessor queries the \hyperlink{a00014}{Algorithm\+Generator} \hyperlink{a00071}{Registry} for any available Algorithm\+Generators with that name. If such an \hyperlink{a00014}{Algorithm\+Generator} exists, it generates the X\+A\+CC \hyperlink{a00051}{IR} instance for that algorithm, translates the \hyperlink{a00051}{IR} to the \hyperlink{a00023}{Compiler}\textquotesingle{}s source code representation, and replaces the \textquotesingle{}xacc\+::\+F\+U\+N\+C\+T\+I\+ON\textquotesingle{} occurrence with the new source code. 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
-\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor\+::get\+Name (
+\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
+\subsubsection[{\texorpdfstring{to\+String(const std\+::string \&buffer\+Var\+Name)}{toString(const std::string \&bufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}const std\+::string xacc\+::quantum\+::\+Measure\+::to\+String (
 \begin{DoxyParamCaption}
-{}
+\item[{const std\+::string \&}]{buffer\+Var\+Name}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00055_af74db6b7f3adeb7d203777f5ce450491}{}\label{a00055_af74db6b7f3adeb7d203777f5ce450491}
-Return the name of this \hyperlink{a00058}{Preprocessor} \begin{DoxyReturn}{Returns}
-name \hyperlink{a00058}{Preprocessor} name 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00058_a36671f4c062d61e230306edc404774cd}{xacc\+::\+Preprocessor}.
-
-\index{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}!process@{process}}
-\index{process@{process}!xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor@{xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor}}
-\subsubsection[{\texorpdfstring{process(const std\+::string \&source, std\+::shared\+\_\+ptr$<$ Compiler $>$ compiler, std\+::shared\+\_\+ptr$<$ Accelerator $>$ accelerator)}{process(const std::string \&source, std::shared\_ptr< Compiler > compiler, std::shared\_ptr< Accelerator > accelerator)}}]{\setlength{\rightskip}{0pt plus 5cm}const std\+::string xacc\+::quantum\+::\+Kernel\+Replacement\+Preprocessor\+::process (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{source, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Compiler} $>$}]{compiler, }
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator} $>$}]{accelerator}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00055_ad4f9ba1f83ea45ed376f36e3853c668d}{}\label{a00055_ad4f9ba1f83ea45ed376f36e3853c668d}
-This method replaces xacc\+::\+F\+U\+N\+C\+T\+I\+ON references with actual Compiler-\/specific source code.
-
-
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00055_a1c51a5d68294dcb2ba1a9fbea63a730f}{}\label{a00055_a1c51a5d68294dcb2ba1a9fbea63a730f}
+Return this instruction\textquotesingle{}s assembly-\/like string representation. 
 \begin{DoxyParams}{Parameters}
-{\em src} & The unprocessed kernel source code \\
-\hline
-{\em compiler} & The compiler being used to compile the code \\
-\hline
-{\em accelerator} & The \hyperlink{a00011}{Accelerator} this code will be run on\\
+{\em buffer\+Var\+Name} & \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-processed\+Src The processed kernel source code 
+
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00058_ae59b5a2963f8bcc84b590a83f4749e19}{xacc\+::\+Preprocessor}.
+Reimplemented from \hyperlink{a00041_a089a5da67ff40ac1a6f56e64589822d9}{xacc\+::quantum\+::\+Gate\+Instruction}.
 
 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-Kernel\+Replacement\+Preprocessor.\+hpp\item 
-Kernel\+Replacement\+Preprocessor.\+cpp\end{DoxyCompactItemize}
+Measure.\+hpp\item 
+Measure.\+cpp\end{DoxyCompactItemize}

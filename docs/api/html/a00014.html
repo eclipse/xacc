@@ -89,33 +89,33 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="a00321.html">List of all members</a>  </div>
+<a href="a00319.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">xacc::AlgorithmGenerator Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00092_source.html">AlgorithmGenerator.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00091_source.html">AlgorithmGenerator.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for xacc::AlgorithmGenerator:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="a00014.png" usemap="#xacc::AlgorithmGenerator_map" alt=""/>
   <map id="xacc::AlgorithmGenerator_map" name="xacc::AlgorithmGenerator_map">
-<area href="a00050.html" alt="xacc::quantum::InverseQFT" shape="rect" coords="0,56,164,80"/>
-<area href="a00061.html" alt="xacc::quantum::QFT" shape="rect" coords="174,56,338,80"/>
+<area href="a00049.html" alt="xacc::quantum::InverseQFT" shape="rect" coords="0,56,164,80"/>
+<area href="a00060.html" alt="xacc::quantum::QFT" shape="rect" coords="174,56,338,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a73023c06f0f0c62ad56ab4187b18b096"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00039.html">Function</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00014.html#a73023c06f0f0c62ad56ab4187b18b096">generateAlgorithm</a> (std::vector&lt; int &gt; bits)=0</td></tr>
+<tr class="memitem:a73023c06f0f0c62ad56ab4187b18b096"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00038.html">Function</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00014.html#a73023c06f0f0c62ad56ab4187b18b096">generateAlgorithm</a> (std::vector&lt; int &gt; bits)=0</td></tr>
 <tr class="separator:a73023c06f0f0c62ad56ab4187b18b096"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a096f66aa8d65f5aa3276915768159579"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00014.html#a096f66aa8d65f5aa3276915768159579">~AlgorithmGenerator</a> ()</td></tr>
 <tr class="separator:a096f66aa8d65f5aa3276915768159579"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="a00014.html">AlgorithmGenerator</a> interface provides a mechanism for generating algorithms modeled as an XACC <a class="el" href="a00039.html">Function</a> instance.</p>
+<div class="textblock"><p>The <a class="el" href="a00014.html">AlgorithmGenerator</a> interface provides a mechanism for generating algorithms modeled as an XACC <a class="el" href="a00038.html">Function</a> instance.</p>
 <dl class="section author"><dt>Author</dt><dd>Alex McCaskey </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a096f66aa8d65f5aa3276915768159579"></a>
@@ -151,7 +151,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a00039.html">Function</a>&gt; xacc::AlgorithmGenerator::generateAlgorithm </td>
+          <td class="memname">virtual std::shared_ptr&lt;<a class="el" href="a00038.html">Function</a>&gt; xacc::AlgorithmGenerator::generateAlgorithm </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
           <td class="paramname"><em>bits</em></td><td>)</td>
@@ -164,21 +164,21 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Implementations of this method generate a <a class="el" href="a00039.html">Function</a> <a class="el" href="a00051.html">IR</a> instance corresponding to the implementation's modeled algorithm. The algorithm is specified to operate over the provided bits.</p>
+<p>Implementations of this method generate a <a class="el" href="a00038.html">Function</a> <a class="el" href="a00050.html">IR</a> instance corresponding to the implementation's modeled algorithm. The algorithm is specified to operate over the provided bits.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bits</td><td>The bits this algorithm operates on </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>function The algorithm represented as an <a class="el" href="a00051.html">IR</a> <a class="el" href="a00039.html">Function</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>function The algorithm represented as an <a class="el" href="a00050.html">IR</a> <a class="el" href="a00038.html">Function</a> </dd></dl>
 
-<p>Implemented in <a class="el" href="a00061.html#ac093c288bc9fc069464fc3fd2cc0ac21">xacc::quantum::QFT</a>, and <a class="el" href="a00050.html#af42e466bf02dbd60670d20aa55cfb08d">xacc::quantum::InverseQFT</a>.</p>
+<p>Implemented in <a class="el" href="a00060.html#ac093c288bc9fc069464fc3fd2cc0ac21">xacc::quantum::QFT</a>, and <a class="el" href="a00049.html#af42e466bf02dbd60670d20aa55cfb08d">xacc::quantum::InverseQFT</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00092_source.html">AlgorithmGenerator.hpp</a></li>
+<li><a class="el" href="a00091_source.html">AlgorithmGenerator.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

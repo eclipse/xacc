@@ -1,207 +1,152 @@
-\hypertarget{a00041}{}\section{xacc\+:\+:quantum\+:\+:Gate\+Function Class Reference}
-\label{a00041}\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-
-
-{\ttfamily \#include $<$Gate\+Function.\+hpp$>$}
-
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Gate\+Function\+:\begin{figure}[H]
+\hypertarget{a00041}{}\section{xacc\+:\+:quantum\+:\+:Gate\+Instruction Class Reference}
+\label{a00041}\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Gate\+Instruction\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=5.000000cm]{a00041}
+\includegraphics[height=12.000000cm]{a00041}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{a00041_a77545e72bd53268f609888654fcd8eee}{Gate\+Function} (const std\+::string \&name)
-\item 
-{\bfseries Gate\+Function} (const std\+::string \&name, std\+::vector$<$ Instruction\+Parameter $>$ params)\hypertarget{a00041_a0b1b3fb51a5b0f1bcb1b10692ab2e595}{}\label{a00041_a0b1b3fb51a5b0f1bcb1b10692ab2e595}
+{\bfseries Gate\+Instruction} (std\+::vector$<$ int $>$ qubts)\hypertarget{a00041_a951ac3f44fcfbcf187bb73ba7438b472}{}\label{a00041_a951ac3f44fcfbcf187bb73ba7438b472}
 
 \item 
-virtual const int \hyperlink{a00041_aa70b26156c060fec71316fe5e98bb102}{n\+Instructions} ()
+\hyperlink{a00041_a9b8543b79576c69ab8578ab6228134d7}{Gate\+Instruction} (std\+::string name, std\+::vector$<$ int $>$ qubts)
 \item 
-virtual Inst\+Ptr \hyperlink{a00041_a841d656eed8aa9b4c0eec3f1da38069c}{get\+Instruction} (const int idx)
+{\bfseries Gate\+Instruction} (std\+::string name, std\+::vector$<$ int $>$ qubts, std\+::vector$<$ Instruction\+Parameter $>$ params)\hypertarget{a00041_a37aaeebdb14747b0afd7d00cf285343e}{}\label{a00041_a37aaeebdb14747b0afd7d00cf285343e}
+
 \item 
-virtual std\+::list$<$ Inst\+Ptr $>$ \hyperlink{a00041_aebce6a9e64aed7f4aff86df752bacfe2}{get\+Instructions} ()
+virtual const std\+::string \hyperlink{a00041_a0db03b9e46eeba1134f0ca2b83ccc842}{get\+Name} ()
 \item 
-virtual void \hyperlink{a00041_a44ca35d081577de9ad2930f93c01e89d}{remove\+Instruction} (const int idx)
+virtual const std\+::vector$<$ int $>$ \hyperlink{a00041_ad32ad03dfc516e00093030e60178003d}{bits} ()
 \item 
-virtual void \hyperlink{a00041_a892fb69a10f0a7cb5abdab4cca61b80a}{add\+Instruction} (Inst\+Ptr instruction)
+virtual const std\+::string \hyperlink{a00041_a089a5da67ff40ac1a6f56e64589822d9}{to\+String} (const std\+::string \&buffer\+Var\+Name)
 \item 
-virtual void \hyperlink{a00041_a182fdfabbf546ae89e4f2384bafb45c9}{replace\+Instruction} (const int idx, Inst\+Ptr replacing\+Inst)
+virtual bool \hyperlink{a00041_a0a821be322b0c848b01c55f91fc8f484}{is\+Enabled} ()
 \item 
-virtual void \hyperlink{a00041_aed3b963f1c4eb3215ca46af48d78f588}{insert\+Instruction} (const int idx, Inst\+Ptr new\+Inst)
+virtual void \hyperlink{a00041_a63ce138dd71fb43d303f5600fefb7215}{disable} ()
 \item 
-virtual const std\+::string \hyperlink{a00041_af42efb6191267164717d53c469e15d3a}{get\+Name} ()
+virtual void \hyperlink{a00041_a7a80474b7fd465271b3313432db2e608}{enable} ()
 \item 
-virtual const std\+::vector$<$ int $>$ \hyperlink{a00041_aba03de68b76a9e120705c3c389c714a1}{bits} ()
+virtual Instruction\+Parameter \hyperlink{a00041_addd6185279fe99fbdc3d4efd96e42162}{get\+Parameter} (const int idx)
 \item 
-virtual const std\+::string \hyperlink{a00041_aa1950776ae84bad2d0795a0441f910e7}{to\+String} (const std\+::string \&buffer\+Var\+Name)
+virtual void \hyperlink{a00041_afb8f7582d7520c77d61b9016753f5669}{set\+Parameter} (const int idx, Instruction\+Parameter \&p)
 \item 
-virtual Instruction\+Parameter \hyperlink{a00041_a5991903323e412777bedc4f0c862eb63}{get\+Parameter} (const int idx)
+virtual std\+::vector$<$ Instruction\+Parameter $>$ \hyperlink{a00041_a8584444f9577283f6844ab32bdc4db72}{get\+Parameters} ()
 \item 
-virtual void \hyperlink{a00041_ab8d9789b46e92e27a9d7c9c5b7e3683c}{set\+Parameter} (const int idx, Instruction\+Parameter \&p)
+virtual bool \hyperlink{a00041_afe7aeeb398262931e156bcb3950f8188}{is\+Parameterized} ()
 \item 
-virtual std\+::vector$<$ Instruction\+Parameter $>$ \hyperlink{a00041_af7aabfe699a4dced576ff7fafff969d5}{get\+Parameters} ()
+virtual const int \hyperlink{a00041_a3752912b2c402668ca4814e21d4bbd26}{n\+Parameters} ()
 \item 
-virtual bool \hyperlink{a00041_afad47903e0ed55ddbfa827ef8408a94b}{is\+Parameterized} ()
-\item 
-virtual const int \hyperlink{a00041_ad0bffcbc0884d81d6bdddf55385fc6c9}{n\+Parameters} ()
-\item 
-virtual void \hyperlink{a00041_a4bcbd2c8c4b615d74e4a4d39952fd411}{evaluate\+Variable\+Parameters} (std\+::vector$<$ Instruction\+Parameter $>$ runtime\+Parameters)
+virtual \hyperlink{a00041_ab8a75144074b27262fc33c77db4528b7}{$\sim$\+Gate\+Instruction} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::string \hyperlink{a00041_aea17cb1ca610bb5b8eadb0642c32b937}{function\+Name}
+std\+::string \hyperlink{a00041_a9961e6979139ced70300188cf2e4ad3f}{gate\+Name}
 \item 
-std\+::list$<$ Inst\+Ptr $>$ {\bfseries instructions}\hypertarget{a00041_aa2334b23541206ed02023ec28f5e4ac7}{}\label{a00041_aa2334b23541206ed02023ec28f5e4ac7}
+std\+::vector$<$ int $>$ \hyperlink{a00041_a2a56be6c2519ea65df4d06f4abae1393}{qbits}
+\item 
+bool {\bfseries enabled} = true\hypertarget{a00041_aa1039a127aa645a5c2206ef64e20b37a}{}\label{a00041_aa1039a127aa645a5c2206ef64e20b37a}
 
 \item 
-std\+::vector$<$ Instruction\+Parameter $>$ {\bfseries parameters}\hypertarget{a00041_a2f53b483afa8d6b357f2550b8f1a3a9c}{}\label{a00041_a2f53b483afa8d6b357f2550b8f1a3a9c}
+std\+::vector$<$ Instruction\+Parameter $>$ {\bfseries parameters}\hypertarget{a00041_a191e4c405f8413b7e8fc86fde07c0dd1}{}\label{a00041_a191e4c405f8413b7e8fc86fde07c0dd1}
 
-\item 
-std\+::map$<$ int, std\+::pair$<$ int, std\+::string $>$ $>$ \hyperlink{a00041_a186fadb9c8b90481eaa260bdd81b37b9}{cached\+Variable\+Instructions}
 \end{DoxyCompactItemize}
 \subsection*{Additional Inherited Members}
 
 
-\subsection{Detailed Description}
-The \hyperlink{a00041}{Gate\+Function} is a Q\+Function for gate-\/model quantum computing. It is composed of Q\+Instructions that are themselves derivations of the \hyperlink{a00042}{Gate\+Instruction} class. 
-
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!Gate\+Function@{Gate\+Function}}
-\index{Gate\+Function@{Gate\+Function}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{Gate\+Function(const std\+::string \&name)}{GateFunction(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Gate\+Function\+::\+Gate\+Function (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!Gate\+Instruction@{Gate\+Instruction}}
+\index{Gate\+Instruction@{Gate\+Instruction}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{Gate\+Instruction(std\+::string name, std\+::vector$<$ int $>$ qubts)}{GateInstruction(std::string name, std::vector< int > qubts)}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Gate\+Instruction\+::\+Gate\+Instruction (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{name}
+\item[{std\+::string}]{name, }
+\item[{std\+::vector$<$ int $>$}]{qubts}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00041_a77545e72bd53268f609888654fcd8eee}{}\label{a00041_a77545e72bd53268f609888654fcd8eee}
-The constructor, takes the function unique id and its name.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00041_a9b8543b79576c69ab8578ab6228134d7}{}\label{a00041_a9b8543b79576c69ab8578ab6228134d7}
+The constructor, takes the id, name, layer, and qubits this instruction acts on.
 
 
 \begin{DoxyParams}{Parameters}
 {\em id} & \\
 \hline
+{\em layer} & \\
+\hline
 {\em name} & \\
 \hline
+{\em qubts} & \\
+\hline
 \end{DoxyParams}
-
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!````~Gate\+Instruction@{$\sim$\+Gate\+Instruction}}
+\index{````~Gate\+Instruction@{$\sim$\+Gate\+Instruction}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{$\sim$\+Gate\+Instruction()}{~GateInstruction()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Gate\+Instruction\+::$\sim$\+Gate\+Instruction (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_ab8a75144074b27262fc33c77db4528b7}{}\label{a00041_ab8a75144074b27262fc33c77db4528b7}
+The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!add\+Instruction@{add\+Instruction}}
-\index{add\+Instruction@{add\+Instruction}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{add\+Instruction(\+Inst\+Ptr instruction)}{addInstruction(InstPtr instruction)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::add\+Instruction (
-\begin{DoxyParamCaption}
-\item[{Inst\+Ptr}]{instruction}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a892fb69a10f0a7cb5abdab4cca61b80a}{}\label{a00041_a892fb69a10f0a7cb5abdab4cca61b80a}
-Add an instruction to this quantum intermediate representation.
-
-
-\begin{DoxyParams}{Parameters}
-{\em instruction} & \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a00039_aa8c9ec2d08be75c69399d4254b0216f5}{xacc\+::\+Function}.
-
-
-
-Reimplemented in \hyperlink{a00025_a6aedad20f96390880efdc0a476b3273f}{xacc\+::quantum\+::\+Conditional\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!bits@{bits}}
-\index{bits@{bits}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{bits()}{bits()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::vector$<$int$>$ xacc\+::quantum\+::\+Gate\+Function\+::bits (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!bits@{bits}}
+\index{bits@{bits}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{bits()}{bits()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::vector$<$int$>$ xacc\+::quantum\+::\+Gate\+Instruction\+::bits (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_aba03de68b76a9e120705c3c389c714a1}{}\label{a00041_aba03de68b76a9e120705c3c389c714a1}
-Return the qubits this function acts on. \begin{DoxyReturn}{Returns}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_ad32ad03dfc516e00093030e60178003d}{}\label{a00041_ad32ad03dfc516e00093030e60178003d}
+Return the list of qubits this instruction acts on. \begin{DoxyReturn}{Returns}
 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00047_a819f32e94c3e1c9e69a0061aaf8d86dc}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_a819f32e94c3e1c9e69a0061aaf8d86dc}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}}
-\index{evaluate\+Variable\+Parameters@{evaluate\+Variable\+Parameters}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{evaluate\+Variable\+Parameters(std\+::vector$<$ Instruction\+Parameter $>$ runtime\+Parameters)}{evaluateVariableParameters(std::vector< InstructionParameter > runtimeParameters)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::evaluate\+Variable\+Parameters (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!disable@{disable}}
+\index{disable@{disable}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{disable()}{disable()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Instruction\+::disable (
 \begin{DoxyParamCaption}
-\item[{std\+::vector$<$ Instruction\+Parameter $>$}]{parameters}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a4bcbd2c8c4b615d74e4a4d39952fd411}{}\label{a00041_a4bcbd2c8c4b615d74e4a4d39952fd411}
-This method is used to evaluate this \hyperlink{a00039}{Function}\textquotesingle{}s parameterized Instructions that have string variable Instruction\+Parameters. These parameters are updated with the given runtime parameters.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a63ce138dd71fb43d303f5600fefb7215}{}\label{a00041_a63ce138dd71fb43d303f5600fefb7215}
+Disable this \hyperlink{a00046}{Instruction} 
+
+Reimplemented from \hyperlink{a00046_a6e528da15e05a94cc1d7db268c483271}{xacc\+::\+Instruction}.
+
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!enable@{enable}}
+\index{enable@{enable}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{enable()}{enable()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Instruction\+::enable (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a7a80474b7fd465271b3313432db2e608}{}\label{a00041_a7a80474b7fd465271b3313432db2e608}
+Enable this \hyperlink{a00046}{Instruction}. 
+
+Reimplemented from \hyperlink{a00046_a0b4f2e5a591af28342a3c08e4305e24f}{xacc\+::\+Instruction}.
+
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!get\+Name@{get\+Name}}
+\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Gate\+Instruction\+::get\+Name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a0db03b9e46eeba1134f0ca2b83ccc842}{}\label{a00041_a0db03b9e46eeba1134f0ca2b83ccc842}
+Return the instruction name. \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
 
 
-\begin{DoxyParams}{Parameters}
-{\em parameters} & The runtime parameters \\
-\hline
-\end{DoxyParams}
+Implements \hyperlink{a00046_ac7ff23f693e2276edbf3fdac5452792c}{xacc\+::\+Instruction}.
 
-
-Implements \hyperlink{a00039_af6ae9453027789a2aaec30e59c9e45e3}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!get\+Instruction@{get\+Instruction}}
-\index{get\+Instruction@{get\+Instruction}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{get\+Instruction(const int idx)}{getInstruction(const int idx)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Inst\+Ptr xacc\+::quantum\+::\+Gate\+Function\+::get\+Instruction (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!get\+Parameter@{get\+Parameter}}
+\index{get\+Parameter@{get\+Parameter}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{get\+Parameter(const int idx)}{getParameter(const int idx)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Instruction\+Parameter xacc\+::quantum\+::\+Gate\+Instruction\+::get\+Parameter (
 \begin{DoxyParamCaption}
 \item[{const int}]{idx}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a841d656eed8aa9b4c0eec3f1da38069c}{}\label{a00041_a841d656eed8aa9b4c0eec3f1da38069c}
-Return the \hyperlink{a00047}{Instruction} at the given index.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The desired \hyperlink{a00047}{Instruction} index \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-inst The instruction at the given index. 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00039_afa549fc91b5a05f26d8139954a7e0ed5}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!get\+Instructions@{get\+Instructions}}
-\index{get\+Instructions@{get\+Instructions}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{get\+Instructions()}{getInstructions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::list$<$Inst\+Ptr$>$ xacc\+::quantum\+::\+Gate\+Function\+::get\+Instructions (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_aebce6a9e64aed7f4aff86df752bacfe2}{}\label{a00041_aebce6a9e64aed7f4aff86df752bacfe2}
-Return all Instructions in this \hyperlink{a00039}{Function}
-
-\begin{DoxyReturn}{Returns}
-insts The list of this \hyperlink{a00039}{Function}\textquotesingle{}s Instructions 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00039_aaf80bd3d49113a92b520785572663032}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!get\+Name@{get\+Name}}
-\index{get\+Name@{get\+Name}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{get\+Name()}{getName()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Gate\+Function\+::get\+Name (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_af42efb6191267164717d53c469e15d3a}{}\label{a00041_af42efb6191267164717d53c469e15d3a}
-Return the name of this function \begin{DoxyReturn}{Returns}
-
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00047_ac7ff23f693e2276edbf3fdac5452792c}{xacc\+::\+Instruction}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!get\+Parameter@{get\+Parameter}}
-\index{get\+Parameter@{get\+Parameter}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{get\+Parameter(const int idx)}{getParameter(const int idx)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual Instruction\+Parameter xacc\+::quantum\+::\+Gate\+Function\+::get\+Parameter (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a5991903323e412777bedc4f0c862eb63}{}\label{a00041_a5991903323e412777bedc4f0c862eb63}
-Return this \hyperlink{a00047}{Instruction}\textquotesingle{}s parameter at the given index.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_addd6185279fe99fbdc3d4efd96e42162}{}\label{a00041_addd6185279fe99fbdc3d4efd96e42162}
+Return this \hyperlink{a00046}{Instruction}\textquotesingle{}s parameter at the given index.
 
 
 \begin{DoxyParams}{Parameters}
@@ -213,141 +158,81 @@ param The Instruction\+Parameter at the given index.
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00047_aa0d9de97a4833a042379647f83c33ab6}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_aa0d9de97a4833a042379647f83c33ab6}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!get\+Parameters@{get\+Parameters}}
-\index{get\+Parameters@{get\+Parameters}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{get\+Parameters()}{getParameters()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<$Instruction\+Parameter$>$ xacc\+::quantum\+::\+Gate\+Function\+::get\+Parameters (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!get\+Parameters@{get\+Parameters}}
+\index{get\+Parameters@{get\+Parameters}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{get\+Parameters()}{getParameters()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<$Instruction\+Parameter$>$ xacc\+::quantum\+::\+Gate\+Instruction\+::get\+Parameters (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_af7aabfe699a4dced576ff7fafff969d5}{}\label{a00041_af7aabfe699a4dced576ff7fafff969d5}
-Return all of this \hyperlink{a00047}{Instruction}\textquotesingle{}s parameters.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a8584444f9577283f6844ab32bdc4db72}{}\label{a00041_a8584444f9577283f6844ab32bdc4db72}
+Return all of this \hyperlink{a00046}{Instruction}\textquotesingle{}s parameters.
 
 \begin{DoxyReturn}{Returns}
 params This instructions parameters. 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00047_aeb67c67713896e8f27a5c7dd531f3340}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_aeb67c67713896e8f27a5c7dd531f3340}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!insert\+Instruction@{insert\+Instruction}}
-\index{insert\+Instruction@{insert\+Instruction}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{insert\+Instruction(const int idx, Inst\+Ptr new\+Inst)}{insertInstruction(const int idx, InstPtr newInst)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::insert\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx, }
-\item[{Inst\+Ptr}]{new\+Inst}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_aed3b963f1c4eb3215ca46af48d78f588}{}\label{a00041_aed3b963f1c4eb3215ca46af48d78f588}
-Insert a new \hyperlink{a00047}{Instruction} at the given index. All previous instructions are pushed back, ie their new indices are current\+Index + 1.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index where the new instruction should be inserted \\
-\hline
-{\em new\+Inst} & The new \hyperlink{a00047}{Instruction} to insert. \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a00039_acde702e44bdbc2759b338365218d7ebe}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!is\+Parameterized@{is\+Parameterized}}
-\index{is\+Parameterized@{is\+Parameterized}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{is\+Parameterized()}{isParameterized()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::quantum\+::\+Gate\+Function\+::is\+Parameterized (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!is\+Enabled@{is\+Enabled}}
+\index{is\+Enabled@{is\+Enabled}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{is\+Enabled()}{isEnabled()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::quantum\+::\+Gate\+Instruction\+::is\+Enabled (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_afad47903e0ed55ddbfa827ef8408a94b}{}\label{a00041_afad47903e0ed55ddbfa827ef8408a94b}
-Return true if this \hyperlink{a00047}{Instruction} is parameterized.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a0a821be322b0c848b01c55f91fc8f484}{}\label{a00041_a0a821be322b0c848b01c55f91fc8f484}
+Returns true if this \hyperlink{a00046}{Instruction} is enabled
 
 \begin{DoxyReturn}{Returns}
-parameterized True if this \hyperlink{a00047}{Instruction} has parameters. 
+enabled True if this \hyperlink{a00046}{Instruction} is enabled. 
 \end{DoxyReturn}
 
 
-Reimplemented from \hyperlink{a00047_a7b24d8ae485369fc2b2df7a3224a5e26}{xacc\+::\+Instruction}.
+Reimplemented from \hyperlink{a00046_ad02a1cf7220577124720b7a51424cea7}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!n\+Instructions@{n\+Instructions}}
-\index{n\+Instructions@{n\+Instructions}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{n\+Instructions()}{nInstructions()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const int xacc\+::quantum\+::\+Gate\+Function\+::n\+Instructions (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!is\+Parameterized@{is\+Parameterized}}
+\index{is\+Parameterized@{is\+Parameterized}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{is\+Parameterized()}{isParameterized()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::quantum\+::\+Gate\+Instruction\+::is\+Parameterized (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_aa70b26156c060fec71316fe5e98bb102}{}\label{a00041_aa70b26156c060fec71316fe5e98bb102}
-Return the number of Instructions that this \hyperlink{a00039}{Function} contains.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_afe7aeeb398262931e156bcb3950f8188}{}\label{a00041_afe7aeeb398262931e156bcb3950f8188}
+Return true if this \hyperlink{a00046}{Instruction} is parameterized.
 
 \begin{DoxyReturn}{Returns}
-n\+Inst The number of instructions 
+parameterized True if this \hyperlink{a00046}{Instruction} has parameters. 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00039_a8901985525f59713e14c61713e07c086}{xacc\+::\+Function}.
+Reimplemented from \hyperlink{a00046_a7b24d8ae485369fc2b2df7a3224a5e26}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!n\+Parameters@{n\+Parameters}}
-\index{n\+Parameters@{n\+Parameters}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{n\+Parameters()}{nParameters()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const int xacc\+::quantum\+::\+Gate\+Function\+::n\+Parameters (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!n\+Parameters@{n\+Parameters}}
+\index{n\+Parameters@{n\+Parameters}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{n\+Parameters()}{nParameters()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const int xacc\+::quantum\+::\+Gate\+Instruction\+::n\+Parameters (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_ad0bffcbc0884d81d6bdddf55385fc6c9}{}\label{a00041_ad0bffcbc0884d81d6bdddf55385fc6c9}
-Return the number of Instruction\+Parameters this \hyperlink{a00047}{Instruction} contains.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a3752912b2c402668ca4814e21d4bbd26}{}\label{a00041_a3752912b2c402668ca4814e21d4bbd26}
+Return the number of Instruction\+Parameters this \hyperlink{a00046}{Instruction} contains.
 
 \begin{DoxyReturn}{Returns}
 n\+Insts The number of instructions. 
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00047_ad54585d13c04ffd20296fff7ab8107ff}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_ad54585d13c04ffd20296fff7ab8107ff}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!remove\+Instruction@{remove\+Instruction}}
-\index{remove\+Instruction@{remove\+Instruction}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{remove\+Instruction(const int idx)}{removeInstruction(const int idx)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::remove\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a44ca35d081577de9ad2930f93c01e89d}{}\label{a00041_a44ca35d081577de9ad2930f93c01e89d}
-Remove the \hyperlink{a00047}{Instruction} at the given index.
-
-
-\begin{DoxyParams}{Parameters}
-{\em idx} & The index of the \hyperlink{a00047}{Instruction} to remove. \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a00039_ab6478b09bb28e194bb555b3180737733}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!replace\+Instruction@{replace\+Instruction}}
-\index{replace\+Instruction@{replace\+Instruction}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{replace\+Instruction(const int idx, Inst\+Ptr replacing\+Inst)}{replaceInstruction(const int idx, InstPtr replacingInst)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::replace\+Instruction (
-\begin{DoxyParamCaption}
-\item[{const int}]{idx, }
-\item[{Inst\+Ptr}]{replacing\+Inst}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a182fdfabbf546ae89e4f2384bafb45c9}{}\label{a00041_a182fdfabbf546ae89e4f2384bafb45c9}
-Replace the given current quantum instruction with the new replacing\+Inst quantum \hyperlink{a00047}{Instruction}.
-
-
-\begin{DoxyParams}{Parameters}
-{\em current\+Inst} & \\
-\hline
-{\em replacing\+Inst} & \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a00039_a2ef6a4923a6734f90f6ee3d94d263af0}{xacc\+::\+Function}.
-
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!set\+Parameter@{set\+Parameter}}
-\index{set\+Parameter@{set\+Parameter}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{set\+Parameter(const int idx, Instruction\+Parameter \&p)}{setParameter(const int idx, InstructionParameter \&p)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Function\+::set\+Parameter (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!set\+Parameter@{set\+Parameter}}
+\index{set\+Parameter@{set\+Parameter}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{set\+Parameter(const int idx, Instruction\+Parameter \&p)}{setParameter(const int idx, InstructionParameter \&p)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Instruction\+::set\+Parameter (
 \begin{DoxyParamCaption}
 \item[{const int}]{idx, }
 \item[{Instruction\+Parameter \&}]{isnt}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_ab8d9789b46e92e27a9d7c9c5b7e3683c}{}\label{a00041_ab8d9789b46e92e27a9d7c9c5b7e3683c}
-Set this \hyperlink{a00047}{Instruction}\textquotesingle{}s parameter at the given index.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_afb8f7582d7520c77d61b9016753f5669}{}\label{a00041_afb8f7582d7520c77d61b9016753f5669}
+Set this \hyperlink{a00046}{Instruction}\textquotesingle{}s parameter at the given index.
 
 
 \begin{DoxyParams}{Parameters}
@@ -358,16 +243,16 @@ Set this \hyperlink{a00047}{Instruction}\textquotesingle{}s parameter at the giv
 \end{DoxyParams}
 
 
-Implements \hyperlink{a00047_a407a0ac662fa0b1ec3e301e8ff9bade7}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_a407a0ac662fa0b1ec3e301e8ff9bade7}{xacc\+::\+Instruction}.
 
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!to\+String@{to\+String}}
-\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{to\+String(const std\+::string \&buffer\+Var\+Name)}{toString(const std::string \&bufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Gate\+Function\+::to\+String (
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!to\+String@{to\+String}}
+\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{to\+String(const std\+::string \&buffer\+Var\+Name)}{toString(const std::string \&bufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual const std\+::string xacc\+::quantum\+::\+Gate\+Instruction\+::to\+String (
 \begin{DoxyParamCaption}
 \item[{const std\+::string \&}]{buffer\+Var\+Name}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_aa1950776ae84bad2d0795a0441f910e7}{}\label{a00041_aa1950776ae84bad2d0795a0441f910e7}
-Return an assembly-\/like string representation for this function . 
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00041_a089a5da67ff40ac1a6f56e64589822d9}{}\label{a00041_a089a5da67ff40ac1a6f56e64589822d9}
+Return this instruction\textquotesingle{}s assembly-\/like string representation. 
 \begin{DoxyParams}{Parameters}
 {\em buffer\+Var\+Name} & \\
 \hline
@@ -377,23 +262,23 @@ Return an assembly-\/like string representation for this function .
 \end{DoxyReturn}
 
 
-Implements \hyperlink{a00047_ae94c2d089908294c1d410b14c96817ae}{xacc\+::\+Instruction}.
+Implements \hyperlink{a00046_ae94c2d089908294c1d410b14c96817ae}{xacc\+::\+Instruction}.
 
 
 
-Reimplemented in \hyperlink{a00025_aca7a5f849fece6fc28a904efee9a3370}{xacc\+::quantum\+::\+Conditional\+Function}.
+Reimplemented in \hyperlink{a00055_a1c51a5d68294dcb2ba1a9fbea63a730f}{xacc\+::quantum\+::\+Measure}.
 
 
 
 \subsection{Member Data Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!cached\+Variable\+Instructions@{cached\+Variable\+Instructions}}
-\index{cached\+Variable\+Instructions@{cached\+Variable\+Instructions}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{cached\+Variable\+Instructions}{cachedVariableInstructions}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$int, std\+::pair$<$int, std\+::string$>$ $>$ xacc\+::quantum\+::\+Gate\+Function\+::cached\+Variable\+Instructions\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00041_a186fadb9c8b90481eaa260bdd81b37b9}{}\label{a00041_a186fadb9c8b90481eaa260bdd81b37b9}
-Map of \hyperlink{a00047}{Instruction} Index to ( \hyperlink{a00047}{Instruction}\textquotesingle{}s Runtime Parameter Index, Dependent Variable name) \index{xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}!function\+Name@{function\+Name}}
-\index{function\+Name@{function\+Name}!xacc\+::quantum\+::\+Gate\+Function@{xacc\+::quantum\+::\+Gate\+Function}}
-\subsubsection[{\texorpdfstring{function\+Name}{functionName}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+Gate\+Function\+::function\+Name\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00041_aea17cb1ca610bb5b8eadb0642c32b937}{}\label{a00041_aea17cb1ca610bb5b8eadb0642c32b937}
-The name of this function 
+\index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!gate\+Name@{gate\+Name}}
+\index{gate\+Name@{gate\+Name}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{gate\+Name}{gateName}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+Gate\+Instruction\+::gate\+Name\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00041_a9961e6979139ced70300188cf2e4ad3f}{}\label{a00041_a9961e6979139ced70300188cf2e4ad3f}
+Reference to this instructions name \index{xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}!qbits@{qbits}}
+\index{qbits@{qbits}!xacc\+::quantum\+::\+Gate\+Instruction@{xacc\+::quantum\+::\+Gate\+Instruction}}
+\subsubsection[{\texorpdfstring{qbits}{qbits}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$int$>$ xacc\+::quantum\+::\+Gate\+Instruction\+::qbits\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00041_a2a56be6c2519ea65df4d06f4abae1393}{}\label{a00041_a2a56be6c2519ea65df4d06f4abae1393}
+Reference to the qubits this instruction acts on 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Gate\+Function.\+hpp\end{DoxyCompactItemize}
+Gate\+Instruction.\+hpp\end{DoxyCompactItemize}

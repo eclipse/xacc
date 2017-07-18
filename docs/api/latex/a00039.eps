@@ -5,7 +5,7 @@
 %%For: 
 %Magnification: 1.00
 %%Orientation: Portrait
-%%BoundingBox: 0 0 500 230.414747
+%%BoundingBox: 0 0 500 563.380282
 %%Pages: 0
 %%BeginSetup
 %%EndSetup
@@ -19,12 +19,12 @@
 /marginwidth 10 def
 /distx 20 def
 /disty 40 def
-/boundaspect 2.170000 def  % aspect ratio of the BoundingBox (width/height)
+/boundaspect 0.887500 def  % aspect ratio of the BoundingBox (width/height)
 /boundx 500 def
 /boundy boundx boundaspect div def
 /xspacing 0 def
 /yspacing 0 def
-/rows 5 def
+/rows 16 def
 /cols 2 def
 /scalefactor 0 def
 /boxfont /Times-Roman findfont fontheight scalefont def
@@ -173,12 +173,22 @@
 
 boxfont setfont
 1 boundaspect scale
-(xacc::Function) cw
-(xacc::Instruction) cw
-(xacc::BaseInstructionVisitable) cw
-(xacc::quantum::DWKernel) cw
-(xacc::quantum::GateFunction) cw
-(xacc::quantum::ConditionalFunction) cw
+(xacc::quantum::FunctionalGateInstructionVisitor) cw
+(xacc::quantum::AllGateVisitor) cw
+(xacc::BaseInstructionVisitor) cw
+(xacc::InstructionVisitor< GateFunction >) cw
+(xacc::InstructionVisitor< Hadamard >) cw
+(xacc::InstructionVisitor< CNOT >) cw
+(xacc::InstructionVisitor< Rz >) cw
+(xacc::InstructionVisitor< Rx >) cw
+(xacc::InstructionVisitor< Ry >) cw
+(xacc::InstructionVisitor< ConditionalFunction >) cw
+(xacc::InstructionVisitor< X >) cw
+(xacc::InstructionVisitor< Y >) cw
+(xacc::InstructionVisitor< Z >) cw
+(xacc::InstructionVisitor< CPhase >) cw
+(xacc::InstructionVisitor< Swap >) cw
+(xacc::InstructionVisitor< Measure >) cw
 /boxwidth boxwidth marginwidth 2 mul add def
 /xspacing boxwidth distx add def
 /yspacing boxheight disty add def
@@ -190,34 +200,58 @@ boundx scalefactor div boundy scalefactor div scale
 
 % ----- classes -----
 
- (xacc::Function) 0.500000 2.000000 box
-dashed
- (xacc::Instruction) 0.500000 3.000000 box
-solid
- (xacc::BaseInstructionVisitable) 0.500000 4.000000 box
- (xacc::quantum::DWKernel) 0.000000 1.000000 box
- (xacc::quantum::GateFunction) 1.000000 1.000000 box
- (xacc::quantum::ConditionalFunction) 1.000000 0.000000 box
+ (xacc::quantum::FunctionalGateInstructionVisitor) 0.000000 0.000000 box
+ (xacc::quantum::AllGateVisitor) 0.000000 1.000000 box
+ (xacc::InstructionVisitor< Measure >) 1.000000 2.000000 box
+ (xacc::InstructionVisitor< Swap >) 1.000000 3.000000 box
+ (xacc::InstructionVisitor< CPhase >) 1.000000 4.000000 box
+ (xacc::InstructionVisitor< Z >) 1.000000 5.000000 box
+ (xacc::InstructionVisitor< Y >) 1.000000 6.000000 box
+ (xacc::InstructionVisitor< X >) 1.000000 7.000000 box
+ (xacc::InstructionVisitor< ConditionalFunction >) 1.000000 8.000000 box
+ (xacc::InstructionVisitor< Ry >) 1.000000 9.000000 box
+ (xacc::InstructionVisitor< Rx >) 1.000000 10.000000 box
+ (xacc::InstructionVisitor< Rz >) 1.000000 11.000000 box
+ (xacc::InstructionVisitor< CNOT >) 1.000000 12.000000 box
+ (xacc::InstructionVisitor< Hadamard >) 1.000000 13.000000 box
+ (xacc::InstructionVisitor< GateFunction >) 1.000000 14.000000 box
+ (xacc::BaseInstructionVisitor) 1.000000 15.000000 box
 
 % ----- relations -----
 
 solid
-0 0.500000 2.000000 out
+0 0.000000 0.000000 out
 solid
-1 0.500000 3.000000 in
+1 0.000000 1.000000 in
 solid
-0 0.500000 3.000000 out
+0 0.000000 1.000000 out
 solid
-1 0.500000 4.000000 in
+1 0.000000 2.500000 hedge
 solid
-1 0.500000 1.250000 out
+1 0.000000 3.500000 hedge
 solid
-0.000000 1.000000 2.000000 conn
+1 0.000000 4.500000 hedge
 solid
-0 0.000000 1.750000 in
+1 0.000000 5.500000 hedge
 solid
-0 1.000000 1.750000 in
+1 0.000000 6.500000 hedge
 solid
-1 1.000000 0.250000 out
+1 0.000000 7.500000 hedge
 solid
-0 1.000000 0.750000 in
+1 0.000000 8.500000 hedge
+solid
+1 0.000000 9.500000 hedge
+solid
+1 0.000000 10.500000 hedge
+solid
+1 0.000000 11.500000 hedge
+solid
+1 0.000000 12.500000 hedge
+solid
+1 0.000000 13.500000 hedge
+solid
+1 0.000000 14.500000 hedge
+solid
+1 0.000000 15.500000 hedge
+solid
+0.000000 2.000000 15.500000 vedge

@@ -1,24 +1,61 @@
-\hypertarget{a00076}{}\section{xacc\+:\+:quantum\+:\+:Rz Class Reference}
-\label{a00076}\index{xacc\+::quantum\+::\+Rz@{xacc\+::quantum\+::\+Rz}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Rz\+:\begin{figure}[H]
+\hypertarget{a00076}{}\section{xacc\+:\+:quantum\+:\+:Scaffold\+A\+S\+T\+Consumer Class Reference}
+\label{a00076}\index{xacc\+::quantum\+::\+Scaffold\+A\+S\+T\+Consumer@{xacc\+::quantum\+::\+Scaffold\+A\+S\+T\+Consumer}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Scaffold\+A\+S\+T\+Consumer\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=4.000000cm]{a00076}
+\includegraphics[height=1.717791cm]{a00076}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Rz} (std\+::vector$<$ int $>$ \hyperlink{a00042_a2a56be6c2519ea65df4d06f4abae1393}{qbits})\hypertarget{a00076_a7ce912c7f9c9e8f4e7e60f9dba95538b}{}\label{a00076_a7ce912c7f9c9e8f4e7e60f9dba95538b}
+virtual bool {\bfseries Handle\+Top\+Level\+Decl} (Decl\+Group\+Ref DR)\hypertarget{a00076_ae846fd40684f3a1f820b8711e1204089}{}\label{a00076_ae846fd40684f3a1f820b8711e1204089}
 
 \item 
-{\bfseries Rz} (int qbit, double theta)\hypertarget{a00076_ae30eaf75feb8f896c22043629d21b834}{}\label{a00076_ae30eaf75feb8f896c22043629d21b834}
+bool {\bfseries Visit\+Stmt} (clang\+::\+Stmt $\ast$s)\hypertarget{a00076_a6693c27f68332d8142fbdcb405e3259b}{}\label{a00076_a6693c27f68332d8142fbdcb405e3259b}
+
+\item 
+bool {\bfseries Visit\+Decl} (clang\+::\+Decl $\ast$d)\hypertarget{a00076_ae6a05fe567cd8ea15feb694dbb898c33}{}\label{a00076_ae6a05fe567cd8ea15feb694dbb898c33}
+
+\item 
+bool {\bfseries Visit\+Call\+Expr} (Call\+Expr $\ast$c)\hypertarget{a00076_a1478fc9e887b04d2ad2aa8347ef6bbcb}{}\label{a00076_a1478fc9e887b04d2ad2aa8347ef6bbcb}
+
+\item 
+bool {\bfseries Visit\+Binary\+Operator} (Binary\+Operator $\ast$b)\hypertarget{a00076_a3f2f070888678caf53e57041b4f5ddd6}{}\label{a00076_a3f2f070888678caf53e57041b4f5ddd6}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00050}{xacc\+::\+IR} $>$ {\bfseries get\+IR} ()\hypertarget{a00076_af9dbfa7c52b8a7de99132257e154e29a}{}\label{a00076_af9dbfa7c52b8a7de99132257e154e29a}
+
+\item 
+const std\+::string {\bfseries get\+Qubit\+Variable\+Name} ()\hypertarget{a00076_aa301f0bcae6fb5a1c17557ba08144cb4}{}\label{a00076_aa301f0bcae6fb5a1c17557ba08144cb4}
 
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
-
-
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
 \item 
-Rz.\+hpp\item 
-Rz.\+cpp\end{DoxyCompactItemize}
+std\+::string {\bfseries cbit\+Var\+Name}\hypertarget{a00076_a62efc9fb3166e7f9d0a7ccb71dc5eb59}{}\label{a00076_a62efc9fb3166e7f9d0a7ccb71dc5eb59}
+
+\item 
+std\+::string {\bfseries qbit\+Var\+Name}\hypertarget{a00076_aaa908356dd67cb918d7cc913783760f9}{}\label{a00076_aaa908356dd67cb918d7cc913783760f9}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00042}{xacc\+::quantum\+::\+Gate\+Q\+IR} $>$ {\bfseries ir}\hypertarget{a00076_addb230351a9ceaeb55496adc57f2b748}{}\label{a00076_addb230351a9ceaeb55496adc57f2b748}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00040}{xacc\+::quantum\+::\+Gate\+Function} $>$ {\bfseries function}\hypertarget{a00076_a78d4c0227cf55778cb05f2262357c3a9}{}\label{a00076_a78d4c0227cf55778cb05f2262357c3a9}
+
+\item 
+std\+::shared\+\_\+ptr$<$ \hyperlink{a00025}{xacc\+::quantum\+::\+Conditional\+Function} $>$ {\bfseries current\+Conditional}\hypertarget{a00076_a481378bd7158942633a555500871b363}{}\label{a00076_a481378bd7158942633a555500871b363}
+
+\item 
+int {\bfseries n\+Call\+Expr\+To\+Skip} = 0\hypertarget{a00076_a3be085dc66ddcf3f6e0530a17b26e66a}{}\label{a00076_a3be085dc66ddcf3f6e0530a17b26e66a}
+
+\item 
+std\+::map$<$ std\+::string, int $>$ {\bfseries cbit\+Reg\+To\+Measured\+Qubit}\hypertarget{a00076_a6675849cfdd92413a688c6999dda40a8}{}\label{a00076_a6675849cfdd92413a688c6999dda40a8}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Scaffold\+A\+S\+T\+Consumer.\+hpp\end{DoxyCompactItemize}

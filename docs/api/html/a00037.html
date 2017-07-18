@@ -89,21 +89,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="a00363.html">List of all members</a>  </div>
+<a href="a00361.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">xacc::quantum::EmbeddingAlgorithm Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00146_source.html">EmbeddingAlgorithm.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00145_source.html">EmbeddingAlgorithm.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for xacc::quantum::EmbeddingAlgorithm:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="a00037.png" usemap="#xacc::quantum::EmbeddingAlgorithm_map" alt=""/>
   <map id="xacc::quantum::EmbeddingAlgorithm_map" name="xacc::quantum::EmbeddingAlgorithm_map">
-<area href="a00038.html" alt="Factoring15FakeEmbedding" shape="rect" coords="0,56,247,80"/>
-<area href="a00084.html" alt="xacc::quantum::TrivialEmbeddingAlgorithm" shape="rect" coords="257,56,504,80"/>
+<area href="a00083.html" alt="xacc::quantum::TrivialEmbeddingAlgorithm" shape="rect" coords="0,56,247,80"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -113,7 +112,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:abad06507eef6b63af0884e3a96145c69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa43660ad5d4c4b3ac67863892c33dc51"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#aa43660ad5d4c4b3ac67863892c33dc51">~EmbeddingAlgorithm</a> ()</td></tr>
 <tr class="separator:aa43660ad5d4c4b3ac67863892c33dc51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fca277e217884ff79802770189276fe"><td class="memItemLeft" align="right" valign="top">virtual std::map&lt; int, std::list&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a6fca277e217884ff79802770189276fe">embed</a> (std::shared_ptr&lt; <a class="el" href="a00030.html">DWGraph</a> &gt; problem, std::shared_ptr&lt; <a class="el" href="a00044.html">AcceleratorGraph</a> &gt; hardware, std::map&lt; std::string, std::string &gt; params=std::map&lt; std::string, std::string &gt;())=0</td></tr>
+<tr class="memitem:a6fca277e217884ff79802770189276fe"><td class="memItemLeft" align="right" valign="top">virtual std::map&lt; int, std::list&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a6fca277e217884ff79802770189276fe">embed</a> (std::shared_ptr&lt; <a class="el" href="a00030.html">DWGraph</a> &gt; problem, std::shared_ptr&lt; <a class="el" href="a00043.html">AcceleratorGraph</a> &gt; hardware, std::map&lt; std::string, std::string &gt; params=std::map&lt; std::string, std::string &gt;())=0</td></tr>
 <tr class="separator:a6fca277e217884ff79802770189276fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21079dc8ee37792977f5fd209e3f3b19"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00037.html#a21079dc8ee37792977f5fd209e3f3b19">name</a> ()=0</td></tr>
 <tr class="separator:a21079dc8ee37792977f5fd209e3f3b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +185,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00044.html">AcceleratorGraph</a> &gt;&#160;</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00043.html">AcceleratorGraph</a> &gt;&#160;</td>
           <td class="paramname"><em>hardware</em>, </td>
         </tr>
         <tr>
@@ -218,7 +217,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>embedding A mapping of problem vertex indices to the list of hardware vertices they map to </dd></dl>
 
-<p>Implemented in <a class="el" href="a00084.html#a09e162a745528ffa3ea847dd5afee45b">xacc::quantum::TrivialEmbeddingAlgorithm</a>.</p>
+<p>Implemented in <a class="el" href="a00083.html#a09e162a745528ffa3ea847dd5afee45b">xacc::quantum::TrivialEmbeddingAlgorithm</a>.</p>
 
 </div>
 </div>
@@ -244,12 +243,12 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Return the name of this Embedding Algorithm </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
-<p>Implemented in <a class="el" href="a00038.html#a2fc78d2c2960cb0900b9224c8a2baf61">Factoring15FakeEmbedding</a>, and <a class="el" href="a00084.html#a5d3e8c56b53cda9c682dedc534bf38fb">xacc::quantum::TrivialEmbeddingAlgorithm</a>.</p>
+<p>Implemented in <a class="el" href="a00083.html#a5d3e8c56b53cda9c682dedc534bf38fb">xacc::quantum::TrivialEmbeddingAlgorithm</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00146_source.html">EmbeddingAlgorithm.hpp</a></li>
+<li><a class="el" href="a00145_source.html">EmbeddingAlgorithm.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

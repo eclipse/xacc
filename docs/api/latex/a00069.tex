@@ -1,13 +1,25 @@
-\hypertarget{a00069}{}\section{xacc\+:\+:quantum\+:\+:Register\+Gate\+Instruction$<$ T $>$ Class Template Reference}
-\label{a00069}\index{xacc\+::quantum\+::\+Register\+Gate\+Instruction$<$ T $>$@{xacc\+::quantum\+::\+Register\+Gate\+Instruction$<$ T $>$}}
+\hypertarget{a00069}{}\section{xacc\+:\+:Register\+Preprocessor$<$ T $>$ Class Template Reference}
+\label{a00069}\index{xacc\+::\+Register\+Preprocessor$<$ T $>$@{xacc\+::\+Register\+Preprocessor$<$ T $>$}}
+
+
+{\ttfamily \#include $<$Preprocessor.\+hpp$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Register\+Gate\+Instruction} (const std\+::string \&name)\hypertarget{a00069_aad394924e098f0cc8da5cc7f211acd7a}{}\label{a00069_aad394924e098f0cc8da5cc7f211acd7a}
+{\bfseries Register\+Preprocessor} (const std\+::string \&name)\hypertarget{a00069_a360d5ffa16ef3a96c3bc61fa897ffe3c}{}\label{a00069_a360d5ffa16ef3a96c3bc61fa897ffe3c}
 
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\\*
+class xacc\+::\+Register\+Preprocessor$<$ T $>$}
+
+\hyperlink{a00069}{Register\+Preprocessor} is a convenience class for registering custom derived \hyperlink{a00057}{Preprocessor} classes.
+
+Creators of \hyperlink{a00057}{Preprocessor} subclasses create an instance of this class with their \hyperlink{a00057}{Preprocessor} subclass as the template parameter to register their \hyperlink{a00057}{Preprocessor} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00057}{Preprocessor} and at global scope. 
+
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Gate\+Instruction.\+hpp\end{DoxyCompactItemize}
+Preprocessor.\+hpp\end{DoxyCompactItemize}

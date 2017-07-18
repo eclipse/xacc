@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>XACC: xacc::quantum::RegisterGateInstruction&lt; T &gt; Class Template Reference</title>
+<title>XACC: xacc::RegisterPreprocessor&lt; T &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -83,26 +83,34 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00069.html">RegisterGateInstruction</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00069.html">RegisterPreprocessor</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="a00381.html">List of all members</a>  </div>
+<a href="a00339.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::quantum::RegisterGateInstruction&lt; T &gt; Class Template Reference</div>  </div>
+<div class="title">xacc::RegisterPreprocessor&lt; T &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="a00232_source.html">Preprocessor.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aad394924e098f0cc8da5cc7f211acd7a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad394924e098f0cc8da5cc7f211acd7a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterGateInstruction</b> (const std::string &amp;name)</td></tr>
-<tr class="separator:aad394924e098f0cc8da5cc7f211acd7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a360d5ffa16ef3a96c3bc61fa897ffe3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a360d5ffa16ef3a96c3bc61fa897ffe3c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterPreprocessor</b> (const std::string &amp;name)</td></tr>
+<tr class="separator:a360d5ffa16ef3a96c3bc61fa897ffe3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00152_source.html">GateInstruction.hpp</a></li>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;typename T&gt;<br />
+class xacc::RegisterPreprocessor&lt; T &gt;</h3>
+
+<p><a class="el" href="a00069.html">RegisterPreprocessor</a> is a convenience class for registering custom derived <a class="el" href="a00057.html">Preprocessor</a> classes.</p>
+<p>Creators of <a class="el" href="a00057.html">Preprocessor</a> subclasses create an instance of this class with their <a class="el" href="a00057.html">Preprocessor</a> subclass as the template parameter to register their <a class="el" href="a00057.html">Preprocessor</a> with XACC. This instance must be created in the CPP implementation file for the <a class="el" href="a00057.html">Preprocessor</a> and at global scope. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="a00232_source.html">Preprocessor.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

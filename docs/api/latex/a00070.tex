@@ -1,25 +1,153 @@
-\hypertarget{a00070}{}\section{xacc\+:\+:Register\+Preprocessor$<$ T $>$ Class Template Reference}
-\label{a00070}\index{xacc\+::\+Register\+Preprocessor$<$ T $>$@{xacc\+::\+Register\+Preprocessor$<$ T $>$}}
+\hypertarget{a00070}{}\section{xacc\+:\+:Registry$<$ T, T\+Args $>$ Class Template Reference}
+\label{a00070}\index{xacc\+::\+Registry$<$ T, T\+Args $>$@{xacc\+::\+Registry$<$ T, T\+Args $>$}}
 
 
-{\ttfamily \#include $<$Preprocessor.\+hpp$>$}
+{\ttfamily \#include $<$Registry.\+hpp$>$}
 
+Inheritance diagram for xacc\+:\+:Registry$<$ T, T\+Args $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00070}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+using {\bfseries Creator\+Function} = std\+::function$<$ std\+::shared\+\_\+ptr$<$ T $>$(T\+Args...)$>$\hypertarget{a00070_a784134d683dee924996e12d32a6da16c}{}\label{a00070_a784134d683dee924996e12d32a6da16c}
+
+\item 
+using {\bfseries Creator\+Function\+Ptr} = std\+::shared\+\_\+ptr$<$ Creator\+Function $>$\hypertarget{a00070_a2e7d22d66dcc4644e01bcc398a3e23cc}{}\label{a00070_a2e7d22d66dcc4644e01bcc398a3e23cc}
+
+\end{DoxyCompactItemize}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Register\+Preprocessor} (const std\+::string \&name)\hypertarget{a00070_a360d5ffa16ef3a96c3bc61fa897ffe3c}{}\label{a00070_a360d5ffa16ef3a96c3bc61fa897ffe3c}
+bool \hyperlink{a00070_a5ec7144ddc944674313badd32452fecc}{add} (const std\+::string \&id, Creator\+Function\+Ptr f)
+\item 
+bool \hyperlink{a00070_a51d98b5cf6e2722655a2f597b436aa80}{add} (const std\+::string \&id, Creator\+Function\+Ptr f, std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ options)
+\item 
+std\+::shared\+\_\+ptr$<$ T $>$ \hyperlink{a00070_aecccbd5534276cbdd1553e43c942219b}{create} (const std\+::string \&id, T\+Args...\+args)
+\item 
+std\+::vector$<$ std\+::string $>$ \hyperlink{a00070_a8bff6f5c50534375abc4026662d69d2e}{get\+Registered\+Ids} ()
+\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ $>$ {\bfseries get\+Registered\+Options} ()\hypertarget{a00070_ad1fef83142cd38d0727471c15507a0ea}{}\label{a00070_ad1fef83142cd38d0727471c15507a0ea}
+
+\item 
+std\+::size\+\_\+t \hyperlink{a00070_a2352dd7c6c85ae5c5e232b577dfa2544}{size} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ std\+::string, Creator\+Function\+Ptr $>$ \hyperlink{a00070_a7eeb7a09aafaef2012b6d0bff13c922e}{registry}
+\item 
+std\+::map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ $>$ {\bfseries registry\+Options}\hypertarget{a00070_a790075e0e023308e5e74247fb0229a04}{}\label{a00070_a790075e0e023308e5e74247fb0229a04}
 
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-\subsubsection*{template$<$typename T$>$\\*
-class xacc\+::\+Register\+Preprocessor$<$ T $>$}
+\subsubsection*{template$<$typename T, typename... T\+Args$>$\\*
+class xacc\+::\+Registry$<$ T, T\+Args $>$}
 
-\hyperlink{a00070}{Register\+Preprocessor} is a convenience class for registering custom derived \hyperlink{a00058}{Preprocessor} classes.
+\hyperlink{a00070}{Registry} is a \hyperlink{a00081}{Singleton} that provides a mapping of string ids to creation functions that create and return the provided \hyperlink{a00070}{Registry} template parameter T.
 
-Creators of \hyperlink{a00058}{Preprocessor} subclasses create an instance of this class with their \hyperlink{a00058}{Preprocessor} subclass as the template parameter to register their \hyperlink{a00058}{Preprocessor} with X\+A\+CC. This instance must be created in the C\+PP implementation file for the \hyperlink{a00058}{Preprocessor} and at global scope. 
+Clients can add new creation functions to be placed in the map with a unique name key, and can request that the \hyperlink{a00070}{Registry} return a new created instance of the template parameter T. 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!add@{add}}
+\index{add@{add}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{add(const std\+::string \&id, Creator\+Function\+Ptr f)}{add(const std::string \&id, CreatorFunctionPtr f)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ bool {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::add (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{Creator\+Function\+Ptr}]{f}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00070_a5ec7144ddc944674313badd32452fecc}{}\label{a00070_a5ec7144ddc944674313badd32452fecc}
+Add a new creation function to the \hyperlink{a00070}{Registry}, keyed on the provided string id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The Id of the creation function \\
+\hline
+{\em f} & The object\textquotesingle{}s creation function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success Bool indicating if this creator was added successfully. 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!add@{add}}
+\index{add@{add}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{add(const std\+::string \&id, Creator\+Function\+Ptr f, std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ options)}{add(const std::string \&id, CreatorFunctionPtr f, std::shared\_ptr< options\_description > options)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ bool {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::add (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{Creator\+Function\+Ptr}]{f, }
+\item[{std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$}]{options}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00070_a51d98b5cf6e2722655a2f597b436aa80}{}\label{a00070_a51d98b5cf6e2722655a2f597b436aa80}
+Add a new creation function to the \hyperlink{a00070}{Registry}, keyed on the provided string id, and related command line options for the object to be created.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The Id of the creation function \\
+\hline
+{\em f} & The object\textquotesingle{}s creation function \\
+\hline
+{\em options} & The objects command line options \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success Bool indicating if this creator was added successfully. 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!create@{create}}
+\index{create@{create}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{create(const std\+::string \&id, T\+Args...\+args)}{create(const std::string \&id, TArgs...args)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::shared\+\_\+ptr$<$T$>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::create (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{id, }
+\item[{T\+Args...}]{args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00070_aecccbd5534276cbdd1553e43c942219b}{}\label{a00070_aecccbd5534276cbdd1553e43c942219b}
+Create an instance of T by using the creation function found at the given key string id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em id} & The Id of the creation function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+object Shared Pointer for the created object. 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!get\+Registered\+Ids@{get\+Registered\+Ids}}
+\index{get\+Registered\+Ids@{get\+Registered\+Ids}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{get\+Registered\+Ids()}{getRegisteredIds()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::vector$<$std\+::string$>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::get\+Registered\+Ids (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00070_a8bff6f5c50534375abc4026662d69d2e}{}\label{a00070_a8bff6f5c50534375abc4026662d69d2e}
+Return the keys from the registry map.
+
+\begin{DoxyReturn}{Returns}
+ids The registered creator Ids 
+\end{DoxyReturn}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!size@{size}}
+\index{size@{size}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{size()}{size()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::size\+\_\+t {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00070_a2352dd7c6c85ae5c5e232b577dfa2544}{}\label{a00070_a2352dd7c6c85ae5c5e232b577dfa2544}
+Return the number of creation functions this registry contains.
+
+\begin{DoxyReturn}{Returns}
+size The number of creators in this \hyperlink{a00070}{Registry} 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::\+Registry@{xacc\+::\+Registry}!registry@{registry}}
+\index{registry@{registry}!xacc\+::\+Registry@{xacc\+::\+Registry}}
+\subsubsection[{\texorpdfstring{registry}{registry}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename T, typename... T\+Args$>$ std\+::map$<$std\+::string, Creator\+Function\+Ptr$>$ {\bf xacc\+::\+Registry}$<$ T, T\+Args $>$\+::registry\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00070_a7eeb7a09aafaef2012b6d0bff13c922e}{}\label{a00070_a7eeb7a09aafaef2012b6d0bff13c922e}
+Reference to the database of creation functions for classes of superclass type T. 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Preprocessor.\+hpp\end{DoxyCompactItemize}
+Registry.\+hpp\end{DoxyCompactItemize}

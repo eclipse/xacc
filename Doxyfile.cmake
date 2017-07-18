@@ -877,6 +877,7 @@ EXCLUDE_SYMBOLS        += runtime_get*
 EXCLUDE_SYMBOLS        += XACCException
 EXCLUDE_SYMBOLS        += XACCInfoT
 EXCLUDE_SYMBOLS        += int_
+EXCLUDE_SYMBOLS        += Factoring*
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

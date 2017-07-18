@@ -13,11 +13,11 @@ Inheritance diagram for xacc\+:\+:Compiler\+:\begin{figure}[H]
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00051}{IR} $>$ \hyperlink{a00023_a546a40c95bb93af6a0c0ac48dbeaffc8}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)=0
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00050}{IR} $>$ \hyperlink{a00023_a546a40c95bb93af6a0c0ac48dbeaffc8}{compile} (const std\+::string \&src, std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ acc)=0
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00051}{IR} $>$ \hyperlink{a00023_a9092f5f779b570c91569b59621280c04}{compile} (const std\+::string \&src)=0
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00050}{IR} $>$ \hyperlink{a00023_a9092f5f779b570c91569b59621280c04}{compile} (const std\+::string \&src)=0
 \item 
-virtual const std\+::string \hyperlink{a00023_aeedbe58a33fed29e4d7694ae743e25e7}{translate} (const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ function)=0
+virtual const std\+::string \hyperlink{a00023_aeedbe58a33fed29e4d7694ae743e25e7}{translate} (const std\+::string \&buffer\+Variable, std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{Function} $>$ function)=0
 \item 
 virtual const std\+::string \hyperlink{a00023_a87fca9100e6462122f5b687c3a0fb3fb}{get\+Name} ()=0
 \item 
@@ -35,7 +35,7 @@ std\+::shared\+\_\+ptr$<$ \hyperlink{a00011}{Accelerator} $>$ \hyperlink{a00023_
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00023}{Compiler} class provides an extensible interface for injecting custom compilation mechanisms into the X\+A\+CC framework. Implementations provide a compile method that takes the kernel source code string, performs compiler-\/specific compilation mechanism, and returns a valid X\+A\+CC \hyperlink{a00051}{IR} instance modeling the result of the compilation. 
+The \hyperlink{a00023}{Compiler} class provides an extensible interface for injecting custom compilation mechanisms into the X\+A\+CC framework. Implementations provide a compile method that takes the kernel source code string, performs compiler-\/specific compilation mechanism, and returns a valid X\+A\+CC \hyperlink{a00050}{IR} instance modeling the result of the compilation. 
 
 \subsection{Constructor \& Destructor Documentation}
 \index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!````~Compiler@{$\sim$\+Compiler}}
@@ -70,7 +70,7 @@ ir Intermediate representation for provided source kernel code.
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00034_a0df05642f1a6fd44ce7f1c0396d50c9c}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00078_a7caede75bb2304ba405966651b115543}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00063_a2421482415ca4e09963ea4ecddff8100}{xacc\+::quantum\+::\+Quil\+Compiler}.
+Implemented in \hyperlink{a00034_a0df05642f1a6fd44ce7f1c0396d50c9c}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00077_a7caede75bb2304ba405966651b115543}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00062_a2421482415ca4e09963ea4ecddff8100}{xacc\+::quantum\+::\+Quil\+Compiler}.
 
 \index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!compile@{compile}}
 \index{compile@{compile}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
@@ -89,7 +89,7 @@ This method is to be implemented by derived Compilers and is in charge of execut
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00034_aa22591343b5509bf2c3a5820130ba906}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00078_a3736ecc229fe6acdd4c991e85d7a1f08}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00063_adf4d321ecb0df3fa7728999f941c83b2}{xacc\+::quantum\+::\+Quil\+Compiler}.
+Implemented in \hyperlink{a00034_aa22591343b5509bf2c3a5820130ba906}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00077_a3736ecc229fe6acdd4c991e85d7a1f08}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00062_adf4d321ecb0df3fa7728999f941c83b2}{xacc\+::quantum\+::\+Quil\+Compiler}.
 
 \index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Name@{get\+Name}}
 \index{get\+Name@{get\+Name}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
@@ -103,7 +103,7 @@ name \hyperlink{a00023}{Compiler} name
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00034_aed42de96f8e0dd94b6de183f28aee419}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00078_a3f537054a3924a1d14f4ceb0f0181161}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00063_ae7d52140b6dd52730edc6e38ae48f437}{xacc\+::quantum\+::\+Quil\+Compiler}.
+Implemented in \hyperlink{a00034_aed42de96f8e0dd94b6de183f28aee419}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00077_a3f537054a3924a1d14f4ceb0f0181161}{xacc\+::quantum\+::\+Scaffold\+Compiler}, and \hyperlink{a00062_ae7d52140b6dd52730edc6e38ae48f437}{xacc\+::quantum\+::\+Quil\+Compiler}.
 
 \index{xacc\+::\+Compiler@{xacc\+::\+Compiler}!get\+Options@{get\+Options}}
 \index{get\+Options@{get\+Options}!xacc\+::\+Compiler@{xacc\+::\+Compiler}}
@@ -114,7 +114,7 @@ Implemented in \hyperlink{a00034_aed42de96f8e0dd94b6de183f28aee419}{xacc\+::quan
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00023_a9f5a8965c9c2dd895016d18264ebbe92}{}\label{a00023_a9f5a8965c9c2dd895016d18264ebbe92}
 Return an empty options\+\_\+description, this is for subclasses to implement. 
 
-Implements \hyperlink{a00057_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
+Implements \hyperlink{a00056_a6d150954f852109bfe2c1ae90222926f}{xacc\+::\+Options\+Provider}.
 
 
 
@@ -128,11 +128,11 @@ Reimplemented in \hyperlink{a00034_a0851334cc33b5b1da2694150a0a1a43c}{xacc\+::qu
 \item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{function}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00023_aeedbe58a33fed29e4d7694ae743e25e7}{}\label{a00023_aeedbe58a33fed29e4d7694ae743e25e7}
-This method is to be implemented by derived Compilers and is in charge of taking the provided \hyperlink{a00039}{Function} \hyperlink{a00051}{IR} and converting it to source code in this \hyperlink{a00023}{Compiler}\textquotesingle{}s language.
+This method is to be implemented by derived Compilers and is in charge of taking the provided \hyperlink{a00038}{Function} \hyperlink{a00050}{IR} and converting it to source code in this \hyperlink{a00023}{Compiler}\textquotesingle{}s language.
 
 
 \begin{DoxyParams}{Parameters}
-{\em function} & The X\+A\+CC \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} to translate \\
+{\em function} & The X\+A\+CC \hyperlink{a00050}{IR} \hyperlink{a00038}{Function} to translate \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
@@ -140,7 +140,7 @@ src The source code as a string
 \end{DoxyReturn}
 
 
-Implemented in \hyperlink{a00034_a56a345539665099329209b3b5f6810c9}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00063_a66ca00bbb1f30e7bc6dd86b1e267b93b}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00078_ac7ca2941e987ba579c6f50cfbd7fb0dc}{xacc\+::quantum\+::\+Scaffold\+Compiler}.
+Implemented in \hyperlink{a00034_a56a345539665099329209b3b5f6810c9}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, \hyperlink{a00062_a66ca00bbb1f30e7bc6dd86b1e267b93b}{xacc\+::quantum\+::\+Quil\+Compiler}, and \hyperlink{a00077_ac7ca2941e987ba579c6f50cfbd7fb0dc}{xacc\+::quantum\+::\+Scaffold\+Compiler}.
 
 
 

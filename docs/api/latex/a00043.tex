@@ -1,197 +1,269 @@
-\hypertarget{a00043}{}\section{xacc\+:\+:quantum\+:\+:Gate\+Q\+IR Class Reference}
-\label{a00043}\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
+\hypertarget{a00043}{}\section{xacc\+:\+:Graph$<$ Vertex, type $>$ Class Template Reference}
+\label{a00043}\index{xacc\+::\+Graph$<$ Vertex, type $>$@{xacc\+::\+Graph$<$ Vertex, type $>$}}
 
 
-{\ttfamily \#include $<$Gate\+Q\+I\+R.\+hpp$>$}
+{\ttfamily \#include $<$Graph.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Gate\+Q\+IR\+:\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[height=2.000000cm]{a00043}
-\end{center}
-\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{a00086}{X\+A\+C\+C\+Vertex\+Properties\+Writer}
+\end{DoxyCompactItemize}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{a00043_afb99f610a6b123538c659169c131a634}{Gate\+Q\+IR} ()
+\hyperlink{a00043_a168a916da7346d0af307a75121f80ca4}{Graph} ()
 \item 
-virtual void \hyperlink{a00043_ad1ddd6105346dd9fc78648fd812285ed}{generate\+Graph} (const std\+::string \&kernel\+Name)
+\hyperlink{a00043_ab513bb56f7a3ede4891aafc586a31717}{Graph} (const int number\+Of\+Vertices)
 \item 
-virtual void \hyperlink{a00043_aa6ed2cf2cbcfec8105c327a4fa95346f}{add\+Kernel} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ kernel)
+void \hyperlink{a00043_a69ddb8cdc899ba47174f0e65b60a75dd}{add\+Edge} (const int src\+Index, const int tgt\+Index, const double edge\+Weight)
 \item 
-virtual const int {\bfseries number\+Of\+Kernels} ()\hypertarget{a00043_aca6be85526b14f500e7f98954dd6da5c}{}\label{a00043_aca6be85526b14f500e7f98954dd6da5c}
+void \hyperlink{a00043_ae9dcc413d7e9b774b6bf2963c261f5fa}{add\+Edge} (const int src\+Index, const int tgt\+Index)
+\item 
+void {\bfseries remove\+Edge} (const int src\+Index, const int tgt\+Index)\hypertarget{a00043_ab146ca29c8c4edc8c36c2328927663ec}{}\label{a00043_ab146ca29c8c4edc8c36c2328927663ec}
 
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ \hyperlink{a00043_a194758b6edcc3ae0c7fe8004f9bfe690}{get\+Kernel} (const std\+::string \&name)
+void \hyperlink{a00043_a99f45a817a10a62dd5f2f8c9a1734d8a}{add\+Vertex} ()
 \item 
-virtual bool \hyperlink{a00043_a692f95099caa7c024110a3f035941dca}{kernel\+Exists} (const std\+::string \&name)
+{\footnotesize template$<$typename... Properties$>$ }\\void \hyperlink{a00043_aa96658ad91d64e71cbd7a88d479bf7e4}{add\+Vertex} (Properties...\+properties)
 \item 
-virtual std\+::string \hyperlink{a00043_a7153f7e9f516d43af3d5d4f95d60bd86}{to\+Assembly\+String} (const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)
+void {\bfseries add\+Vertex} (Vertex \&vertex)\hypertarget{a00043_a2eef95bbacd0a7194dea4f81beb1cb37}{}\label{a00043_a2eef95bbacd0a7194dea4f81beb1cb37}
+
 \item 
-virtual void \hyperlink{a00043_a40e1d07e4dfd3794ef53fca3cdbdca61}{persist} (std\+::ostream \&out\+Stream)
+{\footnotesize template$<$typename... Properties$>$ }\\void \hyperlink{a00043_abe79a4cb96d48abcd03df01dae73fcc3}{set\+Vertex\+Properties} (const int index, Properties...\+properties)
 \item 
-virtual void \hyperlink{a00043_a07f26eeb362ac480d20da6cdc8c8fb39}{load} (std\+::istream \&in\+Stream)
+{\footnotesize template$<$const int Property\+Index$>$ }\\void \hyperlink{a00043_aeeb65835e8a16ebba34da08ea8016fac}{set\+Vertex\+Property} (const int index, decltype(std\+::get$<$ Property\+Index $>$(std\+::declval$<$ Vertex $>$().properties)) prop)
 \item 
-virtual void \hyperlink{a00043_a26019e2f1e13e64645e29aee86ac58b1}{read} (std\+::istream \&stream)
+Vertex \& {\bfseries get\+Vertex} (const int index)\hypertarget{a00043_a401589d879abd25f69e38fd197138531}{}\label{a00043_a401589d879abd25f69e38fd197138531}
+
 \item 
-virtual std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ $>$ \hyperlink{a00043_a4ace7ee5ebef84b1f39aaf5ed12c6cc6}{get\+Kernels} ()
+auto {\bfseries get\+Vertex\+Properties} (const int index) -\/$>$ decltype(($\ast$\+\_\+graph.\+get())\mbox{[}index\mbox{]}.properties)\hypertarget{a00043_abe1f333b2c9a9f597fb68c00bf44e7f7}{}\label{a00043_abe1f333b2c9a9f597fb68c00bf44e7f7}
+
 \item 
-virtual \hyperlink{a00043_ac88db03f1dd29e2d36aaa6c01a130008}{$\sim$\+Gate\+Q\+IR} ()
+{\footnotesize template$<$const int Property\+Index$>$ }\\decltype(std\+::get$<$ Property\+Index $>$(std\+::declval$<$ Vertex $>$().properties))\& \hyperlink{a00043_a394f58c21a234393f08b4c3a565a5940}{get\+Vertex\+Property} (const int index)
+\item 
+void \hyperlink{a00043_aaf1edd0f038f6cca1c3c9ece35d3ec05}{set\+Edge\+Weight} (const int src\+Index, const int tgt\+Index, const double weight)
+\item 
+double \hyperlink{a00043_a917e439598a91ace852ad67bba029f5c}{get\+Edge\+Weight} (const int src\+Index, const int tgt\+Index)
+\item 
+bool \hyperlink{a00043_acb5a6e586e58dbef53d84631134a1cdf}{edge\+Exists} (const int src\+Index, const int tgt\+Index)
+\item 
+int \hyperlink{a00043_afd0f6cc800e0d81f8c168d47c927cf02}{degree} (const int index)
+\item 
+int \hyperlink{a00043_a9da48591a9d5ec658ae8c62204821ea7}{diameter} ()
+\item 
+int \hyperlink{a00043_ae3138d390f1d1c7d335144b59df2ddac}{size} ()
+\item 
+int \hyperlink{a00043_a50fca47e555122b5bb72e93e719484b4}{order} ()
+\item 
+std\+::list$<$ int $>$ {\bfseries get\+Neighbor\+List} (const int index)\hypertarget{a00043_a0e2ea9abc71a4f5d0b6d2f796a64a23b}{}\label{a00043_a0e2ea9abc71a4f5d0b6d2f796a64a23b}
+
+\item 
+void \hyperlink{a00043_a56dbba0529135ffdebb4ac3fbdb69252}{write} (std\+::ostream \&stream)
+\item 
+virtual void \hyperlink{a00043_abdd3e67dc08c223821d809bc8914164a}{read} (std\+::istream \&stream)
 \end{DoxyCompactItemize}
 \subsection*{Protected Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ $>$ \hyperlink{a00043_ae75a4af0ce455eee1ce316c16426a661}{kernels}
+Boost\+Graph \hyperlink{a00043_acc3a072e3a30cdb8107b571170d96694}{\+\_\+graph}
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00043}{Gate\+Q\+IR} is an implementation of the Q\+IR for gate model quantum computing. It provides a \hyperlink{a00044}{Graph} node type that models a quantum circuit gate (\hyperlink{a00020}{Circuit\+Node}). 
+\subsubsection*{template$<$typename Vertex, Graph\+Type type = Undirected$>$\\*
+class xacc\+::\+Graph$<$ Vertex, type $>$}
+
+The \hyperlink{a00043}{Graph} class provides a generic data structure modeling mathematical graph structures. It is templated on the vertex type, allowing for graphs with a wide variety of graph nodes (for example, in quantum computing -\/ graph of tensors, graph of Ising parameters, etc.)
+
+All provided Vertex types must be a subclass of the Q\+C\+I\+Vertex in order to properly provide a tuple of vertex properties. s 
 
 \subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!Gate\+Q\+IR@{Gate\+Q\+IR}}
-\index{Gate\+Q\+IR@{Gate\+Q\+IR}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{Gate\+Q\+I\+R()}{GateQIR()}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::\+Gate\+Q\+IR (
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!Graph@{Graph}}
+\index{Graph@{Graph}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{Graph()}{Graph()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::{\bf Graph} (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_afb99f610a6b123538c659169c131a634}{}\label{a00043_afb99f610a6b123538c659169c131a634}
-The nullary Constructor \index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!````~Gate\+Q\+IR@{$\sim$\+Gate\+Q\+IR}}
-\index{````~Gate\+Q\+IR@{$\sim$\+Gate\+Q\+IR}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{$\sim$\+Gate\+Q\+I\+R()}{~GateQIR()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::$\sim$\+Gate\+Q\+IR (
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a168a916da7346d0af307a75121f80ca4}{}\label{a00043_a168a916da7346d0af307a75121f80ca4}
+The nullary constructor \index{xacc\+::\+Graph@{xacc\+::\+Graph}!Graph@{Graph}}
+\index{Graph@{Graph}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{Graph(const int number\+Of\+Vertices)}{Graph(const int numberOfVertices)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::{\bf Graph} (
 \begin{DoxyParamCaption}
-{}
+\item[{const int}]{number\+Of\+Vertices}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_ac88db03f1dd29e2d36aaa6c01a130008}{}\label{a00043_ac88db03f1dd29e2d36aaa6c01a130008}
-The destructor 
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_ab513bb56f7a3ede4891aafc586a31717}{}\label{a00043_ab513bb56f7a3ede4891aafc586a31717}
+The constructor, constructs a graph with specified number of vertices.
+
+
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Vertices} & The number of vertices \\
+\hline
+\end{DoxyParams}
+
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!add\+Kernel@{add\+Kernel}}
-\index{add\+Kernel@{add\+Kernel}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{add\+Kernel(std\+::shared\+\_\+ptr$<$ Function $>$ kernel)}{addKernel(std::shared\_ptr< Function > kernel)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::add\+Kernel (
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!add\+Edge@{add\+Edge}}
+\index{add\+Edge@{add\+Edge}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Edge(const int src\+Index, const int tgt\+Index, const double edge\+Weight)}{addEdge(const int srcIndex, const int tgtIndex, const double edgeWeight)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::add\+Edge (
 \begin{DoxyParamCaption}
-\item[{std\+::shared\+\_\+ptr$<$ {\bf Function} $>$}]{kernel}
+\item[{const int}]{src\+Index, }
+\item[{const int}]{tgt\+Index, }
+\item[{const double}]{edge\+Weight}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_aa6ed2cf2cbcfec8105c327a4fa95346f}{}\label{a00043_aa6ed2cf2cbcfec8105c327a4fa95346f}
-Add a quantum function to this intermediate representation. 
-\begin{DoxyParams}{Parameters}
-{\em kernel} & \\
-\hline
-\end{DoxyParams}
-
-
-Implements \hyperlink{a00051_abbbf8e6993c518597de32cd05d49d737}{xacc\+::\+IR}.
-
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!generate\+Graph@{generate\+Graph}}
-\index{generate\+Graph@{generate\+Graph}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{generate\+Graph(const std\+::string \&kernel\+Name)}{generateGraph(const std::string \&kernelName)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::generate\+Graph (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{kernel\+Name}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00043_ad1ddd6105346dd9fc78648fd812285ed}{}\label{a00043_ad1ddd6105346dd9fc78648fd812285ed}
-This method takes the list of quantum instructions that this Q\+IR contains and creates a graph representation of the quantum circuit. \index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!get\+Kernel@{get\+Kernel}}
-\index{get\+Kernel@{get\+Kernel}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{get\+Kernel(const std\+::string \&name)}{getKernel(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<${\bf Function}$>$ xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::get\+Kernel (
-\begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{name}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_a194758b6edcc3ae0c7fe8004f9bfe690}{}\label{a00043_a194758b6edcc3ae0c7fe8004f9bfe690}
-Return the kernel with the given name.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a69ddb8cdc899ba47174f0e65b60a75dd}{}\label{a00043_a69ddb8cdc899ba47174f0e65b60a75dd}
+Add an edge between the vertices with given provided indices and edge weight.
 
 
 \begin{DoxyParams}{Parameters}
-{\em name} & The name of the kernel to return. \\
+{\em src\+Index} & Index of the starting vertex \\
+\hline
+{\em tgt\+Index} & Index of the ending vertex \\
+\hline
+{\em edge\+Weight} & The edge weight \\
 \hline
 \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-kernel The kernel with given name. 
-\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!add\+Edge@{add\+Edge}}
+\index{add\+Edge@{add\+Edge}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Edge(const int src\+Index, const int tgt\+Index)}{addEdge(const int srcIndex, const int tgtIndex)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::add\+Edge (
+\begin{DoxyParamCaption}
+\item[{const int}]{src\+Index, }
+\item[{const int}]{tgt\+Index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_ae9dcc413d7e9b774b6bf2963c261f5fa}{}\label{a00043_ae9dcc413d7e9b774b6bf2963c261f5fa}
+Add an edge with default edge weight between the vertices at the provided indices.
 
 
-Implements \hyperlink{a00051_a6f49b4ba4b3a15142b04873284885f0d}{xacc\+::\+IR}.
-
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!get\+Kernels@{get\+Kernels}}
-\index{get\+Kernels@{get\+Kernels}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{get\+Kernels()}{getKernels()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::vector$<$std\+::shared\+\_\+ptr$<${\bf Function}$>$ $>$ xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::get\+Kernels (
+\begin{DoxyParams}{Parameters}
+{\em src\+Index} & Index of the starting vertex \\
+\hline
+{\em tgt\+Index} & Index of the ending vertex \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!add\+Vertex@{add\+Vertex}}
+\index{add\+Vertex@{add\+Vertex}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Vertex()}{addVertex()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::add\+Vertex (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_a4ace7ee5ebef84b1f39aaf5ed12c6cc6}{}\label{a00043_a4ace7ee5ebef84b1f39aaf5ed12c6cc6}
-Return all of this \hyperlink{a00051}{IR} instance\textquotesingle{}s kernels.
-
-\begin{DoxyReturn}{Returns}
-kernels The kernels this \hyperlink{a00051}{IR} contains. 
-\end{DoxyReturn}
-
-
-Implements \hyperlink{a00051_a88c50bfc5b279145360ddc0c3a703b9b}{xacc\+::\+IR}.
-
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!kernel\+Exists@{kernel\+Exists}}
-\index{kernel\+Exists@{kernel\+Exists}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{kernel\+Exists(const std\+::string \&name)}{kernelExists(const std::string \&name)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual bool xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::kernel\+Exists (
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a99f45a817a10a62dd5f2f8c9a1734d8a}{}\label{a00043_a99f45a817a10a62dd5f2f8c9a1734d8a}
+Add a vertex to this \hyperlink{a00043}{Graph}. \index{xacc\+::\+Graph@{xacc\+::\+Graph}!add\+Vertex@{add\+Vertex}}
+\index{add\+Vertex@{add\+Vertex}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{add\+Vertex(\+Properties...\+properties)}{addVertex(Properties...properties)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ template$<$typename... Properties$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::add\+Vertex (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{name}
+\item[{Properties...}]{properties}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_a692f95099caa7c024110a3f035941dca}{}\label{a00043_a692f95099caa7c024110a3f035941dca}
-Return true if the kernel with given name exists in this \hyperlink{a00051}{IR}.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_aa96658ad91d64e71cbd7a88d479bf7e4}{}\label{a00043_aa96658ad91d64e71cbd7a88d479bf7e4}
+Add a vertex to this graph with the provided properties. s 
+\begin{DoxyParams}{Parameters}
+{\em properties} & \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!degree@{degree}}
+\index{degree@{degree}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{degree(const int index)}{degree(const int index)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ int {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::degree (
+\begin{DoxyParamCaption}
+\item[{const int}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_afd0f6cc800e0d81f8c168d47c927cf02}{}\label{a00043_afd0f6cc800e0d81f8c168d47c927cf02}
+Return the vertex degree at the given vertex index.
 
 
 \begin{DoxyParams}{Parameters}
-{\em name} & The name of the kernel to return. \\
+{\em index} & The index of the vertex \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-exists True if kernel exists. 
+degree The degree of the vertex 
 \end{DoxyReturn}
-
-
-Implements \hyperlink{a00051_afc9ccf5126f3fed19c2e879133b2f6d8}{xacc\+::\+IR}.
-
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!load@{load}}
-\index{load@{load}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{load(std\+::istream \&in\+Stream)}{load(std::istream \&inStream)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::load (
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!diameter@{diameter}}
+\index{diameter@{diameter}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{diameter()}{diameter()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ int {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::diameter (
 \begin{DoxyParamCaption}
-\item[{std\+::istream \&}]{in\+Stream}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00043_a07f26eeb362ac480d20da6cdc8c8fb39}{}\label{a00043_a07f26eeb362ac480d20da6cdc8c8fb39}
-Create this \hyperlink{a00051}{IR} instance from the given input stream.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a9da48591a9d5ec658ae8c62204821ea7}{}\label{a00043_a9da48591a9d5ec658ae8c62204821ea7}
+Return the diameter of this \hyperlink{a00043}{Graph}.
+
+\begin{DoxyReturn}{Returns}
+diameter The graph diameter 
+\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!edge\+Exists@{edge\+Exists}}
+\index{edge\+Exists@{edge\+Exists}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{edge\+Exists(const int src\+Index, const int tgt\+Index)}{edgeExists(const int srcIndex, const int tgtIndex)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ bool {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::edge\+Exists (
+\begin{DoxyParamCaption}
+\item[{const int}]{src\+Index, }
+\item[{const int}]{tgt\+Index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_acb5a6e586e58dbef53d84631134a1cdf}{}\label{a00043_acb5a6e586e58dbef53d84631134a1cdf}
+Return true if there is an edge between the two vertices at the given vertex indices.
 
 
 \begin{DoxyParams}{Parameters}
-{\em in\+Stream} & \\
+{\em src\+Index} & The starting vertex index \\
+\hline
+{\em tgt\+Index} & The ending vertex index \\
 \hline
 \end{DoxyParams}
-
-
-Implements \hyperlink{a00051_a444c2e4dc0faac500fb70fa93997e9bc}{xacc\+::\+IR}.
-
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!persist@{persist}}
-\index{persist@{persist}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{persist(std\+::ostream \&out\+Stream)}{persist(std::ostream \&outStream)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::persist (
+\begin{DoxyReturn}{Returns}
+exists Boolean indicating if edge exists or not 
+\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!get\+Edge\+Weight@{get\+Edge\+Weight}}
+\index{get\+Edge\+Weight@{get\+Edge\+Weight}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Edge\+Weight(const int src\+Index, const int tgt\+Index)}{getEdgeWeight(const int srcIndex, const int tgtIndex)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ double {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::get\+Edge\+Weight (
 \begin{DoxyParamCaption}
-\item[{std\+::ostream \&}]{out\+Stream}
+\item[{const int}]{src\+Index, }
+\item[{const int}]{tgt\+Index}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00043_a40e1d07e4dfd3794ef53fca3cdbdca61}{}\label{a00043_a40e1d07e4dfd3794ef53fca3cdbdca61}
-Persist this \hyperlink{a00051}{IR} instance to the given output stream.
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a917e439598a91ace852ad67bba029f5c}{}\label{a00043_a917e439598a91ace852ad67bba029f5c}
+Return the edge weight at the edge between the provided vertices.
 
 
 \begin{DoxyParams}{Parameters}
-{\em out\+Stream} & \\
+{\em src\+Index} & The starting vertex index \\
+\hline
+{\em tgt\+Index} & The ending vertex index \\
 \hline
 \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The edge weight 
+\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!get\+Vertex\+Property@{get\+Vertex\+Property}}
+\index{get\+Vertex\+Property@{get\+Vertex\+Property}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{get\+Vertex\+Property(const int index)}{getVertexProperty(const int index)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ template$<$const int Property\+Index$>$ decltype(std\+::get$<$Property\+Index$>$(std\+::declval$<$Vertex$>$().properties)) \& {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::get\+Vertex\+Property (
+\begin{DoxyParamCaption}
+\item[{const int}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a394f58c21a234393f08b4c3a565a5940}{}\label{a00043_a394f58c21a234393f08b4c3a565a5940}
+Return the vertex property of the vertex at the given index and at the provided valid vertex property template index.
 
 
-Implements \hyperlink{a00051_a414b72224d88473ad6190bb88102a3ea}{xacc\+::\+IR}.
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the vertex \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+property The property value. 
+\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!order@{order}}
+\index{order@{order}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{order()}{order()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ int {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::order (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a50fca47e555122b5bb72e93e719484b4}{}\label{a00043_a50fca47e555122b5bb72e93e719484b4}
+Return the number of vertices in this graph
 
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!read@{read}}
-\index{read@{read}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{read(std\+::istream \&stream)}{read(std::istream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::read (
+\begin{DoxyReturn}{Returns}
+n\+Verts The number of vertices. 
+\end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!read@{read}}
+\index{read@{read}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{read(std\+::istream \&stream)}{read(std::istream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ virtual void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::read (
 \begin{DoxyParamCaption}
 \item[{std\+::istream \&}]{stream}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00043_a26019e2f1e13e64645e29aee86ac58b1}{}\label{a00043_a26019e2f1e13e64645e29aee86ac58b1}
-This is the implementation of the \hyperlink{a00044_abdd3e67dc08c223821d809bc8914164a}{Graph.\+read} method...
-
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00043_abdd3e67dc08c223821d809bc8914164a}{}\label{a00043_abdd3e67dc08c223821d809bc8914164a}
 Read in a graphviz dot graph from the given input stream. This is left for subclasses.
 
 
@@ -201,32 +273,94 @@ Read in a graphviz dot graph from the given input stream. This is left for subcl
 \end{DoxyParams}
 
 
-Reimplemented from \hyperlink{a00044_abdd3e67dc08c223821d809bc8914164a}{xacc\+::\+Graph$<$ Circuit\+Node $>$}.
+Reimplemented in \hyperlink{a00042_a26019e2f1e13e64645e29aee86ac58b1}{xacc\+::quantum\+::\+Gate\+Q\+IR}, and \hyperlink{a00061_af7a7f4a487d493fe8a4ed1f76cefd731}{xacc\+::quantum\+::\+Quantum\+Circuit}.
 
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!to\+Assembly\+String@{to\+Assembly\+String}}
-\index{to\+Assembly\+String@{to\+Assembly\+String}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{to\+Assembly\+String(const std\+::string \&kernel\+Name, const std\+::string \&acc\+Buffer\+Var\+Name)}{toAssemblyString(const std::string \&kernelName, const std::string \&accBufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::string xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::to\+Assembly\+String (
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!set\+Edge\+Weight@{set\+Edge\+Weight}}
+\index{set\+Edge\+Weight@{set\+Edge\+Weight}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Edge\+Weight(const int src\+Index, const int tgt\+Index, const double weight)}{setEdgeWeight(const int srcIndex, const int tgtIndex, const double weight)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::set\+Edge\+Weight (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{kernel\+Name, }
-\item[{const std\+::string \&}]{acc\+Buffer\+Var\+Name}
+\item[{const int}]{src\+Index, }
+\item[{const int}]{tgt\+Index, }
+\item[{const double}]{weight}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00043_a7153f7e9f516d43af3d5d4f95d60bd86}{}\label{a00043_a7153f7e9f516d43af3d5d4f95d60bd86}
-Return a string representation of this intermediate representation \begin{DoxyReturn}{Returns}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_aaf1edd0f038f6cca1c3c9ece35d3ec05}{}\label{a00043_aaf1edd0f038f6cca1c3c9ece35d3ec05}
+Set the weight on the edge between the vertices at the provided indices.
 
+
+\begin{DoxyParams}{Parameters}
+{\em src\+Index} & The starting vertex index \\
+\hline
+{\em tgt\+Index} & The ending vertex index \\
+\hline
+{\em weight} & The weight to set. \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!set\+Vertex\+Properties@{set\+Vertex\+Properties}}
+\index{set\+Vertex\+Properties@{set\+Vertex\+Properties}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Vertex\+Properties(const int index, Properties...\+properties)}{setVertexProperties(const int index, Properties...properties)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ template$<$typename... Properties$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::set\+Vertex\+Properties (
+\begin{DoxyParamCaption}
+\item[{const int}]{index, }
+\item[{Properties...}]{properties}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_abe79a4cb96d48abcd03df01dae73fcc3}{}\label{a00043_abe79a4cb96d48abcd03df01dae73fcc3}
+Set an existing vertices properties.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the vertex \\
+\hline
+{\em properties} & The new properties for the vertex \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!set\+Vertex\+Property@{set\+Vertex\+Property}}
+\index{set\+Vertex\+Property@{set\+Vertex\+Property}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{set\+Vertex\+Property(const int index, decltype(std\+::get$<$ Property\+Index $>$(std\+::declval$<$ Vertex $>$().\+properties)) prop)}{setVertexProperty(const int index, decltype(std::get< PropertyIndex >(std::declval< Vertex >().properties)) prop)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ template$<$const int Property\+Index$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::set\+Vertex\+Property (
+\begin{DoxyParamCaption}
+\item[{const int}]{index, }
+\item[{decltype(std\+::get$<$ Property\+Index $>$(std\+::declval$<$ Vertex $>$().properties))}]{prop}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_aeeb65835e8a16ebba34da08ea8016fac}{}\label{a00043_aeeb65835e8a16ebba34da08ea8016fac}
+Set a specific vertex property for the vertex at given index.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The index of the vertex \\
+\hline
+{\em prop} & The property to set. \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!size@{size}}
+\index{size@{size}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{size()}{size()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ int {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_ae3138d390f1d1c7d335144b59df2ddac}{}\label{a00043_ae3138d390f1d1c7d335144b59df2ddac}
+Return the number of edges. \begin{DoxyReturn}{Returns}
+n\+Edges The number of edges. 
 \end{DoxyReturn}
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!write@{write}}
+\index{write@{write}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{write(std\+::ostream \&stream)}{write(std::ostream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ void {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::write (
+\begin{DoxyParamCaption}
+\item[{std\+::ostream \&}]{stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00043_a56dbba0529135ffdebb4ac3fbdb69252}{}\label{a00043_a56dbba0529135ffdebb4ac3fbdb69252}
+Write this graph in a graphviz dot format to the provided ostream.
 
 
-Implements \hyperlink{a00051_a8356cdff1919b88eabeb84fd7450cdb6}{xacc\+::\+IR}.
-
+\begin{DoxyParams}{Parameters}
+{\em stream} & \\
+\hline
+\end{DoxyParams}
 
 
 \subsection{Member Data Documentation}
-\index{xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}!kernels@{kernels}}
-\index{kernels@{kernels}!xacc\+::quantum\+::\+Gate\+Q\+IR@{xacc\+::quantum\+::\+Gate\+Q\+IR}}
-\subsubsection[{\texorpdfstring{kernels}{kernels}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$std\+::shared\+\_\+ptr$<${\bf Function}$>$ $>$ xacc\+::quantum\+::\+Gate\+Q\+I\+R\+::kernels\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00043_ae75a4af0ce455eee1ce316c16426a661}{}\label{a00043_ae75a4af0ce455eee1ce316c16426a661}
-Reference to this Q\+IR\textquotesingle{}s list of quantum functions 
+\index{xacc\+::\+Graph@{xacc\+::\+Graph}!\+\_\+graph@{\+\_\+graph}}
+\index{\+\_\+graph@{\+\_\+graph}!xacc\+::\+Graph@{xacc\+::\+Graph}}
+\subsubsection[{\texorpdfstring{\+\_\+graph}{\_graph}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Vertex, Graph\+Type type = Undirected$>$ Boost\+Graph {\bf xacc\+::\+Graph}$<$ Vertex, type $>$\+::\+\_\+graph\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00043_acc3a072e3a30cdb8107b571170d96694}{}\label{a00043_acc3a072e3a30cdb8107b571170d96694}
+The actual graph data structure we are delegating to. 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Gate\+Q\+I\+R.\+hpp\item 
-Gate\+Q\+I\+R.\+cpp\end{DoxyCompactItemize}
+Graph.\+hpp\end{DoxyCompactItemize}

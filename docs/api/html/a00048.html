@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>XACC: xacc::InstructionIterator Class Reference</title>
+<title>XACC: xacc::InstructionVisitor&lt; T &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -83,165 +83,91 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00048.html">InstructionIterator</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00048.html">InstructionVisitor</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a> &#124;
-<a href="a00331.html">List of all members</a>  </div>
+<a href="a00330.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::InstructionIterator Class Reference</div>  </div>
+<div class="title">xacc::InstructionVisitor&lt; T &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00166_source.html">InstructionIterator.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00166_source.html">InstructionVisitor.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af61abf612341ab1454a1c43239b2da16"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#af61abf612341ab1454a1c43239b2da16">InstructionIterator</a> (std::shared_ptr&lt; <a class="el" href="a00047.html">Instruction</a> &gt; r)</td></tr>
-<tr class="separator:af61abf612341ab1454a1c43239b2da16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fa6c8cff43e7b224211d4f7954a4152"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#a7fa6c8cff43e7b224211d4f7954a4152">hasNext</a> ()</td></tr>
-<tr class="separator:a7fa6c8cff43e7b224211d4f7954a4152"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a2e2b1543650760a869460ebcd4382b"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="a00047.html">Instruction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#a0a2e2b1543650760a869460ebcd4382b">next</a> ()</td></tr>
-<tr class="separator:a0a2e2b1543650760a869460ebcd4382b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:a9d7aee1cb9058dd4a29c8fc71eeda57d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="a00047.html">Instruction</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#a9d7aee1cb9058dd4a29c8fc71eeda57d">root</a></td></tr>
-<tr class="separator:a9d7aee1cb9058dd4a29c8fc71eeda57d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7af48509e563e8865131692c3b71edf0"><td class="memItemLeft" align="right" valign="top">std::stack&lt; std::shared_ptr&lt; <a class="el" href="a00047.html">Instruction</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#a7af48509e563e8865131692c3b71edf0">instStack</a></td></tr>
-<tr class="separator:a7af48509e563e8865131692c3b71edf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (T &amp;)=0</td></tr>
+<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf624df25964d0be1a56af58639c9e1d"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00048.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
+<tr class="separator:adf624df25964d0be1a56af58639c9e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="a00048.html">InstructionIterator</a> provides a mechanism for a pre-order traversal of an <a class="el" href="a00047.html">Instruction</a> tree. </p>
+<div class="textblock"><h3>template&lt;class T&gt;<br />
+class xacc::InstructionVisitor&lt; T &gt;</h3>
+
+<p>The <a class="el" href="a00048.html">InstructionVisitor</a> provides a visit method for the provided template parameter. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="af61abf612341ab1454a1c43239b2da16"></a>
+<a class="anchor" id="adf624df25964d0be1a56af58639c9e1d"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">xacc::InstructionIterator::InstructionIterator </td>
+          <td class="memname">virtual <a class="el" href="a00048.html">xacc::InstructionVisitor</a>&lt; T &gt;::~<a class="el" href="a00048.html">InstructionVisitor</a> </td>
           <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="a00047.html">Instruction</a> &gt;&#160;</td>
-          <td class="paramname"><em>r</em></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>The constructor, takes the root of the tree as input.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">r</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
+<p>The destructor </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a7fa6c8cff43e7b224211d4f7954a4152"></a>
+<a class="anchor" id="af0fead298f5bfbb8e6680433063e2c4b"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool xacc::InstructionIterator::hasNext </td>
+          <td class="memname">virtual void <a class="el" href="a00048.html">xacc::InstructionVisitor</a>&lt; T &gt;::visit </td>
           <td>(</td>
+          <td class="paramtype">T &amp;&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Return true if there are still instructions left to traverse. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<p>This method should be implemented by subclasses to perform Visitor-specific behavior on the given instance of the template parameter T. </p>
 
-</div>
-</div>
-<a class="anchor" id="a0a2e2b1543650760a869460ebcd4382b"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::shared_ptr&lt;<a class="el" href="a00047.html">Instruction</a>&gt; xacc::InstructionIterator::next </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Return the next <a class="el" href="a00047.html">Instruction</a> in the tree. </p><dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a7af48509e563e8865131692c3b71edf0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::stack&lt;std::shared_ptr&lt;<a class="el" href="a00047.html">Instruction</a>&gt; &gt; xacc::InstructionIterator::instStack</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>A stack used to implement the tree traversal </p>
-
-</div>
-</div>
-<a class="anchor" id="a9d7aee1cb9058dd4a29c8fc71eeda57d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::shared_ptr&lt;<a class="el" href="a00047.html">Instruction</a>&gt; xacc::InstructionIterator::root</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The root of the tree, a function </p>
+<p>Implemented in <a class="el" href="a00026.html#a9c40e6cb4b74e2d6714c531ffc3b2909">xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00166_source.html">InstructionIterator.hpp</a></li>
+<li><a class="el" href="a00166_source.html">InstructionVisitor.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

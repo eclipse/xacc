@@ -1,51 +1,51 @@
-\hypertarget{a00056}{}\section{xacc\+:\+:quantum\+:\+:Measure Class Reference}
-\label{a00056}\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Measure\+:\begin{figure}[H]
+\hypertarget{a00056}{}\section{xacc\+:\+:Options\+Provider Class Reference}
+\label{a00056}\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+
+
+{\ttfamily \#include $<$Options\+Provider.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:Options\+Provider\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[height=4.000000cm]{a00056}
+\includegraphics[height=0.824742cm]{a00056}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-{\bfseries Measure} (std\+::vector$<$ int $>$ qbit)\hypertarget{a00056_afe330a0eea029d842ff9c88a817dcc7d}{}\label{a00056_afe330a0eea029d842ff9c88a817dcc7d}
-
+virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00056_a6d150954f852109bfe2c1ae90222926f}{get\+Options} ()=0
 \item 
-{\bfseries Measure} (int qbit, int classical\+Idx)\hypertarget{a00056_a9b8d9edca8ad2c3fb132780200f17335}{}\label{a00056_a9b8d9edca8ad2c3fb132780200f17335}
-
-\item 
-virtual const std\+::string \hyperlink{a00056_a1c51a5d68294dcb2ba1a9fbea63a730f}{to\+String} (const std\+::string \&buffer\+Var\+Name)
-\item 
-int {\bfseries get\+Classical\+Bit\+Index} ()\hypertarget{a00056_a0cb3c94731544042807236ade36fddd0}{}\label{a00056_a0cb3c94731544042807236ade36fddd0}
-
+virtual \hyperlink{a00056_a7782757b419792ff346f563517eed8b8}{$\sim$\+Options\+Provider} ()
 \end{DoxyCompactItemize}
-\subsection*{Additional Inherited Members}
 
+
+\subsection{Detailed Description}
+The \hyperlink{a00056}{Options\+Provider} interface enables derived subclasses to provide a description of any and all command line options that they can take to drive and control their execution and behavior. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!````~Options\+Provider@{$\sim$\+Options\+Provider}}
+\index{````~Options\+Provider@{$\sim$\+Options\+Provider}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+\subsubsection[{\texorpdfstring{$\sim$\+Options\+Provider()}{~OptionsProvider()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::\+Options\+Provider\+::$\sim$\+Options\+Provider (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00056_a7782757b419792ff346f563517eed8b8}{}\label{a00056_a7782757b419792ff346f563517eed8b8}
+The destructor 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}!to\+String@{to\+String}}
-\index{to\+String@{to\+String}!xacc\+::quantum\+::\+Measure@{xacc\+::quantum\+::\+Measure}}
-\subsubsection[{\texorpdfstring{to\+String(const std\+::string \&buffer\+Var\+Name)}{toString(const std::string \&bufferVarName)}}]{\setlength{\rightskip}{0pt plus 5cm}const std\+::string xacc\+::quantum\+::\+Measure\+::to\+String (
+\index{xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}!get\+Options@{get\+Options}}
+\index{get\+Options@{get\+Options}!xacc\+::\+Options\+Provider@{xacc\+::\+Options\+Provider}}
+\subsubsection[{\texorpdfstring{get\+Options()=0}{getOptions()=0}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::shared\+\_\+ptr$<$options\+\_\+description$>$ xacc\+::\+Options\+Provider\+::get\+Options (
 \begin{DoxyParamCaption}
-\item[{const std\+::string \&}]{buffer\+Var\+Name}
+{}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00056_a1c51a5d68294dcb2ba1a9fbea63a730f}{}\label{a00056_a1c51a5d68294dcb2ba1a9fbea63a730f}
-Return this instruction\textquotesingle{}s assembly-\/like string representation. 
-\begin{DoxyParams}{Parameters}
-{\em buffer\+Var\+Name} & \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00056_a6d150954f852109bfe2c1ae90222926f}{}\label{a00056_a6d150954f852109bfe2c1ae90222926f}
+Return a Boost options\+\_\+description instance that describes the options available for this derived subclass. 
 
-\end{DoxyReturn}
-
-
-Reimplemented from \hyperlink{a00042_a089a5da67ff40ac1a6f56e64589822d9}{xacc\+::quantum\+::\+Gate\+Instruction}.
+Implemented in \hyperlink{a00011_a98c9eda6b54367c75667ecfbbf167979}{xacc\+::\+Accelerator}, \hyperlink{a00029_a09926db9f99706307ae6ce5b56845bca}{xacc\+::quantum\+::\+D\+W\+Accelerator}, \hyperlink{a00071_a9ee9e62aecbccf193894ca3388676f9f}{xacc\+::quantum\+::\+Rigetti\+Accelerator}, \hyperlink{a00023_a9f5a8965c9c2dd895016d18264ebbe92}{xacc\+::\+Compiler}, \hyperlink{a00034_a0851334cc33b5b1da2694150a0a1a43c}{xacc\+::quantum\+::\+D\+W\+Q\+M\+I\+Compiler}, and \hyperlink{a00057_a96f5600ea47628b66917c7b90250e7f1}{xacc\+::\+Preprocessor}.
 
 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Measure.\+hpp\item 
-Measure.\+cpp\end{DoxyCompactItemize}
+Options\+Provider.\+hpp\end{DoxyCompactItemize}

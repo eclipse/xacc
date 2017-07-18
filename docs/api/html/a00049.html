@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>XACC: xacc::InstructionVisitor&lt; T &gt; Class Template Reference</title>
+<title>XACC: xacc::quantum::InverseQFT Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -83,44 +83,51 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>xacc</b></li><li class="navelem"><a class="el" href="a00049.html">InstructionVisitor</a></li>  </ul>
+<li class="navelem"><b>xacc</b></li><li class="navelem"><b>quantum</b></li><li class="navelem"><a class="el" href="a00049.html">InverseQFT</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="a00332.html">List of all members</a>  </div>
+<a href="a00368.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">xacc::InstructionVisitor&lt; T &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+<div class="title">xacc::quantum::InverseQFT Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="a00167_source.html">InstructionVisitor.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="a00168_source.html">InverseQFT.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for xacc::quantum::InverseQFT:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="a00049.png" usemap="#xacc::quantum::InverseQFT_map" alt=""/>
+  <map id="xacc::quantum::InverseQFT_map" name="xacc::quantum::InverseQFT_map">
+<area href="a00014.html" alt="xacc::AlgorithmGenerator" shape="rect" coords="0,0,164,24"/>
+</map>
+ </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af0fead298f5bfbb8e6680433063e2c4b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af0fead298f5bfbb8e6680433063e2c4b">visit</a> (T &amp;)=0</td></tr>
-<tr class="separator:af0fead298f5bfbb8e6680433063e2c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf624df25964d0be1a56af58639c9e1d"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#adf624df25964d0be1a56af58639c9e1d">~InstructionVisitor</a> ()</td></tr>
-<tr class="separator:adf624df25964d0be1a56af58639c9e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af42e466bf02dbd60670d20aa55cfb08d"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="a00038.html">Function</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#af42e466bf02dbd60670d20aa55cfb08d">generateAlgorithm</a> (std::vector&lt; int &gt; qubits)</td></tr>
+<tr class="separator:af42e466bf02dbd60670d20aa55cfb08d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a731c10d28046424be74e4c0daa31d016"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00049.html#a731c10d28046424be74e4c0daa31d016">~InverseQFT</a> ()</td></tr>
+<tr class="separator:a731c10d28046424be74e4c0daa31d016"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_a00014"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_a00014')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="a00014.html">xacc::AlgorithmGenerator</a></td></tr>
+<tr class="memitem:a096f66aa8d65f5aa3276915768159579 inherit pub_methods_a00014"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00014.html#a096f66aa8d65f5aa3276915768159579">~AlgorithmGenerator</a> ()</td></tr>
+<tr class="separator:a096f66aa8d65f5aa3276915768159579 inherit pub_methods_a00014"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;class T&gt;<br />
-class xacc::InstructionVisitor&lt; T &gt;</h3>
-
-<p>The <a class="el" href="a00049.html">InstructionVisitor</a> provides a visit method for the provided template parameter. </p>
+<div class="textblock"><p><a class="el" href="a00049.html">InverseQFT</a> is a realization of the <a class="el" href="a00014.html">AlgorithmGenerator</a> interface that produces an XACC <a class="el" href="a00050.html">IR</a> representation of the Inverse Quantum Fourier Transform. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="adf624df25964d0be1a56af58639c9e1d"></a>
+<a class="anchor" id="a731c10d28046424be74e4c0daa31d016"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="a00049.html">xacc::InstructionVisitor</a>&lt; T &gt;::~<a class="el" href="a00049.html">InstructionVisitor</a> </td>
+          <td class="memname">virtual xacc::quantum::InverseQFT::~InverseQFT </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -137,37 +144,43 @@ template&lt;class T&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="af0fead298f5bfbb8e6680433063e2c4b"></a>
+<a class="anchor" id="af42e466bf02dbd60670d20aa55cfb08d"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="a00049.html">xacc::InstructionVisitor</a>&lt; T &gt;::visit </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="a00038.html">Function</a> &gt; xacc::quantum::InverseQFT::generateAlgorithm </td>
           <td>(</td>
-          <td class="paramtype">T &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>qubits</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This method should be implemented by subclasses to perform Visitor-specific behavior on the given instance of the template parameter T. </p>
+<p>This implementation returns a <a class="el" href="a00038.html">Function</a> <a class="el" href="a00050.html">IR</a> representation of the inverse quantum fourier transform.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bits</td><td>The bits this algorithm operates on </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>function The algorithm represented as an <a class="el" href="a00050.html">IR</a> <a class="el" href="a00038.html">Function</a> </dd></dl>
 
-<p>Implemented in <a class="el" href="a00026.html#a9c40e6cb4b74e2d6714c531ffc3b2909">xacc::quantum::CountGatesOfTypeVisitor&lt; GateType &gt;</a>.</p>
+<p>Implements <a class="el" href="a00014.html#a73023c06f0f0c62ad56ab4187b18b096">xacc::AlgorithmGenerator</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="a00167_source.html">InstructionVisitor.hpp</a></li>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="a00168_source.html">InverseQFT.hpp</a></li>
+<li>InverseQFT.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

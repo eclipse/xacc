@@ -19,13 +19,13 @@ std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ \hyperlink
 \item 
 virtual bool \hyperlink{a00029_a4c2ee30212a919d8ddf7f9555df25195}{is\+Valid\+Buffer\+Size} (const int N\+Bits)
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00044}{Accelerator\+Graph} $>$ \hyperlink{a00029_a006afa60749790681fc76beddc254926}{get\+Accelerator\+Connectivity} ()
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00043}{Accelerator\+Graph} $>$ \hyperlink{a00029_a006afa60749790681fc76beddc254926}{get\+Accelerator\+Connectivity} ()
 \item 
-virtual void \hyperlink{a00029_aa8d770acb2708b3ee1cd1f21bd0cc668}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{xacc\+::\+Function} $>$ kernel)
+virtual void \hyperlink{a00029_aa8d770acb2708b3ee1cd1f21bd0cc668}{execute} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ buffer, const std\+::shared\+\_\+ptr$<$ \hyperlink{a00038}{xacc\+::\+Function} $>$ kernel)
 \item 
 virtual Accelerator\+Type \hyperlink{a00029_abe50e427b4bec0460cc238405cb569f9}{get\+Type} ()
 \item 
-virtual std\+::vector$<$ \hyperlink{a00052}{xacc\+::\+I\+R\+Transformation} $>$ \hyperlink{a00029_a89da20bd079a22d6581ea2da2293b973}{get\+I\+R\+Transformations} ()
+virtual std\+::vector$<$ \hyperlink{a00051}{xacc\+::\+I\+R\+Transformation} $>$ \hyperlink{a00029_a89da20bd079a22d6581ea2da2293b973}{get\+I\+R\+Transformations} ()
 \item 
 virtual std\+::shared\+\_\+ptr$<$ options\+\_\+description $>$ \hyperlink{a00029_a09926db9f99706307ae6ce5b56845bca}{get\+Options} ()
 \item 
@@ -55,7 +55,7 @@ std\+::map$<$ std\+::string, \hyperlink{a00035}{D\+W\+Solver} $>$ \hyperlink{a00
 
 
 \subsection{Detailed Description}
-The \hyperlink{a00029}{D\+W\+Accelerator} is an X\+A\+CC \hyperlink{a00011}{Accelerator} that takes D-\/\+Wave \hyperlink{a00051}{IR} and executes the quantum machine instructions via remote H\+T\+TP invocations. 
+The \hyperlink{a00029}{D\+W\+Accelerator} is an X\+A\+CC \hyperlink{a00011}{Accelerator} that takes D-\/\+Wave \hyperlink{a00050}{IR} and executes the quantum machine instructions via remote H\+T\+TP invocations. 
 
 \subsection{Constructor \& Destructor Documentation}
 \index{xacc\+::quantum\+::\+D\+W\+Accelerator@{xacc\+::quantum\+::\+D\+W\+Accelerator}!D\+W\+Accelerator@{D\+W\+Accelerator}}
@@ -158,7 +158,7 @@ Reimplemented from \hyperlink{a00011_adfed940ce1fa476b009344ddf5a4bbc3}{xacc\+::
 {}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00029_a89da20bd079a22d6581ea2da2293b973}{}\label{a00029_a89da20bd079a22d6581ea2da2293b973}
-We have no need to transform the \hyperlink{a00051}{IR} for this \hyperlink{a00011}{Accelerator}, so return an empty list, for now. \begin{DoxyReturn}{Returns}
+We have no need to transform the \hyperlink{a00050}{IR} for this \hyperlink{a00011}{Accelerator}, so return an empty list, for now. \begin{DoxyReturn}{Returns}
 
 \end{DoxyReturn}
 
@@ -172,7 +172,7 @@ Implements \hyperlink{a00011_ad6e4a642dcb24e552675bcbeff1e1b04}{xacc\+::\+Accele
 {}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00029_a09926db9f99706307ae6ce5b56845bca}{}\label{a00029_a09926db9f99706307ae6ce5b56845bca}
-Return all relevant \hyperlink{a00072}{Rigetti\+Accelerator} runtime options. Users can set the api-\/key, execution type, and number of triels from the command line with these options. 
+Return all relevant \hyperlink{a00071}{Rigetti\+Accelerator} runtime options. Users can set the api-\/key, execution type, and number of triels from the command line with these options. 
 
 Reimplemented from \hyperlink{a00011_a98c9eda6b54367c75667ecfbbf167979}{xacc\+::\+Accelerator}.
 

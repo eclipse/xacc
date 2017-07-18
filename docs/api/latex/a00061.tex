@@ -1,10 +1,10 @@
-\hypertarget{a00061}{}\section{xacc\+:\+:quantum\+:\+:Q\+FT Class Reference}
-\label{a00061}\index{xacc\+::quantum\+::\+Q\+FT@{xacc\+::quantum\+::\+Q\+FT}}
+\hypertarget{a00061}{}\section{xacc\+:\+:quantum\+:\+:Quantum\+Circuit Class Reference}
+\label{a00061}\index{xacc\+::quantum\+::\+Quantum\+Circuit@{xacc\+::quantum\+::\+Quantum\+Circuit}}
 
 
-{\ttfamily \#include $<$Q\+F\+T.\+hpp$>$}
+{\ttfamily \#include $<$Quantum\+Circuit.\+hpp$>$}
 
-Inheritance diagram for xacc\+:\+:quantum\+:\+:Q\+FT\+:\begin{figure}[H]
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Quantum\+Circuit\+:\begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[height=2.000000cm]{a00061}
@@ -13,55 +13,35 @@ Inheritance diagram for xacc\+:\+:quantum\+:\+:Q\+FT\+:\begin{figure}[H]
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00039}{Function} $>$ \hyperlink{a00061_ac093c288bc9fc069464fc3fd2cc0ac21}{generate\+Algorithm} (std\+::vector$<$ int $>$ qubits)
-\item 
-virtual \hyperlink{a00061_a2f585738386f9a3744498983cd1f094e}{$\sim$\+Q\+FT} ()
+virtual void \hyperlink{a00061_af7a7f4a487d493fe8a4ed1f76cefd731}{read} (std\+::istream \&stream)
 \end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
 
 
 \subsection{Detailed Description}
-\hyperlink{a00061}{Q\+FT} is a realization of the \hyperlink{a00014}{Algorithm\+Generator} interface that produces an X\+A\+CC \hyperlink{a00051}{IR} representation of the Quantum Fourier Transform.
-
-\begin{DoxyAuthor}{Author}
-Alex Mc\+Caskey 
-\end{DoxyAuthor}
-
-
-\subsection{Constructor \& Destructor Documentation}
-\index{xacc\+::quantum\+::\+Q\+FT@{xacc\+::quantum\+::\+Q\+FT}!````~Q\+FT@{$\sim$\+Q\+FT}}
-\index{````~Q\+FT@{$\sim$\+Q\+FT}!xacc\+::quantum\+::\+Q\+FT@{xacc\+::quantum\+::\+Q\+FT}}
-\subsubsection[{\texorpdfstring{$\sim$\+Q\+F\+T()}{~QFT()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Q\+F\+T\+::$\sim$\+Q\+FT (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00061_a2f585738386f9a3744498983cd1f094e}{}\label{a00061_a2f585738386f9a3744498983cd1f094e}
-The destructor 
+The \hyperlink{a00061}{Quantum\+Circuit} is a subclass of \hyperlink{a00043}{Graph} that provides its Vertex template parameter as a \hyperlink{a00020}{Circuit\+Node}. It adds the ability to read Quantum\+Circuits from a graphviz dot file. 
 
 \subsection{Member Function Documentation}
-\index{xacc\+::quantum\+::\+Q\+FT@{xacc\+::quantum\+::\+Q\+FT}!generate\+Algorithm@{generate\+Algorithm}}
-\index{generate\+Algorithm@{generate\+Algorithm}!xacc\+::quantum\+::\+Q\+FT@{xacc\+::quantum\+::\+Q\+FT}}
-\subsubsection[{\texorpdfstring{generate\+Algorithm(std\+::vector$<$ int $>$ qubits)}{generateAlgorithm(std::vector< int > qubits)}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::shared\+\_\+ptr$<$ {\bf Function} $>$ xacc\+::quantum\+::\+Q\+F\+T\+::generate\+Algorithm (
+\index{xacc\+::quantum\+::\+Quantum\+Circuit@{xacc\+::quantum\+::\+Quantum\+Circuit}!read@{read}}
+\index{read@{read}!xacc\+::quantum\+::\+Quantum\+Circuit@{xacc\+::quantum\+::\+Quantum\+Circuit}}
+\subsubsection[{\texorpdfstring{read(std\+::istream \&stream)}{read(std::istream \&stream)}}]{\setlength{\rightskip}{0pt plus 5cm}virtual void xacc\+::quantum\+::\+Quantum\+Circuit\+::read (
 \begin{DoxyParamCaption}
-\item[{std\+::vector$<$ int $>$}]{qubits}
+\item[{std\+::istream \&}]{stream}
 \end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00061_ac093c288bc9fc069464fc3fd2cc0ac21}{}\label{a00061_ac093c288bc9fc069464fc3fd2cc0ac21}
-This implementation returns a \hyperlink{a00039}{Function} \hyperlink{a00051}{IR} representation of the quantum fourier transform.
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00061_af7a7f4a487d493fe8a4ed1f76cefd731}{}\label{a00061_af7a7f4a487d493fe8a4ed1f76cefd731}
+Read in a graphviz dot graph from the given input stream. This is left for subclasses.
 
 
 \begin{DoxyParams}{Parameters}
-{\em bits} & The bits this algorithm operates on \\
+{\em stream} & \\
 \hline
 \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-function The algorithm represented as an \hyperlink{a00051}{IR} \hyperlink{a00039}{Function} 
-\end{DoxyReturn}
 
 
-Implements \hyperlink{a00014_a73023c06f0f0c62ad56ab4187b18b096}{xacc\+::\+Algorithm\+Generator}.
+Reimplemented from \hyperlink{a00043_abdd3e67dc08c223821d809bc8914164a}{xacc\+::\+Graph$<$ Circuit\+Node $>$}.
 
 
 
-The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Q\+F\+T.\+hpp\item 
-Q\+F\+T.\+cpp\end{DoxyCompactItemize}
+Quantum\+Circuit.\+hpp\end{DoxyCompactItemize}
