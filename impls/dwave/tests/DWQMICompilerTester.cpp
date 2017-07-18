@@ -90,7 +90,7 @@ public:
 	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
 			const std::string& varId, const int size) {
 		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, size);
-
+		storeBuffer(varId, b);
 	}
 };
 
@@ -219,7 +219,6 @@ BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 	}
 
 	auto acc = std::make_shared<FakeDWAcc>();
-	acc->createBuffer("hello");
 
 	auto ir = compiler->compile(shor15QMI, acc);
 
