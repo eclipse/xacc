@@ -1,0 +1,93 @@
+\hypertarget{a00084}{}\section{xacc\+:\+:quantum\+:\+:Trivial\+Embedding\+Algorithm Class Reference}
+\label{a00084}\index{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}}
+
+
+{\ttfamily \#include $<$Trivial\+Embedding\+Algorithm.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Trivial\+Embedding\+Algorithm\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00084}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00084_aa704a3dc5825db1b023c54d84ec0f883}{Trivial\+Embedding\+Algorithm} ()
+\item 
+virtual \hyperlink{a00084_a692614cae332c77ae46e059b66d6f79c}{$\sim$\+Trivial\+Embedding\+Algorithm} ()
+\item 
+virtual std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00084_a09e162a745528ffa3ea847dd5afee45b}{embed} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00030}{D\+W\+Graph} $>$ problem, std\+::shared\+\_\+ptr$<$ \hyperlink{a00044}{Accelerator\+Graph} $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())
+\item 
+virtual std\+::string \hyperlink{a00084_a5d3e8c56b53cda9c682dedc534bf38fb}{name} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00037}{Embedding\+Algorithm} class provides an interface for minor graph embedding algorithms. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}!Trivial\+Embedding\+Algorithm@{Trivial\+Embedding\+Algorithm}}
+\index{Trivial\+Embedding\+Algorithm@{Trivial\+Embedding\+Algorithm}!xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{Trivial\+Embedding\+Algorithm()}{TrivialEmbeddingAlgorithm()}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm\+::\+Trivial\+Embedding\+Algorithm (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00084_aa704a3dc5825db1b023c54d84ec0f883}{}\label{a00084_aa704a3dc5825db1b023c54d84ec0f883}
+The Constructor \index{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}!````~Trivial\+Embedding\+Algorithm@{$\sim$\+Trivial\+Embedding\+Algorithm}}
+\index{````~Trivial\+Embedding\+Algorithm@{$\sim$\+Trivial\+Embedding\+Algorithm}!xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{$\sim$\+Trivial\+Embedding\+Algorithm()}{~TrivialEmbeddingAlgorithm()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm\+::$\sim$\+Trivial\+Embedding\+Algorithm (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00084_a692614cae332c77ae46e059b66d6f79c}{}\label{a00084_a692614cae332c77ae46e059b66d6f79c}
+The Destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}!embed@{embed}}
+\index{embed@{embed}!xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{embed(std\+::shared\+\_\+ptr$<$ D\+W\+Graph $>$ problem, std\+::shared\+\_\+ptr$<$ Accelerator\+Graph $>$ hardware, std\+::map$<$ std\+::string, std\+::string $>$ params=std\+::map$<$ std\+::string, std\+::string $>$())}{embed(std::shared\_ptr< DWGraph > problem, std::shared\_ptr< AcceleratorGraph > hardware, std::map< std::string, std::string > params=std::map< std::string, std::string >())}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$ int, std\+::list$<$ int $>$ $>$ xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm\+::embed (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf D\+W\+Graph} $>$}]{problem, }
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Graph} $>$}]{hardware, }
+\item[{std\+::map$<$ std\+::string, std\+::string $>$}]{params = {\ttfamily std\+:\+:map$<$std\+:\+:string,~std\+:\+:string$>$()}}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}\hypertarget{a00084_a09e162a745528ffa3ea847dd5afee45b}{}\label{a00084_a09e162a745528ffa3ea847dd5afee45b}
+Implementations of \hyperlink{a00037}{Embedding\+Algorithm} implement this method to provide a valid minor graph embedding of the given problem graph into the given hardware graph.
+
+
+\begin{DoxyParams}{Parameters}
+{\em problem} & The problem graph to be embedded into the hardware graph \\
+\hline
+{\em hardware} & The hardware graph. \\
+\hline
+{\em params} & Any key-\/value string parameters to influence the algorithm. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+embedding A mapping of problem vertex indices to the list of hardware vertices they map to 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00037_a6fca277e217884ff79802770189276fe}{xacc\+::quantum\+::\+Embedding\+Algorithm}.
+
+\index{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}!name@{name}}
+\index{name@{name}!xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm@{xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm}}
+\subsubsection[{\texorpdfstring{name()}{name()}}]{\setlength{\rightskip}{0pt plus 5cm}virtual std\+::string xacc\+::quantum\+::\+Trivial\+Embedding\+Algorithm\+::name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00084_a5d3e8c56b53cda9c682dedc534bf38fb}{}\label{a00084_a5d3e8c56b53cda9c682dedc534bf38fb}
+Return the name of this Embedding Algorithm \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+Implements \hyperlink{a00037_a21079dc8ee37792977f5fd209e3f3b19}{xacc\+::quantum\+::\+Embedding\+Algorithm}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Trivial\+Embedding\+Algorithm.\+hpp\item 
+Trivial\+Embedding\+Algorithm.\+cpp\end{DoxyCompactItemize}

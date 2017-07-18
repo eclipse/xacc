@@ -1,0 +1,97 @@
+\hypertarget{a00040}{}\section{xacc\+:\+:quantum\+:\+:Functional\+Gate\+Instruction\+Visitor Class Reference}
+\label{a00040}\index{xacc\+::quantum\+::\+Functional\+Gate\+Instruction\+Visitor@{xacc\+::quantum\+::\+Functional\+Gate\+Instruction\+Visitor}}
+Inheritance diagram for xacc\+:\+:quantum\+:\+:Functional\+Gate\+Instruction\+Visitor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{a00040}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename HF , typename C\+NF , typename XF , typename YF , typename ZF , typename R\+XF , typename R\+YF , typename R\+ZF , typename MF , typename CF , typename C\+PF , typename S\+W\+A\+PF $>$ }\\{\bfseries Functional\+Gate\+Instruction\+Visitor} (HF h, C\+NF cn, XF x, YF y, ZF z, R\+XF rx, R\+YF ry, R\+ZF rz, MF m, CF c, C\+PF cp, S\+W\+A\+PF sw)\hypertarget{a00040_a4e3c27cd6b1acf063967b7b09a1eca09}{}\label{a00040_a4e3c27cd6b1acf063967b7b09a1eca09}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00045}{Hadamard} \&h)\hypertarget{a00040_ac5245d34429dc112e7cd0e371108fcb5}{}\label{a00040_ac5245d34429dc112e7cd0e371108fcb5}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00022}{C\+N\+OT} \&cn)\hypertarget{a00040_ad4eddafe8ca3906cd4aa5b98087a789a}{}\label{a00040_ad4eddafe8ca3906cd4aa5b98087a789a}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00085}{X} \&x)\hypertarget{a00040_ac5d184daee7e755c9ede67b34bc2d091}{}\label{a00040_ac5d184daee7e755c9ede67b34bc2d091}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00088}{Y} \&y)\hypertarget{a00040_a11dfa753a155346a45d7116a78c8f39f}{}\label{a00040_a11dfa753a155346a45d7116a78c8f39f}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00089}{Z} \&z)\hypertarget{a00040_a4baf19da581fa9875739a227aba9cf60}{}\label{a00040_a4baf19da581fa9875739a227aba9cf60}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00056}{Measure} \&m)\hypertarget{a00040_ad946faf8e2b6eff3e9e142907ec8e05a}{}\label{a00040_ad946faf8e2b6eff3e9e142907ec8e05a}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00025}{Conditional\+Function} \&c)\hypertarget{a00040_a5cdb38902c241e7ae672a2631f1d61f3}{}\label{a00040_a5cdb38902c241e7ae672a2631f1d61f3}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00074}{Rx} \&rx)\hypertarget{a00040_a6eb99e4b488773c750b7d9734ac1e885}{}\label{a00040_a6eb99e4b488773c750b7d9734ac1e885}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00075}{Ry} \&ry)\hypertarget{a00040_aa22aad7b316386f5ef35672337c05ffc}{}\label{a00040_aa22aad7b316386f5ef35672337c05ffc}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00027}{C\+Phase} \&cp)\hypertarget{a00040_a5475eece7afe380512a1a0215b92d302}{}\label{a00040_a5475eece7afe380512a1a0215b92d302}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00076}{Rz} \&rz)\hypertarget{a00040_a8857ecf8f8f1b6143da8f31a722fe03e}{}\label{a00040_a8857ecf8f8f1b6143da8f31a722fe03e}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00041}{Gate\+Function} \&f)\hypertarget{a00040_ad7d15225cf258fe59660ba828baff357}{}\label{a00040_ad7d15225cf258fe59660ba828baff357}
+
+\item 
+void {\bfseries visit} (\hyperlink{a00083}{Swap} \&s)\hypertarget{a00040_a30f46be43607813996c9cc090c1a5a16}{}\label{a00040_a30f46be43607813996c9cc090c1a5a16}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::function$<$ void(\hyperlink{a00045}{Hadamard} \&)$>$ {\bfseries h\+Action}\hypertarget{a00040_a02f1401c9b0d1da801027f3bc0b5227e}{}\label{a00040_a02f1401c9b0d1da801027f3bc0b5227e}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00022}{C\+N\+OT} \&)$>$ {\bfseries cnot\+Action}\hypertarget{a00040_a4d6bd8c2fd1af775ed08946942f60a0b}{}\label{a00040_a4d6bd8c2fd1af775ed08946942f60a0b}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00085}{X} \&)$>$ {\bfseries x\+Action}\hypertarget{a00040_a9e0295434a2224b776609b057147a9af}{}\label{a00040_a9e0295434a2224b776609b057147a9af}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00088}{Y} \&)$>$ {\bfseries y\+Action}\hypertarget{a00040_ae78f91a5cc9a7006f6bb1acee1c00501}{}\label{a00040_ae78f91a5cc9a7006f6bb1acee1c00501}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00089}{Z} \&)$>$ {\bfseries z\+Action}\hypertarget{a00040_ae197f358e3d0777feb3656455e2ee672}{}\label{a00040_ae197f358e3d0777feb3656455e2ee672}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00056}{Measure} \&)$>$ {\bfseries measure\+Action}\hypertarget{a00040_a239748abedd67c7b30cad12e545d1926}{}\label{a00040_a239748abedd67c7b30cad12e545d1926}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00025}{Conditional\+Function} \&)$>$ {\bfseries cond\+Action}\hypertarget{a00040_a5c0595a70b1f7ae50f3e29a985e249e9}{}\label{a00040_a5c0595a70b1f7ae50f3e29a985e249e9}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00074}{Rx} \&)$>$ {\bfseries rx\+Action}\hypertarget{a00040_ab79bb3eb3050d1c599061863bb2e219e}{}\label{a00040_ab79bb3eb3050d1c599061863bb2e219e}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00075}{Ry} \&)$>$ {\bfseries ry\+Action}\hypertarget{a00040_a229b7d9aae52638c6eff04bd16bb9973}{}\label{a00040_a229b7d9aae52638c6eff04bd16bb9973}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00076}{Rz} \&)$>$ {\bfseries rz\+Action}\hypertarget{a00040_a586ab5721150c67ad3ced46e2a236b44}{}\label{a00040_a586ab5721150c67ad3ced46e2a236b44}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00027}{C\+Phase} \&)$>$ {\bfseries cp\+Action}\hypertarget{a00040_a5b88a0c9789e7b6d44527b2df6819ac5}{}\label{a00040_a5b88a0c9789e7b6d44527b2df6819ac5}
+
+\item 
+std\+::function$<$ void(\hyperlink{a00083}{Swap} \&)$>$ {\bfseries sw\+Action}\hypertarget{a00040_a5060cd4c2b1b259e32bda0e7ecc78e85}{}\label{a00040_a5060cd4c2b1b259e32bda0e7ecc78e85}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Functional\+Gate\+Instruction\+Visitor.\+hpp\end{DoxyCompactItemize}

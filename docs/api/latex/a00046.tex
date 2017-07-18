@@ -1,0 +1,75 @@
+\hypertarget{a00046}{}\section{xacc\+:\+:quantum\+:\+:H\+U\+BO$<$ Result\+Type $>$ Class Template Reference}
+\label{a00046}\index{xacc\+::quantum\+::\+H\+U\+B\+O$<$ Result\+Type $>$@{xacc\+::quantum\+::\+H\+U\+B\+O$<$ Result\+Type $>$}}
+
+
+{\ttfamily \#include $<$H\+U\+B\+O.\+hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual std\+::shared\+\_\+ptr$<$ \hyperlink{a00030}{xacc\+::quantum\+::\+D\+W\+Graph} $>$ \hyperlink{a00046_ac1ef765d10ab355dd22d32e8259f0fea}{reduce\+To\+Qubo} (std\+::vector$<$ Instruction\+Parameter $>$ parameters)=0
+\item 
+virtual Result\+Type \hyperlink{a00046_a050aac403fabc54ff2726e28a8409194}{map\+Results} (std\+::shared\+\_\+ptr$<$ \hyperlink{a00013}{Accelerator\+Buffer} $>$ result\+Buffer)=0
+\item 
+virtual \hyperlink{a00046_a005d6122a7eb88fdd5889f154dc997bc}{$\sim$\+H\+U\+BO} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$typename Result\+Type$>$\\*
+class xacc\+::quantum\+::\+H\+U\+B\+O$<$ Result\+Type $>$}
+
+\hyperlink{a00046}{H\+U\+BO} is an interface for higher-\/order unconstrained binary optimization problems. It provides a method for subclasses to implement that takes a set of input parameters and maps the problem down to a quadratic unconstrained binary optimization problem, in the form of a \hyperlink{a00044}{Graph}.
+
+It takes a template parameter describing the return type of the map\+Results method -\/ which takes A\+QC Q\+PU execution results and maps them to the higher-\/order problem result. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}!````~H\+U\+BO@{$\sim$\+H\+U\+BO}}
+\index{````~H\+U\+BO@{$\sim$\+H\+U\+BO}!xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}}
+\subsubsection[{\texorpdfstring{$\sim$\+H\+U\+B\+O()}{~HUBO()}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Result\+Type $>$ virtual {\bf xacc\+::quantum\+::\+H\+U\+BO}$<$ Result\+Type $>$\+::$\sim${\bf H\+U\+BO} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}\hypertarget{a00046_a005d6122a7eb88fdd5889f154dc997bc}{}\label{a00046_a005d6122a7eb88fdd5889f154dc997bc}
+The destructor 
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}!map\+Results@{map\+Results}}
+\index{map\+Results@{map\+Results}!xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}}
+\subsubsection[{\texorpdfstring{map\+Results(std\+::shared\+\_\+ptr$<$ Accelerator\+Buffer $>$ result\+Buffer)=0}{mapResults(std::shared\_ptr< AcceleratorBuffer > resultBuffer)=0}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Result\+Type $>$ virtual Result\+Type {\bf xacc\+::quantum\+::\+H\+U\+BO}$<$ Result\+Type $>$\+::map\+Results (
+\begin{DoxyParamCaption}
+\item[{std\+::shared\+\_\+ptr$<$ {\bf Accelerator\+Buffer} $>$}]{result\+Buffer}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00046_a050aac403fabc54ff2726e28a8409194}{}\label{a00046_a050aac403fabc54ff2726e28a8409194}
+Take the low-\/level A\+QC Q\+PU result output and construct result of \hyperlink{a00046}{H\+U\+BO} problem .
+
+
+\begin{DoxyParams}{Parameters}
+{\em result\+Buffer} & The \hyperlink{a00013}{Accelerator\+Buffer} containing the A\+QC Q\+PU results. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+results Custom Type representing the result. 
+\end{DoxyReturn}
+\index{xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}!reduce\+To\+Qubo@{reduce\+To\+Qubo}}
+\index{reduce\+To\+Qubo@{reduce\+To\+Qubo}!xacc\+::quantum\+::\+H\+U\+BO@{xacc\+::quantum\+::\+H\+U\+BO}}
+\subsubsection[{\texorpdfstring{reduce\+To\+Qubo(std\+::vector$<$ Instruction\+Parameter $>$ parameters)=0}{reduceToQubo(std::vector< InstructionParameter > parameters)=0}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename Result\+Type $>$ virtual std\+::shared\+\_\+ptr$<${\bf xacc\+::quantum\+::\+D\+W\+Graph}$>$ {\bf xacc\+::quantum\+::\+H\+U\+BO}$<$ Result\+Type $>$\+::reduce\+To\+Qubo (
+\begin{DoxyParamCaption}
+\item[{std\+::vector$<$ Instruction\+Parameter $>$}]{parameters}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}\hypertarget{a00046_ac1ef765d10ab355dd22d32e8259f0fea}{}\label{a00046_ac1ef765d10ab355dd22d32e8259f0fea}
+Map this \hyperlink{a00046}{H\+U\+BO} problem to a quadratic unconstrained binary optimization problem.
+
+
+\begin{DoxyParams}{Parameters}
+{\em parameters} & Any input parameters needed to set the problem up \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+qubo\+Graph The Q\+U\+BO represented as a graph 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+H\+U\+B\+O.\+hpp\end{DoxyCompactItemize}

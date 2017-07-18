@@ -1,0 +1,112 @@
+\hypertarget{a00016}{}\section{xacc\+:\+:quantum\+:\+:A\+Q\+C\+Accelerator\+Buffer Class Reference}
+\label{a00016}\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+
+
+{\ttfamily \#include $<$A\+Q\+C\+Accelerator\+Buffer.\+hpp$>$}
+
+Inheritance diagram for xacc\+:\+:quantum\+:\+:A\+Q\+C\+Accelerator\+Buffer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{a00016}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{a00016_ac2f9ea58140a27741b4dc8fceaa1ca5c}{A\+Q\+C\+Accelerator\+Buffer} (const std\+::string \&str, const int N)
+\item 
+{\footnotesize template$<$typename... Indices$>$ }\\\hyperlink{a00016_a628c742acf1d20fc8fe9b69f9be7b2c6}{A\+Q\+C\+Accelerator\+Buffer} (const std\+::string \&str, int first\+Index, Indices...\+indices)
+\item 
+void \hyperlink{a00016_a23992d11bdb6f093c0ce3f743677d4d9}{set\+Embedding} (std\+::map$<$ int, std\+::list$<$ int $>$$>$ emb)
+\item 
+std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00016_ae98155c023d1b31b3b55a8c8e4ec6bc6}{get\+Embedding} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ int, std\+::list$<$ int $>$ $>$ \hyperlink{a00016_a26fd739244b0346cc3398eef31b11264}{embedding}
+\item 
+std\+::vector$<$ double $>$ \hyperlink{a00016_abe6d781724e197df449d8dfcde60e1a4}{energies}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{a00016}{A\+Q\+C\+Accelerator\+Buffer} is an \hyperlink{a00013}{Accelerator\+Buffer} that keeps track of the problem-\/specific embedding into the hardware graph. It also tracks A\+QC Q\+PU computed energies. 
+
+\subsection{Constructor \& Destructor Documentation}
+\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!A\+Q\+C\+Accelerator\+Buffer@{A\+Q\+C\+Accelerator\+Buffer}}
+\index{A\+Q\+C\+Accelerator\+Buffer@{A\+Q\+C\+Accelerator\+Buffer}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{A\+Q\+C\+Accelerator\+Buffer(const std\+::string \&str, const int N)}{AQCAcceleratorBuffer(const std::string \&str, const int N)}}]{\setlength{\rightskip}{0pt plus 5cm}xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::\+A\+Q\+C\+Accelerator\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str, }
+\item[{const int}]{N}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00016_ac2f9ea58140a27741b4dc8fceaa1ca5c}{}\label{a00016_ac2f9ea58140a27741b4dc8fceaa1ca5c}
+The constructor 
+\begin{DoxyParams}{Parameters}
+{\em str} & The name of this buffer \\
+\hline
+{\em N} & The number of bits represented by this buffer \\
+\hline
+\end{DoxyParams}
+\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!A\+Q\+C\+Accelerator\+Buffer@{A\+Q\+C\+Accelerator\+Buffer}}
+\index{A\+Q\+C\+Accelerator\+Buffer@{A\+Q\+C\+Accelerator\+Buffer}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{A\+Q\+C\+Accelerator\+Buffer(const std\+::string \&str, int first\+Index, Indices...\+indices)}{AQCAcceleratorBuffer(const std::string \&str, int firstIndex, Indices...indices)}}]{\setlength{\rightskip}{0pt plus 5cm}template$<$typename... Indices$>$ xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::\+A\+Q\+C\+Accelerator\+Buffer (
+\begin{DoxyParamCaption}
+\item[{const std\+::string \&}]{str, }
+\item[{int}]{first\+Index, }
+\item[{Indices...}]{indices}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00016_a628c742acf1d20fc8fe9b69f9be7b2c6}{}\label{a00016_a628c742acf1d20fc8fe9b69f9be7b2c6}
+The constructor 
+\begin{DoxyParams}{Parameters}
+{\em str} & \\
+\hline
+{\em first\+Index} & \\
+\hline
+{\em indices} & \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!get\+Embedding@{get\+Embedding}}
+\index{get\+Embedding@{get\+Embedding}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{get\+Embedding()}{getEmbedding()}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$int, std\+::list$<$int$>$ $>$ xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::get\+Embedding (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00016_ae98155c023d1b31b3b55a8c8e4ec6bc6}{}\label{a00016_ae98155c023d1b31b3b55a8c8e4ec6bc6}
+Return the minor graph embedding.
+
+\begin{DoxyReturn}{Returns}
+emb The minor graph embedding 
+\end{DoxyReturn}
+\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!set\+Embedding@{set\+Embedding}}
+\index{set\+Embedding@{set\+Embedding}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{set\+Embedding(std\+::map$<$ int, std\+::list$<$ int $>$$>$ emb)}{setEmbedding(std::map< int, std::list< int >> emb)}}]{\setlength{\rightskip}{0pt plus 5cm}void xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::set\+Embedding (
+\begin{DoxyParamCaption}
+\item[{std\+::map$<$ int, std\+::list$<$ int $>$$>$}]{emb}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}\hypertarget{a00016_a23992d11bdb6f093c0ce3f743677d4d9}{}\label{a00016_a23992d11bdb6f093c0ce3f743677d4d9}
+Set the minor graph embedding for the problem solved during this execution .
+
+
+\begin{DoxyParams}{Parameters}
+{\em emb} & The minor graph embedding \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Data Documentation}
+\index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!embedding@{embedding}}
+\index{embedding@{embedding}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{embedding}{embedding}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::map$<$int, std\+::list$<$int$>$ $>$ xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::embedding\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00016_a26fd739244b0346cc3398eef31b11264}{}\label{a00016_a26fd739244b0346cc3398eef31b11264}
+The minor graph embedding for the problem these results represent. \index{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}!energies@{energies}}
+\index{energies@{energies}!xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer@{xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer}}
+\subsubsection[{\texorpdfstring{energies}{energies}}]{\setlength{\rightskip}{0pt plus 5cm}std\+::vector$<$double$>$ xacc\+::quantum\+::\+A\+Q\+C\+Accelerator\+Buffer\+::energies\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{a00016_abe6d781724e197df449d8dfcde60e1a4}{}\label{a00016_abe6d781724e197df449d8dfcde60e1a4}
+The energies computed as part of this execution. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+A\+Q\+C\+Accelerator\+Buffer.\+hpp\end{DoxyCompactItemize}
