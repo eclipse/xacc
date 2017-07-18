@@ -1,4 +1,3 @@
-
 /***********************************************************************************
  * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
@@ -102,7 +101,6 @@ public:
 			const std::string& varId, const int size) {
 		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, size);
 		storeBuffer(varId, b);
-
 	}
 };
 
