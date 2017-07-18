@@ -64,6 +64,17 @@ public:
 		storeBuffer(varId, b);
 	}
 
+	virtual std::vector<std::string> getAllocatedBufferNames() {
+		std::vector<std::string> names;
+		names.push_back("hello");
+		return names;
+	}
+
+	virtual std::shared_ptr<xacc::AcceleratorBuffer> getBuffer(
+				const std::string& varid) {
+		return std::make_shared<AQCAcceleratorBuffer>("hello", 1);
+	}
+
 	virtual void initialize() {
 
 	}
@@ -90,6 +101,7 @@ public:
 	virtual std::shared_ptr<xacc::AcceleratorBuffer> createBuffer(
 			const std::string& varId, const int size) {
 		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, size);
+		storeBuffer(varId, b);
 
 	}
 };
@@ -186,14 +198,14 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 }
 
-BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
+BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
 	EmbeddingAlgorithmRegistry::instance()->add(Factoring15FakeEmbedding().name(),
 			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>([]() {return std::make_shared<Factoring15FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 
-	const std::string shor15QMI =
+	const std::string factoring15QMI =
 			"__qpu__ factor15() {\n"
 			"   0 0 20\n"
 			"   1 1 50\n"
@@ -219,9 +231,8 @@ BOOST_AUTO_TEST_CASE(checkShor15OneToOneMapping) {
 	}
 
 	auto acc = std::make_shared<FakeDWAcc>();
-	acc->createBuffer("hello");
 
-	auto ir = compiler->compile(shor15QMI, acc);
+	auto ir = compiler->compile(factoring15QMI, acc);
 
 	auto qmi = ir->getKernel("factor15")->toString("");
 
