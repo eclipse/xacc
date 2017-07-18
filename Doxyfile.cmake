@@ -856,6 +856,7 @@ EXCLUDE_PATTERNS       = */eigen/*
 EXCLUDE_PATTERNS += */fire/*
 EXCLUDE_PATTERNS += */rapidjson/*
 EXCLUDE_PATTERNS += */boost-dll/*
+EXCLUDE_PATTERNS += */cmr/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -1142,7 +1143,8 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/customdoxygen.css
+HTML_EXTRA_STYLESHEET  = 
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/customdoxygen.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1152,7 +1154,8 @@ HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstr
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/doxy-boot.js
+HTML_EXTRA_FILES       = 
+#@CMAKE_CURRENT_SOURCE_DIR@/docs-doxygen/doxygen-bootstrapped/doxy-boot.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
