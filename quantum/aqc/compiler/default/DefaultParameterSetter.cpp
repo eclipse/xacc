@@ -96,9 +96,9 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
 											problemGraph->getEdgeWeight(pi,
 													neighbor));
 								}
-								newWeight = std::get<0>(
-										problemGraph->getVertexProperties(pi))
-										+ newWeight - 1.0;
+								newWeight += std::get<0>(
+										problemGraph->getVertexProperties(pi));
+								newWeight *= -1.0;
 							}
 
 							if (std::fabs(newWeight) > 1e-4) {
