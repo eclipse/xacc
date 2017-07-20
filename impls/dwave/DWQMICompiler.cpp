@@ -34,6 +34,7 @@
 #include "DWKernel.hpp"
 #include "RuntimeOptions.hpp"
 #include "AQCAcceleratorBuffer.hpp"
+#include "ParameterSetter.hpp"
 
 namespace xacc {
 
@@ -128,77 +129,25 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	// Add the embedding to the AcceleratorBuffer
 	aqcBuffer->setEmbedding(embedding);
 
-	auto countEdgesBetweenSubTrees = [&](std::list<int> Ti, std::list<int> Tj) -> int {
-		int nEdges = 0;
-		for (auto i : Ti) {
-			for (auto j : Tj) {
-				if (hardwareGraph->edgeExists(i, j)) {
-					nEdges++;
-				}
-			}
-		}
-		return nEdges;
-	};
-
-	auto subTreeContains = [](std::list<int> tree, int i) -> bool {
-		return std::find(tree.begin(), tree.end(), i) != tree.end();
-	};
-
-	// Setup the hardware bias values
-	for (auto& embKv : embedding) {
-		auto probVert = embKv.first;
-		auto hardwareMapping = embKv.second;
-		auto newBias = std::get<0>(problemGraph->getVertexProperties(probVert)) / hardwareMapping.size();
-		for (auto h : hardwareMapping) {
-			auto embeddedInst = std::make_shared<DWQMI>(h, h, newBias);
-			dwKernel->addInstruction(embeddedInst);
-		}
+	// Get the ParameterSetter
+	std::shared_ptr<ParameterSetter> parameterSetter;
+	if (runtimeOptions->exists("dwave-parameter-setter")) {
+		parameterSetter = ParameterSetterRegistry::instance()->create(
+				(*runtimeOptions)["dwave-parameter-setter"]);
+	} else {
+		parameterSetter = ParameterSetterRegistry::instance()->create(
+				"default");
 	}
 
-	for (int i = 0; i < nHardwareVerts; i++) {
-		for (int j = 0; j < nHardwareVerts; j++) {
-			if (hardwareGraph->edgeExists(i, j) && i < j && i != j) {
-				for (int pi = 0; pi < problemGraph->order(); pi++) {
-					for (int pj = 0; pj < problemGraph->order(); pj++) {
+	// Set the parameters
+	auto insts = parameterSetter->setParameters(problemGraph, hardwareGraph, embedding);
 
-						auto Ti = embedding[pi];
-						auto Tj = embedding[pj];
-
-						if (subTreeContains(Ti, i) && subTreeContains(Tj, j)) {
-							double newWeight = 0.0;
-							if (pi != pj) {
-								// If problem edge does not exist,
-								// Graph.getEdgeWeight retusn 0.0;
-								newWeight = problemGraph->getEdgeWeight(pi,
-										pj)
-										/ countEdgesBetweenSubTrees(Ti, Tj);
-							} else {
-								// ferro-magnetic coupling parameter that ensures that physical
-								// qubits representing one logical qubit remain highly correlated.
-								for (auto neighbor : problemGraph->getNeighborList(
-										pi)) {
-									newWeight += std::fabs(
-											problemGraph->getEdgeWeight(pi,
-													neighbor));
-								}
-								newWeight = std::get<0>(
-										problemGraph->getVertexProperties(pi))
-										+ newWeight - 1.0;
-							}
-
-							if (std::fabs(newWeight) > 1e-4) {
-								auto embeddedInst = std::make_shared<DWQMI>(i,
-										j, newWeight);
-								dwKernel->addInstruction(embeddedInst);
-							}
-
-						}
-					}
-				}
-			}
-		}
+	// Add the instructions to the Kernel
+	for (auto i : insts) {
+		dwKernel->addInstruction(i);
 	}
 
+	// Create and return the IR
 	auto ir = std::make_shared<DWIR>();
 	ir->addKernel(dwKernel);
 	return ir;

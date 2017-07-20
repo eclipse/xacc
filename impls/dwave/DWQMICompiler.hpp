@@ -96,7 +96,10 @@ public:
 		auto desc = std::make_shared<options_description>(
 				"D-Wave QMI Compiler Options");
 		desc->add_options()("dwave-embedding", value<std::string>(),
-				"Provide the name of the Embedding Algorithm to use during compilation.");
+				"Provide the name of the Embedding Algorithm to use during compilation.")(
+				"dwave-parameter-setter", value<std::string>(),
+				"Provide the name of the "
+						"ParameterSetter to map logical parameters to physical parameters.");
 		return desc;
 	}
 

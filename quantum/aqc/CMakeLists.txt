@@ -35,10 +35,10 @@ set (LIBRARY_NAME xacc-quantum-aqc)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler/trivial)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler/default)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC compiler/trivial/TrivialEmbeddingAlgorithm.cpp) # compiler/cmr/*.cpp)
+file (GLOB SRC compiler/default/*.cpp) 
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
