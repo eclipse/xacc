@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 			"4 4 0.49\n"
 			"1 1 0.33\n"
 			"5 5 0.44\n"
-			"0 4 0.75\n"
+			"0 4 -1.75\n"
 			"0 5 0.55\n"
 			"1 4 0.22\n"
 			"1 5 0.11\n";
@@ -252,6 +252,7 @@ BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 		"2 5 -1000\n"
 		"2 6 -128\n";
 
+	std::cout << "QMI:\n" << qmi << "\n";
 	BOOST_VERIFY(expected == qmi);
 
 }
