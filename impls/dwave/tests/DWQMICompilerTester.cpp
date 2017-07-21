@@ -35,6 +35,7 @@
 #include "DWQMICompiler.hpp"
 #include "XACC.hpp"
 #include "AQCAcceleratorBuffer.hpp"
+#include "DefaultParameterSetter.hpp"
 
 using namespace xacc::quantum;
 
@@ -158,8 +159,10 @@ public:
 
 BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
-	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
-			[]() {return std::make_shared<FakeEmbedding>();}));
+	DefaultParameterSetter setter;
+	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),
+			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
+					[]() {return std::make_shared<FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 
@@ -198,8 +201,10 @@ BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
 
 BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
-	EmbeddingAlgorithmRegistry::instance()->add(Factoring15FakeEmbedding().name(),
-			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>([]() {return std::make_shared<Factoring15FakeEmbedding>();}));
+	EmbeddingAlgorithmRegistry::instance()->add(
+			Factoring15FakeEmbedding().name(),
+			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
+					[]() {return std::make_shared<Factoring15FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 

@@ -34,6 +34,7 @@ find_package(OpenSSL)
 if (OPENSSL_FOUND)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
+   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler/default)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/accelerator)
 
    include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
