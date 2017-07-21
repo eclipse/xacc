@@ -149,9 +149,7 @@ public:
 				value<std::string>(), "The D-Wave SAPI URL, "
 						"https://qubist.dwavesys.com/sapi "
 						"used by default.")("dwave-solver",
-				value<std::string>(), "The name of the solver to run on.")(
-				"dwave-solver", value<std::string>(),
-				"The name of the solver to use.");
+				value<std::string>(), "The name of the solver to run on.");
 		return desc;
 	}
 
