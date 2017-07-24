@@ -37,7 +37,7 @@ namespace xacc {
 
 class IRTransformation {
 public:
-	virtual void transform(IR& ir) = 0;
+	virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) = 0;
 	virtual ~IRTransformation() {}
 };
 

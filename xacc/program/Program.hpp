@@ -143,18 +143,6 @@ protected:
 			XACCError("Bad source string or something.\n");
 		}
 
-		// Execute IR Translations
-		auto acceleratorType = accelerator->getType();
-		auto defaultTransforms = getAcceleratorIndependentTransformations(
-				acceleratorType);
-		auto accDepTransforms = accelerator->getIRTransformations();
-		for (IRTransformation& t : defaultTransforms) {
-			t.transform(*xaccIR.get());
-		}
-		for (IRTransformation& t : accDepTransforms) {
-			t.transform(*xaccIR.get());
-		}
-
 		// Write the IR to file if the user requests it
 		if (runtimeOptions->exists("persist-ir")) {
 			auto fileStr = (*runtimeOptions)["persist-ir"];

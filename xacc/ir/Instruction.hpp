@@ -34,6 +34,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <complex>
 #include <boost/variant.hpp>
 #include "Utils.hpp"
 #include "InstructionVisitor.hpp"
@@ -41,9 +42,9 @@
 namespace xacc {
 
 /**
- * InstructionParameters can be ints, doubles, floats, or strings (for variables)
+ * InstructionParameters can be ints, doubles, floats, strings (for variables), or complex
  */
-using InstructionParameter = boost::variant<int, double, float, std::string>;
+using InstructionParameter = boost::variant<int, double, float, std::string, std::complex<double>>;
 
 /**
  * The Instruction interface is the base of all
