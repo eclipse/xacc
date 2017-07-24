@@ -218,6 +218,16 @@ public:
 			exit(0);
 		}
 
+		auto exitRequested1 = xacc::CompilerRegistry::instance()->handleOptions(clArgs);
+		auto exitRequested2 = xacc::AcceleratorRegistry::instance()->handleOptions(clArgs);
+
+		if (exitRequested1 || exitRequested2) {
+			XACCInfo(
+					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
+							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+			exit(0);
+		}
+
 		// Add all other string options to the global runtime option
 		for (auto it = clArgs.begin(); it != clArgs.end();
 				++it) {

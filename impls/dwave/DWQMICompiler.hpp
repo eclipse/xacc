@@ -101,7 +101,8 @@ public:
 				"Provide the name of the "
 						"ParameterSetter to map logical parameters to physical parameters.")
 						("dwave-load-embedding", value<std::string>(), "Use the embedding in the given file.")
-						("dwave-persist-embedding", value<std::string>(), "Persist the computed embedding to the given file name.");
+						("dwave-persist-embedding", value<std::string>(), "Persist the computed embedding to the given file name.")
+						("dwave-list-embedding-algorithms", "List all available embedding algorithms.");
 		return desc;
 	}
 
@@ -111,7 +112,17 @@ public:
 	static void registerCompiler() {
 		DWQMICompiler c;
 		xacc::RegisterCompiler<xacc::quantum::DWQMICompiler> DWQMITEMP(
-				"dwave-qmi", c.getOptions());
+				"dwave-qmi", c.getOptions(),
+				[](variables_map& args) -> bool {
+					if(args.count("dwave-list-embedding-algorithms")) {
+						auto ids = EmbeddingAlgorithmRegistry::instance()->getRegisteredIds();
+						for (auto i : ids) {
+							XACCInfo("Registered Embedding Algorithm: " + i);
+						}
+						return true;
+					}
+					return false;
+				});
 	}
 
 	/**

@@ -112,6 +112,28 @@ public:
 		}
 	}
 
+	bool add(const std::string& id, CreatorFunctionPtr f,
+			std::shared_ptr<options_description> options,
+			std::function<bool(variables_map&)> optionsHandler) {
+		if (registry.find(id) != registry.end()) {
+			XACCInfo(
+					id
+							+ " already exists in Registry. Ignoring and retaining previous Registry entry");
+			return true;
+		}
+		if (RuntimeOptions::instance()->exists("verbose-registry"))
+			XACCInfo("Registry adding " + id);
+		bool s = registry.emplace(std::make_pair(id, f)).second;
+		bool s2 =
+				registryOptions.insert(std::make_pair(id, std::move(options))).second;
+		bool s3 = registryOptionHandlers.insert(std::make_pair(id, std::move(optionsHandler))).second;
+		if (!s || !s2) {
+			XACCError("Could not add " + id + " to the Registry.");
+		} else {
+			return true;
+		}
+	}
+
 	/**
 	 * Create an instance of T by using the creation
 	 * function found at the given key string id.
@@ -158,6 +180,15 @@ public:
 		return values;
 
 	}
+
+	bool handleOptions(variables_map& map) {
+		for (auto& kv : registryOptionHandlers) {
+			if (kv.second(map)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	/**
 	 * Return the number of creation functions
 	 * this registry contains.
@@ -177,6 +208,9 @@ protected:
 	std::map<std::string, CreatorFunctionPtr> registry;
 
 	std::map<std::string, std::shared_ptr<options_description>> registryOptions;
+
+	std::map<std::string, std::function<bool(variables_map&)>> registryOptionHandlers;
+
 };
 }
 

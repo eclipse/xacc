@@ -268,6 +268,17 @@ public:
 		});
 		AcceleratorRegistry::instance()->add(name, f, options);
 	}
+
+	RegisterAccelerator(const std::string& name,
+			std::shared_ptr<options_description> options,
+			std::function<bool(variables_map& args)> optionHandler) {
+		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
+				AcceleratorRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		AcceleratorRegistry::instance()->add(name, f, options, optionHandler);
+	}
+
 };
 
 #define RegisterAccelerator(TYPE) BOOST_DLL_ALIAS(TYPE::registerAccelerator, registerAccelerator)

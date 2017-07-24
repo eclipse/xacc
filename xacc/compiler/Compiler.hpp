@@ -153,6 +153,16 @@ public:
 		});
 		CompilerRegistry::instance()->add(name, f, options);
 	}
+
+	RegisterCompiler(const std::string& name,
+			std::shared_ptr<options_description> options,
+			std::function<bool(variables_map& args)> optionHandler) {
+		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
+				CompilerRegistry::CreatorFunction>([]() {
+			return std::make_shared<T>();
+		});
+		CompilerRegistry::instance()->add(name, f, options, optionHandler);
+	}
 };
 
 #define RegisterCompiler(TYPE) BOOST_DLL_ALIAS(TYPE::registerCompiler, registerCompiler)
