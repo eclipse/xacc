@@ -99,7 +99,9 @@ public:
 				"Provide the name of the Embedding Algorithm to use during compilation.")(
 				"dwave-parameter-setter", value<std::string>(),
 				"Provide the name of the "
-						"ParameterSetter to map logical parameters to physical parameters.");
+						"ParameterSetter to map logical parameters to physical parameters.")
+						("dwave-load-embedding", value<std::string>(), "Use the embedding in the given file.")
+						("dwave-persist-embedding", value<std::string>(), "Persist the computed embedding to the given file name.");
 		return desc;
 	}
 

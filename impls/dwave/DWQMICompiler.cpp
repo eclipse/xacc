@@ -115,16 +115,31 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 		}
 	}
 
+	Embedding embedding;
 	// Get an embedding algorithm to execute
-	if (!runtimeOptions->exists("dwave-embedding")) {
+	if (!runtimeOptions->exists("dwave-embedding")
+			&& !runtimeOptions->exists("dwave-load-embedding")) {
 		// For now, this is an error
-		XACCError("You must specify an embedding algorithm");
+		XACCError("You must specify an embedding algorithm or embedding file.");
 	}
-	auto algoStr = (*runtimeOptions)["dwave-embedding"];
-	auto embeddingAlgorithm = EmbeddingAlgorithmRegistry::instance()->create(algoStr);
 
-	// Compute the minor graph embedding
-	auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
+	if (runtimeOptions->exists("dwave-load-embedding")) {
+		std::ifstream ifs((*runtimeOptions)["dwave-load-embedding"]);
+		embedding.load(ifs);
+	} else {
+		auto algoStr = (*runtimeOptions)["dwave-embedding"];
+		auto embeddingAlgorithm =
+				EmbeddingAlgorithmRegistry::instance()->create(algoStr);
+
+		// Compute the minor graph embedding
+		embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
+
+		if (runtimeOptions->exists("dwave-persist-embedding")) {
+			auto fileName = (*runtimeOptions)["dwave-persist-embedding"];
+			std::ofstream ofs(fileName);
+			embedding.persist(ofs);
+		}
+	}
 
 	// Add the embedding to the AcceleratorBuffer
 	aqcBuffer->setEmbedding(embedding);
