@@ -36,14 +36,14 @@ namespace quantum {
 std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
 		std::shared_ptr<DWGraph> problemGraph,
 		std::shared_ptr<AcceleratorGraph> hardwareGraph,
-		std::map<int, std::list<int>> embedding) {
+		Embedding embedding) {
 
 	std::list<std::shared_ptr<DWQMI>> instList;
 	auto nHardwareVerts = hardwareGraph->order();
 	auto nProblemVerts = problemGraph->order();
 
 	auto countEdgesBetweenSubTrees =
-			[&](std::list<int> Ti, std::list<int> Tj) -> int {
+			[&](std::vector<int> Ti, std::vector<int> Tj) -> int {
 				int nEdges = 0;
 				for (auto i : Ti) {
 					for (auto j : Tj) {
@@ -55,7 +55,7 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
 				return nEdges;
 			};
 
-	auto subTreeContains = [](std::list<int> tree, int i) -> bool {
+	auto subTreeContains = [](std::vector<int> tree, int i) -> bool {
 		return std::find(tree.begin(), tree.end(), i) != tree.end();
 	};
 

@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,44 +28,47 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#include "TrivialEmbeddingAlgorithm.hpp"
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE EmbeddingTester
 
-namespace xacc {
-namespace quantum {
-Embedding TrivialEmbeddingAlgorithm::embed(
-		std::shared_ptr<DWGraph> problem,
-		std::shared_ptr<xacc::AcceleratorGraph> hdware,
-		std::map<std::string, std::string> params) {
+#include <boost/test/included/unit_test.hpp>
+#include "Embedding.hpp"
 
-	Embedding xaccEmbedding;
-	bool failHard = true;
-	if (params.count("failhard")) {
-		failHard = params["failhard"] == "false" ? false : true;
-	}
+using namespace xacc::quantum;
 
-	for (int i = 0; i < problem->order(); i++) {
-		for (int j = 0; j < problem->order(); j++) {
-			if (i < j && i != j
-					&& (problem->edgeExists(i, j) && !hdware->edgeExists(i, j))) {
-				if (failHard) {
-					XACCError(
-							"Trivial Embedding not possible, there is no hardware edge corresponding to ("
-									+ std::to_string(i) + ", "
-									+ std::to_string(j) + ") problem edge.");
-				} else {
-					XACCInfo("This embedding failed, but user requested to not fail hard. Returning empty embedding.");
-					xaccEmbedding.clear();
-					return xaccEmbedding;
-				}
-			}
-		}
-		xaccEmbedding.insert(std::make_pair(i, std::vector<int>{i}));
-	}
+BOOST_AUTO_TEST_CASE(checkLoadPersist) {
 
-	return xaccEmbedding;
+	Embedding embedding;
+
+	embedding.insert(std::make_pair(0, std::vector<int>{0, 4}));
+	embedding.insert(std::make_pair(1, std::vector<int>{1, 5}));
+	embedding.insert(std::make_pair(2, std::vector<int>{2, 6}));
+	embedding.insert(std::make_pair(3, std::vector<int>{3}));
+	embedding.insert(std::make_pair(4, std::vector<int>{7}));
+
+	std::stringstream ss;
+
+	embedding.persist(ss);
+
+	std::string expected =
+			"0: 0 4\n"
+			"1: 1 5\n"
+			"2: 2 6\n"
+			"3: 3\n"
+			"4: 7\n";
+
+
+	BOOST_VERIFY(ss.str() == expected);
+
+	Embedding toBeLoaded;
+	std::istringstream iss(expected);
+
+	toBeLoaded.load(iss);
+
+	toBeLoaded.persist(std::cout);
+	BOOST_VERIFY(toBeLoaded == embedding);
 }
 
-xacc::quantum::RegisterEmbeddingAlgorithm<TrivialEmbeddingAlgorithm> TRIVEMB(
-				"trivial");
-}
-}
+
+
+

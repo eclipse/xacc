@@ -108,14 +108,14 @@ public:
 class FakeEmbedding : public EmbeddingAlgorithm {
 public:
 
-	virtual std::map<int, std::list<int>> embed(
+	virtual Embedding embed(
 			std::shared_ptr<DWGraph> problem, std::shared_ptr<xacc::AcceleratorGraph> hardware,
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>()) override {
-		std::map<int, std::list<int>> embedding;
-		embedding.insert(std::make_pair(0, std::list<int>{0, 4}));
-		embedding.insert(std::make_pair(1, std::list<int>{1}));
-		embedding.insert(std::make_pair(2, std::list<int>{5}));
+		Embedding embedding;
+		embedding.insert(std::make_pair(0, std::vector<int>{0, 4}));
+		embedding.insert(std::make_pair(1, std::vector<int>{1}));
+		embedding.insert(std::make_pair(2, std::vector<int>{5}));
 		return embedding;
 	}
 
@@ -132,17 +132,17 @@ public:
 class Factoring15FakeEmbedding : public EmbeddingAlgorithm {
 public:
 
-	virtual std::map<int, std::list<int>> embed(
+	virtual Embedding embed(
 			std::shared_ptr<DWGraph> problem, std::shared_ptr<xacc::AcceleratorGraph> hardware,
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>()) override {
-		std::map<int, std::list<int>> embedding;
-		embedding.insert(std::make_pair(0, std::list<int>{0}));
-		embedding.insert(std::make_pair(1, std::list<int>{1}));
-		embedding.insert(std::make_pair(2, std::list<int>{2}));
-		embedding.insert(std::make_pair(4, std::list<int>{4}));
-		embedding.insert(std::make_pair(5, std::list<int>{5}));
-		embedding.insert(std::make_pair(6, std::list<int>{6}));
+		Embedding embedding;
+		embedding.insert(std::make_pair(0, std::vector<int>{0}));
+		embedding.insert(std::make_pair(1, std::vector<int>{1}));
+		embedding.insert(std::make_pair(2, std::vector<int>{2}));
+		embedding.insert(std::make_pair(4, std::vector<int>{4}));
+		embedding.insert(std::make_pair(5, std::vector<int>{5}));
+		embedding.insert(std::make_pair(6, std::vector<int>{6}));
 		return embedding;
 	}
 

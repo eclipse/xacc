@@ -55,7 +55,7 @@ public:
 	virtual std::list<std::shared_ptr<DWQMI>> setParameters(
 			std::shared_ptr<DWGraph> problemGraph,
 			std::shared_ptr<AcceleratorGraph> hardwareGraph,
-			std::map<int, std::list<int>> embedding);
+			Embedding embedding);
 };
 
 }

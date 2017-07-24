@@ -65,7 +65,7 @@ public:
 	 * @param params Any key-value string parameters to influence the algorithm.
 	 * @return embedding A mapping of problem vertex indices to the list of hardware vertices they map to
 	 */
-	virtual std::map<int, std::list<int>> embed(std::shared_ptr<DWGraph> problem,
+	virtual Embedding embed(std::shared_ptr<DWGraph> problem,
 			std::shared_ptr<AcceleratorGraph> hardware,
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>());

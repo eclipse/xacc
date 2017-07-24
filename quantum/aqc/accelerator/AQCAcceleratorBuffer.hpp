@@ -32,6 +32,7 @@
 #define QUANTUM_AQC_ACCELERATOR_AQCACCELERATORBUFFER_HPP_
 
 #include "AcceleratorBuffer.hpp"
+#include "Embedding.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -50,7 +51,7 @@ protected:
 	 * The minor graph embedding for the problem these
 	 * results represent.
 	 */
-	std::map<int, std::list<int>> embedding;
+	Embedding embedding;
 
 	/**
 	 * The energies computed as part of this execution.
@@ -96,7 +97,7 @@ public:
 	 *
 	 * @param emb The minor graph embedding
 	 */
-	void setEmbedding(std::map<int, std::list<int>> emb) {
+	void setEmbedding(Embedding emb) {
 		embedding = emb;
 	}
 
@@ -105,7 +106,7 @@ public:
 	 *
 	 * @return emb The minor graph embedding
 	 */
-	std::map<int, std::list<int>> getEmbedding() {
+	Embedding getEmbedding() {
 		return embedding;
 	}
 
