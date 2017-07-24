@@ -153,8 +153,8 @@ public:
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-			xacc::CompilerRegistry::instance()->destroy();
-			xacc::AcceleratorRegistry::instance()->destroy();
+//			xacc::CompilerRegistry::instance()->destroy();
+//			xacc::AcceleratorRegistry::instance()->destroy();
 			exit(0);
 		}
 
