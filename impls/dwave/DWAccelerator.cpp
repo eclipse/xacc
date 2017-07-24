@@ -75,7 +75,8 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	auto nQMILines = splitLines.size();
 	auto options = RuntimeOptions::instance();
 	std::string jsonStr = "",
-			solverName = "DW_2000Q_VFYC", solveType = "ising", trials = "100";
+			solverName = "DW_2000Q_VFYC", solveType = "ising", trials = "100",
+			annealTime = "20";
 
 	if (options->exists("dwave-solver")) {
 		solverName = (*options)["dwave-solver"];
@@ -105,12 +106,19 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		}
 	}
 
+	if(options->exists("dwave-num-reads")) {
+		trials = (*options)["dwave-num-reads"];
+	}
+
+	if(options->exists("dwave-anneal-time")) {
+		annealTime = (*options)["dwave-anneal-time"];
+	}
 
 	jsonStr += "[{ \"solver\" : \"" + solverName + "\", \"type\" : \""
 			+ solveType + "\", \"data\" : \"" + std::to_string(solver.nQubits)
 			+ " " + std::to_string(nQMILines-1) + "\\n"
 			+ dwKernel->toString("") + "\", \"params\": { \"num_reads\" : "
-			+ trials + "} }]";
+			+ trials + ", \"annealing_time\" : " + annealTime + "} }]";
 	boost::replace_all(jsonStr, "\n", "\\n");
 
 	std::cout << "\nJsonPost= " << jsonStr << "\n\n\n";

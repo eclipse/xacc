@@ -149,7 +149,10 @@ public:
 				value<std::string>(), "The D-Wave SAPI URL, "
 						"https://qubist.dwavesys.com/sapi "
 						"used by default.")("dwave-solver",
-				value<std::string>(), "The name of the solver to run on.");
+				value<std::string>(), "The name of the solver to run on.")
+				("dwave-num-reads", value<std::string>(), "The number of executions on the chip for the given problem.")
+				("dwave-anneal-time", value<std::string>(), "The time to evolve the chip - an integer in microseconds.")
+				("dwave-thermalization", value<std::string>(), "The thermalization...");
 		return desc;
 	}
 

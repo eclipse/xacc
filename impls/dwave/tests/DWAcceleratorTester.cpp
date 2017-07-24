@@ -106,7 +106,6 @@ BOOST_AUTO_TEST_CASE(checkKernelExecution) {
 
 //	acc.execute(buffer, f);
 
-//	BOOST_VERIFY(client->postOccured);
 
 
 
