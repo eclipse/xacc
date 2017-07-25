@@ -142,7 +142,7 @@ public:
 	 * @param idx The index of the parameter.
 	 * @return param The InstructionParameter at the given index.
 	 */
-	virtual InstructionParameter getParameter(const int idx) {
+	virtual InstructionParameter getParameter(const int idx) const {
 		return parameter;
 	}
 

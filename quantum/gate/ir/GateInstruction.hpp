@@ -141,7 +141,7 @@ public:
 		enabled = true;
 	}
 
-	virtual InstructionParameter getParameter(const int idx) {
+	virtual InstructionParameter getParameter(const int idx) const {
 		if (idx + 1 > parameters.size()) {
 			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
 		}

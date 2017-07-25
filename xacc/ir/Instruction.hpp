@@ -95,7 +95,7 @@ public:
 	 * @param idx The index of the parameter.
 	 * @return param The InstructionParameter at the given index.
 	 */
-	virtual InstructionParameter getParameter(const int idx) = 0;
+	virtual InstructionParameter getParameter(const int idx) const = 0;
 
 	/**
 	 * Return all of this Instruction's parameters.

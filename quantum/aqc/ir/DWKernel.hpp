@@ -160,7 +160,7 @@ public:
 		return weights;
 	}
 
-	virtual InstructionParameter getParameter(const int idx) {
+	virtual InstructionParameter getParameter(const int idx) const {
 		XACCError("DWKernel does not contain runtime parameters.");
 	}
 
