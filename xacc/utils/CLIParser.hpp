@@ -101,7 +101,7 @@ public:
 
 		// Load all default Compilers and Accelerators,
 		// ie those in XACC INSTALL DIR/lib
-		boost::filesystem::path xaccPath(
+		/*boost::filesystem::path xaccPath(
 				std::string(XACC_INSTALL_DIR) + std::string("/lib"));
 		if (boost::filesystem::exists(xaccPath)) {
 			boost::filesystem::directory_iterator end_itr;
@@ -133,7 +133,7 @@ public:
 					}
 				}
 			}
-		}
+		}*/
 
 		auto registeredAccOptions = AcceleratorRegistry::instance()->getRegisteredOptions();
 		auto registeredCompilerOptions = CompilerRegistry::instance()->getRegisteredOptions();

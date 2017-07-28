@@ -29,6 +29,15 @@
  *
  **********************************************************************************/
 #include "XACC.hpp"
+#include "EmbeddingAlgorithm.hpp"
+
+#include <cppmicroservices/FrameworkFactory.h>
+#include <cppmicroservices/Framework.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/Bundle.h>
+#include <cppmicroservices/BundleImport.h>
+
+using namespace cppmicroservices;
 
 const std::string src =
 	"__qpu__ factoring15() {\n"
@@ -49,6 +58,54 @@ const std::string src =
 	"}";
 
 int main (int argc, char** argv) {
+
+	// Create a new framework with a default configuration.
+	Framework fw = FrameworkFactory().NewFramework();
+
+	try {
+		// Initialize the framework, such that we can call
+		// GetBundleContext() later.
+		fw.Init();
+	} catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
+
+	// The framework inherits from the Bundle class; it is
+	// itself a bundle.
+	auto ctx = fw.GetBundleContext();
+	if (!ctx) {
+		std::cerr << "Invalid framework context" << std::endl;
+		return 1;
+	}
+
+	ctx.InstallBundles("/usr/local/xacc/lib/plugins/embedding/libxacc-trivial-embedding.so");
+	ctx.InstallBundles("/usr/local/xacc/lib/plugins/compilers/libxacc-scaffold.so");
+
+	try {
+		// Start the framwork itself.
+		fw.Start();
+
+		// Our bundles depend on each other in the sense that the consumer
+		// bundle expects a ServiceTime service in its activator Start()
+		// function. This is done here for simplicity, but is actually
+		// bad practice.
+		auto bundles = ctx.GetBundles();
+		for (auto b : bundles) {
+			std::cout << "BUNDLE: " << b.GetSymbolicName() << "\n";
+			b.Start();
+		}
+
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	}
+
+	auto ref = ctx.GetServiceReference<xacc::quantum::EmbeddingAlgorithm>();
+
+	auto emb = ctx.GetService(ref);
+
+	std::cout << "EMBALGO NAME: " << emb->name() << "\n";
+
 
 	// Initialize the XACC Framework
 	xacc::Initialize(argc, argv);

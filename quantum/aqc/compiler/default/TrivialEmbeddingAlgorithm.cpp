@@ -32,6 +32,7 @@
 
 namespace xacc {
 namespace quantum {
+
 Embedding TrivialEmbeddingAlgorithm::embed(
 		std::shared_ptr<DWGraph> problem,
 		std::shared_ptr<xacc::AcceleratorGraph> hdware,
@@ -65,7 +66,5 @@ Embedding TrivialEmbeddingAlgorithm::embed(
 	return xaccEmbedding;
 }
 
-xacc::quantum::RegisterEmbeddingAlgorithm<TrivialEmbeddingAlgorithm> TRIVEMB(
-				"trivial");
 }
 }

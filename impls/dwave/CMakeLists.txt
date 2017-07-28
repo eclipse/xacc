@@ -49,15 +49,39 @@ if (OPENSSL_FOUND)
    file (GLOB_RECURSE HEADERS *.hpp)
    file (GLOB SRC *.cpp)
 
-   add_library(${LIBRARY_NAME} SHARED ${SRC})
+   usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+   usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-quantum-aqc)
+   add_library(${LIBRARY_NAME} ${SRC})
+
+   target_link_libraries(${LIBRARY_NAME} CppMicroServices ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-quantum-aqc)
+
+   set(_bundle_name xacc_dwave)
+
+   set_target_properties(${LIBRARY_NAME} PROPERTIES
+     COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+     US_BUNDLE_NAME ${_bundle_name}
+     )
+
+   if(BUILD_SHARED_LIBS)
+     set_target_properties(${LIBRARY_NAME} PROPERTIES
+       CXX_VISIBILITY_PRESET hidden
+       VISIBILITY_INLINES_HIDDEN 1
+       )
+   endif()
+ 
+   usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
+     WORKING_DIRECTORY
+       ${CMAKE_CURRENT_SOURCE_DIR}
+     FILES
+       manifest.json
+     )
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread")
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread;CppMicroServices")
    
    add_subdirectory(examples)
 endif()

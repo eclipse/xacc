@@ -59,14 +59,44 @@ if (CLANG_FOUND AND LLVM_FOUND)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 
+   # Set up dependencies to resources to track changes
+   usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+   # Generate bundle initialization code
+   usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
+
+
    add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   #install(FILES ${HEADERS} DESTINATION include)
-   install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+set(_bundle_name xacc_scaffold)
+
+set_target_properties(${LIBRARY_NAME} PROPERTIES
+  # This is required for every bundle
+  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+  # This is for convenience, used by other CMake functions
+  US_BUNDLE_NAME ${_bundle_name}
+  )
+
+if(BUILD_SHARED_LIBS)
+  set_target_properties(${LIBRARY_NAME} PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN 1
+    )
+endif()
+
+# Embed meta-data from a manifest.json file
+usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+  FILES
+    manifest.json
+  )
+
 
    link_directories(${CLANG_LIBRARY_DIRS} ${LLVM_LIBRARY_DIRS})
 
-   target_link_libraries(${LIBRARY_NAME} xacc-quantum-gate ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES})
+   target_link_libraries(${LIBRARY_NAME} xacc-quantum-gate CppMicroServices ${CLANG_LIBS} ${LLVM_LIBS} ${Boost_LIBRARIES})
+
+   install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/compilers/)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)

@@ -41,6 +41,10 @@
 #include "DWGraph.hpp"
 #include "Embedding.hpp"
 
+//#include "cppmicroservices/ServiceInterface.h"
+
+#include <string>
+
 namespace xacc {
 namespace quantum {
 
@@ -49,7 +53,7 @@ namespace quantum {
  * for minor graph embedding algorithms.
  *
  */
-class EmbeddingAlgorithm {
+class __attribute__((visibility("default"))) EmbeddingAlgorithm {
 
 public:
 

@@ -38,14 +38,76 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler/default)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC compiler/default/*.cpp) 
+file (GLOB SRC compiler/*.cpp compiler/default/DefaultParameterSetter.cpp)
+
+#----
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
+target_include_directories(xacc-quantum-aqc PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/compiler>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+)
+
+if(BUILD_SHARED_LIBS)
+  set_target_properties(xacc-quantum-aqc PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN 1
+    )
+endif()
+
+
+# [publisher-begin]
+#=========================================================
+# A bundle implementing the ServiceTime interface
+#---------------------------------------------------------
+
+set(_srcs
+  compiler/default/EmbeddingAlgorithmActivator.cpp
+  compiler/default/TrivialEmbeddingAlgorithm.cpp
+  )
+
+# Set up dependencies to resources to track changes
+usFunctionGetResourceSource(TARGET xacc-trivial-embedding OUT _srcs)
+# Generate bundle initialization code
+usFunctionGenerateBundleInit(TARGET xacc-trivial-embedding OUT _srcs)
+
+add_library(xacc-trivial-embedding SHARED ${_srcs})
+
+target_link_libraries(xacc-trivial-embedding CppMicroServices xacc-quantum-aqc)
+
+set(_bundle_name trivial_embedding_algorithm)
+
+set_target_properties(xacc-trivial-embedding PROPERTIES
+  # This is required for every bundle
+  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+  # This is for convenience, used by other CMake functions
+  US_BUNDLE_NAME ${_bundle_name}
+  )
+
+if(BUILD_SHARED_LIBS)
+  set_target_properties(xacc-trivial-embedding PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN 1
+    )
+endif()
+
+# Embed meta-data from a manifest.json file
+usFunctionEmbedResources(TARGET xacc-trivial-embedding
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler/default
+  FILES
+    manifest.json
+  )
+# [publisher-end]
+
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices)
 
 add_subdirectory(ir)
 add_subdirectory(compiler)
 
 install(FILES ${HEADERS} DESTINATION include/quantum/aqc)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+install(TARGETS xacc-trivial-embedding DESTINATION lib/plugins/embedding)
+
+

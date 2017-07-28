@@ -1,0 +1,4 @@
+{
+  "bundle.symbolic_name" : "xacc_dwave",
+  "bundle.activator" : true
+}

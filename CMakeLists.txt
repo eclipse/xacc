@@ -48,6 +48,8 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
   include(tests)
 endif() 
 
+find_package(CppMicroServices NO_MODULE REQUIRED)
+
 # We require MPI
 find_package(MPI REQUIRED)
 
@@ -79,6 +81,7 @@ include_directories(${CMAKE_BINARY_DIR})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(tpls/boost-dll)
+include_directories("/usr/local/include/cppmicroservices3")
 include_directories("${CMAKE_SOURCE_DIR}/xacc")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/ir")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/compiler")

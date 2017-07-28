@@ -29,6 +29,6 @@
 #
 #**********************************************************************************/
 add_executable(dwave-simple-example dwave-simple-example.cpp)
-target_link_libraries(dwave-simple-example ${Boost_LIBRARIES} dl)
+target_link_libraries(dwave-simple-example ${Boost_LIBRARIES} dl CppMicroServices xacc-quantum-aqc)
    
 install(TARGETS dwave-simple-example DESTINATION examples)

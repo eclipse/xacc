@@ -34,6 +34,8 @@
 #include <memory>
 #include <boost/program_options.hpp>
 
+//#include "cppmicroservices/ServiceInterface.h"
+
 using namespace boost::program_options;
 
 namespace xacc {
@@ -44,7 +46,7 @@ namespace xacc {
  * that they can take to drive and control their execution and
  * behavior.
  */
-class OptionsProvider {
+class __attribute__((visibility("default"))) OptionsProvider {
 
 public:
 

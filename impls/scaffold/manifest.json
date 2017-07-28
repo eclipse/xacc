@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_scaffold",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Scaffold Compiler Integration",
+  "bundle.description" : "This bundle uses scaffold to compile code"
+}
