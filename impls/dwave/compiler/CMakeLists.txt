@@ -29,36 +29,45 @@
 #
 #**********************************************************************************/
 
-find_package(OpenSSL)
+set (PACKAGE_NAME "D-Wave XACC QMI Compiler")
+set (PACKAGE_DESCIPTION "D-Wave XACC QMI Compiler Bundle")
+set (LIBRARY_NAME xacc-dwave-qmicompiler)
 
-if (OPENSSL_FOUND)
+file (GLOB_RECURSE HEADERS *.hpp)
+file (GLOB SRC *.cpp)
 
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+# Set up dependencies to resources to track changes
+usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+# Generate bundle initialization code
+usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
-   
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/functions)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-   set (PACKAGE_NAME "Rigetti XACC")
-   set (PACKAGE_DESCIPTION "Rigetti XACC Plugins")
-   set (LIBRARY_NAME xacc-rigetti)
+set(_bundle_name xacc_dwave_qmicompiler)
 
-   add_subdirectory(compiler)
-   add_subdirectory(accelerator)
-   add_subdirectory(examples)
+set_target_properties(${LIBRARY_NAME} PROPERTIES
+  # This is required for every bundle
+  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+  # This is for convenience, used by other CMake functions
+  US_BUNDLE_NAME ${_bundle_name}
+  )
 
-   # Gather tests
-   file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-accelerator;xacc-rigetti-quilcompiler")
-   
+if(BUILD_SHARED_LIBS)
+  set_target_properties(${LIBRARY_NAME} PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN 1
+    )
 endif()
+
+# Embed meta-data from a manifest.json file
+usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+  FILES
+    manifest.json
+  )
+
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-aqc)
+
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/compilers)
+

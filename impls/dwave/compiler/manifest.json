@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_dwave_qmicompiler",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC D-Wave QMI Compiler",
+  "bundle.description" : "This bundle provides a D-Wave QMI Compiler for Adiabatic Model QC."
+}

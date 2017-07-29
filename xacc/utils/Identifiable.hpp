@@ -9,7 +9,7 @@
  *   * Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
  *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of the xacc nor the
+ *   * Neither the name of the <organization> nor the
  *     names of its contributors may be used to endorse or promote products
  *     derived from this software without specific prior written permission.
  *
@@ -28,64 +28,20 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
+#ifndef XACC_UTILS_IDENTIFIABLE_HPP_
+#define XACC_UTILS_IDENTIFIABLE_HPP_
 
-#include "Registry.hpp"
-#include "Function.hpp"
-#include "Identifiable.hpp"
+#include <string>
 
 namespace xacc {
-
-/**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
- *
- * @author Alex McCaskey
- */
-class AlgorithmGenerator : public Identifiable {
-
+class Identifiable {
 public:
 
-	/**
-	 * Implementations of this method generate a Function IR
-	 * instance corresponding to the implementation's modeled
-	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
-	 *
-	 * @param bits The bits this algorithm operates on
-	 * @return function The algorithm represented as an IR Function
-	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
-
-	/**
-	 * The destructor
-	 */
-	virtual ~AlgorithmGenerator() {}
+	virtual const std::string name() const = 0;
+	virtual const std::string description() const = 0;
+	virtual ~Identifiable() {}
 };
 
-using AlgorithmGeneratorRegistry = Registry<AlgorithmGenerator>;
-
-/**
- * RegisterAlgorithmGenerator is a convenience class for
- * registering custom derived AlgorithmGenerator classes.
- *
- * Creators of AlgorithmGenerator subclasses create an instance
- * of this class with their AlgorithmGenerator subclass as the template
- * parameter to register their AlgorithmGenerator with XACC. This instance
- * must be created in the CPP implementation file for the AlgorithmGenerator
- * and at global scope.
- */
-template<typename T>
-class RegisterAlgorithmGenerator {
-public:
-	RegisterAlgorithmGenerator(const std::string& name) {
-		AlgorithmGeneratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AlgorithmGeneratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AlgorithmGeneratorRegistry::instance()->add(name, f);
-	}
-};
 }
+
 #endif

@@ -30,18 +30,18 @@
 #**********************************************************************************/
 if (TARGET xacc-scaffold)
    add_executable(teleport_scaffold_rigetti teleport_scaffold_rigetti.cpp)
-   target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} dl)
+   target_link_libraries(teleport_scaffold_rigetti ${Boost_LIBRARIES} CppMicroServices dl)
    
    add_executable(qft_scaffold_rigetti qft_scaffold_rigetti.cpp)
-   target_link_libraries(qft_scaffold_rigetti ${Boost_LIBRARIES} dl)
+   target_link_libraries(qft_scaffold_rigetti ${Boost_LIBRARIES} CppMicroServices dl)
    
    add_executable(h2_exp_vals_scaffold_rigetti h2_exp_vals_scaffold_rigetti.cpp)
-   target_link_libraries(h2_exp_vals_scaffold_rigetti ${Boost_LIBRARIES} dl)
+   target_link_libraries(h2_exp_vals_scaffold_rigetti ${Boost_LIBRARIES} CppMicroServices dl)
    
    install(TARGETS teleport_scaffold_rigetti DESTINATION examples)
    
    add_executable(rabi_qpu_experiment rabi_qpu_experiment.cpp)
-   target_link_libraries(rabi_qpu_experiment ${Boost_LIBRARIES} dl)
+   target_link_libraries(rabi_qpu_experiment ${Boost_LIBRARIES} CppMicroServices dl)
    
    install(TARGETS rabi_qpu_experiment DESTINATION examples)
 endif()

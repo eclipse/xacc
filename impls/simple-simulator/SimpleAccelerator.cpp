@@ -34,6 +34,9 @@
 namespace xacc {
 namespace quantum {
 
+double sqrt2 = std::sqrt(2.0);
+using ProductList = std::vector<fire::Tensor<2, fire::EigenProvider, std::complex<double>>>;
+using ComplexTensor = fire::Tensor<2, fire::EigenProvider, std::complex<double>>;
 
 std::shared_ptr<AcceleratorBuffer> SimpleAccelerator::createBuffer(
 			const std::string& varId) {

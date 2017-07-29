@@ -33,11 +33,10 @@
 
 #include <memory>
 #include <string>
-#include <boost/dll.hpp>
 #include <boost/program_options.hpp>
 #include "RuntimeOptions.hpp"
 #include "xacc_config.hpp"
-#include "Preprocessor.hpp"
+#include "ServiceRegistry.hpp"
 
 using namespace boost::program_options;
 
@@ -56,16 +55,6 @@ namespace xacc {
 class CLIParser {
 
 protected:
-
-	/**
-	 * Argc, number of arguments
-	 */
-//	int argc;
-
-	/**
-	 * Argv, the command line arguments
-	 */
-//	char** argv;
 
 	std::shared_ptr<options_description> xaccOptions;
 
@@ -99,49 +88,9 @@ public:
 		// Get a reference to the RuntimeOptions
 		auto runtimeOptions = RuntimeOptions::instance();
 
-		// Load all default Compilers and Accelerators,
-		// ie those in XACC INSTALL DIR/lib
-		/*boost::filesystem::path xaccPath(
-				std::string(XACC_INSTALL_DIR) + std::string("/lib"));
-		if (boost::filesystem::exists(xaccPath)) {
-			boost::filesystem::directory_iterator end_itr;
+		auto registeredOptions = ServiceRegistry::instance()->getRegisteredOptions();
 
-			// cycle through the directory
-			for (boost::filesystem::directory_iterator itr(xaccPath);
-					itr != end_itr; ++itr) {
-				auto p = itr->path();
-				if (p.extension() == ".so"
-						&& !boost::contains(p.string(), "xacc-quantum-aqc")
-						&& !boost::contains(p.string(), "xacc-quantum-gate")) {
-					namespace dll = boost::dll;
-					dll::shared_library lib(p,
-							dll::load_mode::append_decorations);
-					if (lib.has("registerCompiler")) {
-						typedef void (RegisterCompiler)();
-						auto regFunc =
-								boost::dll::import_alias<RegisterCompiler>(p,
-										"registerCompiler",
-										dll::load_mode::append_decorations);
-						regFunc();
-					}
-					if (lib.has("registerAccelerator")) {
-						typedef void (RegisterAccelerator)();
-						auto regFunc = boost::dll::import_alias<
-								RegisterAccelerator>(p, "registerAccelerator",
-								dll::load_mode::append_decorations);
-						regFunc();
-					}
-				}
-			}
-		}*/
-
-		auto registeredAccOptions = AcceleratorRegistry::instance()->getRegisteredOptions();
-		auto registeredCompilerOptions = CompilerRegistry::instance()->getRegisteredOptions();
-
-		for (auto s : registeredAccOptions) {
-			xaccOptions->add(*s.get());
-		}
-		for (auto s : registeredCompilerOptions) {
+		for (auto s : registeredOptions) {
 			xaccOptions->add(*s.get());
 		}
 
@@ -153,46 +102,44 @@ public:
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-//			xacc::CompilerRegistry::instance()->destroy();
-//			xacc::AcceleratorRegistry::instance()->destroy();
 			exit(0);
 		}
 
 		// If the user provides a path to a compiler plugin,
 		// then load it
-		if (clArgs.count("load-compiler")) {
-			auto loadPath = clArgs["load-compiler"].as<std::string>();
-			boost::filesystem::path p(loadPath);
-			namespace dll = boost::dll;
-			dll::shared_library lib(p, dll::load_mode::append_decorations);
-			if (lib.has("registerCompiler")) {
-				typedef void (RegisterCompiler)();
-				auto regFunc = boost::dll::import_alias<RegisterCompiler>(p,
-						"registerCompiler", dll::load_mode::append_decorations);
-				regFunc();
-			}
-			clArgs.erase("load-compiler");
-		}
-
-		// If the user provides a path to a accelerator plugin,
-		// then load it
-		if (clArgs.count("load-accelerator")) {
-			auto loadPath = clArgs["load-accelerator"].as<std::string>();
-			boost::filesystem::path p(loadPath);
-			namespace dll = boost::dll;
-			dll::shared_library lib(p, dll::load_mode::append_decorations);
-			if (lib.has("registerAccelerator")) {
-				typedef void (RegisterAccelerator)();
-				auto regFunc = boost::dll::import_alias<RegisterAccelerator>(p,
-						"registerAccelerator", dll::load_mode::append_decorations);
-				regFunc();
-			}
-			clArgs.erase("load-accelerator");
-		}
+//		if (clArgs.count("load-compiler")) {
+//			auto loadPath = clArgs["load-compiler"].as<std::string>();
+//			boost::filesystem::path p(loadPath);
+//			namespace dll = boost::dll;
+//			dll::shared_library lib(p, dll::load_mode::append_decorations);
+//			if (lib.has("registerCompiler")) {
+//				typedef void (RegisterCompiler)();
+//				auto regFunc = boost::dll::import_alias<RegisterCompiler>(p,
+//						"registerCompiler", dll::load_mode::append_decorations);
+//				regFunc();
+//			}
+//			clArgs.erase("load-compiler");
+//		}
+//
+//		// If the user provides a path to a accelerator plugin,
+//		// then load it
+//		if (clArgs.count("load-accelerator")) {
+//			auto loadPath = clArgs["load-accelerator"].as<std::string>();
+//			boost::filesystem::path p(loadPath);
+//			namespace dll = boost::dll;
+//			dll::shared_library lib(p, dll::load_mode::append_decorations);
+//			if (lib.has("registerAccelerator")) {
+//				typedef void (RegisterAccelerator)();
+//				auto regFunc = boost::dll::import_alias<RegisterAccelerator>(p,
+//						"registerAccelerator", dll::load_mode::append_decorations);
+//				regFunc();
+//			}
+//			clArgs.erase("load-accelerator");
+//		}
 
 		bool listTypes = false;
 		if (clArgs.count("list-compilers")) {
-			auto ids = CompilerRegistry::instance()->getRegisteredIds();
+			auto ids = ServiceRegistry::instance()->getRegisteredIds<Compiler>();
 			XACCInfo("Available XACC Compilers:");
 			for (auto i : ids) {
 				XACCInfo("\t" + i);
@@ -201,7 +148,7 @@ public:
 		}
 
 		if (clArgs.count("list-accelerators")) {
-			auto ids = AcceleratorRegistry::instance()->getRegisteredIds();
+			auto ids = ServiceRegistry::instance()->getRegisteredIds<Accelerator>();
 			XACCInfo("Available XACC Accelerators:");
 			for (auto i : ids) {
 				XACCInfo("\t" + i);
@@ -213,15 +160,12 @@ public:
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-			xacc::CompilerRegistry::instance()->destroy();
-			xacc::AcceleratorRegistry::instance()->destroy();
 			exit(0);
 		}
 
-		auto exitRequested1 = xacc::CompilerRegistry::instance()->handleOptions(clArgs);
-		auto exitRequested2 = xacc::AcceleratorRegistry::instance()->handleOptions(clArgs);
+		auto exitRequested = ServiceRegistry::instance()->handleOptions(clArgs);
 
-		if (exitRequested1 || exitRequested2) {
+		if (exitRequested) {
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");

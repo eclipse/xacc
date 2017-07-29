@@ -88,6 +88,15 @@ public:
 		return "Dummy";
 	}
 
+	virtual const std::string name() const {
+		return "";
+	}
+
+	virtual const std::string description() const {
+		return "";
+	}
+
+
 };
 
 class DummyAccelerator : public xacc::Accelerator {
@@ -126,6 +135,14 @@ public:
 		}
 	virtual bool isValidBufferSize(const int NBits) {
 		return true;
+	}
+
+	virtual const std::string name() const {
+		return "";
+	}
+
+	virtual const std::string description() const {
+		return "";
 	}
 
 

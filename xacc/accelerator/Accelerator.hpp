@@ -43,6 +43,7 @@
 #include "OptionsProvider.hpp"
 #include <boost/dll/alias.hpp>
 #include "Graph.hpp"
+#include "Identifiable.hpp"
 
 namespace xacc {
 
@@ -77,7 +78,7 @@ enum AcceleratorType {
  *
  * @author Alex McCaskey
  */
-class Accelerator : public OptionsProvider {
+class Accelerator : public OptionsProvider, public Identifiable {
 
 public:
 
@@ -184,6 +185,10 @@ public:
 	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		return std::make_shared<options_description>();
+	}
+
+	virtual bool handleOptions(variables_map& map) {
+		return false;
 	}
 
 	/**

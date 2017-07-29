@@ -150,6 +150,15 @@ public:
 			httpClient(http) {
 	}
 
+	virtual const std::string name() const {
+		return "rigetti";
+	}
+
+	virtual const std::string description() const {
+		return "The Rigetti Accelerator interacts with "
+				"the Forest QVM to execute quantum IR.";
+	}
+
 	/**
 	 * The destructor
 	 */

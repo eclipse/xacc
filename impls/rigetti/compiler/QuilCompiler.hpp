@@ -90,6 +90,14 @@ public:
 	virtual const std::string translate(const std::string& bufferVariable,
 			std::shared_ptr<Function> function);
 
+	virtual const std::string name() const {
+		return "quil";
+	}
+
+	virtual const std::string description() const {
+		return "The Quil Compiler compiles kernels written in the Quil intermediate language.";
+	}
+
 	/**
 	 * The destructor
 	 */

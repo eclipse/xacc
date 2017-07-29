@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_rigetti_quilcompiler",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Rigetti Quil Compiler",
+  "bundle.description" : "This bundle provides a Quil Compiler for Gate Model QC."
+}

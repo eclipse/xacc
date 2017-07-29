@@ -80,6 +80,17 @@ public:
 		return "kernel-replacement";
 	}
 
+	virtual const std::string name() const {
+		return "kernel-replacement";
+	}
+
+	virtual const std::string description() const {
+		return "The Kernel Replacement Preprocessor is a preprocessor for gate model "
+				"kernel code that searches for occurrences of xacc::FUNCTION and "
+				"replaces it with the IR for that function.";
+	}
+
+
 };
 
 }

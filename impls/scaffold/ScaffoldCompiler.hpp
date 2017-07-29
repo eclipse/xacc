@@ -94,6 +94,15 @@ public:
 				"scaffold");
 	}
 
+	virtual const std::string name() const {
+		return "scaffold";
+	}
+
+	virtual const std::string description() const {
+		return "The Scaffold Compiler wraps the Scaffold "
+				"LLVM tools for compiling quantum programs.";
+	}
+
 	/**
 	 * The destructor
 	 */

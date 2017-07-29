@@ -38,53 +38,22 @@ if (OPENSSL_FOUND)
    include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/accelerator)
 
    include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
    include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
 
-   set (PACKAGE_NAME "XACC D-Wave Compiler and Accelerator Support")
+   set (PACKAGE_NAME "XACC D-Wave Support")
    set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
-   set (LIBRARY_NAME xacc-dwave)
-
-   file (GLOB_RECURSE HEADERS *.hpp)
-   file (GLOB SRC *.cpp)
-
-   usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
-   usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
-
-   add_library(${LIBRARY_NAME} ${SRC})
-
-   target_link_libraries(${LIBRARY_NAME} CppMicroServices ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} xacc-quantum-aqc)
-
-   set(_bundle_name xacc_dwave)
-
-   set_target_properties(${LIBRARY_NAME} PROPERTIES
-     COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
-     US_BUNDLE_NAME ${_bundle_name}
-     )
-
-   if(BUILD_SHARED_LIBS)
-     set_target_properties(${LIBRARY_NAME} PROPERTIES
-       CXX_VISIBILITY_PRESET hidden
-       VISIBILITY_INLINES_HIDDEN 1
-       )
-   endif()
- 
-   usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
-     WORKING_DIRECTORY
-       ${CMAKE_CURRENT_SOURCE_DIR}
-     FILES
-       manifest.json
-     )
-
-   install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+   
+   add_subdirectory(accelerator)
+   add_subdirectory(compiler)
+   add_subdirectory(examples)
 
    # Gather tests
    file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave;dl;pthread;CppMicroServices")
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-accelerator;xacc-dwave-qmicompiler;dl;pthread;CppMicroServices")
    
-   add_subdirectory(examples)
 endif()
-#add_subdirectory(examples)
 
 

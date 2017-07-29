@@ -40,6 +40,8 @@
 #include "Program.hpp"
 #include "Preprocessor.hpp"
 
+#include "ServiceRegistry.hpp"
+
 namespace xacc {
 
 bool xaccFrameworkInitialized = false;
@@ -55,19 +57,14 @@ auto xaccCLParser = std::make_shared<CLIParser>();
 void Initialize(int argc, char** argv) {
 	XACCInfo("[xacc] Initializing XACC Framework");
 
-	// Get reference to our compiler and accelerator registries
-	auto compilerRegistry = xacc::CompilerRegistry::instance();
-	auto acceleratorRegistry = xacc::AcceleratorRegistry::instance();
-	auto preprocessorRegistry = xacc::PreprocessorRegistry::instance();
+	auto serviceRegistry = xacc::ServiceRegistry::instance();
 
 	// Parse any user-supplied command line options
-//	CLIParser parser(argc, argv);
 	xaccCLParser->parse(argc, argv);
 
 	// Check that we have some
-	auto s = compilerRegistry->size();
-	auto a = acceleratorRegistry->size();
-	auto ps = preprocessorRegistry->size();
+	auto s = serviceRegistry->getServices<Compiler>().size();
+	auto a = serviceRegistry->getServices<Accelerator>().size();
 	if (s == 0) XACCError("There are no Compiler instances available. Exiting.");
 	if (a == 0) XACCError("There are no Accelerator instances available. Exiting.");
 
@@ -77,9 +74,6 @@ void Initialize(int argc, char** argv) {
 	XACCInfo(
 			"[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator"
 					+ ((s == 0 || s == 1) ? "" : "s") + " available.");
-	XACCInfo(
-			"[xacc::preprocessor] XACC has " + std::to_string(ps) + " Preprocessor"
-					+ ((ps == 0 || ps == 1) ? "" : "s") + " available.");
 
 	// We're good if we make it here, so indicate that we've been
 	// initialized

@@ -44,7 +44,7 @@ namespace xacc {
  * this code is targeted at.
  *
  */
-class Preprocessor : public OptionsProvider {
+class Preprocessor : public OptionsProvider, public Identifiable {
 public:
 
 	/**
@@ -75,6 +75,10 @@ public:
 	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		return std::make_shared<options_description>();
+	}
+
+	virtual bool handleOptions(variables_map& map) {
+		return false;
 	}
 
 	~Preprocessor() {}

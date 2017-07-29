@@ -35,7 +35,6 @@
 #include <iomanip>
 #include <codecvt>
 #include <memory>
-#include <boost/python.hpp>
 #include "GateQIR.hpp"
 
 
@@ -45,8 +44,6 @@
 #include "rapidjson/document.h"
 
 using namespace rapidjson;
-
-using namespace boost::python;
 
 namespace xacc {
 namespace quantum {
@@ -186,103 +183,7 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	// Process results... to come
 
 	if (type == "wavefunction") {
-
-		auto qubits = std::dynamic_pointer_cast<SimulatedQubits>(buffer);
-
-		std::istream& str = postResponse.content;
-
-		char buf[postResponse.contentLength];
-		str.read(buf, postResponse.contentLength);
-
-		Py_Initialize();
-
-		// Retrieve the main module.
-		object main = import("__main__");
-		object main_namespace = main.attr("__dict__");
-
-		main_namespace["coef_string"] = std::string(buf, postResponse.contentLength);
-		main_namespace["num_addresses"] = visitor->getNumberOfAddresses();
-
-		// NOTE: This is taken from pyquil wavefunction implementation
-		// just using for now because I can't figure out parsing the
-		// binary just yet :(
-		const std::string code =
-				"import base64\n"
-				"import json\n"
-				"import requests\n"
-				"import struct\n"
-				"import numpy as np\n"
-				"from six import integer_types\n"
-				"\n"
-				"def _round_to_next_multiple(n, m):\n"
-				"   return n if n % m == 0 else n + m - n % m\n"
-				"\n"
-				"def _octet_bits(o):\n"
-				"   if not isinstance(o, integer_types):\n"
-				"      raise TypeError(\"o should be an int\")\n"
-				"   if not (0 <= o <= 255):\n"
-				"      raise ValueError(\"o should be between 0 and 255 inclusive\")\n"
-				"   bits = [0] * 8\n"
-				"   for i in range(8):\n"
-				"      if 1 == o & 1:\n"
-				"         bits[i] = 1\n"
-				"      o = o >> 1\n"
-				"   return bits\n"
-				"num_octets = len(coef_string)\n"
-				"num_addresses = 3\n"
-				"num_memory_octets = _round_to_next_multiple(num_addresses, 8) // 8\n"
-				"num_wavefunction_octets = num_octets - num_memory_octets\n"
-				"mem = []\n"
-				"measStr = ''\n"
-				"for i in range(num_memory_octets):\n"
-				"   octet = struct.unpack('B', coef_string[i:i+1])[0]\n"
-				"   bs = _octet_bits(octet)\n"
-				"   measStr += str(bs) + '\\n'\n"
-				"   mem.extend(bs)\n"
-				"\n"
-				"mem = mem[0:num_addresses]\n"
-				"wf = np.zeros(num_wavefunction_octets // 16, dtype=np.cfloat)\n"
-				"extractStr = ''\n"
-				"for i, p in enumerate(range(num_memory_octets, num_octets, 16)):\n"
-				"   re_be = coef_string[p: p + 8]\n"
-				"   im_be = coef_string[p + 8: p + 16]\n"
-				"   re = struct.unpack('>d', re_be)[0]\n"
-				"   im = struct.unpack('>d', im_be)[0]\n"
-				"   wf[i] = complex(re, im)\n"
-				"   print re, im\n"
-				"   extractStr += str(re) + ', ' + str(im) + '\\n'";
-
-		try {
-			exec(code.c_str(), main_namespace);
-		} catch (boost::python::error_already_set& e) {
-			PyErr_Print();
-		}
-
-		std::string res = extract<std::string>(main_namespace["extractStr"]);
-		std::string measStr = extract<std::string>(main_namespace["measStr"]);
-
-		std::cout << "MEASUREMENT STR: " << measStr << "\n";
-		Py_Finalize();
-
-		int i = 0;
-		std::vector<std::string> splitOnNewLines;
-		boost::split(splitOnNewLines, res, boost::is_any_of("\n"));
-		for (auto s : splitOnNewLines) {
-			if (!s.empty() && boost::contains(s, ",")) {
-				std::vector<std::string> splitOnComma;
-				boost::split(splitOnComma, s, boost::is_any_of(","));
-				auto re = splitOnComma[0];
-				auto im = splitOnComma[1];
-				boost::trim(re);
-				boost::trim(im);
-				std::cout << "OURS: " << re << ", " << im << "\n";
-				std::complex<double> d(std::stod(re), std::stod(im));
-				qubits->getState()(i) = d;
-				i++;
-			}
-		}
-
-
+		XACCError("Wavefunction execution not supported.");
 	} else if (type == "pyquillow") {
 
 		std::stringstream ss;

@@ -70,21 +70,16 @@ public:
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>());
 
-	/**
-	 * Return the name of this Embedding Algorithm
-	 * @return
-	 */
-	virtual std::string name() {
+	virtual const std::string name() const {
 		return "trivial";
 	}
 
-//	static void registerEmbeddingAlgorithm() {
-//		xacc::quantum::RegisterEmbeddingAlgorithm<TrivialEmbeddingAlgorithm> TRIVEMB(
-//				"trivial");
-//	}
-};
+	virtual const std::string description() const {
+		return "This Embedding Algorithm trivially maps a problem vertex "
+				"to a hardware vertex.";
+	}
 
-//RegisterEmbeddingAlgorithm(xacc::quantum::TrivialEmbeddingAlgorithm);
+};
 
 }
 

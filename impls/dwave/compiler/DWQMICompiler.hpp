@@ -37,6 +37,8 @@
 #include "DWGraph.hpp"
 #include "EmbeddingAlgorithm.hpp"
 
+#include "ServiceRegistry.hpp"
+
 namespace xacc {
 
 namespace quantum {
@@ -125,6 +127,17 @@ public:
 				});
 	}
 
+	virtual bool handleOptions(variables_map& map) {
+		if (map.count("dwave-list-embedding-algorithms")) {
+			auto ids = ServiceRegistry::instance()->getRegisteredIds<EmbeddingAlgorithm>();
+//					EmbeddingAlgorithmRegistry::instance()->getRegisteredIds();
+			for (auto i : ids) {
+				XACCInfo("Registered Embedding Algorithm: " + i);
+			}
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * We don't allow translations for the DW Compiler.
 	 * @param bufferVariable
@@ -135,6 +148,15 @@ public:
 			std::shared_ptr<Function> function) {
 		XACCError("DWQMICompiler::translate - Method not implemented");
 	};
+
+	virtual const std::string name() const {
+		return "dwave-qmi";
+	}
+
+	virtual const std::string description() const {
+		return "The D-Wave QMI Compiler takes quantum machine instructions "
+				"and performs minor graph embedding and parameter setting.";
+	}
 
 	/**
 	 * The destructor

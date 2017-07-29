@@ -40,8 +40,7 @@
 #include "Registry.hpp"
 #include "DWGraph.hpp"
 #include "Embedding.hpp"
-
-//#include "cppmicroservices/ServiceInterface.h"
+#include "Identifiable.hpp"
 
 #include <string>
 
@@ -53,7 +52,7 @@ namespace quantum {
  * for minor graph embedding algorithms.
  *
  */
-class __attribute__((visibility("default"))) EmbeddingAlgorithm {
+class __attribute__((visibility("default"))) EmbeddingAlgorithm : public Identifiable {
 
 public:
 
@@ -81,12 +80,6 @@ public:
 			std::shared_ptr<AcceleratorGraph> hardware,
 			std::map<std::string, std::string> params = std::map<std::string,
 					std::string>()) = 0;
-
-	/**
-	 * Return the name of this Embedding Algorithm
-	 * @return
-	 */
-	virtual std::string name() = 0;
 
 };
 

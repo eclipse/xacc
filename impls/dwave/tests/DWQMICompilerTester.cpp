@@ -103,6 +103,15 @@ public:
 		auto b = std::make_shared<AQCAcceleratorBuffer>(varId, size);
 		storeBuffer(varId, b);
 	}
+
+	virtual const std::string name() const {
+		return "";
+	}
+
+	virtual const std::string description() const {
+		return "";
+	}
+
 };
 
 class FakeEmbedding : public EmbeddingAlgorithm {
@@ -119,12 +128,12 @@ public:
 		return embedding;
 	}
 
-	/**
-	 * Return the name of this Embedding Algorithm
-	 * @return
-	 */
-	virtual std::string name() {
+	virtual const std::string name() const {
 		return "fake-embedding";
+	}
+
+	virtual const std::string description() const {
+		return "";
 	}
 
 };
@@ -146,13 +155,14 @@ public:
 		return embedding;
 	}
 
-	/**
-	 * Return the name of this Embedding Algorithm
-	 * @return
-	 */
-	virtual std::string name() {
-		return "fake-shor15-embedding";
+	virtual const std::string name() const {
+		return "fake-factor15-embedding";
 	}
+
+	virtual const std::string description() const {
+		return "";
+	}
+
 
 };
 
@@ -228,9 +238,9 @@ BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
 	auto options = xacc::RuntimeOptions::instance();
 	if (options->exists("dwave-embedding")) {
-		(*options)["dwave-embedding"] = "fake-shor15-embedding";
+		(*options)["dwave-embedding"] = "fake-factor15-embedding";
 	} else {
-		options->insert(std::make_pair("dwave-embedding", "fake-shor15-embedding"));
+		options->insert(std::make_pair("dwave-embedding", "fake-factor15-embedding"));
 	}
 
 	auto acc = std::make_shared<FakeDWAcc>();

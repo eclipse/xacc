@@ -37,6 +37,7 @@
 #include "IR.hpp"
 #include <boost/dll/alias.hpp>
 #include "Accelerator.hpp"
+#include "Identifiable.hpp"
 
 namespace xacc {
 
@@ -48,7 +49,7 @@ namespace xacc {
  * compiler-specific compilation mechanism, and returns a valid
  * XACC IR instance modeling the result of the compilation.
  */
-class __attribute__((visibility("default"))) Compiler : public OptionsProvider {
+class __attribute__((visibility("default"))) Compiler : public OptionsProvider, public Identifiable {
 
 public:
 
@@ -98,6 +99,10 @@ public:
 	 */
 	virtual std::shared_ptr<options_description> getOptions() {
 		return std::make_shared<options_description>();
+	}
+
+	virtual bool handleOptions(variables_map& map){
+		return false;
 	}
 
 	/**

@@ -57,6 +57,7 @@ public:
 	 */
 	virtual std::shared_ptr<options_description> getOptions() = 0;
 
+	virtual bool handleOptions(variables_map& map) = 0;
 	/**
 	 * The destructor
 	 */

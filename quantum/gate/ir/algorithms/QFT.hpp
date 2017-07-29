@@ -55,6 +55,15 @@ public:
 	 */
 	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> qubits);
 
+	virtual const std::string name() const {
+		return "qft";
+	}
+
+	virtual const std::string description() const {
+		return "The QFT Algorithm Generator generates IR representing "
+				"an Quantum Fourier Transform.";
+	}
+
 	/**
 	 * The destructor
 	 */
