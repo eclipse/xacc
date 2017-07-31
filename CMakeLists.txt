@@ -49,6 +49,9 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
 endif() 
 
 find_package(CppMicroServices NO_MODULE REQUIRED)
+get_filename_component(CppMicroServices_BASE_DIR ${CppMicroServices_RUNTIME_LIBRARY_DIRS} DIRECTORY)
+set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
+set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
 # We require MPI
 find_package(MPI REQUIRED)
@@ -80,7 +83,7 @@ include_directories(${CMAKE_BINARY_DIR})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(tpls/boost-dll)
-include_directories("/usr/local/include/cppmicroservices3")
+include_directories(${CppMicroServices_INCLUDE_DIR})
 include_directories("${CMAKE_SOURCE_DIR}/xacc")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/ir")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/compiler")
@@ -99,5 +102,6 @@ add_subdirectory(tools)
 # This is cool, users just add find_package(XACC REQUIRED) to 
 # their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
 # and CMake loads include paths, libs, etc
-install(FILES cmake/xacc-config.cmake DESTINATION .)
+configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake")
+install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
 

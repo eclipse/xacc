@@ -1,5 +1,0 @@
-get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set (XACC_ROOT "${SELF_DIR}")
-set (XACC_INCLUDE_DIRS "${SELF_DIR}/include;${SELF_DIR}/include/xacc;${SELF_DIR}/include/quantum/gate;${SELF_DIR}/include/quantum/aqc")
-set (XACC_LIBRARY_DIR "${SELF_DIR}/lib")
-set (XACC_LIBRARIES "${SELF_DIR}/lib/libxacc-quantum-gate.so;${SELF_DIR}/lib/libxacc-quantum-aqc.so")
