@@ -10,9 +10,15 @@ run apt-get -y upgrade && apt-get -y update && apt-get install -y software-prope
 run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb && \
     apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | \
     sed "s/.*ends:\ //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb \
-    && apt-get -y install python-dev libssl-dev libspdlog-dev && git clone --recursive https://github.com/ORNL-QCI/xacc \
+    && apt-get -y install python-dev libssl-dev libspdlog-dev \
+    && git clone https://github.com/cppmicroservices/cppmicroservices && cd cppmicroservices && mkdir build && cd build \
+    && cmake .. && make install && cd /projects \
+    && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
 
-run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc && cp -r /usr/local/xacc/* usr/local/xacc/ \
+run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include /usr/local/lib \
+   && cp /usr/local/include/cppmicroservices usr/local/include/ && cp /usr/local/lib/libCpp* usr/local/lib/ \
+   && cp /usr/local/lib/libus* usr/local/lib/ \
+   && cp -r /usr/local/xacc/* usr/local/xacc/ \
    && fpm -s dir -t deb --name xacc --version 1.0 --depends libboost-all-dev --depends gcc-6 --depends g++-6 --depends python-dev --depends mpich \ 
    --depends libspdlog-dev --depends cmake --depends git --depends make --depends libtool --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
