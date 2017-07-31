@@ -33,7 +33,6 @@
 
 #include <memory>
 #include <iostream>
-#include "Registry.hpp"
 #include "IR.hpp"
 #include <boost/dll/alias.hpp>
 #include "Accelerator.hpp"
@@ -123,54 +122,6 @@ protected:
 	 */
 	std::shared_ptr<Accelerator> accelerator;
 };
-
-/**
- * Compiler Registry is just an alias for a
- * Registry of Compilers.
- */
-using CompilerRegistry = Registry<Compiler>;
-
-/**
- * RegisterCompiler is a convenience class for
- * registering custom derived Compiler classes.
- *
- * Creators of Compiler subclasses create an instance
- * of this class with their Compiler subclass as the template
- * parameter to register their Compiler with XACC. This instance
- * must be created in the CPP implementation file for the Compiler
- * and at global scope.
- */
-template<typename T>
-class RegisterCompiler {
-public:
-	RegisterCompiler(const std::string& name) {
-		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
-				CompilerRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		CompilerRegistry::instance()->add(name, f);
-	}
-	RegisterCompiler(const std::string& name,
-			std::shared_ptr<options_description> options) {
-		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
-				CompilerRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		CompilerRegistry::instance()->add(name, f, options);
-	}
-
-	RegisterCompiler(const std::string& name,
-			std::shared_ptr<options_description> options,
-			std::function<bool(variables_map& args)> optionHandler) {
-		CompilerRegistry::CreatorFunctionPtr f = std::make_shared<
-				CompilerRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		CompilerRegistry::instance()->add(name, f, options, optionHandler);
-	}
-};
-
-#define RegisterCompiler(TYPE) BOOST_DLL_ALIAS(TYPE::registerCompiler, registerCompiler)
 
 }
 #endif

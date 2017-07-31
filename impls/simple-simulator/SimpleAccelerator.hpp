@@ -105,14 +105,6 @@ public:
 		return v;
 	}
 
-	/**
-	 * Register this Accelerator with the framework.
-	 */
-	static void registerAccelerator() {
-		xacc::RegisterAccelerator<xacc::quantum::SimpleAccelerator> SIMPLETEMP(
-				"simple");
-	}
-
 	virtual const std::string name() const {
 		return "simple";
 	}
@@ -128,9 +120,6 @@ public:
 	virtual ~SimpleAccelerator() {}
 
 };
-
-// Create an alias to search for.
-RegisterAccelerator(xacc::quantum::SimpleAccelerator)
 
 }
 }

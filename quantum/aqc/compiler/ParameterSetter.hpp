@@ -5,11 +5,12 @@
 #include "DWGraph.hpp"
 #include "DWQMI.hpp"
 #include "Embedding.hpp"
+#include "Identifiable.hpp"
 
 namespace xacc {
 namespace quantum {
 
-class ParameterSetter {
+class __attribute__((visibility("default"))) ParameterSetter : public Identifiable {
 
 public:
 
@@ -20,35 +21,6 @@ public:
 
 	virtual ~ParameterSetter() {}
 };
-
-/**
- * ParameterSetter Registry is just an alias for a
- * Registry of ParameterSetters.
- */
-using ParameterSetterRegistry = Registry<ParameterSetter>;
-
-/**
- * RegisterParameterSetter is a convenience class for
- * registering custom derived ParameterSetter classes.
- *
- * Creators of ParameterSetter subclasses create an instance
- * of this class with their ParameterSetter subclass as the template
- * parameter to register their ParameterSetter with XACC. This instance
- * must be created in the CPP implementation file for the ParameterSetter
- * and at global scope.
- */
-template<typename T>
-class RegisterParameterSetter {
-public:
-	RegisterParameterSetter(const std::string& name) {
-		ParameterSetterRegistry::CreatorFunctionPtr f = std::make_shared<
-				ParameterSetterRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		ParameterSetterRegistry::instance()->add(name, f);
-	}
-};
-
 
 
 }

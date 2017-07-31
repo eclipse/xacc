@@ -28,40 +28,49 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
+#include "QFT.hpp"
+#include "InverseQFT.hpp"
+#include "KernelReplacementPreprocessor.hpp"
 
-#include "Function.hpp"
-#include "Identifiable.hpp"
+#include "cppmicroservices/BundleActivator.h"
+#include "cppmicroservices/BundleContext.h"
+#include "cppmicroservices/ServiceProperties.h"
 
-namespace xacc {
+#include <memory>
+#include <set>
+
+using namespace cppmicroservices;
+
+namespace {
 
 /**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
- *
- * @author Alex McCaskey
  */
-class __attribute__((visibility("default"))) AlgorithmGenerator : public Identifiable {
+class US_ABI_LOCAL GateQuantumActivator: public BundleActivator {
 
 public:
 
-	/**
-	 * Implementations of this method generate a Function IR
-	 * instance corresponding to the implementation's modeled
-	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
-	 *
-	 * @param bits The bits this algorithm operates on
-	 * @return function The algorithm represented as an IR Function
-	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
+	GateQuantumActivator() {
+	}
 
 	/**
-	 * The destructor
 	 */
-	virtual ~AlgorithmGenerator() {}
+	void Start(BundleContext context) {
+		auto qft = std::make_shared<xacc::quantum::QFT>();
+		auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
+		auto kp =
+				std::make_shared<xacc::quantum::KernelReplacementPreprocessor>();
+		context.RegisterService<xacc::Preprocessor>(kp);
+		context.RegisterService<xacc::AlgorithmGenerator>(iqft);
+		context.RegisterService<xacc::AlgorithmGenerator>(qft);
+	}
+
+	/**
+	 */
+	void Stop(BundleContext /*context*/) {
+	}
+
 };
 
 }
-#endif
+
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(GateQuantumActivator)

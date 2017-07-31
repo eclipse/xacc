@@ -36,6 +36,8 @@
 #include "Accelerator.hpp"
 #include "GateQIR.hpp"
 
+#include "ServiceRegistry.hpp"
+
 using namespace xacc;
 
 using namespace xacc::quantum;

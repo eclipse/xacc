@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2016, UT-Battelle
+ * Copyright (c) 2017, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	} else {
 		auto algoStr = (*runtimeOptions)["dwave-embedding"];
 		auto embeddingAlgorithm =
-				EmbeddingAlgorithmRegistry::instance()->create(algoStr);
+				ServiceRegistry::instance()->getService<EmbeddingAlgorithm>(algoStr);
 
 		// Compute the minor graph embedding
 		embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
@@ -147,15 +147,16 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string& src,
 	// Get the ParameterSetter
 	std::shared_ptr<ParameterSetter> parameterSetter;
 	if (runtimeOptions->exists("dwave-parameter-setter")) {
-		parameterSetter = ParameterSetterRegistry::instance()->create(
-				(*runtimeOptions)["dwave-parameter-setter"]);
+		parameterSetter = ServiceRegistry::instance()->getService<
+				ParameterSetter>((*runtimeOptions)["dwave-parameter-setter"]);
 	} else {
-		parameterSetter = ParameterSetterRegistry::instance()->create(
-				"default");
+		parameterSetter = ServiceRegistry::instance()->getService<
+				ParameterSetter>("default");
 	}
 
 	// Set the parameters
-	auto insts = parameterSetter->setParameters(problemGraph, hardwareGraph, embedding);
+	auto insts = parameterSetter->setParameters(problemGraph, hardwareGraph,
+			embedding);
 
 	// Add the instructions to the Kernel
 	for (auto i : insts) {

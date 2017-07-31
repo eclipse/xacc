@@ -126,15 +126,6 @@ public:
 		return desc;
 	}
 
-	/**
-	 * Register this Accelerator with the framework.
-	 */
-	static void registerAccelerator() {
-		RigettiAccelerator acc;
-		xacc::RegisterAccelerator<xacc::quantum::RigettiAccelerator> RIGETTITEMP(
-				"rigetti", acc.getOptions());
-	}
-
 	RigettiAccelerator() : httpClient(std::make_shared<
 			fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
 			"api.rigetti.com", false)) {
@@ -184,9 +175,6 @@ private:
 	void findApiKeyInFile(std::string& key, std::string& id, boost::filesystem::path &p);
 
 };
-
-// Create an alias to search for.
-RegisterAccelerator(xacc::quantum::RigettiAccelerator)
 
 }
 }

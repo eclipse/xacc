@@ -31,8 +31,6 @@
 #ifndef QUANTUM_AQC_IR_DWQMI_HPP_
 #define QUANTUM_AQC_IR_DWQMI_HPP_
 
-
-
 #include "Instruction.hpp"
 
 namespace xacc {
@@ -53,7 +51,7 @@ namespace quantum {
  * a minor graph embedding computation.
  *
  */
-class DWQMI : public Instruction {
+class DWQMI: public Instruction {
 
 protected:
 
@@ -81,7 +79,9 @@ public:
 	 *
 	 * @param qbit The bit index
 	 */
-	DWQMI(int qbit) : qubits(std::vector<int>{qbit, qbit}), parameter(0.0) {}
+	DWQMI(int qbit) :
+			qubits(std::vector<int> { qbit, qbit }), parameter(0.0) {
+	}
 
 	/**
 	 * The Constructor, takes one qubit
@@ -91,7 +91,9 @@ public:
 	 * @param qbit The bit index
 	 * @param param The bias value
 	 */
-	DWQMI(int qbit, double param) : qubits(std::vector<int>{qbit, qbit}), parameter(param) {}
+	DWQMI(int qbit, double param) :
+			qubits(std::vector<int> { qbit, qbit }), parameter(param) {
+	}
 
 	/**
 	 * The Constructor, takes two qubit indices
@@ -102,7 +104,9 @@ public:
 	 * @param qbit2 The bit index
 	 * @param param The coupling weight
 	 */
-	DWQMI(int qbit1, int qbit2, double param) : qubits(std::vector<int>{qbit1, qbit2}), parameter(param) {}
+	DWQMI(int qbit1, int qbit2, double param) :
+			qubits(std::vector<int> { qbit1, qbit2 }), parameter(param) {
+	}
 
 	/**
 	 * Return the name of this Instruction
@@ -111,7 +115,8 @@ public:
 	 */
 	virtual const std::string getName() {
 		return "dw-qmi";
-	};
+	}
+	;
 
 	/**
 	 * Persist this Instruction to an assembly-like
@@ -152,7 +157,7 @@ public:
 	 * @return params This instructions parameters.
 	 */
 	virtual std::vector<InstructionParameter> getParameters() {
-		return std::vector<InstructionParameter>{parameter};
+		return std::vector<InstructionParameter> { parameter };
 	}
 
 	/**
@@ -188,25 +193,33 @@ public:
 	 *
 	 * @return isComposite True if this is a composite Instruction
 	 */
-	virtual bool isComposite() { return false; }
+	virtual bool isComposite() {
+		return false;
+	}
 
 	/**
 	 * Returns true if this Instruction is enabled
 	 *
 	 * @return enabled True if this Instruction is enabled.
 	 */
-	virtual bool isEnabled() { return enabled; }
+	virtual bool isEnabled() {
+		return enabled;
+	}
 
 	/**
 	 * Disable this Instruction
 	 */
 
-	virtual void disable() { enabled = false; }
+	virtual void disable() {
+		enabled = false;
+	}
 
 	/**
 	 * Enable this Instruction.
 	 */
-	virtual void enable() { enabled = true; }
+	virtual void enable() {
+		enabled = true;
+	}
 
 	EMPTY_DEFINE_VISITABLE()
 };

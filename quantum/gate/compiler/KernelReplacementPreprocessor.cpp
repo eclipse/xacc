@@ -31,6 +31,7 @@
 #include "KernelReplacementPreprocessor.hpp"
 #include <boost/algorithm/string.hpp>
 #include "AlgorithmGenerator.hpp"
+#include "ServiceRegistry.hpp"
 #include <numeric>
 
 namespace xacc {
@@ -82,7 +83,7 @@ const std::string KernelReplacementPreprocessor::process(const std::string& sour
 		std::vector<int> qubits(bufferSize);
 		std::iota(qubits.begin(), qubits.end(), 0);
 
-		auto algoGen = AlgorithmGeneratorRegistry::instance()->create(funcName);
+		auto algoGen = ServiceRegistry::instance()->getService<AlgorithmGenerator>(funcName);
 
 		auto algoKernel = algoGen->generateAlgorithm(qubits);
 
@@ -95,9 +96,6 @@ const std::string KernelReplacementPreprocessor::process(const std::string& sour
 
 	return newSource;
 }
-
-xacc::RegisterPreprocessor<xacc::quantum::KernelReplacementPreprocessor> KernelReplacement(
-				"kernel-replacement");
 
 }
 }

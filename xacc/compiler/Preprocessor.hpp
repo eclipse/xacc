@@ -84,36 +84,6 @@ public:
 	~Preprocessor() {}
 };
 
-/**
- * Preprocessor Registry is just an alias for a
- * Registry of Preprocessors.
- */
-using PreprocessorRegistry = Registry<Preprocessor>;
-
-/**
- * RegisterPreprocessor is a convenience class for
- * registering custom derived Preprocessor classes.
- *
- * Creators of Preprocessor subclasses create an instance
- * of this class with their Preprocessor subclass as the template
- * parameter to register their Preprocessor with XACC. This instance
- * must be created in the CPP implementation file for the Preprocessor
- * and at global scope.
- */
-template<typename T>
-class RegisterPreprocessor {
-public:
-	RegisterPreprocessor(const std::string& name) {
-		PreprocessorRegistry::CreatorFunctionPtr f = std::make_shared<
-				PreprocessorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		PreprocessorRegistry::instance()->add(name, f);
-	}
-};
-
-#define RegisterPreprocessor(TYPE) BOOST_DLL_ALIAS(TYPE::registerPreprocessor, registerPreprocessor)
-
 }
 
 #endif

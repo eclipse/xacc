@@ -1,6 +1,0 @@
-{
-  "bundle.symbolic_name" : "trivial_embedding_algorithm",
-  "bundle.activator" : true,
-  "bundle.name" : "Trivial Embedding Algorithm",
-  "bundle.description" : "This bundle uses trivial embedding algo"
-}

@@ -89,7 +89,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 		XACCError(
 				"XACC not initialized before use. Please execute xacc::Initialize() before using API.");
 	}
-	auto acc = AcceleratorRegistry::instance()->create(name);
+	auto acc = ServiceRegistry::instance()->getService<Accelerator>(name);
 	if (acc) {
 		acc->initialize();
 		return acc;
@@ -109,9 +109,7 @@ void Finalize() {
 	XACCInfo(
 			"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 					"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-	xacc::CompilerRegistry::instance()->destroy();
-	xacc::AcceleratorRegistry::instance()->destroy();
-	xacc::PreprocessorRegistry::instance()->destroy();
+	xacc::ServiceRegistry::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
 }
 }

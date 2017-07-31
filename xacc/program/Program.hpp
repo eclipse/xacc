@@ -44,6 +44,7 @@
 #include "Accelerator.hpp"
 #include "RuntimeOptions.hpp"
 #include "Preprocessor.hpp"
+#include "ServiceRegistry.hpp"
 
 namespace xacc {
 
@@ -58,12 +59,13 @@ std::vector<IRTransformation> getAcceleratorIndependentTransformations(
 	return transformations;
 }
 
-std::vector<std::shared_ptr<Preprocessor>> getDefaultPreprocessors(AcceleratorType accType) {
+std::vector<std::shared_ptr<Preprocessor>> getDefaultPreprocessors(
+		AcceleratorType accType) {
 	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
-	auto ppRegistry = PreprocessorRegistry::instance();
+	auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(
+			"kernel-replacement");
 	if (accType == AcceleratorType::qpu_gate) {
-		preprocessors.push_back(
-				ppRegistry->create("kernel-replacement"));
+		preprocessors.push_back(preprocessor);
 	}
 
 	return preprocessors;
@@ -119,7 +121,8 @@ protected:
 		auto compilerToRun = (*runtimeOptions)["compiler"];
 
 		// Create the appropriate compiler
-		compiler = xacc::CompilerRegistry::instance()->create(compilerToRun);
+		compiler = xacc::ServiceRegistry::instance()->getService<Compiler>(
+				compilerToRun);
 
 		// Make sure we got a valid
 		if (!compiler) {
@@ -130,7 +133,6 @@ protected:
 		auto defaultPPs = getDefaultPreprocessors(accelerator->getType());
 		for (auto preprocessor : defaultPPs) {
 			src = preprocessor->process(src, compiler, accelerator);
-//			std::cout << "Src after process:\n" << src << "\n";
 		}
 
 		XACCInfo("Executing "+ compiler->getName() + " compiler.");

@@ -85,18 +85,26 @@ protected:
 		boost::filesystem::path xaccPluginPath(
 				std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
 		if (boost::filesystem::exists(xaccPluginPath)) {
-			XACCInfo("Starting search for XACC plugins.");
-
 			boost::filesystem::recursive_directory_iterator dir(xaccPluginPath);
 			for (auto&& i : dir) {
 				if (!boost::filesystem::is_directory(i)) {
 					boost::filesystem::path path = i.path();
-					if (".so" == i.path().extension()) {
+					if (".so" == i.path().extension() || ".a" == i.path().extension()) {
 						context.InstallBundles(i.path().string());
 					}
 				}
 			}
 
+			boost::filesystem::path xaccLibPath(
+					std::string(XACC_INSTALL_DIR) + std::string("/lib"));
+			boost::filesystem::directory_iterator end_itr;
+			for (boost::filesystem::directory_iterator itr(xaccLibPath);
+					itr != end_itr; ++itr) {
+				auto p = itr->path();
+				if (p.extension() == ".so" || p.extension() == ".a") {
+					context.InstallBundles(p.string());
+				}
+			}
 		} else {
 			XACCError("Cannot initialize XACC plugins - there is no XACC install directory.");
 		}
@@ -111,7 +119,6 @@ protected:
 			// bad practice.
 			auto bundles = context.GetBundles();
 			for (auto b : bundles) {
-				std::cout << "ServiceRegistry Bundle: " << b.GetSymbolicName() << "\n";
 				b.Start();
 			}
 
@@ -197,6 +204,12 @@ public:
 			}
 		}
 		return returnedTrue;
+	}
+
+	void loadPlugin(const std::string path) {
+		context.InstallBundles(path);
+		auto b = context.GetBundles(path);
+		b[0].Start();
 	}
 
 };

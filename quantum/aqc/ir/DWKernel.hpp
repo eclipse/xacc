@@ -31,7 +31,6 @@
 #ifndef QUANTUM_AQC_DWKERNEL_HPP_
 #define QUANTUM_AQC_DWKERNEL_HPP_
 
-#include "Registry.hpp"
 #include "Function.hpp"
 #include "DWQMI.hpp"
 #include "Utils.hpp"

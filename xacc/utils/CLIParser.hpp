@@ -70,8 +70,7 @@ public:
 						("help", "Help Message")
 						("compiler",value<std::string>()->default_value("scaffold"),"Indicate the compiler to be used.")
 						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
-						("load-compiler", value<std::string>(), "Load a XACC plugin")
-						("load-accelerator", value<std::string>(), "Load an XACC Accelerator")
+						("load", value<std::string>(), "Load a XACC plugin at the given path")
 						("list-compilers", "List all available XACC Compilers")
 						("list-accelerators", "List all available XACC Accelerators")
 						("verbose-registry", "Print registry actions");
@@ -107,35 +106,10 @@ public:
 
 		// If the user provides a path to a compiler plugin,
 		// then load it
-//		if (clArgs.count("load-compiler")) {
-//			auto loadPath = clArgs["load-compiler"].as<std::string>();
-//			boost::filesystem::path p(loadPath);
-//			namespace dll = boost::dll;
-//			dll::shared_library lib(p, dll::load_mode::append_decorations);
-//			if (lib.has("registerCompiler")) {
-//				typedef void (RegisterCompiler)();
-//				auto regFunc = boost::dll::import_alias<RegisterCompiler>(p,
-//						"registerCompiler", dll::load_mode::append_decorations);
-//				regFunc();
-//			}
-//			clArgs.erase("load-compiler");
-//		}
-//
-//		// If the user provides a path to a accelerator plugin,
-//		// then load it
-//		if (clArgs.count("load-accelerator")) {
-//			auto loadPath = clArgs["load-accelerator"].as<std::string>();
-//			boost::filesystem::path p(loadPath);
-//			namespace dll = boost::dll;
-//			dll::shared_library lib(p, dll::load_mode::append_decorations);
-//			if (lib.has("registerAccelerator")) {
-//				typedef void (RegisterAccelerator)();
-//				auto regFunc = boost::dll::import_alias<RegisterAccelerator>(p,
-//						"registerAccelerator", dll::load_mode::append_decorations);
-//				regFunc();
-//			}
-//			clArgs.erase("load-accelerator");
-//		}
+		if (clArgs.count("load")) {
+			auto loadPath = clArgs["load-compiler"].as<std::string>();
+			ServiceRegistry::instance()->loadPlugin(loadPath);
+		}
 
 		bool listTypes = false;
 		if (clArgs.count("list-compilers")) {
@@ -164,7 +138,6 @@ public:
 		}
 
 		auto exitRequested = ServiceRegistry::instance()->handleOptions(clArgs);
-
 		if (exitRequested) {
 			XACCInfo(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."

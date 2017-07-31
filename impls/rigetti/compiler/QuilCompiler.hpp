@@ -73,14 +73,6 @@ public:
 	}
 
 	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::QuilCompiler> quilTEMP(
-				"quil");
-	}
-
-	/**
 	 * This produces a Quil source code representation of the
 	 * given IR Function
 	 *
@@ -104,9 +96,6 @@ public:
 	virtual ~QuilCompiler() {}
 
 };
-
-// Create an alias to search for.
-RegisterCompiler(xacc::quantum::QuilCompiler)
 
 }
 

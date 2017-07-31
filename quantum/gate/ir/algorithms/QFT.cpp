@@ -89,8 +89,6 @@ std::shared_ptr<Function> QFT::generateAlgorithm(std::vector<int> qubits) {
 	return qftKernel;
 }
 
-RegisterAlgorithmGenerator<QFT> QFTTEMP("QFT");
-
 }
 }
 

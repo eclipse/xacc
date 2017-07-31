@@ -28,8 +28,6 @@ std::shared_ptr<Function> InverseQFT::generateAlgorithm(std::vector<int> qubits)
 	return retFunction;
 }
 
-RegisterAlgorithmGenerator<InverseQFT> IQFTTEMP("InverseQFT");
-
 }
 }
 

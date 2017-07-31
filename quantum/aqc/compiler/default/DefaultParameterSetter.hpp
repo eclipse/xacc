@@ -56,6 +56,15 @@ public:
 			std::shared_ptr<DWGraph> problemGraph,
 			std::shared_ptr<AcceleratorGraph> hardwareGraph,
 			Embedding embedding);
+
+	virtual const std::string name() const {
+		return "default";
+	}
+
+	virtual const std::string description() const {
+		return "This ParameterSetter sets Ising parameters as in the JADE publication.";
+	}
+
 };
 
 }

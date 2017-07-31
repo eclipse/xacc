@@ -56,7 +56,7 @@ public:
 	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> qubits);
 
 	virtual const std::string name() const {
-		return "qft";
+		return "QFT";
 	}
 
 	virtual const std::string description() const {

@@ -37,7 +37,6 @@
 #include <memory>
 #include <string>
 #include "Utils.hpp"
-#include "Registry.hpp"
 #include "DWGraph.hpp"
 #include "Embedding.hpp"
 #include "Identifiable.hpp"
@@ -82,36 +81,6 @@ public:
 					std::string>()) = 0;
 
 };
-
-/**
- * EmbeddingAlgorithm Registry is just an alias for a
- * Registry of EmbeddingAlgorithms.
- */
-using EmbeddingAlgorithmRegistry = Registry<EmbeddingAlgorithm>;
-
-/**
- * RegisterEmbeddingAlgorithm is a convenience class for
- * registering custom derived EmbeddingAlgorithm classes.
- *
- * Creators of EmbeddingAlgorithm subclasses create an instance
- * of this class with their EmbeddingAlgorithm subclass as the template
- * parameter to register their EmbeddingAlgorithm with XACC. This instance
- * must be created in the CPP implementation file for the EmbeddingAlgorithm
- * and at global scope.
- */
-template<typename T>
-class RegisterEmbeddingAlgorithm {
-public:
-	RegisterEmbeddingAlgorithm(const std::string& name) {
-		EmbeddingAlgorithmRegistry::CreatorFunctionPtr f = std::make_shared<
-				EmbeddingAlgorithmRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		EmbeddingAlgorithmRegistry::instance()->add(name, f);
-	}
-};
-
-#define RegisterEmbeddingAlgorithm(TYPE) BOOST_DLL_ALIAS(TYPE::registerEmbeddingAlgorithm, registerEmbeddingAlgorithm)
 
 }
 

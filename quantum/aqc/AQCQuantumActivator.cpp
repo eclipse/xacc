@@ -28,40 +28,48 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
+#include "TrivialEmbeddingAlgorithm.hpp"
+#include "DefaultParameterSetter.hpp"
 
-#include "Function.hpp"
-#include "Identifiable.hpp"
+#include "cppmicroservices/BundleActivator.h"
+#include "cppmicroservices/BundleContext.h"
+#include "cppmicroservices/ServiceProperties.h"
 
-namespace xacc {
+#include <memory>
+#include <set>
+
+using namespace cppmicroservices;
+
+namespace {
 
 /**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
- *
- * @author Alex McCaskey
  */
-class __attribute__((visibility("default"))) AlgorithmGenerator : public Identifiable {
+class US_ABI_LOCAL AQCQuantumActivator: public BundleActivator {
 
 public:
 
-	/**
-	 * Implementations of this method generate a Function IR
-	 * instance corresponding to the implementation's modeled
-	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
-	 *
-	 * @param bits The bits this algorithm operates on
-	 * @return function The algorithm represented as an IR Function
-	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
+	AQCQuantumActivator() {
+	}
 
 	/**
-	 * The destructor
 	 */
-	virtual ~AlgorithmGenerator() {}
+	void Start(BundleContext context) {
+		auto trivialEmbService = std::make_shared<
+				xacc::quantum::TrivialEmbeddingAlgorithm>();
+		context.RegisterService<xacc::quantum::EmbeddingAlgorithm>(
+				trivialEmbService);
+		auto defaultPS =
+				std::make_shared<xacc::quantum::DefaultParameterSetter>();
+		context.RegisterService<xacc::quantum::ParameterSetter>(defaultPS);
+	}
+
+	/**
+	 */
+	void Stop(BundleContext /*context*/) {
+	}
+
 };
 
 }
-#endif
+
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(AQCQuantumActivator)

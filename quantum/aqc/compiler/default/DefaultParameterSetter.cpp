@@ -116,8 +116,5 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
 
 	return instList;
 }
-
-xacc::quantum::RegisterParameterSetter<DefaultParameterSetter> DEFPS(
-		"default");
 }
 }

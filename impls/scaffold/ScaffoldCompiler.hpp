@@ -86,14 +86,6 @@ public:
 		return "Scaffold";
 	}
 
-	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		xacc::RegisterCompiler<xacc::quantum::ScaffoldCompiler> Scaffold(
-				"scaffold");
-	}
-
 	virtual const std::string name() const {
 		return "scaffold";
 	}
@@ -122,9 +114,6 @@ protected:
 	std::shared_ptr<ScaffoldASTConsumer> consumer;
 
 };
-
-// Create an alias to search for.
-RegisterCompiler(xacc::quantum::ScaffoldCompiler)
 
 }
 

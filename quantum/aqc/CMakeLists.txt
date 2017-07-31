@@ -38,47 +38,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler/default)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC compiler/*.cpp compiler/default/DefaultParameterSetter.cpp)
+file (GLOB SRC *.cpp compiler/default/*.cpp)
+
+# Set up dependencies to resources to track changes
+usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+# Generate bundle initialization code
+usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 #----
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(xacc-quantum-aqc PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/compiler>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-)
-
-if(BUILD_SHARED_LIBS)
-  set_target_properties(xacc-quantum-aqc PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN 1
-    )
-endif()
-
-
-# [publisher-begin]
-#=========================================================
-# A bundle implementing the ServiceTime interface
-#---------------------------------------------------------
-
-set(_srcs
-  compiler/default/EmbeddingAlgorithmActivator.cpp
-  compiler/default/TrivialEmbeddingAlgorithm.cpp
-  )
-
-# Set up dependencies to resources to track changes
-usFunctionGetResourceSource(TARGET xacc-trivial-embedding OUT _srcs)
-# Generate bundle initialization code
-usFunctionGenerateBundleInit(TARGET xacc-trivial-embedding OUT _srcs)
-
-add_library(xacc-trivial-embedding SHARED ${_srcs})
-
-target_link_libraries(xacc-trivial-embedding CppMicroServices xacc-quantum-aqc)
-
-set(_bundle_name trivial_embedding_algorithm)
-
-set_target_properties(xacc-trivial-embedding PROPERTIES
+set(_bundle_name xacc_quantum_aqc)
+set_target_properties(${LIBRARY_NAME} PROPERTIES
   # This is required for every bundle
   COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
   # This is for convenience, used by other CMake functions
@@ -86,20 +58,19 @@ set_target_properties(xacc-trivial-embedding PROPERTIES
   )
 
 if(BUILD_SHARED_LIBS)
-  set_target_properties(xacc-trivial-embedding PROPERTIES
+  set_target_properties(${LIBRARY_NAME} PROPERTIES
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN 1
     )
 endif()
 
 # Embed meta-data from a manifest.json file
-usFunctionEmbedResources(TARGET xacc-trivial-embedding
+usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
   WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}/compiler/default
+    ${CMAKE_CURRENT_SOURCE_DIR}
   FILES
     manifest.json
   )
-# [publisher-end]
 
 target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices)
 
@@ -108,6 +79,5 @@ add_subdirectory(compiler)
 
 install(FILES ${HEADERS} DESTINATION include/quantum/aqc)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
-install(TARGETS xacc-trivial-embedding DESTINATION lib/plugins/embedding)
 
 

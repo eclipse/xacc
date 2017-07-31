@@ -108,29 +108,9 @@ public:
 		return desc;
 	}
 
-	/**
-	 * Register this Compiler with the framework.
-	 */
-	static void registerCompiler() {
-		DWQMICompiler c;
-		xacc::RegisterCompiler<xacc::quantum::DWQMICompiler> DWQMITEMP(
-				"dwave-qmi", c.getOptions(),
-				[](variables_map& args) -> bool {
-					if(args.count("dwave-list-embedding-algorithms")) {
-						auto ids = EmbeddingAlgorithmRegistry::instance()->getRegisteredIds();
-						for (auto i : ids) {
-							XACCInfo("Registered Embedding Algorithm: " + i);
-						}
-						return true;
-					}
-					return false;
-				});
-	}
-
 	virtual bool handleOptions(variables_map& map) {
 		if (map.count("dwave-list-embedding-algorithms")) {
 			auto ids = ServiceRegistry::instance()->getRegisteredIds<EmbeddingAlgorithm>();
-//					EmbeddingAlgorithmRegistry::instance()->getRegisteredIds();
 			for (auto i : ids) {
 				XACCInfo("Registered Embedding Algorithm: " + i);
 			}
@@ -138,6 +118,7 @@ public:
 		}
 		return false;
 	}
+
 	/**
 	 * We don't allow translations for the DW Compiler.
 	 * @param bufferVariable
@@ -164,8 +145,6 @@ public:
 	virtual ~DWQMICompiler() {}
 
 };
-
-RegisterCompiler(xacc::quantum::DWQMICompiler)
 
 }
 

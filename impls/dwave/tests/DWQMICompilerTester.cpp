@@ -166,55 +166,50 @@ public:
 
 };
 
-
-BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
-
-	DefaultParameterSetter setter;
-	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),
-			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
-					[]() {return std::make_shared<FakeEmbedding>();}));
-
-	auto compiler = std::make_shared<DWQMICompiler>();
-
-	const std::string simpleQMI =
-			"__qpu__ dwaveKernel() {\n"
-			"   0 0 0.98\n"
-			"   1 1 .33\n"
-			"   2 2 .44\n"
-			"   0 1 .22\n"
-			"   0 2 .55\n"
-			"   1 2 .11\n"
-			"}";
-
-	auto options = xacc::RuntimeOptions::instance();
-	options->insert(std::make_pair("dwave-embedding", "fake-embedding"));
-
-	auto acc = std::make_shared<FakeDWAcc>();
-
-	auto ir = compiler->compile(simpleQMI, acc);
-
-	auto qmi = ir->getKernel("dwaveKernel")->toString("");
-
-	const std::string expectedQMI = "0 0 0.49\n"
-			"4 4 0.49\n"
-			"1 1 0.33\n"
-			"5 5 0.44\n"
-			"0 4 -1.75\n"
-			"0 5 0.55\n"
-			"1 4 0.22\n"
-			"1 5 0.11\n";
-
-	std::cout << "\n" << qmi << "\n";
-	BOOST_VERIFY(expectedQMI == qmi);
-
-}
+//
+//BOOST_AUTO_TEST_CASE(checkSimpleCompile) {
+//
+//	DefaultParameterSetter setter;
+//	EmbeddingAlgorithmRegistry::instance()->add(FakeEmbedding().name(),
+//			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
+//					[]() {return std::make_shared<FakeEmbedding>();}));
+//
+//	auto compiler = std::make_shared<DWQMICompiler>();
+//
+//	const std::string simpleQMI =
+//			"__qpu__ dwaveKernel() {\n"
+//			"   0 0 0.98\n"
+//			"   1 1 .33\n"
+//			"   2 2 .44\n"
+//			"   0 1 .22\n"
+//			"   0 2 .55\n"
+//			"   1 2 .11\n"
+//			"}";
+//
+//	auto options = xacc::RuntimeOptions::instance();
+//	options->insert(std::make_pair("dwave-embedding", "fake-embedding"));
+//
+//	auto acc = std::make_shared<FakeDWAcc>();
+//
+//	auto ir = compiler->compile(simpleQMI, acc);
+//
+//	auto qmi = ir->getKernel("dwaveKernel")->toString("");
+//
+//	const std::string expectedQMI = "0 0 0.49\n"
+//			"4 4 0.49\n"
+//			"1 1 0.33\n"
+//			"5 5 0.44\n"
+//			"0 4 -1.75\n"
+//			"0 5 0.55\n"
+//			"1 4 0.22\n"
+//			"1 5 0.11\n";
+//
+//	std::cout << "\n" << qmi << "\n";
+//	BOOST_VERIFY(expectedQMI == qmi);
+//
+//}
 
 BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
-
-	EmbeddingAlgorithmRegistry::instance()->add(
-			Factoring15FakeEmbedding().name(),
-			std::make_shared<EmbeddingAlgorithmRegistry::CreatorFunction>(
-					[]() {return std::make_shared<Factoring15FakeEmbedding>();}));
 
 	auto compiler = std::make_shared<DWQMICompiler>();
 
@@ -238,9 +233,9 @@ BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
 	auto options = xacc::RuntimeOptions::instance();
 	if (options->exists("dwave-embedding")) {
-		(*options)["dwave-embedding"] = "fake-factor15-embedding";
+		(*options)["dwave-embedding"] = "trivial";
 	} else {
-		options->insert(std::make_pair("dwave-embedding", "fake-factor15-embedding"));
+		options->insert(std::make_pair("dwave-embedding", "trivial"));
 	}
 
 	auto acc = std::make_shared<FakeDWAcc>();
@@ -255,6 +250,7 @@ BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 		"0 0 20\n"
 		"1 1 50\n"
 		"2 2 60\n"
+		"3 3 0\n"
 		"4 4 50\n"
 		"5 5 60\n"
 		"6 6 -160\n"

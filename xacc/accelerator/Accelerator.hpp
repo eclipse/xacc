@@ -38,7 +38,6 @@
 #include <bitset>
 #include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
-#include "Registry.hpp"
 #include "Function.hpp"
 #include "OptionsProvider.hpp"
 #include <boost/dll/alias.hpp>
@@ -78,7 +77,7 @@ enum AcceleratorType {
  *
  * @author Alex McCaskey
  */
-class Accelerator : public OptionsProvider, public Identifiable {
+class __attribute__((visibility("default"))) Accelerator : public OptionsProvider, public Identifiable {
 
 public:
 
@@ -239,54 +238,6 @@ private:
 	}
 
 };
-
-/**
- * Create an alias for a Registry of Accelerators.
- */
-using AcceleratorRegistry = Registry<Accelerator>;
-
-/**
- * RegisterAccelerator is a convenience class for
- * registering custom derived Accelerator classes.
- *
- * Creators of Accelerator subclasses create an instance
- * of this class with their Accelerator subclass as the template
- * parameter to register their Accelerator with XACC. This instance
- * must be created in the CPP implementation file for the Accelerator
- * and at global scope.
- */
-template<typename T>
-class RegisterAccelerator {
-public:
-	RegisterAccelerator(const std::string& name) {
-		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AcceleratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AcceleratorRegistry::instance()->add(name, f);
-	}
-	RegisterAccelerator(const std::string& name,
-			std::shared_ptr<options_description> options) {
-		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AcceleratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AcceleratorRegistry::instance()->add(name, f, options);
-	}
-
-	RegisterAccelerator(const std::string& name,
-			std::shared_ptr<options_description> options,
-			std::function<bool(variables_map& args)> optionHandler) {
-		AcceleratorRegistry::CreatorFunctionPtr f = std::make_shared<
-				AcceleratorRegistry::CreatorFunction>([]() {
-			return std::make_shared<T>();
-		});
-		AcceleratorRegistry::instance()->add(name, f, options, optionHandler);
-	}
-
-};
-
-#define RegisterAccelerator(TYPE) BOOST_DLL_ALIAS(TYPE::registerAccelerator, registerAccelerator)
 
 }
 #endif
