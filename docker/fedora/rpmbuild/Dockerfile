@@ -13,7 +13,7 @@ run dnf install -y https://github.com/genereese/togo/releases/download/v2.3r7/to
 run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "Alex McCaskey" -e "mccaskeyaj@ornl.gov" \
    && togo project create xacc && cd xacc && mkdir -p root/usr/local/xacc root/usr/local/lib root/usr/local/include \
    && cp -r /usr/local/xacc/* root/usr/local/xacc/ && cp -r /usr/local/include/cppmicroservices root/usr/local/include/ \
-   && cp -r /usr/local/lib/libCpp* root/usr/local/lib/ && cp -r /usr/local/lib/libus* root/usr/local/lib/
+   && cp -r /usr/local/lib/libCpp* root/usr/local/lib/ && cp -r /usr/local/lib/libus* root/usr/local/lib/ \
    && togo file exclude root/usr/local/xacc \
    && sed -i -r "s/(Version: *).*/\11.0/" spec/header && sed -i -r "s/(Summary: *).*/\1XACC - eXtreme-scale ACCelerator programming environment./" spec/header \
    && sed -i -r "s/(Release: *).*/\11.fc25/" spec/header && sed -i -r "s/(License: *).*/\1BSD/" spec/header \
