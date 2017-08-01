@@ -1,5 +1,7 @@
 from ubuntu:latest
 maintainer Alex McCaskey <mccaskeyaj@ornl.gov>
+run mkdir -p /projects
+workdir /projects
 run apt-get -y upgrade && apt-get -y update && apt-get install -y software-properties-common \
    python-software-properties libgmp-dev libmpfr-dev ruby ruby-dev rubygems && add-apt-repository ppa:ubuntu-toolchain-r/test \
    && apt-get -y update && apt-get -y install libboost-all-dev git make libtool cmake gcc-6 g++-6 mpich \
@@ -16,7 +18,7 @@ run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL
     && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
 
-run cd /xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include /usr/local/lib \
+run cd /projects/xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include /usr/local/lib \
    && cp /usr/local/include/cppmicroservices usr/local/include/ && cp /usr/local/lib/libCpp* usr/local/lib/ \
    && cp /usr/local/lib/libus* usr/local/lib/ \
    && cp -r /usr/local/xacc/* usr/local/xacc/ \
