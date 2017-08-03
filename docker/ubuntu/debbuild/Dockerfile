@@ -18,7 +18,7 @@ run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL
     && git clone --recursive https://github.com/ORNL-QCI/xacc \
     && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
 
-run cd /projects/xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include /usr/local/lib \
+run cd /projects/xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include usr/local/lib \
    && cp -r /usr/local/include/cppmicroservices3 usr/local/include/ && cp /usr/local/lib/libCpp* usr/local/lib/ \
    && cp /usr/local/lib/libus* usr/local/lib/ \
    && cp -r /usr/local/xacc/* usr/local/xacc/ \
