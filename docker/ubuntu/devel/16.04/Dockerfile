@@ -1,4 +1,4 @@
-from mccaskey/base-ubuntu-gcc6
+from mccaskey/base-ubuntu16-04-gcc6
 run wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb && \
     apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | \
     sed "s/.*ends:\ //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb \

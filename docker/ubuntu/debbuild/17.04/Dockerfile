@@ -1,4 +1,4 @@
-from ubuntu:latest
+from ubuntu:17.04
 maintainer Alex McCaskey <mccaskeyaj@ornl.gov>
 run mkdir -p /projects
 workdir /projects

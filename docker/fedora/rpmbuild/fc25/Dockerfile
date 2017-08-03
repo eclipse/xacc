@@ -1,4 +1,4 @@
-from fedora:latest
+from fedora:25
 maintainer Alex McCaskey <mccaskeyaj@ornl.gov>
 run mkdir -p /projects
 workdir /projects
