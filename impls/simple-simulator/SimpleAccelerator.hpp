@@ -30,7 +30,6 @@
  **********************************************************************************/
 #ifndef QUANTUM_GATE_ACCELERATORS_SIMPLEACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_SIMPLEACCELERATOR_HPP_
-#include <boost/dll/alias.hpp>
 
 #include "Accelerator.hpp"
 #include "InstructionIterator.hpp"

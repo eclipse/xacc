@@ -34,7 +34,6 @@
 #include <memory>
 #include <iostream>
 #include "IR.hpp"
-#include <boost/dll/alias.hpp>
 #include "Accelerator.hpp"
 #include "Identifiable.hpp"
 

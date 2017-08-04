@@ -35,6 +35,7 @@
 #include "Utils.hpp"
 #include "RuntimeOptions.hpp"
 #include "Identifiable.hpp"
+#include "OptionsProvider.hpp"
 
 #include "xacc_config.hpp"
 #include <boost/algorithm/string.hpp>

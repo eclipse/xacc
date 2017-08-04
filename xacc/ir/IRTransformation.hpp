@@ -32,10 +32,11 @@
 #define XACC_COMPILER_IRTRANSLATION_HPP_
 
 #include "IR.hpp"
+#include "Identifiable.hpp"
 
 namespace xacc {
 
-class IRTransformation {
+class IRTransformation : public Identifiable {
 public:
 	virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) = 0;
 	virtual ~IRTransformation() {}

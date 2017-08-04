@@ -40,7 +40,6 @@
 #include "IRTransformation.hpp"
 #include "Function.hpp"
 #include "OptionsProvider.hpp"
-#include <boost/dll/alias.hpp>
 #include "Graph.hpp"
 #include "Identifiable.hpp"
 

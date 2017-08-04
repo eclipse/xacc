@@ -31,7 +31,6 @@
 #ifndef QUANTUM_AQC_COMPILER_EMBEDDINGALGORITHM_HPP_
 #define QUANTUM_AQC_COMPILER_EMBEDDINGALGORITHM_HPP_
 
-#include <boost/dll.hpp>
 #include <map>
 #include <list>
 #include <memory>
