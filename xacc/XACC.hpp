@@ -45,7 +45,6 @@
 namespace xacc {
 
 bool xaccFrameworkInitialized = false;
-auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
 auto xaccCLParser = std::make_shared<CLIParser>();
 
 /**
@@ -55,6 +54,8 @@ auto xaccCLParser = std::make_shared<CLIParser>();
  * XACC API.
  */
 void Initialize(int argc, char** argv) {
+	auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
+
 	XACCInfo("[xacc] Initializing XACC Framework");
 
 	auto serviceRegistry = xacc::ServiceRegistry::instance();
