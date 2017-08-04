@@ -18,10 +18,11 @@ The following third party libraries (TPLs) are used by XACC:
 | C++14 (GCC 6.1+)       | Required   | N/A     |
 | CMake                  | Required   | 2.8+    |
 | Boost                  | Required   | 1.59.0+ |
+| CppMicroServices       | Required   | Master  |
 | spdlog                 | Required   | N/A     |
 | MPI                    | Required   | N/A     |
 
-## Fedora 25 Build Instructions
+## Fedora/CentOS/Redhat Build Instructions
 
 ```bash
 #Install 3rd party tools/libraries
@@ -29,6 +30,12 @@ $ dnf install -y gcc-c++ cmake mpich-devel boost-mpich-devel make git spdlog env
 
 # Install Scaffold support (Required as of 2017-06-14)
 $ dnf install https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm
+
+# Clone CppMicroServices
+$ git clone https://github.com/cppmicroservices/cppmicroservices
+$ cd cppmicroservices && mkdir build && cd build
+$ cmake .. && make install
+$ cd ../..
 
 # Clone XACC
 $ git clone --recursive https://github.com/ORNL-QCI/xacc
@@ -55,6 +62,12 @@ $ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/
 # Install Scaffold support (Required as of (2017-06-14)
 $ wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb 
 $ apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | sed "s/.*ends: //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb
+
+# Clone CppMicroServices
+$ git clone https://github.com/cppmicroservices/cppmicroservices
+$ cd cppmicroservices && mkdir build && cd build
+$ cmake .. && make install
+$ cd ../..
 
 # Build XACC
 $ git clone --recursive https://github.com/ORNL-QCI/xacc
