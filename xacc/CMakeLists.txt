@@ -33,6 +33,10 @@ set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
 file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
+file (GLOB SRC *.cpp)
+
+add_library(${LIBRARY_NAME} SHARED ${SRC})
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices)
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp)
@@ -41,3 +45,4 @@ file(GLOB test_files utils/tests/*Tester.cpp)
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES}")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

@@ -48,8 +48,6 @@ namespace xacc {
  */
 class IR {
 
-protected:
-
 public:
 
 	/**
@@ -60,7 +58,8 @@ public:
 	 * @param accBufferVarName The name of the AcceleratorBuffer
 	 * @return
 	 */
-	virtual std::string toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) = 0;
+	virtual std::string toAssemblyString(const std::string& kernelName,
+			const std::string& accBufferVarName) = 0;
 
 	/**
 	 * Persist this IR instance to the given

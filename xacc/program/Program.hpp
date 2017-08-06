@@ -184,7 +184,7 @@ public:
 		build();
 
 		// Create a lambda that executes the kernel on the Accelerator.
-		return [=](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
+		return std::move([=](std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs... args) {
 
 			// Get the Function for the Kernel from the IR
 			auto kernel = xaccIR->getKernel(kernelName);
@@ -208,7 +208,7 @@ public:
 			accelerator->execute(buffer, kernel);
 
 			return;
-		};
+		});
 	}
 };
 

@@ -102,7 +102,8 @@ protected:
 			for (boost::filesystem::directory_iterator itr(xaccLibPath);
 					itr != end_itr; ++itr) {
 				auto p = itr->path();
-				if (p.extension() == ".so" || p.extension() == ".a") {
+				if ((p.extension() == ".so" || p.extension() == ".a")
+						&& (p.filename().string() != "libxacc.so")) {
 					context.InstallBundles(p.string());
 				}
 			}
