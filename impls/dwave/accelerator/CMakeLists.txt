@@ -29,45 +29,50 @@
 #
 #**********************************************************************************/
 
-set (PACKAGE_NAME "D-Wave XACC Accelerator")
-set (PACKAGE_DESCIPTION "D-Wave XACC Accelerator Bundle")
-set (LIBRARY_NAME xacc-dwave-accelerator)
+find_package(OpenSSL)
 
-file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+if (OPENSSL_FOUND)
+   set (PACKAGE_NAME "D-Wave XACC Accelerator")
+   set (PACKAGE_DESCIPTION "D-Wave XACC Accelerator Bundle")
+   set (LIBRARY_NAME xacc-dwave-accelerator)
 
-# Set up dependencies to resources to track changes
-usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
-# Generate bundle initialization code
-usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
+   file (GLOB_RECURSE HEADERS *.hpp)
+   file (GLOB SRC *.cpp)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+   # Set up dependencies to resources to track changes
+   usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+   # Generate bundle initialization code
+   usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-set(_bundle_name xacc_dwave_accelerator)
+   add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES
-  # This is required for every bundle
-  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
-  # This is for convenience, used by other CMake functions
-  US_BUNDLE_NAME ${_bundle_name}
-  )
+   set(_bundle_name xacc_dwave_accelerator)
 
-if(BUILD_SHARED_LIBS)
-  set_target_properties(${LIBRARY_NAME} PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN 1
+   set_target_properties(${LIBRARY_NAME} PROPERTIES
+     # This is required for every bundle
+     COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+     # This is for convenience, used by other CMake functions
+     US_BUNDLE_NAME ${_bundle_name}
+     )
+
+   if(BUILD_SHARED_LIBS)
+     set_target_properties(${LIBRARY_NAME} PROPERTIES
+       CXX_VISIBILITY_PRESET hidden
+       VISIBILITY_INLINES_HIDDEN 1
+      )
+   endif()
+
+   # Embed meta-data from a manifest.json file
+   usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
+     WORKING_DIRECTORY
+       ${CMAKE_CURRENT_SOURCE_DIR}
+     FILES
+       manifest.json
     )
+
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-aqc)
+
+   install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
+else()
+   message(STATUS "OpenSSL not found, cannot include D-Wave Accelerator plugin")
 endif()
-
-# Embed meta-data from a manifest.json file
-usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  FILES
-    manifest.json
-  )
-
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-aqc)
-
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
-

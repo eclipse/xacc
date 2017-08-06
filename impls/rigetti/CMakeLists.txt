@@ -29,36 +29,31 @@
 #
 #**********************************************************************************/
 
-find_package(OpenSSL)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 
-if (OPENSSL_FOUND)
-
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
    
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/functions)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/functions)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
 
-   set (PACKAGE_NAME "Rigetti XACC")
-   set (PACKAGE_DESCIPTION "Rigetti XACC Plugins")
-   set (LIBRARY_NAME xacc-rigetti)
+set (PACKAGE_NAME "Rigetti XACC")
+set (PACKAGE_DESCIPTION "Rigetti XACC Plugins")
+set (LIBRARY_NAME xacc-rigetti)
 
-   add_subdirectory(compiler)
-   add_subdirectory(accelerator)
-   add_subdirectory(examples)
+add_subdirectory(compiler)
+add_subdirectory(accelerator)
+add_subdirectory(examples)
 
-   # Gather tests
-   file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-accelerator;xacc-rigetti-quilcompiler")
+# Gather tests
+file (GLOB test_files tests/*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-accelerator;xacc-rigetti-quilcompiler")
    
-endif()

@@ -29,45 +29,51 @@
 #
 #**********************************************************************************/
 
-set (PACKAGE_NAME "Rigetti XACC Accelerator")
-set (PACKAGE_DESCIPTION "Rigetti XACC Accelerator Framework")
-set (LIBRARY_NAME xacc-rigetti-accelerator)
+find_package(OpenSSL)
 
-file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+if (OPENSSL_FOUND)
 
-# Set up dependencies to resources to track changes
-usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
-# Generate bundle initialization code
-usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
+   set (PACKAGE_NAME "Rigetti XACC Accelerator")
+   set (PACKAGE_DESCIPTION "Rigetti XACC Accelerator Framework")
+   set (LIBRARY_NAME xacc-rigetti-accelerator)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
+   file (GLOB_RECURSE HEADERS *.hpp)
+   file (GLOB SRC *.cpp)
 
-set(_bundle_name xacc_rigetti_accelerator)
+   # Set up dependencies to resources to track changes
+   usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+   # Generate bundle initialization code
+   usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES
-  # This is required for every bundle
-  COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
-  # This is for convenience, used by other CMake functions
-  US_BUNDLE_NAME ${_bundle_name}
-  )
+   add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-if(BUILD_SHARED_LIBS)
-  set_target_properties(${LIBRARY_NAME} PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN 1
-    )
+   set(_bundle_name xacc_rigetti_accelerator) 
+
+   set_target_properties(${LIBRARY_NAME} PROPERTIES
+     # This is required for every bundle
+     COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
+     # This is for convenience, used by other CMake functions
+     US_BUNDLE_NAME ${_bundle_name}
+     )
+
+   if(BUILD_SHARED_LIBS)
+     set_target_properties(${LIBRARY_NAME} PROPERTIES
+       CXX_VISIBILITY_PRESET hidden
+       VISIBILITY_INLINES_HIDDEN 1
+       )
+   endif()
+
+   # Embed meta-data from a manifest.json file
+   usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
+     WORKING_DIRECTORY
+       ${CMAKE_CURRENT_SOURCE_DIR}
+     FILES
+       manifest.json
+     )
+
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-gate)
+
+   install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
+else()
+   message(STATUS "OpenSSL not found, cannot include Rigetti Accelerator plugin.")
 endif()
-
-# Embed meta-data from a manifest.json file
-usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  FILES
-    manifest.json
-  )
-
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-gate)
-
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
-

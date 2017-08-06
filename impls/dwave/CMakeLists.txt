@@ -29,31 +29,26 @@
 #
 #**********************************************************************************/
 
-find_package(OpenSSL)
 
-if (OPENSSL_FOUND)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler/default)
-   include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/accelerator)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler/default)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/accelerator)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/util)
-   include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/simpleweb)
-
-   set (PACKAGE_NAME "XACC D-Wave Support")
-   set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
+set (PACKAGE_NAME "XACC D-Wave Support")
+set (PACKAGE_DESCIPTION "Extensions to XACC to work with the D-Wave QPU")
    
-   add_subdirectory(accelerator)
-   add_subdirectory(compiler)
-   add_subdirectory(examples)
+add_subdirectory(accelerator)
+add_subdirectory(compiler)
+add_subdirectory(examples)
 
-   # Gather tests
-   file (GLOB test_files tests/*.cpp)
-   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-accelerator;xacc-dwave-qmicompiler;dl;pthread;CppMicroServices")
-   
-endif()
+# Gather tests
+file (GLOB test_files tests/*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-accelerator;xacc-dwave-qmicompiler;dl;pthread;CppMicroServices")
 
 
