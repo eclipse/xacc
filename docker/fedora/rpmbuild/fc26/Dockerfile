@@ -6,14 +6,15 @@ run dnf install -y https://github.com/genereese/togo/releases/download/v2.3r7/to
    python-devel gcc-c++ openssl openssl-devel cmake mpich-devel boost-mpich-devel make git wget \
    https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc26.x86_64.rpm spdlog \
    && git clone https://github.com/cppmicroservices/cppmicroservices \
-   && cd cppmicroservices && mkdir build && cd build && cmake .. && make install && cd /projects \
+   && cd cppmicroservices && mkdir build && cd build && cmake .. -DCMAKE_CXX_FLAGS='-Wimplicit-fallthrough=0' && make install && cd /projects \
    && git clone --recursive https://github.com/ORNL-QCI/xacc \ 
    && source /etc/bashrc && module load mpi/mpich-x86_64 && cd xacc && mkdir build \
    && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make install
 run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "Alex McCaskey" -e "mccaskeyaj@ornl.gov" \
-   && togo project create xacc && cd xacc && mkdir -p root/usr/local/xacc root/usr/local/lib root/usr/local/include \
+   && togo project create xacc && cd xacc && mkdir -p root/usr/local/xacc root/usr/local/lib root/usr/local/include root/usr/local/share root/usr/local/bin \
    && cp -r /usr/local/xacc/* root/usr/local/xacc/ && cp -r /usr/local/include/cppmicroservices3 root/usr/local/include/ \
    && cp -r /usr/local/lib/libCpp* root/usr/local/lib/ && cp -r /usr/local/lib/libus* root/usr/local/lib/ \
+   && cp -r /usr/local/share/cpp* root/usr/local/share/ && cp -r /usr/local/bin/* root/usr/local/bin/ \
    && togo file exclude root/usr/local/xacc \
    && sed -i -r "s/(Version: *).*/\11.0/" spec/header && sed -i -r "s/(Summary: *).*/\1XACC - eXtreme-scale ACCelerator programming environment./" spec/header \
    && sed -i -r "s/(Release: *).*/\11.fc26/" spec/header && sed -i -r "s/(License: *).*/\1BSD/" spec/header \
