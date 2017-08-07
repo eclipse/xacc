@@ -1,5 +1,5 @@
 set (XACC_ROOT "@CMAKE_INSTALL_PREFIX@")
-set (XACC_INCLUDE_DIRS "@CppMicroServices_INCLUDE_DIR@;@CMAKE_INSTALL_PREFIX@/include;@CMAKE_INSTALL_PREFIX@/include/xacc;@CMAKE_INSTALL_PREFIX@/include/quantum/gate;@CMAKE_INSTALL_PREFIX@/include/quantum/aqc")
+set (XACC_INCLUDE_DIRS "@CppMicroServices_INCLUDE_DIR@;@CMAKE_INSTALL_PREFIX@/include;@CMAKE_INSTALL_PREFIX@/include/xacc;@CMAKE_INSTALL_PREFIX@/include/quantum/gate;@CMAKE_INSTALL_PREFIX@/include/quantum/aqc;@CMAKE_INSTALL_PREFIX@/include/spdlog")
 set (XACC_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib")
 set (XACC_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/lib;@CppMicroServices_LIBRARY_DIR@")
 set (XACC_LIBRARIES "@CMAKE_INSTALL_PREFIX@/lib/libxacc.so;@CMAKE_INSTALL_PREFIX@/lib/libxacc-quantum-gate.so;@CMAKE_INSTALL_PREFIX@/lib/libxacc-quantum-aqc.so;CppMicroServices")

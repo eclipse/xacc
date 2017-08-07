@@ -82,6 +82,7 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CppMicroServices_INCLUDE_DIR})
 include_directories("${CMAKE_SOURCE_DIR}/xacc")
 include_directories("${CMAKE_SOURCE_DIR}/xacc/ir")
@@ -102,4 +103,4 @@ add_subdirectory(tools)
 # and CMake loads include paths, libs, etc
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake")
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
-
+INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
