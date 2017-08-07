@@ -1,5 +1,5 @@
 from mccaskey/base-fc25-gcc6
-run dnf -y install openssl openssl-devel spdlog python-devel \
+run dnf -y install openssl openssl-devel python-devel \
     https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
     && git clone https://github.com/cppmicroservices/cppmicroservices \
     && cd cppmicroservices && mkdir build && cd build && cmake .. && make install && cd /projects \
