@@ -130,8 +130,8 @@ public:
 	 * so return an empty list, for now.
 	 * @return
 	 */
-	virtual std::vector<xacc::IRTransformation> getIRTransformations() {
-		std::vector<xacc::IRTransformation> v;
+	virtual std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() {
+		std::vector<std::shared_ptr<IRTransformation>> v;
 		return v;
 	}
 

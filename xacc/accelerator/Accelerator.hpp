@@ -102,7 +102,7 @@ public:
 	 *
 	 * @return transformations The IR transformations this Accelerator exposes
 	 */
-	virtual std::vector<IRTransformation> getIRTransformations() = 0;
+	virtual std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() = 0;
 
 	/**
 	 * Execute the provided XACC IR Function on the provided AcceleratorBuffer.

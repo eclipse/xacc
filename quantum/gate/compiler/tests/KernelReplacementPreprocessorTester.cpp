@@ -112,8 +112,8 @@ public:
 
 	}
 
-	virtual std::vector<IRTransformation> getIRTransformations() {
-		std::vector<IRTransformation> ts;
+	virtual std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() {
+		std::vector<std::shared_ptr<IRTransformation>> ts;
 		return ts;
 	}
 

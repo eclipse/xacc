@@ -72,15 +72,10 @@ public:
 						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
 						("load", value<std::string>(), "Load a XACC plugin at the given path")
 						("list-compilers", "List all available XACC Compilers")
-						("list-accelerators", "List all available XACC Accelerators")
-						("verbose-registry", "Print registry actions");
+						("list-accelerators", "List all available XACC Accelerators");
 	}
 
 	/**
-	 * Parse the command line options. Provide a Boost options_description
-	 * built up and provided by all available OptionsProviders. This
-	 * method also loads all Compilers and Accelerators available
-	 * in the XACC_INSTALL_DIR.
 	 */
 	void parse(int argc, char** argv) {
 
