@@ -117,7 +117,7 @@ public:
 		return bufferId;
 	}
 
-	void resetBuffer() {
+	virtual void resetBuffer() {
 		measurements.clear();
 	}
 
@@ -125,11 +125,11 @@ public:
 		bits[idx].update(zeroOrOne);
 	}
 
-	void appendMeasurement(const boost::dynamic_bitset<>& measurement) {
+	virtual void appendMeasurement(const boost::dynamic_bitset<>& measurement) {
 		measurements.push_back(measurement);
 	}
 
-	double getAverage() const {
+	virtual double getAverage() const {
 		//std::assert(measurements.size()>0);
 		std::stringstream ss;
 		double aver = 0.;

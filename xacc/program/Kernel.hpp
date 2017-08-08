@@ -47,8 +47,21 @@ public:
 		accelerator->execute(buffer, function);
 	}
 
+	void operator()(std::shared_ptr<AcceleratorBuffer> buffer, std::vector<InstructionParameter> parameters) {
+		function->evaluateVariableParameters(parameters);
+		accelerator->execute(buffer, function);
+	}
+
 	void prepend(const std::shared_ptr<Function> prependFunction) {
 		function->insertInstruction(0, prependFunction);
+	}
+
+	const int getNumberOfKernelParameters() {
+		return function->nParameters();
+	}
+
+	std::shared_ptr<Function> getIRFunction() {
+		return function;
 	}
 };
 

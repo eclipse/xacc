@@ -63,8 +63,7 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
 	for (auto& embKv : embedding) {
 		auto probVert = embKv.first;
 		auto hardwareMapping = embKv.second;
-		auto newBias = std::get<0>(problemGraph->getVertexProperties(probVert))
-				/ hardwareMapping.size();
+		auto newBias = std::get<0>(problemGraph->getVertexProperties(probVert)) / hardwareMapping.size();
 		for (auto h : hardwareMapping) {
 			auto embeddedInst = std::make_shared<DWQMI>(h, h, newBias);
 			instList.push_back(embeddedInst);

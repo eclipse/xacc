@@ -185,6 +185,13 @@ public:
 		return;
 	}
 
+	void transformIR(std::shared_ptr<IRTransformation> transformation) {
+		if (xaccIR) {
+			xaccIR = transformation->transform(xaccIR);
+		}
+	}
+
+
 	/**
 	 * Return an executable version of the kernel
 	 * referenced by the kernelName string.
@@ -220,6 +227,19 @@ public:
 			if (k->nParameters() == (sizeof...(RuntimeArgs))) {
 				kernels.push_back(Kernel<RuntimeArgs...>(accelerator, k));
 			}
+		}
+
+		return kernels;
+	}
+
+	auto getRuntimeKernels() -> std::vector<Kernel<>> {
+		std::vector<Kernel<>> kernels;
+		if (!xaccIR) {
+			build();
+		}
+
+		for (auto k : xaccIR->getKernels()) {
+			kernels.push_back(Kernel<>(accelerator, k));
 		}
 
 		return kernels;
