@@ -236,34 +236,30 @@ bool GateQIR::incrementLayer(const std::vector<std::string>& gateCommand,
 
 std::string GateQIR::toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) {
 	std::string retStr = "";
-	if (!kernelName.empty()) {
-		auto kernel = getKernel(kernelName);
-		return kernel->toString(accBufferVarName);
+	auto kernel = getKernel(kernelName);
 
-		std::set<int> qubitsUsed;
-		InstructionIterator it(kernel);
-		while (it.hasNext()) {
-			// Get the next node in the tree
-			auto nextInst = it.next();
+	std::set<int> qubitsUsed;
+	InstructionIterator it(kernel);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
 
-			// If enabled, invoke the accept
-			// method which kicks off the visitor
-			// to execute the appropriate lambda.
-			if (nextInst->isEnabled() && !nextInst->isComposite()) {
+		// If enabled, invoke the accept
+		// method which kicks off the visitor
+		// to execute the appropriate lambda.
+		if (nextInst->isEnabled() && !nextInst->isComposite()) {
 
-				for (auto qi : nextInst->bits()) {
-					qubitsUsed.insert(qi);
-				}
+			for (auto qi : nextInst->bits()) {
+				qubitsUsed.insert(qi);
 			}
 		}
+	}
 
-		for (auto qi : qubitsUsed) {
-			retStr += "qubit " + accBufferVarName + std::to_string(qi) + "\n";
-		}
-	} else {
-		for (auto f : kernels) {
-			retStr += f->toString(accBufferVarName);
-		}
+	for (auto qi : qubitsUsed) {
+		retStr += "qubit " + accBufferVarName + std::to_string(qi) + "\n";
+	}
+	for (auto f : kernels) {
+		retStr += f->toString(accBufferVarName);
 	}
 	return retStr;
 }
@@ -272,6 +268,13 @@ void GateQIR::persist(std::ostream& outStream) {
 
 	JsonVisitor visitor(kernels);
 	outStream << visitor.write();
+
+//	StringBuffer sb;
+//	PrettyWriter<StringBuffer> writer(sb);
+//
+//	serializeJson(writer);
+//
+//	outStream << sb.GetString();
 
 	return;
 }
