@@ -97,7 +97,7 @@ public:
 	 *
 	 * @param emb The minor graph embedding
 	 */
-	void setEmbedding(Embedding emb) {
+	void setEmbedding(Embedding& emb) {
 		embedding = emb;
 	}
 
@@ -106,53 +106,108 @@ public:
 	 *
 	 * @return emb The minor graph embedding
 	 */
-	Embedding getEmbedding() {
+	const Embedding& getEmbedding() const {
 		return embedding;
 	}
 
-	void setEnergies(std::vector<double> en) {
+	/**
+	 * Set the energies produced by the AQC Accelator execution.
+	 *
+	 * @param en The energies observed
+	 */
+	void setEnergies(std::vector<double>& en) {
 		energies = en;
 	}
 
-	std::vector<double> getEnergies() {
+	/**
+	 * Return the energies.
+	 *
+	 * @return energes The energies
+	 */
+	const std::vector<double>& getEnergies() const {
 		return energies;
 	}
 
-	void setNumberOfOccurrences(std::vector<int> en) {
-		numOccurrences = en;
+	/**
+	 * Set the number of occurrences of each bit state and energe.
+	 * @param nOcc The number of occurrences
+	 */
+	void setNumberOfOccurrences(std::vector<int>& numOcc) {
+		numOccurrences = numOcc;
 	}
 
-	std::vector<int> getNumberOfOccurrences() {
+	/**
+	 * Return the number of occurrences of each bit state / energy.
+	 *
+	 * @return numOccurrences The number of occurrences
+	 */
+	const std::vector<int>& getNumberOfOccurrences() const {
 		return numOccurrences;
 	}
 
-	void setActiveVariableIndices(std::vector<int> activeVars) {
+	/**
+	 * Set the active qubit variable indices.
+	 *
+	 * @param activeVars The active indices.
+	 */
+	void setActiveVariableIndices(std::vector<int>& activeVars) {
 		activeVarIndices = activeVars;
 	}
 
-	std::vector<int> getActiveVariableIndices() {
+	/**
+	 * Get the active variable indices.
+	 *
+	 * @return activeVars The active indices
+	 */
+	const std::vector<int>& getActiveVariableIndices() const {
 		return activeVarIndices;
 	}
 
-	int getNumberOfExecutions() {
+	/**
+	 * Return the number of executions.
+	 *
+	 * @return numExec The number of executions
+	 *
+	 */
+	const int getNumberOfExecutions() const {
 		return std::accumulate(numOccurrences.rbegin(), numOccurrences.rend(), 0);
 	}
 
-	boost::dynamic_bitset<> getLowestEnergyMeasurement() {
+	/**
+	 * Return the bit string corresponding to the lowest observed energy.
+	 *
+	 * @return bitStr The bits corresponding to the lowest energy
+	 */
+	const boost::dynamic_bitset<>& getLowestEnergyMeasurement() {
 		auto minIt = std::min_element(energies.begin(), energies.end());
 		return measurements[std::distance(energies.begin(), minIt)];
 	}
 
-	double getLowestEnergy() {
+	/**
+	 * Return the lowest energy observed.
+	 *
+	 * @return energy The lowest energy
+	 */
+	const double getLowestEnergy() const {
 		return *std::min_element(energies.begin(), energies.end());
 	}
 
-	double getMostProbableEnergy() {
+	/**
+	 * Return the most probable energy.
+	 *
+	 * @return energy The most probable energy.
+	 */
+	const double getMostProbableEnergy() const {
 		auto maxIt = std::max_element(numOccurrences.begin(), numOccurrences.end());
 		return energies[std::distance(numOccurrences.begin(), maxIt)];
 	}
 
-	boost::dynamic_bitset<> getMostProbableMeasurement() {
+	/**
+	 * Return the most probable bit string
+	 *
+	 * @return bitStr The bits
+	 */
+	const boost::dynamic_bitset<>& getMostProbableMeasurement() const {
 		auto maxIt = std::max_element(numOccurrences.begin(), numOccurrences.end());
 		return measurements[std::distance(numOccurrences.begin(), maxIt)];
 	}

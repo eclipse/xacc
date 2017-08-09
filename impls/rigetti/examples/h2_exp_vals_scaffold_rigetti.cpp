@@ -108,25 +108,25 @@ int main (int argc, char** argv) {
 	for (float theta = -pi; theta <= pi; theta += .2) {
 
 		g1Term(qubitReg, theta);
-		auto e1 = qubitReg->getAverage();
+		auto e1 = qubitReg->getExpectationValueZ();
 		qubitReg->resetBuffer();
 
 		// G2 Term, same as g1 so just use it
 		g2Term(qubitReg, theta);
-		auto e2 = qubitReg->getAverage();
+		auto e2 = qubitReg->getExpectationValueZ();
 		qubitReg->resetBuffer();
 
 		// G3 Term, same as g1 so just use it
 		g3Term(qubitReg, theta);
-		auto e3 = qubitReg->getAverage();
+		auto e3 = qubitReg->getExpectationValueZ();
 		qubitReg->resetBuffer();
 
 		g4Term(qubitReg, theta);
-		auto e4 = qubitReg->getAverage();
+		auto e4 = qubitReg->getExpectationValueZ();
 		qubitReg->resetBuffer();
 
 		g5Term(qubitReg, theta);
-		auto e5 = qubitReg->getAverage();
+		auto e5 = qubitReg->getExpectationValueZ();
 		qubitReg->resetBuffer();
 
 		file << theta << ", " << e1 << ", " << e2 << ", " << e3 << ", " << e4 << ", " << e5 << "\n";
