@@ -35,6 +35,7 @@
 #include <complex>
 #include "Tensor.hpp"
 #include <bitset>
+#include <unsupported/Eigen/KroneckerProduct>
 
 namespace xacc {
 
@@ -59,6 +60,8 @@ protected:
 	 */
 	QubitState bufferState;
 
+	Eigen::MatrixXcd Z;
+
 public:
 
 	/**
@@ -70,6 +73,17 @@ public:
 	SimulatedQubits(const std::string& str, const int N) :
 			AcceleratorBuffer(str, N), bufferState((int) std::pow(2, N)) {
 		bufferState(0) = 1.0;
+		Eigen::MatrixXcd z(2,2), temp;
+		z << 1, 0, 0, -1;
+
+		temp = z;
+		for (int i = 0; i < N-1; i++) {
+			temp = Eigen::kroneckerProduct(z, temp).eval();
+		}
+
+		Z = temp;
+
+		assert(temp.rows() == std::pow(2,N));
 	}
 
 	/**
@@ -124,6 +138,12 @@ public:
 	 */
 	void setState(QubitState& st) {
 		bufferState = st;
+	}
+
+	virtual const double getExpectationValueZ() {
+		auto data = bufferState.createReference().first.data();
+		Eigen::VectorXcd state = Eigen::Map<Eigen::VectorXcd, Eigen::Unaligned>(data, bufferState.size());
+		return std::real(state.transpose().dot(Z * state));
 	}
 
 	/**

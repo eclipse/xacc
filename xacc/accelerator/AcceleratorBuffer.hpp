@@ -172,7 +172,7 @@ public:
 	 *
 	 * @return expVal The expectation value
 	 */
-	virtual const double getExpectationValueZ() const {
+	virtual const double getExpectationValueZ() {
 		std::stringstream ss;
 		double aver = 0.;
 		long n_measurements = measurements.size();

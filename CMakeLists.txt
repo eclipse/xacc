@@ -54,7 +54,7 @@ set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicrose
 set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
 # We require MPI
-find_package(MPI REQUIRED)
+find_package(MPI)
 
 # We require Boost
 find_package(Boost COMPONENTS system program_options filesystem python REQUIRED)
