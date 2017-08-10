@@ -19,8 +19,7 @@ The following third party libraries (TPLs) are used by XACC:
 | CMake                  | Required   | 2.8+    |
 | Boost                  | Required   | 1.59.0+ |
 | CppMicroServices       | Required   | Master  |
-| spdlog                 | Required   | N/A     |
-| MPI                    | Required   | N/A     |
+| MPI                    | Optional   | N/A     |
 
 ## Fedora/CentOS/Redhat Build Instructions
 
