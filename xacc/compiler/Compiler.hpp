@@ -103,10 +103,6 @@ public:
 		return false;
 	}
 
-	virtual const int getNQubitsUsed() const {
-		return 0;
-	}
-
 	/**
 	 * The destructor
 	 */

@@ -185,13 +185,6 @@ public:
 		return;
 	}
 
-	void transformIR(std::shared_ptr<IRTransformation> transformation) {
-		if (xaccIR) {
-			xaccIR = transformation->transform(xaccIR);
-		}
-	}
-
-
 	/**
 	 * Return an executable version of the kernel
 	 * referenced by the kernelName string.

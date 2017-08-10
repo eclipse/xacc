@@ -125,7 +125,7 @@ protected:
 			}
 
 		} catch (const std::exception& e) {
-			XACCError("Failure to start XACC plugins.");
+			XACCError("Failure to start XACC plugins. " + std::string(e.what()));
 		}
 	}
 
