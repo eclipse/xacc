@@ -29,23 +29,27 @@
  *
  **********************************************************************************/
 #include "XACC.hpp"
+#include "MPIHolder.hpp"
 
 namespace xacc {
 
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
 
-/**
- * This method should be called by
- * clients to initialize the XACC framework.
- * It should be called before using any of the
- * XACC API.
- */
 void Initialize(int argc, char** argv) {
+
+	// Create the MPIHolder instance
+	auto mpiHolder = MPIHolder::instance();
+
+	// Initialize MPI, if we've been built with MPI support
+	mpiHolder->initialize(argc, argv);
+
+	// Create the iniitial xacc-console
 	auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
 
 	XACCInfo("[xacc] Initializing XACC Framework");
 
+	// Get reference to the service registry
 	auto serviceRegistry = xacc::ServiceRegistry::instance();
 
 	// Parse any user-supplied command line options
@@ -74,6 +78,28 @@ void Initialize(int argc, char** argv) {
 void addCommandLineOption(const std::string& optionName,
 		const std::string& optionDescription) {
 	xaccCLParser->addStringOption(optionName, optionDescription);
+}
+
+std::shared_ptr<Accelerator> getAccelerator() {
+	if (!xacc::xaccFrameworkInitialized) {
+		XACCError(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
+	auto options = RuntimeOptions::instance();
+	if (!options->exists("accelerator")) {
+		XACCError("Invalid use of XACC API. getAccelerator() with no string argument "
+				"requires that you set --accelerator at the command line.");
+	}
+	auto acc = ServiceRegistry::instance()->getService<Accelerator>((*options)["accelerator"]);
+	if (acc) {
+		acc->initialize();
+		return acc;
+	} else {
+		XACCError(
+				"Invalid Accelerator. Could not find " + (*options)["accelerator"]
+						+ " in Accelerator Registry.");
+	}
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {

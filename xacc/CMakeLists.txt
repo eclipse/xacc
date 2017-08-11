@@ -36,7 +36,7 @@ file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp 
 file (GLOB SRC *.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${MPI_LIBRARIES} CppMicroServices)
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp)

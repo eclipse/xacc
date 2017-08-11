@@ -48,6 +48,10 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/tpls/fire)
   include(tests)
 endif() 
 
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set (CMAKE_INSTALL_PREFIX "/usr/local/xacc" CACHE PATH "default install path" FORCE )
+endif()
+
 find_package(CppMicroServices NO_MODULE REQUIRED)
 get_filename_component(CppMicroServices_BASE_DIR ${CppMicroServices_RUNTIME_LIBRARY_DIRS} DIRECTORY)
 set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
@@ -55,9 +59,17 @@ set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
 # We require MPI
 find_package(MPI)
-
-# We require Boost
-find_package(Boost COMPONENTS system program_options filesystem python REQUIRED)
+if (MPI_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
+  
+  # We require Boost with MPI
+  find_package(Boost COMPONENTS mpi system program_options filesystem python REQUIRED)
+else()
+  message(STATUS "MPI Not Found.")
+  
+  # We require Boost without MPI
+  find_package(Boost COMPONENTS system program_options filesystem python REQUIRED)
+endif()
 
 # Look for OpenMP, add it we find it
 find_package(OpenMP)
