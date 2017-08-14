@@ -80,6 +80,37 @@ void addCommandLineOption(const std::string& optionName,
 	xaccCLParser->addStringOption(optionName, optionDescription);
 }
 
+void addCommandLineOptions(const std::string& category, const std::map<std::string, std::string>& options) {
+	xaccCLParser->addStringOptions(category, options);
+}
+
+bool optionExists(const std::string& optionKey) {
+	return RuntimeOptions::instance()->exists(optionKey);
+}
+
+const std::string getOption(const std::string& optionKey) {
+	if (!optionExists(optionKey)) {
+		XACCError("Invalid runtime option - " + optionKey);
+	}
+	return (*RuntimeOptions::instance())[optionKey];
+}
+
+void setOption(const std::string& optionKey, const std::string& value) {
+	if (optionExists(optionKey)) {
+		(*RuntimeOptions::instance())[optionKey] = value;
+	} else {
+		RuntimeOptions::instance()->insert(std::make_pair(optionKey, value));
+	}
+}
+
+void setCompiler(const std::string& compilerName) {
+	setOption("compiler", compilerName);
+}
+void setAccelerator(const std::string& acceleratorName) {
+	setOption("accelerator", acceleratorName);
+}
+
+
 std::shared_ptr<Accelerator> getAccelerator() {
 	if (!xacc::xaccFrameworkInitialized) {
 		XACCError(
@@ -87,11 +118,11 @@ std::shared_ptr<Accelerator> getAccelerator() {
 				"xacc::Initialize() before using API.");
 	}
 	auto options = RuntimeOptions::instance();
-	if (!options->exists("accelerator")) {
+	if (!optionExists("accelerator")) {
 		XACCError("Invalid use of XACC API. getAccelerator() with no string argument "
 				"requires that you set --accelerator at the command line.");
 	}
-	auto acc = ServiceRegistry::instance()->getService<Accelerator>((*options)["accelerator"]);
+	auto acc = ServiceRegistry::instance()->getService<Accelerator>(getOption("accelerator"));
 	if (acc) {
 		acc->initialize();
 		return acc;

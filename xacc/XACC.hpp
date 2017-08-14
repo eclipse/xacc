@@ -64,6 +64,51 @@ void addCommandLineOption(const std::string& optionName,
 		const std::string& optionDescription = "");
 
 /**
+ * Add a set of options under the provided category.
+ *
+ * @param category The name of the category these options fall under
+ * @param options The options, a map of option names to descriptions
+ */
+void addCommandLineOptions(const std::string& category, const std::map<std::string, std::string>& options);
+
+/**
+ * Return true if the option exists.
+ *
+ * @param optionKey The name of the option
+ * @return exists True if it exists
+ */
+bool optionExists(const std::string& optionKey);
+
+/**
+ * Return the value of the options with the given name.
+ * @param optionKey The name of the option
+ * @return value The value of this option
+ */
+const std::string getOption(const std::string& optionKey);
+
+/**
+ * Set the value of the option with the given name.
+ *
+ * @param optionKey The name of the option
+ * @param value The new option value.
+ */
+void setOption(const std::string& optionKey, const std::string& value);
+
+/**
+ * Set the Compiler to use.
+ *
+ * @param compilerName The name of the compiler
+ */
+void setCompiler(const std::string& compilerName);
+
+/**
+ * Set the Accelerator to use.
+ *
+ * @param acceleratorName The name of the accelerator
+ */
+void setAccelerator(const std::string& acceleratorName);
+
+/**
  * Return the Accelerator with given name
  */
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name);

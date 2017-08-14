@@ -52,6 +52,10 @@ public:
 		accelerator->execute(buffer, function);
 	}
 
+	void evaluateParameters(std::vector<InstructionParameter> parameters) {
+		function->evaluateVariableParameters(parameters);
+	}
+
 	void prepend(const std::shared_ptr<Function> prependFunction) {
 		function->insertInstruction(0, prependFunction);
 	}

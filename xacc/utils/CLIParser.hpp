@@ -152,6 +152,14 @@ public:
 		xaccOptions->add_options()(key.c_str(), value<std::string>(), description.c_str());
 	}
 
+	void addStringOptions(const std::string& category, const std::map<std::string, std::string>& options) {
+		auto desc = std::make_shared<options_description>(
+						category);
+		for (auto& kv : options) {
+			desc->add_options()(kv.first.c_str(), value<std::string>(), kv.second.c_str());
+		}
+		xaccOptions->add(*desc.get());
+	}
 };
 
 }
