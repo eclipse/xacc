@@ -21,10 +21,8 @@ protected:
 public:
 
 	void initialize(int argc, char** argv) {
-		std::cout << "INITIALIZING MPI: \n";
 		env = std::make_shared<boost::mpi::environment>(argc, argv);
 		communicator = std::make_shared<boost::mpi::communicator>();
-		std::cout << "COMM: " << communicator->size() << "\n";
 	}
 
 	const int rank() {

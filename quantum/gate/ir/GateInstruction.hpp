@@ -84,6 +84,11 @@ public:
 			gateName(name), qbits(qubts), parameters(params) {
 	}
 
+	GateInstruction(const GateInstruction& inst) :
+			gateName(inst.gateName), qbits(inst.qbits), parameters(
+					inst.parameters), enabled(inst.enabled) {
+	}
+
 	/**
 	 * Return the instruction name.
 	 * @return
