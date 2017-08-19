@@ -69,6 +69,7 @@ public:
 		xaccOptions->add_options()
 						("help", "Help Message")
 						("compiler",value<std::string>()->default_value("scaffold"),"Indicate the compiler to be used.")
+						("accelerator",value<std::string>(),"Indicate the accelerator to be used.")
 						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
 						("load", value<std::string>(), "Load a XACC plugin at the given path")
 						("list-compilers", "List all available XACC Compilers")
@@ -141,10 +142,13 @@ public:
 		}
 
 		// Add all other string options to the global runtime option
-		for (auto it = clArgs.begin(); it != clArgs.end();
-				++it) {
-			runtimeOptions->insert(
-					std::make_pair(it->first, it->second.as<std::string>()));
+		for (auto& kv : clArgs) {
+			if (runtimeOptions->exists(kv.first)) {
+				(*runtimeOptions)[kv.first] = kv.second.as<std::string>();
+			} else {
+				runtimeOptions->insert(
+						std::make_pair(kv.first, kv.second.as<std::string>()));
+			}
 		}
 	}
 

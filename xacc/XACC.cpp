@@ -117,7 +117,6 @@ std::shared_ptr<Accelerator> getAccelerator() {
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
-	auto options = RuntimeOptions::instance();
 	if (!optionExists("accelerator")) {
 		XACCError("Invalid use of XACC API. getAccelerator() with no string argument "
 				"requires that you set --accelerator at the command line.");
@@ -128,7 +127,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
 		return acc;
 	} else {
 		XACCError(
-				"Invalid Accelerator. Could not find " + (*options)["accelerator"]
+				"Invalid Accelerator. Could not find " + getOption("accelerator")
 						+ " in Accelerator Registry.");
 	}
 }
@@ -163,6 +162,26 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 		XACCError(
 				"Invalid Compiler. Could not find " + name
 						+ " in Service Registry.");
+	}
+}
+std::shared_ptr<Compiler> getCompiler() {
+	if (!xacc::xaccFrameworkInitialized) {
+		XACCError(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
+	auto options = RuntimeOptions::instance();
+	if (!optionExists("compiler")) {
+		XACCError("Invalid use of XACC API. getCompiler() with no string argument "
+				"requires that you set --compiler at the command line.");
+	}
+	auto compiler = ServiceRegistry::instance()->getService<Compiler>(getOption("compiler"));
+	if (compiler) {
+		return compiler;
+	} else {
+		XACCError(
+				"Invalid Compiler. Could not find " + (*options)["compiler"]
+						+ " in Compiler Registry.");
 	}
 }
 

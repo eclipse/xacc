@@ -49,8 +49,8 @@ namespace xacc {
 class MPIHolder : public Singleton<MPIHolder> {
 public:
 	void initialize(int argc, char** argv) {}
-	const int rank() {}
-	const int size() {}
+	const int rank() {return 0;}
+	const int size() {return 1;}
 	const void getCommunicator() {}
 	void barrier() {}
 };
