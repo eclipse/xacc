@@ -78,6 +78,10 @@ if (OPENSSL_FOUND AND CPPREST_LIB)
    target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CPPREST_LIB} CppMicroServices xacc xacc-quantum-gate)
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
+   
+   file (GLOB test_files ../tests/RigettiAcceleratorTester.cpp)
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-accelerator")
+   
 else()
    message(STATUS "OpenSSL not found, cannot include Rigetti Accelerator plugin.")
 endif()

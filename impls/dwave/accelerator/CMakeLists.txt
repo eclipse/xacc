@@ -78,6 +78,11 @@ if (OPENSSL_FOUND AND CPPREST_LIB)
    target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CPPREST_LIB} CppMicroServices xacc xacc-quantum-aqc)
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
+   
+   # Gather tests
+   file (GLOB test_files ../tests/DWAcceleratorTester.cpp)
+   add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-accelerator;dl;pthread;CppMicroServices")
+   
 else()
    message(STATUS "OpenSSL or cpprestsdk not found, cannot include D-Wave Accelerator plugin")
 endif()

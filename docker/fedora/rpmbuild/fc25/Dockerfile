@@ -3,7 +3,7 @@ maintainer Alex McCaskey <mccaskeyaj@ornl.gov>
 run mkdir -p /projects
 workdir /projects
 run dnf install -y https://github.com/genereese/togo/releases/download/v2.3r7/togo-2.3-7.noarch.rpm \
-   python-devel gcc-c++ openssl openssl-devel cmake mpich-devel boost-mpich-devel make git wget \
+   cpprest-devel python-devel gcc-c++ openssl openssl-devel cmake mpich-devel boost-mpich-devel make git wget \
    https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
    && git clone https://github.com/cppmicroservices/cppmicroservices \
    && cd cppmicroservices && mkdir build && cd build && cmake .. && make install && cd /projects \
@@ -19,7 +19,7 @@ run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "A
    && sed -i -r "s/(Version: *).*/\11.0/" spec/header && sed -i -r "s/(Summary: *).*/\1XACC - eXtreme-scale ACCelerator programming environment./" spec/header \
    && sed -i -r "s/(Release: *).*/\11.fc25/" spec/header && sed -i -r "s/(License: *).*/\1BSD/" spec/header \
    && sed -i -r "s/(Buildarch: *).*/\1x86_64/" spec/header && sed -i -r "s/(Group: *).*/\1Development\/System/" spec/header \
-   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cmake python-devel git make libtool mpich-devel boost-mpich-devel/" spec/header \
+   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cpprest-devel cmake python-devel git make libtool mpich-devel boost-mpich-devel/" spec/header \
    && sed -i -r '/Requires/s/^#//g' spec/header \
    && togo build package && cp rpms/*.rpm /projects/ \
    && cat spec/header

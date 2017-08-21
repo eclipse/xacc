@@ -50,6 +50,6 @@ add_subdirectory(accelerator)
 add_subdirectory(examples)
 
 # Gather tests
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-accelerator;xacc-rigetti-quilcompiler")
+file (GLOB test_files tests/Quil*.cpp)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-rigetti-quilcompiler")
    
