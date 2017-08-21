@@ -37,6 +37,10 @@
 
 namespace xacc {
 
+static inline bool is_base64(unsigned char c);
+
+std::string base64_decode(std::string const& encoded_string);
+
 template<typename InputIterator, typename OutputIterator, typename Predicate>
 OutputIterator copy_if(InputIterator first, InputIterator last,
 		OutputIterator result, Predicate pred) {

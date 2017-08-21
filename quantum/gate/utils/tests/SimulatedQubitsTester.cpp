@@ -39,20 +39,22 @@ using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkConstruction) {
 
-	fire::Tensor<1, fire::EigenProvider, std::complex<double>> initialState1(8);
+	Eigen::VectorXcd initialState1(8);
+	initialState1.setZero();
 	initialState1(0) = 1;
 	SimulatedQubits qubits1("name1", 3);
 	BOOST_VERIFY(qubits1.size() == 3);
 	BOOST_VERIFY(qubits1.name() == "name1");
-	BOOST_VERIFY(qubits1.getState().dimension(0) == 8);
+	BOOST_VERIFY(qubits1.getState().size() == 8);
 	BOOST_VERIFY(qubits1.getState() == initialState1);
 
-	fire::Tensor<1, fire::EigenProvider, std::complex<double>> initialState2(4);
+	Eigen::VectorXcd initialState2(4);
+	initialState2.setZero();
 	initialState2(0) = 1;
 	SimulatedQubits qubits2("name2", 2);
 	BOOST_VERIFY(qubits2.size() == 2);
 	BOOST_VERIFY(qubits2.name() == "name2");
-	BOOST_VERIFY(qubits2.getState().dimension(0) == 4);
+	BOOST_VERIFY(qubits2.getState().size() == 4);
 	BOOST_VERIFY(qubits2.getState() == initialState2);
 
 }

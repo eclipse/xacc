@@ -30,8 +30,12 @@
 #**********************************************************************************/
 
 find_package(OpenSSL)
+find_path(CPPREST_INCLUDE cpprest/http_client.h)
+find_library(CPPREST_LIB NAMES cpprest_2_9d cpprest_2_9 cpprestd cpprest)
+   
+if (OPENSSL_FOUND AND CPPREST_LIB)
 
-if (OPENSSL_FOUND)
+   include_directories(${CPPREST_INCLUDE})
 
    set (PACKAGE_NAME "Rigetti XACC Accelerator")
    set (PACKAGE_DESCIPTION "Rigetti XACC Accelerator Framework")
@@ -71,7 +75,7 @@ if (OPENSSL_FOUND)
        manifest.json
      )
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-gate)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CPPREST_LIB} CppMicroServices xacc xacc-quantum-gate)
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
 else()

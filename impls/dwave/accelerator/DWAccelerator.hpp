@@ -32,7 +32,6 @@
 #define QUANTUM_GATE_ACCELERATORS_DWACCELERATOR_HPP_
 
 #include "Accelerator.hpp"
-#include "AsioNetworkingTool.hpp"
 #include "RuntimeOptions.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -157,98 +156,12 @@ public:
 		return desc;
 	}
 
-	virtual bool handleOptions(variables_map& map){
-		if(map.count("dwave-list-solvers")) {
-			std::string tempApiKey, tempUrl;
+	virtual bool handleOptions(variables_map& map) {
+		if (map.count("dwave-list-solvers")) {
+			initialize();
 
-			auto findApiKeyInFile = [](std::string& apiKey, std::string& url,
-					boost::filesystem::path &p) {
-				std::ifstream stream(p.string());
-				std::string contents(
-						(std::istreambuf_iterator<char>(stream)),
-						std::istreambuf_iterator<char>());
-
-				std::vector<std::string> lines;
-				boost::split(lines, contents, boost::is_any_of("\n"));
-				for (auto l : lines) {
-					if (boost::contains(l, "key")) {
-						std::vector<std::string> split;
-						boost::split(split, l, boost::is_any_of(":"));
-						auto key = split[1];
-						boost::trim(key);
-						apiKey = key;
-					} else if (boost::contains(l, "url")) {
-						std::vector<std::string> split;
-						boost::split(split, l, boost::is_any_of(":"));
-						auto key = split[1] + ":" + split[2];
-						boost::trim(key);
-						url = key;
-					}
-				}
-			};
-
-			auto searchAPIKey = [&](std::string& key, std::string& url) {
-
-				// Search for the API Key in $HOME/.dwave_config,
-				// $DWAVE_CONFIG, or in the command line argument --dwave-api-key
-				auto options = RuntimeOptions::instance();
-				boost::filesystem::path dwaveConfig(
-						std::string(getenv("HOME")) + "/.dwave_config");
-
-				if (boost::filesystem::exists(dwaveConfig)) {
-					findApiKeyInFile(key, url, dwaveConfig);
-				} else if (const char * nonStandardPath = getenv("DWAVE_CONFIG")) {
-					boost::filesystem::path nonStandardDwaveConfig(
-									nonStandardPath);
-					findApiKeyInFile(key, url, nonStandardDwaveConfig);
-				} else {
-
-					// Ensure that the user has provided an api-key
-					if (!options->exists("dwave-api-key")) {
-						XACCError("Cannot list D-Wave solvers without API Key.");
-					}
-
-					// Set the API Key
-					key = (*options)["dwave-api-key"];
-
-					if (options->exists("dwave-api-url")) {
-						url = (*options)["dwave-api-url"];
-					}
-				}
-
-				// If its still empty, then we have a problem
-				if (key.empty()) {
-					XACCError("Error. The API Key is empty. Please place it "
-							"in your $HOME/.dwave_config file, $DWAVE_CONFIG env var, "
-							"or provide --dwave-api-key argument.");
-				}
-			};
-
-			searchAPIKey(tempApiKey, tempUrl);
-			boost::replace_all(tempUrl, "https://", "");
-			boost::replace_all(tempUrl, "/sapi", "");
-			std::map<std::string, std::string> headers;
-
-			// Set up the extra HTTP headers we are going to need
-			headers.insert(std::make_pair("X-Auth-Token", tempApiKey));
-			headers.insert(std::make_pair("Content-type", "application/x-www-form-urlencoded"));
-			headers.insert(std::make_pair("Accept", "*/*"));
-
-			// Get the Remote URL Solver data...
-			auto getSolverClient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>(tempUrl, false);
-			auto r = getSolverClient.get("/sapi/solvers/remote", headers);
-
-			std::stringstream ss;
-			ss << r.content.rdbuf();
-			auto message = ss.str();
-
-			Document document;
-			document.Parse(message.c_str());
-
-			if (document.IsArray()) {
-				for (auto i = 0; i < document.Size(); i++) {
-					XACCInfo("Available D-Wave Solver: " + std::string(document[i]["id"].GetString()));
-				}
+			for (auto s : availableSolvers) {
+				XACCInfo("Available D-Wave Solver: " + std::string(s.first));
 			}
 			return true;
 		}
@@ -269,20 +182,7 @@ public:
 	 * @return buffer The AcceleratorBuffer
 	 */
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
-				const std::string& varId) {
-		auto options = RuntimeOptions::instance();
-		std::string solverName = "DW_2000Q_VFYC";
-		if (options->exists("dwave-solver")) {
-			solverName = (*options)["dwave-solver"];
-		}
-		if (!availableSolvers.count(solverName)) {
-			XACCError(solverName + " is not available for creating a buffer.");
-		}
-		auto solver = availableSolvers[solverName];
-		auto buffer = std::make_shared<AQCAcceleratorBuffer>(varId, solver.nQubits);
-		storeBuffer(varId, buffer);
-		return buffer;
-	}
+				const std::string& varId);
 
 	virtual const std::string name() const {
 		return "dwave";

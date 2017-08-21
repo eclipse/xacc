@@ -30,8 +30,13 @@
 #**********************************************************************************/
 
 find_package(OpenSSL)
+find_path(CPPREST_INCLUDE cpprest/http_client.h)
+find_library(CPPREST_LIB NAMES cpprest_2_9d cpprest_2_9 cpprestd cpprest)
+   
+if (OPENSSL_FOUND AND CPPREST_LIB)
 
-if (OPENSSL_FOUND)
+   include_directories(${CPPREST_INCLUDE})
+
    set (PACKAGE_NAME "D-Wave XACC Accelerator")
    set (PACKAGE_DESCIPTION "D-Wave XACC Accelerator Bundle")
    set (LIBRARY_NAME xacc-dwave-accelerator)
@@ -70,9 +75,9 @@ if (OPENSSL_FOUND)
        manifest.json
     )
 
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} CppMicroServices xacc-quantum-aqc)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CPPREST_LIB} CppMicroServices xacc xacc-quantum-aqc)
 
    install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)
 else()
-   message(STATUS "OpenSSL not found, cannot include D-Wave Accelerator plugin")
+   message(STATUS "OpenSSL or cpprestsdk not found, cannot include D-Wave Accelerator plugin")
 endif()

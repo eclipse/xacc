@@ -32,14 +32,34 @@
 #include <fstream>
 #include <memory>
 
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+
 #include "DWAccelerator.hpp"
+
+using namespace utility;
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+using namespace concurrency::streams;
 
 namespace xacc {
 namespace quantum {
 
-template<typename T>
-bool IsInBounds(const T& value, const T& low, const T& high) {
-	return !(value < low) && !(high < value);
+std::shared_ptr<AcceleratorBuffer> DWAccelerator::createBuffer(
+			const std::string& varId) {
+	auto options = RuntimeOptions::instance();
+	std::string solverName = "DW_2000Q_VFYC";
+	if (options->exists("dwave-solver")) {
+		solverName = (*options)["dwave-solver"];
+	}
+	if (!availableSolvers.count(solverName)) {
+		XACCError(solverName + " is not available for creating a buffer.");
+	}
+	auto solver = availableSolvers[solverName];
+	auto buffer = std::make_shared<AQCAcceleratorBuffer>(varId, solver.nQubits);
+	storeBuffer(varId, buffer);
+	return buffer;
 }
 
 std::shared_ptr<AcceleratorBuffer> DWAccelerator::createBuffer(
@@ -70,6 +90,8 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		XACCError("Invalid Accelerator Buffer.");
 	}
 
+	Document doc;
+	bool jobCompleted = false;
 	std::vector<std::string> splitLines;
 	boost::split(splitLines, dwKernel->toString(""), boost::is_any_of("\n"));
 	auto nQMILines = splitLines.size();
@@ -121,66 +143,60 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 			+ trials + ", \"annealing_time\" : " + annealTime + "} }]";
 	boost::replace_all(jsonStr, "\n", "\\n");
 
-	std::cout << "\nJsonPost= " << jsonStr << "\n\n\n";
-	auto newclient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>("qubist.dwavesys.com", false);
-	auto postResponse = newclient.post("/sapi/problems/", jsonStr, headers);
-
-	if (!postResponse.successful) {
-		XACCError("HTTP Post was not successful");
+	// Create the URI, HTTP Client and Post and Get request
+	// add our headers to it - this contains the API key
+	http::uri uri = http::uri(url);
+	http_client postClient(
+			http::uri_builder(uri).append_path(U("/sapi/problems")).to_uri());
+	http_request postRequest(methods::POST), getRequest(methods::GET);
+	for (auto& kv : headers) {
+		postRequest.headers().add(kv.first, kv.second);
+		getRequest.headers().add(kv.first, kv.second);
 	}
+	postRequest.set_body(jsonStr);
 
-	std::stringstream ss2;
-	ss2 << postResponse.content.rdbuf();
-	auto message = ss2.str();
+	// Post the problem, get the response as json
+	auto postResponse = postClient.request(postRequest);
+	auto respJson = postResponse.get().extract_json().get();
 
-	std::cout << "D-Wave Server Response = " << message << "\n";
+	// Map that response to a string
+	std::stringstream x;
+	x << respJson;
 
-	Document document;
-	document.Parse(message.c_str());
+	// Parse the json string
+	doc.Parse(x.str());
 
-	auto jobId = std::string(document[0]["id"].GetString());
-	std::cout << "JOB ID IS " << jobId << "\n";
-	bool finished = false;
-	std::cout << "\nDWAccelerator Awaiting Job Results";
-	std::cout.flush();
-	int count = 1;
-	while(!finished) {
-		auto c = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>("qubist.dwavesys.com", false);
-		auto r = c.get("/sapi/problems/"+jobId, headers);
-		std::stringstream ss3;
-		ss3 << r.content.rdbuf();
-		message = ss3.str();
+	// Get the JobID
+	std::string jobId = std::string(doc[0]["id"].GetString());
 
-		if (boost::contains(message, "COMPLETED")) {
-			finished = true;
+	// Create a client to execute HTTP Get requests
+	http_client getClient(
+			http::uri_builder(uri).append_path(U("/sapi/problems/" + jobId)).to_uri());
+
+	// Loop until the job is complete,
+	// get the JSON response
+	std::string msg;
+	while (!jobCompleted) {
+
+		// Execute HTTP Get
+		auto getResponse = getClient.request(getRequest);
+
+		// get the result as a string
+		std::stringstream z;
+		z << getResponse.get().extract_json().get();
+		msg = z.str();
+
+		// Search the result for the status : COMPLETED indicator
+		if (boost::contains(msg, "COMPLETED")) {
+			jobCompleted = true;
 		}
 
-		std::cout << ".";
-		std::cout.flush();
-
-		if (!(count % 3)) {
-			std::cout << "\b\b\b   \b\b\b";
-		}
-		count++;
-		document.Parse(message.c_str());
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
-	std::cout << "\n";
 
-	std::cout << "\nJob Completion Results " << message << "\n";
-
-
-	/**
-	 * Looks like we now want document["answer"]["energies"].GetArray(),
-	 * and document["answer"]["num_occurrences"].GetArray(), and
-	 * document["answer"]["solutions"]. Then we have to decode
-	 * solutions string
-	 */
-
-	Document doc;
-	doc.Parse(message.c_str());
-
+	// We've completed, so let's get
+	// teh results.
+	doc.Parse(msg);
 	if (doc["status"] == "COMPLETED") {
 		std::vector<double> energies;
 		std::vector<int> numOccurrences, active_vars;
@@ -192,7 +208,7 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		}
 
 		auto solutionsStrEncoded = std::string(doc["answer"]["solutions"].GetString());
-		auto decoded = newclient.base64_decode(solutionsStrEncoded);
+		auto decoded = base64_decode(solutionsStrEncoded);
 		std::string bitStr = "";
 		std::stringstream ss;
 		for (std::size_t i = 0; i < decoded.size(); ++i) {
@@ -235,21 +251,30 @@ void DWAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 void DWAccelerator::initialize() {
 	auto options = RuntimeOptions::instance();
 	searchAPIKey(apiKey, url);
-	auto tempURL = url;
-	boost::replace_all(tempURL, "https://", "");
-	boost::replace_all(tempURL, "/sapi", "");
 
 	// Set up the extra HTTP headers we are going to need
 	headers.insert(std::make_pair("X-Auth-Token", apiKey));
 	headers.insert(std::make_pair("Content-type", "application/x-www-form-urlencoded"));
 	headers.insert(std::make_pair("Accept", "*/*"));
 
-	// Get the Remote URL Solver data...
-	auto getSolverClient = fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>(tempURL, false);
-	auto r = getSolverClient.get("/sapi/solvers/remote", headers);
 
+	http::uri uri = http::uri(url);
+	http_request getRequest(methods::GET);
+	for (auto& kv : headers) {
+		getRequest.headers().add(kv.first, kv.second);
+	}
+
+	// Create a client to execute HTTP Get requests
+	http_client getClient(
+			http::uri_builder(uri).append_path(U("/sapi/solvers/remote")).to_uri());
+
+	// Execute HTTP Get
+	auto getResponse = getClient.request(getRequest);
+
+	// get the result as a string
 	std::stringstream ss;
-	ss << r.content.rdbuf();
+	ss << getResponse.get().extract_json().get();
+
 	auto message = ss.str();
 
 	Document document;

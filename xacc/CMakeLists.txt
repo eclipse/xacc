@@ -33,7 +33,7 @@ set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
 file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
-file (GLOB SRC *.cpp)
+file (GLOB SRC *.cpp utils/*.cpp)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${MPI_LIBRARIES} CppMicroServices)

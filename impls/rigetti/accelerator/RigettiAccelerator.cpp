@@ -36,7 +36,16 @@
 #include <codecvt>
 #include <memory>
 #include "GateQIR.hpp"
+#include "XACC.hpp"
 
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+
+using namespace utility;
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+using namespace concurrency::streams;
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -167,59 +176,72 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	XACCInfo("Rigetti Json Payload = " + jsonStr);
 
-	std::cout << "JSON:\n" << jsonStr << "\n";
+//	std::cout << "JSON:\n" << jsonStr << "\n";
 
 	// Execute the HTTP Post!
 	auto relativePath = type == "pyquillow" ? "/beta/job" : "/qvm";
-	auto postResponse = httpClient->post(relativePath, jsonStr, headers);
 
-	// Check that it succeeded
-	if (!postResponse.successful) {
-		XACCError("Error in HTTPS Post.\n" + postResponse.status_code);
+	// Create the URI, HTTP Client and Post and Get request
+	// add our headers to it - this contains the API key
+	std::string url = "https://api.rigetti.com";
+	auto runtimeOptions = RuntimeOptions::instance();
+	if (xacc::optionExists("rigetti-type")
+			&& xacc::getOption("rigetti-type") == "pyquillow") {
+		url = "https://job.rigetti.com";
 	}
 
-	XACCInfo("Successful HTTP Post to Rigetti.");
+	http::uri uri = http::uri(url);
+	http_client postClient(
+			http::uri_builder(uri).append_path(U(relativePath)).to_uri());
+	http_request postRequest(methods::POST), getRequest(methods::GET);
+	for (auto& kv : headers) {
+		postRequest.headers().add(kv.first, kv.second);
+		getRequest.headers().add(kv.first, kv.second);
+	}
+	postRequest.set_body(jsonStr);
 
-	// Process results... to come
+	// Post the problem, get the response as json
+	auto postResponse = postClient.request(postRequest);
+	auto respJson = postResponse.get().extract_string().get();//.extract_json().get();
+
+	// Map that response to a string
+	std::stringstream ss;
+	ss << respJson;
+
 
 	if (type == "wavefunction") {
 		XACCError("Wavefunction execution not supported.");
 	} else if (type == "pyquillow") {
 
-		std::stringstream ss;
-		ss << postResponse.content.rdbuf();
 		std::string message = ss.str();
 
 		Document document;
 		document.Parse(message.c_str());
 
 		auto jobId = std::string(document["jobId"].GetString());
+
+		// Create a client to execute HTTP Get requests
+		http_client getClient(
+				http::uri_builder(uri).append_path(U("/beta/job/" + jobId)).to_uri());
+
 		bool finished = false;
-		std::cout << "\nRigettiAccelerator Awaiting Job Results";
-		std::cout.flush();
-		int count = 1;
 		while(!finished) {
-			auto r = httpClient->get("/beta/job/"+jobId, headers);
-			std::stringstream ss;
-			ss << r.content.rdbuf();
+
+			// Execute HTTP Get
+			auto getResponse = getClient.request(getRequest);
+
+			std::stringstream ss2;
+			ss2 << getResponse.get().extract_json().get();
 			message = ss.str();
 
 			if (boost::contains(message, "result")) {
 				finished = true;
 			}
 
-			std::cout << ".";
-			std::cout.flush();
-
-			if (!(count % 3)) {
-				std::cout << "\b\b\b   \b\b\b";
-			}
-			count++;
-			document.Parse(message.c_str());
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
-		std::cout << "\n";
+
+		document.Parse(message.c_str());
 
 		auto results = std::string(document["result"].GetString());
 
@@ -248,9 +270,8 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
 	} else if (type == "multishot") {
 	       
-		  std::stringstream ss, oss;
+		  std::stringstream oss;
 		  
-		  ss<<postResponse.content.rdbuf();
 		  std::string resp_str = ss.str();
 		  XACCInfo("Rigetti Response Str:\n" + resp_str + "\n");
 
@@ -283,12 +304,8 @@ void RigettiAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 		  for(std::string tmp; std::getline(ss,tmp,','); ){
 		    oss<<tmp<<std::endl;
 		  }
-//		  XACCInfo(oss.str());
-
 
 	} else if (type == "ping" || type == "version") {
-		std::stringstream ss;
-		ss << postResponse.content.rdbuf();
 		XACCInfo("Rigetti QVM Response:\n\t" + ss.str());
 	} else {
 		// do nothing

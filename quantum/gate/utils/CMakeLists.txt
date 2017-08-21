@@ -28,18 +28,10 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-#set (PACKAGE_NAME "Quantum XACC Utils Runtime")
-#set (PACKAGE_DESCIPTION "Quantum XACC Common Utilities")
-
-#file (GLOB HEADERS *.hpp)
-
-include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors)
-include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tensors/impl)
-include_directories(${CMAKE_SOURCE_DIR}/tpls/fire/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-quantum-gate")
 
-#install(FILES ${HEADERS} DESTINATION include/quantum/gate)
 

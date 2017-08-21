@@ -34,7 +34,6 @@
 #include "Accelerator.hpp"
 #include "InstructionIterator.hpp"
 #include "QuilVisitor.hpp"
-#include "AsioNetworkingTool.hpp"
 #include "RuntimeOptions.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -126,19 +125,7 @@ public:
 		return desc;
 	}
 
-	RigettiAccelerator() : httpClient(std::make_shared<
-			fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
-			"api.rigetti.com", false)) {
-		auto runtimeOptions = RuntimeOptions::instance();
-		if (runtimeOptions->exists("rigetti-type") && (*runtimeOptions)["rigetti-type"] == "pyquillow") {
-			httpClient = std::make_shared<
-					fire::util::AsioNetworkingTool<SimpleWeb::HTTPS>>(
-					"job.rigetti.com", false);
-		}
-	}
-
-	RigettiAccelerator(std::shared_ptr<fire::util::INetworkingTool> http) :
-			httpClient(http) {
+	RigettiAccelerator() {
 	}
 
 	virtual const std::string name() const {
@@ -154,10 +141,6 @@ public:
 	 * The destructor
 	 */
 	virtual ~RigettiAccelerator() {}
-
-protected:
-
-	std::shared_ptr<fire::util::INetworkingTool> httpClient;
 
 private:
 

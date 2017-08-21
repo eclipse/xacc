@@ -33,7 +33,6 @@
 
 #include "AcceleratorBuffer.hpp"
 #include <complex>
-#include "Tensor.hpp"
 #include <bitset>
 #include <unsupported/Eigen/KroneckerProduct>
 
@@ -41,7 +40,7 @@ namespace xacc {
 
 namespace quantum {
 
-using QubitState = fire::Tensor<1, fire::EigenProvider, std::complex<double>>;
+using QubitState = Eigen::VectorXcd;
 using IndexPair = std::pair<int,int>;
 
 /**
@@ -72,6 +71,7 @@ public:
 	 */
 	SimulatedQubits(const std::string& str, const int N) :
 			AcceleratorBuffer(str, N), bufferState((int) std::pow(2, N)) {
+		bufferState.setZero();
 		bufferState(0) = 1.0;
 		Eigen::MatrixXcd z(2,2), temp;
 		z << 1, 0, 0, -1;
@@ -95,19 +95,8 @@ public:
 					(int) std::pow(2, sizeof...(indices) + 1)) {
 	}
 
-	/**
-	 * Apply the given unitary matrix to this qubit
-	 * buffer state.
-	 *
-	 * @param U The unitary matrix to apply to this state
-	 */
-	void applyUnitary(fire::Tensor<2, fire::EigenProvider, std::complex<double>>& U) {
-		assert(
-				U.dimension(0) == bufferState.dimension(0)
-						&& U.dimension(1) == bufferState.dimension(0));
-		std::array<IndexPair, 1> contractionIndices;
-		contractionIndices[0] = std::make_pair(1, 0);
-		bufferState = U.contract(bufferState, contractionIndices);
+	void applyUnitary(Eigen::MatrixXcd& U) {
+		bufferState = U * bufferState;
 	}
 
 	/**
@@ -115,10 +104,10 @@ public:
 	 */
 	void normalize() {
 		double sum = 0.0;
-		for (int i = 0; i < bufferState.dimension(0); i++) {
+		for (int i = 0; i < bufferState.size(); i++) {
 			sum += std::real(bufferState(i) * bufferState(i));
 		}
-		for (int i = 0; i < bufferState.dimension(0); i++) {
+		for (int i = 0; i < bufferState.size(); i++) {
 			bufferState(i) = bufferState(i) / std::sqrt(sum);
 		}
 	}
@@ -141,9 +130,8 @@ public:
 	}
 
 	virtual const double getExpectationValueZ() {
-		auto data = bufferState.createReference().first.data();
-		Eigen::VectorXcd state = Eigen::Map<Eigen::VectorXcd, Eigen::Unaligned>(data, bufferState.size());
-		return std::real(state.transpose().dot(Z * state));
+//		std::cout << "HELLO: " << bufferState.transpose() << "\n";
+		return std::real(bufferState.transpose().dot(Z * bufferState));
 	}
 
 	/**
@@ -166,7 +154,7 @@ public:
 
 		getStrings("", size());
 
-		for (int i = 0; i < bufferState.dimension(0); i++) {
+		for (int i = 0; i < bufferState.size(); i++) {
 
 			stream << bitStrings[i] << " -> " << bufferState(i) << "\n";
 		}
@@ -190,7 +178,7 @@ public:
 
 		getStrings("", size());
 
-		for (int i = 0; i < bufferState.dimension(0); i++) {
+		for (int i = 0; i < bufferState.size(); i++) {
 
 			XACCInfo(
 					bitStrings[i] + " -> ("
