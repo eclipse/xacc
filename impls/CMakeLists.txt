@@ -32,4 +32,4 @@ add_subdirectory(scaffold)
 add_subdirectory(rigetti)
 add_subdirectory(simple-simulator)
 add_subdirectory(dwave)
-
+add_subdirectory(ibm)
