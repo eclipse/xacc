@@ -38,9 +38,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/instructions)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/algorithms)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/transformations)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp compiler/*.cpp ir/*.cpp ir/instructions/*.cpp utils/*.cpp ir/algorithms/*.cpp)
+file (GLOB SRC *.cpp compiler/*.cpp ir/*.cpp ir/instructions/*.cpp utils/*.cpp ir/algorithms/*.cpp ir/transformations/*.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)

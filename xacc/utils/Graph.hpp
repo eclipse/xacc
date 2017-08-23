@@ -43,6 +43,11 @@
 #include "Utils.hpp"
 #include <utility>
 
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/property_map/property_map.hpp>
+
+
 using namespace boost;
 
 namespace xacc {
@@ -502,6 +507,29 @@ public:
 		stream.fail();
 		XACCError("Reading must be implemented by subclasses.");
 	}
+
+	void computeShortestPath(int startIndex,
+			std::vector<double>& distances, std::vector<int>& paths) {
+		typename property_map<adj_list, edge_weight_t>::type weightmap = get(edge_weight,
+				*_graph.get());
+		std::vector<vertex_type> p(num_vertices(*_graph.get()));
+		std::vector<int> d(num_vertices(*_graph.get()));
+		vertex_type s = vertex(startIndex, *_graph.get());
+
+		dijkstra_shortest_paths(*_graph.get(), s,
+				predecessor_map(
+						boost::make_iterator_property_map(p.begin(),
+								get(boost::vertex_index, *_graph.get()))).distance_map(
+						boost::make_iterator_property_map(d.begin(),
+								get(boost::vertex_index, *_graph.get()))));
+
+		for (int i = 0; i < p.size(); i++) {
+			std::cout << p[i] << "\n";
+		}
+
+	}
+
+
 };
 
 }

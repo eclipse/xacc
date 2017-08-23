@@ -193,6 +193,7 @@ void IBMAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	// Create the URI, HTTP Client and Post and Get request
 	// add our headers to it - this contains the API key
 
+	std::cout << "QASM:\n" << qasmStr << "\n";
 	std::stringstream relSS;
 	relSS << "/api/Jobs?access_token=" << currentApiToken;
 	http::uri uri = http::uri(url);

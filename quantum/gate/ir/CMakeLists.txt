@@ -28,18 +28,6 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-#set (PACKAGE_NAME "XACC Quantum Gate IR Runtime")
-#set (PACKAGE_DESCIPTION "XACC Quantum Gate Model Intermediate Representation")
-#set (LIBRARY_NAME xacc-gate-ir)
-
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/instructions)
-
-#file (GLOB_RECURSE HEADERS *.hpp)
-#file (GLOB SRC *.cpp instructions/*.cpp functions/*.cpp)
-
-#add_library(${LIBRARY_NAME} SHARED ${SRC})
-
 
 # Gather tests
 file (GLOB test_files tests/*.cpp)
