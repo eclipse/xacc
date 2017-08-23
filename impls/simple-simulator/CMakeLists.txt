@@ -75,7 +75,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices xacc-quantum-gate)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices xacc xacc-quantum-gate)
 
 #install(FILES ${HEADERS} DESTINATION include)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib/plugins/accelerators)

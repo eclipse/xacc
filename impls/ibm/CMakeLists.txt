@@ -90,6 +90,7 @@ if (OPENSSL_FOUND AND CPPREST_LIB)
    file (GLOB test_files tests/*.cpp)
    add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-ibm-accelerator")
    
+   add_subdirectory(examples)
 else()
    message(STATUS "OpenSSL not found, cannot include Rigetti Accelerator plugin.")
 endif()

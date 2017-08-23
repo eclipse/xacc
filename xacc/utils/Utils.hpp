@@ -130,7 +130,7 @@ public:
 	}
 
 	virtual const char * what() const throw () {
-		return errorMessage.c_str();
+		return "";//errorMessage.c_str();
 	}
 
 	~XACCException() throw () {

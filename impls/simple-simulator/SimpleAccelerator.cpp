@@ -31,6 +31,7 @@
 #include "SimpleAccelerator.hpp"
 #include <complex>
 #include "SimpleAcceleratorVisitor.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -66,25 +67,45 @@ void SimpleAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 				"SimpleAccelerator. Must be of type SimulatedQubits.");
 	}
 
+	int nTrials = 1;
+	if (xacc::optionExists("simple-n-trials")) {
+		nTrials = std::stoi(xacc::getOption("simple-n-trials"));
+	}
 
-	// Create a Visitor that will execute our lambdas when
-	// we encounter one
-	auto visitor = std::make_shared<SimpleAcceleratorVisitor>(qubits);
+	for (int i = 0; i < nTrials; i++) {
+		// Create a Visitor that will execute our lambdas when
+		// we encounter one
+		auto visitor = std::make_shared<SimpleAcceleratorVisitor>(qubits);
 
-	// Our QIR is really a tree structure
-	// so create a pre-order tree traversal
-	// InstructionIterator to walk it
-	InstructionIterator it(kernel);
-	while (it.hasNext()) {
-		// Get the next node in the tree
-		auto nextInst = it.next();
+		// Our QIR is really a tree structure
+		// so create a pre-order tree traversal
+		// InstructionIterator to walk it
+		InstructionIterator it(kernel);
+		while (it.hasNext()) {
+			// Get the next node in the tree
+			auto nextInst = it.next();
 
-		// If enabled, invoke the accept
-		// method which kicks off the visitor
-		// to execute the appropriate lambda.
-		if (nextInst->isEnabled()) {
-			nextInst->accept(visitor);
+			// If enabled, invoke the accept
+			// method which kicks off the visitor
+			// to execute the appropriate lambda.
+			if (nextInst->isEnabled()) {
+				nextInst->accept(visitor);
+			}
 		}
+
+		boost::dynamic_bitset<> outcome(qubits->size());
+
+		int countMeasurements = 0;
+		int counter = qubits->size()-1;
+		for (int i = 0; i < qubits->size(); i++) {
+			auto s = qubits->getAcceleratorBitState(i);
+			if (s == AcceleratorBitState::ONE) {
+				 outcome[counter] = 1;
+			}
+			counter--;
+		}
+
+		qubits->appendMeasurement(outcome);
 	}
 
 }

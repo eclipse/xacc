@@ -103,13 +103,7 @@ public:
 	 * Normalize the state.
 	 */
 	void normalize() {
-		double sum = 0.0;
-		for (int i = 0; i < bufferState.size(); i++) {
-			sum += std::real(bufferState(i) * bufferState(i));
-		}
-		for (int i = 0; i < bufferState.size(); i++) {
-			bufferState(i) = bufferState(i) / std::sqrt(sum);
-		}
+		bufferState.normalize();
 	}
 
 	/**
@@ -129,9 +123,18 @@ public:
 		bufferState = st;
 	}
 
+	virtual void resetBuffer() {
+		bufferState.setZero();
+		bufferState(0) = 1;
+		measurements.clear();
+	}
+
 	virtual const double getExpectationValueZ() {
-//		std::cout << "HELLO: " << bufferState.transpose() << "\n";
-		return std::real(bufferState.transpose().dot(Z * bufferState));
+		if (measurements.empty()) {
+			return std::real(bufferState.conjugate().transpose().dot(Z*bufferState));
+		} else {
+			return AcceleratorBuffer::getExpectationValueZ();
+		}
 	}
 
 	/**

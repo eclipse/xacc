@@ -73,7 +73,7 @@ public:
 	OpenQasmVisitor(const int nQubits, bool skipPreamble = false) : _nQubits(nQubits) {
 		// Create a qubit registry
 		if (!skipPreamble) {
-			OpenQasmStr += "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[" + std::to_string(nQubits) + "];\n";
+			OpenQasmStr += "\ninclude \\\"qelib1.inc\\\";\nqreg q[" + std::to_string(nQubits) + "];\n";
 		}
 	}
 
@@ -158,21 +158,21 @@ public:
 	void visit(Rx& rx) {
 		std::stringstream ss;
 		auto angleStr = boost::lexical_cast<std::string>(rx.getParameter(0));
-		ss << "rx(" << angleStr << ") q[" << rx.bits()[0] << "];\n";
+		ss << "u3(" << angleStr << ", " << (-pi/2.0) << ", " << (pi/2.0) << ") q[" << rx.bits()[0] << "];\n";
 		OpenQasmStr += ss.str();
 	}
 
 	void visit(Ry& ry) {
 		std::stringstream ss;
 		auto angleStr = boost::lexical_cast<std::string>(ry.getParameter(0));
-		ss << "ry(" << angleStr << ") q[" << ry.bits()[0] << "];\n";
+		ss << "u3(" << angleStr << ", 0, 0) q[" << ry.bits()[0] << "];\n";
 		OpenQasmStr += ss.str();
 	}
 
 	void visit(Rz& rz) {
 		std::stringstream ss;
 		auto angleStr = boost::lexical_cast<std::string>(rz.getParameter(0));
-		ss << "rz(" << angleStr << ") q[" << rz.bits()[0] << "];\n";
+		ss << "u1(" << angleStr << ") q[" << rz.bits()[0] << "];\n";
 		OpenQasmStr += ss.str();
 	}
 
@@ -203,7 +203,7 @@ public:
 	}
 
 	int getNumberOfAddresses() {
-		return numAddresses;
+		return classicalBitCounter-1;
 	}
 	/**
 	 * The destructor

@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(checkIRToOpenQasm) {
 
 	std::cout << visitor->getOpenQasmString() << "\n";
 
-	const std::string expected = R"expected(OPENQASM 2.0;
-include "qelib1.inc";
+	const std::string expected = R"expected(
+include \"qelib1.inc\";
 qreg q[3];
 x q[0];
 h q[1];
@@ -102,6 +102,9 @@ if (c0 == 1) z q[2];
 if (c1 == 1) x q[2];
 )expected";
 
+	std::cout << "EXPECTED: " << expected << "\n";
 	BOOST_VERIFY(expected == visitor->getOpenQasmString());
+
+//	BOOST_VERIFY()
 }
 

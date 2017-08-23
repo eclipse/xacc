@@ -29,19 +29,16 @@
 #
 #**********************************************************************************/
 if (TARGET xacc-scaffold)
-
-   add_executable(teleport_scaffold_simpleaccelerator teleport_scaffold_simpleaccelerator.cpp)
-   target_link_libraries(teleport_scaffold_simpleaccelerator xacc ${Boost_LIBRARIES} CppMicroServices dl)
+   add_executable(teleport_scaffold_ibm teleport_scaffold_ibm.cpp)
+   target_link_libraries(teleport_scaffold_ibm ${Boost_LIBRARIES} xacc CppMicroServices dl)
    
-   add_executable(qft_scaffold_simpleaccelerator qft_scaffold_simpleaccelerator.cpp)
-   target_link_libraries(qft_scaffold_simpleaccelerator xacc ${Boost_LIBRARIES} CppMicroServices dl)
-
-   add_executable(single_qubit_rotation single_qubit_rotation.cpp)
-   target_link_libraries(single_qubit_rotation xacc ${Boost_LIBRARIES} CppMicroServices dl)
+   add_executable(qft_scaffold_ibm qft_scaffold_ibm.cpp)
+   target_link_libraries(qft_scaffold_ibm ${Boost_LIBRARIES} xacc CppMicroServices dl)
    
-   add_executable(h2_exp_vals_scaffold_simple h2_exp_vals_scaffold_simple.cpp)
-   target_link_libraries(h2_exp_vals_scaffold_simple xacc ${Boost_LIBRARIES} CppMicroServices dl)
+   add_executable(h2_exp_vals_scaffold_ibm h2_exp_vals_scaffold_ibm.cpp)
+   target_link_libraries(h2_exp_vals_scaffold_ibm ${Boost_LIBRARIES} xacc CppMicroServices dl)
    
-   install(TARGETS single_qubit_rotation DESTINATION examples)
-   install(TARGETS teleport_scaffold_simpleaccelerator DESTINATION examples)
+   install(TARGETS teleport_scaffold_ibm DESTINATION examples)
+   
+   install(TARGETS h2_exp_vals_scaffold_ibm DESTINATION examples)
 endif()

@@ -43,6 +43,19 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+
+
+/**
+ * Wrapper for information related to the remote
+ * D-Wave solver.
+ */
+struct IBMBackend {
+	std::string name;
+	std::string description;
+	int nQubits;
+	std::vector<std::pair<int,int>> edges;
+};
+
 /**
  * The IBMAccelerator is a QPUGate Accelerator that
  * provides an execute implementation that maps XACC IR
@@ -70,9 +83,10 @@ public:
 	virtual std::shared_ptr<AcceleratorBuffer> createBuffer(
 				const std::string& varId);
 
-	virtual void initialize() {
+	virtual void initialize();
 
-	}
+	virtual std::shared_ptr<AcceleratorGraph> getAcceleratorConnectivity();
+
 	/**
 	 * Return true if this Accelerator can allocated
 	 * NBits number of bits.
@@ -116,13 +130,25 @@ public:
 	virtual std::shared_ptr<options_description> getOptions() {
 		auto desc = std::make_shared<options_description>(
 				"IBM Accelerator Options");
-		desc->add_options()("IBM-api-key", value<std::string>(),
-				"Provide the IBM Forest API key. This is used if $HOME/.pyquil_config is not found")("IBM-type",
+		desc->add_options()("ibm-api-key", value<std::string>(),
+				"Provide the IBM API key. This is used if $HOME/.ibm_config is not found")("ibm-backend",
 				value<std::string>(),
-				"Provide the execution type: multishot, wavefunction, "
-				"multishot-measure, ping, or version.")
-				("IBM-trials", value<std::string>(), "Provide the number of trials to execute.");
+				"Provide the backend name.")
+				("ibm-shots", value<std::string>(), "Provide the number of shots to execute.")
+				("ibm-list-backends", "List the available backends at the IBM Quantum Experience URL.");
+
 		return desc;
+	}
+
+	virtual bool handleOptions(variables_map& map) {
+		if (map.count("ibm-list-backends")) {
+			initialize();
+			for (auto s : availableBackends) {
+				XACCInfo("Available IBM Backend: " + std::string(s.first));
+			}
+			return true;
+		}
+		return false;
 	}
 
 	IBMAccelerator() {
@@ -155,6 +181,12 @@ private:
 	 * file.
 	 */
 	void findApiKeyInFile(std::string& key, std::string& url, boost::filesystem::path &p);
+
+	std::string currentApiToken;
+
+	std::string url;
+
+	std::map<std::string, IBMBackend> availableBackends;
 
 };
 

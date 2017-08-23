@@ -94,7 +94,7 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	/**
@@ -103,6 +103,8 @@ public:
 	void visit(CNOT& cn) {
 		// If this is a 2 qubit gate, then we need t
 		// to construct Kron(P0, I, ..., I) + Kron(P1, I, ..., Gate, ..., I)
+
+		//std::cout << "Constructing CNOT\n";
 
 		auto actingQubits = cn.bits();
 		ProductList productList;
@@ -124,8 +126,9 @@ public:
 		}
 		// Sum them up
 		localU = localU + temp;
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
+
 	/**
 	 * Visit X gates
 	 */
@@ -143,7 +146,7 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	/**
@@ -163,7 +166,7 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	/**
@@ -183,32 +186,32 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	/**
 	 * Visit Measurement gates
 	 */
 	void visit(Measure& mGate) {
-		auto actingQubits = mGate.bits();
+		//std::cout << "MEASURING.\n";
+		auto measuredQbit = mGate.bits()[0];
 		ProductList productList;
 		for (int j = 0; j < qubits->size(); j++) {
 			productList.push_back(I);
 		}
 
-		auto rho = qubits->getState() * qubits->getState().transpose();
+		Eigen::VectorXcd currentState = qubits->getState();
+		currentState.normalize();
 
-		productList.at(actingQubits[0]) = p0;
+		auto rho = currentState * currentState.transpose();
+
+		productList.at(measuredQbit) = p0;
 		auto Pi0 = productList.at(0);
 		for (int i = 1; i < productList.size(); i++) {
 			Pi0 = Eigen::kroneckerProduct(Pi0, productList.at(i)).eval();
 		}
 
-		double probZero = 0.0;
-		auto Prob0 = Pi0 * rho;
-		for (int i = 0; i < Prob0.rows(); i++) {
-			probZero += std::real(Prob0(i, i));
-		}
+		auto probZero = std::real((Pi0*rho).trace());
 
 		std::random_device rd;
 		std::mt19937 mt(rd());
@@ -221,7 +224,7 @@ public:
 			qubits->normalize();
 		} else {
 			result = 1;
-			productList.at(actingQubits[0]) = p1;
+			productList.at(measuredQbit) = p1;
 			auto Pi1 = productList.at(0);
 			for (int i = 1; i < productList.size(); i++) {
 				Pi1 = Eigen::kroneckerProduct(Pi1, productList.at(i)).eval();
@@ -230,7 +233,7 @@ public:
 			qubits->normalize();
 		}
 
-		qubits->updateBit(actingQubits[0], result);
+		qubits->updateBit(measuredQbit, result);
 	}
 
 	/**
@@ -242,13 +245,14 @@ public:
 		if (bufResult == AcceleratorBitState::UNKNOWN) {
 			XACCError("Conditional Node is conditional on unmeasured qubit.");
 		}
-		auto bufResultAsInt = bufResult == AcceleratorBitState::ONE ? 1 : 0;
+		auto bufResultAsInt = (bufResult == AcceleratorBitState::ONE ? 1 : 0);
 		c.evaluate(bufResultAsInt);
 		XACCInfo("Measurement on " + std::to_string(qubit) + " was a " +
 				std::to_string(bufResultAsInt));
 	}
 
 	void visit(Rx& rXGate) {
+		//std::cout << "Constructing RX:\n";
 		const std::complex<double> i(0, 1);
 		double angle = boost::get<double>(rXGate.getParameter(0));
 
@@ -260,6 +264,7 @@ public:
 		Eigen::MatrixXcd rx(2,2);
 		rx << mat11, mat12, mat21, mat22;
 
+		//std::cout << rx << "\n\n";
 		auto actingQubits = rXGate.bits();
 		ProductList productList;
 		for (int j = 0; j < qubits->size(); j++) {
@@ -273,10 +278,12 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+
+		apply(localU);
 	}
 
 	void visit(Ry& rYGate) {
+		//std::cout << "Constructing RY:\n";
 		const std::complex<double> i(0, 1);
 		double angle = boost::get<double>(rYGate.getParameter(0));
 
@@ -287,6 +294,7 @@ public:
 
 		Eigen::MatrixXcd ry(2,2);
 		ry << mat11, mat12, mat21, mat22;
+		//std::cout << ry << "\n\n";
 
 		auto actingQubits = rYGate.bits();
 		ProductList productList;
@@ -301,18 +309,29 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
+	}
+
+	void apply(Eigen::MatrixXcd& mat) {
+		//std::cout << "Operating:\n" << mat << "\n on " << qubits->getState() << "\n";
+		qubits->applyUnitary(mat);
+		qubits->normalize();
 	}
 
 	void visit(Rz& rZGate) {
+		//std::cout << "Constructing RZ:\n";
+
 		const std::complex<double> i(0, 1);
-		double angle = boost::get<double>(rZGate.getParameter(0));
+		std::stringstream ss;
+		ss << rZGate.getParameter(0);
+		double angle = std::stod(ss.str());//boost::get<double>(rZGate.getParameter(0));
 		auto matElement11 = std::exp(-1.0 * i * angle);
 		auto matElement12 = std::exp(i * angle);
 
 		Eigen::MatrixXcd rz(2,2);
 		rz << matElement11, 0.0, 0.0, matElement12;
 
+		//std::cout << rz << "\n\n";
 		auto actingQubits = rZGate.bits();
 		ProductList productList;
 		for (int j = 0; j < qubits->size(); j++) {
@@ -326,7 +345,7 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	void visit(CPhase& cpGate) {
@@ -348,7 +367,7 @@ public:
 		for (int j = 1; j < productList.size(); j++) {
 			localU = Eigen::kroneckerProduct(localU, productList.at(j)).eval();
 		}
-		qubits->applyUnitary(localU);
+		apply(localU);
 	}
 
 	void visit(Swap& s) {

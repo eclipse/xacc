@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2016, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,55 +28,43 @@
  *   Initial API and implementation - Alex McCaskey
  *
  **********************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE IBMAcceleratorTester
+#include "XACC.hpp"
 
-#include <memory>
-#include <boost/test/included/unit_test.hpp>
-#include "IBMAccelerator.hpp"
+const std::string src("__qpu__ qft (qbit qreg) {\n"
+	"   // Testing out new Kernel\n"
+	"   // Replacement Preprocessor!\n"
+	"   xacc::QFT(qreg);\n"
+	"}\n");
 
-using namespace xacc::quantum;
+int main (int argc, char** argv) {
 
-BOOST_AUTO_TEST_CASE(checkKernelExecution) {
-/*
-	IBMAccelerator acc;
-	acc.initialize();
-	auto buffer = acc.createBuffer("qubits", 3);
+	// Initialize the XACC Framework
+	xacc::Initialize(argc, argv);
 
-	auto f = std::make_shared<GateFunction>("foo");
+	// Create a reference to the Rigetti 
+	// QPU at api.rigetti.com/qvm
+	auto qpu = xacc::getAccelerator("ibm");
 
-	auto x = std::make_shared<X>(0);
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-	auto cn2 = std::make_shared<CNOT>(0, 1);
-	auto h2 = std::make_shared<Hadamard>(0);
-	auto m0 = std::make_shared<Measure>(0, 0);
-	auto m1 = std::make_shared<Measure>(1,1);
-	auto m2 = std::make_shared<Measure>(2,2);
+	// Allocate a register of 3 qubits
+	auto qubitReg = qpu->createBuffer("qreg", 3);
 
-	auto cond1 = std::make_shared<ConditionalFunction>(0);
-	auto z = std::make_shared<Z>(2);
-	cond1->addInstruction(z);
-	auto cond2 = std::make_shared<ConditionalFunction>(1);
-	auto x2 = std::make_shared<X>(2);
-	cond2->addInstruction(x2);
+	// Create a Program
+	xacc::Program program(qpu, src);
 
-	f->addInstruction(x);
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-	f->addInstruction(cn2);
-	f->addInstruction(h2);
-	f->addInstruction(m0);
-	f->addInstruction(m1);
-	f->addInstruction(cond1);
-	f->addInstruction(cond2);
-	f->addInstruction(m2);
+	// Request the quantum kernel representing
+	// the above source code
+	auto qft = program.getKernel("qft");
 
-	acc.execute(buffer, f);
+	// Execute!
+	qft(qubitReg);
 
-	std::cout << "EXP VAL: " << buffer->getExpectationValueZ() << "\n";
-*/
+	qubitReg->print(std::cout);
 
+	// Finalize the XACC Framework
+	xacc::Finalize();
+
+	return 0;
 }
+
 
 
