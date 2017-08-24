@@ -325,8 +325,8 @@ public:
 		std::stringstream ss;
 		ss << rZGate.getParameter(0);
 		double angle = std::stod(ss.str());//boost::get<double>(rZGate.getParameter(0));
-		auto matElement11 = std::exp(-1.0 * i * angle);
-		auto matElement12 = std::exp(i * angle);
+		auto matElement11 = std::exp(-0.5 * i * angle);
+		auto matElement12 = std::exp(0.5 * i * angle);
 
 		Eigen::MatrixXcd rz(2,2);
 		rz << matElement11, 0.0, 0.0, matElement12;

@@ -78,6 +78,10 @@ public:
 			functionName(name), parameters(params) {
 	}
 
+	GateFunction(const GateFunction& other) :
+			functionName(other.functionName), parameters(other.parameters) {
+	}
+
 	virtual const int nInstructions() {
 		return instructions.size();
 	}

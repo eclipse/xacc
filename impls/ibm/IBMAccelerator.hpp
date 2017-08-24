@@ -53,7 +53,7 @@ struct IBMBackend {
 	std::string name;
 	std::string description;
 	int nQubits;
-	std::vector<std::pair<int,int>> edges;
+	std::vector<std::pair<int,int>> couplers;
 };
 
 /**
@@ -117,10 +117,7 @@ public:
 	 * so return an empty list, for now.
 	 * @return
 	 */
-	virtual std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() {
-		std::vector<std::shared_ptr<IRTransformation>> v;
-		return v;
-	}
+	virtual std::vector<std::shared_ptr<IRTransformation>> getIRTransformations();
 
 	/**
 	 * Return all relevant IBMAccelerator runtime options.

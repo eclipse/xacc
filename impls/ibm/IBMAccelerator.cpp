@@ -40,6 +40,7 @@
 #include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
 #include "IBMAccelerator.hpp"
+#include "IBMIRTransformation.hpp"
 
 using namespace utility;
 using namespace web;
@@ -96,6 +97,30 @@ bool IBMAccelerator::isValidBufferSize(const int NBits) {
 	return NBits > 0 && NBits < 31;
 }
 
+std::vector<std::shared_ptr<IRTransformation>> IBMAccelerator::getIRTransformations() {
+
+	std::vector<std::shared_ptr<IRTransformation>> transformations;
+
+	std::string backendName = "ibmqx_qasm_simulator";
+
+	if (xacc::optionExists("ibm-backend")) {
+		backendName = xacc::getOption("ibm-backend");
+	}
+
+	if (!availableBackends.count(backendName)) {
+		XACCError(backendName + " is not available.");
+	}
+
+	auto backend = availableBackends[backendName];
+
+	if (!backend.couplers.empty()) {
+		auto transform = std::make_shared<IBMIRTransformation>(
+				backend.couplers);
+		transformations.push_back(transform);
+	}
+	return transformations;
+}
+
 void IBMAccelerator::initialize() {
 	std::string jsonStr = "", apiKey = "";
 	auto options = RuntimeOptions::instance();
@@ -143,7 +168,7 @@ void IBMAccelerator::initialize() {
 		if (!isSimulator) {
 			auto couplers = b["couplingMap"].GetArray();
 			for (int j = 0; j < couplers.Size(); j++) {
-				backend.edges.push_back(
+				backend.couplers.push_back(
 						std::make_pair(couplers[j][0].GetInt(),
 								couplers[j][1].GetInt()));
 			}
@@ -286,7 +311,6 @@ void IBMAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 }
 
 std::shared_ptr<AcceleratorGraph> IBMAccelerator::getAcceleratorConnectivity() {
-	auto options = RuntimeOptions::instance();
 	std::string backendName = "ibmqx_qasm_simulator";
 
 	if (xacc::optionExists("ibm-backend")) {
@@ -300,8 +324,8 @@ std::shared_ptr<AcceleratorGraph> IBMAccelerator::getAcceleratorConnectivity() {
 	auto backend = availableBackends[backendName];
 	auto graph = std::make_shared<AcceleratorGraph>(backend.nQubits);
 
-	if (!backend.edges.empty()) {
-		for (auto es : backend.edges) {
+	if (!backend.couplers.empty()) {
+		for (auto es : backend.couplers) {
 			graph->addEdge(es.first, es.second);
 		}
 	} else {
