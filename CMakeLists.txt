@@ -59,12 +59,12 @@ if (MPI_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
   
   # We require Boost with MPI
-  find_package(Boost COMPONENTS mpi system program_options filesystem python REQUIRED)
+  find_package(Boost COMPONENTS mpi system program_options filesystem REQUIRED)
 else()
   message(STATUS "MPI Not Found.")
   
   # We require Boost without MPI
-  find_package(Boost COMPONENTS system program_options filesystem python REQUIRED)
+  find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
 endif()
 
 # Look for OpenMP, add it we find it
