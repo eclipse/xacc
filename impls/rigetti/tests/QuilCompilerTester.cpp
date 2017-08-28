@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 	auto ir = compiler->compile(src);
 	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
 
-	auto function = qir->getKernel("name");
+	auto function = qir->getKernel("teleport");
 	std::cout << "HELLO\n" << function->toString("qreg") << "\n";
 
 	BOOST_VERIFY(qir->numberOfKernels() == 1);
@@ -114,7 +114,7 @@ MEASURE 2 [2]
 	auto ir = compiler->compile(src);
 	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
 
-	auto function = qir->getKernel("name");
+	auto function = qir->getKernel("teleport");
 
 	std::cout << "HELLO\n" << function->toString("qreg") << "\n";
 	std::cout << "N: " << function->nInstructions() << "\n";

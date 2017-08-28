@@ -52,12 +52,19 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 
 	auto ir = std::make_shared<GateQIR>();
 
-	auto f = std::make_shared<GateFunction>("name");
 
 	// First off, split the string into lines
-	std::vector<std::string> lines;
+	std::vector<std::string> lines, fLineSpaces;
 
 	boost::split(lines, src, boost::is_any_of("\n"));
+	auto functionLine = lines[0];
+	boost::split(fLineSpaces, functionLine, boost::is_any_of(" "));
+	auto fName = fLineSpaces[1];
+	boost::trim(fName);
+	fName = fName.substr(0, fName.find_first_of("("));
+
+	auto f = std::make_shared<GateFunction>(fName);
+
 
 	auto firstCodeLine = lines.begin() + 1;
 	auto lastCodeLine = lines.end() - 2;
