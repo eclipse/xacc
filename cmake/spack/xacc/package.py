@@ -41,22 +41,26 @@ from spack import *
 
 
 class Xacc(CMakePackage):
-    """FIXME: Put a proper description of your package here."""
+    """XACC provides a plugin infrastructure for 
+       programming, compiling, and executing quantum 
+       kernels in a language and hardware agnostic manner."""
 
-    # FIXME: Add a proper url for your package's homepage here.
     homepage = "https://ornl-qci.github.io/xacc"
-    url      = "https://github.com/ORNL-QCI/xacc/archive/v0.1.0-beta.tar.gz"
 
     version('develop', git='https://github.com/ornl-qci/xacc.git')
 
+    variant('python', default=False,
+            description='Turn on XACC Python support')
+    variant('mpi', default=False, description='Turn on XACC MPI support')
+    variant('tnqvm', default=False, description='Include TNQVM Accelerator')
+
     depends_on('cppmicroservices')
     depends_on('cpprestsdk')
-    depends_on('boost+mpi+graph+python')
-    depends_on('mpi')
-
+    depends_on('boost+mpi+graph')
+    depends_on('mpi', when='+mpi')
+    depends_on('python', when='+python')
+    depends_on('tnqvm', when='+tnqvm')
+    
     def cmake_args(self):
         args = []
         return args
-
-    def setup_environment(self, spack_env, run_env):
-        run_env.prepend_path('PATH', join_path(self.prefix, 'bin'))
