@@ -57,6 +57,10 @@ extern std::shared_ptr<CLIParser> xaccCLParser;
  */
 void Initialize(int argc, char** argv);
 
+void Initialize(std::vector<std::string> argv);
+
+void Initialize();
+
 /**
  * Add a valid command line option
  */

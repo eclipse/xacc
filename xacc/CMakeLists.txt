@@ -44,5 +44,10 @@ file(GLOB test_files utils/tests/*Tester.cpp)
 # Add the tests
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES}")
 
+find_package(PythonLibs)
+if(PythonLibs_FOUND) 
+  add_subdirectory(python)
+endif()
+
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

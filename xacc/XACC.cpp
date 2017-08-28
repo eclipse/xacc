@@ -36,6 +36,20 @@ namespace xacc {
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
 
+void Initialize(std::vector<std::string> argv) {
+	XACCInfo("Initializing the XACC Framework");
+	std::vector<char*> cstrs;
+	argv.insert(argv.begin(),"appExec");
+	for (auto& s : argv) {
+		cstrs.push_back(&s.front());
+	}
+	Initialize(argv.size(), cstrs.data());
+}
+
+void Initialize() {
+	Initialize(std::vector<std::string>{});
+}
+
 void Initialize(int argc, char** argv) {
 
 	// Create the MPIHolder instance
