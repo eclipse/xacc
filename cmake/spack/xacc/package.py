@@ -52,14 +52,12 @@ class Xacc(CMakePackage):
     variant('python', default=False,
             description='Turn on XACC Python support')
     variant('mpi', default=False, description='Turn on XACC MPI support')
-    variant('tnqvm', default=False, description='Include TNQVM Accelerator')
 
     depends_on('cppmicroservices')
     depends_on('cpprestsdk')
     depends_on('boost+mpi+graph')
     depends_on('mpi', when='+mpi')
     depends_on('python', when='+python')
-    depends_on('tnqvm', when='+tnqvm')
     
     def cmake_args(self):
         args = []
