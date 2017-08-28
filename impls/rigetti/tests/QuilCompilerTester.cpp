@@ -42,42 +42,6 @@ using namespace xacc;
 
 using namespace xacc::quantum;
 
-struct F {
-	F() :
-			compiler(std::make_shared<QuilCompiler>()) {
-		BOOST_TEST_MESSAGE("setup fixture");
-		BOOST_VERIFY(compiler);
-	}
-	~F() {
-		BOOST_TEST_MESSAGE("teardown fixture");
-	}
-
-	std::shared_ptr<xacc::Compiler> compiler;
-};
-//
-//template<typename GateType>
-//class CountGateVisitor : public xacc::BaseInstructionVisitor,
-//public xacc::InstructionVisitor<GateType> {
-//public:
-//	int count = 0;
-//	virtual void visit(GateType& gate) {
-//		count++;
-//	}
-//};
-//
-//template<typename Visitor>
-//void countGates(Visitor visitor, std::shared_ptr<xacc::Function> function) {
-//	xacc::InstructionIterator it(function);
-//	while (it.hasNext()) {
-//		// Get the next node in the tree
-//		auto nextInst = it.next();
-//		if (nextInst->isEnabled()) nextInst->accept(visitor);
-//	}
-//}
-//____________________________________________________________________________//
-
-BOOST_FIXTURE_TEST_SUITE( s, F )
-
 BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 
 	const std::string src("__qpu__ teleport (qbit qreg[3]) {\n"
@@ -98,10 +62,12 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 			"   LABEL @NOZ\n"
 			"}\n");
 
+	auto compiler = std::make_shared<QuilCompiler>();
 	auto ir = compiler->compile(src);
 	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
 
 	auto function = qir->getKernel("name");
+	std::cout << "HELLO\n" << function->toString("qreg") << "\n";
 
 	BOOST_VERIFY(qir->numberOfKernels() == 1);
 
@@ -121,7 +87,58 @@ BOOST_AUTO_TEST_CASE(checkTeleportQuil) {
 
 }
 
+BOOST_AUTO_TEST_CASE(checkIFELSE) {
+	const std::string src =
+			R"src(__qpu__ teleport(qbit qreg[3]) {
+X 0
+H 2
+CNOT 2 1
+CNOT 0 1
+H 0
+MEASURE 0 [0]
+MEASURE 1 [1]
+JUMP-WHEN @THEN1 [1]
+JUMP @END2
+LABEL @THEN1
+X 2
+LABEL @END2
+JUMP-WHEN @THEN3 [0]
+JUMP @END4
+LABEL @THEN3
+Z 2
+LABEL @END4
+MEASURE 2 [2]
+})src";
+	auto compiler = std::make_shared<QuilCompiler>();
+
+	auto ir = compiler->compile(src);
+	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
+
+	auto function = qir->getKernel("name");
+
+	std::cout << "HELLO\n" << function->toString("qreg") << "\n";
+	std::cout << "N: " << function->nInstructions() << "\n";
+
+	BOOST_VERIFY(qir->numberOfKernels() == 1);
+
+	BOOST_VERIFY(function->nInstructions() == 9);
+
+	auto hadamardVisitor = std::make_shared<CountGatesOfTypeVisitor<Hadamard>>(function);
+	auto cnotVisitor = std::make_shared<CountGatesOfTypeVisitor<CNOT>>(function);
+	auto measureVisitor = std::make_shared<CountGatesOfTypeVisitor<Measure>>(function);
+	auto conditionalVisitor = std::make_shared<CountGatesOfTypeVisitor<ConditionalFunction>>(function);
+	auto xVisitor = std::make_shared<CountGatesOfTypeVisitor<X>>(function);
+
+	BOOST_VERIFY(hadamardVisitor->countGates() == 2);
+	BOOST_VERIFY(cnotVisitor->countGates() == 2);
+	BOOST_VERIFY(measureVisitor->countGates() == 2);
+	BOOST_VERIFY(conditionalVisitor->countGates() == 2);
+	BOOST_VERIFY(xVisitor->countGates() == 1);
+}
+
+
 BOOST_AUTO_TEST_CASE(checkTranslateIR) {
+	auto compiler = std::make_shared<QuilCompiler>();
 
 	auto f = std::make_shared<GateFunction>("foo");
 
@@ -181,4 +198,3 @@ BOOST_AUTO_TEST_CASE(checkTranslateIR) {
 }
 
 
-BOOST_AUTO_TEST_SUITE_END()

@@ -66,7 +66,7 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 	std::shared_ptr<xacc::Instruction> instruction;
 	auto gateRegistry = xacc::quantum::GateInstructionRegistry::instance();
 	std::vector<std::shared_ptr<xacc::Instruction>> measurements;
-	std::string currentLabel;
+	std::string currentLabel, currentConditionalGate;
 	std::shared_ptr<ConditionalFunction> currentConditional;
 
 	for (auto quilLine : quil) {
@@ -81,6 +81,10 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 			auto gateName = splitSpaces[0];
 			boost::trim(gateName);
 
+			if (gateName == "JUMP") {
+				continue;
+			}
+
 			if (gateName == "MEASURE") {
 				qubits.push_back(std::stoi(splitSpaces[1]));
 				boost::replace_all(splitSpaces[2], "[", "");
@@ -90,7 +94,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 				xacc::InstructionParameter p(classicalBit);
 				instruction->setParameter(0,p);
 				measurements.push_back(instruction);
-			} else if (gateName == "JUMP-UNLESS") {
+			} else if (gateName == "JUMP-UNLESS" || gateName == "JUMP-WHEN") {
+				currentConditionalGate = gateName;
 				isConditional = true;
 				currentLabel = splitSpaces[1];
 				boost::replace_all(splitSpaces[2], "[", "");
@@ -110,9 +115,17 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 				continue;
 			} else if (gateName == "LABEL") {
 				auto label = splitSpaces[1];
-				if (label == currentLabel) {
-					isConditional = false;
-					f->addInstruction(currentConditional);
+
+				if (currentConditionalGate == "JUMP-UNLESS") {
+					if (label == currentLabel) {
+						isConditional = false;
+						f->addInstruction(currentConditional);
+					}
+				} else {
+					if (label != currentLabel) {
+						isConditional = false;
+						f->addInstruction(currentConditional);
+					}
 				}
 				continue;
 			} else {
