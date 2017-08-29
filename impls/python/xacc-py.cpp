@@ -2,6 +2,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "GateInstruction.hpp"
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(pyxacc, m) {
@@ -99,6 +101,21 @@ PYBIND11_MODULE(pyxacc, m) {
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
+
+	py::module gatesub = m.def_submodule("gate", "Gate model quantum computing data structures.");
+
+	py::class_<xacc::quantum::GateInstruction,
+			std::shared_ptr<xacc::quantum::GateInstruction>> gateinst(gatesub,
+			"GateInstruction",
+			"GateInstruction models gate model quantum computing instructions.");
+	gateinst.def("getName", &xacc::quantum::GateInstruction::getName, "Return the name of this Instruction.");
+
+
+	py::class_<xacc::quantum::GateInstructionRegistry, std::shared_ptr<xacc::quantum::GateInstructionRegistry>> gatereg(gatesub,
+				"GateInstructionRegistry", "Registry of available quantum gates.");
+	gatereg.def_static("instance", &xacc::quantum::GateInstructionRegistry::instance, "Singleton instance method.");
+	gatereg.def("create", &xacc::quantum::GateInstructionRegistry::create, "Create");
+
 }
 
 

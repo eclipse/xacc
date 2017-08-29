@@ -121,7 +121,7 @@ MEASURE 2 [2]
 
 	BOOST_VERIFY(qir->numberOfKernels() == 1);
 
-	BOOST_VERIFY(function->nInstructions() == 9);
+	BOOST_VERIFY(function->nInstructions() == 10);
 
 	auto hadamardVisitor = std::make_shared<CountGatesOfTypeVisitor<Hadamard>>(function);
 	auto cnotVisitor = std::make_shared<CountGatesOfTypeVisitor<CNOT>>(function);
@@ -131,9 +131,32 @@ MEASURE 2 [2]
 
 	BOOST_VERIFY(hadamardVisitor->countGates() == 2);
 	BOOST_VERIFY(cnotVisitor->countGates() == 2);
-	BOOST_VERIFY(measureVisitor->countGates() == 2);
+	BOOST_VERIFY(measureVisitor->countGates() == 3);
 	BOOST_VERIFY(conditionalVisitor->countGates() == 2);
 	BOOST_VERIFY(xVisitor->countGates() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(checkRotations) {
+	const std::string src =
+			R"src(__qpu__ rotate(qbit qreg[3]) {
+	RX(3.141592653589793) 0
+	})src";
+	auto compiler = std::make_shared<QuilCompiler>();
+
+	auto ir = compiler->compile(src);
+	auto qir = std::dynamic_pointer_cast<GateQIR>(ir);
+
+	auto function = qir->getKernel("rotate");
+
+	std::cout << "HELLO\n" << function->toString("qreg") << "\n";
+
+	BOOST_VERIFY(qir->numberOfKernels() == 1);
+
+	BOOST_VERIFY(function->nInstructions() == 1);
+
+	auto rxVisitor = std::make_shared<CountGatesOfTypeVisitor<Rx>>(function);
+
+	BOOST_VERIFY(rxVisitor->countGates() == 1);
 }
 
 

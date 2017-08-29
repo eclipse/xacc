@@ -31,6 +31,7 @@
 #include "GateQIR.hpp"
 #include "QuilCompiler.hpp"
 #include "QuilVisitor.hpp"
+#include <boost/tokenizer.hpp>
 
 namespace xacc {
 
@@ -52,7 +53,6 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 
 	auto ir = std::make_shared<GateQIR>();
 
-
 	// First off, split the string into lines
 	std::vector<std::string> lines, fLineSpaces;
 
@@ -65,9 +65,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 
 	auto f = std::make_shared<GateFunction>(fName);
 
-
 	auto firstCodeLine = lines.begin() + 1;
-	auto lastCodeLine = lines.end() - 2;
+	auto lastCodeLine = lines.end() - 1;
 	std::vector<std::string> quil(firstCodeLine, lastCodeLine);
 	bool isConditional = false;
 	std::shared_ptr<xacc::Instruction> instruction;
@@ -79,14 +78,29 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 	for (auto quilLine : quil) {
 		boost::trim(quilLine);
 
-		if (!boost::starts_with(quilLine, "#")) {
+		if (!boost::starts_with(quilLine, "#") && !boost::contains(quilLine, "}")) {
 			std::vector<std::string> splitSpaces;
 			std::vector<int> qubits;
-
+			std::vector<InstructionParameter> params;
 			boost::split(splitSpaces, quilLine, boost::is_any_of(" "));
 
 			auto gateName = splitSpaces[0];
 			boost::trim(gateName);
+
+			if (boost::contains(gateName, "(")) {
+				// This is a parameterized gate
+				auto i1 = gateName.find_first_of("(");
+				auto i2 = gateName.find_first_of(")");
+				auto paramStr = gateName.substr(i1+1, i2-i1-1);
+				gateName = gateName.substr(0, gateName.find_first_of("("));
+
+				std::vector<std::string> paramsStrs;
+				boost::split(paramsStrs, paramStr, boost::is_any_of(","));
+				for (auto s : paramsStrs) {
+					InstructionParameter p(std::stod(s));
+					params.push_back(p);
+				}
+			}
 
 			if (gateName == "JUMP") {
 				continue;
@@ -141,8 +155,17 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string& src) {
 					qubits.push_back(std::stoi(splitSpaces[i]));
 				}
 
+				if (gateName == "RX") gateName = "Rx";
+				if (gateName == "RY") gateName = "Ry";
+				if (gateName == "RZ") gateName = "Rz";
+
 				instruction = gateRegistry->create(gateName, qubits);
 
+				if (!params.empty()) {
+					for (int i = 0; i < params.size(); i++) {
+						instruction->setParameter(i, params[i]);
+					}
+				}
 			}
 
 			if (isConditional) {
