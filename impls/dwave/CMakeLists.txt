@@ -47,6 +47,6 @@ add_subdirectory(examples)
 
 # Gather tests
 file (GLOB test_files tests/DWQMI*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-qmicompiler;dl;pthread;CppMicroServices")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc-dwave-qmicompiler;dl;pthread;CppMicroServices;xacc")
 
 

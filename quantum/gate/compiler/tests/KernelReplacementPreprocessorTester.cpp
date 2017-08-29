@@ -35,7 +35,7 @@
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 #include "GateQIR.hpp"
-
+#include "XACC.hpp"
 #include "ServiceRegistry.hpp"
 
 using namespace xacc;
@@ -151,7 +151,7 @@ public:
 };
 
 BOOST_AUTO_TEST_CASE(checkSimple) {
-
+        xacc::Initialize();
 	const std::string src("module teleport (qbit qreg[3]) {\n"
 			"   cbit creg[2];\n"
 			"   // Init qubit 0 to 1\n"
@@ -218,4 +218,5 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 			"}\n");
 
 	BOOST_VERIFY(newSrc == expected);
+        xacc::Finalize();
 }

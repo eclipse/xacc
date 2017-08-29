@@ -211,6 +211,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
+        xacc::Initialize();
 	auto compiler = std::make_shared<DWQMICompiler>();
 
 	const std::string factoring15QMI =
@@ -265,5 +266,5 @@ BOOST_AUTO_TEST_CASE(checkFactoring15OneToOneMapping) {
 
 	std::cout << "QMI:\n" << qmi << "\n";
 	BOOST_VERIFY(expected == qmi);
-
+        xacc::Finalize();
 }
