@@ -40,7 +40,43 @@ development library and headers.
 
 ## Spack Installation
 
+```bash
+# BEFORE YOU DO THIS, MAKE SURE YOU HAVE A 
+# C++14 COMPLIANT COMPILER, AND A FORTRAN 
+# COMPILER. I'M USING GCC 7 AND GFORTRAN HERE
+# ON FEDORA THIS IS AS EASY AS dnf install gcc-c++ gfortran
 
+# Get Spack
+$ git clone https://github.com/llnl/spack
+
+# Setup our installs to be in /usr/local/spack, 
+# You can put them somewhere else if you like
+$ spack/bin/spack bootstrap /usr/local/spack
+$ . /usr/local/spack/share/spack/setup-env.sh
+
+# Tell spack to configure its available compilers
+$ spack compilers
+$ spack config get compilers
+# If this shows that your f77 and fc are Null, run the following (Bug in Spack)
+$ sed -i -r 's/^(\s*)(fc\s*:\s*null\s*$)/\1fc : \/usr\/bin\/gfortran /' ~/.spack/linux/compilers.yaml
+$ sed -i -r 's/^(\s*)(f77\s*:\s*null\s*$)/\1f77 : \/usr\/bin\/gfortran /' ~/.spack/linux/compilers.yaml
+# You can update this command to wherever you have gfortran installed
+
+# We need environment-modules
+$ spack install environment-modules
+$ echo "source $(spack location -i environment-modules)/Modules/init/bash" >> $HOME/.bashrc
+$ echo ". /usr/local/spack/share/spack/setup-env.sh" >> $HOME/.bashrc
+
+# Tell Spack how to install CppMicroservices and XACC (This will one day go away as we will issue a PR for Spack)
+$ export SPACK_PACKAGES_DIR=/usr/local/spack/var/spack/repos/builtin/packages
+$ mkdir -p $SPACK_PACKAGES_DIR/cppmicroservices
+$ mkdir -p $SPACK_PACKAGES_DIR/xacc
+$ cd $SPACK_PACKAGES_DIR/cppmicroservices && wget https://raw.githubusercontent.com/ORNL-QCI/xacc/master/cmake/spack/cppmicroservices/package.py
+$ cd $SPACK_PACKAGES_DIR/xacc && wget https://raw.githubusercontent.com/ORNL-QCI/xacc/master/cmake/spack/xacc/package.py
+
+# Install XACC
+$ spack install -v xacc +mpi+python ^mpich
+```
 
 ## Fedora/CentOS/Redhat Build Instructions
 
@@ -85,12 +121,19 @@ has been tested in an Ubuntu 16.04 Docker container.
 # Install 3rd party tools/libraries and GCC 6+
 $ apt-get install -y software-properties-common
 $ add-apt-repository ppa:ubuntu-toolchain-r/test
-$ apt-get -y update && apt-get -y install libboost-all-dev git make libtool cmake gcc-6 g++-6 mpich python-dev libssl-dev libcpprest-dev
+$ apt-get -y update && apt-get -y install libboost-all-dev git make libtool cmake gcc-6 g++-6 mpich python-dev libssl-dev 
 $ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
 
 # Install Scaffold support (Required as of (2017-06-14))
 $ wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb 
 $ apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | sed "s/.*ends: //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb
+
+# On Ubuntu 16.04, libcpprest-dev is version 2.8, which 
+# has a bug when used with boost. So we have to build it from scratch
+$ git clone https://github.com/Microsoft/cpprestsdk
+$ cd cpprestsdk && mkdir build && cd build 
+$ cmake ../Release && make install
+$ cd ../..
 
 # Clone CppMicroServices
 $ git clone https://github.com/cppmicroservices/cppmicroservices

@@ -12,15 +12,19 @@ run apt-get -y upgrade && apt-get -y update && apt-get install -y software-prope
 run apt-get -y update && apt-get -y install wget && wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb && \
     apt-get -y update && apt-get -y install $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | \
     sed "s/.*ends:\ //" | sed 's/,//g') && dpkg -i scaffold_2.0_amd64.deb \
-    && apt-get -y install python-dev libssl-dev libspdlog-dev \
+    && apt-get -y install python-dev libssl-dev \
+    && git clone https://github.com/Microsoft/cpprestsdk && cd cpprestsdk && mkdir build && cd build \ 
+    && cmake ../Release && make install && cd /projects \
+
     && git clone https://github.com/cppmicroservices/cppmicroservices && cd cppmicroservices && mkdir build && cd build \
     && cmake .. && make install && cd /projects \
-    && git clone --recursive https://github.com/ORNL-QCI/xacc \
-    && cd xacc && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make && make install
+    && git clone https://github.com/ORNL-QCI/xacc \
+    && cd xacc && mkdir build && cd build && cmake .. && make && make install
 
-run cd /projects/xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include usr/local/lib \
+run cd /projects/xacc && mkdir deb_build && cd deb_build && mkdir -p usr/local/xacc usr/local/include usr/local/lib usr/include \
    && cp -r /usr/local/include/cppmicroservices3 usr/local/include/ && cp /usr/local/lib/libCpp* usr/local/lib/ \
+   && cp -r /usr/include/cpprest usr/include/ && cp -r /usr/local/lib/libcpprest* usr/local/lib/ \
    && cp /usr/local/lib/libus* usr/local/lib/ \
    && cp -r /usr/local/xacc/* usr/local/xacc/ \
    && fpm -s dir -t deb --name xacc --version 1.0 --depends libboost-all-dev --depends gcc-6 --depends g++-6 --depends python-dev --depends mpich \ 
-   --depends libspdlog-dev --depends cmake --depends git --depends make --depends libtool --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
+   --depends cmake --depends git --depends make --depends libtool --description "XACC - eXtreme-scale ACCelerator programming framework" . && cp *.deb /
