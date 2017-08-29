@@ -37,8 +37,8 @@ to get this key.
 To install XACC, run the following (note here we are using a Fedora 25 Linux install):
 
 ```bash
-dnf install -y openssl-devel https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
-    http://eclipseice.ornl.gov/downloads/xacc/rpms/x86_64/xacc-1.0-1.fc25.x86_64.rpm
+dnf install -y openssl-devel https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc26.x86_64.rpm \
+    http://eclipseice.ornl.gov/downloads/xacc/rpms/x86_64/fc26/xacc-1.0-1.fc26.x86_64.rpm
 ```
 Note that we are also installing the Scaffold quantum programming language. XACC has support 
 for a Scaffold Compiler instance, and we will use it in this tutorial as our main 
