@@ -50,7 +50,7 @@ file = open('out.csv', "w")
 file.write('theta, Z0, Z1, Z0Z1\n')
 
 # Loop over -pi to pi
-for theta in np.linspace(-np.pi, np.pi, 1000):
+for theta in np.linspace(-np.pi, np.pi, 100):
     file.write(str(theta))
     
     # Execute each kernel
