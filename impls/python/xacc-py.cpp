@@ -109,7 +109,11 @@ PYBIND11_MODULE(pyxacc, m) {
 			"GateInstruction",
 			"GateInstruction models gate model quantum computing instructions.");
 	gateinst.def("getName", &xacc::quantum::GateInstruction::getName, "Return the name of this Instruction.");
-
+	gateinst.def("bits", &xacc::quantum::GateInstruction::bits, "Return the qubits this gate operates on");
+	gateinst.def("nParameters", &xacc::quantum::GateInstruction::nParameters, "Return the number of parameters this gate requires.");
+	gateinst.def("getParameter", &xacc::quantum::GateInstruction::getParameter, "Return the parameter at the given index");
+	gateinst.def("setParameter", &xacc::quantum::GateInstruction::setParameter, "Set the parameter value at the give index");
+	gateinst.def("toString", &xacc::quantum::GateInstruction::toString, "Return the instruction as a string representation.");
 
 	py::class_<xacc::quantum::GateInstructionRegistry, std::shared_ptr<xacc::quantum::GateInstructionRegistry>> gatereg(gatesub,
 				"GateInstructionRegistry", "Registry of available quantum gates.");
