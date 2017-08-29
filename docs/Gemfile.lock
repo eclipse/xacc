@@ -90,6 +90,7 @@ DEPENDENCIES
   jekyll-asciidoc
   jekyll-plantuml (~> 1.1)
   rake-jekyll (~> 1.0)
+  redcarpet
 
 BUNDLED WITH
-   1.13.2
+   1.15.1
