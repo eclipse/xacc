@@ -1,4 +1,4 @@
-import PyXACC as xacc
+import pyxacc as xacc
 import numpy as np
 
 # Define the source code
@@ -44,7 +44,7 @@ program = xacc.Program(qpu,src)
 program.build()
 
 # Get the compiled kernels
-kernels = program.getRuntimeKernels()
+kernels = program.getKernels()
 
 file = open('out.csv', "w")
 file.write('theta, Z0, Z1, Z0Z1\n')
