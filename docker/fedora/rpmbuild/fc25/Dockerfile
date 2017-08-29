@@ -7,9 +7,9 @@ run dnf install -y https://github.com/genereese/togo/releases/download/v2.3r7/to
    https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm \
    && git clone https://github.com/cppmicroservices/cppmicroservices \
    && cd cppmicroservices && mkdir build && cd build && cmake .. && make install && cd /projects \
-   && git clone --recursive https://github.com/ORNL-QCI/xacc \ 
+   && git clone https://github.com/ORNL-QCI/xacc \ 
    && source /etc/bashrc && module load mpi/mpich-x86_64 && cd xacc && mkdir build \
-   && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/xacc && make install
+   && cd build && cmake .. && make install
 run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "Alex McCaskey" -e "mccaskeyaj@ornl.gov" \
    && togo project create xacc && cd xacc && mkdir -p root/usr/local/xacc root/usr/local/lib root/usr/local/include root/usr/local/share root/usr/local/bin \
    && cp -r /usr/local/xacc/* root/usr/local/xacc/ && cp -r /usr/local/include/cppmicroservices3 root/usr/local/include/ \
@@ -19,7 +19,7 @@ run cd /projects/xacc && mkdir rpm_build && cd rpm_build && togo configure -n "A
    && sed -i -r "s/(Version: *).*/\11.0/" spec/header && sed -i -r "s/(Summary: *).*/\1XACC - eXtreme-scale ACCelerator programming environment./" spec/header \
    && sed -i -r "s/(Release: *).*/\11.fc25/" spec/header && sed -i -r "s/(License: *).*/\1BSD/" spec/header \
    && sed -i -r "s/(Buildarch: *).*/\1x86_64/" spec/header && sed -i -r "s/(Group: *).*/\1Development\/System/" spec/header \
-   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cpprest-devel cmake python-devel git make libtool mpich-devel boost-mpich-devel/" spec/header \
+   && sed -i -r "s/(Requires: *).*/\1gcc-c++ cpprest-devel cmake python-devel git make libtool mpich-devel boost-mpich-devel openssl-devel/" spec/header \
    && sed -i -r '/Requires/s/^#//g' spec/header \
    && togo build package && cp rpms/*.rpm /projects/ \
    && cat spec/header
