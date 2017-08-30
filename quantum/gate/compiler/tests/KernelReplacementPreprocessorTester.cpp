@@ -151,7 +151,9 @@ public:
 };
 
 BOOST_AUTO_TEST_CASE(checkSimple) {
-        xacc::Initialize();
+	auto testPath = std::string(XACC_BUILD_DIR) + std::string("/stage/usr/local/xacc/lib/libxacc-quantum-gate.so");
+
+        xacc::Initialize(std::vector<std::string>{"--load",testPath});
 	const std::string src("module teleport (qbit qreg[3]) {\n"
 			"   cbit creg[2];\n"
 			"   // Init qubit 0 to 1\n"

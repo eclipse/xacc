@@ -2,5 +2,6 @@
 #define XACC_CONFIG_HPP
 
 #define XACC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
+#define XACC_BUILD_DIR "${CMAKE_BINARY_DIR}"
 
 #endif

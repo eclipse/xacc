@@ -72,10 +72,6 @@ void Initialize(int argc, char** argv) {
 	// Check that we have some
 	auto s = serviceRegistry->getServices<Compiler>().size();
 	auto a = serviceRegistry->getServices<Accelerator>().size();
-	if (s == 0)
-		XACCError("There are no Compiler instances available. Exiting.");
-	if (a == 0)
-		XACCError("There are no Accelerator instances available. Exiting.");
 
 	XACCInfo(
 			"[xacc::compiler] XACC has " + std::to_string(s) + " Compiler"

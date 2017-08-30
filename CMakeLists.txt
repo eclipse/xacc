@@ -28,10 +28,10 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-project(XACC CXX)
-cmake_minimum_required(VERSION 2.8)
-set(CMAKE_DISABLE_IN_SOURCE_BUILDS ON)
-set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+project(xacc LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+#set(CMAKE_DISABLE_IN_SOURCE_BUILDS ON)
+#set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
@@ -40,38 +40,14 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Modify our CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
-include(tests)
-
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set (CMAKE_INSTALL_PREFIX "/usr/local/xacc" CACHE PATH "default install path" FORCE )
 endif()
 
-find_package(CppMicroServices NO_MODULE REQUIRED)
-get_filename_component(CppMicroServices_BASE_DIR ${CppMicroServices_RUNTIME_LIBRARY_DIRS} DIRECTORY)
-set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
-set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
-
-# We require MPI
-find_package(MPI)
-if (MPI_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
-  
-  # We require Boost with MPI
-  find_package(Boost COMPONENTS mpi system program_options filesystem REQUIRED)
-else()
-  message(STATUS "MPI Not Found.")
-  
-  # We require Boost without MPI
-  find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
-endif()
-
-# Look for OpenMP, add it we find it
-find_package(OpenMP)
-if (OPENMP_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+#find_package(CppMicroServices NO_MODULE REQUIRED)
+#get_filename_component(CppMicroServices_BASE_DIR ${CppMicroServices_RUNTIME_LIBRARY_DIRS} DIRECTORY)
+#set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
+#set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
 # Setup Doxygen
 find_package(Doxygen)
@@ -82,28 +58,85 @@ if(DOXYGEN_FOUND)
     VERBATIM)
 endif(DOXYGEN_FOUND)
 
-# Create a xacc config header file
-configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
-install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
+include(ExternalProject)
 
-# Include dirs that everyone will use
-include_directories(${CMAKE_BINARY_DIR})
-include_directories(${MPI_INCLUDE_PATH})
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
-include_directories(${CppMicroServices_INCLUDE_DIR})
-include_directories("${CMAKE_SOURCE_DIR}/xacc")
-include_directories("${CMAKE_SOURCE_DIR}/xacc/ir")
-include_directories("${CMAKE_SOURCE_DIR}/xacc/compiler")
-include_directories("${CMAKE_SOURCE_DIR}/xacc/program")
-include_directories("${CMAKE_SOURCE_DIR}/xacc/accelerator")
-include_directories("${CMAKE_SOURCE_DIR}/xacc/utils")
+set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
 
-# Add subdirectories
-add_subdirectory(xacc)
-add_subdirectory(quantum)
-add_subdirectory(impls)
-add_subdirectory(tools)
+add_subdirectory(tpls)
+
+set(CppMicroServices_BASE_DIR ${CMAKE_BINARY_DIR}/cppus_install/usr/local)
+set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
+set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
+
+# We require MPI
+find_package(MPI)
+if (MPI_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
+
+  # We require Boost with MPI
+  find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
+  include_directories(${MPI_INCLUDE_PATH})
+else()
+  message(STATUS "MPI Not Found.")
+
+  # We require Boost without MPI
+  find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
+endif()
+
+# Look for OpenMP, add it we find it
+find_package(OpenMP)
+if (OPENMP_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+ExternalProject_Add(xacc-core
+   DEPENDS cppmicroservices
+   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
+   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+              -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+	      -DBoost_INCLUDE_DIRS=${BOOST_INCLUDE_DIRS}
+	      -DBoost_LIBRARIES=${Boost_LIBRARIES}
+	      -DMPI_INCLUDE_PATH=${MPI_INCLUDE_PATH}
+   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+   BUILD_ALWAYS 1
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
+   TEST_BEFORE_INSTALL 1
+   )
+
+set(XACC_BASE_DIR ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
+set(XACC_INCLUDE_DIR ${XACC_BASE_DIR}/include/xacc)
+set(XACC_LIBRARY_DIR ${XACC_BASE_DIR}/lib)
+
+string (REPLACE ";" " " XACC_Boost_LIBRARIES "${Boost_LIBRARIES}")
+ExternalProject_Add(xacc-quantum
+   DEPENDS xacc-core
+   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/quantum
+   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+              -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+              -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+              -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+              -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+	      -DXACC_INCLUDE_DIR=${XACC_INCLUDE_DIR}
+	      -DXACC_LIBRARY_DIR=${XACC_LIBRARY_DIR}
+	      -DBoost_INCLUDE_DIRS=${BOOST_INCLUDE_DIRS}
+	      -DXACC_Boost_LIBRARIES=${XACC_Boost_LIBRARIES}
+	      -DMPI_INCLUDE_PATH=${MPI_INCLUDE_PATH}
+   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+   BUILD_ALWAYS 1
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
+   TEST_AFTER_INSTALL 1
+   )
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
@@ -112,3 +145,8 @@ add_subdirectory(tools)
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake")
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTINATION include) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib/cppmicroservices) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/stage/usr/local/xacc/" DESTINATION .) 

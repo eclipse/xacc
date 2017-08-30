@@ -28,15 +28,43 @@
 #   Initial API and implementation - Alex McCaskey
 #
 #**********************************************************************************/
-set (PACKAGE_NAME "XACC Specification")
-set (PACKAGE_DESCIPTION "The XACC Programming Framework")
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+project(xacc-core LANGUAGES CXX)
+
+set(CMAKE_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 14)
+message(STATUS "C++ version ${CXX_STANDARD} configured.")
+
+# Modify our CMAKE_MODULE_PATH
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
+include(tests)
+
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${XACC_ROOT}/tpls/spdlog)
+include_directories(${CPPUS_INCLUDE_DIR})
+include_directories(${MPI_INCLUDE_PATH})
+include_directories("${CMAKE_SOURCE_DIR}")
+include_directories("${CMAKE_SOURCE_DIR}/ir")
+include_directories("${CMAKE_SOURCE_DIR}/compiler")
+include_directories("${CMAKE_SOURCE_DIR}/program")
+include_directories("${CMAKE_SOURCE_DIR}/accelerator")
+include_directories("${CMAKE_SOURCE_DIR}/utils")
+include_directories(${CMAKE_BINARY_DIR})
+
+# Create a xacc config header file
+configure_file("${XACC_ROOT}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
+install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
+
+#set (PACKAGE_NAME "XACC Specification")
+#set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
-file (GLOB HEADERS program/*.hpp XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
+file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
 file (GLOB SRC *.cpp utils/*.cpp)
 
+link_directories(${CPPUS_LIBRARY_DIR})
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${MPI_LIBRARIES} CppMicroServices)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServicesd)
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp)
