@@ -34,12 +34,14 @@ matrix:
       compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
 
-install:
-  - echo $TRAVIS_OS_NAME 
-  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then apt-get -y update && apt-get install -y libboost-all-dev git cmake ; fi
-  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install cmake && brew install boost; fi
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - cmake
 
 before_script:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install cmake && brew install boost; fi
   - export CXX=${COMPILER}
   - cd ${TRAVIS_BUILD_DIR}
   - cmake -H. -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -Wdev
