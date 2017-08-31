@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(xacc-quantum LANGUAGES CXX)
 
 set(CMAKE_STANDARD_REQUIRED ON)
