@@ -38,21 +38,6 @@ set(CppMicroServices_BASE_DIR ${CMAKE_BINARY_DIR}/cppus_install/usr/local)
 set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
 set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
-# We require MPI
-find_package(MPI)
-if (MPI_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
-
-  # We require Boost with MPI
-  find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
-  include_directories(${MPI_INCLUDE_PATH})
-else()
-  message(STATUS "MPI Not Found.")
-
-  # We require Boost without MPI
-  find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
-endif()
-
 # Look for OpenMP, add it we find it
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -66,14 +51,9 @@ ExternalProject_Add(xacc-core
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-              -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
 	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
 	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
 	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DBoost_INCLUDE_DIRS=${BOOST_INCLUDE_DIRS}
-	      -DBoost_LIBRARIES=${Boost_LIBRARIES}
-	      -DMPI_INCLUDE_PATH=${MPI_INCLUDE_PATH}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
@@ -84,6 +64,7 @@ set(XACC_BASE_DIR ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
 set(XACC_INCLUDE_DIR ${XACC_BASE_DIR}/include/xacc)
 set(XACC_LIBRARY_DIR ${XACC_BASE_DIR}/lib)
 string (REPLACE ";" " " XACC_Boost_LIBRARIES "${Boost_LIBRARIES}")
+string (REPLACE ";" " " XACC_MPI_INCLUDE_PATHS "${MPI_CXX_INCLUDE_PATH}")
 
 ExternalProject_Add(xacc-quantum
    DEPENDS xacc-core
@@ -92,16 +73,11 @@ ExternalProject_Add(xacc-quantum
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-              -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
               -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
               -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
               -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
 	      -DXACC_INCLUDE_DIR=${XACC_INCLUDE_DIR}
 	      -DXACC_LIBRARY_DIR=${XACC_LIBRARY_DIR}
-	      -DBoost_INCLUDE_DIRS=${BOOST_INCLUDE_DIRS}
-	      -DXACC_Boost_LIBRARIES=${XACC_Boost_LIBRARIES}
-	      -DMPI_INCLUDE_PATH=${MPI_INCLUDE_PATH}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
