@@ -140,7 +140,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin PATTERN "bin/*" PERMISSIONS OWNER_EXECUTE) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTINATION include) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 

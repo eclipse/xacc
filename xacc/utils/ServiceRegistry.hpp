@@ -103,7 +103,9 @@ protected:
 					itr != end_itr; ++itr) {
 				auto p = itr->path();
 				if ((p.extension() == ".so" || p.extension() == ".a")
-						&& (p.filename().string() != "libxacc.so")) {
+						&& (p.filename().string() != "libxacc.so")
+						&& !boost::contains(p.filename().string(), "libCppMicroServices") 
+						&& !boost::contains(p.filename().string(), "libus")) {
 					context.InstallBundles(p.string());
 				}
 			}
