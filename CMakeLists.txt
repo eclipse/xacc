@@ -24,7 +24,17 @@ if(DOXYGEN_FOUND)
     VERBATIM)
 endif(DOXYGEN_FOUND)
 
-add_subdirectory(tpls)
+ExternalProject_Add(cppmicroservices
+	GIT_REPOSITORY https://github.com/cppmicroservices/cppmicroservices
+	GIT_TAG v3.1.0	
+        CMAKE_ARGS -DCMAKE_CXX_FLAGS='-Wimplicit-fallthrough=0'
+                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                   -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
+)
 
 set(CppMicroServices_BASE_DIR ${CMAKE_BINARY_DIR}/cppus_install/usr/local)
 set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
