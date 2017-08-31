@@ -31,8 +31,6 @@ ExternalProject_Add(cppmicroservices
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-                   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
 )
 
