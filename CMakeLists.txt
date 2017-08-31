@@ -30,8 +30,6 @@
 #**********************************************************************************/
 project(xacc LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
-#set(CMAKE_DISABLE_IN_SOURCE_BUILDS ON)
-#set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
@@ -39,15 +37,13 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 # Make sure all build libraries have reference to their dependents
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
+
+include(ExternalProject)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set (CMAKE_INSTALL_PREFIX "/usr/local/xacc" CACHE PATH "default install path" FORCE )
 endif()
-
-#find_package(CppMicroServices NO_MODULE REQUIRED)
-#get_filename_component(CppMicroServices_BASE_DIR ${CppMicroServices_RUNTIME_LIBRARY_DIRS} DIRECTORY)
-#set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
-#set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
 
 # Setup Doxygen
 find_package(Doxygen)
@@ -57,10 +53,6 @@ if(DOXYGEN_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" 
     VERBATIM)
 endif(DOXYGEN_FOUND)
-
-include(ExternalProject)
-
-set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(tpls)
 
@@ -113,8 +105,8 @@ ExternalProject_Add(xacc-core
 set(XACC_BASE_DIR ${CMAKE_BINARY_DIR}/stage${CMAKE_INSTALL_PREFIX})
 set(XACC_INCLUDE_DIR ${XACC_BASE_DIR}/include/xacc)
 set(XACC_LIBRARY_DIR ${XACC_BASE_DIR}/lib)
-
 string (REPLACE ";" " " XACC_Boost_LIBRARIES "${Boost_LIBRARIES}")
+
 ExternalProject_Add(xacc-quantum
    DEPENDS xacc-core
    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/quantum
@@ -144,9 +136,12 @@ ExternalProject_Add(xacc-quantum
 # and CMake loads include paths, libs, etc
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake")
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
+install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/xacc/)
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
+INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
+INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTINATION include) 
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib/cppmicroservices) 
+install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/stage/usr/local/xacc/" DESTINATION .) 
