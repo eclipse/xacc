@@ -28,11 +28,6 @@ matrix:
     - os: osx
       osx_image: xcode8.3
       compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Debug'
-
-    - os: osx
-      osx_image: xcode8.3
-      compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
 
 addons:
