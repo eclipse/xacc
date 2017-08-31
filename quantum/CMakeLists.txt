@@ -4,6 +4,9 @@ project(xacc-quantum LANGUAGES CXX)
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
+# Make sure all build libraries have reference to their dependents
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(CppMicroServices_DIR "${CPPUS_LIBRARY_DIR}/../share/cppmicroservices3/cmake")
 
