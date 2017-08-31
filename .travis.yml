@@ -37,13 +37,8 @@ matrix:
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      apt-get -y update && apt-get install -y libboost-all-dev git cmake
-    elif [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      which cmake || brew install cmake
-      brew install boost
-    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then apt-get -y update && apt-get install -y libboost-all-dev git cmake ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cmake && brew install boost; fi
 
 before_script:
   - export CXX=${COMPILER}
