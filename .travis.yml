@@ -1,31 +1,31 @@
 language: cpp
 sudo: true
-dist: xenial
+dist: trusty
 
 matrix:
   include:
 
     # Linux C++14 GCC builds
-    - os: linux
-      compiler: gcc
-      addons: &gcc6
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: 
-            - g++-6
-            - libboost-all-dev
-      env: COMPILER='g++-6' BUILD_TYPE='Release'
+    #    - os: linux
+    #  compiler: gcc
+    #  addons: &gcc6
+    #    apt:
+    #      sources: ['ubuntu-toolchain-r-test']
+    #        packages: 
+    #       - g++-6
+    #       - libboost-all-dev
+    # env: COMPILER='g++-6' BUILD_TYPE='Release'
 
     # Linux C++14 Clang builds
-    - os: linux
-      compiler: clang
-      addons: &clang38
-        apt:
-          sources: ['llvm-toolchain-precise-3.8', 'ubuntu-toolchain-r-test']
-          packages: 
-            - clang-3.8
-            - libboost-all-dev
-      env: COMPILER='clang++-3.8' BUILD_TYPE='Release'
+    #- os: linux
+    #compiler: clang
+    # addons: &clang38
+    #   apt:
+    #      sources: ['llvm-toolchain-precise-3.8', 'ubuntu-toolchain-r-test']
+    #      packages: 
+    #        - clang-3.8
+    #        - libboost-all-dev
+    #  env: COMPILER='clang++-3.8' BUILD_TYPE='Release'
 
     # OSX C++14 Clang Builds
 
@@ -33,6 +33,15 @@ matrix:
       osx_image: xcode8.3
       compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
+
+services:
+  - docker
+
+before_install:
+  - docker build -t xacc/xacc-fc25 docker/fedora/devel/fc25/Dockerfile
+  - docker build -t xacc/xacc-fc26 docker/fedora/devel/fc26/Dockerfile
+  - docker build -t xacc/xacc-xenial docker/ubuntu/devel/16.04/Dockerfile
+  - docker build -t xacc/xacc-zesty docker/ubuntu/devel/17.04/Dockerfile
 
 before_script:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install cmake && brew install boost; fi
