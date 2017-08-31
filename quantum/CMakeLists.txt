@@ -21,6 +21,7 @@ if (MPI_FOUND)
   message(STATUS "FOUND MPI: ${MPI_CXX_INCLUDE_PATH} AND ${MPI_CXX_LIBRARIES}")
   # We require Boost with MPI
   find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
+  include_directories(${MPI_CXX_INCLUDE_PATH})
 else()
   message(STATUS "MPI Not Found.")
 
@@ -35,7 +36,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${XACC_ROOT}/tpls/spdlog)
 include_directories(${XACC_ROOT}/tpls/eigen)
 include_directories(${CPPUS_INCLUDE_DIR})
-include_directories(${MPI_CXX_INCLUDE_PATH})
 include_directories(${CMAKE_BINARY_DIR})
 
 link_directories(${XACC_LIBRARY_DIR})
