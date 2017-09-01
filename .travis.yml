@@ -1,18 +1,7 @@
-language: cpp
 sudo: true
 dist: trusty
 services:
   - docker
-  
-matrix:
-  include:
-
-    # OSX C++14 Clang Builds
-
-    - os: osx
-      osx_image: xcode8.3
-      compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Release'
 
 before_install:
   - docker build -t xacc/xacc-fc25 docker/fedora/devel/fc25/Dockerfile
@@ -20,13 +9,6 @@ before_install:
   - docker build -t xacc/xacc-xenial docker/ubuntu/devel/16.04/Dockerfile
   - docker build -t xacc/xacc-zesty docker/ubuntu/devel/17.04/Dockerfile
 
-before_script:
-  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install cmake && brew install boost; fi
-  - export CXX=${COMPILER}
-  - cd ${TRAVIS_BUILD_DIR}
-  - cmake -H. -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -Wdev
-  - cd Build
-
 script:
-  - make -j 2
+  - echo ""
 
