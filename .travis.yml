@@ -4,10 +4,10 @@ services:
   - docker
 
 before_install:
-  - docker build -t xacc/xacc-fc25 docker/fedora/devel/fc25/Dockerfile
-  - docker build -t xacc/xacc-fc26 docker/fedora/devel/fc26/Dockerfile
-  - docker build -t xacc/xacc-xenial docker/ubuntu/devel/16.04/Dockerfile
-  - docker build -t xacc/xacc-zesty docker/ubuntu/devel/17.04/Dockerfile
+  - docker build -t xacc/xacc-fc25 docker/fedora/devel/fc25/Dockerfile .
+  - docker build -t xacc/xacc-fc26 docker/fedora/devel/fc26/Dockerfile .
+  - docker build -t xacc/xacc-xenial docker/ubuntu/devel/16.04/Dockerfile .
+  - docker build -t xacc/xacc-zesty docker/ubuntu/devel/17.04/Dockerfile .
 
 script:
   - echo ""
