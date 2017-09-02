@@ -95,7 +95,7 @@ struct runtime_get_func_table;
 template<typename Tuple,size_t ... Indices>
 struct runtime_get_func_table<Tuple,std::index_sequence<Indices...>>{
     using return_type=typename std::tuple_element<0,Tuple>::type&;
-    using get_func_ptr=return_type (*)(Tuple&) noexcept;
+    using get_func_ptr=return_type (*)(Tuple&);
     static constexpr get_func_ptr table[std::tuple_size<Tuple>::value]={
         &std::get<Indices>...
     };
