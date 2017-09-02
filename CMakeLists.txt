@@ -102,3 +102,4 @@ install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTIN
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 
 install( DIRECTORY "${CMAKE_BINARY_DIR}/stage/usr/local/xacc/" DESTINATION .) 
+install(PROGRAMS "${CMAKE_SOURCE_DIR}/tools/plugins/xacc-install-plugins.py" DESTINATION bin)
