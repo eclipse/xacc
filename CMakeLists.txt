@@ -34,12 +34,13 @@ ExternalProject_Add(cppmicroservices
 	CMAKE_ARGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
+		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
 )
 
 set(CppMicroServices_BASE_DIR ${CMAKE_BINARY_DIR}/cppus_install/usr/local)
-set(CppMicroServices_INCLUDE_DIR ${CppMicroServices_BASE_DIR}/include/cppmicroservices3)
-set(CppMicroServices_LIBRARY_DIR ${CppMicroServices_BASE_DIR}/lib)
+set(CppMicroServices_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
+set(CppMicroServices_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Look for OpenMP, add it we find it
 find_package(OpenMP)
@@ -59,7 +60,7 @@ ExternalProject_Add(xacc-core
 	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_BEFORE_INSTALL 1
    )
 
@@ -76,14 +77,14 @@ ExternalProject_Add(xacc-quantum
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-              -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
               -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
               -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DXACC_INCLUDE_DIR=${XACC_INCLUDE_DIR}
-	      -DXACC_LIBRARY_DIR=${XACC_LIBRARY_DIR}
+	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include/xacc #${XACC_INCLUDE_DIR}
+	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib #${XACC_LIBRARY_DIR}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR=${CMAKE_BINARY_DIR}/stage
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_AFTER_INSTALL 1
    )
 
@@ -97,9 +98,9 @@ install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
 INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin PATTERN "bin/*" PERMISSIONS OWNER_EXECUTE) 
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTINATION include) 
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib) 
-install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 
-install( DIRECTORY "${CMAKE_BINARY_DIR}/stage/usr/local/xacc/" DESTINATION .) 
+#install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/bin/" DESTINATION bin PATTERN "bin/*" PERMISSIONS OWNER_EXECUTE) 
+#install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/include/" DESTINATION include) 
+#install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/lib/" DESTINATION lib) 
+#install( DIRECTORY "${CMAKE_BINARY_DIR}/cppus_install/usr/local/share/" DESTINATION share) 
+#install( DIRECTORY "${CMAKE_BINARY_DIR}/stage/${CMAKE_INSTALL_PREFIX}" DESTINATION .) 
 install(PROGRAMS "${CMAKE_SOURCE_DIR}/tools/plugins/xacc-install-plugins.py" DESTINATION bin)

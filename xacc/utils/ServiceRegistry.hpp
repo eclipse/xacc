@@ -90,7 +90,7 @@ protected:
 			for (auto&& i : dir) {
 				if (!boost::filesystem::is_directory(i)) {
 					boost::filesystem::path path = i.path();
-					if (".so" == i.path().extension() || ".a" == i.path().extension()) {
+					if (".dylib" == i.path().extension() || ".so" == i.path().extension() || ".a" == i.path().extension()) {
 						context.InstallBundles(i.path().string());
 					}
 				}
@@ -102,8 +102,8 @@ protected:
 			for (boost::filesystem::directory_iterator itr(xaccLibPath);
 					itr != end_itr; ++itr) {
 				auto p = itr->path();
-				if ((p.extension() == ".so" || p.extension() == ".a")
-						&& (p.filename().string() != "libxacc.so")
+				if ((p.extension() == ".dylib" || p.extension() == ".so" || p.extension() == ".a")
+						&& (p.filename().string() != "libxacc.dylib" && p.filename().string() != "libxacc.so")
 						&& !boost::contains(p.filename().string(), "libCppMicroServices") 
 						&& !boost::contains(p.filename().string(), "libus")) {
 					context.InstallBundles(p.string());
