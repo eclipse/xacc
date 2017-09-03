@@ -45,7 +45,8 @@ def main(argv=None):
    # This python script should be in ${XACC_ROOT}/bin, 
    # we need to get XACC_ROOT
    xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
+   xacc_cwd = os.getcwd()
+   
    # Get the plugins we're supposed to install
    plugins = opts.plugins
 
@@ -67,13 +68,18 @@ def main(argv=None):
       set(CMAKE_CXX_STANDARD 14)
       set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
       set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+      include(ProcessorCount)
+      ProcessorCount(N)
+      if(N EQUAL 0)
+        set(N 1)
+      endif()
       include(ExternalProject)
       ExternalProject_Add("""+plugin+"""
                  GIT_REPOSITORY """+availablePluginUrls[plugin]+"""
                  GIT_TAG master
                  CMAKE_ARGS -DXACC_DIR="""+xaccLocation+"""
                  BUILD_ALWAYS 1
-                 INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+                 INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j${N} install
                  TEST_BEFORE_INSTALL 1
               )
           """
@@ -93,6 +99,8 @@ def main(argv=None):
       cmakecmd = ['cmake', '..']
       subprocess.check_call(cmakecmd, stderr=subprocess.STDOUT, shell=False)
       subprocess.check_call(['make'], stderr=subprocess.STDOUT, shell=False)
+      
+      os.chdir(xacc_cwd)
 
 if __name__ == "__main__":
     sys.exit(main())
