@@ -3,6 +3,7 @@ import argparse
 import sys
 import os
 import subprocess
+import multiprocessing
 
 def parse_args(args):
    parser = argparse.ArgumentParser(description="XACC Plugin Installer.",
@@ -46,7 +47,8 @@ def main(argv=None):
    # we need to get XACC_ROOT
    xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
    xacc_cwd = os.getcwd()
-   
+   cpus = str(multiprocessing.cpu_count())
+
    # Get the plugins we're supposed to install
    plugins = opts.plugins
 
@@ -79,7 +81,7 @@ def main(argv=None):
                  GIT_TAG master
                  CMAKE_ARGS -DXACC_DIR="""+xaccLocation+"""
                  BUILD_ALWAYS 1
-                 INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j${N} install
+                 INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
                  TEST_BEFORE_INSTALL 1
               )
           """
@@ -98,7 +100,7 @@ def main(argv=None):
       os.chdir('build')
       cmakecmd = ['cmake', '..']
       subprocess.check_call(cmakecmd, stderr=subprocess.STDOUT, shell=False)
-      subprocess.check_call(['make'], stderr=subprocess.STDOUT, shell=False)
+      subprocess.check_call(['make', '-j'+cpus], stderr=subprocess.STDOUT, shell=False)
       
       os.chdir(xacc_cwd)
 

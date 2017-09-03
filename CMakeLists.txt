@@ -28,9 +28,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERS
         set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wimplicit-fallthrough=0")
 endif()
 
-include(ProcessorCount)
-ProcessorCount(N)
-
 ExternalProject_Add(cppmicroservices
 	GIT_REPOSITORY https://github.com/cppmicroservices/cppmicroservices
 	GIT_TAG v3.1.0	
@@ -38,7 +35,7 @@ ExternalProject_Add(cppmicroservices
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j${N} install # DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
+        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
 )
 
 set(CppMicroServices_BASE_DIR ${CMAKE_BINARY_DIR}/cppus_install/usr/local)
@@ -63,7 +60,7 @@ ExternalProject_Add(xacc-core
 	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j${N} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_BEFORE_INSTALL 1
    )
 
@@ -87,7 +84,7 @@ ExternalProject_Add(xacc-quantum
 	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib #${XACC_LIBRARY_DIR}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j${N} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
+   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_AFTER_INSTALL 1
    )
 
