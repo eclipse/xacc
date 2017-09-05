@@ -80,7 +80,7 @@ public:
  * circuit gate (CircuitNode).
  *
  */
-class GateQIR: public virtual xacc::IR, public Graph<CircuitNode> {
+class GateQIR: public xacc::IR, public Graph<CircuitNode> {
 
 public:
 
