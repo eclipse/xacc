@@ -120,6 +120,10 @@ public:
 			src(sourceFile), accelerator(std::move(acc)) {
 	}
 
+	Program(std::shared_ptr<Accelerator> acc, const std::shared_ptr<xacc::IR> ir) :
+			xaccIR(std::move(ir)), accelerator(std::move(acc)) {
+	}
+
 	/**
 	 * The Constructor, takes the Accelerator to execute on,
 	 * and the source kernel string as a stream.
