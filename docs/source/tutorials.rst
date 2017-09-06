@@ -238,3 +238,5 @@ XACC Python Bindings Tutorial
 PyQuil-XACC Integration
 ------------------------
 
+XACC D-Wave Markowitz Financial Modeling
+-----------------------------------------
