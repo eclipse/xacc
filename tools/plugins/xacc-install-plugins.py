@@ -10,6 +10,7 @@ def parse_args(args):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      fromfile_prefix_chars='@')
    parser.add_argument("-p", "--plugins", nargs='*', type=str, help="The XACC Plugins to install.", required=True)
+   parser.add_argument("-a", "--extra-cmake-args", nargs='*', type=str, help="Any extra CMake arguments to drive the install.", required=False)
    opts = parser.parse_args(args)
    return opts
 
@@ -23,7 +24,9 @@ availablePluginUrls = { 'xacc-scaffold' : ornlqci+'/xacc-scaffold',
                     'ibm' : ornlqci+'/xacc-ibm',
                     'rigetti' : ornlqci+'/xacc-rigetti',
                     'scaffold' : ornlqci+'/xacc-scaffold',
-                    'dwave' : ornlqci+'/xacc-dwave' }
+                    'dwave' : ornlqci+'/xacc-dwave', 
+		    'vqe' : ornlqci+'/xacc-vqe', 
+		    'xacc-dwsapi-embedding' : ornlqci+'/xacc-dwsapi-embedding' }
 
 def mkdir_p(path):
     """ Operates like mkdir -p in a Unix-like system """
@@ -51,6 +54,11 @@ def main(argv=None):
 
    # Get the plugins we're supposed to install
    plugins = opts.plugins
+   cmake_args = ''
+
+   if not opts.extra_cmake_args == None:
+      for arg in opts.extra_cmake_args:
+         cmake_args += '-D'+ arg + ' '
 
    # Loop over the plugins and install them
    for plugin in plugins:
@@ -70,22 +78,16 @@ def main(argv=None):
       set(CMAKE_CXX_STANDARD 14)
       set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
       set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-      include(ProcessorCount)
-      ProcessorCount(N)
-      if(N EQUAL 0)
-        set(N 1)
-      endif()
       include(ExternalProject)
       ExternalProject_Add("""+plugin+"""
                  GIT_REPOSITORY """+availablePluginUrls[plugin]+"""
                  GIT_TAG master
-                 CMAKE_ARGS -DXACC_DIR="""+xaccLocation+"""
+                 CMAKE_ARGS -DXACC_DIR="""+xaccLocation+' '+cmake_args+"""
                  BUILD_ALWAYS 1
                  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
                  TEST_BEFORE_INSTALL 1
               )
           """
-          
       # Create a build directory
       mkdir_p(plugin+'-install')
       mkdir_p(plugin+'-install/build')
