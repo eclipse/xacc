@@ -96,9 +96,21 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-third-party-libraries">Install third-party libraries</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-xacc">Build XACC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-xacc-plugins">Installing XACC Plugins</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rigetti-support">Rigetti Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ibm-support">IBM Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tnqvm">TNQVM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scaffold-support">Scaffold Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-wave-support">D-Wave Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-bindings">Python Bindings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xacc-and-spack">XACC and Spack</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">XACC Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
 </ul>
 
             
@@ -189,40 +201,191 @@
 <td>Required</td>
 <td>1.59.0+</td>
 </tr>
-<tr class="row-even"><td>CppMicroServices</td>
-<td>Required</td>
-<td>3.1</td>
-</tr>
-<tr class="row-odd"><td>CppRestSDK</td>
-<td>Optional</td>
-<td>2.9+</td>
-</tr>
-<tr class="row-even"><td>OpenSSL</td>
-<td>Optional</td>
-<td>1.0+</td>
-</tr>
-<tr class="row-odd"><td>MPI</td>
+<tr class="row-even"><td>MPI</td>
 <td>Optional</td>
 <td>N/A</td>
-</tr>
-<tr class="row-even"><td>Python-Devel</td>
-<td>Optional</td>
-<td>2.7</td>
 </tr>
 </tbody>
 </table>
 <p>Note that you must have a C++14 compliant compiler.
 For GCC, this means version 6.1+, for Clang, this means 3.4+.</p>
-<p>Also note that CppRestSDK is optional. XACC uses this
-library for remote interacting with remotely hosted
-quantum resources. If you choose not to include this
-library in your XACC build, you will not have access
-to the Rigetti, D-Wave, or IBM Accelerators. If you
-choose to include CppRestSDK you must also install OpenSSL.</p>
-<p>To build the Python XACC API, you must also have
-installed the python development library and headers.</p>
-<p>You can build these dependencies with the <a class="reference external" href="https://github.com/llnl/spack">Spack</a> package manager. Configure
-your available system compilers by running</p>
+</div>
+<div class="section" id="build-xacc">
+<h2>Build XACC<a class="headerlink" href="#build-xacc" title="Permalink to this headline">¶</a></h2>
+<p>Clone the XACC repository:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc
+</pre></div>
+</div>
+<p>XACC requires CMake 3.2+ to build. Run the following to
+configure and build XACC:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ cd xacc &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake ..
+$ make install # can pass -jN for N = number of threads to use
+</pre></div>
+</div>
+<p>This will install XACC to /usr/local/xacc
+(Pass -DCMAKE_INSTALL_PREFIX=$YOURINSTALLPATH to install it somewhere else).</p>
+<p>Set your PATH variable to include the XACC bin directory:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PATH=/usr/local/xacc/bin:$PATH
+</pre></div>
+</div>
+<p>Additionally, you could add this to your home directory’s .basrhc file (or equivalent).</p>
+</div>
+<div class="section" id="installing-xacc-plugins">
+<h2>Installing XACC Plugins<a class="headerlink" href="#installing-xacc-plugins" title="Permalink to this headline">¶</a></h2>
+<p>If you have successfully built XACC (see above)
+then you can now run</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py --help
+</pre></div>
+</div>
+<p>This is a convenience python script to help download, build, and install
+all currently supported XACC plugins. The execution syntax is as follows:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p PLUGIN-NAME
+</pre></div>
+</div>
+<p>You can also run this script with multiple plugin names.</p>
+<p>Let’s see how to use this script to install the
+Rigetti, IBM, TNQVM, Scaffold, D-Wave, and Python plugins.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you want support for the IBM, D-Wave, and Rigetti Accelerators, you must install
+<a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
+is required for these Accelerators to make remote HTTP Rest calls to their
+respective server APIs. Here’s how to install these as binaries on various popular platforms:</p>
+<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
+$ (fedora) dnf install cpprest-devel openssl-devel
+$ (ubuntu) apt-get install libcpprest-dev libssl-dev
+</pre></div>
+</div>
+</div>
+<div class="section" id="rigetti-support">
+<h3>Rigetti Support<a class="headerlink" href="#rigetti-support" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-rigetti">Rigetti Plugin</a> provides
+support to XACC for compiling kernels writting in Quil, and executing programs
+on the Rigetti QVM via a Rigetti Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-rigetti
+</pre></div>
+</div>
+<p>You have now installed the Rigetti plugin. It is located in $XACC_ROOT/lib/plugins/accelerator
+and $XACC_ROOT/lib/plugins/compilers, where XACC_ROOT is your XACC install prefix.</p>
+</div>
+<div class="section" id="ibm-support">
+<h3>IBM Support<a class="headerlink" href="#ibm-support" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-ibm">IBM Plugin</a> provides
+support to XACC for executing programs
+on the IBM Quantum Experience via the IBM Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-ibm
+</pre></div>
+</div>
+<p>You have now installed the IBM plugin. It is located in $XACC_ROOT/lib/plugins/accelerator,
+where XACC_ROOT is your XACC install prefix.</p>
+</div>
+<div class="section" id="tnqvm">
+<h3>TNQVM<a class="headerlink" href="#tnqvm" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/tnqvm">TNQVM Plugin</a> provides
+support to XACC for executing programs
+on the ORNL tensor network quantum virtual machine.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This Accelerator requires BLAS/LAPACK libraries to be installed.
+Here’s how to install these as binaries on various popular platforms:</p>
+<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) should already be there in Accelerate Framework, if not
+$ (macosx) brew install openblas lapack
+$ (fedora) dnf install blas-devel lapack-devel
+$ (ubuntu) apt-get install libblas-dev liblapack-dev
+</pre></div>
+</div>
+</div>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p tnqvm
+</pre></div>
+</div>
+<p>You have now installed the TNQVM plugin. It is located in $XACC_ROOT/lib/plugins/accelerator,
+where XACC_ROOT is your XACC install prefix.</p>
+</div>
+<div class="section" id="scaffold-support">
+<h3>Scaffold Support<a class="headerlink" href="#scaffold-support" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Due to issues getting <a class="reference external" href="https://github.com/ornl-qci/ScaffCC">ScaffCC</a> to link correctly with RTTI on Mac OS X, we do not have a binary package installer for Mac OS X. We are open to PRs on this if you can help.</p>
+</div>
+<p>To use the <a class="reference external" href="https://github.com/ornl-qci/tnqvm">Scaffold Plugin</a> you must have our fork of
+Scaffold installed as a binary package. We have builds for Fedora 25/26 and Ubuntu 16.04/17.04. To
+install</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ (fedora) dnf install https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold-2.0-1.fc25.x86_64.rpm (REPLACE 25 with 26 if on FC26)
+$ (ubuntu) wget https://github.com/ORNL-QCI/ScaffCC/releases/download/v2.0/scaffold_2.0_amd64.deb
+$ (ubuntu) apt-get install -y $(dpkg --info scaffold_2.0_amd64.deb | grep Depends | sed &quot;s/.*ends:\ //&quot; | sed &#39;s/,//g&#39;)
+$ (ubuntu) dpkg -i scaffold_2.0_amd64.deb
+</pre></div>
+</div>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-scaffold
+</pre></div>
+</div>
+<p>You have now installed the Scaffold plugin. It is located in $XACC_ROOT/lib/plugins/compilers,
+where XACC_ROOT is your XACC install prefix.</p>
+</div>
+<div class="section" id="d-wave-support">
+<h3>D-Wave Support<a class="headerlink" href="#d-wave-support" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-dwave">D-Wave Plugin</a> provides
+support to XACC for executing programs
+on the D-Wave QPU via the D-Wave Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave
+</pre></div>
+</div>
+<p>You have now installed the D-Wave plugin. It is located in $XACC_ROOT/lib/plugins/accelerator,
+where XACC_ROOT is your XACC install prefix.</p>
+<p>Furthermore, XACC has extensibility built in for minor graph embedding
+algorithms. We currently have one supported embedding algorithm, a wrapper around
+the D-Wave SAPI Cai, Macready, Roi algorithm. In order to install this as a plugin,
+run the following</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following embedding algorithm needs to leverage the proprietary
+D-Wave SAPI header file and associated shared library: dwave_sapi.h and libdwave_sapi.so.
+In order for the installation below to work, place dwave_sapi.h in /usr/local/include/
+and libdwave_sapi.so in /usr/local/lib/</p>
+</div>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave-sapi-embedding
+</pre></div>
+</div>
+<p>You have now installed the D-Wave plugin. It is located in $XACC_ROOT/lib/plugins/accelerator
+and $XACC_ROOT/lib/plugins/compilers, where XACC_ROOT is your XACC install prefix.</p>
+</div>
+<div class="section" id="python-bindings">
+<h3>Python Bindings<a class="headerlink" href="#python-bindings" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-python">Python Plugin</a> provides
+Python language bindings to XACC through the <a class="reference external" href="https://github.com/pybind/pybind11">pybind11</a> project.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This plugin requires Python 2.7+ development headers/library.
+Here’s how to install these on various popular platforms:</p>
+<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install python
+$ (fedora) dnf install python-devel
+$ (ubuntu) apt-get install python-dev
+</pre></div>
+</div>
+</div>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-python
+</pre></div>
+</div>
+<p>You have now installed the Python plugin. It is located in $XACC_ROOT/lib/python,
+where XACC_ROOT is your XACC install prefix.</p>
+<p>In order to use this installation, you must update your PYTHONPATH environment variable</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$XACC_ROOT/lib/python:$PYTHONPATH
+</pre></div>
+</div>
+<p>We recommend placing this command in your home directory’s .bashrc file (or equivalent).</p>
+</div>
+</div>
+<div class="section" id="xacc-and-spack">
+<h2>XACC and Spack<a class="headerlink" href="#xacc-and-spack" title="Permalink to this headline">¶</a></h2>
+<p>You can build XACC and its dependencies with the <a class="reference external" href="https://github.com/llnl/spack">Spack</a> package manager.</p>
+<p>To configure your available system compilers run</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack compilers
 </pre></div>
 </div>
@@ -230,7 +393,8 @@ your available system compilers by running</p>
 <p class="first admonition-title">Note</p>
 <p class="last">If you run ‘spack config get compilers’ and your desired
 compiler has fc and f77 set to Null or None, then the
-install will not work. If this is the case, it usually
+install will not work if you are including MPI support.
+If this is the case, it usually
 works to run ‘spack config edit compilers’ and
 manually replace Null with /path/to/your/gfortran</p>
 </div>
@@ -254,50 +418,26 @@ $ spack compiler find
 </div>
 <p>Now install the dependencies with your specified C++14 compiler (mine
 will be gcc 7.2.0)</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack install boost+mpi+graph ^mpich %gcc@7.2.0
-$ spack install python %gcc@7.2.0
-$ spack install cpprestsdk %gcc@7.2.0
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ (with MPI support) spack install boost+mpi+graph ^mpich %gcc@7.2.0
+$ (without MPI support) spack install boost+graph %gcc@7.2.0
 </pre></div>
 </div>
-<p>CppMicroServices has not yet been accepted into the Spack (we will soon issue a PR
+<p>XACC has not yet been accepted into the Spack (we will soon issue a PR
 to get it shipped as part of Spack). So in order to install it with Spack
 we have to download our custom package recipe from the XACC repository:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ cd $SPACK_ROOT/var/spack/repos/builtin/packages/ &amp;&amp; mkdir cppmicroservices
-$ cd cppmicroservices &amp;&amp; wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spack/cppmicroservices/package.py .
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ cd $SPACK_ROOT/var/spack/repos/builtin/packages/ &amp;&amp; mkdir xacc
+$ cd xacc &amp;&amp; wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spack/xacc/package.py .
 </pre></div>
 </div>
 <p>Now we can run</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack install cppmicroservices %gcc@7.2.0
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack install xacc %gcc@7.2.0
 </pre></div>
 </div>
 <p>Once all these are installed, load them as environment modules
 so they are available for the XACC build:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack load cppmicroservices
-$ spack load boost
-$ spack load python
-$ spack load cpprestsdk
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack load boost
 </pre></div>
 </div>
-</div>
-<div class="section" id="build-xacc">
-<h2>Build XACC<a class="headerlink" href="#build-xacc" title="Permalink to this headline">¶</a></h2>
-<p>Clone the XACC repository:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc
-</pre></div>
-</div>
-<p>XACC requires CMake 2.8+ to build. Run the following to
-configure and build XACC:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ cd xacc &amp;&amp; mkdir build &amp;&amp; cd build
-$ cmake ..
-$ make install # can pass -jN for N = number of threads to use
-$ ctest
-</pre></div>
-</div>
-<p>This will install XACC to /usr/local/xacc. Since we built with
-CppRestSDK/OpenSSL, we have the Rigetti and D-Wave Accelerators
-installed. Since we build with Python, we also have
-/usr/local/xacc/lib/python/pyxacc.so which contains the
-XACC Python API.</p>
 </div>
 </div>
 

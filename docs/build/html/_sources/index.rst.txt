@@ -7,12 +7,14 @@ Welcome to XACC's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    overview
    install
    api
+   plugins
+   tutorials
 
 Indices and tables
 ==================

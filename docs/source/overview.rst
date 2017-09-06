@@ -12,6 +12,10 @@ To achieve this interoperability, XACC defines four primary abstractions or conc
 
 XACC has support for a number of languages and physical and virtual hardware instances. XACC provides a Compiler realization that enables quantum kernel programming in the Scaffold programming language - an effort that came out of the IARPA QCS program. This compiler leverages the Clang/LLVM library extensions developed under that project that extend the LLVM IR with quantum gate operations. XACC extends this compiler with support for new constructs, like custom quantum functions and source-to-source translations (mapping Scaffold to other languages). XACC provides an Accelerator realization that enables execution of quantum kernels in any available language for both the Rigetti Quantum Virtual Machine (QVM, Forest API) and the physical two qubit (pyquillow) Rigetti QPU. These Accelerators map the XACC IR to Quil (the Rigetti low-level assembly language) and leverage an HTTP Rest client to post compiled quantum kernel code to the Rigetti QVM/QPU driver servers. XACC also has support for the D-Wave QPU, which demonstrates the wide applicability of this heterogeneous hybrid programming model across quantum computing models. XACC has Compiler and Accelerator realizations that enable minor graph embedding of binary optimization problems and execution on the D-Wave Qubist QPU driver server, respectively.
 
+XACC Plugin Infrastructure
+---------------------------
+XACC relies on a project called `CppMicroServices <http://github.com/cppmicroservices/cppmicroservices>`_ - a native C++ implementation of the OSGi specification that enables an extensible plugin infrastructure for compilers and accelerators. As such, installation of XACC provides the core infrastructure for describing Programs, Compilers, Accelerators, and IR. To enable support for various compilers and accelerators (like the Scaffold or Quil compilers, or the IBM or Rigetti QPUs) you must install the appropriate plugin (see `XACC Plugins <plugins.html>`_).
+
 XACC Development Team
 ----------------------
 
@@ -22,9 +26,6 @@ XACC is developed and maintained by:
 * `Eugene Dumitrescu <dumitrescuef@ornl.gov>`_
 * `Dmitry Liakh <liakhdi@ornl.gov>`_
 * `Mengsu Chen <mschen@vt.edu>`_
-
-XACC Packages
---------------
 
 Questions, Bug Reporting, and Issue Tracking
 ---------------------------------------------

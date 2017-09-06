@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>XACC Tutorials &mdash; XACC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="XACC Plugins" href="plugins.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">XACC Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">XACC Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xacc-python-bindings-tutorial">XACC Python Bindings Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyquil-xacc-integration">PyQuil-XACC Integration</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>XACC Tutorials</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="xacc-tutorials">
+<h1>XACC Tutorials<a class="headerlink" href="#xacc-tutorials" title="Permalink to this headline">¶</a></h1>
+<p>First off, make sure you have successfully built XACC (see <a class="reference external" href="install.html">XACC Install</a>).</p>
+<div class="section" id="rigetti-qvm-tutorial">
+<h2>Rigetti QVM Tutorial<a class="headerlink" href="#rigetti-qvm-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>Create a new directory called test-xacc-rigetti and cd into it. Let’s now create a
+test-xacc-rigetti.cpp file and get it started with the following boilerplate code:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="c1">#include &quot;XACC.hpp&quot;</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="o">//</span> <span class="n">Initialize</span> <span class="n">XACC</span> <span class="o">-</span> <span class="n">find</span> <span class="nb">all</span> <span class="n">available</span>
+   <span class="o">//</span> <span class="n">compilers</span> <span class="ow">and</span> <span class="n">accelerators</span><span class="p">,</span> <span class="n">parse</span> <span class="n">command</span> <span class="n">line</span><span class="o">.</span>
+   <span class="n">xacc</span><span class="p">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+   <span class="o">//</span> <span class="o">...</span> <span class="n">Code</span> <span class="n">to</span> <span class="n">come</span> <span class="o">...</span>
+
+   <span class="o">//</span> <span class="n">Finalize</span> <span class="n">the</span> <span class="n">framework</span><span class="o">.</span>
+   <span class="n">xacc</span><span class="p">::</span><span class="n">Finalize</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Building this code is straightforward with CMake. Create a CMakeLists.txt file in the same
+directory as the test-xacc-rigetti.cpp file, and add the following to it:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span># Start a CMake project
+project(test-xacc-rigetti CXX)
+
+# Set the minimum version to 3.2
+cmake_minimum_required(VERSION 3.2)
+
+# Find XACC
+find_package(XACC REQUIRED)
+
+# Find Boost
+find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
+
+# Include all XACC Include Directories
+include_directories(${XACC_INCLUDE_DIRS})
+
+# Link to the XACC Library Directory,
+link_directories(${XACC_LIBRARY_DIR})
+
+# Create the executabe
+add_executable(test-xacc-rigetti test-xacc-rigetti.cpp)
+
+# Like the necessary libaries
+target_link_libraries(test-xacc-rigetti ${XACC_LIBRARIES} dl pthread)
+</pre></div>
+</div>
+<p>Now from within the test-xacc-rigetti directory, run the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+</pre></div>
+</div>
+<p>This will build test-xacc-rigetti.cpp and provide you with a test-xacc-rigetti executable. Run that
+executable to ensure that your build worked (you should see the following output):
+.. code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ make
+$ ./test-xacc-rigetti
+[2017-06-20 16:14:07.076] [xacc-console] [info] [xacc] Initializing XACC Framework
+[2017-06-20 16:14:07.091] [xacc-console] [info] [xacc::compiler] XACC has 1 Compilers available.
+[2017-06-20 16:14:07.091] [xacc-console] [info] [xacc::accelerator] XACC has 1 Accelerators available.
+[2017-06-20 16:14:07.091] [xacc-console] [info]
+[xacc] XACC Finalizing
+[xacc::compiler] Cleaning up Compiler Registry.
+[xacc::accelerator] Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>Now that we have our build and initial boilerplate code setup, let’s actually write some quantum code, specifically
+teleporting the state of one qubit to another. Following the XACC.hpp include statement at the top of the file,
+add the following quantum kernel declaration:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">std</span><span class="p">::</span><span class="n">string</span> <span class="n">src</span><span class="p">(</span><span class="s2">&quot;__qpu__ teleport (qbit qreg) {</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   cbit creg[3];</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   // Init qubit 0 to 1</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   X(qreg[0]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   // Now teleport...</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   H(qreg[1]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   CNOT(qreg[1],qreg[2]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   CNOT(qreg[0],qreg[1]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   H(qreg[0]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   if (creg[0] == 1) Z(qreg[2]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   if (creg[1] == 1) X(qreg[2]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   // Check that 3rd qubit is a 1</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;   creg[2] = MeasZ(qreg[2]);</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="s2">&quot;}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now we are ready to build and execute this kernel using the XACC Runtime API. After the call
+to xacc::Initialize, add the following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>// Create a reference to the Rigetti
+// QPU at api.rigetti.com/qvm
+auto qpu = xacc::getAccelerator(&quot;rigetti&quot;);
+
+// Allocate a register of 3 qubits
+auto qubitReg = qpu-&gt;createBuffer(&quot;qreg&quot;, 3);
+
+// Create a Program
+xacc::Program program(qpu, src);
+
+// Request the quantum kernel representing
+// the above source code
+auto teleport = program.getKernel(&quot;teleport&quot;);
+
+// Execute!
+teleport(qubitReg);
+</pre></div>
+</div>
+<p>The code above starts by getting a reference to the RigettiAccelerator.
+With that reference, we then allocate a register of qubits
+to operate the teleport kernel on. Next, we instantiate an XACC Program instance, which keeps track of the
+desired Accelerator and the source code to be compiled. The Program instance orchestrates the compilation of the
+quantum kernel to produce the XACC intermediate representation, and then handles the creation of an
+executable classical kernel function that offloads the compiled quantum code to the specified Accelerator.
+Finally, the user requests a reference to the executable kernel functor, and executes it on the
+provided register of qubits.</p>
+<p>The total test-xacc-rigetti.cpp file should look like this:
+.. code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>#include &quot;XACC.hpp&quot;
+
+// Quantum Kernel executing teleportation of
+// qubit state to another.
+const std::string src(&quot;__qpu__ teleport (qbit qreg) {\n&quot;
+&quot;   cbit creg[3];\n&quot;
+&quot;   // Init qubit 0 to 1\n&quot;
+&quot;   X(qreg[0]);\n&quot;
+&quot;   // Now teleport...\n&quot;
+&quot;   H(qreg[1]);\n&quot;
+&quot;   CNOT(qreg[1],qreg[2]);\n&quot;
+&quot;   CNOT(qreg[0],qreg[1]);\n&quot;
+&quot;   H(qreg[0]);\n&quot;
+&quot;   creg[0] = MeasZ(qreg[0]);\n&quot;
+&quot;   creg[1] = MeasZ(qreg[1]);\n&quot;
+&quot;   if (creg[0] == 1) Z(qreg[2]);\n&quot;
+&quot;   if (creg[1] == 1) X(qreg[2]);\n&quot;
+&quot;   // Check that 3rd qubit is a 1\n&quot;
+&quot;   creg[2] = MeasZ(qreg[2]);\n&quot;
+&quot;}\n&quot;);
+
+int main (int argc, char** argv) {
+
+   // Initialize the XACC Framework
+   xacc::Initialize(argc, argv);
+
+   // Create a reference to the Rigetti
+   // QPU at api.rigetti.com/qvm
+   auto qpu = xacc::getAccelerator(&quot;rigetti&quot;);
+
+   // Allocate a register of 3 qubits
+   auto qubitReg = qpu-&gt;createBuffer(&quot;qreg&quot;, 3);
+
+   // Create a Program
+   xacc::Program program(qpu, src);
+
+   // Request the quantum kernel representing
+   // the above source code
+   auto teleport = program.getKernel(&quot;teleport&quot;);
+
+   // Execute!
+   teleport(qubitReg);
+
+   // Finalize the XACC Framework
+   xacc::Finalize();
+
+   return 0;
+}
+</pre></div>
+</div>
+<p>Now, to build simple run:
+.. code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd test-xacc-rigetti/build
+$ make
+</pre></div>
+</div>
+<p>To execute this code on the Rigetti QVM, you must provide your API key. You can do this
+the same way you do with PyQuil (in your $HOME/.pyquil_config file, or in the $PYQUIL_CONFIG
+environment variable). You can also pass your API key to the XACC executable through the
+–rigetti-api-key command line argument:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ ./test-xacc-rigetti --rigetti-api-key KEY
+[2017-06-20 17:43:38.744] [xacc-console] [info] [xacc] Initializing XACC Framework
+[2017-06-20 17:43:38.760] [xacc-console] [info] [xacc::compiler] XACC has 3 Compilers available.
+[2017-06-20 17:43:38.760] [xacc-console] [info] [xacc::accelerator] XACC has 2 Accelerators available.
+[2017-06-20 17:43:38.766] [xacc-console] [info] Executing Scaffold compiler.
+[2017-06-20 17:43:38.770] [xacc-console] [info] Rigetti Json Payload = { &quot;type&quot; : &quot;multishot&quot;, &quot;addresses&quot; : [0, 1, 2], &quot;quil-instructions&quot; : &quot;X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n&quot;, &quot;trials&quot; : 10 }
+[2017-06-20 17:43:40.439] [xacc-console] [info] Successful HTTP Post to Rigetti.
+[2017-06-20 17:43:40.439] [xacc-console] [info] Rigetti QVM Response:
+[[0,1,1],[1,1,1],[1,1,1],[0,1,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[0,0,1],[0,0,1]]
+[2017-06-20 17:43:40.439] [xacc-console] [info]
+[xacc] XACC Finalizing
+[xacc::compiler] Cleaning up Compiler Registry.
+[xacc::accelerator] Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>You should see the console text printed above.</p>
+<p>You can also tailor the number of executions that occur for the multishot execution type:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ ./test-xacc-rigetti --rigetti-trials 1000
+[2017-06-20 17:50:57.285] [xacc-console] [info] [xacc] Initializing XACC Framework
+[2017-06-20 17:50:57.301] [xacc-console] [info] [xacc::compiler] XACC has 3 Compilers available.
+[2017-06-20 17:50:57.301] [xacc-console] [info] [xacc::accelerator] XACC has 2 Accelerators available.
+[2017-06-20 17:50:57.307] [xacc-console] [info] Executing Scaffold compiler.
+[2017-06-20 17:50:57.310] [xacc-console] [info] Rigetti Json Payload = { &quot;type&quot; : &quot;multishot&quot;, &quot;addresses&quot; : [0, 1, 2], &quot;quil-instructions&quot; : &quot;X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n&quot;, &quot;trials&quot; : 100 }
+[2017-06-20 17:50:57.909] [xacc-console] [info] Successful HTTP Post to Rigetti.
+[2017-06-20 17:50:57.909] [xacc-console] [info] Rigetti QVM Response:
+[[1,0,1],[0,0,1],[1,1,1],[0,1,1],[1,0,1],[0,1,1],[0,0,1],[1,1,1],[1,0,1],[1,0,1],[0,0,1],[1,0,1],[1,1,1],[0,1,1],[0,0,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[1,1,1],[1,0,1],[0,0,1],[0,0,1],[1,0,1],[0,1,1],[0,0,1],[1,1,1],[0,0,1],[0,1,1],[1,1,1],[1,0,1],[1,0,1],[0,1,1],[0,1,1],[1,1,1],[1,1,1],[1,1,1],[0,1,1],[1,1,1],[1,0,1],[1,0,1],[1,1,1],[1,1,1],[0,0,1],[1,1,1],[0,0,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[1,0,1],[0,0,1],[1,1,1],[0,1,1],[0,1,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1],[1,0,1],[0,1,1],[0,0,1],[0,1,1],[1,0,1],[0,1,1],[1,0,1],[0,0,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[1,1,1],[0,1,1],[1,0,1],[1,1,1],[0,1,1],[1,0,1],[1,0,1],[0,0,1],[1,0,1],[0,0,1],[0,0,1],[1,0,1],[1,1,1],[0,1,1],[0,1,1],[0,1,1],[1,0,1],[1,1,1],[1,1,1],[0,1,1],[0,1,1],[0,1,1]]
+[2017-06-20 17:50:57.910] [xacc-console] [info]
+[xacc] XACC Finalizing
+[xacc::compiler] Cleaning up Compiler Registry.
+[xacc::accelerator] Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>Note above we let XACC find the API Key in the standard .pyquil_config file.</p>
+</div>
+<div class="section" id="xacc-python-bindings-tutorial">
+<h2>XACC Python Bindings Tutorial<a class="headerlink" href="#xacc-python-bindings-tutorial" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pyquil-xacc-integration">
+<h2>PyQuil-XACC Integration<a class="headerlink" href="#pyquil-xacc-integration" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="plugins.html" class="btn btn-neutral" title="XACC Plugins" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Alex McCaskey.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

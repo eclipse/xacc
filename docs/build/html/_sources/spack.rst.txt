@@ -1,0 +1,72 @@
+XACC and Spack
+===============
+You can build these dependencies with the `Spack
+<https://github.com/llnl/spack>`_ package manager. Configure
+your available system compilers by running
+
+.. code::
+
+   $ spack compilers
+
+.. note::
+
+If you run 'spack config get compilers' and your desired
+compiler has fc and f77 set to Null or None, then the
+install will not work if you are including MPI support.
+If this is the case, it usually
+works to run 'spack config edit compilers' and
+manually replace Null with /path/to/your/gfortran
+
+We will rely on the environment-modules package to load/unload
+installed Spack modules. If you don't have this installed
+(you can check by running 'module avail') install with
+
+.. code::
+
+   $ spack install environment-modules
+
+Add the following to your ~/.bashrc (or equivalent)
+
+.. code::
+
+   . $SPACK_ROOT/share/spack/setup-env.sh
+   source $(spack location -i environment-modules)/Modules/init/bash
+
+If you do not have a C++14 compliant compiler, you can
+install one with Spack, for example
+
+.. code::
+
+   $ spack install gcc@7.2.0 # this will take awhile...
+   $ spack load gcc
+   $ spack compiler find
+
+Now install the dependencies with your specified C++14 compiler (mine
+will be gcc 7.2.0)
+
+.. code::
+
+   $ (with MPI support) spack install boost+mpi+graph ^mpich %gcc@7.2.0
+   $ (without MPI support) spack install boost+graph %gcc@7.2.0
+
+XACC has not yet been accepted into the Spack (we will soon issue a PR
+to get it shipped as part of Spack). So in order to install it with Spack
+we have to download our custom package recipe from the XACC repository:
+
+.. code::
+
+   $ cd $SPACK_ROOT/var/spack/repos/builtin/packages/ && mkdir xacc
+   $ cd xacc && wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spack/xacc/package.py .
+
+Now we can run
+
+.. code::
+
+   $ spack install xacc %gcc@7.2.0
+
+Once all these are installed, load them as environment modules
+so they are available for the XACC build:
+
+.. code::
+
+   $ spack load boost

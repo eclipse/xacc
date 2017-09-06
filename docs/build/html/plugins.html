@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>XACC Plugins &mdash; XACC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="XACC Tutorials" href="tutorials.html"/>
+        <link rel="prev" title="XACC API" href="api.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">XACC Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rigetti">Rigetti</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rigettiaccelerator">RigettiAccelerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mapping-xacc-ir-to-quil">Mapping XACC IR to Quil</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#executing-quil-code-on-rigetti-qvm">Executing Quil code on Rigetti QVM</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ibm">IBM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-wave">D-Wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scaffold">Scaffold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tnqvm">TNQVM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>XACC Plugins</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/plugins.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="xacc-plugins">
+<h1>XACC Plugins<a class="headerlink" href="#xacc-plugins" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="rigetti">
+<h2>Rigetti<a class="headerlink" href="#rigetti" title="Permalink to this headline">¶</a></h2>
+<p>Rigetti Computing, Inc (<a class="reference external" href="rigetti.com">rigetti.com</a>) is a recently founded startup that is focused on
+developing quantum computing hardware and software and bring it to market.
+They are working to build a cloud quantum computing platform for AI and
+computational chemistry. They currently have a QVM simulation server
+that can be accessed via a REST API with a private API key. Rigetti has
+also done great work as of late in providing open source programming tools for
+interfacing with their QVM - specifically, the PyQuil python framework
+<a class="reference external" href="https://github.com/rigetticomputing/pyquil">PyQuil</a>.</p>
+<p>Recently, the ORNL QCI <a class="reference external" href="http://quantum.ornl.gov">(quantum.ornl.gov)</a>, the XACC project,
+and the Software and Applications Team from Rigetti have begun collaborating in
+an effort to expose the Rigetti QVM server and programming tools to XACC and its user
+community. This article describes the results of that work - specifically, a
+new XACC Accelerator implementation that executes quantum kernels on the
+Rigetti QVM server. For a more hands-on tutorial on how to use XACC and the Rigetti
+Accelerator, check out <a class="reference external" href="tutorials.html#RigettiQVMTutorial">Rigetti Tutorial</a>).</p>
+<div class="section" id="rigettiaccelerator">
+<h3>RigettiAccelerator<a class="headerlink" href="#rigettiaccelerator" title="Permalink to this headline">¶</a></h3>
+<p>The RigettiAccelerator is an implementation or realization of the pluggable
+XACC Accelerator interface. The RigettAccelerator class architecture diagram is
+shown in Figure 1. The RigettiAccelerator’s implementation of the Accelerator::execute() method
+is charged with two primary tasks: (1) the translation of the XACC IR to an equivalent
+Quil string, and (2) constructing and executing an
+appropriate HTTPS Post on the Rigetti QVM server. The only remaining
+thing to do once those two tasks are complete is to processes the resultant response from the server.</p>
+<img alt="../../assets/rigetti-acc-arch.png" src="../../assets/rigetti-acc-arch.png" />
+</div>
+<div class="section" id="mapping-xacc-ir-to-quil">
+<h3>Mapping XACC IR to Quil<a class="headerlink" href="#mapping-xacc-ir-to-quil" title="Permalink to this headline">¶</a></h3>
+<p>Basically,
+at its core, the XACC IR provides a tree-like, in-memory representation and API for a
+compiled quantum kernel. The leaves of this tree are XACC Instructions and the nodes
+of the tree are XACC Functions, which are composed of further child Instructions. The
+XACC Quantum IR implementation provides a number of standard gate Instruction implementations
+(Hadamard, CNOT, rotations, etc…) These serve as the leaves of the IR tree. These
+instruction implementations know nothing of the Quil intermediate language and it would be tedious
+and a poor design decision to to update the entire XACC Quantum IR package (we would have to do the
+same for any and all current and future low-level languages). So XACC employs a common
+software engineering design pattern to enable this XACC IR to Quil mapping: the
+visitor pattern, which provides a mechansim for adding new operations to an
+existing object without modifying the design of that object (<a class="reference external" href="https://en.wikipedia.org/wiki/Visitor_pattern">Visitor Pattern</a>). For each derived gate Instruction, a Visitor class implements a
+corresponding <code class="docutils literal"><span class="pre">`visit`</span></code> method (<code class="docutils literal"><span class="pre">`visit(Hadamard&amp;</span> <span class="pre">h)`</span></code>, etc…). All gate instructions have the
+ability to accept an incoming Visitor, and upon doing so, invoke the <code class="docutils literal"><span class="pre">`visit`</span></code> method that
+corresponds to their type, thus giving the Visitor type information for the Gate Instruction.
+Therefore, mapping to Quil simply involves walking the IR tree, and telling each Instruction to
+accept the visitor:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">auto</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">QuilVisitor</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">InstructionIterator</span> <span class="n">it</span><span class="p">(</span><span class="n">kernel</span><span class="p">);</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
+   <span class="o">//</span> <span class="n">Get</span> <span class="n">the</span> <span class="nb">next</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">tree</span>
+   <span class="n">auto</span> <span class="n">nextInst</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">nextInst</span><span class="o">-&gt;</span><span class="n">isEnabled</span><span class="p">())</span> <span class="n">nextInst</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">(</span><span class="n">visitor</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">auto</span> <span class="n">quilStr</span> <span class="o">=</span> <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">getQuilString</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>The visitor implementation is known as the QuilVisitor, and its visit methods look like this (Hadamard for example):</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">visit</span><span class="p">(</span><span class="n">Hadamard</span><span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;H &quot;</span> <span class="o">+</span> <span class="n">std</span><span class="p">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">bits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or for a more complicated gate Instruction:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">visit</span><span class="p">(</span><span class="n">ConditionalFunction</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">auto</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">QuilVisitor</span><span class="o">&gt;</span><span class="p">();</span>
+   <span class="n">auto</span> <span class="n">classicalBitIdx</span> <span class="o">=</span> <span class="n">qubitToClassicalBitIndex</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">getConditionalQubit</span><span class="p">()];</span> <span class="o">//</span> <span class="n">populated</span> <span class="ow">in</span> <span class="n">visit</span><span class="p">(</span><span class="n">Measure</span><span class="p">)</span>
+   <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;JUMP-UNLESS @&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; [&quot;</span> <span class="o">+</span> <span class="n">std</span><span class="p">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">classicalBitIdx</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+   <span class="k">for</span> <span class="p">(</span><span class="n">auto</span> <span class="n">inst</span> <span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">getInstructions</span><span class="p">())</span> <span class="p">{</span>
+       <span class="n">inst</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">(</span><span class="n">visitor</span><span class="p">);</span>
+   <span class="p">}</span>
+  <span class="n">quilStr</span> <span class="o">+=</span> <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">getQuilString</span><span class="p">();</span>
+  <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;LABEL @&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>After walking the IR tree, the Quil representation is produced with a call to getQuilString().</p>
+</div>
+<div class="section" id="executing-quil-code-on-rigetti-qvm">
+<h3>Executing Quil code on Rigetti QVM<a class="headerlink" href="#executing-quil-code-on-rigetti-qvm" title="Permalink to this headline">¶</a></h3>
+<p>With the XACC IR mapped to Quil, the RigettiAccelerator is ready to execute
+on the Rigetti QVM. The main task here is to construct the proper JSON payload string
+that contains information about the type of the execution, the classical memory address
+indices, and the Quil instructions string. The types of execution that the QVM allows are
+multishot, multishot-measure, wavefunction, and expectation. In this work, we have primarily focused
+on the multishot method. If the execution type is
+multishot, then we can provide a further JSON key that is an integer that gives the
+number of executions of the Quil code to run.</p>
+</div>
+</div>
+<div class="section" id="ibm">
+<h2>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="d-wave">
+<h2>D-Wave<a class="headerlink" href="#d-wave" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="scaffold">
+<h2>Scaffold<a class="headerlink" href="#scaffold" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="tnqvm">
+<h2>TNQVM<a class="headerlink" href="#tnqvm" title="Permalink to this headline">¶</a></h2>
+<p>Python
+—— -</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="XACC Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api.html" class="btn btn-neutral" title="XACC API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Alex McCaskey.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
