@@ -21,6 +21,18 @@ The following third party libraries (TPLs) are used by XACC:
 Note that you must have a C++14 compliant compiler. 
 For GCC, this means version 6.1+, for Clang, this means 3.4+.
 
+These dependencies are relatively easy to install on popular operating
+systems. Any of the following commands will work (showing with and without MPI):
+
+.. code::
+
+   $ (macosx) brew install boost
+   $ (macosx) brew install boost-mpi
+   $ (fedora) dnf install boost-devel
+   $ (fedora) dnf install boost-mpich-devel
+   $ (fedora) dnf install boost-openmpi-devel
+   $ (ubuntu) apt-get install libboost-all-dev # will install openmpi
+
 Build XACC
 -----------
 
