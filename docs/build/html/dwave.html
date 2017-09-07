@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -9,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; XACC 0.0.1 documentation</title>
+  <title>D-Wave Integration &mdash; XACC 0.0.1 documentation</title>
   
 
   
@@ -34,9 +33,10 @@
 
   
         <link rel="index" title="Index"
-              href="#"/>
+              href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/> 
+    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="IBM Integration" href="ibm.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -90,7 +90,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
@@ -99,7 +99,13 @@
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">D-Wave Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             
@@ -144,12 +150,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Index</li>
+      <li>D-Wave Integration</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
+            <a href="_sources/dwave.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -161,11 +169,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+  <div class="section" id="d-wave-integration">
+<h1>D-Wave Integration<a class="headerlink" href="#d-wave-integration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you want support for the D-Wave Accelerator, you must install
+<a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
+is required for these Accelerators to make remote HTTP Rest calls to their
+respective server APIs. Here’s how to install these as binaries on various popular platforms:</p>
+<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
+$ (fedora) dnf install cpprest-devel openssl-devel
+$ (ubuntu) apt-get install libcpprest-dev libssl-dev
+</pre></div>
+</div>
+</div>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-dwave">D-Wave Plugin</a> provides
+support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave
+</pre></div>
+</div>
+<p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code> and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where XACC_ROOT is your XACC install prefix.</p>
+<div class="section" id="extensibility-for-minor-graph-embedding-algorithms">
+<h3>Extensibility for Minor Graph Embedding Algorithms<a class="headerlink" href="#extensibility-for-minor-graph-embedding-algorithms" title="Permalink to this headline">¶</a></h3>
+<p>XACC has extensibility built in for minor graph embedding
+algorithms. We currently have one supported embedding algorithm (with more coming online), a wrapper around the D-Wave SAPI Cai, Macready, Roi algorithm. In order to install this as a plugin, run the following</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following embedding algorithm needs to leverage the proprietary
+D-Wave SAPI header file and associated shared library: <code class="docutils literal"><span class="pre">dwave_sapi.h</span></code> and <code class="docutils literal"><span class="pre">libdwave_sapi.so</span></code> (or <code class="docutils literal"><span class="pre">libdwave_sapi.dylib</span></code> on macosx).
+In order for the installation below to work, place dwave_sapi.h in <code class="docutils literal"><span class="pre">/usr/local/include/</span></code> and <code class="docutils literal"><span class="pre">libdwave_sapi.so</span></code> or <code class="docutils literal"><span class="pre">libdwave_sapi.dylib</span></code> in <code class="docutils literal"><span class="pre">/usr/local/lib/</span></code></p>
+</div>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave-sapi-embedding
+</pre></div>
+</div>
+<p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/embedding</span></code>, where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+</div>
+</div>
 </div>
 
 
@@ -175,6 +217,13 @@
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="ibm.html" class="btn btn-neutral" title="IBM Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

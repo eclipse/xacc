@@ -13,8 +13,14 @@ Welcome to XACC's documentation!
    overview
    install
    api
-   plugins
-   tutorials
+   python
+   scaffold
+   tnqvm
+   rigetti
+   ibm
+   dwave
+   
+
 
 Indices and tables
 ==================

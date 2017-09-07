@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xacc-python-bindings-tutorial">XACC Python Bindings Tutorial</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pyquil-xacc-integration">PyQuil-XACC Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xacc-d-wave-markowitz-financial-modeling">XACC D-Wave Markowitz Financial Modeling</a></li>
 </ul>
 </li>
 </ul>
@@ -257,7 +258,7 @@ add the following quantum kernel declaration:</p>
 </div>
 <p>Now we are ready to build and execute this kernel using the XACC Runtime API. After the call
 to xacc::Initialize, add the following:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>// Create a reference to the Rigetti
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span>// Create a reference to the Rigetti
 // QPU at api.rigetti.com/qvm
 auto qpu = xacc::getAccelerator(&quot;rigetti&quot;);
 
@@ -384,6 +385,9 @@ environment variable). You can also pass your API key to the XACC executable thr
 </div>
 <div class="section" id="pyquil-xacc-integration">
 <h2>PyQuil-XACC Integration<a class="headerlink" href="#pyquil-xacc-integration" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="xacc-d-wave-markowitz-financial-modeling">
+<h2>XACC D-Wave Markowitz Financial Modeling<a class="headerlink" href="#xacc-d-wave-markowitz-financial-modeling" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

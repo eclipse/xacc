@@ -1,0 +1,40 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Getting started with XACC}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Overview}{1}{section.1.1}
+\contentsline {section}{\numberline {1.2}XACC Plugin Infrastructure}{2}{section.1.2}
+\contentsline {section}{\numberline {1.3}XACC Development Team}{2}{section.1.3}
+\contentsline {section}{\numberline {1.4}Questions, Bug Reporting, and Issue Tracking}{2}{section.1.4}
+\contentsline {section}{\numberline {1.5}Publications and Presentations}{2}{section.1.5}
+\contentsline {chapter}{\numberline {2}Installation}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}Install third-party libraries}{3}{section.2.1}
+\contentsline {section}{\numberline {2.2}Build XACC}{3}{section.2.2}
+\contentsline {section}{\numberline {2.3}Installing XACC Plugins}{4}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Rigetti Support}{4}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}IBM Support}{4}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}TNQVM}{5}{subsection.2.3.3}
+\contentsline {subsection}{\numberline {2.3.4}Scaffold Support}{5}{subsection.2.3.4}
+\contentsline {subsection}{\numberline {2.3.5}D-Wave Support}{5}{subsection.2.3.5}
+\contentsline {subsection}{\numberline {2.3.6}Python Bindings}{6}{subsection.2.3.6}
+\contentsline {section}{\numberline {2.4}XACC and Spack}{6}{section.2.4}
+\contentsline {chapter}{\numberline {3}XACC API}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}Kernels}{9}{section.3.1}
+\contentsline {section}{\numberline {3.2}Compilers}{9}{section.3.2}
+\contentsline {section}{\numberline {3.3}Intermediate Representation}{9}{section.3.3}
+\contentsline {section}{\numberline {3.4}IR Transformations}{9}{section.3.4}
+\contentsline {section}{\numberline {3.5}Accelerators}{9}{section.3.5}
+\contentsline {section}{\numberline {3.6}Programs}{9}{section.3.6}
+\contentsline {chapter}{\numberline {4}XACC Plugins}{11}{chapter.4}
+\contentsline {section}{\numberline {4.1}Rigetti}{11}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}RigettiAccelerator}{11}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Mapping XACC IR to Quil}{11}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}Executing Quil code on Rigetti QVM}{12}{subsection.4.1.3}
+\contentsline {section}{\numberline {4.2}IBM}{13}{section.4.2}
+\contentsline {section}{\numberline {4.3}D-Wave}{13}{section.4.3}
+\contentsline {section}{\numberline {4.4}Scaffold}{13}{section.4.4}
+\contentsline {section}{\numberline {4.5}TNQVM}{13}{section.4.5}
+\contentsline {chapter}{\numberline {5}XACC Tutorials}{15}{chapter.5}
+\contentsline {section}{\numberline {5.1}Rigetti QVM Tutorial}{15}{section.5.1}
+\contentsline {section}{\numberline {5.2}XACC Python Bindings Tutorial}{19}{section.5.2}
+\contentsline {section}{\numberline {5.3}PyQuil-XACC Integration}{19}{section.5.3}
+\contentsline {section}{\numberline {5.4}XACC D-Wave Markowitz Financial Modeling}{19}{section.5.4}
+\contentsline {chapter}{\numberline {6}Indices and tables}{21}{chapter.6}

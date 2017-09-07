@@ -101,7 +101,7 @@ add the following quantum kernel declaration:
 Now we are ready to build and execute this kernel using the XACC Runtime API. After the call
 to xacc::Initialize, add the following:
 
-.. code::
+.. code:: cpp
 
    // Create a reference to the Rigetti
    // QPU at api.rigetti.com/qvm
@@ -238,3 +238,5 @@ XACC Python Bindings Tutorial
 PyQuil-XACC Integration
 ------------------------
 
+XACC D-Wave Markowitz Financial Modeling
+-----------------------------------------
