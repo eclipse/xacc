@@ -114,19 +114,11 @@ or for a more complicated gate Instruction:
 
 After walking the IR tree, the Quil representation is produced with a call to getQuilString().
 
-Executing Quil code on Rigetti QVM
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-With the XACC IR mapped to Quil, the RigettiAccelerator is ready to execute
-on the Rigetti QVM. The main task here is to construct the proper JSON payload string
-that contains information about the type of the execution, the classical memory address
-indices, and the Quil instructions string. The types of execution that the QVM allows are
-multishot, multishot-measure, wavefunction, and expectation. In this work, we have primarily focused
-on the multishot method. If the execution type is
-multishot, then we can provide a further JSON key that is an integer that gives the
-number of executions of the Quil code to run.
-
 Rigetti QVM Tutorial
 ---------------------
+Let's test out the Rigetti Accelerator by creating a code to 
+perform quantum teleportation. 
+
 Create a new directory called test-xacc-rigetti and cd into it. Let's now create a
 test-xacc-rigetti.cpp file and get it started with the following boilerplate code:
 

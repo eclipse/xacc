@@ -102,7 +102,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rigetti-accelerator">Rigetti Accelerator</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mapping-xacc-ir-to-quil">Mapping XACC IR to Quil</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#executing-quil-code-on-rigetti-qvm">Executing Quil code on Rigetti QVM</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
@@ -273,20 +272,11 @@ accept the visitor:</p>
 </div>
 <p>After walking the IR tree, the Quil representation is produced with a call to getQuilString().</p>
 </div>
-<div class="section" id="executing-quil-code-on-rigetti-qvm">
-<h3>Executing Quil code on Rigetti QVM<a class="headerlink" href="#executing-quil-code-on-rigetti-qvm" title="Permalink to this headline">¶</a></h3>
-<p>With the XACC IR mapped to Quil, the RigettiAccelerator is ready to execute
-on the Rigetti QVM. The main task here is to construct the proper JSON payload string
-that contains information about the type of the execution, the classical memory address
-indices, and the Quil instructions string. The types of execution that the QVM allows are
-multishot, multishot-measure, wavefunction, and expectation. In this work, we have primarily focused
-on the multishot method. If the execution type is
-multishot, then we can provide a further JSON key that is an integer that gives the
-number of executions of the Quil code to run.</p>
-</div>
 </div>
 <div class="section" id="rigetti-qvm-tutorial">
 <h2>Rigetti QVM Tutorial<a class="headerlink" href="#rigetti-qvm-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>Let’s test out the Rigetti Accelerator by creating a code to
+perform quantum teleportation.</p>
 <p>Create a new directory called test-xacc-rigetti and cd into it. Let’s now create a
 test-xacc-rigetti.cpp file and get it started with the following boilerplate code:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;XACC.hpp&quot;</span><span class="cp"></span>

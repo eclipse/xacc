@@ -29,7 +29,7 @@ To install this plugin, run the following
 You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator`` and ``$XACC_ROOT/lib/plugins/compilers``, where XACC_ROOT is your XACC install prefix.
 
 Extensibility for Minor Graph Embedding Algorithms
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------------
 XACC has extensibility built in for minor graph embedding
 algorithms. We currently have one supported embedding algorithm (with more coming online), a wrapper around the D-Wave SAPI Cai, Macready, Roi algorithm. In order to install this as a plugin, run the following
 

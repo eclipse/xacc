@@ -100,10 +100,8 @@
 <li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">D-Wave Integration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
 </ul>
 </li>
 </ul>
@@ -192,8 +190,9 @@ support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelera
 </pre></div>
 </div>
 <p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code> and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where XACC_ROOT is your XACC install prefix.</p>
+</div>
 <div class="section" id="extensibility-for-minor-graph-embedding-algorithms">
-<h3>Extensibility for Minor Graph Embedding Algorithms<a class="headerlink" href="#extensibility-for-minor-graph-embedding-algorithms" title="Permalink to this headline">¶</a></h3>
+<h2>Extensibility for Minor Graph Embedding Algorithms<a class="headerlink" href="#extensibility-for-minor-graph-embedding-algorithms" title="Permalink to this headline">¶</a></h2>
 <p>XACC has extensibility built in for minor graph embedding
 algorithms. We currently have one supported embedding algorithm (with more coming online), a wrapper around the D-Wave SAPI Cai, Macready, Roi algorithm. In order to install this as a plugin, run the following</p>
 <div class="admonition note">
@@ -206,7 +205,6 @@ In order for the installation below to work, place dwave_sapi.h in <code class="
 </pre></div>
 </div>
 <p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/embedding</span></code>, where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
-</div>
 </div>
 </div>
 
