@@ -11,6 +11,7 @@ def parse_args(args):
                                      fromfile_prefix_chars='@')
    parser.add_argument("-p", "--plugins", nargs='*', type=str, help="The XACC Plugins to install.", required=True)
    parser.add_argument("-a", "--extra-cmake-args", nargs='*', type=str, help="Any extra CMake arguments to drive the install.", required=False)
+   parser.add_argument("-j", "--make-threads", default=4, type=int, help="Number of threads to use in make", required=False)
    opts = parser.parse_args(args)
    return opts
 
@@ -49,8 +50,12 @@ def main(argv=None):
    # This python script should be in ${XACC_ROOT}/bin, 
    # we need to get XACC_ROOT
    xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+   
    xacc_cwd = os.getcwd()
+   
    cpus = str(multiprocessing.cpu_count())
+   if not opts.make_threads == None: 
+      cpus = str(opts.make_threads)
 
    # Get the plugins we're supposed to install
    plugins = opts.plugins
