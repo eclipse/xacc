@@ -47,9 +47,14 @@ set (LIBRARY_NAME xacc)
 file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
 file (GLOB SRC *.cpp utils/*.cpp)
 
+set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServicesd)
+find_library(cppus_has_d_suffix CppMicroServicesd)
+if (NOT cppus_has_d_suffix)
+	set(CppUsLib CppMicroServices)
+endif()
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib})
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp)

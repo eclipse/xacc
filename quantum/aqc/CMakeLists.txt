@@ -72,7 +72,13 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} CppMicroServices)
+set(CppUsLib CppMicroServicesd)
+link_directories(${CPPUS_LIBRARY_DIR})
+find_library(cppus_has_d_suffix CppMicroServicesd)
+if (NOT cppus_has_d_suffix)
+	set(CppUsLib CppMicroServices)
+endif()
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib})
 
 add_subdirectory(ir)
 add_subdirectory(compiler)
