@@ -8,14 +8,16 @@ Installation
 
    If you want support for the D-Wave Accelerator, you must install
    `CppRestSDK <https://github.com/microsoft/cpprestsdk>`_ and OpenSSL. This
-   is required for these Accelerators to make remote HTTP Rest calls to their
-   respective server APIs. Here's how to install these as binaries on various popular platforms:
+   is required for making remote HTTP Rest calls to the D-Wave server APIs. 
+   Here's how to install these as binaries on various popular platforms:
 
    .. code::
 
       $ (macosx) brew install cpprestsdk
       $ (fedora) dnf install cpprest-devel openssl-devel
       $ (ubuntu) apt-get install libcpprest-dev libssl-dev
+      $ (slack) slack install cpprestsdk
+      $ (slack) slack install openssl
 
 The `D-Wave Plugin <https://github.com/ornl-qci/xacc-dwave>`_ provides
 support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.

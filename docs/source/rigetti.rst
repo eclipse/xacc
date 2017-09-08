@@ -8,15 +8,16 @@ Installation
 
    If you want support for the Rigetti Accelerator, you must install
    `CppRestSDK <https://github.com/microsoft/cpprestsdk>`_ and OpenSSL. This
-   is required for these Accelerators to make remote HTTP Rest calls to their
-   respective server APIs. Here's how to install these as binaries on various popular platforms:
+   is required to make remote HTTP Rest calls to Forest 
+   server APIs. Here's how to install these as binaries on various popular platforms:
 
    .. code::
 
       $ (macosx) brew install cpprestsdk
       $ (fedora) dnf install cpprest-devel openssl-devel
       $ (ubuntu) apt-get install libcpprest-dev libssl-dev
-
+      $ (slack) slack install cpprestsdk
+      $ (slack) slack instal openssl
 
 The `Rigetti Plugin <https://github.com/ornl-qci/xacc-rigetti>`_ provides
 support to XACC for compiling kernels writting in Quil, and executing programs
