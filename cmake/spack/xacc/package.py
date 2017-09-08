@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2013-2016, Lawrence Livermore National Security, LLC.
+# Copyright (c) 2013-2017, Lawrence Livermore National Security, LLC.
 # Produced at the Lawrence Livermore National Laboratory.
 #
 # This file is part of Spack.
@@ -45,20 +45,17 @@ class Xacc(CMakePackage):
        programming, compiling, and executing quantum 
        kernels in a language and hardware agnostic manner."""
 
-    homepage = "https://ornl-qci.github.io/xacc"
+    homepage = "https://xacc.readthedocs.io"
 
     version('develop', git='https://github.com/ornl-qci/xacc.git')
 
-    variant('python', default=False,
-            description='Turn on XACC Python support')
     variant('mpi', default=False, description='Turn on XACC MPI support')
 
-    depends_on('cppmicroservices')
-    depends_on('cpprestsdk')
-    depends_on('boost+mpi+graph')
     depends_on('mpi', when='+mpi')
-    depends_on('python', when='+python')
-    
+    depends_on('boost+graph', when='~mpi')
+    depends_on('boost+mpi+graph', when='+mpi')
+					      
     def cmake_args(self):
         args = []
-        return args
+	return args
+
