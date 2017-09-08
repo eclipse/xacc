@@ -32,6 +32,12 @@ In order to use this installation, you must update your ``PYTHONPATH`` environme
 
    $ export PYTHONPATH=$XACC_ROOT/lib/python:$PYTHONPATH
 
+or if you installed XACC with Spack
+
+.. code:: 
+
+   $ export PYTHONPATH=$(spack location -i xacc)/lib/python:$PYTHONPATH
+
 We recommend placing this command in your home directory's ``.bashrc`` file (or equivalent).
 
 Example Usage

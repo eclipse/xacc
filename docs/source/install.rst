@@ -155,3 +155,10 @@ Now we can run
    $ (with MPI support) spack install xacc +mpi 
    $ (with specified compiler) spack install xacc %gcc@7.2.0
 
+Update your PATH to point to the XACC ``bin`` directory: 
+
+.. code::
+
+   $ export PATH=$(spack location -i xacc)/bin:$PATH
+
+We recommend you add this command to you ``.bashrc`` file (or equivalent).
