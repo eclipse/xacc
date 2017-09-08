@@ -29,6 +29,19 @@ To install this plugin, run the following
 
    $ xacc-install-plugins.py -p xacc-rigetti
 
+.. note::
+
+   It has been observed on Mac OS X that the above command may fail 
+   due to CMake incorrectly finding OpenSSL. If that happens, run the 
+   following:
+   
+   .. code::
+      
+      $ xacc-install-plugins.py -p xacc-rigetti -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
+
+   Homebrew creates the above OpenSSL root directory. If yours is different, then 
+   set the ``OPENSSL_ROOT_DIR`` as such. 
+
 You have now installed the Rigetti plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator``
 and ``$XACC_ROOT/lib/plugins/compilers``, where ``XACC_ROOT`` is your XACC install prefix.
 
