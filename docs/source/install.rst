@@ -138,14 +138,6 @@ install one with Spack, for example
    $ spack load gcc
    $ spack compiler find
 
-Now install the dependencies with your specified C++14 compiler (mine
-will be gcc 7.2.0)
-
-.. code::
-
-   $ (with MPI support) spack install boost+mpi+graph ^mpich %gcc@7.2.0
-   $ (without MPI support) spack install boost+graph %gcc@7.2.0
-
 XACC has not yet been accepted into the Spack (we will soon issue a PR
 to get it shipped as part of Spack). So in order to install it with Spack
 we have to download our custom package recipe from the XACC repository:
@@ -155,15 +147,11 @@ we have to download our custom package recipe from the XACC repository:
    $ cd $SPACK_ROOT/var/spack/repos/builtin/packages/ && mkdir xacc
    $ cd xacc && wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spack/xacc/package.py .
 
-Now we can run
+Now we can run 
 
 .. code::
 
-   $ spack install xacc %gcc@7.2.0
+   $ (without MPI support) spack install xacc 
+   $ (with MPI support) spack install xacc +mpi 
+   $ (with specified compiler) spack install xacc %gcc@7.2.0
 
-Once all these are installed, load them as environment modules
-so they are available for the XACC build:
-
-.. code::
-
-   $ spack load boost
