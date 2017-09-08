@@ -49,9 +49,9 @@ configure and build XACC:
 
    $ cd xacc && mkdir build && cd build
    $ cmake ..
-   $ make install # can pass -jN for N = number of threads to use
+   $ make # can pass -jN for N = number of threads to use
 
-This will install XACC to ``/usr/local/xacc``
+This will build, test, and install XACC to ``/usr/local/xacc``
 (Pass ``-DCMAKE_INSTALL_PREFIX=$YOURINSTALLPATH`` to install it somewhere else).
 
 Set your PATH variable to include the XACC bin directory:
