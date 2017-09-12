@@ -16,8 +16,8 @@ Installation
       $ (macosx) brew install cpprestsdk
       $ (fedora) dnf install cpprest-devel openssl-devel
       $ (ubuntu) apt-get install libcpprest-dev libssl-dev
-      $ (slack) slack install cpprestsdk
-      $ (slack) slack install openssl
+      $ (spack) spack install cpprestsdk
+      $ (spack) spack install openssl
 
 The `D-Wave Plugin <https://github.com/ornl-qci/xacc-dwave>`_ provides
 support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.
