@@ -46,8 +46,8 @@ To install this plugin, run the following
 You have now installed the IBM plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator``,
 where ``XACC_ROOT`` is your XACC install prefix.
 
-H2 VQE Example
---------------
+Hydrogen VQE Example
+---------------------
 Here we demonstrate how to use XACC to compute the expectation values for the
 terms in the Hamiltonian modeling the
 electronic structure of a simple Hydrogen molecule. The quantum
@@ -159,3 +159,5 @@ kernel code for this example can be found in `Scalable Quantum Simulation of Mol
 
       return 0;
    }
+
+
