@@ -27,7 +27,8 @@ availablePluginUrls = { 'xacc-scaffold' : ornlqci+'/xacc-scaffold',
                     'scaffold' : ornlqci+'/xacc-scaffold',
                     'dwave' : ornlqci+'/xacc-dwave', 
 		    'vqe' : ornlqci+'/xacc-vqe', 
-		    'xacc-dwsapi-embedding' : ornlqci+'/xacc-dwsapi-embedding' }
+		    'xacc-dwsapi-embedding' : ornlqci+'/xacc-dwsapi-embedding', 
+                    'xacc-projectq' : ornlqci+'/xacc-projectq' }
 
 def mkdir_p(path):
     """ Operates like mkdir -p in a Unix-like system """
