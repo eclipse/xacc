@@ -16,8 +16,8 @@ Installation
       $ (macosx) brew install cpprestsdk
       $ (fedora) dnf install cpprest-devel openssl-devel
       $ (ubuntu) apt-get install libcpprest-dev libssl-dev
-      $ (slack) slack install cpprestsdk
-      $ (slack) slack instal openssl
+      $ (spack) spack install cpprestsdk
+      $ (spack) spack instal openssl
 
 The `Rigetti Plugin <https://github.com/ornl-qci/xacc-rigetti>`_ provides
 support to XACC for compiling kernels writting in Quil, and executing programs
