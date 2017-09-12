@@ -181,11 +181,13 @@
 <p class="first admonition-title">Note</p>
 <p>If you want support for the Rigetti Accelerator, you must install
 <a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
-is required for these Accelerators to make remote HTTP Rest calls to their
-respective server APIs. Here’s how to install these as binaries on various popular platforms:</p>
+is required to make remote HTTP Rest calls to Forest
+server APIs. Here’s how to install these as binaries on various popular platforms:</p>
 <div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
 $ (fedora) dnf install cpprest-devel openssl-devel
 $ (ubuntu) apt-get install libcpprest-dev libssl-dev
+$ (slack) slack install cpprestsdk
+$ (slack) slack instal openssl
 </pre></div>
 </div>
 </div>
@@ -195,6 +197,17 @@ on the Rigetti QVM via a Rigetti Accelerator.</p>
 <p>To install this plugin, run the following</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-rigetti
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>It has been observed on Mac OS X that the above command may fail
+due to CMake incorrectly finding OpenSSL. If that happens, run the
+following:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-rigetti -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
+</pre></div>
+</div>
+<p class="last">Homebrew creates the above OpenSSL root directory. If yours is different, then
+set the <code class="docutils literal"><span class="pre">OPENSSL_ROOT_DIR</span></code> as such.</p>
 </div>
 <p>You have now installed the Rigetti plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code>
 and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>

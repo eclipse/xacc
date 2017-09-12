@@ -194,6 +194,10 @@ where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> i
 <div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$XACC_ROOT/lib/python:$PYTHONPATH
 </pre></div>
 </div>
+<p>or if you installed XACC with Spack</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$(spack location -i xacc)/lib/python:$PYTHONPATH
+</pre></div>
+</div>
 <p>We recommend placing this command in your home directory’s <code class="docutils literal"><span class="pre">.bashrc</span></code> file (or equivalent).</p>
 </div>
 <div class="section" id="example-usage">

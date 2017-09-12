@@ -229,7 +229,7 @@ $ cmake ..
 $ make install # can pass -jN for N = number of threads to use
 </pre></div>
 </div>
-<p>This will install XACC to <code class="docutils literal"><span class="pre">/usr/local/xacc</span></code>
+<p>This will build, test, and install XACC to <code class="docutils literal"><span class="pre">/usr/local/xacc</span></code>
 (Pass <code class="docutils literal"><span class="pre">-DCMAKE_INSTALL_PREFIX=$YOURINSTALLPATH</span></code> to install it somewhere else).</p>
 <p>Set your PATH variable to include the XACC bin directory:</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PATH=/usr/local/xacc/bin:$PATH
@@ -295,12 +295,6 @@ $ spack load gcc
 $ spack compiler find
 </pre></div>
 </div>
-<p>Now install the dependencies with your specified C++14 compiler (mine
-will be gcc 7.2.0)</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ (with MPI support) spack install boost+mpi+graph ^mpich %gcc@7.2.0
-$ (without MPI support) spack install boost+graph %gcc@7.2.0
-</pre></div>
-</div>
 <p>XACC has not yet been accepted into the Spack (we will soon issue a PR
 to get it shipped as part of Spack). So in order to install it with Spack
 we have to download our custom package recipe from the XACC repository:</p>
@@ -309,14 +303,16 @@ $ cd xacc &amp;&amp; wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spac
 </pre></div>
 </div>
 <p>Now we can run</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack install xacc %gcc@7.2.0
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ (without MPI support) spack install xacc
+$ (with MPI support) spack install xacc +mpi
+$ (with specified compiler) spack install xacc %gcc@7.2.0
 </pre></div>
 </div>
-<p>Once all these are installed, load them as environment modules
-so they are available for the XACC build:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ spack load boost
+<p>Update your PATH to point to the XACC <code class="docutils literal"><span class="pre">bin</span></code> directory:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PATH=$(spack location -i xacc)/bin:$PATH
 </pre></div>
 </div>
+<p>We recommend you add this command to you <code class="docutils literal"><span class="pre">.bashrc</span></code> file (or equivalent).</p>
 </div>
 </div>
 
