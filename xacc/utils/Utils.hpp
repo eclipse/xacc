@@ -52,70 +52,29 @@ OutputIterator copy_if(InputIterator first, InputIterator last,
 	return result;
 }
 
-/**
- * Tokenize a string.  The tokens will be separated by each non-quoted
- * space or equal character.  Empty tokens are removed.
- *
- * @param input The string to tokenize.
- *
- * @return Vector of tokens
- */
-inline std::vector<std::string> tokenize(const std::string& input) {
-	typedef boost::escaped_list_separator<char> separator_type;
-	separator_type separator("\\", "= ", "\"\'");
-	// Tokenize the input.
-	boost::tokenizer<separator_type> tokens(input, separator);
-	// Copy non-empty tokens from the tokenizer into the result.
-	std::vector<std::string> result;
-	xacc::copy_if(tokens.begin(), tokens.end(), std::back_inserter(result),
-			!boost::bind(&std::string::empty, _1));
-	return result;
+template<typename TupleType, typename FunctionType>
+void tuple_for_each(TupleType&&, FunctionType,
+		std::integral_constant<size_t,
+				std::tuple_size<typename std::remove_reference<TupleType>::type>::value>) {
 }
 
-template <typename Tuple, typename F, std::size_t ...Indices>
-void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
-    using swallow = int[];
-    (void)swallow{1,
-        (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...
-    };
+template<std::size_t I, typename TupleType, typename FunctionType,
+		typename = typename std::enable_if<
+				I
+						!= std::tuple_size<
+								typename std::remove_reference<TupleType>::type>::value>::type>
+void tuple_for_each(TupleType&& t, FunctionType f,
+		std::integral_constant<size_t, I>) {
+	f(std::get<I>(t));
+	tuple_for_each(std::forward<TupleType>(t), f,
+			std::integral_constant<size_t, I + 1>());
 }
 
-template <typename Tuple, typename F>
-void tuple_for_each(Tuple&& tuple, F&& f) {
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
-    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
-                  std::make_index_sequence<N>{});
+template<typename TupleType, typename FunctionType>
+void tuple_for_each(TupleType&& t, FunctionType f) {
+	tuple_for_each(std::forward<TupleType>(t), f,
+			std::integral_constant<size_t, 0>());
 }
-
-template<
-  typename Tuple,
-  typename Indices=std::make_index_sequence<std::tuple_size<Tuple>::value>>
-struct runtime_get_func_table;
-
-template<typename Tuple,size_t ... Indices>
-struct runtime_get_func_table<Tuple,std::index_sequence<Indices...>>{
-    using return_type=typename std::tuple_element<0,Tuple>::type&;
-    using get_func_ptr=return_type (*)(Tuple&);
-    static constexpr get_func_ptr table[std::tuple_size<Tuple>::value]={
-        &std::get<Indices>...
-    };
-};
-
-template<typename Tuple,size_t ... Indices>
-constexpr typename
-runtime_get_func_table<Tuple,std::index_sequence<Indices...>>::get_func_ptr
-runtime_get_func_table<Tuple,std::index_sequence<Indices...>>::table[std::tuple_size<Tuple>::value];
-
-template<typename Tuple>
-constexpr
-typename std::tuple_element<0,typename std::remove_reference<Tuple>::type>::type&
-tuple_runtime_get(Tuple&& t,size_t index){
-    using tuple_type=typename std::remove_reference<Tuple>::type;
-    if(index>=std::tuple_size<tuple_type>::value)
-        throw std::runtime_error("Out of range");
-    return runtime_get_func_table<tuple_type>::table[index](t);
-}
-
 
 class XACCException: public std::exception {
 protected:

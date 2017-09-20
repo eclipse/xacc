@@ -11,15 +11,15 @@ The following third party libraries (TPLs) are used by XACC:
 +------------------------+------------+-----------+
 | Packages               | Dependency | Version   |
 +========================+============+===========+
-| C++14 Compiler         | Required   | See below |
+| C++11 Compiler         | Required   | See below |
 +------------------------+------------+-----------+
 | Boost                  | Required   | 1.59.0+   |
 +------------------------+------------+-----------+
 | MPI                    | Optional   | N/A       |
 +------------------------+------------+-----------+
 
-Note that you must have a C++14 compliant compiler. 
-For GCC, this means version 6.1+, for Clang, this means 3.4+.
+Note that you must have a C++11 compliant compiler. 
+For GCC, this means version 4.8.1+, for Clang, this means 3.3+.
 
 These dependencies are relatively easy to install on popular operating
 systems. Any of the following commands will work (showing with and without MPI):

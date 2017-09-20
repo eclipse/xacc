@@ -5,6 +5,14 @@
 
 namespace xacc {
 
+struct GetInstructionParametersFunctor {
+	std::vector<InstructionParameter> params;
+	template<typename T>
+	void operator()(const T& t) {
+		params.emplace_back(t);
+	}
+};
+
 /**
  * The Kernel represents an functor to be executed
  * on the attached Accelerator.
@@ -31,13 +39,13 @@ public:
 		if (sizeof...(RuntimeArgs) > 0) {
 			// Store the runtime parameters in a tuple
 			auto argsTuple = std::make_tuple(args...);
+			GetInstructionParametersFunctor f;
 
 			// Loop through the tuple, and add InstructionParameters
 			// to the parameters vector.
 			std::vector<InstructionParameter> parameters;
-			xacc::tuple_for_each(argsTuple, [&](auto value) {
-				parameters.push_back(InstructionParameter(value));
-			});
+			xacc::tuple_for_each(argsTuple, f);
+			parameters = f.params;
 
 			// Evaluate all Variable Parameters
 			function->evaluateVariableParameters(parameters);
