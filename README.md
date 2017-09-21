@@ -7,7 +7,7 @@ XACC is a programming framework for extreme-scale, post-exascale accelerator arc
 Documentation
 -------------
 
-* [Website and Documentation ](http://ORNL-QCI.github.io/xacc)
+* [Website and Documentation ](https://xacc.readthedocs.io)
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
