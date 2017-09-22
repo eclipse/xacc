@@ -29,7 +29,6 @@
  *
  **********************************************************************************/
 #include "XACC.hpp"
-#include "MPIHolder.hpp"
 
 namespace xacc {
 
@@ -51,12 +50,6 @@ void Initialize() {
 }
 
 void Initialize(int argc, char** argv) {
-
-	// Create the MPIHolder instance
-	auto mpiHolder = MPIHolder::instance();
-
-	// Initialize MPI, if we've been built with MPI support
-	mpiHolder->initialize(argc, argv);
 
 	// Create the iniitial xacc-console
 	auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");

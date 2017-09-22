@@ -17,20 +17,20 @@ include(tests)
 include(CppMicroServicesConfig)
 
 # We require MPI
-find_package(MPI)
-if (MPI_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
+#find_package(MPI)
+#if (MPI_FOUND)
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
 
-  message(STATUS "FOUND MPI: ${MPI_CXX_INCLUDE_PATH} AND ${MPI_CXX_LIBRARIES}")
+#  message(STATUS "FOUND MPI: ${MPI_CXX_INCLUDE_PATH} AND ${MPI_CXX_LIBRARIES}")
   # We require Boost with MPI
-  find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
-  include_directories(${MPI_CXX_INCLUDE_PATH})
-else()
-  message(STATUS "MPI Not Found.")
+  #  find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
+  #  include_directories(${MPI_CXX_INCLUDE_PATH})
+  #else()
+  #  message(STATUS "MPI Not Found.")
 
   # We require Boost without MPI
-  find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
-endif()
+find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
+  #endif()
 
 include_directories(${XACC_INCLUDE_DIR})
 include_directories(${XACC_ROOT}/tpls/rapidjson/include)

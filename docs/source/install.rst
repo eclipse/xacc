@@ -15,8 +15,6 @@ The following third party libraries (TPLs) are used by XACC:
 +------------------------+------------+-----------+
 | Boost                  | Required   | 1.59.0+   |
 +------------------------+------------+-----------+
-| MPI                    | Optional   | N/A       |
-+------------------------+------------+-----------+
 
 Note that you must have a C++11 compliant compiler. 
 For GCC, this means version 4.8.1+, for Clang, this means 3.3+.
@@ -27,11 +25,8 @@ systems. Any of the following commands will work (showing with and without MPI):
 .. code::
 
    $ (macosx) brew install boost
-   $ (macosx) brew install boost-mpi
    $ (fedora) dnf install boost-devel
-   $ (fedora) dnf install boost-mpich-devel
-   $ (fedora) dnf install boost-openmpi-devel
-   $ (ubuntu) apt-get install libboost-all-dev # will install openmpi
+   $ (ubuntu) apt-get install libboost-all-dev
 
 Build XACC
 -----------
@@ -151,8 +146,7 @@ Now we can run
 
 .. code::
 
-   $ (without MPI support) spack install xacc 
-   $ (with MPI support) spack install xacc +mpi 
+   $ spack install xacc 
    $ (with specified compiler) spack install xacc %gcc@7.2.0
 
 Update your PATH to point to the XACC ``bin`` directory: 
