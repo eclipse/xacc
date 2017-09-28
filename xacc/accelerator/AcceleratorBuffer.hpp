@@ -21,52 +21,6 @@
 
 namespace xacc {
 
-// Our Accelerator Bits can be a 1, 0, or unknown
-enum class AcceleratorBitState {
-	ZERO, ONE, UNKNOWN
-};
-
-/**
- * The AcceleratorBit wraps an AcceleratorBitSate
- * and provides a mechanism for updating that state.
- *
- * @author Alex McCaskey
- */
-class AcceleratorBit {
-
-public:
-
-	/**
-	 * The constructor, all bits are initialized to unknown state
-	 */
-	AcceleratorBit() :
-			state(AcceleratorBitState::UNKNOWN) {
-	}
-
-	/**
-	 * Update the Bit state to a one or zero
-	 */
-	void update(int zeroOrOne) {
-		state = (
-				zeroOrOne == 0 ?
-						AcceleratorBitState::ZERO : AcceleratorBitState::ONE);
-	}
-
-	/**
-	 * Return the value of this state
-	 */
-	AcceleratorBitState getState() {
-		return state;
-	}
-
-protected:
-
-	/**
-	 * The bit state
-	 */
-	AcceleratorBitState state;
-};
-
 /**
  * The AcceleratorBuffer models an allocated buffer of
  * bits that are operated on by a kernel. As such,
@@ -83,7 +37,7 @@ public:
 	 * The Constructor
 	 */
 	AcceleratorBuffer(const std::string& str, const int N) :
-			bufferId(str), bits(std::vector<AcceleratorBit>(N)) {
+			bufferId(str), nBits(N) {
 	}
 
 	/**
@@ -97,8 +51,7 @@ public:
 	template<typename ... Indices>
 	AcceleratorBuffer(const std::string& str, int firstIndex,
 			Indices ... indices) :
-			bufferId(str), bits(
-					std::vector<AcceleratorBit>(1 + sizeof...(indices))) {
+			bufferId(str), nBits(1 + sizeof...(indices)) {
 	}
 
 	/**
@@ -107,7 +60,7 @@ public:
 	 * @return size The number of bits in this buffer
 	 */
 	const int size() const {
-		return bits.size();
+		return nBits;
 	}
 
 	/**
@@ -124,16 +77,6 @@ public:
 	 */
 	virtual void resetBuffer() {
 		measurements.clear();
-	}
-
-	/**
-	 * Update the Bit State for the bit at the give index
-	 *
-	 * @param idx The index of the bit
-	 * @param zeroOrOne The measurement result
-	 */
-	void updateBit(const int idx, int zeroOrOne) {
-		bits[idx].update(zeroOrOne);
 	}
 
 	/**
@@ -187,13 +130,27 @@ public:
 	}
 
 	/**
-	 * Return the bit state for the given bit.
+	 * Return a read-only view of this Buffer's measurement results
 	 *
-	 * @param idx The index of the bit
-	 * @return bitState the state of the bit, a 0, 1, or UNKNOWN
+	 * @return results Measurement results
 	 */
-	AcceleratorBitState getAcceleratorBitState(const int idx) {
-		return bits[idx].getState();
+	virtual const std::vector<boost::dynamic_bitset<>> getMeasurements() {
+		return measurements;
+	}
+
+	/**
+	 * Return all measurements as bit strings.
+	 *
+	 * @return bitStrings List of bit strings.
+	 */
+	virtual const std::vector<std::string> getMeasurementStrings() {
+		std::vector<std::string> strs;
+		for (auto m : measurements) {
+			std::stringstream ss;
+			ss << m;
+			strs.push_back(ss.str());
+		}
+		return strs;
 	}
 
 	/**
@@ -231,9 +188,10 @@ protected:
 	std::string bufferId;
 
 	/**
-	 * The set of AcceleratorBits.
+	 * The number of bits in this buffer.
 	 */
-	std::vector<AcceleratorBit> bits;
+	int nBits;
+
 };
 
 }
