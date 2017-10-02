@@ -172,6 +172,17 @@ public:
 	}
 
 	/**
+	 * Return the number of Kernels in this Program's XACC IR.
+	 *
+	 * @return nKernels The number of kernels.
+	 */
+	const int nKernels() {
+		if (!xaccIR) build();
+
+		return xaccIR->getKernels().size();
+	}
+
+	/**
 	 * Return an executable version of the kernel
 	 * referenced by the kernelName string.
 	 *
@@ -196,8 +207,8 @@ public:
 	 * @return kernels Kernels with sizeof...(RuntimeArgs) Parameters.
 	 */
 	template<typename ... RuntimeArgs>
-	auto getKernels() -> std::vector<Kernel<RuntimeArgs...>> {
-		std::vector<Kernel<RuntimeArgs...>> kernels;
+	auto getKernels() -> KernelList<RuntimeArgs...> {
+		KernelList<RuntimeArgs...> kernels(accelerator);
 		if (!xaccIR) {
 			build();
 		}
@@ -211,8 +222,35 @@ public:
 		return kernels;
 	}
 
-	auto getRuntimeKernels() -> std::vector<Kernel<>> {
-		std::vector<Kernel<>> kernels;
+	/**
+	 * Return the Kernel range given by the provided indices.
+	 * @param beginIdx The beginning index for the range
+	 * @param endIdx The endindex for the range
+	 * @return kernels The kernels in the given range.
+	 */
+	template<typename ... RuntimeArgs>
+	auto getKernels(const int beginIdx, const int endIdx) -> KernelList<RuntimeArgs...> {
+		KernelList<RuntimeArgs...> kernels(accelerator);
+		if (!xaccIR) {
+			build();
+		}
+
+		for (int i = beginIdx; i < endIdx; i++) {
+			if (xaccIR->getKernels()[i]->nParameters() == (sizeof...(RuntimeArgs))) {
+				kernels.push_back(Kernel<RuntimeArgs...>(accelerator, xaccIR->getKernels()[i]));
+			}
+		}
+
+		return kernels;
+	}
+
+	/**
+	 * Return a list of Kernels with now runtime type information
+	 * for the arguments. Any arguments must be provided
+	 * as InstructionParameters.
+	 */
+	auto getRuntimeKernels() -> KernelList<> {
+		KernelList<> kernels(accelerator);
 		if (!xaccIR) {
 			build();
 		}

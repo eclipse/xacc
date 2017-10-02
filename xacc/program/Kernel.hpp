@@ -137,6 +137,79 @@ public:
 	}
 };
 
+/**
+ * The KernelList is a standard C++ vector that provides
+ * and overloaded operator() operator that delegates to the
+ * Accelerator.execute() method that executes multiple
+ * IR Functions in a single execute() call.
+ */
+template<typename ... RuntimeArgs>
+class KernelList: public std::vector<Kernel<RuntimeArgs...>> {
+
+protected:
+
+	/**
+	 * The Accelerator to execute this Kernel on
+	 */
+	std::shared_ptr<Accelerator> accelerator;
+
+public:
+
+	/**
+	 * The Constructor
+	 */
+	KernelList(std::shared_ptr<Accelerator> acc) : accelerator(acc) {}
+
+	/**
+	 * Return the Accelerator this KernelList delegates to.
+	 */
+	std::shared_ptr<Accelerator> getAccelerator() {
+		return accelerator;
+	}
+
+	/**
+	 * Templated operator() overload.
+	 */
+	std::vector<std::shared_ptr<AcceleratorBuffer>> operator()(
+			std::shared_ptr<AcceleratorBuffer> buffer, RuntimeArgs ... args) {
+
+		std::vector<std::shared_ptr<Function>> functions;
+		if (sizeof...(RuntimeArgs) > 0) {
+			// Store the runtime parameters in a tuple
+			auto argsTuple = std::make_tuple(args...);
+
+			// Loop through the tuple, and add InstructionParameters
+			// to the parameters vector.
+			std::vector<InstructionParameter> parameters;
+			GetInstructionParametersFunctor f(parameters);
+			xacc::tuple_for_each(argsTuple, f);
+
+			for (auto k : *this) {
+				k.evaluateParameters(parameters);
+				functions.push_back(k.getIRFunction());
+			}
+		}
+
+		return accelerator->execute(buffer, functions);
+	}
+
+	/**
+	 * Overloaded operator() operator that takes InstructionParameters.
+	 */
+	std::vector<std::shared_ptr<AcceleratorBuffer>> operator()(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			std::vector<InstructionParameter> parameters) {
+
+		std::vector<std::shared_ptr<Function>> functions;
+		for (auto k : *this) {
+			k.evaluateParameters(parameters);
+			functions.push_back(k.getIRFunction());
+		}
+
+		return accelerator->execute(buffer, functions);
+	}
+};
+
 }
 
 #endif

@@ -55,6 +55,13 @@ public:
 	}
 
 	/**
+	 * The copy constructor
+	 */
+	AcceleratorBuffer(const AcceleratorBuffer& other) :
+			nBits(other.nBits), bufferId(other.bufferId) {
+	}
+
+	/**
 	 * Return the number of bits in this buffer.
 	 *
 	 * @return size The number of bits in this buffer

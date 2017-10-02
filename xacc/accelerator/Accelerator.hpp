@@ -96,6 +96,20 @@ public:
 				const std::shared_ptr<Function> function) = 0;
 
 	/**
+	 * Execute a set of kernels with one remote call. Return
+	 * a list of AcceleratorBuffers that provide a new view
+	 * of the given one AcceleratorBuffer. The ith AcceleratorBuffer
+	 * contains the results of the ith kernel execution.
+	 *
+	 * @param buffer The AcceleratorBuffer to execute on
+	 * @param functions The list of IR Functions to execute
+	 * @return tempBuffers The list of new AcceleratorBuffers
+	 */
+	virtual std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			const std::vector<std::shared_ptr<Function>> functions) = 0;
+
+	/**
 	 * Create, store, and return an AcceleratorBuffer with the given
 	 * variable id string. This method returns all available
 	 * qubits for this Accelerator. The string id serves as a unique identifier
@@ -167,6 +181,14 @@ public:
 		return std::make_shared<options_description>();
 	}
 
+	/**
+	 * Given user-input command line options, perform
+	 * some operation. Returns true if runtime should exit,
+	 * false otherwise.
+	 *
+	 * @param map The mapping of options to values
+	 * @return exit True if exit, false otherwise
+	 */
 	virtual bool handleOptions(variables_map& map) {
 		return false;
 	}
