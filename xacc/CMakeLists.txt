@@ -56,7 +56,7 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 #set (PACKAGE_DESCIPTION "The XACC Programming Framework")
 set (LIBRARY_NAME xacc)
 
-file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp utils/*.hpp)
+file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
 file (GLOB SRC *.cpp utils/*.cpp)
 
 set(CppUsLib CppMicroServicesd)
