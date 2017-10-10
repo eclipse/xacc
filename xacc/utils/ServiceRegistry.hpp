@@ -84,7 +84,9 @@ protected:
 			for (auto&& i : dir) {
 				if (!boost::filesystem::is_directory(i)) {
 					boost::filesystem::path path = i.path();
-					if (".dylib" == i.path().extension() || ".so" == i.path().extension() || ".a" == i.path().extension()) {
+					if (".dylib" == i.path().extension()
+							|| ".so" == i.path().extension()
+							|| ".a" == i.path().extension()) {
 						context.InstallBundles(i.path().string());
 					}
 				}

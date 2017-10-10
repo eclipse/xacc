@@ -1,5 +1,5 @@
 set (XACC_ROOT "@CMAKE_INSTALL_PREFIX@")
-set (XACC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include/cppmicroservices3;@CMAKE_INSTALL_PREFIX@/include/xacc;@CMAKE_INSTALL_PREFIX@/include/quantum/gate;@CMAKE_INSTALL_PREFIX@/include/quantum/aqc;@CMAKE_INSTALL_PREFIX@/include/spdlog")
+set (XACC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include/cppmicroservices3;@CMAKE_INSTALL_PREFIX@/include/xacc;@CMAKE_INSTALL_PREFIX@/include/quantum/gate;@CMAKE_INSTALL_PREFIX@/include/quantum/aqc;@CMAKE_INSTALL_PREFIX@/include/spdlog;@CMAKE_INSTALL_PREFIX@/include/eigen")
 set (XACC_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib")
 set(CppUsLib CppMicroServicesd)
 link_directories("@CMAKE_INSTALL_PREFIX@/lib")
