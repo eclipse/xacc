@@ -34,7 +34,12 @@ void Initialize() {
 void Initialize(int argc, char** argv) {
 
 	// Create the iniitial xacc-console
-	auto tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
+	std::shared_ptr<spdlog::logger> tmpInitConsole;
+	if (!spdlog::get("xacc-console")) {
+		tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
+	} else {
+		tmpInitConsole = spdlog::get("xacc-console");
+	}
 
 	XACCInfo("[xacc] Initializing XACC Framework");
 

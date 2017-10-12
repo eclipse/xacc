@@ -89,6 +89,12 @@ protected:
 	 */
 	std::shared_ptr<Compiler> compiler;
 
+	/**
+	 * Reference to user-provided Preprocessors
+	 * to be run before Compiler execution.
+	 */
+	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
+
 public:
 
 	/**
@@ -115,6 +121,10 @@ public:
 	Program(std::shared_ptr<Accelerator> acc, std::istream& stream) :
 			accelerator(std::move(acc)), src(
 					std::istreambuf_iterator<char>(stream), { }) {
+	}
+
+	void addPreprocessor(std::shared_ptr<Preprocessor> preprocessor) {
+		preprocessors.push_back(preprocessor);
 	}
 
 	/**
@@ -145,6 +155,12 @@ public:
 			src = preprocessor->process(src, compiler, accelerator);
 		}
 
+		// Execute any preprocessor clients have provided
+		for (auto preprocessor : preprocessors) {
+			src = preprocessor->process(src, compiler, accelerator);
+		}
+
+		XACCInfo("Executing source code\n"+src + "\n");
 		XACCInfo("Executing "+ compiler->getName() + " compiler.");
 
 		// Execute the compilation
