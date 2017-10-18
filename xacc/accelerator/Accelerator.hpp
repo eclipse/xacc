@@ -146,7 +146,10 @@ public:
 		if (isValidBuffer(varid)) {
 			return allocatedBuffers[varid];
 		} else {
-			XACCError("Could not find AcceleratorBuffer with id " + varid);
+			auto tmpBuffer = createBuffer(varid, 100);
+			XACCInfo("Could not find AcceleratorBuffer with id " + varid + ", creating one with 100 bits.");
+			storeBuffer(varid, tmpBuffer);
+			return tmpBuffer;
 		}
 	}
 

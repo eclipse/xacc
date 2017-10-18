@@ -156,6 +156,10 @@ public:
 		parameters[idx] = p;
 	}
 
+	virtual void addParameter(InstructionParameter instParam) {
+		parameters.push_back(instParam);
+	}
+
 	virtual std::vector<InstructionParameter> getParameters() {
 		return parameters;
 	}

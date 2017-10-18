@@ -83,6 +83,8 @@ public:
 	 */
 	virtual void addInstruction(InstPtr instruction) = 0;
 
+	virtual void addParameter(InstructionParameter instParam) = 0;
+
 	/**
 	 * Return true always to indicate that the
 	 * Function is composite.

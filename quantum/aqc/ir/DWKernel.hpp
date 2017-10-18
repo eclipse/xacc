@@ -153,6 +153,10 @@ public:
 		XACCError("DWKernel does not contain runtime parameters.");
 	}
 
+	virtual void addParameter(InstructionParameter instParam) {
+		XACCError("DWKernel does not contain runtime parameters.");
+	}
+
 	virtual bool isParameterized() {
 		return false;
 	}
