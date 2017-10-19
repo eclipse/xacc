@@ -127,6 +127,11 @@ public:
 		preprocessors.push_back(preprocessor);
 	}
 
+	void addPreprocessor(const std::string& preProcessorName) {
+		auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
+		preprocessors.push_back(preprocessor);
+	}
+
 	/**
 	 * Execute the compilation mechanism on the provided program
 	 * source kernel code to produce XACC IR that can be executed
