@@ -17,6 +17,9 @@ github_username:  amccaskey
 markdown: kramdown
 highlighter: rouge
 
+gems:
+  - jekyll-redirect-from
+ 
 # Sass support
 sass:
     sass_dir: _sass
