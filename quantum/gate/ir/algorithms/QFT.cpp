@@ -18,7 +18,9 @@ namespace xacc {
 
 namespace quantum {
 
-std::shared_ptr<Function> QFT::generateAlgorithm(std::vector<int> qubits) {
+std::shared_ptr<Function> QFT::generate(
+		std::shared_ptr<AcceleratorBuffer> buffer,
+		std::vector<InstructionParameter> parameters) {
 
 	auto bitReversal =
 			[](std::vector<int> qubits) -> std::vector<std::shared_ptr<Instruction>> {
@@ -85,6 +87,12 @@ std::shared_ptr<Function> QFT::generateAlgorithm(std::vector<int> qubits) {
 					return insts;
 				}
 			};
+
+	auto bufferSize = buffer->size();
+	std::vector<int> qubits;
+	for (int i = 0; i < bufferSize; i++) {
+		qubits.push_back(i);
+	}
 
 	auto qftInstructions = coreqft(qubits);
 

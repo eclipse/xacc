@@ -13,7 +13,7 @@
 #ifndef QUANTUM_GATE_IR_ALGORITHMS_INVERSEQFT_HPP_
 #define QUANTUM_GATE_IR_ALGORITHMS_INVERSEQFT_HPP_
 
-#include "AlgorithmGenerator.hpp"
+#include "IRGenerator.hpp"
 
 namespace xacc{
 namespace quantum {
@@ -23,17 +23,23 @@ namespace quantum {
  * interface that produces an XACC IR representation
  * of the Inverse Quantum Fourier Transform.
  */
-class InverseQFT : public AlgorithmGenerator {
+class InverseQFT : public IRGenerator {
 public:
 
 	/**
-	 * This implementation returns a Function IR representation
-	 * of the inverse quantum fourier transform.
+	 * Implementations of this method generate a Function IR
+	 * instance corresponding to the implementation's modeled
+	 * algorithm. The algorithm is specified to operate over the
+	 * provided AcceleratorBuffer and can take an optional
+	 * vector of InstructionParameters.
 	 *
 	 * @param bits The bits this algorithm operates on
 	 * @return function The algorithm represented as an IR Function
 	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> qubits);
+	virtual std::shared_ptr<Function> generate(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			std::vector<InstructionParameter> parameters = std::vector<
+					InstructionParameter> { });
 
 	virtual const std::string name() const {
 		return "InverseQFT";

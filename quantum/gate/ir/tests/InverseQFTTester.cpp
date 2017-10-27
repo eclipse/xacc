@@ -25,7 +25,9 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 	auto iqft = std::make_shared<InverseQFT>();
 
-	auto iqftKernel = iqft->generateAlgorithm(std::vector<int>{0,1,2});
+	auto buffer = std::make_shared<AcceleratorBuffer>("",3);
+
+	auto iqftKernel = iqft->generate(buffer);
 	auto ir = std::make_shared<GateQIR>();
 	ir->addKernel(iqftKernel);
 

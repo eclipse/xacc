@@ -18,7 +18,9 @@ namespace xacc {
 
 namespace quantum {
 
-std::shared_ptr<Function> InverseQFT::generateAlgorithm(std::vector<int> qubits) {
+std::shared_ptr<Function> InverseQFT::generate(
+		std::shared_ptr<AcceleratorBuffer> buffer,
+		std::vector<InstructionParameter> parameters) {
 
 	// Create a function to return
 	auto retFunction = std::make_shared<GateFunction>("inverse_qft");
@@ -26,7 +28,7 @@ std::shared_ptr<Function> InverseQFT::generateAlgorithm(std::vector<int> qubits)
 	// Generate the QFT algorithm and get the
 	// individual instructions
 	QFT qft;
-	auto qftFunction = qft.generateAlgorithm(qubits);
+	auto qftFunction = qft.generate(buffer, parameters);
 	auto instructions = qftFunction->getInstructions();
 
 	// Reverse those instructions

@@ -25,7 +25,8 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 
 	auto qft = std::make_shared<QFT>();
 
-	auto qftKernel = qft->generateAlgorithm(std::vector<int>{0,1,2});
+	auto buffer = std::make_shared<AcceleratorBuffer>("",3);
+	auto qftKernel = qft->generate(buffer);
 	auto ir = std::make_shared<GateQIR>();
 	ir->addKernel(qftKernel);
 

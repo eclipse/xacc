@@ -42,8 +42,8 @@ public:
 		auto kp =
 				std::make_shared<xacc::quantum::KernelReplacementPreprocessor>();
 		context.RegisterService<xacc::Preprocessor>(kp);
-		context.RegisterService<xacc::AlgorithmGenerator>(iqft);
-		context.RegisterService<xacc::AlgorithmGenerator>(qft);
+		context.RegisterService<xacc::IRGenerator>(iqft);
+		context.RegisterService<xacc::IRGenerator>(qft);
 	}
 
 	/**

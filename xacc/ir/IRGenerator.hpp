@@ -10,21 +10,24 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
-#define IR_ALGORITHMS_ALGORITHMGENERATOR_HPP_
+#ifndef IR_IRGENERATOR_HPP_
+#define IR_IRGENERATOR_HPP_
 
+#include "AcceleratorBuffer.hpp"
 #include "Function.hpp"
 #include "Identifiable.hpp"
+#include <vector>
+#include <memory>
 
 namespace xacc {
 
 /**
- * The AlgorithmGenerator interface provides a mechanism for
- * generating algorithms modeled as an XACC Function instance.
+ * The IRGenerator interface provides a mechanism for
+ * generating common algorithms modeled as an XACC Function instance.
  *
  * @author Alex McCaskey
  */
-class __attribute__((visibility("default"))) AlgorithmGenerator : public Identifiable {
+class IRGenerator : public Identifiable {
 
 public:
 
@@ -32,17 +35,21 @@ public:
 	 * Implementations of this method generate a Function IR
 	 * instance corresponding to the implementation's modeled
 	 * algorithm. The algorithm is specified to operate over the
-	 * provided bits.
+	 * provided AcceleratorBuffer and can take an optional
+	 * vector of InstructionParameters.
 	 *
 	 * @param bits The bits this algorithm operates on
 	 * @return function The algorithm represented as an IR Function
 	 */
-	virtual std::shared_ptr<Function> generateAlgorithm(std::vector<int> bits) = 0;
+	virtual std::shared_ptr<Function> generate(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			std::vector<InstructionParameter> parameters = std::vector<
+					InstructionParameter> { }) = 0;
 
 	/**
 	 * The destructor
 	 */
-	virtual ~AlgorithmGenerator() {}
+	virtual ~IRGenerator() {}
 };
 
 }
