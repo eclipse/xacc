@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "KernelReplacementPreprocessor.hpp"
 #include <boost/algorithm/string.hpp>
-#include "AlgorithmGenerator.hpp"
+#include "IRGenerator.hpp"
 #include "ServiceRegistry.hpp"
 #include <numeric>
 
@@ -61,13 +61,9 @@ const std::string KernelReplacementPreprocessor::process(const std::string& sour
 		}
 
 		auto buffer = accelerator->getBuffer(bufName);
-		auto bufferSize = buffer->size();
-		std::vector<int> qubits(bufferSize);
-		std::iota(qubits.begin(), qubits.end(), 0);
+		auto algoGen = ServiceRegistry::instance()->getService<IRGenerator>(funcName);
 
-		auto algoGen = ServiceRegistry::instance()->getService<AlgorithmGenerator>(funcName);
-
-		auto algoKernel = algoGen->generateAlgorithm(qubits);
+		auto algoKernel = algoGen->generate(buffer);
 
 		auto translation = compiler->translate(bufName, algoKernel);
 
