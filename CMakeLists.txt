@@ -45,6 +45,7 @@ ExternalProject_Add(cppmicroservices
 	GIT_TAG v3.1.0	
 	CMAKE_ARGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 		   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/cppus_install
@@ -68,6 +69,7 @@ ExternalProject_Add(xacc-core
               -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+              -DBOOST_ROOT=${BOOST_ROOT}
 	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
 	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
 	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
@@ -91,6 +93,7 @@ ExternalProject_Add(xacc-quantum
               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+	      -DBOOST_ROOT=${BOOST_ROOT}
               -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
               -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
 	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include/xacc #${XACC_INCLUDE_DIR}

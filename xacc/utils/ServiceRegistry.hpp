@@ -141,6 +141,19 @@ public:
 	}
 
 	template<typename ServiceInterface>
+	bool hasService(const std::string name) {
+		auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
+		for (auto s : allServiceRefs) {
+			auto service = context.GetService(s);
+			auto identifiable = std::dynamic_pointer_cast<xacc::Identifiable>(service);
+			if (identifiable && identifiable->name() == name) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	template<typename ServiceInterface>
 	std::shared_ptr<ServiceInterface> getService(const std::string name) {
 		auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
 		for (auto s : allServiceRefs) {
