@@ -167,7 +167,6 @@ public:
 			src = preprocessor->process(src, compiler, accelerator);
 		}
 
-		XACCInfo("Executing source code\n"+src + "\n");
 		XACCInfo("Executing "+ compiler->getName() + " compiler.");
 
 		// Execute the compilation
