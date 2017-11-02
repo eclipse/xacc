@@ -128,8 +128,10 @@ public:
 	}
 
 	void addPreprocessor(const std::string& preProcessorName) {
-		auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
-		preprocessors.push_back(preprocessor);
+                if(ServiceRegistry::instance()->hasService<Preprocessor>(preProcessorName)) {
+			auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
+			preprocessors.push_back(preprocessor);
+		}
 	}
 
 	/**
@@ -165,7 +167,6 @@ public:
 			src = preprocessor->process(src, compiler, accelerator);
 		}
 
-		XACCInfo("Executing source code\n"+src + "\n");
 		XACCInfo("Executing "+ compiler->getName() + " compiler.");
 
 		// Execute the compilation
