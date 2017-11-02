@@ -31,6 +31,9 @@ extern bool xaccFrameworkInitialized;
 // Reference to the command line parser
 extern std::shared_ptr<CLIParser> xaccCLParser;
 
+extern int argc;
+extern char** argv;
+
 /**
  * This method should be called by
  * clients to initialize the XACC framework.
@@ -38,6 +41,9 @@ extern std::shared_ptr<CLIParser> xaccCLParser;
  * XACC API.
  */
 void Initialize(int argc, char** argv);
+
+int getArgc();
+char** getArgv();
 
 void Initialize(std::vector<std::string> argv);
 

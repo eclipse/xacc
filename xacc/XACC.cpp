@@ -16,7 +16,15 @@ namespace xacc {
 
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
+int argc = 0;
+char** argv = NULL;
 
+int getArgc() {
+	return argc;
+}
+char** getArgv() {
+	return argv;
+}
 void Initialize(std::vector<std::string> argv) {
 	XACCInfo("Initializing the XACC Framework");
 	std::vector<char*> cstrs;
@@ -31,7 +39,10 @@ void Initialize() {
 	Initialize(std::vector<std::string>{});
 }
 
-void Initialize(int argc, char** argv) {
+void Initialize(int arc, char** arv) {
+
+	argc = arc;
+	argv = arv;
 
 	// Create the iniitial xacc-console
 	std::shared_ptr<spdlog::logger> tmpInitConsole;
