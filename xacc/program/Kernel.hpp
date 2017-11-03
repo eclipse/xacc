@@ -155,6 +155,7 @@ protected:
 
 public:
 
+	KernelList() {}
 	/**
 	 * The Constructor
 	 */
