@@ -204,6 +204,19 @@ std::shared_ptr<IRTransformation> getIRTransformations(
 
 }
 
+const std::string translate(const std::string& original, const std::string& originalLanguageName,
+		const std::string& newLanguageName, const std::string bufferName) {
+
+	auto originalCompiler = getCompiler(originalLanguageName);
+	auto newCompiler = getCompiler(newLanguageName);
+	auto ir = originalCompiler->compile(original);
+	std::string newSrc = "";
+	for (auto k : ir->getKernels()) {
+		newSrc += newCompiler->translate(bufferName, k) + "\n";
+	}
+	return newSrc;
+}
+
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should
