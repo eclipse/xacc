@@ -209,6 +209,16 @@ public:
 
 		return accelerator->execute(buffer, functions);
 	}
+
+	std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
+			std::shared_ptr<AcceleratorBuffer> buffer) {
+		std::vector<std::shared_ptr<Function>> functions;
+		for (auto k : *this) {
+			functions.push_back(k.getIRFunction());
+		}
+		return accelerator->execute(buffer, functions);
+	}
+
 };
 
 }

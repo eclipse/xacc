@@ -57,7 +57,7 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 set (LIBRARY_NAME xacc)
 
 file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
-file (GLOB SRC *.cpp utils/*.cpp)
+file (GLOB SRC *.cpp program/*.cpp utils/*.cpp)
 
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})

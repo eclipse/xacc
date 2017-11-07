@@ -196,6 +196,10 @@ public:
 		return false;
 	}
 
+	virtual bool isPhysical() {
+		return false;
+	}
+
 	/**
 	 * Destructor
 	 */

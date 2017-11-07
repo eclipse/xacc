@@ -37,22 +37,10 @@ namespace xacc {
  * @return
  */
 std::vector<IRTransformation> getAcceleratorIndependentTransformations(
-		AcceleratorType& accType) {
-	std::vector<IRTransformation> transformations;
-	return transformations;
-}
+		AcceleratorType& accType);
 
 std::vector<std::shared_ptr<Preprocessor>> getDefaultPreprocessors(
-		AcceleratorType accType) {
-	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
-	auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(
-			"kernel-replacement");
-	if (accType == AcceleratorType::qpu_gate) {
-		preprocessors.push_back(preprocessor);
-	}
-
-	return preprocessors;
-}
+		AcceleratorType accType);
 
 /**
  * The Program is the main entrypoint for the XACC
@@ -139,59 +127,7 @@ public:
 	 * source kernel code to produce XACC IR that can be executed
 	 * on the attached Accelerator.
 	 */
-	void build() {
-
-		// Get reference to the runtime options
-		auto runtimeOptions = RuntimeOptions::instance();
-
-		// Get the compiler that has been requested.
-		auto compilerToRun = (*runtimeOptions)["compiler"];
-
-		// Create the appropriate compiler
-		compiler = xacc::ServiceRegistry::instance()->getService<Compiler>(
-				compilerToRun);
-
-		// Make sure we got a valid
-		if (!compiler) {
-			XACCError("Invalid Compiler.\n");
-		}
-
-		// Before compiling, run preprocessors
-		auto defaultPPs = getDefaultPreprocessors(accelerator->getType());
-		for (auto preprocessor : defaultPPs) {
-			src = preprocessor->process(src, compiler, accelerator);
-		}
-
-		// Execute any preprocessor clients have provided
-		for (auto preprocessor : preprocessors) {
-			src = preprocessor->process(src, compiler, accelerator);
-		}
-
-		XACCInfo("Executing "+ compiler->getName() + " compiler.");
-
-		// Execute the compilation
-		xaccIR = compiler->compile(src, accelerator);
-
-		// Validate the compilation
-		if (!xaccIR) {
-			XACCError("Bad source string or something.\n");
-		}
-
-		// Execute hardware dependent IR Transformations
-		auto accTransforms = accelerator->getIRTransformations();
-		for (auto t : accTransforms) {
-			xaccIR = t->transform(xaccIR);
-		}
-
-		// Write the IR to file if the user requests it
-		if (runtimeOptions->exists("persist-ir")) {
-			auto fileStr = (*runtimeOptions)["persist-ir"];
-			std::ofstream ostr(fileStr);
-			xaccIR->persist(ostr);
-		}
-
-		return;
-	}
+	virtual void build();
 
 	/**
 	 * Return the number of Kernels in this Program's XACC IR.
