@@ -93,6 +93,9 @@ public:
 	 */
 	virtual void appendMeasurement(const boost::dynamic_bitset<>& measurement) {
 		measurements.push_back(measurement);
+		std::stringstream ss;
+		ss << measurement;
+		bitStringToCounts[ss.str()]++;
 	}
 
 	virtual void appendMeasurement(const boost::dynamic_bitset<>& measurement, const int count) {
@@ -104,7 +107,10 @@ public:
 	}
 
 	double computeMeasurementProbability(const std::string& bitStr) {
-		return bitStringToCounts[bitStr] / measurements.size();
+		XACCInfo("Computing Probability: " + bitStr + ", counts "
+				+ std::to_string(bitStringToCounts[bitStr]) +
+						", " + std::to_string(measurements.size()));
+		return (double) bitStringToCounts[bitStr] / (double)measurements.size();
 	}
 
 	/**
