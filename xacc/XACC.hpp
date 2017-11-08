@@ -15,11 +15,11 @@
 
 #include <iostream>
 #include <memory>
-#include "Program.hpp"
 #include "Utils.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 #include "CLIParser.hpp"
+#include "Program.hpp"
 #include "Preprocessor.hpp"
 #include "ServiceRegistry.hpp"
 

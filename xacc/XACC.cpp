@@ -52,7 +52,7 @@ void Initialize(int arc, char** arv) {
 		tmpInitConsole = spdlog::get("xacc-console");
 	}
 
-	XACCInfo("[xacc] Initializing XACC Framework");
+	XACCInfo("[xacc] Initializing XACC Framework.");
 
 	// Get reference to the service registry
 	auto serviceRegistry = xacc::ServiceRegistry::instance();
@@ -65,10 +65,10 @@ void Initialize(int arc, char** arv) {
 	auto a = serviceRegistry->getServices<Accelerator>().size();
 
 	XACCInfo(
-			"[xacc::compiler] XACC has " + std::to_string(s) + " Compiler"
+			"[xacc::plugins] XACC has " + std::to_string(s) + " Compiler"
 					+ ((s == 1 || s == 0) ? "" : "s") + " available.");
 	XACCInfo(
-			"[xacc::accelerator] XACC has " + std::to_string(a) + " Accelerator"
+			"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
 					+ ((s == 0 || s == 1) ? "" : "s") + " available.");
 
 	// We're good if we make it here, so indicate that we've been
@@ -223,11 +223,11 @@ const std::string translate(const std::string& original, const std::string& orig
  * be called after using the XACC API.
  */
 void Finalize() {
-	XACCInfo(
-			"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
-					"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+	XACCInfo("");
+	XACCInfo("[xacc::plugins] Cleaning up Plugin Registry.");
 	xacc::ServiceRegistry::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
+	XACCInfo("[xacc] Finalizing XACC Framework.");
 }
 }
 
