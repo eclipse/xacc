@@ -95,6 +95,18 @@ public:
 		measurements.push_back(measurement);
 	}
 
+	virtual void appendMeasurement(const boost::dynamic_bitset<>& measurement, const int count) {
+		std::stringstream ss;
+		ss << measurement;
+		bitStringToCounts[ss.str()] = count;
+		for (int i = 0; i < count; i++) measurements.push_back(measurement);
+		return;
+	}
+
+	double computeMeasurementProbability(const std::string& bitStr) {
+		return bitStringToCounts[bitStr] / measurements.size();
+	}
+
 	/**
 	 * Compute and return the expectation value with respect
 	 * to the Pauli-Z operator. Here we provide a base implementation
@@ -188,6 +200,8 @@ protected:
 	 * Reference to the Accelerator measurement result bit strings
 	 */
 	std::vector<boost::dynamic_bitset<>> measurements;
+
+	std::map<std::string, int> bitStringToCounts;
 
 	/**
 	 * The name of this AcceleratorBuffer
