@@ -18,6 +18,7 @@
 #include "RuntimeOptions.hpp"
 #include "Identifiable.hpp"
 #include "OptionsProvider.hpp"
+#include "Cloneable.hpp"
 
 #include "xacc_config.hpp"
 #include <boost/algorithm/string.hpp>
@@ -160,7 +161,13 @@ public:
 			auto service = context.GetService(s);
 			auto identifiable = std::dynamic_pointer_cast<xacc::Identifiable>(service);
 			if (identifiable && identifiable->name() == name) {
-				return service;
+				auto checkCloneable = std::dynamic_pointer_cast<
+						xacc::Cloneable<ServiceInterface>>(service);
+				if (checkCloneable) {
+					return checkCloneable->clone();
+				} else {
+					return service;
+				}
 			}
 		}
 		XACCError("Could not find service with name " + name + ". "
