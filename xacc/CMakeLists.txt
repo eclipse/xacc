@@ -69,7 +69,7 @@ endif()
 target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib})
 
 # Get the test files
-file(GLOB test_files utils/tests/*Tester.cpp)
+file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
 # Add the tests
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES}")

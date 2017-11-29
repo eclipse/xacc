@@ -107,9 +107,6 @@ public:
 	}
 
 	double computeMeasurementProbability(const std::string& bitStr) {
-		XACCInfo("Computing Probability: " + bitStr + ", counts "
-				+ std::to_string(bitStringToCounts[bitStr]) +
-						", " + std::to_string(measurements.size()));
 		return (double) bitStringToCounts[bitStr] / (double)measurements.size();
 	}
 
@@ -123,33 +120,24 @@ public:
 	 * @return expVal The expectation value
 	 */
 	virtual const double getExpectationValueZ() {
-		std::stringstream ss;
-		double aver = 0.;
-		long n_measurements = measurements.size();
-		unsigned long tmp;
-		bool odd;
-		for (unsigned long bucket = 0; bucket < (1UL << measurements[0].size());
-				++bucket) {
-			long count = 0;      // use bucket to "collect"(i.e. count)
-			for (const auto outcome : measurements) {
-				if (outcome.to_ulong() == bucket) {
-					count++;
-				}
-			}
-			double p = double(count) / n_measurements;
-			ss << "p= " << p << std::endl;
-			tmp = bucket;
-			odd = false;
-			while (tmp) {
-				odd = !odd;
-				tmp = tmp & (tmp - 1);
-			}
+		double aver = 0.0;
+		auto has_even_parity = [](unsigned int x) -> int {
+		    unsigned int count = 0, i, b = 1;
+		    for(i = 0; i < 32; i++){
+		        if( x & (b << i) ){count++;}
+		    }
+		    if( (count % 2) ){return 0;}
+		    return 1;
+		};
 
-			if (!odd) {
-				aver += p;
-			} else {
-				aver -= p;
+		for (auto& kv : bitStringToCounts) {
+			int i = std::stoi(kv.first, nullptr, 2);
+			auto par = has_even_parity(i);
+			auto p = computeMeasurementProbability(kv.first);
+			if (!par) {
+				p = -p;
 			}
+			aver += p;
 		}
 		return aver;
 	}
