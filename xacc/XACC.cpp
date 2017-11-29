@@ -150,6 +150,11 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	}
 }
 
+bool hasAccelerator(const std::string& name) {
+	return ServiceRegistry::instance()->hasService<Accelerator>(name);
+}
+
+
 std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 	if (!xacc::xaccFrameworkInitialized) {
 		XACCError(
@@ -165,6 +170,7 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 						+ " in Service Registry.");
 	}
 }
+
 std::shared_ptr<Compiler> getCompiler() {
 	if (!xacc::xaccFrameworkInitialized) {
 		XACCError(
@@ -184,6 +190,10 @@ std::shared_ptr<Compiler> getCompiler() {
 				"Invalid Compiler. Could not find " + (*options)["compiler"]
 						+ " in Compiler Registry.");
 	}
+}
+
+bool hasCompiler(const std::string& name) {
+	return ServiceRegistry::instance()->hasService<Compiler>(name);
 }
 
 std::shared_ptr<IRTransformation> getIRTransformations(

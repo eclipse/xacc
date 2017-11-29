@@ -58,7 +58,8 @@ enum AcceleratorType {
  *
  * @author Alex McCaskey
  */
-class __attribute__((visibility("default"))) Accelerator : public OptionsProvider, public Identifiable {
+class __attribute__((visibility("default"))) Accelerator: public OptionsProvider,
+		public Identifiable {
 
 public:
 

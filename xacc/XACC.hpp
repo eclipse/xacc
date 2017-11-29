@@ -106,11 +106,14 @@ void setAccelerator(const std::string& acceleratorName);
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name);
 std::shared_ptr<Accelerator> getAccelerator();
 
+bool hasAccelerator(const std::string& name);
+
 /**
  * Return the Compiler with given name
  */
 std::shared_ptr<Compiler> getCompiler(const std::string& name);
 std::shared_ptr<Compiler> getCompiler();
+bool hasCompiler(const std::string& name);
 
 /*
  * Return the IRTransformation with given name
