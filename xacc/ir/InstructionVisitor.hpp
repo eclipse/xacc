@@ -17,6 +17,7 @@
 #include <string>
 #include <memory>
 #include "Utils.hpp"
+#include "Identifiable.hpp"
 
 namespace xacc {
 
@@ -26,12 +27,26 @@ namespace xacc {
  * provides a means for passing instruction visitor
  * handles in a polymorphic manner.
  */
-class BaseInstructionVisitor {
+class BaseInstructionVisitor : public Identifiable {
 public:
 	/**
 	 * The destructor
 	 */
 	virtual ~BaseInstructionVisitor() {}
+
+	virtual const std::string name() const {
+		return "base-visitor-name";
+	}
+
+	virtual const std::string description() const {
+		return "Base Instruction Visitors are identifiable "
+				"for developers who want them to be a "
+				"framework extension point.";
+	}
+
+	virtual const std::string toString() {
+		return "";
+	}
 };
 
 /**

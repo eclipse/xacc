@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "XACC.hpp"
+#include "InstructionIterator.hpp"
 
 namespace xacc {
 
@@ -225,6 +226,29 @@ const std::string translate(const std::string& original, const std::string& orig
 		newSrc += newCompiler->translate(bufferName, k) + "\n";
 	}
 	return newSrc;
+}
+
+const std::string translateWithVisitor(const std::string& originalSource, const std::string& originalLanguage,
+		const std::string& visitorMappingName, const std::string& accelerator, const int kernel) {
+
+	auto acc = getAccelerator(accelerator);
+	auto originalCompiler = getCompiler(originalLanguage);
+	auto ir = originalCompiler->compile(originalSource, acc);
+	auto visitor = ServiceRegistry::instance()->getService<
+			BaseInstructionVisitor>(visitorMappingName);
+
+	std::vector<std::string> previouslySeenKernels;
+
+	InstructionIterator it(ir->getKernels()[kernel]);
+	while (it.hasNext()) {
+		// Get the next node in the tree
+		auto nextInst = it.next();
+		if (nextInst->isEnabled()) {
+			nextInst->accept(visitor);
+		}
+	}
+
+	return visitor->toString();
 }
 
 /**
