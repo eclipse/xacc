@@ -67,10 +67,15 @@ public:
 	}
 
 	virtual const std::string get(const std::string& remoteUrl,
-			const std::string& path) {
+			const std::string& path,
+			std::map<std::string, std::string> headers = std::map<std::string,
+					std::string> { }) {
 		http_client getClient(
 				http::uri_builder(http::uri(remoteUrl)).append_path(U(path)).to_uri());
 		http_request getRequest(methods::GET);
+		for (auto& kv : headers) {
+			getRequest.headers().add(kv.first, kv.second);
+		}
 		auto getResponse = getClient.request(getRequest);
 		// get the result as a string
 		std::stringstream z;
@@ -103,7 +108,7 @@ public:
 		auto jsonPostStr = processInput(buffer, std::vector<std::shared_ptr<Function>> {
 				function });
 
-		auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr);
+		auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr, headers);
 
 		processResponse(buffer, responseStr);
 
@@ -126,7 +131,7 @@ public:
 			const std::vector<std::shared_ptr<Function>> functions) {
 		auto jsonPostStr = processInput(buffer, functions);
 
-		auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr);
+		auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr, headers);
 
 		return processResponse(buffer, responseStr);
 	}
@@ -137,6 +142,8 @@ protected:
 	std::string postPath;
 
 	std::string remoteUrl;
+
+	std::map<std::string, std::string> headers;
 
 	/**
 	 * take ir, generate json post string

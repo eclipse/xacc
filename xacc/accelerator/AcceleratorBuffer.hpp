@@ -84,6 +84,7 @@ public:
 	 */
 	virtual void resetBuffer() {
 		measurements.clear();
+		bitStringToCounts.clear();
 	}
 
 	/**
