@@ -56,6 +56,8 @@ public:
 		xAction(x);
 	}
 
+	void visit(Identity& i) {}
+
 	void visit(Y& y) {
 		yAction(y);
 	}

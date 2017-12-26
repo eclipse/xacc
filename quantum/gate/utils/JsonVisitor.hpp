@@ -117,6 +117,9 @@ public:
 //		return buffer->GetString();
 //	}
 
+	void visit(Identity& i) {
+		baseGateInst(dynamic_cast<GateInstruction&>(i));
+	}
 
 	void visit(Hadamard& h) {
 		baseGateInst(dynamic_cast<GateInstruction&>(h));
