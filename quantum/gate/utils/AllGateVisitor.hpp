@@ -27,6 +27,7 @@
 #include "Swap.hpp"
 #include "Measure.hpp"
 #include "Identity.hpp"
+#include "CZ.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -49,7 +50,8 @@ class AllGateVisitor:
 		public InstructionVisitor<CPhase>,
 		public InstructionVisitor<Swap>,
 		public InstructionVisitor<Measure>,
-		public InstructionVisitor<Identity> {
+		public InstructionVisitor<Identity>,
+		public InstructionVisitor<CZ> {
 
 };
 }

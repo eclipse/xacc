@@ -129,6 +129,10 @@ public:
 		baseGateInst(dynamic_cast<GateInstruction&>(cn));
 	}
 
+	void visit(CZ& cz) {
+		baseGateInst(dynamic_cast<GateInstruction&>(cz));
+	}
+
 	void visit(Swap& s) {
 		baseGateInst(dynamic_cast<GateInstruction&>(s));
 	}
