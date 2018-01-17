@@ -58,6 +58,10 @@ public:
 						("list-accelerators", "List all available XACC Accelerators");
 	}
 
+	void addOptionsDescription(std::shared_ptr<options_description> options) {
+		xaccOptions->add(*options);
+	}
+
 	/**
 	 */
 	void parse(int argc, char** argv) {

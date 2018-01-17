@@ -86,6 +86,10 @@ void addCommandLineOptions(const std::string& category, const std::map<std::stri
 	xaccCLParser->addStringOptions(category, options);
 }
 
+void addCommandLineOptions(std::shared_ptr<options_description> options) {
+	xaccCLParser->addOptionsDescription(options);
+}
+
 bool optionExists(const std::string& optionKey) {
 	return RuntimeOptions::instance()->exists(optionKey);
 }

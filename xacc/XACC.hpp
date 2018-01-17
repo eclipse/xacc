@@ -63,6 +63,7 @@ void addCommandLineOption(const std::string& optionName,
  */
 void addCommandLineOptions(const std::string& category, const std::map<std::string, std::string>& options);
 
+void addCommandLineOptions(std::shared_ptr<options_description> options);
 /**
  * Return true if the option exists.
  *

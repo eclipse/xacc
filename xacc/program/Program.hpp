@@ -116,7 +116,7 @@ public:
 	}
 
 	void addPreprocessor(const std::string& preProcessorName) {
-                if(ServiceRegistry::instance()->hasService<Preprocessor>(preProcessorName)) {
+        if(ServiceRegistry::instance()->hasService<Preprocessor>(preProcessorName)) {
 			auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
 			preprocessors.push_back(preprocessor);
 		}
