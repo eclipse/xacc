@@ -49,6 +49,8 @@ void Initialize(std::vector<std::string> argv);
 
 void Initialize();
 
+bool isInitialized();
+
 /**
  * Add a valid command line option
  */

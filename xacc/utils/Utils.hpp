@@ -67,7 +67,10 @@ public:
 
 	XACCException(std::string error) :
 			errorMessage(error) {
-		spdlog::get("xacc-console")->error("\033[1;31m" + errorMessage + "\033[0m");			\
+		auto c = spdlog::get("xacc-console");
+		if (c) {
+			c->error("\033[1;31m" + errorMessage + "\033[0m");
+		}
 	}
 
 	virtual const char * what() const throw () {

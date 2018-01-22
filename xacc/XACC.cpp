@@ -40,37 +40,44 @@ void Initialize() {
 	Initialize(std::vector<std::string>{});
 }
 
+bool isInitialized() {
+	return xaccFrameworkInitialized;
+}
+
 void Initialize(int arc, char** arv) {
 
-	argc = arc;
-	argv = arv;
+	if (!xaccFrameworkInitialized) {
+		argc = arc;
+		argv = arv;
 
-	// Create the iniitial xacc-console
-	std::shared_ptr<spdlog::logger> tmpInitConsole;
-	if (!spdlog::get("xacc-console")) {
-		tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
-	} else {
-		tmpInitConsole = spdlog::get("xacc-console");
+		// Create the iniitial xacc-console
+		std::shared_ptr<spdlog::logger> tmpInitConsole;
+		if (!spdlog::get("xacc-console")) {
+			tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
+		} else {
+			tmpInitConsole = spdlog::get("xacc-console");
+		}
+
+		XACCInfo("[xacc] Initializing XACC Framework.");
+
+		// Get reference to the service registry
+		auto serviceRegistry = xacc::ServiceRegistry::instance();
+
+		// Parse any user-supplied command line options
+		xaccCLParser->parse(argc, argv);
+
+		// Check that we have some
+		auto s = serviceRegistry->getServices<Compiler>().size();
+		auto a = serviceRegistry->getServices<Accelerator>().size();
+
+		XACCInfo(
+				"[xacc::plugins] XACC has " + std::to_string(s) + " Compiler"
+						+ ((s == 1 || s == 0) ? "" : "s") + " available.");
+		XACCInfo(
+				"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
+						+ ((s == 0 || s == 1) ? "" : "s") + " available.");
+
 	}
-
-	XACCInfo("[xacc] Initializing XACC Framework.");
-
-	// Get reference to the service registry
-	auto serviceRegistry = xacc::ServiceRegistry::instance();
-
-	// Parse any user-supplied command line options
-	xaccCLParser->parse(argc, argv);
-
-	// Check that we have some
-	auto s = serviceRegistry->getServices<Compiler>().size();
-	auto a = serviceRegistry->getServices<Accelerator>().size();
-
-	XACCInfo(
-			"[xacc::plugins] XACC has " + std::to_string(s) + " Compiler"
-					+ ((s == 1 || s == 0) ? "" : "s") + " available.");
-	XACCInfo(
-			"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
-					+ ((s == 0 || s == 1) ? "" : "s") + " available.");
 
 	// We're good if we make it here, so indicate that we've been
 	// initialized
