@@ -216,7 +216,7 @@ public:
 		auto edgeBoolPair = add_edge(vertex(srcIndex, *_graph.get()),
 				vertex(tgtIndex, *_graph.get()), *_graph.get());
 		if (!edgeBoolPair.second) {
-			XACCError("Failed to add an edge between " + std::to_string(srcIndex) + " and " + std::to_string(tgtIndex));
+			XACCLogger::instance()->error("Failed to add an edge between " + std::to_string(srcIndex) + " and " + std::to_string(tgtIndex));
 		}
 
 		boost::put(boost::edge_weight_t(), *_graph.get(), edgeBoolPair.first, edgeWeight);
@@ -487,7 +487,7 @@ public:
 	 */
 	virtual void read(std::istream& stream) {
 		stream.fail();
-		XACCError("Reading must be implemented by subclasses.");
+		XACCLogger::instance()->error("Reading must be implemented by subclasses.");
 	}
 
 	void computeShortestPath(int startIndex,

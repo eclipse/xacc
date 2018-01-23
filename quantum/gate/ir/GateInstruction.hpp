@@ -130,7 +130,7 @@ public:
 
 	virtual InstructionParameter getParameter(const int idx) const {
 		if (idx + 1 > parameters.size()) {
-			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+			XACCLogger::instance()->error("Invalid Parameter requested from Parameterized Gate Instruction.");
 		}
 
 		return parameters[idx];
@@ -138,7 +138,7 @@ public:
 
 	virtual void setParameter(const int idx, InstructionParameter& p) {
 		if (idx + 1 > parameters.size()) {
-			XACCError("Invalid Parameter requested from Parameterized Gate Instruction.");
+			XACCLogger::instance()->error("Invalid Parameter requested from Parameterized Gate Instruction.");
 		}
 
 		parameters[idx] = p;

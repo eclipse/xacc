@@ -31,12 +31,12 @@ Embedding TrivialEmbeddingAlgorithm::embed(
 			if (i < j && i != j
 					&& (problem->edgeExists(i, j) && !hdware->edgeExists(i, j))) {
 				if (failHard) {
-					XACCError(
+					XACCLogger::instance()->error(
 							"Trivial Embedding not possible, there is no hardware edge corresponding to ("
 									+ std::to_string(i) + ", "
 									+ std::to_string(j) + ") problem edge.");
 				} else {
-					XACCInfo("This embedding failed, but user requested to not fail hard. Returning empty embedding.");
+					XACCLogger::instance()->info("This embedding failed, but user requested to not fail hard. Returning empty embedding.");
 					xaccEmbedding.clear();
 					return xaccEmbedding;
 				}

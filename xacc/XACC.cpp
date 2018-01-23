@@ -17,6 +17,7 @@ namespace xacc {
 
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
+
 int argc = 0;
 char** argv = NULL;
 
@@ -50,30 +51,22 @@ void Initialize(int arc, char** arv) {
 		argc = arc;
 		argv = arv;
 
-		// Create the iniitial xacc-console
-		std::shared_ptr<spdlog::logger> tmpInitConsole;
-		if (!spdlog::get("xacc-console")) {
-			tmpInitConsole = spdlog::stdout_logger_mt("xacc-console");
-		} else {
-			tmpInitConsole = spdlog::get("xacc-console");
-		}
-
-		XACCInfo("[xacc] Initializing XACC Framework.");
-
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
 
 		// Parse any user-supplied command line options
 		xaccCLParser->parse(argc, argv);
 
+		info("[xacc] Initializing XACC Framework.");
+
 		// Check that we have some
 		auto s = serviceRegistry->getServices<Compiler>().size();
 		auto a = serviceRegistry->getServices<Accelerator>().size();
 
-		XACCInfo(
+		info(
 				"[xacc::plugins] XACC has " + std::to_string(s) + " Compiler"
 						+ ((s == 1 || s == 0) ? "" : "s") + " available.");
-		XACCInfo(
+		info(
 				"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
 						+ ((s == 0 || s == 1) ? "" : "s") + " available.");
 
@@ -82,6 +75,19 @@ void Initialize(int arc, char** arv) {
 	// We're good if we make it here, so indicate that we've been
 	// initialized
 	xacc::xaccFrameworkInitialized = true;
+}
+
+
+void info(const std::string& msg, MessagePredicate predicate) {
+	XACCLogger::instance()->info(msg, predicate);
+}
+
+void debug(const std::string& msg, MessagePredicate predicate) {
+	XACCLogger::instance()->debug(msg, predicate);
+}
+
+void error(const std::string& msg, MessagePredicate predicate) {
+	XACCLogger::instance()->error(msg, predicate);
 }
 
 void addCommandLineOption(const std::string& optionName,
@@ -103,7 +109,7 @@ bool optionExists(const std::string& optionKey) {
 
 const std::string getOption(const std::string& optionKey) {
 	if (!optionExists(optionKey)) {
-		XACCError("Invalid runtime option - " + optionKey);
+		error("Invalid runtime option - " + optionKey);
 	}
 	return (*RuntimeOptions::instance())[optionKey];
 }
@@ -126,12 +132,12 @@ void setAccelerator(const std::string& acceleratorName) {
 
 std::shared_ptr<Accelerator> getAccelerator() {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError(
+		error(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
 	if (!optionExists("accelerator")) {
-		XACCError("Invalid use of XACC API. getAccelerator() with no string argument "
+		error("Invalid use of XACC API. getAccelerator() with no string argument "
 				"requires that you set --accelerator at the command line.");
 	}
 	auto acc = ServiceRegistry::instance()->getService<Accelerator>(getOption("accelerator"));
@@ -139,7 +145,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
 		acc->initialize();
 		return acc;
 	} else {
-		XACCError(
+		error(
 				"Invalid Accelerator. Could not find " + getOption("accelerator")
 						+ " in Accelerator Registry.");
 	}
@@ -147,7 +153,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError(
+		error(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
@@ -156,7 +162,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 		acc->initialize();
 		return acc;
 	} else {
-		XACCError(
+		error(
 				"Invalid Accelerator. Could not find " + name
 						+ " in Accelerator Registry.");
 	}
@@ -169,7 +175,7 @@ bool hasAccelerator(const std::string& name) {
 
 std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError(
+		error(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
@@ -177,7 +183,7 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 	if (c) {
 		return c;
 	} else {
-		XACCError(
+		error(
 				"Invalid Compiler. Could not find " + name
 						+ " in Service Registry.");
 	}
@@ -185,20 +191,20 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 
 std::shared_ptr<Compiler> getCompiler() {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError(
+		error(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
 	auto options = RuntimeOptions::instance();
 	if (!optionExists("compiler")) {
-		XACCError("Invalid use of XACC API. getCompiler() with no string argument "
+		error("Invalid use of XACC API. getCompiler() with no string argument "
 				"requires that you set --compiler at the command line.");
 	}
 	auto compiler = ServiceRegistry::instance()->getService<Compiler>(getOption("compiler"));
 	if (compiler) {
 		return compiler;
 	} else {
-		XACCError(
+		error(
 				"Invalid Compiler. Could not find " + (*options)["compiler"]
 						+ " in Compiler Registry.");
 	}
@@ -211,7 +217,7 @@ bool hasCompiler(const std::string& name) {
 std::shared_ptr<IRTransformation> getIRTransformations(
 		const std::string& name) {
 	if (!xacc::xaccFrameworkInitialized) {
-		XACCError(
+		error(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
@@ -219,7 +225,7 @@ std::shared_ptr<IRTransformation> getIRTransformations(
 	if (t) {
 		return t;
 	} else {
-		XACCError(
+		error(
 				"Invalid IRTransformation. Could not find " + name
 						+ " in Service Registry.");
 	}
@@ -268,11 +274,12 @@ const std::string translateWithVisitor(const std::string& originalSource, const 
  * be called after using the XACC API.
  */
 void Finalize() {
-	XACCInfo("");
-	XACCInfo("[xacc::plugins] Cleaning up Plugin Registry.");
+	info("");
+	info("[xacc::plugins] Cleaning up Plugin Registry.");
 	xacc::ServiceRegistry::instance()->destroy();
+//	XACCLogger::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
-	XACCInfo("[xacc] Finalizing XACC Framework.");
+	info("[xacc] Finalizing XACC Framework.");
 }
 }
 

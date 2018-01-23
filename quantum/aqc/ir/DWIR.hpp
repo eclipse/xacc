@@ -67,7 +67,7 @@ public:
 					return f;
 				}
 			}
-			XACCError("Invalid kernel name - " + name);
+			XACCLogger::instance()->error("Invalid kernel name - " + name);
 		}
 
 		virtual std::vector<std::shared_ptr<Function>> getKernels() {

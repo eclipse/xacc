@@ -66,6 +66,11 @@ void addCommandLineOption(const std::string& optionName,
 void addCommandLineOptions(const std::string& category, const std::map<std::string, std::string>& options);
 
 void addCommandLineOptions(std::shared_ptr<options_description> options);
+
+void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+
 /**
  * Return true if the option exists.
  *

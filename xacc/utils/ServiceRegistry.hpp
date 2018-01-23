@@ -70,12 +70,12 @@ protected:
 			// GetBundleContext() later.
 			framework.Init();
 		} catch (const std::exception& e) {
-			XACCError(std::string(e.what()) + " - Could not initialize XACC Framework");
+			XACCLogger::instance()->error(std::string(e.what()) + " - Could not initialize XACC Framework");
 		}
 
 		context = framework.GetBundleContext();
 		if (!context) {
-			XACCError("Invalid XACC Framework plugin context.");
+			XACCLogger::instance()->error("Invalid XACC Framework plugin context.");
 		}
 
 		boost::filesystem::path xaccPluginPath(
@@ -93,7 +93,7 @@ protected:
 				}
 			}
 		} else {
-			XACCInfo("There are no plugins. Install plugins to begin working with XACC.");
+			XACCLogger::instance()->info("There are no plugins. Install plugins to begin working with XACC.");
 		}
 
 		boost::filesystem::path xaccLibPath(
@@ -127,7 +127,7 @@ protected:
 			}
 
 		} catch (const std::exception& e) {
-			XACCError("Failure to start XACC plugins. " + std::string(e.what()));
+			XACCLogger::instance()->error("Failure to start XACC plugins. " + std::string(e.what()));
 		}
 	}
 
@@ -170,7 +170,7 @@ public:
 				}
 			}
 		}
-		XACCError("Could not find service with name " + name + ". "
+		XACCLogger::instance()->error("Could not find service with name " + name + ". "
 				"Perhaps the service is not Identifiable.");
 	}
 

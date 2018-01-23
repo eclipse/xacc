@@ -72,7 +72,7 @@ target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib})
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES}")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

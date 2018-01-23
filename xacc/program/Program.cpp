@@ -47,7 +47,7 @@ void Program::build() {
 
 	// Make sure we got a valid
 	if (!compiler) {
-		XACCError("Invalid Compiler.\n");
+		XACCLogger::instance()->error("Invalid Compiler.\n");
 	}
 
 	// Before compiling, run preprocessors
@@ -61,14 +61,14 @@ void Program::build() {
 		src = preprocessor->process(src, compiler, accelerator);
 	}
 
-	XACCInfo("Executing " + compiler->getName() + " compiler.");
+	XACCLogger::instance()->info("Executing " + compiler->getName() + " compiler.");
 
 	// Execute the compilation
 	xaccIR = compiler->compile(src, accelerator);
 
 	// Validate the compilation
 	if (!xaccIR) {
-		XACCError("Bad source string or something.\n");
+		XACCLogger::instance()->error("Bad source string or something.\n");
 	}
 
 	// Execute hardware dependent IR Transformations

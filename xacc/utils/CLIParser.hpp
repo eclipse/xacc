@@ -55,7 +55,9 @@ public:
 						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
 						("load", value<std::string>(), "Load a XACC plugin at the given path")
 						("list-compilers", "List all available XACC Compilers")
-						("list-accelerators", "List all available XACC Accelerators");
+						("list-accelerators", "List all available XACC Accelerators")
+						("no-color", "Turn off colored logger output (blue for INFO, red for ERROR, etc.).")
+						("use-cout", "Use std::cout for logs instead of SPDLOG Logger.");
 	}
 
 	void addOptionsDescription(std::shared_ptr<options_description> options) {
@@ -80,7 +82,7 @@ public:
 		store(parse_command_line(argc, argv, *xaccOptions.get()), clArgs);
 		if (clArgs.count("help")) {
 			std::cout << *xaccOptions.get() << "\n";
-			XACCInfo(
+			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 			exit(0);
@@ -96,24 +98,24 @@ public:
 		bool listTypes = false;
 		if (clArgs.count("list-compilers")) {
 			auto ids = ServiceRegistry::instance()->getRegisteredIds<Compiler>();
-			XACCInfo("Available XACC Compilers:");
+			XACCLogger::instance()->info("Available XACC Compilers:");
 			for (auto i : ids) {
-				XACCInfo("\t" + i);
+				XACCLogger::instance()->info("\t" + i);
 			}
 			listTypes = true;
 		}
 
 		if (clArgs.count("list-accelerators")) {
 			auto ids = ServiceRegistry::instance()->getRegisteredIds<Accelerator>();
-			XACCInfo("Available XACC Accelerators:");
+			XACCLogger::instance()->info("Available XACC Accelerators:");
 			for (auto i : ids) {
-				XACCInfo("\t" + i);
+				XACCLogger::instance()->info("\t" + i);
 			}
 			listTypes = true;
 		}
 
 		if (listTypes) {
-			XACCInfo(
+			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 			exit(0);
@@ -121,7 +123,7 @@ public:
 
 		auto exitRequested = ServiceRegistry::instance()->handleOptions(clArgs);
 		if (exitRequested) {
-			XACCInfo(
+			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
 			exit(0);

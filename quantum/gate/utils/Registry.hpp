@@ -55,14 +55,14 @@ public:
 	bool add(const std::string& id,
 			CreatorFunctionPtr f) {
 		if (registry.find(id) != registry.end()) {
-			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
+			XACCLogger::instance()->info(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
 
-		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCInfo("Registry adding " + id);
+		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCLogger::instance()->info("Registry adding " + id);
 		bool s = registry.emplace(std::make_pair(id, f)).second;
 		if (!s) {
-			XACCError("Could not add " + id + " to the Registry.");
+			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
 		} else {
 			return s;
 		}
@@ -81,14 +81,14 @@ public:
 	bool add(const std::string& id,
 			CreatorFunctionPtr f, std::shared_ptr<options_description> options) {
 		if (registry.find(id) != registry.end()) {
-			XACCInfo(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
+			XACCLogger::instance()->info(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
-		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCInfo("Registry adding " + id);
+		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCLogger::instance()->info("Registry adding " + id);
 		bool s = registry.emplace(std::make_pair(id, f)).second;
 		bool s2 = registryOptions.insert(std::make_pair(id, std::move(options))).second;
 		if (!s || ! s2) {
-			XACCError("Could not add " + id + " to the Registry.");
+			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
 		} else {
 			return true;
 		}
@@ -98,19 +98,19 @@ public:
 			std::shared_ptr<options_description> options,
 			std::function<bool(variables_map&)> optionsHandler) {
 		if (registry.find(id) != registry.end()) {
-			XACCInfo(
+			XACCLogger::instance()->info(
 					id
 							+ " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
 		if (RuntimeOptions::instance()->exists("verbose-registry"))
-			XACCInfo("Registry adding " + id);
+			XACCLogger::instance()->info("Registry adding " + id);
 		bool s = registry.emplace(std::make_pair(id, f)).second;
 		bool s2 =
 				registryOptions.insert(std::make_pair(id, std::move(options))).second;
 		bool s3 = registryOptionHandlers.insert(std::make_pair(id, std::move(optionsHandler))).second;
 		if (!s || !s2) {
-			XACCError("Could not add " + id + " to the Registry.");
+			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
 		} else {
 			return true;
 		}
@@ -128,7 +128,7 @@ public:
 		if (search != registry.end()) {
 			return registry[id]->operator()(args...);
 		} else {
-			XACCError("Invalid Registry map id string - " + id);
+			XACCLogger::instance()->error("Invalid Registry map id string - " + id);
 		}
 	}
 

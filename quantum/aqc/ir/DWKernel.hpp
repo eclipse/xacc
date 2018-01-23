@@ -51,7 +51,7 @@ public:
 		if (instructions.size() > idx) {
 			return *std::next(instructions.begin(), idx);
 		} else {
-			XACCError("Invalid instruction index.");
+			XACCLogger::instance()->error("Invalid instruction index.");
 		}
 	}
 
@@ -142,19 +142,19 @@ public:
 	}
 
 	virtual InstructionParameter getParameter(const int idx) const {
-		XACCError("DWKernel does not contain runtime parameters.");
+		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual void setParameter(const int idx, InstructionParameter& p) {
-		XACCError("DWKernel does not contain runtime parameters.");
+		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual std::vector<InstructionParameter> getParameters() {
-		XACCError("DWKernel does not contain runtime parameters.");
+		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual void addParameter(InstructionParameter instParam) {
-		XACCError("DWKernel does not contain runtime parameters.");
+		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual bool isParameterized() {
@@ -166,7 +166,7 @@ public:
 	}
 
 	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) {
-		XACCError("DWKernel does not contain runtime parameters.");
+		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
 	}
 
 

@@ -25,7 +25,7 @@ const std::string KernelReplacementPreprocessor::process(const std::string& sour
 			std::shared_ptr<Compiler> compiler,
 			std::shared_ptr<Accelerator> accelerator) {
 
-	XACCInfo("Running Kernel Replacement Preprocessor.\n");
+	XACCLogger::instance()->info("Running Kernel Replacement Preprocessor.\n");
 
 	// Find any occurrences of xacc::FUNCTION
 	// Get the first occurrence

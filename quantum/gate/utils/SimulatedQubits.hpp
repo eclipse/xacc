@@ -165,7 +165,7 @@ public:
 
 		for (int i = 0; i < bufferState.size(); i++) {
 
-			XACCInfo(
+			XACCLogger::instance()->info(
 					bitStrings[i] + " -> ("
 							+ std::to_string(std::real(bufferState(i))) + ", "
 							+ std::to_string(std::imag(bufferState(i))) + ")");

@@ -97,7 +97,7 @@ public:
 				return f;
 			}
 		}
-		XACCError("Invalid kernel name.");
+		XACCLogger::instance()->error("Invalid kernel name.");
 	}
 
 	virtual bool kernelExists(const std::string& name) {

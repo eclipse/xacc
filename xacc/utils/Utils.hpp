@@ -15,24 +15,16 @@
 
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
+#include "Singleton.hpp"
+#include "RuntimeOptions.hpp"
 #include "spdlog/spdlog.h"
+#include <iostream>
 
 namespace xacc {
 
 static inline bool is_base64(unsigned char c);
 
 std::string base64_decode(std::string const& encoded_string);
-
-template<typename InputIterator, typename OutputIterator, typename Predicate>
-OutputIterator copy_if(InputIterator first, InputIterator last,
-		OutputIterator result, Predicate pred) {
-	while (first != last) {
-		if (pred(*first))
-			*result++ = *first;
-		++first;
-	}
-	return result;
-}
 
 template<typename TupleType, typename FunctionType>
 void tuple_for_each(TupleType&&, FunctionType,
@@ -67,7 +59,7 @@ public:
 
 	XACCException(std::string error) :
 			errorMessage(error) {
-		auto c = spdlog::get("xacc-console");
+		auto c = spdlog::get("xacc-logger");
 		if (c) {
 			c->error("\033[1;31m" + errorMessage + "\033[0m");
 		}
@@ -105,6 +97,34 @@ public:
 		xacc::XACCInfoT::printInfo(std::string(infoMsg));						\
 	} while(0)
 
+using MessagePredicate = std::function<bool(void)>;
 
+class XACCLogger: public Singleton<XACCLogger> {
+
+protected:
+
+	std::shared_ptr<spdlog::logger> logger;
+
+	bool useCout = false;
+
+	bool useColor = true;
+
+	XACCLogger();
+
+public:
+
+	// Overriding here so we can have a custom constructor
+	static XACCLogger* instance() {
+		if (!instance_) {
+			instance_ = new XACCLogger();
+		}
+		return instance_;
+	}
+
+	void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+	void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+	void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+};
 }
+
 #endif

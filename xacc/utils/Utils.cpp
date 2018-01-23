@@ -10,13 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_UTILS_UTILS_HPP_
-#define XACC_UTILS_UTILS_HPP_
-
-#include <boost/bind.hpp>
-#include <boost/tokenizer.hpp>
-#include "spdlog/spdlog.h"
-
+#include "Utils.hpp"
+#include <unistd.h>
 namespace xacc {
 
 static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -76,5 +71,62 @@ std::string base64_decode(std::string const& encoded_string) {
 	return ret;
 }
 
+XACCLogger::XACCLogger() :
+		useColor(
+				!RuntimeOptions::instance()->exists("no-color")) {
+
+	logger = spdlog::stdout_logger_mt("xacc-logger");
+
 }
-#endif
+
+void XACCLogger::info(const std::string& msg, MessagePredicate predicate) {
+	if (useCout) {
+		if (predicate()) {
+			if (useColor) {
+				std::cout << "\033[1;34m[XACC Info] " + msg + "\033[0m \n";
+			} else {
+				std::cout << "[XACC Info] " + msg + "\n";
+			}
+		}
+	} else {
+		if (predicate()) {
+			if (useColor) {
+				logger->info("\033[1;34m" + msg + "\033[0m");
+			} else {
+				logger->info(msg);
+			}
+		}
+	}
+}
+void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
+	if (useCout) {
+		if (predicate()) {
+			if (useColor) {
+				std::cout << "\033[1;33m[XACC Debug] " + msg + "\033[0m \n";
+			} else {
+				std::cout << "[XACC Debug] " + msg + "\n";
+			}
+		}
+	} else {
+		if (predicate()) {
+			if (useColor) {
+				logger->info("\033[1;33m" + msg + "\033[0m");
+			} else {
+				logger->info(msg);
+			}
+		}
+	}
+}
+void XACCLogger::error(const std::string& msg, MessagePredicate predicate) {
+	if (useCout) {
+		if (predicate())
+			XACCError(msg);
+	} else {
+		if (predicate()) {
+			logger->error(msg);
+		}
+	}
+	XACCError(msg);
+}
+
+}
