@@ -89,6 +89,8 @@ public:
 	 */
 	virtual std::vector<std::shared_ptr<Function>> getKernels() = 0;
 
+	virtual const int maxBit() = 0;
+
 	/**
 	 * The destructor
 	 */

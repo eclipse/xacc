@@ -87,6 +87,10 @@ public:
 		return qbits;
 	}
 
+	virtual const std::string getTag() {
+		return "";
+	}
+
 	/**
 	 * Return this instruction's assembly-like string
 	 * representation.

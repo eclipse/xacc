@@ -98,7 +98,10 @@ public:
 	virtual const std::string getName() {
 		return "dw-qmi";
 	}
-	;
+
+	virtual const std::string getTag() {
+		return "";
+	}
 
 	/**
 	 * Persist this Instruction to an assembly-like

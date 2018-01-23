@@ -41,6 +41,10 @@ public:
 			return;
 		}
 
+		virtual const int maxBit() {
+			return 0;
+		}
+
 		/**
 		 * Create this IR instance from the given input
 		 * stream.

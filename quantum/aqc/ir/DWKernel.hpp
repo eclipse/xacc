@@ -63,6 +63,11 @@ public:
 		instructions.remove(getInstruction(idx));
 	}
 
+	virtual const std::string getTag() {
+		return "";
+	}
+
+
 	/**
 	 * Add an instruction to this quantum
 	 * intermediate representation.

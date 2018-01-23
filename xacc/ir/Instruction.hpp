@@ -109,6 +109,9 @@ public:
 	virtual bool isParameterized() {
 		return false;
 	}
+
+	virtual const std::string getTag() = 0;
+
 	/**
 	 * Returns true if this Instruction is composite,
 	 * ie, contains other Instructions.

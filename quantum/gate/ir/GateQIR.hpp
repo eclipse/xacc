@@ -79,6 +79,20 @@ public:
 	 */
 	virtual void generateGraph(const std::string& kernelName);
 
+	virtual const int maxBit() {
+		int maxBit = 0;
+		for (auto k : kernels) {
+			for (auto inst : k->getInstructions()) {
+				for (auto b : inst->bits()) {
+					if (b > maxBit) {
+						maxBit = b;
+					}
+				}
+			}
+		}
+		return maxBit;
+	}
+
 	/**
 	 * Add a quantum function to this intermediate representation.
 	 * @param kernel

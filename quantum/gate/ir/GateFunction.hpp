@@ -38,6 +38,8 @@ protected:
 
 	std::vector<InstructionParameter> parameters;
 
+	std::string tag = "";
+
 	/**
 	 * Map of Instruction Index to ( Instruction's Runtime Parameter Index, Dependent Variable name)
 	 */
@@ -60,8 +62,21 @@ public:
 			functionName(name), parameters(params) {
 	}
 
+	GateFunction(const std::string& name, const std::string& _tag) :
+			functionName(name), parameters(
+					std::vector<InstructionParameter> { }), tag(_tag) {
+	}
+	GateFunction(const std::string& name, const std::string& _tag,
+			std::vector<InstructionParameter> params) :
+			functionName(name), parameters(params), tag(_tag) {
+	}
+
 	GateFunction(const GateFunction& other) :
 			functionName(other.functionName), parameters(other.parameters) {
+	}
+
+	virtual const std::string getTag() {
+		return tag;
 	}
 
 	virtual const int nInstructions() {
