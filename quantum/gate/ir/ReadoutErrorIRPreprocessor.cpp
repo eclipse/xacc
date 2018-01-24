@@ -28,28 +28,32 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	auto gateRegistry = GateInstructionRegistry::instance();
 
 	// Search IR Functions and construct Pauli Term strings, then add any Pauli that is not there
-	std::vector<std::string> pauliTerms;
+	std::vector<std::string> orderedPauliTerms;
+	std::vector<std::map<int, std::string>> pauliTerms;
 	for (auto kernel : ir.getKernels()) {
-
+		std::string pauliStr = "";
 		CountGatesOfTypeVisitor<Measure> v(kernel);
 		bool allZTerm = false;
 		if (kernel->nInstructions() == v.countGates()) {
 			allZTerm = true;
 		}
 
-		std::string pauliTerm = "";
+		std::map<int, std::string> pauliTerm;
 		for (auto inst : kernel->getInstructions()) {
 			auto bit = inst->bits()[0];
 
 			if (allZTerm) {
-				pauliTerm = "Z" + std::to_string(bit) + " " + pauliTerm;
+				pauliTerm[bit] = "Z";
+				pauliStr = "Z" + std::to_string(bit) + pauliStr;
 				continue;
 			}
 
 			if (inst->getName() == "H") {
-				pauliTerm = "X" + std::to_string(bit) + " " + pauliTerm;
+				pauliStr = "X" + std::to_string(bit) + pauliStr;
+				pauliTerm[bit] = "X";
 			} else if (inst->getName() == "Rx") {
-				pauliTerm = "Y" + std::to_string(bit) + " " + pauliTerm;
+				pauliStr = "X" + std::to_string(bit) + pauliStr;
+				pauliTerm[bit] = "Y";
 			} else if (inst->getName() == "Measure") {
 				// do nothing
 				continue;
@@ -60,18 +64,41 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 			}
 		}
 
-		boost::trim(pauliTerm);
+		orderedPauliTerms.push_back(pauliStr);
 		pauliTerms.push_back(pauliTerm);
+	}
+
+	std::cout << "TERMSMaps:\n";
+	std::map<std::string, std::vector<int>> sites;
+	for (auto a : pauliTerms) {
+		std::stringstream s;
+		std::vector<int> tmp;
+		for (auto& kv : a) {
+			s << kv.second << kv.first;
+			tmp.push_back(kv.first);
+			std::cout << kv.second << kv.first << " ";
+		}
+		sites.insert({s.str(), tmp});
+		std::cout << "\n";
+	}
+
+
+	std::cout << "SITES:\n";
+	for (auto & kv : sites) {
+		std::cout << kv.first << " -> (";
+		for (auto i : kv.second) {
+			std::cout << i << " ";
+		}
+		std::cout << ")\n";
 	}
 
 	std::vector<std::string> extraKernelsNeeded;
 	for (auto t : pauliTerms) {
-		std::vector<std::string> ops;
-		boost::split(ops, t, boost::is_any_of(" "));
-		if (ops.size() > 1) {
-			for (auto o : ops) {
-				if (std::find(pauliTerms.begin(), pauliTerms.end(), o) == pauliTerms.end()) {
-					extraKernelsNeeded.push_back(o);
+		if (t.size() > 1) {
+			for (auto& kv : t) {
+				auto termStr = kv.second + std::to_string(kv.first);
+				if (!sites.count(termStr)) {
+					extraKernelsNeeded.push_back(termStr);
 				}
 			}
 		}
@@ -80,9 +107,8 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	std::sort( extraKernelsNeeded.begin(), extraKernelsNeeded.end() );
 	extraKernelsNeeded.erase( std::unique( extraKernelsNeeded.begin(), extraKernelsNeeded.end() ), extraKernelsNeeded.end() );
 
-	std::map<std::string, int> extraKernelsMap, measureMap;
-
 	for (auto o : extraKernelsNeeded) {
+		std::cout << "EXTRA: " << o << "\n";
 		int nKernels = ir.getKernels().size();
 		auto extraKernel = std::make_shared<GateFunction>(o, "readout-error-extra");
 
@@ -109,7 +135,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 		ir.addKernel(extraKernel);
 
-		extraKernelsMap.insert({o, nKernels});
+		orderedPauliTerms.push_back(o);
 	}
 
 	int nKernels = ir.getKernels().size();
@@ -136,22 +162,11 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		ir.addKernel(f10);
 		ir.addKernel(f01);
 
-		measureMap.insert({std::to_string(qbit) + "01", nKernels});
-		measureMap.insert({std::to_string(qbit) + "10", nKernels+1});
-
 		qbit++;
 	}
 
-	for (auto& kv : extraKernelsMap) {
-		std::cout << kv.first << ", " << kv.second << "\n";
-	}
-
-	for (auto& kv : measureMap) {
-		std::cout << kv.first << ", " << kv.second << "\n";
-	}
-
 	// Construct a ReadoutErrorABPostprocessor
-	return std::make_shared<ReadoutErrorAcceleratorBufferPostprocessor>(ir, extraKernelsMap, measureMap);
+	return std::make_shared<ReadoutErrorAcceleratorBufferPostprocessor>(ir, sites, orderedPauliTerms);
 }
 
 }

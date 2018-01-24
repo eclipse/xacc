@@ -88,14 +88,20 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 	return newIr;
 }
 
+class FakeAB : public AcceleratorBuffer {
+public:
+
+	FakeAB(const std::string& str, const int N) : AcceleratorBuffer(str, N) {}
+	virtual const double getExpectationValueZ() {
+		return 1.0;
+	}
+};
+
 BOOST_AUTO_TEST_CASE(checkSimple) {
 
 //	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
 //			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 + (0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2
 //	needs x0, x1, x2, y0, y1, y2
-
-	xacc::Initialize();
-	xacc::setOption("n-qubits", "3");
 
 	std::unordered_map<std::string, Term> test {{"X0X1", {{0,"X"}, {1,"X"}}},
 		{"X1X2", {{1,"X"}, {2,"X"}}},
@@ -118,8 +124,15 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 
 	std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
 	for (int i = 0; i < ir->getKernels().size(); i++) {
-		buffers.push_back(std::make_shared<AcceleratorBuffer>("b"+std::to_string(i), 3));
+		buffers.push_back(std::make_shared<FakeAB>("b"+std::to_string(i), 3));
 	}
 
-	bufferProcessor->process(buffers);
+	auto fixedBuffers =  bufferProcessor->process(buffers);
+
+	BOOST_VERIFY(test.size() + nExtraKernels == fixedBuffers.size());
+
+	for (int i = 0; i < test.size(); i++) {
+		BOOST_VERIFY(1.0 == fixedBuffers[i]->getExpectationValueZ());
+	}
+
 }

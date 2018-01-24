@@ -39,15 +39,30 @@ class ReadoutErrorAcceleratorBufferPostprocessor : public AcceleratorBufferPostp
 
 protected:
 
-	std::map<std::string, int> measurements;
-	std::map<std::string, int> extraKernels;
+	std::map<std::string, std::vector<int>> sites;
+	std::vector<std::string> allTerms;
 	IR& ir;
+
+	double exptZ(double E_Z, double p01, double p10) {
+		auto p_p = p01 + p10;
+		auto p_m = p01 - p10;
+		return (E_Z-p_m)/(1.0 - p_p);
+	}
+
+	double exptZZ(double E_ZZ, double E_ZI, double E_IZ, double ap01, double ap10,
+			double bp01, double bp10, bool averaged = false);
+
+	std::map<std::string, double> fix_assignments(
+			std::map<std::string, double> oldExpects,
+			std::map<std::string, std::vector<int>> sites,
+			std::map<int, std::pair<double, double>> errorRates);
 
 public:
 	ReadoutErrorAcceleratorBufferPostprocessor(IR& i,
-			std::map<std::string, int> extraKernelIndexMap,
-			std::map<std::string, int> measurementIndexMap) : ir(i),
-			extraKernels(extraKernelIndexMap), measurements(measurementIndexMap) {
+			std::map<std::string, std::vector<int>> sitesMap,
+			std::vector<std::string> orderedTerms) :
+			ir(i), sites(sitesMap), allTerms(
+					orderedTerms) {
 	}
 
 	virtual std::vector<std::shared_ptr<AcceleratorBuffer>> process(std::vector<std::shared_ptr<AcceleratorBuffer>> buffers);

@@ -24,43 +24,237 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 	std::string zeroStr = "";
 	for (int i = 0; i < nQubits; i++) zeroStr += "0";
 
-	std::map<std::string, double> errorRates;
-	for (auto& kv : measurements) {
-
-		auto kernelIdx = kv.second;
+	std::map<int, std::pair<double,double>> errorRates;
+	bool first = true;
+	int counter = 0, qbitCount=0;
+	std::vector<double> probs;
+	for (int i = allTerms.size(); i < buffers.size(); i++) {
 		auto localBitStr = zeroStr;
-		std::stringstream s;
-		s << kv.first[1] << kv.first[2];
-		if (boost::contains(s.str(), "01")) {
-
-			auto kernel = ir.getKernels()[kernelIdx];
+		if (first) {
+			// we have a p01 buffer
+			auto kernel = ir.getKernels()[i];
 			auto bit = kernel->getInstruction(0)->bits()[0];
-
 			localBitStr[nQubits - bit - 1] = '1';
+			first = false;
+		} else {
+			// we have a p10 buffer
+			first = true;
 		}
 
-		std::cout << "HI: " << kv.first << ", " << kv.second << ", " << localBitStr << "\n";
-		// get bit string from
-		auto prob = buffers[kv.second]->computeMeasurementProbability(localBitStr);
+		probs.push_back(buffers[i]->computeMeasurementProbability(localBitStr));
+		counter++;
 
-		errorRates.insert({kv.first, std::isnan(prob) ? 0.0 : prob});
+		if (counter == 2) {
+			errorRates.insert(
+					{ qbitCount, { std::isnan(probs[0]) ? 0.0 : probs[0],
+							std::isnan(probs[1]) ? 0.0 : probs[1] } });
+			counter = 0;
+			qbitCount++;
+			probs.clear();
+		}
 	}
+
 
 	for (auto& kv : errorRates) {
-		std::stringstream s, s2;
-		s2 << kv.first[1] << kv.first[2];
-		s << kv.first[0]
-				<< (s2.str() == "01" ?
-						" probability expected 0 but got 1 error rate = " :
-						" probability expected 1 but got 0 error rate = ");
-		xacc::info("Qubit " + s.str() + std::to_string(kv.second));
+		std::stringstream s, s2, s3;
+		s << "Qubit " << kv.first << " p01 = " << kv.second.first << ", p10 = " << kv.second.second;
+		xacc::info(s.str());
 	}
 
+
 	// Return new AcceleratorBuffers subtype, StaticExpValAcceleratorBuffer that has static
+
+	std::map<std::string, double> oldExpects;
+	for (int i = 0; i < allTerms.size(); i++) {
+		std::cout << "OLDEXPECTS: " << allTerms[i] << ", " << buffers[i]->getExpectationValueZ() << "\n";
+		oldExpects.insert({allTerms[i], buffers[i]->getExpectationValueZ()});
+	}
+
+	auto fixed = fix_assignments(oldExpects, sites, errorRates);
+
 	// constant fixed expectation value from the calculation
 
-	return std::vector<std::shared_ptr<AcceleratorBuffer>>{};
+	std::vector<std::shared_ptr<AcceleratorBuffer>> fixedBuffers;
+	for (int i = 0; i < allTerms.size(); i++) {
+		auto staticBuffer = std::make_shared<StaticExpectationValueBuffer>(buffers[i]->name(), buffers[i]->size(), fixed[allTerms[i]]);
+		fixedBuffers.push_back(staticBuffer);
+	}
+
+	return fixedBuffers;
 }
+
+std::map<std::string, double> ReadoutErrorAcceleratorBufferPostprocessor::fix_assignments(
+		std::map<std::string, double> oldExpects,
+		std::map<std::string, std::vector<int>> sites,
+		std::map<int, std::pair<double, double>> errorRates) {
+
+	std::map<std::string, double> newExpects;
+
+	for (auto& kv : sites) {
+
+		if (kv.first != "I") {
+			if (kv.second.size() == 1) {
+				double p01 = errorRates[kv.second[0]].first;
+				double p10 = errorRates[kv.second[0]].second;
+				newExpects.insert({kv.first, exptZ(oldExpects[kv.first], p01, p10)});
+			} else if (kv.second.size() == 2) {
+
+				std::stringstream s,t;
+				s << kv.first[0] << kv.first[1];
+				t << kv.first[2] << kv.first[3];
+				auto k0 = s.str();
+				auto k1 = t.str();
+
+				double ap01 = errorRates[kv.second[0]].first;
+				double ap10 = errorRates[kv.second[0]].second;
+				double bp01 = errorRates[kv.second[1]].first;
+				double bp10 = errorRates[kv.second[1]].second;
+
+				newExpects.insert({kv.first, exptZZ(oldExpects[kv.first], oldExpects[k0], oldExpects[k1], ap01, ap10, bp01, bp10)});
+
+			} else {
+				xacc::error("Correction for paulis with support on > 2 sites not implemented.");
+			}
+		}
+
+	}
+
+	return newExpects;
+}
+
+double ReadoutErrorAcceleratorBufferPostprocessor::exptZZ(double E_ZZ, double E_ZI, double E_IZ, double a01, double a10,
+		double b01, double b10, bool averaged) {
+
+    double a00 = 1 - a10;
+    double a11 = 1 - a01;
+    double b00 = 1 - b10;
+    double b11 = 1 - b01;
+    double E_II = 1;
+
+	double E_ZZ_fixed = 0;
+    if(averaged) {
+        E_ZZ_fixed = (E_ZZ + (a01 - a10)*(- E_ZI - E_IZ + a01 - a10))/std::pow((-1 + a01 + a10),2);
+    } else {
+        E_ZZ_fixed = (-(2 - a00 * b01 - a11 * b01 - a00 * b10 - a11 * b10 +
+        a01*a01 * (b00 * b01 + b10 * (2 * b01 + b11)) +
+        a10*a10 * (b00 * b01 + b10 * (2 * b01 + b11)) +
+        a01 * ((a00 + 2 * a10) * b01*b01 - 2 * b10 + a00 * b10*b10 + 2 * a10 * b10*b10 +
+           b00 * (-1 + a11 * b01 + a00 * b10 + 2 * a10 * b10) - b11 +
+           a11 * b10 * b11 + b01 * (-2 + 2 * a11 * b10 + a00 * b11 + 2 * a10 * b11)) +
+         a10 * (a11 * b01*b01 - 2 * b10 + a11 * b10*b10 +
+           b00 * (-1 + a00 * b01 + a11 * b10) - b11 + a00 * b10 * b11 +
+           b01 * (-2 + 2 * a00 * b10 + a11 * b11))) * E_ZZ -
+    a10 * b00 * E_ZI + a00 * b01 * E_ZI +
+    a11 * b01 * E_ZI + a00 * a10 * b00 * b01 * E_ZI +
+    a10*a10 * b00 * b01 * E_ZI - 2 * a00 * a11 * b01*b01 * E_ZI -
+    a10 * a11 * b01*b01 * E_ZI - a00 * b10 * E_ZI -
+    a11 * b10 * E_ZI + a10 * a11 * b00 * b10 * E_ZI +
+    2 * a00 * a11 * b10*b10 * E_ZI + a10 * a11 * b10*b10 * E_ZI +
+    a10 * b11 * E_ZI - a10 * a11 * b01 * b11 * E_ZI -
+    a00 * a10 * b10 * b11 * E_ZI - a10*a10 * b10 * b11 * E_ZI -
+    a10 * b00 * E_IZ - a00 * b01 * E_IZ +
+    a11 * b01 * E_IZ + a00 * a10 * b00 * b01 * E_IZ +
+    a10*a10 * b00 * b01 * E_IZ - a10 * a11 * b01*b01 * E_IZ -
+    a00 * b10 * E_IZ + a11 * b10 * E_IZ -
+    a10 * a11 * b00 * b10 * E_IZ +
+    2 * a00 * a10 * b01 * b10 * E_IZ -
+    a10 * a11 * b10*b10 * E_IZ - a10 * b11 * E_IZ +
+    2 * a10*a10 * b00 * b11 * E_IZ -
+    a10 * a11 * b01 * b11 * E_IZ +
+    a00 * a10 * b10 * b11 * E_IZ + a10*a10 * b10 * b11 * E_IZ -
+    a10 * b00 * E_II +
+    a00 * b01 * E_II -
+    a11 * b01 * E_II +
+    a00 * a10 * b00 * b01 * E_II +
+    a10*a10 * b00 * b01 * E_II +
+    2 * a10 * a11 * b00 * b01 * E_II +
+    a10 * a11 * b01*b01 * E_II -
+    2 * a00 * a10 * a11 * b00 * b01*b01 * E_II -
+    2 * a10*a10 * a11 * b00 * b01*b01 * E_II -
+    a00 * b10 * E_II +
+    a11 * b10 * E_II -
+    a10 * a11 * b00 * b10 * E_II +
+    2 * a00 * a10 * a11 * b00 * b01 * b10 * E_II +
+    2 * a10*a10 * a11 * b00 * b01 * b10 * E_II -
+    4 * a00 * a10 * a11 * b01*b01 * b10 * E_II -
+    2 * a10*a10 * a11 * b01*b01 * b10 * E_II -
+    a10 * a11 * b10*b10 * E_II +
+    4 * a00 * a10 * a11 * b01 * b10*b10 * E_II +
+    2 * a10*a10 * a11 * b01 * b10*b10 * E_II +
+    a10 * b11 * E_II +
+    a10 * a11 * b01 * b11 * E_II -
+    2 * a10*a10 * a11 * b00 * b01 * b11 * E_II -
+    a00 * a10 * b10 * b11 * E_II -
+    a10*a10 * b10 * b11 * E_II -
+    2 * a10 * a11 * b10 * b11 * E_II +
+    2 * a10*a10 * a11 * b00 * b10 * b11 * E_II -
+    2 * a00 * a10 * a11 * b01 * b10 * b11 * E_II -
+    2 * a10*a10 * a11 * b01 * b10 * b11 * E_II +
+    2 * a00 * a10 * a11 * b10*b10 * b11 * E_II +
+    2 * a10*a10 * a11 * b10*b10 * b11 * E_II +
+    a01*a01 * (-b10 * (2 * a00 * b01 * (-b01 + b10) * E_II +
+           b11 * (E_ZI + E_IZ + (-1 - 2 * a00 * b01 -
+                2 * a10 * b01 + 2 * a00 * b10 +
+                2 * a10 * b10) * E_II)) +
+       b00 * (2 * (a00 + a10) * b01*b01 * E_II -
+          2 * b11 * (E_IZ + (a00 +
+                2 * a10) * b10 * E_II) +
+          b01 * (E_ZI - E_IZ + (-1 - 2 * a00 * b10 -
+                2 * a10 * b10 + 2 * a00 * b11 +
+                4 * a10 * b11) * E_II))) +
+    a01 * (b11 * E_ZI - 2 * a10 * b01 * b11 * E_ZI -
+       a11 * b10 * b11 * E_ZI - 2 * a11 * b01 * b10 * E_IZ +
+       b11 * E_IZ - a11 * b10 * b11 * E_IZ +
+       2 * a10 * a11 * b01*b01 * b10 * E_II -
+       2 * a10 * a11 * b01 * b10*b10 * E_II -
+       b11 * E_II +
+       a11 * b10 * b11 * E_II -
+       2 * a10*a10 * b01 * b10 * b11 * E_II +
+       2 * a10 * a11 * b01 * b10 * b11 * E_II +
+       2 * a10*a10 * b10*b10 * b11 * E_II -
+       2 * a10 * a11 * b10*b10 * b11 * E_II +
+       b00 * ((-1 + a11 * b01 + a00 * b10 +
+             2 * a10 * b10) * E_ZI + (1 - a11 * b01 +
+             a00 * b10) * E_IZ + (1 - 2 * a10*a10 * b01*b01 +
+             2 * a10*a10 * b01 * b10 - 4 * a10*a10 * b01 * b11 + 4 * a10*a10 * b10 * b11 +
+             a11 * (2 * a10 * b01*b01 - 2 * a10 * b10 * b11 +
+                b01 * (-1 - 2 * a10 * b10 + 2 * a10 * b11)) +
+             a00 * (-2 * (a10 - a11) * b01*b01 + b10 + 2 * a10 * b10 * b11 -
+                2 * b01 * (1 + a11 * b10 +
+                   a10 * (-b10 + b11)))) * E_II) +
+        a00 * (-b01*b01 * (E_ZI - E_IZ + E_II +
+             2 * a10 * b10 * E_II -
+             4 * a11 * b10 * E_II) -
+          b01 * (-2 * (a10 - 2 * a11) * b10*b10 * E_II +
+             b11 * (E_ZI - E_IZ + E_II + 2 * a10 * b10 * E_II -
+                2 * a11 * b10 * E_II)) +
+          b10 * (2 * b11 * E_II +
+             b10 * (E_ZI + E_IZ + E_II + 2 * a10 * b11 * E_II -
+                2 * a11 * b11 * E_II)))))/(2 * ((-1 +
+         a11 * (b01 + b10)) * (1 - a00 * (b01 + b10) +
+         a10*a10 * (b00 + b10) * (b01 + b11) +
+         a10 * (-b01 + b00 * (-1 + a00 * b01) - b10 + 2 * a00 * b01 * b10 - b11 +
+            a00 * b10 * b11)) +
+      a01*a01 * (b10 * (a00 * b01*b01 + (-1 + a00 * b10 + a10 * b10) * b11 +
+            b01 * (-1 + a10 * b11 + a00 * (b10 + b11))) +
+         b00 * ((a00 + a10) * b01*b01 + (-1 + a00 * b10 + 2 * a10 * b10) * b11 +
+            b01 * (-1 + a10 * b10 + 2 * a10 * b11 + a00 * (b10 + b11)))) +
+      a01 * (b01*b01 * (a10 * (-1 + a11 * b10) +
+            a00 * (-1 + a10 * b10 + 2 * a11 * b10)) + (-1 + a00 * b10 +
+            a10 * b10) * (-b11 + b10 * (-1 + a10 * b11 + a11 * b11)) +
+         b01 * (1 - 2 * a10 * b11 + a10*a10 * b10 * b11 +
+            a11 * b10 * (-2 + a10 * (b10 + b11)) +
+            a00 * ((a10 + 2 * a11) * b10*b10 - b11 +
+               b10 * (-2 + a10 * b11 + a11 * b11))) +
+         b00 * (1 - a11 * b01 + a10*a10 * (b01 + b10) * (b01 + 2 * b11) +
+            a00 * (b01 + b10) * (-1 + a11 * b01 + a10 * (b01 + b11)) +
+            a10 * (a11 * b01*b01 - 2 * b10 - 2 * b11 + a11 * b10 * b11 +
+               b01 * (-2 + a11 * (b10 + b11)))))));
+    }
+    return E_ZZ_fixed;
+
+}
+
 }
 }
 
