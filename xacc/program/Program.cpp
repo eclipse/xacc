@@ -77,6 +77,10 @@ void Program::build() {
 		xaccIR = t->transform(xaccIR);
 	}
 
+	for (auto irp : irpreprocessors) {
+		bufferPostprocessors.push_back(irp->process(*xaccIR));
+	}
+
 	// Write the IR to file if the user requests it
 	if (runtimeOptions->exists("persist-ir")) {
 		auto fileStr = (*runtimeOptions)["persist-ir"];

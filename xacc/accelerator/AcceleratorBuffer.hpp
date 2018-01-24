@@ -107,7 +107,7 @@ public:
 		return;
 	}
 
-	double computeMeasurementProbability(const std::string& bitStr) {
+	virtual double computeMeasurementProbability(const std::string& bitStr) {
 		return (double) bitStringToCounts[bitStr] / (double)measurements.size();
 	}
 

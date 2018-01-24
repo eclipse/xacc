@@ -14,6 +14,7 @@
 #define XACC_PROGRAM_KERNEL_HPP_
 
 #include "Function.hpp"
+#include "AcceleratorBufferPostprocessor.hpp"
 
 namespace xacc {
 
@@ -152,6 +153,7 @@ protected:
 	 * The Accelerator to execute this Kernel on
 	 */
 	std::shared_ptr<Accelerator> accelerator;
+	std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> bufferPostprocessors;
 
 public:
 
@@ -160,6 +162,11 @@ public:
 	 * The Constructor
 	 */
 	KernelList(std::shared_ptr<Accelerator> acc) : accelerator(acc) {}
+
+	KernelList(std::shared_ptr<Accelerator> acc,
+			std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> postprocessors) :
+			accelerator(acc), bufferPostprocessors(postprocessors) {
+	}
 
 	/**
 	 * Return the Accelerator this KernelList delegates to.
@@ -191,7 +198,15 @@ public:
 			}
 		}
 
-		return accelerator->execute(buffer, functions);
+		auto buffers = accelerator->execute(buffer, functions);
+
+		if (!bufferPostprocessors.empty()) {
+			for (auto p : bufferPostprocessors) {
+				buffers = p->process(buffers);
+			}
+		}
+
+		return buffers;
 	}
 
 	/**
@@ -207,7 +222,15 @@ public:
 			functions.push_back(k.getIRFunction());
 		}
 
-		return accelerator->execute(buffer, functions);
+		auto buffers = accelerator->execute(buffer, functions);
+
+		if (!bufferPostprocessors.empty()) {
+			for (auto p : bufferPostprocessors) {
+				buffers = p->process(buffers);
+			}
+		}
+
+		return buffers;
 	}
 
 	std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
@@ -216,7 +239,16 @@ public:
 		for (auto k : *this) {
 			functions.push_back(k.getIRFunction());
 		}
-		return accelerator->execute(buffer, functions);
+		auto buffers = accelerator->execute(buffer, functions);
+
+		if (!bufferPostprocessors.empty()) {
+			for (auto p : bufferPostprocessors) {
+				buffers = p->process(buffers);
+			}
+		}
+
+		return buffers;
+
 	}
 
 };

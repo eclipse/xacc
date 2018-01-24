@@ -28,6 +28,8 @@
 #include "Preprocessor.hpp"
 #include "ServiceRegistry.hpp"
 #include "Kernel.hpp"
+#include "IRPreprocessor.hpp"
+#include "AcceleratorBufferPostprocessor.hpp"
 
 namespace xacc {
 
@@ -82,6 +84,8 @@ protected:
 	 * to be run before Compiler execution.
 	 */
 	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
+	std::vector<std::shared_ptr<IRPreprocessor>> irpreprocessors;
+	std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> bufferPostprocessors;
 
 public:
 
@@ -119,6 +123,15 @@ public:
         if(ServiceRegistry::instance()->hasService<Preprocessor>(preProcessorName)) {
 			auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
 			preprocessors.push_back(preprocessor);
+		}
+	}
+
+	void addIRPreprocessor(const std::string& name) {
+		if (ServiceRegistry::instance()->hasService<IRPreprocessor>(
+				name)) {
+			auto p = ServiceRegistry::instance()->getService<
+					IRPreprocessor>(name);
+			irpreprocessors.push_back(p);
 		}
 	}
 
@@ -166,7 +179,7 @@ public:
 	 */
 	template<typename ... RuntimeArgs>
 	auto getKernels() -> KernelList<RuntimeArgs...> {
-		KernelList<RuntimeArgs...> kernels(accelerator);
+		KernelList<RuntimeArgs...> kernels(accelerator, bufferPostprocessors);
 		if (!xaccIR) {
 			build();
 		}
@@ -208,7 +221,7 @@ public:
 	 * as InstructionParameters.
 	 */
 	auto getRuntimeKernels() -> KernelList<> {
-		KernelList<> kernels(accelerator);
+		KernelList<> kernels(accelerator, bufferPostprocessors);
 		if (!xaccIR) {
 			build();
 		}

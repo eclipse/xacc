@@ -13,7 +13,7 @@
 #include "QFT.hpp"
 #include "InverseQFT.hpp"
 #include "KernelReplacementPreprocessor.hpp"
-
+#include "ReadoutErrorIRPreprocessor.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -41,9 +41,14 @@ public:
 		auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
 		auto kp =
 				std::make_shared<xacc::quantum::KernelReplacementPreprocessor>();
+
+		auto readout = std::make_shared<xacc::quantum::ReadoutErrorIRPreprocessor>();
+
 		context.RegisterService<xacc::Preprocessor>(kp);
 		context.RegisterService<xacc::IRGenerator>(iqft);
 		context.RegisterService<xacc::IRGenerator>(qft);
+
+		context.RegisterService<xacc::IRPreprocessor>(readout);
 	}
 
 	/**

@@ -109,7 +109,6 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 	for (auto o : extraKernelsNeeded) {
 		std::cout << "EXTRA: " << o << "\n";
-		int nKernels = ir.getKernels().size();
 		auto extraKernel = std::make_shared<GateFunction>(o, "readout-error-extra");
 
 		std::stringstream sg, sb;
@@ -142,7 +141,6 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 	int qbit = 0;
 	for (int i = 0; i < 2*nQubits; i+=2) {
-		int nKernels = ir.getKernels().size();
 		auto f01 = std::make_shared<GateFunction>(
 				"measure0_qubit_" + std::to_string(qbit), "readout-error");
 		auto meas01 = gateRegistry->create("Measure", std::vector<int>{qbit});

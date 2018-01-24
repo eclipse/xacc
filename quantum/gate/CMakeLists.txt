@@ -67,6 +67,7 @@ target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib})
 add_subdirectory(compiler)
 add_subdirectory(ir)
 add_subdirectory(utils)
+add_subdirectory(accelerator)
 
 install(FILES ${HEADERS} DESTINATION include/quantum/gate)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
