@@ -21,6 +21,46 @@ namespace quantum {
 class ReadoutErrorIRPreprocessor : public IRPreprocessor {
 public:
 	virtual std::shared_ptr<AcceleratorBufferPostprocessor> process(IR& ir);
+
+	/**
+	 * Return the name of this instance.
+	 *
+	 * @return name The string name
+	 */
+	virtual const std::string name() const {
+		return "readout-error-preprocessor";
+	}
+
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
+
+	/**
+	 * Return a Boost options_description instance that
+	 * describes the options available for this
+	 * derived subclass.
+	 */
+	virtual std::shared_ptr<options_description> getOptions() {
+		return std::make_shared<options_description>();
+	}
+
+	/**
+	 * Given user-input command line options, perform
+	 * some operation. Returns true if runtime should exit,
+	 * false otherwise.
+	 *
+	 * @param map The mapping of options to values
+	 * @return exit True if exit, false otherwise
+	 */
+	virtual bool handleOptions(variables_map& map) {
+		return false;
+	}
+
+
 };
 
 }

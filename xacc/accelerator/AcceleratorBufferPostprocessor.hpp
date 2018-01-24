@@ -14,9 +14,10 @@
 #define XACC_ACCELERATOR_ACCELERATORBUFFERPOSTPROCESSOR_HPP_
 
 #include "AcceleratorBuffer.hpp"
+#include "OptionsProvider.hpp"
 
 namespace xacc {
-class AcceleratorBufferPostprocessor {
+class AcceleratorBufferPostprocessor : public Identifiable, public OptionsProvider {
 public:
 	virtual std::vector<std::shared_ptr<AcceleratorBuffer>> process(std::vector<std::shared_ptr<AcceleratorBuffer>> buffers) = 0;
 	virtual ~AcceleratorBufferPostprocessor(){}

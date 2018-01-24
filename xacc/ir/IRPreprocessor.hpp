@@ -15,10 +15,11 @@
 
 #include "IR.hpp"
 #include "AcceleratorBufferPostprocessor.hpp"
+#include "OptionsProvider.hpp"
 
 namespace xacc {
 
-class IRPreprocessor {
+class IRPreprocessor : public Identifiable, public OptionsProvider {
 public:
 	virtual std::shared_ptr<AcceleratorBufferPostprocessor> process(IR& ir) = 0;
 	virtual ~IRPreprocessor() {}
