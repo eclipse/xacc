@@ -24,15 +24,22 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 	std::string zeroStr = "";
 	for (int i = 0; i < nQubits; i++) zeroStr += "0";
 
+	std::vector<std::shared_ptr<Function>> nonIdentityKernels;
+	for (int i = 0; i < ir.getKernels().size(); i++) {
+		if (ir.getKernels()[i]->nInstructions() > 0) {
+			nonIdentityKernels.push_back(ir.getKernels()[i]);
+		}
+	}
+
 	std::map<int, std::pair<double,double>> errorRates;
 	bool first = true;
 	int counter = 0, qbitCount=0;
 	std::vector<double> probs;
 	for (int i = allTerms.size(); i < buffers.size(); i++) {
 		auto localBitStr = zeroStr;
+		auto kernel = nonIdentityKernels[i];
 		if (first) {
 			// we have a p01 buffer
-			auto kernel = ir.getKernels()[i];
 			auto bit = kernel->getInstruction(0)->bits()[0];
 			localBitStr[nQubits - bit - 1] = '1';
 			first = false;
@@ -40,6 +47,8 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 			// we have a p10 buffer
 			first = true;
 		}
+
+		xacc::info("Computing measurement probability for bit string = " + localBitStr);
 
 		probs.push_back(buffers[i]->computeMeasurementProbability(localBitStr));
 		counter++;
@@ -66,7 +75,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 
 	std::map<std::string, double> oldExpects;
 	for (int i = 0; i < allTerms.size(); i++) {
-		std::cout << "OLDEXPECTS: " << allTerms[i] << ", " << buffers[i]->getExpectationValueZ() << "\n";
+		xacc::info("Raw Expectatations: " + allTerms[i] + " = " + std::to_string(buffers[i]->getExpectationValueZ()));
 		oldExpects.insert({allTerms[i], buffers[i]->getExpectationValueZ()});
 	}
 
@@ -85,7 +94,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 
 std::map<std::string, double> ReadoutErrorAcceleratorBufferPostprocessor::fix_assignments(
 		std::map<std::string, double> oldExpects,
-		std::map<std::string, std::vector<int>> sites,
+		std::map<std::string, std::vector<int>> sites, // GIVES KEY X0X1 -> [0,1]
 		std::map<int, std::pair<double, double>> errorRates) {
 
 	std::map<std::string, double> newExpects;
@@ -110,7 +119,11 @@ std::map<std::string, double> ReadoutErrorAcceleratorBufferPostprocessor::fix_as
 				double bp01 = errorRates[kv.second[1]].first;
 				double bp10 = errorRates[kv.second[1]].second;
 
-				newExpects.insert({kv.first, exptZZ(oldExpects[kv.first], oldExpects[k0], oldExpects[k1], ap01, ap10, bp01, bp10)});
+				std::stringstream s2;
+				s2 << ap01 << ", " << ap10 << ", " << bp01 << ", " << bp10 << "\n";
+
+				xacc::info(k0+ ", " + k1 + ", " + s2.str());
+				newExpects.insert({kv.first, exptZZ(oldExpects[kv.first], oldExpects[k0], oldExpects[k1], ap10, ap01, bp10, bp01)});
 
 			} else {
 				xacc::error("Correction for paulis with support on > 2 sites not implemented.");

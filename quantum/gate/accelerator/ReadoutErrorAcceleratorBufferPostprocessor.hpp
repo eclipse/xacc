@@ -44,8 +44,8 @@ protected:
 	IR& ir;
 
 	double exptZ(double E_Z, double p01, double p10) {
-		auto p_p = p01 + p10;
-		auto p_m = p01 - p10;
+		auto p_p = p10 + p01; //p01 + p10;
+		auto p_m = p10 - p01; //p01 - p10;
 		return (E_Z - p_m) / (1.0 - p_p);
 	}
 

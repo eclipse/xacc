@@ -119,6 +119,12 @@ public:
 				[=](std::shared_ptr<Function> i) {return i->getName() == name;});
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) {
+		for (auto k : kernels) {
+			k->mapBits(bitMap);
+		}
+	}
+
 	/**
 	 * Return a string representation of this
 	 * intermediate representation

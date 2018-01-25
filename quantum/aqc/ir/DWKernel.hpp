@@ -67,6 +67,8 @@ public:
 		return "";
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) {
+	}
 
 	/**
 	 * Add an instruction to this quantum

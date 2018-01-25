@@ -237,7 +237,9 @@ public:
 			std::shared_ptr<AcceleratorBuffer> buffer) {
 		std::vector<std::shared_ptr<Function>> functions;
 		for (auto k : *this) {
-			functions.push_back(k.getIRFunction());
+			if (k.getIRFunction()->nInstructions() > 0) {
+				functions.push_back(k.getIRFunction());
+			}
 		}
 		auto buffers = accelerator->execute(buffer, functions);
 

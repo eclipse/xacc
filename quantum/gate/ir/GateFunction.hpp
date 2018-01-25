@@ -79,6 +79,12 @@ public:
 		return tag;
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) {
+		for (auto i : instructions) {
+			i->mapBits(bitMap);
+		}
+	}
+
 	virtual const int nInstructions() {
 		return instructions.size();
 	}

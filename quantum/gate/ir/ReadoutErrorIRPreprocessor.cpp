@@ -22,10 +22,49 @@
 namespace xacc {
 namespace quantum {
 std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::process(IR& ir) {
+	xacc::info("Starting ReadoutErrorIRPreprocessor");
 
 	// Get number of qubits, add 2*nqubit measurement kernels, add readout-error tag to each
-	int nQubits = ir.maxBit() + 1;
+	int nQubits = 0;//std::stoi(xacc::getOption("n-qubits")); //ir.maxBit() + 1;
 	auto gateRegistry = GateInstructionRegistry::instance();
+
+	// Get the true number of qubits
+	std::set<int> qubits;
+	for (auto kernel : ir.getKernels()) {
+		for (auto inst : kernel->getInstructions()) {
+			for (auto b : inst->bits()) {
+				qubits.insert(b);
+			}
+		}
+	}
+	nQubits = qubits.size();
+
+	// If we've mapped to different physical qubit indices,
+	// we need to know about it
+	std::vector<int> qubitMap;
+	if (xacc::optionExists("qubit-map")) {
+		auto mapStr = xacc::getOption("qubit-map");
+
+		std::vector<std::string> split;
+		boost::split(split, mapStr, boost::is_any_of(","));
+
+		int counter = 0;
+		for (auto s : split) {
+			auto idx = std::stoi(s);
+			qubitMap.push_back(idx);
+		}
+	} else {
+		for (int i = 0; i < nQubits; i++) qubitMap.push_back(i);
+	}
+
+	// Create a reversed qubitMap so we can
+	// create the sites map
+	std::map<int, int> reversedQubitMap;
+	int counter = 0;
+	for (auto a : qubitMap) {
+		reversedQubitMap.insert({a, counter});
+		counter++;
+	}
 
 	// Search IR Functions and construct Pauli Term strings, then add any Pauli that is not there
 	std::vector<std::string> orderedPauliTerms;
@@ -40,7 +79,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 		std::map<int, std::string> pauliTerm;
 		for (auto inst : kernel->getInstructions()) {
-			auto bit = inst->bits()[0];
+			auto bit = reversedQubitMap[inst->bits()[0]];
 
 			if (allZTerm) {
 				pauliTerm[bit] = "Z";
@@ -52,7 +91,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 				pauliStr = "X" + std::to_string(bit) + pauliStr;
 				pauliTerm[bit] = "X";
 			} else if (inst->getName() == "Rx") {
-				pauliStr = "X" + std::to_string(bit) + pauliStr;
+				pauliStr = "Y" + std::to_string(bit) + pauliStr;
 				pauliTerm[bit] = "Y";
 			} else if (inst->getName() == "Measure") {
 				// do nothing
@@ -64,11 +103,15 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 			}
 		}
 
-		orderedPauliTerms.push_back(pauliStr);
-		pauliTerms.push_back(pauliTerm);
+		if (!pauliStr.empty()) {
+			orderedPauliTerms.push_back(pauliStr);
+			pauliTerms.push_back(pauliTerm);
+		}
+
+
 	}
 
-	std::cout << "TERMSMaps:\n";
+	// Use the above info to create the sites map
 	std::map<std::string, std::vector<int>> sites;
 	for (auto a : pauliTerms) {
 		std::stringstream s;
@@ -76,22 +119,21 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		for (auto& kv : a) {
 			s << kv.second << kv.first;
 			tmp.push_back(kv.first);
-			std::cout << kv.second << kv.first << " ";
 		}
 		sites.insert({s.str(), tmp});
-		std::cout << "\n";
 	}
 
 
-	std::cout << "SITES:\n";
-	for (auto & kv : sites) {
-		std::cout << kv.first << " -> (";
-		for (auto i : kv.second) {
-			std::cout << i << " ";
-		}
-		std::cout << ")\n";
-	}
+//	std::cout << "SITES:\n";
+//	for (auto & kv : sites) {
+//		std::cout << kv.first << " -> (";
+//		for (auto i : kv.second) {
+//			std::cout << i << " ";
+//		}
+//		std::cout << ")\n";
+//	}
 
+	// Discover any extra kernels we need to compute
 	std::vector<std::string> extraKernelsNeeded;
 	for (auto t : pauliTerms) {
 		if (t.size() > 1) {
@@ -107,8 +149,9 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	std::sort( extraKernelsNeeded.begin(), extraKernelsNeeded.end() );
 	extraKernelsNeeded.erase( std::unique( extraKernelsNeeded.begin(), extraKernelsNeeded.end() ), extraKernelsNeeded.end() );
 
+	// Add the extra kernels to the IR
 	for (auto o : extraKernelsNeeded) {
-		std::cout << "EXTRA: " << o << "\n";
+//		std::cout << "EXTRA: " << o << "\n";
 		auto extraKernel = std::make_shared<GateFunction>(o, "readout-error-extra");
 
 		std::stringstream sg, sb;
@@ -137,33 +180,34 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		orderedPauliTerms.push_back(o);
 	}
 
-	int nKernels = ir.getKernels().size();
-
+	// Now add the measurement kernels we need to compute
+	// p01 and p10
 	int qbit = 0;
 	for (int i = 0; i < 2*nQubits; i+=2) {
 		auto f01 = std::make_shared<GateFunction>(
-				"measure0_qubit_" + std::to_string(qbit), "readout-error");
-		auto meas01 = gateRegistry->create("Measure", std::vector<int>{qbit});
+				"measure0_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
+		auto meas01 = gateRegistry->create("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p(0);
 		meas01->setParameter(0,p);
 		f01->addInstruction(meas01);
 
 		auto f10 = std::make_shared<GateFunction>(
-				"measure1_qubit_" + std::to_string(qbit), "readout-error");
-		auto x = gateRegistry->create("X", std::vector<int>{qbit});
-		auto meas10 = gateRegistry->create("Measure", std::vector<int>{qbit});
+				"measure1_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
+		auto x = gateRegistry->create("X", std::vector<int>{qubitMap[qbit]});
+		auto meas10 = gateRegistry->create("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p2(0);
 		meas10->setParameter(0,p2);
 		f10->addInstruction(x);
 		f10->addInstruction(meas01);
 
-		ir.addKernel(f10);
 		ir.addKernel(f01);
+		ir.addKernel(f10);
 
 		qbit++;
 	}
 
-	// Construct a ReadoutErrorABPostprocessor
+	xacc::info("Finished ReadoutErrorIRPreprocessor");
+
 	return std::make_shared<ReadoutErrorAcceleratorBufferPostprocessor>(ir, sites, orderedPauliTerms);
 }
 

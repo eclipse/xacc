@@ -74,6 +74,10 @@ public:
 			XACCLogger::instance()->error("Invalid kernel name - " + name);
 		}
 
+		virtual void mapBits(std::vector<int> bitMap) {
+
+		}
+
 		virtual std::vector<std::shared_ptr<Function>> getKernels() {
 			return kernels;
 		}

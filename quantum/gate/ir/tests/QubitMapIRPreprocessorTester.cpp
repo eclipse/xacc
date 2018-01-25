@@ -11,15 +11,13 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ReadoutErrorAcceleratorBufferPostprocessorTester
+#define BOOST_TEST_MODULE QubitMapIRPreprocessorTester
 
 #include <boost/test/included/unit_test.hpp>
-#include "ReadoutErrorAcceleratorBufferPostprocessor.hpp"
+#include "QubitMapIRPreprocessor.hpp"
 #include "GateQIR.hpp"
 #include <boost/math/constants/constants.hpp>
 #include "XACC.hpp"
-#include "GateFunction.hpp"
-#include "GateInstruction.hpp"
 
 using namespace xacc;
 
@@ -90,74 +88,41 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 	return newIr;
 }
 
-class FakeTermAB : public AcceleratorBuffer {
+class FakeAB : public AcceleratorBuffer {
 public:
 
-	FakeTermAB(const std::string& str, const int N) : AcceleratorBuffer(str, N) {}
+	FakeAB(const std::string& str, const int N) : AcceleratorBuffer(str, N) {}
 	virtual const double getExpectationValueZ() {
-		return .88;
+		return 1.0;
 	}
-};
-
-class FakeMeasureAB : public AcceleratorBuffer {
-public:
-
-	FakeMeasureAB(const std::string& str, const int N) : AcceleratorBuffer(str, N) {}
-	virtual double computeMeasurementProbability(const std::string& bitStr) {
-		if (bitStr == "1") {
-			return .08;
-		} else {
-			return .01;
-		}
-	}
-
 };
 
 BOOST_AUTO_TEST_CASE(checkSimple) {
 
-	// Simple example H = X0
-	std::vector<std::string> orderedTerms{"Z0"};
+//	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
+//			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 + (0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2
+//	needs x0, x1, x2, y0, y1, y2
 
-	auto gateRegistry = GateInstructionRegistry::instance();
+	std::unordered_map<std::string, Term> test {{"X0X1", {{0,"X"}, {1,"X"}}},
+		{"X1X2", {{1,"X"}, {2,"X"}}},
+		{"Y0Y1", {{0,"Y"}, {1,"Y"}}},
+		{"Y1Y2", {{1,"Y"}, {2,"Y"}}},
+		{"Z0", {{0,"Z"}}},
+		{"Z1", {{1,"Z"}}},
+		{"Z2", {{2,"Z"}}}
+	};
 
-	// Construct IR for this
-	auto ir = createXACCIR( { { "Z0", Term { { 0, "Z" } } } });
-	auto f01 = std::make_shared<GateFunction>("measure0_qubit_0",
-			"readout-error");
-	auto meas01 = gateRegistry->create("Measure", std::vector<int> { 0 });
-	InstructionParameter p(0);
-	meas01->setParameter(0, p);
-	f01->addInstruction(meas01);
+	auto ir = createXACCIR(test);
+	for (auto k : ir->getKernels()) {
+		std::cout << "K:\n" << k->toString("q") << "\n";
+	}
+	xacc::Initialize();
+	xacc::setOption("qubit-map","6,10,11");
+	QubitMapIRPreprocessor preprocessor;
+	auto bufferProcessor = preprocessor.process(*ir);
 
-	auto f10 = std::make_shared<GateFunction>("measure1_qubit_0",
-			"readout-error");
-	auto x = gateRegistry->create("X", std::vector<int> { 0 });
-	auto meas10 = gateRegistry->create("Measure", std::vector<int> { 0 });
-	InstructionParameter p2(0);
-	meas10->setParameter(0, p2);
-	f10->addInstruction(x);
-	f10->addInstruction(meas01);
-
-	ir->addKernel(f10);
-	ir->addKernel(f01);
-
-	std::cout << "IR: " << ir->getKernels().size() << "\n";
-	// Construct sites map
-	std::map<std::string, std::vector<int>> sites{{"Z0",{0}}};
-
-	auto buff = std::make_shared<FakeTermAB>("buff", 1);
-
-	auto mb1 = std::make_shared<FakeMeasureAB>("m1", 1);
-	auto mb2 = std::make_shared<FakeMeasureAB>("m2", 1);
-
-	std::vector<std::shared_ptr<AcceleratorBuffer>> buffers {buff, mb1, mb2};
-
-	ReadoutErrorAcceleratorBufferPostprocessor processor(*ir, sites, orderedTerms);
-
-	auto fixed = processor.process(buffers);
-
-	std::cout << "HELLO: " << fixed[0]->getExpectationValueZ() << "\n";
-
-//	BOOST_VERIFY(std::fabs(fixed[0]->getExpectationValueZ() - .911111) < 1e-6);
+	for (auto k : ir->getKernels()) {
+		std::cout << "K:\n" << k->toString("q") << "\n";
+	}
 
 }

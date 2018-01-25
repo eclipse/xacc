@@ -14,6 +14,8 @@
 #define XACC_ACCELERATOR_REMOTE_REMOTEACCELERATOR_HPP_
 
 #include "Accelerator.hpp"
+#include "XACC.hpp"
+
 #include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
 
@@ -39,13 +41,6 @@ public:
 			headers.insert(std::make_pair("Connection", "keep-alive"));
 			headers.insert(std::make_pair("Accept", "*/*"));
 		}
-
-//		std::cout <<"URL: " << remoteUrl << "\n";
-//		std::cout << "POST STRING: " << postStr << "\n";
-//		std::cout << "PATH: " << path << "\n";
-//		for (auto& kv : headers) {
-//			std::cout << "HEADER: " << kv.first << ", " << kv.second << "\n";
-//		}
 
 		http::uri uri = http::uri(remoteUrl);
 		http_client postClient(
@@ -79,11 +74,18 @@ public:
 		auto getResponse = getClient.request(getRequest);
 		// get the result as a string
 		std::stringstream z;
-		z << getResponse.get().extract_json().get();
+		try {
+			z << getResponse.get().extract_json().get();
+//			xacc::info("GET RESPONSE: " + z.str());
+		} catch (std::exception& e) {
+			std::cout << "HELLO WORLD!, Caught exception, " << e.what() << "\n";
+		}
+
 		return z.str();
 	}
 
 	virtual ~RestClient() {}
+
 
 };
 

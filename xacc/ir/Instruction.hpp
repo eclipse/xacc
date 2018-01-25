@@ -110,6 +110,8 @@ public:
 		return false;
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) = 0;
+
 	virtual const std::string getTag() = 0;
 
 	/**

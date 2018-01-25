@@ -91,6 +91,12 @@ public:
 		return "";
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) {
+		for (int i = 0; i < qbits.size(); i++) {
+			qbits[i] = bitMap[qbits[i]];
+		}
+	}
+
 	/**
 	 * Return this instruction's assembly-like string
 	 * representation.

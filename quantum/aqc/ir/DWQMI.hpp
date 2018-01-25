@@ -103,6 +103,9 @@ public:
 		return "";
 	}
 
+	virtual void mapBits(std::vector<int> bitMap) {
+	}
+
 	/**
 	 * Persist this Instruction to an assembly-like
 	 * string.

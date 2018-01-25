@@ -98,10 +98,12 @@ public:
 	 */
 	Program(std::shared_ptr<Accelerator> acc, const std::string& sourceFile) :
 			src(sourceFile), accelerator(std::move(acc)) {
+		addIRPreprocessor("qubit-map-preprocessor");
 	}
 
 	Program(std::shared_ptr<Accelerator> acc, std::shared_ptr<xacc::IR> ir) :
 			xaccIR(ir), accelerator(std::move(acc)) {
+		addIRPreprocessor("qubit-map-preprocessor");
 	}
 
 	/**
@@ -113,6 +115,7 @@ public:
 	Program(std::shared_ptr<Accelerator> acc, std::istream& stream) :
 			accelerator(std::move(acc)), src(
 					std::istreambuf_iterator<char>(stream), { }) {
+		addIRPreprocessor("qubit-map-preprocessor");
 	}
 
 	void addPreprocessor(std::shared_ptr<Preprocessor> preprocessor) {

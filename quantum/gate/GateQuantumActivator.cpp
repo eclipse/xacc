@@ -14,6 +14,7 @@
 #include "InverseQFT.hpp"
 #include "KernelReplacementPreprocessor.hpp"
 #include "ReadoutErrorIRPreprocessor.hpp"
+#include "QubitMapIRPreprocessor.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -43,12 +44,15 @@ public:
 				std::make_shared<xacc::quantum::KernelReplacementPreprocessor>();
 
 		auto readout = std::make_shared<xacc::quantum::ReadoutErrorIRPreprocessor>();
+		auto qbitmap = std::make_shared<xacc::quantum::QubitMapIRPreprocessor>();
 
 		context.RegisterService<xacc::Preprocessor>(kp);
 		context.RegisterService<xacc::IRGenerator>(iqft);
 		context.RegisterService<xacc::IRGenerator>(qft);
 
 		context.RegisterService<xacc::IRPreprocessor>(readout);
+		context.RegisterService<xacc::IRPreprocessor>(qbitmap);
+
 	}
 
 	/**

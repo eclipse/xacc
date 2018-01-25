@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_IR_READOUTERRORIRPREPROCESSOR_HPP_
-#define QUANTUM_GATE_IR_READOUTERRORIRPREPROCESSOR_HPP_
+#ifndef QUANTUM_GATE_IR_QUBITMAPIRPREPROCESSOR_HPP_
+#define QUANTUM_GATE_IR_QUBITMAPIRPREPROCESSOR_HPP_
 
 
 #include "IRPreprocessor.hpp"
@@ -22,7 +22,7 @@ namespace quantum {
 class QubitMapIRPreprocessor : public IRPreprocessor {
 public:
 
-	virtual std::shared_ptr<AcceleratorBufferPostprocessor> process(IR& ir) {}
+	virtual std::shared_ptr<AcceleratorBufferPostprocessor> process(IR& ir);
 
 
 	/**
@@ -39,7 +39,7 @@ public:
 	 * @return description The description of this object.
 	 */
 	virtual const std::string description() const {
-
+		return "";
 	}
 
 	/**
@@ -72,4 +72,4 @@ public:
 
 
 
-#endif /* QUANTUM_GATE_IR_READOUTERRORIRPREPROCESSOR_HPP_ */
+#endif
