@@ -197,7 +197,7 @@ public:
 		return false;
 	}
 
-	virtual bool isPhysical() {
+	virtual bool isRemote() {
 		return false;
 	}
 

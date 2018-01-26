@@ -72,8 +72,8 @@ std::string base64_decode(std::string const& encoded_string) {
 }
 
 XACCLogger::XACCLogger() :
-		useColor(
-				!RuntimeOptions::instance()->exists("no-color")) {
+		useColor(!RuntimeOptions::instance()->exists("no-color")), useCout(
+				RuntimeOptions::instance()->exists("use-cout")) {
 
 	logger = spdlog::stdout_logger_mt("xacc-logger");
 

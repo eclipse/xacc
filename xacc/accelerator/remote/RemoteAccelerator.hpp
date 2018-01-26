@@ -137,6 +137,11 @@ public:
 
 		return processResponse(buffer, responseStr);
 	}
+
+	virtual bool isRemote() {
+		return true;
+	}
+
 protected:
 
 	std::shared_ptr<RestClient> restClient;

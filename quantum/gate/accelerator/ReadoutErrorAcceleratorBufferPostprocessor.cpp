@@ -120,9 +120,6 @@ std::map<std::string, double> ReadoutErrorAcceleratorBufferPostprocessor::fix_as
 				double bp10 = errorRates[kv.second[1]].second;
 
 				std::stringstream s2;
-				s2 << ap01 << ", " << ap10 << ", " << bp01 << ", " << bp10 << "\n";
-
-				xacc::info(k0+ ", " + k1 + ", " + s2.str());
 				newExpects.insert({kv.first, exptZZ(oldExpects[kv.first], oldExpects[k0], oldExpects[k1], ap10, ap01, bp10, bp01)});
 
 			} else {

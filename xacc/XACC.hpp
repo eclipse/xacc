@@ -71,6 +71,8 @@ void info(const std::string& msg, MessagePredicate predicate = std::function<boo
 void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 
+void clearOptions();
+
 /**
  * Return true if the option exists.
  *

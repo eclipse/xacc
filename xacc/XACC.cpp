@@ -268,6 +268,10 @@ const std::string translateWithVisitor(const std::string& originalSource, const 
 	return visitor->toString();
 }
 
+void clearOptions() {
+	RuntimeOptions::instance()->clear();
+}
+
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should
