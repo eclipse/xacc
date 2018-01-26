@@ -59,14 +59,18 @@ public:
 
 	XACCException(std::string error) :
 			errorMessage(error) {
-		auto c = spdlog::get("xacc-logger");
-		if (c) {
-			c->error("\033[1;31m" + errorMessage + "\033[0m");
-		}
+//		if (RuntimeOptions::instance()->exists("use-cout")) {
+//			std::cout << errorMessage << "\n";
+//		} else {
+//			auto c = spdlog::get("xacc-logger");
+//			if (c) {
+//				c->error("\033[1;31m" + errorMessage + "\033[0m");
+//			}
+//		}
 	}
 
 	virtual const char * what() const throw () {
-		return "";//errorMessage.c_str();
+		return errorMessage.c_str();
 	}
 
 	~XACCException() throw () {
