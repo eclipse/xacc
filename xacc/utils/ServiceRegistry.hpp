@@ -102,15 +102,20 @@ protected:
 		for (boost::filesystem::directory_iterator itr(xaccLibPath);
 				itr != end_itr; ++itr) {
 			auto p = itr->path();
-			if ((p.extension() == ".dylib" || p.extension() == ".so"
-					|| p.extension() == ".a")
-					&& (p.filename().string() != "libxacc.dylib"
-							&& p.filename().string() != "libxacc.so")
-					&& !boost::contains(p.filename().string(),
-							"libCppMicroServices")
-					&& !boost::contains(p.filename().string(), "libus")) {
+
+			if (boost::contains(p.filename().string(), "xacc-quantum")) {
 				context.InstallBundles(p.string());
 			}
+
+//			if ((p.extension() == ".dylib" || p.extension() == ".so"
+//					|| p.extension() == ".a")
+//					&& (p.filename().string() != "libxacc.dylib"
+//							&& p.filename().string() != "libxacc.so")
+//					&& !boost::contains(p.filename().string(),
+//							"libCppMicroServices")
+//					&& !boost::contains(p.filename().string(), "libus")) {
+//				context.InstallBundles(p.string());
+//			}
 		}
 
 		try {
