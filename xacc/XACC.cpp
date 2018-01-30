@@ -53,7 +53,13 @@ void Initialize(int arc, char** arv) {
 
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
-		serviceRegistry->initialize();
+		try {
+			serviceRegistry->initialize();
+		} catch (std::exception& e) {
+			XACCLogger::instance()->error(
+					std::string(e.what())
+							+ " - Could not initialize XACC Framework");
+		}
 
 		// Parse any user-supplied command line options
 		xaccCLParser->parse(argc, argv);
@@ -170,6 +176,11 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 }
 
 bool hasAccelerator(const std::string& name) {
+	if (!xacc::xaccFrameworkInitialized) {
+		error(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
 	return ServiceRegistry::instance()->hasService<Accelerator>(name);
 }
 

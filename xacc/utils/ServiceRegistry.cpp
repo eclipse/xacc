@@ -6,15 +6,9 @@ void ServiceRegistry::initialize() {
 	if (!initialized) {
 		framework = FrameworkFactory().NewFramework();
 
-		try {
-			// Initialize the framework, such that we can call
-			// GetBundleContext() later.
-			framework.Init();
-		} catch (const std::exception& e) {
-			XACCLogger::instance()->error(
-					std::string(e.what())
-							+ " - Could not initialize XACC Framework");
-		}
+		// Initialize the framework, such that we can call
+		// GetBundleContext() later.
+		framework.Init();
 
 		context = framework.GetBundleContext();
 		if (!context) {
@@ -23,12 +17,13 @@ void ServiceRegistry::initialize() {
 		}
 
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
-
+		XACCLogger::instance()->info("Plugin Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::make_iterator_range(
 				boost::filesystem::directory_iterator(xaccLibDir), { })) {
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
+				XACCLogger::instance()->info("Installing plugin " + entry.path().string());
 				context.InstallBundles(entry.path().string());
 			}
 		}
@@ -46,6 +41,7 @@ void ServiceRegistry::initialize() {
 					for (auto& entry : boost::make_iterator_range(
 							boost::filesystem::directory_iterator(itr->path()),
 							{ })) {
+						XACCLogger::instance()->info("Installing plugin " + entry.path().string());
 						context.InstallBundles(entry.path().string());
 					}
 				}
@@ -57,25 +53,19 @@ void ServiceRegistry::initialize() {
 					"There are no plugins. Install plugins to begin working with XACC.");
 		}
 
+		// Start the framework itself.
+		framework.Start();
 
-		try {
-			// Start the framework itself.
-			framework.Start();
-
-			// Our bundles depend on each other in the sense that the consumer
-			// bundle expects a ServiceTime service in its activator Start()
-			// function. This is done here for simplicity, but is actually
-			// bad practice.
-			auto bundles = context.GetBundles();
-			for (auto b : bundles) {
-				b.Start();
-			}
-
-			initialized = true;
-		} catch (const std::exception& e) {
-			XACCLogger::instance()->error(
-					"Failure to start XACC plugins. " + std::string(e.what()));
+		// Our bundles depend on each other in the sense that the consumer
+		// bundle expects a ServiceTime service in its activator Start()
+		// function. This is done here for simplicity, but is actually
+		// bad practice.
+		auto bundles = context.GetBundles();
+		for (auto b : bundles) {
+			b.Start();
 		}
+
+		initialized = true;
 	}
 }
 

@@ -94,6 +94,7 @@ public:
 
 	template<typename ServiceInterface>
 	std::shared_ptr<ServiceInterface> getService(const std::string name) {
+		std::shared_ptr<ServiceInterface> ret;
 		auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
 		for (auto s : allServiceRefs) {
 			auto service = context.GetService(s);
@@ -102,14 +103,19 @@ public:
 				auto checkCloneable = std::dynamic_pointer_cast<
 						xacc::Cloneable<ServiceInterface>>(service);
 				if (checkCloneable) {
-					return checkCloneable->clone();
+					ret = checkCloneable->clone();
 				} else {
-					return service;
+					ret = service;
 				}
 			}
 		}
-		XACCLogger::instance()->error("Could not find service with name " + name + ". "
-				"Perhaps the service is not Identifiable.");
+
+		if (!ret) {
+			XACCLogger::instance()->error("Could not find service with name " + name + ". "
+							"Perhaps the service is not Identifiable.");
+		}
+
+		return ret;
 	}
 
 	template<typename ServiceInterface>
