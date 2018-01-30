@@ -19,7 +19,7 @@ void ServiceRegistry::initialize() {
 					"Invalid XACC Framework plugin context.");
 		}
 
-		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
+		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib/");
 		XACCLogger::instance()->info("Plugin Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::make_iterator_range(
 				boost::filesystem::directory_iterator(xaccLibDir), { })) {
