@@ -51,9 +51,11 @@ void Initialize(int arc, char** arv) {
 		argc = arc;
 		argv = arv;
 
+		XACCLogger::instance()->info("Creating XACC ServiceRegistry");
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
 		try {
+			XACCLogger::instance()->info("Initializing the ServiceRegistry");
 			serviceRegistry->initialize();
 		} catch (std::exception& e) {
 			XACCLogger::instance()->error(

@@ -4,12 +4,15 @@ namespace xacc {
 void ServiceRegistry::initialize() {
 
 	if (!initialized) {
+		XACCLogger::instance()->info("Creating CppUs Framework.");
 		framework = FrameworkFactory().NewFramework();
 
 		// Initialize the framework, such that we can call
 		// GetBundleContext() later.
+		XACCLogger::instance()->info("Running Framework.Init.");
 		framework.Init();
 
+		XACCLogger::instance()->info(" Getting the Framework Bundle Context.");
 		context = framework.GetBundleContext();
 		if (!context) {
 			XACCLogger::instance()->error(
@@ -53,6 +56,7 @@ void ServiceRegistry::initialize() {
 					"There are no plugins. Install plugins to begin working with XACC.");
 		}
 
+		XACCLogger::instance()->info("Starting the CppUs Framework.");
 		// Start the framework itself.
 		framework.Start();
 
