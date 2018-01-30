@@ -23,6 +23,7 @@ void ServiceRegistry::initialize() {
 		XACCLogger::instance()->info("Plugin Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::make_iterator_range(
 				boost::filesystem::directory_iterator(xaccLibDir), { })) {
+			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
