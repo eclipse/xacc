@@ -53,6 +53,7 @@ void Initialize(int arc, char** arv) {
 
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
+		serviceRegistry->initialize();
 
 		// Parse any user-supplied command line options
 		xaccCLParser->parse(argc, argv);

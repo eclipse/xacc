@@ -34,7 +34,7 @@ include(tests)
   #message(STATUS "MPI Not Found.")
 
   # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
+find_package(Boost COMPONENTS system program_options regex filesystem chrono thread REQUIRED)
   #endif()
 
 include_directories(${Boost_INCLUDE_DIRS})

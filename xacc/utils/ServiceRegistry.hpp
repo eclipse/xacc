@@ -33,6 +33,7 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <dirent.h>
 
 using namespace boost::program_options;
 using namespace cppmicroservices;
@@ -62,81 +63,13 @@ protected:
 	/**
 	 * The constructor
 	 */
-	ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {
-		framework = FrameworkFactory().NewFramework();
+	ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
 
-		try {
-			// Initialize the framework, such that we can call
-			// GetBundleContext() later.
-			framework.Init();
-		} catch (const std::exception& e) {
-			XACCLogger::instance()->error(std::string(e.what()) + " - Could not initialize XACC Framework");
-		}
-
-		context = framework.GetBundleContext();
-		if (!context) {
-			XACCLogger::instance()->error("Invalid XACC Framework plugin context.");
-		}
-
-		boost::filesystem::path xaccPluginPath(
-				std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
-		if (boost::filesystem::exists(xaccPluginPath)) {
-			boost::filesystem::recursive_directory_iterator dir(xaccPluginPath);
-			for (auto&& i : dir) {
-				if (!boost::filesystem::is_directory(i)) {
-					boost::filesystem::path path = i.path();
-					if (".dylib" == i.path().extension()
-							|| ".so" == i.path().extension()
-							|| ".a" == i.path().extension()) {
-						context.InstallBundles(i.path().string());
-					}
-				}
-			}
-		} else {
-			XACCLogger::instance()->info("There are no plugins. Install plugins to begin working with XACC.");
-		}
-
-		boost::filesystem::path xaccLibPath(
-				std::string(XACC_INSTALL_DIR) + std::string("/lib"));
-		boost::filesystem::directory_iterator end_itr;
-		for (boost::filesystem::directory_iterator itr(xaccLibPath);
-				itr != end_itr; ++itr) {
-			auto p = itr->path();
-
-			if (boost::contains(p.filename().string(), "xacc-quantum")) {
-				context.InstallBundles(p.string());
-			}
-
-//			if ((p.extension() == ".dylib" || p.extension() == ".so"
-//					|| p.extension() == ".a")
-//					&& (p.filename().string() != "libxacc.dylib"
-//							&& p.filename().string() != "libxacc.so")
-//					&& !boost::contains(p.filename().string(),
-//							"libCppMicroServices")
-//					&& !boost::contains(p.filename().string(), "libus")) {
-//				context.InstallBundles(p.string());
-//			}
-		}
-
-		try {
-			// Start the framework itself.
-			framework.Start();
-
-			// Our bundles depend on each other in the sense that the consumer
-			// bundle expects a ServiceTime service in its activator Start()
-			// function. This is done here for simplicity, but is actually
-			// bad practice.
-			auto bundles = context.GetBundles();
-			for (auto b : bundles) {
-				b.Start();
-			}
-
-		} catch (const std::exception& e) {
-			XACCLogger::instance()->error("Failure to start XACC plugins. " + std::string(e.what()));
-		}
-	}
+	bool initialized = false;
 
 public:
+
+	void initialize();
 
 	// Overriding here so we can have a custom constructor
 	static ServiceRegistry* instance() {
