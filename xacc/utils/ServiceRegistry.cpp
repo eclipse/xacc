@@ -12,7 +12,7 @@ void ServiceRegistry::initialize() {
 		XACCLogger::instance()->info("Running Framework.Init.");
 		framework.Init();
 
-		XACCLogger::instance()->info(" Getting the Framework Bundle Context.");
+		XACCLogger::instance()->info("Getting the Framework Bundle Context.");
 		context = framework.GetBundleContext();
 		if (!context) {
 			XACCLogger::instance()->error(
@@ -23,6 +23,11 @@ void ServiceRegistry::initialize() {
 		XACCLogger::instance()->info("XACC Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
 			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
+			if (entry.path().filename().string() == "lib") {
+				for (auto& e : boost::filesystem::directory_iterator(entry.path())) {
+					XACCLogger::instance()->info("SUB LIB: " + e.path().string());
+				}
+			}
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
