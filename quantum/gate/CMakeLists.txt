@@ -55,6 +55,9 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
   FILES
     manifest.json
   )
+  
+link_directories(${Boost_LIBRARY_DIR})
+  
 
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
