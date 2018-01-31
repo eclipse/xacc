@@ -21,18 +21,6 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
 include(tests)
 
-# We require MPI
-#find_package(MPI)
-#if (MPI_FOUND)
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_MPI")
-
-#  message(STATUS "FOUND MPI: ${MPI_CXX_INCLUDE_PATH} AND ${MPI_CXX_LIBRARIES}")
-  # We require Boost with MPI
-  #  find_package(Boost COMPONENTS mpi system program_options filesystem chrono thread REQUIRED)
-  #  include_directories(${MPI_CXX_INCLUDE_PATH})
-  #else()
-  #message(STATUS "MPI Not Found.")
-
   # We require Boost without MPI
 find_package(Boost COMPONENTS system program_options regex filesystem chrono thread REQUIRED)
   #endif()
