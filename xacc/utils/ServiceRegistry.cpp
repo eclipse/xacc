@@ -21,8 +21,7 @@ void ServiceRegistry::initialize() {
 
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
 		XACCLogger::instance()->info("XACC Lib Directory: " + xaccLibDir);
-		for (auto &entry : boost::make_iterator_range(
-				boost::filesystem::directory_iterator(xaccLibDir), { })) {
+		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
 			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
@@ -40,15 +39,12 @@ void ServiceRegistry::initialize() {
 
 		if (boost::filesystem::exists(xaccPluginPath)) {
 
-			for (boost::filesystem::directory_iterator itr(xaccPluginPath);
-					itr != end_itr; ++itr) {
-
-				if (boost::filesystem::is_directory(itr->path())) {
-					for (auto& entry : boost::make_iterator_range(
-							boost::filesystem::directory_iterator(itr->path()),
-							{ })) {
-						XACCLogger::instance()->info("Installing 3rd party plugin " + entry.path().string());
-						context.InstallBundles(entry.path().string());
+			for (auto& entry : boost::filesystem::directory_iterator(xaccPluginPath)) {
+				auto p = entry.path();
+				if (boost::filesystem::is_directory(p)) {
+					for (auto& subentry : boost::filesystem::directory_iterator(p)) {
+						XACCLogger::instance()->info("Installing 3rd party plugin " + subentry.path().string());
+						context.InstallBundles(subentry.path().string());
 					}
 				}
 
