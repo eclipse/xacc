@@ -36,7 +36,7 @@ void ServiceRegistry::initialize() {
 		boost::filesystem::directory_iterator end_itr;
 		boost::filesystem::path xaccPluginPath(
 				std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
-		XACCLogger::instance()->info("XACC Plugin Lib Directory: " + xaccPluginPath);
+		XACCLogger::instance()->info("XACC Plugin Lib Directory: " + std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
 
 		if (boost::filesystem::exists(xaccPluginPath)) {
 
