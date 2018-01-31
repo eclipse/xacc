@@ -19,15 +19,15 @@ void ServiceRegistry::initialize() {
 					"Invalid XACC Framework plugin context.");
 		}
 
-		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib/");
-		XACCLogger::instance()->info("Plugin Lib Directory: " + xaccLibDir);
+		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
+		XACCLogger::instance()->info("XACC Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::make_iterator_range(
 				boost::filesystem::directory_iterator(xaccLibDir), { })) {
 			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
-				XACCLogger::instance()->info("Installing plugin " + entry.path().string());
+				XACCLogger::instance()->info("Installing base plugin " + entry.path().string());
 				context.InstallBundles(entry.path().string());
 			}
 		}
@@ -36,6 +36,8 @@ void ServiceRegistry::initialize() {
 		boost::filesystem::directory_iterator end_itr;
 		boost::filesystem::path xaccPluginPath(
 				std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
+		XACCLogger::instance()->info("XACC Plugin Lib Directory: " + xaccPluginPath);
+
 		if (boost::filesystem::exists(xaccPluginPath)) {
 
 			for (boost::filesystem::directory_iterator itr(xaccPluginPath);
@@ -45,7 +47,7 @@ void ServiceRegistry::initialize() {
 					for (auto& entry : boost::make_iterator_range(
 							boost::filesystem::directory_iterator(itr->path()),
 							{ })) {
-						XACCLogger::instance()->info("Installing plugin " + entry.path().string());
+						XACCLogger::instance()->info("Installing 3rd party plugin " + entry.path().string());
 						context.InstallBundles(entry.path().string());
 					}
 				}
