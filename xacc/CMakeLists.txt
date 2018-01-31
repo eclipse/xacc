@@ -49,6 +49,8 @@ file (GLOB SRC *.cpp program/*.cpp utils/*.cpp)
 
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
+link_directories(${Boost_LIBRARY_DIR})
+
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
