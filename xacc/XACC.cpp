@@ -58,9 +58,8 @@ void Initialize(int arc, char** arv) {
 			XACCLogger::instance()->info("Initializing the ServiceRegistry");
 			serviceRegistry->initialize();
 		} catch (std::exception& e) {
-			XACCLogger::instance()->error(
-					std::string(e.what())
-							+ " - Could not initialize XACC Framework");
+			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
+					std::string(e.what()));
 		}
 
 		// Parse any user-supplied command line options
