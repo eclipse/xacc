@@ -1,5 +1,6 @@
 #include "ServiceRegistry.hpp"
 
+#include <dirent.h>
 namespace xacc {
 void ServiceRegistry::initialize() {
 
@@ -20,6 +21,20 @@ void ServiceRegistry::initialize() {
 		}
 
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
+
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir (xaccLibDir.c_str())) != NULL) {
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) {
+		    printf ("DIRENT: %s\n", ent->d_name);
+		  }
+		  closedir (dir);
+		} else {
+		  /* could not open directory */
+		  perror ("");
+		}
+
 		XACCLogger::instance()->info("XACC Lib Directory: " + xaccLibDir);
 		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
 			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
