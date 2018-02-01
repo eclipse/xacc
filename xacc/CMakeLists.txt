@@ -22,18 +22,20 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
 include(tests)
 
   # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options regex filesystem chrono thread REQUIRED)
+find_package(Boost COMPONENTS system program_options regex filesystem chrono thread graph REQUIRED)
   #endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${XACC_ROOT}/tpls/spdlog)
 include_directories(${CPPUS_INCLUDE_DIR})
+include_directories(${CppRSDK_INCLUDE_DIR})
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/ir")
 include_directories("${CMAKE_SOURCE_DIR}/compiler")
 include_directories("${CMAKE_SOURCE_DIR}/program")
 include_directories("${CMAKE_SOURCE_DIR}/accelerator")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
+include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
 # Create a xacc config header file
@@ -45,7 +47,7 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 set (LIBRARY_NAME xacc)
 
 file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
-file (GLOB SRC *.cpp program/*.cpp utils/*.cpp)
+file (GLOB SRC *.cpp program/*.cpp utils/*.cpp accelerator/remote/*.cpp)
 
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
@@ -56,7 +58,7 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib})
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)

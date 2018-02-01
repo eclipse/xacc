@@ -52,7 +52,7 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(pyxacc ${PYTHON_LIBRARY} xacc xacc-quantum-gate xacc-quantum-aqc ${CppUsLib} ${Boost_LIBRARIES})
+target_link_libraries(pyxacc ${PYTHON_LIBRARY} xacc xacc-quantum-gate xacc-quantum-aqc ${CppUsLib} ${Boost_LIBRARIES} cpprest ${OPENSSL_LIBRARIES})
 install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python)
 
 endif()

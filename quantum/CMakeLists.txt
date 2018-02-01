@@ -44,5 +44,8 @@ include_directories(${CMAKE_BINARY_DIR})
 link_directories(${XACC_LIBRARY_DIR})
 link_directories(${CPPUS_LIBRARY_DIR})
 
+include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${CppRSDK_INCLUDE_DIR})
+
 add_subdirectory(gate)
 add_subdirectory(aqc)
