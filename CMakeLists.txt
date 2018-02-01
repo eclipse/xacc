@@ -54,6 +54,7 @@ find_package(OpenSSL 1.0.2 REQUIRED)
 message(STATUS "Found OpenSSL version ${OPENSSL_VERSION}")
 
 ExternalProject_Add(cpprestsdk
+    DEPENDS cppmicroservices
 	GIT_REPOSITORY https://github.com/Microsoft/cpprestsdk
 	GIT_TAG master
 	CONFIGURE_COMMAND ${CMAKE_COMMAND} ../cpprestsdk/Release/ -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
