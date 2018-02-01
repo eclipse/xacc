@@ -5,15 +5,15 @@ namespace xacc {
 void ServiceRegistry::initialize() {
 
 	if (!initialized) {
-		XACCLogger::instance()->info("Creating CppUs Framework.");
+//		XACCLogger::instance()->info("Creating CppUs Framework.");
 		framework = FrameworkFactory().NewFramework();
 
 		// Initialize the framework, such that we can call
 		// GetBundleContext() later.
-		XACCLogger::instance()->info("Running Framework.Init.");
+//		XACCLogger::instance()->info("Running Framework.Init.");
 		framework.Init();
 
-		XACCLogger::instance()->info("Getting the Framework Bundle Context.");
+//		XACCLogger::instance()->info("Getting the Framework Bundle Context.");
 		context = framework.GetBundleContext();
 		if (!context) {
 			XACCLogger::instance()->error(
@@ -22,31 +22,12 @@ void ServiceRegistry::initialize() {
 
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
 
-		DIR *dir;
-		struct dirent *ent;
-		if ((dir = opendir (xaccLibDir.c_str())) != NULL) {
-		  /* print all the files and directories within directory */
-		  while ((ent = readdir (dir)) != NULL) {
-		    printf ("DIRENT: %s\n", ent->d_name);
-		  }
-		  closedir (dir);
-		} else {
-		  /* could not open directory */
-		  perror ("");
-		}
-
-		XACCLogger::instance()->info("XACC Lib Directory: " + xaccLibDir);
+		XACCLogger::instance()->info("XACC Library Directory: " + xaccLibDir);
 		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
-			XACCLogger::instance()->info("TEST: " + entry.path().filename().string());
-			if (entry.path().filename().string() == "lib") {
-				for (auto& e : boost::filesystem::directory_iterator(entry.path())) {
-					XACCLogger::instance()->info("SUB LIB: " + e.path().string());
-				}
-			}
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
-				XACCLogger::instance()->info("Installing base plugin " + entry.path().string());
+				XACCLogger::instance()->info("Installing base plugin " + entry.path().filename().string());
 				context.InstallBundles(entry.path().string());
 			}
 		}
@@ -55,15 +36,12 @@ void ServiceRegistry::initialize() {
 		boost::filesystem::directory_iterator end_itr;
 		boost::filesystem::path xaccPluginPath(
 				std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
-		XACCLogger::instance()->info("XACC Plugin Lib Directory: " + std::string(XACC_INSTALL_DIR) + std::string("/lib/plugins"));
-
 		if (boost::filesystem::exists(xaccPluginPath)) {
-
 			for (auto& entry : boost::filesystem::directory_iterator(xaccPluginPath)) {
 				auto p = entry.path();
 				if (boost::filesystem::is_directory(p)) {
 					for (auto& subentry : boost::filesystem::directory_iterator(p)) {
-						XACCLogger::instance()->info("Installing 3rd party plugin " + subentry.path().string());
+						XACCLogger::instance()->info("Installing 3rd party plugin " + subentry.path().filename().string());
 						context.InstallBundles(subentry.path().string());
 					}
 				}
