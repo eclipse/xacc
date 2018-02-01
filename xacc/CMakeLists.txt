@@ -52,12 +52,18 @@ file (GLOB SRC *.cpp program/*.cpp utils/*.cpp accelerator/remote/*.cpp)
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
 link_directories(${Boost_LIBRARY_DIR})
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
+
+if (APPLE)
+	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib")
+endif()
+
 target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
 
 # Get the test files
