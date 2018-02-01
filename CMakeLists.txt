@@ -55,12 +55,13 @@ message(STATUS "Found OpenSSL version ${OPENSSL_VERSION}")
 
 ExternalProject_Add(cpprestsdk
 	GIT_REPOSITORY https://github.com/Microsoft/cpprestsdk
-	GIT_TAG v2.10.1
+	GIT_TAG master
 	CONFIGURE_COMMAND ${CMAKE_COMMAND} ../cpprestsdk/Release/ -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 		   	   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 		   	   -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}
+		   	   -DBUILD_TESTS=OFF
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
 )
 
