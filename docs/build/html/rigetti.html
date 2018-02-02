@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Rigetti Integration &mdash; XACC 0.0.1 documentation</title>
+  <title>Rigetti &mdash; XACC 0.0.1 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="IBM Integration" href="ibm.html"/>
+        <link rel="next" title="IBM" href="ibm.html"/>
         <link rel="prev" title="TNQVM" href="tnqvm.html"/> 
 
   
@@ -93,23 +93,22 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Rigetti Integration</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rigetti</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#rigetti-accelerator">Rigetti Accelerator</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#mapping-xacc-ir-to-quil">Mapping XACC IR to Quil</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-credentials">Setting Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rigetti-command-line-arguments">Rigetti Command Line Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#executing-pyquil-code-on-any-xacc-accelerator">Executing PyQuil Code on any XACC Accelerator</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
 </ul>
 
             
@@ -154,7 +153,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Rigetti Integration</li>
+      <li>Rigetti</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -173,118 +172,48 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="rigetti-integration">
-<h1>Rigetti Integration<a class="headerlink" href="#rigetti-integration" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="rigetti">
+<h1>Rigetti<a class="headerlink" href="#rigetti" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>If you want support for the Rigetti Accelerator, you must install
-<a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
-is required to make remote HTTP Rest calls to Forest
-server APIs. Here’s how to install these as binaries on various popular platforms:</p>
-<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
-$ (fedora) dnf install cpprest-devel openssl-devel
-$ (ubuntu) apt-get install libcpprest-dev libssl-dev
-$ (spack) spack install cpprestsdk
-$ (spack) spack instal openssl
-</pre></div>
-</div>
-</div>
 <p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-rigetti">Rigetti Plugin</a> provides
 support to XACC for compiling kernels writting in Quil, and executing programs
 on the Rigetti QVM via a Rigetti Accelerator.</p>
 <p>To install this plugin, run the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-rigetti
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p rigetti
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>It has been observed on Mac OS X that the above command may fail
-due to CMake incorrectly finding OpenSSL. If that happens, run the
-following:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-rigetti -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
-</pre></div>
-</div>
-<p class="last">Homebrew creates the above OpenSSL root directory. If yours is different, then
-set the <code class="docutils literal"><span class="pre">OPENSSL_ROOT_DIR</span></code> as such.</p>
 </div>
 <p>You have now installed the Rigetti plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code>
 and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
 </div>
-<div class="section" id="rigetti-accelerator">
-<h2>Rigetti Accelerator<a class="headerlink" href="#rigetti-accelerator" title="Permalink to this headline">¶</a></h2>
-<p>Rigetti Computing, Inc (<a class="reference external" href="rigetti.com">rigetti.com</a>) is a recently founded startup that is focused on
-developing quantum computing hardware and software and bring it to market.
-They are working to build a cloud quantum computing platform for AI and
-computational chemistry. They currently have a QVM simulation server
-that can be accessed via a REST API with a private API key. Rigetti has
-also done great work as of late in providing open source programming tools for
-interfacing with their QVM - specifically, the PyQuil python framework
-<a class="reference external" href="https://github.com/rigetticomputing/pyquil">PyQuil</a>.</p>
-<p>Recently, the ORNL QCI <a class="reference external" href="http://quantum.ornl.gov">(quantum.ornl.gov)</a>, the XACC project,
-and the Software and Applications Team from Rigetti have begun collaborating in
-an effort to expose the Rigetti QVM server and programming tools to XACC and its user
-community. This article describes the results of that work - specifically, a
-new XACC Accelerator implementation that executes quantum kernels on the
-Rigetti QVM server.</p>
-<p>The <code class="docutils literal"><span class="pre">RigettiAccelerator</span></code> is an implementation or realization of the pluggable
-XACC Accelerator interface. The RigettAccelerator class architecture diagram is
-shown in Figure 1. The RigettiAccelerator’s implementation of the Accelerator::execute() method
-is charged with two primary tasks: (1) the translation of the XACC IR to an equivalent
-Quil string, and (2) constructing and executing an
-appropriate HTTPS Post on the Rigetti QVM server. The only remaining
-thing to do once those two tasks are complete is to processes the resultant response from the server.</p>
-<img alt="_images/rigetti-acc-arch.png" src="_images/rigetti-acc-arch.png" />
-<div class="section" id="mapping-xacc-ir-to-quil">
-<h3>Mapping XACC IR to Quil<a class="headerlink" href="#mapping-xacc-ir-to-quil" title="Permalink to this headline">¶</a></h3>
-<p>At its core, the XACC IR provides a tree-like, in-memory representation and API for a
-compiled quantum kernel. The leaves of this tree are XACC Instructions and the nodes
-of the tree are XACC Functions, which are composed of further child Instructions. The
-XACC Quantum IR implementation provides a number of standard gate Instruction implementations
-(Hadamard, CNOT, rotations, etc…) These serve as the leaves of the IR tree. These
-instruction implementations know nothing of the Quil intermediate language and it would be tedious
-and a poor design decision to to update the entire XACC Quantum IR package (we would have to do the
-same for any and all current and future low-level languages). So XACC employs a common
-software engineering design pattern to enable this XACC IR to Quil mapping: the
-visitor pattern, which provides a mechansim for adding new operations to an
-existing object without modifying the design of that object (<a class="reference external" href="https://en.wikipedia.org/wiki/Visitor_pattern">Visitor Pattern</a>). For each derived gate Instruction, a Visitor class implements a
-corresponding <code class="docutils literal"><span class="pre">visit</span></code> method (<code class="docutils literal"><span class="pre">visit(Hadamard&amp;</span> <span class="pre">h)</span></code>, etc…). All gate instructions have the
-ability to accept an incoming Visitor, and upon doing so, invoke the <code class="docutils literal"><span class="pre">visit</span></code> method that
-corresponds to their type, thus giving the Visitor type information for the Gate Instruction.
-Therefore, mapping to Quil simply involves walking the IR tree, and telling each Instruction to
-accept the visitor:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">auto</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">QuilVisitor</span><span class="o">&gt;</span><span class="p">();</span>
-<span class="n">InstructionIterator</span> <span class="n">it</span><span class="p">(</span><span class="n">kernel</span><span class="p">);</span>
-<span class="k">while</span> <span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
-   <span class="o">//</span> <span class="n">Get</span> <span class="n">the</span> <span class="nb">next</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">tree</span>
-   <span class="n">auto</span> <span class="n">nextInst</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
-   <span class="k">if</span> <span class="p">(</span><span class="n">nextInst</span><span class="o">-&gt;</span><span class="n">isEnabled</span><span class="p">())</span> <span class="n">nextInst</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">(</span><span class="n">visitor</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="n">auto</span> <span class="n">quilStr</span> <span class="o">=</span> <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">getQuilString</span><span class="p">();</span>
-</pre></div>
+<div class="section" id="setting-credentials">
+<h2>Setting Credentials<a class="headerlink" href="#setting-credentials" title="Permalink to this headline">¶</a></h2>
+<p>In order to target the Rigetti QVM you must provide XACC with your API key. By default
+XACC will use your PyQuil Config file at <code class="docutils literal"><span class="pre">$HOME/.pyquil_config</span></code>.
+See <a class="reference external" href="http://pyquil.readthedocs.io/en/latest/getting_started.html#connecting-to-the-rigetti-forest">Connecting to the Rigetti Forest</a> for information on creating this file.</p>
 </div>
-<p>The visitor implementation is known as the QuilVisitor, and its visit methods look like this (Hadamard for example):</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">visit</span><span class="p">(</span><span class="n">Hadamard</span><span class="o">&amp;</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
-   <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;H &quot;</span> <span class="o">+</span> <span class="n">std</span><span class="p">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">bits</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>or for a more complicated gate Instruction:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">visit</span><span class="p">(</span><span class="n">ConditionalFunction</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span> <span class="p">{</span>
-   <span class="n">auto</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">QuilVisitor</span><span class="o">&gt;</span><span class="p">();</span>
-   <span class="n">auto</span> <span class="n">classicalBitIdx</span> <span class="o">=</span> <span class="n">qubitToClassicalBitIndex</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">getConditionalQubit</span><span class="p">()];</span> <span class="o">//</span> <span class="n">populated</span> <span class="ow">in</span> <span class="n">visit</span><span class="p">(</span><span class="n">Measure</span><span class="p">)</span>
-   <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;JUMP-UNLESS @&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; [&quot;</span> <span class="o">+</span> <span class="n">std</span><span class="p">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">classicalBitIdx</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-   <span class="k">for</span> <span class="p">(</span><span class="n">auto</span> <span class="n">inst</span> <span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">getInstructions</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">inst</span><span class="o">-&gt;</span><span class="n">accept</span><span class="p">(</span><span class="n">visitor</span><span class="p">);</span>
-   <span class="p">}</span>
-   <span class="n">quilStr</span> <span class="o">+=</span> <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">getQuilString</span><span class="p">();</span>
-   <span class="n">quilStr</span> <span class="o">+=</span> <span class="s2">&quot;LABEL @&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>After walking the IR tree, the Quil representation is produced with a call to getQuilString().</p>
-</div>
+<div class="section" id="rigetti-command-line-arguments">
+<h2>Rigetti Command Line Arguments<a class="headerlink" href="#rigetti-command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<p>The Rigetti plugin exposes the following command line arguments</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>–rigetti-backend</td>
+<td>The backend to target (defaults to QVM)</td>
+</tr>
+<tr class="row-odd"><td>–rigetti-trials</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="rigetti-qvm-tutorial">
 <h2>Rigetti QVM Tutorial<a class="headerlink" href="#rigetti-qvm-tutorial" title="Permalink to this headline">¶</a></h2>
@@ -625,7 +554,7 @@ correct expectation values from the simulation.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ibm.html" class="btn btn-neutral float-right" title="IBM Integration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ibm.html" class="btn btn-neutral float-right" title="IBM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="tnqvm.html" class="btn btn-neutral" title="TNQVM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
