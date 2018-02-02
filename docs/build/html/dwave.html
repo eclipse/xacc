@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>D-Wave Integration &mdash; XACC 0.0.1 documentation</title>
+  <title>D-Wave &mdash; XACC 0.0.1 documentation</title>
   
 
   
@@ -36,7 +36,8 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="prev" title="IBM Integration" href="ibm.html"/> 
+        <link rel="next" title="XACC-VQE" href="xacc-vqe.html"/>
+        <link rel="prev" title="IBM" href="ibm.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -92,18 +93,19 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">D-Wave Integration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">D-Wave</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
 </ul>
 
             
@@ -148,7 +150,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>D-Wave Integration</li>
+      <li>D-Wave</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -167,40 +169,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="d-wave-integration">
-<h1>D-Wave Integration<a class="headerlink" href="#d-wave-integration" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="d-wave">
+<h1>D-Wave<a class="headerlink" href="#d-wave" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>If you want support for the D-Wave Accelerator, you must install
-<a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
-is required for making remote HTTP Rest calls to the D-Wave server APIs.
-Here’s how to install these as binaries on various popular platforms:</p>
-<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
-$ (fedora) dnf install cpprest-devel openssl-devel
-$ (ubuntu) apt-get install libcpprest-dev libssl-dev
-$ (spack) spack install cpprestsdk
-$ (spack) spack install openssl
-</pre></div>
-</div>
-</div>
 <p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-dwave">D-Wave Plugin</a> provides
 support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.</p>
 <p>To install this plugin, run the following</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>It has been observed on Mac OS X that the above command may fail
-due to CMake incorrectly finding OpenSSL. If that happens, run the
-following:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
-</pre></div>
-</div>
-<p class="last">Homebrew creates the above OpenSSL root directory. If yours is different, then
-set the <code class="docutils literal"><span class="pre">OPENSSL_ROOT_DIR</span></code> as such.</p>
 </div>
 <p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code> and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where XACC_ROOT is your XACC install prefix.</p>
 </div>
@@ -231,8 +208,10 @@ In order for the installation below to work, place dwave_sapi.h in <code class="
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="xacc-vqe.html" class="btn btn-neutral float-right" title="XACC-VQE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="ibm.html" class="btn btn-neutral" title="IBM Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="ibm.html" class="btn btn-neutral" title="IBM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

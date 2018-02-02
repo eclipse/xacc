@@ -1,24 +1,8 @@
-D-Wave Integration
-===================
+D-Wave
+=======
 
 Installation
 ------------
-
-.. note::
-
-   If you want support for the D-Wave Accelerator, you must install
-   `CppRestSDK <https://github.com/microsoft/cpprestsdk>`_ and OpenSSL. This
-   is required for making remote HTTP Rest calls to the D-Wave server APIs. 
-   Here's how to install these as binaries on various popular platforms:
-
-   .. code::
-
-      $ (macosx) brew install cpprestsdk
-      $ (fedora) dnf install cpprest-devel openssl-devel
-      $ (ubuntu) apt-get install libcpprest-dev libssl-dev
-      $ (spack) spack install cpprestsdk
-      $ (spack) spack install openssl
-
 The `D-Wave Plugin <https://github.com/ornl-qci/xacc-dwave>`_ provides
 support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.
 
@@ -27,19 +11,6 @@ To install this plugin, run the following
 .. code::
 
    $ xacc-install-plugins.py -p xacc-dwave
-
-.. note::
-
-   It has been observed on Mac OS X that the above command may fail 
-   due to CMake incorrectly finding OpenSSL. If that happens, run the 
-   following:
-   
-   .. code::
-      
-      $ xacc-install-plugins.py -p xacc-dwave -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
-
-   Homebrew creates the above OpenSSL root directory. If yours is different, then 
-   set the ``OPENSSL_ROOT_DIR`` as such. 
 
 You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator`` and ``$XACC_ROOT/lib/plugins/compilers``, where XACC_ROOT is your XACC install prefix.
 

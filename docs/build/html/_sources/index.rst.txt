@@ -11,14 +11,15 @@ Welcome to XACC's documentation!
    :caption: Contents:
 
    overview
-   install
    api
+   install
    python
    scaffold
    tnqvm
    rigetti
    ibm
    dwave
+   xacc-vqe
    
 
 

@@ -92,14 +92,15 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
 </ul>
 
             
@@ -176,13 +177,6 @@
 <li class="toctree-l2"><a class="reference internal" href="overview.html#publications-and-presentations">Publications and Presentations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#install-third-party-libraries">Install third-party libraries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#build-xacc">Build XACC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-xacc-plugins">Installing XACC Plugins</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#xacc-and-spack">XACC and Spack</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#kernels">Kernels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#intermediate-representation">Intermediate Representation</a></li>
@@ -192,8 +186,13 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#programs-and-execution-workflow">Programs and Execution Workflow</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-third-party-libraries">Install third-party libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#building-xacc">Building XACC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#installing-xacc-plugins">Installing XACC Plugins</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="python.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python.html#example-usage">Example Usage</a></li>
 </ul>
 </li>
@@ -205,24 +204,28 @@
 <li class="toctree-l2"><a class="reference internal" href="tnqvm.html#installation">Installation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rigetti.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#rigetti-accelerator">Rigetti Accelerator</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="rigetti.html#mapping-xacc-ir-to-quil">Mapping XACC IR to Quil</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="rigetti.html#setting-credentials">Setting Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rigetti.html#rigetti-command-line-arguments">Rigetti Command Line Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rigetti.html#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rigetti.html#executing-pyquil-code-on-any-xacc-accelerator">Executing PyQuil Code on any XACC Accelerator</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ibm.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ibm.html#setting-credentials">Setting Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ibm.html#ibm-command-line-arguments">IBM Command Line Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ibm.html#hydrogen-vqe-example">Hydrogen VQE Example</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dwave.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dwave.html#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="xacc-vqe.html#installation">Installation</a></li>
 </ul>
 </li>
 </ul>

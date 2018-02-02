@@ -37,4 +37,7 @@ new issue with the question tag.
 Publications and Presentations
 -------------------------------
 
+`Extreme-Scale Programming Model for Quantum Acceleration within High Performanc Computing <https://arxiv.org/abs/1710.01794>`_
+
+`Cloud Quantum Computing of an Atomic Nucleus <https://arxiv.org/abs/1801.03897>`_
 
