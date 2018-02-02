@@ -24,6 +24,54 @@ std::shared_ptr<GateInstruction> create(const std::string& name, std::vector<int
 	return g;
 }
 
+void setCredentials(const std::string& accelerator, const std::string& apiKey, const std::string& url = "", const std::string& userId = "") {
+
+	std::string filename = std::string(std::getenv("HOME")) + "/";
+	std::stringstream s;
+	if (accelerator == "ibm") {
+		filename += ".ibm_config";
+		std::string tmpUrl = url;
+		if (url.empty()) {
+			tmpUrl = "https://quantumexperience.mybluemix.net";
+		}
+
+		s << "url: " << tmpUrl << "\n";
+		s << "key: " << apiKey << "\n";
+
+	} else if (accelerator == "rigetti") {
+		filename += ".pyquil_config";
+		if (userId.empty()) {
+			xacc::error("You must provide your Rigetti QVM User Id.");
+		}
+		std::string tmpUrl = url;
+		if (url.empty()) {
+			tmpUrl = "https://api.rigetti.com/qvm";
+		}
+
+		s << "url: " << tmpUrl << "\n";
+		s << "key: " << apiKey << "\n";
+		s << "user_id: " << userId << "\n";
+
+	} else if (accelerator == "dwave") {
+		filename += ".dwave_config";
+		std::string tmpUrl = url;
+		if (url.empty()) {
+			tmpUrl = "https://qubist.dwavesys.com";
+		}
+
+		s << "url: " << tmpUrl << "\n";
+		s << "key: " << apiKey << "\n";
+	}
+
+	if (!s.str().empty()) {
+		std::ofstream out(filename);
+		out << s.str();
+		out.close();
+	}
+
+	return;
+}
+
 PYBIND11_MODULE(pyxacc, m) {
     m.doc() = "Python bindings for XACC. XACC provides a plugin infrastructure for "
     		"programming, compiling, and executing quantum kernels in a language and "
@@ -185,7 +233,13 @@ PYBIND11_MODULE(pyxacc, m) {
 	gateqir.def(py::init<>(), "The constructor");
 	gateqir.def("addKernel", &xacc::quantum::GateQIR::addKernel, "Add an Kernel to this GateQIR.");
 
-    gatesub.def("create", &create, "", py::arg("name"), py::arg("qbits"), py::arg("params") = std::vector<InstructionParameter>{});
+	gatesub.def("create", &create, "", py::arg("name"), py::arg("qbits"),
+			py::arg("params") = std::vector<InstructionParameter> { });
+
+	m.def("setCredentials", &setCredentials,
+			"This function sets the users credentials for the given accelerator. URL and UserId are optional parameters.",
+			py::arg("accelerator"), py::arg("apiKey"), py::arg("url") =
+					std::string(""), py::arg("userId") = std::string(""));
 
 }
 
