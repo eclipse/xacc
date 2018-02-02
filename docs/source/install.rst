@@ -42,7 +42,7 @@ systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, 
 
       $ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
       $ tar -xvzf openssl-1.0.2n.tar.gz
-      $ cd openssl-1.0.2h
+      $ cd openssl-1.0.2n
       $ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
       $ make
       $ make install
