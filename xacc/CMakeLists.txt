@@ -61,7 +61,7 @@ if (NOT cppus_has_d_suffix)
 endif()
 
 if (APPLE)
-	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib")
+	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
 target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
