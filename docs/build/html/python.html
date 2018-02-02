@@ -37,7 +37,7 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
         <link rel="next" title="Scaffold" href="scaffold.html"/>
-        <link rel="prev" title="XACC API" href="api.html"/> 
+        <link rel="prev" title="Installation" href="install.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -93,18 +93,18 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">XACC Python Bindings</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
 </ul>
 
             
@@ -170,36 +170,6 @@
             
   <div class="section" id="xacc-python-bindings">
 <h1>XACC Python Bindings<a class="headerlink" href="#xacc-python-bindings" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>he <a class="reference external" href="https://github.com/ornl-qci/xacc-python">Python Plugin</a> provides
-Python language bindings to XACC through the <a class="reference external" href="https://github.com/pybind/pybind11">pybind11</a> project.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>This plugin requires Python 2.7+ development headers/library.
-Here’s how to install these on various popular platforms:</p>
-<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install python
-$ (fedora) dnf install python-devel
-$ (ubuntu) apt-get install python-dev
-</pre></div>
-</div>
-</div>
-<p>To install this plugin, run the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-python
-</pre></div>
-</div>
-<p>You have now installed the Python plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/python</span></code>,
-where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
-<p>In order to use this installation, you must update your <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> environment variable</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$XACC_ROOT/lib/python:$PYTHONPATH
-</pre></div>
-</div>
-<p>or if you installed XACC with Spack</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$(spack location -i xacc)/lib/python:$PYTHONPATH
-</pre></div>
-</div>
-<p>We recommend placing this command in your home directory’s <code class="docutils literal"><span class="pre">.bashrc</span></code> file (or equivalent).</p>
-</div>
 <div class="section" id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you had the Scaffold plugin installed <a class="reference external" href="scaffold.rst">see here</a>, and you wanted to program a simple teleportation code and launch it on TNQVM (see <a class="reference external" href="tnqvm.rst">here</a> for TNQVM installation details). To program this with the Python XACC bindings you could write the following python script:</p>
@@ -266,7 +236,7 @@ where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> i
         <a href="scaffold.html" class="btn btn-neutral float-right" title="Scaffold" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api.html" class="btn btn-neutral" title="XACC API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="install.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

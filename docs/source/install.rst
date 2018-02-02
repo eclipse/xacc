@@ -15,21 +15,40 @@ The following third party libraries (TPLs) are used by XACC:
 +------------------------+------------+-----------+
 | Boost                  | Required   | 1.59.0+   |
 +------------------------+------------+-----------+
+| OpenSSL                | Required   | 1.0.2     |
++------------------------+------------+-----------+
+| CMake                  | Required   | 3.2+      |
++------------------------+------------+-----------+
 
 Note that you must have a C++11 compliant compiler. 
 For GCC, this means version 4.8.1+, for Clang, this means 3.3+.
 
-These dependencies are relatively easy to install on popular operating
-systems. Any of the following commands will work (showing with and without MPI):
+These dependencies are relatively easy to install on various operating
+systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:
 
 .. code::
 
-   $ (macosx) brew install boost
+   $ (macosx) brew/port install boost openssl
    $ (fedora) dnf install boost-devel
    $ (ubuntu) apt-get install libboost-all-dev
 
-Build XACC
------------
+..  note::
+
+   On Fedora, the latest version of OpenSSL available via DNF is 1.1.1. This
+   version of OpenSSL is not compatible with CppRestSDK, a library that XACC
+   leverages to connect to remote Accelerators. To install OpenSSL from source
+
+   .. code::
+
+      $ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
+      $ tar -xvzf openssl-1.0.2n.tar.gz
+      $ cd openssl-1.0.2h
+      $ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
+      $ make
+      $ make install
+
+Building XACC
+-------------
 
 Clone the XACC repository:
 
@@ -46,19 +65,51 @@ configure and build XACC:
    $ cmake ..
    $ make install # can pass -jN for N = number of threads to use
 
-This will build, test, and install XACC to ``/usr/local/xacc``
-(Pass ``-DCMAKE_INSTALL_PREFIX=$YOURINSTALLPATH`` to install it somewhere else).
+This will build, test, and install XACC to ``/usr/local/xacc``. If you don't have
+root access, and therefore can't write to ``/usr/local/xacc``, or would like to just
+install XACC somewhere else, replace the above ``cmake`` command with the following
 
-Set your PATH variable to include the XACC bin directory:
+.. code::
+
+   $ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
+
+After running CMake, you should see that OpenSSL was found. If there is
+a problem with finding OpenSSL 1.0.2, you can point XACC to OpenSSL with
+
+.. code:: bash
+
+   $ cmake .. -DOPENSSL_ROOT_DIR=/path/to/openssl
+
+The CMake configure will also look for Python development libraries on your
+system, and if found, will generate the `XACC Python Bindings <python.html>`_ bindings.
+If XACC does not find your correct Python installation, you can point to it with
+
+.. code:: bash
+
+   $ cmake .. -DPYTHON_EXECUTABLE=/path/to/python
+
+At this point, if you like, you can setup your Python environment
+to automatically load the XACC Python bindings with
+
+.. code:: bash
+
+   $ export PYTHONPATH=$PYTHONPATH:/usr/local/xacc/lib/python
+
+or ``$YOURINSTALLPATH/lib/python``.
+
+You may also set your PATH variable to include the XACC bin directory:
 
 .. code::
 
    $ export PATH=/usr/local/xacc/bin:$PATH
 
-Additionally, you could add this to your home directory's ``.basrhc`` file (or equivalent).
+or wherever you installed XACC to (``$YOURINSTALLPATH/bin``).
+
+Additionally, you may want to add these exports
+to your home directory's ``.basrhc`` file (or equivalent).
 
 Installing XACC Plugins
------------------------------------
+------------------------
 If you have successfully built XACC (see above)
 then you can now run
 
@@ -79,80 +130,12 @@ You can also run this script with multiple plugin names.
 
    $ xacc-install-plugins.py -p PLUGIN1 PLUGIN2 PLUGIN3
 
-You can also pass CMake arguments to this script. For example, if you
-wanted to specify the path to your OpenSSL install for a plugin
-that depended on OpenSSL, you could run the following
+and pass CMake arguments to this script. For example, if you
+wanted to specify the argument ``CMAKEARG`` for a plugin, you could run the following
 
 .. code::
 
-   $ xacc-install-plugins.py -p PLUGIN-NAME -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
+   $ xacc-install-plugins.py -p PLUGIN-NAME -a CMAKEARG=arg
 
-You can pass multiple CMake arguments at once.
+You can also pass multiple CMake arguments at once.
 
-XACC and Spack
----------------
-You can build XACC and its dependencies with the `Spack
-<https://github.com/llnl/spack>`_ package manager.
-
-To configure your available system compilers run
-
-.. code::
-
-   $ spack compilers
-
-.. note::
-
-   If you run 'spack config get compilers' and your desired
-   compiler has fc and f77 set to Null or None, then the
-   install will not work if you are including MPI support.
-   If this is the case, it usually
-   works to run 'spack config edit compilers' and
-   manually replace Null with /path/to/your/gfortran
-
-We will rely on the environment-modules package to load/unload
-installed Spack modules. If you don't have this installed
-(you can check by running 'module avail') install with
-
-.. code::
-
-   $ spack install environment-modules
-
-Add the following to your ~/.bashrc (or equivalent)
-
-.. code::
-
-   . $SPACK_ROOT/share/spack/setup-env.sh
-   source $(spack location -i environment-modules)/Modules/init/bash
-
-If you do not have a C++14 compliant compiler, you can
-install one with Spack, for example
-
-.. code::
-
-   $ spack install gcc@7.2.0 # this will take awhile...
-   $ spack load gcc
-   $ spack compiler find
-
-XACC has not yet been accepted into the Spack (we will soon issue a PR
-to get it shipped as part of Spack). So in order to install it with Spack
-we have to download our custom package recipe from the XACC repository:
-
-.. code::
-
-   $ cd $SPACK_ROOT/var/spack/repos/builtin/packages/ && mkdir xacc
-   $ cd xacc && wget https://github.com/ORNL-QCI/xacc/raw/master/cmake/spack/xacc/package.py .
-
-Now we can run 
-
-.. code::
-
-   $ spack install xacc 
-   $ (with specified compiler) spack install xacc %gcc@7.2.0
-
-Update your PATH to point to the XACC ``bin`` directory: 
-
-.. code::
-
-   $ export PATH=$(spack location -i xacc)/bin:$PATH
-
-We recommend you add this command to you ``.bashrc`` file (or equivalent).
