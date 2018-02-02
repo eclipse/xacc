@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>IBM Integration &mdash; XACC 0.0.1 documentation</title>
+  <title>IBM &mdash; XACC 0.0.1 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="D-Wave Integration" href="dwave.html"/>
-        <link rel="prev" title="Rigetti Integration" href="rigetti.html"/> 
+        <link rel="next" title="D-Wave" href="dwave.html"/>
+        <link rel="prev" title="Rigetti" href="rigetti.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -93,18 +93,21 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti Integration</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">IBM Integration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IBM</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-credentials">Setting Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ibm-command-line-arguments">IBM Command Line Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hydrogen-vqe-example">Hydrogen VQE Example</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
 </ul>
 
             
@@ -149,7 +152,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>IBM Integration</li>
+      <li>IBM</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,44 +171,62 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ibm-integration">
-<h1>IBM Integration<a class="headerlink" href="#ibm-integration" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="ibm">
+<h1>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>If you want support for the IBM Accelerator, you must install
-<a class="reference external" href="https://github.com/microsoft/cpprestsdk">CppRestSDK</a> and OpenSSL. This
-is required to make remote HTTP Rest calls to the IBM Quantum Experience
-server APIs. Here’s how to install these as binaries on various popular platforms:</p>
-<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew install cpprestsdk
-$ (fedora) dnf install cpprest-devel openssl-devel
-$ (ubuntu) apt-get install libcpprest-dev libssl-dev
-$ (spack) spack install cpprestsdk
-$ (spack) spack install openssl
-</pre></div>
-</div>
-</div>
 <p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-ibm">IBM Plugin</a> provides
 support to XACC for executing programs
 on the IBM Quantum Experience via the IBM Accelerator.</p>
 <p>To install this plugin, run the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-ibm
+<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p ibm
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>It has been observed on Mac OS X that the above command may fail
-due to CMake incorrectly finding OpenSSL. If that happens, run the
-following:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-ibm -a OPENSSL_ROOT_DIR=/usr/local/opt/openssl
-</pre></div>
-</div>
-<p class="last">Homebrew creates the above OpenSSL root directory. If yours is different, then
-set the <code class="docutils literal"><span class="pre">OPENSSL_ROOT_DIR</span></code> as such.</p>
-</div>
-<p>You have now installed the IBM plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code>,
+<p>You have now installed the IBM plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerators</span></code>,
 where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+</div>
+<div class="section" id="setting-credentials">
+<h2>Setting Credentials<a class="headerlink" href="#setting-credentials" title="Permalink to this headline">¶</a></h2>
+<p>In order to target the IBM Quantum Experience, you must provide XACC with your API key.
+To do so, open the file <code class="docutils literal"><span class="pre">$HOME/.ibm_config</span></code>, and add the following contents</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">key</span><span class="p">:</span> <span class="n">YOUR_API_KEY</span>
+<span class="n">url</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">quantumexperience</span><span class="o">.</span><span class="n">mybluemix</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+</div>
+<p>Alternatively, any application built on the XACC framework with IBM plugins available
+will expose <code class="docutils literal"><span class="pre">-ibm-api-url</span></code> and <code class="docutils literal"><span class="pre">--ibm-api-key</span></code> command line arguments:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ ./my-xacc-app --ibm-api-key YOUR_API_KEY --ibm-api-url https://quantumexperience.mybluemix.net
+</pre></div>
+</div>
+</div>
+<div class="section" id="ibm-command-line-arguments">
+<h2>IBM Command Line Arguments<a class="headerlink" href="#ibm-command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<p>The IBM plugin exposes the following command line arguments</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>–ibm-backend</td>
+<td>The backend to target (e.g. ibmqx5)</td>
+</tr>
+<tr class="row-odd"><td>–ibm-shots</td>
+<td>The number of shots to execute per job</td>
+</tr>
+<tr class="row-even"><td>–ibm-list-backends</td>
+<td>List the available backends</td>
+</tr>
+<tr class="row-odd"><td>–ibm-shots</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="hydrogen-vqe-example">
 <h2>Hydrogen VQE Example<a class="headerlink" href="#hydrogen-vqe-example" title="Permalink to this headline">¶</a></h2>
@@ -220,65 +241,65 @@ installation details.</p>
 </div>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;XACC.hpp&quot;</span><span class="cp"></span>
 
-<span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span><span class="p">(</span><span class="s">&quot;&quot;</span>
-<span class="s">&quot;__qpu__ initializeState(qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rx(qreg[0], 3.1415926);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Ry(qreg[1], 1.57079);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rx(qreg[0], 7.8539752);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   CNOT(qreg[1], qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rz(qreg[0], theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   CNOT(qreg[1], qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Ry(qreg[1], 7.8539752);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rx(qreg[0], 1.57079);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;&quot;</span>
-<span class="s">&quot;__qpu__ g1Term (qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   initializeState(qreg, theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   cbit creg[1];</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;&quot;</span>
-<span class="s">&quot;__qpu__ g2Term (qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   initializeState(qreg, theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   cbit creg[1];</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[0] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;__qpu__ g3Term (qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   initializeState(qreg, theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   cbit creg[2];</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;__qpu__ g4Term(qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   initializeState(qreg, theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   cbit creg[2];</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rx(qreg[1], 1.57079);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   Rx(qreg[0], 1.57079);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;&quot;</span>
-<span class="s">&quot;__qpu__ g5Term(qbit qreg, float theta) {</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   initializeState(qreg, theta);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   cbit creg[2];</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   H(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   H(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span> <span class="o">=</span> <span class="sa">R</span><span class="s">&quot;</span><span class="dl">src(</span><span class="s"></span>
+<span class="s">__qpu__ initializeState(qbit qreg, float theta) {</span>
+<span class="s">   Rx(qreg[0], 3.1415926);</span>
+<span class="s">   Ry(qreg[1], 1.57079);</span>
+<span class="s">   Rx(qreg[0], 7.8539752);</span>
+<span class="s">   CNOT(qreg[1], qreg[0]);</span>
+<span class="s">   Rz(qreg[0], theta);</span>
+<span class="s">   CNOT(qreg[1], qreg[0]);</span>
+<span class="s">   Ry(qreg[1], 7.8539752);</span>
+<span class="s">   Rx(qreg[0], 1.57079);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g1Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[1];</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g2Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[1];</span>
+<span class="s">   creg[0] = MeasZ(qreg[1]);</span>
+<span class="s">}</span>
+<span class="s">__qpu__ g3Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+<span class="s">__qpu__ g4Term(qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   Rx(qreg[1], 1.57079);</span>
+<span class="s">   Rx(qreg[0], 1.57079);</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g5Term(qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   H(qreg[1]);</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   H(qreg[0]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+<span class="dl">)src</span><span class="s">&quot;</span><span class="p">;</span>
 
 <span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
 
    <span class="c1">// Initialize the XACC Framework</span>
    <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
 
-   <span class="c1">// Create a reference to the Rigetti</span>
-   <span class="c1">// QPU at api.rigetti.com/qvm</span>
+   <span class="c1">// Create a reference to the IBM</span>
+   <span class="c1">// QPU at the IBM Quantum Experience</span>
    <span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm&quot;</span><span class="p">);</span>
 
-   <span class="c1">// Allocate a register of 3 qubits</span>
-   <span class="k">auto</span> <span class="n">qubitReg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">-&gt;</span><span class="n">createBuffer</span><span class="p">(</span><span class="s">&quot;qreg&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+   <span class="c1">// Allocate a register of 2 qubits</span>
+   <span class="k">auto</span> <span class="n">qubitReg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">-&gt;</span><span class="n">createBuffer</span><span class="p">(</span><span class="n">qreg</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 
    <span class="c1">// Create a Program</span>
    <span class="n">xacc</span><span class="o">::</span><span class="n">Program</span> <span class="n">program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
@@ -287,7 +308,7 @@ installation details.</p>
    <span class="c1">// the above source code</span>
    <span class="k">auto</span> <span class="n">kernels</span> <span class="o">=</span> <span class="n">program</span><span class="p">.</span><span class="n">getKernels</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">();</span>
    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="s">&quot;out.csv&quot;</span><span class="p">);</span>
-   <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Angle, Z0, Z1, Z0Z1, Y0Y1, X0X1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+   <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Angle, Z0, Z1, Z0Z1, Y0Y1, X0X1&quot;</span><span class="p">;</span><span class="s">&quot;</span>
 
    <span class="k">auto</span> <span class="n">pi</span> <span class="o">=</span> <span class="mf">3.14159265359</span><span class="p">;</span>
    <span class="k">for</span> <span class="p">(</span><span class="kt">float</span> <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">pi</span><span class="p">;</span> <span class="n">theta</span> <span class="o">&lt;=</span> <span class="n">pi</span><span class="p">;</span> <span class="n">theta</span> <span class="o">+=</span> <span class="mf">.2</span><span class="p">)</span> <span class="p">{</span>
@@ -297,15 +318,15 @@ installation details.</p>
       <span class="c1">// Skip the first kernel, it is the state prep</span>
       <span class="c1">// kernel that all others will call anyway</span>
       <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">kernels</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-         <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span><span class="p">;</span>
-         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Executing Kernel &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+         <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="p">,</span> <span class="p">;</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Executing Kernel &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
          <span class="n">kernels</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">qubitReg</span><span class="p">,</span> <span class="n">theta</span><span class="p">);</span>
-         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done Executing Kernel &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done Executing Kernel&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
          <span class="k">auto</span> <span class="n">e</span> <span class="o">=</span> <span class="n">qubitReg</span><span class="o">-&gt;</span><span class="n">getExpectationValueZ</span><span class="p">();</span>
          <span class="n">qubitReg</span><span class="o">-&gt;</span><span class="n">resetBuffer</span><span class="p">();</span>
          <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">;</span>
       <span class="p">}</span>
-     <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+     <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
      <span class="n">file</span><span class="p">.</span><span class="n">flush</span><span class="p">();</span>
    <span class="p">}</span>
 
@@ -331,10 +352,10 @@ installation details.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dwave.html" class="btn btn-neutral float-right" title="D-Wave Integration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dwave.html" class="btn btn-neutral float-right" title="D-Wave" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="rigetti.html" class="btn btn-neutral" title="Rigetti Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="rigetti.html" class="btn btn-neutral" title="Rigetti" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

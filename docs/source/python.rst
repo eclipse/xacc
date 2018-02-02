@@ -1,45 +1,6 @@
 XACC Python Bindings
 =====================
 
-Installation
-------------
-he `Python Plugin <https://github.com/ornl-qci/xacc-python>`_ provides
-Python language bindings to XACC through the `pybind11 <https://github.com/pybind/pybind11>`_ project.
-
-.. note::
-
-   This plugin requires Python 2.7+ development headers/library.
-   Here's how to install these on various popular platforms:
-
-   .. code::
-
-      $ (macosx) brew install python
-      $ (fedora) dnf install python-devel
-      $ (ubuntu) apt-get install python-dev
-
-To install this plugin, run the following
-
-.. code::
-
-   $ xacc-install-plugins.py -p xacc-python
-
-You have now installed the Python plugin. It is located in ``$XACC_ROOT/lib/python``,
-where ``XACC_ROOT`` is your XACC install prefix.
-
-In order to use this installation, you must update your ``PYTHONPATH`` environment variable
-
-.. code::
-
-   $ export PYTHONPATH=$XACC_ROOT/lib/python:$PYTHONPATH
-
-or if you installed XACC with Spack
-
-.. code:: 
-
-   $ export PYTHONPATH=$(spack location -i xacc)/lib/python:$PYTHONPATH
-
-We recommend placing this command in your home directory's ``.bashrc`` file (or equivalent).
-
 Example Usage
 --------------
 
