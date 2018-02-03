@@ -218,7 +218,9 @@ public:
 
 		std::vector<std::shared_ptr<Function>> functions;
 		for (auto k : *this) {
-			k.evaluateParameters(parameters);
+			if (!parameters.empty()) {
+				k.evaluateParameters(parameters);
+			}
 			functions.push_back(k.getIRFunction());
 		}
 
