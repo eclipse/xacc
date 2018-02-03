@@ -14,8 +14,11 @@
 #include <boost/algorithm/string.hpp>
 #include "XACC.hpp"
 
+#include <boost/range/adaptor/sliced.hpp>
+
 namespace xacc {
 namespace quantum {
+
 std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPostprocessor::process(
 		std::vector<std::shared_ptr<AcceleratorBuffer>> buffers) {
 
@@ -24,8 +27,25 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 	std::string zeroStr = "";
 	for (int i = 0; i < nQubits; i++) zeroStr += "0";
 
+	int nKernels = ir.getKernels().size();
+	int nRepititions = buffers.size() / nKernels;
+
+	if (buffers.size() % nKernels != 0) {
+		xacc::error("ReadoutError Postprocessor: Invalid number of buffers and kernels.");
+	}
+
+
+	std::vector<std::vector<std::shared_ptr<AcceleratorBuffer>>> bufvec;
+	for (int i = 0; i < buffers.size(); i+=nKernels) {
+		std::vector<std::shared_ptr<AcceleratorBuffer>> sub(buffers.begin() + i, buffers.begin() + i + nKernels);
+		bufvec.push_back(sub);
+	}
+
+	std::vector<std::shared_ptr<AcceleratorBuffer>> fixedBuffers;
+
+	for ( auto subList : bufvec) {
 	std::vector<std::shared_ptr<Function>> nonIdentityKernels;
-	for (int i = 0; i < ir.getKernels().size(); i++) {
+	for (int i = 0; i < nKernels; i++) {
 		if (ir.getKernels()[i]->nInstructions() > 0) {
 			nonIdentityKernels.push_back(ir.getKernels()[i]);
 		}
@@ -35,7 +55,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 	bool first = true;
 	int counter = 0, qbitCount=0;
 	std::vector<double> probs;
-	for (int i = allTerms.size(); i < buffers.size(); i++) {
+	for (int i = allTerms.size(); i < nKernels; i++) {
 		auto localBitStr = zeroStr;
 		auto kernel = nonIdentityKernels[i];
 		if (first) {
@@ -48,9 +68,9 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 			first = true;
 		}
 
-		xacc::info("Computing measurement probability for bit string = " + localBitStr);
+		xacc::info(kernel->getName() + " - Computing measurement probability for bit string = " + localBitStr);
 
-		probs.push_back(buffers[i]->computeMeasurementProbability(localBitStr));
+		probs.push_back(subList[i]->computeMeasurementProbability(localBitStr));
 		counter++;
 
 		if (counter == 2) {
@@ -66,7 +86,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 
 	for (auto& kv : errorRates) {
 		std::stringstream s, s2, s3;
-		s << "Qubit " << kv.first << " p01 = " << kv.second.first << ", p10 = " << kv.second.second;
+		s << "Qubit " << kv.first << ": p01 = " << kv.second.first << ", p10 = " << kv.second.second;
 		xacc::info(s.str());
 	}
 
@@ -75,20 +95,20 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 
 	std::map<std::string, double> oldExpects;
 	for (int i = 0; i < allTerms.size(); i++) {
-		xacc::info("Raw Expectatations: " + allTerms[i] + " = " + std::to_string(buffers[i]->getExpectationValueZ()));
-		oldExpects.insert({allTerms[i], buffers[i]->getExpectationValueZ()});
+		xacc::info("Raw Expectatations: " + allTerms[i] + " = " + std::to_string(subList[i]->getExpectationValueZ()));
+		oldExpects.insert({allTerms[i], subList[i]->getExpectationValueZ()});
 	}
 
 	auto fixed = fix_assignments(oldExpects, sites, errorRates);
 
 	// constant fixed expectation value from the calculation
 
-	std::vector<std::shared_ptr<AcceleratorBuffer>> fixedBuffers;
 	for (int i = 0; i < allTerms.size(); i++) {
-		auto staticBuffer = std::make_shared<StaticExpectationValueBuffer>(buffers[i]->name(), buffers[i]->size(), fixed[allTerms[i]]);
+		auto staticBuffer = std::make_shared<StaticExpectationValueBuffer>(subList[i]->name(), subList[i]->size(), fixed[allTerms[i]]);
 		fixedBuffers.push_back(staticBuffer);
 	}
 
+	}
 	return fixedBuffers;
 }
 

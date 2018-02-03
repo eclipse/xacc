@@ -138,6 +138,10 @@ public:
 		}
 	}
 
+	std::shared_ptr<IR> getIR() {
+		return xaccIR;
+	}
+
 	/**
 	 * Execute the compilation mechanism on the provided program
 	 * source kernel code to produce XACC IR that can be executed
@@ -182,11 +186,11 @@ public:
 	 */
 	template<typename ... RuntimeArgs>
 	auto getKernels() -> KernelList<RuntimeArgs...> {
-		KernelList<RuntimeArgs...> kernels(accelerator, bufferPostprocessors);
 		if (!xaccIR) {
 			build();
 		}
 
+		KernelList<RuntimeArgs...> kernels(accelerator, bufferPostprocessors);
 		for (auto k : xaccIR->getKernels()) {
 			if (k->nParameters() == (sizeof...(RuntimeArgs))) {
 				kernels.push_back(Kernel<RuntimeArgs...>(accelerator, k));
@@ -224,11 +228,11 @@ public:
 	 * as InstructionParameters.
 	 */
 	auto getRuntimeKernels() -> KernelList<> {
-		KernelList<> kernels(accelerator, bufferPostprocessors);
 		if (!xaccIR) {
 			build();
 		}
 
+		KernelList<> kernels(accelerator, bufferPostprocessors);
 		for (auto k : xaccIR->getKernels()) {
 			kernels.push_back(Kernel<>(accelerator, k));
 		}
