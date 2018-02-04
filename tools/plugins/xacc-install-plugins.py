@@ -103,7 +103,6 @@ def main(argv=None):
                  CMAKE_ARGS -DXACC_DIR="""+xaccLocation+' '+cmake_args+"""
                  BUILD_ALWAYS 1
                  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
-                 TEST_BEFORE_INSTALL 1
               )
           """
       # Create a build directory
