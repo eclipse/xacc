@@ -32,7 +32,7 @@ void setCredentials(const std::string& accelerator, const std::string& apiKey, c
 		filename += ".ibm_config";
 		std::string tmpUrl = url;
 		if (url.empty()) {
-			tmpUrl = "https://quantumexperience.mybluemix.net";
+			tmpUrl = "https://quantumexperience.ng.bluemix.net";
 		}
 
 		s << "url: " << tmpUrl << "\n";
