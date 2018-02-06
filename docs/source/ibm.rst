@@ -26,7 +26,7 @@ To do so, open the file ``$HOME/.ibm_config``, and add the following contents
 .. code:: bash
 
    key: YOUR_API_KEY
-   url: https://quantumexperience.mybluemix.net
+   url: https://quantumexperience.ng.bluemix.net
 
 Alternatively, any application built on the XACC framework with IBM plugins available
 will expose ``-ibm-api-url`` and ``--ibm-api-key`` command line arguments:
