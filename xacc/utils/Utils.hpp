@@ -19,6 +19,7 @@
 #include "RuntimeOptions.hpp"
 #include "spdlog/spdlog.h"
 #include <iostream>
+#include <queue>
 
 namespace xacc {
 
@@ -103,49 +104,6 @@ public:
 
 using MessagePredicate = std::function<bool(void)>;
 
-//class LoggerImpl {
-//public:
-//
-//	virtual void info(const std::string& msg) = 0;
-//	virtual void error(const std::string& msg) = 0;
-//
-//};
-//
-//class SpdlogImpl : public LoggerImpl {
-//
-//protected:
-//
-//	std::shared_ptr<spdlog::logger> logger;
-//
-//	bool useColor = true;
-//
-//public:
-//
-//	SpdlogImpl() : useColor(
-//			!RuntimeOptions::instance()->exists("no-color")) {
-//		logger = spdlog::stdout_logger_mt("xacc-logger");
-//	}
-//
-//	virtual void info(const std::string& msg) {
-//		logger->info(useColor ? "\033[1;34m" + msg + "\033[0m" : msg);
-//	}
-//
-//	virtual void error(const std::string& msg) {
-//		logger->error(useColor ? );
-//	}
-//};
-//
-//class CoutImpl : public LoggerImpl {
-//
-//public:
-//
-//	virtual void info(const std::string& msg) {
-//	}
-//
-//	virtual void error(const std::string& msg) {
-//	}
-//};
-
 class XACCLogger: public Singleton<XACCLogger> {
 
 protected:
@@ -155,6 +113,10 @@ protected:
 	bool useCout = false;
 
 	bool useColor = true;
+
+	MessagePredicate globalPredicate = []() { return true;};
+
+	std::queue<std::string> logQueue;
 
 	XACCLogger();
 
@@ -168,6 +130,17 @@ public:
 		return instance_;
 	}
 
+	void enqueueLog(const std::string log) {
+		logQueue.push(log);
+	}
+
+	void dumpQueue() {
+		while (!logQueue.empty()) {
+			info(logQueue.front());
+			logQueue.pop();
+		}
+	}
+	void setGlobalLoggerPredicate(MessagePredicate pred) {globalPredicate = pred;}
 	void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 	void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 	void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));

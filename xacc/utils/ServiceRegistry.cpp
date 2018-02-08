@@ -22,12 +22,15 @@ void ServiceRegistry::initialize() {
 
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
 
-		XACCLogger::instance()->info("XACC Library Directory: " + xaccLibDir);
+		XACCLogger::instance()->enqueueLog("XACC Library Directory: " + xaccLibDir);
 		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
-				XACCLogger::instance()->info("Installing base plugin " + entry.path().filename().string());
+				auto name = entry.path().filename().string();
+				boost::replace_all(name,"lib","");
+				boost::replace_all(name,".so","");
+				XACCLogger::instance()->enqueueLog("Installing base plugin " + name);
 				context.InstallBundles(entry.path().string());
 			}
 		}
@@ -41,7 +44,10 @@ void ServiceRegistry::initialize() {
 				auto p = entry.path();
 				if (boost::filesystem::is_directory(p)) {
 					for (auto& subentry : boost::filesystem::directory_iterator(p)) {
-						XACCLogger::instance()->info("Installing 3rd party plugin " + subentry.path().filename().string());
+						auto name = subentry.path().filename().string();
+						boost::replace_all(name,"lib","");
+						boost::replace_all(name,".so","");
+						XACCLogger::instance()->enqueueLog("Installing 3rd party plugin " + name);
 						context.InstallBundles(subentry.path().string());
 					}
 				}
@@ -53,7 +59,7 @@ void ServiceRegistry::initialize() {
 					"There are no plugins. Install plugins to begin working with XACC.");
 		}
 
-		XACCLogger::instance()->info("Starting the CppUs Framework.");
+		XACCLogger::instance()->enqueueLog("Starting the C++ Microservices Framework.");
 		// Start the framework itself.
 		framework.Start();
 

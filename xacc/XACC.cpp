@@ -51,11 +51,11 @@ void Initialize(int arc, char** arv) {
 		argc = arc;
 		argv = arv;
 
-		XACCLogger::instance()->info("Creating XACC ServiceRegistry");
+		XACCLogger::instance()->enqueueLog("Creating XACC ServiceRegistry");
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
 		try {
-			XACCLogger::instance()->info("Initializing the ServiceRegistry");
+			XACCLogger::instance()->enqueueLog("Initializing the ServiceRegistry");
 			serviceRegistry->initialize();
 		} catch (std::exception& e) {
 			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
@@ -65,16 +65,16 @@ void Initialize(int arc, char** arv) {
 		// Parse any user-supplied command line options
 		xaccCLParser->parse(argc, argv);
 
-		info("[xacc] Initializing XACC Framework.");
+		XACCLogger::instance()->enqueueLog("[xacc] Initializing XACC Framework.");
 
 		// Check that we have some
 		auto s = serviceRegistry->getServices<Compiler>().size();
 		auto a = serviceRegistry->getServices<Accelerator>().size();
 
-		info(
+		XACCLogger::instance()->enqueueLog(
 				"[xacc::plugins] XACC has " + std::to_string(s) + " Compiler"
 						+ ((s == 1 || s == 0) ? "" : "s") + " available.");
-		info(
+		XACCLogger::instance()->enqueueLog(
 				"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
 						+ ((s == 0 || s == 1) ? "" : "s") + " available.");
 
@@ -83,8 +83,16 @@ void Initialize(int arc, char** arv) {
 	// We're good if we make it here, so indicate that we've been
 	// initialized
 	xacc::xaccFrameworkInitialized = true;
+
+	if (!optionExists("queue-preamble")) {
+		XACCLogger::instance()->dumpQueue();
+	}
 }
 
+void setGlobalLoggerPredicate(MessagePredicate predicate) {
+	XACCLogger::instance()->setGlobalLoggerPredicate(predicate);
+	XACCLogger::instance()->dumpQueue();
+}
 
 void info(const std::string& msg, MessagePredicate predicate) {
 	XACCLogger::instance()->info(msg, predicate);

@@ -81,7 +81,7 @@ XACCLogger::XACCLogger() :
 
 void XACCLogger::info(const std::string& msg, MessagePredicate predicate) {
 	if (useCout) {
-		if (predicate()) {
+		if (predicate() && globalPredicate()) {
 			if (useColor) {
 				std::cout << "\033[1;34m[XACC Info] " + msg + "\033[0m \n";
 			} else {
@@ -89,7 +89,7 @@ void XACCLogger::info(const std::string& msg, MessagePredicate predicate) {
 			}
 		}
 	} else {
-		if (predicate()) {
+		if (predicate() && globalPredicate()) {
 			if (useColor) {
 				logger->info("\033[1;34m" + msg + "\033[0m");
 			} else {
@@ -100,7 +100,7 @@ void XACCLogger::info(const std::string& msg, MessagePredicate predicate) {
 }
 void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
 	if (useCout) {
-		if (predicate()) {
+		if (predicate() && globalPredicate()) {
 			if (useColor) {
 				std::cout << "\033[1;33m[XACC Debug] " + msg + "\033[0m \n";
 			} else {
@@ -108,7 +108,7 @@ void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
 			}
 		}
 	} else {
-		if (predicate()) {
+		if (predicate() && globalPredicate()) {
 			if (useColor) {
 				logger->info("\033[1;33m" + msg + "\033[0m");
 			} else {
@@ -119,10 +119,10 @@ void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
 }
 void XACCLogger::error(const std::string& msg, MessagePredicate predicate) {
 	if (useCout) {
-		if (predicate())
+		if (predicate() && globalPredicate())
 			XACCError(msg);
 	} else {
-		if (predicate()) {
+		if (predicate() && globalPredicate()) {
 			logger->error(msg);
 		}
 	}

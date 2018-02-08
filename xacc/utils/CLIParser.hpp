@@ -57,7 +57,10 @@ public:
 						("list-compilers", "List all available XACC Compilers")
 						("list-accelerators", "List all available XACC Accelerators")
 						("no-color", "Turn off colored logger output (blue for INFO, red for ERROR, etc.).")
-						("use-cout", "Use std::cout for logs instead of SPDLOG Logger.");
+						("use-cout", "Use std::cout for logs instead of SPDLOG Logger.")
+						("queue-preamble", "Pass this option to xacc::Initialize() if you would "
+								"like all startup messages to be queued until after a "
+								"global logger predicate has been passed.");
 	}
 
 	void addOptionsDescription(std::shared_ptr<options_description> options) {
