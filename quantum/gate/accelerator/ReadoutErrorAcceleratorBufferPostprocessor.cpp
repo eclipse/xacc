@@ -51,11 +51,13 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 		}
 	}
 
+	auto nIk = nonIdentityKernels.size();
+
 	std::map<int, std::pair<double,double>> errorRates;
 	bool first = true;
 	int counter = 0, qbitCount=0;
 	std::vector<double> probs;
-	for (int i = allTerms.size(); i < nKernels; i++) {
+	for (int i = allTerms.size(); i < nIk; i++) {
 		auto localBitStr = zeroStr;
 		auto kernel = nonIdentityKernels[i];
 		if (first) {
