@@ -14,6 +14,21 @@ namespace py = pybind11;
 using namespace xacc;
 using namespace xacc::quantum;
 
+// `boost::variant` as an example -- can be any `std::variant`-like container
+namespace pybind11 { namespace detail {
+    template <typename... Ts>
+    struct type_caster<boost::variant<Ts...>> : variant_caster<boost::variant<Ts...>> {};
+
+    // Specifies the function used to visit the variant -- `apply_visitor` instead of `visit`
+    template <>
+    struct visit_helper<boost::variant> {
+        template <typename... Args>
+        static auto call(Args &&...args) -> decltype(boost::apply_visitor(args...)) {
+            return boost::apply_visitor(args...);
+        }
+    };
+}} // namespace pybind11::detail
+
 std::shared_ptr<GateInstruction> create(const std::string& name, std::vector<int> qbits, std::vector<InstructionParameter> params = std::vector<InstructionParameter>{}) {
 	auto g = GateInstructionRegistry::instance()->create(name, qbits);
 	int idx = 0;
@@ -98,6 +113,8 @@ PYBIND11_MODULE(pyxacc, m) {
     f.def("addInstruction", &xacc::Function::addInstruction, "Add an Instruction to this Function.");
     f.def("nInstructions", &xacc::Function::nInstructions, "Return the number of Instructions in this Function.");
     f.def("getInstruction", &xacc::Function::getInstruction, "Return the instruction at the provided index.");
+    f.def("insertInstruction", &xacc::Function::insertInstruction, "");
+    f.def("getParameter", (InstructionParameter (xacc::Function::*)(const int)) &xacc::Function::getParameter, "");
 
     // Expose the IR interface
     py::class_<xacc::IR, std::shared_ptr<xacc::IR>> ir(m, "IR", "The XACC Intermediate Representation, "
@@ -150,7 +167,7 @@ PYBIND11_MODULE(pyxacc, m) {
 			//py::overload_cast<const std::string&, const int>(
 					&xacc::Accelerator::createBuffer,
 			"Return a newly created register of qubits.");
-
+	acc.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "");
 	// Expose the AcceleratorBuffer
 	py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>> accb(m,
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.");
