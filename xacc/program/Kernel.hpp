@@ -175,6 +175,10 @@ public:
 		return accelerator;
 	}
 
+	void setBufferPostprocessors(std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> pps) {
+		bufferPostprocessors = pps;
+	}
+
 	/**
 	 * Templated operator() overload.
 	 */

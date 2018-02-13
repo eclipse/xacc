@@ -138,6 +138,10 @@ public:
 		}
 	}
 
+	std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> getBufferPostprocessors() {
+		return bufferPostprocessors;
+	}
+
 	std::shared_ptr<IR> getIR() {
 		return xaccIR;
 	}
