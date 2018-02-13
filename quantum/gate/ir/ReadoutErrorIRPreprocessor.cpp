@@ -87,28 +87,36 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 				continue;
 			}
 
+			bool seen = false;
 			if (inst->getName() == "H") {
 				pauliStr = "X" + std::to_string(bit) + pauliStr;
 				pauliTerm[bit] = "X";
+				seen = true;
 			} else if (inst->getName() == "Rx") {
 				pauliStr = "Y" + std::to_string(bit) + pauliStr;
 				pauliTerm[bit] = "Y";
+				seen = true;
 			} else if (inst->getName() == "Measure") {
-				// do nothing
+				if (!boost::contains(pauliStr, "X" + std::to_string(bit))
+						&& !boost::contains(pauliStr,
+								"Y" + std::to_string(bit))) {
+					pauliStr = "Z" + std::to_string(bit) + pauliStr;
+					pauliTerm[bit] = "Z";
+				}
 				continue;
 			} else {
 				xacc::error("ReadoutErrorIRPreprocessor only can be "
 						"applied to kernels generated from a Pauli "
 						"Hamiltonian, cannot have " + inst->getName() + " gate");
 			}
+
 		}
 
 		if (!pauliStr.empty()) {
+//			std::cout << "PTERM: " << pauliStr << "\n";
 			orderedPauliTerms.push_back(pauliStr);
 			pauliTerms.push_back(pauliTerm);
 		}
-
-
 	}
 
 	// Use the above info to create the sites map

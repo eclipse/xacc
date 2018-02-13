@@ -33,6 +33,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> QubitMapIRPreprocessor::process(
 
 		int newNQubits = *std::max_element(qubitMap.begin(), qubitMap.end()) + 1;
 		xacc::setOption("n-qubits",std::to_string(newNQubits));
+
 	}
 
 	// Construct a ReadoutErrorABPostprocessor

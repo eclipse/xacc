@@ -30,85 +30,92 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 	int nKernels = ir.getKernels().size();
 	int nRepititions = buffers.size() / nKernels;
 
-	if (buffers.size() % nKernels != 0) {
-		xacc::error("ReadoutError Postprocessor: Invalid number of buffers and kernels.");
+	int nonIdentityKernels = 0;
+	for (auto& k : ir.getKernels()) {
+		if (k->nInstructions() > 0) {
+			nonIdentityKernels++;
+		}
 	}
 
+	if (buffers.size() % nonIdentityKernels != 0) {
+		xacc::error("ReadoutError Postprocessor: Invalid number of buffers and kernels - " + std::to_string(buffers.size()) + ", " + std::to_string(nonIdentityKernels) );
+
+	}
 
 	std::vector<std::vector<std::shared_ptr<AcceleratorBuffer>>> bufvec;
-	for (int i = 0; i < buffers.size(); i+=nKernels) {
-		std::vector<std::shared_ptr<AcceleratorBuffer>> sub(buffers.begin() + i, buffers.begin() + i + nKernels);
+	for (int i = 0; i < buffers.size(); i+=nonIdentityKernels) {
+		std::vector<std::shared_ptr<AcceleratorBuffer>> sub(buffers.begin() + i, buffers.begin() + i + nonIdentityKernels);
 		bufvec.push_back(sub);
 	}
 
 	std::vector<std::shared_ptr<AcceleratorBuffer>> fixedBuffers;
 
 	for ( auto subList : bufvec) {
-	std::vector<std::shared_ptr<Function>> nonIdentityKernels;
-	for (int i = 0; i < nKernels; i++) {
-		if (ir.getKernels()[i]->nInstructions() > 0) {
-			nonIdentityKernels.push_back(ir.getKernels()[i]);
-		}
-	}
-
-	auto nIk = nonIdentityKernels.size();
-
-	std::map<int, std::pair<double,double>> errorRates;
-	bool first = true;
-	int counter = 0, qbitCount=0;
-	std::vector<double> probs;
-	for (int i = allTerms.size(); i < nIk; i++) {
-		auto localBitStr = zeroStr;
-		auto kernel = nonIdentityKernels[i];
-		if (first) {
-			// we have a p01 buffer
-			auto bit = kernel->getInstruction(0)->bits()[0];
-			localBitStr[nQubits - bit - 1] = '1';
-			first = false;
-		} else {
-			// we have a p10 buffer
-			first = true;
+		std::vector<std::shared_ptr<Function>> nonIdentityKernels;
+		for (int i = 0; i < nKernels; i++) {
+			if (ir.getKernels()[i]->nInstructions() > 0) {
+				nonIdentityKernels.push_back(ir.getKernels()[i]);
+			}
 		}
 
-		xacc::info(kernel->getName() + " - Computing measurement probability for bit string = " + localBitStr);
+		auto nIk = nonIdentityKernels.size();
 
-		probs.push_back(subList[i]->computeMeasurementProbability(localBitStr));
-		counter++;
+		std::map<int, std::pair<double,double>> errorRates;
+		bool first = true;
+		int counter = 0, qbitCount=0;
+		std::vector<double> probs;
+		for (int i = allTerms.size(); i < nIk; i++) {
+			auto localBitStr = zeroStr;
+			auto kernel = nonIdentityKernels[i];
+			if (first) {
+				// we have a p01 buffer
+				auto bit = kernel->getInstruction(0)->bits()[0];
+				localBitStr[nQubits - bit - 1] = '1';
+				first = false;
+			} else {
+				// we have a p10 buffer
+				first = true;
+			}
 
-		if (counter == 2) {
-			errorRates.insert(
-					{ qbitCount, { std::isnan(probs[0]) ? 0.0 : probs[0],
-							std::isnan(probs[1]) ? 0.0 : probs[1] } });
-			counter = 0;
-			qbitCount++;
-			probs.clear();
+			xacc::info(kernel->getName() + " - Computing measurement probability for bit string = " + localBitStr);
+
+			probs.push_back(subList[i]->computeMeasurementProbability(localBitStr));
+			counter++;
+
+			if (counter == 2) {
+				errorRates.insert(
+						{ qbitCount, { std::isnan(probs[0]) ? 0.0 : probs[0],
+								std::isnan(probs[1]) ? 0.0 : probs[1] } });
+				counter = 0;
+				qbitCount++;
+				probs.clear();
+			}
 		}
-	}
 
 
-	for (auto& kv : errorRates) {
-		std::stringstream s, s2, s3;
-		s << "Qubit " << kv.first << ": p01 = " << kv.second.first << ", p10 = " << kv.second.second;
-		xacc::info(s.str());
-	}
+		for (auto& kv : errorRates) {
+			std::stringstream s, s2, s3;
+			s << "Qubit " << kv.first << ": p01 = " << kv.second.first << ", p10 = " << kv.second.second;
+			xacc::info(s.str());
+		}
 
 
 	// Return new AcceleratorBuffers subtype, StaticExpValAcceleratorBuffer that has static
 
-	std::map<std::string, double> oldExpects;
-	for (int i = 0; i < allTerms.size(); i++) {
-		xacc::info("Raw Expectatations: " + allTerms[i] + " = " + std::to_string(subList[i]->getExpectationValueZ()));
-		oldExpects.insert({allTerms[i], subList[i]->getExpectationValueZ()});
-	}
+		std::map<std::string, double> oldExpects;
+		for (int i = 0; i < allTerms.size(); i++) {
+			xacc::info("Raw Expectatations: " + allTerms[i] + " = " + std::to_string(subList[i]->getExpectationValueZ()));
+			oldExpects.insert({allTerms[i], subList[i]->getExpectationValueZ()});
+		}
 
-	auto fixed = fix_assignments(oldExpects, sites, errorRates);
+		auto fixed = fix_assignments(oldExpects, sites, errorRates);
 
-	// constant fixed expectation value from the calculation
+		// constant fixed expectation value from the calculation
 
-	for (int i = 0; i < allTerms.size(); i++) {
-		auto staticBuffer = std::make_shared<StaticExpectationValueBuffer>(subList[i]->name(), subList[i]->size(), fixed[allTerms[i]]);
-		fixedBuffers.push_back(staticBuffer);
-	}
+		for (int i = 0; i < allTerms.size(); i++) {
+			auto staticBuffer = std::make_shared<StaticExpectationValueBuffer>(subList[i]->name(), subList[i]->size(), fixed[allTerms[i]]);
+			fixedBuffers.push_back(staticBuffer);
+		}
 
 	}
 	return fixedBuffers;
