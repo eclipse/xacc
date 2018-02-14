@@ -61,13 +61,8 @@ const std::string RestClient::get(const std::string& remoteUrl,
 	auto getResponse = getClient.request(getRequest);
 	// get the result as a string
 	std::stringstream z;
-	try {
-		z << getResponse.get().extract_json().get();
-//		xacc::info("GET RESPONSE: " + z.str());
-	} catch (std::exception& e) {
-		xacc::error("XACC RemoteAccelerator caught exception, " + std::string(e.what()));
-	}
-
+	z << getResponse.get().extract_json().get();
+//	xacc::info("GET RESPONSE: " + z.str());
 	return z.str();
 }
 
