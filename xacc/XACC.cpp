@@ -299,6 +299,7 @@ void clearOptions() {
  * be called after using the XACC API.
  */
 void Finalize() {
+	XACCLogger::instance()->dumpQueue();
 	info("");
 	info("[xacc::plugins] Cleaning up Plugin Registry.");
 	xacc::ServiceRegistry::instance()->destroy();

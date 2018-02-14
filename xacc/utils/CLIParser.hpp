@@ -84,6 +84,7 @@ public:
 		variables_map clArgs;
 		store(parse_command_line(argc, argv, *xaccOptions.get()), clArgs);
 		if (clArgs.count("help")) {
+			XACCLogger::instance()->dumpQueue();
 			std::cout << *xaccOptions.get() << "\n";
 			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
@@ -118,6 +119,7 @@ public:
 		}
 
 		if (listTypes) {
+			XACCLogger::instance()->dumpQueue();
 			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
@@ -126,6 +128,7 @@ public:
 
 		auto exitRequested = ServiceRegistry::instance()->handleOptions(clArgs);
 		if (exitRequested) {
+			XACCLogger::instance()->dumpQueue();
 			XACCLogger::instance()->info(
 					"\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler Registry."
 							"\n[xacc::accelerator] Cleaning up Accelerator Registry.");
