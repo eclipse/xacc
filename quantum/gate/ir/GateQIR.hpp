@@ -106,12 +106,16 @@ public:
 	}
 
 	virtual std::shared_ptr<Function> getKernel(const std::string& name) {
+		std::shared_ptr<Function> ret;
 		for (auto f : kernels) {
 			if (f->getName() == name) {
-				return f;
+				ret = f;
 			}
 		}
-		XACCLogger::instance()->error("Invalid kernel name.");
+		if (!ret) {
+			xacc::error("Invalid kernel name.");
+		}
+		return ret;
 	}
 
 	virtual bool kernelExists(const std::string& name) {

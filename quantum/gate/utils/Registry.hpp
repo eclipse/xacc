@@ -14,7 +14,7 @@
 #define XACC_UTILS_REGISTRY_HPP_
 
 #include "Singleton.hpp"
-#include "Utils.hpp"
+#include "XACC.hpp"
 #include "RuntimeOptions.hpp"
 #include <map>
 #include <iostream>
@@ -61,11 +61,11 @@ public:
 
 		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCLogger::instance()->info("Registry adding " + id);
 		bool s = registry.emplace(std::make_pair(id, f)).second;
-		if (!s) {
-			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
-		} else {
-			return s;
+		if (s) {
+			return true;
 		}
+		xacc::error("Could not add " + id + " to the Registry.");
+		return false;
 	}
 
 	/**
@@ -81,14 +81,14 @@ public:
 	bool add(const std::string& id,
 			CreatorFunctionPtr f, std::shared_ptr<options_description> options) {
 		if (registry.find(id) != registry.end()) {
-			XACCLogger::instance()->info(id + " already exists in Registry. Ignoring and retaining previous Registry entry");
 			return true;
 		}
 		if (RuntimeOptions::instance()->exists("verbose-registry")) XACCLogger::instance()->info("Registry adding " + id);
 		bool s = registry.emplace(std::make_pair(id, f)).second;
 		bool s2 = registryOptions.insert(std::make_pair(id, std::move(options))).second;
 		if (!s || ! s2) {
-			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
+			xacc::error("Could not add " + id + " to the Registry.");
+			return false;
 		} else {
 			return true;
 		}
@@ -110,7 +110,8 @@ public:
 				registryOptions.insert(std::make_pair(id, std::move(options))).second;
 		bool s3 = registryOptionHandlers.insert(std::make_pair(id, std::move(optionsHandler))).second;
 		if (!s || !s2) {
-			XACCLogger::instance()->error("Could not add " + id + " to the Registry.");
+			xacc::error("Could not add " + id + " to the Registry.");
+			return false;
 		} else {
 			return true;
 		}
@@ -128,7 +129,8 @@ public:
 		if (search != registry.end()) {
 			return registry[id]->operator()(args...);
 		} else {
-			XACCLogger::instance()->error("Invalid Registry map id string - " + id);
+			xacc::error("Invalid Registry map id string - " + id);
+			return std::make_shared<T>(args...);
 		}
 	}
 
