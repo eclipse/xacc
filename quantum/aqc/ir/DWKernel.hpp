@@ -15,7 +15,7 @@
 
 #include "Function.hpp"
 #include "DWQMI.hpp"
-#include "Utils.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -37,6 +37,7 @@ public:
 	/**
 	 * The constructor, takes the function unique id and its name.
 	 *
+	 *
 	 * @param id
 	 * @param name
 	 */
@@ -48,11 +49,13 @@ public:
 	}
 
 	virtual InstPtr getInstruction(const int idx) {
+		InstPtr i;
 		if (instructions.size() > idx) {
-			return *std::next(instructions.begin(), idx);
+			i = *std::next(instructions.begin(), idx);
 		} else {
-			XACCLogger::instance()->error("Invalid instruction index.");
+			xacc::error("DWKernel getInstruction invalid instruction index - " + std::to_string(idx) + ".");
 		}
+		return i;
 	}
 
 	virtual std::list<InstPtr> getInstructions() {
@@ -149,19 +152,21 @@ public:
 	}
 
 	virtual InstructionParameter getParameter(const int idx) const {
-		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
+		xacc::error("DWKernel does not contain runtime parameters.");
+		return InstructionParameter(0);
 	}
 
 	virtual void setParameter(const int idx, InstructionParameter& p) {
-		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
+		xacc::error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual std::vector<InstructionParameter> getParameters() {
-		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
+		xacc::error("DWKernel does not contain runtime parameters.");
+		return {};
 	}
 
 	virtual void addParameter(InstructionParameter instParam) {
-		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
+		xacc::error("DWKernel does not contain runtime parameters.");
 	}
 
 	virtual bool isParameterized() {
@@ -173,7 +178,7 @@ public:
 	}
 
 	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) {
-		XACCLogger::instance()->error("DWKernel does not contain runtime parameters.");
+		xacc::error("DWKernel does not contain runtime parameters.");
 	}
 
 

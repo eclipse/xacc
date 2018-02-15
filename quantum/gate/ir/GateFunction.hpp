@@ -15,7 +15,7 @@
 
 #include "Registry.hpp"
 #include "Function.hpp"
-#include "Utils.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -90,11 +90,13 @@ public:
 	}
 
 	virtual InstPtr getInstruction(const int idx) {
+		InstPtr i;
 		if (instructions.size() > idx) {
-			return *std::next(instructions.begin(), idx);
+			i = *std::next(instructions.begin(), idx);
 		} else {
-			XACCLogger::instance()->error("Invalid instruction index.");
+			xacc::error("GateFunction getInstruction invalid instruction index - " + std::to_string(idx) + ".");
 		}
+		return i;
 	}
 
 	virtual std::list<InstPtr> getInstructions() {

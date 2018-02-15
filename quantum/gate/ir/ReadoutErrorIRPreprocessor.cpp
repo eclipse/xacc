@@ -28,6 +28,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	int nQubits = 0;//std::stoi(xacc::getOption("n-qubits")); //ir.maxBit() + 1;
 	auto gateRegistry = GateInstructionRegistry::instance();
 
+
 	// Get the true number of qubits
 	std::set<int> qubits;
 	for (auto kernel : ir.getKernels()) {
