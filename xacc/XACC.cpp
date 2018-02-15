@@ -161,15 +161,16 @@ std::shared_ptr<Accelerator> getAccelerator() {
 		error("Invalid use of XACC API. getAccelerator() with no string argument "
 				"requires that you set --accelerator at the command line.");
 	}
+
 	auto acc = ServiceRegistry::instance()->getService<Accelerator>(getOption("accelerator"));
 	if (acc) {
 		acc->initialize();
-		return acc;
 	} else {
 		error(
 				"Invalid Accelerator. Could not find " + getOption("accelerator")
 						+ " in Accelerator Registry.");
 	}
+	return acc;
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
@@ -181,12 +182,12 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 	auto acc = ServiceRegistry::instance()->getService<Accelerator>(name);
 	if (acc) {
 		acc->initialize();
-		return acc;
 	} else {
 		error(
 				"Invalid Accelerator. Could not find " + name
 						+ " in Accelerator Registry.");
 	}
+	return acc;
 }
 
 bool hasAccelerator(const std::string& name) {
@@ -206,13 +207,12 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 				"xacc::Initialize() before using API.");
 	}
 	auto c = ServiceRegistry::instance()->getService<Compiler>(name);
-	if (c) {
-		return c;
-	} else {
+	if (!c) {
 		error(
 				"Invalid Compiler. Could not find " + name
 						+ " in Service Registry.");
 	}
+	return c;
 }
 
 std::shared_ptr<Compiler> getCompiler() {
@@ -227,13 +227,12 @@ std::shared_ptr<Compiler> getCompiler() {
 				"requires that you set --compiler at the command line.");
 	}
 	auto compiler = ServiceRegistry::instance()->getService<Compiler>(getOption("compiler"));
-	if (compiler) {
-		return compiler;
-	} else {
+	if (!compiler) {
 		error(
 				"Invalid Compiler. Could not find " + (*options)["compiler"]
 						+ " in Compiler Registry.");
 	}
+	return compiler;
 }
 
 bool hasCompiler(const std::string& name) {
@@ -248,14 +247,13 @@ std::shared_ptr<IRTransformation> getIRTransformations(
 				"xacc::Initialize() before using API.");
 	}
 	auto t = ServiceRegistry::instance()->getService<IRTransformation>(name);
-	if (t) {
-		return t;
-	} else {
+	if (!t) {
 		error(
 				"Invalid IRTransformation. Could not find " + name
 						+ " in Service Registry.");
 	}
 
+	return t;
 }
 
 const std::string translate(const std::string& original, const std::string& originalLanguageName,
