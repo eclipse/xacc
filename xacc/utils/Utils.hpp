@@ -51,56 +51,48 @@ void tuple_for_each(TupleType&& t, FunctionType f) {
 			std::integral_constant<size_t, 0>());
 }
 
-class XACCException: public std::exception {
-protected:
-
-	std::string errorMessage;
-
-public:
-
-	XACCException(std::string error) :
-			errorMessage(error) {
-//		if (RuntimeOptions::instance()->exists("use-cout")) {
-//			std::cout << errorMessage << "\n";
-//		} else {
-//			auto c = spdlog::get("xacc-logger");
-//			if (c) {
-//				c->error("\033[1;31m" + errorMessage + "\033[0m");
-//			}
+//class XACCException: public std::exception {
+//protected:
+//
+//	std::string errorMessage;
+//
+//public:
+//
+//	XACCException(std::string error) :
+//			errorMessage(error) {
+//	}
+//
+//	virtual const char * what() const throw () {
+//		return errorMessage.c_str();
+//	}
+//
+//	~XACCException() throw () {
+//	}
+//};
+//
+//#define XACC_Abort do {std::abort();} while(0);
+//
+//class XACCInfoT {
+//public:
+//	static void printInfo(const std::string& msg) {
+//		auto c = spdlog::get("xacc-console");
+//		if (c) {
+//			c->info("\033[1;34m" + msg + "\033[0m");
 //		}
-	}
-
-	virtual const char * what() const throw () {
-		return errorMessage.c_str();
-	}
-
-	~XACCException() throw () {
-	}
-};
-
-#define XACC_Abort do {std::abort();} while(0);
-
-class XACCInfoT {
-public:
-	static void printInfo(const std::string& msg) {
-		auto c = spdlog::get("xacc-console");
-		if (c) {
-			c->info("\033[1;34m" + msg + "\033[0m");
-		}
-	}
-};
-
-#define XACCError(errorMsg)												\
-	do {																\
-		using namespace xacc; 											\
-    	throw XACCException("\n\n XACC Error caught! \n\n"	 		    \
-            	+ std::string(errorMsg) + "\n\n");						\
-	} while(0)
-
-#define XACCInfo(infoMsg)												\
-	do {																\
-		xacc::XACCInfoT::printInfo(std::string(infoMsg));						\
-	} while(0)
+//	}
+//};
+//
+//#define XACCError(errorMsg)												\
+//	do {																\
+//		using namespace xacc; 											\
+//    	throw XACCException("\n\n XACC Error thrown! \n\n"	 		    \
+//            	+ std::string(errorMsg) + "\n\n");						\
+//	} while(0)
+//
+//#define XACCInfo(infoMsg)												\
+//	do {																\
+//		xacc::XACCInfoT::printInfo(std::string(infoMsg));						\
+//	} while(0)
 
 using MessagePredicate = std::function<bool(void)>;
 

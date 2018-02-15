@@ -113,7 +113,7 @@ PYBIND11_MODULE(pyxacc, m) {
     f.def("addInstruction", &xacc::Function::addInstruction, "Add an Instruction to this Function.");
     f.def("nInstructions", &xacc::Function::nInstructions, "Return the number of Instructions in this Function.");
     f.def("getInstruction", &xacc::Function::getInstruction, "Return the instruction at the provided index.");
-    f.def("insertInstruction", &xacc::Function::insertInstruction, "");
+    f.def("insertInstruction", &xacc::Function::insertInstruction, "Insert an Instruction at the given index");
     f.def("getParameter", (InstructionParameter (xacc::Function::*)(const int)) &xacc::Function::getParameter, "");
 
     // Expose the IR interface
@@ -167,15 +167,16 @@ PYBIND11_MODULE(pyxacc, m) {
 			//py::overload_cast<const std::string&, const int>(
 					&xacc::Accelerator::createBuffer,
 			"Return a newly created register of qubits.");
-	acc.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "");
+	acc.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "Execute the Function with the given AcceleratorBuffer.");
+
 	// Expose the AcceleratorBuffer
 	py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>> accb(m,
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.");
 	accb.def("printBuffer", (void (xacc::AcceleratorBuffer::*)()) &xacc::AcceleratorBuffer::print, "Print the AcceleratorBuffer to standard out.");
 	accb.def("getExpectationValueZ", &xacc::AcceleratorBuffer::getExpectationValueZ, "Return the expectation value with respect to the Z operator.");
 	accb.def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer, "Reset this buffer for use in another computation.");
-	accb.def("getMeasurementStrings", &xacc::AcceleratorBuffer::getMeasurementStrings, "");
-	accb.def("computeMeasurementProbability", &xacc::AcceleratorBuffer::computeMeasurementProbability, "");
+	accb.def("getMeasurementStrings", &xacc::AcceleratorBuffer::getMeasurementStrings, "Return observed measurement bit strings");
+	accb.def("computeMeasurementProbability", &xacc::AcceleratorBuffer::computeMeasurementProbability, "Compute the probability of a given bit string");
 
 	// Expose the Compiler
 	py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>> compiler(m,
@@ -213,8 +214,8 @@ PYBIND11_MODULE(pyxacc, m) {
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
-	m.def("translate", &xacc::translate, "Translate one language quantum kernel to another");
-	m.def("translateWithVisitor", &xacc::translateWithVisitor, "Translate one language quantum kernel to another");
+//	m.def("translate", &xacc::translate, "Translate one language quantum kernel to another");
+//	m.def("translateWithVisitor", &xacc::translateWithVisitor, "Translate one language quantum kernel to another");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
 	py::module gatesub = m.def_submodule("gate", "Gate model quantum computing data structures.");
@@ -230,10 +231,6 @@ PYBIND11_MODULE(pyxacc, m) {
 	gateinst.def("setParameter", &xacc::quantum::GateInstruction::setParameter, "Set the parameter value at the give index");
 	gateinst.def("toString", &xacc::quantum::GateInstruction::toString, "Return the instruction as a string representation.");
 
-//	py::class_<xacc::quantum::GateInstructionRegistry, std::shared_ptr<xacc::quantum::GateInstructionRegistry>> gatereg(gatesub,
-//				"GateInstructionRegistry", "Registry of available quantum gates.");
-//	gatereg.def_static("instance", &xacc::quantum::GateInstructionRegistry::instance, "Singleton instance method.");
-//	gatereg.def("create", &xacc::quantum::GateInstructionRegistry::create, "Create");
 
 	py::class_<xacc::quantum::GateFunction, xacc::Function, std::shared_ptr<xacc::quantum::GateFunction>> gatefunction(gatesub, 
 			"GateFunction",
@@ -250,7 +247,7 @@ PYBIND11_MODULE(pyxacc, m) {
 	gateqir.def(py::init<>(), "The constructor");
 	gateqir.def("addKernel", &xacc::quantum::GateQIR::addKernel, "Add an Kernel to this GateQIR.");
 
-	gatesub.def("create", &create, "", py::arg("name"), py::arg("qbits"),
+	gatesub.def("create", &create, "Convenience function for creating a new GateInstruction.", py::arg("name"), py::arg("qbits"),
 			py::arg("params") = std::vector<InstructionParameter> { });
 
 	m.def("setCredentials", &setCredentials,

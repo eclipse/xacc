@@ -102,7 +102,7 @@ void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
 	if (useCout) {
 		if (predicate() && globalPredicate()) {
 			if (useColor) {
-				std::cout << "\033[1;33m[XACC Debug] " + msg + "\033[0m \n";
+				std::cout << "\033[1;32m[XACC Debug] " + msg + "\033[0m \n";
 			} else {
 				std::cout << "[XACC Debug] " + msg + "\n";
 			}
@@ -120,13 +120,12 @@ void XACCLogger::debug(const std::string& msg, MessagePredicate predicate) {
 void XACCLogger::error(const std::string& msg, MessagePredicate predicate) {
 	if (useCout) {
 		if (predicate() && globalPredicate())
-			XACCError(msg);
+			std::cerr << msg << "\n";
 	} else {
 		if (predicate() && globalPredicate()) {
-			logger->error(msg);
+			logger->error("\033[1;31m[XACC Error] " + msg + "\033[0m");
 		}
 	}
-	XACCError(msg);
 }
 
 }

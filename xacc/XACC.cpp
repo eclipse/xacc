@@ -28,7 +28,7 @@ char** getArgv() {
 	return argv;
 }
 void Initialize(std::vector<std::string> argv) {
-	XACCInfo("Initializing the XACC Framework");
+	XACCLogger::instance()->info("Initializing the XACC Framework");
 	std::vector<char*> cstrs;
 	argv.insert(argv.begin(),"appExec");
 	for (auto& s : argv) {
@@ -60,6 +60,8 @@ void Initialize(int arc, char** arv) {
 		} catch (std::exception& e) {
 			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
 					std::string(e.what()));
+			Finalize();
+			exit(-1);
 		}
 
 		// Parse any user-supplied command line options
@@ -104,6 +106,9 @@ void debug(const std::string& msg, MessagePredicate predicate) {
 
 void error(const std::string& msg, MessagePredicate predicate) {
 	XACCLogger::instance()->error(msg, predicate);
+	XACCLogger::instance()->error("Framework Exiting", predicate);
+	xacc::Finalize();
+	exit(-1);
 }
 
 void addCommandLineOption(const std::string& optionName,
@@ -303,7 +308,6 @@ void Finalize() {
 	info("");
 	info("[xacc::plugins] Cleaning up Plugin Registry.");
 	xacc::ServiceRegistry::instance()->destroy();
-//	XACCLogger::instance()->destroy();
 	xacc::xaccFrameworkInitialized = false;
 	info("[xacc] Finalizing XACC Framework.");
 }

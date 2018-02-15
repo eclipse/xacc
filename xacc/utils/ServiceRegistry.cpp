@@ -55,7 +55,7 @@ void ServiceRegistry::initialize() {
 			}
 
 		} else {
-			XACCInfo(
+			XACCLogger::instance()->enqueueLog(
 					"There are no plugins. Install plugins to begin working with XACC.");
 		}
 
