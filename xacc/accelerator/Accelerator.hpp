@@ -24,6 +24,7 @@
 #include "OptionsProvider.hpp"
 #include "Graph.hpp"
 #include "Identifiable.hpp"
+#include "Utils.hpp"
 
 namespace xacc {
 
@@ -148,7 +149,7 @@ public:
 			return allocatedBuffers[varid];
 		} else {
 			auto tmpBuffer = createBuffer(varid, 100);
-			XACCInfo("Could not find AcceleratorBuffer with id " + varid + ", creating one with 100 bits.");
+			XACCLogger::instance()->info("Could not find AcceleratorBuffer with id " + varid + ", creating one with 100 bits.");
 			storeBuffer(varid, tmpBuffer);
 			return tmpBuffer;
 		}
