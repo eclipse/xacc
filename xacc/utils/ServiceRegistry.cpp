@@ -1,7 +1,8 @@
 #include "ServiceRegistry.hpp"
+#include <boost/filesystem.hpp>
 
-#include <dirent.h>
 namespace xacc {
+
 void ServiceRegistry::initialize() {
 
 	if (!initialized) {

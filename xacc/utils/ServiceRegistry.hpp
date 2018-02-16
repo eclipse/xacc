@@ -32,7 +32,6 @@
 #include <map>
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 #include <dirent.h>
 
 using namespace boost::program_options;
