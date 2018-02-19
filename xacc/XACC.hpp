@@ -117,6 +117,14 @@ void setGlobalLoggerPredicate(MessagePredicate predicate);
 void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 
 /**
+ * Print a warning log to the XACC Logger.
+ *
+ * @param msg The log to print
+ * @param predicate Function with no arguments that returns bool
+ */
+void warning(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+
+/**
  * Print an debug log to the XACC Logger.
  *
  * @param msg The log to print
