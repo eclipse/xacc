@@ -12,6 +12,8 @@
  *******************************************************************************/
 #include "XACC.hpp"
 #include "InstructionIterator.hpp"
+#include <signal.h>
+#include <cstdlib>
 
 namespace xacc {
 
@@ -45,6 +47,12 @@ bool isInitialized() {
 	return xaccFrameworkInitialized;
 }
 
+void ctrl_c_handler(int signal) {
+	error("Caught CTRL-C, exiting the framework.");
+	Finalize();
+	exit(1);
+}
+
 void Initialize(int arc, char** arv) {
 
 	if (!xaccFrameworkInitialized) {
@@ -61,7 +69,7 @@ void Initialize(int arc, char** arv) {
 			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
 					std::string(e.what()));
 			Finalize();
-			exit(-1);
+			exit(1);
 		}
 
 		// Parse any user-supplied command line options
@@ -80,6 +88,11 @@ void Initialize(int arc, char** arv) {
 				"[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator"
 						+ ((s == 0 || s == 1) ? "" : "s") + " available.");
 
+		struct sigaction sigIntHandler;
+		sigIntHandler.sa_handler = ctrl_c_handler;
+		sigemptyset(&sigIntHandler.sa_mask);
+		sigIntHandler.sa_flags = 0;
+		sigaction(SIGINT, &sigIntHandler, NULL);
 	}
 
 	// We're good if we make it here, so indicate that we've been

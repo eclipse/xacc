@@ -221,6 +221,18 @@ std::shared_ptr<Compiler> getCompiler();
  */
 bool hasCompiler(const std::string& name);
 
+template<typename Service>
+std::shared_ptr<Service> getService(const std::string& serviceName) {
+	auto service = ServiceRegistry::instance()->getService<Service>(
+			serviceName);
+	if (!service) {
+		error(
+				"Invalid XACC Service. Could not find " + serviceName
+						+ " in Service Registry.");
+	}
+	return service;
+}
+
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string& name);
 
 const std::string translate(const std::string& original, const std::string& originalLanguageName,
