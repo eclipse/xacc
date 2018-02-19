@@ -134,6 +134,7 @@ public:
 	}
 	void setGlobalLoggerPredicate(MessagePredicate pred) {globalPredicate = pred;}
 	void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+	void warning(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 	void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 	void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
 };

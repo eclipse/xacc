@@ -113,6 +113,10 @@ void info(const std::string& msg, MessagePredicate predicate) {
 	XACCLogger::instance()->info(msg, predicate);
 }
 
+void warning(const std::string& msg, MessagePredicate predicate) {
+	XACCLogger::instance()->warning(msg, predicate);
+}
+
 void debug(const std::string& msg, MessagePredicate predicate) {
 	XACCLogger::instance()->debug(msg, predicate);
 }
