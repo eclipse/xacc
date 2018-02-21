@@ -107,6 +107,7 @@ PYBIND11_MODULE(pyxacc, m) {
     py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>> inst(m, "Instruction", "Instruction wraps the XACC C++ Instruction class -"
     		" the base for all XACC intermediate representation instructions. Instructions, for example, can be common gates like Hadamard or CNOT.");
     inst.def("getName", &xacc::Instruction::getName, "Return the name of this Instruction.");
+    inst.def("nParameters", &xacc::Instruction::nParameters, "Return the number of parameters this Instruction has.");
 
     // Expose the Function interface
     py::class_<xacc::Function, xacc::Instruction, std::shared_ptr<xacc::Function>> f(m, "Function", "Functions are composed of Instructions.");

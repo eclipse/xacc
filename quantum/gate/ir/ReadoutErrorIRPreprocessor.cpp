@@ -101,7 +101,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 				if (!boost::contains(pauliStr, "X" + std::to_string(bit))
 						&& !boost::contains(pauliStr,
 								"Y" + std::to_string(bit))) {
-					pauliStr = "Z" + std::to_string(bit) + pauliStr;
+					pauliStr = pauliStr + "Z" + std::to_string(bit);
 					pauliTerm[bit] = "Z";
 				}
 				continue;
