@@ -12,6 +12,7 @@
  *******************************************************************************/
 
 #include "Program.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 
@@ -47,7 +48,7 @@ void Program::build() {
 
 	// Make sure we got a valid
 	if (!compiler) {
-		XACCLogger::instance()->error("Invalid Compiler.\n");
+		xacc::error("Invalid Compiler requested in Program.build().\n");
 	}
 
 	// Before compiling, run preprocessors
