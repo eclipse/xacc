@@ -136,6 +136,10 @@ public:
 	std::shared_ptr<Function> getIRFunction() {
 		return function;
 	}
+
+	const std::string getName() {
+		return function->getName();
+	}
 };
 
 /**

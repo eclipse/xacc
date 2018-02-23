@@ -212,7 +212,7 @@ public:
 	 */
 	template<typename ... RuntimeArgs>
 	auto getKernels(const int beginIdx, const int endIdx) -> KernelList<RuntimeArgs...> {
-		KernelList<RuntimeArgs...> kernels(accelerator);
+		KernelList<RuntimeArgs...> kernels(accelerator, bufferPostprocessors);
 		if (!xaccIR) {
 			build();
 		}
