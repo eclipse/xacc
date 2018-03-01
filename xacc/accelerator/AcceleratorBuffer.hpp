@@ -143,6 +143,11 @@ public:
 		return aver;
 	}
 
+	virtual void setExpectationValueZ(const double exp) {
+		XACCLogger::instance()->error("AcceleratorBuffer.setExpectationValueZ not "
+				"implemented. This method is intended for subclasses.");
+	}
+
 	/**
 	 * Return a read-only view of this Buffer's measurement results
 	 *
