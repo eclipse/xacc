@@ -27,7 +27,7 @@ algorithms. We currently have one supported embedding algorithm (with more comin
 
 .. code::
 
-   $ xacc-install-plugins.py -p xacc-dwave-sapi-embedding
+   $ xacc-install-plugins.py -p xacc-dwsapi-embedding
 
 You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/lib/plugins/embedding``, where ``XACC_ROOT`` is your XACC install prefix.
 
