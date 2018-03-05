@@ -12,7 +12,7 @@ To install this plugin, run the following
 
    $ xacc-install-plugins.py -p xacc-dwave
 
-You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator`` and ``$XACC_ROOT/lib/plugins/compilers``, where XACC_ROOT is your XACC install prefix.
+You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator`` and ``$XACC_ROOT/lib/plugins/compilers``, where XACC_ROOT is your XACC install prefix. Depending on your installation location, administrative priviledges may be required, e.g., sudo.
 
 Extensibility for Minor Graph Embedding Algorithms
 ---------------------------------------------------
