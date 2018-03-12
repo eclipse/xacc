@@ -243,6 +243,8 @@ public:
 
 		return kernels;
 	}
+
+	virtual ~Program() {}
 };
 
 }

@@ -24,7 +24,7 @@ namespace quantum {
  * The DWKernel is an XACC Function that contains
  * DWQMI Instructions.
  */
-class DWKernel: public virtual Function {
+class DWKernel: public virtual Function, public std::enable_shared_from_this<DWKernel> {
 
 protected:
 
@@ -180,7 +180,6 @@ public:
 	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) {
 		xacc::error("DWKernel does not contain runtime parameters.");
 	}
-
 
 	EMPTY_DEFINE_VISITABLE()
 

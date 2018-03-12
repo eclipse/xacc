@@ -195,7 +195,6 @@ public:
 		return parameters.size();
 	}
 
-
 	virtual void evaluateVariableParameters(
 			std::vector<InstructionParameter> runtimeParameters) {
 
