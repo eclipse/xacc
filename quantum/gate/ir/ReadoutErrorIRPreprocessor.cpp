@@ -70,54 +70,41 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	// Search IR Functions and construct Pauli Term strings, then add any Pauli that is not there
 	std::vector<std::string> orderedPauliTerms;
 	std::vector<std::map<int, std::string>> pauliTerms;
-	for (auto kernel : ir.getKernels()) {
-		std::string pauliStr = "";
-		CountGatesOfTypeVisitor<Measure> v(kernel);
-		bool allZTerm = false;
-		if (kernel->nInstructions() == v.countGates()) {
-			allZTerm = true;
-		}
 
-		std::map<int, std::string> pauliTerm;
-		for (auto inst : kernel->getInstructions()) {
-			auto bit = reversedQubitMap[inst->bits()[0]];
 
-			if (allZTerm) {
-				pauliTerm[bit] = "Z";
-				pauliStr = "Z" + std::to_string(bit) + pauliStr;
-				continue;
-			}
+	for (auto term : ir.getKernels()) {
 
-			bool seen = false;
-			if (inst->getName() == "H") {
-				pauliStr = "X" + std::to_string(bit) + pauliStr;
-				pauliTerm[bit] = "X";
-				seen = true;
-			} else if (inst->getName() == "Rx") {
-				pauliStr = "Y" + std::to_string(bit) + pauliStr;
-				pauliTerm[bit] = "Y";
-				seen = true;
-			} else if (inst->getName() == "Measure") {
-				if (!boost::contains(pauliStr, "X" + std::to_string(bit))
-						&& !boost::contains(pauliStr,
-								"Y" + std::to_string(bit))) {
-					pauliStr = pauliStr + "Z" + std::to_string(bit);
-					pauliTerm[bit] = "Z";
+		if (term->nInstructions() > 0) {
+			std::map<int, std::string> termMap;
+			std::set<int> qubits;
+			for (auto pauli : term->getInstructions()) {
+				if (!pauli->isComposite()) {
+
+					auto bit = reversedQubitMap[pauli->bits()[0]];
+					qubits.insert(bit);
+
+					if (pauli->getName() == "H") {
+						termMap.insert( { bit, "X" });
+					} else if (pauli->getName() == "Rx") {
+						termMap.insert( { bit, "Y" });
+					}
+
+					if (!termMap.count(bit)) {
+						termMap.insert( { bit, "Z" });
+					}
 				}
-				continue;
-			} else {
-				xacc::error("ReadoutErrorIRPreprocessor only can be "
-						"applied to kernels generated from a Pauli "
-						"Hamiltonian, cannot have " + inst->getName() + " gate");
 			}
 
+			std::string pauliStr = "";
+			for (auto bit : qubits) {
+				pauliStr += termMap[bit] + std::to_string(bit);
+			}
+//			std::cout << "Pauli: " << pauliStr << "\n";
+
+			orderedPauliTerms.push_back(pauliStr);
+			pauliTerms.push_back(termMap);
 		}
 
-		if (!pauliStr.empty()) {
-//			std::cout << "PTERM: " << pauliStr << "\n";
-			orderedPauliTerms.push_back(pauliStr);
-			pauliTerms.push_back(pauliTerm);
-		}
 	}
 
 	// Use the above info to create the sites map
@@ -132,15 +119,6 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		sites.insert({s.str(), tmp});
 	}
 
-
-//	std::cout << "SITES:\n";
-//	for (auto & kv : sites) {
-//		std::cout << kv.first << " -> (";
-//		for (auto i : kv.second) {
-//			std::cout << i << " ";
-//		}
-//		std::cout << ")\n";
-//	}
 
 	// Discover any extra kernels we need to compute
 	std::vector<std::string> extraKernelsNeeded;

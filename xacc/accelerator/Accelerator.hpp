@@ -187,6 +187,16 @@ public:
 	}
 
 	/**
+	 * Return the last execute call's execution time in seconds.
+	 *
+	 * @return runtime The execution time in seconds.
+	 */
+	virtual const double getExecutionTime() {
+		XACCLogger::instance()->info("getExecutionTime() not implemented by this Accelerator, returning 0.0.");
+		return 0.0;
+	}
+
+	/**
 	 * Given user-input command line options, perform
 	 * some operation. Returns true if runtime should exit,
 	 * false otherwise.
