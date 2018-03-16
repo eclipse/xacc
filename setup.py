@@ -41,7 +41,6 @@ class InstallCommand(InstallCommandBase):
         InstallCommandBase.finalize_options(self)
 
     def run(self):
-        global install_directory
         InstallCommandBase.run(self)
         self.do_egg_install()
         subdirs = [name for name in os.listdir(self.install_lib)
@@ -89,9 +88,6 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
 
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
-            env.get('CXXFLAGS', ''),
-            self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
