@@ -27,7 +27,7 @@ Every commit you make in your patch or pull request MUST be "signed off".
 
 You do this by adding the `-s` flag when you make the commit(s), e.g.
 
-    git commit -s -m "Shave the yak some more"
+    git commit -s -m "your commit message..."
 
 ## Making your changes
 
