@@ -19,4 +19,4 @@ questions by creating a new issue with the question tag.
 License
 -------
 
-XACC has a [BSD 3-clause open-source license](LICENSE).
+XACC is dual licensed - [Eclipse Public License](LICENSE.EPL) and [Eclipse Distribution License](LICENSE.EDL).
