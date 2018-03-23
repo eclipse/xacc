@@ -22,9 +22,31 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 include(ExternalProject)
 
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set (CMAKE_INSTALL_PREFIX "/usr/local/xacc" CACHE PATH "default install path" FORCE )
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColorReset "${Esc}[m")
+  set(ColorBold  "${Esc}[1m")
+  set(Red         "${Esc}[31m")
+  set(Green       "${Esc}[32m")
+  set(Yellow      "${Esc}[33m")
+  set(Blue        "${Esc}[34m")
+  set(Magenta     "${Esc}[35m")
+  set(Cyan        "${Esc}[36m")
+  set(White       "${Esc}[37m")
+  set(BoldRed     "${Esc}[1;31m")
+  set(BoldGreen   "${Esc}[1;32m")
+  set(BoldYellow  "${Esc}[1;33m")
+  set(BoldBlue    "${Esc}[1;34m")
+  set(BoldMagenta "${Esc}[1;35m")
+  set(BoldCyan    "${Esc}[1;36m")
+  set(BoldWhite   "${Esc}[1;37m")
 endif()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set (CMAKE_INSTALL_PREFIX "$ENV{HOME}/.xacc" CACHE PATH "default install path" FORCE )
+endif()
+
+message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
 
 # Setup Doxygen
 find_package(Doxygen)
@@ -50,9 +72,17 @@ ExternalProject_Add(cppmicroservices
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
 )
 
+# Make it so you don't always have to 
+# specify openssl dir on mac
+if(APPLE AND NOT OPENSSL_ROOT_DIR)
+	if (EXISTS /usr/local/opt/openssl) 
+		message(STATUS "${BoldGreen}Searching for OpenSSL from /usr/local/opt/openssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
+		set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+	endif()
+endif()
 find_package(OpenSSL 1.0.2 REQUIRED)
 
-message(STATUS "Found OpenSSL version ${OPENSSL_VERSION}")
+message(STATUS "${BoldGreen}Found OpenSSL version ${OPENSSL_VERSION}${ColorReset}")
 
 ExternalProject_Add(cpprestsdk
     DEPENDS cppmicroservices
