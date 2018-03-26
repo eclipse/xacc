@@ -17,8 +17,14 @@ import os
 import subprocess
 import multiprocessing
 
+try:
+   import pyxacc as xacc
+except ImportError:
+   print('Error - cannot import XACC Python Bindings. Exiting')
+   sys.exit()
+
 def parse_args(args):
-   parser = argparse.ArgumentParser(description="XACC Plugin Installer.",
+   parser = argparse.ArgumentParser(description="XACC Framework Utility.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      fromfile_prefix_chars='@')
    parser.add_argument("-p", "--plugins", nargs='*', type=str, help="The XACC Plugins to install.", required=True)
@@ -60,10 +66,13 @@ def mkdir_p(path):
 def main(argv=None):
    opts = parse_args(sys.argv[1:])
 
-   # This python script should be in ${XACC_ROOT}/bin, 
-   # we need to get XACC_ROOT
-   xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+   # pyxacc can be installed in site-packages/xacc-...-egg or 
+   # in ${XACC_DIR}/lib/python, we need to figure out which one
+   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
+   if os.path.basename(xaccLocation) == 'python':
+      xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
    
+   print('XACC Install Location = ', xaccLocation)
    xacc_cwd = os.getcwd()
    
    cpus = str(multiprocessing.cpu_count())
