@@ -7,6 +7,7 @@ import sysconfig
 import platform
 import subprocess
 import multiprocessing
+import site
 
 from distutils.version import LooseVersion
 from setuptools import setup, Extension, find_packages
@@ -24,29 +25,6 @@ class CMakeExtension(Extension):
         self.sourcedir = os.path.abspath(sourcedir)
 
 openssl_root_dir = None
-
-class InstallCommand(InstallCommandBase):
-    user_options = InstallCommandBase.user_options + [
-		    ('openssl-dir=', None, 'Specify OPENSSL_ROOT_DIR')
-		    ]
-
-    def initialize_options(self):
-        InstallCommandBase.initialize_options(self)
-        self.openssl_dir = '/usr/local/opt/openssl' if platform.system() == 'Darwin' else '/usr/lib64'
-
-    def finalize_options(self):
-        global openssl_root_dir
-        print('openssl ', self.openssl_dir)
-        openssl_root_dir = self.openssl_dir
-        InstallCommandBase.finalize_options(self)
-
-    def run(self):
-        InstallCommandBase.run(self)
-        self.do_egg_install()
-        subdirs = [name for name in os.listdir(self.install_lib)
-			            if os.path.isdir(os.path.join(self.install_lib, name)) 
-				    and 'xacc-0.1.0' in name and 'egg-info' not in name]
-        copyfile(env['HOME']+'/.xacc/lib/python/pyxacc.so', self.install_lib+subdirs[0]+'/pyxacc.so')
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -70,9 +48,17 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
 
-        cmake_args = ['-DPYTHON_EXECUTABLE=' + sys.executable, 
-			'-DOPENSSL_ROOT_DIR='+openssl_root_dir,
-			'-DCMAKE_INSTALL_PREFIX='+env['HOME']+'/.xacc']
+        script_path = os.path.dirname(os.path.realpath(__file__))
+        install_prefix = script_path + '/' + self.build_lib 
+        print(dir(self))
+        print(self.build_lib)
+  
+        cmake_args = ['-DPYTHON_EXECUTABLE=' + sys.executable,
+                      '-DCMAKE_INSTALL_PREFIX='+install_prefix,
+		      '-DFROM_SETUP_PY=TRUE']
+        
+        if not openssl_root_dir == None:
+            cmake_args.append('-DOPENSSL_ROOT_DIR='+openssl_root_dir)
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -92,19 +78,46 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
                               cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args,
+        subprocess.check_call(['cmake', '--build', '.', '--target', 'install'] + build_args,
                               cwd=self.build_temp)
         print() # Add an empty line for cleaner output
+
+class InstallCommand(InstallCommandBase):
+    user_options = InstallCommandBase.user_options + [
+		    ('openssl-dir=', None, 'Specify OPENSSL_ROOT_DIR')
+		    ]
+
+    def initialize_options(self):
+        InstallCommandBase.initialize_options(self)
+        self.openssl_dir = '/usr/local/opt/openssl' if platform.system() == 'Darwin' else '/usr/lib64'
+
+    def finalize_options(self):
+        global openssl_root_dir
+        openssl_root_dir = self.openssl_dir
+        InstallCommandBase.finalize_options(self)
+
+    def run(self):
+        InstallCommandBase.run(self)
 
 s = setup(
     name='xacc',
     version='0.1.0',
     author='Alex McCaskey',
     author_email='xacc-dev@eclipse.org',
+    packages=find_packages('python'),
+    package_dir={'':'python'},
+    package_data={'':[env['HOME']+'/.xacc/lib/python/pyxacc.so']},
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
-    scripts=['tools/plugins/xacc-install-plugins.py'],
-    ext_modules=[CMakeExtension('.')],
-    cmdclass={'build_ext':CMakeBuild, 'install':InstallCommand},
+    ext_modules=[CMakeExtension('pyxacc')],
+    cmdclass={'build_ext':CMakeBuild},# 'install':InstallCommand},
+    scripts=['tools/framework/xacc-framework'],
     zip_safe=False
 )
+
+#try:
+#   import pyxacc as xacc
+#   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
+#
+#except:
+#   pass
