@@ -41,8 +41,8 @@ void ServiceRegistry::initialize() {
 		   if (foundPythonInstall) {
 		        return locals["xaccLocation"].cast<std::string>() + std::string("/lib");
   		   } else {
-			XACCLogger::instance()->error("ServiceRegistry Error, invalid pyxacc install");
-			return "";
+			XACCLogger::instance()->warning("ServiceRegistry Warning, could not find pyxacc install");
+			return std::string(XACC_INSTALL_DIR) + std::string("/lib");;
 		   }
 		};
 
