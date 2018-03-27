@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD 11)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 # Make sure all build libraries have reference to their dependents
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;@loader_path@/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_MACOSX_RPATH ON)
+endif()
 
 #find_package(PythonLibs)
 #if(PythonLibs_FOUND)
@@ -49,6 +52,8 @@ if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
 target_link_libraries(pyxacc PRIVATE xacc xacc-quantum-gate xacc-quantum-aqc ${CppUsLib} ${Boost_LIBRARIES} cpprest ${OPENSSL_LIBRARIES})
+
+set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
 
 if (FROM_SETUP_PY)
 install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
