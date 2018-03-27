@@ -53,7 +53,11 @@ if (NOT cppus_has_d_suffix)
 endif()
 target_link_libraries(pyxacc PRIVATE xacc xacc-quantum-gate xacc-quantum-aqc ${CppUsLib} ${Boost_LIBRARIES} cpprest ${OPENSSL_LIBRARIES})
 
-set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
+if(APPLE)
+   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
+else()
+   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+endif()
 
 if (FROM_SETUP_PY)
 install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
