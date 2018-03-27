@@ -37,6 +37,10 @@ include_directories("${CMAKE_SOURCE_DIR}/accelerator")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
 include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${PYBIND11_DIR}/include)
+
+#find_package(PythonLibs REQUIRED)
+include_directories(${XACC_PYTHON_INCLUDE_DIR})
 
 # Create a xacc config header file
 configure_file("${XACC_ROOT}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
@@ -64,7 +68,7 @@ if (APPLE)
 	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest ${XACC_PYTHON_LIBRARIES})
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)

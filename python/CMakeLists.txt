@@ -9,8 +9,8 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_package(PythonLibs)
-if(PythonLibs_FOUND)
+#find_package(PythonLibs)
+#if(PythonLibs_FOUND)
 
 set(CppMicroServices_DIR "${CPPUS_LIBRARY_DIR}/../share/cppmicroservices3/cmake")
 
@@ -34,7 +34,7 @@ include_directories(${XACC_ROOT}/tpls/rapidjson/include)
 include_directories(${XACC_ROOT}/tpls/eigen)
 include_directories(${XACC_ROOT}/tpls/pybind11/include)
 include_directories(${XACC_ROOT}/tpls/spdlog)
-include_directories(${PYTHON_INCLUDE_DIR})
+include_directories(${XACC_PYTHON_INCLUDE_DIR})
 link_directories(${XACC_LIBRARY_DIR})
 
 add_subdirectory(pybind11)
@@ -56,4 +56,4 @@ else()
 install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python)
 endif()
 
-endif()
+#endif()
