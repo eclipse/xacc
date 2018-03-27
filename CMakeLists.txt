@@ -19,6 +19,9 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 # Make sure all build libraries have reference to their dependents
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_MACOSX_RPATH ON)
+endif()
 
 include(ExternalProject)
 
