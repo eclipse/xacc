@@ -23,9 +23,22 @@ namespace quantum {
  */
 class CZ: public virtual GateInstruction {
 public:
+	CZ() : GateInstruction("CZ") {}
+
 	CZ(std::vector<int> qbits);
 
 	CZ(int srcqbit, int tgtqbit);
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<CZ>();
+	}
+
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 };

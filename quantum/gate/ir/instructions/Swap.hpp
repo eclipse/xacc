@@ -19,8 +19,20 @@ namespace xacc {
 namespace quantum {
 class Swap: public virtual GateInstruction {
 public:
+	Swap() :GateInstruction("Swap"){}
+
 	Swap(std::vector<int> qbits);
 	Swap(int controlQubit, int targetQubit);
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<Swap>();
+	}
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 

@@ -22,8 +22,6 @@ Z::Z(std::vector<int> qbit) :
 Z::Z(int qbit) :
 		Z(std::vector<int> { qbit }) {
 }
-RegisterGateInstruction<Z> ZTEMP("Z");
-
 }
 }
 

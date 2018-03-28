@@ -22,8 +22,6 @@ Y::Y(std::vector<int> qbit) :
 Y::Y(int qbit) :
 		Y(std::vector<int> { qbit }) {
 }
-RegisterGateInstruction<Y> YTEMP("Y");
 
 }
 }
-

@@ -62,7 +62,7 @@ void Program::build() {
 		src = preprocessor->process(src, compiler, accelerator);
 	}
 
-	XACCLogger::instance()->info("Executing " + compiler->getName() + " compiler.");
+	XACCLogger::instance()->info("Executing " + compiler->name() + " compiler.");
 
 	// Execute the compilation
 	xaccIR = compiler->compile(src, accelerator);

@@ -25,21 +25,14 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(cnot.bits().size() == 2);
 	BOOST_VERIFY(cnot.bits()[0] == 0);
 	BOOST_VERIFY(cnot.bits()[1] == 1);
-	BOOST_VERIFY(cnot.getName() == "CNOT");
+	BOOST_VERIFY(cnot.name() == "CNOT");
 
 	CNOT cnot2(44, 46);
 	BOOST_VERIFY(cnot2.toString("qreg") == "CNOT qreg44,qreg46");
 	BOOST_VERIFY(cnot2.bits().size() == 2);
 	BOOST_VERIFY(cnot2.bits()[0] == 44);
 	BOOST_VERIFY(cnot2.bits()[1] == 46);
-	BOOST_VERIFY(cnot2.getName() == "CNOT");
+	BOOST_VERIFY(cnot2.name() == "CNOT");
 
 }
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-	auto cnot = GateInstructionRegistry::instance()->create("CNOT",
-			std::vector<int> { 0, 1 });
-	BOOST_VERIFY(cnot->getName() == "CNOT");
-	BOOST_VERIFY(cnot->bits().size() == 2);
-	BOOST_VERIFY(cnot->bits()[0] == 0);
-	BOOST_VERIFY(cnot->bits()[1] == 1);
-}
+

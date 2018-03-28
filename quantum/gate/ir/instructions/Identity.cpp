@@ -23,8 +23,6 @@ Identity::Identity(int qbit) :
 		Identity(std::vector<int> { qbit }) {
 }
 
-RegisterGateInstruction<Identity> ITEMP("I");
-
 }
 }
 

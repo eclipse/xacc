@@ -26,7 +26,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 	// Get number of qubits, add 2*nqubit measurement kernels, add readout-error tag to each
 	int nQubits = 0;//std::stoi(xacc::getOption("n-qubits")); //ir.maxBit() + 1;
-	auto gateRegistry = GateInstructionRegistry::instance();
+	auto gateRegistry = xacc::getService<InstructionService>("gate");
 
 
 	// Get the true number of qubits
@@ -83,9 +83,9 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 					auto bit = reversedQubitMap[pauli->bits()[0]];
 					qubits.insert(bit);
 
-					if (pauli->getName() == "H") {
+					if (pauli->name() == "H") {
 						termMap.insert( { bit, "X" });
-					} else if (pauli->getName() == "Rx") {
+					} else if (pauli->name() == "Rx") {
 						termMap.insert( { bit, "Y" });
 					}
 

@@ -138,7 +138,7 @@ public:
 	}
 
 	const std::string getName() {
-		return function->getName();
+		return function->name();
 	}
 };
 

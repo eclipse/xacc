@@ -23,6 +23,8 @@ namespace quantum {
  */
 class Measure : public GateInstruction {
 public:
+	Measure() :GateInstruction("Measure", std::vector<InstructionParameter> {
+		InstructionParameter(0) }) {}
 
 	Measure(std::vector<int> qbit);
 
@@ -32,6 +34,16 @@ public:
 
 	int getClassicalBitIndex() {
 		return boost::get<int>(parameters[0]);
+	}
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<Measure>();
+	}
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
 	}
 
 	DEFINE_VISITABLE()

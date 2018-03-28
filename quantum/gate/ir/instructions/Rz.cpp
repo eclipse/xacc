@@ -26,7 +26,5 @@ Rz::Rz(std::vector<int> qbits) :
 
 }
 
-RegisterGateInstruction<Rz> RZTEMP("Rz");
-//RegisterParameterizedGateInstruction<Rz, double> RZTEMP("Rz");
 }
 }

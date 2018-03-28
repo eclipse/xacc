@@ -35,6 +35,10 @@ public:
 
 	virtual const std::string toString(const std::string& bufferVarName);
 
+//	virtual std::shared_ptr<GateFunction> clone() {
+//		return std::make_shared<ConditionalFunction>();
+//	}
+
 	DEFINE_VISITABLE()
 
 };

@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(cp.bits().size() == 2);
 	BOOST_VERIFY(cp.bits()[0] == 0);
 	BOOST_VERIFY(cp.bits()[1] == 1);
-	BOOST_VERIFY(cp.getName() == "CPhase");
+	BOOST_VERIFY(cp.name() == "CPhase");
 
 	CPhase cp2(44, 45, 1.71234);
 
@@ -35,15 +35,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(cp2.bits().size() == 2);
 	BOOST_VERIFY(cp2.bits()[0] == 44);
 	BOOST_VERIFY(cp2.bits()[1] == 45);
-	BOOST_VERIFY(cp2.getName() == "CPhase");
+	BOOST_VERIFY(cp2.name() == "CPhase");
 
 }
 
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	xacc::InstructionParameter p = 3.1415;
-	auto cp = GateInstructionRegistry::instance()->create("CPhase", std::vector<int>{0, 1});
-	cp->setParameter(0, p);
-	BOOST_VERIFY(cp->getName() == "CPhase");
-	BOOST_VERIFY(boost::get<double>(cp->getParameter(0)) == 3.1415);
-}

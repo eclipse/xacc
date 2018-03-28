@@ -20,6 +20,7 @@
 #include "XACC.hpp"
 #include "GateFunction.hpp"
 #include "GateInstruction.hpp"
+#include "GateInstructionService.hpp"
 
 using namespace xacc;
 
@@ -32,6 +33,8 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 	auto newIr = std::make_shared<xacc::quantum::GateQIR>();
 	int counter = 0;
 	auto pi = boost::math::constants::pi<double>();
+
+	GateInstructionService gateRegistry;
 
 	// Populate GateQIR now...
 	for (auto& inst : terms) {
@@ -46,7 +49,7 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 
 		// Loop over all terms in the Spin Instruction
 		// and create instructions to run on the Gate QPU.
-		std::vector<std::shared_ptr<xacc::quantum::GateInstruction>> measurements;
+		std::vector<std::shared_ptr<xacc::Instruction>> measurements;
 
 		std::vector<std::pair<int, std::string>> terms;
 		for (auto& kv : spinInst) {
@@ -58,20 +61,18 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 		for (int i = terms.size() - 1; i >= 0; i--) {
 			auto qbit = terms[i].first;
 			auto gateName = terms[i].second;
-			auto gateRegistry =
-					xacc::quantum::GateInstructionRegistry::instance();
-			auto meas = gateRegistry->create("Measure",
+			auto meas = gateRegistry.create("Measure",
 					std::vector<int> { qbit });
 			xacc::InstructionParameter classicalIdx(qbit);
 			meas->setParameter(0, classicalIdx);
 			measurements.push_back(meas);
 
 			if (gateName == "X") {
-				auto hadamard = gateRegistry->create("H", std::vector<int> {
+				auto hadamard = gateRegistry.create("H", std::vector<int> {
 						qbit });
 				gateFunction->addInstruction(hadamard);
 			} else if (gateName == "Y") {
-				auto rx = gateRegistry->create("Rx", std::vector<int> { qbit });
+				auto rx = gateRegistry.create("Rx", std::vector<int> { qbit });
 				InstructionParameter p(pi / 2.0);
 				rx->setParameter(0, p);
 				gateFunction->addInstruction(rx);
@@ -115,10 +116,11 @@ public:
 
 BOOST_AUTO_TEST_CASE(checkSimple) {
 
+	xacc::Initialize();
 	// Simple example H = X0
 	std::vector<std::string> orderedTerms{"Z0"};
 
-	auto gateRegistry = GateInstructionRegistry::instance();
+	auto gateRegistry = xacc::getService<InstructionService>("gate");
 
 	// Construct IR for this
 	auto ir = createXACCIR( { { "Z0", Term { { 0, "Z" } } } });
@@ -158,6 +160,7 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 
 	std::cout << "HELLO: " << fixed[0]->getExpectationValueZ() << "\n";
 
+	xacc::Finalize();
 //	BOOST_VERIFY(std::fabs(fixed[0]->getExpectationValueZ() - .911111) < 1e-6);
 
 }

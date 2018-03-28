@@ -30,7 +30,6 @@ const std::string Measure::toString(const std::string& bufferVarName) {
 	return gateName + " " + bufferVarName + std::to_string(bits()[0]);
 }
 
-RegisterGateInstruction<Measure> MEASURETEMP("Measure");
 
 }
 }

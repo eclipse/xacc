@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(rx.toString("qreg") == "Rx(3.14) qreg0");
 	BOOST_VERIFY(rx.bits().size() == 1);
 	BOOST_VERIFY(rx.bits()[0] == 0);
-	BOOST_VERIFY(rx.getName() == "Rx");
+	BOOST_VERIFY(rx.name() == "Rx");
 
 	Rx rx2(44, 1.71234);
 
@@ -33,16 +33,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(rx2.toString("qreg") == "Rx(1.71234) qreg44");
 	BOOST_VERIFY(rx2.bits().size() == 1);
 	BOOST_VERIFY(rx2.bits()[0] == 44);
-	BOOST_VERIFY(rx2.getName() == "Rx");
+	BOOST_VERIFY(rx2.name() == "Rx");
 
 
-}
-
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	xacc::InstructionParameter p = 3.1415;
-	auto rx = GateInstructionRegistry::instance()->create("Rx", std::vector<int>{0});
-	rx->setParameter(0, p);
-	BOOST_VERIFY(rx->getName() == "Rx");
-	BOOST_VERIFY(boost::get<double>(rx->getParameter(0)) == 3.1415);
 }

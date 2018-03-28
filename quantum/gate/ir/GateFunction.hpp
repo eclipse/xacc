@@ -13,7 +13,6 @@
 #ifndef QUANTUM_GATEQIR_QFUNCTION_HPP_
 #define QUANTUM_GATEQIR_QFUNCTION_HPP_
 
-#include "Registry.hpp"
 #include "Function.hpp"
 #include "XACC.hpp"
 
@@ -138,8 +137,16 @@ public:
 	 * Return the name of this function
 	 * @return
 	 */
-	virtual const std::string getName() {
+	virtual const std::string name() const {
 		return functionName;
+	}
+
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
 	}
 
 	/**
@@ -230,7 +237,7 @@ public:
 			if (inst->isComposite()) {
 				std::dynamic_pointer_cast<Function>(inst)->evaluateVariableParameters(
 						runtimeParameters);
-			} else if (inst->isParameterized() && inst->getName() != "Measure") {
+			} else if (inst->isParameterized() && inst->name() != "Measure") {
 
 				for (int j = 0; j < inst->nParameters(); ++j) {
 					auto instParam = inst->getParameter(j);

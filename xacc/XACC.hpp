@@ -22,6 +22,7 @@
 #include "Program.hpp"
 #include "Preprocessor.hpp"
 #include "ServiceRegistry.hpp"
+#include "InstructionService.hpp"
 
 namespace xacc {
 

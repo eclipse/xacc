@@ -18,6 +18,7 @@
 #include "GateQIR.hpp"
 #include <boost/math/constants/constants.hpp>
 #include "XACC.hpp"
+#include "GateInstructionService.hpp"
 
 using namespace xacc;
 
@@ -30,6 +31,8 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 	auto newIr = std::make_shared<xacc::quantum::GateQIR>();
 	int counter = 0;
 	auto pi = boost::math::constants::pi<double>();
+
+	GateInstructionService gateRegistry;
 
 	// Populate GateQIR now...
 	for (auto& inst : terms) {
@@ -44,7 +47,7 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 
 		// Loop over all terms in the Spin Instruction
 		// and create instructions to run on the Gate QPU.
-		std::vector<std::shared_ptr<xacc::quantum::GateInstruction>> measurements;
+		std::vector<std::shared_ptr<xacc::Instruction>> measurements;
 
 		std::vector<std::pair<int, std::string>> terms;
 		for (auto& kv : spinInst) {
@@ -56,20 +59,18 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 		for (int i = terms.size() - 1; i >= 0; i--) {
 			auto qbit = terms[i].first;
 			auto gateName = terms[i].second;
-			auto gateRegistry =
-					xacc::quantum::GateInstructionRegistry::instance();
-			auto meas = gateRegistry->create("Measure",
+			auto meas = gateRegistry.create("Measure",
 					std::vector<int> { qbit });
 			xacc::InstructionParameter classicalIdx(qbit);
 			meas->setParameter(0, classicalIdx);
 			measurements.push_back(meas);
 
 			if (gateName == "X") {
-				auto hadamard = gateRegistry->create("H", std::vector<int> {
+				auto hadamard = gateRegistry.create("H", std::vector<int> {
 						qbit });
 				gateFunction->addInstruction(hadamard);
 			} else if (gateName == "Y") {
-				auto rx = gateRegistry->create("Rx", std::vector<int> { qbit });
+				auto rx = gateRegistry.create("Rx", std::vector<int> { qbit });
 				InstructionParameter p(pi / 2.0);
 				rx->setParameter(0, p);
 				gateFunction->addInstruction(rx);
@@ -103,6 +104,7 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 //			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 + (0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2
 //	needs x0, x1, x2, y0, y1, y2
 
+	xacc::Initialize();
 	std::unordered_map<std::string, Term> test {{"X0X1", {{0,"X"}, {1,"X"}}},
 		{"X1X2", {{1,"X"}, {2,"X"}}},
 		{"Y0Y1", {{0,"Y"}, {1,"Y"}}},
@@ -125,4 +127,5 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 		std::cout << "K:\n" << k->toString("q") << "\n";
 	}
 
+	xacc::Finalize();
 }

@@ -95,10 +95,12 @@ public:
 	 *
 	 * @return name The name of this Instruction
 	 */
-	virtual const std::string getName() {
+	virtual const std::string name() const {
 		return "dw-qmi";
 	}
-
+	 virtual const std::string description() const {
+		 return "";
+	 }
 	virtual const std::string getTag() {
 		return "";
 	}

@@ -9,6 +9,7 @@
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "GateQIR.hpp"
+#include "InstructionService.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
@@ -29,14 +30,12 @@ namespace pybind11 { namespace detail {
     };
 }} // namespace pybind11::detail
 
-std::shared_ptr<GateInstruction> create(const std::string& name, std::vector<int> qbits, std::vector<InstructionParameter> params = std::vector<InstructionParameter>{}) {
-	auto g = GateInstructionRegistry::instance()->create(name, qbits);
-	int idx = 0;
-	for (auto& a : params) {
-		g->setParameter(idx, a);
-		idx++;
-	}
-	return g;
+std::shared_ptr<Instruction> create(const std::string& name,
+		std::vector<int> qbits, std::vector<InstructionParameter> params =
+				std::vector<InstructionParameter> { }) {
+	std::cout << "HELLO WORLD " << name << "\n";
+	auto service = ServiceRegistry::instance()->getService<InstructionService>("gate");
+	return service->create(name, qbits, params);
 }
 
 void setCredentials(const std::string& accelerator, const std::string& apiKey, const std::string& url = "", const std::string& userId = "") {
@@ -106,7 +105,7 @@ PYBIND11_MODULE(pyxacc, m) {
     // Expose the Instruction interface
     py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>> inst(m, "Instruction", "Instruction wraps the XACC C++ Instruction class -"
     		" the base for all XACC intermediate representation instructions. Instructions, for example, can be common gates like Hadamard or CNOT.");
-    inst.def("getName", &xacc::Instruction::getName, "Return the name of this Instruction.");
+    inst.def("name", &xacc::Instruction::name, "Return the name of this Instruction.");
     inst.def("nParameters", &xacc::Instruction::nParameters, "Return the number of parameters this Instruction has.");
 
     // Expose the Function interface
@@ -217,6 +216,7 @@ PYBIND11_MODULE(pyxacc, m) {
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
 //	m.def("translate", &xacc::translate, "Translate one language quantum kernel to another");
 //	m.def("translateWithVisitor", &xacc::translateWithVisitor, "Translate one language quantum kernel to another");
+	m.def("getInstructionService", &xacc::getService<InstructionService>, "");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
 	py::module gatesub = m.def_submodule("gate", "Gate model quantum computing data structures.");
@@ -225,7 +225,7 @@ PYBIND11_MODULE(pyxacc, m) {
 			std::shared_ptr<xacc::quantum::GateInstruction>> gateinst(gatesub,
 			"GateInstruction",
 			"GateInstruction models gate model quantum computing instructions.");
-	gateinst.def("getName", &xacc::quantum::GateInstruction::getName, "Return the name of this Instruction.");
+	gateinst.def("name", &xacc::quantum::GateInstruction::name, "Return the name of this Instruction.");
 	gateinst.def("bits", &xacc::quantum::GateInstruction::bits, "Return the qubits this gate operates on");
 	gateinst.def("nParameters", &xacc::quantum::GateInstruction::nParameters, "Return the number of parameters this gate requires.");
 	gateinst.def("getParameter", &xacc::quantum::GateInstruction::getParameter, "Return the parameter at the given index");
@@ -238,7 +238,7 @@ PYBIND11_MODULE(pyxacc, m) {
 			"GateFunction description, fill this in later");
 	gatefunction.def(py::init<const std::string&>(), "The constructor");
 	gatefunction.def(py::init<const std::string&, std::vector<xacc::InstructionParameter>>(), "The constructor");
-	gatefunction.def("getName", &xacc::quantum::GateFunction::getName, "Return the name of this Instruction.");
+	gatefunction.def("name", &xacc::quantum::GateFunction::name, "Return the name of this Instruction.");
 	gatefunction.def("add", &xacc::quantum::GateFunction::addInstruction, "Add an Instruction to this function.");
 	gatefunction.def("toString", &xacc::quantum::GateFunction::toString, "Return the function as a string representation.");
 

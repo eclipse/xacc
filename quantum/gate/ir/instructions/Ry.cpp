@@ -26,6 +26,5 @@ Ry::Ry(std::vector<int> qbits) :
 
 }
 
-RegisterGateInstruction<Ry> RYTEMP("Ry");
 }
 }

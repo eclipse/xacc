@@ -68,10 +68,6 @@ public:
 		return translated;
 	}
 
-	virtual const std::string getName() {
-		return "Dummy";
-	}
-
 	virtual const std::string name() const {
 		return "";
 	}

@@ -19,8 +19,22 @@ namespace xacc {
 namespace quantum {
 class CPhase: public virtual GateInstruction {
 public:
+	CPhase() :GateInstruction("CPhase", std::vector<InstructionParameter> {
+		InstructionParameter(0.0) }){}
+
 	CPhase(std::vector<int> qbits);
 	CPhase(int controlQubit, int targetQubit, double theta);
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<CPhase>();
+	}
+
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 

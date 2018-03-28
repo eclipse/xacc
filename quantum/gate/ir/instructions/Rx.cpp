@@ -26,6 +26,5 @@ Rx::Rx(std::vector<int> qbits) :
 
 }
 
-RegisterGateInstruction<Rx> RXTEMP("Rx");
 }
 }

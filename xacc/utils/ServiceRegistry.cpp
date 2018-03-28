@@ -1,19 +1,22 @@
 #include "ServiceRegistry.hpp"
 #include <boost/filesystem.hpp>
 #include <pybind11/embed.h>
+#include "Accelerator.hpp"
+#include "InstructionService.hpp"
 
 namespace xacc {
 
 void ServiceRegistry::initialize() {
 
 	if (!initialized) {
-		framework = FrameworkFactory().NewFramework();
+
+//		framework = FrameworkFactory().NewFramework();
 
 		// Initialize the framework, such that we can call
 		// GetBundleContext() later.
-		framework.Init();
+		framework->Init();
 
-		context = framework.GetBundleContext();
+		context = framework->GetBundleContext();
 		if (!context) {
 			XACCLogger::instance()->error(
 					"Invalid XACC Framework plugin context.");
@@ -35,7 +38,7 @@ void ServiceRegistry::initialize() {
 			if imported:
 			    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
 			    if os.path.basename(xaccLocation) == 'python':
-			       xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+			       xaccLocation = os.path.dirname(os.path.dirname(xaccLocation))
 			   )", py::globals(), locals);
 		   bool foundPythonInstall = locals["imported"].cast<bool>();
 		   if (foundPythonInstall) {
@@ -96,7 +99,7 @@ void ServiceRegistry::initialize() {
 
 		XACCLogger::instance()->enqueueLog("Starting the C++ Microservices Framework.");
 		// Start the framework itself.
-		framework.Start();
+		framework->Start();
 
 		// Our bundles depend on each other in the sense that the consumer
 		// bundle expects a ServiceTime service in its activator Start()
@@ -108,6 +111,23 @@ void ServiceRegistry::initialize() {
 		}
 
 		initialized = true;
+//
+//		for (auto i : getRegisteredIds<xacc::Accelerator>()) {
+//			std::cout << "SERVICE: " << i << "\n";
+//
+//		}
+//		for (auto i : getRegisteredIds<xacc::InstructionService>()) {
+//			std::cout << "ISERVICE: " << i << "\n";
+//
+//		}
+//
+//
+//		for (auto i : getService<InstructionService>("gate")->getInstructions()) {
+//			std::cout << "HI: " << i << "\n";
+//		}
+
+		std::cout << "FRAMEWORK STATE = " << framework->GetState() << "\n";
+
 	}
 }
 

@@ -43,16 +43,9 @@ using InstructionParameter = boost::variant<int, double, float, std::string, std
  * or string.
  *
  */
-class Instruction : public BaseInstructionVisitable {
+class Instruction : public BaseInstructionVisitable, public Identifiable {
 
 public:
-
-	/**
-	 * Return the name of this Instruction
-	 *
-	 * @return name The name of this Instruction
-	 */
-	virtual const std::string getName() = 0;
 
 	/**
 	 * Persist this Instruction to an assembly-like

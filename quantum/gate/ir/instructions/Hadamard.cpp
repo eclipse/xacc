@@ -23,8 +23,6 @@ Hadamard::Hadamard(int qbit) :
 		Hadamard(std::vector<int> { qbit }) {
 }
 
-RegisterGateInstruction<Hadamard> HTEMP("H");
-
 }
 }
 

@@ -12,9 +12,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_MACOSX_RPATH ON)
 endif()
 
-#find_package(PythonLibs)
-#if(PythonLibs_FOUND)
-
 set(CppMicroServices_DIR "${CPPUS_LIBRARY_DIR}/../share/cppmicroservices3/cmake")
 
 # Modify our CMAKE_MODULE_PATH
@@ -53,16 +50,18 @@ if (NOT cppus_has_d_suffix)
 endif()
 target_link_libraries(pyxacc PRIVATE xacc xacc-quantum-gate xacc-quantum-aqc ${CppUsLib} ${Boost_LIBRARIES} cpprest ${OPENSSL_LIBRARIES})
 
-if(APPLE)
-   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
-else()
-   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
-endif()
-
 if (FROM_SETUP_PY)
-install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
+   if(APPLE)
+      set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
+   else()
+      set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+   endif()
+   install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
 else()
-install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python)
+   if(APPLE)
+      set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/..")
+   else()
+      set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/..")
+   endif()
+   install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python)
 endif()
-
-#endif()

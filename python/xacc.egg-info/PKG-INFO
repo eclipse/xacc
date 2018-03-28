@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: xacc
+Version: 0.1.0
+Summary: Hardware-agnostic quantum programming framework
+Home-page: UNKNOWN
+Author: Alex McCaskey
+Author-email: xacc-dev@eclipse.org
+License: UNKNOWN
+Description: XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.
+Platform: UNKNOWN

@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(sw.bits().size() == 2);
 	BOOST_VERIFY(sw.bits()[0] == 0);
 	BOOST_VERIFY(sw.bits()[1] == 1);
-	BOOST_VERIFY(sw.getName() == "Swap");
+	BOOST_VERIFY(sw.name() == "Swap");
 
 	Swap sw2(44, 45);
 
@@ -33,12 +33,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(sw2.bits().size() == 2);
 	BOOST_VERIFY(sw2.bits()[0] == 44);
 	BOOST_VERIFY(sw2.bits()[1] == 45);
-	BOOST_VERIFY(sw2.getName() == "Swap");
+	BOOST_VERIFY(sw2.name() == "Swap");
 
 }
 
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	auto sw = GateInstructionRegistry::instance()->create("Swap", std::vector<int>{0, 1});
-	BOOST_VERIFY(sw->getName() == "Swap");
-}

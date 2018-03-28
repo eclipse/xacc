@@ -25,6 +25,5 @@ Swap::Swap(std::vector<int> qbits) :
 
 }
 
-RegisterGateInstruction<Swap> SWAPTEMP("Swap");
 }
 }

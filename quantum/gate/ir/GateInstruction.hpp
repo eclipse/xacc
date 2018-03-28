@@ -14,17 +14,21 @@
 #define QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
 
 #include "Instruction.hpp"
-#include "Registry.hpp"
 #include <boost/lexical_cast.hpp>
+#include "Cloneable.hpp"
 
 namespace xacc {
 namespace quantum {
 
+class GateInstructionService;
+
 /**
  */
-class GateInstruction: public virtual Instruction {
+class GateInstruction: public virtual Instruction, public Cloneable<GateInstruction> {
 
 protected:
+
+	friend class GateInstructionService;
 
 	/**
 	 * Reference to this instructions name
@@ -40,9 +44,16 @@ protected:
 
 	std::vector<InstructionParameter> parameters;
 
+	virtual void setBits(std::vector<int> bits) {
+		qbits = bits;
+	}
+
 public:
 
-	GateInstruction() = delete;
+	GateInstruction() {}
+
+	GateInstruction(std::string name) : gateName(name) {}
+	GateInstruction(std::string name, std::vector<InstructionParameter> params) : gateName(name), parameters(params) {}
 
 	GateInstruction(std::vector<int> qubts) :
 			gateName("UNKNOWN"), qbits(qubts), parameters(std::vector<InstructionParameter>{}) {
@@ -75,10 +86,13 @@ public:
 	 * Return the instruction name.
 	 * @return
 	 */
-	virtual const std::string getName() {
+	virtual const std::string name() const {
 		return gateName;
 	}
 
+	virtual const std::string description() const {
+		return "";
+	}
 	/**
 	 * Return the list of qubits this instruction acts on.
 	 * @return
@@ -175,27 +189,6 @@ public:
 	virtual ~GateInstruction() {
 	}
 };
-
-/**
- */
-using GateInstructionRegistry = Registry<GateInstruction, std::vector<int>>;
-
-/**
- */
-template<typename T>
-class RegisterGateInstruction {
-public:
-	RegisterGateInstruction(const std::string& name) {
-		GateInstructionRegistry::CreatorFunctionPtr f = std::make_shared<
-				GateInstructionRegistry::CreatorFunction>(
-				[](std::vector<int> qubits) {
-					return std::make_shared<T>(qubits);
-				});
-
-		GateInstructionRegistry::instance()->add(name, f);
-	}
-};
-
 
 }
 }

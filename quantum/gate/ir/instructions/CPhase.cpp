@@ -26,6 +26,5 @@ CPhase::CPhase(std::vector<int> qbits) :
 
 }
 
-RegisterGateInstruction<CPhase> CPHASETEMP("CPhase");
 }
 }

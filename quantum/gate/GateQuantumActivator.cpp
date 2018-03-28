@@ -19,6 +19,22 @@
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
 
+#include "GateInstructionService.hpp"
+#include "Hadamard.hpp"
+#include "CNOT.hpp"
+#include "X.hpp"
+#include "Y.hpp"
+#include "Z.hpp"
+#include "ConditionalFunction.hpp"
+#include "Rz.hpp"
+#include "Rx.hpp"
+#include "Ry.hpp"
+#include "CPhase.hpp"
+#include "Swap.hpp"
+#include "Measure.hpp"
+#include "Identity.hpp"
+#include "CZ.hpp"
+
 #include <memory>
 #include <set>
 
@@ -46,12 +62,43 @@ public:
 		auto readout = std::make_shared<xacc::quantum::ReadoutErrorIRPreprocessor>();
 		auto qbitmap = std::make_shared<xacc::quantum::QubitMapIRPreprocessor>();
 
+		auto giservice = std::make_shared<xacc::quantum::GateInstructionService>();
+
+		context.RegisterService<xacc::InstructionService>(giservice);
 		context.RegisterService<xacc::Preprocessor>(kp);
 		context.RegisterService<xacc::IRGenerator>(iqft);
 		context.RegisterService<xacc::IRGenerator>(qft);
 
 		context.RegisterService<xacc::IRPreprocessor>(readout);
 		context.RegisterService<xacc::IRPreprocessor>(qbitmap);
+
+		auto h = std::make_shared<xacc::quantum::Hadamard>();
+		auto cn = std::make_shared<xacc::quantum::CNOT>();
+		auto cp = std::make_shared<xacc::quantum::CPhase>();
+		auto cz = std::make_shared<xacc::quantum::CZ>();
+		auto id = std::make_shared<xacc::quantum::Identity>();
+		auto m = std::make_shared<xacc::quantum::Measure>();
+		auto rx = std::make_shared<xacc::quantum::Rx>();
+		auto ry = std::make_shared<xacc::quantum::Ry>();
+		auto rz = std::make_shared<xacc::quantum::Rz>();
+		auto x = std::make_shared<xacc::quantum::X>();
+		auto y = std::make_shared<xacc::quantum::Y>();
+		auto z = std::make_shared<xacc::quantum::Z>();
+		auto sw = std::make_shared<xacc::quantum::Swap>();
+
+		context.RegisterService<xacc::quantum::GateInstruction>(h);
+		context.RegisterService<xacc::quantum::GateInstruction>(cn);
+		context.RegisterService<xacc::quantum::GateInstruction>(cp);
+		context.RegisterService<xacc::quantum::GateInstruction>(cz);
+		context.RegisterService<xacc::quantum::GateInstruction>(id);
+		context.RegisterService<xacc::quantum::GateInstruction>(m);
+		context.RegisterService<xacc::quantum::GateInstruction>(rx);
+		context.RegisterService<xacc::quantum::GateInstruction>(ry);
+		context.RegisterService<xacc::quantum::GateInstruction>(rz);
+		context.RegisterService<xacc::quantum::GateInstruction>(x);
+		context.RegisterService<xacc::quantum::GateInstruction>(y);
+		context.RegisterService<xacc::quantum::GateInstruction>(z);
+		context.RegisterService<xacc::quantum::GateInstruction>(sw);
 
 	}
 

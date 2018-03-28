@@ -19,8 +19,21 @@ namespace xacc {
 namespace quantum {
 class Rz: public virtual GateInstruction {
 public:
+	Rz() : GateInstruction("Rz", std::vector<InstructionParameter> {
+		InstructionParameter(0.0) }) {}
+
 	Rz(std::vector<int> qbits);
 	Rz(int qbit, double theta);
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<Rz>();
+	}
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 

@@ -13,6 +13,7 @@
 #include "QFT.hpp"
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 
@@ -21,13 +22,14 @@ namespace quantum {
 std::shared_ptr<Function> QFT::generate(
 		std::shared_ptr<AcceleratorBuffer> buffer,
 		std::vector<InstructionParameter> parameters) {
+	auto gateRegistry = xacc::getService<InstructionService>("gate");
 
 	auto bitReversal =
-			[](std::vector<int> qubits) -> std::vector<std::shared_ptr<Instruction>> {
+			[&](std::vector<int> qubits) -> std::vector<std::shared_ptr<Instruction>> {
 				std::vector<std::shared_ptr<Instruction>> swaps;
 				auto endStart = qubits.size() - 1;
 				for (auto i = 0; i < std::floor(qubits.size() / 2.0); ++i) {
-					swaps.push_back(GateInstructionRegistry::instance()->create("Swap", std::vector<int> {qubits[i], qubits[endStart]}));
+					swaps.push_back(gateRegistry->create("Swap", std::vector<int> {qubits[i], qubits[endStart]}));
 					endStart--;
 				}
 
@@ -46,7 +48,7 @@ std::shared_ptr<Function> QFT::generate(
 				// just return a hadamard, if not,
 				// then we need to build up some cphase gates
 				if (qubits.size() == 1) {
-					auto hadamard = GateInstructionRegistry::instance()->create("H", std::vector<int> {q});
+					auto hadamard = gateRegistry->create("H", std::vector<int> {q});
 					return std::vector<std::shared_ptr<Instruction>> {hadamard};
 				} else {
 
@@ -57,13 +59,13 @@ std::shared_ptr<Function> QFT::generate(
 					auto n = 1 + qs.size();
 
 					// Build up a list of cphase gates
-					std::vector<std::shared_ptr<GateInstruction>> cphaseGates;
+					std::vector<std::shared_ptr<Instruction>> cphaseGates;
 					int idx = 0;
 					for (int i = n-1; i > 0; --i) {
 						auto q_idx = qs[idx];
 						auto angle = 3.1415926 / std::pow(2, n - i);
 						InstructionParameter p(angle);
-						auto cp = GateInstructionRegistry::instance()->create("CPhase", std::vector<int> {q, q_idx});
+						auto cp = gateRegistry->create("CPhase", std::vector<int> {q, q_idx});
 						cp->setParameter(0, p);
 						cphaseGates.push_back(cp);
 						idx++;
@@ -81,7 +83,7 @@ std::shared_ptr<Function> QFT::generate(
 					}
 
 					// add a final hadamard...
-					insts.push_back(GateInstructionRegistry::instance()->create("H", std::vector<int> {q}));
+					insts.push_back(gateRegistry->create("H", std::vector<int> {q}));
 
 					// and return
 					return insts;

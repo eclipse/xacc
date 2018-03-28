@@ -31,7 +31,7 @@ const std::string expectedQasm =
 BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 
 	GateFunction f("foo");
-	BOOST_VERIFY(f.getName() == "foo");
+	BOOST_VERIFY(f.name() == "foo");
 	BOOST_VERIFY(f.nInstructions() == 0);
 
 	auto h = std::make_shared<Hadamard>(1);
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
 	xacc::InstructionIterator it(f);
 	while(it.hasNext()) {
 		auto inst = it.next();
-		if (!inst->isComposite()) std::cout << inst->getName() << "\n";
+		if (!inst->isComposite()) std::cout << inst->name() << "\n";
 	}
 
 }

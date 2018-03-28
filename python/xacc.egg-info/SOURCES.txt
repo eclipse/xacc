@@ -1,0 +1,8 @@
+README.md
+setup.py
+python/xacc.egg-info/PKG-INFO
+python/xacc.egg-info/SOURCES.txt
+python/xacc.egg-info/dependency_links.txt
+python/xacc.egg-info/not-zip-safe
+python/xacc.egg-info/top_level.txt
+tools/framework/xacc-framework

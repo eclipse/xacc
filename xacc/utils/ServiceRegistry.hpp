@@ -51,7 +51,7 @@ protected:
 	/**
 	 * Reference to the CppMicroServices Framework instance
 	 */
-	Framework framework;
+	std::shared_ptr<Framework> framework;
 
 	/**
 	 * The BundleContext instance, which provides
@@ -62,7 +62,7 @@ protected:
 	/**
 	 * The constructor
 	 */
-	ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
+	ServiceRegistry() : framework(std::make_shared<Framework>(FrameworkFactory().NewFramework())){}
 
 	bool initialized = false;
 
@@ -93,6 +93,8 @@ public:
 
 	template<typename ServiceInterface>
 	std::shared_ptr<ServiceInterface> getService(const std::string name) {
+		std::cout << "GetService State = " << framework->GetState() << ", " << name << "\n";
+
 		std::shared_ptr<ServiceInterface> ret;
 		auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
 		for (auto s : allServiceRefs) {
@@ -177,6 +179,8 @@ public:
 		auto b = context.GetBundles(path);
 		b[0].Start();
 	}
+
+	~ServiceRegistry() {std::cout << "DELETING SERVICE REGISTRY\n";}
 
 };
 }

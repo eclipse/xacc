@@ -22,17 +22,6 @@ CNOT::CNOT(std::vector<int> qbits) :
 CNOT::CNOT(int srcqbit, int tgtqbit) :
 		CNOT(std::vector<int> { srcqbit, tgtqbit }) {
 }
-//
-//void CNOT::accept(std::shared_ptr<InstructionVisitor> visitor) {
-//	auto v = std::dynamic_pointer_cast<GateInstructionVisitor>(visitor);
-//	if (v) {
-//		v->visit(*this);
-//	} else {
-//		visitor->visit(*this);
-//	}
-//}
-
-RegisterGateInstruction<CNOT> CNOTTEMP("CNOT");
 
 }
 }

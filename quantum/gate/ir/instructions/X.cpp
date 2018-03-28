@@ -23,8 +23,6 @@ X::X(int qbit) :
 		X(std::vector<int> { qbit }) {
 }
 
-RegisterGateInstruction<X> XTEMP("X");
-
 }
 }
 

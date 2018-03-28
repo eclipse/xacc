@@ -10,26 +10,21 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XTester
+#ifndef XACC_COMPILER_INSTRUCTIONSERVICE_HPP_
+#define XACC_COMPILER_INSTRUCTIONSERVICE_HPP_
+#include "Instruction.hpp"
 
-#include <boost/test/included/unit_test.hpp>
-#include "X.hpp"
+namespace xacc {
 
-using namespace xacc::quantum;
-
-BOOST_AUTO_TEST_CASE(checkCreation) {
-
-	X x(0);
-	BOOST_VERIFY(x.toString("qreg") == "X qreg0");
-	BOOST_VERIFY(x.bits().size() == 1);
-	BOOST_VERIFY(x.bits()[0] == 0);
-	BOOST_VERIFY(x.name() == "X");
-
-	X x2(44);
-	BOOST_VERIFY(x2.toString("qreg") == "X qreg44");
-	BOOST_VERIFY(x2.bits().size() == 1);
-	BOOST_VERIFY(x2.bits()[0] == 44);
-	BOOST_VERIFY(x2.name() == "X");
+class __attribute__((visibility("default"))) InstructionService : public Identifiable {
+public:
+	virtual std::shared_ptr<Instruction> create(const std::string name,
+			std::vector<int> bits,
+			std::vector<InstructionParameter> parameters = std::vector<
+					InstructionParameter> { }) = 0;
+	virtual std::vector<std::string> getInstructions() = 0;
+	virtual ~InstructionService() {}
+};
 
 }
+#endif
