@@ -15,9 +15,10 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include "ReadoutErrorIRPreprocessor.hpp"
-#include "GateQIR.hpp"
+#include "GateIR.hpp"
 #include <boost/math/constants/constants.hpp>
 #include "XACC.hpp"
+#include "GateIRProvider.hpp"
 
 using namespace xacc;
 
@@ -27,9 +28,11 @@ using Term = std::map<int, std::string>;
 
 std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 // Create a new GateQIR to hold the spin based terms
-	auto newIr = std::make_shared<xacc::quantum::GateQIR>();
+	auto newIr = std::make_shared<xacc::quantum::GateIR>();
 	int counter = 0;
 	auto pi = boost::math::constants::pi<double>();
+
+	GateIRProvider gateRegistry;
 
 	// Populate GateQIR now...
 	for (auto& inst : terms) {
@@ -44,7 +47,7 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 
 		// Loop over all terms in the Spin Instruction
 		// and create instructions to run on the Gate QPU.
-		std::vector<std::shared_ptr<xacc::quantum::GateInstruction>> measurements;
+		std::vector<std::shared_ptr<xacc::Instruction>> measurements;
 
 		std::vector<std::pair<int, std::string>> terms;
 		for (auto& kv : spinInst) {
@@ -56,20 +59,18 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
 		for (int i = terms.size() - 1; i >= 0; i--) {
 			auto qbit = terms[i].first;
 			auto gateName = terms[i].second;
-			auto gateRegistry =
-					xacc::quantum::GateInstructionRegistry::instance();
-			auto meas = gateRegistry->create("Measure",
+			auto meas = gateRegistry.createInstruction("Measure",
 					std::vector<int> { qbit });
 			xacc::InstructionParameter classicalIdx(qbit);
 			meas->setParameter(0, classicalIdx);
 			measurements.push_back(meas);
 
 			if (gateName == "X") {
-				auto hadamard = gateRegistry->create("H", std::vector<int> {
+				auto hadamard = gateRegistry.createInstruction("H", std::vector<int> {
 						qbit });
 				gateFunction->addInstruction(hadamard);
 			} else if (gateName == "Y") {
-				auto rx = gateRegistry->create("Rx", std::vector<int> { qbit });
+				auto rx = gateRegistry.createInstruction("Rx", std::vector<int> { qbit });
 				InstructionParameter p(pi / 2.0);
 				rx->setParameter(0, p);
 				gateFunction->addInstruction(rx);
@@ -99,6 +100,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(checkSimple) {
 
+	xacc::Initialize();
 //	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
 //			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 + (0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2
 //	needs x0, x1, x2, y0, y1, y2
@@ -135,4 +137,5 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 		BOOST_VERIFY(1.0 == fixedBuffers[i]->getExpectationValueZ());
 	}
 
+	xacc::Finalize();
 }

@@ -23,11 +23,26 @@ namespace quantum {
  */
 class X : public virtual GateInstruction {
 public:
-	X(std::vector<int> qbit);
+	X() :GateInstruction("X"){}
 
-	X(int qbit);
+	X(std::vector<int> qbit) :
+			GateInstruction("X", qbit) {
+	}
 
-//	virtual void accept(std::shared_ptr<InstructionVisitor> visitor);
+	X(int qbit) :
+			X(std::vector<int> { qbit }) {
+	}
+
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<X>();
+	}
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 

@@ -24,22 +24,12 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(x.toString("qreg") == "X qreg0");
 	BOOST_VERIFY(x.bits().size() == 1);
 	BOOST_VERIFY(x.bits()[0] == 0);
-	BOOST_VERIFY(x.getName() == "X");
+	BOOST_VERIFY(x.name() == "X");
 
 	X x2(44);
 	BOOST_VERIFY(x2.toString("qreg") == "X qreg44");
 	BOOST_VERIFY(x2.bits().size() == 1);
 	BOOST_VERIFY(x2.bits()[0] == 44);
-	BOOST_VERIFY(x2.getName() == "X");
+	BOOST_VERIFY(x2.name() == "X");
 
-}
-
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	auto x = GateInstructionRegistry::instance()->create("X", std::vector<int> {
-			0 });
-	BOOST_VERIFY(x->toString("qreg") == "X qreg0");
-	BOOST_VERIFY(x->bits().size() == 1);
-	BOOST_VERIFY(x->bits()[0] == 0);
-	BOOST_VERIFY(x->getName() == "X");
 }

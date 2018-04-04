@@ -31,7 +31,7 @@ const std::string expectedQasm =
 BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 
 	GateFunction f("foo");
-	BOOST_VERIFY(f.getName() == "foo");
+	BOOST_VERIFY(f.name() == "foo");
 	BOOST_VERIFY(f.nInstructions() == 0);
 
 	auto h = std::make_shared<Hadamard>(1);
@@ -89,13 +89,14 @@ BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
 	xacc::InstructionIterator it(f);
 	while(it.hasNext()) {
 		auto inst = it.next();
-		if (!inst->isComposite()) std::cout << inst->getName() << "\n";
+		if (!inst->isComposite()) std::cout << inst->name() << "\n";
 	}
 
 }
 
 BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
 
+	xacc::Initialize();
 	xacc::InstructionParameter p("phi");
 	xacc::InstructionParameter fParam("phi");
 
@@ -110,19 +111,20 @@ BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
 
 	std::cout << f.toString("qreg") << "\n";
 
-	xacc::InstructionParameter runtimeValue(3.1415);
+	Eigen::VectorXd v(1);
+	v(0) = 3.1415;
 
-	f.evaluateVariableParameters(std::vector<xacc::InstructionParameter>{runtimeValue});
+	auto evaled = f(v);
 
-	BOOST_VERIFY(boost::get<double>(f.getInstruction(0)->getParameter(0)) == 3.1415);
-
-	std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
-
-	xacc::InstructionParameter runtimeValue2(6.28);
-
-	f.evaluateVariableParameters(std::vector<xacc::InstructionParameter>{runtimeValue2});
+	BOOST_VERIFY(boost::get<double>(evaled->getInstruction(0)->getParameter(0)) == 3.1415);
 
 	std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
 
+	v(0) = 6.28;
 
+	evaled = f(v);
+
+	std::cout << "ParamSet:\n" << evaled->toString("qreg") << "\n";
+
+	xacc::Finalize();
 }

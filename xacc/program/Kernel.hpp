@@ -90,12 +90,17 @@ public:
 			GetInstructionParametersFunctor f(parameters);
 			xacc::tuple_for_each(argsTuple, f);
 
-			// Evaluate all Variable Parameters
-			function->evaluateVariableParameters(parameters);
-		}
+			int count = 0;
+			Eigen::VectorXd paramVec(parameters.size());
+			for (auto i : parameters) {paramVec(count) = boost::get<double>(i); count++;}
 
-		// Execute the Kernel on the Accelerator
-		accelerator->execute(buffer, function);
+			// Evaluate all Variable Parameters
+			auto evaled = function->operator()(paramVec);
+			accelerator->execute(buffer, evaled);
+		} else {
+			// Execute the Kernel on the Accelerator
+			accelerator->execute(buffer, function);
+		}
 	}
 
 	/**
@@ -106,18 +111,15 @@ public:
 	 * @param parameters The runtime parameters
 	 */
 	void operator()(std::shared_ptr<AcceleratorBuffer> buffer, std::vector<InstructionParameter> parameters) {
-		function->evaluateVariableParameters(parameters);
-		accelerator->execute(buffer, function);
-	}
-
-	/**
-	 * Evaluate any string variable runtime parameters in
-	 * this Kernel's Function.
-	 *
-	 * @param parameters The concrete runtime values.
-	 */
-	void evaluateParameters(std::vector<InstructionParameter> parameters) {
-		function->evaluateVariableParameters(parameters);
+		int count = 0;
+		Eigen::VectorXd paramVec(parameters.size());
+		for (auto i : parameters) {
+			paramVec(count) = boost::get<double>(i);
+			count++;
+		}
+		// Evaluate all Variable Parameters
+		auto evaled = function->operator()(paramVec);
+		accelerator->execute(buffer, evaled);
 	}
 
 	/**
@@ -138,7 +140,7 @@ public:
 	}
 
 	const std::string getName() {
-		return function->getName();
+		return function->name();
 	}
 };
 
@@ -200,9 +202,16 @@ public:
 			GetInstructionParametersFunctor f(parameters);
 			xacc::tuple_for_each(argsTuple, f);
 
+			int count = 0;
+			Eigen::VectorXd paramVec(parameters.size());
+			for (auto i : parameters) {
+				paramVec(count) = boost::get<double>(i);
+				count++;
+			}
+
 			for (auto k : *this) {
-				k.evaluateParameters(parameters);
-				functions.push_back(k.getIRFunction());
+				auto eval = k.getIRFunction()->operator()(paramVec);
+				functions.push_back(eval);
 			}
 		}
 
@@ -224,12 +233,17 @@ public:
 			std::shared_ptr<AcceleratorBuffer> buffer,
 			std::vector<InstructionParameter> parameters) {
 
+		int count = 0;
+		Eigen::VectorXd paramVec(parameters.size());
+		for (auto i : parameters) {
+			paramVec(count) = boost::get<double>(i);
+			count++;
+		}
+
 		std::vector<std::shared_ptr<Function>> functions;
 		for (auto k : *this) {
-			if (!parameters.empty()) {
-				k.evaluateParameters(parameters);
-			}
-			functions.push_back(k.getIRFunction());
+			auto eval = k.getIRFunction()->operator()(paramVec);
+			functions.push_back(eval);
 		}
 
 		auto buffers = accelerator->execute(buffer, functions);

@@ -15,6 +15,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "GateFunction.hpp"
 #include "JsonVisitor.hpp"
+#include "Rz.hpp"
 
 using namespace rapidjson;
 
@@ -87,7 +88,7 @@ BOOST_AUTO_TEST_CASE(checkFunctionWithFunction) {
 	auto init = std::make_shared<GateFunction>("init");
 
 	xacc::InstructionParameter p = "phi";
-	auto rz = GateInstructionRegistry::instance()->create("Rz", std::vector<int>{0});
+	auto rz =std::make_shared<Rz>(std::vector<int>{0});
 	rz->setParameter(0, p);
 
 	init->addInstruction(rz);

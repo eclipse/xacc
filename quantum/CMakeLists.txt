@@ -34,6 +34,7 @@ find_package(Boost COMPONENTS system program_options filesystem chrono thread RE
 
 include_directories(${XACC_INCLUDE_DIR})
 include_directories(${XACC_ROOT}/tpls/rapidjson/include)
+include_directories(${XACC_ROOT}/tpls/exprtk)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${XACC_ROOT}/tpls/spdlog)

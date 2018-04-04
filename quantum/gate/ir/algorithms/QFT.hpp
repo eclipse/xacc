@@ -14,6 +14,7 @@
 #define QUANTUM_GATE_IR_ALGORITHMS_QFT_HPP_
 
 #include "IRGenerator.hpp"
+#include "IRProvider.hpp"
 
 namespace xacc{
 namespace quantum {
@@ -49,7 +50,7 @@ public:
 
 	virtual const std::string description() const {
 		return "The QFT Algorithm Generator generates IR representing "
-				"an Quantum Fourier Transform.";
+				"a Quantum Fourier Transform.";
 	}
 
 	/**

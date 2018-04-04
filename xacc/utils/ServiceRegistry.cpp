@@ -1,6 +1,8 @@
 #include "ServiceRegistry.hpp"
 #include <boost/filesystem.hpp>
+#ifdef XACC_HAS_PYTHON
 #include <pybind11/embed.h>
+#endif
 
 namespace xacc {
 
@@ -9,20 +11,19 @@ void ServiceRegistry::initialize() {
 	if (!initialized) {
 		framework = FrameworkFactory().NewFramework();
 
-		// Initialize the framework, such that we can call
-		// GetBundleContext() later.
+		// Initialize the framework
 		framework.Init();
-
 		context = framework.GetBundleContext();
 		if (!context) {
 			XACCLogger::instance()->error(
 					"Invalid XACC Framework plugin context.");
 		}
 
+		// Get the Library path
 		std::string xaccLibDir = "";
 #ifdef XACC_HAS_PYTHON
 		namespace py = pybind11;
-		auto getInstallDir = []() -> std::string {
+		auto getLibraryDir = []() -> std::string {
    		   auto locals = py::dict();
    		   py::exec(R"(
 			import os
@@ -34,55 +35,60 @@ void ServiceRegistry::initialize() {
 
 			if imported:
 			    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
-			    if os.path.basename(xaccLocation) == 'python':
-			       xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 			   )", py::globals(), locals);
 		   bool foundPythonInstall = locals["imported"].cast<bool>();
 		   if (foundPythonInstall) {
 		        return locals["xaccLocation"].cast<std::string>() + std::string("/lib");
   		   } else {
-			XACCLogger::instance()->error("ServiceRegistry Error, invalid pyxacc install");
-			return "";
+			XACCLogger::instance()->warning("ServiceRegistry Warning, could not find pyxacc install");
+			return std::string(XACC_INSTALL_DIR) + std::string("/lib");;
 		   }
 		};
 
 		if(!Py_IsInitialized()) {
 			py::scoped_interpreter guard{};
-			xaccLibDir = getInstallDir();
+			xaccLibDir = getLibraryDir();
 		}  else {
-			xaccLibDir = getInstallDir();
+			xaccLibDir = getLibraryDir();
 		}
 #else
 		xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
 #endif
 
-		XACCLogger::instance()->enqueueLog("XACC Library Directory: " + xaccLibDir);
+		XACCLogger::instance()->enqueueLog(
+				"XACC Library Directory: " + xaccLibDir);
 		for (auto &entry : boost::filesystem::directory_iterator(xaccLibDir)) {
 			// We want the gate and aqc bundles that come with XACC
 			if (boost::contains(entry.path().filename().string(),
 					"libxacc-quantum")) {
 				auto name = entry.path().filename().string();
-				boost::replace_all(name,"lib","");
-				boost::replace_all(name,".so","");
-				boost::replace_all(name,".dy","");
-				XACCLogger::instance()->enqueueLog("Installing base plugin " + name);
+				boost::replace_all(name, "lib", "");
+				boost::replace_all(name, ".so", "");
+				boost::replace_all(name, ".dy", "");
+				XACCLogger::instance()->enqueueLog(
+						"Installing base plugin " + name);
 				context.InstallBundles(entry.path().string());
 			}
 		}
 
+		const std::string xaccPluginPath = std::getenv("HOME")
+					+ std::string("/.xacc/plugins");
+
 		// Add external plugins...
 		boost::filesystem::directory_iterator end_itr;
-		boost::filesystem::path xaccPluginPath(xaccLibDir + std::string("/plugins"));
 		if (boost::filesystem::exists(xaccPluginPath)) {
-			for (auto& entry : boost::filesystem::directory_iterator(xaccPluginPath)) {
+			for (auto& entry : boost::filesystem::directory_iterator(
+					xaccPluginPath)) {
 				auto p = entry.path();
 				if (boost::filesystem::is_directory(p)) {
-					for (auto& subentry : boost::filesystem::directory_iterator(p)) {
+					for (auto& subentry : boost::filesystem::directory_iterator(
+							p)) {
 						auto name = subentry.path().filename().string();
-						boost::replace_all(name,"lib","");
-						boost::replace_all(name,".so","");
-						boost::replace_all(name,".dy","");
-						XACCLogger::instance()->enqueueLog("Installing 3rd party plugin " + name);
+						boost::replace_all(name, "lib", "");
+						boost::replace_all(name, ".so", "");
+						boost::replace_all(name, ".dy", "");
+						XACCLogger::instance()->enqueueLog(
+								"Installing Plugin " + name);
 						context.InstallBundles(subentry.path().string());
 					}
 				}
@@ -94,7 +100,8 @@ void ServiceRegistry::initialize() {
 					"There are no plugins. Install plugins to begin working with XACC.");
 		}
 
-		XACCLogger::instance()->enqueueLog("Starting the C++ Microservices Framework.");
+		XACCLogger::instance()->enqueueLog(
+				"Starting the C++ Microservices Framework.");
 		// Start the framework itself.
 		framework.Start();
 

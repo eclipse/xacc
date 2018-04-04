@@ -26,7 +26,7 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 	// Get number of qubits, add 2*nqubit measurement kernels, add readout-error tag to each
 	int nQubits = 0;//std::stoi(xacc::getOption("n-qubits")); //ir.maxBit() + 1;
-	auto gateRegistry = GateInstructionRegistry::instance();
+	auto gateRegistry = xacc::getService<IRProvider>("gate");
 
 
 	// Get the true number of qubits
@@ -83,9 +83,9 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 					auto bit = reversedQubitMap[pauli->bits()[0]];
 					qubits.insert(bit);
 
-					if (pauli->getName() == "H") {
+					if (pauli->name() == "H") {
 						termMap.insert( { bit, "X" });
-					} else if (pauli->getName() == "Rx") {
+					} else if (pauli->name() == "Rx") {
 						termMap.insert( { bit, "Y" });
 					}
 
@@ -148,16 +148,16 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		auto bit = std::stoi(sb.str());
 
 		if (gate == "X") {
-			auto h = gateRegistry->create("H", std::vector<int>{bit});
+			auto h = gateRegistry->createInstruction("H", std::vector<int>{bit});
 			extraKernel->addInstruction(h);
 		} else if (gate == "Y") {
-			auto rx = gateRegistry->create("Rx", std::vector<int>{bit});
+			auto rx = gateRegistry->createInstruction("Rx", std::vector<int>{bit});
 			InstructionParameter p(boost::math::constants::pi<double>() / 2.0);
 			rx->setParameter(0,p);
 			extraKernel->addInstruction(rx);
 		}
 
-		auto meas = gateRegistry->create("Measure", std::vector<int> { bit });
+		auto meas = gateRegistry->createInstruction("Measure", std::vector<int> { bit });
 		InstructionParameter m(0);
 		meas->setParameter(0, m);
 		extraKernel->addInstruction(meas);
@@ -173,15 +173,15 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	for (int i = 0; i < 2*nQubits; i+=2) {
 		auto f01 = std::make_shared<GateFunction>(
 				"measure0_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
-		auto meas01 = gateRegistry->create("Measure", std::vector<int>{qubitMap[qbit]});
+		auto meas01 = gateRegistry->createInstruction("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p(0);
 		meas01->setParameter(0,p);
 		f01->addInstruction(meas01);
 
 		auto f10 = std::make_shared<GateFunction>(
 				"measure1_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
-		auto x = gateRegistry->create("X", std::vector<int>{qubitMap[qbit]});
-		auto meas10 = gateRegistry->create("Measure", std::vector<int>{qubitMap[qbit]});
+		auto x = gateRegistry->createInstruction("X", std::vector<int>{qubitMap[qbit]});
+		auto meas10 = gateRegistry->createInstruction("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p2(0);
 		meas10->setParameter(0,p2);
 		f10->addInstruction(x);

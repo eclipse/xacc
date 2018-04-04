@@ -16,24 +16,27 @@
 #include <boost/test/included/unit_test.hpp>
 #include "InverseQFT.hpp"
 #include "JsonVisitor.hpp"
-#include "GateQIR.hpp"
+#include "GateIR.hpp"
+#include "XACC.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
 
 BOOST_AUTO_TEST_CASE(checkCreation) {
 
+	xacc::Initialize();
 	auto iqft = std::make_shared<InverseQFT>();
 
 	auto buffer = std::make_shared<AcceleratorBuffer>("",3);
 
 	auto iqftKernel = iqft->generate(buffer);
-	auto ir = std::make_shared<GateQIR>();
+	auto ir = std::make_shared<GateIR>();
 	ir->addKernel(iqftKernel);
 
 	JsonVisitor v(iqftKernel);
 	std::cout << v.write() << "\n";
 
+	xacc::Finalize();
 //	auto h1 = std::make_shared<Hadamard>(2);
 //	auto cphase1 = std::make_shared<CPhase>(1, 2, 1.5707963);
 //	auto h2 = std::make_shared<Hadamard>(2);
@@ -52,7 +55,7 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 //	expectedF->addInstruction(swap);
 //
 //
-//	auto expectedIR = std::make_shared<GateQIR>();
+//	auto expectedIR = std::make_shared<GateIR>();
 //	expectedIR->addKernel(expectedF);
 
 }

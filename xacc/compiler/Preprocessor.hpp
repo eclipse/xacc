@@ -45,13 +45,6 @@ public:
 			std::shared_ptr<Accelerator> accelerator) = 0;
 
 	/**
-	 * Return the name of this Preprocessor
-	 *
-	 * @return name The name of this preprocessor
-	 */
-	virtual const std::string getName() = 0;
-
-	/**
 	 * Return an empty options_description, this is for
 	 * subclasses to implement.
 	 */

@@ -14,6 +14,7 @@
 #define QUANTUM_GATE_IR_READOUTERRORIRPREPROCESSOR_HPP_
 
 #include "IRPreprocessor.hpp"
+#include "IRProvider.hpp"
 
 namespace xacc {
 namespace quantum {

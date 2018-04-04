@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(checkDWKernelConstruction) {
 	kernel.addInstruction(qmi3);
 
 	BOOST_VERIFY(kernel.nInstructions() == 3);
-	BOOST_VERIFY(kernel.getName() == "foo");
+	BOOST_VERIFY(kernel.name() == "foo");
 	BOOST_VERIFY(kernel.getInstruction(0) == qmi);
 	BOOST_VERIFY(kernel.getInstruction(1) == qmi2);
 	BOOST_VERIFY(kernel.getInstruction(2) == qmi3);

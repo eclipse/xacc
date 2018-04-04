@@ -27,6 +27,7 @@ find_package(Boost COMPONENTS system program_options regex filesystem chrono thr
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${XACC_ROOT}/tpls/spdlog)
+include_directories(${XACC_ROOT}/tpls/eigen)
 include_directories(${CPPUS_INCLUDE_DIR})
 include_directories(${CppRSDK_INCLUDE_DIR})
 include_directories("${CMAKE_SOURCE_DIR}")
@@ -53,6 +54,13 @@ set (LIBRARY_NAME xacc)
 file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
 file (GLOB SRC *.cpp program/*.cpp utils/*.cpp accelerator/remote/*.cpp)
 
+find_package(PythonLibs)
+if(PythonLibs_FOUND)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
+   include_directories(${XACC_ROOT}/tpls/pybind11/include)
+   include_directories(${PYTHON_INCLUDE_DIR})
+endif()
+
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
 link_directories(${Boost_LIBRARY_DIR})
@@ -68,7 +76,11 @@ if (APPLE)
 	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest ${XACC_PYTHON_LIBRARIES})
+if(PythonLibs_FOUND)
+   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+else()
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+endif()
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)

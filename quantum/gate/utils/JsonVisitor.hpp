@@ -65,7 +65,7 @@ public:
 			writer->StartObject();
 
 			writer->String("function");
-			writer->String(f->getName());
+			writer->String(f->name());
 
 			// All functions have instructions, start
 			// that array here.
@@ -95,7 +95,7 @@ public:
 //		// This is a Function, start it as an Object
 //		writer->StartObject();
 //		writer->String("function");
-//		writer->String(function->getName());
+//		writer->String(function->name());
 //
 //		// All functions have instructions, start
 //		// that array here.
@@ -194,7 +194,7 @@ public:
 	void visit(ConditionalFunction& cn) {
 		writer->StartObject();
 		writer->String("conditional_function");
-		writer->String(cn.getName());
+		writer->String(cn.name());
 
 		writer->String("conditional_qubit");
 		writer->Int(cn.getConditionalQubit());
@@ -248,7 +248,7 @@ protected:
 	void baseGateInst(GateInstruction& inst, bool endObject = true) {
 		writer->StartObject();
 		writer->String("gate");
-		writer->String(inst.getName().c_str());
+		writer->String(inst.name().c_str());
 		writer->String("enabled");
 		writer->Bool(inst.isEnabled());
 		writer->String("qubits");

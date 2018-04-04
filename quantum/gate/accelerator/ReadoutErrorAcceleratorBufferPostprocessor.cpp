@@ -77,7 +77,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ReadoutErrorAcceleratorBufferPos
 				first = true;
 			}
 
-			xacc::info(kernel->getName() + " - Computing measurement probability for bit string = " + localBitStr);
+			xacc::info(kernel->name() + " - Computing measurement probability for bit string = " + localBitStr);
 
 			probs.push_back(subList[i]->computeMeasurementProbability(localBitStr));
 			counter++;

@@ -25,15 +25,31 @@ protected:
 	int qbitIdx;
 
 public:
+	ConditionalFunction(int qbit) :
+			GateFunction("conditional_" + std::to_string(qbit)), qbitIdx(qbit) {
+	}
 
-	ConditionalFunction(int qbit);
+	void addInstruction(InstPtr instruction) {
+		instruction->disable();
+		instructions.push_back(instruction);
+	}
 
-	virtual void addInstruction(InstPtr instruction);
+	const int getConditionalQubit() {
+		return qbitIdx;
+	}
 
-	const int getConditionalQubit();
-	void evaluate(const int accBitState);
+	void evaluate(const int accBitState) {
+		if (accBitState == 1) {
+			for (auto i : instructions) {
+				i->enable();
+			}
+		}
+	}
 
-	virtual const std::string toString(const std::string& bufferVarName);
+	const std::string toString(
+			const std::string& bufferVarName) {
+		return "";
+	}
 
 	DEFINE_VISITABLE()
 
