@@ -16,7 +16,7 @@
 #include "KernelReplacementPreprocessor.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
-#include "GateQIR.hpp"
+#include "GateIR.hpp"
 #include "XACC.hpp"
 #include "ServiceRegistry.hpp"
 
@@ -29,11 +29,11 @@ class DummyCompiler: public xacc::Compiler {
 public:
 	virtual std::shared_ptr<IR> compile(const std::string& src,
 			std::shared_ptr<Accelerator> acc) {
-		return std::make_shared<GateQIR>();
+		return std::make_shared<GateIR>();
 	}
 
 	virtual std::shared_ptr<IR> compile(const std::string& src) {
-		return std::make_shared<GateQIR>();
+		return std::make_shared<GateIR>();
 	}
 
 	virtual const std::string translate(const std::string& bufferVariable,
@@ -66,10 +66,6 @@ public:
 				"// END SWAP 0 2\n";
 
 		return translated;
-	}
-
-	virtual const std::string getName() {
-		return "Dummy";
 	}
 
 	virtual const std::string name() const {

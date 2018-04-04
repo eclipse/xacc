@@ -23,9 +23,22 @@ namespace quantum {
  */
 class CNOT: public virtual GateInstruction {
 public:
-	CNOT(std::vector<int> qbits);
+	CNOT() :GateInstruction("CNOT") {}
+	CNOT(std::vector<int> qbits) : GateInstruction("CNOT", qbits) {}
+	CNOT(int srcqbit, int tgtqbit) : CNOT(std::vector<int> { srcqbit, tgtqbit }) {}
 
-	CNOT(int srcqbit, int tgtqbit);
+	virtual std::shared_ptr<GateInstruction> clone() {
+		return std::make_shared<CNOT>();
+	}
+
+	/**
+	 * Return the description of this instance
+	 * @return description The description of this object.
+	 */
+	virtual const std::string description() const {
+		return "";
+	}
+
 
 	DEFINE_VISITABLE()
 };

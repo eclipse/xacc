@@ -172,6 +172,10 @@ public:
 		return strs;
 	}
 
+	virtual std::map<std::string, int> getMeasurementCounts() {
+		return bitStringToCounts;
+	}
+
 	/**
 	 * Print information about this AcceleratorBuffer to standard out.
 	 *

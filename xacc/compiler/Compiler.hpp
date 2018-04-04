@@ -68,12 +68,6 @@ public:
 			std::shared_ptr<Function> function) = 0;
 
 	/**
-	 * Return the name of this Compiler
-	 * @return name Compiler name
-	 */
-	virtual const std::string getName() = 0;
-
-	/**
 	 * Return an empty options_description, this is for
 	 * subclasses to implement.
 	 */

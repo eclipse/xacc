@@ -24,22 +24,13 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	BOOST_VERIFY(h.toString("qreg") == "H qreg0");
 	BOOST_VERIFY(h.bits().size() == 1);
 	BOOST_VERIFY(h.bits()[0] == 0);
-	BOOST_VERIFY(h.getName() == "H");
+	BOOST_VERIFY(h.name() == "H");
 
 	Hadamard h2(44);
 	BOOST_VERIFY(h2.toString("qreg") == "H qreg44");
 	BOOST_VERIFY(h2.bits().size() == 1);
 	BOOST_VERIFY(h2.bits()[0] == 44);
-	BOOST_VERIFY(h2.getName() == "H");
+	BOOST_VERIFY(h2.name() == "H");
 
 }
 
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	auto hadamard = GateInstructionRegistry::instance()->create("H",
-			std::vector<int> { 0 });
-	BOOST_VERIFY(hadamard->bits().size() == 1);
-	BOOST_VERIFY(hadamard->bits()[0] == 0);
-	BOOST_VERIFY(hadamard->getName() == "H");
-
-}

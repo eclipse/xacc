@@ -18,27 +18,19 @@
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(czeckCreation) {
+BOOST_AUTO_TEST_CASE(checkCreation) {
 
 	Z z(0);
 	BOOST_VERIFY(z.toString("qreg") == "Z qreg0");
 	BOOST_VERIFY(z.bits().size() == 1);
 	BOOST_VERIFY(z.bits()[0] == 0);
-	BOOST_VERIFY(z.getName() == "Z");
+	BOOST_VERIFY(z.name() == "Z");
 
 	Z z2(44);
 	BOOST_VERIFY(z2.toString("qreg") == "Z qreg44");
 	BOOST_VERIFY(z2.bits().size() == 1);
 	BOOST_VERIFY(z2.bits()[0] == 44);
-	BOOST_VERIFY(z2.getName() == "Z");
+	BOOST_VERIFY(z2.name() == "Z");
 
 
-}
-
-BOOST_AUTO_TEST_CASE(checkAutoRegistration) {
-
-	auto z = GateInstructionRegistry::instance()->create("Z", std::vector<int>{0});
-	BOOST_VERIFY(z->bits().size() == 1);
-	BOOST_VERIFY(z->bits()[0] == 0);
-	BOOST_VERIFY(z->getName() == "Z");
 }

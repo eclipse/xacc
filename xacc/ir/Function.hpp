@@ -15,6 +15,7 @@
 #include <iostream>
 #include <list>
 #include "Instruction.hpp"
+#include <Eigen/Dense>
 
 namespace xacc {
 
@@ -26,7 +27,7 @@ using InstPtr = std::shared_ptr<Instruction>;
  *
  * @author Alex McCaskey
  */
-class Function : public virtual Instruction {
+class Function : public Instruction {
 public:
 
 	/**
@@ -93,14 +94,16 @@ public:
 	 */
 	virtual bool isComposite() { return true; }
 
-	/**
-	 * This method is used to evaluate this Function's parameterized
-	 * Instructions that have string variable InstructionParameters.
-	 * These parameters are updated with the given runtime parameters.
-	 *
-	 * @param parameters The runtime parameters
-	 */
-	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) = 0;
+//	/**
+//	 * This method is used to evaluate this Function's parameterized
+//	 * Instructions that have string variable InstructionParameters.
+//	 * These parameters are updated with the given runtime parameters.
+//	 *
+//	 * @param parameters The runtime parameters
+//	 */
+//	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) = 0;
+
+	virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd& params) = 0;
 
 	/**
 	 * The destructor

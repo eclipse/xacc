@@ -11,7 +11,6 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 
-#include "Program.hpp"
 #include "XACC.hpp"
 
 namespace xacc {
@@ -62,10 +61,11 @@ void Program::build() {
 		src = preprocessor->process(src, compiler, accelerator);
 	}
 
-	XACCLogger::instance()->info("Executing " + compiler->getName() + " compiler.");
+	XACCLogger::instance()->info("Executing " + compiler->name() + " compiler.");
 
 	// Execute the compilation
 	xaccIR = compiler->compile(src, accelerator);
+	XACCLogger::instance()->info("Done executing " + compiler->name() + " compiler.");
 
 	// Validate the compilation
 	if (!xaccIR) {

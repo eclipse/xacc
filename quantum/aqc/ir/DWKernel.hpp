@@ -30,7 +30,7 @@ protected:
 
 	std::list<InstPtr> instructions;
 
-	std::string name;
+	std::string _name;
 
 public:
 
@@ -41,7 +41,7 @@ public:
 	 * @param id
 	 * @param name
 	 */
-	DWKernel(std::string kernelName) : name(kernelName) {
+	DWKernel(std::string kernelName) : _name(kernelName) {
 	}
 
 	virtual const int nInstructions() {
@@ -104,10 +104,13 @@ public:
 	 * Return the name of this function
 	 * @return
 	 */
-	virtual const std::string getName() {
-		return name;
+	virtual const std::string name() const {
+		return _name;
 	}
 
+	virtual const std::string description() const {
+		return "";
+	}
 	/**
 	 * Return the qubits this function acts on.
 	 * @return
@@ -177,7 +180,7 @@ public:
 		return 0;
 	}
 
-	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) {
+	virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd& params) {
 		xacc::error("DWKernel does not contain runtime parameters.");
 	}
 
