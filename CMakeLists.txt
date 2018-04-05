@@ -75,14 +75,20 @@ ExternalProject_Add(cppmicroservices
 # Make it so you don't always have to 
 # specify openssl dir on mac
 if(APPLE AND NOT OPENSSL_ROOT_DIR)
-	if (EXISTS /usr/local/opt/openssl) 
-		message(STATUS "${BoldGreen}Searching for OpenSSL from /usr/local/opt/openssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
-		set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
-	endif()
+        if (EXISTS /usr/local/opt/openssl)
+                message(STATUS "${BoldGreen}[OSX] Searching for OpenSSL from /usr/local/opt/openssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
+                set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+        endif()
+elseif(EXISTS /etc/redhat-release AND NOT OPENSSL_ROOT_DIR)
+   # we are on fedora... check for custom openssl install
+   # in /usr/local/ssl
+   if (EXISTS /usr/local/ssl)
+                message(STATUS "${BoldGreen}[Fedora] Searching for OpenSSL from /usr/local/ssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
+                set(OPENSSL_ROOT_DIR /usr/local/ssl)
+   endif()
 endif()
 find_package(OpenSSL 1.0.2 REQUIRED)
-
-message(STATUS "${BoldGreen}Found OpenSSL version ${OPENSSL_VERSION}${ColorReset}")
+message(STATUS "${BoldGreen}Found OpenSSL version ${OPENSSL_VERSION}${ColorReset} at ${OPENSSL_ROOT_DIR}")
 
 ExternalProject_Add(cpprestsdk
     DEPENDS cppmicroservices
