@@ -62,7 +62,7 @@ const std::string RestClient::get(const std::string& remoteUrl,
 	// get the result as a string
 	std::stringstream z;
 	z << getResponse.get().extract_json().get();
-//	xacc::info("GET RESPONSE: " + z.str());
+	xacc::info("GET RESPONSE: " + z.str());
 	return z.str();
 }
 
@@ -72,7 +72,7 @@ void RemoteAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 	auto jsonPostStr = processInput(buffer, std::vector<std::shared_ptr<Function>> {
 			function });
 
-	auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr, headers);
+	auto responseStr = handleExceptionRestClientPost(remoteUrl, postPath, jsonPostStr, headers);
 
 	processResponse(buffer, responseStr);
 
@@ -85,7 +85,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
 		const std::vector<std::shared_ptr<Function>> functions) {
 	auto jsonPostStr = processInput(buffer, functions);
 
-	auto responseStr = restClient->post(remoteUrl, postPath, jsonPostStr, headers);
+	auto responseStr = handleExceptionRestClientPost(remoteUrl, postPath, jsonPostStr, headers);
 
 	return processResponse(buffer, responseStr);
 }

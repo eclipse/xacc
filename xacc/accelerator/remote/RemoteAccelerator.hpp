@@ -105,6 +105,68 @@ protected:
 			std::shared_ptr<AcceleratorBuffer> buffer,
 			const std::string& response) = 0;
 
+	std::string handleExceptionRestClientPost(const std::string& _url, const std::string& path, const std::string& postStr,
+			std::map<std::string, std::string> headers) {
+		std::string postResponse;
+		int retries = 10;
+		std::exception ex;
+		bool succeeded = false;
+
+		// Execute HTTP Post
+		do {
+			try {
+				postResponse = restClient->post(_url, path, postStr, headers);
+				succeeded = true;
+				break;
+			} catch (std::exception& e) {
+				ex = e;
+				xacc::info("Remote Accelerator " + name() + " caught exception while calling restClient->post() "
+						"- " + std::string(e.what()));
+				retries--;
+				if (retries > 0) {
+					xacc::info("Retrying HTTP Get.");
+				}
+			}
+		} while (retries > 0);
+
+		if (!succeeded) {
+			xacc::error("Remote Accelerator " + name() + " failed HTTP Post for Job Response - " + std::string(ex.what()));
+		}
+
+		return postResponse;
+	}
+
+	std::string handleExceptionRestClientGet(const std::string& _url, const std::string& path) {
+		std::string getResponse;
+		int retries = 10;
+		std::exception ex;
+		bool succeeded = false;
+		// Execute HTTP Get
+		do {
+			try {
+				getResponse = restClient->get(_url, path);
+				succeeded = true;
+				break;
+			} catch (std::exception& e) {
+				ex = e;
+				xacc::info("Remote Accelerator " + name() + " caught exception while calling restClient->get() "
+						"- " + std::string(e.what()));
+				retries--;
+				if (retries > 0) {
+					xacc::info("Retrying HTTP Get.");
+				}
+			}
+		} while (retries > 0);
+
+		if (!succeeded) {
+			xacc::error("Remote Accelerator " + name() + " failed HTTP Get for Job Response - " + std::string(ex.what()));
+		}
+
+		return getResponse;
+	}
+
+
+
 };
 
 }
