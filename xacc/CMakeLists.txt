@@ -77,9 +77,9 @@ if (APPLE)
 endif()
 
 if(PythonLibs_FOUND)
-   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
 else()
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
 endif()
 
 # Get the test files

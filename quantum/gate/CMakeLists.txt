@@ -64,7 +64,7 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib} cpprest ${OPENSSL_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
 
 add_subdirectory(compiler)
 add_subdirectory(ir)
