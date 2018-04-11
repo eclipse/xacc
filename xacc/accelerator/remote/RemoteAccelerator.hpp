@@ -15,19 +15,12 @@
 
 #include "Accelerator.hpp"
 #include "XACC.hpp"
-
-#include <cpprest/http_client.h>
-#include <cpprest/filestream.h>
-
-using namespace utility;
-using namespace web;
-using namespace web::http;
-using namespace web::http::client;
-using namespace concurrency::streams;
+#include "restclient-cpp/connection.h"
+#include "restclient-cpp/restclient.h"
 
 namespace xacc {
 
-class RestClient {
+class Client {
 
 public:
 
@@ -41,7 +34,7 @@ public:
 			std::map<std::string, std::string> headers = std::map<std::string,
 					std::string> { });
 
-	virtual ~RestClient() {}
+	virtual ~Client() {}
 
 
 };
@@ -50,9 +43,9 @@ class RemoteAccelerator : public Accelerator {
 
 public:
 
-	RemoteAccelerator() : Accelerator(), restClient(std::make_shared<RestClient>()) {}
+	RemoteAccelerator() : Accelerator(), restClient(std::make_shared<Client>()) {}
 
-	RemoteAccelerator(std::shared_ptr<RestClient> client) : restClient(client) {}
+	RemoteAccelerator(std::shared_ptr<Client> client) : restClient(client) {}
 
 
 	/**
@@ -84,7 +77,7 @@ public:
 
 protected:
 
-	std::shared_ptr<RestClient> restClient;
+	std::shared_ptr<Client> restClient;
 
 	std::string postPath;
 
