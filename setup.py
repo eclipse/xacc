@@ -64,8 +64,6 @@ class CMakeBuild(build_ext):
         build_args = ['--config', cfg]
 
         cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-        if platform.system() == 'Darwin':
-            cmake_args += ['-DCMAKE_CXX_FLAGS=\"-arch x86_64\"']
 
         build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
 
