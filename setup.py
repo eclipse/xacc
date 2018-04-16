@@ -63,16 +63,11 @@ class CMakeBuild(build_ext):
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
-        if platform.system() == "Windows":
-            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
-                cfg.upper(),
-                extdir)]
-            if sys.maxsize > 2**32:
-                cmake_args += ['-A', 'x64']
-            build_args += ['--', '/m']
-        else:
-            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
+        cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
+        if platform.system() == 'Darwin':
+            cmake_args += ['-DCMAKE_CXX_FLAGS=\"-arch x86_64\"']
+
+        build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
 
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
