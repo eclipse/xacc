@@ -16,6 +16,7 @@ from setuptools.command.install import install as InstallCommandBase
 from setuptools.command.test import test as TestCommand
 from shutil import copyfile, copymode
 import shutil
+import sysconfig
 
 env = os.environ.copy()
 
@@ -53,7 +54,7 @@ class CMakeBuild(build_ext):
         print(dir(self))
         print(self.build_lib)
   
-        cmake_args = ['-DPYTHON_EXECUTABLE=' + sys.executable,
+        cmake_args = ['-DPYTHON_INCLUDE_DIR=' + sysconfig.get_paths()['platinclude'], #sys.executable,
                       '-DCMAKE_INSTALL_PREFIX='+install_prefix,
 		      '-DFROM_SETUP_PY=TRUE']
         
