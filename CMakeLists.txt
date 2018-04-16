@@ -124,7 +124,6 @@ if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-
 ExternalProject_Add(xacc-core
    DEPENDS cppmicroservices restclient-cpp
    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
@@ -180,8 +179,8 @@ ExternalProject_Add(xacc-quantum
    TEST_AFTER_INSTALL 1
    )
 
-find_package(PythonLibs)
-if(PYTHONLIBS_FOUND)
+#find_package(PythonLibs)
+#if(PYTHONLIBS_FOUND)
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
 ExternalProject_Add(xacc-python
    DEPENDS xacc-core xacc-quantum
@@ -199,16 +198,12 @@ ExternalProject_Add(xacc-python
 	      -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
 	      -DFROM_SETUP_PY=${FROM_SETUP_PY}
 	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
- #             -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
-  #            -DOPENSSL_INCLUDE_DIR=${OPENSSL_INCLUDE_DIR}
- #             -DOPENSSL_LIBRARIES=${OPENSSL_LIBRARIES}
-  #            -DOPENSSL_CRYPTO_LIBRARY=${OPENSSL_CRYPTO_LIBRARY}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_AFTER_INSTALL 1
    )
-endif()
+#endif()
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
