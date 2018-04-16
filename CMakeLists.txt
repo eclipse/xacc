@@ -124,10 +124,6 @@ if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-find_package(PythonLibs)
-if(PYTHONLIBS_FOUND)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
-endif()
 
 ExternalProject_Add(xacc-core
    DEPENDS cppmicroservices restclient-cpp
@@ -184,7 +180,9 @@ ExternalProject_Add(xacc-quantum
    TEST_AFTER_INSTALL 1
    )
 
-if(PYTHONLIBS_FOUND)
+#find_package(PythonLibs)
+#if(PYTHONLIBS_FOUND)
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
 ExternalProject_Add(xacc-python
    DEPENDS xacc-core xacc-quantum
    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/python
@@ -210,7 +208,7 @@ ExternalProject_Add(xacc-python
    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
    TEST_AFTER_INSTALL 1
    )
-endif()
+#endif()
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
