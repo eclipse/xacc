@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
 include(tests)
 
   # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options regex filesystem chrono thread graph REQUIRED)
+find_package(Boost COMPONENTS system program_options regex filesystem chrono graph REQUIRED)
   #endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -41,7 +41,7 @@ include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PYBIND11_DIR}/include)
 
 #find_package(PythonLibs REQUIRED)
-include_directories(${XACC_PYTHON_INCLUDE_DIR})
+#include_directories(${XACC_PYTHON_INCLUDE_DIR})
 
 # Create a xacc config header file
 configure_file("${XACC_ROOT}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
@@ -54,12 +54,12 @@ set (LIBRARY_NAME xacc)
 file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
 file (GLOB SRC *.cpp program/*.cpp utils/*.cpp accelerator/remote/*.cpp)
 
-find_package(PythonLibs)
-if(PythonLibs_FOUND)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
-   include_directories(${XACC_ROOT}/tpls/pybind11/include)
-   include_directories(${PYTHON_INCLUDE_DIR})
-endif()
+#find_package(PythonLibs)
+#if(PythonLibs_FOUND)
+#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
+#   include_directories(${XACC_ROOT}/tpls/pybind11/include)
+#   include_directories(${PYTHON_INCLUDE_DIR})
+#endif()
 
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
@@ -76,11 +76,11 @@ if (APPLE)
 	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
-if(PythonLibs_FOUND)
-   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
-else()
+#if(PythonLibs_FOUND)
+#   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
+#else()
    target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
-endif()
+#endif()
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)

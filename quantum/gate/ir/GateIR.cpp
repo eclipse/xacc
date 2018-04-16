@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <boost/algorithm/string.hpp>
-#include <regex>
+#include <boost/regex.hpp>
 #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
 
@@ -25,9 +25,9 @@ void GateIR::generateGraph(const std::string& kernelName) {
 	std::map<std::string, int> qubitVarNameToId;
 	std::vector<std::string> qasmLines;
 	std::vector<int> allQbitIds;
-	std::regex newLineDelim("\n"), spaceDelim(" ");
-	std::regex qubitDeclarations("\\s*qubit\\s*\\w+");
-	std::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
+	boost::regex newLineDelim("\n"), spaceDelim(" ");
+	boost::regex qubitDeclarations("\\s*qubit\\s*\\w+");
+	boost::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
 	int nQubits = 0, qbitId = 0, layer = 1, gateId = 1;
 	std::string qubitVarName;
 	qasmLines = {first, last};
@@ -35,11 +35,11 @@ void GateIR::generateGraph(const std::string& kernelName) {
 	// Let's now loop over the qubit declarations,
 	// and construct a mapping of qubit var names to integer id,
 	// and get the total number of qubits
-	for (auto i = std::sregex_iterator(flatQasmStr.begin(), flatQasmStr.end(),
-					qubitDeclarations); i != std::sregex_iterator(); ++i) {
+	for (auto i = boost::sregex_iterator(flatQasmStr.begin(), flatQasmStr.end(),
+					qubitDeclarations); i != boost::sregex_iterator(); ++i) {
 		std::string qubitLine = (*i).str();
 		qubitLine.erase(std::remove(qubitLine.begin(), qubitLine.end(), '\n'), qubitLine.end());
-		std::sregex_token_iterator first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
+		boost::sregex_token_iterator first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
 		std::vector<std::string> splitQubitLine = {first, last};
 		qubitVarNameToId[splitQubitLine[1]] = qbitId;
 		splitQubitLine[1].erase(
@@ -67,7 +67,7 @@ void GateIR::generateGraph(const std::string& kernelName) {
 			CircuitNode node;
 
 			// Split the current qasm command at the spaces
-			std::sregex_token_iterator first { line.begin(),
+			boost::sregex_token_iterator first { line.begin(),
 					line.end(), spaceDelim, -1 }, last;
 			std::vector<std::string> gateCommand = {first, last};
 

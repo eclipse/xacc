@@ -29,7 +29,7 @@ include(tests)
 include(CppMicroServicesConfig)
 
   # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
+find_package(Boost COMPONENTS system program_options filesystem chrono regex REQUIRED)
   #endif()
 
 include_directories(${XACC_INCLUDE_DIR})
