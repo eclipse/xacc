@@ -6,7 +6,7 @@
 
 namespace xacc {
 
-void ServiceRegistry::initialize() {
+void ServiceRegistry::initialize(const std::string internalPath) {
 
 	if (!initialized) {
 		framework = FrameworkFactory().NewFramework();
@@ -20,61 +20,92 @@ void ServiceRegistry::initialize() {
 		}
 
 		// Get the paths/files we'll be searching
-		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR) + std::string("/lib");
+		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR)
+				+ std::string("/lib");
 		const std::string xaccPluginPath = std::getenv("HOME")
-					+ std::string("/.xacc/plugins");
+				+ std::string("/.xacc/plugins");
 		std::stringstream s;
 		s << std::getenv("HOME") << "/.xacc/.internal_plugins";
 		const std::string internalFileStr = s.str();
 
-		// Search in the .internal_plugins file first
-		if (boost::filesystem::exists(internalFileStr)) {
-			std::ifstream internalFile(internalFileStr);
-			std::string contents((std::istreambuf_iterator<char>(internalFile)), std::istreambuf_iterator<char>());
-			std::vector<std::string> split;
-			boost::split(split, contents, boost::is_any_of("\n"));
-			for (auto& s : split) {
-				if (!boost::contains(s, "#") && boost::filesystem::exists(s)) {
+		if (!internalPath.empty()) {
+			XACCLogger::instance()->enqueueLog(
+					"Searching User Provided Directory: " + internalPath);
+			for (auto &entry : boost::filesystem::directory_iterator(
+					internalPath)) {
+				// We want the gate and aqc bundles that come with XACC
+				if (boost::contains(entry.path().filename().string(),
+						"libxacc-quantum")) {
+					auto name = entry.path().filename().string();
+					boost::replace_all(name, "lib", "");
+					boost::replace_all(name, ".so", "");
+					boost::replace_all(name, ".dy", "");
 
-					try {
-						context.InstallBundles(s);
-						boost::filesystem::path p(s);
-						auto name = p.filename().string();
-						boost::replace_all(name, "lib", "");
-						boost::replace_all(name, ".so", "");
-						boost::replace_all(name, ".dy", "");
-						installed.insert({name, p.string()});
+					if (installed.find(name) == installed.end()) {
+						context.InstallBundles(entry.path().string());
 						XACCLogger::instance()->enqueueLog(
 								"Installed base plugin " + name);
-					} catch(std::exception& e) {
-						// do nothing if we failed
+						installed.insert( { name, entry.path().string() });
 					}
 				}
 			}
+
 		}
+		else {
 
-		// If not found, see if we have access to the installation directory
-		if (!installed.count("xacc-quantum-gate")
-				|| !installed.count("xacc-quantum-aqc")) {
+			// Search in the .internal_plugins file first
+			if (boost::filesystem::exists(internalFileStr)) {
+				std::ifstream internalFile(internalFileStr);
+				std::string contents(
+						(std::istreambuf_iterator<char>(internalFile)),
+						std::istreambuf_iterator<char>());
+				std::vector<std::string> split;
+				boost::split(split, contents, boost::is_any_of("\n"));
+				for (auto& s : split) {
+					if (!boost::contains(s, "#")
+							&& boost::filesystem::exists(s)) {
 
-			if (boost::filesystem::exists(xaccLibDir)) {
-				XACCLogger::instance()->enqueueLog(
-						"Searching XACC Library Directory: " + xaccLibDir);
-				for (auto &entry : boost::filesystem::directory_iterator(
-						xaccLibDir)) {
-					// We want the gate and aqc bundles that come with XACC
-					if (boost::contains(entry.path().filename().string(),
-							"libxacc-quantum")) {
-						auto name = entry.path().filename().string();
-						boost::replace_all(name, "lib", "");
-						boost::replace_all(name, ".so", "");
-						boost::replace_all(name, ".dy", "");
-
-						if (installed.find(name) == installed.end()) {
-							context.InstallBundles(entry.path().string());
+						try {
+							context.InstallBundles(s);
+							boost::filesystem::path p(s);
+							auto name = p.filename().string();
+							boost::replace_all(name, "lib", "");
+							boost::replace_all(name, ".so", "");
+							boost::replace_all(name, ".dy", "");
+							installed.insert( { name, p.string() });
 							XACCLogger::instance()->enqueueLog(
 									"Installed base plugin " + name);
-							installed.insert({name, entry.path().string()});
+						} catch (std::exception& e) {
+							// do nothing if we failed
+						}
+					}
+				}
+			}
+
+			// If not found, see if we have access to the installation directory
+			if (!installed.count("xacc-quantum-gate")
+					|| !installed.count("xacc-quantum-aqc")) {
+
+				if (boost::filesystem::exists(xaccLibDir)) {
+					XACCLogger::instance()->enqueueLog(
+							"Searching XACC Library Directory: " + xaccLibDir);
+					for (auto &entry : boost::filesystem::directory_iterator(
+							xaccLibDir)) {
+						// We want the gate and aqc bundles that come with XACC
+						if (boost::contains(entry.path().filename().string(),
+								"libxacc-quantum")) {
+							auto name = entry.path().filename().string();
+							boost::replace_all(name, "lib", "");
+							boost::replace_all(name, ".so", "");
+							boost::replace_all(name, ".dy", "");
+
+							if (installed.find(name) == installed.end()) {
+								context.InstallBundles(entry.path().string());
+								XACCLogger::instance()->enqueueLog(
+										"Installed base plugin " + name);
+								installed.insert(
+										{ name, entry.path().string() });
+							}
 						}
 					}
 				}

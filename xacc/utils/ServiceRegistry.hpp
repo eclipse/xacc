@@ -70,7 +70,7 @@ protected:
 
 public:
 
-	void initialize();
+	void initialize(const std::string internalPath = "");
 
 	// Overriding here so we can have a custom constructor
 	static ServiceRegistry* instance() {
