@@ -120,6 +120,9 @@ def main(argv=None):
       initialize()
       sys.exit(0)
 
+   if not os.path.exists(os.environ['HOME']+'/.xacc/.internal_plugins'):
+      initialize()
+     
    # pyxacc can be installed in site-packages/xacc-...-egg or 
    # in ${XACC_DIR}/lib/python, we need to figure out which one
    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
