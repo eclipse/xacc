@@ -59,6 +59,8 @@ protected:
 	 */
 	BundleContext context;
 
+	std::map<std::string, std::string> installed;
+
 	/**
 	 * The constructor
 	 */
