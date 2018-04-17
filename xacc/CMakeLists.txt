@@ -72,7 +72,7 @@ if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
 
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.dylib)
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
 
 if (APPLE)
 add_custom_command(TARGET xacc
