@@ -9,9 +9,6 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-#find_package(PythonLibs)
-#if(PythonLibs_FOUND)
-
 set(CppMicroServices_DIR "${CPPUS_LIBRARY_DIR}/../share/cppmicroservices3/cmake")
 
 # Modify our CMAKE_MODULE_PATH
@@ -55,11 +52,10 @@ target_link_libraries(pyxacc xacc xacc-quantum-gate xacc-quantum-aqc CppMicroSer
 
 if(APPLE)
    set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
-   set_target_properties(pyxacc PROPERTIES LDFLAGS "-undefined dynamic_lookup")
+   set_target_properties(pyxacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
    set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib;$ORIGIN/plugins")
-   set_target_properties(pyxacc PROPERTIES LDFLAGS "-shared")
+   set_target_properties(pyxacc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
 install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
-#endif()
