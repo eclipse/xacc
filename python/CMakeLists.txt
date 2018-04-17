@@ -50,6 +50,12 @@ link_directories(${Boost_LIBRARY_DIR})
 #endif()
 target_link_libraries(pyxacc xacc xacc-quantum-gate xacc-quantum-aqc CppMicroServices ${Boost_LIBRARIES} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
 
+if (APPLE)
+add_custom_command(TARGET pyxacc
+    POST_BUILD COMMAND 
+    ${CMAKE_INSTALL_NAME_TOOL} -change "${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.1.dylib" "@rpath/librestclient-cpp.1.dylib" $<TARGET_FILE:pyxacc>)
+endif()
+
 if(APPLE)
    set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
    set_target_properties(pyxacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")

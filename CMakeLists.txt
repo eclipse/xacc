@@ -68,41 +68,10 @@ ExternalProject_Add(cppmicroservices
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-		       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+	       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
 )
 
-# Make it so you don't always have to 
-# specify openssl dir on mac
-#if(APPLE AND NOT OPENSSL_ROOT_DIR)
-#        if (EXISTS /usr/local/opt/openssl)
-#                message(STATUS "${BoldGreen}[OSX] Searching for OpenSSL from /usr/local/opt/openssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
-#                set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
-#        endif()
-#elseif(EXISTS /etc/redhat-release AND NOT OPENSSL_ROOT_DIR)
-   # we are on fedora... check for custom openssl install
-   # in /usr/local/ssl
-#   if (EXISTS /usr/local/ssl)
-#                message(STATUS "${BoldGreen}[Fedora] Searching for OpenSSL from /usr/local/ssl. Override with -DOPENSSL_ROOT_DIR=...${ColorReset}")
-#                set(OPENSSL_ROOT_DIR /usr/local/ssl)
-#   endif()
-#endif()
-#find_package(OpenSSL 1.0.2 REQUIRED)
-#message(STATUS "${BoldGreen}Found OpenSSL version ${OPENSSL_VERSION}${ColorReset} at ${OPENSSL_ROOT_DIR}")
-
-#ExternalProject_Add(cpprestsdk
-#    DEPENDS cppmicroservices
-#	GIT_REPOSITORY https://github.com/Microsoft/cpprestsdk
-#	GIT_TAG master
-#	CONFIGURE_COMMAND ${CMAKE_COMMAND} ../cpprestsdk/Release/ -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-#               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-#		   	   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-#		   	   -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}
-#		   	   -DBUILD_TESTS=OFF
-#    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
-#)
 ExternalProject_Add(restclient-cpp
     DEPENDS cppmicroservices
 	GIT_REPOSITORY https://github.com/mrtazz/restclient-cpp
@@ -111,7 +80,6 @@ ExternalProject_Add(restclient-cpp
 	CONFIGURE_COMMAND sh autogen.sh && sh ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_INSTALL_PREFIX}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
 )
-
 set(CppMicroServices_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
 set(CppMicroServices_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
