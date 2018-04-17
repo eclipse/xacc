@@ -72,21 +72,13 @@ if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
 
-#if (APPLE)
-#	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
-#endif()
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.dylib)
 
-#if(PythonLibs_FOUND)
-#   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
-#else()
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} restclient-cpp)
-#endif()
-
-#if(APPLE)
-#   set_target_properties(xacc PROPERTIES LDFLAGS "-undefined dynamic_lookup")
-#else()
-#   set_target_properties(xacc PROPERTIES LDFLAGS "-shared")
-#endif()
+if (APPLE)
+add_custom_command(TARGET xacc
+    POST_BUILD COMMAND 
+    ${CMAKE_INSTALL_NAME_TOOL} -change "${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.1.dylib" "@rpath/librestclient-cpp.1.dylib" $<TARGET_FILE:xacc>)
+endif()
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
