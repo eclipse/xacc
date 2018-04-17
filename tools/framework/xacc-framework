@@ -16,6 +16,7 @@ import sys
 import os
 import subprocess
 import multiprocessing
+import platform
 
 try:
    import pyxacc as xacc
@@ -27,9 +28,11 @@ def parse_args(args):
    parser = argparse.ArgumentParser(description="XACC Framework Utility.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      fromfile_prefix_chars='@')
-   parser.add_argument("-p", "--plugins", nargs='*', type=str, help="The XACC Plugins to install.", required=True)
+   parser.add_argument("-p", "--plugins", nargs='*', type=str, help="The XACC Plugins to install.", required=False)
    parser.add_argument("-a", "--extra-cmake-args", nargs='*', type=str, help="Any extra CMake arguments to drive the install.", required=False)
    parser.add_argument("-j", "--make-threads", default=4, type=int, help="Number of threads to use in make", required=False)
+   parser.add_argument("-i", "--initialize", action='store_true', help="Initialize the framework.", required=False)
+   
    opts = parser.parse_args(args)
    return opts
 
@@ -63,15 +66,63 @@ def mkdir_p(path):
             print("")
             exit()
 
+def initialize():
+   try:
+      file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'r')
+      contents = file.read()
+   except IOError:
+      file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'w')
+      contents = ''
+
+   file.close()
+
+   file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'w')
+   
+   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))   
+   if platform.system() == "Darwin":
+       libname1 = "libxacc-quantum-gate.dylib"
+       libname2 = "libxacc-quantum-aqc.dylib"
+   else:
+       libname1 = "libxacc-quantum-gate.so"
+       libname2 = "libxacc-quantum-aqc.so"
+
+   if xaccLocation+'/lib/'+libname1+'\n' not in contents:
+      file.write(xaccLocation+'/lib/'+libname1+'\n')
+   if xaccLocation+'/lib/'+libname2+'\n' not in contents:
+      file.write(xaccLocation+'/lib/'+libname2+'\n')
+   
+   file.write(contents)
+   file.close()
+      
 def main(argv=None):
    opts = parse_args(sys.argv[1:])
+
+   if opts.initialize:
+      initialize()
+      sys.exit(0)
 
    # pyxacc can be installed in site-packages/xacc-...-egg or 
    # in ${XACC_DIR}/lib/python, we need to figure out which one
    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
-   if os.path.basename(xaccLocation) == 'python':
-      xaccLocation = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+   print('XACC Install Location = ', xaccLocation)
+   xacc_cwd = os.getcwd()
+
+   if xaccLocation+'/lib\n' not in contents:
+      file.write(xaccLocation+'/lib\n')
    
+   file.write(contents)
+   file.close()
+      
+def main(argv=None):
+   opts = parse_args(sys.argv[1:])
+
+   if opts.initialize:
+      initialize()
+      sys.exit(0)
+
+   # pyxacc can be installed in site-packages/xacc-...-egg or 
+   # in ${XACC_DIR}/lib/python, we need to figure out which one
+   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
    print('XACC Install Location = ', xaccLocation)
    xacc_cwd = os.getcwd()
    
