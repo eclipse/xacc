@@ -92,8 +92,27 @@ if (OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+find_package(Boost COMPONENTS system program_options regex filesystem chrono graph)
+if (NOT Boost_FOUND)
+ExternalProject_Add(boost
+    DEPENDS restclient-cpp
+    URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz
+    UPDATE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX} --without-libraries=python,mpi,atomic,container,context,coroutine,coroutine2,date_time,exception,iostreams,locale,log,math,metaparse,random,serialization,signals,thread,type_erasure,wave
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ./b2
+    INSTALL_COMMAND ./b2 install
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    BUILD_IN_SOURCE 1
+)
+set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
+endif()
+
 ExternalProject_Add(xacc-core
-   DEPENDS cppmicroservices restclient-cpp
+   DEPENDS cppmicroservices restclient-cpp boost
    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
