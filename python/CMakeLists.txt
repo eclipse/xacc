@@ -48,7 +48,7 @@ link_directories(${Boost_LIBRARY_DIR})
 #if (NOT cppus_has_d_suffix)
 #	set(CppUsLib CppMicroServices)
 #endif()
-target_link_libraries(pyxacc xacc xacc-quantum-gate xacc-quantum-aqc CppMicroServices ${Boost_LIBRARIES} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+target_link_libraries(pyxacc xacc xacc-quantum-gate xacc-quantum-aqc CppMicroServices ${Boost_LIBRARIES} cpprest ${OPENSSL_LIBRARIES})
 
 if (APPLE)
 add_custom_command(TARGET pyxacc

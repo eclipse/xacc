@@ -13,4 +13,4 @@ set (XACC_INCLUDE_DIRS "${XACC_ROOT}/include/cppmicroservices3;${XACC_ROOT}/incl
 set (XACC_LIBRARY_DIR "${XACC_ROOT}/lib")
 set(CppUsLib CppMicroServicesd)
 link_directories("${XACC_ROOT}/lib")
-set (XACC_LIBRARIES "xacc;CppMicroServices;restclient-cpp")
+set (XACC_LIBRARIES "xacc;CppMicroServices;cpprest;@OPENSSL_LIBRARIES@")

@@ -64,13 +64,13 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib} cpprest ${OPENSSL_LIBRARIES})
 
-if (APPLE)
-add_custom_command(TARGET xacc-quantum-gate
-    POST_BUILD COMMAND 
-    ${CMAKE_INSTALL_NAME_TOOL} -change "${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.1.dylib" "@rpath/librestclient-cpp.1.dylib" $<TARGET_FILE:xacc-quantum-gate>)
-endif()
+#if (APPLE)
+#add_custom_command(TARGET xacc-quantum-gate
+#    POST_BUILD COMMAND 
+#    ${CMAKE_INSTALL_NAME_TOOL} -change "${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.1.dylib" "@rpath/librestclient-cpp.1.dylib" $<TARGET_FILE:xacc-quantum-gate>)
+#endif()
 
 add_subdirectory(compiler)
 add_subdirectory(ir)
