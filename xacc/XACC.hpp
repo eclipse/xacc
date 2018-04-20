@@ -168,6 +168,8 @@ const std::string getOption(const std::string& optionKey);
  */
 void setOption(const std::string& optionKey, const std::string& value);
 
+void unsetOption(const std::string& optionKey);
+
 /**
  * Set the Compiler to use.
  *
