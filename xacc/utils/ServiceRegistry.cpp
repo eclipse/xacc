@@ -1,5 +1,6 @@
 #include "ServiceRegistry.hpp"
 #include <boost/filesystem.hpp>
+#include <fstream>
 #ifdef XACC_HAS_PYTHON
 #include <pybind11/embed.h>
 #endif
