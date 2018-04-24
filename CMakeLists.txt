@@ -48,6 +48,33 @@ endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
 
+function(add_tests tests test_include_dirs test_libs)
+      add_tests_with_flags("${tests}" "${test_include_dirs}" "${test_libs}" "")
+endfunction()
+
+function(add_tests_with_flags tests test_include_dirs test_libs test_cflags)
+      # Include all the required headers and BOOST
+      include_directories("${CMAKE_INSTALL_PREFIX}/include/boost" "${test_include_dirs}")
+      # Make executables and link libraries for testers
+      foreach(test ${tests})
+         message(STATUS "Adding test ${test}")
+         get_filename_component(testName ${test} NAME_WE)
+         # Add the executable to the build and the test list
+         add_executable(${testName} ${test})
+         add_test(${testName} ${testName} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+         # Overwrite the default compile flags if needed.
+         if (NOT test_cflags STREQUAL "")
+            target_compile_options(${testName} PUBLIC "${test_cflags}")
+         endif()
+         # Only link libraries if they are provided
+         if (test_libs)
+            target_link_libraries(${testName} ${test_libs})
+         endif(test_libs) 
+         # Add a label so the tests can be run on its own by label
+         set_property(TEST ${testName} PROPERTY LABELS ${PACKAGE_NAME})
+      endforeach(test ${tests})
+endfunction()
+
 # Setup Doxygen
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -68,34 +95,28 @@ ExternalProject_Add(cppmicroservices
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-	       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
-)
-
-ExternalProject_Add(restclient-cpp
-    DEPENDS cppmicroservices
-	GIT_REPOSITORY https://github.com/mrtazz/restclient-cpp
-	GIT_TAG master
-	BUILD_IN_SOURCE 1
-	CONFIGURE_COMMAND sh autogen.sh && sh ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_INSTALL_PREFIX}
+	           -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install 
 )
+
+# Install Curl For People
+set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
+set(BUILD_CPR_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(tpls/cpr)
+include_directories(${CPR_INCLUDE_DIRS})
+
+include_directories(${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
+include_directories(${CMAKE_INSTALL_PREFIX}/include/boost)
+include_directories(${XACC_ROOT}/tpls/spdlog)
+include_directories(${XACC_ROOT}/tpls/eigen)
+
 set(CppMicroServices_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
 set(CppMicroServices_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 set(CppRSDK_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 set(CppRSDK_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
-# Look for OpenMP, add it we find it
-find_package(OpenMP)
-if (OPENMP_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
-find_package(Boost COMPONENTS system program_options regex filesystem chrono graph)
-if (NOT Boost_FOUND)
 ExternalProject_Add(boost
-    DEPENDS restclient-cpp
     URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz
     UPDATE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX} --without-libraries=python,mpi,atomic,container,context,coroutine,coroutine2,date_time,exception,iostreams,locale,log,math,metaparse,random,serialization,signals,thread,type_erasure,wave
     CONFIGURE_COMMAND ""
@@ -110,107 +131,109 @@ ExternalProject_Add(boost
 )
 set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
 
-ExternalProject_Add(xacc-core
-   DEPENDS cppmicroservices restclient-cpp boost
-   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-              -DBOOST_ROOT=${BOOST_ROOT}
-	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
-	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
+add_subdirectory(xacc)
+
+#ExternalProject_Add(xacc-core
+#   DEPENDS cppmicroservices restclient-cpp boost
+#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
+#   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+#              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+#              -DBOOST_ROOT=${BOOST_ROOT}
+#	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+#	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+#	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+#	      -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
 	      #-DXACC_HAS_PYTHON=${PYTHONLIBS_FOUND}
-	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
-	      -DXACC_PYTHON_LIBRARIES=${PYTHON_LIBRARIES}
-	      -DPYBIND11_DIR=${CMAKE_SOURCE_DIR}/python/pybind11
+#	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
+#	      -DXACC_PYTHON_LIBRARIES=${PYTHON_LIBRARIES}
+#	      -DPYBIND11_DIR=${CMAKE_SOURCE_DIR}/python/pybind11
 #              -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}
 #	      -DOPENSSL_INCLUDE_DIR=${OPENSSL_INCLUDE_DIR}
 #	      -DOPENSSL_LIBRARIES=${OPENSSL_LIBRARIES}
 #	      -DOPENSSL_CRYPTO_LIBRARY=${OPENSSL_CRYPTO_LIBRARY}
-   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-   BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
-   TEST_BEFORE_INSTALL 1
-   )
-else()
+#   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+#   BUILD_ALWAYS 1
+#   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
+#   TEST_BEFORE_INSTALL 1
+#   )
+#else()
 
-ExternalProject_Add(xacc-core
-   DEPENDS cppmicroservices restclient-cpp 
-   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-              -DBOOST_ROOT=${BOOST_ROOT}
-	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
-	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
+#ExternalProject_Add(xacc-core
+#   DEPENDS cppmicroservices restclient-cpp 
+#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/xacc
+#   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+#              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+#              -DBOOST_ROOT=${BOOST_ROOT}
+#	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+#	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+#	      -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+#	      -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
 	      #-DXACC_HAS_PYTHON=${PYTHONLIBS_FOUND}
-	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
-	      -DXACC_PYTHON_LIBRARIES=${PYTHON_LIBRARIES}
-	      -DPYBIND11_DIR=${CMAKE_SOURCE_DIR}/python/pybind11
+#	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
+#	      -DXACC_PYTHON_LIBRARIES=${PYTHON_LIBRARIES}
+#	      -DPYBIND11_DIR=${CMAKE_SOURCE_DIR}/python/pybind11
 #              -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}
 #	      -DOPENSSL_INCLUDE_DIR=${OPENSSL_INCLUDE_DIR}
 #	      -DOPENSSL_LIBRARIES=${OPENSSL_LIBRARIES}
 #	      -DOPENSSL_CRYPTO_LIBRARY=${OPENSSL_CRYPTO_LIBRARY}
-   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-   BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
-   TEST_BEFORE_INSTALL 1
-   )
-endif()
+#   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+#   BUILD_ALWAYS 1
+#   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install # DESTDIR=${CMAKE_BINARY_DIR}/stage
+#   TEST_BEFORE_INSTALL 1
+#   )
+#endif()
 
-ExternalProject_Add(xacc-quantum
-   DEPENDS xacc-core
-   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/quantum
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-	      -DBOOST_ROOT=${BOOST_ROOT}
-              -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
-              -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include/xacc
-	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib
+#ExternalProject_Add(xacc-quantum
+#   DEPENDS xacc-core
+#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/quantum
+#   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+#              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+#	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+#	      -DBOOST_ROOT=${BOOST_ROOT}
+#              -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+#              -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+#	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include/xacc
+#	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib
 #	      -DCppRSDK_INCLUDE_DIR=${CppRSDK_INCLUDE_DIR}
 #	      -DOPENSSL_INCLUDE_DIR=${OPENSSL_INCLUDE_DIR}
 #	      -DOPENSSL_LIBRARIES=${OPENSSL_LIBRARIES}
 #	      -DOPENSSL_CRYPTO_LIBRARY=${OPENSSL_CRYPTO_LIBRARY}
-   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-   BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
-   TEST_AFTER_INSTALL 1
-   )
+#   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+#   BUILD_ALWAYS 1
+#   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
+#   TEST_AFTER_INSTALL 1
+#   )
 
 #find_package(PythonLibs)
 #if(PYTHONLIBS_FOUND)
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
-ExternalProject_Add(xacc-python
-   DEPENDS xacc-core xacc-quantum
-   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/python
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-	      -DBOOST_ROOT=${BOOST_ROOT}
-	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
-              -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
-	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include #${XACC_INCLUDE_DIR}
-	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib #${XACC_LIBRARY_DIR}
-	      -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
-	      -DFROM_SETUP_PY=${FROM_SETUP_PY}
-	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
-   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-   BUILD_ALWAYS 1
-   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
-   TEST_AFTER_INSTALL 1
-   )
+#ExternalProject_Add(xacc-python
+#   DEPENDS xacc-core xacc-quantum
+#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/python
+#   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+#              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+#	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+#	      -DBOOST_ROOT=${BOOST_ROOT}
+#	      -DCPPUS_INCLUDE_DIR=${CppMicroServices_INCLUDE_DIR}
+#              -DCPPUS_LIBRARY_DIR=${CppMicroServices_LIBRARY_DIR}
+#	      -DXACC_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include #${XACC_INCLUDE_DIR}
+#	      -DXACC_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib #${XACC_LIBRARY_DIR}
+#	      -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
+#	      -DFROM_SETUP_PY=${FROM_SETUP_PY}
+#	      -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
+#   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+#   BUILD_ALWAYS 1
+#   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
+#   TEST_AFTER_INSTALL 1
+#   )
 #endif()
 
 # Install the config file for external projects to use
