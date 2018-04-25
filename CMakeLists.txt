@@ -19,6 +19,10 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 # Make sure all build libraries have reference to their dependents
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+IF("${isSystemDir}" STREQUAL "-1")
+   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include(ExternalProject)
 
@@ -47,6 +51,8 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
+
+enable_testing()
 
 function(add_tests tests test_include_dirs test_libs)
       add_tests_with_flags("${tests}" "${test_include_dirs}" "${test_libs}" "")
@@ -102,21 +108,19 @@ ExternalProject_Add(cppmicroservices
 # Install Curl For People
 set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
 set(BUILD_CPR_TESTS OFF CACHE BOOL "" FORCE)
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 add_subdirectory(tpls/cpr)
 include_directories(${CPR_INCLUDE_DIRS})
 
 include_directories(${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/boost)
-include_directories(${XACC_ROOT}/tpls/spdlog)
-include_directories(${XACC_ROOT}/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-set(CppMicroServices_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
-set(CppMicroServices_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
-
-set(CppRSDK_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
-set(CppRSDK_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 ExternalProject_Add(boost
+    DEPENDS cppmicroservices cpr
     URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz
     UPDATE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX} --without-libraries=python,mpi,atomic,container,context,coroutine,coroutine2,date_time,exception,iostreams,locale,log,math,metaparse,random,serialization,signals,thread,type_erasure,wave
     CONFIGURE_COMMAND ""
@@ -132,6 +136,8 @@ ExternalProject_Add(boost
 set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(xacc)
+add_subdirectory(quantum)
+add_subdirectory(python)
 
 #ExternalProject_Add(xacc-core
 #   DEPENDS cppmicroservices restclient-cpp boost

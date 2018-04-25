@@ -15,8 +15,6 @@
 
 #include "Accelerator.hpp"
 #include "XACC.hpp"
-#include "restclient-cpp/connection.h"
-#include "restclient-cpp/restclient.h"
 
 namespace xacc {
 
