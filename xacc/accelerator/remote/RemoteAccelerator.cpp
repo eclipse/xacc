@@ -12,38 +12,50 @@
  *******************************************************************************/
 #include "RemoteAccelerator.hpp"
 
+#include <cpr/cpr.h>
+
 namespace xacc {
 const std::string Client::post(const std::string& remoteUrl,
 		const std::string& path, const std::string& postStr,
 		std::map<std::string, std::string> headers) {
 
-	using namespace RestClient;
-	init();
-	Connection* conn = new Connection(remoteUrl);
-	HeaderFields _headers;
+
 	if (headers.empty()) {
 		headers.insert(std::make_pair("Content-type", "application/json"));
 		headers.insert(std::make_pair("Connection", "keep-alive"));
 		headers.insert(std::make_pair("Accept", "*/*"));
 	}
+
+	cpr::Header cprHeaders;
 	for (auto& kv : headers) {
-		_headers[kv.first] = kv.second;
+		cprHeaders.insert({kv.first, kv.second});
 	}
-	conn->SetHeaders(headers);
-	Response r = conn->post(path, postStr);
-	if (r.code != 200) throw std::runtime_error("HTTP POST Error");
-	delete conn;
-	disable();
-	return r.body;
+
+	auto r = cpr::Post(cpr::Url{remoteUrl+"/"+path}, cpr::Body(postStr), cprHeaders);
+	
+	if (r.status_code != 200) throw std::runtime_error("HTTP POST Error");
+
+	return r.text;
 }
 
 const std::string Client::get(const std::string& remoteUrl,
 		const std::string& path, std::map<std::string, std::string> headers) {
+	if (headers.empty()) {
+		headers.insert(std::make_pair("Content-type", "application/json"));
+		headers.insert(std::make_pair("Connection", "keep-alive"));
+		headers.insert(std::make_pair("Accept", "*/*"));
+	}
 
-	using namespace RestClient;
-	Response r = RestClient::get(remoteUrl+path);
-	if (r.code != 200) throw std::runtime_error("HTTP GET Error");
-	return r.body;
+	cpr::Header cprHeaders;
+	for (auto& kv : headers) {
+		cprHeaders.insert({kv.first, kv.second});
+	}
+
+	auto r = cpr::Get(cpr::Url{remoteUrl+"/"+path}, cprHeaders);
+	
+	if (r.status_code != 200) throw std::runtime_error("HTTP POST Error");
+
+	return r.text;
 }
 
 void RemoteAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,

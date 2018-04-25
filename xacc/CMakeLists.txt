@@ -23,12 +23,12 @@ configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DI
 install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/ir)
-include_directories(${CMAKE_SOURCE_DIR}/compiler)
-include_directories(${CMAKE_SOURCE_DIR}/program)
-include_directories(${CMAKE_SOURCE_DIR}/accelerator)
-include_directories(${CMAKE_SOURCE_DIR}/utils)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/program)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
 file (GLOB HEADERS 
 		XACC.hpp 
@@ -63,8 +63,14 @@ endif()
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
+set(CppUsLib CppMicroServicesd)
+find_library(cppus_has_d_suffix CppMicroServicesd)
+if (NOT cppus_has_d_suffix)
+	set(CppUsLib CppMicroServices)
+endif()
+
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+install(TARGETS xacc DESTINATION lib)

@@ -10,9 +10,6 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
-set (PACKAGE_NAME "XACC Adiabatic Quantum Computing and Quantum Annealing Runtime")
-set (PACKAGE_DESCIPTION "Runtime library for aqc and qa")
-
 set (LIBRARY_NAME xacc-quantum-aqc)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
@@ -30,6 +27,7 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 #----
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
+add_dependencies(${LIBRARY_NAME} xacc)
 
 set(_bundle_name xacc_quantum_aqc)
 set_target_properties(${LIBRARY_NAME} PROPERTIES
@@ -60,12 +58,14 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} xacc restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+#target_link_libraries(${LIBRARY_NAME} ${CppUsLib}) #${Boost_LIBRARIES} ${CppUsLib} xacc restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
 
-if (APPLE)
-add_custom_command(TARGET xacc-quantum-aqc
-    POST_BUILD COMMAND 
-    ${CMAKE_INSTALL_NAME_TOOL} -change "${CMAKE_INSTALL_PREFIX}/lib/librestclient-cpp.1.dylib" "@rpath/librestclient-cpp.1.dylib" $<TARGET_FILE:xacc-quantum-aqc>)
+if(APPLE)
+   set_target_properties(xacc-quantum-aqc PROPERTIES INSTALL_RPATH "@loader_path")
+   set_target_properties(xacc-quantum-aqc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+else()
+   set_target_properties(xacc-quantum-aqc PROPERTIES INSTALL_RPATH "$ORIGIN")
+   set_target_properties(xacc-quantum-aqc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
 add_subdirectory(ir)
