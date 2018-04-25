@@ -159,6 +159,14 @@ void setOption(const std::string& optionKey, const std::string& value) {
 		RuntimeOptions::instance()->insert(std::make_pair(optionKey, value));
 	}
 }
+void unsetOption(const std::string& optionKey) {
+	if (optionExists(optionKey)) {
+		(*RuntimeOptions::instance()).erase(optionKey);
+	} else {
+		error("Invalid option, cannot unset");
+	}
+}
+
 
 void setCompiler(const std::string& compilerName) {
 	setOption("compiler", compilerName);
