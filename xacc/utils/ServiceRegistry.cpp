@@ -22,12 +22,13 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 		// Get the paths/files we'll be searching
 		const std::string xaccLibDir = std::string(XACC_INSTALL_DIR)
 				+ std::string("/lib");
-		const std::string xaccPluginPath = std::getenv("HOME")
+		std::string xaccPluginPath = std::getenv("HOME")
 				+ std::string("/.xacc/plugins");
 		std::stringstream s;
 		s << std::getenv("HOME") << "/.xacc/.internal_plugins";
 		const std::string internalFileStr = s.str();
 
+		std::string parentPath = "";
 		if (!internalPath.empty()) {
 			XACCLogger::instance()->enqueueLog(
 					"Searching User Provided Directory: " + internalPath);
@@ -50,8 +51,9 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 				}
 			}
 
-		}
-		else {
+			parentPath = internalPath;
+
+		} else {
 
 			// Search in the .internal_plugins file first
 			if (boost::filesystem::exists(internalFileStr)) {
@@ -64,7 +66,6 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 				for (auto& s : split) {
 					if (!boost::contains(s, "#")
 							&& boost::filesystem::exists(s)) {
-
 						try {
 							context.InstallBundles(s);
 							boost::filesystem::path p(s);
@@ -75,6 +76,8 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 							installed.insert( { name, p.string() });
 							XACCLogger::instance()->enqueueLog(
 									"Installed base plugin " + name);
+							parentPath = p.parent_path().parent_path().string();
+							xaccPluginPath = parentPath+"/plugins"; 
 						} catch (std::exception& e) {
 							// do nothing if we failed
 						}
@@ -118,29 +121,26 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 			throw std::runtime_error("Could not find required internal plugins.");
 		}
 
+		XACCLogger::instance()->enqueueLog("XACC Plugin Path: " + xaccPluginPath);
+
 		// Add external plugins...
 		boost::filesystem::directory_iterator end_itr;
 		if (boost::filesystem::exists(xaccPluginPath)) {
 			for (auto& entry : boost::filesystem::directory_iterator(
 					xaccPluginPath)) {
 				auto p = entry.path();
-				if (boost::filesystem::is_directory(p)) {
-					for (auto& subentry : boost::filesystem::directory_iterator(
-							p)) {
-						auto name = subentry.path().filename().string();
+						auto name = entry.path().filename().string();
 						boost::replace_all(name, "lib", "");
 						boost::replace_all(name, ".so", "");
 						boost::replace_all(name, ".dy", "");
 						if (installed.find(name) == installed.end()) {
 
-							context.InstallBundles(subentry.path().string());
+							context.InstallBundles(entry.path().string());
 							XACCLogger::instance()->enqueueLog(
 									"Installed Plugin " + name);
 							installed.insert(
-									{ name, subentry.path().string() });
+									{ name, entry.path().string() });
 						}
-					}
-				}
 
 			}
 		}
