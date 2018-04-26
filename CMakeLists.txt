@@ -93,7 +93,6 @@ endif(DOXYGEN_FOUND)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.0.0")
         set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wimplicit-fallthrough=0")
 endif()
-
 ExternalProject_Add(cppmicroservices
 	GIT_REPOSITORY https://github.com/cppmicroservices/cppmicroservices
 	GIT_TAG v3.1.0	
@@ -117,9 +116,6 @@ include_directories(${CMAKE_INSTALL_PREFIX}/include)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
-message(STATUS "CPR LIBS ${CPR_LIBRARIES}")
 ExternalProject_Add(boost
     DEPENDS cpr cppmicroservices
     URL https://downloads.sourceforge.net/project/boost/boost/1.63.0/boost_1_63_0.tar.gz
@@ -136,6 +132,7 @@ ExternalProject_Add(boost
 )
 set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
 
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 add_subdirectory(xacc)
 
 ExternalProject_Add(xacc-quantum
@@ -147,6 +144,7 @@ ExternalProject_Add(xacc-quantum
               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
 	      -DXACC_BINARY_DIR=${CMAKE_BINARY_DIR}
+	      -DBOOST_ROOT=${BOOST_ROOT}
    CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
    BUILD_ALWAYS 1
    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
@@ -167,6 +165,7 @@ if(PYTHONLIBS_FOUND)
 	         -DXACC_BINARY_DIR=${CMAKE_BINARY_DIR}
                  -DFROM_SETUP_PY=${FROM_SETUP_PY}
                  -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
+	         -DBOOST_ROOT=${BOOST_ROOT}
       CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
       BUILD_ALWAYS 1
       INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage

@@ -32,6 +32,7 @@ def parse_args(args):
    parser.add_argument("-a", "--extra-cmake-args", nargs='*', type=str, help="Any extra CMake arguments to drive the install.", required=False)
    parser.add_argument("-j", "--make-threads", default=4, type=int, help="Number of threads to use in make", required=False)
    parser.add_argument("-i", "--initialize", action='store_true', help="Initialize the framework.", required=False)
+   parser.add_argument("-L", "--location", action='store_true', help="Print the path to the XACC install location.", required=False)
    
    opts = parser.parse_args(args)
    return opts
@@ -105,31 +106,15 @@ def main(argv=None):
       initialize()
       sys.exit(0)
 
-   # pyxacc can be installed in site-packages/xacc-...-egg or 
-   # in ${XACC_DIR}/lib/python, we need to figure out which one
-   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
-   print('XACC Install Location = ', xaccLocation)
-   xacc_cwd = os.getcwd()
-
-   if xaccLocation+'/lib\n' not in contents:
-      file.write(xaccLocation+'/lib\n')
-   
-   file.write(contents)
-   file.close()
-      
-def main(argv=None):
-   opts = parse_args(sys.argv[1:])
-
-   if opts.initialize:
-      initialize()
-      sys.exit(0)
-
    if not os.path.exists(os.environ['HOME']+'/.xacc/.internal_plugins'):
       initialize()
      
    # pyxacc can be installed in site-packages/xacc-...-egg or 
    # in ${XACC_DIR}/lib/python, we need to figure out which one
    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
+   if opts.location:
+       print(xaccLocation)
+       sys.exit(0)
    print('XACC Install Location = ', xaccLocation)
    xacc_cwd = os.getcwd()
    
