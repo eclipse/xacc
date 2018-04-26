@@ -21,10 +21,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/cppmic
 include(CppMicroServicesConfig)
 include(tests)
 
-#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
 find_package(Boost COMPONENTS system program_options regex filesystem chrono graph REQUIRED)
 
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
