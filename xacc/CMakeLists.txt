@@ -50,7 +50,7 @@ file (GLOB SRCS
 #link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_library(xacc SHARED ${SRCS})
-add_dependencies(xacc boost cppmicroservices cpr)
+add_dependencies(xacc boost cpr)
 
 if(APPLE)
    set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")
@@ -68,6 +68,7 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
+target_link_libraries(xacc ${CppUsLib})
 
 # Add the tests
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
