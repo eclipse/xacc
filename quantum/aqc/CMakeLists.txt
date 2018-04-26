@@ -27,7 +27,6 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 #----
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-add_dependencies(${LIBRARY_NAME} xacc)
 
 set(_bundle_name xacc_quantum_aqc)
 set_target_properties(${LIBRARY_NAME} PROPERTIES
@@ -58,6 +57,8 @@ find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
+
+target_link_libraries(${LIBRARY_NAME} ${CppUsLib})
 #target_link_libraries(${LIBRARY_NAME} ${CppUsLib}) #${Boost_LIBRARIES} ${CppUsLib} xacc restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
 
 if(APPLE)

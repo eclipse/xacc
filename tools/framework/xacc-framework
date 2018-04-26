@@ -67,16 +67,20 @@ def mkdir_p(path):
             exit()
 
 def initialize():
+   xaccHome = os.environ['HOME']+'/.xacc'
+   if not os.path.exists(xaccHome):
+      os.makedirs(xaccHome)
+
    try:
-      file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'r')
+      file = open(xaccHome+'/.internal_plugins', 'r')
       contents = file.read()
    except IOError:
-      file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'w')
+      file = open(xaccHome+'/.internal_plugins', 'w')
       contents = ''
 
    file.close()
 
-   file = open(os.environ['HOME']+'/.xacc/.internal_plugins', 'w')
+   file = open(xaccHome+'/.internal_plugins', 'w')
    
    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))   
    if platform.system() == "Darwin":

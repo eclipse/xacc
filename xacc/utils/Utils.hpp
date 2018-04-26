@@ -13,7 +13,6 @@
 #ifndef XACC_UTILS_UTILS_HPP_
 #define XACC_UTILS_UTILS_HPP_
 
-#include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include "Singleton.hpp"
 #include "RuntimeOptions.hpp"

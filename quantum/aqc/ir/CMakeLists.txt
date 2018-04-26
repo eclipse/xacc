@@ -12,4 +12,4 @@
 # *******************************************************************************/
 # Gather tests
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc;xacc-quantum-aqc;${CppUsLib};cpr")
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc;${Boost_LIBRARIES};xacc-quantum-aqc;${CppUsLib};cpr;curl")
