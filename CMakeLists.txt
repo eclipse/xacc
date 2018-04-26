@@ -151,8 +151,8 @@ ExternalProject_Add(xacc-quantum
    TEST_AFTER_INSTALL 1
    )
 
-find_package(PythonLibs)
-if(PYTHONLIBS_FOUND)
+#find_package(PythonLibs)
+if(PYTHON_INCLUDE_DIR) #PYTHONLIBS_FOUND)
    ExternalProject_Add(xacc-python
       DEPENDS xacc-quantum
       SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/python

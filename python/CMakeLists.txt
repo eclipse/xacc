@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/cppmic
 include(CppMicroServicesConfig)
 include(tests)
 
-find_package(PythonLibs REQUIRED)
+#find_package(PythonLibs REQUIRED)
 
 set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
 find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
@@ -38,7 +38,7 @@ include_directories(${XACC_ROOT}/quantum/gate/utils)
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-include_directories(${PYTHON_INCLUDE_DIR})
+include_directories(${XACC_PYTHON_INCLUDE_DIR})
 include_directories(${XACC_ROOT}/tpls/pybind11/include)
 
 link_directories(${XACC_BINARY_DIR}/xacc)
