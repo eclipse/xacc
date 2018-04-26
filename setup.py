@@ -50,7 +50,7 @@ class CMakeBuild(build_ext):
             os.path.dirname(self.get_ext_fullpath(ext.name)))
 
         script_path = os.path.dirname(os.path.realpath(__file__))
-        install_prefix = script_path + '/' + self.build_lib 
+        install_prefix = script_path + '/' + self.build_lib + '/xacc' 
         print(dir(self))
         print(self.build_lib)
   
@@ -99,7 +99,7 @@ s = setup(
     author='Alex McCaskey',
     author_email='xacc-dev@eclipse.org',
     packages=find_packages('python'),
-    package_dir={'':'python'},
+    package_dir={'xacc':'python'},
     package_data={'':[env['HOME']+'/.xacc/lib/python/pyxacc.so']},
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
