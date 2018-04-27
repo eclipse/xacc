@@ -35,3 +35,5 @@
 /dist/
 /*egg*/
 /python/*egg*
+/*tmp*/
+/wheelhouse/
