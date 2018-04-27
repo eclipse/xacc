@@ -25,8 +25,6 @@ class CMakeExtension(Extension):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
 
-openssl_root_dir = None
-
 class CMakeBuild(build_ext):
     def run(self):
         try:
@@ -58,9 +56,6 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_INSTALL_PREFIX='+install_prefix,
 		      '-DFROM_SETUP_PY=TRUE']
         
-        if not openssl_root_dir == None:
-            cmake_args.append('-DOPENSSL_ROOT_DIR='+openssl_root_dir)
-
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
@@ -76,23 +71,6 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp)
         print() # Add an empty line for cleaner output
 
-class InstallCommand(InstallCommandBase):
-    user_options = InstallCommandBase.user_options + [
-		    ('openssl-dir=', None, 'Specify OPENSSL_ROOT_DIR')
-		    ]
-
-    def initialize_options(self):
-        InstallCommandBase.initialize_options(self)
-        self.openssl_dir = '/usr/local/opt/openssl' if platform.system() == 'Darwin' else '/usr/lib64'
-
-    def finalize_options(self):
-        global openssl_root_dir
-        openssl_root_dir = self.openssl_dir
-        InstallCommandBase.finalize_options(self)
-
-    def run(self):
-        InstallCommandBase.run(self)
-
 s = setup(
     name='xacc',
     version='0.1.0',
@@ -104,14 +82,8 @@ s = setup(
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
     ext_modules=[CMakeExtension('pyxacc')],
-    cmdclass={'build_ext':CMakeBuild},# 'install':InstallCommand},
+    cmdclass={'build_ext':CMakeBuild},
     scripts=['tools/framework/xacc-framework'],
     zip_safe=False
 )
 
-#try:
-#   import pyxacc as xacc
-#   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
-#
-#except:
-#   pass
