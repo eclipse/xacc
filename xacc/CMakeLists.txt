@@ -71,7 +71,9 @@ endif()
 target_link_libraries(xacc ${CppUsLib})
 
 # Add the tests
+if(XACC_BUILD_TESTS)
 add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
+endif()
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
