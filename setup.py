@@ -47,9 +47,14 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
 
+        args = sys.argv[1:]
         script_path = os.path.dirname(os.path.realpath(__file__))
-        install_prefix = script_path + '/' + self.build_lib + '/xacc' 
-        print(dir(self))
+        
+        if 'install' in args:
+           install_prefix = script_path + '/' + self.build_lib 
+        else:
+           install_prefix = script_path + '/' + self.build_lib + '/xacc' 
+
         print(self.build_lib)
   
         cmake_args = ['-DPYTHON_INCLUDE_DIR=' + sysconfig.get_paths()['platinclude'], #sys.executable,

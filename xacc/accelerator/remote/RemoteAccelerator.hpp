@@ -115,7 +115,7 @@ protected:
 						"- " + std::string(e.what()));
 				retries--;
 				if (retries > 0) {
-					xacc::info("Retrying HTTP Get.");
+					xacc::info("Retrying HTTP Post.");
 				}
 			}
 		} while (retries > 0);
