@@ -33,7 +33,7 @@ const std::string Client::post(const std::string& remoteUrl,
 
 	xacc::info("Posting to " + remoteUrl+path);
 	xacc::info("Body = " + postStr);
-	auto r = cpr::Post(cpr::Url{remoteUrl+path}, cpr::Body(postStr), cprHeaders);
+	auto r = cpr::Post(cpr::Url{remoteUrl+path}, cpr::Body(postStr), cprHeaders, cpr::VerifySsl(false));
 	
 	if (r.status_code != 200) throw std::runtime_error("HTTP POST Error - status code " + std::to_string(r.status_code));
 
@@ -54,7 +54,7 @@ const std::string Client::get(const std::string& remoteUrl,
 	}
 
 	xacc::info("Getting " + remoteUrl+path);
-	auto r = cpr::Get(cpr::Url{remoteUrl+path}, cprHeaders);
+	auto r = cpr::Get(cpr::Url{remoteUrl+path}, cprHeaders, cpr::VerifySsl(false));
 	
 	if (r.status_code != 200) throw std::runtime_error("HTTP GET Error - status code " + std::to_string(r.status_code));
 
