@@ -32,3 +32,8 @@
 /.project
 /.settings/
 **/.ptp*
+/dist/
+/*egg*/
+/python/*egg*
+/*tmp*/
+/wheelhouse/

@@ -283,9 +283,9 @@ public:
 	 * @param index The index of the vertex
 	 * @param prop The property to set.
 	 */
-	template<const int PropertyIndex>
-	void setVertexProperty(const int index,
-			decltype(std::get<PropertyIndex>(std::declval<Vertex>().properties)) prop) {
+	template<const int PropertyIndex, typename DeducedPropertyType> //const int PropertyIndex>
+	void setVertexProperty(const int index, DeducedPropertyType prop) {
+//			decltype(std::get<PropertyIndex>(std::declval<Vertex>().properties)) prop) {
 		auto v = vertex(index, *_graph.get());
 		std::get<PropertyIndex>((*_graph.get())[v].properties) = prop;
 		return;

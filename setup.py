@@ -16,6 +16,7 @@ from setuptools.command.install import install as InstallCommandBase
 from setuptools.command.test import test as TestCommand
 from shutil import copyfile, copymode
 import shutil
+import sysconfig
 
 env = os.environ.copy()
 
@@ -23,8 +24,6 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-
-openssl_root_dir = None
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -48,31 +47,26 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
 
+        args = sys.argv[1:]
         script_path = os.path.dirname(os.path.realpath(__file__))
-        install_prefix = script_path + '/' + self.build_lib 
-        print(dir(self))
+        
+        if 'install' in args:
+           install_prefix = script_path + '/' + self.build_lib 
+        else:
+           install_prefix = script_path + '/' + self.build_lib + '/xacc' 
+
         print(self.build_lib)
   
-        cmake_args = ['-DPYTHON_EXECUTABLE=' + sys.executable,
+        cmake_args = ['-DPYTHON_INCLUDE_DIR=' + sysconfig.get_paths()['platinclude'], #sys.executable,
                       '-DCMAKE_INSTALL_PREFIX='+install_prefix,
 		      '-DFROM_SETUP_PY=TRUE']
         
-        if not openssl_root_dir == None:
-            cmake_args.append('-DOPENSSL_ROOT_DIR='+openssl_root_dir)
-
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
-        if platform.system() == "Windows":
-            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
-                cfg.upper(),
-                extdir)]
-            if sys.maxsize > 2**32:
-                cmake_args += ['-A', 'x64']
-            build_args += ['--', '/m']
-        else:
-            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
+        cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
+
+        build_args += ['--', '-j'+str(multiprocessing.cpu_count())]
 
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
@@ -82,42 +76,19 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp)
         print() # Add an empty line for cleaner output
 
-class InstallCommand(InstallCommandBase):
-    user_options = InstallCommandBase.user_options + [
-		    ('openssl-dir=', None, 'Specify OPENSSL_ROOT_DIR')
-		    ]
-
-    def initialize_options(self):
-        InstallCommandBase.initialize_options(self)
-        self.openssl_dir = '/usr/local/opt/openssl' if platform.system() == 'Darwin' else '/usr/lib64'
-
-    def finalize_options(self):
-        global openssl_root_dir
-        openssl_root_dir = self.openssl_dir
-        InstallCommandBase.finalize_options(self)
-
-    def run(self):
-        InstallCommandBase.run(self)
-
 s = setup(
     name='xacc',
     version='0.1.0',
     author='Alex McCaskey',
     author_email='xacc-dev@eclipse.org',
     packages=find_packages('python'),
-    package_dir={'':'python'},
+    package_dir={'xacc':'python'},
     package_data={'':[env['HOME']+'/.xacc/lib/python/pyxacc.so']},
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
     ext_modules=[CMakeExtension('pyxacc')],
-    cmdclass={'build_ext':CMakeBuild},# 'install':InstallCommand},
+    cmdclass={'build_ext':CMakeBuild},
     scripts=['tools/framework/xacc-framework'],
     zip_safe=False
 )
 
-#try:
-#   import pyxacc as xacc
-#   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
-#
-#except:
-#   pass
