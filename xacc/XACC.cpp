@@ -59,12 +59,26 @@ void Initialize(int arc, char** arv) {
 		argc = arc;
 		argv = arv;
 
+		// Do a little preprocessing on the
+		// command line args to see if we have
+		// been given a custom internal plugin path
+		using namespace boost::program_options;
+		variables_map vm;
+		options_description desc;
+		desc.add_options()("internal-plugin-path", value<std::string>(), "");
+		store(command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm);
+		notify(vm);
+
 		XACCLogger::instance()->enqueueLog("Creating XACC ServiceRegistry");
 		// Get reference to the service registry
 		auto serviceRegistry = xacc::ServiceRegistry::instance();
 		try {
 			XACCLogger::instance()->enqueueLog("Initializing the ServiceRegistry");
-			serviceRegistry->initialize();
+			if (vm.count("internal-plugin-path")) {
+				serviceRegistry->initialize(vm["internal-plugin-path"].as<std::string>());
+			} else {
+				serviceRegistry->initialize();
+			}
 		} catch (std::exception& e) {
 			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
 					std::string(e.what()));

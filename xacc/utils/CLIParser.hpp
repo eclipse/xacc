@@ -82,7 +82,8 @@ public:
 
 		// Parse the command line options
 		variables_map clArgs;
-		store(parse_command_line(argc, argv, *xaccOptions.get()), clArgs);
+		store(command_line_parser(argc, argv).options(*xaccOptions.get()).allow_unregistered().run(), clArgs);
+		notify(clArgs);
 		if (clArgs.count("help")) {
 			XACCLogger::instance()->dumpQueue();
 			std::cout << *xaccOptions.get() << "\n";

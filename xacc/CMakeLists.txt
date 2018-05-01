@@ -10,83 +10,70 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
-project(xacc-core LANGUAGES CXX)
-
-set(CMAKE_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
-message(STATUS "C++ version ${CXX_STANDARD} configured.")
-
 # Modify our CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
-include(tests)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
+#include(tests)#
 
   # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options regex filesystem chrono thread graph REQUIRED)
+#find_package(Boost COMPONENTS system program_options regex filesystem chrono graph REQUIRED)
   #endif()
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${XACC_ROOT}/tpls/spdlog)
-include_directories(${XACC_ROOT}/tpls/eigen)
-include_directories(${CPPUS_INCLUDE_DIR})
-include_directories(${CppRSDK_INCLUDE_DIR})
-include_directories("${CMAKE_SOURCE_DIR}")
-include_directories("${CMAKE_SOURCE_DIR}/ir")
-include_directories("${CMAKE_SOURCE_DIR}/compiler")
-include_directories("${CMAKE_SOURCE_DIR}/program")
-include_directories("${CMAKE_SOURCE_DIR}/accelerator")
-include_directories("${CMAKE_SOURCE_DIR}/utils")
-include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories(${CMAKE_BINARY_DIR})
-include_directories(${PYBIND11_DIR}/include)
-
-#find_package(PythonLibs REQUIRED)
-include_directories(${XACC_PYTHON_INCLUDE_DIR})
-
 # Create a xacc config header file
-configure_file("${XACC_ROOT}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
+configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
 install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 
-#set (PACKAGE_NAME "XACC Specification")
-#set (PACKAGE_DESCIPTION "The XACC Programming Framework")
-set (LIBRARY_NAME xacc)
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/program)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
-file (GLOB HEADERS XACC.hpp ir/*.hpp program/*.hpp compiler/*.hpp accelerator/*.hpp accelerator/remote/*.hpp utils/*.hpp)
-file (GLOB SRC *.cpp program/*.cpp utils/*.cpp accelerator/remote/*.cpp)
+file (GLOB HEADERS 
+		XACC.hpp 
+		ir/*.hpp 
+		program/*.hpp 
+		compiler/*.hpp 
+		accelerator/*.hpp 
+		accelerator/remote/*.hpp 
+		utils/*.hpp
+	)
+		
+file (GLOB SRCS 
+		*.cpp 
+		program/*.cpp 
+		utils/*.cpp 
+		accelerator/remote/*.cpp
+	)
 
-find_package(PythonLibs)
-if(PythonLibs_FOUND)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXACC_HAS_PYTHON")
-   include_directories(${XACC_ROOT}/tpls/pybind11/include)
-   include_directories(${PYTHON_INCLUDE_DIR})
-endif()
+#link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-set(CppUsLib CppMicroServicesd)
-link_directories(${CPPUS_LIBRARY_DIR})
-link_directories(${Boost_LIBRARY_DIR})
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
+add_library(xacc SHARED ${SRCS})
+add_dependencies(xacc boost cpr)
 
-add_library(${LIBRARY_NAME} SHARED ${SRC})
-find_library(cppus_has_d_suffix CppMicroServicesd)
-if (NOT cppus_has_d_suffix)
-	set(CppUsLib CppMicroServices)
-endif()
-
-if (APPLE)
-	set(OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES};${OPENSSL_CRYPTO_LIBRARY}")
-endif()
-
-if(PythonLibs_FOUND)
-   target_link_libraries(${LIBRARY_NAME} ${PYTHON_LIBRARY} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+if(APPLE)
+   set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")
+   set_target_properties(xacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-   target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} ${CppUsLib} ${OPENSSL_LIBRARIES} cpprest)
+   set_target_properties(xacc PROPERTIES INSTALL_RPATH "$ORIGIN")
+   set_target_properties(xacc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
+set(CppUsLib CppMicroServicesd)
+find_library(cppus_has_d_suffix CppMicroServicesd)
+if (NOT cppus_has_d_suffix)
+	set(CppUsLib CppMicroServices)
+endif()
+target_link_libraries(xacc ${CppUsLib})
+
 # Add the tests
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc")
+if(XACC_BUILD_TESTS)
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
+endif()
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
-install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+install(TARGETS xacc DESTINATION lib)

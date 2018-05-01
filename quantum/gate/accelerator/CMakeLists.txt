@@ -11,6 +11,7 @@
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
 # Gather tests
+if(XACC_BUILD_TESTS)
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-quantum-gate;xacc;cpprest;${OPENSSL_LIBRARIES}")
-
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc-quantum-gate;xacc;${CppUsLib};cpr;curl")
+endif()

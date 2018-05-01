@@ -13,7 +13,8 @@
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
 # Gather tests
+if(XACC_BUILD_TESTS)
 file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc;xacc-quantum-gate;cpprest;${OPENSSL_LIBRARIES}")
-
+add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "${Boost_LIBRARIES};xacc;xacc-quantum-gate;${CppUsLib};cpr;curl")
+endif()
 

@@ -12,10 +12,13 @@
  *******************************************************************************/
 #include "RemoteAccelerator.hpp"
 
+#include <cpr/cpr.h>
+
 namespace xacc {
-const std::string RestClient::post(const std::string& remoteUrl,
+const std::string Client::post(const std::string& remoteUrl,
 		const std::string& path, const std::string& postStr,
 		std::map<std::string, std::string> headers) {
+
 
 	if (headers.empty()) {
 		headers.insert(std::make_pair("Content-type", "application/json"));
@@ -23,47 +26,39 @@ const std::string RestClient::post(const std::string& remoteUrl,
 		headers.insert(std::make_pair("Accept", "*/*"));
 	}
 
-	http::uri uri = http::uri(remoteUrl);
-	http_client_config config;
-	config.set_validate_certificates(false);
-	http_client postClient(
-			http::uri_builder(uri).append_path(U(path)).to_uri(), config);
-	http_request postRequest(methods::POST);
+	cpr::Header cprHeaders;
 	for (auto& kv : headers) {
-		postRequest.headers().add(kv.first, kv.second);
+		cprHeaders.insert({kv.first, kv.second});
 	}
-	postRequest.set_body(postStr);
 
-//	xacc::info("POSTING: " + postStr + " to " + remoteUrl + ", " + path);// << "\n";
+	xacc::info("Posting to " + remoteUrl+path);
+	xacc::info("Body = " + postStr);
+	auto r = cpr::Post(cpr::Url{remoteUrl+path}, cpr::Body(postStr), cprHeaders, cpr::VerifySsl(false));
+	
+	if (r.status_code != 200) throw std::runtime_error("HTTP POST Error - status code " + std::to_string(r.status_code));
 
-	// Post the problem, get the response as json
-	auto postResponse = postClient.request(postRequest);
-	auto respJson = postResponse.get().extract_string().get();
-
-	// Map that response to a string
-	std::stringstream ss;
-	ss << respJson;
-//	xacc::info("post response was " + ss.str());// << "\n";
-	return ss.str();
+	return r.text;
 }
 
-const std::string RestClient::get(const std::string& remoteUrl,
+const std::string Client::get(const std::string& remoteUrl,
 		const std::string& path, std::map<std::string, std::string> headers) {
-	http_client_config config;
-	config.set_validate_certificates(false);
-	http_client getClient(
-			http::uri_builder(http::uri(remoteUrl)).append_path(U(path)).to_uri(), config);
-	http_request getRequest(methods::GET);
-	for (auto& kv : headers) {
-		getRequest.headers().add(kv.first, kv.second);
+	if (headers.empty()) {
+		headers.insert(std::make_pair("Content-type", "application/json"));
+		headers.insert(std::make_pair("Connection", "keep-alive"));
+		headers.insert(std::make_pair("Accept", "*/*"));
 	}
-//	xacc::info("Getting IBM at " + remoteUrl + ", " + path);
-	auto getResponse = getClient.request(getRequest);
-	// get the result as a string
-	std::stringstream z;
-	z << getResponse.get().extract_json().get();
-	xacc::info("GET RESPONSE: " + z.str());
-	return z.str();
+
+	cpr::Header cprHeaders;
+	for (auto& kv : headers) {
+		cprHeaders.insert({kv.first, kv.second});
+	}
+
+	xacc::info("Getting " + remoteUrl+path);
+	auto r = cpr::Get(cpr::Url{remoteUrl+path}, cprHeaders, cpr::VerifySsl(false));
+	
+	if (r.status_code != 200) throw std::runtime_error("HTTP GET Error - status code " + std::to_string(r.status_code));
+
+	return r.text;
 }
 
 void RemoteAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,

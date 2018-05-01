@@ -10,9 +10,6 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
-set (PACKAGE_NAME "XACC Gate Model Quantum Computing Runtime")
-set (PACKAGE_DESCIPTION "Runtime library for gate model quantum computing")
-
 set (LIBRARY_NAME xacc-quantum-gate)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
@@ -56,15 +53,23 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
   
-link_directories(${Boost_LIBRARY_DIR})
-
 set(CppUsLib CppMicroServicesd)
 link_directories(${CPPUS_LIBRARY_DIR})
 find_library(cppus_has_d_suffix CppMicroServicesd)
 if (NOT cppus_has_d_suffix)
 	set(CppUsLib CppMicroServices)
 endif()
-target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES} xacc ${CppUsLib} cpprest ${OPENSSL_LIBRARIES})
+
+target_link_libraries(${LIBRARY_NAME} ${CppUsLib})
+#target_link_libraries(${LIBRARY_NAME} ${CppUsLib}) #${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+
+if(APPLE)
+   set_target_properties(xacc-quantum-gate PROPERTIES INSTALL_RPATH "@loader_path")
+   set_target_properties(xacc-quantum-gate PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+else()
+   set_target_properties(xacc-quantum-gate PROPERTIES INSTALL_RPATH "$ORIGIN")
+   set_target_properties(xacc-quantum-gate PROPERTIES LINK_FLAGS "-shared")
+endif()
 
 add_subdirectory(compiler)
 add_subdirectory(ir)

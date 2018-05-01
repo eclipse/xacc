@@ -15,38 +15,31 @@ project(xacc-quantum LANGUAGES CXX)
 
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
-message(STATUS "C++ version ${CXX_STANDARD} configured.")
-# Make sure all build libraries have reference to their dependents
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set(CppMicroServices_DIR "${CPPUS_LIBRARY_DIR}/../share/cppmicroservices3/cmake")
-
-# Modify our CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CppMicroServices_DIR}")
-include(tests)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/cppmicroservices3/cmake")
 include(CppMicroServicesConfig)
+include(tests)
 
-  # We require Boost without MPI
-find_package(Boost COMPONENTS system program_options filesystem chrono thread REQUIRED)
-  #endif()
+find_package(Boost COMPONENTS system program_options regex filesystem chrono graph REQUIRED)
 
-include_directories(${XACC_INCLUDE_DIR})
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
+include_directories(${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
+include_directories(${XACC_BINARY_DIR})
+include_directories(${XACC_ROOT}/xacc)
+include_directories(${XACC_ROOT}/xacc/ir)
+include_directories(${XACC_ROOT}/xacc/compiler)
+include_directories(${XACC_ROOT}/xacc/program)
+include_directories(${XACC_ROOT}/xacc/accelerator)
+include_directories(${XACC_ROOT}/xacc/utils)
 include_directories(${XACC_ROOT}/tpls/rapidjson/include)
 include_directories(${XACC_ROOT}/tpls/exprtk)
-
-include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${XACC_ROOT}/tpls/spdlog)
 include_directories(${XACC_ROOT}/tpls/eigen)
-include_directories(${CPPUS_INCLUDE_DIR})
-include_directories(${CMAKE_BINARY_DIR})
 
-link_directories(${XACC_LIBRARY_DIR})
-link_directories(${CPPUS_LIBRARY_DIR})
-
-include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories(${CppRSDK_INCLUDE_DIR})
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
+link_directories(${XACC_BINARY_DIR}/xacc)
+link_directories(${XACC_BINARY_DIR}/lib)
 
 add_subdirectory(gate)
 add_subdirectory(aqc)
