@@ -52,13 +52,8 @@ endif(APPLE)
 add_library(pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(pyxacc PROPERTIES PREFIX "")
-set(CppUsLib CppMicroServicesd)
-find_library(cppus_has_d_suffix CppMicroServicesd)
-if (NOT cppus_has_d_suffix)
-	set(CppUsLib CppMicroServices)
-endif()
 
-target_link_libraries(pyxacc ${CppUsLib} xacc xacc-quantum-gate ${Boost_LIBRARIES} cpr curl) #xacc xacc-quantum-gate xacc-quantum-aqc CppMicroServices ${Boost_LIBRARIES} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+target_link_libraries(pyxacc CppMicroServices xacc xacc-quantum-gate ${Boost_LIBRARIES} cpr curl)
 
 if(APPLE)
    set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

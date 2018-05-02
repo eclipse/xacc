@@ -63,12 +63,7 @@ endif()
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
-set(CppUsLib CppMicroServicesd)
-find_library(cppus_has_d_suffix CppMicroServicesd)
-if (NOT cppus_has_d_suffix)
-	set(CppUsLib CppMicroServices)
-endif()
-target_link_libraries(xacc ${CppUsLib})
+target_link_libraries(xacc CppMicroServices cpr)
 
 # Add the tests
 if(XACC_BUILD_TESTS)
