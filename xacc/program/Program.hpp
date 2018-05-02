@@ -122,21 +122,9 @@ public:
 		preprocessors.push_back(preprocessor);
 	}
 
-	void addPreprocessor(const std::string& preProcessorName) {
-        if(ServiceRegistry::instance()->hasService<Preprocessor>(preProcessorName)) {
-			auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(preProcessorName);
-			preprocessors.push_back(preprocessor);
-		}
-	}
+	void addPreprocessor(const std::string& preProcessorName);
 
-	void addIRPreprocessor(const std::string& name) {
-		if (ServiceRegistry::instance()->hasService<IRPreprocessor>(
-				name)) {
-			auto p = ServiceRegistry::instance()->getService<
-					IRPreprocessor>(name);
-			irpreprocessors.push_back(p);
-		}
-	}
+	void addIRPreprocessor(const std::string& name);
 
 	std::vector<std::shared_ptr<AcceleratorBufferPostprocessor>> getBufferPostprocessors() {
 		return bufferPostprocessors;
