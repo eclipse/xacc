@@ -78,7 +78,8 @@ PYBIND11_MODULE(pyxacc, m) {
     // Expose the IR interface
     py::class_<xacc::IR, std::shared_ptr<xacc::IR>> (m, "IR", "The XACC Intermediate Representation, "
     		"serves as a container for XACC Functions.")
-    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR");
+    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
+			.def("addKernel", &xacc::IR::addKernel, "");
 
     // Expose the Kernel
     py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(m, "Kernel", "The XACC Kernel is the "
