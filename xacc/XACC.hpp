@@ -168,6 +168,7 @@ const std::string getOption(const std::string& optionKey);
  * @param value The new option value.
  */
 void setOption(const std::string& optionKey, const std::string& value);
+void unsetOption(const std::string& optionKey);
 
 /**
  * Set the Compiler to use.
@@ -250,6 +251,10 @@ bool hasService(const std::string& serviceName) {
 template<typename ServiceInterface>
 std::vector<std::string> getRegisteredIds() {
 	return serviceRegistry->getRegisteredIds<ServiceInterface>();
+}
+template<typename ServiceInterface>
+std::vector<std::shared_ptr<ServiceInterface>> getServices() {
+	return serviceRegistry->getServices<ServiceInterface>();
 }
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string& name);
