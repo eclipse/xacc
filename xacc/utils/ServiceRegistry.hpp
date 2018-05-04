@@ -44,7 +44,7 @@ namespace xacc {
  * It delegates to the CppMicroServices Framework and BundleContexts,
  * and provides methods for creating instances of XACC plugins or services.
  */
-class ServiceRegistry : public Singleton<ServiceRegistry> {
+class ServiceRegistry {
 
 protected:
 
@@ -61,24 +61,21 @@ protected:
 
 	std::map<std::string, std::string> installed;
 
-	/**
-	 * The constructor
-	 */
-	ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
-
 	bool initialized = false;
 
 public:
 
+	ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
+
 	void initialize(const std::string internalPath = "");
 
-	// Overriding here so we can have a custom constructor
-	static ServiceRegistry* instance() {
-		if (!instance_) {
-			instance_ = new ServiceRegistry();
-		}
-		return instance_;
-	}
+//	// Overriding here so we can have a custom constructor
+//	static ServiceRegistry* instance() {
+//		if (!instance_) {
+//			instance_ = new ServiceRegistry();
+//		}
+//		return instance_;
+//	}
 
 	template<typename ServiceInterface>
 	bool hasService(const std::string name) {

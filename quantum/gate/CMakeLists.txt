@@ -53,15 +53,11 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
   
-set(CppUsLib CppMicroServicesd)
-link_directories(${CPPUS_LIBRARY_DIR})
-find_library(cppus_has_d_suffix CppMicroServicesd)
-if (NOT cppus_has_d_suffix)
-	set(CppUsLib CppMicroServices)
-endif()
 
-target_link_libraries(${LIBRARY_NAME} ${CppUsLib})
-#target_link_libraries(${LIBRARY_NAME} ${CppUsLib}) #${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
+find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
+
+target_link_libraries(${LIBRARY_NAME} CppMicroServices xacc ${Boost_LIBRARIES}) #${CppUsLib}) #${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
 
 if(APPLE)
    set_target_properties(xacc-quantum-gate PROPERTIES INSTALL_RPATH "@loader_path")

@@ -19,6 +19,7 @@ namespace xacc {
 
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
+std::shared_ptr<ServiceRegistry> serviceRegistry = std::make_shared<ServiceRegistry>();
 
 int argc = 0;
 char** argv = NULL;
@@ -70,8 +71,6 @@ void Initialize(int arc, char** arv) {
 		notify(vm);
 
 		XACCLogger::instance()->enqueueLog("Creating XACC ServiceRegistry");
-		// Get reference to the service registry
-		auto serviceRegistry = xacc::ServiceRegistry::instance();
 		try {
 			XACCLogger::instance()->enqueueLog("Initializing the ServiceRegistry");
 			if (vm.count("internal-plugin-path")) {
@@ -87,7 +86,7 @@ void Initialize(int arc, char** arv) {
 		}
 
 		// Parse any user-supplied command line options
-		xaccCLParser->parse(argc, argv);
+		xaccCLParser->parse(argc, argv, *serviceRegistry);
 
 		XACCLogger::instance()->enqueueLog("[xacc] Initializing XACC Framework.");
 
@@ -175,12 +174,10 @@ void setOption(const std::string& optionKey, const std::string& value) {
 }
 void unsetOption(const std::string& optionKey) {
 	if (optionExists(optionKey)) {
-		(*RuntimeOptions::instance()).erase(optionKey);
-	} else {
-		error("Invalid option, cannot unset");
+			(*RuntimeOptions::instance()).erase(optionKey);
 	}
+	return;
 }
-
 
 void setCompiler(const std::string& compilerName) {
 	setOption("compiler", compilerName);
@@ -201,7 +198,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
 				"requires that you set --accelerator at the command line.");
 	}
 
-	auto acc = ServiceRegistry::instance()->getService<Accelerator>(getOption("accelerator"));
+	auto acc = serviceRegistry->getService<Accelerator>(getOption("accelerator"));
 	if (acc) {
 		acc->initialize();
 	} else {
@@ -218,7 +215,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string& name) {
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
-	auto acc = ServiceRegistry::instance()->getService<Accelerator>(name);
+	auto acc = serviceRegistry->getService<Accelerator>(name);
 	if (acc) {
 		acc->initialize();
 	} else {
@@ -235,7 +232,7 @@ bool hasAccelerator(const std::string& name) {
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
-	return ServiceRegistry::instance()->hasService<Accelerator>(name);
+	return serviceRegistry->hasService<Accelerator>(name);
 }
 
 
@@ -245,7 +242,7 @@ std::shared_ptr<Compiler> getCompiler(const std::string& name) {
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
-	auto c = ServiceRegistry::instance()->getService<Compiler>(name);
+	auto c = serviceRegistry->getService<Compiler>(name);
 	if (!c) {
 		error(
 				"Invalid Compiler. Could not find " + name
@@ -265,7 +262,7 @@ std::shared_ptr<Compiler> getCompiler() {
 		error("Invalid use of XACC API. getCompiler() with no string argument "
 				"requires that you set --compiler at the command line.");
 	}
-	auto compiler = ServiceRegistry::instance()->getService<Compiler>(getOption("compiler"));
+	auto compiler = serviceRegistry->getService<Compiler>(getOption("compiler"));
 	if (!compiler) {
 		error(
 				"Invalid Compiler. Could not find " + (*options)["compiler"]
@@ -275,7 +272,7 @@ std::shared_ptr<Compiler> getCompiler() {
 }
 
 bool hasCompiler(const std::string& name) {
-	return ServiceRegistry::instance()->hasService<Compiler>(name);
+	return serviceRegistry->hasService<Compiler>(name);
 }
 
 std::shared_ptr<IRTransformation> getIRTransformations(
@@ -285,7 +282,7 @@ std::shared_ptr<IRTransformation> getIRTransformations(
 				"XACC not initialized before use. Please execute "
 				"xacc::Initialize() before using API.");
 	}
-	auto t = ServiceRegistry::instance()->getService<IRTransformation>(name);
+	auto t = serviceRegistry->getService<IRTransformation>(name);
 	if (!t) {
 		error(
 				"Invalid IRTransformation. Could not find " + name
@@ -314,7 +311,7 @@ const std::string translateWithVisitor(const std::string& originalSource, const 
 	auto acc = getAccelerator(accelerator);
 	auto originalCompiler = getCompiler(originalLanguage);
 	auto ir = originalCompiler->compile(originalSource, acc);
-	auto visitor = ServiceRegistry::instance()->getService<
+	auto visitor = serviceRegistry->getService<
 			BaseInstructionVisitor>(visitorMappingName);
 
 	std::vector<std::string> previouslySeenKernels;
@@ -344,7 +341,7 @@ void Finalize() {
 	XACCLogger::instance()->dumpQueue();
 	info("");
 	info("[xacc::plugins] Cleaning up Plugin Registry.");
-	xacc::ServiceRegistry::instance()->destroy();
+//	xacc::serviceRegistry->destroy();
 	xacc::xaccFrameworkInitialized = false;
 	info("[xacc] Finalizing XACC Framework.");
 }

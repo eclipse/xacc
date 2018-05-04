@@ -73,12 +73,17 @@ PYBIND11_MODULE(pyxacc, m) {
 		.def("getParameter", &xacc::Function::getParameter, "")
 		.def("getParameters", &xacc::Function::getParameters, "")
 		.def("setParameter", &xacc::Function::setParameter, "")
-		.def("getTag", &xacc::Function::getTag, "");
+		.def("getTag", &xacc::Function::getTag, "")
+		.def("mapBits", &xacc::Function::mapBits, "");
 
     // Expose the IR interface
     py::class_<xacc::IR, std::shared_ptr<xacc::IR>> (m, "IR", "The XACC Intermediate Representation, "
     		"serves as a container for XACC Functions.")
-    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR");
+    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
+			.def("addKernel", &xacc::IR::addKernel, "");
+
+    py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "").def("process", &xacc::IRPreprocessor::process, "");
+    py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "").def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
     // Expose the Kernel
     py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(m, "Kernel", "The XACC Kernel is the "
@@ -178,6 +183,9 @@ PYBIND11_MODULE(pyxacc, m) {
 	m.def("getCompiler", (std::shared_ptr<xacc::Compiler> (*)(const std::string&))
 			&xacc::getCompiler, py::return_value_policy::reference,
 			"Return the Compiler of given name.");
+	m.def("getIRPreprocessor", (std::shared_ptr<xacc::IRPreprocessor> (*)(const std::string&))
+			&xacc::getService<IRPreprocessor>, py::return_value_policy::reference,
+			"Return the Compiler of given name.");
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
@@ -190,6 +198,8 @@ PYBIND11_MODULE(pyxacc, m) {
 			return p.getRuntimeKernels()[0].getIRFunction();
 	}, py::arg("acc"), py::arg("src"), py::arg("compilerName") = std::string(""), py::return_value_policy::move, "");
 	
+	m.def("functionToInstruction", [](std::shared_ptr<Function> f) {return std::dynamic_pointer_cast<Instruction>(f);}, py::return_value_policy::copy);
+
 	py::module gatesub = m.def_submodule("gate", "Gate model quantum computing data structures.");
 	gatesub.def("create",
 			[](const std::string& name, std::vector<int> qbits, std::vector<InstructionParameter> params = std::vector<InstructionParameter> {}) -> std::shared_ptr<Instruction> {
