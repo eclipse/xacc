@@ -30,6 +30,7 @@ extern bool xaccFrameworkInitialized;
 
 // Reference to the command line parser
 extern std::shared_ptr<CLIParser> xaccCLParser;
+extern std::shared_ptr<ServiceRegistry> serviceRegistry;
 
 extern int argc;
 extern char** argv;
@@ -232,7 +233,7 @@ bool hasCompiler(const std::string& name);
 
 template<typename Service>
 std::shared_ptr<Service> getService(const std::string& serviceName) {
-	auto service = ServiceRegistry::instance()->getService<Service>(
+	auto service = serviceRegistry->getService<Service>(
 			serviceName);
 	if (!service) {
 		error(
@@ -240,6 +241,20 @@ std::shared_ptr<Service> getService(const std::string& serviceName) {
 						+ " in Service Registry.");
 	}
 	return service;
+}
+
+template<typename Service>
+bool hasService(const std::string& serviceName) {
+	return serviceRegistry->hasService<Service>(
+			serviceName);
+}
+template<typename ServiceInterface>
+std::vector<std::string> getRegisteredIds() {
+	return serviceRegistry->getRegisteredIds<ServiceInterface>();
+}
+template<typename ServiceInterface>
+std::vector<std::shared_ptr<ServiceInterface>> getServices() {
+	return serviceRegistry->getServices<ServiceInterface>();
 }
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string& name);

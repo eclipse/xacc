@@ -1,6 +1,6 @@
 #include "GateIRProvider.hpp"
-
 #include "GateIR.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -8,7 +8,7 @@ std::shared_ptr<Instruction> GateIRProvider::createInstruction(const std::string
 		std::vector<int> bits, std::vector<InstructionParameter> parameters) {
 
 	std::shared_ptr<GateInstruction> inst =
-			ServiceRegistry::instance()->getService<GateInstruction>(name);
+			xacc::getService<GateInstruction>(name);
 	inst->setBits(bits);
 	int idx = 0;
 	for (auto& a : parameters) {
@@ -31,7 +31,7 @@ std::shared_ptr<IR> GateIRProvider::createIR() {
 
 std::vector<std::string> GateIRProvider::getInstructions() {
 	std::vector<std::string> ret;
-	for (auto i : ServiceRegistry::instance()->getRegisteredIds<GateInstruction>()) {
+	for (auto i : xacc::getRegisteredIds<GateInstruction>()) {
 		ret.push_back(i);
 	}
 	return ret;

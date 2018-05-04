@@ -24,13 +24,29 @@ std::vector<IRTransformation> getAcceleratorIndependentTransformations(
 std::vector<std::shared_ptr<Preprocessor>> getDefaultPreprocessors(
 		AcceleratorType accType) {
 	std::vector<std::shared_ptr<Preprocessor>> preprocessors;
-	auto preprocessor = ServiceRegistry::instance()->getService<Preprocessor>(
+	auto preprocessor = xacc::getService<Preprocessor>(
 			"kernel-replacement");
 	if (accType == AcceleratorType::qpu_gate) {
 		preprocessors.push_back(preprocessor);
 	}
 
 	return preprocessors;
+}
+
+void Program::addPreprocessor(const std::string& preProcessorName) {
+    if(xacc::hasService<Preprocessor>(preProcessorName)) {
+		auto preprocessor = xacc::getService<Preprocessor>(preProcessorName);
+		preprocessors.push_back(preprocessor);
+	}
+}
+
+void Program::addIRPreprocessor(const std::string& name) {
+	if (xacc::hasService<IRPreprocessor>(
+			name)) {
+		auto p = xacc::getService<
+				IRPreprocessor>(name);
+		irpreprocessors.push_back(p);
+	}
 }
 
 void Program::build() {
@@ -42,8 +58,7 @@ void Program::build() {
 	auto compilerToRun = (*runtimeOptions)["compiler"];
 
 	// Create the appropriate compiler
-	compiler = xacc::ServiceRegistry::instance()->getService<Compiler>(
-			compilerToRun);
+	compiler = xacc::getService<Compiler>(compilerToRun);
 
 	// Make sure we got a valid
 	if (!compiler) {

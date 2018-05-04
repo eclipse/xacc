@@ -13,7 +13,7 @@
 #include "KernelReplacementPreprocessor.hpp"
 #include <boost/algorithm/string.hpp>
 #include "IRGenerator.hpp"
-#include "ServiceRegistry.hpp"
+#include "XACC.hpp"
 #include <numeric>
 
 namespace xacc {
@@ -61,7 +61,7 @@ const std::string KernelReplacementPreprocessor::process(const std::string& sour
 		}
 
 		auto buffer = accelerator->getBuffer(bufName);
-		auto algoGen = ServiceRegistry::instance()->getService<IRGenerator>(funcName);
+		auto algoGen = xacc::getService<IRGenerator>(funcName);
 
 		auto algoKernel = algoGen->generate(buffer);
 

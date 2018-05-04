@@ -69,12 +69,12 @@ public:
 
 	/**
 	 */
-	void parse(int argc, char** argv) {
+	void parse(int argc, char** argv, ServiceRegistry& serviceRegistry) {
 
 		// Get a reference to the RuntimeOptions
 		auto runtimeOptions = RuntimeOptions::instance();
 
-		auto registeredOptions = ServiceRegistry::instance()->getRegisteredOptions();
+		auto registeredOptions = serviceRegistry.getRegisteredOptions();
 
 		for (auto s : registeredOptions) {
 			xaccOptions->add(*s.get());
@@ -97,12 +97,12 @@ public:
 		// then load it
 		if (clArgs.count("load")) {
 			auto loadPath = clArgs["load-compiler"].as<std::string>();
-			ServiceRegistry::instance()->loadPlugin(loadPath);
+			serviceRegistry.loadPlugin(loadPath);
 		}
 
 		bool listTypes = false;
 		if (clArgs.count("list-compilers")) {
-			auto ids = ServiceRegistry::instance()->getRegisteredIds<Compiler>();
+			auto ids = serviceRegistry.getRegisteredIds<Compiler>();
 			XACCLogger::instance()->info("Available XACC Compilers:");
 			for (auto i : ids) {
 				XACCLogger::instance()->info("\t" + i);
@@ -111,7 +111,7 @@ public:
 		}
 
 		if (clArgs.count("list-accelerators")) {
-			auto ids = ServiceRegistry::instance()->getRegisteredIds<Accelerator>();
+			auto ids = serviceRegistry.getRegisteredIds<Accelerator>();
 			XACCLogger::instance()->info("Available XACC Accelerators:");
 			for (auto i : ids) {
 				XACCLogger::instance()->info("\t" + i);
@@ -127,7 +127,7 @@ public:
 			exit(0);
 		}
 
-		auto exitRequested = ServiceRegistry::instance()->handleOptions(clArgs);
+		auto exitRequested = serviceRegistry.handleOptions(clArgs);
 		if (exitRequested) {
 			XACCLogger::instance()->dumpQueue();
 			XACCLogger::instance()->info(
