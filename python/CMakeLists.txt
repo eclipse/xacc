@@ -49,18 +49,19 @@ if(APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif(APPLE)
 
-add_library(pyxacc SHARED xacc-py.cpp)
+add_library(_pyxacc SHARED xacc-py.cpp)
 
-set_target_properties(pyxacc PROPERTIES PREFIX "")
+set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(pyxacc CppMicroServices xacc xacc-quantum-gate ${Boost_LIBRARIES} cpr curl)
+target_link_libraries(_pyxacc CppMicroServices xacc xacc-quantum-gate ${Boost_LIBRARIES} cpr curl)
 
 if(APPLE)
-   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
-   set_target_properties(pyxacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+   set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
+   set_target_properties(_pyxacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-   set_target_properties(pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
-   set_target_properties(pyxacc PROPERTIES LINK_FLAGS "-shared")
+   set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+   set_target_properties(_pyxacc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-install(TARGETS pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS _pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES pyxacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
