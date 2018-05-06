@@ -34,52 +34,6 @@ def xacc_repair_wheel(wheel_path: str, abi: str, lib_sdir: str, out_dir: str,
     with InWheelCtx(wheel_path) as ctx:
         ctx.out_wheel = pjoin(out_dir, wheel_fname)
 
-        # here, fn is a path to a python extension library in
-        # the wheel, and v['libs'] contains its required libs
-        for fn, v in external_refs_by_fn.items():
-            # pkg_root should resolve to like numpy/ or scipy/
-            # note that it's possible for the wheel to contain
-            # more than one pkg, which is why we detect the pkg root
-            # for each fn.
-            pkg_root = fn.split(os.sep)[0]
-
-            if pkg_root == fn:
-                # this file is an extension that's not contained in a
-                # directory -- just supposed to be directly in site-packages
-                dest_dir = lib_sdir + pkg_root.split('.')[0]
-            else:
-                dest_dir = pjoin(pkg_root, lib_sdir)
-
-            if not exists(dest_dir):
-                os.mkdir(dest_dir)
-
-            ext_libs = v[abi]['libs']  # type: Dict[str, str]
-            for soname, src_path in ext_libs.items():
-                if src_path is None:
-                    raise ValueError(('Cannot repair wheel, because required '
-                                      'library "%s" could not be located') %
-                                     soname)
-
-                new_soname, new_path = copylib(src_path, dest_dir)
-                soname_map[soname] = (new_soname, new_path)
-                check_call(['patchelf', '--replace-needed', soname, new_soname, fn])
-
-            if len(ext_libs) > 0:
-                patchelf_set_rpath(fn, dest_dir)
-
-        # we grafted in a bunch of libraries and modifed their sonames, but
-        # they may have internal dependencies (DT_NEEDED) on one another, so
-        # we need to update those records so each now knows about the new
-        # name of the other.
-        for old_soname, (new_soname, path) in soname_map.items():
-            needed = elf_read_dt_needed(path)
-            for n in needed:
-                if n in soname_map:
-                    check_call(['patchelf', '--replace-needed', n, soname_map[n][0], path])
-
-
-        check_call(['patchelf', '--force-rpath', '--set-rpath', '$ORIGIN/.libs:$ORIGIN/lib', 'xacc/_pyxacc.so'])
-
         if update_tags:
             ctx.out_wheel = add_platforms(ctx, [abi],
                                           get_replace_platforms(abi))
