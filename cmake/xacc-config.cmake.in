@@ -13,5 +13,6 @@ set (XACC_INCLUDE_DIRS "${XACC_ROOT}/include/cppmicroservices3;${XACC_ROOT}/incl
 set (XACC_LIBRARY_DIR "${XACC_ROOT}/lib")
 set(CppUsLib CppMicroServicesd)
 link_directories("${XACC_ROOT}/lib")
-set (XACC_LIBRARIES "xacc;CppMicroServices;boost_system;boost_filesystem;boost_regex;boost_graph;boost_program_options;boost_chrono;boost_unit_test_framework;cpr;curl")
+set (XACC_LIBRARIES "xacc;CppMicroServices;cpr;curl;boost_system;boost_filesystem;boost_regex;boost_graph;boost_program_options;boost_chrono")
+set (XACC_TEST_LIBRARIES "xacc;CppMicroServices;boost_system;boost_filesystem;boost_regex;boost_graph;boost_program_options;boost_chrono;boost_unit_test_framework;cpr;curl")
 set(BOOST_ROOT ${XACC_ROOT})
