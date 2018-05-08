@@ -10,26 +10,27 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE YTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Y.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(YTester,checkCreation) {
 
 	Y y(0);
-	BOOST_VERIFY(y.toString("qreg") == "Y qreg0");
-	BOOST_VERIFY(y.bits().size() == 1);
-	BOOST_VERIFY(y.bits()[0] == 0);
-	BOOST_VERIFY(y.name() == "Y");
+	EXPECT_TRUE(y.toString("qreg") == "Y qreg0");
+	EXPECT_TRUE(y.bits().size() == 1);
+	EXPECT_TRUE(y.bits()[0] == 0);
+	EXPECT_TRUE(y.name() == "Y");
 
 	Y y2(44);
-	BOOST_VERIFY(y2.toString("qreg") == "Y qreg44");
-	BOOST_VERIFY(y2.bits().size() == 1);
-	BOOST_VERIFY(y2.bits()[0] == 44);
-	BOOST_VERIFY(y2.name() == "Y");
+	EXPECT_TRUE(y2.toString("qreg") == "Y qreg44");
+	EXPECT_TRUE(y2.bits().size() == 1);
+	EXPECT_TRUE(y2.bits()[0] == 44);
+	EXPECT_TRUE(y2.name() == "Y");
 
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }

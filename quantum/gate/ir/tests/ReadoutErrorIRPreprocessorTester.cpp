@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ReadoutErrorIRPreprocessorTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "ReadoutErrorIRPreprocessor.hpp"
 #include "GateIR.hpp"
 #include <boost/math/constants/constants.hpp>
@@ -98,7 +95,7 @@ public:
 	}
 };
 
-BOOST_AUTO_TEST_CASE(checkSimple) {
+TEST(ReadoutErrorIRPreprocessorTester,checkSimple) {
 
 	xacc::Initialize();
 //	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
@@ -122,7 +119,7 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 	int nMeasurementKernels = 6;
 	int nExtraKernels = 6;
 
-	BOOST_VERIFY(ir->getKernels().size() == test.size() + nMeasurementKernels + nExtraKernels);
+	EXPECT_TRUE(ir->getKernels().size() == test.size() + nMeasurementKernels + nExtraKernels);
 
 	std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
 	for (int i = 0; i < ir->getKernels().size(); i++) {
@@ -131,11 +128,15 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 
 	auto fixedBuffers =  bufferProcessor->process(buffers);
 
-	BOOST_VERIFY(test.size() + nExtraKernels == fixedBuffers.size());
+	EXPECT_TRUE(test.size() + nExtraKernels == fixedBuffers.size());
 
 	for (int i = 0; i < test.size(); i++) {
-		BOOST_VERIFY(1.0 == fixedBuffers[i]->getExpectationValueZ());
+		EXPECT_TRUE(1.0 == fixedBuffers[i]->getExpectationValueZ());
 	}
 
 	xacc::Finalize();
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }

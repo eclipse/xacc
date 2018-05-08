@@ -10,9 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JsonVisitorTester
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "GateFunction.hpp"
 #include "JsonVisitor.hpp"
 #include "Rz.hpp"
@@ -21,7 +19,7 @@ using namespace rapidjson;
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkSimpleSerialization) {
+TEST(JsonVisitorTester,checkSimpleSerialization) {
 	auto f = std::make_shared<GateFunction>("foo");
 
 	auto x = std::make_shared<X>(0);
@@ -46,7 +44,7 @@ BOOST_AUTO_TEST_CASE(checkSimpleSerialization) {
 
 }
 
-BOOST_AUTO_TEST_CASE(checkTeleportSerialization) {
+TEST(JsonVisitorTester,checkTeleportSerialization) {
 	auto f = std::make_shared<GateFunction>("foo");
 
 	auto x = std::make_shared<X>(0);
@@ -82,7 +80,7 @@ BOOST_AUTO_TEST_CASE(checkTeleportSerialization) {
 
 }
 
-BOOST_AUTO_TEST_CASE(checkFunctionWithFunction) {
+TEST(JsonVisitorTester,checkFunctionWithFunction) {
 
 	auto f = std::make_shared<GateFunction>("foo");
 	auto init = std::make_shared<GateFunction>("init");
@@ -107,4 +105,8 @@ BOOST_AUTO_TEST_CASE(checkFunctionWithFunction) {
 
 	std::cout << "HELLO: \n" << json << "\n";
 
+}
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
 }

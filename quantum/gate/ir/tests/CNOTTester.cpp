@@ -10,29 +10,30 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE HadamardTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "CNOT.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(CNOTTester,checkCreation) {
 
 	CNOT cnot(0, 1);
-	BOOST_VERIFY(cnot.toString("qreg") == "CNOT qreg0,qreg1");
-	BOOST_VERIFY(cnot.bits().size() == 2);
-	BOOST_VERIFY(cnot.bits()[0] == 0);
-	BOOST_VERIFY(cnot.bits()[1] == 1);
-	BOOST_VERIFY(cnot.name() == "CNOT");
+	EXPECT_TRUE(cnot.toString("qreg") == "CNOT qreg0,qreg1");
+	EXPECT_TRUE(cnot.bits().size() == 2);
+	EXPECT_TRUE(cnot.bits()[0] == 0);
+	EXPECT_TRUE(cnot.bits()[1] == 1);
+	EXPECT_TRUE(cnot.name() == "CNOT");
 
 	CNOT cnot2(44, 46);
-	BOOST_VERIFY(cnot2.toString("qreg") == "CNOT qreg44,qreg46");
-	BOOST_VERIFY(cnot2.bits().size() == 2);
-	BOOST_VERIFY(cnot2.bits()[0] == 44);
-	BOOST_VERIFY(cnot2.bits()[1] == 46);
-	BOOST_VERIFY(cnot2.name() == "CNOT");
+	EXPECT_TRUE(cnot2.toString("qreg") == "CNOT qreg44,qreg46");
+	EXPECT_TRUE(cnot2.bits().size() == 2);
+	EXPECT_TRUE(cnot2.bits()[0] == 44);
+	EXPECT_TRUE(cnot2.bits()[1] == 46);
+	EXPECT_TRUE(cnot2.name() == "CNOT");
 
 }
 
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
+}

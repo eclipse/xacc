@@ -10,31 +10,32 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE RzTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Rz.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(RzTester,checkCreation) {
 
 	Rz rz(0, 3.14);
-	BOOST_VERIFY(boost::get<double>(rz.getParameter(0)) == 3.14);
-	BOOST_VERIFY(rz.toString("qreg") == "Rz(3.14) qreg0");
-	BOOST_VERIFY(rz.bits().size() == 1);
-	BOOST_VERIFY(rz.bits()[0] == 0);
-	BOOST_VERIFY(rz.name() == "Rz");
+	EXPECT_TRUE(boost::get<double>(rz.getParameter(0)) == 3.14);
+	EXPECT_TRUE(rz.toString("qreg") == "Rz(3.14) qreg0");
+	EXPECT_TRUE(rz.bits().size() == 1);
+	EXPECT_TRUE(rz.bits()[0] == 0);
+	EXPECT_TRUE(rz.name() == "Rz");
 
 	Rz rz2(44, 1.71234);
 
-	BOOST_VERIFY(boost::get<double>(rz2.getParameter(0)) == 1.71234);
-	BOOST_VERIFY(rz2.toString("qreg") == "Rz(1.71234) qreg44");
-	BOOST_VERIFY(rz2.bits().size() == 1);
-	BOOST_VERIFY(rz2.bits()[0] == 44);
-	BOOST_VERIFY(rz2.name() == "Rz");
+	EXPECT_TRUE(boost::get<double>(rz2.getParameter(0)) == 1.71234);
+	EXPECT_TRUE(rz2.toString("qreg") == "Rz(1.71234) qreg44");
+	EXPECT_TRUE(rz2.bits().size() == 1);
+	EXPECT_TRUE(rz2.bits()[0] == 44);
+	EXPECT_TRUE(rz2.name() == "Rz");
 
 
 }
 
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
+}

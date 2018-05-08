@@ -10,15 +10,12 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE EmbeddingTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Embedding.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkLoadPersist) {
+TEST(EmbeddingTester,checkLoadPersist) {
 
 	Embedding embedding;
 
@@ -40,7 +37,7 @@ BOOST_AUTO_TEST_CASE(checkLoadPersist) {
 			"4: 7\n";
 
 
-	BOOST_VERIFY(ss.str() == expected);
+	EXPECT_TRUE(ss.str() == expected);
 
 	Embedding toBeLoaded;
 	std::istringstream iss(expected);
@@ -48,9 +45,13 @@ BOOST_AUTO_TEST_CASE(checkLoadPersist) {
 	toBeLoaded.load(iss);
 
 	toBeLoaded.persist(std::cout);
-	BOOST_VERIFY(toBeLoaded == embedding);
+	EXPECT_TRUE(toBeLoaded == embedding);
 }
 
 
 
 
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
+}
