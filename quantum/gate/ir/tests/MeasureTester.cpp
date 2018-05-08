@@ -10,22 +10,23 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE MeasureTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Measure.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(MeasureTester,checkCreation) {
 
 	Measure meas(0, 1);
-	BOOST_VERIFY(boost::get<int>(meas.getParameter(0)) == 1);
-	BOOST_VERIFY(meas.toString("qreg") == "Measure qreg0");
-	BOOST_VERIFY(meas.bits().size() == 1);
-	BOOST_VERIFY(meas.bits()[0] == 0);
-	BOOST_VERIFY(meas.name() == "Measure");
+	EXPECT_TRUE(boost::get<int>(meas.getParameter(0)) == 1);
+	EXPECT_TRUE(meas.toString("qreg") == "Measure qreg0");
+	EXPECT_TRUE(meas.bits().size() == 1);
+	EXPECT_TRUE(meas.bits()[0] == 0);
+	EXPECT_TRUE(meas.name() == "Measure");
 
 
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }

@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GateFunctionTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "GateFunction.hpp"
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
@@ -28,11 +25,11 @@ const std::string expectedQasm =
 		"CNOT qreg0,qreg1\n"
 		"H qreg0\n";
 
-BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
+TEST(GateFunctionTester,checkFunctionMethods) {
 
 	GateFunction f("foo");
-	BOOST_VERIFY(f.name() == "foo");
-	BOOST_VERIFY(f.nInstructions() == 0);
+	EXPECT_TRUE(f.name() == "foo");
+	EXPECT_TRUE(f.nInstructions() == 0);
 
 	auto h = std::make_shared<Hadamard>(1);
 	auto cn1 = std::make_shared<CNOT>(1, 2);
@@ -43,34 +40,34 @@ BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 	f.addInstruction(cn1);
 	f.addInstruction(cn2);
 	f.addInstruction(h2);
-	BOOST_VERIFY(f.nInstructions() == 4);
-	BOOST_VERIFY(f.toString("qreg") == expectedQasm);
+	EXPECT_TRUE(f.nInstructions() == 4);
+	EXPECT_TRUE(f.toString("qreg") == expectedQasm);
 
 	f.removeInstruction(0);
-	BOOST_VERIFY(f.nInstructions() == 3);
+	EXPECT_TRUE(f.nInstructions() == 3);
 
 	const std::string removeExpectedQasm =
 			"CNOT qreg1,qreg2\n"
 			"CNOT qreg0,qreg1\n"
 			"H qreg0\n";
-	BOOST_VERIFY(f.toString("qreg") == removeExpectedQasm);
+	EXPECT_TRUE(f.toString("qreg") == removeExpectedQasm);
 
 
 	f.replaceInstruction(0, h);
 	const std::string replaceExpectedQasm = "H qreg1\n"
 			"CNOT qreg0,qreg1\n"
 			"H qreg0\n";
-	BOOST_VERIFY(f.toString("qreg") == replaceExpectedQasm);
+	EXPECT_TRUE(f.toString("qreg") == replaceExpectedQasm);
 
 	f.replaceInstruction(2, cn1);
 	const std::string replaceExpectedQasm2 = "H qreg1\n"
 			"CNOT qreg0,qreg1\n"
 			"CNOT qreg1,qreg2\n";
-	BOOST_VERIFY(f.toString("qreg") == replaceExpectedQasm2);
+	EXPECT_TRUE(f.toString("qreg") == replaceExpectedQasm2);
 
 }
 
-BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
+TEST(GateFunctionTester,checkWalkFunctionTree) {
 	auto f = std::make_shared<GateFunction>("foo");
 	auto g = std::make_shared<GateFunction>("goo");
 
@@ -94,13 +91,13 @@ BOOST_AUTO_TEST_CASE(checkWalkFunctionTree) {
 
 }
 
-BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
+TEST(GateFunctionTester,checkEvaluateVariables) {
 
 	xacc::Initialize();
 	xacc::InstructionParameter p("phi");
 	xacc::InstructionParameter fParam("phi");
 
-	BOOST_VERIFY(p == fParam);
+	EXPECT_TRUE(p == fParam);
 
 	auto rz = std::make_shared<Rz>(std::vector<int>{0});
 	rz->setParameter(0, p);
@@ -116,7 +113,7 @@ BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
 
 	auto evaled = f(v);
 
-	BOOST_VERIFY(boost::get<double>(evaled->getInstruction(0)->getParameter(0)) == 3.1415);
+	EXPECT_TRUE(boost::get<double>(evaled->getInstruction(0)->getParameter(0)) == 3.1415);
 
 	std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
 
@@ -127,4 +124,8 @@ BOOST_AUTO_TEST_CASE(checkEvaluateVariables) {
 	std::cout << "ParamSet:\n" << evaled->toString("qreg") << "\n";
 
 	xacc::Finalize();
+}
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
 }

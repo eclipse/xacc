@@ -12,6 +12,5 @@
 # *******************************************************************************/
 # Gather tests
 if(XACC_BUILD_TESTS)
-file (GLOB test_files tests/*.cpp)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}" "xacc;${Boost_LIBRARIES};xacc-quantum-aqc;${CppUsLib};cpr;curl")
+	add_subdirectory(tests)
 endif()

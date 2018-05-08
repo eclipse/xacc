@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ReadoutErrorAcceleratorBufferPostprocessorTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "ReadoutErrorAcceleratorBufferPostprocessor.hpp"
 #include "GateIR.hpp"
 #include <boost/math/constants/constants.hpp>
@@ -114,7 +111,7 @@ public:
 
 };
 
-BOOST_AUTO_TEST_CASE(checkSimple) {
+TEST(ReadoutErrorAcceleratorBufferPostprocessorTester,checkSimple) {
 
 	xacc::Initialize();
 	// Simple example H = X0
@@ -161,6 +158,10 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 	std::cout << "HELLO: " << fixed[0]->getExpectationValueZ() << "\n";
 
 	xacc::Finalize();
-//	BOOST_VERIFY(std::fabs(fixed[0]->getExpectationValueZ() - .911111) < 1e-6);
+//	EXPECT_TRUE(std::fabs(fixed[0]->getExpectationValueZ() - .911111) < 1e-6);
 
+}
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

@@ -10,32 +10,34 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE CPhaseTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "CPhase.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(CPhaseTester,checkCreation) {
 
 	CPhase cp(0, 1, 3.14);
-	BOOST_VERIFY(boost::get<double>(cp.getParameter(0)) == 3.14);
-	BOOST_VERIFY(cp.toString("qreg") == "CPhase(3.14) qreg0,qreg1");
-	BOOST_VERIFY(cp.bits().size() == 2);
-	BOOST_VERIFY(cp.bits()[0] == 0);
-	BOOST_VERIFY(cp.bits()[1] == 1);
-	BOOST_VERIFY(cp.name() == "CPhase");
+	EXPECT_TRUE(boost::get<double>(cp.getParameter(0)) == 3.14);
+	EXPECT_TRUE(cp.toString("qreg") == "CPhase(3.14) qreg0,qreg1");
+	EXPECT_TRUE(cp.bits().size() == 2);
+	EXPECT_TRUE(cp.bits()[0] == 0);
+	EXPECT_TRUE(cp.bits()[1] == 1);
+	EXPECT_TRUE(cp.name() == "CPhase");
 
 	CPhase cp2(44, 45, 1.71234);
 
-	BOOST_VERIFY(boost::get<double>(cp2.getParameter(0)) == 1.71234);
-	BOOST_VERIFY(cp2.toString("qreg") == "CPhase(1.71234) qreg44,qreg45");
-	BOOST_VERIFY(cp2.bits().size() == 2);
-	BOOST_VERIFY(cp2.bits()[0] == 44);
-	BOOST_VERIFY(cp2.bits()[1] == 45);
-	BOOST_VERIFY(cp2.name() == "CPhase");
+	EXPECT_TRUE(boost::get<double>(cp2.getParameter(0)) == 1.71234);
+	EXPECT_TRUE(cp2.toString("qreg") == "CPhase(1.71234) qreg44,qreg45");
+	EXPECT_TRUE(cp2.bits().size() == 2);
+	EXPECT_TRUE(cp2.bits()[0] == 44);
+	EXPECT_TRUE(cp2.bits()[1] == 45);
+	EXPECT_TRUE(cp2.name() == "CPhase");
 
 }
 
+
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
+}

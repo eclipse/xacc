@@ -18,12 +18,11 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 option(XACC_BUILD_TESTS "Build test programs" OFF)
 
-# Make sure all build libraries have reference to their dependents
 set(CMAKE_SKIP_INSTALL_RPATH OFF)
 set(CMAKE_SKIP_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_install_PREFIX}/lib" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "@loader_path")
 ENDIF("${isSystemDir}" STREQUAL "-1")
@@ -36,6 +35,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 include(ExternalProject)
+
 
 if(NOT WIN32)
   string(ASCII 27 Esc)
@@ -58,13 +58,41 @@ if(NOT WIN32)
 endif()
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-	set (CMAKE_INSTALL_PREFIX "$ENV{HOME}/.xacc" CACHE PATH "default install path" FORCE )
+	set (CMAKE_install_PREFIX "$ENV{HOME}/.xacc" CACHE PATH "default install path" FORCE )
 endif()
 
-message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
+message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_install_PREFIX}. Override with -DCMAKE_install_PREFIX=...${ColorReset}")
 
 if (XACC_BUILD_TESTS)
    enable_testing()
+   macro(add_xacc_test _TEST_NAME)
+       set(XACC_LIBRARIES "${CMAKE_BINARY_DIR}/quantum/gate/libxacc-quantum-gate.dylib")
+       add_executable(${_TEST_NAME}Tester ${_TEST_NAME}Tester.cpp)
+       add_test(NAME xacc_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
+       target_link_libraries(${_TEST_NAME}Tester ${GTEST_LIBRARIES} xacc ${XACC_LIBRARIES}) #xacc-quantum-gate xacc-quantum-aqc)
+   endmacro()
+
+   macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
+       set(${VAR_NAME} ${${VAR_NAME}} CACHE INTERNAL ${VAR_DESCRIPTION})
+       message(STATUS "Set ${VAR_NAME} to ${${VAR_NAME}}.")
+   endmacro()
+
+   message(STATUS "Not using system gtest, using built-in googletest project instead.")
+   add_subdirectory(tpls/cpr/opt/googletest)
+   set(GTEST_FOUND TRUE)
+   set(GTEST_LIBRARIES gtest)
+   set(GTEST_MAIN_LIBRARIES gtest_main)
+   set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+   set(GTEST_INCLUDE_DIRS ${gtest_SOURCE_DIR}/include)
+   set_property(TARGET gtest PROPERTY FOLDER "tests/gtest")
+   set_property(TARGET gtest_main PROPERTY FOLDER "tests/gtest")
+
+   set_cache_variable(GTEST_FOUND "Set if libgtest was found or built")
+   set_cache_variable(GTEST_LIBRARIES "Location of libgtest")
+   set_cache_variable(GTEST_MAIN_LIBRARIES "Location of libgtest-main")
+   set_cache_variable(GTEST_BOTH_LIBRARIES "Location of both gtest libraries")
+   set_cache_variable(GTEST_INCLUDE_DIRS "Location of gtest include files")
+   include_directories(${GTEST_INCLUDE_DIRS})
 endif()
 
 # Setup Doxygen
@@ -89,42 +117,8 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
 add_subdirectory(xacc)
 add_subdirectory(quantum)
-#ExternalProject_Add(xacc-quantum
-#   DEPENDS xacc
-#   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/quantum
-#   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-#              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#              -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-#	      -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-#              -DXACC_BINARY_DIR=${CMAKE_BINARY_DIR}
-#	      -DBOOST_ROOT=${BOOST_ROOT}
-#   CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-#   BUILD_ALWAYS 1
-#   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
-   #   TEST_AFTER_INSTALL 1
-   #   )
-#find_package(PythonLibs)
-if(PYTHON_INCLUDE_DIR) #PYTHONLIBS_FOUND)
-   add_subdirectory(python)
-   #      ExternalProject_Add(xacc-python
-   #   DEPENDS xacc-quantum
-   #  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/python
-   #  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-   #             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-   #             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-   #             -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-   #	         -DXACC_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
-   #	         -DPYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}
-   #	         -DXACC_BINARY_DIR=${CMAKE_BINARY_DIR}
-   #             -DFROM_SETUP_PY=${FROM_SETUP_PY}
-   #             -DXACC_PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR}
-   #	         -DBOOST_ROOT=${BOOST_ROOT}
-   #  CMAKE_CACHE_ARGS -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-   #  BUILD_ALWAYS 1
-   #      INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install #DESTDIR=${CMAKE_BINARY_DIR}/stage
-   #  TEST_AFTER_INSTALL 1
-   #)
+if(PYTHON_INCLUDE_DIR) 
+	#   add_subdirectory(python)
 endif()
 
 # Install the config file for external projects to use
@@ -134,14 +128,9 @@ endif()
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/xacc/)
-#if(APPLE)
-#install(FILES ${CMAKE_BINARY_DIR}/lib/libcpr.dylib DESTINATION lib)
-#else()
-#install(FILES ${CMAKE_BINARY_DIR}/lib/libcpr.so DESTINATION lib)
-#endif()
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/pybind11" DESTINATION include )
+install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
+install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
+install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
+install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
+install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/pybind11" DESTINATION include )
 install(PROGRAMS "${CMAKE_SOURCE_DIR}/tools/framework/xacc-framework" DESTINATION bin)

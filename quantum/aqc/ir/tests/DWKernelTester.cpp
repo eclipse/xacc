@@ -10,15 +10,12 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DWKernelTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "DWKernel.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkDWKernelConstruction) {
+TEST(DWKernelTester,checkDWKernelConstruction) {
 
 	auto qmi = std::make_shared<DWQMI>(0, 1, 2.2);
 	auto qmi2 = std::make_shared<DWQMI>(0);
@@ -29,14 +26,18 @@ BOOST_AUTO_TEST_CASE(checkDWKernelConstruction) {
 	kernel.addInstruction(qmi2);
 	kernel.addInstruction(qmi3);
 
-	BOOST_VERIFY(kernel.nInstructions() == 3);
-	BOOST_VERIFY(kernel.name() == "foo");
-	BOOST_VERIFY(kernel.getInstruction(0) == qmi);
-	BOOST_VERIFY(kernel.getInstruction(1) == qmi2);
-	BOOST_VERIFY(kernel.getInstruction(2) == qmi3);
+	EXPECT_TRUE(kernel.nInstructions() == 3);
+	EXPECT_TRUE(kernel.name() == "foo");
+	EXPECT_TRUE(kernel.getInstruction(0) == qmi);
+	EXPECT_TRUE(kernel.getInstruction(1) == qmi2);
+	EXPECT_TRUE(kernel.getInstruction(2) == qmi3);
 
 	const std::string expected = "0 1 2.2\n0 0 0\n22 22 3.3\n";
 
-	BOOST_VERIFY(kernel.toString("") == expected);
+	EXPECT_TRUE(kernel.toString("") == expected);
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }
 

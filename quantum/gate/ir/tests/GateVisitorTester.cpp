@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE FateVisitorTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
 
@@ -37,10 +34,14 @@ public:
 
 };
 
-BOOST_AUTO_TEST_CASE(checkVisit) {
+TEST(GateVisitorTester,checkVisit) {
 	auto v = std::make_shared<TestVisitor>();
 	std::shared_ptr<GateInstruction> c = std::make_shared<CNOT>(0,1);
 	std::shared_ptr<GateInstruction> h = std::make_shared<Hadamard>(0);
 	c->accept(v);
 	h->accept(v);
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }

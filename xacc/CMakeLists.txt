@@ -59,7 +59,12 @@ file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
 
 # Add the tests
-#3if(XACC_BUILD_TESTS)	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
+if(XACC_BUILD_TESTS)
+   add_subdirectory(accelerator/tests)
+   add_subdirectory(utils/tests)
+endif()
+
+	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
 	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)

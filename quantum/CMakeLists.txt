@@ -12,7 +12,6 @@
 # *******************************************************************************/
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_BINARY_DIR}/tpls/cppmicroservices")
-#include(${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CppMicroServicesConfig.cmake)
 include(CppMicroServicesConfig)
 
 
@@ -28,9 +27,5 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-#link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-#link_directories(${XACC_BINARY_DIR}/xacc)
-#link_directories(${XACC_BINARY_DIR}/lib)
-
 add_subdirectory(gate)
-add_subdirectory(aqc)
+#add_subdirectory(aqc)

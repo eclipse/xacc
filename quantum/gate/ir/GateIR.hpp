@@ -69,8 +69,7 @@ public:
 	/**
 	 * The nullary Constructor
 	 */
-	GateIR() {
-	}
+	GateIR() {}
 
 	/**
 	 * This method takes the list of quantum instructions that this

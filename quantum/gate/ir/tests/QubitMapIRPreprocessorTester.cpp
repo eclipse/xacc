@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE QubitMapIRPreprocessorTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "QubitMapIRPreprocessor.hpp"
 #include "GateIR.hpp"
 #include <boost/math/constants/constants.hpp>
@@ -98,7 +95,7 @@ public:
 	}
 };
 
-BOOST_AUTO_TEST_CASE(checkSimple) {
+TEST(QubitMapIRPreprocessorTester,checkSimple) {
 
 //	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
 //			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 + (0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2
@@ -128,4 +125,8 @@ BOOST_AUTO_TEST_CASE(checkSimple) {
 	}
 
 	xacc::Finalize();
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }
