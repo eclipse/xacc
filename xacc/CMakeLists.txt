@@ -10,13 +10,6 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation 
 # *******************************************************************************/
-# Modify our CMAKE_MODULE_PATH
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
-#include(tests)#
-
-  # We require Boost without MPI
-#find_package(Boost COMPONENTS system program_options regex filesystem chrono graph REQUIRED)
-  #endif()
 
 # Create a xacc config header file
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in" "${CMAKE_BINARY_DIR}/xacc_config.hpp")
@@ -50,7 +43,7 @@ file (GLOB SRCS
 #link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_library(xacc SHARED ${SRCS})
-add_dependencies(xacc boost cpr)
+add_dependencies(xacc Boost::system Boost::filesystem Boost::graph cpr)
 
 if(APPLE)
    set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")
@@ -63,12 +56,12 @@ endif()
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
-target_link_libraries(xacc CppMicroServices cpr)
+target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
 
 # Add the tests
-if(XACC_BUILD_TESTS)
-add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
-endif()
+#3if(XACC_BUILD_TESTS)	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
+	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
+

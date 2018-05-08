@@ -1,48 +1,33 @@
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
-project(xacc-python LANGUAGES CXX)
+#set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
+#find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
 
-set(CMAKE_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
+include_directories(${CMAKE_SOURCE_DIR}/xacc)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${XACC_ROOT}/cmake/Modules")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/cppmicroservices3/cmake")
-include(CppMicroServicesConfig)
-include(tests)
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/xacc/ir)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/compiler)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/program)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/accelerator)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/utils)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-#find_package(PythonLibs REQUIRED)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
 
-set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
-find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
+#link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-include_directories(${XACC_ROOT}/xacc)
-include_directories(${XACC_ROOT}/quantum/gate)
-include_directories(${XACC_ROOT}/quantum/aqc)
+include_directories(${PYTHON_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
 
-include_directories(${CMAKE_INSTALL_PREFIX}/include)
-include_directories(${CMAKE_INSTALL_PREFIX}/include/cppmicroservices3)
-include_directories(${XACC_BINARY_DIR})
-include_directories(${XACC_ROOT}/xacc/ir)
-include_directories(${XACC_ROOT}/xacc/compiler)
-include_directories(${XACC_ROOT}/xacc/program)
-include_directories(${XACC_ROOT}/xacc/accelerator)
-include_directories(${XACC_ROOT}/xacc/utils)
-include_directories(${XACC_ROOT}/tpls/rapidjson/include)
-include_directories(${XACC_ROOT}/tpls/exprtk)
-include_directories(${XACC_ROOT}/tpls/spdlog)
-include_directories(${XACC_ROOT}/tpls/eigen)
-
-include_directories(${XACC_ROOT}/quantum/gate/ir)
-include_directories(${XACC_ROOT}/quantum/gate/ir/instructions)
-include_directories(${XACC_ROOT}/quantum/gate/utils)
-
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
-include_directories(${XACC_PYTHON_INCLUDE_DIR})
-include_directories(${XACC_ROOT}/tpls/pybind11/include)
-
-link_directories(${XACC_BINARY_DIR}/xacc)
-link_directories(${XACC_BINARY_DIR}/lib)
+#link_directories(${XACC_BINARY_DIR}/xacc)
+#link_directories(${XACC_BINARY_DIR}/lib)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv")
 if(APPLE)
@@ -53,7 +38,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc CppMicroServices xacc xacc-quantum-gate ${Boost_LIBRARIES} cpr curl)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc xacc-quantum-gate)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
