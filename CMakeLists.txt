@@ -66,10 +66,12 @@ message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_install_PREFIX}. Override
 if (XACC_BUILD_TESTS)
    enable_testing()
    macro(add_xacc_test _TEST_NAME)
+	   #       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -fno-stack-protector")
        set(XACC_LIBRARIES "${CMAKE_BINARY_DIR}/quantum/gate/libxacc-quantum-gate.dylib")
        add_executable(${_TEST_NAME}Tester ${_TEST_NAME}Tester.cpp)
        add_test(NAME xacc_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
-       target_link_libraries(${_TEST_NAME}Tester ${GTEST_LIBRARIES} xacc ${XACC_LIBRARIES}) #xacc-quantum-gate xacc-quantum-aqc)
+       target_link_libraries(${_TEST_NAME}Tester ${GTEST_LIBRARIES} xacc xacc-quantum-gate) #xacc-quantum-gate xacc-quantum-aqc)
+
    endmacro()
 
    macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
@@ -118,7 +120,7 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 if(PYTHON_INCLUDE_DIR) 
-	#   add_subdirectory(python)
+   add_subdirectory(python)
 endif()
 
 # Install the config file for external projects to use
