@@ -51,11 +51,10 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
-find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
+#set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
+#find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
 
-target_link_libraries(${LIBRARY_NAME} CppMicroServices xacc ${Boost_LIBRARIES}) #${CppUsLib}) #${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
-
+target_link_libraries(${LIBRARY_NAME} PUBLIC CppMicroServices xacc ${Boost_LIBRARIES}) 
 
 if(APPLE)
    set_target_properties(xacc-quantum-aqc PROPERTIES INSTALL_RPATH "@loader_path")
