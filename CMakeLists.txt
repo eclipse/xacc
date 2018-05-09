@@ -99,7 +99,7 @@ ExternalProject_Add(cppmicroservices
 	GIT_REPOSITORY https://github.com/cppmicroservices/cppmicroservices
 	GIT_TAG v3.1.0	
 	CMAKE_ARGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                   -DCMAKE_BUILD_TYPE=Release
                    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
