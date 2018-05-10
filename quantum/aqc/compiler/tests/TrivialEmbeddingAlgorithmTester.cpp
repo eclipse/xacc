@@ -10,15 +10,12 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE TrivialEmbeddingAlgorithm
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "TrivialEmbeddingAlgorithm.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkSimpleEmbed) {
+TEST(TrivialEmbeddingAlgorithmTester,checkSimpleEmbed) {
 
 	TrivialEmbeddingAlgorithm algo;
 	auto k44 = std::make_shared<K44Bipartite>();
@@ -62,11 +59,11 @@ BOOST_AUTO_TEST_CASE(checkSimpleEmbed) {
 		std::cout << kv.first << ": ";
 		for (auto h : kv.second) {
 			std::cout << h << " ";
-			BOOST_VERIFY(h == i);
+			EXPECT_TRUE(h == i);
 		}
 		std::cout << "\n";
-		BOOST_VERIFY(kv.first == i);
-		BOOST_VERIFY(kv.second.size() == 1);
+		EXPECT_TRUE(kv.first == i);
+		EXPECT_TRUE(kv.second.size() == 1);
 		i++;
 	}
 
@@ -74,9 +71,13 @@ BOOST_AUTO_TEST_CASE(checkSimpleEmbed) {
 
 	embedding = algo.embed(complete5, k44->getAcceleratorGraph(), params);
 
-	BOOST_VERIFY(embedding.empty());
+	EXPECT_TRUE(embedding.empty());
 }
 
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
+}
 
 
 

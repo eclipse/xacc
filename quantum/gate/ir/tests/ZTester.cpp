@@ -10,27 +10,28 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ZTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Z.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(ZTester,checkCreation) {
 
 	Z z(0);
-	BOOST_VERIFY(z.toString("qreg") == "Z qreg0");
-	BOOST_VERIFY(z.bits().size() == 1);
-	BOOST_VERIFY(z.bits()[0] == 0);
-	BOOST_VERIFY(z.name() == "Z");
+	EXPECT_TRUE(z.toString("qreg") == "Z qreg0");
+	EXPECT_TRUE(z.bits().size() == 1);
+	EXPECT_TRUE(z.bits()[0] == 0);
+	EXPECT_TRUE(z.name() == "Z");
 
 	Z z2(44);
-	BOOST_VERIFY(z2.toString("qreg") == "Z qreg44");
-	BOOST_VERIFY(z2.bits().size() == 1);
-	BOOST_VERIFY(z2.bits()[0] == 44);
-	BOOST_VERIFY(z2.name() == "Z");
+	EXPECT_TRUE(z2.toString("qreg") == "Z qreg44");
+	EXPECT_TRUE(z2.bits().size() == 1);
+	EXPECT_TRUE(z2.bits()[0] == 44);
+	EXPECT_TRUE(z2.name() == "Z");
 
 
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }

@@ -10,15 +10,12 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ScaffoldCompilerTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "QuantumCircuit.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkReadGraph) {
+TEST(QuantumCircuitTester,checkReadGraph) {
 
 	// Create a graph IR modeling a
 	// quantum teleportation kernel
@@ -92,68 +89,72 @@ BOOST_AUTO_TEST_CASE(checkReadGraph) {
 	expectedQubits.insert(std::make_pair(15, std::vector<int>{2}));
 	expectedQubits.insert(std::make_pair(16, std::vector<int>{0, 1, 2}));
 
-	BOOST_VERIFY(circuit.order() == 17);
-	BOOST_VERIFY(circuit.size() == 24);
+	EXPECT_TRUE(circuit.order() == 17);
+	EXPECT_TRUE(circuit.size() == 24);
 
-	BOOST_VERIFY(circuit.getVertexProperty<0>(0) == "InitialState");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(1) == "x");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(2) == "h");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(3) == "cnot");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(4) == "cnot");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(5) == "h");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(6) == "measure");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(7) == "measure");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(8) == "FinalState");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(9) == "conditional");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(10) == "InitialState");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(11) == "z");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(12) == "FinalState");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(13) == "conditional");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(14) == "InitialState");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(15) == "x");
-	BOOST_VERIFY(circuit.getVertexProperty<0>(16) == "FinalState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(0) == "InitialState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(1) == "x");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(2) == "h");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(3) == "cnot");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(4) == "cnot");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(5) == "h");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(6) == "measure");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(7) == "measure");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(8) == "FinalState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(9) == "conditional");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(10) == "InitialState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(11) == "z");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(12) == "FinalState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(13) == "conditional");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(14) == "InitialState");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(15) == "x");
+	EXPECT_TRUE(circuit.getVertexProperty<0>(16) == "FinalState");
 
 	for (int i = 0; i < 17; i++) {
-		BOOST_VERIFY(circuit.getVertexProperty<2>(i) == i);
-		BOOST_VERIFY(circuit.getVertexProperty<3>(i) == expectedQubits[i]);
+		EXPECT_TRUE(circuit.getVertexProperty<2>(i) == i);
+		EXPECT_TRUE(circuit.getVertexProperty<3>(i) == expectedQubits[i]);
 	}
 
-	BOOST_VERIFY(circuit.getVertexProperty<1>(0) == 0);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(1) == 1);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(2) == 1);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(3) == 2);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(4) == 3);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(5) == 4);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(6) == 5);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(7) == 5);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(8) == 6);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(9) == 0);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(10) == 7);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(11) == 8);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(12) == 9);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(13) == 0);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(14) == 10);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(15) == 11);
-	BOOST_VERIFY(circuit.getVertexProperty<1>(16) == 12);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(0) == 0);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(1) == 1);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(2) == 1);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(3) == 2);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(4) == 3);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(5) == 4);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(6) == 5);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(7) == 5);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(8) == 6);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(9) == 0);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(10) == 7);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(11) == 8);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(12) == 9);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(13) == 0);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(14) == 10);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(15) == 11);
+	EXPECT_TRUE(circuit.getVertexProperty<1>(16) == 12);
 
-	BOOST_VERIFY(circuit.getVertexProperty<4>(0));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(1));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(2));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(3));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(4));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(5));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(6));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(7));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(8));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(9));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(10));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(11));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(12));
-	BOOST_VERIFY(circuit.getVertexProperty<4>(13));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(14));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(15));
-	BOOST_VERIFY(!circuit.getVertexProperty<4>(16));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(0));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(1));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(2));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(3));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(4));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(5));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(6));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(7));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(8));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(9));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(10));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(11));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(12));
+	EXPECT_TRUE(circuit.getVertexProperty<4>(13));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(14));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(15));
+	EXPECT_TRUE(!circuit.getVertexProperty<4>(16));
 
 
 
+}
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

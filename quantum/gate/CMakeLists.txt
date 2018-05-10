@@ -38,12 +38,12 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
   US_BUNDLE_NAME ${_bundle_name}
   )
 
-if(BUILD_SHARED_LIBS)
-  set_target_properties(${LIBRARY_NAME} PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN 1
-    )
-endif()
+#if(BUILD_SHARED_LIBS)
+#  set_target_properties(${LIBRARY_NAME} PROPERTIES
+#    CXX_VISIBILITY_PRESET hidden
+#    VISIBILITY_INLINES_HIDDEN 1
+#    )
+#endif()
 
 # Embed meta-data from a manifest.json file
 usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
@@ -53,11 +53,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
   
-
-set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
-find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
-
-target_link_libraries(${LIBRARY_NAME} CppMicroServices xacc ${Boost_LIBRARIES}) #${CppUsLib}) #${Boost_LIBRARIES} xacc ${CppUsLib} restclient-cpp) #cpprest ${OPENSSL_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc) 
 
 if(APPLE)
    set_target_properties(xacc-quantum-gate PROPERTIES INSTALL_RPATH "@loader_path")

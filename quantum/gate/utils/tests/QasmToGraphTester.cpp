@@ -10,12 +10,10 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ScaffoldCompilerTester
 
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "QasmToGraph.hpp"
-BOOST_AUTO_TEST_CASE(checkConversion) {
+TEST(QasmToGraphTester,checkConversion) {
 	const std::string qasm =
 			"qubit qreg0\n"
 			"qubit qreg1\n"
@@ -32,4 +30,8 @@ BOOST_AUTO_TEST_CASE(checkConversion) {
 			"CNOT qreg2,qreg0";
 	auto graph = xacc::quantum::QasmToGraph::getCircuitGraph(qasm);
 	// FIXME Need to create a graph to check against
+}
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
 }
