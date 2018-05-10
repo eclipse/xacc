@@ -60,12 +60,10 @@ target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::filesyste
 
 # Add the tests
 if(XACC_BUILD_TESTS)
+   include_directories(${GTEST_INCLUDE_DIRS})
    add_subdirectory(accelerator/tests)
    add_subdirectory(utils/tests)
 endif()
-
-	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
-	#add_tests("${test_files}" "${CMAKE_CURRENT_SOURCE_DIR}/utils" "${Boost_LIBRARIES};xacc;${CppUsLib};boost_program_options;boost_unit_test_framework;boost_system;cpr;boost_filesystem;boost_graph")
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)

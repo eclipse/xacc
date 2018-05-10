@@ -26,6 +26,7 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
+include_directories(${GTEST_INCLUDE_DIRS})
 
 add_subdirectory(gate)
 add_subdirectory(aqc)
