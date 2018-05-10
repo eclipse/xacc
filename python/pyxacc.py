@@ -1,5 +1,5 @@
 from _pyxacc import *
-import os, platform, sys
+import os, platform, sys, sysconfig
 import argparse
 
 def parse_args(args):
@@ -11,6 +11,7 @@ def parse_args(args):
    parser.add_argument("-u", "--user-id", type=str, help="The User Id for the remote Accelerators.", required=False)
    parser.add_argument("--url", type=str, help="The URL for the remote Accelerators.", required=False)
    parser.add_argument("-L", "--location", action='store_true', help="Print the path to the XACC install location.", required=False)
+   parser.add_argument("--python-include-dir", action='store_true', help="Print the path to the Python.h.", required=False)
    parser.add_argument("-b", "--branch", default='master',type=str, help="Print the path to the XACC install location.", required=False)
    
    opts = parser.parse_args(args)
@@ -83,6 +84,10 @@ def main(argv=None):
    if opts.location:
        print(xaccLocation)
        sys.exit(0)
+
+   if opts.python_include_dir:
+      print(sysconfig.get_paths()['platinclude'])
+      sys.exit(0)
 
    if not opts.set_credentials == None:
       setCredentials(opts)
