@@ -28,4 +28,4 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
 add_subdirectory(gate)
-#add_subdirectory(aqc)
+add_subdirectory(aqc)

@@ -38,12 +38,12 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
   US_BUNDLE_NAME ${_bundle_name}
   )
 
-if(BUILD_SHARED_LIBS)
-  set_target_properties(${LIBRARY_NAME} PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN 1
-    )
-endif()
+#if(BUILD_SHARED_LIBS)
+#  set_target_properties(${LIBRARY_NAME} PROPERTIES
+#    CXX_VISIBILITY_PRESET hidden
+#    VISIBILITY_INLINES_HIDDEN 1
+#    )
+#endif()
 
 # Embed meta-data from a manifest.json file
 usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
