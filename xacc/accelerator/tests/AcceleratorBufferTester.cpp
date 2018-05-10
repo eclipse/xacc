@@ -10,15 +10,13 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE AcceleratorBufferTester
+#include <gtest/gtest.h>
 
-#include <boost/test/included/unit_test.hpp>
 #include "AcceleratorBuffer.hpp"
 
 using namespace xacc;
 
-BOOST_AUTO_TEST_CASE(checkGetExpectationValueZ) {
+TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
 
 	AcceleratorBuffer buffer("qreg", 5);
 
@@ -28,7 +26,7 @@ BOOST_AUTO_TEST_CASE(checkGetExpectationValueZ) {
 	buffer.appendMeasurement(measurement1, 500);
 	buffer.appendMeasurement(measurement2, 504);
 
-	BOOST_VERIFY(std::fabs(buffer.getExpectationValueZ() + 0.00398406) < 1e-6);
+	EXPECT_TRUE(std::fabs(buffer.getExpectationValueZ() + 0.00398406) < 1e-6);
 
 
 //	Kernel 38 Z2, 2 mapped to qubit 6
@@ -51,6 +49,10 @@ BOOST_AUTO_TEST_CASE(checkGetExpectationValueZ) {
 	bigBuffer.appendMeasurement(m2, 7827);
 	bigBuffer.appendMeasurement(m3, 364);
 
-	BOOST_VERIFY(std::fabs(bigBuffer.getExpectationValueZ() - 0.911011) < 1e-6);
+	EXPECT_TRUE(std::fabs(bigBuffer.getExpectationValueZ() - 0.911011) < 1e-6);
 }
 
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
+}

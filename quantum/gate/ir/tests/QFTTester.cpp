@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE QFTTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "QFT.hpp"
 #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
@@ -22,7 +19,7 @@
 using namespace xacc;
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(QFTTester,checkCreation) {
 
 	xacc::Initialize();
 	auto qft = std::make_shared<QFT>();
@@ -57,4 +54,9 @@ BOOST_AUTO_TEST_CASE(checkCreation) {
 	expectedIR->addKernel(expectedF);
 	xacc::Finalize();
 
+}
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

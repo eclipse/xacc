@@ -10,27 +10,28 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE HadamardTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Hadamard.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(HadamardTester,checkCreation) {
 
 	Hadamard h(0);
-	BOOST_VERIFY(h.toString("qreg") == "H qreg0");
-	BOOST_VERIFY(h.bits().size() == 1);
-	BOOST_VERIFY(h.bits()[0] == 0);
-	BOOST_VERIFY(h.name() == "H");
+	EXPECT_TRUE(h.toString("qreg") == "H qreg0");
+	EXPECT_TRUE(h.bits().size() == 1);
+	EXPECT_TRUE(h.bits()[0] == 0);
+	EXPECT_TRUE(h.name() == "H");
 
 	Hadamard h2(44);
-	BOOST_VERIFY(h2.toString("qreg") == "H qreg44");
-	BOOST_VERIFY(h2.bits().size() == 1);
-	BOOST_VERIFY(h2.bits()[0] == 44);
-	BOOST_VERIFY(h2.name() == "H");
+	EXPECT_TRUE(h2.toString("qreg") == "H qreg44");
+	EXPECT_TRUE(h2.bits().size() == 1);
+	EXPECT_TRUE(h2.bits()[0] == 44);
+	EXPECT_TRUE(h2.name() == "H");
 
 }
 
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
+}

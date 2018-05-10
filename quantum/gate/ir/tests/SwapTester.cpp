@@ -10,30 +10,31 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE SwapTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Swap.hpp"
 
 using namespace xacc::quantum;
 
-BOOST_AUTO_TEST_CASE(checkCreation) {
+TEST(SwapTester,checkCreation) {
 
 	Swap sw(0, 1);
-	BOOST_VERIFY(sw.toString("qreg") == "Swap qreg0,qreg1");
-	BOOST_VERIFY(sw.bits().size() == 2);
-	BOOST_VERIFY(sw.bits()[0] == 0);
-	BOOST_VERIFY(sw.bits()[1] == 1);
-	BOOST_VERIFY(sw.name() == "Swap");
+	EXPECT_TRUE(sw.toString("qreg") == "Swap qreg0,qreg1");
+	EXPECT_TRUE(sw.bits().size() == 2);
+	EXPECT_TRUE(sw.bits()[0] == 0);
+	EXPECT_TRUE(sw.bits()[1] == 1);
+	EXPECT_TRUE(sw.name() == "Swap");
 
 	Swap sw2(44, 45);
 
-	BOOST_VERIFY(sw2.toString("qreg") == "Swap qreg44,qreg45");
-	BOOST_VERIFY(sw2.bits().size() == 2);
-	BOOST_VERIFY(sw2.bits()[0] == 44);
-	BOOST_VERIFY(sw2.bits()[1] == 45);
-	BOOST_VERIFY(sw2.name() == "Swap");
+	EXPECT_TRUE(sw2.toString("qreg") == "Swap qreg44,qreg45");
+	EXPECT_TRUE(sw2.bits().size() == 2);
+	EXPECT_TRUE(sw2.bits()[0] == 44);
+	EXPECT_TRUE(sw2.bits()[1] == 45);
+	EXPECT_TRUE(sw2.name() == "Swap");
 
+}
+int main(int argc, char** argv) {
+	    ::testing::InitGoogleTest(&argc, argv);
+		    return RUN_ALL_TESTS();
 }
 

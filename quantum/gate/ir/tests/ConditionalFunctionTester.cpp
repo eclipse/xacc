@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ConditionalFunctionTester
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "ConditionalFunction.hpp"
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
@@ -22,7 +19,7 @@
 using namespace xacc::quantum;
 
 
-BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
+TEST(ConditionalFunctionTester,checkFunctionMethods) {
 
 	ConditionalFunction f(0);
 	auto h = std::make_shared<Hadamard>(1);
@@ -34,21 +31,25 @@ BOOST_AUTO_TEST_CASE(checkFunctionMethods) {
 	f.addInstruction(cn1);
 	f.addInstruction(cn2);
 	f.addInstruction(h2);
-	BOOST_VERIFY(f.nInstructions() == 4);
+	EXPECT_TRUE(f.nInstructions() == 4);
 
 	for (auto i : f.getInstructions()) {
-		BOOST_VERIFY(!i->isEnabled());
+		EXPECT_TRUE(!i->isEnabled());
 	}
 
 	f.evaluate(0);
 	for (auto i : f.getInstructions()) {
-		BOOST_VERIFY(!i->isEnabled());
+		EXPECT_TRUE(!i->isEnabled());
 	}
 
 	f.evaluate(1);
 	for (auto i : f.getInstructions()) {
-		BOOST_VERIFY(i->isEnabled());
+		EXPECT_TRUE(i->isEnabled());
 	}
 
 }
 
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

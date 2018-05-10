@@ -10,10 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GraphTests
-
-#include <boost/test/included/unit_test.hpp>
+#include <gtest/gtest.h>
 #include "Graph.hpp"
 
 using namespace boost;
@@ -57,26 +54,26 @@ public:
 		propertyNames[0] = "prop1";
 	}
 };
-BOOST_AUTO_TEST_CASE(checkConstruction) {
+TEST(GraphTester,checkConstruction) {
 
 	// Check our valid vertex functions...
-	BOOST_VERIFY(!is_valid_vertex<BadVertex>::value);
-	BOOST_VERIFY(is_valid_vertex<FakeTensorVertex>::value);
+	EXPECT_TRUE(!is_valid_vertex<BadVertex>::value);
+	EXPECT_TRUE(is_valid_vertex<FakeTensorVertex>::value);
 
 	// Create a blank Graph with good vertices
 	Graph<FakeTensorVertex> g1;
 	g1.addVertex();
-	BOOST_VERIFY(g1.order() == 1);
+	EXPECT_TRUE(g1.order() == 1);
 
 	// Create with 5 vertices
 	Graph<FakeTensorVertex> g2(5);
-	BOOST_VERIFY(g2.order() == 5);
+	EXPECT_TRUE(g2.order() == 5);
 
 	// Create a 3 node graph
 	Graph<FakeBiasVertex> graph(3);
 
 	// Verify it's size
-	BOOST_VERIFY(3 == graph.order());
+	EXPECT_TRUE(3 == graph.order());
 
 	// Create a complete graph with
 	// the given edge weights.
@@ -84,51 +81,51 @@ BOOST_AUTO_TEST_CASE(checkConstruction) {
 	graph.addEdge(1, 2, 3.0);
 	graph.addEdge(2, 0, 1.0);
 
-	BOOST_VERIFY(2.0 == graph.getEdgeWeight(0, 1));
+	EXPECT_TRUE(2.0 == graph.getEdgeWeight(0, 1));
 
 	// Test that we can change a weight
 	graph.setEdgeWeight(0, 1, 22.0);
-	BOOST_VERIFY(22.0 == graph.getEdgeWeight(0, 1));
+	EXPECT_TRUE(22.0 == graph.getEdgeWeight(0, 1));
 
 	// Verify that we can set vertex bias values
-	BOOST_VERIFY(0.0 == graph.getVertexProperty<0>(0));
-	BOOST_VERIFY(0.0 == graph.getVertexProperty<0>(1));
+	EXPECT_TRUE(0.0 == graph.getVertexProperty<0>(0));
+	EXPECT_TRUE(0.0 == graph.getVertexProperty<0>(1));
 	graph.setVertexProperty<0>(0, 3.3);
-	BOOST_VERIFY(3.3 == graph.getVertexProperty<0>(0));
+	EXPECT_TRUE(3.3 == graph.getVertexProperty<0>(0));
 	graph.setVertexProperty<0>(1, 33.3);
-	BOOST_VERIFY(33.3 == graph.getVertexProperty<0>(1));
+	EXPECT_TRUE(33.3 == graph.getVertexProperty<0>(1));
 
 	graph.getNeighborList(0);
 }
 
-BOOST_AUTO_TEST_CASE(checkAddVertexWithProperties) {
+TEST(GraphTester,checkAddVertexWithProperties) {
 	Graph<FakeBiasVertex> graph;
 	graph.addVertex(22.2);
-	BOOST_VERIFY(graph.getVertexProperty<0>(0) == 22.2);
+	EXPECT_TRUE(graph.getVertexProperty<0>(0) == 22.2);
 }
 
-BOOST_AUTO_TEST_CASE(checkEdgeExists) {
+TEST(GraphTester,checkEdgeExists) {
 	// Create a 2 node graph
 	Graph<FakeBiasVertex> graph(3);
 
 	// Verify it's size
-	BOOST_REQUIRE_EQUAL(3, graph.order());
+	EXPECT_EQ(3, graph.order());
 
 	graph.addEdge(0, 1, 2.0);
 	graph.addEdge(1, 2, 3.0);
 	graph.addEdge(2, 0, 1.0);
 
-	BOOST_REQUIRE_EQUAL(3, graph.size());
+	EXPECT_EQ(3, graph.size());
 
-	BOOST_VERIFY(graph.edgeExists(0,1));
-	BOOST_VERIFY(graph.edgeExists(1,0));
-	BOOST_VERIFY(graph.edgeExists(1,2));
-	BOOST_VERIFY(graph.edgeExists(2,1));
-	BOOST_VERIFY(graph.edgeExists(2,0));
-	BOOST_VERIFY(graph.edgeExists(0,2));
+	EXPECT_TRUE(graph.edgeExists(0,1));
+	EXPECT_TRUE(graph.edgeExists(1,0));
+	EXPECT_TRUE(graph.edgeExists(1,2));
+	EXPECT_TRUE(graph.edgeExists(2,1));
+	EXPECT_TRUE(graph.edgeExists(2,0));
+	EXPECT_TRUE(graph.edgeExists(0,2));
 }
 
-BOOST_AUTO_TEST_CASE(checkDegree) {
+TEST(GraphTester,checkDegree) {
 	Graph<FakeBiasVertex> complete5(5);
 	complete5.addEdge(0, 1);
 	complete5.addEdge(0, 2);
@@ -142,11 +139,11 @@ BOOST_AUTO_TEST_CASE(checkDegree) {
 	complete5.addEdge(3, 4);
 
 	for (int i = 0; i < 5; i++) {
-		BOOST_VERIFY(4 == complete5.degree(i));
+		EXPECT_TRUE(4 == complete5.degree(i));
 	}
 }
 
-BOOST_AUTO_TEST_CASE(checkDiameter) {
+TEST(GraphTester,checkDiameter) {
 	// Create a Complete 5 node graph
 	Graph<FakeBiasVertex> complete5(5);
 	complete5.addEdge(0, 1);
@@ -159,10 +156,10 @@ BOOST_AUTO_TEST_CASE(checkDiameter) {
 	complete5.addEdge(2, 3);
 	complete5.addEdge(2, 4);
 	complete5.addEdge(3, 4);
-	BOOST_REQUIRE_EQUAL(1, complete5.diameter());
+	EXPECT_EQ(1, complete5.diameter());
 }
 
-BOOST_AUTO_TEST_CASE(checkWrite) {
+TEST(GraphTester,checkWrite) {
 	Graph<FakeBiasVertex> complete5(5);
 
 	std::string expected =
@@ -203,7 +200,7 @@ BOOST_AUTO_TEST_CASE(checkWrite) {
 
 	std::stringstream ss;
 	complete5.write(ss);
-	BOOST_VERIFY(ss.str() == expected);
+	EXPECT_TRUE(ss.str() == expected);
 
 	Graph<FakeVertexFourProperties> complete5_4props(5);
 
@@ -263,7 +260,7 @@ BOOST_AUTO_TEST_CASE(checkWrite) {
 
 	std::stringstream ss2;
 	complete5_4props.write(ss2);
-	BOOST_VERIFY(ss2.str() == expected);
+	EXPECT_TRUE(ss2.str() == expected);
 
 
 	// Create a 3 node graph
@@ -295,7 +292,7 @@ BOOST_AUTO_TEST_CASE(checkWrite) {
 
 	std::stringstream ss3;
 	graph.write(ss3);
-	BOOST_VERIFY(ss3.str() == expected);
+	EXPECT_TRUE(ss3.str() == expected);
 
 	// Create a 3 node graph
 	Graph<FakeVertexWithVector> graph2(3);
@@ -324,10 +321,14 @@ BOOST_AUTO_TEST_CASE(checkWrite) {
 
 	std::stringstream ss4;
 	graph2.write(ss4);
-	BOOST_VERIFY(ss4.str() == expected);
+	EXPECT_TRUE(ss4.str() == expected);
 }
 
-//BOOST_AUTO_TEST_CASE(checkRead) {
+int main(int argc, char** argv) {
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
+}
+//TEST(GraphTester,checkRead) {
 //	// Create a graph IR modeling a
 //	// quantum teleportation kernel
 //	std::string irstr = "graph G {\n"
@@ -371,7 +372,7 @@ BOOST_AUTO_TEST_CASE(checkWrite) {
 //	Graph<FakeVertexFourProperties> graph;
 //	graph.read(iss);
 //
-//	BOOST_VERIFY(graph.order() == 13);
+//	EXPECT_TRUE(graph.order() == 13);
 //
 //	graph.write(std::cout);
 //
