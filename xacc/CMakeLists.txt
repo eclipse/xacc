@@ -56,7 +56,7 @@ endif()
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
-target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
+target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::system Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
 
 # Add the tests
 if(XACC_BUILD_TESTS)
