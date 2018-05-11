@@ -4,7 +4,7 @@ services:
   - docker
 
 before_install:
-   - docker build -t xacc/xacc-ci-build -f docker/ci/Dockerfile .
+   - travis_wait docker build -t xacc/xacc-ci-build -f docker/ci/Dockerfile .
 
 script:
   - echo ""
