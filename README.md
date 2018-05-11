@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ORNL-QCI/xacc.svg?branch=master)](https://travis-ci.org/ORNL-QCI/xacc)
+[![Build Status](https://travis-ci.org/eclipse/xacc.svg?branch=master)](https://travis-ci.org/eclipse/xacc)
 
 # Eclipse XACC 
 ## Hardware Agnostic Quantum Programming 

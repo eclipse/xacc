@@ -19,6 +19,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(cpr)
 
+set(BUILD_SHARED_LIBS TRUE)
 add_subdirectory(cpr/opt/googletest)
 if(APPLE)
    set_target_properties(gtest PROPERTIES INSTALL_RPATH "@loader_path")
