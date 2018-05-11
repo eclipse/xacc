@@ -47,10 +47,11 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
 
+        print(sys.argv)
         args = sys.argv[1:]
         script_path = os.path.dirname(os.path.realpath(__file__))
         
-        if 'install' in args:
+        if 'install' in args and not '--record' in args:
            install_prefix = script_path + '/' + self.build_lib 
         else:
            install_prefix = script_path + '/' + self.build_lib + '/xacc' 
@@ -91,4 +92,13 @@ s = setup(
     scripts=['tools/framework/xacc-framework'],
     zip_safe=False
 )
+
+args = sys.argv[1:]
+if 'install' in args and '--record' in args:
+   # then this was pip installed . need to add .pth file
+   installation_path = s.command_obj['install'].install_lib
+   pthFile = open(installation_path+'/xacc.pth','w')
+   pthFile.write('./xacc')
+   pthFile.close()
+
 
