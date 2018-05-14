@@ -26,3 +26,7 @@ run echo "./psi4" >> /root/.local/lib/python3.6/site-packages/psi4.pth \
 # i think it has to do with volumes mounted via the docker container
 run sed -i 's/os.rename/shutil.move/g' /usr/local/lib/python3.6/dist-packages/openfermion/hamiltonians/_molecular_data.py \
     && sed -i 's/import os/import os, shutil/g' /usr/local/lib/python3.6/dist-packages/openfermion/hamiltonians/_molecular_data.py
+run apt-get install -y apt-transport-https ca-certificates curl software-properties-common \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test" 
+run apt-get update -y && apt-get install -y docker-ce
