@@ -2,9 +2,8 @@ version: '2'
 
 services:
   xacc:
-#    build: .
     image: xacc/ornl-expo-tutorial
-    command: "bash -c 'SHELL=/bin/bash jupyter lab --no-browser --ip=* --port=9000 --allow-root --notebook-dir=/projects --NotebookApp.token=\"\"'"
+    command: "bash -c 'PATH=$PATH:/root/.local/lib/python3.6/site-packages/psi4/bin SHELL=/bin/bash jupyter lab --no-browser --ip=* --port=9000 --allow-root --notebook-dir=/projects --NotebookApp.token=\"\"'"
     volumes:
       - ./:/projects
     ports:
