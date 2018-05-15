@@ -13,11 +13,16 @@ Users can choose a couple ways to install the framework - using python/pip
 ```bash
 $ python -m pip install --user .
 ```
-or cmake/make
+or cmake/make without Python support
 ```bash
 $ mkdir build && cd build
-$ cmake .. (without Python support)
-$ cmake .. -DPYTHON_INCLUDE_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])") (with Python support)
+$ cmake ..
+$ make install 
+```
+or with Python support
+```bash
+$ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
+$ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
 $ make install
 ```
 
