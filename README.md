@@ -9,17 +9,17 @@ XACC currently supports hybrid classical-quantum programming and enables the exe
 
 Installation
 ------------
-Users can choose a couple ways to install the framework - using python/pip 
+Users can choose a couple ways to install the framework - using Python/Pip
 ```bash
 $ python -m pip install --user .
 ```
-or cmake/make without Python support
+or CMake and Make without Python support
 ```bash
 $ mkdir build && cd build
 $ cmake ..
 $ make install 
 ```
-or with Python support
+and with Python support
 ```bash
 $ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
 $ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
