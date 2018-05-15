@@ -19,7 +19,7 @@ $ mkdir build && cd build
 $ cmake ..
 $ make install 
 ```
-and with Python support
+or with Python support
 ```bash
 $ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
 $ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
