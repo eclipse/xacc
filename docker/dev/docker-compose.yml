@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  xacc-dev:
+    image: xacc/devel
+    command: tail -f /dev/null 
+    environment:
+        - TERM=xterm
+    security_opt:
+        - seccomp:unconfined
+    network_mode: host
