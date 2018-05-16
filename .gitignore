@@ -37,3 +37,4 @@
 /python/*egg*
 /*tmp*/
 /wheelhouse/
+**/.ipynb_checkpoints

@@ -1,9 +1,9 @@
-FROM xacc/xacc-python-install
+from xacc/base #xacc-python-install
 
-LABEL maintainer="Alex McCaskey <mccaskeyaj@ornl.gov>"
+label maintainer="Alex McCaskey <mccaskeyaj@ornl.gov>"
 
 # Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get -y install vim gfortran libblas-dev liblapack-dev pkg-config \
+run rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get -y install vim gfortran libblas-dev liblapack-dev pkg-config \
     && python3 -m pip install --upgrade pip && python3 -m pip install jupyterlab pyquil mpmath deepdiff \
        numpy scipy openfermion --no-cache-dir && ipython3 kernel install \
     && git clone https://github.com/amccaskey/OpenFermion-Psi4 && cd OpenFermion-Psi4 && python3 -m pip install --user .
