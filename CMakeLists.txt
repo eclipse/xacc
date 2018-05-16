@@ -22,7 +22,7 @@ set(CMAKE_SKIP_INSTALL_RPATH OFF)
 set(CMAKE_SKIP_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_install_PREFIX}/lib" isSystemDir)
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "@loader_path")
 ENDIF("${isSystemDir}" STREQUAL "-1")
@@ -57,10 +57,10 @@ if(NOT WIN32)
 endif()
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-	set (CMAKE_install_PREFIX "$ENV{HOME}/.xacc" CACHE PATH "default install path" FORCE )
+	set (CMAKE_INSTALL_PREFIX "$ENV{HOME}/.xacc" CACHE PATH "default install path" FORCE )
 endif()
 
-message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_install_PREFIX}. Override with -DCMAKE_install_PREFIX=...${ColorReset}")
+message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
 
 if (XACC_BUILD_TESTS)
    enable_testing()
