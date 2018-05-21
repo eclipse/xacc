@@ -65,7 +65,7 @@ def setCredentials(opts):
       user = opts.user_id
       f = open(os.environ['HOME']+'/.pyquil_config','w')
       f.write('key: ' + apikey + '\n')
-      f.write('user-id: ' + user + '\n')
+      f.write('user_id: ' + user + '\n')
       f.write('url: ' + url + '\n')
       f.close()
    else:
