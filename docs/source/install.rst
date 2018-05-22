@@ -26,22 +26,9 @@ systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, 
 
 .. code::
 
-   $ (macosx) brew/port install openssl cmake
-   $ (fedora) dnf install cmake 
+   $ (macosx) brew/port install cmake openssl
+   $ (fedora) dnf install cmake openssl-devel
    $ (ubuntu) apt-get install cmake libssl-dev
-
-..  note::
-
-   Installing OpenSSL from source is fairly simple
-
-   .. code::
-
-      $ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-      $ tar -xvzf openssl-1.0.2n.tar.gz
-      $ cd openssl-1.0.2n
-      $ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
-      $ make
-      $ make install
 
 Building XACC
 -------------
@@ -59,9 +46,9 @@ configure and build XACC:
 
    $ cd xacc && mkdir build && cd build
    $ cmake ..
-   $ make install # can pass -jN for N = number of threads to use
+   $ make install 
 
-This will build, test, and install XACC to ``$HOME/.xacc``. If you would 
+This will build and install XACC to ``$HOME/.xacc`` by default. If you would 
 like to install XACC somewhere else, replace the above ``cmake`` command with the following
 
 .. code::
@@ -74,47 +61,28 @@ You can also build XACC with Python support:
 
    $ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
    $ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
+   $ make install
 
-This will install XACC headers and libraries, and an ``xacc-framework`` executable to ``$PREFIX/bin``.
-You may want to set your PATH variable to include this bin directory:
+To build with tests
 
-.. code::
+.. code:: bash
 
-   $ export PATH=$HOME/.xacc/bin:$PATH
+   $ cmake .. -DXACC_BUILD_TESTS=TRUE
+   $ make install
+   $ ctest
 
-or wherever you installed XACC to (``$YOURINSTALLPATH/bin``).
+Keeping for Reference
+---------------------
+..  note::
 
-Additionally, you may want to add these exports
-to your home directory's ``.basrhc`` file (or equivalent).
+   Installing OpenSSL from source is fairly simple:
 
-Installing XACC Plugins
-------------------------
-If you have successfully built XACC (see above)
-then you can now run
+   .. code::
 
-.. code::
-
-   $ xacc-framework --help
-
-This is a convenience python script to help download, build, and install
-all currently supported XACC plugins. The execution syntax is as follows:
-
-.. code::
-
-   $ xacc-framework -p PLUGIN-NAME
-
-You can also run this script with multiple plugin names.
-
-.. code::
-
-   $ xacc-framework -p PLUGIN1 PLUGIN2 PLUGIN3
-
-and pass CMake arguments to this script. For example, if you
-wanted to specify the argument ``CMAKEARG`` for a plugin, you could run the following
-
-.. code::
-
-   $ xacc-framework -p PLUGIN-NAME -a CMAKEARG=arg
-
-You can also pass multiple CMake arguments at once.
+      $ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
+      $ tar -xvzf openssl-1.0.2n.tar.gz
+      $ cd openssl-1.0.2n
+      $ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
+      $ make
+      $ make install
 
