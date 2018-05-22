@@ -36,6 +36,6 @@ If you installed the XACC Python bindings, then you can run
 
 ensuring that pyxacc is in your ``PYTHONPATH``.
 
-You have now installed the TNQVM plugin. It is located in ``$XACC_ROOT/plugins/accelerator``, 
+You have now installed the TNQVM plugin. It is located in ``$XACC_ROOT/plugins``, 
 where ``XACC_ROOT`` is your XACC install prefix.
 
