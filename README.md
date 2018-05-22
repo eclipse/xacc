@@ -9,6 +9,10 @@ XACC currently supports hybrid classical-quantum programming and enables the exe
 
 Installation
 ------------
+Clone the repository recursively
+```bash
+$ git clone --recursive https://github.com/eclipse/xacc
+```
 Users can choose a couple ways to install the framework - using Python/Pip
 ```bash
 $ python -m pip install --user .
