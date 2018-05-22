@@ -12,29 +12,46 @@ To install this plugin, run the following
 
 .. code::
 
-   $ xacc-install-plugins.py -p ibm
+   $ git clone https://github.com/ornl-qci/xacc-ibm
+   $ cd xacc-ibm && mkdir build && cd build
+   $ cmake .. -DXACC_DIR=$HOME/.xacc 
 
-You have now installed the IBM plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerators``,
+If you installed the XACC Python bindings, then you can run 
+
+.. code::
+
+   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+
+ensuring that pyxacc is in your ``PYTHONPATH``.
+
+You have now installed the IBM plugin. It is located in ``$XACC_ROOT/plugins``,
 where ``XACC_ROOT`` is your XACC install prefix.
 
 Setting Credentials
 -------------------
 
 In order to target the IBM Quantum Experience, you must provide XACC with your API key.
-To do so, open the file ``$HOME/.ibm_config``, and add the following contents
+
+If you installed the XACC Python bindings, then you can run 
+
+.. code::
+
+   $ python -m pyxacc -c ibm -k YOURAPIKEY 
+
+
+Alternatively, open the file ``$HOME/.ibm_config``, and add the following contents
 
 .. code:: bash
 
    key: YOUR_API_KEY
    url: https://quantumexperience.ng.bluemix.net
 
-Alternatively, any application built on the XACC framework with IBM plugins available
-will expose ``-ibm-api-url`` and ``--ibm-api-key`` command line arguments:
+Also, any application built on the XACC framework with IBM plugins available
+will expose ``--ibm-api-url`` and ``--ibm-api-key`` command line arguments:
 
 .. code:: bash
 
    $ ./my-xacc-app --ibm-api-key YOUR_API_KEY --ibm-api-url https://quantumexperience.mybluemix.net
-
 
 IBM Command Line Arguments
 ---------------------------

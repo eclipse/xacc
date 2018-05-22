@@ -12,10 +12,20 @@ To install this plugin, run the following
 
 .. code::
 
-   $ xacc-install-plugins.py -p rigetti
+   $ git clone https://github.com/ornl-qci/xacc-rigetti
+   $ cd xacc-rigetti && mkdir build && cd build
+   $ cmake .. -DXACC_DIR=$HOME/.xacc 
 
-You have now installed the Rigetti plugin. It is located in ``$XACC_ROOT/lib/plugins/accelerator``
-and ``$XACC_ROOT/lib/plugins/compilers``, where ``XACC_ROOT`` is your XACC install prefix.
+If you installed the XACC Python bindings, then you can run 
+
+.. code::
+
+   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+
+ensuring that pyxacc is in your ``PYTHONPATH``.
+
+You have now installed the Rigetti plugin. It is located in ``$XACC_ROOT/plugins``
+and ``$XACC_ROOT/plugins``, where ``XACC_ROOT`` is your XACC install prefix.
 
 Setting Credentials
 -------------------
@@ -23,6 +33,12 @@ Setting Credentials
 In order to target the Rigetti QVM you must provide XACC with your API key. By default
 XACC will use your PyQuil Config file at ``$HOME/.pyquil_config``.
 See `Connecting to the Rigetti Forest <http://pyquil.readthedocs.io/en/latest/getting_started.html#connecting-to-the-rigetti-forest>`_ for information on creating this file.
+
+If you installed the XACC Python bindings, then you can run 
+
+.. code::
+
+   $ python -m pyxacc -c rigetti -k YOURAPIKEY -u YOURUSERID
 
 Rigetti Command Line Arguments
 ------------------------------
