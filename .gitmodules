@@ -1,9 +1,6 @@
 [submodule "tpls/cpr"]
 	path = tpls/cpr
 	url = https://github.com/whoshuu/cpr.git
-[submodule "tpls/cppmicroservices"]
-	path = tpls/cppmicroservices
-	url = https://github.com/cppmicroservices/cppmicroservices
 [submodule "tpls/boost-cmake"]
 	path = tpls/boost-cmake
 	url = https://github.com/ornl-qci/boost-cmake
