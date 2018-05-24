@@ -4,3 +4,6 @@
 [submodule "tpls/boost-cmake"]
 	path = tpls/boost-cmake
 	url = https://github.com/ornl-qci/boost-cmake
+[submodule "tpls/cppmicroservices"]
+	path = tpls/cppmicroservices
+	url = https://github.com/ornl-qci/cppmicroservices
