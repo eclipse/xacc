@@ -46,7 +46,9 @@ public:
 	 * derived subclass.
 	 */
 	virtual std::shared_ptr<options_description> getOptions() {
-		return std::make_shared<options_description>();
+		auto desc = std::make_shared<options_description>();
+		desc->add_options()("no-readout-error-postprocess","Do not apply ReadoutErrorAcceleratorBufferPostprocessor.");
+		return desc;
 	}
 
 	/**

@@ -24,8 +24,9 @@ namespace quantum {
 std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::process(IR& ir) {
 	xacc::info("Starting ReadoutErrorIRPreprocessor");
 
-	// Get number of qubits, add 2*nqubit measurement kernels, add readout-error tag to each
-	int nQubits = 0;//std::stoi(xacc::getOption("n-qubits")); //ir.maxBit() + 1;
+	// Get number of qubits, add 2*nqubit 
+	// measurement kernels, add readout-error tag to each
+	int nQubits = 0;
 	auto gateRegistry = xacc::getService<IRProvider>("gate");
 
 
@@ -67,13 +68,11 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		counter++;
 	}
 
-	// Search IR Functions and construct Pauli Term strings, then add any Pauli that is not there
+	// Search IR Functions and construct Pauli 
+	// Term strings, then add any Pauli that is not there
 	std::vector<std::string> orderedPauliTerms;
 	std::vector<std::map<int, std::string>> pauliTerms;
-
-
 	for (auto term : ir.getKernels()) {
-
 		if (term->nInstructions() > 0) {
 			std::map<int, std::string> termMap;
 			std::set<int> qubits;
@@ -99,12 +98,9 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 			for (auto bit : qubits) {
 				pauliStr += termMap[bit] + std::to_string(bit);
 			}
-//			std::cout << "Pauli: " << pauliStr << "\n";
-
 			orderedPauliTerms.push_back(pauliStr);
 			pauliTerms.push_back(termMap);
 		}
-
 	}
 
 	// Use the above info to create the sites map
@@ -119,6 +115,21 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 		sites.insert({s.str(), tmp});
 	}
 
+	// We don't support >2 site operators, so if 
+	// thats the case, do not apply the post processor
+	bool nullBufferPostprocessor = false;
+	for (auto& kv : sites) {
+		if (kv.second.size() > 2) {
+			nullBufferPostprocessor = true;
+			break;
+		}
+	}
+
+	// Also give users the option to turn off the post processor
+	// even if they do have only 2-local sites.
+	if(!nullBufferPostprocessor && xacc::optionExists("no-readout-error-postprocess")) {
+		nullBufferPostprocessor = true;
+	}
 
 	// Discover any extra kernels we need to compute
 	std::vector<std::string> extraKernelsNeeded;
@@ -134,13 +145,12 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	}
 
 	std::sort( extraKernelsNeeded.begin(), extraKernelsNeeded.end() );
-	extraKernelsNeeded.erase( std::unique( extraKernelsNeeded.begin(), extraKernelsNeeded.end() ), extraKernelsNeeded.end() );
+	extraKernelsNeeded.erase(std::unique( extraKernelsNeeded.begin(), 
+				extraKernelsNeeded.end() ), extraKernelsNeeded.end());
 
 	// Add the extra kernels to the IR
 	for (auto o : extraKernelsNeeded) {
-//		std::cout << "EXTRA: " << o << "\n";
 		auto extraKernel = std::make_shared<GateFunction>(o, "readout-error-extra");
-
 		std::stringstream sg, sb;
 		sg << o[0];
 		sb << o[1];
@@ -172,14 +182,14 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 	int qbit = 0;
 	for (int i = 0; i < 2*nQubits; i+=2) {
 		auto f01 = std::make_shared<GateFunction>(
-				"measure0_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
+				std::to_string(qubitMap[qbit])+"_0", "readout-error");
 		auto meas01 = gateRegistry->createInstruction("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p(0);
 		meas01->setParameter(0,p);
 		f01->addInstruction(meas01);
 
 		auto f10 = std::make_shared<GateFunction>(
-				"measure1_qubit_" + std::to_string(qubitMap[qbit]), "readout-error");
+				std::to_string(qubitMap[qbit])+"_1", "readout-error");
 		auto x = gateRegistry->createInstruction("X", std::vector<int>{qubitMap[qbit]});
 		auto meas10 = gateRegistry->createInstruction("Measure", std::vector<int>{qubitMap[qbit]});
 		InstructionParameter p2(0);
@@ -195,7 +205,11 @@ std::shared_ptr<AcceleratorBufferPostprocessor> ReadoutErrorIRPreprocessor::proc
 
 	xacc::info("Finished ReadoutErrorIRPreprocessor");
 
-	return std::make_shared<ReadoutErrorAcceleratorBufferPostprocessor>(ir, sites, orderedPauliTerms);
+	if(nullBufferPostprocessor) {
+		return std::make_shared<NullAcceleratorBufferPostprocessor>();
+	} else {
+		return std::make_shared<ReadoutErrorAcceleratorBufferPostprocessor>(ir, sites, orderedPauliTerms);
+	}
 }
 
 }
