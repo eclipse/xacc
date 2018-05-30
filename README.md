@@ -7,8 +7,15 @@ XACC is a programming framework for extreme-scale, post-exascale accelerator arc
 
 XACC currently supports hybrid classical-quantum programming and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs.
 
-Installation
-------------
+Quick Installation
+------------------
+XACC binaries are available via PyPi as Python Wheels: 
+```bash
+$ python -m pip install --user xacc
+```
+
+Build from Source
+-----------------
 Clone the repository recursively
 ```bash
 $ git clone --recursive https://github.com/eclipse/xacc
