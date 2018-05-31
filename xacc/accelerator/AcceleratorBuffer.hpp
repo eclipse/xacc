@@ -87,6 +87,13 @@ public:
 		bitStringToCounts.clear();
 	}
 
+	virtual void appendMeasurement(const std::string& measurement) {
+		measurements.push_back(boost::dynamic_bitset<>(measurement));
+		std::stringstream ss;
+		ss << measurement;
+		bitStringToCounts[ss.str()]++;
+	}
+
 	/**
 	 * Add a measurement result to this Buffer
 	 *
