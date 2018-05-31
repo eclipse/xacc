@@ -145,6 +145,7 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.")
 		.def("getExpectationValueZ", &xacc::AcceleratorBuffer::getExpectationValueZ, "Return the expectation value with respect to the Z operator.")
 		.def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer, "Reset this buffer for use in another computation.")
+		.def("appendMeasurement", (void (xacc::AcceleratorBuffer::*)(const std::string&)) &xacc::AcceleratorBuffer::appendMeasurement, "Append the measurement string")
 		.def("getMeasurementStrings", &xacc::AcceleratorBuffer::getMeasurementStrings, "Return observed measurement bit strings")
 		.def("computeMeasurementProbability", &xacc::AcceleratorBuffer::computeMeasurementProbability, "Compute the probability of a given bit string")
 		.def("getMeasurementCounts", &xacc::AcceleratorBuffer::getMeasurementCounts, "Return the mapping of measure bit strings to their counts.");

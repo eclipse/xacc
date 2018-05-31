@@ -79,7 +79,7 @@ class CMakeBuild(build_ext):
 
 s = setup(
     name='xacc',
-    version='0.1.2',
+    version='0.1.3',
     author='Alex McCaskey',
     author_email='xacc-dev@eclipse.org',
     packages=find_packages('python'),
