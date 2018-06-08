@@ -66,8 +66,6 @@ The IBM plugin exposes the following command line arguments
 +------------------------+----------------------------------------+
 | --ibm-list-backends    | List the available backends            |
 +------------------------+----------------------------------------+
-| --ibm-shots            | The number of shots to execute per job |
-+------------------------+----------------------------------------+
 
 Hydrogen VQE Example
 ---------------------
