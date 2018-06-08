@@ -12,5 +12,5 @@ do
        $myPython setup.py build -t tmp_build --executable="/usr/bin/env python"
        echo "./xacc" >> build/lib.linux-x86_64-$ver/xacc.pth
        $myPython setup.py bdist_wheel --skip-build
-       $rpath_python tools/wheels/fix_xacc_rpaths.py -v repair dist/xacc-0.1.3-$version-linux_x86_64.whl
+       $rpath_python tools/wheels/fix_xacc_rpaths.py -v repair dist/xacc-0.1.4-$version-linux_x86_64.whl
 done
