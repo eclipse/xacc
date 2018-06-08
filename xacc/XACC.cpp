@@ -82,7 +82,7 @@ void Initialize(int arc, char** arv) {
 			XACCLogger::instance()->error("Failure initializing XACC Plugin Registry - " +
 					std::string(e.what()));
 			Finalize();
-			exit(1);
+			exit(0);
 		}
 
 		// Parse any user-supplied command line options
