@@ -127,7 +127,7 @@ protected:
 		return postResponse;
 	}
 
-	std::string handleExceptionRestClientGet(const std::string& _url, const std::string& path) {
+	std::string handleExceptionRestClientGet(const std::string& _url, const std::string& path, std::map<std::string, std::string> headers = std::map<std::string,std::string>{}) {
 		std::string getResponse;
 		int retries = 10;
 		std::exception ex;
@@ -135,7 +135,7 @@ protected:
 		// Execute HTTP Get
 		do {
 			try {
-				getResponse = restClient->get(_url, path);
+				getResponse = restClient->get(_url, path, headers);
 				succeeded = true;
 				break;
 			} catch (std::exception& e) {
