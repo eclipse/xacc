@@ -143,6 +143,7 @@ PYBIND11_MODULE(_pyxacc, m) {
 	// Expose the AcceleratorBuffer
 	py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(m,
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.")
+		.def(py::init<const std::string&,const int>())
 		.def("getExpectationValueZ", &xacc::AcceleratorBuffer::getExpectationValueZ, "Return the expectation value with respect to the Z operator.")
 		.def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer, "Reset this buffer for use in another computation.")
 		.def("appendMeasurement", (void (xacc::AcceleratorBuffer::*)(const std::string&)) &xacc::AcceleratorBuffer::appendMeasurement, "Append the measurement string")

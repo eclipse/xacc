@@ -49,7 +49,7 @@ public:
 			 xaccOptions(
 					std::make_shared<options_description>("XACC Options")) {
 		xaccOptions->add_options()
-						("help", "Help Message")
+						("help,h", "Help Message")
 						("compiler",value<std::string>()->default_value("scaffold"),"Indicate the compiler to be used.")
 						("accelerator",value<std::string>(),"Indicate the accelerator to be used.")
 						("persist-ir",value<std::string>(), "Persist generated IR to provided file name.")
