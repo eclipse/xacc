@@ -54,7 +54,7 @@ def initialize():
    file.close()
 
 def setCredentials(opts):
-   defaultUrls = {'ibm':'https://quantumexperience.ng.bluemix.net','rigetti':'https://api.rigetti.com/qvm'}
+   defaultUrls = {'ibm':'https://quantumexperience.ng.bluemix.net','rigetti':'https://api.rigetti.com/qvm', 'dwave':'https://cloud.dwavesys.com'}
    acc = opts.set_credentials
    url = opts.url if not opts.url == None else defaultUrls[acc]
    if acc == 'rigetti' and not os.path.exists(os.environ['HOME']+'/.pyquil_config'):
