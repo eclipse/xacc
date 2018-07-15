@@ -8,6 +8,8 @@ $ cd xacc/docker/dev/theia
 $ docker-compose up -d
 ```
 
+Navigate to `http://localhost:3000` in your web browser.
+
 To delete this development workspace
 ```bash
 $ docker-compose down
