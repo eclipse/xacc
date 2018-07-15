@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  xacc-dev:
+    image: xacc/theia-dev
+    volumes:
+      - ../../../../:/home/project:cached
+    ports:
+      - 3000:3000
