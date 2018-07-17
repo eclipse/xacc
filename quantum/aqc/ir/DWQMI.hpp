@@ -90,6 +90,9 @@ public:
 			qubits(std::vector<int> { qbit1, qbit2 }), parameter(param) {
 	}
 
+    DWQMI(int qbit1, int qbit2, InstructionParameter param) :
+            qubits(std::vector<int>{qbit1,qbit2}), parameter(param) {}
+
 	/**
 	 * Return the name of this Instruction
 	 *
@@ -215,6 +218,180 @@ public:
 
 	EMPTY_DEFINE_VISITABLE()
 };
+
+/**
+ * The DWQMI (D=Wave Quantum Machine Instruction) class is an XACC
+ * Instruction that models a logical problem or hardware bias or
+ * connection for an optimization problem to be solved on
+ * the D-Wave QPU. It keeps track of 2 bits indices, if both
+ * are the same index then this DWQMI Instruction models
+ * a bias value, and if they are different indices,
+ * then this Instruction models a logical coupling.
+ *
+ * Note that this class can model both problem bias/couplings and
+ * hardware bias/couplings. The hardware bias/couplings result from
+ * a minor graph embedding computation.
+ *
+ */
+class Anneal: public Instruction {
+    protected:
+
+	/**
+     * The initial ramp up time
+	 */
+	std::vector<InstructionParameter> times;
+
+
+	/**
+	 * Is this Instruction enabled or disabled.
+	 *
+	 */
+	bool enabled = true;
+
+public:
+
+	/**
+	 * The Constructor, takes the annealing times
+	 *
+	 * @param qbit The bit index
+	 */
+	Anneal(InstructionParameter _ts, InstructionParameter _tp, InstructionParameter _tq, InstructionParameter direction) :
+			times({_ts, _tp, _tq, direction}) {}
+
+    Anneal(std::vector<InstructionParameter> p) : times(p) {
+        if (times.size() != 4) XACCLogger::instance()->error("Invalid number of instruction parameters for Anneal Instruction, " + std::to_string(times.size()));
+    }
+    
+	/**
+	 * Return the name of this Instruction
+	 *
+	 * @return name The name of this Instruction
+	 */
+	virtual const std::string name() const {
+		return "anneal";
+	}
+
+	virtual const std::string description() const {
+		return "A description of the annealing schedule";
+	}
+
+	virtual const std::string getTag() {
+		return "";
+	}
+
+	virtual void mapBits(std::vector<int> bitMap) {}
+
+	/**
+	 * Persist this Instruction to an assembly-like
+	 * string.
+	 *
+	 * @param bufferVarName The name of the AcceleratorBuffer
+	 * @return str The assembly-like string.
+	 */
+	virtual const std::string toString(const std::string& bufferVarName) {
+        std::stringstream ss;
+        ss << "anneal ta = " << times[0] << ", tp = " << times[1] << ", tq = " << times[2] << ", ";
+        if (times.size() > 3) {
+            ss << times[3];
+        } else {
+            ss << "forward";
+        }
+		return ss.str();
+	}
+
+	/**
+	 * Return the indices of the bits that this Instruction
+	 * operates on.
+	 *
+	 * @return bits The bits this Instruction operates on.
+	 */
+	virtual const std::vector<int> bits() {
+		return std::vector<int>{};
+	}
+
+	/**
+	 * Return this Instruction's parameter at the given index.
+	 *
+	 * @param idx The index of the parameter.
+	 * @return param The InstructionParameter at the given index.
+	 */
+	virtual InstructionParameter getParameter(const int idx) const {
+		return times[idx];
+	}
+
+	/**
+	 * Return all of this Instruction's parameters.
+	 *
+	 * @return params This instructions parameters.
+	 */
+	virtual std::vector<InstructionParameter> getParameters() {
+		return times;
+	}
+
+	/**
+	 * Set this Instruction's parameter at the given index.
+	 *
+	 * @param idx The index of the parameter
+	 * @param inst The instruction.
+	 */
+	virtual void setParameter(const int idx, InstructionParameter& inst) {
+		times.at(idx) = inst;
+	}
+
+	/**
+	 * Return the number of InstructionParameters this Instruction contains.
+	 *
+	 * @return nInsts The number of instructions.
+	 */
+	virtual const int nParameters() {
+		return 4;
+	}
+
+	/**
+	 * Return true if this Instruction is parameterized.
+	 *
+	 * @return parameterized True if this Instruction has parameters.
+	 */
+	virtual bool isParameterized() {
+		return true;
+	}
+	/**
+	 * Returns true if this Instruction is composite,
+	 * ie, contains other Instructions.
+	 *
+	 * @return isComposite True if this is a composite Instruction
+	 */
+	virtual bool isComposite() {
+		return false;
+	}
+
+	/**
+	 * Returns true if this Instruction is enabled
+	 *
+	 * @return enabled True if this Instruction is enabled.
+	 */
+	virtual bool isEnabled() {
+		return enabled;
+	}
+
+	/**
+	 * Disable this Instruction
+	 */
+
+	virtual void disable() {
+		enabled = false;
+	}
+
+	/**
+	 * Enable this Instruction.
+	 */
+	virtual void enable() {
+		enabled = true;
+	}
+
+	EMPTY_DEFINE_VISITABLE()
+};
+
 }
 
 }
