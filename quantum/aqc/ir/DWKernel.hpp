@@ -16,6 +16,14 @@
 #include "Function.hpp"
 #include "DWQMI.hpp"
 #include "XACC.hpp"
+#include "exprtk.hpp"
+#include <boost/math/constants/constants.hpp>
+
+static constexpr double pi = boost::math::constants::pi<double>();
+
+using symbol_table_t = exprtk::symbol_table<double>;
+using expression_t = exprtk::expression<double>;
+using parser_t = exprtk::parser<double>;
 
 namespace xacc {
 namespace quantum {
@@ -30,6 +38,8 @@ protected:
 
 	std::list<InstPtr> instructions;
 
+	std::vector<InstructionParameter> parameters;
+
 	std::string _name;
 
 public:
@@ -41,7 +51,11 @@ public:
 	 * @param id
 	 * @param name
 	 */
-	DWKernel(std::string kernelName) : _name(kernelName) {
+	DWKernel(std::string kernelName) : _name(kernelName), parameters(std::vector<InstructionParameter>{}) {
+	}
+
+	DWKernel(std::string kernelName, std::vector<InstructionParameter> p) : 
+            _name(kernelName), parameters(p) {
 	}
 
 	virtual const int nInstructions() {
@@ -155,33 +169,103 @@ public:
 	}
 
 	virtual InstructionParameter getParameter(const int idx) const {
-		xacc::error("DWKernel does not contain runtime parameters.");
-		return InstructionParameter(0);
+		return parameters[idx];
 	}
 
 	virtual void setParameter(const int idx, InstructionParameter& p) {
-		xacc::error("DWKernel does not contain runtime parameters.");
+		if (idx + 1 > parameters.size()) {
+			XACCLogger::instance()->error("DWKernel.setParameter: Invalid Parameter requested.");
+		}
+
+		parameters[idx] = p;
 	}
 
 	virtual std::vector<InstructionParameter> getParameters() {
-		xacc::error("DWKernel does not contain runtime parameters.");
-		return {};
+		return parameters;
 	}
 
 	virtual void addParameter(InstructionParameter instParam) {
-		xacc::error("DWKernel does not contain runtime parameters.");
+		parameters.push_back(instParam);
 	}
 
 	virtual bool isParameterized() {
-		return false;
+		return nParameters() > 0;
 	}
 
 	virtual const int nParameters() {
-		return 0;
+		return parameters.size();
 	}
 
 	virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd& params) {
-		xacc::error("DWKernel does not contain runtime parameters.");
+				if (params.size() != nParameters()) {
+			xacc::error("Invalid DWKernel evaluation: number "
+					"of parameters don't match. " + std::to_string(params.size()) +
+					", " + std::to_string(nParameters()));
+		}
+
+        Eigen::VectorXd p = params;
+        symbol_table_t symbol_table;
+		symbol_table.add_constants();
+		std::vector<std::string> variableNames;
+        std::vector<double> values;
+		for (int i = 0; i < params.size(); i++) {
+            auto var = boost::get<std::string>(getParameter(i));
+			variableNames.push_back(var);
+            symbol_table.add_variable(var, p(i));
+		}
+
+        auto compileExpression = [&](InstructionParameter& p) -> double {
+            	auto expression = boost::get<std::string>(p);
+				expression_t expr;
+				expr.register_symbol_table(symbol_table);
+				parser_t parser;
+				parser.compile(expression, expr);
+                return expr.value();
+        };
+        
+		auto evaluatedFunction = std::make_shared<DWKernel>("evaled_"+name());
+		for (auto inst : getInstructions()) {
+			if (inst->isComposite()) {
+				// If a Function, call this method recursively
+				auto evaled =
+						std::dynamic_pointer_cast<Function>(inst)->operator()(
+								params);
+				evaluatedFunction->addInstruction(evaled);
+			} else {
+                if (inst->name() == "dw-qmi") {
+                    if(inst->getParameter(0).which() == 3) {
+					    InstructionParameter p = inst->getParameter(0);
+                        auto val = compileExpression(p);
+					    InstructionParameter pnew(val);
+					    auto updatedInst = std::make_shared<DWQMI>(inst->bits()[0], inst->bits()[1], pnew);
+					    evaluatedFunction->addInstruction(updatedInst);
+                    } else {
+                        evaluatedFunction->addInstruction(inst);
+                    }
+                } else if (inst->name() == "anneal") {
+                    std::vector<InstructionParameter> newParams;
+                    for (int i = 0; i < inst->nParameters(); i++) {
+                        InstructionParameter p = inst->getParameter(i);
+                        if (inst->getParameter(i).which() == 3) {
+                             if (boost::get<std::string>(p) == "forward" | boost::get<std::string>(p) == "reverse") {
+                                 newParams.push_back(p);
+                             } else {
+                                auto val = compileExpression(p);
+                                newParams.push_back(InstructionParameter(val));
+                             }
+                        } else {
+                            newParams.push_back(p);
+                        }
+                    }
+                    auto newAnneal = std::make_shared<Anneal>(newParams);
+                    evaluatedFunction->addInstruction(newAnneal);
+                } else {
+                    xacc::error("Invalid DW QMI during kernel evaluation - " + inst->name() + ".");
+                }
+			}
+		}
+
+		return evaluatedFunction;
 	}
 
 	EMPTY_DEFINE_VISITABLE()

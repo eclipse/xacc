@@ -64,6 +64,7 @@ def setCredentials(opts):
          sys.exit(1)
       user = opts.user_id
       f = open(os.environ['HOME']+'/.pyquil_config','w')
+      f.write('[Rigetti Forest]\n')
       f.write('key: ' + apikey + '\n')
       f.write('user_id: ' + user + '\n')
       f.write('url: ' + url + '\n')
