@@ -12,7 +12,7 @@ usFunctionGenerateBundleInit(TARGET ${{LIBRARY_NAME}} OUT SRC)
 
 add_library(${{LIBRARY_NAME}} SHARED ${{SRC}})
 
-set(_bundle_name {compiler_lib_name})
+set(_bundle_name {compiler_bundle_name})
 
 set_target_properties(${{LIBRARY_NAME}} PROPERTIES
     # This is required for every bundle

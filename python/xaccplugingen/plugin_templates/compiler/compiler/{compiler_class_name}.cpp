@@ -1,5 +1,6 @@
 #include "{compiler_class_name}.hpp"
 #include "XACC.hpp"
+#include "IRProvider.hpp"
 
 namespace xacc {{
     namespace quantum {{
@@ -18,7 +19,7 @@ namespace xacc {{
             return ir;
         }}
 
-        std::string {compiler_class_name}::translate(const std::string &bufferVariable, std::shared_ptr<xacc::Function> function) {{
+        const std::string {compiler_class_name}::translate(const std::string &bufferVariable, std::shared_ptr<Function> function) {{
             // TODO: Implement this
             return "";
         }}

@@ -23,15 +23,13 @@ include_directories(${{XACC_INCLUDE_DIRS}})
 
 link_directories(${{XACC_LIBRARY_DIR}})
 
-# TODO: add_subdirectory for each plugin
-# add_subdirectory(compiler)
+add_subdirectory(compiler)
 
 if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
 if({project_name_upper}_BUILD_TESTS)
-   # TODO: include_directories for each plugin
-   # include_directories(${{CMAKE_SOURCE_DIR}}/compiler)
+   include_directories(${{CMAKE_SOURCE_DIR}}/compiler)
    add_subdirectory(tests)
 endif()

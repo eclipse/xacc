@@ -7,9 +7,11 @@ PLUGIN_TYPES = {"pluginproject", "compiler"}
 DESCRIPTION = """
 A utility for generating plugin skeletons.
 
-Run 'python3 pyxacc.py generate-plugin -t pluginproject -n pluginname' to generate
-the base plugin project. Then, for example, to generate a compiler, cd into the
-plugin project and run 'python3 pyxacc.py generate-plugin -t compiler -n TestCompiler'.
+E.g. to generate a plugin project for the "quil" language, run
+'python3 pyxacc.py generate-plugin -t pluginproject -n quil' to generate a plugin project, to which you can 
+add plugins. 
+
+E.g. to generate a compiler plugin, run 'python3 pyxacc.py generate-plugin -t compiler -n quil'.
 """
 
 
@@ -83,6 +85,9 @@ def generate_compiler(template_dir, output_dir, args):
     class_name = "{}Compiler".format(args.name.capitalize())
     generate(template_dir, output_dir, format_func=lambda s: s.format(
         lib_name=args.libname,
+        project_name=args.name,
+        project_name_upper=args.name.upper(),
+        compiler_bundle_name=compiler_lib_name.replace('-', '_'),
         compiler_lib_name=compiler_lib_name,
         compiler_class_name=class_name,
         compiler_class_name_lower=class_name.lower(),

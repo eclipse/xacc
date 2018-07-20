@@ -25,7 +25,7 @@ namespace xacc {{
             }}
 
             virtual ~{compiler_class_name}() {{}}
-        }}
+        }};
     }}
 }}
 
