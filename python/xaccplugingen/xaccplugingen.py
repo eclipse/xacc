@@ -18,12 +18,12 @@ def add_subparser(subparsers):
     subparser = subparsers.add_parser("generate-plugin", help="A utility for generating plugin skeletons.", description=DESCRIPTION,
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     subparser.add_argument("-l", "--libname",
-                           help="library name (e.g. xacc-quilcompiler, which would be the default if run with '-n QuilCompiler')")
+                           help="library name (e.g. xacc-quil, which would be the default if run with '-n Quil')")
     subparser.add_argument("-v", "--verbose", help="increase verbosity", action="store_true")
 
     required_group = subparser.add_argument_group("required arguments")
     required_group.add_argument("-t", "--type", help="plugin type", required=True, choices=PLUGIN_TYPES)
-    required_group.add_argument("-n", "--name", help="plugin name (e.g. QuilCompiler), or in the case of pluginproject, the project name (e.g. quil)", required=True)
+    required_group.add_argument("-n", "--name", help="project name (e.g. quil)", required=True)
 
 
 def run_generator(args):
@@ -71,16 +71,20 @@ def generate(template_dir, output_dir, format_func, verbose=False):
 
 def generate_project(template_dir, output_dir, args):
     generate(template_dir, output_dir, format_func=lambda s: s.format(
-        project_name=args.libname,
-        project_shortname_upper=args.name.upper(),
-        project_shortname_lower=args.name.lower()
+        lib_name=args.libname,
+        lib_name_alpha="".join(filter(str.isalpha, args.libname)),
+        project_name=args.name,
+        project_name_upper=args.name.upper()
     ), verbose=args.verbose)
 
 
 def generate_compiler(template_dir, output_dir, args):
+    compiler_lib_name = "{}compiler".format(args.libname)
+    class_name = "{}Compiler".format(args.name.capitalize())
     generate(template_dir, output_dir, format_func=lambda s: s.format(
         lib_name=args.libname,
-        class_name=args.name,
-        class_name_lower=args.name.lower(),
-        class_name_upper=args.name.upper()
+        compiler_lib_name=compiler_lib_name,
+        compiler_class_name=class_name,
+        compiler_class_name_lower=class_name.lower(),
+        compiler_class_name_upper=class_name.upper()
     ), verbose=args.verbose)

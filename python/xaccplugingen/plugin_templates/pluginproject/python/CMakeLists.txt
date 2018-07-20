@@ -8,16 +8,16 @@ if(APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif(APPLE)
 
-add_library(pyxacc{project_shortname_lower} SHARED xacc-{project_shortname_lower}-py.cpp)
+add_library(py{lib_name_alpha} SHARED {lib_name}-py.cpp)
 
-set_target_properties(pyxacc{project_shortname_lower} PROPERTIES PREFIX "")
+set_target_properties(py{lib_name_alpha} PROPERTIES PREFIX "")
 
 if(APPLE)
-   set_target_properties(pyxacc{project_shortname_lower} PROPERTIES INSTALL_RPATH "@loader_path/lib")
-   set_target_properties(pyxacc{project_shortname_lower} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+   set_target_properties(py{lib_name_alpha} PROPERTIES INSTALL_RPATH "@loader_path/lib")
+   set_target_properties(py{lib_name_alpha} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-   set_target_properties(pyxacc{project_shortname_lower} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
-   set_target_properties(pyxacc{project_shortname_lower} PROPERTIES LINK_FLAGS "-shared")
+   set_target_properties(py{lib_name_alpha} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
+   set_target_properties(py{lib_name_alpha} PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-install(TARGETS pyxacc{project_shortname_lower} DESTINATION ${{CMAKE_INSTALL_PREFIX}})
+install(TARGETS py{lib_name_alpha} DESTINATION ${{CMAKE_INSTALL_PREFIX}})

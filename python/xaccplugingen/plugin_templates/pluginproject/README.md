@@ -1,1 +1,1 @@
-A generated XACC plugin project
+# {lib_name}

@@ -76,7 +76,7 @@ class CMakeBuild(build_ext):
         print() # Add an empty line for cleaner output
 
 s = setup(
-    name='{project_name}',
+    name='{lib_name}',
     version='0.1',
     author='',
     install_requires=['xacc >= 0.1.2'],
@@ -85,7 +85,7 @@ s = setup(
     package_dir={{'':'python'}},
     description='Generated XACC plugins project', 
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
-    ext_modules=[CMakeExtension('pyxacc{project_shortname_lower}')],
+    ext_modules=[CMakeExtension('py{lib_name_alpha}')],
     cmdclass={{'build_ext':CMakeBuild}},# 'install':InstallCommand}},
     zip_safe=False
 )
