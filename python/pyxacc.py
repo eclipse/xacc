@@ -103,7 +103,7 @@ def main(argv=None):
     opts = parse_args(sys.argv[1:])
 
     if opts.subcommand == "generate-plugin":
-        xaccplugingen.run(opts)
+        xaccplugingen.run_generator(opts)
         sys.exit(0)
 
     xaccLocation = os.path.dirname(os.path.realpath(__file__))

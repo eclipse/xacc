@@ -1,3 +1,6 @@
+#include "{class_name}.hpp"
+#include "XACC.hpp"
+
 namespace xacc {{
     namespace quantum {{
         {class_name}::{class_name}() = default;
