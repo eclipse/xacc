@@ -21,6 +21,7 @@ def add_subparser(subparsers):
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     subparser.add_argument("-l", "--libname",
                            help="library name (e.g. xacc-quil, which would be the default if run with '-n Quil')")
+    subparser.add_argument("-o", "--output", help="output location (defaults to current directory)")
     subparser.add_argument("-v", "--verbose", help="increase verbosity", action="store_true")
 
     required_group = subparser.add_argument_group("required arguments")
@@ -32,6 +33,8 @@ def run_generator(args):
     """Run the appropriate generator given args."""
     if not args.libname:
         args.libname = "xacc-{}".format(args.name.lower())
+    if args.output:
+        os.chdir(args.output)
     os.mkdir(args.libname)
     templates_dir = os.path.join(os.path.dirname(__file__), "plugin_templates/")
     output_dir = os.path.join(os.getcwd(), args.libname)
