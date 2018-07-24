@@ -103,6 +103,12 @@ if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
+set(XACC_HAS_ANTLR FALSE)
+if(TARGET antlr4_shared)
+   message (STATUS "XACC Building with Antlr4 support")
+   set(XACC_HAS_ANTLR TRUE)
+endif()
+
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
 # their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
