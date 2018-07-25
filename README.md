@@ -1,11 +1,11 @@
 [![Build Status](http://ci.eclipse.org/xacc/buildStatus/icon?job=xacc-ci)](http://ci.eclipse.org/xacc/job/xacc-ci/)
 
 # Eclipse XACC 
-## Hardware Agnostic Quantum Programming 
+## Language and Hardware Independent Quantum Programming 
 
-XACC is a programming framework for extreme-scale, post-exascale accelerator architectures that integrates alongside existing conventional applications. It is a pluggable framework for programming languages and hardware developed for next-gen computing hardware architectures like quantum and neuromorphic computing. It lets computational scientists efficiently offload work to attached accelerators through user-friendly Kernel definitions. XACC makes post-exascale hybrid programming approachable for domain computational scientists.
+XACC is a programming framework for extreme-scale, post-exascale accelerator architectures that integrates alongside existing conventional applications. It is a pluggable framework (built off the [CppMicroServices](https://github.com/cppmicroservices/cppmicroservices) native C++ OSGi implementation) for quantum programming languages and hardware developed for next-gen heterogeneous computing architectures. It lets computational scientists efficiently offload work to attached accelerators through user-friendly kernel definitions.
 
-XACC currently supports hybrid classical-quantum programming and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs.
+XACC currently supports quantum-classical programming and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs.
 
 Documentation
 -------------
@@ -18,6 +18,10 @@ XACC binaries are available via PyPi as Python Wheels:
 ```bash
 $ python -m pip install --user xacc
 ```
+Install plugins to interact with various quantum programming languages and hardware:
+```bash
+$ python -m pip install --user xacc-rigetti xacc-vqe
+```
 
 Build from Source
 -----------------
@@ -27,11 +31,10 @@ Clone the repository recursively
 ```bash
 $ git clone --recursive https://github.com/eclipse/xacc
 ```
-Then configure with `cmake` (optionally passing your Python development header path to build the XACC Python API) and build with `make`
+Then configure with `cmake` and build with `make`
 ```bash
 $ mkdir build && cd build
-$ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
-$ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
+$ cmake .. 
 $ make install
 ```
 Your install will be in `$HOME/.xacc`. To change the install location, pass `-DCMAKE_INSTALL_PREFIX=/path/to/custom/install`.
