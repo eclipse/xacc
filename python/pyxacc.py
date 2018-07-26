@@ -87,14 +87,14 @@ class qpu(object):
         return
     def __call__(self, f):
         def wrapped_f(*args, **kwargs):
-            src = inspect.getsource(f)
-            compiler = xacc.getCompiler('xacc-py')
-            qpu = xacc.getAccelerator(self.kwargs['accelerator'])
+            src = '\n'.join(inspect.getsource(f).split('\n')[1:])
+            compiler = getCompiler('xacc-py')
+            qpu = getAccelerator(self.kwargs['accelerator'])
             ir = compiler.compile(src, qpu)
             buf = qpu.createBuffer('q')
-            program = xacc.Program(qpu, ir)
+            program = Program(qpu, ir)
             kernel = program.getKernels()[0]
-            kernel.execute(buf, *args)
+            kernel.execute(buf, list(args))
             return buf
         return wrapped_f
 
