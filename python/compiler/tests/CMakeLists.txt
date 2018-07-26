@@ -1,0 +1,2 @@
+add_xacc_test(PyXACCCompiler)
+target_link_libraries(PyXACCCompilerTester xacc-py-compiler)

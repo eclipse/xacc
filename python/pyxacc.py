@@ -1,6 +1,6 @@
 from _pyxacc import *
 import os, platform, sys, sysconfig
-import argparse
+import argparse, inspect
 
 def parse_args(args):
    parser = argparse.ArgumentParser(description="XACC Framework Utility.",
@@ -78,6 +78,25 @@ def setCredentials(opts):
    fname = acc if 'rigetti' not in acc else 'pyquil'
    print('\nCreated '+acc+' config file:\n$ cat ~/.'+fname+'_config:')
    print(open(os.environ['HOME']+'/.'+fname+'_config','r').read())
+
+class qpu(object):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.compiledIr = None
+        return
+    def __call__(self, f):
+        def wrapped_f(*args, **kwargs):
+            src = inspect.getsource(f)
+            compiler = xacc.getCompiler('xacc-py')
+            qpu = xacc.getAccelerator(self.kwargs['accelerator'])
+            ir = compiler.compile(src, qpu)
+            buf = qpu.createBuffer('q')
+            program = xacc.Program(qpu, ir)
+            kernel = program.getKernels()[0]
+            kernel.execute(buf, *args)
+            return buf
+        return wrapped_f
 
 def main(argv=None):
    opts = parse_args(sys.argv[1:])
