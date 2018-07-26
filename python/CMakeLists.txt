@@ -50,3 +50,7 @@ endif()
 
 install(TARGETS _pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES pyxacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+if (${XACC_HAS_ANTLR})
+   add_subdirectory(compiler)
+endif()
