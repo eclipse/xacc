@@ -13,6 +13,7 @@
 #ifndef QUANTUM_AQC_ACCELERATOR_AQCACCELERATORBUFFER_HPP_
 #define QUANTUM_AQC_ACCELERATOR_AQCACCELERATORBUFFER_HPP_
 
+#include <numeric>
 #include "AcceleratorBuffer.hpp"
 #include "Embedding.hpp"
 
