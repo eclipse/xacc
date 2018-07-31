@@ -55,7 +55,7 @@ public:
 	}
 
 	std::string toKernelSource(const std::string& kernelName) {
-		std::string src = "__qpu__ " + kernelName + "() {\n";
+		std::string src = "__qpu__ " + kernelName + "(AcceleratorBuffer ab) {\n";
 		for (int i = 0; i < order(); i++) {
 			src += std::to_string(i) + " " + std::to_string(i) + " "
 					+ std::to_string(getVertexProperty<0>(i)) + ";\n";

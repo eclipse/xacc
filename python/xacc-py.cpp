@@ -137,7 +137,10 @@ PYBIND11_MODULE(_pyxacc, m) {
 		.def("name", &xacc::Accelerator::name, "Return the name of this Accelerator.")
 		.def("createBuffer", (std::shared_ptr<xacc::AcceleratorBuffer> (xacc::Accelerator::*)(const std::string&, const int))
 					&xacc::Accelerator::createBuffer, py::return_value_policy::reference,
-			"Return a newly created register of qubits.")
+			"Return a newly created register of qubits of the given size.")
+		.def("createBuffer", (std::shared_ptr<xacc::AcceleratorBuffer> (xacc::Accelerator::*)(const std::string&))
+					&xacc::Accelerator::createBuffer, py::return_value_policy::reference,
+			"Return a newly allocated register of all qubits on the Accelerator.")
 		.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "Execute the Function with the given AcceleratorBuffer.");
 
 	// Expose the AcceleratorBuffer
