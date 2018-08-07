@@ -46,6 +46,10 @@ public:
 			std::vector<InstructionParameter> parameters = std::vector<
 					InstructionParameter> { }) = 0;
 
+	virtual std::shared_ptr<Function> generate(
+			std::vector<InstructionParameter> parameters = std::vector<
+					InstructionParameter> { }) {return generate(nullptr,parameters);}
+
 	/**
 	 * The destructor
 	 */
