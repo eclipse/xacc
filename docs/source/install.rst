@@ -18,10 +18,12 @@ The following software is required before building XACC:
 | CMake                  | Required   |   3.2+    |
 +------------------------+------------+-----------+
 
-Note that you must have a C++11 compliant compiler. 
-For GCC, this means version 4.8.1+, for Clang, this means 3.3+.
+Note that you must have a C++11 compliant compiler. If you prefer ``gcc/g++``, 
+it is recommended that you use at least version 5.0 and up. Using ``[4.8,5)`` will 
+cause XACC to skip building and installing Antlr, which is required for most XACC 
+Compiler extensions. 
 
-These dependencies are relatively easy to install on various operating
+The other dependencies are relatively easy to install on various operating
 systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:
 
 .. code::
@@ -37,9 +39,12 @@ Clone the XACC repository:
 
 .. code::
 
-   $ git clone --recursive https://github.com/ornl-qci/xacc
+   $ git clone --recursive https://github.com/eclipse/xacc
 
-XACC requires CMake 3.2+ to build. Run the following to
+Note you must pass the ``--recursive`` flag. If you don't you must run 
+``git submodule update --init --recursive``.
+
+XACC requires CMake 3.2+. Run the following to
 configure and build XACC:
 
 .. code:: bash

@@ -91,9 +91,18 @@ class qpu(object):
             compiler = getCompiler('xacc-py')
             qpu = getAccelerator(self.kwargs['accelerator'])
             ir = compiler.compile(src, qpu)
-            buf = qpu.createBuffer('q')
             program = Program(qpu, ir)
             kernel = program.getKernels()[0]
+            nBits = 0
+            it = InstructionIterator(kernel)
+            while(kernel.hasNext()):
+                i = it.next()
+                if i.isEnabled() and not i.isComposite():
+                    for b in i.bits(): 
+                        if b > nBits: 
+                            nBits = b
+            nBits = nBits+1
+            buf = qpu.createBuffer('q',nBits)
             kernel.execute(buf, list(args))
             return buf
         return wrapped_f
