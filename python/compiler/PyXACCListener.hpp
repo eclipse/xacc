@@ -22,19 +22,13 @@ using namespace pyxacc;
 namespace xacc {
 namespace quantum {
 
-template<class C, class T>
-auto contains(const C& v, const T& x)
--> decltype(std::end(v), true)
-{
-    return std::end(v) != std::find(std::begin(v), std::end(v), x);
-}
 /**
- * 
+ * The PyXACCListener implements the Antlr-generated 
+ * PyXACCIRBaseListener and maps the Antlr AST to XACC IR.
  */
 class PyXACCListener : public PyXACCIRBaseListener {
 	protected:
 	        std::shared_ptr<Function> f;
-            std::vector<std::string> functionVarNames;
             std::shared_ptr<IRProvider> provider;
 	public:
             std::shared_ptr<Function> getKernel();
@@ -44,8 +38,6 @@ class PyXACCListener : public PyXACCIRBaseListener {
             virtual void enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
 
             virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
-
-        
 };
     
 }

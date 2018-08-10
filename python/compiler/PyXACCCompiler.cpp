@@ -25,6 +25,7 @@ namespace quantum {
 std::shared_ptr<IR> PyXACCCompiler::compile(const std::string& src,
 		std::shared_ptr<Accelerator> acc) {
 
+    // Setup the Antlr Parser
     ANTLRInputStream input(src);
     PyXACCIRLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
@@ -32,11 +33,10 @@ std::shared_ptr<IR> PyXACCCompiler::compile(const std::string& src,
     parser.removeErrorListeners();
     parser.addErrorListener(new PyXACCErrorListener());
     
+    // Walk the Abstract Syntax Tree
     tree::ParseTree *tree = parser.xaccsrc();
-    PyXACCListener listener;//fName, params);
+    PyXACCListener listener;
     tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
-
-	
 
 	// Create and return the IR
 	auto ir = std::make_shared<GateIR>();

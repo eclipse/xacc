@@ -19,6 +19,9 @@ namespace xacc {
 
 namespace quantum {
 
+/**
+ * An Antlr error listener for handling parsing errors.
+ */
 class PyXACCErrorListener : public antlr4::BaseErrorListener {
     public:
     void syntaxError(antlr4::Recognizer *recognizer, antlr4::Token * offendingSymbol, size_t line, size_t charPositionInLine, const std::string &msg, std::exception_ptr e) override {
@@ -30,14 +33,9 @@ class PyXACCErrorListener : public antlr4::BaseErrorListener {
 };
         
 /**
- * The DWQMICompiler is an XACC Compiler that compiles
- * D-Wave quantum machine instructions to produce an
- * appropriate Ising form for execution on the D-Wave QPU.
- *
- * This compilation leverages XACC EmbeddingAlgorithms to
- * compute the minor graph embedding represented by the
- * input source kernel code to output the embedded Ising
- * graph for D-Wave execution.
+ * The PyXACCCompiler is an XACC Compiler that compiles
+ * python-like gate instruction source code to produce a 
+ * XACC IR.
  */
 class PyXACCCompiler: public xacc::Compiler {
 
@@ -50,9 +48,9 @@ public:
 
 	/**
 	 * Compile the given kernel code for the
-	 * given D-Wave Accelerator.
+	 * given Accelerator.
 	 *
-	 * @param src The QMI source code
+	 * @param src The source code
 	 * @param acc Reference to the D-Wave Accelerator
 	 * @return
 	 */
@@ -60,13 +58,12 @@ public:
 			std::shared_ptr<Accelerator> acc);
 
 	/**
-	 * This method is not implemented - we must always have
-	 * D-Wave Accelerator connectivity information for compilation.
-	 *
+     * Compile the given kernel code.
+     *
+     * @param src The source code
 	 * @return
 	 */
 	virtual std::shared_ptr<xacc::IR> compile(const std::string& src);
-
 
 	/**
 	 * Return the command line options for this compiler
@@ -84,7 +81,7 @@ public:
 	}
 
 	/**
-	 * We don't allow translations for the DW Compiler.
+	 * We don't allow translations for the PyXACC Compiler.
 	 * @param bufferVariable
 	 * @param function
 	 * @return
@@ -92,7 +89,7 @@ public:
 	virtual const std::string translate(const std::string& bufferVariable,
 			std::shared_ptr<Function> function) {
 		xacc::error("PyXACCCompiler::translate - Method not implemented");
-	};
+	}
 
 	virtual const std::string name() const {
 		return "xacc-py";
