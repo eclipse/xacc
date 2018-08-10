@@ -1,6 +1,7 @@
 #include "XACC.hpp"
 #include "IRGenerator.hpp"
 
+#include <pybind11/complex.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -233,12 +234,10 @@ PYBIND11_MODULE(_pyxacc, m) {
 			}, "Convenience function for creating a new GateIR.");
 
     gatesub.def("getState", 
-            [](std::shared_ptr<Accelerator> acc, std::shared_ptr<Function> f) -> Eigen::VectorXcd {
+            [](std::shared_ptr<Accelerator> acc, std::shared_ptr<Function> f) {
                 auto results = acc->getAcceleratorState(f);
-                for (auto r : results) {
-                    std::cout << r << "\n";
-                }
-                return Eigen::Map<Eigen::VectorXcd>(results.data(), results.size());
+                Eigen::VectorXcd ret = Eigen::Map<Eigen::VectorXcd>(results.data(), results.size());
+                return ret;
             }, "Compute and return the state after execution of the given program on the given accelerator.");
 
 }
