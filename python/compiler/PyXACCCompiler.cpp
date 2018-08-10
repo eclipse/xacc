@@ -28,6 +28,9 @@ std::shared_ptr<IR> PyXACCCompiler::compile(const std::string& src,
     // Setup the Antlr Parser
     ANTLRInputStream input(src);
     PyXACCIRLexer lexer(&input);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(new PyXACCErrorListener());
+    
     CommonTokenStream tokens(&lexer);
     PyXACCIRParser parser(&tokens);
     parser.removeErrorListeners();

@@ -31,7 +31,7 @@ class PyXACCErrorListener : public antlr4::BaseErrorListener {
         xacc::error(output.str());
     }
 };
-        
+
 /**
  * The PyXACCCompiler is an XACC Compiler that compiles
  * python-like gate instruction source code to produce a 

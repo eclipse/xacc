@@ -60,19 +60,21 @@ PYBIND11_MODULE(_pyxacc, m) {
 		.def(py::init<float>(), "Construct as a float.");
 
     py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(m, "Instruction", "")
-    		.def("nParameters", &xacc::Instruction::nParameters, "")
-    		.def("toString", &xacc::Instruction::toString, "")
-    		.def("bits", &xacc::Instruction::bits, "")
-    		.def("getParameter", &xacc::Instruction::getParameter, "")
-    		.def("getParameters", &xacc::Instruction::getParameters, "")
-    		.def("setParameter", &xacc::Instruction::setParameter, "")
-    		.def("mapBits", &xacc::Instruction::mapBits, "")
-    		.def("getTag", &xacc::Instruction::getTag, "")
-    		.def("name", &xacc::Instruction::name, "")
+    	.def("nParameters", &xacc::Instruction::nParameters, "")
+    	.def("toString", &xacc::Instruction::toString, "")
+        .def("isEnabled", &xacc::Instruction::isEnabled, "")
+        .def("isComposite", &xacc::Instruction::isComposite, "")
+    	.def("bits", &xacc::Instruction::bits, "")
+		.def("getParameter", &xacc::Instruction::getParameter, "")
+    	.def("getParameters", &xacc::Instruction::getParameters, "")
+    	.def("setParameter", &xacc::Instruction::setParameter, "")
+		.def("mapBits", &xacc::Instruction::mapBits, "")
+        .def("getTag", &xacc::Instruction::getTag, "")
+    	.def("name", &xacc::Instruction::name, "")
 		.def("description", &xacc::Instruction::description, "");
 
     py::class_<xacc::Function, std::shared_ptr<xacc::Function>>(m, "Function", "")
-    		.def("nInstructions", &xacc::Function::nInstructions, "")
+    	.def("nInstructions", &xacc::Function::nInstructions, "")
 		.def("getInstruction", &xacc::Function::getInstruction, "")
 		.def("getInstructions", &xacc::Function::getInstructions, "")
 		.def("removeInstruction", &xacc::Function::removeInstruction, "")
@@ -94,11 +96,18 @@ PYBIND11_MODULE(_pyxacc, m) {
     // Expose the IR interface
     py::class_<xacc::IR, std::shared_ptr<xacc::IR>> (m, "IR", "The XACC Intermediate Representation, "
     		"serves as a container for XACC Functions.")
-    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
-			.def("addKernel", &xacc::IR::addKernel, "");
+    	.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
+		.def("addKernel", &xacc::IR::addKernel, "");
 
-    py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "").def("process", &xacc::IRPreprocessor::process, "");
-    py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "").def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
+    py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")
+        .def(py::init<std::shared_ptr<xacc::Function>>())
+        .def("hasNext", &xacc::InstructionIterator::hasNext, "")
+        .def("next", &xacc::InstructionIterator::next, "");
+        
+    py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "")
+        .def("process", &xacc::IRPreprocessor::process, "");
+    py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "")
+        .def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
     py::class_<xacc::IRGenerator, std::shared_ptr<xacc::IRGenerator>>(m, "IRGenerator", "")
             .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
