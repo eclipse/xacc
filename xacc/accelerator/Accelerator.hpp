@@ -149,7 +149,8 @@ public:
 			return allocatedBuffers[varid];
 		} else {
 			auto tmpBuffer = createBuffer(varid, 100);
-			XACCLogger::instance()->info("Could not find AcceleratorBuffer with id " + varid + ", creating one with 100 bits.");
+			XACCLogger::instance()->info("Could not find AcceleratorBuffer with id " + 
+                                            varid + ", creating one with 100 bits.");
 			storeBuffer(varid, tmpBuffer);
 			return tmpBuffer;
 		}
@@ -196,6 +197,19 @@ public:
 		return 0.0;
 	}
 
+    /**
+     * Return a representation of the state of the Accelerator after execution of 
+     * the given program Function instance. For quantum computation this is 
+     * the wave vector.
+     *
+     * This is meant to be overrided by subclasses. 
+     *
+     * @param program The program to execute
+     * @return wf A list of complex coefficients
+     */
+    virtual const std::vector<std::complex<double>> getAcceleratorState(std::shared_ptr<Function> program) 
+            { return std::vector<std::complex<double>>{}; }
+    
 	/**
 	 * Given user-input command line options, perform
 	 * some operation. Returns true if runtime should exit,
@@ -208,6 +222,11 @@ public:
 		return false;
 	}
 
+    /**
+     * Return true if this Accelerator is a remotely hosted resource.
+     * 
+     * @return remote True if this is a remote Accelerator
+     */
 	virtual bool isRemote() {
 		return false;
 	}

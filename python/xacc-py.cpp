@@ -11,7 +11,10 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "XACC.hpp"
-#include <pybind11/pybind11.h>
+#include "IRGenerator.hpp"
+
+#include <pybind11/complex.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
@@ -97,6 +100,10 @@ PYBIND11_MODULE(_pyxacc, m) {
     py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "").def("process", &xacc::IRPreprocessor::process, "");
     py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "").def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
+    py::class_<xacc::IRGenerator, std::shared_ptr<xacc::IRGenerator>>(m, "IRGenerator", "")
+            .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
+					std::vector<xacc::InstructionParameter>)) &xacc::IRGenerator::generate, py::return_value_policy::reference, "");
+                    
     // Expose the Kernel
     py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(m, "Kernel", "The XACC Kernel is the "
     		"executable functor that executes XACC IR on the desired Accelerator.")
@@ -202,7 +209,10 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"Return the Compiler of given name.");
 	m.def("getIRPreprocessor", (std::shared_ptr<xacc::IRPreprocessor> (*)(const std::string&))
 			&xacc::getService<IRPreprocessor>, py::return_value_policy::reference,
-			"Return the Compiler of given name.");
+			"Return the IRPreprocessor of given name.");
+    m.def("getIRGenerator", (std::shared_ptr<xacc::IRGenerator> (*)(const std::string&))
+			&xacc::getService<IRGenerator>, py::return_value_policy::reference,
+			"Return the IRGenerator of given name.");
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
@@ -234,6 +244,13 @@ PYBIND11_MODULE(_pyxacc, m) {
 			[]() -> std::shared_ptr<IR> {
 				return xacc::getService<IRProvider>("gate")->createIR();
 			}, "Convenience function for creating a new GateIR.");
+
+    gatesub.def("getState", 
+            [](std::shared_ptr<Accelerator> acc, std::shared_ptr<Function> f) {
+                auto results = acc->getAcceleratorState(f);
+                Eigen::VectorXcd ret = Eigen::Map<Eigen::VectorXcd>(results.data(), results.size());
+                return ret;
+            }, "Compute and return the state after execution of the given program on the given accelerator.");
 
 }
 
