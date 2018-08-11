@@ -79,12 +79,15 @@ gate
    | 'Y'
    | 'Z'
    | 'CNOT'
-   | 'Cz'
+   | 'CZ'
+   | 'CX'
    | 'H'
    | 'Swap'
    | 'Identity'
    | 'CPhase'
    | 'Measure'
+   | 'MEASURE'
+   | 'xacc'
    ;
 
 /* A list of expressions */
@@ -106,6 +109,7 @@ exp
    | exp '^' exp
    | '(' exp ')'
    | unaryop '(' exp ')'
+   | id '=' exp
    ;
 
 /* unary operations */

@@ -94,8 +94,8 @@ class qpu(object):
             program = Program(qpu, ir)
             kernel = program.getKernels()[0]
             nBits = 0
-            it = InstructionIterator(kernel)
-            while(kernel.hasNext()):
+            it = InstructionIterator(kernel.getIRFunction())
+            while(it.hasNext()):
                 i = it.next()
                 if i.isEnabled() and not i.isComposite():
                     for b in i.bits(): 
