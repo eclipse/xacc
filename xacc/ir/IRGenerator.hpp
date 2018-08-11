@@ -50,6 +50,13 @@ public:
 			std::vector<InstructionParameter> parameters = std::vector<
 					InstructionParameter> { }) {return generate(nullptr,parameters);}
 
+    virtual std::shared_ptr<Function> generate(std::map<std::string, InstructionParameter> 
+            parameters = std::map<std::string, InstructionParameter>{}) {
+        std::vector<InstructionParameter> temp;
+        for (auto& kv : parameters) temp.push_back(kv.second);
+        return generate(nullptr,temp);            
+    }
+    
 	/**
 	 * The destructor
 	 */

@@ -110,8 +110,12 @@ PYBIND11_MODULE(_pyxacc, m) {
         .def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
     py::class_<xacc::IRGenerator, std::shared_ptr<xacc::IRGenerator>>(m, "IRGenerator", "")
-            .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
-					std::vector<xacc::InstructionParameter>)) &xacc::IRGenerator::generate, py::return_value_policy::reference, "");
+        .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
+				std::vector<xacc::InstructionParameter>)) &xacc::IRGenerator::generate, 
+                py::return_value_policy::reference, "")
+        .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
+				std::map<std::string, xacc::InstructionParameter>)) &xacc::IRGenerator::generate, 
+                py::return_value_policy::reference, "");
                     
     // Expose the Kernel
     py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(m, "Kernel", "The XACC Kernel is the "
