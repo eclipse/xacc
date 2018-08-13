@@ -30,6 +30,7 @@ class PyXACCListener : public PyXACCIRBaseListener {
 	protected:
 	        std::shared_ptr<Function> f;
             std::shared_ptr<IRProvider> provider;
+            std::vector<std::string> functionVariableNames;
 	public:
             std::shared_ptr<Function> getKernel();
 

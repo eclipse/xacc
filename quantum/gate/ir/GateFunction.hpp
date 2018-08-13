@@ -22,8 +22,14 @@
 namespace xacc {
 namespace quantum {
 
+static constexpr double pi = boost::math::constants::pi<double>();
+
+using symbol_table_t = exprtk::symbol_table<double>;
+using expression_t = exprtk::expression<double>;
+using parser_t = exprtk::parser<double>;
+
 /**
- * The GateFunction is a QFunction for gate-model
+ * The GateFunction is a realization of Function for gate-model
  * quantum computing. It is composed of QInstructions that
  * are themselves derivations of the GateInstruction class.
  */
@@ -205,82 +211,33 @@ public:
 		return parameters.size();
 	}
 
-//	virtual void evaluateVariableParameters(
-//			std::vector<InstructionParameter> runtimeParameters) {
-//
-//		std::map<std::string, InstructionParameter> varToValMap;
-//
-//		int i = 0;
-//		for (auto funcParam : parameters) {
-//			varToValMap.insert(
-//					std::make_pair(boost::get<std::string>(funcParam),
-//							runtimeParameters[i]));
-//			i++;
-//		}
-//
-//		for (const auto& gateIdVarName : cachedVariableInstructions) {
-//			auto inst = getInstruction(gateIdVarName.first);
-//			auto varInstDependsOn = gateIdVarName.second.second;
-//			auto instParamIdx = gateIdVarName.second.first;
-//
-//			int indexOfRuntimeParam, counter = 0;
-//			for (auto p : parameters) {
-//				if (boost::get<std::string>(p) == varInstDependsOn) {
-//					indexOfRuntimeParam = counter;
-//					break;
-//				}
-//				counter++;
-//			}
-//
-//			inst->setParameter(instParamIdx, runtimeParameters[indexOfRuntimeParam]);
-//		}
-//
-//		i = 0;
-//		for (auto inst : instructions) {
-//			if (inst->isComposite()) {
-//				std::dynamic_pointer_cast<Function>(inst)->evaluateVariableParameters(
-//						runtimeParameters);
-//			} else if (inst->isParameterized() && inst->name() != "Measure") {
-//
-//				for (int j = 0; j < inst->nParameters(); ++j) {
-//					auto instParam = inst->getParameter(j);
-//
-//					if (instParam.which() == 3) {
-//						// This is a variable
-//						auto variable = boost::get<std::string>(instParam);
-//
-//						auto runtimeParameter = varToValMap[variable];
-//
-//						inst->setParameter(j, runtimeParameter);
-//
-//						cachedVariableInstructions.insert(std::make_pair(i, std::make_pair(j, variable)));
-//					}
-//				}
-//			}
-//			i++;
-//		}
-//	}
-
-	static constexpr double pi = boost::math::constants::pi<double>();
-
-	using symbol_table_t = exprtk::symbol_table<double>;
-	using expression_t = exprtk::expression<double>;
-	using parser_t = exprtk::parser<double>;
-
-
 	virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd& params) {
 		if (params.size() != nParameters()) {
 			xacc::error("Invalid GateFunction evaluation: number "
 					"of parameters don't match. " + std::to_string(params.size()) +
 					", " + std::to_string(nParameters()));
 		}
-
+       
+        Eigen::VectorXd p = params;
+        symbol_table_t symbol_table;
+		symbol_table.add_constants();
 		std::vector<std::string> variableNames;
+        std::vector<double> values;
 		for (int i = 0; i < params.size(); i++) {
-			variableNames.push_back(
-					boost::get<std::string>(getParameter(i)));
+            auto var = boost::get<std::string>(getParameter(i));
+			variableNames.push_back(var);
+            symbol_table.add_variable(var, p(i));
 		}
 
+        auto compileExpression = [&](InstructionParameter& p) -> double {
+            	auto expression = boost::get<std::string>(p);
+				expression_t expr;
+				expr.register_symbol_table(symbol_table);
+				parser_t parser;
+				parser.compile(expression, expr);
+                return expr.value();
+        };
+  
 		auto gateRegistry = xacc::getService<IRProvider>("gate");
 		auto evaluatedFunction = std::make_shared<GateFunction>("evaled_"+name());
 
@@ -297,34 +254,13 @@ public:
 				// is parameterized and that it has a string parameter
 				if (inst->isParameterized()
 						&& inst->getParameter(0).which() == 3) {
-					int idx = -1;
-					auto expression = boost::get<std::string>(
-							inst->getParameter(0));
-					for (int i = 0; i < params.size(); i++) {
-
-						if (boost::contains(expression, variableNames[i])) {
-							idx = i;
-						}
-					}
-
-					std::string varName = variableNames[idx];
-					double val;
-					symbol_table_t symbol_table;
-					symbol_table.add_variable(varName, val);
-					symbol_table.add_constants();
-					expression_t expr;
-					expr.register_symbol_table(symbol_table);
-					parser_t parser;
-					parser.compile(expression, expr);
-					val = params(idx);
-					auto res = expr.value();
-//				if (res < 0.0) {
-//					res = 4 * pi + res;
-//				}
-					InstructionParameter p(res);
-					auto updatedInst = gateRegistry->createInstruction(inst->name(),
-							inst->bits());
-					updatedInst->setParameter(0, p);
+                    InstructionParameter p = inst->getParameter(0);
+                    std::stringstream s;
+                    s << p;
+                    auto val = compileExpression(p);
+					InstructionParameter pnew(val);
+					auto updatedInst = gateRegistry->createInstruction(inst->name(), inst->bits());
+                    updatedInst->setParameter(0, pnew);
 					evaluatedFunction->addInstruction(updatedInst);
 				} else {
 					evaluatedFunction->addInstruction(inst);
