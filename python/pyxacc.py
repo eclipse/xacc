@@ -83,18 +83,24 @@ class qpu(object):
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
-        self.compiledIr = None
+        self.__dict__.update(kwargs)
         return
+
     def __call__(self, f):
         def wrapped_f(*args, **kwargs):
             src = '\n'.join(inspect.getsource(f).split('\n')[1:])
             compiler = getCompiler('xacc-py')
-            qpu = getAccelerator(self.kwargs['accelerator'])
+            if isinstance(self.kwargs['accelerator'], Accelerator):
+                qpu = self.kwargs['accelerator']
+            else:
+                qpu = getAccelerator(self.kwargs['accelerator'])
             ir = compiler.compile(src, qpu)
             program = Program(qpu, ir)
-            kernel = program.getKernels()[0]
+            compiledKernel = program.getKernels()[0]
+            
+            # Get the number of qubits
             nBits = 0
-            it = InstructionIterator(kernel.getIRFunction())
+            it = InstructionIterator(compiledKernel.getIRFunction())
             while(it.hasNext()):
                 i = it.next()
                 if i.isEnabled() and not i.isComposite():
@@ -102,8 +108,9 @@ class qpu(object):
                         if b > nBits: 
                             nBits = b
             nBits = nBits+1
+            
             buf = qpu.createBuffer('q',nBits)
-            kernel.execute(buf, list(args))
+            compiledKernel.execute(buf, list(args))
             return buf
         return wrapped_f
 

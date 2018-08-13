@@ -34,6 +34,7 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext * ctx) {
     std::vector<InstructionParameter> params;
     for (int i = 0; i < ctx->param().size(); i++) {
         params.push_back(InstructionParameter(ctx->param(static_cast<size_t>(i))->getText()));
+        functionVariableNames.push_back(ctx->param(static_cast<size_t>(i))->getText());
     }
     f = provider->createFunction(ctx->kernelname->getText(), {}, params);
 }
@@ -65,14 +66,9 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext * ctx) {
     
     if (gateName == "xacc") {
 
-        std::cout << "PARAM: " << ctx->explist()->getText() << "\n";
-        std::cout << "gen Name " << ctx->explist()->exp(0)->getText() << "\n";
         auto generatorName = ctx->explist()->exp(0)->getText();
-        
         std::map<std::string, InstructionParameter> params;
         for (int i = 1; i < ctx->explist()->exp().size(); i++) {
-            std::cout<< "EXP: " << ctx->explist()->exp(i)->getText() << "\n";
-            std::cout << ctx->explist()->exp(i)->id()->getText() << ", " << ctx->explist()->exp(i)->exp(0)->getText() << "\n";
             auto key = ctx->explist()->exp(i)->id()->getText();
             auto valStr = ctx->explist()->exp(i)->exp(0)->getText();
             if (is_int(valStr)) {
@@ -86,15 +82,16 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext * ctx) {
 
         // Add the Function's InstructionParameters
         for (int i = 0; i < f->nParameters(); i++) {
-            std::cout << "Adding parameter " << boost::get<std::string>(f->getParameter(i)) << "\n";
             params.insert({"param_"+std::to_string(i),f->getParameter(i)});
         }
         
         auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
         auto genF = generator->generate(params);
         
-        std::cout << "HELLO:\n" << genF->toString("q") << "\n";
-        xacc::error("xacc auto generation not supported.");
+        for (auto i : genF->getInstructions()) {
+            f->addInstruction(i);
+        }
+        
     } else if (ctx->explist()->exp().size() > 0) {
         auto paramStr = ctx->explist()->exp(0);
         std::vector<int> qubits;

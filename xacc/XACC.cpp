@@ -272,6 +272,12 @@ std::shared_ptr<Compiler> getCompiler() {
 }
 
 bool hasCompiler(const std::string& name) {
+    if (!xacc::xaccFrameworkInitialized) {
+		error(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
+
 	return serviceRegistry->hasService<Compiler>(name);
 }
 
