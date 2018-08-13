@@ -4,6 +4,6 @@ services:
   xacc-dev:
     image: xacc/theia-dev
     volumes:
-      - ../../../../:/home/project:cached
+      - ../../../../:/home/project
     ports:
       - 3000:3000
