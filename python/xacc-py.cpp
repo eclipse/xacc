@@ -44,6 +44,61 @@ namespace pybind11 { namespace detail {
     };
 }} // namespace pybind11::detail
 
+class PyAccelerator : public xacc::Accelerator {
+public:
+    /* Inherit the constructors */
+    using Accelerator::Accelerator;
+
+    const std::string name() const override {
+        PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, name);
+    }
+    
+    const std::string description() const override {
+        return "";//PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, description);
+    }
+
+    void initialize() override {
+        return; //PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, initialize);
+    }
+    
+    AcceleratorType getType() override {
+        return Accelerator::AcceleratorType::qpu_gate;//PYBIND11_OVERLOAD_PURE(AcceleratorType, xacc::Accelerator, getType);
+    }
+    
+    std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override {
+        return {};
+    }
+
+    bool isValidBufferSize(const int n) override {return true;}
+    
+    /* Trampoline (need one for each virtual function) */
+    void execute(std::shared_ptr<xacc::AcceleratorBuffer> buf, std::shared_ptr<xacc::Function> f) override {
+        PYBIND11_OVERLOAD_PURE(
+            void, /* Return type */
+            xacc::Accelerator,      /* Parent class */
+            execute,          /* Name of function in C++ (must match Python name) */
+            buf, 
+            f
+        );
+    }
+
+    std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			const std::vector<std::shared_ptr<Function>> functions) override {
+        return {};
+    }
+    	
+    std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId) override {
+        return std::make_shared<AcceleratorBuffer>(varId, 100);
+    }
+
+    std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId, const int size) override {
+        return std::make_shared<AcceleratorBuffer>(varId, size);
+    }
+};
+
 PYBIND11_MODULE(_pyxacc, m) {
     m.doc() = "Python bindings for XACC. XACC provides a plugin infrastructure for "
     		"programming, compiling, and executing quantum kernels in a language and "
@@ -162,11 +217,11 @@ PYBIND11_MODULE(_pyxacc, m) {
 			});
 
 	// Expose the Accelerator
-	py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>>(m,
+	py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>, PyAccelerator> acc(m,
 			"Accelerator", "Accelerator wraps the XACC C++ Accelerator class "
 					"and provides a mechanism for creating buffers of qubits. Execution "
-					"is handled by the XACC Kernels.")
-		.def("name", &xacc::Accelerator::name, "Return the name of this Accelerator.")
+					"is handled by the XACC Kernels.");
+    acc.def(py::init<>()).def("name", &xacc::Accelerator::name, "Return the name of this Accelerator.")
 		.def("createBuffer", (std::shared_ptr<xacc::AcceleratorBuffer> (xacc::Accelerator::*)(const std::string&, const int))
 					&xacc::Accelerator::createBuffer, py::return_value_policy::reference,
 			"Return a newly created register of qubits of the given size.")
@@ -175,6 +230,11 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"Return a newly allocated register of all qubits on the Accelerator.")
 		.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "Execute the Function with the given AcceleratorBuffer.");
 
+    py::enum_<Accelerator::AcceleratorType>(acc, "AcceleratorType")
+        .value("qpu_aqc", Accelerator::AcceleratorType::qpu_aqc)
+        .value("qpu_gate", Accelerator::AcceleratorType::qpu_gate)
+        .export_values();
+        
 	// Expose the AcceleratorBuffer
 	py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(m,
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.")

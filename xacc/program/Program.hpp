@@ -33,6 +33,8 @@
 
 namespace xacc {
 
+using AcceleratorType = Accelerator::AcceleratorType;
+
 /**
  * Placeholder, soon we will have Acc Independent transformations...
  * @param accType

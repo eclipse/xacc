@@ -97,6 +97,7 @@ class qpu(object):
                 qpu = getAccelerator('tnqvm')
             else:
                 print('\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
+                exit(0)
 
             # Remove the @qpu line from the source            
             src = '\n'.join(inspect.getsource(f).split('\n')[1:])
