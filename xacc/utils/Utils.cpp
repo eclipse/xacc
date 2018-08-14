@@ -80,6 +80,8 @@ XACCLogger::XACCLogger() :
 	} else {
 		logger = spdlog::stdout_logger_mt("xacc-logger");
 	}
+
+    logger->set_level(spdlog::level::info);
 }
 
 void XACCLogger::info(const std::string& msg, MessagePredicate predicate) {
