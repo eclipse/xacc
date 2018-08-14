@@ -122,6 +122,15 @@ public:
 	 * @param instruction
 	 */
 	virtual void addInstruction(InstPtr instruction) {
+        if (instruction->isParameterized() && instruction->nParameters() <= 1){
+            xacc::InstructionParameter param = instruction->getParameter(0);
+            if (param.which() == 3){
+                if (std::find(parameters.begin(), parameters.end(), param) != parameters.end()) { }
+                else { 
+                    parameters.push_back(param);
+                }
+            }
+        }
 		instructions.push_back(instruction);
 	}
 
