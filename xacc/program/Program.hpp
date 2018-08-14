@@ -140,7 +140,8 @@ public:
 	 * on the attached Accelerator.
 	 */
 	virtual void build();
-
+    virtual void build(const std::string& compiler);
+    
 	/**
 	 * Return the number of Kernels in this Program's XACC IR.
 	 *
