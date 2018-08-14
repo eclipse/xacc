@@ -88,12 +88,21 @@ class qpu(object):
 
     def __call__(self, f):
         def wrapped_f(*args, **kwargs):
-            src = '\n'.join(inspect.getsource(f).split('\n')[1:])
-            compiler = getCompiler('xacc-py')
-            if isinstance(self.kwargs['accelerator'], Accelerator):
-                qpu = self.kwargs['accelerator']
+            if 'accelerator' in self.kwargs:
+               if isinstance(self.kwargs['accelerator'], Accelerator):
+                  qpu = self.kwargs['accelerator']
+               else:
+                  qpu = getAccelerator(self.kwargs['accelerator'])
+            elif hasAccelerator('tnqvm'):
+                qpu = getAccelerator('tnqvm')
             else:
-                qpu = getAccelerator(self.kwargs['accelerator'])
+                print('\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
+
+            # Remove the @qpu line from the source            
+            src = '\n'.join(inspect.getsource(f).split('\n')[1:])
+
+            # Get the compiler and compile the code
+            compiler = getCompiler('xacc-py')
             ir = compiler.compile(src, qpu)
             program = Program(qpu, ir)
             compiledKernel = program.getKernels()[0]

@@ -201,7 +201,8 @@ PYBIND11_MODULE(_pyxacc, m) {
 					"code and the Accelerator instance, and the Program handles compiling the code and provides Kernel instances to execute.")
 		.def(py::init<std::shared_ptr<xacc::Accelerator>, const std::string &>(), "The constructor")
 		.def(py::init<std::shared_ptr<xacc::Accelerator>, std::shared_ptr<xacc::IR>>(), "The constructor")
-		.def("build", &xacc::Program::build, "Compile this program.")
+		.def("build", (void (xacc::Program::*)(const std::string&)) &xacc::Program::build, "Compile this program with the given Compiler name.")
+  		.def("build", (void (xacc::Program::*)()) &xacc::Program::build, "Compile this program.")
 		.def("getKernel", (xacc::Kernel<> (xacc::Program::*)(const std::string&)) &xacc::Program::getKernel<>,
 				py::return_value_policy::reference, "Return a Kernel representing the source code.")
     		.def("getKernels", &xacc::Program::getRuntimeKernels, "Return all Kernels.")
@@ -228,6 +229,8 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"Return the IRGenerator of given name.");
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
+    m.def("hasAccelerator", &xacc::hasAccelerator, "Does XACC have the given Accelerator installed?");
+    m.def("hasCompiler", &xacc::hasCompiler, "Does XACC have the given Accelerator installed?");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
