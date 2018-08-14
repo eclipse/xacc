@@ -12,6 +12,8 @@
  *******************************************************************************/
 #include "XACC.hpp"
 #include "IRGenerator.hpp"
+#include "IRProvider.hpp"
+#include "InstructionIterator.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -21,13 +23,8 @@
 #include <pybind11/iostream.h>
 #include <pybind11/operators.h>
 
-#include "GateInstruction.hpp"
-#include "GateFunction.hpp"
-#include "GateIR.hpp"
-
 namespace py = pybind11;
 using namespace xacc;
-using namespace xacc::quantum;
 
 // `boost::variant` as an example -- can be any `std::variant`-like container
 namespace pybind11 { namespace detail {
@@ -54,15 +51,15 @@ public:
     }
     
     const std::string description() const override {
-        return "";//PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, description);
+        return "";
     }
 
     void initialize() override {
-        return; //PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, initialize);
+        return;
     }
     
     AcceleratorType getType() override {
-        return Accelerator::AcceleratorType::qpu_gate;//PYBIND11_OVERLOAD_PURE(AcceleratorType, xacc::Accelerator, getType);
+        return Accelerator::AcceleratorType::qpu_gate;
     }
     
     std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override {
@@ -73,13 +70,7 @@ public:
     
     /* Trampoline (need one for each virtual function) */
     void execute(std::shared_ptr<xacc::AcceleratorBuffer> buf, std::shared_ptr<xacc::Function> f) override {
-        PYBIND11_OVERLOAD_PURE(
-            void, /* Return type */
-            xacc::Accelerator,      /* Parent class */
-            execute,          /* Name of function in C++ (must match Python name) */
-            buf, 
-            f
-        );
+        PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, execute, buf, f);
     }
 
     std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
