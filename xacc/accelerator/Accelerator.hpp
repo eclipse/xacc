@@ -31,13 +31,6 @@ namespace xacc {
 using AcceleratorGraph = Graph<XACCVertex<>>;
 
 /**
- * The types of Accelerators that XACC interacts with
- */
-enum AcceleratorType {
-	qpu_gate, qpu_aqc, npu
-};
-
-/**
  * The Accelerator class provides a high-level abstraction
  * for XACC's interaction with attached post-exascale
  * accelerators (quantum and neuromorphic processing units).
@@ -59,10 +52,17 @@ enum AcceleratorType {
  *
  * @author Alex McCaskey
  */
-class __attribute__((visibility("default"))) Accelerator: public OptionsProvider,
+class Accelerator: public OptionsProvider,
 		public Identifiable {
 
 public:
+
+    /**
+    * The types of Accelerators that XACC interacts with
+    */
+    enum AcceleratorType {
+	    qpu_gate, qpu_aqc, npu
+    };
 
 	/**
 	 * Initialize this Accelerator. This method is called
