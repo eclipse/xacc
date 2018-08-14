@@ -97,12 +97,19 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext * ctx) {
         std::vector<int> qubits;
         std::vector<InstructionParameter> params;
         for (int i = 0; i < ctx->explist()->exp().size(); i++) {
+            // First arg could be a real value (3.14), a string (id), or a general expression (0.5*t0)
             if (i == 0 && (ctx->explist()->exp(i)->real() != nullptr || 
-                            ctx->explist()->exp(i)->id() != nullptr)) {
+                            ctx->explist()->exp(i)->id() != nullptr ||
+                            !ctx->explist()->exp(i)->exp().empty())) {
                 // we have a parameter for a parameterized gate
-                auto str = ctx->explist()->exp(i)->getText();
-                auto param = is_double(str) ? InstructionParameter(std::stod(str)) : InstructionParameter(str);
-                params.push_back(param);
+                auto tmp = ctx->explist()->exp(i);
+                if (tmp->real() != nullptr || tmp->id() != nullptr) {
+                    auto str = ctx->explist()->exp(i)->getText();
+                    auto param = is_double(str) ? InstructionParameter(std::stod(str)) : InstructionParameter(str);
+                    params.push_back(param);
+                } else {
+                    params.push_back(InstructionParameter(tmp->getText()));
+                }
             } else {
                 qubits.push_back(std::stoi(ctx->explist()->exp(i)->INT()->getText()));
             }
