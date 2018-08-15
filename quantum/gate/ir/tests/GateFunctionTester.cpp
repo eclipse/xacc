@@ -15,6 +15,8 @@
 #include "Hadamard.hpp"
 #include "CNOT.hpp"
 #include "Rz.hpp"
+#include "Ry.hpp"
+#include "Rx.hpp"
 #include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;
@@ -124,6 +126,46 @@ TEST(GateFunctionTester,checkEvaluateVariables) {
 	std::cout << "ParamSet:\n" << evaled->toString("qreg") << "\n";
 
 	xacc::Finalize();
+}
+
+TEST(GateFunctionTester, checkParameterInsertion){
+    
+    xacc::Initialize();
+    xacc::InstructionParameter p("phi");
+    xacc::InstructionParameter p2("psi");
+
+    auto ry = std::make_shared<Ry>(std::vector<int>{0});
+    auto rz = std::make_shared<Rz>(std::vector<int>{1});
+
+    ry->setParameter(0, p);
+    rz->setParameter(0, p2);
+
+    GateFunction f("foo");
+    f.addInstruction(ry);
+    f.addInstruction(rz);
+    EXPECT_TRUE(f.nParameters() == 2);
+    EXPECT_TRUE(f.getParameter(0).which() == 3);
+    EXPECT_TRUE(f.getParameter(1).which() == 3);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "phi");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+
+    auto rx = std::make_shared<Rx>(std::vector<int>{2});
+
+    rx->setParameter(0, p);
+
+    f.addInstruction(rx);
+    
+    EXPECT_TRUE(f.nParameters() == 2);
+
+    f.removeInstruction(1);
+    
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.nParameters() == 1);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "phi");
+    
+    xacc::Finalize();
+    
+    
 }
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
