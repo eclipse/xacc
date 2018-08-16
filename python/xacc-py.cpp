@@ -283,6 +283,7 @@ PYBIND11_MODULE(_pyxacc, m) {
     m.def("hasAccelerator", &xacc::hasAccelerator, "Does XACC have the given Accelerator installed?");
     m.def("hasCompiler", &xacc::hasCompiler, "Does XACC have the given Accelerator installed?");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
+    m.def("setIsPyApi", &xacc::setIsPyApi, "Indicate that this is using XACC via the Python API.");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
 	m.def("compileKernel", [](std::shared_ptr<Accelerator> acc, const std::string& src, const std::string& compilerName = "") -> std::shared_ptr<Function>{
