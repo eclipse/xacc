@@ -27,6 +27,7 @@ namespace xacc {
 
 // Boolean indicating that framework has been initialized
 extern bool xaccFrameworkInitialized;
+extern bool isPyApi;
 
 // Reference to the command line parser
 extern std::shared_ptr<CLIParser> xaccCLParser;
@@ -75,6 +76,8 @@ void Initialize();
  * @return initialized Bool indicating true if initialized
  */
 bool isInitialized();
+
+void setIsPyApi();
 
 /**
  * Add a valid command line option
