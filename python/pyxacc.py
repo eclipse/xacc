@@ -52,6 +52,7 @@ def initialize():
    
    file.write(contents)
    file.close()
+   setIsPyApi()
 
 def setCredentials(opts):
    defaultUrls = {'ibm':'https://quantumexperience.ng.bluemix.net','rigetti':'https://api.rigetti.com/qvm', 'dwave':'https://cloud.dwavesys.com'}
