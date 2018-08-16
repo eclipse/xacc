@@ -102,8 +102,7 @@ public:
 
 TEST(PyXACCCompilerTester, checkSimple) {
 
-	auto compiler = std::make_shared<PyXACCCompiler>();
-
+    auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
 	const std::string src = R"src(def f(theta):
        X(0)
        Rx(theta,0)
@@ -128,6 +127,6 @@ int main(int argc, char** argv) {
    xacc::Initialize(argc, argv);
    ::testing::InitGoogleTest(&argc, argv);
    auto ret = RUN_ALL_TESTS();
-   xacc::Finalize();
+//    xacc::Finalize();
    return ret;
 }
