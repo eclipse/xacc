@@ -22,14 +22,17 @@ void GateFunction::removeInstruction(const int idx) {
     auto instruction = getInstruction(idx);
     if (instruction->isParameterized()){
         auto iparam = instruction->getParameter(0);
-        for (auto i : instructions){
-            if (i->isParameterized() && i->getParameter(0) == iparam){
-            } else {
-                parameters.erase(std::remove(parameters.begin(), parameters.end(), iparam), parameters.end());
+        bool dupParam = false;
+        for (auto i : instructions) {
+            if (i != instruction && i->isParameterized() && i->getParameter(0) == iparam) {
+                dupParam = true;
             }
         }
+        if (!dupParam){
+            parameters.erase(std::remove(parameters.begin(), parameters.end(), iparam), parameters.end());
+        }
     }
-		instructions.remove(getInstruction(idx));
+	instructions.remove(getInstruction(idx));
 }
 
 const std::string GateFunction::name() const {
@@ -48,21 +51,42 @@ void GateFunction::addInstruction(InstPtr instruction) {
         if (instruction->isParameterized() && instruction->nParameters() <= 1){
             xacc::InstructionParameter param = instruction->getParameter(0);
             if (param.which() == 3){
-                if (std::find(parameters.begin(), parameters.end(), param) != parameters.end()) { }
-                else { 
+                if (std::find(parameters.begin(), parameters.end(), param) == parameters.end()) {
                     parameters.push_back(param);
-                }
+                 }
             }
         }
 		instructions.push_back(instruction);
 }
     
 void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
+        auto currentInst = getInstruction(idx);
+        if (currentInst->isParameterized() && currentInst->getParameter(0).which() == 3){
+            if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3){
+                if (currentInst->getParameter(0) != replacingInst->getParameter(0)){
+                    std::replace(parameters.begin(), parameters.end(), currentInst->getParameter(0), replacingInst->getParameter(0));
+                }
+            } else {
+                parameters.erase(std::remove(parameters.begin(), parameters.end(), currentInst->getParameter(0)), parameters.end());             
+            }
+        } else {
+            if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3){
+                parameters.push_back(replacingInst->getParameter(0));
+            }
+        }
 		std::replace(instructions.begin(), instructions.end(),
 				getInstruction(idx), replacingInst);
 }
 
 void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
+        if (newInst->isParameterized() && newInst->nParameters() <= 1){
+            xacc::InstructionParameter param = newInst->getParameter(0);
+            if (param.which() == 3){
+                if (std::find(parameters.begin(), parameters.end(), param) == parameters.end()) {
+                    parameters.push_back(param);
+            }
+        }
+    }
 		auto iter = std::next(instructions.begin(), idx);
 		instructions.insert(iter, newInst);
 }

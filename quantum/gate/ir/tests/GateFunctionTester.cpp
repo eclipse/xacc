@@ -17,6 +17,7 @@
 #include "Rz.hpp"
 #include "Ry.hpp"
 #include "Rx.hpp"
+#include "X.hpp"
 #include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;
@@ -157,12 +158,73 @@ TEST(GateFunctionTester, checkParameterInsertion){
     
     EXPECT_TRUE(f.nParameters() == 2);
 
-    f.removeInstruction(1);
+    f.removeInstruction(0);
     
     EXPECT_TRUE(f.nInstructions() == 2);
-    EXPECT_TRUE(f.nParameters() == 1);
+    EXPECT_TRUE(f.nParameters() == 2);
     EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "phi");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+
+    f.removeInstruction(0);
+
+    EXPECT_TRUE(f.nInstructions() == 1);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rx");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "phi");
+
+    f.insertInstruction(0, rz);
     
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rz");
+    EXPECT_TRUE(f.getInstruction(1)->name() == "Rx");
+    EXPECT_TRUE(f.nParameters() == 2);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "phi");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+
+    xacc::InstructionParameter p3("theta");
+    
+    auto ry2 = std::make_shared<Ry>(std::vector<int>{3});
+    ry2->setParameter(0, p3);
+    
+    f.replaceInstruction(1, ry2);
+
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rz");
+    EXPECT_TRUE(f.getInstruction(1)->name() == "Ry");
+    EXPECT_TRUE(f.nParameters() == 2);
+    std::cout << "PARAMETER(0) = :" << boost::get<std::string>(f.getParameter(0)) << std::endl;
+    std::cout << "PARAMETER(1) = :" << boost::get<std::string>(f.getParameter(1)) << std::endl;
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+
+    auto h = std::make_shared<Hadamard>(1);
+    auto x = std::make_shared<X>(1);
+
+    f.replaceInstruction(1, h);
+    
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rz");
+    EXPECT_TRUE(f.getInstruction(1)->name() == "H");
+    EXPECT_TRUE(f.nParameters() == 1);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "psi");
+    
+    f.replaceInstruction(1, x);
+    
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rz");
+    EXPECT_TRUE(f.getInstruction(1)->name() == "X");
+
+    EXPECT_TRUE(f.nParameters() == 1);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "psi");
+    
+    f.replaceInstruction(1, ry2);
+
+    EXPECT_TRUE(f.nInstructions() == 2);
+    EXPECT_TRUE(f.getInstruction(0)->name() == "Rz");
+    EXPECT_TRUE(f.getInstruction(1)->name() == "Ry");
+    EXPECT_TRUE(f.nParameters() == 2);
+    
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "psi");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "theta");
     xacc::Finalize();
     
     
