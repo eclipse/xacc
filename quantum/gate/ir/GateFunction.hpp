@@ -118,6 +118,13 @@ public:
 	 */
 	virtual void replaceInstruction(const int idx, InstPtr replacingInst);
 
+    /**
+    * Insert the given quantum instruction 
+    * into the GateFunction instruction vector
+    *
+    * @param idx
+    * @param newInst
+    */
 	virtual void insertInstruction(const int idx, InstPtr newInst);
 
 	/**
