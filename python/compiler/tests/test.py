@@ -1,10 +1,13 @@
-import pyxacc as xacc
-from pyxacc import qpu
+import xacc
 import numpy as np
 
 xacc.Initialize()
 
-@qpu(accelerator='tnqvm') # or ibm, rigetti, etc...
+class test(xacc.Accelerator):
+    def execute(self, buffer, function):
+        print('executing hello world')
+      
+@xacc.qpu() # or ibm, rigetti, etc...
 def foo(theta):
    X(0)
    Ry(theta, 1)

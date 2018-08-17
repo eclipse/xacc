@@ -1,10 +1,9 @@
-import pyxacc as xacc
-from pyxacc import qpu
+import xacc
 import numpy as np
 
 xacc.Initialize()
 
-@qpu(accelerator='tnqvm') # or ibm, rigetti, etc...
+@xacc.qpu(accelerator='tnqvm') # or ibm, rigetti, etc...
 def foo(t0, t1):
    xacc(uccsd, n_qubits=4, n_electrons=2)
    Measure(0,0)

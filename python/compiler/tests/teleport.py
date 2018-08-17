@@ -1,10 +1,9 @@
-import pyxacc as xacc
-from pyxacc import qpu
+import xacc
 
 xacc.Initialize()
 
 # Create the source code
-@qpu(accelerator='ibm')
+@xacc.qpu(accelerator='tnqvm')
 def teleport(): 
    X(0)
    H(1)
