@@ -1,4 +1,4 @@
-[![Build Status](http://ci.eclipse.org/xacc/buildStatus/icon?job=xacc-ci)](http://ci.eclipse.org/xacc/job/xacc-ci/)
+[![Build Status](https://jenkins.eclipse.org/xacc/job/xacc-ci/badge/icon)](https://jenkins.eclipse.org/xacc/job/xacc-ci/)
 
 # Eclipse XACC 
 ## Language and Hardware Independent Quantum Programming Framework
