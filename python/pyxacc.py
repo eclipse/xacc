@@ -1,11 +1,6 @@
-import argparse
-import os
-import platform
-import sys
-import sysconfig
-
 from _pyxacc import *
-
+import os, platform, sys, sysconfig
+import argparse, inspect
 from xaccplugingen import xaccplugingen
 
 
@@ -69,6 +64,7 @@ def initialize():
 
     file.write(contents)
     file.close()
+    setIsPyApi()
 
 
 def setCredentials(opts):
@@ -98,6 +94,51 @@ def setCredentials(opts):
     print('\nCreated ' + acc + ' config file:\n$ cat ~/.' + fname + '_config:')
     print(open(os.environ['HOME'] + '/.' + fname + '_config', 'r').read())
 
+
+class qpu(object):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.__dict__.update(kwargs)
+        return
+
+    def __call__(self, f):
+        def wrapped_f(*args, **kwargs):
+            if 'accelerator' in self.kwargs:
+               if isinstance(self.kwargs['accelerator'], Accelerator):
+                  qpu = self.kwargs['accelerator']
+               else:
+                  qpu = getAccelerator(self.kwargs['accelerator'])
+            elif hasAccelerator('tnqvm'):
+                qpu = getAccelerator('tnqvm')
+            else:
+                print('\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
+                exit(0)
+
+            # Remove the @qpu line from the source            
+            src = '\n'.join(inspect.getsource(f).split('\n')[1:])
+
+            # Get the compiler and compile the code
+            compiler = getCompiler('xacc-py')
+            ir = compiler.compile(src, qpu)
+            program = Program(qpu, ir)
+            compiledKernel = program.getKernels()[0]
+            
+            # Get the number of qubits
+            nBits = 0
+            it = InstructionIterator(compiledKernel.getIRFunction())
+            while(it.hasNext()):
+                i = it.next()
+                if i.isEnabled() and not i.isComposite():
+                    for b in i.bits(): 
+                        if b > nBits: 
+                            nBits = b
+            nBits = nBits+1
+            
+            buf = qpu.createBuffer('q',nBits)
+            compiledKernel.execute(buf, list(args))
+            return buf
+        return wrapped_f
 
 def main(argv=None):
     opts = parse_args(sys.argv[1:])

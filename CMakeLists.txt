@@ -97,16 +97,16 @@ include_directories(${CPR_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-add_subdirectory(xacc)
-add_subdirectory(quantum)
-if(PYTHON_INCLUDE_DIR) 
-   add_subdirectory(python)
-endif()
-
 set(XACC_HAS_ANTLR FALSE)
 if(TARGET antlr4_shared)
    message (STATUS "XACC Building with Antlr4 support")
    set(XACC_HAS_ANTLR TRUE)
+endif()
+
+add_subdirectory(xacc)
+add_subdirectory(quantum)
+if(PYTHON_INCLUDE_DIR) 
+   add_subdirectory(python)
 endif()
 
 # Install the config file for external projects to use

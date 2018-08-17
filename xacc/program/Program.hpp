@@ -33,6 +33,8 @@
 
 namespace xacc {
 
+using AcceleratorType = Accelerator::AcceleratorType;
+
 /**
  * Placeholder, soon we will have Acc Independent transformations...
  * @param accType
@@ -140,7 +142,8 @@ public:
 	 * on the attached Accelerator.
 	 */
 	virtual void build();
-
+    virtual void build(const std::string& compiler);
+    
 	/**
 	 * Return the number of Kernels in this Program's XACC IR.
 	 *

@@ -103,19 +103,21 @@ public:
 		bool listTypes = false;
 		if (clArgs.count("list-compilers")) {
 			auto ids = serviceRegistry.getRegisteredIds<Compiler>();
-			XACCLogger::instance()->info("Available XACC Compilers:");
+			XACCLogger::instance()->enqueueLog("\nAvailable XACC Compilers:");
 			for (auto i : ids) {
-				XACCLogger::instance()->info("\t" + i);
+				XACCLogger::instance()->enqueueLog("\t" + i);
 			}
+            XACCLogger::instance()->enqueueLog("\n");
 			listTypes = true;
 		}
 
 		if (clArgs.count("list-accelerators")) {
 			auto ids = serviceRegistry.getRegisteredIds<Accelerator>();
-			XACCLogger::instance()->info("Available XACC Accelerators:");
+			XACCLogger::instance()->enqueueLog("\nAvailable XACC Accelerators:");
 			for (auto i : ids) {
-				XACCLogger::instance()->info("\t" + i);
+				XACCLogger::instance()->enqueueLog("\t" + i);
 			}
+            XACCLogger::instance()->enqueueLog("\n");
 			listTypes = true;
 		}
 

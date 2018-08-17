@@ -49,13 +49,13 @@ void Program::addIRPreprocessor(const std::string& name) {
 	}
 }
 
-void Program::build() {
-
+void Program::build(const std::string& compilerName) {
 	// Get reference to the runtime options
 	auto runtimeOptions = RuntimeOptions::instance();
 
 	// Get the compiler that has been requested.
-	auto compilerToRun = (*runtimeOptions)["compiler"];
+	auto compilerToRun = compilerName.empty() ? 
+                            (*runtimeOptions)["compiler"] : compilerName;
 
 	// Create the appropriate compiler
 	compiler = xacc::getService<Compiler>(compilerToRun);
@@ -104,6 +104,10 @@ void Program::build() {
 		xaccIR->persist(ostr);
 	}
 
+}
+
+void Program::build() {
+    build("");
 	return;
 }
 

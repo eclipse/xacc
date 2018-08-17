@@ -92,7 +92,13 @@ public:
 
 			int count = 0;
 			Eigen::VectorXd paramVec(parameters.size());
-			for (auto i : parameters) {paramVec(count) = boost::get<double>(i); count++;}
+			for (auto i : parameters) {
+                if (i.which()==0) {paramVec(count) = (double) boost::get<int>(i);}
+                else if (i.which() == 1) {paramVec(count) = boost::get<double>(i);} 
+                else if (i.which() == 2) {paramVec(count) = (double) boost::get<float>(i);}
+                else {XACCLogger::instance()->error("Kernel.operator() mapping runtime params to Eigen::Vector, invalid runtime param type.");}
+                count++;
+            }
 
 			// Evaluate all Variable Parameters
 			auto evaled = function->operator()(paramVec);
@@ -114,9 +120,18 @@ public:
 		int count = 0;
 		Eigen::VectorXd paramVec(parameters.size());
 		for (auto i : parameters) {
-			paramVec(count) = boost::get<double>(i);
-			count++;
-		}
+            if (i.which()==0) {
+                paramVec(count) = (double) boost::get<int>(i);
+            } else if (i.which() == 1) {
+                paramVec(count) = boost::get<double>(i);
+            } else if (i.which() == 2) {
+                paramVec(count) = (double) boost::get<float>(i);
+            } else {
+                XACCLogger::instance()->error("Kernel.operator() mapping runtime params to Eigen::Vector, invalid runtime param type.");
+            }
+            count++;
+        }
+
 		// Evaluate all Variable Parameters
 		auto evaled = function->operator()(paramVec);
 		accelerator->execute(buffer, evaled);
@@ -205,9 +220,12 @@ public:
 			int count = 0;
 			Eigen::VectorXd paramVec(parameters.size());
 			for (auto i : parameters) {
-				paramVec(count) = boost::get<double>(i);
-				count++;
-			}
+                if (i.which()==0) {paramVec(count) = (double) boost::get<int>(i);}
+                else if (i.which() == 1) {paramVec(count) = boost::get<double>(i); }
+                else if (i.which() == 2) {paramVec(count) = (double) boost::get<float>(i);}
+                else {XACCLogger::instance()->error("Kernel.operator() mapping runtime params to Eigen::Vector, invalid runtime param type.");}
+                count++;
+            }
 
 			for (auto k : *this) {
 				auto eval = k.getIRFunction()->operator()(paramVec);
@@ -236,9 +254,13 @@ public:
 		int count = 0;
 		Eigen::VectorXd paramVec(parameters.size());
 		for (auto i : parameters) {
-			paramVec(count) = boost::get<double>(i);
-			count++;
-		}
+            if (i.which()==0) {paramVec(count) = (double) boost::get<int>(i);}
+            else if (i.which() == 1) {paramVec(count) = boost::get<double>(i); }
+            else if (i.which() == 2) {paramVec(count) = (double) boost::get<float>(i);}
+            else {XACCLogger::instance()->error("Kernel.operator() mapping runtime params to Eigen::Vector, invalid runtime param type.");}
+            count++;
+        }
+
 
 		std::vector<std::shared_ptr<Function>> functions;
 		for (auto k : *this) {

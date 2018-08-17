@@ -27,6 +27,7 @@ namespace xacc {
 
 // Boolean indicating that framework has been initialized
 extern bool xaccFrameworkInitialized;
+extern bool isPyApi;
 
 // Reference to the command line parser
 extern std::shared_ptr<CLIParser> xaccCLParser;
@@ -75,6 +76,8 @@ void Initialize();
  * @return initialized Bool indicating true if initialized
  */
 bool isInitialized();
+
+void setIsPyApi();
 
 /**
  * Add a valid command line option
@@ -233,6 +236,11 @@ bool hasCompiler(const std::string& name);
 
 template<typename Service>
 std::shared_ptr<Service> getService(const std::string& serviceName) {
+	if (!xacc::xaccFrameworkInitialized) {
+		error(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
 	auto service = serviceRegistry->getService<Service>(
 			serviceName);
 	if (!service) {
@@ -245,6 +253,11 @@ std::shared_ptr<Service> getService(const std::string& serviceName) {
 
 template<typename Service>
 bool hasService(const std::string& serviceName) {
+	if (!xacc::xaccFrameworkInitialized) {
+		error(
+				"XACC not initialized before use. Please execute "
+				"xacc::Initialize() before using API.");
+	}
 	return serviceRegistry->hasService<Service>(
 			serviceName);
 }

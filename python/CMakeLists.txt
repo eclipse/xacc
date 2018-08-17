@@ -1,7 +1,3 @@
-
-#set(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
-#find_package(Boost COMPONENTS system program_options filesystem chrono regex graph REQUIRED)
-
 include_directories(${CMAKE_SOURCE_DIR}/xacc)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc)
@@ -21,13 +17,8 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
 
-#link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
-
-#link_directories(${XACC_BINARY_DIR}/xacc)
-#link_directories(${XACC_BINARY_DIR}/lib)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv")
 if(APPLE)
@@ -38,7 +29,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc xacc-quantum-gate)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
@@ -50,3 +41,7 @@ endif()
 
 install(TARGETS _pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES pyxacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+if (${XACC_HAS_ANTLR})
+   add_subdirectory(compiler)
+endif()

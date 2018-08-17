@@ -1,18 +1,30 @@
+/*******************************************************************************
+ * Copyright (c) 2018 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
+ * is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
 #include "XACC.hpp"
-#include <pybind11/pybind11.h>
+#include "IRGenerator.hpp"
+#include "IRProvider.hpp"
+#include "InstructionIterator.hpp"
+
+#include <pybind11/complex.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
 #include <pybind11/iostream.h>
 #include <pybind11/operators.h>
 
-#include "GateInstruction.hpp"
-#include "GateFunction.hpp"
-#include "GateIR.hpp"
-
 namespace py = pybind11;
 using namespace xacc;
-using namespace xacc::quantum;
 
 // `boost::variant` as an example -- can be any `std::variant`-like container
 namespace pybind11 { namespace detail {
@@ -28,6 +40,55 @@ namespace pybind11 { namespace detail {
         }
     };
 }} // namespace pybind11::detail
+
+class PyAccelerator : public xacc::Accelerator {
+public:
+    /* Inherit the constructors */
+    using Accelerator::Accelerator;
+
+    const std::string name() const override {
+        PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, name);
+    }
+    
+    const std::string description() const override {
+        return "";
+    }
+
+    void initialize() override {
+        return;
+    }
+    
+    AcceleratorType getType() override {
+        return Accelerator::AcceleratorType::qpu_gate;
+    }
+    
+    std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override {
+        return {};
+    }
+
+    bool isValidBufferSize(const int n) override {return true;}
+    
+    /* Trampoline (need one for each virtual function) */
+    void execute(std::shared_ptr<xacc::AcceleratorBuffer> buf, std::shared_ptr<xacc::Function> f) override {
+        PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, execute, buf, f);
+    }
+
+    std::vector<std::shared_ptr<AcceleratorBuffer>> execute(
+			std::shared_ptr<AcceleratorBuffer> buffer,
+			const std::vector<std::shared_ptr<Function>> functions) override {
+        return {};
+    }
+    	
+    std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId) override {
+        return std::make_shared<AcceleratorBuffer>(varId, 100);
+    }
+
+    std::shared_ptr<AcceleratorBuffer> createBuffer(
+				const std::string& varId, const int size) override {
+        return std::make_shared<AcceleratorBuffer>(varId, size);
+    }
+};
 
 PYBIND11_MODULE(_pyxacc, m) {
     m.doc() = "Python bindings for XACC. XACC provides a plugin infrastructure for "
@@ -45,19 +106,21 @@ PYBIND11_MODULE(_pyxacc, m) {
 		.def(py::init<float>(), "Construct as a float.");
 
     py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(m, "Instruction", "")
-    		.def("nParameters", &xacc::Instruction::nParameters, "")
-    		.def("toString", &xacc::Instruction::toString, "")
-    		.def("bits", &xacc::Instruction::bits, "")
-    		.def("getParameter", &xacc::Instruction::getParameter, "")
-    		.def("getParameters", &xacc::Instruction::getParameters, "")
-    		.def("setParameter", &xacc::Instruction::setParameter, "")
-    		.def("mapBits", &xacc::Instruction::mapBits, "")
-    		.def("getTag", &xacc::Instruction::getTag, "")
-    		.def("name", &xacc::Instruction::name, "")
+    	.def("nParameters", &xacc::Instruction::nParameters, "")
+    	.def("toString", &xacc::Instruction::toString, "")
+        .def("isEnabled", &xacc::Instruction::isEnabled, "")
+        .def("isComposite", &xacc::Instruction::isComposite, "")
+    	.def("bits", &xacc::Instruction::bits, "")
+		.def("getParameter", &xacc::Instruction::getParameter, "")
+    	.def("getParameters", &xacc::Instruction::getParameters, "")
+    	.def("setParameter", &xacc::Instruction::setParameter, "")
+		.def("mapBits", &xacc::Instruction::mapBits, "")
+        .def("getTag", &xacc::Instruction::getTag, "")
+    	.def("name", &xacc::Instruction::name, "")
 		.def("description", &xacc::Instruction::description, "");
 
     py::class_<xacc::Function, std::shared_ptr<xacc::Function>>(m, "Function", "")
-    		.def("nInstructions", &xacc::Function::nInstructions, "")
+    	.def("nInstructions", &xacc::Function::nInstructions, "")
 		.def("getInstruction", &xacc::Function::getInstruction, "")
 		.def("getInstructions", &xacc::Function::getInstructions, "")
 		.def("removeInstruction", &xacc::Function::removeInstruction, "")
@@ -79,12 +142,27 @@ PYBIND11_MODULE(_pyxacc, m) {
     // Expose the IR interface
     py::class_<xacc::IR, std::shared_ptr<xacc::IR>> (m, "IR", "The XACC Intermediate Representation, "
     		"serves as a container for XACC Functions.")
-    		.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
-			.def("addKernel", &xacc::IR::addKernel, "");
+    	.def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
+		.def("addKernel", &xacc::IR::addKernel, "");
 
-    py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "").def("process", &xacc::IRPreprocessor::process, "");
-    py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "").def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
+    py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")
+        .def(py::init<std::shared_ptr<xacc::Function>>())
+        .def("hasNext", &xacc::InstructionIterator::hasNext, "")
+        .def("next", &xacc::InstructionIterator::next, "");
+        
+    py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "")
+        .def("process", &xacc::IRPreprocessor::process, "");
+    py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "")
+        .def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
+    py::class_<xacc::IRGenerator, std::shared_ptr<xacc::IRGenerator>>(m, "IRGenerator", "")
+        .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
+				std::vector<xacc::InstructionParameter>)) &xacc::IRGenerator::generate, 
+                py::return_value_policy::reference, "")
+        .def("generate", (std::shared_ptr<xacc::Function> (xacc::IRGenerator::*)(
+				std::map<std::string, xacc::InstructionParameter>)) &xacc::IRGenerator::generate, 
+                py::return_value_policy::reference, "");
+                    
     // Expose the Kernel
     py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(m, "Kernel", "The XACC Kernel is the "
     		"executable functor that executes XACC IR on the desired Accelerator.")
@@ -130,11 +208,11 @@ PYBIND11_MODULE(_pyxacc, m) {
 			});
 
 	// Expose the Accelerator
-	py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>>(m,
+	py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>, PyAccelerator> acc(m,
 			"Accelerator", "Accelerator wraps the XACC C++ Accelerator class "
 					"and provides a mechanism for creating buffers of qubits. Execution "
-					"is handled by the XACC Kernels.")
-		.def("name", &xacc::Accelerator::name, "Return the name of this Accelerator.")
+					"is handled by the XACC Kernels.");
+    acc.def(py::init<>()).def("name", &xacc::Accelerator::name, "Return the name of this Accelerator.")
 		.def("createBuffer", (std::shared_ptr<xacc::AcceleratorBuffer> (xacc::Accelerator::*)(const std::string&, const int))
 					&xacc::Accelerator::createBuffer, py::return_value_policy::reference,
 			"Return a newly created register of qubits of the given size.")
@@ -143,6 +221,11 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"Return a newly allocated register of all qubits on the Accelerator.")
 		.def("execute", (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>, std::shared_ptr<Function>)) &xacc::Accelerator::execute, "Execute the Function with the given AcceleratorBuffer.");
 
+    py::enum_<Accelerator::AcceleratorType>(acc, "AcceleratorType")
+        .value("qpu_aqc", Accelerator::AcceleratorType::qpu_aqc)
+        .value("qpu_gate", Accelerator::AcceleratorType::qpu_gate)
+        .export_values();
+        
 	// Expose the AcceleratorBuffer
 	py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(m,
 			"AcceleratorBuffer", "The AcceleratorBuffer models a register of qubits.")
@@ -169,7 +252,8 @@ PYBIND11_MODULE(_pyxacc, m) {
 					"code and the Accelerator instance, and the Program handles compiling the code and provides Kernel instances to execute.")
 		.def(py::init<std::shared_ptr<xacc::Accelerator>, const std::string &>(), "The constructor")
 		.def(py::init<std::shared_ptr<xacc::Accelerator>, std::shared_ptr<xacc::IR>>(), "The constructor")
-		.def("build", &xacc::Program::build, "Compile this program.")
+		.def("build", (void (xacc::Program::*)(const std::string&)) &xacc::Program::build, "Compile this program with the given Compiler name.")
+  		.def("build", (void (xacc::Program::*)()) &xacc::Program::build, "Compile this program.")
 		.def("getKernel", (xacc::Kernel<> (xacc::Program::*)(const std::string&)) &xacc::Program::getKernel<>,
 				py::return_value_policy::reference, "Return a Kernel representing the source code.")
     		.def("getKernels", &xacc::Program::getRuntimeKernels, "Return all Kernels.")
@@ -190,10 +274,16 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"Return the Compiler of given name.");
 	m.def("getIRPreprocessor", (std::shared_ptr<xacc::IRPreprocessor> (*)(const std::string&))
 			&xacc::getService<IRPreprocessor>, py::return_value_policy::reference,
-			"Return the Compiler of given name.");
+			"Return the IRPreprocessor of given name.");
+    m.def("getIRGenerator", (std::shared_ptr<xacc::IRGenerator> (*)(const std::string&))
+			&xacc::getService<IRGenerator>, py::return_value_policy::reference,
+			"Return the IRGenerator of given name.");
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
 	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
+    m.def("hasAccelerator", &xacc::hasAccelerator, "Does XACC have the given Accelerator installed?");
+    m.def("hasCompiler", &xacc::hasCompiler, "Does XACC have the given Accelerator installed?");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
+    m.def("setIsPyApi", &xacc::setIsPyApi, "Indicate that this is using XACC via the Python API.");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
 	m.def("compileKernel", [](std::shared_ptr<Accelerator> acc, const std::string& src, const std::string& compilerName = "") -> std::shared_ptr<Function>{
@@ -222,6 +312,13 @@ PYBIND11_MODULE(_pyxacc, m) {
 			[]() -> std::shared_ptr<IR> {
 				return xacc::getService<IRProvider>("gate")->createIR();
 			}, "Convenience function for creating a new GateIR.");
+
+    gatesub.def("getState", 
+            [](std::shared_ptr<Accelerator> acc, std::shared_ptr<Function> f) {
+                auto results = acc->getAcceleratorState(f);
+                Eigen::VectorXcd ret = Eigen::Map<Eigen::VectorXcd>(results.data(), results.size());
+                return ret;
+            }, "Compute and return the state after execution of the given program on the given accelerator.");
 
 }
 
