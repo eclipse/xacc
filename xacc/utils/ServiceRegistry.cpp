@@ -25,7 +25,7 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 		std::string xaccPluginPath = std::getenv("HOME")
 				+ std::string("/.xacc/plugins");
 		std::stringstream s;
-		s << std::string(XACC_INSTALL_DIR) << "/.internal_plugins";
+		s << std::getenv("HOME") << "/.xacc/.internal_plugins";
 		const std::string internalFileStr = s.str();
 
 		std::string parentPath = "";
