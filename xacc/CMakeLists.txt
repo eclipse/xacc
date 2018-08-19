@@ -56,12 +56,7 @@ endif()
 # Get the test files
 file(GLOB test_files utils/tests/*Tester.cpp accelerator/tests/*Tester.cpp)
 
-if (FROM_SETUP_PY)
-   message(STATUS "XACC Linking to static libstdc++")
-   target_link_libraries(xacc PUBLIC -static-libstdc++ CppMicroServices Boost::boost Boost::system Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
-else()
-   target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::system Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
-endif()
+target_link_libraries(xacc PUBLIC CppMicroServices Boost::boost Boost::system Boost::filesystem Boost::graph Boost::program_options Boost::regex PRIVATE cpr)
 
 # Add the tests
 if(XACC_BUILD_TESTS)
