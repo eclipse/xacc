@@ -10,6 +10,9 @@ def parse_args(args):
    parser.add_argument("-k", "--api-key", type=str, help="The API key for the remote Accelerators.", required=False)
    parser.add_argument("-u", "--user-id", type=str, help="The User Id for the remote Accelerators.", required=False)
    parser.add_argument("--url", type=str, help="The URL for the remote Accelerators.", required=False)
+   parser.add_argument("-g", "--group", type=str, help="The IBM Q Group.", required=False)
+   parser.add_argument("--hub", type=str, help="The IBM Q Hub.", default='ibm-q-ornl', required=False)
+   parser.add_argument("-p", "--project", type=str, help="The IBM Q Project.", required=False)
    parser.add_argument("-L", "--location", action='store_true', help="Print the path to the XACC install location.", required=False)
    parser.add_argument("--python-include-dir", action='store_true', help="Print the path to the Python.h.", required=False)
    parser.add_argument("-b", "--branch", default='master',type=str, help="Print the path to the XACC install location.", required=False)
@@ -70,6 +73,18 @@ def setCredentials(opts):
       f.write('user_id: ' + user + '\n')
       f.write('url: ' + url + '\n')
       f.close()
+   elif acc == 'ibm' and not opts.hub == None:
+       # We have hub,group,project info coming in.
+       if opts.group == None or opts.project == None:
+           print('Error, if you provide a hub, you must provide group and project')
+           sys.exit(1)
+       f = open(os.environ['HOME']+'/.'+acc+'_config','w')
+       f.write('key: '+ opts.api_key + '\n')
+       f.write('url: '+ url + '\n')
+       f.write('hub: '+ opts.hub + '\n')
+       f.write('group: ' + opts.group + '\n')
+       f.write('project: ' + opts.project + '\n')
+       f.close()
    else:
       if not os.path.exists(os.environ['HOME']+'/.'+acc+'_config'):
          f = open(os.environ['HOME']+'/.'+acc+'_config','w')
