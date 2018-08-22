@@ -73,10 +73,10 @@ def setCredentials(opts):
       f.write('user_id: ' + user + '\n')
       f.write('url: ' + url + '\n')
       f.close()
-   elif acc == 'ibm' and not opts.hub == None:
+   elif acc == 'ibm' and (opts.group != None or opts.project != None):
        # We have hub,group,project info coming in.
-       if opts.group == None or opts.project == None:
-           print('Error, if you provide a hub, you must provide group and project')
+       if (opts.group != None and opts.project == None) or (opts.group == None and opts.project != None):
+           print('Error, you must provide both group and project')
            sys.exit(1)
        f = open(os.environ['HOME']+'/.'+acc+'_config','w')
        f.write('key: '+ opts.api_key + '\n')

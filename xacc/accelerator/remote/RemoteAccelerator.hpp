@@ -142,6 +142,9 @@ protected:
 				ex = e;
 				xacc::info("Remote Accelerator " + name() + " caught exception while calling restClient->get() "
 						"- " + std::string(e.what()));
+                if (boost::contains(std::string(e.what()), "Caught CTRL-C")) {
+                    xacc::error(std::string(e.what()));
+                }
 				retries--;
 				if (retries > 0) {
 					xacc::info("Retrying HTTP Get.");
