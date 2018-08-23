@@ -25,6 +25,7 @@ void GateFunction::removeInstruction(const int idx) {
         // Get InstructionParameter of instruction being removed
         auto iparam = instruction->getParameter(0);
         bool dupParam = false;
+	std::cout << "change has been made" << std::endl;
         // Check to see if any other GateInstructions in the GateFunction use the same parameter
         for (auto i : instructions) {
             if (i != instruction && i->isParameterized() && i->getParameter(0) == iparam) {
@@ -59,8 +60,16 @@ void GateFunction::addInstruction(InstPtr instruction) {
             xacc::InstructionParameter param = instruction->getParameter(0);
             // Check to see if parameter is a string
             if (param.which() == 3){
+		// If parameter is not all ready present -> add parameter to parameter vector
+		bool dupParam = false;
+		// Check to see if the new parameter contains any of the old parameters
+		for (auto p : parameters){
+			if (boost::algorithm::contains(boost::get<std::string>(param), boost::get<std::string>(p))){
+			dupParam = true;
+	}	
+}
                 // If parameter is not already present -> add parameter to parameter vector
-                if (std::find(parameters.begin(), parameters.end(), param) == parameters.end()) {
+                if (!dupParam) {
                     parameters.push_back(param);
                  }
             }
@@ -101,8 +110,16 @@ void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
             xacc::InstructionParameter param = newInst->getParameter(0);
             // Check if new parameter is a string
             if (param.which() == 3){
+		// If new parameter is not already in parameter vector -> add parameter to GateFunction
+		bool dupParam = false;
+		// Check to see if the new parameter contains any of the old parameters
+		for (auto p : parameters){
+			if (boost::algorithm::contains(boost::get<std::string>(param), boost::get<std::string>(p))){
+			dupParam = true;
+	}
+}
                 // If new parameter is not already in parameter vector -> add parameter to GateFunction
-                if (std::find(parameters.begin(), parameters.end(), param) == parameters.end()) {
+		if (!dupParam){
                     parameters.push_back(param);
             }
         }
