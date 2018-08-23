@@ -279,10 +279,12 @@ PYBIND11_MODULE(_pyxacc, m) {
 			&xacc::getService<IRGenerator>, py::return_value_policy::reference,
 			"Return the IRGenerator of given name.");
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
-	m.def("getOption", &xacc::getOption, "Get an XACC framework option.");
+    m.def("setOptions", [](std::map<std::string,std::string> options) {for (auto& kv : options) xacc::setOption(kv.first,kv.second);}, "Set a number of options at once.");
+	m.def("getOption", (const std::string (*)(const std::string&)) &xacc::getOption, "Get an XACC framework option.");
     m.def("hasAccelerator", &xacc::hasAccelerator, "Does XACC have the given Accelerator installed?");
     m.def("hasCompiler", &xacc::hasCompiler, "Does XACC have the given Accelerator installed?");
 	m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
+    m.def("setIsPyApi", &xacc::setIsPyApi, "Indicate that this is using XACC via the Python API.");
 	m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
 	m.def("compileKernel", [](std::shared_ptr<Accelerator> acc, const std::string& src, const std::string& compilerName = "") -> std::shared_ptr<Function>{

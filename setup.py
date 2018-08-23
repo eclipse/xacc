@@ -19,6 +19,7 @@ import shutil
 import sysconfig
 
 env = os.environ.copy()
+_version = open(os.path.join(os.getcwd(), 'VERSION')).read().strip()
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -79,17 +80,17 @@ class CMakeBuild(build_ext):
 
 s = setup(
     name='xacc',
-    version='0.1.5',
+    version=_version,
     author='Alex McCaskey',
     author_email='xacc-dev@eclipse.org',
     packages=find_packages('python'),
     package_dir={'xacc':'python'},
-    package_data={'':[env['HOME']+'/.xacc/lib/python/pyxacc.so']},
+    package_data={'':[env['HOME']+'/.xacc/_pyxacc.so']},
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
-    ext_modules=[CMakeExtension('pyxacc')],
+    ext_modules=[CMakeExtension('xacc')],
     cmdclass={'build_ext':CMakeBuild},
-    scripts=['tools/framework/xacc-framework'],
+    #scripts=['tools/framework/xacc-framework'],
     zip_safe=False
 )
 

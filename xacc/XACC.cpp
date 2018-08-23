@@ -17,6 +17,7 @@
 
 namespace xacc {
 
+bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
 std::shared_ptr<ServiceRegistry> serviceRegistry = std::make_shared<ServiceRegistry>();
@@ -117,6 +118,8 @@ void Initialize(int arc, char** arv) {
 	}
 }
 
+void setIsPyApi() { isPyApi = true; }
+
 void setGlobalLoggerPredicate(MessagePredicate predicate) {
 	XACCLogger::instance()->setGlobalLoggerPredicate(predicate);
 	XACCLogger::instance()->dumpQueue();
@@ -135,10 +138,14 @@ void debug(const std::string& msg, MessagePredicate predicate) {
 }
 
 void error(const std::string& msg, MessagePredicate predicate) {
-	XACCLogger::instance()->error(msg, predicate);
-	XACCLogger::instance()->error("Framework Exiting", predicate);
-	xacc::Finalize();
-	exit(-1);
+    if (isPyApi) {
+        throw std::runtime_error(msg);
+    } else {
+       	XACCLogger::instance()->error(msg, predicate);
+        XACCLogger::instance()->error("Framework Exiting", predicate);
+	    xacc::Finalize();
+	    exit(-1);
+    }
 }
 
 void addCommandLineOption(const std::string& optionName,

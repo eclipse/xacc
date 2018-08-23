@@ -18,6 +18,11 @@ message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 option(XACC_BUILD_TESTS "Build test programs" OFF)
 
+if (FROM_SETUP_PY AND NOT APPLE)
+   message(STATUS "Running build from setup.py, linking to static libstdc++")
+   set (CMAKE_SHARED_LINKER_FLAGS "-static-libstdc++" CACHE INTERNAL "" FORCE)
+endif()
+
 set(CMAKE_SKIP_INSTALL_RPATH OFF)
 set(CMAKE_SKIP_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)

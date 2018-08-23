@@ -110,6 +110,7 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 										{ name, entry.path().string() });
 							}
 						}
+						xaccPluginPath = entry.path().parent_path().parent_path().string() +"/plugins";
 					}
 				}
 			}
