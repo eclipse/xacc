@@ -226,6 +226,20 @@ TEST(GateFunctionTester, checkParameterInsertion){
 
     EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "psi");
     EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "theta");
+
+    xacc::InstructionParameter p4("1 * theta");
+    
+    auto rx2 = std::make_shared<Rx>(std::vector<int>{3});
+
+    rx2->setParameter(0, p4);
+
+    f.addInstruction(rx2);
+
+    EXPECT_TRUE(f.nInstructions() == 3);
+    EXPECT_TRUE(f.nParameters() == 2);
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "psi");
+    EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "theta");
+
     xacc::Finalize();
 
 
