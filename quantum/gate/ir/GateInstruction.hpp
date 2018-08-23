@@ -44,9 +44,7 @@ protected:
 
 	std::vector<InstructionParameter> parameters;
 
-	virtual void setBits(std::vector<int> bits) {
-		qbits = bits;
-	}
+	virtual void setBits(std::vector<int> bits);
 
 public:
 
@@ -86,30 +84,18 @@ public:
 	 * Return the instruction name.
 	 * @return
 	 */
-	virtual const std::string name() const {
-		return gateName;
-	}
+	virtual const std::string name() const;
 
-	virtual const std::string description() const {
-		return "";
-	}
+	virtual const std::string description() const;
 	/**
 	 * Return the list of qubits this instruction acts on.
 	 * @return
 	 */
-	virtual const std::vector<int> bits() {
-		return qbits;
-	}
+	virtual const std::vector<int> bits();
 
-	virtual const std::string getTag() {
-		return "";
-	}
+	virtual const std::string getTag();
 
-	virtual void mapBits(std::vector<int> bitMap) {
-		for (int i = 0; i < qbits.size(); i++) {
-			qbits[i] = bitMap[qbits[i]];
-		}
-	}
+	virtual void mapBits(std::vector<int> bitMap);
 
 	/**
 	 * Return this instruction's assembly-like string
@@ -117,68 +103,23 @@ public:
 	 * @param bufferVarName
 	 * @return
 	 */
-	virtual const std::string toString(const std::string& bufferVarName) {
-		auto str = gateName;
-		if (!parameters.empty()) {
-			str += "(";
-			for (auto p : parameters) {
-				str += boost::lexical_cast<std::string>(p) + ",";
-			}
-			str = str.substr(0, str.length() - 1) + ") ";
-		} else {
-			str += " ";
-		}
+	virtual const std::string toString(const std::string& bufferVarName);
 
-		for (auto q : bits()) {
-			str += bufferVarName + std::to_string(q) + ",";
-		}
+	virtual bool isEnabled();
 
-		// Remove trailing comma
-		str = str.substr(0, str.length() - 1);
+	virtual void disable();
 
-		return str;
+	virtual void enable();
 
-	}
+	virtual InstructionParameter getParameter(const int idx) const;
 
-	virtual bool isEnabled() {
-		return enabled;
-	}
+	virtual void setParameter(const int idx, InstructionParameter& p);
 
-	virtual void disable() {
-		enabled = false;
-	}
+	virtual std::vector<InstructionParameter> getParameters();
 
-	virtual void enable() {
-		enabled = true;
-	}
+	virtual bool isParameterized();
 
-	virtual InstructionParameter getParameter(const int idx) const {
-		if (idx + 1 > parameters.size()) {
-			XACCLogger::instance()->error("Invalid Parameter requested from Parameterized Gate Instruction.");
-		}
-
-		return parameters[idx];
-	}
-
-	virtual void setParameter(const int idx, InstructionParameter& p) {
-		if (idx + 1 > parameters.size()) {
-			XACCLogger::instance()->error("Invalid Parameter requested from Parameterized Gate Instruction.");
-		}
-
-		parameters[idx] = p;
-	}
-
-	virtual std::vector<InstructionParameter> getParameters() {
-		return parameters;
-	}
-
-	virtual bool isParameterized() {
-		return nParameters() > 0;
-	}
-
-	virtual const int nParameters() {
-		return parameters.size();
-	}
+	virtual const int nParameters();
 
 	DEFINE_VISITABLE()
 
