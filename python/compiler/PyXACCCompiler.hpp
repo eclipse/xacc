@@ -87,9 +87,7 @@ public:
 	 * @return
 	 */
 	virtual const std::string translate(const std::string& bufferVariable,
-			std::shared_ptr<Function> function) {
-		xacc::error("PyXACCCompiler::translate - Method not implemented");
-	}
+			std::shared_ptr<Function> function);
 
 	virtual const std::string name() const {
 		return "xacc-py";

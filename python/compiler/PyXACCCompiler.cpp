@@ -14,6 +14,8 @@
 #include "PyXACCListener.hpp"
 #include "PyXACCIRLexer.h"
 #include "GateIR.hpp"
+#include "InstructionIterator.hpp"
+#include "PyXACCVisitor.hpp"
 
 using namespace antlr4;
 using namespace pyxacc;
@@ -52,6 +54,20 @@ std::shared_ptr<IR> PyXACCCompiler::compile(const std::string& src) {
     return compile(src, nullptr);
 }
 
+const std::string PyXACCCompiler::translate(const std::string &bufferVariable,
+                                                  std::shared_ptr<Function> function) {
+    auto visitor = std::make_shared<PyXACCVisitor>(function->getParameters());
+    xacc::InstructionIterator it(function);
+    while (it.hasNext()) {
+        // Get the next node in the tree
+        auto nextInst = it.next();
+        if (nextInst->isEnabled()) {
+            nextInst->accept(visitor);
+        }
+    }
+
+    return visitor->getPyXACCString();
+}
 }
 
 }
