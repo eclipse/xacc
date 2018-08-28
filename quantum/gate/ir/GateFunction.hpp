@@ -92,11 +92,11 @@ public:
 	virtual InstPtr getInstruction(const int idx);
 
 	virtual std::list<InstPtr> getInstructions();
-    
+
     /**
     * Remove an instruction from this
     * quantum intermediate representation
-    * 
+    *
     * @param instructionID
     */
 	virtual void removeInstruction(const int idx);
