@@ -140,6 +140,18 @@ class qpu(object):
             return buf
         return wrapped_f
 
+def functionToLatex(function):
+   try:
+      import pyquil
+   except ImportError:
+      print('Error - We delegate to Pyquil for Latex generation. Install Pyquil.')
+      return
+   if not hasCompiler('quil'):
+      print('Error - We use XACC QuilCompiler to generate Latex. Install XACC-Rigetti plugin.')
+      return
+   from pyquil.latex import to_latex
+   return to_latex(pyquil.quil.Program(getCompiler('quil').translate('',function)))
+   
 def main(argv=None):
    opts = parse_args(sys.argv[1:])
    xaccLocation = os.path.dirname(os.path.realpath(__file__))
