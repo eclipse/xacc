@@ -19,7 +19,7 @@ import multiprocessing
 import platform
 
 try:
-   import pyxacc as xacc
+   import xacc
 except ImportError:
    print('Error - cannot import XACC Python Bindings. Exiting')
    sys.exit()
@@ -34,7 +34,7 @@ def parse_args(args):
    parser.add_argument("-i", "--initialize", action='store_true', help="Initialize the framework.", required=False)
    parser.add_argument("-L", "--location", action='store_true', help="Print the path to the XACC install location.", required=False)
    parser.add_argument("-b", "--branch", default='master',type=str, help="Print the path to the XACC install location.", required=False)
-   
+
    opts = parser.parse_args(args)
    return opts
 
@@ -43,14 +43,14 @@ availablePluginUrls = { 'xacc-scaffold' : ornlqci+'/xacc-scaffold',
                     'xacc-rigetti' : ornlqci+'/xacc-rigetti',
                     'xacc-dwave' : ornlqci+'/xacc-dwave',
                     'xacc-ibm' : ornlqci+'/xacc-ibm',
-                    'xacc-python' : ornlqci+'/xacc-python', 
+                    'xacc-python' : ornlqci+'/xacc-python',
                     'tnqvm' : ornlqci+'/tnqvm',
                     'ibm' : ornlqci+'/xacc-ibm',
                     'rigetti' : ornlqci+'/xacc-rigetti',
                     'scaffold' : ornlqci+'/xacc-scaffold',
-                    'dwave' : ornlqci+'/xacc-dwave', 
-		    'vqe' : ornlqci+'/xacc-vqe', 
-		    'xacc-dwsapi-embedding' : ornlqci+'/xacc-dwsapi-embedding', 
+                    'dwave' : ornlqci+'/xacc-dwave',
+		    'vqe' : ornlqci+'/xacc-vqe',
+		    'xacc-dwsapi-embedding' : ornlqci+'/xacc-dwsapi-embedding',
                     'xacc-projectq' : ornlqci+'/xacc-projectq' }
 
 def mkdir_p(path):
@@ -83,8 +83,8 @@ def initialize():
    file.close()
 
    file = open(xaccHome+'/.internal_plugins', 'w')
-   
-   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))   
+
+   xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
    if platform.system() == "Darwin":
        libname1 = "libxacc-quantum-gate.dylib"
        libname2 = "libxacc-quantum-aqc.dylib"
@@ -96,10 +96,10 @@ def initialize():
       file.write(xaccLocation+'/lib/'+libname1+'\n')
    if xaccLocation+'/lib/'+libname2+'\n' not in contents:
       file.write(xaccLocation+'/lib/'+libname2+'\n')
-   
+
    file.write(contents)
    file.close()
-      
+
 def main(argv=None):
    opts = parse_args(sys.argv[1:])
 
@@ -109,8 +109,8 @@ def main(argv=None):
 
    if not os.path.exists(os.environ['HOME']+'/.xacc/.internal_plugins'):
       initialize()
-     
-   # pyxacc can be installed in site-packages/xacc-...-egg or 
+
+   # pyxacc can be installed in site-packages/xacc-...-egg or
    # in ${XACC_DIR}/lib/python, we need to figure out which one
    xaccLocation = os.path.dirname(os.path.realpath(xacc.__file__))
    if opts.location:
@@ -118,9 +118,9 @@ def main(argv=None):
        sys.exit(0)
    print('XACC Install Location = ', xaccLocation)
    xacc_cwd = os.getcwd()
-   
+
    cpus = str(multiprocessing.cpu_count())
-   if not opts.make_threads == None: 
+   if not opts.make_threads == None:
       cpus = str(opts.make_threads)
 
    branch = 'master'
@@ -145,7 +145,7 @@ def main(argv=None):
          print("--------------------------- ERROR -----------------------------")
          print("")
          exit()
-         
+
       # Create a CMakeLists.txt file
       cmakeContents = """
       project(""" + plugin + """-project LANGUAGES CXX)
@@ -168,17 +168,17 @@ def main(argv=None):
       mkdir_p(plugin+'-install/build')
       os.chdir(plugin+'-install')
 
-      # Write the CMakeLists file 
+      # Write the CMakeLists file
       cmakelists = open("CMakeLists.txt", "w")
       cmakelists.write("%s" % cmakeContents)
       cmakelists.close()
-      
+
       # Execute the build
       os.chdir('build')
       cmakecmd = ['cmake', '..']
       subprocess.check_call(cmakecmd, stderr=subprocess.STDOUT, shell=False)
       subprocess.check_call(['make', '-j'+cpus], stderr=subprocess.STDOUT, shell=False)
-      
+
       os.chdir(xacc_cwd)
 
 if __name__ == "__main__":
