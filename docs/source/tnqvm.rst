@@ -26,16 +26,15 @@ To install this plugin, run the following
 
    $ git clone https://github.com/ornl-qci/tnqvm
    $ cd tnqvm && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc 
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
 
-ensuring that pyxacc is in your ``PYTHONPATH``.
+ensuring that xacc is in your ``PYTHONPATH``.
 
-You have now installed the TNQVM plugin. It is located in ``$XACC_ROOT/plugins``, 
+You have now installed the TNQVM plugin. It is located in ``$XACC_ROOT/plugins``,
 where ``XACC_ROOT`` is your XACC install prefix.
-
