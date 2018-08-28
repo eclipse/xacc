@@ -1,5 +1,7 @@
 #include "GateFunction.hpp"
-
+#include <ctype.h>
+#include <string>
+#include <algorithm>
 namespace xacc {
 namespace quantum {
 
@@ -18,29 +20,6 @@ std::list<InstPtr> GateFunction::getInstructions() {
 		return instructions;
 }
 
-void GateFunction::removeInstruction(const int idx) {
-    auto instruction = getInstruction(idx);
-    // Check to see if instruction being removed is parameterized
-    if (instruction->isParameterized()){ 
-        // Get InstructionParameter of instruction being removed
-        auto iparam = instruction->getParameter(0);
-        bool dupParam = false;
-        // Check to see if any other GateInstructions in the GateFunction use the same parameter
-        for (auto i : instructions) {
-            if (i != instruction && i->isParameterized() && i->getParameter(0) == iparam) {
-                // If shared parameters exist -> flag that this is the case
-                dupParam = true;
-            }
-        }
-        // If there are no parameters shared, then remove the parameter
-        if (!dupParam){
-            parameters.erase(std::remove(parameters.begin(), parameters.end(), iparam), parameters.end());
-        }
-    }
-    // Remove instruction
-	instructions.remove(getInstruction(idx));
-}
-
 const std::string GateFunction::name() const {
 		return functionName;
 }
@@ -52,56 +31,164 @@ const std::vector<int> GateFunction::bits() {
 const std::string GateFunction::getTag() {
     return tag;
 }
+// lambda functions for determining if an InstructionParameter is a number/double or a variable
+auto isInt = [](std::string s){
+	try {
+		std::stoi(s);
+		return true;
+	}
+	catch (...){
+		return false;
+	}
+};
+auto isDouble = [](std::string s){
+	try {
+		std::stod(s);
+		return true;
+	}
+	catch (...){
+		return false;
+	}
+};
+auto isNumber = [](std::string s){
+	if (isInt(s) || isDouble(s)){
+		return true;
+	} else {
+		return false;
+	}
+};
+// Lambda function for extracting the stripped (no mathematical operators or numbers/doubles) parameter
+auto splitParameter = [](InstructionParameter instParam){
+	std::vector<std::string> split;
+	InstructionParameter rawParam;
+	boost::replace_all(boost::get<std::string>(instParam), "-", " ");
+	boost::replace_all(boost::get<std::string>(instParam), "*", " ");
+	boost::replace_all(boost::get<std::string>(instParam), "/", " ");
+	boost::replace_all(boost::get<std::string>(instParam), "+", " ");
+
+	boost::split(split, boost::get<std::string>(instParam), boost::is_any_of(" "));
+	for (auto s : split){
+		if (!isNumber(s) && !s.empty()){
+			rawParam = s;
+		}
+	}
+	return rawParam;
+};
+
+void GateFunction::removeInstruction(const int idx) {
+    auto instruction = getInstruction(idx);
+    // Check to see if instruction being removed is parameterized
+    if (instruction->isParameterized() && instruction->getParameter(0).which() == 3){
+        // Get InstructionParameter of instruction being removed
+				bool dupParam = false;
+				// strip the parameter of mathematical operators and numbers/doubles
+				InstructionParameter strippedParam = splitParameter(instruction->getParameter(0));
+				// check if the InstructionParameter is a duplicate
+				for (auto i : instructions){
+					if (i->isParameterized() && strippedParam == splitParameter(i->getParameter(0)) && instruction != i){
+						dupParam = true;
+					}
+				}
+        // If there are no parameters shared, then remove the parameter
+        if (!dupParam){
+            parameters.erase(std::remove(parameters.begin(), parameters.end(), strippedParam), parameters.end());
+        }
+    }
+    // Remove instruction
+	instructions.remove(getInstruction(idx));
+}
 
 void GateFunction::addInstruction(InstPtr instruction) {
         // Check to see if new GateInstruction is parameterized and there is only 1 parameter
-        if (instruction->isParameterized() && instruction->nParameters() <= 1){
+        if (instruction->isParameterized() && instruction->nParameters() <= 1) {
             xacc::InstructionParameter param = instruction->getParameter(0);
             // Check to see if parameter is a string
-            if (param.which() == 3){
-		// If parameter is not all ready present -> add parameter to parameter vector
-		bool dupParam = false;
-		// Check to see if the new parameter contains any of the old parameters
-		for (auto p : parameters){
-			if (boost::algorithm::contains(boost::get<std::string>(param), boost::get<std::string>(p))){
-			dupParam = true;
-	}	
-}
-                // If parameter is not already present -> add parameter to parameter vector
-                if (!dupParam) {
-                    parameters.push_back(param);
-                 }
-            }
-        }
-        // Add the GateInstruction
+            if (param.which() == 3) {
+							// check to see if the new parameter is a duplicate parameter
+							bool dupParam = false;
+							// strip the parameter of mathematical operators and numbers/doubles
+							InstructionParameter strippedParam = splitParameter(param);
+							// check if the instruction parameter is a duplicate
+							for (auto p : parameters){
+								if (boost::get<std::string>(p) == boost::get<std::string>(strippedParam)){
+									dupParam = true;
+								}
+							}
+							// if new parameter is not a duplicate, add the stripped version
+							if (!dupParam){
+								parameters.push_back(strippedParam);
+							}
+          }
+      }
+    // Add the GateInstruction
 		instructions.push_back(instruction);
 }
-    
+
 void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
         auto currentInst = getInstruction(idx);
         // Check if the GateInstruction being replaced is parameterized and if parameter is a string
-        if (currentInst->isParameterized() && currentInst->getParameter(0).which() == 3){
+        if (currentInst->isParameterized() && currentInst->getParameter(0).which() == 3) {
+						// strip the current InstructionParameter of mathematical operators and numbers
+						InstructionParameter strippedCurrent = splitParameter(currentInst->getParameter(0));
+						bool dupParam = false;
+						for (auto i : instructions) {
+							// see if current instruction has a duplicate parameter
+							if (strippedCurrent == splitParameter(i->getParameter(0)) && currentInst != i) {
+								dupParam = true;
+							}
+						}
             // Check if new instruction is parameterized and if parameter is a string
-            if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3){
-                // Check if old GateInstruction parameter is different than new GateInstruction parameter
-                if (currentInst->getParameter(0) != replacingInst->getParameter(0)){
-                    // Replace the old GateInstruction parameter with new GateInstruction parameter
-                    std::replace(parameters.begin(), parameters.end(), currentInst->getParameter(0), replacingInst->getParameter(0));
-                }
-            } else {
-                // If new GateInstruction is not parameterized -> remove old GateInstruction parameter 
-                parameters.erase(std::remove(parameters.begin(), parameters.end(), currentInst->getParameter(0)), parameters.end());             
+            if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3) {
+							InstructionParameter strippedNew = splitParameter(replacingInst->getParameter(0));
+							// Check if current parameter is a duplicate parameter
+							bool newDupParam = false;
+							for (auto i : instructions) {
+								// see if new param has a duplicate parameter
+								if (strippedNew == splitParameter(i->getParameter(0))) {
+									newDupParam = true;
+								}
+							}
+              // Check if old GateInstruction parameter is different than new GateInstruction parameter
+              if (strippedCurrent != strippedNew) {
+								if (!dupParam){
+									if (!newDupParam){
+										// if the current GateInstruction and the new GateInstruction both do not have a parameter already in this GateFunction -> replace parameter
+									std::replace(parameters.begin(), parameters.end(), strippedCurrent, strippedNew);
+								} else {
+									// If the current GateInstruction is not a duplicate but the new one is  -> remove old parameter
+									parameters.erase(std::remove(parameters.begin(), parameters.end(), strippedCurrent));
+								}
+							} else {
+								// if the current GateInstruction is a duplicate but the new one is not -> add new parameter
+								if (!newDupParam) {
+									parameters.push_back(strippedNew);
+								}
+							}
             }
-            // If old GateInstruction is not parameterized and new GateInstruction is parameterized -> add new parameter
-        } else {
-            if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3){
-                parameters.push_back(replacingInst->getParameter(0));
-            }
-        }
+						// if the current GateInstruction parameter is parameterized but the new one is not, check if the parameter is a duplicate and erase (or not)
+        } else if (!dupParam) {
+					parameters.erase(std::remove(parameters.begin(), parameters.end(), strippedCurrent));
+				}
+				// if the current GateInstruction is not parameterized and the new GateInstruction is, try to add parameter
+      } else if (replacingInst->isParameterized() && replacingInst->getParameter(0).which() == 3) {
+				InstructionParameter strippedNew = splitParameter(replacingInst->getParameter(0));
+				// Check if new parameter is a duplicate parameter
+				bool newDupParam = false;
+				for (auto i : instructions) {
+					if (i->isParameterized() && strippedNew == splitParameter(i->getParameter(0))) {
+						newDupParam = true;
+					}
+				}
+				// if new parameter is not a duplicate, add it to the parameters list
+				if (!newDupParam) {
+					parameters.push_back(strippedNew);
+				}
+			}
         // Replace old GateInstruction with new GateInstruction
 		std::replace(instructions.begin(), instructions.end(),
 				getInstruction(idx), replacingInst);
 }
+
 
 void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
         // Check if new GateInstruction is parameterized with 1 parameter
@@ -109,16 +196,17 @@ void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
             xacc::InstructionParameter param = newInst->getParameter(0);
             // Check if new parameter is a string
             if (param.which() == 3){
-		// If new parameter is not already in parameter vector -> add parameter to GateFunction
-		bool dupParam = false;
-		// Check to see if the new parameter contains any of the old parameters
-		for (auto p : parameters){
-			if (boost::algorithm::contains(boost::get<std::string>(param), boost::get<std::string>(p))){
-			dupParam = true;
-	}
-}
+							// If new parameter is not already in parameter vector -> add parameter to GateFunction
+							bool dupParam = false;
+							// strip the parameter of mathematical operators and numbers/doubles
+							InstructionParameter strippedParam = splitParameter(param);
+							for (auto p : parameters){
+								if (boost::get<std::string>(p) == boost::get<std::string>(strippedParam)){
+									dupParam = true;
+								}
+							}
                 // If new parameter is not already in parameter vector -> add parameter to GateFunction
-		if (!dupParam){
+								if (!dupParam){
                     parameters.push_back(param);
             }
         }
@@ -185,7 +273,7 @@ std::shared_ptr<Function> GateFunction::operator()(const Eigen::VectorXd& params
 					"of parameters don't match. " + std::to_string(params.size()) +
 					", " + std::to_string(nParameters()));
 		}
-       
+
         Eigen::VectorXd p = params;
         symbol_table_t symbol_table;
 		symbol_table.add_constants();
@@ -205,7 +293,7 @@ std::shared_ptr<Function> GateFunction::operator()(const Eigen::VectorXd& params
 				parser.compile(expression, expr);
                 return expr.value();
         };
-  
+
 		auto gateRegistry = xacc::getService<IRProvider>("gate");
 		auto evaluatedFunction = std::make_shared<GateFunction>("evaled_"+name());
 
@@ -237,7 +325,7 @@ std::shared_ptr<Function> GateFunction::operator()(const Eigen::VectorXd& params
 		}
 		return evaluatedFunction;
 	}
-    
-    
+
+
 }
 }
