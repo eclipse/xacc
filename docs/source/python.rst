@@ -10,8 +10,8 @@ To program this with the XACC Python bindings you could write the following pyth
 
 .. code::
 
-   import pyxacc as xacc
-   from pyxacc import qpu
+   import xacc
+   from xacc import qpu
 
    xacc.Initialize()
 
