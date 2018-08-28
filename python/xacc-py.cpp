@@ -244,6 +244,8 @@ PYBIND11_MODULE(_pyxacc, m) {
 		.def("name", &xacc::Compiler::name, "Return the name of this Compiler.")
 		.def("compile", (std::shared_ptr<xacc::IR> (xacc::Compiler::*)(const std::string&, std::shared_ptr<xacc::Accelerator>)) &xacc::Compiler::compile, "Compile the "
 			"given source code against the given Accelerator.")
+        .def("compile", (std::shared_ptr<xacc::IR> (xacc::Compiler::*)(const std::string&)) &xacc::Compiler::compile, "Compile the "
+			"given source code.")
 		.def("translate", &xacc::Compiler::translate, "Translate the given IR Function instance to source code in this Compiler's language.");
 
 	// Expose the Program object
