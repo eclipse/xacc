@@ -14,15 +14,15 @@ To install this plugin, run the following
 
    $ git clone https://github.com/ornl-qci/xacc-rigetti
    $ cd xacc-rigetti && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc 
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
 
-ensuring that pyxacc is in your ``PYTHONPATH``.
+ensuring that xacc is in your ``PYTHONPATH``.
 
 You have now installed the Rigetti plugin. It is located in ``$XACC_ROOT/plugins``
 and ``$XACC_ROOT/plugins``, where ``XACC_ROOT`` is your XACC install prefix.
@@ -34,11 +34,11 @@ In order to target the Rigetti QVM you must provide XACC with your API key. By d
 XACC will use your PyQuil Config file at ``$HOME/.pyquil_config``.
 See `Connecting to the Rigetti Forest <http://pyquil.readthedocs.io/en/latest/getting_started.html#connecting-to-the-rigetti-forest>`_ for information on creating this file.
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ python -m pyxacc -c rigetti -k YOURAPIKEY -u YOURUSERID
+   $ python -m xacc -c rigetti -k YOURAPIKEY -u YOURUSERID
 
 Rigetti Command Line Arguments
 ------------------------------
@@ -54,8 +54,8 @@ The Rigetti plugin exposes the following command line arguments
 
 Rigetti QVM Tutorial
 ---------------------
-Let's test out the Rigetti Accelerator by creating a code to 
-perform quantum teleportation. 
+Let's test out the Rigetti Accelerator by creating a code to
+perform quantum teleportation.
 
 Create a new directory called test-xacc-rigetti and cd into it. Let's now create a
 test-xacc-rigetti.cpp file and get it started with the following boilerplate code:
@@ -313,7 +313,7 @@ the Hydrogen molecule (code taken from `Scalable Quantum Simulation of Molecular
    import pyquil.api as forest
    from pyquil.gates import X, Z, H, CNOT, RX, RY, RZ
    import numpy as np
-   import pyxacc as xacc
+   import xacc
 
    # Pyquil State Preparation circuit gen
    def statePrep(qs, angle):
@@ -410,6 +410,3 @@ This will produce a file called ``pyquil_out.csv``. Plotting this shows the
 correct expectation values from the simulation.
 
 .. image:: ../assets/pyquil_out.png
-
-
-

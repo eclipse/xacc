@@ -14,15 +14,15 @@ To install this plugin, run the following
 
    $ git clone https://github.com/ornl-qci/xacc-ibm
    $ cd xacc-ibm && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc 
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
 
-ensuring that pyxacc is in your ``PYTHONPATH``.
+ensuring that xacc is in your ``PYTHONPATH``.
 
 You have now installed the IBM plugin. It is located in ``$XACC_ROOT/plugins``,
 where ``XACC_ROOT`` is your XACC install prefix.
@@ -32,11 +32,11 @@ Setting Credentials
 
 In order to target the IBM Quantum Experience, you must provide XACC with your API key.
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ python -m pyxacc -c ibm -k YOURAPIKEY 
+   $ python -m xacc -c ibm -k YOURAPIKEY 
 
 
 Alternatively, open the file ``$HOME/.ibm_config``, and add the following contents
@@ -94,13 +94,13 @@ kernel code for this example can be found in `Scalable Quantum Simulation of Mol
       Ry(qreg[1], 7.8539752);
       Rx(qreg[0], 1.57079);
    }
-   
+
    __qpu__ g1Term (qbit qreg, float theta) {
       initializeState(qreg, theta);
       cbit creg[1];
       creg[0] = MeasZ(qreg[0]);
    }
-   
+
    __qpu__ g2Term (qbit qreg, float theta) {
       initializeState(qreg, theta);
       cbit creg[1];
@@ -120,7 +120,7 @@ kernel code for this example can be found in `Scalable Quantum Simulation of Mol
       creg[1] = MeasZ(qreg[1]);
       creg[0] = MeasZ(qreg[0]);
    }
-   
+
    __qpu__ g5Term(qbit qreg, float theta) {
       initializeState(qreg, theta);
       cbit creg[2];
@@ -179,5 +179,3 @@ kernel code for this example can be found in `Scalable Quantum Simulation of Mol
 
       return 0;
    }
-
-

@@ -12,28 +12,28 @@ To install this plugin, run the following
 
    $ git clone https://github.com/ornl-qci/xacc-dwave
    $ cd xacc-dwave && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc 
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
 
-Alternatively, if you installed the XACC Python bindings, then you can run 
+Alternatively, if you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ cmake .. -DXACC_DIR=$(python -m pyxacc -L)
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
 
-ensuring that the ``pyxacc`` module is in your ``PYTHONPATH``.
+ensuring that the ``xacc`` module is in your ``PYTHONPATH``.
 
-You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/plugins``, 
+You have now installed the D-Wave plugin. It is located in ``$XACC_ROOT/plugins``,
 where ``XACC_ROOT`` is your XACC install prefix.
 
 Setting Credentials
 -------------------
 
-In order to target the D-Wave Qubist remote resources you must provide 
+In order to target the D-Wave Qubist remote resources you must provide
 XACC with your API key. By default
 XACC will search for a config file at ``$HOME/.dwave_config``.
 
-If you installed the XACC Python bindings, then you can run 
+If you installed the XACC Python bindings, then you can run
 
 .. code::
 
-   $ python -m pyxacc -c dwave -k YOURAPIKEY 
+   $ python -m xacc -c dwave -k YOURAPIKEY 
