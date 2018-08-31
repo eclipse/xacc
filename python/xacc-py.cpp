@@ -268,6 +268,7 @@ PYBIND11_MODULE(_pyxacc, m) {
 			"to print the XACC help message, pass ['--help'] to this function, or to set the compiler to use, ['--compiler','scaffold'].");
 	m.def("Initialize", (void (*)()) &xacc::Initialize,
 			"Initialize the framework. Use this if there are no command line arguments to pass.");
+    // m.def("help", )
 	m.def("getAccelerator", (std::shared_ptr<xacc::Accelerator> (*)(const std::string&))
 			&xacc::getAccelerator, py::return_value_policy::reference,
 			"Return the accelerator with given name.");
@@ -280,8 +281,10 @@ PYBIND11_MODULE(_pyxacc, m) {
     m.def("getIRGenerator", (std::shared_ptr<xacc::IRGenerator> (*)(const std::string&))
 			&xacc::getService<IRGenerator>, py::return_value_policy::reference,
 			"Return the IRGenerator of given name.");
+    m.def("setOption", [](const std::string s, InstructionParameter p){xacc::setOption(s,boost::lexical_cast<std::string>(p));});
 	m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
     m.def("setOptions", [](std::map<std::string,std::string> options) {for (auto& kv : options) xacc::setOption(kv.first,kv.second);}, "Set a number of options at once.");
+    m.def("setOptions", [](std::map<std::string, InstructionParameter> options) {for (auto& kv : options) xacc::setOption(kv.first,boost::lexical_cast<std::string>(kv.second));}, "Set a number of options at once.");
 	m.def("getOption", (const std::string (*)(const std::string&)) &xacc::getOption, "Get an XACC framework option.");
     m.def("hasAccelerator", &xacc::hasAccelerator, "Does XACC have the given Accelerator installed?");
     m.def("hasCompiler", &xacc::hasCompiler, "Does XACC have the given Accelerator installed?");
