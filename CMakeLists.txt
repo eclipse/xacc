@@ -39,6 +39,8 @@ if (NOT CMAKE_BUILD_TYPE)
       )
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
+include(format)
 include(ExternalProject)
 
 if(NOT WIN32)
@@ -114,7 +116,6 @@ if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
-include(cmake/Modules/format.cmake)
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
@@ -122,6 +123,7 @@ include(cmake/Modules/format.cmake)
 # and CMake loads include paths, libs, etc
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
+install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/xacc/)
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/xacc/)
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
