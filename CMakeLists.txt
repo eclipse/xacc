@@ -114,6 +114,8 @@ if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
+include(cmake/Modules/format.cmake)
+
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
 # their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
