@@ -1,9 +1,9 @@
 if(NOT CLANG_FORMAT_EXECUTABLE)
         find_program(CLANG_FORMAT_EXECUTABLE
            NAMES
-           clang-format-7.0
-           clang-format-mp-7.0
-           clang-format
+	   clang-format-7.0
+	   clang-format-mp-7.0
+	   clang-format
         )
         if(CLANG_FORMAT_EXECUTABLE)
                 message("-- Found clang-format: ${CLANG_FORMAT_EXECUTABLE}")
