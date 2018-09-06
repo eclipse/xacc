@@ -10,7 +10,9 @@ namespace quantum {
 
 std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
 
-	xacc::info("Executing XACC Circuit Optimizer.");
+	if (!xacc::optionExists("circuit-opt-silent")) {
+        xacc::info("Executing XACC Circuit Optimizer.");
+    }
 
 	std::shared_ptr<IRProvider> irProvider = xacc::getService<IRProvider>("gate");
     auto gateir = std::dynamic_pointer_cast<GateIR>(ir);
