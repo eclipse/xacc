@@ -5,7 +5,7 @@
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
- *License is available at https://eclipse.org/org/documents/edl-v10.php
+ * License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -15,6 +15,7 @@
 
 #include "Function.hpp"
 #include "IRProvider.hpp"
+#include "GraphProvider.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
 #include <boost/math/constants/constants.hpp>
@@ -29,29 +30,51 @@ using expression_t = exprtk::expression<double>;
 using parser_t = exprtk::parser<double>;
 
 /**
+ * CircuitNode subclasses XACCVertex to provide the following
+ * parameters in the given order:
+ *
+ * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
+ * Qubit Ids that the gate acts on, enabled state, vector of parameters names
+ */
+class CircuitNode: public XACCVertex<std::string, int, int, std::vector<int>,
+		bool, std::vector<std::string>> {
+public:
+	CircuitNode() :
+			XACCVertex() {
+		propertyNames[0] = "Gate";
+		propertyNames[1] = "Circuit Layer";
+		propertyNames[2] = "Gate Vertex Id";
+		propertyNames[3] = "Gate Acting Qubits";
+		propertyNames[4] = "Enabled";
+		propertyNames[5] = "RuntimeParameters";
+
+		// by default all circuit nodes
+		// are enabled and
+		std::get<4>(properties) = true;
+	}
+
+    CircuitNode(std::string name, int layer, int id, std::vector<int> bits, bool enabled, std::vector<std::string> params) {
+        std::get<0>(properties) = name;
+        std::get<1>(properties) = layer;
+        std::get<2>(properties) = id;
+        std::get<3>(properties) = bits;
+        std::get<4>(properties) = enabled;
+        std::get<5>(properties) = params;
+    }
+
+    const std::string name() {return std::get<0>(properties);}
+    const int layer() {return std::get<1>(properties);}
+    const int id() {return std::get<2>(properties);}
+    const std::vector<int> bits() {return std::get<3>(properties);}
+    bool twoQubit() {return bits().size() == 2;}
+};
+
+/**
  * The GateFunction is a realization of Function for gate-model
  * quantum computing. It is composed of QInstructions that
  * are themselves derivations of the GateInstruction class.
  */
-class GateFunction : public virtual Function {
-
-protected:
-  /**
-   * The name of this function
-   */
-  std::string functionName;
-
-  std::list<InstPtr> instructions;
-
-  std::vector<InstructionParameter> parameters;
-
-  std::string tag = "";
-
-  /**
-   * Map of Instruction Index to ( Instruction's Runtime Parameter Index,
-   * Dependent Variable name)
-   */
-  std::map<int, std::pair<int, std::string>> cachedVariableInstructions;
+class GateFunction : public Function, public GraphProvider<CircuitNode, Directed>, public std::enable_shared_from_this<GateFunction> {
 
 public:
   /**
@@ -76,23 +99,33 @@ public:
   GateFunction(const GateFunction &other)
       : functionName(other.functionName), parameters(other.parameters) {}
 
-  virtual const std::string getTag();
+  const std::string getTag() override;
 
-  virtual void mapBits(std::vector<int> bitMap);
+  virtual void mapBits(std::vector<int> bitMap) override;
 
-  virtual const int nInstructions();
+  const int nInstructions() override;
 
-  virtual InstPtr getInstruction(const int idx);
+  InstPtr getInstruction(const int idx) override;
 
-  virtual std::list<InstPtr> getInstructions();
+  std::list<InstPtr> getInstructions() override;
 
+  std::shared_ptr<Function> enabledView() override {
+      auto newF = std::make_shared<GateFunction>(functionName, parameters);
+      for (int i = 0; i < nInstructions(); i++) {
+          auto inst = getInstruction(i);
+          if (inst->isEnabled()) {
+              newF->addInstruction(inst);
+          }
+      }
+      return newF;
+  }
   /**
    * Remove an instruction from this
    * quantum intermediate representation
    *
    * @param instructionID
    */
-  virtual void removeInstruction(const int idx);
+  void removeInstruction(const int idx) override;
 
   /**
    * Add an instruction to this quantum
@@ -100,7 +133,7 @@ public:
    *
    * @param instruction
    */
-  virtual void addInstruction(InstPtr instruction);
+  void addInstruction(InstPtr instruction) override;
 
   /**
    * Replace the given current quantum instruction
@@ -109,50 +142,67 @@ public:
    * @param currentInst
    * @param replacingInst
    */
-  virtual void replaceInstruction(const int idx, InstPtr replacingInst);
+  void replaceInstruction(const int idx, InstPtr replacingInst) override;
 
-  virtual void insertInstruction(const int idx, InstPtr newInst);
+  void insertInstruction(const int idx, InstPtr newInst) override;
 
   /**
    * Return the name of this function
    * @return
    */
-  virtual const std::string name() const;
+  const std::string name() const override;
 
   /**
    * Return the description of this instance
    * @return description The description of this object.
    */
-  virtual const std::string description() const { return ""; }
+  const std::string description() const override { return ""; }
 
   /**
    * Return the qubits this function acts on.
    * @return
    */
-  virtual const std::vector<int> bits();
+  const std::vector<int> bits() override;
 
   /**
    * Return an assembly-like string representation for this function .
    * @param bufferVarName
    * @return
    */
-  virtual const std::string toString(const std::string &bufferVarName);
+  const std::string toString(const std::string &bufferVarName) override;
 
-  virtual InstructionParameter getParameter(const int idx) const;
+  InstructionParameter getParameter(const int idx) const override;
 
-  virtual void setParameter(const int idx, InstructionParameter &p);
+  void setParameter(const int idx, InstructionParameter &p) override;
 
-  virtual void addParameter(InstructionParameter instParam);
+  void addParameter(InstructionParameter instParam) override;
 
-  virtual std::vector<InstructionParameter> getParameters();
+  std::vector<InstructionParameter> getParameters() override;
 
-  virtual bool isParameterized();
+  bool isParameterized() override;
 
-  virtual const int nParameters();
+  const int nParameters() override;
 
-  virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd &params);
+  std::shared_ptr<Function> operator()(const Eigen::VectorXd &params) override;
+
+  Graph<CircuitNode, Directed> toGraph() override;
+//   void fromGraph(Graph<CircuitNode>& graph) override;
+//   void fromGraph(std::istream& input) override;
 
   DEFINE_VISITABLE()
+
+protected:
+  /**
+   * The name of this function
+   */
+  std::string functionName;
+
+  std::list<InstPtr> instructions;
+
+  std::vector<InstructionParameter> parameters;
+
+  std::string tag = "";
+
 };
 
 } // namespace quantum

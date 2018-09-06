@@ -107,6 +107,9 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext * ctx) {
                     auto str = ctx->explist()->exp(i)->getText();
                     auto param = is_double(str) ? InstructionParameter(std::stod(str)) : InstructionParameter(str);
                     params.push_back(param);
+                } else if (tmp->exp().size() == 1 && tmp->exp(0)->real() != nullptr) {
+                    // this is a neg double
+                    params.push_back(InstructionParameter(std::stod(tmp->getText())));
                 } else {
                     params.push_back(InstructionParameter(tmp->getText()));
                 }

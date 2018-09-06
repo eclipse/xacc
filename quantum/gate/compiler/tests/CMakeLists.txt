@@ -1,0 +1,2 @@
+add_xacc_test(CircuitOptimizer)
+target_link_libraries(CircuitOptimizerTester xacc-quantum-gate)

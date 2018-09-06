@@ -130,15 +130,15 @@ protected:
 // Convenience macro for subclasses to invoke
 // to get Visitor pattern functionality.
 #define DEFINE_VISITABLE() \
-            virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
+            void accept(std::shared_ptr<BaseInstructionVisitor> v) override \
                 { acceptImpl(*this, v); } \
-			virtual void accept(BaseInstructionVisitor* v) \
+			void accept(BaseInstructionVisitor* v) override \
 				{ acceptImpl(*this, v); }
 
 #define EMPTY_DEFINE_VISITABLE() \
-		virtual void accept(std::shared_ptr<BaseInstructionVisitor> v) \
+		void accept(std::shared_ptr<BaseInstructionVisitor> v) override \
 		{ } \
-		virtual void accept(BaseInstructionVisitor* v) \
+		void accept(BaseInstructionVisitor* v) override \
 		{}
 };
 
