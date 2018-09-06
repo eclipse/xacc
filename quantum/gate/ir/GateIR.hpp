@@ -16,53 +16,12 @@
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "InstructionIterator.hpp"
-#include "Graph.hpp"
 #include "IR.hpp"
-
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Z.hpp"
-#include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Measure.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- * CircuitNode subclasses QCIVertex to provide the following
- * parameters in the given order:
- *
- * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
- * Qubit Ids that the gate acts on, enabled state, vector of parameters names
- */
-class CircuitNode: public XACCVertex<std::string, int, int, std::vector<int>,
-		bool, std::vector<std::string>> {
-public:
-	CircuitNode() :
-			XACCVertex() {
-		propertyNames[0] = "Gate";
-		propertyNames[1] = "Circuit Layer";
-		propertyNames[2] = "Gate Vertex Id";
-		propertyNames[3] = "Gate Acting Qubits";
-		propertyNames[4] = "Enabled";
-		propertyNames[5] = "RuntimeParameters";
-
-		// by default all circuit nodes
-		// are enabled and
-		std::get<4>(properties) = true;
-
-	}
-};
-
-/**
- * The GateQIR is an implementation of the QIR for gate model quantum
- * computing. It provides a Graph node type that models a quantum
- * circuit gate (CircuitNode).
- *
- */
-class GateIR: public xacc::IR, public Graph<CircuitNode> {
+class GateIR: public xacc::IR {
 
 public:
 
@@ -70,13 +29,6 @@ public:
 	 * The nullary Constructor
 	 */
 	GateIR() {}
-
-	/**
-	 * This method takes the list of quantum instructions that this
-	 * QIR contains and creates a graph representation of the
-	 * quantum circuit.
-	 */
-	virtual void generateGraph(const std::string& kernelName);
 
 	virtual const int maxBit() {
 		int maxBit = 0;
@@ -151,16 +103,6 @@ public:
 	 */
 	virtual void load(std::istream& inStream);
 
-	/**
-	 * This is the implementation of the Graph.read method...
-	 *
-	 * Read in a graphviz dot graph from the given input
-	 * stream. This is left for subclasses.
-	 *
-	 * @param stream
-	 */
-	virtual void read(std::istream& stream);
-
 	virtual std::vector<std::shared_ptr<Function>> getKernels() {
 		return kernels;
 	}
@@ -178,45 +120,6 @@ protected:
 	 */
 	std::vector<std::shared_ptr<Function>> kernels;
 
-private:
-
-	/**
-	 * This method determines if a new layer should be added to the circuit.
-	 *
-	 * @param gateCommand
-	 * @param qubitVarNameToId
-	 * @param gates
-	 * @param currentLayer
-	 * @return
-	 */
-	bool incrementLayer(const std::vector<std::string>& gateCommand,
-			std::map<std::string, int>& qubitVarNameToId,
-			const std::vector<CircuitNode>& gates, const int& currentLayer);
-
-	/**
-	 * Generate all edges for the circuit graph starting at
-	 * the given layer.
-	 *
-	 * @param layer
-	 * @param graph
-	 * @param gateOperations
-	 * @param initialStateId
-	 */
-	void generateEdgesFromLayer(const int layer,
-			std::vector<CircuitNode>& gateOperations, int initialStateId);
-
-	/**
-	 * Create connecting conditional nodes that link the main
-	 * circuit graph to subsequent conditional graphs. The conditional
-	 * nodes can be used by Accelerators to figure out if the condition
-	 * code should be executed or not.
-	 * s
-	 * @param mainGraph
-	 * @param conditionalGraphs
-	 */
-//	static void linkConditionalQasm(QuantumCircuit& mainGraph,
-//			std::vector<QuantumCircuit>& conditionalGraphs,
-//			std::vector<int>& conditionalQubits);
 };
 }
 }

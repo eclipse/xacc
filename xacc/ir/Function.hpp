@@ -94,14 +94,10 @@ public:
 	 */
 	virtual bool isComposite() { return true; }
 
-//	/**
-//	 * This method is used to evaluate this Function's parameterized
-//	 * Instructions that have string variable InstructionParameters.
-//	 * These parameters are updated with the given runtime parameters.
-//	 *
-//	 * @param parameters The runtime parameters
-//	 */
-//	virtual void evaluateVariableParameters(std::vector<InstructionParameter> parameters) = 0;
+    // virtual const int maxLogicalBit() = 0;
+    // virtual const int maxPhysicalBit() = 0;
+
+    virtual std::shared_ptr<Function> enabledView() = 0;
 
 	virtual std::shared_ptr<Function> operator()(const Eigen::VectorXd& params) = 0;
 

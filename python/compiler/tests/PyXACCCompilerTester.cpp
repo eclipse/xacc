@@ -122,7 +122,26 @@ TEST(PyXACCCompilerTester, checkSimple) {
     std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
 
 }
+const std::string uccsdSrc = R"uccsdSrc(def foo(theta0,theta1):
+   Rx(-1.57,0)
+   )uccsdSrc";
+TEST(PyXACCCompilerTester, checkUCCSD) {
 
+    auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
+
+	auto acc = std::make_shared<FakePyAcc>();
+
+    std::cout << "COMPILING\n";
+	auto ir = compiler->compile(uccsdSrc, acc);
+    std::cout << "COMPILED\n";
+    auto f = ir->getKernel("foo");
+    EXPECT_EQ("foo", f->name());
+    // EXPECT_EQ(f->nParameters(), 1);
+    // EXPECT_EQ(f->nInstructions(), 4);
+    
+    std::cout << "KERNEL:\n" << ir->getKernel("foo")->toString("") << "\n";
+
+}
 int main(int argc, char** argv) {
    xacc::Initialize(argc, argv);
    ::testing::InitGoogleTest(&argc, argv);

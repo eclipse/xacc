@@ -45,11 +45,6 @@ template<typename T>
 struct is_valid_vertex<T, decltype(std::declval<T>().properties, void())> : std::true_type {
 };
 
-/**
- * The base class of all QCI Vertices for the
- * QCI Common Graph class. All Vertices must keep
- * track of a set of properties, stored as a tuple.
- */
 template<typename ... Properties>
 class XACCVertex {
 public:
@@ -65,7 +60,7 @@ public:
  * For now, we only allow Edges with weight property.
  */
 struct DefaultEdge {
-	double weight = 0.0;
+	double weight = 1.0;
 };
 typedef boost::property<boost::edge_weight_t, double> EdgeWeightProperty;
 
@@ -112,7 +107,7 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Args...>& t) {
  * Ising parameters, etc.)
  *
  * All provided Vertex types must be a subclass of the
- * QCIVertex in order to properly provide a tuple of vertex
+ * XACCVertex in order to properly provide a tuple of vertex
  * properties.
  * s
  */
@@ -127,8 +122,8 @@ class Graph {
 	// Setup some easy to use aliases
 	using adj_list = adjacency_list<vecS, vecS, graph_type, Vertex, EdgeWeightProperty>;
 	using BoostGraph = std::shared_ptr<adj_list>;
-	using vertex_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, EdgeWeightProperty>>::vertex_descriptor;
-	using edge_type = typename boost::graph_traits<adjacency_list<vecS, vecS, undirectedS, Vertex, EdgeWeightProperty>>::edge_descriptor;
+	using vertex_type = typename boost::graph_traits<adjacency_list<vecS, vecS, graph_type, Vertex, EdgeWeightProperty>>::vertex_descriptor;
+	using edge_type = typename boost::graph_traits<adjacency_list<vecS, vecS, graph_type, Vertex, EdgeWeightProperty>>::edge_descriptor;
 
 protected:
 
@@ -236,6 +231,17 @@ public:
 				vertex(tgtIndex, *_graph.get()), *_graph.get());
 	}
 
+    // typename std::enable_if<type == Directed>::type getTargetVertices(const int vertexIndex, std::vector<int>& connectedVerts) {
+    //     typename graph_traits < BoostGraph >::out_edge_iterator ei, ei_end;
+    //     auto u = getVertex(vertexIndex);
+    //     for (boost::tie(ei, ei_end) = out_edges(u, *_graph.get()); ei != ei_end; ++ei) {
+    //         auto source = boost::source ( *ei, *_graph.get());
+    //         auto target = boost::target ( *ei, *_graph.get());
+    //         connectedVerts.push_back(std::get<1>((*_graph.get())[target].properties));
+    //         // std::cout << "There is an edge from " << source <<  " to " << target << std::endl;
+    //     }
+    // }
+    
 	void removeEdge(const int srcIndex, const int tgtIndex) {
 		auto v = vertex(srcIndex, *_graph.get());
 		auto u = vertex(tgtIndex, *_graph.get());
@@ -505,12 +511,14 @@ public:
 						boost::make_iterator_property_map(d.begin(),
 								get(boost::vertex_index, *_graph.get()))));
 
-		for (int i = 0; i < p.size(); i++) {
-			std::cout << p[i] << "\n";
-		}
+		// for (int i = 0; i < p.size(); i++) {
+			// std::cout << p[i] << "\n";
+		// }
+
+        for (auto& di : d) distances.push_back(di);
+        for (auto& pi : p) paths.push_back(pi);
 
 	}
-
 
 };
 

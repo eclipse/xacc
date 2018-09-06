@@ -29,7 +29,7 @@ namespace xacc {
  * compiler-specific compilation mechanism, and returns a valid
  * XACC IR instance modeling the result of the compilation.
  */
-class __attribute__((visibility("default"))) Compiler : public OptionsProvider, public Identifiable {
+class Compiler : public OptionsProvider, public Identifiable {
 
 public:
 

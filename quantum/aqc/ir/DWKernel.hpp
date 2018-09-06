@@ -58,6 +58,17 @@ public:
             _name(kernelName), parameters(p) {
 	}
 
+    std::shared_ptr<Function> enabledView() override {
+      auto newF = std::make_shared<DWKernel>(_name, parameters);
+      for (int i = 0; i < nInstructions(); i++) {
+          auto inst = getInstruction(i);
+          if (inst->isEnabled()) {
+              newF->addInstruction(inst);
+          }
+      }
+      return newF;
+  }
+  
 	virtual const int nInstructions() {
 		return instructions.size();
 	}

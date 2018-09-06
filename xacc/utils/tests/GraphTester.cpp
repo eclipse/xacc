@@ -54,6 +54,23 @@ public:
 		propertyNames[0] = "prop1";
 	}
 };
+TEST(GraphTester,checkDirected) {
+
+    Graph<FakeBiasVertex> g;
+    g.addVertex();
+    g.addVertex();
+    g.addVertex();
+    
+    g.addEdge(0,1);
+    g.addEdge(1,2);
+
+    auto n = g.getNeighborList(1);
+
+    for (auto i : n) {
+        std::cout << "NEIGHBOR: " << i << "\n";
+    }
+}
+
 TEST(GraphTester,checkConstruction) {
 
 	// Check our valid vertex functions...
