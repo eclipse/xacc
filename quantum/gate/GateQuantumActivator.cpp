@@ -35,6 +35,8 @@
 #include "Identity.hpp"
 #include "CZ.hpp"
 
+#include "CircuitOptimizer.hpp"
+
 #include <memory>
 #include <set>
 
@@ -64,6 +66,8 @@ public:
 
 		auto giservice = std::make_shared<xacc::quantum::GateIRProvider>();
 
+        auto opt = std::make_shared<xacc::quantum::CircuitOptimizer>();
+        
 		context.RegisterService<xacc::IRProvider>(giservice);
 		context.RegisterService<xacc::Preprocessor>(kp);
 		context.RegisterService<xacc::IRGenerator>(iqft);
@@ -72,6 +76,9 @@ public:
 		context.RegisterService<xacc::IRPreprocessor>(readout);
 		context.RegisterService<xacc::IRPreprocessor>(qbitmap);
 
+        context.RegisterService<xacc::IRTransformation>(opt);
+        context.RegisterService<xacc::OptionsProvider>(opt);
+        
 		auto h = std::make_shared<xacc::quantum::Hadamard>();
 		auto cn = std::make_shared<xacc::quantum::CNOT>();
 		auto cp = std::make_shared<xacc::quantum::CPhase>();

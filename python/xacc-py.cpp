@@ -133,6 +133,7 @@ PYBIND11_MODULE(_pyxacc, m) {
 		.def("description", &xacc::Function::description, "")
 		.def("nParameters", &xacc::Function::nParameters, "")
 		.def("toString", &xacc::Function::toString, "")
+        .def("enabledView", &xacc::Function::enabledView, "")
 		.def("getParameter", &xacc::Function::getParameter, "")
 		.def("getParameters", &xacc::Function::getParameters, "")
 		.def("setParameter", &xacc::Function::setParameter, "")
@@ -152,6 +153,10 @@ PYBIND11_MODULE(_pyxacc, m) {
         
     py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>> (m, "IRPreprocesor", "")
         .def("process", &xacc::IRPreprocessor::process, "");
+    
+    py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>> (m, "IRTransformation", "")
+        .def("transform", &xacc::IRTransformation::transform, "");
+
     py::class_<xacc::AcceleratorBufferPostprocessor, std::shared_ptr<xacc::AcceleratorBufferPostprocessor>> (m, "AcceleratorBufferPostprocessor", "")
         .def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
@@ -278,6 +283,9 @@ PYBIND11_MODULE(_pyxacc, m) {
 	m.def("getIRPreprocessor", (std::shared_ptr<xacc::IRPreprocessor> (*)(const std::string&))
 			&xacc::getService<IRPreprocessor>, py::return_value_policy::reference,
 			"Return the IRPreprocessor of given name.");
+    m.def("getIRTransformation", (std::shared_ptr<xacc::IRTransformation> (*)(const std::string&))
+			&xacc::getService<IRTransformation>, py::return_value_policy::reference,
+			"Return the IRTransformation of given name.");
     m.def("getIRGenerator", (std::shared_ptr<xacc::IRGenerator> (*)(const std::string&))
 			&xacc::getService<IRGenerator>, py::return_value_policy::reference,
 			"Return the IRGenerator of given name.");
