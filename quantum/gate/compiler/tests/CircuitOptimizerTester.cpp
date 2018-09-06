@@ -217,6 +217,45 @@ TEST(CircuitOptimizerTester, checkOptimize) {
       }
 }
 
+TEST(CircuitOptimizerTester, checkSimple) {
+
+      if (xacc::hasCompiler("xacc-py")) {
+        auto c = xacc::getService<xacc::Compiler>("xacc-py");
+        auto f = c->compile("def foo():\n   CNOT(0,1)\n   CNOT(0,1)\n")->getKernels()[0];
+
+        auto ir = std::make_shared<GateIR>();
+        ir->addKernel(f);
+
+        CircuitOptimizer opt;
+        auto newir = opt.transform(ir);
+        auto optF = newir->getKernels()[0];
+
+        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+        EXPECT_EQ(0,optF->nInstructions());
+
+        f = c->compile("def foo():\n   H(0)\n   CNOT(0,1)\n   CNOT(0,1)\n   H(0)\n")->getKernels()[0];
+
+        ir = std::make_shared<GateIR>();
+        ir->addKernel(f);
+
+        newir = opt.transform(ir);
+        optF = newir->getKernels()[0];
+        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+        
+        EXPECT_EQ(0,optF->nInstructions());
+
+        f = c->compile("def foo():\n   CNOT(0,1)\n   H(1)\n   H(1)\n   CNOT(0,1)\n")->getKernels()[0];
+
+        ir = std::make_shared<GateIR>();
+        ir->addKernel(f);
+
+        newir = opt.transform(ir);
+        optF = newir->getKernels()[0];
+
+        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+        EXPECT_EQ(0,optF->nInstructions());
+      }
+}
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc,argv);

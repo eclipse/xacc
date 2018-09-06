@@ -35,8 +35,10 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
         return 0.0;
     };
     
+    int nTries = 2;
+    
     for (auto& k : gateir->getKernels()) {
-        
+        for (int j = 0; j < nTries; ++j) {     
         auto gateFunction = std::dynamic_pointer_cast<GateFunction>(k);
         
         // Remove any zero rotations (Rz(theta<1e-12))
@@ -57,7 +59,7 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
             bool modified = false;
             gateFunction = std::dynamic_pointer_cast<GateFunction>(gateFunction->enabledView());
             auto graphView = gateFunction->toGraph();
-            for (int i = 1; i < graphView.order()-1; i++) {
+            for (int i = 1; i < graphView.order()-2; i++) {
                 auto node = graphView.getVertex(i);
                 if (node.name() == "CNOT" 
                         && gateFunction->getInstruction(node.id()-1)->isEnabled()) {
@@ -110,6 +112,7 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
             }
 
             if (!modified) break;
+        }
         }
     }
 

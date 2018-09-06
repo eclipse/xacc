@@ -8,7 +8,7 @@
 namespace xacc {
 namespace quantum {
 
-class CircuitOptimizer : public IRTransformation {
+class CircuitOptimizer : public IRTransformation, public OptionsProvider {
 
 public:
 
@@ -22,6 +22,18 @@ public:
 
 	virtual const std::string description() const {
 		return "";
+	}
+
+    virtual std::shared_ptr<options_description> getOptions() {
+		auto desc = std::make_shared<options_description>(
+				"CircuitOptimizer Options");
+		desc->add_options()("circuit-opt-n-tries", value<std::string>(),
+				"Provide the number of passes to use in optimizing this circuit. Default = 2.");
+		return desc;
+	}
+
+	virtual bool handleOptions(variables_map& map) {
+		return false;
 	}
 };
 }
