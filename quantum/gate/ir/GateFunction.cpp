@@ -283,7 +283,8 @@ const int GateFunction::nParameters() { return parameters.size(); }
 const std::string GateFunction::toString(const std::string &bufferVarName) {
   std::string retStr = "";
   for (auto i : instructions) {
-    if (i->isEnabled()) retStr += i->toString(bufferVarName) + "\n";
+    if (i->isEnabled())
+      retStr += i->toString(bufferVarName) + "\n";
   }
   return retStr;
 }
@@ -363,7 +364,7 @@ operator()(const Eigen::VectorXd &params) {
 //     // IMPLEMENT GRAPH READ STUFF
 
 //     Graph<CircuitNode> graph;
-    
+
 // 	std::string content { std::istreambuf_iterator<char>(stream),
 // 			std::istreambuf_iterator<char>() };
 
@@ -394,7 +395,8 @@ operator()(const Eigen::VectorXd &params) {
 // 			boost::replace_all(line, "label=", "");
 // 			boost::trim(line);
 // 			std::vector<std::string> labelLineSplit, removeId;
-// 			boost::split(labelLineSplit, line, boost::is_any_of(","));
+// 			boost::split(labelLineSplit, line,
+// boost::is_any_of(","));
 
 // 			for (auto a : labelLineSplit) {
 // 				std::vector<std::string> eqsplit;
@@ -402,22 +404,21 @@ operator()(const Eigen::VectorXd &params) {
 // 				if (eqsplit[0] == "Gate") {
 // 					std::get<0>(v.properties) = eqsplit[1];
 // 				} else if (eqsplit[0] == "Circuit Layer") {
-// 					std::get<1>(v.properties) = std::stoi(eqsplit[1]);
-// 				} else if (eqsplit[0] == "Gate Vertex Id") {
-// 					std::get<2>(v.properties) = std::stoi(eqsplit[1]);
-// 				} else if (eqsplit[0] == "Gate Acting Qubits") {
-// 					auto qubitsStr = eqsplit[1];
-// 					boost::replace_all(qubitsStr, "[", "");
-// 					boost::replace_all(qubitsStr, "[", "");
-// 					std::vector<std::string> elementsStr;
-// 					std::vector<int> qubits;
-// 					boost::split(elementsStr, qubitsStr, boost::is_any_of(" "));
-// 					for (auto element : elementsStr) {
-// 						qubits.push_back(std::stoi(element));
+// 					std::get<1>(v.properties) =
+// std::stoi(eqsplit[1]); 				} else if (eqsplit[0] == "Gate
+// Vertex Id") { 					std::get<2>(v.properties) = std::stoi(eqsplit[1]);
+// } else if (eqsplit[0] == "Gate Acting Qubits") {
+// auto qubitsStr = eqsplit[1];
+// boost::replace_all(qubitsStr, "[", ""); 					boost::replace_all(qubitsStr, "[",
+// ""); 					std::vector<std::string> elementsStr; 					std::vector<int> qubits;
+// 					boost::split(elementsStr, qubitsStr,
+// boost::is_any_of(" ")); 					for (auto element :
+// elementsStr) { 						qubits.push_back(std::stoi(element));
 // 					}
 // 					std::get<3>(v.properties) = qubits;
 // 				} else if (eqsplit[0] == "Enabled") {
-// 					std::get<4>(v.properties) = (bool) std::stoi(eqsplit[1]);
+// 					std::get<4>(v.properties) = (bool)
+// std::stoi(eqsplit[1]);
 // 				}
 
 // 			}
@@ -436,7 +437,8 @@ operator()(const Eigen::VectorXd &params) {
 // 		boost::replace_all(line, "--", " ");
 // 		std::vector<std::string> vertexPairs;
 // 		boost::split(vertexPairs, line, boost::is_any_of(" "));
-// 		graph.addEdge(std::stoi(vertexPairs[0]), std::stoi(vertexPairs[1]));
+// 		graph.addEdge(std::stoi(vertexPairs[0]),
+// std::stoi(vertexPairs[1]));
 // 	}
 
 //     fromGraph(graph);
@@ -444,28 +446,28 @@ operator()(const Eigen::VectorXd &params) {
 
 Graph<CircuitNode, Directed> GateFunction::toGraph() {
 
-    // Compute number of qubits
-    int maxBit = 0;
-    InstructionIterator it(shared_from_this());
-    while(it.hasNext()) {
-        auto inst = it.next();
-        for (auto& b : inst->bits()) {
-            if (b > maxBit) {
-                maxBit = b;
-            }
-        }
+  // Compute number of qubits
+  int maxBit = 0;
+  InstructionIterator it(shared_from_this());
+  while (it.hasNext()) {
+    auto inst = it.next();
+    for (auto &b : inst->bits()) {
+      if (b > maxBit) {
+        maxBit = b;
+      }
     }
-    
-    auto visitor = std::make_shared<IRToGraphVisitor>(maxBit+1);
-    InstructionIterator it2(shared_from_this());
-    while(it2.hasNext()) {
-        auto inst = it2.next();
-        if (inst->isEnabled()) {
-            inst->accept(visitor);
-        }
-    }
+  }
 
-    return visitor->getGraph();
+  auto visitor = std::make_shared<IRToGraphVisitor>(maxBit + 1);
+  InstructionIterator it2(shared_from_this());
+  while (it2.hasNext()) {
+    auto inst = it2.next();
+    if (inst->isEnabled()) {
+      inst->accept(visitor);
+    }
+  }
+
+  return visitor->getGraph();
 }
 
 } // namespace quantum

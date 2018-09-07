@@ -184,81 +184,83 @@ const std::string uccsdSrc = R"uccsdSrc(def foo(theta0,theta1):
 
 TEST(CircuitOptimizerTester, checkOptimize) {
 
-      if (xacc::hasCompiler("xacc-py")) {
-        auto c = xacc::getService<xacc::Compiler>("xacc-py");
-        auto f = c->compile(uccsdSrc)->getKernels()[0];
-        Eigen::VectorXd p(2);
-        p << 0.0,0.0;
-        auto fevaled = (*f)(p);
+  if (xacc::hasCompiler("xacc-py")) {
+    auto c = xacc::getService<xacc::Compiler>("xacc-py");
+    auto f = c->compile(uccsdSrc)->getKernels()[0];
+    Eigen::VectorXd p(2);
+    p << 0.0, 0.0;
+    auto fevaled = (*f)(p);
 
-        auto ir = std::make_shared<GateIR>();
-        ir->addKernel(fevaled);
+    auto ir = std::make_shared<GateIR>();
+    ir->addKernel(fevaled);
 
-        CountGatesOfTypeVisitor<CNOT> countCx(fevaled);
-        
-        CircuitOptimizer opt;
-        auto newir = opt.transform(ir);
+    CountGatesOfTypeVisitor<CNOT> countCx(fevaled);
 
-        auto optF = newir->getKernels()[0];
+    CircuitOptimizer opt;
+    auto newir = opt.transform(ir);
 
-        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
-        CountGatesOfTypeVisitor<CNOT> countCx2(optF);
-        CountGatesOfTypeVisitor<Rz> countRz(optF);
-        EXPECT_EQ(0, countRz.countGates());
-        EXPECT_EQ(0, countCx2.countGates());
-        EXPECT_EQ(2, optF->nInstructions());
-        EXPECT_EQ("X", optF->getInstruction(0)->name());
-        EXPECT_EQ("X", optF->getInstruction(1)->name());
-        EXPECT_EQ(std::vector<int>{0}, optF->getInstruction(0)->bits());
-        EXPECT_EQ(std::vector<int>{1}, optF->getInstruction(1)->bits());
+    auto optF = newir->getKernels()[0];
 
-        std::cout << "FINAL CIRCUIT:\n" << optF->toString("q") << "\n";
+    optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+    CountGatesOfTypeVisitor<CNOT> countCx2(optF);
+    CountGatesOfTypeVisitor<Rz> countRz(optF);
+    EXPECT_EQ(0, countRz.countGates());
+    EXPECT_EQ(0, countCx2.countGates());
+    EXPECT_EQ(2, optF->nInstructions());
+    EXPECT_EQ("X", optF->getInstruction(0)->name());
+    EXPECT_EQ("X", optF->getInstruction(1)->name());
+    EXPECT_EQ(std::vector<int>{0}, optF->getInstruction(0)->bits());
+    EXPECT_EQ(std::vector<int>{1}, optF->getInstruction(1)->bits());
 
-      }
+    std::cout << "FINAL CIRCUIT:\n" << optF->toString("q") << "\n";
+  }
 }
 
 TEST(CircuitOptimizerTester, checkSimple) {
 
-      if (xacc::hasCompiler("xacc-py")) {
-        auto c = xacc::getService<xacc::Compiler>("xacc-py");
-        auto f = c->compile("def foo():\n   CNOT(0,1)\n   CNOT(0,1)\n")->getKernels()[0];
+  if (xacc::hasCompiler("xacc-py")) {
+    auto c = xacc::getService<xacc::Compiler>("xacc-py");
+    auto f =
+        c->compile("def foo():\n   CNOT(0,1)\n   CNOT(0,1)\n")->getKernels()[0];
 
-        auto ir = std::make_shared<GateIR>();
-        ir->addKernel(f);
+    auto ir = std::make_shared<GateIR>();
+    ir->addKernel(f);
 
-        CircuitOptimizer opt;
-        auto newir = opt.transform(ir);
-        auto optF = newir->getKernels()[0];
+    CircuitOptimizer opt;
+    auto newir = opt.transform(ir);
+    auto optF = newir->getKernels()[0];
 
-        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
-        EXPECT_EQ(0,optF->nInstructions());
+    optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+    EXPECT_EQ(0, optF->nInstructions());
 
-        f = c->compile("def foo():\n   H(0)\n   CNOT(0,1)\n   CNOT(0,1)\n   H(0)\n")->getKernels()[0];
+    f = c->compile("def foo():\n   H(0)\n   CNOT(0,1)\n   CNOT(0,1)\n   H(0)\n")
+            ->getKernels()[0];
 
-        ir = std::make_shared<GateIR>();
-        ir->addKernel(f);
+    ir = std::make_shared<GateIR>();
+    ir->addKernel(f);
 
-        newir = opt.transform(ir);
-        optF = newir->getKernels()[0];
-        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
-        
-        EXPECT_EQ(0,optF->nInstructions());
+    newir = opt.transform(ir);
+    optF = newir->getKernels()[0];
+    optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
 
-        f = c->compile("def foo():\n   CNOT(0,1)\n   H(1)\n   H(1)\n   CNOT(0,1)\n")->getKernels()[0];
+    EXPECT_EQ(0, optF->nInstructions());
 
-        ir = std::make_shared<GateIR>();
-        ir->addKernel(f);
+    f = c->compile("def foo():\n   CNOT(0,1)\n   H(1)\n   H(1)\n   CNOT(0,1)\n")
+            ->getKernels()[0];
 
-        newir = opt.transform(ir);
-        optF = newir->getKernels()[0];
+    ir = std::make_shared<GateIR>();
+    ir->addKernel(f);
 
-        optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
-        EXPECT_EQ(0,optF->nInstructions());
-      }
+    newir = opt.transform(ir);
+    optF = newir->getKernels()[0];
+
+    optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+    EXPECT_EQ(0, optF->nInstructions());
+  }
 }
 
 int main(int argc, char **argv) {
-  xacc::Initialize(argc,argv);
+  xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();
   xacc::Finalize();

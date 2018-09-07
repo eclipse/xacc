@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -25,29 +25,24 @@ namespace {
 
 /**
  */
-class US_ABI_LOCAL PyXACCCompilerActivator: public BundleActivator {
+class US_ABI_LOCAL PyXACCCompilerActivator : public BundleActivator {
 
 public:
+  PyXACCCompilerActivator() {}
 
-	PyXACCCompilerActivator() {
-	}
+  /**
+   */
+  void Start(BundleContext context) {
+    auto c = std::make_shared<xacc::quantum::PyXACCCompiler>();
+    context.RegisterService<xacc::Compiler>(c);
+    context.RegisterService<xacc::OptionsProvider>(c);
+  }
 
-	/**
-	 */
-	void Start(BundleContext context) {
-		auto c = std::make_shared<xacc::quantum::PyXACCCompiler>();
-		context.RegisterService<xacc::Compiler>(c);
-		context.RegisterService<xacc::OptionsProvider>(c);
-
-	}
-
-	/**
-	 */
-	void Stop(BundleContext /*context*/) {
-	}
-
+  /**
+   */
+  void Stop(BundleContext /*context*/) {}
 };
 
-}
+} // namespace
 
 CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(PyXACCCompilerActivator)

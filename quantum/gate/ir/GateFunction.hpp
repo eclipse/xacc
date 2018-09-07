@@ -16,6 +16,7 @@
 #include "Function.hpp"
 #include "IRProvider.hpp"
 #include "GraphProvider.hpp"
+#include "GateInstruction.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
 #include <boost/math/constants/constants.hpp>
@@ -36,37 +37,37 @@ using parser_t = exprtk::parser<double>;
  * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
  * Qubit Ids that the gate acts on, enabled state, vector of parameters names
  */
-class CircuitNode: public XACCVertex<std::string, int, int, std::vector<int>,
-		bool, std::vector<std::string>> {
+class CircuitNode : public XACCVertex<std::string, int, int, std::vector<int>,
+                                      bool, std::vector<std::string>> {
 public:
-	CircuitNode() :
-			XACCVertex() {
-		propertyNames[0] = "Gate";
-		propertyNames[1] = "Circuit Layer";
-		propertyNames[2] = "Gate Vertex Id";
-		propertyNames[3] = "Gate Acting Qubits";
-		propertyNames[4] = "Enabled";
-		propertyNames[5] = "RuntimeParameters";
+  CircuitNode() : XACCVertex() {
+    propertyNames[0] = "Gate";
+    propertyNames[1] = "Circuit Layer";
+    propertyNames[2] = "Gate Vertex Id";
+    propertyNames[3] = "Gate Acting Qubits";
+    propertyNames[4] = "Enabled";
+    propertyNames[5] = "RuntimeParameters";
 
-		// by default all circuit nodes
-		// are enabled and
-		std::get<4>(properties) = true;
-	}
+    // by default all circuit nodes
+    // are enabled and
+    std::get<4>(properties) = true;
+  }
 
-    CircuitNode(std::string name, int layer, int id, std::vector<int> bits, bool enabled, std::vector<std::string> params) {
-        std::get<0>(properties) = name;
-        std::get<1>(properties) = layer;
-        std::get<2>(properties) = id;
-        std::get<3>(properties) = bits;
-        std::get<4>(properties) = enabled;
-        std::get<5>(properties) = params;
-    }
+  CircuitNode(std::string name, int layer, int id, std::vector<int> bits,
+              bool enabled, std::vector<std::string> params) {
+    std::get<0>(properties) = name;
+    std::get<1>(properties) = layer;
+    std::get<2>(properties) = id;
+    std::get<3>(properties) = bits;
+    std::get<4>(properties) = enabled;
+    std::get<5>(properties) = params;
+  }
 
-    const std::string name() {return std::get<0>(properties);}
-    const int layer() {return std::get<1>(properties);}
-    const int id() {return std::get<2>(properties);}
-    const std::vector<int> bits() {return std::get<3>(properties);}
-    bool twoQubit() {return bits().size() == 2;}
+  const std::string name() { return std::get<0>(properties); }
+  const int layer() { return std::get<1>(properties); }
+  const int id() { return std::get<2>(properties); }
+  const std::vector<int> bits() { return std::get<3>(properties); }
+  bool twoQubit() { return bits().size() == 2; }
 };
 
 /**
@@ -74,7 +75,9 @@ public:
  * quantum computing. It is composed of QInstructions that
  * are themselves derivations of the GateInstruction class.
  */
-class GateFunction : public Function, public GraphProvider<CircuitNode, Directed>, public std::enable_shared_from_this<GateFunction> {
+class GateFunction : public Function,
+                     public GraphProvider<CircuitNode, Directed>,
+                     public std::enable_shared_from_this<GateFunction> {
 
 public:
   /**
@@ -110,15 +113,23 @@ public:
   std::list<InstPtr> getInstructions() override;
 
   std::shared_ptr<Function> enabledView() override {
-      auto newF = std::make_shared<GateFunction>(functionName, parameters);
-      for (int i = 0; i < nInstructions(); i++) {
-          auto inst = getInstruction(i);
-          if (inst->isEnabled()) {
-              newF->addInstruction(inst);
-          }
+    auto newF = std::make_shared<GateFunction>(functionName, parameters);
+    for (int i = 0; i < nInstructions(); i++) {
+      auto inst = getInstruction(i);
+      if (inst->isEnabled()) {
+          // FIXME CLONE and add parameters and bits...
+        newF->addInstruction(inst);
       }
-      return newF;
+    }
+    return newF;
   }
+
+  void enable() override {
+    for (int i = 0; i < nInstructions(); i++) {
+      getInstruction(i)->enable();
+    }
+  }
+
   /**
    * Remove an instruction from this
    * quantum intermediate representation
@@ -164,6 +175,14 @@ public:
    */
   const std::vector<int> bits() override;
 
+  const int depth() override { return toGraph().depth(); }
+
+  const std::string persistGraph() override {
+    std::stringstream s;
+    toGraph().write(s);
+    return s.str();
+  }
+
   /**
    * Return an assembly-like string representation for this function .
    * @param bufferVarName
@@ -186,8 +205,8 @@ public:
   std::shared_ptr<Function> operator()(const Eigen::VectorXd &params) override;
 
   Graph<CircuitNode, Directed> toGraph() override;
-//   void fromGraph(Graph<CircuitNode>& graph) override;
-//   void fromGraph(std::istream& input) override;
+  //   void fromGraph(Graph<CircuitNode>& graph) override;
+  //   void fromGraph(std::istream& input) override;
 
   DEFINE_VISITABLE()
 
@@ -202,7 +221,6 @@ protected:
   std::vector<InstructionParameter> parameters;
 
   std::string tag = "";
-
 };
 
 } // namespace quantum

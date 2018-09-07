@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -20,18 +20,16 @@ namespace xacc {
 /**
  *
  */
-template<typename T>
-class Cloneable {
+template <typename T> class Cloneable {
 public:
+  virtual std::shared_ptr<T> clone() = 0;
 
-	virtual std::shared_ptr<T> clone() = 0;
-
-	/**
-	 * The destructor
-	 */
-	virtual ~Cloneable() {}
+  /**
+   * The destructor
+   */
+  virtual ~Cloneable() {}
 };
 
-}
+} // namespace xacc
 
 #endif

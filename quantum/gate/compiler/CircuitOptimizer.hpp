@@ -11,35 +11,27 @@ namespace quantum {
 class CircuitOptimizer : public IRTransformation, public OptionsProvider {
 
 public:
+  CircuitOptimizer() {}
 
-	CircuitOptimizer() {}
+  virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir);
 
-	virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir);
+  virtual const std::string name() const { return "circuit-optimizer"; }
 
-	virtual const std::string name() const {
-		return "circuit-optimizer";
-	}
+  virtual const std::string description() const { return ""; }
 
-	virtual const std::string description() const {
-		return "";
-	}
+  virtual std::shared_ptr<options_description> getOptions() {
+    auto desc =
+        std::make_shared<options_description>("CircuitOptimizer Options");
+    desc->add_options()("circuit-opt-n-tries", value<std::string>(),
+                        "Provide the number of passes to use in optimizing "
+                        "this circuit. Default = 2.")("circuit-opt-silent",
+                                                      "Do not print any info");
+    return desc;
+  }
 
-    virtual std::shared_ptr<options_description> getOptions() {
-		auto desc = std::make_shared<options_description>(
-				"CircuitOptimizer Options");
-		desc->add_options()("circuit-opt-n-tries", value<std::string>(),
-				"Provide the number of passes to use in optimizing this circuit. Default = 2.")
-                ("circuit-opt-silent","Do not print any info");
-		return desc;
-	}
-
-	virtual bool handleOptions(variables_map& map) {
-		return false;
-	}
+  virtual bool handleOptions(variables_map &map) { return false; }
 };
-}
-}
-
-
+} // namespace quantum
+} // namespace xacc
 
 #endif

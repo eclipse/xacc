@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -23,34 +23,25 @@ namespace quantum {
  */
 class Y : public virtual GateInstruction {
 public:
-	Y() : GateInstruction("Y"){}
+  Y() : GateInstruction("Y") {}
 
+  Y(std::vector<int> qbit) : GateInstruction("Y", qbit) {}
 
-	Y(std::vector<int> qbit) :
-			GateInstruction("Y", qbit) {
-	}
+  Y(int qbit) : Y(std::vector<int>{qbit}) {}
 
-	Y(int qbit) :
-			Y(std::vector<int> { qbit }) {
-	}
+  virtual std::shared_ptr<GateInstruction> clone() {
+    return std::make_shared<Y>();
+  }
+  /**
+   * Return the description of this instance
+   * @return description The description of this object.
+   */
+  virtual const std::string description() const { return ""; }
 
-	virtual std::shared_ptr<GateInstruction> clone() {
-		return std::make_shared<Y>();
-	}
-	/**
-	 * Return the description of this instance
-	 * @return description The description of this object.
-	 */
-	virtual const std::string description() const {
-		return "";
-	}
-
-	DEFINE_VISITABLE()
-
+  DEFINE_VISITABLE()
 };
 
-
-}
-}
+} // namespace quantum
+} // namespace xacc
 
 #endif

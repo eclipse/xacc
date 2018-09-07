@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -26,27 +26,27 @@ namespace quantum {
 // 	std::vector<int> allQbitIds;
 // 	boost::regex newLineDelim("\n"), spaceDelim(" ");
 // 	boost::regex qubitDeclarations("\\s*qubit\\s*\\w+");
-// 	boost::sregex_token_iterator first{flatQasmStr.begin(), flatQasmStr.end(), newLineDelim, -1}, last;
-// 	int nQubits = 0, qbitId = 0, layer = 1, gateId = 1;
-// 	std::string qubitVarName;
-// 	qasmLines = {first, last};
+// 	boost::sregex_token_iterator first{flatQasmStr.begin(),
+// flatQasmStr.end(), newLineDelim, -1}, last; 	int nQubits = 0, qbitId = 0,
+// layer = 1, gateId = 1; 	std::string qubitVarName; 	qasmLines =
+// {first, last};
 
 // 	// Let's now loop over the qubit declarations,
 // 	// and construct a mapping of qubit var names to integer id,
 // 	// and get the total number of qubits
-// 	for (auto i = boost::sregex_iterator(flatQasmStr.begin(), flatQasmStr.end(),
-// 					qubitDeclarations); i != boost::sregex_iterator(); ++i) {
-// 		std::string qubitLine = (*i).str();
-// 		qubitLine.erase(std::remove(qubitLine.begin(), qubitLine.end(), '\n'), qubitLine.end());
-// 		boost::sregex_token_iterator first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
+// 	for (auto i = boost::sregex_iterator(flatQasmStr.begin(),
+// flatQasmStr.end(), 					qubitDeclarations); i !=
+// boost::sregex_iterator(); ++i) { 		std::string qubitLine = (*i).str();
+// 		qubitLine.erase(std::remove(qubitLine.begin(), qubitLine.end(),
+// '\n'), qubitLine.end()); 		boost::sregex_token_iterator
+// first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
 // 		std::vector<std::string> splitQubitLine = {first, last};
 // 		qubitVarNameToId[splitQubitLine[1]] = qbitId;
 // 		splitQubitLine[1].erase(
-// 		  std::remove_if(splitQubitLine[1].begin(), splitQubitLine[1].end(), &isdigit),
-// 		  splitQubitLine[1].end());
-// 		qubitVarName = splitQubitLine[1];
-// 		allQbitIds.push_back(qbitId);
-// 		qbitId++;
+// 		  std::remove_if(splitQubitLine[1].begin(),
+// splitQubitLine[1].end(), &isdigit), 		  splitQubitLine[1].end());
+// qubitVarName = splitQubitLine[1]; 		allQbitIds.push_back(qbitId);
+// qbitId++;
 // 	}
 
 // 	// Set the number of qubits
@@ -55,12 +55,14 @@ namespace quantum {
 // 	// First create a starting node for the initial
 // 	// wave function - it should have nQubits outgoing
 // 	// edges
-// 	addVertex("InitialState", 0, 0, allQbitIds, true, std::vector<std::string>{});
+// 	addVertex("InitialState", 0, 0, allQbitIds, true,
+// std::vector<std::string>{});
 
 // 	std::vector<CircuitNode> gateOperations;
 // 	for (auto line : qasmLines) {
 // 		// If this is a gate line...
-// 		if (!boost::contains(line, "qubit") && !boost::contains(line, "cbit")) {
+// 		if (!boost::contains(line, "qubit") && !boost::contains(line,
+// "cbit")) {
 
 // 			// Create a new CircuitNode
 // 			CircuitNode node;
@@ -97,21 +99,23 @@ namespace quantum {
 // 				actingQubits.push_back(qubitVarNameToId[gateCommand[1]]);
 // 			} else {
 
-
-// 				// FIXME Need to differentiate between qubits and parameters here
-// 				// First we need the qubit register variable name
+// 				// FIXME Need to differentiate between qubits
+// and parameters here
+// 				// First we need the qubit register variable
+// name
 
 // 				int counter = 0;
 // 				std::vector<std::string> splitComma, props;
-// 				boost::split(splitComma, gateCommand[1], boost::is_any_of(","));
-// 				for (auto segment : splitComma) {
-// 					if (boost::contains(segment, qubitVarName)) {
+// 				boost::split(splitComma, gateCommand[1],
+// boost::is_any_of(",")); 				for (auto segment : splitComma) {
+// if (boost::contains(segment, qubitVarName)) {
 // 						actingQubits.push_back(qubitVarNameToId[segment]);
 // 					} else {
-// 						// This is not a qubit, it must be a parameter for gate
-// 						props.push_back("PARAM_" + std::to_string(counter));
-// 						std::get<5>(node.properties) = props;
-// 						counter++;
+// 						// This is not a qubit, it must be a
+// parameter
+// for gate 						props.push_back("PARAM_" +
+// std::to_string(counter)); 						std::get<5>(node.properties) = props;
+// counter++;
 // 					}
 // 				}
 // 			}
@@ -162,14 +166,15 @@ namespace quantum {
 // 		std::vector<CircuitNode> currentLayerGates;
 // 		std::copy_if(gateOperations.begin(), gateOperations.end(),
 // 				std::back_inserter(currentLayerGates),
-// 				[&](const CircuitNode& c) {return std::get<1>(c.properties) == currentLayer;});
+// 				[&](const CircuitNode& c) {return
+// std::get<1>(c.properties) == currentLayer;});
 
 // 		for (auto n : currentLayerGates) {
-// 			std::vector<int> actingQubits = std::get<3>(n.properties);
-// 			for (auto qubit : actingQubits) {
-// 				int currentQubitGateId = qubitToCurrentGateId[qubit];
-// 				addEdge(currentQubitGateId, std::get<2>(n.properties));
-// 				qubitToCurrentGateId[qubit] = std::get<2>(n.properties);
+// 			std::vector<int> actingQubits =
+// std::get<3>(n.properties); 			for (auto qubit : actingQubits) {
+// int currentQubitGateId = qubitToCurrentGateId[qubit];
+// addEdge(currentQubitGateId, std::get<2>(n.properties));
+// qubitToCurrentGateId[qubit] = std::get<2>(n.properties);
 // 			}
 // 		}
 
@@ -179,18 +184,19 @@ namespace quantum {
 
 // bool GateIR::incrementLayer(const std::vector<std::string>& gateCommand,
 // 		std::map<std::string, int>& qubitVarNameToId,
-// 		const std::vector<CircuitNode>& gates, const int& currentLayer) {
+// 		const std::vector<CircuitNode>& gates, const int& currentLayer)
+// {
 
-// 	bool oneQubitGate = !boost::contains(gateCommand[1], ","), noGateAtQOnL = true;
-// 	auto g = boost::to_lower_copy(gateCommand[0]);
-// 	boost::trim(g);
-// 	if (g == "measz") g = "measure";
-
+// 	bool oneQubitGate = !boost::contains(gateCommand[1], ","), noGateAtQOnL
+// = true; 	auto g = boost::to_lower_copy(gateCommand[0]); boost::trim(g);
+// if (g
+// == "measz") g = "measure";
 
 // 	std::vector<CircuitNode> thisLayerGates;
 // 	std::copy_if(gates.begin(), gates.end(),
 // 			std::back_inserter(thisLayerGates),
-// 			[&](const CircuitNode& c) {return std::get<1>(c.properties) == currentLayer;});
+// 			[&](const CircuitNode& c) {return std::get<1>(c.properties)
+// == currentLayer;});
 
 // 	for (auto layerGate : thisLayerGates) {
 // 		std::vector<int> qubits = std::get<3>(layerGate.properties);
@@ -214,55 +220,55 @@ namespace quantum {
 // 	return false;
 // }
 
+std::string GateIR::toAssemblyString(const std::string &kernelName,
+                                     const std::string &accBufferVarName) {
+  std::string retStr = "";
+  auto kernel = getKernel(kernelName);
 
-std::string GateIR::toAssemblyString(const std::string& kernelName, const std::string& accBufferVarName) {
-	std::string retStr = "";
-	auto kernel = getKernel(kernelName);
+  std::set<int> qubitsUsed;
+  InstructionIterator it(kernel);
+  while (it.hasNext()) {
+    // Get the next node in the tree
+    auto nextInst = it.next();
 
-	std::set<int> qubitsUsed;
-	InstructionIterator it(kernel);
-	while (it.hasNext()) {
-		// Get the next node in the tree
-		auto nextInst = it.next();
+    // If enabled, invoke the accept
+    // method which kicks off the visitor
+    // to execute the appropriate lambda.
+    if (nextInst->isEnabled() && !nextInst->isComposite()) {
 
-		// If enabled, invoke the accept
-		// method which kicks off the visitor
-		// to execute the appropriate lambda.
-		if (nextInst->isEnabled() && !nextInst->isComposite()) {
+      for (auto qi : nextInst->bits()) {
+        qubitsUsed.insert(qi);
+      }
+    }
+  }
 
-			for (auto qi : nextInst->bits()) {
-				qubitsUsed.insert(qi);
-			}
-		}
-	}
-
-	for (auto qi : qubitsUsed) {
-		retStr += "qubit " + accBufferVarName + std::to_string(qi) + "\n";
-	}
-	for (auto f : kernels) {
-		retStr += f->toString(accBufferVarName);
-	}
-	return retStr;
+  for (auto qi : qubitsUsed) {
+    retStr += "qubit " + accBufferVarName + std::to_string(qi) + "\n";
+  }
+  for (auto f : kernels) {
+    retStr += f->toString(accBufferVarName);
+  }
+  return retStr;
 }
 
-void GateIR::persist(std::ostream& outStream) {
+void GateIR::persist(std::ostream &outStream) {
 
-	JsonVisitor visitor(kernels);
-	outStream << visitor.write();
+  JsonVisitor visitor(kernels);
+  outStream << visitor.write();
 
-//	StringBuffer sb;
-//	PrettyWriter<StringBuffer> writer(sb);
-//
-//	serializeJson(writer);
-//
-//	outStream << sb.GetString();
+  //	StringBuffer sb;
+  //	PrettyWriter<StringBuffer> writer(sb);
+  //
+  //	serializeJson(writer);
+  //
+  //	outStream << sb.GetString();
 
-	return;
+  return;
 }
 
 // FOR IR
-void GateIR::load(std::istream& inStream) {
-	// read(inStream);
+void GateIR::load(std::istream &inStream) {
+  // read(inStream);
 }
 
 // FOR GRAPH
@@ -300,7 +306,8 @@ void GateIR::load(std::istream& inStream) {
 // 			boost::replace_all(line, "label=", "");
 // 			boost::trim(line);
 // 			std::vector<std::string> labelLineSplit, removeId;
-// 			boost::split(labelLineSplit, line, boost::is_any_of(","));
+// 			boost::split(labelLineSplit, line,
+// boost::is_any_of(","));
 
 // 			for (auto a : labelLineSplit) {
 // 				std::vector<std::string> eqsplit;
@@ -308,22 +315,21 @@ void GateIR::load(std::istream& inStream) {
 // 				if (eqsplit[0] == "Gate") {
 // 					std::get<0>(v.properties) = eqsplit[1];
 // 				} else if (eqsplit[0] == "Circuit Layer") {
-// 					std::get<1>(v.properties) = std::stoi(eqsplit[1]);
-// 				} else if (eqsplit[0] == "Gate Vertex Id") {
-// 					std::get<2>(v.properties) = std::stoi(eqsplit[1]);
-// 				} else if (eqsplit[0] == "Gate Acting Qubits") {
-// 					auto qubitsStr = eqsplit[1];
-// 					boost::replace_all(qubitsStr, "[", "");
-// 					boost::replace_all(qubitsStr, "[", "");
-// 					std::vector<std::string> elementsStr;
-// 					std::vector<int> qubits;
-// 					boost::split(elementsStr, qubitsStr, boost::is_any_of(" "));
-// 					for (auto element : elementsStr) {
-// 						qubits.push_back(std::stoi(element));
+// 					std::get<1>(v.properties) =
+// std::stoi(eqsplit[1]); 				} else if (eqsplit[0] == "Gate
+// Vertex Id") { 					std::get<2>(v.properties) = std::stoi(eqsplit[1]);
+// } else if (eqsplit[0] == "Gate Acting Qubits") {
+// auto qubitsStr = eqsplit[1];
+// boost::replace_all(qubitsStr, "[", ""); 					boost::replace_all(qubitsStr, "[",
+// ""); 					std::vector<std::string> elementsStr; 					std::vector<int> qubits;
+// 					boost::split(elementsStr, qubitsStr,
+// boost::is_any_of(" ")); 					for (auto element :
+// elementsStr) { 						qubits.push_back(std::stoi(element));
 // 					}
 // 					std::get<3>(v.properties) = qubits;
 // 				} else if (eqsplit[0] == "Enabled") {
-// 					std::get<4>(v.properties) = (bool) std::stoi(eqsplit[1]);
+// 					std::get<4>(v.properties) = (bool)
+// std::stoi(eqsplit[1]);
 // 				}
 
 // 			}
@@ -347,6 +353,5 @@ void GateIR::load(std::istream& inStream) {
 
 // }
 
-}
-}
-
+} // namespace quantum
+} // namespace xacc
