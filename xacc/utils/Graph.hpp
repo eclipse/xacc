@@ -20,6 +20,7 @@
 #include <boost/graph/eccentricity.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/graph/dag_shortest_paths.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <numeric>
 #include "Utils.hpp"
@@ -377,7 +378,7 @@ public:
 	int degree(const int index) {
 		return boost::degree(vertex(index, *_graph.get()), *_graph.get());
 	}
-
+    
 	/**
 	 * Return the diameter of this Graph.
 	 *
@@ -511,15 +512,44 @@ public:
 						boost::make_iterator_property_map(d.begin(),
 								get(boost::vertex_index, *_graph.get()))));
 
-		// for (int i = 0; i < p.size(); i++) {
-			// std::cout << p[i] << "\n";
-		// }
-
         for (auto& di : d) distances.push_back(di);
         for (auto& pi : p) paths.push_back(pi);
 
 	}
 
+    const int depth() {
+        if (type == Undirected) {
+            XACCLogger::instance()->error("Cannot compute depth on undirected graph.");
+        }
+
+        // Make a copy of this graph with negative edge weights
+		adj_list g(order());
+        for (int i = 0; i < order(); i++) {
+            for (int j = 0; j < order(); j++) {
+                if (edgeExists(i,j)) {
+                    auto edgeBoolPair = add_edge(vertex(i, g),
+				            vertex(j, g), g);
+		            if (!edgeBoolPair.second) {
+			            XACCLogger::instance()->error("Failed to add an edge between " + std::to_string(i) + " and " + std::to_string(j));
+		            }
+
+		            boost::put(boost::edge_weight_t(), g, edgeBoolPair.first, -1.0*getEdgeWeight(i,j));
+                }
+            }
+        }
+        
+      	std::vector<vertex_type> p(order());
+		std::vector<int> d(order());
+        
+        boost::dag_shortest_paths(g, vertex(0, g),
+				predecessor_map(
+						boost::make_iterator_property_map(p.begin(),
+								get(boost::vertex_index, g))).distance_map(
+						boost::make_iterator_property_map(d.begin(),
+								get(boost::vertex_index, g))));
+
+        return -1*(*std::min_element(d.begin(), d.end())) - 1;
+    }
 };
 
 }
