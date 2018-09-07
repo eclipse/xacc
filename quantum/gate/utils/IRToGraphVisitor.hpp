@@ -36,8 +36,7 @@ protected:
 
     id++;
 
-    CircuitNode newNode(inst.name(), 0, id, inst.bits(), true,
-                        std::vector<std::string>{});
+    CircuitNode newNode(inst.name(), id, inst.bits());
 
     graph.addVertex(newNode);
     graph.addEdge(lastNode.id(), newNode.id(), 1);
@@ -53,8 +52,7 @@ protected:
     auto lasttgtnodeid = qubitToLastNode[tgtbit].id();
 
     id++;
-    CircuitNode newNode(inst.name(), 0, id, inst.bits(), true,
-                        std::vector<std::string>{});
+    CircuitNode newNode(inst.name(), id, inst.bits());
 
     graph.addVertex(newNode);
     graph.addEdge(lastsrcnodeid, id, 1);
@@ -68,8 +66,7 @@ public:
   IRToGraphVisitor(const int nQubits) {
     std::vector<int> allQbitIds(nQubits);
     std::iota(std::begin(allQbitIds), std::end(allQbitIds), 0);
-    CircuitNode initNode("InitialState", 0, 0, allQbitIds, true,
-                         std::vector<std::string>{});
+    CircuitNode initNode("InitialState", 0, allQbitIds);
     for (int i = 0; i < nQubits; i++) {
       qubitToLastNode.insert({i, initNode});
     }
@@ -79,27 +76,13 @@ public:
   Graph<CircuitNode, Directed> getGraph() {
     CircuitNode finalNode;
     std::get<0>(finalNode.properties) = "FinalState";
-    std::get<1>(finalNode.properties) = 0;
-    std::get<2>(finalNode.properties) = id + 1;
-    std::get<3>(finalNode.properties) = {};
-    std::get<4>(finalNode.properties) = true;
+    std::get<1>(finalNode.properties) = id + 1;
+    std::get<2>(finalNode.properties) = graph.getVertex(0).bits();
     graph.addVertex(finalNode);
 
     for (auto &kv : qubitToLastNode) {
       graph.addEdge(kv.second.id(), finalNode.id(), 1.0);
     }
-
-    // std::vector<double> distances;
-    // std::vector<int> paths;
-
-    // // Set the layers with a BFS.
-    // graph.computeShortestPath(0, distances, paths);
-
-    // std::cout << graph.order() << ", " << distances.size() << ", PATHS FROM 0
-    // to \n"; for (int i = 1; i < distances.size()-1; ++i) {
-    //     std::get<1>(graph.getVertex(i).properties) = distances[i];
-    //     std::cout << i << ", " << distances[i] << "\n";
-    // }
 
     return graph;
   }

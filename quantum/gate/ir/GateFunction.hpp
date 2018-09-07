@@ -34,46 +34,32 @@ using parser_t = exprtk::parser<double>;
  * CircuitNode subclasses XACCVertex to provide the following
  * parameters in the given order:
  *
- * Parameters: Gate, Layer (ie time sequence), Gate Vertex Id,
- * Qubit Ids that the gate acts on, enabled state, vector of parameters names
+ * Parameters: Gate, Id, Qubit Ids that the gate acts on
  */
-class CircuitNode : public XACCVertex<std::string, int, int, std::vector<int>,
-                                      bool, std::vector<std::string>> {
+class CircuitNode : public XACCVertex<std::string, int, std::vector<int>> {
 public:
   CircuitNode() : XACCVertex() {
-    propertyNames[0] = "Gate";
-    propertyNames[1] = "Circuit Layer";
-    propertyNames[2] = "Gate Vertex Id";
-    propertyNames[3] = "Gate Acting Qubits";
-    propertyNames[4] = "Enabled";
-    propertyNames[5] = "RuntimeParameters";
-
-    // by default all circuit nodes
-    // are enabled and
-    std::get<4>(properties) = true;
+    propertyNames[0] = "gate";
+    propertyNames[1] = "id";
+    propertyNames[2] = "bits";
   }
 
-  CircuitNode(std::string name, int layer, int id, std::vector<int> bits,
-              bool enabled, std::vector<std::string> params) {
+  CircuitNode(std::string name, int id, std::vector<int> bits) {
     std::get<0>(properties) = name;
-    std::get<1>(properties) = layer;
-    std::get<2>(properties) = id;
-    std::get<3>(properties) = bits;
-    std::get<4>(properties) = enabled;
-    std::get<5>(properties) = params;
+    std::get<1>(properties) = id;
+    std::get<2>(properties) = bits;
   }
 
   const std::string name() { return std::get<0>(properties); }
-  const int layer() { return std::get<1>(properties); }
-  const int id() { return std::get<2>(properties); }
-  const std::vector<int> bits() { return std::get<3>(properties); }
+  const int id() { return std::get<1>(properties); }
+  const std::vector<int> bits() { return std::get<2>(properties); }
   bool twoQubit() { return bits().size() == 2; }
 };
 
 /**
  * The GateFunction is a realization of Function for gate-model
- * quantum computing. It is composed of QInstructions that
- * are themselves derivations of the GateInstruction class.
+ * quantum computing. It is composed of GateInstructions that
+ * are themselves derivations of the Instruction class.
  */
 class GateFunction : public Function,
                      public GraphProvider<CircuitNode, Directed>,
@@ -117,7 +103,7 @@ public:
     for (int i = 0; i < nInstructions(); i++) {
       auto inst = getInstruction(i);
       if (inst->isEnabled()) {
-          // FIXME CLONE and add parameters and bits...
+        // FIXME CLONE and add parameters and bits...
         newF->addInstruction(inst);
       }
     }
