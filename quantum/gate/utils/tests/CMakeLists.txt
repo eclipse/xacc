@@ -1,6 +1,3 @@
 add_xacc_test(JsonVisitor)
-add_xacc_test(QasmToGraph)
-add_xacc_test(QuantumCircuit)
-add_xacc_test(SimulatedQubits)
 add_xacc_test(IRToGraphVisitor)
 target_link_libraries(IRToGraphVisitorTester xacc-quantum-gate)

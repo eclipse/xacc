@@ -96,8 +96,8 @@ TEST(ReadoutErrorIRPreprocessorTester, checkSimple) {
   xacc::Initialize();
   //	(-2.143303525+0j)*X0*X1 + (-3.91311896+0j)*X1*X2 +
   //			(-2.143303525+0j)*Y0*Y1 + (-3.91311896+0j)*Y1*Y2 +
-  //(0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2 	needs x0, x1, x2,
-  //y0, y1, y2
+  //(0.218290555+0j)*Z0 + (-6.125+0j)*Z1 + (-9.625+0j)*Z2 	needs x0, x1,
+  //x2, y0, y1, y2
 
   std::unordered_map<std::string, Term> test{{"X0X1", {{0, "X"}, {1, "X"}}},
                                              {"X1X2", {{1, "X"}, {2, "X"}}},

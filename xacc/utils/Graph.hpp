@@ -213,8 +213,6 @@ public:
 
     boost::put(boost::edge_weight_t(), *_graph.get(), edgeBoolPair.first,
                edgeWeight);
-    //		(*_graph.get())[edgeBoolPair.first].weight = edgeWeight;
-    //		std::cout << "EDGE WEIGHT SET\n";
   }
 
   /**
@@ -228,20 +226,6 @@ public:
     add_edge(vertex(srcIndex, *_graph.get()), vertex(tgtIndex, *_graph.get()),
              *_graph.get());
   }
-
-  // typename std::enable_if<type == Directed>::type getTargetVertices(const int
-  // vertexIndex, std::vector<int>& connectedVerts) {
-  //     typename graph_traits < BoostGraph >::out_edge_iterator ei, ei_end;
-  //     auto u = getVertex(vertexIndex);
-  //     for (boost::tie(ei, ei_end) = out_edges(u, *_graph.get()); ei !=
-  //     ei_end; ++ei) {
-  //         auto source = boost::source ( *ei, *_graph.get());
-  //         auto target = boost::target ( *ei, *_graph.get());
-  //         connectedVerts.push_back(std::get<1>((*_graph.get())[target].properties));
-  //         // std::cout << "There is an edge from " << source <<  " to " <<
-  //         target << std::endl;
-  //     }
-  // }
 
   void removeEdge(const int srcIndex, const int tgtIndex) {
     auto v = vertex(srcIndex, *_graph.get());
@@ -289,8 +273,6 @@ public:
   template <const int PropertyIndex,
             typename DeducedPropertyType> // const int PropertyIndex>
   void setVertexProperty(const int index, DeducedPropertyType prop) {
-    //			decltype(std::get<PropertyIndex>(std::declval<Vertex>().properties))
-    // prop) {
     auto v = vertex(index, *_graph.get());
     std::get<PropertyIndex>((*_graph.get())[v].properties) = prop;
     return;
@@ -334,7 +316,6 @@ public:
     auto e = edge(vertex(srcIndex, *_graph.get()),
                   vertex(tgtIndex, *_graph.get()), *_graph.get());
     boost::put(boost::edge_weight_t(), *_graph.get(), e.first, weight);
-    //		(*_graph.get())[e.first].weight = weight;
   }
 
   /**
@@ -438,7 +419,6 @@ public:
         boost::adjacent_vertices(vertex(index, *_graph.get()), *_graph.get());
 
     for (; neighbors.first != neighbors.second; ++neighbors.first) {
-      //			std::cout << indexMap[*neighbors.first] << " ";
       int neighborIdx = indexMap[*neighbors.first];
       l.push_back(neighborIdx);
     }
@@ -457,13 +437,13 @@ public:
     boost::write_graphviz(ss, *_graph.get(), writer);
     auto str = ss.str();
     // Modify the style...
-    str = str.insert(9, "\nnode [shape=box style=filled]");
+    str = str.insert(type == Undirected ? 9 : 11,
+                     "\nnode [shape=box style=filled]");
 
     std::vector<std::string> splitVec;
     boost::split(splitVec, str, boost::is_any_of("\n"));
     splitVec.insert(splitVec.begin() + 2 + order(), "}\n");
 
-    //		std::cout << "HELLO:\n " << str << "\n";
     for (auto s : splitVec) {
       if (boost::contains(s, "--")) {
         // THis is an edge

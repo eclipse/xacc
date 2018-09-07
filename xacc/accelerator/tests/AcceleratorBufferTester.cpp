@@ -35,7 +35,7 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
   // Our Results: 000000000000:1 	[2017-11-29 15:01:42.752] [xacc-console]
   // [info] IBM Results: 0000110000000000:7827 	[2017-11-29 15:01:42.752]
   // [xacc-console] [info] Our Results: 000000000000:7827 	[2017-11-29
-  //15:01:42.761] [xacc-console] [info] IBM Results: 0000110001000000:364
+  // 15:01:42.761] [xacc-console] [info] IBM Results: 0000110001000000:364
   //[2017-11-29 15:01:42.761] [xacc-console] [info] Our Results:
   // 000001000000:364
 
