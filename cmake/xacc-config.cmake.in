@@ -7,6 +7,7 @@
 #  XACC_LIBRARIES    - libraries to link against
 #  XACC_LIBRARY_DIR  - the XACC library directory 
 include(CTest)
+include(format)
 if (NOT XACC_ROOT)
    get_filename_component(XACC_ROOT "${CMAKE_CURRENT_LIST_FILE}" PATH)
 endif()
