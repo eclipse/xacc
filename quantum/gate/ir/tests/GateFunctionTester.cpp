@@ -18,6 +18,7 @@
 #include "Ry.hpp"
 #include "Rz.hpp"
 #include "X.hpp"
+#include "Z.hpp"
 #include <gtest/gtest.h>
 #include "Graph.hpp"
 
@@ -38,11 +39,12 @@ TEST(GateFunctionTester, checkFunctionMethods) {
   auto cn1 = std::make_shared<CNOT>(1, 2);
   auto cn2 = std::make_shared<CNOT>(0, 1);
   auto h2 = std::make_shared<Hadamard>(0);
-
+  
   f.addInstruction(h);
   f.addInstruction(cn1);
   f.addInstruction(cn2);
   f.addInstruction(h2);
+  
   EXPECT_TRUE(f.nInstructions() == 4);
   EXPECT_TRUE(f.toString("qreg") == expectedQasm);
 
@@ -74,14 +76,12 @@ TEST(GateFunctionTester, checkWalkFunctionTree) {
   auto h = std::make_shared<Hadamard>(1);
   auto cn1 = std::make_shared<CNOT>(1, 2);
   auto cn2 = std::make_shared<CNOT>(0, 1);
-  auto h2 = std::make_shared<Hadamard>(0);
 
   g->addInstruction(cn1);
   g->addInstruction(cn2);
 
   f->addInstruction(h);
   f->addInstruction(g);
-  f->addInstruction(h2);
 
   xacc::InstructionIterator it(f);
   while (it.hasNext()) {
@@ -366,12 +366,12 @@ TEST(GateFunctionTester,checkGenerateGraph) {
 	auto h = std::make_shared<Hadamard>(1);
 	auto cn1 = std::make_shared<CNOT>(1, 2);
 	auto cn2 = std::make_shared<CNOT>(0, 1);
-	auto h2 = std::make_shared<Hadamard>(0);
+    auto h2 = std::make_shared<Hadamard>(0);
     auto rz = std::make_shared<Rz>(2,3.1415);
 	f->addInstruction(h);
 	f->addInstruction(cn1);
 	f->addInstruction(cn2);
-	f->addInstruction(h2);
+    f->addInstruction(h2);
     f->addInstruction(rz);
     
 	auto g = f->toGraph();
@@ -403,6 +403,27 @@ node [shape=box style=filled] {
 	std::cout << ss.str() << "\n\n" << expected << "\n";
 	EXPECT_TRUE(expected == ss.str());
 
+}
+
+TEST(GateFunctionTester, checkDepth) {
+    auto f = std::make_shared<GateFunction>("foo");
+    auto x = std::make_shared<X>(0);
+	auto h = std::make_shared<Hadamard>(1);
+	auto cn1 = std::make_shared<CNOT>(1, 2);
+    auto rz = std::make_shared<Rz>(1,3.1415);
+    auto z = std::make_shared<Z>(2);
+    
+    f->addInstruction(x);
+	f->addInstruction(h);
+	f->addInstruction(cn1);
+    f->addInstruction(rz);
+    f->addInstruction(z);
+    
+	auto g = f->toGraph();
+
+    std::cout << "DEPTH: " << g.depth() << "\n";
+    EXPECT_EQ(3, g.depth());
+    
 }
 
 int main(int argc, char **argv) {
