@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -34,7 +34,7 @@ extern std::shared_ptr<CLIParser> xaccCLParser;
 extern std::shared_ptr<ServiceRegistry> serviceRegistry;
 
 extern int argc;
-extern char** argv;
+extern char **argv;
 
 /**
  * This method should be called by
@@ -42,7 +42,7 @@ extern char** argv;
  * It should be called before using any of the
  * XACC API.
  */
-void Initialize(int argc, char** argv);
+void Initialize(int argc, char **argv);
 
 /**
  * Return command line argc integer.
@@ -56,7 +56,7 @@ int getArgc();
  *
  * @return argv The command line arguments
  */
-char** getArgv();
+char **getArgv();
 
 /**
  * Initialize the framework with a vector of strings as arguments.
@@ -85,8 +85,8 @@ void setIsPyApi();
  * @param optionName The name of the string option
  * @param optionDescription The description of the option
  */
-void addCommandLineOption(const std::string& optionName,
-		const std::string& optionDescription = "");
+void addCommandLineOption(const std::string &optionName,
+                          const std::string &optionDescription = "");
 
 /**
  * Add a set of options under the provided category.
@@ -94,7 +94,8 @@ void addCommandLineOption(const std::string& optionName,
  * @param category The name of the category these options fall under
  * @param options The options, a map of option names to descriptions
  */
-void addCommandLineOptions(const std::string& category, const std::map<std::string, std::string>& options);
+void addCommandLineOptions(const std::string &category,
+                           const std::map<std::string, std::string> &options);
 
 /**
  * Add a set of options as a boost options_description object. This method
@@ -118,7 +119,10 @@ void setGlobalLoggerPredicate(MessagePredicate predicate);
  * @param msg The log to print
  * @param predicate Function with no arguments that returns bool
  */
-void info(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void info(const std::string &msg,
+          MessagePredicate predicate = std::function<bool(void)>([]() {
+            return true;
+          }));
 
 /**
  * Print a warning log to the XACC Logger.
@@ -126,7 +130,10 @@ void info(const std::string& msg, MessagePredicate predicate = std::function<boo
  * @param msg The log to print
  * @param predicate Function with no arguments that returns bool
  */
-void warning(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void warning(const std::string &msg,
+             MessagePredicate predicate = std::function<bool(void)>([]() {
+               return true;
+             }));
 
 /**
  * Print an debug log to the XACC Logger.
@@ -134,7 +141,10 @@ void warning(const std::string& msg, MessagePredicate predicate = std::function<
  * @param msg The log to print
  * @param predicate Function with no arguments that returns bool
  */
-void debug(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void debug(const std::string &msg,
+           MessagePredicate predicate = std::function<bool(void)>([]() {
+             return true;
+           }));
 
 /**
  * Print an error log to the XACC Logger.
@@ -142,7 +152,10 @@ void debug(const std::string& msg, MessagePredicate predicate = std::function<bo
  * @param msg The log to print
  * @param predicate Function with no arguments that returns bool
  */
-void error(const std::string& msg, MessagePredicate predicate = std::function<bool(void)>([]() {return true;}));
+void error(const std::string &msg,
+           MessagePredicate predicate = std::function<bool(void)>([]() {
+             return true;
+           }));
 
 /**
  * Clear the options database
@@ -155,14 +168,14 @@ void clearOptions();
  * @param optionKey The name of the option
  * @return exists True if it exists
  */
-bool optionExists(const std::string& optionKey);
+bool optionExists(const std::string &optionKey);
 
 /**
  * Return the value of the options with the given name.
  * @param optionKey The name of the option
  * @return value The value of this option
  */
-const std::string getOption(const std::string& optionKey);
+const std::string getOption(const std::string &optionKey);
 
 /**
  * Set the value of the option with the given name.
@@ -170,22 +183,22 @@ const std::string getOption(const std::string& optionKey);
  * @param optionKey The name of the option
  * @param value The new option value.
  */
-void setOption(const std::string& optionKey, const std::string& value);
-void unsetOption(const std::string& optionKey);
+void setOption(const std::string &optionKey, const std::string &value);
+void unsetOption(const std::string &optionKey);
 
 /**
  * Set the Compiler to use.
  *
  * @param compilerName The name of the compiler
  */
-void setCompiler(const std::string& compilerName);
+void setCompiler(const std::string &compilerName);
 
 /**
  * Set the Accelerator to use.
  *
  * @param acceleratorName The name of the accelerator
  */
-void setAccelerator(const std::string& acceleratorName);
+void setAccelerator(const std::string &acceleratorName);
 
 /**
  * Return the Accelerator with given name
@@ -193,7 +206,7 @@ void setAccelerator(const std::string& acceleratorName);
  * @param name The name of the Accelerator
  * @return accelerator The Accelerator
  */
-std::shared_ptr<Accelerator> getAccelerator(const std::string& name);
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name);
 
 /**
  * Get the Accelerator that is currently specified by the
@@ -210,12 +223,12 @@ std::shared_ptr<Accelerator> getAccelerator();
  * @param name Accelerator name
  * @return exists Bool that's true if framework has given Accelerator
  */
-bool hasAccelerator(const std::string& name);
+bool hasAccelerator(const std::string &name);
 
 /**
  * Return the Compiler with given name
  */
-std::shared_ptr<Compiler> getCompiler(const std::string& name);
+std::shared_ptr<Compiler> getCompiler(const std::string &name);
 
 /**
  * Get the Compiler that is currently specified by the
@@ -232,51 +245,53 @@ std::shared_ptr<Compiler> getCompiler();
  * @param name Compiler name
  * @return exists Bool that's true if framework has given Compiler
  */
-bool hasCompiler(const std::string& name);
+bool hasCompiler(const std::string &name);
 
-template<typename Service>
-std::shared_ptr<Service> getService(const std::string& serviceName) {
-	if (!xacc::xaccFrameworkInitialized) {
-		error(
-				"XACC not initialized before use. Please execute "
-				"xacc::Initialize() before using API.");
-	}
-	auto service = serviceRegistry->getService<Service>(
-			serviceName);
-	if (!service) {
-		error(
-				"Invalid XACC Service. Could not find " + serviceName
-						+ " in Service Registry.");
-	}
-	return service;
+template <typename Service>
+std::shared_ptr<Service> getService(const std::string &serviceName) {
+  if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+  auto service = serviceRegistry->getService<Service>(serviceName);
+  if (!service) {
+    error("Invalid XACC Service. Could not find " + serviceName +
+          " in Service Registry.");
+  }
+  return service;
 }
 
-template<typename Service>
-bool hasService(const std::string& serviceName) {
-	if (!xacc::xaccFrameworkInitialized) {
-		error(
-				"XACC not initialized before use. Please execute "
-				"xacc::Initialize() before using API.");
-	}
-	return serviceRegistry->hasService<Service>(
-			serviceName);
+template <typename Service> bool hasService(const std::string &serviceName) {
+  if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+  return serviceRegistry->hasService<Service>(serviceName);
 }
-template<typename ServiceInterface>
+template <typename ServiceInterface>
 std::vector<std::string> getRegisteredIds() {
-	return serviceRegistry->getRegisteredIds<ServiceInterface>();
+  return serviceRegistry->getRegisteredIds<ServiceInterface>();
 }
-template<typename ServiceInterface>
+template <typename ServiceInterface>
 std::vector<std::shared_ptr<ServiceInterface>> getServices() {
-	return serviceRegistry->getServices<ServiceInterface>();
+  return serviceRegistry->getServices<ServiceInterface>();
 }
 
-std::shared_ptr<IRTransformation> getIRTransformation(const std::string& name);
+std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
+                                           std::shared_ptr<Function> function);
 
-const std::string translate(const std::string& original, const std::string& originalLanguageName,
-		const std::string& newLanguageName, const std::string bufferName);
+std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 
-const std::string translateWithVisitor(const std::string& originalSource, const std::string& originalLanguage,
-		const std::string& visitorMapping, const std::string& accelerator, const int kernel);
+const std::string translate(const std::string &original,
+                            const std::string &originalLanguageName,
+                            const std::string &newLanguageName,
+                            const std::string bufferName);
+
+const std::string translateWithVisitor(const std::string &originalSource,
+                                       const std::string &originalLanguage,
+                                       const std::string &visitorMapping,
+                                       const std::string &accelerator,
+                                       const int kernel);
 
 /**
  * This method should be called by clients to
@@ -285,7 +300,6 @@ const std::string translateWithVisitor(const std::string& originalSource, const 
  */
 void Finalize();
 
-}
-
+} // namespace xacc
 
 #endif

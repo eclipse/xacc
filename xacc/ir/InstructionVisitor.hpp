@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -29,44 +29,39 @@ namespace xacc {
  */
 class BaseInstructionVisitor : public Identifiable {
 public:
-	/**
-	 * The destructor
-	 */
-	virtual ~BaseInstructionVisitor() {}
+  /**
+   * The destructor
+   */
+  virtual ~BaseInstructionVisitor() {}
 
-	virtual const std::string name() const {
-		return "base-visitor-name";
-	}
+  virtual const std::string name() const { return "base-visitor-name"; }
 
-	virtual const std::string description() const {
-		return "Base Instruction Visitors are identifiable "
-				"for developers who want them to be a "
-				"framework extension point.";
-	}
+  virtual const std::string description() const {
+    return "Base Instruction Visitors are identifiable "
+           "for developers who want them to be a "
+           "framework extension point.";
+  }
 
-	virtual const std::string toString() {
-		return "";
-	}
+  virtual const std::string toString() { return ""; }
 };
 
 /**
  * The InstructionVisitor provides a visit method
  * for the provided template parameter.
  */
-template<class T>
-class InstructionVisitor {
+template <class T> class InstructionVisitor {
 public:
-	/**
-	 * This method should be implemented by subclasses
-	 * to perform Visitor-specific behavior on the given
-	 * instance of the template parameter T.
-	 */
-	virtual void visit(T&) = 0;
+  /**
+   * This method should be implemented by subclasses
+   * to perform Visitor-specific behavior on the given
+   * instance of the template parameter T.
+   */
+  virtual void visit(T &) = 0;
 
-	/**
-	 * The destructor
-	 */
-	virtual ~InstructionVisitor() {}
+  /**
+   * The destructor
+   */
+  virtual ~InstructionVisitor() {}
 };
 
 /**
@@ -79,68 +74,67 @@ public:
  */
 class BaseInstructionVisitable {
 public:
-	/**
-	 * Accept the provided BaseInstructionVisitor as a shared pointer.
-	 * @param visitor The visitor to invoke visit() on.
-	 */
-	virtual void accept(std::shared_ptr<BaseInstructionVisitor> visitor) = 0;
+  /**
+   * Accept the provided BaseInstructionVisitor as a shared pointer.
+   * @param visitor The visitor to invoke visit() on.
+   */
+  virtual void accept(std::shared_ptr<BaseInstructionVisitor> visitor) = 0;
 
-	/**
-	 * Accept the provided BaseInstructionVisitor as a raw pointer.
-	 * @param visitor The visitor to invoke visit() on.
-	 */
-	virtual void accept(BaseInstructionVisitor* visitor) = 0;
+  /**
+   * Accept the provided BaseInstructionVisitor as a raw pointer.
+   * @param visitor The visitor to invoke visit() on.
+   */
+  virtual void accept(BaseInstructionVisitor *visitor) = 0;
 
-	/**
-	 * The Destructor
-	 */
-	virtual ~BaseInstructionVisitable() {}
+  /**
+   * The Destructor
+   */
+  virtual ~BaseInstructionVisitable() {}
 
 protected:
+  /**
+   * This method is invoked by the DEFINE_VISITABLE macro to
+   * invoke the visit method on the provided visitor. This method
+   * takes the visitor as a shared pointer.
+   */
+  template <class T>
+  static void acceptImpl(T &visited,
+                         std::shared_ptr<BaseInstructionVisitor> visitor) {
+    auto castedVisitor =
+        std::dynamic_pointer_cast<InstructionVisitor<T>>(visitor);
+    if (castedVisitor) {
+      castedVisitor->visit(visited);
+      return;
+    }
+  }
 
-	/**
-	 * This method is invoked by the DEFINE_VISITABLE macro to
-	 * invoke the visit method on the provided visitor. This method
-	 * takes the visitor as a shared pointer.
-	 */
-	template<class T>
-	static void acceptImpl(T& visited, std::shared_ptr<BaseInstructionVisitor> visitor) {
-		auto castedVisitor = std::dynamic_pointer_cast<InstructionVisitor<T>>(visitor);
-		if (castedVisitor) {
-			castedVisitor->visit(visited);
-			return;
-		}
-	}
+  /**
+   * This method is invoked by the DEFINE_VISITABLE macro to
+   * invoke the visit method on the provided visitor. This method
+   * takes the visitor as a raw pointer.
+   */
 
-	/**
-	 * This method is invoked by the DEFINE_VISITABLE macro to
-	 * invoke the visit method on the provided visitor. This method
-	 * takes the visitor as a raw pointer.
-	 */
-
-	template<class T>
-	static void acceptImpl(T& visited, BaseInstructionVisitor* visitor) {
-		auto castedVisitor = dynamic_cast<InstructionVisitor<T>*>(visitor);
-		if (castedVisitor) {
-			castedVisitor->visit(visited);
-			return;
-		}
-	}
+  template <class T>
+  static void acceptImpl(T &visited, BaseInstructionVisitor *visitor) {
+    auto castedVisitor = dynamic_cast<InstructionVisitor<T> *>(visitor);
+    if (castedVisitor) {
+      castedVisitor->visit(visited);
+      return;
+    }
+  }
 
 // Convenience macro for subclasses to invoke
 // to get Visitor pattern functionality.
-#define DEFINE_VISITABLE() \
-            void accept(std::shared_ptr<BaseInstructionVisitor> v) override \
-                { acceptImpl(*this, v); } \
-			void accept(BaseInstructionVisitor* v) override \
-				{ acceptImpl(*this, v); }
+#define DEFINE_VISITABLE()                                                     \
+  void accept(std::shared_ptr<BaseInstructionVisitor> v) override {            \
+    acceptImpl(*this, v);                                                      \
+  }                                                                            \
+  void accept(BaseInstructionVisitor *v) override { acceptImpl(*this, v); }
 
-#define EMPTY_DEFINE_VISITABLE() \
-		void accept(std::shared_ptr<BaseInstructionVisitor> v) override \
-		{ } \
-		void accept(BaseInstructionVisitor* v) override \
-		{}
+#define EMPTY_DEFINE_VISITABLE()                                               \
+  void accept(std::shared_ptr<BaseInstructionVisitor> v) override {}           \
+  void accept(BaseInstructionVisitor *v) override {}
 };
 
-}
+} // namespace xacc
 #endif

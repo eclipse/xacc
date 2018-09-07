@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -33,190 +33,163 @@ namespace quantum {
  * a minor graph embedding computation.
  *
  */
-class DWQMI: public Instruction {
+class DWQMI : public Instruction {
 
 protected:
+  /**
+   * The qubits involved in this Instruction
+   */
+  std::vector<int> qubits;
 
-	/**
-	 * The qubits involved in this Instruction
-	 */
-	std::vector<int> qubits;
+  /**
+   * The bias or coupling value.
+   */
+  InstructionParameter parameter;
 
-	/**
-	 * The bias or coupling value.
-	 */
-	InstructionParameter parameter;
-
-	/**
-	 * Is this Instruction enabled or disabled.
-	 *
-	 */
-	bool enabled = true;
+  /**
+   * Is this Instruction enabled or disabled.
+   *
+   */
+  bool enabled = true;
 
 public:
+  /**
+   * The Constructor, takes one qubit
+   * indicating this is a bias value, initialized to 0.0
+   *
+   * @param qbit The bit index
+   */
+  DWQMI(int qbit) : qubits(std::vector<int>{qbit, qbit}), parameter(0.0) {}
 
-	/**
-	 * The Constructor, takes one qubit
-	 * indicating this is a bias value, initialized to 0.0
-	 *
-	 * @param qbit The bit index
-	 */
-	DWQMI(int qbit) :
-			qubits(std::vector<int> { qbit, qbit }), parameter(0.0) {
-	}
+  /**
+   * The Constructor, takes one qubit
+   * indicating this is a bias value, but
+   * set to the provided bias.
+   *
+   * @param qbit The bit index
+   * @param param The bias value
+   */
+  DWQMI(int qbit, double param)
+      : qubits(std::vector<int>{qbit, qbit}), parameter(param) {}
 
-	/**
-	 * The Constructor, takes one qubit
-	 * indicating this is a bias value, but
-	 * set to the provided bias.
-	 *
-	 * @param qbit The bit index
-	 * @param param The bias value
-	 */
-	DWQMI(int qbit, double param) :
-			qubits(std::vector<int> { qbit, qbit }), parameter(param) {
-	}
+  /**
+   * The Constructor, takes two qubit indices
+   * to indicate that this is a coupler, with
+   * value given by the provided parameter.
+   *
+   * @param qbit1 The bit index
+   * @param qbit2 The bit index
+   * @param param The coupling weight
+   */
+  DWQMI(int qbit1, int qbit2, double param)
+      : qubits(std::vector<int>{qbit1, qbit2}), parameter(param) {}
 
-	/**
-	 * The Constructor, takes two qubit indices
-	 * to indicate that this is a coupler, with
-	 * value given by the provided parameter.
-	 *
-	 * @param qbit1 The bit index
-	 * @param qbit2 The bit index
-	 * @param param The coupling weight
-	 */
-	DWQMI(int qbit1, int qbit2, double param) :
-			qubits(std::vector<int> { qbit1, qbit2 }), parameter(param) {
-	}
+  DWQMI(int qbit1, int qbit2, InstructionParameter param)
+      : qubits(std::vector<int>{qbit1, qbit2}), parameter(param) {}
 
-    DWQMI(int qbit1, int qbit2, InstructionParameter param) :
-            qubits(std::vector<int>{qbit1,qbit2}), parameter(param) {}
+  /**
+   * Return the name of this Instruction
+   *
+   * @return name The name of this Instruction
+   */
+  virtual const std::string name() const { return "dw-qmi"; }
 
-	/**
-	 * Return the name of this Instruction
-	 *
-	 * @return name The name of this Instruction
-	 */
-	virtual const std::string name() const {
-		return "dw-qmi";
-	}
+  virtual const std::string description() const { return ""; }
 
-	virtual const std::string description() const {
-		return "";
-	}
+  virtual const std::string getTag() { return ""; }
 
-	virtual const std::string getTag() {
-		return "";
-	}
+  virtual void mapBits(std::vector<int> bitMap) {}
 
-	virtual void mapBits(std::vector<int> bitMap) {
-	}
+  /**
+   * Persist this Instruction to an assembly-like
+   * string.
+   *
+   * @param bufferVarName The name of the AcceleratorBuffer
+   * @return str The assembly-like string.
+   */
+  virtual const std::string toString(const std::string &bufferVarName) {
+    std::stringstream ss;
+    ss << bits()[0] << " " << bits()[1] << " " << getParameter(0);
+    return ss.str();
+  }
 
-	/**
-	 * Persist this Instruction to an assembly-like
-	 * string.
-	 *
-	 * @param bufferVarName The name of the AcceleratorBuffer
-	 * @return str The assembly-like string.
-	 */
-	virtual const std::string toString(const std::string& bufferVarName) {
-		std::stringstream ss;
-		ss << bits()[0] << " " << bits()[1] << " " << getParameter(0);
-		return ss.str();
-	}
+  /**
+   * Return the indices of the bits that this Instruction
+   * operates on.
+   *
+   * @return bits The bits this Instruction operates on.
+   */
+  virtual const std::vector<int> bits() { return qubits; }
 
-	/**
-	 * Return the indices of the bits that this Instruction
-	 * operates on.
-	 *
-	 * @return bits The bits this Instruction operates on.
-	 */
-	virtual const std::vector<int> bits() {
-		return qubits;
-	}
+  /**
+   * Return this Instruction's parameter at the given index.
+   *
+   * @param idx The index of the parameter.
+   * @return param The InstructionParameter at the given index.
+   */
+  virtual InstructionParameter getParameter(const int idx) const {
+    return parameter;
+  }
 
-	/**
-	 * Return this Instruction's parameter at the given index.
-	 *
-	 * @param idx The index of the parameter.
-	 * @return param The InstructionParameter at the given index.
-	 */
-	virtual InstructionParameter getParameter(const int idx) const {
-		return parameter;
-	}
+  /**
+   * Return all of this Instruction's parameters.
+   *
+   * @return params This instructions parameters.
+   */
+  virtual std::vector<InstructionParameter> getParameters() {
+    return std::vector<InstructionParameter>{parameter};
+  }
 
-	/**
-	 * Return all of this Instruction's parameters.
-	 *
-	 * @return params This instructions parameters.
-	 */
-	virtual std::vector<InstructionParameter> getParameters() {
-		return std::vector<InstructionParameter> { parameter };
-	}
+  /**
+   * Set this Instruction's parameter at the given index.
+   *
+   * @param idx The index of the parameter
+   * @param inst The instruction.
+   */
+  virtual void setParameter(const int idx, InstructionParameter &inst) {
+    parameter = inst;
+  }
 
-	/**
-	 * Set this Instruction's parameter at the given index.
-	 *
-	 * @param idx The index of the parameter
-	 * @param inst The instruction.
-	 */
-	virtual void setParameter(const int idx, InstructionParameter& inst) {
-		parameter = inst;
-	}
+  /**
+   * Return the number of InstructionParameters this Instruction contains.
+   *
+   * @return nInsts The number of instructions.
+   */
+  virtual const int nParameters() { return 1; }
 
-	/**
-	 * Return the number of InstructionParameters this Instruction contains.
-	 *
-	 * @return nInsts The number of instructions.
-	 */
-	virtual const int nParameters() {
-		return 1;
-	}
+  /**
+   * Return true if this Instruction is parameterized.
+   *
+   * @return parameterized True if this Instruction has parameters.
+   */
+  virtual bool isParameterized() { return true; }
+  /**
+   * Returns true if this Instruction is composite,
+   * ie, contains other Instructions.
+   *
+   * @return isComposite True if this is a composite Instruction
+   */
+  virtual bool isComposite() { return false; }
 
-	/**
-	 * Return true if this Instruction is parameterized.
-	 *
-	 * @return parameterized True if this Instruction has parameters.
-	 */
-	virtual bool isParameterized() {
-		return true;
-	}
-	/**
-	 * Returns true if this Instruction is composite,
-	 * ie, contains other Instructions.
-	 *
-	 * @return isComposite True if this is a composite Instruction
-	 */
-	virtual bool isComposite() {
-		return false;
-	}
+  /**
+   * Returns true if this Instruction is enabled
+   *
+   * @return enabled True if this Instruction is enabled.
+   */
+  virtual bool isEnabled() { return enabled; }
 
-	/**
-	 * Returns true if this Instruction is enabled
-	 *
-	 * @return enabled True if this Instruction is enabled.
-	 */
-	virtual bool isEnabled() {
-		return enabled;
-	}
+  /**
+   * Disable this Instruction
+   */
 
-	/**
-	 * Disable this Instruction
-	 */
+  virtual void disable() { enabled = false; }
 
-	virtual void disable() {
-		enabled = false;
-	}
+  /**
+   * Enable this Instruction.
+   */
+  virtual void enable() { enabled = true; }
 
-	/**
-	 * Enable this Instruction.
-	 */
-	virtual void enable() {
-		enabled = true;
-	}
-
-	EMPTY_DEFINE_VISITABLE()
+  EMPTY_DEFINE_VISITABLE()
 };
 
 /**
@@ -233,167 +206,149 @@ public:
  * a minor graph embedding computation.
  *
  */
-class Anneal: public Instruction {
-    protected:
+class Anneal : public Instruction {
+protected:
+  /**
+   * The initial ramp up time
+   */
+  std::vector<InstructionParameter> times;
 
-	/**
-     * The initial ramp up time
-	 */
-	std::vector<InstructionParameter> times;
-
-
-	/**
-	 * Is this Instruction enabled or disabled.
-	 *
-	 */
-	bool enabled = true;
+  /**
+   * Is this Instruction enabled or disabled.
+   *
+   */
+  bool enabled = true;
 
 public:
+  /**
+   * The Constructor, takes the annealing times
+   *
+   * @param qbit The bit index
+   */
+  Anneal(InstructionParameter _ts, InstructionParameter _tp,
+         InstructionParameter _tq, InstructionParameter direction)
+      : times({_ts, _tp, _tq, direction}) {}
 
-	/**
-	 * The Constructor, takes the annealing times
-	 *
-	 * @param qbit The bit index
-	 */
-	Anneal(InstructionParameter _ts, InstructionParameter _tp, InstructionParameter _tq, InstructionParameter direction) :
-			times({_ts, _tp, _tq, direction}) {}
+  Anneal(std::vector<InstructionParameter> p) : times(p) {
+    if (times.size() != 4)
+      XACCLogger::instance()->error(
+          "Invalid number of instruction parameters for Anneal Instruction, " +
+          std::to_string(times.size()));
+  }
 
-    Anneal(std::vector<InstructionParameter> p) : times(p) {
-        if (times.size() != 4) XACCLogger::instance()->error("Invalid number of instruction parameters for Anneal Instruction, " + std::to_string(times.size()));
+  /**
+   * Return the name of this Instruction
+   *
+   * @return name The name of this Instruction
+   */
+  virtual const std::string name() const { return "anneal"; }
+
+  virtual const std::string description() const {
+    return "A description of the annealing schedule";
+  }
+
+  virtual const std::string getTag() { return ""; }
+
+  virtual void mapBits(std::vector<int> bitMap) {}
+
+  /**
+   * Persist this Instruction to an assembly-like
+   * string.
+   *
+   * @param bufferVarName The name of the AcceleratorBuffer
+   * @return str The assembly-like string.
+   */
+  virtual const std::string toString(const std::string &bufferVarName) {
+    std::stringstream ss;
+    ss << "anneal ta = " << times[0] << ", tp = " << times[1]
+       << ", tq = " << times[2] << ", ";
+    if (times.size() > 3) {
+      ss << times[3];
+    } else {
+      ss << "forward";
     }
-    
-	/**
-	 * Return the name of this Instruction
-	 *
-	 * @return name The name of this Instruction
-	 */
-	virtual const std::string name() const {
-		return "anneal";
-	}
+    return ss.str();
+  }
 
-	virtual const std::string description() const {
-		return "A description of the annealing schedule";
-	}
+  /**
+   * Return the indices of the bits that this Instruction
+   * operates on.
+   *
+   * @return bits The bits this Instruction operates on.
+   */
+  virtual const std::vector<int> bits() { return std::vector<int>{}; }
 
-	virtual const std::string getTag() {
-		return "";
-	}
+  /**
+   * Return this Instruction's parameter at the given index.
+   *
+   * @param idx The index of the parameter.
+   * @return param The InstructionParameter at the given index.
+   */
+  virtual InstructionParameter getParameter(const int idx) const {
+    return times[idx];
+  }
 
-	virtual void mapBits(std::vector<int> bitMap) {}
+  /**
+   * Return all of this Instruction's parameters.
+   *
+   * @return params This instructions parameters.
+   */
+  virtual std::vector<InstructionParameter> getParameters() { return times; }
 
-	/**
-	 * Persist this Instruction to an assembly-like
-	 * string.
-	 *
-	 * @param bufferVarName The name of the AcceleratorBuffer
-	 * @return str The assembly-like string.
-	 */
-	virtual const std::string toString(const std::string& bufferVarName) {
-        std::stringstream ss;
-        ss << "anneal ta = " << times[0] << ", tp = " << times[1] << ", tq = " << times[2] << ", ";
-        if (times.size() > 3) {
-            ss << times[3];
-        } else {
-            ss << "forward";
-        }
-		return ss.str();
-	}
+  /**
+   * Set this Instruction's parameter at the given index.
+   *
+   * @param idx The index of the parameter
+   * @param inst The instruction.
+   */
+  virtual void setParameter(const int idx, InstructionParameter &inst) {
+    times.at(idx) = inst;
+  }
 
-	/**
-	 * Return the indices of the bits that this Instruction
-	 * operates on.
-	 *
-	 * @return bits The bits this Instruction operates on.
-	 */
-	virtual const std::vector<int> bits() {
-		return std::vector<int>{};
-	}
+  /**
+   * Return the number of InstructionParameters this Instruction contains.
+   *
+   * @return nInsts The number of instructions.
+   */
+  virtual const int nParameters() { return 4; }
 
-	/**
-	 * Return this Instruction's parameter at the given index.
-	 *
-	 * @param idx The index of the parameter.
-	 * @return param The InstructionParameter at the given index.
-	 */
-	virtual InstructionParameter getParameter(const int idx) const {
-		return times[idx];
-	}
+  /**
+   * Return true if this Instruction is parameterized.
+   *
+   * @return parameterized True if this Instruction has parameters.
+   */
+  virtual bool isParameterized() { return true; }
+  /**
+   * Returns true if this Instruction is composite,
+   * ie, contains other Instructions.
+   *
+   * @return isComposite True if this is a composite Instruction
+   */
+  virtual bool isComposite() { return false; }
 
-	/**
-	 * Return all of this Instruction's parameters.
-	 *
-	 * @return params This instructions parameters.
-	 */
-	virtual std::vector<InstructionParameter> getParameters() {
-		return times;
-	}
+  /**
+   * Returns true if this Instruction is enabled
+   *
+   * @return enabled True if this Instruction is enabled.
+   */
+  virtual bool isEnabled() { return enabled; }
 
-	/**
-	 * Set this Instruction's parameter at the given index.
-	 *
-	 * @param idx The index of the parameter
-	 * @param inst The instruction.
-	 */
-	virtual void setParameter(const int idx, InstructionParameter& inst) {
-		times.at(idx) = inst;
-	}
+  /**
+   * Disable this Instruction
+   */
 
-	/**
-	 * Return the number of InstructionParameters this Instruction contains.
-	 *
-	 * @return nInsts The number of instructions.
-	 */
-	virtual const int nParameters() {
-		return 4;
-	}
+  virtual void disable() { enabled = false; }
 
-	/**
-	 * Return true if this Instruction is parameterized.
-	 *
-	 * @return parameterized True if this Instruction has parameters.
-	 */
-	virtual bool isParameterized() {
-		return true;
-	}
-	/**
-	 * Returns true if this Instruction is composite,
-	 * ie, contains other Instructions.
-	 *
-	 * @return isComposite True if this is a composite Instruction
-	 */
-	virtual bool isComposite() {
-		return false;
-	}
+  /**
+   * Enable this Instruction.
+   */
+  virtual void enable() { enabled = true; }
 
-	/**
-	 * Returns true if this Instruction is enabled
-	 *
-	 * @return enabled True if this Instruction is enabled.
-	 */
-	virtual bool isEnabled() {
-		return enabled;
-	}
-
-	/**
-	 * Disable this Instruction
-	 */
-
-	virtual void disable() {
-		enabled = false;
-	}
-
-	/**
-	 * Enable this Instruction.
-	 */
-	virtual void enable() {
-		enabled = true;
-	}
-
-	EMPTY_DEFINE_VISITABLE()
+  EMPTY_DEFINE_VISITABLE()
 };
 
-}
+} // namespace quantum
 
-}
+} // namespace xacc
 
 #endif

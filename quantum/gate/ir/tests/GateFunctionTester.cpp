@@ -39,12 +39,12 @@ TEST(GateFunctionTester, checkFunctionMethods) {
   auto cn1 = std::make_shared<CNOT>(1, 2);
   auto cn2 = std::make_shared<CNOT>(0, 1);
   auto h2 = std::make_shared<Hadamard>(0);
-  
+
   f.addInstruction(h);
   f.addInstruction(cn1);
   f.addInstruction(cn2);
   f.addInstruction(h2);
-  
+
   EXPECT_TRUE(f.nInstructions() == 4);
   EXPECT_TRUE(f.toString("qreg") == expectedQasm);
 
@@ -229,38 +229,52 @@ TEST(GateFunctionTester, checkParameterInsertion) {
 // 	// quantum teleportation kernel
 // 	std::string irstr = "graph G {\n"
 // 			"node [shape=box style=filled]\n"
-// 			"0 [label=\"Gate=InitialState,Circuit Layer=0,Gate Vertex Id=0,Gate Acting Qubits=[0 1 2],Enabled=1\"];\n"
-// 			"1 [label=\"Gate=x,Circuit Layer=1,Gate Vertex Id=1,Gate Acting Qubits=[0],Enabled=1\"];\n"
-// 			"2 [label=\"Gate=h,Circuit Layer=1,Gate Vertex Id=2,Gate Acting Qubits=[1],Enabled=1\"];\n"
-// 			"3 [label=\"Gate=cnot,Circuit Layer=2,Gate Vertex Id=3,Gate Acting Qubits=[1 2],Enabled=1\"];\n"
-// 			"4 [label=\"Gate=cnot,Circuit Layer=3,Gate Vertex Id=4,Gate Acting Qubits=[0 1],Enabled=1\"];\n"
-// 			"5 [label=\"Gate=h,Circuit Layer=4,Gate Vertex Id=5,Gate Acting Qubits=[0],Enabled=1\"];\n"
-// 			"6 [label=\"Gate=measure,Circuit Layer=5,Gate Vertex Id=6,Gate Acting Qubits=[0],Enabled=1\"];\n"
-// 			"7 [label=\"Gate=measure,Circuit Layer=5,Gate Vertex Id=7,Gate Acting Qubits=[1],Enabled=1\"];\n"
-// 			"8 [label=\"Gate=FinalState,Circuit Layer=6,Gate Vertex Id=8,Gate Acting Qubits=[0 1 2],Enabled=1\"];\n"
-// 			"9 [label=\"Gate=conditional,Circuit Layer=0,Gate Vertex Id=9,Gate Acting Qubits=[0],Enabled=1\"];\n"
-// 			"10 [label=\"Gate=InitialState,Circuit Layer=7,Gate Vertex Id=10,Gate Acting Qubits=[0 1 2],Enabled=0\"];\n"
-// 			"11 [label=\"Gate=z,Circuit Layer=8,Gate Vertex Id=11,Gate Acting Qubits=[2],Enabled=0\"];\n"
-// 			"12 [label=\"Gate=FinalState,Circuit Layer=9,Gate Vertex Id=12,Gate Acting Qubits=[0 1 2],Enabled=0\"];\n"
-// 			"13 [label=\"Gate=conditional,Circuit Layer=0,Gate Vertex Id=13,Gate Acting Qubits=[1],Enabled=1\"];\n"
-// 			"14 [label=\"Gate=InitialState,Circuit Layer=10,Gate Vertex Id=14,Gate Acting Qubits=[0 1 2],Enabled=0\"];\n"
-// 			"15 [label=\"Gate=x,Circuit Layer=11,Gate Vertex Id=15,Gate Acting Qubits=[2],Enabled=0\"];\n"
-// 			"16 [label=\"Gate=FinalState,Circuit Layer=12,Gate Vertex Id=16,Gate Acting Qubits=[0 1 2],Enabled=0\"];\n"
-// 			"0--1 [label=\"weight=0.000000\"];\n"
-// 			"0--2 [label=\"weight=0.000000\"];\n"
-// 			"2--3 [label=\"weight=0.000000\"];\n"
-// 			"0--3 [label=\"weight=0.000000\"];\n"
-// 			"1--4 [label=\"weight=0.000000\"];\n"
-// 			"3--4 [label=\"weight=0.000000\"];\n"
-// 			"4--5 [label=\"weight=0.000000\"];\n"
-// 			"5--6 [label=\"weight=0.000000\"];\n"
-// 			"4--7 [label=\"weight=0.000000\"];\n"
-// 			"6--8 [label=\"weight=0.000000\"];\n"
-// 			"7--8 [label=\"weight=0.000000\"];\n"
-// 			"3--8 [label=\"weight=0.000000\"];\n"
-// 			"8--9 [label=\"weight=0.000000\"];\n"
-// 			"9--10 [label=\"weight=0.000000\"];\n"
-// 			"10--11 [label=\"weight=0.000000\"];\n"
+// 			"0 [label=\"Gate=InitialState,Circuit Layer=0,Gate
+// Vertex
+// Id=0,Gate Acting Qubits=[0 1 2],Enabled=1\"];\n" 			"1
+// [label=\"Gate=x,Circuit Layer=1,Gate Vertex Id=1,Gate Acting
+// Qubits=[0],Enabled=1\"];\n" 			"2 [label=\"Gate=h,Circuit
+// Layer=1,Gate Vertex Id=2,Gate Acting Qubits=[1],Enabled=1\"];\n"
+// "3 [label=\"Gate=cnot,Circuit Layer=2,Gate Vertex Id=3,Gate Acting Qubits=[1
+// 2],Enabled=1\"];\n" 			"4 [label=\"Gate=cnot,Circuit
+// Layer=3,Gate Vertex Id=4,Gate Acting Qubits=[0 1],Enabled=1\"];\n"
+// "5 [label=\"Gate=h,Circuit Layer=4,Gate Vertex Id=5,Gate Acting
+// Qubits=[0],Enabled=1\"];\n" 			"6 [label=\"Gate=measure,Circuit
+// Layer=5,Gate Vertex Id=6,Gate Acting Qubits=[0],Enabled=1\"];\n"
+// "7 [label=\"Gate=measure,Circuit Layer=5,Gate Vertex Id=7,Gate Acting
+// Qubits=[1],Enabled=1\"];\n" 			"8
+// [label=\"Gate=FinalState,Circuit Layer=6,Gate Vertex Id=8,Gate Acting
+// Qubits=[0 1 2],Enabled=1\"];\n" 			"9
+// [label=\"Gate=conditional,Circuit Layer=0,Gate Vertex Id=9,Gate Acting
+// Qubits=[0],Enabled=1\"];\n" 			"10
+// [label=\"Gate=InitialState,Circuit Layer=7,Gate Vertex Id=10,Gate Acting
+// Qubits=[0 1 2],Enabled=0\"];\n" 			"11
+// [label=\"Gate=z,Circuit Layer=8,Gate Vertex Id=11,Gate Acting
+// Qubits=[2],Enabled=0\"];\n" 			"12
+// [label=\"Gate=FinalState,Circuit Layer=9,Gate Vertex Id=12,Gate Acting
+// Qubits=[0 1 2],Enabled=0\"];\n" 			"13
+// [label=\"Gate=conditional,Circuit Layer=0,Gate Vertex Id=13,Gate Acting
+// Qubits=[1],Enabled=1\"];\n" 			"14
+// [label=\"Gate=InitialState,Circuit Layer=10,Gate Vertex Id=14,Gate Acting
+// Qubits=[0 1 2],Enabled=0\"];\n" 			"15
+// [label=\"Gate=x,Circuit Layer=11,Gate Vertex Id=15,Gate Acting
+// Qubits=[2],Enabled=0\"];\n" 			"16
+// [label=\"Gate=FinalState,Circuit Layer=12,Gate Vertex Id=16,Gate Acting
+// Qubits=[0 1 2],Enabled=0\"];\n" 			"0--1
+// [label=\"weight=0.000000\"];\n" 			"0--2
+// [label=\"weight=0.000000\"];\n" 			"2--3
+// [label=\"weight=0.000000\"];\n" 			"0--3
+// [label=\"weight=0.000000\"];\n" 			"1--4
+// [label=\"weight=0.000000\"];\n" 			"3--4
+// [label=\"weight=0.000000\"];\n" 			"4--5
+// [label=\"weight=0.000000\"];\n" 			"5--6
+// [label=\"weight=0.000000\"];\n" 			"4--7
+// [label=\"weight=0.000000\"];\n" 			"6--8
+// [label=\"weight=0.000000\"];\n" 			"7--8
+// [label=\"weight=0.000000\"];\n" 			"3--8
+// [label=\"weight=0.000000\"];\n" 			"8--9
+// [label=\"weight=0.000000\"];\n" 			"9--10
+// [label=\"weight=0.000000\"];\n" 			"10--11 [label=\"weight=0.000000\"];\n"
 // 			"10--12 [label=\"weight=0.000000\"];\n"
 // 			"10--12 [label=\"weight=0.000000\"];\n"
 // 			"11--12 [label=\"weight=0.000000\"];\n"
@@ -275,7 +289,7 @@ TEST(GateFunctionTester, checkParameterInsertion) {
 
 //     GateFunction f("foo");
 //     f.fromGraph(iss);
-    
+
 // 	auto circuit = f.toGraph();
 
 // 	std::map<int, std::vector<int>> expectedQubits;
@@ -320,7 +334,8 @@ TEST(GateFunctionTester, checkParameterInsertion) {
 
 // 	for (int i = 0; i < 17; i++) {
 // 		EXPECT_TRUE(circuit.getVertexProperty<2>(i) == i);
-// 		EXPECT_TRUE(circuit.getVertexProperty<3>(i) == expectedQubits[i]);
+// 		EXPECT_TRUE(circuit.getVertexProperty<3>(i) ==
+// expectedQubits[i]);
 // 	}
 
 // 	EXPECT_TRUE(circuit.getVertexProperty<1>(0) == 0);
@@ -360,26 +375,26 @@ TEST(GateFunctionTester, checkParameterInsertion) {
 // 	EXPECT_TRUE(!circuit.getVertexProperty<4>(16));
 // }
 
-TEST(GateFunctionTester,checkGenerateGraph) {
+TEST(GateFunctionTester, checkGenerateGraph) {
 
-	auto f = std::make_shared<GateFunction>("foo");
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-	auto cn2 = std::make_shared<CNOT>(0, 1);
-    auto h2 = std::make_shared<Hadamard>(0);
-    auto rz = std::make_shared<Rz>(2,3.1415);
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-	f->addInstruction(cn2);
-    f->addInstruction(h2);
-    f->addInstruction(rz);
-    
-	auto g = f->toGraph();
+  auto f = std::make_shared<GateFunction>("foo");
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(1, 2);
+  auto cn2 = std::make_shared<CNOT>(0, 1);
+  auto h2 = std::make_shared<Hadamard>(0);
+  auto rz = std::make_shared<Rz>(2, 3.1415);
+  f->addInstruction(h);
+  f->addInstruction(cn1);
+  f->addInstruction(cn2);
+  f->addInstruction(h2);
+  f->addInstruction(rz);
 
-	std::stringstream ss;
-	g.write(ss);
+  auto g = f->toGraph();
 
-	std::string expected = R"expected(digraph G
+  std::stringstream ss;
+  g.write(ss);
+
+  std::string expected = R"expected(digraph G
 node [shape=box style=filled] {
 0 [label="Gate=InitialState,Circuit Layer=0,Gate Vertex Id=0,Gate Acting Qubits=[0 1 2],Enabled=1,RuntimeParameters=[]"];
 1 [label="Gate=H,Circuit Layer=0,Gate Vertex Id=1,Gate Acting Qubits=[1],Enabled=1,RuntimeParameters=[]"];
@@ -400,30 +415,28 @@ node [shape=box style=filled] {
 5->6 ;
 })expected";
 
-	std::cout << ss.str() << "\n\n" << expected << "\n";
-	EXPECT_TRUE(expected == ss.str());
-
+  std::cout << ss.str() << "\n\n" << expected << "\n";
+  EXPECT_TRUE(expected == ss.str());
 }
 
 TEST(GateFunctionTester, checkDepth) {
-    auto f = std::make_shared<GateFunction>("foo");
-    auto x = std::make_shared<X>(0);
-	auto h = std::make_shared<Hadamard>(1);
-	auto cn1 = std::make_shared<CNOT>(1, 2);
-    auto rz = std::make_shared<Rz>(1,3.1415);
-    auto z = std::make_shared<Z>(2);
-    
-    f->addInstruction(x);
-	f->addInstruction(h);
-	f->addInstruction(cn1);
-    f->addInstruction(rz);
-    f->addInstruction(z);
-    
-	auto g = f->toGraph();
+  auto f = std::make_shared<GateFunction>("foo");
+  auto x = std::make_shared<X>(0);
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(1, 2);
+  auto rz = std::make_shared<Rz>(1, 3.1415);
+  auto z = std::make_shared<Z>(2);
 
-    std::cout << "DEPTH: " << g.depth() << "\n";
-    EXPECT_EQ(3, g.depth());
-    
+  f->addInstruction(x);
+  f->addInstruction(h);
+  f->addInstruction(cn1);
+  f->addInstruction(rz);
+  f->addInstruction(z);
+
+  auto g = f->toGraph();
+
+  std::cout << "DEPTH: " << g.depth() << "\n";
+  EXPECT_EQ(3, g.depth());
 }
 
 int main(int argc, char **argv) {

@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -23,26 +23,28 @@ namespace xacc {
 namespace quantum {
 
 /**
- * The PyXACCListener implements the Antlr-generated 
+ * The PyXACCListener implements the Antlr-generated
  * PyXACCIRBaseListener and maps the Antlr AST to XACC IR.
  */
 class PyXACCListener : public PyXACCIRBaseListener {
-	protected:
-	        std::shared_ptr<Function> f;
-            std::shared_ptr<IRProvider> provider;
-            std::vector<std::string> functionVariableNames;
-	public:
-            std::shared_ptr<Function> getKernel();
+protected:
+  std::shared_ptr<Function> f;
+  std::shared_ptr<IRProvider> provider;
+  std::vector<std::string> functionVariableNames;
 
-            PyXACCListener();
+public:
+  std::shared_ptr<Function> getKernel();
 
-            virtual void enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
+  PyXACCListener();
 
-            virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
+  virtual void
+  enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
+
+  virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
 };
-    
-}
 
-}
+} // namespace quantum
+
+} // namespace xacc
 
 #endif

@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -17,37 +17,34 @@
 
 namespace xacc {
 namespace quantum {
-class Rz: public virtual GateInstruction {
+class Rz : public virtual GateInstruction {
 public:
-	Rz() : GateInstruction("Rz", std::vector<InstructionParameter> {
-		InstructionParameter(0.0) }) {}
+  Rz()
+      : GateInstruction("Rz", std::vector<InstructionParameter>{
+                                  InstructionParameter(0.0)}) {}
 
+  Rz(int qbit, double theta)
+      : GateInstruction(
+            "Rz", std::vector<int>{qbit},
+            std::vector<InstructionParameter>{InstructionParameter(theta)}) {}
 
-	Rz(int qbit, double theta) :
-			GateInstruction("Rz", std::vector<int> { qbit },
-					std::vector<InstructionParameter> { InstructionParameter(theta) }) {
-	}
+  Rz(std::vector<int> qbits)
+      : GateInstruction(
+            "Rz", qbits,
+            std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
 
-	Rz(std::vector<int> qbits) :
-			GateInstruction("Rz", qbits, std::vector<InstructionParameter> {
-					InstructionParameter(0.0) }) {
-	}
+  virtual std::shared_ptr<GateInstruction> clone() {
+    return std::make_shared<Rz>();
+  }
+  /**
+   * Return the description of this instance
+   * @return description The description of this object.
+   */
+  virtual const std::string description() const { return ""; }
 
-	virtual std::shared_ptr<GateInstruction> clone() {
-		return std::make_shared<Rz>();
-	}
-	/**
-	 * Return the description of this instance
-	 * @return description The description of this object.
-	 */
-	virtual const std::string description() const {
-		return "";
-	}
-
-	DEFINE_VISITABLE()
-
+  DEFINE_VISITABLE()
 };
-}
-}
+} // namespace quantum
+} // namespace xacc
 
 #endif

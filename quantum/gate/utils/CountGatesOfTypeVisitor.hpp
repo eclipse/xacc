@@ -4,8 +4,8 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -20,34 +20,30 @@ namespace quantum {
 
 /**
  */
-template<typename GateType>
+template <typename GateType>
 class CountGatesOfTypeVisitor : public xacc::BaseInstructionVisitor,
-					public xacc::InstructionVisitor<GateType> {
+                                public xacc::InstructionVisitor<GateType> {
 protected:
-
-	int count = 0;
-	std::shared_ptr<Function> function;
+  int count = 0;
+  std::shared_ptr<Function> function;
 
 public:
+  CountGatesOfTypeVisitor(std::shared_ptr<Function> f) : function(f) {}
 
-	CountGatesOfTypeVisitor(std::shared_ptr<Function> f) : function(f) {
-	}
+  virtual void visit(GateType &gate) { count++; }
 
-	virtual void visit(GateType& gate) {
-		count++;
-	}
+  int countGates() {
+    xacc::InstructionIterator it(function);
+    while (it.hasNext()) {
+      // Get the next node in the tree
+      auto nextInst = it.next();
+      if (nextInst->isEnabled())
+        nextInst->accept(this);
+    }
 
-	int countGates() {
-		xacc::InstructionIterator it(function);
-		while (it.hasNext()) {
-			// Get the next node in the tree
-			auto nextInst = it.next();
-			if (nextInst->isEnabled()) nextInst->accept(this);
-		}
-
-		return count;
-	}
+    return count;
+  }
 };
-}
-}
+} // namespace quantum
+} // namespace xacc
 #endif
