@@ -282,10 +282,7 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 
-const std::string translate(const std::string &original,
-                            const std::string &originalLanguageName,
-                            const std::string &newLanguageName,
-                            const std::string bufferName);
+const std::string translate(std::shared_ptr<Function> function, const std::string toLanguage);
 
 const std::string translateWithVisitor(const std::string &originalSource,
                                        const std::string &originalLanguage,

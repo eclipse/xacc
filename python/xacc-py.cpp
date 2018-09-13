@@ -184,7 +184,8 @@ PYBIND11_MODULE(_pyxacc, m) {
            (std::shared_ptr<xacc::Function>(xacc::IRGenerator::*)(
                std::map<std::string, xacc::InstructionParameter>)) &
                xacc::IRGenerator::generate,
-           py::return_value_policy::reference, "");
+           py::return_value_policy::reference, "")
+      .def("analyzeResults", &xacc::IRGenerator::analyzeResults, "");
 
   // Expose the Kernel
   py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(
@@ -388,6 +389,7 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getService<IRGenerator>,
         py::return_value_policy::reference,
         "Return the IRGenerator of given name.");
+  m.def("translate", &xacc::translate, "Translate the provided IR Function to the given language.");
   m.def("setOption", [](const std::string s, InstructionParameter p) {
     xacc::setOption(s, boost::lexical_cast<std::string>(p));
   });
