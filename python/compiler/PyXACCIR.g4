@@ -61,11 +61,6 @@ param
    : id
    ;
 
-/* A quantum operation */
-/* FIXME: Spec calls for 'reset' keyword but this clashes with antlr parser.reset() 
- * we use 'reeset' instead..ha-ha, I know, right?
-*/
-
 /* A unitary operation */
 uop
    : gatename=gate '(' ( explist ) ')'
@@ -88,6 +83,7 @@ gate
    | 'Measure'
    | 'MEASURE'
    | 'xacc'
+   | 'qmi'
    ;
 
 /* A list of expressions */

@@ -40,7 +40,13 @@ std::shared_ptr<IR> PyXACCCompiler::compile(const std::string &src,
 
   // Walk the Abstract Syntax Tree
   tree::ParseTree *tree = parser.xaccsrc();
-  PyXACCListener listener;
+
+  DWorGateListener l;
+  tree::ParseTreeWalker::DEFAULT.walk(&l, tree);
+
+  std::cout << "IS GATE OR DW: " << l.isDW << "\n";
+
+  PyXACCListener listener(l.isDW);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
   // Create and return the IR

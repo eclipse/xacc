@@ -22,8 +22,29 @@ using namespace pyxacc;
 namespace xacc {
 namespace quantum {
 
+void DWorGateListener::enterGate(PyXACCIRParser::GateContext *ctx) {
+  // Get the name of the gate
+  auto gate = ctx->getText();
+
+  // Until we see a qmi or anneal instruction, keep checking
+  // the incoming gate name
+  if (!isDW)
+    isDW = boost::contains(gate, "qmi") || boost::contains(gate, "anneal");
+
+  // Once we have seen qmi or anneal, ensure that we
+  // don't see any gate model instructions
+  if (isDW && (gate != "qmi" && gate != "anneal"))
+    xacc::error("Cannot mix gate and dwave instructions.");
+}
+
 PyXACCListener::PyXACCListener() {
   provider = xacc::getService<IRProvider>("gate");
+}
+PyXACCListener::PyXACCListener(bool _useDw) : useDW(_useDw) {
+  if (_useDw)
+    provider = xacc::getService<IRProvider>("dwave");
+  else
+    provider = xacc::getService<IRProvider>("gate");
 }
 
 std::shared_ptr<Function> PyXACCListener::getKernel() { return f; }
@@ -89,9 +110,27 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
     auto genF = generator->generate(params);
 
+    // We may have a IRGenerator that produces d-wave functions,
+    // if so, we will not have set to correct provider
+    if (!std::dynamic_pointer_cast<GateFunction>(genF)) {
+        f = xacc::getService<IRProvider>("dwave")->createFunction(f->name(), {}, f->getParameters());
+    }
+    
     for (auto i : genF->getInstructions()) {
       f->addInstruction(i);
     }
+
+  } else if (gateName == "qmi") {
+    std::vector<int> qubits;
+    std::vector<InstructionParameter> params;
+    qubits.push_back(std::stoi(ctx->explist()->exp(0)->INT()->getText()));
+    qubits.push_back(std::stoi(ctx->explist()->exp(1)->INT()->getText()));
+    auto str = ctx->explist()->exp(2)->getText();
+    auto param = is_double(str) ? InstructionParameter(std::stod(str))
+                                : InstructionParameter(str);
+    params.push_back(param);
+    auto gate = provider->createInstruction(gateName, qubits, params);
+    f->addInstruction(gate);
 
   } else if (ctx->explist()->exp().size() > 0) {
     auto paramStr = ctx->explist()->exp(0);
@@ -117,6 +156,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
           params.push_back(InstructionParameter(tmp->getText()));
         }
       } else {
+        //   std::cout << "HEY WE SHOULD BE ADDING A QUBIT"
         qubits.push_back(std::stoi(ctx->explist()->exp(i)->INT()->getText()));
       }
     }
@@ -129,12 +169,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
       gate->setParameter(0, p1);
     } else {
 
-      gate = provider->createInstruction(gateName, qubits);
-      int count = 0;
-      for (auto p : params) {
-        gate->setParameter(count, p);
-        count++;
-      }
+      gate = provider->createInstruction(gateName, qubits, params);
     }
 
     f->addInstruction(gate);
