@@ -290,9 +290,10 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
-const std::string translate(std::shared_ptr<Function> function, const std::string toLanguage);{
+const std::string translate(std::shared_ptr<Function> function,
+                            const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
-  return toLanguageCompiler->translate(nullptr, function);
+  return toLanguageCompiler->translate("", function);
 }
 
 const std::string translateWithVisitor(const std::string &originalSource,

@@ -32,7 +32,7 @@ TEST(DWKernelTester, checkDWKernelConstruction) {
   EXPECT_TRUE(kernel.getInstruction(1) == qmi2);
   EXPECT_TRUE(kernel.getInstruction(2) == qmi3);
 
-  const std::string expected = "0 1 2.2\n0 0 0\n22 22 3.3\n";
+  const std::string expected = "0 1 2.2;\n0 0 0;\n22 22 3.3;\n";
 
   EXPECT_TRUE(kernel.toString("") == expected);
 }
@@ -40,7 +40,7 @@ TEST(DWKernelTester, checkDWKernelConstruction) {
 TEST(DWKernelTester, checkGraph) {
 
   auto qmi = std::make_shared<DWQMI>(0, 1, 2.2);
-  auto qmi2 = std::make_shared<DWQMI>(0,1.2);
+  auto qmi2 = std::make_shared<DWQMI>(0, 1.2);
   auto qmi3 = std::make_shared<DWQMI>(1, 3.3);
 
   DWKernel kernel("foo");
@@ -51,7 +51,6 @@ TEST(DWKernelTester, checkGraph) {
   auto graph = kernel.toGraph();
 
   graph.write(std::cout);
-
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
