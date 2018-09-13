@@ -346,14 +346,12 @@ int main(int argc, char **argv) {
 // [label=\"Gate=x,Circuit Layer=1,Gate Vertex Id=1,Gate Acting
 // Qubits=[0]\"];\n" "2 [label=\"Gate=h,Circuit Layer=1,Gate Vertex Id=2,Gate
 // Acting
-// Qubits=[1]\"];\n" 			"3 [label=\"Gate=cnot,Circuit Layer=2,Gate
-// Vertex Id=3,Gate
-// Acting Qubits=[1 2]\"];\n" 			"4 [label=\"Gate=cnot,Circuit
-// Layer=3,Gate Vertex
-// Id=4,Gate Acting Qubits=[0 1]\"];\n" 			"5
-// [label=\"Gate=h,Circuit Layer=4,Gate Vertex Id=5,Gate Acting
-// Qubits=[0]\"];\n" "6 [label=\"Gate=measure,Circuit Layer=5,Gate Vertex
-// Id=6,Gate Acting Qubits=[0]\"];\n" 			"7
+// Qubits=[1]\"];\n" 			"3 [label=\"Gate=cnot,Circuit
+// Layer=2,Gate Vertex Id=3,Gate Acting Qubits=[1 2]\"];\n" "4
+// [label=\"Gate=cnot,Circuit Layer=3,Gate Vertex Id=4,Gate Acting Qubits=[0
+// 1]\"];\n" 			"5 [label=\"Gate=h,Circuit Layer=4,Gate Vertex
+// Id=5,Gate Acting Qubits=[0]\"];\n" "6 [label=\"Gate=measure,Circuit
+// Layer=5,Gate Vertex Id=6,Gate Acting Qubits=[0]\"];\n" "7
 // [label=\"Gate=measure,Circuit
 // Layer=5,Gate Vertex Id=7,Gate Acting
 // Qubits=[1]\"];\n" 			"8 [label=\"Gate=h,Circuit Layer=6,Gate

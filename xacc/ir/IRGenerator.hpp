@@ -60,10 +60,11 @@ public:
     return generate(nullptr, temp);
   }
 
-  virtual std::vector<InstructionParameter> analyzeResults(std::shared_ptr<AcceleratorBuffer> buffer) {
-      return std::vector<InstructionParameter>{};
+  virtual std::vector<InstructionParameter>
+  analyzeResults(std::shared_ptr<AcceleratorBuffer> buffer) {
+    return std::vector<InstructionParameter>{};
   }
-  
+
   /**
    * The destructor
    */

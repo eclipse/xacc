@@ -88,7 +88,7 @@ public:
   const std::string getTag() override { return ""; }
 
   void mapBits(std::vector<int> bitMap) override {
-      xacc::error("DWKernel.mapBits not implemented");
+    xacc::error("DWKernel.mapBits not implemented");
   }
 
   /**
@@ -101,7 +101,9 @@ public:
     instructions.push_back(instruction);
   }
 
-  const int depth() override { xacc::error("DWKernel graph is undirected, cannot compute depth."); }
+  const int depth() override {
+    xacc::error("DWKernel graph is undirected, cannot compute depth.");
+  }
 
   const std::string persistGraph() override {
     std::stringstream s;
@@ -110,31 +112,33 @@ public:
   }
 
   Graph<DWVertex> toGraph() override {
-      int maxBit = 0;
-      for (int i = 0; i < nInstructions(); ++i) {
-          auto inst = getInstruction(i); 
-          auto bits = inst->bits();
-          if (bits[0] > maxBit) {
-              maxBit = bits[0];
-          }
-          if (bits[1] > maxBit) {
-              maxBit = bits[1];
-          }
+    int maxBit = 0;
+    for (int i = 0; i < nInstructions(); ++i) {
+      auto inst = getInstruction(i);
+      auto bits = inst->bits();
+      if (bits[0] > maxBit) {
+        maxBit = bits[0];
       }
-
-      DWGraph graph(maxBit+1);
-      
-      for (int i = 0; i < nInstructions(); ++i) {
-          auto inst = getInstruction(i); 
-          auto bits = inst->bits();
-          if (bits[0] == bits[1]) {
-              std::get<0>(graph.getVertex(bits[0]).properties) = boost::get<double>(inst->getParameter(0));
-          } else {
-              graph.addEdge(bits[0], bits[1], boost::get<double>(inst->getParameter(0)));
-          }
+      if (bits[1] > maxBit) {
+        maxBit = bits[1];
       }
+    }
 
-      return graph;
+    DWGraph graph(maxBit + 1);
+
+    for (int i = 0; i < nInstructions(); ++i) {
+      auto inst = getInstruction(i);
+      auto bits = inst->bits();
+      if (bits[0] == bits[1]) {
+        std::get<0>(graph.getVertex(bits[0]).properties) =
+            boost::get<double>(inst->getParameter(0));
+      } else {
+        graph.addEdge(bits[0], bits[1],
+                      boost::get<double>(inst->getParameter(0)));
+      }
+    }
+
+    return graph;
   }
 
   void replaceInstruction(const int idx, InstPtr replacingInst) override {
@@ -153,9 +157,8 @@ public:
    */
   const std::string name() const override { return _name; }
   const std::string description() const override { return ""; }
-  
-  const std::vector<int> bits() override { return std::vector<int>{}; }
 
+  const std::vector<int> bits() override { return std::vector<int>{}; }
 
   const std::string toString(const std::string &bufferVarName) override {
     std::stringstream ss;

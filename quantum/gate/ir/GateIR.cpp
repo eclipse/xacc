@@ -37,7 +37,8 @@ namespace quantum {
 // 	for (auto i = boost::sregex_iterator(flatQasmStr.begin(),
 // flatQasmStr.end(), 					qubitDeclarations); i !=
 // boost::sregex_iterator(); ++i) { 		std::string qubitLine =
-// (*i).str(); 		qubitLine.erase(std::remove(qubitLine.begin(), qubitLine.end(),
+// (*i).str(); 		qubitLine.erase(std::remove(qubitLine.begin(),
+// qubitLine.end(),
 // '\n'), qubitLine.end()); 		boost::sregex_token_iterator
 // first{qubitLine.begin(), qubitLine.end(), spaceDelim, -1}, last;
 // 		std::vector<std::string> splitQubitLine = {first, last};
@@ -107,13 +108,13 @@ namespace quantum {
 // 				int counter = 0;
 // 				std::vector<std::string> splitComma, props;
 // 				boost::split(splitComma, gateCommand[1],
-// boost::is_any_of(",")); 				for (auto segment : splitComma)
-// { if (boost::contains(segment, qubitVarName)) {
+// boost::is_any_of(",")); 				for (auto segment :
+// splitComma) { if (boost::contains(segment, qubitVarName)) {
 // 						actingQubits.push_back(qubitVarNameToId[segment]);
 // 					} else {
-// 						// This is not a qubit, it must be
-// a parameter
-// for gate 						props.push_back("PARAM_"
+// 						// This is not a qubit, it must
+// be a parameter for gate
+// props.push_back("PARAM_"
 // +
 // std::to_string(counter));
 // std::get<5>(node.properties) = props; counter++;
@@ -323,11 +324,10 @@ void GateIR::load(std::istream &inStream) {
 // if (eqsplit[0] == "Gate Acting Qubits") { auto qubitsStr = eqsplit[1];
 // boost::replace_all(qubitsStr, "[", "");
 // boost::replace_all(qubitsStr, "[",
-// ""); 					std::vector<std::string> elementsStr;
-// std::vector<int> qubits; 					boost::split(elementsStr, qubitsStr,
-// boost::is_any_of(" ")); 					for (auto element
-// : elementsStr) {
-// qubits.push_back(std::stoi(element));
+// ""); 					std::vector<std::string>
+// elementsStr; std::vector<int> qubits;
+// boost::split(elementsStr, qubitsStr, boost::is_any_of(" "));
+// for (auto element : elementsStr) { qubits.push_back(std::stoi(element));
 // 					}
 // 					std::get<3>(v.properties) = qubits;
 // 				} else if (eqsplit[0] == "Enabled") {
