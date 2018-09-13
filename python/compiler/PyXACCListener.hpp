@@ -14,13 +14,20 @@
 #define XACC_IBM_DWQMILISTENER_H
 
 #include <PyXACCIRBaseListener.h>
-#include <IR.hpp>
+#include "IR.hpp"
 #include "IRProvider.hpp"
+#include <boost/algorithm/string.hpp>
 
 using namespace pyxacc;
 
 namespace xacc {
 namespace quantum {
+
+class DWorGateListener : public PyXACCIRBaseListener {
+public:
+  bool isDW = false;
+  void enterGate(PyXACCIRParser::GateContext *ctx) override;
+};
 
 /**
  * The PyXACCListener implements the Antlr-generated
@@ -31,11 +38,13 @@ protected:
   std::shared_ptr<Function> f;
   std::shared_ptr<IRProvider> provider;
   std::vector<std::string> functionVariableNames;
+  bool useDW = false;
 
 public:
   std::shared_ptr<Function> getKernel();
 
   PyXACCListener();
+  PyXACCListener(bool useDw);
 
   virtual void
   enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;

@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "TrivialEmbeddingAlgorithm.hpp"
 #include "DefaultParameterSetter.hpp"
+#include "DWIRProvider.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -40,6 +41,9 @@ public:
         trivialEmbService);
     auto defaultPS = std::make_shared<xacc::quantum::DefaultParameterSetter>();
     context.RegisterService<xacc::quantum::ParameterSetter>(defaultPS);
+
+    auto irp = std::make_shared<xacc::quantum::DWIRProvider>();
+    context.RegisterService<xacc::IRProvider>(irp);
   }
 
   /**

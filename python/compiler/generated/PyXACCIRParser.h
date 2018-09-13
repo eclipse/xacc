@@ -45,13 +45,14 @@ public:
     T__32 = 33,
     T__33 = 34,
     T__34 = 35,
-    COMMENT = 36,
-    ID = 37,
-    REAL = 38,
-    INT = 39,
-    STRING = 40,
-    WS = 41,
-    EOL = 42
+    T__35 = 36,
+    COMMENT = 37,
+    ID = 38,
+    REAL = 39,
+    INT = 40,
+    STRING = 41,
+    WS = 42,
+    EOL = 43
   };
 
   enum {

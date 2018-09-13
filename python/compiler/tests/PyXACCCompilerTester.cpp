@@ -111,9 +111,35 @@ TEST(PyXACCCompilerTester, checkSimple) {
 
   std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
 }
+
+TEST(PyXACCCompilerTester, checkDW) {
+  const std::string dwsrc = R"dwsrc(def f():
+   qmi(0,0, 1.0)
+   qmi(1,1, 2.0)
+   qmi(0,1, 3.0)
+   return
+)dwsrc";
+
+  auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
+  auto acc = std::make_shared<FakePyAcc>();
+
+  auto ir = compiler->compile(dwsrc, acc);
+  auto f = ir->getKernel("f");
+  EXPECT_EQ("f", f->name());
+  EXPECT_EQ(f->nParameters(), 0);
+  EXPECT_EQ(f->nInstructions(), 3);
+
+  std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
+
+  // CHECK THAT WE THROW AN ERROR WITH MIXED CODE
+  // CHECK WITH ANNEAL
+  // CHECK WITH GENERATOR
+}
+
 const std::string uccsdSrc = R"uccsdSrc(def foo(theta0,theta1):
    Rx(-1.57,0)
    )uccsdSrc";
+
 TEST(PyXACCCompilerTester, checkUCCSD) {
 
   auto compiler = xacc::getService<xacc::Compiler>("xacc-py");

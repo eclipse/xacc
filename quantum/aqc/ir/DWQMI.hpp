@@ -87,6 +87,8 @@ public:
   DWQMI(int qbit1, int qbit2, InstructionParameter param)
       : qubits(std::vector<int>{qbit1, qbit2}), parameter(param) {}
 
+  DWQMI(std::vector<int> bits, InstructionParameter param)
+      : qubits(bits), parameter(param) {}
   /**
    * Return the name of this Instruction
    *

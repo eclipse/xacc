@@ -17,7 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler/default)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp compiler/default/*.cpp)
+file (GLOB SRC *.cpp ir/*.cpp compiler/default/*.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
