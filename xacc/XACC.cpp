@@ -290,20 +290,9 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
-
-const std::string translate(const std::string &original,
-                            const std::string &originalLanguageName,
-                            const std::string &newLanguageName,
-                            const std::string bufferName) {
-
-  auto originalCompiler = getCompiler(originalLanguageName);
-  auto newCompiler = getCompiler(newLanguageName);
-  auto ir = originalCompiler->compile(original);
-  std::string newSrc = "";
-  for (auto k : ir->getKernels()) {
-    newSrc += newCompiler->translate(bufferName, k) + "\n";
-  }
-  return newSrc;
+const std::string translate(std::shared_ptr<Function> function, const std::string toLanguage);{
+  auto toLanguageCompiler = getCompiler(toLanguage);
+  return toLanguageCompiler->translate(nullptr, function);
 }
 
 const std::string translateWithVisitor(const std::string &originalSource,

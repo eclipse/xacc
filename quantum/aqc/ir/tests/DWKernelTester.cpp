@@ -36,6 +36,23 @@ TEST(DWKernelTester, checkDWKernelConstruction) {
 
   EXPECT_TRUE(kernel.toString("") == expected);
 }
+
+TEST(DWKernelTester, checkGraph) {
+
+  auto qmi = std::make_shared<DWQMI>(0, 1, 2.2);
+  auto qmi2 = std::make_shared<DWQMI>(0,1.2);
+  auto qmi3 = std::make_shared<DWQMI>(1, 3.3);
+
+  DWKernel kernel("foo");
+  kernel.addInstruction(qmi);
+  kernel.addInstruction(qmi2);
+  kernel.addInstruction(qmi3);
+
+  auto graph = kernel.toGraph();
+
+  graph.write(std::cout);
+
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
