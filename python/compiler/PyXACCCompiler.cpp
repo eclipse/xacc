@@ -44,8 +44,6 @@ std::shared_ptr<IR> PyXACCCompiler::compile(const std::string &src,
   DWorGateListener l;
   tree::ParseTreeWalker::DEFAULT.walk(&l, tree);
 
-  std::cout << "IS GATE OR DW: " << l.isDW << "\n";
-
   PyXACCListener listener(l.isDW);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 

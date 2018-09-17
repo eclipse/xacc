@@ -113,13 +113,25 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     // We may have a IRGenerator that produces d-wave functions,
     // if so, we will not have set to correct provider
     if (!std::dynamic_pointer_cast<GateFunction>(genF)) {
+        if (!xacc::hasCompiler("dwave-qmi")) {
+            xacc::error("Cannot run decorated code for d-wave without d-wave plugins.");
+        }
         f = xacc::getService<IRProvider>("dwave")->createFunction(f->name(), {}, f->getParameters());
-    }
+        auto dwcompiler = xacc::getCompiler("dwave-qmi");
+        auto acc = xacc::getAccelerator("dwave");
+        auto buff = acc->getBuffer("q");
+
+        auto xaccKernelSrcStr = dwcompiler->translate("", genF);
+        auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
+        genF = embeddedCode->getKernels()[0];
+    } 
     
     for (auto i : genF->getInstructions()) {
       f->addInstruction(i);
     }
+    
 
+    // std::cout << "F:\n" << f->toString("q") << "\n";
   } else if (gateName == "qmi") {
     std::vector<int> qubits;
     std::vector<InstructionParameter> params;
