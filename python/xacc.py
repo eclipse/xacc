@@ -117,7 +117,18 @@ class qpu(object):
 
             # Remove the @qpu line from the source            
             src = '\n'.join(inspect.getsource(f).split('\n')[1:])
-
+            
+            argsList = list(args)
+            if not isinstance(argsList[0], AcceleratorBuffer):
+                raise RuntimeError('First argument of an xacc kernel must be the Accelerator Buffer to operate on.')
+            
+            buffer = argsList[0]
+            
+            functionBufferName = inspect.getargspec(f)[0][0]
+        
+            # Replace function arg0 name with buffer.name()
+            src = src.replace(functionBufferName, buffer.name())
+            
             # Get the compiler and compile the code
             compiler = getCompiler('xacc-py')
             ir = compiler.compile(src, qpu)
@@ -135,9 +146,8 @@ class qpu(object):
                             nBits = b
             nBits = nBits+1
             
-            buf = qpu.createBuffer('q',nBits)
-            compiledKernel.execute(buf, list(args))
-            return buf
+            compiledKernel.execute(argsList[0], argsList[1:])
+            return
         return wrapped_f
 
 def functionToLatex(function):

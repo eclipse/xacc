@@ -22,6 +22,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/program)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 
 file (GLOB HEADERS 
 		XACC.hpp 
@@ -35,6 +36,7 @@ file (GLOB HEADERS
 		
 file (GLOB SRCS 
 		*.cpp 
+        accelerator/*.cpp
 		program/*.cpp 
 		utils/*.cpp 
 		accelerator/remote/*.cpp

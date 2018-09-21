@@ -39,6 +39,7 @@ protected:
   std::shared_ptr<IRProvider> provider;
   std::vector<std::string> functionVariableNames;
   bool useDW = false;
+  std::string bufferName;
 
 public:
   std::shared_ptr<Function> getKernel();

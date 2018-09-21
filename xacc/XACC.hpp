@@ -280,6 +280,8 @@ std::vector<std::shared_ptr<ServiceInterface>> getServices() {
 std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
                                            std::shared_ptr<Function> function);
 
+void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer);
+
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 
 const std::string translate(std::shared_ptr<Function> function,

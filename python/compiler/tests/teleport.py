@@ -2,9 +2,12 @@ import xacc
 
 xacc.Initialize()
 
+qpu = xacc.getAccelerator('local-ibm')
+qubits = qpu.createBuffer('q',3)
+
 # Create the source code
-@xacc.qpu(accelerator='tnqvm')
-def teleport(): 
+@xacc.qpu(accelerator=qpu)
+def teleport(qubits): 
    X(0)
    H(1)
    CNOT(1,2)
@@ -12,12 +15,11 @@ def teleport():
    CNOT(1,2)
    CNOT(2,0)
    Measure(2, 0)
-   return
 
-results = teleport()
+teleport(qubits)
 
 # Display the results
-print(results.getMeasurementStrings())
+print(qubits.getMeasurementCounts())
 
 # Finalize the framework
 xacc.Finalize()

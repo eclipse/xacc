@@ -19,7 +19,55 @@
 #include <iostream>
 #include "Utils.hpp"
 
+#define RAPIDJSON_HAS_STDSTRING 1
+#include "rapidjson/prettywriter.h"
+
+using namespace rapidjson;
+
+#include <boost/variant.hpp>
+
 namespace xacc {
+
+class AcceleratorBuffer;
+
+using AcceleratorBufferChildPair =
+    std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
+using ExtraInfo = boost::variant<int, double, std::string, std::vector<int>,
+                                 std::vector<double>, std::vector<std::string>, std::map<int, std::vector<int>>>;
+using AddPredicate = std::function<bool(ExtraInfo &)>;
+
+class CheckEqualVisitor : public boost::static_visitor<bool> {
+private:
+  ExtraInfo extraInfo;
+
+public:
+  CheckEqualVisitor(ExtraInfo &toCheck) : extraInfo(toCheck) {}
+  CheckEqualVisitor(const ExtraInfo &toCheck) : extraInfo(toCheck) {}
+
+  bool operator()(const int &i) const;
+  bool operator()(const double &i) const;
+  bool operator()(const std::string &i) const;
+  bool operator()(const std::vector<int> &i) const;
+  bool operator()(const std::vector<double> &i) const;
+  bool operator()(const std::vector<std::string> &i) const;
+  bool operator()(const std::map<int, std::vector<int>> &i) const;
+};
+
+class ToJsonVisitor : public boost::static_visitor<> {
+private:
+  PrettyWriter<StringBuffer> &writer;
+
+public:
+  ToJsonVisitor(PrettyWriter<StringBuffer> &w) : writer(w) {}
+
+  void operator()(const int &i);
+  void operator()(const double &i);
+  void operator()(const std::string &i);
+  void operator()(const std::vector<int> &i);
+  void operator()(const std::vector<double> &i);
+  void operator()(const std::vector<std::string> &i);
+  void operator()(const std::map<int, std::vector<int>> &i);
+};
 
 /**
  * The AcceleratorBuffer models an allocated buffer of
@@ -30,175 +78,6 @@ namespace xacc {
  * @author Alex McCaskey
  */
 class AcceleratorBuffer {
-
-public:
-  /**
-   * The Constructor
-   */
-  AcceleratorBuffer(const std::string &str, const int N)
-      : bufferId(str), nBits(N) {}
-
-  /**
-   * The Constructor, takes as input the name of this buffer,
-   * and the bit indices to model.
-   *
-   * @param str The name of the buffer
-   * @param firstIndex The first bit index
-   * @param indices The remaining bit indices
-   */
-  template <typename... Indices>
-  AcceleratorBuffer(const std::string &str, int firstIndex, Indices... indices)
-      : bufferId(str), nBits(1 + sizeof...(indices)) {}
-
-  /**
-   * The copy constructor
-   */
-  AcceleratorBuffer(const AcceleratorBuffer &other)
-      : nBits(other.nBits), bufferId(other.bufferId) {}
-
-  /**
-   * Return the number of bits in this buffer.
-   *
-   * @return size The number of bits in this buffer
-   */
-  const int size() const { return nBits; }
-
-  /**
-   * Return this AcceleratorBuffer's name
-   *
-   * @return name The name of this AcceleratorBuffer
-   */
-  const std::string name() const { return bufferId; }
-
-  /**
-   * Reset the stored measured bit strings.
-   */
-  virtual void resetBuffer() {
-    measurements.clear();
-    bitStringToCounts.clear();
-  }
-
-  virtual void appendMeasurement(const std::string &measurement) {
-    measurements.push_back(boost::dynamic_bitset<>(measurement));
-    std::stringstream ss;
-    ss << measurement;
-    bitStringToCounts[ss.str()]++;
-  }
-
-  /**
-   * Add a measurement result to this Buffer
-   *
-   * @param measurement The measurement result
-   */
-  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement) {
-    measurements.push_back(measurement);
-    std::stringstream ss;
-    ss << measurement;
-    bitStringToCounts[ss.str()]++;
-  }
-
-  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement,
-                                 const int count) {
-    std::stringstream ss;
-    ss << measurement;
-    bitStringToCounts[ss.str()] = count;
-    for (int i = 0; i < count; i++)
-      measurements.push_back(measurement);
-    return;
-  }
-
-  virtual double computeMeasurementProbability(const std::string &bitStr) {
-    return (double)bitStringToCounts[bitStr] / (double)measurements.size();
-  }
-
-  /**
-   * Compute and return the expectation value with respect
-   * to the Pauli-Z operator. Here we provide a base implementation
-   * based on an ensemble of measurement results. Subclasses
-   * are free to implement this as they see fit, ie, for simulators
-   * use the wavefunction.
-   *
-   * @return expVal The expectation value
-   */
-  virtual const double getExpectationValueZ() {
-    double aver = 0.0;
-    auto has_even_parity = [](unsigned int x) -> int {
-      unsigned int count = 0, i, b = 1;
-      for (i = 0; i < 32; i++) {
-        if (x & (b << i)) {
-          count++;
-        }
-      }
-      if ((count % 2)) {
-        return 0;
-      }
-      return 1;
-    };
-
-    for (auto &kv : bitStringToCounts) {
-      int i = std::stoi(kv.first, nullptr, 2);
-      auto par = has_even_parity(i);
-      auto p = computeMeasurementProbability(kv.first);
-      if (!par) {
-        p = -p;
-      }
-      aver += p;
-    }
-    return aver;
-  }
-
-  virtual void setExpectationValueZ(const double exp) {
-    XACCLogger::instance()->error(
-        "AcceleratorBuffer.setExpectationValueZ not "
-        "implemented. This method is intended for subclasses.");
-  }
-
-  /**
-   * Return a read-only view of this Buffer's measurement results
-   *
-   * @return results Measurement results
-   */
-  virtual const std::vector<boost::dynamic_bitset<>> getMeasurements() {
-    return measurements;
-  }
-
-  /**
-   * Return all measurements as bit strings.
-   *
-   * @return bitStrings List of bit strings.
-   */
-  virtual const std::vector<std::string> getMeasurementStrings() {
-    std::vector<std::string> strs;
-    for (auto m : measurements) {
-      std::stringstream ss;
-      ss << m;
-      strs.push_back(ss.str());
-    }
-    return strs;
-  }
-
-  virtual std::map<std::string, int> getMeasurementCounts() {
-    return bitStringToCounts;
-  }
-
-  /**
-   * Print information about this AcceleratorBuffer to standard out.
-   *
-   */
-  virtual void print() {}
-
-  /**
-   * Print information about this AcceleratorBuffer to the
-   * given output stream.
-   *
-   * @param stream Stream to write the buffer to.
-   */
-  virtual void print(std::ostream &stream) {}
-
-  /**
-   * The Destructor
-   */
-  virtual ~AcceleratorBuffer() {}
 
 protected:
   /**
@@ -217,6 +96,126 @@ protected:
    * The number of bits in this buffer.
    */
   int nBits;
+
+  std::vector<AcceleratorBufferChildPair> children;
+
+  std::map<std::string, ExtraInfo> info;
+
+public:
+  /**
+   * The Constructor
+   */
+  AcceleratorBuffer(const std::string &str, const int N);
+
+  /**
+   * The copy constructor
+   */
+  AcceleratorBuffer(const AcceleratorBuffer &other);
+
+  void appendChild(const std::string name,
+                   std::shared_ptr<AcceleratorBuffer> buffer);
+  std::vector<std::shared_ptr<AcceleratorBuffer>>
+  getChildren(const std::string name);
+  std::vector<std::string> getChildrenNames();
+
+  void addExtraInfo(const std::string infoName, ExtraInfo i);
+  bool addExtraInfo(const std::string infoName, ExtraInfo i,
+                    AddPredicate predicate);
+  std::vector<std::string> listExtraInfoKeys();
+  bool hasExtraInfoKey(const std::string infoName);
+  ExtraInfo getInformation(const std::string name);
+  std::map<std::string, ExtraInfo> getInformation();
+
+  /**
+   * Return all children with ExtraInfo infoName equal
+   * to the given ExtraInfo i.
+   */
+  std::vector<std::shared_ptr<AcceleratorBuffer>>
+  getChildren(const std::string infoName, ExtraInfo i);
+
+  // FIXME GET ALL UNIQUE ExtraInfo values at given ExtraInfo key...
+  std::vector<ExtraInfo> getAllUnique(const std::string name);
+
+  /**
+   * Return the number of bits in this buffer.
+   *
+   * @return size The number of bits in this buffer
+   */
+  const int size() const;
+
+  /**
+   * Return this AcceleratorBuffer's name
+   *
+   * @return name The name of this AcceleratorBuffer
+   */
+  const std::string name() const;
+
+  /**
+   * Reset the stored measured bit strings.
+   */
+  virtual void resetBuffer();
+
+  virtual void appendMeasurement(const std::string &measurement);
+
+  /**
+   * Add a measurement result to this Buffer
+   *
+   * @param measurement The measurement result
+   */
+  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement);
+
+  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement,
+                                 const int count);
+
+  virtual double computeMeasurementProbability(const std::string &bitStr);
+
+  /**
+   * Compute and return the expectation value with respect
+   * to the Pauli-Z operator. Here we provide a base implementation
+   * based on an ensemble of measurement results. Subclasses
+   * are free to implement this as they see fit, ie, for simulators
+   * use the wavefunction.
+   *
+   * @return expVal The expectation value
+   */
+  virtual const double getExpectationValueZ();
+
+  virtual void setExpectationValueZ(const double exp);
+
+  /**
+   * Return a read-only view of this Buffer's measurement results
+   *
+   * @return results Measurement results
+   */
+  virtual const std::vector<boost::dynamic_bitset<>> getMeasurements();
+
+  /**
+   * Return all measurements as bit strings.
+   *
+   * @return bitStrings List of bit strings.
+   */
+  virtual const std::vector<std::string> getMeasurementStrings();
+
+  virtual std::map<std::string, int> getMeasurementCounts();
+
+  /**
+   * Print information about this AcceleratorBuffer to standard out.
+   *
+   */
+  virtual void print();
+
+  /**
+   * Print information about this AcceleratorBuffer to the
+   * given output stream.
+   *
+   * @param stream Stream to write the buffer to.
+   */
+  virtual void print(std::ostream &stream);
+
+  /**
+   * The Destructor
+   */
+  virtual ~AcceleratorBuffer() {}
 };
 
 } // namespace xacc

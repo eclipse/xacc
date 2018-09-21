@@ -14,6 +14,7 @@
 #include "IRGenerator.hpp"
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"
+#include "AcceleratorBuffer.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -303,7 +304,37 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Compute the probability of a given bit string")
       .def("getMeasurementCounts",
            &xacc::AcceleratorBuffer::getMeasurementCounts,
-           "Return the mapping of measure bit strings to their counts.");
+           "Return the mapping of measure bit strings to their counts.")
+      .def("getChildren",
+           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
+               xacc::AcceleratorBuffer::*)(const std::string)) &
+               xacc::AcceleratorBuffer::getChildren,
+           "")
+      .def("getChildrenNames", &xacc::AcceleratorBuffer::getChildrenNames, "")
+      .def("listExtraInfoKeys", &xacc::AcceleratorBuffer::listExtraInfoKeys, "")
+      .def("getInformation",
+           (std::map<std::string, ExtraInfo>(xacc::AcceleratorBuffer::*)()) &
+               xacc::AcceleratorBuffer::getInformation,
+           "")
+      .def("getInformation",
+           (ExtraInfo(xacc::AcceleratorBuffer::*)(const std::string)) &
+               xacc::AcceleratorBuffer::getInformation,
+           "")
+      .def("name", &xacc::AcceleratorBuffer::name, "")
+      .def("getAllUnique", &xacc::AcceleratorBuffer::getAllUnique,
+           "Return all unique information with the provided string name")
+      .def("__repr__",
+           [](const std::shared_ptr<AcceleratorBuffer> b) {
+             std::stringstream s;
+             b->print(s);
+             return s.str();
+           },
+           "")
+      .def("getChildren",
+           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
+               xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
+               xacc::AcceleratorBuffer::getChildren,
+           "");
 
   // Expose the Compiler
   py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>>(
@@ -420,6 +451,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         "Indicate that this is using XACC via the Python API.");
   m.def("optimizeFunction", &xacc::optimizeFunction,
         "Run an optimizer on the given function.");
+  m.def("analyzeBuffer", (void(*)(std::shared_ptr<AcceleratorBuffer>)) &xacc::analyzeBuffer, "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
   m.def("compileKernel",

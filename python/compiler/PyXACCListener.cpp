@@ -50,8 +50,16 @@ PyXACCListener::PyXACCListener(bool _useDw) : useDW(_useDw) {
 std::shared_ptr<Function> PyXACCListener::getKernel() { return f; }
 
 void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
+  // Note here we expect to have a function with possible nParameters,
+  // The first parameter must always be the AcceleratorBuffer
+  if (ctx->param().empty()) {
+    xacc::error("XACC Python kernels must have at least one argument - the "
+                "AcceleratorBuffer.");
+  }
+  bufferName = ctx->param(0)->getText();
+
   std::vector<InstructionParameter> params;
-  for (int i = 0; i < ctx->param().size(); i++) {
+  for (int i = 1; i < ctx->param().size(); i++) {
     params.push_back(
         InstructionParameter(ctx->param(static_cast<size_t>(i))->getText()));
     functionVariableNames.push_back(
@@ -113,25 +121,26 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     // We may have a IRGenerator that produces d-wave functions,
     // if so, we will not have set to correct provider
     if (!std::dynamic_pointer_cast<GateFunction>(genF)) {
-        if (!xacc::hasCompiler("dwave-qmi")) {
-            xacc::error("Cannot run decorated code for d-wave without d-wave plugins.");
-        }
-        f = xacc::getService<IRProvider>("dwave")->createFunction(f->name(), {}, f->getParameters());
-        auto dwcompiler = xacc::getCompiler("dwave-qmi");
-        auto acc = xacc::getAccelerator("dwave");
-        auto buff = acc->getBuffer("q");
+      if (!xacc::hasCompiler("dwave-qmi")) {
+        xacc::error(
+            "Cannot run decorated code for d-wave without d-wave plugins.");
+      }
+      f = xacc::getService<IRProvider>("dwave")->createFunction(
+          f->name(), {}, f->getParameters());
+      auto dwcompiler = xacc::getCompiler("dwave-qmi");
+      auto acc = xacc::getAccelerator("dwave");
+      auto buff = acc->getBuffer(bufferName);
+      buff->addExtraInfo("ir-generator", ExtraInfo(generator->name()));
+      
+      auto xaccKernelSrcStr = dwcompiler->translate("", genF);
+      auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
+      genF = embeddedCode->getKernels()[0];
+    }
 
-        auto xaccKernelSrcStr = dwcompiler->translate("", genF);
-        auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
-        genF = embeddedCode->getKernels()[0];
-    } 
-    
     for (auto i : genF->getInstructions()) {
       f->addInstruction(i);
     }
-    
 
-    // std::cout << "F:\n" << f->toString("q") << "\n";
   } else if (gateName == "qmi") {
     std::vector<int> qubits;
     std::vector<InstructionParameter> params;
