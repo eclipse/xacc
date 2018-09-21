@@ -3,19 +3,21 @@ import numpy as np
 
 xacc.Initialize()
 
-class test(xacc.Accelerator):
-    def execute(self, buffer, function):
-        print('executing hello world')
-      
-@xacc.qpu() # or ibm, rigetti, etc...
-def foo(theta):
+qpu = xacc.getAccelerator('local-ibm') # or ibm, rigetti, etc...
+buffer = qpu.createBuffer('q',2)
+
+@xacc.qpu(accelerator=qpu) 
+def foo(buffer, theta):
    X(0)
    Ry(theta, 1)
    CNOT(1, 0)
    Measure(0,0)
-   return
 
-expVals = [foo(t).getExpectationValueZ() for t in np.linspace(-np.pi,np.pi,10)]
-print (expVals)
+# Execute the code on the QPU
+foo(buffer, -3.1415936)
+
+# Check into the results
+print(buffer.getExpectationValueZ())
+print(buffer.getMeasurementCounts())
 
 xacc.Finalize()

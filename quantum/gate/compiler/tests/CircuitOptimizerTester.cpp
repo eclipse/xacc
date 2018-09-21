@@ -220,8 +220,8 @@ TEST(CircuitOptimizerTester, checkSimple) {
 
   if (xacc::hasCompiler("xacc-py")) {
     auto c = xacc::getService<xacc::Compiler>("xacc-py");
-    auto f =
-        c->compile("def foo():\n   CNOT(0,1)\n   CNOT(0,1)\n")->getKernels()[0];
+    auto f = c->compile("def foo(buffer):\n   CNOT(0,1)\n   CNOT(0,1)\n")
+                 ->getKernels()[0];
 
     auto ir = std::make_shared<GateIR>();
     ir->addKernel(f);
@@ -233,7 +233,8 @@ TEST(CircuitOptimizerTester, checkSimple) {
     optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
     EXPECT_EQ(0, optF->nInstructions());
 
-    f = c->compile("def foo():\n   H(0)\n   CNOT(0,1)\n   CNOT(0,1)\n   H(0)\n")
+    f = c->compile(
+             "def foo(buffer):\n   H(0)\n   CNOT(0,1)\n   CNOT(0,1)\n   H(0)\n")
             ->getKernels()[0];
 
     ir = std::make_shared<GateIR>();
@@ -245,7 +246,8 @@ TEST(CircuitOptimizerTester, checkSimple) {
 
     EXPECT_EQ(0, optF->nInstructions());
 
-    f = c->compile("def foo():\n   CNOT(0,1)\n   H(1)\n   H(1)\n   CNOT(0,1)\n")
+    f = c->compile(
+             "def foo(buffer):\n   CNOT(0,1)\n   H(1)\n   H(1)\n   CNOT(0,1)\n")
             ->getKernels()[0];
 
     ir = std::make_shared<GateIR>();

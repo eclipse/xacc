@@ -13,6 +13,7 @@
 #include "XACC.hpp"
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
+#include "IRGenerator.hpp"
 #include <signal.h>
 #include <cstdlib>
 
@@ -320,6 +321,15 @@ const std::string translateWithVisitor(const std::string &originalSource,
   }
 
   return visitor->toString();
+}
+
+void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
+    if (!buffer->hasExtraInfoKey("ir-generator")) {
+        error("xacc::analyzeBuffer is for use with codes generated with an IRGenerator.");
+    }
+    
+    auto gen = getService<IRGenerator>(boost::get<std::string>(buffer->getInformation("ir-generator")));
+    gen->analyzeResults(buffer);
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }

@@ -1,3 +1,3 @@
 
-add_xacc_test(AcceleratorBuffer)
+add_xacc_test(AcceleratorBuffer xacc)
 
