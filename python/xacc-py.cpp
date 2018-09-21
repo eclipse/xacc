@@ -316,6 +316,10 @@ PYBIND11_MODULE(_pyxacc, m) {
            (std::map<std::string, ExtraInfo>(xacc::AcceleratorBuffer::*)()) &
                xacc::AcceleratorBuffer::getInformation,
            "")
+      .def("addExtraInfo",
+           (void (xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
+               xacc::AcceleratorBuffer::addExtraInfo,
+           "")
       .def("getInformation",
            (ExtraInfo(xacc::AcceleratorBuffer::*)(const std::string)) &
                xacc::AcceleratorBuffer::getInformation,
