@@ -451,7 +451,9 @@ PYBIND11_MODULE(_pyxacc, m) {
         "Indicate that this is using XACC via the Python API.");
   m.def("optimizeFunction", &xacc::optimizeFunction,
         "Run an optimizer on the given function.");
-  m.def("analyzeBuffer", (void(*)(std::shared_ptr<AcceleratorBuffer>)) &xacc::analyzeBuffer, "Analyze the AcceleratorBuffer to produce problem-specific results.");
+  m.def("analyzeBuffer",
+        (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
+        "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
 
   m.def("compileKernel",

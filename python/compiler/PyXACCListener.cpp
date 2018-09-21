@@ -131,7 +131,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
       auto acc = xacc::getAccelerator("dwave");
       auto buff = acc->getBuffer(bufferName);
       buff->addExtraInfo("ir-generator", ExtraInfo(generator->name()));
-      
+
       auto xaccKernelSrcStr = dwcompiler->translate("", genF);
       auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
       genF = embeddedCode->getKernels()[0];

@@ -41,9 +41,11 @@ bool CheckEqualVisitor::operator()(const std::vector<std::string> &i) const {
                     boost::get<std::vector<std::string>>(extraInfo).begin());
 }
 
-bool CheckEqualVisitor::operator()(const std::map<int, std::vector<int>> &i) const {
-  return std::equal(i.begin(), i.end(),
-                    boost::get<std::map<int, std::vector<int>>>(extraInfo).begin());
+bool CheckEqualVisitor::
+operator()(const std::map<int, std::vector<int>> &i) const {
+  return std::equal(
+      i.begin(), i.end(),
+      boost::get<std::map<int, std::vector<int>>>(extraInfo).begin());
 }
 void ToJsonVisitor::operator()(const int &i) { writer.Int(i); }
 void ToJsonVisitor::operator()(const double &i) { writer.Double(i); }
@@ -68,16 +70,16 @@ void ToJsonVisitor::operator()(const std::vector<std::string> &i) {
 }
 
 void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
+  writer.StartArray();
+  for (auto &kv : i) {
+    writer.Key(std::to_string(kv.first));
     writer.StartArray();
-    for (auto& kv : i) {
-        writer.Key(std::to_string(kv.first));
-        writer.StartArray();
-        for (auto& v : kv.second) {
-            writer.Int(v);
-        }
-        writer.EndArray();
+    for (auto &v : kv.second) {
+      writer.Int(v);
     }
     writer.EndArray();
+  }
+  writer.EndArray();
 }
 
 AcceleratorBuffer::AcceleratorBuffer(const std::string &str, const int N)
@@ -380,8 +382,8 @@ void AcceleratorBuffer::print(std::ostream &stream) {
     writer.Key("Children");
     writer.StartObject();
     for (auto &pair : children) {
-        writer.Key("child");
-        writer.StartObject();
+      writer.Key("child");
+      writer.StartObject();
       writer.Key("name");
       writer.String(pair.first);
       writer.Key("Information");

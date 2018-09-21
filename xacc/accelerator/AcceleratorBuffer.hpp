@@ -33,7 +33,8 @@ class AcceleratorBuffer;
 using AcceleratorBufferChildPair =
     std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
 using ExtraInfo = boost::variant<int, double, std::string, std::vector<int>,
-                                 std::vector<double>, std::vector<std::string>, std::map<int, std::vector<int>>>;
+                                 std::vector<double>, std::vector<std::string>,
+                                 std::map<int, std::vector<int>>>;
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
 class CheckEqualVisitor : public boost::static_visitor<bool> {
