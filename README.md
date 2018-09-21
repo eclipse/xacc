@@ -28,17 +28,22 @@ import xacc
 # Initialize the framework
 xacc.Initialize()
 
+# Select the QPU you want to use and 
+# allocate some qubits
+qpu = xacc.getAccelerator('rigetti') # or ibm, tnqvm, etc..
+qubits = qpu.createBuffer('q',2)
+
 # Annotate functions that are to be 
 # run on the QPU
-@xacc.qpu(accelerator='rigetti') # or ibm, tnqvm, etc..
-def entangle():
+@xacc.qpu(accelerator=qpu)
+def entangle(buffer):
    H(0)
    CNOT(0, 1)
    Measure(0, 0)
    Measure(1, 1)
    
 # Execute, gather results
-results = entangle()
+entangle(qubits)
 print(result.getMeasurementCounts())
 
 # Cleanup

@@ -324,12 +324,14 @@ const std::string translateWithVisitor(const std::string &originalSource,
 }
 
 void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
-    if (!buffer->hasExtraInfoKey("ir-generator")) {
-        error("xacc::analyzeBuffer is for use with codes generated with an IRGenerator.");
-    }
-    
-    auto gen = getService<IRGenerator>(boost::get<std::string>(buffer->getInformation("ir-generator")));
-    gen->analyzeResults(buffer);
+  if (!buffer->hasExtraInfoKey("ir-generator")) {
+    error("xacc::analyzeBuffer is for use with codes generated with an "
+          "IRGenerator.");
+  }
+
+  auto gen = getService<IRGenerator>(
+      boost::get<std::string>(buffer->getInformation("ir-generator")));
+  gen->analyzeResults(buffer);
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }
