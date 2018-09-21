@@ -199,6 +199,27 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     xacc::error("Only permitting gates with 1 parameter for now.");
   }
 }
+void PyXACCListener::exitXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 
+  // If this is a D-Wave kernel, then we need to check
+  // and see if an embedding has been set, if not, then
+  // lets run the D-Wave compiler to set one.
+  if (!std::dynamic_pointer_cast<GateFunction>(f)) {
+    if (!xacc::hasCompiler("dwave-qmi")) {
+      xacc::error(
+          "Cannot run decorated code for d-wave without d-wave plugins.");
+    }
+
+    auto acc = xacc::getAccelerator("dwave");
+    auto buff = acc->getBuffer(bufferName);
+
+    if (!buff->hasExtraInfoKey("embedding")) {
+      xacc::info("Embedding not found for this python kernel, computing embedding now.");
+      auto dwcompiler = xacc::getCompiler("dwave-qmi");
+      auto xaccKernelSrcStr = dwcompiler->translate("", f);
+      auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
+    }
+  }
+}
 } // namespace quantum
 } // namespace xacc

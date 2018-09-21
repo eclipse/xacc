@@ -49,7 +49,9 @@ public:
 
   virtual void
   enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
-
+  virtual void
+  exitXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
+  
   virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
 };
 
