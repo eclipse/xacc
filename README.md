@@ -44,7 +44,7 @@ def entangle(buffer):
    
 # Execute, gather results
 entangle(qubits)
-print(result.getMeasurementCounts())
+print(qubits.getMeasurementCounts())
 
 # Cleanup
 xacc.Finalize()
