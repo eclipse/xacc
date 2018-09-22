@@ -262,6 +262,13 @@ void AcceleratorBuffer::appendMeasurement(
   return;
 }
 
+void AcceleratorBuffer::appendMeasurement(const std::string measurement, const int count) {
+  bitStringToCounts[measurement] = count;
+  for (int i = 0; i < count; i++)
+    measurements.push_back(boost::dynamic_bitset<>(measurement));
+  return;
+}
+
 double
 AcceleratorBuffer::computeMeasurementProbability(const std::string &bitStr) {
   return (double)bitStringToCounts[bitStr] / (double)measurements.size();

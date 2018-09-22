@@ -167,7 +167,8 @@ public:
 
   virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement,
                                  const int count);
-
+  virtual void appendMeasurement(const std::string measurement, const int count);
+  
   virtual double computeMeasurementProbability(const std::string &bitStr);
 
   /**
