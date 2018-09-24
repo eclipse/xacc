@@ -1,5 +1,5 @@
-API Index
-=========
+XACC Framework API
+==================
 
 .. _api-index:
 .. toctree::
@@ -9,3 +9,14 @@ API Index
    ir-index
    program-index
    utils-index
+
+XACC Quantum Gate Model API
+==========================
+
+.. _gate-index:
+.. toctree::
+
+   gate/gatefunction
+   gate/gateinstruction
+   gate/gateir
+   gate/gateirprovider
