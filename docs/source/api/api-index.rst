@@ -21,6 +21,7 @@ XACC Quantum Gate Model API
    gate/gateir
    gate/gateirprovider
    gate/kernelreplacementpreprocessor
+   gate/algorithms
 
 XACC AQC Model API
 ===================
