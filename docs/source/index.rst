@@ -26,7 +26,7 @@ Welcome to XACC's documentation!
    :caption: API Reference
    :maxdepth: 2
 
-   ../doxygen/xml/index.xml
+   api/api-index.rst
 
 
 
