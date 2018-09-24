@@ -2,7 +2,7 @@ DWIRProvider
 ===========
 
 
-.. _compiler-reference:
+.. _aqc-reference:
 .. doxygenclass:: xacc::quantum::DWIRProvider
    :project: XACC
    :members:

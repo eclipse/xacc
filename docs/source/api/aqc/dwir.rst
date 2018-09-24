@@ -2,7 +2,7 @@ DWIR
 ===========
 
 
-.. _compiler-reference:
+.. _aqc-reference:
 .. doxygenclass:: xacc::quantum::DWIR
    :project: XACC
    :members:

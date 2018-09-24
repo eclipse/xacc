@@ -1,7 +1,7 @@
 DWKernel
 ===========
 
-.. _compiler-reference:
+.. _aqc-reference:
 .. doxygenclass:: xacc::quantum::DWKernel
    :project: XACC
    :members:
