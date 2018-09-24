@@ -7,6 +7,9 @@ GateInstruction
    :project: XACC
    :members:
 
+Gates
+===========
+
 .. toctree::
 
    instructions/cnot
