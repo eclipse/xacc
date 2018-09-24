@@ -26,7 +26,7 @@ Welcome to XACC's documentation!
    :caption: API Reference
    :maxdepth: 2
 
-   api/ir.rst
+   api/index.xml
 
 
 
