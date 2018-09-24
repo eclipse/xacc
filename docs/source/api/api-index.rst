@@ -3,7 +3,7 @@ API Index
 
 .. _api-index:
 .. doxygenindex::
-   :project: ...
+   :project: XACC
    :path: ...
    :outline:
    :no-link:
