@@ -1,4 +1,4 @@
-Intermediate Representation (ir)
+Intermediate Representation (IR)
 ================================
 
 .. _ir-reference:
