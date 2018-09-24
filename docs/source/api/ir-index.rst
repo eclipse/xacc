@@ -4,12 +4,12 @@ Intermediate Representation (ir)
 .. _ir-reference:
 .. toctree::
 
-   function
-   instruction
-   instructioniterator
-   instructionvisitor
-   ir
-   irgenerator
-   irpreprocessor
-   irprovider
-   irtransformation
+   ir/function
+   ir/instruction
+   ir/instructioniterator
+   ir/instructionvisitor
+   ir/ir
+   ir/irgenerator
+   ir/irpreprocessor
+   ir/irprovider
+   ir/irtransformation
