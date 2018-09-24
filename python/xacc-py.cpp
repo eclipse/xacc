@@ -429,6 +429,8 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("setOption", [](const std::string s, InstructionParameter p) {
     xacc::setOption(s, boost::lexical_cast<std::string>(p));
   });
+  m.def("info", [](const std::string s) { xacc::info(s);}, "");
+  m.def("error", &xacc::error, "");
   m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
   m.def("setOptions",
         [](std::map<std::string, std::string> options) {
