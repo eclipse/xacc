@@ -4,7 +4,7 @@ API Index
 .. _api-index:
 .. toctree::
 
-   accelerator
+   accelerator-index
    compiler
    ir-index
    program
