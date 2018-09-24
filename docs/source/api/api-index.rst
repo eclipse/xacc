@@ -5,7 +5,7 @@ API Index
 .. toctree::
 
    accelerator-index
-   compiler
+   compiler-index
    ir-index
-   program
-   utils
+   program-index
+   utils-index
