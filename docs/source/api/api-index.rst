@@ -2,8 +2,10 @@ API Index
 =========
 
 .. _api-index:
-.. doxygenindex::
-   :project: XACC
-   :path: ...
-   :outline:
-   :no-link:
+.. toctree::
+
+   accelerator
+   compiler
+   ir
+   program
+   utils
