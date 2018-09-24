@@ -230,6 +230,8 @@ const std::string AcceleratorBuffer::name() const { return bufferId; }
 void AcceleratorBuffer::resetBuffer() {
   measurements.clear();
   bitStringToCounts.clear();
+  children.clear();
+  info.clear();
 }
 
 void AcceleratorBuffer::appendMeasurement(const std::string &measurement) {
