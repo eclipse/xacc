@@ -6,3 +6,7 @@ GateInstruction
 .. doxygenclass:: xacc::quantum::GateInstruction
    :project: XACC
    :members:
+
+.. toctree::
+
+   instructions/cnot
