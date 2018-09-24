@@ -3,6 +3,6 @@ GateFunction
 
 
 .. _gate-reference:
-.. doxygenclass:: xacc::GateFunction
+.. doxygenclass:: xacc::quantum::GateFunction
    :project: XACC
    :members:
