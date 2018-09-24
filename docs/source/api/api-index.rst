@@ -6,6 +6,6 @@ API Index
 
    accelerator
    compiler
-   ir
+   ir-index
    program
    utils
