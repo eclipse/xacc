@@ -3,6 +3,6 @@ Utils
 
 
 .. _utils-reference:
-.. doxygenclass:: xacc::Utils
+.. doxygenclass:: xacc::XACCLogger
    :project: XACC
    :members:
