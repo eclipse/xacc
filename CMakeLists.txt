@@ -126,14 +126,6 @@ if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
-IF(XACC_ENABLE_RTD)
-    ADD_SUBDIRECTORY(docs)
-ENDIF()
-
-IF(XACC_ENABLE_DOX)
-    ADD_SUBDIRECTORY(docs/doxygen)
-ENDIF()
-
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to 
 # their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
