@@ -16,9 +16,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if on_rtd:
+    subprocess.call('cd ../doxygen; doxygen Doxyfile.cmake', shell=True)
 
 
 # -- General configuration ------------------------------------------------
@@ -31,7 +36,9 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.mathjax',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages', 'breathe']
+
+breathe_projects = {'XACC': '../doxygen/xml'}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -167,6 +174,3 @@ texinfo_documents = [
      author, 'XACC', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
