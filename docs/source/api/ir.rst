@@ -2,5 +2,5 @@ Basic API Functions
 ===================
 
 .. _ir-reference:
-.. doxygenclass:: _instruction_8hpp
+.. doxygenclass:: Instruction.hpp
    :project: XACC
