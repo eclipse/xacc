@@ -8,7 +8,6 @@ Utils
    utils/cloneable
    utils/graph
    utils/identifiable
-   utils/optionsprovider
    utils/runtimeoptions
    utils/serviceregistry
    utils/singleton
