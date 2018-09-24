@@ -20,3 +20,15 @@ XACC Quantum Gate Model API
    gate/gateinstruction
    gate/gateir
    gate/gateirprovider
+
+XACC AQC Model API
+===================
+
+.. _aqc-index:
+.. toctree::
+
+   aqc/dwgraph
+   aqc/dwir
+   aqc/dwirprovider
+   aqc/dwkernel
+   aqc/dwqmi
