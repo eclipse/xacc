@@ -1,6 +1,5 @@
-DWKenerl
+DWKernel
 ===========
-
 
 .. _compiler-reference:
 .. doxygenclass:: xacc::quantum::DWKernel
