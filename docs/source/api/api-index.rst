@@ -34,6 +34,5 @@ XACC AQC Model API
    aqc/dwirprovider
    aqc/dwkernel
    aqc/dwqmi
-   aqc/embeddingalgorithm
    aqc/trivialembeddingalgorithm
    aqc/hubo
