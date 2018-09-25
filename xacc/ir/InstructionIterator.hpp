@@ -39,7 +39,7 @@ public:
    * The constructor, takes the root of the tree
    * as input.
    *
-   * @param r
+   * @param r Instruction that serves as the root
    */
   InstructionIterator(std::shared_ptr<Instruction> r) : root(r) {
     instStack.push(root);

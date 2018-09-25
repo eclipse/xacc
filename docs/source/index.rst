@@ -20,7 +20,14 @@ Welcome to XACC's documentation!
    ibm
    dwave
    xacc-vqe
-   
+
+
+.. toctree::
+   :caption: API Reference
+   :maxdepth: 2
+
+   api/api-index.rst
+
 
 
 Indices and tables
