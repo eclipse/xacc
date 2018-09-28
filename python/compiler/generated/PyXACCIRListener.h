@@ -3,17 +3,19 @@
 
 #pragma once
 
+
 #include "antlr4-runtime.h"
 #include "PyXACCIRParser.h"
+
 
 namespace pyxacc {
 
 /**
- * This interface defines an abstract listener for a parse tree produced by
- * PyXACCIRParser.
+ * This interface defines an abstract listener for a parse tree produced by PyXACCIRParser.
  */
-class PyXACCIRListener : public antlr4::tree::ParseTreeListener {
+class  PyXACCIRListener : public antlr4::tree::ParseTreeListener {
 public:
+
   virtual void enterXaccsrc(PyXACCIRParser::XaccsrcContext *ctx) = 0;
   virtual void exitXaccsrc(PyXACCIRParser::XaccsrcContext *ctx) = 0;
 
@@ -53,6 +55,9 @@ public:
   virtual void enterExp(PyXACCIRParser::ExpContext *ctx) = 0;
   virtual void exitExp(PyXACCIRParser::ExpContext *ctx) = 0;
 
+  virtual void enterCoupler(PyXACCIRParser::CouplerContext *ctx) = 0;
+  virtual void exitCoupler(PyXACCIRParser::CouplerContext *ctx) = 0;
+
   virtual void enterUnaryop(PyXACCIRParser::UnaryopContext *ctx) = 0;
   virtual void exitUnaryop(PyXACCIRParser::UnaryopContext *ctx) = 0;
 
@@ -64,6 +69,8 @@ public:
 
   virtual void enterString(PyXACCIRParser::StringContext *ctx) = 0;
   virtual void exitString(PyXACCIRParser::StringContext *ctx) = 0;
+
+
 };
 
-} // namespace pyxacc
+}  // namespace pyxacc

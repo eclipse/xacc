@@ -25,7 +25,7 @@ namespace xacc {
 
 /**
  * InstructionParameters can be ints, doubles, floats, strings (for variables),
- * or complex
+ * complex, or vector of pairs of ints (hardware connectivity)
  */
 using InstructionParameter =
     boost::variant<int, double, float, std::string, std::complex<double>>;

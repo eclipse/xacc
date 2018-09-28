@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "Utils.hpp"
 #include <unistd.h>
+
 namespace xacc {
 
 static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
