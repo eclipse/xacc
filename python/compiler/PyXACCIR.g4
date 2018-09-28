@@ -106,8 +106,12 @@ exp
    | '(' exp ')'
    | unaryop '(' exp ')'
    | id '=' exp
+   | '\'[' ( ','? coupler )* ']\''
    ;
 
+coupler 
+   : '[' INT ',' INT ']'
+   ;
 /* unary operations */
 unaryop
    : 'sin'

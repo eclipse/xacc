@@ -424,6 +424,19 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getService<IRGenerator>,
         py::return_value_policy::reference,
         "Return the IRGenerator of given name.");
+  m.def("getConnectivity", [](const std::string acc) -> std::vector<std::vector<int>> {
+     auto a = xacc::getAccelerator(acc);
+     auto connectivity = a->getAcceleratorConnectivity();
+     std::vector<std::vector<int>> edges;
+     for (int i = 0; i < connectivity->order(); ++i) {
+         for (int j = i; j < connectivity->order(); ++j) {
+             if (connectivity->edgeExists(i, j)) {
+                 edges.push_back({i,j});
+             }
+         }
+     } 
+     return edges;
+  });
   m.def("translate", &xacc::translate,
         "Translate the provided IR Function to the given language.");
   m.def("setOption", [](const std::string s, InstructionParameter p) {
