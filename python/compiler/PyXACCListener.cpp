@@ -60,10 +60,12 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 
   std::vector<InstructionParameter> params;
   for (int i = 1; i < ctx->param().size(); i++) {
-    params.push_back(
-        InstructionParameter(ctx->param(static_cast<size_t>(i))->getText()));
-    functionVariableNames.push_back(
-        ctx->param(static_cast<size_t>(i))->getText());
+    if (!boost::contains(ctx->param(i)->getText(), "*")) {
+      params.push_back(
+          InstructionParameter(ctx->param(static_cast<size_t>(i))->getText()));
+      functionVariableNames.push_back(
+          ctx->param(static_cast<size_t>(i))->getText());
+    }
   }
   f = provider->createFunction(ctx->kernelname->getText(), {}, params);
 }
@@ -138,7 +140,8 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     }
 
     for (auto i : genF->getInstructions()) {
-      f->addInstruction(i);
+      f->addInstruction(
+          i); // Thanks to Zach's code this will add the Parameters
     }
 
   } else if (gateName == "qmi") {
@@ -214,7 +217,8 @@ void PyXACCListener::exitXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
     auto buff = acc->getBuffer(bufferName);
 
     if (!buff->hasExtraInfoKey("embedding")) {
-      xacc::info("Embedding not found for this python kernel, computing embedding now.");
+      xacc::info("Embedding not found for this python kernel, computing "
+                 "embedding now.");
       auto dwcompiler = xacc::getCompiler("dwave-qmi");
       auto xaccKernelSrcStr = dwcompiler->translate("", f);
       auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
