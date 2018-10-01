@@ -59,6 +59,7 @@ paramlist
 /* A parameter */
 param
    : id
+   | '*' id
    ;
 
 /* A unitary operation */

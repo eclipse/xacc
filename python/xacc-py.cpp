@@ -133,6 +133,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("insertInstruction", &xacc::Function::insertInstruction, "")
       .def("addInstruction", &xacc::Function::addInstruction, "")
       .def("addParameter", &xacc::Function::addParameter, "")
+      .def("nParameters", &xacc::Function::nParameters, "")
       .def("eval", &xacc::Function::operator(), "")
       .def("name", &xacc::Function::name, "")
       .def("description", &xacc::Function::description, "")

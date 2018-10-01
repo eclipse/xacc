@@ -6,7 +6,7 @@ qpu = xacc.getAccelerator('tnqvm')
 qbits = qpu.createBuffer('q',4)
 
 @xacc.qpu(accelerator=qpu) # or ibm, rigetti, etc...
-def foo(buffer, t0, t1):
+def foo(buffer, *args):
    xacc(uccsd, n_qubits=4, n_electrons=2)
    Measure(0,0)
 

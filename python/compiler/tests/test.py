@@ -3,10 +3,10 @@ import numpy as np
 
 xacc.Initialize()
 
-qpu = xacc.getAccelerator('local-ibm') # or ibm, rigetti, etc...
+qpu = xacc.getAccelerator('tnqvm') # or ibm, rigetti, etc...
 buffer = qpu.createBuffer('q',2)
 
-@xacc.qpu(accelerator=qpu) 
+@xacc.qpu(accelerator='tnqvm') 
 def foo(buffer, theta):
    X(0)
    Ry(theta, 1)
@@ -15,9 +15,10 @@ def foo(buffer, theta):
 
 # Execute the code on the QPU
 foo(buffer, -3.1415936)
+print(foo.nParameters())
 
 # Check into the results
 print(buffer.getExpectationValueZ())
-print(buffer.getMeasurementCounts())
+#print(buffer.getMeasurementCounts())
 
 xacc.Finalize()
