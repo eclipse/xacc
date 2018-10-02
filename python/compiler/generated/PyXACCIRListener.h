@@ -46,6 +46,9 @@ public:
   virtual void enterUop(PyXACCIRParser::UopContext *ctx) = 0;
   virtual void exitUop(PyXACCIRParser::UopContext *ctx) = 0;
 
+  virtual void enterAllbitsOp(PyXACCIRParser::AllbitsOpContext *ctx) = 0;
+  virtual void exitAllbitsOp(PyXACCIRParser::AllbitsOpContext *ctx) = 0;
+
   virtual void enterGate(PyXACCIRParser::GateContext *ctx) = 0;
   virtual void exitGate(PyXACCIRParser::GateContext *ctx) = 0;
 

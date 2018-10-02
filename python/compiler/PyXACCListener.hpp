@@ -14,6 +14,7 @@
 #define XACC_IBM_DWQMILISTENER_H
 
 #include <PyXACCIRBaseListener.h>
+#include "Accelerator.hpp"
 #include "IR.hpp"
 #include "IRProvider.hpp"
 #include <boost/algorithm/string.hpp>
@@ -40,19 +41,23 @@ protected:
   std::vector<std::string> functionVariableNames;
   bool useDW = false;
   std::string bufferName;
+  std::shared_ptr<Accelerator> accelerator;
 
 public:
   std::shared_ptr<Function> getKernel();
 
-  PyXACCListener();
-  PyXACCListener(bool useDw);
+  PyXACCListener(std::shared_ptr<Accelerator> acc);
+  PyXACCListener(bool useDw, std::shared_ptr<Accelerator> acc);
 
   virtual void
   enterXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
   virtual void
   exitXacckernel(PyXACCIRParser::XacckernelContext * /*ctx*/) override;
-  
+
   virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
+  virtual void
+  enterAllbitsOp(PyXACCIRParser::AllbitsOpContext * /*ctx*/) override;
+  
 };
 
 } // namespace quantum

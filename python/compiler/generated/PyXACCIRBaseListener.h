@@ -48,6 +48,9 @@ public:
   virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override { }
   virtual void exitUop(PyXACCIRParser::UopContext * /*ctx*/) override { }
 
+  virtual void enterAllbitsOp(PyXACCIRParser::AllbitsOpContext * /*ctx*/) override { }
+  virtual void exitAllbitsOp(PyXACCIRParser::AllbitsOpContext * /*ctx*/) override { }
+
   virtual void enterGate(PyXACCIRParser::GateContext * /*ctx*/) override { }
   virtual void exitGate(PyXACCIRParser::GateContext * /*ctx*/) override { }
 
