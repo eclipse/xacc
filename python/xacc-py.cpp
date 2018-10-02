@@ -335,6 +335,12 @@ PYBIND11_MODULE(_pyxacc, m) {
              return s.str();
            },
            "")
+      .def("__str__", [](const std::shared_ptr<AcceleratorBuffer> b) {
+             std::stringstream s;
+             b->print(s);
+             return s.str();
+           },
+           "")
       .def("getChildren",
            (std::vector<std::shared_ptr<AcceleratorBuffer>>(
                xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
