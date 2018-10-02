@@ -65,8 +65,14 @@ param
 /* A unitary operation */
 uop
    : gatename=gate '(' ( explist ) ')'
+   | allbitsOp
    ;
 
+allbitsOp
+   : gatename=gate '(' '...' ')'
+   | gatename=gate '(' INT '...' INT ')'
+   ;
+   
 gate 
    : 'X'
    | 'Rx'
@@ -152,7 +158,7 @@ ID
 
 /* Keep it real...numbers */
 REAL
-   : INT ( '.' (INT)? )
+   : INT ( '.' (INT) )
    ;
 
 /* Non-negative integers */

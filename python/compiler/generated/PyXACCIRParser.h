@@ -19,15 +19,16 @@ public:
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
     T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
-    T__38 = 39, T__39 = 40, COMMENT = 41, ID = 42, REAL = 43, INT = 44, 
-    STRING = 45, WS = 46, EOL = 47
+    T__38 = 39, T__39 = 40, T__40 = 41, COMMENT = 42, ID = 43, REAL = 44, 
+    INT = 45, STRING = 46, WS = 47, EOL = 48
   };
 
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleMainprog = 2, RuleProgram = 3, 
     RuleLine = 4, RuleStatement = 5, RuleComment = 6, RuleParamlist = 7, 
-    RuleParam = 8, RuleUop = 9, RuleGate = 10, RuleExplist = 11, RuleExp = 12, 
-    RuleCoupler = 13, RuleUnaryop = 14, RuleId = 15, RuleReal = 16, RuleString = 17
+    RuleParam = 8, RuleUop = 9, RuleAllbitsOp = 10, RuleGate = 11, RuleExplist = 12, 
+    RuleExp = 13, RuleCoupler = 14, RuleUnaryop = 15, RuleId = 16, RuleReal = 17, 
+    RuleString = 18
   };
 
   PyXACCIRParser(antlr4::TokenStream *input);
@@ -50,6 +51,7 @@ public:
   class ParamlistContext;
   class ParamContext;
   class UopContext;
+  class AllbitsOpContext;
   class GateContext;
   class ExplistContext;
   class ExpContext;
@@ -192,6 +194,7 @@ public:
     virtual size_t getRuleIndex() const override;
     GateContext *gate();
     ExplistContext *explist();
+    AllbitsOpContext *allbitsOp();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -199,6 +202,22 @@ public:
   };
 
   UopContext* uop();
+
+  class  AllbitsOpContext : public antlr4::ParserRuleContext {
+  public:
+    PyXACCIRParser::GateContext *gatename = nullptr;;
+    AllbitsOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    GateContext *gate();
+    std::vector<antlr4::tree::TerminalNode *> INT();
+    antlr4::tree::TerminalNode* INT(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  AllbitsOpContext* allbitsOp();
 
   class  GateContext : public antlr4::ParserRuleContext {
   public:

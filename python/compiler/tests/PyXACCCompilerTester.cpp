@@ -59,10 +59,10 @@ public:
     return names;
   }
 
-  virtual std::shared_ptr<xacc::AcceleratorBuffer>
-  getBuffer(const std::string &varid) {
-    return std::make_shared<xacc::AcceleratorBuffer>("hello", 1);
-  }
+//   virtual std::shared_ptr<xacc::AcceleratorBuffer>
+//   getBuffer(const std::string &varid) {
+//     return std::make_shared<xacc::AcceleratorBuffer>("hello", 1);
+//   }
 
   virtual void initialize() {}
   /**
@@ -110,6 +110,38 @@ TEST(PyXACCCompilerTester, checkSimple) {
   EXPECT_EQ(f->nInstructions(), 4);
 
   std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
+}
+
+TEST(PyXACCCompilerTester, checkDotDotDot) {
+
+  auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
+  const std::string src = R"src(def f(q):
+       H(...)
+       CNOT(0,1)
+       )src";
+
+  auto acc = std::make_shared<FakePyAcc>();
+  auto buffer = acc->createBuffer("q",4);
+  
+  auto ir = compiler->compile(src, acc);
+  auto f = ir->getKernel("f");
+  
+  EXPECT_EQ("f", f->name());
+  EXPECT_EQ(f->nParameters(), 0);
+  EXPECT_EQ(f->nInstructions(), 5);
+
+  std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
+
+  const std::string src2 = R"src(def f(q):
+       H(1...3)
+       )src";
+
+  ir = compiler->compile(src2, acc);
+  f = ir->getKernel("f"); 
+  std::cout << "KERNEL2:\n" << ir->getKernel("f")->toString("") << "\n";
+  EXPECT_EQ("f", f->name());
+  EXPECT_EQ(f->nParameters(), 0);
+  EXPECT_EQ(f->nInstructions(), 3);
 }
 
 TEST(PyXACCCompilerTester, checkDW) {

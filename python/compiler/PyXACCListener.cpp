@@ -37,10 +37,12 @@ void DWorGateListener::enterGate(PyXACCIRParser::GateContext *ctx) {
     xacc::error("Cannot mix gate and dwave instructions.");
 }
 
-PyXACCListener::PyXACCListener() {
+PyXACCListener::PyXACCListener(std::shared_ptr<Accelerator> acc)
+    : accelerator(acc) {
   provider = xacc::getService<IRProvider>("gate");
 }
-PyXACCListener::PyXACCListener(bool _useDw) : useDW(_useDw) {
+PyXACCListener::PyXACCListener(bool _useDw, std::shared_ptr<Accelerator> acc)
+    : useDW(_useDw), accelerator(acc) {
   if (_useDw)
     provider = xacc::getService<IRProvider>("dwave");
   else
@@ -58,6 +60,7 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
   }
   bufferName = ctx->param(0)->getText();
 
+  std::cout << "MADE IT HERE " << bufferName << "\n";
   std::vector<InstructionParameter> params;
   for (int i = 1; i < ctx->param().size(); i++) {
     if (!boost::contains(ctx->param(i)->getText(), "*")) {
@@ -71,6 +74,11 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 }
 
 void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
+  // Note, if the user has specified something like
+  // H(...) or H(0...2), then we have a different handle
+  if (ctx->allbitsOp() != nullptr)
+    return;
+
   auto is_double = [](const std::string &s) -> bool {
     try {
       std::stod(s);
@@ -90,6 +98,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
 
   auto gateName = ctx->gatename->getText();
   boost::trim(gateName);
+
   if (gateName == "CX") {
     gateName = "CNOT";
   } else if (gateName == "MEASURE") {
@@ -130,12 +139,12 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
       f = xacc::getService<IRProvider>("dwave")->createFunction(
           f->name(), {}, f->getParameters());
       auto dwcompiler = xacc::getCompiler("dwave-qmi");
-      auto acc = xacc::getAccelerator("dwave");
-      auto buff = acc->getBuffer(bufferName);
+      //   auto acc = xacc::getAccelerator("dwave");
+      auto buff = accelerator->getBuffer(bufferName);
       buff->addExtraInfo("ir-generator", ExtraInfo(generator->name()));
 
       auto xaccKernelSrcStr = dwcompiler->translate("", genF);
-      auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, acc);
+      auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, accelerator);
       genF = embeddedCode->getKernels()[0];
     }
 
@@ -157,6 +166,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     f->addInstruction(gate);
 
   } else if (ctx->explist()->exp().size() > 0) {
+
     auto paramStr = ctx->explist()->exp(0);
     std::vector<int> qubits;
     std::vector<InstructionParameter> params;
@@ -202,6 +212,49 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     xacc::error("Only permitting gates with 1 parameter for now.");
   }
 }
+
+void PyXACCListener::enterAllbitsOp(PyXACCIRParser::AllbitsOpContext *ctx) {
+  std::cout << "DOT DOT? " << ctx->getText() << "\n";
+  auto gateName = ctx->gatename->getText();
+  boost::trim(gateName);
+
+  if (gateName == "CX") {
+    gateName = "CNOT";
+  } else if (gateName == "MEASURE") {
+    gateName = "Measure";
+  }
+
+  auto isRotation = [](const std::string &name) {
+    return name == "Rx" || name == "Ry" || name == "Rz";
+  };
+  
+  if (gateName == "CNOT" || gateName == "CZ" || gateName == "Measure" ||
+      isRotation(gateName)) {
+    xacc::error(
+        "Cannot use ellipses '...' for 2 qubit gates, Measure, or rotation gates.");
+  }
+
+  auto buff = accelerator->getBuffer(bufferName);
+  auto nQubits = buff->size();
+  int start = 0, end = nQubits-1;
+  if (ctx->INT().size() == 1) {
+    xacc::error("You cannot specify GATE(INT ...) or GATE(...INT). Only "
+                "GATE(...) or GATE(INT...INT).");
+  } else if (ctx->INT().size() == 2) {
+    start = std::stoi(ctx->INT(0)->getText());
+    end = std::stoi(ctx->INT(1)->getText());
+    if (end >= nQubits) xacc::error("Invalid qubit indices for ellipses. Must be [start,end] (end inclusive)");
+  } else if (!ctx->INT().empty()) {
+      xacc::error("Invalid use of ellipses: " + ctx->getText());
+  }
+
+  std::cout << "HELLO: " << start << ", " << end << ", " << nQubits << "\n";
+  for (int i = start; i <= end; i++) {
+    auto inst = provider->createInstruction(gateName, {i});
+    f->addInstruction(inst);
+  }
+}
+
 void PyXACCListener::exitXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 
   // If this is a D-Wave kernel, then we need to check
