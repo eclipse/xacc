@@ -60,7 +60,6 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
   }
   bufferName = ctx->param(0)->getText();
 
-  std::cout << "MADE IT HERE " << bufferName << "\n";
   std::vector<InstructionParameter> params;
   for (int i = 1; i < ctx->param().size(); i++) {
     if (!boost::contains(ctx->param(i)->getText(), "*")) {
