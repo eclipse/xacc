@@ -21,6 +21,7 @@
 
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "rapidjson/prettywriter.h"
+#include "rapidjson/document.h"
 
 using namespace rapidjson;
 
@@ -103,6 +104,8 @@ protected:
   std::map<std::string, ExtraInfo> info;
 
 public:
+  AcceleratorBuffer() {}
+
   /**
    * The Constructor
    */
@@ -167,8 +170,9 @@ public:
 
   virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement,
                                  const int count);
-  virtual void appendMeasurement(const std::string measurement, const int count);
-  
+  virtual void appendMeasurement(const std::string measurement,
+                                 const int count);
+
   virtual double computeMeasurementProbability(const std::string &bitStr);
 
   /**
@@ -205,6 +209,7 @@ public:
    *
    */
   virtual void print();
+  const std::string toString();
 
   /**
    * Print information about this AcceleratorBuffer to the
@@ -213,6 +218,8 @@ public:
    * @param stream Stream to write the buffer to.
    */
   virtual void print(std::ostream &stream);
+
+  virtual void load(std::istream &stream);
 
   /**
    * The Destructor

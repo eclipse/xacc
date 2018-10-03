@@ -70,7 +70,7 @@ void ToJsonVisitor::operator()(const std::vector<std::string> &i) {
 }
 
 void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
-  writer.StartArray();
+  writer.StartObject();
   for (auto &kv : i) {
     writer.Key(std::to_string(kv.first));
     writer.StartArray();
@@ -79,7 +79,7 @@ void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
     }
     writer.EndArray();
   }
-  writer.EndArray();
+  writer.EndObject();
 }
 
 AcceleratorBuffer::AcceleratorBuffer(const std::string &str, const int N)
@@ -264,7 +264,8 @@ void AcceleratorBuffer::appendMeasurement(
   return;
 }
 
-void AcceleratorBuffer::appendMeasurement(const std::string measurement, const int count) {
+void AcceleratorBuffer::appendMeasurement(const std::string measurement,
+                                          const int count) {
   bitStringToCounts[measurement] = count;
   for (int i = 0; i < count; i++)
     measurements.push_back(boost::dynamic_bitset<>(measurement));
@@ -389,9 +390,8 @@ void AcceleratorBuffer::print(std::ostream &stream) {
 
   if (!children.empty()) {
     writer.Key("Children");
-    writer.StartObject();
+    writer.StartArray();
     for (auto &pair : children) {
-      writer.Key("child");
       writer.StartObject();
       writer.Key("name");
       writer.String(pair.first);
@@ -412,12 +412,148 @@ void AcceleratorBuffer::print(std::ostream &stream) {
       writer.EndObject();
       writer.EndObject();
     }
-    writer.EndObject();
+    writer.EndArray();
   }
 
   writer.EndObject();
   writer.EndObject();
   stream << buffer.GetString();
+}
+
+const std::string AcceleratorBuffer::toString() {
+  std::stringstream s;
+  print(s);
+  return s.str();
+}
+
+void AcceleratorBuffer::load(std::istream &stream) {
+  std::string json(std::istreambuf_iterator<char>(stream), {});
+
+  Document doc;
+  doc.Parse(json);
+
+  resetBuffer();
+
+  bufferId = doc["AcceleratorBuffer"]["name"].GetString();
+  nBits = doc["AcceleratorBuffer"]["size"].GetInt();
+  auto &topInfo = doc["AcceleratorBuffer"]["Information"];
+  for (auto itr = topInfo.MemberBegin(); itr != topInfo.MemberEnd(); ++itr) {
+    auto &value = topInfo[itr->name.GetString()];
+    if (value.IsInt()) {
+      addExtraInfo(itr->name.GetString(), value.GetInt());
+    } else if (value.IsDouble()) {
+      addExtraInfo(itr->name.GetString(), value.GetDouble());
+    } else if (value.IsString()) {
+      addExtraInfo(itr->name.GetString(), value.GetString());
+    } else if (value.IsArray() && !value.GetArray().Empty()) {
+      auto arr = value.GetArray();
+      auto &firstVal = arr[0];
+      if (firstVal.IsInt()) {
+        std::vector<int> childValues;
+        for (int i = 0; i < arr.Size(); i++)
+          childValues.push_back(arr[i].GetInt());
+        addExtraInfo(itr->name.GetString(), ExtraInfo(childValues));
+      } else if (firstVal.IsDouble()) {
+        std::vector<double> childValues;
+        for (int i = 0; i < arr.Size(); i++)
+          childValues.push_back(arr[i].GetDouble());
+        addExtraInfo(itr->name.GetString(), ExtraInfo(childValues));
+      } else if (firstVal.IsString()) {
+        std::vector<std::string> childValues;
+        for (int i = 0; i < arr.Size(); i++)
+          childValues.push_back(arr[i].GetString());
+        addExtraInfo(itr->name.GetString(), ExtraInfo(childValues));
+      }
+    } else {
+      // Here we have the case of an object([key:value])
+      if (value.IsObject()) {
+        std::map<int, std::vector<int>> map;
+        for (auto itr2 = value.MemberBegin(); itr2 != value.MemberEnd();
+             ++itr2) {
+          auto keyIsInt = true;
+          int key;
+          try {
+            key = boost::lexical_cast<int>(itr2->name.GetString());
+          } catch (std::exception &e) {
+            keyIsInt = false;
+          }
+          if (itr2->value.IsArray() && keyIsInt) {
+            // we ahve a map<int,[int*]>
+            auto arr = itr2->value.GetArray();
+            std::vector<int> vec;
+            for (int i = 0; i < arr.Size(); i++)
+              vec.push_back(arr[i].GetInt());
+            map.insert({key, vec});
+
+          } else {
+            break;
+          }
+        }
+        addExtraInfo(itr->name.GetString(), ExtraInfo(map));
+      }
+    }
+  }
+
+  // FIXME Handle Measurements
+  auto &measures = doc["AcceleratorBuffer"]["Measurements"];
+  for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd(); ++itr) {
+    appendMeasurement(itr->name.GetString(), itr->value.GetInt());
+  }
+
+  auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
+  for (auto &c : children) {
+    auto childBuffer =
+        std::make_shared<AcceleratorBuffer>(c["name"].GetString(), nBits);
+
+    auto &info = c["Information"];
+    for (auto itr = info.MemberBegin(); itr != info.MemberEnd(); ++itr) {
+      auto &value = info[itr->name.GetString()];
+      if (value.IsInt()) {
+        childBuffer->addExtraInfo(itr->name.GetString(),
+                                  ExtraInfo(value.GetInt()));
+      } else if (value.IsDouble()) {
+        childBuffer->addExtraInfo(itr->name.GetString(),
+                                  ExtraInfo(value.GetDouble()));
+      } else if (value.IsString()) {
+        childBuffer->addExtraInfo(itr->name.GetString(),
+                                  ExtraInfo(value.GetString()));
+      } else if (value.IsArray() && !value.GetArray().Empty()) {
+        auto arr = value.GetArray();
+        auto &firstVal = arr[0];
+        if (firstVal.IsInt()) {
+          std::vector<int> childValues;
+          for (int i = 0; i < arr.Size(); i++)
+            childValues.push_back(arr[i].GetInt());
+          childBuffer->addExtraInfo(itr->name.GetString(),
+                                    ExtraInfo(childValues));
+        } else if (firstVal.IsDouble()) {
+          std::vector<double> childValues;
+          for (int i = 0; i < arr.Size(); i++)
+            childValues.push_back(arr[i].GetDouble());
+          childBuffer->addExtraInfo(itr->name.GetString(),
+                                    ExtraInfo(childValues));
+        } else if (firstVal.IsString()) {
+          std::vector<std::string> childValues;
+          for (int i = 0; i < arr.Size(); i++)
+            childValues.push_back(arr[i].GetString());
+          childBuffer->addExtraInfo(itr->name.GetString(),
+                                    ExtraInfo(childValues));
+        } else {
+          std::cout << "HELLO EXTRA: " << itr->name.GetString() << "\n";
+        }
+        // FIXME Handle Map<int, [int*]>
+
+        appendChild(c["name"].GetString(), childBuffer);
+      }
+    }
+
+    auto &measures = c["Measurements"];
+    for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd();
+         ++itr) {
+      childBuffer->appendMeasurement(itr->name.GetString(),
+                                     itr->value.GetInt());
+    }
+  }
 }
 
 } // namespace xacc

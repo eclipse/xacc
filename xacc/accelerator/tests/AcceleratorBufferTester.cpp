@@ -28,17 +28,6 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
 
   EXPECT_TRUE(std::fabs(buffer.getExpectationValueZ() + 0.00398406) < 1e-6);
 
-  //	Kernel 38 Z2, 2 mapped to qubit 6
-  //	[2017-11-29 15:01:42.752] [xacc-console] [info] Measured Qubits: 6,
-  //	[2017-11-29 15:01:42.752] [xacc-console] [info] IBM Results:
-  // 0000100000000000:1 	[2017-11-29 15:01:42.752] [xacc-console] [info]
-  // Our Results: 000000000000:1 	[2017-11-29 15:01:42.752] [xacc-console]
-  // [info] IBM Results: 0000110000000000:7827 	[2017-11-29 15:01:42.752]
-  // [xacc-console] [info] Our Results: 000000000000:7827 	[2017-11-29
-  // 15:01:42.761] [xacc-console] [info] IBM Results: 0000110001000000:364
-  //[2017-11-29 15:01:42.761] [xacc-console] [info] Our Results:
-  // 000001000000:364
-
   boost::dynamic_bitset<> m1(std::string("000000000000"));
   boost::dynamic_bitset<> m2(std::string("000000000000"));
   boost::dynamic_bitset<> m3(std::string("000001000000"));
@@ -52,6 +41,120 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
   EXPECT_TRUE(std::fabs(bigBuffer.getExpectationValueZ() - 0.911011) < 1e-6);
 }
 
+TEST(AcceleratorBufferTester, checkLoad) {
+  const std::string bufferStr = R"bufferStr({
+    "AcceleratorBuffer": {
+        "name": "q",
+        "size": 2,
+        "Information": {
+            "vqe-angles": [
+                0.5945312500000002
+            ],
+            "vqe-energy": -1.7491552234943562,
+            "vqe-nQPU-calls": 0
+        },
+        "Measurements": {},
+        "Children": [
+            {
+                "name": "Z1",
+                "Information": {
+                    "kernel": "Z1",
+                    "parameters": [
+                        0.5
+                    ]
+                },
+                "Measurements": {
+                    "00": 323,
+                    "01": 701
+                }
+            },
+            {
+                "name": "I",
+                "Information": {
+                    "kernel": "I",
+                    "parameters": [
+                        0.5
+                    ]
+                },
+                "Measurements": {
+                    "00": 323,
+                    "01": 701
+                }
+            }
+        ]
+    }
+})bufferStr";
+
+  AcceleratorBuffer buffer;
+  std::istringstream s(bufferStr);
+  buffer.load(s);
+  EXPECT_EQ("q", buffer.name());
+  EXPECT_EQ(2, buffer.size());
+
+  std::stringstream ss;
+  buffer.print(ss);
+  EXPECT_EQ(ss.str(), bufferStr);
+}
+TEST(AcceleratorBufferTester, checkLoadDwave) {
+
+  const std::string dwaveBuffer = R"dwaveBuffer({
+    "AcceleratorBuffer": {
+        "name": "q",
+        "size": 2048,
+        "Information": {
+            "active-vars": [
+                1944,
+                1946,
+                1947,
+                1948,
+                1949,
+                1951
+            ],
+            "analysis-results": [
+                3,
+                5
+            ],
+            "embedding": {
+                "0": [
+                    1948,
+                    1947
+                ],
+                "1": [
+                    1949
+                ],
+                "2": [
+                    1946,
+                    1951
+                ],
+                "3": [
+                    1944
+                ]
+            },
+            "energies": [
+                -999.75
+            ],
+            "execution-time": 0.023974,
+            "ir-generator": "dwave-factoring",
+            "num-occurrences": [
+                100
+            ]
+        },
+        "Measurements": {
+            "010001": 100
+        }
+    }
+})dwaveBuffer";
+
+  AcceleratorBuffer buffer;
+  std::istringstream s(dwaveBuffer);
+  buffer.load(s);
+  // EXPECT_EQ("q",buffer.name());
+  // EXPECT_EQ(2,buffer.size());
+  std::stringstream ss;
+
+  buffer.print(ss);
+  EXPECT_EQ(ss.str(), dwaveBuffer);
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
