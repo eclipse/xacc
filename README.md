@@ -1,6 +1,8 @@
 [![Build Status](https://jenkins.eclipse.org/xacc/buildStatus/icon?job=xacc-ci)](https://jenkins.eclipse.org/xacc/job/xacc-ci/)
 
 # Eclipse XACC 
+![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
+
 ## Language and Hardware Independent Quantum Programming Framework
 XACC is an extensible compilation framework for hybrid quantum-classical computing architectures. It provides extensible language frontend and hardware backend compilation components glued together via a novel quantum intermediate representation. XACC currently supports quantum-classical programming and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs, as well as a number of quantum computer simulators.
 
