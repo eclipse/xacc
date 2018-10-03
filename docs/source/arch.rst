@@ -1,8 +1,10 @@
 .. meta::
     :scope: doxygen
 
-XACC API
-=========
+XACC Architecture
+=================
+Here we describe the main abstractions defined by XACC to enable quantum-classical
+programming in a hardware and language independent manner.
 
 Kernels
 --------

@@ -24,27 +24,17 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="Scaffold" href="scaffold.html"/>
-        <link rel="prev" title="Installation" href="install.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -91,20 +81,17 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">XACC Python Bindings</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
 </ul>
 
             
@@ -116,7 +103,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">XACC</a>
@@ -124,9 +111,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -172,49 +160,30 @@
 <h1>XACC Python Bindings<a class="headerlink" href="#xacc-python-bindings" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
-<p>Suppose you had the Scaffold plugin installed <a class="reference external" href="scaffold.rst">see here</a>, and you wanted to program a simple teleportation code and launch it on TNQVM (see <a class="reference external" href="tnqvm.rst">here</a> for TNQVM installation details). To program this with the Python XACC bindings you could write the following python script:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyxacc</span> <span class="k">as</span> <span class="nn">xacc</span>
+<p>Suppose you had the Rigetti plugin installed <a class="reference external" href="rigetti.rst">see here</a>, and
+you wanted to program a simple teleportation code and launch it on the Rigetti QVM.
+To program this with the XACC Python bindings you could write the following python script:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">from</span> <span class="nn">xacc</span> <span class="k">import</span> <span class="n">qpu</span>
 
-<span class="c1"># Create the source code</span>
-<span class="n">src</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;__qpu__ teleport(qbit qreg){</span>
-<span class="s2">cbit creg[3];</span>
-<span class="s2">// qubit0 to be teleported</span>
-<span class="s2">X(qreg[0]);</span>
-<span class="s2">// Bell channel set up by qreg[1] and qreg[2]</span>
-<span class="s2">H(qreg[1]);</span>
-<span class="s2">CNOT(qreg[1],qreg[2]);</span>
-<span class="s2">// Alice Bell measurement</span>
-<span class="s2">CNOT(qreg[0],qreg[1]);</span>
-<span class="s2">H(qreg[0]);</span>
-<span class="s2">creg[0] = MeasZ(qreg[0]);</span>
-<span class="s2">creg[1] = MeasZ(qreg[1]);</span>
-<span class="s2">// Bob&#39;s operation base on Alice&#39;s measurement outcome</span>
-<span class="s2">if (creg[0] == 1) Z(qreg[2]);</span>
-<span class="s2">if (creg[1] == 1) X(qreg[2]);</span>
-<span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
-
-<span class="c1"># Initialize the framework</span>
 <span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
 
-<span class="c1"># Get reference to our simple accelerator</span>
-<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;tnqvm&#39;</span><span class="p">)</span>
+<span class="c1"># Create the source code</span>
+<span class="nd">@qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="s1">&#39;ibm&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">teleport</span><span class="p">():</span>
+   <span class="n">X</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="k">return</span>
 
-<span class="c1"># Create some qubits to operate on</span>
-<span class="n">qreg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;qreg&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">teleport</span><span class="p">()</span>
 
-<span class="c1"># Create the program and build it</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">Program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-
-<span class="c1"># Get the teleport kernel</span>
-<span class="n">k</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">getKernel</span><span class="p">(</span><span class="s1">&#39;teleport&#39;</span><span class="p">)</span>
-
-<span class="c1"># Execute on qreg with no InstructionParameters</span>
-<span class="n">k</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qreg</span><span class="p">,</span> <span class="p">[])</span>
-
-<span class="c1"># Display the results to standard out</span>
-<span class="n">qreg</span><span class="o">.</span><span class="n">printBuffer</span><span class="p">()</span>
+<span class="c1"># Display the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">getMeasurementStrings</span><span class="p">())</span>
 
 <span class="c1"># Finalize the framework</span>
 <span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
@@ -225,20 +194,9 @@
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="scaffold.html" class="btn btn-neutral float-right" title="Scaffold" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="install.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -249,7 +207,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -268,6 +226,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -281,19 +240,13 @@
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

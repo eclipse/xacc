@@ -24,26 +24,18 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="#"/>
-        <link rel="next" title="Getting started with XACC" href="overview.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started with XACC" href="overview.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -92,15 +84,15 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
 </ul>
 
             
@@ -112,7 +104,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="#">XACC</a>
@@ -120,9 +112,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -171,61 +164,73 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#xacc-plugin-infrastructure">XACC Plugin Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#xacc-modular-infrastructure">XACC Modular Infrastructure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#xacc-development-team">XACC Development Team</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#questions-bug-reporting-and-issue-tracking">Questions, Bug Reporting, and Issue Tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#publications-and-presentations">Publications and Presentations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#kernels">Kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#intermediate-representation">Intermediate Representation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#compilers">Compilers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#ir-transformations">IR Transformations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#accelerators">Accelerators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#programs-and-execution-workflow">Programs and Execution Workflow</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#install-third-party-libraries">Install third-party libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#pre-requisites">Pre-Requisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#building-xacc">Building XACC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-xacc-plugins">Installing XACC Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#keeping-for-reference">Keeping for Reference</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="python.html#example-usage">Example Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#kernels">Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#intermediate-representation">Intermediate Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#compilers">Compilers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#ir-transformations">IR Transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#accelerators">Accelerators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch.html#programs-and-execution-workflow">Programs and Execution Workflow</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scaffold.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#rigetti">Rigetti</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#credentials">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#rigetti-runtime-options">Rigetti Runtime Options</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tnqvm.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#ibm">IBM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#id1">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#id2">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html#ibm-runtime-options">IBM Runtime Options</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#setting-credentials">Setting Credentials</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#rigetti-command-line-arguments">Rigetti Command Line Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#rigetti-qvm-tutorial">Rigetti QVM Tutorial</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rigetti.html#executing-pyquil-code-on-any-xacc-accelerator">Executing PyQuil Code on any XACC Accelerator</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ibm.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ibm.html#setting-credentials">Setting Credentials</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ibm.html#ibm-command-line-arguments">IBM Command Line Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ibm.html#hydrogen-vqe-example">Hydrogen VQE Example</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/accelerator-index.html">Accelerator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/compiler-index.html">Compiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ir-index.html">Intermediate Representation (IR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/program-index.html">Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/utils-index.html">Utils</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dwave.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dwave.html#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/gatefunction.html">GateFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/gateinstruction.html">GateInstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/gateinstruction.html#gates">Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/gateir.html">GateIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/gateirprovider.html">GateIRProvider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/kernelreplacementpreprocessor.html">KernelReplacementPreprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/gate/algorithms.html">Algorithms</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="xacc-vqe.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/dwgraph.html">DWGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/dwir.html">DWIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/dwirprovider.html">DWIRProvider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/dwkernel.html">DWKernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/dwqmi.html">DWQMI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/trivialembeddingalgorithm.html">TrivialEmbeddingAlgorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/aqc/hubo.html">HUBO (Higher-Order Unconstrained Binary Optimization)</a></li>
 </ul>
 </li>
 </ul>
@@ -242,9 +247,7 @@
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -264,7 +267,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -283,6 +286,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -296,19 +300,13 @@
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

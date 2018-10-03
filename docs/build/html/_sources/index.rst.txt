@@ -7,20 +7,21 @@ Welcome to XACC's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :caption: Contents:
 
    overview
-   api
    install
-   python
-   scaffold
-   tnqvm
-   rigetti
-   ibm
-   dwave
-   xacc-vqe
-   
+   arch
+   plugins
+
+
+.. toctree::
+   :caption: API Reference
+   :maxdepth: 2
+
+   api/api-index.rst
+
 
 
 Indices and tables
