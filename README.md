@@ -18,7 +18,7 @@ $ python -m pip install --user xacc
 ```
 Install plugins to interact with various quantum programming languages and hardware:
 ```bash
-$ python -m pip install --user xacc-rigetti
+$ python -m pip install --user xacc-rigetti xacc-vqe tnqvm xacc-ibm 
 ```
 
 With XACC installed, one can compile and run quantum kernels in python and 
@@ -61,7 +61,7 @@ $ cd xacc && mkdir build && cd build
 $ cmake .. 
 $ make install
 ```
-Your install will be in `$HOME/.xacc`. To change the install location, pass `-DCMAKE_INSTALL_PREFIX=/path/to/custom/install` to `cmake`. To build the optional Python API, pass `-DPYTHON_INCLUDE_DIR=/usr/include/python3.5` (or wherever your Python.h is located) to `cmake`. 
+Your install will be in `$HOME/.xacc`. To change the install location, pass `-DCMAKE_INSTALL_PREFIX=/path/to/custom/install` to `cmake`. To build the Python API (**recommended)**, pass `-DPYTHON_INCLUDE_DIR=/usr/include/python3.5` (or wherever your Python.h is located) to `cmake`. 
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
