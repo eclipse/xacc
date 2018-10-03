@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="XACC API" href="api.html"/>
-        <link rel="prev" title="Welcome to XACC’s documentation!" href="index.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="install.html" />
+    <link rel="prev" title="Welcome to XACC’s documentation!" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -94,21 +86,21 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started with XACC</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#xacc-plugin-infrastructure">XACC Plugin Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xacc-modular-infrastructure">XACC Modular Infrastructure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xacc-development-team">XACC Development Team</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#questions-bug-reporting-and-issue-tracking">Questions, Bug Reporting, and Issue Tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#publications-and-presentations">Publications and Presentations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
 </ul>
 
             
@@ -120,7 +112,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">XACC</a>
@@ -128,9 +120,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -181,8 +174,8 @@
 <p>To achieve this interoperability, XACC defines four primary abstractions or concepts: quantum kernels, intermediate representation, compilers, and accelerators. Quantum kernels are C-like functions that contain code intended for execution on the QPU. These kernels are compiled to the XACC intermediate representation (IR), an object model that is key for promoting the integration of a diverse set of languages and hardware. The IR provides four main forms for use by algorithm programmers: (1) an in-memory representation and API, (2) an on-disk persisted representation, (3) human-readable quantum assembly representation, and (4) a control flow graph or quantum circuit representation. This IR is produced by realizations of the XACC compiler concept, which delegates to the kernel language’s appropriate parser, compiler, and optimizer. Finally, XACC IR instances (and therefore programmed kernels) are executed by realizations of the Accelerator concept, which defines an interface for injecting physical or virtual quantum accelerators. Accelerators take this IR as input and delegate execution to vendor-supplied APIs for the QPU (or API for a simulator). The orchestration of these concepts enable an expressive API for quantum acceleration of classical applications.</p>
 <p>XACC has support for a number of languages and physical and virtual hardware instances. XACC provides a Compiler realization that enables quantum kernel programming in the Scaffold programming language - an effort that came out of the IARPA QCS program. This compiler leverages the Clang/LLVM library extensions developed under that project that extend the LLVM IR with quantum gate operations. XACC extends this compiler with support for new constructs, like custom quantum functions and source-to-source translations (mapping Scaffold to other languages). XACC provides an Accelerator realization that enables execution of quantum kernels in any available language for both the Rigetti Quantum Virtual Machine (QVM, Forest API) and the physical two qubit (pyquillow) Rigetti QPU. These Accelerators map the XACC IR to Quil (the Rigetti low-level assembly language) and leverage an HTTP Rest client to post compiled quantum kernel code to the Rigetti QVM/QPU driver servers. XACC also has support for the D-Wave QPU, which demonstrates the wide applicability of this heterogeneous hybrid programming model across quantum computing models. XACC has Compiler and Accelerator realizations that enable minor graph embedding of binary optimization problems and execution on the D-Wave Qubist QPU driver server, respectively.</p>
 </div>
-<div class="section" id="xacc-plugin-infrastructure">
-<h2>XACC Plugin Infrastructure<a class="headerlink" href="#xacc-plugin-infrastructure" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="xacc-modular-infrastructure">
+<h2>XACC Modular Infrastructure<a class="headerlink" href="#xacc-modular-infrastructure" title="Permalink to this headline">¶</a></h2>
 <p>XACC relies on a project called <a class="reference external" href="http://github.com/cppmicroservices/cppmicroservices">CppMicroServices</a> - a native C++ implementation of the OSGi specification that enables an extensible plugin infrastructure for compilers and accelerators. As such, installation of XACC provides the core infrastructure for describing Programs, Compilers, Accelerators, and IR. To enable support for various compilers and accelerators (like the Scaffold or Quil compilers, or the IBM or Rigetti QPUs) you must install the appropriate plugin (see <a class="reference external" href="plugins.html">XACC Plugins</a>).</p>
 </div>
 <div class="section" id="xacc-development-team">
@@ -194,6 +187,7 @@
 <li><a class="reference external" href="mailto:dumitrescuef&#37;&#52;&#48;ornl&#46;gov">Eugene Dumitrescu</a></li>
 <li><a class="reference external" href="mailto:liakhdi&#37;&#52;&#48;ornl&#46;gov">Dmitry Liakh</a></li>
 <li><a class="reference external" href="mailto:mschen&#37;&#52;&#48;vt&#46;edu">Mengsu Chen</a></li>
+<li><a class="reference external" href="mailto:parkszp&#37;&#52;&#48;ornl&#46;gov">Zach Parks</a></li>
 </ul>
 </div>
 <div class="section" id="questions-bug-reporting-and-issue-tracking">
@@ -204,22 +198,23 @@ new issue with the question tag.</p>
 </div>
 <div class="section" id="publications-and-presentations">
 <h2>Publications and Presentations<a class="headerlink" href="#publications-and-presentations" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://arxiv.org/abs/1710.01794">Extreme-Scale Programming Model for Quantum Acceleration within High Performanc Computing</a></p>
-<p><a class="reference external" href="https://arxiv.org/abs/1801.03897">Cloud Quantum Computing of an Atomic Nucleus</a></p>
+<p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2352711018300700">A language and hardware independent approach to quantum-classical computing</a></p>
+<p><a class="reference external" href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501">Cloud Quantum Computing of an Atomic Nucleus</a></p>
+<p><a class="reference external" href="https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331">Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers</a></p>
+<p><a class="reference external" href="https://arxiv.org/abs/1807.07914">Validating Quantum-Classical Programming Models with Tensor Network Simulations</a></p>
+<p><a class="reference external" href="https://arxiv.org/abs/1805.09279">Hybrid Programming for Near-term Quantum Computing Systems</a></p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="XACC API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Welcome to XACC’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -235,7 +230,7 @@ new issue with the question tag.</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -254,6 +249,7 @@ new issue with the question tag.</p>
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -267,19 +263,13 @@ new issue with the question tag.</p>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

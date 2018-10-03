@@ -24,27 +24,17 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="XACC-VQE" href="xacc-vqe.html"/>
-        <link rel="prev" title="IBM" href="ibm.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -91,21 +81,17 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">D-Wave</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#extensibility-for-minor-graph-embedding-algorithms">Extensibility for Minor Graph Embedding Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
 </ul>
 
             
@@ -117,7 +103,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">XACC</a>
@@ -125,9 +111,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -176,44 +163,36 @@
 <p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-dwave">D-Wave Plugin</a> provides
 support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.</p>
 <p>To install this plugin, run the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc-dwave
+$ cd xacc-dwave &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc
 </pre></div>
 </div>
-<p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/accelerator</span></code> and <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/compilers</span></code>, where XACC_ROOT is your XACC install prefix.</p>
-</div>
-<div class="section" id="extensibility-for-minor-graph-embedding-algorithms">
-<h2>Extensibility for Minor Graph Embedding Algorithms<a class="headerlink" href="#extensibility-for-minor-graph-embedding-algorithms" title="Permalink to this headline">¶</a></h2>
-<p>XACC has extensibility built in for minor graph embedding
-algorithms. We currently have one supported embedding algorithm (with more coming online), a wrapper around the D-Wave SAPI Cai, Macready, Roi algorithm. In order to install this as a plugin, run the following</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The following embedding algorithm needs to leverage the proprietary
-D-Wave SAPI header file and associated shared library: <code class="docutils literal"><span class="pre">dwave_sapi.h</span></code> and <code class="docutils literal"><span class="pre">libdwave_sapi.so</span></code> (or <code class="docutils literal"><span class="pre">libdwave_sapi.dylib</span></code> on macosx).
-In order for the installation below to work, place dwave_sapi.h in <code class="docutils literal"><span class="pre">/usr/local/include/</span></code> and <code class="docutils literal"><span class="pre">libdwave_sapi.so</span></code> or <code class="docutils literal"><span class="pre">libdwave_sapi.dylib</span></code> in <code class="docutils literal"><span class="pre">/usr/local/lib/</span></code></p>
-</div>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p xacc-dwave-sapi-embedding
+<p>Alternatively, if you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
 </pre></div>
 </div>
-<p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal"><span class="pre">$XACC_ROOT/lib/plugins/embedding</span></code>, where <code class="docutils literal"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+<p>ensuring that the <code class="docutils literal notranslate"><span class="pre">xacc</span></code> module is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>You have now installed the D-Wave plugin. It is located in <code class="docutils literal notranslate"><span class="pre">$XACC_ROOT/plugins</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+</div>
+<div class="section" id="setting-credentials">
+<h2>Setting Credentials<a class="headerlink" href="#setting-credentials" title="Permalink to this headline">¶</a></h2>
+<p>In order to target the D-Wave Qubist remote resources you must provide
+XACC with your API key. By default
+XACC will search for a config file at <code class="docutils literal notranslate"><span class="pre">$HOME/.dwave_config</span></code>.</p>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c dwave -k YOURAPIKEY
+</pre></div>
+</div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="xacc-vqe.html" class="btn btn-neutral float-right" title="XACC-VQE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="ibm.html" class="btn btn-neutral" title="IBM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -224,7 +203,7 @@ In order for the installation below to work, place dwave_sapi.h in <code class="
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -243,6 +222,7 @@ In order for the installation below to work, place dwave_sapi.h in <code class="
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -256,19 +236,13 @@ In order for the installation below to work, place dwave_sapi.h in <code class="
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
