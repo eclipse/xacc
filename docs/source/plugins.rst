@@ -118,6 +118,19 @@ If you installed XACC via ``pip``, then you can run
 
    $ python -m pip install xacc-ibm (with --user if you used that flag for your xacc install)
 
+.. note::
+
+      The xacc-ibm project also provides an Accelerator implementation that
+      delegates to a local build of the Qiskit C++ qasm simulator.
+      This Accelerator implementation requires BLAS/LAPACK libraries to be installed.
+      Here's how to install these as binaries on various popular platforms:
+
+      .. code::
+
+         $ (macosx) should already be there in Accelerate Framework, if not
+         $ (macosx) brew install openblas lapack
+         $ (fedora) dnf install blas-devel lapack-devel
+         $ (ubuntu) apt-get install libblas-dev liblapack-dev
 
 Credentials
 +++++++++++
@@ -159,5 +172,90 @@ The IBM plugin exposes the following runtime options
 TNQVM
 -----
 
+Installation
+++++++++++++
+
+The `TNQVM Plugin <https://github.com/ornl-qci/tnqvm>`_ provides
+support to XACC for executing programs
+on the ORNL tensor network quantum virtual machine. TNQVM models the wave
+function of a quantum register as a tensor network, and specifically a matrix
+product state. For more information on the TNQVM simulation method, check out
+`Validating Quantum-Classical Programming Models with Tensor Network Simulations <https://arxiv.org/abs/1807.07914>`_
+
+
+.. note::
+
+   TNQVM requires BLAS/LAPACK libraries to be installed.
+   Here's how to install these as binaries on various popular platforms:
+
+   .. code::
+
+      $ (macosx) should already be there in Accelerate Framework, if not
+      $ (macosx) brew install openblas lapack
+      $ (fedora) dnf install blas-devel lapack-devel
+      $ (ubuntu) apt-get install libblas-dev liblapack-dev
+
+To install this plugin, run the following
+
+.. code::
+
+   $ git clone https://github.com/ornl-qci/tnqvm
+   $ cd tnqvm && mkdir build && cd build
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
+   $ make install
+
+If you installed the XACC Python bindings, then you can run
+
+.. code::
+
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
+
+ensuring that xacc is in your ``PYTHONPATH``.
+
+If you installed XACC via ``pip``, then you can run
+
+.. code::
+
+   $ python -m pip install tnqvm (with --user if you used that flag for your xacc install)
+
 D-Wave
 ------
+
+Installation
+++++++++++++
+
+The `D-Wave Plugin <https://github.com/ornl-qci/xacc-dwave>`_ provides
+support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.
+
+To install this plugin, run the following
+
+.. code::
+
+   $ git clone --recursive https://github.com/ornl-qci/xacc-dwave
+   $ cd xacc-dwave && mkdir build && cd build
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
+   # make install
+
+Alternatively, if you installed the XACC Python bindings, then you can run
+
+.. code::
+
+   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
+
+ensuring that the ``xacc`` module is in your ``PYTHONPATH``.
+
+Credentials
++++++++++++
+
+In order to target the D-Wave remote resources you must provide
+XACC with your D-Wave Qubist API key. By default
+XACC will search for a config file at ``$HOME/.dwave_config``.
+
+If you installed the XACC Python bindings, then you can run
+
+.. code::
+
+   $ python -m xacc -c dwave -k YOURAPIKEY
+
+Python JIT Compiler
+-------------------
