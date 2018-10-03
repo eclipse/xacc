@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>XACC Architecture &mdash; XACC 0.0.1 documentation</title>
+  <title>Architecture &mdash; XACC 0.0.1 documentation</title>
   
 
   
@@ -87,16 +87,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">XACC Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#kernels">Kernels</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#intermediate-representation">Intermediate Representation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#compilers">Compilers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ir-transformations">IR Transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kernels-and-compilers">Kernels and Compilers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#programs-and-execution-workflow">Programs and Execution Workflow</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -148,7 +148,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>XACC Architecture</li>
+      <li>Architecture</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -167,16 +167,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="xacc-architecture">
-<h1>XACC Architecture<a class="headerlink" href="#xacc-architecture" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
 <p>Here we describe the main abstractions defined by XACC to enable quantum-classical
 programming in a hardware and language independent manner.</p>
-<div class="section" id="kernels">
-<h2>Kernels<a class="headerlink" href="#kernels" title="Permalink to this headline">¶</a></h2>
-<img alt="_images/quantum_kernel_def2.png" src="_images/quantum_kernel_def2.png" />
-<p>XACC requires that clients express code intended for quantum acceleration in a manner similar to CUDA or OpenCL for GPU acceleration: code must be expressed as stand-alone emph{quantum kernels}. The figure above  provides a description of the requirements for a kernel to be valid in XACC. At its core, an XACC quantum kernel is represented by a function in C++. This function must take as its first argument the AcceleratorBuffer instance representing the qubit register that this kernel operates on. A quantum kernel, therefore, is a programmatic representation of the unitary operations applied to  a quantum register of qubits, e.g., represented by a quantum circuit, or described as a quantum annealing process. Furthermore, in XACC, quantum kernels do not specify a return type; all information about the results of a quantum kernel’s operation are gathered from the AcceleratorBuffer’s ensemble of qubit measurements.  Quantum kernels in XACC are differentiated from conventional library calls using the <strong>qpu</strong> keyword.</p>
-<p>The function body of an XACC quantum kernel may be expressed in any available quantum programming language. An available quantum programming language is one such that the XACC implementation provides a valid Compiler implementation for the language. Finally, quantum kernels may take any number of kernel arguments that drive the overall execution of the quantum code. This enables parameterized quantum circuits that may be evaluated at runtime.</p>
-</div>
 <div class="section" id="intermediate-representation">
 <h2>Intermediate Representation<a class="headerlink" href="#intermediate-representation" title="Permalink to this headline">¶</a></h2>
 <p>In order to promote interoperability and programmability across the wide range of available QPU types and quantum programming languages (embedded or stand-alone), there must be some common, standard low-level program representation that is simple to understand and manipulate. An example of this in the conventional computing world is the LLVM - a compiler infrastructure that maps a programming language to an intermediate representation that can be used to perform hardware dependent and independent optimizations, and generate native, hardware-specific executable code. It is this representation that enables efficient language and hardware interoperability. Similarly for quantum computing, with the variety of available QPU types (superconducting, ion trap, adiabatic, etc.) and quantum programming languages (Scaffold, QCL, Quipper, Quil, etc.) there is a strong need for some standard low-level intermediate representation that serves as the glue between languages and hardware. A standard in this regard would enable a wide range of quantum programming tools, and provide early users the benefit of programming their domain-specific algorithms in a manner that best suits their research and application. It will enable the execution of those programmed algorithms on a number of differing hardware types.</p>
@@ -189,17 +183,17 @@ programming in a hardware and language independent manner.</p>
 <p>The structures just described give us three of the four forms that the XACC’s intermediate representation provides - the in-memory data structure representation and API, the human-readable assembly representation, and the graph representation. To provide an on-disk representation, the IR interface exposes load and persist methods that take a file path to read in, and to write to, respectively. In this way, IR instances that are generated from a given set of kernels can be persisted and reused, enabling faster just-in-time compilation.</p>
 <p>Due to the tree-like nature of the XACC IR infrastructure, where each node can be one of many different types (subclasses of Function and Instruction, for example Hadamard, CNOT, etc. for gate model computing), there is a need for an extensible mechanism for walking this tree and performing subclass-specific tasks on each node. XACC defines an InstructionVisitor for this purpose, which models the familiar visitor pattern. To implement this design pattern, InstructionVisitor provides a <code class="docutils literal notranslate"><span class="pre">visit</span></code> method for each exposed Instruction sub-type, and each Instruction implements an <code class="docutils literal notranslate"><span class="pre">accept</span></code> method that takes as input an InstructionVisitor instance. Since each <code class="docutils literal notranslate"><span class="pre">accept</span></code> method has type-specific information about the Instruction, the correct <code class="docutils literal notranslate"><span class="pre">visit</span></code> method is invoked on the InstructionVisitor, and therefore, type-specific routines are run for the given Instruction.</p>
 <p>The XACC IR interfaces provide a unique way to describe quantum algorithms through an in-memory, object model representation. To build off this idea, XACC defines an <code class="docutils literal notranslate"><span class="pre">AlgorithmGenerator</span></code> interface, which enables the generation of XACC Function implementations in an extensible manner. This interface provides a generate method that can be implemented by subclasses, which takes as input the bits that the algorithm should operate on, and produces a Function representation of the algorithm. This provides a unique way to expose common quantum algorithmic primitives such as quantum Fourier transforms, phase estimation, etc., to XACC programmers. Specifically, this generator service can be leveraged at compile time to search for common algorithm subroutine invocations, and replace them with IR Function instances that can be executed by XACC Accelerators.</p>
+<p>The native assembly generator component plays the important role of providing an extensible hook for modifications of the generated intermediate representation that make it amenable to execution on the desired quantum hardware. XACC defines an <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface that provides a method for taking a valid IR instance and outputting a modified, optimized, or generally transformed isomorphic IR instance. Accelerator implementations can provide realizations of this interface that can be executed by the backend native assembly generator to ensure the compiled IR instance can be executed on the hardware. For example, a hardware implementation that does not provide a physical implementation of a given gate could expose an IRTransformation that searches for all instances of that gate instruction and replaces them with some other gate or set of gates that achieves the same functionality, thereby ensuring the new IR instance is isomorphic to the provided IR instance.</p>
 </div>
-<div class="section" id="compilers">
-<h2>Compilers<a class="headerlink" href="#compilers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="kernels-and-compilers">
+<h2>Kernels and Compilers<a class="headerlink" href="#kernels-and-compilers" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/quantum_kernel_def2.png" src="_images/quantum_kernel_def2.png" />
+<p>XACC requires that clients express code intended for quantum acceleration in a manner similar to CUDA or OpenCL for GPU acceleration: code must be expressed as stand-alone emph{quantum kernels}. The figure above  provides a description of the requirements for a kernel to be valid in XACC. At its core, an XACC quantum kernel is represented by a function in C++. This function must take as its first argument the AcceleratorBuffer instance representing the qubit register that this kernel operates on. A quantum kernel, therefore, is a programmatic representation of the unitary operations applied to  a quantum register of qubits, e.g., represented by a quantum circuit, or described as a quantum annealing process. Furthermore, in XACC, quantum kernels do not specify a return type; all information about the results of a quantum kernel’s operation are gathered from the AcceleratorBuffer’s ensemble of qubit measurements.  Quantum kernels in XACC are differentiated from conventional library calls using the <strong>qpu</strong> keyword.</p>
+<p>The function body of an XACC quantum kernel may be expressed in any available quantum programming language. An available quantum programming language is one such that the XACC implementation provides a valid Compiler implementation for the language. Finally, quantum kernels may take any number of kernel arguments that drive the overall execution of the quantum code. This enables parameterized quantum circuits that may be evaluated at runtime.</p>
 <p>To provide extensibility in quantum programming languages (QPL), XACC describes an interface for QPL compilers - simply called the <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> interface. At its core, this interface provides a compilation method that subclasses implement to take quantum kernel source code as input and produce a valid instance of the XACC IR. Derived Compilers are free to perform quantum compilation in any way they see fit, as long as they return a valid IR instance. This compile mechanism can also be provided with information on the targeted accelerator at compile time. This enables hardware-specific details to be present at compile time and thus influence the way compilation is performed. For example, quantum compilation methods often require information about the hardware connectivity graph - XACC and its compiler mechanism ensures this type of hardware-specific information is available at compile time.</p>
 <img alt="_images/compilers.png" src="_images/compilers.png" />
 <p>Compilers also provide a <code class="docutils literal notranslate"><span class="pre">translate</span></code> method to enable quantum language source-to-source translation. This method takes as input an IR Function instance to produce an equivalent source string in the Compiler’s quantum programming language. The overall workflow for XACC source-to-source translation relies on the flexibility of the XACC IR specification. A kernel source code can be compiled with its appropriate Compiler instance. The Function IR instance produced by that mechanism can then be passed to the translate method of the Compiler for the language being generated. The implementation of the translate method maps the IR Function Instructions to language-specific source code and returns it.</p>
 <p>In addition to the Compiler interface, the concept of compilation in XACC also defines a <code class="docutils literal notranslate"><span class="pre">Preprocessor</span></code> interface. Preprocessors are to be executed before compilation, and take as input the source code to analyze and process, the compiler reference for the kernel language, and the accelerator being targeted for execution. Using this data, Preprocessors can perform operations on the kernel source string to produce a new kernel source string. All modifications made by the Preprocessor should be isomorphic in nature, i.e. the resultant kernel source code should, upon execution, should produce the same result as the provided kernel source code. An example of the Preprocessor’s utility would be searching kernel source code for certain key words describing a desired algorithm to be executed on a set of bits, and replacing that line of code with a source-code representation of the algorithm. A Preprocessor like this would alleviate tedious programming tasks for users.</p>
-</div>
-<div class="section" id="ir-transformations">
-<h2>IR Transformations<a class="headerlink" href="#ir-transformations" title="Permalink to this headline">¶</a></h2>
-<p>The native assembly generator component plays the important role of providing an extensible hook for modifications of the generated intermediate representation that make it amenable to execution on the desired quantum hardware. XACC defines an <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface that provides a method for taking a valid IR instance and outputting a modified, optimized, or generally transformed isomorphic IR instance. Accelerator implementations can provide realizations of this interface that can be executed by the backend native assembly generator to ensure the compiled IR instance can be executed on the hardware. For example, a hardware implementation that does not provide a physical implementation of a given gate could expose an IRTransformation that searches for all instances of that gate instruction and replaces them with some other gate or set of gates that achieves the same functionality, thereby ensuring the new IR instance is isomorphic to the provided IR instance.</p>
 </div>
 <div class="section" id="accelerators">
 <h2>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this headline">¶</a></h2>

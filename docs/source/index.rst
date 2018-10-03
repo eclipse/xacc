@@ -14,6 +14,8 @@ Welcome to XACC's documentation!
    install
    arch
    plugins
+   tutorials
+   apps
 
 
 .. toctree::

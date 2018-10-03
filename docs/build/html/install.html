@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="XACC Architecture" href="arch.html" />
+    <link rel="next" title="Architecture" href="arch.html" />
     <link rel="prev" title="Getting started with XACC" href="overview.html" /> 
 
   
@@ -88,11 +88,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-xacc">Building XACC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#keeping-for-reference">Keeping for Reference</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -241,21 +242,6 @@ $ ctest
 </pre></div>
 </div>
 </div>
-<div class="section" id="keeping-for-reference">
-<h2>Keeping for Reference<a class="headerlink" href="#keeping-for-reference" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>Installing OpenSSL from source is fairly simple:</p>
-<div class="code last highlight-default notranslate"><div class="highlight"><pre><span></span>$ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-$ tar -xvzf openssl-1.0.2n.tar.gz
-$ cd openssl-1.0.2n
-$ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
-$ make
-$ make install
-</pre></div>
-</div>
-</div>
-</div>
 </div>
 
 
@@ -266,7 +252,7 @@ $ make install
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="arch.html" class="btn btn-neutral float-right" title="XACC Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="arch.html" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="overview.html" class="btn btn-neutral" title="Getting started with XACC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
