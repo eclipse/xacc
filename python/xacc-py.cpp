@@ -328,19 +328,8 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("name", &xacc::AcceleratorBuffer::name, "")
       .def("getAllUnique", &xacc::AcceleratorBuffer::getAllUnique,
            "Return all unique information with the provided string name")
-      .def("__repr__",
-           [](const std::shared_ptr<AcceleratorBuffer> b) {
-             std::stringstream s;
-             b->print(s);
-             return s.str();
-           },
-           "")
-      .def("__str__", [](const std::shared_ptr<AcceleratorBuffer> b) {
-             std::stringstream s;
-             b->print(s);
-             return s.str();
-           },
-           "")
+      .def("__repr__", &xacc::AcceleratorBuffer::toString, "")
+      .def("__str__", &xacc::AcceleratorBuffer::toString, "")
       .def("getChildren",
            (std::vector<std::shared_ptr<AcceleratorBuffer>>(
                xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
@@ -431,25 +420,26 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getService<IRGenerator>,
         py::return_value_policy::reference,
         "Return the IRGenerator of given name.");
-  m.def("getConnectivity", [](const std::string acc) -> std::vector<std::vector<int>> {
-     auto a = xacc::getAccelerator(acc);
-     auto connectivity = a->getAcceleratorConnectivity();
-     std::vector<std::vector<int>> edges;
-     for (int i = 0; i < connectivity->order(); ++i) {
-         for (int j = i; j < connectivity->order(); ++j) {
-             if (connectivity->edgeExists(i, j)) {
-                 edges.push_back({i,j});
-             }
-         }
-     } 
-     return edges;
-  });
+  m.def("getConnectivity",
+        [](const std::string acc) -> std::vector<std::vector<int>> {
+          auto a = xacc::getAccelerator(acc);
+          auto connectivity = a->getAcceleratorConnectivity();
+          std::vector<std::vector<int>> edges;
+          for (int i = 0; i < connectivity->order(); ++i) {
+            for (int j = i; j < connectivity->order(); ++j) {
+              if (connectivity->edgeExists(i, j)) {
+                edges.push_back({i, j});
+              }
+            }
+          }
+          return edges;
+        });
   m.def("translate", &xacc::translate,
         "Translate the provided IR Function to the given language.");
   m.def("setOption", [](const std::string s, InstructionParameter p) {
     xacc::setOption(s, boost::lexical_cast<std::string>(p));
   });
-  m.def("info", [](const std::string s) { xacc::info(s);}, "");
+  m.def("info", [](const std::string s) { xacc::info(s); }, "");
   m.def("error", &xacc::error, "");
   m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
   m.def("setOptions",
@@ -481,7 +471,14 @@ PYBIND11_MODULE(_pyxacc, m) {
         (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
         "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
-
+  m.def("loadBuffer",
+        [](const std::string json) {
+          std::istringstream s(json);
+          auto buffer = std::make_shared<AcceleratorBuffer>();
+          buffer->load(s);
+          return buffer;
+        },
+        "");
   m.def("compileKernel",
         [](std::shared_ptr<Accelerator> acc, const std::string &src,
            const std::string &compilerName = "") -> std::shared_ptr<Function> {
