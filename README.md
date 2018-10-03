@@ -1,6 +1,5 @@
 [![Build Status](https://jenkins.eclipse.org/xacc/buildStatus/icon?job=xacc-ci)](https://jenkins.eclipse.org/xacc/job/xacc-ci/)
 
-# Eclipse XACC 
 ![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
 
 ## Language and Hardware Independent Quantum Programming Framework
