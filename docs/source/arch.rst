@@ -8,7 +8,15 @@ programming in a hardware and language independent manner.
 
 Intermediate Representation
 ----------------------------
-In order to promote interoperability and programmability across the wide range of available QPU types and quantum programming languages (embedded or stand-alone), there must be some common, standard low-level program representation that is simple to understand and manipulate. An example of this in the conventional computing world is the LLVM - a compiler infrastructure that maps a programming language to an intermediate representation that can be used to perform hardware dependent and independent optimizations, and generate native, hardware-specific executable code. It is this representation that enables efficient language and hardware interoperability. Similarly for quantum computing, with the variety of available QPU types (superconducting, ion trap, adiabatic, etc.) and quantum programming languages (Scaffold, QCL, Quipper, Quil, etc.) there is a strong need for some standard low-level intermediate representation that serves as the glue between languages and hardware. A standard in this regard would enable a wide range of quantum programming tools, and provide early users the benefit of programming their domain-specific algorithms in a manner that best suits their research and application. It will enable the execution of those programmed algorithms on a number of differing hardware types.
+In order to promote interoperability and programmability across the wide range of
+available QPU types and quantum programming languages (embedded or stand-alone),
+there must be some common, standard low-level program representation that is simple
+to understand and manipulate. An example of this in the conventional computing
+world is the LLVM - a compiler infrastructure that maps a programming language
+to an intermediate representation that can be used to perform hardware dependent
+and independent optimizations, and generate native, hardware-specific executable
+code. It is this representation that enables efficient language and hardware
+interoperability. Similarly for quantum computing, with the variety of available QPU types (superconducting, ion trap, adiabatic, etc.) and quantum programming languages (Scaffold, QCL, Quipper, Quil, etc.) there is a strong need for some standard low-level intermediate representation that serves as the glue between languages and hardware. A standard in this regard would enable a wide range of quantum programming tools, and provide early users the benefit of programming their domain-specific algorithms in a manner that best suits their research and application. It will enable the execution of those programmed algorithms on a number of differing hardware types.
 
 .. image:: ../assets/acc-ir.png
 

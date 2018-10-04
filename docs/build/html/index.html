@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting started with XACC" href="overview.html" /> 
+    <link rel="next" title="Installation" href="install.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,7 +83,6 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
@@ -161,17 +160,59 @@
             
   <div class="section" id="welcome-to-xacc-s-documentation">
 <h1>Welcome to XACC’s documentation!<a class="headerlink" href="#welcome-to-xacc-s-documentation" title="Permalink to this headline">¶</a></h1>
+<img alt="_images/xacc-readme.jpg" src="_images/xacc-readme.jpg" />
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>XACC is an extensible compilation framework for hybrid quantum-classical
+computing architectures. It provides extensible language frontend and hardware
+backend compilation components glued together via a novel, polymorphic quantum intermediate
+representation. XACC currently supports quantum-classical programming and enables
+the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs, as well as a
+number of quantum computer simulators.</p>
+<p>The XACC programming model follows the traditional co-processor model, akin to OpenCL or CUDA for GPUs, but
+takes into account the subtleties and complexities inherent to the interplay
+between classical and quantum hardware. XACC provides a high-level API that
+enables classical applications to offload work
+(represented as quantum kernels) to an attached quantum accelerator in a
+manner that is independent to the quantum programming language and hardware.
+This enables one to write quantum code once, and perform benchmarking,
+verification and validation, and performance studies for a set of virtual
+(simulators) or physical hardware.</p>
+</div>
+<div class="section" id="modular-infrastructure">
+<h2>Modular Infrastructure<a class="headerlink" href="#modular-infrastructure" title="Permalink to this headline">¶</a></h2>
+<p>XACC relies on a project called <a class="reference external" href="http://github.com/cppmicroservices/cppmicroservices">CppMicroServices</a> -
+a native C++ implementation of the <a class="reference external" href="https://www.osgi.org/developer/architecture/">OSGi</a>
+specification that enables an extensible, modular
+plugin infrastructure for quantum compilers and accelerators. Installation of
+XACC provides the core infrastructure for describing Programs, Compilers,
+Accelerators, and IR. To enable support for various compilers and accelerators
+(like the OpenQasm or Quil compilers, or the IBM or Rigetti QPUs) you
+can install the appropriate plugin (see <a class="reference external" href="plugins.html">XACC Plugins</a>).</p>
+</div>
+<div class="section" id="xacc-development-team">
+<h2>XACC Development Team<a class="headerlink" href="#xacc-development-team" title="Permalink to this headline">¶</a></h2>
+<p>XACC is developed and maintained by:</p>
+<ul class="simple">
+<li><a class="reference external" href="mailto:mccaskeyaj&#37;&#52;&#48;ornl&#46;gov">Alex McCaskey</a></li>
+<li><a class="reference external" href="mailto:humblets&#37;&#52;&#48;ornl&#46;gov">Travis Humble</a></li>
+<li><a class="reference external" href="mailto:dumitrescuef&#37;&#52;&#48;ornl&#46;gov">Eugene Dumitrescu</a></li>
+<li><a class="reference external" href="mailto:liakhdi&#37;&#52;&#48;ornl&#46;gov">Dmitry Liakh</a></li>
+<li><a class="reference external" href="mailto:mschen&#37;&#52;&#48;vt&#46;edu">Mengsu Chen</a></li>
+<li><a class="reference external" href="mailto:parkszp&#37;&#52;&#48;ornl&#46;gov">Zach Parks</a></li>
+<li><a class="reference external" href="mailto:rsand3642&#37;&#52;&#48;gmail&#46;com">Ryan Sand</a></li>
+<li><a class="reference external" href="mailto:czhao39&#37;&#52;&#48;gmail&#46;com">Charles Zhao</a></li>
+<li><a class="reference external" href="mailto:billingsjj&#37;&#52;&#48;ornl&#46;gov">Jay Billings</a></li>
+</ul>
+</div>
+<div class="section" id="questions-bug-reporting-and-issue-tracking">
+<h2>Questions, Bug Reporting, and Issue Tracking<a class="headerlink" href="#questions-bug-reporting-and-issue-tracking" title="Permalink to this headline">¶</a></h2>
+<p>Questions, bug reporting and issue tracking are provided by GitHub. Please
+report all bugs by creating a <a class="reference external" href="https://github.com/eclipse/xacc/issues/new">new issue</a>.
+You can ask questions by creating a new issue with the question tag.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#xacc-modular-infrastructure">XACC Modular Infrastructure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#xacc-development-team">XACC Development Team</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#questions-bug-reporting-and-issue-tracking">Questions, Bug Reporting, and Issue Tracking</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#publications-and-presentations">Publications and Presentations</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="install.html#pre-requisites">Pre-Requisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#building-xacc">Building XACC</a></li>
@@ -240,6 +281,17 @@
 </li>
 </ul>
 </div>
+</div>
+<div class="section" id="publications">
+<h2>Publications<a class="headerlink" href="#publications" title="Permalink to this headline">¶</a></h2>
+<p>[1] <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2352711018300700">A language and hardware independent approach to quantum-classical computing</a></p>
+<p>[2] <a class="reference external" href="https://arxiv.org/abs/1807.07914">Validating Quantum-Classical Programming Models with Tensor Network Simulations</a></p>
+<p>[3] <a class="reference external" href="https://arxiv.org/abs/1805.09279">Hybrid Programming for Near-term Quantum Computing Systems</a></p>
+</div>
+<div class="section" id="publications-leveraging-xacc">
+<h2>Publications Leveraging XACC<a class="headerlink" href="#publications-leveraging-xacc" title="Permalink to this headline">¶</a></h2>
+<p>[1] <a class="reference external" href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501">Cloud Quantum Computing of an Atomic Nucleus</a></p>
+<p>[2] <a class="reference external" href="https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331">Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers</a></p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -274,6 +326,7 @@
 </ul>
 </div>
 </div>
+</div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -291,7 +344,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="overview.html" class="btn btn-neutral float-right" title="Getting started with XACC" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
