@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta content="doxygen" name="scope" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Architecture &mdash; XACC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plugins" href="plugins.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#intermediate-representation">Intermediate Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kernels-and-compilers">Kernels and Compilers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#programs-and-execution-workflow">Programs and Execution Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Architecture</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/arch.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
+<p>Here we describe the main abstractions defined by XACC to enable quantum-classical
+programming in a hardware and language independent manner.</p>
+<div class="section" id="intermediate-representation">
+<h2>Intermediate Representation<a class="headerlink" href="#intermediate-representation" title="Permalink to this headline">¶</a></h2>
+<p>In order to promote interoperability and programmability across the wide range of
+available QPU types and quantum programming languages (embedded or stand-alone),
+there must be some common, standard low-level program representation that is simple
+to understand and manipulate. An example of this in the conventional computing
+world is the LLVM - a compiler infrastructure that maps a programming language
+to an intermediate representation that can be used to perform hardware dependent
+and independent optimizations, and generate native, hardware-specific executable
+code. It is this representation that enables efficient language and hardware
+interoperability. Similarly for quantum computing, with the variety of available QPU types (superconducting, ion trap, adiabatic, etc.) and quantum programming languages (Scaffold, QCL, Quipper, Quil, etc.) there is a strong need for some standard low-level intermediate representation that serves as the glue between languages and hardware. A standard in this regard would enable a wide range of quantum programming tools, and provide early users the benefit of programming their domain-specific algorithms in a manner that best suits their research and application. It will enable the execution of those programmed algorithms on a number of differing hardware types.</p>
+<img alt="_images/acc-ir.png" src="_images/acc-ir.png" />
+<p>XACC defines a novel intermediate representation (IR) infrastructure that promotes the overall integration of existing programming techniques and hardware realizations. The IR specification provides four main forms for use by clients: (1) an in-memory representation and API, (2) an on-disk, persisted representation, (3) human-readable quantum assembly representation, and (4) a graph representation (for example, a quantum circuit or tensor network for gate model computing, and Ising Hamiltonian graph for quantum annealing). This specification enables efficient analysis and isomorphic transformation of quantum kernel code, and provides a common representation for executing code written in any quantum language for any available quantum hardware, given constraints on the model of quantum computing being leveraged. XACC does not enable execution across quantum computing models.</p>
+<p>The specification for the IR infrastructure interfaces is shown in the figure below using the Unified Modeling Language (UML). The foundation of the XACC IR specification is the <code class="docutils literal notranslate"><span class="pre">Instruction</span></code> interface, which abstracts the concept of an executable instruction for an attached Accelerator. Instructions have a unique name and reference to the accelerator bits that they operate on. Instructions can operate on one or many accelerator bits, and can be in an enabled or disabled state to aid in the definition of conditional branching. Instructions can also be parameterized. Each Instruction may optionally keep track of one or many InstructionParameters, which are essentially a variant data structure that can be of type float, double, int, string, or complex.</p>
+<img alt="_images/xacc_arch_nice2.jpg" src="_images/xacc_arch_nice2.jpg" />
+<p>XACC defines a <code class="docutils literal notranslate"><span class="pre">Function</span></code> interface to express kernels as compositions of instructions. The Function interface is a derivation of the Instruction interface that, itself contains Instructions. The Instruction/Function combination models the familiar composite design pattern. In XACC, kernels to be executed on an attached accelerator are modeled as an n-ary tree with Function references as nodes and Instruction references a leaves.</p>
+<p>XACC defines a container for Functions as the XACC <code class="docutils literal notranslate"><span class="pre">IR</span></code> interface. This interface provides an abstraction to model a list of compiled Functions, with the ability to map those Functions to both an assembly-like, human-readable string, and a graph data structure. For the case of gate model quantum acceleration, the graph models the quantum circuit and provides a convenient data structure for isomorphic transformations and analysis. For quantum annealing, the graph structure can model the Ising Hamiltonian parameters that form the machine-level instructions for the quantum computation.</p>
+<p>The structures just described give us three of the four forms that the XACC’s intermediate representation provides - the in-memory data structure representation and API, the human-readable assembly representation, and the graph representation. To provide an on-disk representation, the IR interface exposes load and persist methods that take a file path to read in, and to write to, respectively. In this way, IR instances that are generated from a given set of kernels can be persisted and reused, enabling faster just-in-time compilation.</p>
+<p>Due to the tree-like nature of the XACC IR infrastructure, where each node can be one of many different types (subclasses of Function and Instruction, for example Hadamard, CNOT, etc. for gate model computing), there is a need for an extensible mechanism for walking this tree and performing subclass-specific tasks on each node. XACC defines an InstructionVisitor for this purpose, which models the familiar visitor pattern. To implement this design pattern, InstructionVisitor provides a <code class="docutils literal notranslate"><span class="pre">visit</span></code> method for each exposed Instruction sub-type, and each Instruction implements an <code class="docutils literal notranslate"><span class="pre">accept</span></code> method that takes as input an InstructionVisitor instance. Since each <code class="docutils literal notranslate"><span class="pre">accept</span></code> method has type-specific information about the Instruction, the correct <code class="docutils literal notranslate"><span class="pre">visit</span></code> method is invoked on the InstructionVisitor, and therefore, type-specific routines are run for the given Instruction.</p>
+<p>The XACC IR interfaces provide a unique way to describe quantum algorithms through an in-memory, object model representation. To build off this idea, XACC defines an <code class="docutils literal notranslate"><span class="pre">AlgorithmGenerator</span></code> interface, which enables the generation of XACC Function implementations in an extensible manner. This interface provides a generate method that can be implemented by subclasses, which takes as input the bits that the algorithm should operate on, and produces a Function representation of the algorithm. This provides a unique way to expose common quantum algorithmic primitives such as quantum Fourier transforms, phase estimation, etc., to XACC programmers. Specifically, this generator service can be leveraged at compile time to search for common algorithm subroutine invocations, and replace them with IR Function instances that can be executed by XACC Accelerators.</p>
+<p>The native assembly generator component plays the important role of providing an extensible hook for modifications of the generated intermediate representation that make it amenable to execution on the desired quantum hardware. XACC defines an <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface that provides a method for taking a valid IR instance and outputting a modified, optimized, or generally transformed isomorphic IR instance. Accelerator implementations can provide realizations of this interface that can be executed by the backend native assembly generator to ensure the compiled IR instance can be executed on the hardware. For example, a hardware implementation that does not provide a physical implementation of a given gate could expose an IRTransformation that searches for all instances of that gate instruction and replaces them with some other gate or set of gates that achieves the same functionality, thereby ensuring the new IR instance is isomorphic to the provided IR instance.</p>
+</div>
+<div class="section" id="kernels-and-compilers">
+<h2>Kernels and Compilers<a class="headerlink" href="#kernels-and-compilers" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/quantum_kernel_def2.png" src="_images/quantum_kernel_def2.png" />
+<p>XACC requires that clients express code intended for quantum acceleration in a manner similar to CUDA or OpenCL for GPU acceleration: code must be expressed as stand-alone emph{quantum kernels}. The figure above  provides a description of the requirements for a kernel to be valid in XACC. At its core, an XACC quantum kernel is represented by a function in C++. This function must take as its first argument the AcceleratorBuffer instance representing the qubit register that this kernel operates on. A quantum kernel, therefore, is a programmatic representation of the unitary operations applied to  a quantum register of qubits, e.g., represented by a quantum circuit, or described as a quantum annealing process. Furthermore, in XACC, quantum kernels do not specify a return type; all information about the results of a quantum kernel’s operation are gathered from the AcceleratorBuffer’s ensemble of qubit measurements.  Quantum kernels in XACC are differentiated from conventional library calls using the <strong>qpu</strong> keyword.</p>
+<p>The function body of an XACC quantum kernel may be expressed in any available quantum programming language. An available quantum programming language is one such that the XACC implementation provides a valid Compiler implementation for the language. Finally, quantum kernels may take any number of kernel arguments that drive the overall execution of the quantum code. This enables parameterized quantum circuits that may be evaluated at runtime.</p>
+<p>To provide extensibility in quantum programming languages (QPL), XACC describes an interface for QPL compilers - simply called the <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> interface. At its core, this interface provides a compilation method that subclasses implement to take quantum kernel source code as input and produce a valid instance of the XACC IR. Derived Compilers are free to perform quantum compilation in any way they see fit, as long as they return a valid IR instance. This compile mechanism can also be provided with information on the targeted accelerator at compile time. This enables hardware-specific details to be present at compile time and thus influence the way compilation is performed. For example, quantum compilation methods often require information about the hardware connectivity graph - XACC and its compiler mechanism ensures this type of hardware-specific information is available at compile time.</p>
+<img alt="_images/kernel-compile-nice2.jpg" src="_images/kernel-compile-nice2.jpg" />
+<p>Compilers also provide a <code class="docutils literal notranslate"><span class="pre">translate</span></code> method to enable quantum language source-to-source translation. This method takes as input an IR Function instance to produce an equivalent source string in the Compiler’s quantum programming language. The overall workflow for XACC source-to-source translation relies on the flexibility of the XACC IR specification. A kernel source code can be compiled with its appropriate Compiler instance. The Function IR instance produced by that mechanism can then be passed to the translate method of the Compiler for the language being generated. The implementation of the translate method maps the IR Function Instructions to language-specific source code and returns it.</p>
+<p>In addition to the Compiler interface, the concept of compilation in XACC also defines a <code class="docutils literal notranslate"><span class="pre">Preprocessor</span></code> interface. Preprocessors are to be executed before compilation, and take as input the source code to analyze and process, the compiler reference for the kernel language, and the accelerator being targeted for execution. Using this data, Preprocessors can perform operations on the kernel source string to produce a new kernel source string. All modifications made by the Preprocessor should be isomorphic in nature, i.e. the resultant kernel source code should, upon execution, should produce the same result as the provided kernel source code. An example of the Preprocessor’s utility would be searching kernel source code for certain key words describing a desired algorithm to be executed on a set of bits, and replacing that line of code with a source-code representation of the algorithm. A Preprocessor like this would alleviate tedious programming tasks for users.</p>
+</div>
+<div class="section" id="accelerators">
+<h2>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this headline">¶</a></h2>
+<p>The inevitable near-term variability in quantum hardware designs and implementations forces any heterogeneous programming model for quantum acceleration within existing workflows to be extensible in the hardware types it interacts with. XACC is no exception to this, and therefore provides an interface for injecting custom accelerator instances. This <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> concept provides an extensible abstraction for the injection of current and future quantum accelerator hardware.</p>
+<img alt="_images/accelerator.png" src="_images/accelerator.png" />
+<p>Accelerators provide an initialize mechanism for implementors to handle any start-up or loading procedures that need to happen before execution on the device. This, for example, can include creating remote connections to the Device CPU / Accelerator system, or retrieving qubit connectivity information to inform and affect kernel code compilation. Accelerators expose a mechanism for creating instances of AcceleratorBuffers, which provide clients of XACC with a handle on measurement results. Additionally, as seen in the previous section, Accelerator implementations can provide any necessary transformations on the compiled IR instances. These transformations will be run after compilation has taken place, but before execution begins.
+par
+Accelerators provide a method for exposing the bit connectivity of the hardware. For example, the D-Wave QPU has a very specific qubit connectivity structure, which plays a very important role in mapping programs onto the hardware. The <code class="docutils literal notranslate"><span class="pre">getAcceleratorConnectivity</span></code> method can be used by compilers to aid in the compilation or mapping of high-level problems onto the Accelerator.</p>
+<p>Finally, Accelerators expose an <code class="docutils literal notranslate"><span class="pre">execute</span></code> method that takes as input the Accelerator Buffer to be operated on and the Function instance representing the quantum kernel to be executed. Realizations of this interface are responsible for leveraging these data structures to affect execution on their desired hardware or simulator. It is intended that Accelerator implementations leverage vendor-supplied APIs to perform this execution. All execute implementations are responsible for updating the Accelerator Buffer with measurement results.</p>
+</div>
+<div class="section" id="programs-and-execution-workflow">
+<h2>Programs and Execution Workflow<a class="headerlink" href="#programs-and-execution-workflow" title="Permalink to this headline">¶</a></h2>
+<p>The main entry-point for interaction with the XACC programming model and API is the concept of a <code class="docutils literal notranslate"><span class="pre">Program</span></code>. The XACC Program orchestrates the entire quantum code compilation process and provides users with an executable functor or lambda to affect the execution of the quantum code on the desired Accelerator. The figure below gives a high-level view of this workflow represented as a UML sequence diagram.</p>
+<img alt="_images/program-workflow.png" src="_images/program-workflow.png" />
+<p>The execution workflow starts with a call to the XACC framework to get reference to the desired Accelerator. With that Accelerator, users can request an allocation of bits to operate on represented as an Accelerator Buffer instance. Then, to begin the compilation process of the quantum source code kernel, users instantiate an XACC Program. All Programs are instantiated with a reference to the desired Accelerator so that the compilation process may leverage hardware-specific information. Programs also take as input the source code to be compiled, an already constructed XACC IR instance, or a file(s) reference of a persisted XACC IR instance for fast loading at runtime. Once a Program is created, users can use the Program to compile the source code through a public build method. This method handles the creation of the appropriate language-specific Compiler, the execution of any desired Preprocessors, the actual compilation, and the execution of any required IR Transformations. The result is an IR instance that is stored by the Program. Once built, users can request a kernel by name, or get all compiled kernels as lambda or functor objects. These functors handle the interaction of the IR, Accelerator Buffer, and the Accelerator’s execution mechanism. This execution is kicked off by invoking the kernel functor (in C++ a call to the <code class="docutils literal notranslate"><span class="pre">operator()(Args...)</span></code> method). Execution occurs on the Accelerator, and measurement results are stored on the Accelerator Buffer, which the user has reference to. Therefore, once the execution is complete, the results are with the user and are ready for post-processing and use in the workflow.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="plugins.html" class="btn btn-neutral float-right" title="Plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Alex McCaskey.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
