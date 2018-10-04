@@ -24,7 +24,7 @@ XACC defines a novel intermediate representation (IR) infrastructure that promot
 
 The specification for the IR infrastructure interfaces is shown in the figure below using the Unified Modeling Language (UML). The foundation of the XACC IR specification is the ``Instruction`` interface, which abstracts the concept of an executable instruction for an attached Accelerator. Instructions have a unique name and reference to the accelerator bits that they operate on. Instructions can operate on one or many accelerator bits, and can be in an enabled or disabled state to aid in the definition of conditional branching. Instructions can also be parameterized. Each Instruction may optionally keep track of one or many InstructionParameters, which are essentially a variant data structure that can be of type float, double, int, string, or complex.
 
-.. image:: ../assets/acc_ir_spec.png
+.. image:: ../assets/xacc_arch_nice2.jpg
 
 XACC defines a ``Function`` interface to express kernels as compositions of instructions. The Function interface is a derivation of the Instruction interface that, itself contains Instructions. The Instruction/Function combination models the familiar composite design pattern. In XACC, kernels to be executed on an attached accelerator are modeled as an n-ary tree with Function references as nodes and Instruction references a leaves.
 
@@ -48,7 +48,7 @@ The function body of an XACC quantum kernel may be expressed in any available qu
 
 To provide extensibility in quantum programming languages (QPL), XACC describes an interface for QPL compilers - simply called the ``Compiler`` interface. At its core, this interface provides a compilation method that subclasses implement to take quantum kernel source code as input and produce a valid instance of the XACC IR. Derived Compilers are free to perform quantum compilation in any way they see fit, as long as they return a valid IR instance. This compile mechanism can also be provided with information on the targeted accelerator at compile time. This enables hardware-specific details to be present at compile time and thus influence the way compilation is performed. For example, quantum compilation methods often require information about the hardware connectivity graph - XACC and its compiler mechanism ensures this type of hardware-specific information is available at compile time.
 
-.. image:: ../assets/compilers.png
+.. image:: ../assets/kernel-compile-nice2.jpg
 
 Compilers also provide a ``translate`` method to enable quantum language source-to-source translation. This method takes as input an IR Function instance to produce an equivalent source string in the Compiler's quantum programming language. The overall workflow for XACC source-to-source translation relies on the flexibility of the XACC IR specification. A kernel source code can be compiled with its appropriate Compiler instance. The Function IR instance produced by that mechanism can then be passed to the translate method of the Compiler for the language being generated. The implementation of the translate method maps the IR Function Instructions to language-specific source code and returns it.
 
