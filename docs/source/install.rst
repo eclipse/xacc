@@ -6,7 +6,7 @@ This section provide guidelines for installing XACC and its TPLs.
 Pre-Requisites
 --------------
 
-The following software is required before building XACC: 
+The following software is required before building XACC:
 
 +------------------------+------------+-----------+
 | Packages               | Dependency | Version   |
@@ -18,10 +18,10 @@ The following software is required before building XACC:
 | CMake                  | Required   |   3.2+    |
 +------------------------+------------+-----------+
 
-Note that you must have a C++11 compliant compiler. If you prefer ``gcc/g++``, 
-it is recommended that you use at least version 5.0 and up. Using ``[4.8,5)`` will 
-cause XACC to skip building and installing Antlr, which is required for most XACC 
-Compiler extensions. 
+Note that you must have a C++11 compliant compiler. If you prefer ``gcc/g++``,
+it is recommended that you use at least version 5.0 and up. Using ``[4.8,5)`` will
+cause XACC to skip building and installing Antlr, which is required for most XACC
+Compiler extensions.
 
 The other dependencies are relatively easy to install on various operating
 systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:
@@ -41,7 +41,7 @@ Clone the XACC repository:
 
    $ git clone --recursive https://github.com/eclipse/xacc
 
-Note you must pass the ``--recursive`` flag. If you don't you must run 
+Note you must pass the ``--recursive`` flag. If you don't you must run
 ``git submodule update --init --recursive``.
 
 XACC requires CMake 3.2+. Run the following to
@@ -51,16 +51,16 @@ configure and build XACC:
 
    $ cd xacc && mkdir build && cd build
    $ cmake ..
-   $ make install 
+   $ make install
 
-This will build and install XACC to ``$HOME/.xacc`` by default. If you would 
+This will build and install XACC to ``$HOME/.xacc`` by default. If you would
 like to install XACC somewhere else, replace the above ``cmake`` command with the following
 
 .. code::
 
    $ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
 
-You can also build XACC with Python support: 
+You can also build XACC with Python support:
 
 .. code:: bash
 
@@ -75,19 +75,3 @@ To build with tests
    $ cmake .. -DXACC_BUILD_TESTS=TRUE
    $ make install
    $ ctest
-
-Keeping for Reference
----------------------
-..  note::
-
-   Installing OpenSSL from source is fairly simple:
-
-   .. code::
-
-      $ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-      $ tar -xvzf openssl-1.0.2n.tar.gz
-      $ cd openssl-1.0.2n
-      $ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
-      $ make
-      $ make install
-

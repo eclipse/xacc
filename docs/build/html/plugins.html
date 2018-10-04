@@ -1,0 +1,555 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plugins &mdash; XACC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="XACC Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Architecture" href="arch.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rigetti">Rigetti</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#credentials">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rigetti-runtime-options">Rigetti Runtime Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ibm">IBM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ibm-runtime-options">IBM Runtime Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tnqvm">TNQVM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#d-wave">D-Wave</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-wave-runtime-options">D-Wave Runtime Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python-jit-compiler">Python JIT Compiler</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Plugins</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/plugins.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="plugins">
+<h1>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h1>
+<p>XACC provides a number of framework extension points that enable users to program
+available quantum accelerators in a plug-and-play manner. This is accomplished
+through the C++ native Open Service Gateway Initiative (OSGi) implementation provided
+by the <a class="reference external" href="https://github.com/cppmicroservices/cppmicroservices">CppMicroServices</a>
+framework.</p>
+<p>Developers can extend the following interfaces in the core framework:
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/compiler/Compiler.hpp">Compiler</a>,
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/compiler/Preprocessor.hpp">Preprocessor</a>,
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/accelerator/Accelerator.hpp">Accelerator</a>,
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/ir/IRTransformation.hpp">IRTransformation</a>,
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/ir/IRPreprocessor.hpp">IRPreprocessor</a>,
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/xacc/ir/IRGenerator.hpp">IRGenerator</a>, and
+<a class="reference external" href="https://github.com/eclipse/xacc/blob/master/quantum/aqc/compiler/EmbeddingAlgorithm.hpp">EmbeddingAlgorithm</a> .</p>
+<p>Plugins can be stand-alone, sand-boxed projects that provide an appropriate
+implementation of an XACC extensible interface. Plugins should be compiled and built
+as shared libraries, and those shared libraries can be dropped into the
+<code class="docutils literal notranslate"><span class="pre">$XACC_INSTALL/plugins</span></code> directory and immediately leveraged by the framework.</p>
+<p>Below we detail the plugins that are currently available for use with XACC. These plugins
+enable the programming, compilation, and execution of quantum algorithms for Rigetti,
+D-Wave, and IBM QPUs, as well as a number of backend simulators. They additionally
+provide a mechanism to write XACC quantum kernels using Quil, OpenQasm, XACC IR, and D-Wave
+QMI low-level languages.</p>
+<div class="section" id="rigetti">
+<h2>Rigetti<a class="headerlink" href="#rigetti" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-rigetti">Rigetti Plugin</a> provides
+support to XACC for compiling kernels written in Quil, and executing programs
+on the Rigetti Forest infrastructure.</p>
+<p>To install this plugin from source, run the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc-rigetti
+$ cd xacc-rigetti &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc # or wherever XACC is installed
+$ make install
+</pre></div>
+</div>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that xacc is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>If you installed XACC via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pip install xacc-rigetti (with --user if you used that flag for your xacc install)
+</pre></div>
+</div>
+</div>
+<div class="section" id="credentials">
+<h3>Credentials<a class="headerlink" href="#credentials" title="Permalink to this headline">¶</a></h3>
+<p>In order to target the Rigetti Forest infrastructure you must provide XACC with your API key. By default
+XACC will use your PyQuil Config file at <code class="docutils literal notranslate"><span class="pre">$HOME/.pyquil_config</span></code>.
+See <a class="reference external" href="https://pyquil.readthedocs.io/en/stable/start.html#connecting-to-rigetti-forest">Connecting to the Rigetti Forest</a> for information on creating this file.</p>
+<p>If you do not have a <code class="docutils literal notranslate"><span class="pre">$HOME/.pyquil_config</span></code> file, and you have installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c rigetti -k YOURAPIKEY -u YOURUSERID
+</pre></div>
+</div>
+</div>
+<div class="section" id="rigetti-runtime-options">
+<h3>Rigetti Runtime Options<a class="headerlink" href="#rigetti-runtime-options" title="Permalink to this headline">¶</a></h3>
+<p>The Rigetti plugin exposes the following runtime options</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>rigetti-backend</td>
+<td>The backend to target (defaults to QVM)</td>
+</tr>
+<tr class="row-odd"><td>rigetti-trials</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="ibm">
+<h2>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-ibm">IBM Plugin</a> provides
+support to XACC for compiling kernels written in OpenQasm, and executing programs
+on both the IBM Quantum Experience and the IBM Q Network.</p>
+<p>To install this plugin from source, run the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/ornl-qci/xacc-ibm
+$ cd xacc-ibm &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc # or wherever XACC is installed
+$ make install
+</pre></div>
+</div>
+<p>If you installed the XACC Python bindings, then replace the above CMake command with</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that xacc is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>If you installed XACC via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pip install xacc-ibm (with --user if you used that flag for your xacc install)
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The xacc-ibm project also provides an Accelerator implementation that
+delegates to a local build of the Qiskit C++ qasm simulator.
+This Accelerator implementation requires BLAS/LAPACK libraries to be installed.
+Here’s how to install these as binaries on various popular platforms:</p>
+<div class="code last highlight-default notranslate"><div class="highlight"><pre><span></span>$ (macosx) should already be there in Accelerate Framework, if not
+$ (macosx) brew install openblas lapack
+$ (fedora) dnf install blas-devel lapack-devel
+$ (ubuntu) apt-get install libblas-dev liblapack-dev
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>Credentials<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>In order to target the IBM Quantum Experience or Q Network infrastructure you must provide XACC with your API key.</p>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c ibm -k YOURAPIKEY (--hub HUB --group GROUP --project PROJECT)
+</pre></div>
+</div>
+<p>Alternatively, open the file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code>, and add the following contents</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">key</span><span class="p">:</span> <span class="n">YOUR_API_KEY</span>
+<span class="n">url</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">quantumexperience</span><span class="o">.</span><span class="n">ng</span><span class="o">.</span><span class="n">bluemix</span><span class="o">.</span><span class="n">net</span>
+<span class="n">hub</span><span class="p">:</span> <span class="n">HUB</span>
+<span class="n">group</span><span class="p">:</span> <span class="n">GROUP</span>
+<span class="n">project</span><span class="p">:</span> <span class="n">PROJECT</span>
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">hub</span></code>, <code class="docutils literal notranslate"><span class="pre">group</span></code>, and <code class="docutils literal notranslate"><span class="pre">project</span></code> lines are not required if you are targeting the public
+Quantum Experience API.</p>
+</div>
+<div class="section" id="ibm-runtime-options">
+<h3>IBM Runtime Options<a class="headerlink" href="#ibm-runtime-options" title="Permalink to this headline">¶</a></h3>
+<p>The IBM plugin exposes the following runtime options</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ibm-backend</td>
+<td>The backend to target (e.g. ibmqx5)</td>
+</tr>
+<tr class="row-odd"><td>ibm-shots</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="tnqvm">
+<h2>TNQVM<a class="headerlink" href="#tnqvm" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>Installation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/tnqvm">TNQVM Plugin</a> provides
+support to XACC for executing programs
+on the ORNL tensor network quantum virtual machine. TNQVM models the wave
+function of a quantum register as a tensor network, and specifically a matrix
+product state. For more information on the TNQVM simulation method, check out
+<a class="reference external" href="https://arxiv.org/abs/1807.07914">Validating Quantum-Classical Programming Models with Tensor Network Simulations</a></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>TNQVM requires BLAS/LAPACK libraries to be installed.
+Here’s how to install these as binaries on various popular platforms:</p>
+<div class="code last highlight-default notranslate"><div class="highlight"><pre><span></span>$ (macosx) should already be there in Accelerate Framework, if not
+$ (macosx) brew install openblas lapack
+$ (fedora) dnf install blas-devel lapack-devel
+$ (ubuntu) apt-get install libblas-dev liblapack-dev
+</pre></div>
+</div>
+</div>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/tnqvm
+$ cd tnqvm &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc
+$ make install
+</pre></div>
+</div>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that xacc is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>If you installed XACC via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pip install tnqvm (with --user if you used that flag for your xacc install)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="d-wave">
+<h2>D-Wave<a class="headerlink" href="#d-wave" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>Installation<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-dwave">D-Wave Plugin</a> provides
+support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/ornl-qci/xacc-dwave
+$ cd xacc-dwave &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc
+# make install
+</pre></div>
+</div>
+<p>Alternatively, if you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that the <code class="docutils literal notranslate"><span class="pre">xacc</span></code> module is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+</div>
+<div class="section" id="id5">
+<h3>Credentials<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>In order to target the D-Wave remote resources you must provide
+XACC with your D-Wave Qubist API key. By default
+XACC will search for a config file at <code class="docutils literal notranslate"><span class="pre">$HOME/.dwave_config</span></code>.</p>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c dwave -k YOURAPIKEY
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-wave-runtime-options">
+<h3>D-Wave Runtime Options<a class="headerlink" href="#d-wave-runtime-options" title="Permalink to this headline">¶</a></h3>
+<p>The D-Wave plugin exposes the following runtime options</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>dwave-solver</td>
+<td>The backend to target (e.g. DW_2000Q_2)</td>
+</tr>
+<tr class="row-odd"><td>dwave-num-reads</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="python-jit-compiler">
+<h2>Python JIT Compiler<a class="headerlink" href="#python-jit-compiler" title="Permalink to this headline">¶</a></h2>
+<p>The XACC base framework provides a Compiler implementation called PyXACCCompiler that
+defines an Antlr4 grammar and associated auto-generated Parser for expressing and
+compiling Pythonic XACC kernel functions like this</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">theta0</span><span class="p">):</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Ry</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or for D-Wave</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These Pythonic functions can then be consumed by a custom <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> class decorator,
+the source code for these functions can be converted to a string with the <code class="docutils literal notranslate"><span class="pre">inspect</span></code>
+module, and compiled with this PyXACCCompiler implementation.</p>
+<p>The PyXACC Antlr grammar also defines an <code class="docutils literal notranslate"><span class="pre">xacc()</span></code> instruction, which takes as
+its first argument the name of the IRGenerator you would like to use to generate
+the function. This argument can be followed by any key-value arguments.</p>
+<p>Imagine we have an IRGenerator that produces a UCCSD circuit based on the number of
+qubits and electrons in the problem. We could define a Python function like this to
+create this circuit (instead of arduously typing out all the instructions)</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">uccsd</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+   <span class="n">xacc</span><span class="p">(</span><span class="n">uccsd</span><span class="p">,</span> <span class="n">n_qubits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_electrons</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code would generate the a UCCSD circuit on 4 qubits and 2 fermions
+and measure the first qubit, giving an estimated expectation value with respect to
+the <code class="docutils literal notranslate"><span class="pre">Z</span></code> operator for Hamiltonian term <code class="docutils literal notranslate"><span class="pre">&lt;Z0&gt;</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The above code samples must be consumed by the <code class="docutils literal notranslate"><span class="pre">&#64;xacc.qpu()</span></code> Python decorator.
+This decorator handles JIT compilation of the source code and execution
+on the desired Accelerator.</p>
+<p class="last">For an example of using this Pythonic language in Python with the <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code>
+decorator, see the <a class="reference external" href="tutorials.html#xacc-python-jit">XACC Python JIT Tutorial</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="XACC Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="arch.html" class="btn btn-neutral" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Alex McCaskey.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

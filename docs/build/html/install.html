@@ -24,27 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="XACC 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="XACC Python Bindings" href="python.html"/>
-        <link rel="prev" title="XACC API" href="api.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="arch.html" />
+    <link rel="prev" title="Welcome to XACC’s documentation!" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -92,21 +84,21 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">XACC API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install-third-party-libraries">Install third-party libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#building-xacc">Building XACC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installing-xacc-plugins">Installing XACC Plugins</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">XACC Python Bindings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scaffold.html">Scaffold</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tnqvm.html">TNQVM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rigetti.html">Rigetti</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ibm.html">IBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dwave.html">D-Wave</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xacc-vqe.html">XACC-VQE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
 </ul>
 
             
@@ -118,7 +110,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">XACC</a>
@@ -126,9 +118,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -173,9 +166,9 @@
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>This section provide guidelines for installing XACC and its TPLs.</p>
-<div class="section" id="install-third-party-libraries">
-<h2>Install third-party libraries<a class="headerlink" href="#install-third-party-libraries" title="Permalink to this headline">¶</a></h2>
-<p>The following third party libraries (TPLs) are used by XACC:</p>
+<div class="section" id="pre-requisites">
+<h2>Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h2>
+<p>The following software is required before building XACC:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="51%" />
@@ -193,127 +186,75 @@
 <td>Required</td>
 <td>See below</td>
 </tr>
-<tr class="row-odd"><td>Boost</td>
+<tr class="row-odd"><td>OpenSSL</td>
 <td>Required</td>
-<td>1.59.0+</td>
+<td>1.0</td>
 </tr>
-<tr class="row-even"><td>OpenSSL</td>
-<td>Required</td>
-<td>1.0.2</td>
-</tr>
-<tr class="row-odd"><td>CMake</td>
+<tr class="row-even"><td>CMake</td>
 <td>Required</td>
 <td>3.2+</td>
 </tr>
 </tbody>
 </table>
-<p>Note that you must have a C++11 compliant compiler.
-For GCC, this means version 4.8.1+, for Clang, this means 3.3+.</p>
-<p>These dependencies are relatively easy to install on various operating
+<p>Note that you must have a C++11 compliant compiler. If you prefer <code class="docutils literal notranslate"><span class="pre">gcc/g++</span></code>,
+it is recommended that you use at least version 5.0 and up. Using <code class="docutils literal notranslate"><span class="pre">[4.8,5)</span></code> will
+cause XACC to skip building and installing Antlr, which is required for most XACC
+Compiler extensions.</p>
+<p>The other dependencies are relatively easy to install on various operating
 systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ (macosx) brew/port install boost openssl
-$ (fedora) dnf install boost-devel
-$ (ubuntu) apt-get install libboost-all-dev
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ (macosx) brew/port install cmake openssl
+$ (fedora) dnf install cmake openssl-devel
+$ (ubuntu) apt-get install cmake libssl-dev
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>On Fedora, the latest version of OpenSSL available via DNF is 1.1.1. This
-version of OpenSSL is not compatible with CppRestSDK, a library that XACC
-leverages to connect to remote Accelerators. To install OpenSSL from source</p>
-<div class="code last highlight-default"><div class="highlight"><pre><span></span>$ wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-$ tar -xvzf openssl-1.0.2n.tar.gz
-$ cd openssl-1.0.2h
-$ CFLAGS=-fPIC ./config shared (--prefix=/path/to/install if you want)
-$ make
-$ make install
-</pre></div>
-</div>
 </div>
 </div>
 <div class="section" id="building-xacc">
 <h2>Building XACC<a class="headerlink" href="#building-xacc" title="Permalink to this headline">¶</a></h2>
 <p>Clone the XACC repository:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/eclipse/xacc
 </pre></div>
 </div>
-<p>XACC requires CMake 3.2+ to build. Run the following to
+<p>Note you must pass the <code class="docutils literal notranslate"><span class="pre">--recursive</span></code> flag. If you don’t you must run
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span></code>.</p>
+<p>XACC requires CMake 3.2+. Run the following to
 configure and build XACC:</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cd xacc &amp;&amp; mkdir build &amp;&amp; cd build
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd xacc &amp;&amp; mkdir build &amp;&amp; cd build
 $ cmake ..
-$ make install # can pass -jN for N = number of threads to use
+$ make install
 </pre></div>
 </div>
-<p>This will build, test, and install XACC to <code class="docutils literal"><span class="pre">/usr/local/xacc</span></code>. If you don’t have
-root access, and therefore can’t write to <code class="docutils literal"><span class="pre">/usr/local/xacc</span></code>, or would like to just
-install XACC somewhere else, replace the above <code class="docutils literal"><span class="pre">cmake</span></code> command with the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
+<p>This will build and install XACC to <code class="docutils literal notranslate"><span class="pre">$HOME/.xacc</span></code> by default. If you would
+like to install XACC somewhere else, replace the above <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command with the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
 </pre></div>
 </div>
-<p>After running CMake, you should see that OpenSSL was found. If there is
-a problem with finding OpenSSL 1.0.2, you can point XACC to OpenSSL with</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cmake .. -DOPENSSL_ROOT_DIR=/path/to/openssl
+<p>You can also build XACC with Python support:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ export PY_INC_DIR=$(python -c &quot;import sysconfig; print(sysconfig.get_paths()[&#39;platinclude&#39;])&quot;)
+$ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
+$ make install
 </pre></div>
 </div>
-<p>The CMake configure will also look for Python development libraries on your
-system, and if found, will generate the <a class="reference external" href="python.html">XACC Python Bindings</a> bindings.
-If XACC does not find your correct Python installation, you can point to it with</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ cmake .. -DPYTHON_EXECUTABLE=/path/to/python
+<p>To build with tests</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_BUILD_TESTS=TRUE
+$ make install
+$ ctest
 </pre></div>
 </div>
-<p>At this point, if you like, you can setup your Python environment
-to automatically load the XACC Python bindings with</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=$PYTHONPATH:/usr/local/xacc/lib/python
-</pre></div>
-</div>
-<p>or <code class="docutils literal"><span class="pre">$YOURINSTALLPATH/lib/python</span></code>.</p>
-<p>You may also set your PATH variable to include the XACC bin directory:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ export PATH=/usr/local/xacc/bin:$PATH
-</pre></div>
-</div>
-<p>or wherever you installed XACC to (<code class="docutils literal"><span class="pre">$YOURINSTALLPATH/bin</span></code>).</p>
-<p>Additionally, you may want to add these exports
-to your home directory’s <code class="docutils literal"><span class="pre">.basrhc</span></code> file (or equivalent).</p>
-</div>
-<div class="section" id="installing-xacc-plugins">
-<h2>Installing XACC Plugins<a class="headerlink" href="#installing-xacc-plugins" title="Permalink to this headline">¶</a></h2>
-<p>If you have successfully built XACC (see above)
-then you can now run</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py --help
-</pre></div>
-</div>
-<p>This is a convenience python script to help download, build, and install
-all currently supported XACC plugins. The execution syntax is as follows:</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p PLUGIN-NAME
-</pre></div>
-</div>
-<p>You can also run this script with multiple plugin names.</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p PLUGIN1 PLUGIN2 PLUGIN3
-</pre></div>
-</div>
-<p>and pass CMake arguments to this script. For example, if you
-wanted to specify the argument <code class="docutils literal"><span class="pre">CMAKEARG</span></code> for a plugin, you could run the following</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>$ xacc-install-plugins.py -p PLUGIN-NAME -a CMAKEARG=arg
-</pre></div>
-</div>
-<p>You can also pass multiple CMake arguments at once.</p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="python.html" class="btn btn-neutral float-right" title="XACC Python Bindings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="arch.html" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api.html" class="btn btn-neutral" title="XACC API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to XACC’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -326,7 +267,7 @@ wanted to specify the argument <code class="docutils literal"><span class="pre">
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -345,6 +286,7 @@ wanted to specify the argument <code class="docutils literal"><span class="pre">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -358,19 +300,13 @@ wanted to specify the argument <code class="docutils literal"><span class="pre">
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

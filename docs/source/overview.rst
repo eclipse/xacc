@@ -12,7 +12,7 @@ To achieve this interoperability, XACC defines four primary abstractions or conc
 
 XACC has support for a number of languages and physical and virtual hardware instances. XACC provides a Compiler realization that enables quantum kernel programming in the Scaffold programming language - an effort that came out of the IARPA QCS program. This compiler leverages the Clang/LLVM library extensions developed under that project that extend the LLVM IR with quantum gate operations. XACC extends this compiler with support for new constructs, like custom quantum functions and source-to-source translations (mapping Scaffold to other languages). XACC provides an Accelerator realization that enables execution of quantum kernels in any available language for both the Rigetti Quantum Virtual Machine (QVM, Forest API) and the physical two qubit (pyquillow) Rigetti QPU. These Accelerators map the XACC IR to Quil (the Rigetti low-level assembly language) and leverage an HTTP Rest client to post compiled quantum kernel code to the Rigetti QVM/QPU driver servers. XACC also has support for the D-Wave QPU, which demonstrates the wide applicability of this heterogeneous hybrid programming model across quantum computing models. XACC has Compiler and Accelerator realizations that enable minor graph embedding of binary optimization problems and execution on the D-Wave Qubist QPU driver server, respectively.
 
-XACC Plugin Infrastructure
+XACC Modular Infrastructure
 ---------------------------
 XACC relies on a project called `CppMicroServices <http://github.com/cppmicroservices/cppmicroservices>`_ - a native C++ implementation of the OSGi specification that enables an extensible plugin infrastructure for compilers and accelerators. As such, installation of XACC provides the core infrastructure for describing Programs, Compilers, Accelerators, and IR. To enable support for various compilers and accelerators (like the Scaffold or Quil compilers, or the IBM or Rigetti QPUs) you must install the appropriate plugin (see `XACC Plugins <plugins.html>`_).
 
@@ -26,6 +26,7 @@ XACC is developed and maintained by:
 * `Eugene Dumitrescu <dumitrescuef@ornl.gov>`_
 * `Dmitry Liakh <liakhdi@ornl.gov>`_
 * `Mengsu Chen <mschen@vt.edu>`_
+* `Zach Parks <parkszp@ornl.gov>`_
 
 Questions, Bug Reporting, and Issue Tracking
 ---------------------------------------------
@@ -37,7 +38,12 @@ new issue with the question tag.
 Publications and Presentations
 -------------------------------
 
-`Extreme-Scale Programming Model for Quantum Acceleration within High Performanc Computing <https://arxiv.org/abs/1710.01794>`_
+`A language and hardware independent approach to quantum-classical computing <https://www.sciencedirect.com/science/article/pii/S2352711018300700>`_
 
-`Cloud Quantum Computing of an Atomic Nucleus <https://arxiv.org/abs/1801.03897>`_
+`Cloud Quantum Computing of an Atomic Nucleus <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_
 
+`Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331>`_
+
+`Validating Quantum-Classical Programming Models with Tensor Network Simulations <https://arxiv.org/abs/1807.07914>`_
+
+`Hybrid Programming for Near-term Quantum Computing Systems <https://arxiv.org/abs/1805.09279>`_
