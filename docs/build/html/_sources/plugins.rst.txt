@@ -257,5 +257,68 @@ If you installed the XACC Python bindings, then you can run
 
    $ python -m xacc -c dwave -k YOURAPIKEY
 
+D-Wave Runtime Options
++++++++++++++++++++
+The D-Wave plugin exposes the following runtime options
+
+   +------------------------+----------------------------------------+
+   | Argument               |            Description                 |
+   +========================+========================================+
+   | dwave-solver           | The backend to target (e.g. DW_2000Q_2)|
+   +------------------------+----------------------------------------+
+   | dwave-num-reads        | The number of shots to execute per job |
+   +------------------------+----------------------------------------+
+
 Python JIT Compiler
 -------------------
+The XACC base framework provides a Compiler implementation called PyXACCCompiler that
+defines an Antlr4 grammar and associated auto-generated Parser for expressing and
+compiling Pythonic XACC kernel functions like this
+
+.. code::
+
+   def foo(buffer, theta0):
+      H(0)
+      Ry(theta0,1)
+      CNOT(1,0)
+      Measure(0,0)
+
+or for D-Wave
+
+.. code::
+
+   def foo(buffer, h, j):
+      qmi(0,0,h)
+      qmi(1,1,h)
+      qmi(0,1,j)
+
+These Pythonic functions can then be consumed by a custom ``xacc.qpu`` class decorator,
+the source code for these functions can be converted to a string with the ``inspect``
+module, and compiled with this PyXACCCompiler implementation.
+
+The PyXACC Antlr grammar also defines an ``xacc()`` instruction, which takes as
+its first argument the name of the IRGenerator you would like to use to generate
+the function. This argument can be followed by any key-value arguments.
+
+Imagine we have an IRGenerator that produces a UCCSD circuit based on the number of
+qubits and electrons in the problem. We could define a Python function like this to
+create this circuit (instead of arduously typing out all the instructions)
+
+.. code::
+
+   def uccsd(buffer, *args):
+      xacc(uccsd, n_qubits=4, n_electrons=2)
+      Measure(0,0)
+
+The above code would generate the a UCCSD circuit on 4 qubits and 2 fermions
+and measure the first qubit, giving an estimated expectation value with respect to
+the ``Z`` operator for Hamiltonian term ``<Z0>``.
+
+.. note::
+
+   The above code samples must be consumed by the ``@xacc.qpu()`` Python decorator.
+   This decorator handles JIT compilation of the source code and execution
+   on the desired Accelerator.
+ 
+   For an example of using this Pythonic language in Python with the ``xacc.qpu``
+   decorator, see the `XACC Python JIT Tutorial <tutorials.html#xacc-python-jit>`_

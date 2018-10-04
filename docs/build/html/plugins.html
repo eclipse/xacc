@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Applications Built on XACC" href="apps.html" />
-    <link rel="prev" title="XACC Architecture" href="arch.html" /> 
+    <link rel="next" title="XACC Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Architecture" href="arch.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,9 +84,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Getting started with XACC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="arch.html">XACC Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Plugins</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#rigetti">Rigetti</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
@@ -107,13 +106,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#d-wave">D-Wave</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-wave-runtime-options">D-Wave Runtime Options</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#python-jit-compiler">Python JIT Compiler</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -413,9 +413,76 @@ XACC will search for a config file at <code class="docutils literal notranslate"
 </pre></div>
 </div>
 </div>
+<div class="section" id="d-wave-runtime-options">
+<h3>D-Wave Runtime Options<a class="headerlink" href="#d-wave-runtime-options" title="Permalink to this headline">¶</a></h3>
+<p>The D-Wave plugin exposes the following runtime options</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Argument</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>dwave-solver</td>
+<td>The backend to target (e.g. DW_2000Q_2)</td>
+</tr>
+<tr class="row-odd"><td>dwave-num-reads</td>
+<td>The number of shots to execute per job</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
 </div>
 <div class="section" id="python-jit-compiler">
 <h2>Python JIT Compiler<a class="headerlink" href="#python-jit-compiler" title="Permalink to this headline">¶</a></h2>
+<p>The XACC base framework provides a Compiler implementation called PyXACCCompiler that
+defines an Antlr4 grammar and associated auto-generated Parser for expressing and
+compiling Pythonic XACC kernel functions like this</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">theta0</span><span class="p">):</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Ry</span><span class="p">(</span><span class="n">theta0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or for D-Wave</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These Pythonic functions can then be consumed by a custom <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> class decorator,
+the source code for these functions can be converted to a string with the <code class="docutils literal notranslate"><span class="pre">inspect</span></code>
+module, and compiled with this PyXACCCompiler implementation.</p>
+<p>The PyXACC Antlr grammar also defines an <code class="docutils literal notranslate"><span class="pre">xacc()</span></code> instruction, which takes as
+its first argument the name of the IRGenerator you would like to use to generate
+the function. This argument can be followed by any key-value arguments.</p>
+<p>Imagine we have an IRGenerator that produces a UCCSD circuit based on the number of
+qubits and electrons in the problem. We could define a Python function like this to
+create this circuit (instead of arduously typing out all the instructions)</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">uccsd</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+   <span class="n">xacc</span><span class="p">(</span><span class="n">uccsd</span><span class="p">,</span> <span class="n">n_qubits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_electrons</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code would generate the a UCCSD circuit on 4 qubits and 2 fermions
+and measure the first qubit, giving an estimated expectation value with respect to
+the <code class="docutils literal notranslate"><span class="pre">Z</span></code> operator for Hamiltonian term <code class="docutils literal notranslate"><span class="pre">&lt;Z0&gt;</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The above code samples must be consumed by the <code class="docutils literal notranslate"><span class="pre">&#64;xacc.qpu()</span></code> Python decorator.
+This decorator handles JIT compilation of the source code and execution
+on the desired Accelerator.</p>
+<p class="last">For an example of using this Pythonic language in Python with the <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code>
+decorator, see the <a class="reference external" href="tutorials.html#xacc-python-jit">XACC Python JIT Tutorial</a></p>
+</div>
 </div>
 </div>
 
@@ -427,10 +494,10 @@ XACC will search for a config file at <code class="docutils literal notranslate"
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="apps.html" class="btn btn-neutral float-right" title="Applications Built on XACC" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="XACC Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="arch.html" class="btn btn-neutral" title="XACC Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="arch.html" class="btn btn-neutral" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
