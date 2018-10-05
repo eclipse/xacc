@@ -90,7 +90,8 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Applications Built on XACC</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#xacc-vqe">XACC-VQE</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#xacc-vqe-command-line"><code class="docutils literal notranslate"><span class="pre">xacc-vqe</span></code> Command Line</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-api">Python API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-jit-vqe-decorator">Python JIT VQE Decorator</a></li>
@@ -170,19 +171,268 @@
             
   <div class="section" id="applications-built-on-xacc">
 <h1>Applications Built on XACC<a class="headerlink" href="#applications-built-on-xacc" title="Permalink to this headline">¶</a></h1>
+<p>XACC is designed to serve as a core framework for the development of hybrid
+quantum-classical applications. Its extensible interfaces can be implemented to
+provide application-specific problems, compilers, and backend accelerators. Here
+we detail specific applications leveraging XACC.</p>
 <div class="section" id="xacc-vqe">
 <h2>XACC-VQE<a class="headerlink" href="#xacc-vqe" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="overview">
-<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>The variational quantum eigensolver algorithm provides (VQE) a hybrid quantum-classical
+approach for computing the lowest eigenvalue of a Hamiltonian by positing some
+parameterized circuit ansatz, and classically optimizing those parameters to find that
+optimal, lowest eigenvalue.</p>
+<p>Often times these Hamiltonians are expressed as second quantized fermionic Hamiltonians
+that require some additional compile steps to map to a spin Hamiltonian amenable for
+use with quantum computation.</p>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-vqe">XACC-VQE</a> application builds off of XACC
+extensible interfaces to provide a compilation and execution workflow for high-level
+problems leveraging the VQE algorithm. It enables
+the expression of XACC quantum kernels that model high-level second-quantized
+fermionic Hamiltonians and are compiled to the XACC gate model intermediate representation.
+It provides C++ and Python APIs for executing this algorithm, as well as a command
+line utility that takes input information on the Hamiltonian and the circuit ansatz
+to execute the VQE algorithm.</p>
+<p>Since it builds off of the XACC framework, XACC-VQE provides a way for users to program,
+compile, and execute VQE in a manner that is independent of the underlying gate
+model QPU. Therefore running VQE on a set of different quantum computers can be
+accomplished via switching a string (‘ibm’ -&gt; ‘rigetti’).</p>
+<div class="section" id="architecture-overview">
+<h3>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permalink to this headline">¶</a></h3>
+<p>The core abstraction for the XACC-VQE application is the concept of a <code class="docutils literal notranslate"><span class="pre">VQETask</span></code>,
+which is an interface representing some VQE-like action the user would like to accomplish.
+Common VQETask implementations are the <code class="docutils literal notranslate"><span class="pre">VQEMinimizeTask</span></code> and the <code class="docutils literal notranslate"><span class="pre">ComputeEnergyVQETask</span></code>
+which run the full VQE algorithm or just compute the energy at a given parameter
+configuration, respectively. The <code class="docutils literal notranslate"><span class="pre">VQETask</span></code> leverages the XACC CppMicroServices
+infrastructure and therefore is an extensible plugin.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">VQETask</span></code> delegates to the <code class="docutils literal notranslate"><span class="pre">ComputeEnergyVQETask</span></code> leveraging it throughout
+the variational loop. Furthermore, it delegates to an interface called <code class="docutils literal notranslate"><span class="pre">VQEBackend</span></code>
+which abstracts the classical optimizer to be used as part of the VQE parameter search.
+This is also an extensible interface plugged into XACC, and implementations exist
+for Nelder-Mead, Bayesian Optimization, Conjugate Gradient, Particle Swarm, etc. (its extensible, so
+more to come in the future).</p>
+<p>XACC-VQE provides an <code class="docutils literal notranslate"><span class="pre">xacc::Compiler</span></code> implementation called the <code class="docutils literal notranslate"><span class="pre">FermionCompiler</span></code>
+which takes XACC quantum kernel source strings representing a fermionic second-quantized
+Hamiltonian and compiles it to the gate model XACC IR. To do so, it delegates to an
+extensible XACC IRTransformation that represents Jordan-Wigner, Bravyi-Kitaev, or any other
+fermion-to-spin transformation (JW, BK are currently implemented). The <code class="docutils literal notranslate"><span class="pre">FermionCompiler</span></code>
+reads quantum kernels with the following language syntax</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__qpu__</span> <span class="n">kernel</span><span class="p">(</span><span class="n">AcceleratorBuffer</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+   <span class="mf">1.0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="o">//</span> <span class="n">adag_1</span> <span class="n">a_0</span>
+   <span class="mf">2.0</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="o">//</span> <span class="n">adag_2</span> <span class="n">adag_3</span> <span class="n">a_1</span> <span class="n">a_0</span>
+   <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each line in this language represents a term of the Hamiltonian. The first value is the
+term coefficient, followed by (site, creation/annhilation (1/0)) pairs.</p>
+<p>The XACC-VQE C++ and Python API expose a class called the <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> that
+models a spin Hamiltonian (terms made up of I, X, Y, Z on various qubit sites, with an
+associated coefficient). Instantiation of these types in Python is accomplished in the following way</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ham</span> <span class="o">=</span> <span class="n">PauliOperator</span><span class="p">(</span><span class="mf">5.906709445</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">.</span><span class="mi">21829</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">6.125</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> respects the usual algebraic manipulations
+on these types of Hamiltonians and auto-simplifies itself during the process. Its
+constructor takes a map of site:Pauli key-value pairs, and the term coefficient.</p>
+<p>XACC-VQE leverages the extensible <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> interface to auto-generate problem-specific
+VQE circuit ansatz’s. Currently implemented are the UCCSD (unitary coupled cluster
+singlet doublet) and HWE (hardware efficient) <code class="docutils literal notranslate"><span class="pre">IRGenerators</span></code>.</p>
+</div>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>With XACC installed, run the following to build XACC-VQE</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/ornl-qci/xacc-vqe
+$ cd xacc-vqe &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=~/.xacc -DPYTHON_INCLUDE_DIR=/usr/include/python3.5 (or wherever XACC and Python are installed)
+$ make install
+</pre></div>
+</div>
+<p>This will build and install all XACC-VQE provided plugins as well as the <code class="docutils literal notranslate"><span class="pre">xacc-vqe</span></code>
+command line utility and the <code class="docutils literal notranslate"><span class="pre">xaccvqe</span></code> Python module. <code class="docutils literal notranslate"><span class="pre">xacc-vqe</span></code> will be installed
+to $XACC_DIR/bin.</p>
+<p>If you installed XACC via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, then you can run</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pip install xacc-vqe (with --user if you used that flag for your xacc install)
+</pre></div>
+</div>
 </div>
 <div class="section" id="xacc-vqe-command-line">
 <h3><code class="docutils literal notranslate"><span class="pre">xacc-vqe</span></code> Command Line<a class="headerlink" href="#xacc-vqe-command-line" title="Permalink to this headline">¶</a></h3>
+<p>Suppose we have a file <code class="docutils literal notranslate"><span class="pre">h2-sto3g.hpp</span></code> with the following XACC quantum kernel</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__qpu__</span> <span class="n">kernel</span><span class="p">()</span> <span class="p">{</span>
+   <span class="mf">0.7080240949826064</span>
+   <span class="o">-</span><span class="mf">1.248846801817026</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="o">-</span><span class="mf">1.248846801817026</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="o">-</span><span class="mf">0.4796778151607899</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="o">-</span><span class="mf">0.4796778151607899</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.33667197218932576</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.0908126658307406</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074038</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074038</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.33667197218932576</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.0908126658307406</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074038</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074038</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074052</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074052</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074048</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+   <span class="mf">0.34814578469185886</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074052</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.331213646878486</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074052</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.09081266583074048</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span>
+   <span class="mf">0.34814578469185886</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">3</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>and we would like to use the UCCSD ansatz to compute the ground state energy of
+this corresponding Hamiltonian. One could run the following</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ xacc-vqe -f h2-sto3g.hpp -t vqe --n-electrons 2
+</pre></div>
+</div>
+<p>To run the compute-energy task, one could</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ xacc-vqe -f h2-sto3g.hpp -t compute-energy --n-electrons 2 --vqe-parameters &quot;0.0,-.05&quot;
+</pre></div>
+</div>
+<p>To run with a custom ansatz written as an XACC quantum kernel in a file <code class="docutils literal notranslate"><span class="pre">ansatz.hpp</span></code>,</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ xacc-vqe -f h2-sto3g.hpp -a ansatz.hpp -t vqe --n-electrons 2
+</pre></div>
+</div>
+<p>The previous examples will run by default on the TNQVM Accelerator (if installed). To switch
+just pass <code class="docutils literal notranslate"><span class="pre">--accelerator</span> <span class="pre">ACCELERATORNAME</span></code> to the command line arguments.</p>
 </div>
 <div class="section" id="python-api">
 <h3>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h3>
+<p>XACC-VQE exposes a Python API to enable ease of scripting for the VQE algorithm
+targeting available quantum computers. In essence, the Python API exposes two functions:
+<code class="docutils literal notranslate"><span class="pre">compile</span></code> and <code class="docutils literal notranslate"><span class="pre">execute</span></code>. <code class="docutils literal notranslate"><span class="pre">compile</span></code> takes as input a high-level fermionic Hamiltonian represented as a
+XACC quantum kernel string (just like the one above for H2) and runs the appropriate
+<code class="docutils literal notranslate"><span class="pre">FermionCompiler</span></code> to map it to a <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> instance. Imagine we had the above
+quantum kernel as a string in Python, <code class="docutils literal notranslate"><span class="pre">h2Src</span></code></p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xaccvqe</span> <span class="k">as</span> <span class="nn">vqe</span>
+<span class="n">pauliOp</span> <span class="o">=</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">h2Src</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pauliOp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>would produce the following PauliOperator output</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mf">0.174073</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z2</span> <span class="n">Z3</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.1202</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z1</span> <span class="n">Z3</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.165607</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z1</span> <span class="n">Z2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.165607</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z0</span> <span class="n">Z3</span> <span class="o">+</span>
+<span class="p">(</span><span class="mf">0.1202</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z0</span> <span class="n">Z2</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.0454063</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Y0</span> <span class="n">Y1</span> <span class="n">X2</span> <span class="n">X3</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.220041</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z3</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.106477</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span>
+<span class="p">(</span><span class="mf">0.17028</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z0</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.220041</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.17028</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z1</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.0454063</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">X0</span> <span class="n">X1</span> <span class="n">Y2</span> <span class="n">Y3</span> <span class="o">+</span>
+<span class="p">(</span><span class="mf">0.0454063</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">X0</span> <span class="n">Y1</span> <span class="n">Y2</span> <span class="n">X3</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.168336</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Z0</span> <span class="n">Z1</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.0454063</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">Y0</span> <span class="n">X1</span> <span class="n">X2</span> <span class="n">Y3</span>
+</pre></div>
+</div>
+<p>XACC-VQE integrates nicely with <a class="reference external" href="https://github.com/quantumlib/openfermion">OpenFermion</a>. As such
+this <code class="docutils literal notranslate"><span class="pre">compile</span></code> API function can also take <code class="docutils literal notranslate"><span class="pre">FermionOperators</span></code> as input and compile them to
+<code class="docutils literal notranslate"><span class="pre">PauliOperators</span></code>. If one has an OpenFermion <code class="docutils literal notranslate"><span class="pre">QubitOperator</span></code>, <code class="docutils literal notranslate"><span class="pre">xaccvqe</span></code> also
+provides a <code class="docutils literal notranslate"><span class="pre">QubitOperator2XACC</span></code> function that maps the <code class="docutils literal notranslate"><span class="pre">QubitOperator</span></code> to a <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">execute</span></code> method takes 3 arguments. The first is a representation of the Hamiltonian
+provided as a <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> or a <code class="docutils literal notranslate"><span class="pre">FermionOperator</span></code>. The second is the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>
+to operate on (the user keeps this reference until after execution in order to
+retrieve the results of the computation). And the final argument is a Python <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>
+key-value dictionary of parameters that direct the overall compilation and execution
+workflow. This dictionary should detail the <code class="docutils literal notranslate"><span class="pre">'task'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ansatz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'vqe-params'</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">'accelerator'</span></code> keys.</p>
+<p>Here are some examples of using the <code class="docutils literal notranslate"><span class="pre">compile</span></code> and <code class="docutils literal notranslate"><span class="pre">execute</span></code> API. This will run
+the H2 example, with the default ansatz of UCCSD.</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">import</span> <span class="nn">xaccvqe</span> <span class="k">as</span> <span class="nn">vqe</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># See above kernel for full definition</span>
+<span class="n">h2Src</span> <span class="o">=</span> <span class="s1">&#39;__qpu__ h2(AcceleratorBuffer ab) {...}&#39;</span>
+
+<span class="n">pauliOp</span> <span class="o">=</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">h2Src</span><span class="p">)</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="n">vqe</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">pauliOp</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s1">&#39;task&#39;</span><span class="p">:</span><span class="s1">&#39;vqe&#39;</span><span class="p">,</span> <span class="s1">&#39;accelerator&#39;</span><span class="p">:</span><span class="n">qpu</span><span class="o">.</span><span class="n">name</span><span class="p">()})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-energy&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-angles&#39;</span><span class="p">))</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Running with a custom ansatz can be seen in the below example (ansatz expressed as
+xacc quantum kernel written in Quil)</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span><span class="o">,</span> <span class="nn">xaccvqe</span> <span class="k">as</span> <span class="nn">vqe</span>
+<span class="kn">from</span> <span class="nn">xaccvqe</span> <span class="k">import</span> <span class="n">PauliOperator</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">([</span><span class="s1">&#39;--compiler&#39;</span><span class="p">,</span><span class="s1">&#39;quil&#39;</span><span class="p">])</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;rigetti&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">ham</span> <span class="o">=</span> <span class="n">PauliOperator</span><span class="p">(</span><span class="mf">5.906709445</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">.</span><span class="mi">21829</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">6.125</span><span class="p">)</span>
+
+<span class="n">src</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;__qpu__ f(AcceleratorBuffer b, double t0) {</span>
+<span class="s2">           X 0</span>
+<span class="s2">           RY(t0) 1</span>
+<span class="s2">           CNOT 1 0</span>
+<span class="s2">        }&quot;&quot;&quot;</span>
+<span class="n">ansatz</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">compileKernel</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+
+<span class="n">vqe</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">pauliOp</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s1">&#39;task&#39;</span><span class="p">:</span><span class="s1">&#39;vqe&#39;</span><span class="p">,</span> <span class="s1">&#39;ansatz&#39;</span><span class="p">:</span><span class="n">ansatz</span><span class="p">,</span> <span class="s1">&#39;accelerator&#39;</span><span class="p">:</span><span class="n">qpu</span><span class="o">.</span><span class="n">name</span><span class="p">()})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-energy&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-angles&#39;</span><span class="p">))</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="python-jit-vqe-decorator">
 <h3>Python JIT VQE Decorator<a class="headerlink" href="#python-jit-vqe-decorator" title="Permalink to this headline">¶</a></h3>
+<p>The easiest way to run the VQE algorithm with XACC-VQE is to leverage the
+<code class="docutils literal notranslate"><span class="pre">xacc.qpu.vqe</span></code> decorator. This decorator builds on the <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> decorator
+and gives users an opportunity to define the VQE ansatz as a single Python function,
+and through this algorithmic decoration, execute the VQE algorithm given some set
+of decorator arguments. Let’s look at an example</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">import</span> <span class="nn">xaccvqe</span>
+<span class="kn">from</span> <span class="nn">xaccvqe</span> <span class="k">import</span> <span class="n">PauliOperator</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="n">tnqvm</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;tnqvm&#39;</span><span class="p">)</span>
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">tnqvm</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">ham</span> <span class="o">=</span> <span class="n">PauliOperator</span><span class="p">(</span><span class="mf">5.906709445</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Y&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">.</span><span class="mi">21829</span><span class="p">)</span> <span class="o">+</span> \
+     <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">6.125</span><span class="p">)</span>
+
+<span class="nd">@xaccvqe</span><span class="o">.</span><span class="n">qpu</span><span class="o">.</span><span class="n">vqe</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">tnqvm</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">ham</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ansatz</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">t0</span><span class="p">):</span>
+   <span class="n">X</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Ry</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Run VQE with given ansatz kernel</span>
+<span class="n">initAngle</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span>
+
+<span class="n">ansatz</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">initAngle</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Energy = &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-energy&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Opt Angles = &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;vqe-angles&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
