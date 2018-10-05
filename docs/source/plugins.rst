@@ -319,6 +319,6 @@ the ``Z`` operator for Hamiltonian term ``<Z0>``.
    The above code samples must be consumed by the ``@xacc.qpu()`` Python decorator.
    This decorator handles JIT compilation of the source code and execution
    on the desired Accelerator.
- 
+
    For an example of using this Pythonic language in Python with the ``xacc.qpu``
    decorator, see the `XACC Python JIT Tutorial <tutorials.html#xacc-python-jit>`_

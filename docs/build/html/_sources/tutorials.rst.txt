@@ -374,15 +374,3 @@ from file.
    ... write to file
    ... load from file, get loadedStr
    newBuff = xacc.loadBuffer(loadedStr)
-
-
-Create and Contribute a Plugin
-------------------------------
-
-Diatomic Hydrogen Ground State Energy
--------------------------------------
-C++
-+++
-
-Python
-++++++
