@@ -455,6 +455,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                             boost::lexical_cast<std::string>(kv.second));
         },
         "Set a number of options at once.");
+  m.def("unsetOption", &xacc::unsetOption, "");
   m.def("getOption",
         (const std::string (*)(const std::string &)) & xacc::getOption,
         "Get an XACC framework option.");
