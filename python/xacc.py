@@ -215,6 +215,30 @@ class qpu(object):
     def __call__(self, f):
         return WrappedF(f, *self.args, **self.kwargs)
 
+def compute_p10(qubits, buffer, qpu):
+    functions = []
+    checkedBitStrings = [] # ['001','010','100'] for 3 bits
+    probs = []
+    
+    zeros = '0'*buffer.size()
+    for i, q in enumerate(qubits):
+        measure = xacc.gate.create('Measure',[q],[i])
+        f = xacc.gate.createFunction('meas_'+str(q), [])
+        f.addInstruction(measure)
+        functions.append(f)
+        tmp = list(zeros)
+        tmp[buffer.size()-1-q] = '1'
+        checkedBitStrings.append(''.join(tmp))
+    
+    # Execute 
+    qubits = qpu.createBuffer('tmp',max(qubits)+1)
+    results = qpu.execute(qubits, functions)
+
+    # Populate with probability you saw a 1 but expected 0
+    for i, b in enumerate(results):
+        probs.append(b.computeMeasurementProbability(checkedBitStrings[i]))
+
+    return probs
 
 def functionToLatex(function):
     try:
