@@ -274,7 +274,14 @@ PYBIND11_MODULE(_pyxacc, m) {
           "Return a newly allocated register of all qubits on the Accelerator.")
       .def("execute",
            (void (xacc::Accelerator::*)(std::shared_ptr<AcceleratorBuffer>,
-                                        std::shared_ptr<Function>)) &
+                                        const std::shared_ptr<Function>)) &
+               xacc::Accelerator::execute,
+           "Execute the Function with the given AcceleratorBuffer.")
+      .def("execute",
+           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
+               xacc::Accelerator::*)(
+               std::shared_ptr<AcceleratorBuffer>,
+               const std::vector<std::shared_ptr<Function>>)) &
                xacc::Accelerator::execute,
            "Execute the Function with the given AcceleratorBuffer.");
 
@@ -293,6 +300,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Return the expectation value with respect to the Z operator.")
       .def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer,
            "Reset this buffer for use in another computation.")
+      .def("size", &xacc::AcceleratorBuffer::size, "")
       .def("appendMeasurement",
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
                xacc::AcceleratorBuffer::appendMeasurement,
