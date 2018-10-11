@@ -57,7 +57,6 @@ public:
   virtual void enterUop(PyXACCIRParser::UopContext * /*ctx*/) override;
   virtual void
   enterAllbitsOp(PyXACCIRParser::AllbitsOpContext * /*ctx*/) override;
-  
 };
 
 } // namespace quantum

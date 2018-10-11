@@ -226,25 +226,27 @@ void PyXACCListener::enterAllbitsOp(PyXACCIRParser::AllbitsOpContext *ctx) {
   auto isRotation = [](const std::string &name) {
     return name == "Rx" || name == "Ry" || name == "Rz";
   };
-  
+
   if (gateName == "CNOT" || gateName == "CZ" || gateName == "Measure" ||
       isRotation(gateName)) {
-    xacc::error(
-        "Cannot use ellipses '...' for 2 qubit gates, Measure, or rotation gates.");
+    xacc::error("Cannot use ellipses '...' for 2 qubit gates, Measure, or "
+                "rotation gates.");
   }
 
   auto buff = accelerator->getBuffer(bufferName);
   auto nQubits = buff->size();
-  int start = 0, end = nQubits-1;
+  int start = 0, end = nQubits - 1;
   if (ctx->INT().size() == 1) {
     xacc::error("You cannot specify GATE(INT ...) or GATE(...INT). Only "
                 "GATE(...) or GATE(INT...INT).");
   } else if (ctx->INT().size() == 2) {
     start = std::stoi(ctx->INT(0)->getText());
     end = std::stoi(ctx->INT(1)->getText());
-    if (end >= nQubits) xacc::error("Invalid qubit indices for ellipses. Must be [start,end] (end inclusive)");
+    if (end >= nQubits)
+      xacc::error("Invalid qubit indices for ellipses. Must be [start,end] "
+                  "(end inclusive)");
   } else if (!ctx->INT().empty()) {
-      xacc::error("Invalid use of ellipses: " + ctx->getText());
+    xacc::error("Invalid use of ellipses: " + ctx->getText());
   }
 
   std::cout << "HELLO: " << start << ", " << end << ", " << nQubits << "\n";
