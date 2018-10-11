@@ -37,6 +37,8 @@
 
 #include "CircuitOptimizer.hpp"
 
+#include "ROErrorDecorator.hpp"
+
 #include <memory>
 #include <set>
 
@@ -66,6 +68,8 @@ public:
 
     auto opt = std::make_shared<xacc::quantum::CircuitOptimizer>();
 
+    auto roed = std::make_shared<xacc::quantum::ROErrorDecorator>();
+
     context.RegisterService<xacc::IRProvider>(giservice);
     context.RegisterService<xacc::Preprocessor>(kp);
     context.RegisterService<xacc::IRGenerator>(iqft);
@@ -76,6 +80,9 @@ public:
 
     context.RegisterService<xacc::IRTransformation>(opt);
     context.RegisterService<xacc::OptionsProvider>(opt);
+
+    context.RegisterService<xacc::AcceleratorDecorator>(roed);
+    context.RegisterService<xacc::Accelerator>(roed);
 
     auto h = std::make_shared<xacc::quantum::Hadamard>();
     auto cn = std::make_shared<xacc::quantum::CNOT>();

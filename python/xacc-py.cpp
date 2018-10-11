@@ -15,6 +15,7 @@
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"
 #include "AcceleratorBuffer.hpp"
+#include "AcceleratorDecorator.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -290,6 +291,12 @@ PYBIND11_MODULE(_pyxacc, m) {
       .value("qpu_gate", Accelerator::AcceleratorType::qpu_gate)
       .export_values();
 
+  py::class_<xacc::AcceleratorDecorator, xacc::Accelerator,
+             std::shared_ptr<xacc::AcceleratorDecorator>>
+      accd(m, "AcceleratorDecorator", "");
+  accd
+      .def("setDecorated", &xacc::AcceleratorDecorator::setDecorated, "");
+
   // Expose the AcceleratorBuffer
   py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(
       m, "AcceleratorBuffer",
@@ -456,6 +463,11 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::setOption(kv.first, kv.second);
         },
         "Set a number of options at once.");
+  m.def("getAcceleratorDecorator", [](const std::string name, std::shared_ptr<Accelerator> acc) {
+      auto accd = xacc::getService<AcceleratorDecorator>(name);
+      accd->setDecorated(acc);
+      return accd;
+  });
   m.def("setOptions",
         [](std::map<std::string, InstructionParameter> options) {
           for (auto &kv : options)

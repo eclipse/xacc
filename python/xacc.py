@@ -1,5 +1,5 @@
 from _pyxacc import *
-import os
+import os, time, json
 import platform
 import sys
 import sysconfig
@@ -215,30 +215,63 @@ class qpu(object):
     def __call__(self, f):
         return WrappedF(f, *self.args, **self.kwargs)
 
-def compute_p10(qubits, buffer, qpu):
-    functions = []
-    checkedBitStrings = [] # ['001','010','100'] for 3 bits
-    probs = []
+def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist=True):
+    p10Functions = []
+    p01Functions = []
+    p10CheckedBitStrings = [] # ['001','010','100'] for 3 bits
+    p10s = []
+    p01s = []
     
     zeros = '0'*buffer.size()
     for i, q in enumerate(qubits):
-        measure = xacc.gate.create('Measure',[q],[i])
-        f = xacc.gate.createFunction('meas_'+str(q), [])
+        measure = gate.create('Measure',[q],[i])
+        f = gate.createFunction('meas_'+str(q), [])
         f.addInstruction(measure)
-        functions.append(f)
+        p10Functions.append(f)
         tmp = list(zeros)
         tmp[buffer.size()-1-q] = '1'
-        checkedBitStrings.append(''.join(tmp))
+        p10CheckedBitStrings.append(''.join(tmp))
+    
+    for i, q in enumerate(qubits):
+        x = gate.create('X',[q])
+        measure = gate.create('Measure',[q],[i])
+        f = gate.createFunction('meas_'+str(q), [])
+        f.addInstruction(x)
+        f.addInstruction(measure)
+        p01Functions.append(f)
+        
+    setOption(qpu.name()+'-shots', shots)
     
     # Execute 
-    qubits = qpu.createBuffer('tmp',max(qubits)+1)
-    results = qpu.execute(qubits, functions)
+    b1 = qpu.createBuffer('tmp1',max(qubits)+1)
+    b2 = qpu.createBuffer('tmp2',max(qubits)+1)
+
+    results1 = qpu.execute(b1, p10Functions)
+    results2 = qpu.execute(b2, p01Functions)
 
     # Populate with probability you saw a 1 but expected 0
-    for i, b in enumerate(results):
-        probs.append(b.computeMeasurementProbability(checkedBitStrings[i]))
+    for i, b in enumerate(results1):
+        p10s.append(b.computeMeasurementProbability(p10CheckedBitStrings[i]))
+    for i, b in enumerate(results2):
+        p01s.append(b.computeMeasurementProbability(zeros))
 
-    return probs
+    if persist:
+        if not os.path.exists(os.getenv('HOME')+'/.xacc_cache/ro_characterization'):
+            os.makedirs(os.getenv('HOME')+'/.xacc_cache/ro_characterization')
+        
+        backend = 'NullBackend'
+        if optionExists(qpu.name()+'-backend'):
+            backend = getOption(qpu.name()+'-backend')
+            
+        filename = qpu.name()+'_'+backend+"_ro_error_{}.json".format(time.ctime().replace(' ','_').replace(':','_'))
+        
+        data = {'shots':shots, 'backend':backend}
+        for i in qubits:
+            data[str(i)] = {'0|1':p01s[i],'1|0':p10s[i],'+':(p01s[i]+p10s[i]),'-':(p01s[i]-p10s[i])}
+        with open(os.getenv('HOME')+'/.xacc_cache/ro_characterization/'+filename,'w') as outfile: json.dump(data, outfile)
+        
+    return p01s,p10s
+
 
 def functionToLatex(function):
     try:
