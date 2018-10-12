@@ -6,6 +6,10 @@ import sysconfig
 import argparse
 import inspect
 
+import configparser
+import pelix.framework
+from pelix.utilities import use_service
+from abc import abstractmethod, ABC
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description="XACC Framework Utility.",
@@ -31,14 +35,14 @@ def parse_args(args):
                         help="Print the path to the Python.h.", required=False)
     parser.add_argument("-b", "--branch", default='master', type=str,
                         help="Print the path to the XACC install location.", required=False)
-
+    parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
+    
     opts = parser.parse_args(args)
     if opts.set_credentials and not opts.api_key:
         print('Error in arg input, must supply api-key if setting credentials')
         sys.exit(1)
 
     return opts
-
 
 def initialize():
     xaccHome = os.environ['HOME']+'/.xacc'
@@ -285,6 +289,127 @@ def functionToLatex(function):
     from pyquil.latex import to_latex
     return to_latex(pyquil.quil.Program(getCompiler('quil').translate('', function)))
 
+'''The following code provides the hooks necessary for executing benchmarks with XACC'''
+
+class Algorithm(ABC):
+    
+    # Override this execute method to implement the algorithm
+    # @input inputParams
+    # @return buffer 
+    @abstractmethod
+    def execute(self, inputParams):
+        pass
+    
+    # Override this analyze method called to manipulate result data from executing the algorithm
+    # @input buffer
+    # @input inputParams
+    @abstractmethod
+    def analyze(self, buffer, inputParams):
+        pass
+
+class PyServiceRegistry(object):
+    import pelix.framework
+    from pelix.utilities import use_service
+    def __init__(self):
+        framework = pelix.framework.create_framework((
+            "pelix.ipopo.core",
+            "pelix.shell.console"))
+        framework.start()
+        self.context = framework.get_bundle_context()        
+            
+    # Setup bundle directory and bundles as well as installs them
+    # it might even make sense to just move this to __init__()
+    
+    def initialize(self):
+        xaccLocation = os.path.dirname(os.path.realpath(__file__))
+        pluginDir = xaccLocation + '/py-plugins'
+        if not os.path.exists(pluginDir):
+            os.makedirs(pluginDir)
+
+        sys.path.append(pluginDir)
+
+        pluginFiles = [f for f in os.listdir(
+            pluginDir) if os.path.isfile(os.path.join(pluginDir, f))]
+
+        for f in pluginFiles:
+            bundle_name = os.path.splitext(f)[0].strip()
+            print(bundle_name, f)
+            self.context.install_bundle(bundle_name).start()
+
+        services = self.context.get_all_service_references(
+            'xacc_algorithm_service')
+        if services is None:
+            print("No XACC benchmark algorithm bundles found.")
+            exit(1)
+        for s in services:
+            info('[XACC-Benchmark] Algorithm Service: %s is installed.' % s.get_properties()['name'])
+
+    def get_service(self, serviceName, name):
+        services = self.context.get_all_service_references(serviceName)
+        service = None
+        for s in services:
+            if s.get_properties()['name'] == name:
+                service = self.context.get_service(s)
+        return service
+    
+def benchmark(opts):
+    # Now instantiation == initialization
+    serviceRegistry = PyServiceRegistry()
+    
+    if opts.benchmark is not None:      
+        inputfile = opts.benchmark
+        xacc_settings = process_benchmark_input(inputfile)
+    else:
+        error('Must provide input file for benchmark.')
+        return
+    
+    serviceRegistry.initialize()
+    Initialize()
+    
+    if ':' in xacc_settings['accelerator']:
+        accelerator, backend = xacc_settings['accelerator'].split(':')
+        setOption(accelerator + "-backend", backend)
+        xacc_settings['accelerator'] = accelerator
+    
+    # Using ServiceRegistry to getService (xacc_algorithm_service) and execute the service
+    algorithm = serviceRegistry.get_service(
+        'xacc_algorithm_service', xacc_settings['algorithm'])
+    if algorithm is None:
+        print("XACC algorithm service with name " +
+                   xacc_settings['algorithm'] + " is not installed.")
+        exit(1)
+
+    starttime = time.time()
+    buffer = algorithm.execute(xacc_settings)
+    elapsedtime = time.time() - starttime
+    buffer.addExtraInfo("benchmark-time", elapsedtime)
+    for k,v in xacc_settings.items():
+        buffer.addExtraInfo(k, v)
+    # Analyze the buffer
+    head, tail = os.path.split(inputfile)
+    buffer.addExtraInfo('file-name', tail)
+    algorithm.analyze(buffer, xacc_settings)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    results_name = "%s_%s_%s_%s" % (os.path.splitext(tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
+    f = open(results_name+".ab", 'w')
+    f.write(str(buffer))
+    f.close()
+
+    Finalize()
+
+def process_benchmark_input(filename):
+    config = configparser.RawConfigParser()
+    try:
+        with open(filename) as f:
+            framework_settings = {}
+            config.read(filename)
+            for section in config.sections():
+                temp = dict(config.items(section))
+                framework_settings.update(temp)
+            return framework_settings
+    except:
+        print("Input file " + filename + " could not be opened.")
+        exit(1)
 
 def main(argv=None):
     opts = parse_args(sys.argv[1:])
@@ -299,7 +424,9 @@ def main(argv=None):
 
     if not opts.set_credentials == None:
         setCredentials(opts)
-
+    
+    if not opts.benchmark == None:
+        benchmark(opts)
 
 initialize()
 
