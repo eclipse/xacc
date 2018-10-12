@@ -120,6 +120,7 @@ public:
                    std::shared_ptr<AcceleratorBuffer> buffer);
   std::vector<std::shared_ptr<AcceleratorBuffer>>
   getChildren(const std::string name);
+  std::vector<std::shared_ptr<AcceleratorBuffer>> getChildren();
   std::vector<std::string> getChildrenNames();
 
   void addExtraInfo(const std::string infoName, ExtraInfo i);

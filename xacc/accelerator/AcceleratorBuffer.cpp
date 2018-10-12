@@ -147,7 +147,15 @@ AcceleratorBuffer::getChildren(const std::string name) {
 
   return childrenWithName;
 }
+std::vector<std::shared_ptr<AcceleratorBuffer>>
+AcceleratorBuffer::getChildren() {
+  std::vector<std::shared_ptr<AcceleratorBuffer>> childrenReturn;
+  for (auto &child : children) {
+    childrenReturn.push_back(child.second);
+  }
 
+  return childrenReturn;
+}
 std::vector<std::string> AcceleratorBuffer::getChildrenNames() {
   std::vector<std::string> names;
   for (auto &child : children)
