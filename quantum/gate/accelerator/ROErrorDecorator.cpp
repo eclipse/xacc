@@ -13,7 +13,7 @@ namespace quantum {
 void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                                const std::shared_ptr<Function> function) {
 
-  decoratedAccelerator->execute(buffer, function);
+  if (decoratedAccelerator) decoratedAccelerator->execute(buffer, function);
 
   if (!xacc::optionExists("ro-error-file")) {
     xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
@@ -88,15 +88,22 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<Function>> functions) {
 
-  auto buffers = decoratedAccelerator->execute(buffer, functions);
+  std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
+  std::map<std::string,std::shared_ptr<Function>> nameToFunction;
+  std::map<std::string, std::set<int>> supportSets;
 
-  // Goal here is take the resultant buffers and add a new
-  // ExtraInfo key, 'ro-fixed-exp-val-z'.
-  // To do this, we need to get the readout error fidelities
-  // from the user provided characterization file 
-  // This will give us p(+-)_i and we can use that to shift the
-  // current exp-val-z values on the buffers.
-
+  if (decoratedAccelerator) {
+    buffers = decoratedAccelerator->execute(buffer, functions);
+  } else {
+    buffers = buffer->getChildren();
+  }
+  
+  if (!xacc::optionExists("ro-error-file")) {
+    xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
+               "correction.");
+    return buffers;
+  }
+  
   auto supports = [](std::shared_ptr<Function> f) {
     std::set<int> supportSet;
     InstructionIterator it(f);
@@ -111,12 +118,11 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
     return supportSet;
   };
 
-  if (!xacc::optionExists("ro-error-file")) {
-    xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
-               "correction.");
-    return buffers;
+  for (auto& f : functions) {
+      nameToFunction.insert({f->name(), f});
+      supportSets.insert({f->name(), supports(f)});
   }
-
+  
   // Get RO error probs
   auto roeStr = xacc::getOption("ro-error-file");
   buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
@@ -149,13 +155,16 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
   int counter = 0;
   for (auto &b : buffers) {
     auto counts = b->getMeasurementCounts();
-
+    auto functionName = b->name();
+    auto f = nameToFunction[functionName];
+    auto fSupports = supportSets[functionName];
+    
     auto fixedExp = 0.0;
     for (auto &kv : counts) {
       auto prod = 1.0;
       std::string bitString = kv.first;
       auto count = kv.second;
-      for (auto j : supports(functions[counter])) {
+      for (auto& j : fSupports) {
         std::stringstream s;
         auto denom = (1.0 - piplus[j]);
         auto numerator =

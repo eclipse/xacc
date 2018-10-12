@@ -294,8 +294,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   py::class_<xacc::AcceleratorDecorator, xacc::Accelerator,
              std::shared_ptr<xacc::AcceleratorDecorator>>
       accd(m, "AcceleratorDecorator", "");
-  accd
-      .def("setDecorated", &xacc::AcceleratorDecorator::setDecorated, "");
+  accd.def("setDecorated", &xacc::AcceleratorDecorator::setDecorated, "");
 
   // Expose the AcceleratorBuffer
   py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(
@@ -324,6 +323,11 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("getChildren",
            (std::vector<std::shared_ptr<AcceleratorBuffer>>(
                xacc::AcceleratorBuffer::*)(const std::string)) &
+               xacc::AcceleratorBuffer::getChildren,
+           "")
+      .def("getChildren",
+           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
+               xacc::AcceleratorBuffer::*)()) &
                xacc::AcceleratorBuffer::getChildren,
            "")
       .def("getChildrenNames", &xacc::AcceleratorBuffer::getChildrenNames, "")
@@ -463,11 +467,12 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::setOption(kv.first, kv.second);
         },
         "Set a number of options at once.");
-  m.def("getAcceleratorDecorator", [](const std::string name, std::shared_ptr<Accelerator> acc) {
-      auto accd = xacc::getService<AcceleratorDecorator>(name);
-      accd->setDecorated(acc);
-      return accd;
-  });
+  m.def("getAcceleratorDecorator",
+        [](const std::string name, std::shared_ptr<Accelerator> acc) {
+          auto accd = xacc::getService<AcceleratorDecorator>(name);
+          accd->setDecorated(acc);
+          return accd;
+        });
   m.def("setOptions",
         [](std::map<std::string, InstructionParameter> options) {
           for (auto &kv : options)
