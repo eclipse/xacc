@@ -6,9 +6,21 @@ import sysconfig
 import argparse
 import inspect
 
-import configparser
-import pelix.framework
-from pelix.utilities import use_service
+canExecuteBenchmarks = True
+
+try:
+   import configparser
+except:
+   canExecuteBenchmarks = False
+   pass
+
+try:    
+   import pelix.framework
+   from pelix.utilities import use_service
+except:
+   canExecuteBenchmarks = False
+   pass 
+    
 from abc import abstractmethod, ABC
 
 def parse_args(args):
@@ -308,8 +320,6 @@ class Algorithm(ABC):
         pass
 
 class PyServiceRegistry(object):
-    import pelix.framework
-    from pelix.utilities import use_service
     def __init__(self):
         framework = pelix.framework.create_framework((
             "pelix.ipopo.core",
@@ -426,6 +436,8 @@ def main(argv=None):
         setCredentials(opts)
     
     if not opts.benchmark == None:
+        if not canExecuteBenchmarks:
+            error('Cannot execute benchmark. Please install configparser and ipopo.')
         benchmark(opts)
 
 initialize()
