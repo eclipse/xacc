@@ -7,21 +7,15 @@ import argparse
 import inspect
 
 canExecuteBenchmarks = True
-
-try:
-   import configparser
-except:
-   canExecuteBenchmarks = False
-   pass
-
 try:    
    import pelix.framework
    from pelix.utilities import use_service
+   from abc import abstractmethod, ABC
+   import configparser
 except:
    canExecuteBenchmarks = False
    pass 
     
-from abc import abstractmethod, ABC
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description="XACC Framework Utility.",
