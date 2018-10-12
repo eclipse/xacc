@@ -12,6 +12,22 @@ try:
    from pelix.utilities import use_service
    from abc import abstractmethod, ABC
    import configparser
+   class Algorithm(ABC):
+    
+      # Override this execute method to implement the algorithm
+      # @input inputParams
+      # @return buffer 
+      @abstractmethod
+      def execute(self, inputParams):
+         pass
+    
+      # Override this analyze method called to manipulate result data from executing the algorithm
+      # @input buffer
+      # @input inputParams
+      @abstractmethod
+      def analyze(self, buffer, inputParams):
+         pass
+
 except:
    canExecuteBenchmarks = False
    pass 
@@ -297,21 +313,6 @@ def functionToLatex(function):
 
 '''The following code provides the hooks necessary for executing benchmarks with XACC'''
 
-class Algorithm(ABC):
-    
-    # Override this execute method to implement the algorithm
-    # @input inputParams
-    # @return buffer 
-    @abstractmethod
-    def execute(self, inputParams):
-        pass
-    
-    # Override this analyze method called to manipulate result data from executing the algorithm
-    # @input buffer
-    # @input inputParams
-    @abstractmethod
-    def analyze(self, buffer, inputParams):
-        pass
 
 class PyServiceRegistry(object):
     def __init__(self):
