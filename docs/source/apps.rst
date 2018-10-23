@@ -298,3 +298,68 @@ of decorator arguments. Let's look at an example
 
    print('Energy = ', buffer.getInformation('vqe-energy'))
    print('Opt Angles = ', buffer.getInformation('vqe-angles'))
+
+After running the VQE algorithm with the above example script, the ``AcceleratorBuffer`` now stores the information regarding the results of the executions. The XACC Python API enables the user to easily access this information stored in the ``AcceleratorBuffer`` and its children. 
+
+.. code::
+
+   {
+    "AcceleratorBuffer": {
+        "name": "q",
+        "size": 2,
+        "Information": {
+            "ansatz-qasm": "X q0\nRy(0.594531) q1\nCNOT q1,q0\n",
+            "circuit-depth": 2,
+            "vqe-angles": [
+                0.5945312500000002
+            ],
+            "vqe-energy": -1.7491552234943558,
+            "vqe-nQPU-calls": 0
+        },
+        "Measurements": {},
+        "Children": [
+            {
+                "name": "Z1",
+                "Information": {
+                    "coefficient": -6.125,
+                    "exp-val-z": 0.8775825618903725,
+                    "kernel": "Z1",
+                    "parameters": [
+                        0.5
+                    ]
+                }, 
+                
+        ...
+                    {
+                "name": "X0X1",
+                "Information": {
+                    "coefficient": -2.1433,
+                    "exp-val-z": 0.5601204983247997,
+                    "kernel": "X0X1",
+                    "parameters": [
+                        0.5945312500000002
+                    ]
+                },
+                "Measurements": {}
+            }
+        ]
+    }
+   ... 
+                            
+For example, if the user wanted to generate a file consisting of the relevant, unique results of the VQE algorithm executions stored in the ``AcceleratorBuffer`` children as comma-separated values, it can be done as shown below, using the ``getAllUnique``, ``getChildren``, and ``getInformation`` methods.
+
+.. code::
+
+   ps = buffer.getAllUnique('parameters')
+   csv_name = "VQE_example_results"
+   f = open(csv_name+".csv", 'w')
+   for p in ps:
+       f.write(str(p).replace('[', '').replace(']', ''))
+       energy = 0.0
+       for c in buffer.getChildren('parameters', p):
+           exp = c.getInformation('exp-val-z')
+           energy += exp * c.getInformation('coefficient')
+           f.write(','+str(c.getInformation('exp-val-z')))
+       f.write(','+str(energy)+'\n')
+   f.close()
+   
