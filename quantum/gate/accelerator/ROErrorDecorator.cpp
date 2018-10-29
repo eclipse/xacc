@@ -151,6 +151,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
   for (auto &b : buffers) {
       if (!b->getMeasurementCounts().empty()) {
           tmpCounts = b->getMeasurementCounts();
+          break;
       }
   }
   for (auto &kv : tmpCounts) {
