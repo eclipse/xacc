@@ -147,11 +147,21 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
 
   // Get the number of shots first
   int nShots = 0;
-  auto tmpCounts = buffers[0]->getMeasurementCounts();
+  std::map<std::string, int> tmpCounts;
+  for (auto &b : buffers) {
+      if (!b->getMeasurementCounts().empty()) {
+          tmpCounts = b->getMeasurementCounts();
+      }
+  }
   for (auto &kv : tmpCounts) {
     nShots += kv.second;
-  }
+  }  
 
+//   auto tmpCounts = buffers[1]->getMeasurementCounts();
+//   for (auto &kv : tmpCounts) {
+//     nShots += kv.second;
+//   }
+  std::cout << "NSHOTS: " << nShots << std::endl;
   int counter = 0;
   for (auto &b : buffers) {
     auto counts = b->getMeasurementCounts();
@@ -174,7 +184,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
 
       fixedExp += ((double)count / (double)nShots) * prod;
     }
-
+    std::cout << "Fixed: " << fixedExp << std::endl;
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
     counter++;
