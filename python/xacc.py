@@ -376,6 +376,12 @@ def benchmark(opts):
         setOption(accelerator + "-backend", backend)
         xacc_settings['accelerator'] = accelerator
     
+    accelerator = xacc_settings['accelerator']
+    if 'n-shots' in xacc_settings:
+        if 'local-ibm' in accelerator:
+            accelerator = 'ibm'
+        setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'), xacc_settings['n-shots'])
+        
     # Using ServiceRegistry to getService (xacc_algorithm_service) and execute the service
     algorithm = serviceRegistry.get_service(
         'xacc_algorithm_service', xacc_settings['algorithm'])
