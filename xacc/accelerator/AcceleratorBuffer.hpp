@@ -131,6 +131,8 @@ public:
   ExtraInfo getInformation(const std::string name);
   std::map<std::string, ExtraInfo> getInformation();
 
+  std::shared_ptr<AcceleratorBuffer> clone();
+  
   /**
    * Return all children with ExtraInfo infoName equal
    * to the given ExtraInfo i.
@@ -204,7 +206,20 @@ public:
   virtual const std::vector<std::string> getMeasurementStrings();
 
   virtual std::map<std::string, int> getMeasurementCounts();
-
+  virtual void clearMeasurements() {
+    measurements.clear();
+    bitStringToCounts.clear();
+  }
+  
+  virtual void setMeasurements(std::map<std::string, int> counts) {
+    clearMeasurements();
+    bitStringToCounts = counts;
+    for (auto& kv : counts) {
+        for (int i = 0; i < kv.second; i++) 
+           measurements.push_back(boost::dynamic_bitset<>(kv.first));
+    }
+  }
+  
   /**
    * Print information about this AcceleratorBuffer to standard out.
    *

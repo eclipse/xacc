@@ -285,6 +285,15 @@ AcceleratorBuffer::computeMeasurementProbability(const std::string &bitStr) {
   return (double)bitStringToCounts[bitStr] / (double)measurements.size();
 }
 
+std::shared_ptr<AcceleratorBuffer> AcceleratorBuffer::clone() {
+    std::stringstream s;
+    print(s);
+    std::istringstream is(s.str());
+    auto cloned = std::make_shared<AcceleratorBuffer>();
+    cloned->load(is);
+    return cloned;
+}
+
 /**
  * Compute and return the expectation value with respect
  * to the Pauli-Z operator. Here we provide a base implementation
