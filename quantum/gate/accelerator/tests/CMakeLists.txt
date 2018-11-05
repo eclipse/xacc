@@ -1,2 +1,3 @@
 #add_xacc_test(ReadoutErrorAcceleratorBufferPostprocessor)
 add_xacc_test(ImprovedSamplingDecorator)
+add_xacc_test(RichExtrapDecorator)
