@@ -281,6 +281,7 @@ def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist
     for i, b in enumerate(results2):
         p01s.append(b.computeMeasurementProbability(zeros))
 
+    filename = ''
     if persist:
         if not os.path.exists(os.getenv('HOME')+'/.xacc_cache/ro_characterization'):
             os.makedirs(os.getenv('HOME')+'/.xacc_cache/ro_characterization')
@@ -289,14 +290,14 @@ def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist
         if optionExists(qpu.name()+'-backend'):
             backend = getOption(qpu.name()+'-backend')
             
-        filename = qpu.name()+'_'+backend+"_ro_error_{}.json".format(time.ctime().replace(' ','_').replace(':','_'))
+        filename = os.getenv('HOME')+'/.xacc_cache/ro_characterization/'+qpu.name()+'_'+backend+"_ro_error_{}.json".format(time.ctime().replace(' ','_').replace(':','_'))
         
         data = {'shots':shots, 'backend':backend}
         for i in qubits:
             data[str(i)] = {'0|1':p01s[i],'1|0':p10s[i],'+':(p01s[i]+p10s[i]),'-':(p01s[i]-p10s[i])}
-        with open(os.getenv('HOME')+'/.xacc_cache/ro_characterization/'+filename,'w') as outfile: json.dump(data, outfile)
+        with open(filename,'w') as outfile: json.dump(data, outfile)
         
-    return p01s,p10s
+    return p01s,p10s, filename
 
 
 def functionToLatex(function):

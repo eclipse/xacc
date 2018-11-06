@@ -72,7 +72,7 @@ void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
     std::string bitString = kv.first;
     auto count = kv.second;
     for (auto j : supports(function)) {
-      prod *= (std::pow(-1, (int)(bitString[j] - '0')) - piminus[j]) /
+      prod *= (std::pow(-1, (int)(bitString[buffer->size()-j-1] - '0')) - piminus[j]) /
               (1.0 - piplus[j]);
     }
 

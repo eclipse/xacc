@@ -36,7 +36,7 @@ TEST(RichExtrapDecoratorTester, checkSimple) {
     auto ir = compiler->compile(src, acc);
     auto f = ir->getKernel("f");
 
-    xacc::setOption("rich-extrap-r", "5");
+    xacc::setOption("rich-extrap-r", "1");
     
     RichExtrapDecorator decorator;
     decorator.setDecorated(acc);
