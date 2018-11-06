@@ -146,7 +146,11 @@ class WrappedF(object):
         self.args = args
         self.kwargs = kwargs
         self.__dict__.update(kwargs)
+        self.accelerator = None
 
+    def overrideAccelerator(self, acc):
+        self.accelerator = acc
+        
     def nParameters(self):
         if 'accelerator' in self.kwargs:
             if isinstance(self.kwargs['accelerator'], Accelerator):
@@ -194,18 +198,22 @@ class WrappedF(object):
         return compiledKernel.getIRFunction()
 
     def __call__(self, *args, **kwargs):
-        if 'accelerator' in self.kwargs:
-            if isinstance(self.kwargs['accelerator'], Accelerator):
-                qpu = self.kwargs['accelerator']
+        if self.accelerator == None:
+            if 'accelerator' in self.kwargs:
+                if isinstance(self.kwargs['accelerator'], Accelerator):
+                    qpu = self.kwargs['accelerator']
+                else:
+                    qpu = getAccelerator(self.kwargs['accelerator'])
+            elif hasAccelerator('tnqvm'):
+                qpu = getAccelerator('tnqvm')
             else:
-                qpu = getAccelerator(self.kwargs['accelerator'])
-        elif hasAccelerator('tnqvm'):
-            qpu = getAccelerator('tnqvm')
+                print(
+                    '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
+                exit(0)
         else:
-            print(
-                '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
-            exit(0)
-
+            print('hello world, setting ', self.accelerator.name())
+            qpu = self.accelerator
+            
         # Remove the @qpu line from the source
         src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
 
