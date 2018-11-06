@@ -38,7 +38,7 @@ public:
    *
    * @return type The Accelerator type - Gate or AQC QPU, or NPU
    */
-  virtual AcceleratorType getType() {decoratedAccelerator->getType();}
+  virtual AcceleratorType getType() {return decoratedAccelerator->getType();}
 
   /**
    * Return any IR Transformations that must be applied to ensure
