@@ -28,7 +28,11 @@ void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   std::ifstream t(roeStr);
   std::string json((std::istreambuf_iterator<char>(t)),
                    std::istreambuf_iterator<char>());
-
+ 
+  if (json.empty()) {
+      xacc::error("Invalid ROError JSON file: " + roeStr);
+  }
+  
   Document d;
   d.Parse(json);
   std::map<int, double> piplus, piminus;
@@ -130,6 +134,9 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
   std::ifstream t(roeStr);
   std::string json((std::istreambuf_iterator<char>(t)),
                    std::istreambuf_iterator<char>());
+  if (json.empty()) {
+      xacc::error("Invalid ROError JSON file: " + roeStr);
+  }
 
   Document d;
   d.Parse(json);
@@ -177,7 +184,6 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
             (bitString[buffer->size() - 1 - j] == '1' ? -1 : 1) - piminus[j];
         prod *= (numerator / denom);
       }
-
       fixedExp += ((double)count / (double)nShots) * prod;
     }
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
