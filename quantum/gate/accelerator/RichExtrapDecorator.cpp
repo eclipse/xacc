@@ -91,7 +91,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RichExtrapDecorator::execute(
       }
     }
 
-    // std::cout << "HI: " << newF->toString("q") << "\n";
+    // xacc::info("HI: " + newF->toString("q"));
     
     newFuncs.push_back(newF);
   }
