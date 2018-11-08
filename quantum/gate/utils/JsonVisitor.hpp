@@ -254,6 +254,63 @@ public:
 
   void visit(Z &z) { baseGateInst(dynamic_cast<GateInstruction &>(z)); }
 
+  void visit(U &u) {
+          baseGateInst(dynamic_cast<GateInstruction &>(u), false);
+    writer->String("theta");
+    auto p = u.getParameter(0);
+
+    switch (p.which()) {
+    case 0:
+      writer->Int(boost::get<int>(p));
+      break;
+    case 1:
+      writer->Double(boost::get<double>(p));
+      break;
+    case 2:
+      writer->Double((double)boost::get<float>(p));
+      break;
+    case 3:
+      writer->String(boost::get<std::string>(p));
+      break;
+    }
+    writer->String("phi");
+    auto p2 = u.getParameter(1);
+
+    switch (p2.which()) {
+    case 0:
+      writer->Int(boost::get<int>(p));
+      break;
+    case 1:
+      writer->Double(boost::get<double>(p));
+      break;
+    case 2:
+      writer->Double((double)boost::get<float>(p));
+      break;
+    case 3:
+      writer->String(boost::get<std::string>(p));
+      break;
+    }
+    
+    writer->String("lambda");
+    auto p3 = u.getParameter(2);
+
+    switch (p3.which()) {
+    case 0:
+      writer->Int(boost::get<int>(p));
+      break;
+    case 1:
+      writer->Double(boost::get<double>(p));
+      break;
+    case 2:
+      writer->Double((double)boost::get<float>(p));
+      break;
+    case 3:
+      writer->String(boost::get<std::string>(p));
+      break;
+    }
+    writer->EndObject();
+  }
+  
   void visit(GateFunction &function) {}
 
 protected:

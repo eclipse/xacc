@@ -68,7 +68,8 @@ public:
   void visit(GateFunction &f) { return; }
 
   void visit(Swap &s) { swAction(s); }
-
+  void visit(U &u) {}
+  
   virtual ~FunctionalGateInstructionVisitor() {}
 };
 

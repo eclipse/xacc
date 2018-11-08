@@ -116,7 +116,9 @@ public:
   void visit(CPhase &cp) { addTwoQubitGate(cp); }
 
   void visit(Swap &s) { addTwoQubitGate(s); }
-
+ 
+  void visit(U &u) {addSingleQubitGate(u);}
+  
   void visit(GateFunction &f) {
     // nothing
   }
