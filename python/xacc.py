@@ -139,7 +139,9 @@ def setCredentials(opts):
     print('\nCreated '+acc+' config file:\n$ cat ~/.'+fname+'_config:')
     print(open(os.environ['HOME']+'/.'+fname+'_config', 'r').read())
 
-
+def qasm2Kernel(kernelName, qasmStr):
+    return '__qpu__ {}(AcceleratorBuffer b) {{\n {} \n}}'.format(kernelName, qasmStr)
+    
 class WrappedF(object):
     def __init__(self, f, *args, **kwargs):
         self.function = f

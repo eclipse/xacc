@@ -115,6 +115,29 @@ public:
                  std::to_string(s.bits()[1]) + ")\n";
   }
 
+  void visit(U& u) {
+    auto t = boost::lexical_cast<std::string>(u.getParameter(0));
+    auto p = boost::lexical_cast<std::string>(u.getParameter(1));
+    auto l = boost::lexical_cast<std::string>(u.getParameter(2));
+
+    // if (u.getParameter(0).which() != 3 && u.getParameter(1).which() != 3 && u.getParameter(2).which() != 3) {
+    //     // We have concrete values here
+    //     auto td = boost::get<double>(u.getParameter(0));
+    //     auto pd = boost::get<double>(u.getParameter(1));
+    //     auto ld = boost::get<double>(u.getParameter(2));
+
+    //     if (std::fabs())
+
+    // }
+
+    std::stringstream s;
+    s << "   Rz(" << t << ", " << u.bits()[0] << ")\n";
+    s << "   Ry(" << p << ", " << u.bits()[0] << ")\n";
+    s << "   Rz(" << l << ", " << u.bits()[0] << ")\n";
+
+    pyxaccStr += s.str();
+  }
+  
   void visit(GateFunction &f) { return; }
   /**
    * Return the quil string

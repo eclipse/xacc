@@ -34,6 +34,7 @@
 #include "Measure.hpp"
 #include "Identity.hpp"
 #include "CZ.hpp"
+#include "U.hpp"
 
 #include "CircuitOptimizer.hpp"
 
@@ -107,6 +108,7 @@ public:
     auto y = std::make_shared<xacc::quantum::Y>();
     auto z = std::make_shared<xacc::quantum::Z>();
     auto sw = std::make_shared<xacc::quantum::Swap>();
+    auto u = std::make_shared<xacc::quantum::U>();
 
     context.RegisterService<xacc::quantum::GateInstruction>(h);
     context.RegisterService<xacc::quantum::GateInstruction>(cn);
@@ -121,6 +123,8 @@ public:
     context.RegisterService<xacc::quantum::GateInstruction>(y);
     context.RegisterService<xacc::quantum::GateInstruction>(z);
     context.RegisterService<xacc::quantum::GateInstruction>(sw);
+    context.RegisterService<xacc::quantum::GateInstruction>(u);
+
   }
 
   /**
