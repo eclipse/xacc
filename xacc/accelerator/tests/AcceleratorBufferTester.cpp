@@ -155,6 +155,50 @@ TEST(AcceleratorBufferTester, checkLoadDwave) {
   buffer.print(ss);
   EXPECT_EQ(ss.str(), dwaveBuffer);
 }
+
+TEST(AcceleratorBufferTester, checkEmptyParametersBug) {
+
+  const std::string str = R"str({
+    "AcceleratorBuffer": {
+        "name": "q",
+        "size": 4,
+        "Information": {
+            "accelerator": "ibm",
+            "algorithm": "vqe-energy",
+            "vqe-energy": -1.135636239214126,
+            "vqe-nQPU-calls": 1,
+            "x-gates": "[0,1]"
+        },
+        "Measurements": {},
+        "Children": [
+            {
+                "name": "Z2Z3",
+                "Information": {
+                    "coefficient": 0.17407289234592944,
+                    "exp-val-z": 0.932373046875,
+                    "kernel": "Z2Z3",
+                    "parameters": [],
+                    "ro-fixed-exp-val-z": 1.0342163557701439,
+                    "time": 11.214285714285714
+                },
+                "Measurements": {
+                    "0000": 15821,
+                    "0100": 334,
+                    "1000": 220,
+                    "1100": 9
+                }
+            }
+        ]
+    }
+})str";
+    
+    AcceleratorBuffer b;
+    std::istringstream s(str);
+
+    b.load(s);
+
+    b.print();
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

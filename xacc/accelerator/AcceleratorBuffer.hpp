@@ -133,6 +133,7 @@ public:
 
   std::shared_ptr<AcceleratorBuffer> clone();
   
+  const int nChildren() { return getChildren().size(); }
   /**
    * Return all children with ExtraInfo infoName equal
    * to the given ExtraInfo i.

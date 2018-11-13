@@ -186,6 +186,11 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
       }
       fixedExp += ((double)count / (double)nShots) * prod;
     }
+
+    // Correct in case our shift has gone outside physical bounds
+    if (fixedExp > 1.0) {fixedExp = 1.0;}
+    if (fixedExp < -1.0) {fixedExp = -1.0;}
+    
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
     counter++;

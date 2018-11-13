@@ -521,10 +521,11 @@ void AcceleratorBuffer::load(std::istream &stream) {
   for (auto &c : children) {
     auto childBuffer =
         std::make_shared<AcceleratorBuffer>(c["name"].GetString(), nBits);
-
     auto &info = c["Information"];
     for (auto itr = info.MemberBegin(); itr != info.MemberEnd(); ++itr) {
       auto &value = info[itr->name.GetString()];
+      std::stringstream sss;
+      sss << itr->name.GetString();
       if (value.IsInt()) {
         childBuffer->addExtraInfo(itr->name.GetString(),
                                   ExtraInfo(value.GetInt()));
@@ -556,11 +557,10 @@ void AcceleratorBuffer::load(std::istream &stream) {
           childBuffer->addExtraInfo(itr->name.GetString(),
                                     ExtraInfo(childValues));
         } else {
-          std::cout << "HELLO EXTRA: " << itr->name.GetString() << "\n";
+          xacc::info( "HELLO EXTRA: " + std::string(itr->name.GetString()));// << "\n";
         }
         // FIXME Handle Map<int, [int*]>
 
-        appendChild(c["name"].GetString(), childBuffer);
       }
     }
 
@@ -570,6 +570,9 @@ void AcceleratorBuffer::load(std::istream &stream) {
       childBuffer->appendMeasurement(itr->name.GetString(),
                                      itr->value.GetInt());
     }
+    
+    appendChild(c["name"].GetString(), childBuffer);
+
   }
 }
 
