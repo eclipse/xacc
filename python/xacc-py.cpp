@@ -326,6 +326,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::AcceleratorBuffer::*)(const std::string)) &
                xacc::AcceleratorBuffer::getChildren,
            "")
+      .def("nChildren", &xacc::AcceleratorBuffer::nChildren, "")
       .def("getChildren",
            (std::vector<std::shared_ptr<AcceleratorBuffer>>(
                xacc::AcceleratorBuffer::*)()) &
