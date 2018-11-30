@@ -1,9 +1,10 @@
-version: '1'
+
+version: '2'
 
 services:
   xacc-jupyter-lab:
     image: xacc/jupyter-lab
-    command: "bash -c 'PATH=$PATH:/root/.local/bin SHELL=/bin/bash jupyter lab --no-browser --ip=* --port=9000 --allow-root --notebook-dir=/projects --NotebookApp.token=\"\"'"
+    command: "bash -c 'PATH=$PATH:/root/.local/bin SHELL=/bin/bash jupyter lab --no-browser --ip=0.0.0.0 --port=9000 --allow-root --notebook-dir=/projects --NotebookApp.token=\"\"'"
     volumes:
       - ../:/projects
       - /var/run/docker.sock:/var/run/docker.sock
@@ -11,3 +12,4 @@ services:
       - 9000:9000
     security_opt:
       - seccomp:unconfined
+
