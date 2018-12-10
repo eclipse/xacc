@@ -249,13 +249,13 @@ public:
     std::vector<std::string> variableNames;
     std::vector<double> values;
     for (int i = 0; i < params.size(); i++) {
-      auto var = boost::get<std::string>(getParameter(i));
+      auto var = getParameter(i).as<std::string>();
       variableNames.push_back(var);
       symbol_table.add_variable(var, p(i));
     }
 
     auto compileExpression = [&](InstructionParameter &p) -> double {
-      auto expression = boost::get<std::string>(p);
+      auto expression = p.as<std::string>();
       expression_t expr;
       expr.register_symbol_table(symbol_table);
       parser_t parser;
@@ -272,7 +272,7 @@ public:
         evaluatedFunction->addInstruction(evaled);
       } else {
         if (inst->name() == "dw-qmi") {
-          if (inst->getParameter(0).which() == 3) {
+          if (inst->getParameter(0).isVariable()) {
             InstructionParameter p = inst->getParameter(0);
             auto val = compileExpression(p);
             InstructionParameter pnew(val);
@@ -286,7 +286,7 @@ public:
           std::vector<InstructionParameter> newParams;
           for (int i = 0; i < inst->nParameters(); i++) {
             InstructionParameter p = inst->getParameter(i);
-            if (inst->getParameter(i).which() == 3) {
+            if (inst->getParameter(i).isVariable()) {
               if (boost::get<std::string>(p) == "forward" |
                   boost::get<std::string>(p) == "reverse") {
                 newParams.push_back(p);
