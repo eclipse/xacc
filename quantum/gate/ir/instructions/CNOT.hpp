@@ -10,33 +10,24 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
-#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CNOT_HPP_
+#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
+#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_CNOT_HPP_
 
 #include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
-class CNOT : public virtual GateInstruction {
+class CNOT : public GateInstruction {
 public:
+
   CNOT() : GateInstruction("CNOT") {}
   CNOT(std::vector<int> qbits) : GateInstruction("CNOT", qbits) {}
   CNOT(int srcqbit, int tgtqbit) : CNOT(std::vector<int>{srcqbit, tgtqbit}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<CNOT>();
-  }
+  const std::string description() const override { return ""; }
 
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(CNOT)
   DEFINE_VISITABLE()
 };
 

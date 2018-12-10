@@ -20,26 +20,14 @@ namespace quantum {
 
 class Hadamard;
 
-/**
- *
- */
-class Hadamard : public virtual GateInstruction {
+class Hadamard : public GateInstruction {
 public:
   Hadamard() : GateInstruction("H") {}
-
   Hadamard(std::vector<int> qbits) : GateInstruction("H", qbits) {}
-
   Hadamard(int qbit) : Hadamard(std::vector<int>{qbit}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<Hadamard>();
-  }
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
 
+  DEFINE_CLONE(Hadamard)
   DEFINE_VISITABLE()
 };
 

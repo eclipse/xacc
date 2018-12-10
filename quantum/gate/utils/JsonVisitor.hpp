@@ -88,33 +88,6 @@ public:
     return buffer->GetString();
   }
 
-  //	std::string write() {
-  //		// This is a Function, start it as an Object
-  //		writer->StartObject();
-  //		writer->String("function");
-  //		writer->String(function->name());
-  //
-  //		// All functions have instructions, start
-  //		// that array here.
-  //		writer->String("instructions");
-  //		writer->StartArray();
-  //
-  //		topLevelInstructionIterator =
-  // std::make_shared<xacc::InstructionIterator>(function); 		while
-  //(topLevelInstructionIterator->hasNext()) {
-  //			// Get the next node in the tree
-  //			auto nextInst = topLevelInstructionIterator->next();
-  //			nextInst->accept(this);
-  //		}
-  //
-  //		// End Instructions
-  //		writer->EndArray();
-  //
-  //		// End Function
-  //		writer->EndObject();
-  //		return buffer->GetString();
-  //	}
-
   void visit(Identity &i) { baseGateInst(dynamic_cast<GateInstruction &>(i)); }
 
   void visit(Hadamard &h) { baseGateInst(dynamic_cast<GateInstruction &>(h)); }
@@ -131,17 +104,16 @@ public:
     auto p = rz.getParameter(0);
     switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->EndObject();
   }
@@ -152,17 +124,16 @@ public:
     auto p = rx.getParameter(0);
     switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->EndObject();
   }
@@ -174,17 +145,16 @@ public:
 
     switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->EndObject();
   }
@@ -196,17 +166,16 @@ public:
 
     switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->EndObject();
   }
@@ -261,52 +230,49 @@ public:
 
     switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->String("phi");
     auto p2 = u.getParameter(1);
 
-    switch (p2.which()) {
+    switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     
     writer->String("lambda");
     auto p3 = u.getParameter(2);
 
-    switch (p3.which()) {
+    switch (p.which()) {
     case 0:
-      writer->Int(boost::get<int>(p));
+      writer->Int(p.as<int>());
       break;
     case 1:
-      writer->Double(boost::get<double>(p));
+      writer->Double(p.as<double>());
       break;
     case 2:
-      writer->Double((double)boost::get<float>(p));
+      writer->String(p.as<std::string>());
       break;
-    case 3:
-      writer->String(boost::get<std::string>(p));
-      break;
+    default:
+       xacc::error("Invalid InstructionParameter: " + p.toString());
     }
     writer->EndObject();
   }

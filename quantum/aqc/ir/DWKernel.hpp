@@ -85,8 +85,6 @@ public:
     instructions.remove(getInstruction(idx));
   }
 
-  const std::string getTag() override { return ""; }
-
   void mapBits(std::vector<int> bitMap) override {
     xacc::error("DWKernel.mapBits not implemented");
   }
@@ -168,6 +166,28 @@ public:
     return ss.str();
   }
 
+  const std::string toString() override {
+      return toString("");
+  }
+  
+  /**
+   * Return the number of logical qubits.
+   *
+   * @return nLogical The number of logical qubits.
+   */
+  const int nLogicalBits() override {
+      return 0;
+  }
+
+  /**
+   * Return the number of physical qubits. 
+   * 
+   * @return nPhysical The number of physical qubits.
+   */
+  const int nPhysicalBits() override {
+      return 0;
+  }
+  
   std::vector<double> getAllBiases() {
     std::vector<double> biases;
     for (auto i : instructions) {
@@ -290,6 +310,48 @@ public:
     return evaluatedFunction;
   }
 
+ /**
+   * Return true if this Instruction has
+   * customizable options.
+   *
+   * @return hasOptions
+   */
+  bool hasOptions() override {
+      return false;
+  }
+
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  void setOption(const std::string optName,
+                 InstructionParameter option) override {
+      XACCLogger::instance()->error("setOption not implemented for DWKernel."); 
+      return;              
+  }
+  
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override {
+       XACCLogger::instance()->error("getOption not implemented for DWKernel.");  
+       return InstructionParameter(0);             
+  }
+
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  std::map<std::string, InstructionParameter> getOptions() override {
+       XACCLogger::instance()->error("getOptions not implemented for DWKernel."); 
+       return std::map<std::string,InstructionParameter>();              
+  }
   EMPTY_DEFINE_VISITABLE()
 };
 

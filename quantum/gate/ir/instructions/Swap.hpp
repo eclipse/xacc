@@ -28,15 +28,7 @@ public:
   Swap(std::vector<int> qbits)
       : GateInstruction("Swap", qbits, std::vector<InstructionParameter>{}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<Swap>();
-  }
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(Swap)
   DEFINE_VISITABLE()
 };
 } // namespace quantum

@@ -41,6 +41,7 @@ PyXACCListener::PyXACCListener(std::shared_ptr<Accelerator> acc)
     : accelerator(acc) {
   provider = xacc::getService<IRProvider>("gate");
 }
+
 PyXACCListener::PyXACCListener(bool _useDw, std::shared_ptr<Accelerator> acc)
     : useDW(_useDw), accelerator(acc) {
   if (_useDw)
@@ -64,9 +65,9 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
   for (int i = 1; i < ctx->param().size(); i++) {
     if (!boost::contains(ctx->param(i)->getText(), "*")) {
       params.push_back(
-          InstructionParameter(ctx->param(static_cast<size_t>(i))->getText()));
+          InstructionParameter(ctx->param(i)->getText()));
       functionVariableNames.push_back(
-          ctx->param(static_cast<size_t>(i))->getText());
+          ctx->param(i)->getText());
     }
   }
   f = provider->createFunction(ctx->kernelname->getText(), {}, params);

@@ -10,10 +10,10 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_COMPILER_FUNCTION_HPP_
-#define XACC_COMPILER_FUNCTION_HPP_
-#include <iostream>
+#ifndef XACC_IR_FUNCTION_HPP_
+#define XACC_IR_FUNCTION_HPP_
 #include <list>
+
 #include "Instruction.hpp"
 #include <Eigen/Dense>
 
@@ -23,7 +23,8 @@ using InstPtr = std::shared_ptr<Instruction>;
 
 /**
  * The Function is an Instruction that contains further
- * child Instructions.
+ * child Instructions. Functions, like Instructions, can be 
+ * parameterized. These parameters represent Function arguments.
  *
  * @author Alex McCaskey
  */
@@ -83,10 +84,28 @@ public:
    */
   virtual void addInstruction(InstPtr instruction) = 0;
 
+  /**
+   * Add a parameter to this Function.
+   *
+   * @ param The parameter to add to this Function.
+   */
   virtual void addParameter(InstructionParameter instParam) = 0;
 
+  /**
+   * Return the depth of this Function, applicable 
+   * for Functions that represent quantum circuits.
+   *
+   * @return depth The depth of the list of instructions.
+   */
   virtual const int depth() = 0;
+
+  /**
+   * Persist this Function to a graph representation.
+   *
+   * @return graph The graph represented as a string, like a DOT file
+   */
   virtual const std::string persistGraph() = 0;
+
   /**
    * Return true always to indicate that the
    * Function is composite.
@@ -95,11 +114,34 @@ public:
    */
   virtual bool isComposite() { return true; }
 
-  // virtual const int maxLogicalBit() = 0;
-  // virtual const int maxPhysicalBit() = 0;
+  /**
+   * Return the number of logical qubits.
+   *
+   * @return nLogical The number of logical qubits.
+   */
+  virtual const int nLogicalBits() = 0;
 
+  /**
+   * Return the number of physical qubits. 
+   * 
+   * @return nPhysical The number of physical qubits.
+   */
+  virtual const int nPhysicalBits() = 0;
+
+  /**
+   * Return a view of this Function that only 
+   * contains enabled instructions.
+   *
+   * @return enabledFunction The Function of all enabled instructions.
+   */
   virtual std::shared_ptr<Function> enabledView() = 0;
 
+  /**
+   * Evaluate this parameterized function at the 
+   * given concrete parameters.
+   *
+   * @param params A vector of parameters
+   */
   virtual std::shared_ptr<Function>
   operator()(const Eigen::VectorXd &params) = 0;
 

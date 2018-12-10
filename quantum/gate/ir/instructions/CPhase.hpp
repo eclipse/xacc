@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CPHASE_HPP_
-#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CPHASE_HPP_
+#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_CPHASE_HPP_
+#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_CPHASE_HPP_
 
 #include "GateInstruction.hpp"
 
@@ -22,27 +22,16 @@ public:
   CPhase()
       : GateInstruction("CPhase", std::vector<InstructionParameter>{
                                       InstructionParameter(0.0)}) {}
-
   CPhase(int controlQubit, int targetQubit, double theta)
       : GateInstruction(
             "CPhase", std::vector<int>{controlQubit, targetQubit},
             std::vector<InstructionParameter>{InstructionParameter(theta)}) {}
-
   CPhase(std::vector<int> qbits)
       : GateInstruction(
             "CPhase", qbits,
             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<CPhase>();
-  }
-
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(CPhase)
   DEFINE_VISITABLE()
 };
 } // namespace quantum

@@ -346,7 +346,6 @@ class PyServiceRegistry(object):
 
         pluginFiles = [f for f in os.listdir(
             pluginDir) if os.path.isfile(os.path.join(pluginDir, f))]
-
         for f in pluginFiles:
             bundle_name = os.path.splitext(f)[0].strip()
             print(bundle_name, f)
@@ -355,7 +354,7 @@ class PyServiceRegistry(object):
         services = self.context.get_all_service_references(
             'xacc_algorithm_service')
         if services is None:
-            print("No XACC benchmark algorithm bundles found.")
+            print("No XACC benchmark algorithm bundles found in " + pluginDir + ".")
             exit(1)
         for s in services:
             info('[XACC-Benchmark] Algorithm Service: %s is installed.' % s.get_properties()['name'])

@@ -62,22 +62,11 @@ typedef boost::property<boost::edge_weight_t, double> EdgeWeightProperty;
 
 enum GraphType { Undirected, Directed };
 
-// Overload stream operator for vector
-template <class T>
-std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
-  os << "[";
-  for (std::size_t i = 0; i < v.size(); i++) {
-    os << v[i] << (i == v.size() - 1 ? "" : " ");
-  }
-  os << "]";
-  return os;
-}
-
 template <std::size_t> struct int_ {};
 
 template <class Tuple, size_t Pos>
 std::ostream &print_tuple(std::ostream &out, const Tuple &t, int_<Pos>) {
-  out << std::get<std::tuple_size<Tuple>::value - Pos>(t) << ',';
+  out << std::get<std::tuple_size<Tuple>::value - Pos>(t) << ';';
   return print_tuple(out, t, int_<Pos - 1>());
 }
 
@@ -140,14 +129,14 @@ protected:
       auto node = vertex(v, graph);
       std::stringstream ss;
       ss << graph[node].properties;
-
+     
       // Now we have a string of comma separated parameters
       std::string result;
       auto vertexString = ss.str();
       boost::trim(vertexString);
       std::vector<std::string> splitVec;
-      boost::split(splitVec, vertexString, boost::is_any_of(","));
-
+      boost::split(splitVec, vertexString, boost::is_any_of(";"));
+      
       int counter = 0;
       for (std::size_t i = 0; i < splitVec.size(); i++) {
         if (!graph[node].propertyNames[counter].empty()) {
@@ -158,7 +147,7 @@ protected:
             s.insert(0, graph[node].propertyNames[counter] + "=");
           }
           counter++;
-          result += s + ",";
+          result += s + ";";
         }
       }
 

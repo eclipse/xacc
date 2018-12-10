@@ -10,11 +10,10 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
-#define QUANTUM_GATE_GATEQIR_GATEINSTRUCTION_HPP_
+#ifndef QUANTUM_GATE_IR_GATEINSTRUCTION_HPP_
+#define QUANTUM_GATE_IR_GATEINSTRUCTION_HPP_
 
 #include "Instruction.hpp"
-#include <boost/lexical_cast.hpp>
 #include "Cloneable.hpp"
 
 namespace xacc {
@@ -24,12 +23,9 @@ class GateIRProvider;
 
 /**
  */
-class GateInstruction : public virtual Instruction,
-                        public Cloneable<GateInstruction> {
+class GateInstruction : public Instruction, public Cloneable<GateInstruction> {
 
 protected:
-  friend class GateIRProvider;
-
   /**
    * Reference to this instructions name
    */
@@ -40,125 +36,196 @@ protected:
    */
   std::vector<int> qbits;
 
+  /**
+   * Reference to enabled or disabled instruction state.
+   */
   bool enabled = true;
 
+  /**
+   * Reference to this Instructions vector of
+   * parameters.
+   */
   std::vector<InstructionParameter> parameters;
 
+  /**
+   * Reference to this Instruction's set of options.
+   */
+  std::map<std::string, InstructionParameter> options;
+
+  /**
+   * This method is here for the GateIRProvider.
+   */
+  friend class GateIRProvider;
   virtual void setBits(std::vector<int> bits) { qbits = bits; }
 
 public:
-  GateInstruction() {}
-
-  GateInstruction(std::string name) : gateName(name) {}
-  GateInstruction(std::string name, std::vector<InstructionParameter> params)
-      : gateName(name), parameters(params) {}
-
-  GateInstruction(std::vector<int> qubts)
-      : gateName("UNKNOWN"), qbits(qubts),
-        parameters(std::vector<InstructionParameter>{}) {}
+  /**
+   * Nullary constructor
+   */
+  GateInstruction();
 
   /**
-   * The constructor, takes the id, name, layer, and qubits
-   * this instruction acts on.
-   *
-   * @param id
-   * @param layer
-   * @param name
-   * @param qubts
+   * Constructor, construct with gate name
    */
-  GateInstruction(std::string name, std::vector<int> qubts)
-      : gateName(name), qbits(qubts),
-        parameters(std::vector<InstructionParameter>{}) {}
+  GateInstruction(std::string name);
 
+  /**
+   * Constructor, construct with gate name and instruction parameters.
+   */
+  GateInstruction(std::string name, std::vector<InstructionParameter> params);
+
+  /**
+   * The constructor, takes the name and qubits
+   * this instruction acts on.
+   */
+  GateInstruction(std::string name, std::vector<int> qubts);
+
+  /**
+   * The constructor, takes the name, bits operated on, and parameters.
+   */
   GateInstruction(std::string name, std::vector<int> qubts,
-                  std::vector<InstructionParameter> params)
-      : gateName(name), qbits(qubts), parameters(params) {}
+                  std::vector<InstructionParameter> params);
 
-  GateInstruction(const GateInstruction &inst)
-      : gateName(inst.gateName), qbits(inst.qbits), parameters(inst.parameters),
-        enabled(inst.enabled) {}
+  /**
+   * The copy constructor
+   */
+  GateInstruction(const GateInstruction &inst);
 
   /**
    * Return the instruction name.
+   *
    * @return
    */
-  virtual const std::string name() const { return gateName; }
+  const std::string name() const override;
 
-  virtual const std::string description() const { return ""; }
+  /**
+   * Return this instruction's description.
+   *
+   * @return desc The description.
+   */
+  const std::string description() const override;
+
   /**
    * Return the list of qubits this instruction acts on.
-   * @return
+   *
+   * @return bits The qubits this instruction operates on.
    */
-  virtual const std::vector<int> bits() { return qbits; }
+  const std::vector<int> bits() override;
 
-  virtual const std::string getTag() { return ""; }
-
-  virtual void mapBits(std::vector<int> bitMap) {
-    for (int i = 0; i < qbits.size(); i++) {
-      qbits[i] = bitMap[qbits[i]];
-    }
-  }
+  /**
+   * Map this Instruction's qubit indices to the
+   * given physical qubits.
+   *
+   * @param bitMap The physical bits to map to.
+   */
+  void mapBits(std::vector<int> bitMap) override;
 
   /**
    * Return this instruction's assembly-like string
    * representation.
-   * @param bufferVarName
-   * @return
+   *
+   * @return qasm The instruction as qasm
    */
-  virtual const std::string toString(const std::string &bufferVarName) {
-    auto str = gateName;
-    if (!parameters.empty()) {
-      str += "(";
-      for (auto p : parameters) {
-        str += boost::lexical_cast<std::string>(p) + ",";
-      }
-      str = str.substr(0, str.length() - 1) + ") ";
-    } else {
-      str += " ";
-    }
+  const std::string toString() override;
 
-    for (auto q : bits()) {
-      str += bufferVarName + std::to_string(q) + ",";
-    }
+  /**
+   * Return this instruction's assembly-like string
+   * representation.
 
-    // Remove trailing comma
-    str = str.substr(0, str.length() - 1);
+   * @param bufferVarName The qubit register name
+   * @return qasm The instruction as qasm
+   */
+  const std::string toString(const std::string &bufferVarName) override;
 
-    return str;
-  }
+  /**
+   * Return true if this Instruction is enabled.
+   *
+   * @return enabled True if this Instruction is enabled.
+   */
+  bool isEnabled() override;
 
-  virtual bool isEnabled() { return enabled; }
+  /**
+   * Disable this Instruction.
+   */
+  void disable() override;
 
-  virtual void disable() { enabled = false; }
+  /**
+   * Enable this Instruction.
+   */
+  void enable() override;
 
-  virtual void enable() { enabled = true; }
+  /**
+   * Return the parameter at the given index.
+   *
+   * @param idx The parameter index
+   * @return param The parameter.
+   */
+  InstructionParameter getParameter(const int idx) const override;
 
-  virtual InstructionParameter getParameter(const int idx) const {
-    if (idx + 1 > parameters.size()) {
-      XACCLogger::instance()->error(
-          "Invalid Parameter requested from Parameterized Gate Instruction.");
-    }
+  /**
+   * Set the parameter at the given index.
+   *
+   * @param idx The parameter index
+   * @param param The parameter.
+   */
+  void setParameter(const int idx, InstructionParameter &p) override;
 
-    return parameters[idx];
-  }
+  /**
+   * Return this Instructions Parameters.
+   *
+   * @return params The Instruction Parameters.
+   */
+  std::vector<InstructionParameter> getParameters() override;
 
-  virtual void setParameter(const int idx, InstructionParameter &p) {
-    if (idx + 1 > parameters.size()) {
-      XACCLogger::instance()->error(
-          "Invalid Parameter requested from Parameterized Gate Instruction.");
-    }
+  /**
+   * Return true if this Instruction is parameterized.
+   *
+   * @return isParameterized True if parameterized.
+   */
+  bool isParameterized() override;
 
-    parameters[idx] = p;
-  }
+  /**
+   * Return the number of parameters this Instruction has.
+   *
+   * @return nParams The number of parameters.
+   */
+  const int nParameters() override;
 
-  virtual std::vector<InstructionParameter> getParameters() {
-    return parameters;
-  }
+  /**
+   * Return true if this Instruction has
+   * customizable options.
+   *
+   * @return hasOptions
+   */
+  bool hasOptions() override;
 
-  virtual bool isParameterized() { return nParameters() > 0; }
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  void setOption(const std::string optName,
+                 InstructionParameter option) override;
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override;
 
-  virtual const int nParameters() { return parameters.size(); }
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  std::map<std::string, InstructionParameter> getOptions() override;
 
+  /**
+   * This configures this Instruction with the appropriate
+   * accept() method for the XACC IR InstructionVisitor pattern.
+   */
   DEFINE_VISITABLE()
 
   /**
@@ -166,6 +233,11 @@ public:
    */
   virtual ~GateInstruction() {}
 };
+
+#define DEFINE_CLONE(CLASS)                                      \
+  std::shared_ptr<GateInstruction> clone() override {            \
+    return std::make_shared<CLASS>();                           \
+  } 
 
 } // namespace quantum
 } // namespace xacc

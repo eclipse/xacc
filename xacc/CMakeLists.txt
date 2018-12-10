@@ -65,6 +65,7 @@ if(XACC_BUILD_TESTS)
    include_directories(${GTEST_INCLUDE_DIRS})
    add_subdirectory(accelerator/tests)
    add_subdirectory(utils/tests)
+   add_subdirectory(ir/tests)
 endif()
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
