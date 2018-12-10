@@ -10,34 +10,21 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CZ_HPP_
-#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_CZ_HPP_
+#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_CZ_HPP_
+#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_CZ_HPP_
 
 #include "GateInstruction.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
 class CZ : public virtual GateInstruction {
 public:
   CZ() : GateInstruction("CZ") {}
-
   CZ(std::vector<int> qbits) : GateInstruction("CZ", qbits) {}
-
   CZ(int srcqbit, int tgtqbit) : CZ(std::vector<int>{srcqbit, tgtqbit}) {}
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<CZ>();
-  }
 
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(CZ)
   DEFINE_VISITABLE()
 };
 

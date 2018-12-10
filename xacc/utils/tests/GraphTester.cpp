@@ -210,18 +210,20 @@ TEST(GraphTester, checkWrite) {
   complete5.addEdge(3, 4);
 
   std::stringstream ss;
+  std::cout << "WRITING:\n";
   complete5.write(ss);
+  std::cout << ss.str() << "\nWROTE IT\n";
   EXPECT_TRUE(ss.str() == expected);
 
   Graph<FakeVertexFourProperties> complete5_4props(5);
 
   expected = "graph G {\n"
              "node [shape=box style=filled]\n"
-             "0 [label=\"prop1=val1,prop2=1,prop3=1,prop4=1\"];\n"
-             "1 [label=\"prop1=val2,prop2=2,prop3=2,prop4=2\"];\n"
-             "2 [label=\"prop1=val3,prop2=3,prop3=3,prop4=3\"];\n"
-             "3 [label=\"prop1=val4,prop2=4,prop3=4,prop4=4\"];\n"
-             "4 [label=\"prop1=val5,prop2=5,prop3=5,prop4=5\"];\n"
+             "0 [label=\"prop1=val1;prop2=1;prop3=1;prop4=1\"];\n"
+             "1 [label=\"prop1=val2;prop2=2;prop3=2;prop4=2\"];\n"
+             "2 [label=\"prop1=val3;prop2=3;prop3=3;prop4=3\"];\n"
+             "3 [label=\"prop1=val4;prop2=4;prop3=4;prop4=4\"];\n"
+             "4 [label=\"prop1=val5;prop2=5;prop3=5;prop4=5\"];\n"
              "0--1 [label=\"weight=0.000000\"];\n"
              "0--2 [label=\"weight=0.000000\"];\n"
              "0--3 [label=\"weight=0.000000\"];\n"
@@ -269,7 +271,9 @@ TEST(GraphTester, checkWrite) {
   complete5_4props.addEdge(3, 4);
 
   std::stringstream ss2;
+  std::cout << "AGAIN\n";
   complete5_4props.write(ss2);
+  std::cout << ss2.str() << "\nHOWDY\n";
   EXPECT_TRUE(ss2.str() == expected);
 
   // Create a 3 node graph
@@ -291,16 +295,18 @@ TEST(GraphTester, checkWrite) {
 
   expected = "graph G {\n"
              "node [shape=box style=filled]\n"
-             "0 [label=\"prop1=val1,prop2=1\"];\n"
-             "1 [label=\"prop1=val2,prop2=2\"];\n"
-             "2 [label=\"prop1=val3,prop2=3\"];\n"
+             "0 [label=\"prop1=val1;prop2=1\"];\n"
+             "1 [label=\"prop1=val2;prop2=2\"];\n"
+             "2 [label=\"prop1=val3;prop2=3\"];\n"
              "0--1 [label=\"weight=2.000000\"];\n"
              "1--2 [label=\"weight=3.000000\"];\n"
              "2--0 [label=\"weight=1.000000\"];\n"
              "}";
 
   std::stringstream ss3;
+  std::cout << "MADE IT\n";
   graph.write(ss3);
+  std::cout << "MADE IT HERE\n";
   EXPECT_TRUE(ss3.str() == expected);
 
   // Create a 3 node graph
@@ -319,16 +325,18 @@ TEST(GraphTester, checkWrite) {
 
   expected = "graph G {\n"
              "node [shape=box style=filled]\n"
-             "0 [label=\"prop1=[1 2]\"];\n"
-             "1 [label=\"prop1=[1 2]\"];\n"
-             "2 [label=\"prop1=[1 2]\"];\n"
+             "0 [label=\"prop1=[1, 2]\"];\n"
+             "1 [label=\"prop1=[1, 2]\"];\n"
+             "2 [label=\"prop1=[1, 2]\"];\n"
              "0--1 [label=\"weight=2.000000\"];\n"
              "1--2 [label=\"weight=3.000000\"];\n"
              "2--0 [label=\"weight=1.000000\"];\n"
              "}";
 
   std::stringstream ss4;
+  std::cout << "FINALLY\n";
   graph2.write(ss4);
+  std::cout << ss4.str() << "\nPROBS NOT\n";
   EXPECT_TRUE(ss4.str() == expected);
 }
 

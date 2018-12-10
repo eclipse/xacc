@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RY_HPP_
-#define QUANTUM_GATE_GATEQIR_INSTRUCTIONS_RY_HPP_
+#ifndef QUANTUM_GATE_GATEIR_INSTRUCTIONS_RY_HPP_
+#define QUANTUM_GATE_GATEIR_INSTRUCTIONS_RY_HPP_
 
 #include "GateInstruction.hpp"
 
@@ -33,15 +33,7 @@ public:
             "Ry", qbits,
             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<Ry>();
-  }
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(Ry)
   DEFINE_VISITABLE()
 };
 } // namespace quantum

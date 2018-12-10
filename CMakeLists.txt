@@ -16,16 +16,6 @@ set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
-#find_package(Git QUIET)
-#if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-#    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-#                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
-#    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-#        message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-#    endif()
-#endif()
-
 option(XACC_BUILD_TESTS "Build test programs" OFF)
 
 if (FROM_SETUP_PY AND NOT APPLE)
@@ -36,6 +26,7 @@ endif()
 set(CMAKE_SKIP_INSTALL_RPATH OFF)
 set(CMAKE_SKIP_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")

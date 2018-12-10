@@ -94,13 +94,11 @@ public:
    *
    * @return name The name of this Instruction
    */
-  virtual const std::string name() const { return "dw-qmi"; }
+  const std::string name() const override { return "dw-qmi"; }
 
-  virtual const std::string description() const { return ""; }
+  const std::string description() const override { return ""; }
 
-  virtual const std::string getTag() { return ""; }
-
-  virtual void mapBits(std::vector<int> bitMap) {}
+  void mapBits(std::vector<int> bitMap) override {}
 
   /**
    * Persist this Instruction to an assembly-like
@@ -109,10 +107,14 @@ public:
    * @param bufferVarName The name of the AcceleratorBuffer
    * @return str The assembly-like string.
    */
-  virtual const std::string toString(const std::string &bufferVarName) {
+  const std::string toString(const std::string &bufferVarName) override {
     std::stringstream ss;
-    ss << bits()[0] << " " << bits()[1] << " " << getParameter(0);
+    ss << bits()[0] << " " << bits()[1] << " " << getParameter(0).toString();
     return ss.str();
+  }
+
+  const std::string toString() override {
+      return toString("");
   }
 
   /**
@@ -121,7 +123,7 @@ public:
    *
    * @return bits The bits this Instruction operates on.
    */
-  virtual const std::vector<int> bits() { return qubits; }
+  const std::vector<int> bits() override { return qubits; }
 
   /**
    * Return this Instruction's parameter at the given index.
@@ -129,7 +131,7 @@ public:
    * @param idx The index of the parameter.
    * @return param The InstructionParameter at the given index.
    */
-  virtual InstructionParameter getParameter(const int idx) const {
+  InstructionParameter getParameter(const int idx) const override {
     return parameter;
   }
 
@@ -138,7 +140,7 @@ public:
    *
    * @return params This instructions parameters.
    */
-  virtual std::vector<InstructionParameter> getParameters() {
+  std::vector<InstructionParameter> getParameters() override {
     return std::vector<InstructionParameter>{parameter};
   }
 
@@ -148,7 +150,7 @@ public:
    * @param idx The index of the parameter
    * @param inst The instruction.
    */
-  virtual void setParameter(const int idx, InstructionParameter &inst) {
+  void setParameter(const int idx, InstructionParameter &inst) override {
     parameter = inst;
   }
 
@@ -157,39 +159,83 @@ public:
    *
    * @return nInsts The number of instructions.
    */
-  virtual const int nParameters() { return 1; }
+  const int nParameters() override { return 1; }
 
   /**
    * Return true if this Instruction is parameterized.
    *
    * @return parameterized True if this Instruction has parameters.
    */
-  virtual bool isParameterized() { return true; }
+  bool isParameterized() override { return true; }
+  
   /**
    * Returns true if this Instruction is composite,
    * ie, contains other Instructions.
    *
    * @return isComposite True if this is a composite Instruction
    */
-  virtual bool isComposite() { return false; }
+  bool isComposite() override { return false; }
 
   /**
    * Returns true if this Instruction is enabled
    *
    * @return enabled True if this Instruction is enabled.
    */
-  virtual bool isEnabled() { return enabled; }
+  bool isEnabled() override { return enabled; }
 
   /**
    * Disable this Instruction
    */
 
-  virtual void disable() { enabled = false; }
+  void disable() override { enabled = false; }
 
   /**
    * Enable this Instruction.
    */
-  virtual void enable() { enabled = true; }
+  void enable() override { enabled = true; }
+
+  /**
+   * Return true if this Instruction has
+   * customizable options.
+   *
+   * @return hasOptions
+   */
+  bool hasOptions() override {
+      return false;
+  }
+
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  void setOption(const std::string optName,
+                 InstructionParameter option) override {
+      XACCLogger::instance()->error("setOption not implemented for DWQMI."); 
+      return;              
+  }
+  
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override {
+       XACCLogger::instance()->error("getOption not implemented for DWQMI.");  
+       return InstructionParameter(0);             
+  }
+
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  std::map<std::string, InstructionParameter> getOptions() override {
+       XACCLogger::instance()->error("getOptions not implemented for DWQMI."); 
+       return std::map<std::string,InstructionParameter>();              
+  }
 
   EMPTY_DEFINE_VISITABLE()
 };
@@ -243,15 +289,13 @@ public:
    *
    * @return name The name of this Instruction
    */
-  virtual const std::string name() const { return "anneal"; }
+  const std::string name() const override { return "anneal"; }
 
-  virtual const std::string description() const {
+  const std::string description() const override {
     return "A description of the annealing schedule";
   }
 
-  virtual const std::string getTag() { return ""; }
-
-  virtual void mapBits(std::vector<int> bitMap) {}
+  void mapBits(std::vector<int> bitMap) override {}
 
   /**
    * Persist this Instruction to an assembly-like
@@ -260,25 +304,28 @@ public:
    * @param bufferVarName The name of the AcceleratorBuffer
    * @return str The assembly-like string.
    */
-  virtual const std::string toString(const std::string &bufferVarName) {
+  const std::string toString(const std::string &bufferVarName) override {
     std::stringstream ss;
-    ss << "anneal ta = " << times[0] << ", tp = " << times[1]
-       << ", tq = " << times[2] << ", ";
+    ss << "anneal ta = " << times[0].toString() << ", tp = " << times[1].toString()
+       << ", tq = " << times[2].toString() << ", ";
     if (times.size() > 3) {
-      ss << times[3];
+      ss << times[3].toString();
     } else {
       ss << "forward";
     }
     return ss.str();
   }
 
+  const std::string toString() override {
+      return toString("");
+  }
   /**
    * Return the indices of the bits that this Instruction
    * operates on.
    *
    * @return bits The bits this Instruction operates on.
    */
-  virtual const std::vector<int> bits() { return std::vector<int>{}; }
+  const std::vector<int> bits() override { return std::vector<int>{}; }
 
   /**
    * Return this Instruction's parameter at the given index.
@@ -286,7 +333,7 @@ public:
    * @param idx The index of the parameter.
    * @return param The InstructionParameter at the given index.
    */
-  virtual InstructionParameter getParameter(const int idx) const {
+  InstructionParameter getParameter(const int idx) const override {
     return times[idx];
   }
 
@@ -295,7 +342,7 @@ public:
    *
    * @return params This instructions parameters.
    */
-  virtual std::vector<InstructionParameter> getParameters() { return times; }
+  std::vector<InstructionParameter> getParameters() override { return times; }
 
   /**
    * Set this Instruction's parameter at the given index.
@@ -303,7 +350,7 @@ public:
    * @param idx The index of the parameter
    * @param inst The instruction.
    */
-  virtual void setParameter(const int idx, InstructionParameter &inst) {
+  void setParameter(const int idx, InstructionParameter &inst) override {
     times.at(idx) = inst;
   }
 
@@ -312,39 +359,82 @@ public:
    *
    * @return nInsts The number of instructions.
    */
-  virtual const int nParameters() { return 4; }
+  const int nParameters() override { return 4; }
 
   /**
    * Return true if this Instruction is parameterized.
    *
    * @return parameterized True if this Instruction has parameters.
    */
-  virtual bool isParameterized() { return true; }
+  bool isParameterized() override { return true; }
   /**
    * Returns true if this Instruction is composite,
    * ie, contains other Instructions.
    *
    * @return isComposite True if this is a composite Instruction
    */
-  virtual bool isComposite() { return false; }
+  bool isComposite() override { return false; }
 
   /**
    * Returns true if this Instruction is enabled
    *
    * @return enabled True if this Instruction is enabled.
    */
-  virtual bool isEnabled() { return enabled; }
+  bool isEnabled() override { return enabled; }
 
   /**
    * Disable this Instruction
    */
 
-  virtual void disable() { enabled = false; }
+  void disable() override { enabled = false; }
 
   /**
    * Enable this Instruction.
    */
-  virtual void enable() { enabled = true; }
+  void enable() override { enabled = true; }
+
+ /**
+   * Return true if this Instruction has
+   * customizable options.
+   *
+   * @return hasOptions
+   */
+  bool hasOptions() override {
+      return false;
+  }
+
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  void setOption(const std::string optName,
+                 InstructionParameter option) override {
+      XACCLogger::instance()->error("setOption not implemented for Anneal."); 
+      return;              
+  }
+  
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override {
+       XACCLogger::instance()->error("getOption not implemented for Anneal.");  
+       return InstructionParameter(0);             
+  }
+
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  std::map<std::string, InstructionParameter> getOptions() override {
+       XACCLogger::instance()->error("getOptions not implemented for Anneal."); 
+       return std::map<std::string,InstructionParameter>();              
+  }
 
   EMPTY_DEFINE_VISITABLE()
 };

@@ -10,25 +10,14 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_COMPILER_INSTRUCTION_HPP_
-#define XACC_COMPILER_INSTRUCTION_HPP_
-#include <iostream>
-#include <vector>
-#include <string>
+#ifndef XACC_IR_INSTRUCTION_HPP_
+#define XACC_IR_INSTRUCTION_HPP_
 #include <memory>
-#include <complex>
-#include <boost/variant.hpp>
-#include "Utils.hpp"
+
 #include "InstructionVisitor.hpp"
+#include "InstructionParameter.hpp"
 
 namespace xacc {
-
-/**
- * InstructionParameters can be ints, doubles, floats, strings (for variables),
- * complex, or vector of pairs of ints (hardware connectivity)
- */
-using InstructionParameter =
-    boost::variant<int, double, float, std::string, std::complex<double>>;
 
 /**
  * The Instruction interface is the base of all
@@ -50,12 +39,20 @@ class Instruction : public BaseInstructionVisitable, public Identifiable {
 public:
   /**
    * Persist this Instruction to an assembly-like
-   * string.
+   * string with a given bit buffer variable name.
    *
    * @param bufferVarName The name of the AcceleratorBuffer
    * @return str The assembly-like string.
    */
   virtual const std::string toString(const std::string &bufferVarName) = 0;
+
+  /**
+   * Persist this Instruction to an assembly-like
+   * string.
+   *
+   * @return str The assembly-like string.
+   */  
+  virtual const std::string toString() = 0;
 
   /**
    * Return the indices of the bits that this Instruction
@@ -86,7 +83,7 @@ public:
    * @param idx The index of the parameter
    * @param inst The instruction.
    */
-  virtual void setParameter(const int idx, InstructionParameter &isnt) = 0;
+  virtual void setParameter(const int idx, InstructionParameter &inst) = 0;
 
   /**
    * Return the number of InstructionParameters this Instruction contains.
@@ -102,9 +99,12 @@ public:
    */
   virtual bool isParameterized() { return false; }
 
+  /**
+   * Map bits [0,1,2,...] to [bitMap[0],bitMap[1],...]
+   *
+   * @param bitMap The bits to map to
+   */
   virtual void mapBits(std::vector<int> bitMap) = 0;
-
-  virtual const std::string getTag() = 0;
 
   /**
    * Returns true if this Instruction is composite,
@@ -132,8 +132,37 @@ public:
    */
   virtual void enable() {}
 
-  const std::string getName() const { return name(); }
+  /**
+   * Return true if this Instruction has 
+   * customizable options.
+   * 
+   * @return hasOptions
+   */
+  virtual bool hasOptions() {return false;}
 
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  virtual void setOption(const std::string optName, InstructionParameter option) = 0;
+  
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  virtual InstructionParameter getOption(const std::string optName) = 0;
+
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  virtual std::map<std::string, InstructionParameter> getOptions() = 0;
+  
   /**
    * The destructor
    */

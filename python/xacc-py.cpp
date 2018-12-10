@@ -16,6 +16,7 @@
 #include "InstructionIterator.hpp"
 #include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
+#include "InstructionParameter.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -31,6 +32,18 @@ using namespace xacc;
 // `boost::variant` as an example -- can be any `std::variant`-like container
 namespace pybind11 {
 namespace detail {
+template <typename... Ts>
+struct type_caster<Variant<Ts...>> : variant_caster<Variant<Ts...>> {};
+
+// Specifies the function used to visit the variant -- `apply_visitor` instead
+// of `visit`
+template <> struct visit_helper<Variant> {
+  template <typename... Args>
+  static auto call(Args &&... args) -> decltype(boost::apply_visitor(args...)) {
+    return boost::apply_visitor(args...);
+  }
+};
+
 template <typename... Ts>
 struct type_caster<boost::variant<Ts...>>
     : variant_caster<boost::variant<Ts...>> {};
@@ -107,13 +120,19 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def(py::init<int>(), "Construct as an int.")
       .def(py::init<double>(), "Construct as a double.")
       .def(py::init<std::string>(), "Construct as a string.")
-      .def(py::init<std::complex<double>>(), "Construct as a complex double.")
-      .def(py::init<float>(), "Construct as a float.");
+      .def(py::init<std::complex<double>>(), "Construct as a complex double.");
 
   py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(
       m, "Instruction", "")
       .def("nParameters", &xacc::Instruction::nParameters, "")
-      .def("toString", &xacc::Instruction::toString, "")
+      .def("toString",
+           (const std::string (xacc::Instruction::*)()) &
+               xacc::Instruction::toString,
+           "")
+      .def("toString",
+           (const std::string (xacc::Instruction::*)(const std::string &)) &
+               xacc::Instruction::toString,
+           "")
       .def("isEnabled", &xacc::Instruction::isEnabled, "")
       .def("isComposite", &xacc::Instruction::isComposite, "")
       .def("bits", &xacc::Instruction::bits, "")
@@ -121,7 +140,6 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("getParameters", &xacc::Instruction::getParameters, "")
       .def("setParameter", &xacc::Instruction::setParameter, "")
       .def("mapBits", &xacc::Instruction::mapBits, "")
-      .def("getTag", &xacc::Instruction::getTag, "")
       .def("name", &xacc::Instruction::name, "")
       .def("description", &xacc::Instruction::description, "");
 
@@ -139,13 +157,18 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("name", &xacc::Function::name, "")
       .def("description", &xacc::Function::description, "")
       .def("nParameters", &xacc::Function::nParameters, "")
-      .def("toString", &xacc::Function::toString, "")
+      .def("toString",
+           (const std::string (xacc::Function::*)()) & xacc::Function::toString,
+           "")
+      .def("toString",
+           (const std::string (xacc::Function::*)(const std::string &)) &
+               xacc::Function::toString,
+           "")
       .def("enabledView", &xacc::Function::enabledView, "")
       .def("enable", &xacc::Function::enable, "")
       .def("getParameter", &xacc::Function::getParameter, "")
       .def("getParameters", &xacc::Function::getParameters, "")
       .def("setParameter", &xacc::Function::setParameter, "")
-      .def("getTag", &xacc::Function::getTag, "")
       .def("depth", &xacc::Function::depth, "")
       .def("persistGraph", &xacc::Function::persistGraph, "")
       .def("mapBits", &xacc::Function::mapBits, "");
@@ -231,11 +254,12 @@ PYBIND11_MODULE(_pyxacc, m) {
              kl[i] = v;
            })
       .def("__len__", &xacc::KernelList<>::size)
-      .def("__iter__",
-           [](const xacc::KernelList<> &kl) {
-             return py::make_iterator(kl.begin(), kl.end());
-           },
-           py::keep_alive<0, 1>())
+      .def(
+          "__iter__",
+          [](const xacc::KernelList<> &kl) {
+            return py::make_iterator(kl.begin(), kl.end());
+          },
+          py::keep_alive<0, 1>())
       .def("__getitem__",
            [](xacc::KernelList<> &s, py::slice slice) -> xacc::KernelList<> * {
              size_t start, stop, step, slicelength;
@@ -459,30 +483,33 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("translate", &xacc::translate,
         "Translate the provided IR Function to the given language.");
   m.def("setOption", [](const std::string s, InstructionParameter p) {
-    xacc::setOption(s, boost::lexical_cast<std::string>(p));
+    xacc::setOption(s, p.toString());
   });
-  m.def("info", [](const std::string s) { xacc::info(s); }, "");
-  m.def("error", [](const std::string s) { xacc::error(s); }, "");
+  m.def(
+      "info", [](const std::string s) { xacc::info(s); }, "");
+  m.def(
+      "error", [](const std::string s) { xacc::error(s); }, "");
   m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
-  m.def("setOptions",
-        [](std::map<std::string, std::string> options) {
-          for (auto &kv : options)
-            xacc::setOption(kv.first, kv.second);
-        },
-        "Set a number of options at once.");
+  m.def(
+      "setOptions",
+      [](std::map<std::string, std::string> options) {
+        for (auto &kv : options)
+          xacc::setOption(kv.first, kv.second);
+      },
+      "Set a number of options at once.");
   m.def("getAcceleratorDecorator",
         [](const std::string name, std::shared_ptr<Accelerator> acc) {
           auto accd = xacc::getService<AcceleratorDecorator>(name);
           accd->setDecorated(acc);
           return accd;
         });
-  m.def("setOptions",
-        [](std::map<std::string, InstructionParameter> options) {
-          for (auto &kv : options)
-            xacc::setOption(kv.first,
-                            boost::lexical_cast<std::string>(kv.second));
-        },
-        "Set a number of options at once.");
+  m.def(
+      "setOptions",
+      [](std::map<std::string, InstructionParameter> options) {
+        for (auto &kv : options)
+          xacc::setOption(kv.first, kv.second.toString());
+      },
+      "Set a number of options at once.");
   m.def("unsetOption", &xacc::unsetOption, "");
   m.def("getOption",
         (const std::string (*)(const std::string &)) & xacc::getOption,
@@ -500,46 +527,49 @@ PYBIND11_MODULE(_pyxacc, m) {
         (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
         "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
-  m.def("loadBuffer",
-        [](const std::string json) {
-          std::istringstream s(json);
-          auto buffer = std::make_shared<AcceleratorBuffer>();
-          buffer->load(s);
-          return buffer;
-        },
-        "");
-  m.def("compileKernel",
-        [](std::shared_ptr<Accelerator> acc, const std::string &src,
-           const std::string &compilerName = "") -> std::shared_ptr<Function> {
-          if (!compilerName.empty())
-            xacc::setOption("compiler", compilerName);
-          xacc::Program p(acc, src);
-          p.build();
-          return p.getRuntimeKernels()[0].getIRFunction();
-        },
-        py::arg("acc"), py::arg("src"),
-        py::arg("compilerName") = std::string(""),
-        py::return_value_policy::move, "");
+  m.def(
+      "loadBuffer",
+      [](const std::string json) {
+        std::istringstream s(json);
+        auto buffer = std::make_shared<AcceleratorBuffer>();
+        buffer->load(s);
+        return buffer;
+      },
+      "");
+  m.def(
+      "compileKernel",
+      [](std::shared_ptr<Accelerator> acc, const std::string &src,
+         const std::string &compilerName = "") -> std::shared_ptr<Function> {
+        if (!compilerName.empty())
+          xacc::setOption("compiler", compilerName);
+        xacc::Program p(acc, src);
+        p.build();
+        return p.getRuntimeKernels()[0].getIRFunction();
+      },
+      py::arg("acc"), py::arg("src"), py::arg("compilerName") = std::string(""),
+      py::return_value_policy::move, "");
 
-  m.def("functionToInstruction",
-        [](std::shared_ptr<Function> f) {
-          return std::dynamic_pointer_cast<Instruction>(f);
-        },
-        py::return_value_policy::copy);
+  m.def(
+      "functionToInstruction",
+      [](std::shared_ptr<Function> f) {
+        return std::dynamic_pointer_cast<Instruction>(f);
+      },
+      py::return_value_policy::copy);
 
   py::module gatesub =
       m.def_submodule("gate", "Gate model quantum computing data structures.");
-  gatesub.def("create",
-              [](const std::string &name, std::vector<int> qbits,
-                 std::vector<InstructionParameter> params =
-                     std::vector<InstructionParameter>{})
-                  -> std::shared_ptr<Instruction> {
-                return xacc::getService<IRProvider>("gate")->createInstruction(
-                    name, qbits, params);
-              },
-              "Convenience function for creating a new GateInstruction.",
-              py::arg("name"), py::arg("qbits"),
-              py::arg("params") = std::vector<InstructionParameter>{});
+  gatesub.def(
+      "create",
+      [](const std::string &name, std::vector<int> qbits,
+         std::vector<InstructionParameter> params =
+             std::vector<InstructionParameter>{})
+          -> std::shared_ptr<Instruction> {
+        return xacc::getService<IRProvider>("gate")->createInstruction(
+            name, qbits, params);
+      },
+      "Convenience function for creating a new GateInstruction.",
+      py::arg("name"), py::arg("qbits"),
+      py::arg("params") = std::vector<InstructionParameter>{});
   gatesub.def(
       "createFunction",
       [](const std::string &name, std::vector<int> qbits,
@@ -551,11 +581,12 @@ PYBIND11_MODULE(_pyxacc, m) {
       "Convenience function for creating a new GateFunction.", py::arg("name"),
       py::arg("qbits"),
       py::arg("params") = std::vector<InstructionParameter>{});
-  gatesub.def("createIR",
-              []() -> std::shared_ptr<IR> {
-                return xacc::getService<IRProvider>("gate")->createIR();
-              },
-              "Convenience function for creating a new GateIR.");
+  gatesub.def(
+      "createIR",
+      []() -> std::shared_ptr<IR> {
+        return xacc::getService<IRProvider>("gate")->createIR();
+      },
+      "Convenience function for creating a new GateIR.");
 
   gatesub.def(
       "getState",

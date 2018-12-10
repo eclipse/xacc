@@ -17,10 +17,9 @@ protected:
 
 public:
   PyXACCVisitor(std::vector<InstructionParameter> functionParams) {
-    pyxaccStr += "@qpu()\ndef foo(" +
-                 boost::lexical_cast<std::string>(functionParams[0]);
+    pyxaccStr += "@qpu()\ndef foo(" +functionParams[0].toString();
     for (int i = 1; i < functionParams.size(); i++) {
-      pyxaccStr += "," + boost::lexical_cast<std::string>(functionParams[i]);
+      pyxaccStr += "," + functionParams[i].toString();
     }
     pyxaccStr += "):\n";
   }
@@ -87,25 +86,25 @@ public:
   }
 
   void visit(Rx &rx) {
-    auto angleStr = boost::lexical_cast<std::string>(rx.getParameter(0));
+    auto angleStr = rx.getParameter(0).toString();
     pyxaccStr +=
         "   Rx(" + angleStr + ", " + std::to_string(rx.bits()[0]) + ")\n";
   }
 
   void visit(Ry &ry) {
-    auto angleStr = boost::lexical_cast<std::string>(ry.getParameter(0));
+    auto angleStr = ry.getParameter(0).toString();
     pyxaccStr +=
         "   Ry(" + angleStr + ", " + std::to_string(ry.bits()[0]) + ")\n";
   }
 
   void visit(Rz &rz) {
-    auto angleStr = boost::lexical_cast<std::string>(rz.getParameter(0));
+    auto angleStr = rz.getParameter(0).toString();
     pyxaccStr +=
         "   Rz(" + angleStr + ", " + std::to_string(rz.bits()[0]) + ")\n";
   }
 
   void visit(CPhase &cp) {
-    auto angleStr = boost::lexical_cast<std::string>(cp.getParameter(0));
+    auto angleStr = cp.getParameter(0).toString();
     pyxaccStr += "   CPhase(" + angleStr + ", " + std::to_string(cp.bits()[0]) +
                  ", " + std::to_string(cp.bits()[1]) + ")\n";
   }
@@ -116,9 +115,9 @@ public:
   }
 
   void visit(U& u) {
-    auto t = boost::lexical_cast<std::string>(u.getParameter(0));
-    auto p = boost::lexical_cast<std::string>(u.getParameter(1));
-    auto l = boost::lexical_cast<std::string>(u.getParameter(2));
+    auto t = u.getParameter(0).toString();
+    auto p = u.getParameter(1).toString();
+    auto l = u.getParameter(2).toString();
 
     // if (u.getParameter(0).which() != 3 && u.getParameter(1).which() != 3 && u.getParameter(2).which() != 3) {
     //     // We have concrete values here

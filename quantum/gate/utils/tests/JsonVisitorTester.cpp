@@ -83,7 +83,7 @@ TEST(JsonVisitorTester, checkFunctionWithFunction) {
   auto f = std::make_shared<GateFunction>("foo");
   auto init = std::make_shared<GateFunction>("init");
 
-  xacc::InstructionParameter p = "phi";
+  xacc::InstructionParameter p("phi");
   auto rz = std::make_shared<Rz>(std::vector<int>{0});
   rz->setParameter(0, p);
 

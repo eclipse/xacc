@@ -18,26 +18,13 @@
 namespace xacc {
 namespace quantum {
 
-/**
- *
- */
 class X : public virtual GateInstruction {
 public:
   X() : GateInstruction("X") {}
-
   X(std::vector<int> qbit) : GateInstruction("X", qbit) {}
-
   X(int qbit) : X(std::vector<int>{qbit}) {}
 
-  virtual std::shared_ptr<GateInstruction> clone() {
-    return std::make_shared<X>();
-  }
-  /**
-   * Return the description of this instance
-   * @return description The description of this object.
-   */
-  virtual const std::string description() const { return ""; }
-
+  DEFINE_CLONE(X)
   DEFINE_VISITABLE()
 };
 

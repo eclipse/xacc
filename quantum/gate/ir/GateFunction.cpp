@@ -24,7 +24,6 @@ const std::string GateFunction::name() const { return functionName; }
 
 const std::vector<int> GateFunction::bits() { return std::vector<int>{}; }
 
-const std::string GateFunction::getTag() { return tag; }
 // lambda functions for determining if an InstructionParameter is a
 // number/double or a variable
 auto isInt = [](std::string s) {
@@ -60,7 +59,8 @@ auto splitParameter = [](InstructionParameter instParam) {
   boost::replace_all(boost::get<std::string>(instParam), "/", " ");
   boost::replace_all(boost::get<std::string>(instParam), "+", " ");
 
-  boost::split(split, boost::get<std::string>(instParam),
+  auto instParamStr = instParam.as<std::string>();
+  boost::split(split, instParamStr,
                boost::is_any_of(" "));
   for (auto s : split) {
     if (!isNumber(s) && !s.empty()) {
@@ -74,7 +74,7 @@ void GateFunction::removeInstruction(const int idx) {
   auto instruction = getInstruction(idx);
   // Check to see if instruction being removed is parameterized
   if (instruction->isParameterized() &&
-      instruction->getParameter(0).which() == 3) {
+      instruction->getParameter(0).isVariable()) {
     // Get InstructionParameter of instruction being removed
     bool dupParam = false;
     // strip the parameter of mathematical operators and numbers/doubles
@@ -105,15 +105,14 @@ void GateFunction::addInstruction(InstPtr instruction) {
   if (instruction->isParameterized() && instruction->nParameters() <= 1) {
     xacc::InstructionParameter param = instruction->getParameter(0);
     // Check to see if parameter is a string
-    if (param.which() == 3) {
+    if (param.isVariable()) {
       // check to see if the new parameter is a duplicate parameter
       bool dupParam = false;
       // strip the parameter of mathematical operators and numbers/doubles
       InstructionParameter strippedParam = splitParameter(param);
       // check if the instruction parameter is a duplicate
       for (auto p : parameters) {
-        if (boost::get<std::string>(p) ==
-            boost::get<std::string>(strippedParam)) {
+        if (p.as<std::string>() == strippedParam.as<std::string>()) {
           dupParam = true;
         }
       }
@@ -132,7 +131,7 @@ void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
   // Check if the GateInstruction being replaced is parameterized and if
   // parameter is a string
   if (currentInst->isParameterized() &&
-      currentInst->getParameter(0).which() == 3) {
+      currentInst->getParameter(0).isVariable()) {
     // strip the current InstructionParameter of mathematical operators and
     // numbers
     InstructionParameter strippedCurrent =
@@ -147,7 +146,7 @@ void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
     }
     // Check if new instruction is parameterized and if parameter is a string
     if (replacingInst->isParameterized() &&
-        replacingInst->getParameter(0).which() == 3) {
+        replacingInst->getParameter(0).isVariable()) {
       InstructionParameter strippedNew =
           splitParameter(replacingInst->getParameter(0));
       // Check if current parameter is a duplicate parameter
@@ -191,7 +190,7 @@ void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
     // if the current GateInstruction is not parameterized and the new
     // GateInstruction is, try to add parameter
   } else if (replacingInst->isParameterized() &&
-             replacingInst->getParameter(0).which() == 3) {
+             replacingInst->getParameter(0).isVariable()) {
     InstructionParameter strippedNew =
         splitParameter(replacingInst->getParameter(0));
     // Check if new parameter is a duplicate parameter
@@ -217,7 +216,7 @@ void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
   if (newInst->isParameterized() && newInst->nParameters() <= 1) {
     xacc::InstructionParameter param = newInst->getParameter(0);
     // Check if new parameter is a string
-    if (param.which() == 3) {
+    if (param.isVariable()) {
       // If new parameter is not already in parameter vector -> add parameter to
       // GateFunction
       bool dupParam = false;
@@ -304,7 +303,7 @@ operator()(const Eigen::VectorXd &params) {
   std::vector<std::string> variableNames;
   std::vector<double> values;
   for (int i = 0; i < params.size(); i++) {
-    auto var = boost::get<std::string>(getParameter(i));
+    auto var = getParameter(i).as<std::string>();
     variableNames.push_back(var);
     symbol_table.add_variable(var, p(i));
   }
@@ -331,10 +330,10 @@ operator()(const Eigen::VectorXd &params) {
     } else {
       // If a concrete GateInstruction, then check that it
       // is parameterized and that it has a string parameter
-      if (inst->isParameterized() && inst->getParameter(0).which() == 3) {
+      if (inst->isParameterized() && inst->getParameter(0).isVariable()) {
         InstructionParameter p = inst->getParameter(0);
         std::stringstream s;
-        s << p;
+        s << p.toString();
         auto val = compileExpression(p);
         InstructionParameter pnew(val);
         auto updatedInst =

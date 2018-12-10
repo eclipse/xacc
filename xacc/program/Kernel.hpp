@@ -92,8 +92,6 @@ public:
           paramVec(count) = (double)boost::get<int>(i);
         } else if (i.which() == 1) {
           paramVec(count) = boost::get<double>(i);
-        } else if (i.which() == 2) {
-          paramVec(count) = (double)boost::get<float>(i);
         } else {
           XACCLogger::instance()->error(
               "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -127,8 +125,6 @@ public:
         paramVec(count) = (double)boost::get<int>(i);
       } else if (i.which() == 1) {
         paramVec(count) = boost::get<double>(i);
-      } else if (i.which() == 2) {
-        paramVec(count) = (double)boost::get<float>(i);
       } else {
         XACCLogger::instance()->error(
             "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -221,8 +217,6 @@ public:
           paramVec(count) = (double)boost::get<int>(i);
         } else if (i.which() == 1) {
           paramVec(count) = boost::get<double>(i);
-        } else if (i.which() == 2) {
-          paramVec(count) = (double)boost::get<float>(i);
         } else {
           XACCLogger::instance()->error(
               "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -262,8 +256,6 @@ public:
         paramVec(count) = (double)boost::get<int>(i);
       } else if (i.which() == 1) {
         paramVec(count) = boost::get<double>(i);
-      } else if (i.which() == 2) {
-        paramVec(count) = (double)boost::get<float>(i);
       } else {
         XACCLogger::instance()->error(
             "Kernel.operator() mapping runtime params to Eigen::Vector, "

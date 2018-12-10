@@ -88,8 +88,6 @@ public:
   GateFunction(const GateFunction &other)
       : functionName(other.functionName), parameters(other.parameters) {}
 
-  const std::string getTag() override;
-
   virtual void mapBits(std::vector<int> bitMap) override;
 
   const int nInstructions() override;
@@ -175,7 +173,15 @@ public:
    * @return
    */
   const std::string toString(const std::string &bufferVarName) override;
-
+  
+  /**
+   * Return this instruction's assembly-like string
+   * representation.
+   *
+   * @return qasm The instruction as qasm
+   */
+  const std::string toString() override {return toString("q");}
+  
   InstructionParameter getParameter(const int idx) const override;
 
   void setParameter(const int idx, InstructionParameter &p) override;
@@ -193,6 +199,60 @@ public:
   Graph<CircuitNode, Directed> toGraph() override;
   //   void fromGraph(Graph<CircuitNode>& graph) override;
   //   void fromGraph(std::istream& input) override;
+
+
+  /**
+   * Return the number of logical qubits.
+   *
+   * @return nLogical The number of logical qubits.
+   */
+  const int nLogicalBits() override {
+    XACCLogger::instance()->error("GateFunction not implemented.");
+  }
+
+  /**
+   * Return the number of physical qubits. 
+   * 
+   * @return nPhysical The number of physical qubits.
+   */
+  const int nPhysicalBits() override {
+      XACCLogger::instance()->error("GateFunction not implemented.");
+  }
+
+  /**
+   * Return true if this Instruction has
+   * customizable options.
+   *
+   * @return hasOptions
+   */
+  bool hasOptions() override {return false;}
+
+  /**
+   * Set the value of an option with the given name.
+   *
+   * @param optName The name of the option.
+   * @param option The value of the option
+   */
+  void setOption(const std::string optName,
+                 InstructionParameter option) override {}
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override {
+      XACCLogger::instance()->error("GateFunction does not have options.");
+  }
+
+  /**
+   * Return all the Instructions options as a map.
+   *
+   * @return optMap The options map.
+   */
+  std::map<std::string, InstructionParameter> getOptions() override {
+     XACCLogger::instance()->error("GateFunction does not have options.");
+  }
 
   DEFINE_VISITABLE()
 
