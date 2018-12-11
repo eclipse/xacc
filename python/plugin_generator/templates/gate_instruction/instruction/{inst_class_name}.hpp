@@ -9,7 +9,6 @@ namespace xacc {{
         public:
             {inst_class_name}() : GateInstruction(name()) {{}}
             {inst_class_name}(std::vector<int> qbits) : GateInstruction(name(),qbits) {{}}
-            {inst_class_name}(int src, int tgt) : {inst_class_name}(std::vector<int>{{src,tgt}}) {{}}
 
             DEFINE_CLONE({inst_class_name})
             DEFINE_VISITABLE()
@@ -23,6 +22,15 @@ namespace xacc {{
             const std::string description() const override {{
                 // TODO: Write a description of the transformation here
                 return "";
+            }}
+
+            void customVisitAction(BaseInstructionVisitor& iv) override {{
+                xacc::info("Called custom visitor action on " + name() + ".");
+
+                // From here you have access to the native assembly 
+                // (usually JSON) string being built up for the 
+                // target Accelerator...
+                // iv.getNativeAssembly() += "hello";
             }}
 
             virtual ~{inst_class_name}() {{}}

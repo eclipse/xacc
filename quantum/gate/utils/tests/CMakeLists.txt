@@ -1,3 +1,4 @@
+add_xacc_test(AllGateVisitor)
 add_xacc_test(JsonVisitor)
 add_xacc_test(IRToGraphVisitor)
 target_link_libraries(IRToGraphVisitorTester xacc-quantum-gate)

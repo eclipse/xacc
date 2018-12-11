@@ -28,21 +28,29 @@ namespace xacc {
  * handles in a polymorphic manner.
  */
 class BaseInstructionVisitor : public Identifiable {
+protected:
+  // Provide a string attribute that 
+  // is common to all Visitors. The majority 
+  // of XACC visitors map IR to a native 
+  // assembly string.
+  std::string native = "";
+  
 public:
   /**
    * The destructor
    */
-  virtual ~BaseInstructionVisitor() {}
+  ~BaseInstructionVisitor() override {}
 
-  virtual const std::string name() const { return "base-visitor-name"; }
-
-  virtual const std::string description() const {
+  const std::string name() const override { return "base-visitor-name"; }
+  const std::string description() const override {
     return "Base Instruction Visitors are identifiable "
            "for developers who want them to be a "
            "framework extension point.";
   }
 
   virtual const std::string toString() { return ""; }
+  virtual std::string& getNativeAssembly() {return native;}
+  void resetNativeAssembly() {native = "";}
 };
 
 /**
@@ -105,7 +113,11 @@ protected:
     if (castedVisitor) {
       castedVisitor->visit(visited);
       return;
-    }
+    } 
+
+    // Fallback to any potential custom visit actions
+    visited.customVisitAction(*visitor.get());
+    return;
   }
 
   /**
@@ -121,6 +133,10 @@ protected:
       castedVisitor->visit(visited);
       return;
     }
+
+    // Fallback to any potential custom visit actions
+    visited.customVisitAction(*visitor);
+    return;
   }
 
 // Convenience macro for subclasses to invoke

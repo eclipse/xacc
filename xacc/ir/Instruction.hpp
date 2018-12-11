@@ -162,7 +162,19 @@ public:
    * @return optMap The options map.
    */
   virtual std::map<std::string, InstructionParameter> getOptions() = 0;
-  
+
+  /**
+   * Provide a mechanism for contributing custom 
+   * visit actions. This can be used to dynamically add 
+   * new visit() methods to existing InstructionVisitor 
+   * classes.
+   *
+   * @param visitor The visitor visiting this instruction.
+   */
+  virtual void customVisitAction(BaseInstructionVisitor& visitor) { 
+    /* do nothing at this level */ 
+  }
+   
   /**
    * The destructor
    */

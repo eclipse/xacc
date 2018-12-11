@@ -52,7 +52,9 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<Measure>,
                        public InstructionVisitor<Identity>,
                        public InstructionVisitor<CZ>, 
-                       public InstructionVisitor<U> {};
+                       public InstructionVisitor<U> {
+
+};
 } // namespace quantum
 } // namespace xacc
 #endif
