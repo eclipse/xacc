@@ -16,39 +16,45 @@ def add_subparser(subparsers):
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     subparser.add_argument("-o", "--output", help="output location (defaults to current directory)")
     subparser.add_argument("-v", "--verbose", help="increase verbosity", action="store_true")
+    subparser.add_argument("-l", "--list", help="list available plugin types", action="store_true")
     required_group = subparser.add_argument_group("required arguments")
-    required_group.add_argument("-t", "--type", help="plugin type", required=True, choices=PLUGIN_TYPES)
-    required_group.add_argument("-n", "--name", help="plugin name", required=True)
+    required_group.add_argument("-t", "--type", help="plugin type", choices=PLUGIN_TYPES)
+    required_group.add_argument("-n", "--name", help="plugin name")
 
 
 def run_generator(args, xacc_root):
     """Run the appropriate generator given args."""
-    args.libname = "xacc-{}".format(args.name.lower())
-    if args.output:
-        os.chdir(args.output)
-    os.mkdir(args.libname)
-    templates_dir = os.path.join(os.path.dirname(__file__), "templates/")
-    output_dir = os.path.join(os.getcwd(), args.libname)
-
-    if args.type.lower() in ["irtransformation","iroptimization"]:
-        template_dir = os.path.join(templates_dir, "irtransformation/")
-        if args.verbose:
-            print("Generating an IR Optimization or Transformation plugin...")
-        generate_irtransformation(template_dir, output_dir, xacc_root, args)
-    elif args.type.lower() == "compiler":
-        template_dir = os.path.join(templates_dir, "compiler/")
-        if args.verbose:
-            print("Generating a compiler plugin...")
-        generate_compiler(template_dir, output_dir, xacc_root, args)
-    elif args.type.lower() == "accelerator":
-        print('Accelerator plugin gen not implemented yet.')
-        return
-    elif args.type.lower() == "gate-instruction":
-        template_dir = os.path.join(templates_dir, "gate_instruction/")
-        if args.verbose:
-            print("Generating a compiler plugin...")
-        generate_instruction(template_dir, output_dir, xacc_root, args)
-
+    if args.list and not (args.type and args.name):
+        print("Avalable plugin types:")
+        print(PLUGIN_TYPES)
+        exit(0)
+    if args.type and args.name:
+        args.libname = "xacc-{}".format(args.name.lower())
+        if args.output:
+            os.chdir(args.output)
+        os.mkdir(args.libname)
+        templates_dir = os.path.join(os.path.dirname(__file__), "templates/")
+        output_dir = os.path.join(os.getcwd(), args.libname)
+        if args.type.lower() in ["irtransformation","iroptimization"]:
+            template_dir = os.path.join(templates_dir, "irtransformation/")
+            if args.verbose:
+                print("Generating an IR Optimization or Transformation plugin...")
+                generate_irtransformation(template_dir, output_dir, xacc_root, args)
+        elif args.type.lower() == "compiler":
+            template_dir = os.path.join(templates_dir, "compiler/")
+            if args.verbose:
+                print("Generating a compiler plugin...")
+                generate_compiler(template_dir, output_dir, xacc_root, args)
+        elif args.type.lower() == "accelerator":
+            print('Accelerator plugin gen not implemented yet.')
+            return
+        elif args.type.lower() == "gate-instruction":
+            template_dir = os.path.join(templates_dir, "gate_instruction/")
+            if args.verbose:
+                print("Generating a compiler plugin...")
+                generate_instruction(template_dir, output_dir, xacc_root, args)
+    else:
+        print("Please specify a type (-t) and name (-n). Use -l (--list) to see available plugins to generate")
 
 def generate(template_dir, output_dir, format_func, verbose=False):
     for dirpath, dirnames, filenames in os.walk(template_dir):
