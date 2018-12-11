@@ -26,11 +26,11 @@ namespace xacc {{
 
            std::shared_ptr<options_description> getOptions() override {{
                 // FIXME uncomment to use
-                //  auto desc =
-                //       std::make_shared<options_description>("{compiler_class_name} Options");
+                 auto desc =
+                      std::make_shared<options_description>("{compiler_class_name} Options");
                 //  desc->add_options()("opt1", value<std::string>(),
                 //       "opt1 description")("opt2","opt2 description");
-                //  return desc;
+                 return desc;
             }}
 
             bool handleOptions(variables_map &map) override {{ return false; }}
