@@ -374,3 +374,52 @@ from file.
    ... write to file
    ... load from file, get loadedStr
    newBuff = xacc.loadBuffer(loadedStr)
+
+Extending XACC with Plugins
+---------------------------
+XACC provides a modular, service-oriented architecture. Plugins can 
+be contributed to the framework providing new Compilers, Accelerators, 
+Instructions, IR Transformations, IRGenerators, etc. 
+
+XACC provides a plugin-generator that will create a new plugin project 
+with all boilerplate code provided. Developers just implement the 
+pertinent methods for the plugin (like the ``compile()`` method for 
+new Compilers). Contributing the plugins after the pertinent methods have 
+been implemented is as simple as ``make install``.
+
+.. note::
+
+   Note that to use the XACC plugin-generator you must have XACC installed 
+   from source (you cannot use the pip install) and your XACC must be built 
+   with Python support. 
+   
+To generate new plugins, users/developers can run the following command
+
+.. code::
+
+   $ python3 -m xacc generate-plugin -t compiler -n awesome
+
+Here we use the XACC python module to generate a new ``Compiler`` plugin with the 
+name ``awesome``. You should see a new ``xacc-awesome`` folder that contains ``CMakeLists.txt`` and 
+``README.md`` files (the CMake file is a working build file ready for use). You should 
+also see ``compiler`` and ``tests`` folders with stubbed out code ready for implementation. 
+
+You as the developer can now implement your custom quantum kernel compilation routine and 
+any unit test you would like (as a Google Test). Then, to build, test, and contribute the plugin 
+to your XACC framework instance, run the following from the top-level of the ``xacc-awesome`` 
+folder:
+
+.. code::
+
+   $ mkdir build && cd build
+   $ cmake .. -DAWESOME_BUILD_TESTS=TRUE
+   $ make install
+   $ ctest
+
+This will build, install, and run your tests on the Compiler plugin you have just 
+created. 
+
+The instructions for other plugins are similar. 
+
+
+
