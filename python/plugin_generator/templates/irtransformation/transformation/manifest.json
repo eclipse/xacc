@@ -1,0 +1,6 @@
+{{
+    "bundle.symbolic_name" : "{irt_lib_name}",
+    "bundle.activator" : true,
+    "bundle.name" : "Generated XACC IR Transformation",
+    "bundle.description" : "This is an automatically generated bundle."
+}}

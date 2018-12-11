@@ -1,0 +1,6 @@
+{{
+    "bundle.symbolic_name" : "{compiler_lib_name}",
+    "bundle.activator" : true,
+    "bundle.name" : "Generated XACC Compiler",
+    "bundle.description" : "This is an automatically generated bundle."
+}}

@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_COMPILER_IRTRANSLATION_HPP_
-#define XACC_COMPILER_IRTRANSLATION_HPP_
+#ifndef XACC_IR_IRTRANSFORMATION_HPP_
+#define XACC_IR_IRTRANSFORMATION_HPP_
 
 #include "IR.hpp"
 #include "Identifiable.hpp"
