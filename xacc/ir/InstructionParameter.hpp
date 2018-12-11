@@ -5,7 +5,7 @@
  * and Eclipse Distribution License v1.0 which accompanies this
  * distribution. The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
- *License is available at https://eclipse.org/org/documents/edl-v10.php
+ * License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
@@ -46,6 +46,13 @@ private:
     }
   };
 
+  std::map<int, std::string> whichType{{0,"int"}, {1,"double"}, 
+                                        {2,"string"}, {3,"complex"}, 
+                                        {4,"vector<pair<int>>"}, 
+                                        {5,"vector<pair<double>>"}, 
+                                        {6,"vector<int>"},
+                                        {7,"vector<double>"},
+                                        {8,"vector<string>"}};
 public:
   Variant() : boost::variant<Types...>() {}
   template <typename T>
@@ -59,8 +66,12 @@ public:
       // First off just try to get it
       return boost::get<T>(*this);
     } catch (std::exception &e) {
-        XACCLogger::instance()->error("Cannot cast Variant:  " +
-                                      std::string(e.what()));
+        std::stringstream s;
+        s << "This InstructionParameter type id is " << this->which() << "\nAllowed Ids to Type\n";
+        for (auto& kv : whichType) {
+            s << kv.first << ": " << kv.second << "\n";
+        }
+        XACCLogger::instance()->error("Cannot cast Variant:\n" + s.str());
     }
     return T();
   }
@@ -94,7 +105,8 @@ public:
 using InstructionParameter =
     Variant<int, double, std::string, std::complex<double>,
             std::vector<std::pair<int, int>>,
-            std::vector<std::pair<double, double>>>;
+            std::vector<std::pair<double, double>>,
+            std::vector<int>, std::vector<double>, std::vector<std::string>>;
 
 } // namespace xacc
 #endif
