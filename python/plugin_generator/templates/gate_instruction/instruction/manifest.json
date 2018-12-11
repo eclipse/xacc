@@ -1,0 +1,6 @@
+{{
+    "bundle.symbolic_name" : "{inst_lib_name}",
+    "bundle.activator" : true,
+    "bundle.name" : "Generated XACC Gate Instruction",
+    "bundle.description" : "This is an automatically generated bundle."
+}}
