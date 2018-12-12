@@ -58,6 +58,13 @@ protected:
   friend class GateIRProvider;
   virtual void setBits(std::vector<int> bits) { qbits = bits; }
 
+  /**
+   * This method is intended for subclasses. It is 
+   * a protected method that will be called at construction 
+   * to describe this Instructions available options map.
+   */
+  virtual void describeOptions() {}
+  
 public:
   /**
    * Nullary constructor
