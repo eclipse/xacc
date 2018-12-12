@@ -6,6 +6,14 @@
 namespace xacc {{
     namespace quantum {{
         class {inst_class_name} : public GateInstruction {{
+        protected:
+
+            void describeOptions() override {{
+                // Here, fill the GateInstruction options map
+                // std::vector<std::pair<double,double>> samples {{{{0.0,0.0}}, {{1.0,0.0}}}};
+                // options.insert({{"samples", samples}});
+            }}
+            
         public:
             {inst_class_name}() : GateInstruction(name()) {{}}
             {inst_class_name}(std::vector<int> qbits) : GateInstruction(name(),qbits) {{}}
@@ -23,10 +31,8 @@ namespace xacc {{
                 // TODO: Write a description of the transformation here
                 return "";
             }}
-
+            
             void customVisitAction(BaseInstructionVisitor& iv) override {{
-                xacc::info("Called custom visitor action on " + name() + ".");
-
                 // From here you have access to the native assembly 
                 // (usually JSON) string being built up for the 
                 // target Accelerator...
