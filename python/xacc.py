@@ -5,7 +5,13 @@ import sys
 import sysconfig
 import argparse
 import inspect
-from plugin_generator import plugin_generator
+
+hasPluginGenerator = False
+try:
+   from plugin_generator import plugin_generator
+   hasPluginGenerator = True
+except:
+    pass
 
 canExecuteBenchmarks = True
 try:    
@@ -60,12 +66,13 @@ def parse_args(args):
                         help="Print the path to the XACC install location.", required=False)
     parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
     
-    subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
-                                       description="Run {} [subcommand] -h for more information about a specific subcommand".format(
-                                           os.path.basename(sys.argv[0])))
-    plugin_generator.add_subparser(subparsers)
+    if hasPluginGenerator:
+       subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
+                                          description="Run {} [subcommand] -h for more information about a specific subcommand".format(
+                                              os.path.basename(sys.argv[0])))
+       plugin_generator.add_subparser(subparsers)
     
-    opts = parser.parse_args(args)
+       opts = parser.parse_args(args)
     
     if opts.set_credentials and not opts.api_key:
         print('Error in arg input, must supply api-key if setting credentials')
@@ -446,7 +453,7 @@ def main(argv=None):
         print(xaccLocation)
         sys.exit(0)
 
-    if opts.subcommand == "generate-plugin":
+    if hasPluginGenerator and opts.subcommand == "generate-plugin":
         plugin_generator.run_generator(opts, xaccLocation)
         sys.exit(0)
         
