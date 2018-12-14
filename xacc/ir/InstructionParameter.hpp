@@ -23,10 +23,10 @@
 
 namespace xacc {
 
-using VariantType =
-    boost::variant<int, double, std::string, std::complex<double>,
-                   std::vector<std::pair<int, int>>,
-                   std::vector<std::pair<double, double>>>;
+// using VariantType =
+//     boost::variant<int, double, std::string, std::complex<double>,
+//                    std::vector<std::pair<int, int>>,
+//                    std::vector<std::pair<double, double>>>;
 
 template <typename... Types> class Variant : public boost::variant<Types...> {
 
