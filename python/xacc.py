@@ -68,8 +68,7 @@ def parse_args(args):
     
     if hasPluginGenerator:
        subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
-                                          description="Run {} [subcommand] -h for more information about a specific subcommand".format(
-                                              os.path.basename(sys.argv[0])))
+                                          description="Run python3 -m xacc [subcommand] -h for more information about a specific subcommand")
        plugin_generator.add_subparser(subparsers)
     
        opts = parser.parse_args(args)

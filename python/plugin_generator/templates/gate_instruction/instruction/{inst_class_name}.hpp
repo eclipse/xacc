@@ -11,7 +11,7 @@ namespace xacc {{
             void describeOptions() override {{
                 // Here, fill the GateInstruction options map
                 // std::vector<std::pair<double,double>> samples {{{{0.0,0.0}}, {{1.0,0.0}}}};
-                // options.insert({{"samples", samples}});
+                // options.insert({{"samples", InstructionParameter(samples)}});
             }}
             
         public:

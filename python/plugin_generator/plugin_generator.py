@@ -24,7 +24,7 @@ def add_subparser(subparsers):
 
 def run_generator(args, xacc_root):
     """Run the appropriate generator given args."""
-    if args.list and not (args.type and args.name):
+    if args.list and args.type == None and args.name == None:
         print("Avalable plugin types:")
         print(PLUGIN_TYPES)
         exit(0)
@@ -51,8 +51,8 @@ def run_generator(args, xacc_root):
         elif args.type.lower() == "gate-instruction":
             template_dir = os.path.join(templates_dir, "gate_instruction/")
             if args.verbose:
-                print("Generating a compiler plugin...")
-                generate_instruction(template_dir, output_dir, xacc_root, args)
+                print("Generating a gate-instruction plugin...")
+            generate_instruction(template_dir, output_dir, xacc_root, args)
     else:
         print("Please specify a type (-t) and name (-n). Use -l (--list) to see available plugins to generate")
 
