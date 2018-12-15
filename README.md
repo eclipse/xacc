@@ -12,13 +12,9 @@ Documentation
 
 Quick Installation and Example Usage
 -------------------------------------
-XACC binaries are available via PyPi as Python Wheels: 
+XACC and plugin binaries are available via PyPi as Python Wheels: 
 ```bash
-$ python -m pip install --user xacc
-```
-Install plugins to interact with various quantum programming languages and hardware:
-```bash
-$ python -m pip install --user xacc-rigetti xacc-vqe tnqvm xacc-ibm 
+$ python -m pip install --user xacc[all]
 ```
 
 With XACC installed, one can compile and run quantum kernels in python and 
