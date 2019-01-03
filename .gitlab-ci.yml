@@ -1,0 +1,19 @@
+image: docker:stable
+
+stages:
+  - build
+  - push
+
+docker build:
+  stage: build
+  script:
+  - docker info
+  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci .
+
+docker push:
+  stage: push
+  only:
+  - master
+  script:
+  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
+  - docker push xacc/base-plugin-ci
