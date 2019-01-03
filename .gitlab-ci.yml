@@ -19,7 +19,7 @@ docker push:
   script:
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/base-plugin-ci
-  - docker rmi -f $(docker images -f "dangling=true" -q)
+  - docker system prune
   - docker rmi -f xacc/base-plugin-ci
 
 docker downstream:
