@@ -24,5 +24,5 @@ docker downstream:
   only:
   - master
   script:
-  - apt-get install -y curl
+  - apk add --no-cache curl
   - curl -X POST -F token=$QCOR_TRIGGER_TOKEN -F ref=master https://code.ornl.gov/api/v4/projects/4076/trigger/pipeline
