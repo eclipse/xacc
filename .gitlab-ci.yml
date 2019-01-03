@@ -9,7 +9,7 @@ docker build:
   stage: build
   script:
   - docker info
-  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . 
+  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci .
 
 docker push:
   stage: push
@@ -24,4 +24,5 @@ docker downstream:
   only:
   - master
   script:
+  - apt-get install -y curl
   - curl -X POST -F token=$QCOR_TRIGGER_TOKEN -F ref=master https://code.ornl.gov/api/v4/projects/4076/trigger/pipeline
