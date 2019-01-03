@@ -3,13 +3,13 @@ image: docker:stable
 stages:
   - build
   - push
-  - wheels
+  - downstream
 
 docker build:
   stage: build
   script:
   - docker info
-  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . --no-cache
+  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . 
 
 docker push:
   stage: push
@@ -19,11 +19,9 @@ docker push:
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/base-plugin-ci
 
-docker wheels:
-  stage: wheels
+docker downstream:
+  stage: downstream
   only:
   - master
   script:
-  - git diff --name-only HEAD~1 HEAD | grep VERSION
-  - retcode=$?
-  - if [ $retcode -eq "0" ] ; then cd docker/manylinux && docker build -t xacc/wheel-build --no-cache ; else echo "wheels not built." ; fi
+  - curl -X POST -F token=$QCOR_TRIGGER_TOKEN -F ref=master https://code.ornl.gov/api/v4/projects/4076/trigger/pipeline
