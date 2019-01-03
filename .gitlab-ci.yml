@@ -3,13 +3,13 @@ image: docker:stable
 stages:
   - build
   - push
+  - wheels
 
 docker build:
   stage: build
   script:
-  - whoami
   - docker info
-  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci .
+  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . --no-cache
 
 docker push:
   stage: push
@@ -18,3 +18,12 @@ docker push:
   script:
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/base-plugin-ci
+
+docker wheels:
+  stage: wheels
+  only:
+  - master
+  script:
+  - git diff --name-only HEAD~1 HEAD | grep VERSION
+  - retcode=$?
+  - if [ $retcode -eq "0" ] ; then cd docker/manylinux && docker build -t xacc/wheel-build --no-cache ; else echo "wheels not built." ; fi
