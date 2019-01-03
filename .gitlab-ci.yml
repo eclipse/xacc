@@ -4,6 +4,7 @@ stages:
   - build
   - push
   - downstream
+  - wheel
 
 docker build:
   stage: build
@@ -18,6 +19,8 @@ docker push:
   script:
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/base-plugin-ci
+  - docker rmi -f $(docker images -f "dangling=true" -q)
+  - docker rmi -f xacc/base-plugin-ci
 
 docker downstream:
   stage: downstream
@@ -26,3 +29,11 @@ docker downstream:
   script:
   - apk add --no-cache curl
   - curl -X POST -F token=$QCOR_TRIGGER_TOKEN -F ref=master https://code.ornl.gov/api/v4/projects/4076/trigger/pipeline
+
+docker wheel:
+  stage: wheel
+  only:
+  - master
+  script:
+  - git diff --name-only HEAD~1 HEAD | grep VERSION && echo "Version Incremented" || echo "Version not incremented" && exit 1
+  - echo "Wheel building coming soon."
