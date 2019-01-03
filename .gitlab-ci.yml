@@ -9,7 +9,7 @@ docker build:
   stage: build
   script:
   - docker info
-  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci .
+  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . --no-cache
 
 docker push:
   stage: push
