@@ -85,6 +85,15 @@ public:
   virtual std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() = 0;
 
+  virtual const std::vector<double> getOneBitErrorRates() {
+    return std::vector<double>{};
+  }
+  virtual const std::vector<std::pair<std::pair<int, int>, double>>
+  getTwoBitErrorRates() {
+    // Return list of ((q1,q2),ERROR_RATE)
+    return std::vector<std::pair<std::pair<int, int>, double>>{};
+  }
+
   /**
    * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
    *

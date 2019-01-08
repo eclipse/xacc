@@ -101,6 +101,7 @@ public:
 
   const int depth() override {
     xacc::error("DWKernel graph is undirected, cannot compute depth.");
+    return 0;
   }
 
   const std::string persistGraph() override {

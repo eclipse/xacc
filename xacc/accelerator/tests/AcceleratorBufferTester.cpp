@@ -93,6 +93,7 @@ TEST(AcceleratorBufferTester, checkLoad) {
 
   std::stringstream ss;
   buffer.print(ss);
+  std::cout << "HELLO: " << ss.str() << "\n";
   EXPECT_EQ(ss.str(), bufferStr);
 }
 TEST(AcceleratorBufferTester, checkLoadDwave) {
@@ -154,6 +155,7 @@ TEST(AcceleratorBufferTester, checkLoadDwave) {
 
   buffer.print(ss);
   EXPECT_EQ(ss.str(), dwaveBuffer);
+  std::cout << ss.str() << "\n";
 }
 
 TEST(AcceleratorBufferTester, checkEmptyParametersBug) {

@@ -19,16 +19,16 @@ GateInstruction::GateInstruction() {}
 GateInstruction::GateInstruction(std::string name) : gateName(name) {}
 GateInstruction::GateInstruction(std::string name,
                                  std::vector<InstructionParameter> params)
-    : gateName(name), parameters(params) { describeOptions(); }
+    : gateName(name), parameters(params) { }
 GateInstruction::GateInstruction(std::string name, std::vector<int> qubts)
     : gateName(name), qbits(qubts),
-      parameters(std::vector<InstructionParameter>{}) { describeOptions(); }
+      parameters(std::vector<InstructionParameter>{}) { }
 GateInstruction::GateInstruction(std::string name, std::vector<int> qubts,
                                  std::vector<InstructionParameter> params)
-    : gateName(name), qbits(qubts), parameters(params) { describeOptions(); }
+    : gateName(name), qbits(qubts), parameters(params) { }
 GateInstruction::GateInstruction(const GateInstruction &inst)
     : gateName(inst.gateName), qbits(inst.qbits), parameters(inst.parameters),
-      enabled(inst.enabled) { describeOptions(); }
+      enabled(inst.enabled) { }
 
 const std::string GateInstruction::name() const { return gateName; }
 const std::string GateInstruction::description() const {

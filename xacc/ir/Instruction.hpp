@@ -174,6 +174,8 @@ public:
   virtual void customVisitAction(BaseInstructionVisitor& visitor) { 
     /* do nothing at this level */ 
   }
+
+  virtual const bool isAnalog() const { return false; }
    
   /**
    * The destructor

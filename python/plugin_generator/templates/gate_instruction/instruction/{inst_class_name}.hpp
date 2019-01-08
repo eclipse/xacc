@@ -38,6 +38,12 @@ namespace xacc {{
                 // target Accelerator...
                 // iv.getNativeAssembly() += "hello";
             }}
+  
+            const bool isAnalog() const override {{ 
+                // Indicate if this is a 
+                // digital or analog gate instruction
+                return false; 
+            }}
 
             virtual ~{inst_class_name}() {{}}
         }};
