@@ -47,6 +47,19 @@ operator()(const std::map<int, std::vector<int>> &i) const {
       i.begin(), i.end(),
       boost::get<std::map<int, std::vector<int>>>(extraInfo).begin());
 }
+
+bool CheckEqualVisitor::
+operator()(const std::vector<std::pair<double, double>> &i) const {
+  return std::equal(
+      i.begin(), i.end(),
+      boost::get<std::vector<std::pair<double, double>>>(extraInfo).begin(),
+      [](const std::pair<double, double> &d,
+         const std::pair<double, double> &f) {
+        return std::fabs(d.first - f.first) < 1e-12 &&
+               std::fabs(d.second - f.second) < 1e-12;
+      });
+}
+
 void ToJsonVisitor::operator()(const int &i) { writer.Int(i); }
 void ToJsonVisitor::operator()(const double &i) { writer.Double(i); }
 void ToJsonVisitor::operator()(const std::string &i) { writer.String(i); }
@@ -80,6 +93,18 @@ void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
     writer.EndArray();
   }
   writer.EndObject();
+}
+
+void ToJsonVisitor::
+operator()(const std::vector<std::pair<double, double>> &i) const {
+  writer.StartArray();
+  for (auto &v : i) {
+    writer.StartArray();
+    writer.Double(v.first);
+    writer.Double(v.second);
+    writer.EndArray();
+  }
+  writer.EndArray();
 }
 
 AcceleratorBuffer::AcceleratorBuffer(const std::string &str, const int N)
@@ -286,12 +311,12 @@ AcceleratorBuffer::computeMeasurementProbability(const std::string &bitStr) {
 }
 
 std::shared_ptr<AcceleratorBuffer> AcceleratorBuffer::clone() {
-    std::stringstream s;
-    print(s);
-    std::istringstream is(s.str());
-    auto cloned = std::make_shared<AcceleratorBuffer>();
-    cloned->load(is);
-    return cloned;
+  std::stringstream s;
+  print(s);
+  std::istringstream is(s.str());
+  auto cloned = std::make_shared<AcceleratorBuffer>();
+  cloned->load(is);
+  return cloned;
 }
 
 /**
@@ -380,60 +405,74 @@ void AcceleratorBuffer::print() { print(std::cout); }
 void AcceleratorBuffer::print(std::ostream &stream) {
   StringBuffer buffer;
   PrettyWriter<StringBuffer> writer(buffer);
-  writer.StartObject();
-  writer.Key("AcceleratorBuffer");
-  writer.StartObject();
-  writer.Key("name");
-  writer.String(name());
-  writer.Key("size");
-  writer.Int(size());
+  writer.StartObject(); // start root object
+  if (!cacheFile) {
+    writer.Key("AcceleratorBuffer");
+    writer.StartObject();
+    writer.Key("name");
+    writer.String(name());
+    writer.Key("size");
+    writer.Int(size());
+  }
 
-  writer.Key("Information");
-  writer.StartObject();
+  writer.Key((cacheFile ? "parameter_cache" : "Information"));
+  writer.StartObject(); // start ab information
   for (auto &kv : info) {
     writer.Key(kv.first);
     ToJsonVisitor vis(writer);
     kv.second.apply_visitor(vis);
   }
+  // end ab information object
   writer.EndObject();
 
-  writer.Key("Measurements");
-  writer.StartObject();
-  for (auto &kv : bitStringToCounts) {
-    writer.Key(kv.first);
-    writer.Int(kv.second);
+  if (!cacheFile) {
+    writer.Key("Measurements");
+    writer.StartObject();
+    for (auto &kv : bitStringToCounts) {
+      writer.Key(kv.first);
+      writer.Int(kv.second);
+    }
+    writer.EndObject();
   }
-  writer.EndObject();
 
   if (!children.empty()) {
     writer.Key("Children");
     writer.StartArray();
     for (auto &pair : children) {
-      writer.StartObject();
+      writer.StartObject(); // start child object
       writer.Key("name");
       writer.String(pair.first);
       writer.Key("Information");
-      writer.StartObject();
+      writer.StartObject(); // start information
       for (auto &kv : pair.second->getInformation()) {
         writer.Key(kv.first);
         ToJsonVisitor vis(writer);
         kv.second.apply_visitor(vis);
       }
+      // end information object
       writer.EndObject();
-      writer.Key("Measurements");
-      writer.StartObject();
-      for (auto &kv : pair.second->getMeasurementCounts()) {
-        writer.Key(kv.first);
-        writer.Int(kv.second);
-      }
-      writer.EndObject();
+        writer.Key("Measurements");
+        writer.StartObject();
+        for (auto &kv : pair.second->getMeasurementCounts()) {
+          writer.Key(kv.first);
+          writer.Int(kv.second);
+        }
+        // end measurement object
+        writer.EndObject();
+
+      // End child object
       writer.EndObject();
     }
+    
     writer.EndArray();
   }
+  
+  // end AB object
+  if (!cacheFile) writer.EndObject();
 
+  // end root object
   writer.EndObject();
-  writer.EndObject();
+  
   stream << buffer.GetString();
 }
 
@@ -451,9 +490,13 @@ void AcceleratorBuffer::load(std::istream &stream) {
 
   resetBuffer();
 
-  bufferId = doc["AcceleratorBuffer"]["name"].GetString();
-  nBits = doc["AcceleratorBuffer"]["size"].GetInt();
-  auto &topInfo = doc["AcceleratorBuffer"]["Information"];
+  if (!cacheFile) {
+    bufferId = doc["AcceleratorBuffer"]["name"].GetString();
+    nBits = doc["AcceleratorBuffer"]["size"].GetInt();
+  }
+
+  auto &topInfo = cacheFile ? doc["parameter_cache"]
+                            : doc["AcceleratorBuffer"]["Information"];
   for (auto itr = topInfo.MemberBegin(); itr != topInfo.MemberEnd(); ++itr) {
     auto &value = topInfo[itr->name.GetString()];
     if (value.IsInt()) {
@@ -480,6 +523,11 @@ void AcceleratorBuffer::load(std::istream &stream) {
         for (int i = 0; i < arr.Size(); i++)
           childValues.push_back(arr[i].GetString());
         addExtraInfo(itr->name.GetString(), ExtraInfo(childValues));
+      } else if (firstVal.IsArray() && !firstVal.GetArray().Empty() && firstVal.GetArray().Size() == 2) {
+          std::vector<std::pair<double,double>> v;
+          for (int i = 0; i < arr.Size(); i++) v.push_back({arr[i].GetArray()[0].GetDouble(), arr[i].GetArray()[1].GetDouble()});
+
+          addExtraInfo(itr->name.GetString(), ExtraInfo(v));
       }
     } else {
       // Here we have the case of an object([key:value])
@@ -512,9 +560,12 @@ void AcceleratorBuffer::load(std::istream &stream) {
   }
 
   // FIXME Handle Measurements
-  auto &measures = doc["AcceleratorBuffer"]["Measurements"];
-  for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd(); ++itr) {
-    appendMeasurement(itr->name.GetString(), itr->value.GetInt());
+  if (!cacheFile) {
+    auto &measures = doc["AcceleratorBuffer"]["Measurements"];
+    for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd();
+         ++itr) {
+      appendMeasurement(itr->name.GetString(), itr->value.GetInt());
+    }
   }
 
   auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
@@ -557,10 +608,10 @@ void AcceleratorBuffer::load(std::istream &stream) {
           childBuffer->addExtraInfo(itr->name.GetString(),
                                     ExtraInfo(childValues));
         } else {
-          xacc::info( "HELLO EXTRA: " + std::string(itr->name.GetString()));// << "\n";
+          xacc::info("HELLO EXTRA: " +
+                     std::string(itr->name.GetString())); // << "\n";
         }
         // FIXME Handle Map<int, [int*]>
-
       }
     }
 
@@ -570,9 +621,8 @@ void AcceleratorBuffer::load(std::istream &stream) {
       childBuffer->appendMeasurement(itr->name.GetString(),
                                      itr->value.GetInt());
     }
-    
-    appendChild(c["name"].GetString(), childBuffer);
 
+    appendChild(c["name"].GetString(), childBuffer);
   }
 }
 

@@ -62,18 +62,13 @@ protected:
 
   bool initialized = false;
 
+  std::string rootPathStr = "";
+
 public:
   ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
-
+  const std::string getRootPathString() {return rootPathStr;}
+  
   void initialize(const std::string internalPath = "");
-
-  //	// Overriding here so we can have a custom constructor
-  //	static ServiceRegistry* instance() {
-  //		if (!instance_) {
-  //			instance_ = new ServiceRegistry();
-  //		}
-  //		return instance_;
-  //	}
 
   template <typename ServiceInterface> bool hasService(const std::string name) {
     auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();

@@ -16,6 +16,7 @@
 #include "IRGenerator.hpp"
 #include <signal.h>
 #include <cstdlib>
+#include <boost/filesystem.hpp>
 
 namespace xacc {
 
@@ -344,6 +345,118 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
   auto newir = opt->transform(ir);
   auto optF = newir->getKernels()[0];
   return optF->enabledView();
+}
+bool hasCache(const std::string fileName) {
+    return boost::filesystem::exists(serviceRegistry->getRootPathString() + "/" + fileName);
+}
+std::map<std::string, InstructionParameter>
+getCache(const std::string fileName) {
+  auto rootPathStr = serviceRegistry->getRootPathString();
+  
+  std::ifstream t(rootPathStr + "/" + fileName);
+  std::string json(std::istreambuf_iterator<char>{t}, {});
+  std::istringstream s(json);
+  auto buffer = std::make_shared<AcceleratorBuffer>();
+  buffer->useAsCache();
+  
+  buffer->load(s);
+
+  auto info = buffer->getInformation();
+  ExtraInfo2InstructionParameter e2p;
+  std::map<std::string, InstructionParameter> c;
+  for (auto &kv : info) {
+    auto ip = boost::apply_visitor(e2p, kv.second);
+    c.insert({kv.first, ip});
+  }
+  return c;
+}
+
+void appendCache(const std::string fileName, const std::string key,
+                 InstructionParameter &param) {
+  auto rootPathStr = serviceRegistry->getRootPathString();
+
+  if (boost::filesystem::exists(rootPathStr + "/" + fileName)) {
+      auto existingCache = getCache(fileName);
+      if (existingCache.count(key)) {
+          existingCache[key] = param;
+      } else {
+          existingCache.insert({key, param});
+      }
+      
+      appendCache(fileName, existingCache);
+  } else {
+      std::ofstream out(rootPathStr + "/" + fileName);
+      std::stringstream s;
+      AcceleratorBuffer b;
+      b.useAsCache();
+      
+      InstructionParameter2ExtraInfo ip2e;
+      auto extrainfo = boost::apply_visitor(ip2e, param);
+      
+      b.addExtraInfo(key, extrainfo);
+      
+      b.print(s);
+
+      out << s.str();
+      out.close();
+  }
+}
+
+void appendCache(const std::string fileName, const std::string key,
+                 InstructionParameter &&param) {
+  auto rootPathStr = serviceRegistry->getRootPathString();
+
+  // Check if file exists
+  if (boost::filesystem::exists(rootPathStr + "/" + fileName)) {
+      std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
+      auto existingCache = getCache(fileName);
+      if (existingCache.count(key)) {
+          existingCache[key] = param;
+      } else {
+          existingCache.insert({key, param});
+      }
+      
+      appendCache(fileName, existingCache);
+  } else {
+      std::ofstream out(rootPathStr + "/" + fileName);
+      std::stringstream s;
+      AcceleratorBuffer b;
+      b.useAsCache();
+
+      InstructionParameter2ExtraInfo ip2e;
+      auto extrainfo = boost::apply_visitor(ip2e, param);
+      b.addExtraInfo(key, extrainfo);
+      
+      b.print(s);
+
+      out << s.str();
+      out.close();
+  }
+}
+
+void appendCache(const std::string fileName,
+                 std::map<std::string, InstructionParameter> &params) {
+                     
+    // This will over write the ip cache file
+    
+    auto rootPathStr = serviceRegistry->getRootPathString();
+    InstructionParameter2ExtraInfo ip2e;
+    AcceleratorBuffer b;
+    b.useAsCache();
+
+    for (auto& kv : params) {
+      auto extrainfo = boost::apply_visitor(ip2e, kv.second);
+      b.addExtraInfo(kv.first, extrainfo);
+    }
+      
+    std::ofstream out(rootPathStr + "/" + fileName);
+    std::stringstream s;
+    b.print(s);
+    out << s.str();
+    out.close();
+}
+const std::string getRootDirectory() {
+    return serviceRegistry->getRootPathString();
 }
 
 /**

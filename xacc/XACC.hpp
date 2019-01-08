@@ -247,6 +247,17 @@ std::shared_ptr<Compiler> getCompiler();
  */
 bool hasCompiler(const std::string &name);
 
+bool hasCache(const std::string fileName);
+std::map<std::string, InstructionParameter>
+getCache(const std::string fileName);
+void appendCache(const std::string fileName, const std::string key,
+                 InstructionParameter &param);
+void appendCache(const std::string fileName, const std::string key,
+                 InstructionParameter &&param);
+void appendCache(const std::string fileName,
+                 std::map<std::string, InstructionParameter> &params);
+const std::string getRootDirectory();
+
 template <typename Service>
 std::shared_ptr<Service> getService(const std::string &serviceName) {
   if (!xacc::xaccFrameworkInitialized) {

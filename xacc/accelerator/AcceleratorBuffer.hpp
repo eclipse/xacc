@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iostream>
 #include "Utils.hpp"
+#include "InstructionParameter.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "rapidjson/prettywriter.h"
@@ -35,7 +36,9 @@ using AcceleratorBufferChildPair =
     std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
 using ExtraInfo = boost::variant<int, double, std::string, std::vector<int>,
                                  std::vector<double>, std::vector<std::string>,
-                                 std::map<int, std::vector<int>>>;
+                                 std::map<int, std::vector<int>>,
+                                 std::vector<std::pair<double, double>>>;
+
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
 class CheckEqualVisitor : public boost::static_visitor<bool> {
@@ -53,6 +56,7 @@ public:
   bool operator()(const std::vector<double> &i) const;
   bool operator()(const std::vector<std::string> &i) const;
   bool operator()(const std::map<int, std::vector<int>> &i) const;
+  bool operator()(const std::vector<std::pair<double, double>> &i) const;
 };
 
 class ToJsonVisitor : public boost::static_visitor<> {
@@ -69,6 +73,74 @@ public:
   void operator()(const std::vector<double> &i);
   void operator()(const std::vector<std::string> &i);
   void operator()(const std::map<int, std::vector<int>> &i);
+  void operator()(const std::vector<std::pair<double, double>> &i) const;
+};
+
+class ExtraInfo2InstructionParameter
+    : public boost::static_visitor<InstructionParameter> {
+public:
+  ExtraInfo2InstructionParameter() {}
+
+  InstructionParameter operator()(const int &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter operator()(const double &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter operator()(const std::string &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter operator()(const std::vector<int> &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter operator()(const std::vector<double> &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter operator()(const std::vector<std::string> &i) const {
+    return InstructionParameter(i);
+  }
+  InstructionParameter
+  operator()(const std::map<int, std::vector<int>> &i) const {
+    XACCLogger::instance()->error(
+        "Cannot cast map<int, [int]> ExtraInfo to InstructionParameter");
+    return InstructionParameter(0);
+  }
+  InstructionParameter
+  operator()(const std::vector<std::pair<double, double>> &i) const {
+    return InstructionParameter(i);
+  }
+};
+
+class InstructionParameter2ExtraInfo : public boost::static_visitor<ExtraInfo> {
+private:
+  InstructionParameter parameter;
+
+public:
+  InstructionParameter2ExtraInfo() {}
+
+  ExtraInfo operator()(const int &i) const { return ExtraInfo(i); }
+  ExtraInfo operator()(const double &i) const { return ExtraInfo(i); }
+  ExtraInfo operator()(const std::string &i) const { return ExtraInfo(i); }
+  ExtraInfo operator()(const std::vector<int> &i) const { return ExtraInfo(i); }
+  ExtraInfo operator()(const std::vector<double> &i) const {
+    return ExtraInfo(i);
+  }
+  ExtraInfo operator()(const std::vector<std::string> &i) const {
+    return ExtraInfo(i);
+  }
+  ExtraInfo operator()(const std::vector<std::pair<double, double>> &i) const {
+    return ExtraInfo(i);
+  }
+  ExtraInfo operator()(const std::vector<std::pair<int, int>> &i) const {
+    XACCLogger::instance()->error(
+        "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
+    return ExtraInfo(0);
+  }
+  ExtraInfo operator()(const std::complex<double> &i) const {
+    XACCLogger::instance()->error(
+        "Cannot cast complex InstructionParameter to ExtraInfo.");
+    return ExtraInfo(0);
+  }
 };
 
 /**
@@ -103,6 +175,8 @@ protected:
 
   std::map<std::string, ExtraInfo> info;
 
+  bool cacheFile = false;
+
 public:
   AcceleratorBuffer() {}
 
@@ -116,6 +190,7 @@ public:
    */
   AcceleratorBuffer(const AcceleratorBuffer &other);
 
+  void useAsCache() { cacheFile = true; }
   void appendChild(const std::string name,
                    std::shared_ptr<AcceleratorBuffer> buffer);
   std::vector<std::shared_ptr<AcceleratorBuffer>>
@@ -132,7 +207,7 @@ public:
   std::map<std::string, ExtraInfo> getInformation();
 
   std::shared_ptr<AcceleratorBuffer> clone();
-  
+
   const int nChildren() { return getChildren().size(); }
   /**
    * Return all children with ExtraInfo infoName equal
@@ -211,16 +286,16 @@ public:
     measurements.clear();
     bitStringToCounts.clear();
   }
-  
+
   virtual void setMeasurements(std::map<std::string, int> counts) {
     clearMeasurements();
     bitStringToCounts = counts;
-    for (auto& kv : counts) {
-        for (int i = 0; i < kv.second; i++) 
-           measurements.push_back(boost::dynamic_bitset<>(kv.first));
+    for (auto &kv : counts) {
+      for (int i = 0; i < kv.second; i++)
+        measurements.push_back(boost::dynamic_bitset<>(kv.first));
     }
   }
-  
+
   /**
    * Print information about this AcceleratorBuffer to standard out.
    *

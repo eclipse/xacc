@@ -37,6 +37,16 @@ TEST(InstructionParameterTester, checkSimple) {
 //   EXPECT_EQ(1, InstructionParameter(1.0).as<int>());
 }
 
+TEST(InstructionParameterTester, checkMap) {
+    
+    std::map<std::string, InstructionParameter> options;
+
+    options.insert({"pulse_id", InstructionParameter("null")});
+
+    EXPECT_EQ("null", options["pulse_id"].toString());
+    
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -114,6 +114,16 @@ public:
     }
   }
 
+  const bool isAnalog() const override { 
+    for (int i = 0; i < instructions.size(); i++) {
+      auto inst = *std::next(instructions.begin(), i);
+      if (inst->isAnalog()) {
+          return true;
+      }
+    }
+    return false; 
+  }
+
   /**
    * Remove an instruction from this
    * quantum intermediate representation
@@ -207,7 +217,8 @@ public:
    * @return nLogical The number of logical qubits.
    */
   const int nLogicalBits() override {
-    XACCLogger::instance()->error("GateFunction not implemented.");
+    XACCLogger::instance()->error("GateFunction nLogicalBits() not implemented.");
+    return 0;
   }
 
   /**
@@ -216,7 +227,8 @@ public:
    * @return nPhysical The number of physical qubits.
    */
   const int nPhysicalBits() override {
-      XACCLogger::instance()->error("GateFunction not implemented.");
+      XACCLogger::instance()->error("GateFunction nPhysicalBits() not implemented.");
+      return 0;
   }
 
   /**
@@ -243,6 +255,7 @@ public:
    */
   InstructionParameter getOption(const std::string optName) override {
       XACCLogger::instance()->error("GateFunction does not have options.");
+      return InstructionParameter(0);
   }
 
   /**
@@ -252,6 +265,7 @@ public:
    */
   std::map<std::string, InstructionParameter> getOptions() override {
      XACCLogger::instance()->error("GateFunction does not have options.");
+     return std::map<std::string, InstructionParameter>{};
   }
 
   DEFINE_VISITABLE()

@@ -119,6 +119,11 @@ void ServiceRegistry::initialize(const std::string internalPath) {
 
     XACCLogger::instance()->enqueueLog("XACC Plugin Path: " + xaccPluginPath);
 
+    boost::filesystem::path path(xaccPluginPath);
+    
+    rootPathStr = path.parent_path().string();
+     XACCLogger::instance()->enqueueLog("XACC Root Path: " + rootPathStr);
+     
     // Add external plugins...
     boost::filesystem::directory_iterator end_itr;
     if (boost::filesystem::exists(xaccPluginPath)) {
