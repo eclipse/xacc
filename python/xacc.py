@@ -60,11 +60,14 @@ def parse_args(args):
                         help="The IBM Q Project.", required=False)
     parser.add_argument("-L", "--location", action='store_true',
                         help="Print the path to the XACC install location.", required=False)
+    parser.add_argument("-f", "--framework-help", action='store_true',
+                        help="Print the help information for XACC and its available plugins.", required=False)
     parser.add_argument("--python-include-dir", action='store_true',
                         help="Print the path to the Python.h.", required=False)
     parser.add_argument("-b", "--branch", default='master', type=str,
                         help="Print the path to the XACC install location.", required=False)
     parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
+    parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
     
     if hasPluginGenerator:
        subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
@@ -459,6 +462,20 @@ def main(argv=None):
     if opts.python_include_dir:
         print(sysconfig.get_paths()['platinclude'])
         sys.exit(0)
+
+    if opts.framework_help is not None:
+        Initialize(['--help'])
+        return
+        
+    if opts.list_backends is not None:
+        acc = opts.list_backends
+        if acc == 'ibm':
+            info('Retrieving remote IBM backend information')
+            Initialize(['--'+acc+'-list-backends'])
+        elif acc == 'dwave':
+            info('Retrieving remote D-Wave solver information')
+            Initialize(['--'+acc+'-list-solvers'])
+        return
 
     if not opts.set_credentials == None:
         setCredentials(opts)

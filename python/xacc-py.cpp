@@ -309,7 +309,9 @@ PYBIND11_MODULE(_pyxacc, m) {
                const std::vector<std::shared_ptr<Function>>)) &
                xacc::Accelerator::execute,
            "Execute the Function with the given AcceleratorBuffer.")
-      .def("initialize", &xacc::Accelerator::initialize, "");
+      .def("initialize", &xacc::Accelerator::initialize, "")
+      .def("getOneBitErrorRates", &xacc::Accelerator::getOneBitErrorRates, "")
+      .def("getTwoBitErrorRates", &xacc::Accelerator::getTwoBitErrorRates, "");
 
   py::enum_<Accelerator::AcceleratorType>(acc, "AcceleratorType")
       .value("qpu_aqc", Accelerator::AcceleratorType::qpu_aqc)
