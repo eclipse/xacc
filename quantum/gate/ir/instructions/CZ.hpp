@@ -24,6 +24,8 @@ public:
   CZ(std::vector<int> qbits) : GateInstruction("CZ", qbits) {}
   CZ(int srcqbit, int tgtqbit) : CZ(std::vector<int>{srcqbit, tgtqbit}) {}
 
+  const int nRequiredBits() const override {return 1;}
+
   DEFINE_CLONE(CZ)
   DEFINE_VISITABLE()
 };

@@ -37,7 +37,8 @@ public:
   }
 
   int getClassicalBitIndex() { return boost::get<int>(parameters[0]); }
-  
+  const int nRequiredBits() const override {return 1;}
+
   DEFINE_CLONE(Measure)
   DEFINE_VISITABLE()
 };

@@ -99,6 +99,7 @@ public:
   const std::string description() const override { return ""; }
 
   void mapBits(std::vector<int> bitMap) override {}
+  const int nRequiredBits() const override {return 2;}
 
   /**
    * Persist this Instruction to an assembly-like
@@ -296,6 +297,7 @@ public:
   }
 
   void mapBits(std::vector<int> bitMap) override {}
+  const int nRequiredBits() const override {return 0;}
 
   /**
    * Persist this Instruction to an assembly-like

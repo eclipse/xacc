@@ -32,6 +32,7 @@ public:
       : GateInstruction(
             "U", qbits,
             std::vector<InstructionParameter>{InstructionParameter(0.0), InstructionParameter(0.0), InstructionParameter(0.0)}) {}
+  const int nRequiredBits() const override {return 1;}
 
   DEFINE_CLONE(U)
   DEFINE_VISITABLE()

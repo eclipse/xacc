@@ -526,6 +526,8 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("analyzeBuffer",
         (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
         "Analyze the AcceleratorBuffer to produce problem-specific results.");
+  m.def("getCache", &xacc::getCache, "");
+  m.def("appendCache", (void (*)(const std::string, const std::string, InstructionParameter&)) &xacc::appendCache, "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",

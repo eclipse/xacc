@@ -31,8 +31,10 @@
 #include <gtest/gtest.h>
 #include "PyXACCCompiler.hpp"
 #include "XACC.hpp"
+#include "IRGenerator.hpp"
 
 using namespace xacc::quantum;
+using namespace xacc;
 
 class FakePyAcc : public xacc::Accelerator {
 public:
@@ -52,28 +54,15 @@ public:
     auto b = std::make_shared<xacc::AcceleratorBuffer>(varId, 1);
     return b;
   }
-
   virtual std::vector<std::string> getAllocatedBufferNames() {
     std::vector<std::string> names;
     names.push_back("hello");
     return names;
   }
 
-  //   virtual std::shared_ptr<xacc::AcceleratorBuffer>
-  //   getBuffer(const std::string &varid) {
-  //     return std::make_shared<xacc::AcceleratorBuffer>("hello", 1);
-  //   }
-
   virtual void initialize() {}
-  /**
-   * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
-   *
-   * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param function The kernel to execute.
-   */
   virtual void execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
                        const std::shared_ptr<xacc::Function> function) {}
-
   virtual std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>
   execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<xacc::Function>> functions) {}
@@ -86,7 +75,6 @@ public:
   }
 
   virtual const std::string name() const { return ""; }
-
   virtual const std::string description() const { return ""; }
 };
 
@@ -98,7 +86,6 @@ TEST(PyXACCCompilerTester, checkSimple) {
        Rx(theta,0)
        CNOT(1,0)
        Measure(0,0)
-       return
        )src";
 
   auto acc = std::make_shared<FakePyAcc>();
@@ -112,11 +99,30 @@ TEST(PyXACCCompilerTester, checkSimple) {
   std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
 }
 
+TEST(PyXACCCompilerTester, checkIRGen) {
+
+  if (xacc::hasService<IRGenerator>("uccsd")) {
+    const std::string uccsdSrc = R"uccsdSrc(def foo(buffer, *args):
+   uccsd(n_qubits=4, n_electrons=2)
+   )uccsdSrc";
+
+    auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
+
+    auto acc = std::make_shared<FakePyAcc>();
+
+    auto ir = compiler->compile(uccsdSrc, acc);
+    auto f = ir->getKernel("foo");
+    EXPECT_EQ("foo", f->name());
+    EXPECT_EQ(f->nParameters(), 2);
+    EXPECT_EQ(f->nInstructions(), 158);
+
+  }
+}
 TEST(PyXACCCompilerTester, checkDotDotDot) {
 
   auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
   const std::string src = R"src(def f(q):
-       H(...)
+       H(0,...,3)
        CNOT(0,1)
        )src";
 
@@ -133,7 +139,7 @@ TEST(PyXACCCompilerTester, checkDotDotDot) {
   std::cout << "KERNEL:\n" << ir->getKernel("f")->toString("") << "\n";
 
   const std::string src2 = R"src(def f(q):
-       H(1...3)
+       H(1,...,3)
        )src";
 
   ir = compiler->compile(src2, acc);
@@ -170,26 +176,6 @@ TEST(PyXACCCompilerTester, checkDW) {
   // CHECK WITH GENERATOR
 }
 
-const std::string uccsdSrc = R"uccsdSrc(def foo(buffer, theta0,theta1):
-   Rx(-1.57,0)
-   )uccsdSrc";
-
-TEST(PyXACCCompilerTester, checkUCCSD) {
-
-  auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
-
-  auto acc = std::make_shared<FakePyAcc>();
-
-  std::cout << "COMPILING\n";
-  auto ir = compiler->compile(uccsdSrc, acc);
-  std::cout << "COMPILED\n";
-  auto f = ir->getKernel("foo");
-  EXPECT_EQ("foo", f->name());
-  // EXPECT_EQ(f->nParameters(), 1);
-  // EXPECT_EQ(f->nInstructions(), 4);
-
-  std::cout << "KERNEL:\n" << ir->getKernel("foo")->toString("") << "\n";
-}
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

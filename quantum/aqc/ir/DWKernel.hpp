@@ -89,6 +89,10 @@ public:
     xacc::error("DWKernel.mapBits not implemented");
   }
 
+const int nRequiredBits() const override {
+     XACCLogger::instance()->error("DWKernel nRequiredBits() not implemented.");
+     return 0;
+  }
   /**
    * Add an instruction to this quantum
    * intermediate representation.

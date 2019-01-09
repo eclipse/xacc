@@ -24,6 +24,8 @@ public:
   Identity(std::vector<int> qbits) : GateInstruction("I", qbits) {}
   Identity(int qbit) : Identity(std::vector<int>{qbit}) {}
 
+  const int nRequiredBits() const override {return 1;}
+
   DEFINE_CLONE(Identity)
   DEFINE_VISITABLE()
 };

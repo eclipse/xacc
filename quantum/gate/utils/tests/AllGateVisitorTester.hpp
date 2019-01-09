@@ -88,7 +88,8 @@ public:
     iv.getNativeAssembly() += "hello";
     wasVisited = true;
   }
-  
+    const int nRequiredBits() const override {return 1;}
+
   bool wasVisited = false;
   
   DEFINE_CLONE(Unknown)

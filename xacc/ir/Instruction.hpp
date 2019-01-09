@@ -176,7 +176,8 @@ public:
   }
 
   virtual const bool isAnalog() const { return false; }
-   
+  virtual const int nRequiredBits() const = 0;
+  
   /**
    * The destructor
    */
