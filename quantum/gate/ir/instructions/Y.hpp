@@ -23,6 +23,7 @@ public:
   Y() : GateInstruction("Y") {}
   Y(std::vector<int> qbit) : GateInstruction("Y", qbit) {}
   Y(int qbit) : Y(std::vector<int>{qbit}) {}
+  const int nRequiredBits() const override {return 1;}
 
   DEFINE_CLONE(Y)
   DEFINE_VISITABLE()

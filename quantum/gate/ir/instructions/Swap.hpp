@@ -27,6 +27,7 @@ public:
 
   Swap(std::vector<int> qbits)
       : GateInstruction("Swap", qbits, std::vector<InstructionParameter>{}) {}
+  const int nRequiredBits() const override {return 2;}
 
   DEFINE_CLONE(Swap)
   DEFINE_VISITABLE()

@@ -64,33 +64,18 @@ param
 
 /* A unitary operation */
 uop
-   : gatename=gate '(' ( explist ) ')'
+   : gatename=gate  '(' ( explist ) ')'
    | allbitsOp
    ;
 
+   
 allbitsOp
    : gatename=gate '(' '...' ')'
-   | gatename=gate '(' INT '...' INT ')'
+   | gatename=gate '(' INT ',...,' INT ')'
    ;
    
 gate 
-   : 'X'
-   | 'Rx'
-   | 'Rz'
-   | 'Ry'
-   | 'Y'
-   | 'Z'
-   | 'CNOT'
-   | 'CZ'
-   | 'CX'
-   | 'H'
-   | 'Swap'
-   | 'Identity'
-   | 'CPhase'
-   | 'Measure'
-   | 'MEASURE'
-   | 'xacc'
-   | 'qmi'
+   : id
    ;
 
 /* A list of expressions */
@@ -112,10 +97,14 @@ exp
    | exp '^' exp
    | '(' exp ')'
    | unaryop '(' exp ')'
-   | id '=' exp
+   | key '=' exp
    | '\'[' ( ','? coupler )* ']\''
    ;
 
+key 
+   : id
+   ;
+   
 coupler 
    : '[' INT ',' INT ']'
    ;
@@ -154,6 +143,8 @@ COMMENT
 /* id, ego, and super-ego */
 ID 
    : [a-z][A-Za-z0-9_]*
+   | [A-Z][A-Za-z0-9_]*
+   | [A-Z][A-Za-z]*
    ;
 
 /* Keep it real...numbers */

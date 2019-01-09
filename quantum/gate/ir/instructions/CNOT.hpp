@@ -26,6 +26,7 @@ public:
   CNOT(int srcqbit, int tgtqbit) : CNOT(std::vector<int>{srcqbit, tgtqbit}) {}
 
   const std::string description() const override { return ""; }
+  const int nRequiredBits() const override {return 2;}
 
   DEFINE_CLONE(CNOT)
   DEFINE_VISITABLE()

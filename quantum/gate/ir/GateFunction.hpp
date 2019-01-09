@@ -91,6 +91,10 @@ public:
   virtual void mapBits(std::vector<int> bitMap) override;
 
   const int nInstructions() override;
+  const int nRequiredBits() const override {
+     XACCLogger::instance()->error("GateFunction nRequiredBits() not implemented.");
+     return 0;
+  }
 
   InstPtr getInstruction(const int idx) override;
 

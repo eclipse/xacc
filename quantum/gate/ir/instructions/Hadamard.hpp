@@ -26,6 +26,7 @@ public:
   Hadamard(std::vector<int> qbits) : GateInstruction("H", qbits) {}
   Hadamard(int qbit) : Hadamard(std::vector<int>{qbit}) {}
 
+  const int nRequiredBits() const override {return 1;}
 
   DEFINE_CLONE(Hadamard)
   DEFINE_VISITABLE()
