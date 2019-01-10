@@ -382,8 +382,6 @@ class PyServiceRegistry(object):
         except:
             if len(self.services) > 0:
                 pass
-        for s in self.services:
-            print(s.get_properties()['name'])
         if not self.services:
             print("No XACC algorithm bundles found in " + pluginDir + ".")
             exit(1)
@@ -401,8 +399,6 @@ if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry.initialize()
 
 def benchmark(opts):
-    # Now instantiation == initialization
-
     if opts.benchmark is not None:
         inputfile = opts.benchmark
         xacc_settings = process_benchmark_input(inputfile)
