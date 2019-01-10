@@ -357,15 +357,14 @@ def functionToLatex(function):
 
 class PyServiceRegistry(object):
     def __init__(self):
-        framework = pelix.framework.create_framework((
+        self.framework = pelix.framework.create_framework((
             "pelix.ipopo.core",
             "pelix.shell.console"))
-        framework.start()
-        self.context = framework.get_bundle_context()
+        self.framework.start()
+        self.context = self.framework.get_bundle_context()
         self.services = []
     def initialize(self):
         serviceList = ['decorator_algorithm_service', 'benchmark_algorithm_service']
-        #self.context.install_bundle('generic').start()
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(pluginDir):
@@ -383,7 +382,8 @@ class PyServiceRegistry(object):
         except:
             if len(self.services) > 0:
                 pass
-
+        for s in self.services:
+            print(s.get_properties()['name'])
         if not self.services:
             print("No XACC algorithm bundles found in " + pluginDir + ".")
             exit(1)
@@ -396,9 +396,12 @@ class PyServiceRegistry(object):
                 service = self.context.get_service(s)
         return service
 
+if not pelix.framework.FrameworkFactory.is_framework_running(None):
+    serviceRegistry = PyServiceRegistry()
+    serviceRegistry.initialize()
+
 def benchmark(opts):
     # Now instantiation == initialization
-    serviceRegistry = PyServiceRegistry()
 
     if opts.benchmark is not None:
         inputfile = opts.benchmark
@@ -407,7 +410,6 @@ def benchmark(opts):
         error('Must provide input file for benchmark.')
         return
 
-    serviceRegistry.initialize()
     Initialize()
 
     if ':' in xacc_settings['accelerator']:
@@ -425,7 +427,7 @@ def benchmark(opts):
     algorithm = serviceRegistry.get_service(
         'benchmark_algorithm_service', xacc_settings['algorithm'])
     if algorithm is None:
-        print("XACC algorithm service with name " +
+        print("XACC algorithm servicecule with name " +
                    xacc_settings['algorithm'] + " is not installed.")
         exit(1)
 
@@ -460,9 +462,6 @@ def process_benchmark_input(filename):
     except:
         print("Input file " + filename + " could not be opened.")
         exit(1)
-
-serviceRegistry = PyServiceRegistry()
-serviceRegistry.initialize()
 
 def main(argv=None):
     opts = parse_args(sys.argv[1:])
