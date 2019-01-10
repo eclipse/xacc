@@ -5,6 +5,10 @@ import sys
 import sysconfig
 import argparse
 import inspect
+import pelix.framework
+from pelix.utilities import use_service
+from abc import abstractmethod, ABC
+import configparser
 
 hasPluginGenerator = False
 try:
@@ -13,34 +17,21 @@ try:
 except:
     pass
 
-canExecuteBenchmarks = True
-try:
-   import pelix.framework
-   from pelix.utilities import use_service
-   from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
-                                        Provides, Instantiate)
-   from abc import abstractmethod, ABC
-   import configparser
-   class Algorithm(ABC):
+class BenchmarkAlgorithm(ABC):
 
-      # Override this execute method to implement the algorithm
-      # @input inputParams
-      # @return buffer
-      @abstractmethod
-      def execute(self, inputParams):
+    # Override this execute method to implement the algorithm
+    # @input inputParams
+    # @return buffer
+    @abstractmethod
+    def execute(self, inputParams):
          pass
 
-      # Override this analyze method called to manipulate result data from executing the algorithm
-      # @input buffer
-      # @input inputParams
-      @abstractmethod
-      def analyze(self, buffer, inputParams):
-         pass
-
-except:
-   canExecuteBenchmarks = False
-   pass
-
+    # Override this analyze method called to manipulate result data from executing the algorithm
+    # @input buffer
+    # @input inputParams
+    @abstractmethod
+    def analyze(self, buffer, inputParams):
+        pass
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description="XACC Framework Utility.",
@@ -157,7 +148,7 @@ def setCredentials(opts):
 def qasm2Kernel(kernelName, qasmStr):
     return '__qpu__ {}(AcceleratorBuffer b) {{\n {} \n}}'.format(kernelName, qasmStr)
 
-class decoratorFunction(ABC):
+class DecoratorFunction(ABC):
 
     def __init__(self):
         pass
@@ -242,7 +233,7 @@ class decoratorFunction(ABC):
         self.compiledKernel = program.getKernels()[0]
         pass
 
-class WrappedF(decoratorFunction):
+class WrappedF(DecoratorFunction):
 
     def __init__(self, f, *args, **kwargs):
         self.function = f
@@ -478,8 +469,6 @@ def main(argv=None):
         setCredentials(opts)
 
     if not opts.benchmark == None:
-        if not canExecuteBenchmarks:
-            error('Cannot execute benchmark. Please install configparser and ipopo.')
         benchmark(opts)
 
 initialize()
