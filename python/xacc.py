@@ -463,7 +463,7 @@ def main(argv=None):
         print(sysconfig.get_paths()['platinclude'])
         sys.exit(0)
 
-    if opts.framework_help is not None:
+    if opts.framework_help:
         Initialize(['--help'])
         return
         
