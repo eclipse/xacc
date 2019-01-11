@@ -417,7 +417,7 @@ def benchmark(opts):
     algorithm = serviceRegistry.get_service(
         'benchmark_algorithm_service', xacc_settings['algorithm'])
     if algorithm is None:
-        print("XACC algorithm servicecule with name " +
+        print("XACC algorithm service with name " +
                    xacc_settings['algorithm'] + " is not installed.")
         exit(1)
 
@@ -481,7 +481,7 @@ def main(argv=None):
             info('Retrieving remote D-Wave solver information')
             Initialize(['--'+acc+'-list-solvers'])
         return
-        
+
     if not opts.set_credentials == None:
         setCredentials(opts)
 
