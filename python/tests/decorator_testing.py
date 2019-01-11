@@ -20,7 +20,6 @@ class TestDecoratorAPI(test.TestCase):
         xacc.Initialize()
 
         entangle(buffer)
-
         self.assertEqual(entangle.nParameters(), 0)
         self.assertEqual(entangle.getFunction().toString(), 'H q0\nCNOT q0,q1\nMeasure q0\nMeasure q1\n')
 

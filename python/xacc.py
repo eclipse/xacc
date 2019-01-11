@@ -162,58 +162,6 @@ class DecoratorFunction(ABC):
         self.kwargs = kwargs
         self.__dict__.update(kwargs)
         self.accelerator = None
-
-    def overrideAccelerator(self, acc):
-        self.accelerator = acc
-
-    def nParameters(self):
-        if 'accelerator' in self.kwargs:
-            if isinstance(self.kwargs['accelerator'], Accelerator):
-                qpu = self.kwargs['accelerator']
-            else:
-                qpu = getAccelerator(self.kwargs['accelerator'])
-        elif hasAccelerator('tnqvm'):
-            qpu = getAccelerator('tnqvm')
-        else:
-            print(
-                '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
-            exit(0)
-
-        # Remove the @qpu line from the source
-        src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
-
-        # Get the compiler and compile the code
-        compiler = getCompiler('xacc-py')
-        ir = compiler.compile(src, qpu)
-        program = Program(qpu, ir)
-        compiledKernel = program.getKernels()[0]
-        return compiledKernel.getIRFunction().nParameters()
-
-    def getFunction(self):
-        if 'accelerator' in self.kwargs:
-            if isinstance(self.kwargs['accelerator'], Accelerator):
-                qpu = self.kwargs['accelerator']
-            else:
-                qpu = getAccelerator(self.kwargs['accelerator'])
-        elif hasAccelerator('tnqvm'):
-            qpu = getAccelerator('tnqvm')
-        else:
-            print(
-                '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
-            exit(0)
-
-        # Remove the @qpu line from the source
-        src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
-
-        # Get the compiler and compile the code
-        compiler = getCompiler('xacc-py')
-        ir = compiler.compile(src, qpu)
-        program = Program(qpu, ir)
-        compiledKernel = program.getKernels()[0]
-        return compiledKernel.getIRFunction()
-
-    @abstractmethod
-    def __call__(self, *args, **kwargs):
         self.src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
         compiler = getCompiler('xacc-py')
         if self.accelerator == None:
@@ -231,9 +179,22 @@ class DecoratorFunction(ABC):
         else:
             print('Setting accelerator: ', self.accelerator.name())
             self.qpu = self.accelerator
+        
         ir = compiler.compile(self.src, self.qpu)
         program = Program(self.qpu, ir)
         self.compiledKernel = program.getKernels()[0]
+
+    def overrideAccelerator(self, acc):
+        self.accelerator = acc
+
+    def nParameters(self):
+        return self.getFunction().nParameters()
+
+    def getFunction(self):
+        return self.compiledKernel.getIRFunction()
+
+    @abstractmethod
+    def __call__(self, *args, **kwargs):
         pass
 
 class WrappedF(DecoratorFunction):
@@ -251,10 +212,10 @@ class WrappedF(DecoratorFunction):
         if not isinstance(argsList[0], AcceleratorBuffer):
             raise RuntimeError(
                 'First argument of an xacc kernel must be the Accelerator Buffer to operate on.')
-        buffer = argsList[0]
-        functionBufferName = inspect.getargspec(self.function)[0][0]
+        #buffer = argsList[0]
+        #functionBufferName = inspect.getargspec(self.function)[0][0]
         # Replace function arg0 name with buffer.name()
-        self.src = self.src.replace(functionBufferName, buffer.name())
+        #self.src = self.src.replace(functionBufferName, buffer.name())
         self.compiledKernel.execute(argsList[0], argsList[1:])
         return
 
@@ -272,7 +233,9 @@ class qpu(object):
             function.initialize(f, *self.args, **self.kwargs)
             return function
         else:
-            return WrappedF(f, *self.args, **self.kwargs)
+            wf = WrappedF(f, *self.args, **self.kwargs)
+            wf.initialize(f,*self.args, **self.kwargs)
+            return wf
 
 
 def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist=True):
@@ -376,9 +339,9 @@ class PyServiceRegistry(object):
         except:
             if len(self.services) > 0:
                 pass
-        if not self.services:
-            print("No XACC algorithm bundles found in " + pluginDir + ".")
-            exit(1)
+        #if not self.services:
+            #print("No XACC algorithm bundles found in " + pluginDir + ".")
+            #exit(1)
 
     def get_service(self, serviceName, name):
         services = self.context.get_all_service_references(serviceName)
