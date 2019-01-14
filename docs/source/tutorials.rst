@@ -60,7 +60,7 @@ on. Execution of this code on the IBM QPU is then affected by simply calling thi
 function. The results of the execution are stored on the users allocated ``AcceleratorBuffer``.
 Finally we cleanup the framework with the ``xacc.Finalize()`` call.
 
-``xacc()`` Instruction and IRGenerators
+IRGenerator Interfaces
 +++++++++++++++++++++++++++++++++++++++
 XACC exposes an extensible interface for the generation of ``IR`` instances based
 on simple input parameters (this differentiates it from ``Compilers`` which also
@@ -80,17 +80,16 @@ provide ``QFT`` and ``InverseQFT`` ``IRGenerators``).
 
 The XACC Python PyXACCCompiler language provides an instruction that lets users
 express this ``IRGenerator`` generation step on a single line of quantum code. To do so,
-in addition to standard gates and ``qmi`` instructions, this language defines an
-``xacc()`` instruction that takes as its first input the name of the IRGenerator
-to be used in building up the quantum kernel, followed by any key-value pair arguments.
-Here's an example of generating a hardware-efficient ansatz used in a variational
-quantum eigensolver routine
+in addition to standard gates and ``qmi`` instructions, this language defines
+instructions as the name of any availabe ``IRGenerator`` taking as input any key-value
+pair arguments required to generate the ``IR`` instance. Here's an example of generating
+a hardware-efficient ansatz used in a variational quantum eigensolver routine
 
 .. code::
 
    @xacc.qpu(accelerator=ibm)
    def hwe(buffer, *args):
-      xacc(hwe, layers=2, n_qubits=2, connectivity='[[0,1]]')
+      hwe(layers=2, n_qubits=2, connectivity='[[0,1]]')
 
 This would generate the following circuit
 
@@ -124,8 +123,8 @@ This would generate the following circuit
       init = np.random.uniform(low=-np.pi,high=np.pi, size=(hwe.nParameters(),))
       hwe(buffer, *init)
 
-This ``xacc()`` instruction can be used with any available ``IRGenerator`` present
-in the XACC framework.
+Any available ``IRGenerator`` present in the XACC framework can be used in this way
+to instantiate an ``IR`` instance for execution on a QPU.
 
 D-Wave Python JIT
 +++++++++++++++++
@@ -164,8 +163,8 @@ biases and couplers can be runtime parameters. See below for an example.
 
    xacc.Finalize()
 
-Or, if we have an ``IRGenerator`` for a D-Wave problem, we could use the ``xacc()``
-instruction. Imagine we have an ``IRGenerator`` implemented that takes an integer ``N``
+Or, if we have an ``IRGenerator`` for a D-Wave problem, we could use the name of the ``IRGenerator`` as an instruction
+to create the D-Wave IR instance. Imagine we have an ``IRGenerator`` implemented that takes an integer ``N``
 and creates a D-Wave IR instance that factors ``N`` into its constituent primes.
 Our code would look like this
 
@@ -186,7 +185,7 @@ Our code would look like this
    # IR Generator
    @xacc.qpu(accelerator='dwave')
    def factor15(buffer):
-      xacc(dwave-factoring, n=15)
+      dwave-factoring(n=15)
 
    # Factor 15 on the D-Wave
    factor15(buffer)
@@ -377,36 +376,36 @@ from file.
 
 Extending XACC with Plugins
 ---------------------------
-XACC provides a modular, service-oriented architecture. Plugins can 
-be contributed to the framework providing new Compilers, Accelerators, 
-Instructions, IR Transformations, IRGenerators, etc. 
+XACC provides a modular, service-oriented architecture. Plugins can
+be contributed to the framework providing new Compilers, Accelerators,
+Instructions, IR Transformations, IRGenerators, etc.
 
-XACC provides a plugin-generator that will create a new plugin project 
-with all boilerplate code provided. Developers just implement the 
-pertinent methods for the plugin (like the ``compile()`` method for 
-new Compilers). Contributing the plugins after the pertinent methods have 
+XACC provides a plugin-generator that will create a new plugin project
+with all boilerplate code provided. Developers just implement the
+pertinent methods for the plugin (like the ``compile()`` method for
+new Compilers). Contributing the plugins after the pertinent methods have
 been implemented is as simple as ``make install``.
 
 .. note::
 
-   Note that to use the XACC plugin-generator you must have XACC installed 
-   from source (you cannot use the pip install) and your XACC must be built 
-   with Python support. 
-   
+   Note that to use the XACC plugin-generator you must have XACC installed
+   from source (you cannot use the pip install) and your XACC must be built
+   with Python support.
+
 To generate new plugins, users/developers can run the following command
 
 .. code::
 
    $ python3 -m xacc generate-plugin -t compiler -n awesome
 
-Here we use the XACC python module to generate a new ``Compiler`` plugin with the 
-name ``awesome``. You should see a new ``xacc-awesome`` folder that contains ``CMakeLists.txt`` and 
-``README.md`` files (the CMake file is a working build file ready for use). You should 
-also see ``compiler`` and ``tests`` folders with stubbed out code ready for implementation. 
+Here we use the XACC python module to generate a new ``Compiler`` plugin with the
+name ``awesome``. You should see a new ``xacc-awesome`` folder that contains ``CMakeLists.txt`` and
+``README.md`` files (the CMake file is a working build file ready for use). You should
+also see ``compiler`` and ``tests`` folders with stubbed out code ready for implementation.
 
-You as the developer can now implement your custom quantum kernel compilation routine and 
-any unit test you would like (as a Google Test). Then, to build, test, and contribute the plugin 
-to your XACC framework instance, run the following from the top-level of the ``xacc-awesome`` 
+You as the developer can now implement your custom quantum kernel compilation routine and
+any unit test you would like (as a Google Test). Then, to build, test, and contribute the plugin
+to your XACC framework instance, run the following from the top-level of the ``xacc-awesome``
 folder:
 
 .. code::
@@ -416,10 +415,10 @@ folder:
    $ make install
    $ ctest
 
-This will build, install, and run your tests on the Compiler plugin you have just 
-created. 
+This will build, install, and run your tests on the Compiler plugin you have just
+created.
 
-The instructions for other plugins are similar. 
+The instructions for other plugins are similar.
 
 
 
