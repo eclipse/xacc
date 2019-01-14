@@ -296,21 +296,20 @@ These Pythonic functions can then be consumed by a custom ``xacc.qpu`` class dec
 the source code for these functions can be converted to a string with the ``inspect``
 module, and compiled with this PyXACCCompiler implementation.
 
-The PyXACC Antlr grammar also defines an ``xacc()`` instruction, which takes as
-its first argument the name of the IRGenerator you would like to use to generate
-the function. This argument can be followed by any key-value arguments.
+The PyXACC Antlr grammar also defines syntax for generating XACC ``IR`` function instances using any
+of the installed and available XACC ``IRGenerator`` interfaces.
 
-Imagine we have an IRGenerator that produces a UCCSD circuit based on the number of
+Imagine we have an ``IRGenerator`` that produces a UCCSD circuit based on the number of
 qubits and electrons in the problem. We could define a Python function like this to
 create this circuit (instead of arduously typing out all the instructions)
 
 .. code::
 
    def uccsd(buffer, *args):
-      xacc(uccsd, n_qubits=4, n_electrons=2)
+      uccsd(n_qubits=4, n_electrons=2)
       Measure(0,0)
 
-The above code would generate the a UCCSD circuit on 4 qubits and 2 fermions
+The above code would generate the UCCSD circuit on 4 qubits and 2 fermions
 and measure the first qubit, giving an estimated expectation value with respect to
 the ``Z`` operator for Hamiltonian term ``<Z0>``.
 
