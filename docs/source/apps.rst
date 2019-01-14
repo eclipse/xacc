@@ -263,10 +263,10 @@ xacc quantum kernel written in Quil)
 Python JIT VQE Decorator
 ++++++++++++++++++++++++
 The easiest way to run the VQE algorithm with XACC-VQE is to leverage the
-``xacc.qpu.vqe`` decorator. This decorator builds on the ``xacc.qpu`` decorator
-and gives users an opportunity to define the VQE ansatz as a single Python function,
-and through this algorithmic decoration, execute the VQE algorithm given some set
-of decorator arguments. Let's look at an example
+``xacc.qpu`` decorator. Using the ``algo`` decorator argument, it is possible to specify that the function
+will run VQE with the given ansatz ciruit and parameters. This gives users an opportunity
+to define the VQE ansatz as a single Python function, and through this algorithmic decoration,
+execute the VQE algorithm according to the other decorator arguments. Let's look at an example
 
 .. code::
 
@@ -285,7 +285,7 @@ of decorator arguments. Let's look at an example
         PauliOperator({0:'Z'}, .21829) + \
         PauliOperator({1:'Z'}, -6.125)
 
-   @xaccvqe.qpu.vqe(accelerator=tnqvm, observable=ham)
+   @xacc.qpu(algo='vqe', accelerator=tnqvm, observable=ham)
    def ansatz(buffer, t0):
       X(0)
       Ry(t0, 1)
@@ -299,7 +299,7 @@ of decorator arguments. Let's look at an example
    print('Energy = ', buffer.getInformation('vqe-energy'))
    print('Opt Angles = ', buffer.getInformation('vqe-angles'))
 
-After running the VQE algorithm with the above example script, the ``AcceleratorBuffer`` now stores the information regarding the results of the executions. The XACC Python API enables the user to easily access this information stored in the ``AcceleratorBuffer`` and its children. 
+After running the VQE algorithm with the above example script, the ``AcceleratorBuffer`` now stores the information regarding the results of the executions. The XACC Python API enables the user to easily access this information stored in the ``AcceleratorBuffer`` and its children.
 
 .. code::
 
@@ -327,8 +327,8 @@ After running the VQE algorithm with the above example script, the ``Accelerator
                     "parameters": [
                         0.5
                     ]
-                }, 
-                
+                },
+
         ...
                     {
                 "name": "X0X1",
@@ -344,8 +344,8 @@ After running the VQE algorithm with the above example script, the ``Accelerator
             }
         ]
     }
-   ... 
-                            
+   ...
+
 For example, if the user wanted to generate a file consisting of the relevant, unique results of the VQE algorithm executions stored in the ``AcceleratorBuffer`` children as comma-separated values, it can be done as shown below, using the ``getAllUnique``, ``getChildren``, and ``getInformation`` methods.
 
 .. code::
@@ -362,4 +362,3 @@ For example, if the user wanted to generate a file consisting of the relevant, u
            f.write(','+str(c.getInformation('exp-val-z')))
        f.write(','+str(energy)+'\n')
    f.close()
-   
