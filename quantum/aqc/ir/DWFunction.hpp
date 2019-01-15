@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_AQC_DWKERNEL_HPP_
-#define QUANTUM_AQC_DWKERNEL_HPP_
+#ifndef QUANTUM_AQC_DWFUNCTION_HPP_
+#define QUANTUM_AQC_DWFUNCTION_HPP_
 
 #include "Function.hpp"
 #include "DWQMI.hpp"
@@ -30,9 +30,9 @@ using parser_t = exprtk::parser<double>;
 namespace xacc {
 namespace quantum {
 
-class DWKernel : public Function,
+class DWFunction : public Function,
                  public GraphProvider<DWVertex>,
-                 public std::enable_shared_from_this<DWKernel> {
+                 public std::enable_shared_from_this<DWFunction> {
 
 protected:
   std::list<InstPtr> instructions;
@@ -49,14 +49,14 @@ public:
    * @param id
    * @param name
    */
-  DWKernel(std::string kernelName)
+  DWFunction(std::string kernelName)
       : _name(kernelName), parameters(std::vector<InstructionParameter>{}) {}
 
-  DWKernel(std::string kernelName, std::vector<InstructionParameter> p)
+  DWFunction(std::string kernelName, std::vector<InstructionParameter> p)
       : _name(kernelName), parameters(p) {}
 
   std::shared_ptr<Function> enabledView() override {
-    auto newF = std::make_shared<DWKernel>(_name, parameters);
+    auto newF = std::make_shared<DWFunction>(_name, parameters);
     for (int i = 0; i < nInstructions(); i++) {
       auto inst = getInstruction(i);
       if (inst->isEnabled()) {
@@ -73,7 +73,7 @@ public:
     if (instructions.size() > idx) {
       i = *std::next(instructions.begin(), idx);
     } else {
-      xacc::error("DWKernel getInstruction invalid instruction index - " +
+      xacc::error("DWFunction getInstruction invalid instruction index - " +
                   std::to_string(idx) + ".");
     }
     return i;
@@ -86,11 +86,11 @@ public:
   }
 
   void mapBits(std::vector<int> bitMap) override {
-    xacc::error("DWKernel.mapBits not implemented");
+    xacc::error("DWFunction.mapBits not implemented");
   }
 
 const int nRequiredBits() const override {
-     XACCLogger::instance()->error("DWKernel nRequiredBits() not implemented.");
+     XACCLogger::instance()->error("DWFunction nRequiredBits() not implemented.");
      return 0;
   }
   /**
@@ -100,11 +100,21 @@ const int nRequiredBits() const override {
    * @param instruction
    */
   void addInstruction(InstPtr instruction) override {
+    xacc::InstructionParameter param = instruction->getParameter(0);
+    bool dupParam = false;
+    for (auto p : parameters) {
+        if (p.as<std::string>() == param.as<std::string>()) {
+            dupParam = true;
+        }
+    }
+    if (!dupParam) {
+        parameters.push_back(param);
+    }
     instructions.push_back(instruction);
   }
 
   const int depth() override {
-    xacc::error("DWKernel graph is undirected, cannot compute depth.");
+    xacc::error("DWFunction graph is undirected, cannot compute depth.");
     return 0;
   }
 
@@ -174,7 +184,7 @@ const int nRequiredBits() const override {
   const std::string toString() override {
       return toString("");
   }
-  
+
   /**
    * Return the number of logical qubits.
    *
@@ -185,14 +195,14 @@ const int nRequiredBits() const override {
   }
 
   /**
-   * Return the number of physical qubits. 
-   * 
+   * Return the number of physical qubits.
+   *
    * @return nPhysical The number of physical qubits.
    */
   const int nPhysicalBits() override {
       return 0;
   }
-  
+
   std::vector<double> getAllBiases() {
     std::vector<double> biases;
     for (auto i : instructions) {
@@ -222,7 +232,7 @@ const int nRequiredBits() const override {
   void setParameter(const int idx, InstructionParameter &p) override {
     if (idx + 1 > parameters.size()) {
       XACCLogger::instance()->error(
-          "DWKernel.setParameter: Invalid Parameter requested.");
+          "DWFunction.setParameter: Invalid Parameter requested.");
     }
 
     parameters[idx] = p;
@@ -242,7 +252,7 @@ const int nRequiredBits() const override {
 
   std::shared_ptr<Function> operator()(const Eigen::VectorXd &params) override {
     if (params.size() != nParameters()) {
-      xacc::error("Invalid DWKernel evaluation: number "
+      xacc::error("Invalid DWFunction evaluation: number "
                   "of parameters don't match. " +
                   std::to_string(params.size()) + ", " +
                   std::to_string(nParameters()));
@@ -268,7 +278,7 @@ const int nRequiredBits() const override {
       return expr.value();
     };
 
-    auto evaluatedFunction = std::make_shared<DWKernel>("evaled_" + name());
+    auto evaluatedFunction = std::make_shared<DWFunction>("evaled_" + name());
     for (auto inst : getInstructions()) {
       if (inst->isComposite()) {
         // If a Function, call this method recursively
@@ -333,10 +343,10 @@ const int nRequiredBits() const override {
    */
   void setOption(const std::string optName,
                  InstructionParameter option) override {
-      XACCLogger::instance()->error("setOption not implemented for DWKernel."); 
-      return;              
+      XACCLogger::instance()->error("setOption not implemented for DWFunction.");
+      return;
   }
-  
+
   /**
    * Get the value of an option with the given name.
    *
@@ -344,8 +354,8 @@ const int nRequiredBits() const override {
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-       XACCLogger::instance()->error("getOption not implemented for DWKernel.");  
-       return InstructionParameter(0);             
+       XACCLogger::instance()->error("getOption not implemented for DWFunction.");
+       return InstructionParameter(0);
   }
 
   /**
@@ -354,8 +364,8 @@ const int nRequiredBits() const override {
    * @return optMap The options map.
    */
   std::map<std::string, InstructionParameter> getOptions() override {
-       XACCLogger::instance()->error("getOptions not implemented for DWKernel."); 
-       return std::map<std::string,InstructionParameter>();              
+       XACCLogger::instance()->error("getOptions not implemented for DWFunction.");
+       return std::map<std::string,InstructionParameter>();
   }
   EMPTY_DEFINE_VISITABLE()
 };
