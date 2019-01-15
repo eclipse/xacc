@@ -103,7 +103,7 @@ const int nRequiredBits() const override {
     xacc::InstructionParameter param = instruction->getParameter(0);
     bool dupParam = false;
     for (auto p : parameters) {
-        if (p.as<std::string>() == param.as<std::string>()) {
+        if (p.toString() == param.toString()) {
             dupParam = true;
         }
     }
