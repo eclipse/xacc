@@ -4,7 +4,7 @@
 #include "XACC.hpp"
 #include "Identifiable.hpp"
 #include "DWQMI.hpp"
-#include "DWKernel.hpp"
+#include "DWFunction.hpp"
 #include "IRProvider.hpp"
 
 namespace xacc {
