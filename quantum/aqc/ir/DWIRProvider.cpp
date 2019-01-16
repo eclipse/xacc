@@ -13,7 +13,7 @@ DWIRProvider::createInstruction(const std::string name, std::vector<int> bits,
 std::shared_ptr<Function>
 DWIRProvider::createFunction(const std::string name, std::vector<int> bits,
                              std::vector<InstructionParameter> parameters) {
-  return std::make_shared<DWKernel>(name, parameters);
+  return std::make_shared<DWFunction>(name, parameters);
 }
 
 std::shared_ptr<IR> DWIRProvider::createIR() {

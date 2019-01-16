@@ -11,17 +11,17 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "DWKernel.hpp"
+#include "DWFunction.hpp"
 
 using namespace xacc::quantum;
 
-TEST(DWKernelTester, checkDWKernelConstruction) {
+TEST(DWFunctionTester, checkDWKernelConstruction) {
 
   auto qmi = std::make_shared<DWQMI>(0, 1, 2.2);
   auto qmi2 = std::make_shared<DWQMI>(0);
   auto qmi3 = std::make_shared<DWQMI>(22, 3.3);
 
-  DWKernel kernel("foo");
+  DWFunction kernel("foo");
   kernel.addInstruction(qmi);
   kernel.addInstruction(qmi2);
   kernel.addInstruction(qmi3);
@@ -37,13 +37,13 @@ TEST(DWKernelTester, checkDWKernelConstruction) {
   EXPECT_TRUE(kernel.toString("") == expected);
 }
 
-TEST(DWKernelTester, checkGraph) {
+TEST(DWFunctionTester, checkGraph) {
 
   auto qmi = std::make_shared<DWQMI>(0, 1, 2.2);
   auto qmi2 = std::make_shared<DWQMI>(0, 1.2);
   auto qmi3 = std::make_shared<DWQMI>(1, 3.3);
 
-  DWKernel kernel("foo");
+  DWFunction kernel("foo");
   kernel.addInstruction(qmi);
   kernel.addInstruction(qmi2);
   kernel.addInstruction(qmi3);
@@ -51,6 +51,42 @@ TEST(DWKernelTester, checkGraph) {
   auto graph = kernel.toGraph();
 
   graph.write(std::cout);
+}
+
+TEST(DWFunctionTester, checkVariableParameterEval) {
+  auto param1 = xacc::InstructionParameter("param1");
+  auto param2 = xacc::InstructionParameter("param1");
+  auto param3 = xacc::InstructionParameter("param2");
+  auto qmi = std::make_shared<DWQMI>(0, 1, param1);
+  auto qmi2 = std::make_shared<DWQMI>(2, 3, param1);
+  auto qmi3 = std::make_shared<DWQMI>(3,4 , param3);
+
+
+  DWFunction kernel("foo");
+  kernel.addInstruction(qmi);
+  kernel.addInstruction(qmi2);
+  kernel.addInstruction(qmi3);
+
+  std::cout << kernel.nParameters() << std::endl;
+  for (auto param : kernel.getParameters()) {
+      std::cout << boost::get<std::string>(param) << std::endl;
+  }
+  EXPECT_TRUE(kernel.nParameters() == 2);
+  EXPECT_TRUE(kernel.nInstructions() == 3);
+  EXPECT_TRUE(kernel.name() == "foo");
+  EXPECT_TRUE(kernel.getInstruction(0) == qmi);
+  EXPECT_TRUE(kernel.getInstruction(1) == qmi2);
+  EXPECT_TRUE(kernel.getInstruction(2) == qmi3);
+
+  const std::string expected = "0 1 param1;\n2 3 param1;\n3 4 param2;\n";
+  EXPECT_TRUE(kernel.toString("") == expected);
+  Eigen::VectorXd pars(2);
+  pars(0) = 3.4;
+  pars(1) = 4.5;
+
+  auto evaled = kernel(pars);
+
+  std::cout << evaled->toString("") << std::endl;
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
