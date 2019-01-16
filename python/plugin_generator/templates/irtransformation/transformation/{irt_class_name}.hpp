@@ -9,7 +9,7 @@ using namespace boost::program_options;
 
 namespace xacc {{
     namespace quantum {{
-        class {irt_class_name} : public IRTransformation, OptionsProvider {{
+        class {irt_class_name} : public IRTransformation, public OptionsProvider {{
         public:
             {irt_class_name}();
 
