@@ -602,4 +602,36 @@ PYBIND11_MODULE(_pyxacc, m) {
       },
       "Compute and return the state after execution of the given program on "
       "the given accelerator.");
+
+  py::module aqcsub =
+      m.def_submodule("dwave", "Gate model quantum computing data structures.");
+  aqcsub.def(
+      "create",
+      [](const std::string &name, std::vector<int> qbits,
+         std::vector<InstructionParameter> params =
+             std::vector<InstructionParameter>{})
+          -> std::shared_ptr<Instruction> {
+        return xacc::getService<IRProvider>("dwave")->createInstruction(
+            name, qbits, params);
+      },
+      "Convenience function for creating a new DWInstruction.",
+      py::arg("name"), py::arg("qbits"),
+      py::arg("params") = std::vector<InstructionParameter>{});
+  aqcsub.def(
+      "createFunction",
+      [](const std::string &name, std::vector<int> qbits,
+         std::vector<InstructionParameter> params =
+             std::vector<InstructionParameter>{}) -> std::shared_ptr<Function> {
+        return xacc::getService<IRProvider>("dwave")->createFunction(name, qbits,
+                                                                    params);
+      },
+      "Convenience function for creating a new DWFunction.", py::arg("name"),
+      py::arg("qbits"),
+      py::arg("params") = std::vector<InstructionParameter>{});
+  aqcsub.def(
+      "createIR",
+      []() -> std::shared_ptr<IR> {
+        return xacc::getService<IRProvider>("dwave")->createIR();
+      },
+      "Convenience function for creating a new DWIR.");
 }
