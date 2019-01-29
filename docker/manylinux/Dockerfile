@@ -9,11 +9,12 @@ ENV CC=/opt/devtools-6.2/bin/gcc
 ENV CXX=/opt/devtools-6.2/bin/g++
 
 RUN rm -rf /usr/lib64/libstdc++.so.6* && mkdir -p all_wheels && yum remove -y gcc \ 
-    && ln -s /opt/devtools-6.2/lib64/libstdc++* /usr/lib64/
+    && ln -s /opt/devtools-6.2/lib64/libstdc++* /usr/lib64/ 
 
 RUN git clone --recursive https://github.com/eclipse/xacc \
     && cd xacc \
     && export myPython=/opt/python/${python_version_str}/bin/python \
+    && python3 -m pip install ipopo configparser numpy scipy \
     && export xaccVersion=$($myPython -c "import os; print(open(os.path.join(os.getcwd(), 'VERSION')).read().strip())") \
     && $myPython --version \
     && $myPython setup.py build -t tmp \ 
