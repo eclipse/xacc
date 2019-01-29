@@ -14,7 +14,7 @@ RUN rm -rf /usr/lib64/libstdc++.so.6* && mkdir -p all_wheels && yum remove -y gc
 RUN git clone --recursive https://github.com/eclipse/xacc \
     && cd xacc \
     && export myPython=/opt/python/${python_version_str}/bin/python \
-    && python3 -m pip install ipopo configparser numpy scipy \
+    && $myPython -m pip install ipopo configparser numpy scipy \
     && export xaccVersion=$($myPython -c "import os; print(open(os.path.join(os.getcwd(), 'VERSION')).read().strip())") \
     && $myPython --version \
     && $myPython setup.py build -t tmp \ 
