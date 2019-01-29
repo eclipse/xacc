@@ -51,6 +51,18 @@ RUN export PATH=$PATH:/opt/devtools-6.2/bin \
     && cp wheelhouse/xacc_rigetti-$rigettiVersion-${python_version_str}-manylinux1_x86_64.whl /all_wheels
 
 RUN export PATH=$PATH:/opt/devtools-6.2/bin \
+    && cd / && git clone --recursive https://github.com/ornl-qci/xacc-dwave && cd xacc-dwave \
+    && export myPython=/opt/python/${python_version_str}/bin/python \ 
+    && export dwaveVersion=$($myPython -c "import os; print(open(os.path.join(os.getcwd(), 'VERSION')).read().strip())") \
+    && PYTHONPATH=/xacc/build/lib.linux-x86_64-${python_version}/xacc \ 
+           $myPython setup.py build -t tmp \
+    && mkdir -p build/lib.linux-x86_64-${python_version}/xacc/lib \
+    && PYTHONPATH=/xacc/build/lib.linux-x86_64-${python_version}/xacc \
+           $myPython setup.py bdist_wheel --skip-build \
+    && /opt/_internal/cpython-3.6.4/bin/python /xacc/tools/wheels/null_rpaths.py -v repair dist/xacc_dwave-$dwaveVersion-${python_version_str}-linux_x86_64.whl \
+    && cp wheelhouse/xacc_dwave-$dwaveVersion-${python_version_str}-manylinux1_x86_64.whl /all_wheels
+
+RUN export PATH=$PATH:/opt/devtools-6.2/bin \
     && cd / && git clone --recursive https://github.com/ornl-qci/xacc-ibm && cd xacc-ibm \
     && export myPython=/opt/python/${python_version_str}/bin/python \ 
     && export ibmVersion=$($myPython -c "import os; print(open(os.path.join(os.getcwd(), 'VERSION')).read().strip())") \
