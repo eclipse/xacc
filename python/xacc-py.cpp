@@ -372,6 +372,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            (ExtraInfo(xacc::AcceleratorBuffer::*)(const std::string)) &
                xacc::AcceleratorBuffer::getInformation,
            "")
+      .def("appendChild", &xacc::AcceleratorBuffer::appendChild,"") 
       .def("hasExtraInfoKey", &xacc::AcceleratorBuffer::hasExtraInfoKey, "")
       .def("name", &xacc::AcceleratorBuffer::name, "")
       .def("getAllUnique", &xacc::AcceleratorBuffer::getAllUnique,
