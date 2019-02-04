@@ -13,6 +13,9 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
+
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
