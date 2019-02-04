@@ -54,8 +54,8 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
   }
 
   double chain_strength = 1.0;
-  if (xacc::optionExists("chain_strength")) {
-      chain_strength = std::stod(xacc::getOption("chain_strength"));
+  if (xacc::optionExists("chain-strength")) {
+      chain_strength = std::stod(xacc::getOption("chain-strength"));
   }
 
   for (int i = 0; i < nHardwareVerts; i++) {
