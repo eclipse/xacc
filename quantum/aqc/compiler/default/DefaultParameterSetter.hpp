@@ -14,13 +14,14 @@
 #define QUANTUM_AQC_COMPILER_DefaultParameterSetter_HPP_
 
 #include "ParameterSetter.hpp"
+#include "OptionsProvider.hpp"
 
 namespace xacc {
 namespace quantum {
 
 /**
  */
-class DefaultParameterSetter : public ParameterSetter {
+class DefaultParameterSetter : public ParameterSetter, public OptionsProvider {
 
 public:
   /**
@@ -33,16 +34,28 @@ public:
    */
   virtual ~DefaultParameterSetter() {}
 
-  virtual std::list<std::shared_ptr<DWQMI>>
+  std::list<std::shared_ptr<DWQMI>>
   setParameters(std::shared_ptr<DWGraph> problemGraph,
                 std::shared_ptr<AcceleratorGraph> hardwareGraph,
-                Embedding embedding);
+                Embedding embedding) override;
 
-  virtual const std::string name() const { return "default"; }
+  const std::string name() const override { return "default"; }
 
-  virtual const std::string description() const {
+  const std::string description() const override {
     return "This ParameterSetter sets Ising parameters as in the JADE "
            "publication.";
+  }
+
+  std::shared_ptr<options_description> getOptions() override {
+    auto desc =
+        std::make_shared<options_description>("Default Parameter Setter Options");
+    desc->add_options()("chain-strength", value<std::string>(),
+                        "");
+    return desc;
+  }
+
+  bool handleOptions(variables_map &map) override {
+      return false;
   }
 };
 

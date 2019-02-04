@@ -21,8 +21,7 @@
 namespace xacc {
 namespace quantum {
 
-class __attribute__((visibility("default"))) ParameterSetter
-    : public Identifiable {
+class ParameterSetter : public Identifiable {
 
 public:
   virtual std::list<std::shared_ptr<DWQMI>>

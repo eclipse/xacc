@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "DefaultParameterSetter.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -52,6 +53,11 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
     }
   }
 
+  double chain_strength = 1.0;
+  if (xacc::optionExists("chain_strength")) {
+      chain_strength = std::stod(xacc::getOption("chain_strength"));
+  }
+
   for (int i = 0; i < nHardwareVerts; i++) {
     for (int j = 0; j < nHardwareVerts; j++) {
       if (hardwareGraph->edgeExists(i, j) && i < j && i != j) {
@@ -77,7 +83,7 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
                       std::fabs(problemGraph->getEdgeWeight(pi, neighbor));
                 }
                 newWeight += std::get<0>(problemGraph->getVertexProperties(pi));
-                newWeight *= -1.0;
+                newWeight *= -1.0 * chain_strength;
               }
 
               if (std::fabs(newWeight) > 1e-4) {
