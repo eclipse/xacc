@@ -17,6 +17,8 @@
 #include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
 #include "InstructionParameter.hpp"
+#include "DWGraph.hpp"
+#include "EmbeddingAlgorithm.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -372,7 +374,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            (ExtraInfo(xacc::AcceleratorBuffer::*)(const std::string)) &
                xacc::AcceleratorBuffer::getInformation,
            "")
-      .def("appendChild", &xacc::AcceleratorBuffer::appendChild,"") 
+      .def("appendChild", &xacc::AcceleratorBuffer::appendChild, "")
       .def("hasExtraInfoKey", &xacc::AcceleratorBuffer::hasExtraInfoKey, "")
       .def("name", &xacc::AcceleratorBuffer::name, "")
       .def("getAllUnique", &xacc::AcceleratorBuffer::getAllUnique,
@@ -530,7 +532,11 @@ PYBIND11_MODULE(_pyxacc, m) {
         (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
         "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("getCache", &xacc::getCache, "");
-  m.def("appendCache", (void (*)(const std::string, const std::string, InstructionParameter&)) &xacc::appendCache, "");
+  m.def(
+      "appendCache",
+      (void (*)(const std::string, const std::string, InstructionParameter &)) &
+          xacc::appendCache,
+      "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",
@@ -615,16 +621,16 @@ PYBIND11_MODULE(_pyxacc, m) {
         return xacc::getService<IRProvider>("dwave")->createInstruction(
             name, qbits, params);
       },
-      "Convenience function for creating a new DWInstruction.",
-      py::arg("name"), py::arg("qbits"),
+      "Convenience function for creating a new DWInstruction.", py::arg("name"),
+      py::arg("qbits"),
       py::arg("params") = std::vector<InstructionParameter>{});
   aqcsub.def(
       "createFunction",
       [](const std::string &name, std::vector<int> qbits,
          std::vector<InstructionParameter> params =
              std::vector<InstructionParameter>{}) -> std::shared_ptr<Function> {
-        return xacc::getService<IRProvider>("dwave")->createFunction(name, qbits,
-                                                                    params);
+        return xacc::getService<IRProvider>("dwave")->createFunction(
+            name, qbits, params);
       },
       "Convenience function for creating a new DWFunction.", py::arg("name"),
       py::arg("qbits"),
@@ -635,4 +641,43 @@ PYBIND11_MODULE(_pyxacc, m) {
         return xacc::getService<IRProvider>("dwave")->createIR();
       },
       "Convenience function for creating a new DWIR.");
+
+  aqcsub.def(
+      "embed",
+      [](std::shared_ptr<Function> f, std::shared_ptr<Accelerator> acc,
+         const std::string algo) -> std::map<int, std::vector<int>> {
+        auto a = xacc::getService<xacc::quantum::EmbeddingAlgorithm>(algo);
+        auto hardware = acc->getAcceleratorConnectivity();
+
+        int maxBitIdx = 0;
+        for (auto inst : f->getInstructions()) {
+          if (inst->name() == "dw-qmi") {
+            auto qbit1 = inst->bits()[0];
+            auto qbit2 = inst->bits()[1];
+            if (qbit1 > maxBitIdx) {
+              maxBitIdx = qbit1;
+            }
+            if (qbit2 > maxBitIdx) {
+              maxBitIdx = qbit2;
+            }
+          }
+        }
+
+        auto problemGraph = std::make_shared<xacc::quantum::DWGraph>(maxBitIdx+1);
+        for (auto inst : f->getInstructions()) {
+          if (inst->name() == "dw-qmi") {
+            auto qbit1 = inst->bits()[0];
+            auto qbit2 = inst->bits()[1];
+            if (qbit1 == qbit2) {
+              problemGraph->setVertexProperties(qbit1, 1.0);
+            } else {
+              problemGraph->addEdge(qbit1, qbit2, 1.0);
+            }
+          }
+        }
+
+
+        return a->embed(problemGraph, hardware);
+      },
+      "");
 }

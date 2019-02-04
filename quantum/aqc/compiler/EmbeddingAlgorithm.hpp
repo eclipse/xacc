@@ -32,8 +32,7 @@ namespace quantum {
  * for minor graph embedding algorithms.
  *
  */
-class __attribute__((visibility("default"))) EmbeddingAlgorithm
-    : public Identifiable {
+class EmbeddingAlgorithm : public Identifiable {
 
 public:
   /**
