@@ -5,8 +5,8 @@ run rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get -y ins
 
 run python3 -m pip install --upgrade pip && python3 -m pip install --user jupyterlab pyquil mpmath deepdiff prompt-toolkit==1.0.15 dwave-qbsolv dwave-ocean-sdk \
        numpy scipy openfermion --no-cache-dir && ipython3 kernel install \
-    && python3 -m pip uninstall -y h5py && python3 -m pip install h5py==2.8.0rc1 \
-    && apt-get install -y apt-transport-https ca-certificates curl software-properties-common \
+    && python3 -m pip uninstall -y h5py && python3 -m pip install h5py==2.8.0rc1 
+run apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic test" \
     && apt-get update -y && apt-get install -y docker-ce \
@@ -32,5 +32,4 @@ run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir bu
     && rm -rf xacc/build xacc-rigetti/build tnqvm/build xacc-ibm/build xacc-projectq/build xacc-vqe/build xacc-vqe-bayesopt/build \
              xacc-vqe-fcidump/build
 
-run echo "alias python=python3" >> ~/.bashrc \
-    && echo "function xacc-logs() { docker logs -f \$(docker ps -aqf name=qchem) ; }" >> ~/.bashrc
+run python3 -m pip install ipopo && echo "alias python=python3" >> ~/.bashrc 
