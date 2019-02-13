@@ -49,14 +49,14 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
         auto inst = gateFunction->getInstruction(i);
         if (isRotation(inst->name())) {
           auto param = inst->getParameter(0);
-          double val = ipToDouble(param);
-
-          if (std::fabs(val) < 1e-12) {
-            inst->disable();
+          if (!param.isVariable()) {
+              double val = ipToDouble(param);
+              if (std::fabs(val) < 1e-12) {
+                 inst->disable();
+            }
           }
         }
       }
-
       // Remove all CNOT(p,q) CNOT(p,q) Pairs
       while (true) {
         bool modified = false;
@@ -78,7 +78,6 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
             }
           }
         }
-
         if (!modified)
           break;
       }
@@ -94,7 +93,6 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
 
           auto adj = graphView.getNeighborList(node.id());
           std::vector<int> nAsVec(adj.begin(), adj.end());
-
           if (adj.size() == 1) {
             auto nextNode = graphView.getVertex(nAsVec[0]);
             if (node.name() == "H" && nextNode.name() == "H") {
@@ -125,7 +123,6 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
       }
     }
   }
-
   return ir;
 }
 
