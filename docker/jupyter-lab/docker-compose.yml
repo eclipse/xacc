@@ -3,7 +3,7 @@ version: '2'
 
 services:
   xacc-jupyter-lab:
-    image: xacc/jupyter-lab
+    image: xacc/jupyter
     command: "bash -c 'PATH=$PATH:/root/.local/bin SHELL=/bin/bash jupyter lab --no-browser --ip=0.0.0.0 --port=9000 --allow-root --notebook-dir=/projects --NotebookApp.token=\"\"'"
     volumes:
       - ../:/projects
