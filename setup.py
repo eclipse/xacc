@@ -51,18 +51,18 @@ class CMakeBuild(build_ext):
         print(sys.argv)
         args = sys.argv[1:]
         script_path = os.path.dirname(os.path.realpath(__file__))
-        
+
         if 'install' in args and not '--record' in args:
-           install_prefix = script_path + '/' + self.build_lib 
+           install_prefix = script_path + '/' + self.build_lib
         else:
-           install_prefix = script_path + '/' + self.build_lib + '/xacc' 
+           install_prefix = script_path + '/' + self.build_lib + '/xacc'
 
         print(self.build_lib)
-  
+
         cmake_args = ['-DPYTHON_INCLUDE_DIR=' + sysconfig.get_paths()['platinclude'], #sys.executable,
                       '-DCMAKE_INSTALL_PREFIX='+install_prefix,
 		      '-DFROM_SETUP_PY=TRUE']
-        
+
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
@@ -89,7 +89,7 @@ s = setup(
     description='Hardware-agnostic quantum programming framework',
     long_description='XACC provides a language and hardware agnostic programming framework for hybrid classical-quantum applications.',
     ext_modules=[CMakeExtension('xacc')],
-    install_requires=['numpy','ipopo', 'configparser'],
+    install_requires=['numpy','scipy','ipopo', 'configparser'],
     extras_require={'all':['xacc-rigetti','xacc-ibm','tnqvm','xacc-vqe']},
     cmdclass={'build_ext':CMakeBuild},
     #scripts=['tools/framework/xacc-framework'],
