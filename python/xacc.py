@@ -1,7 +1,7 @@
 from _pyxacc import *
 import os, time, json
 import platform
-import sys
+import sys, re
 import sysconfig
 import argparse
 import inspect
@@ -163,6 +163,9 @@ class DecoratorFunction(ABC):
         self.__dict__.update(kwargs)
         self.accelerator = None
         self.src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
+        
+        self.processVariables()    
+        
         compiler = getCompiler('xacc-py')
         if self.accelerator == None:
             if 'accelerator' in self.kwargs:
@@ -186,7 +189,19 @@ class DecoratorFunction(ABC):
 
     def overrideAccelerator(self, acc):
         self.accelerator = acc
-
+    
+    def processVariables(self):
+        g = re.findall('=(\w+)', self.src)
+        frame = inspect.currentframe()      
+        for thing in g:
+            if thing in frame.f_back.f_locals['f'].__globals__:
+                if isinstance(frame.f_back.f_locals['f'].__globals__[thing], str):
+                    real = "'" + frame.f_back.f_locals['f'].__globals__[thing] + "'"
+                else:
+                    real = str(frame.f_back.f_locals['f'].__globals__[thing])
+                self.src = self.src.replace('='+thing, '='+real)
+        del frame  
+        
     def nParameters(self):
         return self.getFunction().nParameters()
 
