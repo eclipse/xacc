@@ -243,6 +243,8 @@ Here is a simple script to construct a Bell State on the Rigetti QVM:
    def entangle(buffer):
       H(0)
       CNOT(0,1)
+      Measure(0)
+      Measure(1)
 
    entangle(qubits)
 
