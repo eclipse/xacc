@@ -2,7 +2,7 @@ import argparse
 import os
 
 
-PLUGIN_TYPES = {"compiler", "irtransformation", "iroptimization", "gate-instruction"}
+PLUGIN_TYPES = {"compiler", "irtransformation", "iroptimization", "gate-instruction", "irgenerator"}
 
 DESCRIPTION = """
 A utility for generating plugin skeletons.
@@ -39,12 +39,12 @@ def run_generator(args, xacc_root):
             template_dir = os.path.join(templates_dir, "irtransformation/")
             if args.verbose:
                 print("Generating an IR Optimization or Transformation plugin...")
-                generate_irtransformation(template_dir, output_dir, xacc_root, args)
+            generate_irtransformation(template_dir, output_dir, xacc_root, args)
         elif args.type.lower() == "compiler":
             template_dir = os.path.join(templates_dir, "compiler/")
             if args.verbose:
                 print("Generating a compiler plugin...")
-                generate_compiler(template_dir, output_dir, xacc_root, args)
+            generate_compiler(template_dir, output_dir, xacc_root, args)
         elif args.type.lower() == "accelerator":
             print('Accelerator plugin gen not implemented yet.')
             return
@@ -53,6 +53,11 @@ def run_generator(args, xacc_root):
             if args.verbose:
                 print("Generating a gate-instruction plugin...")
             generate_instruction(template_dir, output_dir, xacc_root, args)
+        elif args.type.lower() == "irgenerator":
+            template_dir = os.path.join(templates_dir, "irgenerator/")
+            if args.verbose:
+                print("Generating an IRgenerator plugin...")
+            generate_irgenerator(template_dir, output_dir, xacc_root, args)
     else:
         print("Please specify a type (-t) and name (-n). Use -l (--list) to see available plugins to generate")
 
@@ -123,4 +128,19 @@ def generate_instruction(template_dir, output_dir, xacc_root_path, args):
         inst_class_name=class_name,
         inst_class_name_lower=class_name.lower(),
         inst_class_name_upper=class_name.upper()
+    ), verbose=args.verbose)
+
+def generate_irgenerator(template_dir, output_dir, xacc_root_path, args):
+    irgenerator_lib_name = "{}irgenerator".format(args.libname)
+    class_name = "{}Generator".format(args.name.capitalize())
+    generate(template_dir, output_dir, format_func=lambda s: s.format(
+        xacc_root=xacc_root_path,
+        lib_name=args.libname,
+        project_name=args.name,
+        project_name_upper=args.name.upper(),
+        irgenerator_bundle_name=irgenerator_lib_name.replace('-', '_'),
+        irgenerator_lib_name=irgenerator_lib_name,
+        irgenerator_class_name=class_name,
+        irgenerator_class_name_lower=class_name.lower(),
+        irgenerator_class_name_upper=class_name.upper()
     ), verbose=args.verbose)

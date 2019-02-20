@@ -1,0 +1,6 @@
+{{
+    "bundle.symbolic_name" : "{irgenerator_lib_name}",
+    "bundle.activator" : true,
+    "bundle.name" : "Generated XACC IRGenerator",
+    "bundle.description" : "This is an automatically generated bundle."
+}}
