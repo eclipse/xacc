@@ -207,6 +207,53 @@ scope, which in this case is the prime factors we are seeking. The ``xacc.analyz
 provides a convenience method for executing the correct ``IRGenerator::analyzeResults``
 method.
 
+Rigetti QVM Python JIT
+++++++++++++++++++++++
+The XACC Python JIT mechanism can be used for writing and executing Rigetti pyQuil code using the Rigetti QVM. 
+
+Note that this requires downloading and installing the Rigetti Forest Software Development Kit,
+which includes pyQuil 2.0, the Quantum Virtual Machine (qvm), and the Rigetti Quil Compiler (quilc).
+
+With the Rigetti Forest SDK installed, the QVM server can be started in a terminal by running the command:
+
+.. code::
+
+   $ qvm -S
+
+XACC does not require the Rigetti Quil Compiler to be used to 
+execute quantum kernels on the QVM. Once the QVM server has been started, 
+the XACC workflow is essentially the same as when targeting other quantum processors. 
+
+Here is a simple script to construct a Bell State on the Rigetti QVM:
+
+.. code::
+
+   import xacc
+
+   # Initialize the framework
+   xacc.Initialize()
+
+   # Target the Rigetti QVM and
+   # allocate some qubits
+   qpu = xacc.getAccelerator('rigetti-qvm')
+   qubits = qpu.createBuffer('q', 2)
+
+   # Define the XACC Kernel
+   @xacc.qpu(accelerator=qpu)
+   def entangle(buffer):
+      H(0)
+      CNOT(0,1)
+      Measure(0)
+      Measure(1)
+
+   entangle(qubits)
+
+   # Display the results
+   print(qubits)
+
+   # Finalize the framework
+   xacc.Finalize()
+   
 AcceleratorBuffer Usage
 -----------------------
 The ``AcceleratorBuffer`` makes up the glue between host-side code and ``Accelerator``
