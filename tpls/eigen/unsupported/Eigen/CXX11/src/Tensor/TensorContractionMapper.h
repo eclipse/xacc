@@ -120,6 +120,7 @@ class SimpleTensorContractionMapper {
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE Index computeIndex(Index row, Index col) const {
     const bool left = (side == Lhs);
+    EIGEN_UNUSED_VARIABLE(left); // annoying bug in g++8.1: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85963
     Index nocontract_val = left ? row : col;
     Index linidx = 0;
     for (int i = static_cast<int>(array_size<nocontract_t>::value) - 1; i > 0; i--) {
@@ -158,6 +159,7 @@ class SimpleTensorContractionMapper {
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE IndexPair<Index> computeIndexPair(Index row, Index col, const Index distance) const {
     const bool left = (side == Lhs);
+    EIGEN_UNUSED_VARIABLE(left); // annoying bug in g++8.1: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85963
     Index nocontract_val[2] = {left ? row : col, left ? row + distance : col};
     Index linidx[2] = {0, 0};
     if (array_size<typename Tensor::Dimensions>::value > array_size<contract_t>::value) {
@@ -238,12 +240,11 @@ class BaseTensorContractionMapper : public SimpleTensorContractionMapper<Scalar,
                               const contract_t& k_strides) :
   ParentMapper(tensor, nocontract_strides, ij_strides, contract_strides, k_strides) { }
 
-  typedef typename Tensor::PacketReturnType Packet;
-  typedef typename unpacket_traits<Packet>::half HalfPacket;
-
   template <typename PacketT,int AlignmentType>
-  EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE PacketT load(Index i, Index j) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+  typename internal::enable_if<internal::unpacket_traits<PacketT>::size==packet_size,PacketT>::type
+  load(Index i, Index j) const
+  {
     // whole method makes column major assumption
 
     // don't need to add offsets for now (because operator handles that)
@@ -258,7 +259,7 @@ class BaseTensorContractionMapper : public SimpleTensorContractionMapper<Scalar,
 
     const IndexPair<Index> indexPair = this->computeIndexPair(i, j, packet_size - 1);
     const Index first = indexPair.first;
-    const Index last = indexPair.second;
+    const Index lastIdx = indexPair.second;
 
     // We can always do optimized packet reads from left hand side right now, because
     // the vertical matrix dimension on the left hand side is never contracting.
@@ -266,7 +267,7 @@ class BaseTensorContractionMapper : public SimpleTensorContractionMapper<Scalar,
     // been shuffled first.
     if (Tensor::PacketAccess &&
         (side == Lhs || internal::array_size<contract_t>::value <= 1 || !inner_dim_reordered) &&
-        (last - first) == (packet_size - 1)) {
+        (lastIdx - first) == (packet_size - 1)) {
 
       return this->m_tensor.template packet<AlignmentType>(first);
     }
@@ -279,32 +280,38 @@ class BaseTensorContractionMapper : public SimpleTensorContractionMapper<Scalar,
       data[k] = this->m_tensor.coeff(internal_pair.first);
       data[k + 1] = this->m_tensor.coeff(internal_pair.second);
     }
-    data[packet_size - 1] = this->m_tensor.coeff(last);
+    data[packet_size - 1] = this->m_tensor.coeff(lastIdx);
 
     return pload<PacketT>(data);
   }
 
-  template <int AlignmentType>
-  EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE Packet loadPacket(Index i, Index j) const {
-    return this->load<Packet,AlignmentType>(i,j);
+  template <typename PacketT,int AlignmentType>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+  typename internal::enable_if<internal::unpacket_traits<PacketT>::size!=packet_size,PacketT>::type
+  load(Index i, Index j) const
+  {
+    const Index requested_packet_size = internal::unpacket_traits<PacketT>::size;
+    EIGEN_ALIGN_MAX Scalar data[requested_packet_size];
+
+    const IndexPair<Index> indexPair = this->computeIndexPair(i, j, requested_packet_size - 1);
+    const Index first = indexPair.first;
+    const Index lastIdx = indexPair.second;
+
+    data[0] = this->m_tensor.coeff(first);
+    for (Index k = 1; k < requested_packet_size - 1; k += 2) {
+      const IndexPair<Index> internal_pair = this->computeIndexPair(i + k, j, 1);
+      data[k] = this->m_tensor.coeff(internal_pair.first);
+      data[k + 1] = this->m_tensor.coeff(internal_pair.second);
+    }
+    data[requested_packet_size - 1] = this->m_tensor.coeff(lastIdx);
+
+    return pload<PacketT>(data);
   }
 
-  template <int AlignmentType>
+  template <typename PacketT,int AlignmentType>
   EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE HalfPacket loadHalfPacket(Index i, Index j) const {
-    // whole method makes column major assumption
-
-    // don't need to add offsets for now (because operator handles that)
-    const Index half_packet_size = unpacket_traits<HalfPacket>::size;
-    if (half_packet_size == packet_size) {
-      return loadPacket<AlignmentType>(i, j);
-    }
-    EIGEN_ALIGN_MAX Scalar data[half_packet_size];
-    for (Index k = 0; k < half_packet_size; k++) {
-      data[k] = operator()(i + k, j);
-    }
-    return pload<HalfPacket>(data);
+  EIGEN_STRONG_INLINE PacketT loadPacket(Index i, Index j) const {
+    return this->load<PacketT,AlignmentType>(i,j);
   }
 };
 
@@ -314,7 +321,8 @@ template<typename Scalar, typename Index, int side,
          typename nocontract_t, typename contract_t,
          bool inner_dim_contiguous,
          bool inner_dim_reordered, int Alignment, template <class> class MakePointer_>
-class BaseTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, 1, inner_dim_contiguous, inner_dim_reordered, Alignment, MakePointer_> : public SimpleTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, 1, inner_dim_contiguous, Alignment, MakePointer_>
+class BaseTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, 1, inner_dim_contiguous, inner_dim_reordered, Alignment, MakePointer_>
+  : public SimpleTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, 1, inner_dim_contiguous, Alignment, MakePointer_>
 {
  public:
   typedef SimpleTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, 1, inner_dim_contiguous, Alignment, MakePointer_> ParentMapper;
@@ -327,22 +335,17 @@ class BaseTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, con
                               const contract_t& k_strides) :
   ParentMapper(tensor, nocontract_strides, ij_strides, contract_strides, k_strides) { }
 
-  typedef typename Tensor::PacketReturnType Packet;
-  template <int> EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE Packet loadPacket(Index i, Index j) const {
+  template <typename PacketT,int> EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE PacketT loadPacket(Index i, Index j) const {
     EIGEN_ALIGN_MAX Scalar data[1];
     data[0] = this->m_tensor.coeff(this->computeIndex(i, j));
-    return pload<typename Tensor::PacketReturnType>(data);
+    return pload<PacketT>(data);
   }
   template <typename PacketT,int> EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE PacketT load(Index i, Index j) const {
     EIGEN_ALIGN_MAX Scalar data[1];
     data[0] = this->m_tensor.coeff(this->computeIndex(i, j));
     return pload<PacketT>(data);
-  }
-  template <int> EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE Packet loadHalfPacket(Index i, Index j) const {
-    return loadPacket(i, j);
   }
 };
 
@@ -354,8 +357,6 @@ template<typename Scalar, typename Index, int side,
          bool inner_dim_contiguous, bool inner_dim_reordered, int Alignment, template <class> class MakePointer_=MakePointer>
 class TensorContractionSubMapper {
  public:
-  typedef typename Tensor::PacketReturnType Packet;
-  typedef typename unpacket_traits<Packet>::half HalfPacket;
 
   typedef BaseTensorContractionMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, packet_size, inner_dim_contiguous, inner_dim_reordered, Alignment, MakePointer_> ParentMapper;
   typedef TensorContractionSubMapper<Scalar, Index, side, Tensor, nocontract_t, contract_t, packet_size, inner_dim_contiguous, inner_dim_reordered, Alignment, MakePointer_> Self;
@@ -390,17 +391,20 @@ class TensorContractionSubMapper {
     return m_base_mapper(i + m_vert_offset, j + m_horiz_offset);
   }
 
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet loadPacket(Index i) const {
+  template <typename PacketT>
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE PacketT loadPacket(Index i) const {
     if (UseDirectOffsets) {
-      return m_base_mapper.template loadPacket<Alignment>(i, 0);
+      return m_base_mapper.template loadPacket<PacketT,Alignment>(i, 0);
     }
-    return m_base_mapper.template loadPacket<Alignment>(i + m_vert_offset, m_horiz_offset);
+    return m_base_mapper.template loadPacket<PacketT,Alignment>(i + m_vert_offset, m_horiz_offset);
   }
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Packet loadPacket(Index i, Index j) const {
+
+  template <typename PacketT>
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE PacketT loadPacket(Index i, Index j) const {
     if (UseDirectOffsets) {
-      return m_base_mapper.template loadPacket<Alignment>(i, j);
+      return m_base_mapper.template loadPacket<PacketT,Alignment>(i, j);
     }
-    return m_base_mapper.template loadPacket<Alignment>(i + m_vert_offset, j + m_horiz_offset);
+    return m_base_mapper.template loadPacket<PacketT,Alignment>(i + m_vert_offset, j + m_horiz_offset);
   }
 
   template <typename PacketT, int AlignmentType>
@@ -411,14 +415,8 @@ class TensorContractionSubMapper {
     return m_base_mapper.template loadPacket<PacketT,AlignmentType>(i + m_vert_offset, j + m_horiz_offset);
   }
 
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE HalfPacket loadHalfPacket(Index i) const {
-    if (UseDirectOffsets) {
-      return m_base_mapper.template loadHalfPacket<Alignment>(i, 0);
-    }
-    return m_base_mapper.template loadHalfPacket<Alignment>(i + m_vert_offset, m_horiz_offset);
-  }
-
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void storePacket(Index i, const Packet& p) const {
+  template <typename PacketT>
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE void storePacket(Index i, const PacketT& p) const {
     if (UseDirectOffsets) {
       m_base_mapper.storePacket(i, 0, p);
     }
@@ -434,15 +432,15 @@ class TensorContractionSubMapper {
 
   template <typename PacketT, int AlignmentType>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE PacketT load(Index i) const {
-    EIGEN_STATIC_ASSERT((internal::is_same<PacketT, Packet>::value), YOU_MADE_A_PROGRAMMING_MISTAKE);
+    EIGEN_STATIC_ASSERT((internal::is_same<PacketT, PacketT>::value), YOU_MADE_A_PROGRAMMING_MISTAKE);
     const int ActualAlignment = (AlignmentType == Aligned) && (Alignment == Aligned) ? Aligned : Unaligned;
     if (UseDirectOffsets) {
-     return m_base_mapper.template loadPacket<ActualAlignment>(i, 0);
+     return m_base_mapper.template loadPacket<PacketT,ActualAlignment>(i, 0);
     }
-    return m_base_mapper.template loadPacket<ActualAlignment>(i + m_vert_offset, m_horiz_offset);
+    return m_base_mapper.template loadPacket<PacketT,ActualAlignment>(i + m_vert_offset, m_horiz_offset);
   }
 
-  template <typename Packet>
+  template <typename PacketT>
   EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE bool aligned(Index) const {
     return false;
   }

@@ -166,13 +166,13 @@ array<t, n> repeat(t v) {
   return array;
 }
 
-template<std::size_t I, class Head, class Tail>
+template<std::size_t I_, class Head, class Tail>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename Head::type array_get(type_list<Head, Tail>&) {
-  return get<I, type_list<Head, Tail> >::value;
+  return get<I_, type_list<Head, Tail> >::value;
 }
-template<std::size_t I, class Head, class Tail>
+template<std::size_t I_, class Head, class Tail>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename Head::type array_get(const type_list<Head, Tail>&) {
-  return get<I, type_list<Head, Tail> >::value;
+  return get<I_, type_list<Head, Tail> >::value;
 }
 
 template <class NList>
@@ -188,7 +188,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE t array_prod(const array<t, n>& a) {
 }
 template<typename t>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE t array_prod(const array<t, 0>& /*a*/) {
-  return 0;
+  return 1;
 }
 
 template<typename t>
@@ -200,13 +200,13 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE t array_prod(const std::vector<t>& a) {
 }
 
 
-template<std::size_t I, class T>
+template<std::size_t I_, class T>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T& array_get(std::vector<T>& a) {
-  return a[I];
+  return a[I_];
 }
-template<std::size_t I, class T>
+template<std::size_t I_, class T>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& array_get(const std::vector<T>& a) {
-  return a[I];
+  return a[I_];
 }
 
 struct sum_op {
