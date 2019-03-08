@@ -18,7 +18,7 @@
 namespace xacc {
 
 namespace quantum {
-    
+
 class ROErrorDecorator : public AcceleratorDecorator {
 public:
 
@@ -32,7 +32,7 @@ public:
   const std::string name() const override { return "ro-error"; }
   const std::string description() const override { return ""; }
 
-  virtual std::shared_ptr<options_description> getOptions() {
+  std::shared_ptr<options_description> getOptions() override {
     auto desc = std::make_shared<options_description>();
     desc->add_options()("ro-error-p10s", value<std::string>(), "");
     return desc;
