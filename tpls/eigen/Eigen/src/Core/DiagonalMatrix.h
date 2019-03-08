@@ -44,7 +44,7 @@ class DiagonalBase : public EigenBase<Derived>
 
     EIGEN_DEVICE_FUNC
     DenseMatrixType toDenseMatrix() const { return derived(); }
-    
+
     EIGEN_DEVICE_FUNC
     inline const DiagonalVectorType& diagonal() const { return derived().diagonal(); }
     EIGEN_DEVICE_FUNC
@@ -82,6 +82,30 @@ class DiagonalBase : public EigenBase<Derived>
     operator*(const Scalar& scalar, const DiagonalBase& other)
     {
       return DiagonalWrapper<const EIGEN_SCALAR_BINARYOP_EXPR_RETURN_TYPE(Scalar,DiagonalVectorType,product) >(scalar * other.diagonal());
+    }
+
+    template<typename OtherDerived>
+    EIGEN_DEVICE_FUNC
+    #ifdef EIGEN_PARSED_BY_DOXYGEN
+    inline unspecified_expression_type
+    #else
+    inline const DiagonalWrapper<const EIGEN_CWISE_BINARY_RETURN_TYPE(DiagonalVectorType,typename OtherDerived::DiagonalVectorType,sum) >
+    #endif
+    operator+(const DiagonalBase<OtherDerived>& other) const
+    {
+      return (diagonal() + other.diagonal()).asDiagonal();
+    }
+
+    template<typename OtherDerived>
+    EIGEN_DEVICE_FUNC
+    #ifdef EIGEN_PARSED_BY_DOXYGEN
+    inline unspecified_expression_type
+    #else
+    inline const DiagonalWrapper<const EIGEN_CWISE_BINARY_RETURN_TYPE(DiagonalVectorType,typename OtherDerived::DiagonalVectorType,difference) >
+    #endif
+    operator-(const DiagonalBase<OtherDerived>& other) const
+    {
+      return (diagonal() - other.diagonal()).asDiagonal();
     }
 };
 
@@ -273,7 +297,7 @@ class DiagonalWrapper
   * \sa class DiagonalWrapper, class DiagonalMatrix, diagonal(), isDiagonal()
   **/
 template<typename Derived>
-inline const DiagonalWrapper<const Derived>
+EIGEN_DEVICE_FUNC inline const DiagonalWrapper<const Derived>
 MatrixBase<Derived>::asDiagonal() const
 {
   return DiagonalWrapper<const Derived>(derived());

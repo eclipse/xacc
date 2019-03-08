@@ -123,6 +123,7 @@ class PardisoImpl : public SparseSolverBase<Derived>
     };
 
     PardisoImpl()
+      : m_analysisIsOk(false), m_factorizationIsOk(false)
     {
       eigen_assert((sizeof(StorageIndex) >= sizeof(_INTEGER_t) && sizeof(StorageIndex) <= 8) && "Non-supported index type");
       m_iparm.setZero();
@@ -140,7 +141,7 @@ class PardisoImpl : public SparseSolverBase<Derived>
   
     /** \brief Reports whether previous computation was successful.
       *
-      * \returns \c Success if computation was succesful,
+      * \returns \c Success if computation was successful,
       *          \c NumericalIssue if the matrix appears to be negative.
       */
     ComputationInfo info() const

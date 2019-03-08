@@ -47,11 +47,7 @@ template<typename T> struct NumTraits;
 template<typename Derived> struct EigenBase;
 template<typename Derived> class DenseBase;
 template<typename Derived> class PlainObjectBase;
-
-
-template<typename Derived,
-         int Level = internal::accessors_level<Derived>::value >
-class DenseCoeffsBase;
+template<typename Derived, int Level> class DenseCoeffsBase;
 
 template<typename _Scalar, int _Rows, int _Cols,
          int _Options = AutoAlign |
@@ -83,6 +79,8 @@ template<typename ExpressionType> class ForceAlignedAccess;
 template<typename ExpressionType> class SwapWrapper;
 
 template<typename XprType, int BlockRows=Dynamic, int BlockCols=Dynamic, bool InnerPanel = false> class Block;
+template<typename XprType, typename RowIndices, typename ColIndices> class IndexedView;
+template<typename XprType, int Rows=Dynamic, int Cols=Dynamic, int Order=0> class Reshaped;
 
 template<typename MatrixType, int Size=Dynamic> class VectorBlock;
 template<typename MatrixType> class Transpose;
@@ -133,6 +131,9 @@ template<typename Derived> class SolverBase;
 template<typename XprType> class InnerIterator;
 
 namespace internal {
+template<typename XprType> class generic_randaccess_stl_iterator;
+template<typename XprType> class pointer_based_stl_iterator;
+template<typename XprType, DirectionType Direction> class subvector_stl_iterator;
 template<typename DecompositionType> struct kernel_retval_base;
 template<typename DecompositionType> struct kernel_retval;
 template<typename DecompositionType> struct image_retval_base;
@@ -255,6 +256,7 @@ template<typename MatrixType> class HouseholderQR;
 template<typename MatrixType> class ColPivHouseholderQR;
 template<typename MatrixType> class FullPivHouseholderQR;
 template<typename MatrixType> class CompleteOrthogonalDecomposition;
+template<typename MatrixType> class SVDBase;
 template<typename MatrixType, int QRPreconditioner = ColPivHouseholderQRPreconditioner> class JacobiSVD;
 template<typename MatrixType> class BDCSVD;
 template<typename MatrixType, int UpLo = Lower> class LLT;

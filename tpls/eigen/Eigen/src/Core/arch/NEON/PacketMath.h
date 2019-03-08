@@ -36,29 +36,63 @@ namespace internal {
 #endif
 #endif
 
+#if EIGEN_COMP_MSVC
+
+// In MSVC's arm_neon.h header file, all NEON vector types
+// are aliases to the same underlying type __n128.
+// We thus have to wrap them to make them different C++ types.
+// (See also bug 1428)
+
+template<typename T,int unique_id>
+struct eigen_packet_wrapper
+{
+  operator T&() { return m_val; }
+  operator const T&() const { return m_val; }
+  eigen_packet_wrapper() {}
+  eigen_packet_wrapper(const T &v) : m_val(v) {}
+  eigen_packet_wrapper& operator=(const T &v) {
+    m_val = v;
+    return *this;
+  }
+
+  T m_val;
+};
+typedef eigen_packet_wrapper<float32x2_t,0> Packet2f;
+typedef eigen_packet_wrapper<float32x4_t,1> Packet4f;
+typedef eigen_packet_wrapper<int32x4_t  ,2> Packet4i;
+typedef eigen_packet_wrapper<int32x2_t  ,3> Packet2i;
+typedef eigen_packet_wrapper<uint32x4_t ,4> Packet4ui;
+
+#else
+
 typedef float32x2_t Packet2f;
 typedef float32x4_t Packet4f;
 typedef int32x4_t   Packet4i;
 typedef int32x2_t   Packet2i;
 typedef uint32x4_t  Packet4ui;
 
+#endif // EIGEN_COMP_MSVC
+
 #define _EIGEN_DECLARE_CONST_Packet4f(NAME,X) \
   const Packet4f p4f_##NAME = pset1<Packet4f>(X)
 
 #define _EIGEN_DECLARE_CONST_Packet4f_FROM_INT(NAME,X) \
-  const Packet4f p4f_##NAME = vreinterpretq_f32_u32(pset1<int>(X))
+  const Packet4f p4f_##NAME = vreinterpretq_f32_u32(pset1<int32_t>(X))
 
 #define _EIGEN_DECLARE_CONST_Packet4i(NAME,X) \
   const Packet4i p4i_##NAME = pset1<Packet4i>(X)
 
-// arm64 does have the pld instruction. If available, let's trust the __builtin_prefetch built-in function
-// which available on LLVM and GCC (at least)
-#if EIGEN_HAS_BUILTIN(__builtin_prefetch) || EIGEN_COMP_GNUC
+#if EIGEN_ARCH_ARM64
+  // __builtin_prefetch tends to do nothing on ARM64 compilers because the
+  // prefetch instructions there are too detailed for __builtin_prefetch to map
+  // meaningfully to them.
+  #define EIGEN_ARM_PREFETCH(ADDR)  __asm__ __volatile__("prfm pldl1keep, [%[addr]]\n" ::[addr] "r"(ADDR) : );
+#elif EIGEN_HAS_BUILTIN(__builtin_prefetch) || EIGEN_COMP_GNUC
   #define EIGEN_ARM_PREFETCH(ADDR) __builtin_prefetch(ADDR);
 #elif defined __pld
   #define EIGEN_ARM_PREFETCH(ADDR) __pld(ADDR)
-#elif !EIGEN_ARCH_ARM64
-  #define EIGEN_ARM_PREFETCH(ADDR) __asm__ __volatile__ ( "   pld [%[addr]]\n" :: [addr] "r" (ADDR) : "cc" );
+#elif EIGEN_ARCH_ARM32
+  #define EIGEN_ARM_PREFETCH(ADDR) __asm__ __volatile__ ("pld [%[addr]]\n" :: [addr] "r" (ADDR) : );
 #else
   // by default no explicit prefetching
   #define EIGEN_ARM_PREFETCH(ADDR)
@@ -74,16 +108,17 @@ template<> struct packet_traits<float>  : default_packet_traits
     size = 4,
     HasHalfPacket=0, // Packet2f intrinsics not implemented yet
    
-    HasDiv  = 1,
+    HasDiv   = 1,
+    HasFloor = 1,
     // FIXME check the Has*
-    HasSin  = 0,
-    HasCos  = 0,
-    HasLog  = 0,
+    HasSin  = EIGEN_FAST_MATH,
+    HasCos  = EIGEN_FAST_MATH,
+    HasLog  = 1,
     HasExp  = 1,
     HasSqrt = 0
   };
 };
-template<> struct packet_traits<int>    : default_packet_traits
+template<> struct packet_traits<int32_t>    : default_packet_traits
 {
   typedef Packet4i type;
   typedef Packet4i half; // Packet2i intrinsics not implemented yet
@@ -105,19 +140,32 @@ EIGEN_STRONG_INLINE void        vst1q_f32(float* to, float32x4_t from) { ::vst1q
 EIGEN_STRONG_INLINE void        vst1_f32 (float* to, float32x2_t from) { ::vst1_f32 ((float32_t*)to,from); }
 #endif
 
-template<> struct unpacket_traits<Packet4f> { typedef float  type; enum {size=4, alignment=Aligned16}; typedef Packet4f half; };
-template<> struct unpacket_traits<Packet4i> { typedef int    type; enum {size=4, alignment=Aligned16}; typedef Packet4i half; };
+template<> struct unpacket_traits<Packet4f>
+{
+  typedef float     type;
+  typedef Packet4f  half;
+  typedef Packet4i  integer_packet;
+  enum {size=4, alignment=Aligned16, vectorizable=true};
+};
+template<> struct unpacket_traits<Packet4i>
+{
+  typedef int32_t   type;
+  typedef Packet4i  half;
+  enum {size=4, alignment=Aligned16, vectorizable=true};
+};
 
 template<> EIGEN_STRONG_INLINE Packet4f pset1<Packet4f>(const float&  from) { return vdupq_n_f32(from); }
-template<> EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>(const int&    from)   { return vdupq_n_s32(from); }
+template<> EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>(const int32_t&    from)   { return vdupq_n_s32(from); }
+
+template<> EIGEN_STRONG_INLINE Packet4f pset1frombits<Packet4f>(unsigned int from) { return vreinterpretq_f32_u32(vdupq_n_u32(from)); }
 
 template<> EIGEN_STRONG_INLINE Packet4f plset<Packet4f>(const float& a)
 {
-  const float32_t f[] = {0, 1, 2, 3};
+  const float f[] = {0, 1, 2, 3};
   Packet4f countdown = vld1q_f32(f);
   return vaddq_f32(pset1<Packet4f>(a), countdown);
 }
-template<> EIGEN_STRONG_INLINE Packet4i plset<Packet4i>(const int& a)
+template<> EIGEN_STRONG_INLINE Packet4i plset<Packet4i>(const int32_t& a)
 {
   const int32_t i[] = {0, 1, 2, 3};
   Packet4i countdown = vld1q_s32(i);
@@ -215,6 +263,25 @@ template<> EIGEN_STRONG_INLINE Packet4i pmin<Packet4i>(const Packet4i& a, const 
 template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const Packet4f& b) { return vmaxq_f32(a,b); }
 template<> EIGEN_STRONG_INLINE Packet4i pmax<Packet4i>(const Packet4i& a, const Packet4i& b) { return vmaxq_s32(a,b); }
 
+template<> EIGEN_STRONG_INLINE Packet4f pcmp_le(const Packet4f& a, const Packet4f& b) { return vreinterpretq_f32_u32(vcleq_f32(a,b)); }
+template<> EIGEN_STRONG_INLINE Packet4f pcmp_lt(const Packet4f& a, const Packet4f& b) { return vreinterpretq_f32_u32(vcltq_f32(a,b)); }
+template<> EIGEN_STRONG_INLINE Packet4f pcmp_eq(const Packet4f& a, const Packet4f& b) { return vreinterpretq_f32_u32(vceqq_f32(a,b)); }
+template<> EIGEN_STRONG_INLINE Packet4f pcmp_lt_or_nan(const Packet4f& a, const Packet4f& b) { return vreinterpretq_f32_u32(vmvnq_u32(vcgeq_f32(a,b))); }
+
+template<> EIGEN_STRONG_INLINE Packet4i pcmp_eq(const Packet4i& a, const Packet4i& b) { return vreinterpretq_s32_u32(vceqq_s32(a,b)); }
+
+template<> EIGEN_STRONG_INLINE Packet4f pfloor<Packet4f>(const Packet4f& a)
+{
+  const Packet4f cst_1 = pset1<Packet4f>(1.0f);
+  /* perform a floorf */
+  Packet4f tmp = vcvtq_f32_s32(vcvtq_s32_f32(a));
+
+  /* if greater, substract 1 */
+  Packet4ui mask = vcgtq_f32(tmp, a);
+  mask = vandq_u32(mask, vreinterpretq_u32_f32(cst_1));
+  return vsubq_f32(tmp, vreinterpretq_f32_u32(mask));
+}
+
 // Logical Operations are not supported for float, so we have to reinterpret casts using NEON intrinsics
 template<> EIGEN_STRONG_INLINE Packet4f pand<Packet4f>(const Packet4f& a, const Packet4f& b)
 {
@@ -240,20 +307,23 @@ template<> EIGEN_STRONG_INLINE Packet4f pandnot<Packet4f>(const Packet4f& a, con
 }
 template<> EIGEN_STRONG_INLINE Packet4i pandnot<Packet4i>(const Packet4i& a, const Packet4i& b) { return vbicq_s32(a,b); }
 
-template<> EIGEN_STRONG_INLINE Packet4f pload<Packet4f>(const float* from) { EIGEN_DEBUG_ALIGNED_LOAD return vld1q_f32(from); }
-template<> EIGEN_STRONG_INLINE Packet4i pload<Packet4i>(const int*   from) { EIGEN_DEBUG_ALIGNED_LOAD return vld1q_s32(from); }
+template<int N> EIGEN_STRONG_INLINE Packet4i pshiftright(Packet4i a) { return vshrq_n_s32(a,N); }
+template<int N> EIGEN_STRONG_INLINE Packet4i pshiftleft(Packet4i a) { return vshlq_n_s32(a,N); }
 
-template<> EIGEN_STRONG_INLINE Packet4f ploadu<Packet4f>(const float* from) { EIGEN_DEBUG_UNALIGNED_LOAD return vld1q_f32(from); }
-template<> EIGEN_STRONG_INLINE Packet4i ploadu<Packet4i>(const int* from)   { EIGEN_DEBUG_UNALIGNED_LOAD return vld1q_s32(from); }
+template<> EIGEN_STRONG_INLINE Packet4f pload<Packet4f>(const float*    from) { EIGEN_DEBUG_ALIGNED_LOAD return vld1q_f32(from); }
+template<> EIGEN_STRONG_INLINE Packet4i pload<Packet4i>(const int32_t*  from) { EIGEN_DEBUG_ALIGNED_LOAD return vld1q_s32(from); }
 
-template<> EIGEN_STRONG_INLINE Packet4f ploaddup<Packet4f>(const float*   from)
+template<> EIGEN_STRONG_INLINE Packet4f ploadu<Packet4f>(const float*   from) { EIGEN_DEBUG_UNALIGNED_LOAD return vld1q_f32(from); }
+template<> EIGEN_STRONG_INLINE Packet4i ploadu<Packet4i>(const int32_t* from) { EIGEN_DEBUG_UNALIGNED_LOAD return vld1q_s32(from); }
+
+template<> EIGEN_STRONG_INLINE Packet4f ploaddup<Packet4f>(const float* from)
 {
   float32x2_t lo, hi;
   lo = vld1_dup_f32(from);
   hi = vld1_dup_f32(from+1);
   return vcombine_f32(lo, hi);
 }
-template<> EIGEN_STRONG_INLINE Packet4i ploaddup<Packet4i>(const int*     from)
+template<> EIGEN_STRONG_INLINE Packet4i ploaddup<Packet4i>(const int32_t* from)
 {
   int32x2_t lo, hi;
   lo = vld1_dup_s32(from);
@@ -261,11 +331,11 @@ template<> EIGEN_STRONG_INLINE Packet4i ploaddup<Packet4i>(const int*     from)
   return vcombine_s32(lo, hi);
 }
 
-template<> EIGEN_STRONG_INLINE void pstore<float>(float*   to, const Packet4f& from) { EIGEN_DEBUG_ALIGNED_STORE vst1q_f32(to, from); }
-template<> EIGEN_STRONG_INLINE void pstore<int>(int*       to, const Packet4i& from) { EIGEN_DEBUG_ALIGNED_STORE vst1q_s32(to, from); }
+template<> EIGEN_STRONG_INLINE void pstore<float>  (float*    to, const Packet4f& from) { EIGEN_DEBUG_ALIGNED_STORE vst1q_f32(to, from); }
+template<> EIGEN_STRONG_INLINE void pstore<int32_t>(int32_t*  to, const Packet4i& from) { EIGEN_DEBUG_ALIGNED_STORE vst1q_s32(to, from); }
 
-template<> EIGEN_STRONG_INLINE void pstoreu<float>(float*  to, const Packet4f& from) { EIGEN_DEBUG_UNALIGNED_STORE vst1q_f32(to, from); }
-template<> EIGEN_STRONG_INLINE void pstoreu<int>(int*      to, const Packet4i& from) { EIGEN_DEBUG_UNALIGNED_STORE vst1q_s32(to, from); }
+template<> EIGEN_STRONG_INLINE void pstoreu<float>  (float*   to, const Packet4f& from) { EIGEN_DEBUG_UNALIGNED_STORE vst1q_f32(to, from); }
+template<> EIGEN_STRONG_INLINE void pstoreu<int32_t>(int32_t* to, const Packet4i& from) { EIGEN_DEBUG_UNALIGNED_STORE vst1q_s32(to, from); }
 
 template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const float* from, Index stride)
 {
@@ -276,7 +346,7 @@ template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const floa
   res = vsetq_lane_f32(from[3*stride], res, 3);
   return res;
 }
-template<> EIGEN_DEVICE_FUNC inline Packet4i pgather<int, Packet4i>(const int* from, Index stride)
+template<> EIGEN_DEVICE_FUNC inline Packet4i pgather<int32_t, Packet4i>(const int32_t* from, Index stride)
 {
   Packet4i res = pset1<Packet4i>(0);
   res = vsetq_lane_s32(from[0*stride], res, 0);
@@ -293,7 +363,7 @@ template<> EIGEN_DEVICE_FUNC inline void pscatter<float, Packet4f>(float* to, co
   to[stride*2] = vgetq_lane_f32(from, 2);
   to[stride*3] = vgetq_lane_f32(from, 3);
 }
-template<> EIGEN_DEVICE_FUNC inline void pscatter<int, Packet4i>(int* to, const Packet4i& from, Index stride)
+template<> EIGEN_DEVICE_FUNC inline void pscatter<int32_t, Packet4i>(int32_t* to, const Packet4i& from, Index stride)
 {
   to[stride*0] = vgetq_lane_s32(from, 0);
   to[stride*1] = vgetq_lane_s32(from, 1);
@@ -301,12 +371,12 @@ template<> EIGEN_DEVICE_FUNC inline void pscatter<int, Packet4i>(int* to, const 
   to[stride*3] = vgetq_lane_s32(from, 3);
 }
 
-template<> EIGEN_STRONG_INLINE void prefetch<float>(const float* addr) { EIGEN_ARM_PREFETCH(addr); }
-template<> EIGEN_STRONG_INLINE void prefetch<int>(const int*     addr) { EIGEN_ARM_PREFETCH(addr); }
+template<> EIGEN_STRONG_INLINE void prefetch<float>  (const float*    addr) { EIGEN_ARM_PREFETCH(addr); }
+template<> EIGEN_STRONG_INLINE void prefetch<int32_t>(const int32_t*  addr) { EIGEN_ARM_PREFETCH(addr); }
 
 // FIXME only store the 2 first elements ?
-template<> EIGEN_STRONG_INLINE float  pfirst<Packet4f>(const Packet4f& a) { float EIGEN_ALIGN16 x[4]; vst1q_f32(x, a); return x[0]; }
-template<> EIGEN_STRONG_INLINE int    pfirst<Packet4i>(const Packet4i& a) { int   EIGEN_ALIGN16 x[4]; vst1q_s32(x, a); return x[0]; }
+template<> EIGEN_STRONG_INLINE float   pfirst<Packet4f>(const Packet4f& a) { EIGEN_ALIGN16 float   x[4]; vst1q_f32(x, a); return x[0]; }
+template<> EIGEN_STRONG_INLINE int32_t pfirst<Packet4i>(const Packet4i& a) { EIGEN_ALIGN16 int32_t x[4]; vst1q_s32(x, a); return x[0]; }
 
 template<> EIGEN_STRONG_INLINE Packet4f preverse(const Packet4f& a) {
   float32x2_t a_lo, a_hi;
@@ -329,6 +399,14 @@ template<> EIGEN_STRONG_INLINE Packet4i preverse(const Packet4i& a) {
 
 template<> EIGEN_STRONG_INLINE Packet4f pabs(const Packet4f& a) { return vabsq_f32(a); }
 template<> EIGEN_STRONG_INLINE Packet4i pabs(const Packet4i& a) { return vabsq_s32(a); }
+
+template<> EIGEN_STRONG_INLINE Packet4f pfrexp<Packet4f>(const Packet4f& a, Packet4f& exponent) {
+  return pfrexp_float(a,exponent);
+}
+
+template<> EIGEN_STRONG_INLINE Packet4f pldexp<Packet4f>(const Packet4f& a, const Packet4f& exponent) {
+  return pldexp_float(a,exponent);
+}
 
 template<> EIGEN_STRONG_INLINE float predux<Packet4f>(const Packet4f& a)
 {
@@ -361,7 +439,7 @@ template<> EIGEN_STRONG_INLINE Packet4f preduxp<Packet4f>(const Packet4f* vecs)
   return sum;
 }
 
-template<> EIGEN_STRONG_INLINE int predux<Packet4i>(const Packet4i& a)
+template<> EIGEN_STRONG_INLINE int32_t predux<Packet4i>(const Packet4i& a)
 {
   int32x2_t a_lo, a_hi, sum;
 
@@ -408,7 +486,7 @@ template<> EIGEN_STRONG_INLINE float predux_mul<Packet4f>(const Packet4f& a)
 
   return vget_lane_f32(prod, 0);
 }
-template<> EIGEN_STRONG_INLINE int predux_mul<Packet4i>(const Packet4i& a)
+template<> EIGEN_STRONG_INLINE int32_t predux_mul<Packet4i>(const Packet4i& a)
 {
   int32x2_t a_lo, a_hi, prod;
 
@@ -436,7 +514,7 @@ template<> EIGEN_STRONG_INLINE float predux_min<Packet4f>(const Packet4f& a)
   return vget_lane_f32(min, 0);
 }
 
-template<> EIGEN_STRONG_INLINE int predux_min<Packet4i>(const Packet4i& a)
+template<> EIGEN_STRONG_INLINE int32_t predux_min<Packet4i>(const Packet4i& a)
 {
   int32x2_t a_lo, a_hi, min;
 
@@ -461,7 +539,7 @@ template<> EIGEN_STRONG_INLINE float predux_max<Packet4f>(const Packet4f& a)
   return vget_lane_f32(max, 0);
 }
 
-template<> EIGEN_STRONG_INLINE int predux_max<Packet4i>(const Packet4i& a)
+template<> EIGEN_STRONG_INLINE int32_t predux_max<Packet4i>(const Packet4i& a)
 {
   int32x2_t a_lo, a_hi, max;
 
@@ -471,6 +549,13 @@ template<> EIGEN_STRONG_INLINE int predux_max<Packet4i>(const Packet4i& a)
   max = vpmax_s32(max, max);
 
   return vget_lane_s32(max, 0);
+}
+
+template<> EIGEN_STRONG_INLINE bool predux_any(const Packet4f& x)
+{
+  uint32x2_t tmp = vorr_u32(vget_low_u32( vreinterpretq_u32_f32(x)),
+                            vget_high_u32(vreinterpretq_u32_f32(x)));
+  return vget_lane_u32(vpmax_u32(tmp,tmp),0);
 }
 
 // this PALIGN_NEON business is to work around a bug in LLVM Clang 3.0 causing incorrect compilation errors,
@@ -572,7 +657,7 @@ template<> struct packet_traits<double>  : default_packet_traits
   };
 };
 
-template<> struct unpacket_traits<Packet2d> { typedef double  type; enum {size=2, alignment=Aligned16}; typedef Packet2d half; };
+template<> struct unpacket_traits<Packet2d> { typedef double  type; enum {size=2, alignment=Aligned16, vectorizable=true}; typedef Packet2d half; };
 
 template<> EIGEN_STRONG_INLINE Packet2d pset1<Packet2d>(const double&  from) { return vdupq_n_f64(from); }
 
@@ -625,6 +710,8 @@ template<> EIGEN_STRONG_INLINE Packet2d pandnot<Packet2d>(const Packet2d& a, con
 {
   return vreinterpretq_f64_u64(vbicq_u64(vreinterpretq_u64_f64(a),vreinterpretq_u64_f64(b)));
 }
+
+template<> EIGEN_STRONG_INLINE Packet2d pcmp_eq(const Packet2d& a, const Packet2d& b) { return vreinterpretq_f64_u64(vceqq_f64(a,b)); }
 
 template<> EIGEN_STRONG_INLINE Packet2d pload<Packet2d>(const double* from) { EIGEN_DEBUG_ALIGNED_LOAD return vld1q_f64(from); }
 
