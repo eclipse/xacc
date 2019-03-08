@@ -75,7 +75,7 @@ static void run(Index rows, Index cols, Index depth,
   Index mc = (std::min)(rows,blocking.mc());  // cache block size along the M direction
   Index nc = (std::min)(cols,blocking.nc());  // cache block size along the N direction
 
-  gemm_pack_lhs<LhsScalar, Index, LhsMapper, Traits::mr, Traits::LhsProgress, LhsStorageOrder> pack_lhs;
+  gemm_pack_lhs<LhsScalar, Index, LhsMapper, Traits::mr, Traits::LhsProgress, typename Traits::LhsPacket4Packing, LhsStorageOrder> pack_lhs;
   gemm_pack_rhs<RhsScalar, Index, RhsMapper, Traits::nr, RhsStorageOrder> pack_rhs;
   gebp_kernel<LhsScalar, RhsScalar, Index, ResMapper, Traits::mr, Traits::nr, ConjugateLhs, ConjugateRhs> gebp;
 
@@ -83,8 +83,8 @@ static void run(Index rows, Index cols, Index depth,
   if(info)
   {
     // this is the parallel version!
-    Index tid = omp_get_thread_num();
-    Index threads = omp_get_num_threads();
+    int tid = omp_get_thread_num();
+    int threads = omp_get_num_threads();
 
     LhsScalar* blockA = blocking.blockA();
     eigen_internal_assert(blockA!=0);
@@ -108,7 +108,7 @@ static void run(Index rows, Index cols, Index depth,
       // i.e., we test that info[tid].users equals 0.
       // Then, we set info[tid].users to the number of threads to mark that all other threads are going to use it.
       while(info[tid].users!=0) {}
-      info[tid].users += threads;
+      info[tid].users = threads;
 
       pack_lhs(blockA+info[tid].lhs_start*actual_kc, lhs.getSubMapper(info[tid].lhs_start,k), actual_kc, info[tid].lhs_length);
 
@@ -116,9 +116,9 @@ static void run(Index rows, Index cols, Index depth,
       info[tid].sync = k;
 
       // Computes C_i += A' * B' per A'_i
-      for(Index shift=0; shift<threads; ++shift)
+      for(int shift=0; shift<threads; ++shift)
       {
-        Index i = (tid+shift)%threads;
+        int i = (tid+shift)%threads;
 
         // At this point we have to make sure that A'_i has been updated by the thread i,
         // we use testAndSetOrdered to mimic a volatile access.
@@ -146,7 +146,9 @@ static void run(Index rows, Index cols, Index depth,
       // Release all the sub blocks A'_i of A' for the current thread,
       // i.e., we simply decrement the number of users by 1
       for(Index i=0; i<threads; ++i)
+#if !EIGEN_HAS_CXX11_ATOMIC
         #pragma omp atomic
+#endif
         info[i].users -= 1;
     }
   }
@@ -427,8 +429,14 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
   template<typename Dst>
   static void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
   {
-    if((rhs.rows()+dst.rows()+dst.cols())<20 && rhs.rows()>0)
-      lazyproduct::evalTo(dst, lhs, rhs);
+    // See http://eigen.tuxfamily.org/bz/show_bug.cgi?id=404 for a discussion and helper program
+    // to determine the following heuristic.
+    // EIGEN_GEMM_TO_COEFFBASED_THRESHOLD is typically defined to 20 in GeneralProduct.h,
+    // unless it has been specialized by the user or for a given architecture.
+    // Note that the condition rhs.rows()>0 was required because lazy product is (was?) not happy with empty inputs.
+    // I'm not sure it is still required.
+    if((rhs.rows()+dst.rows()+dst.cols())<EIGEN_GEMM_TO_COEFFBASED_THRESHOLD && rhs.rows()>0)
+      lazyproduct::eval_dynamic(dst, lhs, rhs, internal::assign_op<typename Dst::Scalar,Scalar>());
     else
     {
       dst.setZero();
@@ -439,8 +447,8 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
   template<typename Dst>
   static void addTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
   {
-    if((rhs.rows()+dst.rows()+dst.cols())<20 && rhs.rows()>0)
-      lazyproduct::addTo(dst, lhs, rhs);
+    if((rhs.rows()+dst.rows()+dst.cols())<EIGEN_GEMM_TO_COEFFBASED_THRESHOLD && rhs.rows()>0)
+      lazyproduct::eval_dynamic(dst, lhs, rhs, internal::add_assign_op<typename Dst::Scalar,Scalar>());
     else
       scaleAndAddTo(dst,lhs, rhs, Scalar(1));
   }
@@ -448,8 +456,8 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
   template<typename Dst>
   static void subTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
   {
-    if((rhs.rows()+dst.rows()+dst.cols())<20 && rhs.rows()>0)
-      lazyproduct::subTo(dst, lhs, rhs);
+    if((rhs.rows()+dst.rows()+dst.cols())<EIGEN_GEMM_TO_COEFFBASED_THRESHOLD && rhs.rows()>0)
+      lazyproduct::eval_dynamic(dst, lhs, rhs, internal::sub_assign_op<typename Dst::Scalar,Scalar>());
     else
       scaleAndAddTo(dst, lhs, rhs, Scalar(-1));
   }
@@ -460,6 +468,20 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
     eigen_assert(dst.rows()==a_lhs.rows() && dst.cols()==a_rhs.cols());
     if(a_lhs.cols()==0 || a_lhs.rows()==0 || a_rhs.cols()==0)
       return;
+
+    // Fallback to GEMV if either the lhs or rhs is a runtime vector
+    if (dst.cols() == 1)
+    {
+      typename Dest::ColXpr dst_vec(dst.col(0));
+      return internal::generic_product_impl<Lhs,typename Rhs::ConstColXpr,DenseShape,DenseShape,GemvProduct>
+        ::scaleAndAddTo(dst_vec, a_lhs, a_rhs.col(0), alpha);
+    }
+    else if (dst.rows() == 1)
+    {
+      typename Dest::RowXpr dst_vec(dst.row(0));
+      return internal::generic_product_impl<typename Lhs::ConstRowXpr,Rhs,DenseShape,DenseShape,GemvProduct>
+        ::scaleAndAddTo(dst_vec, a_lhs.row(0), a_rhs, alpha);
+    }
 
     typename internal::add_const_on_value_type<ActualLhsType>::type lhs = LhsBlasTraits::extract(a_lhs);
     typename internal::add_const_on_value_type<ActualRhsType>::type rhs = RhsBlasTraits::extract(a_rhs);
