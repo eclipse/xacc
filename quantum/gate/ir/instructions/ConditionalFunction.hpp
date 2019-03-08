@@ -27,7 +27,7 @@ public:
   ConditionalFunction(int qbit)
       : GateFunction("conditional_" + std::to_string(qbit)), qbitIdx(qbit) {}
 
-  void addInstruction(InstPtr instruction) {
+  void addInstruction(InstPtr instruction) override {
     instruction->disable();
     instructions.push_back(instruction);
   }
@@ -42,7 +42,7 @@ public:
     }
   }
 
-  const std::string toString(const std::string &bufferVarName) { return ""; }
+  const std::string toString(const std::string &bufferVarName) override { return ""; }
 
   DEFINE_VISITABLE()
 };

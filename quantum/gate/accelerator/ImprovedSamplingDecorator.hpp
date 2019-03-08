@@ -31,7 +31,7 @@ public:
   const std::string name() const override { return "improved-sampling"; }
   const std::string description() const override { return ""; }
 
-  virtual std::shared_ptr<options_description> getOptions() {
+  std::shared_ptr<options_description> getOptions() override {
     auto desc = std::make_shared<options_description>();
     desc->add_options()("sampler-n-execs", value<std::string>(), "");
     return desc;
