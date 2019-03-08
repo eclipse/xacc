@@ -21,14 +21,28 @@ enum {
 
 
 // Default Blocking Strategy
-template <typename LhsMapper, typename RhsMapper, typename Index, int ShardingType=ShardByCol>
+template<typename ResScalar, typename LhsScalar, typename RhsScalar, typename StorageIndex, int ShardingType = ShardByCol>
 class TensorContractionBlocking {
  public:
 
-  typedef typename LhsMapper::Scalar LhsScalar;
-  typedef typename RhsMapper::Scalar RhsScalar;
+ /*
+   adding EIGEN_DEVICE_FUNC unconditionally to 'TensorContractionBlocking' constructor in `TensorContractionBlocking.h`
+     requires adding EIGEN_DEVICE_FUNC to `computeProductBlockingSizes` in `GeneralBlockPanelKernel.h`
+     which in turn, requires adding EIGEN_DEVICE_FUNC to `evaluateProductBlockingSizesHeuristic` in `GeneralBlockPanelKernel.h`
+     which in turn, requires adding EIGEN_DEVICE_FUNC to `manage_caching_sizes` in `GeneralBlockPanelKernel.h`
+     (else HIPCC will error out)
 
-  EIGEN_DEVICE_FUNC TensorContractionBlocking(Index k, Index m, Index n, Index num_threads = 1) :
+   However adding EIGEN_DEVICE_FUNC to `manage_caching_sizes` in `GeneralBlockPanelKernel.h`
+   results in NVCC erroring out with the following error
+
+   ../Eigen/src/Core/products/GeneralBlockPanelKernel.h(57): error #2901:
+      dynamic initialization is not supported for function-scope static variables within a __device__/__global__ function
+ */
+
+  #if !defined(EIGEN_HIPCC)
+  EIGEN_DEVICE_FUNC
+  #endif
+ TensorContractionBlocking(StorageIndex k, StorageIndex m, StorageIndex n, StorageIndex num_threads = 1) :
       kc_(k), mc_(m), nc_(n)
   {
     if (ShardingType == ShardByCol) {
@@ -37,25 +51,29 @@ class TensorContractionBlocking {
     else {
       computeProductBlockingSizes<LhsScalar, RhsScalar, 1>(kc_, nc_, mc_, num_threads);
     }
+
+    const int rhs_packet_size = internal::packet_traits<RhsScalar>::size;
+    kc_ = (rhs_packet_size <= 8 || kc_ <= rhs_packet_size) ?
+      kc_ : (kc_ / rhs_packet_size) * rhs_packet_size;
   }
 
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Index kc() const { return kc_; }
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Index mc() const { return mc_; }
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE Index nc() const { return nc_; }
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE StorageIndex kc() const { return kc_; }
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE StorageIndex mc() const { return mc_; }
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE StorageIndex nc() const { return nc_; }
 
  private:
-  Index kc_;
-  Index mc_;
-  Index nc_;
+  StorageIndex kc_;
+  StorageIndex mc_;
+  StorageIndex nc_;
 };
 
 
 
 #if defined(EIGEN_USE_LIBXSMM)
-template <typename LhsScalar, typename RhsScalar, typename Index>
+template <typename LhsScalar, typename RhsScalar, typename StorageIndex>
 class TensorXsmmContractionBlocking {
  public:
-  TensorXsmmContractionBlocking(Index k, Index m, Index n,
+  TensorXsmmContractionBlocking(StorageIndex k, StorageIndex m, StorageIndex n,
       size_t max_num_threads = 1, bool transposeA = false,
       bool transposeB = false):
     k_(k), m_(m), n_(n), transposeA_(transposeA),
@@ -75,7 +93,7 @@ class TensorXsmmContractionBlocking {
       outer_n_ = outer_n_ != 0 ? outer_n_ : n;
     }
 #else
-    // Defaults, possibly overriden per-platform.
+    // Defaults, possibly overridden per-platform.
     copyA_ = true;
     copyB_ = false;
 
@@ -150,28 +168,28 @@ class TensorXsmmContractionBlocking {
     eigen_assert(outer_n_ % nc_ == 0 || outer_n_ >= n);
   }
 
-  EIGEN_ALWAYS_INLINE Index kc() const { return kc_; }
-  EIGEN_ALWAYS_INLINE Index mc() const { return mc_; }
-  EIGEN_ALWAYS_INLINE Index nc() const { return nc_; }
-  EIGEN_ALWAYS_INLINE Index outer_k() const { return outer_k_; }
-  EIGEN_ALWAYS_INLINE Index outer_m() const { return outer_m_; }
-  EIGEN_ALWAYS_INLINE Index outer_n() const { return outer_n_; }
+  EIGEN_ALWAYS_INLINE StorageIndex kc() const { return kc_; }
+  EIGEN_ALWAYS_INLINE StorageIndex mc() const { return mc_; }
+  EIGEN_ALWAYS_INLINE StorageIndex nc() const { return nc_; }
+  EIGEN_ALWAYS_INLINE StorageIndex outer_k() const { return outer_k_; }
+  EIGEN_ALWAYS_INLINE StorageIndex outer_m() const { return outer_m_; }
+  EIGEN_ALWAYS_INLINE StorageIndex outer_n() const { return outer_n_; }
   EIGEN_ALWAYS_INLINE bool copyA() const { return copyA_; }
   EIGEN_ALWAYS_INLINE bool copyB() const { return copyB_; }
   EIGEN_ALWAYS_INLINE bool transposeA() const { return transposeA_; }
   EIGEN_ALWAYS_INLINE bool transposeB() const { return transposeB_; }
   EIGEN_ALWAYS_INLINE int num_threads() const { return num_threads_; }
-  EIGEN_ALWAYS_INLINE Index blocks_m() const { return divup(m_, mc_); }
-  EIGEN_ALWAYS_INLINE Index blocks_k() const { return divup(k_, kc_); }
-  EIGEN_ALWAYS_INLINE Index blocks_n() const { return divup(n_, nc_); }
+  EIGEN_ALWAYS_INLINE StorageIndex blocks_m() const { return divup(m_, mc_); }
+  EIGEN_ALWAYS_INLINE StorageIndex blocks_k() const { return divup(k_, kc_); }
+  EIGEN_ALWAYS_INLINE StorageIndex blocks_n() const { return divup(n_, nc_); }
   EIGEN_ALWAYS_INLINE libxsmm_gemm_prefetch_type prefetch() const {
     return prefetch_;
   }
 
  private:
-  Index k_, m_, n_;
-  Index kc_, mc_, nc_;
-  Index outer_k_, outer_m_, outer_n_;
+  StorageIndex k_, m_, n_;
+  StorageIndex kc_, mc_, nc_;
+  StorageIndex outer_k_, outer_m_, outer_n_;
   bool copyA_, copyB_, transposeA_, transposeB_;
   size_t num_threads_;
 

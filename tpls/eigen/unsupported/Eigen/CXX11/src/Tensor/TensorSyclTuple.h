@@ -35,7 +35,7 @@ struct StaticIf<true, T> {
 
 /// \struct Tuple
 /// \brief is a fixed-size collection of heterogeneous values
-/// \ztparam Ts...	-	the types of the elements that the tuple stores.
+/// \tparam Ts...	-	the types of the elements that the tuple stores.
 /// Empty list is supported.
 template <class... Ts>
 struct Tuple {};
@@ -143,11 +143,13 @@ struct IndexList {};
 /// \brief Collects internal details for generating index ranges [MIN, MAX)
 /// Declare primary template for index range builder
 /// \tparam MIN is the starting index in the tuple
-/// \tparam N represents sizeof..(elemens)- sizeof...(Is)
+/// \tparam N represents sizeof..(elements)- sizeof...(Is)
 /// \tparam Is... are the list of generated index so far
 template <size_t MIN, size_t N, size_t... Is>
 struct RangeBuilder;
 
+// FIXME Doxygen has problems with recursive inheritance
+#ifndef EIGEN_PARSED_BY_DOXYGEN
 /// \brief base Step: Specialisation of the \ref RangeBuilder when the
 /// MIN==MAX. In this case the Is... is [0 to sizeof...(tuple elements))
 /// \tparam MIN is the starting index of the tuple
@@ -161,10 +163,11 @@ struct RangeBuilder<MIN, MIN, Is...> {
 /// in this case we are recursively subtracting N by one and adding one
 /// index to Is... list until MIN==N
 /// \tparam MIN is the starting index in the tuple
-/// \tparam N represents sizeof..(elemens)- sizeof...(Is)
+/// \tparam N represents sizeof..(elements)- sizeof...(Is)
 /// \tparam Is... are the list of generated index so far
 template <size_t MIN, size_t N, size_t... Is>
 struct RangeBuilder : public RangeBuilder<MIN, N - 1, N - 1, Is...> {};
+#endif // EIGEN_PARSED_BY_DOXYGEN
 
 /// \brief IndexRange that returns a [MIN, MAX) index range
 /// \tparam MIN is the starting index in the tuple

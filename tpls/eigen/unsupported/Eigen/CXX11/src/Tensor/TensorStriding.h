@@ -31,6 +31,7 @@ struct traits<TensorStridingOp<Strides, XprType> > : public traits<XprType>
   typedef typename remove_reference<Nested>::type _Nested;
   static const int NumDimensions = XprTraits::NumDimensions;
   static const int Layout = XprTraits::Layout;
+  typedef typename XprTraits::PointerType PointerType;
 };
 
 template<typename Strides, typename XprType>
@@ -106,22 +107,24 @@ struct TensorEvaluator<const TensorStridingOp<Strides, ArgType>, Device>
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
+  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
 
   enum {
     IsAligned = /*TensorEvaluator<ArgType, Device>::IsAligned*/false,
     PacketAccess = TensorEvaluator<ArgType, Device>::PacketAccess,
+    BlockAccess = false,
+    PreferBlockAccess = false,
     Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
   };
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorEvaluator(const XprType& op, const Device& device)
-      : m_impl(op.expression(), device)
+      : m_impl(op.expression(), device), m_strides(op.strides())
   {
     m_dimensions = m_impl.dimensions();
     for (int i = 0; i < NumDims; ++i) {
-      m_dimensions[i] = ceilf(static_cast<float>(m_dimensions[i]) / op.strides()[i]);
+      m_dimensions[i] =Eigen::numext::ceil(static_cast<float>(m_dimensions[i]) / op.strides()[i]);
     }
 
     const typename TensorEvaluator<ArgType, Device>::Dimensions& input_dims = m_impl.dimensions();
@@ -222,7 +225,12 @@ struct TensorEvaluator<const TensorStridingOp<Strides, ArgType>, Device>
         TensorOpCost(0, 0, compute_cost, vectorized, PacketSize);
   }
 
-  EIGEN_DEVICE_FUNC Scalar* data() const { return NULL; }
+  EIGEN_DEVICE_FUNC typename Eigen::internal::traits<XprType>::PointerType data() const { return NULL; }
+
+  /// required by sycl in order to extract the accessor
+  const TensorEvaluator<ArgType, Device>& impl() const { return m_impl; }
+  /// required by sycl in order to extract the accessor
+  Strides functor() const { return m_strides; }
 
  protected:
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Index srcCoeff(Index index) const
@@ -250,8 +258,8 @@ struct TensorEvaluator<const TensorStridingOp<Strides, ArgType>, Device>
   array<Index, NumDims> m_outputStrides;
   array<Index, NumDims> m_inputStrides;
   TensorEvaluator<ArgType, Device> m_impl;
+  const Strides m_strides;
 };
-
 
 // Eval as lvalue
 template<typename Strides, typename ArgType, typename Device>
@@ -267,6 +275,8 @@ struct TensorEvaluator<TensorStridingOp<Strides, ArgType>, Device>
   enum {
     IsAligned = /*TensorEvaluator<ArgType, Device>::IsAligned*/false,
     PacketAccess = TensorEvaluator<ArgType, Device>::PacketAccess,
+    BlockAccess = false,
+    PreferBlockAccess = false,
     Layout = TensorEvaluator<ArgType, Device>::Layout,
     CoordAccess = false,  // to be implemented
     RawAccess = false
@@ -279,12 +289,17 @@ struct TensorEvaluator<TensorStridingOp<Strides, ArgType>, Device>
   typedef typename XprType::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
   typedef typename PacketType<CoeffReturnType, Device>::type PacketReturnType;
-  static const int PacketSize = internal::unpacket_traits<PacketReturnType>::size;
+  static const int PacketSize = PacketType<CoeffReturnType, Device>::size;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar& coeffRef(Index index)
   {
     return this->m_impl.coeffRef(this->srcCoeff(index));
   }
+
+  /// required by sycl in order to extract the accessor
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const TensorEvaluator<ArgType, Device>& impl() const { return this->m_impl; }
+  /// required by sycl in order to extract the accessor
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Strides functor() const { return this->m_strides; }
 
   template <int StoreMode> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   void writePacket(Index index, const PacketReturnType& x)
