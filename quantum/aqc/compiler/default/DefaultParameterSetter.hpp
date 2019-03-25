@@ -46,17 +46,12 @@ public:
            "publication.";
   }
 
-  std::shared_ptr<options_description> getOptions() override {
-    auto desc =
-        std::make_shared<options_description>("Default Parameter Setter Options");
-    desc->add_options()("chain-strength", value<std::string>(),
-                        "");
+  OptionPairs getOptions() override {
+    OptionPairs desc {{"chain-strength",
+                        ""}};
     return desc;
   }
 
-  bool handleOptions(variables_map &map) override {
-      return false;
-  }
 };
 
 } // namespace quantum

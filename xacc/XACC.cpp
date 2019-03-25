@@ -14,9 +14,15 @@
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
 #include "IRGenerator.hpp"
+#include "ServiceRegistry.hpp"
+#include "CLIParser.hpp"
 #include <signal.h>
 #include <cstdlib>
-#include <boost/filesystem.hpp>
+#include <fstream>
+#include "xacc_config.hpp"
+#include "cxxopts.hpp"
+
+using namespace cxxopts;
 
 namespace xacc {
 
@@ -32,7 +38,7 @@ char **argv = NULL;
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
 void Initialize(std::vector<std::string> argv) {
-  XACCLogger::instance()->info("Initializing the XACC Framework");
+  //   XACCLogger::instance()->info("Initializing the XACC Framework");
   std::vector<char *> cstrs;
   argv.insert(argv.begin(), "appExec");
   for (auto &s : argv) {
@@ -51,35 +57,34 @@ void ctrl_c_handler(int signal) {
   exit(1);
 }
 
+void PyInitialize(const std::string rootPath) {
+  std::vector<std::string> args{"--xacc-root-path", rootPath};
+  Initialize(args);
+}
+
 void Initialize(int arc, char **arv) {
 
   if (!xaccFrameworkInitialized) {
     argc = arc;
     argv = arv;
 
+    std::string rootPath = std::string(XACC_INSTALL_DIR);
+
     // Do a little preprocessing on the
     // command line args to see if we have
     // been given a custom internal plugin path
-    using namespace boost::program_options;
-    variables_map vm;
-    options_description desc;
-    desc.add_options()("internal-plugin-path", value<std::string>(), "");
-    store(command_line_parser(argc, argv)
-              .options(desc)
-              .allow_unregistered()
-              .run(),
-          vm);
-    notify(vm);
 
-    XACCLogger::instance()->enqueueLog("Creating XACC ServiceRegistry");
+    options_description desc("tmp");
+    desc.allow_unrecognised_options().add_options()("xacc-root-path", "",
+                                                    value<std::string>());
+    auto vm = desc.parse(argc, argv);
+
+    if (vm.count("xacc-root-path")) {
+      rootPath = vm["xacc-root-path"].as<std::string>();
+    }
+
     try {
-      XACCLogger::instance()->enqueueLog("Initializing the ServiceRegistry");
-      if (vm.count("internal-plugin-path")) {
-        serviceRegistry->initialize(
-            vm["internal-plugin-path"].as<std::string>());
-      } else {
-        serviceRegistry->initialize();
-      }
+      serviceRegistry->initialize(rootPath);
     } catch (std::exception &e) {
       XACCLogger::instance()->error(
           "Failure initializing XACC Plugin Registry - " +
@@ -89,20 +94,7 @@ void Initialize(int arc, char **arv) {
     }
 
     // Parse any user-supplied command line options
-    xaccCLParser->parse(argc, argv, *serviceRegistry);
-
-    XACCLogger::instance()->enqueueLog("[xacc] Initializing XACC Framework.");
-
-    // Check that we have some
-    auto s = serviceRegistry->getServices<Compiler>().size();
-    auto a = serviceRegistry->getServices<Accelerator>().size();
-
-    XACCLogger::instance()->enqueueLog(
-        "[xacc::plugins] XACC has " + std::to_string(s) + " Compiler" +
-        ((s == 1 || s == 0) ? "" : "s") + " available.");
-    XACCLogger::instance()->enqueueLog(
-        "[xacc::plugins] XACC has " + std::to_string(a) + " Accelerator" +
-        ((s == 0 || s == 1) ? "" : "s") + " available.");
+    xaccCLParser->parse(argc, argv, serviceRegistry.get());
 
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = ctrl_c_handler;
@@ -160,8 +152,8 @@ void addCommandLineOptions(const std::string &category,
   xaccCLParser->addStringOptions(category, options);
 }
 
-void addCommandLineOptions(std::shared_ptr<options_description> options) {
-  xaccCLParser->addOptionsDescription(options);
+void addCommandLineOptions(const std::map<std::string, std::string> &options) {
+  xaccCLParser->addOptions(options);
 }
 
 bool optionExists(const std::string &optionKey) {
@@ -331,7 +323,7 @@ void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
   }
 
   auto gen = getService<IRGenerator>(
-      boost::get<std::string>(buffer->getInformation("ir-generator")));
+      mpark::get<std::string>(buffer->getInformation("ir-generator")));
   gen->analyzeResults(buffer);
 }
 
@@ -347,25 +339,26 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
   return optF->enabledView();
 }
 bool hasCache(const std::string fileName) {
-    return boost::filesystem::exists(serviceRegistry->getRootPathString() + "/" + fileName);
+  return xacc::fileExists(serviceRegistry->getRootPathString() + "/" +
+                          fileName);
 }
 std::map<std::string, InstructionParameter>
 getCache(const std::string fileName) {
-  auto rootPathStr = serviceRegistry->getRootPathString();
-  
+  std::string rootPathStr = serviceRegistry->getRootPathString();
+
   std::ifstream t(rootPathStr + "/" + fileName);
   std::string json(std::istreambuf_iterator<char>{t}, {});
   std::istringstream s(json);
   auto buffer = std::make_shared<AcceleratorBuffer>();
   buffer->useAsCache();
-  
+
   buffer->load(s);
 
   auto info = buffer->getInformation();
   ExtraInfo2InstructionParameter e2p;
   std::map<std::string, InstructionParameter> c;
   for (auto &kv : info) {
-    auto ip = boost::apply_visitor(e2p, kv.second);
+    auto ip = mpark::visit(e2p, kv.second);
     c.insert({kv.first, ip});
   }
   return c;
@@ -375,30 +368,30 @@ void appendCache(const std::string fileName, const std::string key,
                  InstructionParameter &param) {
   auto rootPathStr = serviceRegistry->getRootPathString();
 
-  if (boost::filesystem::exists(rootPathStr + "/" + fileName)) {
-      auto existingCache = getCache(fileName);
-      if (existingCache.count(key)) {
-          existingCache[key] = param;
-      } else {
-          existingCache.insert({key, param});
-      }
-      
-      appendCache(fileName, existingCache);
-  } else {
-      std::ofstream out(rootPathStr + "/" + fileName);
-      std::stringstream s;
-      AcceleratorBuffer b;
-      b.useAsCache();
-      
-      InstructionParameter2ExtraInfo ip2e;
-      auto extrainfo = boost::apply_visitor(ip2e, param);
-      
-      b.addExtraInfo(key, extrainfo);
-      
-      b.print(s);
+  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
+    auto existingCache = getCache(fileName);
+    if (existingCache.count(key)) {
+      existingCache[key] = param;
+    } else {
+      existingCache.insert({key, param});
+    }
 
-      out << s.str();
-      out.close();
+    appendCache(fileName, existingCache);
+  } else {
+    std::ofstream out(rootPathStr + "/" + fileName);
+    std::stringstream s;
+    AcceleratorBuffer b;
+    b.useAsCache();
+
+    InstructionParameter2ExtraInfo ip2e;
+    auto extrainfo = mpark::visit(ip2e, param);
+
+    b.addExtraInfo(key, extrainfo);
+
+    b.print(s);
+
+    out << s.str();
+    out.close();
   }
 }
 
@@ -407,56 +400,56 @@ void appendCache(const std::string fileName, const std::string key,
   auto rootPathStr = serviceRegistry->getRootPathString();
 
   // Check if file exists
-  if (boost::filesystem::exists(rootPathStr + "/" + fileName)) {
-      std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
-      auto existingCache = getCache(fileName);
-      if (existingCache.count(key)) {
-          existingCache[key] = param;
-      } else {
-          existingCache.insert({key, param});
-      }
-      
-      appendCache(fileName, existingCache);
+  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
+    std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
+    auto existingCache = getCache(fileName);
+    if (existingCache.count(key)) {
+      existingCache[key] = param;
+    } else {
+      existingCache.insert({key, param});
+    }
+
+    appendCache(fileName, existingCache);
   } else {
-      std::ofstream out(rootPathStr + "/" + fileName);
-      std::stringstream s;
-      AcceleratorBuffer b;
-      b.useAsCache();
+    std::ofstream out(rootPathStr + "/" + fileName);
+    std::stringstream s;
+    AcceleratorBuffer b;
+    b.useAsCache();
 
-      InstructionParameter2ExtraInfo ip2e;
-      auto extrainfo = boost::apply_visitor(ip2e, param);
-      b.addExtraInfo(key, extrainfo);
-      
-      b.print(s);
+    InstructionParameter2ExtraInfo ip2e;
+    auto extrainfo = mpark::visit(ip2e, param);
+    b.addExtraInfo(key, extrainfo);
 
-      out << s.str();
-      out.close();
+    b.print(s);
+
+    out << s.str();
+    out.close();
   }
 }
 
 void appendCache(const std::string fileName,
                  std::map<std::string, InstructionParameter> &params) {
-                     
-    // This will over write the ip cache file
-    
-    auto rootPathStr = serviceRegistry->getRootPathString();
-    InstructionParameter2ExtraInfo ip2e;
-    AcceleratorBuffer b;
-    b.useAsCache();
 
-    for (auto& kv : params) {
-      auto extrainfo = boost::apply_visitor(ip2e, kv.second);
-      b.addExtraInfo(kv.first, extrainfo);
-    }
-      
-    std::ofstream out(rootPathStr + "/" + fileName);
-    std::stringstream s;
-    b.print(s);
-    out << s.str();
-    out.close();
+  // This will over write the ip cache file
+
+  auto rootPathStr = serviceRegistry->getRootPathString();
+  InstructionParameter2ExtraInfo ip2e;
+  AcceleratorBuffer b;
+  b.useAsCache();
+
+  for (auto &kv : params) {
+    auto extrainfo = mpark::visit(ip2e, kv.second);
+    b.addExtraInfo(kv.first, extrainfo);
+  }
+
+  std::ofstream out(rootPathStr + "/" + fileName);
+  std::stringstream s;
+  b.print(s);
+  out << s.str();
+  out.close();
 }
 const std::string getRootDirectory() {
-    return serviceRegistry->getRootPathString();
+  return serviceRegistry->getRootPathString();
 }
 
 /**

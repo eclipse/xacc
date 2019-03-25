@@ -187,8 +187,7 @@ TEST(CircuitOptimizerTester, checkOptimize) {
   if (xacc::hasCompiler("xacc-py")) {
     auto c = xacc::getService<xacc::Compiler>("xacc-py");
     auto f = c->compile(uccsdSrc)->getKernels()[0];
-    Eigen::VectorXd p(2);
-    p << 0.0, 0.0;
+    std::vector<double> p{0.0,0.0};
     auto fevaled = (*f)(p);
 
     auto ir = std::make_shared<GateIR>();

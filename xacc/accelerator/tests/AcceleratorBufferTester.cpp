@@ -20,17 +20,21 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
 
   AcceleratorBuffer buffer("qreg", 5);
 
-  boost::dynamic_bitset<> measurement1(std::string("00000"));
-  boost::dynamic_bitset<> measurement2(std::string("00001"));
+  std::string measurement1 = "00000";
+  std::string measurement2 = "00001";
 
   buffer.appendMeasurement(measurement1, 500);
   buffer.appendMeasurement(measurement2, 504);
 
   EXPECT_TRUE(std::fabs(buffer.getExpectationValueZ() + 0.00398406) < 1e-6);
+  EXPECT_TRUE(std::fabs(buffer.computeMeasurementProbability("00000") -
+                        0.4980079681) < 1e-6);
+  EXPECT_TRUE(std::fabs(buffer.computeMeasurementProbability("00001") -
+                        0.5019920319) < 1e-6);
 
-  boost::dynamic_bitset<> m1(std::string("000000000000"));
-  boost::dynamic_bitset<> m2(std::string("000000000000"));
-  boost::dynamic_bitset<> m3(std::string("000001000000"));
+  std::string m1 = "000000000000";
+  std::string m2 = "000000000000";
+  std::string m3 = "000001000000";
 
   AcceleratorBuffer bigBuffer("qreg", 12);
 
@@ -38,7 +42,17 @@ TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {
   bigBuffer.appendMeasurement(m2, 7827);
   bigBuffer.appendMeasurement(m3, 364);
 
-  EXPECT_TRUE(std::fabs(bigBuffer.getExpectationValueZ() - 0.911011) < 1e-6);
+  std::cout << "HELLO: " << bigBuffer.getExpectationValueZ() << "\n";
+  EXPECT_TRUE(std::fabs(bigBuffer.getExpectationValueZ() - 0.911122) < 1e-6);
+
+  AcceleratorBuffer b("qreg", 7);
+
+  b.appendMeasurement("0000000", 3513);
+  b.appendMeasurement("0000001", 904);
+  b.appendMeasurement("0000010", 2459);
+  b.appendMeasurement("0000011", 1316);
+
+  EXPECT_TRUE(std::fabs(b.getExpectationValueZ() - 0.178955078125) < 1e-6);
 }
 
 TEST(AcceleratorBufferTester, checkLoad) {
@@ -193,13 +207,13 @@ TEST(AcceleratorBufferTester, checkEmptyParametersBug) {
         ]
     }
 })str";
-    
-    AcceleratorBuffer b;
-    std::istringstream s(str);
 
-    b.load(s);
+  AcceleratorBuffer b;
+  std::istringstream s(str);
 
-    b.print();
+  b.load(s);
+
+  b.print();
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompanies this
+ * and Eclipse Distribution License v1.0 index accompanies this
  * distribution. The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
  *License is available at https://eclipse.org/org/documents/edl-v10.php
@@ -13,46 +13,54 @@
 #include "AcceleratorBuffer.hpp"
 #include "XACC.hpp"
 
+#include <numeric>
+
+#define RAPIDJSON_HAS_STDSTRING 1
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/document.h"
+
+using namespace rapidjson;
+
 namespace xacc {
 
 bool CheckEqualVisitor::operator()(const int &i) const {
-  return boost::get<int>(extraInfo) == i;
+  return mpark::get<int>(extraInfo) == i;
 }
 bool CheckEqualVisitor::operator()(const double &i) const {
-  return boost::get<double>(extraInfo) == i;
+  return mpark::get<double>(extraInfo) == i;
 }
 bool CheckEqualVisitor::operator()(const std::string &i) const {
-  auto asstr = boost::get<std::string>(extraInfo);
+  auto asstr = mpark::get<std::string>(extraInfo);
   return asstr.compare(i) == 0;
 }
 bool CheckEqualVisitor::operator()(const std::vector<int> &i) const {
   return std::equal(i.begin(), i.end(),
-                    boost::get<std::vector<int>>(extraInfo).begin());
+                    mpark::get<std::vector<int>>(extraInfo).begin());
 }
 bool CheckEqualVisitor::operator()(const std::vector<double> &i) const {
   return std::equal(i.begin(), i.end(),
-                    boost::get<std::vector<double>>(extraInfo).begin(),
+                    mpark::get<std::vector<double>>(extraInfo).begin(),
                     [](const double &d, const double &f) {
                       return std::fabs(d - f) < 1e-12;
                     });
 }
 bool CheckEqualVisitor::operator()(const std::vector<std::string> &i) const {
   return std::equal(i.begin(), i.end(),
-                    boost::get<std::vector<std::string>>(extraInfo).begin());
+                    mpark::get<std::vector<std::string>>(extraInfo).begin());
 }
 
 bool CheckEqualVisitor::
 operator()(const std::map<int, std::vector<int>> &i) const {
   return std::equal(
       i.begin(), i.end(),
-      boost::get<std::map<int, std::vector<int>>>(extraInfo).begin());
+      mpark::get<std::map<int, std::vector<int>>>(extraInfo).begin());
 }
 
 bool CheckEqualVisitor::
 operator()(const std::vector<std::pair<double, double>> &i) const {
   return std::equal(
       i.begin(), i.end(),
-      boost::get<std::vector<std::pair<double, double>>>(extraInfo).begin(),
+      mpark::get<std::vector<std::pair<double, double>>>(extraInfo).begin(),
       [](const std::pair<double, double> &d,
          const std::pair<double, double> &f) {
         return std::fabs(d.first - f.first) < 1e-12 &&
@@ -60,29 +68,29 @@ operator()(const std::vector<std::pair<double, double>> &i) const {
       });
 }
 
-void ToJsonVisitor::operator()(const int &i) { writer.Int(i); }
-void ToJsonVisitor::operator()(const double &i) { writer.Double(i); }
-void ToJsonVisitor::operator()(const std::string &i) { writer.String(i); }
-void ToJsonVisitor::operator()(const std::vector<int> &i) {
+template<class T> void ToJsonVisitor<T>::operator()(const int &i) { writer.Int(i); }
+template<class T> void ToJsonVisitor<T>::operator()(const double &i) { writer.Double(i); }
+template<class T> void ToJsonVisitor<T>::operator()(const std::string &i) { writer.String(i); }
+template<class T> void ToJsonVisitor<T>::operator()(const std::vector<int> &i) {
   writer.StartArray();
   for (auto &v : i)
     writer.Int(v);
   writer.EndArray();
 }
-void ToJsonVisitor::operator()(const std::vector<double> &i) {
+template<class T> void ToJsonVisitor<T>::operator()(const std::vector<double> &i) {
   writer.StartArray();
   for (auto &v : i)
     writer.Double(v);
   writer.EndArray();
 }
-void ToJsonVisitor::operator()(const std::vector<std::string> &i) {
+template<class T> void ToJsonVisitor<T>::operator()(const std::vector<std::string> &i) {
   writer.StartArray();
   for (auto &v : i)
     writer.String(v);
   writer.EndArray();
 }
 
-void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
+template<class T> void ToJsonVisitor<T>::operator()(const std::map<int, std::vector<int>> &i) {
   writer.StartObject();
   for (auto &kv : i) {
     writer.Key(std::to_string(kv.first));
@@ -95,7 +103,7 @@ void ToJsonVisitor::operator()(const std::map<int, std::vector<int>> &i) {
   writer.EndObject();
 }
 
-void ToJsonVisitor::
+template<class T> void ToJsonVisitor<T>::
 operator()(const std::vector<std::pair<double, double>> &i) const {
   writer.StartArray();
   for (auto &v : i) {
@@ -106,6 +114,8 @@ operator()(const std::vector<std::pair<double, double>> &i) const {
   }
   writer.EndArray();
 }
+
+template class ToJsonVisitor<PrettyWriter<StringBuffer>>;
 
 AcceleratorBuffer::AcceleratorBuffer(const std::string &str, const int N)
     : bufferId(str), nBits(N) {}
@@ -200,9 +210,9 @@ AcceleratorBuffer::getChildren(const std::string infoName, ExtraInfo i) {
   for (auto &child : children) {
     if (child.second->hasExtraInfoKey(infoName)) {
       auto childExtraInfo = child.second->getInformation(infoName);
-      if (i.which() == childExtraInfo.which()) {
+      if (i.index() == childExtraInfo.index()) {
         auto isEqual =
-            boost::apply_visitor(CheckEqualVisitor(i), childExtraInfo);
+            mpark::visit(CheckEqualVisitor(i), childExtraInfo);
         if (isEqual) {
           childrenWithExtraInfo.push_back(child.second);
         }
@@ -225,7 +235,7 @@ std::vector<ExtraInfo> AcceleratorBuffer::getAllUnique(const std::string name) {
 
   if (allExtraInfoAtName.empty()) {
     return allExtraInfoAtName;
-  } else if (allExtraInfoAtName[0].which() < 3) {
+  } else if (allExtraInfoAtName[0].index() < 3) {
     // these are int, double, or strings, so its fairly simple
     std::sort(allExtraInfoAtName.begin(), allExtraInfoAtName.end());
     auto it = std::unique(allExtraInfoAtName.begin(), allExtraInfoAtName.end());
@@ -236,7 +246,7 @@ std::vector<ExtraInfo> AcceleratorBuffer::getAllUnique(const std::string name) {
     auto last =
         std::unique(allExtraInfoAtName.begin(), allExtraInfoAtName.end(),
                     [](const ExtraInfo &i, const ExtraInfo &j) -> bool {
-                      return boost::apply_visitor(CheckEqualVisitor(i), j);
+                      return mpark::visit(CheckEqualVisitor(i), j);
                     });
     allExtraInfoAtName.erase(last, allExtraInfoAtName.end());
     return allExtraInfoAtName;
@@ -261,53 +271,27 @@ const std::string AcceleratorBuffer::name() const { return bufferId; }
  * Reset the stored measured bit strings.
  */
 void AcceleratorBuffer::resetBuffer() {
-  measurements.clear();
+//   measurements.clear();
   bitStringToCounts.clear();
   children.clear();
   info.clear();
 }
 
 void AcceleratorBuffer::appendMeasurement(const std::string &measurement) {
-  measurements.push_back(boost::dynamic_bitset<>(measurement));
-  std::stringstream ss;
-  ss << measurement;
-  bitStringToCounts[ss.str()]++;
-}
 
-/**
- * Add a measurement result to this Buffer
- *
- * @param measurement The measurement result
- */
-void AcceleratorBuffer::appendMeasurement(
-    const boost::dynamic_bitset<> &measurement) {
-  measurements.push_back(measurement);
-  std::stringstream ss;
-  ss << measurement;
-  bitStringToCounts[ss.str()]++;
-}
-
-void AcceleratorBuffer::appendMeasurement(
-    const boost::dynamic_bitset<> &measurement, const int count) {
-  std::stringstream ss;
-  ss << measurement;
-  bitStringToCounts[ss.str()] = count;
-  for (int i = 0; i < count; i++)
-    measurements.push_back(measurement);
-  return;
+  bitStringToCounts[measurement]++;
 }
 
 void AcceleratorBuffer::appendMeasurement(const std::string measurement,
                                           const int count) {
   bitStringToCounts[measurement] = count;
-  for (int i = 0; i < count; i++)
-    measurements.push_back(boost::dynamic_bitset<>(measurement));
+
   return;
 }
 
 double
 AcceleratorBuffer::computeMeasurementProbability(const std::string &bitStr) {
-  return (double)bitStringToCounts[bitStr] / (double)measurements.size();
+  return (double)bitStringToCounts[bitStr] / std::accumulate(bitStringToCounts.begin(), bitStringToCounts.end(), 0, [](int value, const std::map<std::string, int>::value_type& p){return value + p.second;});
 }
 
 std::shared_ptr<AcceleratorBuffer> AcceleratorBuffer::clone() {
@@ -361,27 +345,16 @@ void AcceleratorBuffer::setExpectationValueZ(const double exp) {
       "implemented. This method is intended for subclasses.");
 }
 
-/**
- * Return a read-only view of this Buffer's measurement results
- *
- * @return results Measurement results
- */
-const std::vector<boost::dynamic_bitset<>>
-AcceleratorBuffer::getMeasurements() {
-  return measurements;
-}
 
 /**
  * Return all measurements as bit strings.
  *
  * @return bitStrings List of bit strings.
  */
-const std::vector<std::string> AcceleratorBuffer::getMeasurementStrings() {
+const std::vector<std::string> AcceleratorBuffer::getMeasurements() {
   std::vector<std::string> strs;
-  for (auto m : measurements) {
-    std::stringstream ss;
-    ss << m;
-    strs.push_back(ss.str());
+  for (auto m : bitStringToCounts) {
+    strs.push_back(m.first);
   }
   return strs;
 }
@@ -419,8 +392,9 @@ void AcceleratorBuffer::print(std::ostream &stream) {
   writer.StartObject(); // start ab information
   for (auto &kv : info) {
     writer.Key(kv.first);
-    ToJsonVisitor vis(writer);
-    kv.second.apply_visitor(vis);
+    ToJsonVisitor<PrettyWriter<StringBuffer>> vis(writer);
+    mpark::visit(vis, kv.second);
+    // kv.second.apply_visitor(vis);
   }
   // end ab information object
   writer.EndObject();
@@ -446,8 +420,9 @@ void AcceleratorBuffer::print(std::ostream &stream) {
       writer.StartObject(); // start information
       for (auto &kv : pair.second->getInformation()) {
         writer.Key(kv.first);
-        ToJsonVisitor vis(writer);
-        kv.second.apply_visitor(vis);
+        ToJsonVisitor<PrettyWriter<StringBuffer>> vis(writer);
+        mpark::visit(vis, kv.second);
+        // kv.second.apply_visitor(vis);
       }
       // end information object
       writer.EndObject();
@@ -463,16 +438,16 @@ void AcceleratorBuffer::print(std::ostream &stream) {
       // End child object
       writer.EndObject();
     }
-    
+
     writer.EndArray();
   }
-  
+
   // end AB object
   if (!cacheFile) writer.EndObject();
 
   // end root object
   writer.EndObject();
-  
+
   stream << buffer.GetString();
 }
 
@@ -538,7 +513,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
           auto keyIsInt = true;
           int key;
           try {
-            key = boost::lexical_cast<int>(itr2->name.GetString());
+            key = std::stoi(itr2->name.GetString());
           } catch (std::exception &e) {
             keyIsInt = false;
           }

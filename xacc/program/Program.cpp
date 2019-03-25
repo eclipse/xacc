@@ -12,6 +12,7 @@
  *******************************************************************************/
 
 #include "XACC.hpp"
+#include <fstream>
 
 namespace xacc {
 
@@ -24,10 +25,6 @@ getAcceleratorIndependentTransformations(AcceleratorType &accType) {
 std::vector<std::shared_ptr<Preprocessor>>
 getDefaultPreprocessors(AcceleratorType accType) {
   std::vector<std::shared_ptr<Preprocessor>> preprocessors;
-  auto preprocessor = xacc::getService<Preprocessor>("kernel-replacement");
-  if (accType == AcceleratorType::qpu_gate) {
-    preprocessors.push_back(preprocessor);
-  }
 
   return preprocessors;
 }

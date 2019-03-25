@@ -19,12 +19,11 @@
 #include "GateInstruction.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
-#include <boost/math/constants/constants.hpp>
 
 namespace xacc {
 namespace quantum {
 
-static constexpr double pi = boost::math::constants::pi<double>();
+static constexpr double pi = 3.141592653589793238;
 
 using symbol_table_t = exprtk::symbol_table<double>;
 using expression_t = exprtk::expression<double>;
@@ -118,14 +117,14 @@ public:
     }
   }
 
-  const bool isAnalog() const override { 
+  const bool isAnalog() const override {
     for (int i = 0; i < instructions.size(); i++) {
       auto inst = *std::next(instructions.begin(), i);
       if (inst->isAnalog()) {
           return true;
       }
     }
-    return false; 
+    return false;
   }
 
   /**
@@ -187,7 +186,7 @@ public:
    * @return
    */
   const std::string toString(const std::string &bufferVarName) override;
-  
+
   /**
    * Return this instruction's assembly-like string
    * representation.
@@ -195,7 +194,7 @@ public:
    * @return qasm The instruction as qasm
    */
   const std::string toString() override {return toString("q");}
-  
+
   InstructionParameter getParameter(const int idx) const override;
 
   void setParameter(const int idx, InstructionParameter &p) override;
@@ -208,7 +207,7 @@ public:
 
   const int nParameters() override;
 
-  std::shared_ptr<Function> operator()(const Eigen::VectorXd &params) override;
+  std::shared_ptr<Function> operator()(const std::vector<double> &params) override;
 
   Graph<CircuitNode, Directed> toGraph() override;
   //   void fromGraph(Graph<CircuitNode>& graph) override;
@@ -226,8 +225,8 @@ public:
   }
 
   /**
-   * Return the number of physical qubits. 
-   * 
+   * Return the number of physical qubits.
+   *
    * @return nPhysical The number of physical qubits.
    */
   const int nPhysicalBits() override {

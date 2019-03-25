@@ -1,0 +1,141 @@
+
+#include <string>
+
+#include "CLIParser.hpp"
+#include "RuntimeOptions.hpp"
+#include "xacc_config.hpp"
+#include "ServiceRegistry.hpp"
+#include "Compiler.hpp"
+#include "Accelerator.hpp"
+
+#include "cxxopts.hpp"
+
+using namespace cxxopts;
+
+namespace xacc {
+
+CLIParser::CLIParser()
+    : xaccOptions(std::make_shared<options_description>("XACC Help")) {
+  xaccOptions->allow_unrecognised_options().add_options()(
+      "h,help", "Help Message")("c,compiler", "Indicate the compiler to be used.",
+                                value<std::string>())(
+      "a,accelerator", "Indicate the accelerator to be used.",
+      value<std::string>())("logger-name", "The name of the spd logger",
+                            value<std::string>())(
+      "list-compilers", "List all available XACC Compilers")(
+      "list-accelerators", "List all available XACC Accelerators")(
+      "no-color",
+      "Turn off colored logger output (blue for INFO, red for ERROR, etc.).")(
+      "use-cout", "Use std::cout for logs instead of SPDLOG Logger.")(
+      "queue-preamble", "Pass this option to xacc::Initialize() if you would "
+                        "like all startup messages to be queued until after a "
+                        "global logger predicate has been passed.");
+}
+
+void CLIParser::addOptions(const std::map<std::string, std::string> &options) {
+  for (auto &kv : options) {
+    xaccOptions->add_options()(kv.first, kv.second, value<std::string>());
+  }
+}
+
+/**
+ */
+void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
+
+  // Get a reference to the RuntimeOptions
+  auto runtimeOptions = RuntimeOptions::instance();
+
+  if (serviceRegistry) {
+    auto registeredOptions = serviceRegistry->getRegisteredOptions();
+
+    for (auto s : registeredOptions) {
+      addOptions(s);
+    }
+  }
+  // Parse the command line options
+  auto clArgs = xaccOptions->parse(argc, argv);
+  if (clArgs.count("help")) {
+    XACCLogger::instance()->dumpQueue();
+    // std::cout << *xaccOptions->get() << "\n";
+    XACCLogger::instance()->info(
+        "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
+        "Registry."
+        "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+    exit(0);
+  }
+
+  bool listTypes = false;
+  if (clArgs.count("list-compilers") && serviceRegistry) {
+    auto ids = serviceRegistry->getRegisteredIds<Compiler>();
+    XACCLogger::instance()->enqueueLog("\nAvailable XACC Compilers:");
+    for (auto i : ids) {
+      XACCLogger::instance()->enqueueLog("\t" + i);
+    }
+    XACCLogger::instance()->enqueueLog("\n");
+    listTypes = true;
+  }
+
+  if (clArgs.count("list-accelerators") && serviceRegistry) {
+    auto ids = serviceRegistry->getRegisteredIds<Accelerator>();
+    XACCLogger::instance()->enqueueLog("\nAvailable XACC Accelerators:");
+    for (auto i : ids) {
+      XACCLogger::instance()->enqueueLog("\t" + i);
+    }
+    XACCLogger::instance()->enqueueLog("\n");
+    listTypes = true;
+  }
+
+  if (listTypes) {
+    XACCLogger::instance()->dumpQueue();
+    XACCLogger::instance()->info(
+        "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
+        "Registry."
+        "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+    exit(0);
+  }
+
+  if (serviceRegistry) {
+    auto kvargs = clArgs.arguments();
+    std::map<std::string, std::string> givenopts;
+    for (auto &kv : kvargs) {
+      givenopts.insert({kv.key(),kv.value()});
+    }
+
+    auto exitRequested = serviceRegistry->handleOptions(givenopts);
+    if (exitRequested) {
+      XACCLogger::instance()->dumpQueue();
+      XACCLogger::instance()->info(
+          "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
+          "Registry."
+          "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
+      exit(0);
+    }
+  }
+
+  // Add all other string options to the global runtime option
+  for (auto &kv : clArgs.arguments()) {
+    if (runtimeOptions->exists(kv.key())) {
+      (*runtimeOptions)[kv.key()] = kv.value();
+    } else {
+      runtimeOptions->insert(
+          std::make_pair(kv.key(), kv.value()));
+    }
+  }
+}
+
+void CLIParser::addStringOption(const std::string key,
+                                const std::string description) {
+  xaccOptions->add_options()(key, description, value<std::string>());
+}
+
+void CLIParser::addStringOptions(
+    const std::string &category,
+    const std::map<std::string, std::string> &options) {
+  auto desc = xaccOptions->add_options(category);
+  // std::make_shared<options_description>(category);
+  for (auto &kv : options) {
+    desc(kv.first, kv.second, value<std::string>());
+  }
+}
+
+} // namespace xacc

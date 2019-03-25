@@ -12,7 +12,6 @@
  *******************************************************************************/
 #include "QFT.hpp"
 #include "InverseQFT.hpp"
-#include "KernelReplacementPreprocessor.hpp"
 #include "QubitMapIRPreprocessor.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -60,7 +59,7 @@ public:
   void Start(BundleContext context) {
     auto qft = std::make_shared<xacc::quantum::QFT>();
     auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
-    auto kp = std::make_shared<xacc::quantum::KernelReplacementPreprocessor>();
+
 
     auto qbitmap = std::make_shared<xacc::quantum::QubitMapIRPreprocessor>();
 
@@ -73,7 +72,6 @@ public:
     auto richextrap = std::make_shared<xacc::quantum::RichExtrapDecorator>();
 
     context.RegisterService<xacc::IRProvider>(giservice);
-    context.RegisterService<xacc::Preprocessor>(kp);
     context.RegisterService<xacc::IRGenerator>(iqft);
     context.RegisterService<xacc::IRGenerator>(qft);
 

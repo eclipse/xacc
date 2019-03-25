@@ -4,6 +4,7 @@
 #include "IRTransformation.hpp"
 #include "InstructionIterator.hpp"
 #include "GateFunction.hpp"
+#include "OptionsProvider.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -19,17 +20,14 @@ public:
 
   virtual const std::string description() const { return ""; }
 
-  virtual std::shared_ptr<options_description> getOptions() {
-    auto desc =
-        std::make_shared<options_description>("CircuitOptimizer Options");
-    desc->add_options()("circuit-opt-n-tries", value<std::string>(),
+  OptionPairs getOptions() override {
+    OptionPairs desc {{"circuit-opt-n-tries",
                         "Provide the number of passes to use in optimizing "
-                        "this circuit. Default = 2.")("circuit-opt-silent",
-                                                      "Do not print any info");
+                        "this circuit. Default = 2."},{"circuit-opt-silent",
+                                                      "Do not print any info"}};
     return desc;
   }
 
-  virtual bool handleOptions(variables_map &map) { return false; }
 };
 } // namespace quantum
 } // namespace xacc

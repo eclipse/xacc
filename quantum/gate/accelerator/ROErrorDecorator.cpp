@@ -1,11 +1,10 @@
 #include "ROErrorDecorator.hpp"
 #include "InstructionIterator.hpp"
 #include "XACC.hpp"
+#include <fstream>
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
-
 using namespace rapidjson;
 
 namespace xacc {
@@ -28,11 +27,11 @@ void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   std::ifstream t(roeStr);
   std::string json((std::istreambuf_iterator<char>(t)),
                    std::istreambuf_iterator<char>());
- 
+
   if (json.empty()) {
       xacc::error("Invalid ROError JSON file: " + roeStr);
   }
-  
+
   Document d;
   d.Parse(json);
   std::map<int, double> piplus, piminus;
@@ -101,13 +100,13 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
   } else {
     buffers = buffer->getChildren();
   }
-  
+
   if (!xacc::optionExists("ro-error-file")) {
     xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
                "correction.");
     return buffers;
   }
-  
+
   auto supports = [](std::shared_ptr<Function> f) {
     std::set<int> supportSet;
     InstructionIterator it(f);
@@ -126,7 +125,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
       nameToFunction.insert({f->name(), f});
       supportSets.insert({f->name(), supports(f)});
   }
-  
+
   // Get RO error probs
   auto roeStr = xacc::getOption("ro-error-file");
   buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
@@ -163,7 +162,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
   }
   for (auto &kv : tmpCounts) {
     nShots += kv.second;
-  }  
+  }
 
   int counter = 0;
   for (auto &b : buffers) {
@@ -171,7 +170,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
     auto functionName = b->name();
     auto f = nameToFunction[functionName];
     auto fSupports = supportSets[functionName];
-    
+
     auto fixedExp = 0.0;
     for (auto &kv : counts) {
       auto prod = 1.0;
@@ -190,7 +189,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
     // Correct in case our shift has gone outside physical bounds
     if (fixedExp > 1.0) {fixedExp = 1.0;}
     if (fixedExp < -1.0) {fixedExp = -1.0;}
-    
+
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
     counter++;

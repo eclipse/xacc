@@ -18,7 +18,7 @@ using namespace xacc::quantum;
 TEST(RzTester, checkCreation) {
 
   Rz rz(0, 3.14);
-  EXPECT_TRUE(boost::get<double>(rz.getParameter(0)) == 3.14);
+  EXPECT_TRUE(mpark::get<double>(rz.getParameter(0)) == 3.14);
   EXPECT_TRUE(rz.toString("qreg") == "Rz(3.14) qreg0");
   EXPECT_TRUE(rz.bits().size() == 1);
   EXPECT_TRUE(rz.bits()[0] == 0);
@@ -26,7 +26,7 @@ TEST(RzTester, checkCreation) {
 
   Rz rz2(44, 1.71234);
 
-  EXPECT_TRUE(boost::get<double>(rz2.getParameter(0)) == 1.71234);
+  EXPECT_TRUE(mpark::get<double>(rz2.getParameter(0)) == 1.71234);
   EXPECT_TRUE(rz2.toString("qreg") == "Rz(1.71234) qreg44");
   EXPECT_TRUE(rz2.bits().size() == 1);
   EXPECT_TRUE(rz2.bits()[0] == 44);

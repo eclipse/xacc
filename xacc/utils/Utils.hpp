@@ -13,34 +13,78 @@
 #ifndef XACC_UTILS_UTILS_HPP_
 #define XACC_UTILS_UTILS_HPP_
 
-#include <boost/tokenizer.hpp>
 #include "Singleton.hpp"
-#include "RuntimeOptions.hpp"
-#include "spdlog/spdlog.h"
-#include <iostream>
+#include <ostream>
 #include <queue>
+#include <functional>
+#include <sstream>
+#include <iterator>
+#include <algorithm>
 
+namespace spdlog {
+class logger;
+}
 namespace xacc {
+// trim from start (in place)
+void ltrim(std::string &s);
+// trim from end (in place)
+void rtrim(std::string &s);
+// trim from both ends (in place)
+void trim(std::string &s);
 
-template <typename T> 
-std::ostream& operator<<(std::ostream& os, const std::pair<T,T>& p) 
-{ 
-    os << "[" << p.first << "," << p.second << "]";
-    return os; 
+inline bool fileExists(const std::string &name) {
+  if (FILE *file = fopen(name.c_str(), "r")) {
+    fclose(file);
+    return true;
+  } else {
+    return false;
+  }
+}
+// template<char delimiter>
+// class Delimiter : public std::string
+// {};
+
+// template<typename DelimiterType>
+// std::vector<std::string> split(const std::string& s) {
+//   std::istringstream iss(s);
+//   std::vector<std::string>
+//   results((std::istream_iterator<DelimiterType>(iss)),
+//                                  std::istream_iterator<DelimiterType>());
+//    return results;
+// }
+template <class Op> void split(const std::string &s, char delim, Op op) {
+  std::stringstream ss(s);
+  for (std::string item; std::getline(ss, item, delim);) {
+    *op++ = item;
+  }
 }
 
-template <typename T> 
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) 
-{ 
-    os << "["; 
-    for (int i = 0; i < v.size(); ++i) { 
-        os << v[i]; 
-        if (i != v.size() - 1) 
-            os << ", "; 
-    } 
-    os << "]"; 
-    return os; 
-} 
+//------------------------------------------------------------------------------
+// Name: split
+//------------------------------------------------------------------------------
+inline std::vector<std::string> split(const std::string &s, char delim) {
+  std::vector<std::string> elems;
+  split(s, delim, std::back_inserter(elems));
+  return elems;
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const std::pair<T, T> &p) {
+  os << "[" << p.first << "," << p.second << "]";
+  return os;
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
+  os << "[";
+  for (int i = 0; i < v.size(); ++i) {
+    os << v[i];
+    if (i != v.size() - 1)
+      os << ",";
+  }
+  os << "]";
+  return os;
+}
 
 static inline bool is_base64(unsigned char c);
 
@@ -69,56 +113,6 @@ void tuple_for_each(TupleType &&t, FunctionType f) {
   tuple_for_each(std::forward<TupleType>(t), f,
                  std::integral_constant<size_t, 0>());
 }
-
-
-// class XACCException: public std::exception {
-// protected:
-//
-//	std::string errorMessage;
-//
-// public:
-//
-//	XACCException(std::string error) :
-//			errorMessage(error) {
-//	}
-//
-//	virtual const char * what() const throw () {
-//		return errorMessage.c_str();
-//	}
-//
-//	~XACCException() throw () {
-//	}
-//};
-//
-//#define XACC_Abort do {std::abort();} while(0);
-//
-// class XACCInfoT {
-// public:
-//	static void printInfo(const std::string& msg) {
-//		auto c = spdlog::get("xacc-console");
-//		if (c) {
-//			c->info("\033[1;34m" + msg + "\033[0m");
-//		}
-//	}
-//};
-//
-//#define XACCError(errorMsg)
-//\
-//	do {
-//\
-//		using namespace xacc;
-//\
-//    	throw XACCException("\n\n XACC Error thrown! \n\n" \
-//            	+ std::string(errorMsg) + "\n\n");
-//            \
-//	} while(0)
-//
-//#define XACCInfo(infoMsg)
-//\
-//	do {
-//\
-//		xacc::XACCInfoT::printInfo(std::string(infoMsg));
-//\ 	} while(0)
 
 using MessagePredicate = std::function<bool(void)>;
 

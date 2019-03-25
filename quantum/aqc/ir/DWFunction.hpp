@@ -17,11 +17,10 @@
 #include "DWQMI.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
-#include <boost/math/constants/constants.hpp>
 #include "GraphProvider.hpp"
 #include "DWGraph.hpp"
 
-static constexpr double pi = boost::math::constants::pi<double>();
+static constexpr double pi = 3.141592653589793238;
 
 using symbol_table_t = exprtk::symbol_table<double>;
 using expression_t = exprtk::expression<double>;
@@ -144,10 +143,10 @@ const int nRequiredBits() const override {
       auto bits = inst->bits();
       if (bits[0] == bits[1]) {
         std::get<0>(graph.getVertex(bits[0]).properties) =
-            boost::get<double>(inst->getParameter(0));
+            mpark::get<double>(inst->getParameter(0));
       } else {
         graph.addEdge(bits[0], bits[1],
-                      boost::get<double>(inst->getParameter(0)));
+                      mpark::get<double>(inst->getParameter(0)));
       }
     }
 
@@ -207,7 +206,7 @@ const int nRequiredBits() const override {
     std::vector<double> biases;
     for (auto i : instructions) {
       if (i->bits()[0] == i->bits()[1]) {
-        biases.push_back(boost::get<double>(i->getParameter(0)));
+        biases.push_back(mpark::get<double>(i->getParameter(0)));
       }
     }
 
@@ -218,7 +217,7 @@ const int nRequiredBits() const override {
     std::vector<double> weights;
     for (auto i : instructions) {
       if (i->bits()[0] != i->bits()[1]) {
-        weights.push_back(boost::get<double>(i->getParameter(0)));
+        weights.push_back(mpark::get<double>(i->getParameter(0)));
       }
     }
 
@@ -250,7 +249,7 @@ const int nRequiredBits() const override {
 
   const int nParameters() override { return parameters.size(); }
 
-  std::shared_ptr<Function> operator()(const Eigen::VectorXd &params) override {
+  std::shared_ptr<Function> operator()(const std::vector<double> &params) override {
     if (params.size() != nParameters()) {
       xacc::error("Invalid DWFunction evaluation: number "
                   "of parameters don't match. " +
@@ -258,19 +257,19 @@ const int nRequiredBits() const override {
                   std::to_string(nParameters()));
     }
 
-    Eigen::VectorXd p = params;
+    std::vector<double> p = params;
     symbol_table_t symbol_table;
     symbol_table.add_constants();
     std::vector<std::string> variableNames;
     std::vector<double> values;
     for (int i = 0; i < params.size(); i++) {
-      auto var = getParameter(i).as<std::string>();
+      auto var = mpark::get<std::string>(getParameter(i));
       variableNames.push_back(var);
-      symbol_table.add_variable(var, p(i));
+      symbol_table.add_variable(var, p[i]);
     }
 
     auto compileExpression = [&](InstructionParameter &p) -> double {
-      auto expression = p.as<std::string>();
+      auto expression = mpark::get<std::string>(p);
       expression_t expr;
       expr.register_symbol_table(symbol_table);
       parser_t parser;
@@ -302,8 +301,8 @@ const int nRequiredBits() const override {
           for (int i = 0; i < inst->nParameters(); i++) {
             InstructionParameter p = inst->getParameter(i);
             if (inst->getParameter(i).isVariable()) {
-              if (boost::get<std::string>(p) == "forward" |
-                  boost::get<std::string>(p) == "reverse") {
+              if (mpark::get<std::string>(p) == "forward" |
+                  mpark::get<std::string>(p) == "reverse") {
                 newParams.push_back(p);
               } else {
                 auto val = compileExpression(p);

@@ -16,25 +16,15 @@
 #include <memory>
 #include "AllGateVisitor.hpp"
 
-#define RAPIDJSON_HAS_STDSTRING 1
-
-#include "rapidjson/prettywriter.h"
-
-using namespace rapidjson;
-
 namespace xacc {
 
 namespace quantum {
 
-using Writer = PrettyWriter<StringBuffer>;
-
-/**
- * FIXME write this
- */
+template<typename Writer, typename Buffer>
 class JsonVisitor : public AllGateVisitor {
 
 protected:
-  std::shared_ptr<StringBuffer> buffer;
+  std::shared_ptr<Buffer> buffer;
   std::shared_ptr<Writer> writer;
   std::shared_ptr<Function> function;
   std::shared_ptr<InstructionIterator> topLevelInstructionIterator;
@@ -42,52 +32,9 @@ protected:
   std::vector<std::shared_ptr<Function>> functions;
 
 public:
-  JsonVisitor(std::shared_ptr<xacc::Function> f)
-      : buffer(std::make_shared<StringBuffer>()),
-        writer(std::make_shared<PrettyWriter<StringBuffer>>(*buffer.get())),
-        functions{f} {}
-
-  JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs)
-      : buffer(std::make_shared<StringBuffer>()),
-        writer(std::make_shared<PrettyWriter<StringBuffer>>(*buffer.get())),
-        functions(fs) {}
-
-  std::string write() {
-    writer->StartObject();
-
-    writer->String("kernels");
-    writer->StartArray();
-    for (auto f : functions) {
-      // This is a Function, start it as an Object
-      writer->StartObject();
-
-      writer->String("function");
-      writer->String(f->name());
-
-      // All functions have instructions, start
-      // that array here.
-      writer->String("instructions");
-      writer->StartArray();
-
-      topLevelInstructionIterator =
-          std::make_shared<xacc::InstructionIterator>(f);
-      while (topLevelInstructionIterator->hasNext()) {
-        // Get the next node in the tree
-        auto nextInst = topLevelInstructionIterator->next();
-        nextInst->accept(this);
-      }
-
-      // End Instructions
-      writer->EndArray();
-
-      // End Function
-      writer->EndObject();
-    }
-    writer->EndArray();
-    writer->EndObject();
-    return buffer->GetString();
-  }
-
+  JsonVisitor(std::shared_ptr<xacc::Function> f);
+  JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs);
+  std::string write();
   void visit(Identity &i) { baseGateInst(dynamic_cast<GateInstruction &>(i)); }
 
   void visit(Hadamard &h) { baseGateInst(dynamic_cast<GateInstruction &>(h)); }
@@ -98,124 +45,15 @@ public:
 
   void visit(Swap &s) { baseGateInst(dynamic_cast<GateInstruction &>(s)); }
 
-  void visit(Rz &rz) {
-    baseGateInst(dynamic_cast<GateInstruction &>(rz), false);
-    writer->String("angle");
-    auto p = rz.getParameter(0);
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->EndObject();
-  }
+  void visit(Rz &rz);
 
-  void visit(Rx &rx) {
-    baseGateInst(dynamic_cast<GateInstruction &>(rx), false);
-    writer->String("angle");
-    auto p = rx.getParameter(0);
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->EndObject();
-  }
+  void visit(Rx &rx);
 
-  void visit(Ry &ry) {
-    baseGateInst(dynamic_cast<GateInstruction &>(ry), false);
-    writer->String("angle");
-    auto p = ry.getParameter(0);
+  void visit(Ry &ry);
 
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->EndObject();
-  }
-
-  void visit(CPhase &cp) {
-    baseGateInst(dynamic_cast<GateInstruction &>(cp), false);
-    writer->String("angle");
-    auto p = cp.getParameter(0);
-
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->EndObject();
-  }
-
-  void visit(ConditionalFunction &cn) {
-    writer->StartObject();
-    writer->String("conditional_function");
-    writer->String(cn.name());
-
-    writer->String("conditional_qubit");
-    writer->Int(cn.getConditionalQubit());
-    writer->String("instructions");
-    writer->StartArray();
-
-    auto cnAsPtr = std::make_shared<ConditionalFunction>(cn);
-    int nInsts = cnAsPtr->nInstructions();
-    xacc::InstructionIterator it(cnAsPtr);
-    it.next();
-    while (it.hasNext()) {
-      // Get the next node in the tree
-      auto nextInst = it.next();
-      nextInst->accept(this);
-    }
-
-    // End Instructions
-    writer->EndArray();
-    writer->EndObject();
-
-    // Move the Top Level Iterator past these instructions that were in
-    // the conditional function
-    for (int i = 0; i < nInsts; i++)
-      topLevelInstructionIterator->next();
-  }
-
-  void visit(Measure &cn) {
-    baseGateInst(dynamic_cast<GateInstruction &>(cn), false);
-    writer->String("classicalBitIdx");
-    writer->Int(cn.getClassicalBitIndex());
-    writer->EndObject();
-  }
+  void visit(CPhase &cp);
+  void visit(ConditionalFunction &cn);
+  void visit(Measure &cn);
 
   void visit(X &cn) { baseGateInst(dynamic_cast<GateInstruction &>(cn)); }
 
@@ -223,79 +61,12 @@ public:
 
   void visit(Z &z) { baseGateInst(dynamic_cast<GateInstruction &>(z)); }
 
-  void visit(U &u) {
-          baseGateInst(dynamic_cast<GateInstruction &>(u), false);
-    writer->String("theta");
-    auto p = u.getParameter(0);
+  void visit(U &u);
 
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->String("phi");
-    auto p2 = u.getParameter(1);
-
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    
-    writer->String("lambda");
-    auto p3 = u.getParameter(2);
-
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-       xacc::error("Invalid InstructionParameter: " + p.toString());
-    }
-    writer->EndObject();
-  }
-  
   void visit(GateFunction &function) {}
 
 protected:
-  void baseGateInst(GateInstruction &inst, bool endObject = true) {
-    writer->StartObject();
-    writer->String("gate");
-    writer->String(inst.name().c_str());
-    writer->String("enabled");
-    writer->Bool(inst.isEnabled());
-    writer->String("qubits");
-    writer->StartArray();
-    for (auto qi : inst.bits()) {
-      writer->Int(qi);
-    }
-    writer->EndArray();
-    if (endObject) {
-      writer->EndObject();
-    }
-  }
+  void baseGateInst(GateInstruction &inst, bool endObject = true);
 };
 } // namespace quantum
 } // namespace xacc

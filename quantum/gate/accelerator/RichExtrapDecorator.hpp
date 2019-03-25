@@ -31,9 +31,8 @@ public:
   const std::string name() const override { return "rich-extrap"; }
   const std::string description() const override { return ""; }
 
-  std::shared_ptr<options_description> getOptions() override {
-    auto desc = std::make_shared<options_description>();
-    desc->add_options()("rich-extrap-r", value<std::string>(), "");
+  OptionPairs getOptions() override {
+    OptionPairs desc {{"rich-extrap-r", ""}};
     return desc;
   }
   ~RichExtrapDecorator() override {}

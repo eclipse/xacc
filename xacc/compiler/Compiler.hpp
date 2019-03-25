@@ -14,10 +14,8 @@
 #define XACC_COMPILER_HPP_
 
 #include <memory>
-#include <iostream>
 #include "IR.hpp"
 #include "Accelerator.hpp"
-#include "Identifiable.hpp"
 
 namespace xacc {
 
@@ -66,15 +64,22 @@ public:
   virtual const std::string translate(const std::string &bufferVariable,
                                       std::shared_ptr<Function> function) = 0;
 
+  virtual const std::shared_ptr<Function>
+  compile(std::shared_ptr<Function> f, std::shared_ptr<Accelerator> acc) {
+    XACCLogger::instance()->info("Compiler::compile(function, accelerator) not "
+                                 "implemented. Returning given function.");
+    return f;
+  }
+
   /**
    * Return an empty options_description, this is for
    * subclasses to implement.
    */
-  virtual std::shared_ptr<options_description> getOptions() {
-    return std::make_shared<options_description>();
+  virtual OptionPairs getOptions() {
+    return OptionPairs{};
   }
 
-  virtual bool handleOptions(variables_map &map) { return false; }
+  virtual bool handleOptions(const std::map<std::string,std::string> &arg_map) { return false; }
 
   /**
    * The destructor

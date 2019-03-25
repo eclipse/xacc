@@ -13,15 +13,15 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 
+include_directories(${CMAKE_SOURCE_DIR}/quantum/utils)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
 
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
-if (${XACC_HAS_ANTLR})
-   add_subdirectory(compiler)
-endif()
+
+add_subdirectory(compiler)
 
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
@@ -35,7 +35,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc Boost::graph)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

@@ -21,8 +21,7 @@ QubitMapIRPreprocessor::process(IR &ir) {
     std::vector<int> qubitMap;
     auto mapStr = xacc::getOption("qubit-map");
 
-    std::vector<std::string> split;
-    boost::split(split, mapStr, boost::is_any_of(","));
+    std::vector<std::string> split = xacc::split(mapStr, ',');
 
     int counter = 0;
     for (auto s : split) {

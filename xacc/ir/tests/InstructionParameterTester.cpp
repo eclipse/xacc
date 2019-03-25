@@ -21,30 +21,36 @@ TEST(InstructionParameterTester, checkSimple) {
  InstructionParameter p("theta");
  InstructionParameter q(
       std::vector<std::pair<int, int>>{{0, 1}, {2, 3}});
+  InstructionParameter c(std::complex<double>(1,0));
 
   EXPECT_EQ(p.toString(), "theta");
-  EXPECT_EQ(q.toString(), "[[0,1], [2,3]]");
+  EXPECT_EQ(q.toString(), "[[0,1],[2,3]]");
 
   EXPECT_TRUE(p.isVariable());
   EXPECT_FALSE(q.isVariable());
 
   EXPECT_TRUE(InstructionParameter(1).isNumeric());
   EXPECT_TRUE(InstructionParameter(1.12).isNumeric());
-  
+
   auto str = p.as<std::string>();
   EXPECT_EQ("theta",str);
 
-//   EXPECT_EQ(1, InstructionParameter(1.0).as<int>());
+  std::cout << "WHICH: " << p.which() << "\n";
+  EXPECT_EQ(2, p.which());
+  EXPECT_EQ(4, q.which());
+  EXPECT_EQ(3,c.which());
+
+  EXPECT_EQ(std::complex<double>(1,0), c.as<std::complex<double>>());
 }
 
 TEST(InstructionParameterTester, checkMap) {
-    
+
     std::map<std::string, InstructionParameter> options;
 
     options.insert({"pulse_id", InstructionParameter("null")});
 
     EXPECT_EQ("null", options["pulse_id"].toString());
-    
+
 }
 
 int main(int argc, char **argv) {

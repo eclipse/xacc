@@ -12,10 +12,11 @@
  *******************************************************************************/
 #ifndef XACC_COMPILER_INSTRUCTIONVISITOR_HPP_
 #define XACC_COMPILER_INSTRUCTIONVISITOR_HPP_
-#include <iostream>
+
 #include <vector>
 #include <string>
 #include <memory>
+
 #include "Utils.hpp"
 #include "Identifiable.hpp"
 
@@ -29,12 +30,12 @@ namespace xacc {
  */
 class BaseInstructionVisitor : public Identifiable {
 protected:
-  // Provide a string attribute that 
-  // is common to all Visitors. The majority 
-  // of XACC visitors map IR to a native 
+  // Provide a string attribute that
+  // is common to all Visitors. The majority
+  // of XACC visitors map IR to a native
   // assembly string.
   std::string native = "";
-  
+
 public:
   /**
    * The destructor
@@ -113,7 +114,7 @@ protected:
     if (castedVisitor) {
       castedVisitor->visit(visited);
       return;
-    } 
+    }
 
     // Fallback to any potential custom visit actions
     visited.customVisitAction(*visitor.get());

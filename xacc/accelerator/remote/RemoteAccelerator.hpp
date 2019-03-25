@@ -146,7 +146,8 @@ protected:
                    " caught exception while calling restClient->get() "
                    "- " +
                    std::string(e.what()));
-        if (boost::contains(std::string(e.what()), "Caught CTRL-C")) {
+                // s1.find(s2) != std::string::npos) {
+        if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos) {
           xacc::error(std::string(e.what()));
         }
         retries--;

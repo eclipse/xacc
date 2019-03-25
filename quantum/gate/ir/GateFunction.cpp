@@ -2,8 +2,6 @@
 #include <algorithm>
 #include <ctype.h>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
 #include "InstructionIterator.hpp"
 #include "IRToGraphVisitor.hpp"
 
@@ -54,14 +52,14 @@ auto isNumber = [](std::string s) {
 auto splitParameter = [](InstructionParameter instParam) {
   std::vector<std::string> split;
   InstructionParameter rawParam;
-  boost::replace_all(boost::get<std::string>(instParam), "-", " ");
-  boost::replace_all(boost::get<std::string>(instParam), "*", " ");
-  boost::replace_all(boost::get<std::string>(instParam), "/", " ");
-  boost::replace_all(boost::get<std::string>(instParam), "+", " ");
+  auto paramStr = mpark::get<std::string>(instParam);
+  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '-', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '+', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '*', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '/', ' ');
 
   auto instParamStr = instParam.as<std::string>();
-  boost::split(split, instParamStr,
-               boost::is_any_of(" "));
+  split = xacc::split(instParamStr, ' ');
   for (auto s : split) {
     if (!isNumber(s) && !s.empty()) {
       rawParam = s;
@@ -223,8 +221,8 @@ void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
       // strip the parameter of mathematical operators and numbers/doubles
       InstructionParameter strippedParam = splitParameter(param);
       for (auto p : parameters) {
-        if (boost::get<std::string>(p) ==
-            boost::get<std::string>(strippedParam)) {
+        if (mpark::get<std::string>(p) ==
+            mpark::get<std::string>(strippedParam)) {
           dupParam = true;
         }
       }
@@ -289,7 +287,7 @@ const std::string GateFunction::toString(const std::string &bufferVarName) {
 }
 
 std::shared_ptr<Function> GateFunction::
-operator()(const Eigen::VectorXd &params) {
+operator()(const std::vector<double> &params) {
   if (params.size() != nParameters()) {
     xacc::error("Invalid GateFunction evaluation: number "
                 "of parameters don't match. " +
@@ -297,7 +295,7 @@ operator()(const Eigen::VectorXd &params) {
                 std::to_string(nParameters()));
   }
 
-  Eigen::VectorXd p = params;
+  std::vector<double> p = params;
   symbol_table_t symbol_table;
   symbol_table.add_constants();
   std::vector<std::string> variableNames;
@@ -305,11 +303,11 @@ operator()(const Eigen::VectorXd &params) {
   for (int i = 0; i < params.size(); i++) {
     auto var = getParameter(i).as<std::string>();
     variableNames.push_back(var);
-    symbol_table.add_variable(var, p(i));
+    symbol_table.add_variable(var, p[i]);
   }
 
   auto compileExpression = [&](InstructionParameter &p) -> double {
-    auto expression = boost::get<std::string>(p);
+    auto expression = mpark::get<std::string>(p);
     expression_t expr;
     expr.register_symbol_table(symbol_table);
     parser_t parser;
@@ -325,7 +323,7 @@ operator()(const Eigen::VectorXd &params) {
     if (inst->isComposite()) {
       // If a Function, call this method recursively
       auto evaled =
-          std::dynamic_pointer_cast<Function>(inst)->operator()(params);
+          std::dynamic_pointer_cast<Function>(inst)->operator()(p);
       evaluatedFunction->addInstruction(evaled);
     } else {
       // If a concrete GateInstruction, then check that it

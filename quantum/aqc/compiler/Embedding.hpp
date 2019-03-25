@@ -15,8 +15,9 @@
 
 #include <map>
 #include <vector>
-#include <boost/algorithm/string.hpp>
+#include "Utils.hpp"
 
+#include <iostream>
 namespace xacc {
 
 namespace quantum {
@@ -42,14 +43,13 @@ public:
     std::string s(std::istreambuf_iterator<char>(stream), {});
 
     std::vector<std::string> splitNewLine, splitColon, splitSpaces;
-    boost::split(splitNewLine, s, boost::is_any_of("\n"));
-
+    splitNewLine = xacc::split(s, '\n');
     for (auto line : splitNewLine) {
       if (!line.empty()) {
-        boost::split(splitColon, line, boost::is_any_of(":"));
+        splitColon = xacc::split(line,':');
         auto probVert = std::stoi(splitColon[0]);
         std::vector<int> hardwareVerts;
-        boost::split(splitSpaces, splitColon[1], boost::is_any_of(" "));
+        splitSpaces = xacc::split(splitColon[1], ' ');
         for (auto i : splitSpaces) {
           if (!i.empty()) {
             hardwareVerts.push_back(std::stoi(i));

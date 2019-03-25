@@ -15,15 +15,16 @@
 
 #include <memory>
 #include <string>
-#include <boost/program_options.hpp>
-#include "RuntimeOptions.hpp"
-#include "xacc_config.hpp"
-#include "ServiceRegistry.hpp"
+#include "OptionsProvider.hpp"
 
-using namespace boost::program_options;
+namespace cxxopts {
+class Options;
+}
 
 namespace xacc {
+class ServiceRegistry;
 
+using options_description = cxxopts::Options;
 /**
  * The role of the CLIParser is to parse all command line
  * options provided to an XACC-enabled program. It takes upon
@@ -43,135 +44,14 @@ public:
   /**
    * The constructor
    */
-  CLIParser()
-      : xaccOptions(std::make_shared<options_description>("XACC Options")) {
-    xaccOptions->add_options()("help,h", "Help Message")(
-        "compiler", value<std::string>()->default_value("scaffold"),
-        "Indicate the compiler to be used.")(
-        "accelerator", value<std::string>(),
-        "Indicate the accelerator to be used.")(
-        "persist-ir", value<std::string>(),
-        "Persist generated IR to provided file name.")(
-        "load", value<std::string>(), "Load a XACC plugin at the given path")(
-        "list-compilers", "List all available XACC Compilers")(
-        "list-accelerators", "List all available XACC Accelerators")(
-        "no-color",
-        "Turn off colored logger output (blue for INFO, red for ERROR, etc.).")(
-        "use-cout", "Use std::cout for logs instead of SPDLOG Logger.")(
-        "queue-preamble",
-        "Pass this option to xacc::Initialize() if you would "
-        "like all startup messages to be queued until after a "
-        "global logger predicate has been passed.");
-  }
+  CLIParser();
+  void parse(int argc, char **argv, ServiceRegistry *serviceRegistry);
 
-  void addOptionsDescription(std::shared_ptr<options_description> options) {
-    xaccOptions->add(*options);
-  }
-
-  /**
-   */
-  void parse(int argc, char **argv, ServiceRegistry &serviceRegistry) {
-
-    // Get a reference to the RuntimeOptions
-    auto runtimeOptions = RuntimeOptions::instance();
-
-    auto registeredOptions = serviceRegistry.getRegisteredOptions();
-
-    for (auto s : registeredOptions) {
-      xaccOptions->add(*s.get());
-    }
-
-    // Parse the command line options
-    variables_map clArgs;
-    store(command_line_parser(argc, argv)
-              .options(*xaccOptions.get())
-              .allow_unregistered()
-              .run(),
-          clArgs);
-    notify(clArgs);
-    if (clArgs.count("help")) {
-      XACCLogger::instance()->dumpQueue();
-      std::cout << *xaccOptions.get() << "\n";
-      XACCLogger::instance()->info(
-          "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
-          "Registry."
-          "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-      exit(0);
-    }
-
-    // If the user provides a path to a compiler plugin,
-    // then load it
-    if (clArgs.count("load")) {
-      auto loadPath = clArgs["load-compiler"].as<std::string>();
-      serviceRegistry.loadPlugin(loadPath);
-    }
-
-    bool listTypes = false;
-    if (clArgs.count("list-compilers")) {
-      auto ids = serviceRegistry.getRegisteredIds<Compiler>();
-      XACCLogger::instance()->enqueueLog("\nAvailable XACC Compilers:");
-      for (auto i : ids) {
-        XACCLogger::instance()->enqueueLog("\t" + i);
-      }
-      XACCLogger::instance()->enqueueLog("\n");
-      listTypes = true;
-    }
-
-    if (clArgs.count("list-accelerators")) {
-      auto ids = serviceRegistry.getRegisteredIds<Accelerator>();
-      XACCLogger::instance()->enqueueLog("\nAvailable XACC Accelerators:");
-      for (auto i : ids) {
-        XACCLogger::instance()->enqueueLog("\t" + i);
-      }
-      XACCLogger::instance()->enqueueLog("\n");
-      listTypes = true;
-    }
-
-    if (listTypes) {
-      XACCLogger::instance()->dumpQueue();
-      XACCLogger::instance()->info(
-          "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
-          "Registry."
-          "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-      exit(0);
-    }
-
-    auto exitRequested = serviceRegistry.handleOptions(clArgs);
-    if (exitRequested) {
-      XACCLogger::instance()->dumpQueue();
-      XACCLogger::instance()->info(
-          "\n[xacc] XACC Finalizing\n[xacc::compiler] Cleaning up Compiler "
-          "Registry."
-          "\n[xacc::accelerator] Cleaning up Accelerator Registry.");
-      exit(0);
-    }
-
-    // Add all other string options to the global runtime option
-    for (auto &kv : clArgs) {
-      if (runtimeOptions->exists(kv.first)) {
-        (*runtimeOptions)[kv.first] = kv.second.as<std::string>();
-      } else {
-        runtimeOptions->insert(
-            std::make_pair(kv.first, kv.second.as<std::string>()));
-      }
-    }
-  }
-
+  void addOptions(const std::map<std::string, std::string> &options);
   void addStringOption(const std::string key,
-                       const std::string description = "") {
-    xaccOptions->add_options()(key.c_str(), value<std::string>(),
-                               description.c_str());
-  }
-
+                       const std::string description = "");
   void addStringOptions(const std::string &category,
-                        const std::map<std::string, std::string> &options) {
-    auto desc = std::make_shared<options_description>(category);
-    for (auto &kv : options) {
-      desc->add_options()(kv.first.c_str(), value<std::string>(),
-                          kv.second.c_str());
-    }
-    xaccOptions->add(*desc.get());
-  }
+                        const std::map<std::string, std::string> &options);
 };
 
 } // namespace xacc

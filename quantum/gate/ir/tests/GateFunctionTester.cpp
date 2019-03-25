@@ -107,17 +107,16 @@ TEST(GateFunctionTester, checkEvaluateVariables) {
 
   std::cout << f.toString("qreg") << "\n";
 
-  Eigen::VectorXd v(1);
-  v(0) = 3.1415;
+  std::vector<double> v{3.1415};
 
   auto evaled = f(v);
 
-  EXPECT_TRUE(boost::get<double>(evaled->getInstruction(0)->getParameter(0)) ==
+  EXPECT_TRUE(mpark::get<double>(evaled->getInstruction(0)->getParameter(0)) ==
               3.1415);
 
   std::cout << "ParamSet:\n" << f.toString("qreg") << "\n";
 
-  v(0) = 6.28;
+  v[0] = 6.28;
 
   evaled = f(v);
 
@@ -153,8 +152,8 @@ TEST(GateFunctionTester, checkParameterInsertion) {
   EXPECT_TRUE(f.nInstructions() == 2);
   EXPECT_TRUE(f.nParameters() == 2);
   EXPECT_TRUE(f.toString("qreg") == "Rz(theta) qreg1\nRx(0.5 * psi) qreg3\n");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(1)) == "psi");
 
   // replace unique Instruction parameter with a duplicated parameter
   f.replaceInstruction(1, ry);
@@ -162,7 +161,7 @@ TEST(GateFunctionTester, checkParameterInsertion) {
   EXPECT_TRUE(f.nInstructions() == 2);
   EXPECT_TRUE(f.nParameters() == 1);
   EXPECT_TRUE(f.toString("qreg") == "Rz(theta) qreg1\nRy(1 * theta) qreg2\n");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
   // make sure parameters get removed completely
   f.removeInstruction(0);
   EXPECT_TRUE(f.nParameters() == 1);
@@ -185,8 +184,8 @@ TEST(GateFunctionTester, checkParameterInsertion) {
   EXPECT_TRUE(f.nParameters() == 2);
   EXPECT_TRUE(f.nInstructions() == 2);
   EXPECT_TRUE(f.toString("qreg") == "Rx(0.5 * psi) qreg3\nRz(theta) qreg1\n");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(1)) == "psi");
 
   // replace a parameterized Instruction with one that does not have a parameter
   f.replaceInstruction(0, x);
@@ -194,7 +193,7 @@ TEST(GateFunctionTester, checkParameterInsertion) {
   EXPECT_TRUE(f.nParameters() == 1);
   EXPECT_TRUE(f.nInstructions() == 2);
   EXPECT_TRUE(f.toString("qreg") == "X qreg2\nRz(theta) qreg1\n");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
 
   f.replaceInstruction(0, rx);
 
@@ -204,8 +203,8 @@ TEST(GateFunctionTester, checkParameterInsertion) {
   EXPECT_TRUE(f.nInstructions() == 3);
   EXPECT_TRUE(f.toString("qreg") ==
               "Rx(0.5 * psi) qreg3\nRz(theta) qreg1\nRy(1 * theta) qreg2\n");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(1)) == "psi");
 
   auto rx2 = std::make_shared<Rx>(std::vector<int>{4});
   xacc::InstructionParameter p5("1 * phi");
@@ -215,9 +214,9 @@ TEST(GateFunctionTester, checkParameterInsertion) {
 
   EXPECT_TRUE(f.nParameters() == 3);
   EXPECT_TRUE(f.nInstructions() == 3);
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(0)) == "theta");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(1)) == "psi");
-  EXPECT_TRUE(boost::get<std::string>(f.getParameter(2)) == "phi");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(0)) == "theta");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(1)) == "psi");
+  EXPECT_TRUE(mpark::get<std::string>(f.getParameter(2)) == "phi");
 
   EXPECT_TRUE(f.toString("qreg") ==
               "Rx(0.5 * psi) qreg3\nRx(1 * phi) qreg4\nRy(1 * theta) qreg2\n");
@@ -244,13 +243,13 @@ TEST(GateFunctionTester, checkGenerateGraph) {
 
   std::string expected = R"expected(digraph G {
 node [shape=box style=filled]
-0 [label="gate=InitialState;id=0;bits=[0, 1, 2]"];
+0 [label="gate=InitialState;id=0;bits=[0,1,2]"];
 1 [label="gate=H;id=1;bits=[1]"];
-2 [label="gate=CNOT;id=2;bits=[1, 2]"];
-3 [label="gate=CNOT;id=3;bits=[0, 1]"];
+2 [label="gate=CNOT;id=2;bits=[1,2]"];
+3 [label="gate=CNOT;id=3;bits=[0,1]"];
 4 [label="gate=H;id=4;bits=[0]"];
 5 [label="gate=Rz;id=5;bits=[2]"];
-6 [label="gate=FinalState;id=6;bits=[0, 1, 2]"];
+6 [label="gate=FinalState;id=6;bits=[0,1,2]"];
 0->1 ;
 0->2 ;
 0->3 ;
@@ -261,7 +260,8 @@ node [shape=box style=filled]
 3->6 ;
 4->6 ;
 5->6 ;
-})expected";
+}
+)expected";
 
   std::cout << ss.str() << "\n\n" << expected << "\n";
   EXPECT_TRUE(expected == ss.str());

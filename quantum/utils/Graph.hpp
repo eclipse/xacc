@@ -13,22 +13,24 @@
 #ifndef XACC_UTILS_IGRAPH_HPP_
 #define XACC_UTILS_IGRAPH_HPP_
 
-#include <boost/graph/adjacency_list.hpp>
 #include <type_traits>
+
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/floyd_warshall_shortest.hpp>
 #include <boost/graph/eccentricity.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/graph/dag_shortest_paths.hpp>
-#include <boost/fusion/include/for_each.hpp>
-#include <numeric>
-#include "Utils.hpp"
-#include <utility>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/property_map.hpp>
+
+#include <numeric>
+#include "Utils.hpp"
+#include <utility>
+#include <regex>
+
 
 using namespace boost;
 
@@ -129,14 +131,15 @@ protected:
       auto node = vertex(v, graph);
       std::stringstream ss;
       ss << graph[node].properties;
-     
+
       // Now we have a string of comma separated parameters
       std::string result;
       auto vertexString = ss.str();
-      boost::trim(vertexString);
-      std::vector<std::string> splitVec;
-      boost::split(splitVec, vertexString, boost::is_any_of(";"));
-      
+      xacc::trim(vertexString);
+      vertexString = std::regex_replace(vertexString, std::regex(";"), " ") ;
+
+      std::vector<std::string> splitVec = xacc::split(vertexString, ' ');
+
       int counter = 0;
       for (std::size_t i = 0; i < splitVec.size(); i++) {
         if (!graph[node].propertyNames[counter].empty()) {
@@ -429,31 +432,39 @@ public:
     str = str.insert(type == Undirected ? 9 : 11,
                      "\nnode [shape=box style=filled]");
 
-    std::vector<std::string> splitVec;
-    boost::split(splitVec, str, boost::is_any_of("\n"));
+    std::vector<std::string> splitVec = xacc::split(str, '\n');
     splitVec.insert(splitVec.begin() + 2 + order(), "}\n");
 
     for (auto s : splitVec) {
-      if (boost::contains(s, "--")) {
+      if (s.find("--") != std::string::npos) {
         // THis is an edge
-        std::vector<std::string> splitEdge;
-        boost::split(splitEdge, s, boost::is_any_of("--"));
+        // std::cout << "S: " << s << "\n";
+        s = std::regex_replace(s, std::regex("--"), ";");
+                // std::cout << "Safter: " << s << "\n";
+
+        std::vector<std::string> splitEdge = xacc::split(s , ';');
+        // for (auto& i : splitEdge) {std::cout << "splitedge; " << i << "\n";}
         auto e1Str = splitEdge[0];
-        auto e2Str = splitEdge[2].substr(0, splitEdge[2].size() - 2);
-        auto e1Idx = std::stod(e1Str);
-        auto e2Idx = std::stod(e2Str);
-        auto news = e1Str + "--" + e2Str + " [label=\"weight=" +
-                    std::to_string(getEdgeWeight(e1Idx, e2Idx)) + "\"];";
-        boost::replace_all(str, s, news);
+        auto e2Str = splitEdge[1];//.substr(0, splitEdge[2].size() - 2);
+        auto e1Idx = std::stoi(e1Str);
+        auto e2Idx = std::stoi(e2Str);
+        auto news = e1Str + "--" + e2Str + "[label=\"weight=" +
+                    std::to_string(getEdgeWeight(e1Idx, e2Idx)) + "\"]";
+        s = std::regex_replace(s, std::regex(";"), "--");
+        s = s.substr(0,s.length()-3) + " ";
+        // std::cout << "snow : " << s << "\n";
+        str = std::regex_replace(str, std::regex(s), news);//boost::replace_all(str, s, news);
+        // std::cout << "STRING: " << str << "\n";
       }
     }
 
-    splitVec.clear();
-    boost::split(splitVec, str, boost::is_any_of("\n"));
-    std::stringstream combine;
-    std::for_each(splitVec.begin(), splitVec.end(),
-                  [&](const std::string &elem) { combine << elem << "\n"; });
-    stream << combine.str().substr(0, combine.str().size() - 2);
+    stream << str;
+    // splitVec.clear();
+    // splitVec = xacc::split<Delimiter<'\n'>>(str);
+    // std::stringstream combine;
+    // std::for_each(splitVec.begin(), splitVec.end(),
+    //               [&](const std::string &elem) { combine << elem << "\n"; });
+    // stream << combine.str().substr(0, combine.str().size() - 2);
   }
 
   /**
@@ -525,6 +536,8 @@ public:
     return -1 * (*std::min_element(d.begin(), d.end())) - 1;
   }
 };
+
+using AcceleratorGraph = Graph<XACCVertex<>>;
 
 } // namespace xacc
 

@@ -15,15 +15,13 @@
 
 #include <iostream>
 #include <memory>
-#include "Utils.hpp"
-#include "Compiler.hpp"
-#include "Accelerator.hpp"
-#include "CLIParser.hpp"
 #include "Program.hpp"
-#include "Preprocessor.hpp"
 #include "ServiceRegistry.hpp"
 
 namespace xacc {
+
+// class ServiceRegistry;
+class CLIParser;
 
 // Boolean indicating that framework has been initialized
 extern bool xaccFrameworkInitialized;
@@ -43,7 +41,7 @@ extern char **argv;
  * XACC API.
  */
 void Initialize(int argc, char **argv);
-
+void PyInitialize(const std::string rootPath);
 /**
  * Return command line argc integer.
  *
@@ -103,7 +101,7 @@ void addCommandLineOptions(const std::string &category,
  *
  * @param options The command line options
  */
-void addCommandLineOptions(std::shared_ptr<options_description> options);
+void addCommandLineOptions(const std::map<std::string, std::string> &options);
 
 /**
  * Provide a predicate function that determines
@@ -258,7 +256,7 @@ void appendCache(const std::string fileName,
                  std::map<std::string, InstructionParameter> &params);
 const std::string getRootDirectory();
 
-template <typename Service>
+template <class Service>
 std::shared_ptr<Service> getService(const std::string &serviceName) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
@@ -279,10 +277,12 @@ template <typename Service> bool hasService(const std::string &serviceName) {
   }
   return serviceRegistry->hasService<Service>(serviceName);
 }
+
 template <typename ServiceInterface>
 std::vector<std::string> getRegisteredIds() {
   return serviceRegistry->getRegisteredIds<ServiceInterface>();
 }
+
 template <typename ServiceInterface>
 std::vector<std::shared_ptr<ServiceInterface>> getServices() {
   return serviceRegistry->getServices<ServiceInterface>();

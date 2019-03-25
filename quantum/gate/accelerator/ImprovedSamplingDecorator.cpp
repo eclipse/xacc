@@ -1,6 +1,7 @@
 #include "ImprovedSamplingDecorator.hpp"
 #include "InstructionIterator.hpp"
 #include "XACC.hpp"
+#include <numeric>
 
 namespace xacc {
 namespace quantum {

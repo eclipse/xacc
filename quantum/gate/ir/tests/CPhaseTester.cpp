@@ -18,7 +18,7 @@ using namespace xacc::quantum;
 TEST(CPhaseTester, checkCreation) {
 
   CPhase cp(0, 1, 3.14);
-  EXPECT_TRUE(boost::get<double>(cp.getParameter(0)) == 3.14);
+  EXPECT_TRUE(mpark::get<double>(cp.getParameter(0)) == 3.14);
   EXPECT_TRUE(cp.toString("qreg") == "CPhase(3.14) qreg0,qreg1");
   EXPECT_TRUE(cp.bits().size() == 2);
   EXPECT_TRUE(cp.bits()[0] == 0);
@@ -27,7 +27,7 @@ TEST(CPhaseTester, checkCreation) {
 
   CPhase cp2(44, 45, 1.71234);
 
-  EXPECT_TRUE(boost::get<double>(cp2.getParameter(0)) == 1.71234);
+  EXPECT_TRUE(mpark::get<double>(cp2.getParameter(0)) == 1.71234);
   EXPECT_TRUE(cp2.toString("qreg") == "CPhase(1.71234) qreg44,qreg45");
   EXPECT_TRUE(cp2.bits().size() == 2);
   EXPECT_TRUE(cp2.bits()[0] == 44);

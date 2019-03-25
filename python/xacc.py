@@ -107,6 +107,7 @@ def initialize():
     file.write(contents)
     file.close()
     setIsPyApi()
+    PyInitialize(xaccLocation)
 
 
 def setCredentials(opts):
@@ -163,9 +164,9 @@ class DecoratorFunction(ABC):
         self.__dict__.update(kwargs)
         self.accelerator = None
         self.src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
-        
-        self.processVariables()    
-        
+
+        self.processVariables()
+
         compiler = getCompiler('xacc-py')
         if self.accelerator == None:
             if 'accelerator' in self.kwargs:
@@ -182,17 +183,17 @@ class DecoratorFunction(ABC):
         else:
             print('Setting accelerator: ', self.accelerator.name())
             self.qpu = self.accelerator
-        
+
         ir = compiler.compile(self.src, self.qpu)
         program = Program(self.qpu, ir)
         self.compiledKernel = program.getKernels()[0]
 
     def overrideAccelerator(self, acc):
         self.accelerator = acc
-    
+
     def processVariables(self):
         g = re.findall('=(\w+)', self.src)
-        frame = inspect.currentframe()      
+        frame = inspect.currentframe()
         for thing in g:
             if thing in frame.f_back.f_locals['f'].__globals__:
                 if isinstance(frame.f_back.f_locals['f'].__globals__[thing], str):
@@ -200,8 +201,8 @@ class DecoratorFunction(ABC):
                 else:
                     real = str(frame.f_back.f_locals['f'].__globals__[thing])
                 self.src = self.src.replace('='+thing, '='+real)
-        del frame  
-        
+        del frame
+
     def nParameters(self):
         return self.getFunction().nParameters()
 

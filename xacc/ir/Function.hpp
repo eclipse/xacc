@@ -12,10 +12,10 @@
  *******************************************************************************/
 #ifndef XACC_IR_FUNCTION_HPP_
 #define XACC_IR_FUNCTION_HPP_
+
 #include <list>
 
 #include "Instruction.hpp"
-#include <Eigen/Dense>
 
 namespace xacc {
 
@@ -23,7 +23,7 @@ using InstPtr = std::shared_ptr<Instruction>;
 
 /**
  * The Function is an Instruction that contains further
- * child Instructions. Functions, like Instructions, can be 
+ * child Instructions. Functions, like Instructions, can be
  * parameterized. These parameters represent Function arguments.
  *
  * @author Alex McCaskey
@@ -92,7 +92,7 @@ public:
   virtual void addParameter(InstructionParameter instParam) = 0;
 
   /**
-   * Return the depth of this Function, applicable 
+   * Return the depth of this Function, applicable
    * for Functions that represent quantum circuits.
    *
    * @return depth The depth of the list of instructions.
@@ -122,14 +122,14 @@ public:
   virtual const int nLogicalBits() = 0;
 
   /**
-   * Return the number of physical qubits. 
-   * 
+   * Return the number of physical qubits.
+   *
    * @return nPhysical The number of physical qubits.
    */
   virtual const int nPhysicalBits() = 0;
 
   /**
-   * Return a view of this Function that only 
+   * Return a view of this Function that only
    * contains enabled instructions.
    *
    * @return enabledFunction The Function of all enabled instructions.
@@ -137,13 +137,13 @@ public:
   virtual std::shared_ptr<Function> enabledView() = 0;
 
   /**
-   * Evaluate this parameterized function at the 
+   * Evaluate this parameterized function at the
    * given concrete parameters.
    *
    * @param params A vector of parameters
    */
   virtual std::shared_ptr<Function>
-  operator()(const Eigen::VectorXd &params) = 0;
+  operator()(const std::vector<double> &params) = 0;
 
   /**
    * The destructor

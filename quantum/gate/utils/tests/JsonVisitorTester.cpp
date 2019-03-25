@@ -14,10 +14,14 @@
 #include "GateFunction.hpp"
 #include "JsonVisitor.hpp"
 #include "Rz.hpp"
+#define RAPIDJSON_HAS_STDSTRING 1
 
+#include "rapidjson/prettywriter.h"
 using namespace rapidjson;
 
 using namespace xacc::quantum;
+
+using JsonVisitorT = JsonVisitor<PrettyWriter<StringBuffer>,StringBuffer>;
 
 TEST(JsonVisitorTester, checkSimpleSerialization) {
   auto f = std::make_shared<GateFunction>("foo");
@@ -36,7 +40,7 @@ TEST(JsonVisitorTester, checkSimpleSerialization) {
   f->addInstruction(rz);
   f->addInstruction(cond1);
 
-  JsonVisitor visitor(f);
+  JsonVisitorT visitor(f);
 
   auto json = visitor.write();
 
@@ -71,7 +75,7 @@ TEST(JsonVisitorTester, checkTeleportSerialization) {
   f->addInstruction(cond1);
   f->addInstruction(cond2);
 
-  JsonVisitor visitor(f);
+  JsonVisitorT visitor(f);
 
   auto json = visitor.write();
 
@@ -97,7 +101,7 @@ TEST(JsonVisitorTester, checkFunctionWithFunction) {
   f->addInstruction(x);
   f->addInstruction(h);
 
-  JsonVisitor visitor(f);
+  JsonVisitorT visitor(f);
 
   auto json = visitor.write();
 

@@ -41,21 +41,21 @@ struct type_caster<Variant<Ts...>> : variant_caster<Variant<Ts...>> {};
 // of `visit`
 template <> struct visit_helper<Variant> {
   template <typename... Args>
-  static auto call(Args &&... args) -> decltype(boost::apply_visitor(args...)) {
-    return boost::apply_visitor(args...);
+  static auto call(Args &&... args) -> decltype(mpark::visit(args...)) {
+    return mpark::visit(args...);
   }
 };
 
 template <typename... Ts>
-struct type_caster<boost::variant<Ts...>>
-    : variant_caster<boost::variant<Ts...>> {};
+struct type_caster<mpark::variant<Ts...>>
+    : variant_caster<mpark::variant<Ts...>> {};
 
 // Specifies the function used to visit the variant -- `apply_visitor` instead
 // of `visit`
-template <> struct visit_helper<boost::variant> {
+template <> struct visit_helper<mpark::variant> {
   template <typename... Args>
-  static auto call(Args &&... args) -> decltype(boost::apply_visitor(args...)) {
-    return boost::apply_visitor(args...);
+  static auto call(Args &&... args) -> decltype(mpark::visit(args...)) {
+    return mpark::visit(args...);
   }
 };
 } // namespace detail
@@ -340,8 +340,8 @@ PYBIND11_MODULE(_pyxacc, m) {
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
                xacc::AcceleratorBuffer::appendMeasurement,
            "Append the measurement string")
-      .def("getMeasurementStrings",
-           &xacc::AcceleratorBuffer::getMeasurementStrings,
+      .def("getMeasurements",
+           &xacc::AcceleratorBuffer::getMeasurements,
            "Return observed measurement bit strings")
       .def("computeMeasurementProbability",
            &xacc::AcceleratorBuffer::computeMeasurementProbability,
@@ -445,6 +445,8 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("Initialize", (void (*)()) & xacc::Initialize,
         "Initialize the framework. Use this if there are no command line "
         "arguments to pass.");
+  m.def("PyInitialize", &xacc::PyInitialize,
+        "Initialize the framework from Python.");
   // m.def("help", )
   m.def("getAccelerator",
         (std::shared_ptr<xacc::Accelerator>(*)(const std::string &)) &
@@ -472,18 +474,9 @@ PYBIND11_MODULE(_pyxacc, m) {
         py::return_value_policy::reference,
         "Return the IRGenerator of given name.");
   m.def("getConnectivity",
-        [](const std::string acc) -> std::vector<std::vector<int>> {
+        [](const std::string acc) -> std::vector<std::pair<int,int>> {
           auto a = xacc::getAccelerator(acc);
-          auto connectivity = a->getAcceleratorConnectivity();
-          std::vector<std::vector<int>> edges;
-          for (int i = 0; i < connectivity->order(); ++i) {
-            for (int j = i; j < connectivity->order(); ++j) {
-              if (connectivity->edgeExists(i, j)) {
-                edges.push_back({i, j});
-              }
-            }
-          }
-          return edges;
+          return a->getAcceleratorConnectivity();
         });
   m.def("translate", &xacc::translate,
         "Translate the provided IR Function to the given language.");
@@ -647,7 +640,19 @@ PYBIND11_MODULE(_pyxacc, m) {
       [](std::shared_ptr<Function> f, std::shared_ptr<Accelerator> acc,
          const std::string algo) -> std::map<int, std::vector<int>> {
         auto a = xacc::getService<xacc::quantum::EmbeddingAlgorithm>(algo);
-        auto hardware = acc->getAcceleratorConnectivity();
+        auto hardwareconnections = acc->getAcceleratorConnectivity();
+        std::set<int> nUniqueBits;
+        for (auto& edge : hardwareconnections) {
+            nUniqueBits.insert(edge.first);
+            nUniqueBits.insert(edge.second);
+        }
+
+        int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
+
+        auto hardware = std::make_shared<AcceleratorGraph>(nBits);
+        for (auto& edge : hardwareconnections) {
+            hardware->addEdge(edge.first, edge.second);
+        }
 
         int maxBitIdx = 0;
         for (auto inst : f->getInstructions()) {

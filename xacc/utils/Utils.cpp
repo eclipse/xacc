@@ -12,6 +12,11 @@
  *******************************************************************************/
 #include "Utils.hpp"
 #include <unistd.h>
+#include "spdlog/spdlog.h"
+#include "RuntimeOptions.hpp"
+#include <iostream>
+#include <sstream>
+#include <istream>
 
 namespace xacc {
 
@@ -70,14 +75,36 @@ std::string base64_decode(std::string const &encoded_string) {
   return ret;
 }
 
+void ltrim(std::string &s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+                                  [](int ch) { return !std::isspace(ch); }));
+}
+
+// trim from end (in place)
+void rtrim(std::string &s) {
+  s.erase(std::find_if(s.rbegin(), s.rend(),
+                       [](int ch) { return !std::isspace(ch); })
+              .base(),
+          s.end());
+}
+
+// trim from both ends (in place)
+void trim(std::string &s) {
+  ltrim(s);
+  rtrim(s);
+}
 XACCLogger::XACCLogger()
     : useColor(!RuntimeOptions::instance()->exists("no-color")),
       useCout(RuntimeOptions::instance()->exists("use-cout")) {
-  auto _log = spdlog::get("xacc-logger");
+  std::string loggerName = "xacc-logger";
+  if (RuntimeOptions::instance()->exists("logger-name")) {
+    loggerName = (*RuntimeOptions::instance())["logger-name"];
+  }
+  auto _log = spdlog::get(loggerName);
   if (_log) {
     logger = _log;
   } else {
-    logger = spdlog::stdout_logger_mt("xacc-logger");
+    logger = spdlog::stdout_logger_mt(loggerName);
   }
 
   logger->set_level(spdlog::level::info);

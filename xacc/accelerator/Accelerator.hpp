@@ -16,19 +16,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <array>
-#include <bitset>
 #include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
 #include "Function.hpp"
 #include "OptionsProvider.hpp"
-#include "Graph.hpp"
 #include "Identifiable.hpp"
 #include "Utils.hpp"
 
 namespace xacc {
-
-using AcceleratorGraph = Graph<XACCVertex<>>;
 
 /**
  * The Accelerator class provides a high-level abstraction
@@ -181,16 +176,16 @@ public:
    *
    * @return connectivityGraph The graph structure of this Accelerator
    */
-  virtual std::shared_ptr<AcceleratorGraph> getAcceleratorConnectivity() {
-    return std::make_shared<AcceleratorGraph>();
+  virtual std::vector<std::pair<int,int>> getAcceleratorConnectivity() {
+      return std::vector<std::pair<int,int>>{};
   }
 
   /**
    * Return an empty options_description, this is for
    * subclasses to implement.
    */
-  virtual std::shared_ptr<options_description> getOptions() {
-    return std::make_shared<options_description>();
+  virtual OptionPairs getOptions() {
+    return OptionPairs{};
   }
 
   /**
@@ -227,7 +222,7 @@ public:
    * @param map The mapping of options to values
    * @return exit True if exit, false otherwise
    */
-  virtual bool handleOptions(variables_map &map) { return false; }
+  virtual bool handleOptions(const std::map<std::string,std::string> &arg_map) { return false; }
 
   /**
    * Return true if this Accelerator is a remotely hosted resource.

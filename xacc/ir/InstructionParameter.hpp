@@ -15,23 +15,18 @@
 #include <vector>
 #include <string>
 #include <complex>
+#include <map>
 
-#include <boost/variant.hpp>
-#include <boost/lexical_cast.hpp>
+#include "variant.hpp"
 
 #include "Utils.hpp"
 
 namespace xacc {
 
-// using VariantType =
-//     boost::variant<int, double, std::string, std::complex<double>,
-//                    std::vector<std::pair<int, int>>,
-//                    std::vector<std::pair<double, double>>>;
-
-template <typename... Types> class Variant : public boost::variant<Types...> {
+template <typename... Types> class Variant : public mpark::variant<Types...> {
 
 private:
-  class ToStringVisitor : public boost::static_visitor<std::string> {
+  class ToStringVisitor {
   public:
     template <typename T> std::string operator()(const T &t) const {
       std::stringstream ss;
@@ -39,32 +34,32 @@ private:
       return ss.str();
     }
   };
-  class IsArithmeticVisitor : public boost::static_visitor<bool> {
+  class IsArithmeticVisitor {
   public:
     template <typename T> bool operator()(const T &t) const {
       return std::is_arithmetic<T>::value;
     }
   };
 
-  std::map<int, std::string> whichType{{0,"int"}, {1,"double"}, 
-                                        {2,"string"}, {3,"complex"}, 
-                                        {4,"vector<pair<int>>"}, 
-                                        {5,"vector<pair<double>>"}, 
+  std::map<int, std::string> whichType{{0,"int"}, {1,"double"},
+                                        {2,"string"}, {3,"complex"},
+                                        {4,"vector<pair<int>>"},
+                                        {5,"vector<pair<double>>"},
                                         {6,"vector<int>"},
                                         {7,"vector<double>"},
                                         {8,"vector<string>"}};
 public:
-  Variant() : boost::variant<Types...>() {}
+  Variant() : mpark::variant<Types...>() {}
   template <typename T>
-  Variant(T &element) : boost::variant<Types...>(element) {}
+  Variant(T &element) : mpark::variant<Types...>(element) {}
   template <typename T>
-  Variant(T &&element) : boost::variant<Types...>(element) {}
-  Variant(const Variant &element) : boost::variant<Types...>(element) {}
+  Variant(T &&element) : mpark::variant<Types...>(element) {}
+  Variant(const Variant &element) : mpark::variant<Types...>(element) {}
 
   template <typename T> T as() const {
     try {
       // First off just try to get it
-      return boost::get<T>(*this);
+      return mpark::get<T>(*this);
     } catch (std::exception &e) {
         std::stringstream s;
         s << "This InstructionParameter type id is " << this->which() << "\nAllowed Ids to Type\n";
@@ -75,15 +70,17 @@ public:
     }
     return T();
   }
-
+  int which() const {
+      return this->index();
+  }
   bool isNumeric() const {
     IsArithmeticVisitor v;
-    return boost::apply_visitor(v, *this);
+    return mpark::visit(v, *this);
   }
 
   bool isVariable() const {
     try {
-      boost::get<std::string>(*this);
+      mpark::get<std::string>(*this);
     } catch (std::exception &e) {
       return false;
     }
@@ -92,7 +89,7 @@ public:
 
   const std::string toString() const {
     ToStringVisitor vis;
-    return boost::apply_visitor(vis, *this);
+    return mpark::visit(vis, *this);
   }
 
   bool operator==(const Variant<Types...> &v) const {

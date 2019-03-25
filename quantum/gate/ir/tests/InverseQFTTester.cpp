@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include "InverseQFT.hpp"
-#include "JsonVisitor.hpp"
+// #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
 #include "XACC.hpp"
 
@@ -30,8 +30,8 @@ TEST(InverseQFTTester, checkCreation) {
   auto ir = std::make_shared<GateIR>();
   ir->addKernel(iqftKernel);
 
-  JsonVisitor v(iqftKernel);
-  std::cout << v.write() << "\n";
+//   JsonVisitor v(iqftKernel);
+//   std::cout << v.write() << "\n";
 
   xacc::Finalize();
   //	auto h1 = std::make_shared<Hadamard>(2);
