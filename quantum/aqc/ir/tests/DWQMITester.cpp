@@ -21,21 +21,21 @@ TEST(DWQMITester, checkDWQMIConstruction) {
 
   EXPECT_TRUE(qmi.bits()[0] == 0);
   EXPECT_TRUE(qmi.bits()[1] == 1);
-  EXPECT_TRUE(boost::get<double>(qmi.getParameter(0)) == 2.2);
+  EXPECT_TRUE(mpark::get<double>(qmi.getParameter(0)) == 2.2);
   EXPECT_TRUE(qmi.toString("") == "0 1 2.2");
 
   DWQMI qmi2(0);
 
   EXPECT_TRUE(qmi2.bits()[0] == 0);
   EXPECT_TRUE(qmi2.bits()[1] == 0);
-  EXPECT_TRUE(boost::get<double>(qmi2.getParameter(0)) == 0.0);
+  EXPECT_TRUE(mpark::get<double>(qmi2.getParameter(0)) == 0.0);
   EXPECT_TRUE(qmi2.toString("") == "0 0 0");
 
   DWQMI qmi3(22, 3.3);
 
   EXPECT_TRUE(qmi3.bits()[0] == 22);
   EXPECT_TRUE(qmi3.bits()[1] == 22);
-  EXPECT_TRUE(boost::get<double>(qmi3.getParameter(0)) == 3.3);
+  EXPECT_TRUE(mpark::get<double>(qmi3.getParameter(0)) == 3.3);
   EXPECT_TRUE(qmi3.toString("") == "22 22 3.3");
 }
 int main(int argc, char **argv) {

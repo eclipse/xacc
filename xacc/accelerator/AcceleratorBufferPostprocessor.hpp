@@ -52,8 +52,8 @@ public:
    * describes the options available for this
    * derived subclass.
    */
-  virtual std::shared_ptr<options_description> getOptions() {
-    return std::make_shared<options_description>();
+  virtual OptionPairs getOptions() {
+    return OptionPairs{};
   }
 
   /**
@@ -64,7 +64,7 @@ public:
    * @param map The mapping of options to values
    * @return exit True if exit, false otherwise
    */
-  virtual bool handleOptions(variables_map &map) { return false; }
+  virtual bool handleOptions(const std::map<std::string,std::string> &arg_map) { return false; }
 };
 
 } // namespace xacc

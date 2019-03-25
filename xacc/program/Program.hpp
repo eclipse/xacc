@@ -13,20 +13,9 @@
 #ifndef XACC_PROGRAM_HPP_
 #define XACC_PROGRAM_HPP_
 
-#include <string>
-#include <vector>
-#include <fstream>
-#include <memory>
-#include <queue>
-#include <boost/algorithm/string.hpp>
-#include <algorithm>
-
-#include "Utils.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
-#include "RuntimeOptions.hpp"
 #include "Preprocessor.hpp"
-#include "ServiceRegistry.hpp"
 #include "Kernel.hpp"
 #include "IRPreprocessor.hpp"
 #include "AcceleratorBufferPostprocessor.hpp"

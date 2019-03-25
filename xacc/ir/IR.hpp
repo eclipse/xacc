@@ -12,8 +12,7 @@
  *******************************************************************************/
 #ifndef XACC_COMPILER_IR_HPP_
 #define XACC_COMPILER_IR_HPP_
-#include <iostream>
-#include "AcceleratorBuffer.hpp"
+
 #include "Function.hpp"
 
 namespace xacc {
@@ -23,9 +22,7 @@ namespace xacc {
  * derived accelerator-specific intermediate representations.
  * At this level, an intermediate representation can be
  * persisted to an assembly-like string, can be read in from
- * file, and can be persisted to file. Since all XACC
- * intermediate representations operate on an Accelerator Buffer,
- * the IR interface also provides a setter for such a buffer.
+ * file, and can be persisted to file.
  *
  */
 class IR {

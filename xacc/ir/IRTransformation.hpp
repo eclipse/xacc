@@ -36,6 +36,8 @@ public:
    */
   virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) = 0;
 
+  virtual bool hardwareDependent() { return false; }
+  
   /**
    * The destructor
    */

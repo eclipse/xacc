@@ -69,7 +69,7 @@ TEST(DWFunctionTester, checkVariableParameterEval) {
 
   std::cout << kernel.nParameters() << std::endl;
   for (auto param : kernel.getParameters()) {
-      std::cout << boost::get<std::string>(param) << std::endl;
+      std::cout << mpark::get<std::string>(param) << std::endl;
   }
   EXPECT_TRUE(kernel.nParameters() == 2);
   EXPECT_TRUE(kernel.nInstructions() == 3);
@@ -80,9 +80,7 @@ TEST(DWFunctionTester, checkVariableParameterEval) {
 
   const std::string expected = "0 1 param1;\n2 3 param1;\n3 4 param2;\n";
   EXPECT_TRUE(kernel.toString("") == expected);
-  Eigen::VectorXd pars(2);
-  pars(0) = 3.4;
-  pars(1) = 4.5;
+  std::vector<double> pars {3.4, 4.5};
 
   auto evaled = kernel(pars);
 

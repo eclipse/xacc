@@ -1,2 +1,10 @@
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/utils)
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/compiler)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+
 add_xacc_test(CircuitOptimizer)
 target_link_libraries(CircuitOptimizerTester xacc-quantum-gate)

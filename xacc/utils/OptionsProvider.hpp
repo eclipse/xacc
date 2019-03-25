@@ -13,12 +13,14 @@
 #ifndef XACC_UTILS_OPTIONSPROVIDER_HPP_
 #define XACC_UTILS_OPTIONSPROVIDER_HPP_
 
+#include <map>
+#include <vector>
 #include <memory>
-#include <boost/program_options.hpp>
-
-using namespace boost::program_options;
 
 namespace xacc {
+
+// Option name to description.
+using OptionPairs = std::map<std::string, std::string>;
 
 /**
  * The OptionsProvider interface enables derived subclasses
@@ -26,7 +28,7 @@ namespace xacc {
  * that they can take to drive and control their execution and
  * behavior.
  */
-class __attribute__((visibility("default"))) OptionsProvider {
+class OptionsProvider {
 
 public:
   /**
@@ -34,7 +36,7 @@ public:
    * describes the options available for this
    * derived subclass.
    */
-  virtual std::shared_ptr<options_description> getOptions() = 0;
+  virtual OptionPairs getOptions() {return OptionPairs{};}
 
   /**
    * Given user-input command line options, perform
@@ -44,7 +46,8 @@ public:
    * @param map The mapping of options to values
    * @return exit True if exit, false otherwise
    */
-  virtual bool handleOptions(variables_map &map) = 0;
+  virtual bool
+  handleOptions(const std::map<std::string, std::string> &arg_map) {return false;}
 
   /**
    * The destructor

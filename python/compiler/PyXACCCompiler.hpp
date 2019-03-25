@@ -68,19 +68,6 @@ public:
   virtual std::shared_ptr<xacc::IR> compile(const std::string &src);
 
   /**
-   * Return the command line options for this compiler
-   *
-   * @return options Description of command line options.
-   */
-  virtual std::shared_ptr<options_description> getOptions() {
-    auto desc =
-        std::make_shared<options_description>("PyXACC Compiler Options");
-    return desc;
-  }
-
-  virtual bool handleOptions(variables_map &map) { return false; }
-
-  /**
    * We don't allow translations for the PyXACC Compiler.
    * @param bufferVariable
    * @param function

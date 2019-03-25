@@ -13,7 +13,6 @@
 #include <gtest/gtest.h>
 #include "QubitMapIRPreprocessor.hpp"
 #include "GateIR.hpp"
-#include <boost/math/constants/constants.hpp>
 #include "XACC.hpp"
 #include "GateIRProvider.hpp"
 
@@ -27,7 +26,7 @@ std::shared_ptr<IR> createXACCIR(std::unordered_map<std::string, Term> terms) {
   // Create a new GateIR to hold the spin based terms
   auto newIr = std::make_shared<xacc::quantum::GateIR>();
   int counter = 0;
-  auto pi = boost::math::constants::pi<double>();
+  auto pi = 3.141592653589793238;
 
   GateIRProvider gateRegistry;
 

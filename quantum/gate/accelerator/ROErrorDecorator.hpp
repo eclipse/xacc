@@ -32,9 +32,8 @@ public:
   const std::string name() const override { return "ro-error"; }
   const std::string description() const override { return ""; }
 
-  std::shared_ptr<options_description> getOptions() override {
-    auto desc = std::make_shared<options_description>();
-    desc->add_options()("ro-error-p10s", value<std::string>(), "");
+  OptionPairs getOptions() override {
+    OptionPairs desc{{"ro-error-p10s", ""}};
     return desc;
   }
   ~ROErrorDecorator() override {}

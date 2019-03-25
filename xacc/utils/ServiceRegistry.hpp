@@ -21,7 +21,6 @@
 #include "Cloneable.hpp"
 
 #include "xacc_config.hpp"
-#include <boost/algorithm/string.hpp>
 
 #include <cppmicroservices/FrameworkFactory.h>
 #include <cppmicroservices/Framework.h>
@@ -30,11 +29,8 @@
 #include <cppmicroservices/BundleImport.h>
 
 #include <map>
-#include <iostream>
-#include <boost/program_options.hpp>
 #include <dirent.h>
 
-using namespace boost::program_options;
 using namespace cppmicroservices;
 
 namespace xacc {
@@ -58,19 +54,16 @@ protected:
    */
   BundleContext context;
 
-  std::map<std::string, std::string> installed;
-
   bool initialized = false;
 
   std::string rootPathStr = "";
 
 public:
   ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
-  const std::string getRootPathString() {return rootPathStr;}
-  
-  void initialize(const std::string internalPath = "");
+  const std::string getRootPathString() { return rootPathStr; }
 
-  template <typename ServiceInterface> bool hasService(const std::string name) {
+  void initialize(const std::string rootPath);
+template <typename ServiceInterface> bool hasService(const std::string name) {
     auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
     for (auto s : allServiceRefs) {
       auto service = context.GetService(s);
@@ -123,11 +116,6 @@ public:
     return services;
   }
 
-  /**
-   * Return the keys from the registry map.
-   *
-   * @return ids The registered creator Ids
-   */
   template <typename ServiceInterface>
   std::vector<std::string> getRegisteredIds() {
     std::vector<std::string> ids;
@@ -143,8 +131,8 @@ public:
     return ids;
   }
 
-  std::vector<std::shared_ptr<options_description>> getRegisteredOptions() {
-    std::vector<std::shared_ptr<options_description>> values;
+  std::vector<OptionPairs> getRegisteredOptions() {
+    std::vector<OptionPairs> values;
     // Get all OptionsProvider services and call getOptions
     auto optionProviders = getServices<xacc::OptionsProvider>();
     for (auto o : optionProviders) {
@@ -153,7 +141,7 @@ public:
     return values;
   }
 
-  bool handleOptions(variables_map &map) {
+  bool handleOptions(const std::map<std::string, std::string> &map) {
     auto returnedTrue = false;
     // Get all OptionProvider services and call handleOptions
     auto optionProviders = getServices<xacc::OptionsProvider>();
@@ -163,12 +151,6 @@ public:
       }
     }
     return returnedTrue;
-  }
-
-  void loadPlugin(const std::string path) {
-    context.InstallBundles(path);
-    auto b = context.GetBundles(path);
-    b[0].Start();
   }
 };
 } // namespace xacc

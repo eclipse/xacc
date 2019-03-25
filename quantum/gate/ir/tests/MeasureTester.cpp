@@ -18,7 +18,7 @@ using namespace xacc::quantum;
 TEST(MeasureTester, checkCreation) {
 
   Measure meas(0, 1);
-  EXPECT_TRUE(boost::get<int>(meas.getParameter(0)) == 1);
+  EXPECT_TRUE(mpark::get<int>(meas.getParameter(0)) == 1);
   EXPECT_TRUE(meas.toString("qreg") == "Measure qreg0");
   EXPECT_TRUE(meas.bits().size() == 1);
   EXPECT_TRUE(meas.bits()[0] == 0);

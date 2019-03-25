@@ -47,11 +47,11 @@ public:
    * Return an empty options_description, this is for
    * subclasses to implement.
    */
-  virtual std::shared_ptr<options_description> getOptions() {
-    return std::make_shared<options_description>();
+  virtual OptionPairs getOptions() {
+    return OptionPairs{};
   }
 
-  virtual bool handleOptions(variables_map &map) { return false; }
+  virtual bool handleOptions(const std::map<std::string,std::string> &arg_map) { return false; }
 
   ~Preprocessor() {}
 };

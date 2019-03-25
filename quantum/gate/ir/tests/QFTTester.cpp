@@ -12,9 +12,12 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include "QFT.hpp"
-#include "JsonVisitor.hpp"
+// #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
 #include "XACC.hpp"
+#include "Hadamard.hpp"
+#include "CPhase.hpp"
+#include "Swap.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -29,8 +32,8 @@ TEST(QFTTester, checkCreation) {
   auto ir = std::make_shared<GateIR>();
   ir->addKernel(qftKernel);
 
-  JsonVisitor v(qftKernel);
-  std::cout << v.write() << "\n";
+//   JsonVisitor v(qftKernel);
+//   std::cout << v.write() << "\n";
 
   auto h1 = std::make_shared<Hadamard>(2);
   auto cphase1 = std::make_shared<CPhase>(1, 2, 1.5707963);

@@ -2,13 +2,13 @@
 # Copyright (c) 2017 UT-Battelle, LLC.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
-# and Eclipse Distribution License v.10 which accompany this distribution. 
-# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html 
-# and the Eclipse Distribution License is available at 
+# and Eclipse Distribution License v.10 which accompany this distribution.
+# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+# and the Eclipse Distribution License is available at
 # https://eclipse.org/org/documents/edl-v10.php
 #
 # Contributors:
-#   Alexander J. McCaskey - initial API and implementation 
+#   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 project(xacc LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
@@ -34,7 +34,7 @@ IF("${isSystemDir}" STREQUAL "-1")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
 if (NOT CMAKE_BUILD_TYPE)
-   set(CMAKE_BUILD_TYPE "Release" CACHE STRING 
+   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
 	   "Choose the type of build, options are: Debug, Release, RelWithDebInfo, MinSizeRel"
 	   FORCE
       )
@@ -70,53 +70,29 @@ endif()
 
 message(STATUS "${BoldGreen}Installing XACC to ${CMAKE_INSTALL_PREFIX}. Override with -DCMAKE_INSTALL_PREFIX=...${ColorReset}")
 
-if (XACC_BUILD_TESTS)
-   enable_testing()
-   macro(add_xacc_test _TEST_NAME)
-       add_executable(${_TEST_NAME}Tester ${_TEST_NAME}Tester.cpp)
-       add_test(NAME xacc_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
-       target_link_libraries(${_TEST_NAME}Tester ${GTEST_LIBRARIES} xacc xacc-quantum-gate xacc-quantum-aqc)
-   endmacro()
-
-   macro(set_cache_variable VAR_NAME VAR_DESCRIPTION)
-       set(${VAR_NAME} ${${VAR_NAME}} CACHE INTERNAL ${VAR_DESCRIPTION})
-       message(STATUS "Set ${VAR_NAME} to ${${VAR_NAME}}.")
-   endmacro()
-
-endif()
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.0.0")
-        set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wimplicit-fallthrough=0")
-endif()
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.0.0")
+#        set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wimplicit-fallthrough=0")
+#endif()
 
 include_directories(${CMAKE_BINARY_DIR}/tpls/cppmicroservices/include)
 add_subdirectory(tpls)
 
-include_directories(${CPR_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
-include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
-
-set(XACC_HAS_ANTLR FALSE)
-if(TARGET antlr4_shared)
-   message (STATUS "XACC Building with Antlr4 support")
-   set(XACC_HAS_ANTLR TRUE)
-endif()
-
 add_subdirectory(xacc)
 add_subdirectory(quantum)
-if(PYTHON_INCLUDE_DIR) 
+if(PYTHON_INCLUDE_DIR)
    add_subdirectory(python)
 endif()
 
 
 # Install the config file for external projects to use
-# This is cool, users just add find_package(XACC REQUIRED) to 
+# This is cool, users just add find_package(XACC REQUIRED) to
 # their CMake builds, and pass -DXACC_DIR=/path/to/install/xacc
 # and CMake loads include paths, libs, etc
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc-config.cmake.in" "${CMAKE_BINARY_DIR}/xacc-config.cmake" @ONLY)
 install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/tests.cmake" DESTINATION share/xacc/)
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/format.cmake" DESTINATION share/xacc/)
+install(FILES "${CMAKE_SOURCE_DIR}/tpls/mpark-variant/variant.hpp" DESTINATION include/xacc/)
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )

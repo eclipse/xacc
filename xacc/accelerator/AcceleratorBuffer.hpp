@@ -13,20 +13,11 @@
 #ifndef XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 #define XACC_ACCELERATOR_ACCELERATORBUFFER_HPP_
 
-#include <boost/dynamic_bitset.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
 #include "Utils.hpp"
 #include "InstructionParameter.hpp"
-
-#define RAPIDJSON_HAS_STDSTRING 1
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/document.h"
-
-using namespace rapidjson;
-
-#include <boost/variant.hpp>
 
 namespace xacc {
 
@@ -34,14 +25,14 @@ class AcceleratorBuffer;
 
 using AcceleratorBufferChildPair =
     std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
-using ExtraInfo = boost::variant<int, double, std::string, std::vector<int>,
+using ExtraInfo = mpark::variant<int, double, std::string, std::vector<int>,
                                  std::vector<double>, std::vector<std::string>,
                                  std::map<int, std::vector<int>>,
                                  std::vector<std::pair<double, double>>>;
 
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
-class CheckEqualVisitor : public boost::static_visitor<bool> {
+class CheckEqualVisitor {
 private:
   ExtraInfo extraInfo;
 
@@ -59,12 +50,13 @@ public:
   bool operator()(const std::vector<std::pair<double, double>> &i) const;
 };
 
-class ToJsonVisitor : public boost::static_visitor<> {
+template<typename Writer>
+class ToJsonVisitor {
 private:
-  PrettyWriter<StringBuffer> &writer;
+  Writer &writer;
 
 public:
-  ToJsonVisitor(PrettyWriter<StringBuffer> &w) : writer(w) {}
+  ToJsonVisitor(Writer &w) : writer(w) {}
 
   void operator()(const int &i);
   void operator()(const double &i);
@@ -77,7 +69,7 @@ public:
 };
 
 class ExtraInfo2InstructionParameter
-    : public boost::static_visitor<InstructionParameter> {
+    {
 public:
   ExtraInfo2InstructionParameter() {}
 
@@ -111,7 +103,7 @@ public:
   }
 };
 
-class InstructionParameter2ExtraInfo : public boost::static_visitor<ExtraInfo> {
+class InstructionParameter2ExtraInfo {
 private:
   InstructionParameter parameter;
 
@@ -157,7 +149,7 @@ protected:
   /**
    * Reference to the Accelerator measurement result bit strings
    */
-  std::vector<boost::dynamic_bitset<>> measurements;
+//   std::vector<std::string> measurements;
 
   std::map<std::string, int> bitStringToCounts;
 
@@ -240,15 +232,6 @@ public:
 
   virtual void appendMeasurement(const std::string &measurement);
 
-  /**
-   * Add a measurement result to this Buffer
-   *
-   * @param measurement The measurement result
-   */
-  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement);
-
-  virtual void appendMeasurement(const boost::dynamic_bitset<> &measurement,
-                                 const int count);
   virtual void appendMeasurement(const std::string measurement,
                                  const int count);
 
@@ -268,32 +251,21 @@ public:
   virtual void setExpectationValueZ(const double exp);
 
   /**
-   * Return a read-only view of this Buffer's measurement results
-   *
-   * @return results Measurement results
-   */
-  virtual const std::vector<boost::dynamic_bitset<>> getMeasurements();
-
-  /**
    * Return all measurements as bit strings.
    *
    * @return bitStrings List of bit strings.
    */
-  virtual const std::vector<std::string> getMeasurementStrings();
+  virtual const std::vector<std::string> getMeasurements();
 
   virtual std::map<std::string, int> getMeasurementCounts();
   virtual void clearMeasurements() {
-    measurements.clear();
+    // measurements.clear();
     bitStringToCounts.clear();
   }
 
   virtual void setMeasurements(std::map<std::string, int> counts) {
     clearMeasurements();
     bitStringToCounts = counts;
-    for (auto &kv : counts) {
-      for (int i = 0; i < kv.second; i++)
-        measurements.push_back(boost::dynamic_bitset<>(kv.first));
-    }
   }
 
   /**

@@ -36,7 +36,7 @@ public:
     return gateName + " " + bufferVarName + std::to_string(bits()[0]);
   }
 
-  int getClassicalBitIndex() { return boost::get<int>(parameters[0]); }
+  int getClassicalBitIndex() { return mpark::get<int>(parameters[0]); }
   const int nRequiredBits() const override {return 1;}
 
   DEFINE_CLONE(Measure)

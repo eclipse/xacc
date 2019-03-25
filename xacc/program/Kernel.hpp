@@ -86,12 +86,12 @@ public:
       xacc::tuple_for_each(argsTuple, f);
 
       int count = 0;
-      Eigen::VectorXd paramVec(parameters.size());
+      std::vector<double> paramVec(parameters.size());
       for (auto i : parameters) {
         if (i.which() == 0) {
-          paramVec(count) = (double)boost::get<int>(i);
+          paramVec[count] = (double)mpark::get<int>(i);
         } else if (i.which() == 1) {
-          paramVec(count) = boost::get<double>(i);
+          paramVec[count] = mpark::get<double>(i);
         } else {
           XACCLogger::instance()->error(
               "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -119,12 +119,12 @@ public:
   void operator()(std::shared_ptr<AcceleratorBuffer> buffer,
                   std::vector<InstructionParameter> parameters) {
     int count = 0;
-    Eigen::VectorXd paramVec(parameters.size());
+    std::vector<double> paramVec(parameters.size());
     for (auto i : parameters) {
       if (i.which() == 0) {
-        paramVec(count) = (double)boost::get<int>(i);
+        paramVec[count] = (double)mpark::get<int>(i);
       } else if (i.which() == 1) {
-        paramVec(count) = boost::get<double>(i);
+        paramVec[count] = mpark::get<double>(i);
       } else {
         XACCLogger::instance()->error(
             "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -211,12 +211,12 @@ public:
       xacc::tuple_for_each(argsTuple, f);
 
       int count = 0;
-      Eigen::VectorXd paramVec(parameters.size());
+      std::vector<double> paramVec(parameters.size());
       for (auto i : parameters) {
         if (i.which() == 0) {
-          paramVec(count) = (double)boost::get<int>(i);
+          paramVec[count] = (double)mpark::get<int>(i);
         } else if (i.which() == 1) {
-          paramVec(count) = boost::get<double>(i);
+          paramVec[count]= mpark::get<double>(i);
         } else {
           XACCLogger::instance()->error(
               "Kernel.operator() mapping runtime params to Eigen::Vector, "
@@ -250,12 +250,12 @@ public:
              std::vector<InstructionParameter> parameters) {
 
     int count = 0;
-    Eigen::VectorXd paramVec(parameters.size());
+    std::vector<double> paramVec(parameters.size());
     for (auto i : parameters) {
       if (i.which() == 0) {
-        paramVec(count) = (double)boost::get<int>(i);
+        paramVec[count] = (double)mpark::get<int>(i);
       } else if (i.which() == 1) {
-        paramVec(count) = boost::get<double>(i);
+        paramVec[count] = mpark::get<double>(i);
       } else {
         XACCLogger::instance()->error(
             "Kernel.operator() mapping runtime params to Eigen::Vector, "
