@@ -11,13 +11,6 @@
 # */
 set(LIBRARY_NAME xacc-quantum-gate)
 
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/instructions)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/algorithms)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ir/transformations)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/accelerator)
 
 file(GLOB_RECURSE HEADERS *.hpp)
 file(GLOB SRC
@@ -29,6 +22,14 @@ file(GLOB SRC
           utils/*.cpp
           ir/algorithms/*.cpp
           ir/transformations/*.cpp)
+
+
+# Set up dependencies to resources to track changes
+usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+
+# Generate bundle initialization code
+usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
+
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
@@ -42,12 +43,7 @@ target_include_directories(${LIBRARY_NAME}
                                    ${CMAKE_SOURCE_DIR}/quantum/utils
                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk
                                    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-
-# Set up dependencies to resources to track changes
-usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
-# Generate bundle initialization code
-usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
-
+                                   
 set(_bundle_name xacc_quantum_gate)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES # This is required for every bundle
@@ -58,7 +54,7 @@ set_target_properties(${LIBRARY_NAME}
                                  US_BUNDLE_NAME ${_bundle_name})
 
 # Embed meta-data from a manifest.json file
-usfunctionembedresources(TARGET
+usFunctionEmbedResources(TARGET
                          ${LIBRARY_NAME}
                          WORKING_DIRECTORY
                          ${CMAKE_CURRENT_SOURCE_DIR}

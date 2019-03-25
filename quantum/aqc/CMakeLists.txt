@@ -20,6 +20,12 @@ file(GLOB SRC
           *.cpp
           ir/*.cpp
           compiler/default/*.cpp)
+
+
+# Set up dependencies to resources to track changes
+usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
+# Generate bundle initialization code
+usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
@@ -29,12 +35,6 @@ target_include_directories(${LIBRARY_NAME}
                                    ${CMAKE_SOURCE_DIR}/quantum/utils
                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk
                                    ${CMAKE_BINARY_DIR})
-
-# Set up dependencies to resources to track changes
-usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
-# Generate bundle initialization code
-usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
-
 # ----
 
 set(_bundle_name xacc_quantum_aqc)
