@@ -245,15 +245,15 @@ std::shared_ptr<Compiler> getCompiler();
  */
 bool hasCompiler(const std::string &name);
 
-bool hasCache(const std::string fileName);
+bool hasCache(const std::string fileName, const std::string subdirectory="");
 std::map<std::string, InstructionParameter>
-getCache(const std::string fileName);
+getCache(const std::string fileName, const std::string subdirectory="");
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &param);
+                 InstructionParameter &param, const std::string subdirectory="");
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &&param);
+                 InstructionParameter &&param, const std::string subdirectory="");
 void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params);
+                 std::map<std::string, InstructionParameter> &params, const std::string subdirectory="");
 const std::string getRootDirectory();
 
 template <class Service>

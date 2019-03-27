@@ -12,6 +12,7 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/taocpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/quantum/utils)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/ir)
@@ -35,7 +36,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc Boost::graph)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc xacc-quantum-gate Boost::graph)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

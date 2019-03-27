@@ -19,6 +19,7 @@
 #include "InstructionParameter.hpp"
 #include "DWGraph.hpp"
 #include "EmbeddingAlgorithm.hpp"
+#include "PauliOperator.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -30,6 +31,7 @@
 
 namespace py = pybind11;
 using namespace xacc;
+using namespace xacc::quantum;
 
 // `boost::variant` as an example -- can be any `std::variant`-like container
 namespace pybind11 {
@@ -408,6 +410,45 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Translate the given IR Function instance to source code in this "
            "Compiler's language.");
 
+  py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops",&Term::ops);
+  py::class_<PauliOperator>(m, "PauliOperator")
+      .def(py::init<>())
+      .def(py::init<std::complex<double>>())
+      .def(py::init<double>())
+      .def(py::init<std::string>())
+      .def(py::init<std::map<int, std::string>>())
+      .def(py::init<std::map<int, std::string>, double>())
+      .def(py::init<std::map<int, std::string>, std::complex<double>>())
+      .def(py::init<std::map<int, std::string>, std::string>())
+      .def(py::init<std::map<int, std::string>, std::complex<double>,
+                    std::string>())
+      .def(py::self + py::self)
+      .def(py::self += py::self)
+      .def(py::self *= py::self)
+      .def(py::self *= double())
+      .def(py::self * py::self)
+      .def(py::self *= std::complex<double>())
+      .def(py::self -= py::self)
+      .def(py::self - py::self)
+      .def("__eq__", &PauliOperator::operator==)
+      .def("__repr__", &PauliOperator::toString)
+      .def("eval", &PauliOperator::eval)
+      .def("toBinaryVectors", &PauliOperator::toBinaryVectors)
+      .def("toXACCIR", &PauliOperator::toXACCIR)
+      .def("fromXACCIR", &PauliOperator::fromXACCIR)
+      .def("fromString", &PauliOperator::fromString)
+      .def("nTerms", &PauliOperator::nTerms)
+      .def("isClose", &PauliOperator::isClose)
+      .def("commutes", &PauliOperator::commutes)
+      .def("__len__", &PauliOperator::nTerms)
+      .def("nQubits", &PauliOperator::nQubits)
+      .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
+      .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
+      .def("__iter__",
+           [](PauliOperator &op) {
+             return py::make_iterator(op.begin(), op.end());
+           },
+           py::keep_alive<0, 1>());
   // Expose the Program object
   py::class_<xacc::Program>(
       m, "Program",
@@ -527,7 +568,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("getCache", &xacc::getCache, "");
   m.def(
       "appendCache",
-      (void (*)(const std::string, const std::string, InstructionParameter &)) &
+      (void (*)(const std::string, const std::string, InstructionParameter &,const std::string)) &
           xacc::appendCache,
       "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");

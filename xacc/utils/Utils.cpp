@@ -28,6 +28,33 @@ static inline bool is_base64(unsigned char c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
+bool fileExists(const std::string &name) {
+  if (FILE *file = fopen(name.c_str(), "r")) {
+    fclose(file);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool directoryExists(const std::string path) {
+ auto p = path.c_str();
+ if ( p == NULL) return false;
+
+    DIR *pDir;
+    bool bExists = false;
+
+    pDir = opendir (p);
+
+    if (pDir != NULL)
+    {
+        bExists = true;
+        (void) closedir (pDir);
+    }
+
+    return bExists;
+}
+
 std::string base64_decode(std::string const &encoded_string) {
   int in_len = encoded_string.size();
   int i = 0;
