@@ -53,10 +53,14 @@ auto splitParameter = [](InstructionParameter instParam) {
   std::vector<std::string> split;
   InstructionParameter rawParam;
   auto paramStr = mpark::get<std::string>(instParam);
-  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '-', ' ');
-  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '+', ' ');
-  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '*', ' ');
-  std::replace(mpark::get<std::string>(instParam).begin(), mpark::get<std::string>(instParam).end(), '/', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(),
+               mpark::get<std::string>(instParam).end(), '-', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(),
+               mpark::get<std::string>(instParam).end(), '+', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(),
+               mpark::get<std::string>(instParam).end(), '*', ' ');
+  std::replace(mpark::get<std::string>(instParam).begin(),
+               mpark::get<std::string>(instParam).end(), '/', ' ');
 
   auto instParamStr = instParam.as<std::string>();
   split = xacc::split(instParamStr, ' ');
@@ -68,6 +72,37 @@ auto splitParameter = [](InstructionParameter instParam) {
   return rawParam;
 };
 
+const int GateFunction::nLogicalBits() {
+  std::set<int> local_bits;
+  xacc::InstructionIterator it(shared_from_this());
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      for (auto &i : nextInst->bits()) {
+        local_bits.insert(i);
+      }
+    }
+  }
+  return local_bits.size();
+}
+
+const int GateFunction::nPhysicalBits() {
+  int maxBitIdx = 0;
+  xacc::InstructionIterator it(shared_from_this());
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      for (auto &i : nextInst->bits()) {
+        if (maxBitIdx < i) {
+          maxBitIdx = i;
+        }
+      }
+    }
+  }
+
+  maxBitIdx++;
+  return maxBitIdx;
+}
 void GateFunction::removeInstruction(const int idx) {
   auto instruction = getInstruction(idx);
   // Check to see if instruction being removed is parameterized
@@ -211,7 +246,7 @@ void GateFunction::replaceInstruction(const int idx, InstPtr replacingInst) {
 
 void GateFunction::insertInstruction(const int idx, InstPtr newInst) {
   // Check if new GateInstruction is parameterized with 1 parameter
-  if (newInst->isParameterized() && newInst->nParameters() <= 1) {
+  if (newInst->isParameterized() && !newInst->isComposite()) {
     xacc::InstructionParameter param = newInst->getParameter(0);
     // Check if new parameter is a string
     if (param.isVariable()) {
@@ -286,8 +321,8 @@ const std::string GateFunction::toString(const std::string &bufferVarName) {
   return retStr;
 }
 
-std::shared_ptr<Function> GateFunction::
-operator()(const std::vector<double> &params) {
+std::shared_ptr<Function>
+GateFunction::operator()(const std::vector<double> &params) {
   if (params.size() != nParameters()) {
     xacc::error("Invalid GateFunction evaluation: number "
                 "of parameters don't match. " +
@@ -322,8 +357,7 @@ operator()(const std::vector<double> &params) {
   for (auto inst : getInstructions()) {
     if (inst->isComposite()) {
       // If a Function, call this method recursively
-      auto evaled =
-          std::dynamic_pointer_cast<Function>(inst)->operator()(p);
+      auto evaled = std::dynamic_pointer_cast<Function>(inst)->operator()(p);
       evaluatedFunction->addInstruction(evaled);
     } else {
       // If a concrete GateInstruction, then check that it

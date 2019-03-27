@@ -42,8 +42,10 @@ target_include_directories(${LIBRARY_NAME}
                                    ${CMAKE_BINARY_DIR}
                                    ${CMAKE_SOURCE_DIR}/quantum/utils
                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-                                   
+                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                   ${CMAKE_SOURCE_DIR}/tpls/taocpp
+                                   ${CMAKE_SOURCE_DIR}/tpls/eigen)
+
 set(_bundle_name xacc_quantum_gate)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES # This is required for every bundle

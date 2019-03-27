@@ -18,7 +18,7 @@
 
 namespace xacc {
 
-class __attribute__((visibility("default"))) IRProvider : public Identifiable {
+class IRProvider : public Identifiable {
 public:
   virtual std::shared_ptr<Instruction>
   createInstruction(const std::string name, std::vector<int> bits,

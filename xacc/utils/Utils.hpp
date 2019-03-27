@@ -20,38 +20,18 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
-
+#include <dirent.h>
 namespace spdlog {
 class logger;
 }
 namespace xacc {
-// trim from start (in place)
 void ltrim(std::string &s);
-// trim from end (in place)
 void rtrim(std::string &s);
-// trim from both ends (in place)
 void trim(std::string &s);
 
-inline bool fileExists(const std::string &name) {
-  if (FILE *file = fopen(name.c_str(), "r")) {
-    fclose(file);
-    return true;
-  } else {
-    return false;
-  }
-}
-// template<char delimiter>
-// class Delimiter : public std::string
-// {};
+bool fileExists(const std::string &name);
+bool directoryExists(const std::string path);
 
-// template<typename DelimiterType>
-// std::vector<std::string> split(const std::string& s) {
-//   std::istringstream iss(s);
-//   std::vector<std::string>
-//   results((std::istream_iterator<DelimiterType>(iss)),
-//                                  std::istream_iterator<DelimiterType>());
-//    return results;
-// }
 template <class Op> void split(const std::string &s, char delim, Op op) {
   std::stringstream ss(s);
   for (std::string item; std::getline(ss, item, delim);) {

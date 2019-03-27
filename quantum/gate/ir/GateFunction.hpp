@@ -91,8 +91,9 @@ public:
 
   const int nInstructions() override;
   const int nRequiredBits() const override {
-     XACCLogger::instance()->error("GateFunction nRequiredBits() not implemented.");
-     return 0;
+    XACCLogger::instance()->error(
+        "GateFunction nRequiredBits() not implemented.");
+    return 0;
   }
 
   InstPtr getInstruction(const int idx) override;
@@ -121,7 +122,7 @@ public:
     for (int i = 0; i < instructions.size(); i++) {
       auto inst = *std::next(instructions.begin(), i);
       if (inst->isAnalog()) {
-          return true;
+        return true;
       }
     }
     return false;
@@ -193,7 +194,7 @@ public:
    *
    * @return qasm The instruction as qasm
    */
-  const std::string toString() override {return toString("q");}
+  const std::string toString() override { return toString("q"); }
 
   InstructionParameter getParameter(const int idx) const override;
 
@@ -207,32 +208,26 @@ public:
 
   const int nParameters() override;
 
-  std::shared_ptr<Function> operator()(const std::vector<double> &params) override;
+  std::shared_ptr<Function>
+  operator()(const std::vector<double> &params) override;
 
   Graph<CircuitNode, Directed> toGraph() override;
   //   void fromGraph(Graph<CircuitNode>& graph) override;
   //   void fromGraph(std::istream& input) override;
-
 
   /**
    * Return the number of logical qubits.
    *
    * @return nLogical The number of logical qubits.
    */
-  const int nLogicalBits() override {
-    XACCLogger::instance()->error("GateFunction nLogicalBits() not implemented.");
-    return 0;
-  }
+  const int nLogicalBits() override;
 
   /**
    * Return the number of physical qubits.
    *
    * @return nPhysical The number of physical qubits.
    */
-  const int nPhysicalBits() override {
-      XACCLogger::instance()->error("GateFunction nPhysicalBits() not implemented.");
-      return 0;
-  }
+  const int nPhysicalBits() override;
 
   /**
    * Return true if this Instruction has
@@ -240,7 +235,7 @@ public:
    *
    * @return hasOptions
    */
-  bool hasOptions() override {return false;}
+  bool hasOptions() override { return !options.empty(); }
 
   /**
    * Set the value of an option with the given name.
@@ -249,7 +244,10 @@ public:
    * @param option The value of the option
    */
   void setOption(const std::string optName,
-                 InstructionParameter option) override {}
+                 InstructionParameter option) override {
+    options.insert({optName, option});
+  }
+
   /**
    * Get the value of an option with the given name.
    *
@@ -257,8 +255,7 @@ public:
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-      XACCLogger::instance()->error("GateFunction does not have options.");
-      return InstructionParameter(0);
+    return options[optName];
   }
 
   /**
@@ -267,8 +264,7 @@ public:
    * @return optMap The options map.
    */
   std::map<std::string, InstructionParameter> getOptions() override {
-     XACCLogger::instance()->error("GateFunction does not have options.");
-     return std::map<std::string, InstructionParameter>{};
+    return options;
   }
 
   DEFINE_VISITABLE()
@@ -284,6 +280,9 @@ protected:
   std::vector<InstructionParameter> parameters;
 
   std::string tag = "";
+
+  std::map<std::string, InstructionParameter> options;
+
 };
 
 } // namespace quantum

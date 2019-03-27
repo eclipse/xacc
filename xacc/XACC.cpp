@@ -22,6 +22,9 @@
 #include "xacc_config.hpp"
 #include "cxxopts.hpp"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 using namespace cxxopts;
 
 namespace xacc {
@@ -338,13 +341,26 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
   auto optF = newir->getKernels()[0];
   return optF->enabledView();
 }
-bool hasCache(const std::string fileName) {
-  return xacc::fileExists(serviceRegistry->getRootPathString() + "/" +
+bool hasCache(const std::string fileName, const std::string subdirectory) {
+  auto rootPathStr = serviceRegistry->getRootPathString();
+  if (!subdirectory.empty()) {
+      rootPathStr += "/"+subdirectory;
+      if (!xacc::directoryExists(rootPathStr)) {
+          return false;
+      }
+  }
+  return xacc::fileExists(rootPathStr + "/" +
                           fileName);
 }
 std::map<std::string, InstructionParameter>
-getCache(const std::string fileName) {
+getCache(const std::string fileName, const std::string subdirectory) {
   std::string rootPathStr = serviceRegistry->getRootPathString();
+  if (!subdirectory.empty()) {
+      rootPathStr += "/"+subdirectory;
+      if (!xacc::directoryExists(rootPathStr)) {
+          error("Tried to get Cache at " + rootPathStr+"/"+fileName + ", and it does not exist.");
+      }
+  }
 
   std::ifstream t(rootPathStr + "/" + fileName);
   std::string json(std::istreambuf_iterator<char>{t}, {});
@@ -365,8 +381,15 @@ getCache(const std::string fileName) {
 }
 
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &param) {
+                 InstructionParameter &param, const std::string subdirectory) {
   auto rootPathStr = serviceRegistry->getRootPathString();
+
+  if (!subdirectory.empty()) {
+      rootPathStr += "/"+subdirectory;
+      if (!xacc::directoryExists(rootPathStr)) {
+          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      }
+  }
 
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
     auto existingCache = getCache(fileName);
@@ -396,9 +419,14 @@ void appendCache(const std::string fileName, const std::string key,
 }
 
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &&param) {
+                 InstructionParameter &&param, const std::string subdirectory) {
   auto rootPathStr = serviceRegistry->getRootPathString();
-
+  if (!subdirectory.empty()) {
+      rootPathStr += "/"+subdirectory;
+      if (!xacc::directoryExists(rootPathStr)) {
+          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      }
+  }
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
     std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
@@ -428,11 +456,18 @@ void appendCache(const std::string fileName, const std::string key,
 }
 
 void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params) {
+                 std::map<std::string, InstructionParameter> &params, const std::string subdirectory) {
 
   // This will over write the ip cache file
 
   auto rootPathStr = serviceRegistry->getRootPathString();
+
+  if (!subdirectory.empty()) {
+      rootPathStr += "/"+subdirectory;
+      if (!xacc::directoryExists(rootPathStr)) {
+          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      }
+  }
   InstructionParameter2ExtraInfo ip2e;
   AcceleratorBuffer b;
   b.useAsCache();
