@@ -1,11 +1,9 @@
 
 #include <string>
 
-#include "/home/project/xacc/xacc/service/xacc_service.hpp"
 #include "CLIParser.hpp"
 #include "RuntimeOptions.hpp"
 #include "xacc_config.hpp"
-// #include "ServiceRegistry.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 
