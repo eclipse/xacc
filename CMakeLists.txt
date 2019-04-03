@@ -90,7 +90,7 @@ add_subdirectory(tpls)
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 if(PYTHON_INCLUDE_DIR)
-   add_subdirectory(python)
+ add_subdirectory(python)
 endif()
 
 
@@ -109,4 +109,3 @@ install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/eigen" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/rapidjson" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/pybind11" DESTINATION include )
-install(PROGRAMS "${CMAKE_SOURCE_DIR}/tools/framework/xacc-framework" DESTINATION bin)

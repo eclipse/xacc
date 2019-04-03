@@ -21,7 +21,9 @@ file(GLOB SRC
           ir/instructions/*.cpp
           utils/*.cpp
           ir/algorithms/*.cpp
-          ir/transformations/*.cpp)
+          ir/transformations/*.cpp
+          ir/parser/*.cpp
+          ir/parser/generated/*.cpp)
 
 
 # Set up dependencies to resources to track changes
@@ -31,6 +33,7 @@ usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
 usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
+add_dependencies(${LIBRARY_NAME} antlr4_shared)
 
 target_include_directories(${LIBRARY_NAME}
                            PRIVATE utils
@@ -63,7 +66,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc Boost::graph)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc Boost::graph PRIVATE CppMicroServices)
 
 if(APPLE)
   set_target_properties(xacc-quantum-gate
@@ -75,6 +78,7 @@ else()
   set_target_properties(xacc-quantum-gate PROPERTIES LINK_FLAGS "-shared")
 endif()
 
+add_subdirectory(observable)
 add_subdirectory(compiler)
 add_subdirectory(ir)
 add_subdirectory(utils)

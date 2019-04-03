@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 #include "XACC.hpp"
 #include "ImprovedSamplingDecorator.hpp"
+#include "xacc_service.hpp"
 
 using namespace xacc;
 

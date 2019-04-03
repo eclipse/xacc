@@ -2,6 +2,7 @@
 #include "InstructionIterator.hpp"
 #include "XACC.hpp"
 #include "IRProvider.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -92,7 +93,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RichExtrapDecorator::execute(
     }
 
     // xacc::info("HI: " + newF->toString("q"));
-    
+
     newFuncs.push_back(newF);
   }
 

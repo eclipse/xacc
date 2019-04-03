@@ -14,6 +14,8 @@
 #include "XACC.hpp"
 #include "RichExtrapDecorator.hpp"
 
+#include "xacc_service.hpp"
+
 using namespace xacc;
 
 using namespace xacc::quantum;
@@ -37,13 +39,13 @@ TEST(RichExtrapDecoratorTester, checkSimple) {
     auto f = ir->getKernel("f");
 
     xacc::setOption("rich-extrap-r", "1");
-    
+
     RichExtrapDecorator decorator;
     decorator.setDecorated(acc);
 
     decorator.execute(buffer, f);
 
-    
+
   }
 }
 
@@ -76,12 +78,12 @@ TEST(ImprovedSamplingDecoratorTester, checkMultiple) {
 
     RichExtrapDecorator decorator;
     decorator.setDecorated(acc);
-    
+
     xacc::setOption("rich-extrap-r", "3");
 
     auto buffers = decorator.execute(buffer, {f, g});
 
-   
+
   }
 }
 int main(int argc, char **argv) {

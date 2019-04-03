@@ -10,20 +10,26 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-
+#include "Program.hpp"
 #include "XACC.hpp"
+#include "Accelerator.hpp"
+#include "Preprocessor.hpp"
+#include "IRPreprocessor.hpp"
+#include "IRTransformation.hpp"
+
 #include <fstream>
+#include "xacc_service.hpp"
 
 namespace xacc {
 
 std::vector<IRTransformation>
-getAcceleratorIndependentTransformations(AcceleratorType &accType) {
+getAcceleratorIndependentTransformations(Accelerator::AcceleratorType &accType) {
   std::vector<IRTransformation> transformations;
   return transformations;
 }
 
 std::vector<std::shared_ptr<Preprocessor>>
-getDefaultPreprocessors(AcceleratorType accType) {
+getDefaultPreprocessors(Accelerator::AcceleratorType accType) {
   std::vector<std::shared_ptr<Preprocessor>> preprocessors;
 
   return preprocessors;

@@ -19,6 +19,7 @@ class Observable {
 public:
   virtual std::vector<std::shared_ptr<Function>>
   observe(std::shared_ptr<Function> function) = 0;
+  virtual const std::string toString() = 0;
 };
 
 } // namespace xacc

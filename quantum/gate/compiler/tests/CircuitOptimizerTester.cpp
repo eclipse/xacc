@@ -19,6 +19,7 @@
 #include "CountGatesOfTypeVisitor.hpp"
 #include "Rz.hpp"
 #include "CNOT.hpp"
+#include "xacc_service.hpp"
 
 using namespace xacc::quantum;
 const std::string uccsdSrc = R"uccsdSrc(def foo(theta0,theta1):

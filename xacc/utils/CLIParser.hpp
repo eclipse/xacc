@@ -22,7 +22,7 @@ class Options;
 }
 
 namespace xacc {
-class ServiceRegistry;
+// class ServiceRegistry;
 
 using options_description = cxxopts::Options;
 /**
@@ -45,7 +45,7 @@ public:
    * The constructor
    */
   CLIParser();
-  void parse(int argc, char **argv, ServiceRegistry *serviceRegistry);
+  void parse(int argc, char **argv);//, ServiceRegistry *serviceRegistry);
 
   void addOptions(const std::map<std::string, std::string> &options);
   void addStringOption(const std::string key,

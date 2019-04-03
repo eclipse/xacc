@@ -1,6 +1,7 @@
 #include "GateIRProvider.hpp"
 #include "GateIR.hpp"
 #include "XACC.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace quantum {
