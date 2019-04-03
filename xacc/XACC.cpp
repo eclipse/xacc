@@ -14,13 +14,14 @@
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
 #include "IRGenerator.hpp"
-#include "ServiceRegistry.hpp"
 #include "CLIParser.hpp"
 #include <signal.h>
 #include <cstdlib>
 #include <fstream>
 #include "xacc_config.hpp"
 #include "cxxopts.hpp"
+
+#include "xacc_service.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,10 +32,7 @@ namespace xacc {
 
 bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
-std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
-std::shared_ptr<ServiceRegistry> serviceRegistry =
-    std::make_shared<ServiceRegistry>();
-
+std::shared_ptr<CLIParser> xaccCLParser;// = std::make_shared<CLIParser>();
 int argc = 0;
 char **argv = NULL;
 
@@ -68,36 +66,14 @@ void PyInitialize(const std::string rootPath) {
 void Initialize(int arc, char **arv) {
 
   if (!xaccFrameworkInitialized) {
+    std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
     argc = arc;
     argv = arv;
 
-    std::string rootPath = std::string(XACC_INSTALL_DIR);
-
-    // Do a little preprocessing on the
-    // command line args to see if we have
-    // been given a custom internal plugin path
-
-    options_description desc("tmp");
-    desc.allow_unrecognised_options().add_options()("xacc-root-path", "",
-                                                    value<std::string>());
-    auto vm = desc.parse(argc, argv);
-
-    if (vm.count("xacc-root-path")) {
-      rootPath = vm["xacc-root-path"].as<std::string>();
-    }
-
-    try {
-      serviceRegistry->initialize(rootPath);
-    } catch (std::exception &e) {
-      XACCLogger::instance()->error(
-          "Failure initializing XACC Plugin Registry - " +
-          std::string(e.what()));
-      Finalize();
-      exit(0);
-    }
+    xacc::ServiceAPI_Initialize(argc, argv);
 
     // Parse any user-supplied command line options
-    xaccCLParser->parse(argc, argv, serviceRegistry.get());
+    xaccCLParser->parse(argc, argv);//, serviceRegistry.get());
 
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = ctrl_c_handler;
@@ -201,7 +177,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
           "requires that you set --accelerator at the command line.");
   }
 
-  auto acc = serviceRegistry->getService<Accelerator>(getOption("accelerator"));
+  auto acc = xacc::getService<Accelerator>(getOption("accelerator"));
   if (acc) {
     acc->initialize();
   } else {
@@ -216,7 +192,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto acc = serviceRegistry->getService<Accelerator>(name);
+  auto acc = xacc::getService<Accelerator>(name);
   if (acc) {
     acc->initialize();
   } else {
@@ -231,7 +207,7 @@ bool hasAccelerator(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  return serviceRegistry->hasService<Accelerator>(name);
+  return xacc::hasService<Accelerator>(name);
 }
 
 std::shared_ptr<Compiler> getCompiler(const std::string &name) {
@@ -239,7 +215,7 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto c = serviceRegistry->getService<Compiler>(name);
+  auto c = xacc::getService<Compiler>(name);
   if (!c) {
     error("Invalid Compiler. Could not find " + name + " in Service Registry.");
   }
@@ -256,7 +232,7 @@ std::shared_ptr<Compiler> getCompiler() {
     error("Invalid use of XACC API. getCompiler() with no string argument "
           "requires that you set --compiler at the command line.");
   }
-  auto compiler = serviceRegistry->getService<Compiler>(getOption("compiler"));
+  auto compiler = xacc::getService<Compiler>(getOption("compiler"));
   if (!compiler) {
     error("Invalid Compiler. Could not find " + (*options)["compiler"] +
           " in Compiler Registry.");
@@ -270,7 +246,7 @@ bool hasCompiler(const std::string &name) {
           "xacc::Initialize() before using API.");
   }
 
-  return serviceRegistry->hasService<Compiler>(name);
+  return xacc::hasService<Compiler>(name);
 }
 
 std::shared_ptr<IRTransformation>
@@ -279,7 +255,7 @@ getIRTransformations(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto t = serviceRegistry->getService<IRTransformation>(name);
+  auto t = xacc::getService<IRTransformation>(name);
   if (!t) {
     error("Invalid IRTransformation. Could not find " + name +
           " in Service Registry.");
@@ -303,7 +279,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
   auto originalCompiler = getCompiler(originalLanguage);
   auto ir = originalCompiler->compile(originalSource, acc);
   auto visitor =
-      serviceRegistry->getService<BaseInstructionVisitor>(visitorMappingName);
+      xacc::getService<BaseInstructionVisitor>(visitorMappingName);
 
   std::vector<std::string> previouslySeenKernels;
 
@@ -342,7 +318,7 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
   return optF->enabledView();
 }
 bool hasCache(const std::string fileName, const std::string subdirectory) {
-  auto rootPathStr = serviceRegistry->getRootPathString();
+  auto rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
       rootPathStr += "/"+subdirectory;
       if (!xacc::directoryExists(rootPathStr)) {
@@ -354,7 +330,7 @@ bool hasCache(const std::string fileName, const std::string subdirectory) {
 }
 std::map<std::string, InstructionParameter>
 getCache(const std::string fileName, const std::string subdirectory) {
-  std::string rootPathStr = serviceRegistry->getRootPathString();
+  std::string rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
       rootPathStr += "/"+subdirectory;
       if (!xacc::directoryExists(rootPathStr)) {
@@ -382,7 +358,7 @@ getCache(const std::string fileName, const std::string subdirectory) {
 
 void appendCache(const std::string fileName, const std::string key,
                  InstructionParameter &param, const std::string subdirectory) {
-  auto rootPathStr = serviceRegistry->getRootPathString();
+  auto rootPathStr = xacc::getRootPathString();
 
   if (!subdirectory.empty()) {
       rootPathStr += "/"+subdirectory;
@@ -392,7 +368,7 @@ void appendCache(const std::string fileName, const std::string key,
   }
 
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    auto existingCache = getCache(fileName);
+    auto existingCache = getCache(fileName, subdirectory);
     if (existingCache.count(key)) {
       existingCache[key] = param;
     } else {
@@ -420,7 +396,7 @@ void appendCache(const std::string fileName, const std::string key,
 
 void appendCache(const std::string fileName, const std::string key,
                  InstructionParameter &&param, const std::string subdirectory) {
-  auto rootPathStr = serviceRegistry->getRootPathString();
+  auto rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
       rootPathStr += "/"+subdirectory;
       if (!xacc::directoryExists(rootPathStr)) {
@@ -429,15 +405,15 @@ void appendCache(const std::string fileName, const std::string key,
   }
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
-    auto existingCache = getCache(fileName);
+    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
+    auto existingCache = getCache(fileName, subdirectory);
     if (existingCache.count(key)) {
       existingCache[key] = param;
     } else {
       existingCache.insert({key, param});
     }
 
-    appendCache(fileName, existingCache);
+    appendCache(fileName, existingCache, subdirectory);
   } else {
     std::ofstream out(rootPathStr + "/" + fileName);
     std::stringstream s;
@@ -460,7 +436,7 @@ void appendCache(const std::string fileName,
 
   // This will over write the ip cache file
 
-  auto rootPathStr = serviceRegistry->getRootPathString();
+  auto rootPathStr = xacc::getRootPathString();
 
   if (!subdirectory.empty()) {
       rootPathStr += "/"+subdirectory;
@@ -484,7 +460,7 @@ void appendCache(const std::string fileName,
   out.close();
 }
 const std::string getRootDirectory() {
-  return serviceRegistry->getRootPathString();
+  return xacc::getRootPathString();
 }
 
 /**
@@ -496,7 +472,7 @@ void Finalize() {
   XACCLogger::instance()->dumpQueue();
   info("");
   info("[xacc::plugins] Cleaning up Plugin Registry.");
-  //	xacc::serviceRegistry->destroy();
+  //	xacc::xacc::destroy();
   xacc::xaccFrameworkInitialized = false;
   info("[xacc] Finalizing XACC Framework.");
 }

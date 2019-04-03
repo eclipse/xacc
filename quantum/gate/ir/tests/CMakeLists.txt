@@ -28,7 +28,6 @@ add_xacc_test(X)
 add_xacc_test(Y)
 add_xacc_test(Z)
 
-add_xacc_test(PauliOperator)
 
 target_link_libraries(CNOTTester xacc-quantum-gate)
 target_link_libraries(CPhaseTester xacc-quantum-gate)
@@ -49,4 +48,4 @@ target_link_libraries(SwapTester xacc-quantum-gate)
 target_link_libraries(XTester xacc-quantum-gate)
 target_link_libraries(YTester xacc-quantum-gate)
 target_link_libraries(ZTester xacc-quantum-gate)
-target_link_libraries(PauliOperatorTester xacc-quantum-gate)
+

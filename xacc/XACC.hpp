@@ -15,12 +15,11 @@
 
 #include <iostream>
 #include <memory>
-#include "Program.hpp"
-#include "ServiceRegistry.hpp"
+#include "Compiler.hpp"
+#include "Accelerator.hpp"
 
 namespace xacc {
 
-// class ServiceRegistry;
 class CLIParser;
 
 // Boolean indicating that framework has been initialized
@@ -29,7 +28,6 @@ extern bool isPyApi;
 
 // Reference to the command line parser
 extern std::shared_ptr<CLIParser> xaccCLParser;
-extern std::shared_ptr<ServiceRegistry> serviceRegistry;
 
 extern int argc;
 extern char **argv;
@@ -256,37 +254,37 @@ void appendCache(const std::string fileName,
                  std::map<std::string, InstructionParameter> &params, const std::string subdirectory="");
 const std::string getRootDirectory();
 
-template <class Service>
-std::shared_ptr<Service> getService(const std::string &serviceName) {
-  if (!xacc::xaccFrameworkInitialized) {
-    error("XACC not initialized before use. Please execute "
-          "xacc::Initialize() before using API.");
-  }
-  auto service = serviceRegistry->getService<Service>(serviceName);
-  if (!service) {
-    error("Invalid XACC Service. Could not find " + serviceName +
-          " in Service Registry.");
-  }
-  return service;
-}
+// template <class Service>
+// std::shared_ptr<Service> getService(const std::string &serviceName) {
+//   if (!xacc::xaccFrameworkInitialized) {
+//     error("XACC not initialized before use. Please execute "
+//           "xacc::Initialize() before using API.");
+//   }
+//   auto service = serviceRegistry->getService<Service>(serviceName);
+//   if (!service) {
+//     error("Invalid XACC Service. Could not find " + serviceName +
+//           " in Service Registry.");
+//   }
+//   return service;
+// }
 
-template <typename Service> bool hasService(const std::string &serviceName) {
-  if (!xacc::xaccFrameworkInitialized) {
-    error("XACC not initialized before use. Please execute "
-          "xacc::Initialize() before using API.");
-  }
-  return serviceRegistry->hasService<Service>(serviceName);
-}
+// template <typename Service> bool hasService(const std::string &serviceName) {
+//   if (!xacc::xaccFrameworkInitialized) {
+//     error("XACC not initialized before use. Please execute "
+//           "xacc::Initialize() before using API.");
+//   }
+//   return serviceRegistry->hasService<Service>(serviceName);
+// }
 
-template <typename ServiceInterface>
-std::vector<std::string> getRegisteredIds() {
-  return serviceRegistry->getRegisteredIds<ServiceInterface>();
-}
+// template <typename ServiceInterface>
+// std::vector<std::string> getRegisteredIds() {
+//   return serviceRegistry->getRegisteredIds<ServiceInterface>();
+// }
 
-template <typename ServiceInterface>
-std::vector<std::shared_ptr<ServiceInterface>> getServices() {
-  return serviceRegistry->getServices<ServiceInterface>();
-}
+// template <typename ServiceInterface>
+// std::vector<std::shared_ptr<ServiceInterface>> getServices() {
+//   return serviceRegistry->getServices<ServiceInterface>();
+// }
 
 std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
                                            std::shared_ptr<Function> function);

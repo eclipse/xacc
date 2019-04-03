@@ -30,6 +30,15 @@ using InstPtr = std::shared_ptr<Instruction>;
  */
 class Function : public Instruction {
 public:
+
+  virtual void expandIRGenerators(std::map<std::string, InstructionParameter> irGenMap) {
+      return;
+  }
+
+  virtual bool hasIRGenerators() {
+      return false;
+  }
+  
   /**
    * Return the number of Instructions that this Function contains.
    *

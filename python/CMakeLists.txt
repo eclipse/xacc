@@ -4,6 +4,7 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc)
 
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/xacc/ir)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/service)
 include_directories(${CMAKE_SOURCE_DIR}/xacc/compiler)
 include_directories(${CMAKE_SOURCE_DIR}/xacc/program)
 include_directories(${CMAKE_SOURCE_DIR}/xacc/accelerator)
@@ -21,6 +22,7 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/aqc/compiler)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable)
 
 add_subdirectory(compiler)
 
@@ -36,7 +38,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc xacc-quantum-gate Boost::graph)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc Boost::graph xacc-pauli)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

@@ -51,6 +51,11 @@ TEST(InstructionParameterTester, checkMap) {
 
     EXPECT_EQ("null", options["pulse_id"].toString());
 
+    std::map<std::string, InstructionParameter> options2 {{"hello",1}, {"key2","value"}};
+
+    EXPECT_EQ(1, options2["hello"].as<int>());
+    EXPECT_EQ("value", options2["key2"].as<std::string>());
+
 }
 
 int main(int argc, char **argv) {

@@ -70,7 +70,6 @@ PyXACCCompiler::translate(const std::string &bufferVariable,
       nextInst->accept(visitor);
     }
   }
-
   return visitor->getPyXACCString();
 }
 } // namespace quantum

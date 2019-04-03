@@ -5,6 +5,8 @@
 #include "CountGatesOfTypeVisitor.hpp"
 #include "CNOT.hpp"
 #include "Rz.hpp"
+#include "xacc_service.hpp"
+
 namespace xacc {
 namespace quantum {
 

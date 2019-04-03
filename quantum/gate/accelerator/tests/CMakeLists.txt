@@ -10,5 +10,5 @@ include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(ImprovedSamplingDecorator)
 add_xacc_test(RichExtrapDecorator)
 
-target_link_libraries(RichExtrapDecoratorTester xacc-quantum-gate)
-target_link_libraries(ImprovedSamplingDecoratorTester xacc-quantum-gate)
+target_link_libraries(RichExtrapDecoratorTester CppMicroServices xacc-quantum-gate)
+target_link_libraries(ImprovedSamplingDecoratorTester CppMicroServices xacc-quantum-gate)

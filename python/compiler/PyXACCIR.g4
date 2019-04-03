@@ -19,7 +19,7 @@ xaccsrc
    ;
 
 xacckernel
-   : 'def' kernelname=id '(' ( ','? param )* ')' ':' mainprog 
+   : 'def' kernelname=id '(' ( ','? param )* ')' ':' mainprog
    ;
 
 /***********************************************************************/
@@ -42,13 +42,13 @@ line
 
 /* A program statement */
 statement
-   : uop 
+   : uop
    | 'return'
    ;
 
 /* A program comment */
 comment
-   : COMMENT 
+   : COMMENT
    ;
 
 /* A list of parameters */
@@ -64,17 +64,17 @@ param
 
 /* A unitary operation */
 uop
-   : gatename=gate  '(' ( explist ) ')'
+   : gatename=gate  '(' ( explist )? ')'
    | allbitsOp
    ;
 
-   
+
 allbitsOp
    : gatename=gate '(' '...' ')'
    | gatename=gate '(' INT ',...,' INT ')'
    ;
-   
-gate 
+
+gate
    : id
    ;
 
@@ -101,11 +101,11 @@ exp
    | '\'[' ( ','? coupler )* ']\''
    ;
 
-key 
+key
    : id
    ;
-   
-coupler 
+
+coupler
    : '[' INT ',' INT ']'
    ;
 /* unary operations */
@@ -141,7 +141,7 @@ COMMENT
    ;
 
 /* id, ego, and super-ego */
-ID 
+ID
    : [a-z][A-Za-z0-9_]*
    | [A-Z][A-Za-z0-9_]*
    | [A-Z][A-Za-z]*
@@ -154,7 +154,7 @@ REAL
 
 /* Non-negative integers */
 INT
-   : ('0'..'9')+ 
+   : ('0'..'9')+
    ;
 
 /* Strings include numbers and slashes */

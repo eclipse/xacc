@@ -24,7 +24,7 @@ link_directories("${XACC_ROOT}/lib")
 set(XACC_INCLUDE_ROOT "${XACC_ROOT}/include")
 
 set (XACC_INCLUDE_DIRS "${XACC_INCLUDE_ROOT}/antlr4-runtime;${XACC_INCLUDE_ROOT}/cppmicroservices4;${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate;${XACC_INCLUDE_ROOT}/quantum/utils;${XACC_INCLUDE_ROOT}/quantum/aqc;${XACC_INCLUDE_ROOT}/spdlog;${XACC_INCLUDE_ROOT}/exprtk;${XACC_INCLUDE_ROOT}/eigen;${XACC_INCLUDE_ROOT}/rapidjson/include;${XACC_INCLUDE_ROOT};${XACC_INCLUDE_ROOT}/gtest")
-set (XACC_LIBRARIES "xacc;xacc-quantum-gate;xacc-quantum-aqc;antlr4-runtime;CppMicroServices")
+set (XACC_LIBRARIES "xacc;xacc-quantum-gate;xacc-quantum-aqc;xacc-pauli;antlr4-runtime;CppMicroServices")
 
 set (XACC_TEST_LIBRARIES "${XACC_LIBRARIES};gtest;gtest_main")
 

@@ -1,14 +1,17 @@
 
 #include <string>
 
+#include "/home/project/xacc/xacc/service/xacc_service.hpp"
 #include "CLIParser.hpp"
 #include "RuntimeOptions.hpp"
 #include "xacc_config.hpp"
-#include "ServiceRegistry.hpp"
+// #include "ServiceRegistry.hpp"
 #include "Compiler.hpp"
 #include "Accelerator.hpp"
 
 #include "cxxopts.hpp"
+
+#include "xacc_service.hpp"
 
 using namespace cxxopts;
 
@@ -16,9 +19,32 @@ namespace xacc {
 
 CLIParser::CLIParser()
     : xaccOptions(std::make_shared<options_description>("XACC Help")) {
-  xaccOptions->allow_unrecognised_options().add_options()(
-      "h,help", "Help Message")("c,compiler", "Indicate the compiler to be used.",
-                                value<std::string>())(
+}
+
+void CLIParser::addOptions(const std::map<std::string, std::string> &options) {
+  for (auto &kv : options) {
+    xaccOptions->add_options()(kv.first, kv.second, value<std::string>());
+  }
+}
+
+/**
+ */
+void CLIParser::parse(int argc,
+                      char **argv) { // ServiceRegistry *serviceRegistry) {
+
+  // Get a reference to the RuntimeOptions
+  auto runtimeOptions = RuntimeOptions::instance();
+
+  if (xacc::serviceAPIInitialized) {
+    auto registeredOptions = xacc::getRegisteredOptions();
+
+    for (auto s : registeredOptions) {
+      addOptions(s);
+    }
+  }
+
+  xaccOptions->add_options()("h,help", "Help message")(
+      "compiler", "Indicate the compiler to be used", value<std::string>())(
       "a,accelerator", "Indicate the accelerator to be used.",
       value<std::string>())("logger-name", "The name of the spd logger",
                             value<std::string>())(
@@ -30,28 +56,7 @@ CLIParser::CLIParser()
       "queue-preamble", "Pass this option to xacc::Initialize() if you would "
                         "like all startup messages to be queued until after a "
                         "global logger predicate has been passed.");
-}
 
-void CLIParser::addOptions(const std::map<std::string, std::string> &options) {
-  for (auto &kv : options) {
-    xaccOptions->add_options()(kv.first, kv.second, value<std::string>());
-  }
-}
-
-/**
- */
-void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
-
-  // Get a reference to the RuntimeOptions
-  auto runtimeOptions = RuntimeOptions::instance();
-
-  if (serviceRegistry) {
-    auto registeredOptions = serviceRegistry->getRegisteredOptions();
-
-    for (auto s : registeredOptions) {
-      addOptions(s);
-    }
-  }
   // Parse the command line options
   auto clArgs = xaccOptions->parse(argc, argv);
   if (clArgs.count("help")) {
@@ -66,7 +71,7 @@ void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
 
   bool listTypes = false;
   if (clArgs.count("list-compilers") && serviceRegistry) {
-    auto ids = serviceRegistry->getRegisteredIds<Compiler>();
+    auto ids = xacc::getRegisteredIds<Compiler>();
     XACCLogger::instance()->enqueueLog("\nAvailable XACC Compilers:");
     for (auto i : ids) {
       XACCLogger::instance()->enqueueLog("\t" + i);
@@ -76,7 +81,7 @@ void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
   }
 
   if (clArgs.count("list-accelerators") && serviceRegistry) {
-    auto ids = serviceRegistry->getRegisteredIds<Accelerator>();
+    auto ids = xacc::getRegisteredIds<Accelerator>();
     XACCLogger::instance()->enqueueLog("\nAvailable XACC Accelerators:");
     for (auto i : ids) {
       XACCLogger::instance()->enqueueLog("\t" + i);
@@ -94,14 +99,14 @@ void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
     exit(0);
   }
 
-  if (serviceRegistry) {
+  if (xacc::serviceAPIInitialized) {
     auto kvargs = clArgs.arguments();
     std::map<std::string, std::string> givenopts;
     for (auto &kv : kvargs) {
-      givenopts.insert({kv.key(),kv.value()});
+      givenopts.insert({kv.key(), kv.value()});
     }
 
-    auto exitRequested = serviceRegistry->handleOptions(givenopts);
+    auto exitRequested = xacc::handleOptions(givenopts);
     if (exitRequested) {
       XACCLogger::instance()->dumpQueue();
       XACCLogger::instance()->info(
@@ -117,8 +122,7 @@ void CLIParser::parse(int argc, char **argv, ServiceRegistry *serviceRegistry) {
     if (runtimeOptions->exists(kv.key())) {
       (*runtimeOptions)[kv.key()] = kv.value();
     } else {
-      runtimeOptions->insert(
-          std::make_pair(kv.key(), kv.value()));
+      runtimeOptions->insert(std::make_pair(kv.key(), kv.value()));
     }
   }
 }

@@ -14,6 +14,7 @@
 #include "GateInstruction.hpp"
 #include "GateFunction.hpp"
 #include "XACC.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 

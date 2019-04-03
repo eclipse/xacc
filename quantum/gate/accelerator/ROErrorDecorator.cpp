@@ -2,6 +2,8 @@
 #include "InstructionIterator.hpp"
 #include "XACC.hpp"
 #include <fstream>
+#include <set>
+
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/document.h"

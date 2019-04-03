@@ -16,6 +16,7 @@
 #include "XACC.hpp"
 #include "GateFunction.hpp"
 #include "IRGenerator.hpp"
+#include "xacc_service.hpp"
 
 using namespace pyxacc;
 
@@ -75,7 +76,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
   // Note, if the user has specified something like
   // H(...) or H(0...2), then we have a different handle
   if (ctx->allbitsOp() != nullptr)
-     return;
+    return;
 
   auto is_double = [](const std::string &s) -> bool {
     try {
@@ -199,30 +200,35 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
       params.insert({"param_" + std::to_string(i), f->getParameter(i)});
     }
 
-    auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
-    auto genF = generator->generate(params);
+    if (params.empty()) {
+      auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
+      f->addInstruction(generator);
+    } else {
+      auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
+      auto genF = generator->generate(params);
 
-    // We may have a IRGenerator that produces d-wave functions,
-    // if so, we will not have set to correct provider
-    if (!std::dynamic_pointer_cast<GateFunction>(genF)) {
-      if (!xacc::hasCompiler("dwave-qmi")) {
-        xacc::error(
-            "Cannot run decorated code for d-wave without d-wave plugins.");
+      // We may have a IRGenerator that produces d-wave functions,
+      // if so, we will not have set to correct provider
+      if (!std::dynamic_pointer_cast<GateFunction>(genF)) {
+        if (!xacc::hasCompiler("dwave-qmi")) {
+          xacc::error(
+              "Cannot run decorated code for d-wave without d-wave plugins.");
+        }
+        f = xacc::getService<IRProvider>("dwave")->createFunction(
+            f->name(), {}, f->getParameters());
+        auto dwcompiler = xacc::getCompiler("dwave-qmi");
+        //   auto acc = xacc::getAccelerator("dwave");
+        auto buff = accelerator->getBuffer(bufferName);
+        buff->addExtraInfo("ir-generator", ExtraInfo(generator->name()));
+
+        auto xaccKernelSrcStr = dwcompiler->translate("", genF);
+        auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, accelerator);
+        genF = embeddedCode->getKernels()[0];
       }
-      f = xacc::getService<IRProvider>("dwave")->createFunction(
-          f->name(), {}, f->getParameters());
-      auto dwcompiler = xacc::getCompiler("dwave-qmi");
-      //   auto acc = xacc::getAccelerator("dwave");
-      auto buff = accelerator->getBuffer(bufferName);
-      buff->addExtraInfo("ir-generator", ExtraInfo(generator->name()));
 
-      auto xaccKernelSrcStr = dwcompiler->translate("", genF);
-      auto embeddedCode = dwcompiler->compile(xaccKernelSrcStr, accelerator);
-      genF = embeddedCode->getKernels()[0];
-    }
-
-    for (auto i : genF->getInstructions()) {
-      f->addInstruction(i);
+      for (auto i : genF->getInstructions()) {
+        f->addInstruction(i);
+      }
     }
 
   } else if (gateName == "qmi") {
@@ -286,7 +292,8 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     }
   }*/
   else {
-      xacc::error(gateName + " is an invalid instruction for the PyXACC IR compiler.");
+    xacc::error(gateName +
+                " is an invalid instruction for the PyXACC IR compiler.");
   }
 }
 

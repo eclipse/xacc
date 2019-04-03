@@ -14,21 +14,6 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_BINARY_DIR}/tpls/cppmicroservices")
 include(CppMicroServicesConfig)
 
-
-#include_directories(${CMAKE_BINARY_DIR})
-#include_directories(${CMAKE_SOURCE_DIR}/xacc)
-#include_directories(${CMAKE_SOURCE_DIR}/xacc/ir)
-#include_directories(${CMAKE_SOURCE_DIR}/xacc/compiler)
-#include_directories(${CMAKE_SOURCE_DIR}/xacc/program)
-#include_directories(${CMAKE_SOURCE_DIR}/xacc/accelerator)
-#include_directories(${CMAKE_SOURCE_DIR}/xacc/utils)
-#include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-#include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
-#include_directories(${CMAKE_SOURCE_DIR}/tpls/spdlog)
-#include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
-#include_directories(${GTEST_INCLUDE_DIRS})
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-
 add_subdirectory(utils)
 add_subdirectory(gate)
 add_subdirectory(aqc)

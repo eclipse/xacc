@@ -3,13 +3,14 @@
 
 #include <memory>
 #include "AllGateVisitor.hpp"
+#include "IRGenerator.hpp"
 
 namespace xacc {
 namespace quantum {
 
 /**
  */
-class PyXACCVisitor : public AllGateVisitor {
+class PyXACCVisitor : public AllGateVisitor, public InstructionVisitor<IRGenerator> {
 protected:
   /**
    */
@@ -17,14 +18,21 @@ protected:
 
 public:
   PyXACCVisitor(std::vector<InstructionParameter> functionParams) {
-    pyxaccStr += "@qpu()\ndef foo(" +functionParams[0].toString();
-    for (int i = 1; i < functionParams.size(); i++) {
-      pyxaccStr += "," + functionParams[i].toString();
+    if (!functionParams.empty()) {
+      pyxaccStr += "@qpu()\ndef foo(buffer," + functionParams[0].toString();
+      for (int i = 1; i < functionParams.size(); i++) {
+        pyxaccStr += "," + functionParams[i].toString();
+      }
+      pyxaccStr += "):\n";
+    } else {
+      pyxaccStr += "@qpu()\ndef foo(buffer):\n";
     }
-    pyxaccStr += "):\n";
   }
-  PyXACCVisitor() { pyxaccStr += "@qpu()\ndef foo():\n"; }
+  PyXACCVisitor() { pyxaccStr += "@qpu()\ndef foo(buffer):\n"; }
 
+  void visit(IRGenerator& irg) {
+      pyxaccStr += "   " + irg.name() + "()\n";
+  }
   /**
    * Visit hadamard gates
    */
@@ -114,12 +122,13 @@ public:
                  std::to_string(s.bits()[1]) + ")\n";
   }
 
-  void visit(U& u) {
+  void visit(U &u) {
     auto t = u.getParameter(0).toString();
     auto p = u.getParameter(1).toString();
     auto l = u.getParameter(2).toString();
 
-    // if (u.getParameter(0).which() != 3 && u.getParameter(1).which() != 3 && u.getParameter(2).which() != 3) {
+    // if (u.getParameter(0).which() != 3 && u.getParameter(1).which() != 3 &&
+    // u.getParameter(2).which() != 3) {
     //     // We have concrete values here
     //     auto td = boost::get<double>(u.getParameter(0));
     //     auto pd = boost::get<double>(u.getParameter(1));
@@ -136,7 +145,7 @@ public:
 
     pyxaccStr += s.str();
   }
-  
+
   void visit(GateFunction &f) { return; }
   /**
    * Return the quil string

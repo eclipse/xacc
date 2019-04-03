@@ -11,6 +11,9 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "XACC.hpp"
+#include "xacc_service.hpp"
+
+#include "Program.hpp"
 #include "IRGenerator.hpp"
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"

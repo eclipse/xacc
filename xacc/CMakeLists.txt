@@ -21,7 +21,8 @@ file(GLOB HEADERS
           compiler/*.hpp
           accelerator/*.hpp
           accelerator/remote/*.hpp
-          utils/*.hpp)
+          utils/*.hpp
+          service/*.hpp)
 
 add_library(xacc
             SHARED
@@ -30,7 +31,8 @@ add_library(xacc
             program/Program.cpp
             utils/Utils.cpp
             utils/CLIParser.cpp
-            utils/ServiceRegistry.cpp
+            service/ServiceRegistry.cpp
+            service/xacc_service.cpp
             accelerator/remote/RemoteAccelerator.cpp)
 
 add_dependencies(xacc cpr)
@@ -47,6 +49,7 @@ target_include_directories(xacc
                                   program
                                   accelerator
                                   utils
+                                  service
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
 
 if(APPLE)
@@ -57,7 +60,7 @@ else()
   set_target_properties(xacc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
+target_link_libraries(xacc PRIVATE CppMicroServices cpr)
 
 # Add the tests
 if(XACC_BUILD_TESTS)

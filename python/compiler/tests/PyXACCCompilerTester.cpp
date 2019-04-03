@@ -32,14 +32,15 @@
 #include "PyXACCCompiler.hpp"
 #include "XACC.hpp"
 #include "IRGenerator.hpp"
+#include "xacc_service.hpp"
 
 using namespace xacc::quantum;
 using namespace xacc;
 
 class FakePyAcc : public xacc::Accelerator {
 public:
-  virtual xacc::AcceleratorType getType() {
-    return xacc::AcceleratorType::qpu_gate;
+  virtual xacc::Accelerator::AcceleratorType getType() {
+    return xacc::Accelerator::AcceleratorType::qpu_gate;
   }
 
   virtual bool isValidBufferSize(const int nBits) { return true; }

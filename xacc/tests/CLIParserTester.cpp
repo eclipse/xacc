@@ -75,7 +75,7 @@ TEST(CLIParserTester, checkParse) {
   auto argc = argv.argc();
 
   parser.addOptions({{"test","description"},{"test2","description"}});
-  parser.parse(argc, actual_argv, nullptr);
+  parser.parse(argc, actual_argv);//, nullptr);
 
   auto options = *RuntimeOptions::instance();
 

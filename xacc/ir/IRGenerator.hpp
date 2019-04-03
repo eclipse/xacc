@@ -15,7 +15,7 @@
 
 #include "AcceleratorBuffer.hpp"
 #include "Function.hpp"
-#include "Identifiable.hpp"
+// #include "Identifiable.hpp"
 #include <vector>
 #include <memory>
 
@@ -27,7 +27,7 @@ namespace xacc {
  *
  * @author Alex McCaskey
  */
-class IRGenerator : public Identifiable {
+class IRGenerator : public Instruction {
 
 public:
   /**
@@ -64,6 +64,72 @@ public:
   analyzeResults(std::shared_ptr<AcceleratorBuffer> buffer) {
     return std::vector<InstructionParameter>{};
   }
+
+ const std::string toString(const std::string &bufferVarName) override {
+     std::string n = name();
+     return n + "()";
+ }
+
+  const std::string toString() override {
+      std::string n = name();
+      return n + "()";
+  }
+
+  const std::vector<int> bits() override {
+      return {};
+  }
+
+  /**
+   * Return this Instruction's parameter at the given index.
+   *
+   * @param idx The index of the parameter.
+   * @return param The InstructionParameter at the given index.
+   */
+  InstructionParameter getParameter(const int idx) const override {
+      return InstructionParameter(0);
+  }
+
+  std::vector<InstructionParameter> getParameters() override {
+      return {};
+  }
+
+  void setParameter(const int idx, InstructionParameter &inst) override {
+      return;
+  }
+
+  const int nParameters() override {
+      return 0;
+  }
+
+  bool isParameterized() override { return false; }
+
+  void mapBits(std::vector<int> bitMap) override {
+      return;
+  }
+
+  void setOption(const std::string optName, InstructionParameter option) override {
+      return;
+  }
+
+  /**
+   * Get the value of an option with the given name.
+   *
+   * @param optName Then name of the option.
+   * @return option The value of the option.
+   */
+  InstructionParameter getOption(const std::string optName) override {
+      return InstructionParameter(0);
+  }
+
+  std::map<std::string, InstructionParameter> getOptions() override {
+      return {};
+  }
+
+  const int nRequiredBits() const override {
+      return 0;
+  }
+
+  DEFINE_VISITABLE();
 
   /**
    * The destructor

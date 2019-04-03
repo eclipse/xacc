@@ -1,9 +1,12 @@
 #include "GateFunction.hpp"
 #include <algorithm>
 #include <ctype.h>
+#include <memory>
 #include <string>
 #include "InstructionIterator.hpp"
 #include "IRToGraphVisitor.hpp"
+#include "IRGenerator.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -12,6 +15,29 @@ void GateFunction::mapBits(std::vector<int> bitMap) {
   for (auto i : instructions) {
     i->mapBits(bitMap);
   }
+}
+
+void GateFunction::expandIRGenerators(
+    std::map<std::string, InstructionParameter> irGenMap) {
+  for (int idx = 0; idx < nInstructions(); idx++) {
+    auto inst = getInstruction(idx);
+    auto irg = std::dynamic_pointer_cast<IRGenerator>(inst);
+    if (irg) {
+      auto evaluated = irg->generate(irGenMap);
+      replaceInstruction(idx, evaluated);
+    }
+  }
+}
+
+bool GateFunction::hasIRGenerators() {
+  for (int idx = 0; idx < nInstructions(); idx++) {
+    auto inst = getInstruction(idx);
+    auto irg = std::dynamic_pointer_cast<IRGenerator>(inst);
+    if (irg) {
+        return true;
+    }
+  }
+  return false;
 }
 
 const int GateFunction::nInstructions() { return instructions.size(); }
@@ -315,8 +341,9 @@ const int GateFunction::nParameters() { return parameters.size(); }
 const std::string GateFunction::toString(const std::string &bufferVarName) {
   std::string retStr = "";
   for (auto i : instructions) {
-    if (i->isEnabled())
+    if (i->isEnabled()) {
       retStr += i->toString(bufferVarName) + "\n";
+    }
   }
   return retStr;
 }

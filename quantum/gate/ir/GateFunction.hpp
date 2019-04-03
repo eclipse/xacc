@@ -128,6 +128,9 @@ public:
     return false;
   }
 
+  void expandIRGenerators(
+      std::map<std::string, InstructionParameter> irGenMap) override;
+  bool hasIRGenerators() override;
   /**
    * Remove an instruction from this
    * quantum intermediate representation
@@ -282,7 +285,6 @@ protected:
   std::string tag = "";
 
   std::map<std::string, InstructionParameter> options;
-
 };
 
 } // namespace quantum
