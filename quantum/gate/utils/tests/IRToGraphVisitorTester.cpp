@@ -42,7 +42,7 @@ TEST(IRToGraphTester, checkSimple) {
 
   auto graph = vis->getGraph();
 
-  graph.write(std::cout);
+  graph->write(std::cout);
 }
 
 TEST(IRToGraphTester, checkCNOTLadder) {
@@ -67,7 +67,7 @@ TEST(IRToGraphTester, checkCNOTLadder) {
 
   auto graph = vis->getGraph();
 
-  graph.write(std::cout);
+  graph->write(std::cout);
 }
 
 int main(int argc, char **argv) {

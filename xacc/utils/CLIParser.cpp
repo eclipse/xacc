@@ -41,7 +41,7 @@ void CLIParser::parse(int argc,
     }
   }
 
-  xaccOptions->add_options()("h,help", "Help message")(
+  xaccOptions->allow_unrecognised_options().add_options()("h,help", "Help message")(
       "compiler", "Indicate the compiler to be used", value<std::string>())(
       "a,accelerator", "Indicate the accelerator to be used.",
       value<std::string>())("logger-name", "The name of the spd logger",

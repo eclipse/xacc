@@ -239,17 +239,17 @@ TEST(GateFunctionTester, checkGenerateGraph) {
   auto g = f->toGraph();
 
   std::stringstream ss;
-  g.write(ss);
+  g->write(ss);
 
   std::string expected = R"expected(digraph G {
 node [shape=box style=filled]
-0 [label="gate=InitialState;id=0;bits=[0,1,2]"];
-1 [label="gate=H;id=1;bits=[1]"];
-2 [label="gate=CNOT;id=2;bits=[1,2]"];
-3 [label="gate=CNOT;id=3;bits=[0,1]"];
-4 [label="gate=H;id=4;bits=[0]"];
-5 [label="gate=Rz;id=5;bits=[2]"];
-6 [label="gate=FinalState;id=6;bits=[0,1,2]"];
+0 [label="bits=[0,1,2];id=0;name=InitialState"];
+1 [label="bits=[1];id=1;name=H"];
+2 [label="bits=[1,2];id=2;name=CNOT"];
+3 [label="bits=[0,1];id=3;name=CNOT"];
+4 [label="bits=[0];id=4;name=H"];
+5 [label="bits=[2];id=5;name=Rz"];
+6 [label="bits=[0,1,2];id=6;name=FinalState"];
 0->1 ;
 0->2 ;
 0->3 ;
@@ -263,7 +263,7 @@ node [shape=box style=filled]
 }
 )expected";
 
-  std::cout << ss.str() << "\n\n" << expected << "\n";
+  std::cout << ss.str() << "\n" << expected << "\n";
   EXPECT_TRUE(expected == ss.str());
 }
 
@@ -283,8 +283,7 @@ TEST(GateFunctionTester, checkDepth) {
 
   auto g = f->toGraph();
 
-  std::cout << "DEPTH: " << g.depth() << "\n";
-  EXPECT_EQ(3, g.depth());
+  EXPECT_EQ(3, g->depth());
 }
 
 int main(int argc, char **argv) {

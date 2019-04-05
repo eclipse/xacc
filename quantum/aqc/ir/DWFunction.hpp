@@ -17,8 +17,6 @@
 #include "DWQMI.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
-#include "GraphProvider.hpp"
-#include "DWGraph.hpp"
 
 static constexpr double pi = 3.141592653589793238;
 
@@ -30,7 +28,6 @@ namespace xacc {
 namespace quantum {
 
 class DWFunction : public Function,
-                 public GraphProvider<DWVertex>,
                  public std::enable_shared_from_this<DWFunction> {
 
 protected:
@@ -119,39 +116,11 @@ const int nRequiredBits() const override {
 
   const std::string persistGraph() override {
     std::stringstream s;
-    toGraph().write(s);
+    toGraph()->write(s);
     return s.str();
   }
 
-  Graph<DWVertex> toGraph() override {
-    int maxBit = 0;
-    for (int i = 0; i < nInstructions(); ++i) {
-      auto inst = getInstruction(i);
-      auto bits = inst->bits();
-      if (bits[0] > maxBit) {
-        maxBit = bits[0];
-      }
-      if (bits[1] > maxBit) {
-        maxBit = bits[1];
-      }
-    }
-
-    DWGraph graph(maxBit + 1);
-
-    for (int i = 0; i < nInstructions(); ++i) {
-      auto inst = getInstruction(i);
-      auto bits = inst->bits();
-      if (bits[0] == bits[1]) {
-        std::get<0>(graph.getVertex(bits[0]).properties) =
-            mpark::get<double>(inst->getParameter(0));
-      } else {
-        graph.addEdge(bits[0], bits[1],
-                      mpark::get<double>(inst->getParameter(0)));
-      }
-    }
-
-    return graph;
-  }
+  std::shared_ptr<Graph> toGraph() override;
 
   void replaceInstruction(const int idx, InstPtr replacingInst) override {
     std::replace(instructions.begin(), instructions.end(), getInstruction(idx),

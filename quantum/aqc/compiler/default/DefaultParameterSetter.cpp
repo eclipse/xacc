@@ -17,8 +17,8 @@ namespace xacc {
 namespace quantum {
 
 std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
-    std::shared_ptr<DWGraph> problemGraph,
-    std::shared_ptr<AcceleratorGraph> hardwareGraph, Embedding embedding) {
+    std::shared_ptr<Graph> problemGraph,
+    std::shared_ptr<Graph> hardwareGraph, Embedding embedding) {
 
   std::list<std::shared_ptr<DWQMI>> instList;
   auto nHardwareVerts = hardwareGraph->order();
@@ -45,7 +45,7 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
   for (auto &embKv : embedding) {
     auto probVert = embKv.first;
     auto hardwareMapping = embKv.second;
-    auto newBias = std::get<0>(problemGraph->getVertexProperties(probVert)) /
+    auto newBias = problemGraph->getVertexProperties(probVert)["bias"].as<double>() /
                    hardwareMapping.size();
     for (auto h : hardwareMapping) {
       auto embeddedInst = std::make_shared<DWQMI>(h, h, newBias);
@@ -82,7 +82,7 @@ std::list<std::shared_ptr<DWQMI>> DefaultParameterSetter::setParameters(
                   newWeight +=
                       std::fabs(problemGraph->getEdgeWeight(pi, neighbor));
                 }
-                newWeight += std::get<0>(problemGraph->getVertexProperties(pi));
+                newWeight += problemGraph->getVertexProperties(pi)["bias"].as<double>();
                 newWeight *= -1.0 * chain_strength;
               }
 

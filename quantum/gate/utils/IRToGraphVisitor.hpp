@@ -14,78 +14,28 @@
 #define QUANTUM_IRTOGRAPHVISITOR_HPP_
 
 #include "AllGateVisitor.hpp"
-#include "GateFunction.hpp"
 #include "Graph.hpp"
 
 namespace xacc {
 namespace quantum {
 
+using CircuitNode = std::map<std::string, InstructionParameter>;
+
 class IRToGraphVisitor : public AllGateVisitor {
 
 protected:
-  Graph<CircuitNode, Directed> graph;
+  std::shared_ptr<Graph> graph;
 
   std::map<int, CircuitNode> qubitToLastNode;
 
   int id = 0;
 
-  void addSingleQubitGate(GateInstruction &inst) {
-    auto bit = inst.bits()[0];
-    auto lastNode = qubitToLastNode[bit];
-    auto lastBit = lastNode.bits()[0];
-
-    id++;
-
-    CircuitNode newNode(inst.name(), id, inst.bits());
-
-    graph.addVertex(newNode);
-    graph.addEdge(lastNode.id(), newNode.id(), 1);
-
-    qubitToLastNode[bit] = newNode;
-  }
-
-  void addTwoQubitGate(GateInstruction &inst) {
-    auto srcbit = inst.bits()[0];
-    auto tgtbit = inst.bits()[1];
-
-    auto lastsrcnodeid = qubitToLastNode[srcbit].id();
-    auto lasttgtnodeid = qubitToLastNode[tgtbit].id();
-
-    id++;
-    CircuitNode newNode(inst.name(), id, inst.bits());
-
-    graph.addVertex(newNode);
-    graph.addEdge(lastsrcnodeid, id, 1);
-    graph.addEdge(lasttgtnodeid, id, 1);
-
-    qubitToLastNode[srcbit] = newNode;
-    qubitToLastNode[tgtbit] = newNode;
-  }
+  void addSingleQubitGate(GateInstruction &inst);
+  void addTwoQubitGate(GateInstruction &inst);
 
 public:
-  IRToGraphVisitor(const int nQubits) {
-    std::vector<int> allQbitIds(nQubits);
-    std::iota(std::begin(allQbitIds), std::end(allQbitIds), 0);
-    CircuitNode initNode("InitialState", 0, allQbitIds);
-    for (int i = 0; i < nQubits; i++) {
-      qubitToLastNode.insert({i, initNode});
-    }
-    graph.addVertex(initNode);
-  }
-
-  Graph<CircuitNode, Directed> getGraph() {
-    CircuitNode finalNode;
-    std::get<0>(finalNode.properties) = "FinalState";
-    std::get<1>(finalNode.properties) = id + 1;
-    std::get<2>(finalNode.properties) = graph.getVertex(0).bits();
-    graph.addVertex(finalNode);
-
-    for (auto &kv : qubitToLastNode) {
-      graph.addEdge(kv.second.id(), finalNode.id(), 1.0);
-    }
-
-    return graph;
-  }
+  IRToGraphVisitor(const int nQubits);
+  std::shared_ptr<Graph> getGraph();
 
   void visit(Hadamard &h) { addSingleQubitGate(h); }
 
@@ -116,9 +66,9 @@ public:
   void visit(CPhase &cp) { addTwoQubitGate(cp); }
 
   void visit(Swap &s) { addTwoQubitGate(s); }
- 
-  void visit(U &u) {addSingleQubitGate(u);}
-  
+
+  void visit(U &u) { addSingleQubitGate(u); }
+
   void visit(GateFunction &f) {
     // nothing
   }

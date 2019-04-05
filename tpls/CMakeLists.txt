@@ -55,10 +55,11 @@ else()
    install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest_main.so DESTINATION lib)
 endif()
 
+set(BUILD_SHARED_LIBS FALSE)
 set(BOOST_LIBS_OPTIONAL graph CACHE STRING "" FORCE)
 add_subdirectory(boost-cmake)
 
-INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/boost-cmake/boost/boost_1_64_0/boost" DESTINATION include )
+#INSTALL( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/boost-cmake/boost/boost_1_64_0/boost" DESTINATION include )
 
 # Compiler-specific C++11 activation (FROM ANTLR4).
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")

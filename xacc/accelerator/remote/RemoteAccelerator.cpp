@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "RemoteAccelerator.hpp"
+#include "XACC.hpp"
 
 #include <cpr/cpr.h>
 
@@ -94,5 +95,80 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
 
   return processResponse(buffer, responseStr);
 }
+
+ std::string RemoteAccelerator::handleExceptionRestClientPost(
+      const std::string &_url, const std::string &path,
+      const std::string &postStr, std::map<std::string, std::string> headers) {
+    std::string postResponse;
+    int retries = 10;
+    std::exception ex;
+    bool succeeded = false;
+
+    // Execute HTTP Post
+    do {
+      try {
+        postResponse = restClient->post(_url, path, postStr, headers);
+        succeeded = true;
+        break;
+      } catch (std::exception &e) {
+        ex = e;
+        xacc::info("Remote Accelerator " + name() +
+                   " caught exception while calling restClient->post() "
+                   "- " +
+                   std::string(e.what()));
+        retries--;
+        if (retries > 0) {
+          xacc::info("Retrying HTTP Post.");
+        }
+      }
+    } while (retries > 0);
+
+    if (!succeeded) {
+      xacc::error("Remote Accelerator " + name() +
+                  " failed HTTP Post for Job Response - " +
+                  std::string(ex.what()));
+    }
+
+    return postResponse;
+  }
+
+  std::string
+  RemoteAccelerator::handleExceptionRestClientGet(const std::string &_url, const std::string &path,
+                               std::map<std::string, std::string> headers) {
+    std::string getResponse;
+    int retries = 10;
+    std::exception ex;
+    bool succeeded = false;
+    // Execute HTTP Get
+    do {
+      try {
+        getResponse = restClient->get(_url, path, headers);
+        succeeded = true;
+        break;
+      } catch (std::exception &e) {
+        ex = e;
+        xacc::info("Remote Accelerator " + name() +
+                   " caught exception while calling restClient->get() "
+                   "- " +
+                   std::string(e.what()));
+                // s1.find(s2) != std::string::npos) {
+        if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos) {
+          xacc::error(std::string(e.what()));
+        }
+        retries--;
+        if (retries > 0) {
+          xacc::info("Retrying HTTP Get.");
+        }
+      }
+    } while (retries > 0);
+
+    if (!succeeded) {
+      xacc::error("Remote Accelerator " + name() +
+                  " failed HTTP Get for Job Response - " +
+                  std::string(ex.what()));
+    }
+
+    return getResponse;
+  }
 
 } // namespace xacc

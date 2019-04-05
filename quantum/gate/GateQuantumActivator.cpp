@@ -12,7 +12,6 @@
  *******************************************************************************/
 #include "QFT.hpp"
 #include "InverseQFT.hpp"
-#include "QubitMapIRPreprocessor.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -60,9 +59,6 @@ public:
     auto qft = std::make_shared<xacc::quantum::QFT>();
     auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
 
-
-    auto qbitmap = std::make_shared<xacc::quantum::QubitMapIRPreprocessor>();
-
     auto giservice = std::make_shared<xacc::quantum::GateIRProvider>();
 
     auto opt = std::make_shared<xacc::quantum::CircuitOptimizer>();
@@ -74,8 +70,6 @@ public:
     context.RegisterService<xacc::IRProvider>(giservice);
     context.RegisterService<xacc::IRGenerator>(iqft);
     context.RegisterService<xacc::IRGenerator>(qft);
-
-    context.RegisterService<xacc::IRPreprocessor>(qbitmap);
 
     context.RegisterService<xacc::IRTransformation>(opt);
     context.RegisterService<xacc::OptionsProvider>(opt);

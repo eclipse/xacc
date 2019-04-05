@@ -50,7 +50,7 @@ TEST(DWFunctionTester, checkGraph) {
 
   auto graph = kernel.toGraph();
 
-  graph.write(std::cout);
+//   graph->write(std::cout);
 }
 
 TEST(DWFunctionTester, checkVariableParameterEval) {
@@ -87,6 +87,7 @@ TEST(DWFunctionTester, checkVariableParameterEval) {
   std::cout << evaled->toString("") << std::endl;
 }
 int main(int argc, char **argv) {
+    xacc::Initialize(argc,argv);
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

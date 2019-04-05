@@ -5,6 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/compiler)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+#include_directories(${CMAKE_SOURCE_DIR}/xacc/utils)
 
 add_xacc_test(CircuitOptimizer)
-target_link_libraries(CircuitOptimizerTester CppMicroServices xacc-quantum-gate)
+target_link_libraries(CircuitOptimizerTester CppMicroServices xacc xacc-quantum-gate)

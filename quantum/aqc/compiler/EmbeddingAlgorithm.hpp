@@ -18,9 +18,9 @@
 #include <memory>
 #include <string>
 #include "Utils.hpp"
-#include "DWGraph.hpp"
 #include "Embedding.hpp"
 #include "Identifiable.hpp"
+#include "Graph.hpp"
 
 #include <string>
 
@@ -56,8 +56,8 @@ public:
    * @return embedding A mapping of problem vertex indices to the list of
    * hardware vertices they map to
    */
-  virtual Embedding embed(std::shared_ptr<DWGraph> problem,
-                          std::shared_ptr<AcceleratorGraph> hardware,
+  virtual Embedding embed(std::shared_ptr<Graph> problem,
+                          std::shared_ptr<Graph> hardware,
                           std::map<std::string, std::string> params =
                               std::map<std::string, std::string>()) = 0;
 };

@@ -15,12 +15,15 @@
 
 #include "Function.hpp"
 #include "IRProvider.hpp"
-#include "GraphProvider.hpp"
 #include "GateInstruction.hpp"
 #include "XACC.hpp"
 #include "exprtk.hpp"
 
+
 namespace xacc {
+
+class Graph;
+
 namespace quantum {
 
 static constexpr double pi = 3.141592653589793238;
@@ -30,38 +33,11 @@ using expression_t = exprtk::expression<double>;
 using parser_t = exprtk::parser<double>;
 
 /**
- * CircuitNode subclasses XACCVertex to provide the following
- * parameters in the given order:
- *
- * Parameters: Gate, Id, Qubit Ids that the gate acts on
- */
-class CircuitNode : public XACCVertex<std::string, int, std::vector<int>> {
-public:
-  CircuitNode() : XACCVertex() {
-    propertyNames[0] = "gate";
-    propertyNames[1] = "id";
-    propertyNames[2] = "bits";
-  }
-
-  CircuitNode(std::string name, int id, std::vector<int> bits) {
-    std::get<0>(properties) = name;
-    std::get<1>(properties) = id;
-    std::get<2>(properties) = bits;
-  }
-
-  const std::string name() { return std::get<0>(properties); }
-  const int id() { return std::get<1>(properties); }
-  const std::vector<int> bits() { return std::get<2>(properties); }
-  bool twoQubit() { return bits().size() == 2; }
-};
-
-/**
  * The GateFunction is a realization of Function for gate-model
  * quantum computing. It is composed of GateInstructions that
  * are themselves derivations of the Instruction class.
  */
 class GateFunction : public Function,
-                     public GraphProvider<CircuitNode, Directed>,
                      public std::enable_shared_from_this<GateFunction> {
 
 public:
@@ -176,13 +152,8 @@ public:
    */
   const std::vector<int> bits() override;
 
-  const int depth() override { return toGraph().depth(); }
-
-  const std::string persistGraph() override {
-    std::stringstream s;
-    toGraph().write(s);
-    return s.str();
-  }
+  const int depth() override;
+  const std::string persistGraph() override;
 
   /**
    * Return an assembly-like string representation for this function .
@@ -214,9 +185,7 @@ public:
   std::shared_ptr<Function>
   operator()(const std::vector<double> &params) override;
 
-  Graph<CircuitNode, Directed> toGraph() override;
-  //   void fromGraph(Graph<CircuitNode>& graph) override;
-  //   void fromGraph(std::istream& input) override;
+  std::shared_ptr<Graph> toGraph() override;
 
   /**
    * Return the number of logical qubits.

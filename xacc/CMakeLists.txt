@@ -17,7 +17,6 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 file(GLOB HEADERS
           XACC.hpp
           ir/*.hpp
-          program/*.hpp
           compiler/*.hpp
           accelerator/*.hpp
           accelerator/remote/*.hpp
@@ -28,7 +27,6 @@ add_library(xacc
             SHARED
             XACC.cpp
             accelerator/AcceleratorBuffer.cpp
-            program/Program.cpp
             utils/Utils.cpp
             utils/CLIParser.cpp
             service/ServiceRegistry.cpp

@@ -29,6 +29,9 @@ namespace xacc {
  */
 class IRGenerator : public Instruction {
 
+protected:
+  std::map<std::string, InstructionParameter> options;
+
 public:
   /**
    * Implementations of this method generate a Function IR
@@ -52,7 +55,15 @@ public:
   }
 
   virtual std::shared_ptr<Function>
-  generate(std::map<std::string, InstructionParameter> parameters =
+  generate(std::map<std::string, InstructionParameter>& parameters) {
+    std::vector<InstructionParameter> temp;
+    for (auto &kv : parameters)
+      temp.push_back(kv.second);
+    return generate(nullptr, temp);
+  }
+
+  virtual std::shared_ptr<Function>
+  generate(std::map<std::string, InstructionParameter>&& parameters =
                std::map<std::string, InstructionParameter>{}) {
     std::vector<InstructionParameter> temp;
     for (auto &kv : parameters)
@@ -108,6 +119,11 @@ public:
   }
 
   void setOption(const std::string optName, InstructionParameter option) override {
+      if (options.count(optName)) {
+          options[optName] = option;
+      } else {
+        options.insert({optName, option});
+      }
       return;
   }
 
@@ -118,11 +134,11 @@ public:
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-      return InstructionParameter(0);
+      return options[optName];
   }
 
   std::map<std::string, InstructionParameter> getOptions() override {
-      return {};
+      return options;
   }
 
   const int nRequiredBits() const override {

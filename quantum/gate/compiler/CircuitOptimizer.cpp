@@ -1,7 +1,7 @@
 #include "CircuitOptimizer.hpp"
 #include "GateIR.hpp"
 #include "GateFunction.hpp"
-#include "GraphProvider.hpp"
+#include "Graph.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
 #include "CNOT.hpp"
 #include "Rz.hpp"
@@ -65,15 +65,15 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
         gateFunction = std::dynamic_pointer_cast<GateFunction>(
             gateFunction->enabledView());
         auto graphView = gateFunction->toGraph();
-        for (int i = 1; i < graphView.order() - 2; i++) {
-          auto node = graphView.getVertex(i);
-          if (node.name() == "CNOT" &&
-              gateFunction->getInstruction(node.id() - 1)->isEnabled()) {
-            auto neighbors = graphView.getNeighborList(node.id());
-            std::vector<int> nAsVec(neighbors.begin(), neighbors.end());
+        for (int i = 1; i < graphView->order() - 2; i++) {
+          auto node = graphView->getVertexProperties(i);
+          if (node["name"].toString() == "CNOT" &&
+              gateFunction->getInstruction(node["id"].as<int>() - 1)->isEnabled()) {
+            auto nAsVec = graphView->getNeighborList(node["id"].as<int>());
+            // std::vector<int> nAsVec(neighbors.begin(), neighbors.end());
 
             if (nAsVec[0] == nAsVec[1]) {
-              gateFunction->getInstruction(node.id() - 1)->disable();
+              gateFunction->getInstruction(node["id"].as<int>() - 1)->disable();
               gateFunction->getInstruction(nAsVec[0] - 1)->disable();
               modified = true;
               break;
@@ -90,29 +90,29 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
             gateFunction->enabledView());
         auto graphView = gateFunction->toGraph();
 
-        for (int i = 1; i < graphView.order() - 2; ++i) {
-          auto node = graphView.getVertex(i);
+        for (int i = 1; i < graphView->order() - 2; ++i) {
+          auto node = graphView->getVertexProperties(i);
 
-          auto adj = graphView.getNeighborList(node.id());
-          std::vector<int> nAsVec(adj.begin(), adj.end());
-          if (adj.size() == 1) {
-            auto nextNode = graphView.getVertex(nAsVec[0]);
-            if (node.name() == "H" && nextNode.name() == "H") {
-              gateFunction->getInstruction(node.id() - 1)->disable();
+          auto nAsVec = graphView->getNeighborList(node["id"].as<int>());
+        //   std::vector<int> nAsVec(adj.begin(), adj.end());
+          if (nAsVec.size() == 1) {
+            auto nextNode = graphView->getVertexProperties(nAsVec[0]);
+            if (node["name"].toString() == "H" && nextNode["name"].toString() == "H") {
+              gateFunction->getInstruction(node["id"].as<int>() - 1)->disable();
               gateFunction->getInstruction(nAsVec[0] - 1)->disable();
               modified = true;
               break;
-            } else if (isRotation(node.name()) && isRotation(nextNode.name()) &&
-                       node.name() == nextNode.name()) {
+            } else if (isRotation(node["name"].toString()) && isRotation(nextNode["name"].toString()) &&
+                       node["name"].toString() == nextNode["name"].toString()) {
               auto val1 = ipToDouble(
-                  gateFunction->getInstruction(node.id() - 1)->getParameter(0));
+                  gateFunction->getInstruction(node["id"].as<int>() - 1)->getParameter(0));
               auto val2 =
-                  ipToDouble(gateFunction->getInstruction(nextNode.id() - 1)
+                  ipToDouble(gateFunction->getInstruction(nextNode["id"].as<int>() - 1)
                                  ->getParameter(0));
 
               if (std::fabs(val1 + val2) < 1e-12) {
-                gateFunction->getInstruction(node.id() - 1)->disable();
-                gateFunction->getInstruction(nextNode.id() - 1)->disable();
+                gateFunction->getInstruction(node["id"].as<int>() - 1)->disable();
+                gateFunction->getInstruction(nextNode["id"].as<int>() - 1)->disable();
                 modified = true;
                 break;
               }
