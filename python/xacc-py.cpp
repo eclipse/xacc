@@ -13,14 +13,12 @@
 #include "XACC.hpp"
 #include "xacc_service.hpp"
 
-#include "Program.hpp"
 #include "IRGenerator.hpp"
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"
 #include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
 #include "InstructionParameter.hpp"
-#include "DWGraph.hpp"
 #include "EmbeddingAlgorithm.hpp"
 #include "PauliOperator.hpp"
 
@@ -193,18 +191,10 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("hasNext", &xacc::InstructionIterator::hasNext, "")
       .def("next", &xacc::InstructionIterator::next, "");
 
-  py::class_<xacc::IRPreprocessor, std::shared_ptr<xacc::IRPreprocessor>>(
-      m, "IRPreprocesor", "")
-      .def("process", &xacc::IRPreprocessor::process, "");
 
   py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>>(
       m, "IRTransformation", "")
       .def("transform", &xacc::IRTransformation::transform, "");
-
-  py::class_<xacc::AcceleratorBufferPostprocessor,
-             std::shared_ptr<xacc::AcceleratorBufferPostprocessor>>(
-      m, "AcceleratorBufferPostprocessor", "")
-      .def("process", &xacc::AcceleratorBufferPostprocessor::process, "");
 
   py::class_<xacc::IRGenerator, std::shared_ptr<xacc::IRGenerator>>(
       m, "IRGenerator", "")
@@ -215,71 +205,10 @@ PYBIND11_MODULE(_pyxacc, m) {
            py::return_value_policy::reference, "")
       .def("generate",
            (std::shared_ptr<xacc::Function>(xacc::IRGenerator::*)(
-               std::map<std::string, xacc::InstructionParameter>)) &
+               std::map<std::string, xacc::InstructionParameter>&)) &
                xacc::IRGenerator::generate,
            py::return_value_policy::reference, "")
       .def("analyzeResults", &xacc::IRGenerator::analyzeResults, "");
-
-  // Expose the Kernel
-  py::class_<xacc::Kernel<>, std::shared_ptr<xacc::Kernel<>>>(
-      m, "Kernel",
-      "The XACC Kernel is the "
-      "executable functor that executes XACC IR on the desired Accelerator.")
-      .def("getIRFunction", &xacc::Kernel<>::getIRFunction,
-           py::return_value_policy::reference,
-           "Return the IR Function instance this Kernel wraps.")
-      .def("execute",
-           (void (xacc::Kernel<>::*)(std::shared_ptr<xacc::AcceleratorBuffer>,
-                                     std::vector<xacc::InstructionParameter>)) &
-               xacc::Kernel<>::operator(),
-           "Execute this Kernel with the given set of "
-           "InstructionParamters. This set can be empty "
-           "if there are no parameters.");
-
-  py::class_<xacc::KernelList<>>(
-      m, "KernelList",
-      "The XACC KernelList is a vector of "
-      "Kernels that provides a operator() implementation to execute multiple "
-      "kernels at once.")
-      .def(
-          "execute",
-          (std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>(
-              xacc::KernelList<>::*)(std::shared_ptr<xacc::AcceleratorBuffer>,
-                                     std::vector<xacc::InstructionParameter>)) &
-              xacc::KernelList<>::operator(),
-          "Execute a list of Kernels at once.")
-      .def("__getitem__",
-           [](const xacc::KernelList<> &kl, int i) -> xacc::Kernel<> {
-             if (i >= kl.size())
-               throw py::index_error();
-             return kl[i];
-           })
-      .def("__setitem__",
-           [](xacc::KernelList<> &kl, size_t i, xacc::Kernel<> v) {
-             if (i >= kl.size())
-               throw py::index_error();
-             kl[i] = v;
-           })
-      .def("__len__", &xacc::KernelList<>::size)
-      .def(
-          "__iter__",
-          [](const xacc::KernelList<> &kl) {
-            return py::make_iterator(kl.begin(), kl.end());
-          },
-          py::keep_alive<0, 1>())
-      .def("__getitem__",
-           [](xacc::KernelList<> &s, py::slice slice) -> xacc::KernelList<> * {
-             size_t start, stop, step, slicelength;
-             if (!slice.compute(s.size(), &start, &stop, &step, &slicelength))
-               throw py::error_already_set();
-             xacc::KernelList<> *seq =
-                 new xacc::KernelList<>(s.getAccelerator());
-             for (size_t i = 0; i < slicelength; ++i) {
-               (*seq).push_back(s[start]);
-               start += step;
-             }
-             return seq;
-           });
 
   // Expose the Accelerator
   py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>,
@@ -452,33 +381,6 @@ PYBIND11_MODULE(_pyxacc, m) {
              return py::make_iterator(op.begin(), op.end());
            },
            py::keep_alive<0, 1>());
-  // Expose the Program object
-  py::class_<xacc::Program>(
-      m, "Program",
-      "The Program is the primary entrypoint for compilation and execution in "
-      "XACC. Clients provide quantum kernel source "
-      "code and the Accelerator instance, and the Program handles compiling "
-      "the code and provides Kernel instances to execute.")
-      .def(py::init<std::shared_ptr<xacc::Accelerator>, const std::string &>(),
-           "The constructor")
-      .def(py::init<std::shared_ptr<xacc::Accelerator>,
-                    std::shared_ptr<xacc::IR>>(),
-           "The constructor")
-      .def("build",
-           (void (xacc::Program::*)(const std::string &)) &
-               xacc::Program::build,
-           "Compile this program with the given Compiler name.")
-      .def("build", (void (xacc::Program::*)()) & xacc::Program::build,
-           "Compile this program.")
-      .def("getKernel",
-           (xacc::Kernel<>(xacc::Program::*)(const std::string &)) &
-               xacc::Program::getKernel<>,
-           py::return_value_policy::reference,
-           "Return a Kernel representing the source code.")
-      .def("getKernels", &xacc::Program::getRuntimeKernels,
-           "Return all Kernels.")
-      .def("nKernels", &xacc::Program::nKernels,
-           "Return the number of kernels compiled by this program");
 
   // Expose XACC API functions
   m.def("Initialize", (void (*)(std::vector<std::string>)) & xacc::Initialize,
@@ -502,11 +404,6 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getCompiler,
         py::return_value_policy::reference,
         "Return the Compiler of given name.");
-  m.def("getIRPreprocessor",
-        (std::shared_ptr<xacc::IRPreprocessor>(*)(const std::string &)) &
-            xacc::getService<IRPreprocessor>,
-        py::return_value_policy::reference,
-        "Return the IRPreprocessor of given name.");
   m.def("getIRTransformation",
         (std::shared_ptr<xacc::IRTransformation>(*)(const std::string &)) &
             xacc::getService<IRTransformation>,
@@ -590,9 +487,10 @@ PYBIND11_MODULE(_pyxacc, m) {
          const std::string &compilerName = "") -> std::shared_ptr<Function> {
         if (!compilerName.empty())
           xacc::setOption("compiler", compilerName);
-        xacc::Program p(acc, src);
-        p.build();
-        return p.getRuntimeKernels()[0].getIRFunction();
+
+        auto compiler = xacc::getCompiler();
+        auto ir = compiler->compile(src, acc);
+        return ir->getKernels()[0];
       },
       py::arg("acc"), py::arg("src"), py::arg("compilerName") = std::string(""),
       py::return_value_policy::move, "");
@@ -693,7 +591,12 @@ PYBIND11_MODULE(_pyxacc, m) {
 
         int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
 
-        auto hardware = std::make_shared<AcceleratorGraph>(nBits);
+        auto hardware = xacc::getService<Graph>("boost-ugraph");
+        for (int i = 0; i < nBits; i++) {
+            std::map<std::string,InstructionParameter> m{{"bias",1.0}};
+            hardware->addVertex(m);
+        }
+
         for (auto& edge : hardwareconnections) {
             hardware->addEdge(edge.first, edge.second);
         }
@@ -712,14 +615,17 @@ PYBIND11_MODULE(_pyxacc, m) {
           }
         }
 
-        auto problemGraph = std::make_shared<xacc::quantum::DWGraph>(maxBitIdx+1);
+        auto problemGraph = xacc::getService<Graph>("boost-ugraph");
+        for (int i = 0; i < maxBitIdx+1;i++) {
+            std::map<std::string,InstructionParameter> m{{"bias",1.0}};
+            problemGraph->addVertex(m);
+        }
+
         for (auto inst : f->getInstructions()) {
           if (inst->name() == "dw-qmi") {
             auto qbit1 = inst->bits()[0];
             auto qbit2 = inst->bits()[1];
-            if (qbit1 == qbit2) {
-              problemGraph->setVertexProperties(qbit1, 1.0);
-            } else {
+            if (qbit1 != qbit2) {
               problemGraph->addEdge(qbit1, qbit2, 1.0);
             }
           }

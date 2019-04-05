@@ -66,7 +66,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc Boost::graph PRIVATE CppMicroServices)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices Boost::graph)
 
 if(APPLE)
   set_target_properties(xacc-quantum-gate

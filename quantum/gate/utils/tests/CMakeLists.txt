@@ -5,6 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/utils)
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 include_directories(${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
+include_directories(${CMAKE_SOURCE_DIR}/xacc/utils)
 
 add_xacc_test(AllGateVisitor)
 add_xacc_test(JsonVisitor)

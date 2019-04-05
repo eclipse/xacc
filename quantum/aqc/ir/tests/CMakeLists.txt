@@ -7,4 +7,4 @@ include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
 add_xacc_test(DWFunction)
 add_xacc_test(DWQMI)
 
-target_link_libraries(DWFunctionTester Boost::graph)
+target_link_libraries(DWFunctionTester xacc-quantum-aqc CppMicroServices)

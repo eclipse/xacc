@@ -15,6 +15,7 @@
 
 #include <list>
 
+#include "Graph.hpp"
 #include "Instruction.hpp"
 
 namespace xacc {
@@ -38,7 +39,7 @@ public:
   virtual bool hasIRGenerators() {
       return false;
   }
-  
+
   /**
    * Return the number of Instructions that this Function contains.
    *
@@ -153,6 +154,8 @@ public:
    */
   virtual std::shared_ptr<Function>
   operator()(const std::vector<double> &params) = 0;
+
+  virtual std::shared_ptr<Graph> toGraph() = 0;
 
   /**
    * The destructor

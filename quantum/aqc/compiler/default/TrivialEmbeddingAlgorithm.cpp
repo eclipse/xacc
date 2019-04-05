@@ -16,8 +16,8 @@ namespace xacc {
 namespace quantum {
 
 Embedding
-TrivialEmbeddingAlgorithm::embed(std::shared_ptr<DWGraph> problem,
-                                 std::shared_ptr<xacc::AcceleratorGraph> hdware,
+TrivialEmbeddingAlgorithm::embed(std::shared_ptr<Graph> problem,
+                                 std::shared_ptr<Graph> hdware,
                                  std::map<std::string, std::string> params) {
 
   Embedding xaccEmbedding;

@@ -14,7 +14,6 @@
 #define QUANTUM_AQC_IR_DWIR_HPP_
 
 #include "IR.hpp"
-#include "DWGraph.hpp"
 
 namespace xacc {
 namespace quantum {

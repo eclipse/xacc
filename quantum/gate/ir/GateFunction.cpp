@@ -8,6 +8,8 @@
 #include "IRGenerator.hpp"
 #include "xacc_service.hpp"
 
+#include "Graph.hpp"
+
 namespace xacc {
 namespace quantum {
 
@@ -406,8 +408,15 @@ GateFunction::operator()(const std::vector<double> &params) {
   }
   return evaluatedFunction;
 }
+const int GateFunction::depth() { return toGraph()->depth() - 2; }
 
-Graph<CircuitNode, Directed> GateFunction::toGraph() {
+  const std::string GateFunction::persistGraph() {
+    std::stringstream s;
+    toGraph()->write(s);
+    return s.str();
+  }
+
+std::shared_ptr<Graph> GateFunction::toGraph() {
 
   // Compute number of qubits
   int maxBit = 0;

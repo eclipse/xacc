@@ -35,8 +35,8 @@ public:
   virtual ~DefaultParameterSetter() {}
 
   std::list<std::shared_ptr<DWQMI>>
-  setParameters(std::shared_ptr<DWGraph> problemGraph,
-                std::shared_ptr<AcceleratorGraph> hardwareGraph,
+  setParameters(std::shared_ptr<Graph> problemGraph,
+                std::shared_ptr<Graph> hardwareGraph,
                 Embedding embedding) override;
 
   const std::string name() const override { return "default"; }

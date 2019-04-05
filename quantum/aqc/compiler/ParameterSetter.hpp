@@ -13,10 +13,12 @@
 #ifndef QUANTUM_AQC_COMPILER_PARAMETERSETTER_HPP_
 #define QUANTUM_AQC_COMPILER_PARAMETERSETTER_HPP_
 
-#include "DWGraph.hpp"
+#include "Graph.hpp"
 #include "DWQMI.hpp"
 #include "Embedding.hpp"
 #include "Identifiable.hpp"
+
+#include <list>
 
 namespace xacc {
 namespace quantum {
@@ -25,8 +27,8 @@ class ParameterSetter : public Identifiable {
 
 public:
   virtual std::list<std::shared_ptr<DWQMI>>
-  setParameters(std::shared_ptr<DWGraph> problemGraph,
-                std::shared_ptr<AcceleratorGraph> hardwareGraph,
+  setParameters(std::shared_ptr<Graph> problemGraph,
+                std::shared_ptr<Graph> hardwareGraph,
                 Embedding embedding) = 0;
 
   virtual ~ParameterSetter() {}

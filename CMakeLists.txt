@@ -84,6 +84,7 @@ if (XACC_BUILD_TESTS)
    endmacro()
 endif()
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 include_directories(${CMAKE_BINARY_DIR}/tpls/cppmicroservices/include)
 add_subdirectory(tpls)
 
