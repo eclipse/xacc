@@ -29,8 +29,11 @@ void DWorGateListener::enterGate(PyXACCIRParser::GateContext *ctx) {
 
   // Until we see a qmi or anneal instruction, keep checking
   // the incoming gate name
-  if (!isDW)
-    isDW = boost::contains(gate, "qmi") || boost::contains(gate, "anneal");
+  if (!isDW) {
+      if (gate.find("qmi") != std::string::npos || gate.find("anneal") != std::string::npos) {
+          isDW = true;
+      }
+  }
 
   // Once we have seen qmi or anneal, ensure that we
   // don't see any gate model instructions
@@ -64,7 +67,8 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 
   std::vector<InstructionParameter> params;
   for (int i = 1; i < ctx->param().size(); i++) {
-    if (!boost::contains(ctx->param(i)->getText(), "*")) {
+    if(ctx->param(i)->getText().find("*") == std::string::npos) {
+    // if (!boost::contains(ctx->param(i)->getText(), "*")) {
       params.push_back(InstructionParameter(ctx->param(i)->getText()));
       functionVariableNames.push_back(ctx->param(i)->getText());
     }
@@ -96,7 +100,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
   };
 
   auto gateName = ctx->gatename->getText();
-  boost::trim(gateName);
+  xacc::trim(gateName);
 
   if (gateName == "CX") {
     gateName = "CNOT";
@@ -299,7 +303,7 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
 
 void PyXACCListener::enterAllbitsOp(PyXACCIRParser::AllbitsOpContext *ctx) {
   auto gateName = ctx->gatename->getText();
-  boost::trim(gateName);
+  xacc::trim(gateName);
 
   if (gateName == "CX") {
     gateName = "CNOT";
