@@ -17,7 +17,6 @@
 #include "Accelerator.hpp"
 #include "IR.hpp"
 #include "IRProvider.hpp"
-#include <boost/algorithm/string.hpp>
 
 using namespace pyxacc;
 

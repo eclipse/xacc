@@ -185,8 +185,7 @@ class DecoratorFunction(ABC):
             self.qpu = self.accelerator
 
         ir = compiler.compile(self.src, self.qpu)
-        program = Program(self.qpu, ir)
-        self.compiledKernel = program.getKernels()[0]
+        self.compiledKernel = ir.getKernels()[0]
 
     def overrideAccelerator(self, acc):
         self.accelerator = acc
@@ -207,7 +206,7 @@ class DecoratorFunction(ABC):
         return self.getFunction().nParameters()
 
     def getFunction(self):
-        return self.compiledKernel.getIRFunction()
+        return self.compiledKernel
 
     @abstractmethod
     def __call__(self, *args, **kwargs):
@@ -232,7 +231,9 @@ class WrappedF(DecoratorFunction):
         #functionBufferName = inspect.getargspec(self.function)[0][0]
         # Replace function arg0 name with buffer.name()
         #self.src = self.src.replace(functionBufferName, buffer.name())
-        self.compiledKernel.execute(argsList[0], argsList[1:])
+        fevaled = self.compiledKernel.eval(argsList[1:])
+        self.qpu.execute(argsList[0], fevaled)
+        # self.compiledKernel.execute(argsList[0], argsList[1:])
         return
 
 class qpu(object):

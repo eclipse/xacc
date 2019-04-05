@@ -145,6 +145,8 @@ public:
       return 0;
   }
 
+  virtual bool validateOptions() { return false; }
+
   DEFINE_VISITABLE();
 
   /**
