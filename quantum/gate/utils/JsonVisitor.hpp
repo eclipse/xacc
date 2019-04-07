@@ -15,13 +15,15 @@
 
 #include <memory>
 #include "AllGateVisitor.hpp"
+#include "InstructionVisitor.hpp"
+#include "IRGenerator.hpp"
 
 namespace xacc {
 
 namespace quantum {
 
-template<typename Writer, typename Buffer>
-class JsonVisitor : public AllGateVisitor {
+template <typename Writer, typename Buffer>
+class JsonVisitor : public AllGateVisitor, public InstructionVisitor<IRGenerator> {
 
 protected:
   std::shared_ptr<Buffer> buffer;
@@ -35,6 +37,9 @@ public:
   JsonVisitor(std::shared_ptr<xacc::Function> f);
   JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs);
   std::string write();
+
+  void visit(IRGenerator& irg);
+
   void visit(Identity &i) { baseGateInst(dynamic_cast<GateInstruction &>(i)); }
 
   void visit(Hadamard &h) { baseGateInst(dynamic_cast<GateInstruction &>(h)); }

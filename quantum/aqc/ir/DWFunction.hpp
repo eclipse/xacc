@@ -193,6 +193,13 @@ const int nRequiredBits() const override {
     return weights;
   }
 
+void persist(std::ostream &outStream) override {
+}
+
+void load(std::istream &inStream) override {
+
+}
+
   InstructionParameter getParameter(const int idx) const override {
     return parameters[idx];
   }

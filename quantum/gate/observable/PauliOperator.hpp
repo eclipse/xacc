@@ -295,6 +295,7 @@ public:
   eval(const std::map<std::string, std::complex<double>> varToValMap);
   bool isClose(PauliOperator &other);
   int nQubits();
+  const int nBits() override {return nQubits();}
 
   PauliOperator &operator+=(const PauliOperator &v) noexcept;
   PauliOperator &operator-=(const PauliOperator &v) noexcept;

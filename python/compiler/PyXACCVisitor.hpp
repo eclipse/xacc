@@ -31,7 +31,11 @@ public:
   PyXACCVisitor() { pyxaccStr += "@qpu()\ndef foo(buffer):\n"; }
 
   void visit(IRGenerator& irg) {
-      pyxaccStr += "   " + irg.name() + "()\n";
+      pyxaccStr += "   " + irg.name() + "(buffer";
+      for (auto&kv : irg.getOptions()) {
+          pyxaccStr += ","+kv.first +"="+kv.second.toString();
+      }
+      pyxaccStr += ")\n";
   }
   /**
    * Visit hadamard gates

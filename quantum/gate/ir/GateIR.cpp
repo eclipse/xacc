@@ -56,13 +56,6 @@ void GateIR::persist(std::ostream &outStream) {
   JsonVisitor<PrettyWriter<StringBuffer>,StringBuffer> visitor(kernels);
   outStream << visitor.write();
 
-  //	StringBuffer sb;
-  //	PrettyWriter<StringBuffer> writer(sb);
-  //
-  //	serializeJson(writer);
-  //
-  //	outStream << sb.GetString();
-
   return;
 }
 

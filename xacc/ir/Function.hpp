@@ -17,6 +17,7 @@
 
 #include "Graph.hpp"
 #include "Instruction.hpp"
+#include "Persistable.hpp"
 
 namespace xacc {
 
@@ -29,7 +30,7 @@ using InstPtr = std::shared_ptr<Instruction>;
  *
  * @author Alex McCaskey
  */
-class Function : public Instruction {
+class Function : public Instruction, public Persistable {
 public:
 
   virtual void expandIRGenerators(std::map<std::string, InstructionParameter> irGenMap) {

@@ -3,12 +3,20 @@
 #include <ctype.h>
 #include <memory>
 #include <string>
+#include "Function.hpp"
 #include "InstructionIterator.hpp"
 #include "IRToGraphVisitor.hpp"
 #include "IRGenerator.hpp"
 #include "xacc_service.hpp"
 
 #include "Graph.hpp"
+
+#include "JsonVisitor.hpp"
+
+#define RAPIDJSON_HAS_STDSTRING 1
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+using namespace rapidjson;
 
 namespace xacc {
 namespace quantum {
@@ -19,15 +27,137 @@ void GateFunction::mapBits(std::vector<int> bitMap) {
   }
 }
 
+void GateFunction::persist(std::ostream &outStream) {
+  JsonVisitor<PrettyWriter<StringBuffer>, StringBuffer> visitor(
+      shared_from_this());
+  outStream << visitor.write();
+}
+
+// {
+//     "kernels": [
+//         {
+//             "function": "foo",
+//             "instructions": [
+//                 {
+//                     "gate": "H",
+//                     "enabled": true,
+//                     "qubits": [
+//                         1
+//                     ]
+//                 },
+//                 {
+//                     "gate": "CNOT",
+//                     "enabled": true,
+//                     "qubits": [
+//                         0,
+//                         1
+//                     ]
+//                 }
+//             ]
+//         }
+//     ]
+// }
+void GateFunction::load(std::istream &inStream) {
+
+  std::vector<std::string> irGeneratorNames;
+  auto irgens = xacc::getRegisteredIds<xacc::IRGenerator>();
+  for (auto &irg : irgens) {
+    irGeneratorNames.push_back(irg);
+  }
+
+  auto provider = xacc::getService<IRProvider>("gate");
+  std::string json(std::istreambuf_iterator<char>(inStream), {});
+//   std::cout << "JSON: " << json << "\n";
+
+  Document doc;
+  doc.Parse(json);
+
+  auto &kernel = doc["kernels"].GetArray()[0];
+  functionName = kernel["function"].GetString();
+  auto instructionsArray = kernel["instructions"].GetArray();
+
+  for (int i = 0; i < instructionsArray.Size(); i++) {
+    auto &inst = instructionsArray[i];
+    auto gname = inst["gate"].GetString();
+
+    bool isAnIRG = false;
+    if (std::find(irGeneratorNames.begin(), irGeneratorNames.end(), gname) != irGeneratorNames.end()) {
+        // this is an IRG
+        isAnIRG = true;
+    }
+
+    std::vector<int> qbits;
+    auto bitsArray = inst["qubits"].GetArray();
+    for (int k = 0; k < bitsArray.Size(); k++) {
+      qbits.push_back(bitsArray[k].GetInt());
+    }
+
+    std::vector<InstructionParameter> local_parameters;
+    auto &paramsArray = inst["parameters"];
+    for (int k = 0; k < paramsArray.Size(); k++) {
+      auto &value = paramsArray[k];
+      if (value.IsInt()) {
+        local_parameters.push_back(InstructionParameter(value.GetInt()));
+      } else if (value.IsDouble()) {
+        local_parameters.push_back(InstructionParameter(value.GetDouble()));
+      } else {
+        local_parameters.push_back(InstructionParameter(value.GetString()));
+      }
+    }
+
+    std::shared_ptr<Instruction> instToAdd;
+    if (!isAnIRG) {
+     instToAdd =
+        provider->createInstruction(gname, qbits, local_parameters);
+    } else {
+        instToAdd = xacc::getService<IRGenerator>(gname);
+    }
+
+    auto &optionsObj = inst["options"];
+    for (auto itr = optionsObj.MemberBegin(); itr != optionsObj.MemberEnd();
+         ++itr) {
+      auto &value = optionsObj[itr->name.GetString()];
+
+      if (value.IsInt()) {
+        instToAdd->setOption(itr->name.GetString(),
+                             InstructionParameter(value.GetInt()));
+      } else if (value.IsDouble()) {
+        instToAdd->setOption(itr->name.GetString(),
+                             InstructionParameter(value.GetDouble()));
+      } else {
+        instToAdd->setOption(itr->name.GetString(),
+                             InstructionParameter(value.GetString()));
+      }
+    }
+    if (!inst["enabled"].GetBool()) {
+      instToAdd->disable();
+    }
+
+    addInstruction(instToAdd);
+  }
+}
+
 void GateFunction::expandIRGenerators(
     std::map<std::string, InstructionParameter> irGenMap) {
+    std::list<InstPtr> newinsts;
   for (int idx = 0; idx < nInstructions(); idx++) {
     auto inst = getInstruction(idx);
     auto irg = std::dynamic_pointer_cast<IRGenerator>(inst);
     if (irg) {
       auto evaluated = irg->generate(irGenMap);
-      replaceInstruction(idx, evaluated);
+    //   replaceInstruction(idx, evaluated);
+      for (auto i : evaluated->getInstructions()) {
+          newinsts.push_back(i);
+      }
+    } else {
+        newinsts.push_back(inst);
     }
+  }
+
+  instructions.clear();
+
+  for (auto i : newinsts) {
+      addInstruction(i);
   }
 }
 
@@ -36,7 +166,7 @@ bool GateFunction::hasIRGenerators() {
     auto inst = getInstruction(idx);
     auto irg = std::dynamic_pointer_cast<IRGenerator>(inst);
     if (irg) {
-        return true;
+      return true;
     }
   }
   return false;
@@ -410,11 +540,11 @@ GateFunction::operator()(const std::vector<double> &params) {
 }
 const int GateFunction::depth() { return toGraph()->depth() - 2; }
 
-  const std::string GateFunction::persistGraph() {
-    std::stringstream s;
-    toGraph()->write(s);
-    return s.str();
-  }
+const std::string GateFunction::persistGraph() {
+  std::stringstream s;
+  toGraph()->write(s);
+  return s.str();
+}
 
 std::shared_ptr<Graph> GateFunction::toGraph() {
 

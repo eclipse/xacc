@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2017 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -10,18 +10,19 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_IR_OBSERVABLE_HPP_
-#define XACC_IR_OBSERVABLE_HPP_
-#include "Function.hpp"
+#ifndef XACC_UTILS_PERSISTABLE_HPP_
+#define XACC_UTILS_PERSISTABLE_HPP_
+
+#include <string>
+
 namespace xacc {
 
-class Observable {
+class Persistable {
 public:
-  virtual std::vector<std::shared_ptr<Function>>
-  observe(std::shared_ptr<Function> function) = 0;
-  virtual const std::string toString() = 0;
-  virtual const int nBits() = 0;
+  virtual void persist(std::ostream& out) = 0;
+  virtual void load(std::istream& in) = 0;
 };
 
 } // namespace xacc
+
 #endif
