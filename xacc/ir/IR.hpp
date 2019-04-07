@@ -25,7 +25,7 @@ namespace xacc {
  * file, and can be persisted to file.
  *
  */
-class IR {
+class IR : public Persistable {
 
 public:
   /**
@@ -38,22 +38,6 @@ public:
    */
   virtual std::string toAssemblyString(const std::string &kernelName,
                                        const std::string &accBufferVarName) = 0;
-
-  /**
-   * Persist this IR instance to the given
-   * output stream.
-   *
-   * @param outStream The output stream to persist to.
-   */
-  virtual void persist(std::ostream &outStream) = 0;
-
-  /**
-   * Create this IR instance from the given input
-   * stream.
-   *
-   * @param inStream The input stream to read from.
-   */
-  virtual void load(std::istream &inStream) = 0;
 
   /**
    * Add a new kernel to this IR instance.

@@ -222,6 +222,35 @@ TEST(GateFunctionTester, checkParameterInsertion) {
               "Rx(0.5 * psi) qreg3\nRx(1 * phi) qreg4\nRy(1 * theta) qreg2\n");
 }
 
+
+TEST(GateFunctionTester, checkPersistLoad) {
+
+  auto f = std::make_shared<GateFunction>("foo");
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(0, 1);
+  auto rz = std::make_shared<Rz>(0, 3.1415);
+  auto rz2 = std::make_shared<Rz>(std::vector<int>{1});
+  xacc::InstructionParameter p("phi");
+  rz2->setParameter(0, p);
+
+  h->setOption("key1", 3.3);
+  f->addInstruction(h);
+  f->addInstruction(cn1);
+  f->addInstruction(rz);
+  f->addInstruction(rz2);
+
+  std::stringstream ss;
+  f->persist(ss);
+
+  std::cout << ss.str() << "\n";
+
+  std::istringstream iss(ss.str());
+
+  auto newF = std::make_shared<GateFunction>("new");
+  newF->load(iss);
+
+  std::cout << "HELLO: " << newF->toString() << "\n";
+}
 TEST(GateFunctionTester, checkGenerateGraph) {
 
   auto f = std::make_shared<GateFunction>("foo");

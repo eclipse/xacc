@@ -29,7 +29,7 @@ public:
    */
   GateIR() {}
 
-  virtual const int maxBit() {
+  const int maxBit() override {
     int maxBit = 0;
     for (auto k : kernels) {
       for (auto inst : k->getInstructions()) {
@@ -47,13 +47,13 @@ public:
    * Add a quantum function to this intermediate representation.
    * @param kernel
    */
-  virtual void addKernel(std::shared_ptr<Function> kernel) {
+  void addKernel(std::shared_ptr<Function> kernel) override {
     kernels.push_back(kernel);
   }
 
   virtual const int numberOfKernels() { return kernels.size(); }
 
-  virtual std::shared_ptr<Function> getKernel(const std::string &name) {
+  std::shared_ptr<Function> getKernel(const std::string &name) override {
     std::shared_ptr<Function> ret;
     for (auto f : kernels) {
       if (f->name() == name) {
@@ -66,13 +66,13 @@ public:
     return ret;
   }
 
-  virtual bool kernelExists(const std::string &name) {
+  bool kernelExists(const std::string &name) override {
     return std::any_of(
         kernels.cbegin(), kernels.cend(),
         [=](std::shared_ptr<Function> i) { return i->name() == name; });
   }
 
-  virtual void mapBits(std::vector<int> bitMap) {
+  void mapBits(std::vector<int> bitMap) override {
     for (auto k : kernels) {
       k->mapBits(bitMap);
     }
@@ -83,8 +83,8 @@ public:
    * intermediate representation
    * @return
    */
-  virtual std::string toAssemblyString(const std::string &kernelName,
-                                       const std::string &accBufferVarName);
+  std::string toAssemblyString(const std::string &kernelName,
+                                       const std::string &accBufferVarName) override;
 
   /**
    * Persist this IR instance to the given
@@ -92,7 +92,7 @@ public:
    *
    * @param outStream
    */
-  virtual void persist(std::ostream &outStream);
+  void persist(std::ostream &outStream) override;
 
   /**
    * Create this IR instance from the given input
@@ -100,9 +100,9 @@ public:
    *
    * @param inStream
    */
-  virtual void load(std::istream &inStream);
+  void load(std::istream &inStream) override;
 
-  virtual std::vector<std::shared_ptr<Function>> getKernels() {
+  std::vector<std::shared_ptr<Function>> getKernels() override {
     return kernels;
   }
 

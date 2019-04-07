@@ -72,6 +72,9 @@ public:
     return 0;
   }
 
+  void persist(std::ostream &outStream) override;
+  void load(std::istream &inStream) override;
+
   InstPtr getInstruction(const int idx) override;
 
   std::list<InstPtr> getInstructions() override;
