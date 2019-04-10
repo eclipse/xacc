@@ -1,0 +1,16 @@
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/instructions)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/exprtk)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/ir/algorithms)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/utils)
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/taocpp)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable/transforms)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable/fermion)
+include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/observable/pauli)
+
+add_xacc_test(JW)
+
+target_link_libraries(JWTester CppMicroServices xacc-observable-transforms xacc-pauli xacc-fermion)

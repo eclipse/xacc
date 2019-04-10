@@ -78,6 +78,14 @@ public:
     return mpark::visit(v, *this);
   }
 
+  bool isComplex() const {
+      try {
+          mpark::get<std::complex<double>>(*this);
+      } catch(std::exception& e) {
+          return false;
+      }
+      return true;
+  }
   bool isVariable() const {
     try {
       mpark::get<std::string>(*this);
@@ -97,6 +105,7 @@ public:
   }
 
   bool operator!=(const Variant<Types...> &v) const { return !operator==(v); }
+
 };
 
 using InstructionParameter =
