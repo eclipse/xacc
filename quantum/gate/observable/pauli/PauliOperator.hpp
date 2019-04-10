@@ -264,7 +264,7 @@ public:
   }
 
   const std::string toString() override;
-  void fromString(const std::string str);
+  void fromString(const std::string str) override;
 
   bool contains(PauliOperator &op);
   bool commutes(PauliOperator &op);
@@ -303,6 +303,13 @@ public:
   bool operator==(const PauliOperator &v) noexcept;
   PauliOperator &operator*=(const double v) noexcept;
   PauliOperator &operator*=(const std::complex<double> v) noexcept;
+
+  const std::string name() const override {
+      return "pauli";
+  }
+  const std::string description() const override {
+      return "";
+  }
 };
 } // namespace quantum
 } // namespace xacc

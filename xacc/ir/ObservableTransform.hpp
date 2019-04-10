@@ -10,28 +10,15 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_IR_OBSERVABLE_HPP_
-#define XACC_IR_OBSERVABLE_HPP_
-#include "Function.hpp"
-#include "Utils.hpp"
-
+#ifndef XACC_IR_OBSERVABLETRANSFORM_HPP_
+#define XACC_IR_OBSERVABLETRANSFORM_HPP_
+#include "Observable.hpp"
 namespace xacc {
 
-class Observable : public Identifiable {
+class ObservableTransform : public Identifiable {
 public:
-  virtual std::vector<std::shared_ptr<Function>>
-  observe(std::shared_ptr<Function> function) = 0;
-  virtual const std::string toString() = 0;
-  virtual void fromString(const std::string str) = 0;
-  virtual const int nBits() = 0;
-  virtual void fromOptions(std::map<std::string, InstructionParameter>&& options) {
-      XACCLogger::instance()->error("Observable.fromOptions not implemented.");
-      return;
-  }
-  virtual void fromOptions(std::map<std::string, InstructionParameter>& options) {
-      XACCLogger::instance()->error("Observable.fromOptions not implemented.");
-      return;
-  }
+  virtual std::shared_ptr<Observable>
+  transform(std::shared_ptr<Observable> obs) = 0;
 };
 
 } // namespace xacc
