@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_rbm_ir",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC RBM Intermediate Representation",
+  "bundle.description" : "This bundle provides an IR for Restricted Boltzmann Machines"
+}

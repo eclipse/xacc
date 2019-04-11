@@ -46,6 +46,7 @@ target_include_directories(xacc
                                   compiler
                                   program
                                   accelerator
+                                  accelerator/remote
                                   utils
                                   service
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)

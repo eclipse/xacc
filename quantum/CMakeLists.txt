@@ -17,6 +17,7 @@ include(CppMicroServicesConfig)
 add_subdirectory(utils)
 add_subdirectory(gate)
 add_subdirectory(aqc)
+add_subdirectory(plugins)
 
 file (GLOB HEADERS utils/*.hpp)
 install(FILES ${HEADERS} DESTINATION include/quantum/utils)

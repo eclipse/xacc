@@ -1,0 +1,4 @@
+cython
+
+networkx>=2.0
+nose>=1.3

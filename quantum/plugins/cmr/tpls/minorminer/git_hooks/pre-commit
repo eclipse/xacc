@@ -1,0 +1,24 @@
+#!/bin/bash
+echo autoformatting...
+dir="`git rev-parse --show-toplevel`"
+
+(#open a subshell
+cd "$dir"
+cfiles="`git diff --name-only --cached| grep -e '[.][ch]pp$'`"
+if [ ! -z "$cfiles" ]; then
+    echo "$cfiles" | xargs clang-format -i;
+    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+    echo "$cfiles" | xargs git add; #don't forget to re-stage those changes
+    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+fi;
+
+pyfiles="`git diff --name-only --cached| grep -e '[.]py$'`"
+if [ ! -z "$pyfiles" ]; then
+    echo "$pyfiles" | xargs autopep8 -i;
+    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+    echo "$pyfiles" | xargs git add; #don't forget to re-stage those changes
+    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+fi;
+)
+
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
