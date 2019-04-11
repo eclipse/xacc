@@ -42,6 +42,11 @@ public:
     std::get<1>(*this) = {};
   }
 
+ FermionTerm(double c) {
+    std::get<0>(*this) = std::complex<double>(c,0.0);
+    std::get<1>(*this) = {};
+  }
+
   FermionTerm(std::complex<double> c, Operators ops) {
     std::get<0>(*this) = c;
     std::get<1>(*this) = ops;
