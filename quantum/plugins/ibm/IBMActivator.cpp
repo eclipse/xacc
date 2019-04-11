@@ -35,6 +35,7 @@
 #include <memory>
 #include <set>
 #include "IBMAccelerator.hpp"
+#include "OpenQasmVisitor.hpp"
 
 #ifdef LAPACK_FOUND
 #include "LocalIBMAccelerator.hpp"
