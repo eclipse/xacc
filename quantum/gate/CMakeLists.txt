@@ -36,8 +36,8 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 add_dependencies(${LIBRARY_NAME} antlr4_shared)
 
 target_include_directories(${LIBRARY_NAME}
-                           PRIVATE utils
-                                   ir
+                           PUBLIC utils
+                            ir
                                    compiler
                                    ir/instructions
                                    ir/algorithms

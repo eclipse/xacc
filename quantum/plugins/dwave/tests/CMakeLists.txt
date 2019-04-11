@@ -1,0 +1,7 @@
+add_xacc_test(DWAccelerator)
+target_link_libraries(DWAcceleratorTester xacc-dwave)
+add_xacc_test(DWQMICompiler)
+target_link_libraries(DWQMICompilerTester xacc-dwave)
+add_xacc_test(AnnealScheduleGenerator)
+target_link_libraries(AnnealScheduleGeneratorTester xacc-dwave)
+

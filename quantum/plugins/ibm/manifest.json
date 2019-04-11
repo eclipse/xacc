@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_ibm",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC IBM Accelerator and Compiler",
+  "bundle.description" : "This bundle provides a IBM Accelerator and Compiler for Gate Model QC."
+}

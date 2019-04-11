@@ -29,7 +29,7 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PRIVATE ir
+                           PUBLIC ir
                                    compiler
                                    compiler/default
                                    ${CMAKE_SOURCE_DIR}/quantum/utils

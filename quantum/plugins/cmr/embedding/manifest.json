@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_cmr",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC D-Wave CMR Minor Graph Embedding",
+  "bundle.description" : "This bundle provides an EmbeddingAlgorithm that wraps MinorMiner."
+}

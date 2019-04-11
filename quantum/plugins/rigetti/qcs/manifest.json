@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_rigetti_qcs",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Rigetti QCS Plugins",
+  "bundle.description" : "This bundle provides a Rigetti QCS Accelerator for Gate Model QC."
+}

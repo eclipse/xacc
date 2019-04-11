@@ -1,0 +1,4 @@
+breathe==4.*
+sphinx-rtd-theme==0.*
+sphinx==1.*
+minorminer
