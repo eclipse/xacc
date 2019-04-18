@@ -44,6 +44,7 @@ void FermionListenerImpl::enterTerm(FermionOperatorParser::TermContext * ctx) {
   }
 //   std::cout << "SIZE OF TERMS: " << term.size() << "\n";
   _op += FermionOperator(term, coeff);
+//   std::cout << _op.toString() << "\n";
 
 //   std::cout << "ENTER TERM: " << ctx->getText() << ", " << ctx->fermion().size() << "\n";
 

@@ -138,10 +138,26 @@ void FermionOperator::fromString(const std::string str) {
 
   operator+=(listener.getOperator());
 }
-const int FermionOperator::nBits() { return 0; }
+const int FermionOperator::nBits() {
+  auto maxInt = 0;
+  if (terms.empty())
+    return 0;
+
+  for (auto &kv : terms) {
+    auto ops = kv.second.ops();
+    for (auto &kv2 : ops) {
+      if (maxInt < kv2.first) {
+        maxInt = kv2.first;
+      }
+    }
+  }
+  return maxInt + 1;
+ }
 
 FermionOperator &
 FermionOperator::operator+=(const FermionOperator &v) noexcept {
+  FermionOperator vv = v;
+//   std::cout << "adding " << toString() << " and " << vv.toString() << "\n";
   for (auto &kv : v.terms) {
 
     auto termId = kv.first;
@@ -157,6 +173,8 @@ FermionOperator::operator+=(const FermionOperator &v) noexcept {
       terms.erase(termId);
     }
   }
+
+//   std::cout << "result: " << toString() << "\n";
 
   return *this;
 }

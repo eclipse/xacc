@@ -13,7 +13,7 @@ public:
                    size_t charPositionInLine, const std::string &msg,
                    std::exception_ptr e) override {
     std::ostringstream output;
-    output << "Invalid Pauli Operator source: ";
+    output << "Invalid Fermion Operator source: ";
     output << "line " << line << ":" << charPositionInLine << " " << msg;
     xacc::XACCLogger::instance()->error(output.str());
   }
