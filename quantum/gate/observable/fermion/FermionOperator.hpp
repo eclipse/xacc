@@ -67,8 +67,8 @@ public:
       }
     }
 
-    std::sort(creations.rbegin(), creations.rend());
-    std::sort(annhilations.rbegin(), annhilations.rend());
+    // std::sort(creations.rbegin(), creations.rend());
+    // std::sort(annhilations.rbegin(), annhilations.rend());
 
     std::stringstream s;
     for (auto &t : creations) {
@@ -95,8 +95,8 @@ public:
       }
     }
 
-    std::sort(creations.rbegin(), creations.rend());
-    std::sort(annhilations.rbegin(), annhilations.rend());
+    // std::sort(creations.rbegin(), creations.rend());
+    // std::sort(annhilations.rbegin(), annhilations.rend());
 
     std::stringstream s;
     for (auto &t : creations) {

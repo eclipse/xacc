@@ -61,17 +61,23 @@ TEST(FermionOperatorTester,checkFromStr) {
 
   std::cout << op.toString() << "\n";
 
-  std::string s2 = R"s2(0.7080240949826064 +
--1.248846801817026 0^ 0 +
--1.248846801817026 1^ 1 +
--0.4796778151607899 2^ 2 +
--0.4796778151607899 3^ 3 +
+  std::string s2 = R"s2(0.7080240949826064
+- 1.248846801817026 0^ 0
+- 1.248846801817026 1^ 1
+- 0.4796778151607899 2^ 2
+- 0.4796778151607899 3^ 3 +
 0.33667197218932576 0^ 1^ 1 0)s2";
 
 FermionOperator op2(s2);
 
 std::cout << op2.toString() << "\n";
 
+}
+
+TEST(FermionOperatorTester, checkFromStr2) {
+    std::string src = ".12 0^ 1^ 0 1 - .12 0^ 1^ 1 0";
+    FermionOperator op(src);
+    std::cout << op.toString() << "\n";
 }
 int main(int argc, char** argv) {
     xacc::Initialize(argc,argv);
