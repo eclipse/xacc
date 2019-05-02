@@ -28,7 +28,7 @@ namespace xacc {
 namespace quantum {
 
 class DWFunction : public Function,
-                 public std::enable_shared_from_this<DWFunction> {
+                   public std::enable_shared_from_this<DWFunction> {
 
 protected:
   std::list<InstPtr> instructions;
@@ -85,9 +85,10 @@ public:
     xacc::error("DWFunction.mapBits not implemented");
   }
 
-const int nRequiredBits() const override {
-     XACCLogger::instance()->error("DWFunction nRequiredBits() not implemented.");
-     return 0;
+  const int nRequiredBits() const override {
+    XACCLogger::instance()->error(
+        "DWFunction nRequiredBits() not implemented.");
+    return 0;
   }
   /**
    * Add an instruction to this quantum
@@ -99,12 +100,12 @@ const int nRequiredBits() const override {
     xacc::InstructionParameter param = instruction->getParameter(0);
     bool dupParam = false;
     for (auto p : parameters) {
-        if (p.toString() == param.toString()) {
-            dupParam = true;
-        }
+      if (p.toString() == param.toString()) {
+        dupParam = true;
+      }
     }
     if (!dupParam) {
-        parameters.push_back(param);
+      parameters.push_back(param);
     }
     instructions.push_back(instruction);
   }
@@ -149,27 +150,21 @@ const int nRequiredBits() const override {
     return ss.str();
   }
 
-  const std::string toString() override {
-      return toString("");
-  }
+  const std::string toString() override { return toString(""); }
 
   /**
    * Return the number of logical qubits.
    *
    * @return nLogical The number of logical qubits.
    */
-  const int nLogicalBits() override {
-      return 0;
-  }
+  const int nLogicalBits() override { return 0; }
 
   /**
    * Return the number of physical qubits.
    *
    * @return nPhysical The number of physical qubits.
    */
-  const int nPhysicalBits() override {
-      return 0;
-  }
+  const int nPhysicalBits() override { return 0; }
 
   std::vector<double> getAllBiases() {
     std::vector<double> biases;
@@ -193,12 +188,8 @@ const int nRequiredBits() const override {
     return weights;
   }
 
-void persist(std::ostream &outStream) override {
-}
-
-void load(std::istream &inStream) override {
-
-}
+  void persist(std::ostream &outStream) override;
+  void load(std::istream &inStream) override;
 
   InstructionParameter getParameter(const int idx) const override {
     return parameters[idx];
@@ -225,7 +216,8 @@ void load(std::istream &inStream) override {
 
   const int nParameters() override { return parameters.size(); }
 
-  std::shared_ptr<Function> operator()(const std::vector<double> &params) override {
+  std::shared_ptr<Function>
+  operator()(const std::vector<double> &params) override {
     if (params.size() != nParameters()) {
       xacc::error("Invalid DWFunction evaluation: number "
                   "of parameters don't match. " +
@@ -300,15 +292,13 @@ void load(std::istream &inStream) override {
     return evaluatedFunction;
   }
 
- /**
+  /**
    * Return true if this Instruction has
    * customizable options.
    *
    * @return hasOptions
    */
-  bool hasOptions() override {
-      return false;
-  }
+  bool hasOptions() override { return false; }
 
   /**
    * Set the value of an option with the given name.
@@ -318,8 +308,8 @@ void load(std::istream &inStream) override {
    */
   void setOption(const std::string optName,
                  InstructionParameter option) override {
-      XACCLogger::instance()->error("setOption not implemented for DWFunction.");
-      return;
+    XACCLogger::instance()->error("setOption not implemented for DWFunction.");
+    return;
   }
 
   /**
@@ -329,8 +319,8 @@ void load(std::istream &inStream) override {
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-       XACCLogger::instance()->error("getOption not implemented for DWFunction.");
-       return InstructionParameter(0);
+    XACCLogger::instance()->error("getOption not implemented for DWFunction.");
+    return InstructionParameter(0);
   }
 
   /**
@@ -339,8 +329,8 @@ void load(std::istream &inStream) override {
    * @return optMap The options map.
    */
   std::map<std::string, InstructionParameter> getOptions() override {
-       XACCLogger::instance()->error("getOptions not implemented for DWFunction.");
-       return std::map<std::string,InstructionParameter>();
+    XACCLogger::instance()->error("getOptions not implemented for DWFunction.");
+    return std::map<std::string, InstructionParameter>();
   }
   EMPTY_DEFINE_VISITABLE()
 };

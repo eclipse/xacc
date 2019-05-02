@@ -21,3 +21,55 @@ add_subdirectory(plugins)
 
 file (GLOB HEADERS utils/*.hpp)
 install(FILES ${HEADERS} DESTINATION include/quantum/utils)
+
+set(LIBRARY_NAME xacc-quantum-irprovider)
+
+file(GLOB_RECURSE QHEADERS *.hpp)
+file(GLOB SRC
+          *.cpp)
+
+
+# Set up dependencies to resources to track changes
+usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
+
+# Generate bundle initialization code
+usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
+
+add_library(${LIBRARY_NAME} SHARED ${SRC})
+add_dependencies(${LIBRARY_NAME} antlr4_shared)
+
+target_include_directories(${LIBRARY_NAME}
+                           PRIVATE
+                            gate/ir aqc/ir)
+
+set(_bundle_name xacc_quantum_irprovider)
+set_target_properties(${LIBRARY_NAME}
+                      PROPERTIES # This is required for every bundle
+                                 COMPILE_DEFINITIONS
+                                 US_BUNDLE_NAME=${_bundle_name}
+                                 # This is for convenience, used by other CMake
+                                 # functions
+                                 US_BUNDLE_NAME ${_bundle_name})
+
+# Embed meta-data from a manifest.json file
+usFunctionEmbedResources(TARGET
+                         ${LIBRARY_NAME}
+                         WORKING_DIRECTORY
+                         ${CMAKE_CURRENT_SOURCE_DIR}
+                         FILES
+                         manifest.json)
+
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices xacc-quantum-gate xacc-quantum-aqc)
+
+if(APPLE)
+  set_target_properties(${LIBRARY_NAME}
+                        PROPERTIES INSTALL_RPATH "@loader_path/../lib")
+  set_target_properties(${LIBRARY_NAME}
+                        PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+else()
+  set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN/../lib")
+  set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
+endif()
+
+install(FILES ${QHEADERS} DESTINATION include/quantum/)
+install(TARGETS ${LIBRARY_NAME} DESTINATION plugins)

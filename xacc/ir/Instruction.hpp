@@ -51,7 +51,7 @@ public:
    * string.
    *
    * @return str The assembly-like string.
-   */  
+   */
   virtual const std::string toString() = 0;
 
   /**
@@ -61,6 +61,7 @@ public:
    * @return bits The bits this Instruction operates on.
    */
   virtual const std::vector<int> bits() = 0;
+  virtual void setBits(const std::vector<int> bits) = 0;
 
   /**
    * Return this Instruction's parameter at the given index.
@@ -133,9 +134,9 @@ public:
   virtual void enable() {}
 
   /**
-   * Return true if this Instruction has 
+   * Return true if this Instruction has
    * customizable options.
-   * 
+   *
    * @return hasOptions
    */
   virtual bool hasOptions() {return false;}
@@ -147,7 +148,7 @@ public:
    * @param option The value of the option
    */
   virtual void setOption(const std::string optName, InstructionParameter option) = 0;
-  
+
   /**
    * Get the value of an option with the given name.
    *
@@ -164,20 +165,20 @@ public:
   virtual std::map<std::string, InstructionParameter> getOptions() = 0;
 
   /**
-   * Provide a mechanism for contributing custom 
-   * visit actions. This can be used to dynamically add 
-   * new visit() methods to existing InstructionVisitor 
+   * Provide a mechanism for contributing custom
+   * visit actions. This can be used to dynamically add
+   * new visit() methods to existing InstructionVisitor
    * classes.
    *
    * @param visitor The visitor visiting this instruction.
    */
-  virtual void customVisitAction(BaseInstructionVisitor& visitor) { 
-    /* do nothing at this level */ 
+  virtual void customVisitAction(BaseInstructionVisitor& visitor) {
+    /* do nothing at this level */
   }
 
   virtual const bool isAnalog() const { return false; }
   virtual const int nRequiredBits() const = 0;
-  
+
   /**
    * The destructor
    */

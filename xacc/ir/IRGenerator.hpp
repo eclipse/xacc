@@ -90,6 +90,9 @@ public:
       return {};
   }
 
+  void setBits(const std::vector<int> bits) override {
+    return;
+  }
   /**
    * Return this Instruction's parameter at the given index.
    *
