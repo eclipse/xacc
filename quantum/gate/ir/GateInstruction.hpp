@@ -51,20 +51,14 @@ protected:
    * Reference to this Instruction's set of options.
    */
   std::map<std::string, InstructionParameter> options;
-
+  
   /**
-   * This method is here for the GateIRProvider.
-   */
-  friend class GateIRProvider;
-  virtual void setBits(std::vector<int> bits) { qbits = bits; }
-
-  /**
-   * This method is intended for subclasses. It is 
-   * a protected method that will be called at construction 
+   * This method is intended for subclasses. It is
+   * a protected method that will be called at construction
    * to describe this Instructions available options map.
    */
   virtual void describeOptions() {}
-  
+
 public:
   /**
    * Nullary constructor
@@ -97,6 +91,7 @@ public:
    * The copy constructor
    */
   GateInstruction(const GateInstruction &inst);
+  void setBits(const std::vector<int> bits) override { qbits = bits; }
 
   /**
    * Return the instruction name.
@@ -244,7 +239,7 @@ public:
 #define DEFINE_CLONE(CLASS)                                      \
   std::shared_ptr<GateInstruction> clone() override {            \
     return std::make_shared<CLASS>();                           \
-  } 
+  }
 
 } // namespace quantum
 } // namespace xacc

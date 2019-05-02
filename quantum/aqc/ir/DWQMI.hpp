@@ -101,6 +101,10 @@ public:
   void mapBits(std::vector<int> bitMap) override {}
   const int nRequiredBits() const override {return 2;}
 
+  void setBits(const std::vector<int> bits) override {
+
+  }
+
   /**
    * Persist this Instruction to an assembly-like
    * string.
@@ -168,7 +172,7 @@ public:
    * @return parameterized True if this Instruction has parameters.
    */
   bool isParameterized() override { return true; }
-  
+
   /**
    * Returns true if this Instruction is composite,
    * ie, contains other Instructions.
@@ -213,10 +217,10 @@ public:
    */
   void setOption(const std::string optName,
                  InstructionParameter option) override {
-      XACCLogger::instance()->error("setOption not implemented for DWQMI."); 
-      return;              
+      XACCLogger::instance()->error("setOption not implemented for DWQMI.");
+      return;
   }
-  
+
   /**
    * Get the value of an option with the given name.
    *
@@ -224,8 +228,8 @@ public:
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-       XACCLogger::instance()->error("getOption not implemented for DWQMI.");  
-       return InstructionParameter(0);             
+       XACCLogger::instance()->error("getOption not implemented for DWQMI.");
+       return InstructionParameter(0);
   }
 
   /**
@@ -234,8 +238,8 @@ public:
    * @return optMap The options map.
    */
   std::map<std::string, InstructionParameter> getOptions() override {
-       XACCLogger::instance()->error("getOptions not implemented for DWQMI."); 
-       return std::map<std::string,InstructionParameter>();              
+       XACCLogger::instance()->error("getOptions not implemented for DWQMI.");
+       return std::map<std::string,InstructionParameter>();
   }
 
   EMPTY_DEFINE_VISITABLE()
@@ -295,7 +299,9 @@ public:
   const std::string description() const override {
     return "A description of the annealing schedule";
   }
-
+  void setBits(const std::vector<int> bits) override {
+      return;
+  }
   void mapBits(std::vector<int> bitMap) override {}
   const int nRequiredBits() const override {return 0;}
 
@@ -413,10 +419,10 @@ public:
    */
   void setOption(const std::string optName,
                  InstructionParameter option) override {
-      XACCLogger::instance()->error("setOption not implemented for Anneal."); 
-      return;              
+      XACCLogger::instance()->error("setOption not implemented for Anneal.");
+      return;
   }
-  
+
   /**
    * Get the value of an option with the given name.
    *
@@ -424,8 +430,8 @@ public:
    * @return option The value of the option.
    */
   InstructionParameter getOption(const std::string optName) override {
-       XACCLogger::instance()->error("getOption not implemented for Anneal.");  
-       return InstructionParameter(0);             
+       XACCLogger::instance()->error("getOption not implemented for Anneal.");
+       return InstructionParameter(0);
   }
 
   /**
@@ -434,8 +440,8 @@ public:
    * @return optMap The options map.
    */
   std::map<std::string, InstructionParameter> getOptions() override {
-       XACCLogger::instance()->error("getOptions not implemented for Anneal."); 
-       return std::map<std::string,InstructionParameter>();              
+       XACCLogger::instance()->error("getOptions not implemented for Anneal.");
+       return std::map<std::string,InstructionParameter>();
   }
 
   EMPTY_DEFINE_VISITABLE()

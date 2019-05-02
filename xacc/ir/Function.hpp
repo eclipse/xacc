@@ -48,6 +48,10 @@ public:
    */
   virtual const int nInstructions() = 0;
 
+  void setBits(const std::vector<int> bits) override {
+      return;
+  }
+
   /**
    * Return the Instruction at the given index.
    *

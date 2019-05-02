@@ -34,7 +34,8 @@ target_include_directories(${LIBRARY_NAME}
                                    compiler/default
                                    ${CMAKE_SOURCE_DIR}/quantum/utils
                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                   ${CMAKE_BINARY_DIR})
+                                   ${CMAKE_BINARY_DIR} PRIVATE ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+)
 # ----
 
 set(_bundle_name xacc_quantum_aqc)
