@@ -21,11 +21,20 @@ target_include_directories(${LIBRARY_NAME}
                                   embedding
                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
+
+if(APPLE)
+target_link_libraries(${LIBRARY_NAME}
+                      PUBLIC xacc
+                             xacc-quantum-aqc
+                             ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib
+                             CppMicroServices)
+else()
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc
                              xacc-quantum-aqc
                              ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so
                              CppMicroServices)
+endif()
 
 set(_bundle_name xacc_dwave)
 set_target_properties(${LIBRARY_NAME}
