@@ -77,8 +77,8 @@ For an example of an input file that calculates the energy of the H\ :sub:`2`\  
    name: uccsd
    n-electrons: 2
 
-   [Molecule]
-   molecule-generator: xaccKernelH2
+   [Hamiltonian]
+   hamiltonian-generator: xaccKernelH2
 
 Execution
 +++++++++
@@ -100,14 +100,14 @@ After executing the VQE algorithm in a quantum chemistry experiment such as this
 The first is the standard `.ab` extension file which contains the AcceleratorBuffer that stores all of the results obtained from the QPU.
 The second is a `.csv` extension file containing all of the unique parameters and calculated energies of the VQE iterations.
 
-Molecule Generators
+Hamiltonian Generators
 -------------------
-The ``molecule-generator`` configuration in the Molecule section of the example input file refers to a concrete ``MoleculeGenerator`` Python subclass implemented as an iPOPO bundle that
+The ``hamiltonian-generator`` configuration in the Hamiltonian section of the example input file refers to a concrete ``HamiltonianGenerator`` Python subclass implemented as an iPOPO bundle that
 is used to generate a ``PauliOperator``, modeling a spin Hamiltonian for use in XACC-VQE. The ``PauliOperator`` can be generated in a number of ways,
 including (but not limited to) compiling an XACC quantum kernel source string, returning a hard-coded XACC-VQE ``PauliOperator`` Python class expression, compiling an OpenFermion ``FermionOperator``,
 or utilizing the XACC-VQE method ``QubitOperator2XACC`` to compile an OpenFermion ``QubitOperator`` to ``PauliOperator``.
 
-The ``xaccKernelH2`` ``MoleculeGenerator`` used in this example input file compiles an XACC quantum kernel source string to the ``PauliOperator``, and its abstract ``generate`` method is shown below.
+The ``xaccKernelH2`` ``HamiltonianGenerator`` used in this example input file compiles an XACC quantum kernel source string to the ``PauliOperator``, and its abstract ``generate`` method is shown below.
 
 .. code::
 

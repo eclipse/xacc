@@ -5,4 +5,3 @@ Compiler
 .. toctree::
 
    compiler/compiler
-   compiler/preprocessor
