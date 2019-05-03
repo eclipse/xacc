@@ -16,12 +16,13 @@ target_include_directories(${LIBRARY_NAME}
                             ${CMAKE_BINARY_DIR})
 
 add_dependencies(${LIBRARY_NAME} antlr4_shared)
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
 
 if(APPLE)
+   target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
    set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "@loader_path")
    set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
+   target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
    set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")
    set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
 endif()
