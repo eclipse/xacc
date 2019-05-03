@@ -58,4 +58,7 @@ endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
+file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/decorators/*.py)
+install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
+
 add_subdirectory(ir)
