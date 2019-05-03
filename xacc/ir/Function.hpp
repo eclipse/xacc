@@ -127,7 +127,7 @@ public:
    *
    * @return composite True indicating this is a composite Instruction.
    */
-  virtual bool isComposite() { return true; }
+  bool isComposite() override { return true; }
 
   /**
    * Return the number of logical qubits.
