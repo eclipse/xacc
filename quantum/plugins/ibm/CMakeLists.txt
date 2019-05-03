@@ -1,5 +1,9 @@
 set(LIBRARY_NAME xacc-ibm)
 
+set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
+if (APPLE)
+set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
+endif()
 file(GLOB SRC
           accelerator/IBMAccelerator.cpp
           IBMActivator.cpp
@@ -39,10 +43,11 @@ if(LAPACK_FOUND)
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/third-party/headers
       ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
 
+
   target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate
-                               ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so
+                               ${ANTLR_LIB}
                                CppMicroServices
                                blas
                                lapack)
@@ -57,7 +62,7 @@ else()
   target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate
-                               ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so
+                               ${ANTLR_LIB}
                                CppMicroServices)
 
 endif()
