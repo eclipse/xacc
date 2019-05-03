@@ -13,52 +13,32 @@ Developers can extend the following interfaces in the core framework:
 `Accelerator <https://github.com/eclipse/xacc/blob/master/xacc/accelerator/Accelerator.hpp>`_,
 `IRTransformation <https://github.com/eclipse/xacc/blob/master/xacc/ir/IRTransformation.hpp>`_,
 `IRPreprocessor <https://github.com/eclipse/xacc/blob/master/xacc/ir/IRPreprocessor.hpp>`_,
-`IRGenerator <https://github.com/eclipse/xacc/blob/master/xacc/ir/IRGenerator.hpp>`_, and
-`EmbeddingAlgorithm <https://github.com/eclipse/xacc/blob/master/quantum/aqc/compiler/EmbeddingAlgorithm.hpp>`_ .
+`IRGenerator <https://github.com/eclipse/xacc/blob/master/xacc/ir/IRGenerator.hpp>`_,
+`EmbeddingAlgorithm <https://github.com/eclipse/xacc/blob/master/quantum/aqc/compiler/EmbeddingAlgorithm.hpp>`_ and
+`AcceleratorDecorator <https://github.com/zpparks314/xacc/blob/master/xacc/accelerator/AcceleratorDecorator.hpp>`_.
 
 Plugins can be stand-alone, sand-boxed projects that provide an appropriate
 implementation of an XACC extensible interface. Plugins should be compiled and built
 as shared libraries, and those shared libraries can be dropped into the
 ``$XACC_INSTALL/plugins`` directory and immediately leveraged by the framework.
 
-Below we detail the plugins that are currently available for use with XACC. These plugins
-enable the programming, compilation, and execution of quantum algorithms for Rigetti,
-D-Wave, and IBM QPUs, as well as a number of backend simulators. They additionally
-provide a mechanism to write XACC quantum kernels using Quil, OpenQasm, XACC IR, and D-Wave
-QMI low-level languages.
+Below we detail the plugins that are currently available for use with XACC. When XACC is built and
+installed from source, the XACC IBM, Rigetti, and D-Wave plugins are automatically
+built and installed as well. These plugins enable the programming, compilation,
+and execution of quantum algorithms for Rigetti, D-Wave, and IBM QPUs,
+as well as a number of backend simulators. They additionally provide a mechanism to write XACC
+quantum kernels using Quil, OpenQasm, XACC IR, and D-Wave QMI low-level languages.
 
 Rigetti
 -------
 Installation
 ++++++++++++
 
-The `Rigetti Plugin <https://github.com/ornl-qci/xacc-rigetti>`_ provides
+The `Rigetti Plugin <https://github.com/eclipse/xacc/tree/master/quantum/plugins/rigetti>`_ provides
 support to XACC for compiling kernels written in Quil, and executing programs
 on the Rigetti Forest infrastructure.
 
-To install this plugin from source, run the following
-
-.. code::
-
-   $ git clone https://github.com/ornl-qci/xacc-rigetti
-   $ cd xacc-rigetti && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc # or wherever XACC is installed
-   $ make install
-
-If you installed the XACC Python bindings, then you can run
-
-.. code::
-
-   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
-
-ensuring that xacc is in your ``PYTHONPATH``.
-
-If you installed XACC via ``pip``, then you can run
-
-.. code::
-
-   $ python -m pip install xacc-rigetti (with --user if you used that flag for your xacc install)
-
+This plugin is built and installed automatically when building XACC from source.
 
 Credentials
 +++++++++++
@@ -91,32 +71,11 @@ IBM
 Installation
 ++++++++++++
 
-The `IBM Plugin <https://github.com/ornl-qci/xacc-ibm>`_ provides
+The `IBM Plugin <https://github.com/eclipse/xacc/tree/master/quantum/plugins/ibm>`_ provides
 support to XACC for compiling kernels written in OpenQasm, and executing programs
 on both the IBM Quantum Experience and the IBM Q Network.
 
-To install this plugin from source, run the following
-
-.. code::
-
-   $ git clone --recursive https://github.com/ornl-qci/xacc-ibm
-   $ cd xacc-ibm && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc # or wherever XACC is installed
-   $ make install
-
-If you installed the XACC Python bindings, then replace the above CMake command with
-
-.. code::
-
-   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
-
-ensuring that xacc is in your ``PYTHONPATH``.
-
-If you installed XACC via ``pip``, then you can run
-
-.. code::
-
-   $ python -m pip install xacc-ibm (with --user if you used that flag for your xacc install)
+This plugin is built and installed automatically when building XACC from source.
 
 .. note::
 
@@ -169,6 +128,42 @@ The IBM plugin exposes the following runtime options
 | ibm-shots              | The number of shots to execute per job |
 +------------------------+----------------------------------------+
 
+D-Wave
+------
+
+Installation
+++++++++++++
+
+The `D-Wave Plugin <https://github.com/eclipse/xacc/tree/master/quantum/plugins/dwave>`_ provides
+support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.
+
+This plugin is built and installed automatically when building XACC from source.
+
+Credentials
++++++++++++
+
+In order to target the D-Wave remote resources you must provide
+XACC with your D-Wave Qubist API key. By default
+XACC will search for a config file at ``$HOME/.dwave_config``.
+
+If you installed the XACC Python bindings, then you can run
+
+.. code::
+
+   $ python -m xacc -c dwave -k YOURAPIKEY
+
+D-Wave Runtime Options
+++++++++++++++++++++++
+The D-Wave plugin exposes the following runtime options
+
+   +------------------------+----------------------------------------+
+   | Argument               |            Description                 |
+   +========================+========================================+
+   | dwave-solver           | The backend to target (e.g. DW_2000Q_2)|
+   +------------------------+----------------------------------------+
+   | dwave-num-reads        | The number of shots to execute per job |
+   +------------------------+----------------------------------------+
+
 TNQVM
 -----
 
@@ -217,57 +212,6 @@ If you installed XACC via ``pip``, then you can run
 .. code::
 
    $ python -m pip install tnqvm (with --user if you used that flag for your xacc install)
-
-D-Wave
-------
-
-Installation
-++++++++++++
-
-The `D-Wave Plugin <https://github.com/ornl-qci/xacc-dwave>`_ provides
-support to XACC for executing programs on the D-Wave QPU via the D-Wave Accelerator.
-
-To install this plugin, run the following
-
-.. code::
-
-   $ git clone --recursive https://github.com/ornl-qci/xacc-dwave
-   $ cd xacc-dwave && mkdir build && cd build
-   $ cmake .. -DXACC_DIR=$HOME/.xacc
-   # make install
-
-Alternatively, if you installed the XACC Python bindings, then you can run
-
-.. code::
-
-   $ cmake .. -DXACC_DIR=$(python -m xacc -L)
-
-ensuring that the ``xacc`` module is in your ``PYTHONPATH``.
-
-Credentials
-+++++++++++
-
-In order to target the D-Wave remote resources you must provide
-XACC with your D-Wave Qubist API key. By default
-XACC will search for a config file at ``$HOME/.dwave_config``.
-
-If you installed the XACC Python bindings, then you can run
-
-.. code::
-
-   $ python -m xacc -c dwave -k YOURAPIKEY
-
-D-Wave Runtime Options
-+++++++++++++++++++
-The D-Wave plugin exposes the following runtime options
-
-   +------------------------+----------------------------------------+
-   | Argument               |            Description                 |
-   +========================+========================================+
-   | dwave-solver           | The backend to target (e.g. DW_2000Q_2)|
-   +------------------------+----------------------------------------+
-   | dwave-num-reads        | The number of shots to execute per job |
-   +------------------------+----------------------------------------+
 
 Python JIT Compiler
 -------------------
