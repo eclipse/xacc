@@ -1,5 +1,8 @@
 set(LIBRARY_NAME xacc-rigetti)
-
+set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
+if (APPLE)
+set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
+endif()
 file(GLOB SRC
           accelerator/QVMAccelerator.cpp
           RigettiActivator.cpp
@@ -20,7 +23,7 @@ target_include_directories(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc
                              xacc-quantum-gate
-                             ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so
+                             ${ANTLR_LIB}
                              CppMicroServices)
 
 set(_bundle_name xacc_rigetti)
