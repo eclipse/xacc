@@ -10,42 +10,6 @@ Documentation
 
 * [Website and Documentation ](https://xacc.readthedocs.io)
 
-Quick Installation and Example Usage
--------------------------------------
-XACC and plugin binaries are available via PyPi as Python Wheels: 
-```bash
-$ python -m pip install --user xacc[all]
-```
-
-With XACC installed, one can compile and run quantum kernels in python and 
-run on available QPUs and simulators:
-```python
-import xacc
-
-# Initialize the framework
-xacc.Initialize()
-
-# Select the QPU you want to use and 
-# allocate some qubits
-qpu = xacc.getAccelerator('rigetti') # or ibm, tnqvm, etc..
-qubits = qpu.createBuffer('q',2)
-
-# Annotate functions that are to be 
-# run on the QPU
-@xacc.qpu(accelerator=qpu)
-def entangle(buffer):
-   H(0)
-   CNOT(0, 1)
-   Measure(0, 0)
-   Measure(1, 1)
-   
-# Execute, gather results
-entangle(qubits)
-print(qubits.getMeasurementCounts())
-
-# Cleanup
-xacc.Finalize()
-```
 Build from Source
 -----------------
 Ensure that you have installed CMake 3.2+, a C++11 compliant compiler (GCC 5+, Clang 3.8+), and OpenSSL development libraries (see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
@@ -54,10 +18,10 @@ Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
 $ git clone --recursive https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
-$ cmake .. 
+$ cmake ..
 $ make install
 ```
-Your install will be in `$HOME/.xacc`. To change the install location, pass `-DCMAKE_INSTALL_PREFIX=/path/to/custom/install` to `cmake`. To build the Python API (**recommended)**, pass `-DPYTHON_INCLUDE_DIR=/usr/include/python3.5` (or wherever your Python.h is located) to `cmake`. 
+Your install will be in `$HOME/.xacc`. To change the install location, pass `-DCMAKE_INSTALL_PREFIX=/path/to/custom/install` to `cmake`. To build the Python API (**recommended)**, pass `-DPYTHON_INCLUDE_DIR=/usr/include/python3.5` (or wherever your Python.h is located) to `cmake`.
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
