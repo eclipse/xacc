@@ -7,7 +7,6 @@ XACC Framework API
    accelerator-index
    compiler-index
    ir-index
-   program-index
    utils-index
 
 XACC Quantum Gate Model API

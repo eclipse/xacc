@@ -126,6 +126,74 @@ This would generate the following circuit
 Any available ``IRGenerator`` present in the XACC framework can be used in this way
 to instantiate an ``IR`` instance for execution on a QPU.
 
+IBM Python JIT
+++++++++++++++
+The XACC Python JIT mechanism can be used for writing and executing IBM OpenQASM code on
+available IBM quantum accelerators. XACC enables the user to target specific QPU backends
+provided for use by IBM. The Python JIT mechanism also enables users to target and execute
+code using the local Qiskit C++ qasm simulator. See below for an example.
+
+.. code::
+
+   import xacc
+
+   xacc.Initialize()
+
+   # Get access to IBMQ and
+   # allocate some qubits
+   ibm = xacc.getAccelerator('ibm')
+   qubits = ibm.createBuffer('q')
+
+   # Target a specific IBM QPU backend
+   xacc.setOptions({'ibm-backend': 'ibmq_20_tokyo',
+                    'ibm-shots': 8192})
+
+   # Define the XACC Kernel
+   @xacc.qpu(accelerator=qpu)
+   def entangle(buffer):
+      H(0)
+      CNOT(0,1)
+      Measure(0)
+      Measure(1)
+
+   entangle(qubits)
+
+   # Display the results
+   print(qubits)
+
+   # Finalize the framework
+   xacc.Finalize()
+
+The ``xacc.setOptions`` method can be used to set any optional settings within the XACC framework.
+In this example, the ``ibm-backend`` option directs the framework to target the ``ibmq_20_tokyo``
+QPU backend and the ``ibm-shots`` option sets how many executions will be performed per job sent
+to the accelerator.
+
+.. note::
+
+   The backends available for use in XACC depend on the user information provided in
+   the ``$HOME/.ibm_config`` file and the permissions given to the user by IBM.
+
+The XACC Python JIT mechanism enables the use of the Qiskit C++ qasm simulator through
+the Accelerator implementation provided by the XACC framework. Targeting the simulator in
+Python is simple, as shown below.
+
+.. code::
+
+   import xacc
+
+   xacc.Initialize()
+
+   qpu = xacc.getAccelerator('local-ibm')
+   qubits = qpu.createBuffer('q')
+
+   xacc.setOption('ibm-shots', 8192)
+
+   # ... Define kernels and the rest of the code
+
+Note here that when using the local Qiskit simulator, there is no need to specify
+a backend to target.
+
 D-Wave Python JIT
 +++++++++++++++++
 We can similarly use this Python JIT mechanism for writing and executing D-Wave
@@ -209,7 +277,7 @@ method.
 
 Rigetti QVM Python JIT
 ++++++++++++++++++++++
-The XACC Python JIT mechanism can be used for writing and executing Rigetti pyQuil code using the Rigetti QVM. 
+The XACC Python JIT mechanism can be used for writing and executing Rigetti pyQuil code using the Rigetti QVM.
 
 Note that this requires downloading and installing the Rigetti Forest Software Development Kit,
 which includes pyQuil 2.0, the Quantum Virtual Machine (qvm), and the Rigetti Quil Compiler (quilc).
@@ -220,9 +288,9 @@ With the Rigetti Forest SDK installed, the QVM server can be started in a termin
 
    $ qvm -S
 
-XACC does not require the Rigetti Quil Compiler to be used to 
-execute quantum kernels on the QVM. Once the QVM server has been started, 
-the XACC workflow is essentially the same as when targeting other quantum processors. 
+XACC does not require the Rigetti Quil Compiler to be used to
+execute quantum kernels on the QVM. Once the QVM server has been started,
+the XACC workflow is essentially the same as when targeting other quantum processors.
 
 Here is a simple script to construct a Bell State on the Rigetti QVM:
 
@@ -253,7 +321,7 @@ Here is a simple script to construct a Bell State on the Rigetti QVM:
 
    # Finalize the framework
    xacc.Finalize()
-   
+
 AcceleratorBuffer Usage
 -----------------------
 The ``AcceleratorBuffer`` makes up the glue between host-side code and ``Accelerator``
@@ -466,6 +534,3 @@ This will build, install, and run your tests on the Compiler plugin you have jus
 created.
 
 The instructions for other plugins are similar.
-
-
-
