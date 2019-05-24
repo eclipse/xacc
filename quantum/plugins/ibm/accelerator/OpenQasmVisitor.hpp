@@ -65,6 +65,7 @@ protected:
     std::string operationsJsonStr = "[";
 
 public:
+    bool isIBMAcc = false;
 
 	virtual const std::string name() const {
 		return "openqasm-visitor";
@@ -171,12 +172,14 @@ public:
 	 * Visit Measurement gates
 	 */
 	void visit(Measure& m) {
+        std::string clbitname = "clbits";
+        if (isIBMAcc) clbitname = "memory";
 		std::stringstream ss, js;
 		ss << "creg c" << classicalBitCounter << "[1];\n";
 		ss << "measure q[" << m.bits()[0] << "] -> c" << classicalBitCounter << "[0];\n";
 		native += ss.str();
 		qubitToClassicalBitIndex.insert(std::make_pair(m.bits()[0], classicalBitCounter));
-        js << "{\"clbits\":[" << classicalBitCounter << "],\"name\":\"measure\",\"qubits\":[" << m.bits()[0]<< "]},";
+        js << "{\""+clbitname+"\":[" << classicalBitCounter << "],\"name\":\"measure\",\"qubits\":[" << m.bits()[0]<< "]},";
         operationsJsonStr += js.str();
 		classicalBitCounter++;
 	}

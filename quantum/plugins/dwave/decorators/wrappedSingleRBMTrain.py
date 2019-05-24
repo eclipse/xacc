@@ -4,7 +4,6 @@ import xacc
 import inspect, csv
 import numpy as np
 import time
-from scipy.special import expit as sigmoid
 from collections import Counter
 @ComponentFactory("wrapped_single_rbm_train_factory")
 @Provides("decorator_algorithm_service")
@@ -27,7 +26,7 @@ class WrappedSingleRBMTrain(xacc.DecoratorFunction):
         self.batch_size = self.kwargs['batch_size']
         self.num_classes = self.kwargs['max_classes']
         self.train_steps = self.kwargs['train_steps']
-        
+
         if 'chain-strength' in self.kwargs:
             xacc.setOption('chain-strength', self.kwargs['chain_strength'])
         if 'num_samples' in self.kwargs:
@@ -47,7 +46,7 @@ class WrappedSingleRBMTrain(xacc.DecoratorFunction):
                 self.numH += 1
             if 'w' in inst:
                 self.numW += 1
-                
+
         # Initializing the weights from a random normal distribution
         # Initializing the hidden and visible biases to be zero
         self.weights = np.random.normal(0.01, 1.0, (self.numV, self.numH))
@@ -57,15 +56,15 @@ class WrappedSingleRBMTrain(xacc.DecoratorFunction):
 
         self.data, self.n_evts = self.readTrainData(self.kwargs['train_data'])
         self.data = self.batchData(self.data, self.batch_size)
-            
+
         for epoch in range(self.num_epochs):
-        
+
             train_step = 0
             for batch in self.data:
                 xacc.info("Train Step {}".format(train_step))
                 if train_step >= self.train_steps > -1:
                     break
-                    
+
                 # get data expectation values
                 dataExpW, dataExpV, dataExpH = self.getDataExpectations(batch)
 
@@ -183,8 +182,9 @@ class WrappedSingleRBMTrain(xacc.DecoratorFunction):
             final_array[i] = array[i*batch_size:batch_size+(batch_size*i)]
         xacc.info("Batched Array: " + str(final_array.shape))
         return final_array
-    
+
     def getDataExpectations(self, batch):
+        from scipy.special import expit as sigmoid
 
         hidden_probs = sigmoid(np.matmul(batch, self.weights) + self.hidden_bias)
 
