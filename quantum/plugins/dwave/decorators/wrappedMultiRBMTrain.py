@@ -4,7 +4,6 @@ import xacc
 import inspect, csv
 import numpy as np
 import time
-from scipy.special import expit as sigmoid
 from collections import Counter
 @ComponentFactory("wrapped_rbm_train_mnist_factory")
 @Provides("decorator_algorithm_service")
@@ -47,7 +46,7 @@ class WrappedMultiRBMTrain(xacc.DecoratorFunction):
                 self.numH += 1
             if 'w' in inst:
                 self.numW += 1
-                
+
         # Initializing the weights from a random normal distribution
         # Initializing the hidden and visible biases to be zero
         self.weights = np.random.normal(0.01, 1.0, (self.numV, self.numH))
@@ -173,8 +172,9 @@ class WrappedMultiRBMTrain(xacc.DecoratorFunction):
             final_array[i] = array[i*batch_size:batch_size+(batch_size*i)]
         print("Batched Array: ", final_array.shape)
         return final_array
-    
+
     def getDataExpectations(self, batch):
+        from scipy.special import expit as sigmoid
 
         hidden_probs = sigmoid(np.matmul(batch, self.weights) + self.hidden_bias)
 

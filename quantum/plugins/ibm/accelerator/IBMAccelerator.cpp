@@ -48,25 +48,26 @@ using namespace rapidjson;
 namespace xacc {
 namespace quantum {
 
- const std::vector<double> IBMAccelerator::getOneBitErrorRates() {
-    return chosenBackend.gateErrors;
+const std::vector<double> IBMAccelerator::getOneBitErrorRates() {
+  return chosenBackend.gateErrors;
+}
+
+const std::vector<std::pair<std::pair<int, int>, double>>
+IBMAccelerator::getTwoBitErrorRates() {
+  // Return list of ((q1,q2),ERROR_RATE)
+  std::vector<std::pair<std::pair<int, int>, double>> twobiter;
+  for (int i = 0; i < chosenBackend.multiQubitGates.size(); i++) {
+    auto mqg = chosenBackend.multiQubitGates[i];
+    // boost::replace_all(mqg, "CX", "");
+    mqg = std::regex_replace(mqg, std::regex("CX"), "");
+    std::vector<std::string> split;
+    split = xacc::split(mqg, '_'); // boost::is_any_of("_"));
+    twobiter.push_back({{std::stoi(split[0]), std::stoi(split[1])},
+                        chosenBackend.multiQubitGateErrors[i]});
   }
 
-  const std::vector<std::pair<std::pair<int, int>, double>>
-  IBMAccelerator::getTwoBitErrorRates() {
-    // Return list of ((q1,q2),ERROR_RATE)
-    std::vector<std::pair<std::pair<int, int>, double>> twobiter;
-    for (int i = 0; i < chosenBackend.multiQubitGates.size(); i++) {
-        auto mqg = chosenBackend.multiQubitGates[i];
-        // boost::replace_all(mqg, "CX", "");
-        mqg = std::regex_replace(mqg, std::regex("CX"),"");
-        std::vector<std::string> split;
-        split = xacc::split(mqg, '_');//boost::is_any_of("_"));
-        twobiter.push_back({{std::stoi(split[0]), std::stoi(split[1])}, chosenBackend.multiQubitGateErrors[i]});
-    }
-
-    return twobiter;
-  }
+  return twobiter;
+}
 std::shared_ptr<AcceleratorBuffer>
 IBMAccelerator::createBuffer(const std::string &varId) {
   if (!isValidBufferSize(30)) {
@@ -151,7 +152,8 @@ void IBMAccelerator::initialize() {
       backend.name = b["name"].GetString();
       backend.description =
           b.HasMember("description") ? b["description"].GetString() : "";
-      backend.status = !(std::string(b["status"].GetString()).find("off") != std::string::npos);
+      backend.status = !(std::string(b["status"].GetString()).find("off") !=
+                         std::string::npos);
 
       backend.isSimulator = b["simulator"].GetBool();
       if (!backend.isSimulator && b.HasMember("couplingMap") &&
@@ -269,85 +271,38 @@ const std::string
 IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
                              std::vector<std::shared_ptr<Function>> functions) {
 
-  // Get the runtime options map, and initialize
-  // some basic variables we are going to need
-  std::string backendName = "ibmq_qasm_simulator";
+  std::string backendName = "ibmq_qasm_simulator", jsonStr = "";
   std::string shots = "1024";
   std::map<std::string, std::string> headers;
 
-    if (xacc::optionExists("ibm-backend")) {
-      auto newBackend = xacc::getOption("ibm-backend");
-      if (availableBackends.find(newBackend) == availableBackends.end()) {
-        xacc::error("Invalid IBM Backend string");
-      }
-      if (!availableBackends[newBackend].status) {
-        xacc::error(newBackend + " is currently unavailable, status = off");
-      }
-
-      backendName = newBackend;
-      chosenBackend = availableBackends[newBackend];
+  if (xacc::optionExists("ibm-backend")) {
+    auto newBackend = xacc::getOption("ibm-backend");
+    if (availableBackends.find(newBackend) == availableBackends.end()) {
+      xacc::error("Invalid IBM Backend string");
     }
+    if (!availableBackends[newBackend].status) {
+      xacc::error(newBackend + " is currently unavailable, status = off");
+    }
+
+    backendName = newBackend;
+    chosenBackend = availableBackends[newBackend];
+  }
 
   if (xacc::optionExists("ibm-shots")) {
     shots = xacc::getOption("ibm-shots");
   }
 
-  int nAnalogs = 0;
-  bool isAnalog = false;
-  for (auto &kernel : functions) {
-    if (kernel->isAnalog()) {
-      xacc::info("We have an analog circuit.");
-      isAnalog = true;
-      nAnalogs++;
-    }
-  }
+  auto totalQubits = std::to_string(chosenBackend.nQubits);
 
-  if (nAnalogs > 0 && nAnalogs != functions.size()) {
-    xacc::error("Cannot mix OpenQasm and OpenPulse executions. You have " +
-                std::to_string(functions.size()) + " functions but " +
-                std::to_string(nAnalogs) + " analog functions.");
-  }
-
-  std::string jsonStr = "", initStr = "";
-  if (isAnalog) {
-    auto measlofreq =
-        "7.02304866,6.988508651,7.021087557,6.914462388,7.085532103,6."
-        "949279909,7.108946695,6.909172065,6.994924756,6.901232112,7.046906055,"
-        "7.002697717,7.056662542, "
-        "6.944036858,7.102260098,6.942593417,7.087802113,6.89580952,7."
-        "003100376,6.89580523";
-    auto qubitlofreq =
-        "4.920222867865243,4.832046403202443,4.940398096698374,4."
-        "514466758212148,4.662970579288438,4.957220580605086,4.995704948314061,"
-        "4.811225865860375,5.0124078826037755,5.0564924363956045,4."
-        "72033587911043,4.899360137518408,4.772030460533516,5.110023809671274,"
-        "4.990894220665049,4.806558974441183,4.956319934060655,4."
-        "599367389589547,4.827896792802955,4.938182460530852";
-    initStr =
-        "{ \"qObject\": {\"qobj_id\": \"xacc-qobj\", \"schema_version\": \"1.0.0\", \"type\": "
-        "\"PULSE\", \"header\": { \"description\": \"\", \"backend_name\": \"" +
-        backendName + "\" }, \"config\": { \"meas_lo_freq\": [" + measlofreq +
-        "], \"qubit_lo_freq\": [" + qubitlofreq +
-        "], \"rep_time\": 500, \"meas_level\": 1, \"shots\":" + shots +
-        ", \"meas_return\": \"avg\", \"memory_slot_size\": 1, \"seed\": 1, "
-        "\"pulse_library\": [";
-    // add pulse library
-
-    jsonStr += "] }, \"experiments\": [";
-  } else {
-    jsonStr = "{\"qasms\": [";
-  }
-
+  std::string experiments = "\"experiments\": [";
+  int maxMemSlots = 0;
   int kernelCounter = 0;
   for (auto &kernel : functions) {
     // Create the Instruction Visitor that is going
     // to map our IR to Quil.
-    std::shared_ptr<BaseInstructionVisitor> visitor;
-    if (!isAnalog) {
-      visitor = std::make_shared<OpenQasmVisitor>(buffer->size());
-    } else {
-      visitor = std::make_shared<OpenPulseVisitor>(kernel->name());
-    }
+    // std::shared_ptr<BaseInstructionVisitor> visitor;
+    auto visitor = std::make_shared<OpenQasmVisitor>(buffer->size());
+    visitor->isIBMAcc = true;
 
     // Our QIR is really a tree structure
     // so create a pre-order tree traversal
@@ -356,6 +311,7 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
     measurementSupports.insert(
         std::make_pair(kernelCounter, std::vector<int>{}));
 
+    int memSlots = 0;
     while (it.hasNext()) {
       // Get the next node in the tree
       auto nextInst = it.next();
@@ -364,69 +320,61 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
         if (nextInst->name() == "Measure") {
           auto qbitIdx = nextInst->bits()[0];
           measurementSupports[kernelCounter].push_back(qbitIdx);
+          memSlots++;
         }
       }
     }
 
-    if (isAnalog) {
-      // build up experiments {} json
-      auto expStr = std::dynamic_pointer_cast<OpenPulseVisitor>(visitor)
-                        ->getOpenPulseInstructionsJson();
-      jsonStr += expStr + ",";
-    } else {
-      auto qasmStr = visitor->getNativeAssembly();
-      qasmStr = std::regex_replace(qasmStr, std::regex("\n"), "\\n");
-      jsonStr += "{\"qasm\": \"" + qasmStr + "\"},";
+    if (memSlots > maxMemSlots)
+      maxMemSlots = memSlots;
+
+    std::string expConfig = "\"config\": { \"n_qubits\": " + totalQubits +
+                            ", \"memory_slots\": " + std::to_string(memSlots) +
+                            "}, \"header\": {\"name\":\"" + kernel->name() +
+                            "\", \"qreg_sizes\":[[\"q\"," + totalQubits +
+                            "]], \"n_qubits\":" + totalQubits +
+                            ",\"qubit_labels\":[";
+    for (int i = 0; i < chosenBackend.nQubits; i++) {
+      if (i != 19)
+        expConfig += "[\"q\"," + std::to_string(i) + "],";
+      else
+        expConfig += "[\"q\"," + std::to_string(i) + "]";
     }
+    expConfig += "], \"memory_slots\": " + std::to_string(memSlots) +
+                 ", \"creg_sizes\": [[\"c\"," + std::to_string(memSlots) +
+                 "]], \"clbit_labels\": [";
+    for (int i = 0; i < memSlots; i++) {
+      if (i != memSlots - 1)
+        expConfig += "[\"c\"," + std::to_string(i) + "],";
+      else
+        expConfig += "[\"c\"," + std::to_string(i) + "]";
+    }
+    expConfig += "]}";
+
+    auto qasmStr = visitor->getOperationsJsonString();
+    qasmStr = std::regex_replace(qasmStr, std::regex("\n"), "\\n");
+    experiments += "{" + expConfig + ", \"instructions\": " + qasmStr + "},";
+
     kernelNames.push_back(kernel->name());
     kernelCounter++;
   }
 
-  if (isAnalog) {
-
-    // Fill out the rest of the jsonStr for OpenPulse
-    // Add everything from the pulseLibrary
-    // FIXME PULSE LIBRARY CACHE AS OPTION, DEFAULT to QCOR
-    auto cache = xacc::getCache("qcor_pulse_library.json");
-    for (auto &kv : cache) {
-      std::stringstream ss;
-      initStr += "{\"name\": \"" + kv.first + "\", \"samples\": ";
-      ss << kv.second.toString();
-      initStr += ss.str() + "},";
-    }
-    jsonStr = initStr.substr(0, initStr.length() - 1) +
-              jsonStr.substr(0, jsonStr.length() - 1) + "]}, \"backend\": {\"name\": \""+backendName+"\"}}";
-
-  } else {
-    jsonStr = jsonStr.substr(0, jsonStr.size() - 1) + "]";
-    jsonStr += ", \"shots\": " + shots +
-               ", \"maxCredits\": 5, "
-               "\"backend\": {\"name\": \"" +
-               backendName + "\"}}";
-  }
-  // Check that the qpu is online
-  if (backendName != "ibmq_qasm_simulator") {
-    std::string checkBackend = "/api/Backends/" + backendName;
-    if (!hub.empty()) {
-      checkBackend = "/api/Network/ibm-q-ornl/devices/" + backendName +
-                     "?access_token=" + this->currentApiToken;
-    }
-    std::string deviceResponse =
-        handleExceptionRestClientGet(remoteUrl, checkBackend);
-    Document d;
-    d.Parse(deviceResponse);
-    std::string _status = d["status"].GetString();
-    while (_status != "on") {
-      xacc::info(backendName + " is offline. Please wait");
-      std::this_thread::sleep_for(std::chrono::milliseconds(400));
-      deviceResponse = handleExceptionRestClientGet(remoteUrl, checkBackend);
-      d.Parse(deviceResponse);
-      _status = d["status"].GetString();
-    }
-  }
-
+  auto bkend = "\"backend\": { \"name\": \"" + backendName + "\"}";
+  auto qobjConfig = "\"config\": {\"shots\": " + shots +
+                    ", \"n_qubits\":" + totalQubits +
+                    ", \"memory_slots\": " + std::to_string(maxMemSlots) +
+                    ", \"memory\":false }";
+  jsonStr =
+      "{" + bkend +
+      ", \"qObject\": {\"qobj_id\": \"xacc-generated-qobj\", "
+      "\"schema_version\":\"1.1.0\", \"type\": \"QASM\", \"header\": {}, " +
+      qobjConfig + ", "; //+bkend + "}";
+  jsonStr += experiments.substr(0, experiments.length() - 1) +
+             "]}}"; // " + bkend + "}";
+  xacc::info("HOWDY:\n" + jsonStr);
+  // exit(0);
   return jsonStr;
-} // namespace quantum
+}
 
 /**
  * take response and create
@@ -436,7 +384,7 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                                 const std::string &response) {
 
   // xacc::info("POST RESPONSE\n" + response);
-  if (response.find("error") != std::string::npos){
+  if (response.find("error") != std::string::npos) {
     xacc::error(response);
   }
   Document d;
@@ -457,13 +405,16 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     getResponse = handleExceptionRestClientGet(url, getPath);
 
     // Search the result for the status : COMPLETED indicator
-    if (getResponse.find("COMPLETED") != std::string::npos) { //boost::contains(getResponse, "COMPLETED")) {
+    if (getResponse.find("COMPLETED") !=
+        std::string::npos) { // boost::contains(getResponse, "COMPLETED")) {
       jobCompleted = true;
     }
 
-    if (getResponse.find("ERROR_RUNNING_JOB") != std::string::npos) {//boost::contains(getResponse, "ERROR_RUNNING_JOB")) {
-        xacc::info(getResponse);
-        xacc::error("Error encountered running IBM job.");
+    if (getResponse.find("ERROR_RUNNING_JOB") !=
+        std::string::npos) { // boost::contains(getResponse,
+                             // "ERROR_RUNNING_JOB")) {
+      xacc::info(getResponse);
+      xacc::error("Error encountered running IBM job.");
     }
 
     Document d;
@@ -492,150 +443,108 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 
   xacc::info(getResponse);
 
-  auto qasmsArray = d["qasms"].GetArray();
-  if (qasmsArray.Size() == 1) {
-    const Value &counts = qasmsArray[0]["result"]["data"]["counts"];
+  auto &qobjResult = d["qObjectResult"];
+  auto resultsArray = qobjResult["results"].GetArray();
+
+  std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
+
+  if (!chosenBackend.isSimulator) {
+    buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
+    buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
+    buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
+    buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
+    buffer->addExtraInfo("multiQubitGates", chosenBackend.multiQubitGates);
+    buffer->addExtraInfo("multiQubitGateErrors",
+                         chosenBackend.multiQubitGateErrors);
+    buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
+    buffer->addExtraInfo("T1", chosenBackend.T1s);
+    buffer->addExtraInfo("T2", chosenBackend.T2s);
+  }
+
+  for (SizeType i = 0; i < resultsArray.Size(); i++) {
+
+    xacc::info("--------------------------");
+    xacc::info("Kernel " + std::to_string(i));
+    std::stringstream sss;
+    for (auto q : measurementSupports[i]) {
+      sss << q << ", ";
+    }
+    xacc::info("Measured Qubits: " + sss.str());
+
+    auto tmpBuffer = createBuffer(kernelNames[i], buffer->size());
+
+    const Value &counts = resultsArray[i]["data"]["counts"];
     for (Value::ConstMemberIterator itr = counts.MemberBegin();
          itr != counts.MemberEnd(); ++itr) {
 
       // NOTE THESE BITS ARE LEFT MOST IS MOST SIGNIFICANT,
       // LEFT MOST IS (N-1)th Qubit, RIGHT MOST IS 0th qubit
-      std::string bitStr = itr->name.GetString();
+      std::string hexStr = itr->name.GetString();
       int nOccurrences = itr->value.GetInt();
-      if (chosenBackend.isSimulator) {
-        bitStr.erase(std::remove_if(bitStr.begin(),bitStr.end(), ::isspace), bitStr.end());
-      }
-      std::stringstream xx;
-      xx << bitStr << " " << nOccurrences << " times";
-      xacc::info("IBM Sim Measurement outcome: " + xx.str() + ".");
-      buffer->appendMeasurement(bitStr,nOccurrences);
-    }
 
-    buffer->addExtraInfo(
-        "time", ExtraInfo(qasmsArray[0]["result"]["data"]["time"].GetDouble()));
-    buffer->addExtraInfo("kernel", ExtraInfo(kernelNames[0]));
-
-    if (!chosenBackend.isSimulator) {
-      buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
-      buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
-      buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
-      buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
-      buffer->addExtraInfo("multiQubitGates", chosenBackend.multiQubitGates);
-      buffer->addExtraInfo("multiQubitGateErrors",
-                           chosenBackend.multiQubitGateErrors);
-      buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
-      buffer->addExtraInfo("T1", chosenBackend.T1s);
-      buffer->addExtraInfo("T2", chosenBackend.T2s);
-    }
-
-    measurementSupports.clear();
-    // Return empty list since data is stored on the given buffer.
-    return std::vector<std::shared_ptr<AcceleratorBuffer>>{};
-  } else {
-
-    std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
-
-    if (!chosenBackend.isSimulator) {
-      buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
-      buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
-      buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
-      buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
-      buffer->addExtraInfo("multiQubitGates", chosenBackend.multiQubitGates);
-      buffer->addExtraInfo("multiQubitGateErrors",
-                           chosenBackend.multiQubitGateErrors);
-      buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
-      buffer->addExtraInfo("T1", chosenBackend.T1s);
-      buffer->addExtraInfo("T2", chosenBackend.T2s);
-    }
-
-    for (SizeType i = 0; i < qasmsArray.Size(); i++) {
-
-      xacc::info("--------------------------");
-      xacc::info("Kernel " + std::to_string(i));
-      std::stringstream sss;
-      for (auto q : measurementSupports[i]) {
-        sss << q << ", ";
-      }
-      xacc::info("Measured Qubits: " + sss.str());
-
-      auto tmpBuffer = createBuffer(kernelNames[i], buffer->size());
-
-      auto time = qasmsArray[i]["result"]["data"]["time"].GetDouble();
-      tmpBuffer->addExtraInfo("time", ExtraInfo(time));
-      //   tmpBuffer->addExtraInfo("kernel", ExtraInfo(kernelNames[i]));
-
-      const Value &counts = qasmsArray[i]["result"]["data"]["counts"];
-      for (Value::ConstMemberIterator itr = counts.MemberBegin();
-           itr != counts.MemberEnd(); ++itr) {
-
-        // NOTE THESE BITS ARE LEFT MOST IS MOST SIGNIFICANT,
-        // LEFT MOST IS (N-1)th Qubit, RIGHT MOST IS 0th qubit
-        std::string bitStr = itr->name.GetString();
-        int nOccurrences = itr->value.GetInt();
-
-        if (chosenBackend.isSimulator) {
-          bitStr.erase(std::remove_if(bitStr.begin(),bitStr.end(), ::isspace), bitStr.end());
-          if (bitStr.length() < buffer->size()) {
-            std::string bitString = "";
-            for (int i = 0; i < buffer->size(); ++i)
-              bitString += "0";
-
-            auto supports = measurementSupports[i];
-            std::sort(supports.begin(), supports.end());
-
-            int counter = 0;
-            for (int i = bitStr.length() - 1; i >= 0; i--) {
-              bitString[buffer->size() - 1 - supports[counter]] = bitStr[i];
-              counter++;
-            }
-
-            bitStr = bitString;
-          }
+      auto hextobin = [](const std::string &s) {
+        std::string out;
+        for (auto i : s) {
+          uint8_t n;
+          if (i <= '9' and i >= '0')
+            n = i - '0';
+          else
+            n = 10 + i - 'A';
+          for (int8_t j = 3; j >= 0; --j)
+            out.push_back((n & (1 << j)) ? '1' : '0');
         }
 
-        xacc::info("IBM Results: " + std::string(bitStr) + ":" +
-                   std::to_string(nOccurrences));
+        return out;
+      };
+      auto bitStr = hextobin(hexStr);
 
-        if (!chosenBackend.isSimulator) {
-          if (buffer->size() < bitStr.length()) {
-            bitStr = bitStr.substr(bitStr.length() - buffer->size(),
-                                   bitStr.length());
-          }
+      xacc::info("IBM Results: " + std::string(hexStr) + ":" +
+                 std::to_string(nOccurrences));
 
-          // Turn off measure results that didn't have
-          // a requested measurement gate, otherwise our
-          // expectation values will be skewed.
-          auto supportedQbits = measurementSupports[i];
-          int counter = 0;
-          for (int i = bitStr.length() - 1; i >= 0; i--) {
-            if (std::find(supportedQbits.begin(), supportedQbits.end(),
-                          counter) == supportedQbits.end()) {
-              bitStr[i] = '0';
-            }
-            counter++;
-          }
+      if (!chosenBackend.isSimulator) {
+        if (buffer->size() < bitStr.length()) {
+          bitStr =
+              bitStr.substr(bitStr.length() - buffer->size(), bitStr.length());
         }
 
-        xacc::info("Our Results: " + std::string(bitStr) + ":" +
-                   std::to_string(itr->value.GetInt()));
-
-        // boost::dynamic_bitset<> outcome(bitStr);
-        // for (int i = 0; i < nOccurrences; i++) {
-          tmpBuffer->appendMeasurement(bitStr,nOccurrences);
-        // }
+        // Turn off measure results that didn't have
+        // a requested measurement gate, otherwise our
+        // expectation values will be skewed.
+        auto supportedQbits = measurementSupports[i];
+        int counter = 0;
+        for (int i = bitStr.length() - 1; i >= 0; i--) {
+          if (std::find(supportedQbits.begin(), supportedQbits.end(),
+                        counter) == supportedQbits.end()) {
+            bitStr[i] = '0';
+          }
+          counter++;
+        }
       }
 
-      xacc::info("--------------------------");
+      xacc::info("Our Results: " + std::string(bitStr) + ":" +
+                 std::to_string(itr->value.GetInt()));
 
-      buffers.push_back(tmpBuffer);
+      // boost::dynamic_bitset<> outcome(bitStr);
+      // for (int i = 0; i < nOccurrences; i++) {
+      if (resultsArray.Size() == 1) {
+         buffer->appendMeasurement(bitStr, nOccurrences);
+      } else {
+         tmpBuffer->appendMeasurement(bitStr, nOccurrences);
+      }
+      // }
     }
 
-    measurementSupports.clear();
-    return buffers;
+    xacc::info("--------------------------");
+
+    buffers.push_back(tmpBuffer);
   }
+
+  measurementSupports.clear();
+  return buffers;
+  //   }
 }
 
-std::vector<std::pair<int,int>> IBMAccelerator::getAcceleratorConnectivity() {
+std::vector<std::pair<int, int>> IBMAccelerator::getAcceleratorConnectivity() {
   std::string backendName = "ibmq_qasm_simulator";
 
   if (xacc::optionExists("ibm-backend")) {
@@ -647,19 +556,19 @@ std::vector<std::pair<int,int>> IBMAccelerator::getAcceleratorConnectivity() {
   }
 
   auto backend = availableBackends[backendName];
-//   auto graph = std::make_shared<AcceleratorGraph>(backend.nQubits);
-  std::vector<std::pair<int,int>> graph;
+  //   auto graph = std::make_shared<AcceleratorGraph>(backend.nQubits);
+  std::vector<std::pair<int, int>> graph;
   if (!backend.couplers.empty()) {
     for (auto es : backend.couplers) {
-    //   graph->addEdge(es.first, es.second);
-      graph.push_back({es.first,es.second});
+      //   graph->addEdge(es.first, es.second);
+      graph.push_back({es.first, es.second});
     }
   } else {
     for (int i = 0; i < backend.nQubits; i++) {
       for (int j = 0; j < backend.nQubits; j++) {
         if (i < j) {
-        //   graph->addEdge(i, j);
-          graph.push_back({i,j});
+          //   graph->addEdge(i, j);
+          graph.push_back({i, j});
         }
       }
     }
@@ -674,8 +583,7 @@ void IBMAccelerator::searchAPIKey(std::string &key, std::string &url,
 
   // Search for the API Key in $HOME/.ibm_config,
   // $IBM_CONFIG, or in the command line argument --ibm-api-key
-  std::string ibmConfig(std::string(getenv("HOME")) +
-                                    "/.ibm_config");
+  std::string ibmConfig(std::string(getenv("HOME")) + "/.ibm_config");
   if (xacc::fileExists(ibmConfig)) {
     findApiKeyInFile(key, url, hub, group, project, ibmConfig);
   } else if (const char *nonStandardPath = getenv("IBM_CONFIG")) {
@@ -759,3 +667,164 @@ void IBMAccelerator::findApiKeyInFile(std::string &apiKey, std::string &url,
 }
 } // namespace quantum
 } // namespace xacc
+
+//  // Get the runtime options map, and initialize
+//   // some basic variables we are going to need
+//   std::string backendName = "ibmq_qasm_simulator";
+//   std::string shots = "1024";
+//   std::map<std::string, std::string> headers;
+
+//     if (xacc::optionExists("ibm-backend")) {
+//       auto newBackend = xacc::getOption("ibm-backend");
+//       if (availableBackends.find(newBackend) == availableBackends.end()) {
+//         xacc::error("Invalid IBM Backend string");
+//       }
+//       if (!availableBackends[newBackend].status) {
+//         xacc::error(newBackend + " is currently unavailable, status = off");
+//       }
+
+//       backendName = newBackend;
+//       chosenBackend = availableBackends[newBackend];
+//     }
+
+//   if (xacc::optionExists("ibm-shots")) {
+//     shots = xacc::getOption("ibm-shots");
+//   }
+
+//   int nAnalogs = 0;
+//   bool isAnalog = false;
+//   for (auto &kernel : functions) {
+//     if (kernel->isAnalog()) {
+//       xacc::info("We have an analog circuit.");
+//       isAnalog = true;
+//       nAnalogs++;
+//     }
+//   }
+
+//   if (nAnalogs > 0 && nAnalogs != functions.size()) {
+//     xacc::error("Cannot mix OpenQasm and OpenPulse executions. You have " +
+//                 std::to_string(functions.size()) + " functions but " +
+//                 std::to_string(nAnalogs) + " analog functions.");
+//   }
+
+//   std::string jsonStr = "", initStr = "";
+//   if (isAnalog) {
+//     auto measlofreq =
+//         "7.02304866,6.988508651,7.021087557,6.914462388,7.085532103,6."
+//         "949279909,7.108946695,6.909172065,6.994924756,6.901232112,7.046906055,"
+//         "7.002697717,7.056662542, "
+//         "6.944036858,7.102260098,6.942593417,7.087802113,6.89580952,7."
+//         "003100376,6.89580523";
+//     auto qubitlofreq =
+//         "4.920222867865243,4.832046403202443,4.940398096698374,4."
+//         "514466758212148,4.662970579288438,4.957220580605086,4.995704948314061,"
+//         "4.811225865860375,5.0124078826037755,5.0564924363956045,4."
+//         "72033587911043,4.899360137518408,4.772030460533516,5.110023809671274,"
+//         "4.990894220665049,4.806558974441183,4.956319934060655,4."
+//         "599367389589547,4.827896792802955,4.938182460530852";
+//     initStr =
+//         "{ \"qObject\": {\"qobj_id\": \"xacc-qobj\", \"schema_version\":
+//         \"1.0.0\", \"type\": "
+//         "\"PULSE\", \"header\": { \"description\": \"\", \"backend_name\":
+//         \"" + backendName + "\" }, \"config\": { \"meas_lo_freq\": [" +
+//         measlofreq +
+//         "], \"qubit_lo_freq\": [" + qubitlofreq +
+//         "], \"rep_time\": 500, \"meas_level\": 1, \"shots\":" + shots +
+//         ", \"meas_return\": \"avg\", \"memory_slot_size\": 1, \"seed\": 1, "
+//         "\"pulse_library\": [";
+//     // add pulse library
+
+//     jsonStr += "] }, \"experiments\": [";
+//   } else {
+//     jsonStr = "{\"qasms\": [";
+//   }
+
+//   int kernelCounter = 0;
+//   for (auto &kernel : functions) {
+//     // Create the Instruction Visitor that is going
+//     // to map our IR to Quil.
+//     std::shared_ptr<BaseInstructionVisitor> visitor;
+//     if (!isAnalog) {
+//       visitor = std::make_shared<OpenQasmVisitor>(buffer->size());
+//     } else {
+//       visitor = std::make_shared<OpenPulseVisitor>(kernel->name());
+//     }
+
+//     // Our QIR is really a tree structure
+//     // so create a pre-order tree traversal
+//     // InstructionIterator to walk it
+//     InstructionIterator it(kernel);
+//     measurementSupports.insert(
+//         std::make_pair(kernelCounter, std::vector<int>{}));
+
+//     while (it.hasNext()) {
+//       // Get the next node in the tree
+//       auto nextInst = it.next();
+//       if (nextInst->isEnabled()) {
+//         nextInst->accept(visitor);
+//         if (nextInst->name() == "Measure") {
+//           auto qbitIdx = nextInst->bits()[0];
+//           measurementSupports[kernelCounter].push_back(qbitIdx);
+//         }
+//       }
+//     }
+
+//     if (isAnalog) {
+//       // build up experiments {} json
+//       auto expStr = std::dynamic_pointer_cast<OpenPulseVisitor>(visitor)
+//                         ->getOpenPulseInstructionsJson();
+//       jsonStr += expStr + ",";
+//     } else {
+//       auto qasmStr = visitor->getNativeAssembly();
+//       qasmStr = std::regex_replace(qasmStr, std::regex("\n"), "\\n");
+//       jsonStr += "{\"qasm\": \"" + qasmStr + "\"},";
+//     }
+//     kernelNames.push_back(kernel->name());
+//     kernelCounter++;
+//   }
+
+//   if (isAnalog) {
+
+//     // Fill out the rest of the jsonStr for OpenPulse
+//     // Add everything from the pulseLibrary
+//     // FIXME PULSE LIBRARY CACHE AS OPTION, DEFAULT to QCOR
+//     auto cache = xacc::getCache("qcor_pulse_library.json");
+//     for (auto &kv : cache) {
+//       std::stringstream ss;
+//       initStr += "{\"name\": \"" + kv.first + "\", \"samples\": ";
+//       ss << kv.second.toString();
+//       initStr += ss.str() + "},";
+//     }
+//     jsonStr = initStr.substr(0, initStr.length() - 1) +
+//               jsonStr.substr(0, jsonStr.length() - 1) + "]}, \"backend\":
+//               {\"name\": \""+backendName+"\"}}";
+
+//   } else {
+//     jsonStr = jsonStr.substr(0, jsonStr.size() - 1) + "]";
+//     jsonStr += ", \"shots\": " + shots +
+//                ", \"maxCredits\": 5, "
+//                "\"backend\": {\"name\": \"" +
+//                backendName + "\"}}";
+//   }
+//   // Check that the qpu is online
+//   if (backendName != "ibmq_qasm_simulator") {
+//     std::string checkBackend = "/api/Backends/" + backendName;
+//     if (!hub.empty()) {
+//       checkBackend = "/api/Network/ibm-q-ornl/devices/" + backendName +
+//                      "?access_token=" + this->currentApiToken;
+//     }
+//     std::string deviceResponse =
+//         handleExceptionRestClientGet(remoteUrl, checkBackend);
+//     Document d;
+//     d.Parse(deviceResponse);
+//     std::string _status = d["status"].GetString();
+//     while (_status != "on") {
+//       xacc::info(backendName + " is offline. Please wait");
+//       std::this_thread::sleep_for(std::chrono::milliseconds(400));
+//       deviceResponse = handleExceptionRestClientGet(remoteUrl, checkBackend);
+//       d.Parse(deviceResponse);
+//       _status = d["status"].GetString();
+//     }
+//   }
+
+//   return jsonStr;
