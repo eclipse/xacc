@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (c) 2017, UT-Battelle
+ * Copyright (c) 2018, UT-Battelle
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,64 +25,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Contributors:
- *   Initial API and implementation - Alex McCaskey
+ *   Initial implementation - H. Charles Zhao
  *
  **********************************************************************************/
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#ifndef IMPLS_IBM_QOBJECTCOMPILER_HPP
+#define IMPLS_IBM_QOBJECTCOMPILER_HPP
 
-#include <memory>
-#include <set>
-#include "IBMAccelerator.hpp"
-#include "OpenQasmVisitor.hpp"
+#include "Compiler.hpp"
 
-#ifdef LAPACK_FOUND
-#include "LocalIBMAccelerator.hpp"
-#endif
+namespace xacc {
 
-#include "OQASMCompiler.hpp"
-#include "QObjectCompiler.hpp"
+namespace quantum {
 
-using namespace cppmicroservices;
-
-namespace {
-
-/**
- */
-class US_ABI_LOCAL IBMActivator : public BundleActivator {
-
+class QObjectCompiler : public xacc::Compiler {
 public:
-  IBMActivator() {}
+  QObjectCompiler() = default;
 
-  /**
-   */
-  void Start(BundleContext context) {
-    auto acc = std::make_shared<xacc::quantum::IBMAccelerator>();
-    auto vis = std::make_shared<xacc::quantum::OpenQasmVisitor>();
+  std::shared_ptr<xacc::IR> compile(const std::string &src,
+                                    std::shared_ptr<Accelerator> acc) override;
+  std::shared_ptr<xacc::IR> compile(const std::string &src) override;
 
-#ifdef LAPACK_FOUND
-    auto acc2 = std::make_shared<xacc::quantum::LocalIBMAccelerator>();
-    context.RegisterService<xacc::Accelerator>(acc2);
-#endif
-    auto c = std::make_shared<xacc::quantum::OQASMCompiler>();
-    context.RegisterService<xacc::Compiler>(c);
-    context.RegisterService<xacc::OptionsProvider>(c);
+  const std::string translate(const std::string &bufferVariable,
+                              std::shared_ptr<Function> function) override;
 
-    auto c2 = std::make_shared<xacc::quantum::QObjectCompiler>();
-    context.RegisterService<xacc::Compiler>(c2);
-
-    context.RegisterService<xacc::Accelerator>(acc);
-
-    context.RegisterService<xacc::OptionsProvider>(acc);
-    context.RegisterService<xacc::BaseInstructionVisitor>(vis);
+  const std::string name() const override { return "qobj"; }
+  const std::string description() const override {
+    return "The QObject Compiler compiles an IBM QObject (represented as a "
+           "JSON string) and maps it to the XACC IR.";
   }
 
   /**
+   * The destructor
    */
-  void Stop(BundleContext /*context*/) {}
+  ~QObjectCompiler() override {}
 };
 
-} // namespace
+} // namespace quantum
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(IBMActivator)
+} // namespace xacc
+#endif

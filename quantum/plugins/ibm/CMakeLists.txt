@@ -8,6 +8,7 @@ file(GLOB SRC
           accelerator/IBMAccelerator.cpp
           IBMActivator.cpp
           compiler/OQASMCompiler.cpp
+          compiler/QObjectCompiler.cpp
           compiler/OQASMToXACCListener.cpp
           compiler/generated/*.cpp)
 
