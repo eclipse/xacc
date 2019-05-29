@@ -712,7 +712,9 @@ inline void to_json(json &j, const xacc::ibm::QObject &x) {
 
 inline void from_json(const json &j, xacc::ibm::QObjectRoot &x) {
   x.set_q_object(j.at("qObject").get<xacc::ibm::QObject>());
-  x.set_backend(j.at("backend").get<xacc::ibm::Backend>());
+  if (j.find("backend") != j.end()) {
+    x.set_backend(j.at("backend").get<xacc::ibm::Backend>());
+  }
 }
 
 inline void to_json(json &j, const xacc::ibm::QObjectRoot &x) {
