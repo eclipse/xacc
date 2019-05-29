@@ -525,12 +525,6 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 
       auto bitStr = hex_string_to_binary_string(hexStr);
 
-    //   xacc::info("IBM Results: " + std::string(hexStr) + ":" +
-    //              std::to_string(nOccurrences));
-
-    //   xacc::info("Our Results: " + std::string(bitStr) + ":" +
-    //              std::to_string(nOccurrences));
-
       if (resultsArray.size() == 1) {
         buffer->appendMeasurement(bitStr, nOccurrences);
       } else {
