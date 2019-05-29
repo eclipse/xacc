@@ -50,7 +50,7 @@ protected:
   std::map<int,int> qubit2MemorySlot;
 
 public:
-  int maxMemorySlots;
+  int maxMemorySlots = 0;
   const std::string name() const override { return "qobject-visitor"; }
 
   const std::string description() const override {
@@ -78,7 +78,7 @@ public:
     if (experiment.get_instructions().empty()) {
 
       maxMemorySlots++;
-      
+
       // construct config and header, add
       ExperimentHeader header;
       header.set_name(experimentName);
