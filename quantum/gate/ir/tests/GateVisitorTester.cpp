@@ -11,8 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
+#include "DigitalGates.hpp"
 
 using namespace xacc;
 

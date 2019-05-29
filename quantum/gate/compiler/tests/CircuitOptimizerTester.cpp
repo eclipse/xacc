@@ -17,8 +17,8 @@
 #include "CircuitOptimizer.hpp"
 #include "GateIR.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
-#include "Rz.hpp"
-#include "CNOT.hpp"
+#include "DigitalGates.hpp"
+
 #include "xacc_service.hpp"
 
 using namespace xacc::quantum;
