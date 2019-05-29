@@ -16,7 +16,7 @@
 #include <iostream>
 #include <memory>
 #include "Compiler.hpp"
-#include "Accelerator.hpp"
+#include "RemoteAccelerator.hpp"
 
 namespace xacc {
 
@@ -203,6 +203,7 @@ void setAccelerator(const std::string &acceleratorName);
  * @return accelerator The Accelerator
  */
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name);
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared_ptr<Client> client);
 
 /**
  * Get the Accelerator that is currently specified by the

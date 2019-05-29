@@ -41,6 +41,7 @@ if(LAPACK_FOUND)
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/engines
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/utilities
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/third-party/headers
+      accelerator/json
       ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
 
 
@@ -58,6 +59,8 @@ else()
                              PUBLIC accelerator
                                     compiler
                                     compiler/generated
+                                    accelerator/qiskit-terra/src/qasm-simulator-cpp/src/third-party/headers
+                                    accelerator/json
                                     ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
   target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
@@ -94,6 +97,7 @@ endif()
 
 if(XACC_BUILD_TESTS)
   add_subdirectory(tests)
+  add_subdirectory(accelerator/json/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

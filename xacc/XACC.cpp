@@ -186,6 +186,24 @@ std::shared_ptr<Accelerator> getAccelerator() {
   }
   return acc;
 }
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared_ptr<Client> client) {
+  if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+  auto acc = xacc::getService<Accelerator>(name);
+  if (acc) {
+    auto remoteacc = std::dynamic_pointer_cast<RemoteAccelerator>(acc);
+    if (remoteacc) {
+        remoteacc->setClient(client);
+    }
+    acc->initialize();
+  } else {
+    error("Invalid Accelerator. Could not find " + name +
+          " in Accelerator Registry.");
+  }
+  return acc;
+}
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {

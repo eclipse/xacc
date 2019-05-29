@@ -32,8 +32,8 @@ const std::string Client::post(const std::string &remoteUrl,
     cprHeaders.insert({kv.first, kv.second});
   }
 
-  xacc::info("Posting to " + remoteUrl + path);
-  xacc::info("Body = " + postStr);
+//   xacc::info("Posting to " + remoteUrl + path);
+//   xacc::info("Body = " + postStr);
   auto r = cpr::Post(cpr::Url{remoteUrl + path}, cpr::Body(postStr), cprHeaders,
                      cpr::VerifySsl(false));
 
@@ -59,7 +59,7 @@ const std::string Client::get(const std::string &remoteUrl,
     cprHeaders.insert({kv.first, kv.second});
   }
 
-  xacc::info("Getting " + remoteUrl + path);
+//   xacc::info("Getting " + remoteUrl + path);
   auto r =
       cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cpr::VerifySsl(false));
 
