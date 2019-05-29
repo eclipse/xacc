@@ -795,7 +795,9 @@ inline void to_json(json &j, const xacc::ibm::Data &x) {
 inline void from_json(const json &j, xacc::ibm::Result &x) {
   x.set_data(j.at("data").get<xacc::ibm::Data>());
   x.set_header(j.at("header").get<xacc::ibm::ExperimentHeader>());
-  x.set_meas_level(j.at("meas_level").get<int64_t>());
+  if (j.find("meas_level") != j.end()) {
+    x.set_meas_level(j.at("meas_level").get<int64_t>());
+  }
   x.set_shots(j.at("shots").get<int64_t>());
   x.set_success(j.at("success").get<bool>());
 }
@@ -813,8 +815,12 @@ inline void from_json(const json &j, xacc::ibm::QObjectResult &x) {
   x.set_backend_name(j.at("backend_name").get<std::string>());
   x.set_backend_version(j.at("backend_version").get<std::string>());
   x.set_date(j.at("date").get<std::string>());
-  x.set_execution_id(j.at("execution_id").get<std::string>());
-  x.set_header(j.at("header").get<xacc::ibm::QObjectHeader>());
+  if (j.find("execution_id") != j.end()) {
+    x.set_execution_id(j.at("execution_id").get<std::string>());
+  }
+  if (j.find("header") != j.end()) {
+    x.set_header(j.at("header").get<xacc::ibm::QObjectHeader>());
+  }
   x.set_job_id(j.at("job_id").get<std::string>());
   x.set_qobj_id(j.at("qobj_id").get<std::string>());
   x.set_results(j.at("results").get<std::vector<xacc::ibm::Result>>());
