@@ -474,7 +474,7 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   currentJobId = "";
 
   d.Parse(getResponse);
-  xacc::info(getResponse);
+//   xacc::info(getResponse);
 
   auto &qobjNode = d["qObject"];
   auto &qobjResultNode = d["qObjectResult"];

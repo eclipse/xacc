@@ -12,8 +12,7 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include "ConditionalFunction.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
+#include "DigitalGates.hpp"
 #include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;

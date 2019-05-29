@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "CPhase.hpp"
+#include "DigitalGates.hpp"
 
 using namespace xacc::quantum;
 

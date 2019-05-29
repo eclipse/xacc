@@ -24,7 +24,7 @@ install(FILES ${HEADERS} DESTINATION include/quantum/utils)
 
 set(LIBRARY_NAME xacc-quantum-irprovider)
 
-file(GLOB_RECURSE QHEADERS *.hpp)
+file(GLOB QHEADERS *.hpp)
 file(GLOB SRC
           *.cpp)
 
@@ -71,5 +71,5 @@ else()
   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-install(FILES ${QHEADERS} DESTINATION include/quantum/)
+#install(FILES ${QHEADERS} DESTINATION include/quantum/)
 install(TARGETS ${LIBRARY_NAME} DESTINATION plugins)

@@ -10,15 +10,9 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "CNOT.hpp"
+#include "DigitalGates.hpp"
 #include "GateFunction.hpp"
-#include "Hadamard.hpp"
 #include "InstructionIterator.hpp"
-#include "Rx.hpp"
-#include "Ry.hpp"
-#include "Rz.hpp"
-#include "X.hpp"
-#include "Z.hpp"
 #include <gtest/gtest.h>
 #include "Graph.hpp"
 

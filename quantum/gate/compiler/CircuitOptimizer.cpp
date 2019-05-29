@@ -3,8 +3,8 @@
 #include "GateFunction.hpp"
 #include "Graph.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
-#include "CNOT.hpp"
-#include "Rz.hpp"
+#include "DigitalGates.hpp"
+// #include "Rz.hpp"
 #include "xacc_service.hpp"
 
 namespace xacc {

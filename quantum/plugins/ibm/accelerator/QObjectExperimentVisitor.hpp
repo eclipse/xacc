@@ -47,7 +47,8 @@ protected:
   Experiment experiment;
   std::string experimentName;
   int nTotalQubits = 0;
-  std::map<int,int> qubit2MemorySlot;
+  std::map<int, int> qubit2MemorySlot;
+  std::vector<int> usedMemorySlots;
 
 public:
   int maxMemorySlots = 0;
@@ -59,12 +60,12 @@ public:
 
   QObjectExperimentVisitor(const std::string expName, std::vector<int> qubits)
       : experimentName(expName), nTotalQubits(qubits.size()) {
-          int counter=0;
-          for (auto& b : qubits) {
-              qubit2MemorySlot.insert({b,counter});
-              counter++;
-          }
-      }
+    int counter = 0;
+    for (auto &b : qubits) {
+      qubit2MemorySlot.insert({b, counter});
+      counter++;
+    }
+  }
 
   const std::string toString() override {
     experiment = getExperiment();
@@ -74,7 +75,8 @@ public:
   }
 
   Experiment getExperiment() {
-    //   xacc::info("Getting Experiment " + experimentName + ", " + std::to_string(experiment.get_instructions().size()));
+    //   xacc::info("Getting Experiment " + experimentName + ", " +
+    //   std::to_string(experiment.get_instructions().size()));
     if (experiment.get_instructions().empty()) {
 
       maxMemorySlots++;
@@ -103,13 +105,14 @@ public:
       config.set_memory_slots(maxMemorySlots);
       config.set_n_qubits(nTotalQubits);
 
-    //   Experiment experiment;
+      //   Experiment experiment;
       experiment.set_config(config);
       experiment.set_header(header);
-    //   xacc::info("Adding insts " + std::to_string(instructions.to))
+      //   xacc::info("Adding insts " + std::to_string(instructions.to))
       experiment.set_instructions(instructions);
     }
-        //   xacc::info("Returning Experiment " + experimentName + ", " + std::to_string(experiment.get_instructions().size()));
+    //   xacc::info("Returning Experiment " + experimentName + ", " +
+    //   std::to_string(experiment.get_instructions().size()));
 
     return experiment;
   }
@@ -130,7 +133,59 @@ public:
     // i.bits()[0]<<"]},"; operationsJsonStr += js.str();
   }
 
-  void visit(CZ &cz) override { xacc::error("cz not supported"); }
+  void visit(CRZ &crz) override {
+    auto lambda = crz.getParameter(0).as<double>();
+    U u1_1(crz.bits()[1], 0.0, 0.0, lambda / 2.0);
+    CNOT cx1(crz.bits());
+    U u1_2(crz.bits()[1], 0.0, 0.0, lambda / -2.0);
+    CNOT cx2(crz.bits());
+    visit(u1_1);
+    visit(cx1);
+    visit(u1_2);
+    visit(cx2);
+  }
+
+  void visit(CH &ch) override {
+    Hadamard h1(ch.bits()[1]);
+    Sdg sdg(ch.bits()[1]);
+    CNOT cn1(ch.bits());
+    Hadamard h2(ch.bits()[1]);
+    T t1(ch.bits()[1]);
+    CNOT cn2(ch.bits());
+    T t2(ch.bits()[1]);
+    Hadamard h3(ch.bits()[1]);
+    S s1(ch.bits()[1]);
+    X x(ch.bits()[1]);
+    S s2(ch.bits()[0]);
+    visit(h1);
+    visit(sdg);
+    visit(cn1);
+    visit(h2);
+    visit(t1);
+    visit(cn2);
+    visit(t2);
+    visit(h3);
+    visit(s1);
+    visit(x);
+    visit(s2);
+  }
+
+  void visit(S &s) override {
+    U u(s.bits()[0], 0.0, 0.0, 3.1415926 / 2.0);
+    visit(u);
+  }
+  void visit(Sdg &sdg) override {
+    U u(sdg.bits()[0], 0.0, 0.0, 3.1415926 / -2.0);
+    visit(u);
+  }
+  void visit(T &t) override {
+    U u(t.bits()[0], 0.0, 0.0, 3.1415926 / 4.0);
+    visit(u);
+  }
+  void visit(Tdg &tdg) override {
+    U u(tdg.bits()[0], 0.0, 0.0, 3.1415926 / -4.0);
+    visit(u);
+  }
 
   /**
    * Visit CNOT gates
@@ -188,8 +243,6 @@ public:
     instructions.push_back(inst);
   }
 
-  std::vector<int> usedMemorySlots;
-
   void visit(Measure &m) override {
     if (std::find(usedMemorySlots.begin(), usedMemorySlots.end(),
                   m.getParameter(0).as<int>()) != usedMemorySlots.end()) {
@@ -205,7 +258,7 @@ public:
     instructions.push_back(inst);
 
     if (qubit2MemorySlot[m.bits()[0]] > maxMemorySlots) {
-        maxMemorySlots = qubit2MemorySlot[m.bits()[0]];
+      maxMemorySlots = qubit2MemorySlot[m.bits()[0]];
     }
   }
 
@@ -239,13 +292,19 @@ public:
     instructions.push_back(inst);
   }
 
-  void visit(CPhase &cp) override {}
+  void visit(CPhase &cp) override {
+    auto lambda = cp.getParameter(0).as<double>();
+    U u1_1(cp.bits()[0], 0.0, 0.0, lambda / 2.0);
+    CNOT cx1(cp.bits());
+    U u1_2(cp.bits()[1], 0.0, 0.0, -1.0 * lambda / 2.0);
+    CNOT cx2(cp.bits());
+    U u1_3(cp.bits()[1], 0.0, 0.0, lambda / 2.0);
 
-  void visit(Swap &s) override {
-    CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
-    visit(c1);
-    visit(c2);
-    visit(c3);
+    visit(u1_1);
+    visit(cx1);
+    visit(u1_2);
+    visit(cx2);
+    visit(u1_3);
   }
 
   void visit(GateFunction &f) override { return; }

@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 #include "GateFunction.hpp"
 #include "IRToGraphVisitor.hpp"
-#include "Rz.hpp"
+#include "DigitalGates.hpp"
 #include "InstructionIterator.hpp"
 
 using namespace xacc::quantum;

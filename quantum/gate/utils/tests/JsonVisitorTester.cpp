@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 #include "GateFunction.hpp"
 #include "JsonVisitor.hpp"
-#include "Rz.hpp"
+#include "DigitalGates.hpp"
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/prettywriter.h"
