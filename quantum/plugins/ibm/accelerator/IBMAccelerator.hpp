@@ -33,12 +33,24 @@
 
 #include "InstructionIterator.hpp"
 #include "RemoteAccelerator.hpp"
+#include <bitset>
+#include <type_traits>
 
 using namespace xacc;
 
 namespace xacc {
 namespace quantum {
 
+#define IS_INTEGRAL(T)                                                         \
+  typename std::enable_if<std::is_integral<T>::value>::type * = 0
+
+template <class T>
+std::string integral_to_binary_string(T byte, IS_INTEGRAL(T)) {
+  std::bitset<sizeof(T) * 8> bs(byte);
+  return bs.to_string();
+}
+
+std::string hex_string_to_binary_string(std::string hex);
 /**
  * Wrapper for information related to the remote
  * IBM Backend.
@@ -70,6 +82,9 @@ struct IBMBackend {
  */
 class IBMAccelerator : public RemoteAccelerator {
 public:
+
+  void cancel() override;
+
   /**
    * Create, store, and return an AcceleratorBuffer with the given
    * variable id string and of the given number of bits.
@@ -108,7 +123,7 @@ public:
    *
    * @return connectivityGraph The graph structure of this Accelerator
    */
-   std::vector<std::pair<int,int>> getAcceleratorConnectivity() override;
+  std::vector<std::pair<int, int>> getAcceleratorConnectivity() override;
 
   /**
    * Return true if this Accelerator can allocated
@@ -129,26 +144,27 @@ public:
    * so return an empty list, for now.
    * @return
    */
-  std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override;
+  std::vector<std::shared_ptr<IRTransformation>>
+  getIRTransformations() override;
 
   /**
    * Return all relevant IBMAccelerator runtime options.
    * Users can set the api-key, execution type, and number of triels
    * from the command line with these options.
    */
-   OptionPairs getOptions() override {
-    OptionPairs desc {{"ibm-api-key",
-                        "Provide the IBM API key. This is used if "
-                        "$HOME/.ibm_config is not found"},{
-        "ibm-api-url",
-        "Specify the IBM Quantum Experience URL, overrides $HOME/.ibm_config "
-        "."},{"ibm-backend",  "Provide the backend name."},{
-        "ibm-shots",
-        "Provide the number of shots to execute."},{
-        "ibm-list-backends",
-        "List the available backends at the IBM Quantum Experience URL."},{
-        "ibm-print-queue",
-        "Print the status of the queue for the given backend"}};
+  OptionPairs getOptions() override {
+    OptionPairs desc{
+        {"ibm-api-key", "Provide the IBM API key. This is used if "
+                        "$HOME/.ibm_config is not found"},
+        {"ibm-api-url",
+         "Specify the IBM Quantum Experience URL, overrides $HOME/.ibm_config "
+         "."},
+        {"ibm-backend", "Provide the backend name."},
+        {"ibm-shots", "Provide the number of shots to execute."},
+        {"ibm-list-backends",
+         "List the available backends at the IBM Quantum Experience URL."},
+        {"ibm-print-queue",
+         "Print the status of the queue for the given backend"}};
     return desc;
   }
 
@@ -160,7 +176,7 @@ public:
    * @param map The mapping of options to values
    * @return exit True if exit, false otherwise
    */
-   bool handleOptions(const std::map<std::string, std::string> &map) override {
+  bool handleOptions(const std::map<std::string, std::string> &map) override {
     if (map.count("ibm-list-backends")) {
       initialize();
       XACCLogger::instance()->enqueueLog("");
@@ -183,10 +199,9 @@ public:
     return false;
   }
 
-  const std::vector<double> getOneBitErrorRates() override ;
-
+  const std::vector<double> getOneBitErrorRates() override;
   const std::vector<std::pair<std::pair<int, int>, double>>
-  getTwoBitErrorRates();
+  getTwoBitErrorRates() override;
 
   /**
    * Return the name of this instance.
@@ -230,9 +245,6 @@ public:
   virtual ~IBMAccelerator() {}
 
 private:
-  void computeMeasurementAccuracy(std::shared_ptr<AcceleratorBuffer> buffer);
-
-  bool computedMeasurementAccuracy = false;
 
   /**
    * Private utility to search for the IBM
@@ -265,15 +277,13 @@ private:
   std::string group;
   std::string project;
 
+  bool jobIsRunning = false;
+  std::string currentJobId = "";
   /**
    * Mapping of available backend name to an actual
    * IBMBackend struct data structure.
    */
   std::map<std::string, IBMBackend> availableBackends;
-
-  std::map<int, std::vector<int>> measurementSupports;
-
-  std::vector<std::string> kernelNames;
 
   IBMBackend chosenBackend;
 

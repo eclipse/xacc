@@ -178,7 +178,17 @@ std::list<InstPtr> GateFunction::getInstructions() { return instructions; }
 
 const std::string GateFunction::name() const { return functionName; }
 
-const std::vector<int> GateFunction::bits() { return std::vector<int>{}; }
+const std::vector<int> GateFunction::bits() {
+    // Functions should return the unique bits that they operate on
+    std::set<int> bits;
+    for (int i = 0; i < nInstructions(); i++) {
+        for (auto & b : getInstruction(i)->bits()) {
+            bits.insert(b);
+        }
+    }
+    std::vector<int> output(bits.begin(), bits.end());
+    return output;
+}
 
 // lambda functions for determining if an InstructionParameter is a
 // number/double or a variable

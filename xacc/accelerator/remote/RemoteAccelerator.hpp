@@ -65,7 +65,10 @@ public:
           const std::vector<std::shared_ptr<Function>> functions);
 
   virtual bool isRemote() { return true; }
-
+  void setClient(std::shared_ptr<Client> client) {
+      restClient = client;
+  }
+  
 protected:
   std::shared_ptr<Client> restClient;
   std::string postPath;

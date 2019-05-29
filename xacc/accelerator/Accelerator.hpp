@@ -112,6 +112,8 @@ public:
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<Function>> functions) = 0;
 
+  virtual void cancel() {};
+  
   /**
    * Create, store, and return an AcceleratorBuffer with the given
    * variable id string. This method returns all available
