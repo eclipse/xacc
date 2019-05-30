@@ -16,6 +16,7 @@
 #include <cpr/cpr.h>
 
 namespace xacc {
+
 const std::string Client::post(const std::string &remoteUrl,
                                const std::string &path,
                                const std::string &postStr,
@@ -124,6 +125,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
     } while (retries > 0);
 
     if (!succeeded) {
+      cancel();
       xacc::error("Remote Accelerator " + name() +
                   " failed HTTP Post for Job Response - " +
                   std::string(ex.what()));
@@ -153,6 +155,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
                    std::string(e.what()));
                 // s1.find(s2) != std::string::npos) {
         if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos) {
+          cancel();
           xacc::error(std::string(e.what()));
         }
         retries--;
@@ -163,6 +166,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
     } while (retries > 0);
 
     if (!succeeded) {
+      cancel();
       xacc::error("Remote Accelerator " + name() +
                   " failed HTTP Get for Job Response - " +
                   std::string(ex.what()));

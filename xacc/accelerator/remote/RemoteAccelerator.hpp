@@ -20,6 +20,7 @@ namespace xacc {
 class Client {
 
 public:
+  
   virtual const std::string post(const std::string &remoteUrl,
                                  const std::string &path,
                                  const std::string &postStr,
@@ -68,7 +69,7 @@ public:
   void setClient(std::shared_ptr<Client> client) {
       restClient = client;
   }
-  
+
 protected:
   std::shared_ptr<Client> restClient;
   std::string postPath;
