@@ -9,7 +9,7 @@ import pelix.framework
 from pelix.utilities import use_service
 from abc import abstractmethod, ABC
 import configparser
-
+from pelix.ipopo.constants import use_ipopo
 hasPluginGenerator = False
 try:
    from plugin_generator import plugin_generator
@@ -60,6 +60,8 @@ def parse_args(args):
     parser.add_argument("-b", "--branch", default='master', type=str,
                         help="Print the path to the XACC install location.", required=False)
     parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
+    parser.add_argument("--benchmark-requires", type=str, help="List the required services of specified BenchmarkAlgorithm.", required=False)
+    parser.add_argument("--benchmark-service", type=str, help="List the plugin names and files of specified service.", required=False)
     parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
 
     if hasPluginGenerator:
@@ -227,13 +229,8 @@ class WrappedF(DecoratorFunction):
         if not isinstance(argsList[0], AcceleratorBuffer):
             raise RuntimeError(
                 'First argument of an xacc kernel must be the Accelerator Buffer to operate on.')
-        #buffer = argsList[0]
-        #functionBufferName = inspect.getargspec(self.function)[0][0]
-        # Replace function arg0 name with buffer.name()
-        #self.src = self.src.replace(functionBufferName, buffer.name())
         fevaled = self.compiledKernel.eval(argsList[1:])
         self.qpu.execute(argsList[0], fevaled)
-        # self.compiledKernel.execute(argsList[0], argsList[1:])
         return
 
 class qpu(object):
@@ -337,6 +334,7 @@ class PyServiceRegistry(object):
         self.framework.start()
         self.context = self.framework.get_bundle_context()
         self.registry = {}
+
     def initialize(self):
         serviceList = ['decorator_algorithm_service', 'benchmark_algorithm_service']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
@@ -351,13 +349,11 @@ class PyServiceRegistry(object):
             bundle_name = os.path.splitext(f)[0].strip()
             self.context.install_bundle(bundle_name).start()
         for servType in serviceList:
-            self._get_algorithm_services(servType)
+            self.get_algorithm_services(servType)
 
-    def _get_algorithm_services(self, serviceType):
+    def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
-        if tmp is None:
-            print(F"No XACC Python bundles with {serviceType} installed.")
-        else:
+        if tmp is not None:
             for component in tmp:
                 name = component.get_properties()['name']
                 if serviceType not in self.registry:
@@ -366,18 +362,47 @@ class PyServiceRegistry(object):
                     self.registry[serviceType].update({name: self.context.get_service(component)})
             return tmp
 
-
     def get_service(self, serviceName, name):
         service = None
         try:
             available_services = self.registry[serviceName]
             service = available_services[name]
         except KeyError:
-            print(F"""There is no '{serviceName}' with the name '{name}' available.
-                   1. Install the '{name}' '{serviceName}' to the Python plugin directory.
-                   2. Make sure all required services for '{name}' are installed.""")
+            info(F"""There is no '{serviceName}' with the name '{name}' available.
+                   {"":28}1. Install the '{name}' '{serviceName}' to the Python plugin directory.
+                   {"":28}2. Make sure all required services for '{name}' are installed.\n""")
+            if serviceName == "benchmark_algorithm_service":
+                self.get_benchmark_requirements(name)
             exit(1)
         return service
+
+    def get_benchmark_requirements(self, name):
+        with use_ipopo(self.context) as ipopo:
+            requirements = []
+            try:
+                details = ipopo.get_instance_details(name+"_algorithm_instance")['dependencies']
+            except ValueError as ex:
+                info(F"There is no benchmark_algorithm_service with the name '{name}' available.")
+                exit(1)
+            for k, v in details.items():
+                requirements.append(v['specification'])
+            info(F"Required Plugin Services for '{name}' BenchmarkAlgorithm:")
+            for i, r in enumerate(requirements):
+                info(F"{i+1}. {r}")
+
+    def get_component_names(self, serviceType):
+        tmp = self.context.get_all_service_references(serviceType)
+        names_and_files = {}
+        try:
+            for component in tmp:
+                b = component.get_bundle()
+                names_and_files[component.get_properties()['name']] = b.get_symbolic_name()
+        except TypeError as ex:
+            info(F"There are no services with service reference '{serviceType}' available.")
+            exit(1)
+        info(F"Names and files of plugins that provide service reference '{serviceType}':")
+        for i, (k,v) in enumerate(names_and_files.items()):
+            info(F"{i+1}. {k}  --> {v}.py")
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()
@@ -477,6 +502,12 @@ def main(argv=None):
 
     if not opts.benchmark == None:
         benchmark(opts)
+
+    if not opts.benchmark_requires == None:
+        serviceRegistry.get_benchmark_requirements(opts.benchmark_requires)
+
+    if not opts.benchmark_service == None:
+        serviceRegistry.get_component_names(opts.benchmark_service)
 
 initialize()
 
