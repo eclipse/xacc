@@ -336,7 +336,7 @@ class PyServiceRegistry(object):
             "pelix.shell.console"))
         self.framework.start()
         self.context = self.framework.get_bundle_context()
-        self.services = []
+        self.registry = {}
     def initialize(self):
         serviceList = ['decorator_algorithm_service', 'benchmark_algorithm_service']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
@@ -350,22 +350,33 @@ class PyServiceRegistry(object):
         for f in pluginFiles:
             bundle_name = os.path.splitext(f)[0].strip()
             self.context.install_bundle(bundle_name).start()
-        try:
-            for servType in serviceList:
-                self.services += self.context.get_all_service_references(servType)
-        except:
-            if len(self.services) > 0:
-                pass
-        #if not self.services:
-            #print("No XACC algorithm bundles found in " + pluginDir + ".")
-            #exit(1)
+        for servType in serviceList:
+            self._get_algorithm_services(servType)
+
+    def _get_algorithm_services(self, serviceType):
+        tmp = self.context.get_all_service_references(serviceType)
+        if tmp is None:
+            print(F"No XACC Python bundles with {serviceType} installed.")
+        else:
+            for component in tmp:
+                name = component.get_properties()['name']
+                if serviceType not in self.registry:
+                    self.registry[serviceType] = {name: self.context.get_service(component)}
+                else:
+                    self.registry[serviceType].update({name: self.context.get_service(component)})
+            return tmp
+
 
     def get_service(self, serviceName, name):
-        services = self.context.get_all_service_references(serviceName)
         service = None
-        for s in services:
-            if s.get_properties()['name'] == name:
-                service = self.context.get_service(s)
+        try:
+            available_services = self.registry[serviceName]
+            service = available_services[name]
+        except KeyError:
+            print(F"""There is no '{serviceName}' with the name '{name}' available.
+                   1. Install the '{name}' '{serviceName}' to the Python plugin directory.
+                   2. Make sure all required services for '{name}' are installed.""")
+            exit(1)
         return service
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
@@ -392,7 +403,6 @@ def benchmark(opts):
         if 'local-ibm' in accelerator:
             accelerator = 'ibm'
         setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'), xacc_settings['n-shots'])
-
     # Using ServiceRegistry to getService (benchmark_algorithm_service) and execute the service
     algorithm = serviceRegistry.get_service(
         'benchmark_algorithm_service', xacc_settings['algorithm'])
