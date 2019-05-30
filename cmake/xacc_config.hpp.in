@@ -4,5 +4,6 @@
 #define XACC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 #define XACC_BUILD_DIR "${CMAKE_BINARY_DIR}"
 #define IBM_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/ibm/tests/test_files"
+#define ROERROR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/gate/accelerator/tests/files"
 
 #endif
