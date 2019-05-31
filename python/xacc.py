@@ -338,7 +338,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm_service']
+        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -373,7 +373,7 @@ class PyServiceRegistry(object):
             info(F"""There is no '{serviceName}' with the name '{name}' available.
                    {"":28}1. Install the '{name}' '{serviceName}' to the Python plugin directory.
                    {"":28}2. Make sure all required services for '{name}' are installed.\n""")
-            if serviceName == "benchmark_algorithm_service":
+            if serviceName == "benchmark_algorithm":
                 self.get_benchmark_requirements(name)
             exit(1)
         return service
@@ -382,12 +382,15 @@ class PyServiceRegistry(object):
         with use_ipopo(self.context) as ipopo:
             requirements = []
             try:
-                details = ipopo.get_instance_details(name+"_algorithm_instance")['dependencies']
+                details = ipopo.get_instance_details(name+"_benchmark")['dependencies']
             except ValueError as ex:
-                info(F"There is no benchmark_algorithm_service with the name '{name}' available.")
+                info(F"There is no benchmark_algorithm service with the name '{name}' available.")
                 exit(1)
             for k, v in details.items():
                 requirements.append(v['specification'])
+            if not requirements:
+                info(F"There are no required services for '{name}' BenchmarkAlgorithm.")
+                exit(1)
             info(F"Required Plugin Services for '{name}' BenchmarkAlgorithm:")
             for i, r in enumerate(requirements):
                 info(F"{i+1}. {r}")
@@ -400,7 +403,7 @@ class PyServiceRegistry(object):
                 b = component.get_bundle()
                 names_and_files[component.get_properties()['name']] = b.get_symbolic_name()
         except TypeError as ex:
-            info(F"There are no services with service reference '{serviceType}' available.")
+            info(F"There are no plugins with service reference '{serviceType}' available.")
             exit(1)
         info(F"Names and files of plugins that provide service reference '{serviceType}':")
         for i, (k,v) in enumerate(names_and_files.items()):
@@ -443,7 +446,7 @@ def benchmark(opts):
         setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'), xacc_settings['n-shots'])
     # Using ServiceRegistry to getService (benchmark_algorithm_service) and execute the service
     algorithm = serviceRegistry.get_service(
-        'benchmark_algorithm_service', xacc_settings['algorithm'])
+        'benchmark_algorithm', xacc_settings['algorithm'])
     if algorithm is None:
         print("XACC algorithm service with name " +
                    xacc_settings['algorithm'] + " is not installed.")
@@ -484,6 +487,7 @@ def process_benchmark_input(filename):
 def main(argv=None):
     opts = parse_args(sys.argv[1:])
     xaccLocation = os.path.dirname(os.path.realpath(__file__))
+
     if opts.location:
         print(xaccLocation)
         sys.exit(0)
