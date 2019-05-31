@@ -5,6 +5,7 @@ import sys, re
 import sysconfig
 import argparse
 import inspect
+import subprocess
 import pelix.framework
 from pelix.utilities import use_service
 from abc import abstractmethod, ABC
@@ -62,6 +63,7 @@ def parse_args(args):
     parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
     parser.add_argument("--benchmark-requires", type=str, help="List the required services of specified BenchmarkAlgorithm.", required=False)
     parser.add_argument("--benchmark-service", type=str, help="List the plugin names and files of specified service.", required=False)
+    parser.add_argument("--benchmark-install", type=str, help="Pull and install the benchmark specified plugin package.", required=False)
     parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
 
     if hasPluginGenerator:
@@ -338,13 +340,13 @@ class PyServiceRegistry(object):
     def initialize(self):
         serviceList = ['decorator_algorithm_service', 'benchmark_algorithm_service']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
-        pluginDir = xaccLocation + '/py-plugins'
-        if not os.path.exists(pluginDir):
-            os.makedirs(pluginDir)
-        sys.path.append(pluginDir)
+        self.pluginDir = xaccLocation + '/py-plugins'
+        if not os.path.exists(self.pluginDir):
+            os.makedirs(self.pluginDir)
+        sys.path.append(self.pluginDir)
 
         pluginFiles = [f for f in os.listdir(
-            pluginDir) if os.path.isfile(os.path.join(pluginDir, f))]
+            self.pluginDir) if os.path.isfile(os.path.join(self.pluginDir, f))]
         for f in pluginFiles:
             bundle_name = os.path.splitext(f)[0].strip()
             self.context.install_bundle(bundle_name).start()
@@ -403,6 +405,17 @@ class PyServiceRegistry(object):
         info(F"Names and files of plugins that provide service reference '{serviceType}':")
         for i, (k,v) in enumerate(names_and_files.items()):
             info(F"{i+1}. {k}  --> {v}.py")
+
+    def install_plugins(self, pkg):
+        url = "https://github.com/zpparks314/xacc-benchmark.git"
+        dest = os.path.dirname(os.path.realpath(__file__))+"/.xacc-benchmark"
+        if not os.path.exists(dest):
+            subprocess.run(['git', "clone", "--quiet", F"{url}", F"{dest}"])
+        os.chdir(dest)
+        if "list" in pkg:
+            subprocess.run(['python3', 'manage.py', "-l"])
+        else:
+            subprocess.run(['python3', 'manage.py', '-p', F"{self.pluginDir}", '-i', F"{pkg}"])
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()
@@ -508,6 +521,9 @@ def main(argv=None):
 
     if not opts.benchmark_service == None:
         serviceRegistry.get_component_names(opts.benchmark_service)
+
+    if not opts.benchmark_install == None:
+        serviceRegistry.install_plugins(opts.benchmark_install)
 
 initialize()
 
