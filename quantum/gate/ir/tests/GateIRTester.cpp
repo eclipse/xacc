@@ -14,13 +14,8 @@
 #include "GateFunction.hpp"
 #include "GateIR.hpp"
 
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Z.hpp"
+#include "DigitalGates.hpp"
 #include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Measure.hpp"
 
 using namespace xacc::quantum;
 

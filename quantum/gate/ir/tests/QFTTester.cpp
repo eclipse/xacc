@@ -15,9 +15,7 @@
 // #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
 #include "XACC.hpp"
-#include "Hadamard.hpp"
-#include "CPhase.hpp"
-#include "Swap.hpp"
+#include "DigitalGates.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;

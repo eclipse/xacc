@@ -17,21 +17,7 @@
 #include "cppmicroservices/ServiceProperties.h"
 
 #include "GateIRProvider.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Y.hpp"
-#include "Z.hpp"
-#include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Rx.hpp"
-#include "Ry.hpp"
-#include "CPhase.hpp"
-#include "Swap.hpp"
-#include "Measure.hpp"
-#include "Identity.hpp"
-#include "CZ.hpp"
-#include "U.hpp"
+#include "DigitalGates.hpp"
 
 #include "CircuitOptimizer.hpp"
 
@@ -98,6 +84,15 @@ public:
     auto sw = std::make_shared<xacc::quantum::Swap>();
     auto u = std::make_shared<xacc::quantum::U>();
 
+    auto s = std::make_shared<xacc::quantum::S>();
+    auto sdg = std::make_shared<xacc::quantum::Sdg>();
+    auto t = std::make_shared<xacc::quantum::T>();
+    auto tdg = std::make_shared<xacc::quantum::Tdg>();
+
+    auto cy = std::make_shared<xacc::quantum::CY>();
+    auto crz= std::make_shared<xacc::quantum::CRZ>();
+    auto ch = std::make_shared<xacc::quantum::CH>();
+
     context.RegisterService<xacc::quantum::GateInstruction>(h);
     context.RegisterService<xacc::quantum::GateInstruction>(cn);
     context.RegisterService<xacc::quantum::GateInstruction>(cp);
@@ -112,6 +107,14 @@ public:
     context.RegisterService<xacc::quantum::GateInstruction>(z);
     context.RegisterService<xacc::quantum::GateInstruction>(sw);
     context.RegisterService<xacc::quantum::GateInstruction>(u);
+
+    context.RegisterService<xacc::quantum::GateInstruction>(s);
+    context.RegisterService<xacc::quantum::GateInstruction>(sdg);
+    context.RegisterService<xacc::quantum::GateInstruction>(t);
+    context.RegisterService<xacc::quantum::GateInstruction>(tdg);
+    context.RegisterService<xacc::quantum::GateInstruction>(cy);
+    context.RegisterService<xacc::quantum::GateInstruction>(crz);
+    context.RegisterService<xacc::quantum::GateInstruction>(ch);
 
   }
 

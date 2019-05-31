@@ -459,7 +459,6 @@ const std::string AcceleratorBuffer::toString() {
 
 void AcceleratorBuffer::load(std::istream &stream) {
   std::string json(std::istreambuf_iterator<char>(stream), {});
-
   Document doc;
   doc.Parse(json);
 

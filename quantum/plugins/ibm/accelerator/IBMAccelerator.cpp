@@ -422,7 +422,7 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
       std::cout << "\nTo cancel job, open a new terminal and run:\n\n"
                 << "curl -X POST " << url << "/api/Network/" << hub
                 << "/Groups/" << group << "/Projects/" << project << "/jobs/"
-                << jobId << "/cancel?access_token=" << currentApiToken << "\n\n";
+                << jobId << "/cancel?access_token=" << currentApiToken << "\n\n-or-\n\nCTRL-C\n\n";
   }
 
   // Loop until the job is complete,
@@ -474,7 +474,7 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   currentJobId = "";
 
   d.Parse(getResponse);
-  xacc::info(getResponse);
+//   xacc::info(getResponse);
 
   auto &qobjNode = d["qObject"];
   auto &qobjResultNode = d["qObjectResult"];
@@ -539,17 +539,18 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 }
 
 void IBMAccelerator::cancel() {
+  xacc::info("Attempting to cancel this job, " + currentJobId);
   if (!hub.empty() && jobIsRunning && !currentJobId.empty()) {
-      xacc::info("Canceling IBM Job " + currentJobId);
+    xacc::info("Canceling IBM Job " + currentJobId);
     std::map<std::string, std::string> headers{
         {"Content-Type", "application/x-www-form-urlencoded"},
         {"Connection", "keep-alive"},
-        {"Content-Length", ""}};
+        {"Content-Length", "0"}};
     auto path = "/api/Network/" + hub + "/Groups/" + group + "/Projects/" +
                 project + "/jobs/" + currentJobId +
-                "/cancel?accessToken=" + currentApiToken;
+                "/cancel?access_token=" + currentApiToken;
     auto response = handleExceptionRestClientPost(url, path, "", headers);
-    xacc::info("CancelResponse: " + response);
+    xacc::info("Cancel Response: " + response);
     jobIsRunning = false;
     currentJobId = "";
   }

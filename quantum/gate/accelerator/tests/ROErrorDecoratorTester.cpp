@@ -11,22 +11,40 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "ReadoutErrorAcceleratorBufferPostprocessor.hpp"
-#include "GateIR.hpp"
-#include <boost/math/constants/constants.hpp>
+#include "ROErrorDecorator.hpp"
 #include "XACC.hpp"
-#include "GateFunction.hpp"
-#include "GateInstruction.hpp"
-#include "GateIRProvider.hpp"
+#include "xacc_config.hpp"
+#include "PauliOperator.hpp"
 
 using namespace xacc;
 
 using namespace xacc::quantum;
 
-
-TEST(ROErrorDecoratorTester, checkSimple) {
+TEST(ROErrorDecoratorTester, checkRaphaelBug) {
+  std::string testFilesDir = std::string(ROERROR_TEST_FILE_DIR);
 
   xacc::Initialize();
+
+  xacc::setOption("ro-error-file", testFilesDir + "/ibm_roerrors.json");
+
+  std::ifstream testab(testFilesDir + "/nah_ibm.ab");
+  auto buffer = std::make_shared<AcceleratorBuffer>();
+  std::cout << testFilesDir << "/nah_ibm.ab"
+            << "\n";
+
+  buffer->load(testab);
+  auto hamString =
+      mpark::get<std::string>(buffer->getInformation("hamiltonian"));
+  PauliOperator op(hamString);
+
+  auto ir = op.toXACCIR();
+  auto functions = ir->getKernels();
+
+  ROErrorDecorator roerror;
+  roerror.execute(buffer, functions);
+
+  buffer->getChildren()[2]->print(std::cout);
+
   xacc::Finalize();
 }
 

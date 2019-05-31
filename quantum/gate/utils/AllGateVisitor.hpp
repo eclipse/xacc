@@ -14,28 +14,14 @@
 #define QUANTUM_GATE_ALLGATEVISITOR_HPP_
 
 #include "InstructionIterator.hpp"
-#include "Hadamard.hpp"
-#include "CNOT.hpp"
-#include "X.hpp"
-#include "Y.hpp"
-#include "Z.hpp"
+
 #include "ConditionalFunction.hpp"
-#include "Rz.hpp"
-#include "Rx.hpp"
-#include "Ry.hpp"
-#include "CPhase.hpp"
-#include "Swap.hpp"
-#include "Measure.hpp"
-#include "Identity.hpp"
-#include "CZ.hpp"
-#include "U.hpp"
+
+#include "DigitalGates.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- * FIXME write this
- */
 class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<GateFunction>,
                        public InstructionVisitor<Hadamard>,
@@ -51,9 +37,56 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<Swap>,
                        public InstructionVisitor<Measure>,
                        public InstructionVisitor<Identity>,
-                       public InstructionVisitor<CZ>, 
+                       public InstructionVisitor<CZ>,
+                       public InstructionVisitor<CY>,
+                       public InstructionVisitor<CRZ>,
+                       public InstructionVisitor<CH>,
+                       public InstructionVisitor<S>,
+                       public InstructionVisitor<Sdg>,
+                       public InstructionVisitor<T>,
+                       public InstructionVisitor<Tdg>,
                        public InstructionVisitor<U> {
+public:
+  void visit(Hadamard &h) override {}
+  void visit(CNOT &h) override {}
+  void visit(Rz &h) override {}
+  void visit(Ry &h) override {}
+  void visit(Rx &h) override {}
+  void visit(X &h) override {}
+  void visit(Y &h) override {}
+  void visit(Z &h) override {}
 
+  void visit(CY &cy) override {
+    Hadamard h(cy.bits()[1]);
+    CNOT cn(cy.bits());
+    Hadamard h2(cy.bits()[1]);
+    visit(h);
+    visit(cn);
+    visit(h2);
+  }
+
+  void visit(CZ &cz) override {
+    Hadamard h(cz.bits()[1]);
+    CNOT cn(cz.bits());
+    Hadamard h2(cz.bits()[1]);
+    visit(h);
+    visit(cn);
+    visit(h2);
+  }
+
+  void visit(Swap &s) override {
+    CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
+    visit(c1);
+    visit(c2);
+    visit(c3);
+  }
+
+  void visit(CRZ &crz) override {}
+  void visit(CH &ch) override {}
+  void visit(S &s) override {}
+  void visit(Sdg &sdg) override {}
+  void visit(T &t) override {}
+  void visit(Tdg &tdg) override {}
 };
 } // namespace quantum
 } // namespace xacc

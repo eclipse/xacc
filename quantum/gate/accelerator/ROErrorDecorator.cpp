@@ -182,7 +182,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
         std::stringstream s;
         auto denom = (1.0 - piplus[j]);
         auto numerator =
-            (bitString[buffer->size() - 1 - j] == '1' ? -1 : 1) - piminus[j];
+            (bitString[bitString.length() - 1 - j] == '1' ? -1 : 1) - piminus[j];
         prod *= (numerator / denom);
       }
       fixedExp += ((double)count / (double)nShots) * prod;
