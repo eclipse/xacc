@@ -32,7 +32,7 @@ def install_package(install_name):
     try:
         package_path = PLUGIN_INSTALLATIONS[install_name]
     except KeyError as ex:
-        xacc.info(F"There is no '{install_name}' XACC Python plugin package available.")
+        xacc.info("There is no '{}' XACC Python plugin package available.".format(install_name))
         exit(1)
 
     install_directive = os.path.join(package_path+"/install.ini") if os.path.isfile(package_path+"/install.ini") else None
@@ -49,7 +49,7 @@ def install_package(install_name):
     for plugin in plugin_files:
         copy(os.path.join(plugin), XACC_PYTHON_PLUGIN_PATH)
 
-    xacc.info(F"Installed {n_plugins} plugins from the '{install_name}' package to the {XACC_PYTHON_PLUGIN_PATH} directory.")
+    xacc.info("Installed {} plugins from the '{}' package to the {} directory.".format(n_plugins, install_name, XACC_PYTHON_PLUGIN_PATH))
 
 def set_plugin_path(path):
     global XACC_PYTHON_PLUGIN_PATH
@@ -94,7 +94,7 @@ def main(argv=None):
     if opts.list:
         xacc.info("Available XACC Python plugin packages:")
         for k, v in MASTER_PACKAGES.items():
-            xacc.info(F"{k:5}: {v!s}")
+            xacc.info("{:5}: {!s}".format(k, v))
 
 if __name__ == "__main__":
     sys.exit(main())
