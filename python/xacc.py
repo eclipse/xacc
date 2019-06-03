@@ -370,9 +370,9 @@ class PyServiceRegistry(object):
             available_services = self.registry[serviceName]
             service = available_services[name]
         except KeyError:
-            info(F"""There is no '{serviceName}' with the name '{name}' available.
-                   {"":28}1. Install the '{name}' '{serviceName}' to the Python plugin directory.
-                   {"":28}2. Make sure all required services for '{name}' are installed.\n""")
+            info("""There is no '{0}' with the name '{1}' available.
+                   {:28}1. Install the '{1}' '{0}' to the Python plugin directory.
+                   {:28}2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name))
             if serviceName == "benchmark_algorithm":
                 self.get_benchmark_requirements(name)
             exit(1)
@@ -384,16 +384,16 @@ class PyServiceRegistry(object):
             try:
                 details = ipopo.get_instance_details(name+"_benchmark")['dependencies']
             except ValueError as ex:
-                info(F"There is no benchmark_algorithm service with the name '{name}' available.")
+                info("There is no benchmark_algorithm service with the name '{}' available.".format(name))
                 exit(1)
             for k, v in details.items():
                 requirements.append(v['specification'])
             if not requirements:
-                info(F"There are no required services for '{name}' BenchmarkAlgorithm.")
+                info("There are no required services for '{}' BenchmarkAlgorithm.".format(name))
                 exit(1)
-            info(F"Required Plugin Services for '{name}' BenchmarkAlgorithm:")
+            info("Required Plugin Services for '{}' BenchmarkAlgorithm:".format(name))
             for i, r in enumerate(requirements):
-                info(F"{i+1}. {r}")
+                info("{}. {}".format(i+1, r))
 
     def get_component_names(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
@@ -403,11 +403,11 @@ class PyServiceRegistry(object):
                 b = component.get_bundle()
                 names_and_files[component.get_properties()['name']] = b.get_symbolic_name()
         except TypeError as ex:
-            info(F"There are no plugins with service reference '{serviceType}' available.")
+            info("There are no plugins with service reference '{}' available.".format(serviceType))
             exit(1)
-        info(F"Names and files of plugins that provide service reference '{serviceType}':")
+        info("Names and files of plugins that provide service reference '{}':".format(serviceType))
         for i, (k,v) in enumerate(names_and_files.items()):
-            info(F"{i+1}. {k}  --> {v}.py")
+            info("{}. {}  --> {}.py".format(i+1, k, v))
 
     def install_plugins(self, pkg):
         dest = os.path.dirname(os.path.realpath(__file__))+"/benchmark"
@@ -415,7 +415,7 @@ class PyServiceRegistry(object):
         if "list" in pkg:
             subprocess.run(['python3', 'manage.py', "-l"])
         else:
-            subprocess.run(['python3', 'manage.py', '-p', F"{self.pluginDir}", '-i', F"{pkg}"])
+            subprocess.run(['python3', 'manage.py', '-p', "{}".format(self.pluginDir), '-i', "{}".format(pkg)])
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()
