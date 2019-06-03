@@ -410,10 +410,7 @@ class PyServiceRegistry(object):
             info(F"{i+1}. {k}  --> {v}.py")
 
     def install_plugins(self, pkg):
-        url = "https://github.com/zpparks314/xacc-benchmark.git"
-        dest = os.path.dirname(os.path.realpath(__file__))+"/.xacc-benchmark"
-        if not os.path.exists(dest):
-            subprocess.run(['git', "clone", "--quiet", F"{url}", F"{dest}"])
+        dest = os.path.dirname(os.path.realpath(__file__))+"/benchmark"
         os.chdir(dest)
         if "list" in pkg:
             subprocess.run(['python3', 'manage.py', "-l"])
