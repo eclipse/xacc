@@ -371,8 +371,8 @@ class PyServiceRegistry(object):
             service = available_services[name]
         except KeyError:
             info("""There is no '{0}' with the name '{1}' available.
-                   {:28}1. Install the '{1}' '{0}' to the Python plugin directory.
-                   {:28}2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name))
+                   {2:28}1. Install the '{1}' '{0}' to the Python plugin directory.
+                   {2:28}2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name, ""))
             if serviceName == "benchmark_algorithm":
                 self.get_benchmark_requirements(name)
             exit(1)
@@ -391,7 +391,7 @@ class PyServiceRegistry(object):
             if not requirements:
                 info("There are no required services for '{}' BenchmarkAlgorithm.".format(name))
                 exit(1)
-            info("Required Plugin Services for '{}' BenchmarkAlgorithm:".format(name))
+            info("Required benchmark services for '{}' BenchmarkAlgorithm:".format(name))
             for i, r in enumerate(requirements):
                 info("{}. {}".format(i+1, r))
 
