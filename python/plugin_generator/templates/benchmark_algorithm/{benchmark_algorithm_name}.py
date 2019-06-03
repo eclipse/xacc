@@ -2,7 +2,6 @@ from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
                                     BindField, UnbindField, Provides, Validate,
                                     Invalidate, Instantiate)
 import xacc
-import xaccvqe
 from xacc import BenchmarkAlgorithm
 
 # XACC Plugin-Generator template for XACC BenchmarkAlgorithms
@@ -17,7 +16,7 @@ from xacc import BenchmarkAlgorithm
 @Property("_name", "name", "{benchmark_algorithm_name}")
 @Instantiate("{benchmark_algorithm_name}_benchmark")
 class {benchmark_algorithm_name}(BenchmarkAlgorithm):
-    
+
 
 
     def execute(self, inputParams):
