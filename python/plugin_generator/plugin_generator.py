@@ -2,7 +2,7 @@ import argparse
 import os
 
 
-PLUGIN_TYPES = {"compiler", "irtransformation", "iroptimization", "gate-instruction"}
+PLUGIN_TYPES = {"compiler", "irtransformation", "iroptimization", "gate-instruction", "benchmark-algorithm"}
 
 DESCRIPTION = """
 A utility for generating plugin skeletons.
@@ -53,6 +53,11 @@ def run_generator(args, xacc_root):
             if args.verbose:
                 print("Generating a gate-instruction plugin...")
             generate_instruction(template_dir, output_dir, xacc_root, args)
+        elif args.type.lower() == "benchmark-algorithm":
+            template_dir = os.path.join(templates_dir, "benchmark_algorithm")
+            if args.verbose:
+                print("Generating a benchmark-algorithm plugin...")
+            generate_benchmark_algorithm(template_dir, output_dir, xacc_root, args)
     else:
         print("Please specify a type (-t) and name (-n). Use -l (--list) to see available plugins to generate")
 
@@ -123,4 +128,9 @@ def generate_instruction(template_dir, output_dir, xacc_root_path, args):
         inst_class_name=class_name,
         inst_class_name_lower=class_name.lower(),
         inst_class_name_upper=class_name.upper()
+    ), verbose=args.verbose)
+
+def generate_benchmark_algorithm(template_dir, output_dir, xacc_root_path, args):
+    generate(template_dir, output_dir, format_func=lambda s: s.format(
+        benchmark_algorithm_name=args.name
     ), verbose=args.verbose)
