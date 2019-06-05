@@ -47,11 +47,12 @@ protected:
   Experiment experiment;
   std::string experimentName;
   int nTotalQubits = 0;
-  std::map<int, int> qubit2MemorySlot;
   std::vector<int> usedMemorySlots;
 
 public:
   int maxMemorySlots = 0;
+  std::map<int, int> qubit2MemorySlot;
+
   const std::string name() const override { return "qobject-visitor"; }
 
   const std::string description() const override {
