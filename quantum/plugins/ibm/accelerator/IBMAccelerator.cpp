@@ -320,7 +320,7 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
 
     auto visitor =
         std::make_shared<QObjectExperimentVisitor>(kernel->name(), uniqueBits);
-
+    name2QubitMap.insert(std::make_pair(kernel->name(), visitor->qubit2MemorySlot));
     InstructionIterator it(kernel);
     int memSlots = 0;
     while (it.hasNext()) {
@@ -516,7 +516,10 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     auto currentExperiment = experiments[i];
     auto tmpBuffer =
         createBuffer(currentExperiment.get_header().get_name(), buffer->size());
-
+    tmpBuffer->setBitIndexMap(name2QubitMap[currentExperiment.get_header().get_name()]);
+    for (auto &kv : tmpBuffer->bit2IndexMap){
+        xacc::info("bit: " + std::to_string(kv.first) + ", mapped: " + std::to_string(kv.second));
+    }
     auto counts = resultsArray[i].get_data().get_counts();
     for (auto &kv : counts) {
 

@@ -57,6 +57,12 @@ operator()(const std::map<int, std::vector<int>> &i) const {
 }
 
 bool CheckEqualVisitor::
+operator()(const std::map<int, int> &i) const {
+    return std::equal(i.begin(), i.end(),
+    mpark::get<std::map<int, int>>(extraInfo).begin());
+}
+
+bool CheckEqualVisitor::
 operator()(const std::vector<std::pair<double, double>> &i) const {
   return std::equal(
       i.begin(), i.end(),
@@ -101,6 +107,15 @@ template<class T> void ToJsonVisitor<T>::operator()(const std::map<int, std::vec
     writer.EndArray();
   }
   writer.EndObject();
+}
+
+template<class T> void ToJsonVisitor<T>::operator()(const std::map<int, int> &i) const {
+    writer.StartObject();
+    for (auto &kv : i){
+        writer.Key(std::to_string(kv.first));
+        writer.Int(kv.second);
+    }
+    writer.EndObject();
 }
 
 template<class T> void ToJsonVisitor<T>::
@@ -409,6 +424,16 @@ void AcceleratorBuffer::print(std::ostream &stream) {
     writer.EndObject();
   }
 
+  if (!cacheFile) {
+      writer.Key("Bitmap");
+      writer.StartObject();
+      for (auto &kv : bit2IndexMap){
+          writer.Key(std::to_string(kv.first));
+          writer.Int(kv.second);
+      }
+      writer.EndObject();
+  }
+
   if (!children.empty()) {
     writer.Key("Children");
     writer.StartArray();
@@ -434,7 +459,13 @@ void AcceleratorBuffer::print(std::ostream &stream) {
         }
         // end measurement object
         writer.EndObject();
-
+      writer.Key("Bitmap");
+      writer.StartObject();
+      for (auto &kv : pair.second->getBitMap()){
+          writer.Key(std::to_string(kv.first));
+          writer.Int(kv.second);
+      }
+      writer.EndObject();
       // End child object
       writer.EndObject();
     }
@@ -507,6 +538,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
       // Here we have the case of an object([key:value])
       if (value.IsObject()) {
         std::map<int, std::vector<int>> map;
+        std::map<int, int> map2;
         for (auto itr2 = value.MemberBegin(); itr2 != value.MemberEnd();
              ++itr2) {
           auto keyIsInt = true;
@@ -523,12 +555,19 @@ void AcceleratorBuffer::load(std::istream &stream) {
             for (int i = 0; i < arr.Size(); i++)
               vec.push_back(arr[i].GetInt());
             map.insert({key, vec});
-
+          } else if (itr2->value.IsInt() && keyIsInt) {
+              auto val = itr2->value.GetInt();
+              map2.insert({key, val});
           } else {
-            break;
+              break;
           }
         }
-        addExtraInfo(itr->name.GetString(), ExtraInfo(map));
+        if (!map.empty()){
+            addExtraInfo(itr->name.GetString(), ExtraInfo(map));
+        }
+        if (!map2.empty()){
+            addExtraInfo(itr->name.GetString(), ExtraInfo(map2));
+        }
       }
     }
   }
@@ -540,6 +579,15 @@ void AcceleratorBuffer::load(std::istream &stream) {
          ++itr) {
       appendMeasurement(itr->name.GetString(), itr->value.GetInt());
     }
+  }
+
+  if (!cacheFile){
+      auto &bitMap = doc["AcceleratorBuffer"]["Bitmap"];
+      std::map<int, int> tmpMap;
+      for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++ itr) {
+          tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
+      }
+      setBitIndexMap(tmpMap);
   }
 
   auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
@@ -595,6 +643,12 @@ void AcceleratorBuffer::load(std::istream &stream) {
       childBuffer->appendMeasurement(itr->name.GetString(),
                                      itr->value.GetInt());
     }
+    auto &bitMap = c["Bitmap"];
+    std::map<int, int> tmpMap;
+    for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr){
+        tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
+    }
+    childBuffer->setBitIndexMap(tmpMap);
 
     appendChild(c["name"].GetString(), childBuffer);
   }
