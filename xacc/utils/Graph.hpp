@@ -5,11 +5,6 @@
 #include "InstructionParameter.hpp"
 #include "Cloneable.hpp"
 
-#include <vector>
-#include <string>
-#include <map>
-#include <fstream>
-
 namespace xacc {
 
 class Graph : public Identifiable, public Cloneable<Graph> {

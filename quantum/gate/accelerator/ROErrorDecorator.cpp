@@ -118,7 +118,6 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
         auto bits = nextInst->bits();
         for (auto &b : bits) {
           supportSet.insert(b);
-          xacc::info(std::to_string(b));
         }
       }
     }
@@ -174,30 +173,21 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> ROErrorDecorator::execute(
     auto f = nameToFunction[functionName];
     auto fSupports = supportSets[functionName];
     auto exp_val = b->getExpectationValueZ();
-    auto bitMap = b->bit2IndexMap;
     auto fixedExp = 0.0;
     for (auto &kv : counts) {
       auto prod = 1.0;
       std::string bitString = kv.first;
       auto count = kv.second;
       for (auto& j : fSupports) {
-        xacc::info(functionName);
-        xacc::info(bitString);
-        xacc::info("bit: " + std::to_string(j) + " map: " + std::to_string(b->bit2IndexMap[j]));
-        std::stringstream s;
         auto denom = (1.0 - piplus[j]);
         auto numerator =
-            (bitString[bitString.length() - 1 - bitMap[j]] == '1' ? -1 : 1) - piminus[j];
+            (bitString[bitString.length() - 1 - j] == '1' ? -1 : 1) - piminus[j];
         prod *= (numerator / denom);
       }
       fixedExp += ((double)count / (double)nShots) * prod;
     }
-    xacc::info("exp val: " + std::to_string(fixedExp));
-    // Correct in case our shift has gone outside physical bounds
     if (fixedExp > 1.0) { fixedExp = 1.0; }
     if (fixedExp < -1.0) { fixedExp = -1.0; }
-    xacc::info("raw: " + std::to_string(exp_val));
-    xacc::info("fix: " + std::to_string(fixedExp));
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
     counter++;

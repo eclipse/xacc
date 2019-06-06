@@ -51,7 +51,7 @@ protected:
 
 public:
   int maxMemorySlots = 0;
-  std::map<int, int> qubit2MemorySlot;
+//   std::map<int, int> qubit2MemorySlot;
 
   const std::string name() const override { return "qobject-visitor"; }
 
@@ -59,13 +59,13 @@ public:
     return "Map XACC IR to QObject.";
   }
 
-  QObjectExperimentVisitor(const std::string expName, std::vector<int> qubits)
-      : experimentName(expName), nTotalQubits(qubits.size()) {
-    int counter = 0;
-    for (auto &b : qubits) {
-      qubit2MemorySlot.insert({b, counter});
-      counter++;
-    }
+  QObjectExperimentVisitor(const std::string expName, const int nQubits)
+      : experimentName(expName), nTotalQubits(nQubits) {
+    // int counter = 0;
+    // for (auto &b : qubits) {
+    //   qubit2MemorySlot.insert({b, counter});
+    //   counter++;
+    // }
   }
 
   const std::string toString() override {
@@ -251,15 +251,16 @@ public:
           "IBM: Invalid classical bit index for measurement, already used.");
     }
 
+    auto classicalBit = m.getParameter(0).as<int>();
     xacc::ibm::Instruction inst;
     inst.get_mutable_qubits().push_back(m.bits()[0]);
     inst.get_mutable_name() = "measure";
-    inst.set_memory({qubit2MemorySlot[m.bits()[0]]});
+    inst.set_memory({classicalBit});
 
     instructions.push_back(inst);
 
-    if (qubit2MemorySlot[m.bits()[0]] > maxMemorySlots) {
-      maxMemorySlots = qubit2MemorySlot[m.bits()[0]];
+    if (classicalBit > maxMemorySlots) {
+      maxMemorySlots = classicalBit;//qubit2MemorySlot[m.bits()[0]];
     }
   }
 

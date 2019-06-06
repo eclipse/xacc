@@ -137,11 +137,7 @@ public:
         "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
     return ExtraInfo(0);
   }
-//   ExtraInfo operator()(const std::map<int, int> &i) const {
-//     XACCLogger::instance()->error(
-//         "Cannot cast map<int, int> InstructionParameter to ExtraInfo.");
-//     return ExtraInfo(0);
-//   }
+
   ExtraInfo operator()(const std::complex<double> &i) const {
     XACCLogger::instance()->error(
         "Cannot cast complex InstructionParameter to ExtraInfo.");
@@ -183,6 +179,8 @@ protected:
 
   bool cacheFile = false;
 
+  std::map<int, int> bit2IndexMap;
+
 public:
   AcceleratorBuffer() {}
 
@@ -195,8 +193,6 @@ public:
    * The copy constructor
    */
   AcceleratorBuffer(const AcceleratorBuffer &other);
-
-  std::map<int, int> bit2IndexMap;
 
   void useAsCache() { cacheFile = true; }
   void appendChild(const std::string name,

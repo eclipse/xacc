@@ -99,7 +99,7 @@ QObjectCompiler::translate(const std::string &bufferVariable,
   auto uniqueBits = function->bits();
 
   auto visitor =
-      std::make_shared<QObjectExperimentVisitor>(function->name(), uniqueBits);
+      std::make_shared<QObjectExperimentVisitor>(function->name(), uniqueBits.size());
 
   InstructionIterator it(function);
   int memSlots = 0;

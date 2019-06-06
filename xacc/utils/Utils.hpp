@@ -14,13 +14,13 @@
 #define XACC_UTILS_UTILS_HPP_
 
 #include "Singleton.hpp"
-#include <ostream>
+
+#include <memory>
 #include <queue>
 #include <functional>
 #include <sstream>
-#include <iterator>
 #include <algorithm>
-#include <dirent.h>
+
 namespace spdlog {
 class logger;
 }

@@ -15,6 +15,7 @@
 #include "XACC.hpp"
 #include "xacc_config.hpp"
 #include "PauliOperator.hpp"
+#include <fstream>
 
 using namespace xacc;
 

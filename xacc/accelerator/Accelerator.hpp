@@ -13,9 +13,6 @@
 #ifndef XACC_ACCELERATOR_HPP_
 #define XACC_ACCELERATOR_HPP_
 
-#include <memory>
-#include <string>
-#include <vector>
 #include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
 #include "Function.hpp"
@@ -113,7 +110,7 @@ public:
           const std::vector<std::shared_ptr<Function>> functions) = 0;
 
   virtual void cancel() {};
-  
+
   /**
    * Create, store, and return an AcceleratorBuffer with the given
    * variable id string. This method returns all available

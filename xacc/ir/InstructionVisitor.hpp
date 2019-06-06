@@ -13,11 +13,8 @@
 #ifndef XACC_COMPILER_INSTRUCTIONVISITOR_HPP_
 #define XACC_COMPILER_INSTRUCTIONVISITOR_HPP_
 
-#include <vector>
-#include <string>
 #include <memory>
 
-// #include "Utils.hpp"
 #include "Identifiable.hpp"
 
 namespace xacc {

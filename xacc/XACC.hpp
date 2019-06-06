@@ -13,8 +13,6 @@
 #ifndef XACC_XACC_HPP_
 #define XACC_XACC_HPP_
 
-#include <iostream>
-#include <memory>
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 
