@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 #include <istream>
+#include <dirent.h>
 
 namespace xacc {
 

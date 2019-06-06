@@ -13,9 +13,6 @@
 #ifndef XACC_UTILS_SINGLETON_HPP_
 #define XACC_UTILS_SINGLETON_HPP_
 
-#include <memory>
-#include <string>
-
 namespace xacc {
 
 /**
