@@ -85,6 +85,7 @@ public:
 
   void cancel() override;
 
+  std::map<std::string, std::map<int, int>> name2QubitMap;
   /**
    * Create, store, and return an AcceleratorBuffer with the given
    * variable id string and of the given number of bits.
