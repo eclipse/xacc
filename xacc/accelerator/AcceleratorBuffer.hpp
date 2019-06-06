@@ -28,7 +28,8 @@ using AcceleratorBufferChildPair =
 using ExtraInfo = mpark::variant<int, double, std::string, std::vector<int>,
                                  std::vector<double>, std::vector<std::string>,
                                  std::map<int, std::vector<int>>,
-                                 std::vector<std::pair<double, double>>>;
+                                 std::vector<std::pair<double, double>>,
+                                 std::map<int, int>>;
 
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
@@ -48,6 +49,7 @@ public:
   bool operator()(const std::vector<std::string> &i) const;
   bool operator()(const std::map<int, std::vector<int>> &i) const;
   bool operator()(const std::vector<std::pair<double, double>> &i) const;
+  bool operator()(const std::map<int, int> &i) const;
 };
 
 template<typename Writer>
@@ -66,6 +68,7 @@ public:
   void operator()(const std::vector<std::string> &i);
   void operator()(const std::map<int, std::vector<int>> &i);
   void operator()(const std::vector<std::pair<double, double>> &i) const;
+  void operator()(const std::map<int, int> &i) const;
 };
 
 class ExtraInfo2InstructionParameter
@@ -98,6 +101,12 @@ public:
     return InstructionParameter(0);
   }
   InstructionParameter
+  operator()(const std::map<int, int> &i) const {
+      XACCLogger::instance()->error(
+          "Cannot cast map<int, int> ExtraInfo to InstructionParameter");
+      return InstructionParameter(0);
+  }
+  InstructionParameter
   operator()(const std::vector<std::pair<double, double>> &i) const {
     return InstructionParameter(i);
   }
@@ -128,6 +137,11 @@ public:
         "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
     return ExtraInfo(0);
   }
+//   ExtraInfo operator()(const std::map<int, int> &i) const {
+//     XACCLogger::instance()->error(
+//         "Cannot cast map<int, int> InstructionParameter to ExtraInfo.");
+//     return ExtraInfo(0);
+//   }
   ExtraInfo operator()(const std::complex<double> &i) const {
     XACCLogger::instance()->error(
         "Cannot cast complex InstructionParameter to ExtraInfo.");
@@ -182,6 +196,8 @@ public:
    */
   AcceleratorBuffer(const AcceleratorBuffer &other);
 
+  std::map<int, int> bit2IndexMap;
+
   void useAsCache() { cacheFile = true; }
   void appendChild(const std::string name,
                    std::shared_ptr<AcceleratorBuffer> buffer);
@@ -199,6 +215,10 @@ public:
   std::map<std::string, ExtraInfo> getInformation();
 
   std::shared_ptr<AcceleratorBuffer> clone();
+
+  std::map<int, int> getBitMap() { return bit2IndexMap; }
+
+  void setBitIndexMap(const std::map<int, int> bitMap) { bit2IndexMap = bitMap; }
 
   const int nChildren() { return getChildren().size(); }
   /**
