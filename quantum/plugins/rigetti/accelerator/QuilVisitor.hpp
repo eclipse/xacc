@@ -75,7 +75,7 @@ public:
    */
   void visit(Hadamard &h) {
     std::string qubit = std::to_string(h.bits()[0]);
-    quilStr += "RZ(pi/2) " + qubit + "\\nRX(pi/2) " + qubit + "\\nRZ(pi/2) " + qubit + "\n";
+    quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit + "\nRZ(pi/2) " + qubit + "\n";
   }
 
   void visit(Identity &i) {
@@ -96,7 +96,7 @@ public:
   void visit(CNOT &cn) {
     std::string q1 = std::to_string(cn.bits()[0]);
     std::string q2 = std::to_string(cn.bits()[1]);
-    quilStr += "RZ(-pi/2) " + q2 + "\\nRX(pi/2) " + q2 + "\\nCZ " + q2 + " " + q1 + "\\nRX(-pi/2) " + q2 + "\\nRZ(pi/2) " + q2 + "\\nRZ(pi) "+ q1 + "\n";
+    quilStr += "RZ(-pi/2) " + q2 + "\nRX(pi/2) " + q2 + "\nCZ " + q2 + " " + q1 + "\nRX(-pi/2) " + q2 + "\nRZ(pi/2) " + q2 + "\nRZ(pi) "+ q1 + "\n";
   }
   /**
    * Visit X gates
@@ -111,7 +111,7 @@ public:
    */
   void visit(Y &y) {
       std::string qubit = std::to_string(y.bits()[0]);
-      quilStr += "RZ(pi) " + qubit + "\\nRX(pi) " + qubit + "\n"; }
+      quilStr += "RZ(pi) " + qubit + "\nRX(pi) " + qubit + "\n"; }
 
   /**
    * Visit Z gates
@@ -162,7 +162,7 @@ public:
   void visit(Ry &ry) {
     auto angleStr = ry.getParameter(0).toString();
     std::string qubit = std::to_string(ry.bits()[0]);
-    quilStr += "RX(pi/2) " + qubit + "\\nRZ(" + angleStr + ") " + qubit + "\\nRX(-pi/2) " + qubit + "\n";
+    quilStr += "RX(pi/2) " + qubit + "\nRZ(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\n";
   }
 
   void visit(Rz &rz) {

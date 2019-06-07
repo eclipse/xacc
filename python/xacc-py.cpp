@@ -184,6 +184,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       "The XACC Intermediate Representation, "
       "serves as a container for XACC Functions.")
       .def("getKernels", &xacc::IR::getKernels, "Return the kernels in this IR")
+      .def("mapBits", &xacc::IR::mapBits, "")
       .def("addKernel", &xacc::IR::addKernel, "");
 
   py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")

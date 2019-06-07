@@ -34,6 +34,7 @@
 #include "InstructionIterator.hpp"
 #include "QuilVisitor.hpp"
 #include "CLIParser.hpp"
+#include "RemoteAccelerator.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -46,10 +47,26 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+class MapToPhysical : public xacc::IRTransformation {
+protected:
+  std::vector<std::pair<int, int>> _edges;
+
+public:
+  MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
+  std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
+  bool hardwareDependent() { return true; }
+  const std::string name() const override { return "qcs-map-qubits"; }
+  const std::string description() const override { return ""; }
+};
 /**
  *
  */
 class QCSAccelerator : virtual public Accelerator {
+protected:
+  std::vector<int> physicalQubits;
+  std::vector<std::pair<int, int>> latticeEdges;
+  Document latticeJson;
+
 public:
   QCSAccelerator() : Accelerator() {}
 
@@ -70,13 +87,41 @@ public:
   createBuffer(const std::string &varId);
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<Function> function) override;
+               const std::shared_ptr<Function> function) override;
   std::vector<std::shared_ptr<AcceleratorBuffer>>
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<Function>> functions) override;
 
-  virtual void initialize() {}
+  virtual void initialize() {
+    if (xacc::optionExists("qcs-backend")) {
+      auto backend = xacc::getOption("qcs-backend");
 
+      Client client;
+      auto response = client.get("https://forest-server.qcs.rigetti.com",
+                                 "/lattices/" + backend);
+
+      latticeJson.Parse(response);
+      const auto &oneq = latticeJson["lattice"]["isa"]["1Q"];
+      auto &twoq = latticeJson["lattice"]["isa"]["2Q"];
+
+      for (auto itr = oneq.MemberBegin(); itr != oneq.MemberEnd(); ++itr) {
+        physicalQubits.push_back(std::stoi(itr->name.GetString()));
+      }
+      for (auto itr = twoq.MemberBegin(); itr != twoq.MemberEnd(); ++itr) {
+        auto connStr = itr->name.GetString();
+        std::cout << "CONN : " << connStr << "\n";
+        auto split = xacc::split(connStr, '-');
+        latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
+      }
+    }
+  }
+
+  std::vector<std::pair<int, int>> getAcceleratorConnectivity() {
+    if (!latticeEdges.empty()) {
+      return latticeEdges;
+    }
+    return std::vector<std::pair<int, int>>{};
+  }
   /**
    * Return true if this Accelerator can allocated
    * NBits number of bits.
@@ -84,7 +129,6 @@ public:
    * @return
    */
   virtual bool isValidBufferSize(const int NBits);
-
 
   /**
    * This Accelerator models QPU Gate accelerators.
@@ -97,9 +141,12 @@ public:
    * so return an empty list, for now.
    * @return
    */
-  virtual std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() {
+  std::vector<std::shared_ptr<IRTransformation>>
+  getIRTransformations() override {
     std::vector<std::shared_ptr<IRTransformation>> v;
+    if (!latticeEdges.empty()) {
+      v.push_back(std::make_shared<MapToPhysical>(latticeEdges));
+    }
     return v;
   }
 
@@ -109,23 +156,19 @@ public:
    * from the command line with these options.
    */
   virtual OptionPairs getOptions() {
-    OptionPairs desc {{"qcs-shots",
-        "Provide the number of trials to execute."},{
-        "qcs-backend", ""}};
+    OptionPairs desc{{"qcs-shots", "Provide the number of trials to execute."},
+                     {"qcs-backend", ""}};
     return desc;
   }
 
   virtual const std::string name() const { return "qcs"; }
 
-  virtual const std::string description() const {
-    return "";
-  }
+  virtual const std::string description() const { return ""; }
 
   /**
    * The destructor
    */
   virtual ~QCSAccelerator() {}
-
 };
 
 } // namespace quantum

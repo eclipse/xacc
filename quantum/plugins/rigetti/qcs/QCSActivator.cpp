@@ -24,7 +24,6 @@ public:
     auto acc = std::make_shared<xacc::quantum::QCSAccelerator>();
     context.RegisterService<xacc::Accelerator>(acc);
     context.RegisterService<xacc::OptionsProvider>(acc);
-
   }
 
   /**

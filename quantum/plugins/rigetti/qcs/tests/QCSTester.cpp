@@ -36,39 +36,34 @@
 
 using namespace xacc::quantum;
 
-TEST(QCSTester, checkSimple) {
+TEST(QCSTester, checkSimpleTransformation) {
   int shots = 8192;
   int nExecs = 4;
-
+  xacc::setOption("qcs-shots", "10000");
+    xacc::setOption("qcs-backend","Aspen-4-4Q-A");
     auto acc = xacc::getAccelerator("qcs");
-    auto buffer = acc->createBuffer("buffer", 17);
+    auto buffer = acc->createBuffer("buffer", 4);
 
     auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
     const std::string src = R"src(def f(buffer):
-       Rx(1.57,1)
-       Rx(1.57,14)
-       Rx(1.57,15)
-       Measure(0, 1)
-       Measure(1, 14)
-       Measure(2, 15)
+       CX(0,1)
+       CX(1,2)
+       CX(2,3)
+       Measure(0, 0)
+       Measure(1, 1)
+       Measure(2, 2)
        )src";
 
     auto ir = compiler->compile(src, acc);
     auto f = ir->getKernel("f");
 
-    xacc::setOption("qcs-shots", "10000");
-    xacc::setOption("qcs-backend","Aspen-1-4Q-G");
-    // acc->execute(buffer, f);
 
-    // // int nshots = 0;
-    // auto counts = buffer->getMeasurementCounts();
-    // buffer->print();
-    // std::cout << "\n\n";
-    // for (auto &kv : counts) {
-    //     std::cout << kv.first << ":" << kv.second << "\n";
-    // }
 
-    // EXPECT_EQ(nshots, nExecs * shots);
+    auto t = acc->getIRTransformations()[0];
+    ir = t->transform(ir);
+
+    std::cout << "TEST:\n" << ir->getKernels()[0]->toString() << "\n";
+
 }
 
 

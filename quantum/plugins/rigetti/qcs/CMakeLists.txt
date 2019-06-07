@@ -16,7 +16,7 @@ target_include_directories(${LIBRARY_NAME}
                                   ${CMAKE_SOURCE_DIR}/tpls/pybind11/include
                                   ${PYTHON_INCLUDE_DIR})
 target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc xacc-quantum-gate
+                      PUBLIC xacc xacc-quantum-gate xacc-quantum-aqc
                              CppMicroServices ${PYTHON_LIBRARY})
 
 set(_bundle_name xacc_rigetti_qcs)
