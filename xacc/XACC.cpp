@@ -191,7 +191,13 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto acc = xacc::getService<Accelerator>(name);
+
+  auto name_backend = split(name, ':');
+  auto acc = xacc::getService<Accelerator>(name_backend[0]);
+  if (name_backend.size() > 1) {
+      setOption(name_backend[0]+"-backend",name_backend[1]);
+  }
+
   if (acc) {
     auto remoteacc = std::dynamic_pointer_cast<RemoteAccelerator>(acc);
     if (remoteacc) {
@@ -210,7 +216,12 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto acc = xacc::getService<Accelerator>(name);
+  auto name_backend = split(name, ':');
+  auto acc = xacc::getService<Accelerator>(name_backend[0]);
+  if (name_backend.size() > 1) {
+      setOption(name_backend[0]+"-backend",name_backend[1]);
+  }
+
   if (acc) {
     acc->initialize();
   } else {
