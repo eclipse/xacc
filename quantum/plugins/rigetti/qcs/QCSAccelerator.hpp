@@ -36,6 +36,7 @@
 #include "CLIParser.hpp"
 #include "RemoteAccelerator.hpp"
 
+#include <dlfcn.h>
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/prettywriter.h"
@@ -93,6 +94,7 @@ public:
           const std::vector<std::shared_ptr<Function>> functions) override;
 
   virtual void initialize() {
+  void*const libpython_handle = dlopen("libpython3.6m.so", RTLD_LAZY | RTLD_GLOBAL);
     if (xacc::optionExists("qcs-backend")) {
       auto backend = xacc::getOption("qcs-backend");
 
@@ -109,7 +111,6 @@ public:
       }
       for (auto itr = twoq.MemberBegin(); itr != twoq.MemberEnd(); ++itr) {
         auto connStr = itr->name.GetString();
-        std::cout << "CONN : " << connStr << "\n";
         auto split = xacc::split(connStr, '-');
         latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
       }

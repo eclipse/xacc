@@ -50,7 +50,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
                            physical2Logical[edge.second]);
   }
 
-  hardwareGraph->write(std::cout);
+  //hardwareGraph->write(std::cout);
   for (auto &function : ir->getKernels()) {
     auto logicalGraph = function->toGraph();
     InstructionIterator it(function);
@@ -64,7 +64,6 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
           probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
           nUniqueProbBits.insert(nextInst->bits()[0]);
           nUniqueProbBits.insert(nextInst->bits()[1]);
-
       }
     }
 
@@ -80,8 +79,8 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
       problemGraph->addEdge(inst.first, inst.second, 1.0);
     }
 
-    std::cout << "\n";
-    problemGraph->write(std::cout);
+//    std::cout << "\n";
+  //  problemGraph->write(std::cout);
 
     // Compute the minor graph embedding
     auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
