@@ -63,6 +63,10 @@ public:
   virtual const std::vector<int> bits() = 0;
   virtual void setBits(const std::vector<int> bits) = 0;
 
+  // Often times we need to map logical bits to physical bits,
+  // when that happens we should set hte bitMap for future reference
+//   virtual void setBitMap(const std::vector<int> bitMap) = 0;
+
   /**
    * Return this Instruction's parameter at the given index.
    *

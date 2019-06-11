@@ -48,6 +48,10 @@ public:
    */
   virtual const int nInstructions() = 0;
 
+  virtual void setBitMap(const std::vector<int> bitMap) = 0;
+  virtual const std::vector<int> getBitMap() = 0;
+  virtual bool hasBeenBitMapped() {return false;}
+  
   void setBits(const std::vector<int> bits) override {
       return;
   }

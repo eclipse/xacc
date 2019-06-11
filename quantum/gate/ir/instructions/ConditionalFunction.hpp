@@ -18,7 +18,7 @@
 namespace xacc {
 namespace quantum {
 
-class ConditionalFunction : public virtual GateFunction {
+class ConditionalFunction : public GateFunction {
 
 protected:
   int qbitIdx;

@@ -49,6 +49,15 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
     writer->String("function");
     writer->String(f->name());
 
+    if (f->hasBeenBitMapped()) {
+        writer->String("bitmap");
+        writer->StartArray();
+        for (auto& b : f->getBitMap()) {
+            writer->Int(b);
+        }
+        writer->EndArray();
+    }
+    
     // All functions have instructions, start
     // that array here.
     writer->String("instructions");

@@ -72,6 +72,10 @@ public:
     return 0;
   }
 
+  void setBitMap(const std::vector<int> bMap) override {bitMap = bMap;}
+  const std::vector<int> getBitMap() override {return bitMap;}
+  bool hasBeenBitMapped() override {return !bitMap.empty();}
+
   void persist(std::ostream &outStream) override;
   void load(std::istream &inStream) override;
 
@@ -257,6 +261,9 @@ protected:
   std::string tag = "";
 
   std::map<std::string, InstructionParameter> options;
+
+  std::vector<int> bitMap;
+
 };
 
 } // namespace quantum
