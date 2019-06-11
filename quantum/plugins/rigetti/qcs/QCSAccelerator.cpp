@@ -84,7 +84,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
     // Compute the minor graph embedding
     auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
-    embedding.persist(std::cout);
+//    embedding.persist(std::cout);
     std::vector<int> physicalMap;
     for (auto& kv : embedding) {
         if (kv.second.size() > 1) {
@@ -180,19 +180,19 @@ void QCSAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   auto shape = results.request().shape;
   // py::print(shape[0]);
   // py::print(shape[1]);
-  // py::print(results);
+  //py::print(results);
   //  py::print("QUIL\n");
   // py::print(quilStr);
-  // py::print(buffer->size());
+  //py::print(buffer->size());
   std::string zeroString = "";
-  for (int i = 0; i < buffer->size(); i++)
+  for (int i = 0; i < shape[1]; i++)
     zeroString += "0";
 
   for (int i = 0; i < shots; i++) {
     std::string bitString = zeroString;
     std::stringstream s;
 
-    for (int j = 0; j < buffer->size(); j++) {
+    for (int j = 0; j < shape[1]; j++) {
       //   auto qbit = bitToQubit[j];
       s << *results.data(i, j);
       //   bitString[buffer->size()-1-qbit] = s.str()[0];
