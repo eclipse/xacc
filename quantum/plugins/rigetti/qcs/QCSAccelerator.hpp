@@ -36,6 +36,8 @@
 #include "CLIParser.hpp"
 #include "RemoteAccelerator.hpp"
 
+#include <pybind11/embed.h>
+
 #include <dlfcn.h>
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -51,14 +53,14 @@ namespace quantum {
 class MapToPhysical : public xacc::IRTransformation {
 protected:
   std::vector<std::pair<int, int>> _edges;
-
 public:
   MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
   std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
-  bool hardwareDependent() { return true; }
+  bool hardwareDependent() override { return true; }
   const std::string name() const override { return "qcs-map-qubits"; }
   const std::string description() const override { return ""; }
 };
+
 /**
  *
  */
@@ -67,6 +69,8 @@ protected:
   std::vector<int> physicalQubits;
   std::vector<std::pair<int, int>> latticeEdges;
   Document latticeJson;
+
+  pybind11::scoped_interpreter * guard;
 
 public:
   QCSAccelerator() : Accelerator() {}
@@ -82,10 +86,10 @@ public:
    * @return
    */
   std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string &varId,
-                                                  const int size);
+                                                  const int size) override;
 
-  virtual std::shared_ptr<AcceleratorBuffer>
-  createBuffer(const std::string &varId);
+  std::shared_ptr<AcceleratorBuffer>
+  createBuffer(const std::string &varId) override;
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::shared_ptr<Function> function) override;
@@ -93,15 +97,15 @@ public:
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<Function>> functions) override;
 
-  virtual void initialize() {
-  void*const libpython_handle = dlopen("libpython3.6m.so", RTLD_LAZY | RTLD_GLOBAL);
+  void initialize() override {
+    void*const libpython_handle = dlopen("libpython3.6m.so", RTLD_LAZY | RTLD_GLOBAL);
     if (xacc::optionExists("qcs-backend")) {
       auto backend = xacc::getOption("qcs-backend");
 
       if (backend.find("-qvm") != std::string::npos) {
          backend.erase(backend.find("-qvm"), 4);
       }
-      
+
       Client client;
       auto response = client.get("https://forest-server.qcs.rigetti.com",
                                  "/lattices/" + backend);
@@ -119,9 +123,13 @@ public:
         latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
       }
     }
+
+    if (!xacc::isPyApi && !guard) {
+        guard = new pybind11::scoped_interpreter();
+    }
   }
 
-  std::vector<std::pair<int, int>> getAcceleratorConnectivity() {
+  std::vector<std::pair<int, int>> getAcceleratorConnectivity() override{
     if (!latticeEdges.empty()) {
       return latticeEdges;
     }
@@ -133,13 +141,13 @@ public:
    * @param NBits
    * @return
    */
-  virtual bool isValidBufferSize(const int NBits);
+  bool isValidBufferSize(const int NBits) override;
 
   /**
    * This Accelerator models QPU Gate accelerators.
    * @return
    */
-  virtual AcceleratorType getType() { return AcceleratorType::qpu_gate; }
+  AcceleratorType getType() override { return AcceleratorType::qpu_gate; }
 
   /**
    * We have no need to transform the IR for this Accelerator,
@@ -160,20 +168,19 @@ public:
    * Users can set the api-key, execution type, and number of triels
    * from the command line with these options.
    */
-  virtual OptionPairs getOptions() {
+  OptionPairs getOptions() override {
     OptionPairs desc{{"qcs-shots", "Provide the number of trials to execute."},
                      {"qcs-backend", ""}};
     return desc;
   }
 
-  virtual const std::string name() const { return "qcs"; }
-
-  virtual const std::string description() const { return ""; }
+  const std::string name() const override { return "qcs"; }
+  const std::string description() const override { return ""; }
 
   /**
    * The destructor
    */
-  virtual ~QCSAccelerator() {}
+  virtual ~QCSAccelerator() { delete guard;}
 };
 
 } // namespace quantum

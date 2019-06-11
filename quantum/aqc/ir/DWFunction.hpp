@@ -75,6 +75,9 @@ public:
     return i;
   }
 
+  void setBitMap(const std::vector<int> bMap) override {}
+  const std::vector<int> getBitMap() override {return std::vector<int>{};}
+
   std::list<InstPtr> getInstructions() override { return instructions; }
 
   void removeInstruction(const int idx) override {

@@ -1,7 +1,6 @@
 
 #include "QCSAccelerator.hpp"
 #include <algorithm>
-#include <pybind11/embed.h>
 #include "CountGatesOfTypeVisitor.hpp"
 #include <pybind11/numpy.h>
 
@@ -76,7 +75,9 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
     }
 
     for (auto &inst : probEdges) {
-      problemGraph->addEdge(inst.first, inst.second, 1.0);
+      if (!problemGraph->edgeExists(inst.first, inst.second)) {
+         problemGraph->addEdge(inst.first, inst.second, 1.0);
+      }
     }
 
 //    std::cout << "\n";
@@ -93,6 +94,8 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
         physicalMap.push_back(logical2Physical[kv.second[0]]);
     }
 
+    // std::cout << "Physical bits:\n";
+    // for (auto& b : physicalMap) std::cout << b << "\n";
     function->mapBits(physicalMap);
 
   }
@@ -160,12 +163,12 @@ void QCSAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
 
-  std::shared_ptr<py::scoped_interpreter> guard;
-  if (!xacc::isPyApi) {
-    guard = std::make_shared<py::scoped_interpreter>();
-  }
 
-  //   py::print("quil:\n", quilStr);
+// std::shared_ptr<pybind11::scoped_interpreter> guard;
+
+
+
+    // py::print("quil:\n", quilStr);
   auto pyquil = py::module::import("pyquil");
   py::object get_qc = pyquil.attr("get_qc");
   auto program = pyquil.attr("Program")();
@@ -173,14 +176,13 @@ void QCSAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   program.attr("wrap_in_numshots_loop")(shots);
 
   auto qc = get_qc(backend);
-
   auto compiled = qc.attr("compile")(program);
 
   py::array_t<int> results = qc.attr("run")(compiled);
   auto shape = results.request().shape;
-  // py::print(shape[0]);
-  // py::print(shape[1]);
-  //py::print(results);
+//   py::print(shape[0]);
+//   py::print(shape[1]);
+//   py::print(results);
   //  py::print("QUIL\n");
   // py::print(quilStr);
   //py::print(buffer->size());
@@ -216,7 +218,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> QCSAccelerator::execute(
     auto tmpBuffer = createBuffer(f->name(), buffer->size());
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    xacc::info("Execution " + std::to_string(counter) + ": " + f->name());
+    // xacc::info("Execution " + std::to_string(counter) + ": " + f->name());
     execute(tmpBuffer, f);
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 

@@ -125,17 +125,26 @@ PauliOperator::observe(std::shared_ptr<Function> function) {
       if (gateName == "X") {
         auto hadamard =
             gateRegistry->createInstruction("H", std::vector<int>{qbit});
+        if (function->hasBeenBitMapped()) {
+            hadamard->mapBits(function->getBitMap());
+        }
         gateFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
         auto rx = gateRegistry->createInstruction("Rx", std::vector<int>{qbit});
         InstructionParameter p(pi / 2.0);
         rx->setParameter(0, p);
+        if (function->hasBeenBitMapped()) {
+            rx->mapBits(function->getBitMap());
+        }
         gateFunction->addInstruction(rx);
       }
     }
 
     if (!spinInst.isIdentity()) {
       for (auto m : measurements) {
+        if (function->hasBeenBitMapped()) {
+            m->mapBits(function->getBitMap());
+        }
         gateFunction->addInstruction(m);
       }
     }

@@ -25,6 +25,7 @@ void GateFunction::mapBits(std::vector<int> bitMap) {
   for (auto i : instructions) {
     i->mapBits(bitMap);
   }
+  setBitMap(bitMap);
 }
 
 void GateFunction::persist(std::ostream &outStream) {
@@ -74,6 +75,16 @@ void GateFunction::load(std::istream &inStream) {
 
   auto &kernel = doc["kernels"].GetArray()[0];
   functionName = kernel["function"].GetString();
+
+  if (kernel.HasMember("bitmap")) {
+      auto bitMapArr = kernel["bitmap"].GetArray();
+      std::vector<int> bitMap;
+      for (int i = 0; i < bitMapArr.Size(); i++) {
+          bitMap.push_back(bitMapArr[i].GetInt());
+      }
+      setBitMap(bitMap);
+  }
+
   auto instructionsArray = kernel["instructions"].GetArray();
 
   for (int i = 0; i < instructionsArray.Size(); i++) {
