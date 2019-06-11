@@ -177,7 +177,14 @@ std::shared_ptr<Accelerator> getAccelerator() {
           "requires that you set --accelerator at the command line.");
   }
 
-  auto acc = xacc::getService<Accelerator>(getOption("accelerator"));
+  auto name = getOption("accelerator");
+  auto name_backend = split(name, ':');
+  if (name_backend.size() > 1) {
+      setOption(name_backend[0]+"-backend",name_backend[1]);
+  }
+
+  auto acc = xacc::getService<Accelerator>(name_backend[0]);
+
   if (acc) {
     acc->initialize();
   } else {
