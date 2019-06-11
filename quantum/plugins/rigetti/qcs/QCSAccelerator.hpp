@@ -98,6 +98,10 @@ public:
     if (xacc::optionExists("qcs-backend")) {
       auto backend = xacc::getOption("qcs-backend");
 
+      if (backend.find("-qvm") != std::string::npos) {
+         backend.erase(backend.find("-qvm"), 4);
+      }
+      
       Client client;
       auto response = client.get("https://forest-server.qcs.rigetti.com",
                                  "/lattices/" + backend);
