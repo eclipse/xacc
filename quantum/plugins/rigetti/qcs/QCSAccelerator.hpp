@@ -99,7 +99,7 @@ public:
 
   void initialize() override {
     void*const libpython_handle = dlopen("libpython3.6m.so", RTLD_LAZY | RTLD_GLOBAL);
-    if (xacc::optionExists("qcs-backend")) {
+    if (xacc::optionExists("qcs-backend") && !xacc::isPyApi) {
       auto backend = xacc::getOption("qcs-backend");
 
       if (backend.find("-qvm") != std::string::npos) {
