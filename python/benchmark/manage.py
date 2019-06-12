@@ -6,16 +6,23 @@ import os
 import configparser
 from shutil import copy
 import xacc
+import sysconfig
+import importlib
+import ast
+import subprocess
+import inspect
+
 MASTER_DIRS = ['vqe']
 
 MASTER_PACKAGES = {}
 
+REQUIREMENTS = {}
+
 TOP_PATH = os.path.dirname(os.path.realpath(__file__))
 
-XACC_PYTHON_PLUGIN_PATH = "/root/.xacc/py-plugins/"
+# XACC_PYTHON_PLUGIN_PATH = "/root/.xacc/py-plugins/"
 
 PLUGIN_INSTALLATIONS = {}
-
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description="Installation manager for XACC benchmark plugins.",
@@ -30,10 +37,35 @@ def parse_args(args):
 
 def install_package(install_name):
     try:
+        xacc.info("Retrieving package and checking requirements..")
         package_path = PLUGIN_INSTALLATIONS[install_name]
+        for k,v in MASTER_PACKAGES.items():
+            if install_name in v:
+                requirement = REQUIREMENTS[k]['module']
+                mdir = k
+                print(requirement)
+                importlib.import_module(requirement)
     except KeyError as ex:
         xacc.info("There is no '{}' XACC Python plugin package available.".format(install_name))
         exit(1)
+    # this might have to change as more packages and their requirements get added
+    # for now, it works fine, and should work fine for any XACC requirement
+    # that needs to be git-cloned and built with cmake-make (vqe)
+    except ModuleNotFoundError as ex:
+        xacc.info("You do not have the required Python module `{}` to install and run the '{}' XACC Python plugin package.".format(requirement, install_name))
+        yn = input("Install requirements? ")
+        if yn == "y":
+            dest = os.path.dirname(inspect.getfile(xacc))
+            install_path = os.path.join(dest, REQUIREMENTS[mdir]['dir'])
+            build_path = os.path.join(install_path, 'build')
+            os.chdir(dest)
+            subprocess.run(['git', 'clone', '--recursive', '{}'.format(REQUIREMENTS[mdir]['repo'])])
+            os.makedirs(build_path)
+            os.chdir(build_path)
+            subprocess.run(['cmake', '..', '-DXACC_DIR={}'.format(dest), '-DPYTHON_INCLUDE_DIR={}'.format(sysconfig.get_paths()['include'])])
+            subprocess.run(['make', '-j2', 'install'])
+        else:
+            exit(1)
 
     install_directive = os.path.join(package_path+"/install.ini") if os.path.isfile(package_path+"/install.ini") else None
     plugin_files = []
@@ -61,11 +93,16 @@ def read_install_directive(install_file, parent):
     results = {}
     packages_here = []
     for section in config.sections():
-        for installation in config.items(section):
-            name, folder = installation
-            packages_here.append(name)
-            folder = parent+folder
-            results.update(dict([(name, folder)]))
+        if section == "Requirements":
+            for req in config.items(section):
+                name, require = req
+                REQUIREMENTS[name] = ast.literal_eval(require)
+        else:
+            for installation in config.items(section):
+                name, folder = installation
+                packages_here.append(name)
+                folder = parent+folder
+                results.update(dict([(name, folder)]))
     return results, packages_here
 
 def get_packages():
