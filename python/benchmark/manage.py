@@ -20,8 +20,6 @@ REQUIREMENTS = {}
 
 TOP_PATH = os.path.dirname(os.path.realpath(__file__))
 
-# XACC_PYTHON_PLUGIN_PATH = "/root/.xacc/py-plugins/"
-
 PLUGIN_INSTALLATIONS = {}
 
 def parse_args(args):

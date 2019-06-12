@@ -48,9 +48,6 @@ else()
    set_target_properties(_pyxacc PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/benchmark/manage.py.in
-#                    ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/manage.py)
-
 install(TARGETS _pyxacc DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES xacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY plugin_generator DESTINATION ${CMAKE_INSTALL_PREFIX})
