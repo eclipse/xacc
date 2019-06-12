@@ -52,7 +52,7 @@ def install_package(install_name):
     # for now, it works fine, and should work fine for any XACC requirement
     # that needs to be git-cloned and built with cmake-make (vqe)
     except ModuleNotFoundError as ex:
-        xacc.info("You do not have the required Python module `{}` to install and run the '{}' XACC Python plugin package.".format(requirement, install_name))
+        xacc.info("You do not have the required Python module `{}` to install and run the '{}' XACC benchmark plugin package.".format(requirement, install_name))
         yn = input("Install requirements? ")
         if yn == "y":
             dest = os.path.dirname(inspect.getfile(xacc))
