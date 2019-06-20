@@ -41,7 +41,6 @@ def install_package(install_name):
             if install_name in v:
                 requirement = REQUIREMENTS[k]['module']
                 mdir = k
-                print(requirement)
                 importlib.import_module(requirement)
     except KeyError as ex:
         xacc.info("There is no '{}' XACC Python plugin package available.".format(install_name))
