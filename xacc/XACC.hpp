@@ -30,6 +30,8 @@ extern std::shared_ptr<CLIParser> xaccCLParser;
 extern int argc;
 extern char **argv;
 
+extern std::map<std::string, std::shared_ptr<Function>> compilation_database;
+
 /**
  * This method should be called by
  * clients to initialize the XACC framework.
@@ -300,6 +302,9 @@ const std::string translateWithVisitor(const std::string &originalSource,
                                        const std::string &visitorMapping,
                                        const std::string &accelerator,
                                        const int kernel);
+
+void appendCompiled(std::shared_ptr<Function> function);
+std::shared_ptr<Function> getCompiled(const std::string name);
 
 /**
  * This method should be called by clients to

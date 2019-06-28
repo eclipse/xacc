@@ -35,6 +35,7 @@ bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser;// = std::make_shared<CLIParser>();
 int argc = 0;
 char **argv = NULL;
+std::map<std::string, std::shared_ptr<Function>> compilation_database{};
 
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
@@ -499,6 +500,19 @@ const std::string getRootDirectory() {
   return xacc::getRootPathString();
 }
 
+void appendCompiled(std::shared_ptr<Function> function) {
+    if (compilation_database.count(function->name())) {
+        xacc::error("Invalid Function name, already in compilation database.");
+    }
+    compilation_database.insert({function->name(), function});
+}
+std::shared_ptr<Function> getCompiled(const std::string name) {
+    if (!compilation_database.count(name)) {
+        xacc::error("Invalid Function requested. Not in compilation database " + name);
+    }
+    return compilation_database[name];
+}
+
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should
@@ -506,10 +520,10 @@ const std::string getRootDirectory() {
  */
 void Finalize() {
   XACCLogger::instance()->dumpQueue();
-  info("");
-  info("[xacc::plugins] Cleaning up Plugin Registry.");
+//   info("");
+//   info("[xacc::plugins] Cleaning up Plugin Registry.");
   //	xacc::xacc::destroy();
   xacc::xaccFrameworkInitialized = false;
-  info("[xacc] Finalizing XACC Framework.");
+//   info("[xacc] Finalizing XACC Framework.");
 }
 } // namespace xacc

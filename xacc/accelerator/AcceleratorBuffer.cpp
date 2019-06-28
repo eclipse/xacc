@@ -143,6 +143,8 @@ void ToJsonVisitor<T>::operator()(
 
 template class ToJsonVisitor<PrettyWriter<StringBuffer>>;
 
+AcceleratorBuffer::AcceleratorBuffer(const int N) : bufferId(""), nBits(N) {}
+
 AcceleratorBuffer::AcceleratorBuffer(const std::string &str, const int N)
     : bufferId(str), nBits(N) {}
 
@@ -357,14 +359,18 @@ const double AcceleratorBuffer::getExpectationValueZ() {
     return 1;
   };
 
-  for (auto &kv : bitStringToCounts) {
-    int i = std::stoi(kv.first, nullptr, 2);
-    auto par = has_even_parity(i);
-    auto p = computeMeasurementProbability(kv.first);
-    if (!par) {
-      p = -p;
+  if (bitStringToCounts.empty() && this->hasExtraInfoKey("exp-val-z")) {
+    aver = mpark::get<double>(getInformation("exp-val-z"));
+  } else {
+    for (auto &kv : bitStringToCounts) {
+      int i = std::stoi(kv.first, nullptr, 2);
+      auto par = has_even_parity(i);
+      auto p = computeMeasurementProbability(kv.first);
+      if (!par) {
+        p = -p;
+      }
+      aver += p;
     }
-    aver += p;
   }
   return aver;
 }
@@ -645,8 +651,8 @@ void AcceleratorBuffer::load(std::istream &stream) {
           childBuffer->addExtraInfo(itr->name.GetString(),
                                     ExtraInfo(childValues));
         } else {
-        //   xacc::info("HELLO EXTRA: " +
-                    //  std::string(itr->name.GetString())); // << "\n";
+          //   xacc::info("HELLO EXTRA: " +
+          //  std::string(itr->name.GetString())); // << "\n";
         }
         // FIXME Handle Map<int, [int*]>
       }

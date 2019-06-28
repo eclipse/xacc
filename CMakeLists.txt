@@ -94,6 +94,13 @@ if(PYTHON_INCLUDE_DIR)
  add_subdirectory(python)
 endif()
 
+find_package(Clang 9.0.0)
+if (CLANG_FOUND)
+  add_subdirectory(tools)
+  configure_file(${CMAKE_SOURCE_DIR}/scripts/xacc.in
+                 ${CMAKE_BINARY_DIR}/scripts/xacc)
+  install(PROGRAMS ${CMAKE_BINARY_DIR}/scripts/xacc DESTINATION bin)
+endif()
 
 # Install the config file for external projects to use
 # This is cool, users just add find_package(XACC REQUIRED) to

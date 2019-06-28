@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 UT-Battelle, LLC.
+ * Copyright (c) 2019 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -17,7 +17,7 @@
 #include <memory>
 
 namespace xacc {
-// class ServiceRegistry;
+
 extern std::shared_ptr<ServiceRegistry> serviceRegistry;
 extern bool serviceAPIInitialized;
 
