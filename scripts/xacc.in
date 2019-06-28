@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import sys
+import subprocess
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(description="XACC Quantum-Classical C++ Compiler.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                     fromfile_prefix_chars='@')
+    parser.add_argument(
+        'file', help='The quantum-classical C++ file to compile.')
+    parser.add_argument("-a", "--accelerator", type=str,
+                        help="The target quantum accelerator", required=False)
+    parser.add_argument("-I", '--include', action='append', type=str,
+                        help="Extra include paths to search", required=False)
+    parser.add_argument("-o", '--output', type=str,
+                        help="Name of output binary", required=False)
+    parser.add_argument("-v", '--verbose', action='store_true',
+                        help="Print verbose compiler output.", required=False)
+    parser.add_argument("--keep-tmp-src", action='store_true',
+                        help="Keep qcor generated hidden source file.", required=False)
+
+    opts = parser.parse_args(args)
+
+    return opts
+
+
+def main(argv=None):
+    opts = parse_args(sys.argv[1:])
+
+    import time
+    command = ["@CMAKE_INSTALL_PREFIX@/bin/xacc-driver"]
+    includes = []
+    if opts.include:
+        for include in opts.include:
+            includes.append('-I'+include)
+
+    command += includes
+
+    if opts.accelerator:
+        command += ['--accelerator', opts.accelerator]
+
+    command += [opts.file]
+    if opts.verbose:
+        command += ['-v']
+
+    #print(command)
+    try:
+        s = time.time()
+        result = subprocess.run(command, check=True)
+        e = time.time()
+        #print('time: ', (e-s))
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print(e.returncode)
+        return e.returncode
+
+    command.clear()
+
+    baseIncludes = ['-I', '@CMAKE_INSTALL_PREFIX@/include/xacc',
+                    '-I', '@CMAKE_INSTALL_PREFIX@/include/cppmicroservices4']
+    baseLibs = ['@CMAKE_INSTALL_PREFIX@/lib/libxacc.so', '@CMAKE_INSTALL_PREFIX@/lib/libCppMicroServices.so']
+
+    command = ['@CMAKE_CXX_COMPILER@', '-Wno-attributes', '-O3', '-DNDEBUG', '-rdynamic', '-std=c++11',
+               '.' + opts.file.replace('.', '_out.'), '-Wl,-rpath,@CMAKE_INSTALL_PREFIX@/lib']
+    command += includes + baseIncludes + baseLibs
+
+    if opts.output:
+        command += ['-o', opts.output]
+
+    #print('Final command', command)
+    try:
+        s = time.time()
+        result = subprocess.run(command, check=True)
+        e = time.time()
+        #print('final compile time: ', (e-s))
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print(e.returncode)
+        return e.returncode
+
+    if not opts.keep_tmp_src:
+        os.remove('.'+opts.file.replace('.','_out.'))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

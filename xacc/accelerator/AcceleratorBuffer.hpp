@@ -183,6 +183,7 @@ protected:
 
 public:
   AcceleratorBuffer() {}
+  AcceleratorBuffer(const int N);
 
   /**
    * The Constructor
@@ -291,6 +292,10 @@ public:
   virtual void print();
   const std::string toString();
 
+  void setName(const std::string n) {
+      bufferId = n;
+  }
+  
   /**
    * Print information about this AcceleratorBuffer to the
    * given output stream.
@@ -300,6 +305,10 @@ public:
   virtual void print(std::ostream &stream);
 
   virtual void load(std::istream &stream);
+
+  void operator[](const int& i) {
+      return;
+  }
 
   /**
    * The Destructor
