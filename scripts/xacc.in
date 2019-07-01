@@ -84,7 +84,8 @@ def main(argv=None):
 
     if not opts.keep_tmp_src:
         os.remove('.'+opts.file.replace('.','_out.'))
-        os.remove('.'+opts.file.replace('.','_pragma_out.'))
+        os.remove('.'+opts.file.replace('.','_pragma_out.')) if os.path.exists('.'+opts.file.replace('.','_pragma_out.')) else None
+
 
 
     return 0
