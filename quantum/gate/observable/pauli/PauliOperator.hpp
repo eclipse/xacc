@@ -22,6 +22,8 @@
 #include "IR.hpp"
 #include <iostream>
 
+#include "Cloneable.hpp"
+
 // Putting this here due to clang error
 // not able to find operator!= from operators.hpp
 namespace xacc {
@@ -220,7 +222,7 @@ public:
 };
 
 class PauliOperator
-    : public xacc::Observable,
+    : public xacc::Observable, public xacc::Cloneable<Observable>,
       public tao::operators::commutative_ring<PauliOperator>,
       public tao::operators::equality_comparable<PauliOperator>,
       public tao::operators::commutative_multipliable<PauliOperator, double>,
@@ -230,6 +232,10 @@ protected:
   std::unordered_map<std::string, Term> terms;
 
 public:
+  std::shared_ptr<Observable> clone() override {
+      return std::make_shared<PauliOperator>();
+  }
+
   std::unordered_map<std::string, Term>::iterator begin() {
     return terms.begin();
   }

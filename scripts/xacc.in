@@ -63,7 +63,7 @@ def main(argv=None):
                     '-I', '@CMAKE_INSTALL_PREFIX@/include/cppmicroservices4']
     baseLibs = ['@CMAKE_INSTALL_PREFIX@/lib/libxacc.so', '@CMAKE_INSTALL_PREFIX@/lib/libCppMicroServices.so']
 
-    command = ['@CMAKE_CXX_COMPILER@', '-Wno-attributes', '-O3', '-DNDEBUG', '-rdynamic', '-std=c++11',
+    command = ['clang++-9', '-Wno-attributes', '-O3', '-DNDEBUG', '-rdynamic', '-std=c++11',
                '.' + opts.file.replace('.', '_out.'), '-Wl,-rpath,@CMAKE_INSTALL_PREFIX@/lib']
     command += includes + baseIncludes + baseLibs
 
@@ -71,6 +71,7 @@ def main(argv=None):
         command += ['-o', opts.output]
 
     #print('Final command', command)
+    #print(' '.join(command))
     try:
         s = time.time()
         result = subprocess.run(command, check=True)
@@ -83,6 +84,8 @@ def main(argv=None):
 
     if not opts.keep_tmp_src:
         os.remove('.'+opts.file.replace('.','_out.'))
+        os.remove('.'+opts.file.replace('.','_pragma_out.'))
+
 
     return 0
 
