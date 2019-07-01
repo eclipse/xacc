@@ -5,6 +5,7 @@
 #include "operators.hpp"
 #include <memory>
 #include <unordered_map>
+#include "Cloneable.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -126,7 +127,7 @@ public:
 };
 
 class FermionOperator
-    : public Observable,
+    : public Observable, public Cloneable<Observable>,
       public std::enable_shared_from_this<FermionOperator>,
       public tao::operators::commutative_ring<FermionOperator>,
       public tao::operators::equality_comparable<FermionOperator>,
@@ -138,6 +139,9 @@ protected:
   std::unordered_map<std::string, FermionTerm> terms;
 
 public:
+  std::shared_ptr<Observable> clone() override {
+      return std::make_shared<FermionOperator>();
+  }
   FermionOperator();
   FermionOperator(std::complex<double> c);
   FermionOperator(double c);

@@ -118,11 +118,11 @@ public:
   KernelVisitor(CompilerInstance &c, Rewriter &rw);
 
   bool VisitFunctionDecl(FunctionDecl *F);
+  bool VisitCallExpr(CallExpr *expr);
 
 private:
   CompilerInstance &ci;
   Rewriter &rewriter;
-  std::map<std::string, std::shared_ptr<Function>> functions;
 };
 } // namespace compiler
 } // namespace xacc

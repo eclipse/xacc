@@ -21,6 +21,30 @@ namespace compiler {
 KernelVisitor::KernelVisitor(CompilerInstance &c, Rewriter &rw)
     : ci(c), rewriter(rw) {}
 
+bool KernelVisitor::VisitCallExpr(CallExpr *expr) {
+  auto F = expr->getDirectCallee();
+  if (F != nullptr && F->hasAttr<AnnotateAttr>() &&
+      F->getAttr<AnnotateAttr>()->getAnnotation().str() == "__qpu__") {
+
+    auto fdeclName = expr->getDirectCallee()->getNameAsString();
+     if (F->getAttrs().size() > 1 &&
+        dyn_cast<AnnotateAttr>(F->getAttrs()[1])
+                ->getAnnotation()
+                .str()
+                .find("observe_") != std::string::npos) {
+      auto obsName =
+          dyn_cast<AnnotateAttr>(F->getAttrs()[1])->getAnnotation().str();
+      obsName = xacc::split(obsName, '_')[1];
+      obsName = obsName.substr(1, obsName.length() - 2);
+
+      auto endl = expr->getEndLoc();
+      rewriter.ReplaceText(endl, 1,
+                           ","+obsName+")");
+    }
+  }
+  return true;
+}
+
 bool KernelVisitor::VisitFunctionDecl(FunctionDecl *F) {
 
   if (F->hasAttr<AnnotateAttr>() &&
@@ -49,9 +73,11 @@ bool KernelVisitor::VisitFunctionDecl(FunctionDecl *F) {
     auto acceleratorName = xacc::getAccelerator()->name();
 
     // Here we need to do Quantum Compilation
-    // ...
-    // ...
+    // ... get Accelerator IRTransformations
+    // ... run hardware independent transforms too
     //
+
+    function->setOption("compiled_for", acceleratorName);
 
     std::stringstream ss;
     function->persist(ss);
@@ -71,23 +97,40 @@ bool KernelVisitor::VisitFunctionDecl(FunctionDecl *F) {
         replacement += "," + F->getParamDecl(i)->getNameAsString();
       }
       replacement += "};\n";
-      replacement += "function = function->operator()(params);\n";
     }
-    replacement += "xacc::getAccelerator(\"" + acceleratorName +
-                   "\")->execute(" + bufferName + ",function);\n";
+    replacement +=
+        "auto acc = xacc::getAccelerator(\"" + acceleratorName + "\");\n";
+    if (F->getAttrs().size() > 1 &&
+        dyn_cast<AnnotateAttr>(F->getAttrs()[1])
+                ->getAnnotation()
+                .str()
+                .find("observe_") != std::string::npos) {
+      auto obsName =
+          dyn_cast<AnnotateAttr>(F->getAttrs()[1])->getAnnotation().str();
+      obsName = xacc::split(obsName, '_')[1];
+      obsName = obsName.substr(1, obsName.length() - 2);
+
+      replacement +=
+          "xacc::observe(" + bufferName + ", params, acc, function, obs);\n";
+      auto endl = F->getParamDecl(F->getNumParams() - 1)->getEndLoc();
+      rewriter.ReplaceText(endl.getLocWithOffset(2), 1,
+                           ", std::shared_ptr<xacc::Observable> obs)");
+
+    } else {
+      replacement += "function = function->operator()(params);\n";
+      replacement += "acc->execute(" + bufferName + ",function);\n";
+    }
     replacement += "}\n";
 
     rewriter.ReplaceText(sr, replacement);
 
     xacc::appendCompiled(function);
-
   }
 
   return true;
 }
 
-KernelVisitor::CppToXACCIRVisitor::CppToXACCIRVisitor(
-    const std::string name) {
+KernelVisitor::CppToXACCIRVisitor::CppToXACCIRVisitor(const std::string name) {
   provider = xacc::getService<IRProvider>("quantum");
   function = provider->createFunction(name, {}, {InstructionParameter("gate")});
   auto irgens = xacc::getRegisteredIds<xacc::IRGenerator>();
@@ -101,15 +144,16 @@ bool KernelVisitor::CppToXACCIRVisitor::VisitCallExpr(CallExpr *expr) {
   auto firstchild = *(expr->child_begin());
   if (dyn_cast<DeclRefExpr>(firstchild)) {
     gate_name = dyn_cast<DeclRefExpr>(*(expr->child_begin()))
-                       ->getNameInfo()
-                       .getAsString();
+                    ->getNameInfo()
+                    .getAsString();
   } else if (dyn_cast<ImplicitCastExpr>(firstchild)) {
-      // For this case, we have a reference to a previous __qpu__ function
-      auto ice = dyn_cast<ImplicitCastExpr>(firstchild);
-      auto irFunctionName = dyn_cast<DeclRefExpr>(ice->getSubExpr())->getNameInfo().getAsString();
-      auto irFunction = xacc::getCompiled(irFunctionName);
-      function->addInstruction(irFunction);
-      return true;
+    // For this case, we have a reference to a previous __qpu__ function
+    auto ice = dyn_cast<ImplicitCastExpr>(firstchild);
+    auto irFunctionName =
+        dyn_cast<DeclRefExpr>(ice->getSubExpr())->getNameInfo().getAsString();
+    auto irFunction = xacc::getCompiled(irFunctionName);
+    function->addInstruction(irFunction);
+    return true;
   }
 
   if (std::find(irGeneratorNames.begin(), irGeneratorNames.end(), gate_name) !=
@@ -140,7 +184,6 @@ bool KernelVisitor::CppToXACCIRVisitor::VisitCallExpr(CallExpr *expr) {
     auto inst = visitor.getInstruction();
     function->addInstruction(inst);
   }
-
 
   return true;
 }

@@ -68,7 +68,7 @@ void GateFunction::load(std::istream &inStream) {
 
   auto provider = xacc::getService<IRProvider>("gate");
   std::string json(std::istreambuf_iterator<char>(inStream), {});
-//   std::cout << "JSON: " << json << "\n";
+  //   std::cout << "JSON: " << json << "\n";
 
   Document doc;
   doc.Parse(json);
@@ -76,13 +76,26 @@ void GateFunction::load(std::istream &inStream) {
   auto &kernel = doc["kernels"].GetArray()[0];
   functionName = kernel["function"].GetString();
 
+  auto &options = kernel["options"];
+  for (auto itr = options.MemberBegin(); itr != options.MemberEnd(); ++itr) {
+    auto &value = options[itr->name.GetString()];
+
+    if (value.IsInt()) {
+      setOption(itr->name.GetString(), InstructionParameter(value.GetInt()));
+    } else if (value.IsDouble()) {
+      setOption(itr->name.GetString(), InstructionParameter(value.GetDouble()));
+    } else {
+      setOption(itr->name.GetString(), InstructionParameter(value.GetString()));
+    }
+  }
+
   if (kernel.HasMember("bitmap")) {
-      auto bitMapArr = kernel["bitmap"].GetArray();
-      std::vector<int> bitMap;
-      for (int i = 0; i < bitMapArr.Size(); i++) {
-          bitMap.push_back(bitMapArr[i].GetInt());
-      }
-      setBitMap(bitMap);
+    auto bitMapArr = kernel["bitmap"].GetArray();
+    std::vector<int> bitMap;
+    for (int i = 0; i < bitMapArr.Size(); i++) {
+      bitMap.push_back(bitMapArr[i].GetInt());
+    }
+    setBitMap(bitMap);
   }
 
   auto instructionsArray = kernel["instructions"].GetArray();
@@ -92,9 +105,10 @@ void GateFunction::load(std::istream &inStream) {
     auto gname = inst["gate"].GetString();
 
     bool isAnIRG = false;
-    if (std::find(irGeneratorNames.begin(), irGeneratorNames.end(), gname) != irGeneratorNames.end()) {
-        // this is an IRG
-        isAnIRG = true;
+    if (std::find(irGeneratorNames.begin(), irGeneratorNames.end(), gname) !=
+        irGeneratorNames.end()) {
+      // this is an IRG
+      isAnIRG = true;
     }
 
     std::vector<int> qbits;
@@ -118,10 +132,9 @@ void GateFunction::load(std::istream &inStream) {
 
     std::shared_ptr<Instruction> instToAdd;
     if (!isAnIRG) {
-     instToAdd =
-        provider->createInstruction(gname, qbits, local_parameters);
+      instToAdd = provider->createInstruction(gname, qbits, local_parameters);
     } else {
-        instToAdd = xacc::getService<IRGenerator>(gname);
+      instToAdd = xacc::getService<IRGenerator>(gname);
     }
 
     auto &optionsObj = inst["options"];
@@ -150,25 +163,25 @@ void GateFunction::load(std::istream &inStream) {
 
 void GateFunction::expandIRGenerators(
     std::map<std::string, InstructionParameter> irGenMap) {
-    std::list<InstPtr> newinsts;
+  std::list<InstPtr> newinsts;
   for (int idx = 0; idx < nInstructions(); idx++) {
     auto inst = getInstruction(idx);
     auto irg = std::dynamic_pointer_cast<IRGenerator>(inst);
     if (irg) {
       auto evaluated = irg->generate(irGenMap);
-    //   replaceInstruction(idx, evaluated);
+      //   replaceInstruction(idx, evaluated);
       for (auto i : evaluated->getInstructions()) {
-          newinsts.push_back(i);
+        newinsts.push_back(i);
       }
     } else {
-        newinsts.push_back(inst);
+      newinsts.push_back(inst);
     }
   }
 
   instructions.clear();
 
   for (auto i : newinsts) {
-      addInstruction(i);
+    addInstruction(i);
   }
 }
 
@@ -190,15 +203,15 @@ std::list<InstPtr> GateFunction::getInstructions() { return instructions; }
 const std::string GateFunction::name() const { return functionName; }
 
 const std::vector<int> GateFunction::bits() {
-    // Functions should return the unique bits that they operate on
-    std::set<int> bits;
-    for (int i = 0; i < nInstructions(); i++) {
-        for (auto & b : getInstruction(i)->bits()) {
-            bits.insert(b);
-        }
+  // Functions should return the unique bits that they operate on
+  std::set<int> bits;
+  for (int i = 0; i < nInstructions(); i++) {
+    for (auto &b : getInstruction(i)->bits()) {
+      bits.insert(b);
     }
-    std::vector<int> output(bits.begin(), bits.end());
-    return output;
+  }
+  std::vector<int> output(bits.begin(), bits.end());
+  return output;
 }
 
 // lambda functions for determining if an InstructionParameter is a

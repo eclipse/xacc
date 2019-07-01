@@ -57,7 +57,7 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
         }
         writer->EndArray();
     }
-    
+
     // All functions have instructions, start
     // that array here.
     writer->String("instructions");
@@ -73,6 +73,27 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
 
     // End Instructions
     writer->EndArray();
+
+ writer->String("options");
+  writer->StartObject();
+  for (auto& kv : f->getOptions()) {
+      writer->Key(kv.first);
+      auto p = kv.second;
+      switch (p.which()) {
+    case 0:
+      writer->Int(p.as<int>());
+      break;
+    case 1:
+      writer->Double(p.as<double>());
+      break;
+    case 2:
+      writer->String(p.as<std::string>());
+      break;
+    default:
+      writer->String(p.toString());
+    }
+  }
+  writer->EndObject();
 
     // End Function
     writer->EndObject();
