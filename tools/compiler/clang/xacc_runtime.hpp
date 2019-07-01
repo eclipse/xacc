@@ -3,8 +3,6 @@
 #include "IRProvider.hpp"
 #include "Observable.hpp"
 
-#define OBSERVE "observe"
-
 #define __qpu__ __attribute__((annotate("__qpu__")))
 #define __observe__(OBS) __attribute__((annotate("observe_" #OBS)))
 

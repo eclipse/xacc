@@ -15,19 +15,6 @@ using namespace clang;
 namespace xacc {
 namespace compiler {
 class XACCPragmaHandler : public PragmaHandler {
-protected:
-//   Rewriter &rewriter;
-
-  struct XACCPragmaAttributeInfo {
-    //   enum ActionType { Push, Pop, Attribute };
-    //   ParsedAttributes &Attributes;
-    //   ActionType Action;
-    const IdentifierInfo *Namespace = nullptr;
-    ArrayRef<Token> Tokens;
-
-    //   PragmaAttributeInfo(ParsedAttributes &Attributes) :
-    //   Attributes(Attributes) {}
-  };
 
 public:
 
@@ -35,14 +22,34 @@ public:
   std::string functionName = "";
 
   XACCPragmaHandler() :PragmaHandler("xacc") {}
-//   XACCPragmaHandler(Rewriter &r) : PragmaHandler("xacc"), rewriter(r) {}
-
   void HandlePragma(Preprocessor &PP, PragmaIntroducer Introducer,
                     Token &FirstTok) override {
     // #pragma xacc observe hamiltonian
-
-    // std::cout << "XACC HANDLING PRAGMA:\n";
     Token Tok;
+
+    std::stringstream ss;
+    int found = 0;
+    std::string declaration;
+    while (!Tok.is(tok::eod)) {
+      PP.Lex(Tok);
+      if (PP.getSpelling(Tok) == "observe") {
+          PP.Lex(Tok);
+          observable = PP.getSpelling(Tok);
+      }
+    }
+
+    // This is the Function name we want!!!
+    PP.Lex(Tok);
+    functionName = PP.getSpelling(Tok);
+
+    PP.EnterToken(Tok, false);
+
+  }
+};
+} // namespace compiler
+} // namespace xacc
+#endif
+
 //   // first slurp the directive content in a string.
 //   std::ostringstream MyAnnotateDirective;
 //   while(Tok.isNot(tok::eod)) {
@@ -107,31 +114,3 @@ public:
     // int found = -1;
     // // auto sl = FirstTok.getLocation();
     // // sl.dump(PP.getSourceManager());
-
-    std::stringstream ss;
-    int found = 0;
-    std::string declaration;
-    // //   FirstTok.getAnnotationRange().dump(PP.getSourceManager());
-    while (!Tok.is(tok::eod)) {
-      PP.Lex(Tok);
-      if (PP.getSpelling(Tok) == "observe") {
-          PP.Lex(Tok);
-          observable = PP.getSpelling(Tok);
-      }
-    }
-
-    // This is the Function name we want!!!
-    PP.Lex(Tok);
-    functionName = PP.getSpelling(Tok);
-
-//   std::cout << "SS: "<< functionName<< "\n";
-  PP.EnterToken(Tok, false);
-
-  }
-};
-} // namespace compiler
-} // namespace xacc
-
-// static PragmaHandlerRegistry::Add<xacc::compiler::XACCPragmaHandler> YYYY("xacc","xacc pragma description");
-
-#endif

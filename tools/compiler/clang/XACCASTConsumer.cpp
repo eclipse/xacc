@@ -16,23 +16,28 @@ XACCASTConsumer::XACCASTConsumer(CompilerInstance &c, Rewriter &rw)
                  c.getASTContext())),
       rewriter(rw) {}
 
-bool XACCASTConsumer::HandleTopLevelDecl(DeclGroupRef DR) {
-
-  using namespace std::chrono;
-  auto start = std::chrono::high_resolution_clock::now();
-  KernelVisitor visitor(ci, rewriter);
-  for (DeclGroupRef::iterator b = DR.begin(), e = DR.end(); b != e; ++b) {
-    // if (std::string((*b)->getDeclKindName()) == "Function") {
-    //   std::cout << (*b)->getDeclKindName() << "\n";
-    //   (*b)->dumpColor();
-    visitor.TraverseDecl(*b);
-    // }
+  void XACCASTConsumer::HandleTranslationUnit(ASTContext& ctx) {
+        KernelVisitor visitor(ci, rewriter);
+     visitor.TraverseDecl(ctx.getTranslationUnitDecl());
   }
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<microseconds>(stop - start);
 
-  //   std::cout << "Visitor time: " << duration.count() << ", " << std::endl;
-  return true;
-}
+// bool XACCASTConsumer::HandleTopLevelDecl(DeclGroupRef DR) {
+
+//   using namespace std::chrono;
+//   auto start = std::chrono::high_resolution_clock::now();
+//   KernelVisitor visitor(ci, rewriter);
+//   for (DeclGroupRef::iterator b = DR.begin(), e = DR.end(); b != e; ++b) {
+//     // if (std::string((*b)->getDeclKindName()) == "Function") {
+//     //   std::cout << (*b)->getDeclKindName() << "\n";
+//     //   (*b)->dumpColor();
+//     visitor.TraverseDecl(*b);
+//     // }
+//   }
+//   auto stop = std::chrono::high_resolution_clock::now();
+//   auto duration = std::chrono::duration_cast<microseconds>(stop - start);
+
+//   //   std::cout << "Visitor time: " << duration.count() << ", " << std::endl;
+//   return true;
+// }
 } // namespace compiler
 } // namespace xacc

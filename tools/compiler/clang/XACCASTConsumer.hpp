@@ -17,7 +17,8 @@ class XACCASTConsumer : public ASTConsumer {
 public:
   XACCASTConsumer(CompilerInstance &c, Rewriter &rw);
 
-  bool HandleTopLevelDecl(DeclGroupRef DR) override;
+//   bool HandleTopLevelDecl(DeclGroupRef DR) override;
+  void HandleTranslationUnit(ASTContext& ctx) override;
 
 private:
   CompilerInstance &ci;

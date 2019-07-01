@@ -31,20 +31,10 @@ __qpu__ void Y0Y1(qbit &q, double t0) {
   Measure(1);
 }
 
-template <typename T> std::vector<T> linspace(T a, T b, size_t N) {
-  T h = (b - a) / static_cast<T>(N - 1);
-  std::vector<T> xs(N);
-  typename std::vector<T>::iterator x;
-  T val;
-  for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
-    *x = val;
-  return xs;
-}
-
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
 
-  std::vector<double> sweep = linspace(-3.14, 3.14, 40);
+  std::vector<double> sweep = xacc::linspace(-3.14, 3.14, 40);
   for (auto &t : sweep) {
 
     // Allocate a register of 2 qubits
