@@ -117,7 +117,9 @@ bool KernelVisitor::VisitFunctionDecl(FunctionDecl *F) {
                            ", std::shared_ptr<xacc::Observable> obs)");
 
     } else {
-      if (F->getAttrs().size() > 1) replacement += "function = function->operator()(params);\n";
+      if (F->getNumParams() > 1) {
+          replacement += "function = function->operator()(params);\n";
+      }
       replacement += "acc->execute(" + bufferName + ",function);\n";
     }
     replacement += "}\n";

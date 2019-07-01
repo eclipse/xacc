@@ -61,19 +61,16 @@ protected:
   public:
     XACCPragmaASTConsumer(std::map<std::string, SourceLocation> &m) : map(m) {}
 
-    bool HandleTopLevelDecl(DeclGroupRef DR) override {
-      PragmaVisitorHelper visitor(map); //(ci, rewriter);
-      for (DeclGroupRef::iterator b = DR.begin(), e = DR.end(); b != e; ++b) {
-        visitor.TraverseDecl(*b);
-      }
-      return true;
+
+    void HandleTranslationUnit(ASTContext& ctx) override {
+      PragmaVisitorHelper visitor(map);
+      visitor.TraverseDecl(ctx.getTranslationUnitDecl());
     }
 
   private:
     std::map<std::string, SourceLocation> &map;
-    //   CompilerInstance &ci;
-    //   Rewriter &rewriter;
   };
+  
   std::unique_ptr<clang::ASTConsumer>
   CreateASTConsumer(clang::CompilerInstance &Compiler,
                     llvm::StringRef /* dummy */) override {
