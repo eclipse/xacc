@@ -97,6 +97,7 @@ protected:
 
     CI.getDiagnosticClient().EndSourceFile();
 
+    if (!ph->functionName.empty()) {
     rewriter.ReplaceText(map[ph->functionName].getLocWithOffset(2), 1,
                          ") __observe__(\"" + ph->observable + "\")");
 
@@ -122,6 +123,7 @@ protected:
     }
 
     outFile.close();
+    }
   }
 };
 
@@ -217,6 +219,10 @@ int main(int argc, char **argv) {
   std::ifstream t2(outName);
   std::string src2((std::istreambuf_iterator<char>(t2)),
                    std::istreambuf_iterator<char>());
+  if (src2.empty()) {
+      src2 = src;
+  }
+
   auto action2 = new XACCFrontendAction(Rewrite2, fileName);
   if (!tooling::runToolOnCodeWithArgs(action2, src2, args)) {
     xacc::error("Error running xacc compiler.");

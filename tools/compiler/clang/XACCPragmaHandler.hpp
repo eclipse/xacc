@@ -28,6 +28,7 @@ protected:
     //   PragmaAttributeInfo(ParsedAttributes &Attributes) :
     //   Attributes(Attributes) {}
   };
+
 public:
 
   std::string observable = "";
