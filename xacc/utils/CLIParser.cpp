@@ -45,7 +45,9 @@ void CLIParser::parse(int argc,
       "compiler", "Indicate the compiler to be used", value<std::string>())(
       "a,accelerator", "Indicate the accelerator to be used.",
       value<std::string>())("logger-name", "The name of the spd logger",
-                            value<std::string>())(
+                            value<std::string>())
+      ("I,include","", value<std::vector<std::string>>())
+      (
       "list-compilers", "List all available XACC Compilers")(
       "list-accelerators", "List all available XACC Accelerators")(
       "no-color",
@@ -97,6 +99,10 @@ void CLIParser::parse(int argc,
     exit(0);
   }
 
+  if (clArgs.count("include")) {
+    paths = clArgs["include"].as<std::vector<std::string>>();
+  }
+
   if (xacc::serviceAPIInitialized) {
     auto kvargs = clArgs.arguments();
     std::map<std::string, std::string> givenopts;
@@ -123,6 +129,10 @@ void CLIParser::parse(int argc,
       runtimeOptions->insert(std::make_pair(kv.key(), kv.value()));
     }
   }
+}
+
+std::vector<std::string> CLIParser::getIncludePaths() {
+    return paths;
 }
 
 void CLIParser::addStringOption(const std::string key,

@@ -54,6 +54,8 @@ int getArgc();
  */
 char **getArgv();
 
+std::vector<std::string> getIncludePaths();
+
 /**
  * Initialize the framework with a vector of strings as arguments.
  *

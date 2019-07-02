@@ -39,7 +39,7 @@ class CLIParser {
 
 protected:
   std::shared_ptr<options_description> xaccOptions;
-
+  std::vector<std::string> paths;
 public:
   /**
    * The constructor
@@ -52,6 +52,7 @@ public:
                        const std::string description = "");
   void addStringOptions(const std::string &category,
                         const std::map<std::string, std::string> &options);
+  std::vector<std::string> getIncludePaths();
 };
 
 } // namespace xacc

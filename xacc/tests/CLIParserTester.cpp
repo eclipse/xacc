@@ -68,7 +68,9 @@ TEST(CLIParserTester, checkParse) {
     "--test2",
     "value2",
     "--logger-name",
-    "xacc"
+    "xacc",
+    "-I", "/path/to/include",
+    "-I", "/path/to/other"
   });
 
   char** actual_argv = argv.argv();
@@ -77,6 +79,7 @@ TEST(CLIParserTester, checkParse) {
   parser.addOptions({{"test","description"},{"test2","description"}});
   parser.parse(argc, actual_argv);//, nullptr);
 
+  std::cout << "HELLO\n";
   auto options = *RuntimeOptions::instance();
 
   EXPECT_EQ(options["compiler"],"quil");
@@ -86,6 +89,10 @@ TEST(CLIParserTester, checkParse) {
 
   EXPECT_EQ(options["logger-name"],"xacc");
 
+  auto paths = parser.getIncludePaths();
+  for (auto& p : paths) {
+      std::cout << "CLParserTester Path: " << p << "\n";
+  }
 }
 
 int main(int argc, char **argv) {
