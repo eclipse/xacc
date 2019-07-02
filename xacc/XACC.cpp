@@ -59,6 +59,10 @@ void ctrl_c_handler(int signal) {
   exit(1);
 }
 
+std::vector<std::string> getIncludePaths() {
+    return xaccCLParser->getIncludePaths();
+}
+
 void PyInitialize(const std::string rootPath) {
   std::vector<std::string> args{"--xacc-root-path", rootPath};
   Initialize(args);
@@ -67,7 +71,7 @@ void PyInitialize(const std::string rootPath) {
 void Initialize(int arc, char **arv) {
 
   if (!xaccFrameworkInitialized) {
-    std::shared_ptr<CLIParser> xaccCLParser = std::make_shared<CLIParser>();
+    xaccCLParser = std::make_shared<CLIParser>();
     argc = arc;
     argv = arv;
 
@@ -75,7 +79,6 @@ void Initialize(int arc, char **arv) {
 
     // Parse any user-supplied command line options
     xaccCLParser->parse(argc, argv);//, serviceRegistry.get());
-
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = ctrl_c_handler;
     sigemptyset(&sigIntHandler.sa_mask);

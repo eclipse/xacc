@@ -56,7 +56,7 @@ bool KernelVisitor::VisitFunctionDecl(FunctionDecl *F) {
     visitor.TraverseDecl(F);
 
     auto function = visitor.getFunction();
-    // std::cout << "XACCIR:\n" << function->toString() << "\n";
+    std::cout << "XACCIR:\n" << function->toString() << "\n";
 
     if (!xacc::optionExists("accelerator")) {
       if (xacc::hasAccelerator("tnqvm")) {

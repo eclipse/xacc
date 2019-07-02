@@ -70,7 +70,7 @@ protected:
   private:
     std::map<std::string, SourceLocation> &map;
   };
-  
+
   std::unique_ptr<clang::ASTConsumer>
   CreateASTConsumer(clang::CompilerInstance &Compiler,
                     llvm::StringRef /* dummy */) override {
@@ -181,6 +181,11 @@ int main(int argc, char **argv) {
 
   xacc::Initialize(argc, argv);
 
+  auto extraPaths = xacc::getIncludePaths();
+
+  for (auto& p : extraPaths) {
+      p = "-I"+p;
+  }
   // Get filename
   std::string fileName(argv[argc - 1]);
   if (!xacc::fileExists(fileName)) {
@@ -198,6 +203,9 @@ int main(int argc, char **argv) {
   std::vector<std::string> args{
       "-std=c++11", "-I@CMAKE_INSTALL_PREFIX@/include/xacc",
       "-I@CMAKE_INSTALL_PREFIX@/include/cppmicroservices4"};
+  args.insert(args.end(), extraPaths.begin(), extraPaths.end());
+
+//   for (auto& a : args) std::cout << "Arg: " << a << "\n";
 
   if (!tooling::runToolOnCodeWithArgs(action, src, args)) {
     xacc::error("Error running xacc compiler.");
@@ -221,6 +229,8 @@ int main(int argc, char **argv) {
   }
 
   auto action2 = new XACCFrontendAction(Rewrite2, fileName);
+
+
   if (!tooling::runToolOnCodeWithArgs(action2, src2, args)) {
     xacc::error("Error running xacc compiler.");
   }
