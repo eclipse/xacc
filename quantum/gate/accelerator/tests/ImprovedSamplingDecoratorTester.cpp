@@ -23,7 +23,7 @@ TEST(ImprovedSamplingDecoratorTester, checkSimple) {
   int shots = 8192;
   int nExecs = 4;
 
-  if (xacc::hasAccelerator("local-ibm")) {
+  if (xacc::hasAccelerator("local-ibm") && xacc::hasCompiler("xacc-py")) {
     auto acc = xacc::getAccelerator("local-ibm");
     auto buffer = acc->createBuffer("buffer", 2);
 
@@ -58,7 +58,7 @@ TEST(ImprovedSamplingDecoratorTester, checkMultiple) {
   int shots = 8192;
   int nExecs = 2;
 
-  if (xacc::hasAccelerator("local-ibm")) {
+  if (xacc::hasAccelerator("local-ibm") && xacc::hasCompiler("xacc-py")) {
     auto acc = xacc::getAccelerator("local-ibm");
     auto buffer = acc->createBuffer("buffer", 2);
 
