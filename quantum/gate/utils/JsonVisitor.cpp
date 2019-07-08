@@ -81,13 +81,13 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
       auto p = kv.second;
       switch (p.which()) {
     case 0:
-      writer->Int(p.as<int>());
+      writer->Int(p.template as<int>());
       break;
     case 1:
-      writer->Double(p.as<double>());
+      writer->Double(p.template as<double>());
       break;
     case 2:
-      writer->String(p.as<std::string>());
+      writer->String(p.template as<std::string>());
       break;
     default:
       writer->String(p.toString());
