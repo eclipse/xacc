@@ -60,7 +60,7 @@ def parse_args(args):
     parser.add_argument("--benchmark-requires", type=str, help="List the required services of specified BenchmarkAlgorithm.", required=False)
     parser.add_argument("--benchmark-service", type=str, help="List the plugin names and files of specified service.", required=False)
     parser.add_argument("--benchmark-install", type=str, help="Pull and install the benchmark specified plugin package.", required=False)
-    parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
+    # parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
 
     if hasPluginGenerator:
        subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
@@ -493,19 +493,19 @@ def main(argv=None):
         print(sysconfig.get_paths()['platinclude'])
         sys.exit(0)
 
-    if opts.framework_help:
-        Initialize(['--help'])
-        return
+    # if opts.framework_help:
+    #     Initialize(['--help'])
+    #     return
 
-    if opts.list_backends is not None:
-        acc = opts.list_backends
-        if acc == 'ibm':
-            info('Retrieving remote IBM backend information')
-            Initialize(['--'+acc+'-list-backends'])
-        elif acc == 'dwave':
-            info('Retrieving remote D-Wave solver information')
-            Initialize(['--'+acc+'-list-solvers'])
-        return
+    # if opts.list_backends is not None:
+    #     acc = opts.list_backends
+    #     if acc == 'ibm':
+    #         info('Retrieving remote IBM backend information')
+    #         Initialize(['--'+acc+'-list-backends'])
+    #     elif acc == 'dwave':
+    #         info('Retrieving remote D-Wave solver information')
+    #         Initialize(['--'+acc+'-list-solvers'])
+    #     return
 
     if not opts.set_credentials == None:
         setCredentials(opts)
