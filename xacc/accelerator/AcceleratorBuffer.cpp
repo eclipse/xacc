@@ -442,13 +442,6 @@ void AcceleratorBuffer::print(std::ostream &stream) {
       writer.Int(kv.second);
     }
     writer.EndObject();
-    writer.Key("Bitmap");
-    writer.StartObject();
-    for (auto &kv : bit2IndexMap) {
-      writer.Key(std::to_string(kv.first));
-      writer.Int(kv.second);
-    }
-    writer.EndObject();
   }
 
   if (!children.empty()) {
@@ -475,13 +468,6 @@ void AcceleratorBuffer::print(std::ostream &stream) {
         writer.Int(kv.second);
       }
       // end measurement object
-      writer.EndObject();
-      writer.Key("Bitmap");
-      writer.StartObject();
-      for (auto &kv : pair.second->getBitMap()) {
-        writer.Key(std::to_string(kv.first));
-        writer.Int(kv.second);
-      }
       writer.EndObject();
       // End child object
       writer.EndObject();
@@ -510,7 +496,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
   std::string json(std::istreambuf_iterator<char>(stream), {});
   Document doc;
   doc.Parse(json);
-
+  std::cout << "HELLO\n" << json << "\n";
   resetBuffer();
 
   if (!cacheFile) {
@@ -602,15 +588,16 @@ void AcceleratorBuffer::load(std::istream &stream) {
     }
   }
 
-  if (!cacheFile) {
-    auto &bitMap = doc["AcceleratorBuffer"]["Bitmap"];
-    std::map<int, int> tmpMap;
-    for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr) {
-      tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
-    }
-    setBitIndexMap(tmpMap);
-  }
+  //if (!cacheFile) {
+    //auto &bitMap = doc["AcceleratorBuffer"]["Bitmap"];
+    //std::map<int, int> tmpMap;
+    //for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr) {
+    //  tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
+    //}
+    //setBitIndexMap(tmpMap);
+ // }
 
+  if (!cacheFile && doc["AcceleratorBuffer"].HasMember("Children")) {
   auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
   for (auto &c : children) {
     auto childBuffer =
@@ -664,14 +651,9 @@ void AcceleratorBuffer::load(std::istream &stream) {
       childBuffer->appendMeasurement(itr->name.GetString(),
                                      itr->value.GetInt());
     }
-    auto &bitMap = c["Bitmap"];
-    std::map<int, int> tmpMap;
-    for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr) {
-      tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
-    }
-    childBuffer->setBitIndexMap(tmpMap);
 
     appendChild(c["name"].GetString(), childBuffer);
+  }
   }
 }
 

@@ -68,7 +68,6 @@ TEST(AcceleratorBufferTester, checkLoad) {
             "vqe-nQPU-calls": 0
         },
         "Measurements": {},
-        "Bitmap": {},
         "Children": [
             {
                 "name": "Z1",
@@ -81,10 +80,6 @@ TEST(AcceleratorBufferTester, checkLoad) {
                 "Measurements": {
                     "00": 323,
                     "01": 701
-                },
-                "Bitmap": {
-                    "0": 0,
-                    "1": 1
                 }
             },
             {
@@ -98,10 +93,6 @@ TEST(AcceleratorBufferTester, checkLoad) {
                 "Measurements": {
                     "00": 323,
                     "01": 701
-                },
-                "Bitmap": {
-                    "0": 0,
-                    "1": 1
                 }
             }
         ]
@@ -113,15 +104,9 @@ TEST(AcceleratorBufferTester, checkLoad) {
   buffer.load(s);
   EXPECT_EQ("q", buffer.name());
   EXPECT_EQ(2, buffer.size());
-  auto mmap = buffer.getBitMap();
   std::stringstream ss;
   buffer.print(ss);
 //   std::cout << "HELLO: " << ss.str() << "\n";
-  std::stringstream st;
-  for (auto &kv : mmap){
-      st << std::to_string(kv.first) << ", " << std::to_string(kv.second);
-  }
-  std::cout << st.str() << std::endl;
   EXPECT_EQ(ss.str(), bufferStr);
 }
 TEST(AcceleratorBufferTester, checkLoadDwave) {
@@ -170,12 +155,6 @@ TEST(AcceleratorBufferTester, checkLoadDwave) {
         },
         "Measurements": {
             "010001": 100
-        },
-        "Bitmap": {
-            "0": 0,
-            "1": 1,
-            "5": 5,
-            "6": 3
         }
     }
 })dwaveBuffer";

@@ -29,11 +29,12 @@ void ServiceRegistry::initialize(const std::string rootPath) {
           //   printf("[service-registry] Installing Core Library: %s\n",
           //   ent->d_name);
           context.InstallBundles(libDir + "/" + std::string(ent->d_name));
-        } else if (std::string(ent->d_name).find("libxacc-pauli")!=std::string::npos) {
+        }
+        /*else if (std::string(ent->d_name).find("libxacc-pauli")!=std::string::npos) {
           context.InstallBundles(libDir + "/" + std::string(ent->d_name));
         } else if (std::string(ent->d_name).find("libxacc-fermion")!=std::string::npos) {
           context.InstallBundles(libDir + "/" + std::string(ent->d_name));
-        }
+        } */
       }
       closedir(dir);
     }
