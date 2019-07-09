@@ -1,7 +1,6 @@
 stages:
   - build
   - push
-  - wheel
 
 docker build:
   stage: build
@@ -18,11 +17,3 @@ docker push:
   - docker push xacc/base-plugin-ci
   - docker system prune
   - docker rmi -f xacc/base-plugin-ci
-
-docker wheel:
-  stage: wheel
-  only:
-  - master
-  script:
-  - git diff --name-only HEAD~1 HEAD | grep VERSION && echo "Version Incremented" || echo "Version not incremented" && exit 0
-  - echo "Wheel building coming soon."

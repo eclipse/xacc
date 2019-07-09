@@ -54,12 +54,8 @@ def parse_args(args):
                         help="The IBM Q Project.", required=False)
     parser.add_argument("-L", "--location", action='store_true',
                         help="Print the path to the XACC install location.", required=False)
-    parser.add_argument("-f", "--framework-help", action='store_true',
-                        help="Print the help information for XACC and its available plugins.", required=False)
     parser.add_argument("--python-include-dir", action='store_true',
                         help="Print the path to the Python.h.", required=False)
-    parser.add_argument("-b", "--branch", default='master', type=str,
-                        help="Print the path to the XACC install location.", required=False)
     parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
     parser.add_argument("--benchmark-requires", type=str, help="List the required services of specified BenchmarkAlgorithm.", required=False)
     parser.add_argument("--benchmark-service", type=str, help="List the plugin names and files of specified service.", required=False)
