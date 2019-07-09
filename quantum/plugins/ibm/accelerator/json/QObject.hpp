@@ -581,11 +581,11 @@ inline void from_json(const json &j, xacc::ibm::QObjectConfig &x) {
   x.set_memory_slots(j.at("memory_slots").get<int64_t>());
   x.set_memory(j.at("memory").get<bool>());
   x.set_parameter_binds(j.at("parameter_binds").get<std::vector<json>>());
-  x.set_meas_lo_freq(j.at("meas_lo_freq").get<std::vector<json>>());
+  if (j.find("meas_lo_freq") != j.end()) {x.set_meas_lo_freq(j.at("meas_lo_freq").get<std::vector<json>>());}
   x.set_schedule_los(j.at("schedule_los").get<std::vector<json>>());
-  x.set_qubit_lo_freq(j.at("qubit_lo_freq").get<std::vector<json>>());
-  x.set_qubit_lo_range(j.at("qubit_lo_range").get<std::vector<json>>());
-  x.set_meas_lo_range(j.at("meas_lo_range").get<std::vector<json>>());
+  if (j.find("qubit_lo_freq") != j.end()) {x.set_qubit_lo_freq(j.at("qubit_lo_freq").get<std::vector<json>>());}
+  if (j.find("qubit_lo_range") != j.end()) {x.set_qubit_lo_range(j.at("qubit_lo_range").get<std::vector<json>>());}
+  if (j.find("meas_lo_range") != j.end()) {x.set_meas_lo_range(j.at("meas_lo_range").get<std::vector<json>>());}
   x.set_meas_return(j.at("meas_return").get<std::string>());
   x.set_meas_level(j.at("meas_level").get<int64_t>());
   x.set_memory_slot_size(j.at("memory_slot_size").get<int64_t>());
