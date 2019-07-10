@@ -15,6 +15,7 @@
 
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
+// #include "AcceleratorBuffer.hpp"
 
 namespace xacc {
 
@@ -236,6 +237,10 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name);
  * @return compiler The Compiler
  */
 std::shared_ptr<Compiler> getCompiler();
+
+
+using qbit = std::shared_ptr<xacc::AcceleratorBuffer>;
+qbit qalloc(const int n);
 
 /**
  * Return true if the framework has a Compiler

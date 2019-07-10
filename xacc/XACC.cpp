@@ -125,6 +125,11 @@ void error(const std::string &msg, MessagePredicate predicate) {
   }
 }
 
+
+qbit qalloc(const int n) {
+  return std::make_shared<xacc::AcceleratorBuffer>(n);
+}
+
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {
   xaccCLParser->addStringOption(optionName, optionDescription);
