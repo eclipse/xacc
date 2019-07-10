@@ -496,7 +496,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
   std::string json(std::istreambuf_iterator<char>(stream), {});
   Document doc;
   doc.Parse(json);
-  std::cout << "HELLO\n" << json << "\n";
+
   resetBuffer();
 
   if (!cacheFile) {
