@@ -39,7 +39,6 @@ using namespace xacc;
 using namespace xacc::quantum;
 
 TEST(OQasmCompilerTester, checkCompileOQASM) {
-    xacc::Initialize();
 
     const std::string src("__qpu__ nonsense(AcceleratorBuffer qregister, double n) {\n"
         "   // nonsense\n"
@@ -100,10 +99,12 @@ TEST(OQasmCompilerTester, checkCompileOQASM) {
     EXPECT_TRUE(rxVisitor->countGates() == 1);
     EXPECT_TRUE(measureVisitor->countGates() == 3);
 
-    xacc::Finalize();
+    // xacc::Finalize();
 }
 
 int main(int argc, char** argv) {
+        xacc::Initialize();
+
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

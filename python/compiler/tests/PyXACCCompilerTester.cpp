@@ -29,12 +29,10 @@
  *
  **********************************************************************************/
 #include <gtest/gtest.h>
-#include "PyXACCCompiler.hpp"
 #include "XACC.hpp"
 #include "IRGenerator.hpp"
 #include "xacc_service.hpp"
 
-using namespace xacc::quantum;
 using namespace xacc;
 
 class FakePyAcc : public xacc::Accelerator {

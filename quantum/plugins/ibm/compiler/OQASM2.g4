@@ -143,7 +143,7 @@ action : qop;
 explist : exp(',' exp) *;
 
 /* An expression */
-exp : real | INT | 'pi' | id | exp '+' exp | exp '-' exp | exp '*' exp |
+exp : SCIENTIFIC_NOTATION | real | INT | 'pi' | id | exp '+' exp | exp '-' exp | exp '*' exp |
       exp '/' exp | '-' exp | exp '^' exp | '(' exp ')' | unaryop '(' exp ')';
 
 /* unary operations */
@@ -172,6 +172,10 @@ id : ID;
 
 /* real numbers */
 real : REAL;
+
+SCIENTIFIC_NUMBER
+   : NUMBER (E SIGN? UNSIGNED_INTEGER)?
+   ;
 
 /* strings are enclosed in quotes */
 string : STRING;

@@ -29,9 +29,11 @@
  *
  **********************************************************************************/
 #include "AcceleratorBuffer.hpp"
-#include "DWQMICompiler.hpp"
 #include "DefaultParameterSetter.hpp"
 #include "XACC.hpp"
+#include "xacc_service.hpp"
+#include "EmbeddingAlgorithm.hpp"
+
 #include <gtest/gtest.h>
 
 using namespace xacc;
