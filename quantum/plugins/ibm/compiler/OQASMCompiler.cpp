@@ -61,7 +61,8 @@ std::shared_ptr<IR> OQASMCompiler::compile(const std::string &src) {
   CommonTokenStream tokens(&lexer);
   OQASM2Parser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new OQASMErrorListener());
+  auto e = new OQASMErrorListener;
+  parser.addErrorListener(e);
 
   auto ir = xacc::getService<IRProvider>("gate")->createIR();
 
@@ -69,6 +70,7 @@ std::shared_ptr<IR> OQASMCompiler::compile(const std::string &src) {
   OQASMToXACCListener listener(ir);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
+  delete e;
   return ir;
 }
 

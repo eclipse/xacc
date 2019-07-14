@@ -46,29 +46,30 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string &src,
                                            std::shared_ptr<Accelerator> acc) {
 
   auto hardwareconnections = acc->getAcceleratorConnectivity();
-        std::set<int> nUniqueBits;
-        for (auto& edge : hardwareconnections) {
-            nUniqueBits.insert(edge.first);
-            nUniqueBits.insert(edge.second);
-        }
+  std::set<int> nUniqueBits;
+  for (auto &edge : hardwareconnections) {
+    nUniqueBits.insert(edge.first);
+    nUniqueBits.insert(edge.second);
+  }
 
-        int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
+  int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
 
-   auto hardwareGraph = xacc::getService<Graph>("boost-ugraph");
-        for (int i = 0; i < nBits; i++) {
-            std::map<std::string,InstructionParameter> m{{"bias",1.0}};
-            hardwareGraph->addVertex(m);
-        }
-        for (auto& edge : hardwareconnections) {
-            hardwareGraph->addEdge(edge.first, edge.second);
-        }
+  auto hardwareGraph = xacc::getService<Graph>("boost-ugraph");
+  for (int i = 0; i < nBits; i++) {
+    std::map<std::string, InstructionParameter> m{{"bias", 1.0}};
+    hardwareGraph->addVertex(m);
+  }
+  for (auto &edge : hardwareconnections) {
+    hardwareGraph->addEdge(edge.first, edge.second);
+  }
 
+  auto e = new DWQMIErrorListener();
   ANTLRInputStream input(src);
   DWQMILexer lexer(&input);
   CommonTokenStream tokens(&lexer);
   DWQMIParser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new DWQMIErrorListener());
+  parser.addErrorListener(e);
 
   auto ir(std::make_shared<DWIR>());
 
@@ -76,16 +77,12 @@ std::shared_ptr<IR> DWQMICompiler::compile(const std::string &src,
   // of qubits for the D-Wave -- all of them.
   auto bufName = acc->getAllocatedBufferNames()[0];
   auto buffer = acc->getBuffer(bufName);
-//   std::shared_ptr<AQCAcceleratorBuffer> aqcBuffer =
-//       std::dynamic_pointer_cast<AQCAcceleratorBuffer>(buffer);
-//   if (!aqcBuffer) {
-//     xacc::error("Invalid AcceleratorBuffer passed to DW QMI Compiler. Must be "
-//                 "an AQCAcceleratorBuffer.");
-//   }
 
   tree::ParseTree *tree = parser.xaccsrc();
   DWQMIListener listener(ir, hardwareGraph, buffer);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
+
+  delete e;
 
   return ir;
 }
@@ -117,8 +114,7 @@ const std::string DWQMICompiler::translate(const std::string &bufferVariable,
     auto bits = inst->bits();
     auto param = inst->getParameter(0);
     std::stringstream s;
-    s << "   " << bits[0] << " " << bits[1] << " "
-      << param.toString() << ";\n";
+    s << "   " << bits[0] << " " << bits[1] << " " << param.toString() << ";\n";
     src += s.str();
   }
   src += "}";

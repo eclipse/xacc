@@ -101,19 +101,19 @@ public:
    *
    * @return options Description of command line options.
    */
-   OptionPairs getOptions() override {
-    OptionPairs desc{{"dwave-embedding",
-                        "Provide the name of the Embedding Algorithm to use "
-                        "during compilation."},{
-        "dwave-parameter-setter",
-        "Provide the name of the "
-        "ParameterSetter to map logical parameters to physical parameters."},{
-        "dwave-load-embedding",
-        "Use the embedding in the given file."},{
-        "dwave-persist-embedding",
-        "Persist the computed embedding to the given file name."},{
-        "dwave-list-embedding-algorithms",
-        "List all available embedding algorithms."}};
+  OptionPairs getOptions() override {
+    OptionPairs desc{
+        {"dwave-embedding",
+         "Provide the name of the Embedding Algorithm to use "
+         "during compilation."},
+        {"dwave-parameter-setter",
+         "Provide the name of the "
+         "ParameterSetter to map logical parameters to physical parameters."},
+        {"dwave-load-embedding", "Use the embedding in the given file."},
+        {"dwave-persist-embedding",
+         "Persist the computed embedding to the given file name."},
+        {"dwave-list-embedding-algorithms",
+         "List all available embedding algorithms."}};
     return desc;
   }
 

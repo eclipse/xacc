@@ -60,7 +60,8 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string &src) {
   CommonTokenStream tokens(&lexer);
   QuilParser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new QuilErrorListener());
+  auto e = new QuilErrorListener();
+  parser.addErrorListener(e);
 
   auto ir = xacc::getService<IRProvider>("gate")->createIR();
 
@@ -68,6 +69,7 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string &src) {
   QuilToXACCListener listener(ir);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
+  delete e;
   return ir;
 }
 
