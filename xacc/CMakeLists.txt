@@ -21,7 +21,9 @@ file(GLOB HEADERS
           accelerator/*.hpp
           accelerator/remote/*.hpp
           utils/*.hpp
-          service/*.hpp)
+          service/*.hpp
+          algorithm/*.hpp
+          optimizer/*.hpp)
 
 add_library(xacc
             SHARED
@@ -49,6 +51,8 @@ target_include_directories(xacc
                                   accelerator/remote
                                   utils
                                   service
+                                  algorithm
+                                  optimizer
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
 
 if(APPLE)
@@ -71,3 +75,5 @@ endif()
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
+
+add_subdirectory(optimizer/nlopt-optimizers)
