@@ -257,7 +257,8 @@ auto splitParameter = [](InstructionParameter instParam) {
   auto instParamStr = instParam.as<std::string>();
   split = xacc::split(instParamStr, ' ');
   for (auto s : split) {
-    if (!isNumber(s) && !s.empty()) {
+    xacc::trim(s);
+    if (!isNumber(s) && !s.empty() && s.find("pi") == std::string::npos) {
       rawParam = s;
     }
   }

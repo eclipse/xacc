@@ -22,7 +22,19 @@ const std::string expectedQasm = "H qreg1\n"
                                  "CNOT qreg1,qreg2\n"
                                  "CNOT qreg0,qreg1\n"
                                  "H qreg0\n";
+TEST(GateFunctionTester, checkComplexAngleExpression) {
+  GateFunction f("foo");
+  auto rx = std::make_shared<Rx>(std::vector<int>{0});
+  xacc::InstructionParameter p("-theta - pi/2");
+  rx->setParameter(0, p);
+  f.addInstruction(rx);
+  std::cout << f.toString() << "\n";
 
+  auto evaled = f({1.57});
+
+  std::cout << evaled->toString() << "\n";
+
+}
 TEST(GateFunctionTester, checkFunctionMethods) {
 
   GateFunction f("foo");
