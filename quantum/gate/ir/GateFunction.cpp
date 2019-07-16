@@ -332,19 +332,38 @@ void GateFunction::addInstruction(InstPtr instruction) {
     xacc::InstructionParameter param = instruction->getParameter(0);
     // Check to see if parameter is a string
     if (param.isVariable()) {
-      // check to see if the new parameter is a duplicate parameter
-      bool dupParam = false;
-      // strip the parameter of mathematical operators and numbers/doubles
-      InstructionParameter strippedParam = splitParameter(param);
-      // check if the instruction parameter is a duplicate
-      for (auto p : parameters) {
-        if (p.as<std::string>() == strippedParam.as<std::string>()) {
-          dupParam = true;
+      // This could be an expression of constants, so
+      // lets evaluate and see
+      symbol_table_t symbol_table;
+      symbol_table.add_constants();
+      expression_t expr;
+      expr.register_symbol_table(symbol_table);
+      parser_t parser;
+      if (parser.compile(param.toString(), expr)) {
+        // std::cout << "Expr Compiled: " << expr.value() << "\n";
+        auto value = expr.value();
+        InstructionParameter pp(value);
+        instruction->setParameter(0, pp);
+      } else {
+        // std::cout << "ADDING VAR: " << param.which() << ", " << param.toString()
+                //   << "\n";
+        // check to see if the new parameter is a duplicate parameter
+        bool dupParam = false;
+        // strip the parameter of mathematical operators and numbers/doubles
+        InstructionParameter strippedParam = splitParameter(param);
+        // check if the instruction parameter is a duplicate
+        for (auto p : parameters) {
+        //   std::cout << "LOOPING PARAMS: ";
+        //   std::cout << p.toString() << "\n";
+        //   std::cout << strippedParam.toString() << "\n";
+          if (p.as<std::string>() == strippedParam.as<std::string>()) {
+            dupParam = true;
+          }
         }
-      }
-      // if new parameter is not a duplicate, add the stripped version
-      if (!dupParam) {
-        parameters.push_back(strippedParam);
+        // if new parameter is not a duplicate, add the stripped version
+        if (!dupParam) {
+          parameters.push_back(strippedParam);
+        }
       }
     }
   }
