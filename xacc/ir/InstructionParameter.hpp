@@ -62,12 +62,13 @@ public:
       return mpark::get<T>(*this);
     } catch (std::exception &e) {
         std::stringstream s;
-        s << toString() << "\n";
+        s << "InstructionParameter.toString() = " << toString() << "\n";
         s << "This InstructionParameter type id is " << this->which() << "\nAllowed Ids to Type\n";
         for (auto& kv : whichType) {
             s << kv.first << ": " << kv.second << "\n";
         }
         XACCLogger::instance()->error("Cannot cast Variant:\n" + s.str());
+        print_backtrace();
         exit(0);
     }
     return T();
