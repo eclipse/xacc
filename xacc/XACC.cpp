@@ -115,6 +115,7 @@ void debug(const std::string &msg, MessagePredicate predicate) {
 }
 
 void error(const std::string &msg, MessagePredicate predicate) {
+  print_backtrace();
   if (isPyApi) {
     throw std::runtime_error(msg);
   } else {

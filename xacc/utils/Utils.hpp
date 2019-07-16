@@ -31,6 +31,7 @@ void trim(std::string &s);
 
 bool fileExists(const std::string &name);
 bool directoryExists(const std::string path);
+void print_backtrace();
 
 template <class Op> void split(const std::string &s, char delim, Op op) {
   std::stringstream ss(s);
