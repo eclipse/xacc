@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins.eclipse.org/xacc/buildStatus/icon?job=xacc-ci)](https://jenkins.eclipse.org/xacc/job/xacc-ci/)
+[![Build Status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)
 
 ![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
 
