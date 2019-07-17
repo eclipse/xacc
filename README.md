@@ -1,4 +1,7 @@
-[![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master)
+| Branch | Status |
+|:-------|:-------|
+|master | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) |
+|xacc-devel | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
 
 ![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
 
