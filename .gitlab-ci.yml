@@ -4,7 +4,7 @@ stages:
 docker build_devel:
   stage: build
   only:
-  - devel
+  - xacc-devel
   script:
   - cd docker/ci/ubuntu1804/devel && docker build -t xacc/devel-ci . --no-cache
 
