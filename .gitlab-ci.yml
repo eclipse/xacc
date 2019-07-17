@@ -2,7 +2,7 @@ stages:
   - build
 
 docker build_devel:
-  stage: build_devel
+  stage: build
   only:
   - devel
   script:
