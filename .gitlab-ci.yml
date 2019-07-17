@@ -1,19 +1,17 @@
 stages:
   - build
-  - push
 
-docker build:
+docker build_devel:
   stage: build
+  only:
+  - devel
   script:
-  - docker info
-  - cd docker/base/plugin-ci && docker build -t xacc/base-plugin-ci . --no-cache
+  - cd docker/ci/ubuntu1804/devel && docker build -t xacc/devel-ci . --no-cache
 
-docker push:
-  stage: push
+docker build_master:
+  stage: build
   only:
   - master
   script:
-  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
-  - docker push xacc/base-plugin-ci
-  - docker system prune
-  - docker rmi -f xacc/base-plugin-ci
+  - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
+
