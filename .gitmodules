@@ -13,3 +13,6 @@
 [submodule "quantum/plugins/dwave/embedding/minorminer"]
 	path = quantum/plugins/dwave/embedding/minorminer
 	url = https://github.com/dwavesystems/minorminer
+[submodule "xacc/optimizer/nlopt-optimizers/nlopt"]
+	path = xacc/optimizer/nlopt-optimizers/nlopt
+	url = https://github.com/stevengj/nlopt

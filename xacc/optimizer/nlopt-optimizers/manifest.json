@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_optimizer_nlopt",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Runtime NLOpt",
+  "bundle.description" : ""
+}

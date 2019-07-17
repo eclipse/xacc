@@ -1,29 +1,28 @@
-set(LIBRARY_NAME xacc-lang-compiler)
-set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
-if (APPLE)
-set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
-endif()
-file(GLOB SRC
-          *.cpp generated/*.cpp)
+
+SET(NLOPT_PYTHON OFF CACHE BOOL "")
+SET(NLOPT_OCTAVE OFF CACHE BOOL "")
+SET(NLOPT_MATLAB OFF CACHE BOOL "")
+SET(NLOPT_GUILE OFF CACHE BOOL "")
+SET(NLOPT_SWIG OFF CACHE BOOL "")
+
+add_subdirectory(nlopt)
+
+set(LIBRARY_NAME xacc-optimizer-nlopt)
+
+file(GLOB SRC *.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(${LIBRARY_NAME}
-                           PUBLIC .
-                                  generated
-                                  ${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
-                                  ${CMAKE_BINARY_DIR}
-                                  )
-target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc
-                             ${ANTLR_LIB}
-                             CppMicroServices)
+target_include_directories(
+  ${LIBRARY_NAME}
+  PUBLIC . .. ${CMAKE_BUILD_DIR}/xacc/optimizer/nlopt-optimizers/nlopt/src/api)
 
-set(_bundle_name xacc_lang_compiler)
+target_link_libraries(${LIBRARY_NAME} PUBLIC nlopt xacc CppMicroServices)
+
+set(_bundle_name xacc_optimizer_nlopt)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS
                                  US_BUNDLE_NAME=${_bundle_name}
@@ -36,6 +35,7 @@ usfunctionembedresources(TARGET
                          ${CMAKE_CURRENT_SOURCE_DIR}
                          FILES
                          manifest.json)
+
 
 if(APPLE)
   set_target_properties(${LIBRARY_NAME}
