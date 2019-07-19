@@ -29,15 +29,12 @@ public:
 
   void exitXacckernel(XACCLangParser::XacckernelContext *ctx) override;
 
-  void exitU(XACCLangParser::UContext *ctx) override;
-
-  void exitCX(XACCLangParser::CXContext *ctx) override;
-
-  void exitUserDefGate(XACCLangParser::UserDefGateContext *ctx) override;
-
-  void exitMeasure(XACCLangParser::MeasureContext *ctx) override;
-
   void exitKernelcall(XACCLangParser::KernelcallContext *ctx) override;
+
+  virtual void enterUop(XACCLangParser::UopContext * /*ctx*/) override;
+
+  virtual void
+  enterAllbitsOp(XACCLangParser::AllbitsOpContext * /*ctx*/) override;
 };
 
 
