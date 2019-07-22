@@ -15,7 +15,6 @@ using namespace xacclang;
 
 namespace xacc {
 
-
 class XACCLangListener : public XACCLangBaseListener {
 protected:
   std::shared_ptr<IR> ir;
@@ -30,9 +29,7 @@ public:
 
   void enterXacckernel(XACCLangParser::XacckernelContext *ctx) override;
 
-  void exitXacckernel(XACCLangParser::XacckernelContext *ctx) override;
-
-  virtual void enterUop(XACCLangParser::UopContext * /*ctx*/) override;
+  void enterUop(XACCLangParser::UopContext * /*ctx*/) override;
 
 };
 

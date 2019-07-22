@@ -57,9 +57,6 @@ public:
   virtual void enterUop(XACCLangParser::UopContext * /*ctx*/) override { }
   virtual void exitUop(XACCLangParser::UopContext * /*ctx*/) override { }
 
-  virtual void enterAllbitsOp(XACCLangParser::AllbitsOpContext * /*ctx*/) override { }
-  virtual void exitAllbitsOp(XACCLangParser::AllbitsOpContext * /*ctx*/) override { }
-
   virtual void enterGate(XACCLangParser::GateContext * /*ctx*/) override { }
   virtual void exitGate(XACCLangParser::GateContext * /*ctx*/) override { }
 

@@ -55,9 +55,6 @@ public:
   virtual void enterUop(XACCLangParser::UopContext *ctx) = 0;
   virtual void exitUop(XACCLangParser::UopContext *ctx) = 0;
 
-  virtual void enterAllbitsOp(XACCLangParser::AllbitsOpContext *ctx) = 0;
-  virtual void exitAllbitsOp(XACCLangParser::AllbitsOpContext *ctx) = 0;
-
   virtual void enterGate(XACCLangParser::GateContext *ctx) = 0;
   virtual void exitGate(XACCLangParser::GateContext *ctx) = 0;
 

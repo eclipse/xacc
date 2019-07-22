@@ -4,7 +4,7 @@ if (APPLE)
 set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
 endif()
 file(GLOB SRC
-          *.cpp)
+          *.cpp generated/*.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)

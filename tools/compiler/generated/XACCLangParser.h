@@ -25,9 +25,8 @@ public:
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleTypedparam = 2, RuleType = 3, 
     RuleKernelcall = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, 
     RuleStatement = 8, RuleComment = 9, RuleParamlist = 10, RuleParam = 11, 
-    RuleUop = 12, RuleAllbitsOp = 13, RuleGate = 14, RuleExplist = 15, RuleExp = 16, 
-    RuleKey = 17, RuleCoupler = 18, RuleUnaryop = 19, RuleId = 20, RuleReal = 21, 
-    RuleString = 22
+    RuleUop = 12, RuleGate = 13, RuleExplist = 14, RuleExp = 15, RuleKey = 16, 
+    RuleCoupler = 17, RuleUnaryop = 18, RuleId = 19, RuleReal = 20, RuleString = 21
   };
 
   XACCLangParser(antlr4::TokenStream *input);
@@ -53,7 +52,6 @@ public:
   class ParamlistContext;
   class ParamContext;
   class UopContext;
-  class AllbitsOpContext;
   class GateContext;
   class ExplistContext;
   class ExpContext;
@@ -241,7 +239,6 @@ public:
     virtual size_t getRuleIndex() const override;
     GateContext *gate();
     ExplistContext *explist();
-    AllbitsOpContext *allbitsOp();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -249,22 +246,6 @@ public:
   };
 
   UopContext* uop();
-
-  class  AllbitsOpContext : public antlr4::ParserRuleContext {
-  public:
-    XACCLangParser::GateContext *gatename = nullptr;;
-    AllbitsOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    GateContext *gate();
-    std::vector<antlr4::tree::TerminalNode *> INT();
-    antlr4::tree::TerminalNode* INT(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  AllbitsOpContext* allbitsOp();
 
   class  GateContext : public antlr4::ParserRuleContext {
   public:

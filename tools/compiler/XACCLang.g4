@@ -7,8 +7,8 @@ xaccsrc
    : xacckernel*
    ;
 
-    xacckernel : '__qpu__' kernelname =
-                    id '(' 'AcceleratorBuffer' acceleratorbuffer =
+    xacckernel : '__qpu__' 'void' kernelname =
+                    id '(' 'qbit' acceleratorbuffer =
                         id(',' typedparam) * ')' '{' mainprog '}';
 
     typedparam : type param;
@@ -58,15 +58,8 @@ param
    ;
 
 /* A unitary operation */
-uop ';'
-   : gatename=gate  '(' ( explist )? ')'
-   | allbitsOp
-   ;
-
-
-allbitsOp
-   : gatename=gate '(' '...' ')'
-   | gatename=gate '(' INT ',...,' INT ')'
+uop
+   : gatename=gate  '(' ( explist )? ')' 
    ;
 
 gate

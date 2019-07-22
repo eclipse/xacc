@@ -35,7 +35,7 @@ public:
   virtual const std::string translate(const std::string &bufferVariable,
                                       std::shared_ptr<Function> function);
 
-  virtual const std::string name() const { return "openqasm"; }
+  virtual const std::string name() const { return "xacclang"; }
 
   virtual const std::string description() const {
     return "The XACCLang Compiler compiles kernels written in the XACC quantum language.";

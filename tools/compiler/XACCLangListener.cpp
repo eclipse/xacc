@@ -30,27 +30,8 @@ void XACCLangListener::enterXacckernel(
       gateRegistry->createFunction(ctx->kernelname->getText(), {}, params);
   functions.insert({curFunc->name(), curFunc});
 }
-  void XACCLangListener::exitXacckernel(XACCLangParser::XacckernelContext *ctx) {
-
-  ir->addKernel(curFunc);
-}
-
-void XACCLangListener::exitKernelcall(
-    xacclang::XACCLangParser::KernelcallContext *ctx) {
-  std::string gateName = ctx->kernelname->getText();
-  if (functions.count(gateName)) {
-    curFunc->addInstruction(functions[gateName]);
-  } else {
-    xacc::error("Tried calling undefined kernel.");
-  }
-}
 
 void XACCLangListener::enterUop(XACCLangParser::UopContext *ctx) {
-  // Note, if the user has specified something like
-  // H(...) or H(0...2), then we have a different handle
-  if (ctx->allbitsOp() != nullptr)
-    return;
-
   auto is_double = [](const std::string &s) -> bool {
     try {
       std::stod(s);
