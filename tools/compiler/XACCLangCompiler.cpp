@@ -37,6 +37,7 @@ std::shared_ptr<IR> XACCLangCompiler::compile(const std::string &src) {
   XACCLangListener listener(ir);
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
+  ir->addKernel(listener.getFunction());
   return ir;
 }
 

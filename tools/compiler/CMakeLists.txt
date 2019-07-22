@@ -14,7 +14,10 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                            PUBLIC .
                                   generated
-                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
+                                  ${CMAKE_SOURCE_DIR}/tpls/exprtk
+                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
+                                  ${CMAKE_BINARY_DIR}
+                                  )
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc
                              ${ANTLR_LIB}
@@ -46,7 +49,7 @@ else()
 endif()
 
 if(XACC_BUILD_TESTS)
-  #add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

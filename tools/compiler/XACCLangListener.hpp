@@ -17,24 +17,23 @@ namespace xacc {
 
 
 class XACCLangListener : public XACCLangBaseListener {
+protected:
   std::shared_ptr<IR> ir;
   std::shared_ptr<IRProvider> gateRegistry;
   std::map<std::string, std::shared_ptr<Function>> functions;
   std::shared_ptr<Function> curFunc;
 
 public:
-  explicit XACCLangListener(std::shared_ptr<IR>);
+  XACCLangListener(std::shared_ptr<IR>);
+
+  std::shared_ptr<Function> getFunction() {return curFunc;}
 
   void enterXacckernel(XACCLangParser::XacckernelContext *ctx) override;
 
   void exitXacckernel(XACCLangParser::XacckernelContext *ctx) override;
 
-  void exitKernelcall(XACCLangParser::KernelcallContext *ctx) override;
-
   virtual void enterUop(XACCLangParser::UopContext * /*ctx*/) override;
 
-  virtual void
-  enterAllbitsOp(XACCLangParser::AllbitsOpContext * /*ctx*/) override;
 };
 
 
