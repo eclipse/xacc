@@ -43,7 +43,9 @@ if(LAPACK_FOUND)
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/utilities
       accelerator/qiskit-terra/src/qasm-simulator-cpp/src/third-party/headers
       accelerator/json
-      ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
+      ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
+      ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+      ${CMAKE_SOURCE_DIR}/tpls/exprtk)
 
 
   target_link_libraries(${LIBRARY_NAME}
@@ -62,7 +64,9 @@ else()
                                     compiler/generated
                                     accelerator/qiskit-terra/src/qasm-simulator-cpp/src/third-party/headers
                                     accelerator/json
-                                    ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
+                                    ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
+                                    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk)
   target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate

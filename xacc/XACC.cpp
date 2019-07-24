@@ -267,6 +267,19 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
   }
   return c;
 }
+std::shared_ptr<IRProvider> getIRProvider(const std::string& name) {
+if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+
+  auto irp = xacc::getService<IRProvider>(name);
+  if (!irp) {
+    error("Invalid IRProvicer. Could not find " + name +
+          " in Service Registry.");
+  }
+  return irp;
+}
 
 std::shared_ptr<Compiler> getCompiler() {
   if (!xacc::xaccFrameworkInitialized) {
