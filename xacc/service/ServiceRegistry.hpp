@@ -20,8 +20,6 @@
 #include "OptionsProvider.hpp"
 #include "Cloneable.hpp"
 
-#include "xacc_config.hpp"
-
 #include <cppmicroservices/FrameworkFactory.h>
 #include <cppmicroservices/Framework.h>
 #include <cppmicroservices/BundleContext.h>
@@ -63,7 +61,7 @@ public:
   const std::string getRootPathString() { return rootPathStr; }
 
   void initialize(const std::string rootPath);
-  
+
   template <typename ServiceInterface> bool hasService(const std::string name) {
     auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
     for (auto s : allServiceRefs) {

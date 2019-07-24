@@ -1,4 +1,5 @@
 #include "ServiceRegistry.hpp"
+#include "xacc_config.hpp"
 
 namespace xacc {
 

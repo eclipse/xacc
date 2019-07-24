@@ -18,6 +18,12 @@
 #include "rapidjson/prettywriter.h"
 using namespace rapidjson;
 
+#include "exprtk.hpp"
+
+using symbol_table_t = exprtk::symbol_table<double>;
+using expression_t = exprtk::expression<double>;
+using parser_t = exprtk::parser<double>;
+
 namespace xacc {
 namespace quantum {
 

@@ -34,6 +34,13 @@
 #include "simulator.hpp"
 #include <regex>
 
+#define RAPIDJSON_HAS_STDSTRING 1
+
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+
+using namespace rapidjson;
+
 // for convenience
 using json = nlohmann::json;
 

@@ -258,7 +258,7 @@ DWAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
   }
 
   annealingStr = gen.getAsString(as);
-  xacc::info("Annealing Schedule: " + annealingStr);
+//   xacc::info("Annealing Schedule: " + annealingStr);
 
   if (xacc::optionExists("dwave-num-reads")) {
     trials = xacc::getOption("dwave-num-reads");
@@ -315,7 +315,7 @@ DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    xacc::info(msg);
+    // xacc::info(msg);
   }
 
   // We've completed, so let's get
