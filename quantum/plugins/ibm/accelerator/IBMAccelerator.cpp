@@ -32,6 +32,7 @@
 #include "OpenPulseVisitor.hpp"
 #include "OpenQasmVisitor.hpp"
 #include <cctype>
+#include <fstream>
 
 #include "QObjectExperimentVisitor.hpp"
 

@@ -61,7 +61,7 @@ target_include_directories(xacc
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
 
 message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
-target_link_libraries(xacc PRIVATE CppMicroServices cpr ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES})
+target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES})
 
 else()
 
@@ -82,7 +82,7 @@ target_include_directories(xacc
                                   algorithm
                                   optimizer
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
-target_link_libraries(xacc PRIVATE CppMicroServices cpr)
+target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
 
 endif()
 if(APPLE)
@@ -92,7 +92,6 @@ else()
   set_target_properties(xacc PROPERTIES INSTALL_RPATH "$ORIGIN")
   set_target_properties(xacc PROPERTIES LINK_FLAGS "-shared")
 endif()
-
 
 # Add the tests
 if(XACC_BUILD_TESTS)

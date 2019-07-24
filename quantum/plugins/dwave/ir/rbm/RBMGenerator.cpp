@@ -49,8 +49,6 @@ std::shared_ptr<Function> RBMGenerator::generate(
 		                        std::shared_ptr<AcceleratorBuffer> buffer,
 		                        std::vector<InstructionParameter> parameters) {
 
-    xacc::info("Running RBM IRGenerator.");
-
     int n_visible = parameters[1].as<int>();
     int n_hidden = parameters[0].as<int>();
 

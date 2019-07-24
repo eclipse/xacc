@@ -15,9 +15,13 @@
 
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
-// #include "AcceleratorBuffer.hpp"
+#include "IRProvider.hpp"
 
 namespace xacc {
+
+namespace constants {
+static constexpr double pi = 3.141592653589793238;
+}
 
 class CLIParser;
 
@@ -184,6 +188,8 @@ const std::string getOption(const std::string &optionKey);
  */
 void setOption(const std::string &optionKey, const std::string &value);
 void unsetOption(const std::string &optionKey);
+
+std::shared_ptr<IRProvider> getIRProvider(const std::string& name);
 
 /**
  * Set the Compiler to use.
