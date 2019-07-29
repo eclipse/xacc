@@ -32,7 +32,7 @@ namespace xacc {
 
 bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
-std::shared_ptr<CLIParser> xaccCLParser;// = std::make_shared<CLIParser>();
+std::shared_ptr<CLIParser> xaccCLParser; // = std::make_shared<CLIParser>();
 int argc = 0;
 char **argv = NULL;
 std::map<std::string, std::shared_ptr<Function>> compilation_database{};
@@ -60,7 +60,7 @@ void ctrl_c_handler(int signal) {
 }
 
 std::vector<std::string> getIncludePaths() {
-    return xaccCLParser->getIncludePaths();
+  return xaccCLParser->getIncludePaths();
 }
 
 void PyInitialize(const std::string rootPath) {
@@ -78,7 +78,7 @@ void Initialize(int arc, char **arv) {
     xacc::ServiceAPI_Initialize(argc, argv);
 
     // Parse any user-supplied command line options
-    xaccCLParser->parse(argc, argv);//, serviceRegistry.get());
+    xaccCLParser->parse(argc, argv); //, serviceRegistry.get());
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = ctrl_c_handler;
     sigemptyset(&sigIntHandler.sa_mask);
@@ -125,7 +125,6 @@ void error(const std::string &msg, MessagePredicate predicate) {
     exit(-1);
   }
 }
-
 
 qbit qalloc(const int n) {
   return std::make_shared<xacc::AcceleratorBuffer>(n);
@@ -190,7 +189,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
   auto name = getOption("accelerator");
   auto name_backend = split(name, ':');
   if (name_backend.size() > 1) {
-      setOption(name_backend[0]+"-backend",name_backend[1]);
+    setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
   auto acc = xacc::getService<Accelerator>(name_backend[0]);
@@ -203,7 +202,8 @@ std::shared_ptr<Accelerator> getAccelerator() {
   }
   return acc;
 }
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared_ptr<Client> client) {
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
+                                            std::shared_ptr<Client> client) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -212,13 +212,13 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared
   auto name_backend = split(name, ':');
   auto acc = xacc::getService<Accelerator>(name_backend[0]);
   if (name_backend.size() > 1) {
-      setOption(name_backend[0]+"-backend",name_backend[1]);
+    setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
   if (acc) {
     auto remoteacc = std::dynamic_pointer_cast<RemoteAccelerator>(acc);
     if (remoteacc) {
-        remoteacc->setClient(client);
+      remoteacc->setClient(client);
     }
     acc->initialize();
   } else {
@@ -236,7 +236,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
   auto name_backend = split(name, ':');
   auto acc = xacc::getService<Accelerator>(name_backend[0]);
   if (name_backend.size() > 1) {
-      setOption(name_backend[0]+"-backend",name_backend[1]);
+    setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
   if (acc) {
@@ -267,8 +267,8 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
   }
   return c;
 }
-std::shared_ptr<IRProvider> getIRProvider(const std::string& name) {
-if (!xacc::xaccFrameworkInitialized) {
+std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
+  if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
@@ -337,8 +337,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
   auto acc = getAccelerator(accelerator);
   auto originalCompiler = getCompiler(originalLanguage);
   auto ir = originalCompiler->compile(originalSource, acc);
-  auto visitor =
-      xacc::getService<BaseInstructionVisitor>(visitorMappingName);
+  auto visitor = xacc::getService<BaseInstructionVisitor>(visitorMappingName);
 
   std::vector<std::string> previouslySeenKernels;
 
@@ -379,22 +378,22 @@ std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
 bool hasCache(const std::string fileName, const std::string subdirectory) {
   auto rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
-      rootPathStr += "/"+subdirectory;
-      if (!xacc::directoryExists(rootPathStr)) {
-          return false;
-      }
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      return false;
+    }
   }
-  return xacc::fileExists(rootPathStr + "/" +
-                          fileName);
+  return xacc::fileExists(rootPathStr + "/" + fileName);
 }
 std::map<std::string, InstructionParameter>
 getCache(const std::string fileName, const std::string subdirectory) {
   std::string rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
-      rootPathStr += "/"+subdirectory;
-      if (!xacc::directoryExists(rootPathStr)) {
-          error("Tried to get Cache at " + rootPathStr+"/"+fileName + ", and it does not exist.");
-      }
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      error("Tried to get Cache at " + rootPathStr + "/" + fileName +
+            ", and it does not exist.");
+    }
   }
 
   std::ifstream t(rootPathStr + "/" + fileName);
@@ -420,10 +419,11 @@ void appendCache(const std::string fileName, const std::string key,
   auto rootPathStr = xacc::getRootPathString();
 
   if (!subdirectory.empty()) {
-      rootPathStr += "/"+subdirectory;
-      if (!xacc::directoryExists(rootPathStr)) {
-          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      }
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      auto status =
+          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
   }
 
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
@@ -457,10 +457,11 @@ void appendCache(const std::string fileName, const std::string key,
                  InstructionParameter &&param, const std::string subdirectory) {
   auto rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
-      rootPathStr += "/"+subdirectory;
-      if (!xacc::directoryExists(rootPathStr)) {
-          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      }
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      auto status =
+          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
   }
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
@@ -491,17 +492,19 @@ void appendCache(const std::string fileName, const std::string key,
 }
 
 void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params, const std::string subdirectory) {
+                 std::map<std::string, InstructionParameter> &params,
+                 const std::string subdirectory) {
 
   // This will over write the ip cache file
 
   auto rootPathStr = xacc::getRootPathString();
 
   if (!subdirectory.empty()) {
-      rootPathStr += "/"+subdirectory;
-      if (!xacc::directoryExists(rootPathStr)) {
-          auto status = mkdir(rootPathStr.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      }
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      auto status =
+          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
   }
   InstructionParameter2ExtraInfo ip2e;
   AcceleratorBuffer b;
@@ -518,34 +521,67 @@ void appendCache(const std::string fileName,
   out << s.str();
   out.close();
 }
-const std::string getRootDirectory() {
-  return xacc::getRootPathString();
-}
+const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
 void appendCompiled(std::shared_ptr<Function> function) {
-    if (compilation_database.count(function->name())) {
-        xacc::error("Invalid Function name, already in compilation database.");
-    }
-    compilation_database.insert({function->name(), function});
+  if (compilation_database.count(function->name())) {
+    xacc::error("Invalid Function name, already in compilation database.");
+  }
+  compilation_database.insert({function->name(), function});
 }
 std::shared_ptr<Function> getCompiled(const std::string name) {
-    if (!compilation_database.count(name)) {
-        xacc::error("Invalid Function requested. Not in compilation database " + name);
-    }
-    return compilation_database[name];
+  if (!compilation_database.count(name)) {
+    xacc::error("Invalid Function requested. Not in compilation database " +
+                name);
+  }
+  return compilation_database[name];
 }
 
-/**
- * This method should be called by clients to
- * clean up and finalize the XACC framework. It should
- * be called after using the XACC API.
- */
+void qasm(const std::string &qasmString) {
+  std::regex rgx(".compiler \\w+"), rgxx(".function \\w+");
+  std::smatch match, match2;
+  std::map<std::string, std::string> function2code;
+
+  if (!std::regex_search(qasmString.begin(), qasmString.end(), match, rgx)) {
+    error("Cannot parse which compiler this qasm corresponds to.");
+  }
+
+  auto compiler = split(match[0], ' ')[1];
+  auto lines = split(qasmString, '\n');
+  std::string currentFunctionName = "";
+  for (auto &l : lines) {
+      if (l.find(".compiler") == std::string::npos && l.find(".function") == std::string::npos ) {
+        function2code[currentFunctionName] += l + "\n";
+      }
+
+      if (l.find(".function") != std::string::npos) {
+        currentFunctionName = split(l, ' ')[1];
+      }
+
+  }
+
+  std::string newQasm = "";
+  for (auto& kv : function2code) {
+      newQasm += "__qpu__ " + kv.first + "(AcceleratorBuffer b) {\n" + kv.second + "\n}\n";
+  }
+
+  std::shared_ptr<IR> ir;
+  if (optionExists("accelerator")) {
+    ir = getCompiler(compiler)->compile(newQasm, getAccelerator());
+  } else {
+    ir = getCompiler(compiler)->compile(newQasm);
+  }
+
+  for (auto &k : ir->getKernels())
+    appendCompiled(k);
+}
+
 void Finalize() {
   XACCLogger::instance()->dumpQueue();
-//   info("");
-//   info("[xacc::plugins] Cleaning up Plugin Registry.");
-  //	xacc::xacc::destroy();
-  xacc::xaccFrameworkInitialized = false;
-//   info("[xacc] Finalizing XACC Framework.");
+  if (xaccFrameworkInitialized) {
+    xacc::xaccFrameworkInitialized = false;
+    xacc::ServiceAPI_Finalize();
+  }
 }
+
 } // namespace xacc

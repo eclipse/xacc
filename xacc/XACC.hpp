@@ -319,6 +319,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
 void appendCompiled(std::shared_ptr<Function> function);
 std::shared_ptr<Function> getCompiled(const std::string name);
 
+void qasm(const std::string& qasmString);
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should

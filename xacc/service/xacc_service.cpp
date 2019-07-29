@@ -52,6 +52,13 @@ void ServiceAPI_Initialize(int argc, char **argv) {
   }
 }
 
+void ServiceAPI_Finalize() {
+    if (serviceAPIInitialized) {
+        serviceAPIInitialized = false;
+        serviceRegistry->finalize();
+    }
+}
+
 std::vector<OptionPairs> getRegisteredOptions() {
   return serviceRegistry->getRegisteredOptions();
 }
