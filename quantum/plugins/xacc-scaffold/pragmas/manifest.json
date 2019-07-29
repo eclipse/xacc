@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_scaffold_pragmas",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC-SCAFFOLD Compiler Pragmas",
+  "bundle.description" : "Converts scaffold code into an xacc IR"
+}
