@@ -17,7 +17,6 @@
 #include "IRProvider.hpp"
 #include "GateInstruction.hpp"
 #include "XACC.hpp"
-#include "exprtk.hpp"
 
 
 namespace xacc {
@@ -25,12 +24,6 @@ namespace xacc {
 class Graph;
 
 namespace quantum {
-
-static constexpr double pi = 3.141592653589793238;
-
-using symbol_table_t = exprtk::symbol_table<double>;
-using expression_t = exprtk::expression<double>;
-using parser_t = exprtk::parser<double>;
 
 /**
  * The GateFunction is a realization of Function for gate-model

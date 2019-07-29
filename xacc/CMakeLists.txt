@@ -14,6 +14,8 @@ configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in"
                "${CMAKE_BINARY_DIR}/xacc_config.hpp")
 install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 
+find_package(Libunwind)
+
 file(GLOB HEADERS
           XACC.hpp
           ir/*.hpp
@@ -21,7 +23,9 @@ file(GLOB HEADERS
           accelerator/*.hpp
           accelerator/remote/*.hpp
           utils/*.hpp
-          service/*.hpp)
+          service/*.hpp
+          algorithm/*.hpp
+          optimizer/*.hpp)
 
 add_library(xacc
             SHARED
@@ -34,6 +38,32 @@ add_library(xacc
             accelerator/remote/RemoteAccelerator.cpp)
 
 add_dependencies(xacc cpr)
+
+if (LIBUNWIND_FOUND)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LIBUNWIND")
+target_include_directories(xacc
+                           PRIVATE ${CMAKE_BINARY_DIR}
+                                   ${CPR_INCLUDE_DIRS}
+                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                   ${CMAKE_SOURCE_DIR}/tpls/spdlog
+                                   ${CMAKE_SOURCE_DIR}/tpls/cxxopts
+                                   ${LIBUNWIND_INCLUDE_DIRS}
+                           PUBLIC .
+                                  ir
+                                  compiler
+                                  program
+                                  accelerator
+                                  accelerator/remote
+                                  utils
+                                  service
+                                  algorithm
+                                  optimizer
+                                  ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+
+message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
+target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES})
+
+else()
 
 target_include_directories(xacc
                            PRIVATE ${CMAKE_BINARY_DIR}
@@ -49,8 +79,12 @@ target_include_directories(xacc
                                   accelerator/remote
                                   utils
                                   service
+                                  algorithm
+                                  optimizer
                                   ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
 
+endif()
 if(APPLE)
   set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")
   set_target_properties(xacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
@@ -58,8 +92,6 @@ else()
   set_target_properties(xacc PROPERTIES INSTALL_RPATH "$ORIGIN")
   set_target_properties(xacc PROPERTIES LINK_FLAGS "-shared")
 endif()
-
-target_link_libraries(xacc PRIVATE CppMicroServices cpr)
 
 # Add the tests
 if(XACC_BUILD_TESTS)
@@ -71,3 +103,5 @@ endif()
 
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
+
+add_subdirectory(optimizer/nlopt-optimizers)

@@ -42,6 +42,7 @@ target_include_directories(${LIBRARY_NAME}
                                    ir/instructions
                                    ir/algorithms
                                    accelerator
+                                   PRIVATE
                                    ${CMAKE_BINARY_DIR}
                                    ${CMAKE_SOURCE_DIR}/quantum/utils
                                    ${CMAKE_SOURCE_DIR}/tpls/exprtk
@@ -66,7 +67,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices Boost::graph)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE Boost::graph)
 
 if(APPLE)
   set_target_properties(xacc-quantum-gate

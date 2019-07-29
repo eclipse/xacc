@@ -10,6 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
+#include <set>
 #include "JsonVisitor.hpp"
 #include "GateIR.hpp"
 #define RAPIDJSON_HAS_STDSTRING 1
