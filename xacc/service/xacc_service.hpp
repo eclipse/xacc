@@ -22,6 +22,7 @@ extern std::shared_ptr<ServiceRegistry> serviceRegistry;
 extern bool serviceAPIInitialized;
 
 void ServiceAPI_Initialize(int argc, char **argv);
+void ServiceAPI_Finalize();
 
 template <class Service>
 std::shared_ptr<Service> getService(const std::string &serviceName) {
