@@ -550,19 +550,20 @@ void qasm(const std::string &qasmString) {
   auto lines = split(qasmString, '\n');
   std::string currentFunctionName = "";
   for (auto &l : lines) {
-      if (l.find(".compiler") == std::string::npos && l.find(".function") == std::string::npos ) {
-        function2code[currentFunctionName] += l + "\n";
-      }
+    if (l.find(".compiler") == std::string::npos &&
+        l.find(".function") == std::string::npos && !l.empty()) {
+      function2code[currentFunctionName] += l + "\n";
+    }
 
-      if (l.find(".function") != std::string::npos) {
-        currentFunctionName = split(l, ' ')[1];
-      }
-
+    if (l.find(".function") != std::string::npos) {
+      currentFunctionName = split(l, ' ')[1];
+    }
   }
 
   std::string newQasm = "";
-  for (auto& kv : function2code) {
-      newQasm += "__qpu__ " + kv.first + "(AcceleratorBuffer b) {\n" + kv.second + "\n}\n";
+  for (auto &kv : function2code) {
+    newQasm += "__qpu__ " + kv.first + "(AcceleratorBuffer b) {\n" + kv.second +
+               "\n}\n";
   }
 
   std::shared_ptr<IR> ir;

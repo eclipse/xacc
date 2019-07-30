@@ -1,0 +1,2 @@
+add_executable(deuteron_from_qasm deuteron.cpp)
+target_link_libraries(deuteron_from_qasm PRIVATE xacc xacc-pauli)
