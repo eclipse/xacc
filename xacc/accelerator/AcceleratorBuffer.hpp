@@ -25,7 +25,7 @@ class AcceleratorBuffer;
 
 using AcceleratorBufferChildPair =
     std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
-using ExtraInfo = mpark::variant<int, double, std::string, std::vector<int>,
+using ExtraInfo = xacc::Variant<int, double, std::string, std::vector<int>,
                                  std::vector<double>, std::vector<std::string>,
                                  std::map<int, std::vector<int>>,
                                  std::vector<std::pair<double, double>>,
@@ -295,7 +295,7 @@ public:
   void setName(const std::string n) {
       bufferId = n;
   }
-  
+
   /**
    * Print information about this AcceleratorBuffer to the
    * given output stream.
