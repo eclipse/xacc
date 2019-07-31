@@ -32,7 +32,7 @@ std::string ScaffCompiler::readQasm(std::string filename) {
       qasm_string += line + "\n";
     }
   } else {
-    std::cout << "Unable to open qasm file.";
+    xacc::error("Unable to open qasm file.");
   }
   scaff_qasm.close();
   return qasm_string;
@@ -50,7 +50,7 @@ std::shared_ptr<xacc::IR> ScaffCompiler::qasm_to_IR(std::string qasm_string) {
   //If the vqe algorithm is being run, use the global map variable from
   //ScaffoldPragmaHandler.hpp to convert all the stand in numbers
   //back into their correct variable names.
-  if (xacc::getOption("foundVQE") == "true") {
+  if (xacc::optionExists("foundVQE")) {
       auto keyValue = xacc::getOption("__scaffold_handle_vars__");
       std::vector<std::string> split;
       split = xacc::split(keyValue, ',');
@@ -87,7 +87,6 @@ std::shared_ptr<IR> ScaffCompiler::compile(const std::string &src,
   std::string filename;
   filename = writeScaff(src);
   std::string command;
-  std::cout << "@SCAFFOLD_PATH@" << "scaff path \n";
   command = "@SCAFFOLD_PATH@/scaffold.sh -b " + filename + ".scaffold";
   std::system(command.c_str());
   std::string qasm;

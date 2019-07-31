@@ -1,9 +1,4 @@
 #include "ScaffCompiler.hpp"
-// FIXME WHAT IF QCOR not installed???
-#ifdef QCOR_EXISTS
-#include "ScaffoldPragmaHandler.hpp"
-#endif
-
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 
@@ -27,11 +22,6 @@ public:
 
     auto s = std::make_shared<scaffold::ScaffCompiler>();
     context.RegisterService<xacc::Compiler>(s);
-#ifdef QCOR_EXISTS
-    auto ph = std::make_shared<scaffold::compiler::ScaffoldPragmaHandler>();
-    context.RegisterService<qcor::compiler::QCORPragmaHandler>(ph);
-#endif
-
   }
 
   /**
