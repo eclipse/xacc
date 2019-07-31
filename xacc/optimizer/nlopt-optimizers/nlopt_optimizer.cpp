@@ -32,6 +32,10 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     maxeval = options["nlopt-maxeval"].as<int>();
   }
 
+  std::vector<double> x(dim);
+  if (options.count("initial-parameters")) {
+      x = options["initial-parameters"].as<std::vector<double>>();
+  }
   nlopt::opt _opt(algo, dim);
   std::function<double(const std::vector<double> &, std::vector<double> &,
                        void *)>
@@ -47,7 +51,6 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   _opt.set_ftol_rel(tol);
 
   double optF;
-  std::vector<double> x(dim);
   try {
     auto result = _opt.optimize(x, optF);
   } catch (std::exception &e) {
