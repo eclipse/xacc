@@ -269,11 +269,20 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
 }
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name) {
- if (!xacc::xaccFrameworkInitialized) {
+  if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
   return xacc::getService<Algorithm>(name);
+}
+
+std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
+                                        xacc::AlgorithmParameters &params) {
+  auto algo = xacc::getAlgorithm(name);
+  if (!algo->initialize(params)) {
+      error("Error initializing " + name + " algorithm.");
+  }
+  return algo;
 }
 
 std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
@@ -282,6 +291,14 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
           "xacc::Initialize() before using API.");
   }
   return xacc::getService<Optimizer>(name);
+}
+
+std::shared_ptr<Optimizer>
+getOptimizer(const std::string name,
+             const std::map<std::string, xacc::InstructionParameter> &opts) {
+  auto opt = getOptimizer(name);
+  opt->setOptions(opts);
+  return opt;
 }
 
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {

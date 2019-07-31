@@ -192,7 +192,6 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("hasNext", &xacc::InstructionIterator::hasNext, "")
       .def("next", &xacc::InstructionIterator::next, "");
 
-
   py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>>(
       m, "IRTransformation", "")
       .def("transform", &xacc::IRTransformation::transform, "");
@@ -206,7 +205,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            py::return_value_policy::reference, "")
       .def("generate",
            (std::shared_ptr<xacc::Function>(xacc::IRGenerator::*)(
-               std::map<std::string, xacc::InstructionParameter>&)) &
+               std::map<std::string, xacc::InstructionParameter> &)) &
                xacc::IRGenerator::generate,
            py::return_value_policy::reference, "")
       .def("analyzeResults", &xacc::IRGenerator::analyzeResults, "");
@@ -275,8 +274,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
                xacc::AcceleratorBuffer::appendMeasurement,
            "Append the measurement string")
-      .def("getMeasurements",
-           &xacc::AcceleratorBuffer::getMeasurements,
+      .def("getMeasurements", &xacc::AcceleratorBuffer::getMeasurements,
            "Return observed measurement bit strings")
       .def("computeMeasurementProbability",
            &xacc::AcceleratorBuffer::computeMeasurementProbability,
@@ -397,7 +395,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::Optimizer::setOptions,
            "");
 
-py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
+  py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
       m, "Observable", "The Observable interface.")
       .def("observe",
            (std::vector<std::shared_ptr<xacc::Function>>(xacc::Observable::*)(
@@ -418,8 +416,9 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
                xacc::Observable::fromString,
            "");
 
-  py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops",&Term::ops);
-  py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(m, "PauliOperator")
+  py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops", &Term::ops);
+  py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(
+      m, "PauliOperator")
       .def(py::init<>())
       .def(py::init<std::complex<double>>())
       .def(py::init<double>())
@@ -452,11 +451,12 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
       .def("nQubits", &PauliOperator::nQubits)
       .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
       .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
-      .def("__iter__",
-           [](PauliOperator &op) {
-             return py::make_iterator(op.begin(), op.end());
-           },
-           py::keep_alive<0, 1>());
+      .def(
+          "__iter__",
+          [](PauliOperator &op) {
+            return py::make_iterator(op.begin(), op.end());
+          },
+          py::keep_alive<0, 1>());
 
   // Expose XACC API functions
   m.def("Initialize", (void (*)(std::vector<std::string>)) & xacc::Initialize,
@@ -491,7 +491,7 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
         py::return_value_policy::reference,
         "Return the IRGenerator of given name.");
   m.def("getConnectivity",
-        [](const std::string acc) -> std::vector<std::pair<int,int>> {
+        [](const std::string acc) -> std::vector<std::pair<int, int>> {
           auto a = xacc::getAccelerator(acc);
           return a->getAcceleratorConnectivity();
         });
@@ -545,11 +545,11 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
         (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
         "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("getCache", &xacc::getCache, "");
-  m.def(
-      "appendCache",
-      (void (*)(const std::string, const std::string, InstructionParameter &,const std::string)) &
-          xacc::appendCache,
-      "");
+  m.def("appendCache",
+        (void (*)(const std::string, const std::string, InstructionParameter &,
+                  const std::string)) &
+            xacc::appendCache,
+        "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",
@@ -560,13 +560,27 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
         return buffer;
       },
       "");
-  m.def("getAlgorithm", &xacc::getAlgorithm, "");
-  m.def("getAlgorithm", [](const std::string name, xacc::AlgorithmParameters& params) {
-      auto algo = xacc::getAlgorithm(name);
-      algo->initialize(params);
-      return algo;
-  }, "");
-  m.def("getOptimizer", &xacc::getOptimizer, "");
+
+  m.def("getAlgorithm",
+        (std::shared_ptr<xacc::Algorithm>(*)(const std::string)) &
+            xacc::getAlgorithm,
+        "");
+  m.def("getAlgorithm",
+        (std::shared_ptr<xacc::Algorithm>(*)(const std::string,
+                                             xacc::AlgorithmParameters &)) &
+            xacc::getAlgorithm,
+        "");
+  m.def("getOptimizer",
+        (std::shared_ptr<xacc::Optimizer>(*)(const std::string)) &
+            xacc::getOptimizer,
+        "");
+  m.def("getOptimizer",
+        (std::shared_ptr<xacc::Optimizer>(*)(
+            const std::string,
+            const std::map<std::string, InstructionParameter> &)) &
+            xacc::getOptimizer,
+        "");
+
   m.def(
       "compileKernel",
       [](std::shared_ptr<Accelerator> acc, const std::string &src,
@@ -670,21 +684,22 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
         auto a = xacc::getService<xacc::quantum::EmbeddingAlgorithm>(algo);
         auto hardwareconnections = acc->getAcceleratorConnectivity();
         std::set<int> nUniqueBits;
-        for (auto& edge : hardwareconnections) {
-            nUniqueBits.insert(edge.first);
-            nUniqueBits.insert(edge.second);
+        for (auto &edge : hardwareconnections) {
+          nUniqueBits.insert(edge.first);
+          nUniqueBits.insert(edge.second);
         }
 
-        int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
+        int nBits =
+            *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
 
         auto hardware = xacc::getService<Graph>("boost-ugraph");
         for (int i = 0; i < nBits; i++) {
-            std::map<std::string,InstructionParameter> m{{"bias",1.0}};
-            hardware->addVertex(m);
+          std::map<std::string, InstructionParameter> m{{"bias", 1.0}};
+          hardware->addVertex(m);
         }
 
-        for (auto& edge : hardwareconnections) {
-            hardware->addEdge(edge.first, edge.second);
+        for (auto &edge : hardwareconnections) {
+          hardware->addEdge(edge.first, edge.second);
         }
 
         int maxBitIdx = 0;
@@ -702,9 +717,9 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
         }
 
         auto problemGraph = xacc::getService<Graph>("boost-ugraph");
-        for (int i = 0; i < maxBitIdx+1;i++) {
-            std::map<std::string,InstructionParameter> m{{"bias",1.0}};
-            problemGraph->addVertex(m);
+        for (int i = 0; i < maxBitIdx + 1; i++) {
+          std::map<std::string, InstructionParameter> m{{"bias", 1.0}};
+          problemGraph->addVertex(m);
         }
 
         for (auto inst : f->getInstructions()) {
@@ -716,7 +731,6 @@ py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
             }
           }
         }
-
 
         return a->embed(problemGraph, hardware);
       },

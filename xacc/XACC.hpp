@@ -191,7 +191,7 @@ const std::string getOption(const std::string &optionKey);
 void setOption(const std::string &optionKey, const std::string &value);
 void unsetOption(const std::string &optionKey);
 
-std::shared_ptr<IRProvider> getIRProvider(const std::string& name);
+std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
 
 /**
  * Set the Compiler to use.
@@ -214,7 +214,8 @@ void setAccelerator(const std::string &acceleratorName);
  * @return accelerator The Accelerator
  */
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name);
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name, std::shared_ptr<Client> client);
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
+                                            std::shared_ptr<Client> client);
 
 /**
  * Get the Accelerator that is currently specified by the
@@ -246,8 +247,13 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name);
  */
 std::shared_ptr<Compiler> getCompiler();
 
+std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
+                                        xacc::AlgorithmParameters &params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
 std::shared_ptr<Optimizer> getOptimizer(const std::string name);
+std::shared_ptr<Optimizer>
+getOptimizer(const std::string name,
+             const std::map<std::string, xacc::InstructionParameter> &opts);
 
 using qbit = std::shared_ptr<xacc::AcceleratorBuffer>;
 qbit qalloc(const int n);
@@ -261,15 +267,18 @@ qbit qalloc(const int n);
  */
 bool hasCompiler(const std::string &name);
 
-bool hasCache(const std::string fileName, const std::string subdirectory="");
+bool hasCache(const std::string fileName, const std::string subdirectory = "");
 std::map<std::string, InstructionParameter>
-getCache(const std::string fileName, const std::string subdirectory="");
+getCache(const std::string fileName, const std::string subdirectory = "");
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &param, const std::string subdirectory="");
+                 InstructionParameter &param,
+                 const std::string subdirectory = "");
 void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &&param, const std::string subdirectory="");
+                 InstructionParameter &&param,
+                 const std::string subdirectory = "");
 void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params, const std::string subdirectory="");
+                 std::map<std::string, InstructionParameter> &params,
+                 const std::string subdirectory = "");
 const std::string getRootDirectory();
 
 // template <class Service>
@@ -323,7 +332,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
 void appendCompiled(std::shared_ptr<Function> function);
 std::shared_ptr<Function> getCompiled(const std::string name);
 
-void qasm(const std::string& qasmString);
+void qasm(const std::string &qasmString);
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should
