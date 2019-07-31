@@ -23,7 +23,7 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   try {
     observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
-    observable = std::shared_ptr<Observable>(parameters.at("observable").as<Observable*>());
+    observable = std::shared_ptr<Observable>(parameters.at("observable").as<Observable*>(), [](Observable*){});
   }
   optimizer = parameters.at("optimizer").as<std::shared_ptr<Optimizer>>();
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
