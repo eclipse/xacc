@@ -343,8 +343,83 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Translate the given IR Function instance to source code in this "
            "Compiler's language.");
 
+  py::class_<xacc::AlgorithmParameter>(
+      m, "AlgorithmParameter",
+      "The AlgorithmParameter provides a variant structure "
+      "to provide parameters to XACC Algorithms."
+      "This type can be an int, double, string, List[int], List[double]"
+      "List[string], Observable, Accelerator, Function, or Optimizer.")
+      .def(py::init<int>(), "Construct as an int.")
+      .def(py::init<double>(), "Construct as a double.")
+      .def(py::init<std::string>(), "Construct as a string.")
+      .def(py::init<std::vector<std::string>>(), "Construct as a List[string].")
+      .def(py::init<std::vector<int>>(), "Construct as a List[int].")
+      .def(py::init<std::vector<double>>(), "Construct as a List[double].")
+      .def(py::init<std::shared_ptr<xacc::Accelerator>>(),
+           "Construct as an Accelerator.")
+      .def(py::init<std::shared_ptr<xacc::Function>>(),
+           "Construct as a Function.")
+      .def(py::init<std::shared_ptr<xacc::Observable>>(),
+           "Construct as an Observable.")
+      .def(py::init<std::shared_ptr<xacc::Optimizer>>(),
+           "Construct as an Optimizer.");
+
+  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>>(
+      m, "Algorithm",
+      "The XACC Algorithm interface takes as input a dictionary of "
+      "AlgorithmParameters "
+      "and executes the desired Algorithm.")
+      .def("name", &xacc::Algorithm::name, "Return the name of this Algorithm.")
+      .def("execute",
+           (void (xacc::Algorithm::*)(
+               const std::shared_ptr<xacc::AcceleratorBuffer>)) &
+               xacc::Algorithm::execute,
+           "Execute the Algorithm, storing the results in provided "
+           "AcceleratorBuffer.")
+      .def("initialize",
+           (bool (xacc::Algorithm::*)(
+               const std::map<std::string, xacc::AlgorithmParameter> &)) &
+               xacc::Algorithm::initialize,
+           "Initialize the algorithm with given AlgorithmParameters.");
+
+  // Expose Optimizer
+  py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
+      m, "Optimizer",
+      "The Optimizer interface provides optimization routine implementations "
+      "for use in algorithms.")
+      .def("optimize",
+           (xacc::OptResult(xacc::Optimizer::*)(xacc::OptFunction)) &
+               xacc::Optimizer::optimize,
+           "")
+      .def("setOptions",
+           (void (xacc::Optimizer::*)(
+               const std::map<std::string, xacc::InstructionParameter>)) &
+               xacc::Optimizer::setOptions,
+           "");
+
+py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
+      m, "Observable", "The Observable interface.")
+      .def("observe",
+           (std::vector<std::shared_ptr<xacc::Function>>(xacc::Observable::*)(
+               std::shared_ptr<xacc::Function>)) &
+               xacc::Observable::observe,
+           "")
+      .def("toString", &xacc::Observable::toString,
+           "Return string representation of this Observable.")
+      .def("nBits", &xacc::Observable::nBits,
+           "Return the number of bits this Observable represents.")
+      .def("fromOptions",
+           (void (xacc::Observable::*)(
+               std::map<std::string, xacc::InstructionParameter> &)) &
+               xacc::Observable::fromOptions,
+           "")
+      .def("fromString",
+           (void (xacc::Observable::*)(const std::string)) &
+               xacc::Observable::fromString,
+           "");
+
   py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops",&Term::ops);
-  py::class_<PauliOperator>(m, "PauliOperator")
+  py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(m, "PauliOperator")
       .def(py::init<>())
       .def(py::init<std::complex<double>>())
       .def(py::init<double>())
@@ -425,6 +500,9 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("setOption", [](const std::string s, InstructionParameter p) {
     xacc::setOption(s, p.toString());
   });
+  m.def("qasm", &xacc::qasm, "");
+  m.def("getCompiled", &xacc::getCompiled, "");
+  m.def("qalloc", &xacc::qalloc, "");
   m.def(
       "info", [](const std::string s) { xacc::info(s); }, "");
   m.def(
@@ -482,6 +560,13 @@ PYBIND11_MODULE(_pyxacc, m) {
         return buffer;
       },
       "");
+  m.def("getAlgorithm", &xacc::getAlgorithm, "");
+  m.def("getAlgorithm", [](const std::string name, xacc::AlgorithmParameters& params) {
+      auto algo = xacc::getAlgorithm(name);
+      algo->initialize(params);
+      return algo;
+  }, "");
+  m.def("getOptimizer", &xacc::getOptimizer, "");
   m.def(
       "compileKernel",
       [](std::shared_ptr<Accelerator> acc, const std::string &src,

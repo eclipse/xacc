@@ -2,7 +2,6 @@ from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
                                     Provides, Instantiate)
 import xacc
 import inspect, csv
-import numpy as np
 import time
 from collections import Counter
 @ComponentFactory("wrapped_single_rbm_train_factory")
@@ -46,6 +45,8 @@ class WrappedSingleRBMTrain(xacc.DecoratorFunction):
                 self.numH += 1
             if 'w' in inst:
                 self.numW += 1
+
+        import numpy as np
 
         # Initializing the weights from a random normal distribution
         # Initializing the hidden and visible biases to be zero
