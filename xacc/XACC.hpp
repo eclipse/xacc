@@ -17,6 +17,7 @@
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
 #include "Algorithm.hpp"
+#include "Optimizer.hpp"
 
 namespace xacc {
 
@@ -246,6 +247,7 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name);
 std::shared_ptr<Compiler> getCompiler();
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
+std::shared_ptr<Optimizer> getOptimizer(const std::string name);
 
 using qbit = std::shared_ptr<xacc::AcceleratorBuffer>;
 qbit qalloc(const int n);

@@ -73,7 +73,7 @@ CNOT 1 0
       ansatz->nParameters());
 
   // Run Optimization routine, default is NLOPT COBYLA
-  auto optimizer = xacc::getService<xacc::Optimizer>("nlopt");
+  auto optimizer = xacc::getOptimizer("nlopt");
   auto results = optimizer->optimize(vqeOptFunc);
 
   // Print the result

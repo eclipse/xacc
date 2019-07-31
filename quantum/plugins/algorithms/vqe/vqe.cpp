@@ -19,7 +19,12 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   } else if (!parameters.count("accelerator")) {
     return false;
   }
-  observable = parameters.at("observable").as<std::shared_ptr<Observable>>();
+
+  try {
+    observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
+  } catch (std::exception &e) {
+    observable = std::shared_ptr<Observable>(parameters.at("observable").as<Observable*>());
+  }
   optimizer = parameters.at("optimizer").as<std::shared_ptr<Optimizer>>();
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
   accelerator = parameters.at("accelerator").as<std::shared_ptr<Accelerator>>();

@@ -73,6 +73,12 @@ public:
     }
     return T();
   }
+
+  template <typename T> T as_no_error() const {
+     // First off just try to get it
+     return mpark::get<T>(*this);
+  }
+
   int which() const {
       return this->index();
   }
