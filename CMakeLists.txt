@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 11)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
 
 option(XACC_BUILD_TESTS "Build test programs" OFF)
+option(XACC_BUILD_EXAMPLES "Build example programs" OFF)
 
 if (FROM_SETUP_PY AND NOT APPLE)
    message(STATUS "Running build from setup.py, linking to static libstdc++")

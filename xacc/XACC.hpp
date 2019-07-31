@@ -16,6 +16,8 @@
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
+#include "Algorithm.hpp"
+#include "Optimizer.hpp"
 
 namespace xacc {
 
@@ -244,6 +246,8 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name);
  */
 std::shared_ptr<Compiler> getCompiler();
 
+std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
+std::shared_ptr<Optimizer> getOptimizer(const std::string name);
 
 using qbit = std::shared_ptr<xacc::AcceleratorBuffer>;
 qbit qalloc(const int n);
@@ -319,6 +323,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
 void appendCompiled(std::shared_ptr<Function> function);
 std::shared_ptr<Function> getCompiled(const std::string name);
 
+void qasm(const std::string& qasmString);
 /**
  * This method should be called by clients to
  * clean up and finalize the XACC framework. It should

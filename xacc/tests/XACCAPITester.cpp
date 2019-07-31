@@ -49,8 +49,36 @@ TEST(XACCAPITester, checkCacheFunctions) {
   std::remove(toRemove.c_str());
 }
 
+TEST(XACCAPITester, checkQasm) {
+    xacc::qasm(R"(.compiler quil
+.function foo
+X 0
+H 2
+CNOT 2 1
+CNOT 0 1
+Rz(theta) 0
+Ry(phi) 1
+H 0
+MEASURE 0 [0]
+MEASURE 1 [1]
+.function foo2
+foo(theta, phi)
+X 0
+H 0
+MEASURE 0 [0]
+)");
+
+  auto function = xacc::getCompiled("foo");
+  function = function->operator()({3.1415, 1.57});
+
+  std::cout << function->toString() << "\n";
+
+  auto foo2 = xacc::getCompiled("foo2");
+    std::cout << foo2->operator()({3.3,2.2})->toString() << "\n";
+
+}
+
 int main(int argc, char **argv) {
-  std::cout << "initializing\n";
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();

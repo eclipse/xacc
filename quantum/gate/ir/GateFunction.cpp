@@ -373,6 +373,22 @@ void GateFunction::addInstruction(InstPtr instruction) {
       }
     }
   }
+
+  if (instruction->isComposite()) {
+      std::cout << "GateFunction Adding composite instruction\n";
+      for (auto p : instruction->getParameters()) {
+          // these have to be variable params
+          bool dupParam = false;
+          for (auto p2 : getParameters()) {
+              if (p.as<std::string>() == p2.as<std::string>()) {
+                  dupParam = true;
+              }
+          }
+          if (!dupParam) {
+              parameters.push_back(p);
+          }
+      }
+  }
   // Add the GateInstruction
   instructions.push_back(instruction);
 }

@@ -61,7 +61,14 @@ public:
   const std::string getRootPathString() { return rootPathStr; }
 
   void initialize(const std::string rootPath);
-
+  void finalize() {
+    auto bundles = context.GetBundles();
+    for (auto b : bundles) {
+      if (b.GetSymbolicName() != "system") {
+          b.Stop();
+      }
+    }
+  }
   template <typename ServiceInterface> bool hasService(const std::string name) {
     auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
     for (auto s : allServiceRefs) {
