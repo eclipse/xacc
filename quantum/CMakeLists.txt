@@ -73,3 +73,7 @@ endif()
 
 #install(FILES ${QHEADERS} DESTINATION include/quantum/)
 install(TARGETS ${LIBRARY_NAME} DESTINATION plugins)
+
+if (XACC_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()

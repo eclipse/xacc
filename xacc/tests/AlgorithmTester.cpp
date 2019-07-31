@@ -36,7 +36,7 @@ class TestAlgorithm : public Algorithm {
 class TestObservable : public Observable {
 public:
   std::vector<std::shared_ptr<Function>>
-  observe(std::shared_ptr<Function> function) override {}
+  observe(std::shared_ptr<Function> function) override {return {};}
   const std::string toString() override { return "";}
   void fromString(const std::string str) override {}
   const int nBits() override {return 0;}

@@ -13,7 +13,7 @@ namespace xacc {
 
 using AlgorithmParameter =
     Variant<int, double, std::string, std::vector<int>, std::vector<double>,
-            std::vector<std::string>, std::shared_ptr<Observable>,
+            std::vector<std::string>, std::shared_ptr<Observable>, Observable*,
             std::shared_ptr<Accelerator>, std::shared_ptr<Function>,
             std::shared_ptr<Optimizer>>;
 using AlgorithmParameters = std::map<std::string, AlgorithmParameter>;
