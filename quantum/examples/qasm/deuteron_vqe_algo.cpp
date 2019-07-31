@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
                                                      "- 2.1433 Y0Y1"
                                                      "+ .21829 Z0 - 6.125 Z1");
 
-  auto optimizer = xacc::getService<xacc::Optimizer>("nlopt");
+  auto optimizer = xacc::getOptimizer("nlopt");
 
   // JIT map Quil QASM Ansatz to IR
   xacc::qasm(R"(
