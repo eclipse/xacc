@@ -19,7 +19,6 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   } else if (!parameters.count("accelerator")) {
     return false;
   }
-
   try {
     observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
@@ -28,7 +27,9 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   optimizer = parameters.at("optimizer").as<std::shared_ptr<Optimizer>>();
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
   accelerator = parameters.at("accelerator").as<std::shared_ptr<Accelerator>>();
-
+  if (parameters.count("initial-parameters")) {
+      optimizer->setOptions({{"initial-parameters", parameters.at("initial-parameters").as<std::vector<double>>()}});
+  }
   return true;
 }
 

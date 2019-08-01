@@ -164,7 +164,6 @@ class DecoratorFunction(ABC):
         self.__dict__.update(kwargs)
         self.accelerator = None
         self.src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
-
         self.processVariables()
 
         compiler = getCompiler('xacc-py')
