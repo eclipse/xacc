@@ -55,8 +55,7 @@ class WrappedVQEF(xacc.DecoratorFunction):
                 for k,v in optimizer_args.items():
                     execParams[k] = v
 
-            vqe = xacc.getAlgorithm('vqe')
-            vqe.initialize(execParams)
+            vqe = xacc.getAlgorithm('vqe', execParams)
             vqe.execute(buffer)
 
         return
