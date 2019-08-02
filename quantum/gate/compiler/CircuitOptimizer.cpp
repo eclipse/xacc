@@ -59,7 +59,7 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
           }
         }
       }
-      // Remove all CNOT(p,q) CNOT(p,q) Pairs
+      // Remove all CNOT(p,q) CNOT(p,q) pairs
       while (true) {
         bool modified = false;
         gateFunction = std::dynamic_pointer_cast<GateFunction>(
@@ -83,7 +83,7 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
         if (!modified)
           break;
       }
-
+      // Remove all H(p)H(p) pairs
       while (true) {
         bool modified = false;
         gateFunction = std::dynamic_pointer_cast<GateFunction>(
@@ -102,7 +102,9 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
               gateFunction->getInstruction(nAsVec[0] - 1)->disable();
               modified = true;
               break;
-            } else if (isRotation(node["name"].toString()) && isRotation(nextNode["name"].toString()) &&
+            } 
+            /*
+             else if (isRotation(node["name"].toString()) && isRotation(nextNode["name"].toString()) &&
                        node["name"].toString() == nextNode["name"].toString()) {
               auto val1 = ipToDouble(
                   gateFunction->getInstruction(node["id"].as<int>() - 1)->getParameter(0));
@@ -116,6 +118,43 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
                 modified = true;
                 break;
               }
+            }
+           */
+          }
+        }
+
+        if (!modified)
+          break;
+      }
+      // Merge adjacent rotation gates Rz()Rz() or Rx()Rx() or Ry()Ry()
+      while (true) {
+        bool modified = false;
+        gateFunction = std::dynamic_pointer_cast<GateFunction>(gateFunction->enabledView());
+        auto graphView = gateFunction->toGraph();
+        // start/end nodes get added: start at 1, stop at n-2 b/c last will be n-2 neighbor 
+        for (int i = 1; i < graphView->order() - 2; i++) {
+          auto node = graphView->getVertexProperties(i);
+          auto nAsVec = graphView->getNeighborList(node["id"].as<int>());
+          // if it has more than 1 neighbor, don't consider
+          if (nAsVec.size() == 1) {
+            auto nextNode = graphView->getVertexProperties(nAsVec[0]);
+            if (isRotation(node["name"].toString()) && isRotation(nextNode["name"].toString()) 
+                  && node["name"].toString() == nextNode["name"].toString()) {
+              auto val1 = ipToDouble(gateFunction->getInstruction(node["id"].as<int>() - 1)->getParameter(0));
+              auto val2 = ipToDouble(gateFunction->getInstruction(nextNode["id"].as<int>() - 1)->getParameter(0));
+
+              if (std::fabs(val1+val2) < 1e-12) {
+                gateFunction->getInstruction(node["id"].as<int>() - 1)->disable();
+                gateFunction->getInstruction(nextNode["id"].as<int>() - 1)->disable();
+              }
+              else {
+		InstructionParameter tmp(val1+val2);
+                gateFunction->getInstruction(node["id"].as<int>() - 1)->setParameter(0, tmp);
+                gateFunction->getInstruction(nextNode["id"].as<int>() - 1)->disable();
+              } 
+              modified = true;
+              break;
+           
             }
           }
         }
