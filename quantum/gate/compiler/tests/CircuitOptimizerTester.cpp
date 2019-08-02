@@ -216,6 +216,30 @@ TEST(CircuitOptimizerTester, checkOptimize) {
   }
 }
 
+TEST(CircuitOptimizerTester, checkAdjRotations) {
+  if (xacc::hasCompiler("xacc-py")) {
+    auto c = xacc::getService<xacc::Compiler>("xacc-py");
+    auto f = c->compile("def foo(buffer):\n   H(0)\n  Rx(1.5708,1)\n   Rx(-1.5708, 1)\n  H(2)\n Rz(0.5,3)\n Rz(0.5,3)\n")
+                 ->getKernels()[0];
+    auto ir = std::make_shared<GateIR>();
+    ir->addKernel(f);
+
+    CircuitOptimizer opt;
+    auto newir = opt.transform(ir);
+    auto optF = newir->getKernels()[0];
+
+    optF = std::dynamic_pointer_cast<GateFunction>(optF->enabledView());
+    CountGatesOfTypeVisitor<Rz> countRz(optF);
+    CountGatesOfTypeVisitor<Rx> countRx(optF);
+
+    EXPECT_EQ(3, optF->nInstructions());
+    EXPECT_EQ(1, countRz.countGates());
+    EXPECT_EQ(0, countRx.countGates());
+    EXPECT_TRUE(mpark::get<double>(optF->getInstruction(2)->getParameter(0))==1.0 );
+    std::cout << "FINAL CIRCUIT:\n" << optF->toString("q") << "\n";
+  }
+}
+
 TEST(CircuitOptimizerTester, checkSimple) {
 
   if (xacc::hasCompiler("xacc-py")) {
