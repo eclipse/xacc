@@ -236,6 +236,7 @@ TEST(CircuitOptimizerTester, checkAdjRotations) {
     EXPECT_EQ(1, countRz.countGates());
     EXPECT_EQ(0, countRx.countGates());
     EXPECT_TRUE(mpark::get<double>(optF->getInstruction(2)->getParameter(0))==1.0 );
+
     std::cout << "FINAL CIRCUIT:\n" << optF->toString("q") << "\n";
   }
 }

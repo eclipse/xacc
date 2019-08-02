@@ -103,23 +103,6 @@ std::shared_ptr<IR> CircuitOptimizer::transform(std::shared_ptr<IR> ir) {
               modified = true;
               break;
             } 
-            /*
-             else if (isRotation(node["name"].toString()) && isRotation(nextNode["name"].toString()) &&
-                       node["name"].toString() == nextNode["name"].toString()) {
-              auto val1 = ipToDouble(
-                  gateFunction->getInstruction(node["id"].as<int>() - 1)->getParameter(0));
-              auto val2 =
-                  ipToDouble(gateFunction->getInstruction(nextNode["id"].as<int>() - 1)
-                                 ->getParameter(0));
-
-              if (std::fabs(val1 + val2) < 1e-12) {
-                gateFunction->getInstruction(node["id"].as<int>() - 1)->disable();
-                gateFunction->getInstruction(nextNode["id"].as<int>() - 1)->disable();
-                modified = true;
-                break;
-              }
-            }
-           */
           }
         }
 
