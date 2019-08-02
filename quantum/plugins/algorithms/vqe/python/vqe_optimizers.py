@@ -68,34 +68,34 @@ class ScipyOpt(VQEOpt):
         buffer.addExtraInfo('vqe-energies', self.energies)
         buffer.addExtraInfo('vqe-params', self.angles)
         optimal_angles = [float(x) for x in self.angles[self.energies.index(min(self.energies))].split(",")]
-        buffer.addExtraInfo('vqe-angles', optimal_angles)
-        buffer.addExtraInfo('vqe-energy', min(self.energies))
+        buffer.addExtraInfo('opt-params', optimal_angles)
+        buffer.addExtraInfo('opt-val', min(self.energies))
 
     # Noticing something very weird if the objective energy function
     # resides in the super class; looks like it needs to be
     # redefined everytime (in an optimizer)
     def energy(self, params):
-        super().energy(params)
-        # self.execParams['initial-parameters'] = params.tolist()
-        # self.vqe_energy.initialize(self.execParams)
-        # self.vqe_energy.execute(self.buffer)
+        # super().energy(params)
+        self.execParams['initial-parameters'] = params.tolist()
+        self.vqe_energy.initialize(self.execParams)
+        self.vqe_energy.execute(self.buffer)
 
-        # e = self.buffer.getInformation("vqe-energy")
+        e = self.buffer.getInformation("opt-val")
 
-        # if 'rdm-purification' in self.execParams['accelerator'].name():
-        #     t = self.buffer.getAllUnique('parameters')
-        #     ind = len(t) - 1
-        #     children = self.buffer.getChildren('parameters', t[ind])
-        #     e = children[1].getInformation('purified-energy')
+        if 'rdm-purification' in self.execParams['accelerator'].name():
+            t = self.buffer.getAllUnique('parameters')
+            ind = len(t) - 1
+            children = self.buffer.getChildren('parameters', t[ind])
+            e = children[1].getInformation('purified-energy')
 
-        # self.angles.append(','.join(map(str, params.tolist())))
-        # self.energies.append(e)
-        # fileName = ".persisted_buffer_%s" % (self.buffer.getInformation('accelerator')) if self.buffer.hasExtraInfoKey('accelerator') \
-        #                                                         else ".persisted_buffer_%s" % (self.execParams['accelerator'].name())
-        # file = open(fileName+'.ab', 'w')
-        # file.write(str(self.buffer))
-        # file.close()
-        # return e
+        self.angles.append(','.join(map(str, params.tolist())))
+        self.energies.append(e)
+        fileName = ".persisted_buffer_%s" % (self.buffer.getInformation('accelerator')) if self.buffer.hasExtraInfoKey('accelerator') \
+                                                                else ".persisted_buffer_%s" % (self.execParams['accelerator'].name())
+        file = open(fileName+'.ab', 'w')
+        file.write(str(self.buffer))
+        file.close()
+        return e
 
 @ComponentFactory("bobyqa_opt_factory")
 @Property("_vqe_optimizer", "vqe_optimizer", "bobyqa-opt")
@@ -118,8 +118,8 @@ class BOBYQAOpt(VQEOpt):
         buffer.addExtraInfo('vqe-energies', self.energies)
         buffer.addExtraInfo('vqe-parameters', self.angles)
         optimal_angles = [float(x) for x in self.angles[self.energies.index(min(self.energies))].split(",")]
-        buffer.addExtraInfo('vqe-angles', optimal_angles)
-        buffer.addExtraInfo('vqe-energy', min(self.energies))
+        buffer.addExtraInfo('opt-params', optimal_angles)
+        buffer.addExtraInfo('opt-val', min(self.energies))
 
     # Noticing something very weird if the objective energy function
     # resides in the super class; looks like it needs to be
@@ -129,7 +129,7 @@ class BOBYQAOpt(VQEOpt):
         self.vqe_energy.initialize(self.execParams)
         self.vqe_energy.execute(self.buffer)
 
-        e = self.buffer.getInformation("vqe-energy")
+        e = self.buffer.getInformation("opt-val")
 
         if 'rdm-purification' in self.execParams['accelerator'].name():
             t = self.buffer.getAllUnique('parameters')

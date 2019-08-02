@@ -80,8 +80,8 @@ void VQEEnergy::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   ss << ") = " << energy;
   xacc::info(ss.str());
 
-  buffer->addExtraInfo("vqe-energy", ExtraInfo(energy));
-  buffer->addExtraInfo("vqe-params", ExtraInfo(initial_params));
+  buffer->addExtraInfo("opt-val", ExtraInfo(energy));
+  buffer->addExtraInfo("opt-params", ExtraInfo(initial_params));
   return;
 }
 } // namespace algorithm

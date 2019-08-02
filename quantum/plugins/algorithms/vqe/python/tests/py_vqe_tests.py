@@ -28,7 +28,57 @@ class TestPyVQE(test.TestCase):
 
     def test_nlopt_options(self):
 
-        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='nlopt', options={"nlopt-ftol": 1e-3, "nlopt-maxeval":5})
+        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='nlopt', options={"nlopt-ftol": 1e-5, "nlopt-maxeval":10, "nlopt-optimizer": "cobyla"})
+        def ansatz(buffer, t0):
+            X(0)
+            Ry(t0, 1)
+            CNOT(1, 0)
+
+        ansatz(self.buffer, 0.5)
+
+        self.assertAlmostEqual(self.buffer.getInformation("opt-val"), -1.74916, places=2)
+
+    def test_scipy(self):
+        # causes a numpy runtime warning. I think it has to do with whatever is the default scipy optimizer method
+        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='scipy-opt')
+        def ansatz(buffer, t0):
+            X(0)
+            Ry(t0, 1)
+            CNOT(1, 0)
+
+        ansatz(self.buffer, 0.5)
+
+        self.assertAlmostEqual(self.buffer.getInformation("opt-val"), -1.74916, places=4)
+
+
+
+    def test_scipy_options(self):
+
+        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='scipy-opt', options={"method": "COBYLA", 'options':{'maxiter':10}})
+        def ansatz(buffer, t0):
+            X(0)
+            Ry(t0, 1)
+            CNOT(1, 0)
+
+        ansatz(self.buffer, 0.5)
+
+        self.assertAlmostEqual(self.buffer.getInformation("opt-val"), -1.74916, places=2)
+
+    def test_bobyqa(self):
+
+        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='bobyqa-opt')
+        def ansatz(buffer, t0):
+            X(0)
+            Ry(t0, 1)
+            CNOT(1, 0)
+
+        ansatz(self.buffer, 0.5)
+
+        self.assertAlmostEqual(self.buffer.getInformation("opt-val"), -1.74916, places=4)
+
+    def test_bobyqa_options(self):
+
+        @xacc.qpu(algo='vqe', accelerator=self.qpu, observable=self.ham, optimizer='bobyqa-opt', options={'maxfun': 10})
         def ansatz(buffer, t0):
             X(0)
             Ry(t0, 1)
