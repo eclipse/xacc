@@ -19,7 +19,6 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   } else if (!parameters.count("accelerator")) {
     return false;
   }
-
   try {
     observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
