@@ -19,7 +19,6 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   } else if (!parameters.count("accelerator")) {
     return false;
   }
-
   try {
     observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
@@ -29,6 +28,21 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
   accelerator = parameters.at("accelerator").as<std::shared_ptr<Accelerator>>();
 
+  std::map<std::string, xacc::InstructionParameter> optimizer_args;
+  if (parameters.count("initial-parameters")) {
+      optimizer_args.insert({"initial-parameters", parameters.at("initial-parameters").as<std::vector<double>>()});
+    //   optimizer->setOptions({{"initial-parameters", parameters.at("initial-parameters").as<std::vector<double>>()}});
+  }
+  if (parameters.count("nlopt-maxeval")){
+      optimizer_args.insert({"nlopt-maxeval", parameters.at("nlopt-maxeval").as<int>()});
+  }
+  if (parameters.count("nlopt-ftol")){
+      optimizer_args.insert({"nlopt-ftol", parameters.at("nlopt-ftol").as<double>()});
+  }
+  if (parameters.count("nlopt-optimizer")) {
+      optimizer_args.insert({"nlopt-optimizer", parameters.at("nlopt-optimizer").as<std::string>()});
+  }
+  optimizer->setOptions(optimizer_args);
   return true;
 }
 
