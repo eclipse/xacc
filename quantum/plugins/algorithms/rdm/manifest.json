@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_rdm",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC RDM Generation Algorithm",
+  "bundle.description" : ""
+}

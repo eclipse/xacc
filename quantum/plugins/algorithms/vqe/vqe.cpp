@@ -55,7 +55,14 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           InstructionParameter p = f->getOption("coefficient");
           std::complex<double> coeff = p.as<std::complex<double>>();
 
-          if (f->nInstructions() > kernel->nInstructions()) {
+          int nFunctionInstructions = 0;
+          if (f->getInstruction(0)->isComposite()) {
+              nFunctionInstructions = kernel->nInstructions() + f->nInstructions() - 1;
+          } else {
+              nFunctionInstructions = f->nInstructions();
+          }
+
+          if (nFunctionInstructions > kernel->nInstructions()) {
             fsToExec.push_back(f->operator()(x));
             coefficients.push_back(std::real(coeff));
           } else {

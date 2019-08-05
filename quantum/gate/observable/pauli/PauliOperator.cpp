@@ -97,9 +97,7 @@ PauliOperator::observe(std::shared_ptr<Function> function) {
 
     gateFunction->setOption("coefficient", spinInst.coeff());
 
-    for (auto& inst : function->getInstructions()) {
-        gateFunction->addInstruction(inst);
-    }
+    gateFunction->addInstruction(function);
 
     // Loop over all terms in the Spin Instruction
     // and create instructions to run on the Gate QPU.

@@ -240,7 +240,7 @@ public:
    * Initialize this DWAccelerator with information
    * about the remote Qubist solvers
    */
-  virtual void initialize();
+  virtual void initialize(AcceleratorParameters params = {});
 
   /**
    * Create and return an AQCAcceleratorBuffer of size

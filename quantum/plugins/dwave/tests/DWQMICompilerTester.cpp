@@ -53,13 +53,14 @@ public:
 
   virtual std::vector<std::shared_ptr<xacc::IRTransformation>>
   getIRTransformations(){
-
+      return {};
   };
 
   virtual std::shared_ptr<xacc::AcceleratorBuffer>
   createBuffer(const std::string &varId) {
     auto b = std::make_shared<AcceleratorBuffer>(varId, 1);
     storeBuffer(varId, b);
+    return b;
   }
 
   virtual std::vector<std::string> getAllocatedBufferNames() {
@@ -73,7 +74,7 @@ public:
     return std::make_shared<AcceleratorBuffer>("hello", 1);
   }
 
-  virtual void initialize() {}
+  virtual void initialize(AcceleratorParameters params) {}
   /**
    * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
    *
@@ -85,7 +86,7 @@ public:
 
   virtual std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>
   execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<xacc::Function>> functions) {}
+          const std::vector<std::shared_ptr<xacc::Function>> functions) {return {};}
 
   /**
    * Create, store, and return an AcceleratorBuffer with the given
@@ -101,6 +102,7 @@ public:
   createBuffer(const std::string &varId, const int size) {
     auto b = std::make_shared<AcceleratorBuffer>(varId, size);
     storeBuffer(varId, b);
+    return b;
   }
 
   virtual const std::string name() const { return ""; }

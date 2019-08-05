@@ -75,7 +75,7 @@ DWAccelerator::createBuffer(const std::string &varId, const int size) {
 
 bool DWAccelerator::isValidBufferSize(const int NBits) { return NBits > 0; }
 
-void DWAccelerator::initialize() {
+void DWAccelerator::initialize(AcceleratorParameters params) {
   searchAPIKey(apiKey, url);
 
   if (xacc::optionExists("dwave-skip-initialization")) {

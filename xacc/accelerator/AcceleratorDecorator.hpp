@@ -21,8 +21,8 @@ class AcceleratorDecorator : public Accelerator {
 protected:
 
   std::shared_ptr<Accelerator> decoratedAccelerator;
-  virtual bool isValidBufferSize(const int NBits) {return true;} 
-  
+  virtual bool isValidBufferSize(const int NBits) {return true;}
+
 public:
 
   AcceleratorDecorator() {}
@@ -30,15 +30,15 @@ public:
   void setDecorated(std::shared_ptr<Accelerator> a) {
       decoratedAccelerator = a;
   }
-  
-  virtual void initialize(){ decoratedAccelerator->initialize(); }
+
+  void initialize(AcceleratorParameters params = {}) override { decoratedAccelerator->initialize(params); }
 
   /**
    * Return the type of this Accelerator.
    *
    * @return type The Accelerator type - Gate or AQC QPU, or NPU
    */
-  virtual AcceleratorType getType() {return decoratedAccelerator->getType();}
+  AcceleratorType getType() override {return decoratedAccelerator->getType();}
 
   /**
    * Return any IR Transformations that must be applied to ensure
@@ -46,8 +46,8 @@ public:
    *
    * @return transformations The IR transformations this Accelerator exposes
    */
-  virtual std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() {return decoratedAccelerator->getIRTransformations();}
+  std::vector<std::shared_ptr<IRTransformation>>
+  getIRTransformations() override {return decoratedAccelerator->getIRTransformations();}
 
   /**
    * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
@@ -55,8 +55,8 @@ public:
    * @param buffer The buffer of bits this Accelerator should operate on.
    * @param function The kernel to execute.
    */
-  virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<Function> function) = 0;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::shared_ptr<Function> function) override  = 0;
 
   /**
    * Execute a set of kernels with one remote call. Return
@@ -68,9 +68,9 @@ public:
    * @param functions The list of IR Functions to execute
    * @return tempBuffers The list of new AcceleratorBuffers
    */
-  virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
+  std::vector<std::shared_ptr<AcceleratorBuffer>>
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<Function>> functions) = 0;
+          const std::vector<std::shared_ptr<Function>> functions)  override  = 0;
 
   /**
    * Create, store, and return an AcceleratorBuffer with the given
@@ -81,8 +81,8 @@ public:
    * @param varId The variable name of the created buffer
    * @return buffer The buffer instance created.
    */
-  virtual std::shared_ptr<AcceleratorBuffer>
-  createBuffer(const std::string &varId) {return decoratedAccelerator->createBuffer(varId);}
+  std::shared_ptr<AcceleratorBuffer>
+  createBuffer(const std::string &varId) override {return decoratedAccelerator->createBuffer(varId);}
 
   /**
    * Create, store, and return an AcceleratorBuffer with the given
@@ -97,13 +97,13 @@ public:
   virtual std::shared_ptr<AcceleratorBuffer>
   createBuffer(const std::string &varId, const int size) {return decoratedAccelerator->createBuffer(varId,size);}
 
-  
+
   /**
    * Return true if this Accelerator is a remotely hosted resource.
    *
    * @return remote True if this is a remote Accelerator
    */
-  virtual bool isRemote() { return decoratedAccelerator->isRemote(); }
+  bool isRemote()  override { return decoratedAccelerator->isRemote(); }
 
   /**
    * Destructor
