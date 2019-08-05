@@ -176,7 +176,7 @@ void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
 }
 
-std::shared_ptr<Accelerator> getAccelerator() {
+std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -195,7 +195,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
   auto acc = xacc::getService<Accelerator>(name_backend[0]);
 
   if (acc) {
-    acc->initialize();
+    acc->initialize(params);
   } else {
     error("Invalid Accelerator. Could not find " + getOption("accelerator") +
           " in Accelerator Registry.");
@@ -203,7 +203,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
   return acc;
 }
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            std::shared_ptr<Client> client) {
+                                            std::shared_ptr<Client> client, AcceleratorParameters params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -220,7 +220,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
     if (remoteacc) {
       remoteacc->setClient(client);
     }
-    acc->initialize();
+    acc->initialize(params);
   } else {
     error("Invalid Accelerator. Could not find " + name +
           " in Accelerator Registry.");
@@ -228,7 +228,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
   return acc;
 }
 
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name, AcceleratorParameters params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -240,7 +240,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name) {
   }
 
   if (acc) {
-    acc->initialize();
+    acc->initialize(params);
   } else {
     error("Invalid Accelerator. Could not find " + name +
           " in Accelerator Registry.");
@@ -284,6 +284,10 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
   }
   return algo;
 }
+std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
+                                        xacc::AlgorithmParameters &&params) {
+  return getAlgorithm(name, params);
+}
 
 std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
   if (!xacc::xaccFrameworkInitialized) {
@@ -299,6 +303,12 @@ getOptimizer(const std::string name,
   auto opt = getOptimizer(name);
   opt->setOptions(opts);
   return opt;
+}
+
+std::shared_ptr<Optimizer>
+getOptimizer(const std::string name,
+             const std::map<std::string, xacc::InstructionParameter> &&opts) {
+  return getOptimizer(name, opts);
 }
 
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {

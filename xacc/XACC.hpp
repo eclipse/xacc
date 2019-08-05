@@ -213,9 +213,9 @@ void setAccelerator(const std::string &acceleratorName);
  * @param name The name of the Accelerator
  * @return accelerator The Accelerator
  */
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name);
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name, AcceleratorParameters params = {});
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            std::shared_ptr<Client> client);
+                                            std::shared_ptr<Client> client, AcceleratorParameters params = {});
 
 /**
  * Get the Accelerator that is currently specified by the
@@ -223,7 +223,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
  *
  * @return accelerator The Accelerator
  */
-std::shared_ptr<Accelerator> getAccelerator();
+std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params = {});
 
 /**
  * Return true if the framework has an Accelerator
@@ -249,11 +249,16 @@ std::shared_ptr<Compiler> getCompiler();
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
                                         xacc::AlgorithmParameters &params);
+std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
+                                        xacc::AlgorithmParameters &&params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
 std::shared_ptr<Optimizer> getOptimizer(const std::string name);
 std::shared_ptr<Optimizer>
 getOptimizer(const std::string name,
              const std::map<std::string, xacc::InstructionParameter> &opts);
+std::shared_ptr<Optimizer>
+getOptimizer(const std::string name,
+             const std::map<std::string, xacc::InstructionParameter> &&opts);
 
 using qbit = std::shared_ptr<xacc::AcceleratorBuffer>;
 qbit qalloc(const int n);

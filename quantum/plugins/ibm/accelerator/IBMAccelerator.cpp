@@ -117,7 +117,7 @@ IBMAccelerator::getIRTransformations() {
   return transformations;
 }
 
-void IBMAccelerator::initialize() {
+void IBMAccelerator::initialize(AcceleratorParameters params) {
   if (!initialized) {
     std::string jsonStr = "", apiKey = "";
     searchAPIKey(apiKey, url, hub, group, project);

@@ -59,12 +59,12 @@ public:
     return names;
   }
 
-  virtual void initialize() {}
+  virtual void initialize(AcceleratorParameters params) {}
   virtual void execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
                        const std::shared_ptr<xacc::Function> function) {}
   virtual std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>
   execute(std::shared_ptr<xacc::AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<xacc::Function>> functions) {}
+          const std::vector<std::shared_ptr<xacc::Function>> functions) {return {};}
 
   virtual std::shared_ptr<xacc::AcceleratorBuffer>
   createBuffer(const std::string &varId, const int size) {
@@ -109,7 +109,10 @@ TEST(PyXACCCompilerTester, checkIRGen) {
 
     auto acc = std::make_shared<FakePyAcc>();
 
-    auto ir = compiler->compile(uccsdSrc, acc);
+    auto ir = compiler->compile(R"(def foo(buffer, *args):
+   uccsd(n_qubits=4, n_electrons=2)
+   )", acc);
+   
     auto f = ir->getKernel("foo");
     EXPECT_EQ("foo", f->name());
     EXPECT_EQ(f->nParameters(), 2);

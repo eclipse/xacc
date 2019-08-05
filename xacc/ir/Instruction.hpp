@@ -89,6 +89,7 @@ public:
    * @param inst The instruction.
    */
   virtual void setParameter(const int idx, InstructionParameter &inst) = 0;
+  virtual void setParameter(const int idx, InstructionParameter &&inst) {setParameter(idx,inst);}
 
   /**
    * Return the number of InstructionParameters this Instruction contains.

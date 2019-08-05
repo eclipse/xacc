@@ -19,9 +19,16 @@
 #include "OptionsProvider.hpp"
 #include "Identifiable.hpp"
 #include "Utils.hpp"
+#include "Observable.hpp"
+#include "InstructionParameter.hpp"
 
 namespace xacc {
 
+
+using AcceleratorParameter =
+    Variant<int, double, std::string, std::vector<int>, std::vector<double>,
+            std::vector<std::string>, std::shared_ptr<Observable>, Observable*>;
+using AcceleratorParameters = std::map<std::string, AcceleratorParameter>;
 /**
  * The Accelerator class provides a high-level abstraction
  * for XACC's interaction with attached post-exascale
@@ -59,7 +66,7 @@ public:
    * done before execution here.
    *
    */
-  virtual void initialize() = 0;
+  virtual void initialize(AcceleratorParameters params = {}) = 0;
 
   /**
    * Return the type of this Accelerator.

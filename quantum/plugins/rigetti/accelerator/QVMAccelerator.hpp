@@ -88,7 +88,7 @@ public:
     return tmpBuffers;
   }
 
-  virtual void initialize() {}
+  virtual void initialize(AcceleratorParameters params = {}) {}
 
   /**
    * Return true if this Accelerator can allocated

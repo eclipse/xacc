@@ -75,7 +75,7 @@ public:
 
   const std::string description() const override { return ""; }
 
-  void initialize() override { return; }
+  void initialize(AcceleratorParameters params = {}) override { return; }
 
   AcceleratorType getType() override {
     return Accelerator::AcceleratorType::qpu_gate;
@@ -143,7 +143,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("bits", &xacc::Instruction::bits, "")
       .def("getParameter", &xacc::Instruction::getParameter, "")
       .def("getParameters", &xacc::Instruction::getParameters, "")
-      .def("setParameter", &xacc::Instruction::setParameter, "")
+      .def("setParameter", ( void ( xacc::Instruction::*)(const int, InstructionParameter &) ) &xacc::Instruction::setParameter, "")
       .def("mapBits", &xacc::Instruction::mapBits, "")
       .def("name", &xacc::Instruction::name, "")
       .def("description", &xacc::Instruction::description, "");
@@ -173,7 +173,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("enable", &xacc::Function::enable, "")
       .def("getParameter", &xacc::Function::getParameter, "")
       .def("getParameters", &xacc::Function::getParameters, "")
-      .def("setParameter", &xacc::Function::setParameter, "")
+      .def("setParameter", ( void ( xacc::Instruction::*)(const int, InstructionParameter &) )&xacc::Function::setParameter, "")
       .def("depth", &xacc::Function::depth, "")
       .def("persistGraph", &xacc::Function::persistGraph, "")
       .def("mapBits", &xacc::Function::mapBits, "");
@@ -471,7 +471,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         "Initialize the framework from Python.");
   // m.def("help", )
   m.def("getAccelerator",
-        (std::shared_ptr<xacc::Accelerator>(*)(const std::string &)) &
+        (std::shared_ptr<xacc::Accelerator>(*)(const std::string &, AcceleratorParameters)) &
             xacc::getAccelerator,
         py::return_value_policy::reference,
         "Return the accelerator with given name.");

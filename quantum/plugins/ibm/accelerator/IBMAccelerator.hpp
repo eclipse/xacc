@@ -117,7 +117,8 @@ public:
    * done before execution here.
    *
    */
-  void initialize() override;
+  void initialize(AcceleratorParameters params = {}) override;
+
 
   /**
    * Return the graph structure for this Accelerator.

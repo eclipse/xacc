@@ -54,7 +54,7 @@ public:
 
   AcceleratorType getType() override { return AcceleratorType::qpu_gate; }
 
-  void initialize() override { return; }
+  void initialize(AcceleratorParameters params = {}) override {}
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<xacc::Function> kernel) override;
