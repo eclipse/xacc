@@ -1,0 +1,33 @@
+from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
+                                    BindField, UnbindField, Provides, Instantiate)
+import xacc
+import inspect
+import random
+import numpy as np
+
+@ComponentFactory("wrapped_energy_factory")
+@Provides("decorator_algorithm_service")
+@Property("_algorithm", "algorithm", "energy")
+@Property("_name", "name", "energy")
+@Instantiate("wrapped_energy_instance")
+class WrappedEnergyF(xacc.DecoratorFunction):
+
+    def __call__(self, *args, **kwargs):
+        super().__call__(*args, **kwargs)
+
+        execParams = {'accelerator': self.kwargs['accelerator'], 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
+
+        if not isinstance(args[0], xacc.AcceleratorBuffer):
+            raise RuntimeError(
+                'First argument of an xacc kernel must be the Accelerator Buffer to operate on.')
+
+        buffer = args[0]
+        ars = args[1:]
+        if len(ars) > 0:
+            execParams['initial-parameters'] = list(ars)
+        else:
+            execParams['initial-parameters'] = random.randrange(-np.pi, np.pi)
+
+        vqe_energy = xacc.getAlgorithm('vqe-energy', execParams)
+        vqe_energy.execute(buffer)
+        return
