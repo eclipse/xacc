@@ -16,6 +16,8 @@
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
+#include "IRGenerator.hpp"
+
 #include "Algorithm.hpp"
 #include "Optimizer.hpp"
 
@@ -192,6 +194,7 @@ void setOption(const std::string &optionKey, const std::string &value);
 void unsetOption(const std::string &optionKey);
 
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
+std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name);
 
 /**
  * Set the Compiler to use.

@@ -24,15 +24,17 @@ extern bool serviceAPIInitialized;
 void ServiceAPI_Initialize(int argc, char **argv);
 void ServiceAPI_Finalize();
 
+void contributeService(const std::string name, ContributableService& service);
+
 template <class Service>
-std::shared_ptr<Service> getService(const std::string &serviceName) {
+std::shared_ptr<Service> getService(const std::string &serviceName, bool failIfNotFound = true) {
   if (!xacc::serviceAPIInitialized) {
     XACCLogger::instance()->error(
         "XACC not initialized before use. Please execute "
         "xacc::Initialize() before using API.");
   }
   auto service = serviceRegistry->getService<Service>(serviceName);
-  if (!service) {
+  if (!service && failIfNotFound) {
     XACCLogger::instance()->error("Invalid XACC Service. Could not find " +
                                   serviceName + " in Service Registry.");
   }
@@ -46,6 +48,32 @@ template <typename Service> bool hasService(const std::string &serviceName) {
         "xacc::Initialize() before using API.");
   }
   return serviceRegistry->hasService<Service>(serviceName);
+}
+
+
+template <class Service>
+std::shared_ptr<Service> getContributedService(const std::string &serviceName, bool failIfNotFound = true) {
+  if (!xacc::serviceAPIInitialized) {
+    XACCLogger::instance()->error(
+        "XACC not initialized before use. Please execute "
+        "xacc::Initialize() before using API.");
+  }
+  auto service = serviceRegistry->getContributedService<Service>(serviceName);
+  if (!service && failIfNotFound) {
+    XACCLogger::instance()->error("Invalid XACC Service. Could not find " +
+                                  serviceName + " in Service Registry.");
+  }
+  return service;
+}
+
+template<typename Service>
+bool hasContributedService(const std::string &serviceName) {
+  if (!xacc::serviceAPIInitialized) {
+    XACCLogger::instance()->error(
+        "XACC not initialized before use. Please execute "
+        "xacc::Initialize() before using API.");
+  }
+  return serviceRegistry->hasContributedService<Service>(serviceName);
 }
 
 template <typename ServiceInterface>
