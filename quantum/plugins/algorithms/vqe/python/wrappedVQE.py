@@ -31,6 +31,7 @@ class WrappedVQEF(xacc.DecoratorFunction):
         super().__call__(*args, **kwargs)
 
         execParams = {'accelerator': self.kwargs['accelerator'], 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
+        optParams = {}
 
         if not isinstance(args[0], xacc.AcceleratorBuffer):
             raise RuntimeError(
@@ -39,21 +40,19 @@ class WrappedVQEF(xacc.DecoratorFunction):
         buffer = args[0]
         ars = args[1:]
         if len(ars) > 0:
-            execParams['initial-parameters'] = list(ars)
+            optParams['initial-parameters'] = list(ars)
+
         if 'options' in self.kwargs:
-            optimizer_args = self.kwargs['options']
-        else:
-            optimizer_args = {}
+            optParams = self.kwargs['options']
+
+        if 'optimizer' not in self.kwargs:
+            self.kwargs['optimizer'] = 'nlopt'
 
         if self.kwargs['optimizer'] in self.vqe_optimizers:
             optimizer = self.vqe_optimizers[self.kwargs['optimizer']]
-            optimizer.optimize(buffer, optimizer_args, execParams)
+            optimizer.optimize(buffer, optParams, execParams)
         else:
-            execParams['optimizer'] = xacc.getOptimizer(self.kwargs['optimizer'])
-
-            if len(optimizer_args) > 0:
-                for k,v in optimizer_args.items():
-                    execParams[k] = v
+            execParams['optimizer'] = xacc.getOptimizer(self.kwargs['optimizer'], optParams)
 
             vqe = xacc.getAlgorithm('vqe', execParams)
             vqe.execute(buffer)

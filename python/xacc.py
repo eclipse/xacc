@@ -208,6 +208,10 @@ class DecoratorFunction(ABC):
     def getFunction(self):
         return self.compiledKernel
 
+    def modifyAlgorithm(self, algorithm):
+        newAlgo = serviceRegistry.get_service('decorator_algorithm_service', algorithm)
+        self.__class__ = newAlgo.__class__
+
     @abstractmethod
     def __call__(self, *args, **kwargs):
         pass
@@ -248,7 +252,6 @@ class qpu(object):
             wf = WrappedF(f, *self.args, **self.kwargs)
             wf.initialize(f,*self.args, **self.kwargs)
             return wf
-
 
 def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist=True):
     p10Functions = []
@@ -367,8 +370,8 @@ class PyServiceRegistry(object):
             service = available_services[name]
         except KeyError:
             info("""There is no '{0}' with the name '{1}' available.
-                   1. Install the '{1}' '{0}' to the Python plugin directory.
-                   2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name, ""))
+    1. Install the '{1}' '{0}' to the Python plugin directory.
+    2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name, ""))
             if serviceName == "benchmark_algorithm":
                 self.get_benchmark_requirements(name)
             exit(1)
@@ -523,6 +526,12 @@ def main(argv=None):
         serviceRegistry.install_plugins(opts.benchmark_install)
 
 initialize()
+
+def _finalize():
+    Finalize()
+
+import atexit
+atexit.register(_finalize)
 
 if __name__ == "__main__":
     sys.exit(main())

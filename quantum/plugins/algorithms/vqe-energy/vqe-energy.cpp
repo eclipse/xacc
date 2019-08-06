@@ -27,9 +27,11 @@ bool VQEEnergy::initialize(const AlgorithmParameters &parameters) {
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
   accelerator = parameters.at("accelerator").as<std::shared_ptr<Accelerator>>();
 
-  if (parameters.count("initial-parameters")) {
+  if (parameters.count("parameters")) {
     initial_params =
-        parameters.at("initial-parameters").as<std::vector<double>>();
+        parameters.at("parameters").as<std::vector<double>>();
+  } else {
+      xacc::error("Cannot run Energy computation without providing 'parameters' list.");
   }
   return true;
 }
