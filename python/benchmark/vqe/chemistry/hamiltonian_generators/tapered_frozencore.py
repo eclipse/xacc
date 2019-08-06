@@ -3,7 +3,7 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 from frozencore import FrozenCoreHamiltonian
 import xacc
-from xaccvqe import PauliOperator
+from xacc import PauliOperator
 
 @ComponentFactory("taperedfrozencore_hamiltonian_generator_factory")
 @Provides("hamiltonian_generator")

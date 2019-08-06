@@ -21,6 +21,7 @@
 #include "InstructionParameter.hpp"
 #include "EmbeddingAlgorithm.hpp"
 #include "PauliOperator.hpp"
+#include "FermionOperator.hpp"
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -143,7 +144,10 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("bits", &xacc::Instruction::bits, "")
       .def("getParameter", &xacc::Instruction::getParameter, "")
       .def("getParameters", &xacc::Instruction::getParameters, "")
-      .def("setParameter", ( void ( xacc::Instruction::*)(const int, InstructionParameter &) ) &xacc::Instruction::setParameter, "")
+      .def("setParameter",
+           (void (xacc::Instruction::*)(const int, InstructionParameter &)) &
+               xacc::Instruction::setParameter,
+           "")
       .def("mapBits", &xacc::Instruction::mapBits, "")
       .def("name", &xacc::Instruction::name, "")
       .def("description", &xacc::Instruction::description, "");
@@ -173,7 +177,10 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("enable", &xacc::Function::enable, "")
       .def("getParameter", &xacc::Function::getParameter, "")
       .def("getParameters", &xacc::Function::getParameters, "")
-      .def("setParameter", ( void ( xacc::Instruction::*)(const int, InstructionParameter &) )&xacc::Function::setParameter, "")
+      .def("setParameter",
+           (void (xacc::Instruction::*)(const int, InstructionParameter &)) &
+               xacc::Function::setParameter,
+           "")
       .def("depth", &xacc::Function::depth, "")
       .def("persistGraph", &xacc::Function::persistGraph, "")
       .def("mapBits", &xacc::Function::mapBits, "");
@@ -470,16 +477,38 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("PyInitialize", &xacc::PyInitialize,
         "Initialize the framework from Python.");
   // m.def("help", )
-  m.def("getAccelerator",
-        (std::shared_ptr<xacc::Accelerator>(*)(const std::string &, AcceleratorParameters)) &
-            xacc::getAccelerator,
-        py::return_value_policy::reference,
-        "Return the accelerator with given name.");
+  m.def(
+      "getAccelerator",
+      [](const std::string &name, AcceleratorParameters p = {}) {
+        return xacc::getAccelerator(name, p);
+      },
+      py::arg("name"), py::arg("params") = AcceleratorParameters{},
+      py::return_value_policy::reference,
+      "Return the accelerator with given name.");
+  m.def("getObservable",
+        [](const std::string &type, const std::string representation) ->std::shared_ptr<Observable> {
+          if (type == "pauli") {
+            return representation.empty()
+                       ? std::make_shared<PauliOperator>()
+                       : std::make_shared<PauliOperator>(representation);
+          } else if (type == "fermion") {
+            return representation.empty()
+                       ? std::make_shared<FermionOperator>()
+                       : std::make_shared<FermionOperator>(representation);
+          } else if (xacc::hasService<Observable>(type)) {
+              auto obs = xacc::getService<Observable>(type);
+              obs->fromString(representation);
+              return obs;
+          } else {
+            xacc::error("Invalid observable type");
+            return std::make_shared<PauliOperator>();
+          }
+        });
   m.def("getCompiler",
-        (std::shared_ptr<xacc::Compiler>(*)(const std::string &)) &
-            xacc::getCompiler,
-        py::return_value_policy::reference,
-        "Return the Compiler of given name.");
+                 (std::shared_ptr<xacc::Compiler>(*)(const std::string &)) &
+                     xacc::getCompiler,
+                 py::return_value_policy::reference,
+                 "Return the Compiler of given name.");
   m.def("getIRTransformation",
         (std::shared_ptr<xacc::IRTransformation>(*)(const std::string &)) &
             xacc::getService<IRTransformation>,

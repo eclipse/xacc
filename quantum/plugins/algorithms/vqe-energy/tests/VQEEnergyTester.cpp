@@ -29,7 +29,7 @@ TEST(VQEEnergyTester, checkSimple) {
     observable.fromString("(-6.125,0) Z1 + (0.21829,0) Z0 + (-2.1433,0) Y0 Y1 + (5.90671,0) + (-2.1433,0) X0 X1");
 
     auto vqe_energy = xacc::getService<Algorithm>("vqe-energy");
-    EXPECT_TRUE(vqe_energy->initialize({{"ansatz",ruccsd}, {"accelerator",acc}, {"observable", &observable},{"initial-parameters", {0.5}}}));//
+    EXPECT_TRUE(vqe_energy->initialize({{"ansatz",ruccsd}, {"accelerator",acc}, {"observable", &observable},{"parameters", std::vector<double>{0.594298}}}));//
     vqe_energy->execute(buffer);
     EXPECT_NEAR(-1.74916, mpark::get<double>(buffer->getInformation("opt-val")), 1e-4);
   }

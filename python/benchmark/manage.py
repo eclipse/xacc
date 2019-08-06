@@ -38,7 +38,7 @@ def install_package(install_name):
         xacc.info("Retrieving package and checking requirements..")
         package_path = PLUGIN_INSTALLATIONS[install_name]
         for k,v in MASTER_PACKAGES.items():
-            if install_name in v:
+            if install_name in v and k in REQUIREMENTS:
                 requirement = REQUIREMENTS[k]['module']
                 mdir = k
                 importlib.import_module(requirement)
@@ -118,7 +118,6 @@ def get_packages():
 def main(argv=None):
     opts = parse_args(sys.argv[1:])
     get_packages()
-
     if opts.path:
         set_plugin_path(opts.path)
 
