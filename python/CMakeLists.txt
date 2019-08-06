@@ -38,7 +38,7 @@ add_library(_pyxacc SHARED xacc-py.cpp)
 
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 
-target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc Boost::graph xacc-pauli)
+target_link_libraries(_pyxacc PUBLIC CppMicroServices xacc Boost::graph xacc-pauli xacc-fermion)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

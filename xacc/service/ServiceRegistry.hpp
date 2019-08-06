@@ -19,6 +19,12 @@
 #include "Identifiable.hpp"
 #include "OptionsProvider.hpp"
 #include "Cloneable.hpp"
+#include "InstructionParameter.hpp"
+#include "IRGenerator.hpp"
+#include "Compiler.hpp"
+// #include "Algorithm.hpp"
+// #include "Optimizer.hpp"
+// #include "IRProvider.hpp"
 
 #include <cppmicroservices/FrameworkFactory.h>
 #include <cppmicroservices/Framework.h>
@@ -33,6 +39,10 @@ using namespace cppmicroservices;
 
 namespace xacc {
 
+using ContributableService =
+    Variant<std::shared_ptr<IRGenerator>, std::shared_ptr<Accelerator>>;//,
+            // std::shared_ptr<Compiler>, std::shared_ptr<Algorithm>,
+            // std::shared_ptr<Optimizer>, std::shared_ptr<IRProvider>>;
 /**
  * The ServiceRegistry provides the plugin infrastructure for XACC.
  * It delegates to the CppMicroServices Framework and BundleContexts,
@@ -56,6 +66,8 @@ protected:
 
   std::string rootPathStr = "";
 
+  std::map<std::string, ContributableService> runtimeContributed;
+
 public:
   ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
   const std::string getRootPathString() { return rootPathStr; }
@@ -65,10 +77,19 @@ public:
     auto bundles = context.GetBundles();
     for (auto b : bundles) {
       if (b.GetSymbolicName() != "system") {
-          b.Stop();
+        b.Stop();
       }
     }
   }
+
+  void contributeService(const std::string name,
+                         ContributableService &service) {
+    if (runtimeContributed.count(name)) {
+      XACCLogger::instance()->error("Service already contributed.");
+    }
+    runtimeContributed.insert({name, service});
+  }
+
   template <typename ServiceInterface> bool hasService(const std::string name) {
     auto allServiceRefs = context.GetServiceReferences<ServiceInterface>();
     for (auto s : allServiceRefs) {
@@ -79,6 +100,7 @@ public:
         return true;
       }
     }
+
     return false;
   }
 
@@ -102,13 +124,37 @@ public:
       }
     }
 
-    if (!ret) {
-      XACCLogger::instance()->error("Could not find service with name " + name +
-                                    ". "
-                                    "Perhaps the service is not Identifiable.");
+    return ret;
+  }
+
+  template <typename ServiceInterface>
+  std::shared_ptr<ServiceInterface>
+  getContributedService(const std::string name) {
+    std::shared_ptr<ServiceInterface> ret;
+
+    if (runtimeContributed.count(name)) {
+      ret = runtimeContributed[name].as<std::shared_ptr<ServiceInterface>>();
+      auto checkCloneable =
+          std::dynamic_pointer_cast<xacc::Cloneable<ServiceInterface>>(ret);
+      if (checkCloneable) {
+        ret = checkCloneable->clone();
+      }
     }
 
     return ret;
+  }
+
+  template<typename Service>
+  bool hasContributedService(const std::string name) {
+    if (runtimeContributed.count(name)) {
+      try {
+        auto tmp = runtimeContributed[name].as_no_error<std::shared_ptr<Service>>();
+      } catch (std::exception& e) {
+          return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   template <typename ServiceInterface>

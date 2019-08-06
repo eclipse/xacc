@@ -234,7 +234,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name, Accelerator
           "xacc::Initialize() before using API.");
   }
   auto name_backend = split(name, ':');
-  auto acc = xacc::getService<Accelerator>(name_backend[0]);
+  auto acc = xacc::getService<Accelerator>(name_backend[0], false);
   if (name_backend.size() > 1) {
     setOption(name_backend[0] + "-backend", name_backend[1]);
   }
@@ -242,8 +242,16 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name, Accelerator
   if (acc) {
     acc->initialize(params);
   } else {
-    error("Invalid Accelerator. Could not find " + name +
-          " in Accelerator Registry.");
+
+    if (xacc::hasContributedService<Accelerator>(name)) {
+
+        acc = xacc::getContributedService<Accelerator>(name);
+        if (acc) acc->initialize(params);
+
+    } else {
+      error("Invalid Accelerator. Could not find " + name +
+            " in Accelerator Registry.");
+    }
   }
   return acc;
 }
@@ -319,8 +327,27 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
 
   auto irp = xacc::getService<IRProvider>(name);
   if (!irp) {
+    error("Invalid IRProvider. Could not find " + name +
+          " in Service Registry.");
+  }
+  return irp;
+}
+
+
+std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
+  if (!xacc::xaccFrameworkInitialized) {
+    error("XACC not initialized before use. Please execute "
+          "xacc::Initialize() before using API.");
+  }
+
+  auto irp = xacc::getService<IRGenerator>(name, false);
+  if (!irp) {
+    if(xacc::hasContributedService<IRGenerator>(name)) {
+        irp = xacc::getContributedService<IRGenerator>(name);
+    } else {
     error("Invalid IRProvicer. Could not find " + name +
           " in Service Registry.");
+    }
   }
   return irp;
 }
@@ -594,6 +621,7 @@ void qasm(const std::string &qasmString) {
   auto lines = split(qasmString, '\n');
   std::string currentFunctionName = "";
   for (auto &l : lines) {
+      xacc::trim(l);
     if (l.find(".compiler") == std::string::npos &&
         l.find(".function") == std::string::npos && !l.empty()) {
       function2code[currentFunctionName] += l + "\n";

@@ -30,9 +30,10 @@ void DWorGateListener::enterGate(PyXACCIRParser::GateContext *ctx) {
   // Until we see a qmi or anneal instruction, keep checking
   // the incoming gate name
   if (!isDW) {
-      if (gate.find("qmi") != std::string::npos || gate.find("anneal") != std::string::npos) {
-          isDW = true;
-      }
+    if (gate.find("qmi") != std::string::npos ||
+        gate.find("anneal") != std::string::npos) {
+      isDW = true;
+    }
   }
 
   // Once we have seen qmi or anneal, ensure that we
@@ -67,8 +68,8 @@ void PyXACCListener::enterXacckernel(PyXACCIRParser::XacckernelContext *ctx) {
 
   std::vector<InstructionParameter> params;
   for (int i = 1; i < ctx->param().size(); i++) {
-    if(ctx->param(i)->getText().find("*") == std::string::npos) {
-    // if (!boost::contains(ctx->param(i)->getText(), "*")) {
+    if (ctx->param(i)->getText().find("*") == std::string::npos) {
+      // if (!boost::contains(ctx->param(i)->getText(), "*")) {
       params.push_back(InstructionParameter(ctx->param(i)->getText()));
       functionVariableNames.push_back(ctx->param(i)->getText());
     }
@@ -109,7 +110,6 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
   }
 
   if (xacc::hasService<GateInstruction>(gateName)) {
-
     // We have to accept GATE(params..., qbits..., opt=val,...)
     auto tmpInst = provider->createInstruction(gateName, std::vector<int>{});
     auto nBits = tmpInst->nRequiredBits();
@@ -181,22 +181,29 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     }
     f->addInstruction(inst);
 
-  } else if (xacc::hasService<IRGenerator>(gateName)) {
+  } else if (xacc::hasService<IRGenerator>(gateName) ||
+             xacc::hasContributedService<IRGenerator>(gateName)) {
     // HERE we have something like uccsd(n_qubits=4, n_electrons=2)
+    // std::cout << "HERE WEE HAVBE " << gateName << ", " <<
+    // ctx->explist()->getText() << "\n";
     auto generatorName = gateName;
     std::map<std::string, InstructionParameter> params;
-    for (int i = 0; i < ctx->explist()->exp().size(); i++) {
-      auto key = ctx->explist()->exp(i)->key()->getText();
-      auto valStr = ctx->explist()->exp(i)->exp(0)->getText();
-      if (is_int(valStr)) {
-        params.insert({key, InstructionParameter(std::stoi(valStr))});
-      } else if (is_double(valStr)) {
-        params.insert({key, InstructionParameter(std::stod(valStr))});
-      } else {
-        params.insert({key, InstructionParameter(valStr)});
+    if (ctx->explist() != nullptr) {
+      for (int i = 0; i < ctx->explist()->exp().size(); i++) {
+        if (ctx->explist()->exp(i) != nullptr &&
+            ctx->explist()->exp(i)->exp(0) != nullptr) {
+          auto key = ctx->explist()->exp(i)->key()->getText();
+          auto valStr = ctx->explist()->exp(i)->exp(0)->getText();
+          if (is_int(valStr)) {
+            params.insert({key, InstructionParameter(std::stoi(valStr))});
+          } else if (is_double(valStr)) {
+            params.insert({key, InstructionParameter(std::stod(valStr))});
+          } else {
+            params.insert({key, InstructionParameter(valStr)});
+          }
+        }
+        // FIXME HANDLE OTHER TYPES
       }
-
-      // FIXME HANDLE OTHER TYPES
     }
 
     // Add the Function's InstructionParameters
@@ -205,10 +212,25 @@ void PyXACCListener::enterUop(PyXACCIRParser::UopContext *ctx) {
     }
 
     if (params.empty()) {
-      auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
-      f->addInstruction(generator);
+      auto generator =
+          xacc::getService<xacc::IRGenerator>(generatorName, false);
+      if (!generator) {
+        generator = xacc::getContributedService<IRGenerator>(generatorName);
+        if (!generator) {
+          xacc::error("Cannot create IRGenerator with name " + generatorName);
+        }
+      }
+      auto genF = generator->generate(params);
+      f->addInstruction(genF);
     } else {
-      auto generator = xacc::getService<xacc::IRGenerator>(generatorName);
+      auto generator =
+          xacc::getService<xacc::IRGenerator>(generatorName, false);
+      if (!generator) {
+        generator = xacc::getContributedService<IRGenerator>(generatorName);
+        if (!generator) {
+          xacc::error("Cannot create IRGenerator with name " + generatorName);
+        }
+      }
       auto genF = generator->generate(params);
 
       // We may have a IRGenerator that produces d-wave functions,
