@@ -63,6 +63,23 @@ macro(xacc_configure_plugin_rpath LIBNAME)
   endif()
 endmacro()
 
+
+set(XACCLIB "libxacc.so")
+set(XACCGATELIB "libxacc-quantum-gate.so")
+set(XACCAQCLIB "libxacc-quantum-aqc.so")
+set(XACCPAULILIB "libxacc-pauli.so")
+set(XACCFERMIONLIB "libxacc-fermion.so")
+set(CPPUSLIB "libCppMicroServices.so.4.0.0")
+
+if (APPLE)
+  set(XACCLIB "libxacc.dylib")
+  set(XACCGATELIB "libxacc-quantum-gate.dylib")
+  set(XACCAQCLIB "libxacc-quantum-aqc.dylib")
+  set(XACCPAULILIB "libxacc-pauli.dylib")
+  set(XACCFERMIONLIB "libxacc-fermion.dylib")
+  set(CPPUSLIB "libCppMicroServices.4.0.0.dylib")
+endif()
+
 # Create imported target CppMicroServices::CppMicroServices
 add_library(CppMicroServices::CppMicroServices SHARED IMPORTED)
 
@@ -75,8 +92,8 @@ set_target_properties(CppMicroServices::CppMicroServices PROPERTIES
 # Import target "CppMicroServices::CppMicroServices" for configuration "Release"
 set_property(TARGET CppMicroServices::CppMicroServices APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(CppMicroServices::CppMicroServices PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libCppMicroServices.so.4.0.0"
-  IMPORTED_SONAME_RELEASE "libCppMicroServices.so.4.0.0"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${CPPUSLIB}"
+  IMPORTED_SONAME_RELEASE "${CPPUSLIB}"
   )
 
 # Create imported target xacc::xacc
@@ -90,8 +107,8 @@ set_target_properties(xacc::xacc PROPERTIES
 # Import target "xacc::xacc" for configuration "Release"
 set_property(TARGET xacc::xacc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(xacc::xacc PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libxacc.so"
-  IMPORTED_SONAME_RELEASE "libxacc.so"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCLIB}"
+  IMPORTED_SONAME_RELEASE "${XACCLIB}"
   )
 
 
@@ -105,8 +122,8 @@ set_target_properties(xacc::quantum_gate PROPERTIES
 # Import target "xacc::quantum_gate" for configuration "Release"
 set_property(TARGET xacc::quantum_gate APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(xacc::quantum_gate PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libxacc-quantum-gate.so"
-  IMPORTED_SONAME_RELEASE "libxacc-quantum-gate.so"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCGATELIB}"
+  IMPORTED_SONAME_RELEASE "${XACCGATELIB}"
   )
 
 # Create imported target xacc::quantum_aqc
@@ -120,8 +137,8 @@ set_target_properties(xacc::quantum_aqc PROPERTIES
 # Import target "xacc::quantum_aqc" for configuration "Release"
 set_property(TARGET xacc::quantum_aqc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(xacc::quantum_aqc PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libxacc-quantum-aqc.so"
-  IMPORTED_SONAME_RELEASE "libxacc-quantum-aqc.so"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCAQCLIB}"
+  IMPORTED_SONAME_RELEASE "${XACCAQCLIB}"
   )
 
 
@@ -136,8 +153,8 @@ set_target_properties(xacc::pauli PROPERTIES
 # Import target "xacc::pauli" for configuration "Release"
 set_property(TARGET xacc::pauli APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(xacc::pauli PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libxacc-pauli.so"
-  IMPORTED_SONAME_RELEASE "libxacc-pauli.so"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCPAULILIB}"
+  IMPORTED_SONAME_RELEASE "${XACCPAULILIB}"
   )
 
 
@@ -152,8 +169,8 @@ set_target_properties(xacc::fermion PROPERTIES
 # Import target "xacc::fermion" for configuration "Release"
 set_property(TARGET xacc::fermion APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(xacc::fermion PROPERTIES
-  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/libxacc-fermion.so"
-  IMPORTED_SONAME_RELEASE "libxacc-fermion.so"
+  IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCFERMIONLIB}"
+  IMPORTED_SONAME_RELEASE "${XACCFERMIONLIB}"
   )
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
