@@ -133,6 +133,31 @@ public:
                std::vector<InstructionParameter>{}) override { return nullptr;}
 };
 
+class PyCompiler : public xacc::Compiler {
+public:
+  /* Inherit the constructors */
+  using Compiler::Compiler;
+
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::Compiler, name);
+  }
+  const std::string description() const override { return ""; }
+
+  std::shared_ptr<IR>
+  compile(const std::string& src, std::shared_ptr<Accelerator> acc) {
+    PYBIND11_OVERLOAD_PURE(std::shared_ptr<IR>, xacc::Compiler, compile, src, acc);
+  }
+
+  std::shared_ptr<IR> compile(const std::string &src) override {
+      return compile(src, nullptr);
+  }
+
+  const std::string translate(const std::string &bufferVariable,
+                                      std::shared_ptr<Function> function) override {
+     return "";
+    }
+
+};
 PYBIND11_MODULE(_pyxacc, m) {
   m.doc() =
       "Python bindings for XACC. XACC provides a plugin infrastructure for "
@@ -353,10 +378,11 @@ PYBIND11_MODULE(_pyxacc, m) {
            "");
 
   // Expose the Compiler
-  py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>>(
+  py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>, PyCompiler>(
       m, "Compiler",
       "The XACC Compiler takes as input quantum kernel source code, "
       "and compiles it to the XACC intermediate representation.")
+      .def(py::init<>(), "")
       .def("name", &xacc::Compiler::name, "Return the name of this Compiler.")
       .def("compile",
            (std::shared_ptr<xacc::IR>(xacc::Compiler::*)(
