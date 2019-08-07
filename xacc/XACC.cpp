@@ -269,9 +269,13 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto c = xacc::getService<Compiler>(name);
+  auto c = xacc::getService<Compiler>(name, false);
   if (!c) {
-    error("Invalid Compiler. Could not find " + name + " in Service Registry.");
+     if (xacc::hasContributedService<Compiler>(name)) {
+       c = xacc::getContributedService<Compiler>(name);
+    } else {
+       error("Invalid Compiler. Could not find " + name + " in Service Registry.");
+    }
   }
   return c;
 }

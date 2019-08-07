@@ -40,8 +40,7 @@ using namespace cppmicroservices;
 namespace xacc {
 
 using ContributableService =
-    Variant<std::shared_ptr<IRGenerator>, std::shared_ptr<Accelerator>>;//,
-            // std::shared_ptr<Compiler>, std::shared_ptr<Algorithm>,
+    Variant<std::shared_ptr<IRGenerator>, std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;//, std::shared_ptr<Algorithm>,
             // std::shared_ptr<Optimizer>, std::shared_ptr<IRProvider>>;
 /**
  * The ServiceRegistry provides the plugin infrastructure for XACC.

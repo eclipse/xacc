@@ -25,7 +25,7 @@ buffer = xacc.qalloc(2)
 
 irg2 = xacc.getIRGenerator('bell')
 
-@xacc.qpu( accelerator=qpu)
+@xacc.qpu(accelerator=qpu)
 def function(buffer):
     bell()
 
