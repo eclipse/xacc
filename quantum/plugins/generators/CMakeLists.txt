@@ -3,6 +3,7 @@ set(LIBRARY_NAME xacc-generators)
 file(GLOB SRC hwe/hwe.cpp
               range/range.cpp
               exp/exp.cpp
+              uccsd/uccsd.cpp
               GeneratorsActivator.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -12,7 +13,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC . hwe exp range)
+  PUBLIC . hwe exp range uccsd)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-pauli xacc-fermion)
 
@@ -46,6 +47,7 @@ if(XACC_BUILD_TESTS)
   add_subdirectory(hwe/tests)
   add_subdirectory(exp/tests)
   add_subdirectory(range/tests)
+  add_subdirectory(uccsd/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

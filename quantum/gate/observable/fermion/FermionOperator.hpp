@@ -22,7 +22,7 @@ using Operator = std::pair<int, bool>;
 using Operators = std::vector<Operator>;
 // using SiteMap = std::map<Operators, std::complex<double>>;
 
-using FermionTermTuple = std::tuple<std::complex<double>, Operators>;
+using FermionTermTuple = std::tuple<std::complex<double>, Operators, std::string>;
 class FermionTerm : public FermionTermTuple,
              public tao::operators::commutative_multipliable<FermionTerm>,
              public tao::operators::equality_comparable<FermionTerm> {
@@ -31,31 +31,43 @@ public:
   FermionTerm() {
     std::get<0>(*this) = std::complex<double>(1.0, 0.0);
     std::get<1>(*this) = {};
+    std::get<2>(*this) = "";
   }
 
   FermionTerm(const FermionTerm &t) {
     std::get<0>(*this) = std::get<0>(t);
     std::get<1>(*this) = std::get<1>(t);
+    std::get<2>(*this) = std::get<2>(t);
   }
 
   FermionTerm(std::complex<double> c) {
     std::get<0>(*this) = c;
     std::get<1>(*this) = {};
+    std::get<2>(*this) = "";
   }
 
  FermionTerm(double c) {
     std::get<0>(*this) = std::complex<double>(c,0.0);
     std::get<1>(*this) = {};
+    std::get<2>(*this) = "";
+
   }
 
   FermionTerm(std::complex<double> c, Operators ops) {
     std::get<0>(*this) = c;
     std::get<1>(*this) = ops;
+    std::get<2>(*this) = "";
   }
 
+ FermionTerm(std::complex<double> c, Operators ops, std::string var) {
+    std::get<0>(*this) = c;
+    std::get<1>(*this) = ops;
+    std::get<2>(*this) = var;
+  }
   FermionTerm(Operators ops) {
     std::get<0>(*this) = std::complex<double>(1.0, 0.0);
     std::get<1>(*this) = ops;
+    std::get<2>(*this) = "";
   }
 
   static const std::string id(const Operators &ops) {
@@ -118,6 +130,7 @@ public:
   Operators &ops() { return std::get<1>(*this); }
 
   std::complex<double> &coeff() { return std::get<0>(*this); }
+  std::string var() {return std::get<2>(*this);}
 
   FermionTerm &operator*=(const FermionTerm &v) noexcept;
 
@@ -150,6 +163,7 @@ public:
   FermionOperator(Operators operators);
   FermionOperator(Operators operators, std::complex<double> coeff);
   FermionOperator(Operators operators, double coeff);
+  FermionOperator(Operators operators, double coeff, std::string var);
 
   std::vector<std::shared_ptr<Function>>
   observe(std::shared_ptr<Function> function) override;
