@@ -102,7 +102,7 @@ TEST(PyXACCCompilerTester, checkIRGen) {
 
   if (xacc::hasService<IRGenerator>("uccsd")) {
     const std::string uccsdSrc = R"uccsdSrc(def foo(buffer, *args):
-   uccsd(n_qubits=4, n_electrons=2)
+   uccsd(nqubits=4, nelectrons=2)
    )uccsdSrc";
 
     auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
@@ -110,9 +110,9 @@ TEST(PyXACCCompilerTester, checkIRGen) {
     auto acc = std::make_shared<FakePyAcc>();
 
     auto ir = compiler->compile(R"(def foo(buffer, *args):
-   uccsd(n_qubits=4, n_electrons=2)
+   uccsd(nqubits=4, nelectrons=2)
    )", acc);
-   
+
     auto f = ir->getKernel("foo");
     EXPECT_EQ("foo", f->name());
     EXPECT_EQ(f->nParameters(), 2);
