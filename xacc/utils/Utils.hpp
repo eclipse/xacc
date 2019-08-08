@@ -26,13 +26,16 @@ namespace spdlog {
 class logger;
 }
 namespace xacc {
+
 void ltrim(std::string &s);
 void rtrim(std::string &s);
 void trim(std::string &s);
 
 bool fileExists(const std::string &name);
 bool directoryExists(const std::string path);
+
 void print_backtrace();
+
 
 template <class Op> void split(const std::string &s, char delim, Op op) {
   std::stringstream ss(s);
@@ -72,7 +75,7 @@ template <typename T>
 std::ostream &operator<<(std::ostream &os, const std::map<int, T> &m) {
   os << "[";
   int i = 0;
-  for (auto& kv : m) {
+  for (auto &kv : m) {
     os << "(" << kv.first << "," << kv.second << ")";
     if (i != m.size() - 1) {
       os << ",";

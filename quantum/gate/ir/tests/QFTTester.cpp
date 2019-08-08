@@ -23,10 +23,10 @@ using namespace xacc::quantum;
 TEST(QFTTester, checkCreation) {
 
   xacc::Initialize();
-  auto qft = std::make_shared<QFT>();
+  auto qft = xacc::getIRGenerator("QFT");//std::make_shared<QFT>();
 
   auto buffer = std::make_shared<AcceleratorBuffer>("", 3);
-  auto qftKernel = qft->generate(buffer);
+  auto qftKernel = qft->generate({{"nqubits",3}});
   auto ir = std::make_shared<GateIR>();
   ir->addKernel(qftKernel);
 

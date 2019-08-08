@@ -62,6 +62,9 @@ void ServiceAPI_Finalize() {
 void contributeService(const std::string name, ContributableService& service) {
     serviceRegistry->contributeService(name, service);
 }
+void contributeService(const std::string name, ContributableService&& service) {
+    contributeService(name, service);
+}
 
 std::vector<OptionPairs> getRegisteredOptions() {
   return serviceRegistry->getRegisteredOptions();

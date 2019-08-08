@@ -25,6 +25,7 @@ void ServiceAPI_Initialize(int argc, char **argv);
 void ServiceAPI_Finalize();
 
 void contributeService(const std::string name, ContributableService& service);
+void contributeService(const std::string name, ContributableService&& service);
 
 template <class Service>
 std::shared_ptr<Service> getService(const std::string &serviceName, bool failIfNotFound = true) {

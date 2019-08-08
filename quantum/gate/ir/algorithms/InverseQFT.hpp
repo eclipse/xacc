@@ -35,14 +35,12 @@ public:
    * @param bits The bits this algorithm operates on
    * @return function The algorithm represented as an IR Function
    */
-  virtual std::shared_ptr<Function>
-  generate(std::shared_ptr<AcceleratorBuffer> buffer,
-           std::vector<InstructionParameter> parameters =
-               std::vector<InstructionParameter>{});
+std::shared_ptr<Function>
+  generate(std::map<std::string,InstructionParameter>& parameters) override;
 
-  virtual const std::string name() const { return "InverseQFT"; }
+ const std::string name() const override { return "InverseQFT"; }
 
-  virtual const std::string description() const {
+ const std::string description() const override {
     return "The Inverse QFT Algorithm Generator generates IR representing "
            "an inverse Quantum Fourier Transform.";
   }

@@ -22,11 +22,10 @@ using namespace xacc::quantum;
 TEST(InverseQFTTester, checkCreation) {
 
   xacc::Initialize();
-  auto iqft = std::make_shared<InverseQFT>();
+  auto iqft = xacc::getIRGenerator("InverseQFT");//std::make_shared<InverseQFT>();
 
-  auto buffer = std::make_shared<AcceleratorBuffer>("", 3);
 
-  auto iqftKernel = iqft->generate(buffer);
+  auto iqftKernel = iqft->generate({{"nqubits",3}});
   auto ir = std::make_shared<GateIR>();
   ir->addKernel(iqftKernel);
 

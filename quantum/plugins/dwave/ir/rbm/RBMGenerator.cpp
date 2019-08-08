@@ -42,15 +42,9 @@ std::shared_ptr<Function> RBMGenerator::generate(
         params.push_back(parameters["hidden-units"]);
     }
 
-    return generate(nullptr, params);
-}
 
-std::shared_ptr<Function> RBMGenerator::generate(
-		                        std::shared_ptr<AcceleratorBuffer> buffer,
-		                        std::vector<InstructionParameter> parameters) {
-
-    int n_visible = parameters[1].as<int>();
-    int n_hidden = parameters[0].as<int>();
+    int n_visible = params[1].as<int>();
+    int n_hidden = params[0].as<int>();
 
     auto kernel = std::make_shared<xacc::quantum::DWFunction>("rbm_function");
 

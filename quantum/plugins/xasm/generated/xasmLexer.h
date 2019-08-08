@@ -1,5 +1,5 @@
 
-// Generated from XACCLang.g4 by ANTLR 4.7.2
+// Generated from xasm.g4 by ANTLR 4.7.2
 
 #pragma once
 
@@ -7,10 +7,10 @@
 #include "antlr4-runtime.h"
 
 
-namespace xacclang {
+namespace xasm {
 
 
-class  XACCLangLexer : public antlr4::Lexer {
+class  xasmLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
@@ -21,8 +21,8 @@ public:
     REAL = 33, INT = 34, STRING = 35, WS = 36, EOL = 37
   };
 
-  XACCLangLexer(antlr4::CharStream *input);
-  ~XACCLangLexer();
+  xasmLexer(antlr4::CharStream *input);
+  ~xasmLexer();
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;
@@ -60,4 +60,4 @@ private:
   static Initializer _init;
 };
 
-}  // namespace xacclang
+}  // namespace xasm

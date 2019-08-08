@@ -123,14 +123,9 @@ public:
   const std::string description() const override { return ""; }
 
   std::shared_ptr<Function>
-  generate(std::map<std::string, InstructionParameter>& parameters) {
+  generate(std::map<std::string, InstructionParameter>& parameters) override {
     PYBIND11_OVERLOAD_PURE(std::shared_ptr<Function>, xacc::IRGenerator, generate, parameters);
   }
-
-  std::shared_ptr<Function>
-  generate(std::shared_ptr<AcceleratorBuffer> buffer,
-           std::vector<InstructionParameter> parameters =
-               std::vector<InstructionParameter>{}) override { return nullptr;}
 };
 
 class PyCompiler : public xacc::Compiler {
@@ -144,7 +139,7 @@ public:
   const std::string description() const override { return ""; }
 
   std::shared_ptr<IR>
-  compile(const std::string& src, std::shared_ptr<Accelerator> acc) {
+  compile(const std::string& src, std::shared_ptr<Accelerator> acc) override {
     PYBIND11_OVERLOAD_PURE(std::shared_ptr<IR>, xacc::Compiler, compile, src, acc);
   }
 
@@ -259,13 +254,8 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def(py::init<>(),"")
       .def("generate",
            (std::shared_ptr<xacc::Function>(xacc::IRGenerator::*)(
-               std::vector<xacc::InstructionParameter>)) &
-               xacc::IRGenerator::generate, "")
-      .def("generate",
-           (std::shared_ptr<xacc::Function>(xacc::IRGenerator::*)(
-               std::map<std::string, xacc::InstructionParameter> &)) &
-               xacc::IRGenerator::generate, "")
-      .def("analyzeResults", &xacc::IRGenerator::analyzeResults, "");
+               std::map<std::string, xacc::InstructionParameter>&)) &
+               xacc::IRGenerator::generate, "");
 
   // Expose the Accelerator
   py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>,
@@ -621,9 +611,6 @@ PYBIND11_MODULE(_pyxacc, m) {
         "Indicate that this is using XACC via the Python API.");
   m.def("optimizeFunction", &xacc::optimizeFunction,
         "Run an optimizer on the given function.");
-  m.def("analyzeBuffer",
-        (void (*)(std::shared_ptr<AcceleratorBuffer>)) & xacc::analyzeBuffer,
-        "Analyze the AcceleratorBuffer to produce problem-specific results.");
   m.def("getCache", &xacc::getCache, "");
   m.def("appendCache",
         (void (*)(const std::string, const std::string, InstructionParameter &,

@@ -1,22 +1,16 @@
-/***********************************************************************************
- *
- * Contributors:
- *   Initial implementation - Amrut Nadgir
- *
- **********************************************************************************/
-#ifndef XACC_LANG_ERRORLISTENER_HPP
-#define XACC_LANG_ERRORLISTENER_HPP
+#ifndef XACC_XASMERRORLISTENER_HPP
+#define XACC_XASMERRORLISTENER_HPP
 
 using namespace antlr4;
 
-class XACCLangErrorListener : public BaseErrorListener {
+class XASMErrorListener : public BaseErrorListener {
 public:
   void syntaxError(Recognizer *recognizer, Token *offendingSymbol, size_t line,
                    size_t charPositionInLine, const std::string &msg,
                    std::exception_ptr e) override {
     std::ostringstream output;
-    output << "Invalid XACCLang source: ";
-    output << "line " << line << ":" << charPositionInLine << " " << msg;
+    output << "Invalid xasm source: [";
+    output << line << ":" << charPositionInLine << "] " << msg;
     xacc::error(output.str());
   }
 };

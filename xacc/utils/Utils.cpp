@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include "spdlog/spdlog.h"
 #include "RuntimeOptions.hpp"
+
 #include <iostream>
 #include <sstream>
 #include <istream>
@@ -44,21 +45,21 @@ bool fileExists(const std::string &name) {
 }
 
 bool directoryExists(const std::string path) {
- auto p = path.c_str();
- if ( p == NULL) return false;
+  auto p = path.c_str();
+  if (p == NULL)
+    return false;
 
-    DIR *pDir;
-    bool bExists = false;
+  DIR *pDir;
+  bool bExists = false;
 
-    pDir = opendir (p);
+  pDir = opendir(p);
 
-    if (pDir != NULL)
-    {
-        bExists = true;
-        (void) closedir (pDir);
-    }
+  if (pDir != NULL) {
+    bExists = true;
+    (void)closedir(pDir);
+  }
 
-    return bExists;
+  return bExists;
 }
 
 void print_backtrace() {
@@ -81,9 +82,9 @@ void print_backtrace() {
 
     char sym[256];
     if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
-      char* nameptr = sym;
+      char *nameptr = sym;
       int status;
-      char* demangled = abi::__cxa_demangle(sym, nullptr, nullptr, &status);
+      char *demangled = abi::__cxa_demangle(sym, nullptr, nullptr, &status);
       if (status == 0) {
         nameptr = demangled;
       }
