@@ -3,7 +3,6 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 from hamiltonian_generator import HamiltonianGenerator
 import ast
-import xaccvqe
 import numpy as np
 
 try:

@@ -27,14 +27,15 @@ class VQEEnergy(VQEBase):
             - sets XACC VQE task to 'compute-energy'
         """
         super().execute(inputParams)
-        self.vqe_options_dict['task'] = 'compute-energy'
-        energy = xaccvqe.execute(self.op, self.buffer, **self.vqe_options_dict).energy
 
-        if 'rdm-purification' in self.qpu.name():
-            p = self.buffer.getAllUnique('parameters')
-            child = self.buffer.getChildren('parameters', p[0])
-            energy = child[1].getInformation('purified-energy')
-            self.buffer.addExtraInfo('vqe-energy', energy)
+        algo = xacc.getAlgorithm("vqe-energy", self.vqe_options_dict)
+        algo.execute(self.buffer)
+
+        # if 'rdm-purification' in self.qpu.name():
+        #     p = self.buffer.getAllUnique('parameters')
+        #     child = self.buffer.getChildren('parameters', p[0])
+        #     energy = child[1].getInformation('purified-energy')
+        #     self.buffer.addExtraInfo('vqe-energy', energy)
 
         return self.buffer
 
