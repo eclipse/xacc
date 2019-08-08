@@ -69,6 +69,14 @@ FermionOperator::FermionOperator(Operators operators,
 FermionOperator::FermionOperator(Operators operators, double coeff)
     : FermionOperator(operators, std::complex<double>(coeff, 0)) {}
 
+
+FermionOperator::FermionOperator(Operators operators, double coeff, std::string var)
+    {
+          terms.emplace(std::piecewise_construct,
+                std::forward_as_tuple(FermionTerm::id(operators)),
+                std::forward_as_tuple(std::complex<double>(coeff,0.0), operators, var));
+    }
+
 void FermionOperator::clear() { terms.clear(); }
 
 std::vector<std::shared_ptr<Function>>
@@ -81,7 +89,7 @@ const std::string FermionOperator::toString() {
   std::stringstream s;
   for (auto &kv : terms) {
     std::complex<double> c = std::get<0>(kv.second);
-    s << c << " ";
+    s << c << " " << std::get<2>(kv.second) << " ";
     Operators ops = std::get<1>(kv.second);
 
     std::vector<int> creations, annhilations;
@@ -157,7 +165,6 @@ const int FermionOperator::nBits() {
 FermionOperator &
 FermionOperator::operator+=(const FermionOperator &v) noexcept {
   FermionOperator vv = v;
-//   std::cout << "adding " << toString() << " and " << vv.toString() << "\n";
   for (auto &kv : v.terms) {
 
     auto termId = kv.first;

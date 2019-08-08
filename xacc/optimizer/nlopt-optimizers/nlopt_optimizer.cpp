@@ -34,7 +34,12 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   std::vector<double> x(dim);
   if (options.count("initial-parameters")) {
-      x = options["initial-parameters"].as<std::vector<double>>();
+      try {
+        x = options["initial-parameters"].as_no_error<std::vector<double>>();
+      } catch(std::exception& ex) {
+        auto tmpx = options["initial-parameters"].as<std::vector<int>>();
+        x = std::vector<double>(tmpx.begin(), tmpx.end());
+      }
   }
   nlopt::opt _opt(algo, dim);
   std::function<double(const std::vector<double> &, std::vector<double> &,

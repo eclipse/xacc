@@ -25,10 +25,11 @@ JW::transform(std::shared_ptr<Observable> observable) {
   // Loop over all Fermionic terms...
   for (auto &kv : terms) {
 
+    auto var = kv.second.var();
     auto coeff = kv.second.coeff();
     auto operators = kv.second.ops();
 
-    PauliOperator current(coeff);
+    PauliOperator current(coeff, var);
     for (auto &kv2 : operators) {
       std::map<int, std::string> zs;
       auto isCreation = kv2.second;
