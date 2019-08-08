@@ -11,7 +11,7 @@ TEST(RBMGeneratorTester, checkRBM){
 
     auto buffer = std::make_shared<xacc::AcceleratorBuffer>("", 4);
 
-    auto f = irgen->generate(buffer, {xacc::InstructionParameter(2), xacc::InstructionParameter(2)});
+    auto f = irgen->generate({{"visible_units",2},{"hidden_units",2}});
 
     std::cout << f->toString() << std::endl;
     std::cout << f->nParameters() << std::endl;

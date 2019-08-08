@@ -1,21 +1,22 @@
 
-grammar XACCLang;
+grammar xasm;
 
 /* This part of the grammar is particular to XACC */
 /**********************************************************************/
 xaccsrc
-   : xacckernel*
+   : xacckernel
+   | xacclambda
    ;
 
     xacckernel : '__qpu__' 'void' kernelname =
                     id '(' 'qbit' acceleratorbuffer =
-                        id(',' typedparam) * ')' '{' mainprog '}';
+                        id (',' typedparam) * ')' '{' mainprog '}';
 
-    typedparam : type param;
+    xacclambda : '['('&'|'=')?']' '(' 'qbit' acceleratorbuffer=id (',' typedparam) * ')' '{' mainprog '}';
 
-    type : 'int' | 'double' | 'float';
+    typedparam : type id;
 
-    kernelcall : kernelname = id '(' param ? (',' param) * ')';
+    type : 'int' | 'double' | 'float' | 'std::vector<double>';
 
 /***********************************************************************/
 
@@ -37,7 +38,7 @@ line
 
 /* A program statement */
 statement
-   : uop ';'
+   : instruction ';'
    | 'return' ';'
    ;
 
@@ -46,24 +47,24 @@ comment
    : COMMENT
    ;
 
-/* A list of parameters */
-paramlist
-   : param (',' paramlist)?
+instruction
+   : inst_name=id  '(' (bits=bitsType) (',' params=explist)? (',' options=optionsMap)? ')'
    ;
 
-/* A parameter */
-param
-   : id
-   | '*' id
+bufferIndex
+   : id ('[' INT ']')?
    ;
 
-/* A unitary operation */
-uop
-   : gatename=gate  '(' ( explist )? ')' 
+bitsType
+   : bufferIndex (',' bufferIndex)*
    ;
 
-gate
-   : id
+optionsMap
+   : '{' optionsType (',' optionsType)* '}'
+   ;
+
+optionsType
+   : '{' key=string ',' value=exp '}'
    ;
 
 /* A list of expressions */
@@ -85,17 +86,9 @@ exp
    | exp '^' exp
    | '(' exp ')'
    | unaryop '(' exp ')'
-   | key '=' exp
-   | '\'[' ( ','? coupler )* ']\''
+   | string
    ;
 
-key
-   : id
-   ;
-
-coupler
-   : '[' INT ',' INT ']'
-   ;
 /* unary operations */
 unaryop
    : 'sin'

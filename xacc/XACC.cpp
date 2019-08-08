@@ -428,17 +428,6 @@ const std::string translateWithVisitor(const std::string &originalSource,
   return visitor->toString();
 }
 
-void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
-  if (!buffer->hasExtraInfoKey("ir-generator")) {
-    error("xacc::analyzeBuffer is for use with codes generated with an "
-          "IRGenerator.");
-  }
-
-  auto gen = getService<IRGenerator>(
-      mpark::get<std::string>(buffer->getInformation("ir-generator")));
-  gen->analyzeResults(buffer);
-}
-
 void clearOptions() { RuntimeOptions::instance()->clear(); }
 
 std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
@@ -600,10 +589,14 @@ const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
 void appendCompiled(std::shared_ptr<Function> function) {
   if (compilation_database.count(function->name())) {
-    xacc::error("Invalid Function name, already in compilation database.");
+    xacc::error("Invalid Function name, already in compilation database: " + function->name() + ".");
   }
   compilation_database.insert({function->name(), function});
 }
+bool hasCompiled(const std::string name) {
+    return compilation_database.count(name);
+}
+
 std::shared_ptr<Function> getCompiled(const std::string name) {
   if (!compilation_database.count(name)) {
     xacc::error("Invalid Function requested. Not in compilation database " +

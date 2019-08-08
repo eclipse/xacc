@@ -1,4 +1,4 @@
-#include "XACCLangCompiler.hpp"
+#include "xasm_compiler.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -13,15 +13,15 @@ namespace {
 
 /**
  */
-class US_ABI_LOCAL XACCLangCompilerActivator : public BundleActivator {
+class US_ABI_LOCAL XASMActivator : public BundleActivator {
 
 public:
-  XACCLangCompilerActivator() {}
+  XASMActivator() {}
 
   /**
    */
   void Start(BundleContext context) {
-    auto c = std::make_shared<xacc::XACCLangCompiler>();
+    auto c = std::make_shared<xacc::XASMCompiler>();
     context.RegisterService<xacc::Compiler>(c);
     context.RegisterService<xacc::OptionsProvider>(c);
   }
@@ -33,4 +33,4 @@ public:
 
 } // namespace
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(XACCLangCompilerActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(XASMActivator)

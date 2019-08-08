@@ -324,8 +324,6 @@ const std::string getRootDirectory();
 std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
                                            std::shared_ptr<Function> function);
 
-void analyzeBuffer(std::shared_ptr<AcceleratorBuffer> buffer);
-
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 
 const std::string translate(std::shared_ptr<Function> function,
@@ -339,6 +337,7 @@ const std::string translateWithVisitor(const std::string &originalSource,
 
 void appendCompiled(std::shared_ptr<Function> function);
 std::shared_ptr<Function> getCompiled(const std::string name);
+bool hasCompiled(const std::string name);
 
 void qasm(const std::string &qasmString);
 /**

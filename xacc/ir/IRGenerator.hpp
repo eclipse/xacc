@@ -13,67 +13,26 @@
 #ifndef IR_IRGENERATOR_HPP_
 #define IR_IRGENERATOR_HPP_
 
-#include "AcceleratorBuffer.hpp"
 #include "Function.hpp"
-// #include "Identifiable.hpp"
+
 #include <vector>
 #include <memory>
 
 namespace xacc {
 
-/**
- * The IRGenerator interface provides a mechanism for
- * generating common algorithms modeled as an XACC Function instance.
- *
- * @author Alex McCaskey
- */
 class IRGenerator : public Instruction {
 
 protected:
   std::map<std::string, InstructionParameter> options;
 
 public:
-  /**
-   * Implementations of this method generate a Function IR
-   * instance corresponding to the implementation's modeled
-   * algorithm. The algorithm is specified to operate over the
-   * provided AcceleratorBuffer and can take an optional
-   * vector of InstructionParameters.
-   *
-   * @param bits The bits this algorithm operates on
-   * @return function The algorithm represented as an IR Function
-   */
-  virtual std::shared_ptr<Function>
-  generate(std::shared_ptr<AcceleratorBuffer> buffer,
-           std::vector<InstructionParameter> parameters =
-               std::vector<InstructionParameter>{}) = 0;
 
   virtual std::shared_ptr<Function>
-  generate(std::vector<InstructionParameter> parameters =
-               std::vector<InstructionParameter>{}) {
-    return generate(nullptr, parameters);
-  }
+  generate(std::map<std::string, InstructionParameter>& parameters) = 0;
 
   virtual std::shared_ptr<Function>
-  generate(std::map<std::string, InstructionParameter>& parameters) {
-    std::vector<InstructionParameter> temp;
-    for (auto &kv : parameters)
-      temp.push_back(kv.second);
-    return generate(nullptr, temp);
-  }
-
-  virtual std::shared_ptr<Function>
-  generate(std::map<std::string, InstructionParameter>&& parameters =
-               std::map<std::string, InstructionParameter>{}) {
-    std::vector<InstructionParameter> temp;
-    for (auto &kv : parameters)
-      temp.push_back(kv.second);
-    return generate(nullptr, temp);
-  }
-
-  virtual std::vector<InstructionParameter>
-  analyzeResults(std::shared_ptr<AcceleratorBuffer> buffer) {
-    return std::vector<InstructionParameter>{};
+  generate(std::map<std::string, InstructionParameter>&& parameters) {
+    return generate(parameters);
   }
 
  const std::string toString(const std::string &bufferVarName) override {
@@ -93,6 +52,7 @@ public:
   void setBits(const std::vector<int> bits) override {
     return;
   }
+
   /**
    * Return this Instruction's parameter at the given index.
    *

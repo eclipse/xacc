@@ -21,8 +21,7 @@ namespace xacc {
 namespace quantum {
 
 std::shared_ptr<Function>
-QFT::generate(std::shared_ptr<AcceleratorBuffer> buffer,
-              std::vector<InstructionParameter> parameters) {
+QFT::generate(std::map<std::string,InstructionParameter>& parameters) {
   auto gateRegistry = xacc::getService<IRProvider>("gate");
 
   auto bitReversal = [&](std::vector<int> qubits)
@@ -93,7 +92,7 @@ QFT::generate(std::shared_ptr<AcceleratorBuffer> buffer,
     }
   };
 
-  auto bufferSize = buffer->size();
+  auto bufferSize = parameters["nqubits"].as<int>();
   std::vector<int> qubits;
   for (int i = 0; i < bufferSize; i++) {
     qubits.push_back(i);

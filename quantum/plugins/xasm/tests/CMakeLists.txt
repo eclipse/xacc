@@ -1,4 +1,4 @@
 
 include_directories(${CMAKE_SOURCE_DIR}/tools/compiler)
-add_xacc_test(XACCLangCompiler)
-target_link_libraries(XACCLangCompilerTester xacc CppMicroServices xacc-quantum-gate)
+add_xacc_test(XASMCompiler)
+target_link_libraries(XASMCompilerTester xacc CppMicroServices xacc-quantum-gate)

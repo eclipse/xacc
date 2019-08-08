@@ -1,0 +1,6 @@
+{
+    "bundle.symbolic_name" : "xacc_generators",
+    "bundle.activator" : true,
+    "bundle.name" : "XACC IR Generators",
+    "bundle.description" : "This is an automatically generated bundle."
+}
