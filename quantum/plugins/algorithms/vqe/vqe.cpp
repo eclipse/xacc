@@ -5,6 +5,8 @@
 
 #include "InstructionParameter.hpp"
 #include <memory>
+#include <iomanip>
+
 using namespace xacc;
 
 namespace xacc {
@@ -19,7 +21,6 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
   } else if (!parameters.count("accelerator")) {
     return false;
   }
-
   try {
     observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
@@ -87,7 +88,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         ss << "E(" << x[0];
         for (int i = 1; i < x.size(); i++)
           ss << "," << x[i];
-        ss << ") = " << energy;
+        ss << ") = " << std::setprecision(12) << energy;
         xacc::info(ss.str());
         return energy;
       },
