@@ -31,13 +31,17 @@ TEST(XASMCompilerTester, checkSimple) {
 }
 
 TEST(XASMCompilerTester, checkApplyAll) {
-  
+
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler -> compile(R"([&](qbit q) {
   range(q, {{"gate","H"},{"nqubits",4}});
 })");
   EXPECT_EQ(1, IR->getKernels().size());
   std::cout << "KERNEL\n" << IR->getKernels()[0]->toString() << "\n";
+}
+
+TEST(XASMCompilerTester, checkUnknownParameter) {
+
 }
 
 int main(int argc, char **argv) {
