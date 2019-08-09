@@ -30,6 +30,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/iostream.h>
 #include <pybind11/operators.h>
+#include <pybind11/functional.h>
 
 namespace py = pybind11;
 using namespace xacc;
@@ -427,6 +428,9 @@ PYBIND11_MODULE(_pyxacc, m) {
                const std::map<std::string, xacc::AlgorithmParameter> &)) &
                xacc::Algorithm::initialize,
            "Initialize the algorithm with given AlgorithmParameters.");
+
+  py::class_<xacc::OptFunction> (m, "OptFunction", "")
+      .def(py::init<std::function<double(const std::vector<double> &)>,const int>());
 
   // Expose Optimizer
   py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
