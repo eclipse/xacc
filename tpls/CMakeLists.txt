@@ -11,6 +11,14 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 set(BUILD_SHARED_LIBS TRUE)
+if(APPLE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPATH_MAX=4096")
+endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0.0")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-copy")
+  endif()
+endif()
 add_subdirectory(cppmicroservices)
 
 set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
@@ -63,6 +71,7 @@ add_subdirectory(boost-cmake)
 
 # Compiler-specific C++11 activation (FROM ANTLR4).
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
+    message(STATUS "HELLO FROM GNU ${CMAKE_CXX_COMPILER_ID}")
     execute_process(
         COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
     # Just g++-5.0 and greater contain <codecvt> header. (test in ubuntu)
@@ -72,6 +81,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
         add_subdirectory(antlr)
     endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND APPLE)
+    message(STATUS "HELLO FROM CLANG ${CMAKE_CXX_COMPILER_ID}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     add_subdirectory(antlr)
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -84,6 +94,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND CMAKE_SYSTEM_NAME MATCHES
     endif()
     # You can use libc++ to compile this project when g++ is NOT greater than or equal to 5.0.
     if (WITH_LIBCXX)
+       message(STATUS "HELLO WORLD WITH LIBCXX")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif()
 endif ()
