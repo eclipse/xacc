@@ -13,6 +13,7 @@ class UCCSD : public xacc::IRGenerator {
 public:
   std::shared_ptr<Function>
   generate(std::map<std::string, InstructionParameter> &parameters) override;
+  bool validateOptions() override;
 
   const std::string name() const override { return "uccsd"; }
 

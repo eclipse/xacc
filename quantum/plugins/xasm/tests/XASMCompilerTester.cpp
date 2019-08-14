@@ -41,6 +41,24 @@ TEST(XASMCompilerTester, checkApplyAll) {
 }
 
 TEST(XASMCompilerTester, checkUnknownParameter) {
+auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler -> compile(R"([&](qbit q) {
+  uccsd(q, {{"nqubits",4},{"nelectrons",2}});
+})");
+
+ EXPECT_EQ(1, IR->getKernels().size());
+  std::cout << "KERNEL\n" << IR->getKernels()[0]->toString() << "\n";
+
+  IR = compiler -> compile(R"([&](qbit q) {
+  uccsd(q, {{"nqubits",4},{"nelectrons",ne}});
+})");
+
+ EXPECT_EQ(1, IR->getKernels().size());
+  auto f = IR->getKernels()[0];
+  std::cout << "KERNEL2\n" << IR->getKernels()[0]->toString() << "\n";
+
+  f->expandIRGenerators({{"nqubits", 4}, {"nelectrons",2}});
+    std::cout << "KERNEL3\n" << f->toString() << "\n";
 
 }
 

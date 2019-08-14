@@ -80,6 +80,7 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
       auto key = ctx->options->optionsType(i)->key->getText();
       key.erase(remove(key.begin(), key.end(), '\"'), key.end());
       auto val = ctx->options->optionsType(i)->value->getText();
+
       symbol_table_t symbol_table;
       symbol_table.add_constants();
       expression_t expr;
@@ -87,7 +88,12 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
       parser_t parser;
       if (parser.compile(val, expr)) {
         auto value = expr.value();
-        options.insert({key, value});
+        if (ctx->options->optionsType(i)->value->INT() != nullptr) {
+          int tmp = (int) value;
+          options.insert({key, tmp});
+        } else {
+          options.insert({key, value});
+        }
       } else {
         val.erase(remove(val.begin(), val.end(), '\"'), val.end());
         options.insert({key, val});
@@ -108,8 +114,13 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
         xacc::error("Cannot create IRGenerator with name " + instructionName);
       }
     }
+    for (auto& kv : options) generator->setOption(kv.first, kv.second);
+    if (generator->validateOptions()) {
     auto genF = generator->generate(options);
     function->addInstruction(genF);
+    } else {
+    function->addInstruction(generator);
+    }
   } else if (xacc::hasCompiled(instructionName)) {
     auto f = xacc::getCompiled(instructionName);
     function->addInstruction(f);
