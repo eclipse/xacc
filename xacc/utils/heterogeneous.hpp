@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
 #ifndef XACC_HETEROGENEOUS_HPP_
 #define XACC_HETEROGENEOUS_HPP_
 #include <map>
@@ -11,6 +23,7 @@
 #include "variant.hpp"
 
 #include "Utils.hpp"
+
 namespace xacc {
 
 template <class...> struct type_list {};
@@ -158,7 +171,7 @@ std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
     HeterogeneousMap::items;
 
 
-template <typename... Types> class Variant : public mpark::variant<Types...> {
+template <typename... Types> class Variant2 : public mpark::variant<Types...> {
 
 private:
   class ToStringVisitor {
@@ -186,12 +199,12 @@ private:
   };
 
 public:
-  Variant() : mpark::variant<Types...>() {}
+  Variant2() : mpark::variant<Types...>() {}
   template <typename T>
-  Variant(T &element) : mpark::variant<Types...>(element) {}
+  Variant2(T &element) : mpark::variant<Types...>(element) {}
   template <typename T>
-  Variant(T &&element) : mpark::variant<Types...>(element) {}
-  Variant(const Variant &element) : mpark::variant<Types...>(element) {}
+  Variant2(T &&element) : mpark::variant<Types...>(element) {}
+  Variant2(const Variant2 &element) : mpark::variant<Types...>(element) {}
 
   template <typename T> T as() const {
     try {
@@ -216,7 +229,7 @@ public:
   int which() const {
       return this->index();
   }
-  
+
   bool isNumeric() const {
     IsArithmeticVisitor v;
     return mpark::visit(v, *this);
@@ -236,11 +249,11 @@ public:
     return mpark::visit(vis, *this);
   }
 
-  bool operator==(const Variant<Types...> &v) const {
+  bool operator==(const Variant2<Types...> &v) const {
     return v.toString() == toString();
   }
 
-  bool operator!=(const Variant<Types...> &v) const { return !operator==(v); }
+  bool operator!=(const Variant2<Types...> &v) const { return !operator==(v); }
 
 };
 } // namespace xacc

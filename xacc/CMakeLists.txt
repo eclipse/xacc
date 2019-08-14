@@ -16,19 +16,19 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
 
 find_package(Libunwind)
 
-file(GLOB HEADERS
-          XACC.hpp
-          ir/*.hpp
-          compiler/*.hpp
-          accelerator/*.hpp
-          accelerator/remote/*.hpp
-          utils/*.hpp
-          service/*.hpp
-          algorithm/*.hpp
-          optimizer/*.hpp)
+file(GLOB
+     HEADERS
+     XACC.hpp
+     ir/*.hpp
+     compiler/*.hpp
+     accelerator/*.hpp
+     accelerator/remote/*.hpp
+     utils/*.hpp
+     service/*.hpp
+     algorithm/*.hpp
+     optimizer/*.hpp)
 
-add_library(xacc
-            SHARED
+add_library(xacc SHARED
             XACC.cpp
             accelerator/AcceleratorBuffer.cpp
             utils/Utils.cpp
@@ -39,52 +39,60 @@ add_library(xacc
 
 add_dependencies(xacc cpr)
 
-if (LIBUNWIND_FOUND)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LIBUNWIND")
-target_include_directories(xacc
-                           PRIVATE ${CMAKE_BINARY_DIR}
-                                   ${CPR_INCLUDE_DIRS}
-                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                   ${CMAKE_SOURCE_DIR}/tpls/spdlog
-                                   ${CMAKE_SOURCE_DIR}/tpls/cxxopts
-                                   ${LIBUNWIND_INCLUDE_DIRS}
-                           PUBLIC .
-                                  ir
-                                  compiler
-                                  program
-                                  accelerator
-                                  accelerator/remote
-                                  utils
-                                  service
-                                  algorithm
-                                  optimizer
-                                  ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+if(LIBUNWIND_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LIBUNWIND")
+  target_include_directories(xacc
+                             PRIVATE ${CMAKE_BINARY_DIR}
+                                     ${CPR_INCLUDE_DIRS}
+                                     ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                     ${CMAKE_SOURCE_DIR}/tpls/spdlog
+                                     ${CMAKE_SOURCE_DIR}/tpls/cxxopts
+                                     ${LIBUNWIND_INCLUDE_DIRS}
+                             PUBLIC .
+                                    ir
+                                    compiler
+                                    program
+                                    accelerator
+                                    accelerator/remote
+                                    utils
+                                    service
+                                    algorithm
+                                    optimizer
+                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
 
-message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
-target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES})
+  message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
+  target_link_libraries(xacc
+                        PUBLIC CppMicroServices
+                        PRIVATE cpr ${LIBUNWIND_LIBRARIES}
+                                ${LIBUNWINDX86_LIBRARIES})
 
 else()
 
-target_include_directories(xacc
-                           PRIVATE ${CMAKE_BINARY_DIR}
-                                   ${CPR_INCLUDE_DIRS}
-                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                   ${CMAKE_SOURCE_DIR}/tpls/spdlog
-                                   ${CMAKE_SOURCE_DIR}/tpls/cxxopts
-                           PUBLIC .
-                                  ir
-                                  compiler
-                                  program
-                                  accelerator
-                                  accelerator/remote
-                                  utils
-                                  service
-                                  algorithm
-                                  optimizer
-                                  ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
-target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
+  target_include_directories(xacc
+                             PRIVATE ${CMAKE_BINARY_DIR}
+                                     ${CPR_INCLUDE_DIRS}
+                                     ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                     ${CMAKE_SOURCE_DIR}/tpls/spdlog
+                                     ${CMAKE_SOURCE_DIR}/tpls/cxxopts
+                             PUBLIC .
+                                    ir
+                                    compiler
+                                    program
+                                    accelerator
+                                    accelerator/remote
+                                    utils
+                                    service
+                                    algorithm
+                                    optimizer
+                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+  target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
 
 endif()
+
+target_compile_features(xacc
+                        PUBLIC
+                        cxx_std_14
+                        cxx_alias_templates)
 if(APPLE)
   set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")
   set_target_properties(xacc PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")

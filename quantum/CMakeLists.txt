@@ -40,7 +40,7 @@ add_dependencies(${LIBRARY_NAME} antlr4_shared)
 
 target_include_directories(${LIBRARY_NAME}
                            PRIVATE
-                            gate/ir aqc/ir)
+                            gate/ir aqc/ir ${CMAKE_SOURCE_DIR}/tpls/exprtk)
 
 set(_bundle_name xacc_quantum_irprovider)
 set_target_properties(${LIBRARY_NAME}
@@ -59,7 +59,11 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices xacc-quantum-gate xacc-quantum-aqc)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-quantum-aqc)
+target_compile_features(${LIBRARY_NAME}
+                        PUBLIC
+                        cxx_std_14
+                        cxx_alias_templates)
 
 if(APPLE)
   set_target_properties(${LIBRARY_NAME}

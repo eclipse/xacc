@@ -55,8 +55,11 @@ usfunctionembedresources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE CppMicroServices)
-
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
+target_compile_features(${LIBRARY_NAME}
+                        PUBLIC
+                        cxx_std_14
+                        cxx_alias_templates)
 if(APPLE)
   set_target_properties(xacc-quantum-aqc
                         PROPERTIES INSTALL_RPATH "@loader_path")
