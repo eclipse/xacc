@@ -32,7 +32,7 @@ namespace xacc {
 
 bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
-std::shared_ptr<CLIParser> xaccCLParser; // = std::make_shared<CLIParser>();
+std::shared_ptr<CLIParser> xaccCLParser;
 int argc = 0;
 char **argv = NULL;
 std::map<std::string, std::shared_ptr<Function>> compilation_database{};
@@ -40,7 +40,6 @@ std::map<std::string, std::shared_ptr<Function>> compilation_database{};
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
 void Initialize(std::vector<std::string> argv) {
-  //   XACCLogger::instance()->info("Initializing the XACC Framework");
   std::vector<char *> cstrs;
   argv.insert(argv.begin(), "appExec");
   for (auto &s : argv) {
@@ -78,7 +77,7 @@ void Initialize(int arc, char **arv) {
     xacc::ServiceAPI_Initialize(argc, argv);
 
     // Parse any user-supplied command line options
-    xaccCLParser->parse(argc, argv); //, serviceRegistry.get());
+    xaccCLParser->parse(argc, argv);
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = ctrl_c_handler;
     sigemptyset(&sigIntHandler.sa_mask);
@@ -127,7 +126,8 @@ void error(const std::string &msg, MessagePredicate predicate) {
 }
 
 qbit qalloc(const int n) {
-  return std::make_shared<xacc::AcceleratorBuffer>(n);
+  qbit q(n);
+  return q;//std::make_shared<xacc::AcceleratorBuffer>(n);
 }
 
 void addCommandLineOption(const std::string &optionName,
@@ -203,7 +203,8 @@ std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params) {
   return acc;
 }
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            std::shared_ptr<Client> client, AcceleratorParameters params) {
+                                            std::shared_ptr<Client> client,
+                                            AcceleratorParameters params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -228,7 +229,8 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
   return acc;
 }
 
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name, AcceleratorParameters params) {
+std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
+                                            AcceleratorParameters params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -245,8 +247,9 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name, Accelerator
 
     if (xacc::hasContributedService<Accelerator>(name)) {
 
-        acc = xacc::getContributedService<Accelerator>(name);
-        if (acc) acc->initialize(params);
+      acc = xacc::getContributedService<Accelerator>(name);
+      if (acc)
+        acc->initialize(params);
 
     } else {
       error("Invalid Accelerator. Could not find " + name +
@@ -271,10 +274,11 @@ std::shared_ptr<Compiler> getCompiler(const std::string &name) {
   }
   auto c = xacc::getService<Compiler>(name, false);
   if (!c) {
-     if (xacc::hasContributedService<Compiler>(name)) {
-       c = xacc::getContributedService<Compiler>(name);
+    if (xacc::hasContributedService<Compiler>(name)) {
+      c = xacc::getContributedService<Compiler>(name);
     } else {
-       error("Invalid Compiler. Could not find " + name + " in Service Registry.");
+      error("Invalid Compiler. Could not find " + name +
+            " in Service Registry.");
     }
   }
   return c;
@@ -292,7 +296,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
                                         xacc::AlgorithmParameters &params) {
   auto algo = xacc::getAlgorithm(name);
   if (!algo->initialize(params)) {
-      error("Error initializing " + name + " algorithm.");
+    error("Error initializing " + name + " algorithm.");
   }
   return algo;
 }
@@ -337,7 +341,6 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
   return irp;
 }
 
-
 std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
@@ -346,11 +349,11 @@ std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
 
   auto irp = xacc::getService<IRGenerator>(name, false);
   if (!irp) {
-    if(xacc::hasContributedService<IRGenerator>(name)) {
-        irp = xacc::getContributedService<IRGenerator>(name);
+    if (xacc::hasContributedService<IRGenerator>(name)) {
+      irp = xacc::getContributedService<IRGenerator>(name);
     } else {
-    error("Invalid IRProvicer. Could not find " + name +
-          " in Service Registry.");
+      error("Invalid IRProvicer. Could not find " + name +
+            " in Service Registry.");
     }
   }
   return irp;
@@ -589,12 +592,13 @@ const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
 void appendCompiled(std::shared_ptr<Function> function) {
   if (compilation_database.count(function->name())) {
-    xacc::error("Invalid Function name, already in compilation database: " + function->name() + ".");
+    xacc::error("Invalid Function name, already in compilation database: " +
+                function->name() + ".");
   }
   compilation_database.insert({function->name(), function});
 }
 bool hasCompiled(const std::string name) {
-    return compilation_database.count(name);
+  return compilation_database.count(name);
 }
 
 std::shared_ptr<Function> getCompiled(const std::string name) {
@@ -618,7 +622,7 @@ void qasm(const std::string &qasmString) {
   auto lines = split(qasmString, '\n');
   std::string currentFunctionName = "";
   for (auto &l : lines) {
-      xacc::trim(l);
+    xacc::trim(l);
     if (l.find(".compiler") == std::string::npos &&
         l.find(".function") == std::string::npos && !l.empty()) {
       function2code[currentFunctionName] += l + "\n";

@@ -10,23 +10,42 @@ using namespace xacc::quantum;
 
 namespace xacc {
 namespace generators {
+bool UCCSD::validateOptions() {
+  if (!options.count("nqubits")) {
+    return false;//xacc::error("UCCSD requires 'nqubits' key.");
+  }
+
+  if (!options.count("nelectrons")) {
+    return false;//xacc::error("UCCSD requires 'nelectrons' key.");
+  }
+
+  if (options["nqubits"].isVariable()) {
+      return false;
+  }
+
+  if (options["nelectrons"].isVariable()) {
+      return false;
+  }
+
+  return true;
+}
 
 std::shared_ptr<Function>
 UCCSD::generate(std::map<std::string, InstructionParameter> &parameters) {
 
-  if (!parameters.count("nelectrons")) {
+  if (!parameters.count("nelectrons") && parameters["nelectrons"].isVariable()) {
     xacc::error("Invalid mapping of parameters for UCCSD generator, missing "
                 "nelectrons key.");
   }
 
-  if (!parameters.count("nqubits")) {
+  if (!parameters.count("nqubits") && parameters["nqubits"].isVariable()) {
     xacc::error("Invalid mapping of parameters for UCCSD generator, missing "
                 "nqubits key.");
   }
 
   std::vector<xacc::InstructionParameter> variables;
 
-  if (!parameters.empty()) {
+  if (!validateOptions() && !parameters.empty()) {
     options = parameters;
   }
 

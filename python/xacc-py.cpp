@@ -576,7 +576,9 @@ PYBIND11_MODULE(_pyxacc, m) {
   });
   m.def("qasm", &xacc::qasm, "");
   m.def("getCompiled", &xacc::getCompiled, "");
-  m.def("qalloc", &xacc::qalloc, "");
+  m.def("qalloc", [](const int n) -> std::shared_ptr<xacc::AcceleratorBuffer> {
+      return xacc::qalloc(n);
+  }, "");
   m.def(
       "info", [](const std::string s) { xacc::info(s); }, "");
   m.def(
