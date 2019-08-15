@@ -13,7 +13,8 @@
 #ifndef XACC_IR_CompositeInstruction_HPP_
 #define XACC_IR_CompositeInstruction_HPP_
 
-#include <list>
+#include <vector>
+#include <complex>
 
 #include "Graph.hpp"
 #include "Instruction.hpp"
@@ -61,6 +62,11 @@ using InstPtr = std::shared_ptr<Instruction>;
 // a vector of doubles, where the ith double corresponds to the
 // ith variable.
 
+// Oftentimes, collections of instructions may have a coefficient
+// associated with them, e.g. a term in a Hamiltonian may have a weight,
+// but we map that term to a set of measurement instructions. Therefore,
+// we also expose a coefficient complex value on the CompositeInstruction.
+
 class CompositeInstruction : public Instruction, public Persistable {
 public:
 
@@ -93,6 +99,9 @@ public:
   virtual const std::size_t nPhysicalBits() = 0;
 
   virtual std::shared_ptr<CompositeInstruction> enabledView() = 0;
+
+  virtual void setCoefficient(const std::complex<double> coefficient) = 0;
+  virtual const std::complex<double> getCoefficient() = 0;
 
   virtual std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) = 0;

@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_fermion",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Gate Model Quantum Computing FermionObservable",
+  "bundle.description" : "This bundle provides utilities for gate model QC."
+}

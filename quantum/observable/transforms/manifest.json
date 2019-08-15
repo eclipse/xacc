@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_observable_transforms",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Observable Transforms",
+  "bundle.description" : "This bundle provides Observable Transformations."
+}

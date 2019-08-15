@@ -2,7 +2,6 @@
 set(LIBRARY_NAME xacc-exprtk-parsing)
 
 file(GLOB SRC exprtk_activator.cpp exprtk_parsing_util.cpp)
-message(STATUS "HELLO ${SRC}")
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
