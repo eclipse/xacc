@@ -45,7 +45,7 @@ public:
     // auto qft = std::make_shared<xacc::quantum::QFT>();
     // auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
 
-    // auto giservice = std::make_shared<xacc::quantum::GateIRProvider>();
+    // auto giservice = std::make_shared<xacc::InstructionIRProvider>();
 
     // auto opt = std::make_shared<xacc::quantum::CircuitOptimizer>();
 
@@ -93,28 +93,28 @@ public:
     auto crz= std::make_shared<xacc::quantum::CRZ>();
     auto ch = std::make_shared<xacc::quantum::CH>();
 
-    context.RegisterService<xacc::quantum::Gate>(h);
-    context.RegisterService<xacc::quantum::Gate>(cn);
-    context.RegisterService<xacc::quantum::Gate>(cp);
-    context.RegisterService<xacc::quantum::Gate>(cz);
-    context.RegisterService<xacc::quantum::Gate>(id);
-    context.RegisterService<xacc::quantum::Gate>(m);
-    context.RegisterService<xacc::quantum::Gate>(rx);
-    context.RegisterService<xacc::quantum::Gate>(ry);
-    context.RegisterService<xacc::quantum::Gate>(rz);
-    context.RegisterService<xacc::quantum::Gate>(x);
-    context.RegisterService<xacc::quantum::Gate>(y);
-    context.RegisterService<xacc::quantum::Gate>(z);
-    context.RegisterService<xacc::quantum::Gate>(sw);
-    context.RegisterService<xacc::quantum::Gate>(u);
+    context.RegisterService<xacc::Instruction>(h);
+    context.RegisterService<xacc::Instruction>(cn);
+    context.RegisterService<xacc::Instruction>(cp);
+    context.RegisterService<xacc::Instruction>(cz);
+    context.RegisterService<xacc::Instruction>(id);
+    context.RegisterService<xacc::Instruction>(m);
+    context.RegisterService<xacc::Instruction>(rx);
+    context.RegisterService<xacc::Instruction>(ry);
+    context.RegisterService<xacc::Instruction>(rz);
+    context.RegisterService<xacc::Instruction>(x);
+    context.RegisterService<xacc::Instruction>(y);
+    context.RegisterService<xacc::Instruction>(z);
+    context.RegisterService<xacc::Instruction>(sw);
+    context.RegisterService<xacc::Instruction>(u);
 
-    context.RegisterService<xacc::quantum::Gate>(s);
-    context.RegisterService<xacc::quantum::Gate>(sdg);
-    context.RegisterService<xacc::quantum::Gate>(t);
-    context.RegisterService<xacc::quantum::Gate>(tdg);
-    context.RegisterService<xacc::quantum::Gate>(cy);
-    context.RegisterService<xacc::quantum::Gate>(crz);
-    context.RegisterService<xacc::quantum::Gate>(ch);
+    context.RegisterService<xacc::Instruction>(s);
+    context.RegisterService<xacc::Instruction>(sdg);
+    context.RegisterService<xacc::Instruction>(t);
+    context.RegisterService<xacc::Instruction>(tdg);
+    context.RegisterService<xacc::Instruction>(cy);
+    context.RegisterService<xacc::Instruction>(crz);
+    context.RegisterService<xacc::Instruction>(ch);
 
   }
 

@@ -68,6 +68,8 @@ protected:
 
   std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
+  std::complex<double> coefficient = 1.0;
+
 public:
   Circuit(const std::string &name)
       : circuitName(name),
@@ -223,6 +225,9 @@ public:
     }
     return newF;
   }
+
+  void setCoefficient(const std::complex<double> c) override {coefficient=c;}
+  const std::complex<double> getCoefficient() override {return coefficient;}
 
   std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) override;
