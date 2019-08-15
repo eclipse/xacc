@@ -14,21 +14,26 @@
 #define XACC_COMPILER_IRPROVIDER_HPP_
 #include "Instruction.hpp"
 #include "IR.hpp"
-#include "Function.hpp"
+#include "CompositeInstruction.hpp"
 
 namespace xacc {
 
 class IRProvider : public Identifiable {
 public:
+  virtual std::shared_ptr<Instruction> createInstruction(const std::string name,
+                                                         std::size_t bit) = 0;
+
   virtual std::shared_ptr<Instruction>
-  createInstruction(const std::string name, std::vector<int> bits,
+  createInstruction(const std::string name, std::vector<std::size_t> bits,
                     std::vector<InstructionParameter> parameters =
                         std::vector<InstructionParameter>{}) = 0;
-  virtual std::shared_ptr<Function>
-  createFunction(const std::string name, std::vector<int> bits,
-                 std::vector<InstructionParameter> parameters =
-                     std::vector<InstructionParameter>{}) = 0;
+
+  virtual std::shared_ptr<CompositeInstruction>
+  createComposite(const std::string name,
+                  std::vector<std::string> variables = {}) = 0;
+
   virtual std::shared_ptr<IR> createIR() = 0;
+
   virtual std::vector<std::string> getInstructions() = 0;
   virtual ~IRProvider() {}
 };

@@ -16,39 +16,39 @@
 #include <memory>
 #include "AllGateVisitor.hpp"
 #include "InstructionVisitor.hpp"
-#include "IRGenerator.hpp"
+// #include "IRGenerator.hpp"
 
 namespace xacc {
 
 namespace quantum {
 
 template <typename Writer, typename Buffer>
-class JsonVisitor : public AllGateVisitor, public InstructionVisitor<IRGenerator> {
+class JsonVisitor : public AllGateVisitor {// public InstructionVisitor<IRGenerator> {
 
 protected:
   std::shared_ptr<Buffer> buffer;
   std::shared_ptr<Writer> writer;
-  std::shared_ptr<Function> function;
+  std::shared_ptr<CompositeInstruction> function;
   std::shared_ptr<InstructionIterator> topLevelInstructionIterator;
 
-  std::vector<std::shared_ptr<Function>> functions;
+  std::vector<std::shared_ptr<CompositeInstruction>> functions;
 
 public:
-  JsonVisitor(std::shared_ptr<xacc::Function> f);
-  JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs);
+  JsonVisitor(std::shared_ptr<xacc::CompositeInstruction> f);
+  JsonVisitor(std::vector<std::shared_ptr<xacc::CompositeInstruction>> fs);
   std::string write();
 
-  void visit(IRGenerator& irg);
+//   void visit(IRGenerator& irg);
 
-  void visit(Identity &i) { baseGateInst(dynamic_cast<GateInstruction &>(i)); }
+  void visit(Identity &i) { baseGateInst(dynamic_cast<Gate &>(i)); }
 
-  void visit(Hadamard &h) { baseGateInst(dynamic_cast<GateInstruction &>(h)); }
+  void visit(Hadamard &h) { baseGateInst(dynamic_cast<Gate &>(h)); }
 
-  void visit(CNOT &cn) { baseGateInst(dynamic_cast<GateInstruction &>(cn)); }
+  void visit(CNOT &cn) { baseGateInst(dynamic_cast<Gate &>(cn)); }
 
-  void visit(CZ &cz) { baseGateInst(dynamic_cast<GateInstruction &>(cz)); }
+  void visit(CZ &cz) { baseGateInst(dynamic_cast<Gate &>(cz)); }
 
-  void visit(Swap &s) { baseGateInst(dynamic_cast<GateInstruction &>(s)); }
+  void visit(Swap &s) { baseGateInst(dynamic_cast<Gate &>(s)); }
 
   void visit(Rz &rz);
 
@@ -57,21 +57,21 @@ public:
   void visit(Ry &ry);
 
   void visit(CPhase &cp);
-  void visit(ConditionalFunction &cn);
+//   void visit(ConditionalFunction &cn);
   void visit(Measure &cn);
 
-  void visit(X &cn) { baseGateInst(dynamic_cast<GateInstruction &>(cn)); }
+  void visit(X &cn) { baseGateInst(dynamic_cast<Gate &>(cn)); }
 
-  void visit(Y &y) { baseGateInst(dynamic_cast<GateInstruction &>(y)); }
+  void visit(Y &y) { baseGateInst(dynamic_cast<Gate &>(y)); }
 
-  void visit(Z &z) { baseGateInst(dynamic_cast<GateInstruction &>(z)); }
+  void visit(Z &z) { baseGateInst(dynamic_cast<Gate &>(z)); }
 
   void visit(U &u);
 
-  void visit(GateFunction &function) {}
+  void visit(Circuit &function) {}
 
 protected:
-  void baseGateInst(GateInstruction &inst, bool endObject = true);
+  void baseGateInst(Gate &inst, bool endObject = true);
 };
 } // namespace quantum
 } // namespace xacc

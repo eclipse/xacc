@@ -13,7 +13,7 @@
 #include "XACC.hpp"
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
-#include "IRGenerator.hpp"
+// #include "IRGenerator.hpp"
 #include "CLIParser.hpp"
 #include <signal.h>
 #include <cstdlib>
@@ -35,7 +35,9 @@ bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser;
 int argc = 0;
 char **argv = NULL;
-std::map<std::string, std::shared_ptr<Function>> compilation_database{};
+std::map<std::string, std::shared_ptr<CompositeInstruction>>
+    compilation_database{};
+std::string rootPathString = "";
 
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
@@ -83,6 +85,8 @@ void Initialize(int arc, char **arv) {
     sigemptyset(&sigIntHandler.sa_mask);
     sigIntHandler.sa_flags = 0;
     sigaction(SIGINT, &sigIntHandler, NULL);
+
+    rootPathString = xacc::getRootPathString();
   }
 
   // We're good if we make it here, so indicate that we've been
@@ -127,7 +131,7 @@ void error(const std::string &msg, MessagePredicate predicate) {
 
 qbit qalloc(const int n) {
   qbit q(n);
-  return q;//std::make_shared<xacc::AcceleratorBuffer>(n);
+  return q; // std::make_shared<xacc::AcceleratorBuffer>(n);
 }
 
 void addCommandLineOption(const std::string &optionName,
@@ -176,7 +180,7 @@ void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
 }
 
-std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params) {
+std::shared_ptr<Accelerator> getAccelerator(HeterogeneousMap params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -204,7 +208,7 @@ std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params) {
 }
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
-                                            AcceleratorParameters params) {
+                                            HeterogeneousMap params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -230,7 +234,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            AcceleratorParameters params) {
+                                            HeterogeneousMap params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -293,7 +297,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name) {
 }
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::AlgorithmParameters &params) {
+                                        xacc::HeterogeneousMap &params) {
   auto algo = xacc::getAlgorithm(name);
   if (!algo->initialize(params)) {
     error("Error initializing " + name + " algorithm.");
@@ -301,7 +305,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
   return algo;
 }
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::AlgorithmParameters &&params) {
+                                        xacc::HeterogeneousMap &&params) {
   return getAlgorithm(name, params);
 }
 
@@ -313,17 +317,15 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
   return xacc::getService<Optimizer>(name);
 }
 
-std::shared_ptr<Optimizer>
-getOptimizer(const std::string name,
-             const std::map<std::string, xacc::InstructionParameter> &opts) {
+std::shared_ptr<Optimizer> getOptimizer(const std::string name,
+                                        const HeterogeneousMap &opts) {
   auto opt = getOptimizer(name);
   opt->setOptions(opts);
   return opt;
 }
 
-std::shared_ptr<Optimizer>
-getOptimizer(const std::string name,
-             const std::map<std::string, xacc::InstructionParameter> &&opts) {
+std::shared_ptr<Optimizer> getOptimizer(const std::string name,
+                                        const HeterogeneousMap &&opts) {
   return getOptimizer(name, opts);
 }
 
@@ -341,23 +343,23 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
   return irp;
 }
 
-std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
-  if (!xacc::xaccFrameworkInitialized) {
-    error("XACC not initialized before use. Please execute "
-          "xacc::Initialize() before using API.");
-  }
+// std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
+//   if (!xacc::xaccFrameworkInitialized) {
+//     error("XACC not initialized before use. Please execute "
+//           "xacc::Initialize() before using API.");
+//   }
 
-  auto irp = xacc::getService<IRGenerator>(name, false);
-  if (!irp) {
-    if (xacc::hasContributedService<IRGenerator>(name)) {
-      irp = xacc::getContributedService<IRGenerator>(name);
-    } else {
-      error("Invalid IRProvicer. Could not find " + name +
-            " in Service Registry.");
-    }
-  }
-  return irp;
-}
+//   auto irp = xacc::getService<IRGenerator>(name, false);
+//   if (!irp) {
+//     if (xacc::hasContributedService<IRGenerator>(name)) {
+//       irp = xacc::getContributedService<IRGenerator>(name);
+//     } else {
+//       error("Invalid IRProvicer. Could not find " + name +
+//             " in Service Registry.");
+//     }
+//   }
+//   return irp;
+// }
 
 std::shared_ptr<Compiler> getCompiler() {
   if (!xacc::xaccFrameworkInitialized) {
@@ -400,48 +402,26 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
-const std::string translate(std::shared_ptr<Function> function,
-                            const std::string toLanguage) {
+const std::string
+translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+          const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
-  return toLanguageCompiler->translate("", function);
-}
-
-const std::string translateWithVisitor(const std::string &originalSource,
-                                       const std::string &originalLanguage,
-                                       const std::string &visitorMappingName,
-                                       const std::string &accelerator,
-                                       const int kernel) {
-
-  auto acc = getAccelerator(accelerator);
-  auto originalCompiler = getCompiler(originalLanguage);
-  auto ir = originalCompiler->compile(originalSource, acc);
-  auto visitor = xacc::getService<BaseInstructionVisitor>(visitorMappingName);
-
-  std::vector<std::string> previouslySeenKernels;
-
-  InstructionIterator it(ir->getKernels()[kernel]);
-  while (it.hasNext()) {
-    // Get the next node in the tree
-    auto nextInst = it.next();
-    if (nextInst->isEnabled()) {
-      nextInst->accept(visitor);
-    }
-  }
-
-  return visitor->toString();
+  return toLanguageCompiler->translate("", CompositeInstruction);
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }
 
-std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
-                                           std::shared_ptr<Function> function) {
+std::shared_ptr<CompositeInstruction> optimizeCompositeInstruction(
+    const std::string optimizer,
+    std::shared_ptr<CompositeInstruction> inst) {
   auto ir = getService<IRProvider>("gate")->createIR();
-  ir->addKernel(function);
+  ir->addComposite(inst);
   auto opt = getService<IRTransformation>(optimizer);
   auto newir = opt->transform(ir);
-  auto optF = newir->getKernels()[0];
+  auto optF = newir->getComposites()[0];
   return optF->enabledView();
 }
+
 bool hasCache(const std::string fileName, const std::string subdirectory) {
   auto rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
@@ -452,8 +432,9 @@ bool hasCache(const std::string fileName, const std::string subdirectory) {
   }
   return xacc::fileExists(rootPathStr + "/" + fileName);
 }
-std::map<std::string, InstructionParameter>
-getCache(const std::string fileName, const std::string subdirectory) {
+
+std::shared_ptr<HeterogeneousMap> getCache(const std::string fileName,
+                                           const std::string subdirectory) {
   std::string rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
     rootPathStr += "/" + subdirectory;
@@ -472,94 +453,17 @@ getCache(const std::string fileName, const std::string subdirectory) {
   buffer->load(s);
 
   auto info = buffer->getInformation();
-  ExtraInfo2InstructionParameter e2p;
-  std::map<std::string, InstructionParameter> c;
+  auto c = std::make_shared<HeterogeneousMap>();
   for (auto &kv : info) {
-    auto ip = mpark::visit(e2p, kv.second);
-    c.insert({kv.first, ip});
+    std::string key = kv.first;
+    ExtraInfoValue2HeterogeneousMap e2h(*c.get(), key);
+    mpark::visit(e2h, kv.second);
   }
+  std::stringstream ss;
   return c;
 }
 
-void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &param, const std::string subdirectory) {
-  auto rootPathStr = xacc::getRootPathString();
-
-  if (!subdirectory.empty()) {
-    rootPathStr += "/" + subdirectory;
-    if (!xacc::directoryExists(rootPathStr)) {
-      auto status =
-          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    }
-  }
-
-  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache.count(key)) {
-      existingCache[key] = param;
-    } else {
-      existingCache.insert({key, param});
-    }
-
-    appendCache(fileName, existingCache);
-  } else {
-    std::ofstream out(rootPathStr + "/" + fileName);
-    std::stringstream s;
-    AcceleratorBuffer b;
-    b.useAsCache();
-
-    InstructionParameter2ExtraInfo ip2e;
-    auto extrainfo = mpark::visit(ip2e, param);
-
-    b.addExtraInfo(key, extrainfo);
-
-    b.print(s);
-
-    out << s.str();
-    out.close();
-  }
-}
-
-void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &&param, const std::string subdirectory) {
-  auto rootPathStr = xacc::getRootPathString();
-  if (!subdirectory.empty()) {
-    rootPathStr += "/" + subdirectory;
-    if (!xacc::directoryExists(rootPathStr)) {
-      auto status =
-          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    }
-  }
-  // Check if file exists
-  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
-    auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache.count(key)) {
-      existingCache[key] = param;
-    } else {
-      existingCache.insert({key, param});
-    }
-
-    appendCache(fileName, existingCache, subdirectory);
-  } else {
-    std::ofstream out(rootPathStr + "/" + fileName);
-    std::stringstream s;
-    AcceleratorBuffer b;
-    b.useAsCache();
-
-    InstructionParameter2ExtraInfo ip2e;
-    auto extrainfo = mpark::visit(ip2e, param);
-    b.addExtraInfo(key, extrainfo);
-
-    b.print(s);
-
-    out << s.str();
-    out.close();
-  }
-}
-
-void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params,
+void appendCache(const std::string fileName, HeterogeneousMap &params,
                  const std::string subdirectory) {
 
   // This will over write the ip cache file
@@ -573,13 +477,16 @@ void appendCache(const std::string fileName,
           mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
   }
-  InstructionParameter2ExtraInfo ip2e;
+  std::map<std::string, ExtraInfo> einfo;
+  HeterogenousMap2ExtraInfo h2ei(einfo);
+  params.visit(h2ei);
+  //   InstructionParameter2ExtraInfo ip2e;
   AcceleratorBuffer b;
   b.useAsCache();
 
-  for (auto &kv : params) {
-    auto extrainfo = mpark::visit(ip2e, kv.second);
-    b.addExtraInfo(kv.first, extrainfo);
+  for (auto &kv : einfo) {
+    // auto extrainfo = mpark::visit(ip2e, kv.second);
+    b.addExtraInfo(kv.first, kv.second);
   }
 
   std::ofstream out(rootPathStr + "/" + fileName);
@@ -590,29 +497,33 @@ void appendCache(const std::string fileName,
 }
 const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
-void appendCompiled(std::shared_ptr<Function> function) {
-  if (compilation_database.count(function->name())) {
-    xacc::error("Invalid Function name, already in compilation database: " +
-                function->name() + ".");
+void appendCompiled(
+    std::shared_ptr<CompositeInstruction> CompositeInstruction) {
+  if (compilation_database.count(CompositeInstruction->name())) {
+    xacc::error(
+        "Invalid CompositeInstruction name, already in compilation database: " +
+        CompositeInstruction->name() + ".");
   }
-  compilation_database.insert({function->name(), function});
+  compilation_database.insert(
+      {CompositeInstruction->name(), CompositeInstruction});
 }
 bool hasCompiled(const std::string name) {
   return compilation_database.count(name);
 }
 
-std::shared_ptr<Function> getCompiled(const std::string name) {
+std::shared_ptr<CompositeInstruction> getCompiled(const std::string name) {
   if (!compilation_database.count(name)) {
-    xacc::error("Invalid Function requested. Not in compilation database " +
-                name);
+    xacc::error(
+        "Invalid CompositeInstruction requested. Not in compilation database " +
+        name);
   }
   return compilation_database[name];
 }
 
 void qasm(const std::string &qasmString) {
-  std::regex rgx(".compiler \\w+"), rgxx(".function \\w+");
+  std::regex rgx(".compiler \\w+"), rgxx(".CompositeInstruction \\w+");
   std::smatch match, match2;
-  std::map<std::string, std::string> function2code;
+  std::map<std::string, std::string> CompositeInstruction2code;
 
   if (!std::regex_search(qasmString.begin(), qasmString.end(), match, rgx)) {
     error("Cannot parse which compiler this qasm corresponds to.");
@@ -620,21 +531,21 @@ void qasm(const std::string &qasmString) {
 
   auto compiler = split(match[0], ' ')[1];
   auto lines = split(qasmString, '\n');
-  std::string currentFunctionName = "";
+  std::string currentCompositeInstructionName = "";
   for (auto &l : lines) {
     xacc::trim(l);
     if (l.find(".compiler") == std::string::npos &&
-        l.find(".function") == std::string::npos && !l.empty()) {
-      function2code[currentFunctionName] += l + "\n";
+        l.find(".CompositeInstruction") == std::string::npos && !l.empty()) {
+      CompositeInstruction2code[currentCompositeInstructionName] += l + "\n";
     }
 
-    if (l.find(".function") != std::string::npos) {
-      currentFunctionName = split(l, ' ')[1];
+    if (l.find(".CompositeInstruction") != std::string::npos) {
+      currentCompositeInstructionName = split(l, ' ')[1];
     }
   }
 
   std::string newQasm = "";
-  for (auto &kv : function2code) {
+  for (auto &kv : CompositeInstruction2code) {
     newQasm += "__qpu__ " + kv.first + "(AcceleratorBuffer b) {\n" + kv.second +
                "\n}\n";
   }
@@ -646,7 +557,7 @@ void qasm(const std::string &qasmString) {
     ir = getCompiler(compiler)->compile(newQasm);
   }
 
-  for (auto &k : ir->getKernels())
+  for (auto &k : ir->getComposites())
     appendCompiled(k);
 }
 

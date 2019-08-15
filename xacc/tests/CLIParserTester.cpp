@@ -17,12 +17,9 @@
 using namespace xacc;
 
 class Argv {
-  public:
-
-  Argv(std::initializer_list<const char*> args)
-  : m_argv(new char*[args.size()])
-  , m_argc(args.size())
-  {
+public:
+  Argv(std::initializer_list<const char *> args)
+      : m_argv(new char *[args.size()]), m_argc(args.size()) {
     int i = 0;
     auto iter = args.begin();
     while (iter != args.end()) {
@@ -38,18 +35,13 @@ class Argv {
     }
   }
 
-  char** argv() const {
-    return m_argv.get();
-  }
+  char **argv() const { return m_argv.get(); }
 
-  int argc() const {
-    return m_argc;
-  }
+  int argc() const { return m_argc; }
 
-  private:
-
+private:
   std::vector<std::unique_ptr<char[]>> m_args;
-  std::unique_ptr<char*[]> m_argv;
+  std::unique_ptr<char *[]> m_argv;
   int m_argc;
 };
 
@@ -57,41 +49,29 @@ TEST(CLIParserTester, checkParse) {
 
   CLIParser parser;
 
-  Argv argv({
-    "tester",
-    "--compiler",
-    "quil",
-    "--accelerator",
-    "rigetti",
-    "--test",
-    "value",
-    "--test2",
-    "value2",
-    "--logger-name",
-    "xacc",
-    "-I", "/path/to/include",
-    "-I", "/path/to/other"
-  });
+  Argv argv({"tester", "--compiler", "quil", "--accelerator", "rigetti",
+             "--test", "value", "--test2", "value2", "--logger-name", "xacc",
+             "-I", "/path/to/include", "-I", "/path/to/other"});
 
-  char** actual_argv = argv.argv();
+  char **actual_argv = argv.argv();
   auto argc = argv.argc();
 
-  parser.addOptions({{"test","description"},{"test2","description"}});
-  parser.parse(argc, actual_argv);//, nullptr);
+  parser.addOptions({{"test", "description"}, {"test2", "description"}});
+  parser.parse(argc, actual_argv); //, nullptr);
 
   std::cout << "HELLO\n";
   auto options = *RuntimeOptions::instance();
 
-  EXPECT_EQ(options["compiler"],"quil");
-  EXPECT_EQ(options["accelerator"],"rigetti");
-  EXPECT_EQ(options["test"],"value");
-  EXPECT_EQ(options["test2"],"value2");
+  EXPECT_EQ(options["compiler"], "quil");
+  EXPECT_EQ(options["accelerator"], "rigetti");
+  EXPECT_EQ(options["test"], "value");
+  EXPECT_EQ(options["test2"], "value2");
 
-  EXPECT_EQ(options["logger-name"],"xacc");
+  EXPECT_EQ(options["logger-name"], "xacc");
 
   auto paths = parser.getIncludePaths();
-  for (auto& p : paths) {
-      std::cout << "CLParserTester Path: " << p << "\n";
+  for (auto &p : paths) {
+    std::cout << "CLParserTester Path: " << p << "\n";
   }
 }
 

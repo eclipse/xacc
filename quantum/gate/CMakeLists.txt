@@ -15,15 +15,9 @@ set(LIBRARY_NAME xacc-quantum-gate)
 file(GLOB_RECURSE HEADERS *.hpp)
 file(GLOB SRC
           *.cpp
-          accelerator/*.cpp
-          compiler/*.cpp
           ir/*.cpp
-          ir/instructions/*.cpp
           utils/*.cpp
-          ir/algorithms/*.cpp
-          ir/transformations/*.cpp
-          ir/parser/*.cpp
-          ir/parser/generated/*.cpp)
+          )
 
 
 # Set up dependencies to resources to track changes
@@ -33,20 +27,16 @@ usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
 usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-add_dependencies(${LIBRARY_NAME} antlr4_shared)
+#add_dependencies(${LIBRARY_NAME} antlr4_shared)
 
 target_include_directories(${LIBRARY_NAME}
                            PUBLIC utils
                             ir
-                                   compiler
-                                   ir/instructions
-                                   ir/algorithms
-                                   accelerator
+                            ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                            #compiler
+                            #accelerator
                                    PRIVATE
                                    ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_SOURCE_DIR}/quantum/utils
-                                   ${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
                                    ${CMAKE_SOURCE_DIR}/tpls/taocpp
                                    ${CMAKE_SOURCE_DIR}/tpls/eigen)
 
@@ -74,20 +64,20 @@ target_compile_features(${LIBRARY_NAME}
                         cxx_alias_templates)
 
 if(APPLE)
-  set_target_properties(xacc-quantum-gate
+  set_target_properties(${LIBRARY_NAME}
                         PROPERTIES INSTALL_RPATH "@loader_path")
-  set_target_properties(xacc-quantum-gate
+  set_target_properties(${LIBRARY_NAME}
                         PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-  set_target_properties(xacc-quantum-gate PROPERTIES INSTALL_RPATH "$ORIGIN")
-  set_target_properties(xacc-quantum-gate PROPERTIES LINK_FLAGS "-shared")
+  set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")
+  set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-add_subdirectory(observable)
-add_subdirectory(compiler)
+#add_subdirectory(observable)
+#add_subdirectory(compiler)
 add_subdirectory(ir)
 add_subdirectory(utils)
-add_subdirectory(accelerator)
+#add_subdirectory(accelerator)
 
 install(FILES ${HEADERS} DESTINATION include/quantum/gate)
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

@@ -14,7 +14,6 @@
 #define QUANTUM_ALLGATEVISITORTESTER_HPP_
 
 #include "AllGateVisitor.hpp"
-
 namespace xacc {
 namespace quantum {
 
@@ -53,9 +52,6 @@ public:
 
   void visit(Measure &m) { foundM = true;  }
 
-  void visit(ConditionalFunction &c) {
-    // nothing
-  }
 
   void visit(Rx &rx) { foundRx = true; }
 
@@ -66,10 +62,10 @@ public:
   void visit(CPhase &cp) {foundCp = true; }
 
   void visit(Swap &s) { foundSw = true; }
- 
+
   void visit(U &u) {foundU = true;}
-  
-  void visit(GateFunction &f) {
+
+  void visit(Circuit &f) {
     // nothing
   }
 
@@ -77,21 +73,21 @@ public:
 };
 
 
-class Unknown : public GateInstruction {
+class Unknown : public Gate {
 public:
-  Unknown() : GateInstruction("UNKNOWN") {}
-  Unknown(std::vector<int> qbits) : GateInstruction("H", qbits) {}
-  Unknown(int qbit) : Unknown(std::vector<int>{qbit}) {}
+  Unknown() : Gate("UNKNOWN") {}
+  Unknown(std::vector<std::size_t> qbits) : Gate("UNKNOWN", qbits) {}
+  Unknown(std::size_t qbit) : Gate("UNKNOWN",std::vector<std::size_t>{qbit}) {}
 
   void customVisitAction(BaseInstructionVisitor& iv) override {
-    xacc::info("Called custom visitor action!");
+    std::cout << "Called custom visitor action!\n";
     iv.getNativeAssembly() += "hello";
     wasVisited = true;
   }
     const int nRequiredBits() const override {return 1;}
 
   bool wasVisited = false;
-  
+
   DEFINE_CLONE(Unknown)
   DEFINE_VISITABLE()
 };

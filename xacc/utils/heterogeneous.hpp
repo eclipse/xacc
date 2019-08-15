@@ -32,10 +32,12 @@ template <class... TYPES> struct visitor_base {
   using types = xacc::type_list<TYPES...>;
 };
 
+
 class HeterogeneousMap {
 public:
   HeterogeneousMap() = default;
   HeterogeneousMap(const HeterogeneousMap &_other) { *this = _other; }
+  HeterogeneousMap(HeterogeneousMap &_other) { *this = _other; }
 
   template <typename T> void loop_pairs(T value) {
     insert(value.first, value.second);
@@ -62,6 +64,12 @@ public:
     return *this;
   }
 
+  template<typename... Ts>
+  void print(std::ostream& os) {
+    _internal_print_visitor<Ts...> v(os);
+    visit(v);
+  }
+
   template <class T> void insert(const std::string key, const T &_t) {
     // don't have it yet, so create functions for printing, copying, moving, and
     // destroying
@@ -80,6 +88,17 @@ public:
     }
     items<T>[this].insert({key, _t});
   }
+
+  template <class T> T &get_mutable(const std::string key) const {
+    if (!items<T>.count(this) && !items<T>[this].count(key)) {
+      XACCLogger::instance()->error("Invalid type (" +
+                                    std::string(typeid(T).name()) +
+                                    ") or key (" + key + ").");
+      print_backtrace();
+    }
+    return items<T>[this][key];
+  }
+
   template <class T> const T &get(const std::string key) const {
     if (!items<T>.count(this) && !items<T>[this].count(key)) {
       XACCLogger::instance()->error("Invalid type (" +
@@ -130,33 +149,47 @@ public:
 
   ~HeterogeneousMap() { clear(); }
 
-  template <class T> void visit(T &&visitor) {
+  template <class T> void visit(T &&visitor) const {
     visit_impl(visitor, typename std::decay_t<T>::types{});
   }
 
 private:
+
+  template<typename... Ts>
+  class _internal_print_visitor : public visitor_base<Ts...> {
+      private:
+      std::ostream& ss;
+      public:
+      _internal_print_visitor(std::ostream& s) :ss(s) {}
+
+      template<typename T>
+      void operator()(const std::string& key, const T& t) {
+          ss << key << ": " << t << "\n";
+      }
+  };
+
   template <class T>
   static std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
       items;
 
   template <class T, class U>
   using visit_function =
-      decltype(std::declval<T>().operator()(std::declval<U &>()));
+      decltype(std::declval<T>().operator()(std::declval<const std::string&>(), std::declval<U &>()));
   template <class T, class U>
   static constexpr bool has_visit_v =
       std::experimental::is_detected<visit_function, T, U>::value;
 
   template <class T, template <class...> class TLIST, class... TYPES>
-  void visit_impl(T &&visitor, TLIST<TYPES...>) {
+  void visit_impl(T &&visitor, TLIST<TYPES...>) const {
     using expander = int[];
     (void)expander{0, (void(visit_impl_help<T, TYPES>(visitor)), 0)...};
   }
 
-  template <class T, class U> void visit_impl_help(T &visitor) {
+  template <class T, class U> void visit_impl_help(T &visitor) const {
     static_assert(has_visit_v<T, U>, "Visitors must provide a visit function "
                                      "accepting a reference for each type");
     for (auto &&element : items<U>[this]) {
-      visitor(element);
+      visitor(element.first, element.second);
     }
   }
 
@@ -171,7 +204,7 @@ std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
     HeterogeneousMap::items;
 
 
-template <typename... Types> class Variant2 : public mpark::variant<Types...> {
+template <typename... Types> class Variant : public mpark::variant<Types...> {
 
 private:
   class ToStringVisitor {
@@ -199,12 +232,12 @@ private:
   };
 
 public:
-  Variant2() : mpark::variant<Types...>() {}
+  Variant() : mpark::variant<Types...>() {}
   template <typename T>
-  Variant2(T &element) : mpark::variant<Types...>(element) {}
+  Variant(T &element) : mpark::variant<Types...>(element) {}
   template <typename T>
-  Variant2(T &&element) : mpark::variant<Types...>(element) {}
-  Variant2(const Variant2 &element) : mpark::variant<Types...>(element) {}
+  Variant(T &&element) : mpark::variant<Types...>(element) {}
+  Variant(const Variant &element) : mpark::variant<Types...>(element) {}
 
   template <typename T> T as() const {
     try {
@@ -249,11 +282,11 @@ public:
     return mpark::visit(vis, *this);
   }
 
-  bool operator==(const Variant2<Types...> &v) const {
+  bool operator==(const Variant<Types...> &v) const {
     return v.toString() == toString();
   }
 
-  bool operator!=(const Variant2<Types...> &v) const { return !operator==(v); }
+  bool operator!=(const Variant<Types...> &v) const { return !operator==(v); }
 
 };
 } // namespace xacc

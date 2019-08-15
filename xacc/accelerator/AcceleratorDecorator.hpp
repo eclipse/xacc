@@ -50,13 +50,13 @@ public:
   getIRTransformations() override {return decoratedAccelerator->getIRTransformations();}
 
   /**
-   * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
+   * Execute the provided XACC IR CompositeInstruction on the provided AcceleratorBuffer.
    *
    * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param function The kernel to execute.
+   * @param CompositeInstruction The kernel to execute.
    */
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<Function> function) override  = 0;
+                       const std::shared_ptr<CompositeInstruction> CompositeInstruction) override  = 0;
 
   /**
    * Execute a set of kernels with one remote call. Return
@@ -65,12 +65,12 @@ public:
    * contains the results of the ith kernel execution.
    *
    * @param buffer The AcceleratorBuffer to execute on
-   * @param functions The list of IR Functions to execute
+   * @param CompositeInstructions The list of IR CompositeInstructions to execute
    * @return tempBuffers The list of new AcceleratorBuffers
    */
   std::vector<std::shared_ptr<AcceleratorBuffer>>
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<Function>> functions)  override  = 0;
+          const std::vector<std::shared_ptr<CompositeInstruction>> CompositeInstructions)  override  = 0;
 
   /**
    * Create, store, and return an AcceleratorBuffer with the given

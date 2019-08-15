@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quantum_gate",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Gate Model Quantum Computing",
+  "bundle.description" : "This bundle provides utilities for gate model QC."
+}

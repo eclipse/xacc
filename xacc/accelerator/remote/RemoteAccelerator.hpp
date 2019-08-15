@@ -20,7 +20,7 @@ namespace xacc {
 class Client {
 
 public:
-  
+
   virtual const std::string post(const std::string &remoteUrl,
                                  const std::string &path,
                                  const std::string &postStr,
@@ -43,13 +43,13 @@ public:
   RemoteAccelerator(std::shared_ptr<Client> client) : restClient(client) {}
 
   /**
-   * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
+   * Execute the provided XACC IR CompositeInstruction on the provided AcceleratorBuffer.
    *
    * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param function The kernel to execute.
+   * @param CompositeInstruction The kernel to execute.
    */
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<Function> function);
+                       const std::shared_ptr<CompositeInstruction> circuit);
 
   /**
    * Execute a set of kernels with one remote call. Return
@@ -58,12 +58,12 @@ public:
    * contains the results of the ith kernel execution.
    *
    * @param buffer The AcceleratorBuffer to execute on
-   * @param functions The list of IR Functions to execute
+   * @param CompositeInstructions The list of IR CompositeInstructions to execute
    * @return tempBuffers The list of new AcceleratorBuffers
    */
   virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<Function>> functions);
+          const std::vector<std::shared_ptr<CompositeInstruction>> circuits);
 
   virtual bool isRemote() { return true; }
   void setClient(std::shared_ptr<Client> client) {
@@ -79,7 +79,7 @@ protected:
 
   virtual const std::string
   processInput(std::shared_ptr<AcceleratorBuffer> buffer,
-               std::vector<std::shared_ptr<Function>> functions) = 0;
+               std::vector<std::shared_ptr<CompositeInstruction>> circuits) = 0;
 
   virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
   processResponse(std::shared_ptr<AcceleratorBuffer> buffer,

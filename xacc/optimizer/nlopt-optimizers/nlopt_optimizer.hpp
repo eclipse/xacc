@@ -29,9 +29,6 @@ struct LambdaToVFunc {
     }
 };
 
-using OptResult = std::pair<double, std::vector<double>>;
-using OptimizerOptions = std::map<std::string, xacc::InstructionParameter>;
-
 class NLOptimizer : public Optimizer {
 public:
   OptResult optimize(OptFunction &function) override;

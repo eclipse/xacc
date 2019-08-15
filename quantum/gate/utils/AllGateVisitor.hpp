@@ -15,21 +15,19 @@
 
 #include "InstructionIterator.hpp"
 
-#include "ConditionalFunction.hpp"
-
-#include "DigitalGates.hpp"
+#include "Circuit.hpp"
+#include "CommonGates.hpp"
 
 namespace xacc {
 namespace quantum {
 
 class AllGateVisitor : public BaseInstructionVisitor,
-                       public InstructionVisitor<GateFunction>,
+                       public InstructionVisitor<Circuit>,
                        public InstructionVisitor<Hadamard>,
                        public InstructionVisitor<CNOT>,
                        public InstructionVisitor<Rz>,
                        public InstructionVisitor<Rx>,
                        public InstructionVisitor<Ry>,
-                       public InstructionVisitor<ConditionalFunction>,
                        public InstructionVisitor<X>,
                        public InstructionVisitor<Y>,
                        public InstructionVisitor<Z>,

@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_exprtk_parsing",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Exprtk Parsing",
+  "bundle.description" : ""
+}

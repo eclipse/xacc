@@ -13,10 +13,10 @@
 #ifndef QUANTUM_GATE_GATEIR_HPP_
 #define QUANTUM_GATE_GATEIR_HPP_
 
-#include "GateInstruction.hpp"
-#include "GateFunction.hpp"
+#include "CompositeInstruction.hpp"
 #include "InstructionIterator.hpp"
 #include "IR.hpp"
+#include "Utils.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -24,12 +24,9 @@ namespace quantum {
 class GateIR : public xacc::IR {
 
 public:
-  /**
-   * The nullary Constructor
-   */
   GateIR() {}
 
-  const int maxBit() override {
+  const std::size_t maxBit() override {
     int maxBit = 0;
     for (auto k : kernels) {
       for (auto inst : k->getInstructions()) {
@@ -43,79 +40,49 @@ public:
     return maxBit;
   }
 
-  /**
-   * Add a quantum function to this intermediate representation.
-   * @param kernel
-   */
-  void addKernel(std::shared_ptr<Function> kernel) override {
+  void addComposite(std::shared_ptr<CompositeInstruction> kernel) override {
     kernels.push_back(kernel);
   }
 
-  virtual const int numberOfKernels() { return kernels.size(); }
-
-  std::shared_ptr<Function> getKernel(const std::string &name) override {
-    std::shared_ptr<Function> ret;
+  std::shared_ptr<CompositeInstruction> getComposite(const std::string &name) override {
+    std::shared_ptr<CompositeInstruction> ret;
     for (auto f : kernels) {
       if (f->name() == name) {
         ret = f;
       }
     }
     if (!ret) {
-      xacc::error("Invalid kernel name.");
+      xacc::XACCLogger::instance()->error("GateIR: Invalid kernel name " + name + ".");
+      print_backtrace();
+      exit(0);
     }
     return ret;
   }
 
-  bool kernelExists(const std::string &name) override {
+  bool compositeExists(const std::string &name) override {
     return std::any_of(
         kernels.cbegin(), kernels.cend(),
-        [=](std::shared_ptr<Function> i) { return i->name() == name; });
+        [=](std::shared_ptr<CompositeInstruction> i) { return i->name() == name; });
   }
 
-  void mapBits(std::vector<int> bitMap) override {
+  void mapBits(std::vector<std::size_t> bitMap) override {
     for (auto k : kernels) {
       k->mapBits(bitMap);
     }
   }
 
-  /**
-   * Return a string representation of this
-   * intermediate representation
-   * @return
-   */
-  std::string toAssemblyString(const std::string &kernelName,
-                                       const std::string &accBufferVarName) override;
-
-  /**
-   * Persist this IR instance to the given
-   * output stream.
-   *
-   * @param outStream
-   */
   void persist(std::ostream &outStream) override;
 
-  /**
-   * Create this IR instance from the given input
-   * stream.
-   *
-   * @param inStream
-   */
   void load(std::istream &inStream) override;
 
-  std::vector<std::shared_ptr<Function>> getKernels() override {
+  std::vector<std::shared_ptr<CompositeInstruction>> getComposites() override {
     return kernels;
   }
 
-  /**
-   * The destructor
-   */
   virtual ~GateIR() {}
 
 protected:
-  /**
-   * Reference to this QIR's list of quantum functions
-   */
-  std::vector<std::shared_ptr<Function>> kernels;
+  std::vector<std::shared_ptr<CompositeInstruction>> kernels;
 };
 } // namespace quantum
 } // namespace xacc

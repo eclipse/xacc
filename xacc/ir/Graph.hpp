@@ -2,7 +2,7 @@
 #define XACC_QUANTUM_GRAPH_HPP_
 
 #include "Identifiable.hpp"
-#include "InstructionParameter.hpp"
+#include "Instruction.hpp"
 #include "Cloneable.hpp"
 
 namespace xacc {
@@ -18,17 +18,17 @@ public:
   virtual void removeEdge(const int srcIndex, const int tgtIndex) = 0;
 
   virtual void addVertex() = 0;
-  virtual void addVertex(std::map<std::string, InstructionParameter>& properties) = 0;
-  virtual void addVertex(std::map<std::string, InstructionParameter>&& properties) = 0;
+  virtual void addVertex(HeterogeneousMap& properties) = 0;
+  virtual void addVertex(HeterogeneousMap&& properties) = 0;
 
-  virtual void setVertexProperties(const int index, std::map<std::string, InstructionParameter>& properties) = 0;
-  virtual void setVertexProperties(const int index, std::map<std::string, InstructionParameter>&& properties) = 0;
-  virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter& p) = 0;
-  virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter&& p) = 0;
+  virtual void setVertexProperties(const int index, HeterogeneousMap& properties) = 0;
+  virtual void setVertexProperties(const int index, HeterogeneousMap&& properties) = 0;
+//   virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter& p) = 0;
+//   virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter&& p) = 0;
 
-  virtual std::map<std::string, InstructionParameter> getVertexProperties(const int index) = 0;
-  virtual InstructionParameter&
-  getVertexProperty(const int index, const std::string property) = 0;
+  virtual HeterogeneousMap& getVertexProperties(const int index) = 0;
+//   virtual InstructionParameter&
+//   getVertexProperty(const int index, const std::string property) = 0;
 
   virtual void setEdgeWeight(const int srcIndex, const int tgtIndex,
                      const double weight) = 0;

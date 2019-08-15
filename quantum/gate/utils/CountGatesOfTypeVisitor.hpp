@@ -25,10 +25,10 @@ class CountGatesOfTypeVisitor : public xacc::BaseInstructionVisitor,
                                 public xacc::InstructionVisitor<GateType> {
 protected:
   int count = 0;
-  std::shared_ptr<Function> function;
+  std::shared_ptr<CompositeInstruction> function;
 
 public:
-  CountGatesOfTypeVisitor(std::shared_ptr<Function> f) : function(f) {}
+  CountGatesOfTypeVisitor(std::shared_ptr<CompositeInstruction> f) : function(f) {}
 
   virtual void visit(GateType &gate) { count++; }
 

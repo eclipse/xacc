@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quantum_gate2",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Quantum Gate 2.0",
+  "bundle.description" : "This bundle provides an IR Provider for all models of quantum computing."
+}

@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quantum_graph",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Graph data structures",
+  "bundle.description" : ""
+}

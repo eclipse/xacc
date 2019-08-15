@@ -4,13 +4,12 @@
 #include <functional>
 #include <vector>
 
-#include "InstructionParameter.hpp"
+#include "heterogeneous.hpp"
 #include "Identifiable.hpp"
 
 namespace xacc {
 
 using OptResult = std::pair<double, std::vector<double>>;
-using OptimizerOptions = std::map<std::string, xacc::InstructionParameter>;
 
 class OptFunction {
 protected:
@@ -28,12 +27,12 @@ public:
 
 class Optimizer : public xacc::Identifiable {
 protected:
-  std::map<std::string, xacc::InstructionParameter> options;
+  HeterogeneousMap options;
 
 public:
   virtual OptResult optimize(OptFunction &function) = 0;
   void
-  setOptions(const std::map<std::string, xacc::InstructionParameter> &opts) {
+  setOptions(const HeterogeneousMap &opts) {
     options = opts;
   }
 };
