@@ -19,7 +19,7 @@
 namespace xacc {
 namespace quantum {
 
-using CircuitNode = std::map<std::string, InstructionParameter>;
+using CircuitNode = HeterogeneousMap;//std::map<std::string, InstructionParameter>;
 
 class IRToGraphVisitor : public AllGateVisitor {
 
@@ -30,8 +30,8 @@ protected:
 
   int id = 0;
 
-  void addSingleQubitGate(GateInstruction &inst);
-  void addTwoQubitGate(GateInstruction &inst);
+  void addSingleQubitGate(Gate &inst);
+  void addTwoQubitGate(Gate &inst);
 
 public:
   IRToGraphVisitor(const int nQubits);
@@ -53,9 +53,9 @@ public:
 
   void visit(Measure &m) { addSingleQubitGate(m); }
 
-  void visit(ConditionalFunction &c) {
+//   void visit(ConditionalFunction &c) {
     // nothing
-  }
+//   }
 
   void visit(Rx &rx) { addSingleQubitGate(rx); }
 
@@ -69,7 +69,7 @@ public:
 
   void visit(U &u) { addSingleQubitGate(u); }
 
-  void visit(GateFunction &f) {
+  void visit(Circuit &f) {
     // nothing
   }
 

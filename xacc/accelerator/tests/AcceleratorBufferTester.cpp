@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 
 #include "AcceleratorBuffer.hpp"
-
+#include <cmath>
 using namespace xacc;
 
 TEST(AcceleratorBufferTester, checkGetExpectationValueZ) {

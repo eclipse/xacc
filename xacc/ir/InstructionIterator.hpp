@@ -13,7 +13,7 @@
 #ifndef XACC_COMPILER_INSTRUCTIONITERATOR_HPP_
 #define XACC_COMPILER_INSTRUCTIONITERATOR_HPP_
 #include <stack>
-#include "Function.hpp"
+#include "CompositeInstruction.hpp"
 
 namespace xacc {
 
@@ -58,7 +58,7 @@ public:
   std::shared_ptr<Instruction> next() {
     std::shared_ptr<Instruction> next = instStack.top();
     instStack.pop();
-    auto f = std::dynamic_pointer_cast<Function>(next);
+    auto f = std::dynamic_pointer_cast<CompositeInstruction>(next);
     if (f) {
       for (int i = f->nInstructions() - 1; i >= 0; i--) {
         instStack.push(f->getInstruction(i));

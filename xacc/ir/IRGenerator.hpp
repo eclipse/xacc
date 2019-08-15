@@ -13,32 +13,32 @@
 #ifndef IR_IRGENERATOR_HPP_
 #define IR_IRGENERATOR_HPP_
 
-#include "Function.hpp"
+#include "CompositeInstruction.hpp"
 
 #include <vector>
 #include <memory>
 
 namespace xacc {
 
-class IRGenerator : public Instruction {
+class IRGenerator { //} : public Instruction {
 
 protected:
   std::map<std::string, InstructionParameter> options;
 
 public:
 
-  virtual std::shared_ptr<Function>
+  virtual std::shared_ptr<CompositeInstruction>
   generate(std::map<std::string, InstructionParameter>& parameters) = 0;
 
-  virtual std::shared_ptr<Function>
+  virtual std::shared_ptr<CompositeInstruction>
   generate(std::map<std::string, InstructionParameter>&& parameters) {
     return generate(parameters);
   }
 
- const std::string toString(const std::string &bufferVarName) override {
-     std::string n = name();
-     return n + "()";
- }
+//  const std::string toString(const std::string &bufferVarName) override {
+//      std::string n = name();
+//      return n + "()";
+//  }
 
   const std::string toString() override {
       std::string n = name();

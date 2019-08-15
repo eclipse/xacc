@@ -13,6 +13,8 @@ TEST(NLOptimizerTester, checkSimple) {
 
   EXPECT_EQ(1,f.dimensions());
 
+  optimizer->setOptions(HeterogeneousMap{std::make_pair("nlopt-maxeval", 20)});
+  
   auto result = optimizer->optimize(f);
 
   EXPECT_EQ(result.first, 5.0);

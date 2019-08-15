@@ -19,8 +19,7 @@
 #include "Identifiable.hpp"
 #include "OptionsProvider.hpp"
 #include "Cloneable.hpp"
-#include "InstructionParameter.hpp"
-#include "IRGenerator.hpp"
+
 #include "Compiler.hpp"
 // #include "Algorithm.hpp"
 // #include "Optimizer.hpp"
@@ -40,29 +39,15 @@ using namespace cppmicroservices;
 namespace xacc {
 
 using ContributableService =
-    Variant<std::shared_ptr<IRGenerator>, std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;//, std::shared_ptr<Algorithm>,
-            // std::shared_ptr<Optimizer>, std::shared_ptr<IRProvider>>;
-/**
- * The ServiceRegistry provides the plugin infrastructure for XACC.
- * It delegates to the CppMicroServices Framework and BundleContexts,
- * and provides methods for creating instances of XACC plugins or services.
- */
+    Variant< std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;
+
 class ServiceRegistry {
 
 protected:
-  /**
-   * Reference to the CppMicroServices Framework instance
-   */
   Framework framework;
-
-  /**
-   * The BundleContext instance, which provides
-   * service references.
-   */
   BundleContext context;
 
   bool initialized = false;
-
   std::string rootPathStr = "";
 
   std::map<std::string, ContributableService> runtimeContributed;

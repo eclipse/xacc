@@ -17,7 +17,7 @@
 #include <sstream>
 #include <iostream>
 #include "Utils.hpp"
-#include "InstructionParameter.hpp"
+#include "heterogeneous.hpp"
 
 namespace xacc {
 
@@ -71,79 +71,107 @@ public:
   void operator()(const std::map<int, int> &i) const;
 };
 
-class ExtraInfo2InstructionParameter
-    {
+class ExtraInfoValue2HeterogeneousMap {
+protected:
+  HeterogeneousMap& m;
+  std::string& key;
 public:
-  ExtraInfo2InstructionParameter() {}
-
-  InstructionParameter operator()(const int &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter operator()(const double &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter operator()(const std::string &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter operator()(const std::vector<int> &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter operator()(const std::vector<double> &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter operator()(const std::vector<std::string> &i) const {
-    return InstructionParameter(i);
-  }
-  InstructionParameter
-  operator()(const std::map<int, std::vector<int>> &i) const {
-    XACCLogger::instance()->error(
-        "Cannot cast map<int, [int]> ExtraInfo to InstructionParameter");
-    return InstructionParameter(0);
-  }
-  InstructionParameter
-  operator()(const std::map<int, int> &i) const {
-      XACCLogger::instance()->error(
-          "Cannot cast map<int, int> ExtraInfo to InstructionParameter");
-      return InstructionParameter(0);
-  }
-  InstructionParameter
-  operator()(const std::vector<std::pair<double, double>> &i) const {
-    return InstructionParameter(i);
+  ExtraInfoValue2HeterogeneousMap(HeterogeneousMap& map, std::string& k) : m(map),key(k) {}
+  template<typename T>
+  void operator()(const T& t) {
+      m.insert(key, t);
   }
 };
 
-class InstructionParameter2ExtraInfo {
-private:
-  InstructionParameter parameter;
+class HeterogenousMap2ExtraInfo : public xacc::visitor_base<int, double, std::string, std::vector<int>,
+                                 std::vector<double>, std::vector<std::string>,
+                                 std::map<int, std::vector<int>>,
+                                 std::vector<std::pair<double, double>>,
+                                 std::map<int, int>> {
+protected:
+  std::map<std::string, ExtraInfo>& data;
+  public:
+  HeterogenousMap2ExtraInfo(std::map<std::string, ExtraInfo>& m) : data(m) {}
 
-public:
-  InstructionParameter2ExtraInfo() {}
-
-  ExtraInfo operator()(const int &i) const { return ExtraInfo(i); }
-  ExtraInfo operator()(const double &i) const { return ExtraInfo(i); }
-  ExtraInfo operator()(const std::string &i) const { return ExtraInfo(i); }
-  ExtraInfo operator()(const std::vector<int> &i) const { return ExtraInfo(i); }
-  ExtraInfo operator()(const std::vector<double> &i) const {
-    return ExtraInfo(i);
-  }
-  ExtraInfo operator()(const std::vector<std::string> &i) const {
-    return ExtraInfo(i);
-  }
-  ExtraInfo operator()(const std::vector<std::pair<double, double>> &i) const {
-    return ExtraInfo(i);
-  }
-  ExtraInfo operator()(const std::vector<std::pair<int, int>> &i) const {
-    XACCLogger::instance()->error(
-        "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
-    return ExtraInfo(0);
-  }
-
-  ExtraInfo operator()(const std::complex<double> &i) const {
-    XACCLogger::instance()->error(
-        "Cannot cast complex InstructionParameter to ExtraInfo.");
-    return ExtraInfo(0);
+  template<typename T>
+  void operator()(const std::string& key, const T& t) {
+      data.insert({key, ExtraInfo(t)});
   }
 };
+
+// class ExtraInfo2HeterogeneousMap
+//     {
+// public:
+//   ExtraInfo2HeterogeneousMap() {}
+
+//   InstructionParameter operator()(const int &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter operator()(const double &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter operator()(const std::string &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter operator()(const std::vector<int> &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter operator()(const std::vector<double> &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter operator()(const std::vector<std::string> &i) const {
+//     return InstructionParameter(i);
+//   }
+//   InstructionParameter
+//   operator()(const std::map<int, std::vector<int>> &i) const {
+//     XACCLogger::instance()->error(
+//         "Cannot cast map<int, [int]> ExtraInfo to InstructionParameter");
+//     return InstructionParameter(0);
+//   }
+//   InstructionParameter
+//   operator()(const std::map<int, int> &i) const {
+//       XACCLogger::instance()->error(
+//           "Cannot cast map<int, int> ExtraInfo to InstructionParameter");
+//       return InstructionParameter(0);
+//   }
+//   InstructionParameter
+//   operator()(const std::vector<std::pair<double, double>> &i) const {
+//     return InstructionParameter(i);
+//   }
+// };
+
+// class InstructionParameter2ExtraInfo {
+// private:
+//   InstructionParameter parameter;
+
+// public:
+//   InstructionParameter2ExtraInfo() {}
+
+//   ExtraInfo operator()(const int &i) const { return ExtraInfo(i); }
+//   ExtraInfo operator()(const double &i) const { return ExtraInfo(i); }
+//   ExtraInfo operator()(const std::string &i) const { return ExtraInfo(i); }
+//   ExtraInfo operator()(const std::vector<int> &i) const { return ExtraInfo(i); }
+//   ExtraInfo operator()(const std::vector<double> &i) const {
+//     return ExtraInfo(i);
+//   }
+//   ExtraInfo operator()(const std::vector<std::string> &i) const {
+//     return ExtraInfo(i);
+//   }
+//   ExtraInfo operator()(const std::vector<std::pair<double, double>> &i) const {
+//     return ExtraInfo(i);
+//   }
+//   ExtraInfo operator()(const std::vector<std::pair<int, int>> &i) const {
+//     XACCLogger::instance()->error(
+//         "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
+//     return ExtraInfo(0);
+//   }
+
+//   ExtraInfo operator()(const std::complex<double> &i) const {
+//     XACCLogger::instance()->error(
+//         "Cannot cast complex InstructionParameter to ExtraInfo.");
+//     return ExtraInfo(0);
+//   }
+// };
 
 /**
  * The AcceleratorBuffer models an allocated buffer of

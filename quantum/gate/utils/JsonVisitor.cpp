@@ -24,16 +24,13 @@ namespace quantum {
 
 using Writer = PrettyWriter<StringBuffer>;
 
-/**
- * FIXME write this
- */
 template <class W, class B>
-JsonVisitor<W, B>::JsonVisitor(std::shared_ptr<xacc::Function> f)
+JsonVisitor<W, B>::JsonVisitor(std::shared_ptr<xacc::CompositeInstruction> f)
     : buffer(std::make_shared<B>()),
       writer(std::make_shared<W>(*buffer.get())), functions{f} {}
 
 template <class W, class B>
-JsonVisitor<W, B>::JsonVisitor(std::vector<std::shared_ptr<xacc::Function>> fs)
+JsonVisitor<W, B>::JsonVisitor(std::vector<std::shared_ptr<xacc::CompositeInstruction>> fs)
     : buffer(std::make_shared<B>()), writer(std::make_shared<W>(*buffer.get())),
       functions(fs) {}
 
@@ -49,14 +46,14 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
     writer->String("function");
     writer->String(f->name());
 
-    if (f->hasBeenBitMapped()) {
-        writer->String("bitmap");
-        writer->StartArray();
-        for (auto& b : f->getBitMap()) {
-            writer->Int(b);
-        }
-        writer->EndArray();
-    }
+    // if (f->hasBeenBitMapped()) {
+    //     writer->String("bitmap");
+    //     writer->StartArray();
+    //     for (auto& b : f->getBitMap()) {
+    //         writer->Int(b);
+    //     }
+    //     writer->EndArray();
+    // }
 
     // All functions have instructions, start
     // that array here.
@@ -74,26 +71,26 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
     // End Instructions
     writer->EndArray();
 
- writer->String("options");
-  writer->StartObject();
-  for (auto& kv : f->getOptions()) {
-      writer->Key(kv.first);
-      auto p = kv.second;
-      switch (p.which()) {
-    case 0:
-      writer->Int(p.template as<int>());
-      break;
-    case 1:
-      writer->Double(p.template as<double>());
-      break;
-    case 2:
-      writer->String(p.template as<std::string>());
-      break;
-    default:
-      writer->String(p.toString());
-    }
-  }
-  writer->EndObject();
+//  writer->String("options");
+//   writer->StartObject();
+//   for (auto& kv : f->getOptions()) {
+//       writer->Key(kv.first);
+//       auto p = kv.second;
+//       switch (p.which()) {
+//     case 0:
+//       writer->Int(p.template as<int>());
+//       break;
+//     case 1:
+//       writer->Double(p.template as<double>());
+//       break;
+//     case 2:
+//       writer->String(p.template as<std::string>());
+//       break;
+//     default:
+//       writer->String(p.toString());
+//     }
+//   }
+//   writer->EndObject();
 
     // End Function
     writer->EndObject();
@@ -104,239 +101,120 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
 }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(Rz &rz) {
-  baseGateInst(dynamic_cast<GateInstruction &>(rz));
-//   writer->String("angle");
-//   auto p = rz.getParameter(0);
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
-//   }
-//   writer->EndObject();
+  baseGateInst(dynamic_cast<Gate &>(rz));
 }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(Rx &rx) {
-  baseGateInst(dynamic_cast<GateInstruction &>(rx));
-//   writer->String("angle");
-//   auto p = rx.getParameter(0);
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
-//   }
-//   writer->EndObject();
+  baseGateInst(dynamic_cast<Gate &>(rx));
 }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(Ry &ry) {
-  baseGateInst(dynamic_cast<GateInstruction &>(ry));
-//   writer->String("angle");
-//   auto p = ry.getParameter(0);
-
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
-//   }
-//   writer->EndObject();
+  baseGateInst(dynamic_cast<Gate &>(ry));
 }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(CPhase &cp) {
-  baseGateInst(dynamic_cast<GateInstruction &>(cp));
-//   writer->String("angle");
-//   auto p = cp.getParameter(0);
+  baseGateInst(dynamic_cast<Gate &>(cp));
+}
 
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
+// template <class W, class B>
+// void JsonVisitor<W, B>::visit(ConditionalFunction &cn) {
+//   writer->StartObject();
+//   writer->String("conditional_function");
+//   writer->String(cn.name());
+
+//   writer->String("conditional_qubit");
+//   writer->Int(cn.getConditionalQubit());
+//   writer->String("instructions");
+//   writer->StartArray();
+
+//   auto cnAsPtr = std::make_shared<ConditionalFunction>(cn);
+//   int nInsts = cnAsPtr->nInstructions();
+//   xacc::InstructionIterator it(cnAsPtr);
+//   it.next();
+//   while (it.hasNext()) {
+//     // Get the next node in the tree
+//     auto nextInst = it.next();
+//     nextInst->accept(this);
 //   }
+
+//   // End Instructions
+//   writer->EndArray();
 //   writer->EndObject();
-}
 
-template <class W, class B>
-void JsonVisitor<W, B>::visit(ConditionalFunction &cn) {
-  writer->StartObject();
-  writer->String("conditional_function");
-  writer->String(cn.name());
-
-  writer->String("conditional_qubit");
-  writer->Int(cn.getConditionalQubit());
-  writer->String("instructions");
-  writer->StartArray();
-
-  auto cnAsPtr = std::make_shared<ConditionalFunction>(cn);
-  int nInsts = cnAsPtr->nInstructions();
-  xacc::InstructionIterator it(cnAsPtr);
-  it.next();
-  while (it.hasNext()) {
-    // Get the next node in the tree
-    auto nextInst = it.next();
-    nextInst->accept(this);
-  }
-
-  // End Instructions
-  writer->EndArray();
-  writer->EndObject();
-
-  // Move the Top Level Iterator past these instructions that were in
-  // the conditional function
-  for (int i = 0; i < nInsts; i++)
-    topLevelInstructionIterator->next();
-}
+//   // Move the Top Level Iterator past these instructions that were in
+//   // the conditional function
+//   for (int i = 0; i < nInsts; i++)
+//     topLevelInstructionIterator->next();
+// }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(Measure &cn) {
-  baseGateInst(dynamic_cast<GateInstruction &>(cn));
-//   writer->String("classicalBitIdx");
-//   writer->Int(cn.getClassicalBitIndex());
-//   writer->EndObject();
+  baseGateInst(dynamic_cast<Gate &>(cn));
 }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(U &u) {
-  baseGateInst(dynamic_cast<GateInstruction &>(u));
-//   writer->String("theta");
-//   auto p = u.getParameter(0);
+  baseGateInst(dynamic_cast<Gate &>(u));
+}
 
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
+// template<class W, class B>
+// void JsonVisitor<W, B>::visit(IRGenerator& inst) {
+//       writer->StartObject();
+//   writer->String("gate");
+//   writer->String(inst.name().c_str());
+//   writer->String("enabled");
+//   writer->Bool(inst.isEnabled());
+//   writer->String("qubits");
+//   writer->StartArray();
+//   for (auto qi : inst.bits()) {
+//     writer->Int(qi);
 //   }
-//   writer->String("phi");
-//   auto p2 = u.getParameter(1);
+//   writer->EndArray();
 
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
+//   writer->String("parameters");
+//   writer->StartArray();
+//   for (auto p : inst.getParameters()) {
+//     switch (p.which()) {
+//     case 0:
+//       writer->Int(p.as<int>());
+//       break;
+//     case 1:
+//       writer->Double(p.as<double>());
+//       break;
+//     case 2:
+//       writer->String(p.as<std::string>());
+//       break;
+//     default:
+//       writer->String(p.toString());
+//     }
 //   }
+//   writer->EndArray();
 
-//   writer->String("lambda");
-//   auto p3 = u.getParameter(2);
-
-//   switch (p.which()) {
-//   case 0:
-//     writer->Int(p.as<int>());
-//     break;
-//   case 1:
-//     writer->Double(p.as<double>());
-//     break;
-//   case 2:
-//     writer->String(p.as<std::string>());
-//     break;
-//   default:
-//     xacc::error("Invalid InstructionParameter: " + p.toString());
+//   writer->String("options");
+//   writer->StartObject();
+//   for (auto& kv : inst.getOptions()) {
+//       writer->Key(kv.first);
+//       auto p = kv.second;
+//       switch (p.which()) {
+//     case 0:
+//       writer->Int(p.as<int>());
+//       break;
+//     case 1:
+//       writer->Double(p.as<double>());
+//       break;
+//     case 2:
+//       writer->String(p.as<std::string>());
+//       break;
+//     default:
+//       writer->String(p.toString());
+//     }
 //   }
 //   writer->EndObject();
-}
 
-template<class W, class B>
-void JsonVisitor<W, B>::visit(IRGenerator& inst) {
-      writer->StartObject();
-  writer->String("gate");
-  writer->String(inst.name().c_str());
-  writer->String("enabled");
-  writer->Bool(inst.isEnabled());
-  writer->String("qubits");
-  writer->StartArray();
-  for (auto qi : inst.bits()) {
-    writer->Int(qi);
-  }
-  writer->EndArray();
-
-  writer->String("parameters");
-  writer->StartArray();
-  for (auto p : inst.getParameters()) {
-    switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-      writer->String(p.toString());
-    }
-  }
-  writer->EndArray();
-
-  writer->String("options");
-  writer->StartObject();
-  for (auto& kv : inst.getOptions()) {
-      writer->Key(kv.first);
-      auto p = kv.second;
-      switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-      writer->String(p.toString());
-    }
-  }
-  writer->EndObject();
-
-  writer->EndObject();
-}
+//   writer->EndObject();
+// }
 
 
 template <class W, class B>
-void JsonVisitor<W, B>::baseGateInst(GateInstruction &inst, bool endObject) {
+void JsonVisitor<W, B>::baseGateInst(Gate &inst, bool endObject) {
   writer->StartObject();
   writer->String("gate");
   writer->String(inst.name().c_str());
@@ -368,26 +246,26 @@ void JsonVisitor<W, B>::baseGateInst(GateInstruction &inst, bool endObject) {
   }
   writer->EndArray();
 
-  writer->String("options");
-  writer->StartObject();
-  for (auto& kv : inst.getOptions()) {
-      writer->Key(kv.first);
-      auto p = kv.second;
-      switch (p.which()) {
-    case 0:
-      writer->Int(p.as<int>());
-      break;
-    case 1:
-      writer->Double(p.as<double>());
-      break;
-    case 2:
-      writer->String(p.as<std::string>());
-      break;
-    default:
-      writer->String(p.toString());
-    }
-  }
-  writer->EndObject();
+//   writer->String("options");
+//   writer->StartObject();
+//   for (auto& kv : inst.getOptions()) {
+//       writer->Key(kv.first);
+//       auto p = kv.second;
+//       switch (p.which()) {
+//     case 0:
+//       writer->Int(p.as<int>());
+//       break;
+//     case 1:
+//       writer->Double(p.as<double>());
+//       break;
+//     case 2:
+//       writer->String(p.as<std::string>());
+//       break;
+//     default:
+//       writer->String(p.toString());
+//     }
+//   }
+//   writer->EndObject();
 
   if (endObject) {
     writer->EndObject();

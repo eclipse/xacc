@@ -16,40 +16,50 @@
 #include "Algorithm.hpp"
 
 using namespace xacc;
+using AlgorithmParameters = HeterogeneousMap;
 
 class TestAlgorithm : public Algorithm {
-    public:
+public:
   bool initialize(const AlgorithmParameters &parameters) override {
-      return parameters.count("observable") && parameters.count("key1");
+    std::cout << std::boolalpha
+              << parameters.keyExists<std::shared_ptr<Observable>>("observable")
+              << ", " << parameters.keyExists<std::string>("key1") << "\n";
+    return parameters.keyExists<std::shared_ptr<Observable>>("observable") &&
+           parameters.keyExists<std::string>("key1");
   }
   const std::vector<std::string> requiredParameters() const override {
-      return {"observable"};
+    return {"observable"};
   }
 
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override {
-      return;
+    return;
   }
-    const std::string name() const override {return "test";}
-    const std::string description() const override {return "";}
+  const std::string name() const override { return "test"; }
+  const std::string description() const override { return ""; }
 };
 
 class TestObservable : public Observable {
 public:
-  std::vector<std::shared_ptr<Function>>
-  observe(std::shared_ptr<Function> function) override {return {};}
-  const std::string toString() override { return "";}
+  std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) override {
+    return {};
+  }
+  const std::string toString() override { return ""; }
   void fromString(const std::string str) override {}
-  const int nBits() override {return 0;}
-  const std::string name() const override {return "test";}
-  const std::string description() const override {return "";}
+  const int nBits() override { return 0; }
+  const std::string name() const override { return "test"; }
+  const std::string description() const override { return ""; }
 };
 
 TEST(AlgorithmTester, checkSimple) {
   TestAlgorithm alg;
-  EXPECT_TRUE(alg.requiredParameters() == std::vector<std::string>{"observable"});
-  auto obs = std::make_shared<TestObservable>();
+  EXPECT_TRUE(alg.requiredParameters() ==
+              std::vector<std::string>{"observable"});
+  std::shared_ptr<Observable> obs = std::make_shared<TestObservable>();
   auto buffer = qalloc(2);
-  EXPECT_TRUE(alg.initialize({{"observable", obs}, {"key1", "val1"}}));
+  HeterogeneousMap m(std::make_pair("observable", obs),
+                     std::make_pair("key1", std::string("val1")));
+  EXPECT_TRUE(alg.initialize(m));
   alg.execute(buffer);
 }
 

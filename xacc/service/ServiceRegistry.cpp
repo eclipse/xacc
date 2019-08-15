@@ -27,15 +27,8 @@ void ServiceRegistry::initialize(const std::string rootPath) {
       while ((ent = readdir(dir)) != NULL) {
         if (std::string(ent->d_name).find("libxacc-quantum") !=
             std::string::npos) {
-          //   printf("[service-registry] Installing Core Library: %s\n",
-          //   ent->d_name);
           context.InstallBundles(libDir + "/" + std::string(ent->d_name));
         }
-        /*else if (std::string(ent->d_name).find("libxacc-pauli")!=std::string::npos) {
-          context.InstallBundles(libDir + "/" + std::string(ent->d_name));
-        } else if (std::string(ent->d_name).find("libxacc-fermion")!=std::string::npos) {
-          context.InstallBundles(libDir + "/" + std::string(ent->d_name));
-        } */
       }
       closedir(dir);
     }
@@ -47,8 +40,6 @@ void ServiceRegistry::initialize(const std::string rootPath) {
       /* print all the files and directories within directory */
       while ((ent2 = readdir(dir2)) != NULL) {
         if (std::string(ent2->d_name).find("lib") != std::string::npos) {
-          //   printf("[service-registry] Installing Plugin: %s\n",
-          //   ent2->d_name);
           context.InstallBundles(pluginDir + "/" + std::string(ent2->d_name));
         }
       }

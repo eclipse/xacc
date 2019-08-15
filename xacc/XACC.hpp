@@ -16,10 +16,16 @@
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
-#include "IRGenerator.hpp"
+// #include "IRGenerator.hpp"
 
 #include "Algorithm.hpp"
 #include "Optimizer.hpp"
+
+#include "heterogeneous.hpp"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fstream>
 
 namespace xacc {
 
@@ -36,13 +42,17 @@ extern std::shared_ptr<CLIParser> xaccCLParser;
 extern int argc;
 extern char **argv;
 
-extern std::map<std::string, std::shared_ptr<Function>> compilation_database;
+extern std::string rootPathString;
+
+extern std::map<std::string, std::shared_ptr<CompositeInstruction>>
+    compilation_database;
 
 using AcceleratorBufferPtr = std::shared_ptr<xacc::AcceleratorBuffer>;
-class qbit : public AcceleratorBufferPtr{
+class qbit : public AcceleratorBufferPtr {
 public:
-  qbit(const int n) : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
-  void operator[](const int& i) {}
+  qbit(const int n)
+      : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
+  void operator[](const int &i) {}
 };
 qbit qalloc(const int n);
 
@@ -55,6 +65,7 @@ void PyInitialize(const std::string rootPath);
 int getArgc();
 char **getArgv();
 
+const std::string getRootDirectory();
 std::vector<std::string> getIncludePaths();
 
 void setIsPyApi();
@@ -91,15 +102,15 @@ void unsetOption(const std::string &optionKey);
 
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
 
-std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name);
+// std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name);
 
 void setAccelerator(const std::string &acceleratorName);
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            AcceleratorParameters params = {});
+                                            HeterogeneousMap params = {});
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
-                                            AcceleratorParameters params = {});
-std::shared_ptr<Accelerator> getAccelerator(AcceleratorParameters params = {});
+                                            HeterogeneousMap params = {});
+std::shared_ptr<Accelerator> getAccelerator(HeterogeneousMap params = {});
 bool hasAccelerator(const std::string &name);
 
 void setCompiler(const std::string &compilerName);
@@ -108,48 +119,118 @@ std::shared_ptr<Compiler> getCompiler();
 bool hasCompiler(const std::string &name);
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::AlgorithmParameters &params);
+                                        xacc::HeterogeneousMap &params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::AlgorithmParameters &&params);
+                                        xacc::HeterogeneousMap &&params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
 
 std::shared_ptr<Optimizer> getOptimizer(const std::string name);
-std::shared_ptr<Optimizer>
-getOptimizer(const std::string name,
-             const std::map<std::string, xacc::InstructionParameter> &opts);
-std::shared_ptr<Optimizer>
-getOptimizer(const std::string name,
-             const std::map<std::string, xacc::InstructionParameter> &&opts);
+std::shared_ptr<Optimizer> getOptimizer(const std::string name,
+                                        const HeterogeneousMap &opts);
+std::shared_ptr<Optimizer> getOptimizer(const std::string name,
+                                        const HeterogeneousMap &&opts);
 
 bool hasCache(const std::string fileName, const std::string subdirectory = "");
-std::map<std::string, InstructionParameter>
-getCache(const std::string fileName, const std::string subdirectory = "");
-void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &param,
-                 const std::string subdirectory = "");
-void appendCache(const std::string fileName, const std::string key,
-                 InstructionParameter &&param,
-                 const std::string subdirectory = "");
-void appendCache(const std::string fileName,
-                 std::map<std::string, InstructionParameter> &params,
-                 const std::string subdirectory = "");
-const std::string getRootDirectory();
 
-std::shared_ptr<Function> optimizeFunction(const std::string optimizer,
-                                           std::shared_ptr<Function> function);
+std::shared_ptr<HeterogeneousMap> getCache(const std::string fileName,
+                                           const std::string subdirectory = "");
+void appendCache(const std::string fileName, HeterogeneousMap &params,
+                 const std::string subdirectory = "");
+template <typename T>
+void appendCache(const std::string fileName, const std::string key, T &&param,
+                 const std::string subdirectory = "") {
+auto rootPathStr = xacc::getRootDirectory();
+  if (!subdirectory.empty()) {
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      auto status =
+          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+  }
+  // Check if file exists
+  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
+    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
+    auto existingCache = getCache(fileName, subdirectory);
+    if (existingCache->keyExists<T>(key)) {
+      existingCache->get_mutable<T>(key) = param;
+    } else {
+      existingCache->insert(key, param);
+    }
+
+    appendCache(fileName, *existingCache.get(), subdirectory);
+  } else {
+    std::ofstream out(rootPathStr + "/" + fileName);
+    std::stringstream s;
+    AcceleratorBuffer b;
+    b.useAsCache();
+
+    HeterogeneousMap params(std::make_pair(key, param));
+    std::map<std::string, ExtraInfo> einfo;
+    HeterogenousMap2ExtraInfo h2ei(einfo);
+    params.visit(h2ei);
+
+    b.addExtraInfo(key, einfo[key]);
+
+    b.print(s);
+
+    out << s.str();
+    out.close();
+  }}
+
+template <typename T>
+void appendCache(const std::string fileName, const std::string key, T &param,
+                 const std::string subdirectory = "") {
+  auto rootPathStr = xacc::getRootDirectory();
+  if (!subdirectory.empty()) {
+    rootPathStr += "/" + subdirectory;
+    if (!xacc::directoryExists(rootPathStr)) {
+      auto status =
+          mkdir(rootPathStr.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+  }
+  // Check if file exists
+  if (xacc::fileExists(rootPathStr + "/" + fileName)) {
+    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
+    auto existingCache = getCache(fileName, subdirectory);
+    if (existingCache->keyExists<T>(key)) {
+      existingCache->get_mutable<T>(key) = param;
+    } else {
+      existingCache->insert(key, param);
+    }
+
+    appendCache(fileName, *existingCache.get(), subdirectory);
+  } else {
+    std::ofstream out(rootPathStr + "/" + fileName);
+    std::stringstream s;
+    AcceleratorBuffer b;
+    b.useAsCache();
+
+    HeterogeneousMap params(std::make_pair(key, param));
+    std::map<std::string, ExtraInfo> einfo;
+    HeterogenousMap2ExtraInfo h2ei(einfo);
+    params.visit(h2ei);
+
+    b.addExtraInfo(key, einfo[key]);
+
+    b.print(s);
+
+    out << s.str();
+    out.close();
+  }
+}
+
+std::shared_ptr<CompositeInstruction> optimizeCompositeInstruction(
+    const std::string optimizer,
+    std::shared_ptr<CompositeInstruction> CompositeInstruction);
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 
-const std::string translate(std::shared_ptr<Function> function,
-                            const std::string toLanguage);
-const std::string translateWithVisitor(const std::string &originalSource,
-                                       const std::string &originalLanguage,
-                                       const std::string &visitorMapping,
-                                       const std::string &accelerator,
-                                       const int kernel);
+const std::string
+translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+          const std::string toLanguage);
 
-void appendCompiled(std::shared_ptr<Function> function);
-std::shared_ptr<Function> getCompiled(const std::string name);
+void appendCompiled(std::shared_ptr<CompositeInstruction> CompositeInstruction);
+std::shared_ptr<CompositeInstruction> getCompiled(const std::string name);
 bool hasCompiled(const std::string name);
 
 void qasm(const std::string &qasmString);

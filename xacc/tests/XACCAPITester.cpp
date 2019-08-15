@@ -18,38 +18,42 @@ using namespace xacc;
 
 TEST(XACCAPITester, checkCacheFunctions) {
 
-  std::string file = "test.json";
-  InstructionParameter p("t");
-  InstructionParameter q(std::vector<std::pair<double,double>>{{0.0,0.0},{0.5,0.0},{1.0,0.0}});
+    using complextype = std::vector<std::pair<double,double>>;
+    std::string file = "test.json";
+    std::string p {"t"};
+    complextype
+    q{{0.0,0.0},{0.5,0.0},{1.0,0.0}};
 
-  xacc::info("Appending cache");
-  xacc::appendCache(file, "hello", InstructionParameter(22));
-  std::cout << "appended cache\n";
-  xacc::appendCache(file, "hello2", p);
-  xacc::appendCache(file, "samples", q);
+    xacc::info("Appending cache");
+    xacc::appendCache(file, "hello", 22);
+    std::cout << "appended cache\n";
+    xacc::appendCache(file, "hello2", p);
+    xacc::appendCache(file, "samples", q);
 
-  auto cache = xacc::getCache(file);
-  EXPECT_TRUE(cache.count("hello"));
-  EXPECT_TRUE(cache.count("hello2"));
-  EXPECT_TRUE(cache.count("samples"));
+    auto cache = xacc::getCache(file);
+    EXPECT_TRUE(cache->keyExists<int>("hello"));
+    EXPECT_TRUE(cache->keyExists<std::string>("hello2"));
+    EXPECT_TRUE(cache->keyExists<complextype>("samples"));
 
-  EXPECT_EQ(22, cache["hello"].as<int>());
-  EXPECT_EQ("t", cache["hello2"].as<std::string>());
+    EXPECT_EQ(22, cache->get<int>("hello"));
+    EXPECT_EQ("t", cache->get<std::string>("hello2"));
 
-  auto samples = cache["samples"].as<std::vector<std::pair<double,double>>>();
+    auto samples =
+    cache->get<complextype>("samples");//.as<std::vector<std::pair<double,double>>>();
 
-  EXPECT_EQ(0.0, samples[0].first);
-  EXPECT_EQ(0.0, samples[0].second);
-  EXPECT_EQ(0.5, samples[1].first);
-  EXPECT_EQ(0.0, samples[1].second);
-  EXPECT_EQ(1.0, samples[2].first);
-  EXPECT_EQ(0.0, samples[2].second);
+    EXPECT_EQ(0.0, samples[0].first);
+    EXPECT_EQ(0.0, samples[0].second);
+    EXPECT_EQ(0.5, samples[1].first);
+    EXPECT_EQ(0.0, samples[1].second);
+    EXPECT_EQ(1.0, samples[2].first);
+    EXPECT_EQ(0.0, samples[2].second);
 
-  std::string toRemove = xacc::getRootDirectory() + "/" + file;
-  std::remove(toRemove.c_str());
+    std::string toRemove = xacc::getRootDirectory() + "/" + file;
+    std::remove(toRemove.c_str());
 }
 
 TEST(XACCAPITester, checkQasm) {
+  if (xacc::hasCompiler("quil")) {
     xacc::qasm(R"(.compiler quil
 .function foo
 X 0
@@ -68,14 +72,14 @@ H 0
 MEASURE 0 [0]
 )");
 
-  auto function = xacc::getCompiled("foo");
-  function = function->operator()({3.1415, 1.57});
+    auto function = xacc::getCompiled("foo");
+    function = function->operator()({3.1415, 1.57});
 
-  std::cout << function->toString() << "\n";
+    std::cout << function->toString() << "\n";
 
-  auto foo2 = xacc::getCompiled("foo2");
-    std::cout << foo2->operator()({3.3,2.2})->toString() << "\n";
-
+    auto foo2 = xacc::getCompiled("foo2");
+    std::cout << foo2->operator()({3.3, 2.2})->toString() << "\n";
+  }
 }
 
 int main(int argc, char **argv) {

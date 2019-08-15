@@ -55,19 +55,19 @@ public:
 
   /**
    * This method is to be implemented by derived Compilers and
-   * is in charge of taking the provided Function IR and converting
+   * is in charge of taking the provided CompositeInstruction IR and converting
    * it to source code in this Compiler's language.
    *
-   * @param function The XACC IR Function to translate
+   * @param CompositeInstruction The XACC IR CompositeInstruction to translate
    * @return src The source code as a string
    */
   virtual const std::string translate(const std::string &bufferVariable,
-                                      std::shared_ptr<Function> function) = 0;
+                                      std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
-  virtual const std::shared_ptr<Function>
-  compile(std::shared_ptr<Function> f, std::shared_ptr<Accelerator> acc) {
-    XACCLogger::instance()->info("Compiler::compile(function, accelerator) not "
-                                 "implemented. Returning given function.");
+  virtual const std::shared_ptr<CompositeInstruction>
+  compile(std::shared_ptr<CompositeInstruction> f, std::shared_ptr<Accelerator> acc) {
+    XACCLogger::instance()->info("Compiler::compile(CompositeInstruction, accelerator) not "
+                                 "implemented. Returning given CompositeInstruction.");
     return f;
   }
 

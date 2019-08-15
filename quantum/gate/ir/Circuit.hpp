@@ -1,0 +1,237 @@
+/*******************************************************************************
+ * Copyright (c) 2017 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
+#ifndef QUANTUM_GATE_IR_CIRCUIT_HPP_
+#define QUANTUM_GATE_IR_CIRCUIT_HPP_
+
+#include "CompositeInstruction.hpp"
+#include "Gate.hpp"
+#include "InstructionIterator.hpp"
+#include "Utils.hpp"
+#include "expression_parsing_util.hpp"
+#include "xacc_service.hpp"
+#include <memory>
+#include <stdexcept>
+
+namespace xacc {
+namespace quantum {
+
+class Circuit : public CompositeInstruction,
+                public std::enable_shared_from_this<Circuit> {
+
+private:
+  void throwIfInvalidInstructionParameter(InstPtr instruction);
+
+  void validateInstructionIndex(const std::size_t idx) {
+    if (idx >= instructions.size()) {
+      xacc::XACCLogger::instance()->error(
+          "\nInvalid instruction index on Circuit\n"
+          "CompositeInstruction:\nnInstructions() = " +
+          std::to_string(nInstructions()) + "\nidx = " + std::to_string(idx));
+      print_backtrace();
+      exit(0);
+    }
+  }
+  void validateInstructionPtr(InstPtr inst) {
+    if (std::find(instructions.begin(), instructions.end(), inst) !=
+        std::end(instructions)) {
+      xacc::XACCLogger::instance()->error(
+          "\nInvalid instruction:\nThis instruction pointer already added to "
+          "Circuit.");
+      print_backtrace();
+      exit(0);
+    }
+  }
+
+  void errorCircuitParameter() const {
+    xacc::XACCLogger::instance()->error(
+        "Circuit Instruction parameter API not implemented.");
+    print_backtrace();
+    exit(0);
+  }
+
+protected:
+  std::vector<InstPtr> instructions{};
+  std::vector<std::string> variables{};
+  std::vector<std::string> _requiredKeys{};
+
+  std::string circuitName = "";
+
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
+
+public:
+  Circuit(const std::string &name)
+      : circuitName(name),
+        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
+  Circuit(const std::string &name, std::vector<std::string>& vars)
+      : circuitName(name), variables(vars),
+        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
+  Circuit(const std::string &name, std::vector<std::string>&& vars)
+      : circuitName(name), variables(vars),
+        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
+
+  Circuit(const Circuit &other)
+      : circuitName(other.circuitName), variables(other.variables),
+        instructions(other.instructions), parsingUtil(other.parsingUtil) {}
+
+  const std::string name() const override { return circuitName; }
+  const std::string description() const override { return ""; }
+
+  void mapBits(std::vector<std::size_t> bitMap) override {}
+  void setBits(const std::vector<std::size_t> bits) override {}
+  const std::vector<std::size_t> bits() override { return {}; }
+
+  const std::string toString() override {
+    std::string retStr = "";
+    for (auto i : instructions) {
+      if (i->isEnabled()) {
+        if (i->isComposite() &&
+            !std::dynamic_pointer_cast<CompositeInstruction>(i)
+                 ->hasChildren()) {
+          retStr += i->name() + "()\n";
+        } else {
+          retStr += i->toString() + "\n";
+        }
+      }
+    }
+    return retStr;
+  }
+
+  const InstructionParameter
+  getParameter(const std::size_t idx) const override {
+    errorCircuitParameter();
+    return InstructionParameter(0);
+  }
+  void setParameter(const std::size_t idx, InstructionParameter &p) override {
+    errorCircuitParameter();
+  }
+  std::vector<InstructionParameter> getParameters() override {
+    errorCircuitParameter();
+    return {};
+  }
+  const int nParameters() override {
+    errorCircuitParameter();
+    return 0;
+  }
+
+  const int nRequiredBits() const override { return 0; }
+
+  void enable() override {
+    for (int i = 0; i < nInstructions(); i++) {
+      getInstruction(i)->enable();
+    }
+  }
+
+  void disable() override {
+    for (int i = 0; i < nInstructions(); i++) {
+      getInstruction(i)->disable();
+    }
+  }
+
+  const bool isAnalog() const override {
+    for (int i = 0; i < instructions.size(); i++) {
+      auto inst = *std::next(instructions.begin(), i);
+      if (inst->isAnalog()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void persist(std::ostream &outStream) override {}
+  void load(std::istream &inStream) override {}
+
+  const int nInstructions() override { return instructions.size(); }
+
+  InstPtr getInstruction(const std::size_t idx) override {
+    validateInstructionIndex(idx);
+    return instructions[idx];
+  }
+  std::vector<InstPtr> getInstructions() override { return instructions; }
+  void removeInstruction(const std::size_t idx) override {
+    validateInstructionIndex(idx);
+    instructions.erase(instructions.begin() + idx);
+  }
+  void replaceInstruction(const std::size_t idx, InstPtr newInst) override {
+    validateInstructionIndex(idx);
+    throwIfInvalidInstructionParameter(newInst);
+    instructions[idx] = newInst;
+  }
+  void insertInstruction(const std::size_t idx, InstPtr newInst) override {
+    validateInstructionIndex(idx);
+    throwIfInvalidInstructionParameter(newInst);
+    instructions.insert(instructions.begin() + idx, newInst);
+  }
+
+  void addInstruction(InstPtr instruction) override {
+    throwIfInvalidInstructionParameter(instruction);
+    validateInstructionPtr(instruction);
+    instructions.push_back(instruction);
+  }
+  void addInstructions(std::vector<InstPtr> &insts) override {
+    for (auto &i : insts)
+      addInstruction(i);
+  }
+
+  bool hasChildren() const override { return !instructions.empty(); }
+  bool expand(const HeterogeneousMap &runtimeOptions) override {
+    for (auto &inst : instructions) {
+      if (inst->isComposite()) {
+        if (!(std::dynamic_pointer_cast<CompositeInstruction>(inst)->expand(
+                runtimeOptions))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  const std::vector<std::string> requiredKeys() override {
+    return _requiredKeys;
+  }
+
+  void addVariable(const std::string variableName) override {
+    variables.push_back(variableName);
+  }
+  void addVariables(const std::vector<std::string> &vars) override {
+    variables.insert(variables.end(), vars.begin(), vars.end());
+  }
+
+  const int depth() override { return 0; }
+  const std::string persistGraph() override { return ""; }
+  std::shared_ptr<Graph> toGraph() override { return nullptr; }
+
+  const std::size_t nLogicalBits() override { return 0; }
+  const std::size_t nPhysicalBits() override { return 0; }
+
+  std::shared_ptr<CompositeInstruction> enabledView() override {
+    auto newF = std::make_shared<Circuit>(circuitName, variables);
+    for (int i = 0; i < nInstructions(); i++) {
+      auto inst = getInstruction(i);
+      if (inst->isEnabled()) {
+        newF->addInstruction(inst);
+      }
+    }
+    return newF;
+  }
+
+  std::shared_ptr<CompositeInstruction>
+  operator()(const std::vector<double> &params) override;
+
+  DEFINE_VISITABLE()
+
+  virtual ~Circuit() {}
+};
+
+} // namespace quantum
+} // namespace xacc
+#endif

@@ -12,15 +12,15 @@
  *******************************************************************************/
 #ifndef XACC_IR_OBSERVABLE_HPP_
 #define XACC_IR_OBSERVABLE_HPP_
-#include "Function.hpp"
+#include "CompositeInstruction.hpp"
 #include "Utils.hpp"
 
 namespace xacc {
 
 class Observable : public Identifiable {
 public:
-  virtual std::vector<std::shared_ptr<Function>>
-  observe(std::shared_ptr<Function> function) = 0;
+  virtual std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;

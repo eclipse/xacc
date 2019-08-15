@@ -15,20 +15,21 @@
 
 #include "AcceleratorBuffer.hpp"
 #include "IRTransformation.hpp"
-#include "Function.hpp"
+#include "CompositeInstruction.hpp"
 #include "OptionsProvider.hpp"
 #include "Identifiable.hpp"
 #include "Utils.hpp"
 #include "Observable.hpp"
-#include "InstructionParameter.hpp"
+#include "heterogeneous.hpp"
+#include <complex>
 
 namespace xacc {
 
 
-using AcceleratorParameter =
-    Variant<int, double, std::string, std::vector<int>, std::vector<double>,
-            std::vector<std::string>, std::shared_ptr<Observable>, Observable*>;
-using AcceleratorParameters = std::map<std::string, AcceleratorParameter>;
+// using AcceleratorParameter =
+//     Variant<int, double, std::string, std::vector<int>, std::vector<double>,
+//             std::vector<std::string>, std::shared_ptr<Observable>, Observable*>;
+using AcceleratorParameters = HeterogeneousMap;//std::map<std::string, AcceleratorParameter>;
 /**
  * The Accelerator class provides a high-level abstraction
  * for XACC's interaction with attached post-exascale
@@ -94,13 +95,13 @@ public:
   }
 
   /**
-   * Execute the provided XACC IR Function on the provided AcceleratorBuffer.
+   * Execute the provided XACC IR CompositeInstruction on the provided AcceleratorBuffer.
    *
    * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param function The kernel to execute.
+   * @param CompositeInstruction The kernel to execute.
    */
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<Function> function) = 0;
+                       const std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
   /**
    * Execute a set of kernels with one remote call. Return
@@ -109,12 +110,12 @@ public:
    * contains the results of the ith kernel execution.
    *
    * @param buffer The AcceleratorBuffer to execute on
-   * @param functions The list of IR Functions to execute
+   * @param CompositeInstructions The list of IR CompositeInstructions to execute
    * @return tempBuffers The list of new AcceleratorBuffers
    */
   virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<Function>> functions) = 0;
+          const std::vector<std::shared_ptr<CompositeInstruction>> CompositeInstructions) = 0;
 
   virtual void cancel() {};
 
@@ -207,7 +208,7 @@ public:
 
   /**
    * Return a representation of the state of the Accelerator after execution of
-   * the given program Function instance. For quantum computation this is
+   * the given program CompositeInstruction instance. For quantum computation this is
    * the wave vector.
    *
    * This is meant to be overrided by subclasses.
@@ -216,7 +217,7 @@ public:
    * @return wf A list of complex coefficients
    */
   virtual const std::vector<std::complex<double>>
-  getAcceleratorState(std::shared_ptr<Function> program) {
+  getAcceleratorState(std::shared_ptr<CompositeInstruction> program) {
     return std::vector<std::complex<double>>{};
   }
 

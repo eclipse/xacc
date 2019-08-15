@@ -12,28 +12,29 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include "AllGateVisitorTester.hpp"
+#include "XACC.hpp"
 
 using namespace xacc::quantum;
 
 TEST(AllGateVisitorTester, checkVisit) {
-  auto f = std::make_shared<GateFunction>("foo");
+  auto f = std::make_shared<Circuit>("foo");
 
   auto h = std::make_shared<Hadamard>(0);
   auto i = std::make_shared<Identity>(0);
-  auto cp = std::make_shared<CPhase>(std::vector<int>{0,1});
+  auto cp = std::make_shared<CPhase>(std::vector<std::size_t>{0,1});
   auto x = std::make_shared<X>(0);
   auto y = std::make_shared<Y>(0);
   auto z = std::make_shared<Z>(0);
-  auto rx = std::make_shared<Rx>(std::vector<int>{0});
-  auto ry = std::make_shared<Ry>(std::vector<int>{0});
-  auto rz = std::make_shared<Rz>(std::vector<int>{0});
+  auto rx = std::make_shared<Rx>(std::vector<std::size_t>{0});
+  auto ry = std::make_shared<Ry>(std::vector<std::size_t>{0});
+  auto rz = std::make_shared<Rz>(std::vector<std::size_t>{0});
   auto cz = std::make_shared<CZ>(0,1);
-  auto u = std::make_shared<U>(std::vector<int>{0});
+  auto u = std::make_shared<U>(std::vector<std::size_t>{0});
   auto cn = std::make_shared<CNOT>(0, 1);
   auto sw = std::make_shared<Swap>(0,1);
 
   auto unknown = std::make_shared<Unknown>(0);
-  
+
   f->addInstruction(h);
   f->addInstruction(cn);
   f->addInstruction(i);
@@ -48,7 +49,7 @@ TEST(AllGateVisitorTester, checkVisit) {
   f->addInstruction(u);
   f->addInstruction(sw);
   f->addInstruction(unknown);
-  
+
   auto vis = std::make_shared<TestAllGateVisitor>();
   xacc::InstructionIterator it(f);
   while (it.hasNext()) {
@@ -71,9 +72,9 @@ TEST(AllGateVisitorTester, checkVisit) {
   EXPECT_TRUE(vis->foundCz);
   EXPECT_TRUE(unknown->wasVisited);
   EXPECT_EQ("hello", vis->getNativeAssembly());
-  
+
   std::cout << vis->getNativeAssembly() << "\n";
-  
+
 }
 
 int main(int argc, char **argv) {

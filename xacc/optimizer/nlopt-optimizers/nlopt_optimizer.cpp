@@ -12,8 +12,8 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-8;
   int maxeval = 1000;
 
-  if (options.count("nlopt-optimizer")) {
-    auto optimizerAlgo = options["nlopt-optimizer"].as<std::string>();
+  if (options.keyExists<std::string>("nlopt-optimizer")) {
+    auto optimizerAlgo = options.get<std::string>("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
       algo = nlopt::algorithm::LN_COBYLA;
     } else if (optimizerAlgo == "nelder-mead") {
@@ -24,22 +24,20 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     }
   }
 
-  if (options.count("nlopt-ftol")) {
-    tol = options["nlopt-ftol"].as<double>();
+  if (options.keyExists<double>("nlopt-ftol")) {
+    tol = options.get<double>("nlopt-ftol");
   }
 
-  if (options.count("nlopt-maxeval")) {
-    maxeval = options["nlopt-maxeval"].as<int>();
+  if (options.keyExists<int>("nlopt-maxeval")) {
+    maxeval = options.get<int>("nlopt-maxeval");
   }
 
   std::vector<double> x(dim);
-  if (options.count("initial-parameters")) {
-      try {
-        x = options["initial-parameters"].as_no_error<std::vector<double>>();
-      } catch(std::exception& ex) {
-        auto tmpx = options["initial-parameters"].as<std::vector<int>>();
-        x = std::vector<double>(tmpx.begin(), tmpx.end());
-      }
+  if (options.keyExists<std::vector<double>>("initial-parameters")) {
+        x = options.get_with_throw<std::vector<double>>("initial-parameters");
+  } else if (options.keyExists<std::vector<int>>("initial-parameters")) {
+    auto tmpx = options.get<std::vector<int>>("initial-parameters");
+    x = std::vector<double>(tmpx.begin(), tmpx.end());
   }
   nlopt::opt _opt(algo, dim);
   std::function<double(const std::vector<double> &, std::vector<double> &,

@@ -11,11 +11,11 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "GateFunction.hpp"
+#include "Circuit.hpp"
 #include "JsonVisitor.hpp"
-#include "DigitalGates.hpp"
+#include "CommonGates.hpp"
+#include "XACC.hpp"
 #define RAPIDJSON_HAS_STDSTRING 1
-
 #include "rapidjson/prettywriter.h"
 using namespace rapidjson;
 
@@ -24,21 +24,21 @@ using namespace xacc::quantum;
 using JsonVisitorT = JsonVisitor<PrettyWriter<StringBuffer>,StringBuffer>;
 
 TEST(JsonVisitorTester, checkSimpleSerialization) {
-  auto f = std::make_shared<GateFunction>("foo");
+  auto f = std::make_shared<Circuit>("foo");
 
   auto x = std::make_shared<X>(0);
   auto h = std::make_shared<Hadamard>(1);
   auto cn1 = std::make_shared<CNOT>(1, 2);
   auto rz = std::make_shared<Rz>(1, 3.1415);
-  auto cond1 = std::make_shared<ConditionalFunction>(0);
-  auto z = std::make_shared<Z>(2);
-  cond1->addInstruction(z);
+//   auto cond1 = std::make_shared<ConditionalFunction>(0);
+//   auto z = std::make_shared<Z>(2);
+//   cond1->addInstruction(z);
 
   f->addInstruction(x);
   f->addInstruction(h);
   f->addInstruction(cn1);
   f->addInstruction(rz);
-  f->addInstruction(cond1);
+//   f->addInstruction(cond1);
 
   JsonVisitorT visitor(f);
 
@@ -48,7 +48,7 @@ TEST(JsonVisitorTester, checkSimpleSerialization) {
 }
 
 TEST(JsonVisitorTester, checkTeleportSerialization) {
-  auto f = std::make_shared<GateFunction>("foo");
+  auto f = std::make_shared<Circuit>("foo");
 
   auto x = std::make_shared<X>(0);
   auto h = std::make_shared<Hadamard>(1);
@@ -58,12 +58,12 @@ TEST(JsonVisitorTester, checkTeleportSerialization) {
   auto m0 = std::make_shared<Measure>(0, 0);
   auto m1 = std::make_shared<Measure>(1, 1);
 
-  auto cond1 = std::make_shared<ConditionalFunction>(0);
-  auto z = std::make_shared<Z>(2);
-  cond1->addInstruction(z);
-  auto cond2 = std::make_shared<ConditionalFunction>(1);
-  auto x2 = std::make_shared<X>(2);
-  cond2->addInstruction(x2);
+//   auto cond1 = std::make_shared<ConditionalFunction>(0);
+//   auto z = std::make_shared<Z>(2);
+//   cond1->addInstruction(z);
+//   auto cond2 = std::make_shared<ConditionalFunction>(1);
+//   auto x2 = std::make_shared<X>(2);
+//   cond2->addInstruction(x2);
 
   f->addInstruction(x);
   f->addInstruction(h);
@@ -72,8 +72,8 @@ TEST(JsonVisitorTester, checkTeleportSerialization) {
   f->addInstruction(h2);
   f->addInstruction(m0);
   f->addInstruction(m1);
-  f->addInstruction(cond1);
-  f->addInstruction(cond2);
+//   f->addInstruction(cond1);
+//   f->addInstruction(cond2);
 
   JsonVisitorT visitor(f);
 
@@ -84,11 +84,11 @@ TEST(JsonVisitorTester, checkTeleportSerialization) {
 
 TEST(JsonVisitorTester, checkFunctionWithFunction) {
 
-  auto f = std::make_shared<GateFunction>("foo");
-  auto init = std::make_shared<GateFunction>("init");
+  auto f = std::make_shared<Circuit>("foo", std::vector<std::string>{"phi"});
+  auto init = std::make_shared<Circuit>("init", std::vector<std::string>{"phi"});
 
   xacc::InstructionParameter p("phi");
-  auto rz = std::make_shared<Rz>(std::vector<int>{0});
+  auto rz = std::make_shared<Rz>(std::vector<std::size_t>{0});
   rz->setParameter(0, p);
 
   init->addInstruction(rz);
@@ -108,6 +108,9 @@ TEST(JsonVisitorTester, checkFunctionWithFunction) {
   std::cout << "HELLO: \n" << json << "\n";
 }
 int main(int argc, char **argv) {
+  xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  auto ret = RUN_ALL_TESTS();
+  xacc::Finalize();
+  return ret;
 }

@@ -11,15 +11,16 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "GateFunction.hpp"
+#include "Circuit.hpp"
 #include "IRToGraphVisitor.hpp"
-#include "DigitalGates.hpp"
+#include "CommonGates.hpp"
 #include "InstructionIterator.hpp"
+#include "XACC.hpp"
 
 using namespace xacc::quantum;
 
 TEST(IRToGraphTester, checkSimple) {
-  auto f = std::make_shared<GateFunction>("foo");
+  auto f = std::make_shared<Circuit>("foo");
 
   auto x = std::make_shared<X>(0);
   auto h = std::make_shared<Hadamard>(1);
@@ -46,7 +47,7 @@ TEST(IRToGraphTester, checkSimple) {
 }
 
 TEST(IRToGraphTester, checkCNOTLadder) {
-  auto f = std::make_shared<GateFunction>("foo");
+  auto f = std::make_shared<Circuit>("foo");
 
   auto cn1 = std::make_shared<CNOT>(0, 1);
   auto cn2 = std::make_shared<CNOT>(1, 2);

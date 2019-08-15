@@ -7,31 +7,34 @@
 namespace xacc {
 namespace quantum {
 
-void IRToGraphVisitor::addSingleQubitGate(GateInstruction &inst) {
+void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
   auto bit = inst.bits()[0];
   auto lastNode = qubitToLastNode[bit];
-  auto lastBit = lastNode["bits"].as<std::vector<int>>()[0];
+  auto lastBit = lastNode.get<std::vector<int>>("bits")[0];
 
   id++;
 
-  CircuitNode newNode{{"name", inst.name()}, {"id", id}, {"bits", inst.bits()}};
+  CircuitNode newNode{std::make_pair("name", inst.name()),
+                      std::make_pair("id", id),
+                      std::make_pair("bits", inst.bits())};
 
   graph->addVertex(newNode);
-  graph->addEdge(lastNode["id"].as<int>(), newNode["id"].as<int>(), 1);
+  graph->addEdge(lastNode.get<int>("id"), newNode.get<int>("id"), 1);
 
   qubitToLastNode[bit] = newNode;
 }
 
-void IRToGraphVisitor::addTwoQubitGate(GateInstruction &inst) {
+void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
   auto srcbit = inst.bits()[0];
   auto tgtbit = inst.bits()[1];
 
-  auto lastsrcnodeid = qubitToLastNode[srcbit]["id"].as<int>();
-  auto lasttgtnodeid = qubitToLastNode[tgtbit]["id"].as<int>();
+  auto lastsrcnodeid = qubitToLastNode[srcbit].get<int>("id");
+  auto lasttgtnodeid = qubitToLastNode[tgtbit].get<int>("id");
 
   id++;
-  CircuitNode newNode{{"name", inst.name()}, {"id", id}, {"bits", inst.bits()}};
-
+  CircuitNode newNode{std::make_pair("name", inst.name()),
+                      std::make_pair("id", id),
+                      std::make_pair("bits", inst.bits())};
   graph->addVertex(newNode);
   graph->addEdge(lastsrcnodeid, id, 1);
   graph->addEdge(lasttgtnodeid, id, 1);
@@ -45,22 +48,23 @@ IRToGraphVisitor::IRToGraphVisitor(const int nQubits) {
       "boost-digraph"); // std::make_shared<DirectedBoostGraph>(nQubits);
   std::vector<int> allQbitIds(nQubits);
   std::iota(std::begin(allQbitIds), std::end(allQbitIds), 0);
-  CircuitNode initNode{
-      {"name", "InitialState"}, {"id", 0}, {"bits", allQbitIds}};
+   CircuitNode initNode{std::make_pair("name", std::string("InitialState")),
+                      std::make_pair("id", 0),
+                      std::make_pair("bits", allQbitIds)};
   for (int i = 0; i < nQubits; i++) {
-    qubitToLastNode.insert({i, initNode});
+    qubitToLastNode[i] = initNode;
   }
   graph->addVertex(initNode);
 }
 
 std::shared_ptr<Graph> IRToGraphVisitor::getGraph() {
-  CircuitNode finalNode{{"name", "FinalState"},
-                        {"id", id + 1},
-                        {"bits", graph->getVertexProperty(0, "bits")}};
+   CircuitNode finalNode{std::make_pair("name", std::string("FinalState")),
+                      std::make_pair("id", id+1),
+                      std::make_pair("bits", graph->getVertexProperties(0).get<std::vector<int>>("bits"))};
   graph->addVertex(finalNode);
 
   for (auto &kv : qubitToLastNode) {
-    graph->addEdge(kv.second["id"].as<int>(), finalNode["id"].as<int>(), 1.0);
+    graph->addEdge(kv.second.get<int>("id"), finalNode.get<int>("id"), 1.0);
   }
 
   return graph;
