@@ -52,8 +52,8 @@ public:
   virtual void enterBufferIndex(xasmParser::BufferIndexContext *ctx) = 0;
   virtual void exitBufferIndex(xasmParser::BufferIndexContext *ctx) = 0;
 
-  virtual void enterBitsType(xasmParser::BitsTypeContext *ctx) = 0;
-  virtual void exitBitsType(xasmParser::BitsTypeContext *ctx) = 0;
+  virtual void enterBitsOrParamType(xasmParser::BitsOrParamTypeContext *ctx) = 0;
+  virtual void exitBitsOrParamType(xasmParser::BitsOrParamTypeContext *ctx) = 0;
 
   virtual void enterOptionsMap(xasmParser::OptionsMapContext *ctx) = 0;
   virtual void exitOptionsMap(xasmParser::OptionsMapContext *ctx) = 0;

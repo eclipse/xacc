@@ -24,7 +24,7 @@ public:
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleXacclambda = 2, RuleTypedparam = 3, 
     RuleType = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, RuleStatement = 8, 
-    RuleComment = 9, RuleInstruction = 10, RuleBufferIndex = 11, RuleBitsType = 12, 
+    RuleComment = 9, RuleInstruction = 10, RuleBufferIndex = 11, RuleBitsOrParamType = 12, 
     RuleOptionsMap = 13, RuleOptionsType = 14, RuleExplist = 15, RuleExp = 16, 
     RuleUnaryop = 17, RuleId = 18, RuleReal = 19, RuleString = 20
   };
@@ -51,7 +51,7 @@ public:
   class CommentContext;
   class InstructionContext;
   class BufferIndexContext;
-  class BitsTypeContext;
+  class BitsOrParamTypeContext;
   class OptionsMapContext;
   class OptionsTypeContext;
   class ExplistContext;
@@ -208,13 +208,11 @@ public:
   class  InstructionContext : public antlr4::ParserRuleContext {
   public:
     xasmParser::IdContext *inst_name = nullptr;;
-    xasmParser::BitsTypeContext *bits = nullptr;;
-    xasmParser::ExplistContext *params = nullptr;;
+    xasmParser::ExplistContext *bits_and_params = nullptr;;
     xasmParser::OptionsMapContext *options = nullptr;;
     InstructionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
-    BitsTypeContext *bitsType();
     ExplistContext *explist();
     OptionsMapContext *optionsMap();
 
@@ -239,19 +237,21 @@ public:
 
   BufferIndexContext* bufferIndex();
 
-  class  BitsTypeContext : public antlr4::ParserRuleContext {
+  class  BitsOrParamTypeContext : public antlr4::ParserRuleContext {
   public:
-    BitsTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    BitsOrParamTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<BufferIndexContext *> bufferIndex();
     BufferIndexContext* bufferIndex(size_t i);
+    std::vector<ExpContext *> exp();
+    ExpContext* exp(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
    
   };
 
-  BitsTypeContext* bitsType();
+  BitsOrParamTypeContext* bitsOrParamType();
 
   class  OptionsMapContext : public antlr4::ParserRuleContext {
   public:
@@ -301,13 +301,14 @@ public:
   public:
     ExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    RealContext *real();
-    antlr4::tree::TerminalNode *INT();
     IdContext *id();
     std::vector<ExpContext *> exp();
     ExpContext* exp(size_t i);
     UnaryopContext *unaryop();
     StringContext *string();
+    RealContext *real();
+    antlr4::tree::TerminalNode *INT();
+    BufferIndexContext *bufferIndex();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

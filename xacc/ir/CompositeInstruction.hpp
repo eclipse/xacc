@@ -91,6 +91,7 @@ public:
   virtual void addVariables(const std::vector<std::string>& variables) = 0;
   virtual void addVariables(const std::vector<std::string>&& variables) {addVariables(variables);}
   virtual const std::vector<std::string> getVariables() = 0;
+  virtual const std::size_t nVariables() = 0;
 
   virtual const int depth() = 0;
   virtual const std::string persistGraph() = 0;

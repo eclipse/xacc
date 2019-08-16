@@ -210,6 +210,7 @@ public:
   const std::vector<std::string> getVariables() override {
       return variables;
   }
+  const std::size_t nVariables() override {return variables.size();}
 
 
   const int depth() override;

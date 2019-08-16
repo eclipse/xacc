@@ -20,6 +20,7 @@ namespace xacc {
 
 class IRProvider : public Identifiable {
 public:
+  virtual const int getNRequiredBits(const std::string name) = 0;
   virtual std::shared_ptr<Instruction> createInstruction(const std::string name,
                                                          std::size_t bit) = 0;
 

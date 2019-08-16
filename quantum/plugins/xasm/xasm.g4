@@ -48,15 +48,17 @@ comment
    ;
 
 instruction
-   : inst_name=id  '(' (bits=bitsType) (',' params=explist)? (',' options=optionsMap)? ')'
+   : inst_name=id  '(' (bits_and_params=explist) (',' options=optionsMap)? ')'
    ;
+
 
 bufferIndex
-   : id ('[' INT ']')?
+   : id ('[' INT ']')
    ;
 
-bitsType
+bitsOrParamType
    : bufferIndex (',' bufferIndex)*
+   | exp*
    ;
 
 optionsMap
@@ -74,10 +76,7 @@ explist
 
 /* An expression */
 exp
-   : real
-   | INT
-   | 'pi'
-   | id
+   : id
    | exp '+' exp
    | exp '-' exp
    | exp '*' exp
@@ -87,6 +86,10 @@ exp
    | '(' exp ')'
    | unaryop '(' exp ')'
    | string
+   | real
+   | INT
+   | 'pi'
+   | bufferIndex
    ;
 
 /* unary operations */

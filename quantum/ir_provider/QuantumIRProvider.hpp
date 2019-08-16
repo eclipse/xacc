@@ -12,6 +12,8 @@ class QuantumIRProvider : public IRProvider {
 
 public:
   QuantumIRProvider() = default;
+
+  const int getNRequiredBits(const std::string name) override;
   std::shared_ptr<Instruction> createInstruction(const std::string name,
                                                          std::size_t bit) override;
   std::shared_ptr<Instruction>
