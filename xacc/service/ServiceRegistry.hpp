@@ -39,7 +39,7 @@ using namespace cppmicroservices;
 namespace xacc {
 
 using ContributableService =
-    Variant< std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;
+    Variant<std::shared_ptr<Instruction>,std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;
 
 class ServiceRegistry {
 

@@ -37,23 +37,14 @@ JsonVisitor<W, B>::JsonVisitor(std::vector<std::shared_ptr<xacc::CompositeInstru
 template <class W, class B> std::string JsonVisitor<W, B>::write() {
   writer->StartObject();
 
-  writer->String("kernels");
+  writer->String("circuits");
   writer->StartArray();
   for (auto f : functions) {
     // This is a Function, start it as an Object
     writer->StartObject();
 
-    writer->String("function");
+    writer->String("circuit");
     writer->String(f->name());
-
-    // if (f->hasBeenBitMapped()) {
-    //     writer->String("bitmap");
-    //     writer->StartArray();
-    //     for (auto& b : f->getBitMap()) {
-    //         writer->Int(b);
-    //     }
-    //     writer->EndArray();
-    // }
 
     // All functions have instructions, start
     // that array here.
@@ -71,26 +62,15 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
     // End Instructions
     writer->EndArray();
 
-//  writer->String("options");
-//   writer->StartObject();
-//   for (auto& kv : f->getOptions()) {
-//       writer->Key(kv.first);
-//       auto p = kv.second;
-//       switch (p.which()) {
-//     case 0:
-//       writer->Int(p.template as<int>());
-//       break;
-//     case 1:
-//       writer->Double(p.template as<double>());
-//       break;
-//     case 2:
-//       writer->String(p.template as<std::string>());
-//       break;
-//     default:
-//       writer->String(p.toString());
-//     }
-//   }
-//   writer->EndObject();
+    writer->String("variables");
+    writer->StartArray();
+    for (auto& v : f->getVariables()) {
+        writer->String(v);
+    }
+    writer->EndArray();
+
+    writer->String("coefficient");
+    writer->Double(std::real(f->getCoefficient()));
 
     // End Function
     writer->EndObject();

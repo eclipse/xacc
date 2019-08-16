@@ -86,7 +86,7 @@ void RemoteAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   return;
 }
 
-std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
+void RemoteAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> circuits) {
   auto jsonPostStr = processInput(buffer, circuits);
@@ -94,7 +94,7 @@ std::vector<std::shared_ptr<AcceleratorBuffer>> RemoteAccelerator::execute(
   auto responseStr =
       handleExceptionRestClientPost(remoteUrl, postPath, jsonPostStr, headers);
 
-  return processResponse(buffer, responseStr);
+  processResponse(buffer, responseStr);
 }
 
  std::string RemoteAccelerator::handleExceptionRestClientPost(

@@ -72,14 +72,11 @@ protected:
 
 public:
   Circuit(const std::string &name)
-      : circuitName(name),
-        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
-  Circuit(const std::string &name, std::vector<std::string>& vars)
-      : circuitName(name), variables(vars),
-        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
-  Circuit(const std::string &name, std::vector<std::string>&& vars)
-      : circuitName(name), variables(vars),
-        parsingUtil(xacc::getService<ExpressionParsingUtil>("exprtk")) {}
+      : circuitName(name) {}
+  Circuit(const std::string &name, std::vector<std::string> &vars)
+      : circuitName(name), variables(vars) {}
+  Circuit(const std::string &name, std::vector<std::string> &&vars)
+      : circuitName(name), variables(vars) {}
 
   Circuit(const Circuit &other)
       : circuitName(other.circuitName), variables(other.variables),
@@ -149,8 +146,8 @@ public:
     return false;
   }
 
-  void persist(std::ostream &outStream) override {}
-  void load(std::istream &inStream) override {}
+  void persist(std::ostream &outStream) override;
+  void load(std::istream &inStream) override;
 
   const int nInstructions() override { return instructions.size(); }
 
@@ -183,6 +180,9 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
+  void addInstructions(const std::vector<InstPtr>& insts) override {
+      for (auto& i : insts) addInstruction(i);
+  }
 
   bool hasChildren() const override { return !instructions.empty(); }
   bool expand(const HeterogeneousMap &runtimeOptions) override {
@@ -207,10 +207,14 @@ public:
   void addVariables(const std::vector<std::string> &vars) override {
     variables.insert(variables.end(), vars.begin(), vars.end());
   }
+  const std::vector<std::string> getVariables() override {
+      return variables;
+  }
 
-  const int depth() override { return 0; }
-  const std::string persistGraph() override { return ""; }
-  std::shared_ptr<Graph> toGraph() override { return nullptr; }
+
+  const int depth() override;
+  const std::string persistGraph() override;
+  std::shared_ptr<Graph> toGraph() override;
 
   const std::size_t nLogicalBits() override { return 0; }
   const std::size_t nPhysicalBits() override { return 0; }
@@ -226,8 +230,10 @@ public:
     return newF;
   }
 
-  void setCoefficient(const std::complex<double> c) override {coefficient=c;}
-  const std::complex<double> getCoefficient() override {return coefficient;}
+  void setCoefficient(const std::complex<double> c) override {
+    coefficient = c;
+  }
+  const std::complex<double> getCoefficient() override { return coefficient; }
 
   std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) override;

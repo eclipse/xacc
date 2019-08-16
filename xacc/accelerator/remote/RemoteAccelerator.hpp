@@ -41,27 +41,13 @@ public:
   RemoteAccelerator() : Accelerator(), restClient(std::make_shared<Client>()) {}
 
   RemoteAccelerator(std::shared_ptr<Client> client) : restClient(client) {}
+  void updateConfiguration(const HeterogeneousMap &config) override {
+  }
 
-  /**
-   * Execute the provided XACC IR CompositeInstruction on the provided AcceleratorBuffer.
-   *
-   * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param CompositeInstruction The kernel to execute.
-   */
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<CompositeInstruction> circuit);
 
-  /**
-   * Execute a set of kernels with one remote call. Return
-   * a list of AcceleratorBuffers that provide a new view
-   * of the given one AcceleratorBuffer. The ith AcceleratorBuffer
-   * contains the results of the ith kernel execution.
-   *
-   * @param buffer The AcceleratorBuffer to execute on
-   * @param CompositeInstructions The list of IR CompositeInstructions to execute
-   * @return tempBuffers The list of new AcceleratorBuffers
-   */
-  virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
+  virtual void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<CompositeInstruction>> circuits);
 
@@ -81,7 +67,7 @@ protected:
   processInput(std::shared_ptr<AcceleratorBuffer> buffer,
                std::vector<std::shared_ptr<CompositeInstruction>> circuits) = 0;
 
-  virtual std::vector<std::shared_ptr<AcceleratorBuffer>>
+  virtual void
   processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                   const std::string &response) = 0;
 

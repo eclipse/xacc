@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_xasm_compiler",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC ASM Compiler",
+  "bundle.description" : "This bundle provides a ..."
+}

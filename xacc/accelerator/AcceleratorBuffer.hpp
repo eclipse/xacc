@@ -256,6 +256,10 @@ public:
   // FIXME GET ALL UNIQUE ExtraInfo values at given ExtraInfo key...
   std::vector<ExtraInfo> getAllUnique(const std::string name);
 
+  void removeChild(const std::size_t idx) {
+      children.erase(children.begin()+idx);
+  }
+  
   /**
    * Return the number of bits in this buffer.
    *

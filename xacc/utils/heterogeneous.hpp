@@ -65,7 +65,7 @@ public:
   }
 
   template<typename... Ts>
-  void print(std::ostream& os) {
+  void print(std::ostream& os) const {
     _internal_print_visitor<Ts...> v(os);
     visit(v);
   }

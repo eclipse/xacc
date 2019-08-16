@@ -21,7 +21,6 @@ class AcceleratorDecorator : public Accelerator {
 protected:
 
   std::shared_ptr<Accelerator> decoratedAccelerator;
-  virtual bool isValidBufferSize(const int NBits) {return true;}
 
 public:
 
@@ -32,82 +31,22 @@ public:
   }
 
   void initialize(AcceleratorParameters params = {}) override { decoratedAccelerator->initialize(params); }
+  void updateConfiguration(const HeterogeneousMap &config) override {
+     decoratedAccelerator->updateConfiguration(config);
+  }
 
-  /**
-   * Return the type of this Accelerator.
-   *
-   * @return type The Accelerator type - Gate or AQC QPU, or NPU
-   */
-  AcceleratorType getType() override {return decoratedAccelerator->getType();}
-
-  /**
-   * Return any IR Transformations that must be applied to ensure
-   * the compiled IR is amenable to execution on this Accelerator.
-   *
-   * @return transformations The IR transformations this Accelerator exposes
-   */
   std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() override {return decoratedAccelerator->getIRTransformations();}
 
-  /**
-   * Execute the provided XACC IR CompositeInstruction on the provided AcceleratorBuffer.
-   *
-   * @param buffer The buffer of bits this Accelerator should operate on.
-   * @param CompositeInstruction The kernel to execute.
-   */
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<CompositeInstruction> CompositeInstruction) override  = 0;
 
-  /**
-   * Execute a set of kernels with one remote call. Return
-   * a list of AcceleratorBuffers that provide a new view
-   * of the given one AcceleratorBuffer. The ith AcceleratorBuffer
-   * contains the results of the ith kernel execution.
-   *
-   * @param buffer The AcceleratorBuffer to execute on
-   * @param CompositeInstructions The list of IR CompositeInstructions to execute
-   * @return tempBuffers The list of new AcceleratorBuffers
-   */
-  std::vector<std::shared_ptr<AcceleratorBuffer>>
+  void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<CompositeInstruction>> CompositeInstructions)  override  = 0;
 
-  /**
-   * Create, store, and return an AcceleratorBuffer with the given
-   * variable id string. This method returns all available
-   * qubits for this Accelerator. The string id serves as a unique identifier
-   * for future lookups and reuse of the AcceleratorBuffer.
-   *
-   * @param varId The variable name of the created buffer
-   * @return buffer The buffer instance created.
-   */
-  std::shared_ptr<AcceleratorBuffer>
-  createBuffer(const std::string &varId) override {return decoratedAccelerator->createBuffer(varId);}
-
-  /**
-   * Create, store, and return an AcceleratorBuffer with the given
-   * variable id string and of the given number of bits.
-   * The string id serves as a unique identifier
-   * for future lookups and reuse of the AcceleratorBuffer.
-   *
-   * @param varId The variable name of the created buffer
-   * @param size The number of bits in the created buffer
-   * @return buffer The buffer instance created.
-   */
-  virtual std::shared_ptr<AcceleratorBuffer>
-  createBuffer(const std::string &varId, const int size) {return decoratedAccelerator->createBuffer(varId,size);}
-
-
-  /**
-   * Return true if this Accelerator is a remotely hosted resource.
-   *
-   * @return remote True if this is a remote Accelerator
-   */
   bool isRemote()  override { return decoratedAccelerator->isRemote(); }
 
-  /**
-   * Destructor
-   */
   virtual ~AcceleratorDecorator() {}
 
 };

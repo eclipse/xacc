@@ -219,19 +219,19 @@ void DirectedBoostGraph::write(std::ostream &stream) {
       s = std::regex_replace(s, std::regex(";"), "--");
       s = s.substr(0,s.length()-3) + " ";
       // std::cout << "snow : " << s << "\n";
-      str = std::regex_replace(str, std::regex(s),
-      news);//boost::replace_all(str, s, news);
+      str = std::regex_replace(str, std::regex(s),news);//boost::replace_all(str, s, news);
       // std::cout << "STRING: " << str << "\n";
     }
   }
 
+//    std::cout << "HOWDY\n" << str << "\nHOWDY2\n";
   stream << str;
-  splitVec.clear();
-  splitVec = xacc::split(str, '\n');
-  std::stringstream combine;
-  std::for_each(splitVec.begin(), splitVec.end(),
-                [&](const std::string &elem) { combine << elem << "\n"; });
-  stream << combine.str().substr(0, combine.str().size() - 2) << "}";
+//   splitVec.clear();
+//   splitVec = xacc::split(str, '\n');
+//   std::stringstream combine;
+//   std::for_each(splitVec.begin(), splitVec.end(),
+//                 [&](const std::string &elem) { combine << elem << "\n"; });
+//   stream << combine.str().substr(0, combine.str().size() - 2) << "}";
 }
 
 /**

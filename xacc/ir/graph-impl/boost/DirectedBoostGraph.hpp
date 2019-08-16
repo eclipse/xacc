@@ -57,7 +57,7 @@ class DirectedVertexPropertiesWriter {
   protected:
     d_adj_list graph;
 
-  class print_visitor : public xacc::visitor_base<int,double,float,std::string,std::vector<double>> {
+  class print_visitor : public xacc::visitor_base<int,double,float,std::string,std::vector<double>,std::vector<std::size_t>> {
   protected:
    std::stringstream& ss;
   public:

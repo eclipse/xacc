@@ -106,11 +106,12 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
 
 void setAccelerator(const std::string &acceleratorName);
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            HeterogeneousMap params = {});
+                                           const HeterogeneousMap& params = {});
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
-                                            HeterogeneousMap params = {});
-std::shared_ptr<Accelerator> getAccelerator(HeterogeneousMap params = {});
+                                            const HeterogeneousMap& params = {});
+std::shared_ptr<Accelerator> getAccelerator();
+
 bool hasAccelerator(const std::string &name);
 
 void setCompiler(const std::string &compilerName);
