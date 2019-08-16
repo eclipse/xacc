@@ -15,23 +15,24 @@ class VQEOpt(ABC):
         self.vqe_energy = xacc.getAlgorithm('vqe-energy')
         self.buffer = buffer
 
-        if 'initial-parameters' in self.execParams:
-            self.init_args = self.execParams['initial-parameters']
+        if 'initial-parameters' in self.opt_args:
+            self.init_args = self.opt_args.pop('initial-parameters')
         else:
             import random
             pi = 3.141592653
             self.init_args = np.array([random.uniform(-pi, pi) for _ in range(self.execParams['ansatz'].nParameters())])
+
     # Define the objective function here
     # This is a default objective function using XACC VQE
     # that converges on the computed energy, computing the energy
     # every iteration
     @abstractmethod
     def energy(self, params):
-        self.execParams['initial-parameters'] = params.tolist()
+        self.execParams['parameters'] = params.tolist()
         self.vqe_energy.initialize(self.execParams)
         self.vqe_energy.execute(self.buffer)
 
-        e = self.buffer.getInformation("vqe-energy")
+        e = self.buffer.getInformation("opt-val")
 
         if 'rdm-purification' in self.execParams['accelerator'].name():
             t = self.buffer.getAllUnique('parameters')
@@ -47,9 +48,7 @@ class VQEOpt(ABC):
         file.write(str(self.buffer))
         file.close()
         return e
-        # xacc.info("The energy() method is meant to be implemented by VQEOpt subclasses!")
-        # exit(1)
-        # pass
+
 
 @ComponentFactory("scipy_opt_factory")
 @Property("_vqe_optimizer", "vqe_optimizer", "scipy-opt")
@@ -61,12 +60,11 @@ class ScipyOpt(VQEOpt):
         super().optimize(buffer, optimizer_args, execParams)
 
         from scipy.optimize import minimize
-
         opt_result = minimize(self.energy, self.init_args, **self.opt_args)
 
         # Optimizer adds the results to the buffer automatically
         buffer.addExtraInfo('vqe-energies', self.energies)
-        buffer.addExtraInfo('vqe-params', self.angles)
+        buffer.addExtraInfo('vqe-parameters', self.angles)
         optimal_angles = [float(x) for x in self.angles[self.energies.index(min(self.energies))].split(",")]
         buffer.addExtraInfo('opt-params', optimal_angles)
         buffer.addExtraInfo('opt-val', min(self.energies))
@@ -75,11 +73,9 @@ class ScipyOpt(VQEOpt):
     # resides in the super class; looks like it needs to be
     # redefined everytime (in an optimizer)
     def energy(self, params):
-        # super().energy(params)
-        self.execParams['initial-parameters'] = params.tolist()
+        self.execParams['parameters'] = params.tolist()
         self.vqe_energy.initialize(self.execParams)
         self.vqe_energy.execute(self.buffer)
-
         e = self.buffer.getInformation("opt-val")
 
         if 'rdm-purification' in self.execParams['accelerator'].name():
@@ -125,7 +121,7 @@ class BOBYQAOpt(VQEOpt):
     # resides in the super class; looks like it needs to be
     # redefined everytime (in an optimizer)
     def energy(self, params):
-        self.execParams['initial-parameters'] = params.tolist()
+        self.execParams['parameters'] = params.tolist()
         self.vqe_energy.initialize(self.execParams)
         self.vqe_energy.execute(self.buffer)
 
