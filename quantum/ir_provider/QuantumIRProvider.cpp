@@ -15,6 +15,20 @@
 
 namespace xacc {
 namespace quantum {
+const int QuantumIRProvider::getNRequiredBits(const std::string name) {
+  std::shared_ptr<Instruction> inst;
+  if (xacc::hasService<Instruction>(name)) {
+    inst = xacc::getService<Instruction>(name);
+  } else if (xacc::hasContributedService<Instruction>(name)) {
+    inst = xacc::getContributedService<Instruction>(name);
+  } else if (xacc::hasCompiled(name)) {
+    inst = xacc::getCompiled(name);
+  } else {
+      xacc::error("Invalid instruction name - " + name);
+  }
+  return inst->nRequiredBits();
+}
+
 std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(const std::string name,
                                                          std::size_t bit) {
   return createInstruction(name, std::vector<std::size_t>{bit});

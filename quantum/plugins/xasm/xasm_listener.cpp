@@ -46,23 +46,19 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     instructionName = "Measure";
   }
 
+  auto nRequiredBits = irProvider->getNRequiredBits(instructionName);
   std::vector<std::size_t> bits;
 
-  int nBits = ctx->bits->bufferIndex().size();
-  for (int i = 0; i < nBits; i++) {
-    if (ctx->bits->bufferIndex(i)->INT() != nullptr) {
-      bits.push_back(std::stoi(ctx->bits->bufferIndex(i)->INT()->getText()));
+  for (int i = 0; i < nRequiredBits; i++) {
+    if (ctx->bits_and_params->exp(i)->bufferIndex() != nullptr) {
+      bits.push_back(std::stoi(ctx->bits_and_params->exp(i)->bufferIndex()->INT()->getText()));
     }
   }
 
   std::vector<InstructionParameter> params;
-  if (ctx->params != nullptr) {
-
-    int nParams = ctx->params->exp().size();
-    for (int i = 0; i < nParams; i++) {
-      auto paramStr = ctx->params->exp(i)->getText();
+  for (int i = nRequiredBits; i < ctx->bits_and_params->exp().size(); i++) {
+      auto paramStr = ctx->bits_and_params->exp(i)->getText();
       params.emplace_back(paramStr);
-    }
   }
 
   auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");

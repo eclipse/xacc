@@ -54,8 +54,8 @@ public:
   virtual void enterBufferIndex(xasmParser::BufferIndexContext * /*ctx*/) override { }
   virtual void exitBufferIndex(xasmParser::BufferIndexContext * /*ctx*/) override { }
 
-  virtual void enterBitsType(xasmParser::BitsTypeContext * /*ctx*/) override { }
-  virtual void exitBitsType(xasmParser::BitsTypeContext * /*ctx*/) override { }
+  virtual void enterBitsOrParamType(xasmParser::BitsOrParamTypeContext * /*ctx*/) override { }
+  virtual void exitBitsOrParamType(xasmParser::BitsOrParamTypeContext * /*ctx*/) override { }
 
   virtual void enterOptionsMap(xasmParser::OptionsMapContext * /*ctx*/) override { }
   virtual void exitOptionsMap(xasmParser::OptionsMapContext * /*ctx*/) override { }

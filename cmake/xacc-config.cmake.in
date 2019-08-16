@@ -20,13 +20,11 @@ endif()
 
 set (XACC_LIBRARY_DIR "${XACC_ROOT}/lib")
 
-link_directories("${XACC_ROOT}/lib")
 set(XACC_INCLUDE_ROOT "${XACC_ROOT}/include")
+#set (XACC_INCLUDE_DIRS "${XACC_INCLUDE_ROOT}/antlr4-runtime;${XACC_INCLUDE_ROOT}/cppmicroservices4;${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate;${XACC_INCLUDE_ROOT}/quantum/utils;${XACC_INCLUDE_ROOT}/quantum/aqc;${XACC_INCLUDE_ROOT}/spdlog;${XACC_INCLUDE_ROOT}/exprtk;${XACC_INCLUDE_ROOT}/eigen;${XACC_INCLUDE_ROOT}/rapidjson/include;${XACC_INCLUDE_ROOT};${XACC_INCLUDE_ROOT}/gtest")
+#set (XACC_LIBRARIES "xacc;xacc-quantum-gate;xacc-quantum-aqc;xacc-pauli;antlr4-runtime;CppMicroServices")
 
-set (XACC_INCLUDE_DIRS "${XACC_INCLUDE_ROOT}/antlr4-runtime;${XACC_INCLUDE_ROOT}/cppmicroservices4;${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate;${XACC_INCLUDE_ROOT}/quantum/utils;${XACC_INCLUDE_ROOT}/quantum/aqc;${XACC_INCLUDE_ROOT}/spdlog;${XACC_INCLUDE_ROOT}/exprtk;${XACC_INCLUDE_ROOT}/eigen;${XACC_INCLUDE_ROOT}/rapidjson/include;${XACC_INCLUDE_ROOT};${XACC_INCLUDE_ROOT}/gtest")
-set (XACC_LIBRARIES "xacc;xacc-quantum-gate;xacc-quantum-aqc;xacc-pauli;antlr4-runtime;CppMicroServices")
-
-set (XACC_TEST_LIBRARIES "${XACC_LIBRARIES};gtest;gtest_main")
+#set (XACC_TEST_LIBRARIES "${XACC_LIBRARIES};gtest;gtest_main")
 
 macro(add_xacc_test _TEST_NAME)
     include_directories(${XACC_INCLUDE_ROOT}/gtest)
@@ -66,7 +64,7 @@ endmacro()
 
 set(XACCLIB "libxacc.so")
 set(XACCGATELIB "libxacc-quantum-gate.so")
-set(XACCAQCLIB "libxacc-quantum-aqc.so")
+set(XACCAQCLIB "libxacc-quantum-annealing.so")
 set(XACCPAULILIB "libxacc-pauli.so")
 set(XACCFERMIONLIB "libxacc-fermion.so")
 set(CPPUSLIB "libCppMicroServices.so.4.0.0")
@@ -74,7 +72,7 @@ set(CPPUSLIB "libCppMicroServices.so.4.0.0")
 if (APPLE)
   set(XACCLIB "libxacc.dylib")
   set(XACCGATELIB "libxacc-quantum-gate.dylib")
-  set(XACCAQCLIB "libxacc-quantum-aqc.dylib")
+  set(XACCAQCLIB "libxacc-quantum-annealing.dylib")
   set(XACCPAULILIB "libxacc-pauli.dylib")
   set(XACCFERMIONLIB "libxacc-fermion.dylib")
   set(CPPUSLIB "libCppMicroServices.4.0.0.dylib")
@@ -101,8 +99,13 @@ add_library(xacc::xacc SHARED IMPORTED)
 
 set_target_properties(xacc::xacc PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc"
-  INTERFACE_LINK_LIBRARIES "CppMicroServices"
+  INTERFACE_LINK_LIBRARIES "CppMicroServices::CppMicroServices"
 )
+
+target_compile_features(xacc::xacc
+                        INTERFACE
+                        cxx_std_14
+                        cxx_alias_templates)
 
 # Import target "xacc::xacc" for configuration "Release"
 set_property(TARGET xacc::xacc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
@@ -111,12 +114,11 @@ set_target_properties(xacc::xacc PROPERTIES
   IMPORTED_SONAME_RELEASE "${XACCLIB}"
   )
 
-
 add_library(xacc::quantum_gate SHARED IMPORTED)
 
 set_target_properties(xacc::quantum_gate PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate"
-  INTERFACE_LINK_LIBRARIES "xacc;CppMicroServices"
+  INTERFACE_LINK_LIBRARIES "xacc::xacc"
 )
 
 # Import target "xacc::quantum_gate" for configuration "Release"
@@ -127,16 +129,16 @@ set_target_properties(xacc::quantum_gate PROPERTIES
   )
 
 # Create imported target xacc::quantum_aqc
-add_library(xacc::quantum_aqc SHARED IMPORTED)
+add_library(xacc::quantum_annealing SHARED IMPORTED)
 
-set_target_properties(xacc::quantum_aqc PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/aqc"
-  INTERFACE_LINK_LIBRARIES "xacc;CppMicroServices"
+set_target_properties(xacc::quantum_annealing PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/annealing"
+  INTERFACE_LINK_LIBRARIES "xacc::xacc"
 )
 
-# Import target "xacc::quantum_aqc" for configuration "Release"
-set_property(TARGET xacc::quantum_aqc APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
-set_target_properties(xacc::quantum_aqc PROPERTIES
+# Import target "xacc::quantum_annealing" for configuration "Release"
+set_property(TARGET xacc::quantum_annealing APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(xacc::quantum_annealing PROPERTIES
   IMPORTED_LOCATION_RELEASE "${XACC_ROOT}/lib/${XACCAQCLIB}"
   IMPORTED_SONAME_RELEASE "${XACCAQCLIB}"
   )
@@ -147,7 +149,7 @@ add_library(xacc::pauli SHARED IMPORTED)
 
 set_target_properties(xacc::pauli PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate"
-  INTERFACE_LINK_LIBRARIES "xacc;CppMicroServices"
+  INTERFACE_LINK_LIBRARIES "xacc::xacc"
 )
 
 # Import target "xacc::pauli" for configuration "Release"
@@ -163,7 +165,7 @@ add_library(xacc::fermion SHARED IMPORTED)
 
 set_target_properties(xacc::fermion PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate"
-  INTERFACE_LINK_LIBRARIES "xacc;CppMicroServices"
+  INTERFACE_LINK_LIBRARIES "xacc::xacc"
 )
 
 # Import target "xacc::fermion" for configuration "Release"

@@ -93,7 +93,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
     Term spinInst = inst.second;
 
     auto gateFunction = gateRegistry->createComposite(
-        inst.first, {});
+        inst.first, function->getVariables());
 
     gateFunction->setCoefficient(spinInst.coeff());
 
