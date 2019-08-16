@@ -13,8 +13,12 @@ class UCC3(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
         ucc3_function = xacc.gate.createFunction('ucc3', [x for x in range(nQubits)])
-        x0 = xacc.gate.create("X", [0])
-        x1 = xacc.gate.create("X", [2])
+        x_gate_qubits = inputParams['x-gates']
+        if isinstance(inputParams['x-gates'] ,str):
+           x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
+        for q in x_gate_qubits:
+            x_gate = xacc.gate.create('X', [q])
+            ucc3_function.addInstruction(x_gate)
         rx0 = xacc.gate.create("Rx", [0], [1.57079632])
         h0 = xacc.gate.create("H", [1])
         cn0 = xacc.gate.create("CNOT", [0,1])

@@ -19,7 +19,9 @@ class UCC1(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
         ucc1_function = xacc.gate.createFunction('reduced-uccsd', [x for x in range(nQubits)])
-        x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
+        x_gate_qubits = inputParams['x-gates']
+        if isinstance(inputParams['x-gates'] ,str):
+           x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
         for q in x_gate_qubits:
             x_gate = xacc.gate.create('X', [q])
             ucc1_function.addInstruction(x_gate)
