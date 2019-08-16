@@ -22,9 +22,11 @@ bool VQE::initialize(const AlgorithmParameters &parameters) {
     return false;
   }
   try {
-    observable = parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
+    observable =
+        parameters.at("observable").as_no_error<std::shared_ptr<Observable>>();
   } catch (std::exception &e) {
-    observable = std::shared_ptr<Observable>(parameters.at("observable").as<Observable*>(), [](Observable*){});
+    observable = std::shared_ptr<Observable>(
+        parameters.at("observable").as<Observable *>(), [](Observable *) {});
   }
   optimizer = parameters.at("optimizer").as<std::shared_ptr<Optimizer>>();
   kernel = parameters.at("ansatz").as<std::shared_ptr<Function>>();
@@ -58,9 +60,10 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
           int nFunctionInstructions = 0;
           if (f->getInstruction(0)->isComposite()) {
-              nFunctionInstructions = kernel->nInstructions() + f->nInstructions() - 1;
+            nFunctionInstructions =
+                kernel->nInstructions() + f->nInstructions() - 1;
           } else {
-              nFunctionInstructions = f->nInstructions();
+            nFunctionInstructions = f->nInstructions();
           }
 
           if (nFunctionInstructions > kernel->nInstructions()) {
@@ -74,14 +77,18 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto buffers = accelerator->execute(buffer, fsToExec);
 
         double energy = identityCoeff;
-        for (int i = 0; i < buffers.size(); i++) {
-          auto expval = buffers[i]->getExpectationValueZ();
-          energy += expval * coefficients[i];
-          buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-          buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-          buffers[i]->addExtraInfo("exp-val-z", expval);
-          buffers[i]->addExtraInfo("parameters", x);
-          buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+        if (buffers[0]->hasExtraInfoKey("purified-energy")) { // FIXME Hack for now...
+          energy = buffers[0]->getInformation("purified-energy").as<double>();
+        } else {
+          for (int i = 0; i < buffers.size(); i++) {
+            auto expval = buffers[i]->getExpectationValueZ();
+            energy += expval * coefficients[i];
+            buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+            buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+            buffers[i]->addExtraInfo("exp-val-z", expval);
+            buffers[i]->addExtraInfo("parameters", x);
+            buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+          }
         }
 
         std::stringstream ss;

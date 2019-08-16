@@ -337,7 +337,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm']
+        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm','hamiltonian_generator','ansatz_generator']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -412,9 +412,9 @@ class PyServiceRegistry(object):
         dest = os.path.dirname(os.path.realpath(__file__))+"/benchmark"
         os.chdir(dest)
         if "list" in pkg:
-            subprocess.run(['python3', 'manage.py', "-l"])
+            subprocess.run([sys.executable, 'manage.py', "-l"])
         else:
-            subprocess.run(['python3', 'manage.py', '-p', "{}".format(self.pluginDir), '-i', "{}".format(pkg)])
+            subprocess.run([sys.executable, 'manage.py', '-p', "{}".format(self.pluginDir), '-i', "{}".format(pkg)])
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()

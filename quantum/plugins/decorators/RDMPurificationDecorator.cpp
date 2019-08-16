@@ -264,12 +264,12 @@ RDMPurificationDecorator::execute(
   xacc::info("Purified energy " + std::to_string(energy));
 
   auto ir = xacc::getIRProvider("gate")->createIR();
-  for (auto k : functions) {std::cout << k->toString() << "\n\n";  ir->addKernel(k);}
+//   for (auto k : functions) {std::cout << k->toString() << "\n\n";  ir->addKernel(k);}
 
   xacc::quantum::PauliOperator op;
   op.fromXACCIR(ir);
 
-  std::cout << "HAM: " << op.toString() << "\n";
+//   std::cout << "HAM: " << op.toString() << "\n";
   for (auto &b : buffers) {
     b->addExtraInfo("purified-energy", ExtraInfo(energy));
     b->addExtraInfo("non-purified-energy", ExtraInfo(bad_energy));
@@ -281,6 +281,7 @@ RDMPurificationDecorator::execute(
   buffers[0]->addExtraInfo("hpqrs", ExtraInfo(hpqrs_vec));
   buffers[0]->addExtraInfo("hpq", ExtraInfo(hpq_vec));
 
+   std::cout << "MADE IT HERE " << buffers.size() << "\n";
   return buffers;
 }
 
