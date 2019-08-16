@@ -2,7 +2,6 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
     Validate, Invalidate, Instantiate
 from hamiltonian_generator import HamiltonianGenerator
 import ast, xacc
-import xaccvqe
 
 try:
 
