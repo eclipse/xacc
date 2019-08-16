@@ -6,7 +6,7 @@ from xacc import PauliOperator
 class TestPyVQE(test.TestCase):
 
     def setUp(self):
-        self.qpu = xacc.getAccelerator('tnqvm')
+        self.qpu = xacc.getAccelerator('local-ibm')
         self.buffer = self.qpu.createBuffer('q', 2)
         self.ham = PauliOperator(5.906709445) + \
                     PauliOperator({0: 'X', 1: 'X'}, -2.1433) + \

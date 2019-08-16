@@ -2,8 +2,7 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
     Validate, Invalidate, Instantiate
 from hamiltonian_generator import HamiltonianGenerator
 import ast
-from xaccvqe import PauliOperator
-
+from xacc import PauliOperator
 
 @ComponentFactory("simpleH2_hamiltonian_generator_factory")
 @Provides("hamiltonian_generator")
