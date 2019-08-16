@@ -11,6 +11,7 @@
 
 #include "CompositeInstruction.hpp"
 #include "xacc_service.hpp"
+#include "XACC.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -22,8 +23,17 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(const std::str
 std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
     const std::string name, std::vector<std::size_t> bits,
     std::vector<InstructionParameter> parameters) {
+
   std::shared_ptr<Instruction> inst;
+  if (xacc::hasService<Instruction>(name)) {
     inst = xacc::getService<Instruction>(name);
+  } else if (xacc::hasContributedService<Instruction>(name)) {
+    inst = xacc::getContributedService<Instruction>(name);
+  } else if (xacc::hasCompiled(name)) {
+    inst = xacc::getCompiled(name);
+  } else {
+      xacc::error("Invalid instruction name - " + name);
+  }
 
   if (!inst->isComposite()) {
     inst->setBits(bits);

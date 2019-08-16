@@ -10,7 +10,7 @@ namespace quantum {
 void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
   auto bit = inst.bits()[0];
   auto lastNode = qubitToLastNode[bit];
-  auto lastBit = lastNode.get<std::vector<int>>("bits")[0];
+  auto lastBit = lastNode.get<std::vector<std::size_t>>("bits")[0];
 
   id++;
 
@@ -46,7 +46,7 @@ void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
 IRToGraphVisitor::IRToGraphVisitor(const int nQubits) {
   graph = xacc::getService<Graph>(
       "boost-digraph"); // std::make_shared<DirectedBoostGraph>(nQubits);
-  std::vector<int> allQbitIds(nQubits);
+  std::vector<std::size_t> allQbitIds(nQubits);
   std::iota(std::begin(allQbitIds), std::end(allQbitIds), 0);
    CircuitNode initNode{std::make_pair("name", std::string("InitialState")),
                       std::make_pair("id", 0),
@@ -60,7 +60,7 @@ IRToGraphVisitor::IRToGraphVisitor(const int nQubits) {
 std::shared_ptr<Graph> IRToGraphVisitor::getGraph() {
    CircuitNode finalNode{std::make_pair("name", std::string("FinalState")),
                       std::make_pair("id", id+1),
-                      std::make_pair("bits", graph->getVertexProperties(0).get<std::vector<int>>("bits"))};
+                      std::make_pair("bits", graph->getVertexProperties(0).get<std::vector<std::size_t>>("bits"))};
   graph->addVertex(finalNode);
 
   for (auto &kv : qubitToLastNode) {

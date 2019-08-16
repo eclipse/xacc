@@ -155,6 +155,91 @@ TEST(GateTester, checkTerminatingNode) {
   std::cout << "Circuit2:\n" << circuit->toString() << "\n";
 
 }
+
+
+TEST(GateFunctionTester, checkPersistLoad) {
+
+  auto f = std::make_shared<Circuit>("foo", std::vector<std::string>{"phi"});
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(0, 1);
+  auto rz = std::make_shared<Rz>(0, 3.1415);
+  auto rz2 = std::make_shared<Rz>(std::vector<std::size_t>{1});
+  xacc::InstructionParameter p("phi");
+  rz2->setParameter(0, p);
+
+  f->addInstruction(h);
+  f->addInstruction(cn1);
+  f->addInstruction(rz);
+  f->addInstruction(rz2);
+
+  std::stringstream ss;
+  f->persist(ss);
+
+  std::cout << ss.str() << "\n";
+
+  std::istringstream iss(ss.str());
+
+  auto newF = std::make_shared<Circuit>("new");
+  newF->load(iss);
+
+  std::cout << "HELLO: " << newF->toString() << "\n";
+}
+
+TEST(GateTester, checkGenerateGraph) {
+
+  auto f = std::make_shared<Circuit>("foo");
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(1, 2);
+  auto cn2 = std::make_shared<CNOT>(0, 1);
+  auto h2 = std::make_shared<Hadamard>(0);
+  auto rz = std::make_shared<Rz>(2, 3.1415);
+  f->addInstructions({h,cn1,cn2,h2,rz});
+
+  auto s = f->persistGraph();
+
+//   std::stringstream ss;
+//   g->write(ss);
+
+  std::string expected = R"expected(digraph G {
+node [shape=box style=filled]
+0 [label="id=0;name=InitialState;bits=[0,1,2]"];
+1 [label="id=1;name=H;bits=[1]"];
+2 [label="id=2;name=CNOT;bits=[1,2]"];
+3 [label="id=3;name=CNOT;bits=[0,1]"];
+4 [label="id=4;name=H;bits=[0]"];
+5 [label="id=5;name=Rz;bits=[2]"];
+6 [label="id=6;name=FinalState;bits=[0,1,2]"];
+0->1 ;
+0->2 ;
+0->3 ;
+1->2 ;
+2->3 ;
+2->5 ;
+3->4 ;
+3->6 ;
+4->6 ;
+5->6 ;
+}
+)expected";
+
+  std::cout << s << "\nExpected:\n" << expected << "\n";
+  EXPECT_TRUE(expected == s);
+}
+
+TEST(GateFunctionTester, checkDepth) {
+  auto f = std::make_shared<Circuit>("foo");
+  auto x = std::make_shared<X>(0);
+  auto h = std::make_shared<Hadamard>(1);
+  auto cn1 = std::make_shared<CNOT>(1, 2);
+  auto rz = std::make_shared<Rz>(1, 3.1415);
+  auto z = std::make_shared<Z>(2);
+
+  f->addInstructions({x,h,cn1,rz,z});
+
+  auto g = f->toGraph();
+
+  EXPECT_EQ(3, g->depth());
+}
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

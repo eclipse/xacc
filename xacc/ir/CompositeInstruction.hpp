@@ -80,6 +80,8 @@ public:
 
   virtual void addInstruction(InstPtr instruction) = 0;
   virtual void addInstructions(std::vector<InstPtr>& instruction) = 0;
+  virtual void addInstructions(const std::vector<InstPtr>& instruction) = 0;
+  virtual void addInstructions(const std::vector<InstPtr> &&insts) {addInstructions(insts);}
 
   virtual bool hasChildren() const = 0;
   virtual bool expand(const HeterogeneousMap& runtimeOptions) = 0;
@@ -88,6 +90,7 @@ public:
   virtual void addVariable(const std::string variableName) = 0;
   virtual void addVariables(const std::vector<std::string>& variables) = 0;
   virtual void addVariables(const std::vector<std::string>&& variables) {addVariables(variables);}
+  virtual const std::vector<std::string> getVariables() = 0;
 
   virtual const int depth() = 0;
   virtual const std::string persistGraph() = 0;

@@ -1,13 +1,21 @@
 #include "Circuit.hpp"
 
-// #include "exprtk.hpp"
-// using symbol_table_t = exprtk::symbol_table<double>;
-// using expression_t = exprtk::expression<double>;
-// using parser_t = exprtk::parser<double>;
+#define RAPIDJSON_HAS_STDSTRING 1
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+using namespace rapidjson;
+
+#include "JsonVisitor.hpp"
+#include "IRProvider.hpp"
+#include "IRToGraphVisitor.hpp"
 
 namespace xacc {
 namespace quantum {
 void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
+  if (!parsingUtil) {
+    parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
+  }
+  
   if (!instruction->isComposite() && instruction->isParameterized()) {
     for (int i = 0; i < instruction->nParameters(); i++) {
       auto parameter = instruction->getParameter(i);
@@ -23,16 +31,6 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
           instruction->setParameter(i, constant);
           continue;
         }
-        // symbol_table_t symbol_table;
-        // symbol_table.add_constants();
-        // expression_t expr;
-        // expr.register_symbol_table(symbol_table);
-        // parser_t parser;
-        // if (parser.compile(parameter.toString(), expr)) {
-        //   auto value = expr.value();
-        //   instruction->setParameter(i, value);
-        //   continue;
-        // }
 
         // ok, now we should check that the expression
         // contains only our variables
@@ -40,16 +38,6 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
         if (parsingUtil->validExpression(parameter.toString(), variables)) {
           continue;
         }
-        // for (int i = 0; i < variables.size(); i++) {
-        //   symbol_table.add_variable(variables[i], tmp[i]);
-        // }
-        // expression_t expr2;
-        // expr2.register_symbol_table(symbol_table);
-        // parser_t parser2;
-        // if (parser2.compile(parameter.toString(), expr2)) {
-        //   // This had only variables we know
-        //   continue;
-        // }
 
         std::stringstream ermsg;
         ermsg << "\nInvalid parameterized instruction:\n" +
@@ -79,26 +67,6 @@ Circuit::operator()(const std::vector<double> &params) {
         std::to_string(variables.size()));
     exit(0);
   }
-
-  //   std::vector<double> p = params;
-  //   symbol_table_t symbol_table;
-  //   symbol_table.add_constants();
-  //   std::vector<std::string> variableNames;
-  //   std::vector<double> values;
-  //   for (int i = 0; i < variables.size(); i++) {
-  //     auto var = variables[i];
-  //     variableNames.push_back(var);
-  //     symbol_table.add_variable(var, p[i]);
-  //   }
-
-  //   auto compileExpression = [&](InstructionParameter &p) -> double {
-  //     auto expression = mpark::get<std::string>(p);
-  //     expression_t expr;
-  //     expr.register_symbol_table(symbol_table);
-  //     parser_t parser;
-  //     parser.compile(expression, expr);
-  //     return expr.value();
-  //   };
 
   auto evaluatedCircuit = std::make_shared<Circuit>("evaled_" + name());
 
@@ -130,6 +98,111 @@ Circuit::operator()(const std::vector<double> &params) {
     }
   }
   return evaluatedCircuit;
+}
+
+void Circuit::persist(std::ostream &outStream) {
+  JsonVisitor<PrettyWriter<StringBuffer>, StringBuffer> visitor(
+      shared_from_this());
+  outStream << visitor.write();
+}
+
+void Circuit::load(std::istream &inStream) {
+
+  //   std::vector<std::string> irGeneratorNames;
+  //   auto irgens = xacc::getRegisteredIds<xacc::IRGenerator>();
+  //   for (auto &irg : irgens) {
+  //     irGeneratorNames.push_back(irg);
+  //   }
+
+  variables.clear();
+  instructions.clear();
+
+  auto provider = xacc::getService<IRProvider>("quantum");
+  std::string json(std::istreambuf_iterator<char>(inStream), {});
+  //   std::cout << "JSON: " << json << "\n";
+
+  Document doc;
+  doc.Parse(json);
+
+  auto &kernel = doc["circuits"].GetArray()[0];
+  circuitName = kernel["circuit"].GetString();
+
+  auto instructionsArray = kernel["instructions"].GetArray();
+
+  for (int i = 0; i < instructionsArray.Size(); i++) {
+    auto &inst = instructionsArray[i];
+    auto gname = inst["gate"].GetString();
+
+    std::vector<std::size_t> qbits;
+    auto bitsArray = inst["qubits"].GetArray();
+    for (int k = 0; k < bitsArray.Size(); k++) {
+      qbits.push_back(bitsArray[k].GetUint64());
+    }
+
+    std::vector<InstructionParameter> local_parameters;
+    auto &paramsArray = inst["parameters"];
+    for (int k = 0; k < paramsArray.Size(); k++) {
+      auto &value = paramsArray[k];
+      if (value.IsInt()) {
+        local_parameters.push_back(InstructionParameter(value.GetInt()));
+      } else if (value.IsDouble()) {
+        local_parameters.push_back(InstructionParameter(value.GetDouble()));
+      } else {
+        local_parameters.push_back(InstructionParameter(value.GetString()));
+      }
+    }
+
+    std::shared_ptr<Instruction> instToAdd;
+    instToAdd = provider->createInstruction(gname, qbits, local_parameters);
+
+    auto vars = kernel["variables"].GetArray();
+    for (int i = 0; i < vars.Size(); i++ ){
+        addVariable(vars[i].GetString());
+    }
+
+    auto coeff = kernel["coefficient"].GetDouble();
+    setCoefficient(coeff);
+
+    if (!inst["enabled"].GetBool()) {
+      instToAdd->disable();
+    }
+
+    addInstruction(instToAdd);
+  }
+}
+
+const int Circuit::depth() { return toGraph()->depth() - 2; }
+
+const std::string Circuit::persistGraph() {
+  std::stringstream s;
+  toGraph()->write(s);
+  return s.str();
+}
+
+std::shared_ptr<Graph> Circuit::toGraph() {
+
+  // Compute number of qubits
+  int maxBit = 0;
+  InstructionIterator it(shared_from_this());
+  while (it.hasNext()) {
+    auto inst = it.next();
+    for (auto &b : inst->bits()) {
+      if (b > maxBit) {
+        maxBit = b;
+      }
+    }
+  }
+
+  auto visitor = std::make_shared<IRToGraphVisitor>(maxBit + 1);
+  InstructionIterator it2(shared_from_this());
+  while (it2.hasNext()) {
+    auto inst = it2.next();
+    if (inst->isEnabled()) {
+      inst->accept(visitor);
+    }
+  }
+
+  return visitor->getGraph();
 }
 } // namespace quantum
 } // namespace xacc

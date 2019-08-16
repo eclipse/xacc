@@ -180,13 +180,13 @@ void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
 }
 
-std::shared_ptr<Accelerator> getAccelerator(HeterogeneousMap params) {
+std::shared_ptr<Accelerator> getAccelerator() {
   if (!xacc::xaccFrameworkInitialized) {
-    error("XACC not initialized before use. Please execute "
+    error("XACC not initialized before use.\nPlease execute "
           "xacc::Initialize() before using API.");
   }
   if (!optionExists("accelerator")) {
-    error("Invalid use of XACC API. getAccelerator() with no string argument "
+    error("Invalid use of XACC API.\nxacc::getAccelerator() with no string argument\n"
           "requires that you set --accelerator at the command line.");
   }
 
@@ -199,18 +199,18 @@ std::shared_ptr<Accelerator> getAccelerator(HeterogeneousMap params) {
   auto acc = xacc::getService<Accelerator>(name_backend[0]);
 
   if (acc) {
-    acc->initialize(params);
+    acc->initialize();
   } else {
-    error("Invalid Accelerator. Could not find " + getOption("accelerator") +
+    error("Invalid Accelerator.\nCould not find " + getOption("accelerator") +
           " in Accelerator Registry.");
   }
   return acc;
 }
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
-                                            HeterogeneousMap params) {
+                                            const HeterogeneousMap& params) {
   if (!xacc::xaccFrameworkInitialized) {
-    error("XACC not initialized before use. Please execute "
+    error("XACC not initialized before use.\nPlease execute "
           "xacc::Initialize() before using API.");
   }
 
@@ -234,7 +234,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            HeterogeneousMap params) {
+                                            const HeterogeneousMap& params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -403,10 +403,10 @@ getIRTransformations(const std::string &name) {
   return t;
 }
 const std::string
-translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+translate(std::shared_ptr<CompositeInstruction> ci,
           const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
-  return toLanguageCompiler->translate("", CompositeInstruction);
+  return toLanguageCompiler->translate( ci);
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }

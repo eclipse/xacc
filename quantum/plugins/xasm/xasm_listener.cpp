@@ -1,0 +1,99 @@
+#include "IR.hpp"
+#include "IRProvider.hpp"
+#include "XACC.hpp"
+#include "xacc_service.hpp"
+#include "expression_parsing_util.hpp"
+
+#include "xasmBaseListener.h"
+#include "xasm_listener.hpp"
+
+using namespace xasm;
+
+namespace xacc {
+
+XASMListener::XASMListener() {
+  irProvider = xacc::getService<IRProvider>("quantum");
+}
+
+void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
+  bufferName = ctx->acceleratorbuffer->getText();
+  std::vector<std::string> variables;
+  // First argument should be the buffer
+  for (int i = 0; i < ctx->typedparam().size(); i++) {
+    variables.push_back(ctx->typedparam(i)->id()->getText());
+  }
+  function = irProvider->createComposite(ctx->kernelname->getText(), variables);
+}
+
+void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
+  bufferName = ctx->acceleratorbuffer->getText();
+  std::vector<std::string> variables;
+  // First argument should be the buffer
+  for (int i = 0; i < ctx->typedparam().size(); i++) {
+    variables.push_back(ctx->typedparam(i)->id()->getText());
+  }
+  function = irProvider->createComposite("tmp_lambda", variables);
+}
+
+void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
+
+  auto instructionName = ctx->inst_name->getText();
+  xacc::trim(instructionName);
+
+  if (instructionName == "CX") {
+    instructionName = "CNOT";
+  } else if (instructionName == "MEASURE") {
+    instructionName = "Measure";
+  }
+
+  std::vector<std::size_t> bits;
+
+  int nBits = ctx->bits->bufferIndex().size();
+  for (int i = 0; i < nBits; i++) {
+    if (ctx->bits->bufferIndex(i)->INT() != nullptr) {
+      bits.push_back(std::stoi(ctx->bits->bufferIndex(i)->INT()->getText()));
+    }
+  }
+
+  std::vector<InstructionParameter> params;
+  if (ctx->params != nullptr) {
+
+    int nParams = ctx->params->exp().size();
+    for (int i = 0; i < nParams; i++) {
+      auto paramStr = ctx->params->exp(i)->getText();
+      params.emplace_back(paramStr);
+    }
+  }
+
+  auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
+  HeterogeneousMap options;
+  if (ctx->options != nullptr) {
+    int nOptions = ctx->options->optionsType().size();
+    for (int i = 0; i < nOptions; i++) {
+      auto key = ctx->options->optionsType(i)->key->getText();
+      key.erase(remove(key.begin(), key.end(), '\"'), key.end());
+      std::string val = ctx->options->optionsType(i)->value->getText();
+
+      double value;
+      if (parsingUtil->isConstant(val, value)) {
+        if (ctx->options->optionsType(i)->value->INT() != nullptr) {
+          int tmp = (int)value;
+          options.insert(key, tmp);
+        } else {
+          options.insert(key, value);
+        }
+      } else {
+        val.erase(remove(val.begin(), val.end(), '\"'), val.end());
+        options.insert(key, val);
+      }
+    }
+  }
+
+  // This will search services, contributed services, and compiled compositeinstructions
+  // and will call xacc::error if it does not find it.
+  auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
+  function->addInstruction(tmpInst);
+  function->expand(options);
+}
+
+} // namespace xacc
