@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_circuit_optimizers",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Circuit Optimizers",
+  "bundle.description" : "This bundle provides ...."
+}
