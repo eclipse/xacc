@@ -55,6 +55,7 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
+
   std::vector<InstructionParameter> params;
   for (int i = nRequiredBits; i < ctx->bits_and_params->exp().size(); i++) {
       auto paramStr = ctx->bits_and_params->exp(i)->getText();

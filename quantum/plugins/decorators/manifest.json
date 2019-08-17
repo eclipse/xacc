@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_vqe_decorators",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC VQE IR Decorators",
+  "bundle.description" : "This bundle provides Accelerator Decorators."
+}
