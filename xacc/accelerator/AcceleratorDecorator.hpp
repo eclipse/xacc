@@ -30,7 +30,7 @@ public:
       decoratedAccelerator = a;
   }
 
-  void initialize(AcceleratorParameters params = {}) override { decoratedAccelerator->initialize(params); }
+  void initialize(const HeterogeneousMap& params = {}) override { decoratedAccelerator->initialize(params); }
   void updateConfiguration(const HeterogeneousMap &config) override {
      decoratedAccelerator->updateConfiguration(config);
   }

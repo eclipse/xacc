@@ -32,7 +32,6 @@ template <class... TYPES> struct visitor_base {
   using types = xacc::type_list<TYPES...>;
 };
 
-
 class HeterogeneousMap {
 public:
   HeterogeneousMap() = default;
@@ -64,8 +63,7 @@ public:
     return *this;
   }
 
-  template<typename... Ts>
-  void print(std::ostream& os) const {
+  template <typename... Ts> void print(std::ostream &os) const {
     _internal_print_visitor<Ts...> v(os);
     visit(v);
   }
@@ -117,6 +115,29 @@ public:
     return items<T>[this][key];
   }
 
+  bool stringExists(const std::string key) const {
+    if (keyExists<const char *>(key)) {
+      return true;
+    }
+    if (keyExists<std::string>(key)) {
+      return true;
+    }
+    return false;
+  }
+
+  const std::string getString(const std::string key) const {
+    if (keyExists<const char *>(key)) {
+      return get<const char *>(key);
+    } else if (keyExists<std::string>(key)) {
+      return get<std::string>(key);
+    } else {
+      XACCLogger::instance()->error("No string-like value at provided key (" +
+                                    key + ").");
+      print_backtrace();
+    }
+    return "";
+  }
+
   void clear() {
     for (auto &&clear_func : clear_functions) {
       clear_func(*this);
@@ -130,12 +151,11 @@ public:
     return 0;
   }
 
-  template<typename T>
-  bool keyExists(const std::string key) const {
-      if (items<T>.count(this) && items<T>[this].count(key)) {
-          return true;
-      }
-      return false;
+  template <typename T> bool keyExists(const std::string key) const {
+    if (items<T>.count(this) && items<T>[this].count(key)) {
+      return true;
+    }
+    return false;
   }
 
   size_t size() const {
@@ -154,18 +174,17 @@ public:
   }
 
 private:
-
-  template<typename... Ts>
+  template <typename... Ts>
   class _internal_print_visitor : public visitor_base<Ts...> {
-      private:
-      std::ostream& ss;
-      public:
-      _internal_print_visitor(std::ostream& s) :ss(s) {}
+  private:
+    std::ostream &ss;
 
-      template<typename T>
-      void operator()(const std::string& key, const T& t) {
-          ss << key << ": " << t << "\n";
-      }
+  public:
+    _internal_print_visitor(std::ostream &s) : ss(s) {}
+
+    template <typename T> void operator()(const std::string &key, const T &t) {
+      ss << key << ": " << t << "\n";
+    }
   };
 
   template <class T>
@@ -173,8 +192,8 @@ private:
       items;
 
   template <class T, class U>
-  using visit_function =
-      decltype(std::declval<T>().operator()(std::declval<const std::string&>(), std::declval<U &>()));
+  using visit_function = decltype(std::declval<T>().operator()(
+      std::declval<const std::string &>(), std::declval<U &>()));
   template <class T, class U>
   static constexpr bool has_visit_v =
       std::experimental::is_detected<visit_function, T, U>::value;
@@ -203,7 +222,6 @@ template <class T>
 std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
     HeterogeneousMap::items;
 
-
 template <typename... Types> class Variant : public mpark::variant<Types...> {
 
 private:
@@ -223,12 +241,9 @@ private:
     }
   };
 
-  template <typename To, typename From>
-  class CastVisitor {
-      public:
-      To operator()(const From & t) const {
-          return (To) t;
-      }
+  template <typename To, typename From> class CastVisitor {
+  public:
+    To operator()(const From &t) const { return (To)t; }
   };
 
 public:
@@ -244,24 +259,24 @@ public:
       // First off just try to get it
       return mpark::get<T>(*this);
     } catch (std::exception &e) {
-        std::stringstream s;
-        s << "InstructionParameter::this->toString() = " << toString() << "\n";
-        s << "This InstructionParameter type id is " << this->which() << "\n";
-        XACCLogger::instance()->error("Cannot cast Variant to ("+std::string(typeid(T).name())+"):\n" + s.str());
-        print_backtrace();
-        exit(0);
+      std::stringstream s;
+      s << "InstructionParameter::this->toString() = " << toString() << "\n";
+      s << "This InstructionParameter type id is " << this->which() << "\n";
+      XACCLogger::instance()->error("Cannot cast Variant to (" +
+                                    std::string(typeid(T).name()) + "):\n" +
+                                    s.str());
+      print_backtrace();
+      exit(0);
     }
     return T();
   }
 
   template <typename T> T as_no_error() const {
-     // First off just try to get it
-     return mpark::get<T>(*this);
+    // First off just try to get it
+    return mpark::get<T>(*this);
   }
 
-  int which() const {
-      return this->index();
-  }
+  int which() const { return this->index(); }
 
   bool isNumeric() const {
     IsArithmeticVisitor v;
@@ -287,7 +302,6 @@ public:
   }
 
   bool operator!=(const Variant<Types...> &v) const { return !operator==(v); }
-
 };
 } // namespace xacc
 #endif
