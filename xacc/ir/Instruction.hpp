@@ -14,13 +14,16 @@
 #define XACC_IR_INSTRUCTION_HPP_
 #include <memory>
 
+#include "Cloneable.hpp"
 #include "InstructionVisitor.hpp"
 #include "heterogeneous.hpp"
 
 namespace xacc {
 using InstructionParameter = Variant<int,double,std::string>;
 
-class Instruction : public BaseInstructionVisitable, public Identifiable {
+class Instruction : public BaseInstructionVisitable,
+                    public Identifiable,
+                    public Cloneable<Instruction> {
 
 public:
   virtual const std::string toString() = 0;
