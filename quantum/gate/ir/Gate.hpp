@@ -21,7 +21,7 @@ namespace quantum {
 
 /**
  */
-class Gate : public Instruction, public Cloneable<Instruction> {
+class Gate : public Instruction {
 
 protected:
   std::string gateName;

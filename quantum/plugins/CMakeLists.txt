@@ -5,6 +5,7 @@ add_subdirectory(ibm)
 add_subdirectory(algorithms)
 add_subdirectory(decorators)
 add_subdirectory(circuits)
+add_subdirectory(optimizers)
 
 #add_subdirectory(scaffold)
 add_subdirectory(xasm)

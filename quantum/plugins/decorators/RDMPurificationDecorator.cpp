@@ -9,7 +9,7 @@
 #include <iomanip>
 
 namespace xacc {
-namespace vqe {
+namespace quantum {
 using IP = Eigen::IndexPair<int>;
 using T2 = Eigen::Tensor<double, 2>;
 using T4 = Eigen::Tensor<double, 4>;

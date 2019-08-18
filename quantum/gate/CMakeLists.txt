@@ -33,12 +33,8 @@ target_include_directories(${LIBRARY_NAME}
                            PUBLIC utils
                             ir
                             ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                            #compiler
-                            #accelerator
                                    PRIVATE
-                                   ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_SOURCE_DIR}/tpls/taocpp
-                                   ${CMAKE_SOURCE_DIR}/tpls/eigen)
+                                   ${CMAKE_BINARY_DIR})
 
 set(_bundle_name xacc_quantum_gate)
 set_target_properties(${LIBRARY_NAME}
@@ -58,10 +54,7 @@ usFunctionEmbedResources(TARGET
                          manifest.json)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
-target_compile_features(${LIBRARY_NAME}
-                        PUBLIC
-                        cxx_std_14
-                        cxx_alias_templates)
+
 
 if(APPLE)
   set_target_properties(${LIBRARY_NAME}

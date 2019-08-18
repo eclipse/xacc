@@ -1,7 +1,11 @@
 set (LIBRARY_NAME xacc-decorators)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC RDMPurificationDecorator.cpp DecoratorsActivator.cpp)
+file (GLOB SRC RDMPurificationDecorator.cpp
+               ImprovedSamplingDecorator.cpp
+               ROErrorDecorator.cpp
+               RichExtrapDecorator.cpp
+               DecoratorsActivator.cpp)
 
 # Set up dependencies to resources to track changes
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -27,7 +31,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/eigen)
+target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include ${CMAKE_SOURCE_DIR}/tpls/eigen)
 target_link_libraries(${LIBRARY_NAME} xacc xacc-fermion xacc-pauli)
 
 if(APPLE)

@@ -240,7 +240,9 @@ public:
   operator()(const std::vector<double> &params) override;
 
   DEFINE_VISITABLE()
-
+  std::shared_ptr<Instruction> clone() override {
+    return std::make_shared<Circuit>(*this);   
+  }
   virtual ~Circuit() {}
 };
 

@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_RDMPURIFICATIONDECORATOR_HPP_
-#define XACC_RDMPURIFICATIONDECORATOR_HPP_
+#ifndef XACC_ROERRORDECORATOR_HPP_
+#define XACC_ROERRORDECORATOR_HPP_
 
 #include "AcceleratorDecorator.hpp"
 
@@ -19,34 +19,29 @@ namespace xacc {
 
 namespace quantum {
 
-class RDMPurificationDecorator : public AcceleratorDecorator {
-protected:
-  std::shared_ptr<Observable> fermionObservable;
-
+class ROErrorDecorator : public AcceleratorDecorator {
 public:
+
   const std::vector<std::string> configurationKeys() override {
-      return {"fermion-observable"};
+      return {};
   }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::shared_ptr<CompositeInstruction> function) override;
-
   void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
 
-  void initialize(const HeterogeneousMap& params = {}) override;
-
-  const std::string name() const override { return "rdm-purification"; }
+  const std::string name() const override { return "ro-error"; }
   const std::string description() const override { return ""; }
 
   OptionPairs getOptions() override {
-    OptionPairs desc{{"rdm-source", ""}, {"rdm-qubit-map", ""}};
+    OptionPairs desc{{"ro-error-p10s", ""}};
     return desc;
   }
-  ~RDMPurificationDecorator() override {}
+  ~ROErrorDecorator() override {}
 };
 
-} // namespace vqe
+}
 } // namespace xacc
 #endif

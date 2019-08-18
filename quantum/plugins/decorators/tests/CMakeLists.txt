@@ -7,3 +7,14 @@
 
 add_xacc_test(RDMPurificationDecorator)
 target_link_libraries(RDMPurificationDecoratorTester xacc xacc-fermion)
+
+add_xacc_test(ROErrorDecorator)
+target_link_libraries(ROErrorDecoratorTester xacc xacc-pauli)
+
+
+add_xacc_test(RichExtrapDecorator)
+target_link_libraries(RichExtrapDecoratorTester xacc xacc-pauli)
+
+
+add_xacc_test(ImprovedSamplingDecorator)
+target_link_libraries(ImprovedSamplingDecoratorTester xacc)

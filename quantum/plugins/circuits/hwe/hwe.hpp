@@ -5,14 +5,12 @@
 
 namespace xacc {
 namespace circuits {
-class HWE: public xacc::quantum::Circuit, public Cloneable<Instruction> {
+class HWE: public xacc::quantum::Circuit {
 public:
   HWE() : Circuit("hwe") {}
   bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
   const std::vector<std::string> requiredKeys() override;
-  std::shared_ptr<Instruction> clone() override {
-    return std::make_shared<HWE>();
-  }
+  DEFINE_CLONE(HWE);
 };
 }
 }

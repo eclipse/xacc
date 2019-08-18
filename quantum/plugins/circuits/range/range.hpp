@@ -5,14 +5,12 @@
 
 namespace xacc {
 namespace circuits {
-class Range : public xacc::quantum::Circuit, public Cloneable<Instruction> {
+class Range : public xacc::quantum::Circuit {
 public:
   Range() : Circuit("range") {}
   bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
   const std::vector<std::string> requiredKeys() override;
-  std::shared_ptr<Instruction> clone() override {
-    return std::make_shared<Range>();
-  }
+  DEFINE_CLONE(Range);
 };
 } // namespace circuits
 } // namespace xacc
