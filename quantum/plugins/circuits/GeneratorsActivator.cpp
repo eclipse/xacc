@@ -1,7 +1,10 @@
 #include "hwe.hpp"
 #include "exp.hpp"
 #include "range.hpp"
-// #include "uccsd.hpp"
+#include "QFT.hpp"
+#include "InverseQFT.hpp"
+
+#include "uccsd.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -17,11 +20,16 @@ public:
     auto hwe = std::make_shared<xacc::circuits::HWE>();
     auto expit = std::make_shared<xacc::circuits::Exp>();
     auto r = std::make_shared<xacc::circuits::Range>();
-    // auto u = std::make_shared<xacc::generators::UCCSD>();
+    auto q = std::make_shared<xacc::circuits::QFT>();
+    auto iq = std::make_shared<xacc::circuits::InverseQFT>();
+    auto u = std::make_shared<xacc::circuits::UCCSD>();
+
     context.RegisterService<xacc::Instruction>(hwe);
     context.RegisterService<xacc::Instruction>(expit);
     context.RegisterService<xacc::Instruction>(r);
-    // context.RegisterService<xacc::IRGenerator>(u);
+    context.RegisterService<xacc::Instruction>(q);
+    context.RegisterService<xacc::Instruction>(iq);
+    context.RegisterService<xacc::Instruction>(u);
 
   }
 

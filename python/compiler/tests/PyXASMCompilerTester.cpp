@@ -72,27 +72,15 @@ class custom_range : public xacc::quantum::Circuit {
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }
 
-// TEST(XASMCompilerTester, checkUnknownParameter) {
-// auto compiler = xacc::getCompiler("xasm");
-//   auto IR = compiler -> compile(R"([&](qbit q) {
-//   uccsd(q, {{"nqubits",4},{"nelectrons",2}});
-// })");
+TEST(PyXASMCompilerTester, checkUCCSD) {
+auto compiler = xacc::getCompiler("pyxasm");
+  auto IR = compiler -> compile(R"(def ansatz_vqe(buffer, args):
+    uccsd(q, {"ne":2,"nq":4})
+    )");
 
-//  EXPECT_EQ(1, IR->getComposites().size());
-//   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+  std::cout << IR->getComposites()[0]->toString() << "\n";
 
-//   IR = compiler -> compile(R"([&](qbit q) {
-//   uccsd(q, {{"nqubits",4},{"nelectrons",ne}});
-// })");
-
-//  EXPECT_EQ(1, IR->getComposites().size());
-//   auto f = IR->getComposites()[0];
-//   std::cout << "KERNEL2\n" << IR->getComposites()[0]->toString() << "\n";
-
-// //   f->expandIRGenerators({{"nqubits", 4}, {"nelectrons",2}});
-// //     std::cout << "KERNEL3\n" << f->toString() << "\n";
-
-// }
+}
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);

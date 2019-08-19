@@ -57,6 +57,13 @@ void QuilToXACCListener::enterXacckernel(
       gateRegistry->createComposite(ctx->kernelname->getText(), params);
 }
 
+void QuilToXACCListener::exitKernelcall(
+    quil::QuilParser::KernelcallContext *ctx) {
+  std::string gateName = ctx->kernelname->getText();
+  auto f = xacc::getCompiled(gateName);
+  function->addInstruction(f);
+}
+
 void QuilToXACCListener::exitGate(quil::QuilParser::GateContext *ctx) {
   std::string gateName = ctx->name()->getText();
   if (gateName == "RX")

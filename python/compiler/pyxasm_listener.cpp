@@ -88,6 +88,9 @@ void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
     }
   }
 
+//   std::stringstream ss;
+//   options.print<int>(ss);
+//   std::cout <<" Options:\n" << ss.str() <<" \n";
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);

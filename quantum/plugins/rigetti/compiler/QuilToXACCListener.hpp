@@ -21,6 +21,10 @@ public:
   void enterXacckernel(QuilParser::XacckernelContext *ctx) override;
 
   void exitGate(quil::QuilParser::GateContext *ctx) override;
+
+  void exitKernelcall(
+    quil::QuilParser::KernelcallContext *ctx) override;
+
   void exitMeasure(quil::QuilParser::MeasureContext *ctx) override;
 
 };

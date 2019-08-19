@@ -7,7 +7,7 @@ xaccsrc
    ;
 
 xacckernel
-   : '__qpu__' kernelname=IDENTIFIER '(' 'qbit' acceleratorbuffer=IDENTIFIER ( ',' typedparam )* ')' '{' quil '}'
+   : '__qpu__' 'void' kernelname=IDENTIFIER '(' 'qbit' acceleratorbuffer=IDENTIFIER ( ',' typedparam )* ')' '{' quil '}'
    ;
 
 typedparam

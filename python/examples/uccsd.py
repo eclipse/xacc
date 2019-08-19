@@ -21,8 +21,9 @@ op = xacc.getObservable('pauli',opstr)
 qpu = xacc.getAccelerator('tnqvm')
 
 @xacc.qpu(algo='vqe', accelerator=qpu, observable=op)
-def ansatz_vqe(buffer, *args):
-    uccsd(nelectrons=2,nqubits=4)
+def ansatz_vqe(q, t0, t1):
+    uccsd(q,{"ne":2,"nq":4})
 
+print(ansatz_vqe.getFunction().toString())
 buffer = xacc.qalloc(4)
-ansatz_vqe(buffer, 0,0)
+ansatz_vqe(buffer, 0.,0.)

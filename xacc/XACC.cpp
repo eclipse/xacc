@@ -434,7 +434,7 @@ bool hasCache(const std::string fileName, const std::string subdirectory) {
 }
 
 HeterogeneousMap getCache(const std::string fileName,
-                                           const std::string subdirectory) {
+                          const std::string subdirectory) {
   std::string rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
     rootPathStr += "/" + subdirectory;
@@ -579,23 +579,26 @@ void qasm(const std::string &qasmString) {
     }
   }
 
-  std::string newQasm = "";
+  std::vector<std::string> newQasms;
   for (auto &kv : function2code) {
-    newQasm += "__qpu__ void " + kv.first + "(qbit " + bufferName +
-               variablesString + ") {\n" + kv.second + "\n}\n";
+    newQasms.push_back("__qpu__ void " + kv.first + "(qbit " + bufferName +
+                       variablesString + ") {\n" + kv.second + "\n}\n");
   }
 
-//   std::cout << "HELLO: " << newQasm << "\n";
   std::shared_ptr<IR> ir;
-  if (optionExists("accelerator")) {
-    ir = getCompiler(compiler)->compile(newQasm, getAccelerator());
-  } else {
-    ir = getCompiler(compiler)->compile(newQasm);
+  for (auto &newQasm : newQasms) {
+    if (optionExists("accelerator")) {
+      ir = getCompiler(compiler)->compile(newQasm, getAccelerator());
+    } else {
+      ir = getCompiler(compiler)->compile(newQasm);
+    }
+
+    auto k = ir->getComposites()[0];
+    appendCompiled(k, true);
   }
 
   for (auto &k : ir->getComposites())
     appendCompiled(k, true);
-
 }
 
 void Finalize() {
