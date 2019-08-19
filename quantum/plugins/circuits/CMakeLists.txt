@@ -3,7 +3,9 @@ set(LIBRARY_NAME xacc-circuits)
 file(GLOB SRC hwe/hwe.cpp
               range/range.cpp
               exp/exp.cpp
-              #uccsd/uccsd.cpp
+              qft/QFT.cpp
+              qft/InverseQFT.cpp
+              uccsd/uccsd.cpp
               GeneratorsActivator.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -13,7 +15,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC . range exp hwe)
+  PUBLIC . range exp hwe qft uccsd)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-pauli xacc-fermion)
 
@@ -47,7 +49,8 @@ if(XACC_BUILD_TESTS)
   add_subdirectory(hwe/tests)
   add_subdirectory(exp/tests)
   add_subdirectory(range/tests)
-  #add_subdirectory(uccsd/tests)
+  add_subdirectory(qft/tests)
+  add_subdirectory(uccsd/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

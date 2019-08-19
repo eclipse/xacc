@@ -11,7 +11,7 @@ using namespace xacc::quantum;
 
 TEST(QuilCompilerTester, checkSimple) {
   const std::string src =
-      R"src(__qpu__ rotate(qbit qreg) {
+      R"src(__qpu__ void rotate(qbit qreg) {
 RX(3.141592653589793) 0
 H 0
 CX 1 0
@@ -34,7 +34,7 @@ MEASURE 0 [0]
 TEST(QuilCompilerTester, checkVariableParameter) {
 
   const std::string src =
-      R"src(__qpu__ statePrep2x2(qbit qreg, double theta1) {
+      R"src(__qpu__ void statePrep2x2(qbit qreg, double theta1) {
 RY(theta1) 0
 })src";
 

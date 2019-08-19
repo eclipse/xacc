@@ -19,6 +19,7 @@
 #include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
 // #include "EmbeddingAlgorithm.hpp"
+
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
@@ -148,6 +149,7 @@ public:
     return "";
   }
 };
+
 PYBIND11_MODULE(_pyxacc, m) {
   m.doc() =
       "Python bindings for XACC. XACC provides a plugin infrastructure for "

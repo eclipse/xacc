@@ -1,2 +1,0 @@
-global-include *.hpp
-include package_info.py

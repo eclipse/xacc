@@ -56,7 +56,7 @@ TEST(XACCAPITester, checkQasm) {
   if (xacc::hasCompiler("quil")) {
     xacc::qasm(R"(.compiler quil
 .circuit foo
-.parameter theta,phi
+.parameters theta, phi
 X 0
 H 2
 CNOT 2 1

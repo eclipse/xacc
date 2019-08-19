@@ -1,9 +1,0 @@
-#add_xacc_test(SymVerificationDecorator)
-#target_link_libraries(SymVerificationDecoratorTester xacc-vqe-decorators)
-#add_xacc_test(VQERestartDecorator)
-#target_link_libraries(VQERestartDecoratorTester xacc-vqe-decorators)
-#add_xacc_test(PurificationDecorator)
-#target_link_libraries(PurificationDecoratorTester xacc-vqe-decorators)
-
-add_xacc_test(RDMPurificationDecorator)
-target_link_libraries(RDMPurificationDecoratorTester xacc xacc-fermion)

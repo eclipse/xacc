@@ -21,7 +21,6 @@ const std::vector<std::string> Exp::requiredKeys() {
 bool Exp::expand(const HeterogeneousMap &parameters) {
 
   std::string pauli_or_fermion = "pauli";
-  std::cout << "FOUND IT: " << parameters.get<const char *>("pauli") << "\n";
   if (!parameters.stringExists("pauli")) {
     if (!parameters.stringExists("fermion")) {
       return false;
@@ -43,6 +42,8 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
                 ->getTerms();
   } else {
     auto pauliStr = parameters.getString("pauli");
+        std::cout << "PAULI STR:\n" << pauliStr << "\n";
+
     PauliOperator op(pauliStr);
     terms = op.getTerms();
   }

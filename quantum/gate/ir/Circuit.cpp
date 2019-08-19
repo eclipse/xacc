@@ -15,7 +15,7 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
   if (!parsingUtil) {
     parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
   }
-  
+
   if (!instruction->isComposite() && instruction->isParameterized()) {
     for (int i = 0; i < instruction->nParameters(); i++) {
       auto parameter = instruction->getParameter(i);
@@ -61,7 +61,7 @@ std::shared_ptr<CompositeInstruction>
 Circuit::operator()(const std::vector<double> &params) {
   if (params.size() != variables.size()) {
     xacc::XACCLogger::instance()->error(
-        "Invalid GateFunction evaluation: number "
+        "Invalid Circuit evaluation: number "
         "of parameters don't match. " +
         std::to_string(params.size()) + ", " +
         std::to_string(variables.size()));
