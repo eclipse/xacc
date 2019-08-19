@@ -5,51 +5,37 @@
 
 #include "Circuit.hpp"
 
-TEST(XASMCompilerTester, checkSimple) {
+TEST(PyXASMCompilerTester, checkSimple) {
 
-  auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler -> compile(R"(__qpu__ void bell(qbit q, double t0) {
-  H(q[0]);
-  CX(q[0], q[1]);
-  Ry(q[0], t0);
-  Measure(q[0]);
-  Measure(q[1]);
-})");
-  EXPECT_EQ(1, IR->getComposites().size());
-  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
-
-
-  IR = compiler -> compile(R"([&](qbit q, double t0) {
-  H(q[0]);
-  CX(q[0], q[1]);
-  Ry(q[0], t0);
-  bell(q);
-  Measure(q[0]);
-  Measure(q[1]);
-})");
+  auto compiler = xacc::getCompiler("pyxasm");
+  auto IR = compiler -> compile(R"(def bell(q, t0):
+  H(q[0])
+  CX(q[0], q[1])
+  Ry(q[0], t0)
+  Measure(q[0])
+  Measure(q[1])
+)");
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 
 }
 
-TEST(XASMCompilerTester, checkVectorArg) {
+TEST(PyXASMCompilerTester, checkVectorArg) {
 
-  auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler -> compile(R"(__qpu__ void bell22(qbit q, std::vector<double> t) {
-  H(q[0]);
-  CX(q[0], q[1]);
-  Ry(q[0], t[0]);
-  Measure(q[0]);
-  Measure(q[1]);
-})");
+  auto compiler = xacc::getCompiler("pyxasm");
+  auto IR = compiler -> compile(R"(def bell22(q, t):
+  H(q[0])
+  CX(q[0], q[1])
+  Ry(q[0], t[0])
+  Measure(q[0])
+  Measure(q[1])
+)");
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
   std::cout << "KERNEL\n" << IR->getComposites()[0]->operator()({2.})->toString() << "\n";
 
-
-
 }
-TEST(XASMCompilerTester, checkApplyAll) {
+TEST(PyXASMCompilerTester, checkApplyAll) {
 class custom_range : public xacc::quantum::Circuit {
   public:
     custom_range() : Circuit("range") {}
@@ -73,14 +59,15 @@ class custom_range : public xacc::quantum::Circuit {
     const std::vector<std::string> requiredKeys() override {
       return {"nq", "gate"};
     }
+    DEFINE_CLONE(custom_range);
   };
   std::shared_ptr<xacc::Instruction> service = std::make_shared<custom_range>();
   xacc::contributeService("custom_range", service);
 
-  auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler -> compile(R"([&](qbit q) {
-  custom_range(q, {{"gate","H"},{"nq",4}});
-})");
+  auto compiler = xacc::getCompiler("pyxasm");
+  auto IR = compiler -> compile(R"(def foo(q):
+  custom_range(q, {"gate":"H","nq":4})
+)");
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }

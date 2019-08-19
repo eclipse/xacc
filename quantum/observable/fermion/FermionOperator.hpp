@@ -188,6 +188,9 @@ public:
   const std::string description() const override {
       return "";
   }
+void fromOptions(const HeterogeneousMap& options) override {
+      return;
+  }
 
 };
 

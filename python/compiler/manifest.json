@@ -1,6 +1,6 @@
 {
-  "bundle.symbolic_name" : "xacc_py_compiler",
+  "bundle.symbolic_name" : "xacc_pyxasm_compiler",
   "bundle.activator" : true,
-  "bundle.name" : "XACC Python Kernel Compiler",
+  "bundle.name" : "XACC Python XASM Compiler",
   "bundle.description" : "This bundle provides a Python Kernel Compiler."
 }

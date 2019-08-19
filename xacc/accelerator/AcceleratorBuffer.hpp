@@ -74,9 +74,9 @@ public:
 class ExtraInfoValue2HeterogeneousMap {
 protected:
   HeterogeneousMap& m;
-  std::string& key;
+  const std::string& key;
 public:
-  ExtraInfoValue2HeterogeneousMap(HeterogeneousMap& map, std::string& k) : m(map),key(k) {}
+  ExtraInfoValue2HeterogeneousMap(HeterogeneousMap& map, const std::string& k) : m(map),key(k) {}
   template<typename T>
   void operator()(const T& t) {
       m.insert(key, t);
@@ -259,7 +259,7 @@ public:
   void removeChild(const std::size_t idx) {
       children.erase(children.begin()+idx);
   }
-  
+
   /**
    * Return the number of bits in this buffer.
    *

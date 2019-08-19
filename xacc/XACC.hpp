@@ -120,9 +120,9 @@ std::shared_ptr<Compiler> getCompiler();
 bool hasCompiler(const std::string &name);
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::HeterogeneousMap &params);
+                                        const xacc::HeterogeneousMap &params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::HeterogeneousMap &&params);
+                                        const xacc::HeterogeneousMap &&params);
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name);
 
 std::shared_ptr<Optimizer> getOptimizer(const std::string name);
@@ -133,7 +133,7 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name,
 
 bool hasCache(const std::string fileName, const std::string subdirectory = "");
 
-std::shared_ptr<HeterogeneousMap> getCache(const std::string fileName,
+HeterogeneousMap getCache(const std::string fileName,
                                            const std::string subdirectory = "");
 void appendCache(const std::string fileName, HeterogeneousMap &params,
                  const std::string subdirectory = "");
@@ -152,13 +152,13 @@ auto rootPathStr = xacc::getRootDirectory();
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
     // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
     auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache->keyExists<T>(key)) {
-      existingCache->get_mutable<T>(key) = param;
+    if (existingCache.keyExists<T>(key)) {
+      existingCache.get_mutable<T>(key) = param;
     } else {
-      existingCache->insert(key, param);
+      existingCache.insert(key, param);
     }
 
-    appendCache(fileName, *existingCache.get(), subdirectory);
+    appendCache(fileName, existingCache, subdirectory);
   } else {
     std::ofstream out(rootPathStr + "/" + fileName);
     std::stringstream s;
@@ -193,13 +193,13 @@ void appendCache(const std::string fileName, const std::string key, T &param,
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
     // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
     auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache->keyExists<T>(key)) {
-      existingCache->get_mutable<T>(key) = param;
+    if (existingCache.keyExists<T>(key)) {
+      existingCache.get_mutable<T>(key) = param;
     } else {
-      existingCache->insert(key, param);
+      existingCache.insert(key, param);
     }
 
-    appendCache(fileName, *existingCache.get(), subdirectory);
+    appendCache(fileName, existingCache, subdirectory);
   } else {
     std::ofstream out(rootPathStr + "/" + fileName);
     std::stringstream s;
@@ -230,7 +230,7 @@ const std::string
 translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
           const std::string toLanguage);
 
-void appendCompiled(std::shared_ptr<CompositeInstruction> CompositeInstruction);
+void appendCompiled(std::shared_ptr<CompositeInstruction> composite, bool _override = false);
 std::shared_ptr<CompositeInstruction> getCompiled(const std::string name);
 bool hasCompiled(const std::string name);
 

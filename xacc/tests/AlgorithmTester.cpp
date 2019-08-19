@@ -49,6 +49,7 @@ public:
   const int nBits() override { return 0; }
   const std::string name() const override { return "test"; }
   const std::string description() const override { return ""; }
+  void fromOptions(const HeterogeneousMap& options) override {}
 };
 
 TEST(AlgorithmTester, checkSimple) {

@@ -26,6 +26,12 @@
 
 namespace xacc {
 
+class HeterogeneousMap;
+
+template <class...> struct is_heterogeneous_map : std::false_type {};
+
+template <> struct is_heterogeneous_map<HeterogeneousMap> : std::true_type {};
+
 template <class...> struct type_list {};
 
 template <class... TYPES> struct visitor_base {
@@ -38,6 +44,17 @@ public:
   HeterogeneousMap(const HeterogeneousMap &_other) { *this = _other; }
   HeterogeneousMap(HeterogeneousMap &_other) { *this = _other; }
 
+  HeterogeneousMap &operator=(const HeterogeneousMap &_other) {
+    clear();
+    clear_functions = _other.clear_functions;
+    copy_functions = _other.copy_functions;
+    size_functions = _other.size_functions;
+    for (auto &&copy_function : copy_functions) {
+      copy_function(_other, *this);
+    }
+    return *this;
+  }
+
   template <typename T> void loop_pairs(T value) {
     insert(value.first, value.second);
   }
@@ -48,19 +65,11 @@ public:
     loop_pairs(rest...);
   }
 
-  template <typename... TYPES> HeterogeneousMap(TYPES &&... list) {
+  template <typename... TYPES,
+            typename = std::enable_if_t<!is_heterogeneous_map<
+                std::remove_cv_t<std::remove_reference_t<TYPES>>...>::value>>
+  HeterogeneousMap(TYPES &&... list) {
     loop_pairs(list...);
-  }
-
-  HeterogeneousMap &operator=(const HeterogeneousMap &_other) {
-    clear();
-    clear_functions = _other.clear_functions;
-    copy_functions = _other.copy_functions;
-    size_functions = _other.size_functions;
-    for (auto &&copy_function : copy_functions) {
-      copy_function(_other, *this);
-    }
-    return *this;
   }
 
   template <typename... Ts> void print(std::ostream &os) const {

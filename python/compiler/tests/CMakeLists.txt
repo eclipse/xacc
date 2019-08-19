@@ -1,2 +1,2 @@
-add_xacc_test(PyXACCCompiler)
-target_link_libraries(PyXACCCompilerTester CppMicroServices)
+add_xacc_test(PyXASMCompiler)
+target_link_libraries(PyXASMCompilerTester xacc-quantum-gate)

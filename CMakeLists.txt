@@ -93,7 +93,7 @@ add_subdirectory(tpls)
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 if(PYTHON_INCLUDE_DIR)
- #add_subdirectory(python)
+ add_subdirectory(python)
 endif()
 
 #find_package(Clang 9.0.0)

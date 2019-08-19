@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 UT-Battelle, LLC.
+ * Copyright (c) 2019 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -10,7 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "PyXACCCompiler.hpp"
+#include "pyxasm_compiler.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -25,15 +25,15 @@ namespace {
 
 /**
  */
-class US_ABI_LOCAL PyXACCCompilerActivator : public BundleActivator {
+class US_ABI_LOCAL PyXASMActivator : public BundleActivator {
 
 public:
-  PyXACCCompilerActivator() {}
+  PyXASMActivator() {}
 
   /**
    */
   void Start(BundleContext context) {
-    auto c = std::make_shared<xacc::quantum::PyXACCCompiler>();
+    auto c = std::make_shared<xacc::PyXASMCompiler>();
     context.RegisterService<xacc::Compiler>(c);
     context.RegisterService<xacc::OptionsProvider>(c);
   }
@@ -45,4 +45,4 @@ public:
 
 } // namespace
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(PyXACCCompilerActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(PyXASMActivator)

@@ -71,8 +71,7 @@ protected:
   std::complex<double> coefficient = 1.0;
 
 public:
-  Circuit(const std::string &name)
-      : circuitName(name) {}
+  Circuit(const std::string &name) : circuitName(name) {}
   Circuit(const std::string &name, std::vector<std::string> &vars)
       : circuitName(name), variables(vars) {}
   Circuit(const std::string &name, std::vector<std::string> &&vars)
@@ -180,8 +179,9 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
-  void addInstructions(const std::vector<InstPtr>& insts) override {
-      for (auto& i : insts) addInstruction(i);
+  void addInstructions(const std::vector<InstPtr> &insts) override {
+    for (auto &i : insts)
+      addInstruction(i);
   }
 
   bool hasChildren() const override { return !instructions.empty(); }
@@ -207,11 +207,15 @@ public:
   void addVariables(const std::vector<std::string> &vars) override {
     variables.insert(variables.end(), vars.begin(), vars.end());
   }
-  const std::vector<std::string> getVariables() override {
-      return variables;
+  const std::vector<std::string> getVariables() override { return variables; }
+  void replaceVariable(const std::string variable,
+                       const std::string newVariable) override {
+    std::replace_if(
+        variables.begin(), variables.end(),
+        [&](const std::string var) { return var == variable; }, newVariable);
   }
-  const std::size_t nVariables() override {return variables.size();}
 
+  const std::size_t nVariables() override { return variables.size(); }
 
   const int depth() override;
   const std::string persistGraph() override;
@@ -241,7 +245,7 @@ public:
 
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
-    return std::make_shared<Circuit>(*this);   
+    return std::make_shared<Circuit>(*this);
   }
   virtual ~Circuit() {}
 };
