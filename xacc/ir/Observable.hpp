@@ -24,14 +24,11 @@ public:
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;
-  virtual void fromOptions(std::map<std::string, InstructionParameter>&& options) {
-      XACCLogger::instance()->error("Observable.fromOptions not implemented.");
+  virtual void fromOptions(const HeterogeneousMap && options) {
+      fromOptions(options);
       return;
   }
-  virtual void fromOptions(std::map<std::string, InstructionParameter>& options) {
-      XACCLogger::instance()->error("Observable.fromOptions not implemented.");
-      return;
-  }
+  virtual void fromOptions(const HeterogeneousMap& options) = 0;
 };
 
 } // namespace xacc

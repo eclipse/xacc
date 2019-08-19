@@ -1,26 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2018 UT-Battelle, LLC.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompanies this
- * distribution. The Eclipse Public License is available at
- * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution License
- * is available at https://eclipse.org/org/documents/edl-v10.php
- *
- * Contributors:
- *   Alexander J. McCaskey - initial API and implementation
- *******************************************************************************/
-grammar PyXACCIR;
+
+grammar pyxasm;
 
 /* This part of the grammar is particular to XACC */
 /**********************************************************************/
 xaccsrc
-   : xacckernel*
+   : xacckernel
    ;
 
-xacckernel
-   : 'def' kernelname=id '(' ( ','? param )* ')' ':' mainprog
-   ;
+    xacckernel : 'def' kernelname =
+                    id '(' qbit =
+                        id (',' param) * ')' ':' mainprog ;
+
+    param : id ;
 
 /***********************************************************************/
 
@@ -42,7 +33,7 @@ line
 
 /* A program statement */
 statement
-   : uop
+   : instruction
    | 'return'
    ;
 
@@ -51,31 +42,26 @@ comment
    : COMMENT
    ;
 
-/* A list of parameters */
-paramlist
-   : param (',' paramlist)?
-   ;
-
-/* A parameter */
-param
-   : id
-   | '*' id
-   ;
-
-/* A unitary operation */
-uop
-   : gatename=gate  '(' ( explist )? ')'
-   | allbitsOp
+instruction
+   : inst_name=id  '(' (bits_and_params=explist) (',' options=optionsMap)? ')'
    ;
 
 
-allbitsOp
-   : gatename=gate '(' '...' ')'
-   | gatename=gate '(' INT ',...,' INT ')'
+bufferIndex
+   : id ('[' INT ']')
    ;
 
-gate
-   : id
+bitsOrParamType
+   : bufferIndex (',' bufferIndex)*
+   | exp*
+   ;
+
+optionsMap
+   : '{' optionsType (',' optionsType)* '}'
+   ;
+
+optionsType
+   : key=string ':' value=exp
    ;
 
 /* A list of expressions */
@@ -85,10 +71,7 @@ explist
 
 /* An expression */
 exp
-   : real
-   | INT
-   | 'pi'
-   | id
+   : id
    | exp '+' exp
    | exp '-' exp
    | exp '*' exp
@@ -97,17 +80,13 @@ exp
    | exp '^' exp
    | '(' exp ')'
    | unaryop '(' exp ')'
-   | key '=' exp
-   | '\'[' ( ','? coupler )* ']\''
+   | string
+   | real
+   | INT
+   | 'pi'
+   | bufferIndex
    ;
 
-key
-   : id
-   ;
-
-coupler
-   : '[' INT ',' INT ']'
-   ;
 /* unary operations */
 unaryop
    : 'sin'

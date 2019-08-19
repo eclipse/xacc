@@ -4,40 +4,29 @@
 #include "xacc_service.hpp"
 #include "expression_parsing_util.hpp"
 
-#include "xasmBaseListener.h"
-#include "xasm_listener.hpp"
+#include "pyxasm_listener.hpp"
 
 #include <regex>
 
-using namespace xasm;
+using namespace pyxasm;
 
 namespace xacc {
 
-XASMListener::XASMListener() {
+PyXASMListener::PyXASMListener() {
   irProvider = xacc::getService<IRProvider>("quantum");
 }
 
-void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
-  bufferName = ctx->acceleratorbuffer->getText();
+void PyXASMListener::enterXacckernel(pyxasmParser::XacckernelContext *ctx) {
+  bufferName = ctx->qbit->getText();
   std::vector<std::string> variables;
   // First argument should be the buffer
-  for (int i = 0; i < ctx->typedparam().size(); i++) {
-    variables.push_back(ctx->typedparam(i)->id()->getText());
+  for (int i = 0; i < ctx->param().size(); i++) {
+    variables.push_back(ctx->param(i)->id()->getText());
   }
   function = irProvider->createComposite(ctx->kernelname->getText(), variables);
 }
 
-void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
-  bufferName = ctx->acceleratorbuffer->getText();
-  std::vector<std::string> variables;
-  // First argument should be the buffer
-  for (int i = 0; i < ctx->typedparam().size(); i++) {
-    variables.push_back(ctx->typedparam(i)->id()->getText());
-  }
-  function = irProvider->createComposite("tmp_lambda", variables);
-}
-
-void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
+void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
 
   auto instructionName = ctx->inst_name->getText();
   xacc::trim(instructionName);
@@ -84,7 +73,6 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
       auto key = ctx->options->optionsType(i)->key->getText();
       key.erase(remove(key.begin(), key.end(), '\"'), key.end());
       std::string val = ctx->options->optionsType(i)->value->getText();
-
       double value;
       if (parsingUtil->isConstant(val, value)) {
         if (ctx->options->optionsType(i)->value->INT() != nullptr) {

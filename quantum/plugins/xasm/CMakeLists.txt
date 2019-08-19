@@ -16,7 +16,6 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                            PUBLIC .
                                   generated
-                                  ${CMAKE_SOURCE_DIR}/tpls/exprtk
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
                                   ${CMAKE_BINARY_DIR}
                                   )

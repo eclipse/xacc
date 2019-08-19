@@ -167,7 +167,7 @@ class DecoratorFunction(ABC):
 
         self.processVariables()
 
-        compiler = getCompiler('xacc-py')
+        compiler = getCompiler('pyxasm')
         if self.accelerator == None:
             if 'accelerator' in self.kwargs:
                 if isinstance(self.kwargs['accelerator'], Accelerator):
@@ -185,7 +185,7 @@ class DecoratorFunction(ABC):
             self.qpu = self.accelerator
 
         ir = compiler.compile(self.src, self.qpu)
-        self.compiledKernel = ir.getKernels()[0]
+        self.compiledKernel = ir.getComposites()[0]
 
     def overrideAccelerator(self, acc):
         self.accelerator = acc

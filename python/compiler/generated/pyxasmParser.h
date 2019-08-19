@@ -1,5 +1,5 @@
 
-// Generated from PyXACCIR.g4 by ANTLR 4.7.2
+// Generated from pyxasm.g4 by ANTLR 4.7.2
 
 #pragma once
 
@@ -7,29 +7,29 @@
 #include "antlr4-runtime.h"
 
 
-namespace pyxacc {
+namespace pyxasm {
 
 
-class  PyXACCIRParser : public antlr4::Parser {
+class  pyxasmParser : public antlr4::Parser {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, COMMENT = 26, 
-    ID = 27, REAL = 28, INT = 29, STRING = 30, WS = 31, EOL = 32
+    T__20 = 21, T__21 = 22, COMMENT = 23, ID = 24, REAL = 25, INT = 26, 
+    STRING = 27, WS = 28, EOL = 29
   };
 
   enum {
-    RuleXaccsrc = 0, RuleXacckernel = 1, RuleMainprog = 2, RuleProgram = 3, 
-    RuleLine = 4, RuleStatement = 5, RuleComment = 6, RuleParamlist = 7, 
-    RuleParam = 8, RuleUop = 9, RuleAllbitsOp = 10, RuleGate = 11, RuleExplist = 12, 
-    RuleExp = 13, RuleKey = 14, RuleCoupler = 15, RuleUnaryop = 16, RuleId = 17, 
-    RuleReal = 18, RuleString = 19
+    RuleXaccsrc = 0, RuleXacckernel = 1, RuleParam = 2, RuleMainprog = 3, 
+    RuleProgram = 4, RuleLine = 5, RuleStatement = 6, RuleComment = 7, RuleInstruction = 8, 
+    RuleBufferIndex = 9, RuleBitsOrParamType = 10, RuleOptionsMap = 11, 
+    RuleOptionsType = 12, RuleExplist = 13, RuleExp = 14, RuleUnaryop = 15, 
+    RuleId = 16, RuleReal = 17, RuleString = 18
   };
 
-  PyXACCIRParser(antlr4::TokenStream *input);
-  ~PyXACCIRParser();
+  pyxasmParser(antlr4::TokenStream *input);
+  ~pyxasmParser();
 
   virtual std::string getGrammarFileName() const override;
   virtual const antlr4::atn::ATN& getATN() const override { return _atn; };
@@ -40,20 +40,19 @@ public:
 
   class XaccsrcContext;
   class XacckernelContext;
+  class ParamContext;
   class MainprogContext;
   class ProgramContext;
   class LineContext;
   class StatementContext;
   class CommentContext;
-  class ParamlistContext;
-  class ParamContext;
-  class UopContext;
-  class AllbitsOpContext;
-  class GateContext;
+  class InstructionContext;
+  class BufferIndexContext;
+  class BitsOrParamTypeContext;
+  class OptionsMapContext;
+  class OptionsTypeContext;
   class ExplistContext;
   class ExpContext;
-  class KeyContext;
-  class CouplerContext;
   class UnaryopContext;
   class IdContext;
   class RealContext;
@@ -63,8 +62,7 @@ public:
   public:
     XaccsrcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<XacckernelContext *> xacckernel();
-    XacckernelContext* xacckernel(size_t i);
+    XacckernelContext *xacckernel();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -75,11 +73,13 @@ public:
 
   class  XacckernelContext : public antlr4::ParserRuleContext {
   public:
-    PyXACCIRParser::IdContext *kernelname = nullptr;;
+    pyxasmParser::IdContext *kernelname = nullptr;;
+    pyxasmParser::IdContext *qbit = nullptr;;
     XacckernelContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     MainprogContext *mainprog();
-    IdContext *id();
+    std::vector<IdContext *> id();
+    IdContext* id(size_t i);
     std::vector<ParamContext *> param();
     ParamContext* param(size_t i);
 
@@ -89,6 +89,19 @@ public:
   };
 
   XacckernelContext* xacckernel();
+
+  class  ParamContext : public antlr4::ParserRuleContext {
+  public:
+    ParamContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdContext *id();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ParamContext* param();
 
   class  MainprogContext : public antlr4::ParserRuleContext {
   public:
@@ -136,7 +149,7 @@ public:
   public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    UopContext *uop();
+    InstructionContext *instruction();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -158,77 +171,83 @@ public:
 
   CommentContext* comment();
 
-  class  ParamlistContext : public antlr4::ParserRuleContext {
+  class  InstructionContext : public antlr4::ParserRuleContext {
   public:
-    ParamlistContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    ParamContext *param();
-    ParamlistContext *paramlist();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  ParamlistContext* paramlist();
-
-  class  ParamContext : public antlr4::ParserRuleContext {
-  public:
-    ParamContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    pyxasmParser::IdContext *inst_name = nullptr;;
+    pyxasmParser::ExplistContext *bits_and_params = nullptr;;
+    pyxasmParser::OptionsMapContext *options = nullptr;;
+    InstructionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  ParamContext* param();
-
-  class  UopContext : public antlr4::ParserRuleContext {
-  public:
-    PyXACCIRParser::GateContext *gatename = nullptr;;
-    UopContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    GateContext *gate();
     ExplistContext *explist();
-    AllbitsOpContext *allbitsOp();
+    OptionsMapContext *optionsMap();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
    
   };
 
-  UopContext* uop();
+  InstructionContext* instruction();
 
-  class  AllbitsOpContext : public antlr4::ParserRuleContext {
+  class  BufferIndexContext : public antlr4::ParserRuleContext {
   public:
-    PyXACCIRParser::GateContext *gatename = nullptr;;
-    AllbitsOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    GateContext *gate();
-    std::vector<antlr4::tree::TerminalNode *> INT();
-    antlr4::tree::TerminalNode* INT(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  AllbitsOpContext* allbitsOp();
-
-  class  GateContext : public antlr4::ParserRuleContext {
-  public:
-    GateContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    BufferIndexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
+    antlr4::tree::TerminalNode *INT();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
    
   };
 
-  GateContext* gate();
+  BufferIndexContext* bufferIndex();
+
+  class  BitsOrParamTypeContext : public antlr4::ParserRuleContext {
+  public:
+    BitsOrParamTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<BufferIndexContext *> bufferIndex();
+    BufferIndexContext* bufferIndex(size_t i);
+    std::vector<ExpContext *> exp();
+    ExpContext* exp(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  BitsOrParamTypeContext* bitsOrParamType();
+
+  class  OptionsMapContext : public antlr4::ParserRuleContext {
+  public:
+    OptionsMapContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<OptionsTypeContext *> optionsType();
+    OptionsTypeContext* optionsType(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  OptionsMapContext* optionsMap();
+
+  class  OptionsTypeContext : public antlr4::ParserRuleContext {
+  public:
+    pyxasmParser::StringContext *key = nullptr;;
+    pyxasmParser::ExpContext *value = nullptr;;
+    OptionsTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    StringContext *string();
+    ExpContext *exp();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  OptionsTypeContext* optionsType();
 
   class  ExplistContext : public antlr4::ParserRuleContext {
   public:
@@ -248,15 +267,14 @@ public:
   public:
     ExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    RealContext *real();
-    antlr4::tree::TerminalNode *INT();
     IdContext *id();
     std::vector<ExpContext *> exp();
     ExpContext* exp(size_t i);
     UnaryopContext *unaryop();
-    KeyContext *key();
-    std::vector<CouplerContext *> coupler();
-    CouplerContext* coupler(size_t i);
+    StringContext *string();
+    RealContext *real();
+    antlr4::tree::TerminalNode *INT();
+    BufferIndexContext *bufferIndex();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -265,33 +283,6 @@ public:
 
   ExpContext* exp();
   ExpContext* exp(int precedence);
-  class  KeyContext : public antlr4::ParserRuleContext {
-  public:
-    KeyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    IdContext *id();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  KeyContext* key();
-
-  class  CouplerContext : public antlr4::ParserRuleContext {
-  public:
-    CouplerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> INT();
-    antlr4::tree::TerminalNode* INT(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  CouplerContext* coupler();
-
   class  UnaryopContext : public antlr4::ParserRuleContext {
   public:
     UnaryopContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -366,4 +357,4 @@ private:
   static Initializer _init;
 };
 
-}  // namespace pyxacc
+}  // namespace pyxasm

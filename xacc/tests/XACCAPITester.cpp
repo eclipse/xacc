@@ -31,15 +31,15 @@ TEST(XACCAPITester, checkCacheFunctions) {
     xacc::appendCache(file, "samples", q);
 
     auto cache = xacc::getCache(file);
-    EXPECT_TRUE(cache->keyExists<int>("hello"));
-    EXPECT_TRUE(cache->keyExists<std::string>("hello2"));
-    EXPECT_TRUE(cache->keyExists<complextype>("samples"));
+    EXPECT_TRUE(cache.keyExists<int>("hello"));
+    EXPECT_TRUE(cache.keyExists<std::string>("hello2"));
+    EXPECT_TRUE(cache.keyExists<complextype>("samples"));
 
-    EXPECT_EQ(22, cache->get<int>("hello"));
-    EXPECT_EQ("t", cache->get<std::string>("hello2"));
+    EXPECT_EQ(22, cache.get<int>("hello"));
+    EXPECT_EQ("t", cache.get<std::string>("hello2"));
 
     auto samples =
-    cache->get<complextype>("samples");//.as<std::vector<std::pair<double,double>>>();
+    cache.get<complextype>("samples");//.as<std::vector<std::pair<double,double>>>();
 
     EXPECT_EQ(0.0, samples[0].first);
     EXPECT_EQ(0.0, samples[0].second);
@@ -55,7 +55,8 @@ TEST(XACCAPITester, checkCacheFunctions) {
 TEST(XACCAPITester, checkQasm) {
   if (xacc::hasCompiler("quil")) {
     xacc::qasm(R"(.compiler quil
-.function foo
+.circuit foo
+.parameter theta,phi
 X 0
 H 2
 CNOT 2 1
@@ -65,7 +66,7 @@ Ry(phi) 1
 H 0
 MEASURE 0 [0]
 MEASURE 1 [1]
-.function foo2
+.circuit foo2
 foo(theta, phi)
 X 0
 H 0
@@ -82,6 +83,38 @@ MEASURE 0 [0]
   }
 }
 
+TEST(XACCAPITester, checkXasm) {
+    xacc::qasm(R"(.compiler xasm
+.circuit ansatz22
+.parameters t0, t1
+.qbit q
+X(q[0]);
+Ry(q[1],t0);
+Rx(q[0], t1);
+CX(q[1],q[0]);
+)");
+
+    auto function = xacc::getCompiled("ansatz22");
+    function = function->operator()({3.1415, 1.56});
+
+    std::cout << function->toString() << "\n";
+
+     xacc::qasm(R"(.compiler xasm
+.circuit ansatz2
+.parameters t
+.qbit q
+X(q[0]);
+Ry(q[1],t[0]);
+Rx(q[0], t[1]);
+CX(q[1],q[0]);
+)");
+
+    auto function2 = xacc::getCompiled("ansatz2");
+    function2 = function2->operator()({3.1415, 1.56});
+
+    std::cout << function2->toString() << "\n";
+
+}
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

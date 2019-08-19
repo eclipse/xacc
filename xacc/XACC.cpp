@@ -186,7 +186,8 @@ std::shared_ptr<Accelerator> getAccelerator() {
           "xacc::Initialize() before using API.");
   }
   if (!optionExists("accelerator")) {
-    error("Invalid use of XACC API.\nxacc::getAccelerator() with no string argument\n"
+    error("Invalid use of XACC API.\nxacc::getAccelerator() with no string "
+          "argument\n"
           "requires that you set --accelerator at the command line.");
   }
 
@@ -208,7 +209,7 @@ std::shared_ptr<Accelerator> getAccelerator() {
 }
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
-                                            const HeterogeneousMap& params) {
+                                            const HeterogeneousMap &params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use.\nPlease execute "
           "xacc::Initialize() before using API.");
@@ -234,7 +235,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
 }
 
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            const HeterogeneousMap& params) {
+                                            const HeterogeneousMap &params) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -297,7 +298,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name) {
 }
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::HeterogeneousMap &params) {
+                                        const xacc::HeterogeneousMap &params) {
   auto algo = xacc::getAlgorithm(name);
   if (!algo->initialize(params)) {
     error("Error initializing " + name + " algorithm.");
@@ -305,7 +306,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
   return algo;
 }
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,
-                                        xacc::HeterogeneousMap &&params) {
+                                        const xacc::HeterogeneousMap &&params) {
   return getAlgorithm(name, params);
 }
 
@@ -402,18 +403,17 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
-const std::string
-translate(std::shared_ptr<CompositeInstruction> ci,
-          const std::string toLanguage) {
+const std::string translate(std::shared_ptr<CompositeInstruction> ci,
+                            const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
-  return toLanguageCompiler->translate( ci);
+  return toLanguageCompiler->translate(ci);
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }
 
-std::shared_ptr<CompositeInstruction> optimizeCompositeInstruction(
-    const std::string optimizer,
-    std::shared_ptr<CompositeInstruction> inst) {
+std::shared_ptr<CompositeInstruction>
+optimizeCompositeInstruction(const std::string optimizer,
+                             std::shared_ptr<CompositeInstruction> inst) {
   auto ir = getService<IRProvider>("gate")->createIR();
   ir->addComposite(inst);
   auto opt = getService<IRTransformation>(optimizer);
@@ -433,7 +433,7 @@ bool hasCache(const std::string fileName, const std::string subdirectory) {
   return xacc::fileExists(rootPathStr + "/" + fileName);
 }
 
-std::shared_ptr<HeterogeneousMap> getCache(const std::string fileName,
+HeterogeneousMap getCache(const std::string fileName,
                                            const std::string subdirectory) {
   std::string rootPathStr = xacc::getRootPathString();
   if (!subdirectory.empty()) {
@@ -453,10 +453,10 @@ std::shared_ptr<HeterogeneousMap> getCache(const std::string fileName,
   buffer->load(s);
 
   auto info = buffer->getInformation();
-  auto c = std::make_shared<HeterogeneousMap>();
+  HeterogeneousMap c;
   for (auto &kv : info) {
     std::string key = kv.first;
-    ExtraInfoValue2HeterogeneousMap e2h(*c.get(), key);
+    ExtraInfoValue2HeterogeneousMap e2h(c, key);
     mpark::visit(e2h, kv.second);
   }
   std::stringstream ss;
@@ -497,15 +497,17 @@ void appendCache(const std::string fileName, HeterogeneousMap &params,
 }
 const std::string getRootDirectory() { return xacc::getRootPathString(); }
 
-void appendCompiled(
-    std::shared_ptr<CompositeInstruction> CompositeInstruction) {
-  if (compilation_database.count(CompositeInstruction->name())) {
-    xacc::error(
-        "Invalid CompositeInstruction name, already in compilation database: " +
-        CompositeInstruction->name() + ".");
+void appendCompiled(std::shared_ptr<CompositeInstruction> composite,
+                    bool _override) {
+  if (!_override) {
+    if (compilation_database.count(composite->name())) {
+      xacc::error("Invalid CompositeInstruction name, already in compilation "
+                  "database: " +
+                  composite->name() + ".");
+    }
   }
-  compilation_database.insert(
-      {CompositeInstruction->name(), CompositeInstruction});
+
+  compilation_database[composite->name()] = composite;
 }
 bool hasCompiled(const std::string name) {
   return compilation_database.count(name);
@@ -521,35 +523,69 @@ std::shared_ptr<CompositeInstruction> getCompiled(const std::string name) {
 }
 
 void qasm(const std::string &qasmString) {
-  std::regex rgx(".compiler \\w+"), rgxx(".CompositeInstruction \\w+");
-  std::smatch match, match2;
-  std::map<std::string, std::string> CompositeInstruction2code;
+  std::regex rgx(".compiler \\w+"), rgxx(".circuit \\w+"),
+      buffrgx(".qbit \\w+");
+  std::smatch match, match2, match3;
+  std::map<std::string, std::string> function2code;
 
   if (!std::regex_search(qasmString.begin(), qasmString.end(), match, rgx)) {
     error("Cannot parse which compiler this qasm corresponds to.");
   }
 
+  std::vector<std::string> variables;
+  std::string bufferName = "b";
   auto compiler = split(match[0], ' ')[1];
   auto lines = split(qasmString, '\n');
-  std::string currentCompositeInstructionName = "";
+  std::string currentFunctionName = "";
   for (auto &l : lines) {
     xacc::trim(l);
     if (l.find(".compiler") == std::string::npos &&
-        l.find(".CompositeInstruction") == std::string::npos && !l.empty()) {
-      CompositeInstruction2code[currentCompositeInstructionName] += l + "\n";
+        l.find(".circuit") == std::string::npos &&
+        l.find(".parameters") == std::string::npos &&
+        l.find(".qbit") == std::string::npos && !l.empty()) {
+      function2code[currentFunctionName] += l + "\n";
     }
 
-    if (l.find(".CompositeInstruction") != std::string::npos) {
-      currentCompositeInstructionName = split(l, ' ')[1];
+    if (l.find(".circuit") != std::string::npos) {
+      currentFunctionName = split(l, ' ')[1];
+    }
+
+    if (l.find(".parameters") != std::string::npos) {
+      auto tmp = split(l, ' ');
+      std::string varLine = tmp[1];
+      for (auto i = 2; i < tmp.size(); i++) {
+        varLine += tmp[i];
+      }
+
+      tmp = split(varLine, ',');
+      if (tmp.size() > 1) {
+        // we had t0,t1,t2,...
+        for (auto &p : tmp) {
+          variables.push_back(p);
+        }
+      } else {
+        variables.push_back(tmp[0]);
+      }
+    }
+    if (l.find(".qbit") != std::string::npos) {
+      bufferName = split(l, ' ')[1];
+    }
+  }
+
+  std::string variablesString = "";
+  if (!variables.empty()) {
+    for (auto &v : variables) {
+      variablesString += ", double " + v;
     }
   }
 
   std::string newQasm = "";
-  for (auto &kv : CompositeInstruction2code) {
-    newQasm += "__qpu__ " + kv.first + "(AcceleratorBuffer b) {\n" + kv.second +
-               "\n}\n";
+  for (auto &kv : function2code) {
+    newQasm += "__qpu__ void " + kv.first + "(qbit " + bufferName +
+               variablesString + ") {\n" + kv.second + "\n}\n";
   }
 
+//   std::cout << "HELLO: " << newQasm << "\n";
   std::shared_ptr<IR> ir;
   if (optionExists("accelerator")) {
     ir = getCompiler(compiler)->compile(newQasm, getAccelerator());
@@ -558,7 +594,8 @@ void qasm(const std::string &qasmString) {
   }
 
   for (auto &k : ir->getComposites())
-    appendCompiled(k);
+    appendCompiled(k, true);
+
 }
 
 void Finalize() {

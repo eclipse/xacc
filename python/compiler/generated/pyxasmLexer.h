@@ -1,5 +1,5 @@
 
-// Generated from PyXACCIR.g4 by ANTLR 4.7.2
+// Generated from pyxasm.g4 by ANTLR 4.7.2
 
 #pragma once
 
@@ -7,21 +7,21 @@
 #include "antlr4-runtime.h"
 
 
-namespace pyxacc {
+namespace pyxasm {
 
 
-class  PyXACCIRLexer : public antlr4::Lexer {
+class  pyxasmLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, COMMENT = 26, 
-    ID = 27, REAL = 28, INT = 29, STRING = 30, WS = 31, EOL = 32
+    T__20 = 21, T__21 = 22, COMMENT = 23, ID = 24, REAL = 25, INT = 26, 
+    STRING = 27, WS = 28, EOL = 29
   };
 
-  PyXACCIRLexer(antlr4::CharStream *input);
-  ~PyXACCIRLexer();
+  pyxasmLexer(antlr4::CharStream *input);
+  ~pyxasmLexer();
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;
@@ -59,4 +59,4 @@ private:
   static Initializer _init;
 };
 
-}  // namespace pyxacc
+}  // namespace pyxasm
