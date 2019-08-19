@@ -26,6 +26,7 @@ print('Opt Angles = ', buffer.getInformation('opt-params'))
 xacc.qasm('''.compiler xasm
 .circuit ansatz2
 .parameters t0
+.qbit q
 X(q[0]);
 Ry(q[1],t0);
 CX(q[1],q[0]);

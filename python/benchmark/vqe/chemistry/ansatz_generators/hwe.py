@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -19,6 +19,20 @@ class HWE(AnsatzGenerator):
     """
 
     def generate(self, inputParams, nQubits):
-        ir_generator = xacc.getIRGenerator(inputParams['name'])
-        function = ir_generator.generate([int(inputParams['layers']), nQubits, inputParams['connectivity']])
-        return function
+        layers = 1
+        connectivity = []
+        for i in range(nQubits-1):
+            connectivity.append((i,i+1))
+        if 'layers' in inputParams:
+            layers = int(inputParams['layers'])
+        if 'connectivity' in inputParams:
+            connectivity = inputParams['connectivity']
+        hwe = xacc.getComposite('hwe')
+        options = xacc.HeterogeneousMap()
+        options.insert('layers',layers)
+        options.insert('connectivity',connectivity)
+        options.insert('nq', nQubits)
+
+        hwe.expand(options)
+
+        return hwe

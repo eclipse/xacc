@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -12,7 +12,7 @@ import xacc
 class UCC3(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
-        ucc3_function = xacc.gate.createFunction('ucc3', [x for x in range(nQubits)])
+        ucc3_function = xacc.gate.createComposite('ucc3', ['t1','t2','t3'])
         x0 = xacc.gate.create("X", [0])
         x1 = xacc.gate.create("X", [2])
         rx0 = xacc.gate.create("Rx", [0], [1.57079632])

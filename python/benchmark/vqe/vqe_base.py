@@ -99,28 +99,51 @@ class VQEBase(BenchmarkAlgorithm):
             n_qubits = xaccOp.nBits()
         self.op = xaccOp
         self.n_qubits = n_qubits
-        self.buffer = self.qpu.createBuffer('q', n_qubits)
-        self.buffer.addExtraInfo('hamiltonian', str(xaccOp))
-        self.buffer.addExtraInfo('ansatz-qasm', self.ansatz.toString('q').replace('\\n', '\\\\n'))
-        pycompiler = xacc.getCompiler('xacc-py')
-        self.buffer.addExtraInfo('ansatz-qasm-py', '\n'.join(pycompiler.translate('q',self.ansatz).split('\n')[1:]))
+        # create buffer, add some extra info (hamiltonian, ansatz-qasm, python-ansatz-qasm)
+        self.buffer = xacc.qalloc(n_qubits)
+        self.buffer.addExtraInfo('hamiltonian', self.op.toString())
+        self.buffer.addExtraInfo('ansatz-qasm', self.ansatz.toString().replace('\\n', '\\\\n'))
+        pycompiler = xacc.getCompiler('pyxasm')
+        # self.buffer.addExtraInfo('ansatz-qasm-py', '\n'.join(pycompiler.translate(self.ansatz).split('\n')[1:]))
+
+        # heres where we can set up the algorithm Parameters
+        # all versions of vqe require: Accelerator, Ansatz, Observable
+        # pure-vqe requires Optimizer
+        # energy calculation has optional Parameters - can be random
+        self.vqe_options_dict = {'accelerator': self.qpu, 'ansatz': self.ansatz, 'observable': self.op}
+
+
+        # get optimizers for VQE
+        # needs to check if optimizer is a python plugin
+        # if not, use nlopt (with options)
+        # so we pull 'optimizer-options' out if available
+        # Optimizer-options needs to be passed to BOTH XACC Core optimizers and to python plugins
+        # vqe_options_dict is used to initialize the algorithms
         self.optimizer = None
         self.optimizer_options = {}
-        if 'optimizer' in inputParams and inputParams['optimizer'] in self.vqe_optimizers:
-            self.optimizer = self.vqe_optimizers[inputParams['optimizer']]
-            if 'method' in inputParams:
-                self.optimizer_options['method'] = inputParams['method']
-            if 'options' in inputParams:
-                self.optimizer_options['options'] = ast.literal_eval(inputParams['options'])
-            if 'user-params' in inputParams:
-                self.optimizer_options['options']['user_params'] = ast.literal_eval(inputParams['user-params'])
+        if 'optimizer-options' in inputParams:
+            self.optimizer_options = ast.literal_eval(inputParams['optimizer-options'])
+        # initial-parameters for optimizer (vqe)
+        # parameters for vqe-energy
+        if 'initial-parameters' in inputParams:
+            self.optimizer_options['initial-parameters'] = ast.literal_eval(inputParams['initial-parameters'])
+        if 'parameters' in inputParams:
+            self.optimizer_options['parameters'] = ast.literal_eval(inputParams['parameters'])
+        # check to see if optimizer is a python plugin
+        # if it is, we do not put it in self.vqe_options_dict
+        # if it is not, it is put there
+        if 'optimizer' in inputParams:
+            if inputParams['optimizer'] in self.vqe_optimizers:
+                self.optimizer = self.vqe_optimizers[inputParams['optimizer']]
+            else:
+                self.vqe_options_dict['optimizer'] = xacc.getOptimizer(inputParams['optimizer'], self.optimizer_options)
         else:
-            xacc.info("No classical optimizer specified. Setting to default XACC optimizer.")
-            if 'options' in inputParams:
-                self.optimizer_options['options'] = ast.literal_eval(inputParams['options'])
-            self.optimizer = xacc.getOptimizer('nlopt', self.optimizer_options)
-
+            self.vqe_options_dict['optimizer'] = xacc.getOptimizer('nlopt', self.optimizer_options)
+        # vqe.py then will check vqe_options_dict for optimizer; if it isn't there, run python optimizer
+        # and of course if it is, we run with XACC
         self.buffer.addExtraInfo('accelerator', inputParams['accelerator'])
+
+        # need to make sure the AcceleratorDecorators work correctly
         if 'n-execs' in inputParams:
             xacc.setOption('sampler-n-execs', inputParams['n-execs'])
             self.qpu = xacc.getAcceleratorDecorator('improved-sampling', self.qpu)
@@ -135,11 +158,6 @@ class VQEBase(BenchmarkAlgorithm):
 
         if 'rdm-purification' in inputParams and inputParams['rdm-purification']:
             self.qpu = xacc.getAcceleratorDecorator('rdm-purification', self.qpu)
-
-        self.vqe_options_dict = {'accelerator': self.qpu, 'ansatz': self.ansatz}
-
-        if 'initial-parameters' in inputParams:
-            self.vqe_options_dict['vqe-params'] = ','.join([str(x) for x in ast.literal_eval(inputParams['initial-parameters'])])
 
         xacc.setOptions(inputParams)
 

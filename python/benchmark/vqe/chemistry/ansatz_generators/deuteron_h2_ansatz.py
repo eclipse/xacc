@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -12,7 +12,7 @@ import xacc
 class DH2(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
-        dh2_function = xacc.gate.createFunction('dh2', [x for x in range(nQubits)])
+        dh2_function = xacc.gate.createComposite('dh2', ['t1'])
         ry = xacc.gate.create("Ry", [1],['t1'])
         cx = xacc.gate.create("CNOT", [1, 0])
         dh2_function.addInstruction(ry)
