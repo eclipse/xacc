@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -18,6 +18,9 @@ class UCCSD(AnsatzGenerator):
     """
 
     def generate(self, inputParams, nQubits):
-        ir_generator = xacc.getIRGenerator(inputParams['name'])
-        function = ir_generator.generate([int(inputParams['n-electrons']), nQubits])
-        return function
+        uccsd = xacc.getComposite('uccsd')
+        options = xacc.HeterogeneousMap()
+        options.insert('ne',int(inputParams['n-electrons']))
+        options.insert('nq', nQubits)
+        uccsd.expand(options)
+        return uccsd

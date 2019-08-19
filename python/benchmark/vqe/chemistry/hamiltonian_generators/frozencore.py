@@ -3,8 +3,6 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 from hamiltonian_generator import HamiltonianGenerator
 import ast
-import xaccvqe
-import numpy as np
 
 try:
     import psi4
@@ -33,6 +31,7 @@ class FrozenCoreHamiltonian(HamiltonianGenerator):
 
     def generate(self, inputParams):
 
+        import numpy as np
         g = str(inputParams['geometry'])
         basis = inputParams['basis']
         moleculeGeom = geometry(g)

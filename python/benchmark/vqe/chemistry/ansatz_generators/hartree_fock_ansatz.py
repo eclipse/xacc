@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -18,7 +18,7 @@ class HF(AnsatzGenerator):
     """
 
     def generate(self, inputParams, nQubits):
-        hf_function = xacc.gate.createFunction('hf', [x for x in range(nQubits)])
+        hf_function = xacc.gate.createComposite('hf',[])
         x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
         for q in x_gate_qubits:
             x_gate = xacc.gate.create('X', [q])

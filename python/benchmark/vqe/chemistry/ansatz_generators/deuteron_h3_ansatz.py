@@ -1,6 +1,6 @@
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
-from ansatzgenerator import AnsatzGenerator
+from ansatz_generator import AnsatzGenerator
 import ast
 import xacc
 
@@ -12,7 +12,7 @@ import xacc
 class DeuteronH3(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
-        function = xacc.gate.createFunction('ob', [x for x in range(nQubits)])
+        function = xacc.gate.createComposite('ob', ['t1','t2'])
         x = xacc.gate.create('X', [0])
         ry = xacc.gate.create("Ry", [1], ['t1'])
         ry2 = xacc.gate.create('Ry', [2], ['t2'])

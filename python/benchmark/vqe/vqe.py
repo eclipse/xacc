@@ -23,13 +23,12 @@ class VQE(VQEBase):
 
         """
         super().execute(inputParams)
-        # self.vqe_options_dict['task'] = 'vqe'
-        # if self.optimizer is not None:
-        #     self.optimizer.optimize(self.op, self.buffer, self.optimizer_options, self.vqe_options_dict)
-        # else:
-        execParams = {'accelerator': self.qpu, 'ansatz': self.ansatz, 'observable': self.op, 'optimizer':self.optimizer}
-        vqe = xacc.getAlgorithm('vqe', execParams)
-        vqe.execute(self.buffer)
+
+        if 'optimizer' not in self.vqe_options_dict:
+            self.optimizer.optimize(self.buffer, self.optimizer_options, self.vqe_options_dict)
+        else:
+            vqe = xacc.getAlgorithm('vqe', self.vqe_options_dict)
+            vqe.execute(self.buffer)
 
         return self.buffer
 

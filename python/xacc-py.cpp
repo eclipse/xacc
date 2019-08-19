@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "CompositeInstruction.hpp"
 #include "XACC.hpp"
+#include "heterogeneous.hpp"
 #include "xacc_service.hpp"
 
 #include "IRProvider.hpp"
@@ -23,6 +24,7 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
+#include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -156,7 +158,41 @@ PYBIND11_MODULE(_pyxacc, m) {
       "programming, compiling, and executing quantum kernels in a language and "
       "hardware agnostic manner.";
 
-  py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "");
+  py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "")
+      .def(py::init<>(), "")
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const int &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const double &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::string &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<int> &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<double> &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+    .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<std::pair<int,int>> &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+    .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::shared_ptr<Observable> &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+    .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string, const std::shared_ptr<Optimizer> &)) &
+               xacc::HeterogeneousMap::insert,
+           "");
+
   py::class_<xacc::InstructionParameter>(
       m, "InstructionParameter",
       "The InstructionParameter provides a variant structure "
@@ -235,7 +271,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                const std::vector<std::string> &)) &
                xacc::CompositeInstruction::addVariables,
            "")
-
+      .def("expand", &xacc::CompositeInstruction::expand, "")
       .def("eval", &xacc::CompositeInstruction::operator(), "")
       .def("name", &xacc::CompositeInstruction::name, "")
       .def("description", &xacc::CompositeInstruction::description, "")
@@ -598,14 +634,15 @@ PYBIND11_MODULE(_pyxacc, m) {
   //   m.def("optimizeFunction", &xacc::optimizeFunction,
   //         "Run an optimizer on the given function.");
   m.def("getCache", &xacc::getCache, "");
-    // m.def("appendCache", [](const std::string file, const std::string name, PyHeterogeneousMapTypes& val, const std::string sub) {
-    //     xacc::appendCache(file, name, )
-    // }
-    //       (void (*)(const std::string, const std::string,
-    //       InstructionParameter &,
-    //                 const std::string)) &
-    //           xacc::appendCache,
-    //       "");
+  // m.def("appendCache", [](const std::string file, const std::string name,
+  // PyHeterogeneousMapTypes& val, const std::string sub) {
+  //     xacc::appendCache(file, name, )
+  // }
+  //       (void (*)(const std::string, const std::string,
+  //       InstructionParameter &,
+  //                 const std::string)) &
+  //           xacc::appendCache,
+  //       "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",
@@ -648,7 +685,10 @@ PYBIND11_MODULE(_pyxacc, m) {
       },
 
       "");
-
+  m.def("getComposite", [](const std::string &name) {
+    auto c = xacc::getService<Instruction>(name);
+    return std::dynamic_pointer_cast<CompositeInstruction>(c);
+  });
   m.def(
       "contributeService",
       [](const std::string name, ContributableService &service) {
