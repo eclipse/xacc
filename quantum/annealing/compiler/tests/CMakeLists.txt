@@ -1,0 +1,6 @@
+
+
+add_xacc_test(Embedding)
+add_xacc_test(TrivialEmbeddingAlgorithm)
+target_link_libraries(TrivialEmbeddingAlgorithmTester xacc-quantum-annealing)
+target_link_libraries(EmbeddingTester xacc-quantum-annealing)

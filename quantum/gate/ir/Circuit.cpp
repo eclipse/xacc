@@ -57,6 +57,7 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
     }
   }
 }
+
 std::shared_ptr<CompositeInstruction>
 Circuit::operator()(const std::vector<double> &params) {
   if (params.size() != variables.size()) {
