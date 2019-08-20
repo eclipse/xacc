@@ -19,7 +19,9 @@ class UCC1(AnsatzGenerator):
 
     def generate(self, inputParams, nQubits):
         ucc1_function = xacc.gate.createComposite('ucc1', ['t1'])
-        x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
+        x_gate_qubits = inputParams['x-gates'] if 'x-gates' in inputParams else [0,2]
+        if isinstance(inputParams['x-gates'] ,str):
+           x_gate_qubits = ast.literal_eval(inputParams['x-gates'])
         for q in x_gate_qubits:
             x_gate = xacc.gate.create('X', [q])
             ucc1_function.addInstruction(x_gate)
