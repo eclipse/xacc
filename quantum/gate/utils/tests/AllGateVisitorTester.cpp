@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 #include "AllGateVisitorTester.hpp"
 #include "XACC.hpp"
+#include "Circuit.hpp"
 
 using namespace xacc::quantum;
 

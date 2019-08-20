@@ -1,6 +1,4 @@
 #include "IBMAccelerator.hpp"
-// #include "OpenPulseVisitor.hpp"
-#include "OpenQasmVisitor.hpp"
 #include <cctype>
 #include <fstream>
 

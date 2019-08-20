@@ -69,10 +69,6 @@ public:
 
   void visit(U &u) { addSingleQubitGate(u); }
 
-  void visit(Circuit &f) {
-    // nothing
-  }
-
   virtual ~IRToGraphVisitor() {}
 };
 } // namespace quantum

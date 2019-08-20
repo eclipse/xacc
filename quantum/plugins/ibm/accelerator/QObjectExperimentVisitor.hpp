@@ -309,8 +309,6 @@ public:
     visit(u1_3);
   }
 
-  void visit(Circuit &f) override { return; }
-
   /**
    * The destructor
    */

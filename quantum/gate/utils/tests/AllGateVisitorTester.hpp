@@ -65,10 +65,6 @@ public:
 
   void visit(U &u) {foundU = true;}
 
-  void visit(Circuit &f) {
-    // nothing
-  }
-
   virtual ~TestAllGateVisitor() {}
 };
 

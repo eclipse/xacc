@@ -68,7 +68,6 @@ public:
 
   void visit(U &u);
 
-  void visit(Circuit &function) {}
 
 protected:
   void baseGateInst(Gate &inst, bool endObject = true);

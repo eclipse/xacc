@@ -222,9 +222,6 @@ public:
         visit(c3);
 	}
 
-	void visit(Circuit& f) {
-		return;
-	}
 	/**
 	 * Return the OpenQasm string
 	 */

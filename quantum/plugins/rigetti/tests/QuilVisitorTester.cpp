@@ -33,6 +33,7 @@
 #include "QuilVisitor.hpp"
 #include "InstructionIterator.hpp"
 #include "XACC.hpp"
+#include "Circuit.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
