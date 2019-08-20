@@ -240,14 +240,20 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
+  HeterogeneousMap m = params;
   auto name_backend = split(name, ':');
   auto acc = xacc::getService<Accelerator>(name_backend[0], false);
   if (name_backend.size() > 1) {
+    std::string b = name_backend[1];
+    m.insert("backend", b);
     setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
   if (acc) {
-    acc->initialize(params);
+    //   std::stringstream ss;
+    //   m.print<std::string,int>(ss);
+    //   std::cout << "SS:\n" << ss.str() << "\n";
+    acc->initialize(m);
   } else {
 
     if (xacc::hasContributedService<Accelerator>(name)) {

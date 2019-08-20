@@ -86,7 +86,13 @@ class VQEBase(BenchmarkAlgorithm):
             'readout-error': AcceleratorDecorator option for readout-error mitigation
 
         """
-        self.qpu = xacc.getAccelerator(inputParams['accelerator'])
+        m = xacc.HeterogeneousMap()
+        if 'shots' in inputParams:
+            m.insert('shots',int(inputParams['shots']))
+        if 'backend' in inputParams:
+            m.insert('backend',inputParams['backend'])
+
+        self.qpu = xacc.getAccelerator(inputParams['accelerator'], m)
         xaccOp = self.hamiltonian_generators[inputParams['hamiltonian-generator']].generate(
             inputParams)
         self.ansatz = self.ansatz_generators[inputParams['name']].generate(
@@ -129,6 +135,9 @@ class VQEBase(BenchmarkAlgorithm):
             self.optimizer_options['initial-parameters'] = ast.literal_eval(inputParams['initial-parameters'])
         if 'parameters' in inputParams:
             self.optimizer_options['parameters'] = ast.literal_eval(inputParams['parameters'])
+        if 'nlopt-maxeval' in inputParams:
+            self.optimizer_options['nlopt-maxeval'] = int(inputParams['nlopt-maxeval'])
+
         # check to see if optimizer is a python plugin
         # if it is, we do not put it in self.vqe_options_dict
         # if it is not, it is put there
@@ -136,9 +145,9 @@ class VQEBase(BenchmarkAlgorithm):
             if inputParams['optimizer'] in self.vqe_optimizers:
                 self.optimizer = self.vqe_optimizers[inputParams['optimizer']]
             else:
-                self.vqe_options_dict['optimizer'] = xacc.getOptimizer(inputParams['optimizer'], self.optimizer_options)
+                self.optimizer = xacc.getOptimizer(inputParams['optimizer'], self.optimizer_options)
         else:
-            self.vqe_options_dict['optimizer'] = xacc.getOptimizer('nlopt', self.optimizer_options)
+            self.optimizer = xacc.getOptimizer('nlopt', self.optimizer_options)
         # vqe.py then will check vqe_options_dict for optimizer; if it isn't there, run python optimizer
         # and of course if it is, we run with XACC
         self.buffer.addExtraInfo('accelerator', inputParams['accelerator'])
@@ -157,7 +166,13 @@ class VQEBase(BenchmarkAlgorithm):
             self.qpu = xacc.getAcceleratorDecorator('ro-error',self.qpu)
 
         if 'rdm-purification' in inputParams and inputParams['rdm-purification']:
+            print("setting RDM Purification")
             self.qpu = xacc.getAcceleratorDecorator('rdm-purification', self.qpu)
+            m = xacc.HeterogeneousMap()
+            m.insert('fermion-observable',self.op)
+            self.qpu.initialize(m)
+
+        self.vqe_options_dict = {'optimizer':self.optimizer,'accelerator': self.qpu, 'ansatz': self.ansatz, 'observable': self.op}
 
         xacc.setOptions(inputParams)
 

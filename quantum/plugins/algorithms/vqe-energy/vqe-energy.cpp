@@ -11,12 +11,14 @@ namespace algorithm {
 bool VQEEnergy::initialize(const HeterogeneousMap &parameters) {
   if (!parameters.keyExists<std::shared_ptr<Observable>>("observable")) {
     return false;
-  } else if (!parameters.keyExists<std::shared_ptr<CompositeInstruction>>("ansatz")) {
+  } else if (!parameters.keyExists<std::shared_ptr<CompositeInstruction>>(
+                 "ansatz")) {
     return false;
-  } else if (!parameters.keyExists<std::shared_ptr<Accelerator>>("accelerator")) {
+  } else if (!parameters.keyExists<std::shared_ptr<Accelerator>>(
+                 "accelerator")) {
     return false;
   }
- try {
+  try {
     observable =
         parameters.get_with_throw<std::shared_ptr<Observable>>("observable");
   } catch (std::exception &e) {
@@ -26,12 +28,11 @@ bool VQEEnergy::initialize(const HeterogeneousMap &parameters) {
   kernel = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
 
-
   if (parameters.keyExists<std::vector<double>>("parameters")) {
-    initial_params =
-        parameters.get<std::vector<double>>("parameters");
+    initial_params = parameters.get<std::vector<double>>("parameters");
   } else {
-      xacc::error("Cannot run Energy computation without providing 'parameters' list.");
+    xacc::error(
+        "Cannot run Energy computation without providing 'parameters' list.");
   }
   return true;
 }
@@ -73,14 +74,22 @@ void VQEEnergy::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   auto buffers = tmpBuffer->getChildren();
 
   double energy = identityCoeff;
-  for (int i = 0; i < buffers.size(); i++) {
-    auto expval = buffers[i]->getExpectationValueZ();
-    energy += expval * coefficients[i];
-    buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-    buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-    buffers[i]->addExtraInfo("exp-val-z", expval);
-    buffers[i]->addExtraInfo("parameters", initial_params);
-    buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+  if (buffers[0]->hasExtraInfoKey("purified-energy")) { // FIXME Hack for now...
+    energy = buffers[0]->getInformation("purified-energy").as<double>();
+    for (auto& b : buffers) {
+        b->addExtraInfo("parameters", initial_params);
+        buffer->appendChild(b->name(), b);
+    }
+  } else {
+    for (int i = 0; i < buffers.size(); i++) {
+      auto expval = buffers[i]->getExpectationValueZ();
+      energy += expval * coefficients[i];
+      buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+      buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+      buffers[i]->addExtraInfo("exp-val-z", expval);
+      buffers[i]->addExtraInfo("parameters", initial_params);
+      buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+    }
   }
   std::stringstream ss;
   ss << "E(" << initial_params[0];

@@ -22,7 +22,7 @@ using namespace rapidjson;
 
 namespace xacc {
 namespace quantum {
-    
+
 // keeping this here for later...
 // curl -X POST
 // https://q-console-api.mybluemix.net/api/Network/ibm-q-ornl/Groups/ornl-internal/Projects/algorithms-team/jobs/5c88fc789f1161005df7b68c/cancel?access_token=ZoEqimQMun3F5iRILIoXRVx6DzAq60iXm4offm8UfApeG6PM4DH2kXibEovpkRPD
@@ -61,6 +61,7 @@ IBMAccelerator::getIRTransformations() {
 
 void IBMAccelerator::initialize(const HeterogeneousMap& params) {
   if (!initialized) {
+    updateConfiguration(params);
     std::string jsonStr = "", apiKey = "";
     searchAPIKey(apiKey, url, hub, group, project);
 
@@ -209,27 +210,10 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
                              std::vector<std::shared_ptr<CompositeInstruction>> functions) {
 
   // Local Declarations
-  std::string backendName = backend;//"ibmq_qasm_simulator";
+  std::string backendName = backend;
   chosenBackend = availableBackends[backend];
 
-  // Get the specified backend.
-//   if (xacc::optionExists("ibm-backend")) {
-//     auto newBackend = xacc::getOption("ibm-backend");
-//     if (availableBackends.find(newBackend) == availableBackends.end()) {
-//       xacc::error("Invalid IBM Backend string");
-//     }
-//     if (!availableBackends[newBackend].status) {
-//       xacc::error(newBackend + " is currently unavailable, status = off");
-//     }
-//     backendName = newBackend;
-//     chosenBackend = availableBackends[newBackend];
-//   }
-
   auto connectivity = getConnectivity();
-
-//   if (xacc::optionExists("ibm-shots")) {
-//     shots = std::stoi(xacc::getOption("ibm-shots"));
-//   }
 
   // Create a QObj
   xacc::ibm::QObject qobj;

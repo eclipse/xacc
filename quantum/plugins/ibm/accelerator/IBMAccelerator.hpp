@@ -52,8 +52,8 @@ public:
       if (config.keyExists<int>("shots")) {
           shots = config.get<int>("shots");
       }
-     if (config.keyExists<std::string>("backend")) {
-          backend = config.get<std::string>("backend");
+     if (config.stringExists("backend")) {
+          backend = config.getString("backend");
       }
   }
 
