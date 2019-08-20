@@ -199,7 +199,6 @@ public:
     quilStr += s.str();
   }
 
-  void visit(Circuit &f) { return; }
   /**
    * Return the quil string
    */

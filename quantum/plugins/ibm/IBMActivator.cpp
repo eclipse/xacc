@@ -5,7 +5,6 @@
 #include <memory>
 #include <set>
 #include "IBMAccelerator.hpp"
-#include "OpenQasmVisitor.hpp"
 
 #ifdef LAPACK_FOUND
 #include "LocalIBMAccelerator.hpp"
@@ -29,7 +28,6 @@ public:
    */
   void Start(BundleContext context) {
     auto acc = std::make_shared<xacc::quantum::IBMAccelerator>();
-    auto vis = std::make_shared<xacc::quantum::OpenQasmVisitor>();
 
 #ifdef LAPACK_FOUND
     auto acc2 = std::make_shared<xacc::quantum::LocalIBMAccelerator>();
@@ -45,7 +43,6 @@ public:
     context.RegisterService<xacc::Accelerator>(acc);
 
     context.RegisterService<xacc::OptionsProvider>(acc);
-    context.RegisterService<xacc::BaseInstructionVisitor>(vis);
   }
 
   /**

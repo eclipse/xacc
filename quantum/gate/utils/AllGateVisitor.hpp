@@ -15,14 +15,12 @@
 
 #include "InstructionIterator.hpp"
 
-#include "Circuit.hpp"
 #include "CommonGates.hpp"
 
 namespace xacc {
 namespace quantum {
 
 class AllGateVisitor : public BaseInstructionVisitor,
-                       public InstructionVisitor<Circuit>,
                        public InstructionVisitor<Hadamard>,
                        public InstructionVisitor<CNOT>,
                        public InstructionVisitor<Rz>,
