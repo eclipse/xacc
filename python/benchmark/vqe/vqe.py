@@ -24,7 +24,7 @@ class VQE(VQEBase):
         """
         super().execute(inputParams)
 
-        if 'optimizer' not in self.vqe_options_dict:
+        if not isinstance(self.optimizer,xacc.Optimizer):
             self.optimizer.optimize(self.buffer, self.optimizer_options, self.vqe_options_dict)
         else:
             vqe = xacc.getAlgorithm('vqe', self.vqe_options_dict)

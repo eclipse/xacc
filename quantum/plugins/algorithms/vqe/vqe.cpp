@@ -83,14 +83,23 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto buffers = tmpBuffer->getChildren();
 
         double energy = identityCoeff;
-        for (int i = 0; i < buffers.size(); i++) {
-          auto expval = buffers[i]->getExpectationValueZ();
-          energy += expval * coefficients[i];
-          buffers[i]->addExtraInfo("coefficient", coefficients[i]);
-          buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-          buffers[i]->addExtraInfo("exp-val-z", expval);
-          buffers[i]->addExtraInfo("parameters", x);
-          buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+        if (buffers[0]->hasExtraInfoKey(
+                "purified-energy")) { // FIXME Hack for now...
+          energy = buffers[0]->getInformation("purified-energy").as<double>();
+          for (auto &b : buffers) {
+            b->addExtraInfo("parameters", initial_params);
+            buffer->appendChild(b->name(), b);
+          }
+        } else {
+          for (int i = 0; i < buffers.size(); i++) {
+            auto expval = buffers[i]->getExpectationValueZ();
+            energy += expval * coefficients[i];
+            buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+            buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+            buffers[i]->addExtraInfo("exp-val-z", expval);
+            buffers[i]->addExtraInfo("parameters", x);
+            buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+          }
         }
 
         std::stringstream ss;

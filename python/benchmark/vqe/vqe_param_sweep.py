@@ -49,18 +49,26 @@ class ParamSweep(VQEBase):
 
         num_params = ast.literal_eval(inputParams['num-params'])
 
+
         self.energies = []
         self.angles = []
         for param in self.linspace(low_bound, up_bound, num_params):
-            self.angles.append(param)
-            self.vqe_options_dict['vqe-params'] = str(param)
-            energy = xaccvqe.execute(self.op, self.buffer, **self.vqe_options_dict).energy
+            print(param)
+            self.vqe_options_dict['parameters'] = [param]
+            vqe_energy = xacc.getAlgorithm('vqe-energy', self.vqe_options_dict)
 
-            if 'rdm-purification' in self.qpu.name():
-                p = self.buffer.getAllUnique('parameters')
-                ind = len(p) - 1
-                children = self.buffer.getChildren('parameters', p[ind])
-                energy = children[1].getInformation('purified-energy')
+            self.angles.append(param)
+            # self.vqe_options_dict['vqe-params'] = str(param)
+            vqe_energy.execute(self.buffer)
+
+            energy = self.buffer.getInformation('opt-val')
+            #xaccvqe.execute(self.op, self.buffer, **self.vqe_options_dict).energy
+            # if 'rdm-purification' in self.qpu.name():
+            #     p = self.buffer.getAllUnique('parameters')
+            #     ind = len(p) - 1
+            #     children = self.buffer.getChildren('parameters', [param])
+            #     print(children[0])
+            #     energy = children[1].getInformation('purified-energy')
 
             self.energies.append(energy)
 
