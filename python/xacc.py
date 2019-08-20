@@ -337,7 +337,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm']
+        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm','hamiltonian_generator','ansatz_generator']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
