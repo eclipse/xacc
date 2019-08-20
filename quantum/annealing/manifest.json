@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quantum_annealing",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Adiabatic Model Quantum Computing",
+  "bundle.description" : "This bundle provides utilities for adiabatic model QC."
+}

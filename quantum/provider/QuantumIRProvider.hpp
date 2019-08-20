@@ -23,9 +23,9 @@ public:
 
   std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,
-                  std::vector<std::string> variables = {}) override;
+                  std::vector<std::string> variables = {}, const std::string type = "circuit") override;
 
-  std::shared_ptr<IR> createIR() override;
+  std::shared_ptr<IR> createIR(const std::string type = "circuit") override;
 
   std::vector<std::string> getInstructions() override;
 

@@ -94,10 +94,10 @@ def initialize():
     xaccLocation = os.path.dirname(os.path.realpath(__file__))
     if platform.system() == "Darwin":
         libname1 = "libxacc-quantum-gate.dylib"
-        libname2 = "libxacc-quantum-aqc.dylib"
+        libname2 = "libxacc-quantum-annealing.dylib"
     else:
         libname1 = "libxacc-quantum-gate.so"
-        libname2 = "libxacc-quantum-aqc.so"
+        libname2 = "libxacc-quantum-annealing.so"
 
     if xaccLocation+'/lib/'+libname1+'\n' not in contents:
         file.write(xaccLocation+'/lib/'+libname1+'\n')

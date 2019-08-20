@@ -50,7 +50,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate) #xacc-quantum-aqc)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-quantum-annealing)
 target_compile_features(${LIBRARY_NAME}
                         PUBLIC
                         cxx_std_14
