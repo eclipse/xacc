@@ -47,12 +47,16 @@ extern std::string rootPathString;
 extern std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database;
 
+// The qbit type is critical to qcor
+// We want it to be a shared_ptr, but we
+// need it to have an operator[]() exposed
+// so we can do things like H(q[0])
 using AcceleratorBufferPtr = std::shared_ptr<xacc::AcceleratorBuffer>;
 class qbit : public AcceleratorBufferPtr {
 public:
   qbit(const int n)
       : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
-  void operator[](const int &i) {}
+  int operator[](const int &i) {return 0;}
 };
 qbit qalloc(const int n);
 

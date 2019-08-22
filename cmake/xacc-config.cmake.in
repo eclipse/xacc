@@ -24,9 +24,10 @@ set(XACC_INCLUDE_ROOT "${XACC_ROOT}/include")
 #set (XACC_INCLUDE_DIRS "${XACC_INCLUDE_ROOT}/antlr4-runtime;${XACC_INCLUDE_ROOT}/cppmicroservices4;${XACC_INCLUDE_ROOT}/xacc;${XACC_INCLUDE_ROOT}/quantum/gate;${XACC_INCLUDE_ROOT}/quantum/utils;${XACC_INCLUDE_ROOT}/quantum/aqc;${XACC_INCLUDE_ROOT}/spdlog;${XACC_INCLUDE_ROOT}/exprtk;${XACC_INCLUDE_ROOT}/eigen;${XACC_INCLUDE_ROOT}/rapidjson/include;${XACC_INCLUDE_ROOT};${XACC_INCLUDE_ROOT}/gtest")
 #set (XACC_LIBRARIES "xacc;xacc-quantum-gate;xacc-quantum-aqc;xacc-pauli;antlr4-runtime;CppMicroServices")
 
-#set (XACC_TEST_LIBRARIES "${XACC_LIBRARIES};gtest;gtest_main")
+set (XACC_TEST_LIBRARIES "gtest;gtest_main")
 
 macro(add_xacc_test _TEST_NAME)
+    link_directories(${XACC_ROOT}/lib)
     include_directories(${XACC_INCLUDE_ROOT}/gtest)
     add_executable(${_TEST_NAME}Tester ${_TEST_NAME}Tester.cpp)
     add_test(NAME xacc_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
