@@ -12,8 +12,8 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-8;
   int maxeval = 1000;
 
-  if (options.keyExists<std::string>("nlopt-optimizer")) {
-    auto optimizerAlgo = options.get<std::string>("nlopt-optimizer");
+  if (options.stringExists("nlopt-optimizer")) {
+    auto optimizerAlgo = options.getString("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
       algo = nlopt::algorithm::LN_COBYLA;
     } else if (optimizerAlgo == "nelder-mead") {

@@ -19,6 +19,7 @@
 #include "Utils.hpp"
 #include "expression_parsing_util.hpp"
 #include "xacc_service.hpp"
+#include <limits>
 #include <memory>
 #include <stdexcept>
 
@@ -221,8 +222,39 @@ public:
   const std::string persistGraph() override;
   std::shared_ptr<Graph> toGraph() override;
 
-  const std::size_t nLogicalBits() override { return 0; }
-  const std::size_t nPhysicalBits() override { return 0; }
+  const std::size_t nLogicalBits() override {
+      // n logical should just be the number of
+      // unique qbit integers
+      std::set<std::size_t> bits;
+      InstructionIterator iter(shared_from_this());
+      while(iter.hasNext()) {
+          auto inst = iter.next();
+          if (!inst->isComposite()) {
+              for (auto& b : inst->bits()) {
+                  bits.insert(b);
+              }
+          }
+      }
+      return bits.size();
+  }
+
+  const std::size_t nPhysicalBits() override {
+      // n physical bits should be the largest bit
+      // plus 1
+      std::size_t maxBit = 0;
+      InstructionIterator iter(shared_from_this());
+      while(iter.hasNext()) {
+          auto inst = iter.next();
+          if (!inst->isComposite()) {
+              for (auto& b : inst->bits()) {
+                  if (b > maxBit) {
+                      maxBit = b;
+                  }
+              }
+          }
+      }
+      return maxBit+1;
+  }
 
   std::shared_ptr<CompositeInstruction> enabledView() override {
     auto newF = std::make_shared<Circuit>(circuitName, variables);

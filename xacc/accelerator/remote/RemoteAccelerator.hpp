@@ -44,14 +44,14 @@ public:
   void updateConfiguration(const HeterogeneousMap &config) override {
   }
 
-  virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<CompositeInstruction> circuit);
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::shared_ptr<CompositeInstruction> circuit) override;
 
-  virtual void
+  void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<CompositeInstruction>> circuits);
+          const std::vector<std::shared_ptr<CompositeInstruction>> circuits) override;
 
-  virtual bool isRemote() { return true; }
+  bool isRemote() override { return true; }
   void setClient(std::shared_ptr<Client> client) {
       restClient = client;
   }

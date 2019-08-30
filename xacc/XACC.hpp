@@ -16,7 +16,6 @@
 #include "Compiler.hpp"
 #include "RemoteAccelerator.hpp"
 #include "IRProvider.hpp"
-// #include "IRGenerator.hpp"
 
 #include "Algorithm.hpp"
 #include "Optimizer.hpp"
