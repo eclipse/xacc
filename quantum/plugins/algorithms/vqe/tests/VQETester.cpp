@@ -27,6 +27,7 @@ const std::string rucc = R"rucc(__qpu__ void f(qbit q, double t0) {
     H(q[2]);
     H(q[3]);
 })rucc";
+
 TEST(VQETester, checkSimple) {
   if (xacc::hasAccelerator("tnqvm")) {
     auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("vqe-mode",true)});

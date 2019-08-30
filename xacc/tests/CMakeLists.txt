@@ -2,5 +2,6 @@ add_xacc_test(XACCAPI xacc)
 target_include_directories(XACCAPITester PRIVATE ${CMAKE_BINARY_DIR})
 add_xacc_test(CLIParser xacc)
 add_xacc_test(Algorithm xacc)
+
 add_xacc_test(Heterogeneous xacc)
 target_compile_features(HeterogeneousTester PRIVATE cxx_std_14)

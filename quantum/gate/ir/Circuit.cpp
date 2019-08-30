@@ -61,11 +61,10 @@ void Circuit::throwIfInvalidInstructionParameter(InstPtr instruction) {
 std::shared_ptr<CompositeInstruction>
 Circuit::operator()(const std::vector<double> &params) {
   if (params.size() != variables.size()) {
-    xacc::XACCLogger::instance()->error(
-        "Invalid Circuit evaluation: number "
-        "of parameters don't match. " +
-        std::to_string(params.size()) + ", " +
-        std::to_string(variables.size()));
+    xacc::XACCLogger::instance()->error("Invalid Circuit evaluation: number "
+                                        "of parameters don't match. " +
+                                        std::to_string(params.size()) + ", " +
+                                        std::to_string(variables.size()));
     exit(0);
   }
 
@@ -127,6 +126,13 @@ void Circuit::load(std::istream &inStream) {
 
   auto &kernel = doc["circuits"].GetArray()[0];
   circuitName = kernel["circuit"].GetString();
+  auto vars = kernel["variables"].GetArray();
+  for (int i = 0; i < vars.Size(); i++) {
+    addVariable(vars[i].GetString());
+  }
+
+  auto coeff = kernel["coefficient"].GetDouble();
+  setCoefficient(coeff);
 
   auto instructionsArray = kernel["instructions"].GetArray();
 
@@ -155,14 +161,6 @@ void Circuit::load(std::istream &inStream) {
 
     std::shared_ptr<Instruction> instToAdd;
     instToAdd = provider->createInstruction(gname, qbits, local_parameters);
-
-    auto vars = kernel["variables"].GetArray();
-    for (int i = 0; i < vars.Size(); i++ ){
-        addVariable(vars[i].GetString());
-    }
-
-    auto coeff = kernel["coefficient"].GetDouble();
-    setCoefficient(coeff);
 
     if (!inst["enabled"].GetBool()) {
       instToAdd->disable();

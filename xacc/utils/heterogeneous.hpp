@@ -12,6 +12,7 @@
  *******************************************************************************/
 #ifndef XACC_HETEROGENEOUS_HPP_
 #define XACC_HETEROGENEOUS_HPP_
+#include <Utils.hpp>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -107,7 +108,7 @@ public:
   }
 
   template <class T> const T &get(const std::string key) const {
-    if (!items<T>.count(this) && !items<T>[this].count(key)) {
+    if (!keyExists<T>(key)) {
       XACCLogger::instance()->error("Invalid type (" +
                                     std::string(typeid(T).name()) +
                                     ") or key (" + key + ").");
