@@ -21,19 +21,20 @@ protected:
   std::shared_ptr<CompositeInstruction> function;
   std::string bufferName = "";
   bool hasVecDouble = false;
-  std::string vecDoubleId = "t";
+  std::string param_id = "t";
 
 public:
   XASMListener();
 
-  std::shared_ptr<CompositeInstruction> getFunction() {return function;}
+  std::shared_ptr<CompositeInstruction> getFunction() { return function; }
 
-  virtual void enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
-  virtual void enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
-  virtual void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
-
+  virtual void
+  enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
+  virtual void
+  enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
+  virtual void
+  enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
 };
-
 
 } // namespace xacc
 

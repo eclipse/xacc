@@ -42,8 +42,6 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
                 ->getTerms();
   } else {
     auto pauliStr = parameters.getString("pauli");
-        std::cout << "PAULI STR:\n" << pauliStr << "\n";
-
     PauliOperator op(pauliStr);
     terms = op.getTerms();
   }
@@ -51,9 +49,12 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
   double pi = xacc::constants::pi;
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   addVariable(paramLetter);
-  for (auto spinInst : terms) {
+  for (auto inst : terms) {
+
+    Term spinInst = inst.second;
+
     // Get the individual pauli terms
-    auto termsMap = std::get<2>(spinInst.second);
+    auto termsMap = std::get<2>(spinInst);
 
     std::vector<std::pair<int, std::string>> terms;
     for (auto &kv : termsMap) {
@@ -61,55 +62,50 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
         terms.push_back({kv.first, kv.second});
       }
     }
+    // The largest qubit index is on the last term
+    int largestQbitIdx = terms[terms.size() - 1].first;
+    auto tempFunction = gateRegistry->createComposite("temp", {paramLetter});
 
-    if (!terms.empty()) {
-      // The largest qubit index is on the last term
-      int largestQbitIdx = terms[terms.size() - 1].first;
+    for (int i = 0; i < terms.size(); i++) {
 
-      for (int i = 0; i < terms.size(); i++) {
+      std::size_t qbitIdx = terms[i].first;
+      auto gateName = terms[i].second;
 
-        std::size_t qbitIdx = terms[i].first;
-        std::string gateName = terms[i].second;
+      if (i < terms.size() - 1) {
+        std::size_t tmp = terms[i + 1].first;
+        auto cnot = gateRegistry->createInstruction(
+            "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
+        tempFunction->addInstruction(cnot);
+      }
 
-        if (i < terms.size() - 1) {
-          std::size_t tmp = terms[i + 1].first;
-          auto cnot = gateRegistry->createInstruction(
-              "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
-          addInstruction(cnot);
-        }
+      if (gateName == "X") {
+        auto hadamard = gateRegistry->createInstruction(
+            "H", std::vector<std::size_t>{qbitIdx});
+        tempFunction->insertInstruction(0, hadamard);
+      } else if (gateName == "Y") {
+        auto rx = gateRegistry->createInstruction(
+            "Rx", std::vector<std::size_t>{qbitIdx});
+        InstructionParameter p(pi / 2.0);
+        rx->setParameter(0, p);
+        tempFunction->insertInstruction(0, rx);
+      }
 
-        if (gateName == "X") {
-          auto hadamard = gateRegistry->createInstruction(
-              "H", std::vector<std::size_t>{qbitIdx});
-          insertInstruction(0, hadamard);
-        } else if (gateName == "Y") {
-          auto rx = gateRegistry->createInstruction(
-              "Rx", std::vector<std::size_t>{qbitIdx});
-          InstructionParameter p(pi / 2.0);
-          rx->setParameter(0, p);
-          insertInstruction(0, rx);
-        }
+      // Add the Rotation for the last term
+      if (i == terms.size() - 1) {
+        // FIXME DONT FORGET DIVIDE BY 2
+        std::stringstream ss;
+        ss << std::to_string(std::real(spinInst.coeff())) << " * "
+           << paramLetter;
+        auto rz = gateRegistry->createInstruction(
+            "Rz", std::vector<std::size_t>{qbitIdx});
 
-        // Add the Rotation for the last term
-        if (i == terms.size() - 1) {
-          // FIXME DONT FORGET DIVIDE BY 2
-          // std::stringstream ss;
-          // ss << 2 * std::imag(std::get<0>(spinInst.second)) << " * "
-          //    << std::get<1>(spinInst.second);
-
-          auto rz = gateRegistry->createInstruction(
-              "Rz", std::vector<std::size_t>{qbitIdx},
-              {std::to_string(std::real(spinInst.second.coeff())) + " * " +
-               paramLetter});
-
-          // InstructionParameter p(ss.str());
-          // rz->setParameter(0, p);
-          addInstruction(rz);
-        }
+        InstructionParameter p(ss.str());
+        rz->setParameter(0, p);
+        tempFunction->addInstruction(rz);
       }
     }
 
-    int counter = nInstructions();
+    int counter = tempFunction->nInstructions();
     // Add the instruction on the backend of the circuit
     for (int i = terms.size() - 1; i >= 0; i--) {
 
@@ -120,26 +116,30 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
         std::size_t tmp = terms[i + 1].first;
         auto cnot = gateRegistry->createInstruction(
             "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
-        insertInstruction(counter, cnot);
+        tempFunction->insertInstruction(counter, cnot);
         counter++;
       }
 
       if (gateName == "X") {
         auto hadamard = gateRegistry->createInstruction(
             "H", std::vector<std::size_t>{qbitIdx});
-        addInstruction(hadamard);
+        tempFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
         auto rx = gateRegistry->createInstruction(
             "Rx", std::vector<std::size_t>{qbitIdx});
         InstructionParameter p(-1.0 * (pi / 2.0));
         rx->setParameter(0, p);
-        addInstruction(rx);
+        tempFunction->addInstruction(rx);
       }
+    }
+    // Add to the total UCCSD State Prep function
+    for (auto inst : tempFunction->getInstructions()) {
+      addInstruction(inst);
     }
   }
 
   return true;
 } // namespace instructions
 
-} // namespace generators
+} // namespace circuits
 } // namespace xacc
