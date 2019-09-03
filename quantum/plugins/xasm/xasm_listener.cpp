@@ -30,16 +30,6 @@ void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
 void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
   bufferName = ctx->acceleratorbuffer->getText();
   std::vector<std::string> variables;
-  // First argument should be the buffer
-  for (int i = 0; i < ctx->typedparam().size(); i++) {
-
-    if (ctx->typedparam(i)->type()->getText() =="std::vector<double>") {
-        hasVecDouble = true;
-        vecDoubleId = ctx->typedparam(i)->id()->getText();
-    } else {
-         variables.push_back(ctx->typedparam(i)->id()->getText());
-    }
-  }
   function = irProvider->createComposite("tmp_lambda", variables);
 }
 
@@ -64,25 +54,33 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
+  auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
   std::vector<InstructionParameter> params;
   for (int i = nRequiredBits; i < ctx->bits_and_params->exp().size(); i++) {
     auto paramStr = ctx->bits_and_params->exp(i)->getText();
     if (paramStr.find('[') != std::string::npos) {
       auto location = paramStr.find_first_of('[');
-      auto varName = paramStr.substr(0,location);
-      paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), '['), paramStr.end());
-      paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), ']'), paramStr.end());
+      auto varName = paramStr.substr(0, location);
+      paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), '['),
+                     paramStr.end());
+      paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), ']'),
+                     paramStr.end());
       auto existingVars = function->getVariables();
-      if (std::find(existingVars.begin(), existingVars.end(), varName) != std::end(existingVars)) {
+      if (std::find(existingVars.begin(), existingVars.end(), varName) !=
+          std::end(existingVars)) {
         function->replaceVariable(varName, paramStr);
       } else {
         function->addVariable(paramStr);
       }
     }
-    params.emplace_back(paramStr);
+    double value;
+    if (parsingUtil->isConstant(paramStr, value)) {
+      params.emplace_back(value);
+    } else {
+      params.emplace_back(paramStr);
+    }
   }
 
-  auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
   HeterogeneousMap options;
   if (ctx->options != nullptr) {
     int nOptions = ctx->options->optionsType().size();
@@ -106,24 +104,33 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
-  if (hasVecDouble) {
-      options.insert("param_id", vecDoubleId);
-  }
+  options.insert("param_id", param_id);
 
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
   if (tmpInst->isComposite()) {
-      auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
-      comp->expand(options);
-      for (auto v : comp->getVariables()) {
-          function->addVariable(v);
+    if (params.size() > 1) {
+      options.get_mutable<std::string>("param_id") =
+          params[1].toString(); // first one is qbit
+    }
+    auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
+    comp->expand(options);
+    for (auto v : comp->getVariables()) {
+      function->addVariable(v);
+    }
+  } else if (tmpInst->isParameterized()) {
+    for (auto &p : tmpInst->getParameters()) {
+      if (p.isVariable()) {
+        if (!parsingUtil->validExpression(p.toString(),
+                                          function->getVariables())) {
+          function->addVariable(p.toString());
+        }
       }
+    }
   }
+
   function->addInstruction(tmpInst);
-//   std::cout << "XASM EXPANDING\n";
-//   function->expand(options);
-//   std::cout << "XASM: " << function->getVariables() << "\n";
 }
 
 } // namespace xacc
