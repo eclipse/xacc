@@ -20,6 +20,9 @@ protected:
   std::shared_ptr<IRProvider> irProvider;
   std::shared_ptr<CompositeInstruction> function;
   std::string bufferName = "";
+  bool hasVecDouble = false;
+  std::string vecDoubleId = "t";
+
 public:
   XASMListener();
 

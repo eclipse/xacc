@@ -35,10 +35,10 @@ TEST(XASMCompilerTester, checkSimple) {
 TEST(XASMCompilerTester, checkVectorArg) {
 
   auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler -> compile(R"(__qpu__ void bell22(qbit q, std::vector<double> t) {
+  auto IR = compiler -> compile(R"(__qpu__ void bell22(qbit q, std::vector<double> x) {
   H(q[0]);
   CX(q[0], q[1]);
-  Ry(q[0], t[0]);
+  Ry(q[0], x[0]);
   Measure(q[0]);
   Measure(q[1]);
 })");

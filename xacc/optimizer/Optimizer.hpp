@@ -30,6 +30,10 @@ protected:
   HeterogeneousMap options;
 
 public:
+  template<typename T>
+  void appendOption(const std::string key, T& value) {
+    options.insert(key, value);
+  }
   virtual OptResult optimize(OptFunction &function) = 0;
   void
   setOptions(const HeterogeneousMap &opts) {

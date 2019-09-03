@@ -133,6 +133,10 @@ qbit qalloc(const int n) {
   qbit q(n);
   return q; // std::make_shared<xacc::AcceleratorBuffer>(n);
 }
+qbit qalloc() {
+  qbit q;
+  return q;
+}
 
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {

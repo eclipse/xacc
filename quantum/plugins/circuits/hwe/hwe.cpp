@@ -45,6 +45,7 @@ bool HWE::expand(const HeterogeneousMap &parameters) {
     fParams.push_back(paramLetter + std::to_string(nP));
 
   addVariables(fParams);
+  
   auto provider = xacc::getService<IRProvider>("quantum");
   int angleCounter = 0;
 
