@@ -32,7 +32,13 @@ void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
   std::vector<std::string> variables;
   // First argument should be the buffer
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    variables.push_back(ctx->typedparam(i)->id()->getText());
+
+    if (ctx->typedparam(i)->type()->getText() =="std::vector<double>") {
+        hasVecDouble = true;
+        vecDoubleId = ctx->typedparam(i)->id()->getText();
+    } else {
+         variables.push_back(ctx->typedparam(i)->id()->getText());
+    }
   }
   function = irProvider->createComposite("tmp_lambda", variables);
 }
@@ -100,11 +106,24 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
+  if (hasVecDouble) {
+      options.insert("param_id", vecDoubleId);
+  }
+
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
+  if (tmpInst->isComposite()) {
+      auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
+      comp->expand(options);
+      for (auto v : comp->getVariables()) {
+          function->addVariable(v);
+      }
+  }
   function->addInstruction(tmpInst);
-  function->expand(options);
+//   std::cout << "XASM EXPANDING\n";
+//   function->expand(options);
+//   std::cout << "XASM: " << function->getVariables() << "\n";
 }
 
 } // namespace xacc

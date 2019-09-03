@@ -12,6 +12,9 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-8;
   int maxeval = 1000;
 
+  std::stringstream ss;
+  options.print<int,std::size_t, std::string,double>(ss);
+  std::cout << "OPTS:\n" << ss.str() << "\n";
   if (options.stringExists("nlopt-optimizer")) {
     auto optimizerAlgo = options.getString("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
@@ -30,6 +33,8 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
+  } else {
+      std::cout << "HELLO MAX EVAL FROM NLOPT\n";
   }
 
   std::vector<double> x(dim);

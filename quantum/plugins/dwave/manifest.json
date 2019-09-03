@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_dwave",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC D-Wave Plugin",
+  "bundle.description" : "This bundle provides a D-Wave Accelerator for Adiabatic Model QC."
+}

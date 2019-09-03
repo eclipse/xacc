@@ -12,7 +12,7 @@
  *******************************************************************************/
 #ifndef XACC_HETEROGENEOUS_HPP_
 #define XACC_HETEROGENEOUS_HPP_
-#include <Utils.hpp>
+
 #include <map>
 #include <stdexcept>
 #include <vector>

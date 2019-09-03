@@ -53,11 +53,14 @@ extern std::map<std::string, std::shared_ptr<CompositeInstruction>>
 using AcceleratorBufferPtr = std::shared_ptr<xacc::AcceleratorBuffer>;
 class qbit : public AcceleratorBufferPtr {
 public:
+  qbit() : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>()) {}
   qbit(const int n)
       : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
   int operator[](const int &i) {return 0;}
+  qbit& operator=(qbit& q) {return q;}
 };
 qbit qalloc(const int n);
+qbit qalloc();
 
 void Initialize(int argc, char **argv);
 

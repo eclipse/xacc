@@ -192,7 +192,7 @@ public:
         if (!(std::dynamic_pointer_cast<CompositeInstruction>(inst)->expand(
                 runtimeOptions))) {
           return false;
-        }
+        } 
       }
     }
     return true;
@@ -223,37 +223,37 @@ public:
   std::shared_ptr<Graph> toGraph() override;
 
   const std::size_t nLogicalBits() override {
-      // n logical should just be the number of
-      // unique qbit integers
-      std::set<std::size_t> bits;
-      InstructionIterator iter(shared_from_this());
-      while(iter.hasNext()) {
-          auto inst = iter.next();
-          if (!inst->isComposite()) {
-              for (auto& b : inst->bits()) {
-                  bits.insert(b);
-              }
-          }
+    // n logical should just be the number of
+    // unique qbit integers
+    std::set<std::size_t> bits;
+    InstructionIterator iter(shared_from_this());
+    while (iter.hasNext()) {
+      auto inst = iter.next();
+      if (!inst->isComposite()) {
+        for (auto &b : inst->bits()) {
+          bits.insert(b);
+        }
       }
-      return bits.size();
+    }
+    return bits.size();
   }
 
   const std::size_t nPhysicalBits() override {
-      // n physical bits should be the largest bit
-      // plus 1
-      std::size_t maxBit = 0;
-      InstructionIterator iter(shared_from_this());
-      while(iter.hasNext()) {
-          auto inst = iter.next();
-          if (!inst->isComposite()) {
-              for (auto& b : inst->bits()) {
-                  if (b > maxBit) {
-                      maxBit = b;
-                  }
-              }
+    // n physical bits should be the largest bit
+    // plus 1
+    std::size_t maxBit = 0;
+    InstructionIterator iter(shared_from_this());
+    while (iter.hasNext()) {
+      auto inst = iter.next();
+      if (!inst->isComposite()) {
+        for (auto &b : inst->bits()) {
+          if (b > maxBit) {
+            maxBit = b;
           }
+        }
       }
-      return maxBit+1;
+    }
+    return maxBit + 1;
   }
 
   std::shared_ptr<CompositeInstruction> enabledView() override {
