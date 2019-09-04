@@ -81,7 +81,7 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
-  HeterogeneousMap options;
+//   HeterogeneousMap options;
   if (ctx->options != nullptr) {
     int nOptions = ctx->options->optionsType().size();
     for (int i = 0; i < nOptions; i++) {
@@ -93,29 +93,44 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
       if (parsingUtil->isConstant(val, value)) {
         if (ctx->options->optionsType(i)->value->INT() != nullptr) {
           int tmp = (int)value;
-          options.insert(key, tmp);
+          runtimeOptions.insert(key, tmp);
         } else {
-          options.insert(key, value);
+          runtimeOptions.insert(key, value);
         }
       } else {
         val.erase(remove(val.begin(), val.end(), '\"'), val.end());
-        options.insert(key, val);
+        if (runtimeOptions.stringExists(key)) {
+            bool isConstChar = runtimeOptions.keyExists<const char*>(key);
+            if (isConstChar) {
+                runtimeOptions.get_mutable<const char*>(key) = val.c_str();
+            } else {
+                runtimeOptions.get_mutable<std::string>(key) = val;
+            }
+
+        } else {
+          runtimeOptions.insert(key, val);
+        }
       }
     }
   }
 
-  options.insert("param_id", param_id);
+  runtimeOptions.insert("param_id", param_id);
+
+//   std::stringstream ss;
+//   runtimeOptions.print<std::string,int,double>(ss);
+//   std::cout << "XASMOpts:\n" << ss.str() << "\n";
+//   std::cout << std::boolalpha << runtimeOptions.stringExists("coupling") << "\n";
 
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
   if (tmpInst->isComposite()) {
     if (params.size() > 1) {
-      options.get_mutable<std::string>("param_id") =
+      runtimeOptions.get_mutable<std::string>("param_id") =
           params[1].toString(); // first one is qbit
     }
     auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
-    comp->expand(options);
+    comp->expand(runtimeOptions);
     for (auto v : comp->getVariables()) {
       function->addVariable(v);
     }

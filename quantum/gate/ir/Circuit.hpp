@@ -22,6 +22,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <unordered_set>
 
 namespace xacc {
 namespace quantum {
@@ -192,7 +193,7 @@ public:
         if (!(std::dynamic_pointer_cast<CompositeInstruction>(inst)->expand(
                 runtimeOptions))) {
           return false;
-        } 
+        }
       }
     }
     return true;
@@ -208,7 +209,19 @@ public:
   void addVariables(const std::vector<std::string> &vars) override {
     variables.insert(variables.end(), vars.begin(), vars.end());
   }
-  const std::vector<std::string> getVariables() override { return variables; }
+  const std::vector<std::string> getVariables() override {
+      // return this guys variables + all sub-node variables
+    std::vector<std::string> ret = variables;
+    for (auto& i : instructions) {
+        if (i->isComposite()) {
+          auto vars = std::dynamic_pointer_cast<CompositeInstruction>(i)->getVariables();
+          ret.insert(ret.end(), vars.begin(), vars.end());
+        }
+    }
+    std::unordered_set<std::string> s(ret.begin(), ret.end());
+    ret.assign(s.begin(),s.end());
+    return ret;
+  }
   void replaceVariable(const std::string variable,
                        const std::string newVariable) override {
     std::replace_if(

@@ -24,6 +24,8 @@ protected:
   std::string param_id = "t";
 
 public:
+  HeterogeneousMap runtimeOptions;
+
   XASMListener();
 
   std::shared_ptr<CompositeInstruction> getFunction() { return function; }

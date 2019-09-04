@@ -18,8 +18,12 @@
 namespace xacc {
 
 class IR : public Persistable {
-
+protected:
+  HeterogeneousMap runtimeVariables;
 public:
+  void setRuntimeVariables(HeterogeneousMap m) {runtimeVariables = m;}
+  HeterogeneousMap getRuntimeVariables() {return runtimeVariables;}
+
   virtual void addComposite(std::shared_ptr<CompositeInstruction> kernel) = 0;
   virtual bool compositeExists(const std::string &name) = 0;
   virtual std::shared_ptr<CompositeInstruction> getComposite(const std::string &name) = 0;

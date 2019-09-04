@@ -94,8 +94,13 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
       if (i == terms.size() - 1) {
         // FIXME DONT FORGET DIVIDE BY 2
         std::stringstream ss;
-        ss << std::to_string(std::real(spinInst.coeff())) << " * "
-           << paramLetter;
+        if (pauli_or_fermion == "pauli") {
+          ss << std::to_string(std::real(spinInst.coeff())) << " * "
+             << paramLetter;
+        } else {
+          ss << std::to_string(std::imag(spinInst.coeff())) << " * "
+             << paramLetter;
+        }
         auto rz = gateRegistry->createInstruction(
             "Rz", std::vector<std::size_t>{qbitIdx});
 
