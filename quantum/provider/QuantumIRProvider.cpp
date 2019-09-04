@@ -35,15 +35,19 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
     const std::string name, std::vector<std::size_t> bits,
     std::vector<InstructionParameter> parameters) {
 
+  std::string iName = name;
+  if (name == "CX") {
+      iName = "CNOT";
+  }
   std::shared_ptr<Instruction> inst;
-  if (xacc::hasService<Instruction>(name)) {
-    inst = xacc::getService<Instruction>(name);
-  } else if (xacc::hasContributedService<Instruction>(name)) {
-    inst = xacc::getContributedService<Instruction>(name);
-  } else if (xacc::hasCompiled(name)) {
-    inst = xacc::getCompiled(name);
+  if (xacc::hasService<Instruction>(iName)) {
+    inst = xacc::getService<Instruction>(iName);
+  } else if (xacc::hasContributedService<Instruction>(iName)) {
+    inst = xacc::getContributedService<Instruction>(iName);
+  } else if (xacc::hasCompiled(iName)) {
+    inst = xacc::getCompiled(iName);
   } else {
-      xacc::error("Invalid instruction name - " + name);
+      xacc::error("Invalid instruction name - " + iName);
   }
 
   if (!inst->isComposite()) {
