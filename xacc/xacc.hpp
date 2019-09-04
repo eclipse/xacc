@@ -56,6 +56,8 @@ public:
   qbit() : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>()) {}
   qbit(const int n)
       : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
+  qbit(const AcceleratorBufferPtr& ab) : AcceleratorBufferPtr(ab) {}
+  
   int operator[](const int &i) {return 0;}
   qbit& operator=(qbit& q) {return q;}
 };
