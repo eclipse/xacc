@@ -72,7 +72,7 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   try {
     auto result = _opt.optimize(x, optF);
   } catch (std::exception &e) {
-      std::cout << "HELLO: " << dim << ", " << x.size() << "\n";
+    std::cout << "[NLOpt Dimensions (dim,x.size()) = (" << dim << ", " << x.size() << ")\n";
     xacc::XACCLogger::instance()->error("NLOpt failed: " +
                                         std::string(e.what()));
 

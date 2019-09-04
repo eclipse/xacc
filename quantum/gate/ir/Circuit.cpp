@@ -135,18 +135,18 @@ void Circuit::load(std::istream &inStream) {
   setCoefficient(coeff);
 
   auto instructionsArray = kernel["instructions"].GetArray();
-
   for (int i = 0; i < instructionsArray.Size(); i++) {
     auto &inst = instructionsArray[i];
     auto gname = inst["gate"].GetString();
+    std::shared_ptr<Instruction> instToAdd;
 
-    std::vector<std::size_t> qbits;
+    std::vector<std::size_t> qbits{};
     auto bitsArray = inst["qubits"].GetArray();
     for (int k = 0; k < bitsArray.Size(); k++) {
       qbits.push_back(bitsArray[k].GetUint64());
     }
 
-    std::vector<InstructionParameter> local_parameters;
+    std::vector<InstructionParameter> local_parameters{};
     auto &paramsArray = inst["parameters"];
     for (int k = 0; k < paramsArray.Size(); k++) {
       auto &value = paramsArray[k];
@@ -158,9 +158,11 @@ void Circuit::load(std::istream &inStream) {
         local_parameters.push_back(InstructionParameter(value.GetString()));
       }
     }
-
-    std::shared_ptr<Instruction> instToAdd;
-    instToAdd = provider->createInstruction(gname, qbits, local_parameters);
+    if (!inst["composite"].GetBool()) {
+      instToAdd = provider->createInstruction(gname, qbits, local_parameters);
+    } else {
+      instToAdd = provider->createInstruction(gname, {}, {});
+    }
 
     if (!inst["enabled"].GetBool()) {
       instToAdd->disable();

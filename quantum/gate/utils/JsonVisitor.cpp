@@ -80,6 +80,36 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
   return buffer->GetString();
 }
 
+template<class W, class B> void JsonVisitor<W,B>::visit(Circuit& inst) {
+  if (!inst.hasChildren()) {
+  writer->StartObject();
+  writer->String("gate");
+  writer->String(inst.name().c_str());
+  writer->String("enabled");
+  writer->Bool(inst.isEnabled());
+  writer->String("composite");
+  writer->Bool(true);
+  writer->String("qubits");
+  writer->StartArray();
+//   for (auto qi : inst.bits()) {
+//     writer->Int(qi);
+//   }
+  writer->EndArray();
+
+  writer->String("parameters");
+  writer->StartArray();
+  writer->EndArray();
+  writer->String("variables");
+  for (auto v : inst.getVariables()) {
+      writer->String(v);
+  }
+  writer->StartArray();
+
+  writer->EndArray();
+    writer->EndObject();
+  }
+}
+
 template <class W, class B> void JsonVisitor<W, B>::visit(Rz &rz) {
   baseGateInst(dynamic_cast<Gate &>(rz));
 }
@@ -95,37 +125,6 @@ template <class W, class B> void JsonVisitor<W, B>::visit(Ry &ry) {
 template <class W, class B> void JsonVisitor<W, B>::visit(CPhase &cp) {
   baseGateInst(dynamic_cast<Gate &>(cp));
 }
-
-// template <class W, class B>
-// void JsonVisitor<W, B>::visit(ConditionalFunction &cn) {
-//   writer->StartObject();
-//   writer->String("conditional_function");
-//   writer->String(cn.name());
-
-//   writer->String("conditional_qubit");
-//   writer->Int(cn.getConditionalQubit());
-//   writer->String("instructions");
-//   writer->StartArray();
-
-//   auto cnAsPtr = std::make_shared<ConditionalFunction>(cn);
-//   int nInsts = cnAsPtr->nInstructions();
-//   xacc::InstructionIterator it(cnAsPtr);
-//   it.next();
-//   while (it.hasNext()) {
-//     // Get the next node in the tree
-//     auto nextInst = it.next();
-//     nextInst->accept(this);
-//   }
-
-//   // End Instructions
-//   writer->EndArray();
-//   writer->EndObject();
-
-//   // Move the Top Level Iterator past these instructions that were in
-//   // the conditional function
-//   for (int i = 0; i < nInsts; i++)
-//     topLevelInstructionIterator->next();
-// }
 
 template <class W, class B> void JsonVisitor<W, B>::visit(Measure &cn) {
   baseGateInst(dynamic_cast<Gate &>(cn));
@@ -200,6 +199,8 @@ void JsonVisitor<W, B>::baseGateInst(Gate &inst, bool endObject) {
   writer->String(inst.name().c_str());
   writer->String("enabled");
   writer->Bool(inst.isEnabled());
+  writer->String("composite");
+  writer->Bool(false);
   writer->String("qubits");
   writer->StartArray();
   for (auto qi : inst.bits()) {
@@ -225,27 +226,6 @@ void JsonVisitor<W, B>::baseGateInst(Gate &inst, bool endObject) {
     }
   }
   writer->EndArray();
-
-//   writer->String("options");
-//   writer->StartObject();
-//   for (auto& kv : inst.getOptions()) {
-//       writer->Key(kv.first);
-//       auto p = kv.second;
-//       switch (p.which()) {
-//     case 0:
-//       writer->Int(p.as<int>());
-//       break;
-//     case 1:
-//       writer->Double(p.as<double>());
-//       break;
-//     case 2:
-//       writer->String(p.as<std::string>());
-//       break;
-//     default:
-//       writer->String(p.toString());
-//     }
-//   }
-//   writer->EndObject();
 
   if (endObject) {
     writer->EndObject();

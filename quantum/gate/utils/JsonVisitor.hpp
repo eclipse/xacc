@@ -16,14 +16,14 @@
 #include <memory>
 #include "AllGateVisitor.hpp"
 #include "InstructionVisitor.hpp"
-// #include "IRGenerator.hpp"
+#include "Circuit.hpp"
 
 namespace xacc {
 
 namespace quantum {
 
 template <typename Writer, typename Buffer>
-class JsonVisitor : public AllGateVisitor {// public InstructionVisitor<IRGenerator> {
+class JsonVisitor : public AllGateVisitor, public InstructionVisitor<Circuit> {// public InstructionVisitor<IRGenerator> {
 
 protected:
   std::shared_ptr<Buffer> buffer;
@@ -65,6 +65,7 @@ public:
   void visit(Y &y) { baseGateInst(dynamic_cast<Gate &>(y)); }
 
   void visit(Z &z) { baseGateInst(dynamic_cast<Gate &>(z)); }
+  void visit(Circuit& c);
 
   void visit(U &u);
 
