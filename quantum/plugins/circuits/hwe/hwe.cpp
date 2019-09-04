@@ -1,5 +1,5 @@
 #include "hwe.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
 #include <regex>

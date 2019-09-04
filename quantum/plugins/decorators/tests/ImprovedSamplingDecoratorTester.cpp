@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "AcceleratorDecorator.hpp"
 #include "xacc_service.hpp"
 

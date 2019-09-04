@@ -8,7 +8,7 @@
 
 #include "CompositeInstruction.hpp"
 #include "xacc_service.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {

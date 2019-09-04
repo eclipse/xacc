@@ -4,7 +4,7 @@
 #include "ObservableTransform.hpp"
 #include "PauliOperator.hpp"
 
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <memory>
 #include <regex>

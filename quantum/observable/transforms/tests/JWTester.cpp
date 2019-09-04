@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "JW.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <memory>
 #include <regex>
 #include "FermionOperator.hpp"

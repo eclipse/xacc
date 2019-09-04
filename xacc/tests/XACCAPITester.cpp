@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 using namespace xacc;
 

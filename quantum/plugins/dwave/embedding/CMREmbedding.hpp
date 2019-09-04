@@ -1,7 +1,7 @@
 #ifndef EMBEDDING_CMREMBEDDING_HPP_
 #define EMBEDDING_CMREMBEDDING_HPP_
 
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "EmbeddingAlgorithm.hpp"
 #include <cassert>
 

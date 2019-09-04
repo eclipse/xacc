@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "Instruction.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 using namespace xacc;
 

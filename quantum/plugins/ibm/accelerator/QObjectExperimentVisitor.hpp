@@ -34,7 +34,7 @@
 #include <memory>
 #include "AllGateVisitor.hpp"
 #include "QObject.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 using namespace xacc::ibm;
 

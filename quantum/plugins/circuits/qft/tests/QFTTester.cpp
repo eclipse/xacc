@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include <memory>
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "CommonGates.hpp"
 #include "xacc_service.hpp"
 

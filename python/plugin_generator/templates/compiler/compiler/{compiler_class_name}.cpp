@@ -1,5 +1,5 @@
 #include "{compiler_class_name}.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "IRProvider.hpp"
 
 namespace xacc {{

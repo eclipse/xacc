@@ -1,7 +1,7 @@
 #include "RDMPurificationDecorator.hpp"
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "FermionOperator.hpp"
 #include "PauliOperator.hpp"
 

@@ -32,7 +32,7 @@
 #include "xacc_config.hpp"
 #include "xacc_service.hpp"
 #include "IRProvider.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include <gtest/gtest.h>
 #include <memory>

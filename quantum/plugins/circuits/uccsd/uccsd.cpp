@@ -3,7 +3,7 @@
 #include "FermionOperator.hpp"
 #include "PauliOperator.hpp"
 
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "ObservableTransform.hpp"
 #include <memory>
 

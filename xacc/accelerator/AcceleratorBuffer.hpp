@@ -99,128 +99,34 @@ protected:
   }
 };
 
-// class ExtraInfo2HeterogeneousMap
-//     {
-// public:
-//   ExtraInfo2HeterogeneousMap() {}
-
-//   InstructionParameter operator()(const int &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter operator()(const double &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter operator()(const std::string &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter operator()(const std::vector<int> &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter operator()(const std::vector<double> &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter operator()(const std::vector<std::string> &i) const {
-//     return InstructionParameter(i);
-//   }
-//   InstructionParameter
-//   operator()(const std::map<int, std::vector<int>> &i) const {
-//     XACCLogger::instance()->error(
-//         "Cannot cast map<int, [int]> ExtraInfo to InstructionParameter");
-//     return InstructionParameter(0);
-//   }
-//   InstructionParameter
-//   operator()(const std::map<int, int> &i) const {
-//       XACCLogger::instance()->error(
-//           "Cannot cast map<int, int> ExtraInfo to InstructionParameter");
-//       return InstructionParameter(0);
-//   }
-//   InstructionParameter
-//   operator()(const std::vector<std::pair<double, double>> &i) const {
-//     return InstructionParameter(i);
-//   }
-// };
-
-// class InstructionParameter2ExtraInfo {
-// private:
-//   InstructionParameter parameter;
-
-// public:
-//   InstructionParameter2ExtraInfo() {}
-
-//   ExtraInfo operator()(const int &i) const { return ExtraInfo(i); }
-//   ExtraInfo operator()(const double &i) const { return ExtraInfo(i); }
-//   ExtraInfo operator()(const std::string &i) const { return ExtraInfo(i); }
-//   ExtraInfo operator()(const std::vector<int> &i) const { return ExtraInfo(i); }
-//   ExtraInfo operator()(const std::vector<double> &i) const {
-//     return ExtraInfo(i);
-//   }
-//   ExtraInfo operator()(const std::vector<std::string> &i) const {
-//     return ExtraInfo(i);
-//   }
-//   ExtraInfo operator()(const std::vector<std::pair<double, double>> &i) const {
-//     return ExtraInfo(i);
-//   }
-//   ExtraInfo operator()(const std::vector<std::pair<int, int>> &i) const {
-//     XACCLogger::instance()->error(
-//         "Cannot cast vector<int, int> InstructionParameter to ExtraInfo.");
-//     return ExtraInfo(0);
-//   }
-
-//   ExtraInfo operator()(const std::complex<double> &i) const {
-//     XACCLogger::instance()->error(
-//         "Cannot cast complex InstructionParameter to ExtraInfo.");
-//     return ExtraInfo(0);
-//   }
-// };
-
-/**
- * The AcceleratorBuffer models an allocated buffer of
- * bits that are operated on by a kernel. As such,
- * the AcceleratorBuffer's primary role is to store
- * Accelerator execution results.
- *
- * @author Alex McCaskey
- */
+// The AcceleratorBuffer serves as the mediator between
+// clients and backend execution. It represents a buffer of
+// bits on the targeted Accelerator backend. At its core, it exposes
+// the number of bits it wraps, and a map of bit strings to counts.
+//
+// Each AcceleratorBuffer also keeps track of a map of string keys
+// to a Variant type called ExtraInfo. This map serves as a heterogeneous map
+// with specified value types. It provides unique functionality in xacc, in that
+// it enables the storage of accelerator-specific execution information.
+//
+// Each AcceleratorBuffer can contain AcceleratorBuffer children. This is useful
+// for iterative executions whereby many executions need to be persisted, but are all
+// related to a single global AcceleratorBuffer.
 class AcceleratorBuffer {
 
 protected:
-  /**
-   * Reference to the Accelerator measurement result bit strings
-   */
-//   std::vector<std::string> measurements;
-
   std::map<std::string, int> bitStringToCounts;
-
-  /**
-   * The name of this AcceleratorBuffer
-   */
   std::string bufferId;
-
-  /**
-   * The number of bits in this buffer.
-   */
   int nBits;
-
   std::vector<AcceleratorBufferChildPair> children;
-
   std::map<std::string, ExtraInfo> info;
-
   bool cacheFile = false;
-
   std::map<int, int> bit2IndexMap;
 
 public:
   AcceleratorBuffer() {}
   AcceleratorBuffer(const int N);
-
-  /**
-   * The Constructor
-   */
   AcceleratorBuffer(const std::string &str, const int N);
-
-  /**
-   * The copy constructor
-   */
   AcceleratorBuffer(const AcceleratorBuffer &other);
 
   void useAsCache() { cacheFile = true; }
@@ -246,10 +152,9 @@ public:
   void setBitIndexMap(const std::map<int, int> bitMap) { bit2IndexMap = bitMap; }
 
   const int nChildren() { return getChildren().size(); }
-  /**
-   * Return all children with ExtraInfo infoName equal
-   * to the given ExtraInfo i.
-   */
+
+   // Return all children with ExtraInfo infoName equal
+   // to the given ExtraInfo i.
   std::vector<std::shared_ptr<AcceleratorBuffer>>
   getChildren(const std::string infoName, ExtraInfo i);
 
@@ -260,67 +165,30 @@ public:
       children.erase(children.begin()+idx);
   }
 
-  /**
-   * Return the number of bits in this buffer.
-   *
-   * @return size The number of bits in this buffer
-   */
   const int size() const;
-
-  /**
-   * Return this AcceleratorBuffer's name
-   *
-   * @return name The name of this AcceleratorBuffer
-   */
   const std::string name() const;
-
-  /**
-   * Reset the stored measured bit strings.
-   */
   virtual void resetBuffer();
 
   virtual void appendMeasurement(const std::string &measurement);
-
   virtual void appendMeasurement(const std::string measurement,
                                  const int count);
 
   virtual double computeMeasurementProbability(const std::string &bitStr);
 
-  /**
-   * Compute and return the expectation value with respect
-   * to the Pauli-Z operator. Here we provide a base implementation
-   * based on an ensemble of measurement results. Subclasses
-   * are free to implement this as they see fit, ie, for simulators
-   * use the wavefunction.
-   *
-   * @return expVal The expectation value
-   */
   virtual const double getExpectationValueZ();
-
   virtual void setExpectationValueZ(const double exp);
 
-  /**
-   * Return all measurements as bit strings.
-   *
-   * @return bitStrings List of bit strings.
-   */
   virtual const std::vector<std::string> getMeasurements();
-
   virtual std::map<std::string, int> getMeasurementCounts();
   virtual void clearMeasurements() {
     // measurements.clear();
     bitStringToCounts.clear();
   }
-
   virtual void setMeasurements(std::map<std::string, int> counts) {
     clearMeasurements();
     bitStringToCounts = counts;
   }
 
-  /**
-   * Print information about this AcceleratorBuffer to standard out.
-   *
-   */
   virtual void print();
   const std::string toString();
 
@@ -328,23 +196,14 @@ public:
       bufferId = n;
   }
 
-  /**
-   * Print information about this AcceleratorBuffer to the
-   * given output stream.
-   *
-   * @param stream Stream to write the buffer to.
-   */
   virtual void print(std::ostream &stream);
-
   virtual void load(std::istream &stream);
 
   void operator[](const int& i) {
+      // Primarily here for qcor.
       return;
   }
 
-  /**
-   * The Destructor
-   */
   virtual ~AcceleratorBuffer() {}
 };
 

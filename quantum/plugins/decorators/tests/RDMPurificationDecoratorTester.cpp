@@ -1,6 +1,6 @@
 #include "AcceleratorDecorator.hpp"
 #include "Instruction.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <gtest/gtest.h>
 #include <memory>
 #include "xacc_service.hpp"

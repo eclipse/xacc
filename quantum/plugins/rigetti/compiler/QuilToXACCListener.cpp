@@ -32,7 +32,7 @@
 #include "exprtk.hpp"
 #include "QuilToXACCListener.hpp"
 #include "QuilBaseListener.h"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "IRProvider.hpp"
 #include "IR.hpp"
 #include "xacc_service.hpp"

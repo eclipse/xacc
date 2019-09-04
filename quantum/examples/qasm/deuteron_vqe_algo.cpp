@@ -1,4 +1,4 @@
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "Optimizer.hpp"
 #include "PauliOperator.hpp"
 #include "xacc_service.hpp"

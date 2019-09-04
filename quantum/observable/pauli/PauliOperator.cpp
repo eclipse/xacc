@@ -3,7 +3,7 @@
 #include <regex>
 #include <set>
 #include <iostream>
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 
 #include <Eigen/Core>

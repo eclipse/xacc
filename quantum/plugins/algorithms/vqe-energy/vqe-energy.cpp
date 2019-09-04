@@ -1,7 +1,7 @@
 #include "vqe-energy.hpp"
 
 #include "Observable.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include <memory>
 using namespace xacc;

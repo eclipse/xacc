@@ -29,7 +29,7 @@
  *
  **********************************************************************************/
 #include <gtest/gtest.h>
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "CMREmbedding.hpp"
 #include "Graph.hpp"
 #include "xacc_service.hpp"

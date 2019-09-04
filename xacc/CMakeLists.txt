@@ -18,7 +18,7 @@ find_package(Libunwind)
 
 file(GLOB
      HEADERS
-     XACC.hpp
+     xacc.hpp
      ir/*.hpp
      compiler/*.hpp
      accelerator/*.hpp
@@ -29,7 +29,7 @@ file(GLOB
      optimizer/*.hpp)
 
 add_library(xacc SHARED
-            XACC.cpp
+            xacc.cpp
             accelerator/AcceleratorBuffer.cpp
             utils/Utils.cpp
             utils/CLIParser.cpp

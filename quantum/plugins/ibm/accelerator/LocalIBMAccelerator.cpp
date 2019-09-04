@@ -1,6 +1,6 @@
 
 #include "LocalIBMAccelerator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "json.hpp"
 
 #include "simulator.hpp"

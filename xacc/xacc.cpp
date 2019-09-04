@@ -10,10 +10,9 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
-// #include "IRGenerator.hpp"
 #include "CLIParser.hpp"
 #include <signal.h>
 #include <cstdlib>
