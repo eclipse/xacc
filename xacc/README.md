@@ -1,11 +1,12 @@
-Core XACC Package
------------------
+Core XACC package and its sub-packages
+=================
 
 This package contains all interfaces describing the XACC programming
 model, plus a few utility classes that are used throughout XACC. It contains the
 following packages:
 
-* accelerator
+**accelerator**
+----------------
 
 This package defines the Accelerator interface, which provides the overall
 communication protocol for clients interacting with backend accelerators. An
@@ -25,21 +26,24 @@ the go-between for clients and Accelerator execution results. AcceleratorBuffers
 contain a HeterogeneousMap of metadata for persisting execution and accelerator
  specific results.
 
-* algorithm
+**algorithm**
+--------------
 
 This package defines the Algorithm interface, whic provides a general mechanism for
 describing hybrid algorithms that leverage Accelerator co-processors. Algorithms take
 as input a heterogeneous mapping of input data, and execute their specific algorithm,
 persisting results to a provided AcceleratorBuffer.
 
-* compiler
+**compiler**
+------------
 
 This package defines the Compiler interface, which provides a mechanism for taking XACC
 kernel source strings and compiling them to an instance of the XACC intermediate representation.
 Compilers also expose source-to-source translation capabilities, which take IR to an
 instance of this Compilers corresponding source language.
 
-* ir
+**ir**
+------
 
 This package defines the interfaces necessary to make up the XACC intermediate representation (IR).
 First, it defines an Instruction interface, which exposes an API describing post-Moore's law low-level
@@ -70,13 +74,15 @@ by a problem-specific operator or observable. This concept comes from the QCOR s
  here in XACC because it spans a number of projects. The ObservableTransform describes a mechanism for
 the general transformation of Observables.
 
-* optimizer
+**optimizer**
+--------------
 
 This package puts forth the Optimizer interface, which takes general functors that are
 parameterized and returns the optimal evaluation of that function at the
 optimal set of parameters. This concept was put forth by the QCOR specification.
 
-* service
+**service**
+-----------
 
 This package contains an implementation and API for exposing the core service registry
 that XACC relies on. The ServiceRegistry delegates to the CppMicroServices framework and
@@ -84,7 +90,8 @@ loads available plugins (provided as standard shared libraries). It exposes the 
 provided by these plugins via a templated getService() call which takes the type of the interface
 and the string name it exposes.
 
-* utils
+**utils**
+----------
 
 This package contains various utility classes. The most important is the HeterogeneousMap, which
 provides a mechanism for mapping string keys to any type. Other things in this package are
