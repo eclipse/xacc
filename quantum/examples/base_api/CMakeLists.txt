@@ -1,0 +1,12 @@
+add_executable(bell_quil_ibm_local bell_quil_ibm_local.cpp)
+target_link_libraries(bell_quil_ibm_local PRIVATE xacc)
+
+add_executable(bell_xasm_ibm_local bell_xasm_ibm_local.cpp)
+target_link_libraries(bell_xasm_ibm_local PRIVATE xacc)
+
+add_executable(deuteron_2qbit_xasm_X0X1 deuteron_2qbit_xasm_X0X1.cpp)
+target_link_libraries(deuteron_2qbit_xasm_X0X1 PRIVATE xacc)
+
+add_executable(deuteron_2qbit_ir_api_X0X1 deuteron_2qbit_ir_api_X0X1.cpp)
+target_link_libraries(deuteron_2qbit_ir_api_X0X1 PRIVATE xacc)
+
