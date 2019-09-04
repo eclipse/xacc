@@ -15,7 +15,7 @@
 
 #include "CompositeInstruction.hpp"
 #include "DWQMI.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "expression_parsing_util.hpp"
 
 namespace xacc {

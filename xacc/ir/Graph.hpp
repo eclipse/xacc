@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
 #ifndef XACC_QUANTUM_GRAPH_HPP_
 #define XACC_QUANTUM_GRAPH_HPP_
 
@@ -23,12 +35,8 @@ public:
 
   virtual void setVertexProperties(const int index, HeterogeneousMap& properties) = 0;
   virtual void setVertexProperties(const int index, HeterogeneousMap&& properties) = 0;
-//   virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter& p) = 0;
-//   virtual void setVertexProperty(const int index, const std::string prop, InstructionParameter&& p) = 0;
 
   virtual HeterogeneousMap& getVertexProperties(const int index) = 0;
-//   virtual InstructionParameter&
-//   getVertexProperty(const int index, const std::string property) = 0;
 
   virtual void setEdgeWeight(const int srcIndex, const int tgtIndex,
                      const double weight) = 0;

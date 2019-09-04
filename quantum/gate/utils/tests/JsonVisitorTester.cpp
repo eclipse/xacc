@@ -14,7 +14,7 @@
 #include "Circuit.hpp"
 #include "JsonVisitor.hpp"
 #include "CommonGates.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "rapidjson/prettywriter.h"
 using namespace rapidjson;

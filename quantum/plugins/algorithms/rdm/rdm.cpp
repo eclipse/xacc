@@ -1,7 +1,7 @@
 #include "rdm.hpp"
 
 #include "Observable.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include "FermionOperator.hpp"
 #include <unsupported/Eigen/CXX11/Tensor>

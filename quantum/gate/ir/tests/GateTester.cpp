@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "CommonGates.hpp"
 #include "Circuit.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 using namespace xacc::quantum;
 
 TEST(GateTester, checkBasicGatesAndCircuits) {

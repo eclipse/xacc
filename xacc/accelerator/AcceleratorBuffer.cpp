@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "AcceleratorBuffer.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include <numeric>
 

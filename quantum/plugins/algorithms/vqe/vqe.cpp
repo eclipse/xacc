@@ -1,7 +1,7 @@
 #include "vqe.hpp"
 
 #include "Observable.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include <memory>
 #include <iomanip>

@@ -17,38 +17,45 @@
 
 namespace xacc {
 
+// The AcceleratorDecorator implements the familiar decorator
+// pattern for Accelerators. This enables delegation to a
+// concrete Accelerator, with the opportunity to introduce general
+// pre- and post-processing of execution input and output.
 class AcceleratorDecorator : public Accelerator {
 protected:
-
   std::shared_ptr<Accelerator> decoratedAccelerator;
 
 public:
-
   AcceleratorDecorator() {}
-  AcceleratorDecorator(std::shared_ptr<Accelerator> a) :decoratedAccelerator(a) {}
+  AcceleratorDecorator(std::shared_ptr<Accelerator> a)
+      : decoratedAccelerator(a) {}
   void setDecorated(std::shared_ptr<Accelerator> a) {
-      decoratedAccelerator = a;
+    decoratedAccelerator = a;
   }
 
-  void initialize(const HeterogeneousMap& params = {}) override { decoratedAccelerator->initialize(params); }
+  void initialize(const HeterogeneousMap &params = {}) override {
+    decoratedAccelerator->initialize(params);
+  }
   void updateConfiguration(const HeterogeneousMap &config) override {
-     decoratedAccelerator->updateConfiguration(config);
+    decoratedAccelerator->updateConfiguration(config);
   }
 
   std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override {return decoratedAccelerator->getIRTransformations();}
+  getIRTransformations() override {
+    return decoratedAccelerator->getIRTransformations();
+  }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<CompositeInstruction> CompositeInstruction) override  = 0;
+               const std::shared_ptr<CompositeInstruction> CompositeInstruction)
+      override = 0;
 
-  void
-  execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<CompositeInstruction>> CompositeInstructions)  override  = 0;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   CompositeInstructions) override = 0;
 
-  bool isRemote()  override { return decoratedAccelerator->isRemote(); }
+  bool isRemote() override { return decoratedAccelerator->isRemote(); }
 
   virtual ~AcceleratorDecorator() {}
-
 };
 
 } // namespace xacc

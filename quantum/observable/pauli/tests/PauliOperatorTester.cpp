@@ -30,7 +30,7 @@
  **********************************************************************************/
 #include <gtest/gtest.h>
 #include "PauliOperator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "IRProvider.hpp"
 #include <Eigen/Dense>
 #include "xacc_service.hpp"

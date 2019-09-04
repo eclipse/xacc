@@ -33,7 +33,7 @@
 #include "QuilVisitor.hpp"
 #include "QuilLexer.h"
 #include "QuilParser.h"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "IRProvider.hpp"
 #include "QuilToXACCListener.hpp"
 #include "QuilErrorListener.hpp"

@@ -2,7 +2,7 @@
 #define IMPLS_TESTPULSE_HPP
 
 #include "GateInstruction.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {

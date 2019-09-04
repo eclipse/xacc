@@ -15,7 +15,7 @@
 #include "IRToGraphVisitor.hpp"
 #include "CommonGates.hpp"
 #include "InstructionIterator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 using namespace xacc::quantum;
 

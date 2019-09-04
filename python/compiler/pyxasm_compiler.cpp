@@ -1,5 +1,5 @@
 #include "IRProvider.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 
 #include "pyxasmLexer.h"

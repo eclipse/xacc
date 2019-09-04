@@ -1,5 +1,5 @@
 #include "Instruction.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <gtest/gtest.h>
 #include "xacc_service.hpp"
 #include "FermionOperator.hpp"

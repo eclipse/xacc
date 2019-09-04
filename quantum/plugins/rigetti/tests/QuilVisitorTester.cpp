@@ -32,7 +32,7 @@
 #include <gtest/gtest.h>
 #include "QuilVisitor.hpp"
 #include "InstructionIterator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "Circuit.hpp"
 
 using namespace xacc;

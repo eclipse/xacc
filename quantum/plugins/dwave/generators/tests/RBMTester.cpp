@@ -1,4 +1,4 @@
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <gtest/gtest.h>
 #include "xacc_service.hpp"
 #include "AnnealingProgram.hpp"

@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "DefaultParameterSetter.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {

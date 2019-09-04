@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "QFT.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 
 namespace xacc {

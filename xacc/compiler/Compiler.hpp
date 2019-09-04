@@ -19,6 +19,8 @@
 
 namespace xacc {
 
+// Compilers provide an API for mapping xacc kernels to an instance
+// of the intermediate representation.
 class Compiler : public OptionsProvider, public Identifiable {
 
 public:

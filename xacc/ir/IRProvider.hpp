@@ -18,6 +18,8 @@
 
 namespace xacc {
 
+// The IRProvider exposes a factory interface for the generation
+// of Instructions and CompositeInstructions.
 class IRProvider : public Identifiable {
 public:
   virtual const int getNRequiredBits(const std::string name) = 0;

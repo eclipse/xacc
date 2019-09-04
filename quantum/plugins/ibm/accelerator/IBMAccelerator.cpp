@@ -11,7 +11,7 @@
 
 using namespace rapidjson;
 
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 #include "QObject.hpp"
 

@@ -21,6 +21,25 @@
 namespace xacc {
 using InstructionParameter = Variant<int,double,std::string>;
 
+// The Instruction interface exposes an API for describing a general
+// post-Moore's law low-level assembly instruction. Each Instruction
+// exposes a unique string name, the vector of bit indices that it operates on,
+// and a vector of InstructionParameters describing any runtime
+// parameters (like rotation angle for a gate-model quantum computing
+// instruction) that it requires. Clients can get the name of the
+// Instruction, get and set the bits it operates on, and get and set
+// any of the InstructionParameters it exposes.
+//
+// Instructions can be enabled or disabled, and expose whether
+// it is composite or not (see CompositeInstruction).
+//
+// Instructions are Cloneable, which is required for use with the
+// xacc service registry. Therefore, all Instructions are meant to
+// be provided services within the XACC framework, making it easy
+// to inject new instructions to an existing framework install.
+//
+// Instruction can be visited, enabling type-specific information
+// at runtime to custom InstructionVisitors.
 class Instruction : public BaseInstructionVisitable,
                     public Identifiable,
                     public Cloneable<Instruction> {

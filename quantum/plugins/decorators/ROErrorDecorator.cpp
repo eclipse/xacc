@@ -1,6 +1,6 @@
 #include "ROErrorDecorator.hpp"
 #include "InstructionIterator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <fstream>
 #include <set>
 

@@ -4,7 +4,7 @@
 #include "RemoteAccelerator.hpp"
 #include "InstructionIterator.hpp"
 #include "QuilVisitor.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 
 using namespace xacc;
 

@@ -25,6 +25,23 @@
 
 namespace xacc {
 
+// The Accelerator is the primary interface connecting programmers/clients
+// with an available post-Moore's law co-processor (or accelerator, think GPU).
+// Accelerators primarily expose execution functionality, which takes
+// one or many CompositeInstructions and an AcceleratorBuffer, and affects
+// execution on the specific corresponding backend and persists results
+// to the provided buffer.
+//
+// Accelerators can be initialized with a HeterogeneousMap, enabling
+// runtime configuration of the Accelerator backend (number of shots,
+// specific backend name, etc.)
+//
+// Accelerators can expose hardware-specific IRTransformations, thereby
+// ensuring that incoming CompositeInstructions are amenable for
+// backend execution.
+//
+// Accelerators expose bit connectivity, and one and two bit instruction
+// error rates. 
 class Accelerator : public OptionsProvider, public Identifiable {
 
 public:

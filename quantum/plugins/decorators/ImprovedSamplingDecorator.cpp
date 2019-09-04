@@ -1,6 +1,6 @@
 #include "ImprovedSamplingDecorator.hpp"
 #include "InstructionIterator.hpp"
-#include "XACC.hpp"
+#include "xacc.hpp"
 #include <numeric>
 
 namespace xacc {
