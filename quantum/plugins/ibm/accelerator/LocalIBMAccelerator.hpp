@@ -85,6 +85,7 @@ public:
 
   const std::string name() const override { return "local-ibm"; }
   const std::string description() const override { return ""; }
+  const std::string getSignature() override {return name()+":";}
 
   LocalIBMAccelerator() : Accelerator() {}
   virtual ~LocalIBMAccelerator() {}

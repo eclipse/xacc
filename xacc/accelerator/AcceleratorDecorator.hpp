@@ -40,6 +40,10 @@ public:
     decoratedAccelerator->updateConfiguration(config);
   }
 
+  const std::string getSignature() override {
+      return name() + "," + decoratedAccelerator->getSignature();
+  }
+
   std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() override {
     return decoratedAccelerator->getIRTransformations();

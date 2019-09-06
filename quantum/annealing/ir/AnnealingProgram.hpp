@@ -227,6 +227,11 @@ InstPtr getInstruction(const std::size_t idx) override {
 
   const std::size_t nVariables() override { return variables.size(); }
 
+  const std::string accelerator_signature() override {
+    return "dwave";
+  }
+  void set_accelerator_signature(const std::string signature) override {}
+
 std::shared_ptr<Instruction> clone() override {
     return std::make_shared<AnnealingProgram>(*this);
   }

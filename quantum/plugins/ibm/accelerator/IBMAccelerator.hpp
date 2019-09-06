@@ -60,6 +60,9 @@ public:
   const std::vector<std::string> configurationKeys() override {
       return {"shots", "backend"};
   }
+
+  const std::string getSignature() override {return "ibm"+chosenBackend.name;}
+
   std::vector<std::pair<int, int>> getConnectivity() override;
 
   std::vector<std::shared_ptr<IRTransformation>>

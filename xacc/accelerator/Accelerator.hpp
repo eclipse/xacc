@@ -41,7 +41,7 @@ namespace xacc {
 // backend execution.
 //
 // Accelerators expose bit connectivity, and one and two bit instruction
-// error rates. 
+// error rates.
 class Accelerator : public OptionsProvider, public Identifiable {
 
 public:
@@ -51,6 +51,12 @@ public:
     updateConfiguration(config);
   }
   virtual const std::vector<std::string> configurationKeys() = 0;
+
+  // Return this Accelerator signature, example might be
+  // ibm:ibmq_20_tokyo (should always be ACCELERATOR:BACKEND)
+  // For decorators this should be
+  // DECORATOR,DECORATOR,...,DECORATOR,ibm:ibmq_20_tokyo
+  virtual const std::string getSignature() {return name()+":";}
 
   virtual std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() = 0;

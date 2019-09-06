@@ -71,7 +71,8 @@ template <class W, class B> std::string JsonVisitor<W, B>::write() {
 
     writer->String("coefficient");
     writer->Double(std::real(f->getCoefficient()));
-
+    writer->String("accelerator_signature");
+    writer->String(f->accelerator_signature());
     // End Function
     writer->EndObject();
   }

@@ -111,6 +111,9 @@ public:
   virtual std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) = 0;
 
+  virtual const std::string accelerator_signature() = 0;
+  virtual void set_accelerator_signature(const std::string signature) = 0;
+
   virtual ~CompositeInstruction() {}
 };
 

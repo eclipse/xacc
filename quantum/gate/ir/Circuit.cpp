@@ -134,6 +134,9 @@ void Circuit::load(std::istream &inStream) {
   auto coeff = kernel["coefficient"].GetDouble();
   setCoefficient(coeff);
 
+  auto signature = kernel["accelerator_signature"].GetString();
+  set_accelerator_signature(signature);
+  
   auto instructionsArray = kernel["instructions"].GetArray();
   for (int i = 0; i < instructionsArray.Size(); i++) {
     auto &inst = instructionsArray[i];
