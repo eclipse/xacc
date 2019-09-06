@@ -25,6 +25,7 @@ public:
 
   QVMAccelerator(std::shared_ptr<Client> client)
       : RemoteAccelerator(client) {}
+  const std::string getSignature() override {return name()+":";}
 
   void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,

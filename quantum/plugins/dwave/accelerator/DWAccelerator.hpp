@@ -93,7 +93,9 @@ public:
   DWAccelerator() : RemoteAccelerator() {}
   DWAccelerator(std::shared_ptr<Client> client) : RemoteAccelerator(client) {}
 
-  std::vector<std::pair<int, int>> getConnectivity();
+  std::vector<std::pair<int, int>> getConnectivity() override;
+
+  const std::string getSignature() override {return "dwave"+backend;}
 
   const std::string processInput(
       std::shared_ptr<AcceleratorBuffer> buffer,

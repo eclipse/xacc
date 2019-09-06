@@ -33,6 +33,10 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
 
   auto f = listener.getFunction();
   if (f->name() != "tmp_lambda") xacc::appendCompiled(f);
+
+  if (acc) {
+    f->set_accelerator_signature(acc->getSignature());
+  }
   ir->addComposite(f);
   ir->setRuntimeVariables(listener.runtimeOptions);
   return ir;

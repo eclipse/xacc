@@ -195,15 +195,17 @@ std::shared_ptr<Accelerator> getAccelerator() {
   }
 
   auto name = getOption("accelerator");
+  HeterogeneousMap m;
   auto name_backend = split(name, ':');
+  auto acc = xacc::getService<Accelerator>(name_backend[0], false);
   if (name_backend.size() > 1) {
+    std::string b = name_backend[1];
+    m.insert("backend", b);
     setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
-  auto acc = xacc::getService<Accelerator>(name_backend[0]);
-
   if (acc) {
-    acc->initialize();
+    acc->initialize(m);
   } else {
     error("Invalid Accelerator.\nCould not find " + getOption("accelerator") +
           " in Accelerator Registry.");

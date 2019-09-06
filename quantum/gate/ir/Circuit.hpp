@@ -71,6 +71,7 @@ protected:
   std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
   std::complex<double> coefficient = 1.0;
+  std::string acc_signature = "";
 
 public:
   Circuit(const std::string &name) : circuitName(name) {}
@@ -287,6 +288,13 @@ public:
 
   std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) override;
+
+  const std::string accelerator_signature() override {
+      return acc_signature;
+  }
+  void set_accelerator_signature(const std::string signature) override {
+      acc_signature = signature;
+  }
 
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
