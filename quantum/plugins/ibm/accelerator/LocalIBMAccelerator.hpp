@@ -94,7 +94,7 @@ protected:
   bool u_depol_noise = false;
   bool cx_depol_noise = false;
   bool readout_errors = false;
-  int shots = 1000;
+  int shots = 1024;
   double udepol = 0.0;
   double cxdepol = 0.0;
   std::map<int, std::vector<int>> measurementSupports;

@@ -29,6 +29,7 @@ protected:
   int _dim = 0;
 
 public:
+  OptFunction() :_function([](const std::vector<double>& x) {return 0.0;}) {}
   OptFunction(std::function<double(const std::vector<double> &)> f, const int d)
       : _function(f), _dim(d) {}
   virtual const int dimensions() const { return _dim; }
