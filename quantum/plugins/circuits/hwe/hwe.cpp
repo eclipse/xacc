@@ -25,14 +25,13 @@ bool HWE::expand(const HeterogeneousMap &parameters) {
     if (parameters.keyExists<std::vector<std::pair<int,int>>>("coupling")) {
       connectivity = parameters.get<std::vector<std::pair<int,int>>>("coupling");
     } else {
-      for (int i = 0; i < nQubits - 1; i++) {
-        connectivity.push_back({i, i + 1});
-      }
+      return false;
     }
 
   } catch (std::exception &e) {
-    xacc::error("Could not cast HWE parameter to correct type: " +
+    xacc::warning("Could not cast HWE parameter to correct type: " +
                 std::string(e.what()));
+    return false;
   }
 
   std::string paramLetter = "t";
@@ -45,7 +44,7 @@ bool HWE::expand(const HeterogeneousMap &parameters) {
     fParams.push_back(paramLetter + std::to_string(nP));
 
   addVariables(fParams);
-  
+
   auto provider = xacc::getService<IRProvider>("quantum");
   int angleCounter = 0;
 

@@ -77,6 +77,7 @@ void LocalIBMAccelerator::execute(
     h["clbit_labels"].push_back(
         {"c", measurementSupports[kernelCounter].size()});
 
+    // std::cout << "LOCAL NQ: " << buffer->size() << "\n";
     json nq, nc;
     h["number_of_qubits"] = buffer->size();
     h["number_of_clbits"] = measurementSupports[kernelCounter].size();
@@ -125,16 +126,6 @@ void LocalIBMAccelerator::execute(
       config2["noise_params"]["CX"]["p_depol"] = cxdepol;
   }
 
-//   if (xacc::optionExists("cx-u-error")) {
-//       auto cx_uerror_str = xacc::getOption("cx-u-error");
-//       for (int i = 0; i < cx_uerror_str.size(); i++) {
-
-
-
-//       }
-
-//     //   config2["noise_params"]["CX"]["U_error"] = cx_uerror;
-//   }
   j["config"] = config2;
   j["id"] = "fakeid";
 
