@@ -6,10 +6,10 @@
 ![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
 
 ## Language and Hardware Independent Quantum Programming Framework
-XACC is an extensible compilation framework for hybrid quantum-classical computing architectures. 
-It provides extensible language frontend and hardware backend compilation components glued together 
-via a novel quantum intermediate representation. XACC currently supports quantum-classical programming 
-and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs, as well as a number 
+XACC is an extensible compilation framework for hybrid quantum-classical computing architectures.
+It provides extensible language frontend and hardware backend compilation components glued together
+via a novel quantum intermediate representation. XACC currently supports quantum-classical programming
+and enables the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs, as well as a number
 of quantum computer simulators.
 
 Documentation
@@ -19,31 +19,31 @@ Documentation
 
 Build from Source
 -----------------
-Ensure that you have installed CMake 3.2+, a C++11 compliant compiler (GCC 5+, Clang 3.8+), and 
-CURL development headers and libraries with OpenSSL support 
-(see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)). 
+Ensure that you have installed CMake 3.2+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
+CURL development headers and libraries with OpenSSL support
+(see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 
-Optional dependencies include BLAS and LAPACK development libraries (for various simulators), 
+Optional dependencies include BLAS and LAPACK development libraries (for various simulators),
 Python 3 development headers and library (for the Python API), and Libunwind (for stack trace printing).
 
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
 $ git clone --recursive https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
-[default] 
-$ cmake .. 
-[with python api] 
+[default]
+$ cmake ..
+[with python api]
 $ cmake .. -DPYTHON_INCLUDE_DIR=/path/to/python/headers
 [with tests]
-$ cmake .. -DXACC_BUILD_TESTS=TRUE 
+$ cmake .. -DXACC_BUILD_TESTS=TRUE
 [or any combination of the above]
-$ cmake .. -DPYTHON_INCLUDE_DIR=/path/to/python/headers -DXACC_BUILD_TESTS=TRUE 
+$ cmake .. -DPYTHON_INCLUDE_DIR=/path/to/python/headers -DXACC_BUILD_TESTS=TRUE
 [now build xacc]
 $ make install
 [if you built with tests]
 $ ctest
 ```
-Your installation will be in `$HOME/.xacc`. If you built with the Python API, be sure to update your `PYTHONPATH` 
+Your installation will be in `$HOME/.xacc`. If you built with the Python API, be sure to update your `PYTHONPATH`
 environment variable to point to the installation:
 ```bash
 $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc

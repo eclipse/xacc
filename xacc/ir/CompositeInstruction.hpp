@@ -70,7 +70,13 @@ using InstPtr = std::shared_ptr<Instruction>;
 class CompositeInstruction : public Instruction, public Persistable {
 public:
 
+  // This should return the number
+  // of concrete leaves in the tree
   virtual const int nInstructions() = 0;
+
+  // This should return the number of
+  // direct children
+  virtual const int nChildren() = 0;
 
   virtual InstPtr getInstruction(const std::size_t idx) = 0;
   virtual std::vector<InstPtr> getInstructions() = 0;
