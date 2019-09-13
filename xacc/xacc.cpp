@@ -197,7 +197,14 @@ std::shared_ptr<Accelerator> getAccelerator() {
   auto name = getOption("accelerator");
   HeterogeneousMap m;
   auto name_backend = split(name, ':');
-  auto acc = xacc::getService<Accelerator>(name_backend[0], false);
+
+  std::shared_ptr<Accelerator> acc;
+  if (xacc::hasService<Accelerator>(name_backend[0])) {
+    acc = xacc::getService<Accelerator>(name_backend[0], false);
+  } else if (xacc::hasContributedService<Accelerator>(name_backend[0])) {
+    acc = xacc::getContributedService<Accelerator>(name_backend[0], false);
+  }
+
   if (name_backend.size() > 1) {
     std::string b = name_backend[1];
     m.insert("backend", b);
@@ -221,7 +228,14 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
   }
 
   auto name_backend = split(name, ':');
-  auto acc = xacc::getService<Accelerator>(name_backend[0]);
+
+  std::shared_ptr<Accelerator> acc;
+  if (xacc::hasService<Accelerator>(name_backend[0])) {
+    acc = xacc::getService<Accelerator>(name_backend[0], false);
+  } else if (xacc::hasContributedService<Accelerator>(name_backend[0])) {
+    acc = xacc::getContributedService<Accelerator>(name_backend[0], false);
+  }
+
   if (name_backend.size() > 1) {
     setOption(name_backend[0] + "-backend", name_backend[1]);
   }
@@ -247,7 +261,14 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
   }
   HeterogeneousMap m = params;
   auto name_backend = split(name, ':');
-  auto acc = xacc::getService<Accelerator>(name_backend[0], false);
+
+  std::shared_ptr<Accelerator> acc;
+  if (xacc::hasService<Accelerator>(name_backend[0])) {
+    acc = xacc::getService<Accelerator>(name_backend[0], false);
+  } else if (xacc::hasContributedService<Accelerator>(name_backend[0])) {
+    acc = xacc::getContributedService<Accelerator>(name_backend[0], false);
+  }
+
   if (name_backend.size() > 1) {
     std::string b = name_backend[1];
     m.insert("backend", b);
@@ -255,9 +276,6 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
   }
 
   if (acc) {
-    //   std::stringstream ss;
-    //   m.print<std::string,int>(ss);
-    //   std::cout << "SS:\n" << ss.str() << "\n";
     acc->initialize(m);
   } else {
 
@@ -280,7 +298,7 @@ bool hasAccelerator(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  return xacc::hasService<Accelerator>(name);
+  return xacc::hasService<Accelerator>(name) || xacc::hasContributedService<Accelerator>(name);
 }
 
 std::shared_ptr<Compiler> getCompiler(const std::string &name) {

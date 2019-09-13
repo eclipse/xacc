@@ -79,7 +79,7 @@ public:
   }
 
   const int nInstructions() override { return instructions.size(); }
-
+  const int nChildren() override {return instructions.size();}
 
   void mapBits(std::vector<std::size_t> bitMap) override {
     xacc::error("AnnealingProgrma.mapBits not implemented");

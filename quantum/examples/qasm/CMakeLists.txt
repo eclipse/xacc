@@ -1,5 +1,5 @@
 add_executable(deuteron_from_qasm deuteron.cpp)
-target_link_libraries(deuteron_from_qasm PRIVATE xacc xacc-pauli)
+target_link_libraries(deuteron_from_qasm PRIVATE xacc xacc-quantum-gate)
 
 add_executable(deuteron_from_qasm_vqe_algo deuteron_vqe_algo.cpp)
-target_link_libraries(deuteron_from_qasm_vqe_algo PRIVATE xacc xacc-pauli)
+target_link_libraries(deuteron_from_qasm_vqe_algo PRIVATE xacc xacc-quantum-gate)

@@ -121,7 +121,7 @@ string
 
 /* Comment */
 COMMENT
-   : '#' ~ [\r\n]* EOL
+   : '//' ~ [\r\n]* EOL
    ;
 
 /* id, ego, and super-ego */

@@ -30,7 +30,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 #add_dependencies(${LIBRARY_NAME} antlr4_shared)
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC utils
+                           PUBLIC . utils
                             ir
                             ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
                                    PRIVATE
@@ -53,7 +53,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-pauli xacc-fermion)
 
 
 if(APPLE)

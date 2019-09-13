@@ -1,7 +1,7 @@
 #include "xacc.hpp"
 #include "Optimizer.hpp"
-#include "PauliOperator.hpp"
 #include "xacc_service.hpp"
+#include "xacc_observable.hpp"
 
 #include <iomanip>
 
@@ -16,10 +16,10 @@ int main(int argc, char **argv) {
   auto buffer = xacc::qalloc(2);
 
   // Create the N=2 deuteron Hamiltonian
-  auto H_N_2 =
-      std::make_shared<xacc::quantum::PauliOperator>("5.907 - 2.1433 X0X1 "
-                                                     "- 2.1433 Y0Y1"
-                                                     "+ .21829 Z0 - 6.125 Z1");
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
   // JIT map Quil QASM Ansatz to IR
   xacc::qasm(R"(
 .compiler quil
@@ -34,8 +34,8 @@ CNOT 1 0
   // Observe the Ansatz, creating measured kernels
   auto kernels = H_N_2->observe(ansatz);
 
- // Create the OptFunction to be optimized
- xacc::OptFunction f(
+  // Create the OptFunction to be optimized
+  xacc::OptFunction f(
       [&](const std::vector<double> &x) {
         std::vector<double> coefficients;
         std::vector<std::string> kernelNames;

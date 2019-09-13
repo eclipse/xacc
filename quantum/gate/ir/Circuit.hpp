@@ -152,6 +152,18 @@ public:
   void load(std::istream &inStream) override;
 
   const int nInstructions() override { return instructions.size(); }
+//     int count = 0;
+//     InstructionIterator iter(shared_from_this());
+//     while (iter.hasNext()) {
+//       auto inst = iter.next();
+//       if (!inst->isComposite()) {
+//         count++;
+//       }
+//     }
+//   return count;
+//   }
+
+  const int nChildren() override {return instructions.size();}
 
   InstPtr getInstruction(const std::size_t idx) override {
     validateInstructionIndex(idx);
@@ -230,7 +242,7 @@ public:
         [&](const std::string var) { return var == variable; }, newVariable);
   }
 
-  const std::size_t nVariables() override { return variables.size(); }
+  const std::size_t nVariables() override { return getVariables().size(); }
 
   const int depth() override;
   const std::string persistGraph() override;
