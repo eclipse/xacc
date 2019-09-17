@@ -442,7 +442,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Initialize the algorithm with given AlgorithmParameters.");
 
   py::class_<xacc::OptFunction>(m, "OptFunction", "")
-      .def(py::init<std::function<double(const std::vector<double> &)>,
+      .def(py::init<std::function<double(const std::vector<double> &, std::vector<double>&)>,
                     const int>());
 
   // Expose Optimizer

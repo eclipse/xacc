@@ -22,7 +22,7 @@
 
 #include "Compiler.hpp"
 // #include "Algorithm.hpp"
-// #include "Optimizer.hpp"
+#include "Optimizer.hpp"
 // #include "IRProvider.hpp"
 
 #include <cppmicroservices/FrameworkFactory.h>
@@ -39,7 +39,8 @@ using namespace cppmicroservices;
 namespace xacc {
 
 using ContributableService =
-    Variant<std::shared_ptr<Instruction>,std::shared_ptr<Accelerator>,std::shared_ptr<Compiler>>;
+    Variant<std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
+            std::shared_ptr<Compiler>, std::shared_ptr<Optimizer>>;
 
 class ServiceRegistry {
 
@@ -128,13 +129,14 @@ public:
     return ret;
   }
 
-  template<typename Service>
+  template <typename Service>
   bool hasContributedService(const std::string name) {
     if (runtimeContributed.count(name)) {
       try {
-        auto tmp = runtimeContributed[name].as_no_error<std::shared_ptr<Service>>();
-      } catch (std::exception& e) {
-          return false;
+        auto tmp =
+            runtimeContributed[name].as_no_error<std::shared_ptr<Service>>();
+      } catch (std::exception &e) {
+        return false;
       }
       return true;
     }

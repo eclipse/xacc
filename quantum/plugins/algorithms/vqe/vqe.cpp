@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
 #include "vqe.hpp"
 
 #include "Observable.hpp"
@@ -52,7 +64,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
   OptFunction f(
-      [&, this](const std::vector<double> &x) {
+      [&, this](const std::vector<double> &x, std::vector<double>& dx) {
         std::vector<double> coefficients;
         std::vector<std::string> kernelNames;
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;

@@ -24,15 +24,17 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-8;
   int maxeval = 1000;
 
-//   std::stringstream ss;
-//   options.print<int,std::size_t, std::string,double>(ss);
-//   std::cout << "OPTS:\n" << ss.str() << "\n";
+  //   std::stringstream ss;
+  //   options.print<int,std::size_t, std::string,double>(ss);
+  //   std::cout << "OPTS:\n" << ss.str() << "\n";
   if (options.stringExists("nlopt-optimizer")) {
     auto optimizerAlgo = options.getString("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
       algo = nlopt::algorithm::LN_COBYLA;
     } else if (optimizerAlgo == "nelder-mead") {
       algo = nlopt::algorithm::LN_NELDERMEAD;
+    } else if (optimizerAlgo == "l-bfgs") {
+      algo = nlopt::algorithm::LD_LBFGS;
     } else {
       xacc::XACCLogger::instance()->error("Invalid optimizer at this time: " +
                                           optimizerAlgo);
@@ -49,7 +51,7 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   std::vector<double> x(dim);
   if (options.keyExists<std::vector<double>>("initial-parameters")) {
-        x = options.get_with_throw<std::vector<double>>("initial-parameters");
+    x = options.get_with_throw<std::vector<double>>("initial-parameters");
   } else if (options.keyExists<std::vector<int>>("initial-parameters")) {
     auto tmpx = options.get<std::vector<int>>("initial-parameters");
     x = std::vector<double>(tmpx.begin(), tmpx.end());
@@ -58,7 +60,7 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   std::function<double(const std::vector<double> &, std::vector<double> &,
                        void *)>
       f = [&](const std::vector<double> &x, std::vector<double> &grad,
-              void *f_data) -> double { return function(x); };
+              void *f_data) -> double { return function(x, grad); };
 
   auto fptr = LambdaToVFunc::ptr(f);
 
@@ -72,10 +74,10 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   try {
     auto result = _opt.optimize(x, optF);
   } catch (std::exception &e) {
-    std::cout << "[NLOpt Dimensions (dim,x.size()) = (" << dim << ", " << x.size() << ")\n";
+    std::cout << "[NLOpt Dimensions (dim,x.size()) = (" << dim << ", "
+              << x.size() << ")\n";
     xacc::XACCLogger::instance()->error("NLOpt failed: " +
                                         std::string(e.what()));
-
   }
   return OptResult{optF, x};
 }

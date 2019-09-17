@@ -1,5 +1,6 @@
 add_subdirectory(compiler)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 include_directories(${PYTHON_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
 
