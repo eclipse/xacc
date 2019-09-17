@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
 #include "xacc.hpp"
 #include "Optimizer.hpp"
 #include "xacc_service.hpp"
@@ -36,7 +48,7 @@ CNOT 1 0
 
   // Create the OptFunction to be optimized
   xacc::OptFunction f(
-      [&](const std::vector<double> &x) {
+      [&](const std::vector<double> &x, std::vector<double>& dx) {
         std::vector<double> coefficients;
         std::vector<std::string> kernelNames;
         std::vector<std::shared_ptr<xacc::CompositeInstruction>> fsToExec;

@@ -1,6 +1,5 @@
-
- /*******************************************************************************
- * Copyright (c) 2018 UT-Battelle, LLC.
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,7 +8,7 @@
  *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
- *   H. Charles Zhao, Alexander J. McCaskey
+ *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #ifndef XACC_IBM_OQASMTOXACCLISTENER_H
 #define XACC_IBM_OQASMTOXACCLISTENER_H

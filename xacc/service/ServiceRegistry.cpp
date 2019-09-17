@@ -75,5 +75,4 @@ void ServiceRegistry::initialize(const std::string rootPath) {
     initialized = true;
   }
 }
-}
-
+} // namespace xacc
