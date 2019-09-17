@@ -1,7 +1,0 @@
-{
-    "cpp.buildConfigurations": [{
-        "name": "xacc",
-        "directory": "/home/project/xacc/build"
-    }
-    ]
-}
