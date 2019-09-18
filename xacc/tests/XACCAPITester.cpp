@@ -113,7 +113,24 @@ CX(q[1],q[0]);
     function2 = function2->operator()({3.1415, 1.56});
 
     std::cout << function2->toString() << "\n";
+}
 
+TEST(XACCAPITester, checkXasmBug) {
+      xacc::qasm(R"(.compiler xasm
+.circuit ansatz3
+.parameters t, s
+.qbit q
+X(q[0]);
+exp_i_theta(q, t, {{"pauli", "X0 Y1 - Y0 X1"}});
+exp_i_theta(q, s, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+)");
+
+  auto function3 = xacc::getCompiled("ansatz3");
+  std::cout << function3->getVariables() << "\n";
+  std::cout << function3->toString() << "\n";
+    function3 = function3->operator()({3.1415, 1.56});
+
+    std::cout << function3->toString() << "\n";
 }
 int main(int argc, char **argv) {
   xacc::Initialize();

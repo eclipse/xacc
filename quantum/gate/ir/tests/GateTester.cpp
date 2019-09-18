@@ -24,48 +24,48 @@ TEST(GateTester, checkBasicGatesAndCircuits) {
   auto m0 = std::make_shared<Measure>(0);
   auto ry = std::make_shared<Ry>(1, "theta");
 
-  Circuit circuit("foo");
-  EXPECT_EQ("foo", circuit.name());
-  circuit.addInstruction(h);
-  circuit.addInstruction(cx);
-  circuit.addInstruction(m0);
+  auto circuit = std::make_shared<Circuit>("foo");
+  EXPECT_EQ("foo", circuit->name());
+  circuit->addInstruction(h);
+  circuit->addInstruction(cx);
+  circuit->addInstruction(m0);
 
-  EXPECT_ANY_THROW(circuit.addInstruction(ry));
-  EXPECT_EQ(3, circuit.nInstructions());
+  EXPECT_ANY_THROW(circuit->addInstruction(ry));
+  EXPECT_EQ(3, circuit->nInstructions());
 
-  circuit.addVariable("theta");
-  circuit.addInstruction(ry);
+  circuit->addVariable("theta");
+  circuit->addInstruction(ry);
 
-  EXPECT_EQ(4, circuit.nInstructions());
-  EXPECT_FALSE(circuit.isAnalog());
-  EXPECT_TRUE(circuit.isComposite());
-  EXPECT_EQ("H", circuit.getInstruction(0)->name());
-  EXPECT_EQ("Ry", circuit.getInstruction(3)->name());
+  EXPECT_EQ(4, circuit->nInstructions());
+  EXPECT_FALSE(circuit->isAnalog());
+  EXPECT_TRUE(circuit->isComposite());
+  EXPECT_EQ("H", circuit->getInstruction(0)->name());
+  EXPECT_EQ("Ry", circuit->getInstruction(3)->name());
 
-  circuit.removeInstruction(2);
-  EXPECT_EQ(3, circuit.nInstructions());
-  EXPECT_EQ("H", circuit.getInstruction(0)->name());
-  EXPECT_EQ("CNOT", circuit.getInstruction(1)->name());
-  EXPECT_EQ("Ry", circuit.getInstruction(2)->name());
+  circuit->removeInstruction(2);
+  EXPECT_EQ(3, circuit->nInstructions());
+  EXPECT_EQ("H", circuit->getInstruction(0)->name());
+  EXPECT_EQ("CNOT", circuit->getInstruction(1)->name());
+  EXPECT_EQ("Ry", circuit->getInstruction(2)->name());
 
-  circuit.replaceInstruction(2, m0);
-  EXPECT_EQ(3, circuit.nInstructions());
-  EXPECT_EQ("H", circuit.getInstruction(0)->name());
-  EXPECT_EQ("CNOT", circuit.getInstruction(1)->name());
-  EXPECT_EQ("Measure", circuit.getInstruction(2)->name());
+  circuit->replaceInstruction(2, m0);
+  EXPECT_EQ(3, circuit->nInstructions());
+  EXPECT_EQ("H", circuit->getInstruction(0)->name());
+  EXPECT_EQ("CNOT", circuit->getInstruction(1)->name());
+  EXPECT_EQ("Measure", circuit->getInstruction(2)->name());
 
-  circuit.replaceInstruction(2, ry);
-  circuit.addInstruction(m0);
+  circuit->replaceInstruction(2, ry);
+  circuit->addInstruction(m0);
 
-  EXPECT_EQ(4, circuit.nInstructions());
-  EXPECT_EQ("H", circuit.getInstruction(0)->name());
-  EXPECT_EQ("CNOT", circuit.getInstruction(1)->name());
-  EXPECT_EQ("Ry", circuit.getInstruction(2)->name());
-  EXPECT_EQ("Measure", circuit.getInstruction(3)->name());
+  EXPECT_EQ(4, circuit->nInstructions());
+  EXPECT_EQ("H", circuit->getInstruction(0)->name());
+  EXPECT_EQ("CNOT", circuit->getInstruction(1)->name());
+  EXPECT_EQ("Ry", circuit->getInstruction(2)->name());
+  EXPECT_EQ("Measure", circuit->getInstruction(3)->name());
 
   EXPECT_EQ("theta",
-            circuit.getInstruction(2)->getParameter(0).as<std::string>());
-  auto evaled = circuit({2.2});
+            circuit->getInstruction(2)->getParameter(0).as<std::string>());
+  auto evaled = circuit->operator()({2.2});
   EXPECT_EQ(2.2, evaled->getInstruction(2)->getParameter(0).as<double>());
 
   auto ry0 = std::make_shared<Ry>(0, "t0");
@@ -77,22 +77,22 @@ TEST(GateTester, checkBasicGatesAndCircuits) {
   auto ry6 = std::make_shared<Ry>(5, "-pi + 3*t0 + 2*t1");
   auto ry7 = std::make_shared<Ry>(5, "-pi + 3*t0 + 2*t1 + 33*s0");
 
-  Circuit bar("bar", {"t0", "t1", "t2", "t3", "t4"});
-  bar.addInstruction(ry0);
-  bar.addInstruction(ry1);
-  bar.addInstruction(ry2);
-  bar.addInstruction(ry3);
-  bar.addInstruction(ry4);
-  bar.addInstruction(ry5);
-  bar.addInstruction(ry6);
+  auto bar = std::make_shared<Circuit>("bar", std::vector<std::string>{"t0", "t1", "t2", "t3", "t4"});
+  bar->addInstruction(ry0);
+  bar->addInstruction(ry1);
+  bar->addInstruction(ry2);
+  bar->addInstruction(ry3);
+  bar->addInstruction(ry4);
+  bar->addInstruction(ry5);
+  bar->addInstruction(ry6);
 
-  std::cout << bar.toString() << "\n";
+  std::cout << bar->toString() << "\n";
 
-  EXPECT_ANY_THROW(bar.addInstruction(ry7));
+  EXPECT_ANY_THROW(bar->addInstruction(ry7));
 
-  bar.addVariable("s0");
-  bar.addInstruction(ry7);
-  evaled = bar({.22, .33, .44, .55, .66, .77});
+  bar->addVariable("s0");
+  bar->addInstruction(ry7);
+  evaled = bar->operator()({.22, .33, .44, .55, .66, .77});
   std::cout << "\n" << evaled->toString() << "\n";
 
   EXPECT_NEAR(.22, evaled->getInstruction(0)->getParameter(0).as<double>(),
@@ -112,9 +112,9 @@ TEST(GateTester, checkBasicGatesAndCircuits) {
   EXPECT_NEAR(23.5884, evaled->getInstruction(7)->getParameter(0).as<double>(),
               1e-4);
 
-  bar.getInstruction(0)->disable();
-  EXPECT_EQ(8, bar.nInstructions());
-  auto enabled = bar.enabledView();
+  bar->getInstruction(0)->disable();
+  EXPECT_EQ(8, bar->nInstructions());
+  auto enabled = bar->enabledView();
   EXPECT_EQ(7, enabled->nInstructions());
 }
 

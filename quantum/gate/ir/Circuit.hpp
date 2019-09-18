@@ -248,6 +248,8 @@ public:
   const std::string persistGraph() override;
   std::shared_ptr<Graph> toGraph() override;
 
+  void flatten();
+  
   const std::size_t nLogicalBits() override {
     // n logical should just be the number of
     // unique qbit integers
