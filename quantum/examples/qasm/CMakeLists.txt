@@ -15,3 +15,7 @@ target_link_libraries(deuteron_from_qasm PRIVATE xacc xacc-quantum-gate)
 
 add_executable(deuteron_from_qasm_vqe_algo deuteron_vqe_algo.cpp)
 target_link_libraries(deuteron_from_qasm_vqe_algo PRIVATE xacc xacc-quantum-gate)
+
+
+add_executable(deuteronH3_from_qasm_vqe_algo deuteronH3_vqe_algo.cpp)
+target_link_libraries(deuteronH3_from_qasm_vqe_algo PRIVATE xacc xacc-quantum-gate)

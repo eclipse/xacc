@@ -80,16 +80,19 @@ Circuit::operator()(const std::vector<double> &params) {
     exit(0);
   }
 
+  std::vector<InstPtr> flatten;
+   InstructionIterator iter(shared_from_this());
+    while (iter.hasNext()) {
+      auto inst = iter.next();
+      if (!inst->isComposite()) {
+       flatten.emplace_back(inst);
+      }
+    }
+
   auto evaluatedCircuit = std::make_shared<Circuit>("evaled_" + name());
 
   // Walk the IR Tree, handle functions and instructions differently
-  for (auto inst : getInstructions()) {
-    if (inst->isComposite()) {
-      // If a Function, call this method recursively
-      auto evaled =
-          std::dynamic_pointer_cast<Circuit>(inst)->operator()(params);
-      evaluatedCircuit->addInstruction(evaled);
-    } else {
+  for (auto inst : flatten) {
       // If a concrete Gate, then check that it
       // is parameterized and that it has a string parameter
       if (inst->isParameterized() && inst->getParameter(0).isVariable()) {
@@ -98,7 +101,6 @@ Circuit::operator()(const std::vector<double> &params) {
         s << p.toString();
         double val;
         parsingUtil->evaluate(p.toString(), variables, params, val);
-        // auto val = compileExpression(p);
         auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
         updatedInst->setParameter(0, val);
         updatedInst->setBits(inst->bits());
@@ -107,7 +109,6 @@ Circuit::operator()(const std::vector<double> &params) {
       } else {
         evaluatedCircuit->addInstruction(inst);
       }
-    }
   }
   return evaluatedCircuit;
 }

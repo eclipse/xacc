@@ -42,6 +42,9 @@ void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
 void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
   bufferName = ctx->acceleratorbuffer->getText();
   std::vector<std::string> variables;
+for (int i = 0; i < ctx->typedparam().size(); i++) {
+    variables.push_back(ctx->typedparam(i)->id()->getText());
+  }
   function = irProvider->createComposite("tmp_lambda", variables);
 }
 
@@ -128,11 +131,6 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
 
   runtimeOptions.insert("param_id", param_id);
 
-//   std::stringstream ss;
-//   runtimeOptions.print<std::string,int,double>(ss);
-//   std::cout << "XASMOpts:\n" << ss.str() << "\n";
-//   std::cout << std::boolalpha << runtimeOptions.stringExists("coupling") << "\n";
-
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
@@ -143,21 +141,21 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     }
     auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
     comp->expand(runtimeOptions);
-    for (auto v : comp->getVariables()) {
-      function->addVariable(v);
-    }
-  } else if (tmpInst->isParameterized()) {
-    for (auto &p : tmpInst->getParameters()) {
-      if (p.isVariable()) {
-        if (!parsingUtil->validExpression(p.toString(),
-                                          function->getVariables())) {
-          function->addVariable(p.toString());
-        }
-      }
-    }
+
   }
+  //else if (tmpInst->isParameterized()) {
+    // for (auto &p : tmpInst->getParameters()) {
+    //   if (p.isVariable()) {
+    //     if (!parsingUtil->validExpression(p.toString(),
+    //                                       function->getVariables())) {
+    //     //   function->addVariable(p.toString());
+    //     }
+    //   }
+    // }
+//   }
 
   function->addInstruction(tmpInst);
+//   std::cout << "XASM: " << function->getVariables() << "\n";
 }
 
 } // namespace xacc
