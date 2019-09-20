@@ -23,40 +23,55 @@ using namespace rapidjson;
 
 namespace xacc {
 namespace quantum {
-void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                               const std::shared_ptr<CompositeInstruction> function) {
+void ROErrorDecorator::execute(
+    std::shared_ptr<AcceleratorBuffer> buffer,
+    const std::shared_ptr<CompositeInstruction> function) {
 
-  if (decoratedAccelerator) decoratedAccelerator->execute(buffer, function);
+  if (decoratedAccelerator)
+    decoratedAccelerator->execute(buffer, function);
 
-  if (!xacc::optionExists("ro-error-file")) {
-    xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
-               "correction.");
-    return;
-  }
-
-  // Get RO error probs
-  auto roeStr = xacc::getOption("ro-error-file");
-  buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
-
-  std::ifstream t(roeStr);
-  std::string json((std::istreambuf_iterator<char>(t)),
-                   std::istreambuf_iterator<char>());
-
-  if (json.empty()) {
-      xacc::error("Invalid ROError JSON file: " + roeStr);
-  }
-
-  Document d;
-  d.Parse(json);
+  auto properties = decoratedAccelerator->getProperties();
   std::map<int, double> piplus, piminus;
 
-  for (auto itr = d.MemberBegin(); itr != d.MemberEnd(); ++itr) {
-    std::string key = itr->name.GetString();
-    if (key.compare("shots") != 0 && key.compare("backend") != 0) {
-      auto &value = d[itr->name.GetString()];
-      auto qbit = std::stoi(key);
-      piplus.insert({qbit, value["+"].GetDouble()});
-      piminus.insert({qbit, value["-"].GetDouble()});
+  if (properties.keyExists<std::vector<double>>("p01s") &&
+      properties.keyExists<std::vector<double>>("p10s")) {
+
+    auto p01s = properties.get<std::vector<double>>("p01s");
+    auto p10s = properties.get<std::vector<double>>("p10s");
+    for (int i = 0; i < p01s.size(); i++) {
+      piplus.insert({i, p01s[i] + p10s[i]});
+      piminus.insert({i, p01s[i] - p10s[i]});
+    }
+  } else {
+    if (!xacc::optionExists("ro-error-file")) {
+      xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
+                 "correction.");
+      return;
+    }
+
+    // Get RO error probs
+    auto roeStr = xacc::getOption("ro-error-file");
+    buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
+
+    std::ifstream t(roeStr);
+    std::string json((std::istreambuf_iterator<char>(t)),
+                     std::istreambuf_iterator<char>());
+
+    if (json.empty()) {
+      xacc::error("Invalid ROError JSON file: " + roeStr);
+    }
+
+    Document d;
+    d.Parse(json);
+
+    for (auto itr = d.MemberBegin(); itr != d.MemberEnd(); ++itr) {
+      std::string key = itr->name.GetString();
+      if (key.compare("shots") != 0 && key.compare("backend") != 0) {
+        auto &value = d[itr->name.GetString()];
+        auto qbit = std::stoi(key);
+        piplus.insert({qbit, value["+"].GetDouble()});
+        piminus.insert({qbit, value["-"].GetDouble()});
+      }
     }
   }
 
@@ -89,7 +104,8 @@ void ROErrorDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
     std::string bitString = kv.first;
     auto count = kv.second;
     for (auto j : supports(function)) {
-      prod *= (std::pow(-1, (int)(bitString[buffer->size()-j-1] - '0')) - piminus[j]) /
+      prod *= (std::pow(-1, (int)(bitString[buffer->size() - j - 1] - '0')) -
+               piminus[j]) /
               (1.0 - piplus[j]);
     }
 
@@ -106,7 +122,7 @@ void ROErrorDecorator::execute(
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
 
   std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
-  std::map<std::string,std::shared_ptr<CompositeInstruction>> nameToFunction;
+  std::map<std::string, std::shared_ptr<CompositeInstruction>> nameToFunction;
   std::map<std::string, std::set<int>> supportSets;
 
   if (decoratedAccelerator) {
@@ -114,12 +130,6 @@ void ROErrorDecorator::execute(
     buffers = buffer->getChildren();
   } else {
     buffers = buffer->getChildren();
-  }
-
-  if (!xacc::optionExists("ro-error-file")) {
-    xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
-               "correction.");
-    return;
   }
 
   auto supports = [](std::shared_ptr<CompositeInstruction> f) {
@@ -137,44 +147,63 @@ void ROErrorDecorator::execute(
     return supportSet;
   };
 
-  for (auto& f : functions) {
-      nameToFunction.insert({f->name(), f});
-      supportSets.insert({f->name(), supports(f)});
+  for (auto &f : functions) {
+    nameToFunction.insert({f->name(), f});
+    supportSets.insert({f->name(), supports(f)});
   }
 
-  // Get RO error probs
-  auto roeStr = xacc::getOption("ro-error-file");
-  buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
-
-  std::ifstream t(roeStr);
-  std::string json((std::istreambuf_iterator<char>(t)),
-                   std::istreambuf_iterator<char>());
-  if (json.empty()) {
-      xacc::error("Invalid ROError JSON file: " + roeStr);
-  }
-
-  Document d;
-  d.Parse(json);
   std::map<int, double> piplus, piminus;
+  auto properties = decoratedAccelerator->getProperties();
 
-  for (auto itr = d.MemberBegin(); itr != d.MemberEnd(); ++itr) {
-    std::string key = itr->name.GetString();
-    if (key.compare("shots") != 0 && key.compare("backend") != 0) {
-      auto &value = d[itr->name.GetString()];
-      auto qbit = std::stoi(key);
-      piplus.insert({qbit, value["+"].GetDouble()});
-      piminus.insert({qbit, value["-"].GetDouble()});
+  if (properties.keyExists<std::vector<double>>("p01s") &&
+      properties.keyExists<std::vector<double>>("p10s")) {
+
+    auto p01s = properties.get<std::vector<double>>("p01s");
+    auto p10s = properties.get<std::vector<double>>("p10s");
+    for (int i = 0; i < p01s.size(); i++) {
+      piplus.insert({i, p01s[i] + p10s[i]});
+      piminus.insert({i, p01s[i] - p10s[i]});
+    }
+  } else {
+
+    if (!xacc::optionExists("ro-error-file")) {
+      xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
+                 "correction.");
+      return;
+    }
+    // Get RO error probs
+    auto roeStr = xacc::getOption("ro-error-file");
+    buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
+
+    std::ifstream t(roeStr);
+    std::string json((std::istreambuf_iterator<char>(t)),
+                     std::istreambuf_iterator<char>());
+    if (json.empty()) {
+      xacc::error("Invalid ROError JSON file: " + roeStr);
+    }
+
+    Document d;
+    d.Parse(json);
+
+    for (auto itr = d.MemberBegin(); itr != d.MemberEnd(); ++itr) {
+      std::string key = itr->name.GetString();
+      if (key.compare("shots") != 0 && key.compare("backend") != 0) {
+        auto &value = d[itr->name.GetString()];
+        auto qbit = std::stoi(key);
+        piplus.insert({qbit, value["+"].GetDouble()});
+        piminus.insert({qbit, value["-"].GetDouble()});
+      }
     }
   }
-
+  
   // Get the number of shots first
   int nShots = 0;
   std::map<std::string, int> tmpCounts;
   for (auto &b : buffers) {
-      if (!b->getMeasurementCounts().empty()) {
-          tmpCounts = b->getMeasurementCounts();
-          break;
-      }
+    if (!b->getMeasurementCounts().empty()) {
+      tmpCounts = b->getMeasurementCounts();
+      break;
+    }
   }
   for (auto &kv : tmpCounts) {
     nShots += kv.second;
@@ -191,16 +220,21 @@ void ROErrorDecorator::execute(
       auto prod = 1.0;
       std::string bitString = kv.first;
       auto count = kv.second;
-      for (auto& j : fSupports) {
+      for (auto &j : fSupports) {
         auto denom = (1.0 - piplus[j]);
         auto numerator =
-            (bitString[bitString.length() - 1 - j] == '1' ? -1 : 1) - piminus[j];
+            (bitString[bitString.length() - 1 - j] == '1' ? -1 : 1) -
+            piminus[j];
         prod *= (numerator / denom);
       }
       fixedExp += ((double)count / (double)nShots) * prod;
     }
-    if (fixedExp > 1.0) { fixedExp = 1.0; }
-    if (fixedExp < -1.0) { fixedExp = -1.0; }
+    if (fixedExp > 1.0) {
+      fixedExp = 1.0;
+    }
+    if (fixedExp < -1.0) {
+      fixedExp = -1.0;
+    }
     b->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
     counter++;

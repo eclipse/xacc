@@ -10,5 +10,12 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(QObject)
 target_link_libraries(QObjectTester xacc-ibm)
+
+add_xacc_test(Backends)
+target_link_libraries(BackendsTester xacc-ibm)
+
+add_xacc_test(Properties)
+target_link_libraries(PropertiesTester xacc-ibm)

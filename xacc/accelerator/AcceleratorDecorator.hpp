@@ -39,6 +39,10 @@ public:
   void updateConfiguration(const HeterogeneousMap &config) override {
     decoratedAccelerator->updateConfiguration(config);
   }
+  
+  HeterogeneousMap getProperties() override{
+      return decoratedAccelerator->getProperties();
+  }
 
   const std::string getSignature() override {
       return name() + "," + decoratedAccelerator->getSignature();

@@ -14,6 +14,7 @@
 #include <cctype>
 #include <fstream>
 
+#include "Properties.hpp"
 #include "QObjectExperimentVisitor.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
@@ -42,22 +43,22 @@ std::string hex_string_to_binary_string(std::string hex) {
 }
 
 const std::vector<double> IBMAccelerator::getOneBitErrorRates() {
-  return chosenBackend.gateErrors;
+  return {}; // chosenBackend.gateErrors;
 }
 
 const std::vector<std::pair<std::pair<int, int>, double>>
 IBMAccelerator::getTwoBitErrorRates() {
   // Return list of ((q1,q2),ERROR_RATE)
   std::vector<std::pair<std::pair<int, int>, double>> twobiter;
-  for (int i = 0; i < chosenBackend.multiQubitGates.size(); i++) {
-    auto mqg = chosenBackend.multiQubitGates[i];
-    // boost::replace_all(mqg, "CX", "");
-    mqg = std::regex_replace(mqg, std::regex("CX"), "");
-    std::vector<std::string> split;
-    split = xacc::split(mqg, '_'); // boost::is_any_of("_"));
-    twobiter.push_back({{std::stoi(split[0]), std::stoi(split[1])},
-                        chosenBackend.multiQubitGateErrors[i]});
-  }
+  //   for (int i = 0; i < chosenBackend.multiQubitGates.size(); i++) {
+  //     auto mqg = chosenBackend.multiQubitGates[i];
+  //     // boost::replace_all(mqg, "CX", "");
+  //     mqg = std::regex_replace(mqg, std::regex("CX"), "");
+  //     std::vector<std::string> split;
+  //     split = xacc::split(mqg, '_'); // boost::is_any_of("_"));
+  //     twobiter.push_back({{std::stoi(split[0]), std::stoi(split[1])},
+  //                         chosenBackend.multiQubitGateErrors[i]});
+  //   }
 
   return twobiter;
 }
@@ -69,7 +70,31 @@ IBMAccelerator::getIRTransformations() {
   return transformations;
 }
 
-void IBMAccelerator::initialize(const HeterogeneousMap& params) {
+HeterogeneousMap IBMAccelerator::getProperties() {
+  HeterogeneousMap m;
+
+  if (backendProperties.count(backend)) {
+    auto props = backendProperties[backend];
+    auto qubit_props = props.get_qubits();
+    std::vector<double> p01s, p10s;
+    for (auto &qp : qubit_props) {
+      for (auto &q : qp) {
+        if (q.get_name() == xacc::ibm_properties::Name::PROB_MEAS0_PREP1) {
+          p01s.push_back(q.get_value());
+        } else if (q.get_name() ==
+                   xacc::ibm_properties::Name::PROB_MEAS1_PREP0) {
+          p10s.push_back(q.get_value());
+        }
+      }
+    }
+    m.insert("p01s", p01s);
+    m.insert("p10s", p10s);
+  }
+
+  return m;
+}
+
+void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
     updateConfiguration(params);
     std::string jsonStr = "", apiKey = "";
@@ -105,119 +130,49 @@ void IBMAccelerator::initialize(const HeterogeneousMap& params) {
     response =
         handleExceptionRestClientGet(url, getBackendPath + currentApiToken);
 
-    //   xacc::info("DEVICES: " + response);
-    d.Parse(response);
+    auto j = json::parse("{\"backends\":" + response + "}");
+    from_json(j, backends_root);
 
     auto backendArray = d.GetArray();
-    for (auto &b : backendArray) {
-      IBMBackend backend;
-      if (b.HasMember("nQubits")) {
-        backend.nQubits = b["nQubits"].GetInt();
-      }
-      backend.name = b["name"].GetString();
-      backend.description =
-          b.HasMember("description") ? b["description"].GetString() : "";
-      backend.status = !(std::string(b["status"].GetString()).find("off") !=
-                         std::string::npos);
+    for (auto &b : backends_root.get_backends()) {
 
-      backend.isSimulator = b["simulator"].GetBool();
-      if (!backend.isSimulator && b.HasMember("couplingMap") &&
-          b["couplingMap"].IsArray()) {
-        auto couplers = b["couplingMap"].GetArray();
-        for (int j = 0; j < couplers.Size(); j++) {
-          backend.couplers.push_back(
-              std::make_pair(couplers[j][0].GetInt(), couplers[j][1].GetInt()));
-        }
-
-        if (b.HasMember("gateSet")) {
-          backend.gateSet = b["gateSet"].GetString();
-          backend.basisGates = b["basisGates"].GetString();
-        }
-      }
-
-      if (!backend.isSimulator && !hub.empty()) {
-        std::string getBackendCalibrationPath, getBackendParametersPath;
+      // If not simulator, store the properties
+      if (!b.get_specific_configuration().get_simulator()) {
+        std::string getBackendPropertiesPath;
         if (!hub.empty()) {
-          getBackendCalibrationPath =
-              "/api/Network/" + hub + "/devices/" + backend.name +
-              "/calibration?access_token=" + currentApiToken;
-          getBackendParametersPath =
-              "/api/Network/" + hub + "/devices/" + backend.name +
-              "/parameters?access_token=" + currentApiToken;
+          getBackendPropertiesPath = "/api/Network/" + hub + "/devices/" +
+                                     b.get_name() + "/properties";
         } else {
-          getBackendCalibrationPath =
-              "/api/Backends/" + backend.name +
-              "/calibration?access_token=" + currentApiToken;
-          getBackendParametersPath =
-              "/api/Backends/" + backend.name +
-              "/parameters?access_token=" + currentApiToken;
+          getBackendPropertiesPath =
+              "/api/Backends/" + b.get_name() + "/properties";
         }
 
-        auto response =
-            handleExceptionRestClientGet(url, getBackendCalibrationPath);
-        Document d;
-        d.Parse(response);
+        auto response = handleExceptionRestClientGet(
+            url, getBackendPropertiesPath, {},
+            {std::make_pair("version", "1"),
+             std::make_pair("access_token", currentApiToken)});
 
-        if (d.HasMember("qubits") && d.HasMember("multiQubitGates")) {
-          auto qubits = d["qubits"].GetArray();
-          auto mqGates = d["multiQubitGates"].GetArray();
-          for (int i = 0; i < qubits.Size(); i++) {
-            const auto &value = qubits[i]["readoutError"]["value"].GetDouble();
-            const auto &error = qubits[i]["gateError"]["value"].GetDouble();
-            backend.readoutErrors.push_back(value);
-            backend.gateErrors.push_back(error);
-          }
+        xacc::ibm_properties::Properties props;
+        auto j = json::parse(response);
+        from_json(j, props);
 
-          for (int i = 0; i < mqGates.Size(); i++) {
-            const auto &name = mqGates[i]["name"].GetString();
-            const auto &error = mqGates[i]["gateError"]["value"].GetDouble();
-            backend.multiQubitGates.push_back(name);
-            backend.multiQubitGateErrors.push_back(error);
-          }
-        }
-
-        response = handleExceptionRestClientGet(url, getBackendParametersPath);
-        d.Parse(response);
-
-        if (d.HasMember("qubits")) {
-          auto qubits = d["qubits"].GetArray();
-          for (int i = 0; i < qubits.Size(); i++) {
-            const auto &t1 = qubits[i]["T1"]["value"].GetDouble();
-            const auto &t2 = qubits[i]["T2"]["value"].GetDouble();
-            const auto &freq = qubits[i]["frequency"]["value"].GetDouble();
-            backend.T1s.push_back(t1);
-            backend.T2s.push_back(t2);
-            backend.frequencies.push_back(freq);
-          }
-        }
+        backendProperties.insert({b.get_name(), props});
       }
 
-      availableBackends.insert(std::make_pair(backend.name, backend));
+      availableBackends.insert(std::make_pair(b.get_name(), b));
     }
 
     // Set these for RemoteAccelerator.execute
     postPath = postJobPath + currentApiToken;
     remoteUrl = url;
     initialized = true;
-
-    std::string backendName = "ibmq_qasm_simulator";
-    if (xacc::optionExists("ibm-backend")) {
-      auto newBackend = xacc::getOption("ibm-backend");
-      if (availableBackends.find(newBackend) == availableBackends.end()) {
-        xacc::error("Invalid IBM Backend string");
-      }
-      if (!availableBackends[newBackend].status) {
-        xacc::error(newBackend + " is currently unavailable, status = off");
-      }
-
-      chosenBackend = availableBackends[newBackend];
-    }
+    chosenBackend = availableBackends[backend];
   }
 }
 
-const std::string
-IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
-                             std::vector<std::shared_ptr<CompositeInstruction>> functions) {
+const std::string IBMAccelerator::processInput(
+    std::shared_ptr<AcceleratorBuffer> buffer,
+    std::vector<std::shared_ptr<CompositeInstruction>> functions) {
 
   // Local Declarations
   std::string backendName = backend;
@@ -237,8 +192,9 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
   int maxMemSlots = 0;
   for (auto &kernel : functions) {
 
-    auto visitor =
-        std::make_shared<QObjectExperimentVisitor>(kernel->name(), chosenBackend.nQubits);
+    auto visitor = std::make_shared<QObjectExperimentVisitor>(
+        kernel->name(),
+        chosenBackend.get_specific_configuration().get_n_qubits());
 
     InstructionIterator it(kernel);
     int memSlots = 0;
@@ -287,7 +243,8 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
   config.set_memory_slots(maxMemSlots);
   config.set_meas_return("avg");
   config.set_memory_slot_size(100);
-  config.set_n_qubits(chosenBackend.nQubits);
+  config.set_n_qubits(
+      chosenBackend.get_specific_configuration().get_n_qubits());
 
   // Add the experiments and config
   qobj.set_experiments(experiments);
@@ -297,18 +254,24 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
   xacc::ibm::Backend bkend;
   bkend.set_name(backendName);
 
+  xacc::ibm::QObjectHeader qobjHeader;
+  qobjHeader.set_backend_version("1.0.0");
+  qobjHeader.set_backend_name(backend);
+  qobj.set_header(qobjHeader);
+
   // Create the Root node of the QObject
   xacc::ibm::QObjectRoot root;
   root.set_backend(bkend);
   root.set_q_object(qobj);
+  root.set_shots(shots);
 
   // Create the JSON String to send
   nlohmann::json j;
   nlohmann::to_json(j, root);
   auto jsonStr = j.dump();
 
-//   xacc::info("Qobj:\n" + jsonStr);
-//   exit(0);
+    // xacc::info("Qobj:\n" + jsonStr);
+    // exit(0);
 
   return jsonStr;
 }
@@ -316,9 +279,8 @@ IBMAccelerator::processInput(std::shared_ptr<AcceleratorBuffer> buffer,
 /**
  * take response and create
  */
-void
-IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
-                                const std::string &response) {
+void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
+                                     const std::string &response) {
 
   if (response.find("error") != std::string::npos) {
     xacc::error(response);
@@ -338,10 +300,11 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   std::cout << "Current Access Token: " << currentApiToken << "\n";
   std::cout << "Job ID: " << jobId << "\n";
   if (!hub.empty()) {
-      std::cout << "\nTo cancel job, open a new terminal and run:\n\n"
-                << "curl -X POST " << url << "/api/Network/" << hub
-                << "/Groups/" << group << "/Projects/" << project << "/jobs/"
-                << jobId << "/cancel?access_token=" << currentApiToken << "\n\n-or-\n\nCTRL-C\n\n";
+    std::cout << "\nTo cancel job, open a new terminal and run:\n\n"
+              << "curl -X POST " << url << "/api/Network/" << hub << "/Groups/"
+              << group << "/Projects/" << project << "/jobs/" << jobId
+              << "/cancel?access_token=" << currentApiToken
+              << "\n\n-or-\n\nCTRL-C\n\n";
   }
 
   // Loop until the job is complete,
@@ -380,9 +343,9 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     if (d["status"] == "CANCELLED") {
-        xacc::info("Job Cancelled.");
-        xacc::Finalize();
-        exit(0);
+      xacc::info("Job Cancelled.");
+      xacc::Finalize();
+      exit(0);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
@@ -415,24 +378,25 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   auto experiments = qobj.get_experiments();
 
   std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
-  if (!chosenBackend.isSimulator) {
-    buffer->addExtraInfo("qobject", sb2.GetString());
-    buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
-    buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
-    buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
-    buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
-    buffer->addExtraInfo("multiQubitGates", chosenBackend.multiQubitGates);
-    buffer->addExtraInfo("multiQubitGateErrors",
-                         chosenBackend.multiQubitGateErrors);
-    buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
-    buffer->addExtraInfo("T1", chosenBackend.T1s);
-    buffer->addExtraInfo("T2", chosenBackend.T2s);
+  if (!chosenBackend.get_specific_configuration().get_simulator()) {
+    // buffer->addExtraInfo("qobject", sb2.GetString());
+    // buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
+    // buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
+    // buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
+    // buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
+    // buffer->addExtraInfo("multiQubitGates", chosenBackend.multiQubitGates);
+    // buffer->addExtraInfo("multiQubitGateErrors",
+    //                      chosenBackend.multiQubitGateErrors);
+    // buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
+    // buffer->addExtraInfo("T1", chosenBackend.T1s);
+    // buffer->addExtraInfo("T2", chosenBackend.T2s);
   }
 
   for (int i = 0; i < resultsArray.size(); i++) {
 
     auto currentExperiment = experiments[i];
-    auto tmpBuffer = std::make_shared<AcceleratorBuffer>(currentExperiment.get_header().get_name(), buffer->size());
+    auto tmpBuffer = std::make_shared<AcceleratorBuffer>(
+        currentExperiment.get_header().get_name(), buffer->size());
 
     auto counts = resultsArray[i].get_data().get_counts();
     for (auto &kv : counts) {
@@ -446,11 +410,9 @@ IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
         buffer->appendMeasurement(bitStr, nOccurrences);
       } else {
         tmpBuffer->appendMeasurement(bitStr, nOccurrences);
+        buffer->appendChild(currentExperiment.get_header().get_name(), tmpBuffer);
       }
     }
-
-    buffer->appendChild(currentExperiment.get_header().get_name(), tmpBuffer);
-    // buffers.push_back(tmpBuffer);
   }
 
   return;
@@ -475,11 +437,11 @@ void IBMAccelerator::cancel() {
 }
 
 std::vector<std::pair<int, int>> IBMAccelerator::getConnectivity() {
-//   std::string backendName = "ibmq_qasm_simulator";
+  //   std::string backendName = "ibmq_qasm_simulator";
 
-//   if (xacc::optionExists("ibm-backend")) {
-//     backendName = xacc::getOption("ibm-backend");
-//   }
+  //   if (xacc::optionExists("ibm-backend")) {
+  //     backendName = xacc::getOption("ibm-backend");
+  //   }
 
   if (!availableBackends.count(backend)) {
     xacc::error(backend + " is not available.");
@@ -488,14 +450,19 @@ std::vector<std::pair<int, int>> IBMAccelerator::getConnectivity() {
   auto backend__ = availableBackends[backend];
   //   auto graph = std::make_shared<AcceleratorGraph>(backend.nQubits);
   std::vector<std::pair<int, int>> graph;
-  if (!backend__.couplers.empty()) {
-    for (auto es : backend__.couplers) {
+  auto couplers = backend__.get_specific_configuration().get_coupling_map();
+  auto nq = backend__.get_specific_configuration().get_n_qubits();
+
+  if (!couplers->empty()) {
+    for (int i = 0; i < couplers->size(); i++) {
       //   graph->addEdge(es.first, es.second);
-      graph.push_back({es.first, es.second});
+      auto first = couplers->operator[](i)[0];
+      auto second = couplers->operator[](i)[1];
+      graph.push_back({first, second});
     }
   } else {
-    for (int i = 0; i < backend__.nQubits; i++) {
-      for (int j = 0; j < backend__.nQubits; j++) {
+    for (int i = 0; i < nq; i++) {
+      for (int j = 0; j < nq; j++) {
         if (i < j) {
           //   graph->addEdge(i, j);
           graph.push_back({i, j});

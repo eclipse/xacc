@@ -34,7 +34,7 @@ protected:
 
 public:
   int maxMemorySlots = 0;
-//   std::map<int, int> qubit2MemorySlot;
+  std::map<int, int> qubit2MemorySlot;
 
   const std::string name() const override { return "qobject-visitor"; }
 
@@ -44,11 +44,11 @@ public:
 
   QObjectExperimentVisitor(const std::string expName, const int nQubits)
       : experimentName(expName), nTotalQubits(nQubits) {
-    // int counter = 0;
-    // for (auto &b : qubits) {
-    //   qubit2MemorySlot.insert({b, counter});
-    //   counter++;
-    // }
+    int counter = 0;
+    for (int b = 0; b < nQubits; b++) {
+      qubit2MemorySlot.insert({b, counter});
+      counter++;
+    }
   }
 
   const std::string toString() override {
@@ -63,7 +63,7 @@ public:
     //   std::to_string(experiment.get_instructions().size()));
     if (experiment.get_instructions().empty()) {
 
-      maxMemorySlots++;
+    //   maxMemorySlots++;
 
       // construct config and header, add
       ExperimentHeader header;
@@ -238,13 +238,13 @@ public:
     xacc::ibm::Instruction inst;
     inst.get_mutable_qubits().push_back(m.bits()[0]);
     inst.get_mutable_name() = "measure";
-    inst.set_memory({classicalBit});
+    inst.set_memory({maxMemorySlots});
 
     instructions.push_back(inst);
 
-    if (classicalBit > maxMemorySlots) {
-      maxMemorySlots = classicalBit;//qubit2MemorySlot[m.bits()[0]];
-    }
+    // if (classicalBit > maxMemorySlots) {
+      maxMemorySlots++;// = qubit2MemorySlot[m.bits()[0]];
+    // }
   }
 
 

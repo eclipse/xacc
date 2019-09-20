@@ -112,7 +112,7 @@ endif()
 
 if(XACC_BUILD_TESTS)
   add_subdirectory(tests)
-  #add_subdirectory(accelerator/json/tests)
+  add_subdirectory(accelerator/json/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

@@ -343,14 +343,27 @@ public:
     this->instructions = value;
   }
 };
-
 class QObjectHeader {
 public:
   QObjectHeader() = default;
   virtual ~QObjectHeader() = default;
 
 private:
+  std::string backend_version;
+  std::string backend_name;
+
 public:
+  const std::string &get_backend_version() const { return backend_version; }
+  std::string &get_mutable_backend_version() { return backend_version; }
+  void set_backend_version(const std::string &value) {
+    this->backend_version = value;
+  }
+
+  const std::string &get_backend_name() const { return backend_name; }
+  std::string &get_mutable_backend_name() { return backend_name; }
+  void set_backend_name(const std::string &value) {
+    this->backend_name = value;
+  }
 };
 
 class QObject {
@@ -404,6 +417,7 @@ public:
 private:
   QObject q_object;
   Backend backend;
+  int64_t shots;
 
 public:
   const QObject &get_q_object() const { return q_object; }
@@ -413,6 +427,10 @@ public:
   const Backend &get_backend() const { return backend; }
   Backend &get_mutable_backend() { return backend; }
   void set_backend(const Backend &value) { this->backend = value; }
+
+  const int64_t &get_shots() const { return shots; }
+  int64_t &get_mutable_shots() { return shots; }
+  void set_shots(const int64_t &value) { this->shots = value; }
 };
 
 class Data {
@@ -593,11 +611,19 @@ inline void from_json(const json &j, xacc::ibm::QObjectConfig &x) {
   x.set_memory_slots(j.at("memory_slots").get<int64_t>());
   x.set_memory(j.at("memory").get<bool>());
   x.set_parameter_binds(j.at("parameter_binds").get<std::vector<json>>());
-  if (j.find("meas_lo_freq") != j.end()) {x.set_meas_lo_freq(j.at("meas_lo_freq").get<std::vector<json>>());}
+  if (j.find("meas_lo_freq") != j.end()) {
+    x.set_meas_lo_freq(j.at("meas_lo_freq").get<std::vector<json>>());
+  }
   x.set_schedule_los(j.at("schedule_los").get<std::vector<json>>());
-  if (j.find("qubit_lo_freq") != j.end()) {x.set_qubit_lo_freq(j.at("qubit_lo_freq").get<std::vector<json>>());}
-  if (j.find("qubit_lo_range") != j.end()) {x.set_qubit_lo_range(j.at("qubit_lo_range").get<std::vector<json>>());}
-  if (j.find("meas_lo_range") != j.end()) {x.set_meas_lo_range(j.at("meas_lo_range").get<std::vector<json>>());}
+  if (j.find("qubit_lo_freq") != j.end()) {
+    x.set_qubit_lo_freq(j.at("qubit_lo_freq").get<std::vector<json>>());
+  }
+  if (j.find("qubit_lo_range") != j.end()) {
+    x.set_qubit_lo_range(j.at("qubit_lo_range").get<std::vector<json>>());
+  }
+  if (j.find("meas_lo_range") != j.end()) {
+    x.set_meas_lo_range(j.at("meas_lo_range").get<std::vector<json>>());
+  }
   x.set_meas_return(j.at("meas_return").get<std::string>());
   x.set_meas_level(j.at("meas_level").get<int64_t>());
   x.set_memory_slot_size(j.at("memory_slot_size").get<int64_t>());
@@ -695,11 +721,15 @@ inline void to_json(json &j, const xacc::ibm::Experiment &x) {
   j["header"] = x.get_header();
   j["instructions"] = x.get_instructions();
 }
-
-inline void from_json(const json &j, xacc::ibm::QObjectHeader &x) {}
+inline void from_json(const json &j, xacc::ibm::QObjectHeader &x) {
+  x.set_backend_version(j.at("backend_version").get<std::string>());
+  x.set_backend_name(j.at("backend_name").get<std::string>());
+}
 
 inline void to_json(json &j, const xacc::ibm::QObjectHeader &x) {
   j = json::object();
+  j["backend_version"] = x.get_backend_version();
+  j["backend_name"] = x.get_backend_name();
 }
 
 inline void from_json(const json &j, xacc::ibm::QObject &x) {
@@ -727,12 +757,14 @@ inline void from_json(const json &j, xacc::ibm::QObjectRoot &x) {
   if (j.find("backend") != j.end()) {
     x.set_backend(j.at("backend").get<xacc::ibm::Backend>());
   }
+  x.set_shots(j.at("shots").get<int64_t>());
 }
 
 inline void to_json(json &j, const xacc::ibm::QObjectRoot &x) {
   j = json::object();
   j["qObject"] = x.get_q_object();
   j["backend"] = x.get_backend();
+  j["shots"] = x.get_shots();
 }
 
 inline void from_json(const json &j, xacc::ibm::QregSizeEnum &x) {
