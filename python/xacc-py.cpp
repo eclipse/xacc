@@ -191,7 +191,16 @@ PYBIND11_MODULE(_pyxacc, m) {
     .def("insert",
            (void (xacc::HeterogeneousMap::*)(const std::string, const std::shared_ptr<Optimizer> &)) &
                xacc::HeterogeneousMap::insert,
-           "");
+           "")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<double>>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<double>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<int>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<int>>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<std::string>>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<std::pair<int,int>>>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::shared_ptr<Observable>>,"")
+    .def("__getitem__", &xacc::HeterogeneousMap::get<std::shared_ptr<Optimizer>>,"");
+
 
   py::class_<xacc::InstructionParameter>(
       m, "InstructionParameter",
@@ -314,7 +323,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   acc.def(py::init<>())
       .def("name", &xacc::Accelerator::name,
            "Return the name of this Accelerator.")
-
+      .def("getProperties", &xacc::Accelerator::getProperties, "")
       .def("execute",
            (void (xacc::Accelerator::*)(
                std::shared_ptr<AcceleratorBuffer>,

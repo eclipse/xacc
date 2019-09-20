@@ -20,17 +20,17 @@ namespace xacc {
 class Client {
 
 public:
-
   virtual const std::string post(const std::string &remoteUrl,
                                  const std::string &path,
                                  const std::string &postStr,
                                  std::map<std::string, std::string> headers =
                                      std::map<std::string, std::string>{});
 
-  virtual const std::string get(const std::string &remoteUrl,
-                                const std::string &path,
-                                std::map<std::string, std::string> headers =
-                                    std::map<std::string, std::string>{});
+  virtual const std::string
+  get(const std::string &remoteUrl, const std::string &path,
+      std::map<std::string, std::string> headers =
+          std::map<std::string, std::string>{},
+      std::map<std::string, std::string> extraParams = {});
 
   virtual ~Client() {}
 };
@@ -41,20 +41,17 @@ public:
   RemoteAccelerator() : Accelerator(), restClient(std::make_shared<Client>()) {}
 
   RemoteAccelerator(std::shared_ptr<Client> client) : restClient(client) {}
-  void updateConfiguration(const HeterogeneousMap &config) override {
-  }
+  void updateConfiguration(const HeterogeneousMap &config) override {}
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::shared_ptr<CompositeInstruction> circuit) override;
+               const std::shared_ptr<CompositeInstruction> circuit) override;
 
-  void
-  execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<CompositeInstruction>> circuits) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   circuits) override;
 
   bool isRemote() override { return true; }
-  void setClient(std::shared_ptr<Client> client) {
-      restClient = client;
-  }
+  void setClient(std::shared_ptr<Client> client) { restClient = client; }
 
 protected:
   std::shared_ptr<Client> restClient;
@@ -62,23 +59,22 @@ protected:
   std::string remoteUrl;
   std::map<std::string, std::string> headers;
 
-
   virtual const std::string
   processInput(std::shared_ptr<AcceleratorBuffer> buffer,
                std::vector<std::shared_ptr<CompositeInstruction>> circuits) = 0;
 
-  virtual void
-  processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
-                  const std::string &response) = 0;
+  virtual void processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
+                               const std::string &response) = 0;
 
   std::string handleExceptionRestClientPost(
       const std::string &_url, const std::string &path,
       const std::string &postStr, std::map<std::string, std::string> headers);
 
-  std::string
-  handleExceptionRestClientGet(const std::string &_url, const std::string &path,
-                               std::map<std::string, std::string> headers =
-                                   std::map<std::string, std::string>{});
+  std::string handleExceptionRestClientGet(
+      const std::string &_url, const std::string &path,
+      std::map<std::string, std::string> headers =
+          std::map<std::string, std::string>{},
+      std::map<std::string, std::string> extraParams = {});
 };
 
 } // namespace xacc
