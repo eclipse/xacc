@@ -21,23 +21,57 @@ TEST(QObjectCompilerTester, checkCompileOQASM) {
     xacc::Initialize();
 
     const std::string src = R"src({
+    "backend": {
+        "name": "ibmq_boeblingen"
+    },
     "qObject": {
-        "qobj_id": "0f8df015-6b7c-44a9-833f-f802e1405f54",
+        "config": {
+            "meas_level": 2,
+            "meas_lo_freq": [],
+            "meas_lo_range": [],
+            "meas_return": "avg",
+            "memory": false,
+            "memory_slot_size": 100,
+            "memory_slots": 2,
+            "n_qubits": 20,
+            "parameter_binds": [],
+            "qubit_lo_freq": [],
+            "qubit_lo_range": [],
+            "schedule_los": [],
+            "shots": 1024
+        },
         "experiments": [
             {
                 "config": {
-                    "n_qubits": 20,
-                    "memory_slots": 3
+                    "memory_slots": 2,
+                    "n_qubits": 20
                 },
                 "header": {
-                    "name": "circuit0",
+                    "clbit_labels": [
+                        [
+                            "c0",
+                            0
+                        ],
+                        [
+                            "c0",
+                            1
+                        ]
+                    ],
+                    "creg_sizes": [
+                        [
+                            "c0",
+                            2
+                        ]
+                    ],
+                    "memory_slots": 2,
+                    "n_qubits": 20,
+                    "name": "bell",
                     "qreg_sizes": [
                         [
                             "q",
                             20
                         ]
                     ],
-                    "n_qubits": 20,
                     "qubit_labels": [
                         [
                             "q",
@@ -119,214 +153,58 @@ TEST(QObjectCompilerTester, checkCompileOQASM) {
                             "q",
                             19
                         ]
-                    ],
-                    "memory_slots": 3,
-                    "creg_sizes": [
-                        [
-                            "c0",
-                            3
-                        ]
-                    ],
-                    "clbit_labels": [
-                        [
-                            "c0",
-                            0
-                        ],
-                        [
-                            "c0",
-                            1
-                        ],
-                        [
-                            "c0",
-                            2
-                        ]
                     ]
                 },
                 "instructions": [
                     {
-                        "qubits": [
-                            1
-                        ],
-                        "name": "u3",
-                        "params": [
-                            3.141592653589793,
-                            0,
-                            3.141592653589793
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            2
-                        ],
                         "name": "u2",
                         "params": [
-                            0,
+                            0.0,
                             3.141592653589793
+                        ],
+                        "qubits": [
+                            0
                         ]
                     },
                     {
+                        "name": "cx",
                         "qubits": [
-                            1,
-                            2
-                        ],
-                        "name": "cx"
-                    },
-                    {
-                        "qubits": [
-                            2
-                        ],
-                        "name": "u1",
-                        "params": [
-                            -0.7853981633974483
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            6
-                        ],
-                        "name": "u3",
-                        "params": [
-                            3.141592653589793,
                             0,
-                            3.141592653589793
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            6,
-                            2
-                        ],
-                        "name": "cx"
-                    },
-                    {
-                        "qubits": [
-                            2
-                        ],
-                        "name": "u1",
-                        "params": [
-                            0.7853981633974483
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            1,
-                            2
-                        ],
-                        "name": "cx"
-                    },
-                    {
-                        "qubits": [
                             1
-                        ],
-                        "name": "u1",
-                        "params": [
-                            0.7853981633974483
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            2
-                        ],
-                        "name": "u1",
-                        "params": [
-                            -0.7853981633974483
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            6,
-                            2
-                        ],
-                        "name": "cx"
-                    },
-                    {
-                        "qubits": [
-                            2
-                        ],
-                        "name": "u2",
-                        "params": [
-                            0,
-                            3.9269908169872414
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            6,
-                            1
-                        ],
-                        "name": "cx"
-                    },
-                    {
-                        "qubits": [
-                            1
-                        ],
-                        "name": "u1",
-                        "params": [
-                            -0.7853981633974483
-                        ]
-                    },
-                    {
-                        "qubits": [
-                            6
-                        ],
-                        "name": "u1",
-                        "params": [
-                            0.7853981633974483
                         ]
                     },
                     {
                         "memory": [
                             0
                         ],
+                        "name": "measure",
                         "qubits": [
-                            6
-                        ],
-                        "name": "measure"
+                            0
+                        ]
                     },
                     {
                         "memory": [
                             1
                         ],
+                        "name": "measure",
                         "qubits": [
                             1
-                        ],
-                        "name": "measure"
-                    },
-                    {
-                        "memory": [
-                            2
-                        ],
-                        "qubits": [
-                            2
-                        ],
-                        "name": "measure"
+                        ]
                     }
                 ]
             }
         ],
-        "config": {
-            "shots": 1024,
-            "n_qubits": 20,
-            "memory_slots": 3,
-            "memory": false,
-            "parameter_binds": [],
-            "meas_lo_freq": [],
-            "schedule_los": [],
-            "qubit_lo_freq": [],
-            "qubit_lo_range": [],
-            "meas_lo_range": [],
-            "meas_return": "avg",
-            "meas_level": 2,
-            "memory_slot_size": 100
+        "header": {
+            "backend_name": "ibmq_boeblingen",
+            "backend_version": "1.0.0"
         },
-        "type": "QASM",
+        "qobj_id": "xacc-qobj-id",
         "schema_version": "1.1.0",
-        "header": {}
+        "type": "QASM"
     },
-    "backend": {
-        "name": "ibmq_20_tokyo"
-    }
-})src";
+    "shots": 1024
+}
+)src";
 
     auto compiler = xacc::getService<Compiler>("qobj");
     auto ir = compiler->compile(src);

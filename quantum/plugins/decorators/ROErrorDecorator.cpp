@@ -30,7 +30,11 @@ void ROErrorDecorator::execute(
   if (decoratedAccelerator)
     decoratedAccelerator->execute(buffer, function);
 
-  auto properties = decoratedAccelerator->getProperties();
+  HeterogeneousMap properties;
+  if (decoratedAccelerator) {
+    properties = decoratedAccelerator->getProperties();
+  }
+
   std::map<int, double> piplus, piminus;
 
   if (properties.keyExists<std::vector<double>>("p01s") &&
@@ -153,8 +157,10 @@ void ROErrorDecorator::execute(
   }
 
   std::map<int, double> piplus, piminus;
-  auto properties = decoratedAccelerator->getProperties();
-
+  HeterogeneousMap properties;
+  if (decoratedAccelerator) {
+    properties = decoratedAccelerator->getProperties();
+  }
   if (properties.keyExists<std::vector<double>>("p01s") &&
       properties.keyExists<std::vector<double>>("p10s")) {
 
@@ -195,7 +201,7 @@ void ROErrorDecorator::execute(
       }
     }
   }
-  
+
   // Get the number of shots first
   int nShots = 0;
   std::map<std::string, int> tmpCounts;
