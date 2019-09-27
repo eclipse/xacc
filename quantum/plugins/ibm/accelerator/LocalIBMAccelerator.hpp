@@ -38,12 +38,21 @@ public:
           cxdepol = config.get<double>("cx-p-depol");
           cx_depol_noise = true;
       }
+      if (config.keyExists<double>("global-p10")) {
+          global_p10 = config.get<double>("global-p10");
+          readout_errors = true;
+      }
+      if (config.keyExists<double>("global-p01")) {
+          global_p01 = config.get<double>("global-p01");
+          readout_errors = true;
+      }
   }
 
   const std::vector<std::string> configurationKeys() override {
       return {"shots", "u-p-depol","cx-p-depol"};
   }
 
+  HeterogeneousMap getProperties() override;
   void initialize(const HeterogeneousMap& params = {}) override {
       updateConfiguration(params);
   }
@@ -80,6 +89,9 @@ protected:
   double udepol = 0.0;
   double cxdepol = 0.0;
   std::map<int, std::vector<int>> measurementSupports;
+
+  double global_p10 = 0.0;
+  double global_p01 = 0.0;
 };
 
 } // namespace quantum

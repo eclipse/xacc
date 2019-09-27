@@ -545,10 +545,15 @@ PYBIND11_MODULE(_pyxacc, m) {
   // m.def("help", )
   m.def(
       "getAccelerator",
-      [](const std::string &name, const HeterogeneousMap &p = {}) {
-        return xacc::getAccelerator(name, p);
+      [](const std::string &name, const PyHeterogeneousMap &p = {}) {
+          HeterogeneousMap m;
+        for (auto &item : p) {
+          PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+          mpark::visit(vis, item.second);
+        }
+        return xacc::getAccelerator(name, m);
       },
-      py::arg("name"), py::arg("p") = HeterogeneousMap(),
+      py::arg("name"), py::arg("p") = PyHeterogeneousMap(),
       py::return_value_policy::reference,
       "Return the accelerator with given name.");
   m.def("getObservable",
@@ -581,11 +586,6 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getService<IRTransformation>,
         py::return_value_policy::reference,
         "Return the IRTransformation of given name.");
-  //   m.def("getIRGenerator",
-  //         (std::shared_ptr<xacc::IRGenerator>(*)(const std::string &)) &
-  //             xacc::getIRGenerator,
-  //         py::return_value_policy::reference,
-  //         "Return the IRGenerator of given name.");
   m.def("getConnectivity",
         [](const std::string acc) -> std::vector<std::pair<int, int>> {
           auto a = xacc::getAccelerator(acc);
@@ -640,18 +640,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("optionExists", &xacc::optionExists, "Set an XACC framework option.");
   m.def("setIsPyApi", &xacc::setIsPyApi,
         "Indicate that this is using XACC via the Python API.");
-  //   m.def("optimizeFunction", &xacc::optimizeFunction,
-  //         "Run an optimizer on the given function.");
   m.def("getCache", &xacc::getCache, "");
-  // m.def("appendCache", [](const std::string file, const std::string name,
-  // PyHeterogeneousMapTypes& val, const std::string sub) {
-  //     xacc::appendCache(file, name, )
-  // }
-  //       (void (*)(const std::string, const std::string,
-  //       InstructionParameter &,
-  //                 const std::string)) &
-  //           xacc::appendCache,
-  //       "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",
