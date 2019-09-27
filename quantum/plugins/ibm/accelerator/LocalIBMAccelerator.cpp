@@ -36,6 +36,15 @@ LocalIBMAccelerator::getIRTransformations() {
   return transformations;
 }
 
+HeterogeneousMap LocalIBMAccelerator::getProperties() {
+    std::vector<double> p01s(20, global_p01), p10s(20, global_p10);
+    HeterogeneousMap m;
+    std::cout << p01s << "\n";
+    m.insert("p01s", p01s);
+    m.insert("p10s", p10s);
+    return m;
+}
+
 void LocalIBMAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<xacc::CompositeInstruction> kernel) {
@@ -118,15 +127,15 @@ void LocalIBMAccelerator::execute(
   config2["max_credits"] = 10;
   config2["shots"] = shots;
 
-  if (xacc::optionExists("local-ibm-ro-error")) {
-    auto probStr = xacc::getOption("local-ibm-ro-error");
-    std::vector<std::string> split;
-    split = xacc::split(probStr, ',');
+  if (readout_errors) {//cc::optionExists("local-ibm-ro-error")) {
+    // auto probStr = xacc::getOption("local-ibm-ro-error");
+    // std::vector<std::string> split;
+    // split = xacc::split(probStr, ',');
     // boost::split(split, probStr, boost::is_any_of(","));
-    config2["noise_params"]["readout_error"] = {std::stod(split[0])};
-    for (int i = 1; i < split.size(); i++) {
-      config2["noise_params"]["readout_error"].push_back(std::stod(split[i]));
-    }
+    config2["noise_params"]["readout_error"] = {global_p10, global_p01};
+    // for (int i = 1; i < split.size(); i++) {
+    //   config2["noise_params"]["readout_error"].push_back(std::stod(split[i]));
+    // }
   }
 
   if (u_depol_noise) {
