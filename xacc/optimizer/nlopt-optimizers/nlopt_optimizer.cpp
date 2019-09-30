@@ -15,8 +15,15 @@
 
 #include "Utils.hpp"
 #include <iostream>
+using namespace std::placeholders;
 
 namespace xacc {
+
+double c_wrapper(const std::vector<double>& x, std::vector<double>& grad, void * extra) {
+    auto e = reinterpret_cast<ExtraNLOptData*>(extra);
+    return e->f(x, grad);
+}
+
 OptResult NLOptimizer::optimize(OptFunction &function) {
 
   auto dim = function.dimensions();
@@ -24,9 +31,6 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-8;
   int maxeval = 1000;
 
-  //   std::stringstream ss;
-  //   options.print<int,std::size_t, std::string,double>(ss);
-  //   std::cout << "OPTS:\n" << ss.str() << "\n";
   if (options.stringExists("nlopt-optimizer")) {
     auto optimizerAlgo = options.getString("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
@@ -56,15 +60,13 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     auto tmpx = options.get<std::vector<int>>("initial-parameters");
     x = std::vector<double>(tmpx.begin(), tmpx.end());
   }
+
+   ExtraNLOptData data;
+   data.f = function;
+   auto d = reinterpret_cast<void*>(&data);
+
   nlopt::opt _opt(algo, dim);
-  std::function<double(const std::vector<double> &, std::vector<double> &,
-                       void *)>
-      f = [&](const std::vector<double> &x, std::vector<double> &grad,
-              void *f_data) -> double { return function(x, grad); };
-
-  auto fptr = LambdaToVFunc::ptr(f);
-
-  _opt.set_min_objective(fptr, NULL);
+  _opt.set_min_objective(c_wrapper, d);
   _opt.set_lower_bounds(std::vector<double>(dim, -3.1415926));
   _opt.set_upper_bounds(std::vector<double>(dim, 3.1415926));
   _opt.set_maxeval(maxeval);

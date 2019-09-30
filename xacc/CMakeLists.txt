@@ -112,6 +112,6 @@ endif()
 install(FILES ${HEADERS} DESTINATION include/xacc)
 install(TARGETS xacc DESTINATION lib)
 
-add_subdirectory(optimizer/nlopt-optimizers)
+add_subdirectory(optimizer)
 add_subdirectory(utils/exprtk_parsing)
 add_subdirectory(ir/graph-impl)

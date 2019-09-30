@@ -23,28 +23,21 @@
 
 namespace xacc {
 
+using OptimizerFunctor =
+    std::function<double(const std::vector<double> &, std::vector<double> &)>;
 using OptResult = std::pair<double, std::vector<double>>;
 
+using OptFunctionPtr = double(*)(const std::vector<double> &, std::vector<double> &, void*);
 class OptFunction {
 protected:
-  std::function<double(const std::vector<double> &, std::vector<double> &)>
-      _function;
+  OptimizerFunctor _function;
   int _dim = 0;
 
 public:
-  // Nullary Constructor, make dummy function
-  OptFunction()
-      : _function([](const std::vector<double> &x, std::vector<double> &dx) {
-          return 0.0;
-        }) {}
 
   // Standard constructor, takes function that takes params as
   // first arg and gradient as second arg
-  OptFunction(
-      std::function<double(const std::vector<double> &, std::vector<double> &)>
-          f,
-      const int d)
-      : _function(f), _dim(d) {}
+  OptFunction(OptimizerFunctor f, const int d) : _function(f), _dim(d) {}
   virtual const int dimensions() const { return _dim; }
   virtual double operator()(const std::vector<double> &x,
                             std::vector<double> &dx) {

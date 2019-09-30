@@ -1,0 +1,3 @@
+
+add_xacc_test(MLPACKOptimizer)
+target_link_libraries(MLPACKOptimizerTester xacc)
