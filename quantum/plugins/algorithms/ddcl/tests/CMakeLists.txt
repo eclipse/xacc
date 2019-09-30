@@ -10,9 +10,6 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(vqe)
-add_subdirectory(rdm)
-add_subdirectory(vqe-energy)
-add_subdirectory(ddcl)
-file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py ${CMAKE_CURRENT_SOURCE_DIR}/vqe-energy/python/*.py)
-install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
+include_directories(${CMAKE_BINARY_DIR})
+add_xacc_test(DDCL)
+target_link_libraries(DDCLTester xacc)

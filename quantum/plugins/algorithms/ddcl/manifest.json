@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_ddcl",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC DDCL Algorithm",
+  "bundle.description" : ""
+}
