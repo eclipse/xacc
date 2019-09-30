@@ -38,11 +38,48 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
   if (options.stringExists("mlpack-optimizer")) {
     mlpack_opt_name = options.getString("mlpack-optimizer");
   }
+  // step size
+  double stepSize = 0.5;
+  if (options.keyExists<double>("mlpack-step-size")) {
+    stepSize = options.get<double>("mlpack-step-size");
+  }
+
+  // eps
+  double eps = 1e-8;
+  if (options.keyExists<double>("mlpack-eps")) {
+    eps = options.get<double>("mlpack-eps");
+  }
+  // max iter
+  int maxiter = 500000;
+  if (options.keyExists<int>("mlpack-max-iter")) {
+    maxiter = options.get<int>("mlpack-max-iter");
+  }
+  // tolerance
+  double tol = 1e-4;
+  if (options.keyExists<double>("mlpack-tolerance")) {
+    tol = options.get<double>("mlpack-tolerance");
+  }
+  double momentum = 0.05;
+  if (options.keyExists<double>("mlpack-momentum")) {
+    momentum = options.get<double>("mlpack-momentum");
+  }
 
   // Based on that optimizer, instantiate and run
   double results;
   if (mlpack_opt_name == "adam") {
-    Adam optimizer(0.5, 1, 0.7, 0.999, 1e-8, 500000, 1e-3, false, true);
+
+    // beta1
+    double beta1 = 0.7;
+    if (options.keyExists<double>("mlpack-beta1")) {
+      beta1 = options.get<double>("mlpack-beta1");
+    }
+    // beta2
+    double beta2 = 0.999;
+    if (options.keyExists<double>("mlpack-beta2")) {
+      beta2 = options.get<double>("mlpack-beta2");
+    }
+
+    Adam optimizer(stepSize, 1, beta1, beta2, eps, maxiter, tol, false, false);
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "spsa") {
     SPSA optimizer(0.1, 0.102, 0.16, 0.3, 100000, 1e-5);
@@ -50,6 +87,50 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
   } else if (mlpack_opt_name == "l-bfgs") {
     L_BFGS lbfgs;
     results = lbfgs.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "adagrad") {
+    AdaGrad optimizer(stepSize, 1, eps, maxiter, tol, false, false);
+    results = optimizer.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "adadelta") {
+    // rho
+    double rho = 0.05;
+    if (options.keyExists<double>("mlpack-rho")) {
+      rho = options.get<double>("mlpack-rho");
+    }
+    AdaDelta optimizer(stepSize, 1, rho, eps, maxiter, tol, false, false);
+    results = optimizer.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "cmaes") {
+    CMAES<> optimizer(0, -10, 10, 1, maxiter, tol);
+    results = optimizer.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "gd") {
+    GradientDescent optimizer(stepSize, maxiter, tol);
+    results = optimizer.Optimize(f, coordinates);
+
+  } else if (mlpack_opt_name == "momentum-sgd") {
+
+    MomentumUpdate momentumUpdate(momentum);
+    MomentumSGD optimizer(stepSize, 1, maxiter, tol, false, momentumUpdate,
+                          NoDecay(), false, false);
+    results = optimizer.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "momentum-nestorov") {
+    NesterovMomentumUpdate nesterovMomentumUpdate(momentum);
+    NesterovMomentumSGD optimizer(stepSize, 1, maxiter, tol, false,
+                                  nesterovMomentumUpdate, NoDecay(), false,
+                                  false);
+    results = optimizer.Optimize(f, coordinates);
+
+  } else if (mlpack_opt_name == "sgd") {
+    VanillaUpdate vanillaUpdate;
+    StandardSGD optimizer(stepSize, 1, maxiter, tol, false, vanillaUpdate,
+                          NoDecay(), false, false);
+    results = optimizer.Optimize(f, coordinates);
+  } else if (mlpack_opt_name == "rms-prop") {
+    double alpha = 0.99;
+    if (options.keyExists<double>("mlpack-alpha")) {
+      alpha = options.get<double>("mlpack-alpha");
+    }
+    RMSProp optimizer(stepSize, 1, alpha, eps, maxiter, tol, false, false,
+                      false);
+    results = optimizer.Optimize(f, coordinates);
   }
 
   return OptResult{results,
