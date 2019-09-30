@@ -174,7 +174,7 @@ class DecoratorFunction(ABC):
         self.args = args
         self.kwargs = kwargs
         self.__dict__.update(kwargs)
-        self.accelerator = None
+        self.qpu = None
         self.src = '\n'.join(inspect.getsource(self.function).split('\n')[1:])
 
         self.processVariables()
@@ -200,7 +200,7 @@ class DecoratorFunction(ABC):
         self.compiledKernel = ir.getComposites()[0]
 
     def overrideAccelerator(self, acc):
-        self.accelerator = acc
+        self.qpu = acc
 
     def processVariables(self):
         g = re.findall('=(\w+)', self.src)
