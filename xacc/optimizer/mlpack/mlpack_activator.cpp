@@ -10,26 +10,44 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_NLOPT_OPTIMIZER_HPP_
-#define XACC_NLOPT_OPTIMIZER_HPP_
+#include "mlpack_optimizer.hpp"
 
-#include <type_traits>
-#include <utility>
+#include "cppmicroservices/BundleActivator.h"
+#include "cppmicroservices/BundleContext.h"
+#include "cppmicroservices/ServiceProperties.h"
 
-#include "Optimizer.hpp"
+#include <memory>
+#include <set>
 
-namespace xacc {
+using namespace cppmicroservices;
 
-struct ExtraNLOptData {
-    std::function<double(const std::vector<double>&, std::vector<double>&)> f;
-};
+namespace {
 
-class NLOptimizer : public Optimizer {
+/**
+ */
+class US_ABI_LOCAL MLPACKActivator: public BundleActivator {
+
 public:
-  OptResult optimize(OptFunction &function) override;
 
-  const std::string name() const override { return "nlopt"; }
-  const std::string description() const override { return ""; }
+	MLPACKActivator() {
+	}
+
+	/**
+	 */
+	void Start(BundleContext context) {
+		auto c = std::make_shared<xacc::MLPACKOptimizer>();
+
+		context.RegisterService<xacc::Optimizer>(c);
+
+	}
+
+	/**
+	 */
+	void Stop(BundleContext /*context*/) {
+	}
+
 };
-} // namespace xacc
-#endif
+
+}
+
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(MLPACKActivator)

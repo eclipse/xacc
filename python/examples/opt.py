@@ -1,10 +1,19 @@
 import xacc
+
 def rosen(x):
-    return (1.-x[0])**2 + 100*(x[1]-x[0]**2)**2
+    xx = (1.-x[0])**2 + 100*(x[1]-x[0]**2)**2
+    return xx
 
-optimizer = xacc.getOptimizer('nlopt', {'nlopt-maxeval':10000})
-f = xacc.OptFunction(rosen, 2)
+def rosen_with_grad(x):
+    g = [-2*(1-x[0]) + 400.*(x[0]**3 - x[1]*x[0]), 200 * (x[1] - x[0]**2)]
+    xx = (1.-x[0])**2 + 100*(x[1]-x[0]**2)**2
+    return xx, g
 
-result = optimizer.optimize(f)
+optimizer = xacc.getOptimizer('mlpack',{'mlpack-optimizer':'l-bfgs'})
 
-print(result)
+result = optimizer.optimize(rosen_with_grad,2)
+
+print('Result = ', result)
+
+cobyla = xacc.getOptimizer('nlopt',{ 'nlopt-optimizer':'cobyla',  'nlopt-maxeval':500})
+print('Result = ', result)

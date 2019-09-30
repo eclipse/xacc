@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_mlpack",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC mlpack optimizer",
+  "bundle.description" : ""
+}

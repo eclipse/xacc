@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "CompositeInstruction.hpp"
+#include "Optimizer.hpp"
 #include "xacc.hpp"
 #include "heterogeneous.hpp"
 #include "xacc_service.hpp"
@@ -165,42 +166,52 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::HeterogeneousMap::insert,
            "")
       .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const double &)) &
+           (void (xacc::HeterogeneousMap::*)(const std::string,
+                                             const double &)) &
                xacc::HeterogeneousMap::insert,
            "")
       .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::string &)) &
+           (void (xacc::HeterogeneousMap::*)(const std::string,
+                                             const std::string &)) &
                xacc::HeterogeneousMap::insert,
            "")
       .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<int> &)) &
+           (void (xacc::HeterogeneousMap::*)(const std::string,
+                                             const std::vector<int> &)) &
                xacc::HeterogeneousMap::insert,
            "")
       .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<double> &)) &
+           (void (xacc::HeterogeneousMap::*)(const std::string,
+                                             const std::vector<double> &)) &
                xacc::HeterogeneousMap::insert,
            "")
-    .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::vector<std::pair<int,int>> &)) &
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(
+               const std::string, const std::vector<std::pair<int, int>> &)) &
                xacc::HeterogeneousMap::insert,
            "")
-    .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::shared_ptr<Observable> &)) &
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(
+               const std::string, const std::shared_ptr<Observable> &)) &
                xacc::HeterogeneousMap::insert,
            "")
-    .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const std::shared_ptr<Optimizer> &)) &
+      .def("insert",
+           (void (xacc::HeterogeneousMap::*)(
+               const std::string, const std::shared_ptr<Optimizer> &)) &
                xacc::HeterogeneousMap::insert,
            "")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<double>>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<double>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<int>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<int>>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<std::string>>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<std::pair<int,int>>>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::shared_ptr<Observable>>,"")
-    .def("__getitem__", &xacc::HeterogeneousMap::get<std::shared_ptr<Optimizer>>,"");
-
+      .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<double>>, "")
+      .def("__getitem__", &xacc::HeterogeneousMap::get<double>, "")
+      .def("__getitem__", &xacc::HeterogeneousMap::get<int>, "")
+      .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<int>>, "")
+      .def("__getitem__",
+           &xacc::HeterogeneousMap::get<std::vector<std::string>>, "")
+      .def("__getitem__",
+           &xacc::HeterogeneousMap::get<std::vector<std::pair<int, int>>>, "")
+      .def("__getitem__",
+           &xacc::HeterogeneousMap::get<std::shared_ptr<Observable>>, "")
+      .def("__getitem__",
+           &xacc::HeterogeneousMap::get<std::shared_ptr<Optimizer>>, "");
 
   py::class_<xacc::InstructionParameter>(
       m, "InstructionParameter",
@@ -451,7 +462,8 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Initialize the algorithm with given AlgorithmParameters.");
 
   py::class_<xacc::OptFunction>(m, "OptFunction", "")
-      .def(py::init<std::function<double(const std::vector<double> &, std::vector<double>&)>,
+      .def(py::init<std::function<double(const std::vector<double> &,
+                                         std::vector<double> &)>,
                     const int>());
 
   // Expose Optimizer
@@ -460,9 +472,35 @@ PYBIND11_MODULE(_pyxacc, m) {
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
       .def("optimize",
-           (xacc::OptResult(xacc::Optimizer::*)(xacc::OptFunction)) &
-               xacc::Optimizer::optimize,
-           "")
+           [&](xacc::Optimizer &o,
+               std::function<std::pair<double, std::vector<double>>(
+                   const std::vector<double> &x)> &f,
+               const int ndim) {
+             OptFunction opt(
+                 [&](const std::vector<double> &x, std::vector<double> &grad) {
+                   auto ret = f(x);
+                   if (grad.size() == ndim) {
+                     for (int i = 0; i < grad.size(); i++) {
+                       grad[i] = ret.second[i];
+                     }
+                   }
+                   return ret.first;
+                 },
+                 ndim);
+             return o.optimize(opt);
+           })
+    .def("optimize",
+           [&](xacc::Optimizer &o,
+               std::function<double(
+                   const std::vector<double> &x)> &f,
+               const int ndim) {
+             OptFunction opt(
+                 [&](const std::vector<double> &x, std::vector<double> &grad) {
+                   return f(x);
+                 },
+                 ndim);
+             return o.optimize(opt);
+           })
       .def("setOptions",
            (void (xacc::Optimizer::*)(const HeterogeneousMap &)) &
                xacc::Optimizer::setOptions,
@@ -546,7 +584,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def(
       "getAccelerator",
       [](const std::string &name, const PyHeterogeneousMap &p = {}) {
-          HeterogeneousMap m;
+        HeterogeneousMap m;
         for (auto &item : p) {
           PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
           mpark::visit(vis, item.second);
