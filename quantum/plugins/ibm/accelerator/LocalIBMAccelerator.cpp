@@ -39,7 +39,7 @@ LocalIBMAccelerator::getIRTransformations() {
 HeterogeneousMap LocalIBMAccelerator::getProperties() {
     std::vector<double> p01s(20, global_p01), p10s(20, global_p10);
     HeterogeneousMap m;
-    std::cout << p01s << "\n";
+    // std::cout << p01s << "\n";
     m.insert("p01s", p01s);
     m.insert("p10s", p10s);
     return m;
@@ -150,7 +150,7 @@ void LocalIBMAccelerator::execute(
   j["id"] = "fakeid";
 
 //   std::cout << "JSON:\n" << j.dump(4) << "\n";
-
+// std::cout << "Execing\n";
   std::string response = "";
   try {
     QISKIT::Simulator sim;

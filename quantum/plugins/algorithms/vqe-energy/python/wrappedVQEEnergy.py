@@ -15,7 +15,7 @@ class WrappedEnergyF(xacc.DecoratorFunction):
     def __call__(self, *args, **kwargs):
         super().__call__(*args, **kwargs)
 
-        execParams = {'accelerator': self.kwargs['accelerator'], 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
+        execParams = {'accelerator': self.qpu, 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
 
         if not isinstance(args[0], xacc.AcceleratorBuffer):
             raise RuntimeError(
