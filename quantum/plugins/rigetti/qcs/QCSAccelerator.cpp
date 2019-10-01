@@ -22,7 +22,7 @@
 
 #include <regex>
 #include <chrono>
-#include <uuid/uuid.h>
+#include <uuid.h>
 
 #include <zmq.hpp>
 
