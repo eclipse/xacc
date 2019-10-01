@@ -95,14 +95,14 @@ public:
     auto angleStr = rx.getParameter(0).toString();
 
     auto angleDouble = rx.getParameter(0).as<double>();
-    if (std::fabs(angleDouble % (xacc::constants::pi / 2.0)) < 1e-3) {
-        int multiple = (int) angleDouble / (xacc::constants::pi / 2.);
-        quilStr += "RX(" + std::to_string(multiple) + "* pi/2) " + qubit << "\n";
-    } else {
+    // if (std::fabs(angleDouble % (xacc::constants::pi / 2.0)) < 1e-3) {
+    //     int multiple = (int) angleDouble / (xacc::constants::pi / 2.);
+    //     quilStr += "RX(" + std::to_string(multiple) + "* pi/2) " + qubit + "\n";
+    // } else {
     // quilStr += "RX(" + angleStr + ") " + qubit + "\n";
        // decompose into rigetti gate set
        quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit +"\nRz(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\nRZ(-pi/2) "+ qubit + "\n";
-    }
+    // }
   }
 
   void visit(Ry &ry) {
