@@ -18,18 +18,19 @@ file (GLOB SRC *.cpp)
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
 usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-include_directories(${XACC_INCLUDE_ROOT}/pybind11/include)
-include_directories(${PYTHON_INCLUDE_DIR})
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC . ../accelerator
-                                  ${CMAKE_SOURCE_DIR}/tpls/pybind11/include
-                                  ${PYTHON_INCLUDE_DIR})
+                           PUBLIC . ../accelerator ${UUID_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
+                                  $ENV{HOME}/.zmq/include
+                                  )
+set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{HOME}/.zmq")
+find_package(cppzmq)
+
 target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc xacc-quantum-gate xacc-quantum-aqc
-                             CppMicroServices ${PYTHON_LIBRARY})
+                      PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing cppzmq ${UUID_LIBRARIES})
 
 set(_bundle_name xacc_rigetti_qcs)
 
@@ -60,5 +61,5 @@ endif()
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 if(XACC_BUILD_TESTS)
-  add_subdirectory(tests)
+  #add_subdirectory(tests)
 endif()

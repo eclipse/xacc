@@ -14,13 +14,12 @@
 #define QUANTUM_GATE_ACCELERATORS_QCSACCELERATOR_HPP_
 
 #include "InstructionIterator.hpp"
-#include "QuilVisitor.hpp"
-#include "CLIParser.hpp"
 #include "RemoteAccelerator.hpp"
+#include "messages.hpp"
 
-#include <pybind11/embed.h>
+// #include <pybind11/embed.h>
 
-#include <dlfcn.h>
+// #include <dlfcn.h>
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/prettywriter.h"
@@ -35,6 +34,7 @@ namespace quantum {
 class MapToPhysical : public xacc::IRTransformation {
 protected:
   std::vector<std::pair<int, int>> _edges;
+
 public:
   MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
   std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
@@ -43,49 +43,35 @@ public:
   const std::string description() const override { return ""; }
 };
 
-/**
- *
- */
+// [Rigetti Forest]
+// qvm_address = http://localhost:5000
+// quilc_address = tcp://localhost:5555
+// qpu_compiler_address = tcp://10.1.149.68:5555
+// qpu_endpoint_address = tcp://10.1.149.68:50052
+
 class QCSAccelerator : virtual public Accelerator {
 protected:
   std::vector<int> physicalQubits;
   std::vector<std::pair<int, int>> latticeEdges;
   Document latticeJson;
+  std::string backend;
 
-  pybind11::scoped_interpreter * guard;
 
 public:
   QCSAccelerator() : Accelerator() {}
 
-  /**
-   * Create, store, and return an AcceleratorBuffer with the given
-   * variable id string and of the given number of bits.
-   * The string id serves as a unique identifier
-   * for future lookups and reuse of the AcceleratorBuffer.
-   *
-   * @param varId
-   * @param size
-   * @return
-   */
-  std::shared_ptr<AcceleratorBuffer> createBuffer(const std::string &varId,
-                                                  const int size) override;
-
-  std::shared_ptr<AcceleratorBuffer>
-  createBuffer(const std::string &varId) override;
-
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-               const std::shared_ptr<Function> function) override;
-  std::vector<std::shared_ptr<AcceleratorBuffer>>
-  execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<Function>> functions) override;
+               const std::shared_ptr<CompositeInstruction> function) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   functions) override;
 
-  void initialize() override {
-    void*const libpython_handle = dlopen("libpython3.6m.so", RTLD_LAZY | RTLD_GLOBAL);
-    if (xacc::optionExists("qcs-backend") && !xacc::isPyApi) {
-      auto backend = xacc::getOption("qcs-backend");
+  void initialize(const HeterogeneousMap &params = {}) override {
+    if (params.stringExists("qcs-backend")) {
+      backend = params.getString("qcs-backend");
 
       if (backend.find("-qvm") != std::string::npos) {
-         backend.erase(backend.find("-qvm"), 4);
+        backend.erase(backend.find("-qvm"), 4);
       }
 
       Client client;
@@ -106,36 +92,36 @@ public:
       }
     }
 
-    if (!xacc::isPyApi && !guard) {
-        guard = new pybind11::scoped_interpreter();
-    }
+    //   const std::string endpoint = "tcp://127.0.0.1:5555";
+
+    //   zmq::socket_t socket(context, zmq::socket_type::dealer);
+    //   socket.connect(endpoint);
   }
 
-  std::vector<std::pair<int, int>> getAcceleratorConnectivity() override{
+  void updateConfiguration(const HeterogeneousMap &config) override {
+    // if (config.keyExists<int>("shots")) {
+    //   shots = config.get<int>("shots");
+    // }
+    // if (config.stringExists("backend")) {
+    //   backend = config.getString("backend");
+    // }
+  }
+
+  const std::vector<std::string> configurationKeys() override {
+    return {"shots", "backend"};
+  }
+
+  HeterogeneousMap getProperties() override;
+
+  const std::string getSignature() override { return "qcs:" + backend; }
+
+  std::vector<std::pair<int, int>> getConnectivity() override {
     if (!latticeEdges.empty()) {
       return latticeEdges;
     }
     return std::vector<std::pair<int, int>>{};
   }
-  /**
-   * Return true if this Accelerator can allocated
-   * NBits number of bits.
-   * @param NBits
-   * @return
-   */
-  bool isValidBufferSize(const int NBits) override;
 
-  /**
-   * This Accelerator models QPU Gate accelerators.
-   * @return
-   */
-  AcceleratorType getType() override { return AcceleratorType::qpu_gate; }
-
-  /**
-   * We have no need to transform the IR for this Accelerator,
-   * so return an empty list, for now.
-   * @return
-   */
   std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() override {
     std::vector<std::shared_ptr<IRTransformation>> v;
@@ -145,24 +131,13 @@ public:
     return v;
   }
 
-  /**
-   * Return all relevant RigettiAccelerator runtime options.
-   * Users can set the api-key, execution type, and number of triels
-   * from the command line with these options.
-   */
-  OptionPairs getOptions() override {
-    OptionPairs desc{{"qcs-shots", "Provide the number of trials to execute."},
-                     {"qcs-backend", ""}};
-    return desc;
-  }
-
   const std::string name() const override { return "qcs"; }
   const std::string description() const override { return ""; }
 
   /**
    * The destructor
    */
-  virtual ~QCSAccelerator() { delete guard;}
+  virtual ~QCSAccelerator() {}
 };
 
 } // namespace quantum
