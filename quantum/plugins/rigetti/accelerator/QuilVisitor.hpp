@@ -19,25 +19,12 @@
 namespace xacc {
 namespace quantum {
 
-/**
- * The QuilVisitor is an InstructionVisitor that visits
- * quantum gate instructions and creates an equivalent
- * Quil string that can be executed by the Rigetti
- * superconducting quantum computer.
- *
- */
 class QuilVisitor : public AllGateVisitor {
 protected:
-  /**
-   * Reference to the Quil string
-   * this visitor is trying to construct
-   */
+
   std::string quilStr;
   constexpr static double pi = 3.1415926;
-  /**
-   * Reference to the classical memory address indices
-   * where measurements are recorded.
-   */
+
   std::string classicalAddresses;
 
   std::map<int, int> qubitToClassicalBitIndex;
@@ -52,9 +39,6 @@ public:
   QuilVisitor() {}
   QuilVisitor(bool measures) : includeMeasures(measures) {}
 
-  /**
-   * Visit hadamard gates
-   */
   void visit(Hadamard &h) {
     std::string qubit = std::to_string(h.bits()[0]);
     quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit + "\nRZ(pi/2) " + qubit + "\n";
@@ -72,39 +56,25 @@ public:
                q2 + "\n";
   }
 
-  /**
-   * Visit CNOT gates
-   */
   void visit(CNOT &cn) {
     std::string q1 = std::to_string(cn.bits()[0]);
     std::string q2 = std::to_string(cn.bits()[1]);
-    quilStr += "RZ(-pi/2) " + q2 + "\nRX(pi/2) " + q2 + "\nCZ " + q2 + " " + q1 + "\nRX(-pi/2) " + q2 + "\nRZ(pi/2) " + q2 + "\nRZ(pi) "+ q1 + "\n";
+    quilStr += "RZ(-pi/2) " + q2 + "\nRX(pi/2) " + q2 + "\nCZ " + q2 + " " + q1 + "\nRZ(pi) " + q1 + "\nRX(-pi/2) " + q2 + "\nRZ(pi/2) " + q2 + "\n";
   }
-  /**
-   * Visit X gates
-   */
+
   void visit(X &x) {
       std::string qubit = std::to_string(x.bits()[0]);
       auto angleStr = std::to_string(pi);
       quilStr += "RX(pi) " + qubit + "\n"; }
 
-  /**
-   *
-   */
   void visit(Y &y) {
       std::string qubit = std::to_string(y.bits()[0]);
       quilStr += "RZ(pi) " + qubit + "\nRX(pi) " + qubit + "\n"; }
 
-  /**
-   * Visit Z gates
-   */
   void visit(Z &z) {
       std::string qubit = std::to_string(z.bits()[0]);
       quilStr += "RZ(pi) " + qubit + "\n"; }
 
-  /**
-   * Visit Measurement gates
-   */
   void visit(Measure &m) {
     if (includeMeasures) {
       int classicalBitIdx = m.getClassicalBitIndex();
@@ -120,25 +90,19 @@ public:
     }
   }
 
-  /**
-   * Visit Conditional functions
-   */
-//   void visit(ConditionalFunction &c) {
-//     auto visitor = std::make_shared<QuilVisitor>();
-//     auto classicalBitIdx = qubitToClassicalBitIndex[c.getConditionalQubit()];
-//     quilStr += "JUMP-UNLESS @" + c.name() + " [" +
-//                std::to_string(classicalBitIdx) + "]\n";
-//     for (auto inst : c.getInstructions()) {
-//       inst->accept(visitor);
-//     }
-//     quilStr += visitor->getQuilString();
-//     quilStr += "LABEL @" + c.name() + "\n";
-//   }
-
   void visit(Rx &rx) {
     std::string qubit = std::to_string(rx.bits()[0]);
     auto angleStr = rx.getParameter(0).toString();
-    quilStr += "RX(" + angleStr + ") " + qubit + "\n";
+
+    auto angleDouble = rx.getParameter(0).as<double>();
+    if (std::fabs(angleDouble % (xacc::constants::pi / 2.0)) < 1e-3) {
+        int multiple = (int) angleDouble / (xacc::constants::pi / 2.);
+        quilStr += "RX(" + std::to_string(multiple) + "* pi/2) " + qubit << "\n";
+    } else {
+    // quilStr += "RX(" + angleStr + ") " + qubit + "\n";
+       // decompose into rigetti gate set
+       quilStr += "RZ(pi/2) " + qubit + "\nRX(pi/2) " + qubit +"\nRz(" + angleStr + ") " + qubit + "\nRX(-pi/2) " + qubit + "\nRZ(-pi/2) "+ qubit + "\n";
+    }
   }
 
   void visit(Ry &ry) {
@@ -162,10 +126,16 @@ public:
   }
 
   void visit(Swap &s) {
-    std::string q1 = std::to_string(s.bits()[0]);
-    std::string q2 = std::to_string(s.bits()[1]);
-    quilStr += "SWAP " + q1 + " " +
-               q2 + "\n";
+    CNOT cn1 (s.bits());
+    CNOT cn2 (s.bits());
+    CNOT cn3 (s.bits());
+    visit(cn1);
+    visit(cn2);
+    visit(cn3);
+    // std::string q1 = std::to_string(s.bits()[0]);
+    // std::string q2 = std::to_string(s.bits()[1]);
+    // quilStr += "SWAP " + q1 + " " +
+    //            q2 + "\n";
   }
 
  void visit(U& u) {
@@ -173,12 +143,19 @@ public:
     auto p = u.getParameter(1).toString();
     auto l = u.getParameter(2).toString();
 
-    std::stringstream s;
-    s << "   Rz(" << t << ", " << u.bits()[0] << ")\n";
-    s << "   Ry(" << p << ", " << u.bits()[0] << ")\n";
-    s << "   Rz(" << l << ", " << u.bits()[0] << ")\n";
+    Rz rz(u.bits()[0], t);
+    Ry ry(u.bits()[0], p);
+    Rz rz2 (u.bits()[0], l);
+    visit(rz);
+    visit(ry);
+    visit(rz2);
 
-    quilStr += s.str();
+    // std::stringstream s;
+    // s << "   Rz(" << t << ", " << u.bits()[0] << ")\n";
+    // s << "   Ry(" << p << ", " << u.bits()[0] << ")\n";
+    // s << "   Rz(" << l << ", " << u.bits()[0] << ")\n";
+
+    // quilStr += s.str();
   }
 
   /**
