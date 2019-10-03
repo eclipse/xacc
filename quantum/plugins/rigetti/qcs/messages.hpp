@@ -23,11 +23,12 @@ class BinaryExecutableRequest {
 protected:
   int num_shots = 1024;
   std::string quil;
+  std::string _type = "BinaryExecutableRequest";
 public:
    BinaryExecutableRequest() = default;
    BinaryExecutableRequest(int s, std::string q) : quil(q), num_shots(s) {}
    BinaryExecutableRequest(const BinaryExecutableRequest& r) :quil(r.quil), num_shots(r.num_shots) {}
-   MSGPACK_DEFINE_MAP(num_shots, quil);
+   MSGPACK_DEFINE_MAP(quil, num_shots, _type);
 };
 
 class QPURequest {
@@ -35,9 +36,12 @@ class QPURequest {
     std::string program;
     std::string id;
     std::map<std::string,std::string> patch_values;
+    std::string _type = "QPURequest";
+    std::string user = "ccde1544-c4bc-40f0-9914-010be987dc0d";
+    int priority = 1;
   public:
     QPURequest(std::string p, std::string i) : program(p), id(i) {}
-    MSGPACK_DEFINE_MAP(id, program, patch_values);
+    MSGPACK_DEFINE_MAP(id, program, _type, patch_values, user, priority);
 };
 
 class GetBuffersRequest {
@@ -53,7 +57,7 @@ class RPCRequestGetBuffers {
 protected:
   std::string id;
   std::string jsonrpc = "2.0";
-  std::string method = "execute_qpu_request";
+  std::string method = "get_buffers";
   GetBuffersRequest& params;
   std::string _type = "RPCRequest";
 
