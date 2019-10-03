@@ -74,12 +74,13 @@ public:
   void visit(Z &z) {
       std::string qubit = std::to_string(z.bits()[0]);
       quilStr += "RZ(pi) " + qubit + "\n"; }
-
+  int countMeasures = 0;
   void visit(Measure &m) {
     if (includeMeasures) {
       int classicalBitIdx = m.getClassicalBitIndex();
       quilStr += "MEASURE " + std::to_string(m.bits()[0]) + " ro[" +
-                 std::to_string(classicalBitIdx) + "]\n";
+                 std::to_string(countMeasures) + "]\n";
+     countMeasures++;
       classicalAddresses += std::to_string(classicalBitIdx) + ", ";
       numAddresses++;
       qubitToClassicalBitIndex.insert(
