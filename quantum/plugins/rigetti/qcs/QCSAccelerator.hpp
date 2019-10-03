@@ -31,7 +31,11 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
-
+class ResultsDecoder {
+public:
+  void decode(std::shared_ptr<AcceleratorBuffer> buffer,
+              const std::string jsonresults, std::set<int> qbitIdxs, int shots);
+};
 
 class MapToPhysical : public xacc::IRTransformation {
 protected:
@@ -57,7 +61,6 @@ protected:
   std::vector<std::pair<int, int>> latticeEdges;
   Document latticeJson;
   std::string backend;
-
 
 public:
   QCSAccelerator() : Accelerator() {}
@@ -113,7 +116,7 @@ public:
     return {"shots", "backend"};
   }
 
-  HeterogeneousMap getProperties() override {return HeterogeneousMap();}
+  HeterogeneousMap getProperties() override { return HeterogeneousMap(); }
 
   const std::string getSignature() override { return "qcs:" + backend; }
 

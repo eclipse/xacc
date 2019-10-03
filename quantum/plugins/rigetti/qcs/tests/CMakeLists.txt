@@ -10,5 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
 add_xacc_test(QCS)
-target_link_libraries(QCSTester xacc-rigetti-qcs ${PYTHON_LIBRARY})
+target_link_libraries(QCSTester xacc)

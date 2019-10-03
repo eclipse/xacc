@@ -73,6 +73,7 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/qcs/cmake")
 find_package(UUID)
+
 message(STATUS "HOWDY ${UUID_INCLUDE_DIRS} ${UUID_LIBRARIES}")
 if (UUID_FOUND AND EXISTS $ENV{HOME}/.zmq/include/msgpack.hpp)
 #add_subdirectory(qcs)
