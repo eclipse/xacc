@@ -23,7 +23,7 @@
 
 #include <regex>
 #include <chrono>
-#include <uuid.h>
+#include <uuid/uuid.h>
 
 #include <zmq.hpp>
 
@@ -114,7 +114,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
     // std::cout << "Physical bits:\n";
     // for (auto& b : physicalMap) std::cout << b << "\n";
-    function->mapBits(physicalMap);
+//    function->mapBits(physicalMap);
   }
 
   return ir;
@@ -125,21 +125,22 @@ void QCSAccelerator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
   auto visitor = std::make_shared<QuilVisitor>(true);
 
-  auto shots = 1024;
+  auto shots = 10;
 
   std::set<int> qbitIdxs;
   InstructionIterator it(function);
+std::cout << "START LOOPING\n";
   while (it.hasNext()) {
     // Get the next node in the tree
     auto nextInst = it.next();
     if (nextInst->isEnabled()) {
       nextInst->accept(visitor);
-      //   if (nextInst->name() == "Measure") {
+         if (nextInst->name() == "Measure") {
       qbitIdxs.insert(nextInst->bits()[0]);
-      //   }
+         }
     }
   }
-
+  std::cout <<" MADE IT HERE\n";
   CountGatesOfTypeVisitor<Measure> count(function);
   int nMeasures = count.countGates();
   auto quilStr = visitor->getQuilString();
@@ -227,7 +228,6 @@ void QCSAccelerator::execute(
 
   std::cout << "getbuffs zmq: " << msg3 << "\n";
 
-  std::cout << "ITHINKJOBID: " << waitId << "\n";
   socket2.send(msg3);
 
   zmq::message_t reply3;
@@ -239,12 +239,12 @@ void QCSAccelerator::execute(
   std::stringstream ss3;
   ss3 << unpackedData3.get();
 
-  //  std::cout << "GETBUFS:\n" << ss3.str() << "\n";
+    std::cout << "GETBUFS:\n" << ss3.str() << "\n";
   // now we have json results
-  auto getBuffsJson = json::parse(ss3.str());
-  std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
+  //auto getBuffsJson = json::parse(ss3.str());
+  //std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
 
-  ResultsDecoder().decode(buffer, getBuffsJson, qbitIdxs, shots);
+  ResultsDecoder().decode(buffer,ss3.str(), qbitIdxs, shots);
   return;
 }
 
@@ -268,9 +268,10 @@ ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
   auto j = std::regex_replace(jsonresults, std::regex("b'"), "\"");
   j = std::regex_replace(j, std::regex("'"), "\"");
   j.erase(std::remove(j.begin(), j.end(), '\\'), j.end());
-
+std::cout << "parsing get bufs\n";
   using json = nlohmann::json;
   auto jj = json::parse(j);
+std::cout << "parsed it\n";
 
   Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, qbitIdxs.size());
   int counter = 0;
