@@ -31,6 +31,8 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+
+
 class MapToPhysical : public xacc::IRTransformation {
 protected:
   std::vector<std::pair<int, int>> _edges;
@@ -111,7 +113,7 @@ public:
     return {"shots", "backend"};
   }
 
-  HeterogeneousMap getProperties() override;
+  HeterogeneousMap getProperties() override {return HeterogeneousMap();}
 
   const std::string getSignature() override { return "qcs:" + backend; }
 

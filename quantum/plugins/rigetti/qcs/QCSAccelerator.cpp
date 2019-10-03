@@ -26,6 +26,7 @@
 
 #include <zmq.hpp>
 
+#include "json.hpp"
 using namespace std;
 using namespace std::chrono;
 
@@ -34,6 +35,7 @@ using namespace std::chrono;
 
 namespace xacc {
 namespace quantum {
+
 
 std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
@@ -143,7 +145,7 @@ void QCSAccelerator::execute(
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
 
-  const string endpoint = "tcp://127.0.0.1:5555";
+  const string endpoint = "tcp://10.1.149.68:5555";
   zmq::context_t context;
   zmq::socket_t socket(context, zmq::socket_type::dealer);
   socket.connect(endpoint);
@@ -176,25 +178,31 @@ void QCSAccelerator::execute(
   std::stringstream ss;
   ss << unpackedData.get();
 
-  auto prog = "";
-
   std::cout << "GOT THE JSON:\n" << ss.str() << "\n";
-
+  using json = nlohmann::json;
+  auto execBinaryJson = json::parse(ss.str());
+  auto prog = execBinaryJson["result"]["program"].dump();
+  std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0,100) << "\n";
+ 
   // QPU REQUEST
+  const string endpoint2 = "tcp://10.1.149.68:50052";
+  zmq::context_t context2;
+  zmq::socket_t socket2(context2, zmq::socket_type::dealer);
+  socket2.connect(endpoint2);
   qcs::QPURequest qpuReq(prog, id);
   qcs::QPURequestParams qpuParams(qpuReq);
   qcs::RPCRequestQPURequest r2(id, qpuParams);
   msgpack::sbuffer sbuf2;
   msgpack::pack(sbuf2, r2);
-  zmq::message_t msg2(sbuf.size());
+  zmq::message_t msg2(sbuf2.size());
   memcpy(msg2.data(), sbuf2.data(), sbuf2.size());
 
   std::cout << msg2 << "\n";
 
-  socket.send(msg2);
+  socket2.send(msg2);
 
   zmq::message_t reply2;
-  socket.recv(&reply2, 0);
+  socket2.recv(&reply2, 0);
   std::cout << reply2.data() << "\n";
   msgpack::unpacked unpackedData2;
   msgpack::unpack(unpackedData2, static_cast<const char *>(reply2.data()),
@@ -202,22 +210,27 @@ void QCSAccelerator::execute(
   std::stringstream ss2;
   ss2 << unpackedData2.get();
 
-  auto waitId = "";
-  // GET BUFFERS
+  std::cout << "QPUReq response = \n" << ss2.str() << "\n";
+  auto qpuResponseJson = json::parse(ss2.str());
+  auto waitId = qpuResponseJson["result"].dump();
+  waitId = waitId.substr(1,waitId.length()-2);
+  
+// GET BUFFERS
   qcs::GetBuffersRequest getBuffers(waitId);
   qcs::RPCRequestGetBuffers r3(id, getBuffers);
 
   msgpack::sbuffer sbuf3;
   msgpack::pack(sbuf3, r3);
-  zmq::message_t msg3(sbuf.size());
+  zmq::message_t msg3(sbuf3.size());
   memcpy(msg3.data(), sbuf3.data(), sbuf3.size());
 
-  std::cout << msg3 << "\n";
+  std::cout << "getbuffs zmq: " << msg3 << "\n";
 
-  socket.send(msg3);
+  std::cout << "ITHINKJOBID: " << waitId << "\n";
+  socket2.send(msg3);
 
   zmq::message_t reply3;
-  socket.recv(&reply3, 0);
+  socket2.recv(&reply3, 0);
   std::cout << reply3.data() << "\n";
   msgpack::unpacked unpackedData3;
   msgpack::unpack(unpackedData3, static_cast<const char *>(reply3.data()),
@@ -225,8 +238,11 @@ void QCSAccelerator::execute(
   std::stringstream ss3;
   ss3 << unpackedData3.get();
 
-  // now we have json results
 
+//  std::cout << "GETBUFS:\n" << ss3.str() << "\n";
+  // now we have json results
+  auto getBuffsJson = json::parse(ss3.str());
+  std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
   return;
 }
 
