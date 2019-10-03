@@ -87,7 +87,11 @@ public:
   const std::string name() const override { return circuitName; }
   const std::string description() const override { return ""; }
 
-  void mapBits(std::vector<std::size_t> bitMap) override {}
+  void mapBits(std::vector<std::size_t> bitMap) override {
+      for (auto& inst : instructions) {
+          inst->mapBits(bitMap);
+      }
+  }
   void setBits(const std::vector<std::size_t> bits) override {}
   const std::vector<std::size_t> bits() override { return {}; }
 
@@ -249,7 +253,7 @@ public:
   std::shared_ptr<Graph> toGraph() override;
 
   void flatten();
-  
+
   const std::size_t nLogicalBits() override {
     // n logical should just be the number of
     // unique qbit integers

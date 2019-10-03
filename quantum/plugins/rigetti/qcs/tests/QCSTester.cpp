@@ -12,42 +12,73 @@
  *******************************************************************************/
 #include <memory>
 #include <gtest/gtest.h>
-#include "QCSAccelerator.hpp"
+#include <regex>
+#include <vector>
+
+#include "json.hpp"
+#include <Eigen/Dense>
 
 #include "xacc_service.hpp"
+#include "xacc.hpp"
+using namespace xacc;
 
-using namespace xacc::quantum;
+class ResultsDecoder {
+public:
 
-TEST(QCSTester, checkSimpleTransformation) {
-  int shots = 8192;
-  int nExecs = 4;
-  xacc::setOption("qcs-shots", "10000");
-    xacc::setOption("qcs-backend","Aspen-4-4Q-A");
-    auto acc = xacc::getAccelerator("qcs");
-    auto buffer = acc->createBuffer("buffer", 4);
+  std::shared_ptr<AcceleratorBuffer> decode(const std::string jsonresults, std::vector<int> qbitIdxs, int shots) {
 
-    auto compiler = xacc::getService<xacc::Compiler>("xacc-py");
-    const std::string src = R"src(def f(buffer):
-       CX(0,1)
-       CX(1,2)
-       CX(2,3)
-       Measure(0, 0)
-       Measure(1, 1)
-       Measure(2, 2)
-       )src";
+   auto j = std::regex_replace(jsonresults, std::regex("b'"), "\"");
+   j = std::regex_replace(j, std::regex("'"), "\"");
+   j.erase(std::remove(j.begin(), j.end(), '\\'), j.end());
 
-    auto ir = compiler->compile(src, acc);
-    auto f = ir->getKernel("f");
+   std::cout << "jsonresults: " << j << "\n";
 
+  using json = nlohmann::json;
 
+  auto jj = json::parse(j);
 
-    auto t = acc->getIRTransformations()[0];
-    ir = t->transform(ir);
+  Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, qbitIdxs.size());
+  int counter = 0;
+  for (auto& i : qbitIdxs) {
+      auto shape = jj["result"]["q"+std::to_string(i)]["shape"][0].get<int>();
+      auto data = jj["result"]["q"+std::to_string(i)]["data"].get<std::string>();
+      std::cout << "SHAPE: " << shape << "\n";
+      int kcounter = 0;
+      for (int k = 0; k < shape*3; k+=3) {
+          std::cout << "BIT: " << data.substr(k, 3) << "\n";
+          std::string hex = data.substr(k,3);
+          xacc::trim(hex);
+          int bit = hex == "x01" ? 1 : 0;
+          bits(kcounter, counter) = bit;
+          kcounter++;
+      }
+      counter++;
+  }
 
-    std::cout << "TEST:\n" << ir->getKernels()[0]->toString() << "\n";
+  std::cout << bits << "\n";
+auto buffer = xacc::qalloc(qbitIdxs.size());
+  for (int i = 0; i < bits.rows(); i++) {
+
+      std::string bitstr = "";
+      for (int j = 0; j < bits.cols(); j++) {
+          bitstr += std::to_string(bits(i,j));
+      }
+
+      buffer->appendMeasurement(bitstr);
+  }
+
+  buffer->print();
+  return buffer;
+
+  }
+};
+TEST(ResultsDecoderTester, checkSimple) {
+auto src = R"src({"result":{ 'q1': {'shape': [5], 'dtype': 'int8', 'data': b'\x01\x01\x01\x01\x01'}, 'q2': {'shape': [5], 'dtype': 'int8', 'data': b'\x00\x00\x00\x00\x00'}}})src";
+
+ResultsDecoder decoder;
+auto buffer = decoder.decode(src, {1,2}, 5);
 
 }
-
 
 int main(int argc, char **argv) {
     xacc::Initialize();

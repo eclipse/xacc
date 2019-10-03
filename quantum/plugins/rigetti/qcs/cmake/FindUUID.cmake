@@ -4,8 +4,8 @@ find_package(PkgConfig)
 pkg_check_modules(PC_UUID QUIET uuid)
 set(UUID_DEFINITIONS ${PC_UUID_CFLAGS_OTHER})
 
-find_path(UUID_INCLUDE_DIR uuid.h
-    HINTS ${PC_UUID_INCLUDEDIR} ${PC_UUID_INCLUDE_DIRS} /usr/include /usr/include/uuid)
+find_path(UUID_INCLUDE_DIR uuid/uuid.h
+    HINTS ${PC_UUID_INCLUDEDIR} ${PC_UUID_INCLUDE_DIRS})
 set(UUID_INCLUDE_DIRS ${UUID_INCLUDE_DIR})
 
 # On OS X we don't need the library

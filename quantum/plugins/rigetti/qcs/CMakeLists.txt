@@ -11,7 +11,7 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 set(LIBRARY_NAME xacc-rigetti-qcs)
-
+message(STATUS "BUILDING RIGETTI QCS")
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp)
 
@@ -24,7 +24,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
                            PUBLIC . ../accelerator ${UUID_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                  $ENV{HOME}/.zmq/include
+                                  ${CMAKE_SOURCE_DIR}/tpls/eigen $ENV{HOME}/.zmq/include
                                   )
 set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{HOME}/.zmq")
 find_package(cppzmq)
@@ -61,5 +61,5 @@ endif()
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 if(XACC_BUILD_TESTS)
-  #add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()

@@ -19,6 +19,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "EmbeddingAlgorithm.hpp"
+#include <Eigen/Dense>
 
 #include <regex>
 #include <chrono>
@@ -35,7 +36,6 @@ using namespace std::chrono;
 
 namespace xacc {
 namespace quantum {
-
 
 std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
@@ -88,7 +88,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
     auto problemGraph = xacc::getService<Graph>("boost-ugraph");
 
     for (int i = 0; i < nProbBits; i++) {
-    HeterogeneousMap m{std::make_pair("bias", 1.0)};
+      HeterogeneousMap m{std::make_pair("bias", 1.0)};
       problemGraph->addVertex(m);
     }
 
@@ -104,7 +104,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
     // Compute the minor graph embedding
     auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
     //    embedding.persist(std::cout);
-    std::vector<int> physicalMap;
+    std::vector<std::size_t> physicalMap;
     for (auto &kv : embedding) {
       if (kv.second.size() > 1) {
         xacc::error("Invalid logical to physical qubit mapping.");
@@ -114,7 +114,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
     // std::cout << "Physical bits:\n";
     // for (auto& b : physicalMap) std::cout << b << "\n";
-    // function->mapBits(physicalMap);
+    function->mapBits(physicalMap);
   }
 
   return ir;
@@ -127,15 +127,16 @@ void QCSAccelerator::execute(
 
   auto shots = 1024;
 
-      std::map<int, int>
-          bitToQubit;
-  std::vector<int> tobesorted;
+  std::set<int> qbitIdxs;
   InstructionIterator it(function);
   while (it.hasNext()) {
     // Get the next node in the tree
     auto nextInst = it.next();
     if (nextInst->isEnabled()) {
       nextInst->accept(visitor);
+      //   if (nextInst->name() == "Measure") {
+      qbitIdxs.insert(nextInst->bits()[0]);
+      //   }
     }
   }
 
@@ -182,8 +183,8 @@ void QCSAccelerator::execute(
   using json = nlohmann::json;
   auto execBinaryJson = json::parse(ss.str());
   auto prog = execBinaryJson["result"]["program"].dump();
-  std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0,100) << "\n";
- 
+  std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0, 100) << "\n";
+
   // QPU REQUEST
   const string endpoint2 = "tcp://10.1.149.68:50052";
   zmq::context_t context2;
@@ -213,9 +214,9 @@ void QCSAccelerator::execute(
   std::cout << "QPUReq response = \n" << ss2.str() << "\n";
   auto qpuResponseJson = json::parse(ss2.str());
   auto waitId = qpuResponseJson["result"].dump();
-  waitId = waitId.substr(1,waitId.length()-2);
-  
-// GET BUFFERS
+  waitId = waitId.substr(1, waitId.length() - 2);
+
+  // GET BUFFERS
   qcs::GetBuffersRequest getBuffers(waitId);
   qcs::RPCRequestGetBuffers r3(id, getBuffers);
 
@@ -238,36 +239,66 @@ void QCSAccelerator::execute(
   std::stringstream ss3;
   ss3 << unpackedData3.get();
 
-
-//  std::cout << "GETBUFS:\n" << ss3.str() << "\n";
+  //  std::cout << "GETBUFS:\n" << ss3.str() << "\n";
   // now we have json results
   auto getBuffsJson = json::parse(ss3.str());
   std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
+
+  ResultsDecoder().decode(buffer, getBuffsJson, qbitIdxs, shots);
   return;
 }
 
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
-
-  //   std::vector<std::shared_ptr<AcceleratorBuffer>> tmpBuffers;
-  //   int counter = 1;
-  //   for (auto f : functions) {
-  //     auto tmpBuffer = createBuffer(f->name(), buffer->size());
-
-  //     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  //     // xacc::info("Execution " + std::to_string(counter) + ": " +
-  //     f->name()); execute(tmpBuffer, f); high_resolution_clock::time_point t2
-  //     = high_resolution_clock::now();
-
-  //     auto duration = duration_cast<microseconds>(t2 - t1).count();
-  //     tmpBuffer->addExtraInfo("exec-time", ExtraInfo(duration * 1e-6));
-  //     tmpBuffers.push_back(tmpBuffer);
-  //     counter++;
-  //   }
-
-  //   return tmpBuffers;
+  for (auto f : functions) {
+    auto tmpBuffer =
+        std::make_shared<AcceleratorBuffer>(f->name(), buffer->size());
+    execute(tmpBuffer, f);
+    buffer->appendChild(tmpBuffer->name(), tmpBuffer);
+  }
+  return;
 }
 
+void
+ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::string jsonresults, std::set<int> qbitIdxs,
+                       int shots) {
+
+  auto j = std::regex_replace(jsonresults, std::regex("b'"), "\"");
+  j = std::regex_replace(j, std::regex("'"), "\"");
+  j.erase(std::remove(j.begin(), j.end(), '\\'), j.end());
+
+  using json = nlohmann::json;
+  auto jj = json::parse(j);
+
+  Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, qbitIdxs.size());
+  int counter = 0;
+  for (auto &i : qbitIdxs) {
+    auto shape = jj["result"]["q" + std::to_string(i)]["shape"][0].get<int>();
+    auto data =
+        jj["result"]["q" + std::to_string(i)]["data"].get<std::string>();
+    int kcounter = 0;
+    for (int k = 0; k < shape * 3; k += 3) {
+      std::string hex = data.substr(k, 3);
+      xacc::trim(hex);
+      int bit = hex == "x01" ? 1 : 0;
+      bits(kcounter, counter) = bit;
+      kcounter++;
+    }
+    counter++;
+  }
+
+  for (int i = 0; i < bits.rows(); i++) {
+
+    std::string bitstr = "";
+    for (int j = 0; j < bits.cols(); j++) {
+      bitstr += std::to_string(bits(i, j));
+    }
+
+    buffer->appendMeasurement(bitstr);
+  }
+  return;
+}
 } // namespace quantum
 } // namespace xacc
