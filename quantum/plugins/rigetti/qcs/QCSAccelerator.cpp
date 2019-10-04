@@ -186,11 +186,36 @@ std::cout << "START LOOPING\n";
   auto prog = execBinaryJson["result"]["program"].dump();
   std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0, 100) << "\n";
 
-  // QPU REQUEST
+  // QPU REQUESTS
   const string endpoint2 = "tcp://10.1.149.68:50052";
   zmq::context_t context2;
   zmq::socket_t socket2(context2, zmq::socket_type::dealer);
   socket2.connect(endpoint2);
+
+  qcs::RewriteArithmeticRequest rewrite(quilStr);
+  qcs::RewriteArithmeticParams rparams(rewrite);
+  qcs::RPCRequestRewriteArithmetic r4(id, rparams);
+
+  msgpack::sbuffer sbuf4;
+  msgpack::pack(sbuf4, r4);
+  zmq::message_t msg4(sbuf4.size());
+  memcpy(msg4.data(), sbuf4.data(), sbuf4.size());
+
+  std::cout << msg4 << "\n";
+
+  socket2.send(msg4);
+
+  zmq::message_t reply4;
+  socket.recv(&reply4, 0);
+  std::cout << reply4.data() << "\n";
+  msgpack::unpacked unpackedData4;
+  msgpack::unpack(unpackedData4, static_cast<const char *>(reply4.data()),
+                  reply4.size());
+  std::stringstream ss4;
+  ss4 << unpackedData4.get();
+
+  std::cout<< "RWA:\n" << ss4.str() << "\n";
+
   qcs::QPURequest qpuReq(prog, id);
   qcs::QPURequestParams qpuParams(qpuReq);
   qcs::RPCRequestQPURequest r2(id, qpuParams);

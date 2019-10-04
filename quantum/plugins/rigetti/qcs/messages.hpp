@@ -18,6 +18,13 @@
 namespace xacc {
 namespace qcs {
 
+class RewriteArithmeticRequest {
+protected:
+  std::string quil;
+public:
+  RewriteArithmeticRequest(std::string q) : quil(q) {}
+  MSGPACK_DEFINE_MAP(quil);
+};
 
 class BinaryExecutableRequest {
 protected:
@@ -66,6 +73,17 @@ public:
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
 };
 
+class RewriteArithmeticParams {
+protected:
+  std::vector<RewriteArithmeticRequest> args;
+
+public:
+  RewriteArithmeticParams(RewriteArithmeticRequest& a)  {
+    args.push_back(a);
+  }
+  MSGPACK_DEFINE_MAP(MSGPACK_NVP("*args", args));
+};
+
 class BinaryExecutableParams {
 protected:
   std::vector<BinaryExecutableRequest> args;
@@ -99,6 +117,19 @@ public:
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
 };
 
+
+class RPCRequestRewriteArithmetic {
+protected:
+  std::string id;
+  std::string jsonrpc = "2.0";
+  std::string method = "rewrite_arithmetic";
+  RewriteArithmeticParams& params;
+  std::string _type = "RPCRequest";
+
+public:
+  RPCRequestRewriteArithmetic(std::string i, RewriteArithmeticParams &p) :params(p), id(i) {}
+  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
+};
 
 class RPCRequestQPURequest {
 protected:
