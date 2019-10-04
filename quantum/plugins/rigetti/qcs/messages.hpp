@@ -22,6 +22,7 @@ class RewriteArithmeticRequest {
 protected:
   std::string quil;
 public:
+   RewriteArithmeticRequest() = default;
   RewriteArithmeticRequest(std::string q) : quil(q) {}
   MSGPACK_DEFINE_MAP(quil);
 };
