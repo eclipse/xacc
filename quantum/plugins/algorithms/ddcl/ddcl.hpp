@@ -23,7 +23,10 @@ using Counts = std::map<std::string, int>;
 
 class LossStrategy : public Identifiable {
 public:
-  virtual double compute(Counts &counts, const std::vector<double> &target) = 0;
+  virtual std::pair<double, std::vector<double>>
+  compute(Counts &counts, const std::vector<double> &target) = 0;
+
+  virtual bool isValidGradientStrategy(const std::string &gradientStrategy) = 0;
 };
 
 class GradientStrategy : public Identifiable {
@@ -33,8 +36,9 @@ public:
   // and the current iterate's parameters
   virtual std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) = 0;
-  virtual void compute(std::vector<double> &grad,
-                       std::vector<Counts> results) = 0;
+  virtual void compute(std::vector<double> &grad, std::vector<Counts> results,
+                       const std::vector<double> &q_dist,
+                       const std::vector<double> &target_dist) = 0;
 };
 
 class NullGradientStrategy : public GradientStrategy {
@@ -43,8 +47,9 @@ public:
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
     return {};
   }
-  void compute(std::vector<double> &grad,
-               std::vector<Counts> results) override {
+  void compute(std::vector<double> &grad, std::vector<Counts> results,
+               const std::vector<double> &q_dist,
+               const std::vector<double> &target_dist) override {
     return;
   }
   const std::string name() const override { return "null-gs"; }

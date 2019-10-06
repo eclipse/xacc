@@ -11,7 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "ddcl.hpp"
-#include "strategies/js_loss.hpp"
+#include "strategies/js.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -39,7 +39,9 @@ public:
 
     auto js = std::make_shared<xacc::algorithm::JSLossStrategy>();
     context.RegisterService<xacc::algorithm::LossStrategy>(js);
-
+    auto js_g_ps =
+        std::make_shared<xacc::algorithm::JSParameterShiftGradientStrategy>();
+    context.RegisterService<xacc::algorithm::GradientStrategy>(js_g_ps);
   }
 
   /**

@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <iomanip>
+#include <cassert>
 
 using namespace xacc;
 
@@ -44,7 +45,9 @@ bool DDCL::initialize(const HeterogeneousMap &parameters) {
   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
   target_dist = parameters.get<std::vector<double>>("target_dist");
   loss = parameters.getString("loss");
-  gradient = parameters.stringExists("gradient") ? parameters.getString("gradient") : "";
+  gradient = parameters.stringExists("gradient")
+                 ? parameters.getString("gradient")
+                 : "";
 
   return true;
 }
@@ -89,6 +92,10 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           for (auto &g : gradientCircuits) {
             circuits.push_back(g);
           }
+
+          assert(circuits.size() == 2 * x.size() + 1);
+        } else {
+          assert(circuits.size() == 1);
         }
 
         // Execute!
@@ -98,6 +105,12 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
         // The first child buffer is for the loss function
         auto counts = buffers[0]->getMeasurementCounts();
+
+        // Compute and return the loss, this gives us the
+        // distribution of the loss circuit too
+        auto loss_and_qdist = lossStrategy->compute(counts, target_dist);
+        auto loss = loss_and_qdist.first;
+        auto qdist = loss_and_qdist.second;
 
         // Only compute gradients if this is
         // a gradient based optimizer
@@ -109,15 +122,12 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           // Compute the gradient with the results
-          gradientStrategy->compute(dx, gradResults);
+          gradientStrategy->compute(dx, gradResults, qdist, target_dist);
         }
-        // Compute and return the loss
-        auto js = lossStrategy->compute(counts, target_dist);
-
         std::stringstream ss;
-        ss << x << ") = " << js;
-        xacc::info("JSDiv(" + ss.str());
-        return js;
+        ss << x << ") = " << std::setprecision(12) << loss;
+        xacc::info("Loss(" + ss.str());
+        return loss;
       },
       kernel->nVariables());
 
