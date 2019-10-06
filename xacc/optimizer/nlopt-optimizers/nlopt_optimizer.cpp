@@ -19,16 +19,17 @@ using namespace std::placeholders;
 
 namespace xacc {
 
-double c_wrapper(const std::vector<double>& x, std::vector<double>& grad, void * extra) {
-    auto e = reinterpret_cast<ExtraNLOptData*>(extra);
-    return e->f(x, grad);
+double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
+                 void *extra) {
+  auto e = reinterpret_cast<ExtraNLOptData *>(extra);
+  return e->f(x, grad);
 }
 
 OptResult NLOptimizer::optimize(OptFunction &function) {
 
   auto dim = function.dimensions();
   nlopt::algorithm algo = nlopt::algorithm::LN_COBYLA;
-  double tol = 1e-8;
+  double tol = 1e-6;
   int maxeval = 1000;
 
   if (options.stringExists("nlopt-optimizer")) {
@@ -51,6 +52,7 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
+    std::cout << "MAXEVAL: " << maxeval << "\n";
   }
 
   std::vector<double> x(dim);
@@ -61,9 +63,9 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     x = std::vector<double>(tmpx.begin(), tmpx.end());
   }
 
-   ExtraNLOptData data;
-   data.f = function;
-   auto d = reinterpret_cast<void*>(&data);
+  ExtraNLOptData data;
+  data.f = function;
+  auto d = reinterpret_cast<void *>(&data);
 
   nlopt::opt _opt(algo, dim);
   _opt.set_min_objective(c_wrapper, d);
@@ -73,13 +75,17 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   _opt.set_ftol_rel(tol);
 
   double optF;
+  nlopt::result r;
   try {
-    auto result = _opt.optimize(x, optF);
+    r = _opt.optimize(x, optF);
   } catch (std::exception &e) {
-    std::cout << "[NLOpt Dimensions (dim,x.size()) = (" << dim << ", "
-              << x.size() << ")\n";
-    xacc::XACCLogger::instance()->error("NLOpt failed: " +
-                                        std::string(e.what()));
+    std::cout << "[nlopt warning] " << e.what() << ", result code = " << r
+              << "\n";
+  }
+
+  if (r < 0) {
+    xacc::XACCLogger::instance()->error("NLOpt failed with error code = " +
+                                        std::to_string(r));
   }
   return OptResult{optF, x};
 }
