@@ -103,6 +103,8 @@ public:
                const std::vector<double> &q_dist,
                const std::vector<double> &target_dist) override {
     assert(grad.size() == 2 * results.size());
+
+    // Get the number of shosts
     int shots = 0;
     for (auto &x : results[0]) {
       shots += x.second;
