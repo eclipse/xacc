@@ -61,6 +61,23 @@ protected:
   MSGPACK_DEFINE_MAP(wait, MSGPACK_NVP("*args", args));
 };
 
+struct custom {
+  std::vector<int> shape;
+  std::string dtype;
+  std::vector<int> data;
+  MSGPACK_DEFINE_MAP(shape, dtype, data);
+};
+
+class GetBuffersResponse {
+public:
+  std::string id = "";
+  std::string jsonrpc = "2.0";
+  std::map<std::string, custom> result;
+  std::vector<int> warnings = {};
+  std::string _type = "RPCReply";
+  MSGPACK_DEFINE_MAP(id, jsonrpc, warnings, _type, result); 
+};
+
 class RPCRequestGetBuffers {
 protected:
   std::string id;

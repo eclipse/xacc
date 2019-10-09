@@ -147,7 +147,7 @@ std::cout << "START LOOPING\n";
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
 
-  const string endpoint = "tcp://10.1.149.68:5555";
+  const string endpoint = "tcp://BF02.qcs.rigetti.com:5555";
   zmq::context_t context;
   zmq::socket_t socket(context, zmq::socket_type::dealer);
   socket.connect(endpoint);
@@ -187,12 +187,12 @@ std::cout << "START LOOPING\n";
   std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0, 100) << "\n";
 
   // QPU REQUESTS
-  const string endpoint2 = "tcp://10.1.149.68:50052";
+  const string endpoint2 = "tcp://BF02.qcs.rigetti.com:50052";
   zmq::context_t context2;
   zmq::socket_t socket2(context2, zmq::socket_type::dealer);
   socket2.connect(endpoint2);
 
-  qcs::RewriteArithmeticRequest rewrite(quilStr);
+  /*qcs::RewriteArithmeticRequest rewrite(quilStr);
   qcs::RewriteArithmeticParams rparams(rewrite);
   qcs::RPCRequestRewriteArithmetic r4(id, rparams);
 
@@ -215,7 +215,7 @@ std::cout << "START LOOPING\n";
   ss4 << unpackedData4.get();
 
   std::cout<< "RWA:\n" << ss4.str() << "\n";
-
+*/
   qcs::QPURequest qpuReq(prog, id);
   qcs::QPURequestParams qpuParams(qpuReq);
   qcs::RPCRequestQPURequest r2(id, qpuParams);
@@ -224,7 +224,7 @@ std::cout << "START LOOPING\n";
   zmq::message_t msg2(sbuf2.size());
   memcpy(msg2.data(), sbuf2.data(), sbuf2.size());
 
-  std::cout << msg2 << "\n";
+  std::cout << "QPU REQ EXEC:\n" << msg2 << "\n";
 
   socket2.send(msg2);
 
@@ -257,19 +257,27 @@ std::cout << "START LOOPING\n";
 
   zmq::message_t reply3;
   socket2.recv(&reply3, 0);
-  std::cout << reply3.data() << "\n";
+  std::cout << "REPLY3: " << reply3.data() << "\n";
   msgpack::unpacked unpackedData3;
   msgpack::unpack(unpackedData3, static_cast<const char *>(reply3.data()),
                   reply3.size());
+  qcs::GetBuffersResponse gbresp;
+  unpackedData3.get().convert(gbresp);
+
   std::stringstream ss3;
   ss3 << unpackedData3.get();
 
-    std::cout << "GETBUFS:\n" << ss3.str() << "\n";
+    std::cout << "REPLY3: " << reply3 << "\n";
+    std::cout << "Q1 Shape:\n" << gbresp.result["q1"].shape << "\n";
+    std::cout << "Q1 Data:\n" << gbresp.result["q1"].data << "\n";
+    std::cout << "Q1 Data:\n" << gbresp.result["q1"].data.size() << "\n";
+    std::cout << "Q1 UC Data:\n" << gbresp.result["q1_unclassified"].data << "\n";
+    std::cout << "Q1 Type:\n" << gbresp.result["q1"].dtype << "\n";
   // now we have json results
   //auto getBuffsJson = json::parse(ss3.str());
   //std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
 
-  ResultsDecoder().decode(buffer,ss3.str(), qbitIdxs, shots);
+  //ResultsDecoder().decode(buffer,ss3.str(), qbitIdxs, shots);
   return;
 }
 
