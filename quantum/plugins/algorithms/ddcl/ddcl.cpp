@@ -103,6 +103,11 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         accelerator->execute(tmpBuffer, circuits);
         auto buffers = tmpBuffer->getChildren();
 
+        for (auto b : buffers) {
+            b->addExtraInfo("parameters", x);
+            buffer->appendChild(b->name(), b);
+        }
+
         // The first child buffer is for the loss function
         auto counts = buffers[0]->getMeasurementCounts();
 

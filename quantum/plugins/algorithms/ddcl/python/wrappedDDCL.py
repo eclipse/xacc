@@ -3,13 +3,13 @@ from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
 import xacc
 import inspect
 
-@ComponentFactory("wrapped_vqe_factory")
+@ComponentFactory("wrapped_ddcl_factory")
 @Provides("decorator_algorithm_service")
-@Property("_algorithm", "algorithm", "vqe")
-@Property("_name", "name", "vqe")
+@Property("_algorithm", "algorithm", "ddcl")
+@Property("_name", "name", "ddcl")
 @Requires("_vqe_optimizers", "vqe_optimization", aggregate=True, optional=True)
-@Instantiate("wrapped_vqe_instance")
-class WrappedVQEF(xacc.DecoratorFunction):
+@Instantiate("wrapped_ddcl_instance")
+class WrappedDDCLF(xacc.DecoratorFunction):
 
     def __init__(self):
         self.vqe_optimizers = {}
@@ -30,7 +30,9 @@ class WrappedVQEF(xacc.DecoratorFunction):
     def __call__(self, *args, **kwargs):
         super().__call__(*args, **kwargs)
 
-        execParams = {'accelerator': self.qpu, 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
+        execParams = {'accelerator': self.qpu, 'ansatz': self.compiledKernel, 'target_dist':self.kwargs['target_dist'], 'loss':self.kwargs['loss']}
+        if 'gradient' in self.kwargs:
+            execParams['gradient'] = self.kwargs['gradient']
         optParams = {}
 
         if not isinstance(args[0], xacc.AcceleratorBuffer):
@@ -54,7 +56,7 @@ class WrappedVQEF(xacc.DecoratorFunction):
         else:
             execParams['optimizer'] = xacc.getOptimizer(self.kwargs['optimizer'], optParams)
 
-        vqe = xacc.getAlgorithm('vqe', execParams)
-        vqe.execute(buffer)
+        ddcl = xacc.getAlgorithm('ddcl', execParams)
+        ddcl.execute(buffer)
 
         return
