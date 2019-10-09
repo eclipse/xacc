@@ -64,7 +64,7 @@ protected:
 struct custom {
   std::vector<int> shape;
   std::string dtype;
-  std::vector<int> data;
+  std::vector<char> data;//std::vector<std::uint8_t> data;
   MSGPACK_DEFINE_MAP(shape, dtype, data);
 };
 
