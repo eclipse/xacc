@@ -125,11 +125,8 @@ void QCSAccelerator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
   auto visitor = std::make_shared<QuilVisitor>(true);
 
-  auto shots = 10;
-
   std::set<int> qbitIdxs;
   InstructionIterator it(function);
-std::cout << "START LOOPING\n";
   while (it.hasNext()) {
     // Get the next node in the tree
     auto nextInst = it.next();
@@ -140,7 +137,6 @@ std::cout << "START LOOPING\n";
          }
     }
   }
-  std::cout <<" MADE IT HERE\n";
   CountGatesOfTypeVisitor<Measure> count(function);
   int nMeasures = count.countGates();
   auto quilStr = visitor->getQuilString();
@@ -167,24 +163,24 @@ std::cout << "START LOOPING\n";
   zmq::message_t msg(sbuf.size());
   memcpy(msg.data(), sbuf.data(), sbuf.size());
 
-  std::cout << msg << "\n";
+  //std::cout << msg << "\n";
 
   socket.send(msg);
 
   zmq::message_t reply;
   socket.recv(&reply, 0);
-  std::cout << reply.data() << "\n";
+  //std::cout << reply.data() << "\n";
   msgpack::unpacked unpackedData;
   msgpack::unpack(unpackedData, static_cast<const char *>(reply.data()),
                   reply.size());
   std::stringstream ss;
   ss << unpackedData.get();
 
-  std::cout << "GOT THE JSON:\n" << ss.str() << "\n";
+  //std::cout << "GOT THE JSON:\n" << ss.str() << "\n";
   using json = nlohmann::json;
   auto execBinaryJson = json::parse(ss.str());
   auto prog = execBinaryJson["result"]["program"].dump();
-  std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0, 100) << "\n";
+  //std::cout << "GOT HTE PROGRAM:\n" << prog.substr(0, 100) << "\n";
 
   // QPU REQUESTS
   const string endpoint2 = "tcp://BF02.qcs.rigetti.com:50052";
@@ -224,20 +220,20 @@ std::cout << "START LOOPING\n";
   zmq::message_t msg2(sbuf2.size());
   memcpy(msg2.data(), sbuf2.data(), sbuf2.size());
 
-  std::cout << "QPU REQ EXEC:\n" << msg2 << "\n";
+  //std::cout << "QPU REQ EXEC:\n" << msg2 << "\n";
 
   socket2.send(msg2);
 
   zmq::message_t reply2;
   socket2.recv(&reply2, 0);
-  std::cout << reply2.data() << "\n";
+  //std::cout << reply2.data() << "\n";
   msgpack::unpacked unpackedData2;
   msgpack::unpack(unpackedData2, static_cast<const char *>(reply2.data()),
                   reply2.size());
   std::stringstream ss2;
   ss2 << unpackedData2.get();
 
-  std::cout << "QPUReq response = \n" << ss2.str() << "\n";
+  //std::cout << "QPUReq response = \n" << ss2.str() << "\n";
   auto qpuResponseJson = json::parse(ss2.str());
   auto waitId = qpuResponseJson["result"].dump();
   waitId = waitId.substr(1, waitId.length() - 2);
@@ -251,33 +247,31 @@ std::cout << "START LOOPING\n";
   zmq::message_t msg3(sbuf3.size());
   memcpy(msg3.data(), sbuf3.data(), sbuf3.size());
 
-  std::cout << "getbuffs zmq: " << msg3 << "\n";
+  //std::cout << "getbuffs zmq: " << msg3 << "\n";
 
   socket2.send(msg3);
 
   zmq::message_t reply3;
   socket2.recv(&reply3, 0);
-  std::cout << "REPLY3: " << reply3.data() << "\n";
   msgpack::unpacked unpackedData3;
   msgpack::unpack(unpackedData3, static_cast<const char *>(reply3.data()),
                   reply3.size());
   qcs::GetBuffersResponse gbresp;
   unpackedData3.get().convert(gbresp);
 
-  std::stringstream ss3;
-  ss3 << unpackedData3.get();
 
-    std::cout << "REPLY3: " << reply3 << "\n";
-    std::cout << "Q1 Shape:\n" << gbresp.result["q1"].shape << "\n";
-    std::cout << "Q1 Data:\n" << gbresp.result["q1"].data << "\n";
-    std::cout << "Q1 Data:\n" << gbresp.result["q1"].data.size() << "\n";
-    std::cout << "Q1 UC Data:\n" << gbresp.result["q1_unclassified"].data << "\n";
-    std::cout << "Q1 Type:\n" << gbresp.result["q1"].dtype << "\n";
+    //std::cout << "REPLY3: " << reply3 << "\n";
+    //std::cout << "Q1 Shape:\n" << gbresp.result["q1"].shape << "\n";
+    //std::cout << "Q1 Data:\n" << gbresp.result["q1"].data << "\n";
+    //std::cout << "Q1 Data:\n" << gbresp.result["q1"].data.size() << "\n";
+    //std::cout << "Q1 UC Data:\n" << gbresp.result["q1_unclassified"].data << "\n";
+    //std::cout << "Q1 Type:\n" << gbresp.result["q1"].dtype << "\n";
+    //for (int i = 0; i< 10; i++) std::cout << "howdy: " << static_cast<int>(gbresp.result["q1"].data[i]) << static_cast<int>(gbresp.result["q2"].data[i]) << "\n";
   // now we have json results
   //auto getBuffsJson = json::parse(ss3.str());
   //std::cout << "HOWDY: " << getBuffsJson["q1"]["data"].dump() << "\n";
 
-  //ResultsDecoder().decode(buffer,ss3.str(), qbitIdxs, shots);
+  ResultsDecoder().decode(buffer, gbresp, qbitIdxs, shots);
   return;
 }
 
@@ -295,30 +289,15 @@ void QCSAccelerator::execute(
 
 void
 ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::string jsonresults, std::set<int> qbitIdxs,
+                       qcs::GetBuffersResponse& gbresp, std::set<int> qbitIdxs,
                        int shots) {
-
-  auto j = std::regex_replace(jsonresults, std::regex("b'"), "\"");
-  j = std::regex_replace(j, std::regex("'"), "\"");
-  j.erase(std::remove(j.begin(), j.end(), '\\'), j.end());
-std::cout << "parsing get bufs\n";
-  using json = nlohmann::json;
-  auto jj = json::parse(j);
-std::cout << "parsed it\n";
 
   Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, qbitIdxs.size());
   int counter = 0;
   for (auto &i : qbitIdxs) {
-    auto shape = jj["result"]["q" + std::to_string(i)]["shape"][0].get<int>();
-    auto data =
-        jj["result"]["q" + std::to_string(i)]["data"].get<std::string>();
-    int kcounter = 0;
-    for (int k = 0; k < shape * 3; k += 3) {
-      std::string hex = data.substr(k, 3);
-      xacc::trim(hex);
-      int bit = hex == "x01" ? 1 : 0;
-      bits(kcounter, counter) = bit;
-      kcounter++;
+    std::string q = "q"+std::to_string(i);
+    for (int k = 0; k < shots; k++) {
+      bits(k, counter) = static_cast<int>(gbresp.result[q].data[k]);
     }
     counter++;
   }

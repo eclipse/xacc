@@ -34,7 +34,7 @@ namespace quantum {
 class ResultsDecoder {
 public:
   void decode(std::shared_ptr<AcceleratorBuffer> buffer,
-              const std::string jsonresults, std::set<int> qbitIdxs, int shots);
+              qcs::GetBuffersResponse& results, std::set<int> qbitIdxs, int shots);
 };
 
 class MapToPhysical : public xacc::IRTransformation {
@@ -61,6 +61,7 @@ protected:
   std::vector<std::pair<int, int>> latticeEdges;
   Document latticeJson;
   std::string backend;
+  int shots = 1024;
 
 public:
   QCSAccelerator() : Accelerator() {}
@@ -101,15 +102,16 @@ public:
 
     //   zmq::socket_t socket(context, zmq::socket_type::dealer);
     //   socket.connect(endpoint);
+    updateConfiguration(params);
   }
 
   void updateConfiguration(const HeterogeneousMap &config) override {
-    // if (config.keyExists<int>("shots")) {
-    //   shots = config.get<int>("shots");
-    // }
-    // if (config.stringExists("backend")) {
-    //   backend = config.getString("backend");
-    // }
+    if (config.keyExists<int>("shots")) {
+       shots = config.get<int>("shots");
+    }
+     if (config.stringExists("backend")) {
+       backend = config.getString("backend");
+     }
   }
 
   const std::vector<std::string> configurationKeys() override {
