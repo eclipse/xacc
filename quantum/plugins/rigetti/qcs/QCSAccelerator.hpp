@@ -74,6 +74,7 @@ public:
 
   void initialize(const HeterogeneousMap &params = {}) override {
     if (params.stringExists("qcs-backend")) {
+     std::cout << "HELLO QCS BACKEND\n";
       backend = params.getString("qcs-backend");
 
       if (backend.find("-qvm") != std::string::npos) {

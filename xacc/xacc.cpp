@@ -271,7 +271,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
 
   if (name_backend.size() > 1) {
     std::string b = name_backend[1];
-    m.insert("backend", b);
+    m.insert(name_backend[0]+"-backend", b);
     setOption(name_backend[0] + "-backend", name_backend[1]);
   }
 
