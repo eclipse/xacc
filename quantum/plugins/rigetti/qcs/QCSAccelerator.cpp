@@ -112,9 +112,10 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
       physicalMap.push_back(logical2Physical[kv.second[0]]);
     }
 
-    // std::cout << "Physical bits:\n";
+    std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
+//    std::cout << "Physical bits:\n" << physicalMap << "\n";
     // for (auto& b : physicalMap) std::cout << b << "\n";
-//    function->mapBits(physicalMap);
+    function->mapBits(physicalMap);
   }
 
   return ir;

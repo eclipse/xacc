@@ -313,7 +313,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("getComposites", &xacc::IR::getComposites,
            "Return the kernels in this IR")
       .def("mapBits", &xacc::IR::mapBits, "")
-      .def("addComposite", &xacc::IR::getComposite, "");
+      .def("addComposite", &xacc::IR::addComposite, "");
 
   py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")
       .def(py::init<std::shared_ptr<xacc::CompositeInstruction>>())
@@ -348,6 +348,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::Accelerator::execute,
            "Execute the Function with the given AcceleratorBuffer.")
       .def("initialize", &xacc::Accelerator::initialize, "")
+      .def("getIRTransformations", &xacc::Accelerator::getIRTransformations, "")
       .def("updateConfiguration",
            (void (xacc::Accelerator::*)(const HeterogeneousMap &)) &
                xacc::Accelerator::updateConfiguration,
