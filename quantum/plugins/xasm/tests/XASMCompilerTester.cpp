@@ -87,12 +87,12 @@ TEST(XASMCompilerTester, checkHWEFor) {
 
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler -> compile(R"([&](qbit q, std::vector<double> x) {
-    for (int i = 0; i < 2; i++) {
+    for (auto i = 0; i < 2; i++) {
         Rx(q[i],x[i]);
         Rz(q[i],x[2+i]);
     }
     CX(q[1],q[0]);
-    for (int i = 0; i < 2; i++) {
+    for (auto i = 0; i < 2; i++) {
         Rx(q[i], x[i+4]);
         Rz(q[i], x[i+4+2]);
         Rx(q[i], x[i+4+4]);
