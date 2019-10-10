@@ -13,7 +13,7 @@
 #include "nlopt_optimizer.hpp"
 #include "nlopt.hpp"
 
-#include "Utils.hpp"
+#include "xacc.hpp"
 #include <iostream>
 using namespace std::placeholders;
 
@@ -48,11 +48,12 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   if (options.keyExists<double>("nlopt-ftol")) {
     tol = options.get<double>("nlopt-ftol");
+    xacc::info("[NLOpt] function tolerance set to " + std::to_string(tol));
   }
 
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
-    std::cout << "MAXEVAL: " << maxeval << "\n";
+    xacc::info("[NLOpt] max function evaluations set to " + std::to_string(maxeval));
   }
 
   std::vector<double> x(dim);

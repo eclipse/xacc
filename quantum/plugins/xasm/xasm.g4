@@ -50,7 +50,7 @@ comment
 
 forstmt
    :
-   'for' '(' 'int' varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=statement+ '}'
+   'for' '(' ('int'|'auto') varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=statement+ '}'
    ;
 
 instruction
