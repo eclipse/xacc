@@ -18,15 +18,6 @@
 namespace xacc {
 namespace qcs {
 
-class RewriteArithmeticRequest {
-protected:
-  std::string quil;
-public:
-   RewriteArithmeticRequest() = default;
-  RewriteArithmeticRequest(std::string q) : quil(q) {}
-  MSGPACK_DEFINE_MAP(quil);
-};
-
 class BinaryExecutableRequest {
 protected:
   int num_shots = 1024;
@@ -61,7 +52,7 @@ protected:
   MSGPACK_DEFINE_MAP(wait, MSGPACK_NVP("*args", args));
 };
 
-struct custom {
+struct QType {
   std::vector<int> shape;
   std::string dtype;
   std::vector<char> data;
@@ -72,7 +63,7 @@ class GetBuffersResponse {
 public:
   std::string id = "";
   std::string jsonrpc = "2.0";
-  std::map<std::string, custom> result;
+  std::map<std::string, QType> result;
   std::vector<int> warnings = {};
   std::string _type = "RPCReply";
   MSGPACK_DEFINE_MAP(id, jsonrpc, warnings, _type, result);
@@ -89,17 +80,6 @@ protected:
 public:
   RPCRequestGetBuffers(std::string i, GetBuffersRequest &p) : params(p), id(i) {}
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
-};
-
-class RewriteArithmeticParams {
-protected:
-  std::vector<RewriteArithmeticRequest> args;
-
-public:
-  RewriteArithmeticParams(RewriteArithmeticRequest& a)  {
-    args.push_back(a);
-  }
-  MSGPACK_DEFINE_MAP(MSGPACK_NVP("*args", args));
 };
 
 class BinaryExecutableParams {
@@ -132,20 +112,6 @@ protected:
 
 public:
   RPCRequestBinaryExecutable(std::string i, BinaryExecutableParams &p) :params(p), id(i) {}
-  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
-};
-
-
-class RPCRequestRewriteArithmetic {
-protected:
-  std::string id;
-  std::string jsonrpc = "2.0";
-  std::string method = "rewrite_arithmetic";
-  RewriteArithmeticParams& params;
-  std::string _type = "RPCRequest";
-
-public:
-  RPCRequestRewriteArithmetic(std::string i, RewriteArithmeticParams &p) :params(p), id(i) {}
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
 };
 

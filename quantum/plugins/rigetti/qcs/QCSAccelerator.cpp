@@ -91,12 +91,8 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
       }
     }
 
-    //    std::cout << "\n";
-    //  problemGraph->write(std::cout);
-
     // Compute the minor graph embedding
     auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
-    //    embedding.persist(std::cout);
     std::vector<std::size_t> physicalMap;
     for (auto &kv : embedding) {
       if (kv.second.size() > 1) {
@@ -105,9 +101,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
       physicalMap.push_back(logical2Physical[kv.second[0]]);
     }
 
-    std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
-    //    std::cout << "Physical bits:\n" << physicalMap << "\n";
-    // for (auto& b : physicalMap) std::cout << b << "\n";
+    // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
     function->mapBits(physicalMap);
   }
 
