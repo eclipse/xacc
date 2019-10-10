@@ -28,6 +28,8 @@ protected:
   std::string bufferName = "";
   bool hasVecDouble = false;
   std::string param_id = "t";
+  bool inForLoop = false;
+  std::vector<xasmParser::InstructionContext *> forInstructions;
 
 public:
   HeterogeneousMap runtimeOptions;
@@ -36,12 +38,13 @@ public:
 
   std::shared_ptr<CompositeInstruction> getFunction() { return function; }
 
-  virtual void
-  enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
-  virtual void
-  enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
-  virtual void
-  enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
+  void enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
+  void enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
+  void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
+  InstPtr enterForLoopInstruction(xasmParser::InstructionContext *ctx,
+                                  std::string &varname, const std::size_t idx);
+  void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
+  void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
 };
 
 } // namespace xacc

@@ -57,10 +57,53 @@ TEST(XASMCompilerTester, checkVectorArg) {
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
   std::cout << "KERNEL\n" << IR->getComposites()[0]->operator()({2.})->toString() << "\n";
-
-
-
 }
+
+TEST(XASMCompilerTester, checkSimpleFor) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler -> compile(R"(__qpu__ void testFor(qbit q, std::vector<double> x) {
+  for (int i = 0; i < 5; i++) {
+     H(q[i]);
+     Rx(q[i], x[i]);
+     CX(q[0], q[i]);
+  }
+
+  for (int i = 0; i < 3; i++) {
+      CX(q[i], q[i+1]);
+  }
+  Rz(q[3], 0.22);
+
+  for (int i = 3; i > 0; i--) {
+      CX(q[i-1],q[i]);
+  }
+})");
+  EXPECT_EQ(1, IR->getComposites().size());
+  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+  for (auto ii : IR->getComposites()[0]->getVariables()) std::cout << ii << "\n";
+  EXPECT_EQ(22, IR->getComposites()[0]->nInstructions());
+}
+TEST(XASMCompilerTester, checkHWEFor) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler -> compile(R"([&](qbit q, std::vector<double> x) {
+    for (int i = 0; i < 2; i++) {
+        Rx(q[i],x[i]);
+        Rz(q[i],x[2+i]);
+    }
+    CX(q[1],q[0]);
+    for (int i = 0; i < 2; i++) {
+        Rx(q[i], x[i+4]);
+        Rz(q[i], x[i+4+2]);
+        Rx(q[i], x[i+4+4]);
+    }
+  })");
+  EXPECT_EQ(1, IR->getComposites().size());
+  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+  for (auto ii : IR->getComposites()[0]->getVariables()) std::cout << ii << "\n";
+  EXPECT_EQ(11, IR->getComposites()[0]->nInstructions());
+}
+
 TEST(XASMCompilerTester, checkApplyAll) {
 class custom_range : public xacc::quantum::Circuit {
   public:
