@@ -16,10 +16,10 @@
 #include "InstructionIterator.hpp"
 #include "RemoteAccelerator.hpp"
 #include "messages.hpp"
+#include <zmq.hpp>
+#include <fstream>
+#include "xacc.hpp"
 
-// #include <pybind11/embed.h>
-
-// #include <dlfcn.h>
 #define RAPIDJSON_HAS_STDSTRING 1
 
 #include "rapidjson/prettywriter.h"
@@ -31,16 +31,23 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+// ResultsDecoder is a utility class for
+// taking the raw binary results from the QPU
+// and converting to bit strings and pushing to the
+// AcceleratorBuffer
 class ResultsDecoder {
 public:
   void decode(std::shared_ptr<AcceleratorBuffer> buffer,
-              qcs::GetBuffersResponse& results, std::set<int> qbitIdxs, int shots);
+              qcs::GetBuffersResponse &results, std::set<int> qbitIdxs,
+              int shots);
 };
 
+// MapToPhysical is an IRTransformation that maps
+// the logical program IR qubit indices to the
+// physical qubits available on the given lattice
 class MapToPhysical : public xacc::IRTransformation {
 protected:
   std::vector<std::pair<int, int>> _edges;
-
 public:
   MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
   std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
@@ -49,12 +56,6 @@ public:
   const std::string description() const override { return ""; }
 };
 
-// [Rigetti Forest]
-// qvm_address = http://localhost:5000
-// quilc_address = tcp://localhost:5555
-// qpu_compiler_address = tcp://10.1.149.68:5555
-// qpu_endpoint_address = tcp://10.1.149.68:50052
-
 class QCSAccelerator : virtual public Accelerator {
 protected:
   std::vector<int> physicalQubits;
@@ -62,6 +63,50 @@ protected:
   Document latticeJson;
   std::string backend;
   int shots = 1024;
+  std::string qpu_compiler_endpoint;
+  std::string qpu_endpoint;
+
+  template <typename T>
+  msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, requestType);
+    zmq::message_t msg(sbuf.size());
+    memcpy(msg.data(), sbuf.data(), sbuf.size());
+    socket.send(msg);
+    zmq::message_t reply;
+    socket.recv(&reply, 0);
+    msgpack::unpacked unpackedData;
+    msgpack::unpack(unpackedData, static_cast<const char *>(reply.data()),
+                    reply.size());
+    return unpackedData;
+  }
+
+  void getSocketURLs() {
+    std::ifstream stream(std::getenv("HOME") + std::string("/.forest_config"));
+    std::string contents((std::istreambuf_iterator<char>(stream)),
+                         std::istreambuf_iterator<char>());
+
+    std::vector<std::string> lines;
+    lines = xacc::split(contents, '\n');
+    for (auto l : lines) {
+      if (l.find("qpu_compiler_address") != std::string::npos) {
+        std::vector<std::string> split = xacc::split(l, '=');
+        auto key = split[1];
+        xacc::trim(key);
+        qpu_compiler_endpoint = key;
+      } else if (l.find("qpu_endpoint_address") != std::string::npos) {
+        std::vector<std::string> split;
+        split = xacc::split(l, '=');
+        auto key = split[1];
+        xacc::trim(key);
+        qpu_endpoint = key;
+      }
+    }
+
+    if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
+      xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
+    }
+  }
 
 public:
   QCSAccelerator() : Accelerator() {}
@@ -74,7 +119,6 @@ public:
 
   void initialize(const HeterogeneousMap &params = {}) override {
     if (params.stringExists("qcs-backend")) {
-     std::cout << "HELLO QCS BACKEND\n";
       backend = params.getString("qcs-backend");
 
       if (backend.find("-qvm") != std::string::npos) {
@@ -99,20 +143,19 @@ public:
       }
     }
 
-    //   const std::string endpoint = "tcp://127.0.0.1:5555";
+    // Read .forest_config
+    getSocketURLs();
 
-    //   zmq::socket_t socket(context, zmq::socket_type::dealer);
-    //   socket.connect(endpoint);
     updateConfiguration(params);
   }
 
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {
-       shots = config.get<int>("shots");
+      shots = config.get<int>("shots");
     }
-     if (config.stringExists("backend")) {
-       backend = config.getString("backend");
-     }
+    if (config.stringExists("backend")) {
+      backend = config.getString("backend");
+    }
   }
 
   const std::vector<std::string> configurationKeys() override {
@@ -142,9 +185,6 @@ public:
   const std::string name() const override { return "qcs"; }
   const std::string description() const override { return ""; }
 
-  /**
-   * The destructor
-   */
   virtual ~QCSAccelerator() {}
 };
 

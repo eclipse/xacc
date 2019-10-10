@@ -58,7 +58,8 @@ if(LIBUNWIND_FOUND)
                                     service
                                     algorithm
                                     optimizer
-                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
+                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
 
   message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
   target_link_libraries(xacc
@@ -84,7 +85,8 @@ else()
                                     service
                                     algorithm
                                     optimizer
-                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant)
+                                    ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
+                                    ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
   target_link_libraries(xacc PUBLIC CppMicroServices PRIVATE cpr)
 
 endif()

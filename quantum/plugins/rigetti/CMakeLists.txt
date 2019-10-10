@@ -76,5 +76,5 @@ find_package(UUID)
 
 message(STATUS "HOWDY ${UUID_INCLUDE_DIRS} ${UUID_LIBRARIES}")
 if (UUID_FOUND AND EXISTS $ENV{HOME}/.zmq/include/msgpack.hpp)
-#add_subdirectory(qcs)
+ #add_subdirectory(qcs)
 endif()

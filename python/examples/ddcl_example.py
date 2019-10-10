@@ -25,3 +25,5 @@ ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f, 'accelerator': qpu, 'target_dist'
                                   'optimizer': optimizer, 'loss': 'js', 'gradient': 'js-parameter-shift'})
 # execute
 ddcl.execute(qbits)
+
+# print(qbits)
