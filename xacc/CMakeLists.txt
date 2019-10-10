@@ -40,6 +40,8 @@ add_library(xacc SHARED
 add_dependencies(xacc cpr)
 
 if(LIBUNWIND_FOUND)
+message(
+    STATUS "${BoldGreen}Building xacc with libunwind support.${ColorReset}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LIBUNWIND")
   target_include_directories(xacc
                              PRIVATE ${CMAKE_BINARY_DIR}
@@ -61,7 +63,6 @@ if(LIBUNWIND_FOUND)
                                     ${CMAKE_SOURCE_DIR}/tpls/mpark-variant
                                     ${CMAKE_SOURCE_DIR}/tpls/nlohmann)
 
-  message(STATUS "LIBS: ${LIBUNWIND_LIBRARIES} ${LIBUNWINDX86_LIBRARIES}")
   target_link_libraries(xacc
                         PUBLIC CppMicroServices
                         PRIVATE cpr ${LIBUNWIND_LIBRARIES}
