@@ -46,6 +46,9 @@ public:
   virtual void enterComment(xasmParser::CommentContext *ctx) = 0;
   virtual void exitComment(xasmParser::CommentContext *ctx) = 0;
 
+  virtual void enterForstmt(xasmParser::ForstmtContext *ctx) = 0;
+  virtual void exitForstmt(xasmParser::ForstmtContext *ctx) = 0;
+
   virtual void enterInstruction(xasmParser::InstructionContext *ctx) = 0;
   virtual void exitInstruction(xasmParser::InstructionContext *ctx) = 0;
 

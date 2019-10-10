@@ -17,16 +17,18 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, COMMENT = 31, ID = 32, 
-    REAL = 33, INT = 34, STRING = 35, WS = 36, EOL = 37
+    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
+    T__32 = 33, T__33 = 34, T__34 = 35, COMMENT = 36, ID = 37, REAL = 38, 
+    INT = 39, STRING = 40, WS = 41, EOL = 42
   };
 
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleXacclambda = 2, RuleTypedparam = 3, 
     RuleType = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, RuleStatement = 8, 
-    RuleComment = 9, RuleInstruction = 10, RuleBufferIndex = 11, RuleBitsOrParamType = 12, 
-    RuleOptionsMap = 13, RuleOptionsType = 14, RuleExplist = 15, RuleExp = 16, 
-    RuleUnaryop = 17, RuleId = 18, RuleReal = 19, RuleString = 20
+    RuleComment = 9, RuleForstmt = 10, RuleInstruction = 11, RuleBufferIndex = 12, 
+    RuleBitsOrParamType = 13, RuleOptionsMap = 14, RuleOptionsType = 15, 
+    RuleExplist = 16, RuleExp = 17, RuleUnaryop = 18, RuleId = 19, RuleReal = 20, 
+    RuleString = 21
   };
 
   xasmParser(antlr4::TokenStream *input);
@@ -49,6 +51,7 @@ public:
   class LineContext;
   class StatementContext;
   class CommentContext;
+  class ForstmtContext;
   class InstructionContext;
   class BufferIndexContext;
   class BitsOrParamTypeContext;
@@ -184,6 +187,7 @@ public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     InstructionContext *instruction();
+    ForstmtContext *forstmt();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -204,6 +208,30 @@ public:
   };
 
   CommentContext* comment();
+
+  class  ForstmtContext : public antlr4::ParserRuleContext {
+  public:
+    xasmParser::IdContext *varname = nullptr;;
+    antlr4::Token *start = nullptr;;
+    antlr4::Token *comparator = nullptr;;
+    antlr4::Token *end = nullptr;;
+    antlr4::Token *inc_or_dec = nullptr;;
+    xasmParser::StatementContext *forScope = nullptr;;
+    ForstmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<IdContext *> id();
+    IdContext* id(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> INT();
+    antlr4::tree::TerminalNode* INT(size_t i);
+    std::vector<StatementContext *> statement();
+    StatementContext* statement(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ForstmtContext* forstmt();
 
   class  InstructionContext : public antlr4::ParserRuleContext {
   public:
@@ -228,7 +256,7 @@ public:
     BufferIndexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
-    antlr4::tree::TerminalNode *INT();
+    ExpContext *exp();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

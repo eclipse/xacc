@@ -39,6 +39,7 @@ line
 /* A program statement */
 statement
    : instruction ';'
+   | forstmt
    | 'return' ';'
    ;
 
@@ -47,13 +48,18 @@ comment
    : COMMENT
    ;
 
+forstmt
+   :
+   'for' '(' 'int' varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=statement+ '}'
+   ;
+
 instruction
    : inst_name=id  '(' (bits_and_params=explist) (',' options=optionsMap)? ')'
    ;
 
 
 bufferIndex
-   : id ('[' INT ']')
+   : id ('[' exp ']')
    ;
 
 bitsOrParamType
