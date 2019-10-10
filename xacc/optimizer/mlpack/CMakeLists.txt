@@ -1,6 +1,7 @@
 if(EXISTS ${XACC_ENSMALLEN_INCLUDE_DIR}/ensmallen.hpp)
   if(EXISTS ${XACC_ARMADILLO_INCLUDE_DIR}/armadillo)
-
+    message(
+        STATUS "${BoldGreen}Building MLPack Optimizer.${ColorReset}")
     set(LIBRARY_NAME xacc-mlpack)
 
     file(GLOB
