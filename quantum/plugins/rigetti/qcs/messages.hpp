@@ -64,7 +64,7 @@ protected:
 struct custom {
   std::vector<int> shape;
   std::string dtype;
-  std::vector<char> data;//std::vector<std::uint8_t> data;
+  std::vector<char> data;
   MSGPACK_DEFINE_MAP(shape, dtype, data);
 };
 
@@ -75,7 +75,7 @@ public:
   std::map<std::string, custom> result;
   std::vector<int> warnings = {};
   std::string _type = "RPCReply";
-  MSGPACK_DEFINE_MAP(id, jsonrpc, warnings, _type, result); 
+  MSGPACK_DEFINE_MAP(id, jsonrpc, warnings, _type, result);
 };
 
 class RPCRequestGetBuffers {

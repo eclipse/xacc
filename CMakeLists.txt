@@ -107,6 +107,7 @@ install(FILES "${CMAKE_BINARY_DIR}/xacc-config.cmake" DESTINATION .)
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/Modules/format.cmake" DESTINATION share/xacc/)
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/mpark-variant/variant.hpp" DESTINATION include/xacc/)
 install(FILES "${CMAKE_SOURCE_DIR}/tpls/taocpp/operators.hpp" DESTINATION include/xacc/)
+install(FILES "${CMAKE_SOURCE_DIR}/tpls/nlohmann/json.hpp" DESTINATION include/xacc/)
 
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/spdlog" DESTINATION include )
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/exprtk" DESTINATION include )
