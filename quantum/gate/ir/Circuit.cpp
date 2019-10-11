@@ -81,34 +81,53 @@ Circuit::operator()(const std::vector<double> &params) {
   }
 
   std::vector<InstPtr> flatten;
-   InstructionIterator iter(shared_from_this());
-    while (iter.hasNext()) {
-      auto inst = iter.next();
-      if (!inst->isComposite()) {
-       flatten.emplace_back(inst);
-      }
+  InstructionIterator iter(shared_from_this());
+  while (iter.hasNext()) {
+    auto inst = iter.next();
+    if (!inst->isComposite()) {
+      flatten.emplace_back(inst);
     }
+  }
 
   auto evaluatedCircuit = std::make_shared<Circuit>("evaled_" + name());
 
   // Walk the IR Tree, handle functions and instructions differently
   for (auto inst : flatten) {
-      // If a concrete Gate, then check that it
-      // is parameterized and that it has a string parameter
-      if (inst->isParameterized() && inst->getParameter(0).isVariable()) {
-        InstructionParameter p = inst->getParameter(0);
-        std::stringstream s;
-        s << p.toString();
-        double val;
-        parsingUtil->evaluate(p.toString(), variables, params, val);
-        auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
-        updatedInst->setParameter(0, val);
+    if (inst->isParameterized()) {
+      auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
+      for (int i = 0; i < inst->nParameters(); i++) {
+        if (inst->getParameter(i).isVariable()) {
+          InstructionParameter p = inst->getParameter(i);
+          std::stringstream s;
+          s << p.toString();
+          double val;
+          parsingUtil->evaluate(p.toString(), variables, params, val);
+          updatedInst->setParameter(i, val);
+        } else {
+          auto a = inst->getParameter(i);
+          updatedInst->setParameter(i, a);
+        }
         updatedInst->setBits(inst->bits());
-        updatedInst->setParameter(0, val);
-        evaluatedCircuit->addInstruction(updatedInst);
-      } else {
-        evaluatedCircuit->addInstruction(inst);
       }
+      evaluatedCircuit->addInstruction(updatedInst);
+    } else {
+      evaluatedCircuit->addInstruction(inst);
+    }
+    // If a concrete Gate, then check that it
+    // is parameterized and that it has a string parameter
+    // if (inst->isParameterized() && inst->getParameter(0).isVariable()) {
+    //   InstructionParameter p = inst->getParameter(0);
+    //   std::stringstream s;
+    //   s << p.toString();
+    //   double val;
+    //   parsingUtil->evaluate(p.toString(), variables, params, val);
+    //   auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
+    //   updatedInst->setParameter(0, val);
+    //   updatedInst->setBits(inst->bits());
+    //   evaluatedCircuit->addInstruction(updatedInst);
+    // } else {
+    //   evaluatedCircuit->addInstruction(inst);
+    // }
   }
   return evaluatedCircuit;
 }

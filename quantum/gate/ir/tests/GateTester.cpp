@@ -252,6 +252,20 @@ TEST(GateFunctionTester, checkDepth) {
 
   EXPECT_EQ(3, g->depth());
 }
+
+TEST(GateFunctionTester, checkU3Eval) {
+    xacc::qasm(R"(
+.compiler xasm
+.circuit qubit2_depth1
+.parameters x0,x1
+.qbit q
+U(q[0], x0, -3.14159/2, 3.14159/2 );
+U(q[0], 0, 0, x1);
+)");
+auto f = xacc::getCompiled("qubit2_depth1");
+auto ff = f->operator()({1.0, 1.0});
+std::cout << "F: " << ff->toString() << "\n";
+}
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

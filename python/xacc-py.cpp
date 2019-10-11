@@ -291,6 +291,7 @@ PYBIND11_MODULE(_pyxacc, m) {
                const std::vector<std::string> &)) &
                xacc::CompositeInstruction::addVariables,
            "")
+      .def("getVariables", &xacc::CompositeInstruction::getVariables, "")
       .def("expand", &xacc::CompositeInstruction::expand, "")
       .def("eval", &xacc::CompositeInstruction::operator(), "")
       .def("name", &xacc::CompositeInstruction::name, "")
