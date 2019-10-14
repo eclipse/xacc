@@ -10,8 +10,8 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-project(xacc LANGUAGES CXX)
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+project(xacc VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
 message(STATUS "C++ version ${CXX_STANDARD} configured.")
@@ -121,7 +121,22 @@ if(Python_FOUND)
  if(${Python_VERSION} VERSION_GREATER_EQUAL 3.0.0)
    message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}. Building XACC Python API with ${Python_INCLUDE_DIRS}${ColorReset}")
    add_subdirectory(python)
-   execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ipopo)
+   # Double check we have module ipopo installed, contributes pelix
+   execute_process(COMMAND ${Python_EXECUTABLE} -c "import pelix" RESULT_VARIABLE PELIX_EXISTS)
+   if (PELIX_EXISTS EQUAL "1")
+     # if not, check we have pip
+     execute_process(COMMAND ${Python_EXECUTABLE} -c "import pip" RESULT_VARIABLE PIP_EXISTS)
+     if (PIP_EXISTS EQUAL "0") 
+	# we have pip, son just install ipopo
+        message(STATUS "${BoldGreen}Installing Pelix OSGi framework.${ColorReset}")
+        execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ipopo)
+     else()
+	# we dont have pip, so warn the user
+	message(STATUS "${BoldYellow}Pelix Framework not found, but can't install via pip. Ensure you install ipopo module before using XACC Python API.${ColorReset}")
+     endif()
+   else()
+     message(STATUS "${BoldGreen}Found Pelix framework.${ColorReset}")
+   endif()
  else()
     message(STATUS "${BoldYellow}Found Python version ${Python_VERSION}. Version must be greater than 3.0.0, skipping Python API build.${ColorReset}")
  endif()
