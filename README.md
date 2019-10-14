@@ -24,7 +24,7 @@ CURL development headers and libraries with OpenSSL support
 (see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 
 Optional dependencies include BLAS and LAPACK development libraries (for various simulators),
-Python 3 development headers and library (for the Python API), and Libunwind (for stack trace printing).
+Python 3 development headers (for the Python API), and Libunwind (for stack trace printing).
 
 To enable Python support, ensure that `python3` is set to your desired version of Python 3. CMake will
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
@@ -32,27 +32,36 @@ you are using the same `python3` executable that was set during your build.
 
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
-$ git clone --recursive https://github.com/eclipse/xacc
+$ git clone https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
-[default]
+[default cmake call]
 $ cmake ..
-[with tests]
-$ cmake .. -DXACC_BUILD_TESTS=TRUE
-[with examples]
-$ cmake .. -DXACC_BUILD_EXAMPLES=TRUE
-[or any combination of the above]
+[with tests and examples]
 $ cmake .. -DXACC_BUILD_EXAMPLES=TRUE -DXACC_BUILD_TESTS=TRUE
 [now build xacc]
 $ make install
-[if you built with tests]
-$ ctest
+[for a speedier build on linux]
+$ make -j$(nproc --all) install
+[and on mac os x]
+$ make -j$(sysctl -n hw.physicalcpu) install
+[if built with tests, run them]
+$ ctest --output-on-failure
 ```
-See full documentation for all CMake optional arguments.
+See full documentation for all CMake optional arguments. To enable MLPack Optimizer support, see
+[MLPack Readme](https://github.com/eclipse/xacc/blob/master/xacc/optimizer/README.md)
 
 Your installation will be in `$HOME/.xacc`. If you built with the Python API,
 be sure to update your `PYTHONPATH` environment variable to point to the installation:
 ```bash
 $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
+```
+
+You will probably want the XACC default simulator, TNQVM. To install, run the following:
+```bash
+$ git clone https://github.com/ornl-qci/tnqvm
+$ cd tnqvm && mkdir build && cd build
+$ cmake .. -DXACC_DIR=~/.xacc
+$ make install
 ```
 
 Questions, Bug Reporting, and Issue Tracking
