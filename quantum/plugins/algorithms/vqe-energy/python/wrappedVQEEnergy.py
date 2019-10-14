@@ -3,7 +3,6 @@ from pelix.ipopo.decorators import (ComponentFactory, Property, Requires,
 import xacc
 import inspect
 import random
-import numpy as np
 
 @ComponentFactory("wrapped_energy_factory")
 @Provides("decorator_algorithm_service")
@@ -14,6 +13,7 @@ class WrappedEnergyF(xacc.DecoratorFunction):
 
     def __call__(self, *args, **kwargs):
         super().__call__(*args, **kwargs)
+        import numpy as np
 
         execParams = {'accelerator': self.qpu, 'ansatz': self.compiledKernel, 'observable': self.kwargs["observable"]}
 
