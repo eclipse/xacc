@@ -115,7 +115,10 @@ add_subdirectory(tpls)
 
 add_subdirectory(xacc)
 add_subdirectory(quantum)
-if(PYTHON_INCLUDE_DIR)
+
+find_package(Python COMPONENTS Interpreter Development)
+if(Python_FOUND)
+ message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}. Building XACC Python API with ${Python_INCLUDE_DIRS}${ColorReset}")
  add_subdirectory(python)
 endif()
 

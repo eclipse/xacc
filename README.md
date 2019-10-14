@@ -26,25 +26,31 @@ CURL development headers and libraries with OpenSSL support
 Optional dependencies include BLAS and LAPACK development libraries (for various simulators),
 Python 3 development headers and library (for the Python API), and Libunwind (for stack trace printing).
 
+To enable Python support, ensure that `python3` is set to your desired version of Python 3. CMake will
+find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
+you are using the same `python3` executable that was set during your build.
+
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
 $ git clone --recursive https://github.com/eclipse/xacc
 $ cd xacc && mkdir build && cd build
 [default]
 $ cmake ..
-[with python api]
-$ cmake .. -DPYTHON_INCLUDE_DIR=/path/to/python/headers
 [with tests]
 $ cmake .. -DXACC_BUILD_TESTS=TRUE
+[with examples]
+$ cmake .. -DXACC_BUILD_EXAMPLES=TRUE
 [or any combination of the above]
-$ cmake .. -DPYTHON_INCLUDE_DIR=/path/to/python/headers -DXACC_BUILD_TESTS=TRUE
+$ cmake .. -DXACC_BUILD_EXAMPLES=TRUE -DXACC_BUILD_TESTS=TRUE
 [now build xacc]
 $ make install
 [if you built with tests]
 $ ctest
 ```
-Your installation will be in `$HOME/.xacc`. If you built with the Python API, be sure to update your `PYTHONPATH`
-environment variable to point to the installation:
+See full documentation for all CMake optional arguments.
+
+Your installation will be in `$HOME/.xacc`. If you built with the Python API,
+be sure to update your `PYTHONPATH` environment variable to point to the installation:
 ```bash
 $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
 ```
