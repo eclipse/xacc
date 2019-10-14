@@ -30,6 +30,8 @@ To enable Python support, ensure that `python3` is set to your desired version o
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
 you are using the same `python3` executable that was set during your build.
 
+If you are on Mac OS X, make sure you have XCode command utilities installed.
+
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash
 $ git clone https://github.com/eclipse/xacc
