@@ -1,7 +1,6 @@
 from abc import abstractmethod, ABC
 from pelix.ipopo.decorators import (Provides, ComponentFactory, Property, Instantiate)
 import xacc
-import numpy as np
 
 @Provides("vqe_optimization")
 class VQEOpt(ABC):
@@ -19,6 +18,7 @@ class VQEOpt(ABC):
             self.init_args = self.opt_args.pop('initial-parameters')
         else:
             import random
+            import numpy as np
             pi = 3.141592653
             self.init_args = np.array([random.uniform(-pi, pi) for _ in range(self.execParams['ansatz'].nParameters())])
 
