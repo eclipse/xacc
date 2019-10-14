@@ -118,8 +118,14 @@ add_subdirectory(quantum)
 
 find_package(Python COMPONENTS Interpreter Development)
 if(Python_FOUND)
- message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}. Building XACC Python API with ${Python_INCLUDE_DIRS}${ColorReset}")
- add_subdirectory(python)
+ if(${Python_VERSION} VERSION_GREATER_EQUAL 3.0.0)
+   message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}. Building XACC Python API with ${Python_INCLUDE_DIRS}${ColorReset}")
+   add_subdirectory(python)
+ else()
+    message(STATUS "${BoldYellow}Found Python version ${Python_VERSION}. Version must be greater than 3.0.0, skipping Python API build.${ColorReset}")
+ endif()
+else()
+  message(STATUS "${BoldYellow}Python interpreter or development headers not found. Skipping Python API build.${ColorReset}")
 endif()
 
 # Install the config file for external projects to use
