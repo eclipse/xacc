@@ -73,6 +73,8 @@ public:
   const std::vector<std::string> requiredParameters() const override;
 
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
+  std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<double> &parameters) override;
   const std::string name() const override { return "ddcl"; }
   const std::string description() const override { return ""; }
 };
