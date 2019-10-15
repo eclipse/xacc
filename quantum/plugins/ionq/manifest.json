@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_ionq",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC IonQ Accelerator ",
+  "bundle.description" : "This bundle provides a IonQ Accelerator for Gate Model QC."
+}
