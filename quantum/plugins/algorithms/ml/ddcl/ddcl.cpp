@@ -68,17 +68,17 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       [&, this](const std::vector<double> &x, std::vector<double> &dx) {
         // Evaluate and add measurements to all qubits
         auto evaled = kernel->operator()(x);
-        
+
         std::set<std::size_t> uniqueBits;
         InstructionIterator iter(evaled);
-        while(iter.hasNext()) {
-           auto next = iter.next();
-           if (!next->isComposite()) {
-               for (auto& b : next->bits()) {
-                  uniqueBits.insert(b);
-               }
+        while (iter.hasNext()) {
+          auto next = iter.next();
+          if (!next->isComposite()) {
+            for (auto &b : next->bits()) {
+              uniqueBits.insert(b);
             }
           }
+        }
         for (auto b : uniqueBits) {
           auto m = provider->createInstruction("Measure",
                                                std::vector<std::size_t>{b});
@@ -116,8 +116,8 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto buffers = tmpBuffer->getChildren();
 
         for (auto b : buffers) {
-            b->addExtraInfo("parameters", x);
-            buffer->appendChild(b->name(), b);
+          b->addExtraInfo("parameters", x);
+          buffer->appendChild(b->name(), b);
         }
 
         // The first child buffer is for the loss function
@@ -153,6 +153,55 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
   return;
+}
+
+std::vector<double> DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
+                   const std::vector<double> &x) {
+  auto provider = xacc::getIRProvider("quantum");
+
+  // Evaluate and add measurements to all qubits
+  auto evaled = kernel->operator()(x);
+  std::set<std::size_t> uniqueBits;
+  InstructionIterator iter(evaled);
+  while (iter.hasNext()) {
+    auto next = iter.next();
+    if (!next->isComposite()) {
+      for (auto &b : next->bits()) {
+        uniqueBits.insert(b);
+      }
+    }
+  }
+  for (auto b : uniqueBits) {
+    auto m =
+        provider->createInstruction("Measure", std::vector<std::size_t>{b});
+    evaled->addInstruction(m);
+  }
+
+  // Start the list of circuits to execute
+  std::vector<Circuit> circuits{evaled};
+
+  auto lossStrategy = xacc::getService<LossStrategy>(loss);
+
+  // Execute!
+  auto tmpBuffer = xacc::qalloc(buffer->size());
+  accelerator->execute(tmpBuffer, circuits);
+  auto buffers = tmpBuffer->getChildren();
+
+  // The first child buffer is for the loss function
+  auto counts = buffers[0]->getMeasurementCounts();
+
+  // Compute and return the loss, this gives us the
+  // distribution of the loss circuit too
+  auto loss_and_qdist = lossStrategy->compute(counts, target_dist);
+  auto loss = loss_and_qdist.first;
+  auto qdist = loss_and_qdist.second;
+  for (auto b : buffers) {
+    b->addExtraInfo("parameters", x);
+    b->addExtraInfo("q_dist", qdist);
+    buffer->appendChild(b->name(), b);
+  }
+
+  return {loss};
 }
 } // namespace algorithm
 } // namespace xacc

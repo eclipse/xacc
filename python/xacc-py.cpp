@@ -25,6 +25,7 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
+
 #include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -454,7 +455,13 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("name", &xacc::Algorithm::name, "Return the name of this Algorithm.")
       .def("execute",
            (void (xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>)) &
+               const std::shared_ptr<xacc::AcceleratorBuffer>) const) &
+               xacc::Algorithm::execute,
+           "Execute the Algorithm, storing the results in provided "
+           "AcceleratorBuffer.")
+    .def("execute",
+           (std::vector<double> (xacc::Algorithm::*)(
+               const std::shared_ptr<xacc::AcceleratorBuffer>, const std::vector<double>&)) &
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")

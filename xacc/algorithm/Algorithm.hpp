@@ -34,11 +34,23 @@ namespace xacc {
 class Algorithm : public xacc::Identifiable {
 
 public:
-  bool initialize(const HeterogeneousMap &&parameters) { return initialize(parameters); }
+  bool initialize(const HeterogeneousMap &&parameters) {
+    return initialize(parameters);
+  }
   virtual bool initialize(const HeterogeneousMap &parameters) = 0;
   virtual const std::vector<std::string> requiredParameters() const = 0;
 
-  virtual void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const = 0;
+  virtual void
+  execute(const std::shared_ptr<AcceleratorBuffer> buffer) const = 0;
+  
+  virtual std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::vector<double> &parameters) {
+    XACCLogger::instance()->error(
+        "Algorithm::execute(buffer, vector<double>) not implemented for " +
+        name());
+    exit(0);
+    return {};
+  }
 };
 
 } // namespace xacc
