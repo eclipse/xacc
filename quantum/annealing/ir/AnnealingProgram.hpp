@@ -151,6 +151,9 @@ InstPtr getInstruction(const std::size_t idx) override {
 
   const std::size_t nLogicalBits() override { return 0; }
   const std::size_t nPhysicalBits() override { return 0; }
+  const std::set<std::size_t> uniqueBits() override {
+      return {};
+  }
 
   std::vector<double> getAllBiases() {
     std::vector<double> biases;

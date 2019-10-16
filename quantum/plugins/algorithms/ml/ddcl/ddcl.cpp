@@ -69,16 +69,7 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         // Evaluate and add measurements to all qubits
         auto evaled = kernel->operator()(x);
 
-        std::set<std::size_t> uniqueBits;
-        InstructionIterator iter(evaled);
-        while (iter.hasNext()) {
-          auto next = iter.next();
-          if (!next->isComposite()) {
-            for (auto &b : next->bits()) {
-              uniqueBits.insert(b);
-            }
-          }
-        }
+        std::set<std::size_t> uniqueBits = kernel->uniqueBits();
         for (auto b : uniqueBits) {
           auto m = provider->createInstruction("Measure",
                                                std::vector<std::size_t>{b});

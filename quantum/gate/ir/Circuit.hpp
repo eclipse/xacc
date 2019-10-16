@@ -88,9 +88,9 @@ public:
   const std::string description() const override { return ""; }
 
   void mapBits(std::vector<std::size_t> bitMap) override {
-      for (auto& inst : instructions) {
-          inst->mapBits(bitMap);
-      }
+    for (auto &inst : instructions) {
+      inst->mapBits(bitMap);
+    }
   }
   void setBits(const std::vector<std::size_t> bits) override {}
   const std::vector<std::size_t> bits() override { return {}; }
@@ -156,18 +156,18 @@ public:
   void load(std::istream &inStream) override;
 
   const int nInstructions() override { return instructions.size(); }
-//     int count = 0;
-//     InstructionIterator iter(shared_from_this());
-//     while (iter.hasNext()) {
-//       auto inst = iter.next();
-//       if (!inst->isComposite()) {
-//         count++;
-//       }
-//     }
-//   return count;
-//   }
+  //     int count = 0;
+  //     InstructionIterator iter(shared_from_this());
+  //     while (iter.hasNext()) {
+  //       auto inst = iter.next();
+  //       if (!inst->isComposite()) {
+  //         count++;
+  //       }
+  //     }
+  //   return count;
+  //   }
 
-  const int nChildren() override {return instructions.size();}
+  const int nChildren() override { return instructions.size(); }
 
   InstPtr getInstruction(const std::size_t idx) override {
     validateInstructionIndex(idx);
@@ -227,16 +227,17 @@ public:
     variables.insert(variables.end(), vars.begin(), vars.end());
   }
   const std::vector<std::string> getVariables() override {
-      // return this guys variables + all sub-node variables
+    // return this guys variables + all sub-node variables
     std::vector<std::string> ret = variables;
-    for (auto& i : instructions) {
-        if (i->isComposite()) {
-          auto vars = std::dynamic_pointer_cast<CompositeInstruction>(i)->getVariables();
-          ret.insert(ret.end(), vars.begin(), vars.end());
-        }
+    for (auto &i : instructions) {
+      if (i->isComposite()) {
+        auto vars =
+            std::dynamic_pointer_cast<CompositeInstruction>(i)->getVariables();
+        ret.insert(ret.end(), vars.begin(), vars.end());
+      }
     }
     std::unordered_set<std::string> s(ret.begin(), ret.end());
-    ret.assign(s.begin(),s.end());
+    ret.assign(s.begin(), s.end());
     return ret;
   }
   void replaceVariable(const std::string variable,
@@ -288,6 +289,21 @@ public:
     return maxBit + 1;
   }
 
+  const std::set<std::size_t> uniqueBits() override {
+    std::set<std::size_t> uniqueBits;
+    InstructionIterator iter(shared_from_this());
+    while (iter.hasNext()) {
+      auto next = iter.next();
+      if (!next->isComposite()) {
+        for (auto &b : next->bits()) {
+          uniqueBits.insert(b);
+        }
+      }
+    }
+
+    return uniqueBits;
+  }
+
   std::shared_ptr<CompositeInstruction> enabledView() override {
     auto newF = std::make_shared<Circuit>(circuitName, variables);
     for (int i = 0; i < nInstructions(); i++) {
@@ -307,11 +323,9 @@ public:
   std::shared_ptr<CompositeInstruction>
   operator()(const std::vector<double> &params) override;
 
-  const std::string accelerator_signature() override {
-      return acc_signature;
-  }
+  const std::string accelerator_signature() override { return acc_signature; }
   void set_accelerator_signature(const std::string signature) override {
-      acc_signature = signature;
+    acc_signature = signature;
   }
 
   DEFINE_VISITABLE()

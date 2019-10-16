@@ -72,16 +72,7 @@ public:
   std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
 
-    std::set<std::size_t> uniqueBits;
-    InstructionIterator iter(circuit);
-    while (iter.hasNext()) {
-      auto next = iter.next();
-      if (!next->isComposite()) {
-        for (auto &b : next->bits()) {
-          uniqueBits.insert(b);
-        }
-      }
-    }
+    std::set<std::size_t> uniqueBits = circuit->uniqueBits();
     std::vector<Circuit> grad_circuits;
     auto provider = xacc::getIRProvider("quantum");
     for (int i = 0; i < x.size(); i++) {
