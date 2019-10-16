@@ -8,6 +8,8 @@ $ cd $HOME/.xacc_tpls
 $ git clone https://github.com/mlpack/ensmallen
 $ git clone https://gitlab.com/conradsnicta/armadillo-code armadillo
 ```
+Note on the Rigetti QMI, you may have to download a tar.gz of the armadillo repo and upload via `scp`.
+I have found that I am unable to git clone from non-github repos...
 
 Now configure XACC, pointing to the appropriate ensmallen and armadillo-code installs
 
