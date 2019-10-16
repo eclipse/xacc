@@ -314,6 +314,8 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   while (!jobCompleted) {
 
     getResponse = handleExceptionRestClientGet(url, getPath);
+    // auto jj = json::parse(getResponse);
+
     if (getResponse.find("COMPLETED") != std::string::npos) {
       jobCompleted = true;
     }
@@ -352,6 +354,7 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 
   std::cout << std::endl;
 
+//   std::cout << "JOBRESPONSE:\n" << getResponse << "\n";
   jobIsRunning = false;
   currentJobId = "";
 
@@ -359,7 +362,6 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
 
   auto &qobjNode = d["qObject"];
   auto &qobjResultNode = d["qObjectResult"];
-
   StringBuffer sb, sb2;
   Writer<StringBuffer> jsWriter(sb), jsWriter2(sb2);
   qobjResultNode.Accept(jsWriter);
@@ -373,7 +375,6 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   nlohmann::from_json(j, qobjResult);
   nlohmann::json j2 = nlohmann::json::parse(qobjAsString);
   nlohmann::from_json(j2, qobj);
-
   auto resultsArray = qobjResult.get_results();
   auto experiments = qobj.get_experiments();
 
@@ -393,17 +394,14 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   }
 
   for (int i = 0; i < resultsArray.size(); i++) {
-
     auto currentExperiment = experiments[i];
     auto tmpBuffer = std::make_shared<AcceleratorBuffer>(
         currentExperiment.get_header().get_name(), buffer->size());
-
     auto counts = resultsArray[i].get_data().get_counts();
     for (auto &kv : counts) {
 
       std::string hexStr = kv.first;
       int nOccurrences = kv.second;
-
       auto bitStr = hex_string_to_binary_string(hexStr);
 
       if (resultsArray.size() == 1) {

@@ -16,5 +16,5 @@ add_subdirectory(vqe-energy)
 add_subdirectory(ml)
 file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py
                        ${CMAKE_CURRENT_SOURCE_DIR}/vqe-energy/python/*.py
-                       ${CMAKE_CURRENT_SOURCE_DIR}/ddcl/python/*.py)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/ml/ddcl/python/*.py)
 install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
