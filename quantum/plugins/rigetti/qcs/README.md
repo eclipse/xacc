@@ -8,7 +8,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq
 make -j12 install
 ```
 
-## Build cppzmq 
+## Build cppzmq
 Now go back to top-level and pull/build cppzmq
 ```bash
 cd ../..
@@ -18,7 +18,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq -DCMAKE_PREFIX_PATH=~/.zmq
 make -j12 install
 ```
 
-## Build msgpack-c 
+## Build msgpack-c
 Now go back to top-level and pull/build msgpack
 ```bash
 cd ../..
@@ -38,7 +38,7 @@ sudo yum install uuid-dev
 ```bash
 git clone --recursive https://github.com/eclipse/xacc
 cd xacc && mkdir build && cd build
-cmake .. -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DUUID_LIBRARY=/usr/lib64/libuuid.so.1
-  [add any other cmake args you may need]
+cmake .. -DUUID_LIBRARY=/usr/lib64/libuuid.so.1
+  [add any other cmake args you may need, like the ones for mlpack]
 make -j4 install
 ```

@@ -77,5 +77,5 @@ find_package(UUID)
 if (UUID_FOUND AND EXISTS $ENV{HOME}/.zmq/include/msgpack.hpp)
 message(
     STATUS "${BoldGreen}Building QCS Accelerator.${ColorReset}")
- #add_subdirectory(qcs)
+ add_subdirectory(qcs)
 endif()
