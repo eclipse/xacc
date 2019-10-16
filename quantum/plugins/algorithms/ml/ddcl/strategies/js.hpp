@@ -72,16 +72,16 @@ public:
   std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
 
-        std::set<std::size_t> uniqueBits;
-        InstructionIterator iter(circuit);
-        while (iter.hasNext()) {
-          auto next = iter.next();
-          if (!next->isComposite()) {
-            for (auto &b : next->bits()) {
-              uniqueBits.insert(b);
-            }
-          }
+    std::set<std::size_t> uniqueBits;
+    InstructionIterator iter(circuit);
+    while (iter.hasNext()) {
+      auto next = iter.next();
+      if (!next->isComposite()) {
+        for (auto &b : next->bits()) {
+          uniqueBits.insert(b);
         }
+      }
+    }
     std::vector<Circuit> grad_circuits;
     auto provider = xacc::getIRProvider("quantum");
     for (int i = 0; i < x.size(); i++) {
@@ -93,16 +93,14 @@ public:
       auto xplus_circuit = circuit->operator()(tmpx_plus);
       auto xminus_circuit = circuit->operator()(tmpx_minus);
 
-      for(auto& ii : uniqueBits) {
-//      for (std::size_t i = 0; i < xplus_circuit->nLogicalBits(); i++) {
-        auto m =
-            provider->createInstruction("Measure", std::vector<std::size_t>{ii});
+      for (auto &ii : uniqueBits) {
+        auto m = provider->createInstruction("Measure",
+                                             std::vector<std::size_t>{ii});
         xplus_circuit->addInstruction(m);
       }
-      for(auto& ii : uniqueBits) {
-      //for (std::size_t i = 0; i < xminus_circuit->nLogicalBits(); i++) {
-        auto m =
-            provider->createInstruction("Measure", std::vector<std::size_t>{ii});
+      for (auto &ii : uniqueBits) {
+        auto m = provider->createInstruction("Measure",
+                                             std::vector<std::size_t>{ii});
         xminus_circuit->addInstruction(m);
       }
       grad_circuits.push_back(xplus_circuit);
@@ -147,7 +145,7 @@ public:
         if (std::fabs(q_dist[x]) > 1e-12) {
           sum += std::log(q_dist[x] / (0.5 * (target_dist[x] + q_dist[x]))) *
                  0.5 * (qplus_theta[i][x] - qminus_theta[i][x]);
-        //   std::cout << sum << "\n";
+          //   std::cout << sum << "\n";
         }
       }
       sum *= 0.5;
