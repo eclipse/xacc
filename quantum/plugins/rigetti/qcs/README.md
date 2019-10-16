@@ -29,13 +29,16 @@ make -j12 install
 cd ../..
 ```
 
-## Install uuid-dev
+## Install uuid-dev and gcc 7
 ```bash
 sudo yum install uuid-dev
+sudo yum install centos-release-scl
+sudo yum install devtoolset-7
 ```
 
 ## Build XACC
 ```bash
+scl enable devtoolset-7 bash
 git clone --recursive https://github.com/eclipse/xacc
 cd xacc && mkdir build && cd build
 cmake .. -DUUID_LIBRARY=/usr/lib64/libuuid.so.1
