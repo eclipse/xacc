@@ -121,7 +121,12 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
 
         // The first child buffer is for the loss function
-        auto counts = buffers[0]->getMeasurementCounts();
+        Counts counts;
+        if (!buffers.empty()) {
+          counts = buffers[0]->getMeasurementCounts();
+        } else {
+          counts = tmpBuffer->getMeasurementCounts();
+        }
 
         // Compute and return the loss, this gives us the
         // distribution of the loss circuit too
@@ -152,11 +157,14 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+
+  // FIXME write the buffer to file.
   return;
 }
 
-std::vector<double> DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-                   const std::vector<double> &x) {
+std::vector<double>
+DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
+              const std::vector<double> &x) {
   auto provider = xacc::getIRProvider("quantum");
 
   // Evaluate and add measurements to all qubits
@@ -188,8 +196,12 @@ std::vector<double> DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffe
   auto buffers = tmpBuffer->getChildren();
 
   // The first child buffer is for the loss function
-  auto counts = buffers[0]->getMeasurementCounts();
-
+  Counts counts;
+  if (!buffers.empty()) {
+    counts = buffers[0]->getMeasurementCounts();
+  } else {
+    counts = tmpBuffer->getMeasurementCounts();
+  }
   // Compute and return the loss, this gives us the
   // distribution of the loss circuit too
   auto loss_and_qdist = lossStrategy->compute(counts, target_dist);
