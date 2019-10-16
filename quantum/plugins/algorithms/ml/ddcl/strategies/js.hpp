@@ -16,7 +16,8 @@
 #include "ddcl.hpp"
 #include "xacc.hpp"
 #include <cassert>
-
+#include <set>
+#include "InstructionIterator.hpp"
 namespace xacc {
 namespace algorithm {
 
@@ -71,6 +72,16 @@ public:
   std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
 
+        std::set<std::size_t> uniqueBits;
+        InstructionIterator iter(circuit);
+        while (iter.hasNext()) {
+          auto next = iter.next();
+          if (!next->isComposite()) {
+            for (auto &b : next->bits()) {
+              uniqueBits.insert(b);
+            }
+          }
+        }
     std::vector<Circuit> grad_circuits;
     auto provider = xacc::getIRProvider("quantum");
     for (int i = 0; i < x.size(); i++) {
@@ -82,14 +93,16 @@ public:
       auto xplus_circuit = circuit->operator()(tmpx_plus);
       auto xminus_circuit = circuit->operator()(tmpx_minus);
 
-      for (std::size_t i = 0; i < xplus_circuit->nLogicalBits(); i++) {
+      for(auto& ii : uniqueBits) {
+//      for (std::size_t i = 0; i < xplus_circuit->nLogicalBits(); i++) {
         auto m =
-            provider->createInstruction("Measure", std::vector<std::size_t>{i});
+            provider->createInstruction("Measure", std::vector<std::size_t>{ii});
         xplus_circuit->addInstruction(m);
       }
-      for (std::size_t i = 0; i < xminus_circuit->nLogicalBits(); i++) {
+      for(auto& ii : uniqueBits) {
+      //for (std::size_t i = 0; i < xminus_circuit->nLogicalBits(); i++) {
         auto m =
-            provider->createInstruction("Measure", std::vector<std::size_t>{i});
+            provider->createInstruction("Measure", std::vector<std::size_t>{ii});
         xminus_circuit->addInstruction(m);
       }
       grad_circuits.push_back(xplus_circuit);
