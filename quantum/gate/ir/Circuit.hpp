@@ -86,6 +86,9 @@ public:
 
   const std::string name() const override { return circuitName; }
   const std::string description() const override { return ""; }
+  void setName(const std::string name) override {
+      circuitName = name;
+  }
 
   void mapBits(std::vector<std::size_t> bitMap) override {
     for (auto &inst : instructions) {

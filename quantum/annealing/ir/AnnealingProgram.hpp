@@ -138,7 +138,8 @@ InstPtr getInstruction(const std::size_t idx) override {
 
   const std::string name() const override { return _name; }
   const std::string description() const override { return ""; }
-
+  void setName(const std::string name) override {
+  }
   const std::vector<std::size_t> bits() override { return std::vector<std::size_t>{}; }
 
   const std::string toString() override {

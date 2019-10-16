@@ -18,6 +18,9 @@
 #include <memory>
 #include <iomanip>
 #include <cassert>
+#include <ctime>
+#include <regex>
+
 #include "InstructionIterator.hpp"
 
 using namespace xacc;
@@ -50,12 +53,15 @@ bool DDCL::initialize(const HeterogeneousMap &parameters) {
                  ? parameters.getString("gradient")
                  : "";
 
+  if (parameters.keyExists<bool>("persist-buffer")) {
+    persistBuffer = parameters.get<bool>("persist-buffer");
+  }
   return true;
 }
 
 const std::vector<std::string> DDCL::requiredParameters() const {
-  return {"target_dist", "loss",        "gradient",
-          "optimizer",   "accelerator", "ansatz"};
+  return {"target_dist", "loss",   "gradient",      "optimizer",
+          "accelerator", "ansatz", "persist-buffer"};
 }
 
 void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
@@ -149,7 +155,18 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
 
-  // FIXME write the buffer to file.
+  if (persistBuffer) {
+    char filename[40];
+    struct tm *timenow;
+    time_t now = time(NULL);
+    timenow = localtime(&now);
+    strftime(filename, sizeof(filename), "_%Y-%m-%d_%Hh%Mm%Ss",
+             timenow);
+    std::string time_str = ".ddcl_"+kernel->name()+std::string(filename)+".ab";
+    std::ofstream out(time_str);
+    buffer->print(out);
+    out.close();
+  }
   return;
 }
 

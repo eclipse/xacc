@@ -79,6 +79,8 @@ public:
   // direct children
   virtual const int nChildren() = 0;
 
+  virtual void setName(const std::string name) = 0;
+  
   virtual InstPtr getInstruction(const std::size_t idx) = 0;
   virtual std::vector<InstPtr> getInstructions() = 0;
   virtual void removeInstruction(const std::size_t idx) = 0;

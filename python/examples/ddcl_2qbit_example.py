@@ -28,7 +28,13 @@ f = xacc.getCompiled('qubit2_depth1')
 
 # Get the DDCL Algorithm, initialize it
 # with necessary parameters
-ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f, 'accelerator': qpu, 'target_dist': [0., 0., 0., 1.],
-                                  'optimizer': optimizer, 'loss': 'js', 'gradient': 'js-parameter-shift'})
+ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,
+                                  'accelerator': qpu,
+                                  'target_dist': [0., 0., 0., 1.],
+                                  'persist-buffer': True,
+                                  'optimizer': optimizer,
+                                  'loss': 'js',
+                                  'gradient': 'js-parameter-shift'
+                                  })
 # execute
 ddcl.execute(qbits)
