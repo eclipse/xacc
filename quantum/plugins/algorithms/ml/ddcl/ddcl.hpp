@@ -65,7 +65,8 @@ protected:
   std::vector<double> target_dist;
   std::string gradient;
   std::string loss;
-
+  bool persistBuffer = false;
+  
   HeterogeneousMap parameters;
 
 public:

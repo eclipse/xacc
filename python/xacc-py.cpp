@@ -71,7 +71,7 @@ template <> struct visit_helper<mpark::variant> {
 } // namespace pybind11
 
 using PyHeterogeneousMapTypes =
-    xacc::Variant<int, double, std::string, std::vector<std::string>,
+    xacc::Variant<bool, int, double, std::string, std::vector<std::string>,
                   std::vector<double>, std::vector<int>, std::complex<double>,
                   std::shared_ptr<CompositeInstruction>,
                   std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
@@ -230,6 +230,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       "This type can be an int, double, string, List[int], List[double]"
       "List[string], Observable, Accelerator, Function, or Optimizer.")
       .def(py::init<int>(), "Construct as an int.")
+      .def(py::init<bool>(), "Construct as a bool")
       .def(py::init<double>(), "Construct as a double.")
       .def(py::init<std::string>(), "Construct as a string.")
       .def(py::init<std::vector<std::string>>(), "Construct as a List[string].")

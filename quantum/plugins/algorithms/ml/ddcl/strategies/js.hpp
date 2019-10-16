@@ -84,6 +84,9 @@ public:
       auto xplus_circuit = circuit->operator()(tmpx_plus);
       auto xminus_circuit = circuit->operator()(tmpx_minus);
 
+      xplus_circuit->setName(circuit->name()+"param_"+std::to_string(i)+"_shift_plus");
+      xminus_circuit->setName(circuit->name()+"param_"+std::to_string(i)+"_shift_minus");
+
       for (auto &ii : uniqueBits) {
         auto m = provider->createInstruction("Measure",
                                              std::vector<std::size_t>{ii});
