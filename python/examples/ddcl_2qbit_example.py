@@ -38,3 +38,8 @@ ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,
                                   })
 # execute
 ddcl.execute(qbits)
+
+# Note that the buffer file was persisted to
+# the hidden file with name
+# .ddcl_KERNELNAME_TIMESTAMP.ab, which in this case looks like
+# .ddcl_qubit2_depth1_2019-10-.....ab -> depends on time you ran this :)
