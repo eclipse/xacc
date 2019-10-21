@@ -36,7 +36,7 @@ protected:
 
 public:
   std::pair<double, std::vector<double>>
-  compute(Counts &counts, const std::vector<double> &target) override {
+  compute(Counts &counts, const std::vector<double> &target, const HeterogeneousMap& = {}) override {
     int shots = 0;
     for (auto &x : counts) {
       shots += x.second;
@@ -68,10 +68,13 @@ public:
 };
 
 class JSParameterShiftGradientStrategy : public GradientStrategy {
+protected:
+  std::vector<double> currentParameterSet;
+
 public:
   std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
-
+    currentParameterSet = x;
     std::set<std::size_t> uniqueBits = circuit->uniqueBits();
     std::vector<Circuit> grad_circuits;
     auto provider = xacc::getIRProvider("quantum");
@@ -104,42 +107,63 @@ public:
     return grad_circuits;
   }
 
-  void compute(std::vector<double> &grad, std::vector<Counts> results,
+  void compute(std::vector<double> &grad, std::vector<std::shared_ptr<AcceleratorBuffer>> results,
                const std::vector<double> &q_dist,
                const std::vector<double> &target_dist) override {
     assert(grad.size() == 2 * results.size());
 
     // Get the number of shosts
     int shots = 0;
-    for (auto &x : results[0]) {
+    for (auto &x : results[0]->getMeasurementCounts()) {
       shots += x.second;
     }
 
     // Create q+ and q- vectors
+    int counter = 0;
     std::vector<std::vector<double>> qplus_theta, qminus_theta;
     for (int i = 0; i < results.size(); i += 2) {
       std::vector<double> qp(q_dist.size()), qm(q_dist.size());
-      for (auto &x : results[i]) {
+      for (auto &x : results[i]->getMeasurementCounts()) {
         int idx = std::stoi(x.first, nullptr, 2);
         qp[idx] = (double)x.second / shots;
       }
-      for (auto &x : results[i + 1]) {
+      for (auto &x : results[i + 1]->getMeasurementCounts()) {
         int idx = std::stoi(x.first, nullptr, 2);
         qm[idx] = (double)x.second / shots;
       }
 
+      std::vector<double> shiftedp = currentParameterSet;
+      std::vector<double> shiftedm = currentParameterSet;
+      auto xplus = currentParameterSet[counter] + xacc::constants::pi / 2.;
+      auto xminus = currentParameterSet[counter] - xacc::constants::pi / 2.;
+
+      shiftedp[counter] = xplus;
+      shiftedm[counter] = xminus;
+
+      results[i]->addExtraInfo("gradient-index", counter);
+      results[i+1]->addExtraInfo("gradient-index", counter);
+
+      results[i]->addExtraInfo("shift-direction", "plus");
+      results[i+1]->addExtraInfo("shift-direction", "minus");
+
+      results[i]->addExtraInfo("qdist", qp);
+      results[i+1]->addExtraInfo("qdist", qm);
+
+      results[i]->addExtraInfo("gradient-parameters", shiftedp);
+      results[i+1]->addExtraInfo("gradient-parameters", shiftedm);
+
       qplus_theta.push_back(qp);
       qminus_theta.push_back(qm);
+
+      counter++;
     }
 
-    // std::cout << "qdist: " << q_dist << "\n";
     for (int i = 0; i < grad.size(); i++) {
       double sum = 0.0;
       for (int x = 0; x < q_dist.size(); x++) {
         if (std::fabs(q_dist[x]) > 1e-12) {
           sum += std::log(q_dist[x] / (0.5 * (target_dist[x] + q_dist[x]))) *
                  0.5 * (qplus_theta[i][x] - qminus_theta[i][x]);
-          //   std::cout << sum << "\n";
         }
       }
       sum *= 0.5;

@@ -118,11 +118,14 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
 
         // The first child buffer is for the loss function
+        std::shared_ptr<AcceleratorBuffer> lossBufferPtr;
         Counts counts;
         if (!buffers.empty()) {
           counts = buffers[0]->getMeasurementCounts();
+          lossBufferPtr = buffers[0];
         } else {
           counts = tmpBuffer->getMeasurementCounts();
+          lossBufferPtr = tmpBuffer;
         }
 
         // Compute and return the loss, this gives us the
@@ -131,17 +134,22 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto loss = loss_and_qdist.first;
         auto qdist = loss_and_qdist.second;
 
+        lossBufferPtr->addExtraInfo("qdist", qdist);
+        lossBufferPtr->addExtraInfo("loss", loss);
+
         // Only compute gradients if this is
         // a gradient based optimizer
         if (!dx.empty()) {
           // The rest of the buffers are for the gradients
-          std::vector<Counts> gradResults;
+          std::vector<std::shared_ptr<AcceleratorBuffer>> gradResults;
           for (int i = 1; i < buffers.size(); i++) {
-            gradResults.push_back(buffers[i]->getMeasurementCounts());
+            gradResults.push_back(buffers[i]);
           }
 
           // Compute the gradient with the results
           gradientStrategy->compute(dx, gradResults, qdist, target_dist);
+
+          lossBufferPtr->addExtraInfo("gradient", dx);
         }
         std::stringstream ss;
         ss << x << ") = " << std::setprecision(12) << loss;
