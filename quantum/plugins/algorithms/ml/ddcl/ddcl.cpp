@@ -56,6 +56,8 @@ bool DDCL::initialize(const HeterogeneousMap &parameters) {
   if (parameters.keyExists<bool>("persist-buffer")) {
     persistBuffer = parameters.get<bool>("persist-buffer");
   }
+
+  _parameters = parameters;
   return true;
 }
 
@@ -130,7 +132,7 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
         // Compute and return the loss, this gives us the
         // distribution of the loss circuit too
-        auto loss_and_qdist = lossStrategy->compute(counts, target_dist);
+        auto loss_and_qdist = lossStrategy->compute(counts, target_dist, _parameters);
         auto loss = loss_and_qdist.first;
         auto qdist = loss_and_qdist.second;
 

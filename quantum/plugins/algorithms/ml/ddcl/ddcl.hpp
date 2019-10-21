@@ -67,7 +67,7 @@ protected:
   std::string loss;
   bool persistBuffer = false;
 
-  HeterogeneousMap parameters;
+  HeterogeneousMap _parameters;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
