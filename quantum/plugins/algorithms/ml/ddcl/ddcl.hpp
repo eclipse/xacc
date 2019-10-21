@@ -24,7 +24,7 @@ using Counts = std::map<std::string, int>;
 class LossStrategy : public Identifiable {
 public:
   virtual std::pair<double, std::vector<double>>
-  compute(Counts &counts, const std::vector<double> &target) = 0;
+  compute(Counts &counts, const std::vector<double> &target, const HeterogeneousMap& options = {}) = 0;
 
   virtual bool isValidGradientStrategy(const std::string &gradientStrategy) = 0;
 };
@@ -36,7 +36,7 @@ public:
   // and the current iterate's parameters
   virtual std::vector<Circuit>
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) = 0;
-  virtual void compute(std::vector<double> &grad, std::vector<Counts> results,
+  virtual void compute(std::vector<double> &grad, std::vector<std::shared_ptr<AcceleratorBuffer>> results,
                        const std::vector<double> &q_dist,
                        const std::vector<double> &target_dist) = 0;
 };
@@ -47,7 +47,7 @@ public:
   getCircuitExecutions(Circuit circuit, const std::vector<double> &x) override {
     return {};
   }
-  void compute(std::vector<double> &grad, std::vector<Counts> results,
+  void compute(std::vector<double> &grad, std::vector<std::shared_ptr<AcceleratorBuffer>> results,
                const std::vector<double> &q_dist,
                const std::vector<double> &target_dist) override {
     return;
@@ -66,7 +66,7 @@ protected:
   std::string gradient;
   std::string loss;
   bool persistBuffer = false;
-  
+
   HeterogeneousMap parameters;
 
 public:

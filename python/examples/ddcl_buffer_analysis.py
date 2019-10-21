@@ -20,6 +20,9 @@ for p in parameters:
     # that correspond to those parameters
     childrenAtParams = buffer.getChildren('parameters',p)
 
-    # Loop over those to see all counts dictionaries 
-    for c in childrenAtParams:
-        print(c.name(), c.getMeasurementCounts())
+    lossChild = childrenAtParams[0]
+    print(len(childrenAtParams), lossChild.getInformation('gradient'), lossChild.getInformation('qdist'))
+
+    # Loop over those to see all counts dictionaries
+    for c in childrenAtParams[1:]:
+        print(c.name(), c.getMeasurementCounts(), c.getInformation('shift-direction'), c.getInformation('qdist'))
