@@ -25,7 +25,6 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
-
 #include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -460,9 +459,10 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
-    .def("execute",
-           (std::vector<double> (xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>, const std::vector<double>&)) &
+      .def("execute",
+           (std::vector<double>(xacc::Algorithm::*)(
+               const std::shared_ptr<xacc::AcceleratorBuffer>,
+               const std::vector<double> &)) &
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
@@ -499,16 +499,13 @@ PYBIND11_MODULE(_pyxacc, m) {
                  ndim);
              return o.optimize(opt);
            })
-    .def("optimize",
+      .def("optimize",
            [&](xacc::Optimizer &o,
-               std::function<double(
-                   const std::vector<double> &x)> &f,
+               std::function<double(const std::vector<double> &x)> &f,
                const int ndim) {
-             OptFunction opt(
-                 [&](const std::vector<double> &x, std::vector<double> &grad) {
-                   return f(x);
-                 },
-                 ndim);
+             OptFunction opt([&](const std::vector<double> &x,
+                                 std::vector<double> &grad) { return f(x); },
+                             ndim);
              return o.optimize(opt);
            })
       .def("setOptions",
@@ -652,6 +649,24 @@ PYBIND11_MODULE(_pyxacc, m) {
         return xacc::qalloc(n);
       },
       "");
+  m.def(
+      "qalloc",
+      []() -> std::shared_ptr<xacc::AcceleratorBuffer> {
+        return xacc::qalloc();
+      },
+      "");
+  m.def("createCompositeInstruction",
+        [](const std::string &name, const PyHeterogeneousMap &options = {}) {
+          HeterogeneousMap m;
+          for (auto &item : options) {
+            PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+            mpark::visit(vis, item.second);
+          }
+          auto inst = std::dynamic_pointer_cast<CompositeInstruction>(
+              xacc::getService<Instruction>(name));
+          inst->expand(m);
+          return inst;
+        });
   m.def(
       "info", [](const std::string s) { xacc::info(s); }, "");
   m.def(
