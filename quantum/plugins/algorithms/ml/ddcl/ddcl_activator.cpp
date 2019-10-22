@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "ddcl.hpp"
 #include "strategies/js.hpp"
+#include "strategies/mmd.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -42,6 +43,13 @@ public:
     auto js_g_ps =
         std::make_shared<xacc::algorithm::JSParameterShiftGradientStrategy>();
     context.RegisterService<xacc::algorithm::GradientStrategy>(js_g_ps);
+
+    auto mmd = std::make_shared<xacc::algorithm::MMDLossStrategy>();
+    context.RegisterService<xacc::algorithm::LossStrategy>(mmd);
+    auto mmd_g_ps =
+      std::make_shared<xacc::algorithm::MMDParameterShiftGradientStrategy>();
+    context.RegisterService<xacc::algorithm::GradientStrategy>(mmd_g_ps);
+
   }
 
   /**
