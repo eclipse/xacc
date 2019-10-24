@@ -3,7 +3,6 @@
 
 #define XACC_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 #define XACC_BUILD_DIR "${CMAKE_BINARY_DIR}"
-#define XACC_RBM_CLASSIFICATION_TESTS_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/algorithms/ml/rbm_classification/tests/files"
 #define IBM_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/ibm/tests/test_files"
 #define ROERROR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/decorators/tests/files"
 
