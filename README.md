@@ -19,19 +19,12 @@ Documentation
 
 Build from Source
 -----------------
-Ensure that you have installed CMake 3.12+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
-CURL development headers and libraries with OpenSSL support. The easiest way to get recent CMake version is
-through python pip (typical Ubuntu install commands shown here).
-```bash
-$ apt-get install libcurl4-openssl-dev gcc-8 g++-8
-$ python3 -m pip install cmake
-```
+Ensure that you have installed CMake 3.2+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
+CURL development headers and libraries with OpenSSL support
+(see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 
 Optional dependencies include BLAS and LAPACK development libraries (for various simulators),
 Python 3 development headers (for the Python API), and Libunwind (for stack trace printing).
-```bash
-$ apt-get install libblas-dev liblapack-dev python3-dev
-```
 
 To enable Python support, ensure that `python3` is set to your desired version of Python 3. CMake will
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
@@ -59,8 +52,7 @@ $ make -j$(sysctl -n hw.physicalcpu) install
 $ ctest --output-on-failure
 ```
 See full documentation for all CMake optional arguments. To enable MLPack Optimizer support, see
-[MLPack Readme](https://github.com/eclipse/xacc/blob/master/xacc/optimizer/README.md). To enable
-Rigetti QCS support, see [QCS Readme](https://github.com/eclipse/xacc/blob/master/quantum/plugins/rigetti/qcs/README.md).
+[MLPack Readme](https://github.com/eclipse/xacc/blob/master/xacc/optimizer/README.md)
 
 Your installation will be in `$HOME/.xacc`. If you built with the Python API,
 be sure to update your `PYTHONPATH` environment variable to point to the installation:
