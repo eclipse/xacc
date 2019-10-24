@@ -10,7 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(xacc VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -126,7 +126,7 @@ if(Python_FOUND)
    if (PELIX_EXISTS EQUAL "1")
      # if not, check we have pip
      execute_process(COMMAND ${Python_EXECUTABLE} -c "import pip" RESULT_VARIABLE PIP_EXISTS)
-     if (PIP_EXISTS EQUAL "0")
+     if (PIP_EXISTS EQUAL "0") 
 	# we have pip, son just install ipopo
         message(STATUS "${BoldGreen}Installing Pelix OSGi framework.${ColorReset}")
         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ipopo)
