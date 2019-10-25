@@ -1,5 +1,5 @@
 
-// Generated from OQASM2.g4 by ANTLR 4.7.1
+// Generated from OQASM2.g4 by ANTLR 4.7.2
 
 #pragma once
 
@@ -17,10 +17,10 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
-    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, COMMENT = 32, 
-    QREG = 33, CREG = 34, GATE = 35, MEASURE = 36, RESET = 37, BARRIER = 38, 
-    OPENQASM = 39, OPAQUE = 40, ID = 41, REAL = 42, INT = 43, STRING = 44, 
-    WS = 45, EOL = 46
+    T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
+    COMMENT = 33, QREG = 34, CREG = 35, GATE = 36, MEASURE = 37, RESET = 38, 
+    BARRIER = 39, OPENQASM = 40, OPAQUE = 41, ID = 42, REAL = 43, INT = 44, 
+    STRING = 45, WS = 46, EOL = 47
   };
 
   enum {
@@ -97,8 +97,7 @@ public:
   public:
     XaccsrcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<XacckernelContext *> xacckernel();
-    XacckernelContext* xacckernel(size_t i);
+    XacckernelContext *xacckernel();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -172,10 +171,10 @@ public:
   public:
     MainprogContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *OPENQASM();
-    RealContext *real();
     std::vector<CommentContext *> comment();
     CommentContext* comment(size_t i);
+    antlr4::tree::TerminalNode *OPENQASM();
+    RealContext *real();
     ProgramContext *program();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -208,6 +207,8 @@ public:
     CommentContext *comment();
     std::vector<IncludeContext *> include();
     IncludeContext* include(size_t i);
+    antlr4::tree::TerminalNode *OPENQASM();
+    RealContext *real();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -532,7 +533,7 @@ public:
   public:
     UopContext(antlr4::ParserRuleContext *parent, size_t invokingState);
    
-    UopContext() : antlr4::ParserRuleContext() { }
+    UopContext() = default;
     void copyFrom(UopContext *context);
     using antlr4::ParserRuleContext::copyFrom;
 
