@@ -40,8 +40,13 @@ class WrappedVQEF(xacc.DecoratorFunction):
         buffer = args[0]
         ars = args[1:]
         if len(ars) > 0:
-            optParams['initial-parameters'] = list(ars)
+            if isinstance(ars,list) or isinstance(ars,tuple):
+                # print('ars is a list')
+                optParams['initial-parameters'] = ars[0]
+            else:
+                optParams['initial-parameters'] = list(ars)
 
+        # print(type(ars), optParams['initial-parameters'])
         if 'options' in self.kwargs:
             optParams = self.kwargs['options']
 
