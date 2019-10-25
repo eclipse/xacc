@@ -17,6 +17,8 @@
 #include "InverseQFT.hpp"
 
 #include "uccsd.hpp"
+#include "ucc1.hpp"
+#include "ucc3.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -35,6 +37,8 @@ public:
     auto q = std::make_shared<xacc::circuits::QFT>();
     auto iq = std::make_shared<xacc::circuits::InverseQFT>();
     auto u = std::make_shared<xacc::circuits::UCCSD>();
+    auto u1 = std::make_shared<xacc::circuits::UCC1>();
+    auto u3 = std::make_shared<xacc::circuits::UCC3>();
 
     context.RegisterService<xacc::Instruction>(hwe);
     context.RegisterService<xacc::Instruction>(expit);
@@ -42,6 +46,8 @@ public:
     context.RegisterService<xacc::Instruction>(q);
     context.RegisterService<xacc::Instruction>(iq);
     context.RegisterService<xacc::Instruction>(u);
+    context.RegisterService<xacc::Instruction>(u1);
+    context.RegisterService<xacc::Instruction>(u3);
 
   }
 

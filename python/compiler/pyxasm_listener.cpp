@@ -68,6 +68,8 @@ void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
       paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), '['), paramStr.end());
       paramStr.erase(std::remove(paramStr.begin(), paramStr.end(), ']'), paramStr.end());
       auto existingVars = function->getVariables();
+
+      // If varName (x in x[0]) is in variables, replace it with x0
       if (std::find(existingVars.begin(), existingVars.end(), varName) != std::end(existingVars)) {
         function->replaceVariable(varName, paramStr);
       } else {
@@ -106,6 +108,13 @@ void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
   // This will search services, contributed services, and compiled
   // compositeinstructions and will call xacc::error if it does not find it.
   auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
+  if (tmpInst->isComposite()) {
+    for (int p = 1; p < params.size(); p++) {
+        if (params[p].isVariable()) {
+            std::dynamic_pointer_cast<CompositeInstruction>(tmpInst)->addVariable(params[p].toString());
+        }
+    }
+  }
   function->addInstruction(tmpInst);
   function->expand(options);
 }

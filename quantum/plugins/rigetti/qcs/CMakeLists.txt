@@ -11,7 +11,6 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 set(LIBRARY_NAME xacc-rigetti-qcs)
-message(STATUS "BUILDING RIGETTI QCS")
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp)
 

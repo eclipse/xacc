@@ -75,6 +75,9 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   _opt.set_maxeval(maxeval);
   _opt.set_ftol_rel(tol);
 
+  if (dim != x.size()) {
+      xacc::error("Invalid optimization configuration: function dim == " + std::to_string(dim) + ", param_size == " + std::to_string(x.size()));
+  }
   double optF;
   nlopt::result r;
   try {
