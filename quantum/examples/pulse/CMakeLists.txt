@@ -10,16 +10,5 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-include_directories(${CMAKE_BINARY_DIR})
-add_xacc_test(QObject)
-target_link_libraries(QObjectTester xacc-ibm)
-
-add_xacc_test(Backends)
-target_link_libraries(BackendsTester xacc-ibm)
-
-add_xacc_test(Properties)
-target_link_libraries(PropertiesTester xacc-ibm)
-
-
-add_xacc_test(PulseQObject)
-target_link_libraries(PulseQObjectTester xacc-ibm)
+add_executable(test_open_pulse test_open_pulse.cpp)
+target_link_libraries(test_open_pulse PRIVATE xacc)

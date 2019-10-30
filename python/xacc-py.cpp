@@ -25,7 +25,6 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
-
 #include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -90,6 +89,24 @@ public:
   template <typename T> void operator()(const T &t) { m.insert(key, t); }
 };
 
+class HeterogeneousMap2PyHeterogeneousMap
+    : public visitor_base<
+          bool, int, double, std::string, std::vector<std::string>,
+          std::vector<double>, std::vector<int>, std::complex<double>,
+          std::shared_ptr<CompositeInstruction>, std::shared_ptr<Instruction>,
+          std::shared_ptr<Accelerator>, std::shared_ptr<Observable>,
+          std::shared_ptr<Optimizer>> {
+private:
+  PyHeterogeneousMap &pymap;
+
+public:
+  HeterogeneousMap2PyHeterogeneousMap(PyHeterogeneousMap &m) : pymap(m) {}
+
+  template <typename T> void operator()(const std::string &key, const T &t) {
+    pymap.insert({key, t});
+  }
+};
+
 class PyAccelerator : public xacc::Accelerator {
 public:
   /* Inherit the constructors */
@@ -98,10 +115,11 @@ public:
   const std::string name() const override {
     PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, name);
   }
-
   const std::string description() const override { return ""; }
 
-  void initialize(const HeterogeneousMap &params = {}) override { return; }
+  void initialize(const HeterogeneousMap &params = {}) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, initialize, params);
+  }
 
   std::vector<std::shared_ptr<IRTransformation>>
   getIRTransformations() override {
@@ -201,18 +219,39 @@ PYBIND11_MODULE(_pyxacc, m) {
                const std::string, const std::shared_ptr<Optimizer> &)) &
                xacc::HeterogeneousMap::insert,
            "")
-      .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<double>>, "")
-      .def("__getitem__", &xacc::HeterogeneousMap::get<double>, "")
-      .def("__getitem__", &xacc::HeterogeneousMap::get<int>, "")
-      .def("__getitem__", &xacc::HeterogeneousMap::get<std::vector<int>>, "")
-      .def("__getitem__",
-           &xacc::HeterogeneousMap::get<std::vector<std::string>>, "")
-      .def("__getitem__",
-           &xacc::HeterogeneousMap::get<std::vector<std::pair<int, int>>>, "")
-      .def("__getitem__",
-           &xacc::HeterogeneousMap::get<std::shared_ptr<Observable>>, "")
-      .def("__getitem__",
-           &xacc::HeterogeneousMap::get<std::shared_ptr<Optimizer>>, "");
+      .def(
+          "__getitem__",
+          [](HeterogeneousMap &m, const std::string key) -> PyHeterogeneousMapTypes {
+            if (m.keyExists<int>(key)) {
+              return m.get<int>(key);
+            } else if (m.keyExists<double>(key)) {
+              return m.get<double>(key);
+            } else if (m.keyExists<std::string>(key)) {
+              return m.get<std::string>(key);
+            } else if (m.keyExists<std::vector<double>>(key)) {
+              return m.get<std::vector<double>>(key);
+            } else if (m.keyExists<std::vector<int>>(key)) {
+              return m.get<std::vector<int>>(key);
+            } else if (m.keyExists<std::shared_ptr<Observable>>(key)) {
+              return m.get<std::shared_ptr<Observable>>(key);
+            } else if (m.keyExists<std::shared_ptr<Optimizer>>(key)) {
+              return m.get<std::shared_ptr<Optimizer>>(key);
+            } else if (m.keyExists<std::vector<std::string>>(key)) {
+              return m.get<std::vector<std::string>>(key);
+
+            } else {
+                xacc::error("Invalid key for heterogeneous map");
+                return 0;
+            }
+          },
+          "")
+      .def("__contains__",[](HeterogeneousMap& m, const std::string key) {
+          return m.keyExists<int>(key) || m.keyExists<double>(key) ||
+                 m.keyExists<std::string>(key) || m.keyExists<std::vector<double>>(key) ||
+                 m.keyExists<std::vector<int>>(key) || m.keyExists<std::vector<std::string>>(key) ||
+                 m.keyExists<std::shared_ptr<Observable>>(key) ||
+                 m.keyExists<std::shared_ptr<Optimizer>>(key);
+      }, "");
 
   py::class_<xacc::InstructionParameter>(
       m, "InstructionParameter",
@@ -257,6 +296,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("isEnabled", &xacc::Instruction::isEnabled, "")
       .def("isComposite", &xacc::Instruction::isComposite, "")
       .def("bits", &xacc::Instruction::bits, "")
+      .def("setBits", &xacc::Instruction::setBits, "")
       .def("getParameter", &xacc::Instruction::getParameter, "")
       .def("getParameters", &xacc::Instruction::getParameters, "")
       .def("setParameter",
@@ -266,7 +306,14 @@ PYBIND11_MODULE(_pyxacc, m) {
            "")
       .def("mapBits", &xacc::Instruction::mapBits, "")
       .def("name", &xacc::Instruction::name, "")
-      .def("description", &xacc::Instruction::description, "");
+      .def("description", &xacc::Instruction::description, "")
+      .def("setChannel", &xacc::Instruction::setChannel, "")
+      .def("setStart", &xacc::Instruction::setStart, "")
+      .def("setDuration", &xacc::Instruction::setDuration, "")
+      .def("setSamples", &xacc::Instruction::setSamples, "")
+      .def("getSamples", &xacc::Instruction::getSamples, "")
+      .def("duration", &xacc::Instruction::duration, "")
+      .def("start", &xacc::Instruction::start, "");
 
   py::class_<xacc::CompositeInstruction,
              std::shared_ptr<xacc::CompositeInstruction>>(
@@ -303,10 +350,57 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("enable", &xacc::CompositeInstruction::enable, "")
       .def("getCoefficient", &xacc::CompositeInstruction::getCoefficient, "")
       .def("setCoefficient", &xacc::CompositeInstruction::setCoefficient, "")
-
       .def("depth", &xacc::CompositeInstruction::depth, "")
       .def("persistGraph", &xacc::CompositeInstruction::persistGraph, "")
       .def("mapBits", &xacc::CompositeInstruction::mapBits, "");
+
+  py::class_<xacc::IRProvider, std::shared_ptr<xacc::IRProvider>>(
+      m, "IRProvider", "")
+      .def(
+          "createInstruction",
+          [](IRProvider &p, const std::string name,
+             std::vector<std::size_t> bits,
+             std::vector<InstructionParameter> parameters,
+             const HeterogeneousMap &analog_options) {
+            return p.createInstruction(name, bits, parameters, analog_options);
+          },
+          "Return the kernels in this IR")
+      //   .def(
+      //   "createInstruction",
+      //   [](IRProvider &p, const std::string name,
+      //      std::vector<std::size_t> bits,
+      //      std::vector<InstructionParameter> parameters,
+      //      const HeterogeneousMap &analog_options) {
+      //     return p.createInstruction(name, bits, parameters, analog_options);
+      //   },
+      //   "Return the kernels in this IR")
+      .def(
+          "createInstruction",
+          [](IRProvider &p, const std::string name,
+             std::vector<std::size_t> bits,
+             std::vector<InstructionParameter> parameters) {
+            return p.createInstruction(name, bits, parameters);
+          },
+          "Return the kernels in this IR")
+      .def(
+          "createInstruction",
+          [](IRProvider &p, const std::string name,
+             std::vector<std::size_t> bits) {
+            return p.createInstruction(name, bits);
+          },
+          "Return the kernels in this IR")
+      .def(
+          "createInstruction",
+          [](IRProvider &p, const std::string name) {
+            return p.createInstruction(name, {});
+          },
+          "Return the kernels in this IR")
+      .def(
+          "createComposite",
+          [](IRProvider &p, const std::string name) {
+            return p.createComposite(name);
+          },
+          "");
 
   // Expose the IR interface
   py::class_<xacc::IR, std::shared_ptr<xacc::IR>>(
@@ -338,6 +432,8 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("name", &xacc::Accelerator::name,
            "Return the name of this Accelerator.")
       .def("getProperties", &xacc::Accelerator::getProperties, "")
+      .def("contributeInstructions", &xacc::Accelerator::contributeInstructions,
+           py::arg("custom_json_config") = std::string(""), "")
       .def("execute",
            (void (xacc::Accelerator::*)(
                std::shared_ptr<AcceleratorBuffer>,
@@ -378,6 +474,10 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("size", &xacc::AcceleratorBuffer::size, "")
       .def("appendMeasurement",
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
+               xacc::AcceleratorBuffer::appendMeasurement,
+           "Append the measurement string")
+      .def("appendMeasurement",
+           (void (xacc::AcceleratorBuffer::*)(const std::string, const int)) &
                xacc::AcceleratorBuffer::appendMeasurement,
            "Append the measurement string")
       .def("getMeasurements", &xacc::AcceleratorBuffer::getMeasurements,
@@ -460,9 +560,10 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
-    .def("execute",
-           (std::vector<double> (xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>, const std::vector<double>&)) &
+      .def("execute",
+           (std::vector<double>(xacc::Algorithm::*)(
+               const std::shared_ptr<xacc::AcceleratorBuffer>,
+               const std::vector<double> &)) &
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
@@ -499,16 +600,13 @@ PYBIND11_MODULE(_pyxacc, m) {
                  ndim);
              return o.optimize(opt);
            })
-    .def("optimize",
+      .def("optimize",
            [&](xacc::Optimizer &o,
-               std::function<double(
-                   const std::vector<double> &x)> &f,
+               std::function<double(const std::vector<double> &x)> &f,
                const int ndim) {
-             OptFunction opt(
-                 [&](const std::vector<double> &x, std::vector<double> &grad) {
-                   return f(x);
-                 },
-                 ndim);
+             OptFunction opt([&](const std::vector<double> &x,
+                                 std::vector<double> &grad) { return f(x); },
+                             ndim);
              return o.optimize(opt);
            })
       .def("setOptions",
@@ -670,6 +768,8 @@ PYBIND11_MODULE(_pyxacc, m) {
           accd->setDecorated(acc);
           return accd;
         });
+  m.def("asComposite", &xacc::ir::asComposite, "");
+  m.def("asInstruction", &xacc::ir::asInstruction, "");
   m.def(
       "setOptions",
       [](std::map<std::string, InstructionParameter> options) {
@@ -689,6 +789,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("setIsPyApi", &xacc::setIsPyApi,
         "Indicate that this is using XACC via the Python API.");
   m.def("getCache", &xacc::getCache, "");
+  m.def("getIRProvider", &xacc::getIRProvider, "");
   m.def("Finalize", &xacc::Finalize, "Finalize the framework");
   m.def(
       "loadBuffer",
@@ -757,6 +858,15 @@ PYBIND11_MODULE(_pyxacc, m) {
       py::arg("acc"), py::arg("src"), py::arg("compilerName") = std::string(""),
       py::return_value_policy::move, "");
 
+  m.def("createComposite", [](const std::string name) {
+    std::shared_ptr<CompositeInstruction> inst;
+    auto tmp = xacc::getIRProvider("quantum")->createInstruction(name, {});
+    inst = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
+    if (!inst) {
+      xacc::error("Not a valid composite instruction");
+    }
+    return inst;
+  });
   m.def(
       "compositeToInstruction",
       [](std::shared_ptr<CompositeInstruction> f) {

@@ -22,6 +22,7 @@
 
 #include "heterogeneous.hpp"
 
+#include <memory>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fstream>
@@ -57,7 +58,7 @@ public:
   qbit(const int n)
       : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
   qbit(const AcceleratorBufferPtr& ab) : AcceleratorBufferPtr(ab) {}
-  
+
   int operator[](const int &i) {return 0;}
   qbit& operator=(qbit& q) {return q;}
 };
@@ -244,6 +245,10 @@ bool hasCompiled(const std::string name);
 
 void qasm(const std::string &qasmString);
 
+namespace ir {
+    std::shared_ptr<CompositeInstruction> asComposite(std::shared_ptr<Instruction> inst);
+    std::shared_ptr<Instruction> asInstruction(std::shared_ptr<CompositeInstruction> comp);
+}
 void Finalize();
 
 } // namespace xacc

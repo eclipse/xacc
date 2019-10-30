@@ -45,7 +45,7 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(const std::str
 
 std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
     const std::string name, std::vector<std::size_t> bits,
-    std::vector<InstructionParameter> parameters) {
+    std::vector<InstructionParameter> parameters, const HeterogeneousMap& analog_options) {
 
   std::string iName = name;
   if (name == "CX") {
@@ -69,6 +69,17 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
       inst->setParameter(idx, a);
       idx++;
     }
+  }
+
+  if (inst->isAnalog()) {
+      if (analog_options.stringExists("channel")) {
+          inst->setChannel(analog_options.getString("channel"));
+      } else if (analog_options.stringExists("ch")) {
+          inst->setChannel(analog_options.getString("ch"));
+      } else if (analog_options.keyExists<int>("duration")) {
+          inst->setDuration(analog_options.get<int>("duration"));
+      }
+
   }
 
   return inst;

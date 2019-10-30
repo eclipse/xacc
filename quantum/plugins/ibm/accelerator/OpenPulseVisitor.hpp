@@ -15,136 +15,80 @@
 
 #include <memory>
 #include "AllGateVisitor.hpp"
+#include "Pulse.hpp"
+#include "json.hpp"
+
+#include "PulseQObject.hpp"
+
+using nlohmann::json;
 
 namespace xacc {
 namespace quantum {
 
-/**
- */
-class OpenPulseVisitor: public AllGateVisitor {
+class OpenPulseVisitor: public BaseInstructionVisitor,
+                       public InstructionVisitor<xacc::quantum::Pulse> {
 protected:
 
 	constexpr static double pi = 3.1415926;
-    std::string instructions = "";
+
+    bool hasAcquire = false;
 public:
 
-	virtual const std::string name() const {
+    std::vector<xacc::ibm_pulse::Instruction> instructions;
+    std::vector<xacc::ibm_pulse::PulseLibrary> library;
+
+	const std::string name() const override {
 		return "openpulse-visitor";
 	}
 
-	virtual const std::string description() const {
+	const std::string description() const override{
 		return "Map XACC IR to OpenPulse.";
 	}
-
-	OpenPulseVisitor() : OpenPulseVisitor("dummy") {}
-
-	OpenPulseVisitor(const std::string name) {
-        native = "{ \"name\": \"" + name + "\", \"instructions\": [";
-    }
 
 	const std::string toString() override {
 		return native;
 	}
 
-	/**
-	 * Visit hadamard gates
-	 */
-	void visit(Hadamard& h) override {
-        xacc::error("digital 2 analog not supported for hadamard yet.");
+
+	void visit(Pulse& i) override {
+        xacc::ibm_pulse::Instruction inst;
+
+        inst.set_ch(i.channel());
+        inst.set_name(i.name());
+        inst.set_phase(i.getParameter(0).as<double>());
+        inst.set_t0(i.start());
+
+        std::vector<std::string> builtIns {"fc", "acquire"};
+        if (std::find(builtIns.begin(), builtIns.end(), i.name()) == std::end(builtIns)) {
+            // add to default libr
+            xacc::ibm_pulse::PulseLibrary lib;
+            lib.set_name(i.name());
+            lib.set_samples(i.getSamples());
+            library.push_back(lib);
+        }
+
+        if (i.name() == "acquire") {
+            std::vector<int64_t> bs;
+            for (auto& b: i.bits()) bs.push_back(b);
+            inst.set_qubits(bs);
+            inst.set_memory_slot(bs);
+            inst.set_duration(i.duration());
+        }
+
+        if (i.channel()[0] == 'm') {
+            // this is a measure channel
+
+        }
+
+        instructions.push_back(inst);
+
 	}
 
-	void visit(Identity& i) override {
-	}
 
-	void visit(CZ& cz) override {
-		xacc::error("cz not supported");
-	}
-
-	/**
-	 * Visit CNOT gates
-	 */
-	void visit(CNOT& cn) override {
-        xacc::error("digital 2 analog not supported for CNOT yet.");
-	}
-
-	/**
-	 * Visit X gates
-	 */
-	void visit(X& x) override {
-        xacc::error("digital 2 analog not supported for x yet.");
-	}
-
-	/**
-	 *
-	 */
-	void visit(Y& y) override {
-        xacc::error("digital 2 analog not supported for y yet.");
-	}
-
-	/**
-	 * Visit Z gates
-	 */
-	void visit(Z& z) override {
-        xacc::error("digital 2 analog not supported for z yet.");
-	}
-
-    void visit(U &u) override {
-        xacc::error("digital 2 analog not supported for u yet.");
-    }
-	/**
-
-	 * Visit Measurement gates
-	 */
-	void visit(Measure& m) override {
-        xacc::error("digital 2 analog not supported for measure yet.");
-	}
-
-	/**
-	 * Visit Conditional functions
-	 */
-	void visit(ConditionalFunction& c) override {
-	}
-
-	void visit(Rx& rx) override {
-        xacc::error("digital 2 analog not supported for rx yet.");
-	}
-
-	void visit(Ry& ry) override {
-        xacc::error("digital 2 analog not supported for ry yet.");
-	}
-
-	void visit(Rz& rz) override {
-        xacc::error("digital 2 analog not supported for rz yet.");
-	}
-
-	void visit(CPhase& cp) override {
-        xacc::error("digital 2 analog not supported for cphase yet.");
-	}
-
-	void visit(Swap& s) override {
-        CNOT c1(s.bits()), c2(s.bits()[1],s.bits()[0]), c3(s.bits());
-        visit(c1);
-        visit(c2);
-        visit(c3);
-	}
-
-	void visit(GateFunction& f) override {
-		return;
-	}
-
-    std::string getOpenPulseInstructionsJson() {
-        return native.substr(0,native.length()-1) + "]}";
-    }
-    // append to pulse library function
-
-	/**
-	 * The destructor
-	 */
 	virtual ~OpenPulseVisitor() {}
 };
 
 
 }
 }
-
 #endif
