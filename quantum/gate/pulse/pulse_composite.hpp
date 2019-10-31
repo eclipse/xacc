@@ -10,15 +10,16 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_IR_CIRCUIT_HPP_
-#define QUANTUM_GATE_IR_CIRCUIT_HPP_
+#ifndef IBM_PULSE_COMPOSITE_INSTRUCTION_HPP_
+#define IBM_PULSE_COMPOSITE_INSTRUCTION_HPP_
 
 #include "CompositeInstruction.hpp"
-#include "Gate.hpp"
+#include "pulse_instruction.hpp"
 #include "InstructionIterator.hpp"
 #include "Utils.hpp"
 #include "expression_parsing_util.hpp"
 #include "xacc_service.hpp"
+
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -27,28 +28,27 @@
 namespace xacc {
 namespace quantum {
 
-class Circuit : public CompositeInstruction,
-                public std::enable_shared_from_this<Circuit> {
+class PulseComposite : public CompositeInstruction,
+                       public std::enable_shared_from_this<PulseComposite> {
 
 private:
-  void throwIfInvalidInstructionParameter(InstPtr instruction);
-
   void validateInstructionIndex(const std::size_t idx) {
     if (idx >= instructions.size()) {
       xacc::XACCLogger::instance()->error(
-          "\nInvalid instruction index on Circuit\n"
+          "\nInvalid instruction index on CMD_DEF\n"
           "CompositeInstruction:\nnInstructions() = " +
           std::to_string(nInstructions()) + "\nidx = " + std::to_string(idx));
       print_backtrace();
       exit(0);
     }
   }
+
   void validateInstructionPtr(InstPtr inst) {
     if (std::find(instructions.begin(), instructions.end(), inst) !=
         std::end(instructions)) {
       xacc::XACCLogger::instance()->error(
           "\nInvalid instruction:\nThis instruction pointer already added to "
-          "Circuit.");
+          "CMD_DEF.");
       print_backtrace();
       exit(0);
     }
@@ -56,7 +56,7 @@ private:
 
   void errorCircuitParameter() const {
     xacc::XACCLogger::instance()->error(
-        "Circuit Instruction parameter API not implemented.");
+        "CMD_DEF Instruction parameter API not implemented.");
     print_backtrace();
     exit(0);
   }
@@ -66,7 +66,8 @@ protected:
   std::vector<std::string> variables{};
   std::vector<std::string> _requiredKeys{};
 
-  std::string circuitName = "";
+  std::vector<std::size_t> qbits;
+  std::string cmdDefName = "";
 
   std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
@@ -74,32 +75,33 @@ protected:
   std::string acc_signature = "";
 
 public:
-  Circuit(const std::string &name) : circuitName(name) {}
-  Circuit(const std::string &name, std::vector<std::string> &vars)
-      : circuitName(name), variables(vars) {}
-  Circuit(const std::string &name, std::vector<std::string> &&vars)
-      : circuitName(name), variables(vars) {}
+  PulseComposite(const std::string &name) : cmdDefName(name) {}
+  PulseComposite(const std::string &name, std::vector<std::string> &vars)
+      : cmdDefName(name), variables(vars) {}
+  PulseComposite(const std::string &name, std::vector<std::string> &&vars)
+      : cmdDefName(name), variables(vars) {}
 
-  Circuit(const Circuit &other)
-      : circuitName(other.circuitName), variables(other.variables),
+  PulseComposite(const PulseComposite &other)
+      : cmdDefName(other.cmdDefName), variables(other.variables),
         instructions(other.instructions), parsingUtil(other.parsingUtil) {}
 
-  const std::string name() const override { return circuitName; }
+  const std::string name() const override { return cmdDefName; }
   const std::string description() const override { return ""; }
-  void setName(const std::string name) override {
-      circuitName = name;
-  }
+  void setName(const std::string name) override { cmdDefName = name; }
 
   void mapBits(std::vector<std::size_t> bitMap) override {
     for (auto &inst : instructions) {
       inst->mapBits(bitMap);
     }
   }
-  void setBits(const std::vector<std::size_t> bits) override {}
-  const std::vector<std::size_t> bits() override { return {}; }
+  void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
+  const std::vector<std::size_t> bits() override { return qbits; }
 
   const std::string toString() override {
     std::string retStr = "";
+    std::stringstream vs;
+    vs << getVariables();
+    retStr += vs.str() + "\n";
     for (auto i : instructions) {
       if (i->isEnabled()) {
         if (i->isComposite() &&
@@ -145,30 +147,12 @@ public:
     }
   }
 
-  const bool isAnalog() const override {
-    for (int i = 0; i < instructions.size(); i++) {
-      auto inst = *std::next(instructions.begin(), i);
-      if (inst->isAnalog()) {
-        return true;
-      }
-    }
-    return false;
-  }
+  const bool isAnalog() const override { return true; }
 
-  void persist(std::ostream &outStream) override;
-  void load(std::istream &inStream) override;
+  void persist(std::ostream &outStream) override {}
+  void load(std::istream &inStream) override {}
 
   const int nInstructions() override { return instructions.size(); }
-  //     int count = 0;
-  //     InstructionIterator iter(shared_from_this());
-  //     while (iter.hasNext()) {
-  //       auto inst = iter.next();
-  //       if (!inst->isComposite()) {
-  //         count++;
-  //       }
-  //     }
-  //   return count;
-  //   }
 
   const int nChildren() override { return instructions.size(); }
 
@@ -176,6 +160,7 @@ public:
     validateInstructionIndex(idx);
     return instructions[idx];
   }
+
   std::vector<InstPtr> getInstructions() override { return instructions; }
   void removeInstruction(const std::size_t idx) override {
     validateInstructionIndex(idx);
@@ -183,17 +168,17 @@ public:
   }
   void replaceInstruction(const std::size_t idx, InstPtr newInst) override {
     validateInstructionIndex(idx);
-    throwIfInvalidInstructionParameter(newInst);
+    // throwIfInvalidInstructionParameter(newInst);
     instructions[idx] = newInst;
   }
   void insertInstruction(const std::size_t idx, InstPtr newInst) override {
     validateInstructionIndex(idx);
-    throwIfInvalidInstructionParameter(newInst);
+    // throwIfInvalidInstructionParameter(newInst);
     instructions.insert(instructions.begin() + idx, newInst);
   }
 
   void addInstruction(InstPtr instruction) override {
-    throwIfInvalidInstructionParameter(instruction);
+    // throwIfInvalidInstructionParameter(instruction);
     validateInstructionPtr(instruction);
     instructions.push_back(instruction);
   }
@@ -207,17 +192,7 @@ public:
   }
 
   bool hasChildren() const override { return !instructions.empty(); }
-  bool expand(const HeterogeneousMap &runtimeOptions) override {
-    for (auto &inst : instructions) {
-      if (inst->isComposite()) {
-        if (!(std::dynamic_pointer_cast<CompositeInstruction>(inst)->expand(
-                runtimeOptions))) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
+  bool expand(const HeterogeneousMap &runtimeOptions) override { return true; }
 
   const std::vector<std::string> requiredKeys() override {
     return _requiredKeys;
@@ -252,11 +227,11 @@ public:
 
   const std::size_t nVariables() override { return getVariables().size(); }
 
-  const int depth() override;
-  const std::string persistGraph() override;
-  std::shared_ptr<Graph> toGraph() override;
+  const int depth() override { return 0; }
+  const std::string persistGraph() override { return ""; }
+  std::shared_ptr<Graph> toGraph() override { return nullptr; }
 
-  void flatten();
+  void flatten() {}
 
   const std::size_t nLogicalBits() override {
     // n logical should just be the number of
@@ -308,7 +283,7 @@ public:
   }
 
   std::shared_ptr<CompositeInstruction> enabledView() override {
-    auto newF = std::make_shared<Circuit>(circuitName, variables);
+    auto newF = std::make_shared<PulseComposite>(this->cmdDefName);
     for (int i = 0; i < nInstructions(); i++) {
       auto inst = getInstruction(i);
       if (inst->isEnabled()) {
@@ -324,7 +299,55 @@ public:
   const std::complex<double> getCoefficient() override { return coefficient; }
 
   std::shared_ptr<CompositeInstruction>
-  operator()(const std::vector<double> &params) override;
+  operator()(const std::vector<double> &params) override {
+      if (!parsingUtil) {
+    parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
+  }
+    variables.erase( std::unique( variables.begin(), variables.end() ), variables.end() );
+    std::vector<InstPtr> flatten;
+    InstructionIterator iter(shared_from_this());
+    while (iter.hasNext()) {
+      auto inst = iter.next();
+      if (!inst->isComposite()) {
+        flatten.emplace_back(inst);
+      }
+    }
+
+    auto evaluatedCircuit = std::make_shared<PulseComposite>("evaled_" + name());
+
+    // Walk the IR Tree, handle functions and instructions differently
+    for (auto inst : flatten) {
+      // if (inst->isParameterized()) {
+      auto updatedInst =
+          std::dynamic_pointer_cast<PulseInstruction>(inst)->clone();
+
+      // Really we only care about the phase...
+      // In future we might care about functional form params
+      for (int i = 0; i < inst->nParameters(); i++) {
+        if (inst->getParameter(i).isVariable()) {
+          InstructionParameter p = inst->getParameter(i);
+          double val;
+          if (parsingUtil->evaluate(p.toString(), variables, params, val)) {
+            updatedInst->setParameter(i, val);
+          } else {
+              updatedInst->setParameter(i, p);
+          }
+        } else {
+          auto a = inst->getParameter(i);
+          updatedInst->setParameter(i, a);
+        }
+        updatedInst->setBits(inst->bits());
+      }
+
+
+      evaluatedCircuit->addInstruction(updatedInst);
+    }
+
+    // else {
+    //   evaluatedCircuit->addInstruction(inst);
+    // }
+    return evaluatedCircuit;
+  }
 
   const std::string accelerator_signature() override { return acc_signature; }
   void set_accelerator_signature(const std::string signature) override {
@@ -333,10 +356,9 @@ public:
 
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
-    return std::make_shared<Circuit>(*this);
+    return std::make_shared<PulseComposite>(*this);
   }
-  
-  virtual ~Circuit() {}
+  virtual ~PulseComposite() {}
 };
 
 } // namespace quantum

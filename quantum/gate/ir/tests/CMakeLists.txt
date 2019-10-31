@@ -11,8 +11,22 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 include_directories(${CMAKE_SOURCE_DIR}/xacc/ir)
+include_directories(${CMAKE_BINARY_DIR})
 add_executable(GateTester GateTester.cpp)
 target_include_directories(GateTester PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(GateTester PRIVATE xacc xacc-quantum-gate ${GTEST_LIBRARIES})
 add_test(NAME xacc_GateTester COMMAND GateTester)
 target_compile_features(GateTester PRIVATE cxx_std_14)
+
+add_executable(PulseTester PulseTester.cpp)
+target_include_directories(PulseTester PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(PulseTester PRIVATE xacc ${GTEST_LIBRARIES})
+add_test(NAME xacc_PulseTester COMMAND PulseTester)
+target_compile_features(PulseTester PRIVATE cxx_std_14)
+
+
+add_executable(PulseSchedulerTester PulseSchedulerTester.cpp)
+target_include_directories(PulseSchedulerTester PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(PulseSchedulerTester PRIVATE xacc ${GTEST_LIBRARIES})
+add_test(NAME xacc_PulseSchedulerTester COMMAND PulseSchedulerTester)
+target_compile_features(PulseSchedulerTester PRIVATE cxx_std_14)

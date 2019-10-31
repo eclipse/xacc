@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 UT-Battelle, LLC.
+ * Copyright (c) 2019 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -10,19 +10,16 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_IR_GATEINSTRUCTION_HPP_
-#define QUANTUM_GATE_IR_GATEINSTRUCTION_HPP_
+#ifndef QUANTUM_PULSE_IR_GATEINSTRUCTION_HPP_
+#define QUANTUM_PULSE_IR_GATEINSTRUCTION_HPP_
 
 #include "Instruction.hpp"
 #include "Cloneable.hpp"
-#include "Utils.hpp"
 
 namespace xacc {
 namespace quantum {
 
-/**
- */
-class Gate : public Instruction {
+class Pulse : public Instruction {
 
 protected:
   std::string gateName;
@@ -30,15 +27,34 @@ protected:
   bool enabled = true;
   std::vector<InstructionParameter> parameters;
 
-public:
-  Gate();
-  Gate(std::string name);
-  Gate(std::string name, std::vector<InstructionParameter> params);
-  Gate(std::string name, std::vector<std::size_t> qubts);
-  Gate(std::string name, std::vector<std::size_t> qubts,
-       std::vector<InstructionParameter> params);
+  std::string ch = "";
+  std::size_t t0 = 0;
+  std::size_t _duration = 0;
 
-  Gate(const Gate &inst);
+  std::vector<std::vector<double>> samples = {};
+
+public:
+  Pulse();
+  Pulse(std::string name);
+  Pulse(std::string name, std::string channel);
+  Pulse(std::string name, std::string channel, InstructionParameter &phase,
+        std::vector<std::size_t> qubts);
+  Pulse(std::string name, std::string channel, double phase,
+        std::vector<std::size_t> qubts);
+
+  Pulse(const Pulse &inst);
+
+  std::string channel() override { return ch; }
+  void setChannel(const std::string c) override { ch = c; }
+  std::size_t start() override { return t0; }
+  void setStart(const std::size_t s) override { t0 = s; }
+  std::size_t duration() override { return _duration; }
+  void setDuration(const std::size_t d) override { _duration = d; }
+  void setSamples(const std::vector<std::vector<double>> s) override {
+    samples = s;
+    _duration = samples.size();
+  }
+  std::vector<std::vector<double>> getSamples() override { return samples; }
 
   const std::string name() const override;
   const std::string description() const override;
@@ -65,9 +81,17 @@ public:
   void disable() override;
   void enable() override;
 
-#define DEFINE_CLONE(CLASS)                                                    \
-  std::shared_ptr<Instruction> clone() override {                              \
-    return std::make_shared<CLASS>();                                          \
+  const bool isAnalog() const override { return true; }
+  const int nRequiredBits() const override { return qbits.size(); }
+
+  DEFINE_VISITABLE()
+
+  std::shared_ptr<Instruction> clone() override {
+    auto inst = std::make_shared<Pulse>(gateName, ch, parameters[0], qbits);
+    inst->setSamples(samples);
+    inst->setStart(t0);
+    inst->setDuration(_duration);
+    return inst;
   }
 };
 

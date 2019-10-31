@@ -31,7 +31,7 @@ public:
   std::shared_ptr<Instruction>
   createInstruction(const std::string name, std::vector<std::size_t> bits,
                     std::vector<InstructionParameter> parameters =
-                        std::vector<InstructionParameter>{}) override;
+                        std::vector<InstructionParameter>{}, const HeterogeneousMap& analog_options = {}) override;
 
   std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,

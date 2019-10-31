@@ -193,7 +193,6 @@ class DecoratorFunction(ABC):
                     '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
                 exit(0)
         else:
-            print('Setting accelerator: ', self.accelerator.name())
             self.qpu = self.accelerator
 
         ir = compiler.compile(self.src, self.qpu)
@@ -349,7 +348,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm','hamiltonian_generator','ansatz_generator']
+        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm','hamiltonian_generator','ansatz_generator', 'accelerator']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -363,6 +362,10 @@ class PyServiceRegistry(object):
             self.context.install_bundle(bundle_name).start()
         for servType in serviceList:
             self.get_algorithm_services(servType)
+
+        for accName, acc in self.registry['accelerator'].items():
+            contributeService(accName, acc)
+
 
     def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
