@@ -477,6 +477,7 @@ PYBIND11_MODULE(_pyxacc, m) {
       .def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer,
            "Reset this buffer for use in another computation.")
       .def("size", &xacc::AcceleratorBuffer::size, "")
+      .def("setName", &xacc::AcceleratorBuffer::setName, "")
       .def("appendMeasurement",
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
                xacc::AcceleratorBuffer::appendMeasurement,
