@@ -5,5 +5,6 @@
 #define XACC_BUILD_DIR "${CMAKE_BINARY_DIR}"
 #define IBM_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/ibm/tests/test_files"
 #define ROERROR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/plugins/decorators/tests/files"
+#define GATEIR_TEST_FILE_DIR "${CMAKE_SOURCE_DIR}/quantum/gate/ir/tests/files"
 
 #endif

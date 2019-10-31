@@ -20,6 +20,7 @@
 
 namespace xacc {
 using InstructionParameter = Variant<int,double,std::string>;
+class CompositeInstruction;
 
 // The Instruction interface exposes an API for describing a general
 // post-Moore's law low-level assembly instruction. Each Instruction
@@ -64,6 +65,17 @@ public:
 
   virtual bool isComposite() { return false; }
 
+  // The following accomadate pulse-level instructions
+  virtual std::string channel() {return "default";}
+  virtual void setChannel(const std::string ch) {return;}
+  virtual std::size_t start() {return 0;}
+  virtual void setStart(const std::size_t s) { return; }
+  virtual std::size_t duration() { return 0; }
+  virtual void setDuration(const std::size_t d) { return; }
+  virtual void setSamples(const std::vector<std::vector<double>> samples) {return;}
+  virtual std::vector<std::vector<double>> getSamples() {return {};}
+
+  // The following accomodate conditional instructions
   virtual bool isEnabled() { return true; }
   virtual void disable() {}
   virtual void enable() {}
