@@ -62,6 +62,10 @@ class AerAccelerator(xacc.Accelerator):
         qobj = QasmQobj(qobj_id=qobj_json['qObject']['qobj_id'],
                         header=QobjHeader(), config=QasmQobjConfig(shots=self.shots, memory_slots=qobj_json['qObject']['config']['memory_slots']), experiments=exps, shots=self.shots)
 
+        measures = {}
+        for i in exps[0].instructions:
+            if i.name == "measure":
+                measures[i.memory[0]] =i.qubits[0]
 
         backend = Aer.get_backend('qasm_simulator')
 
@@ -71,7 +75,16 @@ class AerAccelerator(xacc.Accelerator):
             job_sim = backend.run(qobj)
 
         sim_result = job_sim.result()
-        [buffer.appendMeasurement(b,c) for b,c in sim_result.get_counts().items()]
+
+
+        for b,c in sim_result.get_counts().items():
+            bitstring = b
+            if len(b) < buffer.size():
+                tmp = ['0' for i in range(buffer.size())]
+                for bit_loc, qubit in measures.items():
+                    tmp[len(tmp)-1-qubit] = list(b)[bit_loc]
+                bitstring = ''.join(tmp)
+            buffer.appendMeasurement(bitstring,c)
 
     def execute(self, buffer, programs):
 
@@ -79,8 +92,9 @@ class AerAccelerator(xacc.Accelerator):
         if isinstance(programs, list) and len(programs) > 1:
             for p in programs:
                 tmpBuffer = xacc.qalloc(buffer.size())
+                tmpBuffer.setName(p.name())
                 self.execute_one_qasm(tmpBuffer, p)
-                buffer.appendChild('',tmpBuffer)
+                buffer.appendChild(p.name(),tmpBuffer)
         else:
             if isinstance(programs, list):
                 programs = programs[0]

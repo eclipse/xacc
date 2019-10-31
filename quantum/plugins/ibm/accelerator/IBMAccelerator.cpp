@@ -499,7 +499,7 @@ const std::string IBMAccelerator::processInput(
     auto jsonStr = jj.dump();
 
     std::cout << "JSON:\n" << jsonStr << "\n";
-    // exit(0);
+    exit(0);
     return jsonStr;
   }
 }
