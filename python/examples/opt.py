@@ -15,5 +15,5 @@ result = optimizer.optimize(rosen_with_grad,2)
 
 print('Result = ', result)
 
-cobyla = xacc.getOptimizer('nlopt',{ 'nlopt-optimizer':'cobyla',  'nlopt-maxeval':500})
-print('Result = ', result)
+# cobyla = xacc.getOptimizer('nlopt',{ 'nlopt-optimizer':'cobyla',  'nlopt-maxeval':500})
+# print('Result = ', result)

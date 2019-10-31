@@ -117,6 +117,10 @@ public:
   }
   const std::string description() const override { return ""; }
 
+  HeterogeneousMap getProperties() override {
+    PYBIND11_OVERLOAD(HeterogeneousMap, xacc::Accelerator, getProperties);
+  }
+
   void initialize(const HeterogeneousMap &params = {}) override {
     PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, initialize, params);
   }
@@ -224,6 +228,8 @@ PYBIND11_MODULE(_pyxacc, m) {
           [](HeterogeneousMap &m, const std::string key) -> PyHeterogeneousMapTypes {
             if (m.keyExists<int>(key)) {
               return m.get<int>(key);
+            } else if (m.keyExists<bool>(key)) {
+                return m.get<bool>(key);
             } else if (m.keyExists<double>(key)) {
               return m.get<double>(key);
             } else if (m.keyExists<std::string>(key)) {
@@ -238,7 +244,6 @@ PYBIND11_MODULE(_pyxacc, m) {
               return m.get<std::shared_ptr<Optimizer>>(key);
             } else if (m.keyExists<std::vector<std::string>>(key)) {
               return m.get<std::vector<std::string>>(key);
-
             } else {
                 xacc::error("Invalid key for heterogeneous map");
                 return 0;
@@ -246,7 +251,7 @@ PYBIND11_MODULE(_pyxacc, m) {
           },
           "")
       .def("__contains__",[](HeterogeneousMap& m, const std::string key) {
-          return m.keyExists<int>(key) || m.keyExists<double>(key) ||
+          return m.keyExists<int>(key) || m.keyExists<double>(key) || m.keyExists<bool>(key) ||
                  m.keyExists<std::string>(key) || m.keyExists<std::vector<double>>(key) ||
                  m.keyExists<std::vector<int>>(key) || m.keyExists<std::vector<std::string>>(key) ||
                  m.keyExists<std::shared_ptr<Observable>>(key) ||

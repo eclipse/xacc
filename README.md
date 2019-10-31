@@ -19,7 +19,7 @@ Documentation
 
 Build from Source
 -----------------
-Ensure that you have installed CMake 3.2+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
+Ensure that you have installed CMake 3.12+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
 CURL development headers and libraries with OpenSSL support
 (see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 
