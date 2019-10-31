@@ -25,7 +25,6 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 
-
 #include <memory>
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -460,9 +459,10 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
-    .def("execute",
-           (std::vector<double> (xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>, const std::vector<double>&)) &
+      .def("execute",
+           (std::vector<double>(xacc::Algorithm::*)(
+               const std::shared_ptr<xacc::AcceleratorBuffer>,
+               const std::vector<double> &)) &
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
@@ -481,36 +481,28 @@ PYBIND11_MODULE(_pyxacc, m) {
       m, "Optimizer",
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
-      .def("optimize",
-           [&](xacc::Optimizer &o,
-               std::function<std::pair<double, std::vector<double>>(
-                   const std::vector<double> &x)> &f,
-               const int ndim) {
-             OptFunction opt(
-                 [&](const std::vector<double> &x, std::vector<double> &grad) {
-                   auto ret = f(x);
-                   if (grad.size() == ndim) {
-                     for (int i = 0; i < grad.size(); i++) {
-                       grad[i] = ret.second[i];
-                     }
-                   }
-                   return ret.first;
-                 },
-                 ndim);
-             return o.optimize(opt);
-           })
-    .def("optimize",
-           [&](xacc::Optimizer &o,
-               std::function<double(
-                   const std::vector<double> &x)> &f,
-               const int ndim) {
-             OptFunction opt(
-                 [&](const std::vector<double> &x, std::vector<double> &grad) {
-                   return f(x);
-                 },
-                 ndim);
-             return o.optimize(opt);
-           })
+      .def(
+          "optimize",
+          [&](xacc::Optimizer &o, py::function &f,
+              const int ndim) -> OptResult {
+            OptFunction opt(
+                [&](const std::vector<double> &x, std::vector<double> &grad) {
+                  auto ret = f(x);
+                  if (py::isinstance<py::tuple>(ret)) {
+                    auto result =
+                        ret.cast<std::pair<double, std::vector<double>>>();
+                    for (int i = 0; i < grad.size(); i++) {
+                      grad[i] = result.second[i];
+                    }
+                    return result.first;
+                  } else {
+                    return ret.cast<double>();
+                  }
+                },
+                ndim);
+            return o.optimize(opt);
+          },
+          "")
       .def("setOptions",
            (void (xacc::Optimizer::*)(const HeterogeneousMap &)) &
                xacc::Optimizer::setOptions,

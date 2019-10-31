@@ -24,8 +24,13 @@ if(EXISTS ${XACC_ENSMALLEN_INCLUDE_DIR}/ensmallen.hpp)
                                PUBLIC . ${XACC_ENSMALLEN_INCLUDE_DIR}
                                       ${XACC_ARMADILLO_INCLUDE_DIR})
 
-    target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
-
+    find_package(LAPACK)
+    if (LAPACK_FOUND)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LAPACK")
+      target_link_libraries(${LIBRARY_NAME} PUBLIC xacc lapack)
+    else()
+      target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
+    endif()
     set(_bundle_name xacc_mlpack)
     set_target_properties(${LIBRARY_NAME}
                           PROPERTIES COMPILE_DEFINITIONS

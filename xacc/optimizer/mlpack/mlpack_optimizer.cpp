@@ -13,6 +13,7 @@
 #include "mlpack_optimizer.hpp"
 #include "Utils.hpp"
 #include <iostream>
+#include "xacc.hpp"
 
 using namespace ens;
 
@@ -99,8 +100,23 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     AdaDelta optimizer(stepSize, 1, rho, eps, maxiter, tol, false, false);
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "cmaes") {
-    CMAES<> optimizer(0, -10, 10, 1, maxiter, tol);
+#ifdef HAS_LAPACK
+    int lambda = 0;
+    double upper = 10., lower = -10.;
+    if (options.keyExists<int>("mlpack-cmaes-lambda")) {
+      lambda = options.get<int>("mlpack-cmaes-lambda");
+    }
+    if (options.keyExists<double>("mlpack-cmaes-upper-bound")) {
+      upper = options.get<double>("mlpack-cmaes-upper-bound");
+    }
+    if (options.keyExists<double>("mlpack-cmaes-lower-bound")) {
+      lower = options.get<double>("mlpack-cmaes-lower-bound");
+    }
+    CMAES<> optimizer(10, upper, lower, 1, maxiter, tol);
     results = optimizer.Optimize(f, coordinates);
+#else
+    xacc::error("Cannot run mlpack cmaes algorithm, lapack not found.");
+#endif
   } else if (mlpack_opt_name == "gd") {
     GradientDescent optimizer(stepSize, maxiter, tol);
     results = optimizer.Optimize(f, coordinates);
@@ -131,6 +147,8 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     RMSProp optimizer(stepSize, 1, alpha, eps, maxiter, tol, false, false,
                       false);
     results = optimizer.Optimize(f, coordinates);
+  } else {
+    xacc::error("invalid mlpack optimizer: " + mlpack_opt_name);
   }
 
   return OptResult{results,
