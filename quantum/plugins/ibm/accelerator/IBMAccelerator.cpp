@@ -41,7 +41,7 @@ namespace quantum {
 
 // keeping this here for later...
 // curl -X POST
-// https://q-console-api.mybluemix.net/api/Network/ibm-q-ornl/Groups/ornl-internal/Projects/algorithms-team/jobs/5c88fc789f1161005df7b68c/cancel?access_token=ZoEqimQMun3F5iRILIoXRVx6DzAq60iXm4offm8UfApeG6PM4DH2kXibEovpkRPD
+// https://q-console-api.mybluemix.net/api/Network/ibm-q-ornl/Groups/ornl-internal/Projects/algorithms-team/jobs/JOBID/cancel?access_token=TEMPTOKEN
 
 std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
@@ -80,6 +80,9 @@ HeterogeneousMap IBMAccelerator::getProperties() {
 
   if (backendProperties.count(backend)) {
     auto props = backendProperties[backend];
+    json jj;
+    to_json(jj, props);
+    m.insert("total-json", jj.dump());
     auto qubit_props = props.get_qubits();
     std::vector<double> p01s, p10s;
     for (auto &qp : qubit_props) {

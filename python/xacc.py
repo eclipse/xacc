@@ -193,7 +193,6 @@ class DecoratorFunction(ABC):
                     '\033[1;31mError, no Accelerators installed. We suggest installing TNQVM.\033[0;0m')
                 exit(0)
         else:
-            print('Setting accelerator: ', self.accelerator.name())
             self.qpu = self.accelerator
 
         ir = compiler.compile(self.src, self.qpu)
