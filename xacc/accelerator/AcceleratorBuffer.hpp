@@ -29,7 +29,7 @@ using ExtraInfo = xacc::Variant<int, double, std::string, std::vector<int>,
                                  std::vector<double>, std::vector<std::string>,
                                  std::map<int, std::vector<int>>,
                                  std::vector<std::pair<double, double>>,
-                                 std::map<int, int>>;
+                                 std::map<int, int>, std::map<std::string, double>>;
 
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
@@ -50,6 +50,7 @@ public:
   bool operator()(const std::map<int, std::vector<int>> &i) const;
   bool operator()(const std::vector<std::pair<double, double>> &i) const;
   bool operator()(const std::map<int, int> &i) const;
+  bool operator()(const std::map<std::string, double> &i) const;
 };
 
 template<typename Writer>
@@ -69,6 +70,8 @@ public:
   void operator()(const std::map<int, std::vector<int>> &i);
   void operator()(const std::vector<std::pair<double, double>> &i) const;
   void operator()(const std::map<int, int> &i) const;
+  void operator()(const std::map<std::string, double> &i) const;
+
 };
 
 class ExtraInfoValue2HeterogeneousMap {
@@ -87,7 +90,7 @@ class HeterogenousMap2ExtraInfo : public xacc::visitor_base<int, double, std::st
                                  std::vector<double>, std::vector<std::string>,
                                  std::map<int, std::vector<int>>,
                                  std::vector<std::pair<double, double>>,
-                                 std::map<int, int>> {
+                                 std::map<int, int>, std::map<std::string,double>> {
 protected:
   std::map<std::string, ExtraInfo>& data;
   public:
@@ -207,7 +210,7 @@ public:
   const ExtraInfo operator[](const std::string& key) {
       return getInformation(key);
   }
-  
+
   virtual ~AcceleratorBuffer() {}
 };
 

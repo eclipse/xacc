@@ -478,6 +478,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            "Reset this buffer for use in another computation.")
       .def("size", &xacc::AcceleratorBuffer::size, "")
       .def("setName", &xacc::AcceleratorBuffer::setName, "")
+      .def("setMeasurements", &xacc::AcceleratorBuffer::setMeasurements, "")
       .def("appendMeasurement",
            (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
                xacc::AcceleratorBuffer::appendMeasurement,
@@ -752,6 +753,12 @@ PYBIND11_MODULE(_pyxacc, m) {
       "qalloc",
       [](const int n) -> std::shared_ptr<xacc::AcceleratorBuffer> {
         return xacc::qalloc(n);
+      },
+      "");
+  m.def(
+      "qalloc",
+      []() -> std::shared_ptr<xacc::AcceleratorBuffer> {
+        return xacc::qalloc();
       },
       "");
   m.def(
