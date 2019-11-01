@@ -29,6 +29,7 @@ using namespace cxxopts;
 
 namespace xacc {
 
+bool verbose = false;
 bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser;
@@ -37,6 +38,8 @@ char **argv = NULL;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
 std::string rootPathString = "";
+
+void set_verbose(bool v) {verbose=v;}
 
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
@@ -105,7 +108,7 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
 }
 
 void info(const std::string &msg, MessagePredicate predicate) {
-  XACCLogger::instance()->info(msg, predicate);
+  if (verbose) XACCLogger::instance()->info(msg, predicate);
 }
 
 void warning(const std::string &msg, MessagePredicate predicate) {

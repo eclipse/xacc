@@ -35,6 +35,7 @@ static constexpr double pi = 3.141592653589793238;
 
 extern bool xaccFrameworkInitialized;
 extern bool isPyApi;
+extern bool verbose;
 
 class CLIParser;
 extern std::shared_ptr<CLIParser> xaccCLParser;
@@ -73,6 +74,8 @@ bool isInitialized();
 void PyInitialize(const std::string rootPath);
 int getArgc();
 char **getArgv();
+
+void set_verbose(bool verbose);
 
 const std::string getRootDirectory();
 std::vector<std::string> getIncludePaths();
