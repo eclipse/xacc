@@ -85,6 +85,21 @@ std::ostream &operator<<(std::ostream &os, const std::map<int, T> &m) {
   os << "]";
   return os;
 }
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const std::map<std::string, T> &m) {
+  os << "[";
+  int i = 0;
+  for (auto &kv : m) {
+    os << "(" << kv.first << "," << kv.second << ")";
+    if (i != m.size() - 1) {
+      os << ",";
+    }
+    i++;
+  }
+  os << "]";
+  return os;
+}
 static inline bool is_base64(unsigned char c);
 
 std::string base64_decode(std::string const &encoded_string);
