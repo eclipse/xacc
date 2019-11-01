@@ -821,6 +821,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         (std::shared_ptr<xacc::Optimizer>(*)(const std::string)) &
             xacc::getOptimizer,
         "");
+  m.def("set_verbose", &xacc::set_verbose, "");
   m.def(
       "getOptimizer",
       [](const std::string optName, const PyHeterogeneousMap &options) {
