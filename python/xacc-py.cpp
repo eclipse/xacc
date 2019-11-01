@@ -506,11 +506,14 @@ PYBIND11_MODULE(_pyxacc, m) {
                xacc::AcceleratorBuffer::getChildren,
            "")
       .def("getChildrenNames", &xacc::AcceleratorBuffer::getChildrenNames, "")
-      .def("listExtraInfoKeys", &xacc::AcceleratorBuffer::listExtraInfoKeys, "")
+      .def("keys", &xacc::AcceleratorBuffer::listExtraInfoKeys, "")
       .def("getInformation",
            (std::map<std::string, ExtraInfo>(xacc::AcceleratorBuffer::*)()) &
                xacc::AcceleratorBuffer::getInformation,
            "")
+      .def("__getitem__", [](AcceleratorBuffer& b, const std::string key) {
+          return b.getInformation(key);
+      }, "")
       .def("addExtraInfo",
            (void (xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
                xacc::AcceleratorBuffer::addExtraInfo,

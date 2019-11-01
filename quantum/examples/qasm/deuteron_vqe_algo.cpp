@@ -54,6 +54,6 @@ CNOT(q[1],q[0]);
   vqe->execute(buffer);
 
   // Print the result
-  std::cout << "Energy: " << buffer->getInformation("opt-val").as<double>()
+  std::cout << "Energy: " << (*buffer)["opt-val"].as<double>()
             << "\n";
 }

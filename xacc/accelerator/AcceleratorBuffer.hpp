@@ -204,6 +204,10 @@ public:
       return;
   }
 
+  const ExtraInfo operator[](const std::string& key) {
+      return getInformation(key);
+  }
+  
   virtual ~AcceleratorBuffer() {}
 };
 
