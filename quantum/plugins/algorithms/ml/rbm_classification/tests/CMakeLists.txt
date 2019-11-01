@@ -10,5 +10,6 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(ddcl)
-add_subdirectory(rbm_classification)
+include_directories(${CMAKE_BINARY_DIR})
+add_xacc_test(RBMClassification)
+target_link_libraries(RBMClassificationTester xacc)

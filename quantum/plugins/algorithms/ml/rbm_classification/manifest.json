@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_rbm_classification",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC RBM Classification Algorithm",
+  "bundle.description" : ""
+}
