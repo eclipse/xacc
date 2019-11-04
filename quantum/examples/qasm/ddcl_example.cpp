@@ -15,9 +15,12 @@
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
 
+  xacc::external::load_external_language_plugins();
+  xacc::set_verbose(true);
+
   // Get reference to the Accelerator
   // specified by --accelerator argument
-  auto accelerator = xacc::getAccelerator();
+  auto accelerator = xacc::getAccelerator("aer");
 
   auto optimizer = xacc::getOptimizer("mlpack");
   xacc::qasm(R"(
@@ -52,6 +55,10 @@ U(q[1], x[7], -pi/2, pi/2);
   ddcl->execute(buffer);
 
   // Print the result
-  std::cout << "Loss: " << buffer->getInformation("opt-val").as<double>()
+  std::cout << "Loss: " << buffer["opt-val"].as<double>()
             << "\n";
+
+  xacc::external::unload_external_language_plugins();
+  xacc::Finalize();
+
 }

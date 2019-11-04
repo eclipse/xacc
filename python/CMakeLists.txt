@@ -11,6 +11,7 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 add_subdirectory(compiler)
+add_subdirectory(plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 include_directories(${Python_INCLUDE_DIRS})
@@ -23,7 +24,7 @@ endif(APPLE)
 
 add_library(_pyxacc SHARED xacc-py.cpp)
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
-target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion )
+target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")

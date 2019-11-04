@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_py_plugin_loader",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Python Plugin Loader",
+  "bundle.description" : ""
+}
