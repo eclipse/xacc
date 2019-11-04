@@ -32,6 +32,8 @@ namespace quantum {
 void DWAccelerator::initialize(const HeterogeneousMap &params) {
   searchAPIKey(apiKey, url);
 
+  updateConfiguration(params);
+
   if (xacc::optionExists("dwave-skip-initialization")) {
     return;
   }
@@ -82,92 +84,12 @@ const std::string DWAccelerator::processInput(
   if (functions.size() > 1)
     xacc::error("D-Wave Accelerator can only launch one job at a time.");
 
-  auto dwKernel = std::dynamic_pointer_cast<AnnealingProgram>(functions[0]);
-  if (!dwKernel) {
-    xacc::error("Invalid kernel.");
-  }
+  auto dwKernel = functions[0];
 
-  auto tmpembedding = mpark::get<std::map<int, std::vector<int>>>(
-      buffer->getInformation("embedding"));
-  Embedding embedding;
-  for (auto &kv : tmpembedding) {
-    embedding.insert({kv.first, kv.second});
-  }
-
-  // Get the ParameterSetter
-  std::shared_ptr<ParameterSetter> parameterSetter;
-  if (xacc::optionExists("dwave-parameter-setter")) {
-    parameterSetter = xacc::getService<ParameterSetter>(
-        xacc::getOption("dwave-parameter-setter"));
-  } else {
-    parameterSetter = xacc::getService<ParameterSetter>("default");
-  }
-
-  // Get the maximum qubit index
   auto instructions = dwKernel->getInstructions();
-  int maxBitIdx = 0;
-  for (auto inst : instructions) {
-    if (inst->name() == "dw-qmi") {
-      auto qbit1 = inst->bits()[0];
-      auto qbit2 = inst->bits()[1];
-      if (qbit1 > maxBitIdx)
-        maxBitIdx = qbit1;
-      if (qbit2 > maxBitIdx)
-        maxBitIdx = qbit2;
-    }
-  }
-
-  // Reconstruct the Problem Graph
-  //   std::shared_ptr<Anneal> annealingSchedule;
-  auto hardwareconnections = getConnectivity();
-  std::set<int> nUniqueBits;
-  for (auto &edge : hardwareconnections) {
-    nUniqueBits.insert(edge.first);
-    nUniqueBits.insert(edge.second);
-  }
-
-  int nBits = *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
-
-  auto hardwareGraph = xacc::getService<Graph>("boost-ugraph");
-  for (int i = 0; i < nBits; i++) {
-    HeterogeneousMap m(std::make_pair("bias", 1.0));
-    hardwareGraph->addVertex(m);
-  }
-  for (auto &edge : hardwareconnections) {
-    hardwareGraph->addEdge(edge.first, edge.second);
-  }
-
-  //   auto problemGraph = std::make_shared<DWGraph>(maxBitIdx + 1);
-  auto problemGraph = xacc::getService<Graph>("boost-ugraph");
-  for (int i = 0; i < maxBitIdx + 1; i++) {
-    HeterogeneousMap m(std::make_pair("bias", 1.0));
-    problemGraph->addVertex(m);
-  }
-  for (auto inst : instructions) {
-    if (inst->name() == "dw-qmi") {
-      auto qbit1 = inst->bits()[0];
-      auto qbit2 = inst->bits()[1];
-      double weightOrBias = mpark::get<double>(inst->getParameter(0));
-      if (qbit1 == qbit2) {
-        auto p = inst->getParameter(0);
-        problemGraph->getVertexProperties(qbit1).get_mutable<double>("bias") =
-            p.as<double>();
-      } else {
-        problemGraph->addEdge(qbit1, qbit2, weightOrBias);
-      }
-    }
-    // else if (inst->name() == "anneal") {
-    // get annealing schedule
-    //   annealingSchedule = std::make_shared<Anneal>(inst->getParameters());
-    // }
-  }
-  // Set the parameters with the problem graph, the hardware graph, and
-  // embedding
-  auto insts =
-      parameterSetter->setParameters(problemGraph, hardwareGraph, embedding);
   auto newKernel = std::make_shared<AnnealingProgram>(dwKernel->name());
   // Add the instructions to the Kernel
-  for (auto i : insts) {
+  for (auto i : instructions) {
     newKernel->addInstruction(i);
   }
 
@@ -175,43 +97,9 @@ const std::string DWAccelerator::processInput(
   splitLines = xacc::split(newKernel->toString(), '\n');
   auto nQMILines = splitLines.size();
   std::string jsonStr = "", solverName = "DW_2000Q_VFYC_2_1",
-              solveType = "ising", trials = "100", annealTime = "20";
-
-  if (xacc::optionExists("dwave-solver")) {
-    solverName = xacc::getOption("dwave-solver");
-  }
-
-  if (!availableSolvers.count(solverName)) {
-    xacc::error(solverName + " is not available.");
-  }
-
-  if (xacc::optionExists("dwave-solve-type")) {
-    solveType = xacc::getOption("dwave-solve-type");
-  }
+              solveType = "ising", trials = std::to_string(shots), annealTime = "20";
 
   auto solver = availableSolvers[solverName];
-
-  if (xacc::optionExists("dwave-anneal-time")) {
-    annealTime = xacc::getOption("dwave-anneal-time");
-  }
-
-  //   std::vector<std::pair<double, double>> as;
-  //   std::string annealingStr = "";
-  //   AnnealScheduleGenerator gen;
-  //   double s = 1;
-  //   if (annealingSchedule) {
-  //     as = gen.generate(annealingSchedule);
-  //   } else {
-  //     as.push_back({0, 0});
-  //     as.push_back({std::stod(annealTime), s});
-  //   }
-
-  //   annealingStr = gen.getAsString(as);
-  //   xacc::info("Annealing Schedule: " + annealingStr);
-
-  if (xacc::optionExists("dwave-num-reads")) {
-    trials = xacc::getOption("dwave-num-reads");
-  }
 
   auto program = newKernel->toString();
   program = std::regex_replace(program, std::regex(";"), "");
@@ -219,25 +107,23 @@ const std::string DWAccelerator::processInput(
              solveType + "\", \"data\" : \"" + std::to_string(solver.nQubits) +
              " " + std::to_string(nQMILines) + "\\n" + program +
              "\", \"params\": { \"num_reads\" : " + trials;
-  //   if (solverName.find("c4-sw") == std::string::npos) {
-  //     jsonStr += ", \"anneal_schedule\" : " + annealingStr;
-  //   }
   jsonStr += ", \"auto_scale\" : true } }]";
 
   jsonStr = std::regex_replace(jsonStr, std::regex("\n"), "\\n");
+//   std::cout << "sending: " << jsonStr << "\n";
   return jsonStr;
 }
 
 void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                                     const std::string &response) {
 
-  //   auto aqcBuffer = std::dynamic_pointer_cast<AQCAcceleratorBuffer>(buffer);
 
   bool jobCompleted = false;
   Document doc;
   // Parse the json string
   doc.Parse(response);
 
+//   std::cout << response << "\n";
   // Get the JobID
   std::string jobId = std::string(doc[0]["id"].GetString());
 
@@ -266,6 +152,7 @@ void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     // xacc::info(msg);
   }
 
+//   std::cout << msg << "\n";
   // We've completed, so let's get
   // teh results.
   doc.Parse(msg);
@@ -393,11 +280,7 @@ void DWAccelerator::findApiKeyInFile(std::string &apiKey, std::string &url,
 }
 
 std::vector<std::pair<int, int>> DWAccelerator::getConnectivity() {
-  std::string solverName = "DW_2000Q_VFYC_2_1";
-
-  if (xacc::optionExists("dwave-solver")) {
-    solverName = xacc::getOption("dwave-solver");
-  }
+  std::string solverName = backend;
 
   if (!availableSolvers.count(solverName)) {
     xacc::error(solverName + " is not available.");

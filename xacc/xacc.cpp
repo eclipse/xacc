@@ -376,24 +376,6 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
   return irp;
 }
 
-// std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
-//   if (!xacc::xaccFrameworkInitialized) {
-//     error("XACC not initialized before use. Please execute "
-//           "xacc::Initialize() before using API.");
-//   }
-
-//   auto irp = xacc::getService<IRGenerator>(name, false);
-//   if (!irp) {
-//     if (xacc::hasContributedService<IRGenerator>(name)) {
-//       irp = xacc::getContributedService<IRGenerator>(name);
-//     } else {
-//       error("Invalid IRProvicer. Could not find " + name +
-//             " in Service Registry.");
-//     }
-//   }
-//   return irp;
-// }
-
 std::shared_ptr<Compiler> getCompiler() {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
@@ -647,6 +629,25 @@ namespace ir {
         }
         return inst;
     }
+}
+
+namespace external {
+  void load_external_language_plugins() {
+      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+      for (auto& loader : loaders) {
+          if (!loader->load()) {
+              xacc::error("Error loading " + loader->name() + " external language plugin.");
+          }
+      }
+  }
+void unload_external_language_plugins() {
+      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+      for (auto& loader : loaders) {
+          if(!loader->unload()) {
+              xacc::error("Error unloading " + loader->name() + " external language plugin.");
+          }
+      }
+  }
 }
 
 void Finalize() {

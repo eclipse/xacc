@@ -457,6 +457,7 @@ PYBIND11_MODULE(_pyxacc, m) {
            (void (xacc::Accelerator::*)(const HeterogeneousMap &)) &
                xacc::Accelerator::updateConfiguration,
            "")
+      .def("getConnectivity", &xacc::Accelerator::getConnectivity, "")
       .def("configurationKeys", &xacc::Accelerator::configurationKeys, "")
       .def("getOneBitErrorRates", &xacc::Accelerator::getOneBitErrorRates, "")
       .def("getTwoBitErrorRates", &xacc::Accelerator::getTwoBitErrorRates, "");
@@ -848,6 +849,21 @@ PYBIND11_MODULE(_pyxacc, m) {
     auto c = xacc::getService<Instruction>(name);
     return std::dynamic_pointer_cast<CompositeInstruction>(c);
   });
+  m.def("createCompositeInstruction", [](const std::string& name, const PyHeterogeneousMap& options) {
+      HeterogeneousMap m;
+        for (auto &item : options) {
+          PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+          mpark::visit(vis, item.second);
+        }
+        auto inst = xacc::getService<Instruction>(name);
+        auto comp = std::dynamic_pointer_cast<CompositeInstruction>(inst);
+        if (comp) {
+            comp->expand(m);
+        } else {
+            xacc::error("Cannot cast to a Composite Instruction");
+        }
+        return comp;
+  }, "");
   m.def(
       "contributeService",
       [](const std::string name, ContributableService &service) {

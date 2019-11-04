@@ -61,6 +61,9 @@ public:
   qbit(const AcceleratorBufferPtr& ab) : AcceleratorBufferPtr(ab) {}
 
   int operator[](const int &i) {return 0;}
+  ExtraInfo operator[](const std::string& key) {
+      return AcceleratorBufferPtr::get()->getInformation(key);
+  }
   qbit& operator=(qbit& q) {return q;}
 };
 qbit qalloc(const int n);
@@ -247,6 +250,15 @@ std::shared_ptr<CompositeInstruction> getCompiled(const std::string name);
 bool hasCompiled(const std::string name);
 
 void qasm(const std::string &qasmString);
+namespace external {
+  class ExternalLanguagePluginLoader : public Identifiable {
+  public:
+     virtual bool load() = 0;
+     virtual bool unload() = 0;
+  };
+  void load_external_language_plugins();
+  void unload_external_language_plugins();
+}
 
 namespace ir {
     std::shared_ptr<CompositeInstruction> asComposite(std::shared_ptr<Instruction> inst);
