@@ -194,28 +194,26 @@ TEST(CircuitOptimizerTester, checkOptimize) {
 
     auto provider = xacc::getIRProvider("quantum");
 
-    auto ir = provider->createIR();
-    ir->addComposite(fevaled);
+    // auto ir = provider->createIR();
+    // ir->addComposite(fevaled);
 
     CountGatesOfTypeVisitor<CNOT> countCx(fevaled);
 
     auto opt = xacc::getService<IRTransformation>("circuit-optimizer");
-    auto newir = opt->transform(ir);
+    opt->apply(fevaled, nullptr);
 
-    auto optF = newir->getComposites()[0];
-
-    optF = optF->enabledView();//std::dynamic_pointer_cast<Circuit>(optF->enabledView());
-    CountGatesOfTypeVisitor<CNOT> countCx2(optF);
-    CountGatesOfTypeVisitor<Rz> countRz(optF);
+    // optF = optF->enabledView();//std::dynamic_pointer_cast<Circuit>(optF->enabledView());
+    CountGatesOfTypeVisitor<CNOT> countCx2(fevaled);
+    CountGatesOfTypeVisitor<Rz> countRz(fevaled);
     EXPECT_EQ(0, countRz.countGates());
     EXPECT_EQ(0, countCx2.countGates());
-    EXPECT_EQ(2, optF->nInstructions());
-    EXPECT_EQ("X", optF->getInstruction(0)->name());
-    EXPECT_EQ("X", optF->getInstruction(1)->name());
-    EXPECT_EQ(std::vector<std::size_t>{0}, optF->getInstruction(0)->bits());
-    EXPECT_EQ(std::vector<std::size_t>{1}, optF->getInstruction(1)->bits());
+    EXPECT_EQ(2, fevaled->nInstructions());
+    EXPECT_EQ("X", fevaled->getInstruction(0)->name());
+    EXPECT_EQ("X", fevaled->getInstruction(1)->name());
+    EXPECT_EQ(std::vector<std::size_t>{0}, fevaled->getInstruction(0)->bits());
+    EXPECT_EQ(std::vector<std::size_t>{1}, fevaled->getInstruction(1)->bits());
 
-    std::cout << "FINAL CIRCUIT:\n" << optF->toString() << "\n";
+    std::cout << "FINAL CIRCUIT:\n" << fevaled->toString() << "\n";
 
 }
 
@@ -232,24 +230,24 @@ TEST(CircuitOptimizerTester, checkAdjRotations) {
                  ->getComposites()[0];
      auto provider = xacc::getIRProvider("quantum");
 
-    auto ir = provider->createIR();
+    // auto ir = provider->createIR();
 
-    ir->addComposite(f);
+    // ir->addComposite(f);
 
     auto opt = xacc::getService<IRTransformation>("circuit-optimizer");
 
-    auto newir = opt->transform(ir);
-    auto optF = newir->getComposites()[0];
+    opt->apply(f, nullptr);
+    // auto optF = newir->getComposites()[0];
 
-    optF = optF->enabledView();
-    CountGatesOfTypeVisitor<Rz> countRz(optF);
-    CountGatesOfTypeVisitor<Rx> countRx(optF);
+    // optF = optF->enabledView();
+    CountGatesOfTypeVisitor<Rz> countRz(f);
+    CountGatesOfTypeVisitor<Rx> countRx(f);
 
-    EXPECT_EQ(3, optF->nInstructions());
+    EXPECT_EQ(3, f->nInstructions());
     EXPECT_EQ(1, countRz.countGates());
     EXPECT_EQ(0, countRx.countGates());
-    EXPECT_TRUE(optF->getInstruction(2)->getParameter(0).as<double>()==1.0 );
-    std::cout << "FINAL CIRCUIT:\n" << optF->toString() << "\n";
+    EXPECT_TRUE(f->getInstruction(2)->getParameter(0).as<double>()==1.0 );
+    std::cout << "FINAL CIRCUIT:\n" << f->toString() << "\n";
 
 }
 
@@ -268,11 +266,11 @@ TEST(CircuitOptimizerTester, checkSimple) {
     ir->addComposite(f);
 
     auto opt = xacc::getService<IRTransformation>("circuit-optimizer");
-    auto newir = opt->transform(ir);
-    auto optF = newir->getComposites()[0];
+    opt->apply(f,nullptr);
+    // auto optF = newir->getComposites()[0];
 
-    optF = optF->enabledView();
-    EXPECT_EQ(0, optF->nInstructions());
+    // optF = optF->enabledView();
+    EXPECT_EQ(0, f->nInstructions());
 
     f = c->compile(R"(__qpu__ void foo2(qbit q) {
         H(q[0]);
@@ -282,14 +280,14 @@ TEST(CircuitOptimizerTester, checkSimple) {
     })")
             ->getComposites()[0];
 
-    ir = provider->createIR();
-    ir->addComposite(f);
+    // ir = provider->createIR();
+    // ir->addComposite(f);
 
-    newir = opt->transform(ir);
-    optF = newir->getComposites()[0];
-    optF = optF->enabledView();
+    opt->apply(f, nullptr);
+    // optF = newir->getComposites()[0];
+    // optF = optF->enabledView();
 
-    EXPECT_EQ(0, optF->nInstructions());
+    EXPECT_EQ(0, f->nInstructions());
 
     f = c->compile(R"(__qpu__ void foo3(qbit q) {
         CNOT(q[0],q[1]);
@@ -299,14 +297,14 @@ TEST(CircuitOptimizerTester, checkSimple) {
     })")
             ->getComposites()[0];
 
-    ir = provider->createIR();
-    ir->addComposite(f);
+    // ir = provider->createIR();
+    // ir->addComposite(f);
 
-    newir = opt->transform(ir);
-    optF = newir->getComposites()[0];
+    opt->apply(f, nullptr);
+    // optF = newir->getComposites()[0];
 
-    optF = optF->enabledView();
-    EXPECT_EQ(0, optF->nInstructions());
+    // optF = f->enabledView();
+    EXPECT_EQ(0, f->nInstructions());
 
 }
 

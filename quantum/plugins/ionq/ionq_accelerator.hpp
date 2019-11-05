@@ -45,13 +45,6 @@ public:
 
   std::vector<std::pair<int, int>> getConnectivity() override;
 
-  std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override;
-
-  const std::vector<double> getOneBitErrorRates() override;
-  const std::vector<std::pair<std::pair<int, int>, double>>
-  getTwoBitErrorRates() override;
-
   const std::string name() const override { return "ionq"; }
   const std::string description() const override { return ""; }
 

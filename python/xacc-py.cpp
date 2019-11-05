@@ -10,171 +10,22 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "CompositeInstruction.hpp"
-#include "Optimizer.hpp"
 #include "xacc.hpp"
-#include "heterogeneous.hpp"
 #include "xacc_service.hpp"
 
-#include "IRProvider.hpp"
 #include "InstructionIterator.hpp"
-#include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
-// #include "EmbeddingAlgorithm.hpp"
 
-#include "PauliOperator.hpp"
-#include "FermionOperator.hpp"
-
-#include <memory>
-#include <pybind11/complex.h>
-#include <pybind11/numpy.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
-#include <pybind11/eigen.h>
-#include <pybind11/iostream.h>
-#include <pybind11/operators.h>
-#include <pybind11/functional.h>
+#include "py_heterogeneous_map.hpp"
+#include "py_ir.hpp"
+#include "py_accelerator.hpp"
+#include "py_compiler.hpp"
+#include "py_algorithm.hpp"
+#include "py_optimizer.hpp"
+#include "py_observable.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
-using namespace xacc::quantum;
-
-// `boost::variant` as an example -- can be any `std::variant`-like container
-namespace pybind11 {
-namespace detail {
-template <typename... Ts>
-struct type_caster<Variant<Ts...>> : variant_caster<Variant<Ts...>> {};
-
-// Specifies the function used to visit the variant -- `apply_visitor` instead
-// of `visit`
-template <> struct visit_helper<Variant> {
-  template <typename... Args>
-  static auto call(Args &&... args) -> decltype(mpark::visit(args...)) {
-    return mpark::visit(args...);
-  }
-};
-
-template <typename... Ts>
-struct type_caster<mpark::variant<Ts...>>
-    : variant_caster<mpark::variant<Ts...>> {};
-
-// Specifies the function used to visit the variant -- `apply_visitor` instead
-// of `visit`
-template <> struct visit_helper<mpark::variant> {
-  template <typename... Args>
-  static auto call(Args &&... args) -> decltype(mpark::visit(args...)) {
-    return mpark::visit(args...);
-  }
-};
-} // namespace detail
-} // namespace pybind11
-
-using PyHeterogeneousMapTypes =
-    xacc::Variant<bool, int, double, std::string, std::vector<std::string>,
-                  std::vector<double>, std::vector<int>, std::complex<double>,
-                  std::shared_ptr<CompositeInstruction>,
-                  std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
-                  std::shared_ptr<Observable>, std::shared_ptr<Optimizer>>;
-using PyHeterogeneousMap = std::map<std::string, PyHeterogeneousMapTypes>;
-
-class PyHeterogeneousMap2HeterogeneousMap {
-protected:
-  HeterogeneousMap &m;
-  const std::string &key;
-
-public:
-  PyHeterogeneousMap2HeterogeneousMap(HeterogeneousMap &map,
-                                      const std::string &k)
-      : m(map), key(k) {}
-  template <typename T> void operator()(const T &t) { m.insert(key, t); }
-};
-
-class HeterogeneousMap2PyHeterogeneousMap
-    : public visitor_base<
-          bool, int, double, std::string, std::vector<std::string>,
-          std::vector<double>, std::vector<int>, std::complex<double>,
-          std::shared_ptr<CompositeInstruction>, std::shared_ptr<Instruction>,
-          std::shared_ptr<Accelerator>, std::shared_ptr<Observable>,
-          std::shared_ptr<Optimizer>> {
-private:
-  PyHeterogeneousMap &pymap;
-
-public:
-  HeterogeneousMap2PyHeterogeneousMap(PyHeterogeneousMap &m) : pymap(m) {}
-
-  template <typename T> void operator()(const std::string &key, const T &t) {
-    pymap.insert({key, t});
-  }
-};
-
-class PyAccelerator : public xacc::Accelerator {
-public:
-  /* Inherit the constructors */
-  using Accelerator::Accelerator;
-
-  const std::string name() const override {
-    PYBIND11_OVERLOAD_PURE(const std::string, xacc::Accelerator, name);
-  }
-  const std::string description() const override { return ""; }
-
-  HeterogeneousMap getProperties() override {
-    PYBIND11_OVERLOAD(HeterogeneousMap, xacc::Accelerator, getProperties);
-  }
-
-  void initialize(const HeterogeneousMap &params = {}) override {
-    PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, initialize, params);
-  }
-
-  std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override {
-    return {};
-  }
-
-  void execute(std::shared_ptr<xacc::AcceleratorBuffer> buf,
-               std::shared_ptr<xacc::CompositeInstruction> f) override {
-    PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, execute, buf, f);
-  }
-
-  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-               const std::vector<std::shared_ptr<CompositeInstruction>>
-                   functions) override {
-    PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, execute, buffer, functions);
-  }
-  void updateConfiguration(const HeterogeneousMap &config) override {
-    PYBIND11_OVERLOAD_PURE(void, xacc::Accelerator, updateConfiguration,
-                           config);
-  }
-  const std::vector<std::string> configurationKeys() override {
-    PYBIND11_OVERLOAD_PURE(std::vector<std::string>, xacc::Accelerator,
-                           configurationKeys)
-  }
-};
-
-class PyCompiler : public xacc::Compiler {
-public:
-  /* Inherit the constructors */
-  using Compiler::Compiler;
-
-  const std::string name() const override {
-    PYBIND11_OVERLOAD_PURE(const std::string, xacc::Compiler, name);
-  }
-  const std::string description() const override { return ""; }
-
-  std::shared_ptr<IR> compile(const std::string &src,
-                              std::shared_ptr<Accelerator> acc) override {
-    PYBIND11_OVERLOAD_PURE(std::shared_ptr<IR>, xacc::Compiler, compile, src,
-                           acc);
-  }
-
-  std::shared_ptr<IR> compile(const std::string &src) override {
-    return compile(src, nullptr);
-  }
-
-  const std::string
-  translate(std::shared_ptr<CompositeInstruction> function) override {
-    return "";
-  }
-};
 
 PYBIND11_MODULE(_pyxacc, m) {
   m.doc() =
@@ -182,506 +33,13 @@ PYBIND11_MODULE(_pyxacc, m) {
       "programming, compiling, and executing quantum kernels in a language and "
       "hardware agnostic manner.";
 
-  py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "")
-      .def(py::init<>(), "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string, const int &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string,
-                                             const double &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string,
-                                             const std::string &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string,
-                                             const std::vector<int> &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(const std::string,
-                                             const std::vector<double> &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(
-               const std::string, const std::vector<std::pair<int, int>> &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(
-               const std::string, const std::shared_ptr<Observable> &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def("insert",
-           (void (xacc::HeterogeneousMap::*)(
-               const std::string, const std::shared_ptr<Optimizer> &)) &
-               xacc::HeterogeneousMap::insert,
-           "")
-      .def(
-          "__getitem__",
-          [](HeterogeneousMap &m, const std::string key) -> PyHeterogeneousMapTypes {
-            if (m.keyExists<int>(key)) {
-              return m.get<int>(key);
-            } else if (m.keyExists<bool>(key)) {
-                return m.get<bool>(key);
-            } else if (m.keyExists<double>(key)) {
-              return m.get<double>(key);
-            } else if (m.keyExists<std::string>(key)) {
-              return m.get<std::string>(key);
-            } else if (m.keyExists<std::vector<double>>(key)) {
-              return m.get<std::vector<double>>(key);
-            } else if (m.keyExists<std::vector<int>>(key)) {
-              return m.get<std::vector<int>>(key);
-            } else if (m.keyExists<std::shared_ptr<Observable>>(key)) {
-              return m.get<std::shared_ptr<Observable>>(key);
-            } else if (m.keyExists<std::shared_ptr<Optimizer>>(key)) {
-              return m.get<std::shared_ptr<Optimizer>>(key);
-            } else if (m.keyExists<std::vector<std::string>>(key)) {
-              return m.get<std::vector<std::string>>(key);
-            } else {
-                xacc::error("Invalid key for heterogeneous map");
-                return 0;
-            }
-          },
-          "")
-      .def("__contains__",[](HeterogeneousMap& m, const std::string key) {
-          return m.keyExists<int>(key) || m.keyExists<double>(key) || m.keyExists<bool>(key) ||
-                 m.keyExists<std::string>(key) || m.keyExists<std::vector<double>>(key) ||
-                 m.keyExists<std::vector<int>>(key) || m.keyExists<std::vector<std::string>>(key) ||
-                 m.keyExists<std::shared_ptr<Observable>>(key) ||
-                 m.keyExists<std::shared_ptr<Optimizer>>(key);
-      }, "");
-
-  py::class_<xacc::InstructionParameter>(
-      m, "InstructionParameter",
-      "The InstructionParameter provides a variant structure "
-      "to provide parameters to XACC Instructions at runtime. "
-      "This type can be an int, double, float, string, or complex value.")
-      .def(py::init<int>(), "Construct as an int.")
-      .def(py::init<double>(), "Construct as a double.")
-      .def(py::init<std::string>(), "Construct as a string.");
-
-  py::class_<PyHeterogeneousMapTypes>(
-      m, "PyHeterogeneousMap",
-      "The PyHeterogeneousMap provides a variant structure "
-      "to provide parameters to XACC HeterogeneousMaps."
-      "This type can be an int, double, string, List[int], List[double]"
-      "List[string], Observable, Accelerator, Function, or Optimizer.")
-      .def(py::init<int>(), "Construct as an int.")
-      .def(py::init<bool>(), "Construct as a bool")
-      .def(py::init<double>(), "Construct as a double.")
-      .def(py::init<std::string>(), "Construct as a string.")
-      .def(py::init<std::vector<std::string>>(), "Construct as a List[string].")
-      .def(py::init<std::vector<int>>(), "Construct as a List[int].")
-      .def(py::init<std::vector<double>>(), "Construct as a List[double].")
-      .def(py::init<std::shared_ptr<xacc::Accelerator>>(),
-           "Construct as an Accelerator.")
-      .def(py::init<std::shared_ptr<xacc::CompositeInstruction>>(),
-           "Construct as a CompositeInstruction.")
-      .def(py::init<std::shared_ptr<xacc::Instruction>>(),
-           "Construct as a CompositeInstruction.")
-      .def(py::init<std::shared_ptr<xacc::Observable>>(),
-           "Construct as an Observable.")
-      .def(py::init<std::shared_ptr<xacc::Optimizer>>(),
-           "Construct as an Optimizer.");
-
-  py::class_<xacc::ContributableService>(m, "ContributableService", "")
-      .def(py::init<std::shared_ptr<Instruction>>(), "");
-
-  py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(
-      m, "Instruction", "")
-      .def("nParameters", &xacc::Instruction::nParameters, "")
-      .def("toString", &xacc::Instruction::toString, "")
-      .def("isEnabled", &xacc::Instruction::isEnabled, "")
-      .def("isComposite", &xacc::Instruction::isComposite, "")
-      .def("bits", &xacc::Instruction::bits, "")
-      .def("setBits", &xacc::Instruction::setBits, "")
-      .def("getParameter", &xacc::Instruction::getParameter, "")
-      .def("getParameters", &xacc::Instruction::getParameters, "")
-      .def("setParameter",
-           (void (xacc::Instruction::*)(const std::size_t,
-                                        InstructionParameter &)) &
-               xacc::Instruction::setParameter,
-           "")
-      .def("mapBits", &xacc::Instruction::mapBits, "")
-      .def("name", &xacc::Instruction::name, "")
-      .def("description", &xacc::Instruction::description, "")
-      .def("setChannel", &xacc::Instruction::setChannel, "")
-      .def("setStart", &xacc::Instruction::setStart, "")
-      .def("setDuration", &xacc::Instruction::setDuration, "")
-      .def("setSamples", &xacc::Instruction::setSamples, "")
-      .def("getSamples", &xacc::Instruction::getSamples, "")
-      .def("duration", &xacc::Instruction::duration, "")
-      .def("start", &xacc::Instruction::start, "");
-
-  py::class_<xacc::CompositeInstruction,
-             std::shared_ptr<xacc::CompositeInstruction>>(
-      m, "CompositeInstruction", "")
-      .def("nInstructions", &xacc::CompositeInstruction::nInstructions, "")
-      .def("getInstruction", &xacc::CompositeInstruction::getInstruction, "")
-      .def("getInstructions", &xacc::CompositeInstruction::getInstructions, "")
-      .def("removeInstruction", &xacc::CompositeInstruction::removeInstruction,
-           "")
-      .def("replaceInstruction",
-           &xacc::CompositeInstruction::replaceInstruction, "")
-      .def("insertInstruction", &xacc::CompositeInstruction::insertInstruction,
-           "")
-      .def(
-          "addInstructions",
-          (void (xacc::CompositeInstruction::*)(const std::vector<InstPtr> &)) &
-              xacc::CompositeInstruction::addInstructions,
-          "")
-      .def("addInstruction", &xacc::CompositeInstruction::addInstruction, "")
-
-      .def("addVariable", &xacc::CompositeInstruction::addVariable, "")
-      .def("addVariables",
-           (void (xacc::CompositeInstruction::*)(
-               const std::vector<std::string> &)) &
-               xacc::CompositeInstruction::addVariables,
-           "")
-      .def("getVariables", &xacc::CompositeInstruction::getVariables, "")
-      .def("expand", &xacc::CompositeInstruction::expand, "")
-      .def("eval", &xacc::CompositeInstruction::operator(), "")
-      .def("name", &xacc::CompositeInstruction::name, "")
-      .def("description", &xacc::CompositeInstruction::description, "")
-      .def("toString", &xacc::CompositeInstruction::toString, "")
-      .def("enabledView", &xacc::CompositeInstruction::enabledView, "")
-      .def("enable", &xacc::CompositeInstruction::enable, "")
-      .def("getCoefficient", &xacc::CompositeInstruction::getCoefficient, "")
-      .def("setCoefficient", &xacc::CompositeInstruction::setCoefficient, "")
-      .def("depth", &xacc::CompositeInstruction::depth, "")
-      .def("persistGraph", &xacc::CompositeInstruction::persistGraph, "")
-      .def("mapBits", &xacc::CompositeInstruction::mapBits, "");
-
-  py::class_<xacc::IRProvider, std::shared_ptr<xacc::IRProvider>>(
-      m, "IRProvider", "")
-      .def(
-          "createInstruction",
-          [](IRProvider &p, const std::string name,
-             std::vector<std::size_t> bits,
-             std::vector<InstructionParameter> parameters,
-             const HeterogeneousMap &analog_options) {
-            return p.createInstruction(name, bits, parameters, analog_options);
-          },
-          "Return the kernels in this IR")
-      //   .def(
-      //   "createInstruction",
-      //   [](IRProvider &p, const std::string name,
-      //      std::vector<std::size_t> bits,
-      //      std::vector<InstructionParameter> parameters,
-      //      const HeterogeneousMap &analog_options) {
-      //     return p.createInstruction(name, bits, parameters, analog_options);
-      //   },
-      //   "Return the kernels in this IR")
-      .def(
-          "createInstruction",
-          [](IRProvider &p, const std::string name,
-             std::vector<std::size_t> bits,
-             std::vector<InstructionParameter> parameters) {
-            return p.createInstruction(name, bits, parameters);
-          },
-          "Return the kernels in this IR")
-      .def(
-          "createInstruction",
-          [](IRProvider &p, const std::string name,
-             std::vector<std::size_t> bits) {
-            return p.createInstruction(name, bits);
-          },
-          "Return the kernels in this IR")
-      .def(
-          "createInstruction",
-          [](IRProvider &p, const std::string name) {
-            return p.createInstruction(name, {});
-          },
-          "Return the kernels in this IR")
-      .def(
-          "createComposite",
-          [](IRProvider &p, const std::string name) {
-            return p.createComposite(name);
-          },
-          "");
-
-  // Expose the IR interface
-  py::class_<xacc::IR, std::shared_ptr<xacc::IR>>(
-      m, "IR",
-      "The XACC Intermediate Representation, "
-      "serves as a container for XACC Functions.")
-      .def("getComposites", &xacc::IR::getComposites,
-           "Return the kernels in this IR")
-      .def("mapBits", &xacc::IR::mapBits, "")
-      .def("addComposite", &xacc::IR::addComposite, "");
-
-  py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")
-      .def(py::init<std::shared_ptr<xacc::CompositeInstruction>>())
-      .def("hasNext", &xacc::InstructionIterator::hasNext, "")
-      .def("next", &xacc::InstructionIterator::next, "");
-
-  py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>>(
-      m, "IRTransformation", "")
-      .def("transform", &xacc::IRTransformation::transform, "");
-
-  // Expose the Accelerator
-  py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>,
-             PyAccelerator>
-      acc(m, "Accelerator",
-          "Accelerator wraps the XACC C++ Accelerator class "
-          "and provides a mechanism for creating buffers of qubits. Execution "
-          "is handled by the XACC Kernels.");
-  acc.def(py::init<>())
-      .def("name", &xacc::Accelerator::name,
-           "Return the name of this Accelerator.")
-      .def("getProperties", &xacc::Accelerator::getProperties, "")
-      .def("contributeInstructions", &xacc::Accelerator::contributeInstructions,
-           py::arg("custom_json_config") = std::string(""), "")
-      .def("execute",
-           (void (xacc::Accelerator::*)(
-               std::shared_ptr<AcceleratorBuffer>,
-               const std::shared_ptr<CompositeInstruction>)) &
-               xacc::Accelerator::execute,
-           "Execute the Function with the given AcceleratorBuffer.")
-      .def("execute",
-           (void (xacc::Accelerator::*)(
-               std::shared_ptr<AcceleratorBuffer>,
-               const std::vector<std::shared_ptr<CompositeInstruction>>)) &
-               xacc::Accelerator::execute,
-           "Execute the Function with the given AcceleratorBuffer.")
-      .def("initialize", &xacc::Accelerator::initialize, "")
-      .def("getIRTransformations", &xacc::Accelerator::getIRTransformations, "")
-      .def("updateConfiguration",
-           (void (xacc::Accelerator::*)(const HeterogeneousMap &)) &
-               xacc::Accelerator::updateConfiguration,
-           "")
-      .def("getConnectivity", &xacc::Accelerator::getConnectivity, "")
-      .def("configurationKeys", &xacc::Accelerator::configurationKeys, "")
-      .def("getOneBitErrorRates", &xacc::Accelerator::getOneBitErrorRates, "")
-      .def("getTwoBitErrorRates", &xacc::Accelerator::getTwoBitErrorRates, "");
-
-  py::class_<xacc::AcceleratorDecorator, xacc::Accelerator,
-             std::shared_ptr<xacc::AcceleratorDecorator>>
-      accd(m, "AcceleratorDecorator", "");
-  accd.def("setDecorated", &xacc::AcceleratorDecorator::setDecorated, "");
-
-  // Expose the AcceleratorBuffer
-  py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(
-      m, "AcceleratorBuffer",
-      "The AcceleratorBuffer models a register of qubits.")
-      .def(py::init<const std::string &, const int>())
-      .def("getExpectationValueZ",
-           &xacc::AcceleratorBuffer::getExpectationValueZ,
-           "Return the expectation value with respect to the Z operator.")
-      .def("resetBuffer", &xacc::AcceleratorBuffer::resetBuffer,
-           "Reset this buffer for use in another computation.")
-      .def("size", &xacc::AcceleratorBuffer::size, "")
-      .def("setName", &xacc::AcceleratorBuffer::setName, "")
-      .def("setMeasurements", &xacc::AcceleratorBuffer::setMeasurements, "")
-      .def("appendMeasurement",
-           (void (xacc::AcceleratorBuffer::*)(const std::string &)) &
-               xacc::AcceleratorBuffer::appendMeasurement,
-           "Append the measurement string")
-      .def("appendMeasurement",
-           (void (xacc::AcceleratorBuffer::*)(const std::string, const int)) &
-               xacc::AcceleratorBuffer::appendMeasurement,
-           "Append the measurement string")
-      .def("getMeasurements", &xacc::AcceleratorBuffer::getMeasurements,
-           "Return observed measurement bit strings")
-      .def("computeMeasurementProbability",
-           &xacc::AcceleratorBuffer::computeMeasurementProbability,
-           "Compute the probability of a given bit string")
-      .def("getMeasurementCounts",
-           &xacc::AcceleratorBuffer::getMeasurementCounts,
-           "Return the mapping of measure bit strings to their counts.")
-      .def("getChildren",
-           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
-               xacc::AcceleratorBuffer::*)(const std::string)) &
-               xacc::AcceleratorBuffer::getChildren,
-           "")
-      .def("nChildren", &xacc::AcceleratorBuffer::nChildren, "")
-      .def("getChildren",
-           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
-               xacc::AcceleratorBuffer::*)()) &
-               xacc::AcceleratorBuffer::getChildren,
-           "")
-      .def("getChildrenNames", &xacc::AcceleratorBuffer::getChildrenNames, "")
-      .def("keys", &xacc::AcceleratorBuffer::listExtraInfoKeys, "")
-      .def("getInformation",
-           (std::map<std::string, ExtraInfo>(xacc::AcceleratorBuffer::*)()) &
-               xacc::AcceleratorBuffer::getInformation,
-           "")
-      .def("__getitem__", [](AcceleratorBuffer& b, const std::string key) {
-          return b.getInformation(key);
-      }, "")
-      .def("addExtraInfo",
-           (void (xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
-               xacc::AcceleratorBuffer::addExtraInfo,
-           "")
-      .def("getInformation",
-           (ExtraInfo(xacc::AcceleratorBuffer::*)(const std::string)) &
-               xacc::AcceleratorBuffer::getInformation,
-           "")
-      .def("appendChild", &xacc::AcceleratorBuffer::appendChild, "")
-      .def("hasExtraInfoKey", &xacc::AcceleratorBuffer::hasExtraInfoKey, "")
-      .def("name", &xacc::AcceleratorBuffer::name, "")
-      .def("getAllUnique", &xacc::AcceleratorBuffer::getAllUnique,
-           "Return all unique information with the provided string name")
-      .def("__repr__", &xacc::AcceleratorBuffer::toString, "")
-      .def("__str__", &xacc::AcceleratorBuffer::toString, "")
-      .def("getChildren",
-           (std::vector<std::shared_ptr<AcceleratorBuffer>>(
-               xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
-               xacc::AcceleratorBuffer::getChildren,
-           "");
-
-  // Expose the Compiler
-  py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>, PyCompiler>(
-      m, "Compiler",
-      "The XACC Compiler takes as input quantum kernel source code, "
-      "and compiles it to the XACC intermediate representation.")
-      .def(py::init<>(), "")
-      .def("name", &xacc::Compiler::name, "Return the name of this Compiler.")
-      .def("compile",
-           (std::shared_ptr<xacc::IR>(xacc::Compiler::*)(
-               const std::string &, std::shared_ptr<xacc::Accelerator>)) &
-               xacc::Compiler::compile,
-           "Compile the "
-           "given source code against the given Accelerator.")
-      .def("compile",
-           (std::shared_ptr<xacc::IR>(xacc::Compiler::*)(const std::string &)) &
-               xacc::Compiler::compile,
-           "Compile the "
-           "given source code.")
-      .def("translate", &xacc::Compiler::translate,
-           "Translate the given IR Function instance to source code in this "
-           "Compiler's language.");
-
-  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>>(
-      m, "Algorithm",
-      "The XACC Algorithm interface takes as input a dictionary of "
-      "AlgorithmParameters "
-      "and executes the desired Algorithm.")
-      .def("name", &xacc::Algorithm::name, "Return the name of this Algorithm.")
-      .def("execute",
-           (void (xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>) const) &
-               xacc::Algorithm::execute,
-           "Execute the Algorithm, storing the results in provided "
-           "AcceleratorBuffer.")
-      .def("execute",
-           (std::vector<double>(xacc::Algorithm::*)(
-               const std::shared_ptr<xacc::AcceleratorBuffer>,
-               const std::vector<double> &)) &
-               xacc::Algorithm::execute,
-           "Execute the Algorithm, storing the results in provided "
-           "AcceleratorBuffer.")
-      .def("initialize",
-           (bool (xacc::Algorithm::*)(const HeterogeneousMap &)) &
-               xacc::Algorithm::initialize,
-           "Initialize the algorithm with given AlgorithmParameters.");
-
-  py::class_<xacc::OptFunction>(m, "OptFunction", "")
-      .def(py::init<std::function<double(const std::vector<double> &,
-                                         std::vector<double> &)>,
-                    const int>());
-
-  // Expose Optimizer
-  py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
-      m, "Optimizer",
-      "The Optimizer interface provides optimization routine implementations "
-      "for use in algorithms.")
-      .def(
-          "optimize",
-          [&](xacc::Optimizer &o, py::function &f,
-              const int ndim) -> OptResult {
-            OptFunction opt(
-                [&](const std::vector<double> &x, std::vector<double> &grad) {
-                  auto ret = f(x);
-                  if (py::isinstance<py::tuple>(ret)) {
-                    auto result =
-                        ret.cast<std::pair<double, std::vector<double>>>();
-                    for (int i = 0; i < grad.size(); i++) {
-                      grad[i] = result.second[i];
-                    }
-                    return result.first;
-                  } else {
-                    return ret.cast<double>();
-                  }
-                },
-                ndim);
-            return o.optimize(opt);
-          },
-          "")
-      .def("setOptions",
-           (void (xacc::Optimizer::*)(const HeterogeneousMap &)) &
-               xacc::Optimizer::setOptions,
-           "");
-
-  py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
-      m, "Observable", "The Observable interface.")
-      .def("observe",
-           (std::vector<std::shared_ptr<xacc::CompositeInstruction>>(
-               xacc::Observable::*)(
-               std::shared_ptr<xacc::CompositeInstruction>)) &
-               xacc::Observable::observe,
-           "")
-      .def("toString", &xacc::Observable::toString,
-           "Return string representation of this Observable.")
-      .def("nBits", &xacc::Observable::nBits,
-           "Return the number of bits this Observable represents.")
-      .def("fromOptions",
-           (void (xacc::Observable::*)(const HeterogeneousMap &)) &
-               xacc::Observable::fromOptions,
-           "")
-      .def("fromString",
-           (void (xacc::Observable::*)(const std::string)) &
-               xacc::Observable::fromString,
-           "");
-
-  py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops", &Term::ops);
-  py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(
-      m, "PauliOperator")
-      .def(py::init<>())
-      .def(py::init<std::complex<double>>())
-      .def(py::init<double>())
-      .def(py::init<std::string>())
-      .def(py::init<std::map<int, std::string>>())
-      .def(py::init<std::map<int, std::string>, double>())
-      .def(py::init<std::map<int, std::string>, std::complex<double>>())
-      .def(py::init<std::map<int, std::string>, std::string>())
-      .def(py::init<std::map<int, std::string>, std::complex<double>,
-                    std::string>())
-      .def(py::self + py::self)
-      .def(py::self += py::self)
-      .def(py::self *= py::self)
-      .def(py::self *= double())
-      .def(py::self * py::self)
-      .def(py::self *= std::complex<double>())
-      .def(py::self -= py::self)
-      .def(py::self - py::self)
-      .def("__eq__", &PauliOperator::operator==)
-      .def("__repr__", &PauliOperator::toString)
-      .def("eval", &PauliOperator::eval)
-      .def("toBinaryVectors", &PauliOperator::toBinaryVectors)
-      .def("toXACCIR", &PauliOperator::toXACCIR)
-      .def("fromXACCIR", &PauliOperator::fromXACCIR)
-      .def("fromString", &PauliOperator::fromString)
-      .def("nTerms", &PauliOperator::nTerms)
-      .def("isClose", &PauliOperator::isClose)
-      .def("commutes", &PauliOperator::commutes)
-      .def("__len__", &PauliOperator::nTerms)
-      .def("nQubits", &PauliOperator::nQubits)
-      .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
-      .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
-      .def(
-          "__iter__",
-          [](PauliOperator &op) {
-            return py::make_iterator(op.begin(), op.end());
-          },
-          py::keep_alive<0, 1>());
+  bind_heterogeneous_map(m);
+  bind_ir(m);
+  bind_accelerator(m);
+  bind_compiler(m);
+  bind_algorithm(m);
+  bind_optimizer(m);
+  bind_observable(m);
 
   // Expose XACC API functions
   m.def("Initialize", (void (*)(std::vector<std::string>)) & xacc::Initialize,
@@ -694,7 +52,6 @@ PYBIND11_MODULE(_pyxacc, m) {
         "arguments to pass.");
   m.def("PyInitialize", &xacc::PyInitialize,
         "Initialize the framework from Python.");
-  // m.def("help", )
   m.def(
       "getAccelerator",
       [](const std::string &name, const PyHeterogeneousMap &p = {}) {
@@ -708,26 +65,6 @@ PYBIND11_MODULE(_pyxacc, m) {
       py::arg("name"), py::arg("p") = PyHeterogeneousMap(),
       py::return_value_policy::reference,
       "Return the accelerator with given name.");
-  m.def("getObservable",
-        [](const std::string &type,
-           const std::string representation) -> std::shared_ptr<Observable> {
-          if (type == "pauli") {
-            return representation.empty()
-                       ? std::make_shared<PauliOperator>()
-                       : std::make_shared<PauliOperator>(representation);
-          } else if (type == "fermion") {
-            return representation.empty()
-                       ? std::make_shared<FermionOperator>()
-                       : std::make_shared<FermionOperator>(representation);
-          } else if (xacc::hasService<Observable>(type)) {
-            auto obs = xacc::getService<Observable>(type);
-            obs->fromString(representation);
-            return obs;
-          } else {
-            xacc::error("Invalid observable type");
-            return std::make_shared<PauliOperator>();
-          }
-        });
   m.def("getCompiler",
         (std::shared_ptr<xacc::Compiler>(*)(const std::string &)) &
             xacc::getCompiler,
@@ -812,7 +149,6 @@ PYBIND11_MODULE(_pyxacc, m) {
         return buffer;
       },
       "");
-
   m.def("getAlgorithm",
         (std::shared_ptr<xacc::Algorithm>(*)(const std::string)) &
             xacc::getAlgorithm,
@@ -849,8 +185,10 @@ PYBIND11_MODULE(_pyxacc, m) {
     auto c = xacc::getService<Instruction>(name);
     return std::dynamic_pointer_cast<CompositeInstruction>(c);
   });
-  m.def("createCompositeInstruction", [](const std::string& name, const PyHeterogeneousMap& options) {
-      HeterogeneousMap m;
+  m.def(
+      "createCompositeInstruction",
+      [](const std::string &name, const PyHeterogeneousMap &options) {
+        HeterogeneousMap m;
         for (auto &item : options) {
           PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
           mpark::visit(vis, item.second);
@@ -858,12 +196,13 @@ PYBIND11_MODULE(_pyxacc, m) {
         auto inst = xacc::getService<Instruction>(name);
         auto comp = std::dynamic_pointer_cast<CompositeInstruction>(inst);
         if (comp) {
-            comp->expand(m);
+          comp->expand(m);
         } else {
-            xacc::error("Cannot cast to a Composite Instruction");
+          xacc::error("Cannot cast to a Composite Instruction");
         }
         return comp;
-  }, "");
+      },
+      "");
   m.def(
       "contributeService",
       [](const std::string name, ContributableService &service) {
@@ -942,97 +281,4 @@ PYBIND11_MODULE(_pyxacc, m) {
       },
       "Compute and return the state after execution of the given program on "
       "the given accelerator.");
-
-  //   py::module aqcsub =
-  //       m.def_submodule("dwave", "Gate model quantum computing data
-  //       structures.");
-  //   aqcsub.def(
-  //       "create",
-  //       [](const std::string &name, std::vector<int> qbits,
-  //          std::vector<InstructionParameter> params =
-  //              std::vector<InstructionParameter>{})
-  //           -> std::shared_ptr<Instruction> {
-  //         return xacc::getService<IRProvider>("dwave")->createInstruction(
-  //             name, qbits, params);
-  //       },
-  //       "Convenience function for creating a new DWInstruction.",
-  //       py::arg("name"), py::arg("qbits"), py::arg("params") =
-  //       std::vector<InstructionParameter>{});
-  //   aqcsub.def(
-  //       "createFunction",
-  //       [](const std::string &name, std::vector<int> qbits,
-  //          std::vector<InstructionParameter> params =
-  //              std::vector<InstructionParameter>{}) ->
-  //              std::shared_ptr<Function> {
-  //         return xacc::getService<IRProvider>("dwave")->createFunction(
-  //             name, qbits, params);
-  //       },
-  //       "Convenience function for creating a new DWFunction.",
-  //       py::arg("name"), py::arg("qbits"), py::arg("params") =
-  //       std::vector<InstructionParameter>{});
-  //   aqcsub.def(
-  //       "createIR",
-  //       []() -> std::shared_ptr<IR> {
-  //         return xacc::getService<IRProvider>("dwave")->createIR();
-  //       },
-  //       "Convenience function for creating a new DWIR.");
-
-  //   aqcsub.def(
-  //       "embed",
-  //       [](std::shared_ptr<Function> f, std::shared_ptr<Accelerator> acc,
-  //          const std::string algo) -> std::map<int, std::vector<int>> {
-  //         auto a = xacc::getService<xacc::quantum::EmbeddingAlgorithm>(algo);
-  //         auto hardwareconnections = acc->getAcceleratorConnectivity();
-  //         std::set<int> nUniqueBits;
-  //         for (auto &edge : hardwareconnections) {
-  //           nUniqueBits.insert(edge.first);
-  //           nUniqueBits.insert(edge.second);
-  //         }
-
-  //         int nBits =
-  //             *std::max_element(nUniqueBits.begin(), nUniqueBits.end()) + 1;
-
-  //         auto hardware = xacc::getService<Graph>("boost-ugraph");
-  //         for (int i = 0; i < nBits; i++) {
-  //           std::map<std::string, InstructionParameter> m{{"bias", 1.0}};
-  //           hardware->addVertex(m);
-  //         }
-
-  //         for (auto &edge : hardwareconnections) {
-  //           hardware->addEdge(edge.first, edge.second);
-  //         }
-
-  //         int maxBitIdx = 0;
-  //         for (auto inst : f->getInstructions()) {
-  //           if (inst->name() == "dw-qmi") {
-  //             auto qbit1 = inst->bits()[0];
-  //             auto qbit2 = inst->bits()[1];
-  //             if (qbit1 > maxBitIdx) {
-  //               maxBitIdx = qbit1;
-  //             }
-  //             if (qbit2 > maxBitIdx) {
-  //               maxBitIdx = qbit2;
-  //             }
-  //           }
-  //         }
-
-  //         auto problemGraph = xacc::getService<Graph>("boost-ugraph");
-  //         for (int i = 0; i < maxBitIdx + 1; i++) {
-  //           std::map<std::string, InstructionParameter> m{{"bias", 1.0}};
-  //           problemGraph->addVertex(m);
-  //         }
-
-  //         for (auto inst : f->getInstructions()) {
-  //           if (inst->name() == "dw-qmi") {
-  //             auto qbit1 = inst->bits()[0];
-  //             auto qbit2 = inst->bits()[1];
-  //             if (qbit1 != qbit2) {
-  //               problemGraph->addEdge(qbit1, qbit2, 1.0);
-  //             }
-  //           }
-  //         }
-
-  //         return a->embed(problemGraph, hardware);
-  //       },
-  //       "");
 }

@@ -1,0 +1,54 @@
+/*******************************************************************************
+ * Copyright (c) 2019 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ *   Alexander J. McCaskey - initial API and implementation
+ *******************************************************************************/
+#include "py_optimizer.hpp"
+
+void bind_optimizer(py::module& m) {
+
+  // Expose Optimizer
+  py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
+      m, "Optimizer",
+      "The Optimizer interface provides optimization routine implementations "
+      "for use in algorithms.")
+      .def(
+          "optimize",
+          [&](xacc::Optimizer &o, py::function &f,
+              const int ndim) -> OptResult {
+            OptFunction opt(
+                [&](const std::vector<double> &x, std::vector<double> &grad) {
+                  auto ret = f(x);
+                  if (py::isinstance<py::tuple>(ret)) {
+                    auto result =
+                        ret.cast<std::pair<double, std::vector<double>>>();
+                    for (int i = 0; i < grad.size(); i++) {
+                      grad[i] = result.second[i];
+                    }
+                    return result.first;
+                  } else {
+                    return ret.cast<double>();
+                  }
+                },
+                ndim);
+            return o.optimize(opt);
+          },
+          "")
+      .def("setOptions",
+           (void (xacc::Optimizer::*)(const HeterogeneousMap &)) &
+               xacc::Optimizer::setOptions,
+           "");
+
+  py::class_<xacc::OptFunction>(m, "OptFunction", "")
+      .def(py::init<std::function<double(const std::vector<double> &,
+                                         std::vector<double> &)>,
+                    const int>());
+
+}

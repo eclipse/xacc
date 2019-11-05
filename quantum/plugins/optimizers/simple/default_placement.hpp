@@ -10,26 +10,31 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_COMPILER_CIRCUIT_OPTIMIZER_HPP_
-#define QUANTUM_GATE_COMPILER_CIRCUIT_OPTIMIZER_HPP_
+#ifndef QUANTUM_GATE_COMPILER_DEFAULT_PLACEMENT_HPP_
+#define QUANTUM_GATE_COMPILER_DEFAULT_PLACEMENT_HPP_
 
 #include "IRTransformation.hpp"
-#include "InstructionIterator.hpp"
-#include "OptionsProvider.hpp"
-
 namespace xacc {
 namespace quantum {
 
-class CircuitOptimizer : public IRTransformation, public OptionsProvider {
+class DefaultPlacement : public IRTransformation {
 
 public:
-  CircuitOptimizer() {}
+  DefaultPlacement() {}
   void apply(std::shared_ptr<CompositeInstruction> program,
                      const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap& options = {}) override;
-  const IRTransformationType type() const override {return IRTransformationType::Optimization;}
+                     const HeterogeneousMap& options = {}) override {
+     if (options.keyExists<std::vector<int>>("qubit-map")) {
+         auto map = options.get<std::vector<int>>("qubit-map");
+         std::vector<std::size_t> tmp;
+         for (auto& m : map) tmp.push_back(m);
+         program->mapBits(tmp);
+     }
+     return;
+  }
+  const IRTransformationType type() const override {return IRTransformationType::Placement;}
 
-  const std::string name() const override { return "circuit-optimizer"; }
+  const std::string name() const override { return "default-placement"; }
   const std::string description() const override { return ""; }
 
 

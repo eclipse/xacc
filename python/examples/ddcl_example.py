@@ -19,6 +19,10 @@ Ry(q[0], z);
 ''')
 f = xacc.getCompiled('foo')
 
+f.defaultPlacement(qpu, {'qubit-map':[0]})
+
+print(f.toString())
+# exit(0)
 # Get the DDCL Algorithm, initialize it
 # with necessary parameters
 ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,

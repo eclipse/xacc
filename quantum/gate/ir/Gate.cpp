@@ -72,7 +72,7 @@ void Gate::enable() { enabled = true; }
 const InstructionParameter Gate::getParameter(const std::size_t idx) const {
   if (idx + 1 > parameters.size()) {
     XACCLogger::instance()->error(
-        "Invalid Parameter requested from Parameterized Gate Instruction: " +
+        "Invalid Parameter requested from Parameterized Gate ("+name()+") Instruction: " +
         std::to_string(idx) + ".");
   }
 
@@ -82,7 +82,7 @@ const InstructionParameter Gate::getParameter(const std::size_t idx) const {
 void Gate::setParameter(const std::size_t idx, InstructionParameter &p) {
   if (idx + 1 > parameters.size()) {
     XACCLogger::instance()->error(
-        "Invalid Parameter requested from Parameterized Gate Instruction: " +
+        "Invalid Parameter being set in Parameterized Gate ("+name() +") Instruction: " +
         std::to_string(idx) + ".");
   }
 

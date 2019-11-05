@@ -73,23 +73,6 @@ public:
   processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                   const std::string &response) override;
 
-  std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override {
-    std::vector<std::shared_ptr<IRTransformation>> v;
-    return v;
-  }
-
-  /**
-   * Return all relevant QVMAccelerator runtime options.
-   * Users can set the api-key, execution type, and number of triels
-   * from the command line with these options.
-   */
-  OptionPairs getOptions() override {
-    OptionPairs desc {{"rigetti-shots",
-        "Provide the number of shots to execute on the QVM."}};
-    return desc;
-  }
-
   const std::string name() const override { return "rigetti-qvm"; }
 
   const std::string description() const override {

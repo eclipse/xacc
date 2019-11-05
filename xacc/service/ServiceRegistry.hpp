@@ -23,7 +23,7 @@
 #include "Compiler.hpp"
 // #include "Algorithm.hpp"
 #include "Optimizer.hpp"
-// #include "IRProvider.hpp"
+#include "IRTransformation.hpp"
 
 #include <cppmicroservices/FrameworkFactory.h>
 #include <cppmicroservices/Framework.h>

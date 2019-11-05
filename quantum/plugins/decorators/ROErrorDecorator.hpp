@@ -35,10 +35,6 @@ public:
   const std::string name() const override { return "ro-error"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc{{"ro-error-p10s", ""}};
-    return desc;
-  }
   ~ROErrorDecorator() override {}
 };
 

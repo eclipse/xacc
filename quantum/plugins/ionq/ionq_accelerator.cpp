@@ -24,22 +24,6 @@
 namespace xacc {
 namespace quantum {
 
-const std::vector<double> IonQAccelerator::getOneBitErrorRates() { return {}; }
-
-const std::vector<std::pair<std::pair<int, int>, double>>
-IonQAccelerator::getTwoBitErrorRates() {
-  // Return list of ((q1,q2),ERROR_RATE)
-  std::vector<std::pair<std::pair<int, int>, double>> twobiter;
-  return twobiter;
-}
-
-std::vector<std::shared_ptr<IRTransformation>>
-IonQAccelerator::getIRTransformations() {
-
-  std::vector<std::shared_ptr<IRTransformation>> transformations;
-  return transformations;
-}
-
 HeterogeneousMap IonQAccelerator::getProperties() {
   HeterogeneousMap m;
 

@@ -404,12 +404,18 @@ bool hasCompiler(const std::string &name) {
 }
 
 std::shared_ptr<IRTransformation>
-getIRTransformations(const std::string &name) {
+getIRTransformation(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto t = xacc::getService<IRTransformation>(name);
+
+   std::shared_ptr<IRTransformation> t;
+  if (xacc::hasService<IRTransformation>(name)) {
+    t = xacc::getService<IRTransformation>(name, false);
+  } else if (xacc::hasContributedService<IRTransformation>(name)) {
+    t = xacc::getContributedService<IRTransformation>(name, false);
+  }
   if (!t) {
     error("Invalid IRTransformation. Could not find " + name +
           " in Service Registry.");
@@ -417,6 +423,7 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
+
 const std::string translate(std::shared_ptr<CompositeInstruction> ci,
                             const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
@@ -424,17 +431,6 @@ const std::string translate(std::shared_ptr<CompositeInstruction> ci,
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }
-
-std::shared_ptr<CompositeInstruction>
-optimizeCompositeInstruction(const std::string optimizer,
-                             std::shared_ptr<CompositeInstruction> inst) {
-  auto ir = getService<IRProvider>("gate")->createIR();
-  ir->addComposite(inst);
-  auto opt = getService<IRTransformation>(optimizer);
-  auto newir = opt->transform(ir);
-  auto optF = newir->getComposites()[0];
-  return optF->enabledView();
-}
 
 bool hasCache(const std::string fileName, const std::string subdirectory) {
   auto rootPathStr = xacc::getRootPathString();

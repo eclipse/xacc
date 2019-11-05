@@ -70,8 +70,6 @@ public:
     return;
   }
 
-  std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override {return{};}
-
   void initialize(const HeterogeneousMap &params = {}) override;
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {

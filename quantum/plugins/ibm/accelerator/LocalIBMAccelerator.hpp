@@ -64,14 +64,8 @@ public:
   execute(std::shared_ptr<AcceleratorBuffer> buffer,
           const std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
 
-  std::vector<std::shared_ptr<IRTransformation>> getIRTransformations() override;
-
-  OptionPairs getOptions() override {
-    OptionPairs desc {{"local-ibm-ro-error",
-                        "Provide the p(1|0), p(0|1)."},{
-                        "u-p-depol", ""},{
-                        "cx-p-depol", ""}};
-    return desc;
+  const std::string defaultPlacementTransformation() override {
+      return "default-placement";
   }
 
   const std::string name() const override { return "local-ibm"; }
