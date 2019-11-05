@@ -85,6 +85,10 @@ public:
     xacc::error("AnnealingProgrma.mapBits not implemented");
   }
 
+  void removeDisabled() override {
+  }
+
+
   const int nRequiredBits() const override {
     return 0;
   }

@@ -22,7 +22,7 @@ namespace quantum {
 class ImprovedSamplingDecorator : public AcceleratorDecorator {
 public:
  ImprovedSamplingDecorator() = default;
- 
+
  const std::vector<std::string> configurationKeys() override {
       return {};
   }
@@ -37,10 +37,6 @@ public:
   const std::string name() const override { return "improved-sampling"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc{{"sampler-n-execs", ""}};
-    return desc;
-  }
   ~ImprovedSamplingDecorator() override {}
 };
 

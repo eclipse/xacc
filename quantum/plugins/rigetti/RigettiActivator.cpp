@@ -36,11 +36,11 @@ public:
   void Start(BundleContext context) {
     auto acc = std::make_shared<xacc::quantum::QVMAccelerator>();
     context.RegisterService<xacc::Accelerator>(acc);
-    context.RegisterService<xacc::OptionsProvider>(acc);
+    // context.RegisterService<xacc::OptionsProvider>(acc);
 
     auto c = std::make_shared<xacc::quantum::QuilCompiler>();
     context.RegisterService<xacc::Compiler>(c);
-    context.RegisterService<xacc::OptionsProvider>(c);
+    // context.RegisterService<xacc::OptionsProvider>(c);
   }
 
   /**

@@ -29,8 +29,10 @@
 
 namespace xacc {
 namespace quantum {
-
-std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
+void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
+                     const std::shared_ptr<Accelerator> accelerator,
+                     const HeterogeneousMap &options) {
+// std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
   auto embeddingAlgorithm = xacc::getService<EmbeddingAlgorithm>("cmr");
 
@@ -61,7 +63,7 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
   }
 
   // hardwareGraph->write(std::cout);
-  for (auto &function : ir->getComposites()) {
+//   for (auto &function : ir->getComposites()) {
     auto logicalGraph = function->toGraph();
     InstructionIterator it(function);
     std::set<int> nUniqueProbBits;
@@ -103,9 +105,9 @@ std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
     // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
     function->mapBits(physicalMap);
-  }
+//   }
 
-  return ir;
+  return;
 }
 
 

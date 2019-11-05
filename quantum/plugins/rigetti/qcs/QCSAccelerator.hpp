@@ -18,7 +18,9 @@
 #include "messages.hpp"
 #include <zmq.hpp>
 #include <fstream>
+#include "IRTransformation.hpp"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -50,8 +52,10 @@ protected:
   std::vector<std::pair<int, int>> _edges;
 public:
   MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
-  std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
-  bool hardwareDependent() override { return true; }
+  void apply(std::shared_ptr<CompositeInstruction> program,
+                     const std::shared_ptr<Accelerator> accelerator,
+                     const HeterogeneousMap &options = {}) override;
+  const IRTransformationType type() const override {return IRTransformationType::Placement;}
   const std::string name() const override { return "qcs-map-qubits"; }
   const std::string description() const override { return ""; }
 };
@@ -147,7 +151,12 @@ public:
     getSocketURLs();
 
     updateConfiguration(params);
+
+    auto irt = std::make_shared<MapToPhysical>(latticeEdges);
+    xacc::contributeService("qcs-map-qubits", irt);
   }
+
+  const std::string defaultPlacementTransformation() override {return "qcs-map-qubits";}
 
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {
@@ -171,15 +180,6 @@ public:
       return latticeEdges;
     }
     return std::vector<std::pair<int, int>>{};
-  }
-
-  std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override {
-    std::vector<std::shared_ptr<IRTransformation>> v;
-    if (!latticeEdges.empty()) {
-      v.push_back(std::make_shared<MapToPhysical>(latticeEdges));
-    }
-    return v;
   }
 
   const std::string name() const override { return "qcs"; }

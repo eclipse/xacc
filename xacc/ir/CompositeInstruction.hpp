@@ -80,7 +80,7 @@ public:
   virtual const int nChildren() = 0;
 
   virtual void setName(const std::string name) = 0;
-  
+
   virtual InstPtr getInstruction(const std::size_t idx) = 0;
   virtual std::vector<InstPtr> getInstructions() = 0;
   virtual void removeInstruction(const std::size_t idx) = 0;
@@ -114,7 +114,8 @@ public:
   virtual const std::set<std::size_t> uniqueBits() = 0;
 
   virtual std::shared_ptr<CompositeInstruction> enabledView() = 0;
-
+  virtual void removeDisabled() = 0;
+  
   virtual void setCoefficient(const std::complex<double> coefficient) = 0;
   virtual const std::complex<double> getCoefficient() = 0;
 

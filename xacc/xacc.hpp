@@ -19,6 +19,7 @@
 
 #include "Algorithm.hpp"
 #include "Optimizer.hpp"
+#include "IRTransformation.hpp"
 
 #include "heterogeneous.hpp"
 
@@ -234,10 +235,6 @@ void appendCache(const std::string fileName, const std::string key, T &param,
     out.close();
   }
 }
-
-std::shared_ptr<CompositeInstruction> optimizeCompositeInstruction(
-    const std::string optimizer,
-    std::shared_ptr<CompositeInstruction> CompositeInstruction);
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
 

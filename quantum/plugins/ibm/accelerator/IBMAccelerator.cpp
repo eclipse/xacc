@@ -47,34 +47,6 @@ std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
 }
 
-const std::vector<double> IBMAccelerator::getOneBitErrorRates() {
-  return {}; // chosenBackend.gateErrors;
-}
-
-const std::vector<std::pair<std::pair<int, int>, double>>
-IBMAccelerator::getTwoBitErrorRates() {
-  // Return list of ((q1,q2),ERROR_RATE)
-  std::vector<std::pair<std::pair<int, int>, double>> twobiter;
-  //   for (int i = 0; i < chosenBackend.multiQubitGates.size(); i++) {
-  //     auto mqg = chosenBackend.multiQubitGates[i];
-  //     // boost::replace_all(mqg, "CX", "");
-  //     mqg = std::regex_replace(mqg, std::regex("CX"), "");
-  //     std::vector<std::string> split;
-  //     split = xacc::split(mqg, '_'); // boost::is_any_of("_"));
-  //     twobiter.push_back({{std::stoi(split[0]), std::stoi(split[1])},
-  //                         chosenBackend.multiQubitGateErrors[i]});
-  //   }
-
-  return twobiter;
-}
-
-std::vector<std::shared_ptr<IRTransformation>>
-IBMAccelerator::getIRTransformations() {
-
-  std::vector<std::shared_ptr<IRTransformation>> transformations;
-  return transformations;
-}
-
 HeterogeneousMap IBMAccelerator::getProperties() {
   HeterogeneousMap m;
 

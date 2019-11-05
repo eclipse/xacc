@@ -10,39 +10,19 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "QCSAccelerator.hpp"
-
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
-
 #include <memory>
-#include <set>
+#include <pybind11/complex.h>
+#include <pybind11/numpy.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
+#include <pybind11/eigen.h>
+#include <pybind11/iostream.h>
+#include <pybind11/operators.h>
+#include <pybind11/functional.h>
 
-using namespace cppmicroservices;
+#include "xacc.hpp"
 
-namespace {
+namespace py = pybind11;
+using namespace xacc;
 
-/**
- */
-class US_ABI_LOCAL QCSActivator : public BundleActivator {
-
-public:
-  QCSActivator() {}
-
-  /**
-   */
-  void Start(BundleContext context) {
-    auto acc = std::make_shared<xacc::quantum::QCSAccelerator>();
-    context.RegisterService<xacc::Accelerator>(acc);
-    // context.RegisterService<xacc::OptionsProvider>(acc);
-  }
-
-  /**
-   */
-  void Stop(BundleContext /*context*/) {}
-};
-
-} // namespace
-
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(QCSActivator)
+void bind_algorithm(py::module& m);

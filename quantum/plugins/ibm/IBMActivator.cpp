@@ -47,14 +47,14 @@ public:
 #endif
     auto c = std::make_shared<xacc::quantum::OQASMCompiler>();
     context.RegisterService<xacc::Compiler>(c);
-    context.RegisterService<xacc::OptionsProvider>(c);
+    // context.RegisterService<xacc::OptionsProvider>(c);
 
     auto c2 = std::make_shared<xacc::quantum::QObjectCompiler>();
     context.RegisterService<xacc::Compiler>(c2);
 
     context.RegisterService<xacc::Accelerator>(acc);
 
-    context.RegisterService<xacc::OptionsProvider>(acc);
+    // context.RegisterService<xacc::OptionsProvider>(acc);
   }
 
   /**
