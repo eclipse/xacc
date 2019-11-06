@@ -20,6 +20,30 @@
 #include <pybind11/operators.h>
 #include <pybind11/functional.h>
 
+#include "IRTransformation.hpp"
+#include "xacc.hpp"
+
 namespace py = pybind11;
+
+using namespace xacc;
+
+class PyIRTransformation : public xacc::IRTransformation {
+public:
+  /* Inherit the constructors */
+  using IRTransformation::IRTransformation;
+
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::IRTransformation, name);
+  }
+  const std::string description() const override { return ""; }
+
+  void apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator,
+                     const HeterogeneousMap &options = {}) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::IRTransformation, apply, program, accelerator, options);
+  }
+  const IRTransformationType type() const override {
+    PYBIND11_OVERLOAD_PURE(IRTransformationType, xacc::IRTransformation, type);
+  }
+};
 
 void bind_ir(py::module& m);

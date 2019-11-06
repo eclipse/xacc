@@ -192,7 +192,7 @@ TEST(CircuitOptimizerTester, checkOptimize) {
     std::vector<double> p{0.0,0.0};
     auto fevaled = (*f)(p);
 
-    auto provider = xacc::getIRProvider("quantum");
+    // auto provider = xacc::getIRProvider("quantum");
 
     // auto ir = provider->createIR();
     // ir->addComposite(fevaled);

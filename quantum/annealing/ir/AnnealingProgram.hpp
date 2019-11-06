@@ -130,7 +130,10 @@ InstPtr getInstruction(const std::size_t idx) override {
     xacc::error("AnnealingProgram graph is undirected, cannot compute depth.");
     return 0;
   }
-
+  void clear() override {
+      instructions.clear();
+  }
+  
   const std::string persistGraph() override {
     std::stringstream s;
     toGraph()->write(s);

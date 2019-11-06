@@ -71,8 +71,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         py::return_value_policy::reference,
         "Return the Compiler of given name.");
   m.def("getIRTransformation",
-        (std::shared_ptr<xacc::IRTransformation>(*)(const std::string &)) &
-            xacc::getService<IRTransformation>,
+         &xacc::getIRTransformation,
         py::return_value_policy::reference,
         "Return the IRTransformation of given name.");
   m.def("getConnectivity",

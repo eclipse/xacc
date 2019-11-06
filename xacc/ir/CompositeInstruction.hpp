@@ -86,7 +86,8 @@ public:
   virtual void removeInstruction(const std::size_t idx) = 0;
   virtual void replaceInstruction(const std::size_t idx, InstPtr newInst) = 0;
   virtual void insertInstruction(const std::size_t idx, InstPtr newInst) = 0;
-
+  virtual void clear() = 0;
+  
   virtual void addInstruction(InstPtr instruction) = 0;
   virtual void addInstructions(std::vector<InstPtr>& instruction) = 0;
   virtual void addInstructions(const std::vector<InstPtr>& instruction) = 0;
@@ -115,7 +116,7 @@ public:
 
   virtual std::shared_ptr<CompositeInstruction> enabledView() = 0;
   virtual void removeDisabled() = 0;
-  
+
   virtual void setCoefficient(const std::complex<double> coefficient) = 0;
   virtual const std::complex<double> getCoefficient() = 0;
 

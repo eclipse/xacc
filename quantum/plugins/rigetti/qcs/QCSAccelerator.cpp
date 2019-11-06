@@ -34,6 +34,7 @@ void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
                      const HeterogeneousMap &options) {
 // std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
+  auto edges = accelerator->getConnectivity();
   auto embeddingAlgorithm = xacc::getService<EmbeddingAlgorithm>("cmr");
 
   std::map<int, int> physical2Logical, logical2Physical;

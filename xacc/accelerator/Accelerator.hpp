@@ -14,7 +14,6 @@
 #define XACC_ACCELERATOR_HPP_
 
 #include "AcceleratorBuffer.hpp"
-// #include "IRTransformation.hpp"
 #include "CompositeInstruction.hpp"
 #include "OptionsProvider.hpp"
 #include "Identifiable.hpp"
