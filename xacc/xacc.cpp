@@ -416,6 +416,7 @@ getIRTransformation(const std::string &name) {
   } else if (xacc::hasContributedService<IRTransformation>(name)) {
     t = xacc::getContributedService<IRTransformation>(name, false);
   }
+
   if (!t) {
     error("Invalid IRTransformation. Could not find " + name +
           " in Service Registry.");

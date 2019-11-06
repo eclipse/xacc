@@ -205,6 +205,9 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
+  void clear() override {
+      instructions.clear();
+  }
 
   bool hasChildren() const override { return !instructions.empty(); }
   bool expand(const HeterogeneousMap &runtimeOptions) override {

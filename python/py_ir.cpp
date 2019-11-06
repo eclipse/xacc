@@ -11,12 +11,19 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_ir.hpp"
+#include "IRTransformation.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "InstructionIterator.hpp"
 #include "py_heterogeneous_map.hpp"
 
 void bind_ir(py::module& m) {
+
+  py::enum_<xacc::IRTransformationType>(m, "IRTransformationType")
+      .value("Optimization", xacc::IRTransformationType::Optimization)
+      .value("Placement", xacc::IRTransformationType::Placement)
+      .value("ErrorCorrection", xacc::IRTransformationType::ErrorCorrection)
+      .export_values();
 
   py::class_<xacc::InstructionParameter>(
       m, "InstructionParameter",
@@ -74,7 +81,7 @@ void bind_ir(py::module& m) {
               xacc::CompositeInstruction::addInstructions,
           "")
       .def("addInstruction", &xacc::CompositeInstruction::addInstruction, "")
-
+      .def("clear", &xacc::CompositeInstruction::clear, "")
       .def("addVariable", &xacc::CompositeInstruction::addVariable, "")
       .def("addVariables",
            (void (xacc::CompositeInstruction::*)(
@@ -175,8 +182,9 @@ void bind_ir(py::module& m) {
       .def("hasNext", &xacc::InstructionIterator::hasNext, "")
       .def("next", &xacc::InstructionIterator::next, "");
 
-  py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>>(
+  py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>, PyIRTransformation>(
       m, "IRTransformation", "")
+      .def(py::init<>())
       .def(
           "apply",
           [](IRTransformation &t, std::shared_ptr<CompositeInstruction> k,
@@ -188,7 +196,7 @@ void bind_ir(py::module& m) {
               mpark::visit(vis, item.second);
             }
             t.apply(k, acc, m);
-          },
+          },  py::arg("k"), py::arg("acc"), py::arg("options") = PyHeterogeneousMap(),
           "");
 
 }
