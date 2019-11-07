@@ -20,7 +20,7 @@ f = xacc.getCompiled('foo')
 
 # Run the python contributed IRTransformation that uses qiskit
 optimizer = xacc.getIRTransformation('qiskit-cx-cancellation')
-optimizer.apply(f, qpu, {})
+optimizer.apply(f, None, {})
 
 # should have 4 instructions, not 6
 assert(4 == f.nInstructions())
