@@ -90,6 +90,14 @@ The following publications describe XACC or experiments leveraging the it.
 [6] `Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331>`_
 
 
+.. toctree::
+   :caption: API Reference
+   :maxdepth: 2
+
+   api/api-index.rst
+
+
+
 Indices and tables
 ==================
 
