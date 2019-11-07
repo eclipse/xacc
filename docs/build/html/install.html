@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; XACC 0.0.1 documentation</title>
+  <title>Installation &mdash; XACC 1.0.0 documentation</title>
   
 
   
@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Architecture" href="arch.html" />
+    <link rel="next" title="XACC Basics" href="basics.html" />
     <link rel="prev" title="Welcome to XACC’s documentation!" href="index.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +60,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -85,20 +87,16 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#building-xacc">Building XACC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ubuntu-16-04-prerequisites">Ubuntu 16.04 Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ubuntu-18-04-prerequisites">Ubuntu 18.04 Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#centos-7-prerequisites">Centos 7 Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fedora-30-prerequisites">Fedora 30 Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mac-os-x-prerequisites">Mac OS X Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-xacc">Build XACC</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="arch.html">Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials.html">XACC Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apps.html">Applications Built on XACC</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/api-index.html">XACC Framework API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-quantum-gate-model-api">XACC Quantum Gate Model API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/api-index.html#xacc-aqc-model-api">XACC AQC Model API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">XACC Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
 </ul>
 
             
@@ -165,79 +163,96 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>This section provide guidelines for installing XACC and its TPLs.</p>
-<div class="section" id="pre-requisites">
-<h2>Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h2>
-<p>The following software is required before building XACC:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="51%" />
-<col width="26%" />
-<col width="23%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Packages</th>
-<th class="head">Dependency</th>
-<th class="head">Version</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>C++11 Compiler</td>
-<td>Required</td>
-<td>See below</td>
-</tr>
-<tr class="row-odd"><td>OpenSSL</td>
-<td>Required</td>
-<td>1.0</td>
-</tr>
-<tr class="row-even"><td>CMake</td>
-<td>Required</td>
-<td>3.2+</td>
-</tr>
-</tbody>
-</table>
-<p>Note that you must have a C++11 compliant compiler. If you prefer <code class="docutils literal notranslate"><span class="pre">gcc/g++</span></code>,
-it is recommended that you use at least version 5.0 and up. Using <code class="docutils literal notranslate"><span class="pre">[4.8,5)</span></code> will
-cause XACC to skip building and installing Antlr, which is required for most XACC
-Compiler extensions.</p>
-<p>The other dependencies are relatively easy to install on various operating
-systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ (macosx) brew/port install cmake openssl
-$ (fedora) dnf install cmake openssl-devel
-$ (ubuntu) apt-get install cmake libssl-dev
+<p>Note that you must have a C++14 compliant compiler and a recent version of CMake (version 3.12+). We
+recommend installing with the Python API (although you may choose not to). This discussion will
+describe the build process with the Python API enabled. For this you will need a Python 3 executable and
+development install. To interact with remote QPUs, you will need CURL with OpenSSL development
+headers and libraries.</p>
+<div class="section" id="ubuntu-16-04-prerequisites">
+<h2>Ubuntu 16.04 Prerequisites<a class="headerlink" href="#ubuntu-16-04-prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Here we will demonstrate installing from a bare Ubuntu install using GCC 8. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+We install libunwind-dev which is also optional, but provides verbose stack-trace printing
+upon execution error.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get update <span class="o">&amp;&amp;</span> sudo apt-get install -y software-properties-common
+$ sudo add-apt-repository ppa:ubuntu-toolchain-r/test <span class="o">&amp;&amp;</span> sudo apt-get update
+$ sudo apt-get -y install gcc-8 g++-8 git libcurl4-openssl-dev python3 libunwind-dev <span class="se">\</span>
+         libpython3-dev python3-pip libblas-dev liblapack-dev
+$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 <span class="m">50</span>
+$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 <span class="m">50</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="building-xacc">
-<h2>Building XACC<a class="headerlink" href="#building-xacc" title="Permalink to this headline">¶</a></h2>
-<p>Clone the XACC repository:</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/eclipse/xacc
+<div class="section" id="ubuntu-18-04-prerequisites">
+<h2>Ubuntu 18.04 Prerequisites<a class="headerlink" href="#ubuntu-18-04-prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Here we will demonstrate installing from a bare Ubuntu install using GCC 7 (default on 18.04). We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+We install libunwind-dev which is also optional, but provides verbose stack-trace printing
+upon execution error.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get update
+$ sudo apt-get -y install gcc g++ git libcurl4-openssl-dev python3 libunwind-dev <span class="se">\</span>
+         libpython3-dev python3-pip libblas-dev liblapack-dev
 </pre></div>
 </div>
-<p>Note you must pass the <code class="docutils literal notranslate"><span class="pre">--recursive</span></code> flag. If you don’t you must run
-<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span></code>.</p>
-<p>XACC requires CMake 3.2+. Run the following to
-configure and build XACC:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd xacc &amp;&amp; mkdir build &amp;&amp; cd build
-$ cmake ..
-$ make install
+</div>
+<div class="section" id="centos-7-prerequisites">
+<h2>Centos 7 Prerequisites<a class="headerlink" href="#centos-7-prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Here we will demonstrate installing from a bare Centos 7 install using GCC 8. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo yum install libcurl-devel python3-devel git centos-release-scl make <span class="se">\</span>
+       devtoolset-8-gcc devtoolset-8-gcc-c++ blas-devel lapack-devel
+$ scl <span class="nb">enable</span> devtoolset-8 -- bash <span class="o">[</span> you might put this in your .bashrc <span class="o">]</span>
 </pre></div>
 </div>
-<p>This will build and install XACC to <code class="docutils literal notranslate"><span class="pre">$HOME/.xacc</span></code> by default. If you would
-like to install XACC somewhere else, replace the above <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command with the following</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
+</div>
+<div class="section" id="fedora-30-prerequisites">
+<h2>Fedora 30 Prerequisites<a class="headerlink" href="#fedora-30-prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Here we will demonstrate installing from a bare Fedora 30 install using GCC 9. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo dnf install python3-devel libcurl-devel git g++ gcc make blas-devel lapack-devel
+$ sudo python3 -m pip install cmake
 </pre></div>
 </div>
-<p>You can also build XACC with Python support:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ export PY_INC_DIR=$(python -c &quot;import sysconfig; print(sysconfig.get_paths()[&#39;platinclude&#39;])&quot;)
-$ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
-$ make install
+</div>
+<div class="section" id="mac-os-x-prerequisites">
+<h2>Mac OS X Prerequisites<a class="headerlink" href="#mac-os-x-prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Ensure that you have XCode command utilities installed. A common issue seen is missing
+standard includes like <cite>wchar.h</cite> and others. See <a class="reference external" href="https://stackoverflow.com/a/52530212">here</a>
+for proper XCode install and configuring to address these types of issues. Here we assume you
+have Homebrew installed.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ brew install python3 openssl curl
 </pre></div>
 </div>
-<p>To build with tests</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_BUILD_TESTS=TRUE
-$ make install
-$ ctest
+</div>
+<div class="section" id="build-xacc">
+<h2>Build XACC<a class="headerlink" href="#build-xacc" title="Permalink to this headline">¶</a></h2>
+<p>The best way to install a recent version of CMake is through Python Pip.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo python3 -m pip install cmake
+</pre></div>
+</div>
+<p>Now clone and build XACC</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/eclipse/xacc
+$ <span class="nb">cd</span> xacc <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+<span class="o">[</span> note tests and examples are optional <span class="o">]</span>
+$ cmake .. -DXACC_BUILD_TESTS<span class="o">=</span>TRUE -DXACC_BUILD_EXAMPLES<span class="o">=</span>TRUE
+$ make -j<span class="k">$(</span>nproc --all<span class="k">)</span> install
+<span class="o">[</span> run tests with <span class="o">]</span>
+$ ctest --output-on-failure
+<span class="o">[</span> some examples executables are in build/quantum/examples <span class="o">]</span>
+$ quantum/examples/base_api/bell_quil_ibm_local
+</pre></div>
+</div>
+<p>You can run Python examples as well</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span> you may also want to add this to your .bashrc <span class="o">]</span>
+$ <span class="nb">export</span> PYTHONPATH:<span class="nv">$PYTHONPATH</span>:<span class="nv">$HOME</span>/.xacc
+$ python3 ../python/examples/ddcl_example.py
+</pre></div>
+</div>
+<p>Most users build and install the TNQVM Accelerator</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/tnqvm
+$ <span class="nb">cd</span> tnqvm <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DXACC_DIR<span class="o">=</span><span class="nv">$HOME</span>/.xacc
+$ make -j<span class="k">$(</span>nproc --all<span class="k">)</span> install
 </pre></div>
 </div>
 </div>
@@ -251,10 +266,10 @@ $ ctest
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="arch.html" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="basics.html" class="btn btn-neutral float-right" title="XACC Basics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to XACC’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to XACC’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -263,7 +278,7 @@ $ ctest
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, Alex McCaskey.
+        &copy; Copyright 2019, Alex McCaskey
 
     </p>
   </div>
@@ -280,33 +295,16 @@ $ ctest
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.0.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
