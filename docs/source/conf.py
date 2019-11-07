@@ -24,8 +24,8 @@ import subprocess
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if on_rtd:
-    subprocess.call('cd ../doxygen; doxygen Doxyfile.cmake', shell=True)
+#if on_rtd:
+#    subprocess.call('cd ../doxygen; doxygen Doxyfile.cmake', shell=True)
 
 
 # -- General configuration ------------------------------------------------
@@ -40,7 +40,7 @@ if on_rtd:
 extensions = ['sphinx.ext.mathjax',
     'sphinx.ext.githubpages', 'breathe']
 
-breathe_projects = {'XACC': '../doxygen/xml'}
+# breathe_projects = {'XACC': '../doxygen/xml'}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
