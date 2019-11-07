@@ -1,11 +1,38 @@
 .. meta::
     :scope: doxygen
 
-Architecture
-=================
-Here we describe the main abstractions defined by XACC to enable quantum-classical
-programming in a hardware and language independent manner.
+Concepts
+========
+Here we describe the main concepts or abstractions defined by XACC that enable
+hardware agnostic quantum-classical programming, compilation, and execution.
 
+Layered Architecture
+--------------------
+The architecture of the XACC programming framework exposes a series of interfaces for hardware-agnostic quantum programming, compilation, and execution.
+As shown in the figure below, the XACC framework uses a layered software architecture based upon the common
+compiler decomposition of a front-end, middle-end, and back-end layers. Each layer exposes different extension
+points, or interfaces, for implementing a variety of specific use cases. XACC currently includes interfaces for quantum language compilers, instructions, hardware devices (also referred to as accelerators), compiler optimizations (alternatively, passes), observable measurements, and algorithms.
+%%
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\columnwidth]{figures/layers_v2.png}
+% \missingfigure[figwidth=\columnwidth]{layers}
+\caption{XACC is composed of three high-level layers - the front-end, middle-end, and back-end. The overall workflow starts with quantum kernel programming at the frontend, followed by IR generation and processing, and ends with back-end execution. Each of these layers exposes a variety of critical extension points.
+}
+\label{fig:layered}
+\end{figure}
+%%
+%\subsection{Overview of XACC Layers}
+\par
+The front-end maps quantum code expressions, i.e. source code, into an XACC intermediate representation (IR) suitable for transformations and analysis by the middle layer. More specifically, the front-end layer maps source strings expressing a \emph{quantum kernel} to an IR instance. For example, the XACC front-end may be extended to parse an input source code written in the IBM OpenQASM \cite{openqasm} dialect and enable translation into the XACC IR. Similar functionality is implemented for the Rigetti Quil \cite{quil} dialect and higher-level languages. As a framework, XACC provides an extensible quantum code transpilation or compilation interface that may be tailored to parse many different languages into a common IR for subsequent manipulation.
+%in an extensible and modular fashion (see Sec. \ref{sec:compilers}).
+\par
+The middle layer exposes an IR object model while maintaining an application programming interface (API) for quantum programs that is agnostic to the underlying hardware. The structure of the IR provides an integration mechanism generalizing disparate programming approaches with multiple quantum devices. A critical middle layer concept is the IR transformation, which exposes a framework extension point for performing standard quantum compilation routines, including circuit synthesis, as well as the addition of error mitigation and correction techniques into the logical design.
+\par
+The back-end layer exposes an abstract quantum computer interface that accepts instances of the IR and executes them on a targeted hardware device (see Sec. \ref{sec:acc}). The back-end layer provides further extension points mapping the IR to hardware-specific instruction sets and the low-level controls used to execute kernels. The former is performed by taking advantage of the middle-end's IR transformation infrastructure. By using a common interface, quantum program execution via the back-end layer is easily extensible to new hardware. % Extensibility of the back-end layer uses a common interface to execute programs directly on quantum hardware.
+\par
+% This layered architecture is that it promotes an overall separation of concerns that enables management of the complexity of applying quantum programming methods across the high and low-level language dialects native to specific quantum computing devices.
+With the layered architecture, XACC efficiently maps high-level programming languages to low-level hardware instruction sets. Where a direct mapping of $N$ languages into $M$ quantum devices would require $NM$ separate language-to-hardware mappings, XACC reduces the amount of work necessary to $N+M$ separate mapping implementations. The IR is the central construct connecting the front-end and back-end layers through a set of transformations.
 Intermediate Representation
 ----------------------------
 In order to promote interoperability and programmability across the wide range of
