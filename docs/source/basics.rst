@@ -48,11 +48,11 @@ in Python
 
 Intermediate Representation, Kernels, and Compilers
 ----------------------------------------------------
-Above we mentioned a `program` variable but did not detail how it was created. This instances
-is represented in XACC as a `CompositeInstruction`. The creation of `Instruction`s and
-`CompositeInstruction`s is demonstrated here. First, we create this instances via an
-implementation of the `IRProvider`, specifically a 3 instruction circuit with one
-parameterized `Ry` on a variable `theta`.
+Above we mentioned a ``program`` variable but did not detail how it was created. This instances
+is represented in XACC as a ``CompositeInstruction``. The creation of ``Instruction``s and
+``CompositeInstruction``s is demonstrated here. First, we create this instances via an
+implementation of the ``IRProvider``, specifically a 3 instruction circuit with one
+parameterized ``Ry`` on a variable ``theta``.
 
 .. code:: cpp
 
@@ -80,8 +80,8 @@ in Python
 
 We could also create IR through textual source code representations in a language
 that is available to the framework. Availability here implies that there exists
-a `Compiler` implementation for the language being used. `Compilers` take kernel
-source strings and produce IR (one or many `CompositeInstruction`s). Here we demonstrate
+a ``Compiler`` implementation for the language being used. ``Compilers`` take kernel
+source strings and produce IR (one or many ``CompositeInstruction``s). Here we demonstrate
 the same circuit as above, but using a Quil kernel
 
 .. code:: cpp
@@ -132,10 +132,10 @@ in Python
    ansatz = ir.getComposite('ansatz')
    x0x1 = ir.getComposite('X0X1')
 
-Here, `x0x1` is a `CompositeInstruction` that can be passed to `Accelerator::execute()` for
+Here, ``x0x1`` is a ``CompositeInstruction`` that can be passed to ``Accelerator::execute()`` for
 backend execution.
 
-Next we demonstrate how one might leverate `IRTransformation` to perform general optimizations
+Next we demonstrate how one might leverate ``IRTransformation`` to perform general optimizations
 on IR instances.
 
 .. code:: cpp
@@ -187,11 +187,11 @@ in Python
    print(f.toString())
 
 
-`Observable` Usage
+``Observable`` Usage
 ------------------
-The `Observable` concept in XACC dictates measurements to be performed
-on unmeasured an `CompositeInstruction`. XACC provides `pauli` and `fermion`
-`Observable` implementations. Below we demonstrate how one might create these objects.
+The ``Observable`` concept in XACC dictates measurements to be performed
+on unmeasured an ``CompositeInstruction``. XACC provides ``pauli`` and ``fermion``
+``Observable`` implementations. Below we demonstrate how one might create these objects.
 
 .. code:: cpp
 
@@ -226,13 +226,13 @@ in Python
    jw = xacc.getObservableTransform('jordan-wigner')
    spin = jw.transform(fermion)
 
-`Accelerator` Usage
+``Accelerator`` Usage
 -------------------
-The `Accelerator` is the primary interface to backend quantum computers and simulators for XACC.
+The ``Accelerator`` is the primary interface to backend quantum computers and simulators for XACC.
 The can be initialized with a heterogeneous map of input parameters, expose qubit connectivity information,
-and implement execution capabilities given a valid `AcceleratorBuffer` and `CompositeInstruction`.
-Here we demonstrate getting reference to an `Accelerator` and using it to execute a simple bell state.
-Note this is a full example, that leverages the `xasm` compiler as well as requisite C++ framework
+and implement execution capabilities given a valid ``AcceleratorBuffer`` and ``CompositeInstruction``.
+Here we demonstrate getting reference to an ``Accelerator`` and using it to execute a simple bell state.
+Note this is a full example, that leverages the ``xasm`` compiler as well as requisite C++ framework
 initialization and finalization.
 
 .. code:: cpp
@@ -286,13 +286,13 @@ in Python
    # usefule for executing many circuits with one remote qpu call
    # accelerator.execute(buffer, ir.getComposites())
 
-`Optimizer` Usage
+``Optimizer`` Usage
 -----------------
 This abstraction is meant for the injection of general classical multi-variate function
 optimization routines. XACC provides implementations leveraging NLOpt and MLPack C++ libraries.
-`Optimizer`s expose an `optimize()` method that takes as input an `OptFunction`, which serves as
+``Optimizer``s expose an ``optimize()`` method that takes as input an ``OptFunction``, which serves as
 a thin wrapper for functor-like objects exposing a specific argument structure (must take as first
-arg a `vector<double>` representing current iterate's parameters, and another one representing the mutable
+arg a ``vector<double>`` representing current iterate's parameters, and another one representing the mutable
 gradient vector). Below is a demonstration of how one might use this utility:
 
 .. code:: cpp
@@ -329,22 +329,23 @@ or in Python
    optimizer = xacc.getOptimizer('mlpack',{'mlpack-optimizer':'l-bfgs'})
    opt_val, opt_params = optimizer.optimize(rosen_with_grad,2)
 
-`xacc::qasm' Usage
+``xacc::qasm`` Usage
 ------------------
 To improve programming efficiency, readability, and utility of the quantum kernel string
-compilation, XACC exposes a `qasm()` function. This function takes as input an enhanced quantum
+compilation, XACC exposes a ``qasm()`` function. This function takes as input an enhanced quantum
 kernel source string syntax and compiles it to XACC IR. This source string is *enhanced* in that
 it requires that extra metadata be present in order to adequately compile the quantum code.
 Specifically, the source string must contain the following key words:
-* a single *.compiler NAME*, to indicate which XACC compiler implementation to use.
-* one or many *.circuit NAME* calls to give the created CompositeInstruction (circuit) a name.
-* one *.parameters PARAM 1, PARAM 2, .., PARAM N* for each parameterized circuit to tell the Compiler the names of the parameters.
-* A *.qbit NAME* optional keyword can be provided when the source code itself makes reference to the `qbit` or `AcceleratorBuffer`
+
+- a single *.compiler NAME*, to indicate which XACC compiler implementation to use.
+- one or many *.circuit NAME* calls to give the created CompositeInstruction (circuit) a name.
+- one *.parameters PARAM 1, PARAM 2, .., PARAM N* for each parameterized circuit to tell the Compiler the names of the parameters.
+- A *.qbit NAME* optional keyword can be provided when the source code itself makes reference to the ``qbit`` or ``AcceleratorBuffer``
 
 Running this command with the appropriately provided keywords will compile the source string to XACC IR and store it an
 internal compilation database (standard map of CompositeInstruction names to CompositeInstructions), and users
-can get reference to the individual CompositeInstructions via an exposed `getCompiled()` XACC API call. The
-code below demonstrates how one would use `qasm()` and its overall utility.
+can get reference to the individual CompositeInstructions via an exposed ``getCompiled()`` XACC API call. The
+code below demonstrates how one would use ``qasm()`` and its overall utility.
 
 .. code:: cpp
 
