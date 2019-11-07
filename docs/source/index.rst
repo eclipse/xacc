@@ -72,7 +72,7 @@ You can ask questions by creating a new issue with the question tag.
 
    install
    basics
-   
+
 Publications
 ------------
 The following publications describe XACC or experiments leveraging the it.
@@ -88,14 +88,6 @@ The following publications describe XACC or experiments leveraging the it.
 [5] `Cloud Quantum Computing of an Atomic Nucleus <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_
 
 [6] `Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331>`_
-
-
-.. toctree::
-   :caption: API Reference
-   :maxdepth: 2
-
-   api/api-index.rst
-
 
 
 Indices and tables
