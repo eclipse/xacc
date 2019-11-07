@@ -14,7 +14,7 @@ install BLAS and LAPACK as well, which is required to build some optional simula
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
 upon execution error.
 
-.. code::
+.. code:: bash
 
    $ sudo apt-get update && sudo apt-get install -y software-properties-common
    $ sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt-get update
@@ -30,7 +30,7 @@ install BLAS and LAPACK as well, which is required to build some optional simula
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
 upon execution error.
 
-.. code::
+.. code:: bash
 
    $ sudo apt-get update
    $ sudo apt-get -y install gcc g++ git libcurl4-openssl-dev python3 libunwind-dev \
@@ -41,7 +41,7 @@ Centos 7 Prerequisites
 Here we will demonstrate installing from a bare Centos 7 install using GCC 8. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 
-.. code::
+.. code:: bash
 
    $ sudo yum install libcurl-devel python3-devel git centos-release-scl make \
           devtoolset-8-gcc devtoolset-8-gcc-c++ blas-devel lapack-devel
@@ -52,7 +52,7 @@ Fedora 30 Prerequisites
 Here we will demonstrate installing from a bare Fedora 30 install using GCC 9. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 
-.. code::
+.. code:: bash
 
    $ sudo dnf install python3-devel libcurl-devel git g++ gcc make blas-devel lapack-devel
    $ sudo python3 -m pip install cmake
@@ -64,7 +64,7 @@ standard includes like `wchar.h` and others. See `here <https://stackoverflow.co
 for proper XCode install and configuring to address these types of issues. Here we assume you
 have Homebrew installed.
 
-.. code::
+.. code:: bash
 
    $ brew install python3 openssl curl
 
@@ -72,13 +72,13 @@ Build XACC
 ----------
 The best way to install a recent version of CMake is through Python Pip.
 
-.. code::
+.. code:: bash
 
    $ sudo python3 -m pip install cmake
 
 Now clone and build XACC
 
-.. code::
+.. code:: bash
 
    $ git clone https://github.com/eclipse/xacc
    $ cd xacc && mkdir build && cd build
@@ -92,7 +92,7 @@ Now clone and build XACC
 
 You can run Python examples as well
 
-.. code::
+.. code:: bash
 
    [ you may also want to add this to your .bashrc ]
    $ export PYTHONPATH:$PYTHONPATH:$HOME/.xacc
@@ -100,7 +100,7 @@ You can run Python examples as well
 
 Most users build and install the TNQVM Accelerator
 
-.. code::
+.. code:: bash
 
    $ git clone https://github.com/ornl-qci/tnqvm
    $ cd tnqvm && mkdir build && cd build

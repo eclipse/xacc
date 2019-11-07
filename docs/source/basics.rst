@@ -5,20 +5,20 @@ Here we demonstrate leveraging the XACC framework for various
 quantum-classical programming tasks. We provide examples in both
 C++ and Python.
 
-`AcceleratorBuffer` Usage
+``AcceleratorBuffer`` Usage
 -------------------------
-The `AcceleratorBuffer` represents a register of qubits. Programmers allocate
+The ``AcceleratorBuffer`` represents a register of qubits. Programmers allocate
 this register of a certain size, and pass it by reference to all execution tasks.
 These execution tasks are carried out by concrete instances of the `Accelerator`
 interface, and these instances are responsible for persisting information to the
 provided buffer reference. This ensures programmers have access to all execution results
 and metadata upon execution completion.
 
-Programmers can allocate a buffer through the `xacc::qalloc(const int n)` (`xacc.qalloc(int)` in Python) call.
+Programmers can allocate a buffer through the ``xacc::qalloc(const int n)`` (``xacc.qalloc(int)`` in Python) call.
 After execution, measurement results can be queried as well as backend-specific
-execution metadata. Below demonstrate some basic usage of the `AcceleratorBuffer`
+execution metadata. Below demonstrate some basic usage of the ``AcceleratorBuffer``
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    ...
@@ -33,7 +33,7 @@ execution metadata. Below demonstrate some basic usage of the `AcceleratorBuffer
 
 in Python
 
-.. code::
+.. code:: python
 
    import xacc
    ...
@@ -54,7 +54,7 @@ is represented in XACC as a `CompositeInstruction`. The creation of `Instruction
 implementation of the `IRProvider`, specifically a 3 instruction circuit with one
 parameterized `Ry` on a variable `theta`.
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    ...
@@ -67,7 +67,7 @@ parameterized `Ry` on a variable `theta`.
 
 in Python
 
-.. code::
+.. code::python
 
    import xacc
    ...
@@ -84,7 +84,7 @@ a `Compiler` implementation for the language being used. `Compilers` take kernel
 source strings and produce IR (one or many `CompositeInstruction`s). Here we demonstrate
 the same circuit as above, but using a Quil kernel
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    ...
@@ -109,7 +109,7 @@ the same circuit as above, but using a Quil kernel
 
 in Python
 
-.. code::
+.. code:: python
 
    import xacc
    ...
@@ -138,7 +138,7 @@ backend execution.
 Next we demonstrate how one might leverate `IRTransformation` to perform general optimizations
 on IR instances.
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    ...
@@ -161,7 +161,7 @@ on IR instances.
 
 in Python
 
-.. code::
+.. code:: python
 
    import xacc
    ...
@@ -193,7 +193,7 @@ The `Observable` concept in XACC dictates measurements to be performed
 on unmeasured an `CompositeInstruction`. XACC provides `pauli` and `fermion`
 `Observable` implementations. Below we demonstrate how one might create these objects.
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    #include "xacc_observable.hpp"
@@ -212,7 +212,7 @@ on unmeasured an `CompositeInstruction`. XACC provides `pauli` and `fermion`
 
 in Python
 
-.. code::
+.. code:: python
 
    import xacc
    ...
@@ -235,7 +235,7 @@ Here we demonstrate getting reference to an `Accelerator` and using it to execut
 Note this is a full example, that leverages the `xasm` compiler as well as requisite C++ framework
 initialization and finalization.
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    int main(int argc, char **argv) {
@@ -267,7 +267,7 @@ initialization and finalization.
 
 in Python
 
-.. code::
+.. code:: python
 
    import xacc
 
@@ -295,7 +295,7 @@ a thin wrapper for functor-like objects exposing a specific argument structure (
 arg a `vector<double>` representing current iterate's parameters, and another one representing the mutable
 gradient vector). Below is a demonstration of how one might use this utility:
 
-.. code::
+.. code:: cpp
 
    auto optimizer =
       xacc::getOptimizer("nlopt");
@@ -319,7 +319,7 @@ gradient vector). Below is a demonstration of how one might use this utility:
 
 or in Python
 
-.. code::
+.. code:: python
 
    def rosen_with_grad(x):
        g = [-2*(1-x[0]) + 400.*(x[0]**3 - x[1]*x[0]), 200 * (x[1] - x[0]**2)]
@@ -346,7 +346,7 @@ internal compilation database (standard map of CompositeInstruction names to Com
 can get reference to the individual CompositeInstructions via an exposed `getCompiled()` XACC API call. The
 code below demonstrates how one would use `qasm()` and its overall utility.
 
-.. code::
+.. code:: cpp
 
    #include "xacc.hpp"
    ...
@@ -385,7 +385,7 @@ code below demonstrates how one would use `qasm()` and its overall utility.
 
 or in Python
 
-.. code::
+.. code:: python
 
    import xacc
    ...
