@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Benchmarking &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">XACC Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Benchmarking</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/obsolete/bench.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="benchmarking">
+<h1>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this headline">¶</a></h1>
+<p>The language and hardware agnostic design of the XACC framework allows for the capability to run
+general benchmarking experiments on various quantum computers and simulators. To perform benchmarking experiments,
+XACC implements an additional benchmark framework that uses the XACC Python API to allow for the easy design and execution
+of quantum computer benchmarking experiments. The benchmark framework is enabled automatically when XACC is installed with Python support.</p>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<p>The XACC Benchmark framework is implemented using the Python-based Service-Oriented Component Model (SOCM), iPOPO, and
+is designed to be modular and extensible. An experimenter can easily develop and install iPOPO ‘bundles’
+that implement various quantum algorithms to be executed through XACC on the desired quantum processor.</p>
+<p>To install an iPOPO bundle to the XACC benchmark framework, simply copy the bundle to the <cite>py-plugins</cite> directory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cp path/to/bundle.py $(XACC_DIR)/py-plugins
+</pre></div>
+</div>
+<p>If XACC was installed using <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the bundles can be installed using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cp path/to/bundle.py $(python3 -m xacc -L)/py-plugins
+</pre></div>
+</div>
+</div>
+<div class="section" id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h2>
+<p>The iPOPO algorithm bundles used by the benchmark framework are implemented as concrete Python <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> subclasses.
+The base <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> class abstracts an <code class="docutils literal notranslate"><span class="pre">execute</span></code> method where the algorithm is to be implemented using the XACC Python API.
+The <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> class also abstracts an <code class="docutils literal notranslate"><span class="pre">analyze</span></code> method where the results of the execution can be processed and manipulated,
+such as generating a <cite>.csv</cite> file containing the significant results.</p>
+<p>See below for the implementation of the abstract <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> class.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABC</span>
+<span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+
+   <span class="c1"># Override this `execute` method to implement the algorithm</span>
+   <span class="c1"># @input inputParams</span>
+   <span class="c1"># @return buffer</span>
+   <span class="nd">@abstractmethod</span>
+   <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputParams</span><span class="p">):</span>
+      <span class="k">pass</span>
+
+   <span class="c1"># Override this `analyze` method called to manipulate result data from executing the algorithm</span>
+   <span class="c1"># @input buffer</span>
+   <span class="c1"># @input inputParams</span>
+   <span class="nd">@abstractmethod</span>
+   <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">inputParams</span><span class="p">):</span>
+      <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="input">
+<h2>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h2>
+<p>The benchmark framework is executed using an input configuration file (<cite>.ini</cite> extension) that contains all
+of the relevant settings and configurations required to run the quantum algorithms and experiments for benchmarking quantum computers.
+These input files specify information such as which quantum accelerator to target (simulated or physical hardware),
+which quantum algorithm to execute, and the quantum kernel to be used in the computation.</p>
+<p>For an example of an input file that calculates the energy of the H<sub>2</sub> molecule at specific angles, see below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">XACC</span><span class="p">]</span>
+<span class="n">accelerator</span><span class="p">:</span> <span class="n">tnqvm</span>
+<span class="n">algorithm</span><span class="p">:</span> <span class="n">vqe</span><span class="o">-</span><span class="n">energy</span>
+
+<span class="p">[</span><span class="n">VQE</span><span class="p">]</span>
+<span class="n">initial</span><span class="o">-</span><span class="n">parameters</span><span class="p">:</span> <span class="mf">3.14184629521041</span><span class="p">,</span> <span class="mf">1.513865908232456</span>
+
+<span class="p">[</span><span class="n">Ansatz</span><span class="p">]</span>
+<span class="n">name</span><span class="p">:</span> <span class="n">uccsd</span>
+<span class="n">n</span><span class="o">-</span><span class="n">electrons</span><span class="p">:</span> <span class="mi">2</span>
+
+<span class="p">[</span><span class="n">Hamiltonian</span><span class="p">]</span>
+<span class="n">hamiltonian</span><span class="o">-</span><span class="n">generator</span><span class="p">:</span> <span class="n">xaccKernelH2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="execution">
+<h2>Execution<a class="headerlink" href="#execution" title="Permalink to this headline">¶</a></h2>
+<p>The benchmark framework is executed through the command line using the <code class="docutils literal notranslate"><span class="pre">--benchmark</span></code> command.
+If XACC has been installed with Python support, an example of an execution of a benchmark experiment looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m xacc --benchmark example_input.ini
+</pre></div>
+</div>
+<p>Running XACC with a properly configured input file will initialize XACC and the benchmarking framework, read the input file, and then execute the algorithm
+using the XACC configurations and parameters specified in the input. The benchmarking framework will then output a <cite>.ab</cite> file containing the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>,
+which stores the results of the execution on the QPU.</p>
+<div class="section" id="quantum-chemistry-benchmarking">
+<h3>Quantum Chemistry Benchmarking<a class="headerlink" href="#quantum-chemistry-benchmarking" title="Permalink to this headline">¶</a></h3>
+<p>The input file above is an example how the XACC benchmark framework can be used to run quantum chemistry benchmarking experiments on quantum computers.
+After executing the VQE algorithm in a quantum chemistry experiment such as this, two output files are generated.
+The first is the standard <cite>.ab</cite> extension file which contains the AcceleratorBuffer that stores all of the results obtained from the QPU.
+The second is a <cite>.csv</cite> extension file containing all of the unique parameters and calculated energies of the VQE iterations.</p>
+</div>
+<div class="section" id="hamiltonian-generators">
+<h3>Hamiltonian Generators<a class="headerlink" href="#hamiltonian-generators" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">hamiltonian-generator</span></code> configuration in the Hamiltonian section of the example input file refers to a concrete <code class="docutils literal notranslate"><span class="pre">HamiltonianGenerator</span></code> Python subclass implemented as an iPOPO bundle that
+is used to generate a <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code>, modeling a spin Hamiltonian for use in XACC-VQE. The <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> can be generated in a number of ways,
+including (but not limited to) compiling an XACC quantum kernel source string, returning a hard-coded XACC-VQE <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code> Python class expression, compiling an OpenFermion <code class="docutils literal notranslate"><span class="pre">FermionOperator</span></code>,
+or utilizing the XACC-VQE method <code class="docutils literal notranslate"><span class="pre">QubitOperator2XACC</span></code> to compile an OpenFermion <code class="docutils literal notranslate"><span class="pre">QubitOperator</span></code> to <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">xaccKernelH2</span></code> <code class="docutils literal notranslate"><span class="pre">HamiltonianGenerator</span></code> used in this example input file compiles an XACC quantum kernel source string to the <code class="docutils literal notranslate"><span class="pre">PauliOperator</span></code>, and its abstract <code class="docutils literal notranslate"><span class="pre">generate</span></code> method is shown below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputParams</span><span class="p">):</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;__qpu__ kernel() {</span>
+<span class="s2">        0.7080240949826064</span>
+<span class="s2">        -1.248846801817026 0 1 0 0</span>
+<span class="s2">        -1.248846801817026 1 1 1 0</span>
+<span class="s2">        -0.4796778151607899 2 1 2 0</span>
+<span class="s2">        -0.4796778151607899 3 1 3 0</span>
+<span class="s2">        0.33667197218932576 0 1 1 1 1 0 0 0</span>
+<span class="s2">        0.0908126658307406 0 1 1 1 3 0 2 0</span>
+<span class="s2">        0.09081266583074038 0 1 2 1 0 0 2 0</span>
+<span class="s2">        0.331213646878486 0 1 2 1 2 0 0 0</span>
+<span class="s2">        0.09081266583074038 0 1 3 1 1 0 2 0</span>
+<span class="s2">        0.331213646878486 0 1 3 1 3 0 0 0</span>
+<span class="s2">        0.33667197218932576 1 1 0 1 0 0 1 0</span>
+<span class="s2">        0.0908126658307406 1 1 0 1 2 0 3 0</span>
+<span class="s2">        0.09081266583074038 1 1 2 1 0 0 3 0</span>
+<span class="s2">        0.331213646878486 1 1 2 1 2 0 1 0</span>
+<span class="s2">        0.09081266583074038 1 1 3 1 1 0 3 0</span>
+<span class="s2">        0.331213646878486 1 1 3 1 3 0 1 0</span>
+<span class="s2">        0.331213646878486 2 1 0 1 0 0 2 0</span>
+<span class="s2">        0.09081266583074052 2 1 0 1 2 0 0 0</span>
+<span class="s2">        0.331213646878486 2 1 1 1 1 0 2 0</span>
+<span class="s2">        0.09081266583074052 2 1 1 1 3 0 0 0</span>
+<span class="s2">        0.09081266583074048 2 1 3 1 1 0 0 0</span>
+<span class="s2">        0.34814578469185886 2 1 3 1 3 0 2 0</span>
+<span class="s2">        0.331213646878486 3 1 0 1 0 0 3 0</span>
+<span class="s2">        0.09081266583074052 3 1 0 1 2 0 1 0</span>
+<span class="s2">        0.331213646878486 3 1 1 1 1 0 3 0</span>
+<span class="s2">        0.09081266583074052 3 1 1 1 3 0 1 0</span>
+<span class="s2">        0.09081266583074048 3 1 2 1 0 0 1 0</span>
+<span class="s2">        0.34814578469185886 3 1 2 1 2 0 3 0</span>
+<span class="s2">        }&quot;&quot;&quot;</span>
+
+       <span class="k">return</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ansatz-generators">
+<h3>Ansatz Generators<a class="headerlink" href="#ansatz-generators" title="Permalink to this headline">¶</a></h3>
+<p>In the Ansatz section of the example input file above, the <code class="docutils literal notranslate"><span class="pre">name</span></code> configuration refers to a concrete <code class="docutils literal notranslate"><span class="pre">AnsatzGenerator</span></code> Python class implemented as an iPOPO bundle that is used to
+generate an XACC Intermediate Representation (IR) <code class="docutils literal notranslate"><span class="pre">Function</span></code> instance which expresses a composition of instructions to be executed on the desired quantum accelerator.
+The ansatz can be generated utilizing the XACC <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> interface or directly through the XACC <code class="docutils literal notranslate"><span class="pre">IR</span></code> API.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">uccsd</span></code> <code class="docutils literal notranslate"><span class="pre">AnsatzGenerator</span></code> used in the above example uses the <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> interface to return a generated
+unitary coupled-cluster single and double excitation ansatz, dependent on the number of electrons in the molecule of interest and the number of qubits required to simulate it.
+The abstracted <cite>generate</cite> method implemented by the <code class="docutils literal notranslate"><span class="pre">uccsd</span></code> <code class="docutils literal notranslate"><span class="pre">AnsatzGenerator</span></code> is shown below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputParams</span><span class="p">,</span> <span class="n">nQubits</span><span class="p">):</span>
+    <span class="n">ir_generator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRGenerator</span><span class="p">(</span><span class="n">inputParams</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="n">ir_generator</span><span class="o">.</span><span class="n">generate</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">inputParams</span><span class="p">[</span><span class="s1">&#39;n-electrons&#39;</span><span class="p">]),</span> <span class="n">nQubits</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">function</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

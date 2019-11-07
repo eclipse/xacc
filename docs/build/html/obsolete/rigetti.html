@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Rigetti &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">XACC Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Rigetti</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/obsolete/rigetti.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rigetti">
+<h1>Rigetti<a class="headerlink" href="#rigetti" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-rigetti">Rigetti Plugin</a> provides
+support to XACC for compiling kernels writting in Quil, and executing programs
+on the Rigetti QVM via a Rigetti Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc-rigetti
+$ cd xacc-rigetti &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc
+</pre></div>
+</div>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that xacc is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>You have now installed the Rigetti plugin. It is located in <code class="docutils literal notranslate"><span class="pre">$XACC_ROOT/plugins</span></code>
+and <code class="docutils literal notranslate"><span class="pre">$XACC_ROOT/plugins</span></code>, where <code class="docutils literal notranslate"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+</div>
+<div class="section" id="setting-credentials">
+<h2>Setting Credentials<a class="headerlink" href="#setting-credentials" title="Permalink to this headline">¶</a></h2>
+<p>In order to target the Rigetti QVM you must provide XACC with your API key. By default
+XACC will use your PyQuil Config file at <code class="docutils literal notranslate"><span class="pre">$HOME/.pyquil_config</span></code>.
+See <a class="reference external" href="http://pyquil.readthedocs.io/en/latest/getting_started.html#connecting-to-the-rigetti-forest">Connecting to the Rigetti Forest</a> for information on creating this file.</p>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c rigetti -k YOURAPIKEY -u YOURUSERID
+</pre></div>
+</div>
+</div>
+<div class="section" id="rigetti-command-line-arguments">
+<h2>Rigetti Command Line Arguments<a class="headerlink" href="#rigetti-command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<p>The Rigetti plugin exposes the following command line arguments</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–rigetti-backend</p></td>
+<td><p>The backend to target (defaults to QVM)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–rigetti-trials</p></td>
+<td><p>The number of shots to execute per job</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="rigetti-qvm-tutorial">
+<h2>Rigetti QVM Tutorial<a class="headerlink" href="#rigetti-qvm-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>Let’s test out the Rigetti Accelerator by creating a code to
+perform quantum teleportation.</p>
+<p>Create a new directory called test-xacc-rigetti and cd into it. Let’s now create a
+test-xacc-rigetti.cpp file and get it started with the following boilerplate code:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;XACC.hpp&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="c1">// Initialize XACC - find all available</span>
+   <span class="c1">// compilers and accelerators, parse command line.</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+   <span class="c1">// ... Code to come ...</span>
+
+   <span class="c1">// Finalize the framework.</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Building this code is straightforward with CMake. Create a CMakeLists.txt file in the same
+directory as the test-xacc-rigetti.cpp file, and add the following to it:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="c"># Start a CMake project</span>
+<span class="nb">project</span><span class="p">(</span><span class="s">test-xacc-rigetti</span> <span class="s">CXX</span><span class="p">)</span>
+
+<span class="c"># Set the minimum version to 3.2</span>
+<span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.2</span><span class="p">)</span>
+
+<span class="c"># Find XACC</span>
+<span class="nb">find_package</span><span class="p">(</span><span class="s">XACC</span> <span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="c"># Find Boost</span>
+<span class="nb">find_package</span><span class="p">(</span><span class="s">Boost</span> <span class="s">COMPONENTS</span> <span class="s">system</span> <span class="s">program_options</span> <span class="s">filesystem</span> <span class="s">chrono</span> <span class="s">thread</span> <span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="c"># Include all XACC Include Directories</span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">XACC_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+
+<span class="c"># Link to the XACC Library Directory,</span>
+<span class="nb">link_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">XACC_LIBRARY_DIR</span><span class="o">}</span><span class="p">)</span>
+
+<span class="c"># Create the executabe</span>
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">test-xacc-rigetti</span> <span class="s">test-xacc-rigetti.cpp</span><span class="p">)</span>
+
+<span class="c"># Like the necessary libaries</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">test-xacc-rigetti</span> <span class="o">${</span><span class="nv">XACC_LIBRARIES</span><span class="o">}</span> <span class="s">dl</span> <span class="s">pthread</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now from within the test-xacc-rigetti directory, run the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mkdir build
+$ <span class="nb">cd</span> build
+$ cmake ..
+$ make
+</pre></div>
+</div>
+<p>This will build test-xacc-rigetti.cpp and provide you with a test-xacc-rigetti executable. Run that
+executable to ensure that your build worked (you should see the following output):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make
+$ ./test-xacc-rigetti
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">16</span>:14:07.076<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc<span class="o">]</span> Initializing XACC Framework
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">16</span>:14:07.091<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::compiler<span class="o">]</span> XACC has <span class="m">1</span> Compilers available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">16</span>:14:07.091<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::accelerator<span class="o">]</span> XACC has <span class="m">1</span> Accelerators available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">16</span>:14:07.091<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span>
+<span class="o">[</span>xacc<span class="o">]</span> XACC Finalizing
+<span class="o">[</span>xacc::compiler<span class="o">]</span> Cleaning up Compiler Registry.
+<span class="o">[</span>xacc::accelerator<span class="o">]</span> Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>Now that we have our build and initial boilerplate code setup, let’s actually write some quantum code, specifically
+teleporting the state of one qubit to another. Following the XACC.hpp include statement at the top of the file,
+add the following quantum kernel declaration:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span><span class="p">(</span><span class="s">&quot;__qpu__ teleport (qbit qreg) {</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   cbit creg[3];</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Init qubit 0 to 1</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   X(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Now teleport...</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   H(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   CNOT(qreg[1],qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   CNOT(qreg[0],qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   H(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   if (creg[0] == 1) Z(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   if (creg[1] == 1) X(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Check that 3rd qubit is a 1</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[2] = MeasZ(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now we are ready to build and execute this kernel using the XACC Runtime API. After the call
+to xacc::Initialize, add the following:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a reference to the Rigetti</span>
+<span class="c1">// QPU at api.rigetti.com/qvm</span>
+<span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;rigetti&quot;</span><span class="p">);</span>
+
+<span class="c1">// Allocate a register of 3 qubits</span>
+<span class="k">auto</span> <span class="n">qubitReg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">-&gt;</span><span class="n">createBuffer</span><span class="p">(</span><span class="s">&quot;qreg&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+
+<span class="c1">// Create a Program</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">Program</span> <span class="n">program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+
+<span class="c1">// Request the quantum kernel representing</span>
+<span class="c1">// the above source code</span>
+<span class="k">auto</span> <span class="n">teleport</span> <span class="o">=</span> <span class="n">program</span><span class="p">.</span><span class="n">getKernel</span><span class="p">(</span><span class="s">&quot;teleport&quot;</span><span class="p">);</span>
+
+<span class="c1">// Execute!</span>
+<span class="n">teleport</span><span class="p">(</span><span class="n">qubitReg</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The code above starts by getting a reference to the RigettiAccelerator.
+With that reference, we then allocate a register of qubits
+to operate the teleport kernel on. Next, we instantiate an XACC Program instance, which keeps track of the
+desired Accelerator and the source code to be compiled. The Program instance orchestrates the compilation of the
+quantum kernel to produce the XACC intermediate representation, and then handles the creation of an
+executable classical kernel function that offloads the compiled quantum code to the specified Accelerator.
+Finally, the user requests a reference to the executable kernel functor, and executes it on the
+provided register of qubits.</p>
+<p>The total test-xacc-rigetti.cpp file should look like this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;XACC.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Quantum Kernel executing teleportation of</span>
+<span class="c1">// qubit state to another.</span>
+<span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span><span class="p">(</span><span class="s">&quot;__qpu__ teleport (qbit qreg) {</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   cbit creg[3];</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Init qubit 0 to 1</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   X(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Now teleport...</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   H(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   CNOT(qreg[1],qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   CNOT(qreg[0],qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   H(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[0] = MeasZ(qreg[0]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[1] = MeasZ(qreg[1]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   if (creg[0] == 1) Z(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   if (creg[1] == 1) X(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   // Check that 3rd qubit is a 1</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;   creg[2] = MeasZ(qreg[2]);</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="s">&quot;}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="c1">// Initialize the XACC Framework</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+   <span class="c1">// Create a reference to the Rigetti</span>
+   <span class="c1">// QPU at api.rigetti.com/qvm</span>
+   <span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;rigetti&quot;</span><span class="p">);</span>
+
+   <span class="c1">// Allocate a register of 3 qubits</span>
+   <span class="k">auto</span> <span class="n">qubitReg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">-&gt;</span><span class="n">createBuffer</span><span class="p">(</span><span class="s">&quot;qreg&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+
+   <span class="c1">// Create a Program</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Program</span> <span class="n">program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+
+   <span class="c1">// Request the quantum kernel representing</span>
+   <span class="c1">// the above source code</span>
+   <span class="k">auto</span> <span class="n">teleport</span> <span class="o">=</span> <span class="n">program</span><span class="p">.</span><span class="n">getKernel</span><span class="p">(</span><span class="s">&quot;teleport&quot;</span><span class="p">);</span>
+
+   <span class="c1">// Execute!</span>
+   <span class="n">teleport</span><span class="p">(</span><span class="n">qubitReg</span><span class="p">);</span>
+
+   <span class="c1">// Finalize the XACC Framework</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+
+   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, to build simple run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> test-xacc-rigetti/build
+$ make
+</pre></div>
+</div>
+<p>To execute this code on the Rigetti QVM, you must provide your API key. You can do this
+the same way you do with PyQuil (in your $HOME/.pyquil_config file, or in the $PYQUIL_CONFIG
+environment variable). You can also pass your API key to the XACC executable through the
+–rigetti-api-key command line argument:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./test-xacc-rigetti --rigetti-api-key KEY
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:38.744<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc<span class="o">]</span> Initializing XACC Framework
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:38.760<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::compiler<span class="o">]</span> XACC has <span class="m">3</span> Compilers available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:38.760<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::accelerator<span class="o">]</span> XACC has <span class="m">2</span> Accelerators available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:38.766<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Executing Scaffold compiler.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:38.770<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Rigetti Json <span class="nv">Payload</span> <span class="o">=</span> <span class="o">{</span> <span class="s2">&quot;type&quot;</span> : <span class="s2">&quot;multishot&quot;</span>, <span class="s2">&quot;addresses&quot;</span> : <span class="o">[</span><span class="m">0</span>, <span class="m">1</span>, <span class="m">2</span><span class="o">]</span>, <span class="s2">&quot;quil-instructions&quot;</span> : <span class="s2">&quot;X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n&quot;</span>, <span class="s2">&quot;trials&quot;</span> : <span class="m">10</span> <span class="o">}</span>
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:40.439<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Successful HTTP Post to Rigetti.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:40.439<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Rigetti QVM Response:
+<span class="o">[[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]]</span>
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:43:40.439<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span>
+<span class="o">[</span>xacc<span class="o">]</span> XACC Finalizing
+<span class="o">[</span>xacc::compiler<span class="o">]</span> Cleaning up Compiler Registry.
+<span class="o">[</span>xacc::accelerator<span class="o">]</span> Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>You should see the console text printed above.</p>
+<p>You can also tailor the number of executions that occur for the multishot execution type:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./test-xacc-rigetti --rigetti-trials <span class="m">1000</span>
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.285<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc<span class="o">]</span> Initializing XACC Framework
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.301<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::compiler<span class="o">]</span> XACC has <span class="m">3</span> Compilers available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.301<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> <span class="o">[</span>xacc::accelerator<span class="o">]</span> XACC has <span class="m">2</span> Accelerators available.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.307<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Executing Scaffold compiler.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.310<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Rigetti Json <span class="nv">Payload</span> <span class="o">=</span> <span class="o">{</span> <span class="s2">&quot;type&quot;</span> : <span class="s2">&quot;multishot&quot;</span>, <span class="s2">&quot;addresses&quot;</span> : <span class="o">[</span><span class="m">0</span>, <span class="m">1</span>, <span class="m">2</span><span class="o">]</span>, <span class="s2">&quot;quil-instructions&quot;</span> : <span class="s2">&quot;X 0\nH 1\nCNOT 1 2\nCNOT 0 1\nH 0\nMEASURE 0 [0]\nMEASURE 1 [1]\nJUMP-UNLESS @conditional_0 [0]\nZ 2\nLABEL @conditional_0\nJUMP-UNLESS @conditional_1 [1]\nX 2\nLABEL @conditional_1\nMEASURE 2 [2]\n&quot;</span>, <span class="s2">&quot;trials&quot;</span> : <span class="m">100</span> <span class="o">}</span>
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.909<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Successful HTTP Post to Rigetti.
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.909<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span> Rigetti QVM Response:
+<span class="o">[[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,0,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">1</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]</span>,<span class="o">[</span><span class="m">0</span>,1,1<span class="o">]]</span>
+<span class="o">[</span><span class="m">2017</span>-06-20 <span class="m">17</span>:50:57.910<span class="o">]</span> <span class="o">[</span>xacc-console<span class="o">]</span> <span class="o">[</span>info<span class="o">]</span>
+<span class="o">[</span>xacc<span class="o">]</span> XACC Finalizing
+<span class="o">[</span>xacc::compiler<span class="o">]</span> Cleaning up Compiler Registry.
+<span class="o">[</span>xacc::accelerator<span class="o">]</span> Cleaning up Accelerator Registry.
+</pre></div>
+</div>
+<p>Note above we let XACC find the API Key in the standard .pyquil_config file.</p>
+</div>
+<div class="section" id="executing-pyquil-code-on-any-xacc-accelerator">
+<h2>Executing PyQuil Code on any XACC Accelerator<a class="headerlink" href="#executing-pyquil-code-on-any-xacc-accelerator" title="Permalink to this headline">¶</a></h2>
+<p>If you’ve installed the XACC Python Bindings (see here <a class="reference external" href="python.html#Installation">python.html#Installation</a>), then you can
+actually take existing PyQuil code and execute it on any of the XACC Accelerators (Rigetti, IBM, TNQVM, any future ones coming online). You probably don’t need to execute on the Rigetti Accelerator, since the Forest Python API
+already provides that support. But this is a great way to run comparisons on our tensor network simulator or the
+5 or 16 qubit IBM QPUs.</p>
+<p>Check out the following example that uses PyQuil to program the VQE problem for
+the Hydrogen molecule (code taken from <a class="reference external" href="https://arxiv.org/abs/1512.06860">Scalable Quantum Simulation of Molecular Energies</a> ).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run this, you must install pyQuil:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install pyquil
+</pre></div>
+</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyquil.quil</span> <span class="kn">import</span> <span class="n">Program</span>
+<span class="kn">import</span> <span class="nn">pyquil.api</span> <span class="kn">as</span> <span class="nn">forest</span>
+<span class="kn">from</span> <span class="nn">pyquil.gates</span> <span class="kn">import</span> <span class="n">X</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">CNOT</span><span class="p">,</span> <span class="n">RX</span><span class="p">,</span> <span class="n">RY</span><span class="p">,</span> <span class="n">RZ</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="c1"># Pyquil State Preparation circuit gen</span>
+<span class="k">def</span> <span class="nf">statePrep</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">Program</span><span class="p">(</span><span class="n">RX</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+               <span class="n">RY</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+               <span class="n">RX</span><span class="p">(</span><span class="mf">2.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+               <span class="n">CNOT</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+               <span class="n">RZ</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+               <span class="n">CNOT</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+               <span class="n">RY</span><span class="p">(</span><span class="mf">2.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+               <span class="n">RX</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+<span class="c1"># Z0 term of Hamiltonian</span>
+<span class="k">def</span> <span class="nf">Z0Term</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+   <span class="n">p</span> <span class="o">=</span> <span class="n">statePrep</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span><span class="n">angle</span><span class="p">)</span>
+   <span class="n">p</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">p</span>
+
+<span class="c1"># Z1 term of Hamiltonian</span>
+<span class="k">def</span> <span class="nf">Z1Term</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+   <span class="n">p</span> <span class="o">=</span> <span class="n">statePrep</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+   <span class="n">p</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">p</span>
+
+<span class="c1"># Z0Z1 term of Hamiltonian</span>
+<span class="k">def</span> <span class="nf">Z0Z1Term</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+   <span class="n">p</span> <span class="o">=</span> <span class="n">statePrep</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+   <span class="n">p</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">p</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">p</span>
+
+<span class="c1"># collect all generators in a list</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Z0Term</span><span class="p">,</span> <span class="n">Z1Term</span><span class="p">,</span> <span class="n">Z0Z1Term</span><span class="p">]</span>
+
+<span class="c1"># Initialize XACC</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># turn on the QuilCompiler</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">setOption</span><span class="p">(</span><span class="s1">&#39;compiler&#39;</span><span class="p">,</span><span class="s1">&#39;quil&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get reference to our tensor network simulator</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;tnqvm&#39;</span><span class="p">)</span>
+
+<span class="c1"># create some qubits - an AcceleratorBuffer</span>
+<span class="n">qs</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;qs&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Store results to this CSV file</span>
+<span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;pyquil_out.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;theta, Z0, Z1, Z0Z1</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Pyquil uses int indices for qubits</span>
+<span class="n">pyquilQubits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Loop -pi to pi</span>
+<span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">100</span><span class="p">):</span>
+   <span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+
+   <span class="c1"># Loop over our above generators</span>
+   <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+      <span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+
+      <span class="c1"># Kernel-ize the pyquil program</span>
+      <span class="n">src</span> <span class="o">=</span> <span class="s1">&#39;__qpu__ kernel(AcceleratorBuffer qs, double theta) {</span><span class="se">\n</span><span class="s1">&#39;</span>
+      <span class="n">src</span> <span class="o">+=</span> <span class="n">t</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+      <span class="n">src</span> <span class="o">+=</span> <span class="s1">&#39;}&#39;</span>
+
+      <span class="c1"># Create an XACC Program and compile</span>
+      <span class="n">xaccProgram</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">Program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+      <span class="n">xaccProgram</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+      <span class="c1"># Get reference to the executable kernel</span>
+      <span class="n">k</span> <span class="o">=</span> <span class="n">xaccProgram</span><span class="o">.</span><span class="n">getKernel</span><span class="p">(</span><span class="s1">&#39;kernel&#39;</span><span class="p">)</span>
+
+      <span class="c1"># Execute, no params since theta has</span>
+      <span class="c1"># already been input to the term generator</span>
+      <span class="n">k</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="p">[])</span>
+
+      <span class="c1"># Get the expectation value</span>
+      <span class="n">e</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">getExpectationValueZ</span><span class="p">()</span>
+
+      <span class="c1"># Reset the qubits for the next iteration</span>
+      <span class="n">qs</span><span class="o">.</span><span class="n">resetBuffer</span><span class="p">()</span>
+
+      <span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+   <span class="nb">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># Finalize the framework.</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will produce a file called <code class="docutils literal notranslate"><span class="pre">pyquil_out.csv</span></code>. Plotting this shows the
+correct expectation values from the simulation.</p>
+<img alt="obsolete/../assets/pyquil_out.png" src="obsolete/../assets/pyquil_out.png" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

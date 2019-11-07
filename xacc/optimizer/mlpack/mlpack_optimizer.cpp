@@ -93,7 +93,7 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "adadelta") {
     // rho
-    double rho = 0.05;
+    double rho = 0.95;
     if (options.keyExists<double>("mlpack-rho")) {
       rho = options.get<double>("mlpack-rho");
     }
