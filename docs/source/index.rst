@@ -29,15 +29,11 @@ verification and validation, and performance studies for a set of virtual
 (simulators) or physical hardware.
 
 Modular Infrastructure
----------------------------
+----------------------
 XACC relies on a project called `CppMicroServices <http://github.com/cppmicroservices/cppmicroservices>`_ -
 a native C++ implementation of the `OSGi <https://www.osgi.org/developer/architecture/>`_
 specification that enables an extensible, modular
-plugin infrastructure for quantum compilers and accelerators. Installation of
-XACC provides the core infrastructure for describing Programs, Compilers,
-Accelerators, and IR. To enable support for various compilers and accelerators
-(like the OpenQasm or Quil compilers, or the IBM or Rigetti QPUs) you
-can install the appropriate plugin (see `XACC Plugins <plugins.html>`_).
+plugin infrastructure for quantum compilers and accelerators.
 
 Description of Architecture
 ---------------------------
