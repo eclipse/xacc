@@ -44,6 +44,8 @@ Description of Architecture
 For a comprehensive discussion of all components of the XACC programming model and architecture,
 please refer to this `manuscript <https://arxiv.org/abs/1911.02452>`_.
 
+For class documentation, check out this `site <https://ornl-qci.github.io/xacc-api-docs/>`_.
+
 XACC Development Team
 ----------------------
 
