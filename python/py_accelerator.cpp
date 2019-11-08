@@ -14,8 +14,8 @@
 #include "AcceleratorDecorator.hpp"
 #include "py_heterogeneous_map.hpp"
 
-void bind_accelerator(py::module& m) {
-     // Expose the Accelerator
+void bind_accelerator(py::module &m) {
+  // Expose the Accelerator
   py::class_<xacc::Accelerator, std::shared_ptr<xacc::Accelerator>,
              PyAccelerator>
       acc(m, "Accelerator",
@@ -127,5 +127,4 @@ void bind_accelerator(py::module& m) {
                xacc::AcceleratorBuffer::*)(const std::string, ExtraInfo)) &
                xacc::AcceleratorBuffer::getChildren,
            "");
-
 }

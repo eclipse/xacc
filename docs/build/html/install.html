@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="XACC Basics" href="basics.html" />
-    <link rel="prev" title="Welcome to XACC’s documentation!" href="index.html" /> 
+    <link rel="next" title="Basics" href="basics.html" />
+    <link rel="prev" title="XACC Documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -87,16 +87,21 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#ubuntu-16-04-prerequisites">Ubuntu 16.04 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ubuntu-18-04-prerequisites">Ubuntu 18.04 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#centos-7-prerequisites">Centos 7 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fedora-30-prerequisites">Fedora 30 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mac-os-x-prerequisites">Mac OS X Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ubuntu-16-04">Ubuntu 16.04</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ubuntu-18-04">Ubuntu 18.04</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#centos-7">Centos 7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fedora-30">Fedora 30</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mac-os-x">Mac OS X</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#build-xacc">Build XACC</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">XACC Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developers</a></li>
 </ul>
 
             
@@ -168,8 +173,10 @@ recommend installing with the Python API (although you may choose not to). This 
 describe the build process with the Python API enabled. For this you will need a Python 3 executable and
 development install. To interact with remote QPUs, you will need CURL with OpenSSL development
 headers and libraries.</p>
-<div class="section" id="ubuntu-16-04-prerequisites">
-<h2>Ubuntu 16.04 Prerequisites<a class="headerlink" href="#ubuntu-16-04-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ubuntu-16-04">
+<h3>Ubuntu 16.04<a class="headerlink" href="#ubuntu-16-04" title="Permalink to this headline">¶</a></h3>
 <p>Here we will demonstrate installing from a bare Ubuntu install using GCC 8. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
@@ -183,8 +190,8 @@ $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 <span class
 </pre></div>
 </div>
 </div>
-<div class="section" id="ubuntu-18-04-prerequisites">
-<h2>Ubuntu 18.04 Prerequisites<a class="headerlink" href="#ubuntu-18-04-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ubuntu-18-04">
+<h3>Ubuntu 18.04<a class="headerlink" href="#ubuntu-18-04" title="Permalink to this headline">¶</a></h3>
 <p>Here we will demonstrate installing from a bare Ubuntu install using GCC 7 (default on 18.04). We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
@@ -195,8 +202,8 @@ $ sudo apt-get -y install gcc g++ git libcurl4-openssl-dev python3 libunwind-dev
 </pre></div>
 </div>
 </div>
-<div class="section" id="centos-7-prerequisites">
-<h2>Centos 7 Prerequisites<a class="headerlink" href="#centos-7-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="centos-7">
+<h3>Centos 7<a class="headerlink" href="#centos-7" title="Permalink to this headline">¶</a></h3>
 <p>Here we will demonstrate installing from a bare Centos 7 install using GCC 8. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo yum install libcurl-devel python3-devel git centos-release-scl make <span class="se">\</span>
@@ -205,8 +212,8 @@ $ scl <span class="nb">enable</span> devtoolset-8 -- bash <span class="o">[</spa
 </pre></div>
 </div>
 </div>
-<div class="section" id="fedora-30-prerequisites">
-<h2>Fedora 30 Prerequisites<a class="headerlink" href="#fedora-30-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fedora-30">
+<h3>Fedora 30<a class="headerlink" href="#fedora-30" title="Permalink to this headline">¶</a></h3>
 <p>Here we will demonstrate installing from a bare Fedora 30 install using GCC 9. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo dnf install python3-devel libcurl-devel git g++ gcc make blas-devel lapack-devel
@@ -214,14 +221,15 @@ $ sudo python3 -m pip install cmake
 </pre></div>
 </div>
 </div>
-<div class="section" id="mac-os-x-prerequisites">
-<h2>Mac OS X Prerequisites<a class="headerlink" href="#mac-os-x-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mac-os-x">
+<h3>Mac OS X<a class="headerlink" href="#mac-os-x" title="Permalink to this headline">¶</a></h3>
 <p>Ensure that you have XCode command utilities installed. A common issue seen is missing
 standard includes like <cite>wchar.h</cite> and others. See <a class="reference external" href="https://stackoverflow.com/a/52530212">here</a>
 for proper XCode install and configuring to address these types of issues. Here we assume you
 have Homebrew installed.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ brew install python3 openssl curl
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="build-xacc">
@@ -266,10 +274,10 @@ $ make -j<span class="k">$(</span>nproc --all<span class="k">)</span> install
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="basics.html" class="btn btn-neutral float-right" title="XACC Basics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="basics.html" class="btn btn-neutral float-right" title="Basics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to XACC’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="XACC Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -21,7 +21,7 @@
 #include "Cloneable.hpp"
 
 #include "Compiler.hpp"
-// #include "Algorithm.hpp"
+#include "Observable.hpp"
 #include "Optimizer.hpp"
 #include "IRTransformation.hpp"
 
@@ -41,7 +41,7 @@ namespace xacc {
 using ContributableService =
     Variant<std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
             std::shared_ptr<Compiler>, std::shared_ptr<Optimizer>,
-            std::shared_ptr<IRTransformation>>;
+            std::shared_ptr<IRTransformation>, std::shared_ptr<Observable>>;
 
 class ServiceRegistry {
 

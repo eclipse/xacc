@@ -10,10 +10,14 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+import atexit
 from _pyxacc import *
-import os, time, json
+import os
+import time
+import json
 import platform
-import sys, re
+import sys
+import re
 import sysconfig
 import argparse
 import inspect
@@ -25,10 +29,11 @@ import configparser
 from pelix.ipopo.constants import use_ipopo
 hasPluginGenerator = False
 try:
-   from plugin_generator import plugin_generator
-   hasPluginGenerator = True
+    from plugin_generator import plugin_generator
+    hasPluginGenerator = True
 except:
     pass
+
 
 class BenchmarkAlgorithm(ABC):
 
@@ -37,7 +42,7 @@ class BenchmarkAlgorithm(ABC):
     # @return buffer
     @abstractmethod
     def execute(self, inputParams):
-         pass
+        pass
 
     # Override this analyze method called to manipulate result data from executing the algorithm
     # @input buffer
@@ -45,6 +50,7 @@ class BenchmarkAlgorithm(ABC):
     @abstractmethod
     def analyze(self, buffer, inputParams):
         pass
+
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description="XACC Framework Utility.",
@@ -68,24 +74,29 @@ def parse_args(args):
                         help="Print the path to the XACC install location.", required=False)
     parser.add_argument("--python-include-dir", action='store_true',
                         help="Print the path to the Python.h.", required=False)
-    parser.add_argument("--benchmark", type=str, help="Run the benchmark detailed in the given input file.", required=False)
-    parser.add_argument("--benchmark-requires", type=str, help="List the required services of specified BenchmarkAlgorithm.", required=False)
-    parser.add_argument("--benchmark-service", type=str, help="List the plugin names and files of specified service.", required=False)
-    parser.add_argument("--benchmark-install", type=str, help="Pull and install the benchmark specified plugin package.", required=False)
+    parser.add_argument("--benchmark", type=str,
+                        help="Run the benchmark detailed in the given input file.", required=False)
+    parser.add_argument("--benchmark-requires", type=str,
+                        help="List the required services of specified BenchmarkAlgorithm.", required=False)
+    parser.add_argument("--benchmark-service", type=str,
+                        help="List the plugin names and files of specified service.", required=False)
+    parser.add_argument("--benchmark-install", type=str,
+                        help="Pull and install the benchmark specified plugin package.", required=False)
     # parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
 
     if hasPluginGenerator:
-       subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
-                                          description="Run python3 -m xacc [subcommand] -h for more information about a specific subcommand")
-       plugin_generator.add_subparser(subparsers)
+        subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
+                                           description="Run python3 -m xacc [subcommand] -h for more information about a specific subcommand")
+        plugin_generator.add_subparser(subparsers)
 
-       opts = parser.parse_args(args)
+        opts = parser.parse_args(args)
 
     if opts.set_credentials and not opts.api_key:
         print('Error in arg input, must supply api-key if setting credentials')
         sys.exit(1)
 
     return opts
+
 
 def initialize():
     xaccHome = os.environ['HOME']+'/.xacc'
@@ -120,7 +131,6 @@ def initialize():
     file.close()
     setIsPyApi()
     PyInitialize(xaccLocation)
-
 
 def setCredentials(opts):
     defaultUrls = {'ibm': 'https://quantumexperience.ng.bluemix.net',
@@ -160,9 +170,6 @@ def setCredentials(opts):
     fname = acc if 'rigetti' not in acc else 'pyquil'
     print('\nCreated '+acc+' config file:\n$ cat ~/.'+fname+'_config:')
     print(open(os.environ['HOME']+'/.'+fname+'_config', 'r').read())
-
-def qasm2Kernel(kernelName, qasmStr):
-    return '__qpu__ {}(AcceleratorBuffer b) {{\n {} \n}}'.format(kernelName, qasmStr)
 
 class DecoratorFunction(ABC):
 
@@ -207,7 +214,8 @@ class DecoratorFunction(ABC):
         for thing in g:
             if thing in frame.f_back.f_locals['f'].__globals__:
                 if isinstance(frame.f_back.f_locals['f'].__globals__[thing], str):
-                    real = "'" + frame.f_back.f_locals['f'].__globals__[thing] + "'"
+                    real = "'" + \
+                        frame.f_back.f_locals['f'].__globals__[thing] + "'"
                 else:
                     real = str(frame.f_back.f_locals['f'].__globals__[thing])
                 self.src = self.src.replace('='+thing, '='+real)
@@ -220,12 +228,14 @@ class DecoratorFunction(ABC):
         return self.compiledKernel
 
     def modifyAlgorithm(self, algorithm):
-        newAlgo = serviceRegistry.get_service('decorator_algorithm_service', algorithm)
+        newAlgo = serviceRegistry.get_service(
+            'decorator_algorithm_service', algorithm)
         self.__class__ = newAlgo.__class__
 
     @abstractmethod
     def __call__(self, *args, **kwargs):
         pass
+
 
 class WrappedF(DecoratorFunction):
 
@@ -246,6 +256,7 @@ class WrappedF(DecoratorFunction):
         self.qpu.execute(argsList[0], fevaled)
         return
 
+
 class qpu(object):
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -256,84 +267,14 @@ class qpu(object):
     def __call__(self, f):
         if 'algo' in self.kwargs:
             servName = self.kwargs['algo']
-            function = serviceRegistry.get_service('decorator_algorithm_service', servName)
+            function = serviceRegistry.get_service(
+                'decorator_algorithm_service', servName)
             function.initialize(f, *self.args, **self.kwargs)
             return function
         else:
             wf = WrappedF(f, *self.args, **self.kwargs)
-            wf.initialize(f,*self.args, **self.kwargs)
+            wf.initialize(f, *self.args, **self.kwargs)
             return wf
-
-def compute_readout_error_probabilities(qubits, buffer, qpu, shots=8192, persist=True):
-    p10Functions = []
-    p01Functions = []
-    p10CheckedBitStrings = [] # ['001','010','100'] for 3 bits
-    p10s = []
-    p01s = []
-
-    zeros = '0'*buffer.size()
-    for i, q in enumerate(qubits):
-        measure = gate.create('Measure',[q],[i])
-        f = gate.createFunction('meas_'+str(q), [])
-        f.addInstruction(measure)
-        p10Functions.append(f)
-        tmp = list(zeros)
-        tmp[buffer.size()-1-q] = '1'
-        p10CheckedBitStrings.append(''.join(tmp))
-
-    for i, q in enumerate(qubits):
-        x = gate.create('X',[q])
-        measure = gate.create('Measure',[q],[i])
-        f = gate.createFunction('meas_'+str(q), [])
-        f.addInstruction(x)
-        f.addInstruction(measure)
-        p01Functions.append(f)
-
-    setOption(qpu.name()+'-shots', shots)
-
-    # Execute
-    b1 = qpu.createBuffer('tmp1',max(qubits)+1)
-    b2 = qpu.createBuffer('tmp2',max(qubits)+1)
-
-    results1 = qpu.execute(b1, p10Functions)
-    results2 = qpu.execute(b2, p01Functions)
-
-    # Populate with probability you saw a 1 but expected 0
-    for i, b in enumerate(results1):
-        p10s.append(b.computeMeasurementProbability(p10CheckedBitStrings[i]))
-    for i, b in enumerate(results2):
-        p01s.append(b.computeMeasurementProbability(zeros))
-
-    filename = ''
-    if persist:
-        if not os.path.exists(os.getenv('HOME')+'/.xacc_cache/ro_characterization'):
-            os.makedirs(os.getenv('HOME')+'/.xacc_cache/ro_characterization')
-
-        backend = 'NullBackend'
-        if optionExists(qpu.name()+'-backend'):
-            backend = getOption(qpu.name()+'-backend')
-
-        filename = os.getenv('HOME')+'/.xacc_cache/ro_characterization/'+qpu.name()+'_'+backend+"_ro_error_{}.json".format(time.ctime().replace(' ','_').replace(':','_'))
-
-        data = {'shots':shots, 'backend':backend}
-        for i in qubits:
-            data[str(i)] = {'0|1':p01s[i],'1|0':p10s[i],'+':(p01s[i]+p10s[i]),'-':(p01s[i]-p10s[i])}
-        with open(filename,'w') as outfile: json.dump(data, outfile)
-
-    return p01s,p10s, filename
-
-
-def functionToLatex(function):
-    try:
-        import pyquil
-    except ImportError:
-        print('Error - We delegate to Pyquil for Latex generation. Install Pyquil.')
-        return
-    if not hasCompiler('quil'):
-        print('Error - We use XACC QuilCompiler to generate Latex. Install XACC-Rigetti plugin.')
-        return
-    from pyquil.latex import to_latex
-    return to_latex(pyquil.quil.Program(getCompiler('quil').translate('', function)))
 
 '''The following code provides the hooks necessary for executing benchmarks with XACC'''
 
@@ -348,7 +289,8 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm','hamiltonian_generator','ansatz_generator', 'accelerator', 'irtransformation']
+        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm',
+                       'hamiltonian_generator', 'ansatz_generator', 'accelerator', 'irtransformation', 'observable']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -367,7 +309,8 @@ class PyServiceRegistry(object):
             contributeService(accName, acc)
         for irtName, irt in self.registry['irtransformation'].items():
             contributeService(irtName, irt)
-
+        for obsName, obs in self.registry['observable'].items():
+            contributeService(obsName, obs)
 
     def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
@@ -375,9 +318,11 @@ class PyServiceRegistry(object):
             for component in tmp:
                 name = component.get_properties()['name']
                 if serviceType not in self.registry:
-                    self.registry[serviceType] = {name: self.context.get_service(component)}
+                    self.registry[serviceType] = {
+                        name: self.context.get_service(component)}
                 else:
-                    self.registry[serviceType].update({name: self.context.get_service(component)})
+                    self.registry[serviceType].update(
+                        {name: self.context.get_service(component)})
             return tmp
 
     def get_service(self, serviceName, name):
@@ -398,14 +343,17 @@ class PyServiceRegistry(object):
         with use_ipopo(self.context) as ipopo:
             requirements = []
             try:
-                details = ipopo.get_instance_details(name+"_benchmark")['dependencies']
+                details = ipopo.get_instance_details(
+                    name+"_benchmark")['dependencies']
             except ValueError as ex:
-                info("There is no benchmark_algorithm service with the name '{}' available.".format(name))
+                info(
+                    "There is no benchmark_algorithm service with the name '{}' available.".format(name))
                 exit(1)
             for k, v in details.items():
                 requirements.append(v['specification'])
             if not requirements:
-                info("There are no required services for '{}' BenchmarkAlgorithm.".format(name))
+                info(
+                    "There are no required services for '{}' BenchmarkAlgorithm.".format(name))
                 exit(1)
             info("Required benchmark services for '{}' BenchmarkAlgorithm:".format(name))
             for i, r in enumerate(requirements):
@@ -417,12 +365,15 @@ class PyServiceRegistry(object):
         try:
             for component in tmp:
                 b = component.get_bundle()
-                names_and_files[component.get_properties()['name']] = b.get_symbolic_name()
+                names_and_files[component.get_properties(
+                )['name']] = b.get_symbolic_name()
         except TypeError as ex:
-            info("There are no plugins with service reference '{}' available.".format(serviceType))
+            info("There are no plugins with service reference '{}' available.".format(
+                serviceType))
             exit(1)
-        info("Names and files of plugins that provide service reference '{}':".format(serviceType))
-        for i, (k,v) in enumerate(names_and_files.items()):
+        info("Names and files of plugins that provide service reference '{}':".format(
+            serviceType))
+        for i, (k, v) in enumerate(names_and_files.items()):
             info("{}. {}  --> {}.py".format(i+1, k, v))
 
     def install_plugins(self, pkg):
@@ -431,11 +382,14 @@ class PyServiceRegistry(object):
         if "list" in pkg:
             subprocess.run([sys.executable, 'manage.py', "-l"])
         else:
-            subprocess.run([sys.executable, 'manage.py', '-p', "{}".format(self.pluginDir), '-i', "{}".format(pkg)])
+            subprocess.run([sys.executable, 'manage.py', '-p',
+                            "{}".format(self.pluginDir), '-i', "{}".format(pkg)])
+
 
 if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()
     serviceRegistry.initialize()
+
 
 def benchmark(opts):
     if opts.benchmark is not None:
@@ -456,32 +410,35 @@ def benchmark(opts):
     if 'n-shots' in xacc_settings:
         if 'local-ibm' in accelerator:
             accelerator = 'ibm'
-        setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'), xacc_settings['n-shots'])
+        setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'),
+                  xacc_settings['n-shots'])
     # Using ServiceRegistry to getService (benchmark_algorithm_service) and execute the service
     algorithm = serviceRegistry.get_service(
         'benchmark_algorithm', xacc_settings['algorithm'])
     if algorithm is None:
         print("XACC algorithm service with name " +
-                   xacc_settings['algorithm'] + " is not installed.")
+              xacc_settings['algorithm'] + " is not installed.")
         exit(1)
 
     starttime = time.time()
     buffer = algorithm.execute(xacc_settings)
     elapsedtime = time.time() - starttime
     buffer.addExtraInfo("benchmark-time", elapsedtime)
-    for k,v in xacc_settings.items():
+    for k, v in xacc_settings.items():
         buffer.addExtraInfo(k, v)
     # Analyze the buffer
     head, tail = os.path.split(inputfile)
     buffer.addExtraInfo('file-name', tail)
     algorithm.analyze(buffer, xacc_settings)
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    results_name = "%s_%s_%s_%s" % (os.path.splitext(tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
+    results_name = "%s_%s_%s_%s" % (os.path.splitext(
+        tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
     f = open(results_name+".ab", 'w')
     f.write(str(buffer))
     f.close()
 
     Finalize()
+
 
 def process_benchmark_input(filename):
     config = configparser.RawConfigParser()
@@ -496,6 +453,7 @@ def process_benchmark_input(filename):
     except:
         print("Input file " + filename + " could not be opened.")
         exit(1)
+
 
 def main(argv=None):
     opts = parse_args(sys.argv[1:])
@@ -542,12 +500,14 @@ def main(argv=None):
     if not opts.benchmark_install == None:
         serviceRegistry.install_plugins(opts.benchmark_install)
 
+
 initialize()
+
 
 def _finalize():
     Finalize()
 
-import atexit
+
 atexit.register(_finalize)
 
 if __name__ == "__main__":
