@@ -910,6 +910,8 @@ EXCLUDE_PATTERNS      += */qiskit-terra/*
 EXCLUDE_PATTERNS      += */nlopt/*
 EXCLUDE_PATTERNS      += */tpls/*
 EXCLUDE_PATTERNS      += */minorminer/*
+EXCLUDE_PATTERNS      += *.py
+
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

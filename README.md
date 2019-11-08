@@ -15,18 +15,21 @@ of quantum computer simulators.
 Documentation
 -------------
 
-* [Website and Documentation ](https://xacc.readthedocs.io)
+* [Website and Documentation](https://xacc.readthedocs.io)
+* [API Documentation](https://ornl-qci.github.io/xacc-api-docs/)
 
 Build from Source
 -----------------
+Full installation details can be followed [here](https://xacc.readthedocs.io/en/latest/install.html).
+
 Ensure that you have installed CMake 3.12+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
 CURL development headers and libraries with OpenSSL support
 (see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 
-Optional dependencies include BLAS and LAPACK development libraries (for various simulators),
+It is also recommended (though optional) that you install BLAS and LAPACK development libraries (for various simulators),
 Python 3 development headers (for the Python API), and Libunwind (for stack trace printing).
 
-To enable Python support, ensure that `python3` is set to your desired version of Python 3. CMake will
+To enable XACC Python support, ensure that `python3` is set to your desired version of Python 3. CMake will
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
 you are using the same `python3` executable that was set during your build.
 
@@ -51,8 +54,7 @@ $ make -j$(sysctl -n hw.physicalcpu) install
 [if built with tests, run them]
 $ ctest --output-on-failure
 ```
-See full documentation for all CMake optional arguments. To enable MLPack Optimizer support, see
-[MLPack Readme](https://github.com/eclipse/xacc/blob/master/xacc/optimizer/README.md)
+See full documentation for all CMake optional arguments.
 
 Your installation will be in `$HOME/.xacc`. If you built with the Python API,
 be sure to update your `PYTHONPATH` environment variable to point to the installation:
@@ -84,16 +86,21 @@ Cite XACC
 ----------
 If you use XACC in your research, please use the following citation
 ```
-@article{xacc2018,
-   title = "A language and hardware independent approach to quantum-classical computing",
-   journal = "SoftwareX",
-   volume = "7",
-   pages = "245 - 254",
-   year = "2018",
-   issn = "2352-7110",
-   doi = "https://doi.org/10.1016/j.softx.2018.07.007",
-   url = "http://www.sciencedirect.com/science/article/pii/S2352711018300700",
-   author = "A.J. McCaskey and E.F. Dumitrescu and D. Liakh and M. Chen and W. Feng and T.S. Humble",
-   keywords = "Quantum computing, Quantum software"
+@ARTICLE{xacc2019,
+       author = {{McCaskey}, Alexander J. and {Lyakh}, Dmitry I. and
+         {Dumitrescu}, Eugene F. and {Powers}, Sarah S. and {Humble}, Travis S.},
+        title = "{XACC: A System-Level Software Infrastructure for Heterogeneous Quantum-Classical Computing}",
+      journal = {arXiv e-prints},
+     keywords = {Quantum Physics, Computer Science - Programming Languages},
+         year = "2019",
+        month = "Nov",
+          eid = {arXiv:1911.02452},
+        pages = {arXiv:1911.02452},
+archivePrefix = {arXiv},
+       eprint = {1911.02452},
+ primaryClass = {quant-ph},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2019arXiv191102452M},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+
 ```
