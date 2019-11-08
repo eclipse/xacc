@@ -1,4 +1,4 @@
-XACC Basics
+Basics
 ===========
 
 Here we demonstrate leveraging the XACC framework for various
@@ -329,7 +329,7 @@ or in Python
    optimizer = xacc.getOptimizer('mlpack',{'mlpack-optimizer':'l-bfgs'})
    opt_val, opt_params = optimizer.optimize(rosen_with_grad,2)
 
-``xacc::qasm`` 
+``xacc::qasm``
 ------------------
 To improve programming efficiency, readability, and utility of the quantum kernel string
 compilation, XACC exposes a ``qasm()`` function. This function takes as input an enhanced quantum

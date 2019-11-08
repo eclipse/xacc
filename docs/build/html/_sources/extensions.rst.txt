@@ -159,7 +159,7 @@ in Python
 
 .. code:: python
 
-   ibm_valencia = xacc,getAccelerator('ibm:ibmq_valencia');
+   ibm_valencia = xacc.getAccelerator('ibm:ibmq_valencia');
    ... or ...
    ibm_valencia = xacc.getAccelerator('ibm', {'backend':'ibmq_valencia')});
 
@@ -176,7 +176,7 @@ or in Python
    ibm_valencia = xacc.getAccelerator('ibm:ibmq_valencia', {'shots':2048)});
 
 In order to target the remote backend (for ``initialize()`` or ``execute()``) you must provide
-you IBM credentials to XACC. To do this add the following to a plain text file ``$HOME/.ibm_config``
+your IBM credentials to XACC. To do this add the following to a plain text file ``$HOME/.ibm_config``
 
 .. code:: bash
 
@@ -292,16 +292,75 @@ provided by your lattice. To do so, run
    [or manually]
    f.mapBits([5,9])
 
+IonQ
+++++
+The IonQ Accelerator by default targets the remote ``simulator`` backend. You can point to the physical
+QPU in two ways:
+
+.. code:: cpp
+
+   auto ionq = xacc::getAccelerator("ionq:qpu");
+   ... or ...
+   auto ionq = xacc::getAccelerator("ionq", {std::make_pair("backend", "qpu")});
+
+in Python
+
+.. code:: python
+
+   ionq = xacc.getAccelerator('ionq:qpu');
+   ... or ...
+   ionq = xacc.getAccelerator('ionq', {'backend':'qpu')});
+
+You can specify the number of shots in this way as well
+
+.. code:: cpp
+
+   auto ionq = xacc::getAccelerator("ionq", {std::make_pair("shots", 2048)});
+
+or in Python
+
+.. code:: Python
+
+   ionq = xacc.getAccelerator('ionq', {'shots':2048)});
+
+In order to target the simulator or QPU (for ``initialize()`` or ``execute()``) you must provide
+your IonQ credentials to XACC. To do this add the following to a plain text file ``$HOME/.ionq_config``
+
+.. code:: bash
+
+   key: YOUR_KEY_HERE
+   url: https://api.ionq.co/v0
 
 DWave
 +++++
 
-TNQVM
-+++++
-
 Algorithms
 ----------
+VQE
++++
+
+DDCL
+++++
+
+RDM
++++
 
 Accelerator Decorators
 ----------------------
+ROErrorDecorator
+++++++++++++++++
 
+RichExtrapDecorator
++++++++++++++++++++
+
+RDMPurificationDecorator
+++++++++++++++++++++++++
+
+ImprovedSamplingDecorator
++++++++++++++++++++++++++
+
+IR Transformations
+------------------
+
+CircuitOptimizer
++++++++++++++++++
