@@ -73,6 +73,8 @@ You can ask questions by creating a new issue with the question tag.
    install
    basics
    extensions
+   advanced
+   developers
 
 Publications
 ------------

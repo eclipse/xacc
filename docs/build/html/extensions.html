@@ -35,7 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="XACC Basics" href="basics.html" /> 
+    <link rel="next" title="Advanced" href="advanced.html" />
+    <link rel="prev" title="Basics" href="basics.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,7 +87,7 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">XACC Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Extensions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#optimizers">Optimizers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mlpack">MLPack</a></li>
@@ -97,14 +98,31 @@
 <li class="toctree-l3"><a class="reference internal" href="#ibm">IBM</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#aer">Aer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qcs">QCS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ionq">IonQ</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dwave">DWave</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tnqvm">TNQVM</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vqe">VQE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ddcl">DDCL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rdm">RDM</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#roerrordecorator">ROErrorDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#richextrapdecorator">RichExtrapDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rdmpurificationdecorator">RDMPurificationDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#improvedsamplingdecorator">ImprovedSamplingDecorator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ir-transformations">IR Transformations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#circuitoptimizer">CircuitOptimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developers</a></li>
 </ul>
 
             
@@ -537,7 +555,7 @@ different backend in two ways:</p>
 </pre></div>
 </div>
 <p>in Python</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="p">,</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">);</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">);</span>
 <span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
 <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_valencia&#39;</span><span class="p">)});</span>
 </pre></div>
@@ -551,7 +569,7 @@ different backend in two ways:</p>
 </pre></div>
 </div>
 <p>In order to target the remote backend (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
-you IBM credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code></p>
+your IBM credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
 url: https://q-console-api.mybluemix.net
 hub: HUB
@@ -652,18 +670,72 @@ provided by your lattice. To do so, run</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="ionq">
+<h3>IonQ<a class="headerlink" href="#ionq" title="Permalink to this headline">¶</a></h3>
+<p>The IonQ Accelerator by default targets the remote <code class="docutils literal notranslate"><span class="pre">simulator</span></code> backend. You can point to the physical
+QPU in two ways:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq:qpu&quot;</span><span class="p">);</span>
+<span class="p">...</span> <span class="n">or</span> <span class="p">...</span>
+<span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;backend&quot;</span><span class="p">,</span> <span class="s">&quot;qpu&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq:qpu&#39;</span><span class="p">);</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;qpu&#39;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>You can specify the number of shots in this way as well</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>In order to target the simulator or QPU (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
+your IonQ credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ionq_config</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
+url: https://api.ionq.co/v0
+</pre></div>
+</div>
+</div>
 <div class="section" id="dwave">
 <h3>DWave<a class="headerlink" href="#dwave" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="tnqvm">
-<h3>TNQVM<a class="headerlink" href="#tnqvm" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="algorithms">
 <h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="vqe">
+<h3>VQE<a class="headerlink" href="#vqe" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="ddcl">
+<h3>DDCL<a class="headerlink" href="#ddcl" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="rdm">
+<h3>RDM<a class="headerlink" href="#rdm" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 <div class="section" id="accelerator-decorators">
 <h2>Accelerator Decorators<a class="headerlink" href="#accelerator-decorators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="roerrordecorator">
+<h3>ROErrorDecorator<a class="headerlink" href="#roerrordecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="richextrapdecorator">
+<h3>RichExtrapDecorator<a class="headerlink" href="#richextrapdecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="rdmpurificationdecorator">
+<h3>RDMPurificationDecorator<a class="headerlink" href="#rdmpurificationdecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="improvedsamplingdecorator">
+<h3>ImprovedSamplingDecorator<a class="headerlink" href="#improvedsamplingdecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="ir-transformations">
+<h2>IR Transformations<a class="headerlink" href="#ir-transformations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="circuitoptimizer">
+<h3>CircuitOptimizer<a class="headerlink" href="#circuitoptimizer" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 
@@ -675,8 +747,10 @@ provided by your lattice. To do so, run</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="basics.html" class="btn btn-neutral float-left" title="XACC Basics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

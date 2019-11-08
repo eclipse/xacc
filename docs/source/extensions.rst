@@ -159,7 +159,7 @@ in Python
 
 .. code:: python
 
-   ibm_valencia = xacc,getAccelerator('ibm:ibmq_valencia');
+   ibm_valencia = xacc.getAccelerator('ibm:ibmq_valencia');
    ... or ...
    ibm_valencia = xacc.getAccelerator('ibm', {'backend':'ibmq_valencia')});
 
@@ -176,7 +176,7 @@ or in Python
    ibm_valencia = xacc.getAccelerator('ibm:ibmq_valencia', {'shots':2048)});
 
 In order to target the remote backend (for ``initialize()`` or ``execute()``) you must provide
-you IBM credentials to XACC. To do this add the following to a plain text file ``$HOME/.ibm_config``
+your IBM credentials to XACC. To do this add the following to a plain text file ``$HOME/.ibm_config``
 
 .. code:: bash
 
@@ -292,16 +292,145 @@ provided by your lattice. To do so, run
    [or manually]
    f.mapBits([5,9])
 
+IonQ
+++++
+The IonQ Accelerator by default targets the remote ``simulator`` backend. You can point to the physical
+QPU in two ways:
+
+.. code:: cpp
+
+   auto ionq = xacc::getAccelerator("ionq:qpu");
+   ... or ...
+   auto ionq = xacc::getAccelerator("ionq", {std::make_pair("backend", "qpu")});
+
+in Python
+
+.. code:: python
+
+   ionq = xacc.getAccelerator('ionq:qpu');
+   ... or ...
+   ionq = xacc.getAccelerator('ionq', {'backend':'qpu')});
+
+You can specify the number of shots in this way as well
+
+.. code:: cpp
+
+   auto ionq = xacc::getAccelerator("ionq", {std::make_pair("shots", 2048)});
+
+or in Python
+
+.. code:: Python
+
+   ionq = xacc.getAccelerator('ionq', {'shots':2048)});
+
+In order to target the simulator or QPU (for ``initialize()`` or ``execute()``) you must provide
+your IonQ credentials to XACC. To do this add the following to a plain text file ``$HOME/.ionq_config``
+
+.. code:: bash
+
+   key: YOUR_KEY_HERE
+   url: https://api.ionq.co/v0
 
 DWave
 +++++
+The DWave Accelerator by default targets the remote ``DW_2000Q_VFYC_2_1`` backend. You can point to a
+different backend in two ways:
 
-TNQVM
-+++++
+.. code:: cpp
+
+   auto dw = xacc::getAccelerator("dwave:DW_2000Q");
+   ... or ...
+   auto dw = xacc::getAccelerator("dwave", {std::make_pair("backend", "DW_2000Q")});
+
+in Python
+
+.. code:: python
+
+   dw = xacc.getAccelerator('dwave:DW_2000Q');
+   ... or ...
+   dw = xacc.getAccelerator('dwave', {'backend':'DW_2000Q')});
+
+You can specify the number of shots in this way as well
+
+.. code:: cpp
+
+   auto dw = xacc::getAccelerator("dwave", {std::make_pair("shots", 2048)});
+
+or in Python
+
+.. code:: Python
+
+   dw = xacc.getAccelerator('dwave', {'shots':2048)});
+
+In order to target the remote backend (for ``initialize()`` or ``execute()``) you must provide
+your DWave credentials to XACC. To do this add the following to a plain text file ``$HOME/.dwave_config``
+
+.. code:: bash
+
+   key: YOUR_KEY_HERE
+   url: https://cloud.dwavesys.com
+
+You can also create this file using the ``xacc`` Python module
+
+.. code:: bash
+
+   $ python3 -m xacc -c dwave -k YOUR_KEY
+
+where you provide YOUR_KEY.
+
+DWave Neal
+++++++++++
+The DWave Neal Accelerator provides another example of contributing plugins or extensions to core C++ XACC interfaces
+from Python. To see how this is done, checkout the code `here <https://github.com/eclipse/xacc/blob/master/python/plugins/dwave/dwave_neal_accelerator.py>`_.
+This Accelerator connects the XACC IR infrastructure with the ``dwave-neal`` simulator, providing a local
+simulator that can mimic DWave QPU execution.
+
+.. code:: python
+
+   aer = xacc.getAccelerator('dwave-neal')
+   ... or ...
+   aer = xacc.getAccelerator('dwave-neal', {'shots':2000})
+
+You can also use this simulator from C++, just make sure you load the Python external language plugin.
+
+.. code:: cpp
+
+   xacc::Initialize();
+   xacc::external::load_external_language_plugins();
+   auto accelerator = xacc::getAccelerator("dwave-neal", {std::make_pair("shots", 8192)});
+   .. run simulation
+
+   xacc::external::unload_external_language_plugins();
+   xacc::Finalize();
+
 
 Algorithms
 ----------
+VQE
++++
+
+DDCL
+++++
+
+RDM
++++
 
 Accelerator Decorators
 ----------------------
+ROErrorDecorator
+++++++++++++++++
 
+RichExtrapDecorator
++++++++++++++++++++
+
+RDMPurificationDecorator
+++++++++++++++++++++++++
+
+ImprovedSamplingDecorator
++++++++++++++++++++++++++
+
+IR Transformations
+------------------
+
+CircuitOptimizer
++++++++++++++++++
