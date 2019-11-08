@@ -333,14 +333,310 @@ your IonQ credentials to XACC. To do this add the following to a plain text file
 
 DWave
 +++++
+The DWave Accelerator by default targets the remote ``DW_2000Q_VFYC_2_1`` backend. You can point to a
+different backend in two ways:
+
+.. code:: cpp
+
+   auto dw = xacc::getAccelerator("dwave:DW_2000Q");
+   ... or ...
+   auto dw = xacc::getAccelerator("dwave", {std::make_pair("backend", "DW_2000Q")});
+
+in Python
+
+.. code:: python
+
+   dw = xacc.getAccelerator('dwave:DW_2000Q');
+   ... or ...
+   dw = xacc.getAccelerator('dwave', {'backend':'DW_2000Q')});
+
+You can specify the number of shots in this way as well
+
+.. code:: cpp
+
+   auto dw = xacc::getAccelerator("dwave", {std::make_pair("shots", 2048)});
+
+or in Python
+
+.. code:: Python
+
+   dw = xacc.getAccelerator('dwave', {'shots':2048)});
+
+In order to target the remote backend (for ``initialize()`` or ``execute()``) you must provide
+your DWave credentials to XACC. To do this add the following to a plain text file ``$HOME/.dwave_config``
+
+.. code:: bash
+
+   key: YOUR_KEY_HERE
+   url: https://cloud.dwavesys.com
+
+You can also create this file using the ``xacc`` Python module
+
+.. code:: bash
+
+   $ python3 -m xacc -c dwave -k YOUR_KEY
+
+where you provide YOUR_KEY.
+
+DWave Neal
+++++++++++
+The DWave Neal Accelerator provides another example of contributing plugins or extensions to core C++ XACC interfaces
+from Python. To see how this is done, checkout the code `here <https://github.com/eclipse/xacc/blob/master/python/plugins/dwave/dwave_neal_accelerator.py>`_.
+This Accelerator connects the XACC IR infrastructure with the ``dwave-neal`` simulator, providing a local
+simulator that can mimic DWave QPU execution.
+
+.. code:: python
+
+   aer = xacc.getAccelerator('dwave-neal')
+   ... or ...
+   aer = xacc.getAccelerator('dwave-neal', {'shots':2000})
+
+You can also use this simulator from C++, just make sure you load the Python external language plugin.
+
+.. code:: cpp
+
+   xacc::Initialize();
+   xacc::external::load_external_language_plugins();
+   auto accelerator = xacc::getAccelerator("dwave-neal", {std::make_pair("shots", 8192)});
+   .. run simulation
+
+   xacc::external::unload_external_language_plugins();
+   xacc::Finalize();
+
 
 Algorithms
 ----------
+XACC exposes hybrid quantum-classical Algorithm implementations for the variational quantum eigensolver (VQE), data-driven
+circuit learning (DDCL), and chemistry reduced density matrix generation (RDM).
+
 VQE
 +++
+The VQE Algorithm requires the following input information:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator, vqe computes ground eigenvalue of this  | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    ansatz              | The unmeasured, parameterized quantum circuit                   | std::shared_ptr<CompositeInstruction>|
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    optimizer           | The classical optimizer to use                                  | std::shared_ptr<Optimizer>           |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+This Algorithm will add ``opt-val`` (``double``) and ``opt-params`` (``std::vector<double>``) to the provided ``AcceleratorBuffer``.
+The results of the algorithm are therefore retrieved via these keys (see snippet below). Note you can
+control the initial VQE parameters with the ``Optimizer`` ``initial-parameters`` key (by default all zeros).
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+   #include "xacc_observable.hpp"
+
+   int main(int argc, char **argv) {
+     xacc::Initialize(argc, argv);
+
+     // Get reference to the Accelerator
+     // specified by --accelerator argument
+     auto accelerator = xacc::getAccelerator();
+
+     // Create the N=2 deuteron Hamiltonian
+     auto H_N_2 = xacc::quantum::getObservable(
+         "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+
+     auto optimizer = xacc::getOptimizer("nlopt",
+                            {std::make_pair("initial-parameters", {.5})});
+
+     // JIT map Quil QASM Ansatz to IR
+     xacc::qasm(R"(
+    .compiler xasm
+    .circuit deuteron_ansatz
+    .parameters theta
+    .qbit q
+    X(q[0]);
+    Ry(q[1], theta);
+    CNOT(q[1],q[0]);
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+    // Get the VQE Algorithm and initialize it
+    auto vqe = xacc::getAlgorithm("vqe");
+    vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_2),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    vqe->execute(buffer);
+
+    auto ground_energy = (*buffer)["opt-val"].as<double>();
+    auto params = (*buffer)["opt-params"].as<std::vector<double>>();
+  }
+
+In Python:
+
+.. code:: python
+
+   import xacc
+
+   # Get access to the desired QPU and
+   # allocate some qubits to run on
+   qpu = xacc.getAccelerator('tnqvm')
+   buffer = xacc.qalloc(2)
+
+   # Construct the Hamiltonian as an XACC-VQE PauliOperator
+   ham = xacc.getObservable('pauli', '5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1')
+
+
+   xacc.qasm('''.compiler xasm
+   .circuit ansatz2
+   .parameters t0
+   .qbit q
+   X(q[0]);
+   Ry(q[1],t0);
+   CX(q[1],q[0]);
+   ''')
+   ansatz2 = xacc.getCompiled('ansatz2')
+
+   opt = xacc.getOptimizer('nlopt', {'initial-parameters':[.5]})
+
+   # Create the VQE algorithm
+   vqe = xacc.getAlgorithm('vqe', {
+                        'ansatz': ansatz2,
+                        'accelerator': qpu,
+                        'observable': ham,
+                        'optimizer': opt
+                        })
+   vqe.execute(buffer)
+   energy = buffer['opt-val']
+   params = buffer['opt-params']
+
 
 DDCL
 ++++
+The DDCL Algorithm implements the following algorithm - given a target probability distribution,
+propose a parameterized quantum circuit and train (minimize loss) the circuit to reproduce
+that given target distribution. We design DDCL to be extensible in loss function computation and
+gradient computation strategies.
+
+The DDCL Algorithm requires the following input information:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    target_dist         | The target probability distribution to reproduce                | std::vector<double>                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    ansatz              | The unmeasured, parameterized quantum circuit                   | std::shared_ptr<CompositeInstruction>|
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    optimizer           | The classical optimizer to use, can be gradient based           | std::shared_ptr<Optimizer>           |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    loss                | The loss strategy to use                                        |          std::string                 |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    gradient            | The gradient strategy to use                                    |  std::string                         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+As of this writing, loss can take ``js`` and ``mmd`` values for Jansen-Shannon divergence and Maximum Mean Discrepancy, respectively.
+More are being added. Also, gradient can take ``js-parameter-shift`` and ``mmd-parameter-shift`` values. These gradient
+strategies will shift each parameter by plus or minus pi over 2.
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+
+   int main(int argc, char **argv) {
+     xacc::Initialize(argc, argv);
+
+     xacc::external::load_external_language_plugins();
+     xacc::set_verbose(true);
+
+     // Get reference to the Accelerator
+     auto accelerator = xacc::getAccelerator("aer");
+
+     auto optimizer = xacc::getOptimizer("mlpack");
+     xacc::qasm(R"(
+    .compiler xasm
+    .circuit qubit2_depth1
+    .parameters x
+    .qbit q
+    U(q[0], x[0], -pi/2, pi/2 );
+    U(q[0], 0, 0, x[1]);
+    U(q[1], x[2], -pi/2, pi/2);
+    U(q[1], 0, 0, x[3]);
+    CNOT(q[0], q[1]);
+    U(q[0], 0, 0, x[4]);
+    U(q[0], x[5], -pi/2, pi/2);
+    U(q[1], 0, 0, x[6]);
+    U(q[1], x[7], -pi/2, pi/2);
+    )");
+     auto ansatz = xacc::getCompiled("qubit2_depth1");
+
+     std::vector<double> target_distribution {.5, .5, .5, .5};
+
+     auto ddcl = xacc::getAlgorithm("ddcl");
+     ddcl->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("target_dist", target_distribution),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("loss", "js"),
+                   std::make_pair("gradient", "js-parameter-shift"),
+                   std::make_pair("optimizer", optimizer)});
+
+     // Allocate some qubits and execute
+     auto buffer = xacc::qalloc(2);
+     ddcl->execute(buffer);
+
+     // Print the result
+     std::cout << "Loss: " << buffer["opt-val"].as<double>()
+            << "\n";
+
+     xacc::external::unload_external_language_plugins();
+     xacc::Finalize();
+   }
+
+or in Python
+
+.. code:: python
+
+   import xacc
+   # Get the QPU and allocate a single qubit
+   qpu = xacc.getAccelerator('aer')
+   qbits = xacc.qalloc(1)
+
+   # Get the MLPack Optimizer, default is Adam
+   optimizer = xacc.getOptimizer('mlpack')
+
+   # Create a simple quantum program
+   xacc.qasm('''
+   .compiler xasm
+   .circuit foo
+   .parameters x,y,z
+   .qbit q
+   Ry(q[0], x);
+   Ry(q[0], y);
+   Ry(q[0], z);
+   ''')
+   f = xacc.getCompiled('foo')
+
+   # Get the DDCL Algorithm, initialize it
+   # with necessary parameters
+   ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,
+                                  'accelerator': qpu,
+                                  'target_dist': [.5,.5],
+                                  'optimizer': optimizer,
+                                  'loss': 'js',
+                                  'gradient': 'js-parameter-shift'})
+   # execute
+   ddcl.execute(qbits)
+
+   print(qbits.keys())
+   print(qbits['opt-val'])
+   print(qbits['opt-params'])
+
 
 RDM
 +++

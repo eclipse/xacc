@@ -422,3 +422,6 @@ or in Python
    MEASURE 1 [1]
    ''')
    x0x1 = xacc.getCompiled('x0x1')
+
+Single-source Pythonic Programming
+----------------------------------
