@@ -93,7 +93,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#nlopt">NLOpt</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ibm">IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aer">Aer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qcs">QCS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dwave">DWave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tnqvm">TNQVM</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a></li>
 </ul>
@@ -436,21 +443,221 @@ that must be a list or vector of doubles with size equal to the number of parame
 </tr>
 </tbody>
 </table>
-<p>Usage:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-optimizer&quot;</span><span class="p">,</span> <span class="s">&quot;sgd&quot;</span><span class="p">)});</span>
+<p>Various examples of using the mlpack optimizer:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// sgd with defaults</span>
+<span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-optimizer&quot;</span><span class="p">,</span> <span class="s">&quot;sgd&quot;</span><span class="p">)});</span>
+<span class="c1">// default adam</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">)</span>
+<span class="c1">// adagrad with 30 max iters and .01 step size</span>
+<span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-optimizer&quot;</span><span class="p">,</span> <span class="s">&quot;adagrad&quot;</span><span class="p">),</span>
+                                               <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-step-size&quot;</span><span class="p">,</span> <span class="mf">.01</span><span class="p">),</span>
+                                               <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-max-iter&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)});</span>
 </pre></div>
 </div>
 <p>or in Python</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s1">&#39;mlpack&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mlpack-optimizer&#39;</span><span class="p">:</span><span class="s1">&#39;sgd&#39;</span><span class="p">})</span>
+<span class="o">//</span> <span class="n">default</span> <span class="n">adam</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s2">&quot;mlpack&quot;</span><span class="p">)</span>
+<span class="o">//</span> <span class="n">adagrad</span> <span class="k">with</span> <span class="mi">30</span> <span class="nb">max</span> <span class="n">iters</span> <span class="ow">and</span> <span class="o">.</span><span class="mo">01</span> <span class="n">step</span> <span class="n">size</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s2">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mlpack-optimizer&#39;</span><span class="p">:</span><span class="s1">&#39;adagrad&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;mlpack-step-size&#39;</span><span class="p">:</span><span class="o">.</span><span class="mo">01</span><span class="p">,</span>
+                                         <span class="s1">&#39;mlpack-max-iter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="nlopt">
 <h3>NLOpt<a class="headerlink" href="#nlopt" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 50%" />
+<col style="width: 7%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">nlopt-optimizer</span></code></p></th>
+<th class="head"><p>Optimizer Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cobyla</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>l-bfgs</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>nelder-mead</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section" id="accelerators">
 <h2>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this headline">¶</a></h2>
+<p>Here we detail all available XACC <code class="docutils literal notranslate"><span class="pre">Accelerators</span></code> and their exposed input parameters.</p>
+<div class="section" id="ibm">
+<h3>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h3>
+<p>The IBM Accelerator by default targets the remote <code class="docutils literal notranslate"><span class="pre">ibmq_qasm_simulator</span></code>. You can point to a
+different backend in two ways:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm:ibmq_valencia&quot;</span><span class="p">);</span>
+<span class="p">...</span> <span class="n">or</span> <span class="p">...</span>
+<span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;backend&quot;</span><span class="p">,</span> <span class="s">&quot;ibmq_valencia&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="p">,</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">);</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_valencia&#39;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>You can specify the number of shots in this way as well</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm:ibmq_valencia&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>In order to target the remote backend (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
+you IBM credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
+url: https://q-console-api.mybluemix.net
+hub: HUB
+group: GROUP
+project: PROJECT
+</pre></div>
+</div>
+<p>You can also create this file using the <code class="docutils literal notranslate"><span class="pre">xacc</span></code> Python module</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 -m xacc -c ibm -k YOUR_KEY --group GROUP --hub HUB --project PROJECT --url URL
+<span class="o">[</span> <span class="k">for</span> public API <span class="o">]</span>
+$ python3 -m xacc -c ibm -k YOUR_KEY
+</pre></div>
+</div>
+<p>where you provide URL, HUB, PROJECT, GROUP, and YOUR_KEY.</p>
+</div>
+<div class="section" id="aer">
+<h3>Aer<a class="headerlink" href="#aer" title="Permalink to this headline">¶</a></h3>
+<p>The Aer Accelerator provides a great example of contributing plugins or extensions to core C++ XACC interfaces
+from Python. To see how this is done, checkout the code <a class="reference external" href="https://github.com/eclipse/xacc/blob/master/python/plugins/aer/aer_accelerator.py">here</a>.
+This Accelerator connects the XACC IR infrastructure with the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> simulator, providing a
+robust simulator that can mimic noise models published by IBM backends. Note to use these noise models you must
+have setup your <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code> file (see above discussion on IBM Accelerator).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">)</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">8192</span><span class="p">})</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="c1"># For ibmq_johannesburg-like readout error</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">,</span> <span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_johannesburg&#39;</span><span class="p">,</span> <span class="s1">&#39;readout_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">})</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="c1"># For all ibmq_johannesburg-like errors</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">,</span> <span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_johannesburg&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;readout_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">,</span>
+                                 <span class="s1">&#39;thermal_relaxation&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">,</span>
+                                 <span class="s1">&#39;gate_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>You can also use this simulator from C++, just make sure you load the Python external language plugin.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">load_external_language_plugins</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;aer&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span>
+                                                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;readout_error&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">)});</span>
+<span class="p">..</span> <span class="n">run</span> <span class="n">simulation</span>
+
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">unload_external_language_plugins</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="qcs">
+<h3>QCS<a class="headerlink" href="#qcs" title="Permalink to this headline">¶</a></h3>
+<p>XACC provides support for the Rigetti QCS platform through the QCS Accelerator implementation. This
+Accelerator requires a few extra third-party libraries that you will need to install in order
+to get QCS support. Specifically we need <code class="docutils literal notranslate"><span class="pre">libzmq</span></code>, <code class="docutils literal notranslate"><span class="pre">cppzmq</span></code>, <code class="docutils literal notranslate"><span class="pre">msgpack-c</span></code>, and <code class="docutils literal notranslate"><span class="pre">uuid-dev</span></code>.
+Note that more than likely this will only be built on the QCS Centos 7 VM, so the following
+instructions are specifically for that OS.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/zeromq/libzmq
+$ <span class="nb">cd</span> libzmq/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq
+$ make -j12 install
+
+$ <span class="nb">cd</span> ../..
+$ git clone https://github.com/zeromq/cppzmq
+$ <span class="nb">cd</span> cppzmq/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build/
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq -DCMAKE_PREFIX_PATH<span class="o">=</span>~/.zmq
+$ make -j12 install
+
+$ <span class="nb">cd</span> ../..
+$ git clone https://github.com/msgpack/msgpack-c/
+$ <span class="nb">cd</span> msgpack-c/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq
+$ make -j12 install
+$ <span class="nb">cd</span> ../..
+
+$ sudo yum install uuid-dev devtoolset-8-gcc devtoolset-8-gcc-c++
+$ scl <span class="nb">enable</span> devtoolset-8 -- bash
+
+<span class="o">[</span>go to your xacc build directory<span class="o">]</span>
+cmake .. -DUUID_LIBRARY<span class="o">=</span>/usr/lib64/libuuid.so.1
+make install
+</pre></div>
+</div>
+<p>There is no further configuration for using the QCS platform.</p>
+<p>To use the QCS Accelerator targeting something like <code class="docutils literal notranslate"><span class="pre">Aspen-4-2Q-A</span></code> (for example, replace with your lattice):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">qcs</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;qcs:Aspen-4-2Q-A&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qcs</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;qcs:Aspen-4-2Q-A&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">10000</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>For now you must manually map your <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> to the correct physical bits
+provided by your lattice. To do so, run</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;qcs:Aspen-4-2Q-A&#39;</span><span class="p">)</span>
+<span class="p">[</span><span class="n">given</span> <span class="n">CompositeInstruction</span> <span class="n">f</span><span class="p">]</span>
+<span class="n">f</span><span class="o">.</span><span class="n">defaultPlacement</span><span class="p">(</span><span class="n">qpu</span><span class="p">)</span>
+<span class="p">[</span><span class="ow">or</span> <span class="n">manually</span><span class="p">]</span>
+<span class="n">f</span><span class="o">.</span><span class="n">mapBits</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dwave">
+<h3>DWave<a class="headerlink" href="#dwave" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="tnqvm">
+<h3>TNQVM<a class="headerlink" href="#tnqvm" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 <div class="section" id="algorithms">
 <h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
