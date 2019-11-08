@@ -25,4 +25,37 @@
 namespace py = pybind11;
 using namespace xacc;
 
+
+class PyObservable : public xacc::Observable {
+public:
+  /* Inherit the constructors */
+  using Observable::Observable;
+
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::Observable, name);
+  }
+  const std::string description() const override { return ""; }
+
+  std::vector<std::shared_ptr<CompositeInstruction>>
+  observe(std::shared_ptr<CompositeInstruction> c) override {
+      PYBIND11_OVERLOAD_PURE(std::vector<std::shared_ptr<CompositeInstruction>>, xacc::Observable, observe, c);
+  }
+
+  const std::string toString() override{
+      PYBIND11_OVERLOAD_PURE(std::string, xacc::Observable, toString);
+  }
+  void fromString(const std::string str) override{
+      xacc::error("PyObservable::fromString not implemented");
+  }
+
+  const int nBits() override {
+      PYBIND11_OVERLOAD_PURE(int, xacc::Observable, nBits);
+  }
+
+  void fromOptions(const HeterogeneousMap& options) override {
+      PYBIND11_OVERLOAD_PURE(void, xacc::Observable, fromOptions, options);
+  }
+
+};
+
 void bind_observable(py::module& m);

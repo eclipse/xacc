@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "py_algorithm.hpp"
 
-void bind_algorithm(py::module& m) {
+void bind_algorithm(py::module &m) {
 
   py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>>(
       m, "Algorithm",

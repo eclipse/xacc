@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "py_compiler.hpp"
 
-void bind_compiler(py::module& m) {
+void bind_compiler(py::module &m) {
 
   // Expose the Compiler
   py::class_<xacc::Compiler, std::shared_ptr<xacc::Compiler>, PyCompiler>(
@@ -35,5 +35,4 @@ void bind_compiler(py::module& m) {
       .def("translate", &xacc::Compiler::translate,
            "Translate the given IR Function instance to source code in this "
            "Compiler's language.");
-
 }

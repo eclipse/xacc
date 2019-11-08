@@ -10,17 +10,19 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "py_algorithm.hpp"
+#include "py_observable.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 #include "xacc_service.hpp"
+#include "py_heterogeneous_map.hpp"
 
 using namespace xacc::quantum;
 
-void bind_observable(py::module& m) {
+void bind_observable(py::module &m) {
 
-  py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>>(
+  py::class_<xacc::Observable, std::shared_ptr<xacc::Observable>, PyObservable>(
       m, "Observable", "The Observable interface.")
+      .def(py::init<>(), "")
       .def("observe",
            (std::vector<std::shared_ptr<xacc::CompositeInstruction>>(
                xacc::Observable::*)(
@@ -100,5 +102,24 @@ void bind_observable(py::module& m) {
             xacc::error("Invalid observable type");
             return std::make_shared<PauliOperator>();
           }
+        });
+
+  m.def("getObservable",
+        [](const std::string &type,
+           const PyHeterogeneousMap &options) -> std::shared_ptr<Observable> {
+          std::shared_ptr<Observable> t;
+          if (xacc::hasService<Observable>(type)) {
+            t = xacc::getService<Observable>(type, false);
+          } else if (xacc::hasContributedService<Observable>(type)) {
+            t = xacc::getContributedService<Observable>(type, false);
+          }
+
+          HeterogeneousMap m;
+          for (auto &item : options) {
+            PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+            mpark::visit(vis, item.second);
+          }
+          t->fromOptions(m);
+          return t;
         });
 }

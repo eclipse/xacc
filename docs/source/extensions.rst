@@ -638,9 +638,6 @@ or in Python
    print(qbits['opt-params'])
 
 
-RDM
-+++
-
 Accelerator Decorators
 ----------------------
 ROErrorDecorator

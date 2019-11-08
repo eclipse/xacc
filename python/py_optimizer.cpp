@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "py_optimizer.hpp"
 
-void bind_optimizer(py::module& m) {
+void bind_optimizer(py::module &m) {
 
   // Expose Optimizer
   py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
@@ -50,5 +50,4 @@ void bind_optimizer(py::module& m) {
       .def(py::init<std::function<double(const std::vector<double> &,
                                          std::vector<double> &)>,
                     const int>());
-
 }

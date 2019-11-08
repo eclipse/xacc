@@ -1,7 +1,7 @@
 #include "py_heterogeneous_map.hpp"
 
-void bind_heterogeneous_map(py::module& m) {
-      py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "")
+void bind_heterogeneous_map(py::module &m) {
+  py::class_<xacc::HeterogeneousMap>(m, "HeterogeneousMap", "")
       .def(py::init<>(), "")
       .def("insert",
            (void (xacc::HeterogeneousMap::*)(const std::string, const int &)) &

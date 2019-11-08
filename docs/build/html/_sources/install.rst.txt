@@ -7,8 +7,10 @@ describe the build process with the Python API enabled. For this you will need a
 development install. To interact with remote QPUs, you will need CURL with OpenSSL development
 headers and libraries.
 
-Ubuntu 16.04 Prerequisites
---------------------------
+Prerequisites
+-------------
+Ubuntu 16.04
+++++++++++++
 Here we will demonstrate installing from a bare Ubuntu install using GCC 8. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
@@ -23,8 +25,8 @@ upon execution error.
    $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50
    $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 50
 
-Ubuntu 18.04 Prerequisites
---------------------------
+Ubuntu 18.04
+++++++++++++
 Here we will demonstrate installing from a bare Ubuntu install using GCC 7 (default on 18.04). We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 We install libunwind-dev which is also optional, but provides verbose stack-trace printing
@@ -36,8 +38,8 @@ upon execution error.
    $ sudo apt-get -y install gcc g++ git libcurl4-openssl-dev python3 libunwind-dev \
             libpython3-dev python3-pip libblas-dev liblapack-dev
 
-Centos 7 Prerequisites
---------------------------
+Centos 7
+++++++++
 Here we will demonstrate installing from a bare Centos 7 install using GCC 8. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 
@@ -47,8 +49,8 @@ install BLAS and LAPACK as well, which is required to build some optional simula
           devtoolset-8-gcc devtoolset-8-gcc-c++ blas-devel lapack-devel
    $ scl enable devtoolset-8 -- bash [ you might put this in your .bashrc ]
 
-Fedora 30 Prerequisites
---------------------------
+Fedora 30
++++++++++
 Here we will demonstrate installing from a bare Fedora 30 install using GCC 9. We
 install BLAS and LAPACK as well, which is required to build some optional simulators.
 
@@ -57,8 +59,8 @@ install BLAS and LAPACK as well, which is required to build some optional simula
    $ sudo dnf install python3-devel libcurl-devel git g++ gcc make blas-devel lapack-devel
    $ sudo python3 -m pip install cmake
 
-Mac OS X Prerequisites
---------------------------
+Mac OS X
++++++++++
 Ensure that you have XCode command utilities installed. A common issue seen is missing
 standard includes like `wchar.h` and others. See `here <https://stackoverflow.com/a/52530212>`_
 for proper XCode install and configuring to address these types of issues. Here we assume you

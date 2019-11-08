@@ -40,5 +40,9 @@ install(FILES xacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY plugin_generator DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY benchmark DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/vqe/*.py plugins/aer/*.py plugins/dwave/*.py plugins/qiskit/*.py)
+file(GLOB PYDECORATORS benchmark/vqe/*.py
+                       plugins/aer/*.py
+                       plugins/dwave/*.py
+                       plugins/qiskit/*.py
+                       plugins/observables/*.py)
 install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)

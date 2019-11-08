@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to XACC’s documentation! &mdash; XACC 1.0.0 documentation</title>
+  <title>XACC Documentation &mdash; XACC 1.0.0 documentation</title>
   
 
   
@@ -135,7 +135,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to XACC’s documentation!</li>
+      <li>XACC Documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -154,8 +154,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-xacc-s-documentation">
-<h1>Welcome to XACC’s documentation!<a class="headerlink" href="#welcome-to-xacc-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="xacc-documentation">
+<h1>XACC Documentation<a class="headerlink" href="#xacc-documentation" title="Permalink to this headline">¶</a></h1>
 <img alt="_images/xacc-readme.jpg" src="_images/xacc-readme.jpg" />
 <div class="section" id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
@@ -180,16 +180,13 @@ verification and validation, and performance studies for a set of virtual
 <p>XACC relies on a project called <a class="reference external" href="http://github.com/cppmicroservices/cppmicroservices">CppMicroServices</a> -
 a native C++ implementation of the <a class="reference external" href="https://www.osgi.org/developer/architecture/">OSGi</a>
 specification that enables an extensible, modular
-plugin infrastructure for quantum compilers and accelerators. Installation of
-XACC provides the core infrastructure for describing Programs, Compilers,
-Accelerators, and IR. To enable support for various compilers and accelerators
-(like the OpenQasm or Quil compilers, or the IBM or Rigetti QPUs) you
-can install the appropriate plugin (see <a class="reference external" href="plugins.html">XACC Plugins</a>).</p>
+plugin infrastructure for quantum compilers and accelerators.</p>
 </div>
 <div class="section" id="description-of-architecture">
 <h2>Description of Architecture<a class="headerlink" href="#description-of-architecture" title="Permalink to this headline">¶</a></h2>
 <p>For a comprehensive discussion of all components of the XACC programming model and architecture,
 please refer to this <a class="reference external" href="https://arxiv.org/abs/1911.02452">manuscript</a>.</p>
+<p>For class documentation, check out this <a class="reference external" href="https://ornl-qci.github.io/xacc-api-docs/">site</a>.</p>
 </div>
 <div class="section" id="xacc-development-team">
 <h2>XACC Development Team<a class="headerlink" href="#xacc-development-team" title="Permalink to this headline">¶</a></h2>
@@ -215,11 +212,14 @@ You can ask questions by creating a new issue with the question tag.</p>
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#ubuntu-16-04-prerequisites">Ubuntu 16.04 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#ubuntu-18-04-prerequisites">Ubuntu 18.04 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#centos-7-prerequisites">Centos 7 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#fedora-30-prerequisites">Fedora 30 Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#mac-os-x-prerequisites">Mac OS X Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install.html#ubuntu-16-04">Ubuntu 16.04</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#ubuntu-18-04">Ubuntu 18.04</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#centos-7">Centos 7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#fedora-30">Fedora 30</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#mac-os-x">Mac OS X</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="install.html#build-xacc">Build XACC</a></li>
 </ul>
 </li>
@@ -269,6 +269,7 @@ You can ask questions by creating a new issue with the question tag.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#acceleratorbuffer-execution-data">AcceleratorBuffer Execution Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#error-mitigation">Error Mitigation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers.html">Developers</a><ul>

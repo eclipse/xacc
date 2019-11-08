@@ -70,8 +70,7 @@ PYBIND11_MODULE(_pyxacc, m) {
             xacc::getCompiler,
         py::return_value_policy::reference,
         "Return the Compiler of given name.");
-  m.def("getIRTransformation",
-         &xacc::getIRTransformation,
+  m.def("getIRTransformation", &xacc::getIRTransformation,
         py::return_value_policy::reference,
         "Return the IRTransformation of given name.");
   m.def("getConnectivity",

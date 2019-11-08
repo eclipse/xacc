@@ -17,7 +17,7 @@
 #include "InstructionIterator.hpp"
 #include "py_heterogeneous_map.hpp"
 
-void bind_ir(py::module& m) {
+void bind_ir(py::module &m) {
 
   py::enum_<xacc::IRTransformationType>(m, "IRTransformationType")
       .value("Optimization", xacc::IRTransformationType::Optimization)
@@ -182,8 +182,8 @@ void bind_ir(py::module& m) {
       .def("hasNext", &xacc::InstructionIterator::hasNext, "")
       .def("next", &xacc::InstructionIterator::next, "");
 
-  py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>, PyIRTransformation>(
-      m, "IRTransformation", "")
+  py::class_<xacc::IRTransformation, std::shared_ptr<xacc::IRTransformation>,
+             PyIRTransformation>(m, "IRTransformation", "")
       .def(py::init<>())
       .def(
           "apply",
@@ -196,7 +196,7 @@ void bind_ir(py::module& m) {
               mpark::visit(vis, item.second);
             }
             t.apply(k, acc, m);
-          },  py::arg("k"), py::arg("acc"), py::arg("options") = PyHeterogeneousMap(),
-          "");
-
+          },
+          py::arg("k"), py::arg("acc"),
+          py::arg("options") = PyHeterogeneousMap(), "");
 }
