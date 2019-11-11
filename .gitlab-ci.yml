@@ -15,21 +15,3 @@ docker build_master:
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
 
-macosx build_master:
-  stage: build
-  only:
-  - master
-  tags:
-  - osx
-  script:
-  - mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j12 install && ctest --output-on-failure && rm -rf ~/.xacc
-
-macosx build_devel:
-  stage: build
-  only:
-  - devel
-  tags:
-  - osx
-  script:
-  - git checkout devel && mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j12 install && ctest --output-on-failure && rm -rf ~/.xacc
-
