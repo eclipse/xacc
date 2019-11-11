@@ -22,5 +22,14 @@ macosx build_master:
   tags:
   - osx
   script:
-  - mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j$(sysctl -n hw.physicalcpu) install && ctest --output-on-failure 
+  - mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j12 install && ctest --output-on-failure && rm -rf ~/.xacc
+
+macosx build_devel:
+  stage: build
+  only:
+  - devel
+  tags:
+  - osx
+  script:
+  - git checkout devel && mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j12 install && ctest --output-on-failure && rm -rf ~/.xacc
 
