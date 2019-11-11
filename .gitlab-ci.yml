@@ -15,3 +15,12 @@ docker build_master:
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
 
+macosx build_master:
+  stage: build
+  only:
+  - master
+  tags:
+  - osx
+  script:
+  - mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE && make -j$(sysctl -n hw.physicalcpu) install && ctest --output-on-failure 
+
