@@ -18,11 +18,13 @@
 
 #if PY_MAJOR_VERSION >= 3
 #  define PYBIND11_EMBEDDED_MODULE_IMPL(name)            \
+      extern "C" PyObject *pybind11_init_impl_##name();  \
       extern "C" PyObject *pybind11_init_impl_##name() { \
           return pybind11_init_wrapper_##name();         \
       }
 #else
 #  define PYBIND11_EMBEDDED_MODULE_IMPL(name)            \
+      extern "C" void pybind11_init_impl_##name();       \
       extern "C" void pybind11_init_impl_##name() {      \
           pybind11_init_wrapper_##name();                \
       }
@@ -44,11 +46,11 @@
         }
  \endrst */
 #define PYBIND11_EMBEDDED_MODULE(name, variable)                              \
-    static void pybind11_init_##name(pybind11::module &);                     \
-    static PyObject *pybind11_init_wrapper_##name() {                         \
-        auto m = pybind11::module(#name);                                     \
+    static void PYBIND11_CONCAT(pybind11_init_, name)(pybind11::module &);    \
+    static PyObject PYBIND11_CONCAT(*pybind11_init_wrapper_, name)() {        \
+        auto m = pybind11::module(PYBIND11_TOSTRING(name));                   \
         try {                                                                 \
-            pybind11_init_##name(m);                                          \
+            PYBIND11_CONCAT(pybind11_init_, name)(m);                         \
             return m.ptr();                                                   \
         } catch (pybind11::error_already_set &e) {                            \
             PyErr_SetString(PyExc_ImportError, e.what());                     \
@@ -59,8 +61,9 @@
         }                                                                     \
     }                                                                         \
     PYBIND11_EMBEDDED_MODULE_IMPL(name)                                       \
-    pybind11::detail::embedded_module name(#name, pybind11_init_impl_##name); \
-    void pybind11_init_##name(pybind11::module &variable)
+    pybind11::detail::embedded_module name(PYBIND11_TOSTRING(name),           \
+                               PYBIND11_CONCAT(pybind11_init_impl_, name));   \
+    void PYBIND11_CONCAT(pybind11_init_, name)(pybind11::module &variable)
 
 
 NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
@@ -89,8 +92,14 @@ NAMESPACE_END(detail)
     Initialize the Python interpreter. No other pybind11 or CPython API functions can be
     called before this is done; with the exception of `PYBIND11_EMBEDDED_MODULE`. The
     optional parameter can be used to skip the registration of signal handlers (see the
-    Python documentation for details). Calling this function again after the interpreter
+    `Python documentation`_ for details). Calling this function again after the interpreter
     has already been initialized is a fatal error.
+
+    If initializing the Python interpreter fails, then the program is terminated.  (This
+    is controlled by the CPython runtime and is an exception to pybind11's normal behavior
+    of throwing exceptions on errors.)
+
+    .. _Python documentation: https://docs.python.org/3/c-api/init.html#c.Py_InitializeEx
  \endrst */
 inline void initialize_interpreter(bool init_signal_handlers = true) {
     if (Py_IsInitialized())
@@ -144,7 +153,7 @@ inline void finalize_interpreter() {
     // Get the internals pointer (without creating it if it doesn't exist).  It's possible for the
     // internals to be created during Py_Finalize() (e.g. if a py::capsule calls `get_internals()`
     // during destruction), so we get the pointer-pointer here and check it after Py_Finalize().
-    detail::internals **internals_ptr_ptr = &detail::get_internals_ptr();
+    detail::internals **internals_ptr_ptr = detail::get_internals_pp();
     // It could also be stashed in builtins, so look there too:
     if (builtins.contains(id) && isinstance<capsule>(builtins[id]))
         internals_ptr_ptr = capsule(builtins[id]);
