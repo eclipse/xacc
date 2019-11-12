@@ -119,6 +119,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#circuitoptimizer">CircuitOptimizer</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#observables">Observables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#psi4-frozen-core">Psi4 Frozen-Core</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
@@ -1042,6 +1046,45 @@ strategies will shift each parameter by plus or minus pi over 2.</p>
 <h2>IR Transformations<a class="headerlink" href="#ir-transformations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="circuitoptimizer">
 <h3>CircuitOptimizer<a class="headerlink" href="#circuitoptimizer" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="observables">
+<h2>Observables<a class="headerlink" href="#observables" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="psi4-frozen-core">
+<h3>Psi4 Frozen-Core<a class="headerlink" href="#psi4-frozen-core" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">psi4-frozen-core</span></code> observable generates an fermionic
+observable using Psi4 and based on a user provided dictionary of options.
+To use this Observable, ensure you have Psi4 installed under the same
+<code class="docutils literal notranslate"><span class="pre">python3</span></code> used for the XACC Python API.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/psi4/psi4 <span class="o">&amp;&amp;</span> <span class="nb">cd</span> psi4 <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DPYTHON_EXECUTABLE<span class="o">=</span><span class="k">$(</span>which python3<span class="k">)</span> -DCMAKE_INSTALL_PREFIX<span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4
+$ make -j8 install
+$ <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4:<span class="nv">$PYTHONPATH</span>
+</pre></div>
+</div>
+<p>This observable type takes an dictionary of options describing the
+molecular geometry (key <code class="docutils literal notranslate"><span class="pre">geometry</span></code>), the basis set (key <code class="docutils literal notranslate"><span class="pre">basis</span></code>),
+and the list of frozen (key <code class="docutils literal notranslate"><span class="pre">frozen-spin-orbitals</span></code>) and active (key <code class="docutils literal notranslate"><span class="pre">active-spin-orbitals</span></code>) spin
+orbital lists.</p>
+<p>With Psi4 and XACC installed, you can use the frozen-core
+Observable in the following way in python.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">geom</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">0 1</span>
+<span class="s1">Na  0.000000   0.0      0.0</span>
+<span class="s1">H   0.0        0.0  1.914388</span>
+<span class="s1">symmetry c1</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="n">fo</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">]</span>
+<span class="n">ao</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">19</span><span class="p">]</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getObservable</span><span class="p">(</span><span class="s1">&#39;psi4-frozen-core&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;basis&#39;</span><span class="p">:</span> <span class="s1">&#39;sto-3g&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geom</span><span class="p">,</span>
+                                    <span class="s1">&#39;frozen-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">fo</span><span class="p">,</span>
+                                    <span class="s1">&#39;active-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">ao</span><span class="p">})</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
