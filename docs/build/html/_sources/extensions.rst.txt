@@ -657,3 +657,47 @@ IR Transformations
 
 CircuitOptimizer
 +++++++++++++++++
+
+Observables
+-----------
+
+Psi4 Frozen-Core
+++++++++++++++++
+The ``psi4-frozen-core`` observable generates an fermionic
+observable using Psi4 and based on a user provided dictionary of options.
+To use this Observable, ensure you have Psi4 installed under the same
+``python3`` used for the XACC Python API.
+
+.. code:: bash
+
+   $ git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build
+   $ cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4
+   $ make -j8 install
+   $ export PYTHONPATH=$(python3 -m site --user-site)/psi4:$PYTHONPATH
+
+This observable type takes an dictionary of options describing the
+molecular geometry (key ``geometry``), the basis set (key ``basis``),
+and the list of frozen (key ``frozen-spin-orbitals``) and active (key ``active-spin-orbitals``) spin
+orbital lists.
+
+With Psi4 and XACC installed, you can use the frozen-core
+Observable in the following way in python.
+
+.. code:: python
+
+   import xacc
+
+   geom = '''
+   0 1
+   Na  0.000000   0.0      0.0
+   H   0.0        0.0  1.914388
+   symmetry c1
+   '''
+   fo = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14]
+   ao = [5, 9, 15, 19]
+
+   H = xacc.getObservable('psi4-frozen-core', {'basis': 'sto-3g',
+                                       'geometry': geom,
+                                       'frozen-spin-orbitals': fo,
+                                       'active-spin-orbitals': ao})
+

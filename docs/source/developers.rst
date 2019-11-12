@@ -18,7 +18,7 @@ the following directory structure
 
 ::
 
-    project
+    test_ir_transformation
     ├── CMakeLists.txt
     ├── src
         ├── CMakeLists.txt
