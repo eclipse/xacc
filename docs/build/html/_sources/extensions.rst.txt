@@ -638,13 +638,60 @@ or in Python
    print(qbits['opt-params'])
 
 
+
 Accelerator Decorators
 ----------------------
 ROErrorDecorator
 ++++++++++++++++
+The ``ROErrorDecorator`` provides an ``AcceleratorDecorator`` implementation for affecting
+readout error mitigation as in the `deuteron paper <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_.
+It takes as input readout error probabilities ``p(0|1)`` and ``p(1|0)`` for all qubits and shifts expecation values
+accordingly (see paper).
 
-RichExtrapDecorator
-+++++++++++++++++++
+By default it will request the backend properties from the decorated ``Accelerator`` (``Accelerator::getProperties()``). This method
+returns a ``HeterogeneousMap``. If this map contains a vector of doubles at keys ``p01s`` and ``p10s``, then these
+values will be used in the readout error correction. Alternatively, if the backend does not provide this data,
+users can provide a custom JSON file containing the probabilities. This file should be structured as such
+
+.. code:: bash
+
+   {
+       "shots": 1024,
+       "backend": "qcs:Aspen-2Q-A",
+       "0": {
+           "0|1": 0.0565185546875,
+           "1|0": 0.0089111328125,
+           "+": 0.0654296875,
+           "-": 0.047607421875
+       },
+       "1": {
+           "0|1": 0.095458984375,
+           "1|0": 0.0115966796875,
+           "+": 0.1070556640625,
+           "-": 0.0838623046875
+       }
+   }
+
+Automating readout error mitigation with this decorator can be done in the following way:
+
+.. code:: python
+
+   qpu = xacc.getAccelerator('ibm:ibmq_johannesburg', {'shots':1024})
+
+   # Turn on readout error correction by decorating qpu
+   qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+
+   # Now use qpu as your Accelerator...
+   # execution will be automatically readout
+   # error corrected
+
+Similarly, with a provided configuration file
+
+.. code:: cpp
+
+   auto qpu = xacc::getAccelerator("qcs:Aspen-2Q-A");
+   qpu = xacc::getAcceleratorDecorator("ro-error", qpu, {std::make_pair("file", "probs.json")});
+
 
 RDMPurificationDecorator
 ++++++++++++++++++++++++
@@ -657,6 +704,35 @@ IR Transformations
 
 CircuitOptimizer
 +++++++++++++++++
+This ``IRTransformation`` of type ``Optimization`` will search the DAG representation
+of a quantum circuit and remove all zero-rotations, hadamard and cnot pairs, and merge
+adjacent common rotations (e.g. ``Rx(.1)Rx(.1) -> Rx(.2)``).
+
+.. code:: python
+
+   # Create a bell state program with too many cnots
+   xacc.qasm('''
+   .compiler xasm
+   .circuit foo
+   .qbit q
+   H(q[0]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   Measure(q[0]);
+   Measure(q[1]);
+   ''')
+   f = xacc.getCompiled('foo')
+   assert(6 == f.nInstructions())
+
+   # Run the circuit-optimizer IRTransformation, can pass
+   # accelerator (here None) and options (here empty dict())
+   optimizer = xacc.getIRTransformation('circuit-optimizer')
+   optimizer.apply(f, None, {})
+
+   # should have 4 instructions, not 6
+   assert(4 == f.nInstructions())
+
 
 Observables
 -----------
@@ -673,9 +749,9 @@ To use this Observable, ensure you have Psi4 installed under the same
    $ git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build
    $ cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4
    $ make -j8 install
-   $ export PYTHONPATH=$(python3 -m site --user-site)/psi4:$PYTHONPATH
+   $ export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$PYTHONPATH
 
-This observable type takes an dictionary of options describing the
+This observable type takes a dictionary of options describing the
 molecular geometry (key ``geometry``), the basis set (key ``basis``),
 and the list of frozen (key ``frozen-spin-orbitals``) and active (key ``active-spin-orbitals``) spin
 orbital lists.

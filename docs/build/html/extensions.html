@@ -110,7 +110,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#roerrordecorator">ROErrorDecorator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#richextrapdecorator">RichExtrapDecorator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rdmpurificationdecorator">RDMPurificationDecorator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#improvedsamplingdecorator">ImprovedSamplingDecorator</a></li>
 </ul>
@@ -1031,9 +1030,48 @@ strategies will shift each parameter by plus or minus pi over 2.</p>
 <h2>Accelerator Decorators<a class="headerlink" href="#accelerator-decorators" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="roerrordecorator">
 <h3>ROErrorDecorator<a class="headerlink" href="#roerrordecorator" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ROErrorDecorator</span></code> provides an <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> implementation for affecting
+readout error mitigation as in the <a class="reference external" href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501">deuteron paper</a>.
+It takes as input readout error probabilities <code class="docutils literal notranslate"><span class="pre">p(0|1)</span></code> and <code class="docutils literal notranslate"><span class="pre">p(1|0)</span></code> for all qubits and shifts expecation values
+accordingly (see paper).</p>
+<p>By default it will request the backend properties from the decorated <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> (<code class="docutils literal notranslate"><span class="pre">Accelerator::getProperties()</span></code>). This method
+returns a <code class="docutils literal notranslate"><span class="pre">HeterogeneousMap</span></code>. If this map contains a vector of doubles at keys <code class="docutils literal notranslate"><span class="pre">p01s</span></code> and <code class="docutils literal notranslate"><span class="pre">p10s</span></code>, then these
+values will be used in the readout error correction. Alternatively, if the backend does not provide this data,
+users can provide a custom JSON file containing the probabilities. This file should be structured as such</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+    <span class="s2">&quot;shots&quot;</span>: <span class="m">1024</span>,
+    <span class="s2">&quot;backend&quot;</span>: <span class="s2">&quot;qcs:Aspen-2Q-A&quot;</span>,
+    <span class="s2">&quot;0&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;0|1&quot;</span>: <span class="m">0</span>.0565185546875,
+        <span class="s2">&quot;1|0&quot;</span>: <span class="m">0</span>.0089111328125,
+        <span class="s2">&quot;+&quot;</span>: <span class="m">0</span>.0654296875,
+        <span class="s2">&quot;-&quot;</span>: <span class="m">0</span>.047607421875
+    <span class="o">}</span>,
+    <span class="s2">&quot;1&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;0|1&quot;</span>: <span class="m">0</span>.095458984375,
+        <span class="s2">&quot;1|0&quot;</span>: <span class="m">0</span>.0115966796875,
+        <span class="s2">&quot;+&quot;</span>: <span class="m">0</span>.1070556640625,
+        <span class="s2">&quot;-&quot;</span>: <span class="m">0</span>.0838623046875
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
 </div>
-<div class="section" id="richextrapdecorator">
-<h3>RichExtrapDecorator<a class="headerlink" href="#richextrapdecorator" title="Permalink to this headline">¶</a></h3>
+<p>Automating readout error mitigation with this decorator can be done in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_johannesburg&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">1024</span><span class="p">})</span>
+
+<span class="c1"># Turn on readout error correction by decorating qpu</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAcceleratorDecorator</span><span class="p">(</span><span class="s1">&#39;ro-error&#39;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">)</span>
+
+<span class="c1"># Now use qpu as your Accelerator...</span>
+<span class="c1"># execution will be automatically readout</span>
+<span class="c1"># error corrected</span>
+</pre></div>
+</div>
+<p>Similarly, with a provided configuration file</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;qcs:Aspen-2Q-A&quot;</span><span class="p">);</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAcceleratorDecorator</span><span class="p">(</span><span class="s">&quot;ro-error&quot;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="s">&quot;probs.json&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="rdmpurificationdecorator">
 <h3>RDMPurificationDecorator<a class="headerlink" href="#rdmpurificationdecorator" title="Permalink to this headline">¶</a></h3>
@@ -1046,6 +1084,33 @@ strategies will shift each parameter by plus or minus pi over 2.</p>
 <h2>IR Transformations<a class="headerlink" href="#ir-transformations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="circuitoptimizer">
 <h3>CircuitOptimizer<a class="headerlink" href="#circuitoptimizer" title="Permalink to this headline">¶</a></h3>
+<p>This <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> of type <code class="docutils literal notranslate"><span class="pre">Optimization</span></code> will search the DAG representation
+of a quantum circuit and remove all zero-rotations, hadamard and cnot pairs, and merge
+adjacent common rotations (e.g. <code class="docutils literal notranslate"><span class="pre">Rx(.1)Rx(.1)</span> <span class="pre">-&gt;</span> <span class="pre">Rx(.2)</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a bell state program with too many cnots</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">.compiler xasm</span>
+<span class="s1">.circuit foo</span>
+<span class="s1">.qbit q</span>
+<span class="s1">H(q[0]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">Measure(q[0]);</span>
+<span class="s1">Measure(q[1]);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">6</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+
+<span class="c1"># Run the circuit-optimizer IRTransformation, can pass</span>
+<span class="c1"># accelerator (here None) and options (here empty dict())</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;circuit-optimizer&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{})</span>
+
+<span class="c1"># should have 4 instructions, not 6</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">4</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="observables">
@@ -1059,10 +1124,10 @@ To use this Observable, ensure you have Psi4 installed under the same
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/psi4/psi4 <span class="o">&amp;&amp;</span> <span class="nb">cd</span> psi4 <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
 $ cmake .. -DPYTHON_EXECUTABLE<span class="o">=</span><span class="k">$(</span>which python3<span class="k">)</span> -DCMAKE_INSTALL_PREFIX<span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4
 $ make -j8 install
-$ <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4:<span class="nv">$PYTHONPATH</span>
+$ <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4/lib:<span class="nv">$PYTHONPATH</span>
 </pre></div>
 </div>
-<p>This observable type takes an dictionary of options describing the
+<p>This observable type takes a dictionary of options describing the
 molecular geometry (key <code class="docutils literal notranslate"><span class="pre">geometry</span></code>), the basis set (key <code class="docutils literal notranslate"><span class="pre">basis</span></code>),
 and the list of frozen (key <code class="docutils literal notranslate"><span class="pre">frozen-spin-orbitals</span></code>) and active (key <code class="docutils literal notranslate"><span class="pre">active-spin-orbitals</span></code>) spin
 orbital lists.</p>
