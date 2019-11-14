@@ -638,6 +638,7 @@ or in Python
    print(qbits['opt-params'])
 
 
+
 Accelerator Decorators
 ----------------------
 ROErrorDecorator
@@ -703,6 +704,35 @@ IR Transformations
 
 CircuitOptimizer
 +++++++++++++++++
+This ``IRTransformation`` of type ``Optimization`` will search the DAG representation
+of a quantum circuit and remove all zero-rotations, hadamard and cnot pairs, and merge
+adjacent common rotations (e.g. ``Rx(.1)Rx(.1) -> Rx(.2)``).
+
+.. code:: python
+
+   # Create a bell state program with too many cnots
+   xacc.qasm('''
+   .compiler xasm
+   .circuit foo
+   .qbit q
+   H(q[0]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   Measure(q[0]);
+   Measure(q[1]);
+   ''')
+   f = xacc.getCompiled('foo')
+   assert(6 == f.nInstructions())
+
+   # Run the circuit-optimizer IRTransformation, can pass
+   # accelerator (here None) and options (here empty dict())
+   optimizer = xacc.getIRTransformation('circuit-optimizer')
+   optimizer.apply(f, None, {})
+
+   # should have 4 instructions, not 6
+   assert(4 == f.nInstructions())
+
 
 Observables
 -----------
@@ -721,7 +751,7 @@ To use this Observable, ensure you have Psi4 installed under the same
    $ make -j8 install
    $ export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$PYTHONPATH
 
-This observable type takes an dictionary of options describing the
+This observable type takes a dictionary of options describing the
 molecular geometry (key ``geometry``), the basis set (key ``basis``),
 and the list of frozen (key ``frozen-spin-orbitals``) and active (key ``active-spin-orbitals``) spin
 orbital lists.
