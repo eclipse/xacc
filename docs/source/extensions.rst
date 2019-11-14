@@ -673,7 +673,7 @@ To use this Observable, ensure you have Psi4 installed under the same
    $ git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build
    $ cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4
    $ make -j8 install
-   $ export PYTHONPATH=$(python3 -m site --user-site)/psi4:$PYTHONPATH
+   $ export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$PYTHONPATH
 
 This observable type takes an dictionary of options describing the
 molecular geometry (key ``geometry``), the basis set (key ``basis``),

@@ -114,11 +114,31 @@ void bind_observable(py::module &m) {
             t = xacc::getContributedService<Observable>(type, false);
           }
 
+          if (!t) {
+              xacc::error("Invalid Observable type name " + type + ", can't find in service registry.");
+          }
           HeterogeneousMap m;
           for (auto &item : options) {
             PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
             mpark::visit(vis, item.second);
           }
+          t->fromOptions(m);
+          return t;
+        });
+        
+      m.def("getObservable",
+        [](const std::string &type) -> std::shared_ptr<Observable> {
+          std::shared_ptr<Observable> t;
+          if (xacc::hasService<Observable>(type)) {
+            t = xacc::getService<Observable>(type, false);
+          } else if (xacc::hasContributedService<Observable>(type)) {
+            t = xacc::getContributedService<Observable>(type, false);
+          }
+
+          if (!t) {
+              xacc::error("Invalid Observable type name " + type + ", can't find in service registry.");
+          }
+          HeterogeneousMap m;
           t->fromOptions(m);
           return t;
         });

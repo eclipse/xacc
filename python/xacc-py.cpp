@@ -115,6 +115,18 @@ PYBIND11_MODULE(_pyxacc, m) {
           accd->setDecorated(acc);
           return accd;
         });
+  m.def("getAcceleratorDecorator",
+        [](const std::string name, std::shared_ptr<Accelerator> acc, const PyHeterogeneousMap& options) {
+          auto accd = xacc::getService<AcceleratorDecorator>(name);
+          accd->setDecorated(acc);
+          HeterogeneousMap m;
+          for (auto &item : options) {
+            PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+            mpark::visit(vis, item.second);
+          }
+          accd->initialize(m);
+          return accd;
+        });
   m.def("asComposite", &xacc::ir::asComposite, "");
   m.def("asInstruction", &xacc::ir::asInstruction, "");
   m.def(

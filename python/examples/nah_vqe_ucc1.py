@@ -1,6 +1,4 @@
 import xacc
-import sys
-import numpy as np
 
 # Get access to the desired QPU and
 # allocate some qubits to run on
