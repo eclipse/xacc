@@ -19,6 +19,7 @@
 #include <fstream>
 #include "xacc_config.hpp"
 #include "cxxopts.hpp"
+#include "AcceleratorDecorator.hpp"
 
 #include "xacc_service.hpp"
 
@@ -184,6 +185,23 @@ void setCompiler(const std::string &compilerName) {
 }
 void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
+}
+
+std::shared_ptr<Accelerator> getAcceleratorDecorator(const std::string& decorator, std::shared_ptr<Accelerator> acc, const HeterogeneousMap& params) {
+ std::shared_ptr<AcceleratorDecorator> accd;
+  if (xacc::hasService<AcceleratorDecorator>(decorator)) {
+    accd = xacc::getService<AcceleratorDecorator>(decorator, false);
+  } else if (xacc::hasContributedService<AcceleratorDecorator>(decorator)) {
+    accd = xacc::getContributedService<AcceleratorDecorator>(decorator, false);
+  }
+
+  if (!accd) {
+      xacc::error("Cannot find AcceleratorDecorator with name " + decorator);
+  }
+
+  accd->setDecorated(acc);
+  accd->initialize(params);
+  return accd;
 }
 
 std::shared_ptr<Accelerator> getAccelerator() {
