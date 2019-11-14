@@ -642,9 +642,55 @@ Accelerator Decorators
 ----------------------
 ROErrorDecorator
 ++++++++++++++++
+The ``ROErrorDecorator`` provides an ``AcceleratorDecorator`` implementation for affecting
+readout error mitigation as in the `deuteron paper <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_.
+It takes as input readout error probabilities ``p(0|1)`` and ``p(1|0)`` for all qubits and shifts expecation values
+accordingly (see paper).
 
-RichExtrapDecorator
-+++++++++++++++++++
+By default it will request the backend properties from the decorated ``Accelerator`` (``Accelerator::getProperties()``). This method
+returns a ``HeterogeneousMap``. If this map contains a vector of doubles at keys ``p01s`` and ``p10s``, then these
+values will be used in the readout error correction. Alternatively, if the backend does not provide this data,
+users can provide a custom JSON file containing the probabilities. This file should be structured as such
+
+.. code:: bash
+
+   {
+       "shots": 1024,
+       "backend": "qcs:Aspen-2Q-A",
+       "0": {
+           "0|1": 0.0565185546875,
+           "1|0": 0.0089111328125,
+           "+": 0.0654296875,
+           "-": 0.047607421875
+       },
+       "1": {
+           "0|1": 0.095458984375,
+           "1|0": 0.0115966796875,
+           "+": 0.1070556640625,
+           "-": 0.0838623046875
+       }
+   }
+
+Automating readout error mitigation with this decorator can be done in the following way:
+
+.. code:: python
+
+   qpu = xacc.getAccelerator('ibm:ibmq_johannesburg', {'shots':1024})
+
+   # Turn on readout error correction by decorating qpu
+   qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+
+   # Now use qpu as your Accelerator...
+   # execution will be automatically readout
+   # error corrected
+
+Similarly, with a provided configuration file
+
+.. code:: cpp
+
+   auto qpu = xacc::getAccelerator("qcs:Aspen-2Q-A");
+   qpu = xacc::getAcceleratorDecorator("ro-error", qpu, {std::make_pair("file", "probs.json")});
+
 
 RDMPurificationDecorator
 ++++++++++++++++++++++++

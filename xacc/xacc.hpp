@@ -127,6 +127,7 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
                                             std::shared_ptr<Client> client,
                                             const HeterogeneousMap& params = {});
 std::shared_ptr<Accelerator> getAccelerator();
+std::shared_ptr<Accelerator> getAcceleratorDecorator(const std::string& decorator, std::shared_ptr<Accelerator> acc, const HeterogeneousMap& params = {});
 
 bool hasAccelerator(const std::string &name);
 
