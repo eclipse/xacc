@@ -88,12 +88,12 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#acceleratorbuffer"><code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-buffer">Accelerator Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#intermediate-representation-kernels-and-compilers">Intermediate Representation, Kernels, and Compilers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#observable"><code class="docutils literal notranslate"><span class="pre">Observable</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#accelerator"><code class="docutils literal notranslate"><span class="pre">Accelerator</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optimizer"><code class="docutils literal notranslate"><span class="pre">Optimizer</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#xacc-qasm"><code class="docutils literal notranslate"><span class="pre">xacc::qasm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#observable">Observable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator">Accelerator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimizer">Optimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xacc-qasm">xacc::qasm()</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#single-source-pythonic-programming">Single-source Pythonic Programming</a></li>
 </ul>
 </li>
@@ -169,8 +169,8 @@
 <p>Here we demonstrate leveraging the XACC framework for various
 quantum-classical programming tasks. We provide examples in both
 C++ and Python.</p>
-<div class="section" id="acceleratorbuffer">
-<h2><code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code><a class="headerlink" href="#acceleratorbuffer" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="accelerator-buffer">
+<h2>Accelerator Buffer<a class="headerlink" href="#accelerator-buffer" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> represents a register of qubits. Programmers allocate
 this register of a certain size, and pass it by reference to all execution tasks.
 These execution tasks are carried out by concrete instances of the <cite>Accelerator</cite>
@@ -325,7 +325,7 @@ on IR instances.</p>
 </div>
 </div>
 <div class="section" id="observable">
-<h2><code class="docutils literal notranslate"><span class="pre">Observable</span></code><a class="headerlink" href="#observable" title="Permalink to this headline">¶</a></h2>
+<h2>Observable<a class="headerlink" href="#observable" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Observable</span></code> concept in XACC dictates measurements to be performed
 on unmeasured an <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code>. XACC provides <code class="docutils literal notranslate"><span class="pre">pauli</span></code> and <code class="docutils literal notranslate"><span class="pre">fermion</span></code>
 <code class="docutils literal notranslate"><span class="pre">Observable</span></code> implementations. Below we demonstrate how one might create these objects.</p>
@@ -361,7 +361,7 @@ auto spin = jw-&gt;transform(fermion);
 </div>
 </div>
 <div class="section" id="accelerator">
-<h2><code class="docutils literal notranslate"><span class="pre">Accelerator</span></code><a class="headerlink" href="#accelerator" title="Permalink to this headline">¶</a></h2>
+<h2>Accelerator<a class="headerlink" href="#accelerator" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> is the primary interface to backend quantum computers and simulators for XACC.
 The can be initialized with a heterogeneous map of input parameters, expose qubit connectivity information,
 and implement execution capabilities given a valid <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> and <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code>.
@@ -418,7 +418,7 @@ initialization and finalization.</p>
 </div>
 </div>
 <div class="section" id="optimizer">
-<h2><code class="docutils literal notranslate"><span class="pre">Optimizer</span></code><a class="headerlink" href="#optimizer" title="Permalink to this headline">¶</a></h2>
+<h2>Optimizer<a class="headerlink" href="#optimizer" title="Permalink to this headline">¶</a></h2>
 <p>This abstraction is meant for the injection of general classical multi-variate function
 optimization routines. XACC provides implementations leveraging NLOpt and MLPack C++ libraries.
 <code class="docutils literal notranslate"><span class="pre">Optimizer``s</span> <span class="pre">expose</span> <span class="pre">an</span> <span class="pre">``optimize()</span></code> method that takes as input an <code class="docutils literal notranslate"><span class="pre">OptFunction</span></code>, which serves as
@@ -458,7 +458,7 @@ gradient vector). Below is a demonstration of how one might use this utility:</p
 </div>
 </div>
 <div class="section" id="xacc-qasm">
-<h2><code class="docutils literal notranslate"><span class="pre">xacc::qasm</span></code><a class="headerlink" href="#xacc-qasm" title="Permalink to this headline">¶</a></h2>
+<h2>xacc::qasm()<a class="headerlink" href="#xacc-qasm" title="Permalink to this headline">¶</a></h2>
 <p>To improve programming efficiency, readability, and utility of the quantum kernel string
 compilation, XACC exposes a <code class="docutils literal notranslate"><span class="pre">qasm()</span></code> function. This function takes as input an enhanced quantum
 kernel source string syntax and compiles it to XACC IR. This source string is <em>enhanced</em> in that

@@ -5,7 +5,7 @@ Here we demonstrate leveraging the XACC framework for various
 quantum-classical programming tasks. We provide examples in both
 C++ and Python.
 
-``AcceleratorBuffer``
+Accelerator Buffer
 -------------------------
 The ``AcceleratorBuffer`` represents a register of qubits. Programmers allocate
 this register of a certain size, and pass it by reference to all execution tasks.
@@ -48,9 +48,9 @@ in Python
 
 Intermediate Representation, Kernels, and Compilers
 ----------------------------------------------------
-Above we mentioned a ``program`` variable but did not detail how it was created. This instances
-is represented in XACC as a ``CompositeInstruction``. The creation of ``Instructions`` and
-``CompositeInstruction`` is demonstrated here. First, we create this instances via an
+Above we mentioned a ``program`` variable but did not detail how it was created. This instance
+is represented in XACC as a ``CompositeInstruction``. The creation of ``Instruction`` and
+``CompositeInstruction`` is demonstrated below. First, we create this instances via an
 implementation of the ``IRProvider``, specifically a 3 instruction circuit with one
 parameterized ``Ry`` on a variable ``theta``.
 
@@ -187,8 +187,8 @@ in Python
    print(f.toString())
 
 
-``Observable``
-------------------
+Observable
+----------
 The ``Observable`` concept in XACC dictates measurements to be performed
 on unmeasured an ``CompositeInstruction``. XACC provides ``pauli`` and ``fermion``
 ``Observable`` implementations. Below we demonstrate how one might create these objects.
@@ -226,8 +226,8 @@ in Python
    jw = xacc.getObservableTransform('jordan-wigner')
    spin = jw.transform(fermion)
 
-``Accelerator``
--------------------
+Accelerator
+-----------
 The ``Accelerator`` is the primary interface to backend quantum computers and simulators for XACC.
 The can be initialized with a heterogeneous map of input parameters, expose qubit connectivity information,
 and implement execution capabilities given a valid ``AcceleratorBuffer`` and ``CompositeInstruction``.
@@ -286,8 +286,8 @@ in Python
    # usefule for executing many circuits with one remote qpu call
    # accelerator.execute(buffer, ir.getComposites())
 
-``Optimizer``
------------------
+Optimizer
+-------------
 This abstraction is meant for the injection of general classical multi-variate function
 optimization routines. XACC provides implementations leveraging NLOpt and MLPack C++ libraries.
 ``Optimizer``s expose an ``optimize()`` method that takes as input an ``OptFunction``, which serves as
@@ -329,7 +329,7 @@ or in Python
    optimizer = xacc.getOptimizer('mlpack',{'mlpack-optimizer':'l-bfgs'})
    opt_val, opt_params = optimizer.optimize(rosen_with_grad,2)
 
-``xacc::qasm``
+xacc::qasm()
 ------------------
 To improve programming efficiency, readability, and utility of the quantum kernel string
 compilation, XACC exposes a ``qasm()`` function. This function takes as input an enhanced quantum

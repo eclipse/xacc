@@ -1,5 +1,4 @@
 import xacc, numpy as np
-from xacc import PauliOperator
 
 nAngles = 10
 
@@ -15,11 +14,7 @@ tnqvmBuffer = xacc.qalloc(2)
 qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
 
 # Construct the Hamiltonian
-ham = PauliOperator(5.906709445) + \
-    PauliOperator({0: 'X', 1: 'X'}, -2.1433) + \
-    PauliOperator({0: 'Y', 1: 'Y'}, -2.1433) + \
-    PauliOperator({0: 'Z'}, .21829) + \
-    PauliOperator({1: 'Z'}, -6.125)
+ham = xacc.getObservable('pauli', '5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1')
 
 # Define the ansatz and decorate it to indicate
 # you'd like to run VQE
@@ -37,8 +32,6 @@ def ansatz(buffer, t0):
 print("Starting TNQVM")
 ansatz.overrideAccelerator(tnqvm)
 [ansatz(tnqvmBuffer, t) for t in np.linspace(-np.pi,np.pi,nAngles)]
-
-# ansatz(xacc.qalloc(2), 0.0)
 
 # Get Theory, Raw, and ROError energies in separate lists
 ro_energies, raw_energies, tnqvm_energies = [[] for i in range(3)]
