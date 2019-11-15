@@ -35,7 +35,7 @@ except:
     pass
 
 
-class BenchmarkAlgorithm(ABC):
+class Benchmark(ABC):
 
     # Override this execute method to implement the algorithm
     # @input inputParams
@@ -76,13 +76,7 @@ def parse_args(args):
                         help="Print the path to the Python.h.", required=False)
     parser.add_argument("--benchmark", type=str,
                         help="Run the benchmark detailed in the given input file.", required=False)
-    parser.add_argument("--benchmark-requires", type=str,
-                        help="List the required services of specified BenchmarkAlgorithm.", required=False)
-    parser.add_argument("--benchmark-service", type=str,
-                        help="List the plugin names and files of specified service.", required=False)
-    parser.add_argument("--benchmark-install", type=str,
-                        help="Pull and install the benchmark specified plugin package.", required=False)
-    # parser.add_argument("--list-backends", type=str, help="List the backends available for the provided Accelerator.", required=False)
+
 
     if hasPluginGenerator:
         subparsers = parser.add_subparsers(title="subcommands", dest="subcommand",
@@ -170,6 +164,8 @@ def setCredentials(opts):
     fname = acc if 'rigetti' not in acc else 'pyquil'
     print('\nCreated '+acc+' config file:\n$ cat ~/.'+fname+'_config:')
     print(open(os.environ['HOME']+'/.'+fname+'_config', 'r').read())
+
+
 
 class DecoratorFunction(ABC):
 
@@ -289,9 +285,8 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm',
-                       'hamiltonian_generator', 'ansatz_generator', 'accelerator',
-                       'irtransformation', 'observable']
+        serviceList = ['benchmark',
+                        'accelerator', 'irtransformation', 'observable']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -326,56 +321,6 @@ class PyServiceRegistry(object):
                         {name: self.context.get_service(component)})
             return tmp
 
-    def get_service(self, serviceName, name):
-        service = None
-        try:
-            available_services = self.registry[serviceName]
-            service = available_services[name]
-        except KeyError:
-            info("""There is no '{0}' with the name '{1}' available.
-    1. Install the '{1}' '{0}' to the Python plugin directory.
-    2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name, ""))
-            if serviceName == "benchmark_algorithm":
-                self.get_benchmark_requirements(name)
-            exit(1)
-        return service
-
-    def get_benchmark_requirements(self, name):
-        with use_ipopo(self.context) as ipopo:
-            requirements = []
-            try:
-                details = ipopo.get_instance_details(
-                    name+"_benchmark")['dependencies']
-            except ValueError as ex:
-                info(
-                    "There is no benchmark_algorithm service with the name '{}' available.".format(name))
-                exit(1)
-            for k, v in details.items():
-                requirements.append(v['specification'])
-            if not requirements:
-                info(
-                    "There are no required services for '{}' BenchmarkAlgorithm.".format(name))
-                exit(1)
-            info("Required benchmark services for '{}' BenchmarkAlgorithm:".format(name))
-            for i, r in enumerate(requirements):
-                info("{}. {}".format(i+1, r))
-
-    def get_component_names(self, serviceType):
-        tmp = self.context.get_all_service_references(serviceType)
-        names_and_files = {}
-        try:
-            for component in tmp:
-                b = component.get_bundle()
-                names_and_files[component.get_properties(
-                )['name']] = b.get_symbolic_name()
-        except TypeError as ex:
-            info("There are no plugins with service reference '{}' available.".format(
-                serviceType))
-            exit(1)
-        info("Names and files of plugins that provide service reference '{}':".format(
-            serviceType))
-        for i, (k, v) in enumerate(names_and_files.items()):
-            info("{}. {}  --> {}.py".format(i+1, k, v))
 
     def install_plugins(self, pkg):
         dest = os.path.dirname(os.path.realpath(__file__))+"/benchmark"
@@ -395,34 +340,24 @@ if not pelix.framework.FrameworkFactory.is_framework_running(None):
 def benchmark(opts):
     if opts.benchmark is not None:
         inputfile = opts.benchmark
-        xacc_settings = process_benchmark_input(inputfile)
+        config = configparser.Configparser()
+        config.read(inputfile)
+        xacc_settings = {section: dict(config.items(s)) for section in config.sections()}
     else:
         error('Must provide input file for benchmark.')
         return
 
     Initialize()
 
-    if ':' in xacc_settings['accelerator']:
-        accelerator, backend = xacc_settings['accelerator'].split(':')
-        setOption(accelerator + "-backend", backend)
-        xacc_settings['accelerator'] = accelerator
-
-    accelerator = xacc_settings['accelerator']
-    if 'n-shots' in xacc_settings:
-        if 'local-ibm' in accelerator:
-            accelerator = 'ibm'
-        setOption(accelerator+('-trials' if 'rigetti' in accelerator else '-shots'),
-                  xacc_settings['n-shots'])
-    # Using ServiceRegistry to getService (benchmark_algorithm_service) and execute the service
-    algorithm = serviceRegistry.get_service(
-        'benchmark_algorithm', xacc_settings['algorithm'])
-    if algorithm is None:
+    _benchmark = serviceRegistry.get_service(
+        'benchmark', xacc_settings['benchmark'])
+    if _benchmark is None:
         print("XACC algorithm service with name " +
-              xacc_settings['algorithm'] + " is not installed.")
+              xacc_settings['benchmark'] + " is not installed.")
         exit(1)
 
     starttime = time.time()
-    buffer = algorithm.execute(xacc_settings)
+    buffer = _benchmark.execute(xacc_settings)
     elapsedtime = time.time() - starttime
     buffer.addExtraInfo("benchmark-time", elapsedtime)
     for k, v in xacc_settings.items():
@@ -430,30 +365,15 @@ def benchmark(opts):
     # Analyze the buffer
     head, tail = os.path.split(inputfile)
     buffer.addExtraInfo('file-name', tail)
-    algorithm.analyze(buffer, xacc_settings)
+    _benchmark.analyze(buffer, xacc_settings)
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    results_name = "%s_%s_%s_%s" % (os.path.splitext(
-        tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
-    f = open(results_name+".ab", 'w')
-    f.write(str(buffer))
-    f.close()
+    # results_name = "%s_%s_%s_%s" % (os.path.splitext(
+    #     tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
+    # f = open(results_name+".ab", 'w')
+    # f.write(str(buffer))
+    # f.close()
 
     Finalize()
-
-
-def process_benchmark_input(filename):
-    config = configparser.RawConfigParser()
-    try:
-        with open(filename) as f:
-            framework_settings = {}
-            config.read(filename)
-            for section in config.sections():
-                temp = dict(config.items(section))
-                framework_settings.update(temp)
-            return framework_settings
-    except:
-        print("Input file " + filename + " could not be opened.")
-        exit(1)
 
 
 def main(argv=None):
@@ -472,35 +392,11 @@ def main(argv=None):
         print(sysconfig.get_paths()['platinclude'])
         sys.exit(0)
 
-    # if opts.framework_help:
-    #     Initialize(['--help'])
-    #     return
-
-    # if opts.list_backends is not None:
-    #     acc = opts.list_backends
-    #     if acc == 'ibm':
-    #         info('Retrieving remote IBM backend information')
-    #         Initialize(['--'+acc+'-list-backends'])
-    #     elif acc == 'dwave':
-    #         info('Retrieving remote D-Wave solver information')
-    #         Initialize(['--'+acc+'-list-solvers'])
-    #     return
-
     if not opts.set_credentials == None:
         setCredentials(opts)
 
     if not opts.benchmark == None:
         benchmark(opts)
-
-    if not opts.benchmark_requires == None:
-        serviceRegistry.get_benchmark_requirements(opts.benchmark_requires)
-
-    if not opts.benchmark_service == None:
-        serviceRegistry.get_component_names(opts.benchmark_service)
-
-    if not opts.benchmark_install == None:
-        serviceRegistry.install_plugins(opts.benchmark_install)
-
 
 initialize()
 
