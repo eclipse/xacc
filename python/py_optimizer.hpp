@@ -25,4 +25,24 @@
 namespace py = pybind11;
 using namespace xacc;
 
+
+class PyOptimizer : public xacc::Optimizer {
+public:
+  /* Inherit the constructors */
+  using Optimizer::Optimizer;
+
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::Optimizer, name);
+  }
+  const std::string description() const override { return ""; }
+
+  OptResult optimize(OptFunction &function) override {
+      PYBIND11_OVERLOAD_PURE(OptResult, xacc::Optimizer, optimize, function);
+  }
+  void setOptions(const HeterogeneousMap &opts) override {
+      PYBIND11_OVERLOAD_PURE(void, xacc::Optimizer, setOptions, opts);
+  }
+
+};
+
 void bind_optimizer(py::module& m);
