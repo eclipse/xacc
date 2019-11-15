@@ -692,6 +692,8 @@ Similarly, with a provided configuration file
    auto qpu = xacc::getAccelerator("qcs:Aspen-2Q-A");
    qpu = xacc::getAcceleratorDecorator("ro-error", qpu, {std::make_pair("file", "probs.json")});
 
+See `readout_error_correction_aer.py <https://github.com/eclipse/xacc/blob/master/python/examples/readout_error_correction_aer.py>`_
+for a full example demonstrating the utility of the ``ROErrorDecorator``.
 
 RDMPurificationDecorator
 ++++++++++++++++++++++++

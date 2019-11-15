@@ -4,6 +4,12 @@ Here we describe how XACC developers can extend the framework
 with new Compilers, Accelerators, Instructions, IR Transformations, etc.
 This can be done from both C++ and Python.
 
+Quick Start with Docker
+-----------------------
+
+Quick Start for ORNL Developers
+-------------------------------
+
 Writing a Plugin in C++
 -----------------------
 Let's demonstrate how one might add a new IR Transformation
@@ -177,7 +183,136 @@ in the XACC framework
    $ make install
 
 
-
 Writing a Plugin in Python
 --------------------------
+For this example, let's wrap a Qiskit transpiler pass with an XACC
+``IRTransformation`` to demonstrate how one might integrate novel tools from
+vendor frameworks with XACC. This will require creating a new Python class in a
+standalone python file that extends the core C++ ``IRTransformation`` interface.
+Note that this can be done for other interfaces as well, including ``Accelerator``,
+``Observable``, ``Optimizer``, etc.
 
+First lets show the code to do this, and then we'll walk through it. We will wrap the simple
+qiskit cx-cancellation pass (this is already in XACC from the ``circuit-optimizer`` ``IRTransformation``,
+but this is for demonstration purposes). Create a python file named ``easy_qiskit_pass.py`` and add the following
+
+.. code:: python
+
+   import xacc
+   from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
+       Validate, Invalidate, Instantiate
+
+   @ComponentFactory("easy_qiskit_pass_factory")
+   @Provides("irtransformation")
+   @Property("_irtransformation", "irtransformation", "qiskit-cx-cancellation")
+   @Property("_name", "name", "qiskit-cx-cancellation")
+   @Instantiate("easy_qiskit_pass_instance")
+   class EasyQiskitIRTransformation(xacc.IRTransformation):
+       def __init__(self):
+           xacc.IRTransformation.__init__(self)
+
+       def type(self):
+           return xacc.IRTransformationType.Optimization
+
+       def name(self):
+           return 'qiskit-cx-cancellation'
+
+       def apply(self, program, accelerator, options):
+           # Import qiskit modules here so that users
+           # who don't have qiskit can still use rest of xacc
+           from qiskit import QuantumCircuit, transpile
+           from qiskit.transpiler import PassManager
+           from qiskit.transpiler.passes import CXCancellation
+
+           # Map CompositeInstruction program to OpenQasm string
+           openqasm_compiler = xacc.getCompiler('openqasm')
+           src = openqasm_compiler.translate(program).replace('\\','')
+
+           # Create a QuantumCircuit
+           circuit = QuantumCircuit.from_qasm_str(src)
+
+           # Create the PassManager and run the pass
+           pass_manager = PassManager()
+           pass_manager.append(CXCancellation())
+           out_circuit = transpile(circuit, pass_manager=pass_manager)
+
+           # Map the output to OpenQasm and map to XACC IR
+           out_src = out_circuit.qasm()
+           out_src = '__qpu__ void '+program.name()+'(qbit q) {\n'+out_src+"\n}"
+           out_prog = openqasm_compiler.compile(out_src, accelerator).getComposites()[0]
+
+           # update the given program CompositeInstruction reference
+           program.clear()
+           for inst in out_prog.getInstructions():
+               program.addInstruction(inst)
+
+           return
+
+This class subclasses the Pybind11-exposed C++ ``IRTransformation`` interface, and provides
+implementations in python of its pertinent methods - a constructor, ``type()``, ``name()``, and
+``apply()``. The constructor must invoke the superclass constructor. We implement ``type()`` to
+indicate that this is an ``IRTransformation`` that is of type ``Optimization``. Crucially important is the
+``name()`` method, you must implement this to contribute the unique name of this ``IRTransformation``.
+This name will be how users get reference to this ``IRTransformation`` implementation. And finally, you
+must implement the primary method for ``IRTransformation``, ``apply``. This is where the actual
+transformation (optimization) is performed.
+
+To insure that users can leverage the XACC framework Python API without qiskit installed, we have
+to place our imports in the ``apply`` method so that they are not imported at framework initialization.
+The rest of the ``apply`` code takes the XACC ``CompositeInstruction`` (``program``) and converts it
+to an OpenQasm string with the appropriate ``openqasm`` ``Compiler`` implementation. From this we can construct
+a Qiskit ``QuantumCircuit`` and pass this to the ``transpile`` command orchestrating the execution of the
+``CXCancellation`` pass. Now we get the optimized circuit back out and map back to XACC IR and update the
+provided ``program`` instance.
+
+In order to contribute this ``IRTransformation`` to XACC as a plugin, we rely on the IPOPO project. To expose
+this class as a plugin, we annotate it with the demonstrated class decorators, indicating what it provides and its
+unique name. These lines are basic boilerplate, update them for your specific plugin contribution.
+
+If this file is installed to the ``py-plugins`` directory of your XACC install, then when someone runs ``import xacc``,
+this plugin will be loaded and contributed to the core C++ XACC plugin registry, and users can query it like any other
+service.
+
+.. code:: python
+
+   import xacc
+
+   qpu = xacc.getAccelerator('aer')
+   qbits = xacc.qalloc(2)
+
+   # Create a bell state program with too many cnots
+   xacc.qasm('''
+   .compiler xasm
+   .circuit foo
+   .parameters x,y,z
+   .qbit q
+   H(q[0]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   CX(q[0], q[1]);
+   Measure(q[0]);
+   Measure(q[1]);
+   ''')
+   f = xacc.getCompiled('foo')
+
+   # Run the python contributed IRTransformation that uses qiskit
+   optimizer = xacc.getIRTransformation('qiskit-cx-cancellation')
+   optimizer.apply(f, None, {})
+
+   # should have 4 instructions, not 6
+   assert(4 == f.nInstructions())
+   
+
+
+
+
+
+
+
+
+
+
+
+
+Extending Accelerator for new Simulators
+-----------------------------------------
