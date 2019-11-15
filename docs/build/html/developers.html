@@ -90,8 +90,11 @@
 <li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start-with-docker">Quick Start with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start-for-ornl-developers">Quick Start for ORNL Developers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#writing-a-plugin-in-c">Writing a Plugin in C++</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#writing-a-plugin-in-python">Writing a Plugin in Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-accelerator-for-new-simulators">Extending Accelerator for new Simulators</a></li>
 </ul>
 </li>
 </ul>
@@ -163,6 +166,12 @@
 <p>Here we describe how XACC developers can extend the framework
 with new Compilers, Accelerators, Instructions, IR Transformations, etc.
 This can be done from both C++ and Python.</p>
+<div class="section" id="quick-start-with-docker">
+<h2>Quick Start with Docker<a class="headerlink" href="#quick-start-with-docker" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="quick-start-for-ornl-developers">
+<h2>Quick Start for ORNL Developers<a class="headerlink" href="#quick-start-for-ornl-developers" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="writing-a-plugin-in-c">
 <h2>Writing a Plugin in C++<a class="headerlink" href="#writing-a-plugin-in-c" title="Permalink to this headline">¶</a></h2>
 <p>Let’s demonstrate how one might add a new IR Transformation
@@ -319,6 +328,118 @@ $ make install
 </div>
 <div class="section" id="writing-a-plugin-in-python">
 <h2>Writing a Plugin in Python<a class="headerlink" href="#writing-a-plugin-in-python" title="Permalink to this headline">¶</a></h2>
+<p>For this example, let’s wrap a Qiskit transpiler pass with an XACC
+<code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> to demonstrate how one might integrate novel tools from
+vendor frameworks with XACC. This will require creating a new Python class in a
+standalone python file that extends the core C++ <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface.
+Note that this can be done for other interfaces as well, including <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Observable</span></code>, <code class="docutils literal notranslate"><span class="pre">Optimizer</span></code>, etc.</p>
+<p>First lets show the code to do this, and then we’ll walk through it. We will wrap the simple
+qiskit cx-cancellation pass (this is already in XACC from the <code class="docutils literal notranslate"><span class="pre">circuit-optimizer</span></code> <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>,
+but this is for demonstration purposes). Create a python file named <code class="docutils literal notranslate"><span class="pre">easy_qiskit_pass.py</span></code> and add the following</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">from</span> <span class="nn">pelix.ipopo.decorators</span> <span class="kn">import</span> <span class="n">ComponentFactory</span><span class="p">,</span> <span class="n">Property</span><span class="p">,</span> <span class="n">Requires</span><span class="p">,</span> <span class="n">Provides</span><span class="p">,</span> \
+    <span class="n">Validate</span><span class="p">,</span> <span class="n">Invalidate</span><span class="p">,</span> <span class="n">Instantiate</span>
+
+<span class="nd">@ComponentFactory</span><span class="p">(</span><span class="s2">&quot;easy_qiskit_pass_factory&quot;</span><span class="p">)</span>
+<span class="nd">@Provides</span><span class="p">(</span><span class="s2">&quot;irtransformation&quot;</span><span class="p">)</span>
+<span class="nd">@Property</span><span class="p">(</span><span class="s2">&quot;_irtransformation&quot;</span><span class="p">,</span> <span class="s2">&quot;irtransformation&quot;</span><span class="p">,</span> <span class="s2">&quot;qiskit-cx-cancellation&quot;</span><span class="p">)</span>
+<span class="nd">@Property</span><span class="p">(</span><span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;qiskit-cx-cancellation&quot;</span><span class="p">)</span>
+<span class="nd">@Instantiate</span><span class="p">(</span><span class="s2">&quot;easy_qiskit_pass_instance&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">EasyQiskitIRTransformation</span><span class="p">(</span><span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformation</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformationType</span><span class="o">.</span><span class="n">Optimization</span>
+
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;qiskit-cx-cancellation&#39;</span>
+
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="c1"># Import qiskit modules here so that users</span>
+        <span class="c1"># who don&#39;t have qiskit can still use rest of xacc</span>
+        <span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">transpile</span>
+        <span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">PassManager</span>
+        <span class="kn">from</span> <span class="nn">qiskit.transpiler.passes</span> <span class="kn">import</span> <span class="n">CXCancellation</span>
+
+        <span class="c1"># Map CompositeInstruction program to OpenQasm string</span>
+        <span class="n">openqasm_compiler</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiler</span><span class="p">(</span><span class="s1">&#39;openqasm&#39;</span><span class="p">)</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">openqasm_compiler</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">program</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create a QuantumCircuit</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="o">.</span><span class="n">from_qasm_str</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+        <span class="c1"># Create the PassManager and run the pass</span>
+        <span class="n">pass_manager</span> <span class="o">=</span> <span class="n">PassManager</span><span class="p">()</span>
+        <span class="n">pass_manager</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CXCancellation</span><span class="p">())</span>
+        <span class="n">out_circuit</span> <span class="o">=</span> <span class="n">transpile</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">pass_manager</span><span class="o">=</span><span class="n">pass_manager</span><span class="p">)</span>
+
+        <span class="c1"># Map the output to OpenQasm and map to XACC IR</span>
+        <span class="n">out_src</span> <span class="o">=</span> <span class="n">out_circuit</span><span class="o">.</span><span class="n">qasm</span><span class="p">()</span>
+        <span class="n">out_src</span> <span class="o">=</span> <span class="s1">&#39;__qpu__ void &#39;</span><span class="o">+</span><span class="n">program</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;(qbit q) {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">out_src</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">}&quot;</span>
+        <span class="n">out_prog</span> <span class="o">=</span> <span class="n">openqasm_compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">out_src</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">)</span><span class="o">.</span><span class="n">getComposites</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># update the given program CompositeInstruction reference</span>
+        <span class="n">program</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">out_prog</span><span class="o">.</span><span class="n">getInstructions</span><span class="p">():</span>
+            <span class="n">program</span><span class="o">.</span><span class="n">addInstruction</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+
+        <span class="k">return</span>
+</pre></div>
+</div>
+<p>This class subclasses the Pybind11-exposed C++ <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface, and provides
+implementations in python of its pertinent methods - a constructor, <code class="docutils literal notranslate"><span class="pre">type()</span></code>, <code class="docutils literal notranslate"><span class="pre">name()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">apply()</span></code>. The constructor must invoke the superclass constructor. We implement <code class="docutils literal notranslate"><span class="pre">type()</span></code> to
+indicate that this is an <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> that is of type <code class="docutils literal notranslate"><span class="pre">Optimization</span></code>. Crucially important is the
+<code class="docutils literal notranslate"><span class="pre">name()</span></code> method, you must implement this to contribute the unique name of this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>.
+This name will be how users get reference to this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> implementation. And finally, you
+must implement the primary method for <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>, <code class="docutils literal notranslate"><span class="pre">apply</span></code>. This is where the actual
+transformation (optimization) is performed.</p>
+<p>To insure that users can leverage the XACC framework Python API without qiskit installed, we have
+to place our imports in the <code class="docutils literal notranslate"><span class="pre">apply</span></code> method so that they are not imported at framework initialization.
+The rest of the <code class="docutils literal notranslate"><span class="pre">apply</span></code> code takes the XACC <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> (<code class="docutils literal notranslate"><span class="pre">program</span></code>) and converts it
+to an OpenQasm string with the appropriate <code class="docutils literal notranslate"><span class="pre">openqasm</span></code> <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> implementation. From this we can construct
+a Qiskit <code class="docutils literal notranslate"><span class="pre">QuantumCircuit</span></code> and pass this to the <code class="docutils literal notranslate"><span class="pre">transpile</span></code> command orchestrating the execution of the
+<code class="docutils literal notranslate"><span class="pre">CXCancellation</span></code> pass. Now we get the optimized circuit back out and map back to XACC IR and update the
+provided <code class="docutils literal notranslate"><span class="pre">program</span></code> instance.</p>
+<p>In order to contribute this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> to XACC as a plugin, we rely on the IPOPO project. To expose
+this class as a plugin, we annotate it with the demonstrated class decorators, indicating what it provides and its
+unique name. These lines are basic boilerplate, update them for your specific plugin contribution.</p>
+<p>If this file is installed to the <code class="docutils literal notranslate"><span class="pre">py-plugins</span></code> directory of your XACC install, then when someone runs <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">xacc</span></code>,
+this plugin will be loaded and contributed to the core C++ XACC plugin registry, and users can query it like any other
+service.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">)</span>
+<span class="n">qbits</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Create a bell state program with too many cnots</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">.compiler xasm</span>
+<span class="s1">.circuit foo</span>
+<span class="s1">.parameters x,y,z</span>
+<span class="s1">.qbit q</span>
+<span class="s1">H(q[0]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">Measure(q[0]);</span>
+<span class="s1">Measure(q[1]);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run the python contributed IRTransformation that uses qiskit</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;qiskit-cx-cancellation&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{})</span>
+
+<span class="c1"># should have 4 instructions, not 6</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">4</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extending-accelerator-for-new-simulators">
+<h2>Extending Accelerator for new Simulators<a class="headerlink" href="#extending-accelerator-for-new-simulators" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

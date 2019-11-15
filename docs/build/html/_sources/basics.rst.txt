@@ -48,9 +48,9 @@ in Python
 
 Intermediate Representation, Kernels, and Compilers
 ----------------------------------------------------
-Above we mentioned a ``program`` variable but did not detail how it was created. This instances
-is represented in XACC as a ``CompositeInstruction``. The creation of ``Instructions`` and
-``CompositeInstruction`` is demonstrated here. First, we create this instances via an
+Above we mentioned a ``program`` variable but did not detail how it was created. This instance
+is represented in XACC as a ``CompositeInstruction``. The creation of ``Instruction`` and
+``CompositeInstruction`` is demonstrated below. First, we create this instances via an
 implementation of the ``IRProvider``, specifically a 3 instruction circuit with one
 parameterized ``Ry`` on a variable ``theta``.
 

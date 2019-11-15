@@ -208,9 +208,9 @@ execution metadata. Below demonstrate some basic usage of the <code class="docut
 </div>
 <div class="section" id="intermediate-representation-kernels-and-compilers">
 <h2>Intermediate Representation, Kernels, and Compilers<a class="headerlink" href="#intermediate-representation-kernels-and-compilers" title="Permalink to this headline">¶</a></h2>
-<p>Above we mentioned a <code class="docutils literal notranslate"><span class="pre">program</span></code> variable but did not detail how it was created. This instances
-is represented in XACC as a <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code>. The creation of <code class="docutils literal notranslate"><span class="pre">Instructions</span></code> and
-<code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> is demonstrated here. First, we create this instances via an
+<p>Above we mentioned a <code class="docutils literal notranslate"><span class="pre">program</span></code> variable but did not detail how it was created. This instance
+is represented in XACC as a <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code>. The creation of <code class="docutils literal notranslate"><span class="pre">Instruction</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> is demonstrated below. First, we create this instances via an
 implementation of the <code class="docutils literal notranslate"><span class="pre">IRProvider</span></code>, specifically a 3 instruction circuit with one
 parameterized <code class="docutils literal notranslate"><span class="pre">Ry</span></code> on a variable <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;xacc.hpp&quot;</span><span class="cp"></span>
