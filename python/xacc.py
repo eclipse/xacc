@@ -291,7 +291,7 @@ class PyServiceRegistry(object):
     def initialize(self):
         serviceList = ['decorator_algorithm_service', 'benchmark_algorithm',
                        'hamiltonian_generator', 'ansatz_generator', 'accelerator',
-                       'irtransformation', 'observable']
+                       'irtransformation', 'observable', 'optimizer']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -312,6 +312,8 @@ class PyServiceRegistry(object):
             contributeService(irtName, irt)
         for obsName, obs in self.registry['observable'].items():
             contributeService(obsName, obs)
+        for optName, opt in self.registry['optimizer'].items():
+            contributeService(optName, opt)
 
     def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
