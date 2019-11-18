@@ -168,6 +168,17 @@ with new Compilers, Accelerators, Instructions, IR Transformations, etc.
 This can be done from both C++ and Python.</p>
 <div class="section" id="quick-start-with-docker">
 <h2>Quick Start with Docker<a class="headerlink" href="#quick-start-with-docker" title="Permalink to this headline">¶</a></h2>
+<p>We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code>. To use this image run the following from some
+scratch development directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run -it --init -p <span class="m">3000</span>:3000 -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/home/project:cached&quot;</span> xacc/dev
+</pre></div>
+</div>
+<p>Now navigate to <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code> in your web browser. This will open
+the Theia IDE and you are good to go. Open a terminal with <code class="docutils literal notranslate"><span class="pre">ctrl</span> <span class="pre">+</span> <span class="pre">`</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">cmd</span> <span class="pre">+</span> <span class="pre">`</span></code> on a Mac). Use the terminal to clone XACC and start
+building.</p>
 </div>
 <div class="section" id="quick-start-for-ornl-developers">
 <h2>Quick Start for ORNL Developers<a class="headerlink" href="#quick-start-for-ornl-developers" title="Permalink to this headline">¶</a></h2>

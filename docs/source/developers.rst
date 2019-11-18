@@ -6,6 +6,19 @@ This can be done from both C++ and Python.
 
 Quick Start with Docker
 -----------------------
+We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on ``localhost:3000``. To use this image run the following from some
+scratch development directory:
+
+.. code:: bash
+
+   $ docker run -it --init -p 3000:3000 -v "$(pwd):/home/project:cached" xacc/dev
+
+Now navigate to ``localhost:3000`` in your web browser. This will open
+the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```
+(or ``cmd + ``` on a Mac). Use the terminal to clone XACC and start
+building. 
 
 Quick Start for ORNL Developers
 -------------------------------
