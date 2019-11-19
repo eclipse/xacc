@@ -1,7 +1,7 @@
 import xacc
-
+# xacc.set_verbose(True)
 # Get the QPU and allocate a single qubit
-qpu = xacc.getAccelerator('local-ibm')
+qpu = xacc.getAccelerator('aer')
 qbits = xacc.qalloc(1)
 
 # Get the MLPack Optimizer, default is Adam
@@ -19,6 +19,10 @@ Ry(q[0], z);
 ''')
 f = xacc.getCompiled('foo')
 
+f.defaultPlacement(qpu, {'qubit-map':[0]})
+
+print(f.toString())
+# exit(0)
 # Get the DDCL Algorithm, initialize it
 # with necessary parameters
 ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,
@@ -30,3 +34,6 @@ ddcl = xacc.getAlgorithm('ddcl', {'ansatz': f,
 # execute
 ddcl.execute(qbits)
 
+print(qbits.keys())
+print(qbits['opt-val'])
+print(qbits['opt-params'])

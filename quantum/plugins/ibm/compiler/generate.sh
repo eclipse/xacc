@@ -9,7 +9,7 @@ set -o errexit
 # There are 2 ways of running the ANTLR generator here.
 
 # 1) Running from jar. Use the given jar (or replace it by another one you built or downloaded) for generation.
-LOCATION=/usr/share/java/antlr-4.7.1-complete.jar
+LOCATION=antlr-4.7.2-complete.jar
 java -jar $LOCATION -Dlanguage=Cpp -listener -o generated/ -package oqasm OQASM2.g4
 #java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o generated/ -package antlrcpptest -XdbgST TLexer.g4 TParser.g4
 #java -jar $LOCATION -Dlanguage=Java -listener -visitor -o generated/ -package antlrcpptest TLexer.g4 TParser.g4

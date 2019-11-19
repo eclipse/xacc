@@ -94,12 +94,11 @@ Circuit::operator()(const std::vector<double> &params) {
   // Walk the IR Tree, handle functions and instructions differently
   for (auto inst : flatten) {
     if (inst->isParameterized()) {
-      auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
+      auto updatedInst = inst->clone();
       for (int i = 0; i < inst->nParameters(); i++) {
         if (inst->getParameter(i).isVariable()) {
           InstructionParameter p = inst->getParameter(i);
           std::stringstream s;
-          s << p.toString();
           double val;
           parsingUtil->evaluate(p.toString(), variables, params, val);
           updatedInst->setParameter(i, val);
@@ -113,21 +112,6 @@ Circuit::operator()(const std::vector<double> &params) {
     } else {
       evaluatedCircuit->addInstruction(inst);
     }
-    // If a concrete Gate, then check that it
-    // is parameterized and that it has a string parameter
-    // if (inst->isParameterized() && inst->getParameter(0).isVariable()) {
-    //   InstructionParameter p = inst->getParameter(0);
-    //   std::stringstream s;
-    //   s << p.toString();
-    //   double val;
-    //   parsingUtil->evaluate(p.toString(), variables, params, val);
-    //   auto updatedInst = std::dynamic_pointer_cast<Gate>(inst)->clone();
-    //   updatedInst->setParameter(0, val);
-    //   updatedInst->setBits(inst->bits());
-    //   evaluatedCircuit->addInstruction(updatedInst);
-    // } else {
-    //   evaluatedCircuit->addInstruction(inst);
-    // }
   }
   return evaluatedCircuit;
 }

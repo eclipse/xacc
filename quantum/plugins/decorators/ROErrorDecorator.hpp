@@ -20,10 +20,27 @@ namespace xacc {
 namespace quantum {
 
 class ROErrorDecorator : public AcceleratorDecorator {
+protected:
+
+   std::string roErrorFile = "";
+
 public:
 
+  void initialize(const HeterogeneousMap &params = {}) override {
+    decoratedAccelerator->initialize(params);
+    if (params.stringExists("file")) {
+        roErrorFile = params.getString("file");
+    }
+  }
+
+  void updateConfiguration(const HeterogeneousMap &config) override {
+    decoratedAccelerator->updateConfiguration(config);
+    if (config.stringExists("file")) {
+        roErrorFile = config.getString("file");
+    }
+  }
   const std::vector<std::string> configurationKeys() override {
-      return {};
+      return {"file"};
   }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
@@ -35,10 +52,6 @@ public:
   const std::string name() const override { return "ro-error"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc{{"ro-error-p10s", ""}};
-    return desc;
-  }
   ~ROErrorDecorator() override {}
 };
 

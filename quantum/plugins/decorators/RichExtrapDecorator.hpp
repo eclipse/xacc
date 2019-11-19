@@ -34,10 +34,6 @@ public:
   const std::string name() const override { return "rich-extrap"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc {{"rich-extrap-r", ""}};
-    return desc;
-  }
   ~RichExtrapDecorator() override {}
 };
 

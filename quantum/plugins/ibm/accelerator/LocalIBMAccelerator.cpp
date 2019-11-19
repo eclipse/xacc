@@ -30,12 +30,6 @@ using json = nlohmann::json;
 namespace xacc {
 namespace quantum {
 
-std::vector<std::shared_ptr<IRTransformation>>
-LocalIBMAccelerator::getIRTransformations() {
-  std::vector<std::shared_ptr<IRTransformation>> transformations;
-  return transformations;
-}
-
 HeterogeneousMap LocalIBMAccelerator::getProperties() {
     std::vector<double> p01s(20, global_p01), p10s(20, global_p10);
     HeterogeneousMap m;

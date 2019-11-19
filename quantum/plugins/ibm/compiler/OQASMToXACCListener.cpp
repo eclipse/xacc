@@ -139,13 +139,13 @@ void OQASMToXACCListener::exitUserDefGate(
     InstructionParameter p(pi / 2.0);
     instruction->setParameter(0, p);
     count = 1;
-  } else if (gateName == "U1") {
+  } else if (gateName == "U1" || gateName == "u1") {
     instruction = gateRegistry->createInstruction("U", qubits);
     InstructionParameter p(0.0), p2(0.0);
     instruction->setParameter(0, p);
     instruction->setParameter(1, p2);
     count = 2;
-  } else if (gateName == "U3") {
+  } else if (gateName == "U3" || gateName == "u3") {
     instruction = gateRegistry->createInstruction("U", qubits);
     count = 0;
   } else {

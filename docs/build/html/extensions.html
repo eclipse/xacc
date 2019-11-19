@@ -1,0 +1,1212 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Extensions &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced" href="advanced.html" />
+    <link rel="prev" title="Basics" href="basics.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#optimizers">Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mlpack">MLPack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nlopt">NLOpt</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerators">Accelerators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ibm">IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aer">Aer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qcs">QCS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ionq">IonQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dwave">DWave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dwave-neal">DWave Neal</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vqe">VQE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ddcl">DDCL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#roerrordecorator">ROErrorDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rdmpurificationdecorator">RDMPurificationDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#improvedsamplingdecorator">ImprovedSamplingDecorator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vqe-restart-decorator">VQE Restart Decorator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ir-transformations">IR Transformations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#circuitoptimizer">CircuitOptimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#observables">Observables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#psi4-frozen-core">Psi4 Frozen-Core</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Extensions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/extensions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="extensions">
+<h1>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h1>
+<p>Here we detail concrete implementations of various XACC interfaces as well as any
+input parameters they expose.</p>
+<div class="section" id="optimizers">
+<h2>Optimizers<a class="headerlink" href="#optimizers" title="Permalink to this headline">¶</a></h2>
+<p>XACC provides implementations for the <code class="docutils literal notranslate"><span class="pre">Optimizer</span></code> that delegate to NLOpt and MLPack. Here we demonstrate
+the various ways to configure these optimizers for a number of different solver types.</p>
+<p>In addition to the enumerated parameters below, all <code class="docutils literal notranslate"><span class="pre">Optimizers</span></code> expose an <code class="docutils literal notranslate"><span class="pre">initial-parameters</span></code> key
+that must be a list or vector of doubles with size equal to the number of parameters. By default, <code class="docutils literal notranslate"><span class="pre">[0.,0.,...,0.,0.]</span></code> is used.</p>
+<div class="section" id="mlpack">
+<h3>MLPack<a class="headerlink" href="#mlpack" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 50%" />
+<col style="width: 7%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">mlpack-optimizer</span></code></p></th>
+<th class="head"><p>Optimizer Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>adam</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-beta1</p></td>
+<td><p>Exponential decay rate for the first moment estimates.</p></td>
+<td><p>.7</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-beta2</p></td>
+<td><p>Exponential decay rate for the weighted infinity norm estimates.</p></td>
+<td><p>.999</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-eps</p></td>
+<td><p>Value used to initialize the mean squared gradient parameter.</p></td>
+<td><p>1e-8</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>l-bfgs</p></td>
+<td><p>None</p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>adagrad</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-eps</p></td>
+<td><p>Value used to initialize the mean squared gradient parameter.</p></td>
+<td><p>1e-8</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td><p>adadelta</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-eps</p></td>
+<td><p>Value used to initialize the mean squared gradient parameter.</p></td>
+<td><p>1e-8</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-rho</p></td>
+<td><p>Smoothing constant.</p></td>
+<td><p>.95</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>cmaes</p></td>
+<td><p>mlpack-cmaes-lambda</p></td>
+<td><p>The population size.</p></td>
+<td><p>0</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-cmaes-upper-bound</p></td>
+<td><p>Upper bound of decision variables.</p></td>
+<td><ol class="arabic simple" start="10">
+<li></li>
+</ol>
+</td>
+<td><p>duoble</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-cmaes-lower-bound</p></td>
+<td><p>Lower bound of decision variables.</p></td>
+<td><p>-10.0</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td><p>gd</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>momentum-sgd</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-momentum</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>.05</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>momentum-nesterov</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-momentum</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>.05</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>sgd</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td><p>rms-prop</p></td>
+<td><p>mlpack-step-size</p></td>
+<td><p>Step size for each iteration.</p></td>
+<td><p>.5</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-max-iter</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>500000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-tolerance</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-4</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mlpack-alpha</p></td>
+<td><p>Smoothing constant</p></td>
+<td><p>.99</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>mlpack-eps</p></td>
+<td><p>Value used to initialize the mean squared gradient parameter.</p></td>
+<td><p>1e-8</p></td>
+<td><p>double</p></td>
+</tr>
+</tbody>
+</table>
+<p>Various examples of using the mlpack optimizer:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// sgd with defaults</span>
+<span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-optimizer&quot;</span><span class="p">,</span> <span class="s">&quot;sgd&quot;</span><span class="p">)});</span>
+<span class="c1">// default adam</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">)</span>
+<span class="c1">// adagrad with 30 max iters and .01 step size</span>
+<span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-optimizer&quot;</span><span class="p">,</span> <span class="s">&quot;adagrad&quot;</span><span class="p">),</span>
+                                               <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-step-size&quot;</span><span class="p">,</span> <span class="mf">.01</span><span class="p">),</span>
+                                               <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;mlpack-max-iter&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s1">&#39;mlpack&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mlpack-optimizer&#39;</span><span class="p">:</span><span class="s1">&#39;sgd&#39;</span><span class="p">})</span>
+<span class="o">//</span> <span class="n">default</span> <span class="n">adam</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s2">&quot;mlpack&quot;</span><span class="p">)</span>
+<span class="o">//</span> <span class="n">adagrad</span> <span class="k">with</span> <span class="mi">30</span> <span class="nb">max</span> <span class="n">iters</span> <span class="ow">and</span> <span class="o">.</span><span class="mo">01</span> <span class="n">step</span> <span class="n">size</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s2">&quot;mlpack&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mlpack-optimizer&#39;</span><span class="p">:</span><span class="s1">&#39;adagrad&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;mlpack-step-size&#39;</span><span class="p">:</span><span class="o">.</span><span class="mo">01</span><span class="p">,</span>
+                                         <span class="s1">&#39;mlpack-max-iter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nlopt">
+<h3>NLOpt<a class="headerlink" href="#nlopt" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 50%" />
+<col style="width: 7%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">nlopt-optimizer</span></code></p></th>
+<th class="head"><p>Optimizer Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>default</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cobyla</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>l-bfgs</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>nelder-mead</p></td>
+<td><p>nlopt-ftol</p></td>
+<td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+<td><p>1e-6</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>nlopt-maxeval</p></td>
+<td><p>Maximum number of iterations allowed</p></td>
+<td><p>1000</p></td>
+<td><p>int</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="accelerators">
+<h2>Accelerators<a class="headerlink" href="#accelerators" title="Permalink to this headline">¶</a></h2>
+<p>Here we detail all available XACC <code class="docutils literal notranslate"><span class="pre">Accelerators</span></code> and their exposed input parameters.</p>
+<div class="section" id="ibm">
+<h3>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h3>
+<p>The IBM Accelerator by default targets the remote <code class="docutils literal notranslate"><span class="pre">ibmq_qasm_simulator</span></code>. You can point to a
+different backend in two ways:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm:ibmq_valencia&quot;</span><span class="p">);</span>
+<span class="p">...</span> <span class="n">or</span> <span class="p">...</span>
+<span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;backend&quot;</span><span class="p">,</span> <span class="s">&quot;ibmq_valencia&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">);</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_valencia&#39;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>You can specify the number of shots in this way as well</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm:ibmq_valencia&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ibm_valencia</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_valencia&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>In order to target the remote backend (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
+your IBM credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
+url: https://q-console-api.mybluemix.net
+hub: HUB
+group: GROUP
+project: PROJECT
+</pre></div>
+</div>
+<p>You can also create this file using the <code class="docutils literal notranslate"><span class="pre">xacc</span></code> Python module</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 -m xacc -c ibm -k YOUR_KEY --group GROUP --hub HUB --project PROJECT --url URL
+<span class="o">[</span> <span class="k">for</span> public API <span class="o">]</span>
+$ python3 -m xacc -c ibm -k YOUR_KEY
+</pre></div>
+</div>
+<p>where you provide URL, HUB, PROJECT, GROUP, and YOUR_KEY.</p>
+</div>
+<div class="section" id="aer">
+<h3>Aer<a class="headerlink" href="#aer" title="Permalink to this headline">¶</a></h3>
+<p>The Aer Accelerator provides a great example of contributing plugins or extensions to core C++ XACC interfaces
+from Python. To see how this is done, checkout the code <a class="reference external" href="https://github.com/eclipse/xacc/blob/master/python/plugins/aer/aer_accelerator.py">here</a>.
+This Accelerator connects the XACC IR infrastructure with the <code class="docutils literal notranslate"><span class="pre">qiskit-aer</span></code> simulator, providing a
+robust simulator that can mimic noise models published by IBM backends. Note to use these noise models you must
+have setup your <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code> file (see above discussion on IBM Accelerator).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">)</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">8192</span><span class="p">})</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="c1"># For ibmq_johannesburg-like readout error</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">,</span> <span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_johannesburg&#39;</span><span class="p">,</span> <span class="s1">&#39;readout_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">})</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="c1"># For all ibmq_johannesburg-like errors</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">,</span> <span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;ibmq_johannesburg&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;readout_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">,</span>
+                                 <span class="s1">&#39;thermal_relaxation&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">,</span>
+                                 <span class="s1">&#39;gate_error&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>You can also use this simulator from C++, just make sure you load the Python external language plugin.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">load_external_language_plugins</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;aer&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">8192</span><span class="p">),</span>
+                                                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;readout_error&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">)});</span>
+<span class="p">..</span> <span class="n">run</span> <span class="n">simulation</span>
+
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">unload_external_language_plugins</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="qcs">
+<h3>QCS<a class="headerlink" href="#qcs" title="Permalink to this headline">¶</a></h3>
+<p>XACC provides support for the Rigetti QCS platform through the QCS Accelerator implementation. This
+Accelerator requires a few extra third-party libraries that you will need to install in order
+to get QCS support. Specifically we need <code class="docutils literal notranslate"><span class="pre">libzmq</span></code>, <code class="docutils literal notranslate"><span class="pre">cppzmq</span></code>, <code class="docutils literal notranslate"><span class="pre">msgpack-c</span></code>, and <code class="docutils literal notranslate"><span class="pre">uuid-dev</span></code>.
+Note that more than likely this will only be built on the QCS Centos 7 VM, so the following
+instructions are specifically for that OS.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/zeromq/libzmq
+$ <span class="nb">cd</span> libzmq/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq
+$ make -j12 install
+
+$ <span class="nb">cd</span> ../..
+$ git clone https://github.com/zeromq/cppzmq
+$ <span class="nb">cd</span> cppzmq/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build/
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq -DCMAKE_PREFIX_PATH<span class="o">=</span>~/.zmq
+$ make -j12 install
+
+$ <span class="nb">cd</span> ../..
+$ git clone https://github.com/msgpack/msgpack-c/
+$ <span class="nb">cd</span> msgpack-c/ <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DCMAKE_INSTALL_PREFIX<span class="o">=</span>~/.zmq
+$ make -j12 install
+$ <span class="nb">cd</span> ../..
+
+$ sudo yum install uuid-dev devtoolset-8-gcc devtoolset-8-gcc-c++
+$ scl <span class="nb">enable</span> devtoolset-8 -- bash
+
+<span class="o">[</span>go to your xacc build directory<span class="o">]</span>
+cmake .. -DUUID_LIBRARY<span class="o">=</span>/usr/lib64/libuuid.so.1
+make install
+</pre></div>
+</div>
+<p>There is no further configuration for using the QCS platform.</p>
+<p>To use the QCS Accelerator targeting something like <code class="docutils literal notranslate"><span class="pre">Aspen-4-2Q-A</span></code> (for example, replace with your lattice):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">qcs</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;qcs:Aspen-4-2Q-A&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qcs</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;qcs:Aspen-4-2Q-A&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">10000</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>For now you must manually map your <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> to the correct physical bits
+provided by your lattice. To do so, run</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;qcs:Aspen-4-2Q-A&#39;</span><span class="p">)</span>
+<span class="p">[</span><span class="n">given</span> <span class="n">CompositeInstruction</span> <span class="n">f</span><span class="p">]</span>
+<span class="n">f</span><span class="o">.</span><span class="n">defaultPlacement</span><span class="p">(</span><span class="n">qpu</span><span class="p">)</span>
+<span class="p">[</span><span class="ow">or</span> <span class="n">manually</span><span class="p">]</span>
+<span class="n">f</span><span class="o">.</span><span class="n">mapBits</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ionq">
+<h3>IonQ<a class="headerlink" href="#ionq" title="Permalink to this headline">¶</a></h3>
+<p>The IonQ Accelerator by default targets the remote <code class="docutils literal notranslate"><span class="pre">simulator</span></code> backend. You can point to the physical
+QPU in two ways:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq:qpu&quot;</span><span class="p">);</span>
+<span class="p">...</span> <span class="n">or</span> <span class="p">...</span>
+<span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;backend&quot;</span><span class="p">,</span> <span class="s">&quot;qpu&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq:qpu&#39;</span><span class="p">);</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;qpu&#39;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>You can specify the number of shots in this way as well</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ionq&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ionq</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ionq&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>In order to target the simulator or QPU (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
+your IonQ credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ionq_config</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
+url: https://api.ionq.co/v0
+</pre></div>
+</div>
+</div>
+<div class="section" id="dwave">
+<h3>DWave<a class="headerlink" href="#dwave" title="Permalink to this headline">¶</a></h3>
+<p>The DWave Accelerator by default targets the remote <code class="docutils literal notranslate"><span class="pre">DW_2000Q_VFYC_2_1</span></code> backend. You can point to a
+different backend in two ways:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;dwave:DW_2000Q&quot;</span><span class="p">);</span>
+<span class="p">...</span> <span class="n">or</span> <span class="p">...</span>
+<span class="k">auto</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;dwave&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;backend&quot;</span><span class="p">,</span> <span class="s">&quot;DW_2000Q&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave:DW_2000Q&#39;</span><span class="p">);</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;DW_2000Q&#39;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>You can specify the number of shots in this way as well</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;dwave&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">dw</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2048</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>In order to target the remote backend (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
+your DWave credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.dwave_config</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
+url: https://cloud.dwavesys.com
+</pre></div>
+</div>
+<p>You can also create this file using the <code class="docutils literal notranslate"><span class="pre">xacc</span></code> Python module</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 -m xacc -c dwave -k YOUR_KEY
+</pre></div>
+</div>
+<p>where you provide YOUR_KEY.</p>
+</div>
+<div class="section" id="dwave-neal">
+<h3>DWave Neal<a class="headerlink" href="#dwave-neal" title="Permalink to this headline">¶</a></h3>
+<p>The DWave Neal Accelerator provides another example of contributing plugins or extensions to core C++ XACC interfaces
+from Python. To see how this is done, checkout the code <a class="reference external" href="https://github.com/eclipse/xacc/blob/master/python/plugins/dwave/dwave_neal_accelerator.py">here</a>.
+This Accelerator connects the XACC IR infrastructure with the <code class="docutils literal notranslate"><span class="pre">dwave-neal</span></code> simulator, providing a local
+simulator that can mimic DWave QPU execution.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave-neal&#39;</span><span class="p">)</span>
+<span class="o">...</span> <span class="ow">or</span> <span class="o">...</span>
+<span class="n">aer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave-neal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">2000</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>You can also use this simulator from C++, just make sure you load the Python external language plugin.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">load_external_language_plugins</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;dwave-neal&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;shots&quot;</span><span class="p">,</span> <span class="mi">8192</span><span class="p">)});</span>
+<span class="p">..</span> <span class="n">run</span> <span class="n">simulation</span>
+
+<span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">unload_external_language_plugins</span><span class="p">();</span>
+<span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="algorithms">
+<h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
+<p>XACC exposes hybrid quantum-classical Algorithm implementations for the variational quantum eigensolver (VQE), data-driven
+circuit learning (DDCL), and chemistry reduced density matrix generation (RDM).</p>
+<div class="section" id="vqe">
+<h3>VQE<a class="headerlink" href="#vqe" title="Permalink to this headline">¶</a></h3>
+<p>The VQE Algorithm requires the following input information:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 51%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>observable</p></td>
+<td><p>The hermitian operator, vqe computes ground eigenvalue of this</p></td>
+<td><p>std::shared_ptr&lt;Observable&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>ansatz</p></td>
+<td><p>The unmeasured, parameterized quantum circuit</p></td>
+<td><p>std::shared_ptr&lt;CompositeInstruction&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>optimizer</p></td>
+<td><p>The classical optimizer to use</p></td>
+<td><p>std::shared_ptr&lt;Optimizer&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerator</p></td>
+<td><p>The Accelerator backend to target</p></td>
+<td><p>std::shared_ptr&lt;Accelerator&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<p>This Algorithm will add <code class="docutils literal notranslate"><span class="pre">opt-val</span></code> (<code class="docutils literal notranslate"><span class="pre">double</span></code>) and <code class="docutils literal notranslate"><span class="pre">opt-params</span></code> (<code class="docutils literal notranslate"><span class="pre">std::vector&lt;double&gt;</span></code>) to the provided <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>.
+The results of the algorithm are therefore retrieved via these keys (see snippet below). Note you can
+control the initial VQE parameters with the <code class="docutils literal notranslate"><span class="pre">Optimizer</span></code> <code class="docutils literal notranslate"><span class="pre">initial-parameters</span></code> key (by default all zeros).</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span> <span class="cp">#include</span> <span class="cpf">&quot;xacc.hpp&quot;</span><span class="cp"></span>
+ <span class="cp">#include</span> <span class="cpf">&quot;xacc_observable.hpp&quot;</span><span class="cp"></span>
+
+ <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+   <span class="c1">// Get reference to the Accelerator</span>
+   <span class="c1">// specified by --accelerator argument</span>
+   <span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">();</span>
+
+   <span class="c1">// Create the N=2 deuteron Hamiltonian</span>
+   <span class="k">auto</span> <span class="n">H_N_2</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">quantum</span><span class="o">::</span><span class="n">getObservable</span><span class="p">(</span>
+       <span class="s">&quot;pauli&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;5.907 - 2.1433 X0X1 &quot;</span>
+                         <span class="s">&quot;- 2.1433 Y0Y1&quot;</span>
+                         <span class="s">&quot;+ .21829 Z0 - 6.125 Z1&quot;</span><span class="p">));</span>
+
+   <span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;nlopt&quot;</span><span class="p">,</span>
+                          <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;initial-parameters&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">.5</span><span class="p">})});</span>
+
+   <span class="c1">// JIT map Quil QASM Ansatz to IR</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">qasm</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"></span>
+<span class="s">  .compiler xasm</span>
+<span class="s">  .circuit deuteron_ansatz</span>
+<span class="s">  .parameters theta</span>
+<span class="s">  .qbit q</span>
+<span class="s">  X(q[0]);</span>
+<span class="s">  Ry(q[1], theta);</span>
+<span class="s">  CNOT(q[1],q[0]);</span>
+<span class="s">  </span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">ansatz</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getCompiled</span><span class="p">(</span><span class="s">&quot;deuteron_ansatz&quot;</span><span class="p">);</span>
+
+  <span class="c1">// Get the VQE Algorithm and initialize it</span>
+  <span class="k">auto</span> <span class="n">vqe</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s">&quot;vqe&quot;</span><span class="p">);</span>
+  <span class="n">vqe</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">({</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;ansatz&quot;</span><span class="p">,</span> <span class="n">ansatz</span><span class="p">),</span>
+                 <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;observable&quot;</span><span class="p">,</span> <span class="n">H_N_2</span><span class="p">),</span>
+                 <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;accelerator&quot;</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">),</span>
+                 <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;optimizer&quot;</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)});</span>
+
+  <span class="c1">// Allocate some qubits and execute</span>
+  <span class="k">auto</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+  <span class="n">vqe</span><span class="o">-&gt;</span><span class="n">execute</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">ground_energy</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">buffer</span><span class="p">)[</span><span class="s">&quot;opt-val&quot;</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">auto</span> <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">buffer</span><span class="p">)[</span><span class="s">&quot;opt-params&quot;</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="c1"># Get access to the desired QPU and</span>
+<span class="c1"># allocate some qubits to run on</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;tnqvm&#39;</span><span class="p">)</span>
+<span class="nb">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Construct the Hamiltonian as an XACC-VQE PauliOperator</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getObservable</span><span class="p">(</span><span class="s1">&#39;pauli&#39;</span><span class="p">,</span> <span class="s1">&#39;5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1&#39;</span><span class="p">)</span>
+
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;.compiler xasm</span>
+<span class="s1">.circuit ansatz2</span>
+<span class="s1">.parameters t0</span>
+<span class="s1">.qbit q</span>
+<span class="s1">X(q[0]);</span>
+<span class="s1">Ry(q[1],t0);</span>
+<span class="s1">CX(q[1],q[0]);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">ansatz2</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;ansatz2&#39;</span><span class="p">)</span>
+
+<span class="n">opt</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s1">&#39;nlopt&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;initial-parameters&#39;</span><span class="p">:[</span><span class="o">.</span><span class="mi">5</span><span class="p">]})</span>
+
+<span class="c1"># Create the VQE algorithm</span>
+<span class="n">vqe</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s1">&#39;vqe&#39;</span><span class="p">,</span> <span class="p">{</span>
+                     <span class="s1">&#39;ansatz&#39;</span><span class="p">:</span> <span class="n">ansatz2</span><span class="p">,</span>
+                     <span class="s1">&#39;accelerator&#39;</span><span class="p">:</span> <span class="n">qpu</span><span class="p">,</span>
+                     <span class="s1">&#39;observable&#39;</span><span class="p">:</span> <span class="n">ham</span><span class="p">,</span>
+                     <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">opt</span>
+                     <span class="p">})</span>
+<span class="n">vqe</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="nb">buffer</span><span class="p">[</span><span class="s1">&#39;opt-val&#39;</span><span class="p">]</span>
+<span class="n">params</span> <span class="o">=</span> <span class="nb">buffer</span><span class="p">[</span><span class="s1">&#39;opt-params&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ddcl">
+<h3>DDCL<a class="headerlink" href="#ddcl" title="Permalink to this headline">¶</a></h3>
+<p>The DDCL Algorithm implements the following algorithm - given a target probability distribution,
+propose a parameterized quantum circuit and train (minimize loss) the circuit to reproduce
+that given target distribution. We design DDCL to be extensible in loss function computation and
+gradient computation strategies.</p>
+<p>The DDCL Algorithm requires the following input information:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 51%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_dist</p></td>
+<td><p>The target probability distribution to reproduce</p></td>
+<td><p>std::vector&lt;double&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>ansatz</p></td>
+<td><p>The unmeasured, parameterized quantum circuit</p></td>
+<td><p>std::shared_ptr&lt;CompositeInstruction&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>optimizer</p></td>
+<td><p>The classical optimizer to use, can be gradient based</p></td>
+<td><p>std::shared_ptr&lt;Optimizer&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerator</p></td>
+<td><p>The Accelerator backend to target</p></td>
+<td><p>std::shared_ptr&lt;Accelerator&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>loss</p></td>
+<td><p>The loss strategy to use</p></td>
+<td><p>std::string</p></td>
+</tr>
+<tr class="row-odd"><td><p>gradient</p></td>
+<td><p>The gradient strategy to use</p></td>
+<td><p>std::string</p></td>
+</tr>
+</tbody>
+</table>
+<p>As of this writing, loss can take <code class="docutils literal notranslate"><span class="pre">js</span></code> and <code class="docutils literal notranslate"><span class="pre">mmd</span></code> values for Jansen-Shannon divergence and Maximum Mean Discrepancy, respectively.
+More are being added. Also, gradient can take <code class="docutils literal notranslate"><span class="pre">js-parameter-shift</span></code> and <code class="docutils literal notranslate"><span class="pre">mmd-parameter-shift</span></code> values. These gradient
+strategies will shift each parameter by plus or minus pi over 2.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;xacc.hpp&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+  <span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">load_external_language_plugins</span><span class="p">();</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">set_verbose</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+
+  <span class="c1">// Get reference to the Accelerator</span>
+  <span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;aer&quot;</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;mlpack&quot;</span><span class="p">);</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">qasm</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"></span>
+<span class="s"> .compiler xasm</span>
+<span class="s"> .circuit qubit2_depth1</span>
+<span class="s"> .parameters x</span>
+<span class="s"> .qbit q</span>
+<span class="s"> U(q[0], x[0], -pi/2, pi/2 );</span>
+<span class="s"> U(q[0], 0, 0, x[1]);</span>
+<span class="s"> U(q[1], x[2], -pi/2, pi/2);</span>
+<span class="s"> U(q[1], 0, 0, x[3]);</span>
+<span class="s"> CNOT(q[0], q[1]);</span>
+<span class="s"> U(q[0], 0, 0, x[4]);</span>
+<span class="s"> U(q[0], x[5], -pi/2, pi/2);</span>
+<span class="s"> U(q[1], 0, 0, x[6]);</span>
+<span class="s"> U(q[1], x[7], -pi/2, pi/2);</span>
+<span class="s"> </span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">ansatz</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getCompiled</span><span class="p">(</span><span class="s">&quot;qubit2_depth1&quot;</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">target_distribution</span> <span class="p">{</span><span class="mf">.5</span><span class="p">,</span> <span class="mf">.5</span><span class="p">,</span> <span class="mf">.5</span><span class="p">,</span> <span class="mf">.5</span><span class="p">};</span>
+
+  <span class="k">auto</span> <span class="n">ddcl</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s">&quot;ddcl&quot;</span><span class="p">);</span>
+  <span class="n">ddcl</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">({</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;ansatz&quot;</span><span class="p">,</span> <span class="n">ansatz</span><span class="p">),</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;target_dist&quot;</span><span class="p">,</span> <span class="n">target_distribution</span><span class="p">),</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;accelerator&quot;</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">),</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;loss&quot;</span><span class="p">,</span> <span class="s">&quot;js&quot;</span><span class="p">),</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;gradient&quot;</span><span class="p">,</span> <span class="s">&quot;js-parameter-shift&quot;</span><span class="p">),</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;optimizer&quot;</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)});</span>
+
+  <span class="c1">// Allocate some qubits and execute</span>
+  <span class="k">auto</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+  <span class="n">ddcl</span><span class="o">-&gt;</span><span class="n">execute</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+
+  <span class="c1">// Print the result</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Loss: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">buffer</span><span class="p">[</span><span class="s">&quot;opt-val&quot;</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">()</span>
+         <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+  <span class="n">xacc</span><span class="o">::</span><span class="n">external</span><span class="o">::</span><span class="n">unload_external_language_plugins</span><span class="p">();</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="c1"># Get the QPU and allocate a single qubit</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">)</span>
+<span class="n">qbits</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Get the MLPack Optimizer, default is Adam</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s1">&#39;mlpack&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create a simple quantum program</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">.compiler xasm</span>
+<span class="s1">.circuit foo</span>
+<span class="s1">.parameters x,y,z</span>
+<span class="s1">.qbit q</span>
+<span class="s1">Ry(q[0], x);</span>
+<span class="s1">Ry(q[0], y);</span>
+<span class="s1">Ry(q[0], z);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get the DDCL Algorithm, initialize it</span>
+<span class="c1"># with necessary parameters</span>
+<span class="n">ddcl</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s1">&#39;ddcl&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;ansatz&#39;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span>
+                               <span class="s1">&#39;accelerator&#39;</span><span class="p">:</span> <span class="n">qpu</span><span class="p">,</span>
+                               <span class="s1">&#39;target_dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="o">.</span><span class="mi">5</span><span class="p">],</span>
+                               <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer</span><span class="p">,</span>
+                               <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;js&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;gradient&#39;</span><span class="p">:</span> <span class="s1">&#39;js-parameter-shift&#39;</span><span class="p">})</span>
+<span class="c1"># execute</span>
+<span class="n">ddcl</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qbits</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">qbits</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;opt-val&#39;</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;opt-params&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="accelerator-decorators">
+<h2>Accelerator Decorators<a class="headerlink" href="#accelerator-decorators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="roerrordecorator">
+<h3>ROErrorDecorator<a class="headerlink" href="#roerrordecorator" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ROErrorDecorator</span></code> provides an <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> implementation for affecting
+readout error mitigation as in the <a class="reference external" href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501">deuteron paper</a>.
+It takes as input readout error probabilities <code class="docutils literal notranslate"><span class="pre">p(0|1)</span></code> and <code class="docutils literal notranslate"><span class="pre">p(1|0)</span></code> for all qubits and shifts expecation values
+accordingly (see paper).</p>
+<p>By default it will request the backend properties from the decorated <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> (<code class="docutils literal notranslate"><span class="pre">Accelerator::getProperties()</span></code>). This method
+returns a <code class="docutils literal notranslate"><span class="pre">HeterogeneousMap</span></code>. If this map contains a vector of doubles at keys <code class="docutils literal notranslate"><span class="pre">p01s</span></code> and <code class="docutils literal notranslate"><span class="pre">p10s</span></code>, then these
+values will be used in the readout error correction. Alternatively, if the backend does not provide this data,
+users can provide a custom JSON file containing the probabilities. This file should be structured as such</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+    <span class="s2">&quot;shots&quot;</span>: <span class="m">1024</span>,
+    <span class="s2">&quot;backend&quot;</span>: <span class="s2">&quot;qcs:Aspen-2Q-A&quot;</span>,
+    <span class="s2">&quot;0&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;0|1&quot;</span>: <span class="m">0</span>.0565185546875,
+        <span class="s2">&quot;1|0&quot;</span>: <span class="m">0</span>.0089111328125,
+        <span class="s2">&quot;+&quot;</span>: <span class="m">0</span>.0654296875,
+        <span class="s2">&quot;-&quot;</span>: <span class="m">0</span>.047607421875
+    <span class="o">}</span>,
+    <span class="s2">&quot;1&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;0|1&quot;</span>: <span class="m">0</span>.095458984375,
+        <span class="s2">&quot;1|0&quot;</span>: <span class="m">0</span>.0115966796875,
+        <span class="s2">&quot;+&quot;</span>: <span class="m">0</span>.1070556640625,
+        <span class="s2">&quot;-&quot;</span>: <span class="m">0</span>.0838623046875
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Automating readout error mitigation with this decorator can be done in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_johannesburg&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">1024</span><span class="p">})</span>
+
+<span class="c1"># Turn on readout error correction by decorating qpu</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAcceleratorDecorator</span><span class="p">(</span><span class="s1">&#39;ro-error&#39;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">)</span>
+
+<span class="c1"># Now use qpu as your Accelerator...</span>
+<span class="c1"># execution will be automatically readout</span>
+<span class="c1"># error corrected</span>
+</pre></div>
+</div>
+<p>Similarly, with a provided configuration file</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;qcs:Aspen-2Q-A&quot;</span><span class="p">);</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAcceleratorDecorator</span><span class="p">(</span><span class="s">&quot;ro-error&quot;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">,</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="s">&quot;probs.json&quot;</span><span class="p">)});</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://github.com/eclipse/xacc/blob/master/python/examples/readout_error_correction_aer.py">readout_error_correction_aer.py</a>
+for a full example demonstrating the utility of the <code class="docutils literal notranslate"><span class="pre">ROErrorDecorator</span></code>.</p>
+</div>
+<div class="section" id="rdmpurificationdecorator">
+<h3>RDMPurificationDecorator<a class="headerlink" href="#rdmpurificationdecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="improvedsamplingdecorator">
+<h3>ImprovedSamplingDecorator<a class="headerlink" href="#improvedsamplingdecorator" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="vqe-restart-decorator">
+<h3>VQE Restart Decorator<a class="headerlink" href="#vqe-restart-decorator" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="ir-transformations">
+<h2>IR Transformations<a class="headerlink" href="#ir-transformations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="circuitoptimizer">
+<h3>CircuitOptimizer<a class="headerlink" href="#circuitoptimizer" title="Permalink to this headline">¶</a></h3>
+<p>This <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> of type <code class="docutils literal notranslate"><span class="pre">Optimization</span></code> will search the DAG representation
+of a quantum circuit and remove all zero-rotations, hadamard and cnot pairs, and merge
+adjacent common rotations (e.g. <code class="docutils literal notranslate"><span class="pre">Rx(.1)Rx(.1)</span> <span class="pre">-&gt;</span> <span class="pre">Rx(.2)</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a bell state program with too many cnots</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">.compiler xasm</span>
+<span class="s1">.circuit foo</span>
+<span class="s1">.qbit q</span>
+<span class="s1">H(q[0]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">Measure(q[0]);</span>
+<span class="s1">Measure(q[1]);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">6</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+
+<span class="c1"># Run the circuit-optimizer IRTransformation, can pass</span>
+<span class="c1"># accelerator (here None) and options (here empty dict())</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;circuit-optimizer&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{})</span>
+
+<span class="c1"># should have 4 instructions, not 6</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">4</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="observables">
+<h2>Observables<a class="headerlink" href="#observables" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="psi4-frozen-core">
+<h3>Psi4 Frozen-Core<a class="headerlink" href="#psi4-frozen-core" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">psi4-frozen-core</span></code> observable generates an fermionic
+observable using Psi4 and based on a user provided dictionary of options.
+To use this Observable, ensure you have Psi4 installed under the same
+<code class="docutils literal notranslate"><span class="pre">python3</span></code> used for the XACC Python API.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/psi4/psi4 <span class="o">&amp;&amp;</span> <span class="nb">cd</span> psi4 <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DPYTHON_EXECUTABLE<span class="o">=</span><span class="k">$(</span>which python3<span class="k">)</span> -DCMAKE_INSTALL_PREFIX<span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4
+$ make -j8 install
+$ <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>python3 -m site --user-site<span class="k">)</span>/psi4/lib:<span class="nv">$PYTHONPATH</span>
+</pre></div>
+</div>
+<p>This observable type takes a dictionary of options describing the
+molecular geometry (key <code class="docutils literal notranslate"><span class="pre">geometry</span></code>), the basis set (key <code class="docutils literal notranslate"><span class="pre">basis</span></code>),
+and the list of frozen (key <code class="docutils literal notranslate"><span class="pre">frozen-spin-orbitals</span></code>) and active (key <code class="docutils literal notranslate"><span class="pre">active-spin-orbitals</span></code>) spin
+orbital lists.</p>
+<p>With Psi4 and XACC installed, you can use the frozen-core
+Observable in the following way in python.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">geom</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">0 1</span>
+<span class="s1">Na  0.000000   0.0      0.0</span>
+<span class="s1">H   0.0        0.0  1.914388</span>
+<span class="s1">symmetry c1</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="n">fo</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">]</span>
+<span class="n">ao</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">19</span><span class="p">]</span>
+
+<span class="n">H</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getObservable</span><span class="p">(</span><span class="s1">&#39;psi4-frozen-core&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;basis&#39;</span><span class="p">:</span> <span class="s1">&#39;sto-3g&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geom</span><span class="p">,</span>
+                                    <span class="s1">&#39;frozen-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">fo</span><span class="p">,</span>
+                                    <span class="s1">&#39;active-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">ao</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

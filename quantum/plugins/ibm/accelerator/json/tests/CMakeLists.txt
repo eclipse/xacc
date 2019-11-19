@@ -19,3 +19,7 @@ target_link_libraries(BackendsTester xacc-ibm)
 
 add_xacc_test(Properties)
 target_link_libraries(PropertiesTester xacc-ibm)
+
+
+add_xacc_test(PulseQObject)
+target_link_libraries(PulseQObjectTester xacc-ibm)

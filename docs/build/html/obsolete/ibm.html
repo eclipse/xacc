@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IBM &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">Developers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>IBM</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/obsolete/ibm.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ibm">
+<h1>IBM<a class="headerlink" href="#ibm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/ornl-qci/xacc-ibm">IBM Plugin</a> provides
+support to XACC for executing programs
+on the IBM Quantum Experience via the IBM Accelerator.</p>
+<p>To install this plugin, run the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/ornl-qci/xacc-ibm
+$ cd xacc-ibm &amp;&amp; mkdir build &amp;&amp; cd build
+$ cmake .. -DXACC_DIR=$HOME/.xacc
+</pre></div>
+</div>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DXACC_DIR=$(python -m xacc -L)
+</pre></div>
+</div>
+<p>ensuring that xacc is in your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>.</p>
+<p>You have now installed the IBM plugin. It is located in <code class="docutils literal notranslate"><span class="pre">$XACC_ROOT/plugins</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">XACC_ROOT</span></code> is your XACC install prefix.</p>
+</div>
+<div class="section" id="setting-credentials">
+<h2>Setting Credentials<a class="headerlink" href="#setting-credentials" title="Permalink to this headline">¶</a></h2>
+<p>In order to target the IBM Quantum Experience, you must provide XACC with your API key.</p>
+<p>If you installed the XACC Python bindings, then you can run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m xacc -c ibm -k YOURAPIKEY
+</pre></div>
+</div>
+<p>Alternatively, open the file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code>, and add the following contents</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_API_KEY
+url: https://quantumexperience.ng.bluemix.net
+</pre></div>
+</div>
+<p>Also, any application built on the XACC framework with IBM plugins available
+will expose <code class="docutils literal notranslate"><span class="pre">--ibm-api-url</span></code> and <code class="docutils literal notranslate"><span class="pre">--ibm-api-key</span></code> command line arguments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./my-xacc-app --ibm-api-key YOUR_API_KEY --ibm-api-url https://quantumexperience.mybluemix.net
+</pre></div>
+</div>
+</div>
+<div class="section" id="ibm-command-line-arguments">
+<h2>IBM Command Line Arguments<a class="headerlink" href="#ibm-command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<p>The IBM plugin exposes the following command line arguments</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>–ibm-backend</p></td>
+<td><p>The backend to target (e.g. ibmqx5)</p></td>
+</tr>
+<tr class="row-odd"><td><p>–ibm-shots</p></td>
+<td><p>The number of shots to execute per job</p></td>
+</tr>
+<tr class="row-even"><td><p>–ibm-list-backends</p></td>
+<td><p>List the available backends</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hydrogen-vqe-example">
+<h2>Hydrogen VQE Example<a class="headerlink" href="#hydrogen-vqe-example" title="Permalink to this headline">¶</a></h2>
+<p>Here we demonstrate how to use XACC to compute the expectation values for the
+terms in the Hamiltonian modeling the
+electronic structure of a simple Hydrogen molecule. The quantum
+kernel code for this example can be found in <a class="reference external" href="https://arxiv.org/abs/1512.06860">Scalable Quantum Simulation of Molecular Energies</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example requires Scaffold. See <a class="reference external" href="scaffold.html">Install Scaffold</a> for
+installation details.</p>
+</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;XACC.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span> <span class="o">=</span> <span class="sa">R</span><span class="s">&quot;</span><span class="dl">src(</span><span class="s"></span>
+<span class="s">__qpu__ initializeState(qbit qreg, float theta) {</span>
+<span class="s">   Rx(qreg[0], 3.1415926);</span>
+<span class="s">   Ry(qreg[1], 1.57079);</span>
+<span class="s">   Rx(qreg[0], 7.8539752);</span>
+<span class="s">   CNOT(qreg[1], qreg[0]);</span>
+<span class="s">   Rz(qreg[0], theta);</span>
+<span class="s">   CNOT(qreg[1], qreg[0]);</span>
+<span class="s">   Ry(qreg[1], 7.8539752);</span>
+<span class="s">   Rx(qreg[0], 1.57079);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g1Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[1];</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g2Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[1];</span>
+<span class="s">   creg[0] = MeasZ(qreg[1]);</span>
+<span class="s">}</span>
+<span class="s">__qpu__ g3Term (qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+<span class="s">__qpu__ g4Term(qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   Rx(qreg[1], 1.57079);</span>
+<span class="s">   Rx(qreg[0], 1.57079);</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+
+<span class="s">__qpu__ g5Term(qbit qreg, float theta) {</span>
+<span class="s">   initializeState(qreg, theta);</span>
+<span class="s">   cbit creg[2];</span>
+<span class="s">   H(qreg[1]);</span>
+<span class="s">   creg[1] = MeasZ(qreg[1]);</span>
+<span class="s">   H(qreg[0]);</span>
+<span class="s">   creg[0] = MeasZ(qreg[0]);</span>
+<span class="s">}</span>
+<span class="dl">)src</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="c1">// Initialize the XACC Framework</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+   <span class="c1">// Create a reference to the IBM</span>
+   <span class="c1">// QPU at the IBM Quantum Experience</span>
+   <span class="k">auto</span> <span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm&quot;</span><span class="p">);</span>
+
+   <span class="c1">// Allocate a register of 2 qubits</span>
+   <span class="k">auto</span> <span class="n">qubitReg</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">-&gt;</span><span class="n">createBuffer</span><span class="p">(</span><span class="n">qreg</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+   <span class="c1">// Create a Program</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Program</span> <span class="n">program</span><span class="p">(</span><span class="n">qpu</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+
+   <span class="c1">// Request the quantum kernel representing</span>
+   <span class="c1">// the above source code</span>
+   <span class="k">auto</span> <span class="n">kernels</span> <span class="o">=</span> <span class="n">program</span><span class="p">.</span><span class="n">getKernels</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">();</span>
+   <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="s">&quot;out.csv&quot;</span><span class="p">);</span>
+   <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Angle, Z0, Z1, Z0Z1, Y0Y1, X0X1&quot;</span><span class="p">;</span><span class="s">&quot;</span>
+
+   <span class="k">auto</span> <span class="n">pi</span> <span class="o">=</span> <span class="mf">3.14159265359</span><span class="p">;</span>
+   <span class="k">for</span> <span class="p">(</span><span class="kt">float</span> <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">pi</span><span class="p">;</span> <span class="n">theta</span> <span class="o">&lt;=</span> <span class="n">pi</span><span class="p">;</span> <span class="n">theta</span> <span class="o">+=</span> <span class="mf">.2</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="n">theta</span><span class="p">;</span>
+
+      <span class="c1">// Skip the first kernel, it is the state prep</span>
+      <span class="c1">// kernel that all others will call anyway</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">kernels</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="p">,</span> <span class="p">;</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Executing Kernel &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
+         <span class="n">kernels</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">qubitReg</span><span class="p">,</span> <span class="n">theta</span><span class="p">);</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done Executing Kernel&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
+         <span class="k">auto</span> <span class="n">e</span> <span class="o">=</span> <span class="n">qubitReg</span><span class="o">-&gt;</span><span class="n">getExpectationValueZ</span><span class="p">();</span>
+         <span class="n">qubitReg</span><span class="o">-&gt;</span><span class="n">resetBuffer</span><span class="p">();</span>
+         <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">;</span>
+      <span class="p">}</span>
+     <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="p">;</span>
+     <span class="n">file</span><span class="p">.</span><span class="n">flush</span><span class="p">();</span>
+   <span class="p">}</span>
+
+   <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+   <span class="c1">// Finalize the XACC Framework</span>
+   <span class="n">xacc</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+
+   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

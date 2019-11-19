@@ -24,19 +24,14 @@ class CircuitOptimizer : public IRTransformation, public OptionsProvider {
 
 public:
   CircuitOptimizer() {}
-
-  std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) override;
+  void apply(std::shared_ptr<CompositeInstruction> program,
+                     const std::shared_ptr<Accelerator> accelerator,
+                     const HeterogeneousMap& options = {}) override;
+  const IRTransformationType type() const override {return IRTransformationType::Optimization;}
 
   const std::string name() const override { return "circuit-optimizer"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc {{"circuit-opt-n-tries",
-                        "Provide the number of passes to use in optimizing "
-                        "this circuit. Default = 2."},{"circuit-opt-silent",
-                                                      "Do not print any info"}};
-    return desc;
-  }
 
 };
 } // namespace quantum

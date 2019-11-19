@@ -1,0 +1,687 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>XACC Tutorials &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">Developers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>XACC Tutorials</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/obsolete/tutorials.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="xacc-tutorials">
+<h1>XACC Tutorials<a class="headerlink" href="#xacc-tutorials" title="Permalink to this headline">¶</a></h1>
+<p>Here we aggregate a number of examples that demonstrate how to use the XACC
+framework for the programming, compilation, and execution of quantum programs on
+available quantum computers.</p>
+<div class="section" id="xacc-python-jit">
+<h2>XACC Python JIT<a class="headerlink" href="#xacc-python-jit" title="Permalink to this headline">¶</a></h2>
+<p>The XACC Python bindings provide a simple and intuitive mechanism for
+programming XACC kernels through a single-source, co-processor programming model.
+This mechanism enables users to write quantum code once and easily switch amongst
+available quantum computing hardware. This provides a Just-in-Time compilation workflow,
+i.e. these XACC Pythonic quantum kernels are compiled at runtime.</p>
+<div class="section" id="simple-teleportation-kernel">
+<h3>Simple Teleportation Kernel<a class="headerlink" href="#simple-teleportation-kernel" title="Permalink to this headline">¶</a></h3>
+<p>An illustrative example of the utility of the XACC Python JIT mechanism is the simple
+quantum state teleportation code. Here we write the kernel once and can switch the
+execution context amongst IBM, Rigetti, and a variety of simulators by simply updating
+the <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> accelerator key. See below</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="c1"># Initialize the framework</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Get the desired QPU and</span>
+<span class="c1"># allocate some qubits</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">)</span> <span class="c1"># or rigetti, tnqvm, etc.</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Define the XACC Kernel</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">qpu</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">teleport</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+   <span class="n">X</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">teleport</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Display the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Finalize the framework</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here we initialize the framework (must be done before using the XACC API), and then
+get reference to the Accelerator we want to execute on. We then allocate 3 qubits
+(represented as an <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> instance)
+with the <code class="docutils literal notranslate"><span class="pre">Accelerator::createBuffer</span></code> command (akin to <code class="docutils literal notranslate"><span class="pre">malloc</span></code> for C). We define
+the quantum teleportation code using the <code class="docutils literal notranslate"><span class="pre">PyXACCCompiler</span></code> language and annotate it
+with the <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> decorator and indicate which Accelerator we’d like to execute
+on. Execution of this code on the IBM QPU is then affected by simply calling this Python
+function. The results of the execution are stored on the users allocated <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>.
+Finally we cleanup the framework with the <code class="docutils literal notranslate"><span class="pre">xacc.Finalize()</span></code> call.</p>
+</div>
+<div class="section" id="irgenerator-interfaces">
+<h3>IRGenerator Interfaces<a class="headerlink" href="#irgenerator-interfaces" title="Permalink to this headline">¶</a></h3>
+<p>XACC exposes an extensible interface for the generation of <code class="docutils literal notranslate"><span class="pre">IR</span></code> instances based
+on simple input parameters (this differentiates it from <code class="docutils literal notranslate"><span class="pre">Compilers</span></code> which also
+generate <code class="docutils literal notranslate"><span class="pre">IR</span></code> but do so given kernel source code). This interface is called
+the <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> and it exposes a <code class="docutils literal notranslate"><span class="pre">generate</span></code> method that takes as input
+a set of <code class="docutils literal notranslate"><span class="pre">InstructionParameters</span></code> (these are essentially a <code class="docutils literal notranslate"><span class="pre">variant</span></code> type on
+<code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>, <code class="docutils literal notranslate"><span class="pre">string</span></code>, and <code class="docutils literal notranslate"><span class="pre">complex&lt;double&gt;</span></code>).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> comes in handy when one wants to program complex quantum programs
+that may contain many instructions. They provide a mechanism for easily generating
+these programs based on simple input parameters. An example would be the generation of
+a quantum fourier transform. It would be easier to declare in a kernel that you would
+like to operate a QFT on a subset of qubits than to write out the individual gates that
+make up the QFT. Instead one could simply say ‘operate a QFT on these qubits’, and the
+XACC IRGenerator mechanism would produce this sub-circuit (The XACC framework does
+provide <code class="docutils literal notranslate"><span class="pre">QFT</span></code> and <code class="docutils literal notranslate"><span class="pre">InverseQFT</span></code> <code class="docutils literal notranslate"><span class="pre">IRGenerators</span></code>).</p>
+<p>The XACC Python PyXACCCompiler language provides an instruction that lets users
+express this <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> generation step on a single line of quantum code. To do so,
+in addition to standard gates and <code class="docutils literal notranslate"><span class="pre">qmi</span></code> instructions, this language defines
+instructions as the name of any availabe <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> taking as input any key-value
+pair arguments required to generate the <code class="docutils literal notranslate"><span class="pre">IR</span></code> instance. Here’s an example of generating
+a hardware-efficient ansatz used in a variational quantum eigensolver routine</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">ibm</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hwe</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+   <span class="n">hwe</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_qubits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="s1">&#39;[[0,1]]&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This would generate the following circuit</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ry</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span> <span class="n">q0</span>
+<span class="n">Rz</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="n">q0</span>
+<span class="n">Ry</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span> <span class="n">q1</span>
+<span class="n">Rz</span><span class="p">(</span><span class="n">t3</span><span class="p">)</span> <span class="n">q1</span>
+<span class="n">CNOT</span> <span class="n">q0</span><span class="p">,</span><span class="n">q1</span>
+<span class="n">Ry</span><span class="p">(</span><span class="n">t4</span><span class="p">)</span> <span class="n">q0</span>
+<span class="n">Rz</span><span class="p">(</span><span class="n">t5</span><span class="p">)</span> <span class="n">q0</span>
+<span class="n">Ry</span><span class="p">(</span><span class="n">t6</span><span class="p">)</span> <span class="n">q1</span>
+<span class="n">Rz</span><span class="p">(</span><span class="n">t7</span><span class="p">)</span> <span class="n">q1</span>
+<span class="n">CNOT</span> <span class="n">q0</span><span class="p">,</span><span class="n">q1</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">xacc.qpu</span></code> decorate provides a mechanism for querying
+information about the circuit at runtime. One could get the
+number of runtime parameters, and the IR Function itself with the following
+.. code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">hwe</span><span class="o">.</span><span class="n">nParameters</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">hwe</span><span class="o">.</span><span class="n">getFunction</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>So executing a function with unknown number of parameters can be
+accomplished like this
+.. code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">hwe</span><span class="o">.</span><span class="n">nParameters</span><span class="p">(),))</span>
+<span class="n">hwe</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">*</span><span class="n">init</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Any available <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> present in the XACC framework can be used in this way
+to instantiate an <code class="docutils literal notranslate"><span class="pre">IR</span></code> instance for execution on a QPU.</p>
+</div>
+<div class="section" id="ibm-python-jit">
+<h3>IBM Python JIT<a class="headerlink" href="#ibm-python-jit" title="Permalink to this headline">¶</a></h3>
+<p>The XACC Python JIT mechanism can be used for writing and executing IBM OpenQASM code on
+available IBM quantum accelerators. XACC enables the user to target specific QPU backends
+provided for use by IBM. The Python JIT mechanism also enables users to target and execute
+code using the local Qiskit C++ qasm simulator. See below for an example.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Get access to IBMQ and</span>
+<span class="c1"># allocate some qubits</span>
+<span class="n">ibm</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">ibm</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">)</span>
+
+<span class="c1"># Target a specific IBM QPU backend</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">setOptions</span><span class="p">({</span><span class="s1">&#39;ibm-backend&#39;</span><span class="p">:</span> <span class="s1">&#39;ibmq_20_tokyo&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;ibm-shots&#39;</span><span class="p">:</span> <span class="mi">8192</span><span class="p">})</span>
+
+<span class="c1"># Define the XACC Kernel</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">qpu</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">entangle</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">entangle</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Display the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Finalize the framework</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">xacc.setOptions</span></code> method can be used to set any optional settings within the XACC framework.
+In this example, the <code class="docutils literal notranslate"><span class="pre">ibm-backend</span></code> option directs the framework to target the <code class="docutils literal notranslate"><span class="pre">ibmq_20_tokyo</span></code>
+QPU backend and the <code class="docutils literal notranslate"><span class="pre">ibm-shots</span></code> option sets how many executions will be performed per job sent
+to the accelerator.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The backends available for use in XACC depend on the user information provided in
+the <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code> file and the permissions given to the user by IBM.</p>
+</div>
+<p>The XACC Python JIT mechanism enables the use of the Qiskit C++ qasm simulator through
+the Accelerator implementation provided by the XACC framework. Targeting the simulator in
+Python is simple, as shown below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;local-ibm&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">)</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">setOption</span><span class="p">(</span><span class="s1">&#39;ibm-shots&#39;</span><span class="p">,</span> <span class="mi">8192</span><span class="p">)</span>
+
+<span class="c1"># ... Define kernels and the rest of the code</span>
+</pre></div>
+</div>
+<p>Note here that when using the local Qiskit simulator, there is no need to specify
+a backend to target.</p>
+</div>
+<div class="section" id="d-wave-python-jit">
+<h3>D-Wave Python JIT<a class="headerlink" href="#d-wave-python-jit" title="Permalink to this headline">¶</a></h3>
+<p>We can similarly use this Python JIT mechanism for writing and executing D-Wave
+code. The <code class="docutils literal notranslate"><span class="pre">PyXACCCompiler</span></code> language exposes a <code class="docutils literal notranslate"><span class="pre">qmi</span></code> instruction that takes
+the indices of the qubits for which we are defining a bias or coupler (qubit indices equal,
+we have a bias, qubit indices not equal we have a coupler). And of course these
+biases and couplers can be runtime parameters. See below for an example.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Get access to D-Wave QPU and</span>
+<span class="c1"># allocate some qubits</span>
+<span class="n">dwave</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">dwave</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">)</span>
+
+<span class="c1"># Define the function we&#39;d like to</span>
+<span class="c1"># off-load to the QPU, here</span>
+<span class="c1"># we&#39;re using a the QMI low-level language</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">dwave</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+   <span class="n">qmi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+
+<span class="c1"># Execute on D-Wave</span>
+<span class="n">f</span><span class="p">(</span><span class="n">qubits</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">)</span>
+
+<span class="c1"># Print the buffer, this displays</span>
+<span class="c1"># solutions and energies</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Or, if we have an <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> for a D-Wave problem, we could use the name of the <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> as an instruction
+to create the D-Wave IR instance. Imagine we have an <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code> implemented that takes an integer <code class="docutils literal notranslate"><span class="pre">N</span></code>
+and creates a D-Wave IR instance that factors <code class="docutils literal notranslate"><span class="pre">N</span></code> into its constituent primes.
+Our code would look like this</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Get access to D-Wave QPU and</span>
+<span class="c1"># allocate some qubits</span>
+<span class="n">dwave</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;dwave&#39;</span><span class="p">)</span>
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">dwave</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">)</span>
+
+<span class="c1"># Define the function we&#39;d like to</span>
+<span class="c1"># off-load to the QPU, here</span>
+<span class="c1"># we&#39;re using a parameterized Factoring</span>
+<span class="c1"># IR Generator</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="s1">&#39;dwave&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">factor15</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+   <span class="n">dwave</span><span class="o">-</span><span class="n">factoring</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="c1"># Factor 15 on the D-Wave</span>
+<span class="n">factor15</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+<span class="c1"># We have solutions as 0s and 1s</span>
+<span class="c1"># decode that into our factors</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">analyzeBuffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+<span class="c1"># Print the factors</span>
+<span class="n">factors</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;analysis-results&#39;</span><span class="p">)</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Factors = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">factors</span><span class="p">))</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note here that we leveraged an XACC API function called <code class="docutils literal notranslate"><span class="pre">xacc.analyzeBuffer</span></code>. All
+<code class="docutils literal notranslate"><span class="pre">IRGenerators</span></code> expose a second method called <code class="docutils literal notranslate"><span class="pre">analyzeResults</span></code> that takes as input
+the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> and parses the resultant bit strings back up to the problem
+scope, which in this case is the prime factors we are seeking. The <code class="docutils literal notranslate"><span class="pre">xacc.analyzeBuffer</span></code>
+provides a convenience method for executing the correct <code class="docutils literal notranslate"><span class="pre">IRGenerator::analyzeResults</span></code>
+method.</p>
+</div>
+<div class="section" id="rigetti-qvm-python-jit">
+<h3>Rigetti QVM Python JIT<a class="headerlink" href="#rigetti-qvm-python-jit" title="Permalink to this headline">¶</a></h3>
+<p>The XACC Python JIT mechanism can be used for writing and executing Rigetti pyQuil code using the Rigetti QVM.</p>
+<p>Note that this requires downloading and installing the Rigetti Forest Software Development Kit,
+which includes pyQuil 2.0, the Quantum Virtual Machine (qvm), and the Rigetti Quil Compiler (quilc).</p>
+<p>With the Rigetti Forest SDK installed, the QVM server can be started in a terminal by running the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ qvm -S
+</pre></div>
+</div>
+<p>XACC does not require the Rigetti Quil Compiler to be used to
+execute quantum kernels on the QVM. Once the QVM server has been started,
+the XACC workflow is essentially the same as when targeting other quantum processors.</p>
+<p>Here is a simple script to construct a Bell State on the Rigetti QVM:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="c1"># Initialize the framework</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Target the Rigetti QVM and</span>
+<span class="c1"># allocate some qubits</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;rigetti-qvm&#39;</span><span class="p">)</span>
+<span class="n">qubits</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Define the XACC Kernel</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">qpu</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">entangle</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+   <span class="n">H</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">entangle</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Display the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubits</span><span class="p">)</span>
+
+<span class="c1"># Finalize the framework</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="acceleratorbuffer-usage">
+<h2>AcceleratorBuffer Usage<a class="headerlink" href="#acceleratorbuffer-usage" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> makes up the glue between host-side code and <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code>
+results. It abstracts the concept of a register of qubits that can be measured, and stores
+information about the number of qubits in the register and observed measurement bit strings
+and counts. This information is then readily available to the creator of the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>
+and can be used to get higher-level problem result information.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> keeps track of what we call <code class="docutils literal notranslate"><span class="pre">ExtraInfo</span></code>, which is a
+<code class="docutils literal notranslate"><span class="pre">variant</span></code> type that can be of type <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>, <code class="docutils literal notranslate"><span class="pre">std::string</span></code>, <code class="docutils literal notranslate"><span class="pre">std::vector&lt;int&gt;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">std::vector&lt;double&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::string&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">std::map&lt;int,</span> <span class="pre">std::vector&lt;int&gt;&gt;</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> keeps reference to a map of <code class="docutils literal notranslate"><span class="pre">std::string</span></code> to <code class="docutils literal notranslate"><span class="pre">ExtraInfo</span></code> which
+enables it to keep track of problem-specific information such as <code class="docutils literal notranslate"><span class="pre">vqe-energy</span></code>, <code class="docutils literal notranslate"><span class="pre">vqe-angles</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vqe-nQPU-calls</span></code> (for the problem-specific case of VQE). But really, this mechanism can
+store any kind of string key to ExtraInfo value (a great example is storing a minor graph embedding
+for a D-Wave compilation/execution as a map of ints to vector&lt;int&gt;).</p>
+<p>Furthermore, the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> can have children, and each child is an <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>
+with associated <code class="docutils literal notranslate"><span class="pre">ExtraInfo</span></code> information. This is great for algorithms like VQE where
+one may allocate a single register of qubits to operate on at the top-level, but many
+executions are actually executed for the various Pauli Hamiltonian terms.</p>
+<p>Let’s look at a simple example of using the AcceleratorBuffer and accessing its data. Imagine
+we had the following code running on the Local IBM C++ Simulator</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;local-ibm&#39;</span><span class="p">)</span>
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">accelerator</span><span class="o">=</span><span class="n">qpu</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+   <span class="n">X</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+   <span class="n">Ry</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+   <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="n">Measure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Execute the code on the QPU</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.1415936</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">nParameters</span><span class="p">())</span>
+
+<span class="c1"># Check into the results</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Buffer as Json: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Expectation Value wrt Z: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getExpectationValueZ</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Measurement Counts: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getMeasurementCounts</span><span class="p">())</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will output the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Buffer</span> <span class="k">as</span> <span class="n">Json</span><span class="p">:</span>  <span class="p">{</span>
+ <span class="s2">&quot;AcceleratorBuffer&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+     <span class="s2">&quot;Information&quot;</span><span class="p">:</span> <span class="p">{},</span>
+     <span class="s2">&quot;Measurements&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s2">&quot;00&quot;</span><span class="p">:</span> <span class="mi">288</span><span class="p">,</span>
+         <span class="s2">&quot;01&quot;</span><span class="p">:</span> <span class="mi">736</span>
+     <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">Expectation</span> <span class="n">Value</span> <span class="n">wrt</span> <span class="n">Z</span><span class="p">:</span>  <span class="o">-</span><span class="mf">0.4375</span>
+<span class="n">Measurement</span> <span class="n">Counts</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;00&#39;</span><span class="p">:</span> <span class="mi">288</span><span class="p">,</span> <span class="s1">&#39;01&#39;</span><span class="p">:</span> <span class="mi">736</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that this <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> instance has been populated with measurement
+bit strings and their counts. This is a very simple example, so there is no
+extra information involved in this calculation,
+but we can compute the expectation value with respect to the Z operator.</p>
+<p>For a more complex example that does include extra information, let us consider the
+above D-Wave Factoring code that leverages the <code class="docutils literal notranslate"><span class="pre">dwave-factoring</span></code> <code class="docutils literal notranslate"><span class="pre">IRGenerator</span></code>.
+Running this code and printing the buffer produces the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;AcceleratorBuffer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+        <span class="s2">&quot;Information&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;active-vars&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mi">1944</span><span class="p">,</span>
+                <span class="mi">1946</span><span class="p">,</span>
+                <span class="mi">1947</span><span class="p">,</span>
+                <span class="mi">1948</span><span class="p">,</span>
+                <span class="mi">1949</span><span class="p">,</span>
+                <span class="mi">1951</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;analysis-results&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mi">3</span><span class="p">,</span>
+                <span class="mi">5</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="mi">1948</span><span class="p">,</span>
+                    <span class="mi">1947</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="mi">1949</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="mi">1946</span><span class="p">,</span>
+                    <span class="mi">1951</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="mi">1944</span>
+                <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="o">-</span><span class="mf">999.75</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;execution-time&quot;</span><span class="p">:</span> <span class="mf">0.023982</span><span class="p">,</span>
+            <span class="s2">&quot;ir-generator&quot;</span><span class="p">:</span> <span class="s2">&quot;dwave-factoring&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;num-occurrences&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mi">100</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Measurements&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;010001&quot;</span><span class="p">:</span> <span class="mi">100</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice the execution workflow has populated the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> with multiple
+extra information entries: the active-vars, embedding, energies, execution time,
+ir-generator used, and measurement counts. Furthermore, invoking the <code class="docutils literal notranslate"><span class="pre">xacc.analyzeBuffer</span></code>
+function mapped the bit strings back to problem-specific results, namely 3 and 5,
+and added it to the buffer under the analysis-results key.</p>
+<p>One can query this information with the <code class="docutils literal notranslate"><span class="pre">getInformation</span></code> method</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Embedding: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;embedding&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Active-Vars: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;active-vars&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Energies: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;energies&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;IRGenerator: &#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getInformation</span><span class="p">(</span><span class="s1">&#39;ir-generator&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>to produce</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Embedding</span><span class="p">:</span>  <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="mi">1948</span><span class="p">,</span> <span class="mi">1947</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">1949</span><span class="p">],</span> <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="mi">1946</span><span class="p">,</span> <span class="mi">1951</span><span class="p">],</span> <span class="mi">3</span><span class="p">:</span> <span class="p">[</span><span class="mi">1944</span><span class="p">]}</span>
+<span class="n">Active</span><span class="o">-</span><span class="n">Vars</span><span class="p">:</span>  <span class="p">[</span><span class="mi">1944</span><span class="p">,</span> <span class="mi">1946</span><span class="p">,</span> <span class="mi">1947</span><span class="p">,</span> <span class="mi">1948</span><span class="p">,</span> <span class="mi">1949</span><span class="p">,</span> <span class="mi">1951</span><span class="p">]</span>
+<span class="n">Energies</span><span class="p">:</span>  <span class="p">[</span><span class="o">-</span><span class="mf">999.75</span><span class="p">]</span>
+<span class="n">IRGenerator</span><span class="p">:</span>  <span class="n">dwave</span><span class="o">-</span><span class="n">factoring</span>
+</pre></div>
+</div>
+<p>To see a further complex example that uses <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> children, see
+<a class="reference external" href="apps.html#python-jit-vqe-decorator">XACC-VQE</a>.</p>
+<p>Also note that the <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> can be persisted to file and loaded
+from file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bufferStr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="o">...</span> <span class="n">write</span> <span class="n">to</span> <span class="n">file</span>
+<span class="o">...</span> <span class="n">load</span> <span class="kn">from</span> <span class="nn">file</span><span class="p">,</span> <span class="n">get</span> <span class="n">loadedStr</span>
+<span class="n">newBuff</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">loadBuffer</span><span class="p">(</span><span class="n">loadedStr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extending-xacc-with-plugins">
+<h2>Extending XACC with Plugins<a class="headerlink" href="#extending-xacc-with-plugins" title="Permalink to this headline">¶</a></h2>
+<p>XACC provides a modular, service-oriented architecture. Plugins can
+be contributed to the framework providing new Compilers, Accelerators,
+Instructions, IR Transformations, IRGenerators, etc.</p>
+<p>XACC provides a plugin-generator that will create a new plugin project
+with all boilerplate code provided. Developers just implement the
+pertinent methods for the plugin (like the <code class="docutils literal notranslate"><span class="pre">compile()</span></code> method for
+new Compilers). Contributing the plugins after the pertinent methods have
+been implemented is as simple as <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that to use the XACC plugin-generator you must have XACC installed
+from source (you cannot use the pip install) and your XACC must be built
+with Python support.</p>
+</div>
+<p>To generate new plugins, users/developers can run the following command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m xacc generate-plugin -t compiler -n awesome
+</pre></div>
+</div>
+<p>Here we use the XACC python module to generate a new <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> plugin with the
+name <code class="docutils literal notranslate"><span class="pre">awesome</span></code>. You should see a new <code class="docutils literal notranslate"><span class="pre">xacc-awesome</span></code> folder that contains <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> and
+<code class="docutils literal notranslate"><span class="pre">README.md</span></code> files (the CMake file is a working build file ready for use). You should
+also see <code class="docutils literal notranslate"><span class="pre">compiler</span></code> and <code class="docutils literal notranslate"><span class="pre">tests</span></code> folders with stubbed out code ready for implementation.</p>
+<p>You as the developer can now implement your custom quantum kernel compilation routine and
+any unit test you would like (as a Google Test). Then, to build, test, and contribute the plugin
+to your XACC framework instance, run the following from the top-level of the <code class="docutils literal notranslate"><span class="pre">xacc-awesome</span></code>
+folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mkdir build &amp;&amp; cd build
+$ cmake .. -DAWESOME_BUILD_TESTS=TRUE
+$ make install
+$ ctest
+</pre></div>
+</div>
+<p>This will build, install, and run your tests on the Compiler plugin you have just
+created.</p>
+<p>The instructions for other plugins are similar.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

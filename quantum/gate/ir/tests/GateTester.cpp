@@ -116,6 +116,18 @@ TEST(GateTester, checkBasicGatesAndCircuits) {
   EXPECT_EQ(8, bar->nInstructions());
   auto enabled = bar->enabledView();
   EXPECT_EQ(7, enabled->nInstructions());
+
+  bar->getInstruction(0)->enable();
+
+  std::cout << "Bar before:\n" << bar->toString() << "\n";
+
+  bar->getInstruction(4)->disable();
+
+  bar->removeDisabled();
+
+  std::cout << "Bar after:\n" << bar->toString() << "\n";
+//   EXPECT_TRUE(false);
+
 }
 
 TEST(GateTester, checkTerminatingNode) {

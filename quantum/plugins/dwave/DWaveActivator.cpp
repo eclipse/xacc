@@ -38,7 +38,7 @@ public:
   void Start(BundleContext context) {
     auto acc = std::make_shared<xacc::quantum::DWAccelerator>();
     context.RegisterService<xacc::Accelerator>(acc);
-    context.RegisterService<xacc::OptionsProvider>(acc);
+    // context.RegisterService<xacc::OptionsProvider>(acc);
 
     auto rbm = std::make_shared<xacc::dwave::RBM>();
     context.RegisterService<xacc::Instruction>(rbm);

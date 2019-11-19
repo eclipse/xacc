@@ -205,6 +205,9 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
+  void clear() override {
+      instructions.clear();
+  }
 
   bool hasChildren() const override { return !instructions.empty(); }
   bool expand(const HeterogeneousMap &runtimeOptions) override {
@@ -318,6 +321,19 @@ public:
     return newF;
   }
 
+  void removeDisabled() override {
+      // Go backwards so we don't mess up the order.
+    for (int i = nInstructions()-1; i >= 0; i--) {
+        if (instructions[i]->isComposite()) {
+            std::dynamic_pointer_cast<CompositeInstruction>(instructions[i])->removeDisabled();
+        } else {
+        if (!instructions[i]->isEnabled()) {
+            removeInstruction(i);
+        }
+        }
+    }
+  }
+
   void setCoefficient(const std::complex<double> c) override {
     coefficient = c;
   }
@@ -335,6 +351,7 @@ public:
   std::shared_ptr<Instruction> clone() override {
     return std::make_shared<Circuit>(*this);
   }
+
   virtual ~Circuit() {}
 };
 

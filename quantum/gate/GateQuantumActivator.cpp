@@ -10,20 +10,13 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-// #include "QFT.hpp"
-// #include "InverseQFT.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
 
-// #include "QuantumIRProvider.hpp"
 #include "CommonGates.hpp"
 
-// #include "CircuitOptimizer.hpp"
-
-// #include "ROErrorDecorator.hpp"
-// #include "ImprovedSamplingDecorator.hpp"
-// #include "RichExtrapDecorator.hpp"
+#include "PulseScheduler.hpp"
 
 #include <memory>
 #include <set>
@@ -42,32 +35,6 @@ public:
   /**
    */
   void Start(BundleContext context) {
-    // auto qft = std::make_shared<xacc::quantum::QFT>();
-    // auto iqft = std::make_shared<xacc::quantum::InverseQFT>();
-
-    // auto giservice = std::make_shared<xacc::InstructionIRProvider>();
-
-    // auto opt = std::make_shared<xacc::quantum::CircuitOptimizer>();
-
-    // auto roed = std::make_shared<xacc::quantum::ROErrorDecorator>();
-    // auto impsamplingd = std::make_shared<xacc::quantum::ImprovedSamplingDecorator>();
-    // auto richextrap = std::make_shared<xacc::quantum::RichExtrapDecorator>();
-
-    // context.RegisterService<xacc::IRProvider>(giservice);
-    // context.RegisterService<xacc::IRGenerator>(iqft);
-    // context.RegisterService<xacc::IRGenerator>(qft);
-
-    // context.RegisterService<xacc::IRTransformation>(opt);
-    // context.RegisterService<xacc::OptionsProvider>(opt);
-
-    // context.RegisterService<xacc::AcceleratorDecorator>(roed);
-    // context.RegisterService<xacc::Accelerator>(roed);
-
-    // context.RegisterService<xacc::AcceleratorDecorator>(richextrap);
-    // context.RegisterService<xacc::Accelerator>(richextrap);
-
-    // context.RegisterService<xacc::AcceleratorDecorator>(impsamplingd);
-    // context.RegisterService<xacc::Accelerator>(impsamplingd);
 
     auto h = std::make_shared<xacc::quantum::Hadamard>();
     auto cn = std::make_shared<xacc::quantum::CNOT>();
@@ -93,6 +60,9 @@ public:
     auto crz= std::make_shared<xacc::quantum::CRZ>();
     auto ch = std::make_shared<xacc::quantum::CH>();
 
+    auto scheduler = std::make_shared<xacc::quantum::PulseScheduler>();
+    context.RegisterService<xacc::Scheduler>(scheduler);
+    
     context.RegisterService<xacc::Instruction>(h);
     context.RegisterService<xacc::Instruction>(cn);
     context.RegisterService<xacc::Instruction>(cp);

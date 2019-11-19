@@ -11,9 +11,9 @@ def rosen_with_grad(x):
 
 optimizer = xacc.getOptimizer('mlpack',{'mlpack-optimizer':'l-bfgs'})
 
-result = optimizer.optimize(rosen_with_grad,2)
+r,p = optimizer.optimize(rosen_with_grad,2)
 
-print('Result = ', result)
+print('Result = ', r,p)
 
-cobyla = xacc.getOptimizer('nlopt',{ 'nlopt-optimizer':'cobyla',  'nlopt-maxeval':500})
-print('Result = ', result)
+# cobyla = xacc.getOptimizer('nlopt',{ 'nlopt-optimizer':'cobyla',  'nlopt-maxeval':500})
+# print('Result = ', result)

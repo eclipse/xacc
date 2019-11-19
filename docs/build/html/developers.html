@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developers &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Advanced" href="advanced.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start-with-docker">Quick Start with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start-for-ornl-developers">Quick Start for ORNL Developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-a-plugin-in-c">Writing a Plugin in C++</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-a-plugin-in-python">Writing a Plugin in Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-accelerator-for-new-simulators">Extending Accelerator for new Simulators</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Developers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/developers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developers">
+<h1>Developers<a class="headerlink" href="#developers" title="Permalink to this headline">¶</a></h1>
+<p>Here we describe how XACC developers can extend the framework
+with new Compilers, Accelerators, Instructions, IR Transformations, etc.
+This can be done from both C++ and Python.</p>
+<div class="section" id="quick-start-with-docker">
+<h2>Quick Start with Docker<a class="headerlink" href="#quick-start-with-docker" title="Permalink to this headline">¶</a></h2>
+<p>We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code>. To use this image run the following from some
+scratch development directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run -it --init -p <span class="m">3000</span>:3000 -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/home/project:cached&quot;</span> xacc/dev
+</pre></div>
+</div>
+<p>Now navigate to <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code> in your web browser. This will open
+the Theia IDE and you are good to go. Open a terminal with <code class="docutils literal notranslate"><span class="pre">ctrl</span> <span class="pre">+</span> <span class="pre">`</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">cmd</span> <span class="pre">+</span> <span class="pre">`</span></code> on a Mac). Use the terminal to clone XACC and start
+building.</p>
+</div>
+<div class="section" id="quick-start-for-ornl-developers">
+<h2>Quick Start for ORNL Developers<a class="headerlink" href="#quick-start-for-ornl-developers" title="Permalink to this headline">¶</a></h2>
+<p>For ORNL employees (or those with valid ORNL credentials) we have put together
+a base Ubuntu 16.04 VM image that can be used with the <a class="reference external" href="https://cades.ornl.gov/service-suite/cades-cloud/">CADES Cloud Computing
+infrastructure</a>. CADES provides a
+form of cloud computing whereby users can spin up VMs of varying sizes (n cpus, RAM, etc)
+via a user-friendly web interface. Once created, users can SSH into it and begin working. Our base
+Ubuntu VM comes with all XACC prerequisites and the Eclipse Theia IDE installed.</p>
+<p>If you would like to leverage this service, please request an account by following the instructions
+<a class="reference external" href="https://support.cades.ornl.gov/user-documentation/_book/quick-starts/launch-vm-quick-start.html">here</a>.
+Once you have an account, email <a class="reference external" href="mailto:mccaskeyaj&#37;&#52;&#48;ornl&#46;gov">mccaskeyaj<span>&#64;</span>ornl<span>&#46;</span>gov</a> and request access to the base XACC image.</p>
+<p>Once your VM is created, you need to open up port 3000 in order to use Theia. To do so, go to the CADES web dashboard
+and click Access and Security. On the default security group click Manage Rules. At the top, click Add Rule, leave everything
+as it is by default, but add <code class="docutils literal notranslate"><span class="pre">3000</span></code> to the port entry. Now just click Add Rule.</p>
+<p>Continue to read through the support <a class="reference external" href="https://support.cades.ornl.gov/user-documentation/_book/openstack/access-vm/access-vm.html">site</a>
+to see information about SSHing into your newly created VM. Once logged into the VM, run the following to launch Theia</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> dev
+$ yarn theia start --hostname <span class="m">0</span>.0.0.0 --port <span class="m">3000</span>
+</pre></div>
+</div>
+<p>Launch this in the background if you wish to leave the current SSH session but still want Theia running on
+your VM. Now navigate to your instances IP address at port 3000 in your web browser (<code class="docutils literal notranslate"><span class="pre">https://128.232.33.87:3000</span></code> for example).
+You should see the Theia web IDE. Now build XACC according to the instructions <a class="reference external" href="https://xacc.readthedocs.io/en/latest/install.html#build-xacc">here</a>.</p>
+</div>
+<div class="section" id="writing-a-plugin-in-c">
+<h2>Writing a Plugin in C++<a class="headerlink" href="#writing-a-plugin-in-c" title="Permalink to this headline">¶</a></h2>
+<p>Let’s demonstrate how one might add a new IR Transformation
+implementation to XACC. This is a simple case, but the overall structure
+works across most plugins.</p>
+<p>First, we create a new project folder <code class="docutils literal notranslate"><span class="pre">test_ir_transformation</span></code> and
+populate it with a <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file, and a <code class="docutils literal notranslate"><span class="pre">src</span></code> folder containing another
+<code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file as well as <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>, <code class="docutils literal notranslate"><span class="pre">test_ir_transformation.hpp</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_ir_transformation.cpp</span></code>, and <code class="docutils literal notranslate"><span class="pre">test_ir_transformation_activator.cpp</span></code>. You should have
+the following directory structure</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>test_ir_transformation
+├── CMakeLists.txt
+├── src
+    ├── CMakeLists.txt
+    └── manifest.json
+    └── test_ir_transformation.hpp
+    └── test_ir_transformation.cpp
+    └── test_ir_transformation_activator.cpp
+</pre></div>
+</div>
+<p>In the top-level <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> we add the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>project<span class="o">(</span>test_ir_transformation CXX<span class="o">)</span>
+cmake_minimum_required<span class="o">(</span>VERSION <span class="m">3</span>.9 FATAL_ERROR<span class="o">)</span>
+find_package<span class="o">(</span>XACC REQUIRED<span class="o">)</span>
+add_subdirectory<span class="o">(</span>src<span class="o">)</span>
+</pre></div>
+</div>
+<p>Basically here we are defining a CMake project, setting the minimum version, locating our XACC install, and
+adding the <code class="docutils literal notranslate"><span class="pre">src</span></code> directory to the build.</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">src/CMakeLists.txt</span></code> file, we add the following</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>set<span class="o">(</span>LIBRARY_NAME test-ir-transformation<span class="o">)</span>
+file<span class="o">(</span>GLOB SRC *.cpp<span class="o">)</span>
+usfunctiongetresourcesource<span class="o">(</span>TARGET
+                            <span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span>
+                            OUT
+                            SRC<span class="o">)</span>
+usfunctiongeneratebundleinit<span class="o">(</span>TARGET
+                            <span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span>
+                            OUT
+                            SRC<span class="o">)</span>
+add_library<span class="o">(</span><span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span> SHARED <span class="si">${</span><span class="nv">SRC</span><span class="si">}</span><span class="o">)</span>
+target_link_libraries<span class="o">(</span><span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span> PRIVATE xacc::xacc<span class="o">)</span>
+set<span class="o">(</span>_bundle_name test_ir_transformation<span class="o">)</span>
+set_target_properties<span class="o">(</span><span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span>
+                    PROPERTIES COMPILE_DEFINITIONS
+                                <span class="nv">US_BUNDLE_NAME</span><span class="o">=</span><span class="si">${</span><span class="nv">_bundle_name</span><span class="si">}</span>
+                                US_BUNDLE_NAME
+                                <span class="si">${</span><span class="nv">_bundle_name</span><span class="si">}</span><span class="o">)</span>
+usfunctionembedresources<span class="o">(</span>TARGET
+                        <span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span>
+                        WORKING_DIRECTORY
+                        <span class="si">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="si">}</span>
+                        FILES
+                        manifest.json<span class="o">)</span>
+xacc_configure_plugin_rpath<span class="o">(</span><span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span><span class="o">)</span>
+install<span class="o">(</span>TARGETS <span class="si">${</span><span class="nv">LIBRARY_NAME</span><span class="si">}</span> DESTINATION <span class="si">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="si">}</span>/plugins<span class="o">)</span>
+</pre></div>
+</div>
+<p>Here we define the library name, collect all source files, run some
+CppMicroServices functions that append extra information to our library,
+build the library and link in all required XACC libraries. Next we add
+more information to this shared library from the <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> file,
+configure the libraries RPATH, and install to the correct
+<code class="docutils literal notranslate"><span class="pre">plugins</span></code> folder in XACC. <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> should contain the following json</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+  <span class="s2">&quot;bundle.symbolic_name&quot;</span> : <span class="s2">&quot;test_ir_transformation&quot;</span>,
+  <span class="s2">&quot;bundle.activator&quot;</span> : true,
+  <span class="s2">&quot;bundle.name&quot;</span> : <span class="s2">&quot;Test IR Transformation&quot;</span>,
+  <span class="s2">&quot;bundle.description&quot;</span> : <span class="s2">&quot;&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Next we provide the actual code for the test IR Transformation. In the <code class="docutils literal notranslate"><span class="pre">test_ir_transformation.hpp</span></code>
+we add the following</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+<span class="cp">#include</span> <span class="cpf">&quot;IRTransformation.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">xacc</span><span class="p">;</span>
+
+<span class="k">namespace</span> <span class="n">test</span> <span class="p">{</span>
+
+<span class="k">class</span> <span class="nc">Test</span> <span class="o">:</span> <span class="k">public</span> <span class="n">IRTransformation</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">Test</span><span class="p">()</span> <span class="p">{}</span>
+  <span class="kt">void</span> <span class="n">apply</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">CompositeInstruction</span><span class="o">&gt;</span> <span class="n">program</span><span class="p">,</span>
+                     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Accelerator</span><span class="o">&gt;</span> <span class="n">accelerator</span><span class="p">,</span>
+                     <span class="k">const</span> <span class="n">HeterogeneousMap</span><span class="o">&amp;</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{})</span> <span class="k">override</span><span class="p">;</span>
+  <span class="k">const</span> <span class="n">IRTransformationType</span> <span class="nf">type</span><span class="p">()</span> <span class="k">const</span> <span class="k">override</span> <span class="p">{</span><span class="k">return</span> <span class="n">IRTransformationType</span><span class="o">::</span><span class="n">Optimization</span><span class="p">;}</span>
+
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">()</span> <span class="k">const</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;test-irt&quot;</span><span class="p">;</span> <span class="p">}</span>
+  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">description</span><span class="p">()</span> <span class="k">const</span> <span class="k">override</span> <span class="p">{</span> <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>and in <code class="docutils literal notranslate"><span class="pre">test_ir_transformation.cpp</span></code> we implement <code class="docutils literal notranslate"><span class="pre">apply</span></code></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;test_ir_transformation.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">test</span> <span class="p">{</span>
+
+<span class="kt">void</span> <span class="n">Test</span><span class="o">::</span><span class="n">apply</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">CompositeInstruction</span><span class="o">&gt;</span> <span class="n">circuit</span><span class="p">,</span>
+                             <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Accelerator</span><span class="o">&gt;</span> <span class="n">accelerator</span><span class="p">,</span>
+                             <span class="k">const</span> <span class="n">HeterogeneousMap</span> <span class="o">&amp;</span><span class="n">options</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// do transformation on circuit here...</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Finally, we add a <code class="docutils literal notranslate"><span class="pre">BundleActivator</span></code> that creates a <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code> to our
+IR Transformation and registers it with the CppMicroServices framework.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;test_ir_transformation.hpp&quot;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;cppmicroservices/BundleActivator.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;cppmicroservices/BundleContext.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;cppmicroservices/ServiceProperties.h&quot;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">cppmicroservices</span><span class="p">;</span>
+
+<span class="k">namespace</span> <span class="p">{</span>
+
+<span class="k">class</span> <span class="nc">US_ABI_LOCAL</span> <span class="nl">TestIRTransformationActivator</span><span class="p">:</span> <span class="k">public</span> <span class="n">BundleActivator</span> <span class="p">{</span>
+
+<span class="k">public</span><span class="o">:</span>
+
+        <span class="n">TestIRTransformationActivator</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">}</span>
+        <span class="kt">void</span> <span class="n">Start</span><span class="p">(</span><span class="n">BundleContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">auto</span> <span class="n">t</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">test</span><span class="o">::</span><span class="n">Test</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">context</span><span class="p">.</span><span class="n">RegisterService</span><span class="o">&lt;</span><span class="n">xacc</span><span class="o">::</span><span class="n">IRTransformation</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="kt">void</span> <span class="n">Stop</span><span class="p">(</span><span class="n">BundleContext</span> <span class="cm">/*context*/</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="p">}</span>
+
+<span class="n">CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR</span><span class="p">(</span><span class="n">TestIRTransformationActivator</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The majority of this is standard CppMicroservices boilerplate code. The crucial bit that
+requires your attention when developing a new plugin is the implementation of <code class="docutils literal notranslate"><span class="pre">Start</span></code>.
+Here you create a <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code> to your instances and register it against the
+correct XACC interface type, here <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>.</p>
+<p>Now, all that is left to do is build your shared library, and install it for use
+in the XACC framework</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> test_ir_transformation <span class="o">&amp;&amp;</span> mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+$ cmake .. -DXACC_DIR<span class="o">=</span>~/.xacc
+$ make install
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-a-plugin-in-python">
+<h2>Writing a Plugin in Python<a class="headerlink" href="#writing-a-plugin-in-python" title="Permalink to this headline">¶</a></h2>
+<p>For this example, let’s wrap a Qiskit transpiler pass with an XACC
+<code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> to demonstrate how one might integrate novel tools from
+vendor frameworks with XACC. This will require creating a new Python class in a
+standalone python file that extends the core C++ <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface.
+Note that this can be done for other interfaces as well, including <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Observable</span></code>, <code class="docutils literal notranslate"><span class="pre">Optimizer</span></code>, etc.</p>
+<p>First lets show the code to do this, and then we’ll walk through it. We will wrap the simple
+qiskit cx-cancellation pass (this is already in XACC from the <code class="docutils literal notranslate"><span class="pre">circuit-optimizer</span></code> <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>,
+but this is for demonstration purposes). Create a python file named <code class="docutils literal notranslate"><span class="pre">easy_qiskit_pass.py</span></code> and add the following</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">from</span> <span class="nn">pelix.ipopo.decorators</span> <span class="kn">import</span> <span class="n">ComponentFactory</span><span class="p">,</span> <span class="n">Property</span><span class="p">,</span> <span class="n">Requires</span><span class="p">,</span> <span class="n">Provides</span><span class="p">,</span> \
+    <span class="n">Validate</span><span class="p">,</span> <span class="n">Invalidate</span><span class="p">,</span> <span class="n">Instantiate</span>
+
+<span class="nd">@ComponentFactory</span><span class="p">(</span><span class="s2">&quot;easy_qiskit_pass_factory&quot;</span><span class="p">)</span>
+<span class="nd">@Provides</span><span class="p">(</span><span class="s2">&quot;irtransformation&quot;</span><span class="p">)</span>
+<span class="nd">@Property</span><span class="p">(</span><span class="s2">&quot;_irtransformation&quot;</span><span class="p">,</span> <span class="s2">&quot;irtransformation&quot;</span><span class="p">,</span> <span class="s2">&quot;qiskit-cx-cancellation&quot;</span><span class="p">)</span>
+<span class="nd">@Property</span><span class="p">(</span><span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;qiskit-cx-cancellation&quot;</span><span class="p">)</span>
+<span class="nd">@Instantiate</span><span class="p">(</span><span class="s2">&quot;easy_qiskit_pass_instance&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">EasyQiskitIRTransformation</span><span class="p">(</span><span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformation</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">xacc</span><span class="o">.</span><span class="n">IRTransformationType</span><span class="o">.</span><span class="n">Optimization</span>
+
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;qiskit-cx-cancellation&#39;</span>
+
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="c1"># Import qiskit modules here so that users</span>
+        <span class="c1"># who don&#39;t have qiskit can still use rest of xacc</span>
+        <span class="kn">from</span> <span class="nn">qiskit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">transpile</span>
+        <span class="kn">from</span> <span class="nn">qiskit.transpiler</span> <span class="kn">import</span> <span class="n">PassManager</span>
+        <span class="kn">from</span> <span class="nn">qiskit.transpiler.passes</span> <span class="kn">import</span> <span class="n">CXCancellation</span>
+
+        <span class="c1"># Map CompositeInstruction program to OpenQasm string</span>
+        <span class="n">openqasm_compiler</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiler</span><span class="p">(</span><span class="s1">&#39;openqasm&#39;</span><span class="p">)</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">openqasm_compiler</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">program</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create a QuantumCircuit</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="o">.</span><span class="n">from_qasm_str</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+        <span class="c1"># Create the PassManager and run the pass</span>
+        <span class="n">pass_manager</span> <span class="o">=</span> <span class="n">PassManager</span><span class="p">()</span>
+        <span class="n">pass_manager</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CXCancellation</span><span class="p">())</span>
+        <span class="n">out_circuit</span> <span class="o">=</span> <span class="n">transpile</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">pass_manager</span><span class="o">=</span><span class="n">pass_manager</span><span class="p">)</span>
+
+        <span class="c1"># Map the output to OpenQasm and map to XACC IR</span>
+        <span class="n">out_src</span> <span class="o">=</span> <span class="n">out_circuit</span><span class="o">.</span><span class="n">qasm</span><span class="p">()</span>
+        <span class="n">out_src</span> <span class="o">=</span> <span class="s1">&#39;__qpu__ void &#39;</span><span class="o">+</span><span class="n">program</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;(qbit q) {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">out_src</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">}&quot;</span>
+        <span class="n">out_prog</span> <span class="o">=</span> <span class="n">openqasm_compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">out_src</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">)</span><span class="o">.</span><span class="n">getComposites</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># update the given program CompositeInstruction reference</span>
+        <span class="n">program</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">out_prog</span><span class="o">.</span><span class="n">getInstructions</span><span class="p">():</span>
+            <span class="n">program</span><span class="o">.</span><span class="n">addInstruction</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+
+        <span class="k">return</span>
+</pre></div>
+</div>
+<p>This class subclasses the Pybind11-exposed C++ <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> interface, and provides
+implementations in python of its pertinent methods - a constructor, <code class="docutils literal notranslate"><span class="pre">type()</span></code>, <code class="docutils literal notranslate"><span class="pre">name()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">apply()</span></code>. The constructor must invoke the superclass constructor. We implement <code class="docutils literal notranslate"><span class="pre">type()</span></code> to
+indicate that this is an <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> that is of type <code class="docutils literal notranslate"><span class="pre">Optimization</span></code>. Crucially important is the
+<code class="docutils literal notranslate"><span class="pre">name()</span></code> method, you must implement this to contribute the unique name of this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>.
+This name will be how users get reference to this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> implementation. And finally, you
+must implement the primary method for <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code>, <code class="docutils literal notranslate"><span class="pre">apply</span></code>. This is where the actual
+transformation (optimization) is performed.</p>
+<p>To insure that users can leverage the XACC framework Python API without qiskit installed, we have
+to place our imports in the <code class="docutils literal notranslate"><span class="pre">apply</span></code> method so that they are not imported at framework initialization.
+The rest of the <code class="docutils literal notranslate"><span class="pre">apply</span></code> code takes the XACC <code class="docutils literal notranslate"><span class="pre">CompositeInstruction</span></code> (<code class="docutils literal notranslate"><span class="pre">program</span></code>) and converts it
+to an OpenQasm string with the appropriate <code class="docutils literal notranslate"><span class="pre">openqasm</span></code> <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> implementation. From this we can construct
+a Qiskit <code class="docutils literal notranslate"><span class="pre">QuantumCircuit</span></code> and pass this to the <code class="docutils literal notranslate"><span class="pre">transpile</span></code> command orchestrating the execution of the
+<code class="docutils literal notranslate"><span class="pre">CXCancellation</span></code> pass. Now we get the optimized circuit back out and map back to XACC IR and update the
+provided <code class="docutils literal notranslate"><span class="pre">program</span></code> instance.</p>
+<p>In order to contribute this <code class="docutils literal notranslate"><span class="pre">IRTransformation</span></code> to XACC as a plugin, we rely on the IPOPO project. To expose
+this class as a plugin, we annotate it with the demonstrated class decorators, indicating what it provides and its
+unique name. These lines are basic boilerplate, update them for your specific plugin contribution.</p>
+<p>If this file is installed to the <code class="docutils literal notranslate"><span class="pre">py-plugins</span></code> directory of your XACC install, then when someone runs <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">xacc</span></code>,
+this plugin will be loaded and contributed to the core C++ XACC plugin registry, and users can query it like any other
+service.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;aer&#39;</span><span class="p">)</span>
+<span class="n">qbits</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Create a bell state program with too many cnots</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">.compiler xasm</span>
+<span class="s1">.circuit foo</span>
+<span class="s1">.qbit q</span>
+<span class="s1">H(q[0]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">CX(q[0], q[1]);</span>
+<span class="s1">Measure(q[0]);</span>
+<span class="s1">Measure(q[1]);</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiled</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run the python contributed IRTransformation that uses qiskit</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;qiskit-cx-cancellation&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{})</span>
+
+<span class="c1"># should have 4 instructions, not 6</span>
+<span class="k">assert</span><span class="p">(</span><span class="mi">4</span> <span class="o">==</span> <span class="n">f</span><span class="o">.</span><span class="n">nInstructions</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extending-accelerator-for-new-simulators">
+<h2>Extending Accelerator for new Simulators<a class="headerlink" href="#extending-accelerator-for-new-simulators" title="Permalink to this headline">¶</a></h2>
+<p>Here we document how one might extend the <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> interface for
+new simulators.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="advanced.html" class="btn btn-neutral float-left" title="Advanced" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

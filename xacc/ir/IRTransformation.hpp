@@ -15,32 +15,19 @@
 
 #include "IR.hpp"
 #include "Identifiable.hpp"
+#include "Accelerator.hpp"
 
 namespace xacc {
 
-/**
- * The IRTransformation interface provides a method
- * that subclasses may implement to
- * modify, transform, optimize, or translate
- * the provided IR, producing a new IR instance
- * that is isomorphic to the input IR.
- */
+enum IRTransformationType { Optimization, Placement, ErrorCorrection };
+
 class IRTransformation : public Identifiable {
 public:
-  /**
-   * Transform the given IR into a new isomorphic
-   * IR.
-   *
-   * @param ir Input IR to modify
-   * @return newIr Transformed IR
-   */
-  virtual std::shared_ptr<IR> transform(std::shared_ptr<IR> ir) = 0;
+  virtual void apply(std::shared_ptr<CompositeInstruction> program,
+                     const std::shared_ptr<Accelerator> accelerator,
+                     const HeterogeneousMap &options = {}) = 0;
+  virtual const IRTransformationType type() const = 0;
 
-  virtual bool hardwareDependent() { return false; }
-  
-  /**
-   * The destructor
-   */
   virtual ~IRTransformation() {}
 };
 

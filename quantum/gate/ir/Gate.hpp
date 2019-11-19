@@ -15,6 +15,7 @@
 
 #include "Instruction.hpp"
 #include "Cloneable.hpp"
+#include "Utils.hpp"
 
 namespace xacc {
 namespace quantum {

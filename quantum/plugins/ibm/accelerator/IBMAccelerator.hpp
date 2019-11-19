@@ -59,18 +59,20 @@ public:
 
   HeterogeneousMap getProperties() override;
 
+  void
+  contributeInstructions(const std::string &custom_json_config = "") override;
+
   const std::string getSignature() override {
     return "ibm" + chosenBackend.get_name();
   }
 
   std::vector<std::pair<int, int>> getConnectivity() override;
 
-  std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() override;
-
-  const std::vector<double> getOneBitErrorRates() override;
-  const std::vector<std::pair<std::pair<int, int>, double>>
-  getTwoBitErrorRates() override;
+  // Return the name of an IRTransformation of type Placement that is
+  // preferred for this Accelerator
+  const std::string defaultPlacementTransformation() override {
+      return "default-placement";
+  }
 
   const std::string name() const override { return "ibm"; }
   const std::string description() const override {
@@ -115,6 +117,8 @@ private:
   bool initialized = false;
   xacc::ibm_backend::Backends backends_root;
   std::map<std::string, xacc::ibm_properties::Properties> backendProperties;
+  std::string getBackendPropsResponse = "{}";
+
 };
 
 } // namespace quantum

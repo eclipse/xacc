@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Error Mitigation &mdash; XACC 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XACC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extensions.html">Extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">Developers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">XACC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Error Mitigation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/obsolete/em.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="error-mitigation">
+<h1>Error Mitigation<a class="headerlink" href="#error-mitigation" title="Permalink to this headline">¶</a></h1>
+<p>XACC provides built-in error mitigation strategies through the <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> interface.</p>
+<div class="section" id="acceleratordecorator">
+<h2>AcceleratorDecorator<a class="headerlink" href="#acceleratordecorator" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> is an interface that follows the familiar decorator design pattern to
+enable the addition of specific behaviors to the XACC <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> implementation.
+In XACC, the <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> interface is used to employ error mitigation strategies such as
+readout-error correction, mixed-state purification, and improved sampling.</p>
+<div class="section" id="readout-error-correction-decorator">
+<h3>Readout Error Correction Decorator<a class="headerlink" href="#readout-error-correction-decorator" title="Permalink to this headline">¶</a></h3>
+<p>The XACC <code class="docutils literal notranslate"><span class="pre">ROErrorDecorator</span></code> is an <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> subclass that requires information
+about the probability of an unexpected bit flip occuring during qubit measurement to correct measurement readout errors.</p>
+<p>To acquire this information in Python, XACC exposes the <code class="docutils literal notranslate"><span class="pre">xacc.compute_readout_error_probabilities(qubit_range[],</span> <span class="pre">buffer,</span> <span class="pre">qpu)</span></code> method to
+connect to a noisy quantum accelerator, compute the error probabilities, and store them in a JSON file.
+The location of this file is then given to the framework which can then use it within the <code class="docutils literal notranslate"><span class="pre">ROErrorDecorator</span></code>
+to correct the errors in the obtained measurement results of an execution. An example script to generate this
+error probability file, pass its location to the framework, decorate an <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code>, then execute the
+VQE algorithm to compute the binding energy of deuteron and mitigate qubit measurement errors using the IBM
+local simulator with bit flip errors activated is shown below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="kn">from</span> <span class="nn">xaccvqe</span> <span class="k">import</span> <span class="n">PauliOperator</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Initialize</span><span class="p">()</span>
+
+<span class="c1"># Get access to IBM Accelerator,</span>
+<span class="c1"># allocate qubits,</span>
+<span class="c1"># target the local-ibm accelerator</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;local-ibm&#39;</span><span class="p">)</span>
+<span class="n">buffer</span> <span class="o">=</span> <span class="n">qpu</span><span class="o">.</span><span class="n">createBuffer</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># introduce readout error probability in the simulator</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">setOption</span><span class="p">(</span><span class="s1">&#39;local-ibm-ro-error&#39;</span><span class="p">,</span> <span class="s1">&#39;.01, .1&#39;</span><span class="p">)</span>
+
+<span class="c1"># Compute the readout error probabilities</span>
+<span class="c1"># and store it in a file</span>
+<span class="n">p01s</span><span class="p">,</span> <span class="n">p10s</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">compute_readout_error_probabilities</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">size</span><span class="p">()),</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">qpu</span><span class="p">)</span>
+
+<span class="c1"># Point the XACC framework to the error probability file</span>
+<span class="n">xacc</span><span class="o">.</span><span class="n">setOption</span><span class="p">(</span><span class="s1">&#39;ro-error-file&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+<span class="c1"># Decorate the Accelerator with the ROErrorDecorator</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAcceleratorDecorator</span><span class="p">(</span><span class="s1">&#39;ro-error&#39;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">)</span>
+
+<span class="c1"># Construct the deuteron Hamiltonian</span>
+<span class="n">ham</span> <span class="o">=</span> <span class="n">PauliOperator</span><span class="p">(</span><span class="mf">5.906709445</span><span class="p">)</span> <span class="o">+</span> \
+      <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+      <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">2.1433</span><span class="p">)</span> <span class="o">+</span> \
+      <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">.</span><span class="mi">21829</span><span class="p">)</span> <span class="o">+</span> \
+      <span class="n">PauliOperator</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Z&#39;</span><span class="p">},</span> <span class="o">-</span><span class="mf">6.125</span><span class="p">)</span>
+
+<span class="c1"># Construct the XACC Kernel and direct the framework to</span>
+<span class="c1"># run VQE on the defined ansatz, using the decorated accelerator</span>
+<span class="c1"># with the deuteron Hamiltonian as the measurable observable</span>
+<span class="nd">@xacc</span><span class="o">.</span><span class="n">qpu</span><span class="p">(</span><span class="n">algo</span><span class="o">=</span><span class="s1">&#39;vqe&#39;</span><span class="p">,</span> <span class="n">accelerator</span><span class="o">=</span><span class="n">qpu</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="n">ham</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ansatz</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">t0</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">Ry</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">CNOT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">ansatz</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">xacc</span><span class="o">.</span><span class="n">Finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code> object contains all of the results of the execution like usual,
+except now it also stores the readout error corrected measurement bit strings.</p>
+<p>Each child buffer in the resulting buffer object now has an additional <cite>ExtraInformation</cite> key-value pair to store
+the measured expectation value of the readout error corrected measurement bit strings with key <cite>ro-exp-val-z</cite></p>
+</div>
+<div class="section" id="reduced-density-matrix-purification-decorator">
+<h3>Reduced Density Matrix Purification Decorator<a class="headerlink" href="#reduced-density-matrix-purification-decorator" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">RDMPurification</span></code> decorator can be used to correct for errors caused by
+qubit depolarization when using noisy near-term quantum hardware. This decorator implements a
+mixed-state purification  approach  that depends  on  the  computation  of  the two-body reduced density matrix (RDM)
+and which performs the well-known McWeeny purification formula on the computed RDM.</p>
+<p>This decorator requires information about the fermionic source of the Hamiltonian observable to be measured, which
+is given to the XACC framework using the <code class="docutils literal notranslate"><span class="pre">xacc.setOption('rdm-source',</span> <span class="pre">fermion_ham_source)</span></code> method.</p>
+<p>Each child buffer in the resulting buffer now has additional <cite>ExtraInformation</cite> key-value pairs to store information
+about the RDM purification results, namely <cite>contributing_coeffs</cite>, <cite>contributing_rho_pqrs</cite>, <cite>non-purified-energy</cite>, and <cite>purified-energy</cite>.</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">AcceleratorDecorator</span></code> implementation comes installed with the XACC-VQE plugin.</p>
+</div>
+<div class="section" id="improved-sampling-decorator">
+<h3>Improved Sampling Decorator<a class="headerlink" href="#improved-sampling-decorator" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ImprovedSampling</span></code> decorator can be used to automatically execute quantum circuits multiple times
+in order to increase the number of measurements performed. This decorator is used to increase the probability
+of acquiring desired results from quantum acceleration.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Alex McCaskey
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

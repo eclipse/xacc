@@ -39,10 +39,10 @@ grammar OQASM2;
 
 /* This part of the grammar is particular to XACC */
 /**********************************************************************/
-xaccsrc : xacckernel *;
+xaccsrc : xacckernel ;
 
-xacckernel : '__qpu__' kernelname =
-                 id '(' 'AcceleratorBuffer' acceleratorbuffer =
+xacckernel : '__qpu__' 'void' kernelname =
+                 id '(' 'qbit' acceleratorbuffer =
                      id(',' typedparam) * ')' '{' mainprog '}';
 
 typedparam : type param;
@@ -53,12 +53,12 @@ kernelcall : kernelname = id '(' param ? (',' param) * ')';
 /***********************************************************************/
 
 /* The main program */
-mainprog : comment *OPENQASM real ';' program ? ;
+mainprog : comment * | OPENQASM real ';' | program ? ;
 
 /* The actual program statements */
 program : (line) + ;
 
-line : statement + | comment | include + ;
+line : statement + | comment | include + | OPENQASM real ';' ;
 
 /* A program statement */
 statement : regdecl ';' | gatedecl | opaque ';' | qop ';' | conditional ';' |
@@ -143,7 +143,7 @@ action : qop;
 explist : exp(',' exp) *;
 
 /* An expression */
-exp : SCIENTIFIC_NOTATION | real | INT | 'pi' | id | exp '+' exp | exp '-' exp | exp '*' exp |
+exp :  real | INT | 'pi' | id | exp '+' exp | exp '-' exp | exp '*' exp |
       exp '/' exp | '-' exp | exp '^' exp | '(' exp ')' | unaryop '(' exp ')';
 
 /* unary operations */
@@ -172,11 +172,11 @@ id : ID;
 
 /* real numbers */
 real : REAL;
-
+/*
 SCIENTIFIC_NUMBER
    : NUMBER (E SIGN? UNSIGNED_INTEGER)?
    ;
-
+*/
 /* strings are enclosed in quotes */
 string : STRING;
 
@@ -210,8 +210,11 @@ OPENQASM : 'OpenQASM' | 'OPENQASM';
 OPAQUE : 'opaque';
 
 /* id, ego, and super-ego */
-ID : [a - z][A - Za - z0 - 9_] *;
-
+ID
+   : [a-z][A-Za-z0-9_]*
+   | [A-Z][A-Za-z0-9_]*
+   | [A-Z][A-Za-z]*
+   ;
 /* Keep it real...numbers */
 REAL
    : INT ( '.' (INT)? )

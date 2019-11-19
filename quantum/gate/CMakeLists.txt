@@ -53,7 +53,7 @@ usFunctionEmbedResources(TARGET
                          FILES
                          manifest.json)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-pauli xacc-fermion)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PUBLIC xacc-pauli xacc-fermion)
 
 
 if(APPLE)
