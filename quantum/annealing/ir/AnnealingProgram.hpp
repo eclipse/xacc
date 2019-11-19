@@ -85,6 +85,10 @@ public:
     xacc::error("AnnealingProgrma.mapBits not implemented");
   }
 
+  void removeDisabled() override {
+  }
+
+
   const int nRequiredBits() const override {
     return 0;
   }
@@ -126,7 +130,10 @@ InstPtr getInstruction(const std::size_t idx) override {
     xacc::error("AnnealingProgram graph is undirected, cannot compute depth.");
     return 0;
   }
-
+  void clear() override {
+      instructions.clear();
+  }
+  
   const std::string persistGraph() override {
     std::stringstream s;
     toGraph()->write(s);

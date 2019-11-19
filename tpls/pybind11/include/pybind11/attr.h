@@ -133,8 +133,8 @@ struct argument_record {
 /// Internal data structure which holds metadata about a bound function (signature, overloads, etc.)
 struct function_record {
     function_record()
-        : is_constructor(false), is_stateless(false), is_operator(false),
-          has_args(false), has_kwargs(false), is_method(false) { }
+        : is_constructor(false), is_new_style_constructor(false), is_stateless(false),
+          is_operator(false), has_args(false), has_kwargs(false), is_method(false) { }
 
     /// Function name
     char *name = nullptr; /* why no C++ strings? They generate heavier code.. */
@@ -162,6 +162,9 @@ struct function_record {
 
     /// True if name == '__init__'
     bool is_constructor : 1;
+
+    /// True if this is a new-style `__init__` defined in `detail/init.h`
+    bool is_new_style_constructor : 1;
 
     /// True if this is a stateless function pointer
     bool is_stateless : 1;
@@ -197,7 +200,8 @@ struct function_record {
 /// Special data structure which (temporarily) holds metadata about a bound class
 struct type_record {
     PYBIND11_NOINLINE type_record()
-        : multiple_inheritance(false), dynamic_attr(false), buffer_protocol(false), module_local(false) { }
+        : multiple_inheritance(false), dynamic_attr(false), buffer_protocol(false),
+          default_holder(true), module_local(false) { }
 
     /// Handle to the parent scope
     handle scope;
@@ -211,11 +215,14 @@ struct type_record {
     /// How large is the underlying C++ type?
     size_t type_size = 0;
 
+    /// What is the alignment of the underlying C++ type?
+    size_t type_align = 0;
+
     /// How large is the type's holder?
     size_t holder_size = 0;
 
     /// The global operator new can be overridden with a class-specific variant
-    void *(*operator_new)(size_t) = ::operator new;
+    void *(*operator_new)(size_t) = nullptr;
 
     /// Function pointer to class_<..>::init_instance
     void (*init_instance)(instance *, const void *) = nullptr;
@@ -275,11 +282,14 @@ struct type_record {
     }
 };
 
-inline function_call::function_call(function_record &f, handle p) :
+inline function_call::function_call(const function_record &f, handle p) :
         func(f), parent(p) {
     args.reserve(f.nargs);
     args_convert.reserve(f.nargs);
 }
+
+/// Tag for a new-style `__init__` defined in `detail/init.h`
+struct is_new_style_constructor { };
 
 /**
  * Partial template specializations to process custom attributes provided to
@@ -337,6 +347,10 @@ template <> struct process_attribute<scope> : process_attribute_default<scope> {
 /// Process an attribute which indicates that this function is an operator
 template <> struct process_attribute<is_operator> : process_attribute_default<is_operator> {
     static void init(const is_operator &, function_record *r) { r->is_operator = true; }
+};
+
+template <> struct process_attribute<is_new_style_constructor> : process_attribute_default<is_new_style_constructor> {
+    static void init(const is_new_style_constructor &, function_record *r) { r->is_new_style_constructor = true; }
 };
 
 /// Process a keyword argument attribute (*without* a default value)

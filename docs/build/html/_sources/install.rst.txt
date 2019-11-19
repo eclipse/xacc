@@ -1,77 +1,118 @@
 Installation
 ============
 
-This section provide guidelines for installing XACC and its TPLs.
+Note that you must have a C++14 compliant compiler and a recent version of CMake (version 3.12+). We
+recommend installing with the Python API (although you may choose not to). This discussion will
+describe the build process with the Python API enabled. For this you will need a Python 3 executable and
+development install. To interact with remote QPUs, you will need CURL with OpenSSL development
+headers and libraries.
 
-Pre-Requisites
---------------
+Quick-Start with Docker
+-----------------------
+To get up and running quickly and avoid installing the prerequisites you can
+pull the ``xacc/dev`` Docker image (see `here <https://xacc.readthedocs.io/en/latest/developers.html#quick-start-with-docker>`_ for instructions).
+Once you have the IDE up and running, you can skip down to `cloning XACC <https://xacc.readthedocs.io/en/latest/install.html#build-xacc>`_.
 
-The following software is required before building XACC:
 
-+------------------------+------------+-----------+
-| Packages               | Dependency | Version   |
-+========================+============+===========+
-| C++11 Compiler         | Required   | See below |
-+------------------------+------------+-----------+
-| OpenSSL                | Required   |   1.0     |
-+------------------------+------------+-----------+
-| CMake                  | Required   |   3.2+    |
-+------------------------+------------+-----------+
-
-Note that you must have a C++11 compliant compiler. If you prefer ``gcc/g++``,
-it is recommended that you use at least version 5.0 and up. Using ``[4.8,5)`` will
-cause XACC to skip building and installing Antlr, which is required for most XACC
-Compiler extensions.
-
-The other dependencies are relatively easy to install on various operating
-systems. Any of the following commands will work for Mac, Fedora/RedHat/CentOS, or Ubuntu:
-
-.. code::
-
-   $ (macosx) brew/port install cmake openssl
-   $ (fedora) dnf install cmake openssl-devel
-   $ (ubuntu) apt-get install cmake libssl-dev
-
-Building XACC
+Prerequisites
 -------------
-
-Clone the XACC repository:
-
-.. code::
-
-   $ git clone --recursive https://github.com/eclipse/xacc
-
-Note you must pass the ``--recursive`` flag. If you don't you must run
-``git submodule update --init --recursive``.
-
-XACC requires CMake 3.2+. Run the following to
-configure and build XACC:
+Ubuntu 16.04
+++++++++++++
+Here we will demonstrate installing from a bare Ubuntu install using GCC 8. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+We install libunwind-dev which is also optional, but provides verbose stack-trace printing
+upon execution error.
 
 .. code:: bash
 
+   $ sudo apt-get update && sudo apt-get install -y software-properties-common
+   $ sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt-get update
+   $ sudo apt-get -y install gcc-8 g++-8 git libcurl4-openssl-dev python3 libunwind-dev \
+            libpython3-dev python3-pip libblas-dev liblapack-dev
+   $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50
+   $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 50
+
+Ubuntu 18.04
+++++++++++++
+Here we will demonstrate installing from a bare Ubuntu install using GCC 7 (default on 18.04). We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+We install libunwind-dev which is also optional, but provides verbose stack-trace printing
+upon execution error.
+
+.. code:: bash
+
+   $ sudo apt-get update
+   $ sudo apt-get -y install gcc g++ git libcurl4-openssl-dev python3 libunwind-dev \
+            libpython3-dev python3-pip libblas-dev liblapack-dev
+
+Centos 7
+++++++++
+Here we will demonstrate installing from a bare Centos 7 install using GCC 8. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+
+.. code:: bash
+
+   $ sudo yum install libcurl-devel python3-devel git centos-release-scl make \
+          devtoolset-8-gcc devtoolset-8-gcc-c++ blas-devel lapack-devel
+   $ scl enable devtoolset-8 -- bash [ you might put this in your .bashrc ]
+
+Fedora 30
++++++++++
+Here we will demonstrate installing from a bare Fedora 30 install using GCC 9. We
+install BLAS and LAPACK as well, which is required to build some optional simulators.
+
+.. code:: bash
+
+   $ sudo dnf install python3-devel libcurl-devel git g++ gcc make blas-devel lapack-devel
+   $ sudo python3 -m pip install cmake
+
+Mac OS X
++++++++++
+Ensure that you have XCode command utilities installed. A common issue seen is missing
+standard includes like `wchar.h` and others. See `here <https://stackoverflow.com/a/52530212>`_
+for proper XCode install and configuring to address these types of issues. Here we assume you
+have Homebrew installed.
+
+.. code:: bash
+
+   $ brew install python3 openssl curl
+
+Build XACC
+----------
+The best way to install a recent version of CMake is through Python Pip.
+
+.. code:: bash
+
+   $ sudo python3 -m pip install cmake
+
+Now clone and build XACC
+
+.. code:: bash
+
+   $ git clone https://github.com/eclipse/xacc
    $ cd xacc && mkdir build && cd build
-   $ cmake ..
-   $ make install
+   [ note tests and examples are optional ]
+   $ cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+   $ make -j$(nproc --all) install
+   [ run tests with ]
+   $ ctest --output-on-failure
+   [ some examples executables are in build/quantum/examples ]
+   $ quantum/examples/base_api/bell_quil_ibm_local
 
-This will build and install XACC to ``$HOME/.xacc`` by default. If you would
-like to install XACC somewhere else, replace the above ``cmake`` command with the following
-
-.. code::
-
-   $ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/local/install
-
-You can also build XACC with Python support:
+You can run Python examples as well
 
 .. code:: bash
 
-   $ export PY_INC_DIR=$(python -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])")
-   $ cmake .. -DPYTHON_INCLUDE_DIR=$PY_INC_DIR
-   $ make install
+   [ you may also want to add this to your .bashrc ]
+   $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
+   $ python3 ../python/examples/ddcl_example.py
 
-To build with tests
+Most users build and install the TNQVM Accelerator
 
 .. code:: bash
 
-   $ cmake .. -DXACC_BUILD_TESTS=TRUE
-   $ make install
-   $ ctest
+   $ git clone https://github.com/ornl-qci/tnqvm
+   $ cd tnqvm && mkdir build && cd build
+   $ cmake .. -DXACC_DIR=$HOME/.xacc
+   $ make -j$(nproc --all) install
+

@@ -15,18 +15,6 @@ class WrappedVQEF(xacc.DecoratorFunction):
         self.vqe_optimizers = {}
         self.observable = None
 
-    @BindField("_vqe_optimizers")
-    def bind_optimizers(self, field, service, svc_ref):
-        if svc_ref.get_property('vqe_optimizer'):
-            optimizer = svc_ref.get_property('vqe_optimizer')
-            self.vqe_optimizers[optimizer] = service
-
-    @UnbindField("_vqe_optimizers")
-    def unbind_optimizers(self, field, service, svc_ref):
-        if svc_ref.get_property('vqe_optimizer'):
-            optimizer = svc_ref.get_property('vqe_optimizer')
-            del vqe_optimizers[optimizer]
-
     def __call__(self, *args, **kwargs):
         super().__call__(*args, **kwargs)
 
@@ -53,11 +41,7 @@ class WrappedVQEF(xacc.DecoratorFunction):
         if 'optimizer' not in self.kwargs:
             self.kwargs['optimizer'] = 'nlopt'
 
-        if self.kwargs['optimizer'] in self.vqe_optimizers:
-            optimizer = self.vqe_optimizers[self.kwargs['optimizer']]
-            optimizer.optimize(buffer, optParams, execParams)
-        else:
-            execParams['optimizer'] = xacc.getOptimizer(self.kwargs['optimizer'], optParams)
+        execParams['optimizer'] = xacc.getOptimizer(self.kwargs['optimizer'], optParams)
 
         vqe = xacc.getAlgorithm('vqe', execParams)
         vqe.execute(buffer)

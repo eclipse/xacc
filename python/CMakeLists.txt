@@ -11,8 +11,10 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 add_subdirectory(compiler)
+add_subdirectory(plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+include_directories(.)
 include_directories(${Python_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
 
@@ -21,9 +23,9 @@ if(APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif(APPLE)
 
-add_library(_pyxacc SHARED xacc-py.cpp)
+add_library(_pyxacc SHARED xacc-py.cpp py_heterogeneous_map.cpp py_ir.cpp py_accelerator.cpp py_compiler.cpp py_algorithm.cpp py_optimizer.cpp py_observable.cpp)
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
-target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion )
+target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion)
 
 if(APPLE)
    set_target_properties(_pyxacc PROPERTIES INSTALL_RPATH "@loader_path/lib")
@@ -38,5 +40,10 @@ install(FILES xacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY plugin_generator DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY benchmark DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/vqe/*.py)
+file(GLOB PYDECORATORS benchmark/vqe/*.py
+                       plugins/aer/*.py
+                       plugins/dwave/*.py
+                       plugins/qiskit/*.py
+                       plugins/observables/*.py
+                       plugins/optimizers/*.py)
 install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)

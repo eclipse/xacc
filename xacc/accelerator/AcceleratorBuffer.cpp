@@ -61,6 +61,11 @@ bool CheckEqualVisitor::operator()(const std::map<int, int> &i) const {
                     mpark::get<std::map<int, int>>(extraInfo).begin());
 }
 
+bool CheckEqualVisitor::operator()(const std::map<std::string, double> &i) const {
+  return std::equal(i.begin(), i.end(),
+                    mpark::get<std::map<std::string, double>>(extraInfo).begin());
+}
+
 bool CheckEqualVisitor::operator()(
     const std::vector<std::pair<double, double>> &i) const {
   return std::equal(
@@ -124,6 +129,16 @@ void ToJsonVisitor<T>::operator()(const std::map<int, int> &i) const {
   for (auto &kv : i) {
     writer.Key(std::to_string(kv.first));
     writer.Int(kv.second);
+  }
+  writer.EndObject();
+}
+
+template <class T>
+void ToJsonVisitor<T>::operator()(const std::map<std::string, double> &i) const {
+  writer.StartObject();
+  for (auto &kv : i) {
+    writer.Key(kv.first);
+    writer.Double(kv.second);
   }
   writer.EndObject();
 }
@@ -546,6 +561,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
       if (value.IsObject()) {
         std::map<int, std::vector<int>> map;
         std::map<int, int> map2;
+        std::map<std::string, double> map3;
         for (auto itr2 = value.MemberBegin(); itr2 != value.MemberEnd();
              ++itr2) {
           auto keyIsInt = true;
@@ -565,6 +581,8 @@ void AcceleratorBuffer::load(std::istream &stream) {
           } else if (itr2->value.IsInt() && keyIsInt) {
             auto val = itr2->value.GetInt();
             map2.insert({key, val});
+          } else if (itr2->value.IsDouble()) {
+              map3.insert({itr2->name.GetString(), itr2->value.GetDouble()});
           } else {
             break;
           }
@@ -574,6 +592,9 @@ void AcceleratorBuffer::load(std::istream &stream) {
         }
         if (!map2.empty()) {
           addExtraInfo(itr->name.GetString(), ExtraInfo(map2));
+        }
+        if(!map3.empty()) {
+            addExtraInfo(itr->name.GetString(), ExtraInfo(map3));
         }
       }
     }

@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "CircuitOptimizer.hpp"
+#include "default_placement.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -37,6 +38,9 @@ public:
 	void Start(BundleContext context) {
 		auto c4 = std::make_shared<xacc::quantum::CircuitOptimizer>();
         context.RegisterService<xacc::IRTransformation>(c4);
+
+        auto c5 = std::make_shared<xacc::quantum::DefaultPlacement>();
+        context.RegisterService<xacc::IRTransformation>(c5);
 
 	}
 

@@ -19,6 +19,7 @@
 #include <fstream>
 #include "xacc_config.hpp"
 #include "cxxopts.hpp"
+#include "AcceleratorDecorator.hpp"
 
 #include "xacc_service.hpp"
 
@@ -29,6 +30,7 @@ using namespace cxxopts;
 
 namespace xacc {
 
+bool verbose = false;
 bool isPyApi = false;
 bool xaccFrameworkInitialized = false;
 std::shared_ptr<CLIParser> xaccCLParser;
@@ -37,6 +39,8 @@ char **argv = NULL;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
 std::string rootPathString = "";
+
+void set_verbose(bool v) {verbose=v;}
 
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
@@ -105,7 +109,7 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
 }
 
 void info(const std::string &msg, MessagePredicate predicate) {
-  XACCLogger::instance()->info(msg, predicate);
+  if (verbose) XACCLogger::instance()->info(msg, predicate);
 }
 
 void warning(const std::string &msg, MessagePredicate predicate) {
@@ -181,6 +185,23 @@ void setCompiler(const std::string &compilerName) {
 }
 void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
+}
+
+std::shared_ptr<Accelerator> getAcceleratorDecorator(const std::string& decorator, std::shared_ptr<Accelerator> acc, const HeterogeneousMap& params) {
+ std::shared_ptr<AcceleratorDecorator> accd;
+  if (xacc::hasService<AcceleratorDecorator>(decorator)) {
+    accd = xacc::getService<AcceleratorDecorator>(decorator, false);
+  } else if (xacc::hasContributedService<AcceleratorDecorator>(decorator)) {
+    accd = xacc::getContributedService<AcceleratorDecorator>(decorator, false);
+  }
+
+  if (!accd) {
+      xacc::error("Cannot find AcceleratorDecorator with name " + decorator);
+  }
+
+  accd->setDecorated(acc);
+  accd->initialize(params);
+  return accd;
 }
 
 std::shared_ptr<Accelerator> getAccelerator() {
@@ -344,7 +365,17 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  return xacc::getService<Optimizer>(name);
+   std::shared_ptr<Optimizer> t;
+  if (xacc::hasService<Optimizer>(name)) {
+    t = xacc::getService<Optimizer>(name, false);
+  } else if (xacc::hasContributedService<Optimizer>(name)) {
+    t = xacc::getContributedService<Optimizer>(name, false);
+  }
+
+  if (!t) {
+      xacc::error("Invalid Optimizer name, not in service registry - " + name);
+  }
+  return t;
 }
 
 std::shared_ptr<Optimizer> getOptimizer(const std::string name,
@@ -372,24 +403,6 @@ std::shared_ptr<IRProvider> getIRProvider(const std::string &name) {
   }
   return irp;
 }
-
-// std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name) {
-//   if (!xacc::xaccFrameworkInitialized) {
-//     error("XACC not initialized before use. Please execute "
-//           "xacc::Initialize() before using API.");
-//   }
-
-//   auto irp = xacc::getService<IRGenerator>(name, false);
-//   if (!irp) {
-//     if (xacc::hasContributedService<IRGenerator>(name)) {
-//       irp = xacc::getContributedService<IRGenerator>(name);
-//     } else {
-//       error("Invalid IRProvicer. Could not find " + name +
-//             " in Service Registry.");
-//     }
-//   }
-//   return irp;
-// }
 
 std::shared_ptr<Compiler> getCompiler() {
   if (!xacc::xaccFrameworkInitialized) {
@@ -419,12 +432,19 @@ bool hasCompiler(const std::string &name) {
 }
 
 std::shared_ptr<IRTransformation>
-getIRTransformations(const std::string &name) {
+getIRTransformation(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  auto t = xacc::getService<IRTransformation>(name);
+
+  std::shared_ptr<IRTransformation> t;
+  if (xacc::hasService<IRTransformation>(name)) {
+    t = xacc::getService<IRTransformation>(name, false);
+  } else if (xacc::hasContributedService<IRTransformation>(name)) {
+    t = xacc::getContributedService<IRTransformation>(name, false);
+  }
+
   if (!t) {
     error("Invalid IRTransformation. Could not find " + name +
           " in Service Registry.");
@@ -432,6 +452,7 @@ getIRTransformations(const std::string &name) {
 
   return t;
 }
+
 const std::string translate(std::shared_ptr<CompositeInstruction> ci,
                             const std::string toLanguage) {
   auto toLanguageCompiler = getCompiler(toLanguage);
@@ -439,17 +460,6 @@ const std::string translate(std::shared_ptr<CompositeInstruction> ci,
 }
 
 void clearOptions() { RuntimeOptions::instance()->clear(); }
-
-std::shared_ptr<CompositeInstruction>
-optimizeCompositeInstruction(const std::string optimizer,
-                             std::shared_ptr<CompositeInstruction> inst) {
-  auto ir = getService<IRProvider>("gate")->createIR();
-  ir->addComposite(inst);
-  auto opt = getService<IRTransformation>(optimizer);
-  auto newir = opt->transform(ir);
-  auto optF = newir->getComposites()[0];
-  return optF->enabledView();
-}
 
 bool hasCache(const std::string fileName, const std::string subdirectory) {
   auto rootPathStr = xacc::getRootPathString();
@@ -628,6 +638,41 @@ void qasm(const std::string &qasmString) {
 
   for (auto &k : ir->getComposites())
     appendCompiled(k, true);
+}
+namespace ir {
+    std::shared_ptr<CompositeInstruction> asComposite(std::shared_ptr<Instruction> inst) {
+        auto comp = std::dynamic_pointer_cast<CompositeInstruction>(inst);
+        if(!comp) {
+            error("Invalid conversion of Instruction to CompositeInstruction.");
+        }
+        return comp;
+    }
+    std::shared_ptr<Instruction> asInstruction(std::shared_ptr<CompositeInstruction> comp) {
+        auto inst = std::dynamic_pointer_cast<Instruction>(comp);
+        if(!inst) {
+            error("Invalid conversion of CompositeInstruction to Instruction.");
+        }
+        return inst;
+    }
+}
+
+namespace external {
+  void load_external_language_plugins() {
+      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+      for (auto& loader : loaders) {
+          if (!loader->load()) {
+              xacc::error("Error loading " + loader->name() + " external language plugin.");
+          }
+      }
+  }
+void unload_external_language_plugins() {
+      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+      for (auto& loader : loaders) {
+          if(!loader->unload()) {
+              xacc::error("Error unloading " + loader->name() + " external language plugin.");
+          }
+      }
+  }
 }
 
 void Finalize() {

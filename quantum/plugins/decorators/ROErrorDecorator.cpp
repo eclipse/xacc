@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "ROErrorDecorator.hpp"
 #include "InstructionIterator.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include <fstream>
 #include <set>
@@ -47,22 +48,21 @@ void ROErrorDecorator::execute(
       piminus.insert({i, p01s[i] - p10s[i]});
     }
   } else {
-    if (!xacc::optionExists("ro-error-file")) {
-      xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
+    if (!xacc::fileExists(roErrorFile)) {
+      xacc::info("Cannot find readout erro file (key 'file'). Skipping ReadoutError "
                  "correction.");
       return;
     }
 
     // Get RO error probs
-    auto roeStr = xacc::getOption("ro-error-file");
-    buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
+    buffer->addExtraInfo("ro-error-file", ExtraInfo(roErrorFile));
 
-    std::ifstream t(roeStr);
+    std::ifstream t(roErrorFile);
     std::string json((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
 
     if (json.empty()) {
-      xacc::error("Invalid ROError JSON file: " + roeStr);
+      xacc::error("Invalid ROError JSON file: " + roErrorFile);
     }
 
     Document d;
@@ -172,20 +172,19 @@ void ROErrorDecorator::execute(
     }
   } else {
 
-    if (!xacc::optionExists("ro-error-file")) {
-      xacc::info("Cannot find ro-error-file. Skipping ReadoutError "
+    if (!xacc::fileExists(roErrorFile)) {
+      xacc::info("Cannot find readout error file (key 'file'). Skipping ReadoutError "
                  "correction.");
       return;
     }
     // Get RO error probs
-    auto roeStr = xacc::getOption("ro-error-file");
-    buffer->addExtraInfo("ro-error-file", ExtraInfo(roeStr));
+    buffer->addExtraInfo("ro-error-file", ExtraInfo(roErrorFile));
 
-    std::ifstream t(roeStr);
+    std::ifstream t(roErrorFile);
     std::string json((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
     if (json.empty()) {
-      xacc::error("Invalid ROError JSON file: " + roeStr);
+      xacc::error("Invalid ROError JSON file: " + roErrorFile);
     }
 
     Document d;

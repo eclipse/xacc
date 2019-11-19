@@ -315,7 +315,7 @@ EXTENSION_MAPPING      =
 # case of backward compatibilities issues.
 # The default value is: YES.
 
-MARKDOWN_SUPPORT       = YES
+MARKDOWN_SUPPORT       = NO
 
 # When the TOC_INCLUDE_HEADINGS tag is set to a non-zero value, all headings up
 # to that level are automatically included in the table of contents, even if
@@ -889,7 +889,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ../../quantum/plugins/ibm/accelerator/qiskit-terra/
+#EXCLUDE                = ../../quantum/plugins/ibm/accelerator/qiskit-terra/ ../../xacc/optimizers/nlopt-optimizer/nlopt/ ../../tpls/ ../../quantum/plugins/dwave/embedding/minorminer/
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -906,6 +906,12 @@ EXCLUDE_SYMLINKS       = NO
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */tests/*
+EXCLUDE_PATTERNS      += */qiskit-terra/*
+EXCLUDE_PATTERNS      += */nlopt/*
+EXCLUDE_PATTERNS      += */tpls/*
+EXCLUDE_PATTERNS      += */minorminer/*
+EXCLUDE_PATTERNS      += *.py
+
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -1964,7 +1970,7 @@ MAN_LINKS              = NO
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML           = YES
+GENERATE_XML           = NO
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of

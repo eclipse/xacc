@@ -30,6 +30,7 @@ public:
   const std::vector<std::string> requiredParameters() const override {
     return {"observable"};
   }
+  DEFINE_ALGORITHM_CLONE(TestAlgorithm)
 
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override {
     return;

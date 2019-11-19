@@ -40,10 +40,6 @@ public:
   const std::string name() const override { return "rdm-purification"; }
   const std::string description() const override { return ""; }
 
-  OptionPairs getOptions() override {
-    OptionPairs desc{{"rdm-source", ""}, {"rdm-qubit-map", ""}};
-    return desc;
-  }
   ~RDMPurificationDecorator() override {}
 };
 

@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to XACC's documentation!
-================================
+XACC Documentation
+==================
 
 .. image:: ../assets/xacc-readme.jpg
 
@@ -15,7 +15,7 @@ XACC is an extensible compilation framework for hybrid quantum-classical
 computing architectures. It provides extensible language frontend and hardware
 backend compilation components glued together via a novel, polymorphic quantum intermediate
 representation. XACC currently supports quantum-classical programming and enables
-the execution of quantum kernels on IBM, Rigetti, and D-Wave QPUs, as well as a
+the execution of quantum kernels on IBM, Rigetti, IonQ, and D-Wave QPUs, as well as a
 number of quantum computer simulators.
 
 The XACC programming model follows the traditional co-processor model, akin to OpenCL or CUDA for GPUs, but
@@ -29,15 +29,18 @@ verification and validation, and performance studies for a set of virtual
 (simulators) or physical hardware.
 
 Modular Infrastructure
----------------------------
+----------------------
 XACC relies on a project called `CppMicroServices <http://github.com/cppmicroservices/cppmicroservices>`_ -
 a native C++ implementation of the `OSGi <https://www.osgi.org/developer/architecture/>`_
 specification that enables an extensible, modular
-plugin infrastructure for quantum compilers and accelerators. Installation of
-XACC provides the core infrastructure for describing Programs, Compilers,
-Accelerators, and IR. To enable support for various compilers and accelerators
-(like the OpenQasm or Quil compilers, or the IBM or Rigetti QPUs) you
-can install the appropriate plugin (see `XACC Plugins <plugins.html>`_).
+plugin infrastructure for quantum compilers and accelerators.
+
+Description of Architecture
+---------------------------
+For a comprehensive discussion of all components of the XACC programming model and architecture,
+please refer to this `manuscript <https://arxiv.org/abs/1911.02452>`_.
+
+For class documentation, check out this `site <https://ornl-qci.github.io/xacc-api-docs/>`_.
 
 XACC Development Team
 ----------------------
@@ -66,33 +69,26 @@ You can ask questions by creating a new issue with the question tag.
    :caption: Contents:
 
    install
-   arch
-   plugins
-   tutorials
-   apps
+   basics
+   extensions
+   advanced
+   developers
 
 Publications
 ------------
+The following publications describe XACC or experiments leveraging the it.
 
-[1] `A language and hardware independent approach to quantum-classical computing <https://www.sciencedirect.com/science/article/pii/S2352711018300700>`_
+[1] `XACC: A System-Level Software Infrastructure for Heterogeneous Quantum-Classical Computing <https://arxiv.org/abs/1911.02452>`_
 
-[2] `Validating Quantum-Classical Programming Models with Tensor Network Simulations <https://arxiv.org/abs/1807.07914>`_
+[2] `A language and hardware independent approach to quantum-classical computing <https://www.sciencedirect.com/science/article/pii/S2352711018300700>`_
 
-[3] `Hybrid Programming for Near-term Quantum Computing Systems <https://arxiv.org/abs/1805.09279>`_
+[3] `Validating Quantum-Classical Programming Models with Tensor Network Simulations <https://arxiv.org/abs/1807.07914>`_
 
-Publications Leveraging XACC
-----------------------------
-[1] `Cloud Quantum Computing of an Atomic Nucleus <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_
+[4] `Hybrid Programming for Near-term Quantum Computing Systems <https://arxiv.org/abs/1805.09279>`_
 
-[2] `Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331>`_
+[5] `Cloud Quantum Computing of an Atomic Nucleus <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.210501>`_
 
-
-.. toctree::
-   :caption: API Reference
-   :maxdepth: 2
-
-   api/api-index.rst
-
+[6] `Quantum-Classical Computations of Schwinger Model Dynamics using Quantum Computers <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.98.032331>`_
 
 
 Indices and tables

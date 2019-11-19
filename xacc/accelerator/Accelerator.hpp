@@ -14,7 +14,6 @@
 #define XACC_ACCELERATOR_HPP_
 
 #include "AcceleratorBuffer.hpp"
-#include "IRTransformation.hpp"
 #include "CompositeInstruction.hpp"
 #include "OptionsProvider.hpp"
 #include "Identifiable.hpp"
@@ -42,38 +41,30 @@ namespace xacc {
 //
 // Accelerators expose bit connectivity, and one and two bit instruction
 // error rates.
-class Accelerator : public OptionsProvider, public Identifiable {
+class Accelerator : public Identifiable {
 
 public:
-  virtual void initialize(const HeterogeneousMap& params = {}) = 0;
+  virtual void initialize(const HeterogeneousMap &params = {}) = 0;
   virtual void updateConfiguration(const HeterogeneousMap &config) = 0;
   virtual void updateConfiguration(const HeterogeneousMap &&config) {
     updateConfiguration(config);
   }
   virtual const std::vector<std::string> configurationKeys() = 0;
 
-  virtual HeterogeneousMap getProperties() {
-      return HeterogeneousMap();
-  }
-  
+  virtual HeterogeneousMap getProperties() { return HeterogeneousMap(); }
+
   // Return this Accelerator signature, example might be
   // ibm:ibmq_20_tokyo (should always be ACCELERATOR:BACKEND)
   // For decorators this should be
   // DECORATOR,DECORATOR,...,DECORATOR,ibm:ibmq_20_tokyo
-  virtual const std::string getSignature() {return name()+":";}
+  virtual const std::string getSignature() { return name() + ":"; }
 
-  virtual std::vector<std::shared_ptr<IRTransformation>>
-  getIRTransformations() = 0;
+  virtual void
+  contributeInstructions(const std::string &custom_json_config = "") {}
 
-  virtual const std::vector<double> getOneBitErrorRates() {
-    return std::vector<double>{};
-  }
-
-  virtual const std::vector<std::pair<std::pair<int, int>, double>>
-  getTwoBitErrorRates() {
-    // Return list of ((q1,q2),ERROR_RATE)
-    return std::vector<std::pair<std::pair<int, int>, double>>{};
-  }
+  // Return the name of an IRTransformation of type Placement that is
+  // preferred for this Accelerator
+  virtual const std::string defaultPlacementTransformation() {return "default-placement";}
 
   // Execute a single program. All results persisted to the buffer
   virtual void
@@ -82,10 +73,9 @@ public:
 
   // Execute a vector of programs. A new buffer
   // is expected to be appended as a child of the provided buffer.
-  virtual void
-  execute(std::shared_ptr<AcceleratorBuffer> buffer,
-          const std::vector<std::shared_ptr<CompositeInstruction>>
-              CompositeInstructions) = 0;
+  virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+                       const std::vector<std::shared_ptr<CompositeInstruction>>
+                           CompositeInstructions) = 0;
 
   virtual void cancel(){};
 
@@ -93,17 +83,10 @@ public:
     return std::vector<std::pair<int, int>>{};
   }
 
-
   virtual const std::vector<std::complex<double>>
   getAcceleratorState(std::shared_ptr<CompositeInstruction> program) {
     return std::vector<std::complex<double>>{};
   }
-
-  virtual bool
-  handleOptions(const std::map<std::string, std::string> &arg_map) {
-    return false;
-  }
-  virtual OptionPairs getOptions() { return OptionPairs{}; }
 
   virtual bool isRemote() { return false; }
 
