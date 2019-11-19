@@ -315,7 +315,16 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
         runtimeOptions.get_mutable<std::string>("param_id") =
             params[1].toString(); // first one is qbit
       }
+
       auto comp = std::dynamic_pointer_cast<CompositeInstruction>(tmpInst);
+      // If this composite inst has parameters that match
+      // any of the function vars, then we need to add them here
+      auto vars = function->getVariables();
+      for (auto& p : params) {
+          if (std::find(vars.begin(), vars.end(), p.toString()) != std::end(vars)) {
+              comp->addVariable(p.toString());
+          }
+      }
       comp->expand(runtimeOptions);
     }
 
