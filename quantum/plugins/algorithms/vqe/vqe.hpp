@@ -34,6 +34,7 @@ public:
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   const std::string name() const override { return "vqe"; }
   const std::string description() const override { return ""; }
+  DEFINE_ALGORITHM_CLONE(VQE)
 };
 } // namespace algorithm
 } // namespace xacc
