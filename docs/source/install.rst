@@ -104,7 +104,7 @@ You can run Python examples as well
 .. code:: bash
 
    [ you may also want to add this to your .bashrc ]
-   $ export PYTHONPATH:$PYTHONPATH:$HOME/.xacc
+   $ export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
    $ python3 ../python/examples/ddcl_example.py
 
 Most users build and install the TNQVM Accelerator

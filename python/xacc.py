@@ -224,7 +224,7 @@ class DecoratorFunction(ABC):
     def nParameters(self):
         return self.getFunction().nParameters()
 
-    def getFunction(self):
+    def getCompositeInstruction(self):
         return self.compiledKernel
 
     def modifyAlgorithm(self, algorithm):

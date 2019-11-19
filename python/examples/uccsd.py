@@ -24,6 +24,6 @@ qpu = xacc.getAccelerator('tnqvm')
 def ansatz_vqe(q, t0, t1):
     uccsd(q,{"ne":2,"nq":4})
 
-print(ansatz_vqe.getFunction().toString())
+print(ansatz_vqe.getCompositeInstruction().toString())
 buffer = xacc.qalloc(4)
 ansatz_vqe(buffer, 0.,0.)
