@@ -15,10 +15,11 @@
 void bind_optimizer(py::module &m) {
 
   // Expose Optimizer
-  py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>>(
+  py::class_<xacc::Optimizer, std::shared_ptr<xacc::Optimizer>, PyOptimizer>(
       m, "Optimizer",
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
+      .def(py::init<>(), "")
       .def(
           "optimize",
           [&](xacc::Optimizer &o, py::function &f,
@@ -49,5 +50,11 @@ void bind_optimizer(py::module &m) {
   py::class_<xacc::OptFunction>(m, "OptFunction", "")
       .def(py::init<std::function<double(const std::vector<double> &,
                                          std::vector<double> &)>,
-                    const int>());
+                    const int>())
+      .def("dimensions", &xacc::OptFunction::dimensions, "")
+      .def("__call__", [](OptFunction& o, const std::vector<double> &x) {
+          std::vector<double> tmpgrad(o.dimensions());
+          return o(x, tmpgrad);
+      }, "");
+
 }

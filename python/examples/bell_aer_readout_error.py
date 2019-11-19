@@ -8,7 +8,7 @@ qpu = xacc.getAccelerator(
 
 # Define the quantum kernel in standard Python
 @xacc.qpu(accelerator=qpu)
-def bell(qbits):
+def bell(q):
     H(q[0])
     CX(q[0],q[1])
     Measure(q[0])
