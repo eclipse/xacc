@@ -285,8 +285,8 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['benchmark',
-                        'accelerator', 'irtransformation', 'observable']
+        serviceList = ['benchmark', 'decorator_algorithm_service',
+        'accelerator', 'irtransformation', 'observable']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
         if not os.path.exists(self.pluginDir):
@@ -321,7 +321,20 @@ class PyServiceRegistry(object):
                         {name: self.context.get_service(component)})
             return tmp
 
-
+    def get_service(self, serviceName, name):
+        service = None
+        try:
+            available_services = self.registry[serviceName]
+            service = available_services[name]
+        except KeyError:
+            info("""There is no '{0}' with the name '{1}' available.
+    1. Install the '{1}' '{0}' to the Python plugin directory.
+    2. Make sure all required services for '{1}' are installed.\n""".format(serviceName, name, ""))
+            if serviceName == "benchmark_algorithm":
+                self.get_benchmark_requirements(name)
+            exit(1)
+        return service
+        
     def install_plugins(self, pkg):
         dest = os.path.dirname(os.path.realpath(__file__))+"/benchmark"
         os.chdir(dest)
@@ -340,17 +353,24 @@ if not pelix.framework.FrameworkFactory.is_framework_running(None):
 def benchmark(opts):
     if opts.benchmark is not None:
         inputfile = opts.benchmark
-        config = configparser.Configparser()
+        config = configparser.ConfigParser()
         config.read(inputfile)
-        xacc_settings = {section: dict(config.items(s)) for section in config.sections()}
+        xacc_settings = {section: dict(config.items(section)) for section in config.sections()}
     else:
         error('Must provide input file for benchmark.')
         return
 
     Initialize()
 
-    _benchmark = serviceRegistry.get_service(
-        'benchmark', xacc_settings['benchmark'])
+    if 'benchmark' not in serviceRegistry.registry:
+        error('No benchmarks available')
+        exit(1)
+
+    all_benchmarks = serviceRegistry.registry['benchmark']
+
+    print(xacc_settings)
+
+    _benchmark = all_benchmarks[xacc_settings['Benchmark']['name']]
     if _benchmark is None:
         print("XACC algorithm service with name " +
               xacc_settings['benchmark'] + " is not installed.")
@@ -360,8 +380,8 @@ def benchmark(opts):
     buffer = _benchmark.execute(xacc_settings)
     elapsedtime = time.time() - starttime
     buffer.addExtraInfo("benchmark-time", elapsedtime)
-    for k, v in xacc_settings.items():
-        buffer.addExtraInfo(k, v)
+    # for k, v in xacc_settings.items():
+    #     buffer.addExtraInfo(k, v)
     # Analyze the buffer
     head, tail = os.path.split(inputfile)
     buffer.addExtraInfo('file-name', tail)
