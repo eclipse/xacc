@@ -45,14 +45,15 @@ for p in uniqueParams:
     re, ra, tn = [0.0 for i in range(3)]
     # print(children[0])
     for c in children:
+        print(c.name(), c.getInformation('kernel'))
         coeff = c.getInformation('coefficient')
         re += coeff * c.getInformation('ro-fixed-exp-val-z')
         ra += coeff * c.getInformation('exp-val-z')
-    ro_energies.append(5.906709445+re)
-    raw_energies.append(5.906709445+ra)
+    ro_energies.append(re)
+    raw_energies.append(ra)
     for c in tChildren:
         tn += c.getInformation('coefficient')*c.getInformation('exp-val-z')
-    tnqvm_energies.append(5.906709445+tn)
+    tnqvm_energies.append(tn)
 
 for i,t in enumerate(np.linspace(-np.pi,np.pi,nAngles)):
     print(t, tnqvm_energies[i], raw_energies[i], ro_energies[i])

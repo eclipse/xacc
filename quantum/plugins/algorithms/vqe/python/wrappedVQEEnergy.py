@@ -28,6 +28,6 @@ class WrappedEnergyF(xacc.DecoratorFunction):
         else:
             execParams['parameters'] = random.randrange(-np.pi, np.pi)
 
-        vqe_energy = xacc.getAlgorithm('vqe-energy', execParams)
-        vqe_energy.execute(buffer)
+        vqe_energy = xacc.getAlgorithm('vqe', execParams)
+        vqe_energy.execute(buffer, execParams['parameters'])
         return

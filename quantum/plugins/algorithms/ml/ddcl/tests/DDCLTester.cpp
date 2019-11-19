@@ -78,7 +78,7 @@ TEST(DDCLTester, checkSimpleWithGradient) {
               << "\n";
 
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 
