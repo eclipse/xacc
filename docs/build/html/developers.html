@@ -450,7 +450,6 @@ service.</p>
 <span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">.compiler xasm</span>
 <span class="s1">.circuit foo</span>
-<span class="s1">.parameters x,y,z</span>
 <span class="s1">.qbit q</span>
 <span class="s1">H(q[0]);</span>
 <span class="s1">CX(q[0], q[1]);</span>
@@ -472,6 +471,8 @@ service.</p>
 </div>
 <div class="section" id="extending-accelerator-for-new-simulators">
 <h2>Extending Accelerator for new Simulators<a class="headerlink" href="#extending-accelerator-for-new-simulators" title="Permalink to this headline">¶</a></h2>
+<p>Here we document how one might extend the <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> interface for
+new simulators.</p>
 </div>
 </div>
 

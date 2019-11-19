@@ -323,7 +323,6 @@ service.
    xacc.qasm('''
    .compiler xasm
    .circuit foo
-   .parameters x,y,z
    .qbit q
    H(q[0]);
    CX(q[0], q[1]);
@@ -342,6 +341,7 @@ service.
    assert(4 == f.nInstructions())
 
 
-
 Extending Accelerator for new Simulators
 -----------------------------------------
+Here we document how one might extend the ``Accelerator`` interface for
+new simulators.
