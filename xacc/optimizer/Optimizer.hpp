@@ -53,7 +53,7 @@ public:
   template <typename T> void appendOption(const std::string key, T &value) {
     options.insert(key, value);
   }
-  void setOptions(const HeterogeneousMap &opts) { options = opts; }
+  virtual void setOptions(const HeterogeneousMap &opts) { options = opts; }
 
   virtual OptResult optimize(OptFunction &function) = 0;
 };

@@ -701,6 +701,10 @@ RDMPurificationDecorator
 ImprovedSamplingDecorator
 +++++++++++++++++++++++++
 
+VQE Restart Decorator
++++++++++++++++++++++
+
+
 IR Transformations
 ------------------
 

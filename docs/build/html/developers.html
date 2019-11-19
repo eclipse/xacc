@@ -168,9 +168,41 @@ with new Compilers, Accelerators, Instructions, IR Transformations, etc.
 This can be done from both C++ and Python.</p>
 <div class="section" id="quick-start-with-docker">
 <h2>Quick Start with Docker<a class="headerlink" href="#quick-start-with-docker" title="Permalink to this headline">¶</a></h2>
+<p>We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code>. To use this image run the following from some
+scratch development directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run -it --init -p <span class="m">3000</span>:3000 -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/home/project:cached&quot;</span> xacc/dev
+</pre></div>
+</div>
+<p>Now navigate to <code class="docutils literal notranslate"><span class="pre">localhost:3000</span></code> in your web browser. This will open
+the Theia IDE and you are good to go. Open a terminal with <code class="docutils literal notranslate"><span class="pre">ctrl</span> <span class="pre">+</span> <span class="pre">`</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">cmd</span> <span class="pre">+</span> <span class="pre">`</span></code> on a Mac). Use the terminal to clone XACC and start
+building.</p>
 </div>
 <div class="section" id="quick-start-for-ornl-developers">
 <h2>Quick Start for ORNL Developers<a class="headerlink" href="#quick-start-for-ornl-developers" title="Permalink to this headline">¶</a></h2>
+<p>For ORNL employees (or those with valid ORNL credentials) we have put together
+a base Ubuntu 16.04 VM image that can be used with the <a class="reference external" href="https://cades.ornl.gov/service-suite/cades-cloud/">CADES Cloud Computing
+infrastructure</a>. CADES provides a
+form of cloud computing whereby users can spin up VMs of varying sizes (n cpus, RAM, etc)
+via a user-friendly web interface. Once created, users can SSH into it and begin working. Our base
+Ubuntu VM comes with all XACC prerequisites and the Eclipse Theia IDE installed.</p>
+<p>If you would like to leverage this service, please request an account by following the instructions
+<a class="reference external" href="https://support.cades.ornl.gov/user-documentation/_book/quick-starts/launch-vm-quick-start.html">here</a>.
+Once you have an account, email <a class="reference external" href="mailto:mccaskeyaj&#37;&#52;&#48;ornl&#46;gov">mccaskeyaj<span>&#64;</span>ornl<span>&#46;</span>gov</a> and request access to the base XACC image.</p>
+<p>Once your VM is created, you need to open up port 3000 in order to use Theia. To do so, go to the CADES web dashboard
+and click Access and Security. On the default security group click Manage Rules. At the top, click Add Rule, leave everything
+as it is by default, but add <code class="docutils literal notranslate"><span class="pre">3000</span></code> to the port entry. Now just click Add Rule.</p>
+<p>Continue to read through the support <a class="reference external" href="https://support.cades.ornl.gov/user-documentation/_book/openstack/access-vm/access-vm.html">site</a>
+to see information about SSHing into your newly created VM. Once logged into the VM, run the following to launch Theia</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> dev
+$ yarn theia start --hostname <span class="m">0</span>.0.0.0 --port <span class="m">3000</span>
+</pre></div>
+</div>
+<p>Launch this in the background if you wish to leave the current SSH session but still want Theia running on
+your VM. Now navigate to your instances IP address at port 3000 in your web browser (<code class="docutils literal notranslate"><span class="pre">https://128.232.33.87:3000</span></code> for example).
+You should see the Theia web IDE. Now build XACC according to the instructions <a class="reference external" href="https://xacc.readthedocs.io/en/latest/install.html#build-xacc">here</a>.</p>
 </div>
 <div class="section" id="writing-a-plugin-in-c">
 <h2>Writing a Plugin in C++<a class="headerlink" href="#writing-a-plugin-in-c" title="Permalink to this headline">¶</a></h2>
@@ -418,7 +450,6 @@ service.</p>
 <span class="n">xacc</span><span class="o">.</span><span class="n">qasm</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">.compiler xasm</span>
 <span class="s1">.circuit foo</span>
-<span class="s1">.parameters x,y,z</span>
 <span class="s1">.qbit q</span>
 <span class="s1">H(q[0]);</span>
 <span class="s1">CX(q[0], q[1]);</span>
@@ -440,6 +471,8 @@ service.</p>
 </div>
 <div class="section" id="extending-accelerator-for-new-simulators">
 <h2>Extending Accelerator for new Simulators<a class="headerlink" href="#extending-accelerator-for-new-simulators" title="Permalink to this headline">¶</a></h2>
+<p>Here we document how one might extend the <code class="docutils literal notranslate"><span class="pre">Accelerator</span></code> interface for
+new simulators.</p>
 </div>
 </div>
 
