@@ -48,7 +48,7 @@ TEST(DDCLTester, checkJSSimpleGradientFree) {
     std::cout << buffer->getInformation("opt-params").as<std::vector<double>>()
               << "\n";
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 
@@ -75,7 +75,7 @@ TEST(DDCLTester, checkMMDSimpleGradientFree) {
     std::cout << buffer->getInformation("opt-params").as<std::vector<double>>()
               << "\n";
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 
@@ -135,7 +135,7 @@ TEST(DDCLTester, checkMMDSimpleWithGradient) {
               << "\n";
 
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 
