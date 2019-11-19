@@ -34,6 +34,8 @@ public:
 
   const std::string name() const override { return "vqe-energy"; }
   const std::string description() const override { return ""; }
+  DEFINE_ALGORITHM_CLONE(VQEEnergy)
+
 };
 } // namespace algorithm
 } // namespace xacc
