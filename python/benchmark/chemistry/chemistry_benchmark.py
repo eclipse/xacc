@@ -64,7 +64,13 @@ class Chemistry(Benchmark):
 
 
     def analyze(self, buffer, inputParams):
-        # Use to manipulate the resulting data from execution
+        if inputParams['XACC']['readout_error'] == True:
+            qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+            
+
         print('Energy = ', buffer['opt-val'])
         print('Opt Params = ', buffer['opt-params'])
+
+
+
 
