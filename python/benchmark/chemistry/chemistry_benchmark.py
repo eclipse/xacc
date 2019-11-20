@@ -1,5 +1,7 @@
 import xacc
 import ast
+import numpy as np
+import scipy as sp
 
 from xacc import Benchmark
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
@@ -14,7 +16,12 @@ Validate, Invalidate, Instantiate
 class Chemistry(Benchmark):
 
     def execute(self, inputParams):
-        qpu = xacc.getAccelerator(inputParams['XACC']['accelerator'], {'shots':inputParams['XACC']['shots'] if 'shots' in inputParams else 1024})
+        xacc_opts = inputParams['XACC']
+        acc_name = xacc_opts['accelerator']
+        qpu = xacc.getAccelerator(acc_name, xacc_opts)
+
+        if inputParams['Decorators']['readout_error'] == True:
+            qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
 
         H = None
         if inputParams['Observable']['name'] == 'pauli':
@@ -64,13 +71,26 @@ class Chemistry(Benchmark):
 
 
     def analyze(self, buffer, inputParams):
-        if inputParams['XACC']['readout_error'] == True:
-            qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
-            
+
+        if inputParams['Decorators']['readout_error'] == True:
+            ro_energies = []
+            uniqueParams = buffer.getAllUnique('parameters')
+            for p in uniqueParams:
+                children = buffer.getChildren('parameters', p)
+                re = 0.0
+                for c in children:
+                    coeff = c.getInformation('coefficient')
+                    re += coeff * c.getInformation('ro-fixed-exp-val-z')
+                ro_energies.append(re)
+
+            x_axis = np.arange(len(ro_energies))
+            interp = sp.interpolate.interp1d(x_axis, ro_energies, bounds_error=False)
+            min_index = sp.optimization.fmin(interp, 0)
+
+            print('Readout Energy = ', ro_energies[int(min_index)])
+            print('Optimal Parameters =', uniqueParams[int(min_index)])
+            print('here')
 
         print('Energy = ', buffer['opt-val'])
         print('Opt Params = ', buffer['opt-params'])
-
-
-
 

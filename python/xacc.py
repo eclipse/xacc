@@ -285,7 +285,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark_algorithm',
+        serviceList = ['decorator_algorithm_service', 'benchmark',
                        'accelerator',
                        'irtransformation', 'observable', 'optimizer']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
@@ -371,7 +371,7 @@ def benchmark(opts):
 
     all_benchmarks = serviceRegistry.registry['benchmark']
 
-    print(xacc_settings)
+    #print(xacc_settings)
 
     _benchmark = all_benchmarks[xacc_settings['Benchmark']['name']]
     if _benchmark is None:
