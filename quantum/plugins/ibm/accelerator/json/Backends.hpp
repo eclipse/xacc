@@ -1821,7 +1821,9 @@ inline void from_json(const json &j, xacc::ibm_backend::BackendTopology &x) {
   x.set_allow_open_pulse(j.at("allowOpenPulse").get<bool>());
   x.set_deleted(j.at("deleted").get<bool>());
   x.set_id(j.at("id").get<std::string>());
+  if (j.find("qconsole") != j.end()) {
   x.set_qconsole(j.at("qconsole").get<bool>());
+  }
   x.set_is_hidden(j.at("isHidden").get<bool>());
   x.set_allow_object_storage(
       xacc::ibm_backend::get_optional<bool>(j, "allowObjectStorage"));
@@ -1861,7 +1863,7 @@ inline void from_json(const json &j, xacc::ibm_backend::Backend &x) {
       j.at("specificConfiguration").get<xacc::ibm_backend::SpecificConfiguration>());
   if (j.find("id") != j.end()) {x.set_id(j.at("id").get<std::string>());}
   if (j.find("topologyId") != j.end()) {x.set_topology_id(j.at("topologyId").get<std::string>());}
-  x.set_qconsole(j.at("qconsole").get<bool>());
+  if (j.find("qconsole") != j.end()) x.set_qconsole(j.at("qconsole").get<bool>());
   if (j.find("topology") != j.end()) {x.set_topology(j.at("topology").get<xacc::ibm_backend::BackendTopology>());}
   x.set_version(xacc::ibm_backend::get_optional<std::string>(j, "version"));
   x.set_description(xacc::ibm_backend::get_optional<std::string>(j, "description"));

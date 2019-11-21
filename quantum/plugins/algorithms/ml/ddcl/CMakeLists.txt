@@ -21,7 +21,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC .)
+  PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/eigen)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc)
 

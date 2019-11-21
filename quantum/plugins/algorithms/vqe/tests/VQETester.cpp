@@ -66,6 +66,8 @@ TEST(VQETester, checkSimple) {
                                 std::make_pair("optimizer",optimizer)}));
     vqe->execute(buffer);
     EXPECT_NEAR(-1.13717, mpark::get<double>(buffer->getInformation("opt-val")), 1e-4);
+    EXPECT_NEAR(-1.13717,vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>())[0], 1e-4);
+    // std::cout << "EVALED: " << vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>()) << "\n";
   }
 }
 

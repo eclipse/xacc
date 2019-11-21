@@ -28,7 +28,7 @@ execution metadata. Below demonstrate some basic usage of the ``AcceleratorBuffe
    auto qpu = xacc::getAccelerator("ibm:ibmq_valencia");
    qpu->execute(buffer, program);
    std::map<std::string, int> results = buffer->getMeasurementCounts();
-   auto fidelities = buffer["1q-gate-fidelities"].as<std::vector<double>>();
+   auto fidelities = (*buffer)["1q-gate-fidelities"].as<std::vector<double>>();
    auto expValZ = buffer->getExpectationValueZ();
 
 in Python

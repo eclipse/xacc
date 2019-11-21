@@ -43,13 +43,6 @@ vqe = xacc.getAlgorithm('vqe', {
                         })
 vqe.execute(buffer)
 
-# Now lets just do a param sweep
-ansatz.modifyAlgorithm('energy')
-
-# Execute, starting at .5
-def compute_energy_at_angles(angles):
-    ansatz(buffer, *angles)
-    return buffer.getInformation('opt-val')
-energy = lambda angles : compute_energy_at_angles(angles)
+energy = lambda angles : vqe.execute(buffer, angles)[0] 
 
 print([energy([a]) for a in np.linspace(-np.pi,np.pi,50)])

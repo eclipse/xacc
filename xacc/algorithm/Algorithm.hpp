@@ -31,7 +31,7 @@ namespace xacc {
 //
 // Algorithms expose an execute method that persists results
 // to the AcceleratorBuffer.
-class Algorithm : public xacc::Identifiable {
+class Algorithm : public xacc::Identifiable, public xacc::Cloneable<Algorithm> {
 
 public:
   bool initialize(const HeterogeneousMap &&parameters) {
@@ -42,7 +42,7 @@ public:
 
   virtual void
   execute(const std::shared_ptr<AcceleratorBuffer> buffer) const = 0;
-  
+
   virtual std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::vector<double> &parameters) {
     XACCLogger::instance()->error(
@@ -50,6 +50,11 @@ public:
         name());
     exit(0);
     return {};
+  }
+
+ #define DEFINE_ALGORITHM_CLONE(CLASS)                    \
+  std::shared_ptr<Algorithm> clone() override { \
+    return std::make_shared<CLASS>();           \
   }
 };
 
