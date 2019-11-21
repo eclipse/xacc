@@ -39,10 +39,6 @@ using namespace rapidjson;
 namespace xacc {
 namespace quantum {
 
-// keeping this here for later...
-// curl -X POST
-// https://q-console-api.mybluemix.net/api/Network/ibm-q-ornl/Groups/ornl-internal/Projects/algorithms-team/jobs/JOBID/cancel?access_token=TEMPTOKEN
-
 std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
 }
@@ -209,7 +205,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         {"Content-Length", std::to_string(tokenParam.length())}};
 
     auto response = handleExceptionRestClientPost(
-        url, "/api/users/loginWithToken", tokenParam, headers);
+        "https://auth.quantum-computing.ibm.com", "/api/users/loginWithToken", tokenParam, headers);
 
     if (response.find("error") != std::string::npos) {
       xacc::error("Error received from IBM\n" + response);
@@ -220,7 +216,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     currentApiToken = d["id"].GetString();
 
     response =
-        handleExceptionRestClientGet(url, getBackendPath + currentApiToken);
+        handleExceptionRestClientGet("https://api-qcon.quantum-computing.ibm.com", getBackendPath + currentApiToken);
 
     auto j = json::parse("{\"backends\":" + response + "}");
     from_json(j, backends_root);
@@ -240,7 +236,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         }
 
         auto response = handleExceptionRestClientGet(
-            url, getBackendPropertiesPath, {},
+            "https://api-qcon.quantum-computing.ibm.com", getBackendPropertiesPath, {},
             {std::make_pair("version", "1"),
              std::make_pair("access_token", currentApiToken)});
 
@@ -256,7 +252,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     // Set these for RemoteAccelerator.execute
     postPath = postJobPath + currentApiToken;
-    remoteUrl = url;
+    remoteUrl = "https://api-qcon.quantum-computing.ibm.com";
     initialized = true;
     chosenBackend = availableBackends[backend];
   }
@@ -501,7 +497,7 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   std::cout << "Job ID: " << jobId << "\n";
   if (!hub.empty()) {
     std::cout << "\nTo cancel job, open a new terminal and run:\n\n"
-              << "curl -X POST " << url << "/api/Network/" << hub << "/Groups/"
+              << "curl -X POST " << "https://api-qcon.quantum-computing.ibm.com/api/Network/" << hub << "/Groups/"
               << group << "/Projects/" << project << "/jobs/" << jobId
               << "/cancel?access_token=" << currentApiToken
               << "\n\n-or-\n\nCTRL-C\n\n";
@@ -513,7 +509,7 @@ void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   bool jobCompleted = false;
   while (!jobCompleted) {
 
-    getResponse = handleExceptionRestClientGet(url, getPath);
+    getResponse = handleExceptionRestClientGet("https://api-qcon.quantum-computing.ibm.com", getPath);
     // auto jj = json::parse(getResponse);
 
     if (getResponse.find("COMPLETED") != std::string::npos) {

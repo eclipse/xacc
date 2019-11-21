@@ -159,7 +159,7 @@ namespace nlohmann {
 
     inline void from_json(const json & j, xacc::ibm_properties::Qubit& x) {
         x.set_date(j.at("date").get<std::string>());
-        x.set_name(j.at("name").get<xacc::ibm_properties::Name>());
+        if (j.find("name") != j.end()) x.set_name(j.at("name").get<xacc::ibm_properties::Name>());
         x.set_unit(xacc::ibm_properties::Unit::EMPTY);//j.at("unit").get<xacc::ibm_properties::Unit>());
         x.set_value(j.at("value").get<double>());
     }
@@ -174,7 +174,7 @@ namespace nlohmann {
 
     inline void from_json(const json & j, xacc::ibm_properties::GateElement& x) {
         x.set_gate(j.at("gate").get<xacc::ibm_properties::GateEnum>());
-        x.set_name(j.at("name").get<std::string>());
+        if (j.find("name") != j.end())x.set_name(j.at("name").get<std::string>());
         x.set_parameters(j.at("parameters").get<std::vector<xacc::ibm_properties::Qubit>>());
         x.set_qubits(j.at("qubits").get<std::vector<int64_t>>());
     }

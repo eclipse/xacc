@@ -25,7 +25,7 @@ const std::string src =
     Rx(q[0], t2);
 })rucc";
 
-TEST(DDCLTester, checkSimpleGradientFree) {
+TEST(DDCLTester, checkJSSimpleGradientFree) {
   if (xacc::hasAccelerator("local-ibm")) {
     auto acc = xacc::getAccelerator("local-ibm");
     auto buffer = xacc::qalloc(1);
@@ -48,11 +48,38 @@ TEST(DDCLTester, checkSimpleGradientFree) {
     std::cout << buffer->getInformation("opt-params").as<std::vector<double>>()
               << "\n";
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 
-TEST(DDCLTester, checkSimpleWithGradient) {
+TEST(DDCLTester, checkMMDSimpleGradientFree) {
+  if (xacc::hasAccelerator("local-ibm")) {
+    auto acc = xacc::getAccelerator("local-ibm");
+    auto buffer = xacc::qalloc(1);
+
+    auto simple = xacc::getCompiled("f");
+
+    // get cobyla optimizer
+    auto optimizer = xacc::getOptimizer(
+                                        "nlopt", HeterogeneousMap{std::make_pair("nlopt-maxeval", 20)});
+
+    std::vector<double> target{.5, .5};
+
+    auto ddcl = xacc::getService<Algorithm>("ddcl");
+    EXPECT_TRUE(ddcl->initialize(
+                                 {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+                                  std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
+                                  std::make_pair("optimizer", optimizer)}));
+    ddcl->execute(buffer);
+
+    std::cout << buffer->getInformation("opt-params").as<std::vector<double>>()
+              << "\n";
+    auto loss = buffer->getInformation("opt-val").as<double>();
+    EXPECT_NEAR(loss, 0.0, 1e-3);
+  }
+}
+
+TEST(DDCLTester, checkJSSimpleWithGradient) {
   if (xacc::hasAccelerator("local-ibm")) {
     auto acc = xacc::getAccelerator("local-ibm");
     auto buffer = xacc::qalloc(1);
@@ -78,7 +105,37 @@ TEST(DDCLTester, checkSimpleWithGradient) {
               << "\n";
 
     auto loss = buffer->getInformation("opt-val").as<double>();
-    EXPECT_NEAR(loss, 0.0, 1e-4);
+    EXPECT_NEAR(loss, 0.0, 1e-3);
+  }
+}
+
+TEST(DDCLTester, checkMMDSimpleWithGradient) {
+  if (xacc::hasAccelerator("local-ibm")) {
+    auto acc = xacc::getAccelerator("local-ibm");
+    auto buffer = xacc::qalloc(1);
+
+    auto simple = xacc::getCompiled("f");
+
+    // get cobyla optimizer
+    auto optimizer = xacc::getOptimizer(
+        "nlopt", HeterogeneousMap{std::make_pair("nlopt-maxeval", 20), std::make_pair("nlopt-ftol", 1e-4), std::make_pair("initial-parameters", std::vector<double>{1.5, 0, 1.5}),
+                                  std::make_pair("nlopt-optimizer", "l-bfgs")});
+
+    std::vector<double> target{.5, .5};
+
+    auto ddcl = xacc::getService<Algorithm>("ddcl");
+    EXPECT_TRUE(ddcl->initialize(
+        {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+         std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
+         std::make_pair("gradient", "mmd-parameter-shift"),
+         std::make_pair("optimizer", optimizer)}));
+    ddcl->execute(buffer);
+
+    std::cout << buffer->getInformation("opt-params").as<std::vector<double>>()
+              << "\n";
+
+    auto loss = buffer->getInformation("opt-val").as<double>();
+    EXPECT_NEAR(loss, 0.0, 1e-3);
   }
 }
 

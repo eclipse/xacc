@@ -78,6 +78,9 @@ public:
                const std::vector<double> &parameters) override;
   const std::string name() const override { return "ddcl"; }
   const std::string description() const override { return ""; }
+
+  DEFINE_ALGORITHM_CLONE(DDCL)
+
 };
 } // namespace algorithm
 } // namespace xacc
