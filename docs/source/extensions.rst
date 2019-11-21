@@ -181,7 +181,6 @@ your IBM credentials to XACC. To do this add the following to a plain text file 
 .. code:: bash
 
    key: YOUR_KEY_HERE
-   url: https://q-console-api.mybluemix.net
    hub: HUB
    group: GROUP
    project: PROJECT
