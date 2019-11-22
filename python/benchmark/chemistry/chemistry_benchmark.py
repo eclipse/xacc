@@ -40,7 +40,7 @@ class Chemistry(Benchmark):
             H = xacc.getObservable('psi4-frozen-core', {'basis': basis,'geometry': geometry,
                                                         'frozen-spin-orbitals': fo, 'active-spin-orbitals': ao})
 
-        #print('Ham: ', H)
+        print('Ham: ', H.toString())
 
         buffer = xacc.qalloc(H.nBits())
         optimizer = xacc.getOptimizer(inputParams['Optimizer']['name'])
@@ -48,9 +48,9 @@ class Chemistry(Benchmark):
         provider = xacc.getIRProvider('quantum')
 
         if inputParams['Ansatz']['name'] == 'xasm':
-            print('in here')
             src = inputParams['Ansatz']['source']
             xacc.qasm(src)
+
             ansatz = xacc.getCompiled(inputParams['Ansatz']['circuit_name'])
             # ansatz.expand(xacc.HeterogeneousMap())
             print(ansatz.toString())
