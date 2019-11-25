@@ -19,6 +19,6 @@ add_subdirectory(decorators)
 add_subdirectory(circuits)
 add_subdirectory(optimizers)
 add_subdirectory(ionq)
-
+add_subdirectory(qplacement)
 #add_subdirectory(scaffold)
 add_subdirectory(xasm)
