@@ -20,6 +20,7 @@
 #include "OptionsProvider.hpp"
 #include "Cloneable.hpp"
 
+#include "Algorithm.hpp"
 #include "Compiler.hpp"
 #include "Observable.hpp"
 #include "Optimizer.hpp"
@@ -41,7 +42,7 @@ namespace xacc {
 
 using ContributableService =
     Variant<std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
-            std::shared_ptr<Compiler>, std::shared_ptr<Optimizer>,
+            std::shared_ptr<Compiler>, std::shared_ptr<Optimizer>, std::shared_ptr<Algorithm>,
             std::shared_ptr<IRTransformation>, std::shared_ptr<Observable>,
             std::shared_ptr<AcceleratorDecorator>>;
 

@@ -7,15 +7,15 @@ buffer = xacc.qalloc(4)
 
 geom = '''
 0 1
-Na  0.000000   0.0      0.0
-H   0.0        0.0  1.914388
+H  0.000000   0.0      0.0
+H   0.0        0.0  .7474
 symmetry c1
 '''
 fo = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14]
 ao = [5, 9, 15, 19]
 
-H = xacc.getObservable('psi4', {'basis': 'sto-3g', 'geometry': geom,
-                                       'frozen-spin-orbitals': fo, 'active-spin-orbitals': ao})
+H = xacc.getObservable('psi4', {'basis': 'sto-3g', 'geometry': geom})#,
+                                    #    'frozen-spin-orbitals': fo, 'active-spin-orbitals': ao})
 
 @xacc.qpu(algo='vqe', accelerator=qpu, observable=H)
 def ansatz(q, x):

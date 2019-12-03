@@ -52,8 +52,8 @@ void bind_heterogeneous_map(py::module &m) {
               return m.get<bool>(key);
             } else if (m.keyExists<double>(key)) {
               return m.get<double>(key);
-            } else if (m.keyExists<std::string>(key)) {
-              return m.get<std::string>(key);
+            } else if (m.stringExists(key)) {
+              return m.getString(key);
             } else if (m.keyExists<std::vector<double>>(key)) {
               return m.get<std::vector<double>>(key);
             } else if (m.keyExists<std::vector<int>>(key)) {
@@ -74,7 +74,7 @@ void bind_heterogeneous_map(py::module &m) {
           "__contains__",
           [](HeterogeneousMap &m, const std::string key) {
             return m.keyExists<int>(key) || m.keyExists<double>(key) ||
-                   m.keyExists<bool>(key) || m.keyExists<std::string>(key) ||
+                   m.keyExists<bool>(key) || m.stringExists(key) ||
                    m.keyExists<std::vector<double>>(key) ||
                    m.keyExists<std::vector<int>>(key) ||
                    m.keyExists<std::vector<std::string>>(key) ||

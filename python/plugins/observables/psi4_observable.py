@@ -4,10 +4,10 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 @ComponentFactory("fc_observable_factory")
 @Provides("observable")
-@Property("_observable", "observable", "psi4-frozen-core")
-@Property("_name", "name", "psi4-frozen-core")
-@Instantiate("psi4_frozen_core_accelerator_instance")
-class Psi4FrozenCore(xacc.Observable):
+@Property("_observable", "observable", "psi4")
+@Property("_name", "name", "psi4")
+@Instantiate("psi4_observable_instance")
+class Psi4Observable(xacc.Observable):
 
     def __init__(self):
         xacc.Observable.__init__(self)
@@ -23,7 +23,7 @@ class Psi4FrozenCore(xacc.Observable):
         return self.observable.nBits()
 
     def name(self):
-        return 'psi4-frozen-core'
+        return 'psi4'
 
     def fromOptions(self, inputParams):
         import numpy as np
@@ -126,10 +126,17 @@ class Psi4FrozenCore(xacc.Observable):
                                          [np.zeros_like(H_core_ao), H_core_ao]])
         Hamiltonian_1body = np.einsum('ij, jk, kl -> il', C.T, Hamiltonian_1body_ao, C)
         Hamiltonian_2body = gmo
-        MSO_frozen_list = inputParams['frozen-spin-orbitals']
-        MSO_active_list = inputParams['active-spin-orbitals']
-        n_frozen = len(MSO_frozen_list)
-        n_active = len(MSO_active_list)
+
+        if 'frozen-spin-orbitals' in inputParams and 'active-spin-orbitals' in inputParams:
+            MSO_frozen_list = inputParams['frozen-spin-orbitals']
+            MSO_active_list = inputParams['active-spin-orbitals']
+            n_frozen = len(MSO_frozen_list)
+            n_active = len(MSO_active_list)
+        else:
+            MSO_frozen_list = []
+            MSO_active_list = range(Hamiltonian_1body.shape[0])
+            n_frozen = 0
+            n_active = len(MSO_active_list)
 
         # ----- 0-body frozen-core:
         Hamiltonian_fc_0body = E_nucl
