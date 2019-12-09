@@ -12,6 +12,7 @@ class Psi4Observable(xacc.Observable):
     def __init__(self):
         xacc.Observable.__init__(self)
         self.observable = None
+        self.asPauli = None
 
     def toString(self):
         return self.observable.toString()
@@ -24,6 +25,9 @@ class Psi4Observable(xacc.Observable):
 
     def name(self):
         return 'psi4'
+
+    def __iter__(self):
+        return self.asPauli.__iter__()
 
     def fromOptions(self, inputParams):
         import numpy as np
@@ -209,4 +213,5 @@ class Psi4Observable(xacc.Observable):
                         if abs(Hamiltonian_fc_2body_tmp[p,q,r,ss]) > 1e-12:
                             f_str += pos_or_neg(Hamiltonian_fc_2body_tmp[p,q,r,ss]) + str(abs(Hamiltonian_fc_2body_tmp[p,q,r,ss])) + ' ' + str(p) + '^ ' + str(q) + '^ ' + str(r) + ' ' + str(ss)
         self.observable = xacc.getObservable('fermion', f_str)
+        self.asPauli = xacc.transformToPauli('jw', self.observable)
 

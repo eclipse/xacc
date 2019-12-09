@@ -52,6 +52,8 @@ class DwaveNealAccelerator(xacc.Accelerator):
         counts = Counter(counts_list)
         buffer.setMeasurements(counts)
         buffer.addExtraInfo('unique-configurations', unique_config_to_energy)
+        gstate = min(unique_config_to_energy, key=unique_config_to_energy.get)
+        buffer.addExtraInfo('ground_state', gstate)
 
 
 

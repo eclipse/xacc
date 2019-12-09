@@ -16,3 +16,6 @@
 [submodule "xacc/optimizer/nlopt-optimizers/nlopt"]
 	path = xacc/optimizer/nlopt-optimizers/nlopt
 	url = https://github.com/stevengj/nlopt
+[submodule "quantum/plugins/dwave/tpls/legacy-sapi-clients"]
+	path = quantum/plugins/dwave/tpls/legacy-sapi-clients
+	url = https://github.com/ornl-qci/legacy-sapi-clients
