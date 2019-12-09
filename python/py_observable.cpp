@@ -15,6 +15,7 @@
 #include "FermionOperator.hpp"
 #include "xacc_service.hpp"
 #include "py_heterogeneous_map.hpp"
+#include "ObservableTransform.hpp"
 
 using namespace xacc::quantum;
 
@@ -103,7 +104,9 @@ void bind_observable(py::module &m) {
             return std::make_shared<PauliOperator>();
           }
         });
-
+  m.def("transformToPauli", [](const std::string type, std::shared_ptr<Observable> obs) {
+      return std::dynamic_pointer_cast<PauliOperator>(xacc::getService<ObservableTransform>(type)->transform(obs));
+  });
   m.def("getObservable",
         [](const std::string &type,
            const PyHeterogeneousMap &options) -> std::shared_ptr<Observable> {
@@ -125,7 +128,7 @@ void bind_observable(py::module &m) {
           t->fromOptions(m);
           return t;
         });
-        
+
       m.def("getObservable",
         [](const std::string &type) -> std::shared_ptr<Observable> {
           std::shared_ptr<Observable> t;
