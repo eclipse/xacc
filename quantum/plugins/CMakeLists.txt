@@ -13,7 +13,7 @@
 add_subdirectory(ibm)
 add_subdirectory(rigetti)
 #add_subdirectory(cmr)
-#add_subdirectory(dwave)
+add_subdirectory(dwave)
 add_subdirectory(algorithms)
 add_subdirectory(decorators)
 add_subdirectory(circuits)
