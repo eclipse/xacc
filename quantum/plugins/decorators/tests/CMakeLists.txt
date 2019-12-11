@@ -30,7 +30,6 @@ target_link_libraries(RichExtrapDecoratorTester xacc xacc-pauli)
 add_xacc_test(ImprovedSamplingDecorator)
 target_link_libraries(ImprovedSamplingDecoratorTester xacc)
 
-
-add_xacc_test(AssignmentErrorKernelDecorator)
-target_link_libraries(AssignmentErrorKernelDecoratorTester xacc)
+#add_xacc_test(AssignmentErrorKernelDecorator)
+#target_link_libraries(AssignmentErrorKernelDecoratorTester xacc)
 
