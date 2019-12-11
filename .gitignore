@@ -41,3 +41,4 @@
 **/.ipynb_checkpoints
 compile_commands.json
 /docs/doxygen/html**
+**/*.dat

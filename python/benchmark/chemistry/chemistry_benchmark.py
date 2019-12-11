@@ -1,7 +1,5 @@
 import xacc
 import ast
-import numpy as np
-import scipy as sp
 
 from xacc import Benchmark
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
@@ -20,15 +18,21 @@ class Chemistry(Benchmark):
         acc_name = xacc_opts['accelerator']
         qpu = xacc.getAccelerator(acc_name, xacc_opts)
 
-        if 'Decorators' in inputParams:
-            if 'readout_error' in inputParams['Decorators']:
-                qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+        if 'verbose' in xacc_opts and xacc_opts['verbose']:
+            xacc.set_verbose(True)
+
+        if 'Benchmark' not in inputParams:
+            xacc.error('Invalid benchmark input - must have Benchmark description')
 
         if 'Observable' not in inputParams:
             xacc.error('Invalid benchmark input - must have Observable description')
 
         if 'Ansatz' not in inputParams:
             xacc.error('Invalid benchmark input - must have Ansatz circuit description')
+
+        if 'Decorators' in inputParams:
+            if 'readout_error' in inputParams['Decorators']:
+                qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
 
         H = None
         if inputParams['Observable']['name'] == 'pauli':
@@ -48,7 +52,26 @@ class Chemistry(Benchmark):
         #print('Ham: ', H.toString())
 
         buffer = xacc.qalloc(H.nBits())
-        optimizer = xacc.getOptimizer(inputParams['Optimizer']['name'] if 'Optimizer' in inputParams else 'nlopt')
+        optimizer = None
+        if 'Optimizer' in inputParams:
+            # check that values that can be ints/floats are
+            opts = inputParams['Optimizer']
+            for k,v in inputParams['Optimizer'].items():
+                try:
+                    i = int(v)
+                    opts[k] = i
+                    continue
+                except:
+                    pass
+                try:
+                    f = float(v)
+                    opts[k] = f
+                    continue
+                except:
+                    pass
+            optimizer = xacc.getOptimizer(inputParams['Optimizer']['name'] if 'Optimizer' in inputParams else 'nlopt', opts)
+        else:
+            optimizer = xacc.getOptimizer('nlopt')
 
         provider = xacc.getIRProvider('quantum')
 
@@ -89,10 +112,11 @@ class Chemistry(Benchmark):
                     coeff = c.getInformation('coefficient')
                     re += coeff * c.getInformation('ro-fixed-exp-val-z')
                 ro_energies.append(re)
-
+            import numpy as np
+            import scipy as sp
             x_axis = np.arange(len(ro_energies))
             interp = sp.interpolate.interp1d(x_axis, ro_energies, bounds_error=False)
-            min_index = sp.optimization.fmin(interp, 0)
+            min_index = sp.optimize.fmin(interp, 0)
 
             print('Readout Energy = ', ro_energies[int(min_index)])
             print('Optimal Parameters =', uniqueParams[int(min_index)])
