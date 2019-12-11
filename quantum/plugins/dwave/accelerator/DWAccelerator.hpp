@@ -18,6 +18,8 @@
 #include "DWQMI.hpp"
 #include "RemoteAccelerator.hpp"
 
+#include "dwave_sapi.h"
+
 using namespace xacc;
 
 namespace xacc {
@@ -45,7 +47,7 @@ public:
 
   std::vector<std::pair<int, int>> getConnectivity() override;
 
-  const std::string getSignature() override {return "dwave"+backend;}
+  const std::string getSignature() override { return "dwave-internal" + backend; }
 
   const std::string processInput(
       std::shared_ptr<AcceleratorBuffer> buffer,
@@ -84,7 +86,7 @@ public:
     return {"shots", "backend"};
   }
 
-  const std::string name() const override { return "dwave"; }
+  const std::string name() const override { return "dwave-internal"; }
 
   const std::string description() const override {
     return "The D-Wave Accelerator executes Ising Hamiltonian parameters "
@@ -100,6 +102,10 @@ protected:
   std::string apiKey;
   std::string url;
   std::map<std::string, DWSolver> availableSolvers;
+
+  sapi_Connection *connection = nullptr;
+  sapi_Solver *solver = nullptr;
+  const sapi_SolverProperties *solver_properties = nullptr;
 
   void searchAPIKey(std::string &key, std::string &url);
   void findApiKeyInFile(std::string &key, std::string &url,

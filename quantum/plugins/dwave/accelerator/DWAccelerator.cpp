@@ -25,13 +25,11 @@
 #include "rapidjson/prettywriter.h"
 
 using namespace rapidjson;
-
 namespace xacc {
-namespace quantum {
 
+namespace quantum {
 void DWAccelerator::initialize(const HeterogeneousMap &params) {
   searchAPIKey(apiKey, url);
-
   updateConfiguration(params);
 
   if (xacc::optionExists("dwave-skip-initialization")) {
@@ -97,7 +95,8 @@ const std::string DWAccelerator::processInput(
   splitLines = xacc::split(newKernel->toString(), '\n');
   auto nQMILines = splitLines.size();
   std::string jsonStr = "", solverName = "DW_2000Q_VFYC_2_1",
-              solveType = "ising", trials = std::to_string(shots), annealTime = "20";
+              solveType = "ising", trials = std::to_string(shots),
+              annealTime = "20";
 
   auto solver = availableSolvers[solverName];
 
@@ -110,20 +109,19 @@ const std::string DWAccelerator::processInput(
   jsonStr += ", \"auto_scale\" : true } }]";
 
   jsonStr = std::regex_replace(jsonStr, std::regex("\n"), "\\n");
-//   std::cout << "sending: " << jsonStr << "\n";
+  //   std::cout << "sending: " << jsonStr << "\n";
   return jsonStr;
 }
 
 void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                                     const std::string &response) {
 
-
   bool jobCompleted = false;
   Document doc;
   // Parse the json string
   doc.Parse(response);
 
-//   std::cout << response << "\n";
+  //   std::cout << response << "\n";
   // Get the JobID
   std::string jobId = std::string(doc[0]["id"].GetString());
 
@@ -152,7 +150,7 @@ void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     // xacc::info(msg);
   }
 
-//   std::cout << msg << "\n";
+  std::cout << msg << "\n";
   // We've completed, so let's get
   // teh results.
   doc.Parse(msg);
@@ -161,6 +159,11 @@ void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
     std::vector<int> numOccurrences, active_vars;
     auto energyArray = doc["answer"]["energies"].GetArray();
     auto numOccArray = doc["answer"]["num_occurrences"].GetArray();
+    auto activeVarsSize = doc["answer"]["active_variables"].GetArray().Size();
+    auto activeVars = doc["answer"]["active_variables"].GetArray();
+    for (int i = 0; i < activeVarsSize; i++) {
+      active_vars.push_back(activeVars[i].GetInt());
+    }
     double minEnergy = std::numeric_limits<double>::max();
     int idx = 0;
     for (int i = 0; i < energyArray.Size(); i++) {
@@ -171,36 +174,32 @@ void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
         idx = i;
       }
     }
-
+    auto num_vars = doc["answer"]["num_variables"].GetInt();
+    buffer->addExtraInfo("num_vars", num_vars);
     buffer->addExtraInfo("ground_energy", ExtraInfo(minEnergy));
     auto solutionsStrEncoded =
         std::string(doc["answer"]["solutions"].GetString());
-    auto decoded = base64_decode(solutionsStrEncoded);
-    // xacc::info("DECODED: " + decoded);
-    std::string bitStr = "";
-    std::stringstream ss;
-    for (std::size_t i = 0; i < decoded.size(); ++i) {
-      ss << std::bitset<8>(decoded.c_str()[i]);
-    }
+    // auto decodedTest = decodeSolutions(solutionsStrEncoded, energyArray.Size(),
+    //                                    num_vars, active_vars, -1);
+    // auto decoded = base64_decode(solutionsStrEncoded);
 
-    bitStr = ss.str();
+    // std::cout << "DECODED SIZE: " << decodedTest.size() << "\n";
+    // std::vector<std::vector<char>> bitStrings;
+    // for (auto j = 0; j < energies.size(); j++) {
+    // //   std::stringstream sss;
 
-    auto activeVarsSize = doc["answer"]["active_variables"].GetArray().Size();
-    auto activeVars = doc["answer"]["active_variables"].GetArray();
-    for (int i = 0; i < activeVarsSize; i++) {
-      active_vars.push_back(activeVars[i].GetInt());
-    }
+    //   auto first = decodedTest.begin() + j * num_vars;
+    //   auto last = decodedTest.begin() + j * num_vars + num_vars;
+    //   std::vector<char> sub(first, last);
+    //   bitStrings.push_back(sub);
+    // //   for (int i = 0; i < sub.size(); i++) {
+    // //     sss << static_cast<int>(sub[i]);
+    // //   }
+    // //   auto bs = sss.str();
+    // //   buffer->appendMeasurement(bs, numOccurrences[j]);
+    // }
 
-    int start = 0;
-    for (auto &count : numOccurrences) {
-      auto solution = bitStr.substr(start, activeVarsSize);
-      buffer->appendMeasurement(solution, count);
-      if (start == 0) {
-        buffer->addExtraInfo("ground_state", ExtraInfo(solution));
-      }
-      start += activeVarsSize;
-    }
-
+    buffer->addExtraInfo("solutions", solutionsStrEncoded);
     // FIXME CHECK WE HAVE total_real_time
     auto &timing = doc["answer"]["timing"];
     if (timing.HasMember("total_real_time")) {

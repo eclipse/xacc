@@ -17,7 +17,9 @@
 #include "expression_parsing_util.hpp"
 
 #include "pyxasm_listener.hpp"
-
+#include "Circuit.hpp"
+#include "AnnealingProgram.hpp"
+#include <memory>
 #include <regex>
 
 using namespace pyxasm;
@@ -47,6 +49,11 @@ void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
     instructionName = "CNOT";
   } else if (instructionName == "MEASURE") {
     instructionName = "Measure";
+  } else if (instructionName == "dwqmi") {
+      auto isCircuit = std::dynamic_pointer_cast<quantum::Circuit>(function);
+      if (isCircuit) {
+          function = irProvider->createComposite(function->name(), function->getVariables(), "anneal");
+      }
   }
 
   auto nRequiredBits = irProvider->getNRequiredBits(instructionName);
@@ -113,6 +120,10 @@ void PyXASMListener::enterInstruction(pyxasmParser::InstructionContext *ctx) {
         if (params[p].isVariable()) {
             std::dynamic_pointer_cast<CompositeInstruction>(tmpInst)->addVariable(params[p].toString());
         }
+    }
+
+    if (std::dynamic_pointer_cast<quantum::AnnealingProgram>(tmpInst) && std::dynamic_pointer_cast<quantum::Circuit>(function)) {
+        function = irProvider->createComposite(function->name(), function->getVariables(), "anneal");
     }
   }
   function->addInstruction(tmpInst);
