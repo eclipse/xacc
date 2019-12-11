@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_qplacement",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC QPlacement Plugin",
+  "bundle.description" : "This bundle provides plugins to map logical to physical bits."
+}
