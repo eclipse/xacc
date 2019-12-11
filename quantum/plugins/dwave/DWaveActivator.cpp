@@ -11,6 +11,8 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "DWAccelerator.hpp"
+#include "DWDecorator.hpp"
+
 // #include "DWQMICompiler.hpp"
 #include "rbm.hpp"
 #include "CMREmbedding.hpp"
@@ -38,6 +40,9 @@ public:
   void Start(BundleContext context) {
     auto acc = std::make_shared<xacc::quantum::DWAccelerator>();
     context.RegisterService<xacc::Accelerator>(acc);
+
+    auto accd = std::make_shared<xacc::quantum::DWDecorator>();
+    context.RegisterService<xacc::Accelerator>(accd);
     // context.RegisterService<xacc::OptionsProvider>(acc);
 
     auto rbm = std::make_shared<xacc::dwave::RBM>();
