@@ -22,7 +22,7 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
-  // MapToPhysical is an IRTransformation that maps the logical program IR qubit indices to the physical qubits available on the given lattice 
+  // MapToPhysical is an IRTransformation that maps the logical program IR qubit indices to the physical qubits available on the given lattice
   class MapToPhysical : public xacc::IRTransformation {
   protected:
     std::vector<std::pair<int,int>> _edges;
@@ -34,7 +34,7 @@ namespace quantum {
                const HeterogeneousMap &optioins = {}) override;
     const IRTransformationType type() const override {return IRTransformationType::Placement;}
     //std::shared_ptr<IR> transform(std::shared_ptr<IR> ir, std::shared_ptr<Accelerator> acc) override;
-    const std::string name() const override { return "MapToPhysical"; }
+    const std::string name() const override { return "minor-graph-embedding-placement"; }
     const std::string description() const override { return ""; }
   };
 

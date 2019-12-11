@@ -1,4 +1,4 @@
-set(LIBRARY_NAME xacc-qplacement)
+set(LIBRARY_NAME xacc-minor-graph-embedding-placement)
 
 file (GLOB_RECURSE HEADERS *.hpp)
 file (GLOB SRC *.cpp)

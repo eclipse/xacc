@@ -34,7 +34,7 @@ TEST(QPlacementTester, checkBellSimple) {
   // use the dummy accelerator
   xacc::setAccelerator("dummy");
   auto acc = xacc::getAccelerator("dummy");
- 
+
   auto compiler = xacc::getCompiler("xasm");
   auto bell_IR = compiler->compile(R"(__qpu__ void bell(qbit q) {
     H(q[0]);
@@ -44,7 +44,7 @@ TEST(QPlacementTester, checkBellSimple) {
   })");
   auto bell_composite = bell_IR->getComposites()[0];
 
-  auto A = xacc::getIRTransformation("MapToPhysical");
+  auto A = xacc::getIRTransformation("minor-graph-embedding-placement");
   HeterogeneousMap m;
   A->apply(bell_composite, //std::shared_ptr<CompositeInstruction> function,
                          acc, //const std::shared_ptr<Accelerator> acc,
