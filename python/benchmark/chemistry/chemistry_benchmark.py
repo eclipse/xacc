@@ -20,42 +20,49 @@ class Chemistry(Benchmark):
         acc_name = xacc_opts['accelerator']
         qpu = xacc.getAccelerator(acc_name, xacc_opts)
 
-        if inputParams['Decorators']['readout_error'] == True:
-            qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+        if 'Decorators' in inputParams:
+            if 'readout_error' in inputParams['Decorators']:
+                qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
+
+        if 'Observable' not in inputParams:
+            xacc.error('Invalid benchmark input - must have Observable description')
+
+        if 'Ansatz' not in inputParams:
+            xacc.error('Invalid benchmark input - must have Ansatz circuit description')
 
         H = None
         if inputParams['Observable']['name'] == 'pauli':
             obs_str = inputParams['Observable']['obs_str']
             H = xacc.getObservable('pauli', obs_str)
-
         elif inputParams['Observable']['name'] == 'fermion':
             obs_str = inputParams['Observable']['obs_str']
             H = xacc.getObservable('fermion', obs_str)
 
-        elif inputParams['Observable']['name'] == 'psi4-frozen-core':
-            basis = inputParams['Observable']['basis']
-            geometry = inputParams['Observable']['geometry']
-            fo = ast.literal_eval(inputParams['Observable']['fo'])
-            ao = ast.literal_eval(inputParams['Observable']['ao'])
-            H = xacc.getObservable('psi4-frozen-core', {'basis': basis,'geometry': geometry,
-                                                        'frozen-spin-orbitals': fo, 'active-spin-orbitals': ao})
+        elif inputParams['Observable']['name'] == 'psi4':
+            opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
+            if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
+                opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
+                opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
+            H = xacc.getObservable('psi4', opts)
 
-        print('Ham: ', H.toString())
+        #print('Ham: ', H.toString())
 
         buffer = xacc.qalloc(H.nBits())
-        optimizer = xacc.getOptimizer(inputParams['Optimizer']['name'])
+        optimizer = xacc.getOptimizer(inputParams['Optimizer']['name'] if 'Optimizer' in inputParams else 'nlopt')
 
         provider = xacc.getIRProvider('quantum')
 
-        if inputParams['Ansatz']['name'] == 'xasm':
+        if 'source' in inputParams['Ansatz']:
+            # here assume this is xasm always
             src = inputParams['Ansatz']['source']
             xacc.qasm(src)
-
-            ansatz = xacc.getCompiled(inputParams['Ansatz']['circuit_name'])
-            # ansatz.expand(xacc.HeterogeneousMap())
-            print(ansatz.toString())
+            # get the name of the circuit
+            circuit_name = None
+            for l in src.split('\n'):
+                if '.circuit' in l:
+                    circuit_name = l.split(' ')[1]
+            ansatz = xacc.getCompiled(circuit_name)
         else:
-            print('here instead')
             ansatz = provider.createInstruction(inputParams['Ansatz']['ansatz'])
             ansatz = xacc.asComposite(ansatz)
 
@@ -72,7 +79,7 @@ class Chemistry(Benchmark):
 
     def analyze(self, buffer, inputParams):
 
-        if inputParams['Decorators']['readout_error'] == True:
+        if 'Decorators' in inputParams and 'readout_error' in inputParams['Decorators']:
             ro_energies = []
             uniqueParams = buffer.getAllUnique('parameters')
             for p in uniqueParams:
@@ -89,7 +96,6 @@ class Chemistry(Benchmark):
 
             print('Readout Energy = ', ro_energies[int(min_index)])
             print('Optimal Parameters =', uniqueParams[int(min_index)])
-            print('here')
 
         print('Energy = ', buffer['opt-val'])
         print('Opt Params = ', buffer['opt-params'])
