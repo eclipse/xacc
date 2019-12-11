@@ -10,6 +10,8 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+add_subdirectory(tpls/legacy-sapi-clients/c-client)
+
 set(LIBRARY_NAME xacc-dwave)
 
 set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
@@ -21,6 +23,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-security")
 
 file(GLOB SRC
           accelerator/DWAccelerator.cpp
+          accelerator/DWDecorator.cpp
           DWaveActivator.cpp
           embedding/CMREmbedding.cpp
           generators/rbm.cpp)
@@ -37,6 +40,10 @@ target_include_directories(${LIBRARY_NAME}
                                   embedding
                                   generators
                                   embedding/minorminer/include
+                                  tpls/legacy-sapi-clients/c-client/include
+                                  tpls/legacy-sapi-clients/find-embedding/include
+                                  tpls/legacy-sapi-clients/c-client/include
+                                  tpls/legacy-sapi-clients/remote/include
                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
 
@@ -44,7 +51,7 @@ target_include_directories(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc
                              xacc-quantum-annealing
-                             ${ANTLR_LIB}
+                             ${ANTLR_LIB} dwave_sapi
                              )
 
 set(_bundle_name xacc_dwave)
