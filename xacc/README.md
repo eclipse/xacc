@@ -29,7 +29,7 @@ contain a HeterogeneousMap of metadata for persisting execution and accelerator
 **algorithm**
 --------------
 
-This package defines the Algorithm interface, whic provides a general mechanism for
+This package defines the Algorithm interface, which provides a general mechanism for
 describing hybrid algorithms that leverage Accelerator co-processors. Algorithms take
 as input a heterogeneous mapping of input data, and execute their specific algorithm,
 persisting results to a provided AcceleratorBuffer.
@@ -52,7 +52,7 @@ operates on, and a vector of general parameters (which can be int, double, strin
 runtime parameters for the instruction. The Instruction also exposes a general visitor pattern to enable
 type-specific information at runtime.
 
-Next, this package defines a CompositeInstruction, which sublcasses
+Next, this package defines a CompositeInstruction, which subclasses
 Instruction but contains further Instructions (a vector of Instructions). The CompositeInstruction - Instruction
 combination therefore forms a familiar n-ary tree pattern, where nodes are CompositeInstructions and leaves
 are concrete Instructions. CompositeInstruction exposes its list of contained Instructions, a list of
@@ -69,7 +69,7 @@ optimization and ensuring a given program can be run on a given backend).
 The IRProvider describes an factory-like interface for the generation of Instructions and CompositeInstructions.
 
 The Observable describes an interface describing sub-types that can 'observe' CompositeInstructions. This is
-useful for variational quantum algorithms whereby quantum circuit measurements are dicatated
+useful for variational quantum algorithms whereby quantum circuit measurements are dictated
 by a problem-specific operator or observable. This concept comes from the QCOR specification, and is
  here in XACC because it spans a number of projects. The ObservableTransform describes a mechanism for
 the general transformation of Observables.
