@@ -9,6 +9,11 @@
 # Contributors: Alexander J. McCaskey - initial API and implementation
 # *****************************************************************************/
 
+set(XACC_IS_APPLE 0)
+if (APPLE)
+set(XACC_IS_APPLE 1)
+endif()
+
 # Create a xacc config header file
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in"
                "${CMAKE_BINARY_DIR}/xacc_config.hpp")
