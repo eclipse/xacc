@@ -19,11 +19,13 @@
 #include <pybind11/iostream.h>
 #include <pybind11/operators.h>
 #include <pybind11/functional.h>
+#include <pybind11/pybind11.h>
 
 #include "xacc.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
+using Connectivity = std::vector<std::pair<int,int>>;
 
 class PyAccelerator : public xacc::Accelerator {
 public:
@@ -37,6 +39,10 @@ public:
 
   HeterogeneousMap getProperties() override {
     PYBIND11_OVERLOAD(HeterogeneousMap, xacc::Accelerator, getProperties);
+  }
+
+  Connectivity getConnectivity() override {
+    PYBIND11_OVERLOAD(Connectivity, xacc::Accelerator, getConnectivity);
   }
 
   void initialize(const HeterogeneousMap &params = {}) override {
@@ -61,6 +67,9 @@ public:
     PYBIND11_OVERLOAD_PURE(std::vector<std::string>, xacc::Accelerator,
                            configurationKeys)
   }
+
+
+
 };
 
 void bind_accelerator(py::module& m);
