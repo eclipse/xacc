@@ -10,7 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-
+#include "xacc_config.hpp"
 #include "py_plugin_loader.hpp"
 #include "pybind11/embed.h"
 #include <dlfcn.h>
@@ -18,13 +18,14 @@ namespace xacc {
 namespace external {
 
 bool PythonPluginLoader::load() {
-
-  libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
+  if (!ISAPPLE){
+    libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
+  }
   guard = std::make_shared<py::scoped_interpreter>();
   try {
     py::module sys = py::module::import("xacc");
   } catch(std::exception& e) {
-    std::cout << e.what() << "\n";
+    std::cout << "Could not import " << e.what() << "\n";
     return false;
   }
 
@@ -32,10 +33,13 @@ bool PythonPluginLoader::load() {
 }
 
 bool PythonPluginLoader::unload() {
-  int i = dlclose(libpython_handle);
-  if (i != 0) {
-      std::cout << "error closing python lib: " << i << "\n";
-      return false;
+  if (!ISAPPLE) {
+     int i = dlclose(libpython_handle);
+     if (i != 0) {
+        std::cout << "error closing python lib: " << i << "\n";
+        std::cout << dlerror() << "\n";
+        return false;
+     }
   }
   return true;
 }
