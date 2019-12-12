@@ -18,7 +18,7 @@ namespace xacc {
 namespace external {
 
 bool PythonPluginLoader::load() {
-  if (!ISAPPLE){
+  if (!XACC_IS_APPLE){
     libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
   }
   guard = std::make_shared<py::scoped_interpreter>();
@@ -33,7 +33,7 @@ bool PythonPluginLoader::load() {
 }
 
 bool PythonPluginLoader::unload() {
-  if (!ISAPPLE) {
+  if (!XACC_IS_APPLE) {
      int i = dlclose(libpython_handle);
      if (i != 0) {
         std::cout << "error closing python lib: " << i << "\n";
