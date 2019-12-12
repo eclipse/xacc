@@ -10,7 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_PYASMCOMPILER_HPP
+#ifndef XACC_PYXASMCOMPILER_HPP
 #define XACC_PYXASMCOMPILER_HPP
 
 #include "Compiler.hpp"

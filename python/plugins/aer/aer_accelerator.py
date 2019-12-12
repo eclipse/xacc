@@ -38,6 +38,12 @@ class AerAccelerator(xacc.Accelerator):
             ge = True if 'gate_error' in options and options['gate_error'] else False
             self.noise_model = noise.device.basic_device_noise_model(properties, readout_error=ro_error, thermal_relaxation=rel, gate_error=ge)
 
+    def getConnectivity(self):
+        if self.modeled_qpu == None:
+            return []
+        else:
+            return self.modeled_qpu.getConnectivity()
+            
     def name(self):
         return 'aer'
 
