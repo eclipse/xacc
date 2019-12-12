@@ -8,7 +8,7 @@
  *License is available at https://eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
- *   Alexander J. McCaskey - initial API and implementation
+ *   Tyler Kharazi - initial implementation
  *******************************************************************************/
 #include "AssignmentErrorKernelDecorator.hpp"
 #include "InstructionIterator.hpp"
