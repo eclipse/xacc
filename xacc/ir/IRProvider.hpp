@@ -29,11 +29,13 @@ public:
   virtual std::shared_ptr<Instruction>
   createInstruction(const std::string name, std::vector<std::size_t> bits,
                     std::vector<InstructionParameter> parameters =
-                        std::vector<InstructionParameter>{}, const HeterogeneousMap& analog_options = {}) = 0;
+                        std::vector<InstructionParameter>{},
+                    const HeterogeneousMap &analog_options = {}) = 0;
 
   virtual std::shared_ptr<CompositeInstruction>
   createComposite(const std::string name,
-                  std::vector<std::string> variables = {}, const std::string type = "circuit") = 0;
+                  std::vector<std::string> variables = {},
+                  const std::string type = "circuit") = 0;
 
   virtual std::shared_ptr<IR> createIR(const std::string type = "circuit") = 0;
 
