@@ -67,7 +67,7 @@ parameterized ``Ry`` on a variable ``theta``.
 
 in Python
 
-.. code::python
+.. code:: python
 
    import xacc
    ...
