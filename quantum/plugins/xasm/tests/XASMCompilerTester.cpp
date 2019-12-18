@@ -16,7 +16,20 @@
 #include "xacc_service.hpp"
 
 #include "Circuit.hpp"
+TEST(XASMCompilerTester, checkTranslate) {
+     auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler -> compile(R"(__qpu__ void bell_test(qbit q, double t0) {
+  H(q[0]);
+  CX(q[0], q[1]);
+  Ry(q[0], t0);
+  Measure(q[0]);
+  Measure(q[1]);
+})");
 
+auto evaled = (*IR->getComposite("bell_test"))({1.1});
+auto translated = compiler->translate(evaled);
+std::cout << "HELLO:\n" << translated << "\n";
+}
 TEST(XASMCompilerTester, checkSimple) {
 
   auto compiler = xacc::getCompiler("xasm");
