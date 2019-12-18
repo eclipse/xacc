@@ -16,25 +16,59 @@
 #include "AcceleratorDecorator.hpp"
 #include "xacc_service.hpp"
 #include <unordered_set>
+#include "dwave_sapi.h"
 
 namespace xacc {
 
 namespace quantum {
 
-class DWDecorator : public AcceleratorDecorator {
+class DWDecorator : public Accelerator {
 protected:
+  double chain_strength = 1.;
+  double shots = 100;
+  std::string backend = "DW_2000Q_VFYC_2_1";
+  std::string apiKey;
+  sapi_Solver *solver = NULL;
+  sapi_Connection *connection = NULL;
+  const sapi_SolverProperties *solver_properties = NULL;
+
+  void searchAPIKey(std::string &key);
+  void findApiKeyInFile(std::string &key, const std::string &p);
+
 public:
-  DWDecorator() {
-  }
+  DWDecorator() {}
 
   void initialize(const HeterogeneousMap &params = {}) override {
-    decoratedAccelerator = xacc::getService<Accelerator>("dwave-internal");
-    decoratedAccelerator->initialize(params);
+    // decoratedAccelerator = xacc::getService<Accelerator>("dwave-internal");
+    // decoratedAccelerator->initialize(params);
+    updateConfiguration(params);
+
+    searchAPIKey(apiKey);
+
+    char err_msg[SAPI_ERROR_MESSAGE_MAX_SIZE];
+    sapi_globalInit();
+    auto code =
+        sapi_remoteConnection("https://cloud.dwavesys.com/sapi", apiKey.c_str(),
+                              NULL, &connection, err_msg);
+    solver = sapi_getSolver(connection, backend.c_str());
+    solver_properties = sapi_getSolverProperties(solver);
   }
 
-  void updateConfiguration(const HeterogeneousMap &config) override {
-    decoratedAccelerator->updateConfiguration(config);
+  void updateConfiguration(const HeterogeneousMap &params) override {
+    if (params.keyExists<double>("chain_strength")) {
+      chain_strength = params.get<double>("chain_strength");
+    }
+    if (params.keyExists<int>("shots")) {
+      shots = params.get<int>("shots");
+    }
+    if (params.stringExists("backend")) {
+      backend = params.getString("backend");
+    }
   }
+
+  std::vector<std::pair<int, int>> getConnectivity() override;
+
+  const std::string getSignature() override { return "dwave:" + backend; }
   const std::vector<std::string> configurationKeys() override { return {}; }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,

@@ -116,7 +116,8 @@ PYBIND11_MODULE(_pyxacc, m) {
           return accd;
         });
   m.def("getAcceleratorDecorator",
-        [](const std::string name, std::shared_ptr<Accelerator> acc, const PyHeterogeneousMap& options) {
+        [](const std::string name, std::shared_ptr<Accelerator> acc,
+           const PyHeterogeneousMap &options) {
           auto accd = xacc::getService<AcceleratorDecorator>(name);
           accd->setDecorated(acc);
           HeterogeneousMap m;
@@ -291,4 +292,27 @@ PYBIND11_MODULE(_pyxacc, m) {
       },
       "Compute and return the state after execution of the given program on "
       "the given accelerator.");
+
+  py::module annealingsub = m.def_submodule(
+      "annealing", "Annealing model quantum computing data structures.");
+  annealingsub.def(
+      "ising_from_qubo",
+      [](std::map<std::pair<int, int>, double> Q) {
+        auto prov = xacc::getIRProvider("quantum");
+        auto comp = prov->createComposite("ising_from_qubo", {}, "anneal");
+        for (auto &kv : Q) {
+          if (kv.first.first == kv.first.second) {
+            std::size_t f = kv.first.first;
+            auto qmi = prov->createInstruction("dwqmi", {f, f}, {kv.second});
+            comp->addInstruction(qmi);
+          } else {
+            std::size_t f = kv.first.first;
+            std::size_t g = kv.first.second;
+            auto qmi = prov->createInstruction("dwqmi", {f, g}, {kv.second});
+            comp->addInstruction(qmi);
+          }
+        }
+        return comp;
+      },
+      "");
 }
