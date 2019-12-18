@@ -24,6 +24,7 @@ class AerAccelerator(xacc.Accelerator):
         if 'shots' in options:
             self.shots = options['shots']
 
+
         if 'backend' in options:
             self.backend = options['backend']
             import json
@@ -32,6 +33,7 @@ class AerAccelerator(xacc.Accelerator):
             self.modeled_qpu = xacc.getAccelerator('ibm:'+self.backend)
             props = self.modeled_qpu.getProperties()
             jsonStr = props['total-json']
+            #print("jsonStr: \n", jsonStr)
             properties = BackendProperties.from_dict(json.loads(jsonStr))
             ro_error = True if 'readout_error' in options and options['readout_error'] else False
             rel = True if 'thermal_relaxation' in options and options['thermal_relaxation'] else False
@@ -43,22 +45,27 @@ class AerAccelerator(xacc.Accelerator):
             return []
         else:
             return self.modeled_qpu.getConnectivity()
-            
     def name(self):
         return 'aer'
 
     def execute_one_qasm(self, buffer, program):
+        print(program.toString())
         qobjStr = self.qobj_compiler.translate(program)
         import json
         from qiskit import Aer
         from qiskit.qobj.qobj import QasmQobjSchema
         from qiskit.qobj import (QasmQobj, QobjHeader,
-                         QasmQobjInstruction,
-                         QasmQobjExperiment, QasmQobjExperimentConfig, QobjExperimentHeader, QasmQobjConfig)
+                                 QasmQobjInstruction,
+                                 QasmQobjExperiment, QasmQobjExperimentConfig,
+                                 QobjExperimentHeader, QasmQobjConfig)
+
+
         qobj_json = json.loads(qobjStr)
+        qobj_json['qObject']['config']['shots']=self.shots
         qobj = QasmQobjSchema().load(qobj_json['qObject'])
         exps = qobj.experiments
         measures = {}
+        qobj.experiments[0].config.n_qubits = 8
         for i in exps[0].instructions:
             if i.name == "measure":
                 measures[i.memory[0]] =i.qubits[0]
