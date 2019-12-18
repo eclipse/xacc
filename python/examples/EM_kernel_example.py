@@ -1,8 +1,7 @@
 import xacc
 import numpy as np
 
-qpu = xacc.getAccelerator('aer', {'readout_error': True, 'gate_error': True,\
-                                  'thermal_relaxation':True, 'shots': 4096,\
+qpu = xacc.getAccelerator('aer', {'readout_error': True, 'shots': 4096,\
                                   'backend':'ibmq_20_tokyo'})
 qbits = xacc.qalloc(3)
 layout = np.array([1,2,3], dtype=np.uintp)
@@ -29,7 +28,7 @@ print(qbits)
 
 kernel = qbits.getInformation("error-kernel")
 original = qbits.getInformation("unmitigated-counts")
-mitigated = qbits.getInformation("Measurements")
+mitigated = qbits.getMeasurementCounts()
 kernel = np.array(kernel)
 kernel = kernel.reshape(8, 8)
 print(kernel)

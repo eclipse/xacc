@@ -127,6 +127,8 @@ protected:
   }
 
 public:
+  AssignmentErrorKernelDecorator() = default;
+  
   const std::vector<std::string> configurationKeys() override {
     return {"gen-kernel"};
   }

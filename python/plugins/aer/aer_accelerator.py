@@ -59,10 +59,9 @@ class AerAccelerator(xacc.Accelerator):
                                  QasmQobjExperiment, QasmQobjExperimentConfig,
                                  QobjExperimentHeader, QasmQobjConfig)
 
-        
+
         qobj_json = json.loads(qobjStr)
         qobj_json['qObject']['config']['shots']=self.shots
-        print(qobj_json['qObject']['config'])
         qobj = QasmQobjSchema().load(qobj_json['qObject'])
         exps = qobj.experiments
         measures = {}
