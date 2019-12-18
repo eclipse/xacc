@@ -5,309 +5,58 @@
 #include <algorithm>
 #include "AnnealingProgram.hpp"
 
-#include "dwave_sapi.h"
-
-namespace {
-namespace base64 {
-
-const unsigned int ign = 0x100;
-const unsigned int bad = 0x101;
-const unsigned int pad = 0x102;
-const unsigned int decode[128] = {
-    /*   0 */ bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    ign,
-    bad,
-    bad,
-    ign,
-    bad,
-    bad,
-    /*  16 */ bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    /*  32 */ bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    62,
-    bad,
-    bad,
-    bad,
-    63,
-    /*  48 */ 52,
-    53,
-    54,
-    55,
-    56,
-    57,
-    58,
-    59,
-    60,
-    61,
-    bad,
-    bad,
-    bad,
-    pad,
-    bad,
-    bad,
-    /*  64 */ bad,
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    /*  80 */ 15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    25,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-    /*  96 */ bad,
-    26,
-    27,
-    28,
-    29,
-    30,
-    31,
-    32,
-    33,
-    34,
-    35,
-    36,
-    37,
-    38,
-    39,
-    40,
-    /* 112 */ 41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
-    48,
-    49,
-    50,
-    51,
-    bad,
-    bad,
-    bad,
-    bad,
-    bad,
-};
-const int decodeSize = sizeof(decode) / sizeof(decode[0]);
-
-const int blockSize = 4;
-const int encodedBits = 6;
-const int minPaddingIndex = 2;
-
-const auto encode =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const auto padChar = '=';
-
-} // namespace base64
-} // namespace
-
-std::string encodeBase64(const void *vdata, size_t len) {
-  auto data = static_cast<const unsigned char *>(vdata);
-
-  //   if (len > (std::string::npos - 1) / 4 * 3) xaccthrow
-  //   std::length_error("sapiremote::encodeBase64");
-  auto b64size = (len + 2) / 3 * 4;
-  auto b64 = std::string(b64size, '\0');
-  auto out = b64.begin();
-
-  auto numFullBlocks = len / 3;
-  for (auto i = 0u; i < numFullBlocks; ++i) {
-    unsigned block = (static_cast<unsigned int>(data[0]) << 16) |
-                     (static_cast<unsigned int>(data[1]) << 8) | data[2];
-    *out++ = base64::encode[(block >> 18) & 0x3f];
-    *out++ = base64::encode[(block >> 12) & 0x3f];
-    *out++ = base64::encode[(block >> 6) & 0x3f];
-    *out++ = base64::encode[block & 0x3f];
-    data += 3;
-  }
-
-  switch (len % 3) {
-  case 0:
-    break;
-  case 1: {
-    unsigned block = (static_cast<unsigned int>(data[0]) << 16);
-    ;
-    *out++ = base64::encode[(block >> 18) & 0x3f];
-    *out++ = base64::encode[(block >> 12) & 0x3f];
-    *out++ = base64::padChar;
-    *out++ = base64::padChar;
-  } break;
-  case 2: {
-    unsigned block = (static_cast<unsigned int>(data[0]) << 16) |
-                     (static_cast<unsigned int>(data[1]) << 8);
-    *out++ = base64::encode[(block >> 18) & 0x3f];
-    *out++ = base64::encode[(block >> 12) & 0x3f];
-    *out++ = base64::encode[(block >> 6) & 0x3f];
-    *out++ = base64::padChar;
-  } break;
-  }
-
-  return b64;
-}
-std::vector<unsigned char> decodeBase64(const std::string &b64data) {
-  std::vector<unsigned char> data;
-  data.reserve(b64data.size() * 3 / 4);
-
-  auto byteIndex = 0;
-  auto padding = 0;
-  auto finished = false;
-  unsigned int block = 0;
-  for (char c : b64data) {
-    // if (c < 0 || c >= base64::decodeSize) xacc::error("base 64
-    // exception");//throw Base64Exception();
-    auto d = base64::decode[c];
-    if (d == base64::ign)
-      continue;
-    if (finished)
-      xacc::error("base 64 exception");
-
-    switch (d) {
-    case base64::bad:
-      xacc::error("base 64 exception");
-    case base64::pad:
-      if (padding == 0 && byteIndex < base64::minPaddingIndex)
-        xacc::error("base 64 exception");
-      block <<= base64::encodedBits;
-      ++padding;
-      ++byteIndex;
-      break;
-    default:
-      if (padding)
-        xacc::error("base 64 exception");
-      block = (block << base64::encodedBits) | d;
-      ++byteIndex;
-      break;
-    }
-
-    if (byteIndex == base64::blockSize) {
-      data.push_back(static_cast<unsigned char>(block >> 16));
-      if (padding < 2)
-        data.push_back(static_cast<unsigned char>((block >> 8) & 0xff));
-      if (padding < 1)
-        data.push_back(static_cast<unsigned char>(block & 0xff));
-      finished = padding > 0;
-      byteIndex = 0;
-      block = 0;
-    }
-  }
-
-  if (byteIndex != 0)
-    xacc::error("base 64 exception");
-  return data;
-}
-
-
-std::vector<char> decodeSolutions(const std::string &answer, size_t numSols,
-                                  int numVars, std::vector<int> activeVars,
-                                  char zero) {
-  auto solBits = decodeBase64(answer);
-  //   auto activeVars = decodeBinary<int>(answer, answerkeys::activeVars);
-  auto numActiveVars = activeVars.size();
-  //   auto numVars = decodeNumVars(answer);
-  const char unusedIsingVariable = 3;
-
-  auto last = -1;
-  for (auto av : activeVars) {
-    // if (av <= last) throw BadAnswerValueException(answerkeys::activeVars);
-    last = av;
-  }
-  if (last >= numVars)
-    xacc::error(
-        "bad answer1"); // throw
-                        // BadAnswerValueException(answerkeys::activeVars);
-
-  std::cout << numSols << ", " << numVars << ", " << numActiveVars << ", "
-            << solBits.size() << "\n";
-  //   if (numSols * ((numActiveVars + 7) / 8) != solBits.size())
-  //   xacc::error("bad answer2");
-  if (numVars > 0 &&
-      std::numeric_limits<size_t>::max() / static_cast<unsigned>(numVars) <
-          numSols) {
-    xacc::error("solution data too large"); // throw DecodingException("solution
-                                            // data too large");
-  }
-
-  auto solutions = std::vector<char>(numSols * numVars, unusedIsingVariable);
-  if (!solBits.empty()) {
-    auto solIter = solutions.begin();
-    auto solBitsIter = solBits.begin();
-    auto bitIndex = 7;
-    for (size_t i = 0; i < numSols; ++i) {
-      for (auto av : activeVars) {
-        if (bitIndex < 0) {
-          ++solBitsIter;
-          bitIndex = 7;
-        }
-        solIter[av] = ((*solBitsIter >> bitIndex) & 1) ? 1 : zero;
-        --bitIndex;
-      }
-      ++solBitsIter;
-      bitIndex = 7;
-      solIter += numVars;
-    }
-  }
-
-  return solutions;
-}
-
 namespace xacc {
 
 namespace quantum {
+
+void DWDecorator::searchAPIKey(std::string &key) {
+
+  // Search for the API Key in $HOME/.dwave_config,
+  // $DWAVE_CONFIG, or in the command line argument --dwave-api-key
+  std::string dwaveConfig(std::string(getenv("HOME")) + "/.dwave_config");
+
+  if (xacc::fileExists(dwaveConfig)) {
+    findApiKeyInFile(key, dwaveConfig);
+  } else if (const char *nonStandardPath = getenv("DWAVE_CONFIG")) {
+    std::string nonStandardDwaveConfig(nonStandardPath);
+    findApiKeyInFile(key, nonStandardDwaveConfig);
+  }
+
+  // If its still empty, then we have a problem
+  if (key.empty()) {
+    xacc::error("Error. The API Key is empty. Please place it "
+                "in your $HOME/.dwave_config file, $DWAVE_CONFIG env var, "
+                "or provide --dwave-api-key argument.");
+  }
+}
+
+void DWDecorator::findApiKeyInFile(std::string &apiKey, const std::string &p) {
+  std::ifstream stream(p);
+  std::string contents((std::istreambuf_iterator<char>(stream)),
+                       std::istreambuf_iterator<char>());
+
+  std::vector<std::string> lines;
+  lines = xacc::split(contents, '\n');
+  for (auto l : lines) {
+    if (l.find("key") != std::string::npos) {
+      std::vector<std::string> split;
+      split = xacc::split(l, ':');
+      auto key = split[1];
+      xacc::trim(key);
+      apiKey = key;
+    }
+  }
+}
+
+std::vector<std::pair<int, int>> DWDecorator::getConnectivity() {
+  sapi_Problem *adj = NULL;
+  auto code = sapi_getHardwareAdjacency(solver, &adj);
+  std::vector<std::pair<int, int>> ret;
+  for (int i = 0; i < adj->len; i++) {
+    ret.push_back({adj->elements[i].i, adj->elements[i].j});
+  }
+  return ret;
+}
 
 void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                           const std::shared_ptr<CompositeInstruction> problem) {
@@ -316,8 +65,8 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   // ------------------------------
   Embedding embedding;
   auto probGraph = problem->toGraph();
-  auto hardwareEdges = decoratedAccelerator->getConnectivity();
-
+  auto hardwareEdges = getConnectivity();
+  int num_variables = probGraph->order();
   auto d = std::dynamic_pointer_cast<AnnealingProgram>(problem);
   int maxBit = 0;
   for (auto &e : hardwareEdges) {
@@ -381,63 +130,83 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                                 false, 0, &r, 0);
   // ------------------------------
 
+  std::vector<sapi_ProblemEntry> tmpEntries(r->problem.len + r->jc.len);
+  sapi_Problem embedded_problem = {tmpEntries.data(), tmpEntries.size()};
+
+  /* store embedded problem result in new problem */
+  for (int i = 0; i < r->problem.len; i++) {
+    embedded_problem.elements[i].i = r->problem.elements[i].i;
+    embedded_problem.elements[i].j = r->problem.elements[i].j;
+    embedded_problem.elements[i].value = r->problem.elements[i].value;
+  }
+  for (int i = 0; i < embedded_problem.len; i++) {
+    embedded_problem.elements[i].i = r->jc.elements[i - r->problem.len].i;
+    embedded_problem.elements[i].j = r->jc.elements[i - r->problem.len].j;
+    /* set value differently in each loop iteration below */
+  }
+
+  for (int i = r->problem.len; i < embedded_problem.len; i++) {
+    embedded_problem.elements[i].value = chain_strength;
+  }
   // Execute embedded problem
   // ------------------------------
-  auto provider = xacc::getIRProvider("quantum");
-  auto embedded_ir = provider->createComposite(problem->name(), {}, "anneal");
-  for (size_t i = 0; i < r->problem.len; ++i) {
-    auto pe = r->problem.elements + i;
-    auto inst = provider->createInstruction(
-        "dwqmi",
-        std::vector<std::size_t>{(std::size_t)pe->i, (std::size_t)pe->j},
-        {pe->value});
-    embedded_ir->addInstruction(inst);
-  }
+  sapi_QuantumSolverParameters solver_params =
+      SAPI_QUANTUM_SOLVER_DEFAULT_PARAMETERS;
+  solver_params.num_reads = shots;
+  sapi_Solver *solver = NULL;
+  sapi_Connection *connection = NULL;
+  char err_msg[SAPI_ERROR_MESSAGE_MAX_SIZE];
+  const sapi_SolverProperties *solver_properties = NULL;
+  sapi_IsingResult *answer = NULL;
+  sapi_globalInit();
+  code = sapi_remoteConnection("https://cloud.dwavesys.com/sapi",
+                               apiKey.c_str(), NULL, &connection, err_msg);
+  solver = sapi_getSolver(connection, "DW_2000Q_VFYC_2_1");
+  solver_properties = sapi_getSolverProperties(solver);
+  code = sapi_solveIsing(solver, &embedded_problem,
+                         (sapi_SolverParameters *)&solver_params, &answer,
+                         err_msg);
 
-  decoratedAccelerator->execute(buffer, embedded_ir);
-  // ------------------------------
+  int *new_solutions = NULL;
+  int *nsr;
+  size_t num_new_solutions;
+  std::vector<int> nsrtmp(answer->num_solutions * num_variables);
+  nsr = nsrtmp.data();
+  new_solutions = nsr;
+  code = sapi_unembedAnswer(answer->solutions, answer->solution_len,
+                            answer->num_solutions, &sapiEmbeddings,
+                            SAPI_BROKEN_CHAINS_MINIMIZE_ENERGY, &sapiProblem,
+                            new_solutions, &num_new_solutions, err_msg);
 
-  // get vector<char> from solutions
-  // ------------------------------
-  auto solutions = buffer->getInformation("solutions").as<std::string>();
-  auto esize =
-      buffer->getInformation("energies").as<std::vector<double>>().size();
-  auto num_vars = buffer->getInformation("num_vars").as<int>();
-  auto active_vars =
-      buffer->getInformation("active-vars").as<std::vector<int>>();
-  auto num_occurrences =
-      buffer->getInformation("num-occurrences").as<std::vector<int>>();
-  auto decoded = decodeSolutions(solutions, esize, num_vars, active_vars, -1);
-  std::vector<int> tmp;
-  for (auto &c : decoded) {
-    tmp.push_back(static_cast<int>(c));
-  }
-  // ------------------------------
-
-  // un-embed problem
-  // ------------------------------
-  size_t numNewSolutions = 999;
-  std::vector<int> newSolutions(probGraph->order() * esize, -999);
-  sapi_unembedAnswer(tmp.data(), tmp.size(), esize, &sapiEmbeddings,
-                     SAPI_BROKEN_CHAINS_VOTE, 0, newSolutions.data(),
-                     &numNewSolutions, 0);
-  std::transform(newSolutions.begin(), newSolutions.end(), newSolutions.begin(),
-                 [](const int &b) { return (b == 1) ? b : 0; });
-  // ------------------------------
-
-  for (int i = 0; i < esize; i++) {
-    auto first = newSolutions.begin() + i * probGraph->order();
-    auto end = newSolutions.begin() + probGraph->order() * (i + 1);
-    std::vector<int> subBitString(first, end);
+  int first;
+  std::map<std::string, int> measurements;
+  for (int i = 0; i < num_new_solutions; ++i) {
+    printf("solution %d:\n", (int)i);
     std::stringstream ss;
-    for (auto &s : subBitString)
-      ss << s;
-    buffer->appendMeasurement(ss.str(), num_occurrences[i]);
-    if (i == 0)
-      buffer->addExtraInfo("ground_state", ss.str());
+    for (int j = 0; j < num_variables; ++j) {
+      ss << (new_solutions[i * num_variables + j] == -1
+                 ? 0
+                 : new_solutions[i * num_variables + j]);
+    }
+    std::cout << ss.str() << "\n";
+    buffer->appendMeasurement(ss.str(), answer->num_occurrences[i]);
+    if (measurements.count(ss.str())) {
+      measurements[ss.str()] += answer->num_occurrences[i];
+    } else {
+      measurements.insert({ss.str(), answer->num_occurrences[i]});
+    }
   }
-  //   std::cout << "new sols: " << newSolutions.size() << "\n";
-  //   std::cout << newSolutions << "\n";
+  buffer->setMeasurements(measurements);
+  std::vector<double> energies;
+  std::vector<int> numOccurrences;
+  for (int i = 0; i < num_new_solutions; i++) {
+    energies.push_back(answer->energies[i]);
+    numOccurrences.push_back(answer->num_occurrences[i]);
+  }
+
+  buffer->addExtraInfo("energies", energies);
+  buffer->addExtraInfo("num_occurrences", numOccurrences);
+
 }
 
 void DWDecorator::execute(
