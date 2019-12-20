@@ -15,6 +15,7 @@
 
 #include "AllGateVisitor.hpp"
 #include "Graph.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -39,7 +40,7 @@ public:
 
   void visit(Hadamard &h) { addSingleQubitGate(h); }
 
-  void visit(Identity &i) {}
+  void visit(Identity &i) { addSingleQubitGate(i);}
 
   void visit(CZ &cz) { addTwoQubitGate(cz); }
 
@@ -68,6 +69,12 @@ public:
   void visit(Swap &s) { addTwoQubitGate(s); }
 
   void visit(U &u) { addSingleQubitGate(u); }
+  
+  // Base gate visitor, i.e. none of the concrete gates can match.
+  // We need to assert here because we cannot generate a graph when there are unknown gates.
+  // e.g. there is an 1-1 mapping between node Id (in the graph) and instruction counter (in the circuit),
+  // hence, we must fail the graph generation when we encounter an unknown gate.
+  void visit(Gate &gate) { xacc::error("Unknown gate '" + gate.name() + "' encountered while processing input circuit. Please provide the IRToGraph implementation for this gate.");}
 
   virtual ~IRToGraphVisitor() {}
 };
