@@ -49,6 +49,10 @@ private:
   // There are 5 circuit patterns of this reduction, please refer to Figure 4 of https://arxiv.org/pdf/1710.07345.pdf for details.
   // Notes: The phase gate is equivalent to Rz(pi/2).
   bool tryReduceHadamardGates(std::shared_ptr<CompositeInstruction>& io_program);
+  
+  // Identify and merge Rz rotation gates using the *phase polynomials* representation.
+  // This implements routine #4 in https://arxiv.org/pdf/1710.07345.pdf
+  bool tryRotationMergingUsingPhasePolynomials(std::shared_ptr<CompositeInstruction>& io_program);
 };
 } // namespace quantum
 } // namespace xacc

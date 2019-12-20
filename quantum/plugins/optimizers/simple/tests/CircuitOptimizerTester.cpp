@@ -551,6 +551,113 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
     // TODO: Add more complex test cases, e.g. combinations of multiple patterns.
 }
 
+TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
+    const auto countRzGates = [](const std::shared_ptr<CompositeInstruction>& in_program){
+        int count = 0;
+        for (int i = 0; i < in_program->nInstructions(); ++i) {
+            const auto& inst = in_program->getInstruction(i);
+            if (inst->name() == "Rz") {
+                ++count;
+            }
+        }
+        return count;
+    };
+    
+    {
+        auto compiler = xacc::getService<xacc::Compiler>("xasm");
+        // Simple test: circuit (7) in page 13 of https://arxiv.org/pdf/1710.07345.pdf
+        auto program = compiler->compile(
+            R"(__qpu__ void test10(qbit q) {
+                H(q[0]);
+                Rz(q[1], 1.0);
+                CNOT(q[0], q[1]);
+                Rz(q[1], 2.0);
+                CNOT(q[0], q[1]);
+                Rz(q[0], 3.0);
+                Rz(q[1], 4.0);
+                CNOT(q[1], q[0]);
+                X(q[1]);
+                H(q[1]);
+                H(q[0]);
+            })")->getComposites()[0];
+        
+        
+        
+        const auto gateCountBefore = program->nInstructions();
+        const auto rzCountBefore = countRzGates(program);
+        auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+        optimizer->apply(program, nullptr);
+        // We remove one Rz gate
+        EXPECT_EQ(program->nInstructions(), gateCountBefore -1);
+        EXPECT_EQ(countRzGates(program), rzCountBefore - 1);
+        std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+    }
+
+    {
+        auto compiler = xacc::getService<xacc::Compiler>("xasm");
+        // Test: circuit (8) in page 14 of https://arxiv.org/pdf/1710.07345.pdf
+        auto program = compiler->compile(
+            R"(__qpu__ void test11(qbit q) {
+                H(q[0]);
+                H(q[1]);
+                H(q[2]);
+                Rz(q[1], 1.0);
+                Rz(q[2], 2.0);
+                CNOT(q[1], q[0]);
+                CNOT(q[1], q[2]);
+                Rz(q[0], 3.0);
+                CNOT(q[0], q[1]);
+                H(q[2]);
+                CNOT(q[1], q[2]);
+                CNOT(q[0], q[1]);
+                Rz(q[1], 4.0);
+                H(q[1]);
+                H(q[0]);
+            })")->getComposites()[0];        
+        const auto gateCountBefore = program->nInstructions();
+        const auto rzCountBefore = countRzGates(program);
+        auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+        optimizer->apply(program, nullptr);
+        // We remove one Rz gate (last one in the figure)
+        EXPECT_EQ(program->nInstructions(), gateCountBefore -1);
+        EXPECT_EQ(countRzGates(program), rzCountBefore - 1);
+        std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+    }
+
+    {
+        auto compiler = xacc::getService<xacc::Compiler>("xasm");
+        // Test circuit pruning: similar to circuit (8) in page 14 of https://arxiv.org/pdf/1710.07345.pdf,
+        // but we swap (ctrl, target) qubits of CNOT#4 => it must correctly identify it as a termination point.
+        auto program = compiler->compile(
+            R"(__qpu__ void test12(qbit q) {
+                H(q[0]);
+                H(q[1]);
+                H(q[2]);
+                Rz(q[1], 1.0);
+                Rz(q[2], 2.0);
+                CNOT(q[1], q[0]);
+                CNOT(q[1], q[2]);
+                Rz(q[0], 3.0);
+                CNOT(q[0], q[1]);
+                H(q[2]);
+                CNOT(q[2], q[1]);
+                CNOT(q[0], q[1]);
+                Rz(q[1], 4.0);
+                H(q[1]);
+                H(q[0]);
+            })")->getComposites()[0];        
+        const auto gateCountBefore = program->nInstructions();
+        const auto rzCountBefore = countRzGates(program);
+        auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
+        optimizer->apply(program, nullptr);
+        // We cannot remove any Rz gates in this case:
+        // the last Rz (which can be merged in the previous case) is now outside the subcircuit.
+        EXPECT_EQ(program->nInstructions(), gateCountBefore);
+        EXPECT_EQ(countRzGates(program), rzCountBefore);
+        std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
+    }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

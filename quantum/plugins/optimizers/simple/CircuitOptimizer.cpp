@@ -19,6 +19,7 @@
 #include "xacc_service.hpp"
 #include "xacc.hpp"
 #include <assert.h>
+#include "PhasePolynomialRepresentation.hpp"
 
 namespace {
   // Convert InstructionParameter (i.e. a variant) to double,
@@ -70,6 +71,7 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
 
   tryPermuteAndCancelXGate(gateFunction);
   tryReduceHadamardGates(gateFunction);
+  tryRotationMergingUsingPhasePolynomials(gateFunction);
 
   auto isRotation = [](const std::string inst) {
     return inst == "Rz" || inst == "Ry" || inst == "Rx";
@@ -526,6 +528,194 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
   io_program->removeDisabled();   
   
   return !matchedReductionPatterns.empty();
+}
+
+bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<CompositeInstruction>& io_program) {
+  auto graphView = io_program->toGraph();
+  // The list of graph node Ids on each qubit wire.
+  // (to handle backward search from a CNOT anchor point)
+  std::unordered_map<int, std::vector<int>> qubitToNodeIds;
+  for (int i = 1; i < graphView->order() - 1; ++i) {
+    const auto node = graphView->getVertexProperties(i);
+    const auto& instruction = io_program->getInstruction(node.get<int>("id") - 1);
+    for (const auto& bit: instruction->bits()) {
+      auto& currentList = qubitToNodeIds[bit];
+      // Add the node Id to the tracking list of this qubit.
+      currentList.emplace_back(node.get<int>("id"));
+    }
+  }
+  
+  std::unordered_map<int, std::pair<int, int>> qubitToBoundary;
+  
+  for (int i = 1; i < graphView->order() - 1; /* increment in loop*/) {
+    const auto node = graphView->getVertexProperties(i);
+    // Starting at a CNOT gate as anchor point
+    if (node.getString("name") == "CNOT") {
+      const auto& cnotInst = io_program->getInstruction(node.get<int>("id") - 1);
+      assert(cnotInst->bits().size() == 2);
+      const auto ctrlIndex = cnotInst->bits()[0];
+      const auto targetIndex = cnotInst->bits()[1];
+      
+      const auto findLeftBoundary = [&](int in_qbitIdx, int in_nodeId) -> int {
+        // Get the list of gates on this wire (up to this point)
+        const auto& nodesOnWire = qubitToNodeIds[in_qbitIdx];
+        // reverse iteration
+        for (auto it = nodesOnWire.rbegin(); it != nodesOnWire.rend(); ++it) {
+          if (*it >= in_nodeId) {
+            continue;
+          }
+          const auto& inst = io_program->getInstruction(*it - 1);
+          if (inst->name() != "Rz" && inst->name() != "X") {
+            // It is no longer { X, Rz, CNOT } sub-circuit
+            return *it;
+          }
+        }
+        // No left boundary, from the start of the circuit.
+        return 0;
+      };
+
+      // Backward search
+      {
+        qubitToBoundary[ctrlIndex] = std::make_pair(findLeftBoundary(ctrlIndex, i), graphView->order());
+        qubitToBoundary[targetIndex] = std::make_pair(findLeftBoundary(targetIndex, i), graphView->order());
+      }
+      
+      // Helper to find the right boundary
+      const std::function<void(int, int)> findRightBoundary = [&](int in_qbitIdx, int in_startNodeId) -> void {
+        if (in_startNodeId < graphView->order() - 1) {
+          const auto& inst = io_program->getInstruction(in_startNodeId - 1);
+          if (inst->name() == "Rz" || inst->name() == "X") {
+            assert(inst->bits().size() == 1 && inst->bits()[0] == in_qbitIdx);
+            const auto subsequentNodes = graphView->getNeighborList(in_startNodeId);
+            assert(subsequentNodes.size() == 1);
+            // Traverse to the right
+            assert(inst->bits()[0] == in_qbitIdx);
+            return findRightBoundary(inst->bits()[0], subsequentNodes[0]);
+          } else if (inst->name() == "CNOT") {
+            for (const auto& bit: inst->bits()) {
+              const auto neighborNodes = graphView->getNeighborList(in_startNodeId);
+              if (qubitToBoundary.find(bit) == qubitToBoundary.end()) {
+                // No left boundary yet on this qubit line
+                qubitToBoundary[bit] = std::make_pair(findLeftBoundary(bit, in_startNodeId), graphView->order());
+                for (const auto& neighbor: neighborNodes) {
+                  if (neighbor < graphView->order() - 1 && container::contains(io_program->getInstruction(neighbor - 1)->bits(), bit)) {
+                    findRightBoundary(bit, neighbor);       
+                  }
+                } 
+              }
+              // Traverse the neighbor associated with this qubit wire
+              for (const auto& neighbor: neighborNodes) {
+                if (neighbor < graphView->order() - 1 && container::contains(io_program->getInstruction(neighbor - 1)->bits(), in_qbitIdx)) {
+                  // If it's still within the boundary, explore further
+                  // Otherwise, the sub-circuit has had termination point on this qubit wire.
+                  if (neighbor < qubitToBoundary[in_qbitIdx].second) {                    
+                    return findRightBoundary(in_qbitIdx, neighbor);
+                  }                 
+                }
+              } 
+            }
+          } 
+        }
+        // End of the sub-circuit: add the right boundary
+        qubitToBoundary[in_qbitIdx].second = in_startNodeId;
+      };
+      
+      // Forward search:
+      {
+        // Control wire:      
+        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
+          if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), ctrlIndex)) {
+            findRightBoundary(ctrlIndex, nodeToCheck);            
+          }
+        }
+        // Target wire"
+        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
+          if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), targetIndex)) {
+            findRightBoundary(targetIndex, nodeToCheck);            
+          }
+        }
+      }
+      // End sub-circuit finding for this CNOT
+      // Sub-circuit pruning
+      std::vector<std::shared_ptr<Instruction>> subCircuit;
+      {
+        std::vector<int> qubits;
+        for (const auto& kv: qubitToBoundary) {
+          qubits.emplace_back(kv.first);
+        }
+                
+        for (int idx = 1; idx < graphView->order() - 1; ++idx) {
+          const auto node = graphView->getVertexProperties(idx);
+          const auto& instruction = io_program->getInstruction(node.get<int>("id") - 1);
+          
+          if (instruction->bits().size() == 1 && container::contains(qubits, instruction->bits()[0])) {
+            const auto& boundary = qubitToBoundary[instruction->bits()[0]];
+            if (idx > boundary.first && idx < boundary.second) {
+              subCircuit.emplace_back(instruction);
+            }
+          }
+          else if (instruction->bits().size() == 2) {
+            assert(instruction->name() == "CNOT");
+            // If the control is *outside* the boundary, we need to terminate, hence prune the subcircuit. 
+            const auto controlIdx = instruction->bits()[0];
+            const auto targetIdx = instruction->bits()[1];
+            if (!container::contains(qubits, controlIdx)) {
+              auto& boundary = qubitToBoundary[targetIdx];              
+              boundary.second = idx;
+            }
+            else {
+              subCircuit.emplace_back(instruction);
+              // Move the outter loop counter pass this CNOT gate 
+              // since it's already included in this subcircuit (via forward search).
+              i = idx + 1;
+            }
+          }
+        }
+
+        int countRz = 0;
+        for (const auto& inst: subCircuit) {
+          if (inst->name() == "Rz") {
+            countRz++;
+          }
+        }
+        // If the subcircuit has less than 2 Rz gates, then nothing we can optimize here.
+        if (countRz >= 2) {
+          PhasePolynomialRep phasePolynomialRep(qubitToNodeIds.size(), subCircuit);
+          if (phasePolynomialRep.hasMergableGates()) {
+            for (const auto& gate: subCircuit) {
+              if (gate->name() == "Rz" && gate->isEnabled()) {
+                const auto& affineFunc = phasePolynomialRep.getAffineFunctionOfRzGate(gate.get());
+                const auto& gatesThatHaveSameAffineFunc = phasePolynomialRep.getRzGatesWithAffineFunction(affineFunc);
+                if (gatesThatHaveSameAffineFunc.size() > 1) {
+                  double totalAngle = ipToDouble(gate->getParameter(0));
+                  for (const auto& inst: gatesThatHaveSameAffineFunc) {
+                    if (inst != gate.get()) {
+                      totalAngle += ipToDouble(inst->getParameter(0));
+                      // Disable gates that were merged for later removal.
+                      inst->disable();
+                    }
+                  }
+                  
+                  assert(gate->isEnabled());
+                  // Combine the angle to the first Rz gate of this affine function.
+                  gate->setParameter(0, totalAngle);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else {
+      // Not a CNOT gate, continue
+      ++i;
+    }
+  }
+
+  // Remove those gates that were merged.
+  io_program->removeDisabled();
+  
+  return true;
 }
 } // namespace quantum
 } // namespace xacc
