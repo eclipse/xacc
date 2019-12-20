@@ -1,0 +1,26 @@
+version: 1.0.{build}
+
+image: Visual Studio 2019
+
+platform: x64
+
+environment: 
+    EIGEN3_INSTALL_PATH: c:\eigen3
+    
+build:
+    project: VisualStudio/Quantum++.sln
+    verbosity: minimal
+    parallel: true
+
+install:
+    - ps: wget http://bitbucket.org/eigen/eigen/get/3.3.5.zip -O eigen3.zip
+    - cmd: unzip eigen3.zip > nul
+    - cmd: mv eigen-eigen-b3f3d4950030 %EIGEN3_INSTALL_PATH%
+
+configuration:
+    - Debug
+    - Release
+
+test_script:
+    - cmd: >-
+        %APPVEYOR_BUILD_FOLDER%\VisualStudio\%PLATFORM%\%CONFIGURATION%\unit_tests.exe --gtest_filter=-qpp_Timer*

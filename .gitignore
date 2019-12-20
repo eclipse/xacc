@@ -1,0 +1,15 @@
+# vim
+*.swp
+out.tmp
+
+# Visual Studio
+.vs/
+CMakeSettings.json
+
+# CLion
+.idea/
+build/
+cmake-build*/
+
+# documentation source files
+doc/
