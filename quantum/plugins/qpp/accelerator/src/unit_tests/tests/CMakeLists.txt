@@ -1,0 +1,37 @@
+INCLUDE_DIRECTORIES(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+AUX_SOURCE_DIRECTORY(. TEST_FILES)
+AUX_SOURCE_DIRECTORY(MATLAB TEST_FILES)
+AUX_SOURCE_DIRECTORY(classes TEST_FILES)
+AUX_SOURCE_DIRECTORY(classes/circuits TEST_FILES)
+AUX_SOURCE_DIRECTORY(qasm TEST_FILES)
+SET(TARGET_NAME "qpp_testing")
+ADD_EXECUTABLE(${TARGET_NAME} main.cpp)
+IF (NOT ${CMAKE_VERSION} VERSION_LESS "3.13")
+    CMAKE_POLICY(SET CMP0076 NEW)
+ENDIF ()
+
+#### Build all tests in ${TEST_FILES}
+FOREACH (FILE ${TEST_FILES})
+    #### MATALB support
+    IF (${BUILD_WITH_MATLAB})
+        TARGET_SOURCES(${TARGET_NAME} PUBLIC ${FILE})
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} mx mat)
+    ELSE () #### No MATLAB support
+        #### Do not build tests/matlab.cpp if there's no MATLAB support
+        IF (${FILE} STREQUAL "MATLAB/matlab.cpp")
+            CONTINUE()
+        ELSE ()
+            TARGET_SOURCES(${TARGET_NAME} PUBLIC ${FILE})
+        ENDIF ()
+    ENDIF ()
+    #### Eigen3 was found automatically
+    IF (TARGET Eigen3::Eigen)
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} Eigen3::Eigen)
+    ENDIF ()
+    #### OpenMP was enabled
+    IF ($WITH_OPENMP$ AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"
+            AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "3.7")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} omp)
+    ENDIF ()
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} gmock)
+ENDFOREACH ()
