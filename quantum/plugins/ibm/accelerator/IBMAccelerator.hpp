@@ -15,7 +15,7 @@
 
 #include "InstructionIterator.hpp"
 #include "Properties.hpp"
-#include "RemoteAccelerator.hpp"
+#include "Accelerator.hpp"
 #include <bitset>
 #include <type_traits>
 #include "Backends.hpp"
@@ -25,6 +25,31 @@ using namespace xacc;
 
 namespace xacc {
 namespace quantum {
+
+class RestClient {
+
+protected:
+  bool verbose = false;
+
+public:
+  void setVerbose(bool v) { verbose = v; }
+
+  virtual const std::string post(const std::string &remoteUrl,
+                                 const std::string &path,
+                                 const std::string &postStr,
+                                 std::map<std::string, std::string> headers =
+                                     std::map<std::string, std::string>{});
+  virtual void put(const std::string &remoteUrl, const std::string &putStr,
+                   std::map<std::string, std::string> headers =
+                       std::map<std::string, std::string>{});
+  virtual const std::string
+  get(const std::string &remoteUrl, const std::string &path,
+      std::map<std::string, std::string> headers =
+          std::map<std::string, std::string>{},
+      std::map<std::string, std::string> extraParams = {});
+
+  virtual ~RestClient() {}
+};
 
 #define IS_INTEGRAL(T)                                                         \
   typename std::enable_if<std::is_integral<T>::value>::type * = 0
@@ -37,7 +62,7 @@ std::string integral_to_binary_string(T byte, IS_INTEGRAL(T)) {
 
 std::string hex_string_to_binary_string(std::string hex);
 
-class IBMAccelerator : public RemoteAccelerator {
+class IBMAccelerator : public Accelerator {
 public:
   void cancel() override;
 
@@ -50,6 +75,9 @@ public:
     }
     if (config.stringExists("backend")) {
       backend = config.getString("backend");
+    }
+    if (config.keyExists<bool>("http-verbose")) {
+      restClient->setVerbose(config.get<bool>("http-verbose"));
     }
   }
 
@@ -71,7 +99,7 @@ public:
   // Return the name of an IRTransformation of type Placement that is
   // preferred for this Accelerator
   const std::string defaultPlacementTransformation() override {
-      return "default-placement";
+    return "default-placement";
   }
 
   const std::string name() const override { return "ibm"; }
@@ -80,16 +108,17 @@ public:
            "Quantum Experience to launch XACC quantum kernels.";
   }
 
-  const std::string processInput(
-      std::shared_ptr<AcceleratorBuffer> buffer,
-      std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::shared_ptr<CompositeInstruction> circuit) override;
 
-  void processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::string &response) override;
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   circuits) override;
 
-  IBMAccelerator() : RemoteAccelerator() {}
+  bool isRemote() override { return true; }
 
-  IBMAccelerator(std::shared_ptr<Client> client) : RemoteAccelerator(client) {}
+  IBMAccelerator()
+      : Accelerator(), restClient(std::make_shared<RestClient>()) {}
 
   virtual ~IBMAccelerator() {}
 
@@ -99,6 +128,14 @@ private:
   void findApiKeyInFile(std::string &key, std::string &url, std::string &hub,
                         std::string &group, std::string &project,
                         const std::string &p);
+  std::shared_ptr<RestClient> restClient;
+
+  static const std::string IBM_AUTH_URL;
+  static const std::string IBM_API_URL;
+  static const std::string DEFAULT_IBM_BACKEND;
+  static const std::string IBM_LOGIN_PATH;
+  std::string IBM_CREDENTIALS_PATH = "";
+
   std::string currentApiToken;
 
   std::string url;
@@ -107,7 +144,7 @@ private:
   std::string project;
 
   int shots = 1024;
-  std::string backend = "ibmq_qasm_simulator";
+  std::string backend = DEFAULT_IBM_BACKEND;
 
   bool jobIsRunning = false;
   std::string currentJobId = "";
@@ -119,6 +156,16 @@ private:
   std::map<std::string, xacc::ibm_properties::Properties> backendProperties;
   std::string getBackendPropsResponse = "{}";
 
+  std::string post(const std::string &_url, const std::string &path,
+                   const std::string &postStr,
+                   std::map<std::string, std::string> headers = {});
+  void put(const std::string &_url, const std::string &postStr,
+           std::map<std::string, std::string> headers = {});
+
+  std::string get(const std::string &_url, const std::string &path,
+                  std::map<std::string, std::string> headers =
+                      std::map<std::string, std::string>{},
+                  std::map<std::string, std::string> extraParams = {});
 };
 
 } // namespace quantum
