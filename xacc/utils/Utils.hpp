@@ -182,6 +182,15 @@ public:
                return true;
              }));
 };
+
+// container helper
+namespace container {
+  template<typename ContainerType, typename ElementType>
+  bool contains(const ContainerType& container, const ElementType& item) {
+    return std::find(container.begin(), container.end(), item) != container.end();
+  }
+} // namespace container
+
 } // namespace xacc
 
 #endif
