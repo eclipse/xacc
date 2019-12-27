@@ -42,3 +42,7 @@
 compile_commands.json
 /docs/doxygen/html**
 **/*.dat
+
+# IDE files
+.vscode/*
+.theia/*

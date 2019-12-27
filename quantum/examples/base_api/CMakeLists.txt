@@ -22,3 +22,6 @@ target_link_libraries(deuteron_2qbit_xasm_X0X1 PRIVATE xacc)
 add_executable(deuteron_2qbit_ir_api_X0X1 deuteron_2qbit_ir_api_X0X1.cpp)
 target_link_libraries(deuteron_2qbit_ir_api_X0X1 PRIVATE xacc)
 
+add_executable(circuit_optimization circuit_optimization.cpp)
+target_link_libraries(circuit_optimization PRIVATE xacc)
+
