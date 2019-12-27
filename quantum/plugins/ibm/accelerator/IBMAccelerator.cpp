@@ -46,49 +46,49 @@ std::string hex_string_to_binary_string(std::string hex) {
 
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
-    updateConfiguration(params);
-    std::string jsonStr = "", apiKey = "";
-    searchAPIKey(apiKey, url, hub, group, project);
-
+    std::string apiKey = "";
     std::string getBackendPath = "/api/Backends?access_token=";
-    std::string postJobPath = "/api/Jobs?access_token=";
+    std::string tokenParam = "apiToken=";
+    std::string getBackendPropertiesPath;
+
+    // Set backend, shots, etc.
+    // and get the apikey, hub, group, and project
+    updateConfiguration(params);
+    searchAPIKey(apiKey, hub, group, project);
+
+    // We should have backend set by now
+
     if (!hub.empty()) {
       IBM_CREDENTIALS_PATH =
           "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
-
-      getBackendPath = "/api/Network/" + hub + "/Groups/" + group +
-                       "/Projects/" + project + "/devices?access_token=";
-      postJobPath = "/api/Network/" + hub + "/Groups/" + group + "/Projects/" +
-                    project + "/jobs?access_token=";
+      getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
+      getBackendPropertiesPath =
+          "/api/Network/" + hub + "/devices/" + backend + "/properties";
+    } else {
+      xacc::error(
+          "We do not currently support running on the open IBM devices.");
     }
 
-    std::string tokenParam = "apiToken=" + apiKey;
-
+    // Post apiKey to get temp api key
+    tokenParam += apiKey;
     std::map<std::string, std::string> headers{
         {"Content-Type", "application/x-www-form-urlencoded"},
         {"Connection", "keep-alive"},
         {"Content-Length", std::to_string(tokenParam.length())}};
-
     auto response = post(IBM_AUTH_URL, IBM_LOGIN_PATH, tokenParam, headers);
-
     auto response_json = json::parse(response);
+
+    // set the temp API token
     currentApiToken = response_json["id"].get<std::string>();
 
+    // Get all backend information
     response = get(IBM_API_URL, getBackendPath + currentApiToken);
-
     auto j = json::parse("{\"backends\":" + response + "}");
     from_json(j, backends_root);
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
     // Get current backend properties
     if (backend != DEFAULT_IBM_BACKEND) {
-      std::string getBackendPropertiesPath;
-      if (!hub.empty()) {
-        getBackendPropertiesPath =
-            "/api/Network/" + hub + "/devices/" + backend + "/properties";
-      } else {
-        getBackendPropertiesPath = "/api/Backends/" + backend + "/properties";
-      }
       auto response = get(IBM_API_URL, getBackendPropertiesPath, {},
                           {std::make_pair("version", "1"),
                            std::make_pair("access_token", currentApiToken)});
@@ -96,9 +96,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
       xacc::ibm_properties::Properties props;
       auto j = json::parse(response);
       from_json(j, props);
-
       backendProperties.insert({backend, props});
-
       for (auto &b : backends_root.get_backends()) {
         if (b.get_name() == backend) {
           availableBackends.insert(std::make_pair(backend, b));
@@ -112,7 +110,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 void IBMAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> circuit) {
-
   execute(buffer, std::vector<std::shared_ptr<CompositeInstruction>>{circuit});
 }
 
@@ -123,18 +120,8 @@ void IBMAccelerator::execute(
   // Local Declarations
   std::string backendName = backend;
   chosenBackend = availableBackends[backend];
-
   auto connectivity = getConnectivity();
 
-  //   bool isAnalog = false;
-  //   for (auto &k : circuits) {
-  //     if (k->isAnalog()) {
-  //       isAnalog = true;
-  //       break;
-  //     }
-  //   }
-
-  //   if (!isAnalog) {
   // Create a QObj
   xacc::ibm::QObject qobj;
   qobj.set_qobj_id("xacc-qobj-id");
@@ -214,22 +201,14 @@ void IBMAccelerator::execute(
   qobjHeader.set_backend_name(backend);
   qobj.set_header(qobjHeader);
 
-  // Create the Root node of the QObject
-  xacc::ibm::QObjectRoot root;
-  root.set_backend(bkend);
-  root.set_q_object(qobj);
-  root.set_shots(shots);
-
   // Create the JSON String to send
   nlohmann::json j;
   nlohmann::to_json(j, qobj);
   auto jsonStr = j.dump();
-
   xacc::info("qobj: " + jsonStr);
-  //   std::cout << "json: " << jsonStr << "\n";
-  //   std::cout << jsonStr.length() << "\n";
-  //   exit(0);
+
   // Now we have JSON QObj, lets start the object upload
+  // First reserve the Job on IBM's end
   auto reserve_job =
       std::string("{\"backend\": {\"name\": \"" + backend +
                   "\"}, \"shots\": 1, \"allowObjectStorage\": true}");
@@ -242,18 +221,24 @@ void IBMAccelerator::execute(
            IBM_CREDENTIALS_PATH + "/Jobs?access_token=" + currentApiToken,
            reserve_job, headers);
   auto reserve_response_json = json::parse(reserve_response);
-  auto job_id = reserve_response_json["id"].get<std::string>();
 
+  // Job reserved, get the Job ID
+  auto job_id = reserve_response_json["id"].get<std::string>();
+  currentJobId = job_id;
+
+  // Now we ask IBM for an upload URL for the QObj
   auto job_upload_url_response =
       get(IBM_API_URL, IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +
                            "/jobUploadUrl?access_token=" + currentApiToken);
   auto job_upload_url_response_json = json::parse(job_upload_url_response);
   auto upload_url = job_upload_url_response_json["url"];
 
+  // Got the URL, now issue an HTTP Put of the QObj json to that URL
   headers["Content-Length"] = std::to_string(jsonStr.length());
   put(upload_url, jsonStr, headers);
 
-  // Post job data uploaded
+  // Now tell IBM that the data has been uploaded, this
+  // kicks off the job (or the queue)
   auto uploaded_response =
       post(IBM_API_URL,
            IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +
@@ -261,21 +246,55 @@ void IBMAccelerator::execute(
            "");
   auto uploaded_response_json = json::parse(uploaded_response);
 
+  // Get the Job status for the first time, will likely have
+  // just started
   auto get_job_status =
       get(IBM_API_URL, IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +
                            "?access_token=" + currentApiToken);
   auto get_job_status_json = json::parse(get_job_status);
+  jobIsRunning = true;
 
   // Job has started, so watch for status == COMPLETED
+  int dots = 1;
   while (true) {
     get_job_status = get(IBM_API_URL, IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +
                                           "?access_token=" + currentApiToken);
-    auto get_job_status_json = json::parse(get_job_status);
+    get_job_status_json = json::parse(get_job_status);
 
+    // Bool to indicate if we should print status
+    // from infoQueue or just the job status itself
+    bool printInfoQueue =
+        get_job_status_json.find("infoQueue") != get_job_status_json.end() &&
+        get_job_status_json["infoQueue"]["status"].get<std::string>() !=
+            "RUNNING";
+
+    // Give the user some feedback on the currently
+    // running job
     if (xacc::verbose) {
-      xacc::info("Current Status: " +
-                 get_job_status_json["status"].get<std::string>());
+      if (printInfoQueue) {
+        xacc::info(
+            "IBM Job "+job_id+" Status: " +
+            get_job_status_json["infoQueue"]["status"].get<std::string>());
+      } else {
+        xacc::info("IBM Job "+job_id+" Status: " +
+                   get_job_status_json["status"].get<std::string>());
+      }
     } else {
+      std::stringstream ss;
+      if (printInfoQueue) {
+        ss << "\033[0;32m" << "IBM Job " << "\033[0;36m" << job_id << "\033[0;32m" << " Status: "
+           << get_job_status_json["infoQueue"]["status"].get<std::string>();
+        std::cout << '\r' << std::setw(28) << std::setfill(' ') << ss.str()
+                  << std::flush;
+      } else {
+        if (dots > 4) dots = 1;
+        ss << "\033[0;32m" << "IBM Job " << "\033[0;36m" << job_id << "\033[0;32m" << " Status: "
+           << get_job_status_json["status"].get<std::string>();
+        for (int i = 0; i < dots; i++) ss << '.';
+        dots++;
+        std::cout << '\r' << ss.str() << std::setw(20) << std::setfill(' ')
+                  << std::flush;
+      }
     }
 
     if (get_job_status_json["status"].get<std::string>().find("ERROR") !=
@@ -288,25 +307,28 @@ void IBMAccelerator::execute(
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
-  // Job is done, now get the results
+  std::cout << "\033[0m" << "\n";
+  jobIsRunning = false;
+
+  // Job is done, now get the results download URL from IBM
   auto result_download_response = get(
       IBM_API_URL, IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +
                        "/resultDownloadUrl?access_token=" + currentApiToken);
   auto result_download_response_json = json::parse(result_download_response);
   auto download_url = result_download_response_json["url"];
 
+  // Download the results
   auto result_get = get(download_url, "");
   auto results_json = json::parse(result_get);
 
-  xacc::info("RESULTS: " + results_json.dump());
+  xacc::info("Results Json:\n" + results_json.dump());
 
+  // Persist the results to the Buffer(s)
   int counter = 0;
   auto results = results_json["results"];
   for (auto it = results.begin(); it != results.end(); ++it) {
     auto currentExperiment = experiments[counter];
-    auto counts =
-        (*it)["data"]["counts"]
-            .get<std::map<std::string, int>>(); // get_data().get_counts();
+    auto counts = (*it)["data"]["counts"].get<std::map<std::string, int>>();
     auto tmpBuffer = std::make_shared<AcceleratorBuffer>(
         currentExperiment.get_header().get_name(), buffer->size());
     for (auto &kv : counts) {
@@ -314,7 +336,6 @@ void IBMAccelerator::execute(
       int nOccurrences = kv.second;
       auto bitStr = hex_string_to_binary_string(hexStr);
 
-      //   std::cout << "BITSTRING: " << bitStr << "\n";
       if (results.size() == 1) {
         buffer->appendMeasurement(bitStr, nOccurrences);
       } else {
@@ -326,270 +347,19 @@ void IBMAccelerator::execute(
       buffer->appendChild(currentExperiment.get_header().get_name(), tmpBuffer);
     }
   }
-
-  // xacc::info("Qobj:\n" + jsonStr);
-  // exit(0);
-
-  // return jsonStr;
-  //   } else {
-  //     std::cout << "We are running an OpenPulse job\n";
-  //     // Create a QObj
-  //     xacc::ibm_pulse::PulseQObject root;
-  //     xacc::ibm_pulse::QObject qobj;
-  //     qobj.set_qobj_id("xacc-qobj-id");
-  //     qobj.set_schema_version("1.1.0");
-  //     qobj.set_type("PULSE");
-  //     xacc::ibm_pulse::QObjectHeader h;
-  //     h.set_backend_name(backend);
-  //     h.set_backend_version("1.2.1");
-  //     qobj.set_header(h);
-
-  //     std::vector<xacc::ibm_pulse::Experiment> experiments;
-  //     // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
-  //     std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
-  //     for (auto &kernel : circuits) {
-
-  //       auto visitor = std::make_shared<OpenPulseVisitor>();
-
-  //       InstructionIterator it(kernel);
-  //       int memSlots = 0;
-  //       while (it.hasNext()) {
-  //         auto nextInst = it.next();
-  //         if (nextInst->isEnabled()) {
-  //           nextInst->accept(visitor);
-  //         }
-  //       }
-
-  //       xacc::ibm_pulse::ExperimentHeader hh;
-  //       hh.set_name(kernel->name());
-  //       hh.set_memory_slots(
-  //           chosenBackend.get_specific_configuration().get_n_qubits());
-
-  //       xacc::ibm_pulse::Experiment experiment;
-  //       experiment.set_instructions(visitor->instructions);
-  //       experiment.set_header(hh);
-  //       experiments.push_back(experiment);
-
-  //       for (auto p : visitor->library) {
-  //         if (!all_pulses.count(p.get_name())) {
-  //           all_pulses.insert({p.get_name(), p});
-  //         }
-  //       }
-  //     }
-
-  //     qobj.set_experiments(experiments);
-
-  //     xacc::ibm_pulse::Config config;
-
-  //     std::vector<xacc::ibm_pulse::PulseLibrary> pulses;
-  //     for (auto &kv : all_pulses) {
-  //       pulses.push_back(kv.second);
-  //     }
-  //     config.set_pulse_library(pulses);
-  //     config.set_meas_level(2);
-  //     config.set_memory_slots(
-  //         chosenBackend.get_specific_configuration().get_n_qubits());
-  //     config.set_meas_return("avg");
-  //     config.set_rep_time(1000);
-  //     config.set_memory_slot_size(100);
-  //     config.set_memory(false);
-  //     config.set_shots(shots);
-  //     config.set_max_credits(10);
-
-  //     auto j = json::parse(getBackendPropsResponse);
-  //     // set meas lo and qubit lo
-  //     std::vector<double> meas_lo_freq, qubit_lo_freq;
-  //     std::vector<std::vector<double>> meas_lo_range =
-  //         *chosenBackend.get_specific_configuration().get_meas_lo_range();
-  //     for (auto &pair : meas_lo_range) {
-  //       meas_lo_freq.push_back((pair[0] + pair[1]) / 2.);
-  //     }
-  //     std::vector<std::vector<double>> qubit_lo_range =
-  //         *chosenBackend.get_specific_configuration().get_qubit_lo_range();
-  //     for (auto &pair : qubit_lo_range) {
-  //       qubit_lo_freq.push_back((pair[0] + pair[1]) / 2.);
-  //     }
-  //     config.set_meas_lo_freq(meas_lo_freq);
-  //     config.set_qubit_lo_freq(qubit_lo_freq);
-
-  //     qobj.set_config(config);
-
-  //     root.set_q_object(qobj);
-
-  //     xacc::ibm_pulse::Backend b;
-  //     b.set_name(backend);
-
-  //     root.set_backend(b);
-  //     root.set_shots(shots);
-
-  //     nlohmann::json jj;
-  //     nlohmann::to_json(jj, root);
-  //     auto jsonStr = jj.dump();
-
-  //     std::cout << "JSON:\n" << jsonStr << "\n";
-  //     exit(0);
-  //     // return jsonStr;
-  //   }
 }
 
-/**
- * take response and create
- */
-// void IBMAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer>
-// buffer,
-//                                      const std::string &response) {
-
-//   if (response.find("error") != std::string::npos) {
-//     xacc::error(response);
-//   }
-
-//   Document d;
-//   d.Parse(response);
-
-//   std::string jobId = std::string(d["id"].GetString());
-//   std::string getPath =
-//       "/api/Jobs/" + jobId + "?access_token=" + currentApiToken;
-//   std::string getResponse = handleExceptionRestClientGet(url, getPath);
-
-//   jobIsRunning = true;
-//   currentJobId = jobId;
-
-//   std::cout << "Current Access Token: " << currentApiToken << "\n";
-//   std::cout << "Job ID: " << jobId << "\n";
-//   if (!hub.empty()) {
-//     std::cout << "\nTo cancel job, open a new terminal and run:\n\n"
-//               << "curl -X POST "
-//               << "https://api-qcon.quantum-computing.ibm.com/api/Network/"
-//               << hub << "/Groups/" << group << "/Projects/" << project
-//               << "/jobs/" << jobId << "/cancel?access_token=" <<
-//               currentApiToken
-//               << "\n\n-or-\n\nCTRL-C\n\n";
-//   }
-
-//   // Loop until the job is complete,
-//   // get the JSON response
-//   std::string msg;
-//   bool jobCompleted = false;
-//   while (!jobCompleted) {
-
-//     getResponse = handleExceptionRestClientGet(
-//         "https://api-qcon.quantum-computing.ibm.com", getPath);
-//     // auto jj = json::parse(getResponse);
-
-//     if (getResponse.find("COMPLETED") != std::string::npos) {
-//       jobCompleted = true;
-//     }
-
-//     if (getResponse.find("ERROR_RUNNING_JOB") != std::string::npos) {
-//       xacc::info(getResponse);
-//       xacc::error("Error encountered running IBM job.");
-//     }
-
-//     Document d;
-//     d.Parse(getResponse);
-
-//     if (d.HasMember("infoQueue") &&
-//         std::string(d["infoQueue"]["status"].GetString()) != "FINISHED") {
-//       auto info = d["infoQueue"].GetObject();
-//       std::cout << "\r"
-//                 << "Job Status: " << d["status"].GetString()
-//                 << ", queue: " << d["infoQueue"]["status"].GetString()
-//                 << std::flush;
-//       if (info.HasMember("position")) {
-//         std::cout << " position " << d["infoQueue"]["position"].GetInt()
-//                   << std::flush;
-//       }
-//     } else {
-//       std::cout << "\r"
-//                 << "Job Status: " << d["status"].GetString() << std::flush;
-//     }
-
-//     if (d["status"] == "CANCELLED") {
-//       xacc::info("Job Cancelled.");
-//       xacc::Finalize();
-//       exit(0);
-//     }
-//     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//   }
-
-//   std::cout << std::endl;
-
-//   std::cout << "JOBRESPONSE:\n" << getResponse << "\n";
-//   jobIsRunning = false;
-//   currentJobId = "";
-
-//   d.Parse(getResponse);
-
-//   auto &qobjNode = d["qObject"];
-//   auto &qobjResultNode = d["qObjectResult"];
-//   StringBuffer sb, sb2;
-//   Writer<StringBuffer> jsWriter(sb), jsWriter2(sb2);
-//   qobjResultNode.Accept(jsWriter);
-//   qobjNode.Accept(jsWriter2);
-//   std::string qobjResultAsString = sb.GetString();
-//   std::string qobjAsString = sb2.GetString();
-
-//   xacc::ibm::QObjectResult qobjResult;
-//   xacc::ibm::QObject qobj;
-//   nlohmann::json j = nlohmann::json::parse(qobjResultAsString);
-//   nlohmann::from_json(j, qobjResult);
-//   nlohmann::json j2 = nlohmann::json::parse(qobjAsString);
-//   nlohmann::from_json(j2, qobj);
-//   auto resultsArray = qobjResult.get_results();
-//   auto experiments = qobj.get_experiments();
-
-//   std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
-//   if (!chosenBackend.get_specific_configuration().get_simulator()) {
-//     // buffer->addExtraInfo("qobject", sb2.GetString());
-//     // buffer->addExtraInfo("gateSet", chosenBackend.gateSet);
-//     // buffer->addExtraInfo("basisGates", chosenBackend.basisGates);
-//     // buffer->addExtraInfo("readoutErrors", chosenBackend.readoutErrors);
-//     // buffer->addExtraInfo("gateErrors", chosenBackend.gateErrors);
-//     // buffer->addExtraInfo("multiQubitGates",
-//     chosenBackend.multiQubitGates);
-//     // buffer->addExtraInfo("multiQubitGateErrors",
-//     //                      chosenBackend.multiQubitGateErrors);
-//     // buffer->addExtraInfo("frequencies", chosenBackend.frequencies);
-//     // buffer->addExtraInfo("T1", chosenBackend.T1s);
-//     // buffer->addExtraInfo("T2", chosenBackend.T2s);
-//   }
-
-//   for (int i = 0; i < resultsArray.size(); i++) {
-//     auto currentExperiment = experiments[i];
-//     auto tmpBuffer = std::make_shared<AcceleratorBuffer>(
-//         currentExperiment.get_header().get_name(), buffer->size());
-//     auto counts = resultsArray[i].get_data().get_counts();
-//     for (auto &kv : counts) {
-
-//       std::string hexStr = kv.first;
-//       int nOccurrences = kv.second;
-//       auto bitStr = hex_string_to_binary_string(hexStr);
-
-//       if (resultsArray.size() == 1) {
-//         buffer->appendMeasurement(bitStr, nOccurrences);
-//       } else {
-//         tmpBuffer->appendMeasurement(bitStr, nOccurrences);
-//         buffer->appendChild(currentExperiment.get_header().get_name(),
-//                             tmpBuffer);
-//       }
-//     }
-//   }
-
-//   return;
-// }
-
 void IBMAccelerator::cancel() {
-  xacc::info("Attempting to cancel this job, " + currentJobId);
+  xacc::info("Attempting to cancel IBM job " + currentJobId);
   if (!hub.empty() && jobIsRunning && !currentJobId.empty()) {
     xacc::info("Canceling IBM Job " + currentJobId);
     std::map<std::string, std::string> headers{
         {"Content-Type", "application/x-www-form-urlencoded"},
         {"Connection", "keep-alive"},
         {"Content-Length", "0"}};
-    auto path = "/api/Network/" + hub + "/Groups/" + group + "/Projects/" +
-                project + "/jobs/" + currentJobId +
+    auto path = IBM_CREDENTIALS_PATH + "/Jobs/" + currentJobId +
                 "/cancel?access_token=" + currentApiToken;
-    auto response = post(url, path, "", headers);
+    auto response = post(IBM_API_URL, path, "", headers);
     xacc::info("Cancel Response: " + response);
     jobIsRunning = false;
     currentJobId = "";
@@ -629,54 +399,22 @@ std::vector<std::pair<int, int>> IBMAccelerator::getConnectivity() {
   return graph;
 }
 
-void IBMAccelerator::searchAPIKey(std::string &key, std::string &url,
-                                  std::string &hub, std::string &group,
-                                  std::string &project) {
+void IBMAccelerator::searchAPIKey(std::string &key, std::string &hub,
+                                  std::string &group, std::string &project) {
 
   // Search for the API Key in $HOME/.ibm_config,
   // $IBM_CONFIG, or in the command line argument --ibm-api-key
   std::string ibmConfig(std::string(getenv("HOME")) + "/.ibm_config");
   if (xacc::fileExists(ibmConfig)) {
-    findApiKeyInFile(key, url, hub, group, project, ibmConfig);
-  } else if (const char *nonStandardPath = getenv("IBM_CONFIG")) {
-    std::string nonStandardIbmConfig(nonStandardPath);
-    findApiKeyInFile(key, url, hub, group, project, nonStandardIbmConfig);
+    findApiKeyInFile(key, hub, group, project, ibmConfig);
   } else {
-
-    // Ensure that the user has provided an api-key
-    if (!xacc::optionExists("ibm-api-key")) {
-      xacc::error("Cannot execute kernel on IBM chip without API Key.");
-    }
-
-    // Set the API Key
-    key = xacc::getOption("ibm-api-key");
-
-    if (xacc::optionExists("ibm-api-url")) {
-      url = xacc::getOption("ibm-api-url");
-    }
-
-    if (xacc::optionExists("ibm-api-hub")) {
-      hub = xacc::getOption("ibm-api-hub");
-    }
-    if (xacc::optionExists("ibm-api-group")) {
-      group = xacc::getOption("ibm-api-group");
-    }
-    if (xacc::optionExists("ibm-api-project")) {
-      project = xacc::getOption("ibm-api-project");
-    }
-  }
-
-  // If its still empty, then we have a problem
-  if (key.empty()) {
-    xacc::error("Error. The API Key is empty. Please place it "
-                "in your $HOME/.ibm_config file, $IBM_CONFIG env var, "
-                "or provide --ibm-api-key argument.");
+    xacc::error(
+        "Cannot find IBM Config file with credentials (~/.ibm_config).");
   }
 }
 
-void IBMAccelerator::findApiKeyInFile(std::string &apiKey, std::string &url,
-                                      std::string &hub, std::string &group,
-                                      std::string &project,
+void IBMAccelerator::findApiKeyInFile(std::string &apiKey, std::string &hub,
+                                      std::string &group, std::string &project,
                                       const std::string &path) {
   std::ifstream stream(path);
   std::string contents((std::istreambuf_iterator<char>(stream)),
@@ -690,12 +428,6 @@ void IBMAccelerator::findApiKeyInFile(std::string &apiKey, std::string &url,
       auto key = split[1];
       xacc::trim(key);
       apiKey = key;
-    } else if (l.find("url") != std::string::npos) {
-      std::vector<std::string> split;
-      split = xacc::split(l, ':');
-      auto key = split[1] + ":" + split[2];
-      xacc::trim(key);
-      url = key;
     } else if (l.find("hub") != std::string::npos) {
       std::vector<std::string> split;
       split = xacc::split(l, ':');
@@ -1060,3 +792,108 @@ IBMAccelerator::get(const std::string &_url, const std::string &path,
 }
 } // namespace quantum
 } // namespace xacc
+
+// KEEPING THIS PULSE STUFF FOR LATER
+// xacc::info("Qobj:\n" + jsonStr);
+// exit(0);
+
+// return jsonStr;
+//   } else {
+//     std::cout << "We are running an OpenPulse job\n";
+//     // Create a QObj
+//     xacc::ibm_pulse::PulseQObject root;
+//     xacc::ibm_pulse::QObject qobj;
+//     qobj.set_qobj_id("xacc-qobj-id");
+//     qobj.set_schema_version("1.1.0");
+//     qobj.set_type("PULSE");
+//     xacc::ibm_pulse::QObjectHeader h;
+//     h.set_backend_name(backend);
+//     h.set_backend_version("1.2.1");
+//     qobj.set_header(h);
+
+//     std::vector<xacc::ibm_pulse::Experiment> experiments;
+//     // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
+//     std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
+//     for (auto &kernel : circuits) {
+
+//       auto visitor = std::make_shared<OpenPulseVisitor>();
+
+//       InstructionIterator it(kernel);
+//       int memSlots = 0;
+//       while (it.hasNext()) {
+//         auto nextInst = it.next();
+//         if (nextInst->isEnabled()) {
+//           nextInst->accept(visitor);
+//         }
+//       }
+
+//       xacc::ibm_pulse::ExperimentHeader hh;
+//       hh.set_name(kernel->name());
+//       hh.set_memory_slots(
+//           chosenBackend.get_specific_configuration().get_n_qubits());
+
+//       xacc::ibm_pulse::Experiment experiment;
+//       experiment.set_instructions(visitor->instructions);
+//       experiment.set_header(hh);
+//       experiments.push_back(experiment);
+
+//       for (auto p : visitor->library) {
+//         if (!all_pulses.count(p.get_name())) {
+//           all_pulses.insert({p.get_name(), p});
+//         }
+//       }
+//     }
+
+//     qobj.set_experiments(experiments);
+
+//     xacc::ibm_pulse::Config config;
+
+//     std::vector<xacc::ibm_pulse::PulseLibrary> pulses;
+//     for (auto &kv : all_pulses) {
+//       pulses.push_back(kv.second);
+//     }
+//     config.set_pulse_library(pulses);
+//     config.set_meas_level(2);
+//     config.set_memory_slots(
+//         chosenBackend.get_specific_configuration().get_n_qubits());
+//     config.set_meas_return("avg");
+//     config.set_rep_time(1000);
+//     config.set_memory_slot_size(100);
+//     config.set_memory(false);
+//     config.set_shots(shots);
+//     config.set_max_credits(10);
+
+//     auto j = json::parse(getBackendPropsResponse);
+//     // set meas lo and qubit lo
+//     std::vector<double> meas_lo_freq, qubit_lo_freq;
+//     std::vector<std::vector<double>> meas_lo_range =
+//         *chosenBackend.get_specific_configuration().get_meas_lo_range();
+//     for (auto &pair : meas_lo_range) {
+//       meas_lo_freq.push_back((pair[0] + pair[1]) / 2.);
+//     }
+//     std::vector<std::vector<double>> qubit_lo_range =
+//         *chosenBackend.get_specific_configuration().get_qubit_lo_range();
+//     for (auto &pair : qubit_lo_range) {
+//       qubit_lo_freq.push_back((pair[0] + pair[1]) / 2.);
+//     }
+//     config.set_meas_lo_freq(meas_lo_freq);
+//     config.set_qubit_lo_freq(qubit_lo_freq);
+
+//     qobj.set_config(config);
+
+//     root.set_q_object(qobj);
+
+//     xacc::ibm_pulse::Backend b;
+//     b.set_name(backend);
+
+//     root.set_backend(b);
+//     root.set_shots(shots);
+
+//     nlohmann::json jj;
+//     nlohmann::to_json(jj, root);
+//     auto jsonStr = jj.dump();
+
+//     std::cout << "JSON:\n" << jsonStr << "\n";
+//     exit(0);
+//     // return jsonStr;
+//   }
