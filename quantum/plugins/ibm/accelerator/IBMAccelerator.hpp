@@ -123,11 +123,10 @@ public:
   virtual ~IBMAccelerator() {}
 
 private:
-  void searchAPIKey(std::string &key, std::string &url, std::string &hub,
-                    std::string &group, std::string &project);
-  void findApiKeyInFile(std::string &key, std::string &url, std::string &hub,
-                        std::string &group, std::string &project,
-                        const std::string &p);
+  void searchAPIKey(std::string &key, std::string &hub, std::string &group,
+                    std::string &project);
+  void findApiKeyInFile(std::string &key, std::string &hub, std::string &group,
+                        std::string &project, const std::string &p);
   std::shared_ptr<RestClient> restClient;
 
   static const std::string IBM_AUTH_URL;
@@ -138,7 +137,6 @@ private:
 
   std::string currentApiToken;
 
-  std::string url;
   std::string hub;
   std::string group;
   std::string project;
