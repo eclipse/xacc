@@ -8,18 +8,8 @@
 # https://eclipse.org/org/documents/edl-v10.php
 #
 # Contributors:
-#   Alexander J. McCaskey - initial API and implementation
+#   Thien Nguyen - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(ibm)
-add_subdirectory(rigetti)
-#add_subdirectory(cmr)
-add_subdirectory(dwave)
-add_subdirectory(algorithms)
-add_subdirectory(decorators)
-add_subdirectory(circuits)
-add_subdirectory(optimizers)
-add_subdirectory(ionq)
-add_subdirectory(placement)
-#add_subdirectory(scaffold)
-add_subdirectory(xasm)
-add_subdirectory(qpp)
+
+add_xacc_test(QppAccelerator)
+target_link_libraries(QppAcceleratorTester xacc-qpp)
