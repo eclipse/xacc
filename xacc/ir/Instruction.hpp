@@ -20,6 +20,41 @@
 
 namespace xacc {
 using InstructionParameter = Variant<int,double,std::string>;
+
+// Util func to get a double parameter from an InstructionParameter variant.
+// Note: most of the cases, we have double-type parameters (e.g. rotation angles).
+// This also handles int->double and string->double conversion if necessary.
+static double InstructionParameterToDouble(const xacc::InstructionParameter& in_parameter) {
+  if (in_parameter.which() == 0) {
+    // Convert int to double
+    return static_cast<double>(in_parameter.as<int>());
+  } else if (in_parameter.which() == 1) {
+    return in_parameter.as<double>();
+  } else {
+    // Check if this string parameter can be converted to a double
+    const auto isNumber = [](const std::string& in_string, double& out_double) -> bool {
+      char* end = 0;
+      double val = strtod(in_string.c_str(), &end);
+      // This whole string must be a valid double number
+      const bool isConversionOkay = (end != in_string.c_str()) && (*end == '\0') && (val != std::numeric_limits<double>::infinity());
+      if (isConversionOkay) {
+        out_double = val;
+      }
+      
+      return isConversionOkay;
+    };
+    
+    const std::string paramString = in_parameter.toString();
+    double paramDouble = 0.0;
+    if (isNumber(paramString, paramDouble)) {    
+      return paramDouble;
+    }
+  }
+  
+  // Cannot find a way to convert, returns 0.0
+  return 0.0;
+}
+
 class CompositeInstruction;
 
 // The Instruction interface exposes an API for describing a general
