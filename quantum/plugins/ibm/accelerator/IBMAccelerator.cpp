@@ -17,6 +17,7 @@
 #include "Properties.hpp"
 #include "QObjectExperimentVisitor.hpp"
 #include "OpenPulseVisitor.hpp"
+#include "CountGatesOfTypeVisitor.hpp"
 
 #include <cpr/cpr.h>
 
@@ -335,17 +336,26 @@ void IBMAccelerator::execute(
       std::string hexStr = kv.first;
       int nOccurrences = kv.second;
       auto bitStr = hex_string_to_binary_string(hexStr);
-
+   
+      // Process bitStr to be an n-Measure string in msb
+      std::string actual = "";
+      CountGatesOfTypeVisitor<Measure> cc(circuits[counter]);
+      int nMeasures = cc.countGates();
+      for (int i = 0; i < nMeasures; i++) actual += "0";
+      for (int i = 0; i < nMeasures; i++) actual[actual.length() - 1- i] = bitStr[bitStr.length() - i - 1];
+      
       if (results.size() == 1) {
-        buffer->appendMeasurement(bitStr, nOccurrences);
+        buffer->appendMeasurement(actual, nOccurrences);
       } else {
-        tmpBuffer->appendMeasurement(bitStr, nOccurrences);
+        tmpBuffer->appendMeasurement(actual, nOccurrences);
       }
     }
 
     if (results.size() > 1) {
       buffer->appendChild(currentExperiment.get_header().get_name(), tmpBuffer);
     }
+    
+    counter++;
   }
 }
 
