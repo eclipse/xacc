@@ -49,7 +49,9 @@ void AssignmentErrorKernelDecorator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
   int num_bits = buffer->size();
   int size = std::pow(2, num_bits);
-  function->mapBits(layout);
+  if (!layout.empty()) {
+     function->mapBits(layout);
+  }
   // get the raw state
   decoratedAccelerator->execute(buffer, function);
   int shots = 0;
