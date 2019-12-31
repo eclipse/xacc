@@ -38,6 +38,8 @@ int argc = 0;
 char **argv = NULL;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
+std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers {};
+
 std::string rootPathString = "";
 
 void set_verbose(bool v) {verbose=v;}
@@ -134,10 +136,18 @@ void error(const std::string &msg, MessagePredicate predicate) {
 
 qbit qalloc(const int n) {
   qbit q(n);
-  return q; // std::make_shared<xacc::AcceleratorBuffer>(n);
+  std::stringstream ss;
+  ss << q;
+  q->setName(ss.str());
+  allocated_buffers.insert({ss.str(), q});
+  return q;
 }
 qbit qalloc() {
   qbit q;
+  std::stringstream ss;
+  ss << q;
+  q->setName(ss.str());
+  allocated_buffers.insert({ss.str(), q});
   return q;
 }
 
@@ -679,6 +689,8 @@ void Finalize() {
   XACCLogger::instance()->dumpQueue();
   if (xaccFrameworkInitialized) {
     xacc::xaccFrameworkInitialized = false;
+    compilation_database.clear();
+    allocated_buffers.clear();
     xacc::ServiceAPI_Finalize();
   }
 }

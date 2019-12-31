@@ -9,10 +9,10 @@ xaccsrc
    ;
 
     xacckernel : '__qpu__' 'void' kernelname =
-                    id '(' 'qbit' acceleratorbuffer =
+                    id '(' ('qbit'|'qreg') acceleratorbuffer =
                         id (',' typedparam) * ')' '{' mainprog '}';
 
-    xacclambda : '['('&'|'=')?']' '(' 'qbit' acceleratorbuffer=id (',' typedparam) * ')' '{' mainprog '}';
+    xacclambda : '['('&'|'=')?']' '(' ('qbit'|'qreg') acceleratorbuffer=id (',' typedparam) * ')' '{' mainprog '}';
 
     typedparam : type id;
 
