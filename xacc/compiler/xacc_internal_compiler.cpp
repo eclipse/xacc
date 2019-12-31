@@ -21,6 +21,10 @@ CompositeInstruction *compile(const char *compiler_name,
   return program.get();
 }
 
+CompositeInstruction * getCompiled(const char * kernel_name) {
+  return xacc::hasCompiled(kernel_name) ? xacc::getCompiled(kernel_name).get() : nullptr;
+}
+
 // Run quantum compilation routines on IR
 void optimize(CompositeInstruction *program, const char *qpu_name,
               const OptLevel opt) {
@@ -39,11 +43,17 @@ void optimize(CompositeInstruction *program, const char *qpu_name,
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
 void execute(AcceleratorBuffer * buffer, const char *qpu_name,
-             CompositeInstruction * program) {
-  std::cout << "Executing:\n" << program->toString() << "\n";
-  auto qpu = xacc::getAccelerator(qpu_name);
-  auto program_as_shared = std::shared_ptr<CompositeInstruction>(
+             CompositeInstruction * program, double* parameters) {
+//   std::cout << "Executing:\n" << program->toString() << "\n";
+  std::shared_ptr<CompositeInstruction> program_as_shared;
+  if (parameters) {
+      std::vector<double> values(parameters, parameters + program->nVariables());
+      program_as_shared = program->operator()(values);
+  } else {
+    program_as_shared = std::shared_ptr<CompositeInstruction>(
       program, empty_delete<CompositeInstruction>());
+  }
+  auto qpu = xacc::getAccelerator(qpu_name);
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
       buffer, empty_delete<AcceleratorBuffer>());
   qpu->execute(buffer_as_shared, program_as_shared);

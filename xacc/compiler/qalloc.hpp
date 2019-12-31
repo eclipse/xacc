@@ -22,16 +22,19 @@ namespace internal_compiler {
 
 class qreg {
 protected:
-  AcceleratorBuffer* buffer;
+  AcceleratorBuffer *buffer;
+
 public:
-qreg(const int n);
-int operator[](const int &i);
-AcceleratorBuffer* results();
-std::map<std::string, int> counts();
+  qreg(const int n);
+  int operator[](const int &i);
+  AcceleratorBuffer *results();
+  std::map<std::string, int> counts();
+  double exp_val_z();
+  void reset();
 };
 
-}
-}
+} // namespace internal_compiler
+} // namespace xacc
 
 xacc::internal_compiler::qreg qalloc(const int n) {
   return xacc::internal_compiler::qreg(n);
