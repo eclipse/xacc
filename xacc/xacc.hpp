@@ -48,6 +48,7 @@ extern std::string rootPathString;
 
 extern std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database;
+extern std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers;
 
 // The qbit type is critical to qcor
 // We want it to be a shared_ptr, but we
