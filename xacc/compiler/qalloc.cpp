@@ -12,5 +12,6 @@ std::map<std::string, int> qreg::counts() {
 }
 double qreg::exp_val_z() { return buffer->getExpectationValueZ(); }
 void qreg::reset() { buffer->resetBuffer(); }
+void qreg::setName(const char * name) {buffer->setName(name);}
 } // namespace internal_compiler
 } // namespace xacc

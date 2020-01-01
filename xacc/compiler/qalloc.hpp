@@ -31,6 +31,7 @@ public:
   std::map<std::string, int> counts();
   double exp_val_z();
   void reset();
+  void setName(const char * name);
 };
 
 } // namespace internal_compiler
