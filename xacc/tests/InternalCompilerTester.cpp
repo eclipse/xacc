@@ -12,7 +12,6 @@
  *******************************************************************************/
 #include <gtest/gtest.h>
 
-#include "xacc.hpp"
 #include "xacc_internal_compiler.hpp"
 #include <qalloc>
 
@@ -21,10 +20,10 @@ using namespace xacc::internal_compiler;
 TEST(InternalCompilerTester, checkMultipleBuffers) {
 
   auto q = qalloc(2);
-  q.results()->setName("q");
+  q.setName("q");
 
   auto r = qalloc(2);
-  r.results()->setName("r");
+  r.setName("r");
 
   auto circuit = compile("xasm", R"(__qpu__ void bell_x_2(qreg q, qreg r) {
   // First bell state on qbits 0,1
@@ -44,8 +43,10 @@ TEST(InternalCompilerTester, checkMultipleBuffers) {
   // should see 0000, 0011, 1100, 1111
 })");
 
-  std::vector<xacc::AcceleratorBuffer*> bufs{q.results(),r.results()};
-  execute(bufs.data(), bufs.size(), circuit);
+  xacc::AcceleratorBuffer * bufs[2] = {q.results(), r.results()};
+
+//   std::vector<xacc::AcceleratorBuffer*> bufs{q.results(),r.results()};
+  execute(bufs, 2, circuit);
 auto counts = q.counts();
     for (const auto & kv: counts) {
         printf("%s: %i\n", kv.first.c_str(), kv.second);
@@ -58,9 +59,9 @@ auto counts = q.counts();
 
 
 int main(int argc, char **argv) {
-  xacc::Initialize();
+  compiler_InitializeXACC();
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
+//   xacc::Finalize();
   return ret;
 }
