@@ -81,14 +81,12 @@ public:
   class  XacckernelContext : public antlr4::ParserRuleContext {
   public:
     xasmParser::IdContext *kernelname = nullptr;;
-    xasmParser::IdContext *acceleratorbuffer = nullptr;;
     XacckernelContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MainprogContext *mainprog();
-    std::vector<IdContext *> id();
-    IdContext* id(size_t i);
     std::vector<TypedparamContext *> typedparam();
     TypedparamContext* typedparam(size_t i);
+    MainprogContext *mainprog();
+    IdContext *id();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

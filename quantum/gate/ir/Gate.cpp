@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "Gate.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -34,6 +35,19 @@ const std::string Gate::description() const {
   return "Gate model Instruction base clase.";
 }
 
+std::string Gate::getBufferName(const std::size_t bitIdx) {
+    if (!xacc::container::contains(bits(), bitIdx)) {
+        xacc::error("Invalid bit index for getBufferName: " + name() + ", " + std::to_string(bitIdx));
+    }
+    auto idx = std::distance(qbits.begin(), std::find(qbits.begin(), qbits.end(), bitIdx));
+      return buffer_names[idx];
+  }
+  void Gate::setBufferNames(const std::vector<std::string> bufferNamesPerIdx)  {
+      if (bufferNamesPerIdx.size() != this->nRequiredBits()) {
+          xacc::error("Invalid number of buffer names for this instruction");
+      }
+      buffer_names = bufferNamesPerIdx;
+  }
 const std::vector<std::size_t> Gate::bits() { return qbits; }
 
 void Gate::mapBits(std::vector<std::size_t> bitMap) {
@@ -56,7 +70,7 @@ const std::string Gate::toString() {
   }
 
   for (auto q : bits()) {
-    str += bufferVarName + std::to_string(q) + ",";
+    str += (buffer_names.empty() ? "q" : getBufferName(q)) + std::to_string(q) + ",";
   }
 
   // Remove trailing comma

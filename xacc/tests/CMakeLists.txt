@@ -17,3 +17,5 @@ add_xacc_test(Algorithm xacc)
 
 add_xacc_test(Heterogeneous xacc)
 target_compile_features(HeterogeneousTester PRIVATE cxx_std_14)
+
+add_xacc_test(InternalCompiler xacc)

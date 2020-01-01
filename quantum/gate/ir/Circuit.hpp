@@ -334,6 +334,13 @@ public:
     }
   }
 
+  std::string getBufferName(const std::size_t bitIdx) override {
+      return "";
+  }
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+      return;
+  }
+
   void setCoefficient(const std::complex<double> c) override {
     coefficient = c;
   }

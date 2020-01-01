@@ -41,8 +41,8 @@ const std::string rucc = R"rucc(__qpu__ void f(qbit q, double t0) {
 })rucc";
 
 TEST(VQETester, checkSimple) {
-  if (xacc::hasAccelerator("tnqvm")) {
-    auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("vqe-mode",true)});
+//   if (xacc::hasAccelerator("qpp")) {
+    auto acc = xacc::getAccelerator("qpp", {std::make_pair("vqe-mode",true)});
     auto buffer = xacc::qalloc(4);//->createBuffer("q", 4);
 
     auto compiler = xacc::getCompiler("xasm");
@@ -68,7 +68,7 @@ TEST(VQETester, checkSimple) {
     EXPECT_NEAR(-1.13717, mpark::get<double>(buffer->getInformation("opt-val")), 1e-4);
     EXPECT_NEAR(-1.13717,vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>())[0], 1e-4);
     // std::cout << "EVALED: " << vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>()) << "\n";
-  }
+//   }
 }
 
 int main(int argc, char **argv) {

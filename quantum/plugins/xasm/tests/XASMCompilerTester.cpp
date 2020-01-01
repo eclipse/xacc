@@ -43,6 +43,7 @@ TEST(XASMCompilerTester, checkSimple) {
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 
+  EXPECT_EQ("q", IR->getComposites()[0]->getInstruction(0)->getBufferName(0));
 
   IR = compiler -> compile(R"([&](qbit q, double t0) {
   H(q[0]);
@@ -54,6 +55,28 @@ TEST(XASMCompilerTester, checkSimple) {
 })");
   EXPECT_EQ(1, IR->getComposites().size());
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+
+}
+
+TEST(XASMCompilerTester, checkMultiRegister) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler -> compile(R"(__qpu__ void bell_multi(qbit q, qbit r, double t0) {
+  H(q[0]);
+  CX(q[0], q[1]);
+  H(r[0]);
+  CX(r[0], r[1]);
+  Measure(q[0]);
+  Measure(q[1]);
+  Measure(r[0]);
+  Measure(r[1]);
+})");
+  EXPECT_EQ(1, IR->getComposites().size());
+  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+
+  EXPECT_EQ("q", IR->getComposites()[0]->getInstruction(0)->getBufferName(0));
+  EXPECT_EQ("r", IR->getComposites()[0]->getInstruction(2)->getBufferName(0));
+
 
 }
 

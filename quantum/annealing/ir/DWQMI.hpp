@@ -77,6 +77,9 @@ public:
   void disable() override { enabled = false; }
   void enable() override { enabled = true; }
 
+  std::string getBufferName(const std::size_t bitIdx) override {return "";}
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {}
+
   std::shared_ptr<Instruction> clone() override {
       return std::make_shared<DWQMI>();
   }

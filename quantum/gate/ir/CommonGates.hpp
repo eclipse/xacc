@@ -209,7 +209,7 @@ public:
     str += " ";
 
     for (auto q : bits()) {
-      str += bufferVarName + std::to_string(q) + ",";
+      str += (buffer_names.empty() ? "q" : getBufferName(q)) + std::to_string(q) + ",";
     }
 
     // Remove trailing comma
