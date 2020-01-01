@@ -40,17 +40,17 @@ static double InstructionParameterToDouble(const xacc::InstructionParameter& in_
       if (isConversionOkay) {
         out_double = val;
       }
-      
+
       return isConversionOkay;
     };
-    
+
     const std::string paramString = in_parameter.toString();
     double paramDouble = 0.0;
-    if (isNumber(paramString, paramDouble)) {    
+    if (isNumber(paramString, paramDouble)) {
       return paramDouble;
     }
   }
-  
+
   // Cannot find a way to convert, returns 0.0
   return 0.0;
 }
@@ -86,6 +86,15 @@ public:
   virtual const std::vector<std::size_t> bits() = 0;
   virtual void setBits(const std::vector<std::size_t> bits) = 0;
   virtual void mapBits(std::vector<std::size_t> bitMap) = 0;
+
+  // Return the name of the AcceleratorBuffer that this
+  // Instruction operates on at the given bitIdx. E.g.
+  // CX(q[0], r[1]), this would return 'q' for bit 0 and 'r'
+  // for bit 1
+  // Additionally, set enables one to provide these buffer names
+  // input vector should be same size as bits()
+  virtual std::string getBufferName(const std::size_t bitIdx) = 0;
+  virtual void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) = 0;
 
   virtual const InstructionParameter getParameter(const std::size_t idx) const = 0;
   virtual std::vector<InstructionParameter> getParameters() = 0;

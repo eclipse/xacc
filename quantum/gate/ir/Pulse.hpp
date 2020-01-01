@@ -84,6 +84,12 @@ public:
   const bool isAnalog() const override { return true; }
   const int nRequiredBits() const override { return qbits.size(); }
 
+  std::string getBufferName(const std::size_t bitIdx) override {
+      return "";
+  }
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+      return;
+  }
   DEFINE_VISITABLE()
 
   std::shared_ptr<Instruction> clone() override {

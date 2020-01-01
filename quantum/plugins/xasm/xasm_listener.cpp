@@ -30,17 +30,19 @@ XASMListener::XASMListener() {
 }
 
 void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
-  bufferName = ctx->acceleratorbuffer->getText();
-  std::vector<std::string> variables;
+//   bufferName = ctx->acceleratorbuffer->getText();
+  std::vector<std::string> variables, validTypes {"double", "float", "std::vector<double>", "int"};
   // First argument should be the buffer
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    variables.push_back(ctx->typedparam(i)->id()->getText());
+    if (xacc::container::contains(validTypes, ctx->typedparam(i)->type()->getText())){
+       variables.push_back(ctx->typedparam(i)->id()->getText());
+    }
   }
   function = irProvider->createComposite(ctx->kernelname->getText(), variables);
 }
 
 void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
-  bufferName = ctx->acceleratorbuffer->getText();
+//   bufferName = ctx->acceleratorbuffer->getText();
   std::vector<std::string> variables;
   for (int i = 0; i < ctx->typedparam().size(); i++) {
     variables.push_back(ctx->typedparam(i)->id()->getText());
@@ -231,6 +233,7 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
 
     auto nRequiredBits = irProvider->getNRequiredBits(instructionName);
     std::vector<std::size_t> bits;
+    std::vector<std::string> bufferNames;
 
     for (int i = 0; i < nRequiredBits; i++) {
       if (ctx->bits_and_params->exp(i)->bufferIndex() != nullptr) {
@@ -241,6 +244,8 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
                                        ->exp()
                                        ->INT()
                                        ->getText()));
+          bufferNames.push_back(ctx->bits_and_params->exp(i)->bufferIndex()->id()->getText());
+        //   std::cout << "BUFFER NAME IS " << ctx->bits_and_params->exp(i)->bufferIndex()->id()->getText() << "\n";
         }
       }
     }
@@ -310,6 +315,7 @@ void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
     // This will search services, contributed services, and compiled
     // compositeinstructions and will call xacc::error if it does not find it.
     auto tmpInst = irProvider->createInstruction(instructionName, bits, params);
+    tmpInst->setBufferNames(bufferNames);
     if (tmpInst->isComposite()) {
       if (params.size() > 1) {
         runtimeOptions.get_mutable<std::string>("param_id") =

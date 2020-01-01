@@ -71,10 +71,10 @@ const std::string rucc = R"rucc(__qpu__ void f(qbit q, double t0) {
 
 TEST(RDMGeneratorTester, checkGround) {
 
-  if (xacc::hasAccelerator("tnqvm")) {
+//   if (xacc::hasAccelerator("tnqvm")) {
     // Get the user-specified Accelerator,
     // or TNQVM if none specified
-    auto accelerator = xacc::getAccelerator("tnqvm");
+    auto accelerator = xacc::getAccelerator("qpp");
     int nQubits = 4;
 
     xacc::quantum::FermionOperator op(src);
@@ -146,7 +146,7 @@ TEST(RDMGeneratorTester, checkGround) {
 
     // // auto energy = rhoGen.energy();
     EXPECT_NEAR(energy, -1.1371, 1e-4);
-  }
+//   }
 }
 
 int main(int argc, char **argv) {

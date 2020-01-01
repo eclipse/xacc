@@ -29,6 +29,7 @@ protected:
   std::vector<std::size_t> qbits;
   bool enabled = true;
   std::vector<InstructionParameter> parameters;
+  std::vector<std::string> buffer_names;
 
 public:
   Gate();
@@ -47,6 +48,8 @@ public:
 
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
+  std::string getBufferName(const std::size_t bitIdx) override;
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override;
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;
