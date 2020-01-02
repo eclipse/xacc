@@ -38,6 +38,7 @@ line
 /* A program statement */
 statement
    : instruction ';'
+   | composite_generator ';'
    | forstmt
    | 'return' ';'
    ;
@@ -49,21 +50,33 @@ comment
 
 forstmt
    :
-   'for' '(' ('int'|'auto') varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=statement+ '}'
+   'for' '(' ('int'|'auto') varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=program '}'
    ;
 
 instruction
-   : inst_name=id  '(' (bits_and_params=explist) (',' options=optionsMap)? ')'
+   : inst_name=id '(' buffer_list=bufferList (',' param_list=paramList)? ')'
    ;
 
+bufferList
+   : bufferIndex (',' bufferIndex)?
+   ;
+
+paramList
+   : parameter (',' parameter)*
+   ;
+
+parameter
+   : exp
+   ;
+
+composite_generator
+   : composite_name=id '(' buffer_name=id (',' composite_params=paramList)? (',' composite_options=optionsMap)? ')'
+   ;
 
 bufferIndex
-   : id ('[' exp ']')
-   ;
+   : buffer_name=id ('[' idx=INT ']')
+   | buffer_name=id ('[' var_idx=exp ']')
 
-bitsOrParamType
-   : bufferIndex (',' bufferIndex)*
-   | exp*
    ;
 
 optionsMap
@@ -94,7 +107,7 @@ exp
    | real
    | INT
    | 'pi'
-   | bufferIndex
+   | var_name=id '[' idx=INT ']'
    ;
 
 /* unary operations */

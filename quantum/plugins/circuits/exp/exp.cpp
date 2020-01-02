@@ -40,7 +40,7 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     pauli_or_fermion = "fermion";
   }
 
-  std::string paramLetter = "t";
+  std::string paramLetter = nVariables() == 0 ? "t" : getVariables()[0];
   if (parameters.stringExists("param_id")) {
     paramLetter = parameters.getString("param_id");
   }

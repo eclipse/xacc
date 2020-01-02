@@ -113,6 +113,11 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 include_directories(${CMAKE_BINARY_DIR}/tpls/cppmicroservices/include)
 add_subdirectory(tpls)
 
+IF(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "DEBUG")
+  message(STATUS "${BoldYellow}Adding _XACC_DEBUG compiler flag${ColorReset}")
+  add_compile_definitions(_XACC_DEBUG)
+ENDIF()
+
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 
@@ -126,7 +131,7 @@ if(Python_FOUND)
    if (PELIX_EXISTS EQUAL "1")
      # if not, check we have pip
      execute_process(COMMAND ${Python_EXECUTABLE} -c "import pip" RESULT_VARIABLE PIP_EXISTS)
-     if (PIP_EXISTS EQUAL "0") 
+     if (PIP_EXISTS EQUAL "0")
 	# we have pip, son just install ipopo
         message(STATUS "${BoldGreen}Installing Pelix OSGi framework.${ColorReset}")
         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ipopo)

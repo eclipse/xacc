@@ -79,6 +79,7 @@ public:
 
   std::string getBufferName(const std::size_t bitIdx) override {return "";}
   void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {}
+  std::vector<std::string> getBufferNames() override {return {};}
 
   std::shared_ptr<Instruction> clone() override {
       return std::make_shared<DWQMI>();

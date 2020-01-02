@@ -38,8 +38,11 @@ CompositeInstruction *getCompiled(const char *kernel_name) {
 void optimize(CompositeInstruction *program, const char *qpu_name,
               const OptLevel opt) {
   auto qpu = xacc::getAccelerator(qpu_name);
+
+  // We don't own this ptr, so create shared_ptr with empty deleter
   auto as_shared = std::shared_ptr<CompositeInstruction>(
       program, empty_delete<CompositeInstruction>());
+
   if (opt == DEFAULT) {
     auto optimizer = xacc::getIRTransformation("circuit-optimizer");
     optimizer->apply(as_shared, qpu);
@@ -61,6 +64,7 @@ void execute(AcceleratorBuffer *buffer, const char *qpu_name,
     std::vector<double> values(parameters, parameters + program->nVariables());
     program_as_shared = program->operator()(values);
   } else {
+    // We don't own this ptr, so create shared_ptr with empty deleter
     program_as_shared = std::shared_ptr<CompositeInstruction>(
         program, empty_delete<CompositeInstruction>());
   }
@@ -85,6 +89,7 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers, const char *qpu_na
   std::vector<AcceleratorBuffer *> bvec(
       buffers, buffers + nBuffers);
 
+  // We don't own this ptr, so create shared_ptr with empty deleter
   auto program_as_shared = std::shared_ptr<CompositeInstruction>(
       program, empty_delete<CompositeInstruction>());
 
