@@ -50,6 +50,7 @@ public:
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
   std::string getBufferName(const std::size_t bitIdx) override;
   void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override;
+  std::vector<std::string> getBufferNames() override {return buffer_names;}
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;

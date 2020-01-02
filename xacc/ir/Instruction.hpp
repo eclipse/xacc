@@ -94,6 +94,7 @@ public:
   // Additionally, set enables one to provide these buffer names
   // input vector should be same size as bits()
   virtual std::string getBufferName(const std::size_t bitIdx) = 0;
+  virtual std::vector<std::string> getBufferNames() = 0;
   virtual void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) = 0;
 
   virtual const InstructionParameter getParameter(const std::size_t idx) const = 0;

@@ -31,6 +31,16 @@ protected:
   bool inForLoop = false;
   std::vector<xasmParser::InstructionContext *> forInstructions;
 
+  std::vector<std::string> functionBufferNames;
+  std::string currentInstructionName;
+  std::vector<std::size_t> currentBits;
+  std::vector<std::string> currentBufferNames;
+  std::vector<InstructionParameter> currentParameters;
+//   std::map<Instruction*, std::string> instructionBitExpr
+
+  std::string currentCompositeName;
+  HeterogeneousMap currentOptions;
+
 public:
   HeterogeneousMap runtimeOptions;
 
@@ -40,9 +50,18 @@ public:
 
   void enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
   void enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
+
   void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
-  InstPtr enterForLoopInstruction(xasmParser::InstructionContext *ctx,
-                                  std::string &varname, const std::size_t idx);
+  void enterBufferList(xasmParser::BufferListContext * /*ctx*/) override;
+  void enterParamList(xasmParser::ParamListContext * /*ctx*/) override;
+  void exitInstruction(xasmParser::InstructionContext * /*ctx*/) override;
+
+  void enterComposite_generator(
+      xasmParser::Composite_generatorContext * /*ctx*/) override;
+  void enterOptionsType(xasmParser::OptionsTypeContext * /*ctx*/) override;
+  void exitComposite_generator(
+      xasmParser::Composite_generatorContext * /*ctx*/) override;
+
   void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
   void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
 };
