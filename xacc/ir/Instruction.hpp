@@ -87,6 +87,13 @@ public:
   virtual void setBits(const std::vector<std::size_t> bits) = 0;
   virtual void mapBits(std::vector<std::size_t> bitMap) = 0;
 
+  // For the case where the bit indices for this Instruction are
+  // some general expression, Clients should set the bit to -1 and provide
+  // the bit expression as a string. The example here would be
+  // H(q[i]) (bit_idx=0, expr=i), or C(q[i],q[i+1]) (bit_idx=0, expr=i and bit_idx=1,expr=i+1)
+  virtual void setBitExpression(const std::size_t bit_idx, const std::string expr) = 0;
+  virtual std::string getBitExpression(const std::size_t bit_idx) = 0;
+
   // Return the name of the AcceleratorBuffer that this
   // Instruction operates on at the given bitIdx. E.g.
   // CX(q[0], r[1]), this would return 'q' for bit 0 and 'r'

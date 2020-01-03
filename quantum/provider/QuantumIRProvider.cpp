@@ -62,7 +62,7 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
       xacc::error("Invalid instruction name - " + iName);
   }
 
-  if (!inst->isComposite()) {
+  if (!inst->isComposite() || inst->name() == "ifstmt") {
     inst->setBits(bits);
     int idx = 0;
     for (auto &a : parameters) {

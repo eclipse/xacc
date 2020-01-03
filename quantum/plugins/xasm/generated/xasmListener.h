@@ -49,6 +49,9 @@ public:
   virtual void enterForstmt(xasmParser::ForstmtContext *ctx) = 0;
   virtual void exitForstmt(xasmParser::ForstmtContext *ctx) = 0;
 
+  virtual void enterIfstmt(xasmParser::IfstmtContext *ctx) = 0;
+  virtual void exitIfstmt(xasmParser::IfstmtContext *ctx) = 0;
+
   virtual void enterInstruction(xasmParser::InstructionContext *ctx) = 0;
   virtual void exitInstruction(xasmParser::InstructionContext *ctx) = 0;
 

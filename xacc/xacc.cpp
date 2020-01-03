@@ -153,6 +153,29 @@ qbit qalloc() {
   return q;
 }
 
+void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
+    auto name = buffer->name();
+    if (allocated_buffers.count(name)) {
+        error("Invalid buffer name to store: " + name);
+    }
+    allocated_buffers.insert({name, buffer});
+}
+
+void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer) {
+    if (allocated_buffers.count(name)) {
+        error("Invalid buffer name to store: " + name);
+    }
+    buffer->setName(name);
+    allocated_buffers.insert({name, buffer});
+}
+
+std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
+    if (!allocated_buffers.count(name)) {
+        error("Invalid buffer name: " + name);
+    }
+    return allocated_buffers[name];
+}
+
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {
   xaccCLParser->addStringOption(optionName, optionDescription);

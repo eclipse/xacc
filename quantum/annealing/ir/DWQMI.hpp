@@ -55,7 +55,8 @@ public:
     ss << bits()[0] << " " << bits()[1] << " " << getParameter(0).toString();
     return ss.str();
   }
-
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
   const std::vector<std::size_t> bits() override { return qubits; }
 
   const InstructionParameter getParameter(const std::size_t idx) const override {

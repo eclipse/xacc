@@ -51,6 +51,9 @@ public:
   virtual void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override { }
   virtual void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override { }
 
+  virtual void enterIfstmt(xasmParser::IfstmtContext * /*ctx*/) override { }
+  virtual void exitIfstmt(xasmParser::IfstmtContext * /*ctx*/) override { }
+
   virtual void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override { }
   virtual void exitInstruction(xasmParser::InstructionContext * /*ctx*/) override { }
 

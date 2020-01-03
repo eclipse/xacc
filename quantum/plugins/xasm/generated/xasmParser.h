@@ -18,17 +18,17 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, COMMENT = 38, 
-    ID = 39, REAL = 40, INT = 41, STRING = 42, WS = 43, EOL = 44
+    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
+    COMMENT = 39, ID = 40, REAL = 41, INT = 42, STRING = 43, WS = 44, EOL = 45
   };
 
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleXacclambda = 2, RuleTypedparam = 3, 
     RuleType = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, RuleStatement = 8, 
-    RuleComment = 9, RuleForstmt = 10, RuleInstruction = 11, RuleBufferList = 12, 
-    RuleParamList = 13, RuleParameter = 14, RuleComposite_generator = 15, 
-    RuleBufferIndex = 16, RuleOptionsMap = 17, RuleOptionsType = 18, RuleExplist = 19, 
-    RuleExp = 20, RuleUnaryop = 21, RuleId = 22, RuleReal = 23, RuleString = 24
+    RuleComment = 9, RuleForstmt = 10, RuleIfstmt = 11, RuleInstruction = 12, 
+    RuleBufferList = 13, RuleParamList = 14, RuleParameter = 15, RuleComposite_generator = 16, 
+    RuleBufferIndex = 17, RuleOptionsMap = 18, RuleOptionsType = 19, RuleExplist = 20, 
+    RuleExp = 21, RuleUnaryop = 22, RuleId = 23, RuleReal = 24, RuleString = 25
   };
 
   xasmParser(antlr4::TokenStream *input);
@@ -52,6 +52,7 @@ public:
   class StatementContext;
   class CommentContext;
   class ForstmtContext;
+  class IfstmtContext;
   class InstructionContext;
   class BufferListContext;
   class ParamListContext;
@@ -190,6 +191,7 @@ public:
     InstructionContext *instruction();
     Composite_generatorContext *composite_generator();
     ForstmtContext *forstmt();
+    IfstmtContext *ifstmt();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -233,6 +235,23 @@ public:
   };
 
   ForstmtContext* forstmt();
+
+  class  IfstmtContext : public antlr4::ParserRuleContext {
+  public:
+    xasmParser::IdContext *buffer_name = nullptr;;
+    antlr4::Token *idx = nullptr;;
+    IfstmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ProgramContext *program();
+    IdContext *id();
+    antlr4::tree::TerminalNode *INT();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  IfstmtContext* ifstmt();
 
   class  InstructionContext : public antlr4::ParserRuleContext {
   public:
@@ -316,12 +335,10 @@ public:
   class  BufferIndexContext : public antlr4::ParserRuleContext {
   public:
     xasmParser::IdContext *buffer_name = nullptr;;
-    antlr4::Token *idx = nullptr;;
-    xasmParser::ExpContext *var_idx = nullptr;;
+    xasmParser::ExpContext *idx = nullptr;;
     BufferIndexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
-    antlr4::tree::TerminalNode *INT();
     ExpContext *exp();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
