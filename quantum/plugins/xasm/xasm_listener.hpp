@@ -16,6 +16,7 @@
 #include "IR.hpp"
 #include "IRProvider.hpp"
 #include "xasmBaseListener.h"
+#include "expression_parsing_util.hpp"
 
 using namespace xasm;
 
@@ -25,21 +26,30 @@ class XASMListener : public xasmBaseListener {
 protected:
   std::shared_ptr<IRProvider> irProvider;
   std::shared_ptr<CompositeInstruction> function;
+  std::shared_ptr<CompositeInstruction> for_function;
+  std::shared_ptr<CompositeInstruction> if_stmt;
   std::string bufferName = "";
-  bool hasVecDouble = false;
-  std::string param_id = "t";
   bool inForLoop = false;
-  std::vector<xasmParser::InstructionContext *> forInstructions;
+  bool inIfStmt = false;
 
   std::vector<std::string> functionBufferNames;
   std::string currentInstructionName;
   std::vector<std::size_t> currentBits;
   std::vector<std::string> currentBufferNames;
   std::vector<InstructionParameter> currentParameters;
-//   std::map<Instruction*, std::string> instructionBitExpr
+  std::map<int, std::string> currentBitIdxExpressions;
 
   std::string currentCompositeName;
   HeterogeneousMap currentOptions;
+
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
+
+  std::vector<std::size_t> for_stmt_update_bits(Instruction *inst,
+                                                const std::string varName,
+                                                const int value);
+  std::vector<InstructionParameter>
+  for_stmt_update_params(Instruction *inst, const std::string varName,
+                         const int value);
 
 public:
   HeterogeneousMap runtimeOptions;
@@ -64,6 +74,9 @@ public:
 
   void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
   void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
+
+  void enterIfstmt(xasmParser::IfstmtContext * /*ctx*/) override;
+  void exitIfstmt(xasmParser::IfstmtContext * /*ctx*/) override;
 };
 
 } // namespace xacc

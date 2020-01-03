@@ -24,6 +24,11 @@ target_link_libraries(PulseTester PRIVATE xacc ${GTEST_LIBRARIES})
 add_test(NAME xacc_PulseTester COMMAND PulseTester)
 target_compile_features(PulseTester PRIVATE cxx_std_14)
 
+add_executable(IfStmtTester IfStmtTester.cpp)
+target_include_directories(IfStmtTester PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(IfStmtTester PRIVATE xacc ${GTEST_LIBRARIES})
+add_test(NAME xacc_IfStmtTester COMMAND PulseTester)
+target_compile_features(IfStmtTester PRIVATE cxx_std_14)
 
 add_executable(PulseSchedulerTester PulseSchedulerTester.cpp)
 target_include_directories(PulseSchedulerTester PRIVATE ${GTEST_INCLUDE_DIRS})

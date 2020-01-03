@@ -61,9 +61,11 @@ bool CheckEqualVisitor::operator()(const std::map<int, int> &i) const {
                     mpark::get<std::map<int, int>>(extraInfo).begin());
 }
 
-bool CheckEqualVisitor::operator()(const std::map<std::string, double> &i) const {
-  return std::equal(i.begin(), i.end(),
-                    mpark::get<std::map<std::string, double>>(extraInfo).begin());
+bool CheckEqualVisitor::operator()(
+    const std::map<std::string, double> &i) const {
+  return std::equal(
+      i.begin(), i.end(),
+      mpark::get<std::map<std::string, double>>(extraInfo).begin());
 }
 
 bool CheckEqualVisitor::operator()(
@@ -134,7 +136,8 @@ void ToJsonVisitor<T>::operator()(const std::map<int, int> &i) const {
 }
 
 template <class T>
-void ToJsonVisitor<T>::operator()(const std::map<std::string, double> &i) const {
+void ToJsonVisitor<T>::operator()(
+    const std::map<std::string, double> &i) const {
   writer.StartObject();
   for (auto &kv : i) {
     writer.Key(kv.first);
@@ -317,6 +320,7 @@ void AcceleratorBuffer::resetBuffer() {
   bitStringToCounts.clear();
   children.clear();
   info.clear();
+  single_measurements.clear();
 }
 
 void AcceleratorBuffer::appendMeasurement(const std::string &measurement) {
@@ -329,6 +333,14 @@ void AcceleratorBuffer::appendMeasurement(const std::string measurement,
   bitStringToCounts[measurement] = count;
 
   return;
+}
+
+bool AcceleratorBuffer::operator[](const std::size_t &i) {
+  if (!single_measurements.count(i)) {
+    xacc::error("This bit (" + std::to_string(i) +
+                ") has not been measured yet.");
+  }
+  return single_measurements[i];
 }
 
 double
@@ -582,7 +594,7 @@ void AcceleratorBuffer::load(std::istream &stream) {
             auto val = itr2->value.GetInt();
             map2.insert({key, val});
           } else if (itr2->value.IsDouble()) {
-              map3.insert({itr2->name.GetString(), itr2->value.GetDouble()});
+            map3.insert({itr2->name.GetString(), itr2->value.GetDouble()});
           } else {
             break;
           }
@@ -593,8 +605,8 @@ void AcceleratorBuffer::load(std::istream &stream) {
         if (!map2.empty()) {
           addExtraInfo(itr->name.GetString(), ExtraInfo(map2));
         }
-        if(!map3.empty()) {
-            addExtraInfo(itr->name.GetString(), ExtraInfo(map3));
+        if (!map3.empty()) {
+          addExtraInfo(itr->name.GetString(), ExtraInfo(map3));
         }
       }
     }
@@ -609,72 +621,72 @@ void AcceleratorBuffer::load(std::istream &stream) {
     }
   }
 
-  //if (!cacheFile) {
-    //auto &bitMap = doc["AcceleratorBuffer"]["Bitmap"];
-    //std::map<int, int> tmpMap;
-    //for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr) {
-    //  tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
-    //}
-    //setBitIndexMap(tmpMap);
- // }
+  // if (!cacheFile) {
+  // auto &bitMap = doc["AcceleratorBuffer"]["Bitmap"];
+  // std::map<int, int> tmpMap;
+  // for (auto itr = bitMap.MemberBegin(); itr != bitMap.MemberEnd(); ++itr) {
+  //  tmpMap.insert({std::stoi(itr->name.GetString()), itr->value.GetInt()});
+  //}
+  // setBitIndexMap(tmpMap);
+  // }
 
   if (!cacheFile && doc["AcceleratorBuffer"].HasMember("Children")) {
-  auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
-  for (auto &c : children) {
-    auto childBuffer =
-        std::make_shared<AcceleratorBuffer>(c["name"].GetString(), nBits);
-    auto &info = c["Information"];
-    for (auto itr = info.MemberBegin(); itr != info.MemberEnd(); ++itr) {
-      auto &value = info[itr->name.GetString()];
-      std::stringstream sss;
-      sss << itr->name.GetString();
-      if (value.IsInt()) {
-        childBuffer->addExtraInfo(itr->name.GetString(),
-                                  ExtraInfo(value.GetInt()));
-      } else if (value.IsDouble()) {
-        childBuffer->addExtraInfo(itr->name.GetString(),
-                                  ExtraInfo(value.GetDouble()));
-      } else if (value.IsString()) {
-        childBuffer->addExtraInfo(itr->name.GetString(),
-                                  ExtraInfo(value.GetString()));
-      } else if (value.IsArray() && !value.GetArray().Empty()) {
-        auto arr = value.GetArray();
-        auto &firstVal = arr[0];
-        if (firstVal.IsInt()) {
-          std::vector<int> childValues;
-          for (int i = 0; i < arr.Size(); i++)
-            childValues.push_back(arr[i].GetInt());
+    auto children = doc["AcceleratorBuffer"]["Children"].GetArray();
+    for (auto &c : children) {
+      auto childBuffer =
+          std::make_shared<AcceleratorBuffer>(c["name"].GetString(), nBits);
+      auto &info = c["Information"];
+      for (auto itr = info.MemberBegin(); itr != info.MemberEnd(); ++itr) {
+        auto &value = info[itr->name.GetString()];
+        std::stringstream sss;
+        sss << itr->name.GetString();
+        if (value.IsInt()) {
           childBuffer->addExtraInfo(itr->name.GetString(),
-                                    ExtraInfo(childValues));
-        } else if (firstVal.IsDouble()) {
-          std::vector<double> childValues;
-          for (int i = 0; i < arr.Size(); i++)
-            childValues.push_back(arr[i].GetDouble());
+                                    ExtraInfo(value.GetInt()));
+        } else if (value.IsDouble()) {
           childBuffer->addExtraInfo(itr->name.GetString(),
-                                    ExtraInfo(childValues));
-        } else if (firstVal.IsString()) {
-          std::vector<std::string> childValues;
-          for (int i = 0; i < arr.Size(); i++)
-            childValues.push_back(arr[i].GetString());
+                                    ExtraInfo(value.GetDouble()));
+        } else if (value.IsString()) {
           childBuffer->addExtraInfo(itr->name.GetString(),
-                                    ExtraInfo(childValues));
-        } else {
-          //   xacc::info("HELLO EXTRA: " +
-          //  std::string(itr->name.GetString())); // << "\n";
+                                    ExtraInfo(value.GetString()));
+        } else if (value.IsArray() && !value.GetArray().Empty()) {
+          auto arr = value.GetArray();
+          auto &firstVal = arr[0];
+          if (firstVal.IsInt()) {
+            std::vector<int> childValues;
+            for (int i = 0; i < arr.Size(); i++)
+              childValues.push_back(arr[i].GetInt());
+            childBuffer->addExtraInfo(itr->name.GetString(),
+                                      ExtraInfo(childValues));
+          } else if (firstVal.IsDouble()) {
+            std::vector<double> childValues;
+            for (int i = 0; i < arr.Size(); i++)
+              childValues.push_back(arr[i].GetDouble());
+            childBuffer->addExtraInfo(itr->name.GetString(),
+                                      ExtraInfo(childValues));
+          } else if (firstVal.IsString()) {
+            std::vector<std::string> childValues;
+            for (int i = 0; i < arr.Size(); i++)
+              childValues.push_back(arr[i].GetString());
+            childBuffer->addExtraInfo(itr->name.GetString(),
+                                      ExtraInfo(childValues));
+          } else {
+            //   xacc::info("HELLO EXTRA: " +
+            //  std::string(itr->name.GetString())); // << "\n";
+          }
+          // FIXME Handle Map<int, [int*]>
         }
-        // FIXME Handle Map<int, [int*]>
       }
-    }
 
-    auto &measures = c["Measurements"];
-    for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd();
-         ++itr) {
-      childBuffer->appendMeasurement(itr->name.GetString(),
-                                     itr->value.GetInt());
-    }
+      auto &measures = c["Measurements"];
+      for (auto itr = measures.MemberBegin(); itr != measures.MemberEnd();
+           ++itr) {
+        childBuffer->appendMeasurement(itr->name.GetString(),
+                                       itr->value.GetInt());
+      }
 
-    appendChild(c["name"].GetString(), childBuffer);
-  }
+      appendChild(c["name"].GetString(), childBuffer);
+    }
   }
 }
 

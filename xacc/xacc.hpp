@@ -119,7 +119,9 @@ void unsetOption(const std::string &optionKey);
 
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
 
-// std::shared_ptr<IRGenerator> getIRGenerator(const std::string &name);
+void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer);
+void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer);
+std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name);
 
 void setAccelerator(const std::string &acceleratorName);
 std::shared_ptr<Accelerator> getAccelerator(const std::string &name,

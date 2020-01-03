@@ -29,6 +29,7 @@ namespace xacc {
 
 XASMListener::XASMListener() {
   irProvider = xacc::getService<IRProvider>("quantum");
+  parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
 }
 
 void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
@@ -57,8 +58,55 @@ void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
 
 void XASMListener::enterForstmt(xasmParser::ForstmtContext *ctx) {
   inForLoop = true;
+  for_function =
+      irProvider->createComposite("tmp_for", function->getVariables());
+}
+std::vector<std::size_t>
+XASMListener::for_stmt_update_bits(Instruction *inst, const std::string varName,
+                                   const int i) {
+  std::vector<std::size_t> new_bits;
+  int counter = 0;
+  for (auto &b : inst->bits()) {
+    if (b == -1) {
+      auto bitExpr = inst->getBitExpression(counter);
+      double value;
+      if (parsingUtil->evaluate(bitExpr, {varName}, {(double)i}, value)) {
+        new_bits.push_back((int)value);
+      } else {
+        xacc::error(
+            inst->name() +
+            ", Could not parse or evaluate bit idx expression: " + bitExpr);
+      }
+    } else {
+      new_bits.push_back(b);
+    }
+    counter++;
+  }
+  return new_bits;
 }
 
+std::vector<InstructionParameter>
+XASMListener::for_stmt_update_params(Instruction *inst,
+                                     const std::string varName, const int i) {
+  std::vector<InstructionParameter> new_params;
+  for (auto &p : inst->getParameters()) {
+    if (p.toString().find(varName) != std::string::npos) {
+
+      auto newstr = std::regex_replace(p.toString(), std::regex(varName),
+                                       std::to_string(i));
+
+      if (xacc::container::contains(function->getVariables(), p.toString())) {
+        function->replaceVariable(p.toString(), newstr);
+      } else {
+        function->addVariable(newstr);
+      }
+      new_params.push_back(newstr);
+    } else {
+      new_params.push_back(p);
+    }
+  }
+  return new_params;
+}
 void XASMListener::exitForstmt(xasmParser::ForstmtContext *ctx) {
   auto start = std::stoi(ctx->start->getText());
   auto end = std::stoi(ctx->end->getText());
@@ -66,54 +114,24 @@ void XASMListener::exitForstmt(xasmParser::ForstmtContext *ctx) {
   auto comp = ctx->comparator->getText();
   auto inc_or_dec = ctx->inc_or_dec->getText();
 
-  auto newF = irProvider->createComposite(function->name()+"_tmp");//function->enabledView();
-
+  std::vector<InstPtr> instructions;
   if (comp == "<") {
 
     for (std::size_t i = start; i < end;) {
-      InstructionIterator iter(function);
+      InstructionIterator iter(for_function);
       while (iter.hasNext()) {
         auto next = iter.next();
         if (next->isComposite()) {
           continue;
         }
-        std::vector<std::size_t> new_bits;
-        for (auto &b : next->bits()) {
-          if (b == -1) {
-            new_bits.push_back(i);
-          } else {
-            new_bits.push_back(b);
-          }
-        }
 
-        std::vector<InstructionParameter> new_params;
-        for (auto &p : next->getParameters()) {
-          std::cout << "PSTR: " << p.toString() << "\n";
-          if (p.toString().find(varName) != std::string::npos) {
-
-            auto newstr = std::regex_replace(p.toString(), std::regex(varName),
-                                             std::to_string(i));
-
-            // replace p.toString() var in function
-            if (xacc::container::contains(function->getVariables(),
-                                          p.toString())) {
-              function->replaceVariable(p.toString(), newstr);
-            } else {
-              function->addVariable(newstr);
-            }
-
-             newF->addVariable(newstr);
-            new_params.push_back(newstr);
-          } else {
-            new_params.push_back(p);
-          }
-        }
+        auto new_bits = for_stmt_update_bits(next.get(), varName, i);
+        auto new_params = for_stmt_update_params(next.get(), varName, i);
 
         auto copy =
             irProvider->createInstruction(next->name(), new_bits, new_params);
         copy->setBufferNames(next->getBufferNames());
-
-        newF->addInstruction(copy);
+        instructions.push_back(copy);
       }
 
       if (inc_or_dec == "++") {
@@ -124,37 +142,19 @@ void XASMListener::exitForstmt(xasmParser::ForstmtContext *ctx) {
     }
   } else {
     for (std::size_t i = start; i > end;) {
-      InstructionIterator iter(function);
+      InstructionIterator iter(for_function);
       while (iter.hasNext()) {
         auto next = iter.next();
         if (next->isComposite()) {
           continue;
         }
-        std::vector<std::size_t> new_bits;
-        for (auto &b : next->bits()) {
-          if (b == -1) {
-            new_bits.push_back(i);
-          } else {
-            new_bits.push_back(b);
-          }
-        }
-
-        std::vector<InstructionParameter> new_params;
-        for (auto &p : next->getParameters()) {
-          if (p.toString().find(varName) != std::string::npos) {
-            auto newstr = std::regex_replace(p.toString(), std::regex(varName),
-                                             std::to_string(i));
-            new_params.push_back(newstr);
-          } else {
-            new_params.push_back(p);
-          }
-        }
+        auto new_bits = for_stmt_update_bits(next.get(), varName, i);
+        auto new_params = for_stmt_update_params(next.get(), varName, i);
 
         auto copy =
             irProvider->createInstruction(next->name(), new_bits, new_params);
         copy->setBufferNames(next->getBufferNames());
-
-        newF->addInstruction(copy);
+        instructions.push_back(copy);
       }
 
       if (inc_or_dec == "++") {
@@ -165,8 +165,24 @@ void XASMListener::exitForstmt(xasmParser::ForstmtContext *ctx) {
     }
   }
   inForLoop = false;
-  function->clear();
-  function->addInstructions(newF->getInstructions());
+  //   function->clear();
+  function->addInstructions(instructions);
+  currentBitIdxExpressions.clear();
+}
+
+void XASMListener::enterIfstmt(xasmParser::IfstmtContext *ctx) {
+  inIfStmt = true;
+  auto buffer_name = ctx->id()->getText();
+  std::size_t idx = std::stoi(ctx->idx->getText());
+  std::cout << "IDX:  " << idx << "\n";
+  if_stmt = xacc::ir::asComposite(irProvider->createInstruction(
+      "ifstmt", std::vector<std::size_t>{idx}, {buffer_name}));
+}
+
+void XASMListener::exitIfstmt(xasmParser::IfstmtContext *ctx) {
+  function->addInstruction(if_stmt);
+  inIfStmt = false;
+  //   if_stmt->clear();
 }
 
 void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
@@ -186,45 +202,44 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
     if (!functionBufferNames.empty() &&
         !xacc::container::contains(functionBufferNames, name)) {
       xacc::debug("[XasmCompiler] Found parameter in buffer list. " + name);
-      for (auto &s : functionBufferNames)
-        xacc::debug("\t" + s);
 
-      std::string newVar;
-      if (ctx->bufferIndex(i)->idx != nullptr) {
-        newVar = name + ctx->bufferIndex(i)->idx->getText();
-      } else {
-        newVar = name + ctx->bufferIndex(i)->var_idx->getText();
-      }
+      // FIXME HANDLE things like x[i] or x[i+1]
+      auto newVar = name + ctx->bufferIndex(i)->idx->getText();
 
       // If x is in existingVars (like std::vector<double> x) then
       // replace it with newVar
       if (xacc::container::contains(function->getVariables(), name)) {
         function->replaceVariable(name, newVar);
+        if (inForLoop)
+          for_function->replaceVariable(name, newVar);
+        if (inIfStmt)
+          if_stmt->replaceVariable(name, newVar);
       } else {
         function->addVariable(newVar);
+        if (inForLoop)
+          for_function->addVariable(newVar);
+        if (inIfStmt)
+          if_stmt->addVariable(newVar);
       }
       currentParameters.push_back(newVar);
       return;
     }
 
     currentBufferNames.push_back(name);
-    if (ctx->bufferIndex(i)->idx != nullptr) {
+    if (ctx->bufferIndex(i)->idx->INT() != nullptr) {
       auto bit_idx_str = ctx->bufferIndex(i)->idx->getText();
       std::size_t bit = std::stoi(bit_idx_str);
       currentBits.push_back(bit);
     } else {
       // this was a variable bit for a forstmt, add a -1
       currentBits.push_back(-1);
-      // currentInstructionHasVariableIdx = true;
+      // Map bit idx to the expression
+      currentBitIdxExpressions.insert({i, ctx->bufferIndex(i)->idx->getText()});
     }
-    // xacc::debug("[XasmCompiler] Adding bit " +
-    //             ctx->bufferIndex(i)->idx->getText() + " with buffer name " +
-    //             name);
   }
 }
 
 void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
-  auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
   for (int i = 0; i < ctx->parameter().size(); i++) {
     auto param = ctx->parameter(i)->exp();
     if (param->var_name != nullptr) {
@@ -263,8 +278,21 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
 void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   auto inst = irProvider->createInstruction(currentInstructionName, currentBits,
                                             currentParameters);
+  if (!currentBitIdxExpressions.empty()) {
+    for (auto &kv : currentBitIdxExpressions) {
+      inst->setBitExpression(kv.first, kv.second);
+    }
+  }
+
   inst->setBufferNames(currentBufferNames);
-  function->addInstruction(inst);
+
+  if (inForLoop) {
+    for_function->addInstruction(inst);
+  } else if (inIfStmt) {
+    if_stmt->addInstruction(inst);
+  } else {
+    function->addInstruction(inst);
+  }
 
   // clear all current data
   currentInstructionName = "";
@@ -281,7 +309,6 @@ void XASMListener::enterComposite_generator(
 }
 
 void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
-  auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
 
   if (ctx->key != nullptr) {
     auto key = ctx->key->getText();

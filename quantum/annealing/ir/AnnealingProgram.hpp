@@ -88,7 +88,8 @@ public:
   void removeDisabled() override {
   }
 
-
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
   const int nRequiredBits() const override {
     return 0;
   }

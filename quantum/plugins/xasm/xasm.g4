@@ -40,6 +40,7 @@ statement
    : instruction ';'
    | composite_generator ';'
    | forstmt
+   | ifstmt
    | 'return' ';'
    ;
 
@@ -50,7 +51,16 @@ comment
 
 forstmt
    :
-   'for' '(' ('int'|'auto') varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=program '}'
+   'for' '('
+        ('int'|'auto') varname=id '=' start=INT ';'
+        id comparator=('<' | '>') end=INT ';'
+        id inc_or_dec=('++'|'--')  ')'
+        '{' forScope=program '}'
+   ;
+
+ifstmt
+   :
+   'if' '(' buffer_name=id '[' idx=INT ']' ')' '{' program '}'
    ;
 
 instruction
@@ -70,13 +80,13 @@ parameter
    ;
 
 composite_generator
-   : composite_name=id '(' buffer_name=id (',' composite_params=paramList)? (',' composite_options=optionsMap)? ')'
+   : composite_name=id '(' buffer_name=id
+                        (',' composite_params=paramList)?
+                        (',' composite_options=optionsMap)? ')'
    ;
 
 bufferIndex
-   : buffer_name=id ('[' idx=INT ']')
-   | buffer_name=id ('[' var_idx=exp ']')
-
+   : buffer_name=id ('[' idx=exp ']')
    ;
 
 optionsMap

@@ -341,6 +341,8 @@ public:
   void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
       return;
   }
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
 
   void setCoefficient(const std::complex<double> c) override {
     coefficient = c;

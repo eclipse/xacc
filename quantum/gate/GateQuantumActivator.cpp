@@ -60,9 +60,11 @@ public:
     auto crz= std::make_shared<xacc::quantum::CRZ>();
     auto ch = std::make_shared<xacc::quantum::CH>();
 
+    auto ifstmt = std::make_shared<xacc::quantum::IfStmt>();
+
     auto scheduler = std::make_shared<xacc::quantum::PulseScheduler>();
     context.RegisterService<xacc::Scheduler>(scheduler);
-    
+
     context.RegisterService<xacc::Instruction>(h);
     context.RegisterService<xacc::Instruction>(cn);
     context.RegisterService<xacc::Instruction>(cp);
@@ -77,6 +79,7 @@ public:
     context.RegisterService<xacc::Instruction>(z);
     context.RegisterService<xacc::Instruction>(sw);
     context.RegisterService<xacc::Instruction>(u);
+    context.RegisterService<xacc::Instruction>(ifstmt);
 
     context.RegisterService<xacc::Instruction>(s);
     context.RegisterService<xacc::Instruction>(sdg);

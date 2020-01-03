@@ -63,6 +63,8 @@ public:
 
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
+  void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+  std::string getBitExpression(const std::size_t bit_idx) override {return "";}
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;
