@@ -59,7 +59,7 @@ auto counts = q.counts();
 
 
 int main(int argc, char **argv) {
-  compiler_InitializeXACC();
+  compiler_InitializeXACC("local-ibm");
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();
 //   xacc::Finalize();

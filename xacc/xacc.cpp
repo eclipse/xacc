@@ -115,7 +115,7 @@ void info(const std::string &msg, MessagePredicate predicate) {
 }
 
 void warning(const std::string &msg, MessagePredicate predicate) {
-  XACCLogger::instance()->warning(msg, predicate);
+  if (verbose) XACCLogger::instance()->warning(msg, predicate);
 }
 
 void debug(const std::string &msg, MessagePredicate predicate) {

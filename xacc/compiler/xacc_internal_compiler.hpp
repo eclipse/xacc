@@ -16,8 +16,10 @@
 namespace xacc {
 class CompositeInstruction;
 class AcceleratorBuffer;
+class Accelerator;
+
 namespace internal_compiler {
-extern const char *internal_qpu_name;
+extern Accelerator *qpu;
 
 template <typename T> struct empty_delete {
   empty_delete() {}
@@ -26,34 +28,29 @@ template <typename T> struct empty_delete {
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
-void compiler_InitializeXACC();
-
-void setAccelerator(const char *qpu_name);
+void compiler_InitializeXACC(const char *qpu_backend);
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
-CompositeInstruction *compile(const char *compiler_name, const char *kernel_src,
-                              const char *qpu_name);
+// CompositeInstruction *compile(const char *compiler_name, const char
+// *kernel_src,
+//                               const char *qpu_name);
 CompositeInstruction *compile(const char *compiler_name,
                               const char *kernel_src);
 
 CompositeInstruction *getCompiled(const char *kernel_name);
 
 // Run quantum compilation routines on IR
-void optimize(CompositeInstruction *program, const char *qpu_name,
-              const OptLevel opt = DEFAULT);
+// void optimize(CompositeInstruction *program, const char *qpu_name,
+//               const OptLevel opt = DEFAULT);
 void optimize(CompositeInstruction *program, const OptLevel opt = DEFAULT);
 
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
-void execute(AcceleratorBuffer *buffer, const char *qpu_name,
-             CompositeInstruction *program, double *parameters = nullptr);
-void execute(AcceleratorBuffer **buffers, const int nBuffers, const char *qpu_name,
-             CompositeInstruction *program, double *parameters = nullptr);
 void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
              double *parameters = nullptr);
-void execute(AcceleratorBuffer **buffers, const int nBuffers, CompositeInstruction *program,
-             double *parameters = nullptr);
+void execute(AcceleratorBuffer **buffers, const int nBuffers,
+             CompositeInstruction *program, double *parameters = nullptr);
 } // namespace internal_compiler
 } // namespace xacc
 
