@@ -48,10 +48,16 @@ void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
 }
 
 void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
-  //   bufferName = ctx->acceleratorbuffer->getText();
-  std::vector<std::string> variables;
+  std::vector<std::string> variables,
+      validTypes{"double", "float", "std::vector<double>", "int"};
+  // First argument should be the buffer
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    variables.push_back(ctx->typedparam(i)->id()->getText());
+    if (xacc::container::contains(validTypes,
+                                  ctx->typedparam(i)->type()->getText())) {
+      variables.push_back(ctx->typedparam(i)->id()->getText());
+    } else {
+      functionBufferNames.push_back(ctx->typedparam(i)->id()->getText());
+    }
   }
   function = irProvider->createComposite("tmp_lambda", variables);
 }
@@ -95,6 +101,18 @@ XASMListener::for_stmt_update_params(Instruction *inst,
       auto newstr = std::regex_replace(p.toString(), std::regex(varName),
                                        std::to_string(i));
 
+      // Here we have something like x[i+1+2], need to eval that expr
+      if (newstr.find("[") != std::string::npos) {
+          auto f = newstr.find_first_of("[");
+          auto e = newstr.find_first_of("]");
+          auto sub = newstr.substr(f+1, e-2 );
+          double d;
+          if (!parsingUtil->isConstant(sub,d)) {
+              xacc::error("[XasmCompiler] Error in parsing parameter index " + newstr);
+          }
+          newstr = newstr.substr(0,f) + "["+std::to_string((int)d) + "]";
+
+      }
       if (xacc::container::contains(function->getVariables(), p.toString())) {
         function->replaceVariable(p.toString(), newstr);
       } else {
@@ -174,7 +192,6 @@ void XASMListener::enterIfstmt(xasmParser::IfstmtContext *ctx) {
   inIfStmt = true;
   auto buffer_name = ctx->id()->getText();
   std::size_t idx = std::stoi(ctx->idx->getText());
-  std::cout << "IDX:  " << idx << "\n";
   if_stmt = xacc::ir::asComposite(irProvider->createInstruction(
       "ifstmt", std::vector<std::size_t>{idx}, {buffer_name}));
 }
@@ -205,6 +222,13 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
 
       // FIXME HANDLE things like x[i] or x[i+1]
       auto newVar = name + ctx->bufferIndex(i)->idx->getText();
+
+      // Check if we have a for-loop parameterized parameter
+      double ref;
+      if (inForLoop && !parsingUtil->isConstant(ctx->bufferIndex(i)->idx->getText(), ref)) {
+          newVar = name + "[" + ctx->bufferIndex(i)->idx->getText() + "]";
+
+      }
 
       // If x is in existingVars (like std::vector<double> x) then
       // replace it with newVar
@@ -346,6 +370,30 @@ void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
 
 void XASMListener::exitComposite_generator(
     xasmParser::Composite_generatorContext *ctx) {
+
+  // check if this composite is actually a digital gate on all qubits
+  // something like H(q) where q is the name of the buffer
+  auto available_insts = irProvider->getInstructions();
+  for (auto &i : available_insts) {
+    if (irProvider->getNRequiredBits(i) == 1 && currentCompositeName == i) {
+      // This is a digital gate that is to be applied to all qubits
+      std::string buffer_name = ctx->buffer_name->getText();
+      if (!xacc::hasBuffer(buffer_name)) {
+        xacc::error("Cannot compile " + currentCompositeName + " on buffer " +
+                    buffer_name + ". Could not find buffer to query size.");
+      }
+      auto buffer = xacc::getBuffer(buffer_name);
+
+      auto size = buffer->size();
+      for (std::size_t i = 0; i < size; i++) {
+        auto inst = irProvider->createInstruction(currentCompositeName,
+                                                  std::vector<std::size_t>{i});
+        function->addInstruction(inst);
+      }
+
+      return;
+    }
+  }
 
   auto tmp = irProvider->createInstruction(currentCompositeName, {});
   auto composite = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
