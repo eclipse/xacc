@@ -10,6 +10,14 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(base_api)
-add_subdirectory(qasm)
-add_subdirectory(qst-publication)
+add_executable(base_api base_api.cpp)
+target_link_libraries(base_api PRIVATE xacc)
+
+add_executable(kernel_compilation kernel_compilation.cpp)
+target_link_libraries(kernel_compilation PRIVATE xacc)
+
+add_executable(hybrid_deuteron hybrid_deuteron.cpp)
+target_link_libraries(hybrid_deuteron PRIVATE xacc xacc-quantum-gate)
+
+add_executable(hybrid_ddcl hybrid_ddcl.cpp)
+target_link_libraries(hybrid_ddcl PRIVATE xacc)
