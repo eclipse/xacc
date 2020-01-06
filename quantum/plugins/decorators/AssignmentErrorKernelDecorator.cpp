@@ -38,9 +38,14 @@ void AssignmentErrorKernelDecorator::initialize(
   }
   if (params.keyExists<std::vector<int>>("layout")){
     auto tmp = params.get<std::vector<int>>("layout");
-    for (auto& a : tmp) layout.push_back(a);
-
+    std::cout<<"Running on physical bits: ";
+    for (auto& a : tmp){
+      layout.push_back(a);
+      std::cout<<a <<" ";
+    }
+    std::cout<<std::endl;
     std::cout<<"layout recieved"<<std::endl;
+    
   }
 } // initialize
 
@@ -60,15 +65,15 @@ void AssignmentErrorKernelDecorator::execute(
   int i = 0;
   for (auto &x : buffer->getMeasurementCounts()) {
     shots += x.second;
-    std::cout<<"HELLO: " << x.first << ", " << x.second<<std::endl;
+    //std::cout<<"HELLO: " << x.first << ", " << x.second<<std::endl;
     init_state(i) = double(x.second);
     //std::cout<<init_state(i)<<std::endl;
     i++;
   }
-  std::cout << "BEFORE: " << init_state.transpose() << "\n";
+  //std::cout << "BEFORE: " << init_state.transpose() << "\n";
   init_state = (double)1/shots*init_state;
   //std::cout<<"num_shots = "<<shots<<std::endl;
-  std::cout<<"INIT STATE:\n"<<init_state<<std::endl;
+  //std::cout<<"INIT STATE:\n"<<init_state<<std::endl;
   if (gen_kernel) {
     if (decoratedAccelerator) {
       generateKernel(buffer);
@@ -82,11 +87,11 @@ void AssignmentErrorKernelDecorator::execute(
     }
   }
 
-  std::cout<<errorKernel<<std::endl;
+  std::cout<<"Error Kernel: \n"<<errorKernel<<std::endl;
 
   Eigen::VectorXd EM_state = errorKernel * init_state;
-  std::cout<<init_state<<std::endl;
-  std::cout<<EM_state<<std::endl;
+  // std::cout<<init_state<<std::endl;
+  // std::cout<<EM_state<<std::endl;
   // checking for negative values and performing a "clip and renorm"
   for (int i = 0; i < EM_state.size(); i++) {
     if (EM_state(i) < 0.0) {
@@ -106,9 +111,9 @@ void AssignmentErrorKernelDecorator::execute(
   for (auto &x : permutations) {
     origCounts[x] = (double)buffer->getMeasurementCounts()[x];
     int count = floor(shots * EM_state(i) + 0.5);
-    std::cout<<"EM_state = "<<EM_state(i)<<std::endl;
+    //std::cout<<"EM_state = "<<EM_state(i)<<std::endl;
     total += count;
-    std::cout<<"saving " << count <<" counts in slot: "<< x<<std::endl;
+    //std::cout<<"saving " << count <<" counts in slot: "<< x<<std::endl;
     buffer->appendMeasurement(x, count);
     i++;
   }
@@ -149,7 +154,7 @@ void AssignmentErrorKernelDecorator::execute(
     Eigen::VectorXd temp(size);
     int j = 0;
     for (auto &x : permutations) {
-      std::cout << b->computeMeasurementProbability(x) << std::endl;
+      //std::cout << b->computeMeasurementProbability(x) << std::endl;
       temp(j) =(double)b->computeMeasurementProbability(x);
       j++;
     }
@@ -160,7 +165,7 @@ void AssignmentErrorKernelDecorator::execute(
   std::vector<Eigen::VectorXd> EM_states;
   i = 0;
   for (auto &x : init_states) {
-    std::cout << x << std::endl << std::endl;
+    //std::cout << x << std::endl << std::endl;
     EM_states.push_back(errorKernel * x);
     i++;
   }
