@@ -71,23 +71,21 @@ protected:
     auto provider = xacc::getIRProvider("quantum");
     for (int i = 0; i < pow_bits; i++) {
       auto circuit = provider->createComposite(permutations[i]);
-      int j = 0;
+      int j = num_bits-1;
       for (char c : permutations[i]) {
         if (c == '1') {
           // std::cout<<"1 found at position: "<<j<<std::endl;
+          //std::cout<<"j = "<<j<<std::endl;
           auto x = provider->createInstruction("X", j);
           circuit->addInstruction(x);
         }
-        j++;
+        j = (j-1)%num_bits;
       }
       for(int i = 0; i < num_bits; i++){
         circuit->addInstruction(provider->createInstruction("Measure", i));
-        //std::cout<<"added instruction"<<std::endl;
       }
       if (!layout.empty()){
-        std::cout<<"running bits on physical bits: "<<layout[0]<<" and "<<layout[1]<<std::endl;
         circuit->mapBits(layout);
-        std::cout<<"we here or nah"<<std::endl;
       }
       //std::cout<<circuit->toString()<<std::endl;
       //decoratedAccelerator->execute(tmpBuffer, circuit);
@@ -102,7 +100,8 @@ protected:
     for (auto &x : buffers[0]->getMeasurementCounts()) {
       shots += x.second;
     }
-    std::cout<<"num_shots = " << shots <<std::endl;
+
+    //std::cout<<"num_shots = " << shots <<std::endl;
     // initializing vector of vector of counts to size 2^num_bits x 2^num_bits
     std::vector<std::vector<int>> counts(std::pow(2, num_bits),
                                          std::vector<int>(pow_bits));
@@ -120,9 +119,9 @@ protected:
       }
       row++;
     }
-    std::cout << "MATRIX:\n" << K << "\n";
+    //std::cout << "MATRIX:\n" << K << "\n";
     errorKernel = K.inverse();
-    std::cout << "INVERSE:\n" << errorKernel << "\n";
+    //std::cout << "INVERSE:\n" << errorKernel << "\n";
     std::vector<double> vec(errorKernel.data(), errorKernel.data() + errorKernel.rows()*errorKernel.cols());
     buffer->addExtraInfo("error-kernel", vec);
 
