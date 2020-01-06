@@ -147,12 +147,12 @@ TEST(XASMCompilerTester, checkHWEFor) {
 
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"([&](qbit q, std::vector<double> x) {
-    for (auto i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         Rx(q[i],x[i]);
         Rz(q[i],x[2+i]);
     }
     CX(q[1],q[0]);
-    for (auto i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         Rx(q[i], x[i+4]);
         Rz(q[i], x[i+4+2]);
         Rx(q[i], x[i+4+4]);
@@ -237,6 +237,24 @@ TEST(XASMCompilerTester, checkApplyAll) {
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 }
 
+TEST(XASMCompilerTester, checkGateOnAll) {
+
+  auto q = xacc::qalloc(4);
+  q->setName("qqq");
+  xacc::storeBuffer(q);
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR =
+      compiler->compile(R"(__qpu__ void on_all(qbit qqq) {
+  H(qqq);
+  Measure(qqq);
+})");
+
+ auto f = IR->getComposite("on_all");
+
+ std::cout << "F:\n" << f->toString() << "\n";
+
+}
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

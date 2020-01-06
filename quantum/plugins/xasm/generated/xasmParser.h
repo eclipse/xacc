@@ -101,13 +101,11 @@ public:
 
   class  XacclambdaContext : public antlr4::ParserRuleContext {
   public:
-    xasmParser::IdContext *acceleratorbuffer = nullptr;;
     XacclambdaContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MainprogContext *mainprog();
-    IdContext *id();
     std::vector<TypedparamContext *> typedparam();
     TypedparamContext* typedparam(size_t i);
+    MainprogContext *mainprog();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

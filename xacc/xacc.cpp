@@ -175,6 +175,7 @@ std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
     }
     return allocated_buffers[name];
 }
+bool hasBuffer(const std::string& name) {return allocated_buffers.count(name);}
 
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {
