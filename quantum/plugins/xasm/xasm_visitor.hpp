@@ -66,19 +66,19 @@ public:
 
   void visit(Rx &rx) {
     std::string qubit = std::to_string(rx.bits()[0]);
-    ss << "Rx(q[" << qubit << "], " << rx.getParameter(0).as<double>()
+    ss << "Rx(q[" << qubit << "], " << rx.getParameter(0).toString()
        << ");\n";
   }
 
   void visit(Ry &ry) {
     std::string qubit = std::to_string(ry.bits()[0]);
-    ss << "Ry(q[" << qubit << "], " << ry.getParameter(0).as<double>()
+    ss << "Ry(q[" << qubit << "], " << ry.getParameter(0).toString()
        << ");\n";
   }
 
   void visit(Rz &rz) {
     std::string qubit = std::to_string(rz.bits()[0]);
-    ss << "Rz(q[" << qubit << "], " << rz.getParameter(0).as<double>()
+    ss << "Rz(q[" << qubit << "], " << rz.getParameter(0).toString()
        << ");\n";
   }
 
