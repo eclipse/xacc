@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_staq_compiler",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Staq Compiler",
+  "bundle.description" : "This bundle provides a ..."
+}

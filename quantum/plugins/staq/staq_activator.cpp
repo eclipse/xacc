@@ -10,36 +10,38 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_QALLOC_HPP_
-#define XACC_QALLOC_HPP_
+#include "staq_compiler.hpp"
 
-#include <map>
-#include <string>
+#include "cppmicroservices/BundleActivator.h"
+#include "cppmicroservices/BundleContext.h"
+#include "cppmicroservices/ServiceProperties.h"
 
-namespace xacc {
-class AcceleratorBuffer;
-namespace internal_compiler {
+#include <memory>
+#include <set>
 
-class qreg {
-protected:
-  AcceleratorBuffer *buffer;
+using namespace cppmicroservices;
+
+namespace {
+
+/**
+ */
+class US_ABI_LOCAL StaqActivator : public BundleActivator {
 
 public:
-  qreg(const int n);
-  int operator[](const int &i);
-  AcceleratorBuffer *results();
-  std::map<std::string, int> counts();
-  double exp_val_z();
-  void reset();
-  void setName(const char *name);
-  void store();
+  StaqActivator() {}
+
+  /**
+   */
+  void Start(BundleContext context) {
+    auto c = std::make_shared<xacc::StaqCompiler>();
+    context.RegisterService<xacc::Compiler>(c);
+  }
+
+  /**
+   */
+  void Stop(BundleContext /*context*/) {}
 };
 
-} // namespace internal_compiler
-} // namespace xacc
+} // namespace
 
-xacc::internal_compiler::qreg qalloc(const int n) {
-  return xacc::internal_compiler::qreg(n);
-}
-
-#endif
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(StaqActivator)

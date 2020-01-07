@@ -14,6 +14,7 @@
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Utils.hpp"
 
 #include "Circuit.hpp"
 TEST(XASMCompilerTester, checkTranslate) {
@@ -255,6 +256,46 @@ TEST(XASMCompilerTester, checkGateOnAll) {
  std::cout << "F:\n" << f->toString() << "\n";
 
 }
+
+TEST(XASMCompilerTester, checkBugBug) {
+auto a = xacc::qalloc(4);
+  a->setName("a");
+  xacc::storeBuffer(a);
+
+  auto b = xacc::qalloc(4);
+  b->setName("b");
+  xacc::storeBuffer(b);
+
+  auto c = xacc::qalloc(4);
+  c->setName("c");
+  xacc::storeBuffer(c);
+
+auto anc = xacc::qalloc(4);
+  anc->setName("anc");
+  xacc::storeBuffer(anc);
+   auto compiler = xacc::getCompiler("xasm");
+  auto IR =
+      compiler->compile(R"(__qpu__ void bugbug(qbit a, qbit b, qbit c, qbit anc) {
+X(a[0]);
+X(a[1]);
+X(b[0]);
+X(b[2]);
+CX(a[0], c[0]);
+CX(b[0], c[0]);
+H(anc[0]);
+CX(b[0], anc[0]);
+Tdg(anc[0]);
+})");
+
+ std::cout << IR->getComposites()[0]->toString() << "\n";
+ std::cout << IR->getComposites()[0]->getInstruction(4)->toString() << "\n";
+  for (auto& b :IR->getComposites()[0]->getInstruction(4)->getBufferNames()) {std::cout << b << "\n";}
+
+}
+TEST(XASMCompilerTester, checkCallingPreviousKernel) {
+
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

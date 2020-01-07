@@ -262,9 +262,11 @@ public:
     auto str = gateName;
     str += " ";
 
+    int counter = 0;
     for (auto q : bits()) {
-      str += (buffer_names.empty() ? "q" : getBufferName(q)) +
+      str += (buffer_names.empty() ? "q" : getBufferName(counter)) +
              std::to_string(q) + ",";
+      counter++;
     }
 
     // Remove trailing comma

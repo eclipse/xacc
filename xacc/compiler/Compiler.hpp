@@ -40,6 +40,8 @@ public:
     return f;
   }
 
+  virtual std::vector<std::string> getKernelBufferNames(const std::string& src) {return {};}
+
   virtual OptionPairs getOptions() { return OptionPairs{}; }
   virtual bool
   handleOptions(const std::map<std::string, std::string> &arg_map) {

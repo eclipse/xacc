@@ -19,7 +19,8 @@ public:
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
     T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
-    COMMENT = 39, ID = 40, REAL = 41, INT = 42, STRING = 43, WS = 44, EOL = 45
+    T__38 = 39, T__39 = 40, COMMENT = 41, ID = 42, REAL = 43, INT = 44, 
+    STRING = 45, WS = 46, EOL = 47
   };
 
   xasmLexer(antlr4::CharStream *input);

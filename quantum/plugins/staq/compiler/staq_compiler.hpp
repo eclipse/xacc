@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2020 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -10,39 +10,31 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_XASMCOMPILER_HPP
-#define XACC_XASMCOMPILER_HPP
+#ifndef XACC_STAQCOMPILER_HPP
+#define XACC_STAQCOMPILER_HPP
 
 #include "Compiler.hpp"
 
 namespace xacc {
 
-
-class XASMCompiler : public xacc::Compiler {
+class StaqCompiler : public xacc::Compiler {
 public:
-  XASMCompiler();
+  StaqCompiler();
 
   std::shared_ptr<xacc::IR> compile(const std::string &src,
-                                            std::shared_ptr<Accelerator> acc) override;
+                                    std::shared_ptr<Accelerator> acc) override;
 
   std::shared_ptr<xacc::IR> compile(const std::string &src) override;
 
-  const std::string translate(std::shared_ptr<CompositeInstruction> function) override;
-  std::vector<std::string> getKernelBufferNames(const std::string& src) override;
+  const std::string
+  translate(std::shared_ptr<CompositeInstruction> function) override;
 
+  const std::string name() const override { return "staq"; }
 
-  const std::string name() const override { return "xasm"; }
+  const std::string description() const override { return ""; }
 
-  const std::string description() const override {
-    return "The XASM Compiler compiles kernels written in the XACC assembly language.";
-  }
-
-  /**
-   * The destructor
-   */
-  virtual ~XASMCompiler() {}
+  virtual ~StaqCompiler() {}
 };
-
 
 } // namespace xacc
 #endif

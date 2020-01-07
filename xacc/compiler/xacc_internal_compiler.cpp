@@ -99,6 +99,8 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
     buf_counts.insert({b->name(), {}});
     global_reg_size += b->size();
   }
+
+  std::cout << "Creating register of size " << std::to_string(global_reg_size) << "\n";
   auto tmp = xacc::qalloc(global_reg_size);
 
   // Update Program bit indices based on new global
@@ -107,26 +109,39 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
   while (iter.hasNext()) {
     auto &next = *iter.next();
     std::vector<std::size_t> newBits;
+    int counter = 0;
     for (auto &b : next.bits()) {
-      auto buffer_name = next.getBufferName(b);
+      auto buffer_name = next.getBufferName(counter);
       auto shift = shift_map[buffer_name];
       newBits.push_back(b + shift);
+      counter++;
     }
     next.setBits(newBits);
     // FIXME Update buffer_names here too
+    std::vector<std::string> unified_buf_names;
+    for (int j = 0; j < next.nRequiredBits(); j++) {
+        unified_buf_names.push_back("q");
+    }
+    next.setBufferNames(unified_buf_names);
+
   }
 
+  std::cout << "HOWDY:\n" << program->toString() << "\n";
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
 
   // Take bit strings and map to buffer individual bit strings
   for (auto &kv : tmp->getMeasurementCounts()) {
+      std::cout << "HELLO: " << kv.first << ", " << kv.second << "\n";
     auto bitstring = kv.first;
     for (auto &buff_names_shift : shift_map) {
+
       auto shift = buff_names_shift.second;
       auto buff_name = buff_names_shift.first;
       auto buffer = buf_map[buff_name];
       auto buffer_bitstring = bitstring.substr(shift, shift + buffer->size());
+
+
       if (buf_counts[buff_name].count(buffer_bitstring)) {
         buf_counts[buff_name][buffer_bitstring] += kv.second;
       } else {
