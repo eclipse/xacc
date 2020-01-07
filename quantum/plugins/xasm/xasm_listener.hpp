@@ -17,10 +17,17 @@
 #include "IRProvider.hpp"
 #include "xasmBaseListener.h"
 #include "expression_parsing_util.hpp"
+#include "InstructionIterator.hpp"
+#include "xacc.hpp"
 
 using namespace xasm;
 
 namespace xacc {
+
+struct XasmGreaterThan {};
+struct XasmLessThan {};
+struct XasmLessThanOrEqual {};
+struct XasmGreaterThanOrEqual {};
 
 class XASMListener : public xasmBaseListener {
 protected:
@@ -51,11 +58,22 @@ protected:
   for_stmt_update_params(Instruction *inst, const std::string varName,
                          const int value);
 
+  template <typename T>
+  void createForInstructions(xasmParser::ForstmtContext *ctx,
+                             std::vector<InstPtr> &instructions,
+                             std::shared_ptr<CompositeInstruction> function) {
+    xacc::warning("[XasmCompiler] createForInstructions called with invalid "
+                  "template parameter. Skipping.");
+    return;
+  }
+
 public:
   HeterogeneousMap runtimeOptions;
 
   XASMListener();
 
+  std::vector<std::string> getBufferNames() {return functionBufferNames;}
+  
   std::shared_ptr<CompositeInstruction> getFunction() { return function; }
 
   void enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;

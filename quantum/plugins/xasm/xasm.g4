@@ -9,9 +9,9 @@ xaccsrc
    ;
 
     xacckernel : '__qpu__' 'void' kernelname =
-                    id '(' typedparam (',' typedparam) * ')' '{' mainprog '}';
+                    id '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
-    xacclambda : '['('&'|'=')?']' '(' typedparam (',' typedparam) * ')' '{' mainprog '}';
+    xacclambda : '['('&'|'=')?']' '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
     typedparam : type id;
 
@@ -53,7 +53,7 @@ forstmt
    :
    'for' '('
         ('int'|'auto') varname=id '=' start=INT ';'
-        id comparator=('<' | '>') end=INT ';'
+        id comparator=('<' | '>' | '<=' | '>=') end=INT ';'
         id inc_or_dec=('++'|'--')  ')'
         '{' forScope=program '}'
    ;

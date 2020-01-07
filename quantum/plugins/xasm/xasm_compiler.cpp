@@ -60,6 +60,23 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src) {
   return compile(src, nullptr);
 }
 
+std::vector<std::string> XASMCompiler::getKernelBufferNames(const std::string& src) {
+  ANTLRInputStream input(src);
+  xasmLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
+  xasmParser parser(&tokens);
+  parser.removeErrorListeners();
+  parser.addErrorListener(new XASMErrorListener());
+
+  auto ir = xacc::getService<IRProvider>("quantum")->createIR();
+
+  tree::ParseTree *tree = parser.xaccsrc();
+  XASMListener listener;
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
+
+  return listener.getBufferNames();
+}
+
 const std::string
 XASMCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
   auto visitor = std::make_shared<quantum::XasmVisitor>();

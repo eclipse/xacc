@@ -36,11 +36,11 @@ const std::string Gate::description() const {
 }
 
 std::string Gate::getBufferName(const std::size_t bitIdx) {
-    if (!xacc::container::contains(bits(), bitIdx)) {
-        xacc::error("Invalid bit index for getBufferName: " + name() + ", " + std::to_string(bitIdx));
-    }
-    auto idx = std::distance(qbits.begin(), std::find(qbits.begin(), qbits.end(), bitIdx));
-      return buffer_names[idx];
+    // if (!xacc::container::contains(bits(), bitIdx)) {
+    //     xacc::error("Invalid bit index for getBufferName: " + name() + ", " + std::to_string(bitIdx));
+    // }
+    // auto idx = std::distance(qbits.begin(), std::find(qbits.begin(), qbits.end(), bitIdx));
+    return buffer_names[bitIdx];
   }
   void Gate::setBufferNames(const std::vector<std::string> bufferNamesPerIdx)  {
       if (bufferNamesPerIdx.size() != this->nRequiredBits()) {
@@ -69,8 +69,10 @@ const std::string Gate::toString() {
     str += " ";
   }
 
+  int counter = 0;
   for (auto q : bits()) {
-    str += (buffer_names.empty() ? "q" : getBufferName(q)) + std::to_string(q) + ",";
+    str += (buffer_names.empty() ? "q" : buffer_names[counter]) + std::to_string(q) + ",";
+    counter++;
   }
 
   // Remove trailing comma

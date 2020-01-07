@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2019 UT-Battelle, LLC.
+# Copyright (c) 2020 UT-Battelle, LLC.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # and Eclipse Distribution License v.10 which accompany this distribution.
@@ -10,17 +10,5 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(ibm)
-add_subdirectory(rigetti)
-#add_subdirectory(cmr)
-add_subdirectory(dwave)
-add_subdirectory(algorithms)
-add_subdirectory(decorators)
-add_subdirectory(circuits)
-add_subdirectory(optimizers)
-add_subdirectory(ionq)
-add_subdirectory(placement)
-#add_subdirectory(scaffold)
-add_subdirectory(xasm)
-add_subdirectory(qpp)
-add_subdirectory(staq)
+add_xacc_test(StaqCompiler)
+target_link_libraries(StaqCompilerTester xacc )
