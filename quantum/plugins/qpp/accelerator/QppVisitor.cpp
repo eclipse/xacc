@@ -16,7 +16,7 @@
 
 namespace xacc {
 namespace quantum {
-    void QppVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer) 
+    void QppVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode) 
     {
         m_buffer = std::move(buffer);
         const std::vector<qpp::idx> initialState(m_buffer->size(), 0);
@@ -24,10 +24,17 @@ namespace quantum {
         const std::vector<qpp::idx> dims(m_buffer->size(), 2);
         m_dims = std::move(dims);
         m_measureBits.clear();
+        m_shotsMode = shotsMode;
     }
     
     void QppVisitor::finalize() 
-    { }
+    { 
+        if (m_shotsMode)
+        {
+            m_buffer->appendMeasurement(m_bitString);
+            m_bitString.clear();
+        }
+    }
 
     qpp::idx QppVisitor::xaccIdxToQppIdx(size_t in_idx) const 
     {
@@ -212,9 +219,15 @@ namespace quantum {
 
         assert(measProbs.size() == 2 && postMeasStates.size() == 2 && randomSelectedResult < 2);
         m_measureBits.emplace_back(measure.bits()[0]);
+        if (!m_shotsMode)
         {
+            // Not running a shot simulation, calculate the expectation value.
             const double expectedValueZ = calcExpectationValueZ();
             m_buffer->addExtraInfo("exp-val-z", expectedValueZ);
+        }
+        else
+        {
+            m_bitString.append(std::to_string(randomSelectedResult));
         }
 
         if (xacc::verbose)

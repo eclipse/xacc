@@ -16,6 +16,7 @@
 #include "Optimizer.hpp"
 #include "xacc_observable.hpp"
 #include "xacc_service.hpp"
+#include "Algorithm.hpp"
 
 namespace {
     template <typename T> 
@@ -160,6 +161,178 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3)
 
     // Expected result: -2.04482
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
+}
+
+TEST(QppAcceleratorTester, testShots) 
+{
+    const int nbShots = 100;
+    {
+        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        // Allocate some qubits
+        auto buffer = xacc::qalloc(2);
+        auto quilCompiler = xacc::getCompiler("quil");
+        // Nothing, should be 00
+        auto ir = quilCompiler->compile(R"(__qpu__ void test1(qbit q) {
+MEASURE 0 [0]
+MEASURE 1 [1]
+})", accelerator);
+        accelerator->execute(buffer, ir->getComposites()[0]);
+        EXPECT_EQ(buffer->getMeasurementCounts().size(), 1);
+        EXPECT_EQ(buffer->getMeasurementCounts()["00"], nbShots);
+        buffer->print();
+    }
+    {
+        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(2);
+        auto quilCompiler = xacc::getCompiler("quil");
+        // Expected "11"
+        auto ir = quilCompiler->compile(R"(__qpu__ void test2(qbit q) {
+X 0
+CX 0 1
+MEASURE 0 [0]
+MEASURE 1 [1]
+})", accelerator);
+        accelerator->execute(buffer, ir->getComposites()[0]);
+
+        EXPECT_EQ(buffer->getMeasurementCounts().size(), 1);
+        EXPECT_EQ(buffer->getMeasurementCounts()["11"], nbShots);
+    }
+    {
+        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(2);
+        auto quilCompiler = xacc::getCompiler("quil");
+        // Bell states
+        auto ir = quilCompiler->compile(R"(__qpu__ void test3(qbit q) {
+H 0
+CX 0 1
+MEASURE 0 [0]
+MEASURE 1 [1]
+})", accelerator);
+        accelerator->execute(buffer, ir->getComposites()[0]);
+        EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
+        // Only 00 and 11 states
+        EXPECT_EQ(buffer->getMeasurementCounts()["11"] + buffer->getMeasurementCounts()["00"], nbShots);
+    }    
+}
+
+// Port DDCL test suite to QPP
+TEST(QppAcceleratorTester, testDDCL) 
+{
+    // Set up
+    {
+        const std::string src =
+            R"rucc(__qpu__ void f(qbit q, double t0, double t1, double t2) {
+            Rx(q[0], t0);
+            Ry(q[0], t1);
+            Rx(q[0], t2);
+        })rucc";
+        auto acc = xacc::getAccelerator("qpp");
+        auto compiler = xacc::getCompiler("xasm");
+        // compile source to the compilation DB
+        auto ir = compiler->compile(src, acc);
+    }
+    
+    // Use a reasonable number of shots to save test time
+    const int nbShots = 128;
+    // checkJSSimpleGradientFree
+    {
+        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(1);
+
+        auto simple = xacc::getCompiled("f");
+
+        // get cobyla optimizer
+        auto optimizer = xacc::getOptimizer(
+            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 20)});
+
+        std::vector<double> target{.5, .5};
+
+        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
+        EXPECT_TRUE(ddcl->initialize(
+            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+            std::make_pair("target_dist", target), std::make_pair("loss", "js"),
+            std::make_pair("optimizer", optimizer)}));
+        ddcl->execute(buffer);
+
+        auto loss = buffer->getInformation("opt-val").as<double>();
+        EXPECT_NEAR(loss, 0.0, 1e-3);
+    }
+
+    //  checkMMDSimpleGradientFree) 
+    {
+        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(1);
+
+        auto simple = xacc::getCompiled("f");
+
+        // get cobyla optimizer
+        auto optimizer = xacc::getOptimizer(
+                                            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 20)});
+
+        std::vector<double> target{.5, .5};
+
+        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
+        EXPECT_TRUE(ddcl->initialize(
+                                    {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+                                    std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
+                                    std::make_pair("optimizer", optimizer)}));
+        ddcl->execute(buffer);
+
+        auto loss = buffer->getInformation("opt-val").as<double>();
+        EXPECT_NEAR(loss, 0.0, 1e-3);
+    }
+
+    // checkJSSimpleWithGradient) 
+    {
+        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(1);
+
+        auto simple = xacc::getCompiled("f");
+
+        // get cobyla optimizer
+        auto optimizer = xacc::getOptimizer(
+            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 20), std::make_pair("nlopt-ftol", 1e-4), std::make_pair("initial-parameters", std::vector<double>{1.5, 0, 1.5}),
+                                    std::make_pair("nlopt-optimizer", "l-bfgs")});
+
+        std::vector<double> target{.5, .5};
+
+        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
+        EXPECT_TRUE(ddcl->initialize(
+            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+            std::make_pair("target_dist", target), std::make_pair("loss", "js"),
+            std::make_pair("gradient", "js-parameter-shift"),
+            std::make_pair("optimizer", optimizer)}));
+        ddcl->execute(buffer);
+
+        auto loss = buffer->getInformation("opt-val").as<double>();
+        EXPECT_NEAR(loss, 0.0, 1e-3);
+    }
+
+    // checkMMDSimpleWithGradient
+    {
+        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto buffer = xacc::qalloc(1);
+
+        auto simple = xacc::getCompiled("f");
+
+        // get cobyla optimizer
+        auto optimizer = xacc::getOptimizer(
+            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 20), std::make_pair("nlopt-ftol", 1e-4), std::make_pair("initial-parameters", std::vector<double>{1.5, 0, 1.5}),
+                                    std::make_pair("nlopt-optimizer", "l-bfgs")});
+
+        std::vector<double> target{.5, .5};
+
+        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
+        EXPECT_TRUE(ddcl->initialize(
+            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
+            std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
+            std::make_pair("gradient", "mmd-parameter-shift"),
+            std::make_pair("optimizer", optimizer)}));
+        ddcl->execute(buffer);
+
+        auto loss = buffer->getInformation("opt-val").as<double>();
+        EXPECT_NEAR(loss, 0.0, 1e-3);
+    }
 }
 
 int main(int argc, char **argv) {
