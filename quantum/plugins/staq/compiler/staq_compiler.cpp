@@ -157,7 +157,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   transformations::synthesize_oracles(*prog);
 
   optimization::simplify(*prog);
-
+  
   // at this point we have to find out if we have any ancilla
   // registers
   internal_staq::CountAncillas ancillas;
