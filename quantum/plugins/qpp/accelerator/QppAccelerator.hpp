@@ -31,5 +31,8 @@ public:
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
 private:
     std::shared_ptr<QppVisitor> m_visitor;
+    // Number of 'shots' if random sampling simulation is enabled.
+    // -1 means disabled (no shots, just expectation value)
+    int m_shots = -1;
 };
 }}
