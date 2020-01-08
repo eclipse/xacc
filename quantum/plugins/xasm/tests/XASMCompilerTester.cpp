@@ -293,7 +293,22 @@ Tdg(anc[0]);
 
 }
 TEST(XASMCompilerTester, checkCallingPreviousKernel) {
+auto compiler = xacc::getCompiler("xasm");
+  auto IR =
+      compiler->compile(R"(__qpu__ void bell(qbit q) {
+  H(q[0]);
+  CX(q[0], q[1]);
+  Measure(q[0]);
+  Measure(q[1]);
+})");
 
+  auto IR2 = compiler->compile(R"(__qpu__ void call_bell(qbit q) {
+  bell(q);
+})");
+
+  auto bell = IR2->getComposite("call_bell");
+
+  std::cout << bell->toString() << "\n";
 }
 
 int main(int argc, char **argv) {

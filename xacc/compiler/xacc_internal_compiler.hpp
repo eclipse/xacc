@@ -28,21 +28,17 @@ template <typename T> struct empty_delete {
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
-void compiler_InitializeXACC(const char *qpu_backend);
+void compiler_InitializeXACC(const char *qpu_backend = "local-ibm");
+void setAccelerator(const char * qpu_backend);
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
-// CompositeInstruction *compile(const char *compiler_name, const char
-// *kernel_src,
-//                               const char *qpu_name);
 CompositeInstruction *compile(const char *compiler_name,
                               const char *kernel_src);
 
 CompositeInstruction *getCompiled(const char *kernel_name);
 
 // Run quantum compilation routines on IR
-// void optimize(CompositeInstruction *program, const char *qpu_name,
-//               const OptLevel opt = DEFAULT);
 void optimize(CompositeInstruction *program, const OptLevel opt = DEFAULT);
 
 // Execute on the specified QPU, persisting results to

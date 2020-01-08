@@ -10,6 +10,11 @@ void compiler_InitializeXACC(const char *qpu_backend) {
   if (!xacc::isInitialized())
     xacc::Initialize();
 
+  setAccelerator(qpu_backend);
+
+}
+
+void setAccelerator(const char *qpu_backend) {
   if (qpu) {
     if (qpu_backend != qpu->name()) {
       qpu = xacc::getAccelerator(qpu_backend).get();
@@ -91,16 +96,21 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
   // buffer names to measurement counts
   int global_reg_size = 0;
   std::map<std::string, int> shift_map;
+  std::vector<std::string> shift_map_names;
+  std::vector<int> shift_map_shifts;
   std::map<std::string, AcceleratorBuffer *> buf_map;
   std::map<std::string, std::map<std::string, int>> buf_counts;
   for (auto &b : bvec) {
     shift_map.insert({b->name(), global_reg_size});
+    shift_map_names.push_back(b->name());
+    shift_map_shifts.push_back(global_reg_size);
     buf_map.insert({b->name(), b});
     buf_counts.insert({b->name(), {}});
     global_reg_size += b->size();
+
   }
 
-  std::cout << "Creating register of size " << std::to_string(global_reg_size) << "\n";
+  xacc::debug("[xacc_internal_compiler] Creating register of size " + std::to_string(global_reg_size));
   auto tmp = xacc::qalloc(global_reg_size);
 
   // Update Program bit indices based on new global
@@ -123,24 +133,29 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
         unified_buf_names.push_back("q");
     }
     next.setBufferNames(unified_buf_names);
-
   }
 
-  std::cout << "HOWDY:\n" << program->toString() << "\n";
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
 
   // Take bit strings and map to buffer individual bit strings
   for (auto &kv : tmp->getMeasurementCounts()) {
-      std::cout << "HELLO: " << kv.first << ", " << kv.second << "\n";
     auto bitstring = kv.first;
-    for (auto &buff_names_shift : shift_map) {
+    if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
+        std::reverse(bitstring.begin(), bitstring.end());
+    }
 
-      auto shift = buff_names_shift.second;
-      auto buff_name = buff_names_shift.first;
+    for (int j = 0; j < shift_map_names.size(); j++) {
+
+      auto shift = shift_map_shifts[j];
+      auto buff_name = shift_map_names[j];
       auto buffer = buf_map[buff_name];
-      auto buffer_bitstring = bitstring.substr(shift, shift + buffer->size());
 
+      auto buffer_bitstring = bitstring.substr(shift,  buffer->size());
+
+      if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
+          std::reverse(buffer_bitstring.begin(), buffer_bitstring.end());
+      }
 
       if (buf_counts[buff_name].count(buffer_bitstring)) {
         buf_counts[buff_name][buffer_bitstring] += kv.second;

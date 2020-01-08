@@ -44,6 +44,8 @@ namespace xacc {
 class Accelerator : public Identifiable {
 
 public:
+  enum BitOrder {LSB, MSB};
+
   virtual void initialize(const HeterogeneousMap &params = {}) = 0;
   virtual void updateConfiguration(const HeterogeneousMap &config) = 0;
   virtual void updateConfiguration(const HeterogeneousMap &&config) {
@@ -66,6 +68,10 @@ public:
   // preferred for this Accelerator
   virtual const std::string defaultPlacementTransformation() {return "default-placement";}
 
+  virtual BitOrder getBitOrder() {
+      return BitOrder::MSB;
+  }
+  
   // Execute a single program. All results persisted to the buffer
   virtual void
   execute(std::shared_ptr<AcceleratorBuffer> buffer,

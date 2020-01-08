@@ -409,7 +409,6 @@ void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
     }
   }
 
-  std::cout << "bnames; " << currentBufferNames << "\n";
   inst->setBufferNames(currentBufferNames);
 
   if (inForLoop) {
