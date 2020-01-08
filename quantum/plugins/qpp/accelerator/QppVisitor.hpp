@@ -25,7 +25,7 @@ namespace xacc {
 namespace quantum {
 class QppVisitor : public AllGateVisitor, public OptionsProvider, public xacc::Cloneable<QppVisitor> {
 public:
-  void initialize(std::shared_ptr<AcceleratorBuffer> buffer);
+  void initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode = false);
   void finalize();
 
   void visit(Hadamard& h) override;
@@ -60,5 +60,9 @@ private:
   std::vector<qpp::idx> m_dims;
   KetVectorType m_stateVec;
   std::vector<qpp::idx> m_measureBits;
+  // If true, it will perform a trajectory simulation and return the bit string of measurement results.
+  // Otherwise, it will only compute the expectation value.
+  bool m_shotsMode;
+  std::string m_bitString;
 };
 }}

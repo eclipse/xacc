@@ -18,24 +18,47 @@ namespace quantum {
     void QppAccelerator::initialize(const HeterogeneousMap& params)  
     {
         m_visitor = std::make_shared<QppVisitor>();
+        if (params.keyExists<int>("shots")) 
+        {
+            m_shots = params.get<int>("shots");
+            if (m_shots < 1) 
+            {
+                xacc::error("Invalid 'shots' parameter.");
+            }
+        }
     }
 
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)  
     {
-        m_visitor->initialize(buffer);
+        const auto runCircuit = [&](bool shotsMode){
+            m_visitor->initialize(buffer, shotsMode);
 
-        // Walk the IR tree, and visit each node
-        InstructionIterator it(compositeInstruction);
-        while (it.hasNext()) 
-        {
-            auto nextInst = it.next();
-            if (nextInst->isEnabled()) 
+            // Walk the IR tree, and visit each node
+            InstructionIterator it(compositeInstruction);
+            while (it.hasNext()) 
             {
-                nextInst->accept(m_visitor);
+                auto nextInst = it.next();
+                if (nextInst->isEnabled()) 
+                {
+                    nextInst->accept(m_visitor);
+                }
             }
-        }
 
-        m_visitor->finalize();
+            m_visitor->finalize();
+        };
+       
+
+        if (m_shots < 0) 
+        {
+            runCircuit(false);
+        }
+        else
+        {
+           for (int i = 0; i < m_shots; ++i)
+           {
+                runCircuit(true);
+           }
+        }        
     }
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)  
     {
