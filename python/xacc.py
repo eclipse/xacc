@@ -303,12 +303,16 @@ class PyServiceRegistry(object):
             self.get_algorithm_services(servType)
 
         for accName, acc in self.registry['accelerator'].items():
+            debug("[xacc-py] Contributing "+accName+" Accelerator")
             contributeService(accName, acc)
         for irtName, irt in self.registry['irtransformation'].items():
+            debug("[xacc-py] Contributing "+irtName+" IRTransformation")
             contributeService(irtName, irt)
         for obsName, obs in self.registry['observable'].items():
+            debug("[xacc-py] Contributing "+obsName+" Observable")
             contributeService(obsName, obs)
         for optName, opt in self.registry['optimizer'].items():
+            debug("[xacc-py] Contributing "+optName+" Optimizer")
             contributeService(optName, opt)
 
     def get_algorithm_services(self, serviceType):
@@ -423,9 +427,13 @@ def main(argv=None):
 
 initialize()
 
+loaded_from_cpp_dont_finalize = False
 
 def _finalize():
-    Finalize()
+    if not loaded_from_cpp_dont_finalize:
+        Finalize()
+    else:
+        debug("THIS WAS LOADED FROM CPP DONT FINALIZE")
 
 
 atexit.register(_finalize)

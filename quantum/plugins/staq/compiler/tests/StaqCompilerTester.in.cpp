@@ -27,6 +27,7 @@ TEST(StaqCompilerTester, checkSimple) {
                       measure q -> c;
                       )");
 
+
   auto hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
 
@@ -62,7 +63,7 @@ TEST(StaqCompilerTester, checkOracle) {
 OPENQASM 2.0;
 include "qelib1.inc";
 
-oracle adder a0,a1,a2,a3,b0,b1,b2,b3,c0,c1,c2,c3 { "adder_4.v" }
+oracle adder a0,a1,a2,a3,b0,b1,b2,b3,c0,c1,c2,c3 { "@CMAKE_SOURCE_DIR@/quantum/plugins/staq/compiler/tests/adder_4.v" }
 
 creg result[4];
 

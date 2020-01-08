@@ -180,10 +180,13 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   // Visit Program to find out how many qreg there are and
   // use that to build up openqasm xacc function prototype
 
+//   std::cout << "HELLO:\n";
+//   prog->pretty_print(std::cout);
+//   exit(0);
   internal_staq::StaqToXasm translate;
   translate.visit(*prog);
 
-  std::cout << "XASM:\n" << translate.ss.str() << "\n";
+//   std::cout << "XASM:\n" << translate.ss.str() << "\n";
 
   std::string kernel;
   if (isXaccKernel) {

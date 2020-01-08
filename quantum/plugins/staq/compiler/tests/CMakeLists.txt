@@ -10,5 +10,15 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_xacc_test(StaqCompiler)
-target_link_libraries(StaqCompilerTester xacc )
+#add_xacc_test(StaqCompiler)
+#target_link_libraries(StaqCompilerTester xacc )
+
+
+configure_file(StaqCompilerTester.in.cpp
+               ${CMAKE_BINARY_DIR}/quantum/plugins/staq/compiler/tests/StaqCompilerTester.cpp)
+
+add_executable(StaqCompilerTester ${CMAKE_BINARY_DIR}/quantum/plugins/staq/compiler/tests/StaqCompilerTester.cpp)
+target_include_directories(StaqCompilerTester PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(StaqCompilerTester PRIVATE xacc ${GTEST_LIBRARIES})
+add_test(NAME xacc_StaqCompilerTester COMMAND StaqCompilerTester)
+target_compile_features(StaqCompilerTester PRIVATE cxx_std_14)
