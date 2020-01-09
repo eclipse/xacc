@@ -136,6 +136,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     auto last = _src.find_last_of("}");
     auto sub = _src.substr(first + 1, last - first - 1);
     auto lines = xacc::split(sub, '\n');
+    bool addedNames = false;
     for (auto &l : lines) {
       xacc::trim(l);
       tmp += l + "\n";
@@ -144,20 +145,47 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
           auto size = xacc::getBuffer(b)->size();
           tmp += "qreg " + b + "[" + std::to_string(size) + "];\n";
         }
+        addedNames = true;
       }
     }
     _src = tmp;
+    if (!addedNames) {
+      for (auto &b : bufferNames) {
+        auto size = xacc::getBuffer(b)->size();
+        _src = "qreg " + b + "[" + std::to_string(size) + "];\n" + _src;
+      }
+    }
   }
 
-//   std::cout << "SRC:\n" << _src << "\n";
+  // we allow users to leave out OPENQASM 2.0 and include qelib.inc
+  // If they did we need to add it for them
+  std::string tmp = "";
+  auto lines = xacc::split(_src, '\n');
+  bool foundOpenQasm = false, foundInclude = false;
+  for (auto &l : lines) {
+    if (l.find("OPENQASM") != std::string::npos) {
+      foundOpenQasm = true;
+    }
+    if (l.find("include") != std::string::npos) {
+      foundInclude = true;
+    }
+  }
 
+  if (!foundInclude) {
+    _src = "include \"qelib1.inc\";\n" + _src;
+  }
+  if (!foundOpenQasm) {
+    _src = "OPENQASM 2.0;\n" + _src;
+  }
+
+//   std::cout << " HELLO:\n" << _src << "\n";
   using namespace staq;
   auto prog = parser::parse_string(_src);
   transformations::desugar(*prog);
   transformations::synthesize_oracles(*prog);
 
   optimization::simplify(*prog);
-  
+
   // at this point we have to find out if we have any ancilla
   // registers
   internal_staq::CountAncillas ancillas;
@@ -180,13 +208,13 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   // Visit Program to find out how many qreg there are and
   // use that to build up openqasm xacc function prototype
 
-//   std::cout << "HELLO:\n";
-//   prog->pretty_print(std::cout);
-//   exit(0);
+  //   std::cout << "HELLO:\n";
+  //   prog->pretty_print(std::cout);
+  //   exit(0);
   internal_staq::StaqToXasm translate;
   translate.visit(*prog);
 
-//   std::cout << "XASM:\n" << translate.ss.str() << "\n";
+  //   std::cout << "XASM:\n" << translate.ss.str() << "\n";
 
   std::string kernel;
   if (isXaccKernel) {
@@ -207,16 +235,16 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     std::stringstream xx;
     std::string name = "tmp";
     if (xacc::hasCompiled(name)) {
-        int counter = 0;
-        while(true) {
-            name = "tmp"+std::to_string(counter);
-            if (!xacc::hasCompiled(name)) {
-                break;
-            }
-            counter++;
+      int counter = 0;
+      while (true) {
+        name = "tmp" + std::to_string(counter);
+        if (!xacc::hasCompiled(name)) {
+          break;
         }
+        counter++;
+      }
     }
-    xx << "__qpu__ void "<<name<<"(";
+    xx << "__qpu__ void " << name << "(";
     xx << "qreg " << c.qregs[0];
     for (int i = 1; i < c.qregs.size(); i++) {
       xx << ", qreg " << c.qregs[i];
@@ -227,7 +255,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     xx << ") {\n" << translate.ss.str() << "}";
     kernel = xx.str();
   }
-//   std::cout << "\n\nFinal:\n" << kernel << "\n";
+  //   std::cout << "\n\nFinal:\n" << kernel << "\n";
   return xasm->compile(kernel, acc);
 }
 
