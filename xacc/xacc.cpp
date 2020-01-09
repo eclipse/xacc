@@ -38,6 +38,8 @@ int argc = 0;
 char **argv = NULL;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
+std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers {};
+
 std::string rootPathString = "";
 
 void set_verbose(bool v) {verbose=v;}
@@ -113,11 +115,13 @@ void info(const std::string &msg, MessagePredicate predicate) {
 }
 
 void warning(const std::string &msg, MessagePredicate predicate) {
-  XACCLogger::instance()->warning(msg, predicate);
+  if (verbose) XACCLogger::instance()->warning(msg, predicate);
 }
 
 void debug(const std::string &msg, MessagePredicate predicate) {
-  XACCLogger::instance()->debug(msg, predicate);
+  #ifdef _XACC_DEBUG
+  if (verbose) XACCLogger::instance()->debug(msg, predicate);
+  #endif
 }
 
 void error(const std::string &msg, MessagePredicate predicate) {
@@ -134,12 +138,44 @@ void error(const std::string &msg, MessagePredicate predicate) {
 
 qbit qalloc(const int n) {
   qbit q(n);
-  return q; // std::make_shared<xacc::AcceleratorBuffer>(n);
+  std::stringstream ss;
+  ss << q;
+  q->setName(ss.str());
+  allocated_buffers.insert({ss.str(), q});
+  return q;
 }
 qbit qalloc() {
   qbit q;
+  std::stringstream ss;
+  ss << q;
+  q->setName(ss.str());
+  allocated_buffers.insert({ss.str(), q});
   return q;
 }
+
+void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
+    auto name = buffer->name();
+    if (allocated_buffers.count(name)) {
+        error("Invalid buffer name to store: " + name);
+    }
+    allocated_buffers.insert({name, buffer});
+}
+
+void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer) {
+    if (allocated_buffers.count(name)) {
+        error("Invalid buffer name to store: " + name);
+    }
+    buffer->setName(name);
+    allocated_buffers.insert({name, buffer});
+}
+
+std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
+    if (!allocated_buffers.count(name)) {
+        error("Invalid buffer name: " + name);
+    }
+    return allocated_buffers[name];
+}
+bool hasBuffer(const std::string& name) {return allocated_buffers.count(name);}
 
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {
@@ -679,6 +715,8 @@ void Finalize() {
   XACCLogger::instance()->dumpQueue();
   if (xaccFrameworkInitialized) {
     xacc::xaccFrameworkInitialized = false;
+    compilation_database.clear();
+    allocated_buffers.clear();
     xacc::ServiceAPI_Finalize();
   }
 }

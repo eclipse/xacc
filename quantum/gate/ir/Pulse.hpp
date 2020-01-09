@@ -63,6 +63,8 @@ public:
 
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
+  void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+  std::string getBitExpression(const std::size_t bit_idx) override {return "";}
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;
@@ -84,6 +86,14 @@ public:
   const bool isAnalog() const override { return true; }
   const int nRequiredBits() const override { return qbits.size(); }
 
+  std::string getBufferName(const std::size_t bitIdx) override {
+      return "";
+  }
+  std::vector<std::string> getBufferNames() override {return {};}
+
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+      return;
+  }
   DEFINE_VISITABLE()
 
   std::shared_ptr<Instruction> clone() override {

@@ -9,14 +9,13 @@ xaccsrc
    ;
 
     xacckernel : '__qpu__' 'void' kernelname =
-                    id '(' 'qbit' acceleratorbuffer =
-                        id (',' typedparam) * ')' '{' mainprog '}';
+                    id '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
-    xacclambda : '['('&'|'=')?']' '(' 'qbit' acceleratorbuffer=id (',' typedparam) * ')' '{' mainprog '}';
+    xacclambda : '['('&'|'=')?']' '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
     typedparam : type id;
 
-    type : 'int' | 'double' | 'float' | 'std::vector<double>';
+    type : 'qbit' | 'qreg' | 'int' | 'double' | 'float' | 'std::vector<double>';
 
 /***********************************************************************/
 
@@ -39,7 +38,9 @@ line
 /* A program statement */
 statement
    : instruction ';'
+   | composite_generator ';'
    | forstmt
+   | ifstmt
    | 'return' ';'
    ;
 
@@ -50,21 +51,42 @@ comment
 
 forstmt
    :
-   'for' '(' ('int'|'auto') varname=id '=' start=INT ';' id comparator=('<' | '>') end=INT ';' id inc_or_dec=('++'|'--')  ')' '{' forScope=statement+ '}'
+   'for' '('
+        ('int'|'auto') varname=id '=' start=INT ';'
+        id comparator=('<' | '>' | '<=' | '>=') end=INT ';'
+        id inc_or_dec=('++'|'--')  ')'
+        '{' forScope=program '}'
+   ;
+
+ifstmt
+   :
+   'if' '(' buffer_name=id '[' idx=INT ']' ')' '{' program '}'
    ;
 
 instruction
-   : inst_name=id  '(' (bits_and_params=explist) (',' options=optionsMap)? ')'
+   : inst_name=id '(' buffer_list=bufferList (',' param_list=paramList)? ')'
    ;
 
+bufferList
+   : bufferIndex (',' bufferIndex)?
+   ;
+
+paramList
+   : parameter (',' parameter)*
+   ;
+
+parameter
+   : exp
+   ;
+
+composite_generator
+   : composite_name=id '(' buffer_name=id
+                        (',' composite_params=paramList)?
+                        (',' composite_options=optionsMap)? ')'
+   ;
 
 bufferIndex
-   : id ('[' exp ']')
-   ;
-
-bitsOrParamType
-   : bufferIndex (',' bufferIndex)*
-   | exp*
+   : buffer_name=id ('[' idx=exp ']')
    ;
 
 optionsMap
@@ -95,7 +117,7 @@ exp
    | real
    | INT
    | 'pi'
-   | bufferIndex
+   | var_name=id '[' idx=INT ']'
    ;
 
 /* unary operations */

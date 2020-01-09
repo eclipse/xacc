@@ -17,6 +17,11 @@
 #include "xacc.hpp"
 using namespace xacc::quantum;
 
+TEST(GateTester, checkBugBug) {
+     auto cnot = std::make_shared<CNOT>(0,1);
+     cnot->setBufferNames({"a","b"});
+     std::cout << "CNOT:\n" << cnot->toString() << "\n";
+}
 TEST(GateTester, checkBasicGatesAndCircuits) {
 
   auto h = std::make_shared<Hadamard>(0);

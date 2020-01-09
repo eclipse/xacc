@@ -25,11 +25,12 @@ class AcceleratorBuffer;
 
 using AcceleratorBufferChildPair =
     std::pair<std::string, std::shared_ptr<AcceleratorBuffer>>;
-using ExtraInfo = xacc::Variant<int, double, std::string, std::vector<int>,
-                                 std::vector<double>, std::vector<std::string>,
-                                 std::map<int, std::vector<int>>,
-                                 std::vector<std::pair<double, double>>,
-                                 std::map<int, int>, std::map<std::string, double>>;
+using ExtraInfo =
+    xacc::Variant<int, double, std::string, std::vector<int>,
+                  std::vector<double>, std::vector<std::string>,
+                  std::map<int, std::vector<int>>,
+                  std::vector<std::pair<double, double>>, std::map<int, int>,
+                  std::map<std::string, double>>;
 
 using AddPredicate = std::function<bool(ExtraInfo &)>;
 
@@ -53,8 +54,7 @@ public:
   bool operator()(const std::map<std::string, double> &i) const;
 };
 
-template<typename Writer>
-class ToJsonVisitor {
+template <typename Writer> class ToJsonVisitor {
 private:
   Writer &writer;
 
@@ -71,34 +71,33 @@ public:
   void operator()(const std::vector<std::pair<double, double>> &i) const;
   void operator()(const std::map<int, int> &i) const;
   void operator()(const std::map<std::string, double> &i) const;
-
 };
 
 class ExtraInfoValue2HeterogeneousMap {
 protected:
-  HeterogeneousMap& m;
-  const std::string& key;
+  HeterogeneousMap &m;
+  const std::string &key;
+
 public:
-  ExtraInfoValue2HeterogeneousMap(HeterogeneousMap& map, const std::string& k) : m(map),key(k) {}
-  template<typename T>
-  void operator()(const T& t) {
-      m.insert(key, t);
-  }
+  ExtraInfoValue2HeterogeneousMap(HeterogeneousMap &map, const std::string &k)
+      : m(map), key(k) {}
+  template <typename T> void operator()(const T &t) { m.insert(key, t); }
 };
 
-class HeterogenousMap2ExtraInfo : public xacc::visitor_base<int, double, std::string, std::vector<int>,
-                                 std::vector<double>, std::vector<std::string>,
-                                 std::map<int, std::vector<int>>,
-                                 std::vector<std::pair<double, double>>,
-                                 std::map<int, int>, std::map<std::string,double>> {
+class HeterogenousMap2ExtraInfo
+    : public xacc::visitor_base<
+          int, double, std::string, std::vector<int>, std::vector<double>,
+          std::vector<std::string>, std::map<int, std::vector<int>>,
+          std::vector<std::pair<double, double>>, std::map<int, int>,
+          std::map<std::string, double>> {
 protected:
-  std::map<std::string, ExtraInfo>& data;
-  public:
-  HeterogenousMap2ExtraInfo(std::map<std::string, ExtraInfo>& m) : data(m) {}
+  std::map<std::string, ExtraInfo> &data;
 
-  template<typename T>
-  void operator()(const std::string& key, const T& t) {
-      data.insert({key, ExtraInfo(t)});
+public:
+  HeterogenousMap2ExtraInfo(std::map<std::string, ExtraInfo> &m) : data(m) {}
+
+  template <typename T> void operator()(const std::string &key, const T &t) {
+    data.insert({key, ExtraInfo(t)});
   }
 };
 
@@ -113,8 +112,8 @@ protected:
 // it enables the storage of accelerator-specific execution information.
 //
 // Each AcceleratorBuffer can contain AcceleratorBuffer children. This is useful
-// for iterative executions whereby many executions need to be persisted, but are all
-// related to a single global AcceleratorBuffer.
+// for iterative executions whereby many executions need to be persisted, but
+// are all related to a single global AcceleratorBuffer.
 class AcceleratorBuffer {
 
 protected:
@@ -125,6 +124,8 @@ protected:
   std::map<std::string, ExtraInfo> info;
   bool cacheFile = false;
   std::map<int, int> bit2IndexMap;
+
+  std::map<std::size_t, bool> single_measurements;
 
 public:
   AcceleratorBuffer() {}
@@ -152,12 +153,14 @@ public:
 
   std::map<int, int> getBitMap() { return bit2IndexMap; }
 
-  void setBitIndexMap(const std::map<int, int> bitMap) { bit2IndexMap = bitMap; }
+  void setBitIndexMap(const std::map<int, int> bitMap) {
+    bit2IndexMap = bitMap;
+  }
 
   const int nChildren() { return getChildren().size(); }
 
-   // Return all children with ExtraInfo infoName equal
-   // to the given ExtraInfo i.
+  // Return all children with ExtraInfo infoName equal
+  // to the given ExtraInfo i.
   std::vector<std::shared_ptr<AcceleratorBuffer>>
   getChildren(const std::string infoName, ExtraInfo i);
 
@@ -165,7 +168,7 @@ public:
   std::vector<ExtraInfo> getAllUnique(const std::string name);
 
   void removeChild(const std::size_t idx) {
-      children.erase(children.begin()+idx);
+    children.erase(children.begin() + idx);
   }
 
   const int size() const;
@@ -195,20 +198,25 @@ public:
   virtual void print();
   const std::string toString();
 
-  void setName(const std::string n) {
-      bufferId = n;
+  void measure(std::size_t bit_idx, int bit) {
+    if (single_measurements.count(bit_idx)) {
+      single_measurements[bit_idx] = bit;
+    } else {
+      single_measurements.insert({bit_idx, bit});
+    }
   }
+
+  void reset_single_measurements() { single_measurements.clear(); }
+
+  void setName(const std::string n) { bufferId = n; }
 
   virtual void print(std::ostream &stream);
   virtual void load(std::istream &stream);
 
-  void operator[](const int& i) {
-      // Primarily here for qcor.
-      return;
-  }
+  bool operator[](const std::size_t &i);
 
-  const ExtraInfo operator[](const std::string& key) {
-      return getInformation(key);
+  const ExtraInfo operator[](const std::string &key) {
+    return getInformation(key);
   }
 
   virtual ~AcceleratorBuffer() {}

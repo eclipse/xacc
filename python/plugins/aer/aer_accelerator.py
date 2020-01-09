@@ -49,7 +49,6 @@ class AerAccelerator(xacc.Accelerator):
         return 'aer'
 
     def execute_one_qasm(self, buffer, program):
-        print(program.toString())
         qobjStr = self.qobj_compiler.translate(program)
         import json
         from qiskit import Aer
@@ -65,7 +64,7 @@ class AerAccelerator(xacc.Accelerator):
         qobj = QasmQobjSchema().load(qobj_json['qObject'])
         exps = qobj.experiments
         measures = {}
-        qobj.experiments[0].config.n_qubits = 8
+        qobj.experiments[0].config.n_qubits = buffer.size()
         for i in exps[0].instructions:
             if i.name == "measure":
                 measures[i.memory[0]] =i.qubits[0]
@@ -84,7 +83,8 @@ class AerAccelerator(xacc.Accelerator):
             if len(b) < buffer.size():
                 tmp = ['0' for i in range(buffer.size())]
                 for bit_loc, qubit in measures.items():
-                    tmp[len(tmp)-1-qubit] = list(b)[bit_loc]
+                    lb = list(b)
+                    tmp[len(tmp)-1-qubit] = lb[len(b)-bit_loc-1]
                 bitstring = ''.join(tmp)
             buffer.appendMeasurement(bitstring,c)
 

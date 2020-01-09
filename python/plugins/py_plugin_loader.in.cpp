@@ -18,12 +18,15 @@ namespace xacc {
 namespace external {
 
 bool PythonPluginLoader::load() {
+  xacc::debug("[PyPluginLoader] Loading all contributed Python plugins.");
+
   if (!XACC_IS_APPLE){
     libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
   }
-  guard = std::make_shared<py::scoped_interpreter>();
+  py::scoped_interpreter * guard = new py::scoped_interpreter();
   try {
     py::module sys = py::module::import("xacc");
+    sys.attr("loaded_from_cpp_dont_finalize") = true;
   } catch(std::exception& e) {
     std::cout << "Could not import " << e.what() << "\n";
     return false;
@@ -34,6 +37,8 @@ bool PythonPluginLoader::load() {
 
 bool PythonPluginLoader::unload() {
   if (!XACC_IS_APPLE) {
+     xacc::debug("[PyPluginLoader] Unloading Python plugins");
+     delete guard;
      int i = dlclose(libpython_handle);
      if (i != 0) {
         std::cout << "error closing python lib: " << i << "\n";

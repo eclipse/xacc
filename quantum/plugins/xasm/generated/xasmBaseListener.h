@@ -51,14 +51,26 @@ public:
   virtual void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override { }
   virtual void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override { }
 
+  virtual void enterIfstmt(xasmParser::IfstmtContext * /*ctx*/) override { }
+  virtual void exitIfstmt(xasmParser::IfstmtContext * /*ctx*/) override { }
+
   virtual void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override { }
   virtual void exitInstruction(xasmParser::InstructionContext * /*ctx*/) override { }
 
+  virtual void enterBufferList(xasmParser::BufferListContext * /*ctx*/) override { }
+  virtual void exitBufferList(xasmParser::BufferListContext * /*ctx*/) override { }
+
+  virtual void enterParamList(xasmParser::ParamListContext * /*ctx*/) override { }
+  virtual void exitParamList(xasmParser::ParamListContext * /*ctx*/) override { }
+
+  virtual void enterParameter(xasmParser::ParameterContext * /*ctx*/) override { }
+  virtual void exitParameter(xasmParser::ParameterContext * /*ctx*/) override { }
+
+  virtual void enterComposite_generator(xasmParser::Composite_generatorContext * /*ctx*/) override { }
+  virtual void exitComposite_generator(xasmParser::Composite_generatorContext * /*ctx*/) override { }
+
   virtual void enterBufferIndex(xasmParser::BufferIndexContext * /*ctx*/) override { }
   virtual void exitBufferIndex(xasmParser::BufferIndexContext * /*ctx*/) override { }
-
-  virtual void enterBitsOrParamType(xasmParser::BitsOrParamTypeContext * /*ctx*/) override { }
-  virtual void exitBitsOrParamType(xasmParser::BitsOrParamTypeContext * /*ctx*/) override { }
 
   virtual void enterOptionsMap(xasmParser::OptionsMapContext * /*ctx*/) override { }
   virtual void exitOptionsMap(xasmParser::OptionsMapContext * /*ctx*/) override { }

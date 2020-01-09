@@ -73,7 +73,7 @@ const std::string rucc = R"rucc(__qpu__ void f(qbit q, double t0) {
 
 TEST(RDMPurificationDecoratorTester, checkGround) {
 
-  if (xacc::hasAccelerator("tnqvm")) {
+//   if (xacc::hasAccelerator("tnqvm")) {
     xacc::setOption("ibm-shots", "1024");
     xacc::setOption("u-p-depol", ".025");
     xacc::setOption("cx-p-depol", ".03");
@@ -82,7 +82,7 @@ TEST(RDMPurificationDecoratorTester, checkGround) {
 
     // Get the user-specified Accelerator,
     // or TNQVM if none specified
-    auto accelerator = xacc::getAccelerator("tnqvm");
+    auto accelerator = xacc::getAccelerator("qpp");
     int nQubits = 4;
 
     auto accd = xacc::getService<AcceleratorDecorator>("rdm-purification");
@@ -123,7 +123,7 @@ TEST(RDMPurificationDecoratorTester, checkGround) {
     // buffers[0]->print(std::cout);
     // std::cout << "EXPVAL: " << buffers[0]->getExpectationValueZ() << "\n";
     // EXPECT_NEAR(energy, -1.1371, 1e-4);
-  }
+//   }
 }
 
 int main(int argc, char **argv) {

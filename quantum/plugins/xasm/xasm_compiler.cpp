@@ -19,17 +19,18 @@
 #include "xasm_compiler.hpp"
 #include "xasm_errorlistener.hpp"
 #include "xasm_listener.hpp"
+#include "xasm_visitor.hpp"
+#include "InstructionIterator.hpp"
 
 using namespace xasm;
 using namespace antlr4;
 
 namespace xacc {
 
-
 XASMCompiler::XASMCompiler() = default;
 
 std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
-                                           std::shared_ptr<Accelerator> acc) {
+                                          std::shared_ptr<Accelerator> acc) {
   ANTLRInputStream input(src);
   xasmLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
@@ -44,7 +45,8 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
   tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
   auto f = listener.getFunction();
-  if (f->name() != "tmp_lambda") xacc::appendCompiled(f);
+  if (f->name() != "tmp_lambda")
+    xacc::appendCompiled(f);
 
   if (acc) {
     f->set_accelerator_signature(acc->getSignature());
@@ -55,12 +57,39 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
 }
 
 std::shared_ptr<IR> XASMCompiler::compile(const std::string &src) {
-  return compile(src,nullptr);
+  return compile(src, nullptr);
+}
+
+std::vector<std::string> XASMCompiler::getKernelBufferNames(const std::string& src) {
+  ANTLRInputStream input(src);
+  xasmLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
+  xasmParser parser(&tokens);
+  parser.removeErrorListeners();
+  parser.addErrorListener(new XASMErrorListener());
+
+  auto ir = xacc::getService<IRProvider>("quantum")->createIR();
+
+  tree::ParseTree *tree = parser.xaccsrc();
+  XASMListener listener;
+  tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
+
+  return listener.getBufferNames();
 }
 
 const std::string
 XASMCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
-  xacc::error("translate has not been implemented yet");
-  return "";
+  auto visitor = std::make_shared<quantum::XasmVisitor>();
+  InstructionIterator it(function);
+  while (it.hasNext()) {
+    // Get the next node in the tree
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      nextInst->accept(visitor);
+    }
+  }
+
+  return "__qpu__ void " + function->name() + "(qbit q) {\n" +
+         visitor->getXasmString() + "}";
 }
 } // namespace xacc

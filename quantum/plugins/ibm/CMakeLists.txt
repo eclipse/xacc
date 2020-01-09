@@ -63,7 +63,7 @@ if(LAPACK_FOUND)
                                ${ANTLR_LIB}
                                CppMicroServices
                                blas
-                               lapack)
+                               lapack PRIVATE cpr)
 
 else()
 
@@ -79,7 +79,7 @@ else()
                         PUBLIC xacc
                                xacc-quantum-gate
                                ${ANTLR_LIB}
-                               CppMicroServices)
+                               CppMicroServices PRIVATE cpr)
 
 endif()
 

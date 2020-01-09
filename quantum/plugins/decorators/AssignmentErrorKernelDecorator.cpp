@@ -36,6 +36,12 @@ void AssignmentErrorKernelDecorator::initialize(
     layout = params.get<std::vector<std::size_t>>("layout");
     std::cout<<"layout recieved"<<std::endl;
   }
+  if (params.keyExists<std::vector<int>>("layout")){
+    auto tmp = params.get<std::vector<int>>("layout");
+    for (auto& a : tmp) layout.push_back(a);
+
+    std::cout<<"layout recieved"<<std::endl;
+  }
 } // initialize
 
 void AssignmentErrorKernelDecorator::execute(
@@ -43,18 +49,23 @@ void AssignmentErrorKernelDecorator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
   int num_bits = buffer->size();
   int size = std::pow(2, num_bits);
+  if (!layout.empty()) {
+     function->mapBits(layout);
+  }
   // get the raw state
   decoratedAccelerator->execute(buffer, function);
   int shots = 0;
   Eigen::VectorXd init_state(size);
+  init_state.setZero();
   int i = 0;
   for (auto &x : buffer->getMeasurementCounts()) {
     shots += x.second;
-    std::cout<<x.second<<std::endl;
+    std::cout<<"HELLO: " << x.first << ", " << x.second<<std::endl;
     init_state(i) = double(x.second);
     //std::cout<<init_state(i)<<std::endl;
     i++;
   }
+  std::cout << "BEFORE: " << init_state.transpose() << "\n";
   init_state = (double)1/shots*init_state;
   //std::cout<<"num_shots = "<<shots<<std::endl;
   std::cout<<"INIT STATE:\n"<<init_state<<std::endl;
