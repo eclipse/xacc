@@ -102,8 +102,9 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
     for (auto &kv : tmppp) {
       embedding.insert(kv);
     }
-    embedding.persist(std::cout);
   }
+    //   embedding.persist(std::cout);
+
   // ------------------------------
 
   // embed problem
@@ -112,7 +113,7 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   for (auto &pInst : problem->getInstructions()) {
     problemData.emplace_back(
         sapi_ProblemEntry{(int)pInst->bits()[0], (int)pInst->bits()[1],
-                          pInst->getParameter(0).as<double>()});
+                          xacc::InstructionParameterToDouble(pInst->getParameter(0))});
   }
   auto sapiProblem = sapi_Problem{problemData.data(), problemData.size()};
 
@@ -145,9 +146,9 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
     /* set value differently in each loop iteration below */
   }
 
-  for (int i = r->problem.len; i < embedded_problem.len; i++) {
-    embedded_problem.elements[i].value = chain_strength;
-  }
+//   for (int i = r->problem.len; i < embedded_problem.len; i++) {
+//     embedded_problem.elements[i].value = chain_strength;
+//   }
   // Execute embedded problem
   // ------------------------------
   sapi_QuantumSolverParameters solver_params =
@@ -161,12 +162,18 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   sapi_globalInit();
   code = sapi_remoteConnection("https://cloud.dwavesys.com/sapi",
                                apiKey.c_str(), NULL, &connection, err_msg);
-  solver = sapi_getSolver(connection, "DW_2000Q_VFYC_2_1");
+  solver = sapi_getSolver(connection, backend.c_str());
   solver_properties = sapi_getSolverProperties(solver);
+
   code = sapi_solveIsing(solver, &embedded_problem,
                          (sapi_SolverParameters *)&solver_params, &answer,
                          err_msg);
 
+  if (answer) {
+      std::cout << "ANSWER WAS GOOD\n";
+  } else {
+      std::cout << "ANSWER WAS NULL\n";
+  }
   int *new_solutions = NULL;
   int *nsr;
   size_t num_new_solutions;
@@ -180,6 +187,7 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
   int first;
   std::map<std::string, int> measurements;
+  std::map<std::string, double> energies_map;
   for (int i = 0; i < num_new_solutions; ++i) {
     printf("solution %d:\n", (int)i);
     std::stringstream ss;
@@ -188,24 +196,16 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                  ? 0
                  : new_solutions[i * num_variables + j]);
     }
-    std::cout << ss.str() << "\n";
-    buffer->appendMeasurement(ss.str(), answer->num_occurrences[i]);
+    std::cout << ss.str() <<  ", " << answer->energies[i] << "\n";
     if (measurements.count(ss.str())) {
       measurements[ss.str()] += answer->num_occurrences[i];
     } else {
       measurements.insert({ss.str(), answer->num_occurrences[i]});
+      energies_map.insert({ss.str(), answer->energies[i]});
     }
   }
   buffer->setMeasurements(measurements);
-  std::vector<double> energies;
-  std::vector<int> numOccurrences;
-  for (int i = 0; i < num_new_solutions; i++) {
-    energies.push_back(answer->energies[i]);
-    numOccurrences.push_back(answer->num_occurrences[i]);
-  }
-
-  buffer->addExtraInfo("energies", energies);
-  buffer->addExtraInfo("num_occurrences", numOccurrences);
+  buffer->addExtraInfo("energies", energies_map);
 
 }
 

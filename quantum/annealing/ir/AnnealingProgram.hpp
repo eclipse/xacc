@@ -31,6 +31,7 @@ protected:
   std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
   std::string _name;
+  std::string tag = "ising";
 
   void throwIfInvalidInstructionParameter(InstPtr instruction);
   void validateInstructionIndex(const std::size_t idx) {
@@ -77,6 +78,10 @@ public:
     }
     return newF;
   }
+
+  // ising or qubo
+  const std::string getTag() override {return tag;}
+  void setTag(const std::string& t) override {tag = t;return;}
 
   const int nInstructions() override { return instructions.size(); }
   const int nChildren() override {return instructions.size();}

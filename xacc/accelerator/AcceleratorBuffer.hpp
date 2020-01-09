@@ -171,6 +171,7 @@ public:
     children.erase(children.begin() + idx);
   }
 
+  void setSize(const int s) {nBits = s;}
   const int size() const;
   const std::string name() const;
   virtual void resetBuffer();

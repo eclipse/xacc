@@ -90,6 +90,10 @@ public:
       circuitName = name;
   }
 
+
+  const std::string getTag() override {return "";}
+  void setTag(const std::string& tag) override {return;}
+  
   void mapBits(std::vector<std::size_t> bitMap) override {
     for (auto &inst : instructions) {
       inst->mapBits(bitMap);

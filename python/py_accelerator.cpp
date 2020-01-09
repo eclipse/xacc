@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_accelerator.hpp"
+#include "AcceleratorBuffer.hpp"
 #include "AcceleratorDecorator.hpp"
 #include "py_heterogeneous_map.hpp"
 
@@ -95,6 +96,7 @@ void bind_accelerator(py::module &m) {
                xacc::AcceleratorBuffer::*)()) &
                xacc::AcceleratorBuffer::getChildren,
            "")
+      .def("setSize", &xacc::AcceleratorBuffer::setSize, "")
       .def("getChildrenNames", &xacc::AcceleratorBuffer::getChildrenNames, "")
       .def("keys", &xacc::AcceleratorBuffer::listExtraInfoKeys, "")
       .def("getInformation",

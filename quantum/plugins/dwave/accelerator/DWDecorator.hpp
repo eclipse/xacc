@@ -14,9 +14,11 @@
 #define XACC_DWDECORATOR_HPP_
 
 #include "AcceleratorDecorator.hpp"
+#include "Utils.hpp"
 #include "xacc_service.hpp"
 #include <unordered_set>
 #include "dwave_sapi.h"
+#include "xacc.hpp"
 
 namespace xacc {
 
@@ -24,9 +26,9 @@ namespace quantum {
 
 class DWDecorator : public Accelerator {
 protected:
-  double chain_strength = 1.;
+  double chain_strength = -1.;
   double shots = 100;
-  std::string backend = "DW_2000Q_VFYC_2_1";
+  std::string backend = "";
   std::string apiKey;
   sapi_Solver *solver = NULL;
   sapi_Connection *connection = NULL;
@@ -50,6 +52,18 @@ public:
     auto code =
         sapi_remoteConnection("https://cloud.dwavesys.com/sapi", apiKey.c_str(),
                               NULL, &connection, err_msg);
+
+    std::vector<std::string> available_solvers;
+    auto solver_names = sapi_listSolvers(connection);
+    for (int i = 0; solver_names[i] != NULL; ++i) {
+      available_solvers.push_back(solver_names[i]);
+    }
+
+    if (!xacc::container::contains(available_solvers, backend)) {
+        std::stringstream ss;
+        ss << available_solvers;
+        xacc::error("[Dwave Backend] Solver " + backend + " is not a valid solver. Must be one of "+ss.str()+"");
+    }
     solver = sapi_getSolver(connection, backend.c_str());
     solver_properties = sapi_getSolverProperties(solver);
   }
@@ -63,6 +77,8 @@ public:
     }
     if (params.stringExists("backend")) {
       backend = params.getString("backend");
+    } else {
+        xacc::error("[Dwave Backend] You must provide the backend name when you request this Accelerator.");
     }
   }
 

@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_ir.hpp"
+#include "CompositeInstruction.hpp"
 #include "IRTransformation.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -101,6 +102,8 @@ void bind_ir(py::module &m) {
       .def("depth", &xacc::CompositeInstruction::depth, "")
       .def("persistGraph", &xacc::CompositeInstruction::persistGraph, "")
       .def("mapBits", &xacc::CompositeInstruction::mapBits, "")
+      .def("setTag", &xacc::CompositeInstruction::setTag, "")
+      .def("getTag", &xacc::CompositeInstruction::getTag, "")
       .def(
           "defaultPlacement",
           [&](std::shared_ptr<CompositeInstruction> program,
@@ -165,7 +168,17 @@ void bind_ir(py::module &m) {
           [](IRProvider &p, const std::string name) {
             return p.createComposite(name);
           },
-          "");
+          "")
+      .def(
+          "createComposite",
+          [](IRProvider &p, const std::string name, std::vector<std::string> vars, const std::string type) {
+            return p.createComposite(name, vars, type);
+          },
+          "")
+      .def("createIR",[](IRProvider &p) {
+            return p.createIR();
+          },
+          "") ;
 
   // Expose the IR interface
   py::class_<xacc::IR, std::shared_ptr<xacc::IR>>(

@@ -87,7 +87,7 @@ public:
   virtual void replaceInstruction(const std::size_t idx, InstPtr newInst) = 0;
   virtual void insertInstruction(const std::size_t idx, InstPtr newInst) = 0;
   virtual void clear() = 0;
-  
+
   virtual void addInstruction(InstPtr instruction) = 0;
   virtual void addInstructions(std::vector<InstPtr>& instruction) = 0;
   virtual void addInstructions(const std::vector<InstPtr>& instruction) = 0;
@@ -126,6 +126,8 @@ public:
   virtual const std::string accelerator_signature() = 0;
   virtual void set_accelerator_signature(const std::string signature) = 0;
 
+  virtual const std::string getTag() = 0;
+  virtual void setTag(const std::string& tag) = 0;
   virtual ~CompositeInstruction() {}
 };
 

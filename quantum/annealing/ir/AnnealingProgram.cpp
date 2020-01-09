@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "AnnealingProgram.hpp"
+#include "Instruction.hpp"
 #include "xacc_service.hpp"
 
 #include "IRProvider.hpp"
@@ -94,9 +95,9 @@ std::shared_ptr<Graph> AnnealingProgram::toGraph() {
     auto bits = inst->bits();
     if (bits[0] == bits[1]) {
       auto p = inst->getParameter(0);
-      graph->getVertexProperties(bits[0]).get_mutable<double>("bias") = p.as<double>();
+      graph->getVertexProperties(bits[0]).get_mutable<double>("bias") = xacc::InstructionParameterToDouble(p);//p.as<double>();
     } else {
-      graph->addEdge(bits[0], bits[1], inst->getParameter(0).as<double>());
+      graph->addEdge(bits[0], bits[1], xacc::InstructionParameterToDouble(inst->getParameter(0)));
     }
   }
 
