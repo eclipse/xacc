@@ -46,7 +46,6 @@ TEST(InternalCompilerTester, checkMultipleBuffers) {
 
   xacc::AcceleratorBuffer *bufs[2] = {q.results(), r.results()};
 
-  //   std::vector<xacc::AcceleratorBuffer*> bufs{q.results(),r.results()};
   execute(bufs, 2, circuit);
   auto counts = q.counts();
   for (const auto &kv : counts) {
@@ -58,13 +57,6 @@ TEST(InternalCompilerTester, checkMultipleBuffers) {
   }
 }
 
-// module mult (multiplicand, multiplier, product);
-//    input [3:0] multiplicand;
-//    input [3:0] multiplier;
-//    output[7:0] product;
-
-//    assign product = multiplicand * multiplier;
-// endmodule // mult
 
 TEST(InternalCompilerTester, checkStaqAdd) {
   if (!xacc::hasCompiler("staq")) {
@@ -124,57 +116,6 @@ measure c -> result;
 
   xacc::external::unload_external_language_plugins();
 }
-
-// TEST(InternalCompilerTester, checkStaqMult) {
-//   if (!xacc::hasCompiler("staq")) {
-//     return;
-//   }
-//   xacc::external::load_external_language_plugins();
-//   setAccelerator("aer");
-//   auto a = qalloc(2);
-//   a.setName("aa");
-//   a.store();
-
-//   auto b = qalloc(2);
-//   b.setName("bb");
-//   b.store();
-
-//   auto c = qalloc(4);
-//   c.setName("cc");
-//   c.store();
-
-//   auto src = R"(__qpu__ void add(qreg aa, qreg bb, qreg cc) {
-// OPENQASM 2.0;
-// include "qelib1.inc";
-
-// oracle mult aa0,aa1,bb0,bb1,cc0,cc1,cc2,cc3 { "@CMAKE_SOURCE_DIR@/quantum/plugins/staq/compiler/tests/mult.v" }
-
-// creg result[4];
-
-// // a = 1
-// x aa[0];
-// //x aa[2];
-
-// // b = 2
-// x bb[1];
-// //x bb[2];
-
-// mult aa[0],aa[1],bb[0],bb[1],cc[0],cc[1],cc[2],cc[3];
-
-// // measure
-// measure cc -> result;
-// })";
-//   auto circuit = compile("staq", src);
-//   xacc::AcceleratorBuffer *bufs[4] = {a.results(), b.results(), c.results()};
-
-//   execute(bufs, 3, circuit);
-
-//   auto counts = c.counts();
-//   for (const auto &kv : counts) {
-//     printf("%s: %i\n", kv.first.c_str(), kv.second);
-//   }
-//   xacc::external::unload_external_language_plugins();
-// }
 
 int main(int argc, char **argv) {
   compiler_InitializeXACC();
