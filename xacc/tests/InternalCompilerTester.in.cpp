@@ -70,7 +70,11 @@ TEST(InternalCompilerTester, checkStaqAdd) {
   if (!xacc::hasCompiler("staq")) {
     return;
   }
+
   xacc::external::load_external_language_plugins();
+  if (!xacc::hasAccelerator("aer")) {
+      return;
+  }
   setAccelerator("aer");
 
   auto a = qalloc(4);
@@ -174,7 +178,7 @@ measure c -> result;
 
 int main(int argc, char **argv) {
   compiler_InitializeXACC();
-  xacc::set_verbose(true);
+//   xacc::set_verbose(true);
 
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();

@@ -15,30 +15,30 @@
 namespace xacc {
 namespace quantum {
 
-    void QppAccelerator::initialize(const HeterogeneousMap& params)  
+    void QppAccelerator::initialize(const HeterogeneousMap& params)
     {
         m_visitor = std::make_shared<QppVisitor>();
-        if (params.keyExists<int>("shots")) 
+        if (params.keyExists<int>("shots"))
         {
             m_shots = params.get<int>("shots");
-            if (m_shots < 1) 
+            if (m_shots < 1)
             {
                 xacc::error("Invalid 'shots' parameter.");
             }
         }
     }
 
-    void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)  
+    void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
     {
         const auto runCircuit = [&](bool shotsMode){
             m_visitor->initialize(buffer, shotsMode);
 
             // Walk the IR tree, and visit each node
             InstructionIterator it(compositeInstruction);
-            while (it.hasNext()) 
+            while (it.hasNext())
             {
                 auto nextInst = it.next();
-                if (nextInst->isEnabled()) 
+                if (nextInst->isEnabled())
                 {
                     nextInst->accept(m_visitor);
                 }
@@ -46,9 +46,9 @@ namespace quantum {
 
             m_visitor->finalize();
         };
-       
 
-        if (m_shots < 0) 
+
+        if (m_shots < 0)
         {
             runCircuit(false);
         }
@@ -58,11 +58,11 @@ namespace quantum {
            {
                 runCircuit(true);
            }
-        }        
+        }
     }
-    void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)  
+    void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)
     {
-        for (auto& f : compositeInstructions) 
+        for (auto& f : compositeInstructions)
         {
             auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
             execute(tmpBuffer, f);

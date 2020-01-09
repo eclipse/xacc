@@ -22,11 +22,12 @@ public:
     // Identifiable interface impls
     virtual const std::string name() const override { return "qpp"; }
     virtual const std::string description() const override { return "XACC Simulation Accelerator based on qpp library."; }
-    
+
     // Accelerator interface impls
     virtual void initialize(const HeterogeneousMap& params = {}) override;
-    virtual void updateConfiguration(const HeterogeneousMap& config) override {};
+    virtual void updateConfiguration(const HeterogeneousMap& config) override {initialize(config);};
     virtual const std::vector<std::string> configurationKeys() override { return {}; }
+    virtual BitOrder getBitOrder() override {return BitOrder::LSB;}
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction) override;
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
 private:

@@ -24,6 +24,11 @@ void setAccelerator(const char *qpu_backend) {
   }
 }
 
+void setAccelerator(const char * qpu_backend, const int shots) {
+    setAccelerator(qpu_backend);
+    qpu->updateConfiguration({std::make_pair("shots", shots)});
+}
+
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
 CompositeInstruction *compile(const char *compiler_name,
@@ -171,12 +176,36 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
     next.setBufferNames(unified_buf_names);
   }
 
+  std::vector<std::size_t> measure_idxs;
+  InstructionIterator iter2(program_as_shared);
+  while (iter2.hasNext()) {
+      auto &next = *iter2.next();
+      if (next.name() == "Measure") {
+          measure_idxs.push_back(next.bits()[0]);
+      }
+  }
+
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
 
   // Take bit strings and map to buffer individual bit strings
   for (auto &kv : tmp->getMeasurementCounts()) {
     auto bitstring = kv.first;
+
+    // Some backends return bitstring of size = number of measures
+    // instead of size = global_reg_size, adjust if so
+    if (bitstring.size() == measure_idxs.size()) {
+        std::string tmps = "";
+        for (int j = 0; j < global_reg_size; j++) tmps+="0";
+
+        for (int j = 0; j < measure_idxs.size(); j++) {
+            tmps[measure_idxs[j]] = bitstring[j];
+        }
+
+        bitstring = tmps;
+    }
+
+    // The following processing the bit string assuming LSB
     if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
       std::reverse(bitstring.begin(), bitstring.end());
     }
@@ -203,9 +232,10 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
 
   for (auto &b : bvec) {
     b->setMeasurements(buf_counts[b->name()]);
+    b->addExtraInfo("endianness", qpu->getBitOrder() == Accelerator::BitOrder::LSB ? "lsb" : "msb" );
   }
 
-  
+
 }
 
 } // namespace internal_compiler
