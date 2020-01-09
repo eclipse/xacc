@@ -244,5 +244,18 @@ namespace quantum {
         {
             std::cout << ">> State after measurement: " << qpp::disp(m_stateVec, ", ") << "\n";
         }
+
+        // Add the measurement data to the acceleration buffer (e.g. for conditional execution branching)
+        m_buffer->measure(measure.bits()[0], randomSelectedResult);        
+    }
+
+    void QppVisitor::visit(IfStmt& ifStmt)
+    {
+        ifStmt.expand({});
+
+        if (xacc::verbose)
+        {
+            std::cout << "If statement expanded to: " << ifStmt.toString() << "\n";
+        }
     }
 }}

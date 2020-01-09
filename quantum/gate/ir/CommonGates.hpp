@@ -59,6 +59,12 @@ public:
         i->enable();
       }
     }
+    else {
+      // Note: although sub-instructions are initially disabled,
+      // we need to disable here as well just in case we run multiple shots
+      // and they may be enabled in the previous run.
+      disable();
+    }
     return true;
   }
 
