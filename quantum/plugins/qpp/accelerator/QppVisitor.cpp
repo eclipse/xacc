@@ -31,7 +31,6 @@ namespace quantum {
     {
         if (m_shotsMode)
         {
-            std::cout << "FINALIZING with bit string " << m_bitString << "\n";
             m_buffer->appendMeasurement(m_bitString);
             m_bitString.clear();
         }
