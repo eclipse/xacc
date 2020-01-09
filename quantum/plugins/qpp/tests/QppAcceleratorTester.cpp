@@ -19,8 +19,8 @@
 #include "Algorithm.hpp"
 
 namespace {
-    template <typename T> 
-    std::vector<T> linspace(T a, T b, size_t N) 
+    template <typename T>
+    std::vector<T> linspace(T a, T b, size_t N)
     {
         T h = (b - a) / static_cast<T>(N - 1);
         std::vector<T> xs(N);
@@ -29,12 +29,12 @@ namespace {
         for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
         {
             *x = val;
-        }    
+        }
         return xs;
     }
 }
 
-TEST(QppAcceleratorTester, testDeuteron) 
+TEST(QppAcceleratorTester, testDeuteron)
 {
     auto accelerator = xacc::getAccelerator("qpp");
     auto xasmCompiler = xacc::getCompiler("xasm");
@@ -74,7 +74,7 @@ TEST(QppAcceleratorTester, testDeuteron)
     };
 
     const auto angles = linspace(-xacc::constants::pi, xacc::constants::pi, 20);
-    for (size_t i = 0; i < angles.size(); ++i) 
+    for (size_t i = 0; i < angles.size(); ++i)
     {
         auto buffer = xacc::qalloc(2);
         auto evaled = program->operator()({ angles[i] });
@@ -83,7 +83,7 @@ TEST(QppAcceleratorTester, testDeuteron)
     }
 }
 
-TEST(QppAcceleratorTester, testDeuteronVqeH2) 
+TEST(QppAcceleratorTester, testDeuteronVqeH2)
 {
     // Use Qpp accelerator
     auto accelerator = xacc::getAccelerator("qpp");
@@ -122,7 +122,7 @@ TEST(QppAcceleratorTester, testDeuteronVqeH2)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
 }
 
-TEST(QppAcceleratorTester, testDeuteronVqeH3) 
+TEST(QppAcceleratorTester, testDeuteronVqeH3)
 {
     // Use Qpp accelerator
     auto accelerator = xacc::getAccelerator("qpp");
@@ -163,7 +163,7 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
 }
 
-TEST(QppAcceleratorTester, testShots) 
+TEST(QppAcceleratorTester, testShots)
 {
     const int nbShots = 100;
     {
@@ -212,11 +212,11 @@ MEASURE 1 [1]
         EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
         // Only 00 and 11 states
         EXPECT_EQ(buffer->getMeasurementCounts()["11"] + buffer->getMeasurementCounts()["00"], nbShots);
-    }    
+    }
 }
 
 // Port DDCL test suite to QPP
-TEST(QppAcceleratorTester, testDDCL) 
+TEST(QppAcceleratorTester, testDDCL)
 {
     // Set up
     {
@@ -231,7 +231,7 @@ TEST(QppAcceleratorTester, testDDCL)
         // compile source to the compilation DB
         auto ir = compiler->compile(src, acc);
     }
-    
+
     // Use a reasonable number of shots to save test time
     const int nbShots = 128;
     // checkJSSimpleGradientFree
@@ -255,10 +255,10 @@ TEST(QppAcceleratorTester, testDDCL)
         ddcl->execute(buffer);
 
         auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-3);
+        EXPECT_NEAR(loss, 0.0, 1e-2);
     }
 
-    //  checkMMDSimpleGradientFree) 
+    //  checkMMDSimpleGradientFree)
     {
         auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
         auto buffer = xacc::qalloc(1);
@@ -279,10 +279,10 @@ TEST(QppAcceleratorTester, testDDCL)
         ddcl->execute(buffer);
 
         auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-3);
+        EXPECT_NEAR(loss, 0.0, 1e-2);
     }
 
-    // checkJSSimpleWithGradient) 
+    // checkJSSimpleWithGradient)
     {
         auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
         auto buffer = xacc::qalloc(1);
@@ -305,7 +305,7 @@ TEST(QppAcceleratorTester, testDDCL)
         ddcl->execute(buffer);
 
         auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-3);
+        EXPECT_NEAR(loss, 0.0, 1e-2);
     }
 
     // checkMMDSimpleWithGradient
@@ -331,17 +331,17 @@ TEST(QppAcceleratorTester, testDDCL)
         ddcl->execute(buffer);
 
         auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-3);
+        EXPECT_NEAR(loss, 0.0, 1e-2);
     }
 }
 
 int main(int argc, char **argv) {
-  xacc::Initialize(); 
-  
+  xacc::Initialize();
+
   ::testing::InitGoogleTest(&argc, argv);
   const auto result = RUN_ALL_TESTS();
-  
-  xacc::Finalize(); 
-  
+
+  xacc::Finalize();
+
   return result;
 }
