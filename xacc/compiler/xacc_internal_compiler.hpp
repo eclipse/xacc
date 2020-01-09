@@ -30,6 +30,7 @@ enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
 void compiler_InitializeXACC(const char *qpu_backend = "local-ibm");
 void setAccelerator(const char * qpu_backend);
+void setAccelerator(const char * qpu_backend, const int shots);
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
