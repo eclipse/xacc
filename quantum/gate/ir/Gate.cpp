@@ -44,7 +44,7 @@ std::string Gate::getBufferName(const std::size_t bitIdx) {
   }
   void Gate::setBufferNames(const std::vector<std::string> bufferNamesPerIdx)  {
       if (bufferNamesPerIdx.size() != this->nRequiredBits()) {
-          xacc::error("Invalid number of buffer names for this instruction");
+          xacc::error("Invalid number of buffer names for this instruction: " +name() + ", " + std::to_string(bufferNamesPerIdx.size()));
       }
       buffer_names = bufferNamesPerIdx;
   }
