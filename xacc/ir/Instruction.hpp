@@ -20,6 +20,41 @@
 
 namespace xacc {
 using InstructionParameter = Variant<int,double,std::string>;
+
+// Util func to get a double parameter from an InstructionParameter variant.
+// Note: most of the cases, we have double-type parameters (e.g. rotation angles).
+// This also handles int->double and string->double conversion if necessary.
+static double InstructionParameterToDouble(const xacc::InstructionParameter& in_parameter) {
+  if (in_parameter.which() == 0) {
+    // Convert int to double
+    return static_cast<double>(in_parameter.as<int>());
+  } else if (in_parameter.which() == 1) {
+    return in_parameter.as<double>();
+  } else {
+    // Check if this string parameter can be converted to a double
+    const auto isNumber = [](const std::string& in_string, double& out_double) -> bool {
+      char* end = 0;
+      double val = strtod(in_string.c_str(), &end);
+      // This whole string must be a valid double number
+      const bool isConversionOkay = (end != in_string.c_str()) && (*end == '\0') && (val != std::numeric_limits<double>::infinity());
+      if (isConversionOkay) {
+        out_double = val;
+      }
+
+      return isConversionOkay;
+    };
+
+    const std::string paramString = in_parameter.toString();
+    double paramDouble = 0.0;
+    if (isNumber(paramString, paramDouble)) {
+      return paramDouble;
+    }
+  }
+
+  // Cannot find a way to convert, returns 0.0
+  return 0.0;
+}
+
 class CompositeInstruction;
 
 // The Instruction interface exposes an API for describing a general
@@ -51,6 +86,23 @@ public:
   virtual const std::vector<std::size_t> bits() = 0;
   virtual void setBits(const std::vector<std::size_t> bits) = 0;
   virtual void mapBits(std::vector<std::size_t> bitMap) = 0;
+
+  // For the case where the bit indices for this Instruction are
+  // some general expression, Clients should set the bit to -1 and provide
+  // the bit expression as a string. The example here would be
+  // H(q[i]) (bit_idx=0, expr=i), or C(q[i],q[i+1]) (bit_idx=0, expr=i and bit_idx=1,expr=i+1)
+  virtual void setBitExpression(const std::size_t bit_idx, const std::string expr) = 0;
+  virtual std::string getBitExpression(const std::size_t bit_idx) = 0;
+
+  // Return the name of the AcceleratorBuffer that this
+  // Instruction operates on at the given bitIdx. E.g.
+  // CX(q[0], r[1]), this would return 'q' for bit 0 and 'r'
+  // for bit 1
+  // Additionally, set enables one to provide these buffer names
+  // input vector should be same size as bits()
+  virtual std::string getBufferName(const std::size_t bitIdx) = 0;
+  virtual std::vector<std::string> getBufferNames() = 0;
+  virtual void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) = 0;
 
   virtual const InstructionParameter getParameter(const std::size_t idx) const = 0;
   virtual std::vector<InstructionParameter> getParameters() = 0;

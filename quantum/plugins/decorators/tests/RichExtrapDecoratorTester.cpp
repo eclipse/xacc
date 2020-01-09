@@ -23,8 +23,8 @@ TEST(RichExtrapDecoratorTester, checkSimple) {
   int shots = 8192;
   int nExecs = 4;
 
-  if (xacc::hasAccelerator("tnqvm")) {
-    auto acc = xacc::getAccelerator("tnqvm");
+//   if (xacc::hasAccelerator("q")) {
+    auto acc = xacc::getAccelerator("qpp");
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getService<xacc::Compiler>("xasm");
@@ -46,15 +46,15 @@ TEST(RichExtrapDecoratorTester, checkSimple) {
     decorator->execute(buffer, f);
 
 
-  }
+//   }
 }
 
 TEST(ImprovedSamplingDecoratorTester, checkMultiple) {
   int shots = 8192;
   int nExecs = 2;
 
-  if (xacc::hasAccelerator("tnqvm")) {
-    auto acc = xacc::getAccelerator("tnqvm");
+//   if (xacc::hasAccelerator("tnqvm")) {
+    auto acc = xacc::getAccelerator("qpp");
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getService<xacc::Compiler>("xasm");
@@ -86,7 +86,7 @@ TEST(ImprovedSamplingDecoratorTester, checkMultiple) {
      decorator->execute(buffer, {f, g});
 
 
-  }
+//   }
 }
 int main(int argc, char **argv) {
   xacc::Initialize();

@@ -10,7 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "QVMAccelerator.hpp"
+// #include "QVMAccelerator.hpp"
 #include "QuilCompiler.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
@@ -34,8 +34,8 @@ public:
   /**
    */
   void Start(BundleContext context) {
-    auto acc = std::make_shared<xacc::quantum::QVMAccelerator>();
-    context.RegisterService<xacc::Accelerator>(acc);
+    // auto acc = std::make_shared<xacc::quantum::QVMAccelerator>();
+    // context.RegisterService<xacc::Accelerator>(acc);
     // context.RegisterService<xacc::OptionsProvider>(acc);
 
     auto c = std::make_shared<xacc::quantum::QuilCompiler>();

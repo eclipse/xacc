@@ -230,7 +230,7 @@ public:
     void compute(std::vector<double> &grad, std::vector<std::shared_ptr<AcceleratorBuffer>> results,
                  const std::vector<double> &q_dist,
                  const std::vector<double> &target_dist) override {
-      assert(grad.size() == 2 * results.size());
+      assert(2*grad.size() == results.size());
 
       //Get the number of shots
       int shots = 0;
@@ -305,7 +305,7 @@ public:
     const std::string name() const override { return "mmd-parameter-shift"; }
     const std::string description() const override { return ""; }
   };
-  
+
 } // namespace algorithm
 } // namespace xacc
 #endif

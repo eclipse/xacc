@@ -14,9 +14,63 @@
 #define QUANTUM_GATE_COMMONGATES_HPP_
 
 #include "Gate.hpp"
+#include "Circuit.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {
+
+class IfStmt : public Circuit {
+protected:
+  std::string bufferName;
+  std::size_t bitIdx;
+
+public:
+  IfStmt() : Circuit("ifstmt") {}
+
+  const std::vector<std::size_t> bits() override { return {bitIdx}; }
+  void setBits(const std::vector<std::size_t> bits) override {
+    bitIdx = bits[0];
+  }
+
+  const InstructionParameter
+  getParameter(const std::size_t idx) const override {
+    return InstructionParameter(bufferName);
+  }
+  void setParameter(const std::size_t idx, InstructionParameter &p) override {
+    bufferName = p.toString();
+  }
+  std::vector<InstructionParameter> getParameters() override {
+    return {bufferName};
+  }
+  const int nParameters() override { return 1; }
+
+  const int nRequiredBits() const override { return 1; }
+
+  void addInstruction(InstPtr instruction) override {
+    instruction->disable();
+    Circuit::addInstruction(instruction);
+  }
+
+  bool expand(const HeterogeneousMap &runtimeOptions) override {
+    auto buffer = xacc::getBuffer(bufferName);
+    if ((*buffer)[bitIdx]) {
+      for (auto &i : instructions) {
+        i->enable();
+      }
+    }
+    return true;
+  }
+
+  void disable() override {
+    for (auto &i : instructions) {
+      i->disable();
+    }
+  }
+
+  DEFINE_CLONE(IfStmt)
+  DEFINE_VISITABLE()
+};
 
 class Identity : public Gate {
 public:
@@ -208,8 +262,11 @@ public:
     auto str = gateName;
     str += " ";
 
+    int counter = 0;
     for (auto q : bits()) {
-      str += bufferVarName + std::to_string(q) + ",";
+      str += (buffer_names.empty() ? "q" : getBufferName(counter)) +
+             std::to_string(q) + ",";
+      counter++;
     }
 
     // Remove trailing comma

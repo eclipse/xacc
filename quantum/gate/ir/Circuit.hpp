@@ -334,6 +334,16 @@ public:
     }
   }
 
+  std::string getBufferName(const std::size_t bitIdx) override {
+      return "";
+  }
+  std::vector<std::string> getBufferNames() override {return {};}
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+      return;
+  }
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
+
   void setCoefficient(const std::complex<double> c) override {
     coefficient = c;
   }

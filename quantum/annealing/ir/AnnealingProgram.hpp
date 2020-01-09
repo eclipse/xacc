@@ -88,7 +88,8 @@ public:
   void removeDisabled() override {
   }
 
-
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
   const int nRequiredBits() const override {
     return 0;
   }
@@ -133,7 +134,7 @@ InstPtr getInstruction(const std::size_t idx) override {
   void clear() override {
       instructions.clear();
   }
-  
+
   const std::string persistGraph() override {
     std::stringstream s;
     toGraph()->write(s);
@@ -173,6 +174,10 @@ InstPtr getInstruction(const std::size_t idx) override {
 
     return biases;
   }
+
+  std::string getBufferName(const std::size_t bitIdx) override {return "";}
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {}
+  std::vector<std::string> getBufferNames() override {return {};}
 
   std::vector<double> getAllCouplers() {
     std::vector<double> weights;

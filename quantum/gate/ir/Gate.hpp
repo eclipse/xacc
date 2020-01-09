@@ -29,6 +29,9 @@ protected:
   std::vector<std::size_t> qbits;
   bool enabled = true;
   std::vector<InstructionParameter> parameters;
+  std::vector<std::string> buffer_names;
+
+  std::map<std::size_t, std::string> bitIdxExpressions;
 
 public:
   Gate();
@@ -47,6 +50,11 @@ public:
 
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
+  std::string getBufferName(const std::size_t bitIdx) override;
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override;
+  std::vector<std::string> getBufferNames() override {return buffer_names;}
+  void setBitExpression(const std::size_t bit_idx, const std::string expr) override {bitIdxExpressions.insert({bit_idx,expr});}
+  std::string getBitExpression(const std::size_t bit_idx) override {return bitIdxExpressions[bit_idx];}
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;

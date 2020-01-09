@@ -109,6 +109,7 @@ protected:
 
     int row = 0;
     Eigen::MatrixXd K(pow_bits, pow_bits);
+    K.setZero();
     for (auto &b : buffers) {
       //b->print();
       int col = 0;
@@ -119,7 +120,9 @@ protected:
       }
       row++;
     }
-    AssignmentErrorKernelDecorator::errorKernel = K.inverse();
+    std::cout << "MATRIX:\n" << K << "\n";
+    errorKernel = K.inverse();
+    std::cout << "INVERSE:\n" << errorKernel << "\n";
     std::vector<double> vec(errorKernel.data(), errorKernel.data() + errorKernel.rows()*errorKernel.cols());
     buffer->addExtraInfo("error-kernel", vec);
 

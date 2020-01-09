@@ -16,7 +16,7 @@ if (APPLE)
 set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
 endif()
 file(GLOB SRC
-          accelerator/QVMAccelerator.cpp
+          #accelerator/QVMAccelerator.cpp
           RigettiActivator.cpp
           compiler/QuilCompiler.cpp
           compiler/QuilToXACCListener.cpp

@@ -209,7 +209,6 @@ DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto lossStrategy = xacc::getService<LossStrategy>(loss);
 
   // Execute!
-  std::cout << "RUNNING ON " << accelerator->name() << "\n";
   auto tmpBuffer = xacc::qalloc(buffer->size());
   accelerator->execute(tmpBuffer, circuits);
   auto buffers = tmpBuffer->getChildren();

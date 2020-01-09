@@ -16,35 +16,85 @@
 #include "IR.hpp"
 #include "IRProvider.hpp"
 #include "xasmBaseListener.h"
+#include "expression_parsing_util.hpp"
+#include "InstructionIterator.hpp"
+#include "xacc.hpp"
 
 using namespace xasm;
 
 namespace xacc {
 
+struct XasmGreaterThan {};
+struct XasmLessThan {};
+struct XasmLessThanOrEqual {};
+struct XasmGreaterThanOrEqual {};
+
 class XASMListener : public xasmBaseListener {
 protected:
   std::shared_ptr<IRProvider> irProvider;
   std::shared_ptr<CompositeInstruction> function;
+  std::shared_ptr<CompositeInstruction> for_function;
+  std::shared_ptr<CompositeInstruction> if_stmt;
   std::string bufferName = "";
-  bool hasVecDouble = false;
-  std::string param_id = "t";
   bool inForLoop = false;
-  std::vector<xasmParser::InstructionContext *> forInstructions;
+  bool inIfStmt = false;
+
+  std::vector<std::string> functionBufferNames;
+  std::string currentInstructionName;
+  std::vector<std::size_t> currentBits;
+  std::vector<std::string> currentBufferNames;
+  std::vector<InstructionParameter> currentParameters;
+  std::map<int, std::string> currentBitIdxExpressions;
+
+  std::string currentCompositeName;
+  HeterogeneousMap currentOptions;
+
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
+
+  std::vector<std::size_t> for_stmt_update_bits(Instruction *inst,
+                                                const std::string varName,
+                                                const int value);
+  std::vector<InstructionParameter>
+  for_stmt_update_params(Instruction *inst, const std::string varName,
+                         const int value);
+
+  template <typename T>
+  void createForInstructions(xasmParser::ForstmtContext *ctx,
+                             std::vector<InstPtr> &instructions,
+                             std::shared_ptr<CompositeInstruction> function) {
+    xacc::warning("[XasmCompiler] createForInstructions called with invalid "
+                  "template parameter. Skipping.");
+    return;
+  }
 
 public:
   HeterogeneousMap runtimeOptions;
 
   XASMListener();
 
+  std::vector<std::string> getBufferNames() {return functionBufferNames;}
+  
   std::shared_ptr<CompositeInstruction> getFunction() { return function; }
 
   void enterXacckernel(xasmParser::XacckernelContext * /*ctx*/) override;
   void enterXacclambda(xasmParser::XacclambdaContext * /*ctx*/) override;
+
   void enterInstruction(xasmParser::InstructionContext * /*ctx*/) override;
-  InstPtr enterForLoopInstruction(xasmParser::InstructionContext *ctx,
-                                  std::string &varname, const std::size_t idx);
+  void enterBufferList(xasmParser::BufferListContext * /*ctx*/) override;
+  void enterParamList(xasmParser::ParamListContext * /*ctx*/) override;
+  void exitInstruction(xasmParser::InstructionContext * /*ctx*/) override;
+
+  void enterComposite_generator(
+      xasmParser::Composite_generatorContext * /*ctx*/) override;
+  void enterOptionsType(xasmParser::OptionsTypeContext * /*ctx*/) override;
+  void exitComposite_generator(
+      xasmParser::Composite_generatorContext * /*ctx*/) override;
+
   void enterForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
   void exitForstmt(xasmParser::ForstmtContext * /*ctx*/) override;
+
+  void enterIfstmt(xasmParser::IfstmtContext * /*ctx*/) override;
+  void exitIfstmt(xasmParser::IfstmtContext * /*ctx*/) override;
 };
 
 } // namespace xacc

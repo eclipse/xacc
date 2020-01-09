@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_qpp",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC qpp Simulation Accelerator",
+  "bundle.description" : "This bundle provides a qpp Accelerator for Gate Model QC."
+}

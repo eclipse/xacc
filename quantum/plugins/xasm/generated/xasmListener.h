@@ -49,14 +49,26 @@ public:
   virtual void enterForstmt(xasmParser::ForstmtContext *ctx) = 0;
   virtual void exitForstmt(xasmParser::ForstmtContext *ctx) = 0;
 
+  virtual void enterIfstmt(xasmParser::IfstmtContext *ctx) = 0;
+  virtual void exitIfstmt(xasmParser::IfstmtContext *ctx) = 0;
+
   virtual void enterInstruction(xasmParser::InstructionContext *ctx) = 0;
   virtual void exitInstruction(xasmParser::InstructionContext *ctx) = 0;
 
+  virtual void enterBufferList(xasmParser::BufferListContext *ctx) = 0;
+  virtual void exitBufferList(xasmParser::BufferListContext *ctx) = 0;
+
+  virtual void enterParamList(xasmParser::ParamListContext *ctx) = 0;
+  virtual void exitParamList(xasmParser::ParamListContext *ctx) = 0;
+
+  virtual void enterParameter(xasmParser::ParameterContext *ctx) = 0;
+  virtual void exitParameter(xasmParser::ParameterContext *ctx) = 0;
+
+  virtual void enterComposite_generator(xasmParser::Composite_generatorContext *ctx) = 0;
+  virtual void exitComposite_generator(xasmParser::Composite_generatorContext *ctx) = 0;
+
   virtual void enterBufferIndex(xasmParser::BufferIndexContext *ctx) = 0;
   virtual void exitBufferIndex(xasmParser::BufferIndexContext *ctx) = 0;
-
-  virtual void enterBitsOrParamType(xasmParser::BitsOrParamTypeContext *ctx) = 0;
-  virtual void exitBitsOrParamType(xasmParser::BitsOrParamTypeContext *ctx) = 0;
 
   virtual void enterOptionsMap(xasmParser::OptionsMapContext *ctx) = 0;
   virtual void exitOptionsMap(xasmParser::OptionsMapContext *ctx) = 0;

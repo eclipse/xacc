@@ -28,6 +28,8 @@ public:
   std::shared_ptr<xacc::IR> compile(const std::string &src) override;
 
   const std::string translate(std::shared_ptr<CompositeInstruction> function) override;
+  std::vector<std::string> getKernelBufferNames(const std::string& src) override;
+
 
   const std::string name() const override { return "xasm"; }
 

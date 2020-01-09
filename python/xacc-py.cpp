@@ -100,6 +100,8 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def(
       "info", [](const std::string s) { xacc::info(s); }, "");
   m.def(
+      "debug", [](const std::string s) { xacc::debug(s); }, "");
+  m.def(
       "error", [](const std::string s) { xacc::error(s); }, "");
   m.def("setOption", &xacc::setOption, "Set an XACC framework option.");
   m.def(

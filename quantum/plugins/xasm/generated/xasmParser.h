@@ -18,17 +18,18 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, COMMENT = 37, ID = 38, 
-    REAL = 39, INT = 40, STRING = 41, WS = 42, EOL = 43
+    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
+    T__38 = 39, T__39 = 40, COMMENT = 41, ID = 42, REAL = 43, INT = 44, 
+    STRING = 45, WS = 46, EOL = 47
   };
 
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleXacclambda = 2, RuleTypedparam = 3, 
     RuleType = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, RuleStatement = 8, 
-    RuleComment = 9, RuleForstmt = 10, RuleInstruction = 11, RuleBufferIndex = 12, 
-    RuleBitsOrParamType = 13, RuleOptionsMap = 14, RuleOptionsType = 15, 
-    RuleExplist = 16, RuleExp = 17, RuleUnaryop = 18, RuleId = 19, RuleReal = 20, 
-    RuleString = 21
+    RuleComment = 9, RuleForstmt = 10, RuleIfstmt = 11, RuleInstruction = 12, 
+    RuleBufferList = 13, RuleParamList = 14, RuleParameter = 15, RuleComposite_generator = 16, 
+    RuleBufferIndex = 17, RuleOptionsMap = 18, RuleOptionsType = 19, RuleExplist = 20, 
+    RuleExp = 21, RuleUnaryop = 22, RuleId = 23, RuleReal = 24, RuleString = 25
   };
 
   xasmParser(antlr4::TokenStream *input);
@@ -52,9 +53,13 @@ public:
   class StatementContext;
   class CommentContext;
   class ForstmtContext;
+  class IfstmtContext;
   class InstructionContext;
+  class BufferListContext;
+  class ParamListContext;
+  class ParameterContext;
+  class Composite_generatorContext;
   class BufferIndexContext;
-  class BitsOrParamTypeContext;
   class OptionsMapContext;
   class OptionsTypeContext;
   class ExplistContext;
@@ -81,14 +86,12 @@ public:
   class  XacckernelContext : public antlr4::ParserRuleContext {
   public:
     xasmParser::IdContext *kernelname = nullptr;;
-    xasmParser::IdContext *acceleratorbuffer = nullptr;;
     XacckernelContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MainprogContext *mainprog();
-    std::vector<IdContext *> id();
-    IdContext* id(size_t i);
     std::vector<TypedparamContext *> typedparam();
     TypedparamContext* typedparam(size_t i);
+    IdContext *id();
+    MainprogContext *mainprog();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -99,13 +102,11 @@ public:
 
   class  XacclambdaContext : public antlr4::ParserRuleContext {
   public:
-    xasmParser::IdContext *acceleratorbuffer = nullptr;;
     XacclambdaContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MainprogContext *mainprog();
-    IdContext *id();
     std::vector<TypedparamContext *> typedparam();
     TypedparamContext* typedparam(size_t i);
+    MainprogContext *mainprog();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -187,7 +188,9 @@ public:
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     InstructionContext *instruction();
+    Composite_generatorContext *composite_generator();
     ForstmtContext *forstmt();
+    IfstmtContext *ifstmt();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -216,15 +219,14 @@ public:
     antlr4::Token *comparator = nullptr;;
     antlr4::Token *end = nullptr;;
     antlr4::Token *inc_or_dec = nullptr;;
-    xasmParser::StatementContext *forScope = nullptr;;
+    xasmParser::ProgramContext *forScope = nullptr;;
     ForstmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<IdContext *> id();
     IdContext* id(size_t i);
     std::vector<antlr4::tree::TerminalNode *> INT();
     antlr4::tree::TerminalNode* INT(size_t i);
-    std::vector<StatementContext *> statement();
-    StatementContext* statement(size_t i);
+    ProgramContext *program();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -233,16 +235,33 @@ public:
 
   ForstmtContext* forstmt();
 
+  class  IfstmtContext : public antlr4::ParserRuleContext {
+  public:
+    xasmParser::IdContext *buffer_name = nullptr;;
+    antlr4::Token *idx = nullptr;;
+    IfstmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ProgramContext *program();
+    IdContext *id();
+    antlr4::tree::TerminalNode *INT();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  IfstmtContext* ifstmt();
+
   class  InstructionContext : public antlr4::ParserRuleContext {
   public:
     xasmParser::IdContext *inst_name = nullptr;;
-    xasmParser::ExplistContext *bits_and_params = nullptr;;
-    xasmParser::OptionsMapContext *options = nullptr;;
+    xasmParser::BufferListContext *buffer_list = nullptr;;
+    xasmParser::ParamListContext *param_list = nullptr;;
     InstructionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
-    ExplistContext *explist();
-    OptionsMapContext *optionsMap();
+    BufferListContext *bufferList();
+    ParamListContext *paramList();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -251,8 +270,71 @@ public:
 
   InstructionContext* instruction();
 
+  class  BufferListContext : public antlr4::ParserRuleContext {
+  public:
+    BufferListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<BufferIndexContext *> bufferIndex();
+    BufferIndexContext* bufferIndex(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  BufferListContext* bufferList();
+
+  class  ParamListContext : public antlr4::ParserRuleContext {
+  public:
+    ParamListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<ParameterContext *> parameter();
+    ParameterContext* parameter(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ParamListContext* paramList();
+
+  class  ParameterContext : public antlr4::ParserRuleContext {
+  public:
+    ParameterContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExpContext *exp();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ParameterContext* parameter();
+
+  class  Composite_generatorContext : public antlr4::ParserRuleContext {
+  public:
+    xasmParser::IdContext *composite_name = nullptr;;
+    xasmParser::IdContext *buffer_name = nullptr;;
+    xasmParser::ParamListContext *composite_params = nullptr;;
+    xasmParser::OptionsMapContext *composite_options = nullptr;;
+    Composite_generatorContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<IdContext *> id();
+    IdContext* id(size_t i);
+    ParamListContext *paramList();
+    OptionsMapContext *optionsMap();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  Composite_generatorContext* composite_generator();
+
   class  BufferIndexContext : public antlr4::ParserRuleContext {
   public:
+    xasmParser::IdContext *buffer_name = nullptr;;
+    xasmParser::ExpContext *idx = nullptr;;
     BufferIndexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
@@ -264,22 +346,6 @@ public:
   };
 
   BufferIndexContext* bufferIndex();
-
-  class  BitsOrParamTypeContext : public antlr4::ParserRuleContext {
-  public:
-    BitsOrParamTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<BufferIndexContext *> bufferIndex();
-    BufferIndexContext* bufferIndex(size_t i);
-    std::vector<ExpContext *> exp();
-    ExpContext* exp(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-   
-  };
-
-  BitsOrParamTypeContext* bitsOrParamType();
 
   class  OptionsMapContext : public antlr4::ParserRuleContext {
   public:
@@ -327,6 +393,8 @@ public:
 
   class  ExpContext : public antlr4::ParserRuleContext {
   public:
+    xasmParser::IdContext *var_name = nullptr;;
+    antlr4::Token *idx = nullptr;;
     ExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdContext *id();
@@ -336,7 +404,6 @@ public:
     StringContext *string();
     RealContext *real();
     antlr4::tree::TerminalNode *INT();
-    BufferIndexContext *bufferIndex();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

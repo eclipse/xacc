@@ -55,7 +55,8 @@ public:
     ss << bits()[0] << " " << bits()[1] << " " << getParameter(0).toString();
     return ss.str();
   }
-
+ void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
+ std::string getBitExpression(const std::size_t bit_idx) override {return "";}
   const std::vector<std::size_t> bits() override { return qubits; }
 
   const InstructionParameter getParameter(const std::size_t idx) const override {
@@ -76,6 +77,10 @@ public:
   bool isEnabled() override { return enabled; }
   void disable() override { enabled = false; }
   void enable() override { enabled = true; }
+
+  std::string getBufferName(const std::size_t bitIdx) override {return "";}
+  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {}
+  std::vector<std::string> getBufferNames() override {return {};}
 
   std::shared_ptr<Instruction> clone() override {
       return std::make_shared<DWQMI>();

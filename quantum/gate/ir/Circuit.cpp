@@ -107,6 +107,9 @@ Circuit::operator()(const std::vector<double> &params) {
           updatedInst->setParameter(i, a);
         }
         updatedInst->setBits(inst->bits());
+        if (!inst->getBufferNames().empty()) {
+          updatedInst->setBufferNames(inst->getBufferNames());
+        }
       }
       evaluatedCircuit->addInstruction(updatedInst);
     } else {
