@@ -60,12 +60,18 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   auto staq = xacc::getCompiler("staq");
   auto src = staq->translate(program);
 
+  std::cout <<"initial translate:\n" << src << "\n";
   // parse that to get staq ast
   auto prog = parser::parse_string(src);
 
   mapping::Device device(qpu->getSignature(), nQubits, adj);//, oneq,couplings);
   auto layout = mapping::compute_basic_layout(device, *prog);
   mapping::apply_layout(layout, *prog);
+     layout = mapping::compute_basic_layout(device, *prog);
+
+  mapping::apply_layout(layout, *prog);
+
+  std::cout << *prog << "\n";
   mapping::map_onto_device(device, *prog);
 
   // map prog back to staq src string and
@@ -74,6 +80,7 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   prog->pretty_print(ss);
   src = ss.str();
 
+ std::cout << "Final:\n" << src << "\n";
   auto ir = staq->compile(src);
 
   // reset the program and add optimized instructions

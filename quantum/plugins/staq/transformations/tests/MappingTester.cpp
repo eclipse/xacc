@@ -74,6 +74,29 @@ TEST(MappingTester, checkSwapShort) {
 
   EXPECT_EQ(5, program->nInstructions());
   std::cout << program->toString() << "\n";
+
+
+
+auto circuit = compiler->compile( R"(__qpu__ void bell_x_2(qreg q, qreg r) {
+  // First bell state on qbits 0,1
+  H(q[0]);
+  CX(q[0],q[2]);
+
+  // Second bell state on qbis 2,3
+  H(r[0]);
+  CX(r[0],r[1]);
+
+  // Measure them all
+  Measure(q[0]);
+  Measure(q[1]);
+
+  Measure(r[0]);
+  Measure(r[1]);
+  // should see 0000, 0011, 1100, 1111
+})")->getComposite("bell_x_2");
+
+irt->apply(circuit, qpu);
+
 }
 
 int main(int argc, char **argv) {
