@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "staq_compiler.hpp"
 #include "staq_rotation_folding.hpp"
+#include "staq_swap_short.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -39,6 +40,10 @@ public:
 
     auto c1 = std::make_shared<xacc::quantum::RotationFolding>();
     context.RegisterService<xacc::IRTransformation>(c1);
+
+
+    auto c2 = std::make_shared<xacc::quantum::SwapShort>();
+    context.RegisterService<xacc::IRTransformation>(c2);
   }
 
   /**

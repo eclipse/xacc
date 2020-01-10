@@ -29,7 +29,7 @@ void XACCToStaqOpenQasm::visit(Hadamard &h) {
      << h.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(CNOT &cx) {
-  ss << "cx " << (cx.getBufferNames().empty() ? "q" : cx.getBufferName(0))
+  ss << "CX " << (cx.getBufferNames().empty() ? "q" : cx.getBufferName(0))
      << "[" << cx.bits()[0] << "], " << (cx.getBufferNames().empty() ? "q" : cx.getBufferName(1)) << "[" << cx.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Rz &rz) {
