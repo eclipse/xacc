@@ -97,7 +97,7 @@ void XACCToStaqOpenQasm::visit(CPhase &cphase) {
      << "[" << cphase.bits()[0] << "], " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(1)) << "[" << cphase.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Measure &m) {
-    ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0)) << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits() << "\n";
+    ss << "measure " << (m.getBufferNames().empty() ? "q" : m.getBufferName(0)) << m.bits() << " -> " << cregNames[m.getBufferName(0)] << m.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(Identity &i) {}
 void XACCToStaqOpenQasm::visit(U &u) {
