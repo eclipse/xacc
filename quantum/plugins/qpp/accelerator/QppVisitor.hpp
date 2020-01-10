@@ -49,6 +49,7 @@ public:
   void visit(Measure& measure) override;
   void visit(Identity& i) override;
   void visit(U& u) override;
+  void visit(IfStmt& ifStmt) override;
 
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
 
