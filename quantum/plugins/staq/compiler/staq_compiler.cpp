@@ -124,13 +124,8 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   // Visit Program to find out how many qreg there are and
   // use that to build up openqasm xacc function prototype
 
-  //   std::cout << "HELLO:\n";
-  //   prog->pretty_print(std::cout);
-  //   exit(0);
   internal_staq::StaqToXasm translate;
   translate.visit(*prog);
-
-  //   std::cout << "XASM:\n" << translate.ss.str() << "\n";
 
   std::string kernel;
   if (isXaccKernel) {
@@ -183,21 +178,21 @@ const std::string
 StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
   std::map<std::string,int> bufNamesToSize;
   InstructionIterator iter(function);
+  // First search buffer names and see if we have
   while(iter.hasNext()) {
     auto &next = *iter.next();
     if (next.isEnabled()) {
-
         for (int i = 0; i < next.nRequiredBits(); i++) {
             auto bufName = next.getBufferName(i);
+            int size = next.bits()[i]+1;
             if (bufNamesToSize.count(bufName)) {
-                if (bufNamesToSize[bufName] < next.bits()[i]+1) {
-                    bufNamesToSize[bufName] = next.bits()[i]+1;
+                if (bufNamesToSize[bufName] < size) {
+                    bufNamesToSize[bufName] = size;
                 }
             } else {
-                bufNamesToSize.insert({bufName, next.bits()[i]+1});
+                bufNamesToSize.insert({bufName, size});
             }
         }
-
     }
   }
 

@@ -12,7 +12,7 @@
 # *******************************************************************************/
 set(LIBRARY_NAME xacc-staq-compiler)
 file(GLOB SRC
-          compiler/*.cpp *.cpp optimizers/*.cpp utils/*.cpp)
+          compiler/*.cpp *.cpp transformations/*.cpp utils/*.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -20,7 +20,7 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC compiler utils optimizers ${STAQ_DIR}/include ${STAQ_DIR}/libs)
+                           PUBLIC compiler utils transformations ${STAQ_DIR}/include ${STAQ_DIR}/libs)
 
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc xacc-quantum-gate
@@ -57,7 +57,7 @@ endif()
 
 if(XACC_BUILD_TESTS)
   add_subdirectory(compiler/tests)
-  add_subdirectory(optimizers/tests)
+  add_subdirectory(transformations/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

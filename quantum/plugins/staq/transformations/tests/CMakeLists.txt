@@ -12,3 +12,6 @@
 # *******************************************************************************/
 add_xacc_test(RotationFolding)
 target_link_libraries(RotationFoldingTester xacc )
+
+add_xacc_test(Mapping)
+target_link_libraries(MappingTester xacc )

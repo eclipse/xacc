@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_COMPILER_STAQ_ROTATION_FOLDING_HPP_
-#define QUANTUM_GATE_COMPILER_STAQ_ROTATION_FOLDING_HPP_
+#ifndef QUANTUM_GATE_COMPILER_STAQ_SWAP_SHORT_HPP_
+#define QUANTUM_GATE_COMPILER_STAQ_SWAP_SHORT_HPP_
 
 #include "IRTransformation.hpp"
 #include "InstructionIterator.hpp"
@@ -19,18 +19,19 @@
 namespace xacc {
 namespace quantum {
 
-class RotationFolding : public IRTransformation {
+class SwapShort : public IRTransformation {
 
 public:
-  RotationFolding() {}
+  SwapShort() {}
   void apply(std::shared_ptr<CompositeInstruction> program,
-                     const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap& options = {}) override;
-  const IRTransformationType type() const override {return IRTransformationType::Optimization;}
+             const std::shared_ptr<Accelerator> accelerator,
+             const HeterogeneousMap &options = {}) override;
+  const IRTransformationType type() const override {
+    return IRTransformationType::Placement;
+  }
 
-  const std::string name() const override { return "rotation-folding"; }
+  const std::string name() const override { return "swap-shortest-path"; }
   const std::string description() const override { return ""; }
-
 };
 } // namespace quantum
 } // namespace xacc
