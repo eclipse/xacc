@@ -22,7 +22,6 @@ namespace external {
 
 class PythonPluginLoader : public ExternalLanguagePluginLoader {
 protected:
-  py::scoped_interpreter* guard;
   void* libpython_handle;
 public:
   const std::string name() const override { return "python"; }

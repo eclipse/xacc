@@ -23,34 +23,41 @@ using namespace xacc;
 namespace xacc {
 namespace algorithm {
 bool VQE::initialize(const HeterogeneousMap &parameters) {
-  if (!parameters.keyExists<std::shared_ptr<Observable>>("observable")) {
+  if (!parameters.pointerLikeExists<Observable>("observable")) {
     std::cout << "Obs was false\n";
     return false;
-  } else if (!parameters.keyExists<std::shared_ptr<CompositeInstruction>>(
+  } else if (!parameters.pointerLikeExists<CompositeInstruction>(
                  "ansatz")) {
     std::cout << "Ansatz was false\n";
     return false;
-  } else if (!parameters.keyExists<std::shared_ptr<Accelerator>>(
+  } else if (!parameters.pointerLikeExists<Accelerator>(
                  "accelerator")) {
     std::cout << "Acc was false\n";
     return false;
   }
-  try {
-    observable =
-        parameters.get_with_throw<std::shared_ptr<Observable>>("observable");
-  } catch (std::exception &e) {
-    observable = std::shared_ptr<Observable>(
-        parameters.get<Observable *>("observable"), [](Observable *) {});
-  }
 
-  if (parameters.keyExists<std::shared_ptr<Optimizer>>("optimizer")) {
-    optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
-  } else {
-      optimizer = xacc::getOptimizer("nlopt");
-  }
 
-  kernel = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
-  accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
+  observable = parameters.getPointerLike<Observable>("observable");
+  optimizer = parameters.getPointerLike<Optimizer>("optimizer");
+  accelerator = parameters.getPointerLike<Accelerator>("accelerator");
+  kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
+
+//   try {
+//     observable =
+//         parameters.get_with_throw<std::shared_ptr<Observable>>("observable");
+//   } catch (std::exception &e) {
+//     observable = std::shared_ptr<Observable>(
+//         parameters.get<Observable *>("observable"), [](Observable *) {});
+//   }
+
+//   if (parameters.keyExists<std::shared_ptr<Optimizer>>("optimizer")) {
+//     optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
+//   } else {
+//       optimizer = xacc::getOptimizer("nlopt");
+//   }
+
+//   kernel = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
+//   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
 
   return true;
 }
@@ -61,8 +68,7 @@ const std::vector<std::string> VQE::requiredParameters() const {
 
 void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
-  // void VQE::execute(xacc::Observable &observable, Optimizer &optimizer) {
-  auto kernels = observable->observe(kernel);
+  auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
 
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
@@ -147,7 +153,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 std::vector<double>
 VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
              const std::vector<double> &x) {
-  auto kernels = observable->observe(kernel);
+  auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   std::vector<double> coefficients;
   std::vector<std::string> kernelNames;
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;

@@ -19,10 +19,10 @@ namespace xacc {
 namespace algorithm {
 class VQE : public Algorithm {
 protected:
-  std::shared_ptr<Observable> observable;
-  std::shared_ptr<Optimizer> optimizer;
-  std::shared_ptr<CompositeInstruction> kernel;
-  std::shared_ptr<Accelerator> accelerator;
+  Observable * observable;
+  Optimizer * optimizer;
+  CompositeInstruction * kernel;
+  Accelerator * accelerator;
   std::vector<double> initial_params;
 
   HeterogeneousMap parameters;
