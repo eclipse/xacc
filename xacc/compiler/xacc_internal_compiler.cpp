@@ -6,12 +6,19 @@
 namespace xacc {
 namespace internal_compiler {
 Accelerator *qpu = nullptr;
+CompositeInstruction* lastCompiled = nullptr;
+bool __execute = true;
 
+void __set_verbose(bool v) {
+    xacc::set_verbose(v);
+}
 void compiler_InitializeXACC(const char *qpu_backend) {
   if (!xacc::isInitialized())
     xacc::Initialize();
 
+  xacc::external::load_external_language_plugins();
   setAccelerator(qpu_backend);
+
 }
 
 void setAccelerator(const char *qpu_backend) {
@@ -29,15 +36,24 @@ void setAccelerator(const char * qpu_backend, const int shots) {
     qpu->updateConfiguration({std::make_pair("shots", shots)});
 }
 
+Accelerator* get_qpu() {
+    return qpu;
+}
+
+CompositeInstruction* getLastCompiled() {
+    return lastCompiled;
+}
+
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
 CompositeInstruction *compile(const char *compiler_name,
                               const char *kernel_src) {
   auto qpu_as_shared =
-      std::shared_ptr<Accelerator>(qpu, empty_delete<Accelerator>());
+      std::shared_ptr<Accelerator>(qpu, xacc::empty_delete<Accelerator>());
   auto compiler = xacc::getCompiler(compiler_name);
   auto IR = compiler->compile(kernel_src, qpu_as_shared);
   auto program = IR->getComposites()[0];
+  lastCompiled = program.get();
   return program.get();
 }
 
@@ -49,18 +65,23 @@ CompositeInstruction *getCompiled(const char *kernel_name) {
 // Run quantum compilation routines on IR
 void optimize(CompositeInstruction *program, const OptLevel opt) {
 
+  xacc::info("[InternalCompiler] Pre-optimization, circuit has " + std::to_string(program->nInstructions()) + " instructions.");
+
   // We don't own this ptr, so create shared_ptr with empty deleter
   auto as_shared = std::shared_ptr<CompositeInstruction>(
-      program, empty_delete<CompositeInstruction>());
+      program, xacc::empty_delete<CompositeInstruction>());
 
   auto qpu_as_shared =
-      std::shared_ptr<Accelerator>(qpu, empty_delete<Accelerator>());
+      std::shared_ptr<Accelerator>(qpu, xacc::empty_delete<Accelerator>());
   if (opt == DEFAULT) {
     auto optimizer = xacc::getIRTransformation("circuit-optimizer");
     optimizer->apply(as_shared, qpu_as_shared);
   } else {
     xacc::error("Other Optimization Levels not yet supported.");
   }
+
+  xacc::info("[InternalCompiler] Post-optimization, circuit has " + std::to_string(program->nInstructions()) + " instructions.");
+
 }
 
 // Execute on the specified QPU, persisting results to
@@ -75,10 +96,13 @@ void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
   } else {
     // We don't own this ptr, so create shared_ptr with empty deleter
     program_as_shared = std::shared_ptr<CompositeInstruction>(
-        program, empty_delete<CompositeInstruction>());
+        program, xacc::empty_delete<CompositeInstruction>());
   }
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
-      buffer, empty_delete<AcceleratorBuffer>());
+      buffer, xacc::empty_delete<AcceleratorBuffer>());
+
+  optimize(program);
+
   qpu->execute(buffer_as_shared, program_as_shared);
 }
 
@@ -96,7 +120,7 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
 
   // We don't own this ptr, so create shared_ptr with empty deleter
   auto program_as_shared = std::shared_ptr<CompositeInstruction>(
-      program, empty_delete<CompositeInstruction>());
+      program, xacc::empty_delete<CompositeInstruction>());
 
   // Do we have any unknown ancilla bits?
   std::vector<std::string> possible_extra_buffers;
@@ -184,6 +208,8 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
           measure_idxs.push_back(next.bits()[0]);
       }
   }
+
+  optimize(program);
 
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);

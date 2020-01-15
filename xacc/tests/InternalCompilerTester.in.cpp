@@ -63,7 +63,7 @@ TEST(InternalCompilerTester, checkStaqAdd) {
     return;
   }
 
-  xacc::external::load_external_language_plugins();
+//   xacc::external::load_external_language_plugins();
   if (!xacc::hasAccelerator("aer")) {
       return;
   }
@@ -98,6 +98,9 @@ TEST(InternalCompilerTester, checkStaqAdd) {
       measure c -> result;
     })";
   auto circuit = compile("staq", src);
+
+//   optimize(circuit);
+
   xacc::AcceleratorBuffer *bufs[3] = {a.results(), b.results(), c.results()};
 
   //   std::vector<xacc::AcceleratorBuffer*> bufs{q.results(),r.results()};

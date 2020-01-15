@@ -38,38 +38,41 @@ public:
   IRToGraphVisitor(const int nQubits);
   std::shared_ptr<Graph> getGraph();
 
-  void visit(Hadamard &h) { addSingleQubitGate(h); }
+  void visit(Hadamard &h) override { addSingleQubitGate(h); }
 
-  void visit(Identity &i) { addSingleQubitGate(i);}
+  void visit(Identity &i) override { addSingleQubitGate(i);}
 
-  void visit(CZ &cz) { addTwoQubitGate(cz); }
+  void visit(CZ &cz) override { addTwoQubitGate(cz); }
 
-  void visit(CNOT &cn) { addTwoQubitGate(cn); }
+  void visit(CNOT &cn) override { addTwoQubitGate(cn); }
 
-  void visit(X &x) { addSingleQubitGate(x); }
+  void visit(X &x) override { addSingleQubitGate(x); }
 
-  void visit(Y &y) { addSingleQubitGate(y); }
+  void visit(Y &y) override { addSingleQubitGate(y); }
 
-  void visit(Z &z) { addSingleQubitGate(z); }
+  void visit(Z &z) override { addSingleQubitGate(z); }
 
-  void visit(Measure &m) { addSingleQubitGate(m); }
+  void visit(Measure &m) override { addSingleQubitGate(m); }
 
-//   void visit(ConditionalFunction &c) {
-    // nothing
-//   }
+  void visit(Rx &rx) override { addSingleQubitGate(rx); }
 
-  void visit(Rx &rx) { addSingleQubitGate(rx); }
+  void visit(Ry &ry) override { addSingleQubitGate(ry); }
 
-  void visit(Ry &ry) { addSingleQubitGate(ry); }
+  void visit(Rz &rz) override { addSingleQubitGate(rz); }
 
-  void visit(Rz &rz) { addSingleQubitGate(rz); }
+  void visit(CPhase &cp) override { addTwoQubitGate(cp); }
 
-  void visit(CPhase &cp) { addTwoQubitGate(cp); }
+  void visit(Swap &s) override { addTwoQubitGate(s); }
 
-  void visit(Swap &s) { addTwoQubitGate(s); }
+  void visit(U &u) override { addSingleQubitGate(u); }
 
-  void visit(U &u) { addSingleQubitGate(u); }
-  
+  void visit(S &s) override { addSingleQubitGate(s);}
+  void visit(Sdg &sdg) override {addSingleQubitGate(sdg);}
+  void visit(T &t) override {addSingleQubitGate(t);}
+  void visit(Tdg &tdg) override {addSingleQubitGate(tdg);}
+
+  void visit(CRZ &crz) override {addTwoQubitGate(crz);}
+  void visit(CH &ch) override {addTwoQubitGate(ch);}
   // Base gate visitor, i.e. none of the concrete gates can match.
   // We need to assert here because we cannot generate a graph when there are unknown gates.
   // e.g. there is an 1-1 mapping between node Id (in the graph) and instruction counter (in the circuit),

@@ -20,23 +20,24 @@ class Accelerator;
 
 namespace internal_compiler {
 extern Accelerator *qpu;
-
-template <typename T> struct empty_delete {
-  empty_delete() {}
-  void operator()(T *const) const {}
-};
+extern CompositeInstruction * lastCompiled;
+extern bool __execute;
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
 void compiler_InitializeXACC(const char *qpu_backend = "local-ibm");
 void setAccelerator(const char * qpu_backend);
 void setAccelerator(const char * qpu_backend, const int shots);
+Accelerator* get_qpu();
+
+void __set_verbose(bool verbose);
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
 CompositeInstruction *compile(const char *compiler_name,
                               const char *kernel_src);
 
+CompositeInstruction* getLastCompiled();
 CompositeInstruction *getCompiled(const char *kernel_name);
 
 // Run quantum compilation routines on IR
