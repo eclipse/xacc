@@ -99,9 +99,7 @@ public:
 
   template <class T> T &get_mutable(const std::string key) const {
     if (!items<T>.count(this) && !items<T>[this].count(key)) {
-      XACCLogger::instance()->error("Invalid type (" +
-                                    std::string(typeid(T).name()) +
-                                    ") or key (" + key + ").");
+      XACCLogger::instance()->error("Invalid type or key (" + key + ").");
       print_backtrace();
     }
     return items<T>[this][key];
@@ -109,9 +107,7 @@ public:
 
   template <class T> const T &get(const std::string key) const {
     if (!keyExists<T>(key)) {
-      XACCLogger::instance()->error("Invalid type (" +
-                                    std::string(typeid(T).name()) +
-                                    ") or key (" + key + ").");
+      XACCLogger::instance()->error("Invalid type or key (" + key + ").");
       print_backtrace();
     }
     return items<T>[this][key];
@@ -119,8 +115,7 @@ public:
 
   template <class T> const T &get_with_throw(const std::string key) const {
     if (!items<T>.count(this) && !items<T>[this].count(key)) {
-      throw new std::runtime_error("Invalid type (" +
-                                   std::string(typeid(T).name()) + ").");
+      throw new std::runtime_error("Invalid type.");
     }
     return items<T>[this][key];
   }
@@ -148,6 +143,29 @@ public:
     return "";
   }
 
+  template<typename T>
+  bool pointerLikeExists(const std::string key) const {
+      if (keyExists<T*>(key)) {
+          return true;
+      } else if (keyExists<std::shared_ptr<T>>(key)) {
+          return true;
+      } else {
+       return false;
+      }
+  }
+  template<typename T>
+  T* getPointerLike(const std::string key) const {
+      if (keyExists<T*>(key)) {
+          return get<T*>(key);
+      } else if (keyExists<std::shared_ptr<T>>(key)) {
+          return get<std::shared_ptr<T>>(key).get();
+      } else {
+        XACCLogger::instance()->error("No pointer-like value at provided key (" +
+                                    key + ").");
+        print_backtrace();
+      }
+      return nullptr;
+  }
   void clear() {
     for (auto &&clear_func : clear_functions) {
       clear_func(*this);
@@ -272,8 +290,7 @@ public:
       std::stringstream s;
       s << "InstructionParameter::this->toString() = " << toString() << "\n";
       s << "This InstructionParameter type id is " << this->which() << "\n";
-      XACCLogger::instance()->error("Cannot cast Variant to (" +
-                                    std::string(typeid(T).name()) + "):\n" +
+      XACCLogger::instance()->error("Cannot cast Variant: " +
                                     s.str());
       print_backtrace();
       exit(0);

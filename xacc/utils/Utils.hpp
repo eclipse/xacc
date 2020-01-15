@@ -37,6 +37,16 @@ bool directoryExists(const std::string path);
 void print_backtrace();
 
 
+template <typename T> struct empty_delete {
+  empty_delete() {}
+  void operator()(T *const) const {}
+};
+
+// This function assumes ownership of pointer is taken care of elsewhere.
+template<typename T> std::shared_ptr<T> as_shared_ptr(T* ptr) {
+    return std::shared_ptr<T>(ptr, empty_delete<T>());
+}
+
 template <class Op> void split(const std::string &s, char delim, Op op) {
   std::stringstream ss(s);
   for (std::string item; std::getline(ss, item, delim);) {

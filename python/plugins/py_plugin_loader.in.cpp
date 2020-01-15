@@ -23,7 +23,7 @@ bool PythonPluginLoader::load() {
   if (!XACC_IS_APPLE){
     libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
   }
-  py::scoped_interpreter * guard = new py::scoped_interpreter();
+  py::initialize_interpreter();
   try {
     py::module sys = py::module::import("xacc");
     sys.attr("loaded_from_cpp_dont_finalize") = true;
@@ -38,7 +38,7 @@ bool PythonPluginLoader::load() {
 bool PythonPluginLoader::unload() {
   if (!XACC_IS_APPLE) {
      xacc::debug("[PyPluginLoader] Unloading Python plugins");
-     delete guard;
+     py::finalize_interpreter();
      int i = dlclose(libpython_handle);
      if (i != 0) {
         std::cout << "error closing python lib: " << i << "\n";
