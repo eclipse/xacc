@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_rotoselect",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Rotoselect Algorithm",
+  "bundle.description" : "Quantum Circuit Structure Learning based on Rotoselect algorithm"
+}

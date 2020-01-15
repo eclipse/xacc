@@ -25,3 +25,6 @@ target_link_libraries(ddcl_example PRIVATE xacc)
 
 add_executable(bell_noisy bell_readout_py_load.cpp)
 target_link_libraries(bell_noisy PRIVATE xacc)
+
+add_executable(rotoselect rotoselect_quantum_circuit_structure_learning.cpp)
+target_link_libraries(rotoselect PRIVATE xacc xacc-quantum-gate)
