@@ -11,6 +11,8 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "staq_compiler.hpp"
+#include "staq_rotation_folding.hpp"
+#include "staq_swap_short.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -35,6 +37,13 @@ public:
   void Start(BundleContext context) {
     auto c = std::make_shared<xacc::StaqCompiler>();
     context.RegisterService<xacc::Compiler>(c);
+
+    auto c1 = std::make_shared<xacc::quantum::RotationFolding>();
+    context.RegisterService<xacc::IRTransformation>(c1);
+
+
+    auto c2 = std::make_shared<xacc::quantum::SwapShort>();
+    context.RegisterService<xacc::IRTransformation>(c2);
   }
 
   /**
