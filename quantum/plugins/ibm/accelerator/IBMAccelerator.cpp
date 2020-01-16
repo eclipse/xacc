@@ -49,7 +49,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
     std::string apiKey = "";
     std::string getBackendPath = "/api/Backends?access_token=";
-    std::string tokenParam = "apiToken=";
+    std::string tokenParam = "{\"apiToken\": \"";
     std::string getBackendPropertiesPath;
 
     // Set backend, shots, etc.
@@ -71,9 +71,9 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     }
 
     // Post apiKey to get temp api key
-    tokenParam += apiKey;
+    tokenParam += apiKey + "\"}";
     std::map<std::string, std::string> headers{
-        {"Content-Type", "application/x-www-form-urlencoded"},
+        {"Content-Type", "application/json"},
         {"Connection", "keep-alive"},
         {"Content-Length", std::to_string(tokenParam.length())}};
     auto response = post(IBM_AUTH_URL, IBM_LOGIN_PATH, tokenParam, headers);
@@ -336,14 +336,14 @@ void IBMAccelerator::execute(
       std::string hexStr = kv.first;
       int nOccurrences = kv.second;
       auto bitStr = hex_string_to_binary_string(hexStr);
-   
+
       // Process bitStr to be an n-Measure string in msb
       std::string actual = "";
       CountGatesOfTypeVisitor<Measure> cc(circuits[counter]);
       int nMeasures = cc.countGates();
       for (int i = 0; i < nMeasures; i++) actual += "0";
       for (int i = 0; i < nMeasures; i++) actual[actual.length() - 1- i] = bitStr[bitStr.length() - i - 1];
-      
+
       if (results.size() == 1) {
         buffer->appendMeasurement(actual, nOccurrences);
       } else {
@@ -354,7 +354,7 @@ void IBMAccelerator::execute(
     if (results.size() > 1) {
       buffer->appendChild(currentExperiment.get_header().get_name(), tmpBuffer);
     }
-    
+
     counter++;
   }
 }
