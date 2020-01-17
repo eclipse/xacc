@@ -36,18 +36,16 @@ const std::string Gate::description() const {
 }
 
 std::string Gate::getBufferName(const std::size_t bitIdx) {
-    // if (!xacc::container::contains(bits(), bitIdx)) {
-    //     xacc::error("Invalid bit index for getBufferName: " + name() + ", " + std::to_string(bitIdx));
-    // }
-    // auto idx = std::distance(qbits.begin(), std::find(qbits.begin(), qbits.end(), bitIdx));
-    return buffer_names[bitIdx];
+  return bitIdx < buffer_names.size() ? buffer_names[bitIdx] : "q";
+}
+
+void Gate::setBufferNames(const std::vector<std::string> bufferNamesPerIdx)  {
+  if (bufferNamesPerIdx.size() != this->nRequiredBits()) {
+     xacc::error("Invalid number of buffer names for this instruction: " +name() + ", " + std::to_string(bufferNamesPerIdx.size()));
   }
-  void Gate::setBufferNames(const std::vector<std::string> bufferNamesPerIdx)  {
-      if (bufferNamesPerIdx.size() != this->nRequiredBits()) {
-          xacc::error("Invalid number of buffer names for this instruction: " +name() + ", " + std::to_string(bufferNamesPerIdx.size()));
-      }
-      buffer_names = bufferNamesPerIdx;
-  }
+  buffer_names = bufferNamesPerIdx;
+}
+
 const std::vector<std::size_t> Gate::bits() { return qbits; }
 
 void Gate::mapBits(std::vector<std::size_t> bitMap) {
