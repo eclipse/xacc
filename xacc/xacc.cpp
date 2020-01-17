@@ -698,7 +698,7 @@ namespace external {
       auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
       for (auto& loader : loaders) {
           if (!loader->load()) {
-              xacc::error("Error loading " + loader->name() + " external language plugin.");
+              xacc::warning("[xacc::external] Warning, could not load " + loader->name() + " external language plugin.");
           }
       }
   }
@@ -706,7 +706,7 @@ void unload_external_language_plugins() {
       auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
       for (auto& loader : loaders) {
           if(!loader->unload()) {
-              xacc::error("Error unloading " + loader->name() + " external language plugin.");
+              xacc::warning("[xacc::external] Warning (maybe an error), could not unload " + loader->name() + " external language plugin.");
           }
       }
   }
@@ -717,7 +717,7 @@ void Finalize() {
   if (xaccFrameworkInitialized) {
     // Execute tearDown() for all registered TearDown services.
     auto tearDowns = xacc::getServices<TearDown>();
-    std::cout << "Tearing down " << tearDowns.size() << " registered TearDown services..\n";
+    debug("Tearing down " + std::to_string(tearDowns.size()) + " registered TearDown services..");
     for (auto& td : tearDowns) {
       try {
         td->tearDown();
@@ -726,7 +726,7 @@ void Finalize() {
         xacc::error("Error while tearing down a service. Code: " + std::to_string(exception));
       }
     }
-    
+
     xacc::xaccFrameworkInitialized = false;
     compilation_database.clear();
     allocated_buffers.clear();
