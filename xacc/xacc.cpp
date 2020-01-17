@@ -25,6 +25,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "TearDown.hpp"
 
 using namespace cxxopts;
 
@@ -714,6 +715,18 @@ void unload_external_language_plugins() {
 void Finalize() {
   XACCLogger::instance()->dumpQueue();
   if (xaccFrameworkInitialized) {
+    // Execute tearDown() for all registered TearDown services.
+    auto tearDowns = xacc::getServices<TearDown>();
+    std::cout << "Tearing down " << tearDowns.size() << " registered TearDown services..\n";
+    for (auto& td : tearDowns) {
+      try {
+        td->tearDown();
+      }
+      catch (int exception) {
+        xacc::error("Error while tearing down a service. Code: " + std::to_string(exception));
+      }
+    }
+    
     xacc::xaccFrameworkInitialized = false;
     compilation_database.clear();
     allocated_buffers.clear();
