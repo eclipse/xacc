@@ -14,6 +14,7 @@
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 #include "xacc.hpp"
+#include <xacc_service.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -29,6 +30,10 @@ std::shared_ptr<Observable> getObservable(const std::string type,
                ? std::make_shared<FermionOperator>()
                : std::make_shared<FermionOperator>(representation);
   } else {
+    if (xacc::hasContributedService<Observable>(type)) {
+        auto obs = xacc::getContributedService<Observable>(type);
+        return obs;
+    }
     xacc::error("[xacc::getObservable()] Invalid observable type: " + type);
     return std::make_shared<PauliOperator>();
   }

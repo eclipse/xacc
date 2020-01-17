@@ -28,3 +28,7 @@ target_link_libraries(bell_noisy PRIVATE xacc)
 
 add_executable(rotoselect rotoselect_quantum_circuit_structure_learning.cpp)
 target_link_libraries(rotoselect PRIVATE xacc xacc-quantum-gate)
+
+
+add_executable(nah_ucc3 nah_ucc3_psi4.cpp)
+target_link_libraries(nah_ucc3 PRIVATE xacc xacc-quantum-gate)
