@@ -435,9 +435,6 @@ loaded_from_cpp_dont_finalize = False
 def _finalize():
     if not loaded_from_cpp_dont_finalize:
         Finalize()
-    else:
-        debug("THIS WAS LOADED FROM CPP DONT FINALIZE")
-
 
 atexit.register(_finalize)
 
