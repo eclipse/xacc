@@ -13,6 +13,7 @@
 #include "py_ir.hpp"
 #include "CompositeInstruction.hpp"
 #include "IRTransformation.hpp"
+#include "heterogeneous.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "InstructionIterator.hpp"
@@ -91,6 +92,17 @@ void bind_ir(py::module &m) {
            "")
       .def("getVariables", &xacc::CompositeInstruction::getVariables, "")
       .def("expand", &xacc::CompositeInstruction::expand, "")
+      .def(
+          "expand",
+          [](xacc::CompositeInstruction &c, PyHeterogeneousMap &options) {
+            xacc::HeterogeneousMap m;
+            for (auto &item : options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return c.expand(m);
+          },
+          "")
       .def("eval", &xacc::CompositeInstruction::operator(), "")
       .def("name", &xacc::CompositeInstruction::name, "")
       .def("description", &xacc::CompositeInstruction::description, "")
@@ -171,14 +183,13 @@ void bind_ir(py::module &m) {
           "")
       .def(
           "createComposite",
-          [](IRProvider &p, const std::string name, std::vector<std::string> vars, const std::string type) {
+          [](IRProvider &p, const std::string name,
+             std::vector<std::string> vars, const std::string type) {
             return p.createComposite(name, vars, type);
           },
           "")
-      .def("createIR",[](IRProvider &p) {
-            return p.createIR();
-          },
-          "") ;
+      .def(
+          "createIR", [](IRProvider &p) { return p.createIR(); }, "");
 
   // Expose the IR interface
   py::class_<xacc::IR, std::shared_ptr<xacc::IR>>(
