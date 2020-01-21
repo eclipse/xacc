@@ -640,18 +640,18 @@ Rotoselect
 ++++++++++
 The ``Rotoselect`` Quantum Circuit Structure Learning Algorithm (`Ostaszewski et al. (2019) <https://arxiv.org/abs/1905.09692>`_) requires the following input information:
 
-+------------------------+------------------------------------------------------------------------+--------------------------------------+
-|  Algorithm Parameter   |                  Parameter Description                                 |             type                     |
-+========================+========================================================================+======================================+
-|    observable          | The hermitian operator, Rotoselect computes ground eigenvalue of this  | std::shared_ptr<Observable>          |
-+------------------------+------------------------------------------------------------------------+--------------------------------------+
-|    layers              | Number of circuit layers. Each layer consists of parametrized          | int                                  |
-|                        | single-qubit rotations followed by a ladder of controlled-Z gates.     |                                      |
-+------------------------+------------------------------------------------------------------------+--------------------------------------+
-|    iterations          | The number of training iterations                                      | int                                  |
-+------------------------+------------------------------------------------------------------------+--------------------------------------+
-|    accelerator         | The Accelerator backend to target                                      | std::shared_ptr<Accelerator>         |
-+------------------------+------------------------------------------------------------------------+--------------------------------------+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    observable          | The hermitian operator, Rotoselect computes ground eigenvalue of this  | std::shared_ptr<Observable>/Observable*  |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    layers              | Number of circuit layers. Each layer consists of parametrized          | int                                      |
+|                        | single-qubit rotations followed by a ladder of controlled-Z gates.     |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    iterations          | The number of training iterations                                      | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    accelerator         | The Accelerator backend to target                                      | std::shared_ptr<Accelerator>/Accelerator*|
++------------------------+------------------------------------------------------------------------+------------------------------------------+
 
 This ``Rotoselect`` algorithm is designed to learn a good circuit structure 
 (generators of rotation are selected from the set of Pauli gates)
