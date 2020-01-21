@@ -129,7 +129,7 @@ const std::vector<std::string> Rotoselect::requiredParameters() const
 void Rotoselect::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
-  auto accelerator = m_parameters.get<std::shared_ptr<Accelerator>>("accelerator");
+  auto accelerator = m_parameters.getPointerLike<Accelerator>("accelerator");
 
   const auto nbQubits = buffer->size();
   const auto nbLayers = m_parameters.get<int>("layers");
@@ -192,7 +192,7 @@ void Rotoselect::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     std::cout << "Circuit: \n" <<  rotoselectKernel->toString();
   }
   
-  const auto observable = m_parameters.get_with_throw<std::shared_ptr<Observable>>("observable");
+  const auto observable = m_parameters.getPointerLike<Observable>("observable");
   // Step 2: Optimization loop
   bool stopCriteriaMet = false;
   // Currently, we only use trial count as the stopping criteria.
