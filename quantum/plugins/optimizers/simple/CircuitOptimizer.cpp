@@ -616,8 +616,10 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
             }
           } 
         }
-        // End of the sub-circuit: add the right boundary
-        qubitToBoundary[in_qbitIdx].second = in_startNodeId;
+        // End of the sub-circuit: add the right boundary if not having one.
+        if (in_startNodeId < qubitToBoundary[in_qbitIdx].second) {                    
+          qubitToBoundary[in_qbitIdx].second = in_startNodeId;
+        }         
       };
       
       // Forward search:
@@ -659,7 +661,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
             // If the control is *outside* the boundary, we need to terminate, hence prune the subcircuit. 
             const auto controlIdx = instruction->bits()[0];
             const auto targetIdx = instruction->bits()[1];
-            if (!container::contains(qubits, controlIdx)) {
+            if (!container::contains(qubits, controlIdx) && (qubitToBoundary.find(targetIdx) != qubitToBoundary.end())) {
               auto& boundary = qubitToBoundary[targetIdx];              
               boundary.second = idx;
             }
