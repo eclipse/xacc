@@ -21,6 +21,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 add_subdirectory(cppmicroservices)
 
+# Fix for bug #161
+install(FILES "${CMAKE_BINARY_DIR}/tpls/cppmicroservices/CMakeFiles/Export/share/cppmicroservices4/cmake/CppMicroServicesTargets-release.cmake" DESTINATION share/cppmicroservices4/cmake)
+
 set(USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
 set(BUILD_CPR_TESTS OFF CACHE BOOL "" FORCE)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
