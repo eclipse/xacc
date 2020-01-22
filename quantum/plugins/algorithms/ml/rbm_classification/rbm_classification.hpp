@@ -41,7 +41,7 @@ protected:
     indata.open(path);
     std::string line;
     std::vector<double> values;
-    uint rows = 0;
+    int rows = 0;
     while (std::getline(indata, line)) {
       if (line[0] != '#') {
         std::stringstream lineStream(line);
