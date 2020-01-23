@@ -397,11 +397,11 @@ def benchmark(opts):
     buffer.addExtraInfo('file-name', tail)
     _benchmark.analyze(buffer, xacc_settings)
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    # results_name = "%s_%s_%s_%s" % (os.path.splitext(
-    #     tail)[0], xacc_settings['accelerator'], xacc_settings['algorithm'], timestr)
-    # f = open(results_name+".ab", 'w')
-    # f.write(str(buffer))
-    # f.close()
+    results_name = "%s_%s_out" % (os.path.splitext(
+        tail)[0], timestr)
+    f = open(results_name+".ab", 'w')
+    f.write(str(buffer))
+    f.close()
 
     Finalize()
 

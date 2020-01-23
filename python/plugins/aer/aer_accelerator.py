@@ -33,7 +33,7 @@ class AerAccelerator(xacc.Accelerator):
             self.modeled_qpu = xacc.getAccelerator('ibm:'+self.backend)
             props = self.modeled_qpu.getProperties()
             jsonStr = props['total-json']
-            #print("jsonStr: \n", jsonStr)
+            # print("jsonStr: \n", jsonStr)
             properties = BackendProperties.from_dict(json.loads(jsonStr))
             ro_error = True if 'readout_error' in options and options['readout_error'] else False
             rel = True if 'thermal_relaxation' in options and options['thermal_relaxation'] else False

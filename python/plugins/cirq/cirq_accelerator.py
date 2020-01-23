@@ -52,7 +52,6 @@ class CirqAccelerator(xacc.Accelerator):
 
     def execute(self, buffer, programs):
 
-        # Translate IR to a Qobj Json String
         if isinstance(programs, list) and len(programs) > 1:
             for p in programs:
                 tmpBuffer = xacc.qalloc(buffer.size())
