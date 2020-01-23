@@ -4,6 +4,8 @@ stages:
 
 docker build_devel:
   stage: build
+  except:
+  - schedules
   only:
   - xacc-devel
   script:
@@ -11,6 +13,8 @@ docker build_devel:
 
 docker build_master:
   stage: build
+  except:
+  - schedules
   only:
   - master
   script:
