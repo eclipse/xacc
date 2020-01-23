@@ -33,7 +33,7 @@ void PulseScheduler::schedule(std::shared_ptr<CompositeInstruction> program) {
          auto pulse = std::dynamic_pointer_cast<Pulse>(nextInst);
          auto duration = pulse->duration();
          auto currentTimeOnChannel = channel2times[pulse->channel()];
-         pulse->setStart(currentTimeOnChannel+duration);
+         pulse->setStart(currentTimeOnChannel);
          channel2times[pulse->channel()] += duration;
      } 
    }
