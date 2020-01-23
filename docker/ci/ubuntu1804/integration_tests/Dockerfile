@@ -1,10 +1,9 @@
+from xacc/master-ci
 from xacc/integration_base_ubuntu:18.04
-run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
-    && cmake .. -DXACC_BUILD_EXAMPLES=TRUE \
-    && make -j$(nproc) install \
-    && git clone https://github.com/ornl-qci/tnqvm \
+copy --from=0 /root/.xacc /root/.xacc
+run git clone https://github.com/ornl-qci/tnqvm \
     && cd tnqvm && mkdir build && cd build \
-    && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install \
+    && cmake .. -DXACC_DIR=~/.xacc && make -j12 install \
     && cd ../../ \
     && export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$HOME/.xacc:$PYTHONPATH \
     && quantum/examples/base_api/bell_quil_ibm_local \
