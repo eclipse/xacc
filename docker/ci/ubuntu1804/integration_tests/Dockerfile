@@ -1,0 +1,32 @@
+from xacc/integration_base_ubuntu:18.04
+run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+    && cmake .. -DXACC_BUILD_EXAMPLES=TRUE \
+    && make -j$(nproc) install \
+    && git clone https://github.com/ornl-qci/tnqvm \
+    && cd tnqvm && mkdir build && cd build \
+    && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install \
+    && cd ../../ \
+    && export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$HOME/.xacc:$PYTHONPATH
+    && quantum/examples/base_api/bell_quil_ibm_local \
+    && quantum/examples/base_api/bell_xasm_ibm_local \
+    && quantum/examples/base_api/deuteron_2qbit_xasm_X0X1 \
+    && quantum/examples/base_api/deuteron_2qbit_ir_api_X0X1 \
+    && quantum/examples/base_api/circuit_optimization \
+    && quantum/examples/base_api/circuit_with_classical_control \
+    && quantum/examples/qasm/ddcl_example \
+    && quantum/examples/qasm/deuteron_from_qasm \
+    && quantum/examples/qasm/deuteron_from_qasm_vqe_algo \
+    && quantum/examples/qasm/deuteronH3_from_qasm_vqe_algo \
+    && quantum/examples/qasm/nah_ucc3 \
+    && python3 ../python/examples/bell_aer_readout_error.py \
+    && python3 ../python/examples/ddcl_2qbit_example.py \
+    && python3 ../python/examples/ddcl_decorator.py \
+    && python3 ../python/examples/ddcl_example.py \
+    && python3 ../python/examples/deuteronH2.py \
+    && python3 ../python/examples/nah_vqe_ucc1.py \
+    && python3 ../python/examples/nah_vqe_ucc3.py \
+    && python3 ../python/examples/psi4_h2.py \
+    && python3 ../python/examples/readout_error_correction_aer.py \
+    && python3 ../python/examples/simple_cirq.py \
+    && python3 ../python/examples/test_qiskit_cx_cancellation.py
+
