@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
   // Get reference to the Accelerator
   // specified by --accelerator argument
-  auto accelerator = xacc::getAccelerator();
+  auto accelerator = xacc::getAccelerator("tnqvm");
 
   // Allocate some qubits
   auto buffer = xacc::qalloc(2);

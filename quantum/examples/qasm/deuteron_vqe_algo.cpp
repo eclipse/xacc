@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
   // Get reference to the Accelerator
   // specified by --accelerator argument
-  auto accelerator = xacc::getAccelerator();
+  auto accelerator = xacc::getAccelerator("tnqvm");
 
   // Create the N=2 deuteron Hamiltonian
   auto H_N_2 = xacc::quantum::getObservable(
