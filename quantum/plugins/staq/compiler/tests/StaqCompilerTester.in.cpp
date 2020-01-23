@@ -150,6 +150,24 @@ measure c -> result;
 //   std::cout << hello->toString() << "\n";
 }
 
+
+TEST(StaqCompilerTester, checkCirq) {
+  auto compiler = xacc::getCompiler("staq");
+  auto IR = compiler->compile(R"(
+                      qreg q[2];
+                      creg c[2];
+                      U(0,0,0) q[0];
+                      CX q[0],q[1];
+                      rx(3.3) q[0];
+                      measure q -> c;
+                      )");
+
+  auto hello = IR->getComposites()[0];
+  std::cout << "HELLO:\n" << hello->toString() << "\n";
+
+  auto c = compiler->translate(hello, {std::make_pair("lang-type", "cirq")});
+  std::cout << "CIRQ: " << c << "\n";
+}
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);

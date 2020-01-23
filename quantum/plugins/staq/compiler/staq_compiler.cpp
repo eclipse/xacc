@@ -25,6 +25,8 @@
 #include "transformations/oracle_synthesizer.hpp"
 #include "optimization/simplify.hpp"
 
+#include "output/cirq.hpp"
+
 using namespace staq::ast;
 
 namespace xacc {
@@ -94,7 +96,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     _src = "OPENQASM 2.0;\n" + _src;
   }
 
-//   std::cout << " HELLO:\n" << _src << "\n";
+  //   std::cout << " HELLO:\n" << _src << "\n";
   using namespace staq;
   auto prog = parser::parse_string(_src);
   transformations::desugar(*prog);
@@ -176,35 +178,93 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src) {
 
 const std::string
 StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
-  std::map<std::string,int> bufNamesToSize;
+  std::map<std::string, int> bufNamesToSize;
   InstructionIterator iter(function);
   // First search buffer names and see if we have
-  while(iter.hasNext()) {
+  while (iter.hasNext()) {
     auto &next = *iter.next();
     if (next.isEnabled()) {
-        for (int i = 0; i < next.nRequiredBits(); i++) {
-            auto bufName = next.getBufferName(i);
-            int size = next.bits()[i]+1;
-            if (bufNamesToSize.count(bufName)) {
-                if (bufNamesToSize[bufName] < size) {
-                    bufNamesToSize[bufName] = size;
-                }
-            } else {
-                bufNamesToSize.insert({bufName, size});
-            }
+      for (int i = 0; i < next.nRequiredBits(); i++) {
+        auto bufName = next.getBufferName(i);
+        int size = next.bits()[i] + 1;
+        if (bufNamesToSize.count(bufName)) {
+          if (bufNamesToSize[bufName] < size) {
+            bufNamesToSize[bufName] = size;
+          }
+        } else {
+          bufNamesToSize.insert({bufName, size});
         }
+      }
     }
   }
 
-  auto translate = std::make_shared<internal_staq::XACCToStaqOpenQasm>(bufNamesToSize);
+  auto translate =
+      std::make_shared<internal_staq::XACCToStaqOpenQasm>(bufNamesToSize);
   InstructionIterator iter2(function);
-  while(iter2.hasNext()) {
+  while (iter2.hasNext()) {
     auto &next = *iter2.next();
     if (next.isEnabled()) {
-        next.accept(translate);
+      next.accept(translate);
     }
   }
 
   return translate->ss.str();
 }
+
+const std::string
+StaqCompiler::translate(std::shared_ptr<CompositeInstruction> program,
+                        const HeterogeneousMap &options) {
+  if (options.stringExists("lang-type")) {
+    auto langType = options.getString("lang-type");
+
+    // map xacc to staq program
+    std::map<std::string, int> bufNamesToSize;
+    InstructionIterator iter(program);
+    // First search buffer names and see if we have
+    while (iter.hasNext()) {
+      auto &next = *iter.next();
+      if (next.isEnabled()) {
+        for (int i = 0; i < next.nRequiredBits(); i++) {
+          auto bufName = next.getBufferName(i);
+          int size = next.bits()[i] + 1;
+          if (bufNamesToSize.count(bufName)) {
+            if (bufNamesToSize[bufName] < size) {
+              bufNamesToSize[bufName] = size;
+            }
+          } else {
+            bufNamesToSize.insert({bufName, size});
+          }
+        }
+      }
+    }
+    auto translate =
+        std::make_shared<internal_staq::XACCToStaqOpenQasm>(bufNamesToSize);
+    InstructionIterator iter2(program);
+    while (iter2.hasNext()) {
+      auto &next = *iter2.next();
+      if (next.isEnabled()) {
+        next.accept(translate);
+      }
+    }
+    // std::cout << "HELLO:\n" << translate->ss.str() << "\n";
+    using namespace staq;
+    auto prog = parser::parse_string(translate->ss.str());
+    transformations::desugar(*prog);
+    transformations::synthesize_oracles(*prog);
+
+    optimization::simplify(*prog);
+
+    std::stringstream ss;
+    if (langType == "cirq") {
+      staq::output::CirqOutputter outputter(ss);
+      outputter.run(*prog);
+    }
+
+    return ss.str();
+
+  } else {
+    return translate(program);
+  }
+}
+
 } // namespace xacc

@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_compiler.hpp"
+#include "py_heterogeneous_map.hpp"
 
 void bind_compiler(py::module &m) {
 
@@ -32,7 +33,22 @@ void bind_compiler(py::module &m) {
                xacc::Compiler::compile,
            "Compile the "
            "given source code.")
-      .def("translate", &xacc::Compiler::translate,
+      .def("translate",
+           (const std::string (xacc::Compiler::*)(
+               std::shared_ptr<CompositeInstruction>)) &
+               xacc::Compiler::translate,
            "Translate the given IR Function instance to source code in this "
-           "Compiler's language.");
+           "Compiler's language.")
+      .def(
+          "translate",
+          [](xacc::Compiler &c, std::shared_ptr<CompositeInstruction> prog,
+             const PyHeterogeneousMap &opts) {
+            xacc::HeterogeneousMap m;
+            for (auto &item : opts) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return c.translate(prog, m);
+          },
+          "");
 }
