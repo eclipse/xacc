@@ -16,7 +16,6 @@ class Chemistry(Benchmark):
     def execute(self, inputParams):
         xacc_opts = inputParams['XACC']
         acc_name = xacc_opts['accelerator']
-        qpu = xacc.getAccelerator(acc_name, xacc_opts)
 
         if 'verbose' in xacc_opts and xacc_opts['verbose']:
             xacc.set_verbose(True)
@@ -29,10 +28,6 @@ class Chemistry(Benchmark):
 
         if 'Ansatz' not in inputParams:
             xacc.error('Invalid benchmark input - must have Ansatz circuit description')
-
-        if 'Decorators' in inputParams:
-            if 'readout_error' in inputParams['Decorators']:
-                qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
 
         H = None
         if inputParams['Observable']['name'] == 'pauli':
@@ -50,6 +45,10 @@ class Chemistry(Benchmark):
             H = xacc.getObservable('psi4', opts)
 
         #print('Ham: ', H.toString())
+        qpu = xacc.getAccelerator(acc_name, xacc_opts)
+        if 'Decorators' in inputParams:
+            if 'readout_error' in inputParams['Decorators']:
+                qpu = xacc.getAcceleratorDecorator('ro-error', qpu)
 
         buffer = xacc.qalloc(H.nBits())
         optimizer = None
@@ -118,6 +117,7 @@ class Chemistry(Benchmark):
             interp = sp.interpolate.interp1d(x_axis, ro_energies, bounds_error=False)
             min_index = sp.optimize.fmin(interp, 0)
 
+            buffer.addExtraInfo('readout-corrected-energy', ro_energies[int(min_index)])
             print('Readout Energy = ', ro_energies[int(min_index)])
             print('Optimal Parameters =', uniqueParams[int(min_index)])
 
