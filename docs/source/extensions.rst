@@ -653,11 +653,11 @@ The ``Rotoselect`` Quantum Circuit Structure Learning Algorithm (`Ostaszewski et
 |    accelerator         | The Accelerator backend to target                                      | std::shared_ptr<Accelerator>/Accelerator*|
 +------------------------+------------------------------------------------------------------------+------------------------------------------+
 
-This ``Rotoselect`` algorithm is designed to learn a good circuit structure 
+This ``Rotoselect`` algorithm is designed to learn a good circuit structure
 (generators of rotation are selected from the set of Pauli gates)
 at fixed depth (``layers``) to minimize the cost function (``observable``).
 This Algorithm will add ``opt-val`` (``double``) to the provided ``AcceleratorBuffer``.
-The result of the algorithm is therefore retrieved via this key (see snippet below). 
+The result of the algorithm is therefore retrieved via this key (see snippet below).
 
 .. code:: cpp
   #include "xacc.hpp"
@@ -668,8 +668,8 @@ The result of the algorithm is therefore retrieved via this key (see snippet bel
     xacc::Initialize(argc, argv);
     // Use the Qpp simulator as the accelerator
     auto acc = xacc::getAccelerator("qpp");
-    
-    // In this example, we try to find the ground state energy of the 5-qubit Heisenberg model on a 
+
+    // In this example, we try to find the ground state energy of the 5-qubit Heisenberg model on a
     // 1D lattice with periodic boundary conditions.
     auto buffer = xacc::qalloc(5);
     // The corresponding Hamiltonian is:
@@ -691,13 +691,13 @@ The result of the algorithm is therefore retrieved via this key (see snippet bel
                             std::make_pair("layers", 6),
                             std::make_pair("iterations", 1000),
                           });
-    
+
     rotoselect->execute(buffer);
     // Expected value ~ -8.4 -> -8.5
     // Ref: FIG. 2 of https://arxiv.org/abs/1905.09692
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
   }
-  
+
 
 
 Accelerator Decorators
@@ -847,7 +847,7 @@ Observable in the following way in python.
 Circuit Generator
 -----------------
 
-ASWAP Ansatz Circuit 
+ASWAP Ansatz Circuit
 ++++++++++++++++++++
 The ``ASWAP`` circuit generator generates a state preparation (ansatz) circuit for the VQE Algorithm.
 (See `Gard, Bryan T., et al. <https://arxiv.org/abs/1904.10910>`_)
@@ -867,13 +867,14 @@ The ``ASWAP`` circuit generator requires the following input information:
 Example:
 
 .. code:: cpp
+
   #include "xacc.hpp"
   #include "xacc_observable.hpp"
   #include "xacc_service.hpp"
 
   int main(int argc, char **argv) {
     xacc::Initialize(argc, argv);
-    
+
     auto accelerator = xacc::getAccelerator("qpp");
     auto H_N_2 = xacc::quantum::getObservable(
         "pauli", std::string("5.907 - 2.1433 X0X1 "
@@ -889,8 +890,8 @@ Example:
         .qbit q
         ASWAP(q, t0, {{"nbQubits", 2}, {"nbParticles", 1}});
     )");
-    auto ansatz = xacc::getCompiled("deuteron_ansatz");   
-    
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
     // Get the VQE Algorithm and initialize it
     auto vqe = xacc::getAlgorithm("vqe");
     vqe->initialize({std::make_pair("ansatz", ansatz),
@@ -903,4 +904,4 @@ Example:
     vqe->execute(buffer);
     // Expected result: -1.74886
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
-  }
+   }
