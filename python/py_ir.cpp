@@ -103,6 +103,7 @@ void bind_ir(py::module &m) {
             return c.expand(m);
           },
           "")
+      .def("__str__", &xacc::CompositeInstruction::toString, "")
       .def("eval", &xacc::CompositeInstruction::operator(), "")
       .def("name", &xacc::CompositeInstruction::name, "")
       .def("description", &xacc::CompositeInstruction::description, "")

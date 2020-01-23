@@ -29,8 +29,14 @@ public:
   virtual std::shared_ptr<IR> compile(const std::string &src) = 0;
 
   virtual const std::string
-  translate(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
+  translate(std::shared_ptr<CompositeInstruction> program) = 0;
 
+  virtual const std::string
+  translate(std::shared_ptr<CompositeInstruction> program, const HeterogeneousMap& options) {
+    // default just call translate
+    return translate(program);
+  }
+  
   virtual const std::shared_ptr<CompositeInstruction>
   compile(std::shared_ptr<CompositeInstruction> f,
           std::shared_ptr<Accelerator> acc) {
