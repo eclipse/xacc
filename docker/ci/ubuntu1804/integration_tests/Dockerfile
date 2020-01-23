@@ -1,6 +1,7 @@
 from xacc/master-ci
 from xacc/integration_base_ubuntu:18.04
 copy --from=0 /root/.xacc /root/.xacc
+copy --from=0 /xacc/build/quantum /quantum
 run git clone https://github.com/ornl-qci/tnqvm \
     && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j12 install \
