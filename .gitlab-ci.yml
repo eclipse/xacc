@@ -1,5 +1,6 @@
 stages:
   - build
+  - integration
 
 docker build_devel:
   stage: build
@@ -15,3 +16,9 @@ docker build_master:
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
 
+docker run_integration_tests:
+  stage: integration
+  only:
+   - schedules
+  script:
+  - cd docker/ci/ubuntu1804/integration_tests && docker build -t xacc/int_tests . --no-cache
