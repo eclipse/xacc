@@ -6,7 +6,7 @@ run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir bu
     && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install \
     && cd ../../ \
-    && export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$HOME/.xacc:$PYTHONPATH
+    && export PYTHONPATH=$(python3 -m site --user-site)/psi4/lib:$HOME/.xacc:$PYTHONPATH \
     && quantum/examples/base_api/bell_quil_ibm_local \
     && quantum/examples/base_api/bell_xasm_ibm_local \
     && quantum/examples/base_api/deuteron_2qbit_xasm_X0X1 \
