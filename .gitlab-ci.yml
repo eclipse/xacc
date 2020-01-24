@@ -25,5 +25,5 @@ docker run_integration_tests:
   only:
    - schedules
   script:
-  - echo $HOME &&
-  - cp $HOME/.ibm_config . && cd docker/ci/ubuntu1804/integration_tests && docker build -t xacc/int_tests . --no-cache
+  - echo $HOME && echo $PWD
+  - cd docker/ci/ubuntu1804/integration_tests && cp $HOME/.ibm_config . && docker build -t xacc/int_tests . --no-cache
