@@ -31,6 +31,5 @@ run python3 -m pip install pydantic --user \
     && python3 pyexamples/nah_vqe_ucc3.py \
     && python3 pyexamples/psi4_h2.py \
     && python3 pyexamples/readout_error_correction_aer.py \
-    && python3 pyexamples/simple_cirq.py \
     && python3 pyexamples/test_qiskit_cx_cancellation.py
 
