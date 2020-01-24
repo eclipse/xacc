@@ -78,7 +78,7 @@ TEST(PulseSchedulerTester, checkBasic) {
 
     std::cout << program->toString() << "\n";
 
-    auto scheduler = xacc::getService<xacc::Scheduler>("default");
+    auto scheduler = xacc::getService<xacc::Scheduler>("pulse");
 
     scheduler->schedule(program);
 
@@ -116,7 +116,7 @@ TEST(PulseSchedulerTester, checkCompositeOfPulses) {
   program->addInstruction(pulseInst5);
   program->addInstruction(pulseInst6);
 
-  auto scheduler = xacc::getService<xacc::Scheduler>("default");
+  auto scheduler = xacc::getService<xacc::Scheduler>("pulse");
   scheduler->schedule(program);
   
   // Pulse 5 is on the same channel (d0) as pulse 1 
@@ -163,7 +163,7 @@ TEST(PulseSchedulerTester, checkCompositeOfComposites) {
   
   // std::cout << "BEFORE: " << program->toString() << "\n";
 
-  auto scheduler = xacc::getService<xacc::Scheduler>("default");
+  auto scheduler = xacc::getService<xacc::Scheduler>("pulse");
   scheduler->schedule(program);
 
   // std::cout << "AFTER: " << program->toString() << "\n";
@@ -220,7 +220,7 @@ TEST(PulseSchedulerTester, checkComplexConstruct) {
 
   // std::cout << "BEFORE: " << program->toString() << "\n";
   
-  auto scheduler = xacc::getService<xacc::Scheduler>("default");
+  auto scheduler = xacc::getService<xacc::Scheduler>("pulse");
   scheduler->schedule(program);
 
   // std::cout << "AFTER: " << program->toString() << "\n";
