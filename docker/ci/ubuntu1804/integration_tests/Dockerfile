@@ -3,6 +3,7 @@ from xacc/integration_base_ubuntu:18.04
 copy --from=0 /root/.xacc /root/.xacc
 copy --from=0 /xacc/build/quantum /quantum
 copy --from=0 /xacc/python/examples /pyexamples
+add .ibm_config /root/
 run python3 -m pip install pydantic --user \
     && git clone https://github.com/ornl-qci/tnqvm \
     && cd tnqvm && mkdir build && cd build \
