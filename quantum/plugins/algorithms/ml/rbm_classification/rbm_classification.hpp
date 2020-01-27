@@ -30,7 +30,7 @@ public:
 
 class RBMClassification : public Algorithm {
 protected:
-  std::shared_ptr<CompositeInstruction> rbm;
+  CompositeInstruction* rbm;
   Eigen::MatrixXd training_data;
   std::string modelExp;
 

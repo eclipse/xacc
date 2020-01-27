@@ -298,10 +298,10 @@ PYBIND11_MODULE(_pyxacc, m) {
   py::module annealingsub = m.def_submodule(
       "annealing", "Annealing model quantum computing data structures.");
   annealingsub.def(
-      "ising_from_qubo",
+      "create_composite_from_qubo",
       [](std::map<std::pair<int, int>, double> Q) {
         auto prov = xacc::getIRProvider("quantum");
-        auto comp = prov->createComposite("ising_from_qubo", {}, "anneal");
+        auto comp = prov->createComposite("composite_from_qubo", {}, "anneal");
         for (auto &kv : Q) {
           if (kv.first.first == kv.first.second) {
             std::size_t f = kv.first.first;

@@ -285,8 +285,8 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark',
-                       'accelerator', 'compiler',
+        serviceList = ['decorator_algorithm_service', 'benchmark', 'algorithm',
+                       'accelerator', 'compiler', 'rbm_expectation_strategy',
                        'irtransformation', 'observable', 'optimizer']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
         self.pluginDir = xaccLocation + '/py-plugins'
@@ -317,6 +317,9 @@ class PyServiceRegistry(object):
         for cName, c in self.registry['compiler'].items():
             debug("[xacc-py] Contributing "+cName+" Compiler")
             contributeService(cName, c)
+        for aName, a in self.registry['algorithm'].items():
+            debug("[xacc-py] Contributing "+aName+" Algorithm")
+            contributeService(aName, a)
 
     def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)

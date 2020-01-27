@@ -31,7 +31,7 @@ class DwaveAccelerator(xacc.Accelerator):
             self.chain_strength = options['chain_strength']
 
     def name(self):
-        return 'dwave-py'
+        return 'dwave'
 
     def execute(self, buffer, program):
         from dwave.system.samplers import DWaveSampler

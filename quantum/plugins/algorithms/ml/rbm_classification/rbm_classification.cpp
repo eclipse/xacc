@@ -34,15 +34,13 @@ bool RBMClassification::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  rbm = parameters.get<std::shared_ptr<CompositeInstruction>>("rbm");
+  rbm = parameters.getPointerLike<CompositeInstruction>("rbm");
 
-  std::cout << "Loading\n";
   auto train_file = parameters.getString("train-file");
   if (!xacc::fileExists(train_file)) {
       xacc::error("Invalid train-file, file does not exist:\n" + train_file);
   }
   training_data = load_csv<Eigen::MatrixXd>(train_file);
-  std::cout << "loaded\n";
   modelExp = "dwave-mcmc";
   if (parameters.stringExists("model-exp-strategy")) {
     modelExp = parameters.getString("model-exp-strategy");
@@ -53,7 +51,7 @@ bool RBMClassification::initialize(const HeterogeneousMap &parameters) {
 }
 
 const std::vector<std::string> RBMClassification::requiredParameters() const {
-  return {"accelerator", "rbm", "model-exp-strategy"};
+  return {"rbm", "model-exp-strategy"};
 }
 
 void RBMClassification::execute(
@@ -82,8 +80,9 @@ void RBMClassification::execute(
   // loop through data in chunks of batch_size
   int epoch = 0;
   for (int batchIdx = 0; batchIdx < n_batches; batchIdx += batch_size) {
-    std::cout << "Starting Epoch " << epoch << "\n";
+    xacc::debug("Starting Epoch " +std::to_string(epoch));
     epoch++;
+
     // batch should be batch_size x nv
     Eigen::MatrixXd batch = training_data.block(batchIdx, 0, batch_size, nv);
 

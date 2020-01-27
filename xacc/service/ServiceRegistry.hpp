@@ -105,7 +105,7 @@ public:
         auto checkCloneable =
             std::dynamic_pointer_cast<xacc::Cloneable<ServiceInterface>>(
                 service);
-        if (checkCloneable) {
+        if (checkCloneable && checkCloneable->shouldClone()) {
           ret = checkCloneable->clone();
         } else {
           ret = service;
@@ -125,7 +125,7 @@ public:
       ret = runtimeContributed[name].as<std::shared_ptr<ServiceInterface>>();
       auto checkCloneable =
           std::dynamic_pointer_cast<xacc::Cloneable<ServiceInterface>>(ret);
-      if (checkCloneable) {
+      if (checkCloneable && checkCloneable->shouldClone()) {
         ret = checkCloneable->clone();
       }
     }

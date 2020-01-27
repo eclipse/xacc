@@ -34,9 +34,9 @@ namespace xacc {
 class Algorithm : public xacc::Identifiable, public xacc::Cloneable<Algorithm> {
 
 public:
-  bool initialize(const HeterogeneousMap &&parameters) {
-    return initialize(parameters);
-  }
+//   bool initialize(const HeterogeneousMap &&parameters) {
+//     return initialize(parameters);
+//   }
   virtual bool initialize(const HeterogeneousMap &parameters) = 0;
   virtual const std::vector<std::string> requiredParameters() const = 0;
 
