@@ -381,7 +381,19 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  return xacc::getService<Algorithm>(name);
+
+  auto a = xacc::getService<Algorithm>(name, false);
+
+  if (!a) {
+    if (xacc::hasContributedService<Algorithm>(name)) {
+      a = xacc::getContributedService<Algorithm>(name);
+
+    } else {
+      error("Invalid Compiler. Could not find " + name +
+            " in Service Registry.");
+    }
+  }
+  return a;
 }
 
 std::shared_ptr<Algorithm> getAlgorithm(const std::string name,

@@ -11,14 +11,17 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "py_algorithm.hpp"
+#include "Algorithm.hpp"
 
 void bind_algorithm(py::module &m) {
 
-  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>>(
+  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>, PyAlgorithm> alg(
       m, "Algorithm",
       "The XACC Algorithm interface takes as input a dictionary of "
       "AlgorithmParameters "
-      "and executes the desired Algorithm.")
+      "and executes the desired Algorithm.");
+
+      alg.def(py::init<>())
       .def("name", &xacc::Algorithm::name, "Return the name of this Algorithm.")
       .def("execute",
            (void (xacc::Algorithm::*)(
@@ -33,8 +36,7 @@ void bind_algorithm(py::module &m) {
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
-      .def("initialize",
-           (bool (xacc::Algorithm::*)(const HeterogeneousMap &)) &
-               xacc::Algorithm::initialize,
-           "Initialize the algorithm with given AlgorithmParameters.");
+      .def("initialize",&xacc::Algorithm::initialize,
+           "Initialize the algorithm with given AlgorithmParameters.")
+      .def("clone", &xacc::Algorithm::clone, "");
 }

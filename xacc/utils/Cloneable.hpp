@@ -23,6 +23,7 @@ namespace xacc {
 template <typename T> class Cloneable {
 public:
   virtual std::shared_ptr<T> clone() = 0;
+  virtual bool shouldClone() {return true;}
 
   /**
    * The destructor

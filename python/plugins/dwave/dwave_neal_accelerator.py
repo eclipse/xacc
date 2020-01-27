@@ -13,8 +13,12 @@ class DwaveNealAccelerator(xacc.Accelerator):
         self.shots = 1024
 
     def initialize(self, options):
+        self.shots = 100
+        self.mode = 'ising'
         if 'shots' in options:
             self.shots = options['shots']
+        if 'mode' in options:
+            self.mode = options['mode']
 
     def name(self):
         return 'dwave-neal'
@@ -27,15 +31,23 @@ class DwaveNealAccelerator(xacc.Accelerator):
         counter = 0
         h = {}
         J={}
+        Q={}
         for inst in program.getInstructions():
             if inst.bits()[0] == inst.bits()[1]:
                 h[counter] = inst.getParameter(0)
+                Q[(counter, counter)] = inst.getParameter(0)
                 counter+=1
             else:
                 J[(inst.bits()[0], inst.bits()[1])] = inst.getParameter(0)
+                Q[(inst.bits()[0], inst.bits()[1])] = inst.getParameter(0)
 
         sampler = neal.SimulatedAnnealingSampler()
-        response = sampler.sample_ising(h, J, num_reads=self.shots)
+        if self.mode == 'ising':
+            response = sampler.sample_ising(h, J, num_reads=self.shots)
+        elif self.mode == 'qubo':
+            response = sampler.sample_qubo(Q, num_reads = self.shots)
+        else:
+            xacc.error('[dwave-neal] invalid execution mode: ' + self.mode)
         energies = [d.energy for d in response.data(['energy'])]
         counts_list = []
         unique_config_to_energy = {}

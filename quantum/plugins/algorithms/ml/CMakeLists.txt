@@ -11,4 +11,4 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 add_subdirectory(ddcl)
-add_subdirectory(rbm_classification)
+#add_subdirectory(rbm_classification)

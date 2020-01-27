@@ -42,6 +42,7 @@ install(DIRECTORY benchmark DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 file(GLOB PYDECORATORS benchmark/chemistry/*.py
                        plugins/aer/*.py
+                       plugins/rbm_classification/*.py
                        plugins/dwave/*.py
                        plugins/cirq/*.py
                        plugins/qiskit/*.py
