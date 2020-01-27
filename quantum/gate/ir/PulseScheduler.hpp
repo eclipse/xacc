@@ -21,7 +21,7 @@ class PulseScheduler : public Scheduler {
 public:
   void schedule(std::shared_ptr<CompositeInstruction> program) override;
   const std::string name() const override {
-		return "default";
+		return "pulse";
 	}
 
 	const std::string description() const override{
