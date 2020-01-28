@@ -4,8 +4,8 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 @ComponentFactory("dwave_accelerator_factory")
 @Provides("accelerator")
-@Property("_accelerator", "accelerator", "dwave_py")
-@Property("_name", "name", "dwave-py")
+@Property("_accelerator", "accelerator", "dwave")
+@Property("_name", "name", "dwave")
 @Instantiate("dwave_py_accelerator_instance")
 class DwaveAccelerator(xacc.Accelerator):
     def __init__(self):
@@ -54,14 +54,25 @@ class DwaveAccelerator(xacc.Accelerator):
         if self.use_exact:
             sampler = dimod.ExactSolver()
         else:
-            sampler = EmbeddingComposite(DWaveSampler(token=self.token, solver=self.backend))
+            if buffer.hasExtraInfoKey('embedding'):
+                sampler = FixedEmbeddingComposite(DWaveSampler(token=self.token, solver=self.backend), buffer['embedding'])
+            else:
+                sampler = EmbeddingComposite(DWaveSampler(token=self.token, solver=self.backend))
 
         if program.getTag() == "ising":
-            response = sampler.sample_ising(h, J, num_reads=self.shots)
+            response = sampler.sample_ising(h, J, num_reads=self.shots, return_embedding=True)
             sampleset = dimod.ExactSolver().sample_ising(h,J)
         else:
             response = sampler.sample_qubo(Q, chain_strength=self.chain_strength, num_reads=self.shots)
-            sampleset = dimod.ExactSolver().sample_qubo(Q)
+            print('executing!')
+            sampleset = dimod.ExactSolver().sample_qubo(Q, return_embedding=True)
+
+        if not buffer.hasExtraInfoKey('embedding'):
+            # we used embeddingcomposite, get the computed
+            # embedding
+            emb = sampleset.info['embedding_context']['embedding']
+            print('EMBEDDING WAS ', emb)
+
 
         xacc.info('[Dwave Accelerator] Exact Ground Energy = ' + str(next(sampleset.data(fields=['energy'], name='ExactSolverSample')).energy))
 

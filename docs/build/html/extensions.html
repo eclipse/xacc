@@ -106,6 +106,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#vqe">VQE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ddcl">DDCL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotoselect">Rotoselect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rbm-classification">RBM Classification</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a><ul>
@@ -121,6 +123,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#observables">Observables</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#psi4-frozen-core">Psi4 Frozen-Core</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#circuit-generator">Circuit Generator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#aswap-ansatz-circuit">ASWAP Ansatz Circuit</a></li>
 </ul>
 </li>
 </ul>
@@ -575,7 +581,6 @@ different backend in two ways:</p>
 <p>In order to target the remote backend (for <code class="docutils literal notranslate"><span class="pre">initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">execute()</span></code>) you must provide
 your IBM credentials to XACC. To do this add the following to a plain text file <code class="docutils literal notranslate"><span class="pre">$HOME/.ibm_config</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>key: YOUR_KEY_HERE
-url: https://q-console-api.mybluemix.net
 hub: HUB
 group: GROUP
 project: PROJECT
@@ -1026,6 +1031,137 @@ strategies will shift each parameter by plus or minus pi over 2.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="rotoselect">
+<h3>Rotoselect<a class="headerlink" href="#rotoselect" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Rotoselect</span></code> Quantum Circuit Structure Learning Algorithm (<a class="reference external" href="https://arxiv.org/abs/1905.09692">Ostaszewski et al. (2019)</a>) requires the following input information:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 52%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>observable</p></td>
+<td><p>The hermitian operator, Rotoselect computes ground eigenvalue of this</p></td>
+<td><p>std::shared_ptr&lt;Observable&gt;/Observable*</p></td>
+</tr>
+<tr class="row-odd"><td><p>layers</p></td>
+<td><p>Number of circuit layers. Each layer consists of parametrized
+single-qubit rotations followed by a ladder of controlled-Z gates.</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>iterations</p></td>
+<td><p>The number of training iterations</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerator</p></td>
+<td><p>The Accelerator backend to target</p></td>
+<td><p>std::shared_ptr&lt;Accelerator&gt;/Accelerator*</p></td>
+</tr>
+</tbody>
+</table>
+<p>This <code class="docutils literal notranslate"><span class="pre">Rotoselect</span></code> algorithm is designed to learn a good circuit structure
+(generators of rotation are selected from the set of Pauli gates)
+at fixed depth (<code class="docutils literal notranslate"><span class="pre">layers</span></code>) to minimize the cost function (<code class="docutils literal notranslate"><span class="pre">observable</span></code>).
+This Algorithm will add <code class="docutils literal notranslate"><span class="pre">opt-val</span></code> (<code class="docutils literal notranslate"><span class="pre">double</span></code>) to the provided <code class="docutils literal notranslate"><span class="pre">AcceleratorBuffer</span></code>.
+The result of the algorithm is therefore retrieved via this key (see snippet below).</p>
+</div>
+<div class="section" id="rbm-classification">
+<h3>RBM Classification<a class="headerlink" href="#rbm-classification" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rbm_classification</span></code> algorithm provides an implementation that trains a
+restricted boltzmann machine via sampling of a quantum annealer for the purpose of
+classification. (<a class="reference external" href="https://arxiv.org/abs/1911.06259">Caldeira et al. (2019)</a>)
+It exposes the following input information:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 52%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>nv</p></td>
+<td><p>The number of visible units</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>nh</p></td>
+<td><p>The number of hidden units</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>batch-size</p></td>
+<td><p>The batch size, defaults to 1</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>train-steps</p></td>
+<td><p>Hard-code the number of training iterations/steps, by default this is
+set to -1, meaning unlimited iterations</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>epochs</p></td>
+<td><p>The number of training epochs, defaults to 1</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>train-file</p></td>
+<td><p>The location (relative to pwd) of the training data (as npy file)</p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-even"><td><p>expectation-strategy</p></td>
+<td><p>Strategy to use in computing model expectation values, can be gibbs,
+quantum-annealing, discriminative, or cd</p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-odd"><td><p>backend</p></td>
+<td><p>The desired quantum-annealing backend (defaults to dwave-neal), can be
+any of the available D-Wave backends, must be provided as dwave:BEND</p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-even"><td><p>shots</p></td>
+<td><p>The number of samples to draw from the dwave backend</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>embedding</p></td>
+<td><p>The minor graph embedding to use, if not provided, one will be
+computed and used for subsequent calls to the dwave backend.</p></td>
+<td><p>map&lt;int, vector&lt;int&gt;&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example usage in Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+
+<span class="c1"># Create the RBM Classification algorithm</span>
+<span class="n">algo</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s1">&#39;rbm-classification&#39;</span><span class="p">,</span>
+            <span class="p">{</span>
+            <span class="s1">&#39;nv&#39;</span><span class="p">:</span><span class="mi">64</span><span class="p">,</span>
+            <span class="s1">&#39;nh&#39;</span><span class="p">:</span><span class="mi">64</span><span class="p">,</span>
+            <span class="s1">&#39;train-file&#39;</span><span class="p">:</span><span class="s1">&#39;sg_train_64bits.npy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;expectation-strategy&#39;</span><span class="p">:</span><span class="s1">&#39;quantum-annealing&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;backend&#39;</span><span class="p">:</span><span class="s1">&#39;dwave:DW_2000Q_5&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;shots&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span>
+            <span class="p">})</span>
+
+<span class="n">qbits</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">()</span>
+<span class="n">algo</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qbits</span><span class="p">)</span>
+
+<span class="c1"># get the trained RBM weights</span>
+<span class="c1"># for further use and post-processing</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;w&#39;</span><span class="p">]</span>
+<span class="n">bv</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;bv&#39;</span><span class="p">]</span>
+<span class="n">bh</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;bh&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="accelerator-decorators">
 <h2>Accelerator Decorators<a class="headerlink" href="#accelerator-decorators" title="Permalink to this headline">¶</a></h2>
@@ -1154,6 +1290,82 @@ Observable in the following way in python.</p>
                                     <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geom</span><span class="p">,</span>
                                     <span class="s1">&#39;frozen-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">fo</span><span class="p">,</span>
                                     <span class="s1">&#39;active-spin-orbitals&#39;</span><span class="p">:</span> <span class="n">ao</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="circuit-generator">
+<h2>Circuit Generator<a class="headerlink" href="#circuit-generator" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="aswap-ansatz-circuit">
+<h3>ASWAP Ansatz Circuit<a class="headerlink" href="#aswap-ansatz-circuit" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ASWAP</span></code> circuit generator generates a state preparation (ansatz) circuit for the VQE Algorithm.
+(See <a class="reference external" href="https://arxiv.org/abs/1904.10910">Gard, Bryan T., et al.</a>)</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ASWAP</span></code> circuit generator requires the following input information:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 54%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>nbQubits</p></td>
+<td><p>The number of qubits in the circuit.</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-odd"><td><p>nbParticles</p></td>
+<td><p>The number of particles.</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>timeReversalSymmetry</p></td>
+<td><p>Do we have time-reversal symmetry?</p></td>
+<td><p>boolean</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;xacc.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;xacc_observable.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;xacc_service.hpp&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">accelerator</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;qpp&quot;</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">H_N_2</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">quantum</span><span class="o">::</span><span class="n">getObservable</span><span class="p">(</span>
+      <span class="s">&quot;pauli&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;5.907 - 2.1433 X0X1 &quot;</span>
+                          <span class="s">&quot;- 2.1433 Y0Y1&quot;</span>
+                          <span class="s">&quot;+ .21829 Z0 - 6.125 Z1&quot;</span><span class="p">));</span>
+
+  <span class="k">auto</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getOptimizer</span><span class="p">(</span><span class="s">&quot;nlopt&quot;</span><span class="p">);</span>
+  <span class="c1">// Use the ASWAP circuit as the ansatz</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">qasm</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"></span>
+<span class="s">      .compiler xasm</span>
+<span class="s">      .circuit deuteron_ansatz</span>
+<span class="s">      .parameters t0</span>
+<span class="s">      .qbit q</span>
+<span class="s">      ASWAP(q, t0, {{&quot;nbQubits&quot;, 2}, {&quot;nbParticles&quot;, 1}});</span>
+<span class="s">  </span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">ansatz</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getCompiled</span><span class="p">(</span><span class="s">&quot;deuteron_ansatz&quot;</span><span class="p">);</span>
+
+  <span class="c1">// Get the VQE Algorithm and initialize it</span>
+  <span class="k">auto</span> <span class="n">vqe</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s">&quot;vqe&quot;</span><span class="p">);</span>
+  <span class="n">vqe</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">({</span><span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;ansatz&quot;</span><span class="p">,</span> <span class="n">ansatz</span><span class="p">),</span>
+                  <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;observable&quot;</span><span class="p">,</span> <span class="n">H_N_2</span><span class="p">),</span>
+                  <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;accelerator&quot;</span><span class="p">,</span> <span class="n">accelerator</span><span class="p">),</span>
+                  <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;optimizer&quot;</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)});</span>
+
+  <span class="c1">// Allocate some qubits and execute</span>
+  <span class="k">auto</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+  <span class="n">vqe</span><span class="o">-&gt;</span><span class="n">execute</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+  <span class="c1">// Expected result: -1.74886</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Energy: &quot;</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="o">*</span><span class="n">buffer</span><span class="p">)[</span><span class="s">&quot;opt-val&quot;</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+ <span class="p">}</span>
 </pre></div>
 </div>
 </div>

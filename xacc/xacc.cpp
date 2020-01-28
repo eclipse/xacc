@@ -337,14 +337,14 @@ std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
     acc->initialize(m);
   } else {
 
-    if (xacc::hasContributedService<Accelerator>(name)) {
+    if (xacc::hasContributedService<Accelerator>(name_backend[0])) {
 
-      acc = xacc::getContributedService<Accelerator>(name);
+      acc = xacc::getContributedService<Accelerator>(name_backend[0]);
       if (acc)
-        acc->initialize(params);
+        acc->initialize(m);
 
     } else {
-      error("Invalid Accelerator. Could not find " + name +
+      error("Invalid Accelerator. Could not find " + name_backend[0] +
             " in Accelerator Registry.");
     }
   }
