@@ -224,6 +224,16 @@ parameterized <code class="docutils literal notranslate"><span class="pre">Ry</s
 </pre></div>
 </div>
 <p>in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="o">...</span>
+<span class="n">provider</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRProvider</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">)</span>
+<span class="n">program</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createComposite</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createInstruction</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ry</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createInstruction</span><span class="p">(</span><span class="s1">&#39;Ry&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">])</span>
+<span class="n">cx</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createInstruction</span><span class="p">(</span><span class="s1">&#39;CX&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">program</span><span class="o">.</span><span class="n">addInstructions</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">ry</span><span class="p">,</span><span class="n">cx</span><span class="p">])</span>
+</pre></div>
+</div>
 <p>We could also create IR through textual source code representations in a language
 that is available to the framework. Availability here implies that there exists
 a <code class="docutils literal notranslate"><span class="pre">Compiler</span></code> implementation for the language being used. <code class="docutils literal notranslate"><span class="pre">Compilers</span></code> take kernel

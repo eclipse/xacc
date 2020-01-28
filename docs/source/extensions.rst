@@ -699,6 +699,69 @@ The result of the algorithm is therefore retrieved via this key (see snippet bel
   }
 
 
+RBM Classification
+++++++++++++++++++
+The ``rbm_classification`` algorithm provides an implementation that trains a
+restricted boltzmann machine via sampling of a quantum annealer for the purpose of
+classification. (`Caldeira et al. (2019) <https://arxiv.org/abs/1911.06259>`_)
+It exposes the following input information:
+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    nv                  | The number of visible units                                            | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    nh                  | The number of hidden units                                             | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    batch-size          | The batch size, defaults to 1                                          | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    n-gibbs-steps       | The number of gibbs steps to use in post-processing of dwave data      | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    train-steps         | Hard-code the number of training iterations/steps, by default this is  | int                                      |
+|                        | set to -1, meaning unlimited iterations                                |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    epochs              | The number of training epochs, defaults to 1                           | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    train-file          | The location (relative to pwd) of the training data (as npy file)      | string                                   |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  expectation-strategy  | Strategy to use in computing model expectation values, can be gibbs,   | string                                   |
+|                        | quantum-annealing, discriminative, or cd                               |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    backend             | The desired quantum-annealing backend (defaults to dwave-neal), can be | string                                   |
+|                        | any of the available D-Wave backends, must be provided as dwave:BEND   |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    shots               | The number of samples to draw from the dwave backend                   | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    embedding           | The minor graph embedding to use, if not provided, one will be         |                                          |
+|                        | computed and used for subsequent calls to the dwave backend.           | map<int, vector<int>>                    |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+
+Example usage in Python:
+
+.. code:: python
+
+    import xacc
+
+    # Create the RBM Classification algorithm
+    algo = xacc.getAlgorithm('rbm-classification',
+                {
+                'nv':64,
+                'nh':64,
+                'train-file':'sg_train_64bits.npy',
+                'expectation-strategy':'quantum-annealing',
+                'backend':'dwave:DW_2000Q_5',
+                'shots':100,
+                })
+
+    qbits = xacc.qalloc()
+    algo.execute(qbits)
+
+    # get the trained RBM weights
+    # for further use and post-processing
+    w = qbits['w']
+    bv = qbits['bv']
+    bh = qbits['bh']
+
 
 Accelerator Decorators
 ----------------------

@@ -181,7 +181,6 @@ your IBM credentials to XACC. To do this add the following to a plain text file 
 .. code:: bash
 
    key: YOUR_KEY_HERE
-   url: https://q-console-api.mybluemix.net
    hub: HUB
    group: GROUP
    project: PROJECT
@@ -637,6 +636,129 @@ or in Python
    print(qbits['opt-val'])
    print(qbits['opt-params'])
 
+Rotoselect
+++++++++++
+The ``Rotoselect`` Quantum Circuit Structure Learning Algorithm (`Ostaszewski et al. (2019) <https://arxiv.org/abs/1905.09692>`_) requires the following input information:
+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    observable          | The hermitian operator, Rotoselect computes ground eigenvalue of this  | std::shared_ptr<Observable>/Observable*  |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    layers              | Number of circuit layers. Each layer consists of parametrized          | int                                      |
+|                        | single-qubit rotations followed by a ladder of controlled-Z gates.     |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    iterations          | The number of training iterations                                      | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    accelerator         | The Accelerator backend to target                                      | std::shared_ptr<Accelerator>/Accelerator*|
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+
+This ``Rotoselect`` algorithm is designed to learn a good circuit structure
+(generators of rotation are selected from the set of Pauli gates)
+at fixed depth (``layers``) to minimize the cost function (``observable``).
+This Algorithm will add ``opt-val`` (``double``) to the provided ``AcceleratorBuffer``.
+The result of the algorithm is therefore retrieved via this key (see snippet below).
+
+.. code:: cpp
+  #include "xacc.hpp"
+  #include "xacc_observable.hpp"
+  #include "xacc_service.hpp"
+
+  int main(int argc, char **argv) {
+    xacc::Initialize(argc, argv);
+    // Use the Qpp simulator as the accelerator
+    auto acc = xacc::getAccelerator("qpp");
+
+    // In this example, we try to find the ground state energy of the 5-qubit Heisenberg model on a
+    // 1D lattice with periodic boundary conditions.
+    auto buffer = xacc::qalloc(5);
+    // The corresponding Hamiltonian is:
+    // Note: we set all scalar params to 1.0 for simplicity.
+    auto observable = xacc::quantum::getObservable(
+        "pauli",
+        std::string("X0 X1 + X1 X2 + X2 X3 + X3 X4 + X4 X0 + "
+                    "Y0 Y1 + Y1 Y2 + Y2 Y3 + Y3 Y4 + Y4 Y0 +"
+                    "Z0 Z1 + Z1 Z2 + Z2 Z3 + Z3 Z4 + Z4 Z0 + "
+                    "Z0 + Z1 + Z2 + Z3 + Z4"));
+
+    auto rotoselect = xacc::getService<xacc::Algorithm>("rotoselect");
+    // We train the circuit that has 6 layers for 1000 iterations.
+    // Note: we can repeat this training multiple times to collect the mean and standard deviation
+    // as reported in https://arxiv.org/abs/1905.09692
+    rotoselect->initialize({
+                            std::make_pair("accelerator", acc),
+                            std::make_pair("observable", observable),
+                            std::make_pair("layers", 6),
+                            std::make_pair("iterations", 1000),
+                          });
+
+    rotoselect->execute(buffer);
+    // Expected value ~ -8.4 -> -8.5
+    // Ref: FIG. 2 of https://arxiv.org/abs/1905.09692
+    std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+  }
+
+
+RBM Classification
+++++++++++++++++++
+The ``rbm_classification`` algorithm provides an implementation that trains a
+restricted boltzmann machine via sampling of a quantum annealer for the purpose of
+classification. (`Caldeira et al. (2019) <https://arxiv.org/abs/1911.06259>`_)
+It exposes the following input information:
+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    nv                  | The number of visible units                                            | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    nh                  | The number of hidden units                                             | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    batch-size          | The batch size, defaults to 1                                          | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    train-steps         | Hard-code the number of training iterations/steps, by default this is  | int                                      |
+|                        | set to -1, meaning unlimited iterations                                |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    epochs              | The number of training epochs, defaults to 1                           | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    train-file          | The location (relative to pwd) of the training data (as npy file)      | string                                   |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  expectation-strategy  | Strategy to use in computing model expectation values, can be gibbs,   | string                                   |
+|                        | quantum-annealing, discriminative, or cd                               |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    backend             | The desired quantum-annealing backend (defaults to dwave-neal), can be |   string                                 |
+|                        | any of the available D-Wave backends, must be provided as dwave:BEND   |                                          |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    shots               | The number of samples to draw from the dwave backend                   | int                                      |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    embedding           | The minor graph embedding to use, if not provided, one will be         |                                          |
+|                        | computed and used for subsequent calls to the dwave backend.           | map<int, vector<int>>                    |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+
+Example usage in Python:
+
+.. code:: python
+
+    import xacc
+
+    # Create the RBM Classification algorithm
+    algo = xacc.getAlgorithm('rbm-classification',
+                {
+                'nv':64,
+                'nh':64,
+                'train-file':'sg_train_64bits.npy',
+                'expectation-strategy':'quantum-annealing',
+                'backend':'dwave:DW_2000Q_5',
+                'shots':100,
+                })
+
+    qbits = xacc.qalloc()
+    algo.execute(qbits)
+
+    # get the trained RBM weights
+    # for further use and post-processing
+    w = qbits['w']
+    bv = qbits['bv']
+    bh = qbits['bh']
 
 
 Accelerator Decorators
@@ -783,3 +905,64 @@ Observable in the following way in python.
                                        'frozen-spin-orbitals': fo,
                                        'active-spin-orbitals': ao})
 
+Circuit Generator
+-----------------
+
+ASWAP Ansatz Circuit
+++++++++++++++++++++
+The ``ASWAP`` circuit generator generates a state preparation (ansatz) circuit for the VQE Algorithm.
+(See `Gard, Bryan T., et al. <https://arxiv.org/abs/1904.10910>`_)
+
+The ``ASWAP`` circuit generator requires the following input information:
+
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                     |
++========================+========================================================================+======================================+
+|  nbQubits              | The number of qubits in the circuit.                                   | int                                  |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  nbParticles           | The number of particles.                                               | int                                  |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  timeReversalSymmetry  | Do we have time-reversal symmetry?                                     | boolean                              |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+
+Example:
+
+.. code:: cpp
+
+  #include "xacc.hpp"
+  #include "xacc_observable.hpp"
+  #include "xacc_service.hpp"
+
+  int main(int argc, char **argv) {
+    xacc::Initialize(argc, argv);
+
+    auto accelerator = xacc::getAccelerator("qpp");
+    auto H_N_2 = xacc::quantum::getObservable(
+        "pauli", std::string("5.907 - 2.1433 X0X1 "
+                            "- 2.1433 Y0Y1"
+                            "+ .21829 Z0 - 6.125 Z1"));
+
+    auto optimizer = xacc::getOptimizer("nlopt");
+    // Use the ASWAP circuit as the ansatz
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters t0
+        .qbit q
+        ASWAP(q, t0, {{"nbQubits", 2}, {"nbParticles", 1}});
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+    // Get the VQE Algorithm and initialize it
+    auto vqe = xacc::getAlgorithm("vqe");
+    vqe->initialize({std::make_pair("ansatz", ansatz),
+                    std::make_pair("observable", H_N_2),
+                    std::make_pair("accelerator", accelerator),
+                    std::make_pair("optimizer", optimizer)});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    vqe->execute(buffer);
+    // Expected result: -1.74886
+    std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+   }

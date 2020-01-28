@@ -84,12 +84,15 @@ class RBMClassification(xacc.Algorithm):
         self.nv = options['nv']
         self.nh = options['nh']
         self.num_epochs = options['epochs'] if 'epochs' in options else 1
+        self.num_gibbs = options['n-gibbs-steps'] if 'n-gibbs-steps' in options else 0
         self.train_file = options['train-file']
         self.batch_size = options['batch-size'] if 'batch-size' in options else 1
         self.train_steps = options['train-steps'] if 'train-steps' in options else -1
         self.shots = options['shots'] if 'shots' in options else 100
         self.backend = options['backend'] if 'backend' in options else 'dwave-neal'
         self.exp_strategy = options['expectation-strategy'] if 'expectation-strategy' in options else 'cd'
+        self.embedding = options['embedding'] if 'embedding' in options else None
+        self.store_embedding = options['store-first-embedding'] if 'store-first-embedding' in options else False
         return True
 
     def name(self):
@@ -166,7 +169,7 @@ class RBMClassification(xacc.Algorithm):
 
                 dataexp_W, dataexp_v, dataexp_h = data_exp_strategy.execute(buffer, features, W, bv, bh, {})
                 modexp_W, modexp_v, modexp_h = model_exp_strategy.execute(buffer, features, W, bv, dataexp_h,
-                                    {'shots':self.shots, 'backend':self.backend})
+                                    {'shots':self.shots, 'backend':self.backend, 'embedding':self.embedding, 'n-gibbs-steps':self.n_gibbs})
 
                 # compute model parameter adjustments
                 W_delta, bv_delta, bh_delta = get_model_parameter_updates(

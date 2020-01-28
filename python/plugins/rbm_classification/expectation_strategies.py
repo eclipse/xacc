@@ -67,6 +67,56 @@ class GibbsExpectationStrategy(ExpectationStrategy):
         expectation_h = sum_h / float(n_samples)
         return expectation_W, expectation_v, expectation_h
 
+@ComponentFactory("rbm_disc_expectation_strategy_factory")
+@Provides("rbm_expectation_strategy")
+@Property("_rbm_expectation_strategy", "rbm_expectation_strategy", "discriminative")
+@Property("_name", "name", "discriminative")
+@Instantiate("rbm_discriminative_expectation_strategy_instance")
+class DiscriminativeExpectationStrategy(ExpectationStrategy):
+    def execute(self, global_buffer, features, W, bv, bh, options):
+        import tensorflow as tf
+        def free_energy(vis, W, bh, bv):
+            """
+            F(v) = -sum_i v_i a_i - sum_j log(1 + e^{x_j}),
+            where a_i = visible biases, v_i = binary state of visible unit i
+
+            x_j = b_j + sum_i v_i w_{ij} = total input to hidden unit j
+            """
+            vis_b = vis * bv
+            xj = tf.tensordot(vis, W, [[-1], [0]]) + bh
+            expxj = tf.clip_by_value(1.0 + tf.exp(xj), tf.float32.min, tf.float32.max)
+            loge = tf.math.log(expxj)
+            Fv = -tf.reduce_sum(vis_b, axis=-1) - tf.reduce_sum(loge, axis=-1)
+            return Fv
+
+
+        visible_bias = bv.numpy()[0]
+        hidden_bias = bh.numpy()[0]
+        n_visible = len(visible_bias)
+        n_hidden = len(hidden_bias)
+        batch_size = features.shape.as_list()[0]
+
+        features_0 = tf.concat([features[:, :-1], tf.zeros((batch_size, 1))],
+                               axis=1)
+        features_1 = tf.concat([features[:, :-1], tf.ones((batch_size, 1))], axis=1)
+        features_stack = tf.stack([features_0, features_1])
+        frees = free_energy(features_stack, W, bh, bv)
+        probs_nonnorm = tf.exp(-frees)
+        z = tf.reduce_sum(probs_nonnorm, axis=0)
+        probs = probs_nonnorm / z
+        h_probs = tf.sigmoid(tf.tensordot(features_stack, W, [[-1], [0]]) + bh)
+
+        expectation_v = tf.tensordot(probs, features_stack,
+                                     [[0, 1], [0, 1]]) / batch_size
+        expectation_v = tf.reshape(expectation_v, (1, n_visible))
+        expectation_h = tf.tensordot(probs, h_probs, [[0, 1], [0, 1]]) / batch_size
+        expectation_h = tf.reshape(expectation_h, (1, n_hidden))
+        all_W = tf.einsum('abc,abd->abcd', features_stack, h_probs)
+        expectation_W = tf.tensordot(probs, all_W, [[0, 1], [0, 1]]) / batch_size
+        return expectation_W, expectation_v, expectation_h
+
+
+
 @ComponentFactory("rbm_data_expectation_strategy_factory")
 @Provides("rbm_expectation_strategy")
 @Property("_rbm_data_expectation_strategy", "rbm_data_expectation_strategy", "data")
@@ -109,8 +159,8 @@ class NealSampler(object):
 
 @ComponentFactory("rbm_dwave_expectation_strategy_factory")
 @Provides("rbm_expectation_strategy")
-@Property("_rbm_expectation_strategy", "rbm_expectation_strategy", "dwave")
-@Property("_name", "name", "dwave")
+@Property("_rbm_expectation_strategy", "rbm_expectation_strategy", "quantum-annealing")
+@Property("_name", "name", "quantum-annealing")
 @Instantiate("rbm_dwave_expectation_strategy_instance")
 class DWaveExpectationStrategy(ExpectationStrategy):
     def execute(self, global_buffer, features, W, bv, bh, options):
@@ -157,7 +207,7 @@ class DWaveExpectationStrategy(ExpectationStrategy):
         n_hidden = len(hidden_bias)
         n_visible = len(visible_bias)
 
-        backend = options['dwave-backend'] if 'dwave-backend' in options else 'dwave-neal'
+        backend = options['backend'] if 'backend' in options else 'dwave-neal'
         save_embed = options['save_embed'] if 'save_embed' in options else False
         load_embed = options['load_embed'] if 'load_embed' in options else None
         n_samples = options['n-samples'] if 'n-samples' in options else 100
@@ -174,6 +224,9 @@ class DWaveExpectationStrategy(ExpectationStrategy):
 
         qpu = xacc.getAccelerator(backend, {'shots':n_samples, 'mode':'qubo'})
         qbits = xacc.qalloc()
+        if options['embedding'] is not None:
+            qbits.addExtraInfo('embedding', options['embedding'])
+
         qpu.execute(qbits, QIR)
 
         global_buffer.appendChild(qbits.name(), qbits)
