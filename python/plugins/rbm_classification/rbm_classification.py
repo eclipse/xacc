@@ -169,7 +169,7 @@ class RBMClassification(xacc.Algorithm):
 
                 dataexp_W, dataexp_v, dataexp_h = data_exp_strategy.execute(buffer, features, W, bv, bh, {})
                 modexp_W, modexp_v, modexp_h = model_exp_strategy.execute(buffer, features, W, bv, dataexp_h,
-                                    {'shots':self.shots, 'backend':self.backend, 'embedding':self.embedding, 'n-gibbs-steps':self.n_gibbs})
+                                    {'shots':self.shots, 'backend':self.backend, 'embedding':self.embedding, 'n-gibbs-steps':self.num_gibbs})
 
                 # compute model parameter adjustments
                 W_delta, bv_delta, bh_delta = get_model_parameter_updates(
