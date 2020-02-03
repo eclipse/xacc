@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_qpt",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Quantum Process Tomography Algorithm",
+  "bundle.description" : ""
+}
