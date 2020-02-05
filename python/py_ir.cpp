@@ -185,6 +185,13 @@ void bind_ir(py::module &m) {
       .def(
           "createComposite",
           [](IRProvider &p, const std::string name,
+             std::vector<std::string> vars) {
+            return p.createComposite(name, vars);
+          },
+          "")
+      .def(
+          "createComposite",
+          [](IRProvider &p, const std::string name,
              std::vector<std::string> vars, const std::string type) {
             return p.createComposite(name, vars, type);
           },

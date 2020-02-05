@@ -18,9 +18,9 @@
 namespace xacc {
 namespace algorithm {
 class QPT : public Algorithm {
-  CompositeInstruction * circuit;
-  Accelerator * qpu;
-  
+  CompositeInstruction *circuit;
+  Accelerator *qpu;
+
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;

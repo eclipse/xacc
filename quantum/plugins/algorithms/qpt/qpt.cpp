@@ -132,9 +132,6 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     basis_observables.emplace_back(pauli_with_idxs);
   }
 
-  //   for (auto b : basis_observables) {
-  //   std::cout << b.toString() << "\n";
-  //   }
   // Goal 2, create states zplus, zmins, xplus, yplus
   // PLUS circuit on all qubits
   auto provider = xacc::getIRProvider("quantum");
@@ -177,7 +174,6 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   std::vector<std::vector<std::string>> prep_labels;
   for (auto c : collected_strings) {
-    std::cout << "HELLO: " << c << "\n";
     xacc::trim(c);
     auto preps = xacc::split(c, ' ');
     prep_labels.push_back(preps);
@@ -196,6 +192,7 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     all_bit_strings.push_back(bbs);
   }
 
+  std::vector<std::string> names;
   std::vector<std::shared_ptr<CompositeInstruction>> all_circuits;
   for (auto &prep_names_on_qbits : prep_labels) {
     std::string comp_name = "";
@@ -205,12 +202,10 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     auto prep_on_all_qbits = provider->createComposite(comp_name + "all");
     for (std::size_t i = 0; i < nQ; i++) {
       auto prep_name = prep_names_on_qbits[i];
-      std::cout << i << ", " << prep_name << "\n";
       auto prep = template_generator(prep_name, i);
       if (i > 0) {
         prep->setBits({i});
       }
-      std::cout << prep->toString() << "\n";
       prep_on_all_qbits->addInstructions(prep->getInstructions());
     }
 
@@ -220,7 +215,7 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     Eigen::MatrixXcd prep;
     for (int k = 0; k < prep_names_on_qbits.size(); k++) {
       auto p = prep_names_on_qbits[k];
-      std::cout << p << ", " << k << ", " << prep_label_2_rho[p] << "\n";
+      //   std::cout << p << ", " << k << ", " << prep_label_2_rho[p] << "\n";
       if (k == 0) {
         prep = prep_label_2_rho[p];
       } else {
@@ -228,39 +223,64 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       }
     }
 
-    std::cout << "PREP:\n" << prep << "\n";
+    // std::cout << "PREP:\n" << prep << "\n";
     for (auto &basis_element : basis_observables) {
       auto prep_on_all_and_meas = basis_element.observe(prep_on_all_qbits)[0];
-      all_circuits.push_back(prep_on_all_and_meas);
 
+      // Observable::observe will change basis to {X,Y,Z}, we want to
+      // measure Y.
+      for (int i = 0; i < prep_on_all_and_meas->nInstructions(); i++) {
+        auto inst = prep_on_all_and_meas->getInstruction(i);
+        if (inst->name() == "Rx") {
+          auto sdg = provider->createInstruction("Sdg", inst->bits());
+          auto h = provider->createInstruction("H", inst->bits());
+          auto c = provider->createComposite("__tmp_sdg_h");
+          c->addInstructions({sdg, h});
+          prep_on_all_and_meas->replaceInstruction(i, c);
+        }
+      }
+
+      std::stringstream ss;
       std::vector<std::string> measure_label;
       std::vector<int> idxs;
       auto pauli_as_term = *basis_element.begin();
       for (auto &kv : pauli_as_term.second.ops()) {
-        std::cout << "OP: " << kv.second << "\n";
+        // std::cout << "OP: " << kv.second << " ";
         measure_label.push_back(kv.second);
         idxs.push_back(kv.first);
       }
+      //   std::cout << "\n";
+      ss << measure_label;
+
+      names.push_back(comp_name + "_" + ss.str());
+
+      all_circuits.push_back(prep_on_all_and_meas);
 
       std::vector<Eigen::MatrixXcd> meas_mats;
       for (auto iter : all_bit_strings) {
-        std::cout << iter << "\n";
-
+        // std::cout << iter << "\n";
+        // Direction of loop here is dependent on bit ordering
+        // from backend accelerator. Default is MSB like IBM
         Eigen::MatrixXcd meas_mat;
-        for (int k = 0; k < measure_label.size(); k++) {
-          int bit = iter[k] == '0' ? 0 : 1;
+        int counter = 0;
+        for (int k = measure_label.size() - 1; k >= 0; k--) {
+          int bit = iter[counter] == '0' ? 0 : 1;
+          //   std::cout << "\t kron " << measure_label[k] << ", " << bit <<
+          //   "\n";
           auto mat = pauli_measure_mats_map[measure_label[k]][bit];
-          if (k == 0) {
+          if (k == measure_label.size() - 1) {
             meas_mat = mat;
           } else {
             meas_mat = Eigen::kroneckerProduct(meas_mat, mat).eval();
           }
+          counter++;
         }
         meas_mats.push_back(meas_mat);
       }
 
       std::vector<Eigen::MatrixXcd> prep_meas_mats;
       for (auto &m : meas_mats) {
+        // std::cout << "Meas:\n" << m << "\n";
         prep_meas_mats.push_back(
             Eigen::kroneckerProduct(prep.transpose(), m).eval());
       }
@@ -276,59 +296,86 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     }
   }
 
-  std::cout << "Hey: " << all_circuits.size() << "\n";
-
   Eigen::MatrixXcd basis_matrix = VStack(blocks);
-  std::cout << basis_matrix << "\n";
 
   // Execute and get data vector
   qpu->execute(buffer, all_circuits);
   auto children = buffer->getChildren();
-  Eigen::VectorXcd data =
-      Eigen::VectorXcd::Zero(all_bit_strings.size() * all_circuits.size());
-  int counter = 0;
-  for (int i = 0; i < children.size(); i++) {
-    int sub_counter = 0;
-    for (auto &bit_string : all_bit_strings) {
-      data(counter + sub_counter) =
-          children[i]->computeMeasurementProbability(bit_string);
-      sub_counter++;
+
+  std::vector<std::complex<double>> data_vec;
+  int i = 0;
+  for (auto &child : children) {
+    for (auto bit_string : all_bit_strings) {
+      // FIXME NEEDED TO REVERSE HERE TO REPRODUCE RESULTS
+      std::reverse(bit_string.begin(), bit_string.end());
+      auto prob = child->computeMeasurementProbability(bit_string);
+      data_vec.push_back(prob);
     }
-    counter += all_bit_strings.size();
+    i++;
   }
 
-  std::cout << "HELLO:\n" << data << "\n";
+  Eigen::VectorXcd data =
+      Eigen::Map<Eigen::VectorXcd>(data_vec.data(), data_vec.size());
 
-  Eigen::VectorXcd xx =
+  Eigen::VectorXcd choi_vec =
       basis_matrix.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
           .solve(data);
   Eigen::MatrixXcd choi = Eigen::Map<Eigen::MatrixXcd>(
-      xx.data(), std::pow(2, 2 * nQ), std::pow(2, 2 * nQ));
+      choi_vec.data(), std::pow(2, 2 * nQ), std::pow(2, 2 * nQ));
 
-//   std::cout << "CHOI:\n" << choi << "\n\n";
+  std::vector<double> choi_real_vec, choi_imag_vec;
+  for (int i = 0; i < choi.rows(); i++) {
+    for (int j = 0; j < choi.cols(); j++) {
+      double real = choi(i, j).real(), imag = choi(i, j).imag();
+      if (std::fabs(real) < 1e-12) {
+        real = 0.0;
+      }
+      if (std::fabs(imag) < 1e-12) {
+        imag = 0.0;
+      }
+      choi_real_vec.push_back(real);
+      choi_imag_vec.push_back(imag);
+    }
+  }
+
+  buffer->addExtraInfo("choi-real", choi_real_vec);
+  buffer->addExtraInfo("choi-imag", choi_imag_vec);
 
   // Convert to Chi process matrix
   Eigen::MatrixXcd basis_mat(4, 4);
   basis_mat << 1, 0, 0, 1, 0, 1, 1, 0, 0, -1i, 1i, 0, 1, 0, 0, -1;
-  Eigen::MatrixXcd copy = basis_mat;
+  Eigen::MatrixXcd cob = basis_mat;
   for (int i = 0; i < nQ - 1; i++) {
-    int dim = (int)std::sqrt(copy.rows());
-    Eigen::MatrixXcd tmp = Eigen::kroneckerProduct(basis_mat, copy);
+    int dim = (int)std::sqrt(cob.rows());
+    Eigen::MatrixXcd tmp = Eigen::kroneckerProduct(basis_mat, cob);
     Eigen::Tensor<std::complex<double>, 6> tmp_tensor =
         Eigen::TensorMap<Eigen::Tensor<std::complex<double>, 6>>(
             tmp.data(), 4, dim * dim, 2, 2, dim, dim);
     Eigen::Tensor<std::complex<double>, 6> tmp2 =
         tmp_tensor.shuffle(std::array<int, 6>{0, 1, 2, 4, 3, 5});
-    copy =
+    cob =
         Eigen::Map<Eigen::MatrixXcd>(tmp2.data(), 4 * dim * dim, 4 * dim * dim);
   }
 
-  Eigen::MatrixXcd chi = (1 / std::pow(2, nQ)) * copy * choi * copy.adjoint();
-  auto real_chi = chi.real();
-  std::cout << "Chi:\n" << chi << "\n";
+  Eigen::MatrixXcd chi = (1 / std::pow(2, nQ)) * (cob * choi * cob.adjoint());
+//   std::cout << "QPT Chi:\n" << chi << "\n\n";
+  std::vector<double> chi_real_vec, chi_imag_vec;
+  for (int i = 0; i < chi.rows(); i++) {
+    for (int j = 0; j < chi.cols(); j++) {
+      double real = chi(i, j).real(), imag = chi(i, j).imag();
+      if (std::fabs(real) < 1e-12) {
+        real = 0.0;
+      }
+      if (std::fabs(imag) < 1e-12) {
+        imag = 0.0;
+      }
+      chi_real_vec.push_back(real);
+      chi_imag_vec.push_back(imag);
+    }
+  }
 
-//   std::vector<std::complex<double>> chi_as_vec(chi.data(), chi.data() + chi.size());
-//   buffer->addExtraInfo("chi", chi_as_vec);
+  buffer->addExtraInfo("chi-real", chi_real_vec);
+  buffer->addExtraInfo("chi-imag", chi_imag_vec);
 }
 
 } // namespace algorithm
