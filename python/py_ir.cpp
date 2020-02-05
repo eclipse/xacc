@@ -77,6 +77,7 @@ void bind_ir(py::module &m) {
            &xacc::CompositeInstruction::replaceInstruction, "")
       .def("insertInstruction", &xacc::CompositeInstruction::insertInstruction,
            "")
+      .def("nLogicalBits", &xacc::CompositeInstruction::nLogicalBits, "")
       .def(
           "addInstructions",
           (void (xacc::CompositeInstruction::*)(const std::vector<InstPtr> &)) &

@@ -40,7 +40,7 @@ install(FILES xacc.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY plugin_generator DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY benchmark DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-file(GLOB PYDECORATORS benchmark/chemistry/*.py
+file(GLOB PYDECORATORS benchmark/chemistry/*.py benchmark/qpt/*.py
                        plugins/aer/*.py
                        plugins/rbm_classification/*.py
                        plugins/dwave/*.py

@@ -21,19 +21,20 @@ using namespace std::complex_literals;
 
 using namespace xacc;
 
-template<typename Derived>
-double fidelity(const Eigen::MatrixBase<Derived> &chi_1, const Eigen::MatrixBase<Derived> &chi_2) {
+template <typename Derived>
+double fidelity(const Eigen::MatrixBase<Derived> &chi_1,
+                const Eigen::MatrixBase<Derived> &chi_2) {
   Eigen::JacobiSVD<Eigen::MatrixXcd> svd(chi_1, Eigen::ComputeThinU |
-                                                           Eigen::ComputeThinV);
+                                                    Eigen::ComputeThinV);
   Eigen::MatrixXcd sqrt_chi_1 = svd.matrixU() *
-                         svd.singularValues().cwiseSqrt().asDiagonal() *
-                         svd.matrixV().transpose();
+                                svd.singularValues().cwiseSqrt().asDiagonal() *
+                                svd.matrixV().transpose();
 
   Eigen::JacobiSVD<Eigen::MatrixXcd> svd2(chi_2, Eigen::ComputeThinU |
-                                                           Eigen::ComputeThinV);
+                                                     Eigen::ComputeThinV);
   Eigen::MatrixXcd sqrt_chi_2 = svd2.matrixU() *
-                         svd2.singularValues().cwiseSqrt().asDiagonal() *
-                         svd2.matrixV().transpose();
+                                svd2.singularValues().cwiseSqrt().asDiagonal() *
+                                svd2.matrixV().transpose();
 
   Eigen::MatrixXcd tmp = sqrt_chi_1 * sqrt_chi_2;
   Eigen::JacobiSVD<Eigen::MatrixXcd> svd3(tmp, Eigen::ComputeThinU |
@@ -46,7 +47,7 @@ double fidelity(const Eigen::MatrixBase<Derived> &chi_1, const Eigen::MatrixBase
 
 TEST(QPTTester, checkHadamard) {
   if (xacc::hasAccelerator("aer")) {
-    auto acc = xacc::getAccelerator("aer", {std::make_pair("shots", 1024)});
+    auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 1024)});
     auto buffer = xacc::qalloc(1);
 
     auto compiler = xacc::getCompiler("xasm");
@@ -79,15 +80,16 @@ TEST(QPTTester, checkHadamard) {
       }
     }
 
-    EXPECT_NEAR(1.0, fidelity(.5*chi, .5*chi_hadamard_theory), 1e-1);
+    EXPECT_NEAR(1.0, fidelity(.5 * chi, .5 * chi_hadamard_theory), 1e-1);
 
-    std::cout << "FID: " << fidelity(.5*chi, .5*chi_hadamard_theory) << "\n";
+    std::cout << "FID: " << fidelity(.5 * chi, .5 * chi_hadamard_theory)
+              << "\n";
   }
 }
 
 TEST(QPTTester, checkCX) {
   if (xacc::hasAccelerator("aer")) {
-    auto acc = xacc::getAccelerator("aer", {std::make_pair("shots", 1024)});
+    auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 1024)});
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getCompiler("xasm");
@@ -104,11 +106,10 @@ TEST(QPTTester, checkCX) {
     qpt->execute(buffer);
 
     Eigen::MatrixXcd true_cx_chi(16, 16);
-    true_cx_chi << 1., 0., 0., 1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0.,0.,
-                   0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-                   0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-                   1., 0., 0., 1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0., 0.,
-                   1., 0., 0., 1., 1.,
+    true_cx_chi << 1., 0., 0., 1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,
+        1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 1., 1.,
         0., 0., -1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., -1., 0., 0., -1., -1., 0., 0., 1., 0., 0.,
@@ -138,9 +139,9 @@ TEST(QPTTester, checkCX) {
 
     std::cout << "Chi:\n" << chi << "\n\n";
 
-    std::cout << fidelity(.25*chi, .25*true_cx_chi) << "\n";
+    std::cout << fidelity(.25 * chi, .25 * true_cx_chi) << "\n";
 
-    EXPECT_NEAR(1.0, fidelity(.25*chi, .25*true_cx_chi), 1e-1);
+    EXPECT_NEAR(1.0, fidelity(.25 * chi, .25 * true_cx_chi), 1e-1);
   }
 }
 
@@ -222,9 +223,9 @@ TEST(QPTTester, checkBell) {
 
     std::cout << "Chi:\n" << chi << "\n\n";
 
-    std::cout << fidelity(.25*chi, .25*true_bell_chi) << "\n";
+    std::cout << fidelity(.25 * chi, .25 * true_bell_chi) << "\n";
 
-    EXPECT_NEAR(1.0, fidelity(.25*chi, .25*true_bell_chi), 1e-1);
+    EXPECT_NEAR(1.0, fidelity(.25 * chi, .25 * true_bell_chi), 1e-1);
   }
 }
 int main(int argc, char **argv) {

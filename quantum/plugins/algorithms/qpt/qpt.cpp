@@ -259,14 +259,27 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       std::vector<Eigen::MatrixXcd> meas_mats;
       for (auto iter : all_bit_strings) {
         // std::cout << iter << "\n";
-        // Direction of loop here is dependent on bit ordering
-        // from backend accelerator. Default is MSB like IBM
+
         Eigen::MatrixXcd meas_mat;
         int counter = 0;
-        for (int k = measure_label.size() - 1; k >= 0; k--) {
+
+        // Direction of loop here is dependent on bit ordering
+        // from backend accelerator. Default is MSB like IBM
+        int start;
+        std::function<bool(int&)> stop_condition;
+        std::function<void(int&)> iter_expr;
+        if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
+            start = measure_label.size()-1;
+            stop_condition = [](int& k) {return k>=0;};
+            iter_expr = [](int& k) {k = k - 1;};
+        } else {
+            start = 0;
+            stop_condition = [&](int& k) {return k < measure_label.size();};
+            iter_expr = [](int& k) {k = k + 1;};
+        }
+
+        for (int k = start; stop_condition(k); iter_expr(k)) {
           int bit = iter[counter] == '0' ? 0 : 1;
-          //   std::cout << "\t kron " << measure_label[k] << ", " << bit <<
-          //   "\n";
           auto mat = pauli_measure_mats_map[measure_label[k]][bit];
           if (k == measure_label.size() - 1) {
             meas_mat = mat;
@@ -307,7 +320,9 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   for (auto &child : children) {
     for (auto bit_string : all_bit_strings) {
       // FIXME NEEDED TO REVERSE HERE TO REPRODUCE RESULTS
-      std::reverse(bit_string.begin(), bit_string.end());
+      if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
+          std::reverse(bit_string.begin(), bit_string.end());
+      }
       auto prob = child->computeMeasurementProbability(bit_string);
       data_vec.push_back(prob);
     }
