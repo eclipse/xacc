@@ -34,17 +34,18 @@ namespace xacc {
 class Algorithm : public xacc::Identifiable, public xacc::Cloneable<Algorithm> {
 
 public:
-//   bool initialize(const HeterogeneousMap &&parameters) {
-//     return initialize(parameters);
-//   }
+  //   bool initialize(const HeterogeneousMap &&parameters) {
+  //     return initialize(parameters);
+  //   }
   virtual bool initialize(const HeterogeneousMap &parameters) = 0;
   virtual const std::vector<std::string> requiredParameters() const = 0;
 
   virtual void
   execute(const std::shared_ptr<AcceleratorBuffer> buffer) const = 0;
 
-  virtual std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-                       const std::vector<double> &parameters) {
+  virtual std::vector<double>
+  execute(const std::shared_ptr<AcceleratorBuffer> buffer,
+          const std::vector<double> &parameters) {
     XACCLogger::instance()->error(
         "Algorithm::execute(buffer, vector<double>) not implemented for " +
         name());
@@ -52,9 +53,15 @@ public:
     return {};
   }
 
- #define DEFINE_ALGORITHM_CLONE(CLASS)                    \
-  std::shared_ptr<Algorithm> clone() override { \
-    return std::make_shared<CLASS>();           \
+  virtual double calculate(const std::string &calculation_task,
+                           const std::shared_ptr<AcceleratorBuffer> buffer,
+                           const HeterogeneousMap &extra_data = {}) {
+    return {};
+  }
+
+#define DEFINE_ALGORITHM_CLONE(CLASS)                                          \
+  std::shared_ptr<Algorithm> clone() override {                                \
+    return std::make_shared<CLASS>();                                          \
   }
 };
 

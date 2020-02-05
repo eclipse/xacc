@@ -24,8 +24,12 @@ class QPT : public Algorithm {
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
-
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
+
+  double calculate(const std::string &calculation_task,
+                   const std::shared_ptr<AcceleratorBuffer> buffer,
+                   const HeterogeneousMap &extra_data = {}) override;
+
   const std::string name() const override { return "qpt"; }
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(QPT)

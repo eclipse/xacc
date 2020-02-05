@@ -12,16 +12,17 @@
  *******************************************************************************/
 #include "py_algorithm.hpp"
 #include "Algorithm.hpp"
+#include "py_heterogeneous_map.hpp"
 
 void bind_algorithm(py::module &m) {
 
-  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>, PyAlgorithm> alg(
-      m, "Algorithm",
-      "The XACC Algorithm interface takes as input a dictionary of "
-      "AlgorithmParameters "
-      "and executes the desired Algorithm.");
+  py::class_<xacc::Algorithm, std::shared_ptr<xacc::Algorithm>, PyAlgorithm>
+      alg(m, "Algorithm",
+          "The XACC Algorithm interface takes as input a dictionary of "
+          "AlgorithmParameters "
+          "and executes the desired Algorithm.");
 
-      alg.def(py::init<>())
+  alg.def(py::init<>())
       .def("name", &xacc::Algorithm::name, "Return the name of this Algorithm.")
       .def("execute",
            (void (xacc::Algorithm::*)(
@@ -36,7 +37,27 @@ void bind_algorithm(py::module &m) {
                xacc::Algorithm::execute,
            "Execute the Algorithm, storing the results in provided "
            "AcceleratorBuffer.")
-      .def("initialize",&xacc::Algorithm::initialize,
+      .def(
+          "calculate",
+          [](Algorithm &a, const std::string task,
+             const std::shared_ptr<AcceleratorBuffer> b,
+             PyHeterogeneousMap &params) {
+            HeterogeneousMap m;
+            for (auto &item : params) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return a.calculate(task, b, m);
+          },
+          "")
+      .def(
+          "calculate",
+          [](Algorithm &a, const std::string task,
+             const std::shared_ptr<AcceleratorBuffer> b) {
+            return a.calculate(task, b);
+          },
+          "")
+      .def("initialize", &xacc::Algorithm::initialize,
            "Initialize the algorithm with given AlgorithmParameters.")
       .def("clone", &xacc::Algorithm::clone, "");
 }

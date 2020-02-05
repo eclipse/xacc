@@ -358,7 +358,7 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   }
 
   Eigen::MatrixXcd chi = (1 / std::pow(2, nQ)) * (cob * choi * cob.adjoint());
-//   std::cout << "QPT Chi:\n" << chi << "\n\n";
+  //   std::cout << "QPT Chi:\n" << chi << "\n\n";
   std::vector<double> chi_real_vec, chi_imag_vec;
   for (int i = 0; i < chi.rows(); i++) {
     for (int j = 0; j < chi.cols(); j++) {
@@ -376,6 +376,89 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   buffer->addExtraInfo("chi-real", chi_real_vec);
   buffer->addExtraInfo("chi-imag", chi_imag_vec);
+}
+
+template <typename Derived>
+double fidelity(const Eigen::MatrixBase<Derived> &chi_1,
+                const Eigen::MatrixBase<Derived> &chi_2) {
+  Eigen::JacobiSVD<Eigen::MatrixXcd> svd(chi_1, Eigen::ComputeThinU |
+                                                    Eigen::ComputeThinV);
+  Eigen::MatrixXcd sqrt_chi_1 = svd.matrixU() *
+                                svd.singularValues().cwiseSqrt().asDiagonal() *
+                                svd.matrixV().transpose();
+
+  Eigen::JacobiSVD<Eigen::MatrixXcd> svd2(chi_2, Eigen::ComputeThinU |
+                                                     Eigen::ComputeThinV);
+  Eigen::MatrixXcd sqrt_chi_2 = svd2.matrixU() *
+                                svd2.singularValues().cwiseSqrt().asDiagonal() *
+                                svd2.matrixV().transpose();
+
+  Eigen::MatrixXcd tmp = sqrt_chi_1 * sqrt_chi_2;
+  Eigen::JacobiSVD<Eigen::MatrixXcd> svd3(tmp, Eigen::ComputeThinU |
+                                                   Eigen::ComputeThinV);
+
+  auto svd_sum = svd3.singularValues().sum();
+
+  return svd_sum * svd_sum;
+}
+
+double QPT::calculate(const std::string &calculation_task,
+                      const std::shared_ptr<AcceleratorBuffer> buffer,
+                      const HeterogeneousMap &extra_data) {
+
+  if (calculation_task == "fidelity") {
+
+    if (!extra_data.keyExists<std::vector<double>>("chi-theoretical-real")) {
+      xacc::error("[QPT::calculate] Cannot calculate fidelity without "
+                  "'chi-theoretical-real' vector<double>");
+    }
+    std::vector<double> chi_real =
+        (*buffer)["chi-real"].as<std::vector<double>>();
+    std::vector<double> chi_imag =
+        (*buffer)["chi-imag"].as<std::vector<double>>();
+
+    std::vector<double> chi_theory_real =
+        extra_data.get<std::vector<double>>("chi-theoretical-real");
+
+    std::vector<double> chi_theory_imag(chi_theory_real.size());
+    if (extra_data.keyExists<std::vector<double>>("chi-theoretical-imag")) {
+      std::vector<double> chi_theory_imag =
+          extra_data.get<std::vector<double>>("chi-theoretical-imag");
+    }
+
+    int n = (int)std::sqrt(chi_theory_real.size());
+    int nQ = (int)std::log2(std::sqrt(n));
+
+    Eigen::MatrixXd tmpchitheoryreal =
+        Eigen::Map<Eigen::MatrixXd>(chi_theory_real.data(), n, n);
+    Eigen::MatrixXd tmpchitheoryimag =
+        Eigen::Map<Eigen::MatrixXd>(chi_theory_imag.data(), n, n);
+
+    Eigen::MatrixXd tmpchireal =
+        Eigen::Map<Eigen::MatrixXd>(chi_real.data(), n, n);
+    Eigen::MatrixXd tmpchiimag =
+        Eigen::Map<Eigen::MatrixXd>(chi_imag.data(), n, n);
+
+    Eigen::MatrixXcd chitheory = Eigen::MatrixXcd::Zero(n, n);
+    Eigen::MatrixXcd chi = Eigen::MatrixXcd::Zero(n, n);
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        chitheory(i, j) = std::complex<double>(tmpchitheoryreal(i, j),
+                                               tmpchitheoryimag(i, j));
+        chi(i, j) = std::complex<double>(tmpchireal(i, j), tmpchiimag(i, j));
+      }
+    }
+
+    return fidelity((1. / std::pow(2, nQ)) * chi,
+                    (1. / std::pow(2, nQ)) * chitheory);
+
+  } else {
+    xacc::error("[QPT::calculate] Can only calculate fidelity, invalid "
+                "calculation_task: " +
+                calculation_task);
+  }
+
+  return 0.0;
 }
 
 } // namespace algorithm
