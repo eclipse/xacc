@@ -110,7 +110,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
     gateFunction->setCoefficient(spinInst.coeff());
 
     if (function->hasChildren()) {
-      gateFunction->addInstruction(function);
+      gateFunction->addInstruction(function->clone());
     }
 
     // Loop over all terms in the Spin Instruction

@@ -93,11 +93,19 @@ public:
 
   const std::string getTag() override {return "";}
   void setTag(const std::string& tag) override {return;}
-  
+
   void mapBits(std::vector<std::size_t> bitMap) override {
-    for (auto &inst : instructions) {
-      inst->mapBits(bitMap);
+    InstructionIterator iter(shared_from_this());
+    while(iter.hasNext()) {
+        auto next = iter.next();
+        if (!next->isComposite()) {
+            next->mapBits(bitMap);
+        }
     }
+
+    // for (auto &inst : instructions) {
+    // #  inst->mapBits(bitMap);
+    // }
   }
   void setBits(const std::vector<std::size_t> bits) override {}
   const std::vector<std::size_t> bits() override { return {}; }
@@ -363,7 +371,12 @@ public:
 
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
-    return std::make_shared<Circuit>(*this);
+    auto cloned = std::make_shared<Circuit>(name(), variables);
+
+    for (auto i : instructions) {
+        cloned->addInstruction(i->clone());
+    }
+    return cloned;//std::make_shared<Circuit>(*this);
   }
 
   virtual ~Circuit() {}
