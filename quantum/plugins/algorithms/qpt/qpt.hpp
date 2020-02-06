@@ -20,7 +20,8 @@ namespace algorithm {
 class QPT : public Algorithm {
   CompositeInstruction *circuit;
   Accelerator *qpu;
-
+  std::vector<int> qubit_map;
+  
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
