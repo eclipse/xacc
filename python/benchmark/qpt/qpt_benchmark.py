@@ -134,7 +134,7 @@ class QPT(Benchmark):
             plt.colorbar(im2, fraction=0.045, pad=0.05, ax=ax2)
             ax2.set_ylim(chi.shape[0]-0.5, -0.5)
 
-            fig.suptitle(self.circuit_name + ' quantum process tomography on ' + self.qpu.name())
+            fig.suptitle(self.circuit_name.replace('_','') + ' quantum process tomography on ' + self.qpu.name())
             fig.tight_layout()
             from datetime import datetime
             now = datetime.now() # current date and time
