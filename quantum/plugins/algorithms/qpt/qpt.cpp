@@ -34,6 +34,9 @@ bool QPT::initialize(const HeterogeneousMap &parameters) {
 
   qpu = parameters.getPointerLike<Accelerator>("accelerator");
   circuit = parameters.getPointerLike<CompositeInstruction>("circuit");
+  if (parameters.keyExists<std::vector<int>>("qubit-map")) {
+      qubit_map = parameters.get<std::vector<int>>("qubit-map");
+  }
 
   return true;
 }
@@ -268,16 +271,9 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         int start;
         std::function<bool(int&)> stop_condition;
         std::function<void(int&)> iter_expr;
-        if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
-            start = measure_label.size()-1;
-            stop_condition = [](int& k) {return k>=0;};
-            iter_expr = [](int& k) {k = k - 1;};
-        } else {
-            start = 0;
-            stop_condition = [&](int& k) {return k < measure_label.size();};
-            iter_expr = [](int& k) {k = k + 1;};
-        }
-
+        start = measure_label.size()-1;
+        stop_condition = [](int& k) {return k>=0;};
+        iter_expr = [](int& k) {k = k - 1;};
         for (int k = start; stop_condition(k); iter_expr(k)) {
           int bit = iter[counter] == '0' ? 0 : 1;
           auto mat = pauli_measure_mats_map[measure_label[k]][bit];
@@ -310,6 +306,14 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   }
 
   Eigen::MatrixXcd basis_matrix = VStack(blocks);
+
+  // Map to physical qubits if specified
+  if (!qubit_map.empty()) {
+      auto placement = xacc::getIRTransformation("default-placement");
+      for (auto circuit : all_circuits) {
+        placement->apply(circuit, nullptr, {std::make_pair("qubit-map", qubit_map)});
+      }
+  }
 
   // Execute and get data vector
   qpu->execute(buffer, all_circuits);

@@ -52,10 +52,11 @@ class QPT(Benchmark):
             self.circuit_name = circuit_name
             ansatz = xacc.getCompiled(circuit_name)
 
-        self.qpt = xacc.getAlgorithm('qpt', {
-                                'circuit': ansatz,
-                                'accelerator': self.qpu
-                                })
+        opts = {'circuit':ansatz, 'accelerator':self.qpu}
+        if 'qubit-map' in inputParams['Circuit']:
+            opts['qubit-map'] = ast.literal_eval(inputParams['Circuit']['qubit-map'])
+
+        self.qpt = xacc.getAlgorithm('qpt', opts)
 
         self.nq = ansatz.nLogicalBits()
 
