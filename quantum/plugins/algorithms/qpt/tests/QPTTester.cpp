@@ -89,7 +89,7 @@ TEST(QPTTester, checkHadamard) {
 
 TEST(QPTTester, checkCX) {
   if (xacc::hasAccelerator("aer")) {
-    auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 1024)});
+    auto acc = xacc::getAccelerator("aer", {std::make_pair("shots", 1024)});
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getCompiler("xasm");

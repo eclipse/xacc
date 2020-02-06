@@ -1,9 +1,9 @@
 import xacc
 import numpy as np
-
+xacc.set_verbose(True)
 # Choose the QPU on which to
 # characterize the process matrix for a Hadamard
-qpu = xacc.getAccelerator('aer')
+qpu = xacc.getAccelerator('ibm:ibmq_poughkeepsie')
 
 # Create the CompositeInstruction containing a
 # single Hadamard instruction
@@ -14,7 +14,7 @@ circuit.addInstruction(hadamard)
 
 # Create the Algorithm, give it the circuit
 # to characterize and the backend to target
-qpt = xacc.getAlgorithm('qpt', {'circuit':circuit, 'accelerator':qpu})
+qpt = xacc.getAlgorithm('qpt', {'circuit':circuit, 'accelerator':qpu}) # map logical 0 to physical 1
 
 # Allocate a qubit, this will
 # store our tomography results

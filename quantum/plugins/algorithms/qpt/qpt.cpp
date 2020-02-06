@@ -209,10 +209,15 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       if (i > 0) {
         prep->setBits({i});
       }
+
+
       prep_on_all_qbits->addInstructions(prep->getInstructions());
     }
 
-    prep_on_all_qbits->addInstruction(circuit_as_shared);
+    // Add circuit to be characterized
+    for (auto& inst : circuit_as_shared->getInstructions()) {
+       prep_on_all_qbits->addInstruction(inst->clone());
+    }
 
     // Create Prep Operator
     Eigen::MatrixXcd prep;
@@ -230,19 +235,6 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     for (auto &basis_element : basis_observables) {
       auto prep_on_all_and_meas = basis_element.observe(prep_on_all_qbits)[0];
 
-      // Observable::observe will change basis to {X,Y,Z}, we want to
-      // measure Y.
-      for (int i = 0; i < prep_on_all_and_meas->nInstructions(); i++) {
-        auto inst = prep_on_all_and_meas->getInstruction(i);
-        if (inst->name() == "Rx") {
-          auto sdg = provider->createInstruction("Sdg", inst->bits());
-          auto h = provider->createInstruction("H", inst->bits());
-          auto c = provider->createComposite("__tmp_sdg_h");
-          c->addInstructions({sdg, h});
-          prep_on_all_and_meas->replaceInstruction(i, c);
-        }
-      }
-
       std::stringstream ss;
       std::vector<std::string> measure_label;
       std::vector<int> idxs;
@@ -256,6 +248,7 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       ss << measure_label;
 
       names.push_back(comp_name + "_" + ss.str());
+      prep_on_all_and_meas->setName(comp_name + "_"+ss.str());
 
       all_circuits.push_back(prep_on_all_and_meas);
 
@@ -307,6 +300,12 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   Eigen::MatrixXcd basis_matrix = VStack(blocks);
 
+  // Perform default circuit optimization
+//   auto optimizer = xacc::getIRTransformation("circuit-optimizer");
+//   for (auto circuit : all_circuits) {
+//     optimizer->apply(circuit, nullptr);
+//   }
+
   // Map to physical qubits if specified
   if (!qubit_map.empty()) {
       auto placement = xacc::getIRTransformation("default-placement");
@@ -320,13 +319,18 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   auto children = buffer->getChildren();
 
   std::vector<std::complex<double>> data_vec;
+  auto xasm = xacc::getCompiler("xasm");
   int i = 0;
   for (auto &child : children) {
+    auto circuit_src = xasm->translate(all_circuits[i]);
+    child->addExtraInfo("xasm-src", circuit_src);
+
     for (auto bit_string : all_bit_strings) {
       // FIXME NEEDED TO REVERSE HERE TO REPRODUCE RESULTS
       if (qpu->getBitOrder() == Accelerator::BitOrder::MSB) {
           std::reverse(bit_string.begin(), bit_string.end());
       }
+    //   std::cout << names[i] << ", " << child->getMeasurementCounts() << ", " << bit_string << "\n";
       auto prob = child->computeMeasurementProbability(bit_string);
       data_vec.push_back(prob);
     }

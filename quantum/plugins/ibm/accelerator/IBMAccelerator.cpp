@@ -227,6 +227,8 @@ void IBMAccelerator::execute(
   auto job_id = reserve_response_json["id"].get<std::string>();
   currentJobId = job_id;
 
+  buffer->addExtraInfo("ibm-job-id", job_id);
+  
   // Now we ask IBM for an upload URL for the QObj
   auto job_upload_url_response =
       get(IBM_API_URL, IBM_CREDENTIALS_PATH + "/Jobs/" + job_id +

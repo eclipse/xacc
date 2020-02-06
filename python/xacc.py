@@ -362,18 +362,7 @@ if not pelix.framework.FrameworkFactory.is_framework_running(None):
     serviceRegistry = PyServiceRegistry()
     serviceRegistry.initialize()
 
-
-def benchmark(opts):
-    if opts.benchmark is not None:
-        inputfile = opts.benchmark
-        config = configparser.ConfigParser()
-        config.read(inputfile)
-        xacc_settings = {section: dict(config.items(section)) for section in config.sections()}
-    else:
-        error('Must provide input file for benchmark.')
-        return
-
-    Initialize()
+def benchmark(xacc_settings):
 
     if 'benchmark' not in serviceRegistry.registry:
         error('No benchmarks available')
@@ -389,6 +378,8 @@ def benchmark(opts):
               xacc_settings['benchmark'] + " is not installed.")
         exit(1)
 
+    inputfile = xacc_settings['input-file-name'] if 'input-file-name' in xacc_settings else None
+    
     starttime = time.time()
     buffer = _benchmark.execute(xacc_settings)
     elapsedtime = time.time() - starttime
@@ -396,16 +387,33 @@ def benchmark(opts):
     # for k, v in xacc_settings.items():
     #     buffer.addExtraInfo(k, v)
     # Analyze the buffer
-    head, tail = os.path.split(inputfile)
-    buffer.addExtraInfo('file-name', tail)
-    _benchmark.analyze(buffer, xacc_settings)
     timestr = time.strftime("%Y%m%d-%H%M%S")
+    tail = '{}_{}'.format(xacc_settings['Benchmark']['name'], xacc_settings['XACC']['accelerator'].replace(':','_'))
+    if inputfile is not None:
+        head, tail = os.path.split(inputfile)
+        buffer.addExtraInfo('file-name', tail)
+
+    _benchmark.analyze(buffer, xacc_settings)
+
     results_name = "%s_%s_out" % (os.path.splitext(
         tail)[0], timestr)
     f = open(results_name+".ab", 'w')
     f.write(str(buffer))
     f.close()
 
+def benchmark_from_cmd_line(opts):
+    if opts.benchmark is not None:
+        inputfile = opts.benchmark
+        config = configparser.ConfigParser()
+        config.read(inputfile)
+        xacc_settings = {section: dict(config.items(section)) for section in config.sections()}
+        xacc_settings['input-file-name'] = inputfile
+    else:
+        error('Must provide input file for benchmark.')
+        return
+
+    Initialize()
+    benchmark(xacc_settings)
     Finalize()
 
 
@@ -429,7 +437,7 @@ def main(argv=None):
         setCredentials(opts)
 
     if not opts.benchmark == None:
-        benchmark(opts)
+        benchmark_from_cmd_line(opts)
 
 initialize()
 

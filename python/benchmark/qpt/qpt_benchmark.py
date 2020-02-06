@@ -18,6 +18,7 @@ class QPT(Benchmark):
         self.qpt = None
         self.nq = None
         self.qpu = None
+        self.qubit_map = []
 
     def execute(self, inputParams):
         xacc_opts = inputParams['XACC']
@@ -54,7 +55,11 @@ class QPT(Benchmark):
 
         opts = {'circuit':ansatz, 'accelerator':self.qpu}
         if 'qubit-map' in inputParams['Circuit']:
-            opts['qubit-map'] = ast.literal_eval(inputParams['Circuit']['qubit-map'])
+            raw_qbit_map = inputParams['Circuit']['qubit-map']
+            if not isinstance(raw_qbit_map, list):
+                raw_qbit_map = ast.literal_eval(raw_qbit_map)
+            self.qubit_map = raw_qbit_map
+            opts['qubit-map'] = self.qubit_map
 
         self.qpt = xacc.getAlgorithm('qpt', opts)
 
@@ -69,6 +74,9 @@ class QPT(Benchmark):
     def analyze(self, buffer, inputParams):
         import numpy as np, ast
 
+        if self.qubit_map:
+            buffer.addExtraInfo('qubit-map', self.qubit_map)
+
         # Can get the chi process matrix and print it
         chi_real_part = np.array(buffer['chi-real'])
         chi_imag_part = np.array(buffer['chi-imag'])
@@ -76,13 +84,17 @@ class QPT(Benchmark):
         print('\nComputed Chi Process:\n', chi)
 
         if 'fidelity' in inputParams['Benchmark']['analysis']:
-            opts = {'chi-theoretical-real':ast.literal_eval(inputParams['Benchmark']['chi-theoretical-real'])}
+            raw_chi_real = inputParams['Benchmark']['chi-theoretical-real']
+            if not isinstance(raw_chi_real, list):
+                raw_chi_real = ast.literal_eval(inputParams['Benchmark']['chi-theoretical-real'])
+            opts = {'chi-theoretical-real':raw_chi_real}
             if 'chi-theoretical-imag' in inputParams['Benchmark']:
                 opts['chi-theoretical-imag'] = ast.literal_eval(inputParams['Benchmark']['chi-theoretical-imag'])
 
             # Compute the fidelity with respect
             F = self.qpt.calculate('fidelity', buffer, opts)
             print('\nComputed Process Fidelity: ', F)
+            buffer.addExtraInfo('fidelity', F)
 
         if 'heat-maps' in inputParams['Benchmark']['analysis']:
             import matplotlib.pyplot as plt
@@ -95,9 +107,12 @@ class QPT(Benchmark):
             ax1, ax2 = axes
             rc('text', usetex=True)
 
+            raw_chi_real = inputParams['Benchmark']['chi-theoretical-real']
+            if not isinstance(raw_chi_real, list):
+                raw_chi_real = ast.literal_eval(inputParams['Benchmark']['chi-theoretical-real'])
             # Heat maps.
             im1 = ax1.matshow(np.real(chi), cmap='viridis',interpolation='nearest')
-            im2 = ax2.matshow(np.abs(np.real(chi) - np.reshape(np.array(ast.literal_eval(inputParams['Benchmark']['chi-theoretical-real'])), (2**(2*self.nq), 2**(2*self.nq)))), cmap='viridis')
+            im2 = ax2.matshow(np.abs(np.real(chi) - np.reshape(np.array(raw_chi_real), (2**(2*self.nq), 2**(2*self.nq)))), cmap='viridis')
 
             # Formatting for heat map 1.
             ax1.set_xticks(range(2**(2*self.nq)))
@@ -124,6 +139,6 @@ class QPT(Benchmark):
             from datetime import datetime
             now = datetime.now() # current date and time
             date_time = now.strftime("%m_%d_%Y_%H_%M_%S")
-            plt.savefig('qpt_{}_{}.png'.format(self.circuit_name, date_time))
-            print('\nHeat-maps output to qpt_{}_{}.png\n'.format(self.circuit_name, date_time))
+            plt.savefig('qpt_{}_{}_{}.png'.format(self.circuit_name, date_time, '_'.join([str(q) for q in self.qubit_map])))
+            print('\nHeat-maps output to qpt_{}_{}_{}.png\n'.format(self.circuit_name, date_time, '_'.join([str(q) for q in self.qubit_map])))
 

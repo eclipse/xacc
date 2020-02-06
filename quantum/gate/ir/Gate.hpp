@@ -75,7 +75,7 @@ public:
 
 #define DEFINE_CLONE(CLASS)                                                    \
   std::shared_ptr<Instruction> clone() override {                              \
-    return std::make_shared<CLASS>();                                          \
+    return std::make_shared<CLASS>(*this);                                     \
   }
 };
 
