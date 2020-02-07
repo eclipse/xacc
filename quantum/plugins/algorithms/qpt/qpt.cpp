@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "qpt.hpp"
 
+#include "InstructionIterator.hpp"
 #include "CompositeInstruction.hpp"
 #include "Observable.hpp"
 #include "xacc.hpp"
@@ -300,11 +301,29 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   Eigen::MatrixXcd basis_matrix = VStack(blocks);
 
+  std::vector<std::shared_ptr<CompositeInstruction>> tmp_all;
+
+  for (auto& c : all_circuits) {
+    std::vector<InstPtr> flatten;
+    InstructionIterator iter(c);
+    while (iter.hasNext()) {
+      auto inst = iter.next();
+      if (!inst->isComposite()) {
+        flatten.emplace_back(inst);
+      }
+    }
+    auto tmp = provider->createComposite(c->name(), c->getVariables());
+    tmp->addInstructions(flatten);
+    tmp_all.push_back(tmp);
+  }
+
+  all_circuits = tmp_all;
+
   // Perform default circuit optimization
-//   auto optimizer = xacc::getIRTransformation("circuit-optimizer");
-//   for (auto circuit : all_circuits) {
-//     optimizer->apply(circuit, nullptr);
-//   }
+  auto optimizer = xacc::getIRTransformation("circuit-optimizer");
+  for (auto circuit : all_circuits) {
+    optimizer->apply(circuit, nullptr);
+  }
 
   // Map to physical qubits if specified
   if (!qubit_map.empty()) {
