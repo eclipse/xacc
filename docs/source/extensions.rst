@@ -762,6 +762,81 @@ Example usage in Python:
     bv = qbits['bv']
     bh = qbits['bh']
 
+Quantum Process Tomography
+++++++++++++++++++++++++++
+The ``qpt`` algorithm provides an implementation of Algorithm that uses linear
+inversion to compute the chi process matrix for a desired circuit.
+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    circuit             | The circuit to characterize                                            | pointer-like CompositeInstruction        |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    accelerator         | The backend quantum computer to use                                    | pointer-like Accelerator                 |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    qubit-map           | The physical qubits to map the logical circuit onto                    | vector<int>                              |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+
+   int main(int argc, char **argv) {
+     xacc::Initialize(argc, argv);
+     auto acc = xacc::getAccelerator("ibm::ibmq_poughkeepsie");
+
+     auto compiler = xacc::getCompiler("xasm");
+     auto ir = compiler->compile(R"(__qpu__ void f(qbit q) {
+         H(q[0]);
+     })", nullptr);
+     auto h = ir->getComposite("f");
+
+     auto qpt = xacc::getAlgorithm("qpt", {
+                             std::make_pair("circuit", h),
+                             std::make_pair("accelerator", acc)
+                             });
+
+     auto buffer = xacc::qalloc(1);
+     qpt->execute(buffer);
+
+     auto chi_real = (*buffer)["chi-real"];
+     auto chi_imag = (*buffer)["chi-imag"];
+
+   }
+
+or in Python
+
+.. code:: python
+
+   import xacc
+   # Choose the QPU on which to
+   # characterize the process matrix for a Hadamard
+   qpu = xacc.getAccelerator('ibm:ibmq_poughkeepsie')
+
+   # Create the CompositeInstruction containing a
+   # single Hadamard instruction
+   provider = xacc.getIRProvider('quantum')
+   circuit = provider.createComposite('U')
+   hadamard = provider.createInstruction('H', [0])
+   circuit.addInstruction(hadamard)
+
+   # Create the Algorithm, give it the circuit
+   # to characterize and the backend to target
+   qpt = xacc.getAlgorithm('qpt', {'circuit':circuit, 'accelerator':qpu})
+
+   # Allocate a qubit, this will
+   # store our tomography results
+   buffer = xacc.qalloc(1)
+
+   # Execute
+   qpt.execute(buffer)
+
+   # Compute the fidelity with respect to
+   # the ideal hadamard process
+   F = qpt.calculate('fidelity', buffer, {'chi-theoretical-real':[0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 1., 0., 1.]})
+   print('\nFidelity: ', F)
+
 
 Accelerator Decorators
 ----------------------
