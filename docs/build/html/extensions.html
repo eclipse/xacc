@@ -108,6 +108,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#ddcl">DDCL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rotoselect">Rotoselect</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rbm-classification">RBM Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quantum-process-tomography">Quantum Process Tomography</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#accelerator-decorators">Accelerator Decorators</a><ul>
@@ -1103,34 +1104,38 @@ It exposes the following input information:</p>
 <td><p>The batch size, defaults to 1</p></td>
 <td><p>int</p></td>
 </tr>
-<tr class="row-odd"><td><p>train-steps</p></td>
+<tr class="row-odd"><td><p>n-gibbs-steps</p></td>
+<td><p>The number of gibbs steps to use in post-processing of dwave data</p></td>
+<td><p>int</p></td>
+</tr>
+<tr class="row-even"><td><p>train-steps</p></td>
 <td><p>Hard-code the number of training iterations/steps, by default this is
 set to -1, meaning unlimited iterations</p></td>
 <td><p>int</p></td>
 </tr>
-<tr class="row-even"><td><p>epochs</p></td>
+<tr class="row-odd"><td><p>epochs</p></td>
 <td><p>The number of training epochs, defaults to 1</p></td>
 <td><p>int</p></td>
 </tr>
-<tr class="row-odd"><td><p>train-file</p></td>
+<tr class="row-even"><td><p>train-file</p></td>
 <td><p>The location (relative to pwd) of the training data (as npy file)</p></td>
 <td><p>string</p></td>
 </tr>
-<tr class="row-even"><td><p>expectation-strategy</p></td>
+<tr class="row-odd"><td><p>expectation-strategy</p></td>
 <td><p>Strategy to use in computing model expectation values, can be gibbs,
 quantum-annealing, discriminative, or cd</p></td>
 <td><p>string</p></td>
 </tr>
-<tr class="row-odd"><td><p>backend</p></td>
+<tr class="row-even"><td><p>backend</p></td>
 <td><p>The desired quantum-annealing backend (defaults to dwave-neal), can be
 any of the available D-Wave backends, must be provided as dwave:BEND</p></td>
 <td><p>string</p></td>
 </tr>
-<tr class="row-even"><td><p>shots</p></td>
+<tr class="row-odd"><td><p>shots</p></td>
 <td><p>The number of samples to draw from the dwave backend</p></td>
 <td><p>int</p></td>
 </tr>
-<tr class="row-odd"><td><p>embedding</p></td>
+<tr class="row-even"><td><p>embedding</p></td>
 <td><p>The minor graph embedding to use, if not provided, one will be
 computed and used for subsequent calls to the dwave backend.</p></td>
 <td><p>map&lt;int, vector&lt;int&gt;&gt;</p></td>
@@ -1159,6 +1164,94 @@ computed and used for subsequent calls to the dwave backend.</p></td>
 <span class="n">w</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;w&#39;</span><span class="p">]</span>
 <span class="n">bv</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;bv&#39;</span><span class="p">]</span>
 <span class="n">bh</span> <span class="o">=</span> <span class="n">qbits</span><span class="p">[</span><span class="s1">&#39;bh&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="quantum-process-tomography">
+<h3>Quantum Process Tomography<a class="headerlink" href="#quantum-process-tomography" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">qpt</span></code> algorithm provides an implementation of Algorithm that uses linear
+inversion to compute the chi process matrix for a desired circuit.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 52%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>circuit</p></td>
+<td><p>The circuit to characterize</p></td>
+<td><p>pointer-like CompositeInstruction</p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerator</p></td>
+<td><p>The backend quantum computer to use</p></td>
+<td><p>pointer-like Accelerator</p></td>
+</tr>
+<tr class="row-even"><td><p>qubit-map</p></td>
+<td><p>The physical qubits to map the logical circuit onto</p></td>
+<td><p>vector&lt;int&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;xacc.hpp&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">xacc</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">acc</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;ibm::ibmq_poughkeepsie&quot;</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">compiler</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getCompiler</span><span class="p">(</span><span class="s">&quot;xasm&quot;</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">ir</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">-&gt;</span><span class="n">compile</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">__qpu__ void f(qbit q) {</span>
+<span class="s">      H(q[0]);</span>
+<span class="s">  }</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">h</span> <span class="o">=</span> <span class="n">ir</span><span class="o">-&gt;</span><span class="n">getComposite</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">qpt</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s">&quot;qpt&quot;</span><span class="p">,</span> <span class="p">{</span>
+                          <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;circuit&quot;</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span>
+                          <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;accelerator&quot;</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+                          <span class="p">});</span>
+
+  <span class="k">auto</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">qpt</span><span class="o">-&gt;</span><span class="n">execute</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">chi_real</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">buffer</span><span class="p">)[</span><span class="s">&quot;chi-real&quot;</span><span class="p">];</span>
+  <span class="k">auto</span> <span class="n">chi_imag</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">buffer</span><span class="p">)[</span><span class="s">&quot;chi-imag&quot;</span><span class="p">];</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xacc</span>
+<span class="c1"># Choose the QPU on which to</span>
+<span class="c1"># characterize the process matrix for a Hadamard</span>
+<span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;ibm:ibmq_poughkeepsie&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create the CompositeInstruction containing a</span>
+<span class="c1"># single Hadamard instruction</span>
+<span class="n">provider</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRProvider</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">)</span>
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createComposite</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">)</span>
+<span class="n">hadamard</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">createInstruction</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">addInstruction</span><span class="p">(</span><span class="n">hadamard</span><span class="p">)</span>
+
+<span class="c1"># Create the Algorithm, give it the circuit</span>
+<span class="c1"># to characterize and the backend to target</span>
+<span class="n">qpt</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAlgorithm</span><span class="p">(</span><span class="s1">&#39;qpt&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;circuit&#39;</span><span class="p">:</span><span class="n">circuit</span><span class="p">,</span> <span class="s1">&#39;accelerator&#39;</span><span class="p">:</span><span class="n">qpu</span><span class="p">})</span>
+
+<span class="c1"># Allocate a qubit, this will</span>
+<span class="c1"># store our tomography results</span>
+<span class="nb">buffer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Execute</span>
+<span class="n">qpt</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+
+<span class="c1"># Compute the fidelity with respect to</span>
+<span class="c1"># the ideal hadamard process</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">qpt</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="s1">&#39;fidelity&#39;</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;chi-theoretical-real&#39;</span><span class="p">:[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]})</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Fidelity: &#39;</span><span class="p">,</span> <span class="n">F</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
