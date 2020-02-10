@@ -33,9 +33,9 @@ To enable XACC Python support, ensure that `python3` is set to your desired vers
 find the corresponding development headers. Ensure that when you try to run XACC-enabled Python scripts
 you are using the same `python3` executable that was set during your build.
 
-If you are on Mac OS X, make sure you have XCode command utilities installed. A common issue seen
-is missing standard includes like `wchar.h` and others. See [here](https://stackoverflow.com/a/52530212)
-for proper XCode install and configuring to address these types of issues.
+On Mac OS X, we recommend our users install GCC 8 via Homebrew instead of relying
+on XCode command line tools installation and the default Apple Clang compilers.
+See [here](https://xacc.readthedocs.io/en/latest/install.html#mac-os-x) for more details on this.
 
 Clone the repository recursively, configure with `cmake` and build with `make`
 ```bash

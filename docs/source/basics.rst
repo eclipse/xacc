@@ -425,3 +425,114 @@ or in Python
 
 Single-source Pythonic Programming
 ----------------------------------
+
+Benchmarks
+----------
+Since XACC provides a hardware-agnostic framework
+for quantum-classical computing, it is well-suited
+for the development of general benchmark tasks that run
+on available backend quantum computers. XACC provides a
+Pythonic benchmarking tool that enables users to define
+benchmarks via an input file or python dictionary, and then
+distribute those files to be executed on available backends.
+Benchmarks can be low-level and hardware-specific, or high-level,
+application-style benchmarks.
+
+The suite is extensible in the benchmark itself, as well
+as input data required for the benchmark.
+
+All benchmarks can be defined as INI files. These files describe
+named sections of key-value pairs. Each benchmark requires an
+XACC section (for the definition of the backend accelerator, number of shots, etc.) and
+a Benchmark section (specifying the benchmark name and algorithm).
+Other sections are specified by the concrete benchmark sub-type.
+
+Chemistry
++++++++++
+This Benchmark implementation enables one to define an application-level
+benchmark which attempts to compute the accuracy with which a given
+quantum backend can compute the ground state energy of a specified
+electronic structure computation. Below is an example of such a benchmark
+input file
+
+.. code:: bash
+
+    [XACC]
+    accelerator = ibm:ibmq_johannesburg
+    shots = 1024
+    verbose = True
+
+    [Decorators]
+    readout_error = True
+
+    [Benchmark]
+    name = chemistry
+    algorithm = vqe
+
+    [Ansatz]
+    source = .compiler xasm
+        .circuit ansatz2
+        .parameters x
+        .qbit q
+        X(q[0]);
+        X(q[2]);
+        ucc1(q, x[0]);
+
+    [Observable]
+    name = psi4
+    basis = sto-3g
+    geometry = 0 1
+           Na  0.000000   0.0      0.0
+           H   0.0        0.0  1.914388
+           symmetry c1
+    fo = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14]
+    ao = [5, 9, 15, 19]
+
+    [Optimizer]
+    name = nlopt
+    nlopt-maxeval = 20
+
+Stepping, through this, we see the benchmark is to be executed
+on the IBM Johannesburg backend, with 1024 shots. Next, we specify
+what benchmark algorithm to run - the Chemistry benchmark using the VQE
+algorithm. After that, this benchmark
+enables one to specify any AcceleratorDecorators to be used, here we
+turn on readout-error decoration to correct computed expectation values
+with respact to measurement readout errors. Moving down the file, one now
+specifies the specific state-preparation ansatz to be used for this VQE
+run, using the usual XACC qasm() format. Finally, we specify the Observable
+we are interested in studying, and the classical optimizer to be used in
+searching for the optimal expecation value for that observable.
+
+One can run this benchmark with the following command (presuming it is in a
+file named chem_nah_vqe_ibm.ini)
+
+.. code:: bash
+
+    $ python3 -m xacc --benchmark chem_nah_vqe_ibm.ini
+
+
+Quantum Process Tomography
+++++++++++++++++++++++++++
+
+.. code:: bash
+
+    [XACC]
+    accelerator = ibm:ibmq_poughkeepsie
+    verbose = True
+
+    [Benchmark]
+    name = qpt
+    analysis = ['fidelity', 'heat-maps']
+    chi-theoretical-real = [0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 1., 0., 1.]
+
+    [Circuit]
+    # Logical circuit source code
+    source = .compiler xasm
+        .circuit hadamard
+        .qbit q
+        H(q[0]);
+
+    # Can specify physical qubit to run on
+    qubit-map = [1]
+
