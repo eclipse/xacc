@@ -68,10 +68,32 @@ install BLAS and LAPACK as well, which is required to build some optional simula
 
 Mac OS X
 +++++++++
-Ensure that you have XCode command utilities installed. A common issue seen is missing
-standard includes like `wchar.h` and others. See `here <https://stackoverflow.com/a/52530212>`_
-for proper XCode install and configuring to address these types of issues. Here we assume you
-have Homebrew installed.
+On Mac OS X, we recommend our users install GCC 8 via Homebrew instead of relying
+on XCode command line tools installation and the default Apple Clang compilers
+
+Too often we see our users on Mac with issues regarding missing standard includes like `wchar.h` and others.
+This is ultimately due to an improper install of XCode (see `here <https://stackoverflow.com/a/52530212>`_).
+If you do not see these issues with Apple Clang, feel free to use it, XACC will build fine. But if you
+do see these issues, the easiest thing to do is to use Homebrew GCC 8.
+
+.. code:: bash
+
+   $ brew install gcc@8
+   $ export CC=gcc-8
+   $ export CXX=g++-8
+
+Note these last exports are very important. You could also run CMake (see below) with these
+variables set
+
+.. code:: bash
+
+   $ CC=gcc-8 CXX=g++-8 cmake ..
+
+You will need to make sure to do this for all plugins / projects that build off of XACC.
+You will see errors if you accidentally build other projects leveraging XACC (like tnqvm)
+with compilers different than what was used to build XACC.
+
+You will also need the following 3rd party dependencies
 
 .. code:: bash
 
