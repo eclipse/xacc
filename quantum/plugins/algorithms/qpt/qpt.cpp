@@ -38,6 +38,12 @@ bool QPT::initialize(const HeterogeneousMap &parameters) {
   if (parameters.keyExists<std::vector<int>>("qubit-map")) {
       qubit_map = parameters.get<std::vector<int>>("qubit-map");
   }
+  
+  // Default: always optimize the circuit
+  optimizeCircuit = true;
+  if (parameters.keyExists<bool>("optimize-circuit")) {
+    optimizeCircuit = parameters.get<bool>("optimize-circuit");
+  }
 
   return true;
 }
@@ -320,9 +326,11 @@ void QPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   all_circuits = tmp_all;
 
   // Perform default circuit optimization
-  auto optimizer = xacc::getIRTransformation("circuit-optimizer");
-  for (auto circuit : all_circuits) {
-    optimizer->apply(circuit, nullptr);
+  if (optimizeCircuit) {
+    auto optimizer = xacc::getIRTransformation("circuit-optimizer");
+    for (auto circuit : all_circuits) {
+      optimizer->apply(circuit, nullptr);
+    }
   }
 
   // Map to physical qubits if specified
@@ -464,8 +472,7 @@ double QPT::calculate(const std::string &calculation_task,
 
     std::vector<double> chi_theory_imag(chi_theory_real.size());
     if (extra_data.keyExists<std::vector<double>>("chi-theoretical-imag")) {
-      std::vector<double> chi_theory_imag =
-          extra_data.get<std::vector<double>>("chi-theoretical-imag");
+      chi_theory_imag = extra_data.get<std::vector<double>>("chi-theoretical-imag");
     }
 
     int n = (int)std::sqrt(chi_theory_real.size());

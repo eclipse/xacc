@@ -99,5 +99,6 @@ public:
   virtual ~Accelerator() {}
 };
 
+template Accelerator* HeterogeneousMap::getPointerLike<Accelerator>(const std::string key) const;
 } // namespace xacc
 #endif
