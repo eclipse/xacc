@@ -131,5 +131,6 @@ public:
   virtual ~CompositeInstruction() {}
 };
 
+template CompositeInstruction* HeterogeneousMap::getPointerLike<CompositeInstruction>(const std::string key) const;
 } // namespace xacc
 #endif
