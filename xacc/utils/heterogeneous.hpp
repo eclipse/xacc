@@ -250,6 +250,11 @@ template <class T>
 std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
     HeterogeneousMap::items;
 
+// Make sure these basic types are always instantiatied for HeterogeneousMap
+template const bool& HeterogeneousMap::get<bool>(const std::string key) const;
+template const int& HeterogeneousMap::get<int>(const std::string key) const;
+template const double& HeterogeneousMap::get<double>(const std::string key) const;
+
 template <typename... Types> class Variant : public mpark::variant<Types...> {
 
 private:
