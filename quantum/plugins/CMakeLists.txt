@@ -26,3 +26,5 @@ add_subdirectory(qpp)
 if (STAQ_DIR)
   add_subdirectory(staq)
 endif()
+
+add_subdirectory(optimal_control)
