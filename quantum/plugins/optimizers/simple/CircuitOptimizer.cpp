@@ -16,10 +16,12 @@
 #include "CommonGates.hpp"
 #include "Circuit.hpp"
 #include "GateIR.hpp"
+#include "Utils.hpp"
 #include "xacc_service.hpp"
 #include "xacc.hpp"
 #include <assert.h>
 #include "PhasePolynomialRepresentation.hpp"
+#include <regex>
 
 namespace {
   // Convert InstructionParameter (i.e. a variant) to double,
@@ -40,15 +42,15 @@ namespace {
 
   // Returns the rotation angle in the [-pi, pi) range
   inline double getNormalizedRotationAngle(double in_angle) {
-    // Modulo by 2*pi 
+    // Modulo by 2*pi
     double modAngle = fmod(in_angle, 2.0 * M_PI);
     modAngle = fmod(modAngle + 2.0 * M_PI, 2.0 * M_PI);
     // Normalize the angle in the (-pi, pi] range:
     return (modAngle <= M_PI) ? modAngle : modAngle - 2.0 * M_PI;
   }
-  
+
   const double ANGLE_EPS_RAD = 1e-12;
-  
+
   inline bool isPiOver2(double in_angle)
   {
     assert(in_angle <= M_PI && in_angle >= -M_PI);
@@ -106,9 +108,26 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
           if (std::fabs(val) < 1e-12) {
             inst->disable();
           }
+        } else {
+            // Check for 0 * t or things like that
+            auto parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
+            auto expr = param.toString();
+            auto split = xacc::split(expr, '*');
+            if (split.size() == 2) {
+                xacc::trim(split[0]);
+                xacc::trim(split[1]);
+                auto coeff_str = split[0];
+                double d;
+                bool is_constant = parsingUtil->isConstant(coeff_str, d);
+                if (is_constant && std::fabs(d) < 1e-12 && xacc::container::contains(gateFunction->getVariables(), split[1])) {
+                    // then this is 0 * var, can remove
+                    inst->disable();
+                }
+            }
         }
       }
     }
+    
     // Remove all CNOT(p,q) CNOT(p,q) pairs
     while (true) {
       bool modified = false;
@@ -133,7 +152,7 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
               gateFunction->getInstruction(nAsVec[0] - 1)->disable();
               modified = true;
               break;
-            }           
+            }
           }
         }
       }
@@ -222,13 +241,13 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
 bool CircuitOptimizer::tryPermuteAndCancelXGate(std::shared_ptr<CompositeInstruction>& io_program) {
   // ============   TODO ====================
   // (1) Technically, this procedure can be done in parallel, 1 thread for each qubit wire.
-  // (2) We can also push X gate through CCNOT (Toffoli) gates, 
+  // (2) We can also push X gate through CCNOT (Toffoli) gates,
   // but because we don't support CCNOT gates atm, hence skip.
   // (3) If we support Toffoli gates, then we can push X gate through one of the two *control* qubits as well
   // and *negate* that control line. Then, the negated control can be further optimized during decomposition.
-  // See Section 4.3 of https://arxiv.org/pdf/1710.07345.pdf for details. 
+  // See Section 4.3 of https://arxiv.org/pdf/1710.07345.pdf for details.
   // ========================================
-  std::vector<int> removedInstructionIdx;  
+  std::vector<int> removedInstructionIdx;
   for (int i = 0; i < io_program->nInstructions(); ++i) {
     const auto& inst = io_program->getInstruction(i);
     if (inst->name() == "X") {
@@ -249,14 +268,14 @@ bool CircuitOptimizer::tryPermuteAndCancelXGate(std::shared_ptr<CompositeInstruc
           break;
         }
 
-        if ((nextInst->name() == "I") || 
+        if ((nextInst->name() == "I") ||
             !container::contains(nextInst->bits(), qubitIdx) ||
             (nextInst->name() == "CNOT" &&  nextInst->bits()[1] == qubitIdx)) {
               continue;
         } else {
           // we cannot move any further, break the look-ahead loop.
           break;
-        }        
+        }
       }
     }
   }
@@ -280,11 +299,11 @@ bool CircuitOptimizer::tryPermuteAndCancelXGate(std::shared_ptr<CompositeInstruc
 }
 
 bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstruction>& io_program) {
-  // Algorithm: we iterate the circuit until we hit an Hadamard gate, 
+  // Algorithm: we iterate the circuit until we hit an Hadamard gate,
   // then check if the sequence is one of those in Figure 4 of https://arxiv.org/pdf/1710.07345.pdf
   auto graphView = io_program->toGraph();
   std::vector<int> hadamardNodeIds;
-  // We collect all Hadamard nodes ahead of time for the iteration and matching 
+  // We collect all Hadamard nodes ahead of time for the iteration and matching
   for (int i = 1; i < graphView->order() - 1; ++i) {
     const auto node = graphView->getVertexProperties(i);
     if (node.getString("name") == "H") {
@@ -298,7 +317,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
   // The below matching is constructed to prioritize patterns that result in more
   // gate count reduction, hence we want to keep track of which H gates have already been matched.
   std::unordered_set<int> matchedHadamardNodeIds;
-  
+
   for (const auto& hadamardNode: hadamardNodeIds) {
     if (container::contains(matchedHadamardNodeIds, hadamardNode)) {
       continue;
@@ -308,12 +327,12 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
     assert(hadamardInst->bits().size() == 1);
     const auto qubitIndex = hadamardInst->bits().front();
     const auto neighborNodes = graphView->getNeighborList(hadamardNode);
-    // This is a single-qubit gate, hence must have only one neighbor 
+    // This is a single-qubit gate, hence must have only one neighbor
     // (either another gate or the final state)
     assert(neighborNodes.size() == 1);
     const auto nextNode = graphView->getVertexProperties(neighborNodes.front());
     const auto nextGateName = nextNode.getString("name");
-    
+
     if (nextGateName == "CNOT") {
       // We try to match against this gate pattern:
       // H --------- H
@@ -341,7 +360,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
             matchedHadamardNodeIds.emplace(remainingHadamardNodeId);
             matchedHadamardNodeIds.emplace(cnotNeighborNodes[0]);
             matchedHadamardNodeIds.emplace(cnotNeighborNodes[1]);
-          }   
+          }
         }
       }
     }
@@ -350,7 +369,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
     {
       assert(io_program->getInstruction(nextNode.get<int>("id") - 1)->bits()[0] == qubitIndex);
       // We only match Rz(+/- pi/2), i.e. the Phase gate and its dagger.
-      
+
       // Check if total angle is either +/- pi/2, i.e. equivalent to a P gate or its dagger.
       const double rawAngle = ipToDouble(io_program->getInstruction(nextNode.get<int>("id") - 1)->getParameter(0));
       const double normalizedAngle = getNormalizedRotationAngle(rawAngle);
@@ -386,11 +405,11 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
               const auto inst = io_program->getInstruction(instIdx);
               if (inst->name() == "CNOT" && inst->bits()[1] == in_qubitIndex) {
                 io_cnotNodeIdToAppend.emplace_back(neighbor);
-                return true;    
+                return true;
               }
-            }            
+            }
           }
-          return false; 
+          return false;
         };
         std::vector<int> cnotNodeIdx;
         // We start from the Phase gate node
@@ -399,9 +418,9 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
           if (isNextNodeCnotTargetQubit(qubitIndex, startVerticeId, cnotNodeIdx)) {
             // If found a CNOT gate (target the correct qubit), continue from that CNOT
             startVerticeId = cnotNodeIdx.back();
-          } else { 
+          } else {
             break;
-          }              
+          }
         }
 
         // We have found the correct H-P-CNOT^k pattern:
@@ -412,7 +431,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
             // Need to check the remaining pattern: Rz(+/-pi/2) then H
             const auto nodesAfterLastCnot = graphView->getNeighborList(cnotNodeIdx.back());
             for (const auto& nodeToCheck: nodesAfterLastCnot) {
-              const auto nodeProp = graphView->getVertexProperties(nodeToCheck); 
+              const auto nodeProp = graphView->getVertexProperties(nodeToCheck);
               if (nodeProp.getString("name") == "Rz") {
                 // Must be Rz on that qbit line
                 if(io_program->getInstruction(nodeToCheck - 1)->bits()[0] == qubitIndex) {
@@ -424,12 +443,12 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
                     return nodeToCheck;
                   }
                 }
-              } 
+              }
             }
             // Cannot find the matching Rz pattern in any of the two CNOT gate's neighbor
             return 0;
           }();
-          
+
           if (matchingRzNodeIdAfterCnot != 0) {
             // Check the last H gate of the pattern
             const auto lastNodeToCheck = graphView->getNeighborList(matchingRzNodeIdAfterCnot)[0];
@@ -450,19 +469,19 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
               completePattern.emplace_back(matchingRzNodeIdAfterCnot);
               // Last H gate
               completePattern.emplace_back(lastNodeToCheck);
-              
+
               matchedReductionPatterns.emplace_back(std::move(completePattern));
 
               // Add the two hadamard nodes to the list
               matchedHadamardNodeIds.emplace(hadamardNode);
               matchedHadamardNodeIds.emplace(lastNodeToCheck);
             }
-          }          
+          }
         }
-      }  
+      }
     }
-  } 
-  
+  }
+
   // Circuit rewrite:
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   for (const auto& matchedPattern : matchedReductionPatterns) {
@@ -470,36 +489,36 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
       // First pattern: H - P - H => P_dagger - H - P_dagger; or vice-versa
       const auto phaseGate = io_program->getInstruction(matchedPattern[1] - 1);
       if(isPiOver2(getNormalizedRotationAngle(ipToDouble(phaseGate->getParameter(0))))) {
-        io_program->replaceInstruction(matchedPattern[0] - 1, 
+        io_program->replaceInstruction(matchedPattern[0] - 1,
           gateRegistry->createInstruction("Rz", phaseGate->bits(), { -M_PI_2 }));
-        io_program->replaceInstruction(matchedPattern[1] - 1, 
+        io_program->replaceInstruction(matchedPattern[1] - 1,
           gateRegistry->createInstruction("H", phaseGate->bits()));
-        io_program->replaceInstruction(matchedPattern[2] - 1, 
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { -M_PI_2 }));        
+        io_program->replaceInstruction(matchedPattern[2] - 1,
+          gateRegistry->createInstruction("Rz", phaseGate->bits(), { -M_PI_2 }));
       }
       else {
-        io_program->replaceInstruction(matchedPattern[0] - 1, 
+        io_program->replaceInstruction(matchedPattern[0] - 1,
           gateRegistry->createInstruction("Rz", phaseGate->bits(), { M_PI_2 }));
-        io_program->replaceInstruction(matchedPattern[1] - 1, 
+        io_program->replaceInstruction(matchedPattern[1] - 1,
           gateRegistry->createInstruction("H", phaseGate->bits()));
-        io_program->replaceInstruction(matchedPattern[2] - 1, 
-          gateRegistry->createInstruction("Rz", phaseGate->bits(), { M_PI_2 }));    
+        io_program->replaceInstruction(matchedPattern[2] - 1,
+          gateRegistry->createInstruction("Rz", phaseGate->bits(), { M_PI_2 }));
       }
     } else if (matchedPattern.size() == 5 && container::contains(hadamardNodeIds, matchedPattern[0]) && container::contains(hadamardNodeIds, matchedPattern[1])) {
       // Pattern: H - H - CNOT - H - H pattern
       // Remove all four H gates and invert the CNOT
       io_program->getInstruction(matchedPattern[0] - 1)->disable();
       io_program->getInstruction(matchedPattern[1] - 1)->disable();
-      
+
       {
         // Handle the middle CNOT gate
         auto cnotQubits = io_program->getInstruction(matchedPattern[2] - 1)->bits();
         assert(cnotQubits.size() == 2);
         std::reverse(cnotQubits.begin(), cnotQubits.end());
-        io_program->replaceInstruction(matchedPattern[2] - 1, 
+        io_program->replaceInstruction(matchedPattern[2] - 1,
           gateRegistry->createInstruction("CX", cnotQubits));
       }
-      
+
       io_program->getInstruction(matchedPattern[3] - 1)->disable();
       io_program->getInstruction(matchedPattern[4] - 1)->disable();
     } else {
@@ -514,19 +533,19 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
       auto headRz = io_program->getInstruction(matchedPattern[1] - 1);
       auto tailRz = io_program->getInstruction(matchedPattern[matchedPattern.size() - 2]- 1);
       assert(headRz->name() == "Rz" && tailRz->name() == "Rz");
-      const auto headRzAngle = getNormalizedRotationAngle(ipToDouble(headRz->getParameter(0))); 
+      const auto headRzAngle = getNormalizedRotationAngle(ipToDouble(headRz->getParameter(0)));
       const auto tailRzAngle = getNormalizedRotationAngle(ipToDouble(tailRz->getParameter(0)));
       // They must have opposite side (+/- pi/2)
       assert(fabs(headRzAngle + tailRzAngle) < ANGLE_EPS_RAD);
       // Flip the angles
       headRz->setParameter(0, -headRzAngle);
       tailRz->setParameter(0, -tailRzAngle);
-    } 
+    }
   }
 
   // Remove all redundant gates that we've disabled earlier during circuit rewriting.
-  io_program->removeDisabled();   
-  
+  io_program->removeDisabled();
+
   return !matchedReductionPatterns.empty();
 }
 
@@ -544,9 +563,9 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
       currentList.emplace_back(node.get<int>("id"));
     }
   }
-  
+
   std::unordered_map<int, std::pair<int, int>> qubitToBoundary;
-  
+
   for (int i = 1; i < graphView->order() - 1; /* increment in loop*/) {
     const auto node = graphView->getVertexProperties(i);
     // Starting at a CNOT gate as anchor point
@@ -555,7 +574,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
       assert(cnotInst->bits().size() == 2);
       const auto ctrlIndex = cnotInst->bits()[0];
       const auto targetIndex = cnotInst->bits()[1];
-      
+
       const auto findLeftBoundary = [&](int in_qbitIdx, int in_nodeId) -> int {
         // Get the list of gates on this wire (up to this point)
         const auto& nodesOnWire = qubitToNodeIds[in_qbitIdx];
@@ -579,7 +598,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
         qubitToBoundary[ctrlIndex] = std::make_pair(findLeftBoundary(ctrlIndex, i), graphView->order());
         qubitToBoundary[targetIndex] = std::make_pair(findLeftBoundary(targetIndex, i), graphView->order());
       }
-      
+
       // Helper to find the right boundary
       const std::function<void(int, int)> findRightBoundary = [&](int in_qbitIdx, int in_startNodeId) -> void {
         if (in_startNodeId < graphView->order() - 1) {
@@ -599,41 +618,41 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
                 qubitToBoundary[bit] = std::make_pair(findLeftBoundary(bit, in_startNodeId), graphView->order());
                 for (const auto& neighbor: neighborNodes) {
                   if (neighbor < graphView->order() - 1 && container::contains(io_program->getInstruction(neighbor - 1)->bits(), bit)) {
-                    findRightBoundary(bit, neighbor);       
+                    findRightBoundary(bit, neighbor);
                   }
-                } 
+                }
               }
               // Traverse the neighbor associated with this qubit wire
               for (const auto& neighbor: neighborNodes) {
                 if (neighbor < graphView->order() - 1 && container::contains(io_program->getInstruction(neighbor - 1)->bits(), in_qbitIdx)) {
                   // If it's still within the boundary, explore further
                   // Otherwise, the sub-circuit has had termination point on this qubit wire.
-                  if (neighbor < qubitToBoundary[in_qbitIdx].second) {                    
+                  if (neighbor < qubitToBoundary[in_qbitIdx].second) {
                     return findRightBoundary(in_qbitIdx, neighbor);
-                  }                 
+                  }
                 }
-              } 
+              }
             }
-          } 
+          }
         }
         // End of the sub-circuit: add the right boundary if not having one.
-        if (in_startNodeId < qubitToBoundary[in_qbitIdx].second) {                    
+        if (in_startNodeId < qubitToBoundary[in_qbitIdx].second) {
           qubitToBoundary[in_qbitIdx].second = in_startNodeId;
-        }         
+        }
       };
-      
+
       // Forward search:
       {
-        // Control wire:      
+        // Control wire:
         for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
           if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), ctrlIndex)) {
-            findRightBoundary(ctrlIndex, nodeToCheck);            
+            findRightBoundary(ctrlIndex, nodeToCheck);
           }
         }
         // Target wire"
         for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
           if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), targetIndex)) {
-            findRightBoundary(targetIndex, nodeToCheck);            
+            findRightBoundary(targetIndex, nodeToCheck);
           }
         }
       }
@@ -645,11 +664,11 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
         for (const auto& kv: qubitToBoundary) {
           qubits.emplace_back(kv.first);
         }
-                
+
         for (int idx = 1; idx < graphView->order() - 1; ++idx) {
           const auto node = graphView->getVertexProperties(idx);
           const auto& instruction = io_program->getInstruction(node.get<int>("id") - 1);
-          
+
           if (instruction->bits().size() == 1 && container::contains(qubits, instruction->bits()[0])) {
             const auto& boundary = qubitToBoundary[instruction->bits()[0]];
             if (idx > boundary.first && idx < boundary.second) {
@@ -658,16 +677,16 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
           }
           else if (instruction->bits().size() == 2) {
             assert(instruction->name() == "CNOT");
-            // If the control is *outside* the boundary, we need to terminate, hence prune the subcircuit. 
+            // If the control is *outside* the boundary, we need to terminate, hence prune the subcircuit.
             const auto controlIdx = instruction->bits()[0];
             const auto targetIdx = instruction->bits()[1];
             if (!container::contains(qubits, controlIdx) && (qubitToBoundary.find(targetIdx) != qubitToBoundary.end())) {
-              auto& boundary = qubitToBoundary[targetIdx];              
+              auto& boundary = qubitToBoundary[targetIdx];
               boundary.second = idx;
             }
             else {
               subCircuit.emplace_back(instruction);
-              // Move the outter loop counter pass this CNOT gate 
+              // Move the outter loop counter pass this CNOT gate
               // since it's already included in this subcircuit (via forward search).
               i = idx + 1;
             }
@@ -697,7 +716,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
                       inst->disable();
                     }
                   }
-                  
+
                   assert(gate->isEnabled());
                   // Combine the angle to the first Rz gate of this affine function.
                   gate->setParameter(0, totalAngle);
@@ -716,7 +735,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
 
   // Remove those gates that were merged.
   io_program->removeDisabled();
-  
+
   return true;
 }
 } // namespace quantum

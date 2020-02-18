@@ -42,23 +42,6 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
 
-//   try {
-//     observable =
-//         parameters.get_with_throw<std::shared_ptr<Observable>>("observable");
-//   } catch (std::exception &e) {
-//     observable = std::shared_ptr<Observable>(
-//         parameters.get<Observable *>("observable"), [](Observable *) {});
-//   }
-
-//   if (parameters.keyExists<std::shared_ptr<Optimizer>>("optimizer")) {
-//     optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
-//   } else {
-//       optimizer = xacc::getOptimizer("nlopt");
-//   }
-
-//   kernel = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
-//   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
-
   return true;
 }
 
@@ -92,7 +75,8 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           if (nFunctionInstructions > kernel->nInstructions()) {
-            fsToExec.push_back(f->operator()(x));
+            auto evaled = f->operator()(x);
+            fsToExec.push_back(evaled);
             coefficients.push_back(std::real(coeff));
           } else {
             identityCoeff += std::real(coeff);
@@ -134,7 +118,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
 
         std::stringstream ss;
-        ss << "E(" << x[0];
+        ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
         for (int i = 1; i < x.size(); i++)
           ss << "," << x[i];
         ss << ") = " << std::setprecision(12) << energy;
@@ -171,7 +155,8 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     if (nFunctionInstructions > kernel->nInstructions()) {
-      fsToExec.push_back(f->operator()(x));
+      auto evaled = f->operator()(x);
+      fsToExec.push_back(evaled);
       coefficients.push_back(std::real(coeff));
     } else {
       identityCoeff += std::real(coeff);
@@ -212,7 +197,8 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   }
 
   std::stringstream ss;
-  ss << "E(" << x[0];
+
+  ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
   for (int i = 1; i < x.size(); i++)
     ss << "," << x[i];
   ss << ") = " << std::setprecision(12) << energy;

@@ -217,6 +217,25 @@ TEST(CircuitOptimizerTester, checkOptimize) {
 
 }
 
+TEST(CircuitOptimizerTester, checkRemove0StrRotation) {
+    auto c = xacc::getService<xacc::Compiler>("xasm");
+    auto f = c->compile(R"(__qpu__ void test_rot(qbit q, double x) {
+        H(q[2]);
+        CX(q[0],q[1]);
+        Rx(q[1], 0.0 * x);
+        CX(q[0],q[1]);
+        Rx(q[1], -pi/2);
+        H(q[2]);
+    })")
+                 ->getComposites()[0];
+
+ auto opt = xacc::getService<IRTransformation>("circuit-optimizer");
+
+    opt->apply(f, nullptr);
+     std::cout << "HOWDY:\n" << f->toString() << "\n";
+  EXPECT_EQ(1, f->nInstructions());
+}
+
 TEST(CircuitOptimizerTester, checkAdjRotations) {
     auto c = xacc::getService<xacc::Compiler>("xasm");
     auto f = c->compile(R"(__qpu__ void foo(qbit q) {
@@ -390,10 +409,10 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 Rz(q[0], 1.57079632679489661923);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         optimizer->apply(program, nullptr);
-        
+
         EXPECT_EQ(3, program->nInstructions());
         // Become P_dag - H - P_dag
         EXPECT_EQ("Rz", program->getInstruction(0)->name());
@@ -413,10 +432,10 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 Rz(q[0], -1.57079632679489661923);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         optimizer->apply(program, nullptr);
-        
+
         EXPECT_EQ(3, program->nInstructions());
         // Become P - H - P
         EXPECT_EQ("Rz", program->getInstruction(0)->name());
@@ -438,10 +457,10 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 H(q[1]);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         optimizer->apply(program, nullptr);
-        
+
         EXPECT_EQ(1, program->nInstructions());
         // Become CNOT q[1], q[0] (invert the control/target)
         EXPECT_EQ("CNOT", program->getInstruction(0)->name());
@@ -461,7 +480,7 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 Rz(q[0], -1.57079632679489661923);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         optimizer->apply(program, nullptr);
         // Reduce two H gates
@@ -469,12 +488,12 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
         // Become P_dag - CNOT - P
         EXPECT_EQ("Rz", program->getInstruction(0)->name());
         EXPECT_NEAR(-M_PI_2, program->getInstruction(0)->getParameter(0).as<double>(), 1e-12);
-        
+
         // CNOT stays the same
         EXPECT_EQ("CNOT", program->getInstruction(1)->name());
         EXPECT_EQ(1, program->getInstruction(1)->bits()[0]);
         EXPECT_EQ(0, program->getInstruction(1)->bits()[1]);
-        
+
         EXPECT_EQ("Rz", program->getInstruction(2)->name());
         EXPECT_NEAR(M_PI_2, program->getInstruction(2)->getParameter(0).as<double>(), 1e-12);
         std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
@@ -491,7 +510,7 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 Rz(q[0], 1.57079632679489661923);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         optimizer->apply(program, nullptr);
         // Reduce two H gates
@@ -499,12 +518,12 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
         // Become P - CNOT - P_dag
         EXPECT_EQ("Rz", program->getInstruction(0)->name());
         EXPECT_NEAR(M_PI_2, program->getInstruction(0)->getParameter(0).as<double>(), 1e-12);
-        
+
         // CNOT stays the same
         EXPECT_EQ("CNOT", program->getInstruction(1)->name());
         EXPECT_EQ(1, program->getInstruction(1)->bits()[0]);
         EXPECT_EQ(0, program->getInstruction(1)->bits()[1]);
-        
+
         EXPECT_EQ("Rz", program->getInstruction(2)->name());
         EXPECT_NEAR(-M_PI_2, program->getInstruction(2)->getParameter(0).as<double>(), 1e-12);
         std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
@@ -526,7 +545,7 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
                 Rz(q[0], 1.57079632679489661923);
                 H(q[0]);
             })")->getComposites()[0];
-        
+
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
         const auto nbInstructionsBefore = program->nInstructions();
         optimizer->apply(program, nullptr);
@@ -535,14 +554,14 @@ TEST(CircuitOptimizerTester, checkHadamardGateReduction) {
         // Become P - CNOT^k - P_dag
         EXPECT_EQ("Rz", program->getInstruction(0)->name());
         EXPECT_NEAR(M_PI_2, program->getInstruction(0)->getParameter(0).as<double>(), 1e-12);
-        
+
         // CNOT's stays the same
         for (int i = 1; i < program->nInstructions() - 1; ++i) {
             EXPECT_EQ("CNOT", program->getInstruction(i)->name());
             EXPECT_EQ(0, program->getInstruction(i)->bits()[1]);
         }
-        
-        // Last gate is P_dag    
+
+        // Last gate is P_dag
         EXPECT_EQ("Rz", program->getInstruction(program->nInstructions() - 1)->name());
         EXPECT_NEAR(-M_PI_2, program->getInstruction(program->nInstructions() - 1)->getParameter(0).as<double>(), 1e-12);
         std::cout << "FINAL CIRCUIT:\n" << program->toString() << "\n";
@@ -562,7 +581,7 @@ TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
         }
         return count;
     };
-    
+
     {
         auto compiler = xacc::getService<xacc::Compiler>("xasm");
         // Simple test: circuit (7) in page 13 of https://arxiv.org/pdf/1710.07345.pdf
@@ -580,9 +599,9 @@ TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
                 H(q[1]);
                 H(q[0]);
             })")->getComposites()[0];
-        
-        
-        
+
+
+
         const auto gateCountBefore = program->nInstructions();
         const auto rzCountBefore = countRzGates(program);
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
@@ -613,7 +632,7 @@ TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
                 Rz(q[1], 4.0);
                 H(q[1]);
                 H(q[0]);
-            })")->getComposites()[0];        
+            })")->getComposites()[0];
         const auto gateCountBefore = program->nInstructions();
         const auto rzCountBefore = countRzGates(program);
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");
@@ -645,7 +664,7 @@ TEST(CircuitOptimizerTester, checkRotationMergingUsingPhasePolynomials) {
                 Rz(q[1], 4.0);
                 H(q[1]);
                 H(q[0]);
-            })")->getComposites()[0];        
+            })")->getComposites()[0];
         const auto gateCountBefore = program->nInstructions();
         const auto rzCountBefore = countRzGates(program);
         auto optimizer = xacc::getService<IRTransformation>("circuit-optimizer");

@@ -1,5 +1,5 @@
 import xacc
-
+xacc.set_verbose(True)
 opstr = '''(0.174073,0) Z2 Z3 +
            (0.1202,0) Z1 Z3 +
            (0.165607,0) Z1 Z2 +
