@@ -32,6 +32,7 @@ class Psi4Observable(xacc.Observable):
     def fromOptions(self, inputParams):
         import numpy as np
         import psi4
+        psi4.core.be_quiet()
         g = inputParams['geometry']
         basis = inputParams['basis']
         moleculeGeom = psi4.geometry(g)
