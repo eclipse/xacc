@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <Eigen/Dense>
+#include "LBFGS.h"
 
 // Proof-of-concept implemenation of the Quantum Optimization of Analytic conTrols (GOAT) algorithm.
 // The GOAT algorithm required:
@@ -25,37 +27,66 @@ using costFunctional = std::function<double(Matrix, Matrix)>;
 // Gradient of the cost function w.r.t. all params
 using costFunctionalGradient = std::function<std::vector<double>(costFunctional, Matrix, std::vector<Matrix>)>;
 
-// Abstract stopping condition: we'll check it after every iteration,
-// e.g. can implement iteration count and/or convergent stopping conditions.
-struct IStopper
-{
-    virtual bool shouldStop(double in_costFnValue, const OptimParams& in_currentParams) = 0;
-};
-
 // Integrator/propagator (i.e. solving Eq. (7))
 struct IIntegrator
 {
-    virtual Matrix integrate(const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, double in_stopTime) = 0;
+    virtual Matrix integrate(const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, const OptimParams& in_params, double in_stopTime) = 0;
+};
+
+struct IOptimizationFunction
+{
+    virtual double operator()(const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) = 0;
 };
 
 // Abstract gradient-based step search (e.g. BFGS)
 struct IGradientStepper
 {
-    // Calculate the param steps given the current cost function differential 
-    // (gradients) w.r.t. the params.
-    virtual OptimParams calculate(const std::vector<double>& in_costFnDiffs) = 0;
+    virtual void optimize(IOptimizationFunction* io_problem, const Eigen::VectorXd& in_initialParams) = 0;
 };
 
-class GOAT_PulseOptim
+// GOAT optimal control:
+class GOAT_PulseOptim: public IOptimizationFunction
 {
 public:
-    GOAT_PulseOptim(const Matrix& in_targetU, const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda,  IStopper* io_stopper, IIntegrator* io_integrator, IGradientStepper* io_gradStepper);
-    OptimParams optimize(const OptimParams& in_initialParams, double in_maxTime, double& out_finalCost);
+    struct DefaultIntegrator : public IIntegrator
+    {
+        DefaultIntegrator(double in_dt);
+        virtual Matrix integrate(const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, const OptimParams& in_params, double in_stopTime) override;
+
+    private:
+        double m_dt;
+    };
+
+    struct DefaultGradientStepper : public IGradientStepper
+    {
+        virtual void optimize(IOptimizationFunction* io_problem, const Eigen::VectorXd& in_initialParams) override;
+    };
+    
+    struct OptimizationResult 
+    {
+        OptimizationResult(): finalCost(1.0), nbIters(0) {}
+        double finalCost;
+        OptimParams optParams;
+        int nbIters;
+    };
+
+    // Constructor: optionally provide integrator/propagator and the gradient stepper.
+    // Otherwise the default ones will be used.
+    GOAT_PulseOptim(const Matrix& in_targetU, const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, const OptimParams& in_initialParams, double in_maxTime, 
+    std::unique_ptr<IIntegrator>&& io_integrator = nullptr, std::unique_ptr<IGradientStepper>&& io_gradStepper = nullptr);
+    OptimizationResult optimize();
+    
+    // Entry point for the gradient stepper to call
+    virtual double operator()(const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) override;
+
 private:
     const Matrix& m_targetU;
     const Hamiltonian& m_hamiltonian;
     const dHdalpha& m_dHda;
-    IStopper* m_stopper;
-    IIntegrator* m_integrator;
-    IGradientStepper* m_gradStepper;
+    std::unique_ptr<IIntegrator> m_integrator;
+    std::unique_ptr<IGradientStepper> m_gradStepper;
+    OptimParams m_initialParams;
+    double m_maxTime;
+    int m_iterationCounter;
+    OptimizationResult m_resultCache;
 };
