@@ -56,6 +56,11 @@ public:
     {
         virtual void optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) override;
     };
+
+    struct MLPackGradientStepper : public IGradientStepper
+    {
+        virtual void optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) override;
+    };
     
     struct OptimizationResult 
     {
