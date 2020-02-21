@@ -1,7 +1,7 @@
 #include "GOAT.hpp"
 #include <iostream>
 #include "LBFGS.h"
-
+#include "xacc_service.hpp"
 namespace {
 constexpr int DEFAULT_NUMBER_STEPS = 10000;
 class RungeKutta
@@ -231,13 +231,9 @@ Matrix GOAT_PulseOptim::DefaultIntegrator::integrate(const Hamiltonian& in_hamil
 
 void GOAT_PulseOptim::DefaultGradientStepper::optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) 
 {
+    // TODO: get rid of this Default Stepper.
+    // For now, keep this gradient stepper as the baseline since it's simple to debug.
     // Set up parameters
-    // TODO: enable customization via Heterogenous map
-    // We are using a very simple L-BFGS implementation (~100 lines of code)
-    // Interestingly enough, both ML-PACK and NL-OPT were *UNABLE* to converge
-    // but this simple impl can converge just fine.
-    // Looks like ML-PACK and NL-OPT were stuck at local minima and don't have any mechanisms to escape.
-    // For now, just use this simple implementation.
     LBFGSpp::LBFGSParam<double> param;
     param.epsilon = 1e-6;
     param.max_iterations = 50;
@@ -264,4 +260,17 @@ void GOAT_PulseOptim::DefaultGradientStepper::optimize(xacc::OptFunction* io_pro
 
     solver.minimize(optimProb, x, fx);
 }
-    
+
+void GOAT_PulseOptim::MLPackGradientStepper::optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) 
+{
+    auto optimizer = xacc::getService<xacc::Optimizer>("mlpack"); // ML-PACK optimizer;
+    optimizer->setOptions(xacc::HeterogeneousMap {
+        std::make_pair("nlopt-maxeval", 50),
+        std::make_pair("mlpack-optimizer", "l-bfgs"),
+        std::make_pair("initial-parameters", in_initialParams),
+        // we don't want to waste time over-optimizing the params, hence set a reasonable min-step
+        std::make_pair("bfgs-min-step", 0.001)
+    });
+
+    optimizer->optimize(*io_problem);
+}
