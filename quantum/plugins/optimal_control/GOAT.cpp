@@ -2,8 +2,13 @@
 #include <iostream>
 #include "LBFGS.h"
 #include "xacc_service.hpp"
+#include "xacc_observable.hpp"
+#include "PauliOperator.hpp"
+
 namespace {
 constexpr int DEFAULT_NUMBER_STEPS = 10000;
+const std::complex<double> I(0.0, 1.0);
+
 class RungeKutta
 {
 public:
@@ -50,8 +55,175 @@ Matrix vstack(const Matrix& in_mat1, const Matrix& in_mat2)
   
     return result;
 }
+
+Matrix getPauliMatrix(const std::string& in_pauli)
+{
+    if (in_pauli == "X")
+    {
+        Matrix pauliX{ Matrix::Zero(2, 2) };
+        pauliX << 0, 1, 1, 0;
+        return pauliX;
+    }
+
+    if (in_pauli == "Y")
+    {
+        Matrix pauliY{ Matrix::Zero(2, 2) };
+        pauliY << 0, -I, I, 0;
+        return pauliY;
+    }
+
+    if (in_pauli == "Z")
+    {
+        Matrix pauliZ{ Matrix::Zero(2, 2) };
+        pauliZ << 1, 0, 0, -1;
+        return pauliZ;
+    }
+
+    return Matrix::Identity(2, 2);
 }
 
+Matrix kron(const Matrix& in_mat1, const Matrix& in_mat2)
+{
+    const auto nbRowsMat1 = in_mat1.rows();
+    const auto nbColsMat1 = in_mat1.cols();
+    const auto nbRowsMat2 = in_mat2.rows();
+    const auto nbColsMat2 =in_mat2.cols();
+  
+    Matrix resultMat(nbRowsMat1*nbRowsMat2, nbColsMat1*nbColsMat2);
+    for (int i = 0; i < nbRowsMat1; ++i) 
+    {
+        for (int j = 0; j < nbColsMat1; ++j) 
+        {
+            resultMat.block(i*nbRowsMat2, j*nbColsMat2, nbRowsMat2, nbColsMat2) =  in_mat1(i,j)*in_mat2;
+        }
+    }
+
+    return resultMat;
+}
+}
+
+Matrix GOAT_PulseOptim::constructMatrixFromPauliString(const std::string& in_pauliString, int in_dimension)
+{
+    auto hamiltonianOps = std::static_pointer_cast<xacc::quantum::PauliOperator>(xacc::quantum::getObservable("pauli", in_pauliString));
+    Matrix result;
+    std::complex<double> coefficient = 1.0;
+    for (auto termIter = hamiltonianOps->begin(); termIter != hamiltonianOps->end(); ++termIter)
+    {
+        coefficient = coefficient * termIter->second.coeff();
+        std::unordered_map<int, std::string> qubitIdxToPauliOp;
+        for (const auto& termOp : termIter->second.ops())
+        {
+            qubitIdxToPauliOp.emplace(termOp.first, termOp.second);
+        }
+
+        for (int i = 0; i < in_dimension; ++i)
+        {
+            const auto iter = qubitIdxToPauliOp.find(i);
+            if (i == 0)
+            {
+                if (iter != qubitIdxToPauliOp.end())
+                {
+                    result = getPauliMatrix(iter->second);
+                }
+                else
+                {
+                    result = getPauliMatrix("I");
+                }
+            }
+            else
+            {
+                if (iter != qubitIdxToPauliOp.end())
+                {
+                    result = kron(result, getPauliMatrix(iter->second));
+                }
+                else
+                {
+                    result = kron(result, getPauliMatrix("I"));
+                }
+            }
+        }
+    } 
+
+    return coefficient * result;
+}
+
+void GoatHamiltonian::construct(int in_dimension, const std::string& in_H0, const std::vector<std::string>& in_Hi, const std::vector<std::string>& in_fi, const std::vector<std::string>& in_params)
+{
+    if (!in_H0.empty())
+    {
+        m_h0 = GOAT_PulseOptim::constructMatrixFromPauliString(in_H0, in_dimension);
+    }
+    else
+    {
+        m_h0 = Matrix::Zero(1 << in_dimension, 1 << in_dimension);
+    }
+    
+    for (int i = 0; i < in_Hi.size(); ++i) 
+    {
+        hamOps.emplace_back(std::make_pair(in_fi[i], GOAT_PulseOptim::constructMatrixFromPauliString(in_Hi[i], in_dimension)));
+    }
+
+    m_paramVals.resize(in_params.size());
+    for (int i = 0; i < in_params.size(); ++i)
+    {
+        m_symbolTable.add_variable(in_params[i], m_paramVals[i]);
+    }
+    // Add time variable
+    m_symbolTable.add_variable("t", m_time);
+
+    for (int i = 0; i < hamOps.size(); ++i)
+    {
+        expression_t expression;
+        expression.register_symbol_table(m_symbolTable);
+        const bool compileOk = m_parser.compile(hamOps[i].first, expression);
+        assert(compileOk);
+        // Cache the compiled expressions
+        m_exprs.emplace_back(std::move(expression));
+    }
+
+    params = in_params;
+    dimension = in_dimension;
+    hamiltonian = [this](double in_time, OptimParams in_paramVals) -> Matrix {      
+        assert(in_paramVals.size() == params.size());
+       
+        Matrix hamMat = m_h0;
+        for (int i = 0; i < hamOps.size(); ++i)
+        {
+            const auto& expression = m_exprs[i];
+            // Set the variables before evaluation
+            m_paramVals = in_paramVals;
+            m_time = in_time;
+            const auto evaled = expression.value();
+            hamMat = hamMat + evaled * hamOps[i].second;
+        }
+        
+        return hamMat;
+    };
+
+
+    for (int idx = 0; idx < params.size(); ++idx)
+    {
+        // Differential of H w.r.t. sigma parameter
+        dHda.emplace_back([this, idx](double in_time, OptimParams in_paramVals) -> Matrix {
+            assert(in_paramVals.size() == params.size());
+            Matrix hamMat = Matrix::Zero(1 << dimension, 1 << dimension);
+            for (int i = 0; i < hamOps.size(); ++i)
+            {
+                const auto& expression = m_exprs[i];
+                // Set the variables before evaluation
+                m_paramVals = in_paramVals;
+                m_time = in_time;
+                // Calculate the derivative w.r.t. the parameter
+                const auto derivativeEvaled = exprtk::derivative(expression, params[idx]);
+                hamMat = hamMat + derivativeEvaled * hamOps[i].second;
+            }
+            
+            return hamMat;
+        });
+    }
+
+    assert(dHda.size() == params.size());
+}
 
 GOAT_PulseOptim::GOAT_PulseOptim(const Matrix& in_targetU, const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, 
     const OptimParams& in_initialParams, double in_maxTime, 
@@ -108,13 +280,13 @@ double GOAT_PulseOptim::eval(const OptimParams& in_params, std::vector<double>& 
     assert(integrateResult.cols() == dimH);
     assert(integrateResult.rows() == dimH * (1 + params.size()));
 
-    const auto evalCostFn = [&](const Matrix& in_uMat) -> double {
+    const auto evalCostFn = [this](const Matrix& in_uMat) -> double {
         assert(m_targetU.rows() == in_uMat.rows() && m_targetU.cols() == in_uMat.cols());
         // Cost/goal function, i.e. Eq. (4)
         return 1.0 - (1.0/m_targetU.rows())*std::abs((m_targetU.adjoint() * in_uMat).trace());
     };
 
-    const auto evalCostFnGradient = [&](const std::vector<Matrix>& in_duMats, const OptimParams& in_params, double in_costVal) -> std::vector<double> {
+    const auto evalCostFnGradient = [this, dimH](const std::vector<Matrix>& in_duMats, const OptimParams& in_params, double in_costVal) -> std::vector<double> {
         assert(in_duMats.size() == in_params.size());
         std::vector<double> results;
 

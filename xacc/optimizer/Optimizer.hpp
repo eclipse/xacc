@@ -56,6 +56,11 @@ public:
   virtual void setOptions(const HeterogeneousMap &opts) { options = opts; }
 
   virtual OptResult optimize(OptFunction &function) = 0;
+
+  static OptFunction& NOOP_FUNCTION() {
+    static OptFunction dummyOpt([](const std::vector<double>& x, std::vector<double>& dx) { return 0.0; }, 0);
+    return dummyOpt;
+  }
 };
 } // namespace xacc
 #endif
