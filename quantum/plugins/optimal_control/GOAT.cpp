@@ -1,5 +1,6 @@
 #include "GOAT.hpp"
 #include <iostream>
+#include "LBFGS.h"
 
 namespace {
 constexpr int DEFAULT_NUMBER_STEPS = 10000;
@@ -55,6 +56,7 @@ Matrix vstack(const Matrix& in_mat1, const Matrix& in_mat2)
 GOAT_PulseOptim::GOAT_PulseOptim(const Matrix& in_targetU, const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, 
     const OptimParams& in_initialParams, double in_maxTime, 
     std::unique_ptr<IIntegrator>&& io_integrator, std::unique_ptr<IGradientStepper>&& io_gradStepper):
+    xacc::OptFunction([this](const std::vector<double>& in_x, std::vector<double>& out_dx){ return eval(in_x, out_dx); }, in_initialParams.size()),
     m_targetU(in_targetU),
     m_hamiltonian(in_hamiltonian),
     m_dHda(in_dHda),
@@ -80,24 +82,20 @@ GOAT_PulseOptim::GOAT_PulseOptim(const Matrix& in_targetU, const Hamiltonian& in
 GOAT_PulseOptim::OptimizationResult GOAT_PulseOptim::optimize()
 {
     m_iterationCounter = 0;
-    double* ptr = &m_initialParams[0];
-    Eigen::Map<Eigen::VectorXd> initParams(ptr, m_initialParams.size());
     // Invoke the Gradient stepper to drive optimization procedure
-    m_gradStepper->optimize(this, initParams);
+    m_gradStepper->optimize(this, m_initialParams);
     
     // Return the result cache (update during optimization run)
     return m_resultCache;
 }
 
-double GOAT_PulseOptim::operator()(const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) 
+double GOAT_PulseOptim::eval(const OptimParams& in_params, std::vector<double>& out_grads) 
 {
     double fx = 0.0;
     assert(m_dHda.size() == in_params.size());
     // Set-up initial parameters
-    OptimParams params;
-    params.resize(in_params.size());
-    Eigen::VectorXd::Map(&params[0], params.size()) = in_params;
-
+    const OptimParams& params = in_params;
+  
     // Hamiltonian matrix @ t = 0; params = init
     const auto initialH = m_hamiltonian(0, params);
     // Hamiltonian must be a square matrix
@@ -141,18 +139,23 @@ double GOAT_PulseOptim::operator()(const Eigen::VectorXd& in_params, Eigen::Vect
 
     fx = evalCostFn(uMat);
     // Evaluate the gradients
-    const std::vector<double> costFnGradVals = evalCostFnGradient(duMats, params, fx);
+    out_grads = evalCostFnGradient(duMats, params, fx);
 
-    for (int i = 0; i < costFnGradVals.size(); ++i)
-    {
-        out_grads[i] = costFnGradVals[i];
-    }
+    const auto vecToString = [](const std::vector<double>& in_vec){
+        std::string result;
+        for (const auto& elem : in_vec)
+        {
+            result += (std::to_string(elem) + ", ");
+        }
+
+        return result;
+    };
 
     // SUMMARY:
     {
         std::cout << "        Iteration: " << m_iterationCounter << "\n";
-        std::cout << "Params = " << in_params << "\n";
-        std::cout << "Gradients = " << out_grads << "\n";
+        std::cout << "Params = " << vecToString(in_params) << "\n";
+        std::cout << "Gradients = " << vecToString(out_grads) << "\n";
         std::cout << "Cost Function Val = " << fx << "\n";
         std::cout << "===========================================\n";
     }
@@ -226,7 +229,7 @@ Matrix GOAT_PulseOptim::DefaultIntegrator::integrate(const Hamiltonian& in_hamil
     return result;
 }
 
-void GOAT_PulseOptim::DefaultGradientStepper::optimize(IOptimizationFunction* io_problem, const Eigen::VectorXd& in_initialParams) 
+void GOAT_PulseOptim::DefaultGradientStepper::optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) 
 {
     // Set up parameters
     // TODO: enable customization via Heterogenous map
@@ -241,7 +244,24 @@ void GOAT_PulseOptim::DefaultGradientStepper::optimize(IOptimizationFunction* io
     LBFGSpp::LBFGSSolver<double> solver(param);
     
     double fx = 0.0;
-    Eigen::VectorXd x = in_initialParams;
-    solver.minimize(*io_problem, x, fx);
+    Eigen::VectorXd x = Eigen::VectorXd::Map(in_initialParams.data(), in_initialParams.size());
+    
+    // This LBFGSpp uses Eigen Vectors as params, hence we just need to convert b/w Eigen and std vectors.
+    const auto optimProb = [&io_problem](const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) -> double {
+        OptimParams params;
+        params.resize(in_params.size());
+        Eigen::VectorXd::Map(&params[0], params.size()) = in_params;
+
+        std::vector<double> grads(params.size(), 0.0);
+        const auto result = (*io_problem)(params, grads);
+        for (int i = 0; i < grads.size(); ++i)
+        {
+            out_grads[i] = grads[i];
+        }
+
+        return result;
+    };
+
+    solver.minimize(optimProb, x, fx);
 }
     

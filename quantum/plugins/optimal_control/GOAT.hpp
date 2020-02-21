@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include <Eigen/Dense>
-#include "LBFGS.h"
+#include "xacc.hpp"
 
 // Proof-of-concept implemenation of the Quantum Optimization of Analytic conTrols (GOAT) algorithm.
 // The GOAT algorithm required:
@@ -33,19 +33,14 @@ struct IIntegrator
     virtual Matrix integrate(const Hamiltonian& in_hamiltonian, const dHdalpha& in_dHda, const OptimParams& in_params, double in_stopTime) = 0;
 };
 
-struct IOptimizationFunction
-{
-    virtual double operator()(const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) = 0;
-};
-
 // Abstract gradient-based step search (e.g. BFGS)
 struct IGradientStepper
 {
-    virtual void optimize(IOptimizationFunction* io_problem, const Eigen::VectorXd& in_initialParams) = 0;
+    virtual void optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) = 0;
 };
 
 // GOAT optimal control:
-class GOAT_PulseOptim: public IOptimizationFunction
+class GOAT_PulseOptim: public xacc::OptFunction
 {
 public:
     struct DefaultIntegrator : public IIntegrator
@@ -59,7 +54,7 @@ public:
 
     struct DefaultGradientStepper : public IGradientStepper
     {
-        virtual void optimize(IOptimizationFunction* io_problem, const Eigen::VectorXd& in_initialParams) override;
+        virtual void optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) override;
     };
     
     struct OptimizationResult 
@@ -77,7 +72,7 @@ public:
     OptimizationResult optimize();
     
     // Entry point for the gradient stepper to call
-    virtual double operator()(const Eigen::VectorXd& in_params, Eigen::VectorXd& out_grads) override;
+    double eval(const OptimParams& in_params, std::vector<double>& out_grads); 
 
 private:
     const Matrix& m_targetU;
