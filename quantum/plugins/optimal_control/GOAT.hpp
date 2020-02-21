@@ -3,6 +3,11 @@
 #include <memory>
 #include <Eigen/Dense>
 #include "xacc.hpp"
+#include "exprtk.hpp"
+
+using symbol_table_t = exprtk::symbol_table<double>;
+using expression_t = exprtk::expression<double>;
+using parser_t = exprtk::parser<double>;
 
 // Proof-of-concept implemenation of the Quantum Optimization of Analytic conTrols (GOAT) algorithm.
 // The GOAT algorithm required:
@@ -37,6 +42,28 @@ struct IIntegrator
 struct IGradientStepper
 {
     virtual void optimize(xacc::OptFunction* io_problem, const OptimParams& in_initialParams) = 0;
+};
+
+struct GoatHamiltonian
+{
+    Hamiltonian hamiltonian;
+    dHdalpha dHda;
+    int dimension;
+    std::vector<std::pair<std::string, Matrix>> hamOps;
+    std::vector<std::string> params;
+    void construct(int in_dimension, const std::string& in_H0, const std::vector<std::string>& in_Hi, const std::vector<std::string>& in_fi, const std::vector<std::string>& in_params);
+private:
+    // Cache of the symbol table that are used by the expressions.
+    // These symbols are linked to m_paramVals and m_time.
+    // Hence, must update those values before evaluating the expressions.
+    // Note: compiling these expressions takes a long time, hence, we don't want to repeat it.
+    symbol_table_t m_symbolTable;
+    parser_t m_parser;
+    std::vector<double> m_paramVals;
+    double m_time;
+    // Compiled expressions
+    std::vector<expression_t> m_exprs;
+    Matrix m_h0;
 };
 
 // GOAT optimal control:
@@ -76,11 +103,13 @@ public:
     std::unique_ptr<IIntegrator>&& io_integrator = nullptr, std::unique_ptr<IGradientStepper>&& io_gradStepper = nullptr);
     OptimizationResult optimize();
     
+    static Matrix constructMatrixFromPauliString(const std::string& in_pauliString, int in_dimension);
+    
     // Entry point for the gradient stepper to call
     double eval(const OptimParams& in_params, std::vector<double>& out_grads); 
 
 private:
-    const Matrix& m_targetU;
+    Matrix m_targetU;
     const Hamiltonian& m_hamiltonian;
     const dHdalpha& m_dHda;
     std::unique_ptr<IIntegrator> m_integrator;
