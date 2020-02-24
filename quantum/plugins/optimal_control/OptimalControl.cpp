@@ -170,14 +170,23 @@ void ControlOptimizer::setOptions(const HeterogeneousMap& in_options)
     {
         xacc::error("Invalid optimizer.");
     }
-
+    
+    std::unique_ptr<IGradientStepper> gradientOptimizer = [](const std::string& in_optimizerName) -> std::unique_ptr<IGradientStepper> {
+        if (in_optimizerName == "ml-pack") 
+        {
+            return std::make_unique<GOAT_PulseOptim::MLPackGradientStepper>();
+        }
+        
+        return std::make_unique<GOAT_PulseOptim::DefaultGradientStepper>();
+    }(optimizer);
+   
     // We have a valid set of paramters here.
     m_hamiltonian = std::make_unique<GoatHamiltonian>();
     m_hamiltonian->construct(dimension, H0, controlOps, controlFuncs, controlParams);
     const std::complex<double> I(0.0, 1.0);
     const Matrix targetUmat = GOAT_PulseOptim::constructMatrixFromPauliString(targetU, dimension) * (-I);
     // All parameters have been validated: construct the GOAT pulse optimizer
-    m_goatOptimizer = std::make_unique<GOAT_PulseOptim>(targetUmat, m_hamiltonian->hamiltonian, m_hamiltonian->dHda, initParams, tMax);
+    m_goatOptimizer = std::make_unique<GOAT_PulseOptim>(targetUmat, m_hamiltonian->hamiltonian, m_hamiltonian->dHda, initParams, tMax, nullptr, std::move(gradientOptimizer));
     m_initialized = true;
 }
 
