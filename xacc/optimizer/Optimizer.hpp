@@ -57,9 +57,12 @@ public:
 
   virtual OptResult optimize(OptFunction &function) = 0;
 
-  static OptFunction& NOOP_FUNCTION() {
-    static OptFunction dummyOpt([](const std::vector<double>& x, std::vector<double>& dx) { return 0.0; }, 0);
-    return dummyOpt;
+  // No Opt function optimization: used by fully-customized Optimizer implementations
+  // which don't need user-supplied opt function.
+  virtual OptResult optimize() {
+    // Derived sub-classes must provide concrete impl, 
+    // otherwise, it's illegal to call optimize() w/o any OptFunction.
+    throw std::bad_function_call();
   }
 };
 } // namespace xacc

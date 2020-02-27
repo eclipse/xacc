@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "Optimizer.hpp"
+#include <Eigen/Dense>
 
 TEST(OptimalControlTester, testSimple)
 {
@@ -20,15 +21,51 @@ TEST(OptimalControlTester, testSimple)
         // The list of Hamiltonian terms that are modulated by the control functions
         std::make_pair("control-H", std::vector<std::string> { "X0" }),
         // Initial params
-        std::make_pair("init-params", initParams),
+        std::make_pair("initial-parameters", initParams),
         std::make_pair("max-time", tMax)
     };
     
-    auto optimizer = xacc::getOptimizer("optimal", configs);
-    const auto result = optimizer->optimize(xacc::Optimizer::NOOP_FUNCTION());
+    auto optimizer = xacc::getOptimizer("quantum-control", configs);
+    const auto result = optimizer->optimize();
     // Optimal param ~ 19.9, cost function value -> 0.0
     EXPECT_EQ(result.second.size(), 1);
     EXPECT_NEAR(result.second[0],  19.9, 0.1);
+    EXPECT_NEAR(result.first,  0.0, 0.01);
+}
+
+TEST(OptimalControlTester, testTargetUMatrixInput)
+{
+    const std::vector<double> initParams { 4.0 };
+    const double tMax = 100;
+    const int dimension = 1;
+    // Complex elements of the sqrt(X) unitary matrix (1/2 * (1 +/- i))
+    const std::complex<double> c1{0.5, 0.5};
+    const std::complex<double> c2{0.5, -0.5};
+    // Target Unitary: sqrt(X)
+    Eigen::MatrixXcd sqrtX{ Eigen::MatrixXcd::Zero(2, 2) };
+    sqrtX << c1, c2, c2, c1;
+    
+    // GOAT pulse optimization configs:
+    xacc::HeterogeneousMap configs {
+        std::make_pair("method", "GOAT"),
+        std::make_pair("dimension", dimension),
+        // Target unitary: passing an Eigen matrix as input parameter
+        std::make_pair("target-U", sqrtX),
+        // Control parameter (used in the control function)
+        std::make_pair("control-params", std::vector<std::string> { "sigma" }),
+        std::make_pair("control-funcs", std::vector<std::string> { "0.062831853*exp(-t^2/(2*sigma^2))" }),
+        // The list of Hamiltonian terms that are modulated by the control functions
+        std::make_pair("control-H", std::vector<std::string> { "X0" }),
+        // Initial params
+        std::make_pair("initial-parameters", initParams),
+        std::make_pair("max-time", tMax)
+    };
+    
+    auto optimizer = xacc::getOptimizer("quantum-control", configs);
+    const auto result = optimizer->optimize();
+    // Optimal param ~ 10.0 (half that of the full X gate), cost function value -> 0.0
+    EXPECT_EQ(result.second.size(), 1);
+    EXPECT_NEAR(result.second[0],  10.0, 0.5);
     EXPECT_NEAR(result.first,  0.0, 0.01);
 }
 
@@ -52,12 +89,12 @@ TEST(OptimalControlTester, testMultipleParams)
         // The list of Hamiltonian terms that are modulated by the control functions
         std::make_pair("control-H", std::vector<std::string> { "X0" }),
         // Initial params
-        std::make_pair("init-params", initParams),
+        std::make_pair("initial-parameters", initParams),
         std::make_pair("max-time", tMax)
     };
     
-    auto optimizer = xacc::getOptimizer("optimal", configs);
-    const auto result = optimizer->optimize(xacc::Optimizer::NOOP_FUNCTION());
+    auto optimizer = xacc::getOptimizer("quantum-control", configs);
+    const auto result = optimizer->optimize();
     // We have optimized all the params
     EXPECT_EQ(result.second.size(), initParams.size());
     // Should converge to zero cost function (gate fidelity -> 1.0)

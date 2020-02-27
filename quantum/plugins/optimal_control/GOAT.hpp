@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include "xacc.hpp"
 #include "exprtk.hpp"
+#include "OptimalControl.hpp"
 
 using symbol_table_t = exprtk::symbol_table<double>;
 using expression_t = exprtk::expression<double>;
@@ -119,3 +120,18 @@ private:
     int m_iterationCounter;
     OptimizationResult m_resultCache;
 };
+
+namespace xacc {
+// Public GOAT pulse optimization interface
+class PulseOptimGOAT : public PulseOptim
+{   
+public:
+    const std::string name() const override { return "GOAT"; }
+    const std::string description() const override { return ""; }
+    bool initialize(const HeterogeneousMap& in_options) override;
+    OptResult optimize() override;
+private:
+    std::unique_ptr<GOAT_PulseOptim> m_goatOptimizer;
+    std::unique_ptr<GoatHamiltonian> m_hamiltonian;
+};
+}

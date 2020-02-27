@@ -38,12 +38,12 @@ int main(int argc, char **argv) {
         // The list of Hamiltonian terms that are modulated by the control functions
         std::make_pair("control-H", std::vector<std::string> { "Z0X1" }),
         // Initial params
-        std::make_pair("init-params", initParams),
+        std::make_pair("initial-parameters", initParams),
         std::make_pair("max-time", tMax)
     };
     
-    auto optimizer = xacc::getOptimizer("optimal", configs);
-    const auto result = optimizer->optimize(xacc::Optimizer::NOOP_FUNCTION());
+    auto optimizer = xacc::getOptimizer("quantum-control", configs);
+    const auto result = optimizer->optimize();
 
     xacc::Finalize();
 
