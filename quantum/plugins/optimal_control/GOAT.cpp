@@ -446,3 +446,204 @@ void GOAT_PulseOptim::MLPackGradientStepper::optimize(xacc::OptFunction* io_prob
 
     optimizer->optimize(*io_problem);
 }
+
+namespace xacc {
+
+// ============= GOAT ==========================
+// - Required: { "dimension" : int } : system dimension (number of qubits)
+// 
+// - Required: { "target-U" : string or EigenMatrix } : 
+//   If string, represents a Pauli observable type string
+//  e.g. "X", "X1Z2", etc.
+//   If matrix, expecting a unitary matrix whose size matches the system dimension.
+//
+// - Optional: { "static-H" : string} : Pauli observable observable type string
+//  describing time-indedependent (static) Hamiltonian
+//  e.g. 5.1234 Z1Z2
+//
+// - Required: { "control-params" : vector<string> } : list of control parameters
+//  e.g. { "gamma1", "gamma2", ... }
+//
+// - Required: { "control-funcs" : vector<string> }  : control functions 
+//  e.g. { "sin(gamma1*t)", "exp(gamma2^2)", ... }
+//  We support most basic functions (ExprTk) and "t" is an implicitly known param (time)
+//
+// - Required: { "control-H" : vector<string> } : list of Hamiltonian terms corresponding to the control functions.
+//  Note: "control-H" and "control-funcs" must have the *same* number of elements
+//
+//  and "control-params" must include all possible params that may appear in those "control-funcs".
+//
+// - Required: { "initial-parameters" : vector<double> }: initial values for control parameters
+//
+// - Required: { "max-time" : double }: max control time horizon
+//
+// - Optional: { "optimizer" : string }: can be "ml-pack" or "default"
+bool PulseOptimGOAT::initialize(const HeterogeneousMap& in_options)
+{   
+    const auto fatalError = [](const std::string& in_fieldName){
+        xacc::error("Fatal: '" + in_fieldName + "' field is required.");
+        return false;
+    };
+
+    // Handle GOAT optimal control
+    int dimension = 0;
+    if (in_options.keyExists<int>("dimension")) 
+    {
+        dimension = in_options.get<int>("dimension");
+    }
+    else
+    {
+        return fatalError("dimension");
+    }
+
+    const std::complex<double> I(0.0, 1.0);
+    Matrix targetUmat;
+    // If a string type "target-U" was provided:
+    if (in_options.stringExists("target-U")) 
+    {
+        const std::string targetU = in_options.getString("target-U");
+        targetUmat = GOAT_PulseOptim::constructMatrixFromPauliString(targetU, dimension) * (-I);
+    }
+    else if (in_options.keyExists<Matrix>("target-U"))
+    {
+        targetUmat = in_options.get<Matrix>("target-U");
+        if (targetUmat.rows() != targetUmat.cols() && targetUmat.rows() != (1 << dimension))
+        {
+            xacc::error("Target unitary matrix is invalid. Please check your input!\n");
+            return false;
+        }
+    }
+    else 
+    {
+        return fatalError("target-U");
+    }
+
+    // H0 is optional
+    std::string H0;
+    if (in_options.stringExists("static-H")) 
+    {
+        H0 = in_options.getString("static-H");
+    }
+
+    std::vector<std::string> controlParams;    
+    if (in_options.keyExists<std::vector<std::string>>("control-params")) 
+    {
+        controlParams = in_options.get<std::vector<std::string>>("control-params");
+    }
+    else
+    {
+        return fatalError("control-params");
+    }
+
+    std::vector<std::string> controlFuncs;    
+    if (in_options.keyExists<std::vector<std::string>>("control-funcs")) 
+    {
+        controlFuncs = in_options.get<std::vector<std::string>>("control-funcs");
+    }
+    else
+    {
+        return fatalError("control-funcs");
+    }
+
+    std::vector<std::string> controlOps;    
+    if (in_options.keyExists<std::vector<std::string>>("control-H")) 
+    {
+        controlOps = in_options.get<std::vector<std::string>>("control-H");
+    }
+    else
+    {
+        return fatalError("control-H");
+    }
+
+
+    std::vector<double> initParams;    
+    if (in_options.keyExists<std::vector<double>>("initial-parameters")) 
+    {
+        initParams = in_options.get<std::vector<double>>("initial-parameters");
+    }
+    else
+    {
+        return fatalError("initial-parameters");
+    }
+
+    double tMax = 0.0;
+    if (in_options.keyExists<double>("max-time")) 
+    {
+        tMax = in_options.get<double>("max-time");
+    }
+    else
+    {
+        return fatalError("max-time");
+    }
+
+    std::string optimizer;
+    if (in_options.stringExists("optimizer")) 
+    {
+        optimizer = in_options.getString("optimizer");
+    }
+
+    if (dimension < 1 || dimension > 10)
+    {
+        xacc::error("Invalid system dimension.");
+        return false;
+    }
+
+    if (controlFuncs.size() != controlOps.size())
+    {
+        xacc::error("The number of control functions must match the number of time-dependent Hamiltonian terms.");
+        return false;
+    }
+
+    if (controlFuncs.empty())
+    {
+        xacc::error("No control terms were specified.");
+        return false;
+    }
+
+    if (initParams.size() != controlParams.size())
+    {
+        xacc::error("The number of initial values must match the number control parameters.");
+        return false;
+    }
+
+    if (initParams.empty())
+    {
+        xacc::error("No control parameters were specified.");
+        return false;
+    }
+
+    if (tMax < 0.0)
+    {
+        xacc::error("Invalid max time parameter.");
+        return false;
+    }
+
+    if (!optimizer.empty() && optimizer != "default" && optimizer != "ml-pack")
+    {
+        xacc::error("Invalid optimizer.");
+        return false;
+    }
+    
+    std::unique_ptr<IGradientStepper> gradientOptimizer = [](const std::string& in_optimizerName) -> std::unique_ptr<IGradientStepper> {
+        if (in_optimizerName == "ml-pack") 
+        {
+            return std::make_unique<GOAT_PulseOptim::MLPackGradientStepper>();
+        }
+        
+        return std::make_unique<GOAT_PulseOptim::DefaultGradientStepper>();
+    }(optimizer);
+
+    // We have a valid set of paramters here.
+    m_hamiltonian = std::make_unique<GoatHamiltonian>();
+    m_hamiltonian->construct(dimension, H0, controlOps, controlFuncs, controlParams);
+    // All parameters have been validated: construct the GOAT pulse optimizer
+    m_goatOptimizer = std::make_unique<GOAT_PulseOptim>(targetUmat, m_hamiltonian->hamiltonian, m_hamiltonian->dHda, initParams, tMax, nullptr, std::move(gradientOptimizer));
+    return true;
+}
+
+OptResult PulseOptimGOAT::optimize() 
+{
+    const auto result = m_goatOptimizer->optimize();
+    return std::make_pair(result.finalCost, result.optParams);
+}
+}

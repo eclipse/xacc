@@ -15,6 +15,7 @@
 #include "cppmicroservices/ServiceProperties.h"
 #include <memory>
 #include "OptimalControl.hpp"
+#include "GOAT.hpp"
 
 using namespace cppmicroservices;
 
@@ -28,6 +29,8 @@ public:
   void Start(BundleContext context) 
   {
     context.RegisterService<xacc::Optimizer>(std::make_shared<xacc::ControlOptimizer>());
+    // Register the GOAT pulse optimization
+    context.RegisterService<xacc::PulseOptim>(std::make_shared<xacc::PulseOptimGOAT>());
   }
 
   void Stop(BundleContext /*context*/) {}
