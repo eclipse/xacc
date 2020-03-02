@@ -21,6 +21,8 @@
 #include <memory>
 #include <regex>
 
+#include <Eigen/Dense>
+
 using namespace xacc;
 using namespace xacc::quantum;
 
@@ -61,6 +63,8 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
   double pi = xacc::constants::pi;
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   addVariable(paramLetter);
+  std::string xasm_src = "";
+
   for (auto inst : terms) {
 
     Term spinInst = inst.second;
@@ -76,84 +80,77 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     }
     // The largest qubit index is on the last term
     int largestQbitIdx = terms[terms.size() - 1].first;
-    auto tempFunction = gateRegistry->createComposite("temp", {paramLetter});
 
-    for (int i = 0; i < terms.size(); i++) {
+    std::vector<std::size_t> qidxs;
+    std::stringstream basis_front, basis_back;
 
-      std::size_t qbitIdx = terms[i].first;
-      auto gateName = terms[i].second;
+    for (auto &term : terms) {
 
-      if (i < terms.size() - 1) {
-        std::size_t tmp = terms[i + 1].first;
-        auto cnot = gateRegistry->createInstruction(
-            "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
-        tempFunction->addInstruction(cnot);
-      }
+      auto qid = term.first;
+      auto pop = term.second;
 
-      if (gateName == "X") {
-        auto hadamard = gateRegistry->createInstruction(
-            "H", std::vector<std::size_t>{qbitIdx});
-        tempFunction->insertInstruction(0, hadamard);
-      } else if (gateName == "Y") {
-        auto rx = gateRegistry->createInstruction(
-            "Rx", std::vector<std::size_t>{qbitIdx});
-        InstructionParameter p(pi / 2.0);
-        rx->setParameter(0, p);
-        tempFunction->insertInstruction(0, rx);
-      }
+      qidxs.push_back(qid);
 
-      // Add the Rotation for the last term
-      if (i == terms.size() - 1) {
-        // FIXME DONT FORGET DIVIDE BY 2
-        std::stringstream ss;
-        if (pauli_or_fermion == "pauli") {
-          ss << std::to_string(std::real(spinInst.coeff())) << " * "
-             << paramLetter;
-        } else {
-          ss << std::to_string(std::imag(spinInst.coeff())) << " * "
-             << paramLetter;
-        }
-        auto rz = gateRegistry->createInstruction(
-            "Rz", std::vector<std::size_t>{qbitIdx});
+      if (pop == "X") {
 
-        InstructionParameter p(ss.str());
-        rz->setParameter(0, p);
-        tempFunction->addInstruction(rz);
+        basis_front << "H(q[" << qid << "]);\n";
+        basis_back << "H(q[" << qid << "]);\n";
+
+      } else if (pop == "Y") {
+        basis_front << "Rx(q[" << qid << "], " << 1.57079362679 << ");\n";
+        basis_back << "Rx(q[" << qid << "], " << -1.57079362679 << ");\n";
       }
     }
 
-    int counter = tempFunction->nInstructions();
-    // Add the instruction on the backend of the circuit
-    for (int i = terms.size() - 1; i >= 0; i--) {
+    // std::cout << "QIDS:  " << qidxs << "\n";
 
-      std::size_t qbitIdx = terms[i].first;
-      auto gateName = terms[i].second;
-
-      if (i < terms.size() - 1) {
-        std::size_t tmp = terms[i + 1].first;
-        auto cnot = gateRegistry->createInstruction(
-            "CNOT", std::vector<std::size_t>{qbitIdx, tmp});
-        tempFunction->insertInstruction(counter, cnot);
-        counter++;
-      }
-
-      if (gateName == "X") {
-        auto hadamard = gateRegistry->createInstruction(
-            "H", std::vector<std::size_t>{qbitIdx});
-        tempFunction->addInstruction(hadamard);
-      } else if (gateName == "Y") {
-        auto rx = gateRegistry->createInstruction(
-            "Rx", std::vector<std::size_t>{qbitIdx});
-        InstructionParameter p(-1.0 * (pi / 2.0));
-        rx->setParameter(0, p);
-        tempFunction->addInstruction(rx);
-      }
+    Eigen::MatrixXi cnot_pairs(2, qidxs.size() - 1);
+    for (int i = 0; i < qidxs.size() - 1; i++) {
+      cnot_pairs(0, i) = qidxs[i];
     }
-    // Add to the total UCCSD State Prep function
-    for (auto inst : tempFunction->getInstructions()) {
-      addInstruction(inst);
+    for (int i = 0; i < qidxs.size() - 1; i++) {
+      cnot_pairs(1, i) = qidxs[i + 1];
     }
+
+    // std::cout << "HOWDY: \n" << cnot_pairs << "\n";
+    std::stringstream cnot_front, cnot_back;
+    for (int i = 0; i < qidxs.size() - 1; i++) {
+      Eigen::VectorXi pairs = cnot_pairs.col(i);
+      auto c = pairs(0);
+      auto t = pairs(1);
+      cnot_front << "CNOT(q[" << c << "], q[" << t << "]);\n";
+    }
+
+    for (int i = qidxs.size() - 2; i >= 0; i--) {
+      Eigen::VectorXi pairs = cnot_pairs.col(i);
+      auto c = pairs(0);
+      auto t = pairs(1);
+      cnot_back << "CNOT(q[" << c << "], q[" << t << "]);\n";
+    }
+
+    xasm_src = xasm_src + "\n" + basis_front.str() + cnot_front.str();
+
+    xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
+               "], " + std::to_string(std::real(spinInst.coeff())) + " * " +
+               paramLetter + ");\n";
+
+    xasm_src = xasm_src + cnot_back.str() + basis_back.str();
   }
+
+  int name_counter = 1;
+  std::string name = "exp_tmp";
+  while (xacc::hasCompiled(name)) {
+      name += std::to_string(name_counter);
+  }
+
+  xasm_src = "__qpu__ void "+name+"(qbit q, double " + paramLetter + ") {\n" +
+             xasm_src + "}";
+
+  auto xasm = xacc::getCompiler("xasm");
+  auto tmp = xasm->compile(xasm_src)->getComposites()[0];
+
+  for (auto inst : tmp->getInstructions())
+    addInstruction(inst);
 
   return true;
 } // namespace instructions
