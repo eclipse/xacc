@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_optimal_control",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Quantum Optimal Control",
+  "bundle.description" : ""
+}
