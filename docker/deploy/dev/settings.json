@@ -1,0 +1,14 @@
+{
+    "cpp.clangTidy": true,
+    "cpp.buildConfigurations": [
+      {
+         "name": "xacc",
+         "directory": "/home/dev/xacc/build"
+      },
+      {
+         "name": "tnqvm",
+         "directory": "/home/dev/tnqvm/build"
+      }
+   ],
+   "editor.autoSave": "on"
+}
