@@ -1,18 +1,44 @@
 FROM ubuntu:18.04
-
 ENV DEBIAN_FRONTEND noninteractive
+ARG GITHUB_TOKEN
+ARG NODE_VERSION=10.15.3
+ENV NODE_VERSION $NODE_VERSION
+ENV YARN_VERSION 1.13.0
+
+# use "latest" or "next" version for Theia packages
+ARG version=latest
+
+# Optionally build a striped Theia application with no map file or .ts sources.
+# Makes image ~150MB smaller when enabled
+ARG strip=false
+ENV strip=$strip
+
+WORKDIR /home/dev
+ADD settings.json /home/dev/.theia/
 
 #Common deps
-RUN apt-get update && apt-get -y install curl xz-utils wget gpg gcc g++ \
-          git wget libcurl4-openssl-dev libssl-dev python3 libpython3-dev \
-          python3-pip libblas-dev liblapack-dev software-properties-common \
-          && python3 -m pip install --upgrade pip && python3 -m pip install ipopo cmake
+RUN apt-get update && \
+    apt-get --no-install-recommends -y install build-essential \
+                       curl \
+                       git \
+                       gpg \
+                       python python3 \
+                       libpython3-dev \
+                       python3-pip \
+                       libblas-dev liblapack-dev \
+                       libcurl4-openssl-dev libssl-dev \
+                       vim gcc g++ gfortran \
+                       wget \
+                       xz-utils && python3 -m pip install --upgrade pip --user \
+                       && python3 -m pip install python-language-server flake8 autopep8 \
+                                cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq \
+    && rm -rf /var/lib/apt/lists/* \
 
 #Install node and yarn
 #From: https://github.com/nodejs/docker-node/blob/6b8d86d6ad59e0d1e7a94cec2e909cad137a028f/8/Dockerfile
 
 # gpg keys listed at https://github.com/nodejs/node#release-keys
-RUN set -ex \
+    && set -ex \
     && for key in \
     4ED778F539E3634C779C87C6D7062848A1AB005C \
     B9E2F5981AA6E0CD28160D9FF13993A75599653C \
@@ -31,12 +57,9 @@ RUN set -ex \
     gpg --batch --keyserver pgp.mit.edu --recv-keys "$key" || \
     gpg --batch --keyserver keyserver.pgp.com --recv-keys "$key" || \
     gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" ; \
-    done
+    done \
 
-ARG NODE_VERSION=10.15.3
-ENV NODE_VERSION $NODE_VERSION
-
-RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
     amd64) ARCH='x64';; \
     ppc64el) ARCH='ppc64le';; \
@@ -52,11 +75,10 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
     && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
 
-ENV YARN_VERSION 1.13.0
 
-RUN set -ex \
+    && set -ex \
     && for key in \
     6A010C5166006599AA17F08146C2130DFD2497F5 \
     ; do \
@@ -73,73 +95,56 @@ RUN set -ex \
     && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/yarn --strip-components=1 \
     && ln -s /opt/yarn/bin/yarn /usr/local/bin/yarn \
     && ln -s /opt/yarn/bin/yarn /usr/local/bin/yarnpkg \
-    && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz
+    && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
 
-#Developer tools
+#C/C++ Developer tools
 
-## Git and sudo (sudo needed for user override)
-RUN apt-get -y install git sudo
-
-#LSPs
-
-
-#Java
-#RUN apt-get update && apt-get -y install openjdk-8-jdk maven gradle
-
-
-#C/C++
-# public LLVM PPA, development version of LLVM
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+# install clangd and clang-tidy from the public LLVM PPA (nightly build / development version)
+# and also the GDB debugger, cmake from the Ubuntu repos
+    && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" > /etc/apt/sources.list.d/llvm.list && \
-    apt-get update && apt-get install -y clang-tools-11 clangd-11 clang-tidy-11 && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y \
+                       clang-tools-11 \
+                       clangd-11 \
+                       clang-tidy-11 \
+                       gdb && \
     ln -s /usr/bin/clangd-11 /usr/bin/clangd && \
-    ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
-
-#Python 2-3
-RUN apt-get update \
-    && apt-get install -y python python-pip \
-    && apt-get install -y python3-dev python3-pip \
-    && pip install --upgrade pip --user \
-    && pip3 install --upgrade pip --user \
-    && pip install python-language-server flake8 autopep8 ;
+    ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy && \
+    rm -rf /var/lib/apt/lists/* \
 
 
-#Theia
-##Needed for node-gyp, nsfw build
-RUN apt-get update && apt-get install -y python build-essential gfortran
-
-WORKDIR /home/dev
-
-# xacc
 run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j18 install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j18 install
 
+## User account
+#RUN adduser --disabled-password --gecos '' theia
 
-ARG version=latest
+#RUN chmod g+rw /home && \
+#    mkdir -p /home/project && \
+#    chown -R theia:theia /home/theia && \
+#    chown -R theia:theia /home/project;
 
-ADD $version.package.json /home/dev/package.json
-ARG GITHUB_TOKEN
-# using "NODE_OPTIONS=..." to avoid out-of-memory problem in CI
+# Theia application
+
+#USER theia
+#WORKDIR /home/theia
+ADD $version.package.json ./package.json
+run apt-get update -y && apt-get install -y python
+
 RUN yarn --cache-folder ./ycache && rm -rf ./ycache && \
     NODE_OPTIONS="--max_old_space_size=4096" yarn theia build ;\
     yarn theia download:plugins
 EXPOSE 3000
-ENV SHELL=/bin/bash
-#    THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
+#ENV SHELL=/bin/bash
 
-# ENV GOPATH=/home/project
-# ENV PATH=$PATH:$GOPATH/bin
-ENV LC_ALL=C.UTF-8
-ENV LANG=C.UTF-8
 
-run python3 -m pip install pint numpy scipy pydantic qiskit
-#git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
-#   && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
-#   && make -j18 install
 
+#EXPOSE 3000
+ENV SHELL=/bin/bash \
+    THEIA_DEFAULT_PLUGINS=local-dir:/home/dev/plugins
 ENV PYTHONPATH "${PYTHONPATH}:/root/.xacc"
-
 ENTRYPOINT [ "yarn", "theia", "start", "/home/dev", "--hostname=0.0.0.0" ]
