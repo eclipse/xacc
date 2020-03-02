@@ -143,7 +143,7 @@ class RBMClassification(xacc.Algorithm):
 
         n_steps_past = steps_per_epoch*n_epochs_past
         if n_steps_past < prev_last_step:
-            checkpoint.restore(f'{checkpoint_prefix}-{n_steps_past}')
+            checkpoint.restore('{}'.format(checkpoint_prefix-n_steps_past))
         print('Starting from checkpoint {}.'.format(n_steps_past))
 
         dataset, n_evts = make_dataset_train(
@@ -178,9 +178,9 @@ class RBMClassification(xacc.Algorithm):
                     dataexp_h, modexp_h
                 )
                 if i % 10 == 0:
-                    LOGGER.debug(f'weight updates: {W_delta}')
-                    LOGGER.debug(f'visible bias updates: {bv_delta}')
-                    LOGGER.debug(f'hidden bias updates: {bh_delta}')
+                    LOGGER.debug('weight updates: {}'.format(W_delta))
+                    LOGGER.debug('visible bias updates: {}'.format(bv_delta))
+                    LOGGER.debug('hidden bias updates: {}'.format(bh_delta))
 
                 W.assign((1 - l2reg) * W + lr * W_delta)
                 bv.assign((1 - l2reg) * bv + lr * bv_delta)
