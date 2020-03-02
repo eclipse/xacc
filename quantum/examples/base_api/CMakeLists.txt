@@ -27,3 +27,6 @@ target_link_libraries(circuit_optimization PRIVATE xacc)
 
 add_executable(circuit_with_classical_control circuit_with_classical_control.cpp)
 target_link_libraries(circuit_with_classical_control PRIVATE xacc)
+
+add_executable(optimal_control_goat optimal_control_goat.cpp)
+target_link_libraries(optimal_control_goat PRIVATE xacc)

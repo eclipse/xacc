@@ -56,6 +56,14 @@ public:
   virtual void setOptions(const HeterogeneousMap &opts) { options = opts; }
 
   virtual OptResult optimize(OptFunction &function) = 0;
+
+  // No Opt function optimization: used by fully-customized Optimizer implementations
+  // which don't need user-supplied opt function.
+  virtual OptResult optimize() {
+    // Derived sub-classes must provide concrete impl, 
+    // otherwise, it's illegal to call optimize() w/o any OptFunction.
+    throw std::bad_function_call();
+  }
 };
 } // namespace xacc
 #endif

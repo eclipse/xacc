@@ -87,6 +87,11 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "l-bfgs") {
     L_BFGS lbfgs;
+    if (options.keyExists<double>("bfgs-min-step")) {
+      // Set min step param if specified
+      const double minStep = options.get<double>("bfgs-min-step");
+      lbfgs.MinStep() = minStep;
+    }
     results = lbfgs.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "adagrad") {
     AdaGrad optimizer(stepSize, 1, eps, maxiter, tol, false, false);
