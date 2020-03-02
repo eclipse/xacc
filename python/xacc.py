@@ -302,24 +302,30 @@ class PyServiceRegistry(object):
         for servType in serviceList:
             self.get_algorithm_services(servType)
 
-        for accName, acc in self.registry['accelerator'].items():
-            debug("[xacc-py] Contributing "+accName+" Accelerator")
-            contributeService(accName, acc)
-        for irtName, irt in self.registry['irtransformation'].items():
-            debug("[xacc-py] Contributing "+irtName+" IRTransformation")
-            contributeService(irtName, irt)
-        for obsName, obs in self.registry['observable'].items():
-            debug("[xacc-py] Contributing "+obsName+" Observable")
-            contributeService(obsName, obs)
-        for optName, opt in self.registry['optimizer'].items():
-            debug("[xacc-py] Contributing "+optName+" Optimizer")
-            contributeService(optName, opt)
-        for cName, c in self.registry['compiler'].items():
-            debug("[xacc-py] Contributing "+cName+" Compiler")
-            contributeService(cName, c)
-        for aName, a in self.registry['algorithm'].items():
-            debug("[xacc-py] Contributing "+aName+" Algorithm")
-            contributeService(aName, a)
+        if 'accelerator' in self.registry:
+            for accName, acc in self.registry['accelerator'].items():
+                debug("[xacc-py] Contributing "+accName+" Accelerator")
+                contributeService(accName, acc)
+        if 'irtransformation' in self.registry:
+            for irtName, irt in self.registry['irtransformation'].items():
+                debug("[xacc-py] Contributing "+irtName+" IRTransformation")
+                contributeService(irtName, irt)
+        if 'observable' in self.registry:
+            for obsName, obs in self.registry['observable'].items():
+                debug("[xacc-py] Contributing "+obsName+" Observable")
+                contributeService(obsName, obs)
+        if 'optimizer' in self.registry:
+            for optName, opt in self.registry['optimizer'].items():
+                debug("[xacc-py] Contributing "+optName+" Optimizer")
+                contributeService(optName, opt)
+        if 'compiler' in self.registry:
+            for cName, c in self.registry['compiler'].items():
+                debug("[xacc-py] Contributing "+cName+" Compiler")
+                contributeService(cName, c)
+        if 'algorithm' in self.registry:
+            for aName, a in self.registry['algorithm'].items():
+                debug("[xacc-py] Contributing "+aName+" Algorithm")
+                contributeService(aName, a)
 
     def get_algorithm_services(self, serviceType):
         tmp = self.context.get_all_service_references(serviceType)
@@ -379,7 +385,7 @@ def benchmark(xacc_settings):
         exit(1)
 
     inputfile = xacc_settings['input-file-name'] if 'input-file-name' in xacc_settings else None
-    
+
     starttime = time.time()
     buffer = _benchmark.execute(xacc_settings)
     elapsedtime = time.time() - starttime

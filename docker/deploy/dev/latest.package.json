@@ -1,0 +1,69 @@
+{
+  "private": true,
+  "theia": {
+    "frontend": {
+      "config": {
+        "applicationName": "XACC IDE",
+        "preferences": {
+          "files.enableTrash": false
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@theia/callhierarchy": "latest",
+    "@theia/core": "latest",
+    "@theia/cpp": "latest",
+    "@theia/debug": "latest",
+    "@theia/debug-nodejs": "latest",
+    "@theia/editor": "latest",
+    "@theia/editorconfig": "latest",
+    "@theia/file-search": "latest",
+    "@theia/filesystem": "latest",
+    "@theia/git": "latest",
+    "@theia/json": "latest",
+    "@theia/keymaps": "latest",
+    "@theia/languages": "latest",
+    "@theia/markers": "latest",
+    "@theia/merge-conflicts": "latest",
+    "@theia/messages": "latest",
+    "@theia/metrics": "latest",
+    "@theia/mini-browser": "latest",
+    "@theia/monaco": "latest",
+    "@theia/navigator": "latest",
+    "@theia/outline-view": "latest",
+    "@theia/output": "latest",
+    "@theia/plantuml": "latest",
+    "@theia/plugin": "latest",
+    "@theia/plugin-ext": "latest",
+    "@theia/plugin-ext-vscode": "latest",
+    "@theia/preferences": "latest",
+    "@theia/preview": "latest",
+    "@theia/process": "latest",
+    "@theia/python": "latest",
+    "@theia/search-in-workspace": "latest",
+    "@theia/task": "latest",
+    "@theia/terminal": "latest",
+    "@theia/textmate-grammars": "latest",
+    "@theia/tslint": "latest",
+    "@theia/typescript": "latest",
+    "@theia/userstorage": "latest",
+    "@theia/variable-resolver": "latest",
+    "@theia/workspace": "latest",
+    "nsfw": "^1.2.5",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@theia/cli": "latest"
+  },
+  "name": "dev",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

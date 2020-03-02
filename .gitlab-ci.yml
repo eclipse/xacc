@@ -1,6 +1,6 @@
 stages:
   - build
-  - integration
+  - deploy
 
 docker build_devel:
   stage: build
@@ -19,11 +19,13 @@ docker build_master:
   - master
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
+  #- cd docker/ci/ubuntu1804/integration_tests && cp $HOME/.ibm_config . && docker build -t xacc/int_tests . --no-cache
 
-docker run_integration_tests:
-  stage: integration
+docker run_docker_deploy:
+  stage: deploy
   only:
    - schedules
   script:
-  - echo $HOME && echo $PWD
-  - cd docker/ci/ubuntu1804/integration_tests && cp $HOME/.ibm_config . && docker build -t xacc/int_tests . --no-cache
+  - cd docker/deploy/dev && docker build -t xacc/xacc . --no-cache
+  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
+  - docker push xacc/xacc
