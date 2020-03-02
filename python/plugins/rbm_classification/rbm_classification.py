@@ -138,13 +138,13 @@ class RBMClassification(xacc.Algorithm):
         # TODO: make this give right result if batch size does not divide n_train
         n_epochs_past = int(prev_last_step/steps_per_epoch)
         if num_epochs <= n_epochs_past:
-            raise ValueError(f'You specified {num_epochs} epochs, but the model has already trained for {n_epochs_past}.')
+            raise ValueError('You specified {} epochs, but the model has already trained for {}.'.format(num_epochs, n_epochs_past))
         num_epochs = num_epochs - n_epochs_past
 
         n_steps_past = steps_per_epoch*n_epochs_past
         if n_steps_past < prev_last_step:
             checkpoint.restore(f'{checkpoint_prefix}-{n_steps_past}')
-        print(f'Starting from checkpoint {n_steps_past}.')
+        print('Starting from checkpoint {}.'.format(n_steps_past))
 
         dataset, n_evts = make_dataset_train(
             train_file, num_epochs, batch_size, True, n_visible, n_images=num_images
