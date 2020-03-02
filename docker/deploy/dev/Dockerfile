@@ -21,7 +21,6 @@ RUN apt-get update && \
     apt-get --no-install-recommends -y install build-essential \
                        curl \
                        git \
-                       gpg \
                        python python3 \
                        libpython3-dev \
                        python3-pip \
@@ -30,14 +29,15 @@ RUN apt-get update && \
                        vim gcc g++ gfortran \
                        wget \
                        xz-utils && python3 -m pip install --upgrade pip --user \
+                       && python3 -m pip install setuptools \
                        && python3 -m pip install python-language-server flake8 autopep8 \
                                 cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq \
-    && rm -rf /var/lib/apt/lists/* \
+    && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
 
 #Install node and yarn
 #From: https://github.com/nodejs/docker-node/blob/6b8d86d6ad59e0d1e7a94cec2e909cad137a028f/8/Dockerfile
-
 # gpg keys listed at https://github.com/nodejs/node#release-keys
+
     && set -ex \
     && for key in \
     4ED778F539E3634C779C87C6D7062848A1AB005C \
@@ -98,9 +98,9 @@ RUN apt-get update && \
     && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
 
 #C/C++ Developer tools
-
 # install clangd and clang-tidy from the public LLVM PPA (nightly build / development version)
 # and also the GDB debugger, cmake from the Ubuntu repos
+
     && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
@@ -114,36 +114,20 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* \
 
 
-run git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+    && cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j18 install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j18 install
 
-## User account
-#RUN adduser --disabled-password --gecos '' theia
-
-#RUN chmod g+rw /home && \
-#    mkdir -p /home/project && \
-#    chown -R theia:theia /home/theia && \
-#    chown -R theia:theia /home/project;
-
 # Theia application
 
-#USER theia
-#WORKDIR /home/theia
 ADD $version.package.json ./package.json
-run apt-get update -y && apt-get install -y python
 
 RUN yarn --cache-folder ./ycache && rm -rf ./ycache && \
     NODE_OPTIONS="--max_old_space_size=4096" yarn theia build ;\
     yarn theia download:plugins
 EXPOSE 3000
-#ENV SHELL=/bin/bash
-
-
-
-#EXPOSE 3000
 ENV SHELL=/bin/bash \
     THEIA_DEFAULT_PLUGINS=local-dir:/home/dev/plugins
 ENV PYTHONPATH "${PYTHONPATH}:/root/.xacc"
