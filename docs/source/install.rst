@@ -10,9 +10,11 @@ headers and libraries.
 Quick-Start with Docker
 -----------------------
 To get up and running quickly and avoid installing the prerequisites you can
-pull the ``xacc/dev`` Docker image (see `here <https://xacc.readthedocs.io/en/latest/developers.html#quick-start-with-docker>`_ for instructions).
-Once you have the IDE up and running, you can skip down to `cloning XACC <https://xacc.readthedocs.io/en/latest/install.html#build-xacc>`_.
-
+pull the ``xacc/xacc`` Docker image
+(see `here <https://xacc.readthedocs.io/en/latest/developers.html#quick-start-with-docker>`_ for instructions).
+This image provides an Ubuntu 18.04 container that serves up an Eclipse Theia IDE. XACC is already
+built and ready to go. Moreover, there are several variants: ``xacc/xacc-tnqvm-exatn``, and ``xacc/xacc-quac`` to
+name a few. 
 
 Prerequisites
 -------------
