@@ -49,7 +49,8 @@ void bind_accelerator(py::module &m) {
                xacc::Accelerator::updateConfiguration,
            "")
       .def("getConnectivity", &xacc::Accelerator::getConnectivity, "")
-      .def("configurationKeys", &xacc::Accelerator::configurationKeys, "");
+      .def("configurationKeys", &xacc::Accelerator::configurationKeys, "")
+      .def("contributeInstructions", &xacc::Accelerator::contributeInstructions, "");
 
   py::class_<xacc::AcceleratorDecorator, xacc::Accelerator,
              std::shared_ptr<xacc::AcceleratorDecorator>>
