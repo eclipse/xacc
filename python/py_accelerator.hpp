@@ -68,7 +68,9 @@ public:
                            configurationKeys)
   }
 
-
+  void contributeInstructions(const std::string& custom_json_config) override {
+    PYBIND11_OVERLOAD(void, xacc::Accelerator, contributeInstructions, custom_json_config);
+  }
 
 };
 
