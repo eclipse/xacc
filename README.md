@@ -18,6 +18,16 @@ Documentation
 * [Website and Documentation](https://xacc.readthedocs.io)
 * [API Documentation](https://ornl-qci.github.io/xacc-api-docs/)
 
+Quick Start with Docker
+-----------------------
+We provide docker images with XACC built and installed. These images by default serve 
+an Eclipse Theia IDE on port 3000. To get started, run 
+```bash
+$ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
+```
+Navigate to ``https://localhost:3000`` to open the IDE and get started with XACC.
+
+
 Build from Source
 -----------------
 Full installation details can be followed [here](https://xacc.readthedocs.io/en/latest/install.html).
