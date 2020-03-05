@@ -1,6 +1,6 @@
 image: xacc/gitpod-base
 tasks:
-  - init: mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+  - init: mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE && cd .. && mkdir plugins && git clone https://github.com/ornl-qci/tnqvm && git clone https://github.com/ornl-qci/QuaC
 vscode:
   extensions:
     - ms-vscode.cpptools@0.26.2:Pq/tmf2WN3SanVzB4xZc1g==
