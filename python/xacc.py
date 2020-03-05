@@ -447,6 +447,12 @@ def main(argv=None):
 
 initialize()
 
+try:
+    from _pyquaC import *
+except ImportError:
+    # Nothing, QuaC is not available
+    pass
+
 loaded_from_cpp_dont_finalize = False
 
 def _finalize():
