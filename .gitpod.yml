@@ -1,2 +1,6 @@
+image: xacc/gitpod-base
 tasks:
-  - init: brew install lapack && mkdir build && cd build && CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/Cellar/lapack/3.8.0_2/lib cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+  - init: mkdir build && cd build && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
+vscode:
+  extensions:
+    - ms-vscode.cpptools@0.26.2:Pq/tmf2WN3SanVzB4xZc1g==

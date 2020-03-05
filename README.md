@@ -20,9 +20,17 @@ Documentation
 * [Website and Documentation](https://xacc.readthedocs.io)
 * [API Documentation](https://ornl-qci.github.io/xacc-api-docs/)
 
-Quick Start with Docker
------------------------
-We provide docker images with XACC built and installed. These images by default serve 
+Quick Start
+-----------
+Click the GitPod icon at the top of this README to open up a pre-configured Eclipse Theia IDE. From the 
+terminal 
+```bash
+$ [build xacc] cd build && make -j4 install 
+$ [run tests] ctest 
+$ [run example] quantum/examples/base_api/bell_xasm_ibm_local
+```
+
+We also provide docker images with XACC built and installed. These images by default serve 
 an Eclipse Theia IDE on port 3000. To get started, run 
 ```bash
 $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc

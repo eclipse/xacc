@@ -62,8 +62,8 @@ if(LAPACK_FOUND)
                                xacc-quantum-gate
                                ${ANTLR_LIB}
                                CppMicroServices
-                               blas
-                               lapack PRIVATE cpr)
+                               ${LAPACK_LIBRARIES}
+                                PRIVATE cpr)
 
 else()
 
