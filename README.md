@@ -22,8 +22,8 @@ Documentation
 
 Quick Start
 -----------
-Click the GitPod icon at the top of this README to open up a pre-configured Eclipse Theia IDE. From the 
-terminal 
+Click [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc) 
+to open up a pre-configured Eclipse Theia IDE. From the terminal 
 ```bash
 
 $ [build xacc] cd build && make -j4 install 
