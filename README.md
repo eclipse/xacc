@@ -25,9 +25,19 @@ Quick Start
 Click the GitPod icon at the top of this README to open up a pre-configured Eclipse Theia IDE. From the 
 terminal 
 ```bash
+
 $ [build xacc] cd build && make -j4 install 
 $ [run tests] ctest 
-$ [run example] quantum/examples/base_api/bell_xasm_ibm_local
+$ [example executables are in quantum/examples/*]
+
+[recommended, build TNQVM]
+$ [build tnqvm] cd .. && mkdir -p ../plugins/tnqvm/build 
+$ [build tnqvm] cmake -S plugins/tnqvm -B plugins/tnqvm/build && make -j4 install
+
+[use Python API]
+$ [update python path] export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
+$ [run example] python3 python/examples/deuteronH2.py
+
 ```
 
 We also provide docker images with XACC built and installed. These images by default serve 
