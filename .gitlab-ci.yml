@@ -28,8 +28,8 @@ docker run_docker_deploy:
   script:
   - cd docker/deploy/dev && docker build -t xacc/xacc . --no-cache
   - cd ../dev_tnqvm_exatn && docker build -t xacc/xacc-tnqvm-exatn . --no-cache
-  #- cd ../dev_quac && docker build -t xacc/xacc-quac . --no-cache
+  - cd ../dev_quac && docker build -t xacc/xacc-quac . --no-cache
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/xacc
   - docker push xacc/xacc-tnqvm-exatn
-  #- docker push xacc/xacc-quac
+  - docker push xacc/xacc-quac
