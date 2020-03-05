@@ -1,0 +1,2 @@
+tasks:
+  - init: brew install lapack && mkdir build && cd build && CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/Cellar/lapack/3.8.0_2/lib cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE
