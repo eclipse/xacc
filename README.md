@@ -23,29 +23,25 @@ Documentation
 Quick Start
 -----------
 Click [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc) 
-to open up a pre-configured Eclipse Theia IDE. From the terminal 
+to open up a pre-configured Eclipse Theia IDE. This will auto-build XACC and TNQVM, and will take a 
+few minutes to do so. Once it is done, you should immediately be able to 
+run any of the C++ or Python examples from the included terminal:
 ```bash
+[example C++ executables are in build/quantum/examples/*]
+$ build/quantum/examples/qasm/deuteron_from_qasm
 
-$ [build xacc] cd build && make -j4 install 
-$ [run tests] ctest 
-$ [example executables are in quantum/examples/*]
-
-[recommended, build TNQVM]
-$ [build tnqvm] cd .. && mkdir -p ../plugins/tnqvm/build 
-$ [build tnqvm] cmake -S plugins/tnqvm -B plugins/tnqvm/build && make -j4 install
-
-[use Python API]
-$ [update python path] export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
-$ [run example] python3 python/examples/deuteronH2.py
-
+[example Python scripts are in python/examples/*]
+$ python3 python/examples/deuteronH2.py
 ```
+Note the Gitpod free account provides 100 hours of use for the month. 
 
-We also provide docker images with XACC built and installed. These images by default serve 
-an Eclipse Theia IDE on port 3000. To get started, run 
+We also provide docker images that you can pull down locally with XACC already built and installed. 
+These images by default serve an Eclipse Theia IDE on port 3000. To get started, run 
 ```bash
 $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
 ```
-Navigate to ``https://localhost:3000`` to open the IDE and get started with XACC.
+Navigate to ``https://localhost:3000`` to open the IDE and get started with XACC. These are deployed 
+nightly, with ``xacc-tnqvm-exatn`` and ``xacc-quac`` variants.
 
 
 Build from Source
