@@ -23,8 +23,7 @@ Documentation
 Quick Start
 -----------
 Click [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc) 
-to open up a pre-configured Eclipse Theia IDE. This will auto-build XACC and TNQVM, and will take a 
-few minutes to do so. Once it is done, you should immediately be able to 
+to open up a pre-configured Eclipse Theia IDE. You should immediately be able to 
 run any of the C++ or Python examples from the included terminal:
 ```bash
 [example C++ executables are in build/quantum/examples/*]
@@ -33,15 +32,17 @@ $ build/quantum/examples/qasm/deuteron_from_qasm
 [example Python scripts are in python/examples/*]
 $ python3 python/examples/deuteronH2.py
 ```
-Note the Gitpod free account provides 100 hours of use for the month. 
+All code is here and you can quickly start developing. We recommend 
+turning on file auto-save by clicking ``File > Auto Save ``.
+Note the Gitpod free account provides 100 hours of use for the month, so if 
+you foresee needing more time, we recommend our nightly docker images.
 
-We also provide docker images that you can pull down locally with XACC already built and installed. 
-These images by default serve an Eclipse Theia IDE on port 3000. To get started, run 
+The XACC nightly docker images also serve an Eclipse Theia IDE (the same IDE Gitpod uses) on port 3000. To get started, run 
 ```bash
 $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
 ```
-Navigate to ``https://localhost:3000`` to open the IDE and get started with XACC. These are deployed 
-nightly, with ``xacc-tnqvm-exatn`` and ``xacc-quac`` variants.
+Navigate to ``https://localhost:3000`` in your browser to open the IDE and get started with XACC. These are deployed 
+nightly, with ``xacc-tnqvm-exatn`` (tensor network simulator) and ``xacc-quac`` (pulse-level simulation) variants.
 
 
 Build from Source
@@ -112,21 +113,17 @@ Cite XACC
 ----------
 If you use XACC in your research, please use the following citation
 ```
-@ARTICLE{xacc2019,
-       author = {{McCaskey}, Alexander J. and {Lyakh}, Dmitry I. and
-         {Dumitrescu}, Eugene F. and {Powers}, Sarah S. and {Humble}, Travis S.},
-        title = "{XACC: A System-Level Software Infrastructure for Heterogeneous Quantum-Classical Computing}",
-      journal = {arXiv e-prints},
-     keywords = {Quantum Physics, Computer Science - Programming Languages},
-         year = "2019",
-        month = "Nov",
-          eid = {arXiv:1911.02452},
-        pages = {arXiv:1911.02452},
-archivePrefix = {arXiv},
-       eprint = {1911.02452},
- primaryClass = {quant-ph},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2019arXiv191102452M},
-      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+@article{xacc_2020,
+	doi = {10.1088/2058-9565/ab6bf6},
+	url = {https://doi.org/10.1088%2F2058-9565%2Fab6bf6},
+	year = 2020,
+	month = {feb},
+	publisher = {{IOP} Publishing},
+	volume = {5},
+	number = {2},
+	pages = {024002},
+	author = {Alexander J McCaskey and Dmitry I Lyakh and Eugene F Dumitrescu and Sarah S Powers and Travis S Humble},
+	title = {{XACC}: a system-level software infrastructure for heterogeneous quantum{\textendash}classical computing},
+	journal = {Quantum Science and Technology}
 }
-
 ```
