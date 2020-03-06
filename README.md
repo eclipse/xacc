@@ -1,5 +1,3 @@
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse/xacc) 
-
 | Branch | Status |
 |:-------|:-------|
 |master | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) |
@@ -31,6 +29,9 @@ $ build/quantum/examples/qasm/deuteron_from_qasm
 
 [example Python scripts are in python/examples/*]
 $ python3 python/examples/deuteronH2.py
+
+[run some XACC benchmarks]
+$ python3 -m xacc --benchmark python/benchmark/chemistry/benchmarks/tnqvm_nah_ucc1.ini 
 ```
 All code is here and you can quickly start developing. We recommend 
 turning on file auto-save by clicking ``File > Auto Save ``.
