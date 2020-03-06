@@ -31,7 +31,7 @@ RUN apt-get update && \
                        xz-utils && python3 -m pip install --upgrade pip --user \
                        && python3 -m pip install setuptools \
                        && python3 -m pip install python-language-server flake8 autopep8 \
-                                cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq \
+                                cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib \
     && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
 
 #Install node and yarn
@@ -118,7 +118,12 @@ RUN apt-get update && \
     && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j18 install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
-    && cmake .. -DXACC_DIR=~/.xacc && make -j18 install
+    && cmake .. -DXACC_DIR=~/.xacc && make -j18 install \
+
+    && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
+    && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
+    && make -j8 install && cd ../.. && rm -rf psi4 && apt-get install -y texlive-latex-recommended texlive-latex-extra dvipng \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* 
 
 # Theia application
 
