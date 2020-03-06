@@ -57,7 +57,14 @@ void bind_algorithm(py::module &m) {
             return a.calculate(task, b);
           },
           "")
-      .def("initialize", &xacc::Algorithm::initialize,
+      .def("initialize", [](Algorithm& a, PyHeterogeneousMap& options) {
+            HeterogeneousMap m;
+            for (auto &item : options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return a.initialize(m);
+      },
            "Initialize the algorithm with given AlgorithmParameters.")
       .def("clone", &xacc::Algorithm::clone, "");
 }
