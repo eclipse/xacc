@@ -1,6 +1,7 @@
 image: xacc/gitpod-base
 tasks:
-  - init: mkdir build && cd build && cmake .. && make -j12 install && cd .. && mkdir plugins && cd plugins && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build && cmake .. && make -j12 install && echo "export PYTHONPATH=$PYTHONPATH:$HOME/.xacc" >> $HOME/.bashrc && source $HOME/.bashrc
+  - init: mkdir build && cd build && cmake .. && make -j12 install && cd .. && mkdir plugins && cd plugins && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build && cmake .. && make -j12 install 
+  - command: make -j4 -C build/ install && make -j4 -C plugins/tnqvm/build install && echo "export PYTHONPATH=$PYTHONPATH:$HOME/.xacc" >> $HOME/.bashrc && source $HOME/.bashrc
 vscode:
   extensions:
     - ms-vscode.cpptools@0.26.2:Pq/tmf2WN3SanVzB4xZc1g==
