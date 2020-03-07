@@ -42,6 +42,7 @@ void bind_optimizer(py::module &m) {
             return o.optimize(opt);
           },
           "")
+      .def("optimize", [](xacc::Optimizer& o){return o.optimize();})
       .def("setOptions",
            (void (xacc::Optimizer::*)(const HeterogeneousMap &)) &
                xacc::Optimizer::setOptions,
