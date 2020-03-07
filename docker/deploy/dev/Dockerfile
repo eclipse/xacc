@@ -122,7 +122,7 @@ RUN apt-get update && \
 
     && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
     && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
-    && make -j8 install && cd ../.. && rm -rf psi4 && apt-get install -y texlive-latex-recommended texlive-latex-extra dvipng \
+    && make -j8 install && cd ../.. && rm -rf psi4 && apt-get update && apt-get install -y texlive-latex-recommended texlive-latex-extra dvipng \
     && apt-get clean && rm -rf /var/lib/apt/lists/* 
 
 # Theia application
