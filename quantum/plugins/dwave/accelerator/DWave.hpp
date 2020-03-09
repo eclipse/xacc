@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_DWDECORATOR_HPP_
-#define XACC_DWDECORATOR_HPP_
+#ifndef XACC_DWAVE_HPP_
+#define XACC_DWAVE_HPP_
 
 #include "AcceleratorDecorator.hpp"
 #include "Utils.hpp"
@@ -24,7 +24,7 @@ namespace xacc {
 
 namespace quantum {
 
-class DWDecorator : public Accelerator {
+class DWave : public Accelerator {
 protected:
   double chain_strength = -1.;
   double shots = 100;
@@ -33,12 +33,13 @@ protected:
   sapi_Solver *solver = NULL;
   sapi_Connection *connection = NULL;
   const sapi_SolverProperties *solver_properties = NULL;
+  std::string default_emb_algo = "cmr";
 
   void searchAPIKey(std::string &key);
   void findApiKeyInFile(std::string &key, const std::string &p);
 
 public:
-  DWDecorator() {}
+  DWave() {}
 
   void initialize(const HeterogeneousMap &params = {}) override {
     // decoratedAccelerator = xacc::getService<Accelerator>("dwave-internal");
@@ -80,6 +81,9 @@ public:
     } else {
         xacc::error("[Dwave Backend] You must provide the backend name when you request this Accelerator.");
     }
+    if (params.stringExists("embedding-algorithm")) {
+        default_emb_algo = params.getString("embedding-algorithm");
+    }
   }
 
   std::vector<std::pair<int, int>> getConnectivity() override;
@@ -96,7 +100,7 @@ public:
   const std::string name() const override { return "dwave"; }
   const std::string description() const override { return ""; }
 
-  ~DWDecorator() override {}
+  ~DWave() override {}
 };
 
 } // namespace quantum

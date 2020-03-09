@@ -200,6 +200,8 @@ class DecoratorFunction(ABC):
 
         ir = compiler.compile(self.src, self.qpu)
         self.compiledKernel = ir.getComposites()[0]
+        if 'tag' in self.kwargs:
+            self.compiledKernel.setTag(self.kwargs['tag'])
 
     def overrideAccelerator(self, acc):
         self.qpu = acc
@@ -249,6 +251,7 @@ class WrappedF(DecoratorFunction):
             raise RuntimeError(
                 'First argument of an xacc kernel must be the Accelerator Buffer to operate on.')
         fevaled = self.compiledKernel.eval(argsList[1:])
+        fevaled.setTag(self.compiledKernel.getTag())
         self.qpu.execute(argsList[0], fevaled)
         return
 

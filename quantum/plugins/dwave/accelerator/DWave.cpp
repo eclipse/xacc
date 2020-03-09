@@ -1,5 +1,6 @@
-#include "DWDecorator.hpp"
+#include "DWave.hpp"
 #include "EmbeddingAlgorithm.hpp"
+#include "dwave_sapi.h"
 #include "xacc.hpp"
 
 #include <algorithm>
@@ -9,7 +10,7 @@ namespace xacc {
 
 namespace quantum {
 
-void DWDecorator::searchAPIKey(std::string &key) {
+void DWave::searchAPIKey(std::string &key) {
 
   // Search for the API Key in $HOME/.dwave_config,
   // $DWAVE_CONFIG, or in the command line argument --dwave-api-key
@@ -30,7 +31,7 @@ void DWDecorator::searchAPIKey(std::string &key) {
   }
 }
 
-void DWDecorator::findApiKeyInFile(std::string &apiKey, const std::string &p) {
+void DWave::findApiKeyInFile(std::string &apiKey, const std::string &p) {
   std::ifstream stream(p);
   std::string contents((std::istreambuf_iterator<char>(stream)),
                        std::istreambuf_iterator<char>());
@@ -48,7 +49,7 @@ void DWDecorator::findApiKeyInFile(std::string &apiKey, const std::string &p) {
   }
 }
 
-std::vector<std::pair<int, int>> DWDecorator::getConnectivity() {
+std::vector<std::pair<int, int>> DWave::getConnectivity() {
   sapi_Problem *adj = NULL;
   auto code = sapi_getHardwareAdjacency(solver, &adj);
   std::vector<std::pair<int, int>> ret;
@@ -58,8 +59,8 @@ std::vector<std::pair<int, int>> DWDecorator::getConnectivity() {
   return ret;
 }
 
-void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                          const std::shared_ptr<CompositeInstruction> problem) {
+void DWave::execute(std::shared_ptr<AcceleratorBuffer> buffer,
+                    const std::shared_ptr<CompositeInstruction> problem) {
 
   // Compute embedding
   // ------------------------------
@@ -93,27 +94,27 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
 
   if (!buffer->hasExtraInfoKey("embedding")) {
 
-    auto embeddingAlgo = xacc::getService<EmbeddingAlgorithm>("cmr");
+    auto embeddingAlgo = xacc::getService<EmbeddingAlgorithm>(default_emb_algo);
     embedding = embeddingAlgo->embed(probGraph, hardwareGraph);
+    buffer->addExtraInfo("embedding", embedding);
+
   } else {
-    std::cout << "using existing embedding\n";
     auto tmppp = buffer->getInformation("embedding")
                      .as<std::map<int, std::vector<int>>>();
     for (auto &kv : tmppp) {
       embedding.insert(kv);
     }
   }
-    //   embedding.persist(std::cout);
 
   // ------------------------------
-
   // embed problem
   // ------------------------------
+
   std::vector<sapi_ProblemEntry> problemData;
   for (auto &pInst : problem->getInstructions()) {
-    problemData.emplace_back(
-        sapi_ProblemEntry{(int)pInst->bits()[0], (int)pInst->bits()[1],
-                          xacc::InstructionParameterToDouble(pInst->getParameter(0))});
+    problemData.emplace_back(sapi_ProblemEntry{
+        (int)pInst->bits()[0], (int)pInst->bits()[1],
+        xacc::InstructionParameterToDouble(pInst->getParameter(0))});
   }
   auto sapiProblem = sapi_Problem{problemData.data(), problemData.size()};
 
@@ -123,6 +124,7 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
       embData[ii] = kv.first;
     }
   }
+
   auto sapiEmbeddings = sapi_Embeddings{embData.data(), embData.size()};
 
   sapi_EmbedProblemResult *r;
@@ -131,24 +133,19 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
                                 false, 0, &r, 0);
   // ------------------------------
 
-  std::vector<sapi_ProblemEntry> tmpEntries(r->problem.len + r->jc.len);
+  std::vector<sapi_ProblemEntry> tmpEntries(r->problem.len); // + r->jc.len);
   sapi_Problem embedded_problem = {tmpEntries.data(), tmpEntries.size()};
 
   /* store embedded problem result in new problem */
   for (int i = 0; i < r->problem.len; i++) {
+    //   std::cout << "EMBEDDED R: " << r->problem.elements[i].i << ", " <<
+    //   r->problem.elements[i].j << ", "<< r->problem.elements[i].value <<
+    //   "\n";
     embedded_problem.elements[i].i = r->problem.elements[i].i;
     embedded_problem.elements[i].j = r->problem.elements[i].j;
     embedded_problem.elements[i].value = r->problem.elements[i].value;
   }
-  for (int i = 0; i < embedded_problem.len; i++) {
-    embedded_problem.elements[i].i = r->jc.elements[i - r->problem.len].i;
-    embedded_problem.elements[i].j = r->jc.elements[i - r->problem.len].j;
-    /* set value differently in each loop iteration below */
-  }
 
-//   for (int i = r->problem.len; i < embedded_problem.len; i++) {
-//     embedded_problem.elements[i].value = chain_strength;
-//   }
   // Execute embedded problem
   // ------------------------------
   sapi_QuantumSolverParameters solver_params =
@@ -159,20 +156,25 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   char err_msg[SAPI_ERROR_MESSAGE_MAX_SIZE];
   const sapi_SolverProperties *solver_properties = NULL;
   sapi_IsingResult *answer = NULL;
+
   sapi_globalInit();
   code = sapi_remoteConnection("https://cloud.dwavesys.com/sapi",
                                apiKey.c_str(), NULL, &connection, err_msg);
   solver = sapi_getSolver(connection, backend.c_str());
   solver_properties = sapi_getSolverProperties(solver);
 
-  code = sapi_solveIsing(solver, &embedded_problem,
-                         (sapi_SolverParameters *)&solver_params, &answer,
-                         err_msg);
+  if (problem->getTag() == "ising") {
+    code = sapi_solveIsing(solver, &embedded_problem,
+                           (sapi_SolverParameters *)&solver_params, &answer,
+                           err_msg);
+  } else if (problem->getTag() == "qubo") {
+    code = sapi_solveQubo(solver, &embedded_problem,
+                          (sapi_SolverParameters *)&solver_params, &answer,
+                          err_msg);
+  }
 
-  if (answer) {
-      std::cout << "ANSWER WAS GOOD\n";
-  } else {
-      std::cout << "ANSWER WAS NULL\n";
+  if (!answer) {
+    xacc::error("D-Wave Answer was Null");
   }
   int *new_solutions = NULL;
   int *nsr;
@@ -189,14 +191,14 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   std::map<std::string, int> measurements;
   std::map<std::string, double> energies_map;
   for (int i = 0; i < num_new_solutions; ++i) {
-    printf("solution %d:\n", (int)i);
+    // printf("solution %d:\n", (int)i);
     std::stringstream ss;
     for (int j = 0; j < num_variables; ++j) {
       ss << (new_solutions[i * num_variables + j] == -1
                  ? 0
                  : new_solutions[i * num_variables + j]);
     }
-    std::cout << ss.str() <<  ", " << answer->energies[i] << "\n";
+    // std::cout << ss.str() << ", " << answer->energies[i] << "\n";
     if (measurements.count(ss.str())) {
       measurements[ss.str()] += answer->num_occurrences[i];
     } else {
@@ -206,10 +208,9 @@ void DWDecorator::execute(std::shared_ptr<AcceleratorBuffer> buffer,
   }
   buffer->setMeasurements(measurements);
   buffer->addExtraInfo("energies", energies_map);
-
 }
 
-void DWDecorator::execute(
+void DWave::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
   for (auto &f : functions) {
