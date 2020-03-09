@@ -22,8 +22,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-security")
 
 file(GLOB SRC
-          accelerator/DWAccelerator.cpp
-          accelerator/DWDecorator.cpp
+          accelerator/DWave.cpp
           DWaveActivator.cpp
           embedding/CMREmbedding.cpp
           generators/rbm.cpp)

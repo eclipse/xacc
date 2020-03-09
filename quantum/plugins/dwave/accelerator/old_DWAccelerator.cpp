@@ -32,9 +32,6 @@ void DWAccelerator::initialize(const HeterogeneousMap &params) {
   searchAPIKey(apiKey, url);
   updateConfiguration(params);
 
-  if (xacc::optionExists("dwave-skip-initialization")) {
-    return;
-  }
   // Set up the extra HTTP headers we are going to need
   headers.insert({"X-Auth-Token", apiKey});
   headers.insert({"Content-type", "application/x-www-form-urlencoded"});
@@ -94,7 +91,7 @@ const std::string DWAccelerator::processInput(
   std::vector<std::string> splitLines;
   splitLines = xacc::split(newKernel->toString(), '\n');
   auto nQMILines = splitLines.size();
-  std::string jsonStr = "", solverName = "DW_2000Q_VFYC_2_1",
+  std::string jsonStr = "", solverName = backend,
               solveType = "ising", trials = std::to_string(shots),
               annealTime = "20";
 
@@ -109,7 +106,7 @@ const std::string DWAccelerator::processInput(
   jsonStr += ", \"auto_scale\" : true } }]";
 
   jsonStr = std::regex_replace(jsonStr, std::regex("\n"), "\\n");
-  //   std::cout << "sending: " << jsonStr << "\n";
+    std::cout << "sending: " << jsonStr << "\n";
   return jsonStr;
 }
 
@@ -121,7 +118,7 @@ void DWAccelerator::processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
   // Parse the json string
   doc.Parse(response);
 
-  //   std::cout << response << "\n";
+    std::cout << response << "\n";
   // Get the JobID
   std::string jobId = std::string(doc[0]["id"].GetString());
 

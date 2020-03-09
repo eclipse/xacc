@@ -10,8 +10,8 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#ifndef QUANTUM_GATE_ACCELERATORS_DWACCELERATOR_HPP_
-#define QUANTUM_GATE_ACCELERATORS_DWACCELERATOR_HPP_
+#ifndef QUANTUM_PLUGINS_DWACCELERATOR_HPP_
+#define QUANTUM_PLUGINS_DWACCELERATOR_HPP_
 
 #include "AcceleratorBuffer.hpp"
 #include "AnnealingProgram.hpp"
@@ -97,7 +97,7 @@ public:
 
 protected:
   int shots = 1000;
-  std::string backend = "DW_2000Q_VFYC_2_1";
+  std::string backend = "DW_2000Q_5";
 
   std::string apiKey;
   std::string url;
