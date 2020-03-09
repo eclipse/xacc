@@ -9,7 +9,7 @@ run cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd 
 
 # Theia application
 workdir /home/dev
-
+ARG version=latest
 ADD $version.package.json ./package.json
 
 RUN yarn --cache-folder ./ycache && rm -rf ./ycache && \
