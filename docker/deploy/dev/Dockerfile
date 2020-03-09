@@ -2,7 +2,7 @@ from xacc/deploy-base
 workdir /home/dev
 
 run cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
-    && cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
+    && cmake .. -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j$(nproc) install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install 
