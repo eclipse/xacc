@@ -26,6 +26,37 @@ using namespace xacc;
 namespace xacc {
 namespace quantum {
 
+class QObjGenerator : public Identifiable {
+public:
+  virtual std::string
+  getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
+                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const std::string getBackendPropsResponse,
+                 std::vector<std::pair<int, int>> &connectivity) = 0;
+};
+
+class QasmQObjGenerator : public QObjGenerator {
+public:
+  std::string
+  getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
+                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const std::string getBackendPropsResponse,
+                 std::vector<std::pair<int, int>> &connectivity) override;
+  const std::string name() const override { return "qasm"; }
+  const std::string description() const override { return ""; }
+};
+
+class PulseQObjGenerator : public QObjGenerator {
+public:
+  std::string
+  getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
+                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const std::string getBackendPropsResponse,
+                 std::vector<std::pair<int, int>> &connectivity) override;
+  const std::string name() const override { return "pulse"; }
+  const std::string description() const override { return ""; }
+};
+
 class RestClient {
 
 protected:
@@ -153,7 +184,8 @@ private:
   xacc::ibm_backend::Backends backends_root;
   std::map<std::string, xacc::ibm_properties::Properties> backendProperties;
   std::string getBackendPropsResponse = "{}";
-
+  std::string defaults_response = "{}";
+  
   std::string post(const std::string &_url, const std::string &path,
                    const std::string &postStr,
                    std::map<std::string, std::string> headers = {});

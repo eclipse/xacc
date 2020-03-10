@@ -54,7 +54,12 @@ public:
 
     context.RegisterService<xacc::Accelerator>(acc);
 
-    // context.RegisterService<xacc::OptionsProvider>(acc);
+    auto qasm_qobj_gen = std::make_shared<xacc::quantum::QasmQObjGenerator>();
+    auto pulse_qobj_gen = std::make_shared<xacc::quantum::PulseQObjGenerator>();
+
+    context.RegisterService<quantum::QObjGenerator>(qasm_qobj_gen);
+    context.RegisterService<quantum::QObjGenerator>(pulse_qobj_gen);
+
   }
 
   /**
