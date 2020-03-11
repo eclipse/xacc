@@ -91,22 +91,22 @@ TEST(PulseSchedulerTester, checkCompositeOfPulses) {
   auto provider = xacc::getIRProvider("quantum");
   auto program = provider->createComposite("test1");
   
-  auto pulseInst1 = xacc::getContributedService<xacc::Instruction>("CR90m_u10_3e8d");
+  auto pulseInst1 = xacc::getContributedService<xacc::Instruction>("CR90m_u10_7417");
   pulseInst1->setChannel("d0");
 
-  auto pulseInst2 = xacc::getContributedService<xacc::Instruction>("CR90m_u11_77cd");
+  auto pulseInst2 = xacc::getContributedService<xacc::Instruction>("CR90m_u12_4a25");
   pulseInst2->setChannel("u0");
 
-  auto pulseInst3 = xacc::getContributedService<xacc::Instruction>("CR90m_u12_3c09");
+  auto pulseInst3 = xacc::getContributedService<xacc::Instruction>("CR90m_u12_4a25");
   pulseInst3->setChannel("d1");
 
-  auto pulseInst4 = xacc::getContributedService<xacc::Instruction>("CR90m_d7_cefe");
+  auto pulseInst4 = xacc::getContributedService<xacc::Instruction>("CR90m_d0_3cff");
   pulseInst4->setChannel("u1");
 
-  auto pulseInst5 = xacc::getContributedService<xacc::Instruction>("CR90m_d6_6b71");
+  auto pulseInst5 = xacc::getContributedService<xacc::Instruction>("CR90m_d6_874d");
   pulseInst5->setChannel("d0");
 
-  auto pulseInst6 = xacc::getContributedService<xacc::Instruction>("CR90m_u24_1d67");
+  auto pulseInst6 = xacc::getContributedService<xacc::Instruction>("CR90m_u24_5bf6");
   pulseInst6->setChannel("d1");
   
   program->addInstruction(pulseInst1);
@@ -187,10 +187,10 @@ TEST(PulseSchedulerTester, checkComplexConstruct) {
   auto cx1 = xacc::getContributedService<xacc::Instruction>("pulse::cx_10_5");
   auto cx2 = xacc::getContributedService<xacc::Instruction>("pulse::cx_10_11");
 
-  auto pulseInst1 = xacc::getContributedService<xacc::Instruction>("CR90m_u6_bb19");
+  auto pulseInst1 = xacc::getContributedService<xacc::Instruction>("CR90m_u6_c549");
   pulseInst1->setChannel("d10");
 
-  auto pulseInst2 = xacc::getContributedService<xacc::Instruction>("CR90m_u0_9824");
+  auto pulseInst2 = xacc::getContributedService<xacc::Instruction>("CR90m_u2_5e5e");
   pulseInst2->setChannel("d10");
 
   // The program consists of command defs and pulses
