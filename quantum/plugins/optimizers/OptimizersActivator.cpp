@@ -12,7 +12,7 @@
  *******************************************************************************/
 #include "CircuitOptimizer.hpp"
 #include "default_placement.hpp"
-
+#include "PulseTransform.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -42,6 +42,7 @@ public:
         auto c5 = std::make_shared<xacc::quantum::DefaultPlacement>();
         context.RegisterService<xacc::IRTransformation>(c5);
 
+        context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::PulseTransform>());
 	}
 
 	/**
