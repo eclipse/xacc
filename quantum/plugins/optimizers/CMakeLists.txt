@@ -39,7 +39,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse)
+target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse ${CMAKE_SOURCE_DIR}/tpls/eigen)
 target_link_libraries(${LIBRARY_NAME} xacc xacc-quantum-gate)
 
 if(APPLE)
@@ -54,6 +54,7 @@ install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 # Gather tests
 if(XACC_BUILD_TESTS)
-	add_subdirectory(simple/tests)
+  add_subdirectory(simple/tests)
+  add_subdirectory(pulse/tests)
 endif()
 
