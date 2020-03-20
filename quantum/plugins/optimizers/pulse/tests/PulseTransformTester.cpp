@@ -54,7 +54,25 @@ TEST(PulseTransformTester, checkSimple)
         fuser->initialize(program);
         auto result = fuser->calcFusedGate(2);
         std::cout << result << "\n";
-        // TODO: add checks
+        
+        Eigen::MatrixXcd matHkronI { Eigen::MatrixXcd::Zero(4, 4) }; 
+        matHkronI <<    1, 1, 0, 0,
+                        1, -1, 0, 0,
+                        0, 0, 1, 1,
+                        0, 0, 1, -1;
+        matHkronI *= (1 / std::sqrt(2.));           
+        Eigen::MatrixXcd cnotMat{ Eigen::MatrixXcd::Zero(4, 4) };
+        cnotMat <<  1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 0, 1,
+                    0, 0, 1, 0;
+        // Note: gate application and matrix multiplication is in reverse order
+        // i.e. cnot after h means cnot * H
+        const auto expectResult = cnotMat * matHkronI;
+        std::cout << "Expected result: \n " << expectResult << "\n";
+        // Compare the result matrix vs. expected.
+        const auto diff = (result - expectResult).norm();
+        EXPECT_NEAR(diff, 0.0, 1e-6);
     }
 
     // Two qubit gate with non-continuous index

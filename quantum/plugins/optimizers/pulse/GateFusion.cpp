@@ -128,69 +128,120 @@ void GateFuser::visit(CNOT& cnot)
                0, 0, 1, 0;
     m_gates.emplace_back(cnotMat, cnot.bits());
 }
-void GateFuser::visit(Rz& rz) 
-{
-    //TODO
-}
-void GateFuser::visit(Ry& ry) 
-{
-    //TODO
-}
+
 void GateFuser::visit(Rx& rx) 
 {
-    //TODO
+    const double angle = InstructionParameterToDouble(rx.getParameter(0));
+    m_gates.emplace_back(getRnMat(angle, {1, 0, 0}), rx.bits());
+}
 
+void GateFuser::visit(Ry& ry) 
+{
+    const double angle = InstructionParameterToDouble(ry.getParameter(0));
+    m_gates.emplace_back(getRnMat(angle, {0, 1, 0}), ry.bits());
+}
+
+
+void GateFuser::visit(Rz& rz) 
+{
+    const double angle = InstructionParameterToDouble(rz.getParameter(0));
+    m_gates.emplace_back(getRnMat(angle, {0, 0, 1}), rz.bits());
+}
+
+void GateFuser::visit(S& s) 
+{
+    Eigen::MatrixXcd sMat{ Eigen::MatrixXcd::Zero(2, 2) };
+    sMat << 1, 0, 
+            0, I;
+    m_gates.emplace_back(sMat, s.bits());
+}
+void GateFuser::visit(Sdg& sdg) 
+{
+    Eigen::MatrixXcd sdgMat{ Eigen::MatrixXcd::Zero(2, 2) };
+    sdgMat <<  1, 0, 
+               0, -I;
+    m_gates.emplace_back(sdgMat, sdg.bits());
+}
+
+void GateFuser::visit(T& t) 
+{
+    Eigen::MatrixXcd tMat{ Eigen::MatrixXcd::Zero(2, 2) };
+    tMat << 1, 0, 
+            0, std::exp(I*M_PI/4.0);
+    m_gates.emplace_back(tMat, t.bits());
+}
+
+void GateFuser::visit(Tdg& tdg) 
+{
+    Eigen::MatrixXcd tdgMat{ Eigen::MatrixXcd::Zero(2, 2) };
+    tdgMat <<   1, 0, 
+                0, std::exp(-I*M_PI/4.0);
+    m_gates.emplace_back(tdgMat, tdg.bits());
+}
+
+void GateFuser::visit(U& u) 
+{
+    const auto theta = InstructionParameterToDouble(u.getParameter(0));
+    const auto phi = InstructionParameterToDouble(u.getParameter(1));
+    const auto lambda = InstructionParameterToDouble(u.getParameter(2));
+    Eigen::MatrixXcd uMat { Eigen::MatrixXcd::Zero(2, 2) };
+    
+    uMat << std::cos(theta / 2),                    -std::exp(I*lambda)*std::sin(theta / 2),
+            std::exp(I*phi)*std::sin(theta / 2),    std::exp(I*(phi+lambda))*std::cos(theta/2);
+    
+    m_gates.emplace_back(uMat, u.bits());
 }
 
 void GateFuser::visit(CY& cy) 
 {
-    //TODO
-
+    Eigen::MatrixXcd cyMat{ Eigen::MatrixXcd::Zero(4, 4) };
+    cyMat <<    1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 0, -I,
+                0, 0, I, 0;
+    m_gates.emplace_back(cyMat, cy.bits());
 }
+
 void GateFuser::visit(CZ& cz) 
 {
-    //TODO
-
+    Eigen::MatrixXcd czMat{ Eigen::MatrixXcd::Identity(4, 4) };
+    czMat(3, 3) = -1;
+    m_gates.emplace_back(czMat, cz.bits());
 }
+
+void GateFuser::visit(CRZ& crz) 
+{
+    const double angle = InstructionParameterToDouble(crz.getParameter(0));
+    const auto rzMat = getRnMat(angle, {0, 0, 1});
+    
+    Eigen::MatrixXcd crzMat{ Eigen::MatrixXcd::Zero(4, 4) };
+    crzMat <<  1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, rzMat(0, 0), rzMat(0, 1),
+            0, 0, rzMat(1, 0), rzMat(1, 1);
+    m_gates.emplace_back(crzMat, crz.bits());
+}
+
+void GateFuser::visit(CH& ch) 
+{
+    Eigen::MatrixXcd chMat{ Eigen::MatrixXcd::Zero(4, 4) };
+    chMat <<    1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1 / std::sqrt(2.), 1 / std::sqrt(2.), 
+                0, 0, 1 / std::sqrt(2.), -1 / std::sqrt(2.);
+    m_gates.emplace_back(chMat, ch.bits());
+}
+
 void GateFuser::visit(Swap& s) 
 {
-   Eigen::MatrixXcd swapMat{ Eigen::MatrixXcd::Zero(4, 4) };
+    Eigen::MatrixXcd swapMat{ Eigen::MatrixXcd::Zero(4, 4) };
     swapMat << 1, 0, 0, 0,
                0, 0, 1, 0,
                0, 1, 0, 0,
                0, 0, 0, 1;
     m_gates.emplace_back(swapMat, s.bits());
 }
-void GateFuser::visit(CRZ& crz) 
-{
-    //TODO
 
-}
-void GateFuser::visit(CH& ch) 
-{
-    //TODO
-
-}
-void GateFuser::visit(S& s) 
-{
-    //TODO
-
-}
-void GateFuser::visit(Sdg& sdg) 
-{
-    //TODO
-
-}
-void GateFuser::visit(T& t) 
-{
-    //TODO
-
-}
-void GateFuser::visit(Tdg& tdg) 
-{
-    //TODO
-
-}
 void GateFuser::visit(CPhase& cphase) 
 {
     Eigen::MatrixXcd cphaseMat{ Eigen::MatrixXcd::Identity(4, 4) };
@@ -199,21 +250,18 @@ void GateFuser::visit(CPhase& cphase)
     cphaseMat(3, 3) = val;
     m_gates.emplace_back(cphaseMat, cphase.bits());
 }
+
 void GateFuser::visit(Measure& measure) 
 {
-    //TODO
-
+    xacc::error("Cannot fuse CompositeInstruction contains MEASURE!"); 
 }
+
 void GateFuser::visit(Identity& i) 
 {
-    //TODO
-
+    // Nothing to do for Identity matrix 
+    return;
 }
-void GateFuser::visit(U& u) 
-{
-    //TODO
 
-}
 void GateFuser::visit(IfStmt& ifStmt) 
 {
     xacc::error("Unsupported!");
