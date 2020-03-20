@@ -2,7 +2,7 @@ import xacc
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
 
-@ComponentFactory("fc_observable_factory")
+@ComponentFactory("pyscf_observable_factory")
 @Provides("observable")
 @Property("_observable", "observable", "pyscf")
 @Property("_name", "name", "pyscf")
@@ -37,7 +37,7 @@ class PySCFObservable(xacc.Observable):
         mol.basis = inputParams['basis']
         scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
         scf_wfn.conv_tol = 1e-8
-        hf.kernel() # runs RHF calculations
+        scf.kernel() # runs RHF calculations
         scf_e = scf_wfn.e_tot
         E_nucl = mol.energy_nuc()
 

@@ -6,3 +6,7 @@ $ cmake .. -DPYTHON_EXECUTABLE=$(which python3.7) -DCMAKE_INSTALL_PREFIX=$(pytho
 $ make -j24 install
 $ export PYTHONPATH=~/.xacc:~/.local/lib/python3.7/site-packages/psi4/lib
 ```
+## Install PySCF
+```bash
+$ pip install pyscf
+```
