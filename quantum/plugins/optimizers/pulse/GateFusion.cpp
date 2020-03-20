@@ -1,4 +1,5 @@
 #include "GateFusion.hpp"
+#include <numeric>
 namespace {
     const std::complex<double> I(0.0, 1.0);
     Eigen::MatrixXcd Xmat{ Eigen::MatrixXcd::Zero(2, 2) }; 
@@ -47,23 +48,13 @@ Eigen::MatrixXcd GateFuser::calcFusedGate(int in_dim) const
 {
     const auto matSize = 1ULL << in_dim;
     Eigen::MatrixXcd resultMat = Eigen::MatrixXcd::Identity(matSize, matSize);
+    // Qubit index list (0->(dim-1))
+    std::vector<size_t> index_list(in_dim);
+    std::iota(index_list.begin(), index_list.end(), 0);
     
-    std::vector<size_t> index_list;
-    for (int i = 0; i < in_dim; ++i)
+    for (const auto& item : m_gates)
     {
-        index_list.push_back(i);
-    }	
-
-    for (auto& item : m_gates)
-    {
-        const auto& idx = item.bitIdx;
-        std::vector<size_t> idx2mat(idx.size());
-        for (size_t i = 0; i < idx.size(); ++i)
-        {
-            idx2mat[i] = static_cast<size_t>(
-                ((std::equal_range(index_list.begin(), index_list.end(), idx[i])).first - index_list.begin()));
-        }
-			      
+        const auto& idx = item.bitIdx;     			      
         for (size_t k = 0; k < matSize; ++k)
         { 
             // loop over big matrix columns
@@ -80,9 +71,8 @@ Eigen::MatrixXcd GateFuser::calcFusedGate(int in_dim) const
                 size_t local_i = 0;
                 for (size_t l = 0; l < idx.size(); ++l)
                 {
-                    local_i |= ((i >> idx2mat[l]) & 1) << l;
+                    local_i |= ((i >> idx[l]) & 1) << l;
                 }
-                    
                     
                 std::complex<double> res = 0.;
                 for (size_t j = 0; j < (1ULL<<idx.size()); ++j)
@@ -90,9 +80,9 @@ Eigen::MatrixXcd GateFuser::calcFusedGate(int in_dim) const
                     size_t locIdx = i;
                     for (size_t l = 0; l < idx.size(); ++l)
                     {
-                        if (((j >> l)&1) != ((i >> idx2mat[l])&1))
+                        if (((j >> l)&1) != ((i >> idx[l])&1))
                         {
-                            locIdx ^= (1ULL << idx2mat[l]);
+                            locIdx ^= (1ULL << idx[l]);
                         }
                     }
                         
