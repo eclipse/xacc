@@ -24,6 +24,7 @@
 #include "variant.hpp"
 
 #include "Utils.hpp"
+#include <complex>
 
 namespace xacc {
 
@@ -254,6 +255,7 @@ std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
 template const bool& HeterogeneousMap::get<bool>(const std::string key) const;
 template const int& HeterogeneousMap::get<int>(const std::string key) const;
 template const double& HeterogeneousMap::get<double>(const std::string key) const;
+template const std::vector<std::complex<double>>& HeterogeneousMap::get<std::vector<std::complex<double>>>(const std::string key) const;
 
 template <typename... Types> class Variant : public mpark::variant<Types...> {
 
