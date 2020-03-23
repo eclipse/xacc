@@ -36,7 +36,22 @@ private:
     // Single iteration calculation
     std::vector<std::vector<double>> evaluate();
 private:
-    const GrapeConfigs& m_configs;
+    GrapeConfigs m_configs;
     std::vector<std::vector<std::vector<double>>> m_pulses;
     std::vector<Eigen::MatrixXcd> m_uMats; 
 };
+
+namespace xacc {
+// Public GRAPE pulse optimization interface
+class PulseOptimGRAPE : public PulseOptim
+{   
+public:
+    const std::string name() const override { return "GRAPE"; }
+    const std::string description() const override { return ""; }
+    bool initialize(const HeterogeneousMap& in_options) override;
+    OptResult optimize() override;
+private:
+    std::unique_ptr<GrapePulseOptim> m_optimizer;
+    int m_nbIters;
+};
+}
