@@ -30,7 +30,7 @@ class GrapePulseOptim
 {
 public:
     GrapePulseOptim(const GrapeConfigs& in_configs);
-    GrapeResult optimize(int in_nIters);
+    GrapeResult optimize(int in_nIters, double in_tol);
 
 private:
     // Single iteration calculation
@@ -53,5 +53,6 @@ public:
 private:
     std::unique_ptr<GrapePulseOptim> m_optimizer;
     int m_nbIters;
+    double m_tol;
 };
 }

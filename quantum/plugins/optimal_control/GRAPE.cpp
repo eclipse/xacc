@@ -10,6 +10,23 @@ namespace {
         const double dim = in_mat1.rows();
         return ((in_mat1.adjoint() * in_mat2).trace()) / dim;
     };
+
+    std::vector<double> randPulse(int in_nbSamples)
+    {
+        std::vector<double> result;
+        result.reserve(in_nbSamples);
+
+        for (int i = 0; i < in_nbSamples; ++i)
+        {
+            constexpr double LO = -1;
+            constexpr double HI = 1;
+
+            const double val = LO + static_cast<double>(rand())/(static_cast<double>(RAND_MAX/(HI-LO)));
+            result.emplace_back(val);
+        }
+        
+        return result;
+    }
 }
 
 GrapePulseOptim::GrapePulseOptim(const GrapeConfigs& in_configs):
@@ -18,18 +35,29 @@ GrapePulseOptim::GrapePulseOptim(const GrapeConfigs& in_configs):
     m_pulses.emplace_back(in_configs.initial_pulses);
 }
 
-GrapeResult GrapePulseOptim::optimize(int in_nIters)
+GrapeResult GrapePulseOptim::optimize(int in_nIters, double in_tol)
 {
     m_pulses.reserve(in_nIters + 1);
     for (int i = 0; i < in_nIters; ++i)
     {
         const auto newPulses = evaluate();
         m_pulses.emplace_back(std::move(newPulses));
+        assert(m_uMats.size() == (i + 1));
+        const double fidelityError = 1.0 - std::abs(overlapCalc(m_configs.targetU, m_uMats.back()));
+        // Logging: 
+        std::cout << "Iteration " << i << ": Fidelity error = " << fidelityError << "\n";
+
+        if (fidelityError < in_tol)
+        {
+            // Debug
+            std::cout << "Achieved fidelity target. Terminating the optimization loop.\n";
+            break;
+        }
     }
     
     GrapeResult result;
     result.pulses = m_pulses.back();
-    result.overlap = overlapCalc(m_configs.targetU, m_uMats.back()).real();
+    result.overlap = std::abs(overlapCalc(m_configs.targetU, m_uMats.back()));
     return result;
 }
 
@@ -90,7 +118,9 @@ std::vector<std::vector<double>> GrapePulseOptim::evaluate()
             const auto& H_ops = m_configs.H_ops;
             const auto P = U_b_list[timeIdx] * U;
             const auto Q = I * m_configs.dt * H_ops[i] * U_f_list[timeIdx];
-            const std::complex<double> du = - overlapCalc(P, Q);
+            // Note: we will be using a global-phase insensitive optimization.
+            // This simplifies the implementation and makes it consistent across optimization methods.
+            const std::complex<double> du = -2.0*overlapCalc(P, Q)*overlapCalc(U_f_list[timeIdx], P);
             // Gradient-based update
             newPulses[i][timeIdx] = oldPulses[i][timeIdx] + m_configs.eps * du.real();
         }
@@ -105,7 +135,8 @@ namespace xacc {
 
 // ============= GRAPE ==========================
 // - Required: { "dimension" : int } : system dimension (number of qubits)
-// - Required: { "max-iterations": int}: max number of iteration
+// - Optional: { "grape-maxeval": int}: max number of iteration (default = 1000)
+// - Optional: { "grape-ftol": double}: fidelity error tolerance, stop if achieved (default = 1e-10)
 // - Required: { "target-U" : string or EigenMatrix } : 
 //   If string, represents a Pauli observable type string
 //  e.g. "X", "X1Z2", etc.
@@ -139,16 +170,22 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
         return false;
     }
     
-    m_nbIters = 0;
-    if (in_options.keyExists<int>("max-iterations")) 
+    m_nbIters = 1000;
+    if (in_options.keyExists<int>("grape-maxeval")) 
     {
-        m_nbIters = in_options.get<int>("max-iterations");
+        m_nbIters = in_options.get<int>("grape-maxeval");
     }
 
     if (m_nbIters < 1)
     {
         xacc::error("Invalid 'max-iterations' parameter.");
         return false;
+    }
+    
+    m_tol = 1e-10;
+    if (in_options.keyExists<double>("grape-ftol")) 
+    {
+        m_tol = in_options.get<double>("grape-ftol");
     }
 
     auto pauliMatrixUtil = xacc::getService<xacc::UnitaryMatrixUtil>("Pauli");
@@ -226,7 +263,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
         // Initial pulses are not provided, constructed here
         for (int i = 0; i < H_ops.size(); ++i)
         {
-            const std::vector<double> pulse(nbSamples, 0.0);
+            const std::vector<double> pulse = randPulse(nbSamples);
             initialPulses.emplace_back(std::move(pulse));
         }
     }
@@ -255,7 +292,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
 
 OptResult PulseOptimGRAPE::optimize()
 {
-    const auto optimRes = m_optimizer->optimize(m_nbIters);
+    const auto optimRes = m_optimizer->optimize(m_nbIters, m_tol);
     std::vector<double> flattenPulses;
     for (const auto& pulse: optimRes.pulses)
     {
