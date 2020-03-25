@@ -402,6 +402,63 @@ You can also use this simulator from C++, just make sure you load the Python ext
    xacc::external::unload_external_language_plugins();
    xacc::Finalize();
 
+QuaC
+++++
+The `QuaC <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration>`_ accelerator is a pulse-level accelerator (simulation only) that can execute quantum circuits at both gate and pulse (analog) level.
+
+To use this accelerator, you need to build and install QuaC (see `here <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration#build-xacc-quac-accelerator-plugin>`_ for instructions.) 
+
+In pulse mode, you need to provide the QuaC accelerator a dynamical system model 
+which can be constructed from an OpenPulse-format Hamiltonian JSON:
+
+.. code:: python
+
+   hamiltonianJson = {
+      "description": "Hamiltonian of a one-qubit system.\n",
+      "h_str": ["-0.5*omega0*Z0", "omegaa*X0||D0"],
+      "osc": {},
+      "qub": {
+         "0": 2
+      },
+      "vars": {
+         "omega0": 6.2831853,
+         "omegaa": 0.0314159
+      } 
+   }
+   # Create a pulse system model object 
+   model = xacc.createPulseModel()
+   # Load the Hamiltonian JSON (string) to the system model
+   loadResult = model.loadHamiltonianJson(json.dumps(hamiltonianJson))
+
+The QuaC simulator can then be requested by
+
+.. code:: python
+
+   qpu = xacc.getAccelerator('QuaC', {'system-model': model.name()})
+
+Pulse-level instructions can be constructed manually (assigning sample points)
+
+.. code:: python
+
+   pulseData = np.ones(pulseLength)
+   # Register the pulse named 'square' as an XACC instruction
+   xacc.addPulse('square', pulseData) 
+   provider = xacc.getIRProvider('quantum')
+   squarePulseInst = provider.createInstruction('square', [0])
+   squarePulseInst.setChannel('d0')
+   # This instruction can be added to any XACC quantum Composite Instruction
+   prog.addInstruction(squarePulseInst)
+
+or automatically (converting from quantum gates to pulses). 
+To use automatic gate-to-pulse functionality, we need to load a pulse library to the accelerator as follows:
+
+.. code:: python
+
+   # Load the backend JSON file which contains a pulse library
+   backendJson = open('backends.json', 'r').read()
+   qpu.contributeInstructions(backendJson) 
+
+For more information, please check out these `examples <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration/xacc_examples/python>`_.
 
 Algorithms
 ----------
