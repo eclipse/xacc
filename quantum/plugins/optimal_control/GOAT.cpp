@@ -496,69 +496,8 @@ bool PulseOptimGOAT::initialize(const HeterogeneousMap& in_options)
         return fatalError("dimension");
     }
 
-    const std::complex<double> I(0.0, 1.0);
-    Matrix targetUmat;
-    // If a string type "target-U" was provided:
-    if (in_options.stringExists("target-U")) 
-    {
-        const std::string targetU = in_options.getString("target-U");
-        targetUmat = GOAT_PulseOptim::constructMatrixFromPauliString(targetU, dimension) * (-I);
-    }
-    else if (in_options.keyExists<Matrix>("target-U"))
-    {
-        targetUmat = in_options.get<Matrix>("target-U");
-        if (targetUmat.rows() != targetUmat.cols() && targetUmat.rows() != (1 << dimension))
-        {
-            xacc::error("Target unitary matrix is invalid. Please check your input!\n");
-            return false;
-        }
-    }
-    else if (in_options.keyExists<std::vector<std::complex<double>>>("target-U"))
-    {
-        const auto inMat = in_options.get<std::vector<std::complex<double>>>("target-U");
-        const int mDim = static_cast<int>(std::sqrt(inMat.size()));
-        targetUmat = Matrix::Zero(mDim, mDim);
-        for (int i = 0; i < mDim; ++i)
-        {
-            for (int j = 0; j < mDim; ++j)
-            {
-                const auto idx = i*mDim + j;
-                targetUmat(i, j) = inMat[idx];
-            }
-        }
-
-        // Handle global phase (extra i multiplier in the U matrix): 
-        // this has no implication in the unitary (global phase), but affects the gradient calculator.
-        // For example, an Rx(theta) is defined with anti-diagonal terms of '-i*sin(theta/2)'
-        // but X gate (theta = pi) is defined without that *i* term.
-        // Hence, we check if the overall matrix don't have any imaginary elements,
-        // then we need to add a global '-i' multiplier.
-        const bool hasImagElem = [&inMat](){
-            for (const auto& elem : inMat)
-            {
-                if (std::abs(elem.imag()) > 1.0e-12)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }();
-
-        if (!hasImagElem)
-        {
-            targetUmat *= (-I);
-        }
-
-        if (targetUmat.rows() != targetUmat.cols() && targetUmat.rows() != (1 << dimension))
-        {
-            xacc::error("Target unitary matrix is invalid. Please check your input!\n");
-            return false;
-        }
-    }
-    else 
-    {
-        return fatalError("target-U");
-    }
+    auto pauliMatrixUtil = xacc::getService<xacc::UnitaryMatrixUtil>("Pauli");
+    const Matrix targetUmat = pauliMatrixUtil->fromHeterogeneousMap(in_options, dimension);
 
     // H0 is optional
     std::string H0;
@@ -687,5 +626,61 @@ OptResult PulseOptimGOAT::optimize()
 {
     const auto result = m_goatOptimizer->optimize();
     return std::make_pair(result.finalCost, result.optParams);
+}
+
+Eigen::MatrixXcd PauliUnitaryMatrixUtil::fromHeterogeneousMap(const HeterogeneousMap& in_options, int in_dimension, const std::string& in_fieldName = "")
+{
+    const std::string fieldName = in_fieldName.empty() ? "target-U" : in_fieldName;
+    const std::complex<double> I(0.0, 1.0);
+    Matrix targetUmat = Matrix::Identity(1 << in_dimension, 1 << in_dimension);
+   
+    // If a string type "target-U" was provided:
+    if (in_options.stringExists("target-U")) 
+    {
+        const std::string targetU = in_options.getString("target-U");
+        targetUmat = fromString(targetU, in_dimension) * (-I);
+    }
+    else if (in_options.keyExists<Matrix>("target-U"))
+    {
+        targetUmat = in_options.get<Matrix>("target-U");
+    }
+    else if (in_options.keyExists<std::vector<std::complex<double>>>("target-U"))
+    {
+        const auto inMat = in_options.get<std::vector<std::complex<double>>>("target-U");
+        const int mDim = static_cast<int>(std::sqrt(inMat.size()));
+        targetUmat = Matrix::Zero(mDim, mDim);
+        for (int i = 0; i < mDim; ++i)
+        {
+            for (int j = 0; j < mDim; ++j)
+            {
+                const auto idx = i*mDim + j;
+                targetUmat(i, j) = inMat[idx];
+            }
+        }
+
+        // Handle global phase (extra i multiplier in the U matrix): 
+        // this has no implication in the unitary (global phase), but affects the gradient calculator.
+        // For example, an Rx(theta) is defined with anti-diagonal terms of '-i*sin(theta/2)'
+        // but X gate (theta = pi) is defined without that *i* term.
+        // Hence, we check if the overall matrix don't have any imaginary elements,
+        // then we need to add a global '-i' multiplier.
+        const bool hasImagElem = [&inMat](){
+            for (const auto& elem : inMat)
+            {
+                if (std::abs(elem.imag()) > 1.0e-12)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }();
+
+        if (!hasImagElem)
+        {
+            targetUmat *= (-I);
+        }
+    }
+
+    return targetUmat;    
 }
 }
