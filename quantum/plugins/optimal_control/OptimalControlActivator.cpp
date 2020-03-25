@@ -16,6 +16,7 @@
 #include <memory>
 #include "OptimalControl.hpp"
 #include "GOAT.hpp"
+#include "GRAPE.hpp"
 
 using namespace cppmicroservices;
 
@@ -29,8 +30,11 @@ public:
   void Start(BundleContext context) 
   {
     context.RegisterService<xacc::Optimizer>(std::make_shared<xacc::ControlOptimizer>());
+    context.RegisterService<xacc::UnitaryMatrixUtil>(std::make_shared<xacc::PauliUnitaryMatrixUtil>());
     // Register the GOAT pulse optimization
     context.RegisterService<xacc::PulseOptim>(std::make_shared<xacc::PulseOptimGOAT>());
+    // Register the GRAPE pulse optimization
+    context.RegisterService<xacc::PulseOptim>(std::make_shared<xacc::PulseOptimGRAPE>());
   }
 
   void Stop(BundleContext /*context*/) {}
