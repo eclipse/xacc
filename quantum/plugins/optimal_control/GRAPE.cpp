@@ -156,7 +156,7 @@ namespace xacc {
 // Note: initial-pulses and max-time are both optional *BUT* at least one of them
 // must be provided.
 // - Optional: { "eps": double}: gradient step size multiplier (default = 0.1 * (2 * pi) / max-time)
-bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options) 
+void PulseOptimGRAPE::setOptions(const HeterogeneousMap& in_options) 
 {
     int dimension = 0;
     if (in_options.keyExists<int>("dimension")) 
@@ -167,7 +167,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
     if (dimension < 1)
     {
         xacc::error("Invalid 'dimension' parameter.");
-        return false;
+        return;
     }
     
     m_nbIters = 1000;
@@ -179,7 +179,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
     if (m_nbIters < 1)
     {
         xacc::error("Invalid 'max-iterations' parameter.");
-        return false;
+        return;
     }
     
     m_tol = 1e-10;
@@ -211,7 +211,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
     else
     {
         xacc::error("Missing 'control-H' parameter.");
-        return false;
+        return;
     }
     std::vector<Eigen::MatrixXcd> H_ops;
     for (const auto& opStr : controlOps)
@@ -228,7 +228,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
     else
     {
         xacc::error("Missing 'dt' parameter.");
-        return false;
+        return;
     }
 
     int nbSamples = 0;
@@ -245,7 +245,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
         if (initialPulses.size() != H_ops.size() || initialPulses.empty())
         {
             xacc::error("If provided, 'initial-pulses' parameter must contain all control pulses.");
-            return false;
+            return;
         }
 
         nbSamples = initialPulses[0].size(); 
@@ -254,7 +254,7 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
             if (initPulse.empty() || initPulse.size() != nbSamples)
             {
                 xacc::error("Invalid data array is provided in 'initial-pulses' parameter.");
-                return false;
+                return;
             }
         }
     }
@@ -287,7 +287,6 @@ bool PulseOptimGRAPE::initialize(const HeterogeneousMap& in_options)
     }
 
     m_optimizer = std::make_unique<GrapePulseOptim>(configs);
-    return true;
 }
 
 OptResult PulseOptimGRAPE::optimize()
