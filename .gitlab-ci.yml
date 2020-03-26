@@ -37,3 +37,12 @@ docker run_docker_xacc_quac_deploy:
   - cd docker/deploy/dev_quac && docker build -t xacc/xacc-quac . --no-cache
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/xacc-quac
+
+docker run_docker_xacc_qcs_deploy:
+  stage: deploy
+  only: 
+   - schedules
+  script:
+  - cd docker/deploy/dev_qcs && docker build -t xacc/xacc-qcs . --no-cache
+  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
+  - docker push xacc/xacc-qcs
