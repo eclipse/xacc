@@ -25,7 +25,7 @@
 #include <chrono>
 #include <uuid/uuid.h>
 
-#include "json.hpp"
+#include <cpr/cpr.h>
 
 namespace xacc {
 namespace quantum {
@@ -224,5 +224,150 @@ void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
   }
   return;
 }
-} // namespace quantum
-} // namespace xacc
+
+
+std::string QCSAccelerator::post(const std::string &_url,
+                                 const std::string &path,
+                                 const std::string &postStr,
+                                 std::map<std::string, std::string> headers) {
+  std::string postResponse;
+  int retries = 10;
+  std::exception ex;
+  bool succeeded = false;
+
+  // Execute HTTP Post
+  do {
+    try {
+      postResponse = restClient->post(_url, path, postStr, headers);
+      succeeded = true;
+      break;
+    } catch (std::exception &e) {
+      ex = e;
+      xacc::info("Remote Accelerator " + name() +
+                 " caught exception while calling restClient->post() "
+                 "- " +
+                 std::string(e.what()));
+      retries--;
+      if (retries > 0) {
+        xacc::info("Retrying HTTP Post.");
+      }
+    }
+  } while (retries > 0);
+
+  if (!succeeded) {
+    cancel();
+    xacc::error("Remote Accelerator " + name() +
+                " failed HTTP Post for Job Response - " +
+                std::string(ex.what()));
+  }
+
+  return postResponse;
+}
+
+
+std::string
+QCSAccelerator::get(const std::string &_url, const std::string &path,
+                    std::map<std::string, std::string> headers,
+                    std::map<std::string, std::string> extraParams) {
+  std::string getResponse;
+  int retries = 10;
+  std::exception ex;
+  bool succeeded = false;
+  // Execute HTTP Get
+  do {
+    try {
+      getResponse = restClient->get(_url, path, headers, extraParams);
+      succeeded = true;
+      break;
+    } catch (std::exception &e) {
+      ex = e;
+      xacc::info("Remote Accelerator " + name() +
+                 " caught exception while calling restClient->get() "
+                 "- " +
+                 std::string(e.what()));
+      // s1.find(s2) != std::string::npos) {
+      if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos) {
+        cancel();
+        xacc::error(std::string(e.what()));
+      }
+      retries--;
+      if (retries > 0) {
+        xacc::info("Retrying HTTP Get.");
+      }
+    }
+  } while (retries > 0);
+
+  if (!succeeded) {
+    cancel();
+    xacc::error("Remote Accelerator " + name() +
+                " failed HTTP Get for Job Response - " +
+                std::string(ex.what()));
+  }
+
+  return getResponse;
+}
+
+const std::string QCSRestClient::post(const std::string &remoteUrl,
+                                   const std::string &path,
+                                   const std::string &postStr,
+                                   std::map<std::string, std::string> headers) {
+
+  if (headers.empty()) {
+    headers.insert(std::make_pair("Content-type", "application/json"));
+    headers.insert(std::make_pair("Connection", "keep-alive"));
+    headers.insert(std::make_pair("Accept", "*/*"));
+  }
+
+  cpr::Header cprHeaders;
+  for (auto &kv : headers) {
+    cprHeaders.insert({kv.first, kv.second});
+  }
+
+  if (verbose)
+    xacc::info("Posting to " + remoteUrl + path + ", with data " + postStr);
+
+  auto r = cpr::Post(cpr::Url{remoteUrl + path}, cpr::Body(postStr), cprHeaders,
+                     cpr::VerifySsl(false));
+
+  if (r.status_code != 200)
+    throw std::runtime_error("HTTP POST Error - status code " +
+                             std::to_string(r.status_code) + ": " +
+                             r.error.message + ": " + r.text);
+
+  return r.text;
+}
+
+const std::string
+QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
+                std::map<std::string, std::string> headers,
+                std::map<std::string, std::string> extraParams) {
+  if (headers.empty()) {
+    headers.insert(std::make_pair("Content-type", "application/json"));
+    headers.insert(std::make_pair("Connection", "keep-alive"));
+    headers.insert(std::make_pair("Accept", "*/*"));
+  }
+
+  cpr::Header cprHeaders;
+  for (auto &kv : headers) {
+    cprHeaders.insert({kv.first, kv.second});
+  }
+
+  cpr::Parameters cprParams;
+  for (auto &kv : extraParams) {
+    cprParams.AddParameter({kv.first, kv.second});
+  }
+
+  if (verbose)
+    xacc::info("GET at " + remoteUrl + path);
+  auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,
+                    cpr::VerifySsl(false));
+
+  if (r.status_code != 200)
+    throw std::runtime_error("HTTP GET Error - status code " +
+                             std::to_string(r.status_code) + ": " +
+                             r.error.message + ": " + r.text);
+
+  return r.text;
+}
+}
+}
