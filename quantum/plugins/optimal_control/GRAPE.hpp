@@ -43,13 +43,14 @@ private:
 
 namespace xacc {
 // Public GRAPE pulse optimization interface
-class PulseOptimGRAPE : public PulseOptim
+class PulseOptimGRAPE : public Optimizer
 {   
 public:
     const std::string name() const override { return "GRAPE"; }
     const std::string description() const override { return ""; }
-    bool initialize(const HeterogeneousMap& in_options) override;
+    void setOptions(const HeterogeneousMap& in_options) override;
     OptResult optimize() override;
+    OptResult optimize(OptFunction& function) override { return optimize(); }
 private:
     std::unique_ptr<GrapePulseOptim> m_optimizer;
     int m_nbIters;

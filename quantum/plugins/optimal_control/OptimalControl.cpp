@@ -19,17 +19,12 @@ void ControlOptimizer::setOptions(const HeterogeneousMap& in_options)
 
     // This will throw if the method is not supported.
     // Currently, we only have "GOAT" implemented
-    m_pulseOptim = xacc::getService<PulseOptim>(in_options.getString("method"));
-    m_initialized =  m_pulseOptim->initialize(in_options);
+    m_pulseOptim = xacc::getService<Optimizer>(in_options.getString("method"));
+    m_pulseOptim->setOptions(in_options);
 }
 
 OptResult ControlOptimizer::optimize()
 {
-    if (!m_initialized)
-    {
-        xacc::error("Fatal: Optimal Control Module must be initialized before use!");
-    }
-
     return m_pulseOptim->optimize();
 }
 
