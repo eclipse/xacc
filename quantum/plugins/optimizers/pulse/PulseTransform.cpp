@@ -251,7 +251,7 @@ namespace quantum {
         // If "GRAPE" (or other time-series methods),
         // we already optimize the pulses as data arrays, 
         // hence just need to make pulses from those arrays.
-        if (method == "GRAPE")
+        else
         {
             program->clear();
             const auto nbControls = controlOps.size();
@@ -265,7 +265,7 @@ namespace quantum {
             // Add optimized pulses
             for (int pulseId = 0; pulseId < nbControls; ++pulseId)
             {
-                const std::string pulse_name = "Grape_Optim_Pulse_" + std::to_string(pulseId);          
+                const std::string pulse_name = method + "_Optim_Pulse_" + std::to_string(pulseId);          
                 auto pulse = std::make_shared<xacc::quantum::Pulse>(pulse_name);
                 pulse->setChannel(controlChannels[pulseId]);
                 

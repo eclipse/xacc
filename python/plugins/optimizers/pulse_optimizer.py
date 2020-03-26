@@ -2,6 +2,8 @@ import xacc
 from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provides, \
     Validate, Invalidate, Instantiate
 
+import numpy as np
+
 # Define a pulse optimization procedure
 @ComponentFactory("py_pulse_optimizer_factory")
 @Provides("optimizer")
@@ -25,7 +27,7 @@ class MlPulseOptimizer(xacc.Optimizer):
             self.dimension = opts['dimension']
         # Target unitary matrix
         if 'target-U' in opts:
-            self.targerU = opts['target-U']
+            self.targetU = opts['target-U']
         # Static Hamiltonian
         if 'static-H' in opts:
             self.H0 = opts['static-H']
@@ -51,5 +53,20 @@ class MlPulseOptimizer(xacc.Optimizer):
     def optimize(self):
         # TODO: we can now call any Python lib to
         # perform pulse optimization (marshalling the options/parameters if required)
-        print("Howdy!!")
-        return (0.0, [0.0])
+        # For example, one can use Qutip pulse optimization:
+        # Notes about data types: 
+        # - targerU: flatten (row-by-row) U matrix into a 1-D array of complex numbers
+        # - H0: string-type representation of the static Hamiltonian:
+        # e.g.: 0.123 Z0Z1
+        # - Hops: array of strings represent terms on the Hamiltonian which can be controlled.
+        # Depending on the specific library we use for pulse optimization,
+        # we may need to marshal these data types accordingly.
+        print('Target U: ')
+        print(self.targetU)
+        print('Hops: ')
+        print(self.Hops)
+        nbSamples = (int)(self.tMax/self.dt)
+        # DUMMY: just return a zero array
+        pulse = np.zeros(nbSamples * len(self.Hops))
+        # Return the final cost functional value and the array of pulse samples.
+        return (0.0, pulse)
