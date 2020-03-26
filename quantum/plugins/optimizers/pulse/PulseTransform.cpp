@@ -79,14 +79,13 @@ namespace quantum {
         buffer->addExtraInfo("ir-transform", true);
         accelerator->execute(buffer, nullptr);
         
-        // Debug
-        buffer->print();
         // Step 1: Retrieve the system dynamics from the Accelerator backend
         const std::string H0 = buffer->getInformation("static-H").as<std::string>();
         const std::vector<std::string> controlOps =  buffer->getInformation("control-H").as<std::vector<std::string>>();
         const std::vector<std::string> controlChannels =  buffer->getInformation("control-channels").as<std::vector<std::string>>();
         assert(controlOps.size() == controlChannels.size());
         const double backendDt = buffer->getInformation("dt").as<double>();
+        const std::string hamJsonStr = buffer->getInformation("ham-json").as<std::string>();
         
         // Step 2: Compute the total unitary matrix
         auto fuser = xacc::getService<GateFuser>("default");
@@ -190,7 +189,8 @@ namespace quantum {
             std::make_pair("static-H", H0),
             // Max time
             std::make_pair("max-time", tMax),
-            std::make_pair("dt", backendDt)
+            std::make_pair("dt", backendDt),
+            std::make_pair("hamiltonian-json", hamJsonStr)
         };
 
         auto optimizer = xacc::getOptimizer("quantum-control", pulseOptimConfigs);

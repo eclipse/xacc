@@ -40,6 +40,8 @@ class MlPulseOptimizer(xacc.Optimizer):
         # Pulse sample dt (number of samples over the time horizon)
         if 'dt' in opts:
             self.dt = opts['dt']
+        if 'hamiltonian-json' in opts:
+            self.hamJson = opts['hamiltonian-json']
         # Note: if the method requires specific parameters,
         # we can require those params being specified in the IR transformation options
         # then propagate to here. 
@@ -65,6 +67,10 @@ class MlPulseOptimizer(xacc.Optimizer):
         print(self.targetU)
         print('Hops: ')
         print(self.Hops)
+        # At the very basic level, we have full access to the Hamiltonian JSON here
+        # i.e. we could use any OpenPulse-compatible solver to perform simulation/optimization 
+        # if needed for the IR transformation (optimizing for the target unitary matrix).
+        print(self.hamJson)
         nbSamples = (int)(self.tMax/self.dt)
         # DUMMY: just return a zero array
         pulse = np.zeros(nbSamples * len(self.Hops))
