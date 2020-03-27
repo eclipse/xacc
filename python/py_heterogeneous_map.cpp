@@ -28,6 +28,11 @@ void bind_heterogeneous_map(py::module &m) {
                xacc::HeterogeneousMap::insert,
            "")
       .def("insert",
+           (void (xacc::HeterogeneousMap::*)(const std::string,
+                                             const std::vector<std::complex<double>> &)) &
+               xacc::HeterogeneousMap::insert,
+           "")
+      .def("insert",
            (void (xacc::HeterogeneousMap::*)(
                const std::string, const std::vector<std::pair<int, int>> &)) &
                xacc::HeterogeneousMap::insert,
@@ -56,6 +61,8 @@ void bind_heterogeneous_map(py::module &m) {
               return m.getString(key);
             } else if (m.keyExists<std::vector<double>>(key)) {
               return m.get<std::vector<double>>(key);
+            } else if (m.keyExists<std::vector<std::complex<double>>>(key)) {
+              return m.get<std::vector<std::complex<double>>>(key);
             } else if (m.keyExists<std::vector<int>>(key)) {
               return m.get<std::vector<int>>(key);
             } else if (m.keyExists<std::shared_ptr<Observable>>(key)) {
@@ -76,6 +83,7 @@ void bind_heterogeneous_map(py::module &m) {
             return m.keyExists<int>(key) || m.keyExists<double>(key) ||
                    m.keyExists<bool>(key) || m.stringExists(key) ||
                    m.keyExists<std::vector<double>>(key) ||
+                   m.keyExists<std::vector<std::complex<double>>>(key) ||
                    m.keyExists<std::vector<int>>(key) ||
                    m.keyExists<std::vector<std::string>>(key) ||
                    m.keyExists<std::shared_ptr<Observable>>(key) ||
@@ -87,7 +95,7 @@ void bind_heterogeneous_map(py::module &m) {
       m, "PyHeterogeneousMap",
       "The PyHeterogeneousMap provides a variant structure "
       "to provide parameters to XACC HeterogeneousMaps."
-      "This type can be an int, double, string, List[int], List[double]"
+      "This type can be an int, double, string, List[int], List[double], List[complex]"
       "List[string], Observable, Accelerator, Function, or Optimizer.")
       .def(py::init<int>(), "Construct as an int.")
       .def(py::init<bool>(), "Construct as a bool")
@@ -96,6 +104,7 @@ void bind_heterogeneous_map(py::module &m) {
       .def(py::init<std::vector<std::string>>(), "Construct as a List[string].")
       .def(py::init<std::vector<int>>(), "Construct as a List[int].")
       .def(py::init<std::vector<double>>(), "Construct as a List[double].")
+      .def(py::init<std::vector<std::complex<double>>>(), "Construct as a List[complex].")
       .def(py::init<std::shared_ptr<xacc::Accelerator>>(),
            "Construct as an Accelerator.")
       .def(py::init<std::shared_ptr<xacc::CompositeInstruction>>(),

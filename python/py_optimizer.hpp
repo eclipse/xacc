@@ -39,6 +39,11 @@ public:
   OptResult optimize(OptFunction &function) override {
       PYBIND11_OVERLOAD_PURE(OptResult, xacc::Optimizer, optimize, function);
   }
+  
+  OptResult optimize() override {
+      PYBIND11_OVERLOAD(OptResult, xacc::Optimizer, optimize);
+  }
+  
   void setOptions(const HeterogeneousMap &opts) override {
       PYBIND11_OVERLOAD_PURE(void, xacc::Optimizer, setOptions, opts);
   }

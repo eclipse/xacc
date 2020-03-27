@@ -7,7 +7,7 @@ namespace xacc {
 // Preliminary specs of the Optimal Control options:
 // ***REQUIRE*** { "method" : string}
 // The control method that we want to use.
-// Available options: "GOAT"
+// Available options: "GOAT", "GRAPE", etc.
 // =============================================
 void ControlOptimizer::setOptions(const HeterogeneousMap& in_options)
 {
@@ -18,18 +18,12 @@ void ControlOptimizer::setOptions(const HeterogeneousMap& in_options)
     }
 
     // This will throw if the method is not supported.
-    // Currently, we only have "GOAT" implemented
-    m_pulseOptim = xacc::getService<PulseOptim>(in_options.getString("method"));
-    m_initialized =  m_pulseOptim->initialize(in_options);
+    m_pulseOptim = xacc::getOptimizer(in_options.getString("method"));
+    m_pulseOptim->setOptions(in_options);
 }
 
 OptResult ControlOptimizer::optimize()
 {
-    if (!m_initialized)
-    {
-        xacc::error("Fatal: Optimal Control Module must be initialized before use!");
-    }
-
     return m_pulseOptim->optimize();
 }
 
