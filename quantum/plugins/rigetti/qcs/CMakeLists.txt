@@ -29,7 +29,7 @@ set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{HOME}/.zmq")
 find_package(cppzmq)
 
 target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing cppzmq ${UUID_LIBRARIES})
+                      PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing cppzmq cpr ${UUID_LIBRARIES})
 
 set(_bundle_name xacc_rigetti_qcs)
 
