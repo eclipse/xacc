@@ -156,7 +156,10 @@ void QCSAccelerator::execute(
   zmq::socket_t qpu_compiler_socket(context1, zmq::socket_type::dealer);
   zmq::socket_t qpu_socket(context2, zmq::socket_type::dealer);
 
-  qpu_compiler_socket.connect(qpu_compiler_endpoint);
+  std::cout << "Connecting compiler: " << qpu_compiler_endpoint << "\n";
+//   qpu_compiler_socket.connect(qpu_compiler_endpoint);
+
+  std::cout << "Connecting qpu: " << qpu_endpoint << "\n";
   qpu_socket.connect(qpu_endpoint);
 
   uuid_t uuid;
@@ -167,26 +170,53 @@ void QCSAccelerator::execute(
 
   // Run native_quil_to_binary, get binary
   // program from returned json
-  qcs::BinaryExecutableRequest binExecReq(shots, quilStr);
-  qcs::BinaryExecutableParams params(binExecReq);
-  qcs::RPCRequestBinaryExecutable r(id, params);
-  auto unpackedData = request(r, qpu_compiler_socket);
-  std::stringstream ss;
-  ss << unpackedData.get();
-  auto execBinaryJson = json::parse(ss.str());
-  auto prog = execBinaryJson["result"]["program"].dump();
+//   qcs::BinaryExecutableRequest binExecReq(shots, quilStr);
+//   qcs::BinaryExecutableParams params(binExecReq);
+//   qcs::RPCRequestBinaryExecutable r(id, params);
+//   auto unpackedData = request(r, qpu_compiler_socket);
+//   std::stringstream ss;
+//   ss << unpackedData.get();
+//   auto execBinaryJson = json::parse(ss.str());
+//   auto prog = std::string("");//execBinaryJson["result"]["program"].dump();
+
+    json j;
+    j["quil"] = quilStr;
+    j["num_shots"] = shots;
+    j["_type"] = "BinaryExecutableRequest";
+
+    std::string json_data = j.dump();
+
+    std::map<std::string, std::string> headers{
+        {"Content-Type", "application/json"},
+        {"Connection", "keep-alive"},
+        {"Accept", "application/octet-stream"},
+        {"Content-Length", std::to_string(json_data.length())},
+        {"Authorization",
+         "Bearer " + auth_token}};
+
+         std::cout << json_data << "\n";
+
+   auto resp = this->post(qpu_compiler_endpoint,
+                           "/devices/Aspen-4/native_quil_to_binary", json_data, headers);
+
+   std::cout << "RAN Q2NQ\n";
+   std::cout << resp << "\n";
+   auto prog = json::parse(resp)["program"].get<std::string>();
 
   // Run execute_qpu_request, get job-id
   qcs::QPURequest qpuReq(prog, id);
   qcs::QPURequestParams qpuParams(qpuReq);
   qcs::RPCRequestQPURequest r2(id, qpuParams);
+  std::cout << "REQUESTING\n";
   auto unpackedData2 = request(r2, qpu_socket);
+  std::cout << "REQUESTED\n";
   std::stringstream ss2;
   ss2 << unpackedData2.get();
   auto qpuResponseJson = json::parse(ss2.str());
   auto waitId = qpuResponseJson["result"].dump();
   waitId = waitId.substr(1, waitId.length() - 2);
 
+  std::cout << "RAN QPU REQUEST\n NOW GETTING BUFFERS\n";
   // Run get_buffers, convdrt to GetBuffersResponse
   qcs::GetBuffersRequest getBuffers(waitId);
   qcs::RPCRequestGetBuffers r3(id, getBuffers);
