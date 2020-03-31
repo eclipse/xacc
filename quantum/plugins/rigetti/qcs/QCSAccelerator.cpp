@@ -190,7 +190,7 @@ void QCSAccelerator::execute(
 
   // Run execute_qpu_request, get job-id
   qcs::QPURequest qpuReq(prog, get_uuid());
-  qcs::QPURequestParams qpuParams(qpuReq);
+  qcs::QPURequestParams qpuParams(qpuReq, user_id);
   qcs::RPCRequestQPURequest r2(get_uuid(), qpuParams);
   auto unpackedData2 = request(r2, qpu_socket);
   std::stringstream ss2;
