@@ -25,14 +25,15 @@
 #include <chrono>
 #include <uuid/uuid.h>
 
-#include "json.hpp"
+#include <cpr/cpr.h>
+#include <zmq.h>
 
 namespace xacc {
 namespace quantum {
 void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
-                     const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap &options) {
-// std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
+                          const std::shared_ptr<Accelerator> accelerator,
+                          const HeterogeneousMap &options) {
+  // std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
   auto edges = accelerator->getConnectivity();
   auto embeddingAlgorithm = xacc::getService<EmbeddingAlgorithm>("cmr");
@@ -64,53 +65,52 @@ void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
   }
 
   // hardwareGraph->write(std::cout);
-//   for (auto &function : ir->getComposites()) {
-    auto logicalGraph = function->toGraph();
-    InstructionIterator it(function);
-    std::set<int> nUniqueProbBits;
+  //   for (auto &function : ir->getComposites()) {
+  auto logicalGraph = function->toGraph();
+  InstructionIterator it(function);
+  std::set<int> nUniqueProbBits;
 
-    std::vector<std::pair<int, int>> probEdges;
-    while (it.hasNext()) {
-      // Get the next node in the tree
-      auto nextInst = it.next();
-      if (nextInst->isEnabled() && nextInst->bits().size() == 2) {
-        probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
-        nUniqueProbBits.insert(nextInst->bits()[0]);
-        nUniqueProbBits.insert(nextInst->bits()[1]);
-      }
+  std::vector<std::pair<int, int>> probEdges;
+  while (it.hasNext()) {
+    // Get the next node in the tree
+    auto nextInst = it.next();
+    if (nextInst->isEnabled() && nextInst->bits().size() == 2) {
+      probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
+      nUniqueProbBits.insert(nextInst->bits()[0]);
+      nUniqueProbBits.insert(nextInst->bits()[1]);
     }
+  }
 
-    auto nProbBits = nUniqueProbBits.size();
-    auto problemGraph = xacc::getService<Graph>("boost-ugraph");
+  auto nProbBits = nUniqueProbBits.size();
+  auto problemGraph = xacc::getService<Graph>("boost-ugraph");
 
-    for (int i = 0; i < nProbBits; i++) {
-      HeterogeneousMap m{std::make_pair("bias", 1.0)};
-      problemGraph->addVertex(m);
+  for (int i = 0; i < nProbBits; i++) {
+    HeterogeneousMap m{std::make_pair("bias", 1.0)};
+    problemGraph->addVertex(m);
+  }
+
+  for (auto &inst : probEdges) {
+    if (!problemGraph->edgeExists(inst.first, inst.second)) {
+      problemGraph->addEdge(inst.first, inst.second, 1.0);
     }
+  }
 
-    for (auto &inst : probEdges) {
-      if (!problemGraph->edgeExists(inst.first, inst.second)) {
-        problemGraph->addEdge(inst.first, inst.second, 1.0);
-      }
+  // Compute the minor graph embedding
+  auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
+  std::vector<std::size_t> physicalMap;
+  for (auto &kv : embedding) {
+    if (kv.second.size() > 1) {
+      xacc::error("Invalid logical to physical qubit mapping.");
     }
+    physicalMap.push_back(logical2Physical[kv.second[0]]);
+  }
 
-    // Compute the minor graph embedding
-    auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
-    std::vector<std::size_t> physicalMap;
-    for (auto &kv : embedding) {
-      if (kv.second.size() > 1) {
-        xacc::error("Invalid logical to physical qubit mapping.");
-      }
-      physicalMap.push_back(logical2Physical[kv.second[0]]);
-    }
-
-    // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
-    function->mapBits(physicalMap);
-//   }
+  // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
+  function->mapBits(physicalMap);
+  //   }
 
   return;
 }
-
 
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
@@ -152,34 +152,46 @@ void QCSAccelerator::execute(
   // Now we have our quil string, we need to run
   // the binary executable request.
 
-  zmq::context_t context1, context2;
-  zmq::socket_t qpu_compiler_socket(context1, zmq::socket_type::dealer);
-  zmq::socket_t qpu_socket(context2, zmq::socket_type::dealer);
+  zmq::context_t context;
+  zmq::socket_t qpu_socket(context, zmq::socket_type::dealer);
 
-  qpu_compiler_socket.connect(qpu_compiler_endpoint);
+  qpu_socket.set(zmq::sockopt::curve_publickey, client_public);
+  qpu_socket.set(zmq::sockopt::curve_secretkey, client_secret);
+  qpu_socket.set(zmq::sockopt::curve_serverkey, server_public);
   qpu_socket.connect(qpu_endpoint);
+  qpu_socket.set(zmq::sockopt::linger, 0);
 
-  uuid_t uuid;
-  uuid_generate_time_safe(uuid);
-  char uuid_str[37];
-  uuid_unparse_lower(uuid, uuid_str);
-  std::string id(uuid_str);
+  auto get_uuid =
+      []() {
+        uuid_t uuid;
+        uuid_generate_time_safe(uuid);
+        char uuid_str[37];
+        uuid_unparse_lower(uuid, uuid_str);
+        std::string id(uuid_str);
+        return id;
+      };
 
-  // Run native_quil_to_binary, get binary
-  // program from returned json
-  qcs::BinaryExecutableRequest binExecReq(shots, quilStr);
-  qcs::BinaryExecutableParams params(binExecReq);
-  qcs::RPCRequestBinaryExecutable r(id, params);
-  auto unpackedData = request(r, qpu_compiler_socket);
-  std::stringstream ss;
-  ss << unpackedData.get();
-  auto execBinaryJson = json::parse(ss.str());
-  auto prog = execBinaryJson["result"]["program"].dump();
+  json j;
+  j["quil"] = quilStr;
+  j["num_shots"] = shots;
+  j["_type"] = "BinaryExecutableRequest";
+  std::string json_data = j.dump();
+  std::map<std::string, std::string> headers{
+      {"Content-Type", "application/json"},
+      {"Connection", "keep-alive"},
+      {"Accept", "application/octet-stream"},
+      {"Content-Length", std::to_string(json_data.length())},
+      {"Authorization", "Bearer " + auth_token}};
+
+  auto resp =
+      post(qpu_compiler_endpoint,
+                 "/devices/Aspen-4/native_quil_to_binary", json_data, headers);
+  auto prog = json::parse(resp)["program"].get<std::string>();
 
   // Run execute_qpu_request, get job-id
-  qcs::QPURequest qpuReq(prog, id);
-  qcs::QPURequestParams qpuParams(qpuReq);
-  qcs::RPCRequestQPURequest r2(id, qpuParams);
+  qcs::QPURequest qpuReq(prog, get_uuid());
+  qcs::QPURequestParams qpuParams(qpuReq, user_id);
+  qcs::RPCRequestQPURequest r2(get_uuid(), qpuParams);
   auto unpackedData2 = request(r2, qpu_socket);
   std::stringstream ss2;
   ss2 << unpackedData2.get();
@@ -189,7 +201,7 @@ void QCSAccelerator::execute(
 
   // Run get_buffers, convdrt to GetBuffersResponse
   qcs::GetBuffersRequest getBuffers(waitId);
-  qcs::RPCRequestGetBuffers r3(id, getBuffers);
+  qcs::RPCRequestGetBuffers r3(get_uuid(), getBuffers);
   auto unpackedData3 = request(r3, qpu_socket);
   qcs::GetBuffersResponse gbresp;
   unpackedData3.get().convert(gbresp);
@@ -223,6 +235,149 @@ void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
     buffer->appendMeasurement(bitstr);
   }
   return;
+}
+
+std::string QCSAccelerator::post(const std::string &_url,
+                                 const std::string &path,
+                                 const std::string &postStr,
+                                 std::map<std::string, std::string> headers) {
+  std::string postResponse;
+  int retries = 10;
+  std::exception ex;
+  bool succeeded = false;
+
+  // Execute HTTP Post
+  do {
+    try {
+      postResponse = restClient->post(_url, path, postStr, headers);
+      succeeded = true;
+      break;
+    } catch (std::exception &e) {
+      ex = e;
+      xacc::info("Remote Accelerator " + name() +
+                 " caught exception while calling restClient->post() "
+                 "- " +
+                 std::string(e.what()));
+      retries--;
+      if (retries > 0) {
+        xacc::info("Retrying HTTP Post.");
+      }
+    }
+  } while (retries > 0);
+
+  if (!succeeded) {
+    cancel();
+    xacc::error("Remote Accelerator " + name() +
+                " failed HTTP Post for Job Response - " +
+                std::string(ex.what()));
+  }
+
+  return postResponse;
+}
+
+std::string
+QCSAccelerator::get(const std::string &_url, const std::string &path,
+                    std::map<std::string, std::string> headers,
+                    std::map<std::string, std::string> extraParams) {
+  std::string getResponse;
+  int retries = 10;
+  std::exception ex;
+  bool succeeded = false;
+  // Execute HTTP Get
+  do {
+    try {
+      getResponse = restClient->get(_url, path, headers, extraParams);
+      succeeded = true;
+      break;
+    } catch (std::exception &e) {
+      ex = e;
+      xacc::info("Remote Accelerator " + name() +
+                 " caught exception while calling restClient->get() "
+                 "- " +
+                 std::string(e.what()));
+      // s1.find(s2) != std::string::npos) {
+      if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos) {
+        cancel();
+        xacc::error(std::string(e.what()));
+      }
+      retries--;
+      if (retries > 0) {
+        xacc::info("Retrying HTTP Get.");
+      }
+    }
+  } while (retries > 0);
+
+  if (!succeeded) {
+    cancel();
+    xacc::error("Remote Accelerator " + name() +
+                " failed HTTP Get for Job Response - " +
+                std::string(ex.what()));
+  }
+
+  return getResponse;
+}
+
+const std::string
+QCSRestClient::post(const std::string &remoteUrl, const std::string &path,
+                    const std::string &postStr,
+                    std::map<std::string, std::string> headers) {
+
+  if (headers.empty()) {
+    headers.insert(std::make_pair("Content-type", "application/json"));
+    headers.insert(std::make_pair("Connection", "keep-alive"));
+    headers.insert(std::make_pair("Accept", "*/*"));
+  }
+
+  cpr::Header cprHeaders;
+  for (auto &kv : headers) {
+    cprHeaders.insert({kv.first, kv.second});
+  }
+
+  if (verbose)
+    xacc::info("Posting to " + remoteUrl + path + ", with data " + postStr);
+
+  auto r = cpr::Post(cpr::Url{remoteUrl + path}, cpr::Body(postStr), cprHeaders,
+                     cpr::VerifySsl(false));
+
+  if (r.status_code != 200)
+    throw std::runtime_error("HTTP POST Error - status code " +
+                             std::to_string(r.status_code) + ": " +
+                             r.error.message + ": " + r.text);
+
+  return r.text;
+}
+
+const std::string
+QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
+                   std::map<std::string, std::string> headers,
+                   std::map<std::string, std::string> extraParams) {
+  if (headers.empty()) {
+    headers.insert(std::make_pair("Content-type", "application/json"));
+    headers.insert(std::make_pair("Connection", "keep-alive"));
+    headers.insert(std::make_pair("Accept", "*/*"));
+  }
+
+  cpr::Header cprHeaders;
+  for (auto &kv : headers) {
+    cprHeaders.insert({kv.first, kv.second});
+  }
+
+  cpr::Parameters cprParams;
+  for (auto &kv : extraParams) {
+    cprParams.AddParameter({kv.first, kv.second});
+  }
+
+  if (verbose)
+    xacc::info("GET at " + remoteUrl + path);
+  auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,
+                    cpr::VerifySsl(false));
+
+  if (r.status_code != 200)
+    throw std::runtime_error("HTTP GET Error - status code " +
+                             std::to_string(r.status_code) + ": " +
+                             r.error.message + ": " + r.text);
+
+  return r.text;
 }
 } // namespace quantum
 } // namespace xacc
