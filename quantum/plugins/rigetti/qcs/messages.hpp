@@ -30,19 +30,6 @@ public:
    MSGPACK_DEFINE_MAP(quil, num_shots, _type);
 };
 
-class QPURequest {
-  protected:
-    std::string program;
-    std::string id;
-    std::map<std::string,std::string> patch_values;
-    std::string _type = "QPURequest";
-    std::string user = "ccde1544-c4bc-40f0-9914-010be987dc0d";
-    int priority = 1;
-  public:
-    QPURequest(std::string p, std::string i) : program(p), id(i) {}
-    MSGPACK_DEFINE_MAP(id, program, _type, patch_values, user, priority);
-};
-
 class GetBuffersRequest {
 protected:
   bool wait = true;
@@ -93,15 +80,6 @@ public:
   MSGPACK_DEFINE_MAP(MSGPACK_NVP("*args", args));
 };
 
-class QPURequestParams {
-protected:
-  QPURequest& request;
-
-public:
-  QPURequestParams(QPURequest &a) : request(a) {}
-  MSGPACK_DEFINE_MAP(MSGPACK_NVP("request", request));
-};
-
 class RPCRequestBinaryExecutable {
 protected:
   std::string id;
@@ -115,6 +93,28 @@ public:
   MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
 };
 
+class QPURequest {
+  protected:
+    std::string program;
+    std::string id;
+    std::map<std::string,std::string> patch_values;
+    std::string _type = "QPURequest";
+
+  public:
+    QPURequest(std::string p, std::string i) : program(p), id(i) {}
+    MSGPACK_DEFINE_MAP(id, program, _type, patch_values);
+};
+
+class QPURequestParams {
+protected:
+  QPURequest& request;
+  std::string user = "ccde1544-c4bc-40f0-9914-010be987dc0d";
+  int priority = 1;
+public:
+  QPURequestParams(QPURequest &a) : request(a) {}
+  MSGPACK_DEFINE_MAP(MSGPACK_NVP("request", request), user, priority);
+};
+
 class RPCRequestQPURequest {
 protected:
   std::string id;
@@ -122,10 +122,12 @@ protected:
   std::string method = "execute_qpu_request";
   QPURequestParams& params;
   std::string _type = "RPCRequest";
+  msgpack::type::nil_t client_key;
+//   double client_tim/eout;
 
 public:
   RPCRequestQPURequest(std::string i, QPURequestParams &p) : params(p), id(i) {}
-  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type);
+  MSGPACK_DEFINE_MAP(method, id, jsonrpc, params, _type, client_key);
 };
 
 }
