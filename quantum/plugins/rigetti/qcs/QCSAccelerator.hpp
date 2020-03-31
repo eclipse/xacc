@@ -22,7 +22,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "json.hpp"
-  using json = nlohmann::json;
+using json = nlohmann::json;
 
 #define RAPIDJSON_HAS_STDSTRING 1
 
@@ -74,17 +74,18 @@ public:
 class MapToPhysical : public xacc::IRTransformation {
 protected:
   std::vector<std::pair<int, int>> _edges;
+
 public:
   MapToPhysical(std::vector<std::pair<int, int>> &edges) : _edges(edges) {}
   void apply(std::shared_ptr<CompositeInstruction> program,
-                     const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap &options = {}) override;
-  const IRTransformationType type() const override {return IRTransformationType::Placement;}
+             const std::shared_ptr<Accelerator> accelerator,
+             const HeterogeneousMap &options = {}) override;
+  const IRTransformationType type() const override {
+    return IRTransformationType::Placement;
+  }
   const std::string name() const override { return "qcs-map-qubits"; }
   const std::string description() const override { return ""; }
 };
-
-
 
 class QCSAccelerator : virtual public Accelerator {
 protected:
@@ -96,6 +97,8 @@ protected:
   std::string qpu_compiler_endpoint;
   std::string qpu_endpoint;
   std::shared_ptr<QCSRestClient> restClient;
+
+  std::string auth_token = "";
 
   template <typename T>
   msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
@@ -113,38 +116,57 @@ protected:
   }
 
   void getSocketURLs() {
-    std::ifstream stream(std::getenv("HOME") + std::string("/.qcs/user_auth_token"));
+    std::ifstream stream(std::getenv("HOME") +
+                         std::string("/.qcs/user_auth_token"));
     std::string contents((std::istreambuf_iterator<char>(stream)),
                          std::istreambuf_iterator<char>());
-    
+
     std::cout << "HELLO2:\n" << contents << "\n";
     auto auth_json = json::parse(contents);
 
-    std::string graph_ql_query = "\\n          mutation Engage($name: String!) {\\n            engage(input: { lattice: { name: $name }}) {\\n              success\\n              message\\n              engagement {\\n                type\\n                qpu {\\n                    endpoint\\n                    credentials {\\n                        clientPublic\\n                        clientSecret\\n                        serverPublic\\n                    }\\n                }\\n                compiler {\\n                    endpoint\\n                }\\n                expiresAt\\n              }\\n            }\\n          }\\n        ";
-    std::string json_data = "{\"query\": \"" +graph_ql_query+"\", \"variables\": {\"name\": \""+backend+"\"}}";
+    std::string graph_ql_query =
+        "\\n          mutation Engage($name: String!) {\\n            "
+        "engage(input: { lattice: { name: $name }}) {\\n              "
+        "success\\n              message\\n              engagement {\\n       "
+        "         type\\n                qpu {\\n                    "
+        "endpoint\\n                    credentials {\\n                       "
+        " clientPublic\\n                        clientSecret\\n               "
+        "         serverPublic\\n                    }\\n                }\\n  "
+        "              compiler {\\n                    endpoint\\n            "
+        "    }\\n                expiresAt\\n              }\\n            "
+        "}\\n          }\\n        ";
+    std::string json_data = "{\"query\": \"" + graph_ql_query +
+                            "\", \"variables\": {\"name\": \"" + backend +
+                            "\"}}";
     std::map<std::string, std::string> headers{
         {"Content-Type", "application/json"},
         {"Connection", "keep-alive"},
         {"Accept", "application/octet-stream"},
         {"Content-Length", std::to_string(json_data.length())},
-        {"Authorization", "Bearer "+auth_json["access_token"].get<std::string>()}};
+        {"Authorization",
+         "Bearer " + auth_json["access_token"].get<std::string>()}};
+    auth_token = auth_json["access_token"].get<std::string>();
+    
+    std::cout << graph_ql_query << "\n";
+    std::cout << json_data.length() << "\n";
+    std::cout << json_data << "\n";
+    auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
+                           "/graphql", json_data, headers);
 
-  std::cout << graph_ql_query << "\n";
-  std::cout << json_data.length() << "\n";
-  std::cout << json_data << "\n";
-   auto resp = this->post("https://dispatch.services.qcs.rigetti.com", "/graphql", json_data, headers);
+    std::cout << "HELLO:\n" << resp << "\n";
 
-  std::cout << "HELLO:\n" << resp << "\n";
+    // this came back
+    auto resp_json = json::parse(resp);
+    qpu_endpoint = resp_json["data"]["engage"]["engagement"]["qpu"]["endpoint"]
+                       .get<std::string>();
+    auto qpu_creds =
+        resp_json["data"]["engage"]["engagement"]["qpu"]["credentials"];
+    qpu_compiler_endpoint =
+        resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"]
+            .get<std::string>();
 
-// this came back 
-  auto resp_json = json::parse(resp);
-  qpu_endpoint = resp_json["data"]["engage"]["engagement"]["qpu"]["endpoint"].get<std::string>();
-  auto qpu_creds = resp_json["data"]["engage"]["engagement"]["qpu"]["credentials"];
-  qpu_compiler_endpoint = resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"].get<std::string>();
-
-
-
-//   {"data":{"engage":{"success":true,"message":"Engagement successful","engagement":{"type":"RESERVATION","qpu":{"endpoint":"tcp://bf02.qpu.production.qcs.rigetti.com:50053","credentials":{"clientPublic":"@LvzUU4Rif>I]2Rdq]8NC*s^Ei}j.9t.kt)Kg-g%","clientSecret":"H3!#u*VbA@q$7hyDJcej*p!Q?8AG$-YfCi0ajZj$","serverPublic":"4wBn%^PIu@}gUYSZQ0sCJ}67}Se?S>z{ij&)&>pZ"}},"compiler":{"endpoint":"https://translation.services.production.qcs.rigetti.com"},"expiresAt":"1585250100"}}}}
+    //   {"data":{"engage":{"success":true,"message":"Engagement
+    //   successful","engagement":{"type":"RESERVATION","qpu":{"endpoint":"tcp://bf02.qpu.production.qcs.rigetti.com:50053","credentials":{"clientPublic":"@LvzUU4Rif>I]2Rdq]8NC*s^Ei}j.9t.kt)Kg-g%","clientSecret":"H3!#u*VbA@q$7hyDJcej*p!Q?8AG$-YfCi0ajZj$","serverPublic":"4wBn%^PIu@}gUYSZQ0sCJ}67}Se?S>z{ij&)&>pZ"}},"compiler":{"endpoint":"https://translation.services.production.qcs.rigetti.com"},"expiresAt":"1585250100"}}}}
 
     if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
       xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
@@ -152,7 +174,8 @@ protected:
   }
 
 public:
-  QCSAccelerator() : Accelerator(), restClient(std::make_shared<QCSRestClient>()) {}
+  QCSAccelerator()
+      : Accelerator(), restClient(std::make_shared<QCSRestClient>()) {}
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::shared_ptr<CompositeInstruction> function) override;
@@ -195,7 +218,9 @@ public:
     xacc::contributeService("qcs-map-qubits", irt);
   }
 
-  const std::string defaultPlacementTransformation() override {return "qcs-map-qubits";}
+  const std::string defaultPlacementTransformation() override {
+    return "qcs-map-qubits";
+  }
 
   void updateConfiguration(const HeterogeneousMap &config) override {
     if (config.keyExists<int>("shots")) {
@@ -224,7 +249,6 @@ public:
   const std::string name() const override { return "qcs"; }
   const std::string description() const override { return ""; }
 
- 
   std::string post(const std::string &_url, const std::string &path,
                    const std::string &postStr,
                    std::map<std::string, std::string> headers = {});

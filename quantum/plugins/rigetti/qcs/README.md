@@ -1,4 +1,15 @@
-# Instructions for building XACC on the QCS
+# Instructions for building XACC on the QCS from scratch
+
+## Install uuid-dev, curl, and gcc 7
+```bash
+sudo yum install libuuid libuuid-devel curl-devel openssl-devel
+sudo yum install centos-release-scl
+sudo yum install devtoolset-7
+sudo yum remove cmake
+sudo python3 -m pip install --upgrade pip 
+sudo python3 -m pip install cmake
+export PATH=$PATH:/usr/local/bin [you might want to add this to .bashrc]
+```
 
 ## Build libzmq
 ```bash
@@ -29,19 +40,12 @@ make -j12 install
 cd ../..
 ```
 
-## Install uuid-dev and gcc 7
-```bash
-sudo yum install uuid-dev
-sudo yum install centos-release-scl
-sudo yum install devtoolset-7
-```
 
 ## Build XACC
 ```bash
 scl enable devtoolset-7 bash
 git clone --recursive https://github.com/eclipse/xacc
 cd xacc && mkdir build && cd build
-cmake .. -DUUID_LIBRARY=/usr/lib64/libuuid.so.1
-  [add any other cmake args you may need, like the ones for mlpack]
-make -j4 install
+cmake .. -DUUID_LIBRARY=/usr/lib64/libuuid.so.1 -DUUID_INCLUDE_DIR=/usr/include 
+make -j2 install
 ```
