@@ -20,7 +20,9 @@ run cd /home/dev && apt-get update && apt-get install -y uuid-dev \
     && cmake .. \
     && make -j$(nproc) install \
     && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
-    && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install
+    && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install && cd ../.. \
+    && git clone https://github.com/rigetti/qcs-cli && cd qcs-cli \
+    && npm install && npm link
 
 # Theia application
 workdir /home/dev
