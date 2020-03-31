@@ -26,7 +26,6 @@ TEST(StaqCompilerTester, checkSimple) {
                       measure q -> c;
                       )");
 
-
   auto hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
 
@@ -48,6 +47,40 @@ TEST(StaqCompilerTester, checkSimple) {
   std::cout << "HELLO:\n" << hello->toString() << "\n";
 }
 
+TEST(StaqCompilerTester, checkCanParse) {
+  auto a = xacc::qalloc(2);
+  a->setName("q");
+  xacc::storeBuffer(a);
+
+  auto compiler = xacc::getCompiler("staq");
+  EXPECT_FALSE(compiler->canParse(
+      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
+  H(q[0]);
+  CX(q[0], q[1]);
+  Ry(q[0], t0);
+  Measure(q[0]);
+  Measure(q[1]);
+})"));
+
+  EXPECT_FALSE(compiler->canParse(
+      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
+  H(q[0]);
+  CX(q[0], [1]);
+  Ry(q[0], t0);
+  Measure(q[0]);
+  Measure(q[1]);
+})"));
+
+  EXPECT_TRUE(compiler->canParse(R"(
+                      qreg q[2];
+                      creg c[2];
+                      U(0,0,0) q[0];
+                      CX q[0],q[1];
+                      rx(3.3) q[0];
+                      measure q -> c;
+                      )"));
+
+}
 
 TEST(StaqCompilerTester, checkTranslate) {
   auto compiler = xacc::getCompiler("staq");
@@ -61,27 +94,26 @@ TEST(StaqCompilerTester, checkTranslate) {
                       measure q -> c;
                       )");
 
-
   auto hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
 
   std::cout << "TRANSLATED: " << compiler->translate(hello) << "\n";
-//   auto q = xacc::qalloc(2);
-//   q->setName("q");
-//   xacc::storeBuffer(q);
+  //   auto q = xacc::qalloc(2);
+  //   q->setName("q");
+  //   xacc::storeBuffer(q);
 
-//   IR = compiler->compile(R"(__qpu__ void f(qreg q) {
-//                     OPENQASM 2.0;
-//                     include "qelib1.inc";
-//                     creg c[2];
-//                     U(0,0,0) q[0];
-//                     CX q[0],q[1];
-//                     rx(3.3) q[0];
-//                     measure q -> c;
-//                     })");
+  //   IR = compiler->compile(R"(__qpu__ void f(qreg q) {
+  //                     OPENQASM 2.0;
+  //                     include "qelib1.inc";
+  //                     creg c[2];
+  //                     U(0,0,0) q[0];
+  //                     CX q[0],q[1];
+  //                     rx(3.3) q[0];
+  //                     measure q -> c;
+  //                     })");
 
-//   hello = IR->getComposites()[0];
-//   std::cout << "HELLO:\n" << hello->toString() << "\n";
+  //   hello = IR->getComposites()[0];
+  //   std::cout << "HELLO:\n" << hello->toString() << "\n";
 }
 
 TEST(StaqCompilerTester, checkOracle) {
@@ -144,12 +176,11 @@ adder a[0],a[1],a[2],a[3],b[0],b[1],b[2],b[3],c[0],c[1],c[2],c[3];
 // measure
 measure c -> result;
 )";
-//    IR = compiler->compile(src2);
+  //    IR = compiler->compile(src2);
 
-//    hello = IR->getComposites()[0];
-//   std::cout << hello->toString() << "\n";
+  //    hello = IR->getComposites()[0];
+  //   std::cout << hello->toString() << "\n";
 }
-
 
 TEST(StaqCompilerTester, checkCirq) {
   auto compiler = xacc::getCompiler("staq");

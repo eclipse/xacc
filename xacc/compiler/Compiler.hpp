@@ -27,6 +27,13 @@ public:
   virtual std::shared_ptr<IR> compile(const std::string &src,
                                       std::shared_ptr<Accelerator> acc) = 0;
   virtual std::shared_ptr<IR> compile(const std::string &src) = 0;
+  
+  // By default, we assume this compiler can not parse a given 
+  // source string. Subtypes implement this to indicate if 
+  // they can or not
+  virtual bool canParse(const std::string& src) {
+      return false;
+  }
 
   virtual const std::string
   translate(std::shared_ptr<CompositeInstruction> program) = 0;

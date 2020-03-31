@@ -26,7 +26,8 @@ public:
                                             std::shared_ptr<Accelerator> acc) override;
 
   std::shared_ptr<xacc::IR> compile(const std::string &src) override;
-
+  bool canParse(const std::string& src) override;
+  
   const std::string translate(std::shared_ptr<CompositeInstruction> function) override;
   std::vector<std::string> getKernelBufferNames(const std::string& src) override;
 

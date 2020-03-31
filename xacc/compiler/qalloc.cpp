@@ -16,6 +16,7 @@ std::map<std::string, int> qreg::counts() {
 double qreg::exp_val_z() { return buffer->getExpectationValueZ(); }
 void qreg::reset() { buffer->resetBuffer(); }
 void qreg::setName(const char *name) { buffer->setName(name); }
+void qreg::setNameAndStore(const char *name) { setName(name); store(); }
 void qreg::store() {
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
       buffer, empty_delete<AcceleratorBuffer>());

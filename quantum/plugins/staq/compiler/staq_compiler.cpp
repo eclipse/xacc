@@ -27,11 +27,105 @@
 
 #include "output/cirq.hpp"
 
+#include <streambuf>
+
 using namespace staq::ast;
 
 namespace xacc {
 
 StaqCompiler::StaqCompiler() {}
+
+bool StaqCompiler::canParse(const std::string &src) {
+  std::string _src = src;
+  bool isXaccKernel = false;
+  std::string prototype;
+  auto xasm = xacc::getCompiler("xasm");
+
+  /** staq prints to cerr, override this **/
+  class buffer_override {
+    std::ostream &os;
+    std::streambuf *buf;
+
+  public:
+    buffer_override(std::ostream &os) : os(os), buf(os.rdbuf()) {}
+
+    ~buffer_override() { os.rdbuf(buf); }
+  };
+
+  buffer_override b(std::cerr);
+  std::stringstream xx;
+
+  std::cerr.rdbuf(xx.rdbuf());
+
+  /** --------------------------------- **/
+
+  if (src.find("__qpu__") != std::string::npos) {
+    prototype = _src.substr(0, _src.find_first_of("{")) + "{}";
+    auto bufferNames = xasm->getKernelBufferNames(prototype);
+
+    isXaccKernel = true;
+
+    std::string tmp = "";
+    auto first = _src.find_first_of("{");
+    auto last = _src.find_last_of("}");
+    auto sub = _src.substr(first + 1, last - first - 1);
+    auto lines = xacc::split(sub, '\n');
+    bool addedNames = false;
+    for (auto &l : lines) {
+      xacc::trim(l);
+      if (l.find("measure") != std::string::npos) {
+          // don't add measures
+          continue;
+      }
+      tmp += l + "\n";
+      if (l.find("include") != std::string::npos) {
+        for (auto &b : bufferNames) {
+          auto size = std::numeric_limits<int>::max();
+          tmp += "qreg " + b + "[" + std::to_string(size) + "];\n";
+        }
+        addedNames = true;
+      }
+    }
+    _src = tmp;
+    if (!addedNames) {
+      for (auto &b : bufferNames) {
+          auto size = std::numeric_limits<int>::max();
+        _src = "qreg " + b + "[" + std::to_string(size) + "];\n" + _src;
+      }
+    }
+  }
+
+  // we allow users to leave out OPENQASM 2.0 and include qelib.inc
+  // If they did we need to add it for them
+  std::string tmp = "";
+  auto lines = xacc::split(_src, '\n');
+  bool foundOpenQasm = false, foundInclude = false;
+  for (auto &l : lines) {
+    if (l.find("OPENQASM") != std::string::npos) {
+      foundOpenQasm = true;
+    }
+    if (l.find("include") != std::string::npos) {
+      foundInclude = true;
+    }
+  }
+
+  if (!foundInclude) {
+    _src = "include \"qelib1.inc\";\n" + _src;
+  }
+  if (!foundOpenQasm) {
+    _src = "OPENQASM 2.0;\n" + _src;
+  }
+
+    // std::cout << " HELLO:\n" << _src << "\n";
+  using namespace staq;
+
+  try {
+    auto prog = parser::parse_string(_src);
+    return true;
+  } catch (std::exception &e) {
+    return false;
+  }
+}
 
 std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
                                           std::shared_ptr<Accelerator> acc) {

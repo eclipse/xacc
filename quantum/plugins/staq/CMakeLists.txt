@@ -14,6 +14,8 @@ set(LIBRARY_NAME xacc-staq-compiler)
 file(GLOB SRC
           compiler/*.cpp *.cpp transformations/*.cpp utils/*.cpp)
 
+message(STATUS "${BoldGreen}Building Staq Compiler.${ColorReset}")
+
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 

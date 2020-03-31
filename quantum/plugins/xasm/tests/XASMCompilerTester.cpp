@@ -32,6 +32,37 @@ TEST(XASMCompilerTester, checkTranslate) {
   std::cout << "HELLO:\n" << translated << "\n";
 }
 
+TEST(XASMCompilerTester, checkCanParse) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  EXPECT_TRUE(compiler->canParse(
+      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
+  H(q[0]);
+  CX(q[0], q[1]);
+  Ry(q[0], t0);
+  Measure(q[0]);
+  Measure(q[1]);
+})"));
+
+  EXPECT_FALSE(compiler->canParse(
+      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
+  H(q[0]);
+  CX(q[0], [1]);
+  Ry(q[0], t0);
+  Measure(q[0]);
+  Measure(q[1]);
+})"));
+
+  EXPECT_FALSE(compiler->canParse(R"(
+                      qreg q[2];
+                      creg c[2];
+                      U(0,0,0) q[0];
+                      CX q[0],q[1];
+                      rx(3.3) q[0];
+                      measure q -> c;
+                      )"));
+}
+
 TEST(XASMCompilerTester, checkSimple) {
 
   auto compiler = xacc::getCompiler("xasm");
@@ -195,14 +226,12 @@ TEST(XASMCompilerTester, checkIfStmt) {
 
   q->reset_single_measurements();
   IR->getComposites()[0]->getInstruction(2)->disable();
-    std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
-
+  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
 
   q->measure(0, 1);
 
   IR->getComposites()[0]->expand({});
   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
-
 }
 
 TEST(XASMCompilerTester, checkApplyAll) {
@@ -245,20 +274,18 @@ TEST(XASMCompilerTester, checkGateOnAll) {
   xacc::storeBuffer(q);
 
   auto compiler = xacc::getCompiler("xasm");
-  auto IR =
-      compiler->compile(R"(__qpu__ void on_all(qbit qqq) {
+  auto IR = compiler->compile(R"(__qpu__ void on_all(qbit qqq) {
   H(qqq);
   Measure(qqq);
 })");
 
- auto f = IR->getComposite("on_all");
+  auto f = IR->getComposite("on_all");
 
- std::cout << "F:\n" << f->toString() << "\n";
-
+  std::cout << "F:\n" << f->toString() << "\n";
 }
 
 TEST(XASMCompilerTester, checkBugBug) {
-auto a = xacc::qalloc(4);
+  auto a = xacc::qalloc(4);
   a->setName("a");
   xacc::storeBuffer(a);
 
@@ -270,12 +297,12 @@ auto a = xacc::qalloc(4);
   c->setName("c");
   xacc::storeBuffer(c);
 
-auto anc = xacc::qalloc(4);
+  auto anc = xacc::qalloc(4);
   anc->setName("anc");
   xacc::storeBuffer(anc);
-   auto compiler = xacc::getCompiler("xasm");
-  auto IR =
-      compiler->compile(R"(__qpu__ void bugbug(qbit a, qbit b, qbit c, qbit anc) {
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(__qpu__ void bugbug(qbit a, qbit b, qbit c, qbit anc) {
 X(a[0]);
 X(a[1]);
 X(b[0]);
@@ -287,15 +314,15 @@ CX(b[0], anc[0]);
 Tdg(anc[0]);
 })");
 
- std::cout << IR->getComposites()[0]->toString() << "\n";
- std::cout << IR->getComposites()[0]->getInstruction(4)->toString() << "\n";
-  for (auto& b :IR->getComposites()[0]->getInstruction(4)->getBufferNames()) {std::cout << b << "\n";}
-
+  std::cout << IR->getComposites()[0]->toString() << "\n";
+  std::cout << IR->getComposites()[0]->getInstruction(4)->toString() << "\n";
+  for (auto &b : IR->getComposites()[0]->getInstruction(4)->getBufferNames()) {
+    std::cout << b << "\n";
+  }
 }
 TEST(XASMCompilerTester, checkCallingPreviousKernel) {
-auto compiler = xacc::getCompiler("xasm");
-  auto IR =
-      compiler->compile(R"(__qpu__ void bell_call(qbit q) {
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(R"(__qpu__ void bell_call(qbit q) {
   H(q[0]);
   CX(q[0], q[1]);
   Measure(q[0]);
