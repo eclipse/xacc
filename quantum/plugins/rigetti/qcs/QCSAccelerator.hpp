@@ -98,6 +98,9 @@ protected:
   std::string qpu_endpoint;
   std::shared_ptr<QCSRestClient> restClient;
 
+  std::string client_public = "";
+  std::string client_secret = "";
+  std::string server_public = "";
   std::string auth_token = "";
 
   template <typename T>
@@ -106,6 +109,7 @@ protected:
     msgpack::pack(sbuf, requestType);
     zmq::message_t msg(sbuf.size());
     memcpy(msg.data(), sbuf.data(), sbuf.size());
+    // std::cout << msg << "\n";
     socket.send(msg);
     zmq::message_t reply;
     socket.recv(&reply, 0);
@@ -121,7 +125,7 @@ protected:
     std::string contents((std::istreambuf_iterator<char>(stream)),
                          std::istreambuf_iterator<char>());
 
-    std::cout << "HELLO2:\n" << contents << "\n";
+    // std::cout << "HELLO2:\n" << contents << "\n";
     auto auth_json = json::parse(contents);
 
     std::string graph_ql_query =
@@ -147,13 +151,12 @@ protected:
          "Bearer " + auth_json["access_token"].get<std::string>()}};
     auth_token = auth_json["access_token"].get<std::string>();
     
-    std::cout << graph_ql_query << "\n";
-    std::cout << json_data.length() << "\n";
-    std::cout << json_data << "\n";
+    // std::cout << json_data.length() << "\n";
+    // std::cout << json_data << "\n";
     auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
                            "/graphql", json_data, headers);
 
-    std::cout << "HELLO:\n" << resp << "\n";
+    // std::cout << "HELLO:\n" << resp << "\n";
 
     // this came back
     auto resp_json = json::parse(resp);
@@ -165,8 +168,9 @@ protected:
         resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"]
             .get<std::string>();
 
-    //   {"data":{"engage":{"success":true,"message":"Engagement
-    //   successful","engagement":{"type":"RESERVATION","qpu":{"endpoint":"tcp://bf02.qpu.production.qcs.rigetti.com:50053","credentials":{"clientPublic":"@LvzUU4Rif>I]2Rdq]8NC*s^Ei}j.9t.kt)Kg-g%","clientSecret":"H3!#u*VbA@q$7hyDJcej*p!Q?8AG$-YfCi0ajZj$","serverPublic":"4wBn%^PIu@}gUYSZQ0sCJ}67}Se?S>z{ij&)&>pZ"}},"compiler":{"endpoint":"https://translation.services.production.qcs.rigetti.com"},"expiresAt":"1585250100"}}}}
+    client_public = qpu_creds["clientPublic"].get<std::string>();
+    client_secret = qpu_creds["clientSecret"].get<std::string>();
+    server_public = qpu_creds["serverPublic"].get<std::string>();
 
     if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
       xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");

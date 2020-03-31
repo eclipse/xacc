@@ -26,13 +26,14 @@
 #include <uuid/uuid.h>
 
 #include <cpr/cpr.h>
+#include <zmq.h>
 
 namespace xacc {
 namespace quantum {
 void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
-                     const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap &options) {
-// std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
+                          const std::shared_ptr<Accelerator> accelerator,
+                          const HeterogeneousMap &options) {
+  // std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
 
   auto edges = accelerator->getConnectivity();
   auto embeddingAlgorithm = xacc::getService<EmbeddingAlgorithm>("cmr");
@@ -64,53 +65,52 @@ void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
   }
 
   // hardwareGraph->write(std::cout);
-//   for (auto &function : ir->getComposites()) {
-    auto logicalGraph = function->toGraph();
-    InstructionIterator it(function);
-    std::set<int> nUniqueProbBits;
+  //   for (auto &function : ir->getComposites()) {
+  auto logicalGraph = function->toGraph();
+  InstructionIterator it(function);
+  std::set<int> nUniqueProbBits;
 
-    std::vector<std::pair<int, int>> probEdges;
-    while (it.hasNext()) {
-      // Get the next node in the tree
-      auto nextInst = it.next();
-      if (nextInst->isEnabled() && nextInst->bits().size() == 2) {
-        probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
-        nUniqueProbBits.insert(nextInst->bits()[0]);
-        nUniqueProbBits.insert(nextInst->bits()[1]);
-      }
+  std::vector<std::pair<int, int>> probEdges;
+  while (it.hasNext()) {
+    // Get the next node in the tree
+    auto nextInst = it.next();
+    if (nextInst->isEnabled() && nextInst->bits().size() == 2) {
+      probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
+      nUniqueProbBits.insert(nextInst->bits()[0]);
+      nUniqueProbBits.insert(nextInst->bits()[1]);
     }
+  }
 
-    auto nProbBits = nUniqueProbBits.size();
-    auto problemGraph = xacc::getService<Graph>("boost-ugraph");
+  auto nProbBits = nUniqueProbBits.size();
+  auto problemGraph = xacc::getService<Graph>("boost-ugraph");
 
-    for (int i = 0; i < nProbBits; i++) {
-      HeterogeneousMap m{std::make_pair("bias", 1.0)};
-      problemGraph->addVertex(m);
+  for (int i = 0; i < nProbBits; i++) {
+    HeterogeneousMap m{std::make_pair("bias", 1.0)};
+    problemGraph->addVertex(m);
+  }
+
+  for (auto &inst : probEdges) {
+    if (!problemGraph->edgeExists(inst.first, inst.second)) {
+      problemGraph->addEdge(inst.first, inst.second, 1.0);
     }
+  }
 
-    for (auto &inst : probEdges) {
-      if (!problemGraph->edgeExists(inst.first, inst.second)) {
-        problemGraph->addEdge(inst.first, inst.second, 1.0);
-      }
+  // Compute the minor graph embedding
+  auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
+  std::vector<std::size_t> physicalMap;
+  for (auto &kv : embedding) {
+    if (kv.second.size() > 1) {
+      xacc::error("Invalid logical to physical qubit mapping.");
     }
+    physicalMap.push_back(logical2Physical[kv.second[0]]);
+  }
 
-    // Compute the minor graph embedding
-    auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
-    std::vector<std::size_t> physicalMap;
-    for (auto &kv : embedding) {
-      if (kv.second.size() > 1) {
-        xacc::error("Invalid logical to physical qubit mapping.");
-      }
-      physicalMap.push_back(logical2Physical[kv.second[0]]);
-    }
-
-    // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
-    function->mapBits(physicalMap);
-//   }
+  // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
+  function->mapBits(physicalMap);
+  //   }
 
   return;
 }
-
 
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
@@ -152,74 +152,56 @@ void QCSAccelerator::execute(
   // Now we have our quil string, we need to run
   // the binary executable request.
 
-  zmq::context_t context1, context2;
-  zmq::socket_t qpu_compiler_socket(context1, zmq::socket_type::dealer);
-  zmq::socket_t qpu_socket(context2, zmq::socket_type::dealer);
+  zmq::context_t context;
+  zmq::socket_t qpu_socket(context, zmq::socket_type::dealer);
 
-  std::cout << "Connecting compiler: " << qpu_compiler_endpoint << "\n";
-//   qpu_compiler_socket.connect(qpu_compiler_endpoint);
-
-  std::cout << "Connecting qpu: " << qpu_endpoint << "\n";
+  qpu_socket.set(zmq::sockopt::curve_publickey, client_public);
+  qpu_socket.set(zmq::sockopt::curve_secretkey, client_secret);
+  qpu_socket.set(zmq::sockopt::curve_serverkey, server_public);
   qpu_socket.connect(qpu_endpoint);
+  qpu_socket.set(zmq::sockopt::linger, 0);
 
-  uuid_t uuid;
-  uuid_generate_time_safe(uuid);
-  char uuid_str[37];
-  uuid_unparse_lower(uuid, uuid_str);
-  std::string id(uuid_str);
+  auto get_uuid =
+      []() {
+        uuid_t uuid;
+        uuid_generate_time_safe(uuid);
+        char uuid_str[37];
+        uuid_unparse_lower(uuid, uuid_str);
+        std::string id(uuid_str);
+        return id;
+      };
 
-  // Run native_quil_to_binary, get binary
-  // program from returned json
-//   qcs::BinaryExecutableRequest binExecReq(shots, quilStr);
-//   qcs::BinaryExecutableParams params(binExecReq);
-//   qcs::RPCRequestBinaryExecutable r(id, params);
-//   auto unpackedData = request(r, qpu_compiler_socket);
-//   std::stringstream ss;
-//   ss << unpackedData.get();
-//   auto execBinaryJson = json::parse(ss.str());
-//   auto prog = std::string("");//execBinaryJson["result"]["program"].dump();
+  json j;
+  j["quil"] = quilStr;
+  j["num_shots"] = shots;
+  j["_type"] = "BinaryExecutableRequest";
+  std::string json_data = j.dump();
+  std::map<std::string, std::string> headers{
+      {"Content-Type", "application/json"},
+      {"Connection", "keep-alive"},
+      {"Accept", "application/octet-stream"},
+      {"Content-Length", std::to_string(json_data.length())},
+      {"Authorization", "Bearer " + auth_token}};
 
-    json j;
-    j["quil"] = quilStr;
-    j["num_shots"] = shots;
-    j["_type"] = "BinaryExecutableRequest";
-
-    std::string json_data = j.dump();
-
-    std::map<std::string, std::string> headers{
-        {"Content-Type", "application/json"},
-        {"Connection", "keep-alive"},
-        {"Accept", "application/octet-stream"},
-        {"Content-Length", std::to_string(json_data.length())},
-        {"Authorization",
-         "Bearer " + auth_token}};
-
-         std::cout << json_data << "\n";
-
-   auto resp = this->post(qpu_compiler_endpoint,
-                           "/devices/Aspen-4/native_quil_to_binary", json_data, headers);
-
-   std::cout << "RAN Q2NQ\n";
-   std::cout << resp << "\n";
-   auto prog = json::parse(resp)["program"].get<std::string>();
+  auto resp =
+      post(qpu_compiler_endpoint,
+                 "/devices/Aspen-4/native_quil_to_binary", json_data, headers);
+  auto prog = json::parse(resp)["program"].get<std::string>();
 
   // Run execute_qpu_request, get job-id
-  qcs::QPURequest qpuReq(prog, id);
+  qcs::QPURequest qpuReq(prog, get_uuid());
   qcs::QPURequestParams qpuParams(qpuReq);
-  qcs::RPCRequestQPURequest r2(id, qpuParams);
-  std::cout << "REQUESTING\n";
+  qcs::RPCRequestQPURequest r2(get_uuid(), qpuParams);
   auto unpackedData2 = request(r2, qpu_socket);
-  std::cout << "REQUESTED\n";
   std::stringstream ss2;
   ss2 << unpackedData2.get();
   auto qpuResponseJson = json::parse(ss2.str());
   auto waitId = qpuResponseJson["result"].dump();
   waitId = waitId.substr(1, waitId.length() - 2);
 
-  std::cout << "RAN QPU REQUEST\n NOW GETTING BUFFERS\n";
   // Run get_buffers, convdrt to GetBuffersResponse
   qcs::GetBuffersRequest getBuffers(waitId);
-  qcs::RPCRequestGetBuffers r3(id, getBuffers);
+  qcs::RPCRequestGetBuffers r3(get_uuid(), getBuffers);
   auto unpackedData3 = request(r3, qpu_socket);
   qcs::GetBuffersResponse gbresp;
   unpackedData3.get().convert(gbresp);
@@ -254,7 +236,6 @@ void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
   }
   return;
 }
-
 
 std::string QCSAccelerator::post(const std::string &_url,
                                  const std::string &path,
@@ -293,7 +274,6 @@ std::string QCSAccelerator::post(const std::string &_url,
 
   return postResponse;
 }
-
 
 std::string
 QCSAccelerator::get(const std::string &_url, const std::string &path,
@@ -337,10 +317,10 @@ QCSAccelerator::get(const std::string &_url, const std::string &path,
   return getResponse;
 }
 
-const std::string QCSRestClient::post(const std::string &remoteUrl,
-                                   const std::string &path,
-                                   const std::string &postStr,
-                                   std::map<std::string, std::string> headers) {
+const std::string
+QCSRestClient::post(const std::string &remoteUrl, const std::string &path,
+                    const std::string &postStr,
+                    std::map<std::string, std::string> headers) {
 
   if (headers.empty()) {
     headers.insert(std::make_pair("Content-type", "application/json"));
@@ -369,8 +349,8 @@ const std::string QCSRestClient::post(const std::string &remoteUrl,
 
 const std::string
 QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
-                std::map<std::string, std::string> headers,
-                std::map<std::string, std::string> extraParams) {
+                   std::map<std::string, std::string> headers,
+                   std::map<std::string, std::string> extraParams) {
   if (headers.empty()) {
     headers.insert(std::make_pair("Content-type", "application/json"));
     headers.insert(std::make_pair("Connection", "keep-alive"));
@@ -399,5 +379,5 @@ QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
 
   return r.text;
 }
-}
-}
+} // namespace quantum
+} // namespace xacc
