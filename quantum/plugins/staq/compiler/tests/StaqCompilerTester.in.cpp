@@ -49,37 +49,36 @@ TEST(StaqCompilerTester, checkSimple) {
 
 TEST(StaqCompilerTester, checkCanParse) {
   auto a = xacc::qalloc(2);
-  a->setName("q");
+  a->setName("qq");
   xacc::storeBuffer(a);
 
   auto compiler = xacc::getCompiler("staq");
   EXPECT_FALSE(compiler->canParse(
-      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
-  H(q[0]);
-  CX(q[0], q[1]);
-  Ry(q[0], t0);
-  Measure(q[0]);
-  Measure(q[1]);
+      R"(__qpu__ void bell_test_can_parse(qbit qq, double t0) {
+  H(qq[0]);
+  CX(qq[0], qq[1]);
+  Ry(qq[0], t0);
+  Measure(qq[0]);
+  Measure(qq[1]);
 })"));
 
   EXPECT_FALSE(compiler->canParse(
-      R"(__qpu__ void bell_test_can_parse(qbit q, double t0) {
-  H(q[0]);
-  CX(q[0], [1]);
-  Ry(q[0], t0);
-  Measure(q[0]);
-  Measure(q[1]);
+      R"(__qpu__ void bell_test_can_parse(qbit qq, double t0) {
+  H(qq[0]);
+  CX(qq[0], [1]);
+  Ry(qq[0], t0);
+  Measure(qq[0]);
+  Measure(qq[1]);
 })"));
 
   EXPECT_TRUE(compiler->canParse(R"(
-                      qreg q[2];
+                      qreg qq[2];
                       creg c[2];
-                      U(0,0,0) q[0];
-                      CX q[0],q[1];
-                      rx(3.3) q[0];
-                      measure q -> c;
+                      U(0,0,0) qq[0];
+                      CX qq[0],qq[1];
+                      rx(3.3) qq[0];
+                      measure qq -> c;
                       )"));
-
 }
 
 TEST(StaqCompilerTester, checkTranslate) {
