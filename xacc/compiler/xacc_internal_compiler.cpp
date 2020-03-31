@@ -6,19 +6,24 @@
 namespace xacc {
 namespace internal_compiler {
 Accelerator *qpu = nullptr;
-CompositeInstruction* lastCompiled = nullptr;
+CompositeInstruction *lastCompiled = nullptr;
 bool __execute = true;
 
-void __set_verbose(bool v) {
-    xacc::set_verbose(v);
-}
+void __set_verbose(bool v) { xacc::set_verbose(v); }
 void compiler_InitializeXACC(const char *qpu_backend) {
   if (!xacc::isInitialized())
     xacc::Initialize();
 
   xacc::external::load_external_language_plugins();
   setAccelerator(qpu_backend);
+}
 
+void compiler_InitializeXACC(const char *qpu_backend, const int shots) {
+  if (!xacc::isInitialized())
+    xacc::Initialize();
+
+  xacc::external::load_external_language_plugins();
+  setAccelerator(qpu_backend, shots);
 }
 
 void setAccelerator(const char *qpu_backend) {
@@ -31,18 +36,21 @@ void setAccelerator(const char *qpu_backend) {
   }
 }
 
-void setAccelerator(const char * qpu_backend, const int shots) {
-    setAccelerator(qpu_backend);
-    qpu->updateConfiguration({std::make_pair("shots", shots)});
+void setAccelerator(const char *qpu_backend, const int shots) {
+  if (qpu) {
+    if (qpu_backend != qpu->name()) {
+      qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)})
+                .get();
+    }
+  } else {
+    qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)})
+              .get();
+  }
 }
 
-Accelerator* get_qpu() {
-    return qpu;
-}
+Accelerator *get_qpu() { return qpu; }
 
-CompositeInstruction* getLastCompiled() {
-    return lastCompiled;
-}
+CompositeInstruction *getLastCompiled() { return lastCompiled; }
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
@@ -65,7 +73,8 @@ CompositeInstruction *getCompiled(const char *kernel_name) {
 // Run quantum compilation routines on IR
 void optimize(CompositeInstruction *program, const OptLevel opt) {
 
-  xacc::info("[InternalCompiler] Pre-optimization, circuit has " + std::to_string(program->nInstructions()) + " instructions.");
+  xacc::info("[InternalCompiler] Pre-optimization, circuit has " +
+             std::to_string(program->nInstructions()) + " instructions.");
 
   // We don't own this ptr, so create shared_ptr with empty deleter
   auto as_shared = std::shared_ptr<CompositeInstruction>(
@@ -80,8 +89,8 @@ void optimize(CompositeInstruction *program, const OptLevel opt) {
     xacc::error("Other Optimization Levels not yet supported.");
   }
 
-  xacc::info("[InternalCompiler] Post-optimization, circuit has " + std::to_string(program->nInstructions()) + " instructions.");
-
+  xacc::info("[InternalCompiler] Post-optimization, circuit has " +
+             std::to_string(program->nInstructions()) + " instructions.");
 }
 
 // Execute on the specified QPU, persisting results to
@@ -148,10 +157,11 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
         sizes.insert(bit);
       }
     }
-    auto size = *std::max_element(sizes.begin(),sizes.end());
+    auto size = *std::max_element(sizes.begin(), sizes.end());
     auto extra = qalloc(size);
     extra->setName(possible_buffer);
-    xacc::debug("[xacc_internal_compiler] Adding extra buffer " + possible_buffer + " of size " + std::to_string(size));
+    xacc::debug("[xacc_internal_compiler] Adding extra buffer " +
+                possible_buffer + " of size " + std::to_string(size));
     bvec.push_back(extra.get());
   }
 
@@ -203,10 +213,10 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
   std::vector<std::size_t> measure_idxs;
   InstructionIterator iter2(program_as_shared);
   while (iter2.hasNext()) {
-      auto &next = *iter2.next();
-      if (next.name() == "Measure") {
-          measure_idxs.push_back(next.bits()[0]);
-      }
+    auto &next = *iter2.next();
+    if (next.name() == "Measure") {
+      measure_idxs.push_back(next.bits()[0]);
+    }
   }
 
   optimize(program);
@@ -221,14 +231,15 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
     // Some backends return bitstring of size = number of measures
     // instead of size = global_reg_size, adjust if so
     if (bitstring.size() == measure_idxs.size()) {
-        std::string tmps = "";
-        for (int j = 0; j < global_reg_size; j++) tmps+="0";
+      std::string tmps = "";
+      for (int j = 0; j < global_reg_size; j++)
+        tmps += "0";
 
-        for (int j = 0; j < measure_idxs.size(); j++) {
-            tmps[measure_idxs[j]] = bitstring[j];
-        }
+      for (int j = 0; j < measure_idxs.size(); j++) {
+        tmps[measure_idxs[j]] = bitstring[j];
+      }
 
-        bitstring = tmps;
+      bitstring = tmps;
     }
 
     // The following processing the bit string assuming LSB
@@ -258,10 +269,10 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
 
   for (auto &b : bvec) {
     b->setMeasurements(buf_counts[b->name()]);
-    b->addExtraInfo("endianness", qpu->getBitOrder() == Accelerator::BitOrder::LSB ? "lsb" : "msb" );
+    b->addExtraInfo("endianness",
+                    qpu->getBitOrder() == Accelerator::BitOrder::LSB ? "lsb"
+                                                                     : "msb");
   }
-
-
 }
 
 } // namespace internal_compiler

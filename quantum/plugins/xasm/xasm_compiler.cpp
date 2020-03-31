@@ -29,6 +29,32 @@ namespace xacc {
 
 XASMCompiler::XASMCompiler() = default;
 
+bool XASMCompiler::canParse(const std::string &src) {
+
+  class XASMThrowExceptionErrorListener : public BaseErrorListener {
+  public:
+    void syntaxError(Recognizer *recognizer, Token *offendingSymbol,
+                     size_t line, size_t charPositionInLine,
+                     const std::string &msg, std::exception_ptr e) override {
+      throw std::runtime_error("Cannot parse this XASM source string.");
+    }
+  };
+
+  ANTLRInputStream input(src);
+  xasmLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
+  xasmParser parser(&tokens);
+  parser.removeErrorListeners();
+  parser.addErrorListener(new XASMThrowExceptionErrorListener());
+
+  try {
+    tree::ParseTree *tree = parser.xaccsrc();
+    return true;
+  } catch (std::exception &e) {
+    return false;
+  }
+}
+
 std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
                                           std::shared_ptr<Accelerator> acc) {
   ANTLRInputStream input(src);
@@ -60,7 +86,8 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src) {
   return compile(src, nullptr);
 }
 
-std::vector<std::string> XASMCompiler::getKernelBufferNames(const std::string& src) {
+std::vector<std::string>
+XASMCompiler::getKernelBufferNames(const std::string &src) {
   ANTLRInputStream input(src);
   xasmLexer lexer(&input);
   CommonTokenStream tokens(&lexer);

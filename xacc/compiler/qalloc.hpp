@@ -32,6 +32,7 @@ public:
   double exp_val_z();
   void reset();
   void setName(const char *name);
+  void setNameAndStore(const char *name);
   void store();
 };
 
@@ -41,5 +42,7 @@ public:
 xacc::internal_compiler::qreg qalloc(const int n) {
   return xacc::internal_compiler::qreg(n);
 }
+
+#define __qpu__ [[clang::syntax(qcor)]]
 
 #endif
