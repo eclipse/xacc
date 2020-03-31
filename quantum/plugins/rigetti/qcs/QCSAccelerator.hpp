@@ -102,6 +102,7 @@ protected:
   std::string client_secret = "";
   std::string server_public = "";
   std::string auth_token = "";
+  std::string user_id = "";
 
   template <typename T>
   msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
@@ -120,6 +121,18 @@ protected:
   }
 
   void getSocketURLs() {
+    if (!xacc::directoryExists(std::getenv("HOME") + std::string("/.qcs"))) {
+      xacc::error("[QCS] $HOME/.qcs directory does not exists.");
+    }
+
+    if (!xacc::fileExists(std::getenv("HOME") + std::string("/.qcs_config"))) {
+      xacc::error("[QCS] $HOME/.qcs_config file does not exist.");
+    }
+
+    if (!xacc::fileExists(std::getenv("HOME") +
+                          std::string("/.qcs/user_auth_token"))) {
+      xacc::error("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+    }
     std::ifstream stream(std::getenv("HOME") +
                          std::string("/.qcs/user_auth_token"));
     std::string contents((std::istreambuf_iterator<char>(stream)),
@@ -150,7 +163,7 @@ protected:
         {"Authorization",
          "Bearer " + auth_json["access_token"].get<std::string>()}};
     auth_token = auth_json["access_token"].get<std::string>();
-    
+
     // std::cout << json_data.length() << "\n";
     // std::cout << json_data << "\n";
     auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
@@ -174,6 +187,19 @@ protected:
 
     if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
       xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
+    }
+
+    std::ifstream stream2(std::getenv("HOME") + std::string("/.qcs_config"));
+    std::string contents2((std::istreambuf_iterator<char>(stream2)),
+                          std::istreambuf_iterator<char>());
+    auto lines = xacc::split(contents2, '\n');
+    for (auto &l : lines) {
+      if (l.find("user_id") != std::string::npos) {
+        auto id = xacc::split(l, '=')[1];
+        xacc::trim(id);
+        user_id = id;
+        break;
+      }
     }
   }
 

@@ -108,10 +108,10 @@ class QPURequest {
 class QPURequestParams {
 protected:
   QPURequest& request;
-  std::string user = "ccde1544-c4bc-40f0-9914-010be987dc0d";
+  std::string user = "";
   int priority = 1;
 public:
-  QPURequestParams(QPURequest &a) : request(a) {}
+  QPURequestParams(QPURequest &a, std::string& uid) : request(a), user(uid) {}
   MSGPACK_DEFINE_MAP(MSGPACK_NVP("request", request), user, priority);
 };
 
