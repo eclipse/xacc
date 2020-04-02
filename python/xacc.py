@@ -456,6 +456,28 @@ except ImportError:
     # Nothing, QuaC is not available
     pass
 
+def qalloc(*args):
+    if inspect.stack()[-1].code_context is not None:
+        buffer_name = inspect.stack()[-1].code_context[0].split(' = ')[0]
+        if len(args) == 1:
+            buffer = internal_qalloc_with_size(int(args[0]))
+        else:
+            buffer = internal_qalloc_no_size()
+
+        counter = 0
+        while hasBuffer(buffer_name):
+            buffer_name += str(counter)
+
+        buffer.setName(buffer_name)
+        storeBuffer(buffer)
+        return buffer
+    else:
+        if len(args) == 1:
+            buffer = internal_qalloc_with_size(int(args[0]))
+        else:
+            buffer = internal_qalloc_no_size()
+        return buffer
+
 loaded_from_cpp_dont_finalize = False
 
 def _finalize():
