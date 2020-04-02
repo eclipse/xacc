@@ -208,6 +208,7 @@ void bind_ir(py::module &m) {
       .def("getComposites", &xacc::IR::getComposites,
            "Return the kernels in this IR")
       .def("mapBits", &xacc::IR::mapBits, "")
+      .def("getComposite", &xacc::IR::getComposite, "")
       .def("addComposite", &xacc::IR::addComposite, "");
 
   py::class_<xacc::InstructionIterator>(m, "InstructionIterator", "")

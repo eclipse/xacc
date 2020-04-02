@@ -3,7 +3,7 @@ import numpy as np
 xacc.set_verbose(True)
 # Choose the QPU on which to
 # characterize the process matrix for a Hadamard
-qpu = xacc.getAccelerator('ibm:ibmq_poughkeepsie')
+qpu = xacc.getAccelerator('aer')
 
 # Create the CompositeInstruction containing a
 # single Hadamard instruction

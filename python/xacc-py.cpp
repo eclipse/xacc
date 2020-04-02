@@ -86,13 +86,13 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("qasm", &xacc::qasm, "");
   m.def("getCompiled", &xacc::getCompiled, "");
   m.def(
-      "qalloc",
+      "internal_qalloc_with_size",
       [](const int n) -> std::shared_ptr<xacc::AcceleratorBuffer> {
         return xacc::qalloc(n);
       },
       "");
   m.def(
-      "qalloc",
+      "internal_qalloc_no_size",
       []() -> std::shared_ptr<xacc::AcceleratorBuffer> {
         return xacc::qalloc();
       },
@@ -143,6 +143,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   m.def("getOption",
         (const std::string (*)(const std::string &)) & xacc::getOption,
         "Get an XACC framework option.");
+  m.def("hasBuffer", &xacc::hasBuffer, "");
   m.def("hasAccelerator", &xacc::hasAccelerator,
         "Does XACC have the given Accelerator installed?");
   m.def("hasCompiler", &xacc::hasCompiler,
@@ -177,6 +178,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         return xacc::getAlgorithm(algo, m);
       },
       "");
+  m.def("storeBuffer", [](std::shared_ptr<AcceleratorBuffer> buffer) { xacc::storeBuffer(buffer);},"");
   m.def("getOptimizer",
         (std::shared_ptr<xacc::Optimizer>(*)(const std::string)) &
             xacc::getOptimizer,
