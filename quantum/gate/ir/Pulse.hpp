@@ -44,6 +44,14 @@ public:
 
   Pulse(const Pulse &inst);
 
+  void addArgument(std::shared_ptr<CompositeArgument> arg, const int idx_for_param) override {
+  }
+
+
+  void applyRuntimeArguments() override {
+     // by default do nothing
+  }
+
   std::string channel() override { return ch; }
   void setChannel(const std::string c) override { ch = c; }
   std::size_t start() override { return t0; }

@@ -19,12 +19,14 @@
 #include "heterogeneous.hpp"
 
 namespace xacc {
-using InstructionParameter = Variant<int,double,std::string>;
+using InstructionParameter = Variant<int, double, std::string>;
 
 // Util func to get a double parameter from an InstructionParameter variant.
-// Note: most of the cases, we have double-type parameters (e.g. rotation angles).
-// This also handles int->double and string->double conversion if necessary.
-static double InstructionParameterToDouble(const xacc::InstructionParameter& in_parameter) {
+// Note: most of the cases, we have double-type parameters (e.g. rotation
+// angles). This also handles int->double and string->double conversion if
+// necessary.
+static double
+InstructionParameterToDouble(const xacc::InstructionParameter &in_parameter) {
   if (in_parameter.which() == 0) {
     // Convert int to double
     return static_cast<double>(in_parameter.as<int>());
@@ -32,11 +34,14 @@ static double InstructionParameterToDouble(const xacc::InstructionParameter& in_
     return in_parameter.as<double>();
   } else {
     // Check if this string parameter can be converted to a double
-    const auto isNumber = [](const std::string& in_string, double& out_double) -> bool {
-      char* end = 0;
+    const auto isNumber = [](const std::string &in_string,
+                             double &out_double) -> bool {
+      char *end = 0;
       double val = strtod(in_string.c_str(), &end);
       // This whole string must be a valid double number
-      const bool isConversionOkay = (end != in_string.c_str()) && (*end == '\0') && (val != std::numeric_limits<double>::infinity());
+      const bool isConversionOkay =
+          (end != in_string.c_str()) && (*end == '\0') &&
+          (val != std::numeric_limits<double>::infinity());
       if (isConversionOkay) {
         out_double = val;
       }
@@ -56,6 +61,18 @@ static double InstructionParameterToDouble(const xacc::InstructionParameter& in_
 }
 
 class CompositeInstruction;
+
+struct CompositeArgument {
+  std::string name;
+  std::string type;
+  HeterogeneousMap runtimeValue;
+  CompositeArgument(const std::string n, const std::string t) {
+    name = n;
+    type = t;
+  }
+};
+
+const std::string INTERNAL_ARGUMENT_VALUE_KEY = "__xacc_internal_value_key";
 
 // The Instruction interface exposes an API for describing a general
 // post-Moore's law low-level assembly instruction. Each Instruction
@@ -81,6 +98,10 @@ class Instruction : public BaseInstructionVisitable,
                     public Cloneable<Instruction> {
 
 public:
+  virtual void applyRuntimeArguments() = 0;
+  virtual void addArgument(std::shared_ptr<CompositeArgument> arg,
+                           const int idx_of_inst_param) = 0;
+
   virtual const std::string toString() = 0;
 
   virtual const std::vector<std::size_t> bits() = 0;
@@ -90,8 +111,10 @@ public:
   // For the case where the bit indices for this Instruction are
   // some general expression, Clients should set the bit to -1 and provide
   // the bit expression as a string. The example here would be
-  // H(q[i]) (bit_idx=0, expr=i), or C(q[i],q[i+1]) (bit_idx=0, expr=i and bit_idx=1,expr=i+1)
-  virtual void setBitExpression(const std::size_t bit_idx, const std::string expr) = 0;
+  // H(q[i]) (bit_idx=0, expr=i), or C(q[i],q[i+1]) (bit_idx=0, expr=i and
+  // bit_idx=1,expr=i+1)
+  virtual void setBitExpression(const std::size_t bit_idx,
+                                const std::string expr) = 0;
   virtual std::string getBitExpression(const std::size_t bit_idx) = 0;
 
   // Return the name of the AcceleratorBuffer that this
@@ -102,13 +125,17 @@ public:
   // input vector should be same size as bits()
   virtual std::string getBufferName(const std::size_t bitIdx) = 0;
   virtual std::vector<std::string> getBufferNames() = 0;
-  virtual void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) = 0;
+  virtual void
+  setBufferNames(const std::vector<std::string> bufferNamesPerIdx) = 0;
 
-  virtual const InstructionParameter getParameter(const std::size_t idx) const = 0;
+  virtual const InstructionParameter
+  getParameter(const std::size_t idx) const = 0;
   virtual std::vector<InstructionParameter> getParameters() = 0;
 
-  virtual void setParameter(const std::size_t idx, InstructionParameter &inst) = 0;
-  virtual void setParameter(const std::size_t idx, InstructionParameter &&inst) {
+  virtual void setParameter(const std::size_t idx,
+                            InstructionParameter &inst) = 0;
+  virtual void setParameter(const std::size_t idx,
+                            InstructionParameter &&inst) {
     setParameter(idx, inst);
   }
 
@@ -118,14 +145,16 @@ public:
   virtual bool isComposite() { return false; }
 
   // The following accomadate pulse-level instructions
-  virtual std::string channel() {return "default";}
-  virtual void setChannel(const std::string ch) {return;}
-  virtual std::size_t start() {return 0;}
+  virtual std::string channel() { return "default"; }
+  virtual void setChannel(const std::string ch) { return; }
+  virtual std::size_t start() { return 0; }
   virtual void setStart(const std::size_t s) { return; }
   virtual std::size_t duration() { return 0; }
   virtual void setDuration(const std::size_t d) { return; }
-  virtual void setSamples(const std::vector<std::vector<double>> samples) {return;}
-  virtual std::vector<std::vector<double>> getSamples() {return {};}
+  virtual void setSamples(const std::vector<std::vector<double>> samples) {
+    return;
+  }
+  virtual std::vector<std::vector<double>> getSamples() { return {}; }
 
   // The following accomodate conditional instructions
   virtual bool isEnabled() { return true; }
