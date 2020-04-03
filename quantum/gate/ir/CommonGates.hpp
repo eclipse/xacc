@@ -193,7 +193,7 @@ public:
       : Gate("U", std::vector<InstructionParameter>{
                       InstructionParameter(0.0), InstructionParameter(0.0),
                       InstructionParameter(0.0)}) {}
-
+  U(std::size_t qbit, std::vector<xacc::InstructionParameter> params) : Gate("U", params){}
   U(std::size_t qbit, double theta, double phi, double lambda)
       : Gate("U", std::vector<std::size_t>{qbit},
              std::vector<InstructionParameter>{InstructionParameter(theta),

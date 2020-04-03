@@ -68,6 +68,10 @@ public:
   AnnealingProgram(std::string kernelName, std::vector<std::string> p)
       : _name(kernelName), variables(p) {}
 
+
+  void applyRuntimeArguments() override {
+  }
+
   std::shared_ptr<CompositeInstruction> enabledView() override {
     auto newF = std::make_shared<AnnealingProgram>(_name, variables);
     for (int i = 0; i < nInstructions(); i++) {
