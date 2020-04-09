@@ -30,6 +30,9 @@ public:
   virtual void enterTypedparam(xasmParser::TypedparamContext * /*ctx*/) override { }
   virtual void exitTypedparam(xasmParser::TypedparamContext * /*ctx*/) override { }
 
+  virtual void enterVariable_param_name(xasmParser::Variable_param_nameContext * /*ctx*/) override { }
+  virtual void exitVariable_param_name(xasmParser::Variable_param_nameContext * /*ctx*/) override { }
+
   virtual void enterType(xasmParser::TypeContext * /*ctx*/) override { }
   virtual void exitType(xasmParser::TypeContext * /*ctx*/) override { }
 

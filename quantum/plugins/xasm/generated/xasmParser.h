@@ -18,18 +18,18 @@ public:
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, T__24 = 25, T__25 = 26, 
     T__26 = 27, T__27 = 28, T__28 = 29, T__29 = 30, T__30 = 31, T__31 = 32, 
-    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, T__37 = 38, 
-    T__38 = 39, T__39 = 40, COMMENT = 41, ID = 42, REAL = 43, INT = 44, 
-    STRING = 45, WS = 46, EOL = 47
+    T__32 = 33, T__33 = 34, T__34 = 35, T__35 = 36, T__36 = 37, COMMENT = 38, 
+    ID = 39, REAL = 40, INT = 41, STRING = 42, WS = 43, EOL = 44
   };
 
   enum {
     RuleXaccsrc = 0, RuleXacckernel = 1, RuleXacclambda = 2, RuleTypedparam = 3, 
-    RuleType = 4, RuleMainprog = 5, RuleProgram = 6, RuleLine = 7, RuleStatement = 8, 
-    RuleComment = 9, RuleForstmt = 10, RuleIfstmt = 11, RuleInstruction = 12, 
-    RuleBufferList = 13, RuleParamList = 14, RuleParameter = 15, RuleComposite_generator = 16, 
-    RuleBufferIndex = 17, RuleOptionsMap = 18, RuleOptionsType = 19, RuleExplist = 20, 
-    RuleExp = 21, RuleUnaryop = 22, RuleId = 23, RuleReal = 24, RuleString = 25
+    RuleVariable_param_name = 4, RuleType = 5, RuleMainprog = 6, RuleProgram = 7, 
+    RuleLine = 8, RuleStatement = 9, RuleComment = 10, RuleForstmt = 11, 
+    RuleIfstmt = 12, RuleInstruction = 13, RuleBufferList = 14, RuleParamList = 15, 
+    RuleParameter = 16, RuleComposite_generator = 17, RuleBufferIndex = 18, 
+    RuleOptionsMap = 19, RuleOptionsType = 20, RuleExplist = 21, RuleExp = 22, 
+    RuleUnaryop = 23, RuleId = 24, RuleReal = 25, RuleString = 26
   };
 
   xasmParser(antlr4::TokenStream *input);
@@ -46,6 +46,7 @@ public:
   class XacckernelContext;
   class XacclambdaContext;
   class TypedparamContext;
+  class Variable_param_nameContext;
   class TypeContext;
   class MainprogContext;
   class ProgramContext;
@@ -120,7 +121,7 @@ public:
     TypedparamContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     TypeContext *type();
-    IdContext *id();
+    Variable_param_nameContext *variable_param_name();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -129,10 +130,26 @@ public:
 
   TypedparamContext* typedparam();
 
+  class  Variable_param_nameContext : public antlr4::ParserRuleContext {
+  public:
+    Variable_param_nameContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdContext *id();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  Variable_param_nameContext* variable_param_name();
+
   class  TypeContext : public antlr4::ParserRuleContext {
   public:
     TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    std::vector<IdContext *> id();
+    IdContext* id(size_t i);
+    TypeContext *type();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

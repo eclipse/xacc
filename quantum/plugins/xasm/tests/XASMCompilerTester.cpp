@@ -13,10 +13,15 @@
 #include "gtest/gtest.h"
 
 #include "xacc.hpp"
+#include "xacc_quantum_gate_api.hpp"
 #include "xacc_service.hpp"
 #include "Utils.hpp"
 
+#include "xacc_internal_compiler.hpp"
+#include "qalloc.hpp"
+
 #include "Circuit.hpp"
+
 TEST(XASMCompilerTester, checkTranslate) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void bell_test(qbit q, double t0) {
@@ -320,6 +325,7 @@ Tdg(anc[0]);
     std::cout << b << "\n";
   }
 }
+
 TEST(XASMCompilerTester, checkCallingPreviousKernel) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void bell_call(qbit q) {
@@ -338,9 +344,42 @@ TEST(XASMCompilerTester, checkCallingPreviousKernel) {
   std::cout << bell->toString() << "\n";
 }
 
+TEST(XASMCompilerTester, checkIRV3) {
+//   auto v = xacc::qalloc(1);
+//   v->setName("v");
+//   xacc::storeBuffer(v);
+
+//   auto v = xacc::internal_compiler::qalloc(1);
+  xacc::internal_compiler::qreg v(1);
+
+  auto H = xacc::quantum::getObservable("pauli", std::string("X0 Y1 + Y0 X1"));
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(
+   __qpu__ void foo_test (qbit v, double x, double y, double z, std::shared_ptr<Observable> H) {
+     Rx(v[0], x);
+     U(v[0], x, y, z);
+     exp_i_theta(v, x, H);
+   }
+   )");
+
+  auto foo_test = IR->getComposite("foo_test");
+
+  std::cout << foo_test->toString() << "\n";
+
+  for (auto &val : {2.2, 2.3, 2.4, 2.5}) {
+    foo_test->updateRuntimeArguments(v, val, 3.3, 4.4, H);
+
+    std::cout << foo_test->toString() << "\n\n";
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  auto ret = RUN_ALL_TESTS();
+  xacc::Finalize();
+  return ret;
 }

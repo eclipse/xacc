@@ -27,7 +27,7 @@ Gate::Gate(std::string name, std::vector<std::size_t> qubts,
            std::vector<InstructionParameter> params)
     : gateName(name), qbits(qubts), parameters(params) {}
 Gate::Gate(const Gate &inst)
-    : gateName(inst.gateName), qbits(inst.qbits), parameters(inst.parameters),
+    : gateName(inst.gateName), qbits(inst.qbits), parameters(inst.parameters), arguments(inst.arguments),
       enabled(inst.enabled) {}
 
 const std::string Gate::name() const { return gateName; }

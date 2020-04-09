@@ -138,9 +138,9 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
       for (int i = 1; i < graphView->order() - 2; i++) {
         auto node = graphView->getVertexProperties(i);
         if (node.getString("name") == "CNOT" &&
-            gateFunction->getInstruction(node.get<int>("id") - 1)
+            gateFunction->getInstruction(node.get<std::size_t>("id") - 1)
                 ->isEnabled()) {
-          auto nAsVec = graphView->getNeighborList(node.get<int>("id"));
+          auto nAsVec = graphView->getNeighborList(node.get<std::size_t>("id"));
           // std::vector<int> nAsVec(neighbors.begin(), neighbors.end());
           // Note: There is an edge-case if the CNOT is last gate on a pair of qubit wires,
           // i.e. both of its neighbors will be the final state node.
@@ -148,7 +148,7 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
           if (nAsVec[0] == nAsVec[1] && nAsVec[0] != graphView->order() - 1) {
             // Check that the neighbor gate is indeed a CNOT gate, i.e. not a different 2-qubit gate.
             if (gateFunction->getInstruction(nAsVec[0] - 1)->name() == "CNOT") {
-              gateFunction->getInstruction(node.get<int>("id") - 1)->disable();
+              gateFunction->getInstruction(node.get<std::size_t>("id") - 1)->disable();
               gateFunction->getInstruction(nAsVec[0] - 1)->disable();
               modified = true;
               break;
@@ -170,13 +170,13 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
       for (int i = 1; i < graphView->order() - 2; ++i) {
         auto node = graphView->getVertexProperties(i);
 
-        auto nAsVec = graphView->getNeighborList(node.get<int>("id"));
+        auto nAsVec = graphView->getNeighborList(node.get<std::size_t>("id"));
         //   std::vector<int> nAsVec(adj.begin(), adj.end());
         if (nAsVec.size() == 1) {
           auto nextNode = graphView->getVertexProperties(nAsVec[0]);
           if (node.getString("name") == "H" &&
               nextNode.getString("name") == "H") {
-            gateFunction->getInstruction(node.get<int>("id") - 1)->disable();
+            gateFunction->getInstruction(node.get<std::size_t>("id") - 1)->disable();
             gateFunction->getInstruction(nAsVec[0] - 1)->disable();
             modified = true;
             break;
@@ -199,7 +199,7 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
       // neighbor
       for (int i = 1; i < graphView->order() - 2; i++) {
         auto node = graphView->getVertexProperties(i);
-        auto nAsVec = graphView->getNeighborList(node.get<int>("id"));
+        auto nAsVec = graphView->getNeighborList(node.get<std::size_t>("id"));
         // if it has more than 1 neighbor, don't consider
         if (nAsVec.size() == 1) {
           auto nextNode = graphView->getVertexProperties(nAsVec[0]);
@@ -207,21 +207,21 @@ void CircuitOptimizer::apply(std::shared_ptr<CompositeInstruction> gateFunction,
               isRotation(nextNode.getString("name")) &&
               node.getString("name") == nextNode.getString("name")) {
             auto val1 =
-                ipToDouble(gateFunction->getInstruction(node.get<int>("id") - 1)
+                ipToDouble(gateFunction->getInstruction(node.get<std::size_t>("id") - 1)
                                ->getParameter(0));
             auto val2 = ipToDouble(
-                gateFunction->getInstruction(nextNode.get<int>("id") - 1)
+                gateFunction->getInstruction(nextNode.get<std::size_t>("id") - 1)
                     ->getParameter(0));
 
             if (std::fabs(val1 + val2) < 1e-12) {
-              gateFunction->getInstruction(node.get<int>("id") - 1)->disable();
-              gateFunction->getInstruction(nextNode.get<int>("id") - 1)
+              gateFunction->getInstruction(node.get<std::size_t>("id") - 1)->disable();
+              gateFunction->getInstruction(nextNode.get<std::size_t>("id") - 1)
                   ->disable();
             } else {
               InstructionParameter tmp(val1 + val2);
-              gateFunction->getInstruction(node.get<int>("id") - 1)
+              gateFunction->getInstruction(node.get<std::size_t>("id") - 1)
                   ->setParameter(0, tmp);
-              gateFunction->getInstruction(nextNode.get<int>("id") - 1)
+              gateFunction->getInstruction(nextNode.get<std::size_t>("id") - 1)
                   ->disable();
             }
             modified = true;
@@ -302,21 +302,21 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
   // Algorithm: we iterate the circuit until we hit an Hadamard gate,
   // then check if the sequence is one of those in Figure 4 of https://arxiv.org/pdf/1710.07345.pdf
   auto graphView = io_program->toGraph();
-  std::vector<int> hadamardNodeIds;
+  std::vector<std::size_t> hadamardNodeIds;
   // We collect all Hadamard nodes ahead of time for the iteration and matching
   for (int i = 1; i < graphView->order() - 1; ++i) {
     const auto node = graphView->getVertexProperties(i);
     if (node.getString("name") == "H") {
-      hadamardNodeIds.emplace_back(node.get<int>("id"));
+      hadamardNodeIds.emplace_back(node.get<std::size_t>("id"));
     }
   }
 
-  std::vector<std::vector<int>> matchedReductionPatterns;
+  std::vector<std::vector<std::size_t>> matchedReductionPatterns;
   // Set of Hadamard node Ids that have already been matched against a pattern,
   // hence no need to match any more to prevent double matching.
   // The below matching is constructed to prioritize patterns that result in more
   // gate count reduction, hence we want to keep track of which H gates have already been matched.
-  std::unordered_set<int> matchedHadamardNodeIds;
+  std::unordered_set<std::size_t> matchedHadamardNodeIds;
 
   for (const auto& hadamardNode: hadamardNodeIds) {
     if (container::contains(matchedHadamardNodeIds, hadamardNode)) {
@@ -339,14 +339,14 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
       //       |
       //       |
       // H-----+-----H
-      const auto cnotInst = io_program->getInstruction(nextNode.get<int>("id") - 1);
-      const auto cnotNeighborNodes = graphView->getNeighborList(nextNode.get<int>("id"));
+      const auto cnotInst = io_program->getInstruction(nextNode.get<std::size_t>("id") - 1);
+      const auto cnotNeighborNodes = graphView->getNeighborList(nextNode.get<std::size_t>("id"));
       if (cnotNeighborNodes.size() == 2) {
         if (container::contains(hadamardNodeIds, cnotNeighborNodes[0]) && container::contains(hadamardNodeIds, cnotNeighborNodes[1])) {
           // Try to find the remaining left leg
-          int remainingHadamardNodeId = 0;
+          std::size_t remainingHadamardNodeId = 0;
           for (const auto& checkNode: hadamardNodeIds) {
-            if (checkNode != hadamardNode && graphView->getNeighborList(checkNode)[0] == nextNode.get<int>("id")) {
+            if (checkNode != hadamardNode && graphView->getNeighborList(checkNode)[0] == nextNode.get<std::size_t>("id")) {
               remainingHadamardNodeId = checkNode;
               break;
             }
@@ -354,7 +354,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
 
           if (remainingHadamardNodeId != 0) {
             // We've found the complete pattern.
-            matchedReductionPatterns.emplace_back(std::vector<int>({ hadamardNode, remainingHadamardNodeId, nextNode.get<int>("id"), cnotNeighborNodes[0], cnotNeighborNodes[1] }));
+            matchedReductionPatterns.emplace_back(std::vector<std::size_t>({ hadamardNode, remainingHadamardNodeId, nextNode.get<std::size_t>("id"), (std::size_t) cnotNeighborNodes[0], (std::size_t) cnotNeighborNodes[1] }));
             // Add all 4 hadamard gates to the tracking list
             matchedHadamardNodeIds.emplace(hadamardNode);
             matchedHadamardNodeIds.emplace(remainingHadamardNodeId);
@@ -367,11 +367,11 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
 
     if (nextGateName == "Rz")
     {
-      assert(io_program->getInstruction(nextNode.get<int>("id") - 1)->bits()[0] == qubitIndex);
+      assert(io_program->getInstruction(nextNode.get<std::size_t>("id") - 1)->bits()[0] == qubitIndex);
       // We only match Rz(+/- pi/2), i.e. the Phase gate and its dagger.
 
       // Check if total angle is either +/- pi/2, i.e. equivalent to a P gate or its dagger.
-      const double rawAngle = ipToDouble(io_program->getInstruction(nextNode.get<int>("id") - 1)->getParameter(0));
+      const double rawAngle = ipToDouble(io_program->getInstruction(nextNode.get<std::size_t>("id") - 1)->getParameter(0));
       const double normalizedAngle = getNormalizedRotationAngle(rawAngle);
       const bool isPhaseGate = isPiOver2(normalizedAngle);
       const bool isPhaseDaggerGate = isMinusPiOver2(normalizedAngle);
@@ -380,16 +380,16 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
         // There are two potential patterns that we need to check:
         // (1) H - P - H (or P dagger)
         // (2) H - P - CNOT^k - P - H (or P dagger)
-        const auto phaseGateNeighborNodeIds = graphView->getNeighborList(nextNode.get<int>("id"));
+        const auto phaseGateNeighborNodeIds = graphView->getNeighborList(nextNode.get<std::size_t>("id"));
         assert(phaseGateNeighborNodeIds.size() == 1);
         const auto phaseGateNeighborNode = graphView->getVertexProperties(phaseGateNeighborNodeIds.front());
         if (phaseGateNeighborNode.getString("name") == "H") {
           // Got it, this is the H - P - H (or P dagger)
-          assert(container::contains(hadamardNodeIds, phaseGateNeighborNode.get<int>("id")));
-          matchedReductionPatterns.emplace_back(std::vector<int>({ hadamardNode, nextNode.get<int>("id"), phaseGateNeighborNode.get<int>("id") }));
+          assert(container::contains(hadamardNodeIds, phaseGateNeighborNode.get<std::size_t>("id")));
+          matchedReductionPatterns.emplace_back(std::vector<std::size_t>({ hadamardNode, nextNode.get<std::size_t>("id"), phaseGateNeighborNode.get<std::size_t>("id") }));
           // Add the two Hadamard gates to the tracking list
           matchedHadamardNodeIds.emplace(hadamardNode);
-          matchedHadamardNodeIds.emplace(phaseGateNeighborNode.get<int>("id"));
+          matchedHadamardNodeIds.emplace(phaseGateNeighborNode.get<std::size_t>("id"));
         }
 
         // Lastly, try match against the H - P - CNOT^k - P - H (or P dagger) pattern
@@ -400,7 +400,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
           const auto neighbors = graphView->getNeighborList(in_startNodeId);
           for (const auto& neighbor: neighbors) {
             const auto nodeProps = graphView->getVertexProperties(neighbor);
-            const auto instIdx = nodeProps.get<int>("id") - 1;
+            const auto instIdx = nodeProps.get<std::size_t>("id") - 1;
             if (instIdx < io_program->nInstructions()) {
               const auto inst = io_program->getInstruction(instIdx);
               if (inst->name() == "CNOT" && inst->bits()[1] == in_qubitIndex) {
@@ -413,7 +413,7 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
         };
         std::vector<int> cnotNodeIdx;
         // We start from the Phase gate node
-        int startVerticeId = nextNode.get<int>("id");
+        int startVerticeId = nextNode.get<std::size_t>("id");
         while (true) {
           if (isNextNodeCnotTargetQubit(qubitIndex, startVerticeId, cnotNodeIdx)) {
             // If found a CNOT gate (target the correct qubit), continue from that CNOT
@@ -456,11 +456,11 @@ bool CircuitOptimizer::tryReduceHadamardGates(std::shared_ptr<CompositeInstructi
               // Found the complete pattern
               // Sanity check: it is indeed an Hadamard on the same qubit line
               assert(io_program->getInstruction(lastNodeToCheck - 1)->bits()[0] == qubitIndex);
-              std::vector<int> completePattern;
+              std::vector<std::size_t> completePattern;
               // First H
               completePattern.emplace_back(hadamardNode);
               // First Phase gate (or phase dagger)
-              completePattern.emplace_back(nextNode.get<int>("id"));
+              completePattern.emplace_back(nextNode.get<std::size_t>("id"));
               // Sequence of CNOT gates
               for (const auto& cnotId : cnotNodeIdx) {
                 completePattern.emplace_back(cnotId);
@@ -556,11 +556,11 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
   std::unordered_map<int, std::vector<int>> qubitToNodeIds;
   for (int i = 1; i < graphView->order() - 1; ++i) {
     const auto node = graphView->getVertexProperties(i);
-    const auto& instruction = io_program->getInstruction(node.get<int>("id") - 1);
+    const auto& instruction = io_program->getInstruction(node.get<std::size_t>("id") - 1);
     for (const auto& bit: instruction->bits()) {
       auto& currentList = qubitToNodeIds[bit];
       // Add the node Id to the tracking list of this qubit.
-      currentList.emplace_back(node.get<int>("id"));
+      currentList.emplace_back(node.get<std::size_t>("id"));
     }
   }
 
@@ -570,7 +570,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
     const auto node = graphView->getVertexProperties(i);
     // Starting at a CNOT gate as anchor point
     if (node.getString("name") == "CNOT") {
-      const auto& cnotInst = io_program->getInstruction(node.get<int>("id") - 1);
+      const auto& cnotInst = io_program->getInstruction(node.get<std::size_t>("id") - 1);
       assert(cnotInst->bits().size() == 2);
       const auto ctrlIndex = cnotInst->bits()[0];
       const auto targetIndex = cnotInst->bits()[1];
@@ -644,13 +644,13 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
       // Forward search:
       {
         // Control wire:
-        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
+        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<std::size_t>("id"))) {
           if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), ctrlIndex)) {
             findRightBoundary(ctrlIndex, nodeToCheck);
           }
         }
         // Target wire"
-        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<int>("id"))) {
+        for (const auto& nodeToCheck: graphView->getNeighborList(node.get<std::size_t>("id"))) {
           if (nodeToCheck < graphView->order() - 1 && container::contains(io_program->getInstruction(nodeToCheck - 1)->bits(), targetIndex)) {
             findRightBoundary(targetIndex, nodeToCheck);
           }
@@ -667,7 +667,7 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
 
         for (int idx = 1; idx < graphView->order() - 1; ++idx) {
           const auto node = graphView->getVertexProperties(idx);
-          const auto& instruction = io_program->getInstruction(node.get<int>("id") - 1);
+          const auto& instruction = io_program->getInstruction(node.get<std::size_t>("id") - 1);
 
           if (instruction->bits().size() == 1 && container::contains(qubits, instruction->bits()[0])) {
             const auto& boundary = qubitToBoundary[instruction->bits()[0]];

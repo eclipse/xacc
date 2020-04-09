@@ -172,31 +172,40 @@ XASMListener::XASMListener() {
 void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
   std::vector<std::string> variables,
       validTypes{"double", "float", "std::vector<double>", "int"};
-  // First argument should be the buffer
+
+  function = irProvider->createComposite(ctx->kernelname->getText());
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    if (xacc::container::contains(validTypes,
+      auto type = ctx->typedparam(i)->type()->getText();
+      auto vname = ctx->typedparam(i)->variable_param_name()->getText();
+      function->addArgument(vname, type);
+      if (type == "qreg" || type == "qbit") {
+          functionBufferNames.push_back(vname);
+      }
+      if (xacc::container::contains(validTypes,
                                   ctx->typedparam(i)->type()->getText())) {
-      variables.push_back(ctx->typedparam(i)->id()->getText());
-    } else {
-      functionBufferNames.push_back(ctx->typedparam(i)->id()->getText());
+      variables.push_back(vname);
     }
   }
-  function = irProvider->createComposite(ctx->kernelname->getText(), variables);
+  function->addVariables(variables);
 }
 
 void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
   std::vector<std::string> variables,
       validTypes{"double", "float", "std::vector<double>", "int"};
-  // First argument should be the buffer
+  function = irProvider->createComposite("tmp_lambda", variables);
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    if (xacc::container::contains(validTypes,
+      auto type = ctx->typedparam(i)->type()->getText();
+      auto vname = ctx->typedparam(i)->variable_param_name()->getText();
+      function->addArgument(vname, type);
+      if (type == "qreg" || type == "qbit") {
+          functionBufferNames.push_back(vname);
+      }
+      if (xacc::container::contains(validTypes,
                                   ctx->typedparam(i)->type()->getText())) {
-      variables.push_back(ctx->typedparam(i)->id()->getText());
-    } else {
-      functionBufferNames.push_back(ctx->typedparam(i)->id()->getText());
+      variables.push_back(vname);
     }
   }
-  function = irProvider->createComposite("tmp_lambda", variables);
+  function->addVariables(variables);
 }
 
 void XASMListener::enterForstmt(xasmParser::ForstmtContext *ctx) {
@@ -403,6 +412,13 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
 void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   auto inst = irProvider->createInstruction(currentInstructionName, currentBits,
                                             currentParameters);
+  for (int i = 0; i < currentParameters.size(); i++) {
+      if (currentParameters[i].isVariable()) {
+          auto arg = function->getArgument(currentParameters[i].toString());
+          inst->addArgument(arg, i);
+      }
+  }
+
   if (!currentBitIdxExpressions.empty()) {
     for (auto &kv : currentBitIdxExpressions) {
       inst->setBitExpression(kv.first, kv.second);
@@ -498,6 +514,10 @@ void XASMListener::exitComposite_generator(
 
   auto tmp = irProvider->createInstruction(currentCompositeName, {});
   auto composite = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
+  for (auto& p : currentParameters) {
+      auto arg = function->getArgument(p.toString());
+      composite->addArgument(arg, 0);
+  }
 
   // Treat parameters as variables
   for (auto &a : currentParameters) {

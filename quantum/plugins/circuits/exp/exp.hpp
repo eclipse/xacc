@@ -14,12 +14,17 @@
 #define XACC_GENERATORS_EXP_HPP_
 
 #include "Circuit.hpp"
+#include <expression_parsing_util.hpp>
 
 namespace xacc {
 namespace circuits {
 class Exp : public xacc::quantum::Circuit {
+protected:
+  std::vector<std::string> rz_expressions;
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 public:
   Exp() : Circuit("exp_i_theta") {}
+  void applyRuntimeArguments() override;
   bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(Exp);
