@@ -30,7 +30,7 @@ void IRToGraphVisitor::addSingleQubitGate(Gate &inst) {
                       std::make_pair("bits", inst.bits())};
 
   graph->addVertex(newNode);
-  graph->addEdge(lastNode.get<int>("id"), newNode.get<int>("id"), 1);
+  graph->addEdge(lastNode.get<std::size_t>("id"), newNode.get<std::size_t>("id"), 1);
 
   qubitToLastNode[bit] = newNode;
 }
@@ -39,8 +39,8 @@ void IRToGraphVisitor::addTwoQubitGate(Gate &inst) {
   auto srcbit = inst.bits()[0];
   auto tgtbit = inst.bits()[1];
 
-  auto lastsrcnodeid = qubitToLastNode[srcbit].get<int>("id");
-  auto lasttgtnodeid = qubitToLastNode[tgtbit].get<int>("id");
+  auto lastsrcnodeid = qubitToLastNode[srcbit].get<std::size_t>("id");
+  auto lasttgtnodeid = qubitToLastNode[tgtbit].get<std::size_t>("id");
 
   id++;
   CircuitNode newNode{std::make_pair("name", inst.name()),
@@ -60,7 +60,7 @@ IRToGraphVisitor::IRToGraphVisitor(const int nQubits) {
   std::vector<std::size_t> allQbitIds(nQubits);
   std::iota(std::begin(allQbitIds), std::end(allQbitIds), 0);
    CircuitNode initNode{std::make_pair("name", std::string("InitialState")),
-                      std::make_pair("id", 0),
+                      std::make_pair("id", id),
                       std::make_pair("bits", allQbitIds)};
   for (int i = 0; i < nQubits; i++) {
     qubitToLastNode[i] = initNode;
@@ -75,7 +75,7 @@ std::shared_ptr<Graph> IRToGraphVisitor::getGraph() {
   graph->addVertex(finalNode);
 
   for (auto &kv : qubitToLastNode) {
-    graph->addEdge(kv.second.get<int>("id"), finalNode.get<int>("id"), 1.0);
+    graph->addEdge(kv.second.get<std::size_t>("id"), finalNode.get<std::size_t>("id"), 1.0);
   }
 
   return graph;

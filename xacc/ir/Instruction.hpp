@@ -62,14 +62,18 @@ InstructionParameterToDouble(const xacc::InstructionParameter &in_parameter) {
 
 class CompositeInstruction;
 
-struct CompositeArgument {
+class CompositeArgument {
+public:
   std::string name;
   std::string type;
   HeterogeneousMap runtimeValue;
-  CompositeArgument(const std::string n, const std::string t) {
-    name = n;
-    type = t;
-  }
+  CompositeArgument(const std::string n, const std::string t)
+      : name(n), type(t) {}
+  CompositeArgument(const std::string n, const std::string t,
+                    HeterogeneousMap &map)
+      : name(n), type(t), runtimeValue(map) {}
+  CompositeArgument(const CompositeArgument &other)
+      : name(other.name), type(other.type), runtimeValue(other.runtimeValue) {}
 };
 
 const std::string INTERNAL_ARGUMENT_VALUE_KEY = "__xacc_internal_value_key";

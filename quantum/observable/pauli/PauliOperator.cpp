@@ -38,9 +38,7 @@ PauliOperator::PauliOperator(double c) {
   terms.emplace(std::make_pair("I", c));
 }
 
-PauliOperator::PauliOperator(std::string fromStr) {
-  fromString(fromStr);
-}
+PauliOperator::PauliOperator(std::string fromStr) { fromString(fromStr); }
 
 PauliOperator::PauliOperator(std::complex<double> c, std::string var) {
   terms.emplace(std::piecewise_construct, std::forward_as_tuple("I"),
@@ -90,10 +88,17 @@ PauliOperator::PauliOperator(std::map<int, std::string> operators,
                 std::forward_as_tuple(coeff, var, operators));
 }
 
+std::complex<double> PauliOperator::coefficient() {
+  if (terms.size() > 1) {
+    xacc::error("Cannot call PauliOperator::coefficient on operator with more "
+                "than 1 term.");
+  }
+  return terms.begin()->second.coeff();
+}
 std::vector<std::shared_ptr<CompositeInstruction>>
 PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
 
-    // Create a new GateQIR to hold the spin based terms
+  // Create a new GateQIR to hold the spin based terms
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   std::vector<std::shared_ptr<CompositeInstruction>> observed;
   int counter = 0;
@@ -104,8 +109,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
 
     Term spinInst = inst.second;
 
-    auto gateFunction = gateRegistry->createComposite(
-        inst.first, function->getVariables());
+    auto gateFunction =
+        gateRegistry->createComposite(inst.first, function->getVariables());
 
     gateFunction->setCoefficient(spinInst.coeff());
 
@@ -113,6 +118,10 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       gateFunction->addInstruction(function->clone());
     }
 
+    for (auto arg : function->getArguments()) {
+       gateFunction->addArgument(arg, 0);
+    }
+    
     // Loop over all terms in the Spin Instruction
     // and create instructions to run on the Gate QPU.
     std::vector<std::shared_ptr<xacc::Instruction>> measurements;
@@ -130,8 +139,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       int t = qbit;
       std::size_t tt = t;
       auto gateName = terms[i].second;
-      auto meas =
-          gateRegistry->createInstruction("Measure", std::vector<std::size_t>{tt});
+      auto meas = gateRegistry->createInstruction("Measure",
+                                                  std::vector<std::size_t>{tt});
       xacc::InstructionParameter classicalIdx(qbit);
       meas->setParameter(0, classicalIdx);
       measurements.push_back(meas);
@@ -141,7 +150,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
             gateRegistry->createInstruction("H", std::vector<std::size_t>{tt});
         gateFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
-        auto rx = gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
+        auto rx =
+            gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
         InstructionParameter p(pi / 2.0);
         rx->setParameter(0, p);
         gateFunction->addInstruction(rx);
@@ -278,8 +288,8 @@ std::vector<std::complex<double>> PauliOperator::toDenseMatrix(const int n) {
     }
   }
 
-  std::vector<std::complex<double>> retv(dim*dim);
-  Eigen::MatrixXcd::Map(&retv.data()[0], A.rows(),A.cols()) = A;
+  std::vector<std::complex<double>> retv(dim * dim);
+  Eigen::MatrixXcd::Map(&retv.data()[0], A.rows(), A.cols()) = A;
 
   return retv;
 }
@@ -360,7 +370,6 @@ void PauliOperator::fromString(const std::string str) {
   clear();
 
   operator+=(listener.getOperator());
-
 }
 
 bool PauliOperator::contains(PauliOperator &op) {
@@ -434,7 +443,8 @@ bool PauliOperator::operator==(const PauliOperator &v) noexcept {
     bool found = false;
     for (auto &vkv : v.terms) {
 
-      if (kv.second.operator==(vkv.second) | (kv.second.id() == "I" && vkv.second.id() == "I")) {
+      if (kv.second.operator==(vkv.second) |
+          (kv.second.id() == "I" && vkv.second.id() == "I")) {
         found = true;
         break;
       }
@@ -638,10 +648,9 @@ std::shared_ptr<IR> PauliOperator::toXACCIR() {
   auto tmp = gateRegistry->createComposite("tmp");
   auto kernels = observe(tmp);
   auto newIr = gateRegistry->createIR();
-  for (auto& k : kernels) newIr->addComposite(k);
+  for (auto &k : kernels)
+    newIr->addComposite(k);
   return newIr;
-
-
 }
 
 int PauliOperator::nQubits() {

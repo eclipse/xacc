@@ -1,28 +1,42 @@
 #include "xacc_internal_compiler.hpp"
+#include "Instruction.hpp"
 #include "Utils.hpp"
+#include "heterogeneous.hpp"
 #include "xacc.hpp"
 #include "InstructionIterator.hpp"
+#include <CompositeInstruction.hpp>
+#include <stdlib.h>
 
 namespace xacc {
 namespace internal_compiler {
 Accelerator *qpu = nullptr;
 CompositeInstruction *lastCompiled = nullptr;
 bool __execute = true;
+std::vector<HeterogeneousMap> current_runtime_arguments = {};
 
 void __set_verbose(bool v) { xacc::set_verbose(v); }
 void compiler_InitializeXACC(const char *qpu_backend) {
-  if (!xacc::isInitialized())
+  if (!xacc::isInitialized()) {
     xacc::Initialize();
-
-  xacc::external::load_external_language_plugins();
+    xacc::external::load_external_language_plugins();
+    auto at_exit = []() {
+      xacc::Finalize();
+    };
+    atexit(at_exit);
+  } 
   setAccelerator(qpu_backend);
 }
 
 void compiler_InitializeXACC(const char *qpu_backend, const int shots) {
-  if (!xacc::isInitialized())
+  if (!xacc::isInitialized()) {
     xacc::Initialize();
+    xacc::external::load_external_language_plugins();
+    auto at_exit = []() {
+      xacc::Finalize();
+    };
+    atexit(at_exit);
+  }
 
-  xacc::external::load_external_language_plugins();
   setAccelerator(qpu_backend, shots);
 }
 
@@ -93,6 +107,20 @@ void optimize(CompositeInstruction *program, const OptLevel opt) {
              std::to_string(program->nInstructions()) + " instructions.");
 }
 
+void execute(AcceleratorBuffer *buffer,
+             std::vector<CompositeInstruction *> programs) {
+
+  std::vector<std::shared_ptr<CompositeInstruction>> ps_vec;
+
+  for (auto &p : programs) {
+      if (p->name() != "I") {
+        ps_vec.push_back(xacc::as_shared_ptr(p));
+      }
+  }
+
+  qpu->execute(xacc::as_shared_ptr(buffer), ps_vec);
+}
+
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
 void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
@@ -109,8 +137,6 @@ void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
   }
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
       buffer, xacc::empty_delete<AcceleratorBuffer>());
-
-  optimize(program);
 
   qpu->execute(buffer_as_shared, program_as_shared);
 }

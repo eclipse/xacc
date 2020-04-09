@@ -108,6 +108,9 @@ protected:
   }
 
 public:
+  CompositeInstruction() = default;
+  CompositeInstruction(const CompositeInstruction& other) : arguments(other.arguments) {}
+
   template <typename... RuntimeArgs>
   void updateRuntimeArguments(RuntimeArgs... args) {
     countArgs(args...);
@@ -119,13 +122,21 @@ public:
     }
     _count_args_counter = 0;
     constructArgs(args...);
+    applyRuntimeArguments();
+  }
+
+  void setArgumentValues(std::vector<HeterogeneousMap> args) {
+     for (int i = 0; i < arguments.size(); ++i) {
+         arguments[i]->runtimeValue = args[i];
+     }
+     return;
   }
 
   void addArgument(std::shared_ptr<CompositeArgument> arg,
                    const int idx_of_inst_param) override {
     arguments.push_back(arg);
   }
-
+ 
   virtual void addArgument(const std::string arg_name,
                            const std::string arg_type) {
     arguments.emplace_back(new CompositeArgument(arg_name, arg_type));
@@ -141,10 +152,9 @@ public:
     return nullptr;
   }
 
-  // To be implemented by sub-types, goal is to walk
-  // the Instruction tree and call Instruction::applyRuntimeArguments
-  // giving the concrete Instruction an opportunity to update
-  //   virtual void applyRuntimeArguments() = 0;
+  virtual std::vector<std::shared_ptr<CompositeArgument>> getArguments() {
+      return arguments;
+  }
 
   // This should return the number
   // of concrete leaves in the tree
@@ -214,5 +224,9 @@ public:
 template CompositeInstruction *
 HeterogeneousMap::getPointerLike<CompositeInstruction>(
     const std::string key) const;
+template bool
+HeterogeneousMap::pointerLikeExists<CompositeInstruction>(
+    const std::string key) const;
+
 } // namespace xacc
 #endif

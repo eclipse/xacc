@@ -19,19 +19,35 @@ namespace xacc {
 
 class Observable : public Identifiable {
 public:
-
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;
-  virtual void fromOptions(const HeterogeneousMap && options) {
-      fromOptions(options);
-      return;
+  virtual void fromOptions(const HeterogeneousMap &&options) {
+    fromOptions(options);
+    return;
   }
-  virtual void fromOptions(const HeterogeneousMap& options) = 0;
+  virtual void fromOptions(const HeterogeneousMap &options) = 0;
+
+  virtual std::vector<std::shared_ptr<Observable>> getSubTerms() { return {}; }
+
+  virtual std::vector<std::shared_ptr<Observable>> getNonIdentitySubTerms() {
+    return {};
+  }
+
+  virtual std::shared_ptr<Observable> getIdentitySubTerm() { return nullptr; }
+
+  virtual std::complex<double> coefficient() {
+    return std::complex<double>(1.0, 0.0);
+  }
 };
+
+template Observable *
+HeterogeneousMap::getPointerLike<Observable>(const std::string key) const;
+template bool
+HeterogeneousMap::pointerLikeExists<Observable>(const std::string key) const;
 
 } // namespace xacc
 #endif

@@ -54,12 +54,11 @@ TEST(GateTester, checkIR3) {
   EXPECT_THROW(circuit->updateRuntimeArguments(2.2), std::runtime_error);
 
   circuit->updateRuntimeArguments(2.2, 3.3, 4.4);
-  circuit->applyRuntimeArguments();
 
   std::cout << circuit->toString() <<"\n";
   
   circuit->updateRuntimeArguments(3.2, 4.3, 5.3);
-  circuit->applyRuntimeArguments();
+  
   std::cout << circuit->toString() <<"\n";
 
 }
