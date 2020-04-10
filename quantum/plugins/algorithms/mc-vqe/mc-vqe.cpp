@@ -13,36 +13,34 @@
 #include "mc-vqe.hpp"
 
 #include "Observable.hpp"
+#include "PauliOperator.hpp"
 #include "xacc.hpp"
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#include "xacc_service.hpp"
 
 #include <memory>
 #include <iomanip>
 #include <vector>
+#include <fstream>
 
 using namespace xacc;
+using namespace xacc::quantum;
 
 namespace xacc {
 namespace algorithm {
 bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
-  if (!parameters.pointerLikeExists<Observable>("observable")) {
-    std::cout << "Obs was false\n";
-    return false;
-  }  else if (!parameters.pointerLikeExists<Accelerator>(
+  if (!parameters.pointerLikeExists<Accelerator>(
                  "accelerator")) {
     std::cout << "Acc was false\n";
     return false;
   } else if(!parameters.stringExists("nChromophores")){
     std::cout << "Missing number of chromophores\n";
     return false;
-  } else if(!parameters.stringExists("angles")){
-    //else if(!parameters.pointerLikeExists<std::vector<std::vector<double>>>("angles")){
-    std::cout << "Missing gate angles for CIS state preparation\n";
   }
 
-  observable = parameters.getPointerLike<Observable>("observable");
   optimizer = parameters.getPointerLike<Optimizer>("optimizer");
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
-  angles = parameters.get< std::vector< std::vector<double> > >("angles");
   nChromophores = parameters.get<int>("nChromophores");
 
   // This is to include the last entangler if the system is cyclic
@@ -52,17 +50,23 @@ bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
     isCyclic = false;
   }
 
+  CISGateAngles.resize(nChromophores + 1, nChromophores + 1);
+  preProcessing();//CISGateAngles, observable);
+
   return true;
 }
 
 const std::vector<std::string> MC_VQE::requiredParameters() const {
-  return {"observable", "optimizer", "accelerator", "angles", "nChromophores"};
+  return {"optimizer", "accelerator", "nChromophores"};
 }
 
 void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
+
+  Eigen::MatrixXd entangledHamiltonian(nChromophores + 1, nChromophores + 1);
+  entangledHamiltonian.setZero();
 
   OptFunction f(
       [&, this](const std::vector<double> &x, std::vector<double> &dx) {
@@ -75,7 +79,7 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           std::vector<std::string> kernelNames;
           std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
-          auto kernel = circuit(nChromophores, angles[state]);
+          auto kernel = circuit(CISGateAngles.col(state));
           auto kernels = observable->observe(kernel);
 
           double identityCoeff = 0.0;
@@ -125,10 +129,12 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
               buffer->appendChild(fsToExec[i]->name(), buffers[i]);
             }
           
+          entangledHamiltonian(state, state) = energy;
           averageEnergy += energy;
         }
 
-        averageEnergy /= nChromophores;
+        averageEnergy /= nChromophores + 1;
+        //averageEnergy /= nChromophores;
         std::stringstream ss;
         ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
         for (int i = 1; i < x.size(); i++)
@@ -142,9 +148,44 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       6*nChromophores);
 
   auto result = optimizer->optimize(f);
-
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+
+
+  // now construct interference states and observe Hamiltonian
+  auto optimizedEntangler = result.second;
+
+  for (int stateA = 0; stateA <= nChromophores - 1; stateA++){
+    for (int stateB = stateA + 1; stateB <= nChromophores; stateB++){
+
+      auto plusInterferenceCircuit = circuit((CISGateAngles.col(stateA) + CISGateAngles.col(stateB))/std::sqrt(2));
+      auto plus_vqe = xacc::getAlgorithm(
+          "vqe", {std::make_pair("observable", observable),
+                  std::make_pair("optimizer", optimizer),
+                  std::make_pair("accelerator", accelerator),
+                  std::make_pair("ansatz", plusInterferenceCircuit)});
+      auto plusTerm = plus_vqe->execute(buffer, optimizedEntangler)[0];
+
+      auto minusInterferenceCircuit = circuit((CISGateAngles.col(stateA) - CISGateAngles.col(stateB))/std::sqrt(2));
+      auto minus_vqe = xacc::getAlgorithm(
+          "vqe", {std::make_pair("observable", observable),
+                  std::make_pair("optimizer", optimizer),
+                  std::make_pair("accelerator", accelerator),
+                  std::make_pair("ansatz", minusInterferenceCircuit)});
+      auto minusTerm = minus_vqe->execute(buffer, optimizedEntangler)[0];
+
+      entangledHamiltonian(stateA, stateB) = (plusTerm - minusTerm)/std::sqrt(2);
+      entangledHamiltonian(stateB, stateA) = entangledHamiltonian(stateA, stateB);
+    }
+
+  }
+
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EigenSolver(entangledHamiltonian);
+  auto MC_VQE_Energies = EigenSolver.eigenvalues();
+  auto MC_VQE_States = EigenSolver.eigenvectors();
+
+  //buffer->addExtraInfo("mc-vqe-energies", ExtraInfo(MC_VQE_Energies));
+  //buffer->addExtraInfo("opt-params", ExtraInfo(MC_VQE_States));
   return;
 }
 
@@ -159,7 +200,7 @@ MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     std::vector<std::string> kernelNames;
     std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
-    auto kernel = circuit(nChromophores, angles[state]);
+    auto kernel = circuit(CISGateAngles.col(state));
     auto kernels = observable->observe(kernel);
 
     double identityCoeff = 0.0;
@@ -226,7 +267,7 @@ MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
 
 
 std::shared_ptr<CompositeInstruction>
-MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
+MC_VQE::circuit(const Eigen::VectorXd &angles) const {
 
   auto mcvqeRegistry = xacc::getIRProvider("quantum");
   auto mcvqeInstructions = mcvqeRegistry->createComposite("mcvqeCircuit");
@@ -234,7 +275,7 @@ MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
   // Beginning of CIS state preparation
 
   // Ry "pump"
-  auto ry = mcvqeRegistry->createInstruction("Ry", std::vector<std::size_t>{0}, {angles[0]});
+  auto ry = mcvqeRegistry->createInstruction("Ry", std::vector<std::size_t>{0}, {angles(0)});
   mcvqeInstructions->addInstruction(ry);
 
   // Fy gates = Ry(-theta/2)-CZ-Ry(theta/2)
@@ -242,11 +283,11 @@ MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
   //                           |            
   // |B>--[Ry(-angles[i]/2)]--[Z]--[Ry(+angles[i]/2)]--
   //
-  for (int i = 1; i < N; i++){
+  for (int i = 1; i < nChromophores; i++){
 
     std::size_t control = i - 1, target = i;
     // Ry(-theta/2)
-    auto ry_minus = mcvqeRegistry->createInstruction("Ry", {target}, {-angles[i]/2});
+    auto ry_minus = mcvqeRegistry->createInstruction("Ry", {target}, {-angles(i)/2});
     mcvqeInstructions->addInstruction(ry_minus);
 
     //CNOT
@@ -254,13 +295,13 @@ MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
     mcvqeInstructions->addInstruction(cz);
 
     // Ry(+theta/2)
-    auto ry_plus = mcvqeRegistry->createInstruction("Ry", {target}, {angles[i]/2});
+    auto ry_plus = mcvqeRegistry->createInstruction("Ry", {target}, {angles(i)/2});
     mcvqeInstructions->addInstruction(ry_plus);
   }
 
   // Wall of CNOTs
-  for (int i = N - 2; i >= 0; i--){
-    for(int j = N - 1; j > i; j--){
+  for (int i = nChromophores - 2; i >= 0; i--){
+    for(int j = nChromophores - 1; j > i; j--){
 
       std::size_t control = i, target = j;
       auto cnot = mcvqeRegistry->createInstruction("CNOT", {control, target});
@@ -276,90 +317,52 @@ MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
   //                |            |
   // |B>--[Ry(x1)]--x--[Ry(x3)]--x--[Ry(x5)]-
   //
-  // first layer
   int paramCounter = 0;
   std::string paramLetter = "x";
-  for (int i = 0; i <= N ; i += 2){
+  for (int shift : {0, 1}){
+    for (int i = shift; i < nChromophores; i += 2){
 
-    std::size_t control = i, target = i + 1;
+      std::size_t control = i, target = i + 1;
 
-    auto ry1 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter))});
-    mcvqeInstructions->addInstruction(ry1);
+      auto ry1 = mcvqeRegistry->createInstruction("Ry", {control}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter))});
+      mcvqeInstructions->addInstruction(ry1);
 
-    auto ry2 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 1))});
-    mcvqeInstructions->addInstruction(ry2);
-    
-    auto cnot1 = mcvqeRegistry->createInstruction("CNOT", {control, target});
-    mcvqeInstructions->addInstruction(cnot1);
+      auto ry2 = mcvqeRegistry->createInstruction("Ry", {target}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter + 1))});
+      mcvqeInstructions->addInstruction(ry2);
+      
+      auto cnot1 = mcvqeRegistry->createInstruction("CNOT", {control, target});
+      mcvqeInstructions->addInstruction(cnot1);
 
-    auto ry3 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 2))});
-    mcvqeInstructions->addInstruction(ry3);
+      auto ry3 = mcvqeRegistry->createInstruction("Ry", {control}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter + 2))});
+      mcvqeInstructions->addInstruction(ry3);
 
-    auto ry4 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 3))});
-    mcvqeInstructions->addInstruction(ry4); 
+      auto ry4 = mcvqeRegistry->createInstruction("Ry", {target}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter + 3))});
+      mcvqeInstructions->addInstruction(ry4); 
 
-    auto cnot2 = mcvqeRegistry->createInstruction("CNOT", {control, target});
-    mcvqeInstructions->addInstruction(cnot2);
+      auto cnot2 = mcvqeRegistry->createInstruction("CNOT", {control, target});
+      mcvqeInstructions->addInstruction(cnot2);
 
-    auto ry5 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 4))});
-    mcvqeInstructions->addInstruction(ry5);
+      auto ry5 = mcvqeRegistry->createInstruction("Ry", {control}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter + 4))});
+      mcvqeInstructions->addInstruction(ry5);
 
-    auto ry6 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 5))});
-    mcvqeInstructions->addInstruction(ry6); 
+      auto ry6 = mcvqeRegistry->createInstruction("Ry", {target}, 
+        {InstructionParameter(paramLetter + std::to_string(paramCounter + 5))});
+      mcvqeInstructions->addInstruction(ry6); 
 
-    paramCounter += 6;
+      paramCounter += 6;
 
-  }
-
-  // second layer
-  for (int i = 1; i <= N ; i += 2){
-
-    std::size_t control = i, target = i + 1;
-
-    auto ry1 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter))});
-    mcvqeInstructions->addInstruction(ry1);
-
-    auto ry2 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 1))});
-    mcvqeInstructions->addInstruction(ry2);
-    
-    auto cnot1 = mcvqeRegistry->createInstruction("CNOT", {control, target});
-    mcvqeInstructions->addInstruction(cnot1);
-
-    auto ry3 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 2))});
-    mcvqeInstructions->addInstruction(ry3);
-
-    auto ry4 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 3))});
-    mcvqeInstructions->addInstruction(ry4); 
-
-    auto cnot2 = mcvqeRegistry->createInstruction("CNOT", {control, target});
-    mcvqeInstructions->addInstruction(cnot2);
-
-    auto ry5 = mcvqeRegistry->createInstruction("Ry", {control}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 4))});
-    mcvqeInstructions->addInstruction(ry5);
-
-    auto ry6 = mcvqeRegistry->createInstruction("Ry", {target}, 
-      {InstructionParameter(paramLetter + std::to_string(paramCounter + 5))});
-    mcvqeInstructions->addInstruction(ry6); 
-
-    paramCounter += 6;
-
+    }
   }
 
   // if the molecular system is cyclic, need to add this last entangler
   if(isCyclic){
 
-    std::size_t control = N - 1, target = 0;
+    std::size_t control = nChromophores - 1, target = 0;
 
     auto ry1 = mcvqeRegistry->createInstruction("Ry", {control}, 
       {InstructionParameter(paramLetter + std::to_string(paramCounter))});
@@ -392,6 +395,241 @@ MC_VQE::circuit(const int &N, const std::vector<double> &angles) const {
     mcvqeInstructions->addInstruction(ry6); 
 
   }
+
+  return mcvqeInstructions;
+
+}
+
+void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<Observable> observable) {
+
+  Eigen::VectorXd es_energies(nChromophores), gs_energies(nChromophores);
+  Eigen::MatrixXd es_dipole(nChromophores, 3), gs_dipole(nChromophores, 3), 
+                  t_dipole(nChromophores, 3), com(nChromophores, 3);
+
+  es_energies.setZero();
+  gs_energies.setZero();
+  gs_dipole.setZero();
+  es_dipole.setZero();
+  t_dipole.setZero();
+  com.setZero();
+
+  std::string line, data, comp;
+  std::stringstream dataStream;
+  for (int out = 0; out < nChromophores; out++){
+
+    std::string filePath = std::string("/home/cades/dev/mc-vqe/mc-vqe/data/") + std::to_string(out + 1) + "/out";
+    std::ifstream file(filePath);
+
+    unsigned int del1, del2;
+    while(!file.eof()){//std::getline(file, line)){
+      std::getline(file, line);
+
+      if(line.find("FINAL ENERGY") != std::string::npos) {
+        del1 = line.find(":");
+        del2 = line.find("a.u.");
+        data = line.substr(del1 + 1, del2 - del1 - 1);
+        gs_energies(out) = std::stod(data);
+      }
+
+      if(line.find("CENTER OF MASS") != std::string::npos) {
+        del1 = line.find("{");
+        del2 = line.find("}");
+        data = line.substr(del1 + 1, del2 - del1 - 1);
+        std::stringstream dataStream(data);
+        int xyz = 0;
+        while (std::getline(dataStream, comp, ',')) {
+          com(out, xyz) = std::stod(comp);
+          xyz++;
+        } 
+      }
+
+      if(line.find("DIPOLE MOMENT") != std::string::npos) {
+        del1 = line.find("{");
+        del2 = line.find("}");
+        data = line.substr(del1 + 1, del2 - del1 - 1);
+        std::stringstream dataStream(data);
+        int xyz = 0;
+        while (std::getline(dataStream, comp, ',')) {
+          gs_dipole(out, xyz) = std::stod(comp);
+          xyz++;
+        }
+      }
+
+      if(line.find("Ex. Energy") != std::string::npos) {
+        std::getline(file, line);
+        std::getline(file, line);
+        data = line.substr(9, 20);
+        es_energies(out) = std::stod(data);
+      }
+
+      if(line.find("Dx") != std::string::npos) {
+        std::getline(file, line);
+        std::getline(file, line);
+        data = line.substr(9, 30);
+        std::stringstream dataStream(data);
+        int xyz = 0;
+        do {
+            dataStream >> comp;
+            es_dipole(out, xyz) = std::stod(comp);
+            xyz++;
+        } while (dataStream && xyz < 3);
+      }
+      
+      if(line.find("Tx") != std::string::npos) {
+        std::getline(file, line);
+        std::getline(file, line);
+        data = line.substr(9, 30);
+        std::stringstream dataStream(data);
+        int xyz = 0;
+        do {
+            dataStream >> comp;
+            t_dipole(out, xyz) = std::stod(comp);
+            xyz++;
+        } while (dataStream && xyz < 3);
+        break; // if we get to this point, we've got everything we need
+      }
+    }
+  }
+
+  com *= 1.8897161646320724; // angstrom to bohr
+  gs_dipole *= 0.393430307; // D to a.u.
+  es_dipole *= 0.393430307;
+
+  // computes the two-body AIEM Hamiltonian matrix elements
+  auto twoBodyH = [&](const Eigen::VectorXd mu_A, const Eigen::VectorXd mu_B, const Eigen::VectorXd r_AB){
+    auto d_AB = r_AB.norm();
+    auto n_AB = r_AB / d_AB;
+    return (mu_A.dot(mu_B) - 3.0 * mu_A.dot(n_AB) * mu_B.dot(n_AB))/std::pow(d_AB, 3.0);
+  }; 
+
+  // AIEM Hamiltonian
+  PauliOperator hamiltonian, term;
+
+  auto S_A = (gs_energies + es_energies)/2;
+  auto D_A = (gs_energies - es_energies)/2;
+
+  auto E = S_A.sum();
+  for (int A = 0; A < nChromophores - 1; A++){
+    auto mu_A = (gs_dipole.row(A) + es_dipole.row(A))/2;
+    for (int B = A + 1; B < nChromophores; B++){
+      auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
+      E += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
+    }
+  }
+
+  hamiltonian.fromString(std::to_string(E) + " I");
+
+  Eigen::VectorXd Z_A(nChromophores);
+  Z_A.setZero();
+  for (int A = 0; A < nChromophores; A++){
+    auto mu_A = (gs_dipole.row(A) - es_dipole.row(A))/2;
+    Z_A(A) = D_A(A);
+    for (int B = 0; B < nChromophores; B++){
+      if (B != A){
+        auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
+        Z_A(A) += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
+      }
+    }
+    term.fromString(std::to_string(Z_A(A)) + " Z" + std::to_string(A));
+    hamiltonian += term;
+  }
+
+  Eigen::VectorXd X_A(nChromophores);
+  X_A.setZero();
+  for (int A = 0; A < nChromophores; A++){
+    auto mu_A = t_dipole.row(A);
+    for (int B = 0; B < nChromophores; B++){
+      if (B != A){
+        auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
+        X_A(A) += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
+      }
+    }
+    term.fromString(std::to_string(Z_A(A)) + " Z" + std::to_string(A));
+    hamiltonian += term;
+  }
+
+  Eigen::MatrixXd XX_AB(nChromophores, nChromophores), XZ_AB(nChromophores, nChromophores),
+                  ZX_AB(nChromophores, nChromophores), ZZ_AB(nChromophores, nChromophores);
+
+  XX_AB.setZero();
+  XZ_AB.setZero();
+  ZX_AB.setZero();
+  ZZ_AB.setZero();
+
+  for (int A = 0; A < nChromophores - 1; A++){
+    for (int B = A + 1 ; B < nChromophores; B++){
+
+      XX_AB(A, B) = twoBodyH(t_dipole.row(A), t_dipole.row(B), com.row(A) - com.row(B));
+      XZ_AB(A, B) = twoBodyH(t_dipole.row(A), (gs_dipole.row(B) - es_dipole.row(B))/2, com.row(A) - com.row(B));
+      ZX_AB(A, B) = twoBodyH((gs_dipole.row(A) - es_dipole.row(A))/2, t_dipole.row(B), com.row(A) - com.row(B));
+      ZZ_AB(A, B) = twoBodyH((gs_dipole.row(A) - es_dipole.row(A))/2, (gs_dipole.row(B) - es_dipole.row(B))/2, com.row(A) - com.row(B));
+      XX_AB(B, A) = XX_AB(A, B);
+      XZ_AB(B, A) = XZ_AB(A, B);
+      ZX_AB(B, A) = ZX_AB(A, B);
+      ZZ_AB(B, A) = ZZ_AB(A, B);
+
+      term.fromString(std::to_string(XX_AB(A, B)) + " X" + std::to_string(A) + " X" + std::to_string(B));
+      hamiltonian += term;
+      term.fromString(std::to_string(XZ_AB(A, B)) + " X" + std::to_string(A) + " Z" + std::to_string(B));
+      hamiltonian += term;
+      term.fromString(std::to_string(ZX_AB(A, B)) + " Z" + std::to_string(A) + " X" + std::to_string(B));
+      hamiltonian += term;
+      term.fromString(std::to_string(ZZ_AB(A, B)) + " Z" + std::to_string(A) + " Z" + std::to_string(B)); 
+      hamiltonian += term;
+
+    }
+  }
+  
+  // We're done with the AIEM Hamiltonian, just need a pointer for it
+  auto hamiltonianPtr = std::make_shared<PauliOperator>(hamiltonian);
+  observable = std::dynamic_pointer_cast<Observable>(hamiltonianPtr);
+
+  Eigen::MatrixXd CISMatrix(nChromophores + 1 , nChromophores + 1);
+  CISMatrix.setZero();
+  auto E_ref = E + Z_A.sum();
+
+  for (int A = 0; A < nChromophores; A++){
+
+    CISMatrix(A + 1, A + 1) = -2.0 * Z_A(A);
+    CISMatrix(A + 1, 0) = X_A(A);
+
+    for (int B = 0; B < nChromophores; B++){
+
+      if(B != A){
+
+        E_ref += 0.5 * ZZ_AB(A, B);
+        CISMatrix(A + 1, A + 1) -= (ZZ_AB(A, B) + ZZ_AB(B, A));
+        CISMatrix(A + 1, 0) += 0.5 * (XZ_AB(A, B) + ZX_AB(B, A));
+        CISMatrix(A + 1, B + 1) = XX_AB(A, B);
+        CISMatrix(B + 1, A + 1) = CISMatrix(A + 1, B + 1);
+
+      }
+    }
+    CISMatrix(0, A + 1) = CISMatrix(A + 1, 0);
+  }
+
+
+  for (int A = 0; A <= nChromophores; A++){
+    CISMatrix(A, A) += E_ref; 
+  }
+
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EigenSolver(CISMatrix);
+  auto CISEnergies = EigenSolver.eigenvalues();
+  auto CISStates = EigenSolver.eigenvectors();
+
+  for (int state = 0; state <= nChromophores; state++){
+    for (int angle = 0; angle < nChromophores; angle++){
+
+      double partialCoeffNorm = CISStates.col(state).segment(angle, nChromophores - angle + 1).norm();
+      CISGateAngles(angle, state) = std::acos(CISStates(angle, state)/partialCoeffNorm);
+    }
+    
+    if(CISStates(nChromophores + 1, state) < 0.0) {
+      CISGateAngles(nChromophores + 1, state) *= -1.0;
+    }
+  }
+
+  return;
 
 }
 

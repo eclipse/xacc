@@ -15,22 +15,30 @@
 
 #include "Algorithm.hpp"
 #include "xacc_service.hpp"
+#include <Eigen/Dense>
 
 namespace xacc {
 namespace algorithm {
 class MC_VQE : public Algorithm {
 protected:
-  Observable * observable;
   Optimizer * optimizer;
   Accelerator * accelerator;
-  std::vector<std::vector<double>> angles; // angles for CIS state preparation
-  int nChromophores; // number of chromophores
-  bool isCyclic;
 
   HeterogeneousMap parameters;
 
+  //MC-VQE stuff
+  int nChromophores; // number of chromophores
+  bool isCyclic; // true if the molecular system is cyclic
+  Eigen::MatrixXd CISGateAngles;// state preparation angles
+  std::shared_ptr<Observable> observable; // AIEM Hamiltonian
+
   std::shared_ptr<CompositeInstruction>
-  circuit(const int &N, const std::vector<double> &state_angles) const;
+  circuit(const Eigen::VectorXd &stateAngles) const; // circuit for a given initial state
+
+  // process quantum chemistry data and returns the Hamiltonian 
+  // and the gates for state preparation
+  void preProcessing();
+
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
