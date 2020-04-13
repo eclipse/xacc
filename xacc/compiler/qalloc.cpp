@@ -28,6 +28,8 @@ void qreg::store() {
   xacc::storeBuffer(buffer_as_shared);
 }
 
+void qreg::print() {buffer->print();}
+
 double qreg::weighted_sum(Observable *obs) {
   auto terms = obs->getNonIdentitySubTerms();
   auto id = obs->getIdentitySubTerm();

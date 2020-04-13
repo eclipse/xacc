@@ -36,7 +36,7 @@ public:
   void setName(const char *name);
   void setNameAndStore(const char *name);
   void store();
-
+  void print();
   double weighted_sum(Observable* obs);
 };
 
