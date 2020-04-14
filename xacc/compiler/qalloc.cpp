@@ -36,6 +36,10 @@ double qreg::weighted_sum(Observable *obs) {
 
   auto children = buffer->getChildren();
   double sum = 0.0;
+  if (terms.size() != children.size()) {
+      xacc::error("[qreg::weighted_sum()] error, number of observable terms != number of children buffers.");
+  }
+  
   for (int i = 0; i < children.size(); i++) {
     //   std::cout << children[i]->name() << ", "
     //             << children[i]->getExpectationValueZ() << ", "

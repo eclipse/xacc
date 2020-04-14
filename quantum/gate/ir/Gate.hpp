@@ -33,7 +33,15 @@ protected:
 
   std::map<std::size_t, std::string> bitIdxExpressions;
 
-  std::map<std::shared_ptr<CompositeArgument>, int> arguments;
+  // map InstructionParameter index to corresponding CompositeArgument
+  std::map<int, std::shared_ptr<CompositeArgument>> arguments;
+
+  // Map index of InstructionParameters to corresponding
+  // std::vector<double> index for instructions like this
+  // foo ( std::vector<double> x ) {
+  //   U(x[0], x[1], x[2]);
+  //}
+  std::map<int, int> param_idx_to_vector_idx;
 
 public:
   Gate();
@@ -52,13 +60,21 @@ public:
 
   void addArgument(std::shared_ptr<CompositeArgument> arg,
                    const int idx_of_inst_param) override {
-    arguments.insert({arg, idx_of_inst_param});
+    arguments.insert({idx_of_inst_param, arg});
+  }
+  void addIndexMapping(const int idx_1, const int idx_2) override {
+    param_idx_to_vector_idx.insert({idx_1, idx_2});
   }
 
   void applyRuntimeArguments() override {
     for (auto &kv : arguments) {
-      parameters[kv.second] =
-          kv.first->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
+      if (kv.second->type.find("std::vector<double>") != std::string::npos) {
+        parameters[kv.first] = kv.second->runtimeValue.get<std::vector<double>>(
+            INTERNAL_ARGUMENT_VALUE_KEY)[param_idx_to_vector_idx[kv.first]];
+      } else {
+        parameters[kv.first] =
+            kv.second->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
+      }
     }
   }
 
