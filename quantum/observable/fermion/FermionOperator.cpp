@@ -106,16 +106,12 @@ const std::string FermionOperator::toString() {
 
     std::vector<int> creations, annhilations;
     for (auto &t : ops) {
-        // std::cout << "tostring " << t.first << ", " << t.second << "\n";
       if (t.second) {
         creations.push_back(t.first);
       } else {
         annhilations.push_back(t.first);
       }
     }
-
-    std::sort(creations.rbegin(), creations.rend());
-    std::sort(annhilations.rbegin(), annhilations.rend());
 
     for (auto &t : creations) {
       s << t << "^" << std::string(" ");
