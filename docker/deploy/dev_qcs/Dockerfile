@@ -1,6 +1,6 @@
 from xacc/deploy-base
 workdir /home/dev
-run cd /home/dev && apt-get update && apt-get install -y uuid-dev \
+run cd /home/dev && apt-get update && apt-get install -y uuid-dev pkg-config \
     && git clone https://github.com/zeromq/libzmq \
     && cd libzmq/ && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq \
