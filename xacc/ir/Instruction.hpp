@@ -106,6 +106,12 @@ public:
   virtual void addArgument(std::shared_ptr<CompositeArgument> arg,
                            const int idx_of_inst_param) = 0;
 
+  // This method is a helper for associating InstructionParameter indices 
+  // to other indices like std::vector<double> indices. Does nothing here
+  // to be implemented by subclasses.
+  virtual void addIndexMapping(const int idx_1, const int idx_2) {
+      return;
+  }
   virtual const std::string toString() = 0;
 
   virtual const std::vector<std::size_t> bits() = 0;

@@ -46,11 +46,15 @@ protected:
   std::vector<InstructionParameter> currentParameters;
   std::map<int, std::string> currentBitIdxExpressions;
 
+  std::map<std::string, int> new_var_to_vector_idx;
+
   std::string currentCompositeName;
   HeterogeneousMap currentOptions;
 
   std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
+  void for_stmt_update_inst_args(Instruction* inst);
+  
   std::vector<std::size_t> for_stmt_update_bits(Instruction *inst,
                                                 const std::string varName,
                                                 const int value);

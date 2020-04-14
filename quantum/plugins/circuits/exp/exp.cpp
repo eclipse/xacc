@@ -164,8 +164,16 @@ void Exp::applyRuntimeArguments() {
 
   std::string variable_name = arguments[0]->name;
 
-  auto x_val =
-      arguments[0]->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
+  double x_val;
+  if (arguments[0]->type.find("std::vector<double>") != std::string::npos) {
+    x_val = arguments[0]->runtimeValue.get<std::vector<double>>(
+        INTERNAL_ARGUMENT_VALUE_KEY)[vector_mapping[variable_name]];
+    variable_name =
+        arguments[0]->name + std::to_string(vector_mapping[variable_name]);
+  } else {
+    x_val = arguments[0]->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
+  }
+
   auto observable = arguments[1]->runtimeValue.getPointerLike<Observable>(
       INTERNAL_ARGUMENT_VALUE_KEY);
 
@@ -265,13 +273,14 @@ void Exp::applyRuntimeArguments() {
     }
 
     xasm_src = "__qpu__ void " + name + "(qbit q, double " +
-               arguments[0]->name + ") {\n" + xasm_src + "}";
+               variable_name + ") {\n" + xasm_src + "}";
 
     auto xasm = xacc::getCompiler("xasm");
     auto tmp = xasm->compile(xasm_src)->getComposites()[0];
 
-    for (auto inst : tmp->getInstructions())
+    for (auto inst : tmp->getInstructions()) {
       addInstruction(inst);
+    }
 
     // store the Rz expressions
     for (auto &i : instructions) {

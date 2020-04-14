@@ -24,6 +24,50 @@
 using namespace xasm;
 
 namespace xacc {
+void XASMListener::for_stmt_update_inst_args(Instruction *inst) {
+  auto parameters = inst->getParameters();
+  for (int i = 0; i < parameters.size(); i++) {
+    if (parameters[i].isVariable()) {
+      auto arg = function->getArgument(parameters[i].toString());
+
+      if (!arg) {
+        auto param_str = parameters[i].toString();
+        param_str.erase(std::remove_if(param_str.begin(), param_str.end(),
+                                       [](char c) { return !std::isalpha(c); }),
+                        param_str.end());
+
+        arg = function->getArgument(param_str);
+
+        if (arg && arg->type.find("std::vector<double>") != std::string::npos) {
+          // this was a container-like type
+          // give the instruction a mapping from i to vector idx
+
+          inst->addIndexMapping(
+              i, new_var_to_vector_idx[parameters[i].toString()]);
+        }
+      }
+
+      if (!arg) {
+        // we may have a case where the parameter is an expression string
+        for (auto &_arg : function->getArguments()) {
+          double val;
+          if (parsingUtil->validExpression(parameters[i].toString(),
+                                           {_arg->name})) {
+            arg = _arg;
+            break;
+          }
+        }
+      }
+
+      if (!arg) {
+        xacc::error("Cannot associate function argument " +
+                    parameters[i].toString() + " with this instruction " +
+                    currentInstructionName);
+      }
+      inst->addArgument(arg, i);
+    }
+  }
+}
 
 template <>
 void XASMListener::createForInstructions<XasmLessThan>(
@@ -49,7 +93,11 @@ void XASMListener::createForInstructions<XasmLessThan>(
 
       auto copy =
           irProvider->createInstruction(next->name(), new_bits, new_params);
+
       copy->setBufferNames(next->getBufferNames());
+      
+      for_stmt_update_inst_args(copy.get());
+
       instructions.push_back(copy);
     }
 
@@ -84,6 +132,7 @@ void XASMListener::createForInstructions<XasmGreaterThan>(
       auto copy =
           irProvider->createInstruction(next->name(), new_bits, new_params);
       copy->setBufferNames(next->getBufferNames());
+      for_stmt_update_inst_args(copy.get());
       instructions.push_back(copy);
     }
 
@@ -94,7 +143,6 @@ void XASMListener::createForInstructions<XasmGreaterThan>(
     }
   }
 }
-
 
 template <>
 void XASMListener::createForInstructions<XasmGreaterThanOrEqual>(
@@ -119,6 +167,7 @@ void XASMListener::createForInstructions<XasmGreaterThanOrEqual>(
       auto copy =
           irProvider->createInstruction(next->name(), new_bits, new_params);
       copy->setBufferNames(next->getBufferNames());
+      for_stmt_update_inst_args(copy.get());
       instructions.push_back(copy);
     }
 
@@ -140,7 +189,7 @@ void XASMListener::createForInstructions<XasmLessThanOrEqual>(
   auto varName = ctx->varname->getText();
   auto comp = ctx->comparator->getText();
   auto inc_or_dec = ctx->inc_or_dec->getText();
-  for (std::size_t i = start; i <=end;) {
+  for (std::size_t i = start; i <= end;) {
     InstructionIterator iter(for_function);
     while (iter.hasNext()) {
       auto next = iter.next();
@@ -153,6 +202,7 @@ void XASMListener::createForInstructions<XasmLessThanOrEqual>(
       auto copy =
           irProvider->createInstruction(next->name(), new_bits, new_params);
       copy->setBufferNames(next->getBufferNames());
+      for_stmt_update_inst_args(copy.get());
       instructions.push_back(copy);
     }
 
@@ -175,13 +225,13 @@ void XASMListener::enterXacckernel(xasmParser::XacckernelContext *ctx) {
 
   function = irProvider->createComposite(ctx->kernelname->getText());
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-      auto type = ctx->typedparam(i)->type()->getText();
-      auto vname = ctx->typedparam(i)->variable_param_name()->getText();
-      function->addArgument(vname, type);
-      if (type == "qreg" || type == "qbit") {
-          functionBufferNames.push_back(vname);
-      }
-      if (xacc::container::contains(validTypes,
+    auto type = ctx->typedparam(i)->type()->getText();
+    auto vname = ctx->typedparam(i)->variable_param_name()->getText();
+    function->addArgument(vname, type);
+    if (type == "qreg" || type == "qbit") {
+      functionBufferNames.push_back(vname);
+    }
+    if (xacc::container::contains(validTypes,
                                   ctx->typedparam(i)->type()->getText())) {
       variables.push_back(vname);
     }
@@ -194,13 +244,13 @@ void XASMListener::enterXacclambda(xasmParser::XacclambdaContext *ctx) {
       validTypes{"double", "float", "std::vector<double>", "int"};
   function = irProvider->createComposite("tmp_lambda", variables);
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-      auto type = ctx->typedparam(i)->type()->getText();
-      auto vname = ctx->typedparam(i)->variable_param_name()->getText();
-      function->addArgument(vname, type);
-      if (type == "qreg" || type == "qbit") {
-          functionBufferNames.push_back(vname);
-      }
-      if (xacc::container::contains(validTypes,
+    auto type = ctx->typedparam(i)->type()->getText();
+    auto vname = ctx->typedparam(i)->variable_param_name()->getText();
+    function->addArgument(vname, type);
+    if (type == "qreg" || type == "qbit") {
+      functionBufferNames.push_back(vname);
+    }
+    if (xacc::container::contains(validTypes,
                                   ctx->typedparam(i)->type()->getText())) {
       variables.push_back(vname);
     }
@@ -288,7 +338,6 @@ void XASMListener::exitForstmt(xasmParser::ForstmtContext *ctx) {
   } else if (comp == "<=") {
 
   } else if (comp == ">=") {
-
   }
   inForLoop = false;
   //   function->clear();
@@ -330,6 +379,11 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
 
       // FIXME HANDLE things like x[i] or x[i+1]
       auto newVar = name + ctx->bufferIndex(i)->idx->getText();
+
+      if (!inForLoop) {
+        new_var_to_vector_idx.insert(
+            {newVar, std::stoi(ctx->bufferIndex(i)->idx->getText())});
+      }
 
       // Check if we have a for-loop parameterized parameter
       double ref;
@@ -383,6 +437,8 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
       std::string newVar = param->var_name->getText() + param->idx->getText();
       auto existingVars = function->getVariables();
 
+      new_var_to_vector_idx.insert({newVar, std::stoi(param->idx->getText())});
+
       // If x is in existingVars (like std::vector<double> x) then
       // replace it with newVar
       if (xacc::container::contains(existingVars, param->var_name->getText())) {
@@ -412,11 +468,51 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
 void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   auto inst = irProvider->createInstruction(currentInstructionName, currentBits,
                                             currentParameters);
-  for (int i = 0; i < currentParameters.size(); i++) {
+
+  if (!inForLoop) {
+    for (int i = 0; i < currentParameters.size(); i++) {
       if (currentParameters[i].isVariable()) {
-          auto arg = function->getArgument(currentParameters[i].toString());
-          inst->addArgument(arg, i);
+        auto arg = function->getArgument(currentParameters[i].toString());
+
+        if (!arg) {
+          auto param_str = currentParameters[i].toString();
+          param_str.erase(
+              std::remove_if(param_str.begin(), param_str.end(),
+                             [](char c) { return !std::isalpha(c); }),
+              param_str.end());
+
+          arg = function->getArgument(param_str);
+
+          if (arg &&
+              arg->type.find("std::vector<double>") != std::string::npos) {
+            // this was a container-like type
+            // give the instruction a mapping from i to vector idx
+
+            inst->addIndexMapping(
+                i, new_var_to_vector_idx[currentParameters[i].toString()]);
+          }
+        }
+
+        if (!arg) {
+          // we may have a case where the parameter is an expression string
+          for (auto &_arg : function->getArguments()) {
+            double val;
+            if (parsingUtil->validExpression(currentParameters[i].toString(),
+                                             {_arg->name})) {
+              arg = _arg;
+              break;
+            }
+          }
+        }
+
+        if (!arg) {
+          xacc::error("Cannot associate function argument " +
+                      currentParameters[i].toString() +
+                      " with this instruction " + currentInstructionName);
+        }
+        inst->addArgument(arg, i);
       }
+    }
   }
 
   if (!currentBitIdxExpressions.empty()) {
@@ -440,6 +536,7 @@ void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   currentBits.clear();
   currentParameters.clear();
   currentBufferNames.clear();
+  new_var_to_vector_idx.clear();
 }
 
 void XASMListener::enterComposite_generator(
@@ -514,9 +611,31 @@ void XASMListener::exitComposite_generator(
 
   auto tmp = irProvider->createInstruction(currentCompositeName, {});
   auto composite = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
-  for (auto& p : currentParameters) {
-      auto arg = function->getArgument(p.toString());
-      composite->addArgument(arg, 0);
+  for (int i = 0; i < currentParameters.size(); i++) {
+    auto p = currentParameters[i];
+    auto arg = function->getArgument(p.toString());
+    int vector_mapping = 0;
+
+    if (!arg) {
+      auto param_str = currentParameters[i].toString();
+      param_str.erase(std::remove_if(param_str.begin(), param_str.end(),
+                                     [](char c) { return !std::isalpha(c); }),
+                      param_str.end());
+      arg = function->getArgument(param_str);
+
+      if (arg && arg->type.find("std::vector<double>") != std::string::npos) {
+        // this was a container-like type
+        // give the instruction a mapping from i to vector idx
+        vector_mapping = new_var_to_vector_idx[currentParameters[i].toString()];
+
+      } else {
+        // throw an error
+        xacc::error(
+            "[xasm] Error in setting arguments for composite instruction " +
+            currentCompositeName);
+      }
+    }
+    composite->addArgument(arg, vector_mapping);
   }
 
   // Treat parameters as variables
