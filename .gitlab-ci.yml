@@ -19,7 +19,7 @@ docker build_master:
   - master
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
-  - git config remote.aideqc.url >&- || git remote add -t master aideqc https://amccaskey:$GITHUB_ACCESS_TOKEN@github.com/aide-qc/xacc
+  - git config remote.aideqc.url >&- || git remote add -t master aideqc https://amccaskey:$AIDEQC_ACCESS_TOKEN@github.com/aide-qc/xacc
   - git push -f aideqc HEAD:master
   - git remote remove aideqc
 
