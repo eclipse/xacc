@@ -19,6 +19,7 @@ docker build_master:
   - master
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
+  - git push --mirror https://$GITHUB_ACCESS_TOKEN:x-oauth-basic@github.com/aide-qc/xacc
 
 docker run_docker_deploy:
   stage: deploy
