@@ -19,7 +19,9 @@ docker build_master:
   - master
   script:
   - cd docker/ci/ubuntu1804/master && docker build -t xacc/master-ci . --no-cache
-
+  - git remote add -t master aideqc https://amccaskey:$GITHUB_ACCESS_TOKEN@github.com/aide-qc/xacc
+  - git push aideqc +master:master
+  
 docker run_docker_deploy:
   stage: deploy
   only:
