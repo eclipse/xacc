@@ -14,15 +14,17 @@
 
 namespace xacc {
 namespace quantum {
-void FermionListenerImpl::enterPlusorminus(FermionOperatorParser::PlusorminusContext * ctx) {
+void FermionListenerImpl::enterPlusorminus(
+    FermionOperatorParser::PlusorminusContext *ctx) {
   isMinus = ctx->getText() == "-";
 }
 
-void FermionListenerImpl::enterTerm(FermionOperatorParser::TermContext * ctx) {
+void FermionListenerImpl::enterTerm(FermionOperatorParser::TermContext *ctx) {
 
-//   std::cout << "ENTER TERM: " << ctx->getText() << ", " << ctx->fermion().size() << "\n";
+//   std::cout << "ENTER TERM: " << ctx->getText() << ", " << ctx->fermion().size()
+//             << "\n";
 
-  std::complex<double> coeff(1.0,0.0);
+  std::complex<double> coeff(1.0, 0.0);
   if (ctx->coeff() != nullptr) {
     if (ctx->coeff()->complex() != nullptr) {
       auto complexAsStr = ctx->coeff()->complex()->getText();
@@ -36,31 +38,37 @@ void FermionListenerImpl::enterTerm(FermionOperatorParser::TermContext * ctx) {
     }
   }
 
-  if (isMinus) {
-      coeff *= -1.0;
-      isMinus=false;
-  }
+    if (isMinus) {
+        coeff *= -1.0;
+        isMinus=false;
+    }
 
   Operators term;
   for (int i = 0; i < ctx->fermion().size(); i++) {
-      auto str = ctx->fermion(i)->getText();
+    auto str = ctx->fermion(i)->getText();
 
-      bool creation = false;
-      if (str.find("^") != std::string::npos) {
-          creation = true;
-      }
+    bool creation = ctx->fermion(i)->op()->carat() != nullptr;
+    //   if (str.find("^") != std::string::npos) {
+    //       creation = true;
+    //   }
 
-      term.push_back({std::stoi(ctx->fermion(i)->op()->INT()->getText()), creation});
+    term.push_back(
+        {std::stoi(ctx->fermion(i)->op()->INT()->getText()), creation});
 
-    //   std::cout << "HI: " << ctx->fermion(i)->getText() << ", " << "\n";
+    // std::cout << "HI: " << ctx->fermion(i)->getText() << ", "
+    //           << "\n";
   }
-//   std::cout << "SIZE OF TERMS: " << term.size() << "\n";
-  _op += FermionOperator(term, coeff);
+//   std::cout << "SIZE OF TERMS: " << term.size() << ", " << coeff << "\n";
+  FermionOperator tmp(term, coeff);
+//   std::cout << "TMP: " << tmp.toString() << "\n";
+
+  _op += tmp;
+
 //   std::cout << _op.toString() << "\n";
 
-//   std::cout << "ENTER TERM: " << ctx->getText() << ", " << ctx->fermion().size() << "\n";
-
+  //   std::cout << "ENTER TERM: " << ctx->getText() << ", " <<
+  //   ctx->fermion().size() << "\n";
 }
 
-}
-}
+} // namespace quantum
+} // namespace xacc

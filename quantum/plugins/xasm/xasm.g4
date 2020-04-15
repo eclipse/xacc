@@ -13,9 +13,10 @@ xaccsrc
 
     xacclambda : '['('&'|'=')?']' '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
-    typedparam : type id;
+    typedparam : type ('&' | '*')? variable_param_name;
+    variable_param_name : id;
 
-    type : 'qbit' | 'qreg' | 'int' | 'double' | 'float' | 'std::vector<double>';
+    type : id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
 
 /***********************************************************************/
 

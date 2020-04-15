@@ -157,9 +157,11 @@ qbit qalloc() {
 void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
     auto name = buffer->name();
     if (allocated_buffers.count(name)) {
-        error("Invalid buffer name to store: " + name);
-    }
+        // error("Invalid buffer name to store: " + name);
+        allocated_buffers[name] = buffer;
+    } else {
     allocated_buffers.insert({name, buffer});
+    }
 }
 
 void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer) {

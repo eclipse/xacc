@@ -33,6 +33,16 @@ protected:
 
   std::map<std::size_t, std::string> bitIdxExpressions;
 
+  // map InstructionParameter index to corresponding CompositeArgument
+  std::map<int, std::shared_ptr<CompositeArgument>> arguments;
+
+  // Map index of InstructionParameters to corresponding
+  // std::vector<double> index for instructions like this
+  // foo ( std::vector<double> x ) {
+  //   U(x[0], x[1], x[2]);
+  //}
+  std::map<int, int> param_idx_to_vector_idx;
+
 public:
   Gate();
   Gate(std::string name);
@@ -48,13 +58,39 @@ public:
 
   const std::string toString() override;
 
+  void addArgument(std::shared_ptr<CompositeArgument> arg,
+                   const int idx_of_inst_param) override {
+    arguments.insert({idx_of_inst_param, arg});
+  }
+  void addIndexMapping(const int idx_1, const int idx_2) override {
+    param_idx_to_vector_idx.insert({idx_1, idx_2});
+  }
+
+  void applyRuntimeArguments() override {
+    for (auto &kv : arguments) {
+      if (kv.second->type.find("std::vector<double>") != std::string::npos) {
+        parameters[kv.first] = kv.second->runtimeValue.get<std::vector<double>>(
+            INTERNAL_ARGUMENT_VALUE_KEY)[param_idx_to_vector_idx[kv.first]];
+      } else {
+        parameters[kv.first] =
+            kv.second->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
+      }
+    }
+  }
+
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
   std::string getBufferName(const std::size_t bitIdx) override;
-  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override;
-  std::vector<std::string> getBufferNames() override {return buffer_names;}
-  void setBitExpression(const std::size_t bit_idx, const std::string expr) override {bitIdxExpressions.insert({bit_idx,expr});}
-  std::string getBitExpression(const std::size_t bit_idx) override {return bitIdxExpressions[bit_idx];}
+  void
+  setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override;
+  std::vector<std::string> getBufferNames() override { return buffer_names; }
+  void setBitExpression(const std::size_t bit_idx,
+                        const std::string expr) override {
+    bitIdxExpressions.insert({bit_idx, expr});
+  }
+  std::string getBitExpression(const std::size_t bit_idx) override {
+    return bitIdxExpressions[bit_idx];
+  }
 
   const InstructionParameter getParameter(const std::size_t idx) const override;
   std::vector<InstructionParameter> getParameters() override;

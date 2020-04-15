@@ -90,6 +90,12 @@ public:
       circuitName = name;
   }
 
+  void applyRuntimeArguments() override {
+      for (auto& i : instructions) {
+          i->applyRuntimeArguments();
+      }
+  }
+
 
   const std::string getTag() override {return "";}
   void setTag(const std::string& tag) override {return;}
