@@ -19,7 +19,8 @@ public:
 
   enum {
     RuleFermionSrc = 0, RulePlusorminus = 1, RuleTerm = 2, RuleFermion = 3, 
-    RuleOp = 4, RuleCoeff = 5, RuleComplex = 6, RuleReal = 7, RuleComment = 8
+    RuleOp = 4, RuleCarat = 5, RuleCoeff = 6, RuleComplex = 7, RuleReal = 8, 
+    RuleComment = 9
   };
 
   FermionOperatorParser(antlr4::TokenStream *input);
@@ -37,6 +38,7 @@ public:
   class TermContext;
   class FermionContext;
   class OpContext;
+  class CaratContext;
   class CoeffContext;
   class ComplexContext;
   class RealContext;
@@ -103,6 +105,7 @@ public:
     OpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *INT();
+    CaratContext *carat();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -110,6 +113,18 @@ public:
   };
 
   OpContext* op();
+
+  class  CaratContext : public antlr4::ParserRuleContext {
+  public:
+    CaratContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  CaratContext* carat();
 
   class  CoeffContext : public antlr4::ParserRuleContext {
   public:

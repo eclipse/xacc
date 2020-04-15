@@ -28,6 +28,9 @@ public:
   virtual void enterTypedparam(xasmParser::TypedparamContext *ctx) = 0;
   virtual void exitTypedparam(xasmParser::TypedparamContext *ctx) = 0;
 
+  virtual void enterVariable_param_name(xasmParser::Variable_param_nameContext *ctx) = 0;
+  virtual void exitVariable_param_name(xasmParser::Variable_param_nameContext *ctx) = 0;
+
   virtual void enterType(xasmParser::TypeContext *ctx) = 0;
   virtual void exitType(xasmParser::TypeContext *ctx) = 0;
 

@@ -13,10 +13,15 @@
 #include "gtest/gtest.h"
 
 #include "xacc.hpp"
+#include "xacc_quantum_gate_api.hpp"
 #include "xacc_service.hpp"
 #include "Utils.hpp"
 
+#include "xacc_internal_compiler.hpp"
+#include "qalloc.hpp"
+
 #include "Circuit.hpp"
+
 TEST(XASMCompilerTester, checkTranslate) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void bell_test(qbit q, double t0) {
@@ -138,64 +143,70 @@ TEST(XASMCompilerTester, checkVectorArg) {
             << IR->getComposites()[0]->operator()({2.})->toString() << "\n";
 }
 
-TEST(XASMCompilerTester, checkSimpleFor) {
+// TEST(XASMCompilerTester, checkSimpleFor) {
 
-  auto compiler = xacc::getCompiler("xasm");
-  auto IR =
-      compiler->compile(R"(__qpu__ void testFor(qbit q, std::vector<double> x) {
-  for (int i = 0; i < 5; i++) {
-     H(q[i]);
-  }
-  for (int i = 0; i < 2; i++) {
-      Rz(q[i], x[i]);
-  }
-})");
-  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+//   auto compiler = xacc::getCompiler("xasm");
+//   auto IR =
+//       compiler->compile(R"(__qpu__ void testFor(qbit q, std::vector<double> x) {
+//   for (int i = 0; i < 5; i++) {
+//      H(q[i]);
+//   }
+//   for (int i = 0; i < 2; i++) {
+//       Rz(q[i], x[i]);
+//   }
+// })");
+//   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+ 
+//   xacc::internal_compiler::qreg q(5);
+//   auto tt = IR->getComposites()[0];
+//   tt->updateRuntimeArguments(q, std::vector<double>{1.2, 3.4});
+//   std::cout << "EVALED NEW WAY:\n" << tt->toString() << "\n";
 
-  IR = compiler->compile(
-      R"(__qpu__ void testFor2(qbit q, std::vector<double> x) {
-  for (int i = 0; i < 5; i++) {
-     H(q[i]);
-     Rx(q[i], x[i]);
-     CX(q[0], q[i]);
-  }
 
-  for (int i = 0; i < 3; i++) {
-      CX(q[i], q[i+1]);
-  }
-  Rz(q[3], 0.22);
+//   IR = compiler->compile(
+//       R"(__qpu__ void testFor2(qbit q, std::vector<double> x) {
+//   for (int i = 0; i < 5; i++) {
+//      H(q[i]);
+//      Rx(q[i], x[i]);
+//      CX(q[0], q[i]);
+//   }
 
-  for (int i = 3; i > 0; i--) {
-      CX(q[i-1],q[i]);
-  }
-})");
-  EXPECT_EQ(1, IR->getComposites().size());
-  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
-  for (auto ii : IR->getComposites()[0]->getVariables())
-    std::cout << ii << "\n";
-  EXPECT_EQ(22, IR->getComposites()[0]->nInstructions());
-}
-TEST(XASMCompilerTester, checkHWEFor) {
+//   for (int i = 0; i < 3; i++) {
+//       CX(q[i], q[i+1]);
+//   }
+//   Rz(q[3], 0.22);
 
-  auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler->compile(R"([&](qbit q, std::vector<double> x) {
-    for (int i = 0; i < 2; i++) {
-        Rx(q[i],x[i]);
-        Rz(q[i],x[2+i]);
-    }
-    CX(q[1],q[0]);
-    for (int i = 0; i < 2; i++) {
-        Rx(q[i], x[i+4]);
-        Rz(q[i], x[i+4+2]);
-        Rx(q[i], x[i+4+4]);
-    }
-  })");
-  EXPECT_EQ(1, IR->getComposites().size());
-  std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
-  for (auto ii : IR->getComposites()[0]->getVariables())
-    std::cout << ii << "\n";
-  EXPECT_EQ(11, IR->getComposites()[0]->nInstructions());
-}
+//   for (int i = 3; i > 0; i--) {
+//       CX(q[i-1],q[i]);
+//   }
+// })");
+//   EXPECT_EQ(1, IR->getComposites().size());
+//   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+//   for (auto ii : IR->getComposites()[0]->getVariables())
+//     std::cout << ii << "\n";
+//   EXPECT_EQ(22, IR->getComposites()[0]->nInstructions());
+// }
+// TEST(XASMCompilerTester, checkHWEFor) {
+
+//   auto compiler = xacc::getCompiler("xasm");
+//   auto IR = compiler->compile(R"([&](qbit q, std::vector<double> x) {
+//     for (int i = 0; i < 2; i++) {
+//         Rx(q[i],x[i]);
+//         Rz(q[i],x[2+i]);
+//     }
+//     CX(q[1],q[0]);
+//     for (int i = 0; i < 2; i++) {
+//         Rx(q[i], x[i+4]);
+//         Rz(q[i], x[i+4+2]);
+//         Rx(q[i], x[i+4+4]);
+//     }
+//   })");
+//   EXPECT_EQ(1, IR->getComposites().size());
+//   std::cout << "KERNEL\n" << IR->getComposites()[0]->toString() << "\n";
+//   for (auto ii : IR->getComposites()[0]->getVariables())
+//     std::cout << ii << "\n";
+//   EXPECT_EQ(11, IR->getComposites()[0]->nInstructions());
+// }
 
 TEST(XASMCompilerTester, checkIfStmt) {
 
@@ -320,6 +331,7 @@ Tdg(anc[0]);
     std::cout << b << "\n";
   }
 }
+
 TEST(XASMCompilerTester, checkCallingPreviousKernel) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void bell_call(qbit q) {
@@ -338,9 +350,89 @@ TEST(XASMCompilerTester, checkCallingPreviousKernel) {
   std::cout << bell->toString() << "\n";
 }
 
+TEST(XASMCompilerTester, checkIRV3) {
+//   auto v = xacc::qalloc(1);
+//   v->setName("v");
+//   xacc::storeBuffer(v);
+
+//   auto v = xacc::internal_compiler::qalloc(1);
+  xacc::internal_compiler::qreg v(1);
+
+  auto H = xacc::quantum::getObservable("pauli", std::string("X0 Y1 + Y0 X1"));
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(
+   __qpu__ void foo_test (qbit v, double x, double y, double z, std::shared_ptr<Observable> H) {
+     Rx(v[0], x);
+     U(v[0], x, y, z);
+     exp_i_theta(v, x, H);
+   }
+   )");
+
+  auto foo_test = IR->getComposite("foo_test");
+
+  std::cout << foo_test->toString() << "\n";
+
+  for (auto &val : {2.2, 2.3, 2.4, 2.5}) {
+    foo_test->updateRuntimeArguments(v, val, 3.3, 4.4, H);
+
+    std::cout << foo_test->toString() << "\n\n";
+  }
+}
+
+
+TEST(XASMCompilerTester, checkIRV3Vector) {
+//   auto v = xacc::qalloc(1);
+//   v->setName("v");
+//   xacc::storeBuffer(v);
+
+//   auto v = xacc::internal_compiler::qalloc(1);
+  xacc::internal_compiler::qreg v(1);
+
+  auto H = xacc::quantum::getObservable("pauli", std::string("X0 Y1 + Y0 X1"));
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(
+   __qpu__ void foo_test2 (qbit v, std::vector<double> x, std::shared_ptr<Observable> H) {
+     Rx(v[0], x[0]);
+     U(v[0], x[0], x[1], x[2]);
+     exp_i_theta(v, x[1], H);
+   }
+   )");
+
+  auto foo_test = IR->getComposite("foo_test2");
+
+  std::cout << foo_test->toString() << "\n";
+
+  for (auto &val : {2.2, 2.3, 2.4, 2.5}) {
+    foo_test->updateRuntimeArguments(v, std::vector<double>{val, 3.3, 4.4}, H);
+
+    std::cout << foo_test->toString() << "\n\n";
+  }
+
+IR = compiler->compile(
+      R"(
+  __qpu__ void ansatz2(qreg q, std::vector<double> theta) {
+  X(q[0]);
+  Ry(q[1], theta[0]);
+  CX(q[1],q[0]);
+}
+)");
+ 
+ auto test = IR->getComposites()[0];
+ std::cout <<" HELLO: " << test->toString() << "\n";
+ test->updateRuntimeArguments(v, std::vector<double>{.48});
+  std::cout <<" HELLO: " << test->toString() << "\n";
+
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  auto ret = RUN_ALL_TESTS();
+  xacc::Finalize();
+  return ret;
 }

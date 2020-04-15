@@ -13,4 +13,5 @@
 #ifndef XACC_QALLOC_H_
 #define XACC_QALLOC_H_
 #include "qalloc.hpp"
+#include "CompositeInstruction.hpp"
 #endif

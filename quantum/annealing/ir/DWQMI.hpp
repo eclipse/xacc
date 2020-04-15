@@ -44,6 +44,14 @@ public:
   const std::string name() const override { return "dwqmi"; }
   const std::string description() const override { return ""; }
 
+
+  void addArgument(std::shared_ptr<CompositeArgument> arg,
+                   const int idx_of_inst_param) override {
+  }
+
+  void applyRuntimeArguments() override {
+  }
+
   void mapBits(std::vector<std::size_t> bitMap) override {}
   const int nRequiredBits() const override {return 2;}
   void setBits(const std::vector<std::size_t> bits) override {
