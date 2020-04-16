@@ -31,11 +31,14 @@ protected:
   bool isCyclic; // true if the molecular system is cyclic
   Eigen::MatrixXd CISGateAngles;// state preparation angles
   std::shared_ptr<Observable> observable; // AIEM Hamiltonian
+  const int nParamsPerEntangler = 6; // number of parameters in a single entangler
+  const double angstromToBohr = 1.8897161646320724; // angstrom to bohr
+  const double debyeToAu = 0.393430307; // D to a.u.
 
   std::shared_ptr<CompositeInstruction>
   circuit(const Eigen::VectorXd &stateAngles) const; // circuit for a given initial state
 
-  // process quantum chemistry data and returns the Hamiltonian 
+  // processes quantum chemistry data and returns the Hamiltonian 
   // and the gates for state preparation
   void preProcessing();
 
