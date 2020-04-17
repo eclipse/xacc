@@ -169,7 +169,8 @@ void Exp::applyRuntimeArguments() {
     x_val = arguments[0]->runtimeValue.get<std::vector<double>>(
         INTERNAL_ARGUMENT_VALUE_KEY)[vector_mapping[variable_name]];
     variable_name =
-        arguments[0]->name + std::to_string(vector_mapping[variable_name]);
+        arguments[0]->name +std::to_string(vector_mapping[variable_name]);
+    addVariable(variable_name);
   } else {
     x_val = arguments[0]->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
   }
@@ -275,6 +276,7 @@ void Exp::applyRuntimeArguments() {
     xasm_src = "__qpu__ void " + name + "(qbit q, double " +
                variable_name + ") {\n" + xasm_src + "}";
 
+    // std::cout << xasm_src << "\n";
     auto xasm = xacc::getCompiler("xasm");
     auto tmp = xasm->compile(xasm_src)->getComposites()[0];
 
