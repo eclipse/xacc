@@ -27,23 +27,44 @@ namespace xacc {
 void XASMListener::for_stmt_update_inst_args(Instruction *inst) {
   auto parameters = inst->getParameters();
   for (int i = 0; i < parameters.size(); i++) {
+    std::cout << "HELLO: " << inst->name() << ", " << parameters[i].toString()
+              << "\n";
     if (parameters[i].isVariable()) {
       auto arg = function->getArgument(parameters[i].toString());
 
       if (!arg) {
         auto param_str = parameters[i].toString();
+        param_str.erase(
+            std::remove_if(param_str.begin(), param_str.end(),
+                           [](char c) { return c == ']' || c == '['; }),
+            param_str.end());
         param_str.erase(std::remove_if(param_str.begin(), param_str.end(),
                                        [](char c) { return !std::isalpha(c); }),
                         param_str.end());
 
+        std::cout << "IS THSI HRE: " << param_str << "\n";
         arg = function->getArgument(param_str);
 
         if (arg && arg->type.find("std::vector<double>") != std::string::npos) {
           // this was a container-like type
           // give the instruction a mapping from i to vector idx
+          std::cout << "HELLO " << arg->name << "\n";
 
-          inst->addIndexMapping(
-              i, new_var_to_vector_idx[parameters[i].toString()]);
+          auto tmp_str = parameters[i].toString();
+          tmp_str.erase(
+              std::remove_if(tmp_str.begin(), tmp_str.end(),
+                             [](char c) { return c == '[' || c == ']'; }),
+              tmp_str.end());
+          tmp_str.erase(tmp_str.find(arg->name), arg->name.length());
+          int vector_mapping = 0;
+          try {
+            auto vector_idx = std::stoi(tmp_str);
+            vector_mapping = vector_idx;
+          } catch (std::exception &e) {
+            std::cout << e.what() << "\n";
+            xacc::error("[xasm] could not compute vector index.");
+          }
+          inst->addIndexMapping(i, vector_mapping);
         }
       }
 
@@ -95,7 +116,7 @@ void XASMListener::createForInstructions<XasmLessThan>(
           irProvider->createInstruction(next->name(), new_bits, new_params);
 
       copy->setBufferNames(next->getBufferNames());
-      
+
       for_stmt_update_inst_args(copy.get());
 
       instructions.push_back(copy);

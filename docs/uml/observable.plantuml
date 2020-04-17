@@ -1,0 +1,55 @@
+@startuml
+
+class Observable {
+    
+    + observe (kernel : Kernel) : vector<Kernel>
+    + fromString(str_rep : string)
+    + fromOptions( opts : HeterogeneousMap)
+
+    + operator+()
+    + operator-()
+    + operator*()
+    + operator=()
+    + operator==()
+    
+
+}
+
+class ObservableTransform {
+    + transform(obs : Observable) : Observable
+}
+class PauliOperator {
+}
+
+class RDMOperator{}
+class FermionOperator {
+}
+
+class Chemistry
+
+Observable <|-- PauliOperator
+Observable <|-- FermionOperator
+Observable <|-- RDMOperator 
+Observable <|-- Chemistry
+
+note right of Observable 
+   Users sees API like this
+
+   qcor_Observable * H = qcor_createObservable("pauli", "X0 Y1 - X1 Z2");
+
+   qcor_Pauli sig_x_0('X', 0, 2.2); 
+
+   qcor_Observable * sig_x_2 = qcor_X(2);
+
+   qcor_Observable * tmp = qcor_multiplyObservables(sig_x_0, sig_x_2);
+
+   qcor_Observable * sum = qcor_addObservables(H, tmp);
+
+   qcor_Observable * f = qcor_createObservable("fermion", "0^ 1 + 1^ 0");
+
+   qcor_Observable * transformed = qcor_transformObservable(TransformType_JW, f);
+
+   MatrixData * data = qcor_getObservableMatrix(sum);
+
+end note
+@enduml
