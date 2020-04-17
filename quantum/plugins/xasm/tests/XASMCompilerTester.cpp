@@ -66,6 +66,21 @@ TEST(XASMCompilerTester, checkCanParse) {
                       rx(3.3) q[0];
                       measure q -> c;
                       )"));
+
+std::cout << "hello\n";
+ EXPECT_TRUE(compiler->canParse(R"(
+__qpu__ void ansatz(qreg q, std::vector<double> x) {
+  for (int i = 0; i < 2; i++) {
+    Rx(q[i], x[i]);
+    Rz(q[i], x[2 + i]);
+  }
+  CX(q[1], q[0]);
+  for (int i = 0; i < 2; i++) {
+    Rx(q[i], x[i + 4]);
+    Rz(q[i], x[i + 4 + 2]);
+    Rx(q[i], x[i + 4 + 4]);
+  }
+})"));
 }
 
 TEST(XASMCompilerTester, checkSimple) {

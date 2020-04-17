@@ -27,8 +27,6 @@ namespace xacc {
 void XASMListener::for_stmt_update_inst_args(Instruction *inst) {
   auto parameters = inst->getParameters();
   for (int i = 0; i < parameters.size(); i++) {
-    std::cout << "HELLO: " << inst->name() << ", " << parameters[i].toString()
-              << "\n";
     if (parameters[i].isVariable()) {
       auto arg = function->getArgument(parameters[i].toString());
 
@@ -42,13 +40,11 @@ void XASMListener::for_stmt_update_inst_args(Instruction *inst) {
                                        [](char c) { return !std::isalpha(c); }),
                         param_str.end());
 
-        std::cout << "IS THSI HRE: " << param_str << "\n";
         arg = function->getArgument(param_str);
 
         if (arg && arg->type.find("std::vector<double>") != std::string::npos) {
           // this was a container-like type
           // give the instruction a mapping from i to vector idx
-          std::cout << "HELLO " << arg->name << "\n";
 
           auto tmp_str = parameters[i].toString();
           tmp_str.erase(
