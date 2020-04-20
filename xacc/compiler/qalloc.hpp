@@ -33,6 +33,8 @@ public:
   std::map<std::string, int> counts();
   double exp_val_z();
   void reset();
+  int size();
+  void addChild(qreg& q);
   void setName(const char *name);
   void setNameAndStore(const char *name);
   void store();

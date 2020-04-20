@@ -27,8 +27,14 @@ void qreg::store() {
       buffer, empty_delete<AcceleratorBuffer>());
   xacc::storeBuffer(buffer_as_shared);
 }
+int qreg::size() { return buffer->size(); }
+void qreg::addChild(qreg &q) {
+  for (auto &child : buffer->getChildren()) {
+    results()->appendChild(child->name(), child);
+  }
+}
 
-void qreg::print() {buffer->print();}
+void qreg::print() { buffer->print(); }
 
 double qreg::weighted_sum(Observable *obs) {
   auto terms = obs->getNonIdentitySubTerms();
@@ -37,20 +43,21 @@ double qreg::weighted_sum(Observable *obs) {
   auto children = buffer->getChildren();
   double sum = 0.0;
   if (terms.size() != children.size()) {
-      xacc::error("[qreg::weighted_sum()] error, number of observable terms != number of children buffers.");
+    xacc::error("[qreg::weighted_sum()] error, number of observable terms != "
+                "number of children buffers.");
   }
-  
-  for (int i = 0; i < children.size(); i++) {
-    //   std::cout << children[i]->name() << ", "
-    //             << children[i]->getExpectationValueZ() << ", "
-    //             << terms[i]->coefficient() << "\n";
 
-      sum += children[i]->getExpectationValueZ() *
-             std::real(terms[i]->coefficient());
+  for (int i = 0; i < children.size(); i++) {
+    // std::cout << children[i]->name() << ", "
+    //           << children[i]->getExpectationValueZ() << ", "
+    //           << terms[i]->coefficient() << "\n";
+
+    sum += children[i]->getExpectationValueZ() *
+           std::real(terms[i]->coefficient());
   }
 
   if (id) {
-      sum += std::real(id->coefficient());
+    sum += std::real(id->coefficient());
   }
   return sum;
 }
