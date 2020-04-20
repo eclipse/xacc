@@ -27,7 +27,7 @@ void compiler_InitializeXACC(const char *qpu_backend) {
   setAccelerator(qpu_backend);
 }
 
-void compiler_InitializeXACC(const char *qpu_backend, const int shots) {
+void compiler_InitializeXACC(const char *qpu_backend, int shots) {
   if (!xacc::isInitialized()) {
     xacc::Initialize();
     xacc::external::load_external_language_plugins();
@@ -50,7 +50,7 @@ void setAccelerator(const char *qpu_backend) {
   }
 }
 
-void setAccelerator(const char *qpu_backend, const int shots) {
+void setAccelerator(const char *qpu_backend, int shots) {
   if (qpu) {
     if (qpu_backend != qpu->name()) {
       qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)})

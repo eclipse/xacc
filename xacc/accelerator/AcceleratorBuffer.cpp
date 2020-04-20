@@ -510,7 +510,7 @@ void AcceleratorBuffer::print(std::ostream &stream) {
   // end root object
   writer.EndObject();
 
-  stream << buffer.GetString();
+  stream << buffer.GetString() << "\n";
 }
 
 const std::string AcceleratorBuffer::toString() {
