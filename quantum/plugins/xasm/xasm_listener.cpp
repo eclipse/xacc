@@ -619,6 +619,7 @@ void XASMListener::exitComposite_generator(
       for (std::size_t i = 0; i < size; i++) {
         auto inst = irProvider->createInstruction(currentCompositeName,
                                                   std::vector<std::size_t>{i});
+        inst->setBufferNames({buffer->name()});
         function->addInstruction(inst);
       }
 
