@@ -97,7 +97,8 @@ TEST(AcceleratorBufferTester, checkLoad) {
             }
         ]
     }
-})bufferStr";
+}
+)bufferStr";
 
   AcceleratorBuffer buffer;
   std::istringstream s(bufferStr);
@@ -157,7 +158,8 @@ TEST(AcceleratorBufferTester, checkLoadDwave) {
             "010001": 100
         }
     }
-})dwaveBuffer";
+}
+)dwaveBuffer";
 
   AcceleratorBuffer buffer;
   std::istringstream s(dwaveBuffer);
@@ -207,7 +209,8 @@ TEST(AcceleratorBufferTester, checkEmptyParametersBug) {
             }
         ]
     }
-})str";
+}
+)str";
 
   AcceleratorBuffer b;
   std::istringstream s(str);
