@@ -51,6 +51,9 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
   if (name == "CX") {
       iName = "CNOT";
   }
+  if (name == "QMI" || name == "qmi") {
+      iName = "AnnealingInstruction";
+  }
   std::shared_ptr<Instruction> inst;
   if (xacc::hasService<Instruction>(iName)) {
     inst = xacc::getService<Instruction>(iName);

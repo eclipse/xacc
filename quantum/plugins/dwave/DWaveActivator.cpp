@@ -45,6 +45,8 @@ public:
 
     auto rbm = std::make_shared<xacc::dwave::RBM>();
     context.RegisterService<xacc::Instruction>(rbm);
+    auto rbmascirc = std::make_shared<xacc::dwave::RBMAsCircuitType>();
+    context.RegisterService<xacc::Instruction>(rbmascirc);
     // auto c = std::make_shared<xacc::quantum::DWQMICompiler>();
     // context.RegisterService<xacc::Compiler>(c);
     // context.RegisterService<xacc::OptionsProvider>(c);

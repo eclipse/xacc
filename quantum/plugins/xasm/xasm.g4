@@ -16,7 +16,7 @@ xaccsrc
     typedparam : type ('&' | '*')? variable_param_name;
     variable_param_name : id;
 
-    type : id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
+    type : 'int' | id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
 
 /***********************************************************************/
 
@@ -162,7 +162,7 @@ ID
 
 /* Keep it real...numbers */
 REAL
-   : INT ( '.' (INT) )
+   : INT? ( '.' (INT) )
    ;
 
 /* Non-negative integers */

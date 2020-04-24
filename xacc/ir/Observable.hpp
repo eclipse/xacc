@@ -16,6 +16,17 @@
 #include "Utils.hpp"
 
 namespace xacc {
+class SparseTriplet : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
+public:
+  SparseTriplet(std::uint64_t r, std::uint64_t c, std::complex<double> coeff) {
+    std::get<0>(*this) = r;
+    std::get<1>(*this) = c;
+    std::get<2>(*this) = coeff;
+  }
+  const std::uint64_t row() { return std::get<0>(*this); }
+  const std::uint64_t col() { return std::get<1>(*this); }
+  const std::complex<double> coeff() { return std::get<2>(*this); }
+};
 
 class Observable : public Identifiable {
 public:
@@ -41,6 +52,11 @@ public:
 
   virtual std::complex<double> coefficient() {
     return std::complex<double>(1.0, 0.0);
+  }
+
+  virtual std::vector<SparseTriplet>
+  to_sparse_matrix() {
+    return {};
   }
 };
 

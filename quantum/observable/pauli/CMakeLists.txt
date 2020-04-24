@@ -25,7 +25,7 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                             PUBLIC
-                            .
+                            . ${CMAKE_SOURCE_DIR}/tpls/armadillo
                             ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
                             ${CMAKE_CURRENT_SOURCE_DIR}
                             ${CMAKE_CURRENT_SOURCE_DIR}/generated
@@ -54,7 +54,7 @@ usFunctionEmbedResources(TARGET
                          manifest.json)
 
 if(APPLE)
-	target_link_libraries(${LIBRARY_NAME} PUBLIC xacc ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
+   target_link_libraries(${LIBRARY_NAME} PUBLIC xacc ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
    set_target_properties(${LIBRARY_NAME} PROPERTIES INSTALL_RPATH "@loader_path")
    set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()

@@ -50,7 +50,7 @@ protected:
   HeterogeneousMap options;
 
 public:
-  template <typename T> void appendOption(const std::string key, T &value) {
+  template <typename T> void appendOption(const std::string key, T &&value) {
     options.insert(key, value);
   }
   virtual void setOptions(const HeterogeneousMap &opts) { options = opts; }

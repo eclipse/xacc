@@ -47,17 +47,6 @@ using TermTuple =
 using c = std::complex<double>;
 using ActionResult = std::pair<std::string, c>;
 enum ActionType { Bra, Ket };
-class Triplet : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
-public:
-  Triplet(std::uint64_t r, std::uint64_t c, std::complex<double> coeff) {
-    std::get<0>(*this) = r;
-    std::get<1>(*this) = c;
-    std::get<2>(*this) = coeff;
-  }
-  const std::uint64_t row() { return std::get<0>(*this); }
-  const std::uint64_t col() { return std::get<1>(*this); }
-  const std::complex<double> coeff() { return std::get<2>(*this); }
-};
 
 class Term : public TermTuple,
              public tao::operators::commutative_multipliable<Term>,
@@ -213,7 +202,7 @@ public:
     return (std::get<1>(*this) == std::get<1>(v) && ops() == std::get<2>(v));
   }
 
-  std::vector<Triplet> getSparseMatrixElements(const int nQubits);
+  std::vector<SparseTriplet> getSparseMatrixElements(const int nQubits);
 
   ActionResult action(const std::string &bitString, ActionType type);
 
@@ -326,8 +315,11 @@ public:
 
   std::unordered_map<std::string, Term> getTerms() const { return terms; }
 
-  std::vector<Triplet> getSparseMatrixElements();
+  std::vector<SparseTriplet> getSparseMatrixElements() {return to_sparse_matrix();}
   std::vector<std::complex<double>> toDenseMatrix(const int nQubits);
+
+  std::vector<SparseTriplet>
+  to_sparse_matrix() override;
 
   std::shared_ptr<IR> toXACCIR();
   void fromXACCIR(std::shared_ptr<IR> ir);

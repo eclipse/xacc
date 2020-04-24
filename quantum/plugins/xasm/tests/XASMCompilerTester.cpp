@@ -67,8 +67,8 @@ TEST(XASMCompilerTester, checkCanParse) {
                       measure q -> c;
                       )"));
 
-std::cout << "hello\n";
- EXPECT_TRUE(compiler->canParse(R"(
+  std::cout << "hello\n";
+  EXPECT_TRUE(compiler->canParse(R"(
 __qpu__ void ansatz(qreg q, std::vector<double> x) {
   for (int i = 0; i < 2; i++) {
     Rx(q[i], x[i]);
@@ -448,6 +448,60 @@ TEST(XASMCompilerTester, checkIRV3Vector) {
   std::cout << " HELLO: " << test->toString() << "\n";
   test->updateRuntimeArguments(v, std::vector<double>{.48});
   std::cout << " HELLO: " << test->toString() << "\n";
+}
+
+TEST(XASMCompilerTester, checkAnnealInstructions) {
+  xacc::internal_compiler::qreg v(1);
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(
+   __qpu__ void anneal_test (qbit v, double x, double y) {
+       QMI(v[0], x);
+       QMI(v[1], y);
+       QMI(v[0], v[1], .2345);
+   }
+   )");
+
+  auto foo_test = IR->getComposite("anneal_test");
+
+  std::cout << foo_test->toString() << "\n";
+
+  for (auto &val : {2.2, 2.3, 2.4, 2.5}) {
+    foo_test->updateRuntimeArguments(v, val, 3.3);
+
+    std::cout << foo_test->toString() << "\n\n";
+  }
+
+  IR = compiler->compile(
+      R"(
+  __qpu__ void ansatz222(qreg v, std::vector<double> x) {
+    QMI(v[0], x[0]);
+    QMI(v[1], x[1]);
+    QMI(v[0], v[1], x[2]);
+}
+)");
+
+  auto test = IR->getComposites()[0];
+  std::cout << " HELLO: " << test->toString() << "\n";
+  test->updateRuntimeArguments(v, std::vector<double>{.48, .58, .68});
+  std::cout << " HELLO: " << test->toString() << "\n";
+
+
+
+  IR = compiler->compile(
+      R"(
+  __qpu__ void rbm_test(qreg v, std::vector<double> x, int nv, int nh) {
+    rbm(v, x, nv, nh);
+}
+)");
+  test = IR->getComposites()[0];
+
+  for (int i = 1; i < 4; i++ ) {
+//   std::cout << " HELLO: " << test->toString() << "\n";
+  test->updateRuntimeArguments(v, std::vector<double>(i*i + i + i), i, i);
+  std::cout << " HELLO:\n" << test->toString() << "\n";
+  }
 }
 
 int main(int argc, char **argv) {
