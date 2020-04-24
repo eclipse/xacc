@@ -58,8 +58,7 @@ public:
       for (auto &i : instructions) {
         i->enable();
       }
-    }
-    else {
+    } else {
       // Note: although sub-instructions are initially disabled,
       // we need to disable here as well just in case we run multiple shots
       // and they may be enabled in the previous run.
@@ -113,6 +112,50 @@ public:
   const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CNOT)
+  DEFINE_VISITABLE()
+};
+
+class AnnealingInstruction : public Gate {
+public:
+  AnnealingInstruction()
+      : Gate("AnnealingInstruction",
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+  AnnealingInstruction(std::size_t qbit, InstructionParameter &&bias)
+      : Gate("AnnealingInstruction", std::vector<std::size_t>{qbit},
+             std::vector<InstructionParameter>{bias}) {}
+  AnnealingInstruction(std::size_t qbit1, std::size_t qbit2,
+                       InstructionParameter &&weight)
+      : Gate("AnnealingInstruction", std::vector<std::size_t>{qbit1, qbit2},
+             std::vector<InstructionParameter>{weight}) {}
+  AnnealingInstruction(std::vector<std::size_t> qbits)
+      : Gate("AnnealingInstruction", qbits,
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {
+    // make it easier to specify single qubit bias
+    if (qbits.size() == 1) {
+      qbits.push_back(qbits[0]);
+    }
+  }
+  void setBits(const std::vector<std::size_t> bts) override {
+    if (bts.size() == 1) {
+      qbits.push_back(bts[0]);
+      qbits.push_back(bts[0]);
+    } else {
+        qbits = bts;
+    }
+  }
+  const int nRequiredBits() const override { return 2; }
+  void
+  setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+    std::vector<std::string> tmp;
+    tmp.push_back(bufferNamesPerIdx[0]);
+    if (bufferNamesPerIdx.size() == 1) {
+      tmp.push_back(bufferNamesPerIdx[0]);
+    } else {
+      tmp.push_back(bufferNamesPerIdx[1]);
+    }
+    Gate::setBufferNames(tmp);
+  }
+  DEFINE_CLONE(AnnealingInstruction)
   DEFINE_VISITABLE()
 };
 
@@ -193,7 +236,8 @@ public:
       : Gate("U", std::vector<InstructionParameter>{
                       InstructionParameter(0.0), InstructionParameter(0.0),
                       InstructionParameter(0.0)}) {}
-  U(std::size_t qbit, std::vector<xacc::InstructionParameter> params) : Gate("U", params){}
+  U(std::size_t qbit, std::vector<xacc::InstructionParameter> params)
+      : Gate("U", params) {}
   U(std::size_t qbit, double theta, double phi, double lambda)
       : Gate("U", std::vector<std::size_t>{qbit},
              std::vector<InstructionParameter>{InstructionParameter(theta),

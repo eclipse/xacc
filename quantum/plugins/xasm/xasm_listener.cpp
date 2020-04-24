@@ -482,7 +482,7 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
   }
 }
 
-void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
+void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) { 
   auto inst = irProvider->createInstruction(currentInstructionName, currentBits,
                                             currentParameters);
 
