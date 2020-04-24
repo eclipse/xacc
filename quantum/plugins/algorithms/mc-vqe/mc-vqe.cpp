@@ -50,9 +50,15 @@ bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
     isCyclic = false;
   }
 
+  nStates = nChromophores + 1;
   CISGateAngles.resize(nChromophores, nStates);
   preProcessing();
 
+  return true;
+}
+
+
+const std::vector<std::string> MC_VQE::requiredParameters() const {
   return {"optimizer", "accelerator", "nChromophores"};
 }
 
@@ -407,84 +413,59 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
   t_dipole.setZero();
   com.setZero();
 
-  std::string line, data, comp;
-  std::stringstream dataStream;
-  for (int out = 0; out < nChromophores; out++){
-    std::string filePath = std::string("/workspace/data/") + std::to_string(out + 1) + ".out";
-    std::ifstream file(filePath);
-    if(file.bad()){
-      xacc::error("Cannot find output file.");
+  std::ifstream file("/workspace/xacc/quantum/plugins/algorithms/mc-vqe/tests/datafile.txt");
+  if(file.bad()){
+    xacc::error("Cannot find output file.");
+  }
+
+  std::string line, tmp, comp;
+  int xyz, start;
+  for (int chromophore = 0; chromophore < nChromophores; chromophore++){
+
+    std::getline(file, line);// this is just the number label of the chromophore
+    std::getline(file, line);
+    gs_energies(chromophore) =  std::stod(line.substr(line.find(":") + 1));
+
+    std::getline(file, line);
+    es_energies(chromophore) =  std::stod(line.substr(line.find(":") + 1));
+
+    std::getline(file, line);
+    tmp = line.substr(line.find(":") + 1);
+    std::stringstream comStream(tmp);
+    xyz = 0;
+    while(std::getline(comStream, comp, ',')) {
+      com(chromophore, xyz) = std::stod(comp);
+      xyz++;
     }
 
-    unsigned int del1, del2;
-    while(!file.eof()){
-      std::getline(file, line);
-
-      if(line.find("FINAL ENERGY") != std::string::npos) {
-        del1 = line.find(":");
-        del2 = line.find("a.u.");
-        data = line.substr(del1 + 1, del2 - del1 - 1);
-        gs_energies(out) = std::stod(data);
-      }
-
-      if(line.find("CENTER OF MASS") != std::string::npos) {
-        del1 = line.find("{");
-        del2 = line.find("}");
-        data = line.substr(del1 + 1, del2 - del1 - 1);
-        std::stringstream dataStream(data);
-        int xyz = 0;
-        while (std::getline(dataStream, comp, ',')) {
-          com(out, xyz) = std::stod(comp);
-          xyz++;
-        } 
-      }
-
-      if(line.find("DIPOLE MOMENT") != std::string::npos) {
-        del1 = line.find("{");
-        del2 = line.find("}");
-        data = line.substr(del1 + 1, del2 - del1 - 1);
-        std::stringstream dataStream(data);
-        int xyz = 0;
-        while (std::getline(dataStream, comp, ',')) {
-          gs_dipole(out, xyz) = std::stod(comp);
-          xyz++;
-        }
-      }
-
-      if(line.find("Ex. Energy") != std::string::npos) {
-        std::getline(file, line);
-        std::getline(file, line);
-        data = line.substr(9, 20);
-        es_energies(out) = std::stod(data);
-      }
-
-      if(line.find("Dx") != std::string::npos) {
-        std::getline(file, line);
-        std::getline(file, line);
-        data = line.substr(9, 30);
-        std::stringstream dataStream(data);
-        int xyz = 0;
-        do {
-            dataStream >> comp;
-            es_dipole(out, xyz) = std::stod(comp);
-            xyz++;
-        } while (dataStream && xyz < 3);
-      }
-      
-      if(line.find("Tx") != std::string::npos) {
-        std::getline(file, line);
-        std::getline(file, line);
-        data = line.substr(9, 30);
-        std::stringstream dataStream(data);
-        int xyz = 0;
-        do {
-            dataStream >> comp;
-            t_dipole(out, xyz) = std::stod(comp);
-            xyz++;
-        } while (dataStream && xyz < 3);
-        break; // if we get to this point, we've got everything we need
-      }
+    std::getline(file, line);
+    tmp = line.substr(line.find(":") + 1);
+    std::stringstream gsDipoleStream(tmp);
+    xyz = 0;
+    while(std::getline(gsDipoleStream, comp, ',')) {
+      gs_dipole(chromophore, xyz) = std::stod(comp);
+      xyz++;
     }
+
+    std::getline(file, line);
+    tmp = line.substr(line.find(":") + 1);
+    std::stringstream esDipoleStream(tmp);
+    xyz = 0;
+    while(std::getline(esDipoleStream, comp, ',')) {
+      es_dipole(chromophore, xyz) = std::stod(comp);
+      xyz++;
+    }
+
+    std::getline(file, line);
+    tmp = line.substr(line.find(":") + 1);
+    std::stringstream tDipoleStream(tmp);
+    xyz = 0;
+    while(std::getline(tDipoleStream, comp, ',')) {
+      t_dipole(chromophore, xyz) = std::stod(comp);
+      xyz++;
+    }
+    std::getline(file, line);
+
   }
 
   com *= angstrom2Bohr; // angstrom to bohr

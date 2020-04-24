@@ -22,7 +22,7 @@ using namespace xacc;
 TEST(mcVqeTester, checkSimple) {
 //   if (xacc::hasAccelerator("qpp")) {
     //auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("vqe-mode",true)});
-    auto acc = xacc::getAccelerator("tnqvm");
+    auto acc = xacc::getAccelerator("qpp");
     auto buffer = xacc::qalloc(4);
     auto optimizer = xacc::getOptimizer("nlopt");
 
