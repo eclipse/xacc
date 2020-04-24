@@ -50,14 +50,9 @@ bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
     isCyclic = false;
   }
 
-  nStates = nChromophores + 1;
   CISGateAngles.resize(nChromophores, nStates);
   preProcessing();
 
-  return true;
-}
-
-const std::vector<std::string> MC_VQE::requiredParameters() const {
   return {"optimizer", "accelerator", "nChromophores"};
 }
 
@@ -580,7 +575,6 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
 
     }
   }
-
   // We're done with the AIEM Hamiltonian, just need a pointer for it
   auto hamiltonianPtr = std::make_shared<PauliOperator>(hamiltonian);
   observable = std::dynamic_pointer_cast<Observable>(hamiltonianPtr);
