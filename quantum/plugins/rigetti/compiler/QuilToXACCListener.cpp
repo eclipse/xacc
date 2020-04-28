@@ -25,17 +25,36 @@ namespace quantum {
 
 QuilToXACCListener::QuilToXACCListener() {
   gateRegistry = xacc::getService<IRProvider>("quantum");
+  parsingUtil = xacc::getService<ExpressionParsingUtil>("exprtk");
 }
 
 void QuilToXACCListener::enterXacckernel(
     quil::QuilParser::XacckernelContext *ctx) {
-  std::vector<std::string> params;
+  //   std::vector<std::string> params;
+  //   for (int i = 0; i < ctx->typedparam().size(); i++) {
+  //     params.push_back(
+  //         ctx->typedparam(i)->IDENTIFIER()->getText());
+  //   }
+  //   function =
+  //       gateRegistry->createComposite(ctx->kernelname->getText(), params);
+
+  std::vector<std::string> variables,
+      validTypes{"double", "float", "std::vector<double>", "int"};
+
+  function = gateRegistry->createComposite(ctx->kernelname->getText());
   for (int i = 0; i < ctx->typedparam().size(); i++) {
-    params.push_back(
-        ctx->typedparam(i)->IDENTIFIER()->getText());
+    auto type = ctx->typedparam(i)->type()->getText();
+    auto vname = ctx->typedparam(i)->variable_param_name()->getText();
+    function->addArgument(vname, type);
+    // if (type == "qreg" || type == "qbit") {
+    //   functionBufferNames.push_back(vname);
+    // }
+    if (xacc::container::contains(validTypes,
+                                  ctx->typedparam(i)->type()->getText())) {
+      variables.push_back(vname);
+    }
   }
-  function =
-      gateRegistry->createComposite(ctx->kernelname->getText(), params);
+  function->addVariables(variables);
 }
 
 void QuilToXACCListener::exitKernelcall(
@@ -61,14 +80,31 @@ void QuilToXACCListener::exitGate(quil::QuilParser::GateContext *ctx) {
     qubits.push_back(std::stoi(ctx->qubit(i)->getText()));
   }
 
+  std::map<int, std::shared_ptr<CompositeArgument>> args;
   std::vector<InstructionParameter> params;
- for (int i = 0; i < ctx->param().size(); i++) {
+  for (int i = 0; i < ctx->param().size(); i++) {
     auto paramStr = ctx->param(i)->getText();
-    params.emplace_back(paramStr);
+    // params.emplace_back(paramStr);
+
+    double value;
+    if (parsingUtil->isConstant(ctx->param(i)->getText(), value)) {
+      xacc::debug("[XasmCompiler] Parameter added is " + std::to_string(value));
+      params.emplace_back(value);
+    } else {
+      xacc::debug("[XasmCompiler] Parameter added is " + ctx->param(i)->getText());
+      params.emplace_back(ctx->param(i)->getText());
+
+      // This depends on a function argument
+
+      auto arg = function->getArgument(ctx->param(i)->getText());
+      args.insert({i,arg});
+    }
   }
 
   std::shared_ptr<xacc::Instruction> instruction =
       gateRegistry->createInstruction(gateName, qubits, params);
+
+  for (auto& kv : args) instruction->addArgument(kv.second, kv.first);
 
   function->addInstruction(instruction);
 }

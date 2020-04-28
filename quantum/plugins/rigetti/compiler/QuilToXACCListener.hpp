@@ -16,6 +16,7 @@
 #include "QuilBaseListener.h"
 #include "IR.hpp"
 #include "IRProvider.hpp"
+#include "expression_parsing_util.hpp"
 
 using namespace quil;
 
@@ -25,6 +26,7 @@ class QuilToXACCListener : public QuilBaseListener {
 protected:
   std::shared_ptr<IRProvider> gateRegistry;
   std::shared_ptr<CompositeInstruction> function;
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
 
 public:
   QuilToXACCListener();
