@@ -15,10 +15,32 @@
 #include "QuilVisitor.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
 #include "xacc_service.hpp"
+#include "qalloc"
 
 using namespace xacc;
 
 using namespace xacc::quantum;
+
+TEST(QuilCompileTester, checkRuntimeArgs) {
+
+  const std::string src =
+      R"src(__qpu__ void test(qreg q, double t) {
+RY(t) 0
+})src";
+
+  auto compiler = xacc::getService<Compiler>("quil");
+
+  auto ir = compiler->compile(src);
+  std::cout << "TEST:\n" << ir->getComposites()[0]->toString() << "\n\n";
+
+  auto f = ir->getComposites()[0];
+  xacc::internal_compiler::qreg q(1);
+
+  for (auto val : {2.2, 3.3, 4.5}) {
+    f->updateRuntimeArguments(q, val);
+    std::cout<< "howdy:\n" << f->toString() <<"\n";
+  }
+}
 
 TEST(QuilCompilerTester, checkSimple) {
   const std::string src =
@@ -39,7 +61,6 @@ MEASURE 0 [0]
   EXPECT_TRUE(ir->getComposites().size() == 1);
 
   EXPECT_TRUE(function->nInstructions() == 4);
-
 }
 
 TEST(QuilCompilerTester, checkVariableParameter) {

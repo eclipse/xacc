@@ -35,6 +35,7 @@ public:
    */
   virtual std::shared_ptr<xacc::IR> compile(const std::string &src,
                                             std::shared_ptr<Accelerator> acc);
+  bool canParse(const std::string& src) override;
 
   /**
    *

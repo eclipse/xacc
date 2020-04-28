@@ -27,8 +27,14 @@ public:
   virtual void enterTypedparam(QuilParser::TypedparamContext * /*ctx*/) override { }
   virtual void exitTypedparam(QuilParser::TypedparamContext * /*ctx*/) override { }
 
+  virtual void enterVariable_param_name(QuilParser::Variable_param_nameContext * /*ctx*/) override { }
+  virtual void exitVariable_param_name(QuilParser::Variable_param_nameContext * /*ctx*/) override { }
+
   virtual void enterType(QuilParser::TypeContext * /*ctx*/) override { }
   virtual void exitType(QuilParser::TypeContext * /*ctx*/) override { }
+
+  virtual void enterId(QuilParser::IdContext * /*ctx*/) override { }
+  virtual void exitId(QuilParser::IdContext * /*ctx*/) override { }
 
   virtual void enterKernelcall(QuilParser::KernelcallContext * /*ctx*/) override { }
   virtual void exitKernelcall(QuilParser::KernelcallContext * /*ctx*/) override { }

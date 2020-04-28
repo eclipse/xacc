@@ -36,9 +36,10 @@ bool XASMCompiler::canParse(const std::string &src) {
     void syntaxError(Recognizer *recognizer, Token *offendingSymbol,
                      size_t line, size_t charPositionInLine,
                      const std::string &msg, std::exception_ptr e) override {
-      std::cout << "XASM Cannot parse this source: " << msg << "\n";
-      std::cout << line << ": " << charPositionInLine << "\n";
-      std::cout << offendingSymbol->getText() << "\n";
+      std::stringstream ss;
+      ss << "XASM Cannot parse this source: " << msg << "\n";
+      ss << line << ": " << charPositionInLine << ", offending symbol = " << offendingSymbol->getText() << "\n";
+      xacc::info(ss.str());
       throw std::runtime_error("Cannot parse this XASM source string.");
     }
   };
