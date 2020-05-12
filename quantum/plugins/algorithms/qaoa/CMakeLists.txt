@@ -23,7 +23,7 @@ target_include_directories(
   ${LIBRARY_NAME}
   PUBLIC .)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices xacc-quantum-gate)
 
 set(_bundle_name xacc_algorithm_qaoa)
 set_target_properties(${LIBRARY_NAME}
@@ -51,8 +51,7 @@ else()
 endif()
 
 if(XACC_BUILD_TESTS)
-  # TODO: add tests
-  #add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
