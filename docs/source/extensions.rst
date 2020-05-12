@@ -3,6 +3,55 @@ Extensions
 Here we detail concrete implementations of various XACC interfaces as well as any
 input parameters they expose.
 
+Compilers
+---------
+
+xasm
+++++
+The XASM Compiler is the default compiler in XACC. It is the closest language to the underlying 
+XACC IR data model. The XASM compiler provides a quantum assembly like language with support 
+for custom Instructions and Composite Instruction generators as part of the language. Instructions 
+are provided to the language via the usual XACC service registry. Most common digital gates are provided 
+by default, and it is straightforward to add new Instructions. 
+
+
+
+quilc
+++++++
+XACC provides a Compiler implementation that delegates to the Rigetti-developed 
+quilc compiler. This is acheieved through the ``rigetti/quilc`` Docker image and 
+the internal XACC REST client API. The Quilc Compiler implementation makes direct 
+REST POSTs and GETs to the users local Docker Engine. Therefore, 
+in order to use this Compiler, you must pull down this image. 
+
+.. code:: bash 
+
+   $ docker pull rigetti/quilc 
+
+With that image pulled, you can now use the Quilc compiler via the usual XACC API calls. 
+
+.. code:: cpp
+
+   auto compiler = xacc::getCompiler("quilc");
+   auto ir = compiler->compile(R"##(H 0
+   CNOT 0 1
+   )##");
+   std::cout << ir->getComposites()[0]->toString() << "\n";
+
+or in Python
+
+.. code:: python
+
+   compiler = xacc.getCompiler('quilc')
+   ir = compiler.compile('''__qpu__ void ansatz(qbit q, double x) {
+       X 0
+       CNOT 1 0
+       RY(x) 1
+   }''')
+
+Note that you can structure your input to the compiler as a typical XACC kernel source string 
+or as a raw Quil string. 
+
 Optimizers
 ----------
 XACC provides implementations for the ``Optimizer`` that delegate to NLOpt and MLPack. Here we demonstrate

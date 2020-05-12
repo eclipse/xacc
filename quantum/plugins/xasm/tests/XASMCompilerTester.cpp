@@ -450,6 +450,36 @@ TEST(XASMCompilerTester, checkIRV3Vector) {
   std::cout << " HELLO: " << test->toString() << "\n";
 }
 
+
+TEST(XASMCompilerTester, checkIRV3Expression) {
+  //   auto v = xacc::qalloc(1);
+  //   v->setName("v");
+  //   xacc::storeBuffer(v);
+
+  //   auto v = xacc::internal_compiler::qalloc(1);
+  xacc::internal_compiler::qreg v(1);
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(
+      R"(
+   __qpu__ void foo_test3 (qbit v, double x) {
+     Rx(v[0], 2.2*x+pi);
+   }
+   )");
+
+  auto foo_test = IR->getComposite("foo_test3");
+
+  std::cout << foo_test->toString() << "\n";
+
+  for (auto &val : {2.2, 2.3, 2.4, 2.5}) {
+    foo_test->updateRuntimeArguments(v, val);
+
+    std::cout << foo_test->toString() << "\n\n";
+  }
+
+}
+
+
 TEST(XASMCompilerTester, checkAnnealInstructions) {
   xacc::internal_compiler::qreg v(1);
 

@@ -476,7 +476,9 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
         currentParameters.emplace_back(value);
       } else {
         xacc::debug("[XasmCompiler] Parameter added is " + param->getText());
-        currentParameters.emplace_back(param->getText());
+        InstructionParameter p(param->getText());
+        p.storeOriginalExpression();
+        currentParameters.push_back(p);
       }
     }
   }
