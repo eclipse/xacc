@@ -26,6 +26,18 @@ public:
     const std::string name() const override { return "QAOA"; }
     const std::string description() const override { return ""; }
     DEFINE_ALGORITHM_CLONE(QAOA)
+
+private:
+    std::shared_ptr<CompositeInstruction> constructParameterizedKernel(const std::shared_ptr<AcceleratorBuffer>& in_buffer) const;
+
+private:
+    std::vector<std::string> m_refHam;
+    std::vector<std::string> m_costHam;
+    Accelerator* m_qpu;
+    Optimizer* m_optimizer;
+    int m_nbSteps;
+    std::vector<double> m_gammas;
+    std::vector<double> m_betas;
 };
 } // namespace algorithm
 } // namespace xacc
