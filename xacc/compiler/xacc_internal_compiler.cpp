@@ -245,8 +245,6 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
     }
   }
 
-  optimize(program);
-
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
 

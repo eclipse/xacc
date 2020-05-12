@@ -16,6 +16,7 @@
 #include "Instruction.hpp"
 #include "Cloneable.hpp"
 #include "Utils.hpp"
+#include "expression_parsing_util.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -25,6 +26,8 @@ namespace quantum {
 class Gate : public Instruction {
 
 protected:
+  std::shared_ptr<ExpressionParsingUtil> parsingUtil;
+
   std::string gateName;
   std::vector<std::size_t> qbits;
   bool enabled = true;
@@ -66,18 +69,7 @@ public:
     param_idx_to_vector_idx.insert({idx_1, idx_2});
   }
 
-  void applyRuntimeArguments() override {
-    for (auto &kv : arguments) {
-      if (kv.second->type.find("std::vector<double>") != std::string::npos) {
-        parameters[kv.first] = kv.second->runtimeValue.get<std::vector<double>>(
-            INTERNAL_ARGUMENT_VALUE_KEY)[param_idx_to_vector_idx[kv.first]];
-      } else {
-        parameters[kv.first] =
-            kv.second->runtimeValue.get<double>(INTERNAL_ARGUMENT_VALUE_KEY);
-      }
-    }
-  }
-
+  void applyRuntimeArguments() override;
   const std::vector<std::size_t> bits() override;
   void setBits(const std::vector<std::size_t> bits) override { qbits = bits; }
   std::string getBufferName(const std::size_t bitIdx) override;

@@ -166,6 +166,9 @@ public:
   virtual void enterAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
   virtual void exitAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
 
+  virtual void enterVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
+  virtual void exitVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
+
   virtual void enterFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;
   virtual void exitFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;
 

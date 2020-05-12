@@ -144,28 +144,26 @@ public:
     return "";
   }
 
-  template<typename T>
-  bool pointerLikeExists(const std::string key) const {
-      if (keyExists<T*>(key)) {
-          return true;
-      } else if (keyExists<std::shared_ptr<T>>(key)) {
-          return true;
-      } else {
-       return false;
-      }
+  template <typename T> bool pointerLikeExists(const std::string key) const {
+    if (keyExists<T *>(key)) {
+      return true;
+    } else if (keyExists<std::shared_ptr<T>>(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
-  template<typename T>
-  T* getPointerLike(const std::string key) const {
-      if (keyExists<T*>(key)) {
-          return get<T*>(key);
-      } else if (keyExists<std::shared_ptr<T>>(key)) {
-          return get<std::shared_ptr<T>>(key).get();
-      } else {
-        XACCLogger::instance()->error("No pointer-like value at provided key (" +
+  template <typename T> T *getPointerLike(const std::string key) const {
+    if (keyExists<T *>(key)) {
+      return get<T *>(key);
+    } else if (keyExists<std::shared_ptr<T>>(key)) {
+      return get<std::shared_ptr<T>>(key).get();
+    } else {
+      XACCLogger::instance()->error("No pointer-like value at provided key (" +
                                     key + ").");
-        print_backtrace();
-      }
-      return nullptr;
+      print_backtrace();
+    }
+    return nullptr;
   }
   void clear() {
     for (auto &&clear_func : clear_functions) {
@@ -252,16 +250,24 @@ std::unordered_map<const HeterogeneousMap *, std::map<std::string, T>>
     HeterogeneousMap::items;
 
 // Make sure these basic types are always instantiatied for HeterogeneousMap
-template const bool& HeterogeneousMap::get<bool>(const std::string key) const;
-template const int& HeterogeneousMap::get<int>(const std::string key) const;
-template const double& HeterogeneousMap::get<double>(const std::string key) const;
-template const std::vector<std::complex<double>>& HeterogeneousMap::get<std::vector<std::complex<double>>>(const std::string key) const;
-template const std::vector<double>& HeterogeneousMap::get<std::vector<double>>(const std::string key) const;
-template const std::vector<double>& HeterogeneousMap::get_with_throw<std::vector<double>>(const std::string key) const;
+template const bool &HeterogeneousMap::get<bool>(const std::string key) const;
+template const int &HeterogeneousMap::get<int>(const std::string key) const;
+template const double &
+HeterogeneousMap::get<double>(const std::string key) const;
+template const std::vector<std::complex<double>> &
+HeterogeneousMap::get<std::vector<std::complex<double>>>(
+    const std::string key) const;
+template const std::vector<double> &
+HeterogeneousMap::get<std::vector<double>>(const std::string key) const;
+template const std::vector<double> &
+HeterogeneousMap::get_with_throw<std::vector<double>>(
+    const std::string key) const;
 
 template <typename... Types> class Variant : public mpark::variant<Types...> {
 
 private:
+  std::string originalExpression = "";
+
   class ToStringVisitor {
   public:
     template <typename T> std::string operator()(const T &t) const {
@@ -289,7 +295,9 @@ public:
   Variant(T &element) : mpark::variant<Types...>(element) {}
   template <typename T>
   Variant(T &&element) : mpark::variant<Types...>(element) {}
-  Variant(const Variant &element) : mpark::variant<Types...>(element) {}
+  Variant(const Variant &element)
+      : mpark::variant<Types...>(element),
+        originalExpression(element.originalExpression) {}
 
   template <typename T> T as() const {
     try {
@@ -299,8 +307,7 @@ public:
       std::stringstream s;
       s << "InstructionParameter::this->toString() = " << toString() << "\n";
       s << "This InstructionParameter type id is " << this->which() << "\n";
-      XACCLogger::instance()->error("Cannot cast Variant: " +
-                                    s.str());
+      XACCLogger::instance()->error("Cannot cast Variant: " + s.str());
       print_backtrace();
       exit(0);
     }
@@ -318,7 +325,9 @@ public:
     IsArithmeticVisitor v;
     return mpark::visit(v, *this);
   }
-
+  void storeOriginalExpression(std::string expr) { originalExpression = expr; }
+  void storeOriginalExpression() { originalExpression = toString(); }
+  std::string getOriginalExpression() { return originalExpression; }
   bool isVariable() const {
     try {
       mpark::get<std::string>(*this);

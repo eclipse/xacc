@@ -130,6 +130,7 @@ expression:
 	| <assoc = right> expression POWER expression	# powerExp
 	| expression (TIMES | DIVIDE) expression		# mulDivExp
 	| expression (PLUS | MINUS) expression			# addSubExp
+    | expression LBRACKET expression RBRACKET       # variablewithbracket
 	| function LPAREN expression RPAREN				# functionExp
 	| segment										# segmentExp
 	| number										# numberExp

@@ -168,6 +168,9 @@ public:
   virtual void enterAddSubExp(QuilParser::AddSubExpContext * /*ctx*/) override { }
   virtual void exitAddSubExp(QuilParser::AddSubExpContext * /*ctx*/) override { }
 
+  virtual void enterVariablewithbracket(QuilParser::VariablewithbracketContext * /*ctx*/) override { }
+  virtual void exitVariablewithbracket(QuilParser::VariablewithbracketContext * /*ctx*/) override { }
+
   virtual void enterFunctionExp(QuilParser::FunctionExpContext * /*ctx*/) override { }
   virtual void exitFunctionExp(QuilParser::FunctionExpContext * /*ctx*/) override { }
 

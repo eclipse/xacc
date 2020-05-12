@@ -91,20 +91,44 @@ void QuilToXACCListener::exitGate(quil::QuilParser::GateContext *ctx) {
       xacc::debug("[XasmCompiler] Parameter added is " + std::to_string(value));
       params.emplace_back(value);
     } else {
-      xacc::debug("[XasmCompiler] Parameter added is " + ctx->param(i)->getText());
-      params.emplace_back(ctx->param(i)->getText());
+      xacc::debug("[XasmCompiler] Parameter added is " +
+                  ctx->param(i)->getText());
+      InstructionParameter p(ctx->param(i)->getText());
+      p.storeOriginalExpression();
+      params.emplace_back(p);
 
       // This depends on a function argument
 
       auto arg = function->getArgument(ctx->param(i)->getText());
-      args.insert({i,arg});
+
+      if (!arg) {
+        // we may have a case where the parameter is an expression string,
+        // maybe something like 1.0 * theta[0]
+        for (auto &_arg : function->getArguments()) {
+          auto param_str = ctx->param(i)->getText();
+          param_str.erase(std::remove_if(param_str.begin(), param_str.end(),
+                                         [](char c) {
+                                           return !std::isalpha(c) ||
+                                                  c == '[' || c == ']';
+                                         }),
+                          param_str.end());
+          //   std::cout << "PARAMSTR: " << param_str << "\n";
+          double val;
+          if (parsingUtil->validExpression(param_str, {_arg->name})) {
+            arg = _arg;
+            break;
+          }
+        }
+      }
+      args.insert({i, arg});
     }
   }
 
   std::shared_ptr<xacc::Instruction> instruction =
       gateRegistry->createInstruction(gateName, qubits, params);
 
-  for (auto& kv : args) instruction->addArgument(kv.second, kv.first);
+  for (auto &kv : args)
+    instruction->addArgument(kv.second, kv.first);
 
   function->addInstruction(instruction);
 }

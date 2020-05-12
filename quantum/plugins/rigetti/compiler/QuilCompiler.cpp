@@ -59,7 +59,7 @@ bool QuilCompiler::canParse(const std::string &src) {
 }
 std::shared_ptr<IR> QuilCompiler::compile(const std::string &src,
                                           std::shared_ptr<Accelerator> acc) {
-
+ std::cout << "SRC: " << src << "\n";
   ANTLRInputStream input(src);
   QuilLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
