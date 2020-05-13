@@ -33,6 +33,7 @@ private:
 private:
     std::vector<std::string> m_refHam;
     std::vector<std::string> m_costHam;
+    Observable* m_costHamObs;
     Accelerator* m_qpu;
     Optimizer* m_optimizer;
     int m_nbSteps;
