@@ -21,15 +21,15 @@ using namespace xacc;
 
 TEST(mcVqeTester, checkSimple) {
 //   if (xacc::hasAccelerator("qpp")) {
-    //auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("vqe-mode",true)});
-    auto acc = xacc::getAccelerator("qpp");
-    auto buffer = xacc::qalloc(4);
+    auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor","exatn")});
+    //auto acc = xacc::getAccelerator("qpp");
+    auto buffer = xacc::qalloc(10);
     auto optimizer = xacc::getOptimizer("nlopt");
-
+    //xacc::setOption("tnqvm-verbose", "1");
     auto mc_vqe = xacc::getService<Algorithm>("mc-vqe");
     EXPECT_TRUE(mc_vqe->initialize({std::make_pair("accelerator",acc),
                                 std::make_pair("optimizer",optimizer),
-                                std::make_pair("nChromophores", 4)}));
+                                std::make_pair("nChromophores", 10)}));
     mc_vqe->execute(buffer);
     //EXPECT_NEAR(-1.13717, mpark::get<double>(buffer->getInformation("opt-val")), 1e-4);
     //EXPECT_NEAR(-1.13717,vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>())[0], 1e-4);

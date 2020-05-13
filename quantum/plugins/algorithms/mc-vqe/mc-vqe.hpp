@@ -31,14 +31,18 @@ protected:
   Eigen::MatrixXd CISGateAngles;// state preparation angles
   std::shared_ptr<Observable> observable; // AIEM Hamiltonian
   int nStates; // # number of CIS states = nChromophores + 1
-  const int nParamsEntangler = 6;// # of parameter in a single entangler
+  const int nParamsEntangler = 4;// # of parameters in a single entangler
   const double angstrom2Bohr = 1.8897161646320724; // angstrom to bohr
   const double debye2Au = 0.393430307; // D to a.u.
 
+  // constructs CIS state preparation circiuit
   std::shared_ptr<CompositeInstruction>
-  circuit(const Eigen::VectorXd &stateAngles) const; // circuit for a given initial state
+  statePreparationCircuit(const Eigen::VectorXd &stateAngles) const;
 
-  // process quantum chemistry data and returns the Hamiltonian 
+  // constructs entangler portion of MC-VQE circuit
+  std::shared_ptr<CompositeInstruction> entanglerCircuit() const;
+
+  // processes quantum chemistry data and returns the Hamiltonian 
   // and the gates for state preparation
   void preProcessing();
 
@@ -46,10 +50,7 @@ protected:
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
-
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
-  //std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-               //const std::vector<double> &parameters) override;
   const std::string name() const override { return "mc-vqe"; }
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(MC_VQE)
