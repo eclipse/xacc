@@ -250,8 +250,68 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 
 std::vector<double> QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 
 {
-    // TODO
-    return {};
+    const int nbQubits = buffer->size();
+    auto kernel = constructParameterizedKernel(buffer);
+
+    // Observe the cost Hamiltonian:
+    auto kernels = m_costHamObs->observe(kernel);
+    std::vector<double> coefficients;
+    std::vector<std::string> kernelNames;
+    std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+
+    double identityCoeff = 0.0;
+    for (auto& f : kernels) 
+    {
+        kernelNames.push_back(f->name());
+        std::complex<double> coeff = f->getCoefficient();
+
+        int nFunctionInstructions = 0;
+        if (f->getInstruction(0)->isComposite()) 
+        {
+            nFunctionInstructions = kernel->nInstructions() + f->nInstructions() - 1;
+        } 
+        else 
+        {
+            nFunctionInstructions = f->nInstructions();
+        }
+
+        if (nFunctionInstructions > kernel->nInstructions()) 
+        {
+            auto evaled = f->operator()(x);
+            fsToExec.push_back(evaled);
+            coefficients.push_back(std::real(coeff));
+        } 
+        else 
+        {
+            identityCoeff += std::real(coeff);
+        }
+    }
+
+    auto tmpBuffer = xacc::qalloc(buffer->size());
+    m_qpu->execute(tmpBuffer, fsToExec);
+    auto buffers = tmpBuffer->getChildren();
+
+    double energy = identityCoeff;
+    auto idBuffer = xacc::qalloc(buffer->size());
+    idBuffer->addExtraInfo("coefficient", identityCoeff);
+    idBuffer->setName("I");
+    idBuffer->addExtraInfo("kernel", "I");
+    idBuffer->addExtraInfo("parameters", x);
+    idBuffer->addExtraInfo("exp-val-z", 1.0);
+    buffer->appendChild("I", idBuffer);
+
+    for (int i = 0; i < buffers.size(); i++) 
+    {
+        auto expval = buffers[i]->getExpectationValueZ();
+        energy += expval * coefficients[i];
+        buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+        buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+        buffers[i]->addExtraInfo("exp-val-z", expval);
+        buffers[i]->addExtraInfo("parameters", x);
+        buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+    }
+    
+    return { energy };
 }
 
 } // namespace algorithm
