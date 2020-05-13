@@ -22,10 +22,10 @@ using namespace xacc;
 TEST(QAOATester, checkSimple) 
 {
   auto acc = xacc::getAccelerator("qpp");
-  auto buffer = xacc::qalloc(2);
+  auto buffer = xacc::qalloc(6);
  
-  const std::vector<std::string> costHam { "Z0 Z1" };
-  const std::vector<std::string> refHam { "X0 X1" };
+  const std::vector<std::string> costHam { "Z0 Z1", "Z3", "Z4 Z5" };
+  const std::vector<std::string> refHam { "X0" };
   auto optimizer = xacc::getOptimizer("nlopt");
 
   auto qaoa = xacc::getService<Algorithm>("QAOA");
@@ -34,7 +34,9 @@ TEST(QAOATester, checkSimple)
                         std::make_pair("accelerator", acc),
                         std::make_pair("optimizer", optimizer),
                         std::make_pair("cost-ham", costHam),
-                        std::make_pair("ref-ham", refHam)
+                        std::make_pair("ref-ham", refHam),
+                        // number of time steps (p) param
+                        std::make_pair("steps", 1)
                       }));
   qaoa->execute(buffer);
 }
