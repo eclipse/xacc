@@ -61,9 +61,9 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
     }
     
     // (6) Cost Hamiltonian
-    if (!parameters.keyExists<std::vector<std::string>>("cost-ham")) 
+    if (!parameters.pointerLikeExists<Observable>("observable")) 
     {
-        std::cout << "'cost-ham' is required.\n";
+        std::cout << "'observable' is required.\n";
         initializeOk = false;
     }
 
@@ -78,7 +78,26 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
 
     if (initializeOk)
     {
-        m_costHam = parameters.get<std::vector<std::string>>("cost-ham");
+        m_costHamObs = parameters.getPointerLike<Observable>("observable");
+        // Add cost Hamiltonian terms to the list of terms for gamma exp
+        m_costHam.clear();
+        for (const auto& term : m_costHamObs->getNonIdentitySubTerms())
+        {
+            std::string pauliTermStr = term->toString();
+            // HACK: the Pauli parser doesn't like '-0', i.e. extra minus sign on 0
+            // hence, just remove it.
+            if (pauliTermStr.find("-0)") != std::string::npos)
+            {
+                pauliTermStr.replace(pauliTermStr.find("-0)"), 3, "0)");
+            }
+            if (pauliTermStr.find("(-0,") != std::string::npos)
+            {
+                pauliTermStr.replace(pauliTermStr.find("(-0,"), 4, "(0,");
+            }
+
+            m_costHam.emplace_back(pauliTermStr);
+        }
+        
         m_qpu = parameters.getPointerLike<Accelerator>("accelerator");
         m_optimizer = parameters.getPointerLike<Optimizer>("optimizer");
     }
@@ -88,7 +107,7 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
 
 const std::vector<std::string> QAOA::requiredParameters() const 
 {
-    return { "accelerator", "optimizer", "ref-ham", "cost-ham" };
+    return { "accelerator", "optimizer", "observable" };
 }
 
 std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(const std::shared_ptr<AcceleratorBuffer>& in_buffer) const
@@ -115,19 +134,30 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(const s
             const std::string paramName = "gamma" + std::to_string(gammaParamCounter++);
             expCirc->addVariable(paramName);
             expCirc->expand({ std::make_pair("pauli", term) });
-            std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
+            //std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
             qaoaKernel->addVariable(paramName);
             qaoaKernel->addInstructions(expCirc->getInstructions());
         }
 
         // Beta params:
-        for (const auto& term : m_refHam)
+        // If no drive/reference Hamiltonian is given,
+        // then assume the default X0 + X1 + ...
+        std::vector<std::string> refHamTerms(m_refHam);
+        if (refHamTerms.empty())
+        {
+            for (size_t qId = 0; qId < nbQubits; ++qId)
+            {
+                refHamTerms.emplace_back("X" + std::to_string(qId));
+            }
+        }
+
+        for (const auto& term : refHamTerms)
         {
             auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
             const std::string paramName = "beta" + std::to_string(betaParamCounter++);
             expCirc->addVariable(paramName);
             expCirc->expand({ std::make_pair("pauli", term) });
-            std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
+            // std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
             qaoaKernel->addVariable(paramName);
             qaoaKernel->addInstructions(expCirc->getInstructions());
         }
@@ -140,18 +170,9 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 {
     const int nbQubits = buffer->size();
     auto kernel = constructParameterizedKernel(buffer);
-    std::cout << "Kernel: \n" << kernel->toString() << "\n\n";
-
-    // Construct the cost Hamiltonian Observable:
-    std::string obsString;
-    for (const auto& term : m_costHam)
-    {
-        obsString.append(" + " + term);
-    }
 
     // Observe the cost Hamiltonian:
-    auto costObs = xacc::quantum::getObservable("pauli", obsString);
-    auto kernels = costObs->observe(kernel);
+    auto kernels = m_costHamObs->observe(kernel);
 
     // Construct the optimizer/minimizer:
     OptFunction f(
@@ -161,7 +182,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
             std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
             double identityCoeff = 0.0;
-            for (auto &f : kernels) 
+            for (auto& f : kernels) 
             {
                 kernelNames.push_back(f->name());
                 std::complex<double> coeff = f->getCoefficient();
@@ -201,7 +222,6 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
             idBuffer->addExtraInfo("exp-val-z", 1.0);
             buffer->appendChild("I", idBuffer);
 
-   
             for (int i = 0; i < buffers.size(); i++) 
             {
                 auto expval = buffers[i]->getExpectationValueZ();
@@ -213,19 +233,17 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
                 buffer->appendChild(fsToExec[i]->name(), buffers[i]);
             }
             
-
-            std::stringstream ss;
-            ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
-            for (int i = 1; i < x.size(); i++)
-            ss << "," << x[i];
-            ss << ") = " << std::setprecision(12) << energy;
-            std::cout << ss.str() << '\n';
+            // std::stringstream ss;
+            // ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
+            // for (int i = 1; i < x.size(); i++)
+            // ss << "," << x[i];
+            // ss << ") = " << std::setprecision(12) << energy;
+            // std::cout << ss.str() << '\n';
             return energy;
         },
         kernel->nVariables());
 
     auto result = m_optimizer->optimize(f);
-    
     buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
     buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
 }

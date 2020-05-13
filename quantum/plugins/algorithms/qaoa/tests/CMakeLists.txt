@@ -12,4 +12,4 @@
 # *******************************************************************************/
 include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(QAOA)
-target_link_libraries(QAOATester xacc)
+target_link_libraries(QAOATester xacc xacc-quantum-gate)
