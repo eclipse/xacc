@@ -37,8 +37,6 @@ private:
     Accelerator* m_qpu;
     Optimizer* m_optimizer;
     int m_nbSteps;
-    std::vector<double> m_gammas;
-    std::vector<double> m_betas;
 };
 } // namespace algorithm
 } // namespace xacc

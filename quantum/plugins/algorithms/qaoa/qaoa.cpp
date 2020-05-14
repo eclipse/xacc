@@ -45,29 +45,15 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
     {
         m_nbSteps =  parameters.get<int>("steps");
     }
-
-    // (4) Initial values for the beta parameters
-    m_betas.clear();
-    if (parameters.keyExists<std::vector<double>>("init-betas"))
-    {
-        m_betas =  parameters.get<std::vector<double>>("init-betas");
-    }
-
-    // (5) Initial values for the gamma parameters
-    m_gammas.clear();
-    if (parameters.keyExists<std::vector<double>>("init-gammas"))
-    {
-        m_gammas =  parameters.get<std::vector<double>>("init-gammas");
-    }
     
-    // (6) Cost Hamiltonian
+    // (4) Cost Hamiltonian
     if (!parameters.pointerLikeExists<Observable>("observable")) 
     {
         std::cout << "'observable' is required.\n";
         initializeOk = false;
     }
 
-    // (7) Reference Hamiltonian: optional.
+    // (5) Reference Hamiltonian: optional.
     // Default is X0 + X1 + ...
     // i.e. the X-basis where |+>|+>... is the ground state. 
     m_refHam.clear();
@@ -84,17 +70,21 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
         for (const auto& term : m_costHamObs->getNonIdentitySubTerms())
         {
             std::string pauliTermStr = term->toString();
-            // HACK: the Pauli parser doesn't like '-0', i.e. extra minus sign on 0
-            // hence, just remove it.
-            if (pauliTermStr.find("-0)") != std::string::npos)
-            {
-                pauliTermStr.replace(pauliTermStr.find("-0)"), 3, "0)");
-            }
-            if (pauliTermStr.find("(-0,") != std::string::npos)
-            {
-                pauliTermStr.replace(pauliTermStr.find("(-0,"), 4, "(0,");
-            }
+            // HACK: the Pauli parser doesn't like '-0', i.e. extra minus sign on integer (no decimal point)
+            // hence, just reformat it.
+            std::stringstream s;
+            s.precision(12);
+            s << std::fixed << term->coefficient();
+            // Find the parenthesis
+            const auto startPosition = pauliTermStr.find("(");
+            const auto endPosition = pauliTermStr.find(")");
 
+            if (startPosition != std::string::npos && endPosition != std::string::npos)
+            {
+                const auto length = endPosition - startPosition + 1;
+                pauliTermStr.replace(startPosition, length, s.str());
+            }
+            
             m_costHam.emplace_back(pauliTermStr);
         }
         
@@ -134,7 +124,6 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(const s
             const std::string paramName = "gamma" + std::to_string(gammaParamCounter++);
             expCirc->addVariable(paramName);
             expCirc->expand({ std::make_pair("pauli", term) });
-            //std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
             qaoaKernel->addVariable(paramName);
             qaoaKernel->addInstructions(expCirc->getInstructions());
         }
@@ -157,7 +146,6 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(const s
             const std::string paramName = "beta" + std::to_string(betaParamCounter++);
             expCirc->addVariable(paramName);
             expCirc->expand({ std::make_pair("pauli", term) });
-            // std::cout << "Term: '" << term << "': \n" << expCirc->toString() << "\n";
             qaoaKernel->addVariable(paramName);
             qaoaKernel->addInstructions(expCirc->getInstructions());
         }
@@ -170,10 +158,10 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 {
     const int nbQubits = buffer->size();
     auto kernel = constructParameterizedKernel(buffer);
-
     // Observe the cost Hamiltonian:
     auto kernels = m_costHamObs->observe(kernel);
 
+    int iterCount = 0;
     // Construct the optimizer/minimizer:
     OptFunction f(
         [&, this](const std::vector<double>& x, std::vector<double>& dx) {
@@ -233,12 +221,21 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
                 buffer->appendChild(fsToExec[i]->name(), buffers[i]);
             }
             
-            // std::stringstream ss;
-            // ss << "E(" << ( !x.empty() ? std::to_string(x[0]) : "");
-            // for (int i = 1; i < x.size(); i++)
-            // ss << "," << x[i];
-            // ss << ") = " << std::setprecision(12) << energy;
-            // std::cout << ss.str() << '\n';
+            std::stringstream ss;
+            iterCount++;
+            ss << "Iter " << iterCount << ": E(" << ( !x.empty() ? std::to_string(x[0]) : "");
+            for (int i = 1; i < x.size(); i++)
+            {
+                ss << "," << std::setprecision(3) << x[i];
+                if (i > 4)
+                {
+                    // Don't print too many params
+                    ss << ", ...";
+                    break;
+                }
+            }
+            ss << ") = " << std::setprecision(12) << energy;
+            std::cout << ss.str() << '\n';
             return energy;
         },
         kernel->nVariables());

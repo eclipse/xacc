@@ -32,3 +32,6 @@ target_link_libraries(rotoselect PRIVATE xacc xacc-quantum-gate)
 
 add_executable(nah_ucc3 nah_ucc3_psi4.cpp)
 target_link_libraries(nah_ucc3 PRIVATE xacc xacc-quantum-gate)
+
+add_executable(qaoa_qubo solve_qubo_with_qaoa.cpp)
+target_link_libraries(qaoa_qubo PRIVATE xacc xacc-quantum-gate)
