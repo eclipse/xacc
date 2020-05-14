@@ -45,7 +45,9 @@ int main(int argc, char **argv) {
   auto optimizer = xacc::getOptimizer("nlopt", 
     xacc::HeterogeneousMap { 
       std::make_pair("initial-parameters", initialParams),
-      std::make_pair("nlopt-maxeval", 1000) });
+      // Scale the number of iters by the number of params 
+      // to guarantee convergence.
+      std::make_pair("nlopt-maxeval", nbParams*100) });
   auto qaoa = xacc::getService<xacc::Algorithm>("QAOA");
  
   const bool initOk = qaoa->initialize({
