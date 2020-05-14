@@ -894,6 +894,125 @@ or in Python
    F = qpt.calculate('fidelity', buffer, {'chi-theoretical-real':[0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 1., 0., 1.]})
    print('\nFidelity: ', F)
 
+QAOA
+++++
+The QAOA Algorithm requires the following input information:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator represents the cost Hamiltonian.         | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    optimizer           | The classical optimizer to use                                  | std::shared_ptr<Optimizer>           |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    steps               | The number of timesteps. Corresponds to 'p' in the literature.  | int                                  |
+|                        | This is optional, default = 1 if not provided.                  |                                      |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+This Algorithm will add ``opt-val`` (``double``) and ``opt-params`` (``std::vector<double>``) to the provided ``AcceleratorBuffer``.
+The results of the algorithm are therefore retrieved via these keys (see snippet below). Note you can
+control the initial QAOA parameters with the ``Optimizer`` ``initial-parameters`` key (by default all zeros).
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+   #include "xacc_observable.hpp"
+   #include "xacc_service.hpp"
+   #include <random>
+
+   // Use XACC built-in QAOA to solve a QUBO problem
+   // QUBO function:
+   // y = -5x1 - 3x2 - 8x3 - 6x4 + 4x1x2 + 8x1x3 + 2x2x3 + 10x3x4
+   int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+      // Use the Qpp simulator as the accelerator
+      auto acc = xacc::getAccelerator("qpp");
+      
+      auto buffer = xacc::qalloc(4);
+      // The corresponding QUBO Hamiltonian is:
+      auto observable = xacc::quantum::getObservable(
+            "pauli",
+            std::string("-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3"));
+      
+      const int nbSteps = 12;
+      const int nbParams = nbSteps*11;
+      std::vector<double> initialParams;
+      std::random_device rd;  
+      std::mt19937 gen(rd()); 
+      std::uniform_real_distribution<> dis(-2.0, 2.0);
+      
+      // Init random parameters
+      for (int i = 0; i < nbParams; ++i)
+      {
+         initialParams.emplace_back(dis(gen));
+      } 
+      
+      auto optimizer = xacc::getOptimizer("nlopt", 
+         xacc::HeterogeneousMap { 
+            std::make_pair("initial-parameters", initialParams),
+            std::make_pair("nlopt-maxeval", nbParams*100) });
+      
+      auto qaoa = xacc::getService<xacc::Algorithm>("QAOA");
+      
+      const bool initOk = qaoa->initialize({
+                              std::make_pair("accelerator", acc),
+                              std::make_pair("optimizer", optimizer),
+                              std::make_pair("observable", observable),
+                              // number of time steps (p) param
+                              std::make_pair("steps", nbSteps)
+                           });
+      qaoa->execute(buffer);
+      std::cout << "Min QUBO: " << (*buffer)["opt-val"].as<double>() << "\n";
+   }
+
+In Python:
+
+.. code:: python
+
+   import xacc,sys, numpy as np
+
+   # Get access to the desired QPU and
+   # allocate some qubits to run on
+   qpu = xacc.getAccelerator('qpp')
+
+   # Construct the Hamiltonian as an XACC PauliOperator
+   # This Hamiltonian corresponds to the QUBO problem:
+   # y = -5x_1 -3x_2 -8x_3 -6x_4 + 4x_1x_2 + 8x_1x_3 + 2x_2x_3 + 10x_3x_4
+   ham = xacc.getObservable('pauli', '-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3')
+
+   # We need 4 qubits
+   buffer = xacc.qalloc(4)
+
+   # There are 7 gamma terms (non-identity) in the cost Hamiltonian 
+   # and 4 beta terms for mixer Hamiltonian
+   nbParamsPerStep = 7 + 4
+
+   # The number of steps (often referred to as 'p' parameter): 
+   # alternating layers of mixer and cost Hamiltonian exponential.
+   nbSteps = 4
+
+   # Total number of params
+   nbTotalParams = nbParamsPerStep * nbSteps
+
+   # Init params randomly: 
+   initParams = np.random.rand(nbTotalParams)
+
+   # The optimizer: nlopt
+   opt = xacc.getOptimizer('nlopt', { 'initial-parameters': initParams })
+
+   # Create the QAOA algorithm
+   qaoa = xacc.getAlgorithm('QAOA', {
+                           'accelerator': qpu,
+                           'observable': ham,
+                           'optimizer': opt,
+                           'steps': nbSteps
+                           })
+
+   result = qaoa.execute(buffer)
+   print('Min QUBO value = ', buffer.getInformation('opt-val'))
+
 
 Accelerator Decorators
 ----------------------
