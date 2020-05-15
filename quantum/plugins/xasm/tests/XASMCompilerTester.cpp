@@ -22,6 +22,26 @@
 
 #include "Circuit.hpp"
 
+TEST(XASMCompilerTester, checkISwapAndFSim) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(R"(__qpu__ void iswap_test(qbit q, double x, double y) {
+  H(q[0]);
+  iSwap(q[0], q[1]);
+  fSim(q[0], q[1], x, y);
+  CX(q[0], q[1]);
+})");
+
+auto kernel = IR->getComposites()[0];
+
+
+  std::cout << "HELLO: " << kernel->toString() << "\n";
+
+  std::cout << kernel->operator()({2.2,3.3})->toString() << "\n";
+
+
+}
+
 TEST(XASMCompilerTester, checkTranslate) {
   auto compiler = xacc::getCompiler("xasm");
   auto IR = compiler->compile(R"(__qpu__ void bell_test(qbit q, double t0) {
@@ -450,7 +470,6 @@ TEST(XASMCompilerTester, checkIRV3Vector) {
   std::cout << " HELLO: " << test->toString() << "\n";
 }
 
-
 TEST(XASMCompilerTester, checkIRV3Expression) {
   //   auto v = xacc::qalloc(1);
   //   v->setName("v");
@@ -476,9 +495,7 @@ TEST(XASMCompilerTester, checkIRV3Expression) {
 
     std::cout << foo_test->toString() << "\n\n";
   }
-
 }
-
 
 TEST(XASMCompilerTester, checkAnnealInstructions) {
   xacc::internal_compiler::qreg v(1);
@@ -517,8 +534,6 @@ TEST(XASMCompilerTester, checkAnnealInstructions) {
   test->updateRuntimeArguments(v, std::vector<double>{.48, .58, .68});
   std::cout << " HELLO: " << test->toString() << "\n";
 
-
-
   IR = compiler->compile(
       R"(
   __qpu__ void rbm_test(qreg v, std::vector<double> x, int nv, int nh) {
@@ -527,10 +542,10 @@ TEST(XASMCompilerTester, checkAnnealInstructions) {
 )");
   test = IR->getComposites()[0];
 
-  for (int i = 1; i < 4; i++ ) {
-//   std::cout << " HELLO: " << test->toString() << "\n";
-  test->updateRuntimeArguments(v, std::vector<double>(i*i + i + i), i, i);
-  std::cout << " HELLO:\n" << test->toString() << "\n";
+  for (int i = 1; i < 4; i++) {
+    //   std::cout << " HELLO: " << test->toString() << "\n";
+    test->updateRuntimeArguments(v, std::vector<double>(i * i + i + i), i, i);
+    std::cout << " HELLO:\n" << test->toString() << "\n";
   }
 }
 
