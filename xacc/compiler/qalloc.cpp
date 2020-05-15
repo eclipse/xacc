@@ -10,7 +10,7 @@ template <typename T> struct empty_delete {
 qreg::qreg(const int n) { buffer = xacc::qalloc(n).get(); }
 qreg::qreg(const qreg &other) : buffer(other.buffer) {}
 
-int qreg::operator[](const int &i) { return 0; }
+int qreg::operator[](const int &i) { return i; }
 AcceleratorBuffer *qreg::results() { return buffer; }
 std::map<std::string, int> qreg::counts() {
   return buffer->getMeasurementCounts();

@@ -49,6 +49,8 @@ xacc::internal_compiler::qreg qalloc(const int n) {
   return xacc::internal_compiler::qreg(n);
 }
 
-#define __qpu__ [[clang::syntax(qcor)]]
+// __qpu__ indicates this functions is for the QCOR Clang Syntax Handler
+// and annotated with quantum for the LLVM IR CodeGen
+#define __qpu__ [[clang::syntax(qcor)]] __attribute__((annotate("quantum")))
 
 #endif
