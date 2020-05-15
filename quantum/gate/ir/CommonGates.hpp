@@ -20,6 +20,40 @@
 namespace xacc {
 namespace quantum {
 
+class iSwap : public Gate {
+public:
+  iSwap() : Gate("iSwap") {}
+
+  iSwap(std::size_t controlQubit, std::size_t targetQubit)
+      : Gate("iSwap", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{}) {}
+
+  iSwap(std::vector<std::size_t> qbits)
+      : Gate("iSwap", qbits, std::vector<InstructionParameter>{}) {}
+  const int nRequiredBits() const override { return 2; }
+
+  DEFINE_CLONE(iSwap)
+  DEFINE_VISITABLE()
+};
+
+class fSim : public Gate {
+public:
+  fSim() : Gate("fSim",std::vector<InstructionParameter>{0.0,0.0}) {}
+  fSim(std::size_t controlQubit, std::size_t targetQubit)
+      : Gate("fSim", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{0.0, 0.0}) {}
+  fSim(std::size_t controlQubit, std::size_t targetQubit, double theta,
+       double phi)
+      : Gate("fSim", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{theta, phi}) {}
+  fSim(std::vector<std::size_t> qbits)
+      : Gate("fSim", qbits, std::vector<InstructionParameter>{0.0,0.0}) {}
+  const int nRequiredBits() const override { return 2; }
+
+  DEFINE_CLONE(fSim)
+  DEFINE_VISITABLE()
+};
+
 class IfStmt : public Circuit {
 protected:
   std::string bufferName;
@@ -140,7 +174,7 @@ public:
       qbits.push_back(bts[0]);
       qbits.push_back(bts[0]);
     } else {
-        qbits = bts;
+      qbits = bts;
     }
   }
   const int nRequiredBits() const override { return 2; }
