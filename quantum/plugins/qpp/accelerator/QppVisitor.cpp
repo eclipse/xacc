@@ -31,7 +31,7 @@ namespace {
     {
         qpp::cmat gateMat(4, 4);  
         gateMat << 
-        1.0, 0.0, 0.0 , 0.0 ,
+        1.0, 0.0, 0.0, 0.0,
         0.0, std::cos(in_theta), std::complex<double>(0, -std::sin(in_theta)), 0.0,
         0.0, std::complex<double>(0, -std::sin(in_theta)), std::cos(in_theta), 0.0,
         0.0, 0.0, 0.0, std::exp(std::complex<double>(0, -in_phi));
@@ -245,7 +245,6 @@ namespace quantum {
         const auto phi = InstructionParameterToDouble(in_fsimGate.getParameter(1));
         m_stateVec = qpp::apply(m_stateVec, fSimGateMat(theta, phi), { qIdx1, qIdx2 });
     }
-
 
     void QppVisitor::visit(Measure& measure)
     {
