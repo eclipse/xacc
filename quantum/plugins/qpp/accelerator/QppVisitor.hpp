@@ -50,7 +50,9 @@ public:
   void visit(Identity& i) override;
   void visit(U& u) override;
   void visit(IfStmt& ifStmt) override;
-
+  void visit(iSwap& in_iSwapGate) override;
+  void visit(fSim& in_fsimGate) override;
+  
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
 
 private:

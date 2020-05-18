@@ -397,6 +397,62 @@ TEST(QppAcceleratorTester, testConditional)
     EXPECT_EQ(resultCount, nbTests);
 }
 
+TEST(QppAcceleratorTester, testISwap)
+{
+    // Get reference to the Accelerator
+    xacc::set_verbose(false);
+    const int nbShots = 100;
+    auto accelerator =  xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto ir = xasmCompiler->compile(R"(__qpu__ void testISwap(qbit q) {
+        X(q[0]);
+        iSwap(q[0], q[3]);
+        Measure(q[0]);
+        Measure(q[1]);
+        Measure(q[2]);
+        Measure(q[3]);
+        Measure(q[4]);
+    })", accelerator);
+
+    auto program = ir->getComposite("testISwap");
+    // Allocate some qubits (5)
+    auto buffer = xacc::qalloc(5);
+    accelerator->execute(buffer, program);
+    // 10000 => i00010 after iswap
+    buffer->print();
+    EXPECT_EQ(buffer->getMeasurementCounts()["00010"], nbShots);
+}
+
+TEST(QppAcceleratorTester, testFsim)
+{
+    // Get reference to the Accelerator
+    const int nbShots = 1000;
+    auto accelerator =  xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto ir = xasmCompiler->compile(R"(__qpu__ void testFsim(qbit q, double x, double y) {
+        X(q[0]);
+        fSim(q[0], q[2], x, y);
+        Measure(q[0]);
+        Measure(q[2]);
+    })", accelerator);
+
+    auto program = ir->getComposites()[0]; 
+    const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 10);
+
+    for (const auto& a : angles) 
+    {
+        auto buffer = xacc::qalloc(3);
+        auto evaled = program->operator()({ a, 0.0 });
+        accelerator->execute(buffer, evaled);
+        const auto expectedProb = std::sin(a) * std::sin(a);
+        std::cout << "Angle = " << a << "\n";
+        buffer->print();
+        // fSim mixes 01 and 10 states w.r.t. the theta angle.
+        EXPECT_NEAR(buffer->computeMeasurementProbability("01"), expectedProb, 0.1);
+        EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb, 0.1);
+    }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
