@@ -26,13 +26,13 @@ namespace quantum {
             m_shots = params.get<int>("shots");
             if (m_shots < 1)
             {
-                xacc::error("Invalid 'shots' parameter.");
+                xacc::error("Invalid 'shots' parameter. (Must be >= 1.)");
             }
         }
 
         if (params.keyExists<bool>("use_opencl"))
         {
-            m_use_opencl = params.get<bool>("shots");
+            m_use_opencl = params.get<bool>("use_opencl");
         }
 
         if (params.keyExists<bool>("use_qunit"))
@@ -53,6 +53,10 @@ namespace quantum {
         if (params.keyExists<double>("zero_threshold"))
         {
             m_zero_threshold = params.get<double>("zero_threshold");
+            if (m_zero_threshold < 0)
+            {
+                xacc::error("Invalid 'zero_threshold' parameter. (Must be >= 0.)");
+            }
         }
     }
 

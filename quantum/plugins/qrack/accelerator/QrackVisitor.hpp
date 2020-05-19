@@ -12,7 +12,7 @@
  *   Daniel Strano - adaption from Quantum++ to Qrack
  *******************************************************************************/
 
-#pragma one
+#pragma once
 #include "Identifiable.hpp"
 #include "AllGateVisitor.hpp"
 #include "AcceleratorBuffer.hpp"
