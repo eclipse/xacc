@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2019-2020 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,23 +9,32 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Daniel Strano - adaption from Quantum++ to Qrack
  *******************************************************************************/
 
-#pragma one
+#pragma once
 #include "Identifiable.hpp"
 #include "AllGateVisitor.hpp"
 #include "AcceleratorBuffer.hpp"
 #include "OptionsProvider.hpp"
-#include "qpp.h"
+
+#ifndef CL_HPP_TARGET_OPENCL_VERSION
+#define CL_HPP_TARGET_OPENCL_VERSION 200
+#endif
+
+#ifndef CL_HPP_MINIMUM_OPENCL_VERSION
+#define CL_HPP_MINIMUM_OPENCL_VERSION 100
+#endif
+
+#include "qrack/qfactory.hpp"
 
 using namespace xacc;
-using KetVectorType = qpp::ket;
 
 namespace xacc {
 namespace quantum {
-class QppVisitor : public AllGateVisitor, public OptionsProvider, public xacc::Cloneable<QppVisitor> {
+class QrackVisitor : public AllGateVisitor, public OptionsProvider, public xacc::Cloneable<QrackVisitor> {
 public:
-  void initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode = false);
+  void initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, int device_id, bool doNormalize, double zero_threshold);
   void finalize();
 
   void visit(Hadamard& h) override;
@@ -52,20 +61,19 @@ public:
   void visit(IfStmt& ifStmt) override;
   void visit(iSwap& in_iSwapGate) override;
   void visit(fSim& in_fsimGate) override;
-  
-  virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
+
+  virtual std::shared_ptr<QrackVisitor> clone() { return std::make_shared<QrackVisitor>(); }
 
 private:
-  qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
-  double calcExpectationValueZ() const;
-private:
-  std::shared_ptr<AcceleratorBuffer> m_buffer;  
-  std::vector<qpp::idx> m_dims;
-  KetVectorType m_stateVec;
-  std::vector<qpp::idx> m_measureBits;
+  std::shared_ptr<AcceleratorBuffer> m_buffer; 
+  Qrack::QInterfacePtr m_qReg;
+  std::vector<bitLenInt> m_measureBits;
+  int m_shots;
   // If true, it will perform a trajectory simulation and return the bit string of measurement results.
-  // Otherwise, it will only compute the expectation value.
   bool m_shotsMode;
   std::string m_bitString;
+
+  double calcExpectationValueZ() const;
+  std::map<bitCapInt, int> measure_shots();
 };
 }}
