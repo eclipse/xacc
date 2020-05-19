@@ -13,3 +13,5 @@ mkdir _build && cd _build && cmake .. && make all install
 XACC looks for the Qrack library with "find_library(NAMES qrack)," so it will find it for example as "libqrack.a" in /usr/local/lib.
 If your installation is a non-system-standard path, "CMAKE_PREFIX_PATH" should tell CMake where it can find the library.
 
+Qrack OpenCL kernels can be precompiled through the "qrack_cl_precompile" command line utility in the base Qrack library.
+When switching between float and double build accuracy, you MUST recompile (or delete) any precompiled kernels.
