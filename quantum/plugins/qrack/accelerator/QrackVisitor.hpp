@@ -18,8 +18,13 @@
 #include "AcceleratorBuffer.hpp"
 #include "OptionsProvider.hpp"
 
+#ifndef CL_HPP_TARGET_OPENCL_VERSION
 #define CL_HPP_TARGET_OPENCL_VERSION 200
+#endif
+
+#ifndef CL_HPP_MINIMUM_OPENCL_VERSION
 #define CL_HPP_MINIMUM_OPENCL_VERSION 100
+#endif
 
 #include "qrack/qfactory.hpp"
 
