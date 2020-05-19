@@ -17,6 +17,10 @@
 #include "AllGateVisitor.hpp"
 #include "AcceleratorBuffer.hpp"
 #include "OptionsProvider.hpp"
+
+#define CL_HPP_TARGET_OPENCL_VERSION 200
+#define CL_HPP_MINIMUM_OPENCL_VERSION 100
+
 #include "qrack/qfactory.hpp"
 
 using namespace xacc;

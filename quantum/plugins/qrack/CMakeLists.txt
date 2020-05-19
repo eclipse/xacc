@@ -15,8 +15,6 @@ target_include_directories(${LIBRARY_NAME}
                                     ./accelerator/src/include
                                     ${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-set(_bundle_name xacc_qrack)
-
 find_package(OpenCL)
 if (OpenCL_FOUND)
     target_link_libraries(${LIBRARY_NAME}
@@ -25,25 +23,21 @@ if (OpenCL_FOUND)
                                    qrack
                                    OpenCL
                         )
-    set_target_properties(${LIBRARY_NAME}
-                          PROPERTIES COMPILE_DEFINITIONS
-                                     US_BUNDLE_NAME=${_bundle_name}
-                                     US_BUNDLE_NAME
-                                     ${_bundle_name}
-                                     CL_HPP_TARGET_OPENCL_VERSION=200
-                                     CL_HPP_MINIMUM_OPENCL_VERSION=100)
 else()
     target_link_libraries(${LIBRARY_NAME}
                             PUBLIC xacc
                                    xacc-quantum-gate
                                    qrack
                         )
-    set_target_properties(${LIBRARY_NAME}
-                          PROPERTIES COMPILE_DEFINITIONS
-                                     US_BUNDLE_NAME=${_bundle_name}
-                                     US_BUNDLE_NAME
-                                     ${_bundle_name})
 endif()
+
+set(_bundle_name xacc_qrack)
+
+set_target_properties(${LIBRARY_NAME}
+                      PROPERTIES COMPILE_DEFINITIONS
+                                 US_BUNDLE_NAME=${_bundle_name}
+                                 US_BUNDLE_NAME
+                                 ${_bundle_name})
 
 usfunctionembedresources(TARGET
                          ${LIBRARY_NAME}

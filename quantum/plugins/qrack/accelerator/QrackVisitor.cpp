@@ -117,19 +117,19 @@ namespace quantum {
     void QrackVisitor::visit(Rz& rz)
     {
         const auto angleTheta = InstructionParameterToDouble(rz.getParameter(0));
-        m_qReg->RZ((Qrack::real1)angleTheta, rz.bits()[0]);
+        m_qReg->RZ(angleTheta, rz.bits()[0]);
     }
 
     void QrackVisitor::visit(Ry& ry)
     {
         const auto angleTheta = InstructionParameterToDouble(ry.getParameter(0));
-        m_qReg->RY((Qrack::real1)angleTheta, ry.bits()[0]);
+        m_qReg->RY(angleTheta, ry.bits()[0]);
     }
 
     void QrackVisitor::visit(Rx& rx)
     {
         const auto angleTheta = InstructionParameterToDouble(rx.getParameter(0));
-        m_qReg->RX((Qrack::real1)angleTheta, rx.bits()[0]);
+        m_qReg->RX(angleTheta, rx.bits()[0]);
     }
 
     void QrackVisitor::visit(X& x)
@@ -208,7 +208,7 @@ namespace quantum {
         const auto theta = InstructionParameterToDouble(u.getParameter(0));
         const auto phi = InstructionParameterToDouble(u.getParameter(1));
         const auto lambda = InstructionParameterToDouble(u.getParameter(2));
-        m_qReg->U(u.bits()[0], (Qrack::real1)theta, (Qrack::real1)phi, (Qrack::real1)lambda);
+        m_qReg->U(u.bits()[0], theta, phi, lambda);
     }
 
     void QrackVisitor::visit(iSwap& in_iSwapGate) 
