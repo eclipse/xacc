@@ -11,7 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *   Daniel Strano - adaption from Quantum++ to Qrack
  *******************************************************************************/
-#pragma one
+#pragma once
 #include "xacc.hpp"
 #include "QrackVisitor.hpp"
 
