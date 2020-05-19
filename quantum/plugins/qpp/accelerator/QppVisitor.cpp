@@ -14,6 +14,32 @@
 #include "QppVisitor.hpp"
 #include "xacc.hpp"
 
+namespace {
+    // Add gate matrix for iSwap and fSim gates
+    qpp::cmat iSwapGateMat()
+    {
+        qpp::cmat gateMat(4, 4);  
+        gateMat << 1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, std::complex<double>(0, 1.0), 0.0,
+        0.0, std::complex<double>(0, 1.0), 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0;
+        
+        return gateMat; 
+    }
+
+    qpp::cmat fSimGateMat(double in_theta, double in_phi)
+    {
+        qpp::cmat gateMat(4, 4);  
+        gateMat << 
+        1.0, 0.0, 0.0, 0.0,
+        0.0, std::cos(in_theta), std::complex<double>(0, -std::sin(in_theta)), 0.0,
+        0.0, std::complex<double>(0, -std::sin(in_theta)), std::cos(in_theta), 0.0,
+        0.0, 0.0, 0.0, std::exp(std::complex<double>(0, -in_phi));
+        
+        return gateMat; 
+    }
+}
+
 namespace xacc {
 namespace quantum {
     void QppVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, bool shotsMode)
@@ -201,6 +227,23 @@ namespace quantum {
         const auto lambda = InstructionParameterToDouble(u.getParameter(2));
         const auto uMat =  qpp::Gates::get_instance().RZ(lambda) * qpp::Gates::get_instance().RY(phi) * qpp::Gates::get_instance().RZ(theta);
         m_stateVec = qpp::apply(m_stateVec, uMat, { qubitIdx });
+    }
+
+    void QppVisitor::visit(iSwap& in_iSwapGate) 
+    {
+        const auto qIdx1 = xaccIdxToQppIdx(in_iSwapGate.bits()[0]);
+        const auto qIdx2 = xaccIdxToQppIdx(in_iSwapGate.bits()[1]);
+
+        m_stateVec = qpp::apply(m_stateVec, iSwapGateMat(), { qIdx1, qIdx2 });
+    }
+
+    void QppVisitor::visit(fSim& in_fsimGate) 
+    {
+        const auto qIdx1 = xaccIdxToQppIdx(in_fsimGate.bits()[0]);
+        const auto qIdx2 = xaccIdxToQppIdx(in_fsimGate.bits()[1]);
+        const auto theta = InstructionParameterToDouble(in_fsimGate.getParameter(0));
+        const auto phi = InstructionParameterToDouble(in_fsimGate.getParameter(1));
+        m_stateVec = qpp::apply(m_stateVec, fSimGateMat(theta, phi), { qIdx1, qIdx2 });
     }
 
     void QppVisitor::visit(Measure& measure)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 UT-Battelle, LLC.
+ * Copyright (c) 2019-2020 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v1.0 which accompanies this
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *   Thien Nguyen - initial API and implementation
+ *   Daniel Strano - adaption from Quantum++ to Qrack
  *******************************************************************************/
 #include <gtest/gtest.h>
 #include <string>
@@ -34,9 +35,9 @@ namespace {
     }
 }
 
-TEST(QppAcceleratorTester, testDeuteron)
+TEST(QrackAcceleratorTester, testDeuteron)
 {
-    auto accelerator = xacc::getAccelerator("qpp");
+    auto accelerator = xacc::getAccelerator("qrack");
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto ir = xasmCompiler->compile(R"(__qpu__ void ansatz(qbit q, double t) {
       X(q[0]);
@@ -83,11 +84,11 @@ TEST(QppAcceleratorTester, testDeuteron)
     }
 }
 
-TEST(QppAcceleratorTester, testDeuteronVqeH2)
+TEST(QrackAcceleratorTester, testDeuteronVqeH2)
 {
-    // Use Qpp accelerator
-    auto accelerator = xacc::getAccelerator("qpp");
-    EXPECT_EQ(accelerator->name(), "qpp");
+    // Use Qrack accelerator
+    auto accelerator = xacc::getAccelerator("qrack");
+    EXPECT_EQ(accelerator->name(), "qrack");
 
     // Create the N=2 deuteron Hamiltonian
     auto H_N_2 = xacc::quantum::getObservable(
@@ -122,11 +123,11 @@ TEST(QppAcceleratorTester, testDeuteronVqeH2)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
 }
 
-TEST(QppAcceleratorTester, testDeuteronVqeH3)
+TEST(QrackAcceleratorTester, testDeuteronVqeH3)
 {
-    // Use Qpp accelerator
-    auto accelerator = xacc::getAccelerator("qpp");
-    EXPECT_EQ(accelerator->name(), "qpp");
+    // Use Qrack accelerator
+    auto accelerator = xacc::getAccelerator("qrack");
+    EXPECT_EQ(accelerator->name(), "qrack");
 
     // Create the N=3 deuteron Hamiltonian
     auto H_N_3 = xacc::quantum::getObservable(
@@ -163,11 +164,11 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 1e-4);
 }
 
-TEST(QppAcceleratorTester, testShots)
+TEST(QrackAcceleratorTester, testShots)
 {
     const int nbShots = 100;
     {
-        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto accelerator = xacc::getAccelerator("qrack", { std::make_pair("shots", nbShots) });
         // Allocate some qubits
         auto buffer = xacc::qalloc(2);
         auto quilCompiler = xacc::getCompiler("quil");
@@ -182,7 +183,7 @@ MEASURE 1 [1]
         buffer->print();
     }
     {
-        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto accelerator = xacc::getAccelerator("qrack", { std::make_pair("shots", nbShots) });
         auto buffer = xacc::qalloc(2);
         auto quilCompiler = xacc::getCompiler("quil");
         // Expected "11"
@@ -198,7 +199,7 @@ MEASURE 1 [1]
         EXPECT_EQ(buffer->getMeasurementCounts()["11"], nbShots);
     }
     {
-        auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+        auto accelerator = xacc::getAccelerator("qrack", { std::make_pair("shots", nbShots) });
         auto buffer = xacc::qalloc(2);
         auto quilCompiler = xacc::getCompiler("quil");
         // Bell states
@@ -215,138 +216,12 @@ MEASURE 1 [1]
     }
 }
 
-// Port DDCL test suite to QPP
-/*TEST(QppAcceleratorTester, testDDCL)
-{
-    // Set up
-    {
-        const std::string src =
-            R"rucc(__qpu__ void f(qbit q, double t0, double t1, double t2) {
-            Rx(q[0], t0);
-            Ry(q[0], t1);
-            Rx(q[0], t2);
-        })rucc";
-        auto acc = xacc::getAccelerator("qpp");
-        auto compiler = xacc::getCompiler("xasm");
-        // compile source to the compilation DB
-        auto ir = compiler->compile(src, acc);
-    }
-
-    // Use a reasonable number of shots to save test time
-    const int nbShots = 128;
-    // checkJSSimpleGradientFree
-    {
-        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
-        auto buffer = xacc::qalloc(1);
-
-        auto simple = xacc::getCompiled("f");
-
-        // get cobyla optimizer
-        auto optimizer = xacc::getOptimizer(
-            "nlopt", xacc::HeterogeneousMap{std::make_pair("initial-parameters", std::vector<double>{1.3, 1.4, -.05}), std::make_pair("nlopt-maxeval", 50)});
-
-        std::vector<double> target{.5, .5};
-
-        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
-        EXPECT_TRUE(ddcl->initialize(
-            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
-            std::make_pair("target_dist", target), std::make_pair("loss", "js"),
-            std::make_pair("optimizer", optimizer)}));
-        ddcl->execute(buffer);
-
-        auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-2);
-        auto a = (*buffer)["opt-params"].as<std::vector<double>>();
-        for (auto& aa : a) std::cout << aa << " ";
-        std::cout << std::endl;
-    }
-
-    //  checkMMDSimpleGradientFree)
-    {
-        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
-        auto buffer = xacc::qalloc(1);
-
-        auto simple = xacc::getCompiled("f");
-
-        // get cobyla optimizer
-        auto optimizer = xacc::getOptimizer(
-                                            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 50)});
-
-        std::vector<double> target{.5, .5};
-
-        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
-        EXPECT_TRUE(ddcl->initialize(
-                                    {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
-                                    std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
-                                    std::make_pair("optimizer", optimizer)}));
-        ddcl->execute(buffer);
-
-        auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-2);
-        auto a = (*buffer)["opt-params"].as<std::vector<double>>();
-        for (auto& aa : a) std::cout << aa << " ";
-        std::cout << std::endl;
-    }
-
-    // checkJSSimpleWithGradient)
-    {
-        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
-        auto buffer = xacc::qalloc(1);
-
-        auto simple = xacc::getCompiled("f");
-
-        // get cobyla optimizer
-        auto optimizer = xacc::getOptimizer(
-            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 50), std::make_pair("nlopt-ftol", 1e-4), std::make_pair("initial-parameters", std::vector<double>{1.5, 0, 1.5}),
-                                    std::make_pair("nlopt-optimizer", "l-bfgs")});
-
-        std::vector<double> target{.5, .5};
-
-        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
-        EXPECT_TRUE(ddcl->initialize(
-            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
-            std::make_pair("target_dist", target), std::make_pair("loss", "js"),
-            std::make_pair("gradient", "js-parameter-shift"),
-            std::make_pair("optimizer", optimizer)}));
-        ddcl->execute(buffer);
-
-        auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-2);
-    }
-
-    // checkMMDSimpleWithGradient
-    {
-        auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
-        auto buffer = xacc::qalloc(1);
-
-        auto simple = xacc::getCompiled("f");
-
-        // get cobyla optimizer
-        auto optimizer = xacc::getOptimizer(
-            "nlopt", xacc::HeterogeneousMap{std::make_pair("nlopt-maxeval", 50), std::make_pair("nlopt-ftol", 1e-4), std::make_pair("initial-parameters", std::vector<double>{1.5, 0, 1.5}),
-                                    std::make_pair("nlopt-optimizer", "l-bfgs")});
-
-        std::vector<double> target{.5, .5};
-
-        auto ddcl = xacc::getService<xacc::Algorithm>("ddcl");
-        EXPECT_TRUE(ddcl->initialize(
-            {std::make_pair("ansatz", simple), std::make_pair("accelerator", acc),
-            std::make_pair("target_dist", target), std::make_pair("loss", "mmd"),
-            std::make_pair("gradient", "mmd-parameter-shift"),
-            std::make_pair("optimizer", optimizer)}));
-        ddcl->execute(buffer);
-
-        auto loss = buffer->getInformation("opt-val").as<double>();
-        EXPECT_NEAR(loss, 0.0, 1e-2);
-    }
-}
-*/
-TEST(QppAcceleratorTester, testConditional)
+TEST(QrackAcceleratorTester, testConditional)
 {
     // Get reference to the Accelerator
     xacc::set_verbose(true);
     const int nbTests = 100;
-    auto accelerator =  xacc::getAccelerator("qpp", { std::make_pair("shots", nbTests) });
+    auto accelerator =  xacc::getAccelerator("qrack", { std::make_pair("shots", nbTests) });
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto ir = xasmCompiler->compile(R"(__qpu__ void teleport(qbit q) {
         // State preparation (Bob)
@@ -397,12 +272,12 @@ TEST(QppAcceleratorTester, testConditional)
     EXPECT_EQ(resultCount, nbTests);
 }
 
-TEST(QppAcceleratorTester, testISwap)
+TEST(QrackAcceleratorTester, testISwap)
 {
     // Get reference to the Accelerator
     xacc::set_verbose(false);
     const int nbShots = 100;
-    auto accelerator =  xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+    auto accelerator =  xacc::getAccelerator("qrack", { std::make_pair("shots", nbShots) });
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto ir = xasmCompiler->compile(R"(__qpu__ void testISwap(qbit q) {
         X(q[0]);
@@ -423,11 +298,11 @@ TEST(QppAcceleratorTester, testISwap)
     EXPECT_EQ(buffer->getMeasurementCounts()["00010"], nbShots);
 }
 
-TEST(QppAcceleratorTester, testFsim)
+TEST(QrackAcceleratorTester, testFsim)
 {
     // Get reference to the Accelerator
     const int nbShots = 1000;
-    auto accelerator =  xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+    auto accelerator =  xacc::getAccelerator("qrack", { std::make_pair("shots", nbShots) });
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto ir = xasmCompiler->compile(R"(__qpu__ void testFsim(qbit q, double x, double y) {
         X(q[0]);
