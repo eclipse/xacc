@@ -14,3 +14,8 @@
 
 add_xacc_test(QrackAccelerator)
 target_link_libraries(QrackAcceleratorTester xacc-qrack)
+find_package(OpenCL)
+if (OpenCL_FOUND)
+    target_compile_definitions (QrackAcceleratorTester PUBLIC CL_HPP_TARGET_OPENCL_VERSION=200)
+    target_compile_definitions (QrackAcceleratorTester PUBLIC CL_HPP_MINIMUM_OPENCL_VERSION=100)
+endif()
