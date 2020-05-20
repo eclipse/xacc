@@ -65,6 +65,7 @@ protected:
   std::vector<InstPtr> instructions{};
   std::vector<std::string> variables{};
   std::vector<std::string> _requiredKeys{};
+  std::vector<std::string> buffer_names = {};
 
   std::string circuitName = "";
 
@@ -77,6 +78,9 @@ public:
   Circuit(const std::string &name) : circuitName(name) {}
   Circuit(const std::string &name, std::vector<std::string> &vars)
       : circuitName(name), variables(vars) {}
+  Circuit(const std::string &name, std::vector<std::string> &vars,
+          std::vector<std::string> buf_names)
+      : circuitName(name), variables(vars), buffer_names(buf_names) {}
   Circuit(const std::string &name, std::vector<std::string> &&vars)
       : circuitName(name), variables(vars) {}
 
@@ -86,27 +90,24 @@ public:
 
   const std::string name() const override { return circuitName; }
   const std::string description() const override { return ""; }
-  void setName(const std::string name) override {
-      circuitName = name;
-  }
+  void setName(const std::string name) override { circuitName = name; }
 
   void applyRuntimeArguments() override {
-      for (auto& i : instructions) {
-          i->applyRuntimeArguments();
-      }
+    for (auto &i : instructions) {
+      i->applyRuntimeArguments();
+    }
   }
 
-
-  const std::string getTag() override {return "";}
-  void setTag(const std::string& tag) override {return;}
+  const std::string getTag() override { return ""; }
+  void setTag(const std::string &tag) override { return; }
 
   void mapBits(std::vector<std::size_t> bitMap) override {
     InstructionIterator iter(shared_from_this());
-    while(iter.hasNext()) {
-        auto next = iter.next();
-        if (!next->isComposite()) {
-            next->mapBits(bitMap);
-        }
+    while (iter.hasNext()) {
+      auto next = iter.next();
+      if (!next->isComposite()) {
+        next->mapBits(bitMap);
+      }
     }
 
     // for (auto &inst : instructions) {
@@ -223,9 +224,7 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
-  void clear() override {
-      instructions.clear();
-  }
+  void clear() override { instructions.clear(); }
 
   bool hasChildren() const override { return !instructions.empty(); }
   bool expand(const HeterogeneousMap &runtimeOptions) override {
@@ -340,27 +339,33 @@ public:
   }
 
   void removeDisabled() override {
-      // Go backwards so we don't mess up the order.
-    for (int i = nInstructions()-1; i >= 0; i--) {
-        if (instructions[i]->isComposite()) {
-            std::dynamic_pointer_cast<CompositeInstruction>(instructions[i])->removeDisabled();
-        } else {
+    // Go backwards so we don't mess up the order.
+    for (int i = nInstructions() - 1; i >= 0; i--) {
+      if (instructions[i]->isComposite()) {
+        std::dynamic_pointer_cast<CompositeInstruction>(instructions[i])
+            ->removeDisabled();
+      } else {
         if (!instructions[i]->isEnabled()) {
-            removeInstruction(i);
+          removeInstruction(i);
         }
-        }
+      }
     }
   }
 
-  std::string getBufferName(const std::size_t bitIdx) override {
-      return "";
+
+  std::string getBufferName(const std::size_t bitIdx) override { return ""; }
+
+  std::vector<std::string> getBufferNames() override { return buffer_names; }
+  void
+  setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
+    buffer_names = bufferNamesPerIdx;
+    return;
   }
-  std::vector<std::string> getBufferNames() override {return {};}
-  void setBufferNames(const std::vector<std::string> bufferNamesPerIdx) override {
-      return;
+  void setBitExpression(const std::size_t bit_idx,
+                        const std::string expr) override {}
+  std::string getBitExpression(const std::size_t bit_idx) override {
+    return "";
   }
- void setBitExpression(const std::size_t bit_idx, const std::string expr) override {}
- std::string getBitExpression(const std::size_t bit_idx) override {return "";}
 
   void setCoefficient(const std::complex<double> c) override {
     coefficient = c;
@@ -377,12 +382,12 @@ public:
 
   DEFINE_VISITABLE()
   std::shared_ptr<Instruction> clone() override {
-    auto cloned = std::make_shared<Circuit>(name(), variables);
+    auto cloned = std::make_shared<Circuit>(name(), variables, buffer_names);
 
     for (auto i : instructions) {
-        cloned->addInstruction(i->clone());
+      cloned->addInstruction(i->clone());
     }
-    return cloned;//std::make_shared<Circuit>(*this);
+    return cloned; // std::make_shared<Circuit>(*this);
   }
 
   virtual ~Circuit() {}
