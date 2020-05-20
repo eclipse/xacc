@@ -81,7 +81,7 @@ public:
     bitIdxExpressions.insert({bit_idx, expr});
   }
   std::string getBitExpression(const std::size_t bit_idx) override {
-    return bitIdxExpressions[bit_idx];
+    return bitIdxExpressions.count(bit_idx) ? bitIdxExpressions[bit_idx] : "";
   }
 
   const InstructionParameter getParameter(const std::size_t idx) const override;

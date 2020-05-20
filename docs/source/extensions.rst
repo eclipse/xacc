@@ -509,6 +509,32 @@ To use automatic gate-to-pulse functionality, we need to load a pulse library to
 
 For more information, please check out these `examples <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration/xacc_examples/python>`_.
 
+Qrack
++++++
+The `vm6502q/qrack <https://github.com/vm6502q/qrack>`_ simulator-based accelerator provides optional OpenCL-based GPU acceleration, as well as a novel simulator optimization layer.
+
+.. code:: cpp
+
+   auto qrk = xacc::getAccelerator("qrack", {std::make_pair("shots", 2048)});
+
+By default, it selects initialization parameters that are commonly best for a wide range of use cases. However, it is highly configurable through a number of exposed parameters:
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+|    shots                    | Number of iterations to repeat the circuit for                         |    int      | -1 (Z-expectation only)  |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    use_opencl               | Use OpenCL acceleration if available, (otherwise native C++11)         |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    use_qunit                | Turn on the novel optimization layer, (otherwise "Schrödinger method") |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    device_id                | The (Qrack) device ID number of the OpenCL accelerator to use          |    int      | -1 (auto-select)         |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    do_normalize             | Enable small norm probability amplitude flooring and normalization     |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    zero_threshold           | Norm threshold for clamping probability amplitudes to 0                |    double   | 1e-14/1e-30 float/double |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
 Algorithms
 ----------
 XACC exposes hybrid quantum-classical Algorithm implementations for the variational quantum eigensolver (VQE), data-driven

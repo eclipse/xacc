@@ -257,7 +257,7 @@ public:
     return ret;
   }
 
-  virtual std::vector<std::shared_ptr<Observable>> getNonIdentitySubTerms() {
+  std::vector<std::shared_ptr<Observable>> getNonIdentitySubTerms() override {
     std::vector<std::shared_ptr<Observable>> ret;
     for (auto &term : getTerms()) {
       if (term.first != "I") {
@@ -268,7 +268,7 @@ public:
     return ret;
   }
 
-  virtual std::shared_ptr<Observable> getIdentitySubTerm() {
+  std::shared_ptr<Observable> getIdentitySubTerm() override {
     for (auto &term : getTerms()) {
       if (term.first == "I") {
         return std::make_shared<PauliOperator>(term.second.ops(),
