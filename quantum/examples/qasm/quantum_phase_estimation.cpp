@@ -11,9 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "xacc.hpp"
-#include "xacc_observable.hpp"
 #include "xacc_service.hpp"
-#include <random>
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
