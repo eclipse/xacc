@@ -668,6 +668,7 @@ void XASMListener::exitComposite_generator(
                 currentCompositeName);
   }
 
+  composite->setBufferNames({ctx->buffer_name->getText()});
   function->addInstruction(composite);
 
   currentCompositeName = "";
