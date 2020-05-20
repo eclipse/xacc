@@ -120,7 +120,7 @@ void ControlledU::visit(Z& z)
 void ControlledU::visit(CNOT& cnot) 
 {
     // CCNOT gate:
-    // We now has two control bits
+    // We now have two control bits
     const auto ctrlIdx1 = cnot.bits()[0];
     const auto ctrlIdx2 = m_ctrlIdx;
     // Target qubit
@@ -183,7 +183,6 @@ void ControlledU::visit(Ry& ry)
 
 void ControlledU::visit(Rz& rz) 
 {
-    // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (rz.bits()[0] == m_ctrlIdx)
     {
         xacc::error("Control bit must be different from target qubit(s).");
@@ -227,6 +226,9 @@ void ControlledU::visit(Tdg& tdg)
 
 void ControlledU::visit(Swap& s) 
 {
+    // Fredkin gate: controlled-swap
+    // Decompose Swap gate into CNOT gates;
+    // then re-visit those CNOT gates (becoming CCNOT).
     CNOT c1(s.bits()), c2(s.bits()[1],s.bits()[0]), c3(s.bits());
     visit(c1);
     visit(c2);
@@ -235,31 +237,93 @@ void ControlledU::visit(Swap& s)
 
 void ControlledU::visit(U& u) 
 {
-    xacc::error("Unsupported!");
+    // U(theta, phi, lambda) := Rz(phi)Ry(theta)Rz(lambda)
+    const auto theta = InstructionParameterToDouble(u.getParameter(0));
+    const auto phi = InstructionParameterToDouble(u.getParameter(1));
+    const auto lambda = InstructionParameterToDouble(u.getParameter(2));
+    Ry ry1(u.bits()[0], theta);
+    Rz rz1(u.bits()[0], lambda);
+    Rz rz2(u.bits()[0], phi);
+    // Revisit these gates: Rn -> CRn
+    visit(rz1);
+    visit(ry1);
+    visit(rz2);
 }
 
 void ControlledU::visit(CY& cy) 
 {
-    xacc::error("Unsupported!");
+    // controlled-Y = Sdg(target) - CX - S(target)
+    CNOT c1(cy.bits());
+    Sdg sdg(cy.bits()[1]);
+    S s(cy.bits()[1]);
+    // Revisit these gates: CNOT->CCNOT; S -> CPhase
+    visit(sdg);
+    visit(c1);
+    visit(s);
 }
 
 void ControlledU::visit(CZ& cz) 
 {
-    xacc::error("Unsupported!");
+    // CZ = H(target) - CX - H(target) 
+    CNOT c1(cz.bits());
+    Hadamard h1(cz.bits()[1]);
+    Hadamard h2(cz.bits()[1]);
+
+    // Revisit these gates: CNOT->CCNOT; H -> CH
+    visit(h1);
+    visit(c1);
+    visit(h2);
 }
 
 void ControlledU::visit(CRZ& crz) 
 {
-    xacc::error("Unsupported!");
+    const auto theta = InstructionParameterToDouble(crz.getParameter(0));
+    // Decompose
+    Rz rz1(crz.bits()[1], theta/2);
+    CNOT c1(crz.bits());
+    Rz rz2(crz.bits()[1], -theta/2);
+    CNOT c2(crz.bits());
+    // Revisit:
+    visit(rz1);
+    visit(c1);
+    visit(rz2);
+    visit(c2);
 }
 
 void ControlledU::visit(CH& ch) 
 {
-    xacc::error("Unsupported!");
+    // controlled-H = Ry(pi/4, target) - CX - Ry(-pi/4, target)
+    CNOT c1(ch.bits());
+    Ry ry1(ch.bits()[1], M_PI_4);
+    Ry ry2(ch.bits()[1], -M_PI_4);
+    visit(ry1);
+    visit(c1);
+    visit(ry2);
 }
 
 void ControlledU::visit(CPhase& cphase) 
 {
-    xacc::error("Unsupported!");
+    // This is effectively CRz but due to the global phase difference
+    // in the matrix definitions of U1 and Rz, 
+    // CU1 (i.e. CPhase) and CRz are different gates with a relative phase difference.
+    // Ref:
+    // ccu1(t, ctrl1, ctrl2, target) =
+    // cu1(t/2, ctrl1, ctrl2)
+    // cx(ctrl2, target)
+    // cu1(-t/2, ctrl1, target)
+    // cx(ctrl2, target)
+    // cu1(t/2, ctrl1, target)
+
+    const auto ctrlIdx1 = cphase.bits()[0];
+    const auto ctrlIdx2 = m_ctrlIdx;
+    // Target qubit
+    const auto targetIdx = cphase.bits()[1];
+    // Angle
+    const auto angle = InstructionParameterToDouble(cphase.getParameter(0));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { ctrlIdx1, ctrlIdx2 }, { angle/2 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { ctrlIdx1, targetIdx }, { -angle/2 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { ctrlIdx1, targetIdx }, { angle/2 }));
 }
 }}
