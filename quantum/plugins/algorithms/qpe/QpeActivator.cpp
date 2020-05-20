@@ -11,6 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "qpe.hpp"
+#include "ControlledGateApplicator.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -35,6 +36,7 @@ public:
   void Start(BundleContext context) {
     auto c = std::make_shared<xacc::algorithm::QuantumPhaseEstimation>();
     context.RegisterService<xacc::Algorithm>(c);
+    context.RegisterService<xacc::Instruction>(std::make_shared<xacc::circuits::ControlledU>());
   }
 
   /**

@@ -17,7 +17,6 @@
 #include "Circuit.hpp"
 #include <cassert>
 #include <iomanip>
-#include "ControlledGateApplicator.hpp" 
 
 namespace xacc {
 namespace algorithm {
@@ -54,78 +53,104 @@ const std::vector<std::string> QuantumPhaseEstimation::requiredParameters() cons
 
 void QuantumPhaseEstimation::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
-    if (buffer->size() < 1)
+    // Calculate the number of qubits that are used by the oracle:
+    const size_t nbOracleBits = m_oracle->uniqueBits().size();
+
+    if (nbOracleBits < 1)
     {
-        std::cout << "Buffer must have more than 1 qubits.\n";
+        std::cout << "Invalid oracle Composite.\n";
+    }
+    
+    // Buffer must contain additional qubits for phase est. result
+    if (buffer->size() <= nbOracleBits)
+    {
+        std::cout << "Buffer must have more than " << nbOracleBits << " qubits.\n";
     }
     
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     auto qpeKernel = gateRegistry->createComposite("QuantumPhaseEstKernel");
 
     // Bit precision: the number of extra qubits that were allocated in the input buffer.
-    const auto bitPrecision = buffer->size() - 1;
+    const auto bitPrecision = buffer->size() - nbOracleBits;
     std::cout << "Phase estimation precision = " << bitPrecision << " bits.\n";
-    // Convention: q[0] is the main qubit
-    // q[1]..q[n] are the phase result qubits
+    
+    // Map the oracle/state-prep circuit to the qubit range after the phase estimation register:
+    // q[0] -> q[bitPrecision]
+    // q[1] -> q[bitPrecision + 1], etc...
+    const auto mapPrimaryQubits = [&bitPrecision](const std::shared_ptr<xacc::CompositeInstruction>& in_composite){
+        InstructionIterator it(in_composite);
+        while (it.hasNext())
+        {
+            auto nextInst = it.next();
+            if (nextInst->isEnabled())
+            {
+                auto currentBits = nextInst->bits();
+                for (auto& bit: currentBits)
+                {
+                    bit = bit + bitPrecision;
+                }
+                nextInst->setBits(currentBits);
+            }
+        }
+    };
+    
+    // Convention: q[0] - q[precision - 1] is phase-estimation result register.
     // Hadamard on all ancilla/result qubits
-    for (size_t i = 1; i < buffer->size(); ++i)
+    for (size_t i = 0; i < bitPrecision; ++i)
     {
         qpeKernel->addInstruction(gateRegistry->createInstruction("H", { i }));
     }
 
-    // Prepare q[0] in the eigenstate:
+    // Prepare the eigenstate:
     // Note: user must provide 'state-preparation' composite 
     // to transform |0> state to the eigenstate.
     // Otherwise, assume |0> is the eigenstate.
-    if (!m_params.pointerLikeExists<CompositeInstruction>("state-preparation")) 
+    if (m_params.pointerLikeExists<CompositeInstruction>("state-preparation")) 
     {
-        auto statePrep = m_params.getPointerLike<CompositeInstruction>("state-preparation");
-        if (statePrep->uniqueBits().size() != 1)
+        auto statePrep = m_params.getPointerLike<CompositeInstruction>("state-preparation");        
+        mapPrimaryQubits(std::shared_ptr<CompositeInstruction>(statePrep, xacc::empty_delete<CompositeInstruction>()));
+
+        if (statePrep->uniqueBits().size() > nbOracleBits)
         {
-            xacc::error("'state-preparation' circuit should only contain one qubit.");
+            xacc::error("'state-preparation' circuit cannot operate on more qubits than the oracle.");
             return;
         }
+
         // Add state preparation composite
         qpeKernel->addInstructions(statePrep->getInstructions());
     }
 
+    auto oracleSharedPtr = std::shared_ptr<CompositeInstruction>(m_oracle, xacc::empty_delete<CompositeInstruction>());
+    mapPrimaryQubits(oracleSharedPtr);
+    
     // Controlled-oracle application
-    ControlledGateApplicator gateApplicator;
-    for (size_t i = 1; i < buffer->size(); ++i)
+    for (size_t i = 0; i < bitPrecision; ++i)
     {
-        // q1: U; q2: U^2; q3: U^4; etc.
-        const int nbCalls = 1 << (i - 1);
-        
-        auto ctrlKernel = gateApplicator.applyControl(std::shared_ptr<CompositeInstruction>(m_oracle, xacc::empty_delete<CompositeInstruction>()), i);
+        // q0: U; q1: U^2; q2: U^4; etc.
+        const int nbCalls = 1 << i;
+        auto ctrlKernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("C-U"));
+        ctrlKernel->expand( { 
+            std::make_pair("U",  m_oracle),
+            std::make_pair("control-idx",  static_cast<int>(i)),
+        });            
         // Apply C-U^n
         for (int count = 0; count < nbCalls; count++)
         {
-            qpeKernel->addInstructions(ctrlKernel->getInstructions());
+            for (int instId = 0; instId < ctrlKernel->nInstructions(); ++instId)
+            {
+                // We need to clone the instruction since it'll be repeated.
+                qpeKernel->addInstruction(ctrlKernel->getInstruction(instId)->clone());
+            }
         }
     }
     
-    // IQFT on q[1]-q[n]
+    // IQFT on the phase estimation register.
     auto iqft = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("iqft"));
-    iqft->expand( { std::make_pair("nq", bitPrecision) });
-    // We need to shift the qubit index up by 1 
-    InstructionIterator it(iqft);
-    while (it.hasNext())
-    {
-        auto nextInst = it.next();
-        if (nextInst->isEnabled())
-        {
-            auto currentBits = nextInst->bits();
-            for (auto& bit: currentBits)
-            {
-                bit = bit + 1;
-            }
-            nextInst->setBits(currentBits);
-        }
-    }
+    iqft->expand( { std::make_pair("nq", static_cast<int>(bitPrecision)) });    
     qpeKernel->addInstructions(iqft->getInstructions());
-
+    
     // Measure the ancilla/result qubits
-    for (size_t i = 1; i < buffer->size(); ++i)
+    for (size_t i = 0; i < bitPrecision; ++i)
     {
         qpeKernel->addInstruction(gateRegistry->createInstruction("Measure", { i }));
     }
@@ -133,7 +158,7 @@ void QuantumPhaseEstimation::execute(const std::shared_ptr<AcceleratorBuffer> bu
     // DEBUG: 
     std::cout << "QPE kernel:\n" << qpeKernel->toString() << "\n\n";
 
-    // TODO: execute
+    m_qpu->execute(buffer, qpeKernel);
 }
 
 std::vector<double> QuantumPhaseEstimation::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 

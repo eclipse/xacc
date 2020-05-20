@@ -20,14 +20,16 @@ using namespace xacc;
 
 TEST(QpeTester, checkSimple) 
 {
-  auto acc = xacc::getAccelerator("qpp");
+  auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 1024)});
   // Test case: T gate, eigenstate = |1>
   // 3-bit precision
   auto buffer = xacc::qalloc(4);
   auto qpe = xacc::getService<Algorithm>("QPE");
   auto compiler = xacc::getCompiler("xasm");
   
-  // Oracle = T gate
+  // Oracle = T gate 
+  // |1> => exp(i*pi/4) |1>
+  // Expected result = |100> = |4>
   auto oracle = compiler->compile(R"(__qpu__ void oracle(qbit q) {
     T(q[0]); 
   })", nullptr)->getComposite("oracle");
@@ -43,6 +45,43 @@ TEST(QpeTester, checkSimple)
                     std::make_pair("state-preparation", statePrep)
                   }));
   qpe->execute(buffer);
+
+  const auto result = buffer->computeMeasurementProbability("100");
+  EXPECT_NEAR(result, 1.0, 0.01);
+}
+
+TEST(QpeTester, checkMultiQubitOracle) 
+{
+  auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 1024)});
+  // Test case: T gate on both qubits, eigenstate = |11>
+  // i.e. TT |11> = exp(i*pi/4)* exp(i*pi/4)*|11> = exp(i*pi/2)*|11>
+  // => the expected answer is 2 = 010
+
+  // 3-bit precision => 5 qubits in total
+  auto buffer = xacc::qalloc(5);
+  auto qpe = xacc::getService<Algorithm>("QPE");
+  auto compiler = xacc::getCompiler("xasm");
+  
+  // Oracle: T gate on both qubits
+  auto oracle = compiler->compile(R"(__qpu__ void oracle(qbit q) {
+    T(q[0]); 
+    T(q[1]); 
+  })", nullptr)->getComposite("oracle");
+
+  // Eigenstate preparation = |11> state
+  auto statePrep = compiler->compile(R"(__qpu__ void prep1(qbit q) {
+    X(q[0]); 
+    X(q[1]); 
+  })", nullptr)->getComposite("prep1");  
+  
+  EXPECT_TRUE(qpe->initialize({
+                    std::make_pair("accelerator", acc),
+                    std::make_pair("oracle", oracle),
+                    std::make_pair("state-preparation", statePrep)
+                  }));
+  qpe->execute(buffer);
+  const auto result = buffer->computeMeasurementProbability("010");
+  EXPECT_NEAR(result, 1.0, 0.01);
 }
 
 int main(int argc, char **argv) 

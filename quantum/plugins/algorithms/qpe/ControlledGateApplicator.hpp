@@ -16,12 +16,18 @@
 using namespace xacc::quantum;
 
 namespace xacc {
-class ControlledGateApplicator: public AllGateVisitor
+namespace circuits {
+
+class ControlledU: public AllGateVisitor, public quantum::Circuit
 {
 public:
-    // Apply *single* control on the input composite.
-    // Returns the new composite.
-    std::shared_ptr<xacc::CompositeInstruction> applyControl(const std::shared_ptr<xacc::CompositeInstruction>& in_program, int in_ctrlIdx);
+    ControlledU() : Circuit("C-U") {}
+    bool expand(const xacc::HeterogeneousMap& runtimeOptions) override;
+    // Input: The composite "U" and the control Idx.
+    // Control Idx must *not* be one of the qubits that U is acting on.
+    const std::vector<std::string> requiredKeys() override { return { "U", "control-idx" }; }
+    DEFINE_CLONE(ControlledU);
+
     // AllGateVisitor implementation
     void visit(Hadamard& h) override;
     void visit(CNOT& cnot) override;
@@ -49,9 +55,15 @@ public:
     void visit(IfStmt& ifStmt) override { xacc::error("Unsupported!"); }
     void visit(fSim& fsim) override { xacc::error("Unsupported!"); }
     void visit(iSwap& isw) override { xacc::error("Unsupported!"); }
+
+private:
+    // Apply *single* control on the input composite.
+    // Returns the new composite.
+    std::shared_ptr<xacc::CompositeInstruction> applyControl(const std::shared_ptr<xacc::CompositeInstruction>& in_program, int in_ctrlIdx);
+
 private:
     std::shared_ptr<xacc::CompositeInstruction> m_composite;
     std::shared_ptr<xacc::IRProvider> m_gateProvider;
     size_t m_ctrlIdx;
 };
-}
+}}
