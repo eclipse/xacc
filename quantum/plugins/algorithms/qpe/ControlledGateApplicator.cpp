@@ -13,7 +13,37 @@
 #include "ControlledGateApplicator.hpp"
 
 namespace xacc {
-std::shared_ptr<xacc::CompositeInstruction> ControlledGateApplicator::applyControl(const std::shared_ptr<xacc::CompositeInstruction>& in_program, int in_ctrlIdx)
+namespace circuits {
+
+bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions) 
+{
+    if (!runtimeOptions.keyExists<int>("control-idx")) 
+    {
+        xacc::error("'control-idx' is required.");
+        return false;
+    }
+
+    const auto ctrlIdx = runtimeOptions.get<int>("control-idx");
+    
+    if (!runtimeOptions.pointerLikeExists<CompositeInstruction>("U")) 
+    {
+        xacc::error("'U' composite is required.");
+        return false;
+    }
+    
+    auto uComposite = std::shared_ptr<CompositeInstruction>(
+        runtimeOptions.getPointerLike<CompositeInstruction>("U"), 
+        xacc::empty_delete<CompositeInstruction>());
+    auto ctrlU = applyControl(uComposite, ctrlIdx);
+
+    for (int instId = 0; instId < ctrlU->nInstructions(); ++instId)
+    {
+        addInstruction(ctrlU->getInstruction(instId)->clone());
+    }
+    return true;
+}
+
+std::shared_ptr<xacc::CompositeInstruction> ControlledU::applyControl(const std::shared_ptr<xacc::CompositeInstruction>& in_program, int in_ctrlIdx)
 {
     m_gateProvider = xacc::getService<xacc::IRProvider>("quantum");
     m_composite = m_gateProvider->createComposite("CTRL_" + in_program->name() + "_" + std::to_string(in_ctrlIdx));
@@ -31,7 +61,7 @@ std::shared_ptr<xacc::CompositeInstruction> ControlledGateApplicator::applyContr
     return m_composite;
 }
 
-void ControlledGateApplicator::visit(Hadamard& h) 
+void ControlledU::visit(Hadamard& h) 
 {
     if (h.bits()[0] == m_ctrlIdx)
     {
@@ -45,7 +75,7 @@ void ControlledGateApplicator::visit(Hadamard& h)
     }
 }
 
-void ControlledGateApplicator::visit(X& x) 
+void ControlledU::visit(X& x) 
 {
     if (x.bits()[0] == m_ctrlIdx)
     {
@@ -59,7 +89,7 @@ void ControlledGateApplicator::visit(X& x)
     }
 }
 
-void ControlledGateApplicator::visit(Y& y) 
+void ControlledU::visit(Y& y) 
 {
     if (y.bits()[0] == m_ctrlIdx)
     {
@@ -73,7 +103,7 @@ void ControlledGateApplicator::visit(Y& y)
     }
 }
 
-void ControlledGateApplicator::visit(Z& z) 
+void ControlledU::visit(Z& z) 
 {
     if (z.bits()[0] == m_ctrlIdx)
     {
@@ -87,12 +117,34 @@ void ControlledGateApplicator::visit(Z& z)
     }
 }
 
-void ControlledGateApplicator::visit(CNOT& cnot) 
+void ControlledU::visit(CNOT& cnot) 
 {
-   // TODO: CCNOT
+    // CCNOT gate:
+    // We now has two control bits
+    const auto ctrlIdx1 = cnot.bits()[0];
+    const auto ctrlIdx2 = m_ctrlIdx;
+    // Target qubit
+    const auto targetIdx = cnot.bits()[1];
+    
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));    
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx1 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx2 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { ctrlIdx1 }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
 }
 
-void ControlledGateApplicator::visit(Rx& rx) 
+void ControlledU::visit(Rx& rx) 
 {
     // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (rx.bits()[0] == m_ctrlIdx)
@@ -110,7 +162,7 @@ void ControlledGateApplicator::visit(Rx& rx)
     }
 }
 
-void ControlledGateApplicator::visit(Ry& ry) 
+void ControlledU::visit(Ry& ry) 
 {
     // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (ry.bits()[0] == m_ctrlIdx)
@@ -129,7 +181,7 @@ void ControlledGateApplicator::visit(Ry& ry)
 }
 
 
-void ControlledGateApplicator::visit(Rz& rz) 
+void ControlledU::visit(Rz& rz) 
 {
     // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (rz.bits()[0] == m_ctrlIdx)
@@ -145,66 +197,69 @@ void ControlledGateApplicator::visit(Rz& rz)
     }
 }
 
-void ControlledGateApplicator::visit(S& s) 
+void ControlledU::visit(S& s) 
 {
-    // S = Rz(pi/2)
-    auto equivGate = m_gateProvider->createInstruction("Rz", { s.bits()[0] }, { M_PI_2 });
-    equivGate->accept(this);
+    // Ctrl-S = CPhase(pi/2)
+    const auto targetIdx = s.bits()[0];
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { m_ctrlIdx, targetIdx }, { M_PI_2 }));
 }
 
-void ControlledGateApplicator::visit(Sdg& sdg) 
+void ControlledU::visit(Sdg& sdg) 
 {
-    // Sdg = Rz(-pi/2)
-    auto equivGate = m_gateProvider->createInstruction("Rz", { sdg.bits()[0] }, { -M_PI_2 });
-    equivGate->accept(this);
+    // Ctrl-Sdg = CPhase(-pi/2)
+    const auto targetIdx = sdg.bits()[0];
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { m_ctrlIdx, targetIdx }, { -M_PI_2 }));
 }
 
-void ControlledGateApplicator::visit(T& t) 
+void ControlledU::visit(T& t) 
 {
-    // T = Rz(pi/4)
-    auto equivGate = m_gateProvider->createInstruction("Rz", { t.bits()[0] }, { M_PI_4 });
-    equivGate->accept(this);
+    // Ctrl-T = CPhase(pi/4)
+    const auto targetIdx = t.bits()[0];
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { m_ctrlIdx, targetIdx }, { M_PI_4 }));
 }
 
-void ControlledGateApplicator::visit(Tdg& tdg) 
+void ControlledU::visit(Tdg& tdg) 
 {
-    // Tdg = Rz(-pi/4)
-    auto equivGate = m_gateProvider->createInstruction("Rz", { tdg.bits()[0] }, { -M_PI_4 });
-    equivGate->accept(this);
+    // Ctrl-Tdg = CPhase(-pi/4)
+    const auto targetIdx = tdg.bits()[0];
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { m_ctrlIdx, targetIdx }, { -M_PI_4 }));
 }
 
-void ControlledGateApplicator::visit(U& u) 
+void ControlledU::visit(Swap& s) 
 {
-    // TODO
+    CNOT c1(s.bits()), c2(s.bits()[1],s.bits()[0]), c3(s.bits());
+    visit(c1);
+    visit(c2);
+    visit(c3);
 }
 
-void ControlledGateApplicator::visit(CY& cy) 
+void ControlledU::visit(U& u) 
 {
-    // TODO
+    xacc::error("Unsupported!");
 }
 
-void ControlledGateApplicator::visit(CZ& cz) 
+void ControlledU::visit(CY& cy) 
 {
-    // TODO
+    xacc::error("Unsupported!");
 }
 
-void ControlledGateApplicator::visit(CRZ& crz) 
+void ControlledU::visit(CZ& cz) 
 {
-    // TODO
+    xacc::error("Unsupported!");
 }
 
-void ControlledGateApplicator::visit(CH& ch) 
+void ControlledU::visit(CRZ& crz) 
 {
-    // TODO
+    xacc::error("Unsupported!");
 }
 
-void ControlledGateApplicator::visit(Swap& s) 
+void ControlledU::visit(CH& ch) 
 {
-   // TODO
+    xacc::error("Unsupported!");
 }
 
-void ControlledGateApplicator::visit(CPhase& cphase) 
+void ControlledU::visit(CPhase& cphase) 
 {
-   // TODO
+    xacc::error("Unsupported!");
 }
-}
+}}
