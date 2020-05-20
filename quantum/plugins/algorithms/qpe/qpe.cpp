@@ -155,15 +155,14 @@ void QuantumPhaseEstimation::execute(const std::shared_ptr<AcceleratorBuffer> bu
         qpeKernel->addInstruction(gateRegistry->createInstruction("Measure", { i }));
     }
     
-    // DEBUG: 
-    std::cout << "QPE kernel:\n" << qpeKernel->toString() << "\n\n";
-
+    buffer->addExtraInfo("qpe-kernel", qpeKernel->toString());
     m_qpu->execute(buffer, qpeKernel);
 }
 
 std::vector<double> QuantumPhaseEstimation::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 
 {
-    // TODO
+    // We don't have this for QPE.
+    xacc::error("This method is unsupported!");
     return { };
 }
 } // namespace algorithm
