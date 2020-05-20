@@ -247,7 +247,7 @@ const std::string
 translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
           const std::string toLanguage);
 
-void appendCompiled(std::shared_ptr<CompositeInstruction> composite, bool _override = false);
+void appendCompiled(std::shared_ptr<CompositeInstruction> composite, bool _override = true);
 std::shared_ptr<CompositeInstruction> getCompiled(const std::string name);
 bool hasCompiled(const std::string name);
 
