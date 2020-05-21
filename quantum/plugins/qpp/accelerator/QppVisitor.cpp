@@ -164,7 +164,9 @@ namespace quantum {
 
     void QppVisitor::visit(Swap& s)
     {
-        m_stateVec = qpp::apply(m_stateVec, qpp::Gates::get_instance().SWAP, s.bits());
+        const auto qIdx1 = xaccIdxToQppIdx(s.bits()[0]);
+        const auto qIdx2 = xaccIdxToQppIdx(s.bits()[1]);
+        m_stateVec = qpp::apply(m_stateVec, qpp::Gates::get_instance().SWAP, { qIdx1, qIdx2 });
     }
 
     void QppVisitor::visit(CRZ& crz)
@@ -210,7 +212,10 @@ namespace quantum {
     {
         const auto ctrlIdx = xaccIdxToQppIdx(cphase.bits()[0]);
         const auto targetIdx = xaccIdxToQppIdx(cphase.bits()[1]);
-        m_stateVec = qpp::applyCTRL(m_stateVec, qpp::Gates::get_instance().S, { ctrlIdx } ,  { targetIdx });
+        const auto angleTheta = InstructionParameterToDouble(cphase.getParameter(0));
+        qpp::cmat gateMat { qpp::cmat::Zero(2, 2)};       
+        gateMat << 1, 0, 0, std::exp(std::complex<double>(0.0, angleTheta));
+        m_stateVec = qpp::applyCTRL(m_stateVec, gateMat, { ctrlIdx } ,  { targetIdx });
     }
 
     void QppVisitor::visit(Identity& i)
