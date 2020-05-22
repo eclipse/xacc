@@ -342,7 +342,7 @@ public:
 };
 } // namespace quantum
 
-template const quantum::PauliOperator &
+template const quantum::PauliOperator
 HeterogeneousMap::get<quantum::PauliOperator>(const std::string key) const;
 
 } // namespace xacc

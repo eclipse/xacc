@@ -14,6 +14,7 @@
 #define XACC_XACC_INTERNAL_COMPILER_HPP_
 
 #include <vector>
+#include <memory> 
 
 namespace xacc {
 class CompositeInstruction;
@@ -21,8 +22,8 @@ class AcceleratorBuffer;
 class Accelerator;
 
 namespace internal_compiler {
-extern Accelerator *qpu;
-extern CompositeInstruction *lastCompiled;
+extern std::shared_ptr<Accelerator> qpu;
+extern std::shared_ptr<CompositeInstruction> lastCompiled;
 extern bool __execute;
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
@@ -32,28 +33,28 @@ void compiler_InitializeXACC(const char *qpu_backend, int shots);
 
 void setAccelerator(const char *qpu_backend);
 void setAccelerator(const char *qpu_backend, int shots);
-Accelerator *get_qpu();
+std::shared_ptr<Accelerator> get_qpu();
 
 void __set_verbose(bool verbose);
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
-CompositeInstruction *compile(const char *compiler_name,
+std::shared_ptr<CompositeInstruction> compile(const char *compiler_name,
                               const char *kernel_src);
 
-CompositeInstruction *getLastCompiled();
-CompositeInstruction *getCompiled(const char *kernel_name);
+std::shared_ptr<CompositeInstruction> getLastCompiled();
+std::shared_ptr<CompositeInstruction> getCompiled(const char *kernel_name);
 
 // Run quantum compilation routines on IR
-void optimize(CompositeInstruction *program, const OptLevel opt = DEFAULT);
+void optimize(std::shared_ptr<CompositeInstruction> program, const OptLevel opt = DEFAULT);
 
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
-void execute(AcceleratorBuffer *buffer, std::vector<CompositeInstruction*> programs);
-void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
+void execute(AcceleratorBuffer *buffer, std::vector<std::shared_ptr<CompositeInstruction>> programs);
+void execute(AcceleratorBuffer *buffer, std::shared_ptr<CompositeInstruction> program,
              double *parameters = nullptr);
 void execute(AcceleratorBuffer **buffers, const int nBuffers,
-             CompositeInstruction *program, double *parameters = nullptr);
+             std::shared_ptr<CompositeInstruction> program, double *parameters = nullptr);
 } // namespace internal_compiler
 } // namespace xacc
 
