@@ -589,9 +589,9 @@ void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
       if (currentOptions.stringExists(key)) {
         bool isConstChar = currentOptions.keyExists<const char *>(key);
         if (isConstChar) {
-          currentOptions.get_mutable<const char *>(key) = valStr.c_str();
+          currentOptions.insert(key, valStr.c_str());
         } else {
-          currentOptions.get_mutable<std::string>(key) = valStr;
+          currentOptions.insert(key,valStr);
         }
 
       } else {

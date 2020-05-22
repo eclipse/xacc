@@ -51,9 +51,9 @@ TEST(UndirectedGraphTester, checkConstruction) {
   // Verify that we can set vertex bias values
   EXPECT_EQ(0.0 , graph.getVertexProperties(0).get<double>("bias"));//.as<double>());
   EXPECT_EQ(0.0 , graph.getVertexProperties(1).get<double>( "bias"));//as<double>());
-  graph.getVertexProperties(0).get_mutable<double>("bias") = 3.3;
+  graph.getVertexProperties(0).insert("bias", 3.3);
   EXPECT_EQ(3.3 , graph.getVertexProperties(0).get<double>("bias"));//.as<double>());
-   graph.getVertexProperties(1).get_mutable<double>("bias") = 33.3;
+   graph.getVertexProperties(1).insert("bias", 33.3);
   EXPECT_EQ(33.3 , graph.getVertexProperties(1).get<double>("bias"));
 //   graph.setVertexProperty(1, "bias", 33.3);
 //   EXPECT_EQ(33.3 , graph.getVertexProperty(1, "bias").as<double>());

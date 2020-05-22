@@ -185,7 +185,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   std::vector<std::shared_ptr<CompositeInstruction>> observed;
   int counter = 0;
-  auto pi = 3.141592653589793238;
+  auto pi = xacc::constants::pi;
 
   // Populate GateQIR now...
   for (auto &inst : terms) {
@@ -737,7 +737,6 @@ void PauliOperator::fromXACCIR(std::shared_ptr<IR> ir) {
     std::map<int, std::string> pauliTerm;
     for (auto inst : kernel->getInstructions()) {
 
-      bool seen = false;
       if (!inst->isComposite()) {
 
         if (inst->name() == "H") {

@@ -10,6 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
+#include "CompositeInstruction.hpp"
 #include "heterogeneous.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -17,11 +18,10 @@
 #include "Algorithm.hpp"
 #include "xacc_service.hpp"
 
-class print_visitor : public xacc::visitor_base<int,double> {
+class print_visitor : public xacc::visitor_base<int, double> {
 public:
-  template<typename T>
-  void operator()(const std::string& s, const T& t) {
-      std::cout << s<< ": "<< t << "\n";
+  template <typename T> void operator()(const std::string &s, const T &t) {
+    std::cout << s << ": " << t << "\n";
   }
 };
 
@@ -75,37 +75,46 @@ TEST(HeterogeneousMapTester, checkSimple) {
   xacc::HeterogeneousMap cc;
   EXPECT_ANY_THROW(cc.get_with_throw<int>("intkey"));
 
+  EXPECT_EQ("f",
+            m3.getPointerLike<xacc::CompositeInstruction>("function")->name());
+  EXPECT_TRUE(m3.pointerLikeExists<xacc::CompositeInstruction>("function"));
+
+  m3.insert("doublekey", 222.222);
+  EXPECT_EQ(222.222, m3.get<double>("doublekey"));
+
   xacc::HeterogeneousMap m4({std::pair<std::string, double>{"doublekey", 2.0},
                              std::pair<std::string, int>{"intkey", 22}});
+
+  m4.print<int, double>(std::cout);
 }
 
 TEST(HeterogeneousMapTester, checkVQE) {
-    using namespace xacc;
-    class TestObservable : public xacc::Observable {
-public:
-  std::vector<std::shared_ptr<CompositeInstruction>>
-  observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) override {
-    return {};
-  }
-  const std::string toString() override { return ""; }
+  using namespace xacc;
+  class TestObservable : public xacc::Observable {
+  public:
+    std::vector<std::shared_ptr<CompositeInstruction>> observe(
+        std::shared_ptr<CompositeInstruction> CompositeInstruction) override {
+      return {};
+    }
+    const std::string toString() override { return ""; }
 
-  void fromString(const std::string str) override {}
-  const int nBits() override { return 0; }
-  const std::string name() const override { return "test"; }
-  const std::string description() const override { return ""; }
-  void fromOptions(const HeterogeneousMap& options) override {}
-};
+    void fromString(const std::string str) override {}
+    const int nBits() override { return 0; }
+    const std::string name() const override { return "test"; }
+    const std::string description() const override { return ""; }
+    void fromOptions(const HeterogeneousMap &options) override {}
+  };
 
-    std::shared_ptr<Observable> observable = std::make_shared<TestObservable>();
-    xacc::HeterogeneousMap options;
+  std::shared_ptr<Observable> observable = std::make_shared<TestObservable>();
+  xacc::HeterogeneousMap options;
   auto provider = xacc::getIRProvider("quantum");
   auto function = provider->createComposite("f", {});
 
-    options.insert("observable", observable);
-    options.insert("ansatz", function);
-    auto vqe = xacc::getService<Algorithm>("vqe");
+  options.insert("observable", observable);
+  options.insert("ansatz", function);
+  auto vqe = xacc::getService<Algorithm>("vqe");
 
-    vqe->initialize(options);
+  vqe->initialize(options);
 }
 int main(int argc, char **argv) {
   xacc::Initialize();

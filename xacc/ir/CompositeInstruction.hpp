@@ -79,14 +79,14 @@ protected:
   // Take the concrete value and set it on the 
   // correct argument.
   template <typename T> void updateArgs(T &value) {
-    if (arguments[_internal_counter]->runtimeValue.keyExists<T>(
-            INTERNAL_ARGUMENT_VALUE_KEY)) {
-      arguments[_internal_counter]->runtimeValue.get_mutable<T>(
-          INTERNAL_ARGUMENT_VALUE_KEY) = value;
-    } else {
+    // if (arguments[_internal_counter]->runtimeValue.keyExists<T>(
+            // INTERNAL_ARGUMENT_VALUE_KEY)) {
+    //   arguments[_internal_counter]->runtimeValue.get_mutable<T>(
+        //   INTERNAL_ARGUMENT_VALUE_KEY) = value;
+    // } else {
       arguments[_internal_counter]->runtimeValue.insert(
           INTERNAL_ARGUMENT_VALUE_KEY, value);
-    }
+    // }
     _internal_counter++;
   }
 

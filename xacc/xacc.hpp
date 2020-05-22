@@ -48,7 +48,8 @@ extern std::string rootPathString;
 
 extern std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database;
-extern std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers;
+extern std::map<std::string, std::shared_ptr<AcceleratorBuffer>>
+    allocated_buffers;
 
 // The qbit type is critical to qcor
 // We want it to be a shared_ptr, but we
@@ -60,13 +61,13 @@ public:
   qbit() : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>()) {}
   qbit(const int n)
       : AcceleratorBufferPtr(std::make_shared<xacc::AcceleratorBuffer>(n)) {}
-  qbit(const AcceleratorBufferPtr& ab) : AcceleratorBufferPtr(ab) {}
+  qbit(const AcceleratorBufferPtr &ab) : AcceleratorBufferPtr(ab) {}
 
-  int operator[](const int &i) {return 0;}
-  ExtraInfo operator[](const std::string& key) {
-      return AcceleratorBufferPtr::get()->getInformation(key);
+  int operator[](const int &i) { return 0; }
+  ExtraInfo operator[](const std::string &key) {
+    return AcceleratorBufferPtr::get()->getInformation(key);
   }
-  qbit& operator=(qbit& q) {return q;}
+  qbit &operator=(qbit &q) { return q; }
 };
 qbit qalloc(const int n);
 qbit qalloc();
@@ -120,18 +121,22 @@ void unsetOption(const std::string &optionKey);
 std::shared_ptr<IRProvider> getIRProvider(const std::string &name);
 
 void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer);
-void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer);
+void storeBuffer(const std::string name,
+                 std::shared_ptr<AcceleratorBuffer> buffer);
 std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name);
-bool hasBuffer(const std::string& name);
+bool hasBuffer(const std::string &name);
 
 void setAccelerator(const std::string &acceleratorName);
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                           const HeterogeneousMap& params = {});
-std::shared_ptr<Accelerator> getAccelerator(const std::string &name,
-                                            std::shared_ptr<Client> client,
-                                            const HeterogeneousMap& params = {});
+std::shared_ptr<Accelerator>
+getAccelerator(const std::string &name, const HeterogeneousMap &params = {});
+std::shared_ptr<Accelerator>
+getAccelerator(const std::string &name, std::shared_ptr<Client> client,
+               const HeterogeneousMap &params = {});
 std::shared_ptr<Accelerator> getAccelerator();
-std::shared_ptr<Accelerator> getAcceleratorDecorator(const std::string& decorator, std::shared_ptr<Accelerator> acc, const HeterogeneousMap& params = {});
+std::shared_ptr<Accelerator>
+getAcceleratorDecorator(const std::string &decorator,
+                        std::shared_ptr<Accelerator> acc,
+                        const HeterogeneousMap &params = {});
 
 bool hasAccelerator(const std::string &name);
 
@@ -155,13 +160,13 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name,
 bool hasCache(const std::string fileName, const std::string subdirectory = "");
 
 HeterogeneousMap getCache(const std::string fileName,
-                                           const std::string subdirectory = "");
+                          const std::string subdirectory = "");
 void appendCache(const std::string fileName, HeterogeneousMap &params,
                  const std::string subdirectory = "");
 template <typename T>
 void appendCache(const std::string fileName, const std::string key, T &&param,
                  const std::string subdirectory = "") {
-auto rootPathStr = xacc::getRootDirectory();
+  auto rootPathStr = xacc::getRootDirectory();
   if (!subdirectory.empty()) {
     rootPathStr += "/" + subdirectory;
     if (!xacc::directoryExists(rootPathStr)) {
@@ -171,13 +176,8 @@ auto rootPathStr = xacc::getRootDirectory();
   }
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
     auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache.keyExists<T>(key)) {
-      existingCache.get_mutable<T>(key) = param;
-    } else {
-      existingCache.insert(key, param);
-    }
+    existingCache.insert(key, param); 
 
     appendCache(fileName, existingCache, subdirectory);
   } else {
@@ -197,7 +197,8 @@ auto rootPathStr = xacc::getRootDirectory();
 
     out << s.str();
     out.close();
-  }}
+  }
+}
 
 template <typename T>
 void appendCache(const std::string fileName, const std::string key, T &param,
@@ -212,13 +213,8 @@ void appendCache(const std::string fileName, const std::string key, T &param,
   }
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
-    // std::cout << (rootPathStr + "/" + fileName) << " exists.\n";
     auto existingCache = getCache(fileName, subdirectory);
-    if (existingCache.keyExists<T>(key)) {
-      existingCache.get_mutable<T>(key) = param;
-    } else {
-      existingCache.insert(key, param);
-    }
+    existingCache.insert(key, param);
 
     appendCache(fileName, existingCache, subdirectory);
   } else {
@@ -247,25 +243,28 @@ const std::string
 translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,
           const std::string toLanguage);
 
-void appendCompiled(std::shared_ptr<CompositeInstruction> composite, bool _override = true);
+void appendCompiled(std::shared_ptr<CompositeInstruction> composite,
+                    bool _override = true);
 std::shared_ptr<CompositeInstruction> getCompiled(const std::string name);
 bool hasCompiled(const std::string name);
 
 void qasm(const std::string &qasmString);
 namespace external {
-  class ExternalLanguagePluginLoader : public Identifiable {
-  public:
-     virtual bool load() = 0;
-     virtual bool unload() = 0;
-  };
-  void load_external_language_plugins();
-  void unload_external_language_plugins();
-}
+class ExternalLanguagePluginLoader : public Identifiable {
+public:
+  virtual bool load() = 0;
+  virtual bool unload() = 0;
+};
+void load_external_language_plugins();
+void unload_external_language_plugins();
+} // namespace external
 
 namespace ir {
-    std::shared_ptr<CompositeInstruction> asComposite(std::shared_ptr<Instruction> inst);
-    std::shared_ptr<Instruction> asInstruction(std::shared_ptr<CompositeInstruction> comp);
-}
+std::shared_ptr<CompositeInstruction>
+asComposite(std::shared_ptr<Instruction> inst);
+std::shared_ptr<Instruction>
+asInstruction(std::shared_ptr<CompositeInstruction> comp);
+} // namespace ir
 void Finalize();
 
 } // namespace xacc
