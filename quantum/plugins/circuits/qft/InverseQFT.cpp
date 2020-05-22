@@ -38,6 +38,11 @@ bool InverseQFT::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   // Add them to the return function
   for (auto i : instructions) {
+    // If it is a parametric CPhase gate, 
+    // we need to inverse the angle.
+    if (i->name() == "CPhase") {
+      i->setParameter(0, -i->getParameter(0).as<double>());
+    }
     addInstruction(i);
   }
 
