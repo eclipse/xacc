@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_qpe",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Quantum Phase Estimation Algorithm",
+  "bundle.description" : ""
+}
