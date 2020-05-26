@@ -43,15 +43,27 @@ double qreg::weighted_sum(Observable *obs) {
   auto id = obs->getIdentitySubTerm();
 
   auto children = buffer->getChildren();
+
   double sum = 0.0;
+
   if (terms.size() != children.size()) {
-    xacc::error("[qreg::weighted_sum()] error, number of observable terms != "
-                "number of children buffers.");
+    if (terms.size() + 1 == children.size()) {
+      // find the I term in children and remove it
+      // we will add it at the end
+      children.erase(std::remove_if(children.begin(), children.end(),
+                                    [](const auto &child) {
+                                      return child->name() == "I";
+                                    }),
+                     children.end());
+    } else {
+      xacc::error("[qreg::weighted_sum()] error, number of observable terms != "
+                  "number of children buffers.");
+    }
   }
 
   for (int i = 0; i < children.size(); i++) {
-    // std::cout << children[i]->name() << ", "
-    //           << children[i]->getExpectationValueZ() << ", "
+    // std::cout << children[i]->name() << ", ";
+    // std::cout << children[i]->getExpectationValueZ() << ", "
     //           << terms[i]->coefficient() << "\n";
 
     sum += children[i]->getExpectationValueZ() *
