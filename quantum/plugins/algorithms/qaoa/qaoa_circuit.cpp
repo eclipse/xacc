@@ -48,6 +48,7 @@ bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
   // Expand to a parametric kernel
   auto kernel = constructParameterizedKernel();
   clear();
+  variables = kernel->getVariables();
   for (int instId = 0; instId < kernel->nInstructions(); ++instId)
   {
     addInstruction(kernel->getInstruction(instId)->clone());
