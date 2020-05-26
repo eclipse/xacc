@@ -36,6 +36,7 @@ public:
 
 private:
     std::shared_ptr<CompositeInstruction> constructParameterizedKernel() const;
+    void parseObservables(Observable* costHam, Observable* refHam);
 private:
     size_t m_nbQubits;
     size_t m_nbSteps;

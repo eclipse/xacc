@@ -16,12 +16,95 @@ namespace xacc {
 namespace circuits {
 bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
 {
-  return false;
+  if (!runtimeOptions.keyExists<int>("nbQubits")) 
+  {
+    std::cout << "'nbQubits' is required.\n";
+    return false;
+  }
+
+  if (!runtimeOptions.keyExists<int>("nbSteps")) 
+  {
+    std::cout << "'nbSteps' is required.\n";
+    return false;
+  }
+
+  if (!runtimeOptions.pointerLikeExists<xacc::Observable>("cost-ham")) 
+  {
+    std::cout << "'cost-ham' is required.\n";
+    return false;
+  }
+
+  m_nbQubits = runtimeOptions.get<int>("nbQubits");
+  m_nbSteps = runtimeOptions.get<int>("nbSteps");
+  
+  auto costHam = runtimeOptions.getPointerLike<xacc::Observable>("cost-ham");
+  xacc::Observable* refHam = nullptr;
+  if (runtimeOptions.pointerLikeExists<xacc::Observable>("ref-ham")) 
+  {
+    refHam = runtimeOptions.getPointerLike<xacc::Observable>("ref-ham");
+  }
+
+  parseObservables(costHam, refHam);
+  // Expand to a parametric kernel
+  auto kernel = constructParameterizedKernel();
+  clear();
+  for (int instId = 0; instId < kernel->nInstructions(); ++instId)
+  {
+    addInstruction(kernel->getInstruction(instId)->clone());
+  }
+
+  return true;
 }
 
 const std::vector<std::string> QAOA::requiredKeys() 
 {
-  return {};
+  // Keys for conventional circuit expand
+  // Mixer Hamiltonian is optional. 
+  return { "nbQubits", "nbSteps", "cost-ham" };
+}
+
+void QAOA::parseObservables(Observable* costHam, Observable* refHam)
+{
+  m_costHam.clear();
+  m_refHam.clear();
+
+  const auto pauliTermToString = [](const std::shared_ptr<xacc::Observable>& in_term){
+    std::string pauliTermStr = in_term->toString();
+    std::stringstream s;
+    s.precision(12);
+    s << std::fixed << in_term->coefficient();
+    // Find the parenthesis
+    const auto startPosition = pauliTermStr.find("(");
+    const auto endPosition = pauliTermStr.find(")");
+
+    if (startPosition != std::string::npos && endPosition != std::string::npos)
+    {
+        const auto length = endPosition - startPosition + 1;
+        pauliTermStr.replace(startPosition, length, s.str());
+    }
+    return pauliTermStr;
+  };
+
+  for (const auto& term : costHam->getNonIdentitySubTerms())
+  {
+    m_costHam.emplace_back(pauliTermToString(term));
+  }
+  // Default X mixer
+  if (!refHam)
+  {
+    for (size_t qId = 0; qId < m_nbQubits; ++qId)
+    {
+      m_refHam.emplace_back("X" + std::to_string(qId));
+    }
+  }
+  else
+  {
+    // Ref-Ham was provided:
+    for (const auto& term : refHam->getNonIdentitySubTerms())
+    {
+      m_refHam.emplace_back(pauliTermToString(term));
+    }
+  }
 }
 
 std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
@@ -77,7 +160,7 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
   return qaoaKernel;
 }
 
-
+// Runtime arguments (e.g. QCOR)
 void QAOA::applyRuntimeArguments() 
 {
   // Apply runtime arguments: i.e. resolve all parameters to concrete values
@@ -86,54 +169,9 @@ void QAOA::applyRuntimeArguments()
   const std::vector<double> gammaVec = arguments[2]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
   auto costHam = arguments[3]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
   auto refHam = arguments[4]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
-  // std::cout << "Number of qubits: " << m_nbQubits << "\n";
-  // std::cout << "Beta length: " << betaVec.size() << "\n";
-  // std::cout << "Gamma length: " << gammaVec.size() << "\n";
-  // std::cout << "Cost Ham: \n " << costHam->toString() << "\n";
-  // std::cout << "Ref Ham: \n " << refHam->toString() << "\n";
-
   // Number of QAOA steps
   m_nbSteps = betaVec.size()/m_nbQubits;
-  // std::cout << "Number steps (p): " << m_nbSteps << "\n";
-
-  m_costHam.clear();
-  for (const auto& term : costHam->getNonIdentitySubTerms())
-  {
-      std::string pauliTermStr = term->toString();
-      std::stringstream s;
-      s.precision(12);
-      s << std::fixed << term->coefficient();
-      // Find the parenthesis
-      const auto startPosition = pauliTermStr.find("(");
-      const auto endPosition = pauliTermStr.find(")");
-
-      if (startPosition != std::string::npos && endPosition != std::string::npos)
-      {
-          const auto length = endPosition - startPosition + 1;
-          pauliTermStr.replace(startPosition, length, s.str());
-      }
-      m_costHam.emplace_back(pauliTermStr);
-  }
-
-  m_refHam.clear();
-  for (const auto& term : refHam->getNonIdentitySubTerms())
-  {
-      std::string pauliTermStr = term->toString();
-      std::stringstream s;
-      s.precision(12);
-      s << std::fixed << term->coefficient();
-      // Find the parenthesis
-      const auto startPosition = pauliTermStr.find("(");
-      const auto endPosition = pauliTermStr.find(")");
-
-      if (startPosition != std::string::npos && endPosition != std::string::npos)
-      {
-          const auto length = endPosition - startPosition + 1;
-          pauliTermStr.replace(startPosition, length, s.str());
-      }
-      m_refHam.emplace_back(pauliTermStr);
-  }
-
+  parseObservables(costHam, refHam);  
   const int nbGammasPerStep = m_costHam.size();
   const int nbBetasPerStep = m_refHam.size();
   // Parametric kernel
