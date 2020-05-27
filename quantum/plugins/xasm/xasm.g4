@@ -16,7 +16,7 @@ xaccsrc
     typedparam : type ('&' | '*')? variable_param_name;
     variable_param_name : id;
 
-    type : 'int' | id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
+    type : 'auto' | 'int' | id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
 
 /***********************************************************************/
 
@@ -118,7 +118,7 @@ exp
    | real
    | INT
    | 'pi'
-   | var_name=id '[' idx=INT ']'
+   | var_name=id '[' idx=(INT|ID) ']'
    ;
 
 /* unary operations */
