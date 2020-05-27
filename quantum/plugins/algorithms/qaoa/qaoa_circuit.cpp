@@ -165,11 +165,11 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
 void QAOA::applyRuntimeArguments() 
 {
   // Apply runtime arguments: i.e. resolve all parameters to concrete values
-  m_nbQubits = arguments[0]->runtimeValue.get<int>(INTERNAL_ARGUMENT_VALUE_KEY);
-  const std::vector<double> betaVec = arguments[1]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
-  const std::vector<double> gammaVec = arguments[2]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
-  auto costHam = arguments[3]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
-  auto refHam = arguments[4]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
+  m_nbQubits = arguments[1]->runtimeValue.get<int>(INTERNAL_ARGUMENT_VALUE_KEY);
+  const std::vector<double> betaVec = arguments[2]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
+  const std::vector<double> gammaVec = arguments[3]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
+  auto costHam = arguments[4]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
+  auto refHam = arguments[5]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
   // Number of QAOA steps
   m_nbSteps = betaVec.size()/m_nbQubits;
   parseObservables(costHam, refHam);  
