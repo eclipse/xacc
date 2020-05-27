@@ -79,8 +79,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           if (nFunctionInstructions > kernel->nInstructions()) {
-            auto evaled = f->operator()(x);
-            fsToExec.push_back(evaled);
+            if (x.empty()) {
+              fsToExec.push_back(f);
+            } else {
+              auto evaled = f->operator()(x);
+              fsToExec.push_back(evaled);
+            }
             coefficients.push_back(std::real(coeff));
           } else {
             identityCoeff += std::real(coeff);
@@ -160,8 +164,12 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     if (nFunctionInstructions > kernel->nInstructions()) {
-      auto evaled = f->operator()(x);
-      fsToExec.push_back(evaled);
+      if (x.empty()) {
+        fsToExec.push_back(f);
+      } else {
+        auto evaled = f->operator()(x);
+        fsToExec.push_back(evaled);
+      }
       coefficients.push_back(std::real(coeff));
     } else {
       identityCoeff += std::real(coeff);
