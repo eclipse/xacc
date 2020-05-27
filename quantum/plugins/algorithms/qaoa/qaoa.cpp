@@ -82,7 +82,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
         std::make_pair("nbQubits", nbQubits),
         std::make_pair("nbSteps", m_nbSteps),
         std::make_pair("cost-ham", m_costHamObs),
-        std::make_pair("ref-ham", m_refHamObs),
+        std::make_pair("ref-ham", m_refHamObs)
     });
 
     // Observe the cost Hamiltonian:
@@ -179,7 +179,8 @@ std::vector<double> QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffe
     kernel->expand({
         std::make_pair("nbQubits", nbQubits),
         std::make_pair("nbSteps", m_nbSteps),
-        std::make_pair("cost-ham", m_costHamObs)
+        std::make_pair("cost-ham", m_costHamObs),
+        std::make_pair("ref-ham", m_refHamObs)
     });
 
     // Observe the cost Hamiltonian:
