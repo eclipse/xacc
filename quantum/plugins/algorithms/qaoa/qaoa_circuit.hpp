@@ -21,13 +21,8 @@ namespace circuits {
 class QAOA : public xacc::quantum::Circuit {
 public:
     QAOA() : Circuit("qaoa") { 
-        // Runtime arguments
+        // Default runtime arguments
         arguments.push_back(std::make_shared<xacc::CompositeArgument>("qReg", "qreg"));
-        arguments.push_back(std::make_shared<xacc::CompositeArgument>("nbQubits", "int"));
-        arguments.push_back(std::make_shared<xacc::CompositeArgument>("gamma", "std::vector<double>"));
-        arguments.push_back(std::make_shared<xacc::CompositeArgument>("beta", "std::vector<double>"));
-        arguments.push_back(std::make_shared<xacc::CompositeArgument>("cost", "Observable*"));
-        arguments.push_back(std::make_shared<xacc::CompositeArgument>("ref", "Observable*"));
     }
 
     bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
