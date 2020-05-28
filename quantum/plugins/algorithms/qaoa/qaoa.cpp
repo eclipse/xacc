@@ -53,43 +53,17 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
         initializeOk = false;
     }
 
-    // (5) Reference Hamiltonian: optional.
-    // Default is X0 + X1 + ...
-    // i.e. the X-basis where |+>|+>... is the ground state. 
-    m_refHam.clear();
-    if (parameters.keyExists<std::vector<std::string>>("ref-ham")) 
-    {
-        m_refHam = parameters.get<std::vector<std::string>>("ref-ham");
-    }
-
     if (initializeOk)
     {
         m_costHamObs = parameters.getPointerLike<Observable>("observable");
-        // Add cost Hamiltonian terms to the list of terms for gamma exp
-        m_costHam.clear();
-        for (const auto& term : m_costHamObs->getNonIdentitySubTerms())
-        {
-            std::string pauliTermStr = term->toString();
-            // HACK: the Pauli parser doesn't like '-0', i.e. extra minus sign on integer (no decimal point)
-            // hence, just reformat it.
-            std::stringstream s;
-            s.precision(12);
-            s << std::fixed << term->coefficient();
-            // Find the parenthesis
-            const auto startPosition = pauliTermStr.find("(");
-            const auto endPosition = pauliTermStr.find(")");
-
-            if (startPosition != std::string::npos && endPosition != std::string::npos)
-            {
-                const auto length = endPosition - startPosition + 1;
-                pauliTermStr.replace(startPosition, length, s.str());
-            }
-            
-            m_costHam.emplace_back(pauliTermStr);
-        }
-        
         m_qpu = parameters.getPointerLike<Accelerator>("accelerator");
         m_optimizer = parameters.getPointerLike<Optimizer>("optimizer");
+        // Optional ref-hamiltonian
+        m_refHamObs = nullptr;
+        if (parameters.pointerLikeExists<Observable>("ref-ham")) 
+        {
+            m_refHamObs = parameters.getPointerLike<Observable>("ref-ham");
+        }
     }
 
     return initializeOk;
@@ -100,64 +74,17 @@ const std::vector<std::string> QAOA::requiredParameters() const
     return { "accelerator", "optimizer", "observable" };
 }
 
-std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(const std::shared_ptr<AcceleratorBuffer>& in_buffer) const
-{   
-    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-    const auto nbQubits = in_buffer->size();
-    auto qaoaKernel = gateRegistry->createComposite("qaoaKernel");
-
-    // Hadamard layer
-    for (size_t i = 0; i < nbQubits; ++i)
-    {
-        qaoaKernel->addInstruction(gateRegistry->createInstruction("H", { i }));
-    }
-
-    // Trotter layers (parameterized): mixing b/w cost and drive (reference) Hamiltonian
-    int betaParamCounter = 0;
-    int gammaParamCounter = 0;
-
-    for (size_t i = 0; i < m_nbSteps; ++i)
-    {
-        for (const auto& term : m_costHam)
-        {
-            auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
-            const std::string paramName = "gamma" + std::to_string(gammaParamCounter++);
-            expCirc->addVariable(paramName);
-            expCirc->expand({ std::make_pair("pauli", term) });
-            qaoaKernel->addVariable(paramName);
-            qaoaKernel->addInstructions(expCirc->getInstructions());
-        }
-
-        // Beta params:
-        // If no drive/reference Hamiltonian is given,
-        // then assume the default X0 + X1 + ...
-        std::vector<std::string> refHamTerms(m_refHam);
-        if (refHamTerms.empty())
-        {
-            for (size_t qId = 0; qId < nbQubits; ++qId)
-            {
-                refHamTerms.emplace_back("X" + std::to_string(qId));
-            }
-        }
-
-        for (const auto& term : refHamTerms)
-        {
-            auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
-            const std::string paramName = "beta" + std::to_string(betaParamCounter++);
-            expCirc->addVariable(paramName);
-            expCirc->expand({ std::make_pair("pauli", term) });
-            qaoaKernel->addVariable(paramName);
-            qaoaKernel->addInstructions(expCirc->getInstructions());
-        }
-    }
-   
-    return qaoaKernel;
-}
-
 void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
     const int nbQubits = buffer->size();
-    auto kernel = constructParameterizedKernel(buffer);
+    auto kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
+    kernel->expand({
+        std::make_pair("nbQubits", nbQubits),
+        std::make_pair("nbSteps", m_nbSteps),
+        std::make_pair("cost-ham", m_costHamObs),
+        std::make_pair("ref-ham", m_refHamObs)
+    });
+
     // Observe the cost Hamiltonian:
     auto kernels = m_costHamObs->observe(kernel);
 
@@ -248,7 +175,13 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 std::vector<double> QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 
 {
     const int nbQubits = buffer->size();
-    auto kernel = constructParameterizedKernel(buffer);
+    auto kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
+    kernel->expand({
+        std::make_pair("nbQubits", nbQubits),
+        std::make_pair("nbSteps", m_nbSteps),
+        std::make_pair("cost-ham", m_costHamObs),
+        std::make_pair("ref-ham", m_refHamObs)
+    });
 
     // Observe the cost Hamiltonian:
     auto kernels = m_costHamObs->observe(kernel);
