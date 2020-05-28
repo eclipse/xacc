@@ -453,6 +453,51 @@ TEST(QppAcceleratorTester, testFsim)
     }
 }
 
+TEST(QppAcceleratorTester, testDeuteronVqeH3Shots)
+{
+    // Use Qpp accelerator
+    const int nbShots = 10000;
+    auto accelerator = xacc::getAccelerator("qpp", { std::make_pair("shots", nbShots) });
+    EXPECT_EQ(accelerator->name(), "qpp");
+
+    // Create the N=3 deuteron Hamiltonian
+    auto H_N_3 = xacc::quantum::getObservable(
+        "pauli",
+        std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                    "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+    auto optimizer = xacc::getOptimizer("nlopt");
+
+    // JIT map Quil QASM Ansatz to IR
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz_h3_2
+        .parameters t0, t1
+        .qbit q
+        X(q[0]);
+        exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz_h3_2");
+
+    // Get the VQE Algorithm and initialize it
+    auto vqe = xacc::getAlgorithm("vqe");
+    vqe->initialize({std::make_pair("ansatz", ansatz),
+                    std::make_pair("observable", H_N_3),
+                    std::make_pair("accelerator", accelerator),
+                    std::make_pair("optimizer", optimizer)});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(3);
+    vqe->execute(buffer);
+
+    // Expected result: -2.04482
+    // Tol: 0.25 (~10% of the true value)
+    // (since we are using shots, hence will introduce randomness to the optimizer)
+    std::cout << "Energy = " << (*buffer)["opt-val"].as<double>() << "\n";
+    EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -2.04482, 0.25);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
