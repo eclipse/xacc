@@ -85,8 +85,9 @@ public:
       : circuitName(name), variables(vars) {}
 
   Circuit(const Circuit &other)
-      : circuitName(other.circuitName), variables(other.variables),
-        instructions(other.instructions), parsingUtil(other.parsingUtil) {}
+      : CompositeInstruction(other), 
+        circuitName(other.circuitName), variables(other.variables),
+        instructions(other.instructions), parsingUtil(other.parsingUtil) { }
 
   const std::string name() const override { return circuitName; }
   const std::string description() const override { return ""; }

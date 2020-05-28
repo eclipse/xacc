@@ -11,6 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "qaoa.hpp"
+#include "qaoa_circuit.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -35,6 +36,7 @@ public:
   void Start(BundleContext context) {
     auto c = std::make_shared<xacc::algorithm::QAOA>();
     context.RegisterService<xacc::Algorithm>(c);
+    context.RegisterService<xacc::Instruction>(std::make_shared<xacc::circuits::QAOA>());
   }
 
   /**
