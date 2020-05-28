@@ -11,11 +11,50 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "qaoa_circuit.hpp"
+#include "PauliOperator.hpp"
+
+namespace {
+  // Null if not an Observable-like type 
+  std::shared_ptr<xacc::Observable> getObservableRuntimeArg(const xacc::HeterogeneousMap& in_runtimeArg) 
+  {
+    // Try base Observable pointer:
+    if (in_runtimeArg.pointerLikeExists<xacc::Observable>(xacc::INTERNAL_ARGUMENT_VALUE_KEY))
+    {
+      return std::shared_ptr<xacc::Observable>(
+        in_runtimeArg.getPointerLike<xacc::quantum::PauliOperator>(xacc::INTERNAL_ARGUMENT_VALUE_KEY),
+        xacc::empty_delete<xacc::Observable>());
+    }
+    
+    // Try concrete Pauli Observable
+    // Reference type
+    if (in_runtimeArg.keyExists<xacc::quantum::PauliOperator>(xacc::INTERNAL_ARGUMENT_VALUE_KEY))
+    {
+      // Just make a copy
+      return std::make_shared<xacc::quantum::PauliOperator>(
+        in_runtimeArg.get<xacc::quantum::PauliOperator>(xacc::INTERNAL_ARGUMENT_VALUE_KEY));
+    }
+
+    // Pointer type
+    if (in_runtimeArg.pointerLikeExists<xacc::quantum::PauliOperator>(xacc::INTERNAL_ARGUMENT_VALUE_KEY))
+    {
+      // Make a copy
+      return std::make_shared<xacc::quantum::PauliOperator>(
+        *(in_runtimeArg.getPointerLike<xacc::quantum::PauliOperator>(xacc::INTERNAL_ARGUMENT_VALUE_KEY)));
+    }
+
+    return nullptr;
+  }
+}
 
 namespace xacc {
 namespace circuits {
 bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
 {
+  if (runtimeOptions.size() == 0)
+  {
+    return false;
+  }
+  
   if (!runtimeOptions.keyExists<int>("nbQubits")) 
   {
     std::cout << "'nbQubits' is required.\n";
@@ -168,11 +207,18 @@ void QAOA::applyRuntimeArguments()
   m_nbQubits = arguments[1]->runtimeValue.get<int>(INTERNAL_ARGUMENT_VALUE_KEY);
   const std::vector<double> betaVec = arguments[2]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
   const std::vector<double> gammaVec = arguments[3]->runtimeValue.get<std::vector<double>>(INTERNAL_ARGUMENT_VALUE_KEY);
-  auto costHam = arguments[4]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
-  auto refHam = arguments[5]->runtimeValue.getPointerLike<xacc::Observable>(INTERNAL_ARGUMENT_VALUE_KEY);
+  auto costHam = getObservableRuntimeArg(arguments[4]->runtimeValue);
+  auto refHam = getObservableRuntimeArg(arguments[5]->runtimeValue);
+  // Cost Hamiltonian is required.
+  if (!costHam)
+  {
+    std::cout << "No cost Hamiltonian observable was provided!\n";
+    return;
+  }
+
   // Number of QAOA steps
   m_nbSteps = betaVec.size()/m_nbQubits;
-  parseObservables(costHam, refHam);  
+  parseObservables(costHam.get(), refHam.get());  
   const int nbGammasPerStep = m_costHam.size();
   const int nbBetasPerStep = m_refHam.size();
   // Parametric kernel
