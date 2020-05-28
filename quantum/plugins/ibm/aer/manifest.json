@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_aer",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC aer Simulation Accelerator",
+  "bundle.description" : "This bundle provides a aer Accelerator for Gate Model QC."
+}
