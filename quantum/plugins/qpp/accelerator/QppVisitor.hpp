@@ -54,7 +54,7 @@ public:
   void visit(fSim& in_fsimGate) override;
   
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
-
+  const KetVectorType& getStateVec() const { return m_stateVec; }
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
   double calcExpectationValueZ() const;
