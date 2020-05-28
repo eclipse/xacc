@@ -28,7 +28,7 @@ extern bool __execute;
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
-void compiler_InitializeXACC(const char *qpu_backend = "local-ibm");
+void compiler_InitializeXACC(const char *qpu_backend = "qpp");
 void compiler_InitializeXACC(const char *qpu_backend, int shots);
 
 void setAccelerator(const char *qpu_backend);
