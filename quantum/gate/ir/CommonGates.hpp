@@ -387,7 +387,7 @@ public:
       : Gate("CPhase", qbits,
              std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
 
-  const int nRequiredBits() const override { return 1; }
+  const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CPhase)
   DEFINE_VISITABLE()
