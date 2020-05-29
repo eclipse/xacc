@@ -15,7 +15,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
-TEST(RotationFoldingTester, checkSimple) {
+TEST(Staq_RotationFoldingTester, checkSimple) {
   auto irt = xacc::getIRTransformation("rotation-folding");
   auto compiler = xacc::getCompiler("xasm");
   auto program = compiler->compile(R"(__qpu__ void test_t_t(qreg q) {

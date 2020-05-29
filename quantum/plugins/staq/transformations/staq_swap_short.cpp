@@ -31,11 +31,13 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
                       const HeterogeneousMap &options) {
 
   if (!qpu) {
-      xacc::warning("[SwapShort Placement] Provided QPU was null. Cannot run shortest path swap placement.");
-      return;
+    xacc::warning("[SwapShort Placement] Provided QPU was null. Cannot run "
+                  "shortest path swap placement.");
+    return;
   }
 
- // First get total number of qubits on device
+
+  // First get total number of qubits on device
   std::set<int> qbitIdxs;
   auto connectivity = qpu->getConnectivity();
   for (auto &edge : connectivity) {
@@ -60,16 +62,17 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   auto staq = xacc::getCompiler("staq");
   auto src = staq->translate(program);
 
-  std::cout <<"initial translate:\n" << src << "\n";
+  std::cout << "initial translate:\n" << src << "\n";
   // parse that to get staq ast
   auto prog = parser::parse_string(src);
 
-  mapping::Device device(qpu->getSignature(), nQubits, adj);//, oneq,couplings);
+  mapping::Device device(qpu->getSignature(), nQubits,
+                         adj); //, oneq,couplings);
   auto layout = mapping::compute_basic_layout(device, *prog);
-  mapping::apply_layout(layout, *prog);
-     layout = mapping::compute_basic_layout(device, *prog);
+  mapping::apply_layout(layout, device, *prog);
+//   layout = mapping::compute_basic_layout(device, *prog);
 
-  mapping::apply_layout(layout, *prog);
+//   mapping::apply_layout(layout, device, *prog);
 
   std::cout << *prog << "\n";
   mapping::map_onto_device(device, *prog);
@@ -80,7 +83,7 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   prog->pretty_print(ss);
   src = ss.str();
 
- std::cout << "Final:\n" << src << "\n";
+  std::cout << "Final:\n" << src << "\n";
   auto ir = staq->compile(src);
 
   // reset the program and add optimized instructions
