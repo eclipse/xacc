@@ -25,8 +25,14 @@ public:
   virtual void enterTypedparam(QuilParser::TypedparamContext *ctx) = 0;
   virtual void exitTypedparam(QuilParser::TypedparamContext *ctx) = 0;
 
+  virtual void enterVariable_param_name(QuilParser::Variable_param_nameContext *ctx) = 0;
+  virtual void exitVariable_param_name(QuilParser::Variable_param_nameContext *ctx) = 0;
+
   virtual void enterType(QuilParser::TypeContext *ctx) = 0;
   virtual void exitType(QuilParser::TypeContext *ctx) = 0;
+
+  virtual void enterId(QuilParser::IdContext *ctx) = 0;
+  virtual void exitId(QuilParser::IdContext *ctx) = 0;
 
   virtual void enterKernelcall(QuilParser::KernelcallContext *ctx) = 0;
   virtual void exitKernelcall(QuilParser::KernelcallContext *ctx) = 0;
@@ -159,6 +165,9 @@ public:
 
   virtual void enterAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
   virtual void exitAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
+
+  virtual void enterVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
+  virtual void exitVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
 
   virtual void enterFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;
   virtual void exitFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;

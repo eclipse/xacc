@@ -16,6 +16,8 @@ add_subdirectory(rdm)
 add_subdirectory(ml)
 add_subdirectory(rotoselect)
 add_subdirectory(qpt)
+add_subdirectory(qaoa)
+add_subdirectory(qpe)
 
 file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py
                        ${CMAKE_CURRENT_SOURCE_DIR}/ml/ddcl/python/*.py)

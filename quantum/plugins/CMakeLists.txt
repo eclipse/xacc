@@ -23,8 +23,15 @@ add_subdirectory(placement)
 #add_subdirectory(scaffold)
 add_subdirectory(xasm)
 add_subdirectory(qpp)
-if (STAQ_DIR)
-  add_subdirectory(staq)
+add_subdirectory(staq)
+
+find_library(QRACK_LIBRARY NAMES qrack)
+if (QRACK_LIBRARY)
+    message("-- Found Qrack library (find_library(QRACK_LIBRARY NAMES qrack))")
+    add_subdirectory(qrack)
+else()
+    message("-- Could NOT find Qrack library (missing: find_library(QRACK_LIBRARY NAMES qrack))")
 endif()
 
 add_subdirectory(optimal_control)
+

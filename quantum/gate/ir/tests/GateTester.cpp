@@ -17,11 +17,58 @@
 #include "xacc.hpp"
 using namespace xacc::quantum;
 
+TEST(GateTester, checkIR3) {
+
+  /* mimic the following 
+  *
+  * __qpu__ foo (qbit q, double x, double y, double z) {
+  *   Rx(q[0], x);
+  *   U(q[0], x, y, z);
+  * }
+  *
+  */
+  
+  auto circuit = std::make_shared<Circuit>("foo");
+  circuit->addVariable("x");
+  circuit->addVariable("y");
+  circuit->addVariable("z");
+
+  circuit->addArgument("x", "double");
+  circuit->addArgument("y", "double");
+  circuit->addArgument("z", "double");
+
+  auto argx = circuit->getArgument("x");
+  auto argy = circuit->getArgument("y");
+  auto argz = circuit->getArgument("z");
+
+  auto rx = std::make_shared<Rx>(0, "x");
+  rx->addArgument(argx, 0);
+
+  auto u = std::make_shared<U>(0, std::vector<xacc::InstructionParameter>{"x", "y", "z"});
+  u->addArgument(argx, 0);
+  u->addArgument(argy, 1);
+  u->addArgument(argz, 2);
+
+  circuit->addInstructions({rx,u});
+
+  EXPECT_THROW(circuit->updateRuntimeArguments(2.2), std::runtime_error);
+
+  circuit->updateRuntimeArguments(2.2, 3.3, 4.4);
+
+  std::cout << circuit->toString() <<"\n";
+  
+  circuit->updateRuntimeArguments(3.2, 4.3, 5.3);
+  
+  std::cout << circuit->toString() <<"\n";
+
+}
+
 TEST(GateTester, checkBugBug) {
      auto cnot = std::make_shared<CNOT>(0,1);
      cnot->setBufferNames({"a","b"});
      std::cout << "CNOT:\n" << cnot->toString() << "\n";
 }
+
 TEST(GateTester, checkBasicGatesAndCircuits) {
 
   auto h = std::make_shared<Hadamard>(0);
@@ -231,13 +278,13 @@ TEST(GateTester, checkGenerateGraph) {
 
   std::string expected = R"expected(digraph G {
 node [shape=box style=filled]
-0 [label="id=0;name=InitialState;bits=[0,1,2]"];
-1 [label="id=1;name=H;bits=[1]"];
-2 [label="id=2;name=CNOT;bits=[1,2]"];
-3 [label="id=3;name=CNOT;bits=[0,1]"];
-4 [label="id=4;name=H;bits=[0]"];
-5 [label="id=5;name=Rz;bits=[2]"];
-6 [label="id=6;name=FinalState;bits=[0,1,2]"];
+0 [label="bits=[0,1,2];id=0;name=InitialState"];
+1 [label="bits=[1];id=1;name=H"];
+2 [label="bits=[1,2];id=2;name=CNOT"];
+3 [label="bits=[0,1];id=3;name=CNOT"];
+4 [label="bits=[0];id=4;name=H"];
+5 [label="bits=[2];id=5;name=Rz"];
+6 [label="bits=[0,1,2];id=6;name=FinalState"];
 0->1 ;
 0->2 ;
 0->3 ;

@@ -15,9 +15,6 @@ include_directories(${CMAKE_SOURCE_DIR}/quantum/plugins/ibm/compiler)
 include_directories(${CMAKE_SOURCE_DIR}/quantum/gate/utils)
 include_directories(${CMAKE_BINARY_DIR})
 
-add_xacc_test(LocalIBMAccelerator)
-target_link_libraries(LocalIBMAcceleratorTester xacc-quantum-gate)
-
 add_xacc_test(OQASMCompiler)
 target_link_libraries(OQASMCompilerTester xacc-quantum-gate)
 

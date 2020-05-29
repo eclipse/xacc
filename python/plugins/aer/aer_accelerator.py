@@ -4,8 +4,8 @@ from pelix.ipopo.decorators import ComponentFactory, Property, Requires, Provide
 
 @ComponentFactory("aer_accelerator_factory")
 @Provides("accelerator")
-@Property("_accelerator", "accelerator", "aer")
-@Property("_name", "name", "aer")
+@Property("_accelerator", "accelerator", "aer-py")
+@Property("_name", "name", "aer-py")
 @Instantiate("aer_accelerator_instance")
 class AerAccelerator(xacc.Accelerator):
     def __init__(self):
@@ -24,7 +24,6 @@ class AerAccelerator(xacc.Accelerator):
         if 'shots' in options:
             self.shots = options['shots']
 
-
         if 'backend' in options:
             self.backend = options['backend']
             import json
@@ -38,15 +37,19 @@ class AerAccelerator(xacc.Accelerator):
             ro_error = True if 'readout_error' in options and options['readout_error'] else False
             rel = True if 'thermal_relaxation' in options and options['thermal_relaxation'] else False
             ge = True if 'gate_error' in options and options['gate_error'] else False
-            self.noise_model = noise.device.basic_device_noise_model(properties, readout_error=ro_error, thermal_relaxation=rel, gate_error=ge)
+            self.noise_model = noise.NoiseModel.from_backend(backend, readout_error=ro_error, thermal_relaxation=rel, gate_error=ge)
+
+    def updateConfiguration(self, options):
+        self.initialize(options)
 
     def getConnectivity(self):
         if self.modeled_qpu == None:
             return []
         else:
             return self.modeled_qpu.getConnectivity()
+    
     def name(self):
-        return 'aer'
+        return 'aer-py'
 
     def execute_one_qasm(self, buffer, program):
         qobjStr = self.qobj_compiler.translate(program)

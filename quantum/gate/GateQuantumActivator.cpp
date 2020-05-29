@@ -49,7 +49,10 @@ public:
     auto y = std::make_shared<xacc::quantum::Y>();
     auto z = std::make_shared<xacc::quantum::Z>();
     auto sw = std::make_shared<xacc::quantum::Swap>();
+    auto isw = std::make_shared<xacc::quantum::iSwap>();
+    auto fsim = std::make_shared<xacc::quantum::fSim>();
     auto u = std::make_shared<xacc::quantum::U>();
+    auto anneal = std::make_shared<xacc::quantum::AnnealingInstruction>();
 
     auto s = std::make_shared<xacc::quantum::S>();
     auto sdg = std::make_shared<xacc::quantum::Sdg>();
@@ -78,8 +81,11 @@ public:
     context.RegisterService<xacc::Instruction>(y);
     context.RegisterService<xacc::Instruction>(z);
     context.RegisterService<xacc::Instruction>(sw);
+    context.RegisterService<xacc::Instruction>(isw);
+    context.RegisterService<xacc::Instruction>(fsim);
     context.RegisterService<xacc::Instruction>(u);
     context.RegisterService<xacc::Instruction>(ifstmt);
+    context.RegisterService<xacc::Instruction>(anneal);
 
     context.RegisterService<xacc::Instruction>(s);
     context.RegisterService<xacc::Instruction>(sdg);

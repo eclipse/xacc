@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_quilc",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC QuilC Docker Client",
+  "bundle.description" : "This bundle provides integration with QuilC via Docker."
+}

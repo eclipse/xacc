@@ -19,7 +19,7 @@ using namespace xacc;
 
 TEST(RBMTester, checkSimple) {
  auto rbm =std::dynamic_pointer_cast<quantum::AnnealingProgram>(
-      xacc::getService<Instruction>("rbm"));
+      xacc::getService<Instruction>("rbm-ap"));
 
   EXPECT_TRUE(rbm->expand(
       {std::make_pair("nv", 4), std::make_pair("nh", 4)}));

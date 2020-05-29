@@ -3,6 +3,55 @@ Extensions
 Here we detail concrete implementations of various XACC interfaces as well as any
 input parameters they expose.
 
+Compilers
+---------
+
+xasm
+++++
+The XASM Compiler is the default compiler in XACC. It is the closest language to the underlying 
+XACC IR data model. The XASM compiler provides a quantum assembly like language with support 
+for custom Instructions and Composite Instruction generators as part of the language. Instructions 
+are provided to the language via the usual XACC service registry. Most common digital gates are provided 
+by default, and it is straightforward to add new Instructions. 
+
+
+
+quilc
+++++++
+XACC provides a Compiler implementation that delegates to the Rigetti-developed 
+quilc compiler. This is acheieved through the ``rigetti/quilc`` Docker image and 
+the internal XACC REST client API. The Quilc Compiler implementation makes direct 
+REST POSTs and GETs to the users local Docker Engine. Therefore, 
+in order to use this Compiler, you must pull down this image. 
+
+.. code:: bash 
+
+   $ docker pull rigetti/quilc 
+
+With that image pulled, you can now use the Quilc compiler via the usual XACC API calls. 
+
+.. code:: cpp
+
+   auto compiler = xacc::getCompiler("quilc");
+   auto ir = compiler->compile(R"##(H 0
+   CNOT 0 1
+   )##");
+   std::cout << ir->getComposites()[0]->toString() << "\n";
+
+or in Python
+
+.. code:: python
+
+   compiler = xacc.getCompiler('quilc')
+   ir = compiler.compile('''__qpu__ void ansatz(qbit q, double x) {
+       X 0
+       CNOT 1 0
+       RY(x) 1
+   }''')
+
+Note that you can structure your input to the compiler as a typical XACC kernel source string 
+or as a raw Quil string. 
+
 Optimizers
 ----------
 XACC provides implementations for the ``Optimizer`` that delegate to NLOpt and MLPack. Here we demonstrate
@@ -460,6 +509,32 @@ To use automatic gate-to-pulse functionality, we need to load a pulse library to
 
 For more information, please check out these `examples <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration/xacc_examples/python>`_.
 
+Qrack
++++++
+The `vm6502q/qrack <https://github.com/vm6502q/qrack>`_ simulator-based accelerator provides optional OpenCL-based GPU acceleration, as well as a novel simulator optimization layer.
+
+.. code:: cpp
+
+   auto qrk = xacc::getAccelerator("qrack", {std::make_pair("shots", 2048)});
+
+By default, it selects initialization parameters that are commonly best for a wide range of use cases. However, it is highly configurable through a number of exposed parameters:
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+|    shots                    | Number of iterations to repeat the circuit for                         |    int      | -1 (Z-expectation only)  |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    use_opencl               | Use OpenCL acceleration if available, (otherwise native C++11)         |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    use_qunit                | Turn on the novel optimization layer, (otherwise "Schrödinger method") |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    device_id                | The (Qrack) device ID number of the OpenCL accelerator to use          |    int      | -1 (auto-select)         |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    do_normalize             | Enable small norm probability amplitude flooring and normalization     |    bool     | true                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|    zero_threshold           | Norm threshold for clamping probability amplitudes to 0                |    double   | 1e-14/1e-30 float/double |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
 Algorithms
 ----------
 XACC exposes hybrid quantum-classical Algorithm implementations for the variational quantum eigensolver (VQE), data-driven
@@ -894,6 +969,256 @@ or in Python
    F = qpt.calculate('fidelity', buffer, {'chi-theoretical-real':[0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 0., 0., 1., 0., 1.]})
    print('\nFidelity: ', F)
 
+QAOA
+++++
+The QAOA Algorithm requires the following input information:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator represents the cost Hamiltonian.         | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    optimizer           | The classical optimizer to use                                  | std::shared_ptr<Optimizer>           |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    steps               | The number of timesteps. Corresponds to 'p' in the literature.  | int                                  |
+|                        | This is optional, default = 1 if not provided.                  |                                      |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+This Algorithm will add ``opt-val`` (``double``) and ``opt-params`` (``std::vector<double>``) to the provided ``AcceleratorBuffer``.
+The results of the algorithm are therefore retrieved via these keys (see snippet below). Note you can
+control the initial QAOA parameters with the ``Optimizer`` ``initial-parameters`` key (by default all zeros).
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+   #include "xacc_observable.hpp"
+   #include "xacc_service.hpp"
+   #include <random>
+
+   // Use XACC built-in QAOA to solve a QUBO problem
+   // QUBO function:
+   // y = -5x1 - 3x2 - 8x3 - 6x4 + 4x1x2 + 8x1x3 + 2x2x3 + 10x3x4
+   int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+      // Use the Qpp simulator as the accelerator
+      auto acc = xacc::getAccelerator("qpp");
+      
+      auto buffer = xacc::qalloc(4);
+      // The corresponding QUBO Hamiltonian is:
+      auto observable = xacc::quantum::getObservable(
+            "pauli",
+            std::string("-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3"));
+      
+      const int nbSteps = 12;
+      const int nbParams = nbSteps*11;
+      std::vector<double> initialParams;
+      std::random_device rd;  
+      std::mt19937 gen(rd()); 
+      std::uniform_real_distribution<> dis(-2.0, 2.0);
+      
+      // Init random parameters
+      for (int i = 0; i < nbParams; ++i)
+      {
+         initialParams.emplace_back(dis(gen));
+      } 
+      
+      auto optimizer = xacc::getOptimizer("nlopt", 
+         xacc::HeterogeneousMap { 
+            std::make_pair("initial-parameters", initialParams),
+            std::make_pair("nlopt-maxeval", nbParams*100) });
+      
+      auto qaoa = xacc::getService<xacc::Algorithm>("QAOA");
+      
+      const bool initOk = qaoa->initialize({
+                              std::make_pair("accelerator", acc),
+                              std::make_pair("optimizer", optimizer),
+                              std::make_pair("observable", observable),
+                              // number of time steps (p) param
+                              std::make_pair("steps", nbSteps)
+                           });
+      qaoa->execute(buffer);
+      std::cout << "Min QUBO: " << (*buffer)["opt-val"].as<double>() << "\n";
+   }
+
+In Python:
+
+.. code:: python
+
+   import xacc,sys, numpy as np
+
+   # Get access to the desired QPU and
+   # allocate some qubits to run on
+   qpu = xacc.getAccelerator('qpp')
+
+   # Construct the Hamiltonian as an XACC PauliOperator
+   # This Hamiltonian corresponds to the QUBO problem:
+   # y = -5x_1 -3x_2 -8x_3 -6x_4 + 4x_1x_2 + 8x_1x_3 + 2x_2x_3 + 10x_3x_4
+   ham = xacc.getObservable('pauli', '-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3')
+
+   # We need 4 qubits
+   buffer = xacc.qalloc(4)
+
+   # There are 7 gamma terms (non-identity) in the cost Hamiltonian 
+   # and 4 beta terms for mixer Hamiltonian
+   nbParamsPerStep = 7 + 4
+
+   # The number of steps (often referred to as 'p' parameter): 
+   # alternating layers of mixer and cost Hamiltonian exponential.
+   nbSteps = 4
+
+   # Total number of params
+   nbTotalParams = nbParamsPerStep * nbSteps
+
+   # Init params randomly: 
+   initParams = np.random.rand(nbTotalParams)
+
+   # The optimizer: nlopt
+   opt = xacc.getOptimizer('nlopt', { 'initial-parameters': initParams })
+
+   # Create the QAOA algorithm
+   qaoa = xacc.getAlgorithm('QAOA', {
+                           'accelerator': qpu,
+                           'observable': ham,
+                           'optimizer': opt,
+                           'steps': nbSteps
+                           })
+
+   result = qaoa.execute(buffer)
+   print('Min QUBO value = ', buffer.getInformation('opt-val'))
+
+
+Quantum Phase Estimation
+++++++++++++++++++++++++
+The ``QPE`` algorithm (also known as quantum eigenvalue estimation algorithm) provides 
+an implementation of Algorithm that estimates the phase (or eigenvalue) of an eigenvector of a unitary operator.
+
+Here the unitary operator is called an `oracle` which is a quantum subroutine 
+that acts upon a set of qubits and returns the answer as a phase. 
+The bits precision is automatically inferred from the size of the input buffer.
+
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                         |
++========================+========================================================================+==========================================+
+|    oracle              | The circuit represents the unitary operator.                           | pointer-like CompositeInstruction        |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|    accelerator         | The backend quantum computer to use.                                   | pointer-like Accelerator                 |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+|   state-preparation    | The circuit to prepare the eigen state.                                | pointer-like CompositeInstruction        |
++------------------------+------------------------------------------------------------------------+------------------------------------------+
+
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+   #include "xacc_service.hpp"
+
+   int main(int argc, char **argv) {
+   xacc::Initialize(argc, argv);
+   // Accelerator:
+   auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots", 4096)});
+   
+   // In this example: we want to estimate the *phase* of an arbitrary 'oracle'
+   // i.e. Oracle(|State>) = exp(i*Phase)*|State>
+   // and we need to estimate that Phase.
+
+   // Oracle: CPhase(theta) or CU1(theta) which is defined as
+   // 1 0 0 0
+   // 0 1 0 0
+   // 0 0 1 0
+   // 0 0 0 e^(i*theta)
+   // The eigenstate is |11>; i.e. CPhase(theta)|11> = e^(i*theta)|11>
+
+   // Since this oracle operates on 2 qubits, we need to add more qubits to the buffer.
+   // The more qubits we have, the more accurate the estimate.
+   // Resolution := 2^(number qubits in the calculation register).
+   // 5-bit precision => 7 qubits in total
+   auto buffer = xacc::qalloc(7);
+   auto qpe = xacc::getService<xacc::Algorithm>("QPE");
+   auto compiler = xacc::getCompiler("xasm");
+   
+   // Create oracle: CPhase gate with theta = 2pi/3
+   // i.e. the phase value to estimate is 1/3 ~ 0.33333.
+   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+   auto oracle = gateRegistry->createComposite("oracle");
+   oracle->addInstruction(gateRegistry->createInstruction("CPhase", { 0, 1 }, { 2.0 * M_PI/ 3.0 }));
+
+   // Eigenstate preparation = |11> state
+   auto statePrep = compiler->compile(R"(__qpu__ void prep1(qbit q) {
+      X(q[0]); 
+      X(q[1]); 
+   })", nullptr)->getComposite("prep1");  
+   
+   // Initialize the Quantum Phase Estimation:
+   qpe->initialize({
+                     std::make_pair("accelerator", acc),
+                     std::make_pair("oracle", oracle),
+                     std::make_pair("state-preparation", statePrep)
+                     });
+   
+   // Run the algorithm
+   qpe->execute(buffer);
+   // Expected result: 
+   // The factor here is 2^5 (precision) = 32
+   // we expect the two most-likely bitstring is 10 and 11
+   // i.e. the true result is between 10/32 = 0.3125 and 11/32 = 0.34375  
+   std::cout << "Probability of the two most-likely bitstrings 10 (theta = 0.3125) and 11 (theta = 0.34375 ): \n";
+   std::cout << "Probability of |11010> (11) = " << buffer->computeMeasurementProbability("11010") << "\n";
+   std::cout << "Probability of |01010> (10) = " << buffer->computeMeasurementProbability("01010") << "\n";
+
+   xacc::Finalize();
+   }
+
+or in Python
+
+.. code:: python
+
+   import xacc,sys, numpy as np
+
+   # Get access to the desired QPU and
+   # allocate some qubits to run on
+   qpu = xacc.getAccelerator('qpp',  { 'shots': 4096 })
+
+   # In this example: we want to estimate the *phase* of an arbitrary 'oracle'
+   # i.e. Oracle(|State>) = exp(i*Phase)*|State>
+   # and we need to estimate that Phase.
+
+   # The oracle is a simple T gate, and the eigenstate is |1>
+   # T|1> = e^(i*pi/4)|1> 
+   # The phase value of pi/4 = 2pi * (1/8)
+   # i.e. if we use a 3-bit register for estimation, 
+   # we will get the correct answer of 1 deterministically.
+
+   xacc.qasm('''.compiler xasm
+   .circuit oracle
+   .qbit q
+   T(q[0]);
+   ''')
+   oracle = xacc.getCompiled('oracle')
+
+   # We need to prepare the eigenstate |1>
+   xacc.qasm('''.compiler xasm
+   .circuit prep
+   .qbit q
+   X(q[0]);
+   ''')
+   statePrep = xacc.getCompiled('prep')
+
+   # We need 4 qubits (3-bit precision)
+   buffer = xacc.qalloc(4)
+
+   # Create the QPE algorithm
+   qpe = xacc.getAlgorithm('QPE', {
+                           'accelerator': qpu,
+                           'oracle': oracle,
+                           'state-preparation': statePrep
+                           })
+
+   qpe.execute(buffer)
+   # We should only get the bit string of |100> = 1
+   # i.e. phase value of 1/2^3 = 1/8.
+   print(buffer)
 
 Accelerator Decorators
 ----------------------

@@ -12,7 +12,6 @@
  *******************************************************************************/
 #ifndef QUANTUM_UTILS_PAULIOPERATOR_HPP_
 #define QUANTUM_UTILS_PAULIOPERATOR_HPP_
-#include <ios>
 #include <unordered_map>
 #include <complex>
 #include <map>
@@ -48,17 +47,6 @@ using TermTuple =
 using c = std::complex<double>;
 using ActionResult = std::pair<std::string, c>;
 enum ActionType { Bra, Ket };
-class Triplet : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
-public:
-  Triplet(std::uint64_t r, std::uint64_t c, std::complex<double> coeff) {
-    std::get<0>(*this) = r;
-    std::get<1>(*this) = c;
-    std::get<2>(*this) = coeff;
-  }
-  const std::uint64_t row() { return std::get<0>(*this); }
-  const std::uint64_t col() { return std::get<1>(*this); }
-  const std::complex<double> coeff() { return std::get<2>(*this); }
-};
 
 class Term : public TermTuple,
              public tao::operators::commutative_multipliable<Term>,
@@ -214,7 +202,7 @@ public:
     return (std::get<1>(*this) == std::get<1>(v) && ops() == std::get<2>(v));
   }
 
-  std::vector<Triplet> getSparseMatrixElements(const int nQubits);
+  std::vector<SparseTriplet> getSparseMatrixElements(const int nQubits);
 
   ActionResult action(const std::string &bitString, ActionType type);
 
@@ -223,7 +211,8 @@ public:
 };
 
 class PauliOperator
-    : public xacc::Observable, public xacc::Cloneable<Observable>,
+    : public xacc::Observable,
+      public xacc::Cloneable<Observable>,
       public tao::operators::commutative_ring<PauliOperator>,
       public tao::operators::equality_comparable<PauliOperator>,
       public tao::operators::commutative_multipliable<PauliOperator, double>,
@@ -234,7 +223,7 @@ protected:
 
 public:
   std::shared_ptr<Observable> clone() override {
-      return std::make_shared<PauliOperator>();
+    return std::make_shared<PauliOperator>();
   }
 
   std::unordered_map<std::string, Term>::iterator begin() {
@@ -258,6 +247,39 @@ public:
 
   std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> function) override;
+
+  std::vector<std::shared_ptr<Observable>> getSubTerms() override {
+    std::vector<std::shared_ptr<Observable>> ret;
+    for (auto &term : getTerms()) {
+      ret.emplace_back(
+          new PauliOperator(term.second.ops(), term.second.coeff()));
+    }
+    return ret;
+  }
+
+  std::vector<std::shared_ptr<Observable>> getNonIdentitySubTerms() override {
+    std::vector<std::shared_ptr<Observable>> ret;
+    for (auto &term : getTerms()) {
+      if (term.first != "I") {
+        ret.emplace_back(
+            new PauliOperator(term.second.ops(), term.second.coeff()));
+      }
+    }
+    return ret;
+  }
+
+  std::shared_ptr<Observable> getIdentitySubTerm() override {
+    for (auto &term : getTerms()) {
+      if (term.first == "I") {
+        return std::make_shared<PauliOperator>(term.second.ops(),
+                                               term.second.coeff());
+      }
+    }
+
+    return nullptr;
+  }
+
+  std::complex<double> coefficient() override;
 
   const std::vector<std::pair<std::string, std::complex<double>>>
   computeActionOnKet(const std::string &bitString);
@@ -293,8 +315,11 @@ public:
 
   std::unordered_map<std::string, Term> getTerms() const { return terms; }
 
-  std::vector<Triplet> getSparseMatrixElements();
+  std::vector<SparseTriplet> getSparseMatrixElements() {return to_sparse_matrix();}
   std::vector<std::complex<double>> toDenseMatrix(const int nQubits);
+
+  std::vector<SparseTriplet>
+  to_sparse_matrix() override;
 
   std::shared_ptr<IR> toXACCIR();
   void fromXACCIR(std::shared_ptr<IR> ir);
@@ -302,7 +327,7 @@ public:
   eval(const std::map<std::string, std::complex<double>> varToValMap);
   bool isClose(PauliOperator &other);
   int nQubits();
-  const int nBits() override {return nQubits();}
+  const int nBits() override { return nQubits(); }
 
   PauliOperator &operator+=(const PauliOperator &v) noexcept;
   PauliOperator &operator-=(const PauliOperator &v) noexcept;
@@ -311,18 +336,15 @@ public:
   PauliOperator &operator*=(const double v) noexcept;
   PauliOperator &operator*=(const std::complex<double> v) noexcept;
 
-  const std::string name() const override {
-      return "pauli";
-  }
-  const std::string description() const override {
-      return "";
-  }
-  void fromOptions(const HeterogeneousMap& options) override {
-      return;
-  }
-
+  const std::string name() const override { return "pauli"; }
+  const std::string description() const override { return ""; }
+  void fromOptions(const HeterogeneousMap &options) override { return; }
 };
 } // namespace quantum
+
+template const quantum::PauliOperator
+HeterogeneousMap::get<quantum::PauliOperator>(const std::string key) const;
+
 } // namespace xacc
 
 #endif

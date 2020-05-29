@@ -31,6 +31,8 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<Z>,
                        public InstructionVisitor<CPhase>,
                        public InstructionVisitor<Swap>,
+                       public InstructionVisitor<iSwap>,
+                       public InstructionVisitor<fSim>,
                        public InstructionVisitor<Measure>,
                        public InstructionVisitor<Identity>,
                        public InstructionVisitor<CZ>,
@@ -78,6 +80,8 @@ public:
     visit(c3);
   }
 
+  void visit(fSim& fsim) override {}
+  void visit(iSwap& isw) override {}
   void visit(CRZ &crz) override {}
   void visit(CH &ch) override {}
   void visit(S &s) override {}

@@ -16,22 +16,54 @@
 #include "Utils.hpp"
 
 namespace xacc {
+class SparseTriplet : std::tuple<std::uint64_t, std::uint64_t, std::complex<double>> {
+public:
+  SparseTriplet(std::uint64_t r, std::uint64_t c, std::complex<double> coeff) {
+    std::get<0>(*this) = r;
+    std::get<1>(*this) = c;
+    std::get<2>(*this) = coeff;
+  }
+  const std::uint64_t row() { return std::get<0>(*this); }
+  const std::uint64_t col() { return std::get<1>(*this); }
+  const std::complex<double> coeff() { return std::get<2>(*this); }
+};
 
 class Observable : public Identifiable {
 public:
-
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
   observe(std::shared_ptr<CompositeInstruction> CompositeInstruction) = 0;
 
   virtual const std::string toString() = 0;
   virtual void fromString(const std::string str) = 0;
   virtual const int nBits() = 0;
-  virtual void fromOptions(const HeterogeneousMap && options) {
-      fromOptions(options);
-      return;
+  virtual void fromOptions(const HeterogeneousMap &&options) {
+    fromOptions(options);
+    return;
   }
-  virtual void fromOptions(const HeterogeneousMap& options) = 0;
+  virtual void fromOptions(const HeterogeneousMap &options) = 0;
+
+  virtual std::vector<std::shared_ptr<Observable>> getSubTerms() { return {}; }
+
+  virtual std::vector<std::shared_ptr<Observable>> getNonIdentitySubTerms() {
+    return {};
+  }
+
+  virtual std::shared_ptr<Observable> getIdentitySubTerm() { return nullptr; }
+
+  virtual std::complex<double> coefficient() {
+    return std::complex<double>(1.0, 0.0);
+  }
+
+  virtual std::vector<SparseTriplet>
+  to_sparse_matrix() {
+    return {};
+  }
 };
+
+template Observable *
+HeterogeneousMap::getPointerLike<Observable>(const std::string key) const;
+template bool
+HeterogeneousMap::pointerLikeExists<Observable>(const std::string key) const;
 
 } // namespace xacc
 #endif

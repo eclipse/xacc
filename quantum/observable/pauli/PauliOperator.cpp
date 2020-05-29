@@ -15,6 +15,7 @@
 #include <regex>
 #include <set>
 #include <iostream>
+#include "Observable.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
@@ -23,10 +24,92 @@
 #include "PauliOperatorLexer.h"
 #include "PauliListenerImpl.hpp"
 
+#include <armadillo>
+
 namespace xacc {
 namespace quantum {
-// const std::map<std::string, std::pair<c, std::string>> Term:: pauliProducts =
-// Term::create_map();
+
+std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
+  auto n_qubits = nQubits();
+  auto n_hilbert = std::pow(2, n_qubits);
+  using SparseMatrix = arma::SpMat<std::complex<double>>;
+
+  SparseMatrix x(2, 2), y(2, 2), z(2, 2);
+  x(0, 1) = 1.0;
+  x(1, 0) = 1.0;
+  y(0, 1) = std::complex<double>(0, -1);
+  y(1, 0) = std::complex<double>(0, 1);
+  z(0, 0) = 1.;
+  z(1, 1) = -1.;
+
+  SparseMatrix i = arma::speye<SparseMatrix>(2, 2);
+
+  std::map<std::string, SparseMatrix> mat_map{
+      {"I", i}, {"X", x}, {"Y", y}, {"Z", z}};
+
+  auto kron_ops = [](std::vector<SparseMatrix> &ops) {
+    auto first = ops[0];
+    for (int i = 1; i < ops.size(); i++) {
+      first = arma::kron(first, ops[i]);
+    }
+    return first;
+  };
+
+  SparseMatrix total(n_hilbert, n_hilbert);
+  for (auto &term : terms) {
+    auto tensor_factor = 0;
+    auto coeff = term.second.coeff();
+
+    std::vector<SparseMatrix> sparse_mats;
+
+    if (term.second.ops().empty()) {
+      // this was I term
+      auto id = arma::speye<SparseMatrix>(n_hilbert, n_hilbert);
+      sparse_mats.push_back(id);
+    } else {
+      for (auto &pauli : term.second.ops()) {
+        if (pauli.first > tensor_factor) {
+
+          auto id_qbits = pauli.first - tensor_factor;
+          auto id = arma::speye<SparseMatrix>((int)std::pow(2, id_qbits),
+                                              (int)std::pow(2, id_qbits));
+          sparse_mats.push_back(id);
+        }
+
+        sparse_mats.push_back(mat_map[pauli.second]);
+        tensor_factor = pauli.first + 1;
+      }
+
+      for (int i = tensor_factor; i < n_qubits; i++) {
+        auto id = arma::speye<SparseMatrix>(2, 2);
+        sparse_mats.push_back(id);
+      }
+    }
+
+    
+    auto sp_matrix = kron_ops(sparse_mats);
+    sp_matrix *= coeff;
+    total += sp_matrix;
+  }
+
+//   arma::vec eigval;
+//   arma::mat eigvec;
+
+//   arma::sp_mat test(total.n_rows, total.n_cols);
+//   for (auto i = total.begin(); i != total.end(); ++i) {
+//     test(i.row(), i.col()) = (*i).real();
+//   }
+
+//   arma::eigs_sym(eigval, eigvec, test, 1);
+
+//   std::cout << "EIGS:\n" << eigval << "\n";
+
+  std::vector<SparseTriplet> trips;
+  for (auto iter = total.begin(); iter != total.end(); ++iter) {
+    trips.emplace_back(iter.row(), iter.col(), *iter);
+  }
+  return trips;
+}
 
 PauliOperator::PauliOperator() {}
 
@@ -38,9 +121,7 @@ PauliOperator::PauliOperator(double c) {
   terms.emplace(std::make_pair("I", c));
 }
 
-PauliOperator::PauliOperator(std::string fromStr) {
-  fromString(fromStr);
-}
+PauliOperator::PauliOperator(std::string fromStr) { fromString(fromStr); }
 
 PauliOperator::PauliOperator(std::complex<double> c, std::string var) {
   terms.emplace(std::piecewise_construct, std::forward_as_tuple("I"),
@@ -90,27 +171,38 @@ PauliOperator::PauliOperator(std::map<int, std::string> operators,
                 std::forward_as_tuple(coeff, var, operators));
 }
 
+std::complex<double> PauliOperator::coefficient() {
+  if (terms.size() > 1) {
+    xacc::error("Cannot call PauliOperator::coefficient on operator with more "
+                "than 1 term.");
+  }
+  return terms.begin()->second.coeff();
+}
 std::vector<std::shared_ptr<CompositeInstruction>>
 PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
 
-    // Create a new GateQIR to hold the spin based terms
+  // Create a new GateQIR to hold the spin based terms
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   std::vector<std::shared_ptr<CompositeInstruction>> observed;
   int counter = 0;
-  auto pi = 3.141592653589793238;
+  auto pi = xacc::constants::pi;
 
   // Populate GateQIR now...
   for (auto &inst : terms) {
 
     Term spinInst = inst.second;
 
-    auto gateFunction = gateRegistry->createComposite(
-        inst.first, function->getVariables());
+    auto gateFunction =
+        gateRegistry->createComposite(inst.first, function->getVariables());
 
     gateFunction->setCoefficient(spinInst.coeff());
 
     if (function->hasChildren()) {
       gateFunction->addInstruction(function->clone());
+    }
+
+    for (auto arg : function->getArguments()) {
+      gateFunction->addArgument(arg, 0);
     }
 
     // Loop over all terms in the Spin Instruction
@@ -130,8 +222,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       int t = qbit;
       std::size_t tt = t;
       auto gateName = terms[i].second;
-      auto meas =
-          gateRegistry->createInstruction("Measure", std::vector<std::size_t>{tt});
+      auto meas = gateRegistry->createInstruction("Measure",
+                                                  std::vector<std::size_t>{tt});
       xacc::InstructionParameter classicalIdx(qbit);
       meas->setParameter(0, classicalIdx);
       measurements.push_back(meas);
@@ -141,7 +233,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
             gateRegistry->createInstruction("H", std::vector<std::size_t>{tt});
         gateFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
-        auto rx = gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
+        auto rx =
+            gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
         InstructionParameter p(pi / 2.0);
         rx->setParameter(0, p);
         gateFunction->addInstruction(rx);
@@ -179,29 +272,6 @@ Term::toBinaryVector(const int nQubits) {
   }
 
   return {v, w};
-}
-
-std::vector<Triplet> PauliOperator::getSparseMatrixElements() {
-
-  // Get number of qubits
-  std::set<int> distinctSites;
-  for (auto &kv : terms) {
-    for (auto &kv2 : kv.second.ops()) {
-      distinctSites.insert(kv2.first);
-    }
-  }
-
-  auto nQubits = distinctSites.size();
-
-  std::vector<Triplet> triplets;
-
-  for (auto &kv : terms) {
-    auto termTrips = kv.second.getSparseMatrixElements(nQubits);
-    triplets.insert(std::end(triplets), std::begin(termTrips),
-                    std::end(termTrips));
-  }
-
-  return triplets;
 }
 
 ActionResult Term::action(const std::string &bitString, ActionType type) {
@@ -278,8 +348,8 @@ std::vector<std::complex<double>> PauliOperator::toDenseMatrix(const int n) {
     }
   }
 
-  std::vector<std::complex<double>> retv(dim*dim);
-  Eigen::MatrixXcd::Map(&retv.data()[0], A.rows(),A.cols()) = A;
+  std::vector<std::complex<double>> retv(dim * dim);
+  Eigen::MatrixXcd::Map(&retv.data()[0], A.rows(), A.cols()) = A;
 
   return retv;
 }
@@ -360,7 +430,6 @@ void PauliOperator::fromString(const std::string str) {
   clear();
 
   operator+=(listener.getOperator());
-
 }
 
 bool PauliOperator::contains(PauliOperator &op) {
@@ -434,7 +503,8 @@ bool PauliOperator::operator==(const PauliOperator &v) noexcept {
     bool found = false;
     for (auto &vkv : v.terms) {
 
-      if (kv.second.operator==(vkv.second) | (kv.second.id() == "I" && vkv.second.id() == "I")) {
+      if (kv.second.operator==(vkv.second) |
+          (kv.second.id() == "I" && vkv.second.id() == "I")) {
         found = true;
         break;
       }
@@ -460,7 +530,7 @@ PauliOperator::operator*=(const std::complex<double> v) noexcept {
   return *this;
 }
 
-std::vector<Triplet> Term::getSparseMatrixElements(const int nQubits) {
+std::vector<SparseTriplet> Term::getSparseMatrixElements(const int nQubits) {
 
   // X = |1><0| + |0><1|
   // Y = -i|1><0| + i|0><1|
@@ -522,7 +592,7 @@ std::vector<Triplet> Term::getSparseMatrixElements(const int nQubits) {
   auto ket = zeroStr;
   auto bra = zeroStr;
 
-  std::vector<Triplet> triplets;
+  std::vector<SparseTriplet> triplets;
   for (auto &combo : termCombinations) {
 
     std::complex<double> coeff(1, 0), i(0, 1);
@@ -638,10 +708,9 @@ std::shared_ptr<IR> PauliOperator::toXACCIR() {
   auto tmp = gateRegistry->createComposite("tmp");
   auto kernels = observe(tmp);
   auto newIr = gateRegistry->createIR();
-  for (auto& k : kernels) newIr->addComposite(k);
+  for (auto &k : kernels)
+    newIr->addComposite(k);
   return newIr;
-
-
 }
 
 int PauliOperator::nQubits() {
@@ -668,7 +737,6 @@ void PauliOperator::fromXACCIR(std::shared_ptr<IR> ir) {
     std::map<int, std::string> pauliTerm;
     for (auto inst : kernel->getInstructions()) {
 
-      bool seen = false;
       if (!inst->isComposite()) {
 
         if (inst->name() == "H") {

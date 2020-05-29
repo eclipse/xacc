@@ -102,7 +102,7 @@ endif()
 
 target_compile_features(xacc
                         PUBLIC
-                        cxx_std_14
+                        cxx_std_17
                         cxx_alias_templates)
 if(APPLE)
   set_target_properties(xacc PROPERTIES INSTALL_RPATH "@loader_path")

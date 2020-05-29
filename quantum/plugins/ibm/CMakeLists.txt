@@ -10,6 +10,9 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
+
+add_subdirectory(aer)
+
 set(LIBRARY_NAME xacc-ibm)
 
 set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.so)
@@ -24,48 +27,11 @@ file(GLOB SRC
           compiler/OQASMToXACCListener.cpp
           compiler/generated/*.cpp)
 
-find_package(LAPACK)
-if(LAPACK_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLAPACK_FOUND")
-  message(
-    STATUS "${BoldGreen}Building local IBM Accelerator simulator.${ColorReset}")
-  list(APPEND SRC accelerator/LocalIBMAccelerator.cpp)
-else()
-  message(
-    STATUS
-      "${BoldYellow}Could not find Blas or Lapack, skipping local IBM simulator build.${ColorReset}"
-    )
-endif()
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
-
-if(LAPACK_FOUND)
-  target_include_directories(
-    ${LIBRARY_NAME}
-    PUBLIC
-      accelerator
-      compiler
-      compiler/generated
-      accelerator/qiskit-terra/src/qasm-simulator-cpp/src
-      accelerator/qiskit-terra/src/qasm-simulator-cpp/src/backends
-      accelerator/qiskit-terra/src/qasm-simulator-cpp/src/engines
-      accelerator/qiskit-terra/src/qasm-simulator-cpp/src/utilities
-      accelerator/json
-      ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
-      ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
-
-  target_link_libraries(${LIBRARY_NAME}
-                        PUBLIC xacc
-                               xacc-quantum-gate
-                               ${ANTLR_LIB}
-                               CppMicroServices
-                               ${LAPACK_LIBRARIES}
-                                PRIVATE cpr)
-
-else()
 
   target_include_directories(${LIBRARY_NAME}
                              PUBLIC accelerator
@@ -81,7 +47,6 @@ else()
                                ${ANTLR_LIB}
                                CppMicroServices PRIVATE cpr)
 
-endif()
 
 set(_bundle_name xacc_ibm)
 set_target_properties(${LIBRARY_NAME}

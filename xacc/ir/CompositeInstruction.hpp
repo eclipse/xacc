@@ -25,11 +25,12 @@ namespace xacc {
 
 using InstPtr = std::shared_ptr<Instruction>;
 
-// CompositeInstructions are Instructions that contain further Instructions (which
-// of course can be other CompositeInstructions). This forms the familiar tree, or
-// composite pattern, where nodes are CompositeInstructions and leaves are concrete
-// Instruction instances. CompositeInstructions are also Persistable, meaning a
-// CompositeInstruction can be persisted (read) from an output (input) stream.
+// CompositeInstructions are Instructions that contain further Instructions
+// (which of course can be other CompositeInstructions). This forms the familiar
+// tree, or composite pattern, where nodes are CompositeInstructions and leaves
+// are concrete Instruction instances. CompositeInstructions are also
+// Persistable, meaning a CompositeInstruction can be persisted (read) from an
+// output (input) stream.
 
 // Adding Instructions:
 // Implementations of CompositeInstruction are responsible for providing
@@ -44,15 +45,15 @@ using InstPtr = std::shared_ptr<Instruction>;
 // terminating nodes in Instruction tree, and represent composite
 // Instructions that can not be known at compile time, but are
 // parameterized by a map of options. Clients can query if the
-// CompositeInstruction hasChildren(), and if not, expand the CompositeInstruction to a
-// list of its constituent children at runtime given a valid
-// set of options. i.e., a CompositeInstruction that can generate a UCCSD circuit
-// for gate model quantum computing needs to know the number of
-// qubits and number of electrons, which may be unknown at CompositeInstruction
-// build time. Later, clients can invoke f->expand({{"ne",2},{"nq",4}})
-// to expand this CompositeInstruction and make it a composite node instead of a
-// terminating node. In this way, developers can contribute dynamic
-// runtime parameterized Instructions.
+// CompositeInstruction hasChildren(), and if not, expand the
+// CompositeInstruction to a list of its constituent children at runtime given a
+// valid set of options. i.e., a CompositeInstruction that can generate a UCCSD
+// circuit for gate model quantum computing needs to know the number of qubits
+// and number of electrons, which may be unknown at CompositeInstruction build
+// time. Later, clients can invoke f->expand({{"ne",2},{"nq",4}}) to expand this
+// CompositeInstruction and make it a composite node instead of a terminating
+// node. In this way, developers can contribute dynamic runtime parameterized
+// Instructions.
 
 // Note, expanding a CompositeInstruction node should expand all sub-nodes.
 
@@ -69,7 +70,91 @@ using InstPtr = std::shared_ptr<Instruction>;
 // we also expose a coefficient complex value on the CompositeInstruction.
 
 class CompositeInstruction : public Instruction, public Persistable {
+protected:
+  int _internal_counter = 0;
+  int _count_args_counter = 0;
+
+  std::vector<std::shared_ptr<CompositeArgument>> arguments;
+
+  // Take the concrete value and set it on the 
+  // correct argument.
+  template <typename T> void updateArgs(T &value) {
+    // if (arguments[_internal_counter]->runtimeValue.keyExists<T>(
+            // INTERNAL_ARGUMENT_VALUE_KEY)) {
+    //   arguments[_internal_counter]->runtimeValue.get_mutable<T>(
+        //   INTERNAL_ARGUMENT_VALUE_KEY) = value;
+    // } else {
+      arguments[_internal_counter]->runtimeValue.insert(
+          INTERNAL_ARGUMENT_VALUE_KEY, value);
+    // }
+    _internal_counter++;
+  }
+
+  // Recursively unpack the varidadic parameters and 
+  // call updateArgs on each one. 
+  void constructArgs() { return; }
+  template <typename First, typename... Rest>
+  void constructArgs(First firstArg, Rest... rest) {
+    updateArgs(firstArg);
+    constructArgs(rest...);
+    _internal_counter = 0;
+  }
+
+  void countArgs() {}
+  template <typename First, typename... Rest>
+  void countArgs(First firstArg, Rest... rest) {
+    _count_args_counter++;
+    countArgs(rest...);
+  }
+
 public:
+  CompositeInstruction() = default;
+  CompositeInstruction(const CompositeInstruction& other) : arguments(other.arguments) {}
+
+  template <typename... RuntimeArgs>
+  void updateRuntimeArguments(RuntimeArgs... args) {
+    countArgs(args...);
+    if (_count_args_counter != arguments.size()) {
+      int tmp = _count_args_counter;
+      _count_args_counter = 0;
+      throw std::runtime_error(
+          "[xacc error] Invalid number of runtime arguments for " + name() + ", " + std::to_string(tmp));
+    }
+    _count_args_counter = 0;
+    constructArgs(args...);
+    applyRuntimeArguments();
+  }
+
+  void setArgumentValues(std::vector<HeterogeneousMap> args) {
+     for (int i = 0; i < arguments.size(); ++i) {
+         arguments[i]->runtimeValue = args[i];
+     }
+     return;
+  }
+
+  void addArgument(std::shared_ptr<CompositeArgument> arg,
+                   const int idx_of_inst_param) override {
+    arguments.push_back(arg);
+  }
+ 
+  virtual void addArgument(const std::string arg_name,
+                           const std::string arg_type) {
+    arguments.emplace_back(new CompositeArgument(arg_name, arg_type));
+  }
+
+  virtual std::shared_ptr<CompositeArgument>
+  getArgument(const std::string &name) {
+    for (auto &arg : arguments) {
+      if (arg->name == name) {
+        return arg;
+      }
+    }
+    return nullptr;
+  }
+
+  virtual std::vector<std::shared_ptr<CompositeArgument>> getArguments() {
+      return arguments;
+  }
 
   // This should return the number
   // of concrete leaves in the tree
@@ -89,19 +174,24 @@ public:
   virtual void clear() = 0;
 
   virtual void addInstruction(InstPtr instruction) = 0;
-  virtual void addInstructions(std::vector<InstPtr>& instruction) = 0;
-  virtual void addInstructions(const std::vector<InstPtr>& instruction) = 0;
-  virtual void addInstructions(const std::vector<InstPtr> &&insts) {addInstructions(insts);}
+  virtual void addInstructions(std::vector<InstPtr> &instruction) = 0;
+  virtual void addInstructions(const std::vector<InstPtr> &instruction) = 0;
+  virtual void addInstructions(const std::vector<InstPtr> &&insts) {
+    addInstructions(insts);
+  }
 
   virtual bool hasChildren() const = 0;
-  virtual bool expand(const HeterogeneousMap& runtimeOptions) = 0;
+  virtual bool expand(const HeterogeneousMap &runtimeOptions) = 0;
   virtual const std::vector<std::string> requiredKeys() = 0;
 
   virtual void addVariable(const std::string variableName) = 0;
-  virtual void addVariables(const std::vector<std::string>& variables) = 0;
-  virtual void addVariables(const std::vector<std::string>&& variables) {addVariables(variables);}
+  virtual void addVariables(const std::vector<std::string> &variables) = 0;
+  virtual void addVariables(const std::vector<std::string> &&variables) {
+    addVariables(variables);
+  }
   virtual const std::vector<std::string> getVariables() = 0;
-  virtual void replaceVariable(const std::string variable, const std::string newVariable) = 0;
+  virtual void replaceVariable(const std::string variable,
+                               const std::string newVariable) = 0;
   virtual const std::size_t nVariables() = 0;
 
   virtual const int depth() = 0;
@@ -127,10 +217,16 @@ public:
   virtual void set_accelerator_signature(const std::string signature) = 0;
 
   virtual const std::string getTag() = 0;
-  virtual void setTag(const std::string& tag) = 0;
+  virtual void setTag(const std::string &tag) = 0;
   virtual ~CompositeInstruction() {}
 };
 
-template CompositeInstruction* HeterogeneousMap::getPointerLike<CompositeInstruction>(const std::string key) const;
+template CompositeInstruction *
+HeterogeneousMap::getPointerLike<CompositeInstruction>(
+    const std::string key) const;
+template bool
+HeterogeneousMap::pointerLikeExists<CompositeInstruction>(
+    const std::string key) const;
+
 } // namespace xacc
 #endif

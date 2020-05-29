@@ -31,6 +31,9 @@ public:
   virtual void enterOp(FermionOperatorParser::OpContext *ctx) = 0;
   virtual void exitOp(FermionOperatorParser::OpContext *ctx) = 0;
 
+  virtual void enterCarat(FermionOperatorParser::CaratContext *ctx) = 0;
+  virtual void exitCarat(FermionOperatorParser::CaratContext *ctx) = 0;
+
   virtual void enterCoeff(FermionOperatorParser::CoeffContext *ctx) = 0;
   virtual void exitCoeff(FermionOperatorParser::CoeffContext *ctx) = 0;
 

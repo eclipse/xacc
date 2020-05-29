@@ -29,9 +29,37 @@ namespace quantum {
 
 QuilCompiler::QuilCompiler() = default;
 
+bool QuilCompiler::canParse(const std::string &src) {
+
+  class QuilThrowExceptionErrorListener : public BaseErrorListener {
+  public:
+    void syntaxError(Recognizer *recognizer, Token *offendingSymbol,
+                     size_t line, size_t charPositionInLine,
+                     const std::string &msg, std::exception_ptr e) override {
+      std::cout << "Quil Cannot parse this source: " << msg << "\n";
+      std::cout << line << ": " << charPositionInLine << "\n";
+      std::cout << offendingSymbol->getText() << "\n";
+      throw std::runtime_error("Cannot parse this Quil source string.");
+    }
+  };
+
+  ANTLRInputStream input(src);
+  QuilLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
+  QuilParser parser(&tokens);
+  parser.removeErrorListeners();
+  parser.addErrorListener(new QuilThrowExceptionErrorListener());
+
+  try {
+    tree::ParseTree *tree = parser.xaccsrc();
+    return true;
+  } catch (std::exception &e) {
+    return false;
+  }
+}
 std::shared_ptr<IR> QuilCompiler::compile(const std::string &src,
                                           std::shared_ptr<Accelerator> acc) {
-
+ std::cout << "SRC: " << src << "\n";
   ANTLRInputStream input(src);
   QuilLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
@@ -54,10 +82,11 @@ std::shared_ptr<IR> QuilCompiler::compile(const std::string &src,
   return ir;
 }
 std::shared_ptr<IR> QuilCompiler::compile(const std::string &src) {
-  return compile(src,nullptr);
+  return compile(src, nullptr);
 }
 
-const std::string QuilCompiler::translate(std::shared_ptr<CompositeInstruction> function) {
+const std::string
+QuilCompiler::translate(std::shared_ptr<CompositeInstruction> function) {
   auto visitor = std::make_shared<QuilVisitor>();
   InstructionIterator it(function);
   while (it.hasNext()) {

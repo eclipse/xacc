@@ -13,9 +13,10 @@ xaccsrc
 
     xacclambda : '['('&'|'=')?']' '(' typedparam (',' typedparam) * ')' '{' mainprog? '}';
 
-    typedparam : type id;
+    typedparam : type ('&' | '*')? variable_param_name;
+    variable_param_name : id;
 
-    type : 'qbit' | 'qreg' | 'int' | 'double' | 'float' | 'std::vector<double>';
+    type : 'auto' | 'int' | id ('<' id (',' id)? '>')? | id'::'id ('<' id (',' id)? '>')? | 'std::shared_ptr<' type '>';
 
 /***********************************************************************/
 
@@ -117,7 +118,7 @@ exp
    | real
    | INT
    | 'pi'
-   | var_name=id '[' idx=INT ']'
+   | var_name=id '[' idx=(INT|ID) ']'
    ;
 
 /* unary operations */
@@ -161,7 +162,7 @@ ID
 
 /* Keep it real...numbers */
 REAL
-   : INT ( '.' (INT) )
+   : INT? ( '.' (INT) )
    ;
 
 /* Non-negative integers */

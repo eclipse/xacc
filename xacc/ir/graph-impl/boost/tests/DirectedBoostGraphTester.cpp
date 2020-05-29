@@ -52,10 +52,10 @@ TEST(DirectedGraphTester, checkConstruction) {
   EXPECT_EQ(0.0 , graph.getVertexProperties(0).get<double>("bias"));
   EXPECT_EQ(0.0 , graph.getVertexProperties(1).get<double>("bias"));
 
-graph.getVertexProperties(0).get_mutable<double>("bias") = 3.3;
+graph.getVertexProperties(0).insert("bias",3.3);
   EXPECT_EQ(3.3, graph.getVertexProperties(0).get<double>("bias"));
 
-graph.getVertexProperties(1).get_mutable<double>("bias") = 33.3;
+graph.getVertexProperties(1).insert("bias", 33.3);
   EXPECT_EQ(33.3 , graph.getVertexProperties(1).get<double>("bias"));
 
   auto n = graph.getNeighborList(0);

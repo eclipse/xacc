@@ -28,6 +28,10 @@ public:
                                       std::shared_ptr<Accelerator> acc) = 0;
   virtual std::shared_ptr<IR> compile(const std::string &src) = 0;
   
+  virtual const std::string get_statement_terminator() {
+      return ";";
+  }
+  
   // By default, we assume this compiler can not parse a given 
   // source string. Subtypes implement this to indicate if 
   // they can or not

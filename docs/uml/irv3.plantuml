@@ -1,0 +1,97 @@
+@startuml
+
+class Instruction {
+    
+    + addArgument(arg : CompositeArgument, idx_for_param : int)
+
+    + applyRuntimeArguments() 
+
+}
+class CompositeInstruction {
+    + getArgument(arg : string) : CompositeArgument
+
+    + updateRuntimeArguments(values : VariadicValues...) 
+}
+class CompositeArgument {
+    name : string
+    type : string
+    runtimeValue : HeterogeneousMap 
+}
+
+class Gate {
+    + applyRuntimeArguments()
+}
+class Circuit {
+    + applyRuntimeArguments()
+}
+class Exp {
+    + applyRuntimeArguments()
+}
+
+Instruction <|.. CompositeInstruction 
+Instruction "*" <-- "1" CompositeInstruction 
+
+CompositeArgument "*" <-- "1" CompositeInstruction
+Instruction <|.. Gate
+CompositeInstruction <|.. Circuit
+Circuit <|.. Exp
+
+note right of Instruction::addArgument 
+  For concrete Instruction, add the CompositeArgument 
+  to some internal map with idx as the index of the 
+  corresponding InstructionParameter 
+  
+  For CompositeInstruction, just add this CompositeArgument 
+  to a vector (maybe)
+end note
+
+note right of Gate::applyRuntimeArguments 
+  Simple implementation here is for all rotation gates
+
+  for (auto& kv : arguments_map) {
+      parameters[kv.second] = kv.first->runtimeValue.get<double>(INTERNAL_KEY);
+  }
+end note
+
+
+note left of Instruction  
+ Instructions keep map of pointers to CompositeArguments 
+ from parent to index of corresponding Instruction Parameter,
+ e.g.
+ foo(double x, double y, double z) {
+     Rx(x)
+     Ry(y)
+     U(x,y,z)
+  }
+  foo Composite Instruction has 3 CompositeArguments
+  first Rx Instruction keeps map from one with 
+  name x to idx == 0, second Ry keeps map of y to 
+  idx == 0. U keeps map {x:0, y:1, z:2}.
+  
+  This can 
+  be easily supplied by Antlr parsers.
+end note
+
+note left of Instruction::applyRuntimeArguments
+  On concrete Instructions, this updates InstructionParameters 
+  with concrete values in the Instructions argument map. 
+  For CompositeInstructions, this is called on all its 
+  sub-Instructions ( the rest of the tree ).
+  Updates on concrete Instructions could look like 
+  my_args[idx_of_param]->runtimeValue.get<double>("__xacc_value_key"), 
+  the concrete values (runtimeValue) comes from 
+  a call to the variadic CompositeInstruction::updateRuntimeArguments 
+end note
+
+note left of CompositeInstruction::updateRuntimeArguments 
+  Sets Variadic values to each runtimeValue HeterogeneousMap with some 
+  internal unique key like "__xacc_value_key". 
+end note
+
+note right of Exp::applyRuntimeArguments 
+  This guys is free to reference any arguments given 
+  to the parent CompositeInstruction. For example, 
+  an Observable 
+end note
+
+@enduml

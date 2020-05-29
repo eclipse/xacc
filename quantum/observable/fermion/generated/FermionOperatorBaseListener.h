@@ -33,6 +33,9 @@ public:
   virtual void enterOp(FermionOperatorParser::OpContext * /*ctx*/) override { }
   virtual void exitOp(FermionOperatorParser::OpContext * /*ctx*/) override { }
 
+  virtual void enterCarat(FermionOperatorParser::CaratContext * /*ctx*/) override { }
+  virtual void exitCarat(FermionOperatorParser::CaratContext * /*ctx*/) override { }
+
   virtual void enterCoeff(FermionOperatorParser::CoeffContext * /*ctx*/) override { }
   virtual void exitCoeff(FermionOperatorParser::CoeffContext * /*ctx*/) override { }
 

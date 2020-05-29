@@ -37,7 +37,7 @@ public:
   std::vector<std::pair<int, int>> getConnectivity() override { return edges; }
 };
 
-TEST(MappingTester, checkSwapShort) {
+TEST(Staq_MappingTester, checkSwapShort) {
 
   auto qpu = std::make_shared<AcceleratorWithConnectivity>(
       std::vector<std::pair<int, int>>{{0, 1},

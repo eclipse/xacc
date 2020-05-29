@@ -1,90 +1,91 @@
 #include "xacc_internal_compiler.hpp"
+#include "Instruction.hpp"
 #include "Utils.hpp"
+#include "heterogeneous.hpp"
 #include "xacc.hpp"
 #include "InstructionIterator.hpp"
+#include <CompositeInstruction.hpp>
+#include <stdlib.h>
 
 namespace xacc {
 namespace internal_compiler {
-Accelerator *qpu = nullptr;
-CompositeInstruction *lastCompiled = nullptr;
+std::shared_ptr<Accelerator> qpu = nullptr;
+std::shared_ptr<CompositeInstruction> lastCompiled = nullptr;
 bool __execute = true;
+std::vector<HeterogeneousMap> current_runtime_arguments = {};
 
 void __set_verbose(bool v) { xacc::set_verbose(v); }
 void compiler_InitializeXACC(const char *qpu_backend) {
-  if (!xacc::isInitialized())
+  if (!xacc::isInitialized()) {
     xacc::Initialize();
-
-  xacc::external::load_external_language_plugins();
+    xacc::external::load_external_language_plugins();
+    auto at_exit = []() { xacc::Finalize(); };
+    atexit(at_exit);
+  }
   setAccelerator(qpu_backend);
 }
 
-void compiler_InitializeXACC(const char *qpu_backend, const int shots) {
-  if (!xacc::isInitialized())
+void compiler_InitializeXACC(const char *qpu_backend, int shots) {
+  if (!xacc::isInitialized()) {
     xacc::Initialize();
+    xacc::external::load_external_language_plugins();
+    auto at_exit = []() { xacc::Finalize(); };
+    atexit(at_exit);
+  }
 
-  xacc::external::load_external_language_plugins();
   setAccelerator(qpu_backend, shots);
 }
 
 void setAccelerator(const char *qpu_backend) {
   if (qpu) {
     if (qpu_backend != qpu->name()) {
-      qpu = xacc::getAccelerator(qpu_backend).get();
+      qpu = xacc::getAccelerator(qpu_backend);
     }
   } else {
-    qpu = xacc::getAccelerator(qpu_backend).get();
+    qpu = xacc::getAccelerator(qpu_backend);
   }
 }
 
-void setAccelerator(const char *qpu_backend, const int shots) {
+void setAccelerator(const char *qpu_backend, int shots) {
   if (qpu) {
     if (qpu_backend != qpu->name()) {
-      qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)})
-                .get();
+      qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)});
     }
   } else {
-    qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)})
-              .get();
+    qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)});
   }
 }
 
-Accelerator *get_qpu() { return qpu; }
+std::shared_ptr<Accelerator> get_qpu() { return qpu; }
 
-CompositeInstruction *getLastCompiled() { return lastCompiled; }
+std::shared_ptr<CompositeInstruction> getLastCompiled() { return lastCompiled; }
 
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
-CompositeInstruction *compile(const char *compiler_name,
-                              const char *kernel_src) {
-  auto qpu_as_shared =
-      std::shared_ptr<Accelerator>(qpu, xacc::empty_delete<Accelerator>());
+std::shared_ptr<CompositeInstruction> compile(const char *compiler_name,
+                                              const char *kernel_src) {
   auto compiler = xacc::getCompiler(compiler_name);
-  auto IR = compiler->compile(kernel_src, qpu_as_shared);
+  auto IR = compiler->compile(kernel_src, qpu);
   auto program = IR->getComposites()[0];
-  lastCompiled = program.get();
-  return program.get();
+  lastCompiled = program;
+  return program;
 }
 
-CompositeInstruction *getCompiled(const char *kernel_name) {
-  return xacc::hasCompiled(kernel_name) ? xacc::getCompiled(kernel_name).get()
+std::shared_ptr<CompositeInstruction> getCompiled(const char *kernel_name) {
+  return xacc::hasCompiled(kernel_name) ? xacc::getCompiled(kernel_name)
                                         : nullptr;
 }
 
 // Run quantum compilation routines on IR
-void optimize(CompositeInstruction *program, const OptLevel opt) {
+void optimize(std::shared_ptr<CompositeInstruction> program,
+              const OptLevel opt) {
 
   xacc::info("[InternalCompiler] Pre-optimization, circuit has " +
              std::to_string(program->nInstructions()) + " instructions.");
 
-  // We don't own this ptr, so create shared_ptr with empty deleter
-  auto as_shared = std::shared_ptr<CompositeInstruction>(
-      program, xacc::empty_delete<CompositeInstruction>());
-
-  auto qpu_as_shared =
-      std::shared_ptr<Accelerator>(qpu, xacc::empty_delete<Accelerator>());
   if (opt == DEFAULT) {
     auto optimizer = xacc::getIRTransformation("circuit-optimizer");
-    optimizer->apply(as_shared, qpu_as_shared);
+    optimizer->apply(program, qpu);
   } else {
     xacc::error("Other Optimization Levels not yet supported.");
   }
@@ -93,30 +94,32 @@ void optimize(CompositeInstruction *program, const OptLevel opt) {
              std::to_string(program->nInstructions()) + " instructions.");
 }
 
+void execute(AcceleratorBuffer *buffer,
+             std::vector<std::shared_ptr<CompositeInstruction>> programs) {
+
+  qpu->execute(xacc::as_shared_ptr(buffer), programs);
+}
+
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
-void execute(AcceleratorBuffer *buffer, CompositeInstruction *program,
+void execute(AcceleratorBuffer *buffer,
+             std::shared_ptr<CompositeInstruction> program,
              double *parameters) {
 
   std::shared_ptr<CompositeInstruction> program_as_shared;
   if (parameters) {
     std::vector<double> values(parameters, parameters + program->nVariables());
-    program_as_shared = program->operator()(values);
-  } else {
-    // We don't own this ptr, so create shared_ptr with empty deleter
-    program_as_shared = std::shared_ptr<CompositeInstruction>(
-        program, xacc::empty_delete<CompositeInstruction>());
+    program = program->operator()(values);
   }
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
       buffer, xacc::empty_delete<AcceleratorBuffer>());
 
-  optimize(program);
-
-  qpu->execute(buffer_as_shared, program_as_shared);
+  qpu->execute(buffer_as_shared, program);
 }
 
 void execute(AcceleratorBuffer **buffers, const int nBuffers,
-             CompositeInstruction *program, double *parameters) {
+             std::shared_ptr<CompositeInstruction> program,
+             double *parameters) {
 
   //  Should take vector of buffers, and we collapse them
   //  into a single unified buffer for execution, then set the
@@ -127,14 +130,10 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
   for (auto &a : bvec)
     buffer_names.push_back(a->name());
 
-  // We don't own this ptr, so create shared_ptr with empty deleter
-  auto program_as_shared = std::shared_ptr<CompositeInstruction>(
-      program, xacc::empty_delete<CompositeInstruction>());
-
   // Do we have any unknown ancilla bits?
   std::vector<std::string> possible_extra_buffers;
   int possible_size = -1;
-  InstructionIterator it(program_as_shared);
+  InstructionIterator it(program);
   while (it.hasNext()) {
     auto &next = *it.next();
     auto bnames = next.getBufferNames();
@@ -150,7 +149,7 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
 
   for (auto &possible_buffer : possible_extra_buffers) {
     std::set<std::size_t> sizes;
-    InstructionIterator it2(program_as_shared);
+    InstructionIterator it2(program);
     while (it2.hasNext()) {
       auto &next = *it2.next();
       for (auto &bit : next.bits()) {
@@ -190,7 +189,7 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
 
   // Update Program bit indices based on new global
   // qubit register
-  InstructionIterator iter(program_as_shared);
+  InstructionIterator iter(program);
   while (iter.hasNext()) {
     auto &next = *iter.next();
     std::vector<std::size_t> newBits;
@@ -211,15 +210,13 @@ void execute(AcceleratorBuffer **buffers, const int nBuffers,
   }
 
   std::vector<std::size_t> measure_idxs;
-  InstructionIterator iter2(program_as_shared);
+  InstructionIterator iter2(program);
   while (iter2.hasNext()) {
     auto &next = *iter2.next();
     if (next.name() == "Measure") {
       measure_idxs.push_back(next.bits()[0]);
     }
   }
-
-  optimize(program);
 
   // Now execute using the global merged register
   execute(tmp.get(), program, parameters);
