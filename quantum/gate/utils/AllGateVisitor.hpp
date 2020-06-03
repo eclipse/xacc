@@ -16,6 +16,7 @@
 #include "InstructionIterator.hpp"
 
 #include "CommonGates.hpp"
+#include <Instruction.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -44,6 +45,7 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<T>,
                        public InstructionVisitor<Tdg>,
                        public InstructionVisitor<U>,
+                       public InstructionVisitor<U1>,
                        public InstructionVisitor<IfStmt> {
 public:
   void visit(Hadamard &h) override {}
@@ -51,6 +53,12 @@ public:
   void visit(Rz &h) override {}
   void visit(Ry &h) override {}
   void visit(Rx &h) override {}
+  void visit(U1 &u1) override {
+      InstructionParameter p = u1.getParameter(0);
+      Rz rz(u1.bits());
+      rz.setParameter(0, p);
+      visit(rz);
+  }
   void visit(X &h) override {}
   void visit(Y &h) override {}
   void visit(Z &h) override {}
@@ -80,8 +88,8 @@ public:
     visit(c3);
   }
 
-  void visit(fSim& fsim) override {}
-  void visit(iSwap& isw) override {}
+  void visit(fSim &fsim) override {}
+  void visit(iSwap &isw) override {}
   void visit(CRZ &crz) override {}
   void visit(CH &ch) override {}
   void visit(S &s) override {}

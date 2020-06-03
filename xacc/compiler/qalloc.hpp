@@ -29,7 +29,7 @@ public:
   qreg() = default;
   qreg(const int n);
   qreg (const qreg& other);
-  qubit operator[](const std::size_t &i);
+  qubit operator[](const std::size_t i);
   AcceleratorBuffer *results();
   std::map<std::string, int> counts();
   double exp_val_z();
