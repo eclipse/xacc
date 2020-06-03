@@ -16,6 +16,7 @@
 #include "Algorithm.hpp"
 #include "xacc_service.hpp"
 #include <Eigen/Dense>
+#include <chrono>
 
 namespace xacc {
 namespace algorithm {
@@ -32,8 +33,10 @@ protected:
   std::shared_ptr<Observable> observable; // AIEM Hamiltonian
   int nStates; // # number of CIS states = nChromophores + 1
   const int nParamsEntangler = 4;// # of parameters in a single entangler
-  const double angstrom2Bohr = 1.8897161646320724; // angstrom to bohr
-  const double debye2Au = 0.393430307; // D to a.u.
+  const double ANGSTROM2BOHR = 1.8897161646320724; // angstrom to bohr
+  const double DEBYE2AU = 0.393430307; // D to a.u.
+  std::string dataPath; // path to file with quantum chemistry data
+  std::chrono::system_clock::time_point start; //start time of simulation
 
   // constructs CIS state preparation circiuit
   std::shared_ptr<CompositeInstruction>

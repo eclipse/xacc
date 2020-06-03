@@ -19,22 +19,34 @@
 
 using namespace xacc;
 
-TEST(mcVqeTester, checkSimple) {
-//   if (xacc::hasAccelerator("qpp")) {
+TEST(mcVqeTester, check4qubitExaTN) {
+
+    std::string path = "/home/cades/dev/xacc/quantum/plugins/algorithms/mc-vqe/tests/datafile.txt";
     auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor","exatn")});
-    //auto acc = xacc::getAccelerator("qpp");
-    auto buffer = xacc::qalloc(10);
-    auto optimizer = xacc::getOptimizer("nlopt");
-    //xacc::setOption("tnqvm-verbose", "1");
+    auto buffer = xacc::qalloc(4);
+    auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 1)});
     auto mc_vqe = xacc::getService<Algorithm>("mc-vqe");
     EXPECT_TRUE(mc_vqe->initialize({std::make_pair("accelerator",acc),
                                 std::make_pair("optimizer",optimizer),
-                                std::make_pair("nChromophores", 10)}));
+                                std::make_pair("data-path", path),
+                                std::make_pair("nChromophores", 4)}));
     mc_vqe->execute(buffer);
-    //EXPECT_NEAR(-1.13717, mpark::get<double>(buffer->getInformation("opt-val")), 1e-4);
-    //EXPECT_NEAR(-1.13717,vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>())[0], 1e-4);
-    // std::cout << "EVALED: " << vqe->execute(buffer, (*buffer)["opt-params"].as<std::vector<double>>()) << "\n";
-//   }
+
+}
+
+TEST(mcVqeTester, check4qubitITensorMPS) {
+
+    std::string path = "/home/cades/dev/xacc/quantum/plugins/algorithms/mc-vqe/tests/datafile.txt";
+    auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor","itensor-mps")});
+    auto buffer = xacc::qalloc(4);
+    auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 1)});
+    auto mc_vqe = xacc::getService<Algorithm>("mc-vqe");
+    EXPECT_TRUE(mc_vqe->initialize({std::make_pair("accelerator",acc),
+                                std::make_pair("optimizer",optimizer),
+                                std::make_pair("data-path", path),
+                                std::make_pair("nChromophores", 4)}));
+    mc_vqe->execute(buffer);
+
 }
 
 int main(int argc, char **argv) {

@@ -33,19 +33,28 @@ bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
   /** Checks for the required parameters and other optional keywords
    * @param[in] HeterogeneousMap A map of strings to keys
    */
+
+  start = std::chrono::high_resolution_clock::now();
   if (!parameters.pointerLikeExists<Accelerator>(
                  "accelerator")) {
     std::cout << "Acc was false\n";
     return false;
+  } else if(!parameters.pointerLikeExists<Optimizer>("optimizer")){
+    std::cout << "Opt was false\n";
+    return false;
   } else if(!parameters.keyExists<int>("nChromophores")){
     std::cout << "Missing number of chromophores\n";
     return false;
+  } else if(!parameters.keyExists<std::string>("data-path")){
+    std::cout << "Missing data file\n";
+    return false; 
   }
 
   optimizer = parameters.getPointerLike<Optimizer>("optimizer");
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   nChromophores = parameters.get<int>("nChromophores");
-
+  dataPath = parameters.get<std::string>("data-path");
+  
   // This is to include the last entangler if the system is cyclic
   if (parameters.keyExists<bool>("cyclic")){
     isCyclic = parameters.get<bool>("cyclic");
@@ -57,11 +66,15 @@ bool MC_VQE::initialize(const HeterogeneousMap &parameters) {
   CISGateAngles.resize(nChromophores, nStates);
   preProcessing();
 
+  auto endPrep = std::chrono::high_resolution_clock::now();
+  auto prepTime = std::chrono::duration_cast<std::chrono::duration<double>>(endPrep - start).count();
+  std::cout << std::setprecision(5) << "AIEM Hamiltonian and state preparation parameters computed in " <<
+    prepTime << " s.\n";
   return true;
 }
 
 const std::vector<std::string> MC_VQE::requiredParameters() const {
-  return {"optimizer", "accelerator", "nChromophores"};
+  return {"optimizer", "accelerator", "nChromophores", "data-path"};
 }
 
 void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
@@ -82,7 +95,8 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   OptFunction f(
       [&, this](const std::vector<double> &x, std::vector<double> &dx) {
 
-        double averageEnergy = 0.0; // MC-VQe minimizes the average energy over all MC states
+        double averageEnergy = 0.0; // MC-VQE minimizes the average energy over all MC states
+        auto startIter = std::chrono::high_resolution_clock::now();
         for (int state = 0; state < nStates; state++){
           std::vector<double> coefficients;
           std::vector<std::string> kernelNames;
@@ -94,6 +108,7 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             kernel->addInstruction(inst); // append entangler gates
           }
           
+          std::cout << kernel->toString() << "\n";
           auto kernels = observable->observe(kernel); // observe AIEM Hamiltonian in the circuit above
 
           double identityCoeff = 0.0;
@@ -148,8 +163,14 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
           
           entangledHamiltonian(state, state) = energy; // state energy goes to the diagonal of entangledHamiltonian
-          averageEnergy += energy; 
+          averageEnergy += energy;
+          std::cout << "State # " << state << " energy " << energy << "\n"; 
         }
+
+        auto endIter = std::chrono::high_resolution_clock::now();
+        auto iterTime = std::chrono::duration_cast<std::chrono::duration<double>>(endIter - startIter).count();
+        std::cout << std::setprecision(5) << "Optimization iteration finished in " << iterTime << " s.\n";
+        std::cout << std::setprecision(5) << "Average iteration time " << iterTime / nStates << " s.\n";
 
         // compute average energy and store current info
         averageEnergy /= nStates;
@@ -172,11 +193,12 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
   std::cout << "MC-VQE optimization complete.\n\n";
 
+// Leaving out for now to test accelerator performance
+/*
+  auto startMC = std::chrono::high_resolution_clock::now();
   // now construct interference states and observe Hamiltonian
   auto optimizedEntangler = result.second;
-
   std::cout << "Computing Hamiltonian matrix elements in the interference state basis...\n\n";
-
   for (int stateA = 0; stateA < nStates - 1; stateA++){
     for (int stateB = stateA + 1; stateB < nStates; stateB++){
 
@@ -219,6 +241,10 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   }
 
+  auto endMC = std::chrono::high_resolution_clock::now();
+  auto MCTime = std::chrono::duration_cast<std::chrono::duration<double>>(endMC - startMC).count();
+  std::cout << "Interference basis Hamiltonian matrix elements computed in" << MCTime << " s.\n\n";
+
   std::cout << "Diagonalizing entangled Hamiltonian...\n\n";
   // Diagonalizing the entangledHamiltonian gives the energy spectrum
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EigenSolver(entangledHamiltonian);
@@ -227,8 +253,14 @@ void MC_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   //buffer->addExtraInfo("mc-vqe-energies", ExtraInfo(MC_VQE_Energies));
   //buffer->addExtraInfo("opt-params", ExtraInfo(MC_VQE_States));
-  std::cout << "MC-VQE energy spectrum. Exiting...\n\n";
+  std::cout << "MC-VQE energy spectrum.\n";
   std::cout << std::setprecision(9) << MC_VQE_Energies;
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto totalTime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+  std::cout << "MC-VQE simulation finished in " << totalTime << " s. Exiting...\n\n";
+  */
+
   return;
 }
 
@@ -292,25 +324,13 @@ std::shared_ptr<CompositeInstruction> MC_VQE::entanglerCircuit() const {
   /** Constructs the entangler part of the circuit
    */
 
-  std::string paramLetter = "x";/*
-  std::vector<std::string> vars;
-  if(isCyclic){
-    for (int i = 0; i < nChromophores * (nParamsEntangler + 1); i++){
-      vars.push_back(paramLetter + std::to_string(i));
-    } 
-  } else {
-    for (int i = 0; i < nChromophores * nParamsEntangler; i++){
-      vars.push_back(paramLetter + std::to_string(i));
-    }
-  }
-  */
-
+  std::string paramLetter = "x";
   auto mcvqeRegistry = xacc::getIRProvider("quantum"); // Provider to create IR for CompositeInstruction, aka circuit
   auto entanglerInstructions = mcvqeRegistry->createComposite("mcvqeCircuit"); // allocate memory for circuit
 
   // structure of entangler
   // does not implement the first two Ry to remove redundancies in the circuit
-  // and to minimize the number of variational parameters
+  // and to reduce the number of variational parameters
   //
   // |A>--[Ry(x0)]--o--[Ry(x2)]--o--[Ry(x4)]-
   //                |            |
@@ -318,7 +338,7 @@ std::shared_ptr<CompositeInstruction> MC_VQE::entanglerCircuit() const {
   //
   auto entanglerGate = [&](const std::size_t control, const std::size_t target, int paramCounter){
     /** Lambda function to construct the entangler gates
-     * Interleaves CNOT(control, target) and Ry rotatations
+     * Interleaves CNOT(control, target) and Ry rotations
      * 
      * @param[in] control Index of the control/source qubit
      * @param[in] target Index of the target qubit
@@ -384,7 +404,7 @@ std::shared_ptr<CompositeInstruction> MC_VQE::entanglerCircuit() const {
   return entanglerInstructions;
 }
 
-void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<Observable> observable) {
+void MC_VQE::preProcessing() {
   /** Function to process the quantum chemistry data into CIS state preparation angles and the AIEM Hamiltonian.
    * 
    * Excited state refers to the first excited state.
@@ -394,47 +414,42 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
    */
 
   // allocate memory for the quantum chemistry input
-  // gs_energies = ground state energies
-  // es_energies = excited state energies
-  // gs_dipole = ground state dipole moment vectors
-  // es_dipole = excited state dipole moment vectors
-  // t_dipole = transition (between ground and excited states) dipole moment
+  // energiesGS = ground state energies
+  // energiesES = excited state energies
+  // dipoleGS = ground state dipole moment vectors
+  // dipoleES = excited state dipole moment vectors
+  // dipoleT = transition (between ground and excited states) dipole moment
   // com = center of mass of each chromophore
-  Eigen::VectorXd gs_energies(nChromophores), es_energies(nChromophores);
-  Eigen::MatrixXd gs_dipole(nChromophores, 3), es_dipole(nChromophores, 3), 
-                  t_dipole(nChromophores, 3), com(nChromophores, 3);
+  Eigen::VectorXd energiesGS(nChromophores), energiesES(nChromophores);
+  Eigen::MatrixXd dipoleGS(nChromophores, 3), dipoleES(nChromophores, 3), 
+                  dipoleT(nChromophores, 3), com(nChromophores, 3);
 
-  es_energies.setZero();
-  gs_energies.setZero();
-  gs_dipole.setZero();
-  es_dipole.setZero();
-  t_dipole.setZero();
+  energiesES.setZero();
+  energiesGS.setZero();
+  dipoleGS.setZero();
+  dipoleES.setZero();
+  dipoleT.setZero();
   com.setZero();
 
-  // error if output file does not exist
-  std::ifstream file("/workspace/xacc/quantum/plugins/algorithms/mc-vqe/tests/datafile.txt");
-  if(file.bad()){
-    xacc::error("Cannot find output file.");
-  }
-
+  std::ifstream file(dataPath);
   std::string line, tmp, comp;
   int xyz, start;
-  for (int chromophore = 0; chromophore < nChromophores; chromophore++){
+  for (int A = 0; A < nChromophores; A++){
     // scans output file and retrieve data
 
     std::getline(file, line);// this is just the number label of the chromophore
     std::getline(file, line);
-    gs_energies(chromophore) =  std::stod(line.substr(line.find(":") + 1));
+    energiesGS(A) =  std::stod(line.substr(line.find(":") + 1));
 
     std::getline(file, line);
-    es_energies(chromophore) =  std::stod(line.substr(line.find(":") + 1));
+    energiesES(A) =  std::stod(line.substr(line.find(":") + 1));
 
     std::getline(file, line);
     tmp = line.substr(line.find(":") + 1);
     std::stringstream comStream(tmp);
     xyz = 0;
     while(std::getline(comStream, comp, ',')) {
-      com(chromophore, xyz) = std::stod(comp);
+      com(A, xyz) = std::stod(comp);
       xyz++;
     }
 
@@ -443,7 +458,7 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
     std::stringstream gsDipoleStream(tmp);
     xyz = 0;
     while(std::getline(gsDipoleStream, comp, ',')) {
-      gs_dipole(chromophore, xyz) = std::stod(comp);
+      dipoleGS(A, xyz) = std::stod(comp);
       xyz++;
     }
 
@@ -452,7 +467,7 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
     std::stringstream esDipoleStream(tmp);
     xyz = 0;
     while(std::getline(esDipoleStream, comp, ',')) {
-      es_dipole(chromophore, xyz) = std::stod(comp);
+      dipoleES(A, xyz) = std::stod(comp);
       xyz++;
     }
 
@@ -461,16 +476,17 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
     std::stringstream tDipoleStream(tmp);
     xyz = 0;
     while(std::getline(tDipoleStream, comp, ',')) {
-      t_dipole(chromophore, xyz) = std::stod(comp);
+      dipoleT(A, xyz) = std::stod(comp);
       xyz++;
     }
     std::getline(file, line);
 
   }
+  file.close();
 
-  com *= angstrom2Bohr; // angstrom to bohr
-  gs_dipole *= debye2Au; // D to a.u.
-  es_dipole *= debye2Au;
+  com *= ANGSTROM2BOHR; // angstrom to bohr
+  dipoleGS *= DEBYE2AU; // D to a.u.
+  dipoleES *= DEBYE2AU;
 
   auto twoBodyH = [&](const Eigen::VectorXd mu_A, const Eigen::VectorXd mu_B, const Eigen::VectorXd r_AB){
     /** Lambda function to compute the two-body AIEM Hamiltonian matrix elements (Ref.2 Eq. 67)
@@ -484,78 +500,55 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
   }; 
 
   // hamiltonian = AIEM Hamiltonian
-  // term = store individual Pauli terms
+  // term = creates individual Pauli terms
   PauliOperator hamiltonian, term;
 
-  auto S_A = (gs_energies + es_energies)/2; // Ref2 Eq. 20
-  auto D_A = (gs_energies - es_energies)/2; // Ref2 Eq. 21
-
-  // Computing E, which is the term that multiplys I. See Ref2 Eq. 13
-  auto E = S_A.sum();
-  for (int A = 0; A < nChromophores - 1; A++){
-    auto mu_A = (gs_dipole.row(A) + es_dipole.row(A))/2;
-    for (int B = A + 1; B < nChromophores; B++){
-      auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
-      E += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
-    }
-  }
-  hamiltonian.fromString(std::to_string(E) + " I");
-
-  // Z_A is defined in Ref2 Eq. 14
-  Eigen::VectorXd Z_A(nChromophores);
-  Z_A.setZero();
+  // stores the indices of the valid chromophore pairs
+  std::vector<std::vector<int>> pairs(nChromophores);
   for (int A = 0; A < nChromophores; A++){
-    auto mu_A = (gs_dipole.row(A) - es_dipole.row(A))/2;
-    Z_A(A) = D_A(A);
-    for (int B = 0; B < nChromophores; B++){
-      if (B != A){
-        auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
-        Z_A(A) += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
-      }
+    if(A == 0){
+      pairs[A] = {A + 1, nChromophores - 1};
+    } else if (A == nChromophores - 1){
+      pairs[A] = {A - 1, 0};
+    } else {
+      pairs[A] = {A - 1, A + 1};
     }
-    term.fromString(std::to_string(Z_A(A)) + " Z" + std::to_string(A));
-    hamiltonian += term;
   }
 
-  // X_A is defined in Ref2 Eq. 15
-  Eigen::VectorXd X_A(nChromophores);
+  auto S_A = (energiesGS + energiesES) / 2.0; // Ref2 Eq. 20
+  auto D_A = (energiesGS - energiesES) / 2.0; // Ref2 Eq. 21
+  auto dipoleSum = (dipoleGS + dipoleES) / 2.0; // sum of dipole moments, coordinate-wise
+  auto dipoleDiff = (dipoleGS - dipoleES) / 2.0; // difference of dipole moments, coordinate-wise
+  double E = 0.0; // = S_A.sum(), but this only shifts the eigenvalues
+
+  Eigen::VectorXd Z_A(nChromophores), X_A(nChromophores);
+  Z_A = D_A;
   X_A.setZero();
-  for (int A = 0; A < nChromophores; A++){
-    auto mu_A = t_dipole.row(A);
-    for (int B = 0; B < nChromophores; B++){
-      if (B != A){
-        auto mu_B = (gs_dipole.row(B) + es_dipole.row(B))/2;
-        X_A(A) += twoBodyH(mu_A, mu_B, com.row(A) - com.row(B));
-      }
-    }
-    term.fromString(std::to_string(Z_A(A)) + " Z" + std::to_string(A));
-    hamiltonian += term;
-  }
-
-  // Allocate memory for two-body terms
   Eigen::MatrixXd XX_AB(nChromophores, nChromophores), XZ_AB(nChromophores, nChromophores),
                   ZX_AB(nChromophores, nChromophores), ZZ_AB(nChromophores, nChromophores);
-
   XX_AB.setZero();
   XZ_AB.setZero();
   ZX_AB.setZero();
   ZZ_AB.setZero();
+  
+  // Compute the AIEM Hamiltonian
+  for (int A = 0; A < nChromophores; A++){
 
-  // XX_AB is defined in Ref2 Eq. 16
-  // XZ_AB is defined in Ref2 Eq. 17
-  // ZX_AB is defined in Ref2 Eq. 18
-  // ZZ_AB is defined in Ref2 Eq. 19
-  for (int A = 0; A < nChromophores - 1; A++){
-    for (int B = A + 1 ; B < nChromophores; B++){
+    for (int B : pairs[A]) {
 
-      XX_AB(A, B) = twoBodyH(t_dipole.row(A), t_dipole.row(B), com.row(A) - com.row(B));
-      XZ_AB(A, B) = twoBodyH(t_dipole.row(A), (gs_dipole.row(B) - es_dipole.row(B))/2, com.row(A) - com.row(B));
-      ZX_AB(A, B) = twoBodyH((gs_dipole.row(A) - es_dipole.row(A))/2, t_dipole.row(B), com.row(A) - com.row(B));
-      ZZ_AB(A, B) = twoBodyH((gs_dipole.row(A) - es_dipole.row(A))/2, (gs_dipole.row(B) - es_dipole.row(B))/2, com.row(A) - com.row(B));
-      XX_AB(B, A) = XX_AB(A, B);
-      XZ_AB(B, A) = XZ_AB(A, B);
-      ZX_AB(B, A) = ZX_AB(A, B);
-      ZZ_AB(B, A) = ZZ_AB(A, B);
+      E += 0.5 * twoBodyH(dipoleSum.row(A), dipoleSum.row(B), com.row(A) - com.row(B));
+      E += 0.5 * twoBodyH(dipoleSum.row(B), dipoleSum.row(A), com.row(B) - com.row(A));
+
+      Z_A(A) += 0.5 * twoBodyH(dipoleSum.row(A), dipoleDiff.row(B), com.row(A) - com.row(B));
+      Z_A(A) += 0.5 * twoBodyH(dipoleDiff.row(B), dipoleSum.row(A), com.row(B) - com.row(A));
+
+      X_A(A) += 0.5 * twoBodyH(dipoleT.row(A), dipoleSum.row(B), com.row(A) - com.row(B));
+      X_A(A) += 0.5 * twoBodyH(dipoleSum.row(B), dipoleT.row(A), com.row(B) - com.row(A));     
+
+      XX_AB(A, B) = twoBodyH(dipoleT.row(A), dipoleT.row(B), com.row(A) - com.row(B));
+      XZ_AB(A, B) = twoBodyH(dipoleT.row(A), dipoleDiff.row(B), com.row(A) - com.row(B));
+      ZX_AB(A, B) = twoBodyH(dipoleDiff.row(A), dipoleT.row(B), com.row(A) - com.row(B));
+      ZZ_AB(A, B) = twoBodyH(dipoleDiff.row(A), dipoleDiff.row(B), com.row(A) - com.row(B));
 
       term.fromString(std::to_string(XX_AB(A, B)) + " X" + std::to_string(A) + " X" + std::to_string(B));
       hamiltonian += term;
@@ -565,42 +558,54 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
       hamiltonian += term;
       term.fromString(std::to_string(ZZ_AB(A, B)) + " Z" + std::to_string(A) + " Z" + std::to_string(B)); 
       hamiltonian += term;
-
     }
+
+    term.fromString(std::to_string(Z_A(A)) + " Z" + std::to_string(A));
+    hamiltonian += term;
+
+    term.fromString(std::to_string(X_A(A)) + " X" + std::to_string(A));
+    hamiltonian += term;
+
   }
-  // We're done with the AIEM Hamiltonian, just need a pointer for it and up-cast to Observable
+
+  term.fromString(std::to_string(E));
+  hamiltonian += term;
+
+  // Done with the AIEM Hamiltonian, just need a pointer for it and upcast to Observable
   auto hamiltonianPtr = std::make_shared<PauliOperator>(hamiltonian);
   observable = std::dynamic_pointer_cast<Observable>(hamiltonianPtr);
 
   // CISMatrix stores the CIS matrix elements in the nChromophore two-state basis
   Eigen::MatrixXd CISMatrix(nStates , nStates);
   CISMatrix.setZero();
-  auto E_ref = E + Z_A.sum(); // First two terms in Ref3 Eq. 48
 
+  // E_ref
+  auto E_ref = E + Z_A.sum() + 0.5 * ZZ_AB.sum();
+  CISMatrix(0, 0) = E_ref;
+
+  // diagonal singles-singles
   for (int A = 0; A < nChromophores; A++){
-
-    CISMatrix(A + 1, A + 1) = -2.0 * Z_A(A); // Second term in Ref3 Eq. 49
-    CISMatrix(A + 1, 0) = X_A(A); // First term in Ref3 Eq. 50
-
-    for (int B = 0; B < nChromophores; B++){
-
-      if(B != A){
-
-        E_ref += 0.5 * ZZ_AB(A, B); // Last term in Ref3 Eq. 48
-        CISMatrix(A + 1, A + 1) -= (ZZ_AB(A, B) + ZZ_AB(B, A)); // third term in Ref3 Eq. 49
-        CISMatrix(A + 1, 0) += 0.5 * (XZ_AB(A, B) + ZX_AB(B, A)); // Second term in Ref3 Eq. 50
-        CISMatrix(A + 1, B + 1) = XX_AB(A, B); // Ref3 Eq. 51
-        CISMatrix(B + 1, A + 1) = CISMatrix(A + 1, B + 1); // making sure CISMatrix is symmetric
-
-      }
+    CISMatrix(A + 1, A + 1) = E_ref - 2.0 * Z_A(A);
+    for (int B : pairs[A]){
+      CISMatrix(A + 1, A + 1) -= ZZ_AB(A, B) + ZZ_AB(B, A);
     }
-    CISMatrix(0, A + 1) = CISMatrix(A + 1, 0); // making sure CISMatrix is symmetric
   }
 
-  // Adding E_ref along the diagonal
-  for (int A = 0; A <= nChromophores; A++){
-    CISMatrix(A, A) += E_ref; 
+  // reference-singles off diagonal
+  for (int A = 0; A < nChromophores; A++){
+    CISMatrix(A + 1, 0) = X_A(A);
+    for (int B : pairs[A]){
+      CISMatrix(A + 1, 0) += 0.5 * (XZ_AB(A, B) + ZX_AB(B, A));
+    }
+    CISMatrix(0, A + 1) = CISMatrix(A + 1, 0);
   }
+
+  // singles-singles off-diagonal 
+  for (int A = 0; A < nChromophores; A++){
+    for (int B : pairs[A]){
+      CISMatrix(A + 1, B + 1) = XX_AB(A, B);
+    }
+  } 
 
   // Diagonalizing the CISMatrix
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EigenSolver(CISMatrix);
@@ -614,10 +619,11 @@ void MC_VQE::preProcessing() {//Eigen::MatrixXd &CISGateAngles, std::shared_ptr<
       double partialCoeffNorm = CISStates.col(state).segment(angle, nChromophores - angle + 1).norm();
       CISGateAngles(angle, state) = std::acos(CISStates(angle, state)/partialCoeffNorm);
     }
-    
-    if(CISStates(nStates, state) < 0.0) {
-      CISGateAngles(nStates, state) *= -1.0;
+
+    if(CISStates(Eigen::last, state) < 0.0) {
+      CISGateAngles(nStates - 1, state) *= -1.0;
     }
+
   }
 
   // end of preProcessing
