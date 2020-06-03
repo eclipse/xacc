@@ -193,6 +193,23 @@ public:
   DEFINE_VISITABLE()
 };
 
+class U1 : public Gate {
+public:
+  U1()
+      : Gate("U1",
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+  U1(std::size_t qbit, InstructionParameter &&theta)
+      : Gate("U1", std::vector<std::size_t>{qbit},
+             std::vector<InstructionParameter>{theta}) {}
+  U1(std::vector<std::size_t> qbits)
+      : Gate("U1", qbits,
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+  const int nRequiredBits() const override { return 1; }
+
+  DEFINE_CLONE(U1)
+  DEFINE_VISITABLE()
+};
+
 class Rx : public Gate {
 public:
   Rx()
