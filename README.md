@@ -1,9 +1,8 @@
-| Branch | Status |
-|:-------|:-------|
-|master | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) |
-|xacc-devel | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
+![XACC](docs/assets/xacc_full_logo.svg)
 
-![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
+|  master | xacc-devel |
+|:-------|:-------|
+|[![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
 
 ## Language and Hardware Independent Quantum Programming Framework
 XACC is an extensible compilation framework for hybrid quantum-classical computing architectures.
