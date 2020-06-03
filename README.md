@@ -1,4 +1,4 @@
-![XACC](docs/assets/xacc_full_logo.svg)
+![XACC](docs/assets/xacc_logo_background.png)
 
 |  master | xacc-devel |
 |:-------|:-------|
