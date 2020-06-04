@@ -432,6 +432,10 @@ void MC_VQE::preProcessing() {
   com.setZero();
 
   std::ifstream file(dataPath);
+  if(file.bad()){
+    std::cout << "Cannot access data file.\n";
+    return;
+  }
   std::string line, tmp, comp;
   int xyz, start;
   for (int A = 0; A < nChromophores; A++){
@@ -570,6 +574,7 @@ void MC_VQE::preProcessing() {
 
   term.fromString(std::to_string(E));
   hamiltonian += term;
+  std::cout << hamiltonian.toString() <<"\n\n";
 
   // Done with the AIEM Hamiltonian, just need a pointer for it and upcast to Observable
   auto hamiltonianPtr = std::make_shared<PauliOperator>(hamiltonian);

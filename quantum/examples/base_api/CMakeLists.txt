@@ -33,3 +33,6 @@ target_link_libraries(optimal_control_goat PRIVATE xacc)
 
 add_executable(mc_vqe_example mc_vqe_example.cpp)
 target_link_libraries(mc_vqe_example PRIVATE xacc xacc-quantum-gate)
+
+add_executable(mc_vqe_xasm mc_vqe_xasm.cpp)
+target_link_libraries(mc_vqe_xasm PRIVATE xacc xacc-quantum-gate)
