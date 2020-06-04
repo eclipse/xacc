@@ -162,27 +162,27 @@ Transition dipole moment: 1.5656,2.8158,-0.0976
   auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 1)});
   
   auto itensor = xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor","itensor-mps")});
-  auto buffer1 = xacc::qalloc(12);
+  auto buffer1 = xacc::qalloc(4);
   auto mc_vqe1 = xacc::getAlgorithm("mc-vqe");
   mc_vqe1->initialize({std::make_pair("accelerator",itensor),
                       std::make_pair("optimizer",optimizer),
                       std::make_pair("data-path",path),
                       std::make_pair("cyclic",true),
-                      std::make_pair("nChromophores", 2)});
+                      std::make_pair("nChromophores", 4)});
   mc_vqe1->execute(buffer1);
 
-/*
+
   std::cout << "TNQVM + exaTN\n\n";
   auto exatn = xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor","exatn")});
-  auto buffer2 = xacc::qalloc(12);
+  auto buffer2 = xacc::qalloc(4);
   auto mc_vqe2 = xacc::getAlgorithm("mc-vqe");
   mc_vqe2->initialize({std::make_pair("accelerator",exatn),
                       std::make_pair("optimizer",optimizer),
                       std::make_pair("data-path",path),
                       std::make_pair("cyclic",true),
-                      std::make_pair("nChromophores", 2)});
+                      std::make_pair("nChromophores", 4)});
   mc_vqe2->execute(buffer2);
-*/
+
 
   xacc::Finalize();
 
