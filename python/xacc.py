@@ -406,10 +406,19 @@ def benchmark(xacc_settings):
 
     results_name = "%s_%s_out" % (os.path.splitext(
         tail)[0], timestr)
-    f = open(results_name+".ab", 'w')
-    f.write(str(buffer))
-    f.close()
+    
+    if 'output_logs' not in xacc_settings['Benchmark']:
+            xacc_settings['Benchmark']['output_logs'] = False
+            
+    if xacc_settings['Benchmark']['output_logs'] == True:
+        f = open(results_name+".ab", 'w')
+        f.write(str(buffer))
+        f.close()
+    
+    else:
+        pass
 
+    return buffer
 def benchmark_from_cmd_line(opts):
     if opts.benchmark is not None:
         inputfile = opts.benchmark
