@@ -25,6 +25,21 @@ public:
   }
 };
 
+void test_set_ptr(xacc::HeterogeneousMap &map) {
+  auto simple_kernel =
+      xacc::getCompiler("xasm")
+          ->compile(R"#(__qpu__ void foo(qreg q) { H(q[0]); })#")
+          ->getComposites()[0];
+  map.insert("hello-world", simple_kernel);
+}
+
+TEST(HeterogeneousMapTester, checkSetValueFromFunctionRef) {
+    xacc::HeterogeneousMap m;
+    m.insert("hello-world", nullptr);
+    test_set_ptr(m);
+    std::cout << m.get<std::shared_ptr<xacc::CompositeInstruction>>("hello-world")->toString() << "\n";
+}
+
 TEST(HeterogeneousMapTester, checkSimple) {
   xacc::HeterogeneousMap c;
   c.insert("intkey", 1);
