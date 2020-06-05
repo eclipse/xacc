@@ -408,7 +408,7 @@ def benchmark(xacc_settings):
         tail)[0], timestr)
     
     if 'output_logs' not in xacc_settings['Benchmark']:
-            xacc_settings['Benchmark']['output_logs'] = False
+            xacc_settings['Benchmark']['output_logs'] = True
             
     if xacc_settings['Benchmark']['output_logs'] == True:
         f = open(results_name+".ab", 'w')

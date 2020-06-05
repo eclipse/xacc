@@ -36,18 +36,12 @@ class Chemistry(Benchmark):
         elif inputParams['Observable']['name'] == 'fermion':
             obs_str = inputParams['Observable']['obs_str']
             H = xacc.getObservable('fermion', obs_str)
-        elif inputParams['Observable']['name'] == 'psi4':
+        elif inputParams['Observable']['name'] in ['pyscf','psi4']:
             opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
             if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
                 opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
                 opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
-            H = xacc.getObservable('psi4', opts)
-        elif inputParams['Observable']['name'] == 'pyscf':
-            opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
-            if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
-                opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
-                opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
-            H = xacc.getObservable('pyscf', opts)
+            H = xacc.getObservable(inputParams['Observable']['name'], opts)
 
         #print('Ham: ', H.toString())
         qpu = xacc.getAccelerator(acc_name, xacc_opts)
