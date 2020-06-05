@@ -28,7 +28,7 @@ class Chemistry(Benchmark):
 
         if 'Ansatz' not in inputParams:
             xacc.error('Invalid benchmark input - must have Ansatz circuit description')
-            
+
         H = None
         if inputParams['Observable']['name'] == 'pauli':
             obs_str = inputParams['Observable']['obs_str']
@@ -36,14 +36,12 @@ class Chemistry(Benchmark):
         elif inputParams['Observable']['name'] == 'fermion':
             obs_str = inputParams['Observable']['obs_str']
             H = xacc.getObservable('fermion', obs_str)
-
         elif inputParams['Observable']['name'] == 'psi4':
             opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
             if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
                 opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
                 opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
             H = xacc.getObservable('psi4', opts)
-            
         elif inputParams['Observable']['name'] == 'pyscf':
             opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
             if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
@@ -80,11 +78,8 @@ class Chemistry(Benchmark):
             optimizer = xacc.getOptimizer('nlopt')
 
         provider = xacc.getIRProvider('quantum')
-        
-        
-        # Added adapt-vqe with new keywords
+
         if inputParams['Benchmark']['algorithm'] == 'adapt-vqe':
-            
             alg = xacc.getAlgorithm(inputParams['Benchmark']['algorithm'], {
                                     'pool' : inputParams['Ansatz']['pool'],
                                     'nElectrons' : int(inputParams['Ansatz']['electrons']),
@@ -95,8 +90,9 @@ class Chemistry(Benchmark):
 
             alg.execute(buffer)
             return buffer
+        
+        else: 
             
-        else:
             if 'source' in inputParams['Ansatz']:
                 # here assume this is xasm always
                 src = inputParams['Ansatz']['source']
@@ -119,8 +115,7 @@ class Chemistry(Benchmark):
                                     })
 
             alg.execute(buffer)
-            return (buffer)
-
+            return buffer
 
     def analyze(self, buffer, inputParams):
 
@@ -143,7 +138,6 @@ class Chemistry(Benchmark):
             buffer.addExtraInfo('readout-corrected-energy', ro_energies[int(min_index)])
             print('Readout Energy = ', ro_energies[int(min_index)])
             print('Optimal Parameters =', uniqueParams[int(min_index)])
-        
-            print('Energy = ', buffer['opt-val'])
-            print('Opt Params = ', buffer['opt-params'])
 
+        print('Energy = ', buffer['opt-val'])
+        print('Opt Params = ', buffer['opt-params'])
