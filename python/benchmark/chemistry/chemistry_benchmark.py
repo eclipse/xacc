@@ -36,13 +36,18 @@ class Chemistry(Benchmark):
         elif inputParams['Observable']['name'] == 'fermion':
             obs_str = inputParams['Observable']['obs_str']
             H = xacc.getObservable('fermion', obs_str)
-
         elif inputParams['Observable']['name'] == 'psi4':
             opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
             if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
                 opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
                 opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
             H = xacc.getObservable('psi4', opts)
+        elif inputParams['Observable']['name'] == 'pyscf':
+            opts = {'basis':inputParams['Observable']['basis'], 'geometry':inputParams['Observable']['geometry']}
+            if 'fo' in inputParams['Observable'] and 'ao' in inputParams['Observable']:
+                opts['frozen-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['fo'])
+                opts['active-spin-orbitals'] = ast.literal_eval(inputParams['Observable']['ao'])
+            H = xacc.getObservable('pyscf', opts)
 
         #print('Ham: ', H.toString())
         qpu = xacc.getAccelerator(acc_name, xacc_opts)
@@ -74,30 +79,43 @@ class Chemistry(Benchmark):
 
         provider = xacc.getIRProvider('quantum')
 
-        if 'source' in inputParams['Ansatz']:
-            # here assume this is xasm always
-            src = inputParams['Ansatz']['source']
-            xacc.qasm(src)
-            # get the name of the circuit
-            circuit_name = None
-            for l in src.split('\n'):
-                if '.circuit' in l:
-                    circuit_name = l.split(' ')[1]
-            ansatz = xacc.getCompiled(circuit_name)
-        else:
-            ansatz = provider.createInstruction(inputParams['Ansatz']['ansatz'])
-            ansatz = xacc.asComposite(ansatz)
+        if inputParams['Benchmark']['algorithm'] == 'adapt-vqe':
+            alg = xacc.getAlgorithm(inputParams['Benchmark']['algorithm'], {
+                                    'pool' : inputParams['Ansatz']['pool'],
+                                    'nElectrons' : int(inputParams['Ansatz']['electrons']),
+                                    'accelerator': qpu,
+                                    'observable': H,
+                                    'optimizer': optimizer,
+                                    })
 
-        alg = xacc.getAlgorithm(inputParams['Benchmark']['algorithm'], {
-                                'ansatz': ansatz,
-                                'accelerator': qpu,
-                                'observable': H,
-                                'optimizer': optimizer,
-                                })
+            alg.execute(buffer)
+            return buffer
+        
+        else: 
+            
+            if 'source' in inputParams['Ansatz']:
+                # here assume this is xasm always
+                src = inputParams['Ansatz']['source']
+                xacc.qasm(src)
+                # get the name of the circuit
+                circuit_name = None
+                for l in src.split('\n'):
+                    if '.circuit' in l:
+                        circuit_name = l.split(' ')[1]
+                ansatz = xacc.getCompiled(circuit_name)
+            else:
+                ansatz = provider.createInstruction(inputParams['Ansatz']['ansatz'])
+                ansatz = xacc.asComposite(ansatz)
 
-        alg.execute(buffer)
-        return buffer
+            alg = xacc.getAlgorithm(inputParams['Benchmark']['algorithm'], {
+                                    'ansatz': ansatz,
+                                    'accelerator': qpu,
+                                    'observable': H,
+                                    'optimizer': optimizer,
+                                    })
 
+            alg.execute(buffer)
+            return buffer
 
     def analyze(self, buffer, inputParams):
 
@@ -123,4 +141,3 @@ class Chemistry(Benchmark):
 
         print('Energy = ', buffer['opt-val'])
         print('Opt Params = ', buffer['opt-params'])
-
