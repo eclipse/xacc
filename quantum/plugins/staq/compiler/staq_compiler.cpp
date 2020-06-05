@@ -307,7 +307,7 @@ StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
 
 const std::string
 StaqCompiler::translate(std::shared_ptr<CompositeInstruction> program,
-                        const HeterogeneousMap &options) {
+                        HeterogeneousMap &options) {
   if (options.stringExists("lang-type")) {
     auto langType = options.getString("lang-type");
 
