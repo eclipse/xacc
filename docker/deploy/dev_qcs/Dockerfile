@@ -11,7 +11,7 @@ run cd /home/dev && apt-get update && apt-get install -y uuid-dev pkg-config \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq -DCMAKE_PREFIX_PATH=~/.zmq \
     && make -j$(nproc) install \
     && cd ../.. \
-    && git clone https://github.com/msgpack/msgpack-c/ \
+    && git clone -b c_master https://github.com/msgpack/msgpack-c/ \
     && cd msgpack-c/ && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq \
     && make -j$(nproc) install \
