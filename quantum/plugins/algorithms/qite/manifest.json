@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_qite",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC QITE Algorithm",
+  "bundle.description" : ""
+}
