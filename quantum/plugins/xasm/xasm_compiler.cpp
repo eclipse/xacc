@@ -39,13 +39,14 @@ bool XASMCompiler::canParse(const std::string &src) {
       std::stringstream ss;
       ss << "XASM Cannot parse this source: " << msg << "\n";
       ss << line << ": " << charPositionInLine << ", offending symbol = " << offendingSymbol->getText() << "\n";
-      xacc::info(ss.str());
+    //   xacc::info(ss.str());
       throw std::runtime_error("Cannot parse this XASM source string.");
     }
   };
 
   ANTLRInputStream input(src);
   xasmLexer lexer(&input);
+  lexer.removeErrorListeners();
   CommonTokenStream tokens(&lexer);
   xasmParser parser(&tokens);
   parser.removeErrorListeners();
@@ -63,6 +64,7 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
                                           std::shared_ptr<Accelerator> acc) {
   ANTLRInputStream input(src);
   xasmLexer lexer(&input);
+  lexer.removeErrorListeners();
   CommonTokenStream tokens(&lexer);
   xasmParser parser(&tokens);
   parser.removeErrorListeners();
