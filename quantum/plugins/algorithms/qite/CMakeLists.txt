@@ -21,9 +21,10 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC .)
+  PUBLIC .
+  ${CMAKE_SOURCE_DIR}/tpls/eigen)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices xacc-quantum-gate)
 
 set(_bundle_name xacc_algorithm_qite)
 set_target_properties(${LIBRARY_NAME}
