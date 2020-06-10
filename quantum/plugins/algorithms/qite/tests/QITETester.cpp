@@ -21,7 +21,10 @@
 
 TEST(QITETester, checkSimple) 
 {
-
+  auto buffer = xacc::qalloc(1);
+  auto qite = xacc::getService<xacc::Algorithm>("qite");
+  qite->initialize({});
+  qite->execute(buffer);
 }
 
 int main(int argc, char **argv) {

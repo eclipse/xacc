@@ -36,6 +36,8 @@ private:
   int m_nbSteps;
   // dBeta, i.e. step size
   double m_dBeta;
+  // Accelerator
+  std::shared_ptr<Accelerator> m_accelerator;
   // Hamiltonian Observable, i.e. H = Sum(h_i)
   Observable* m_observable;
   // Ansatz circuit (apply before Trotter steps)
