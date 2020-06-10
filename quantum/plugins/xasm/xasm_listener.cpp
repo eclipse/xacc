@@ -652,8 +652,6 @@ void XASMListener::exitComposite_generator(
       } else if (p.isNumeric()) {
 
         if (!composite->getArguments().empty()) {
-          std::cout << "xasm debug: " << composite->getArguments().size()
-                    << "\n";
           // This is a literal. Create an argument and add it
           auto tmp_arg = composite->getArguments()[1];
 
