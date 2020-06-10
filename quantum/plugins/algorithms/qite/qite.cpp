@@ -227,7 +227,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
         {1, I, -I, 1}
       };
 
-			return in_tomoExp[indexMap[in_row][in_col]]*coefficientMap[in_row][in_col];
+      return in_tomoExp[indexMap[in_row][in_col]]*coefficientMap[in_row][in_col];
     };
 
     // S matrix:
@@ -245,11 +245,52 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     // possible Pauli operator combinations.
     // e.g. H = a X + b Z (1 qubit)
     // -> { 0.0, a, 0.0, b } (the ordering is I, X, Y, Z)
-    std::vector<double> obsProjCoeffs (sMatDim);
-    // TODO: assign this vector
-    obsProjCoeffs[1] = 1.0/std::sqrt(2.0);
-    obsProjCoeffs[3] = 1.0/std::sqrt(2.0);
+    const auto observableToVec = [](std::shared_ptr<Observable> in_observable, const std::vector<std::string>& in_pauliObsList) {
+      // Return true if the *operators* of the two terms are identical
+      // e.g. a Z0X1 and b Z0X1 -> true 
+      const auto comparePauliString = [](const std::string& in_a, const std::string& in_b) -> bool {
+        // Strip the coefficient part
+        auto opA = in_a.substr(in_a.find_last_of(")") + 1);
+        auto opB = in_b.substr(in_b.find_last_of(")") + 1);
+        opA.erase(std::remove(opA.begin(), opA.end(), ' '), opA.end()); 
+        opB.erase(std::remove(opB.begin(), opB.end(), ' '), opB.end()); 
+        return opA == opB;
+      };
 
+      std::vector<double> obsProjCoeffs(in_pauliObsList.size(), 0.0);
+
+      const auto findMatchingIndex = [&](const std::string& in_obsStr){
+        for (int i = 0; i < in_pauliObsList.size(); ++i)
+        {
+          std::shared_ptr<Observable> obs = std::make_shared<xacc::quantum::PauliOperator>();
+          const std::string pauliObsStr = "1.0 " + in_pauliObsList[i];
+          obs->fromString(pauliObsStr);
+          
+          if (comparePauliString(obs->toString(), in_obsStr))
+          {
+            return i;
+          }
+        }
+        // Failed!
+        return -1;
+      };
+
+      for (const auto& term: in_observable->getNonIdentitySubTerms())
+      {
+        const auto index = findMatchingIndex(term->toString());
+        assert(index >= 0);
+        obsProjCoeffs[index] = term->coefficient().real();
+      }
+      return obsProjCoeffs;
+    };
+
+    const auto obsProjCoeffs = observableToVec(m_observable, pauliObsOps);
+    std::cout << "Observable Pauli Vec: [";
+    for (const auto& elem: obsProjCoeffs)
+    {
+      std::cout << elem << ", ";
+    }
+    std::cout << "]\n";
 
     // Calculate c: Eq. 3 in https://arxiv.org/pdf/1901.07653.pdf
     double c = 1.0;
