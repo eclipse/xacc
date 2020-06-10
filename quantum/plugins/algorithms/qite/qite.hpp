@@ -39,7 +39,7 @@ private:
   // Accelerator
   std::shared_ptr<Accelerator> m_accelerator;
   // Hamiltonian Observable, i.e. H = Sum(h_i)
-  Observable* m_observable;
+  std::shared_ptr<Observable> m_observable;
   // Ansatz circuit (apply before Trotter steps)
   CompositeInstruction* m_ansatz;
   // List of A operators for each time step

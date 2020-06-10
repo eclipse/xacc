@@ -20,24 +20,55 @@
 #include <memory>
 #include <Eigen/Dense>
 
+namespace {
+const std::complex<double> I{ 0.0, 1.0};
+}
+
 using namespace xacc;
 
 namespace xacc {
 namespace algorithm {
 bool QITE::initialize(const HeterogeneousMap &parameters) 
 {
-  // TEMP CODE:
-  m_nbSteps = 1;
-  m_accelerator = xacc::getAccelerator("qpp");
+  bool initializeOk = true;
+  if (!parameters.pointerLikeExists<Accelerator>("accelerator")) 
+  {
+    std::cout << "'accelerator' is required.\n";
+    initializeOk = false;
+  }
 
-  // TODO
-  return true;
+  if (!parameters.keyExists<int>("steps")) 
+  {
+    std::cout << "'steps' is required.\n";
+    initializeOk = false;
+  }
+
+  if (!parameters.keyExists<double>("step-size")) 
+  {
+    std::cout << "'step-size' is required.\n";
+    initializeOk = false;
+  }
+
+  if (!parameters.pointerLikeExists<Observable>("observable")) 
+  {
+    std::cout << "'observable' is required.\n";
+    initializeOk = false;
+  }
+  
+  if (initializeOk)
+  {
+    m_accelerator = xacc::as_shared_ptr(parameters.getPointerLike<Accelerator>("accelerator"));
+    m_nbSteps = parameters.get<int>("steps");
+    m_dBeta = parameters.get<double>("step-size");
+    m_observable = xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
+  }
+
+  return initializeOk;
 }
 
 const std::vector<std::string> QITE::requiredParameters() const 
 {
-  // TODO
-  return {};
+  return { "accelerator", "steps", "step-size", "observable" };
 }
 
 std::shared_ptr<CompositeInstruction> QITE::constructPropagateCircuit() const
@@ -189,7 +220,6 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
         {3, 2, 1, 0}
       }; 
 
-      const std::complex<double> I{ 0.0, 1.0};
       std::complex<double> coefficientMap [4][4] = {
         {1, 1, 1, 1},
         {1, 1, I, -I},
@@ -215,14 +245,50 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     // possible Pauli operator combinations.
     // e.g. H = a X + b Z (1 qubit)
     // -> { 0.0, a, 0.0, b } (the ordering is I, X, Y, Z)
-    std::vector<std::complex<double>> obsProjCoeffs (sMatDim);
+    std::vector<double> obsProjCoeffs (sMatDim);
     // TODO: assign this vector
-    // !! This is complex!!!
+    obsProjCoeffs[1] = 1.0/std::sqrt(2.0);
+    obsProjCoeffs[3] = 1.0/std::sqrt(2.0);
 
 
-    auto lhs = S_Mat + S_Mat.transpose();
+    // Calculate c: Eq. 3 in https://arxiv.org/pdf/1901.07653.pdf
+    double c = 1.0;
+    for (int i = 0; i < obsProjCoeffs.size(); ++i)
+    {
+      c -= 2.0 * m_dBeta * obsProjCoeffs[i] * sigmaExpectation[i];
+    }
+    
+    for (int i = 0; i < sMatDim; ++i)
+    {
+      std::complex<double> b = (sigmaExpectation[i]/ std::sqrt(c) - sigmaExpectation[i])/ m_dBeta;
+      for (int j = 0; j < obsProjCoeffs.size(); ++j)
+      {
+        // The expectation of the pauli product of the Hamiltonian term
+        // and the sweeping pauli term.
+        const auto expectVal = calcSmatEntry(sigmaExpectation, i, j);
+        b -= obsProjCoeffs[j] * expectVal / std::sqrt(c);
+      }
+      b = I*b - I*std::conj(b);
+      // Set b_Vec
+      b_Vec(i) = b;
+    }
+
+    std::cout << "S Matrix: \n" << S_Mat << "\n"; 
+    std::cout << "B Vector: \n" << b_Vec << "\n"; 
+    // Add regularizer
+	  Eigen::MatrixXcf dalpha = Eigen::MatrixXcf::Identity(sMatDim, sMatDim); 
+    dalpha = 0.1 * dalpha;
+
+    auto lhs = S_Mat + S_Mat.transpose() + dalpha;
     auto rhs = -b_Vec;
+
+    std::cout << "LHS Matrix: \n" << lhs << "\n"; 
+    std::cout << "RHS Vector: \n" << rhs << "\n"; 
     const auto a_Vec = lhs.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(rhs);
+    
+    std::cout << "Result A Vector: \n" << a_Vec << "\n"; 
+
+    
     // TODO: construct A observable from the coefficients in a_Vec
     return nullptr; 
   };

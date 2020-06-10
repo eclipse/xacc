@@ -21,9 +21,23 @@
 
 TEST(QITETester, checkSimple) 
 {
-  auto buffer = xacc::qalloc(1);
   auto qite = xacc::getService<xacc::Algorithm>("qite");
-  qite->initialize({});
+  std::shared_ptr<xacc::Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+  observable->fromString("0.7071 X0 + 0.7071 Z0");
+  auto acc = xacc::getAccelerator("qpp");
+  const int nbSteps = 25;
+  const double stepSize = 0.1;
+
+  const bool initOk =  qite->initialize({
+    std::make_pair("accelerator", acc),
+    std::make_pair("steps", nbSteps),
+    std::make_pair("observable", observable),
+    std::make_pair("step-size", stepSize)
+  });
+
+  EXPECT_TRUE(initOk);
+  
+  auto buffer = xacc::qalloc(1);
   qite->execute(buffer);
 }
 
