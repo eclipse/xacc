@@ -111,13 +111,14 @@ std::shared_ptr<CompositeInstruction> QITE::constructPropagateCircuit() const
     {
       const auto pauliStr = pauliTermToString(term);
       auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
-      expCirc->addVariable("theta");
-      expCirc->expand({ std::make_pair("pauli", term) });
+      const bool expandOk = expCirc->expand({ std::make_pair("pauli", pauliStr) });
+      assert(expandOk);
       auto evaled = expCirc->operator()({ m_dBeta });
       propagateKernel->addInstructions(evaled->getInstructions());
     }
   }
 
+  std::cout << "Progagated kernel:\n" << propagateKernel->toString() << "\n";
   return propagateKernel;
 }
 
@@ -176,7 +177,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       const std::string pauliObsStr = "1.0 " + pauliObsOps[i];
       // std::cout << "Observable string: \n" << pauliObsStr << "\n";
       tomoObservable->fromString(pauliObsStr);
-      std::cout << "Observable: \n" << tomoObservable->toString() << "\n";
+      // std::cout << "Observable: \n" << tomoObservable->toString() << "\n";
       assert(tomoObservable->getSubTerms().size() == 1);
       assert(tomoObservable->getNonIdentitySubTerms().size() == 1);
       auto obsKernel = tomoObservable->observe(in_kernel).front();
@@ -279,12 +280,12 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     };
 
     const auto obsProjCoeffs = observableToVec(in_hmTerm, pauliObsOps);
-    std::cout << "Observable Pauli Vec: [";
-    for (const auto& elem: obsProjCoeffs)
-    {
-      std::cout << elem << ", ";
-    }
-    std::cout << "]\n";
+    // std::cout << "Observable Pauli Vec: [";
+    // for (const auto& elem: obsProjCoeffs)
+    // {
+    //   std::cout << elem << ", ";
+    // }
+    // std::cout << "]\n";
 
     // Calculate c: Eq. 3 in https://arxiv.org/pdf/1901.07653.pdf
     double c = 1.0;
@@ -293,7 +294,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       c -= 2.0 * m_dBeta * obsProjCoeffs[i] * sigmaExpectation[i];
     }
     
-    std::cout << "c = " << c << "\n";
+    // std::cout << "c = " << c << "\n";
     for (int i = 0; i < sMatDim; ++i)
     {
       std::complex<double> b = (sigmaExpectation[i]/ std::sqrt(c) - sigmaExpectation[i])/ m_dBeta;
@@ -309,8 +310,8 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       b_Vec(i) = b;
     }
 
-    std::cout << "S Matrix: \n" << S_Mat << "\n"; 
-    std::cout << "B Vector: \n" << b_Vec << "\n"; 
+    // std::cout << "S Matrix: \n" << S_Mat << "\n"; 
+    // std::cout << "B Vector: \n" << b_Vec << "\n"; 
     // Add regularizer
 	  arma::cx_mat dalpha(sMatDim, sMatDim, arma::fill::eye); 
     dalpha = 0.1 * dalpha;
@@ -318,10 +319,10 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     auto lhs = S_Mat + S_Mat.st() + dalpha;
     auto rhs = -b_Vec;
 
-    std::cout << "LHS Matrix: \n" << lhs << "\n"; 
-    std::cout << "RHS Vector: \n" << rhs << "\n"; 
+    // std::cout << "LHS Matrix: \n" << lhs << "\n"; 
+    // std::cout << "RHS Vector: \n" << rhs << "\n"; 
     arma::cx_vec a_Vec = arma::solve(lhs, rhs);
-    std::cout << "Result A Vector: \n" << a_Vec << "\n"; 
+    // std::cout << "Result A Vector: \n" << a_Vec << "\n"; 
 
     // Now, we have the decomposition of A observable in the basis of
     // all possible Pauli combinations.
@@ -333,15 +334,17 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       
       for (int i = 1; i < pauliObsOps.size(); ++i)
       {
-        s << " + " << a_Vec(i) << " " << pauliObsOps[i];
+        s << " + " << (-2.0 * a_Vec(i)) << " " << pauliObsOps[i];
       }
 
       return s.str();
     }(); 
 
-    std::cout << "A string: " <<  aObsStr << "\n";
-
-    return nullptr; 
+    // std::cout << "A string: " <<  aObsStr << "\n";
+    std::shared_ptr<Observable> updatedAham = std::make_shared<xacc::quantum::PauliOperator>();
+    updatedAham->fromString(aObsStr);
+    // std::cout << "Observable: \n" << updatedAham->toString() << "\n";
+    return updatedAham; 
   };
   
   // Time stepping:
@@ -355,7 +358,6 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       auto nextAOps = calcAOps(kernel, hamTerm);
       m_approxOps.emplace_back(nextAOps);
     }
-   
   }
 }
 
