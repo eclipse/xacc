@@ -14,6 +14,7 @@
 #define XACC_ALGORITHM_VQE_HPP_
 
 #include "Algorithm.hpp"
+#include "AlgorithmGradientStrategy.hpp"
 
 namespace xacc {
 namespace algorithm {
@@ -24,6 +25,7 @@ protected:
   CompositeInstruction * kernel;
   Accelerator * accelerator;
   std::vector<double> initial_params;
+  AlgorithmGradientStrategy * gradientStrategy; 
 
   HeterogeneousMap parameters;
 

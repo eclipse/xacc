@@ -41,6 +41,13 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
 
+  // if gradient is provided
+  if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
+      "gradient_strategy")){
+    gradientStrategy = parameters.getPointerLike<AlgorithmGradientStrategy>(
+      "gradient_strategy");
+  }
+
   return true;
 }
 
@@ -66,11 +73,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
         double identityCoeff = 0.0;
+        int nInstructionsEnergy = 0, nInstructionsGradient = 0;
         for (auto &f : kernels) {
           kernelNames.push_back(f->name());
           std::complex<double> coeff = f->getCoefficient();
 
-          int nFunctionInstructions = 0;
+          int nFunctionInstructions;
           if (f->getInstruction(0)->isComposite()) {
             nFunctionInstructions =
                 kernel->nInstructions() + f->nInstructions() - 1;
@@ -89,6 +97,22 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           } else {
             identityCoeff += std::real(coeff);
           }
+        }
+
+        // Retrieve instructions for gradient, if a pointer of type 
+        // AlgorithmGradientStrategy is given
+        if (gradientStrategy){
+
+          auto gradFsToExec = gradientStrategy->getGradientExecutions(xacc::as_shared_ptr(kernel), x);
+          // Add gradient instructions to be sent to the qpu
+          nInstructionsEnergy = fsToExec.size();
+          nInstructionsGradient = gradFsToExec.size();
+          for (auto inst: gradFsToExec){
+            fsToExec.push_back(inst);
+          }
+          std::cout << "Number of instructions for energy calculation: " << nInstructionsEnergy << "\n";
+          std::cout << "Number of instructions for gradient calculation: " << nInstructionsGradient << "\n";
+
         }
 
         auto tmpBuffer = xacc::qalloc(buffer->size());
@@ -113,7 +137,26 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             b->addExtraInfo("parameters", initial_params);
             buffer->appendChild(b->name(), b);
           }
-        } else {
+
+        } else if (gradientStrategy){ // gradient-based optimization
+
+          for (int i = 0; i < nInstructionsEnergy; i++) {// compute energy
+            auto expval = buffers[i]->getExpectationValueZ();
+            energy += expval * coefficients[i];
+            buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+            buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+            buffers[i]->addExtraInfo("exp-val-z", expval);
+            buffers[i]->addExtraInfo("parameters", x);
+            buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+          }
+
+          std::cout << "Current Energy: " << energy << "\n";
+
+          // update gradient vector
+          gradientStrategy->compute(dx, 
+            std::vector<std::shared_ptr<AcceleratorBuffer>>(buffers.begin() + nInstructionsEnergy, buffers.end()));
+
+        } else {// normal VQE run
           for (int i = 0; i < buffers.size(); i++) {
             auto expval = buffers[i]->getExpectationValueZ();
             energy += expval * coefficients[i];
