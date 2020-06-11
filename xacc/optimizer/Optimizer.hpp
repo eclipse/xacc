@@ -64,6 +64,9 @@ public:
     // otherwise, it's illegal to call optimize() w/o any OptFunction.
     throw std::bad_function_call();
   }
+
+  const std::string optimizer_name() const { return options.getString(name() + "-optimizer"); }
+
 };
 } // namespace xacc
 #endif
