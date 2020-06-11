@@ -18,7 +18,8 @@
 #include "PauliOperator.hpp"
 #include "Circuit.hpp"
 #include <memory>
-#include <Eigen/Dense>
+#include <armadillo>
+#include <cassert>
 
 namespace {
 const std::complex<double> I{ 0.0, 1.0};
@@ -160,18 +161,11 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
   };
   
   const auto pauliObsOps = generatePauliPermutation(buffer->size());
-  const std::string pauliObsStr = [&pauliObsOps](){
-    std::string result = "1.0 " + pauliObsOps[1];
-    for (int i = 2; i < pauliObsOps.size(); ++i)
-    {
-      result.append(" + 1.0 " + pauliObsOps[i]);
-    }
-
-    return result;
-  }();
-  
   // Calculate approximate A operator observable at each time step.
-  const auto calcAOps = [&](std::shared_ptr<CompositeInstruction> in_kernel) -> std::shared_ptr<Observable> {
+  const auto calcAOps = [&](std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) -> std::shared_ptr<Observable> {
+    assert(in_hmTerm->getSubTerms().size() == 1);
+    assert(in_hmTerm->getNonIdentitySubTerms().size() == 1);
+
     // Step 1: Observe the kernels using the various Pauli
     // operators to calculate S and b.
     std::vector<double> sigmaExpectation(pauliObsOps.size());
@@ -202,8 +196,8 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     // TODO: construct circuits and evaluate to get expectation values
     // and populate S matrix and b vector.
     const auto sMatDim = pauliObsOps.size();
-    Eigen::MatrixXcf S_Mat = Eigen::MatrixXcf::Zero(sMatDim, sMatDim);
-    Eigen::VectorXcf b_Vec = Eigen::VectorXcf::Zero(sMatDim); 
+    arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
+    arma::cx_vec b_Vec(sMatDim, arma::fill::zeros); 
     
     const auto calcSmatEntry = [](const std::vector<double>& in_tomoExp, int in_row, int in_col) -> std::complex<double> {
       // Map the tomography expectation to the S matrix
@@ -284,7 +278,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       return obsProjCoeffs;
     };
 
-    const auto obsProjCoeffs = observableToVec(m_observable, pauliObsOps);
+    const auto obsProjCoeffs = observableToVec(in_hmTerm, pauliObsOps);
     std::cout << "Observable Pauli Vec: [";
     for (const auto& elem: obsProjCoeffs)
     {
@@ -299,6 +293,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       c -= 2.0 * m_dBeta * obsProjCoeffs[i] * sigmaExpectation[i];
     }
     
+    std::cout << "c = " << c << "\n";
     for (int i = 0; i < sMatDim; ++i)
     {
       std::complex<double> b = (sigmaExpectation[i]/ std::sqrt(c) - sigmaExpectation[i])/ m_dBeta;
@@ -317,31 +312,50 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     std::cout << "S Matrix: \n" << S_Mat << "\n"; 
     std::cout << "B Vector: \n" << b_Vec << "\n"; 
     // Add regularizer
-	  Eigen::MatrixXcf dalpha = Eigen::MatrixXcf::Identity(sMatDim, sMatDim); 
+	  arma::cx_mat dalpha(sMatDim, sMatDim, arma::fill::eye); 
     dalpha = 0.1 * dalpha;
 
-    auto lhs = S_Mat + S_Mat.transpose() + dalpha;
+    auto lhs = S_Mat + S_Mat.st() + dalpha;
     auto rhs = -b_Vec;
 
     std::cout << "LHS Matrix: \n" << lhs << "\n"; 
     std::cout << "RHS Vector: \n" << rhs << "\n"; 
-    const auto a_Vec = lhs.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(rhs);
-    
+    arma::cx_vec a_Vec = arma::solve(lhs, rhs);
     std::cout << "Result A Vector: \n" << a_Vec << "\n"; 
 
-    
-    // TODO: construct A observable from the coefficients in a_Vec
+    // Now, we have the decomposition of A observable in the basis of
+    // all possible Pauli combinations.
+    assert(a_Vec.n_elem == pauliObsOps.size());
+    const std::string aObsStr = [&](){
+      std::stringstream s;
+      s.precision(12);
+      s << std::fixed << a_Vec(0);
+      
+      for (int i = 1; i < pauliObsOps.size(); ++i)
+      {
+        s << " + " << a_Vec(i) << " " << pauliObsOps[i];
+      }
+
+      return s.str();
+    }(); 
+
+    std::cout << "A string: " <<  aObsStr << "\n";
+
     return nullptr; 
   };
   
   // Time stepping:
   for (int i = 0; i < m_nbSteps; ++i)
   {
-    // Propagates the state via Trotter steps:
-    auto kernel = constructPropagateCircuit();
-    // Optimizes/calculates next A ops
-    auto nextAOps = calcAOps(kernel);
-    m_approxOps.emplace_back(nextAOps);
+    for (auto& hamTerm : m_observable->getNonIdentitySubTerms())
+    {
+      // Propagates the state via Trotter steps:
+      auto kernel = constructPropagateCircuit();
+      // Optimizes/calculates next A ops
+      auto nextAOps = calcAOps(kernel, hamTerm);
+      m_approxOps.emplace_back(nextAOps);
+    }
+   
   }
 }
 
