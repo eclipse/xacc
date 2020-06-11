@@ -64,6 +64,8 @@ bool QITE::initialize(const HeterogeneousMap &parameters)
     m_observable = xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
   }
 
+  m_approxOps.clear();
+  m_energyAtStep.clear();
   return initializeOk;
 }
 
@@ -118,10 +120,58 @@ std::shared_ptr<CompositeInstruction> QITE::constructPropagateCircuit() const
     }
   }
 
-  std::cout << "Progagated kernel:\n" << propagateKernel->toString() << "\n";
+  // std::cout << "Progagated kernel:\n" << propagateKernel->toString() << "\n";
   return propagateKernel;
 }
 
+double QITE::calcCurrentEnergy(int in_nbQubits) const
+{
+  // Trotter kernel up to this point
+  auto propagateKernel = constructPropagateCircuit();
+  auto kernels = m_observable->observe(propagateKernel);
+  std::vector<double> coefficients;
+  std::vector<std::string> kernelNames;
+  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+
+  double identityCoeff = 0.0;
+  for (auto &f : kernels) 
+  {
+    kernelNames.push_back(f->name());
+    std::complex<double> coeff = f->getCoefficient();
+    int nFunctionInstructions = 0;
+    if (f->getInstruction(0)->isComposite()) 
+    {
+      nFunctionInstructions = propagateKernel->nInstructions() + f->nInstructions() - 1;
+    } 
+    else 
+    {
+      nFunctionInstructions = f->nInstructions();
+    }
+
+    if (nFunctionInstructions > propagateKernel->nInstructions()) 
+    {
+      fsToExec.push_back(f);
+      coefficients.push_back(std::real(coeff));
+    } 
+    else 
+    {
+      identityCoeff += std::real(coeff);
+    }
+  }
+
+  auto tmpBuffer = xacc::qalloc(in_nbQubits);
+  m_accelerator->execute(tmpBuffer, fsToExec);
+  auto buffers = tmpBuffer->getChildren();
+
+  double energy = identityCoeff;
+  for (int i = 0; i < buffers.size(); ++i) 
+  {
+    auto expval = buffers[i]->getExpectationValueZ();
+    energy += expval * coefficients[i];
+  }
+  std::cout << "Energy = " << energy << "\n";
+  return energy;
+}
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
@@ -347,6 +397,8 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     return updatedAham; 
   };
   
+  m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+  
   // Time stepping:
   for (int i = 0; i < m_nbSteps; ++i)
   {
@@ -358,12 +410,22 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       auto nextAOps = calcAOps(kernel, hamTerm);
       m_approxOps.emplace_back(nextAOps);
     }
+    m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
   }
+
+  assert(m_energyAtStep.size() == m_nbSteps + 1);
+  // Last energy value
+  buffer->addExtraInfo("opt-val", ExtraInfo(m_energyAtStep.back()));
+  // Also returns the full list of energy values 
+  // at each Trotter step.
+  buffer->addExtraInfo("exp-vals", ExtraInfo(m_energyAtStep));
 }
 
 std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 
 {
-  // TODO
+  // We don't do any parameter optimization here,
+  // hence don't support this!
+  xacc::error("This method is unsupported!");
   return {};
 }
 } // namespace algorithm

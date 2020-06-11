@@ -39,6 +39,13 @@ TEST(QITETester, checkSimple)
   
   auto buffer = xacc::qalloc(1);
   qite->execute(buffer);
+  const double finalEnergy = (*buffer)["opt-val"].as<double>();
+  std::cout << "Final Energy: " << finalEnergy << "\n";
+  // Fig (2.e) of https://www.nature.com/articles/s41567-019-0704-4
+  // Minimal Energy = -1
+  EXPECT_NEAR(finalEnergy, -1.0, 1e-3);
+  const std::vector<double> energyValues = (*buffer)["exp-vals"].as<std::vector<double>>();
+  EXPECT_EQ(energyValues.size(), nbSteps + 1);
 }
 
 int main(int argc, char **argv) {
