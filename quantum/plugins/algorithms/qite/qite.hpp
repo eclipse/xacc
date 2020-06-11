@@ -33,6 +33,14 @@ private:
   // Calculate the current energy, i.e.
   // the value of the observable at the current Trotter step.
   double calcCurrentEnergy(int in_nbQubits) const;
+
+  // Calculate approximate A operator observable at the current Trotter step.
+  // Params:
+  // in_kernel: the kernel to evolve the system to this time step
+  // in_hmTerm: the H term to be approximate by the A term 
+  // i.e. emulate the imaginary time evolution of that H term.
+  std::shared_ptr<Observable> calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const;
+
 private:
   // Number of Trotter steps
   int m_nbSteps;
