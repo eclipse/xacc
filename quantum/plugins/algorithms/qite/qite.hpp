@@ -30,7 +30,9 @@ public:
 private:
   // Construct the Trotter propagate circuit up to current time step.
   std::shared_ptr<CompositeInstruction> constructPropagateCircuit() const;
-
+  // Calculate the current energy, i.e.
+  // the value of the observable at the current Trotter step.
+  double calcCurrentEnergy(int in_nbQubits) const;
 private:
   // Number of Trotter steps
   int m_nbSteps;
@@ -47,6 +49,8 @@ private:
   // of the Hamiltonian observable
   // i.e. exp(-iAt) -> exp(-Ht)
   mutable std::vector<std::shared_ptr<Observable>> m_approxOps;
+  // Energy value achieved at a Trotter step
+  mutable std::vector<double> m_energyAtStep;
 };
 } // namespace algorithm
 } // namespace xacc
