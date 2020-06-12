@@ -339,6 +339,9 @@ public:
   const std::string name() const override { return "pauli"; }
   const std::string description() const override { return ""; }
   void fromOptions(const HeterogeneousMap &options) override { return; }
+  
+  std::shared_ptr<Observable>
+  commutator(std::shared_ptr<Observable> obs) override;
 };
 } // namespace quantum
 

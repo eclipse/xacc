@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2019 UT-Battelle, LLC.
+# Copyright (c) 2020 UT-Battelle, LLC.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # and Eclipse Distribution License v.10 which accompany this distribution.
@@ -8,19 +8,8 @@
 # https://eclipse.org/org/documents/edl-v10.php
 #
 # Contributors:
-#   Alexander J. McCaskey - initial API and implementation
+#   Daniel Claudino - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(adapt_vqe)
-add_subdirectory(vqe)
-add_subdirectory(rdm)
-add_subdirectory(ml)
-add_subdirectory(rotoselect)
-add_subdirectory(qpt)
-add_subdirectory(qaoa)
-add_subdirectory(qpe)
-add_subdirectory(gradient_strategies)
-add_subdirectory(qite)
-
-file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py
-                       ${CMAKE_CURRENT_SOURCE_DIR}/ml/ddcl/python/*.py)
-install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
+include_directories(${CMAKE_BINARY_DIR})
+add_xacc_test(GradientStrategies)
+target_link_libraries(GradientStrategiesTester xacc xacc-pauli) 

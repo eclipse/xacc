@@ -26,11 +26,11 @@ namespace xacc {
 namespace internal_staq {
 static const std::map<std::string, std::string> staq_to_xacc{
     // "u3", "u2",   "u1", "ccx", cu1, cu3
-    {"cx", "CX"}, {"id", "I"},    {"x", "X"},   {"y", "Y"},
-    {"z", "Z"},   {"h", "H"},     {"s", "S"},   {"sdg", "Sdg"},
-    {"t", "T"},   {"tdg", "Tdg"}, {"rx", "Rx"}, {"ry", "Ry"},
-    {"rz", "Rz"}, {"cz", "CZ"},   {"cy", "CY"}, {"swap", "Swap"},
-    {"ch", "CH"}, {"crz", "CRZ"}};
+    {"cx", "CX"}, {"id", "I"},    {"x", "X"},       {"y", "Y"},
+    {"z", "Z"},   {"h", "H"},     {"s", "S"},       {"sdg", "Sdg"},
+    {"t", "T"},   {"tdg", "Tdg"}, {"rx", "Rx"},     {"ry", "Ry"},
+    {"rz", "Rz"}, {"cz", "CZ"},   {"cy", "CY"},     {"swap", "Swap"},
+    {"ch", "CH"}, {"crz", "CRZ"}, {"cu1", "CPhase"}};
 
 class CountQregs : public staq::ast::Traverse {
 public:
@@ -77,8 +77,10 @@ public:
        << "]);\n";
   }
   void visit(UGate &u) override {
-    ss << "U(" << u.arg().var() << "[" << u.arg().offset().value() << "], " << 0
-       << ", " << 0 << ", " << 0 << ");\n";
+    ss << "U(" << u.arg().var() << "[" << u.arg().offset().value() << "], "
+       << u.theta().constant_eval().value() << ", "
+       << u.phi().constant_eval().value() << ", "
+       << u.lambda().constant_eval().value() << ");\n";
   }
   void visit(CNOTGate &cx) override {
     ss << "CX(" << cx.ctrl().var() << "[" << cx.ctrl().offset().value() << "],"
@@ -111,7 +113,7 @@ class XACCToStaqOpenQasm : public AllGateVisitor {
 
 public:
   std::stringstream ss;
-  std::map<std::string,std::string> cregNames;
+  std::map<std::string, std::string> cregNames;
 
   XACCToStaqOpenQasm(std::map<std::string, int> bufNamesToSize);
   void visit(Hadamard &h) override;
