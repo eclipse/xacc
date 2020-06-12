@@ -20,6 +20,6 @@ adapt = xacc.getAlgorithm('adapt-vqe', {'accelerator': qpu,
                                   'threshold': 1.0e-2,
                                   'print-threshold': 1.0e-10,
                                   'maxiter': 2,
-                                  'pool': "uccsd"})
+                                  'pool': "singlet-adapted-uccsd"})
 # execute
 adapt.execute(buffer)

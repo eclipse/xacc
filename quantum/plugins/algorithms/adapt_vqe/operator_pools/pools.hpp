@@ -126,7 +126,7 @@ public:
     return pool;
   }
 
-  const std::string name() const override { return "uccsd"; }
+  const std::string name() const override { return "singlet-adapted-uccsd"; }
   const std::string description() const override { return ""; }
 };
 
