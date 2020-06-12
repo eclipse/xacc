@@ -15,6 +15,28 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
+TEST(StaqCompilerTester, checkCphase) {
+
+  auto src = R"#(
+qreg q[4];
+x q[3];
+h q[0];
+h q[1];
+h q[2];
+cu1(0.785398) q[0], q[3];
+creg c[3];
+measure q[0] -> c[0];
+measure q[1] -> c[1];
+measure q[2] -> c[2];)#";
+
+  auto compiler = xacc::getCompiler("staq");
+  auto IR = compiler->compile(src);
+
+  auto hello = IR->getComposites()[0];
+  std::cout << "HELLO:\n" << hello->toString() << "\n";
+
+
+}
 TEST(StaqCompilerTester, checkSimple) {
   auto compiler = xacc::getCompiler("staq");
   auto IR = compiler->compile(R"(
