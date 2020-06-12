@@ -61,7 +61,7 @@ TEST(AdaptVQETester, checkSimple) {
   EXPECT_TRUE(adapt_vqe->initialize({std::make_pair("accelerator",acc),
                                 std::make_pair("observable", H),
                                 std::make_pair("optimizer", optimizer),
-                                std::make_pair("pool", "uccsd"),
+                                std::make_pair("pool", "singlet-adapted-uccsd"),
                                 std::make_pair("gradient-strategy", "parameter-shift-gradient"),
                                 std::make_pair("nElectrons", 2)}));
 

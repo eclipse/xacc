@@ -217,29 +217,34 @@ void ADAPT_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     for (int operatorIdx = 0; operatorIdx < commutators.size(); operatorIdx++){
 
       // only compute commutators if they aren't zero
-      if(std::dynamic_pointer_cast<PauliOperator>(commutators[operatorIdx])->getTerms().size() != 0){
-      // observe the commutators with the updated circuit ansatz
-      auto grad_vqe = xacc::getAlgorithm(
-          "vqe", {std::make_pair("observable", commutators[operatorIdx]),
-                  std::make_pair("optimizer", optimizer),
-                  std::make_pair("accelerator", accelerator),
-                  std::make_pair("ansatz", ansatzInstructions)});
-      auto tmp_buffer = xacc::qalloc(buffer->size());
-      auto commutatorValue = std::real(grad_vqe->execute(tmp_buffer, x)[0]);
+      int nTermsCommutator = std::dynamic_pointer_cast<PauliOperator>(commutators[operatorIdx])->getTerms().size();
+      if(nTermsCommutator != 0){
 
-      if(abs(commutatorValue) > _printThreshold){
-        ss << std::setprecision(12) << "[H," << operatorIdx << "] = " << commutatorValue << "\n";
-        xacc::info(ss.str());
-        ss.str(std::string());
-      }
+        // Print number of instructions for computing <observable>
+        xacc::info("Number of instructions for commutator calculation: " 
+                    + std::to_string(nTermsCommutator));
+        // observe the commutators with the updated circuit ansatz
+        auto grad_vqe = xacc::getAlgorithm(
+            "vqe", {std::make_pair("observable", commutators[operatorIdx]),
+                    std::make_pair("optimizer", optimizer),
+                    std::make_pair("accelerator", accelerator),
+                    std::make_pair("ansatz", ansatzInstructions)});
+        auto tmp_buffer = xacc::qalloc(buffer->size());
+        auto commutatorValue = std::real(grad_vqe->execute(tmp_buffer, x)[0]);
 
-      // update maxCommutator
-      if(abs(commutatorValue) > abs(maxCommutator)){
-        maxCommutatorIdx = operatorIdx;
-        maxCommutator = commutatorValue;
-      }
+        if(abs(commutatorValue) > _printThreshold){
+          ss << std::setprecision(12) << "[H," << operatorIdx << "] = " << commutatorValue << "\n";
+          xacc::info(ss.str());
+          ss.str(std::string());
+        }
 
-      gradientNorm += commutatorValue * commutatorValue;
+        // update maxCommutator
+        if(abs(commutatorValue) > abs(maxCommutator)){
+          maxCommutatorIdx = operatorIdx;
+          maxCommutator = commutatorValue;
+        }
+
+        gradientNorm += commutatorValue * commutatorValue;
       }
     }
     
@@ -265,6 +270,8 @@ void ADAPT_VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       }
       xacc::info(ss.str() + "\n");
       ss.str(std::string());
+
+      xacc::info("Final ADAPT-VQE circuit\n" + ansatzInstructions->toString());
 
       return; 
 
