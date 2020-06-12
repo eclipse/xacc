@@ -285,7 +285,7 @@ std::shared_ptr<Observable> FermionOperator::commutator(std::shared_ptr<Observab
 
   FermionOperator& A = *std::dynamic_pointer_cast<FermionOperator>(op);
   std::shared_ptr<FermionOperator> commutatorHA = std::make_shared<FermionOperator>((*this) * A - A * (*this));
-  return std::dynamic_pointer_cast<Observable>(commutatorHA);
+  return commutatorHA;
 }
 
 } // namespace quantum

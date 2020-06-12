@@ -65,7 +65,7 @@ public:
     throw std::bad_function_call();
   }
 
-  const std::string optimizer_name() const { return options.getString(name() + "-optimizer"); }
+  const std::string get_algorithm() const { return options.getString(name() + "-optimizer"); }
 
 };
 } // namespace xacc
