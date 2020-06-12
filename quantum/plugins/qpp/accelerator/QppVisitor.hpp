@@ -55,9 +55,9 @@ public:
   
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
+  static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
-  double calcExpectationValueZ() const;
 private:
   std::shared_ptr<AcceleratorBuffer> m_buffer;  
   std::vector<qpp::idx> m_dims;
