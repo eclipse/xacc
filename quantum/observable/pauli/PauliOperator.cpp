@@ -760,6 +760,14 @@ void PauliOperator::fromXACCIR(std::shared_ptr<IR> ir) {
   }
 }
 
+std::shared_ptr<Observable> PauliOperator::commutator(std::shared_ptr<Observable> op) {
+
+  PauliOperator& A = *std::dynamic_pointer_cast<PauliOperator>(op);
+  std::shared_ptr<PauliOperator> commutatorHA =  std::make_shared<PauliOperator>((*this) * A - A * (*this));
+  return commutatorHA;
+
+}
+
 } // namespace quantum
 } // namespace xacc
 

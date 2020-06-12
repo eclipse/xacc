@@ -22,6 +22,19 @@
 
 #include "Circuit.hpp"
 
+TEST (XASMCompilerTester, checkQcorIssue23) {
+auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(R"(__qpu__ void rotate(qbit q, double x) {
+  Rx(q[0], x);
+})");
+
+  auto IR2 = compiler->compile(R"(__qpu__ void check(qbit q) {
+  rotate(q, 2.2);
+})");
+
+ std::cout << IR2->getComposite("check")->toString() << "\n";
+
+}
 TEST(XASMCompilerTester, checkU1) {
 
   auto compiler = xacc::getCompiler("xasm");

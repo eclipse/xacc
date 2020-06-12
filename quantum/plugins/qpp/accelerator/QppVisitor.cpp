@@ -72,7 +72,7 @@ namespace quantum {
         return m_buffer->size() - in_idx - 1;
     }
 
-    double QppVisitor::calcExpectationValueZ() const
+    double QppVisitor::calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits)
     {
         const auto hasEvenParity = [](size_t x, const std::vector<size_t>& in_qubitIndices) -> bool {
             size_t count = 0;
@@ -88,9 +88,9 @@ namespace quantum {
 
 
         double result = 0.0;
-        for(uint64_t i = 0; i < m_stateVec.size(); ++i)
+        for(uint64_t i = 0; i < in_stateVec.size(); ++i)
         {
-            result += (hasEvenParity(i, m_measureBits) ? 1.0 : -1.0) * std::norm(m_stateVec[i]);
+            result += (hasEvenParity(i, in_bits) ? 1.0 : -1.0) * std::norm(in_stateVec[i]);
         }
 
         return result;
@@ -270,7 +270,7 @@ namespace quantum {
         if (!m_shotsMode)
         {
             // Not running a shot simulation, calculate the expectation value.
-            const double expectedValueZ = calcExpectationValueZ();
+            const double expectedValueZ = calcExpectationValueZ(m_stateVec, m_measureBits);
             m_buffer->addExtraInfo("exp-val-z", expectedValueZ);
         }
         else
