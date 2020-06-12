@@ -25,7 +25,7 @@ using namespace xacc::quantum;
 
 TEST(GradientStrategiesTester, checkParameterShift) 
 {
-  auto accelerator = xacc::getAccelerator("tnqvm");
+  auto accelerator = xacc::getAccelerator("qpp");
   auto buffer = xacc::qalloc(2);
 
   std::shared_ptr<Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
@@ -45,7 +45,7 @@ TEST(GradientStrategiesTester, checkParameterShift)
 
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_EQ(dx[0], -1.0);
+  EXPECT_NEAR(dx[0], -1.0, 1e-4);
 }
 
 int main(int argc, char **argv) 
