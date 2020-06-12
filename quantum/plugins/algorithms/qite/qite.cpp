@@ -103,6 +103,38 @@ std::vector<std::string> generatePauliPermutation(int in_nbQubits)
 
   return opsList;
 };
+
+arma::cx_mat createSMatrix(const std::vector<std::string>& in_pauliOps, const std::vector<double>& in_tomoExp) 
+{
+  const auto sMatDim = in_pauliOps.size();
+  arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
+  arma::cx_vec b_Vec(sMatDim, arma::fill::zeros); 
+  
+  const auto calcSmatEntry = [&](int in_row, int in_col) -> std::complex<double> {
+    // Map the tomography expectation to the S matrix
+    // S(i, j) = <psi|sigma_dagger(i)sigma(j)|psi>
+    // sigma_dagger(i)sigma(j) will produce another Pauli operator with an additional coefficient.
+    // e.g. sigma_x * sigma_y = i*sigma_z
+    const auto leftOp = "1.0 " + in_pauliOps[in_row];
+    const auto rightOp = "1.0 " + in_pauliOps[in_col];
+    xacc::quantum::PauliOperator left(leftOp);
+    xacc::quantum::PauliOperator right(rightOp);
+    auto product = left * right;
+    // std::cout << left.toString() << " * " << right.toString() << " = " << product.toString() << "\n";
+    const auto index = findMatchingPauliIndex(in_pauliOps, product.toString());
+    return in_tomoExp[index]*product.coefficient();
+  };
+
+  // S matrix:
+  for (int i = 0; i < sMatDim; ++i)
+  {
+    for (int j = 0; j < sMatDim; ++j)
+    {
+      S_Mat(i, j) = calcSmatEntry(i, j);
+    }
+  }
+  return S_Mat;
+}
 }
 
 using namespace xacc;
@@ -143,8 +175,15 @@ bool QITE::initialize(const HeterogeneousMap &parameters)
     m_observable = xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
   }
 
+  m_analytical = false;
+  if (parameters.keyExists<bool>("analytical")) 
+  {
+    m_analytical = parameters.get<bool>("analytical");
+  }
+
   m_approxOps.clear();
   m_energyAtStep.clear();
+  
   return initializeOk;
 }
 
@@ -218,7 +257,7 @@ double QITE::calcCurrentEnergy(int in_nbQubits) const
     kernelNames.push_back(f->name());
     std::complex<double> coeff = f->getCoefficient();
     int nFunctionInstructions = 0;
-    if (f->getInstruction(0)->isComposite()) 
+    if (f->nInstructions() > 0 && f->getInstruction(0)->isComposite()) 
     {
       nFunctionInstructions = propagateKernel->nInstructions() + f->nInstructions() - 1;
     } 
@@ -266,17 +305,13 @@ std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuff
   {
     std::shared_ptr<Observable> tomoObservable = std::make_shared<xacc::quantum::PauliOperator>();
     const std::string pauliObsStr = "1.0 " + pauliOps[i];
-    // std::cout << "Observable string: \n" << pauliObsStr << "\n";
     tomoObservable->fromString(pauliObsStr);
-    // std::cout << "Observable: \n" << tomoObservable->toString() << "\n";
     assert(tomoObservable->getSubTerms().size() == 1);
     assert(tomoObservable->getNonIdentitySubTerms().size() == 1);
     auto obsKernel = tomoObservable->observe(in_kernel).front();
-    // std::cout << "HOWDY:\n" << obsKernel->toString() << "\n";
     auto tmpBuffer = xacc::qalloc(in_buffer->size());
     m_accelerator->execute(tmpBuffer, obsKernel);
     const auto expval = tmpBuffer->getExpectationValueZ();
-    // std::cout << "Exp-Val = " << expval << "\n";
     sigmaExpectation[i] = expval;
   }
 
@@ -381,29 +416,116 @@ std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuff
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
-  // Initial energy
-  m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
-  
-  // Time stepping:
-  for (int i = 0; i < m_nbSteps; ++i)
+  if(!m_analytical)
   {
-    for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
-    {
-      // Propagates the state via Trotter steps:
-      auto kernel = constructPropagateCircuit();
-      // Optimizes/calculates next A ops
-      auto nextAOps = calcAOps(buffer, kernel, hamTerm);
-      m_approxOps.emplace_back(nextAOps);
-    }
+    // Run on hardware/simulator using quantum gates/measure
+    // Initial energy
     m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
-  }
+    
+    // Time stepping:
+    for (int i = 0; i < m_nbSteps; ++i)
+    {
+      for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
+      {
+        // Propagates the state via Trotter steps:
+        auto kernel = constructPropagateCircuit();
+        // Optimizes/calculates next A ops
+        auto nextAOps = calcAOps(buffer, kernel, hamTerm);
+        m_approxOps.emplace_back(nextAOps);
+      }
 
-  assert(m_energyAtStep.size() == m_nbSteps + 1);
-  // Last energy value
-  buffer->addExtraInfo("opt-val", ExtraInfo(m_energyAtStep.back()));
-  // Also returns the full list of energy values 
-  // at each Trotter step.
-  buffer->addExtraInfo("exp-vals", ExtraInfo(m_energyAtStep));
+      m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+    }
+    assert(m_energyAtStep.size() == m_nbSteps + 1);
+    // Last energy value
+    buffer->addExtraInfo("opt-val", ExtraInfo(m_energyAtStep.back()));
+    // Also returns the full list of energy values 
+    // at each Trotter step.
+    buffer->addExtraInfo("exp-vals", ExtraInfo(m_energyAtStep));
+  }
+  else
+  {
+    // Analytical run:
+    // This serves two purposes:
+    // (1) Validate the convergence (e.g. Trotter step size) before running via gates.
+    // (2) Derive the circuit analytically for running.
+    // exp(-dtH)
+    const auto expMinusHamTerm = [](const arma::cx_mat& in_hMat, const arma::cx_mat& in_psi, double in_dt) {
+      assert(in_hMat.n_rows == in_hMat.n_cols);
+      assert(in_hMat.n_rows == in_psi.n_elem);
+      arma::cx_mat hMatExp = arma::expmat(-in_dt*in_hMat);
+      std::cout << "In Psi: " << in_psi << "\n";
+      std::cout << "hMatExp: " << hMatExp << "\n";
+
+      arma::cx_vec result = hMatExp * in_psi;
+      const double norm = arma::norm(result, 2);
+      result = result / norm;
+      return std::make_pair(result, norm);
+    };
+    
+    const auto getTomographyExpVec = [](int in_nbQubits, const arma::cx_mat& in_psi) {
+      const auto pauliOps = generatePauliPermutation(in_nbQubits);
+      std::vector<double> sigmaExpectation(pauliOps.size());
+      sigmaExpectation[0] = 1.0;
+      for (int i = 1; i < pauliOps.size(); ++i)
+      {
+        auto tomoObservable = std::make_shared<xacc::quantum::PauliOperator>();
+        const std::string pauliObsStr = "1.0 " + pauliOps[i];
+        tomoObservable->fromString(pauliObsStr);
+        assert(tomoObservable->getSubTerms().size() == 1);
+        assert(tomoObservable->getNonIdentitySubTerms().size() == 1);
+        arma::cx_mat hMat(1 << in_nbQubits, 1 << in_nbQubits, arma::fill::zeros);
+        const auto hamMat = tomoObservable->toDenseMatrix(in_nbQubits);
+        for (int i = 0; i < hMat.n_rows; ++i)
+        {
+          for (int j = 0; j < hMat.n_cols; ++j)
+          {
+            const int index = i*hMat.n_rows + j;
+            hMat(i, j) = hamMat[index];
+          }
+        }
+        const std::complex<double> expval = arma::cdot(in_psi, hMat*in_psi);
+        std::cout << pauliOps[i] << " = " << expval << "\n";
+        sigmaExpectation[i] = expval.real();
+      }
+
+      return sigmaExpectation;
+    };
+
+    // Initial state
+    arma::cx_vec psiVec(1 << buffer->size(), arma::fill::zeros);
+    psiVec(0) = 1.0;
+    // Time stepping:
+    for (int i = 0; i < m_nbSteps; ++i)
+    {
+      arma::cx_mat hMat(1 << buffer->size(), 1 << buffer->size(), arma::fill::zeros);
+      double stateVecNorm = 1.0;
+      for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
+      {
+        auto pauliCast = std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm);
+        const auto hamMat = pauliCast->toDenseMatrix(buffer->size());
+      
+        for (int i = 0; i < hMat.n_rows; ++i)
+        {
+          for (int j = 0; j < hMat.n_cols; ++j)
+          {
+            const int index = i*hMat.n_rows + j;
+            hMat(i, j) = hamMat[index];
+          }
+        }
+
+        double normAfter = 0.0;
+        arma::cx_vec dPsiVec(1 << buffer->size(), arma::fill::zeros);
+        std::tie(dPsiVec, normAfter) = expMinusHamTerm(hMat, psiVec, m_dBeta);
+        stateVecNorm *= normAfter;
+        // Eq. 8, SI of https://arxiv.org/pdf/1901.07653.pdf
+        dPsiVec = dPsiVec - psiVec;
+        arma::cx_mat sMat = createSMatrix(generatePauliPermutation(buffer->size()), getTomographyExpVec(buffer->size(), psiVec));
+        std::cout << "S Matrix: \n" << sMat << "\n";
+        // TODO: set up the least square problem
+      }
+    }
+  } 
 }
 
 std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 

@@ -59,6 +59,8 @@ private:
   mutable std::vector<std::shared_ptr<Observable>> m_approxOps;
   // Energy value achieved at a Trotter step
   mutable std::vector<double> m_energyAtStep;
+  // If a pure analytical run is requested.
+  bool m_analytical;
 };
 } // namespace algorithm
 } // namespace xacc
