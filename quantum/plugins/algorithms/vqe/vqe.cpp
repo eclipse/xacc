@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <iomanip>
+#include <string>
 
 using namespace xacc;
 
@@ -26,10 +27,14 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
   if (!parameters.pointerLikeExists<Observable>("observable")) {
     std::cout << "Obs was false\n";
     return false;
-  } else if (!parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
+  } 
+  
+  if (!parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
     std::cout << "Ansatz was false\n";
     return false;
-  } else if (!parameters.pointerLikeExists<Accelerator>("accelerator")) {
+  } 
+  
+  if (!parameters.pointerLikeExists<Accelerator>("accelerator")) {
     std::cout << "Acc was false\n";
     return false;
   }
@@ -110,8 +115,10 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           for (auto inst: gradFsToExec){
             fsToExec.push_back(inst);
           }
-          std::cout << "Number of instructions for energy calculation: " << nInstructionsEnergy << "\n";
-          std::cout << "Number of instructions for gradient calculation: " << nInstructionsGradient << "\n";
+          xacc::info("Number of instructions for energy calculation: " 
+                      + std::to_string(nInstructionsEnergy) + "\n");
+          xacc::info("Number of instructions for gradient calculation: "
+                      + std::to_string(nInstructionsGradient) + "\n");
 
         }
 
@@ -150,7 +157,10 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             buffer->appendChild(fsToExec[i]->name(), buffers[i]);
           }
 
-          std::cout << "Current Energy: " << energy << "\n";
+          std::stringstream ss;
+          ss << std::setprecision(12) << "Current Energy: " << energy << "\n";
+          xacc::info(ss.str());
+          ss.str(std::string());
 
           // update gradient vector
           gradientStrategy->compute(dx, 

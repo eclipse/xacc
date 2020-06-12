@@ -26,7 +26,8 @@ using namespace xacc::quantum;
 
 TEST(AdaptVQETester, checkSimple) {
 
-  auto acc = xacc::getAccelerator("tnqvm", {std::make_pair("vqe-mode",true)});
+  xacc::set_verbose(true);
+  auto acc = xacc::getAccelerator("tnqvm");
   auto buffer = xacc::qalloc(4);
   auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer","l-bfgs")});
   auto adapt_vqe = xacc::getService<Algorithm>("adapt-vqe");

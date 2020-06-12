@@ -764,7 +764,7 @@ std::shared_ptr<Observable> PauliOperator::commutator(std::shared_ptr<Observable
 
   PauliOperator& A = *std::dynamic_pointer_cast<PauliOperator>(op);
   std::shared_ptr<PauliOperator> commutatorHA =  std::make_shared<PauliOperator>((*this) * A - A * (*this));
-  return std::dynamic_pointer_cast<Observable>(commutatorHA);
+  return commutatorHA;
 
 }
 

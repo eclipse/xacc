@@ -47,8 +47,8 @@ protected:
   double _printThreshold = 1.0e-10; // threshold to print commutator
   bool _printOps = false; // set to true to print operators at every iteration
 
-  std::vector<int> initialAnsatz; // indices of operators to construct initial ansatz
-  std::vector<double> initialParameters; // initial parameters for initial ansatz
+  std::vector<int> checkpointOps; // indices of operators to construct initial ansatz
+  std::vector<double> checkpointParams; // initial parameters for initial ansatz
   std::string gradStrategyName; // name of class to compute gradient for VQE optimization
 
 public:

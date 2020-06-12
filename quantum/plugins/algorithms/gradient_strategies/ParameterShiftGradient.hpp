@@ -17,6 +17,9 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 using namespace xacc;
 
@@ -36,7 +39,7 @@ public:
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (!parameters.keyExists<std::shared_ptr<Observable>>("observable")){
-      std::cout << "Parameter shift gradient requires observable.\n"; 
+      xacc::info("Parameter shift gradient requires observable.\n"); 
       return false;
     }
 
@@ -61,11 +64,14 @@ public:
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit, const std::vector<double> &x) override {
 
-    std::cout << "Input parameters: \n"; 
+    std::stringstream ss;
+    ss << std::setprecision(12) << "Input parameters: \n";
     for(auto param : x){
-      std::cout << param <<" ";
+      ss << param << " ";
     }
-    std::cout << "\n";
+    ss << "\n";
+    xacc::info(ss.str());
+    ss.str(std::string());
 
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
 
@@ -156,11 +162,15 @@ public:
     coefficients.clear();
     nInstructionsElement.clear();
 
-    std::cout << "Computed gradient: \n"; 
+    std::stringstream ss;
+    ss << std::setprecision(12) << "Computed gradient: \n";
     for(auto param : dx){
-      std::cout << param <<" ";
+      ss << param << " ";
     }
-    std::cout << "\n\n";
+    ss << "\n\n";
+    xacc::info(ss.str());
+    ss.str(std::string());
+
     return;
   }
 
