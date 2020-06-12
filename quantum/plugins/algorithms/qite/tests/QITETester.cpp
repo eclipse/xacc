@@ -48,6 +48,54 @@ TEST(QITETester, checkSimple)
   EXPECT_EQ(energyValues.size(), nbSteps + 1);
 }
 
+TEST(QITETester, checkTwoQubit) 
+{
+  auto qite = xacc::getService<xacc::Algorithm>("qite");
+  std::shared_ptr<xacc::Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+  observable->fromString("0.7071067811865476 X0X1 + 0.35355339059327373 Z0 + 0.35355339059327373 Z1");
+  auto acc = xacc::getAccelerator("qpp");
+  const int nbSteps = 2;
+  const double stepSize = 0.1;
+
+  const bool initOk =  qite->initialize({
+    std::make_pair("accelerator", acc),
+    std::make_pair("steps", nbSteps),
+    std::make_pair("observable", observable),
+    std::make_pair("step-size", stepSize)
+  });
+
+  EXPECT_TRUE(initOk);
+  
+  auto buffer = xacc::qalloc(2);
+  qite->execute(buffer);
+  const double finalEnergy = (*buffer)["opt-val"].as<double>();
+  std::cout << "Final Energy: " << finalEnergy << "\n";
+}
+
+TEST(QITETester, checkDeuteuron) 
+{
+  auto qite = xacc::getService<xacc::Algorithm>("qite");
+  std::shared_ptr<xacc::Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+  observable->fromString("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1");
+  auto acc = xacc::getAccelerator("qpp");
+  const int nbSteps = 20;
+  const double stepSize = 0.1;
+
+  const bool initOk =  qite->initialize({
+    std::make_pair("accelerator", acc),
+    std::make_pair("steps", nbSteps),
+    std::make_pair("observable", observable),
+    std::make_pair("step-size", stepSize)
+  });
+
+  EXPECT_TRUE(initOk);
+  
+  auto buffer = xacc::qalloc(2);
+  qite->execute(buffer);
+  const double finalEnergy = (*buffer)["opt-val"].as<double>();
+  std::cout << "Final Energy: " << finalEnergy << "\n";
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
