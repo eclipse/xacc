@@ -1220,6 +1220,114 @@ or in Python
    # i.e. phase value of 1/2^3 = 1/8.
    print(buffer)
 
+QITE
+++++
+The Quantum Imaginary Time Evolution (QITE) Algorithm requires the following input information:
+(`Motta et al. (2020) <https://arxiv.org/pdf/1901.07653.pdf>`_)
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator represents the cost Hamiltonian.         | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    steps               | The number of Trotter steps.                                    | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    step-size           | The Trotter step size.                                          | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+Optionally, users can provide these parameters:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    ansatz              | State preparation circuit.                                      | std::shared_ptr<CompositeInstruction>|
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    analytical          | If true, perform an analytical run rather than                  | boolean                              |
+|                        | executing quantum circuits on the Accelerator backend.          |                                      |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    initial-state       | For `analytical` mode only, select the initial state.           | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+This Algorithm will add ``opt-val`` (``double``) which is the energy value at the final Trotter step to the provided ``AcceleratorBuffer``.
+The results of the algorithm are therefore retrieved via these keys (see snippet below). 
+Also, energy values at each Trotter step are stored in the ``exp-vals`` field (``vector<double>``).
+
+.. code:: cpp
+
+   #include "xacc.hpp"
+   #include "xacc_observable.hpp"
+   #include "xacc_service.hpp"
+
+   int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+      // Use the Qpp simulator as the accelerator
+      auto acc = xacc::getAccelerator("qpp");
+      
+      auto buffer = xacc::qalloc(1);
+      auto observable = xacc::quantum::getObservable(
+            "pauli",
+            std::string("0.7071067811865475 X0 + 0.7071067811865475 Z0"));
+      
+      auto qite = xacc::getService<xacc::Algorithm>("qite");
+      const int nbSteps = 25;
+      const double stepSize = 0.1;
+
+      const bool initOk =  qite->initialize({
+         std::make_pair("accelerator", acc),
+         std::make_pair("steps", nbSteps),
+         std::make_pair("observable", observable),
+         std::make_pair("step-size", stepSize)
+      });
+
+      qite->execute(buffer);
+      std::cout << "Min Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+   }
+
+In Python:
+
+.. code:: python
+
+   import xacc,sys, numpy as np
+   import matplotlib.pyplot as plt
+
+   # Get access to the desired QPU and
+   # allocate some qubits to run on
+   qpu = xacc.getAccelerator('qpp')
+
+   # Construct the Hamiltonian as an XACC PauliOperator
+   ham = xacc.getObservable('pauli', '0.70710678118 X0 + 0.70710678118 Z0')
+
+   # We just need 1 qubit
+   buffer = xacc.qalloc(1)
+
+   # Horizontal axis: 0 -> 2.5
+   # The number of Trotter steps 
+   nbSteps = 25
+
+   # The Trotter step size
+   stepSize = 0.1
+
+   # Create the QITE algorithm
+   qite = xacc.getAlgorithm('qite', {
+                           'accelerator': qpu,
+                           'observable': ham,
+                           'step-size': stepSize,
+                           'steps': nbSteps
+                           })
+
+   result = qite.execute(buffer)
+
+   # Expected result: ~ -1
+   print('Min energy value = ', buffer.getInformation('opt-val'))
+   E = buffer.getInformation('exp-vals')
+   # Plot energy vs. beta
+   plt.plot(np.arange(0, nbSteps + 1) * stepSize, E, 'ro', label = 'XACC QITE')
+   plt.grid()
+   plt.show()
+
+
 Accelerator Decorators
 ----------------------
 ROErrorDecorator
