@@ -71,6 +71,7 @@ TEST(QITETester, checkDeuteuronH2)
   const double finalEnergy = (*buffer)["opt-val"].as<double>();
   std::cout << "Final Energy: " << finalEnergy << "\n";
   EXPECT_NEAR(finalEnergy, -1.74886, 1e-3);
+  buffer->print();
 }
 
 TEST(QITETester, checkDeuteuronH3) 
