@@ -44,6 +44,7 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Compute the number of parameters
   auto _nOccupied = (int)std::ceil(nElectrons / 2.0);
   auto _nVirtual = nQubits / 2 - _nOccupied;
+  auto _nOrbitals = _nOccupied + _nVirtual;
   auto nSingle = _nOccupied * _nVirtual;
   auto nDouble = nSingle * (nSingle + 1) / 2;
   auto _nParameters = nSingle + nDouble;
@@ -80,8 +81,8 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   auto singleParams = slice(params, 0, nSingle);
   auto doubleParams1 = slice(params, nSingle, 2 * nSingle);
   auto doubleParams2 = slice(params, 2 * nSingle);
-  std::vector<std::function<int(int)>> fs{[](int i) { return 2 * i; },
-                                          [](int i) { return 2 * i + 1; }};
+  std::vector<std::function<int(int, int)>> fs{[](int i, int n) { return i; },
+                                          [](int i, int n) { return i + n; }};
 
   using OpType = std::vector<std::pair<int, bool>>;
   int count = 0;
@@ -94,10 +95,10 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
       for (int s = 0; s < 2; s++) {
         auto ti = fs[s];
         auto oi = fs[1 - s];
-        auto vt = ti(vs);
-        auto vo = oi(vs);
-        auto ot = ti(os);
-        auto oo = oi(os);
+        auto vt = ti(vs, _nOrbitals);
+        auto vo = oi(vs, _nOrbitals);
+        auto ot = ti(os, _nOrbitals);
+        auto oo = oi(os, _nOrbitals);
 
         OpType op1{{vt, 1}, {ot, 0}}, op2{{ot, 1}, {vt, 0}};
         FermionOperator op(op1, 1.0, singleParams[count]);
@@ -152,10 +153,10 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
         auto ia = fs[sa];
         auto ib = fs[sb];
 
-        auto v1a = ia(vs1);
-        auto o1a = ia(os1);
-        auto v2b = ib(vs2);
-        auto o2b = ib(os2);
+        auto v1a = ia(vs1, _nOrbitals);
+        auto o1a = ia(os1, _nOrbitals);
+        auto v2b = ib(vs2, _nOrbitals);
+        auto o2b = ib(os2, _nOrbitals);
 
         OpType op5{{v1a, 1}, {o1a, 0}, {v2b, 1}, {o2b, 0}},
             op6{{o2b, 1}, {o1a, 0}, {v2b, 1}, {o2b, 0}};
@@ -268,10 +269,14 @@ bool UCCSD::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     }
   }
 
-  for (int i = nElectrons - 1; i >= 0; i--) {
-    std::size_t j = (std::size_t)i;
+  for (int i = (nElectrons / 2) - 1; i >= 0; i--) {
+    std::size_t alpha = (std::size_t)i;
     auto xGate =
-        gateRegistry->createInstruction("X", std::vector<std::size_t>{j});
+        gateRegistry->createInstruction("X", std::vector<std::size_t>{alpha});
+    insertInstruction(0, xGate);
+    std::size_t beta = (std::size_t)(i + _nOrbitals);
+    xGate =
+        gateRegistry->createInstruction("X", std::vector<std::size_t>{beta});
     insertInstruction(0, xGate);
   }
   return true;
