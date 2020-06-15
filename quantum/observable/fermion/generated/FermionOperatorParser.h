@@ -1,5 +1,5 @@
 
-// Generated from FermionOperator.g4 by ANTLR 4.7.2
+// Generated from FermionOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -13,14 +13,14 @@ namespace fermion {
 class  FermionOperatorParser : public antlr4::Parser {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, COMMENT = 7, 
-    REAL = 8, INT = 9, WS = 10, EOL = 11
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, COMMENT = 9, REAL = 10, INT = 11, WS = 12, EOL = 13
   };
 
   enum {
     RuleFermionSrc = 0, RulePlusorminus = 1, RuleTerm = 2, RuleFermion = 3, 
     RuleOp = 4, RuleCarat = 5, RuleCoeff = 6, RuleComplex = 7, RuleReal = 8, 
-    RuleComment = 9
+    RuleComment = 9, RuleScientific = 10
   };
 
   FermionOperatorParser(antlr4::TokenStream *input);
@@ -42,7 +42,8 @@ public:
   class CoeffContext;
   class ComplexContext;
   class RealContext;
-  class CommentContext; 
+  class CommentContext;
+  class ScientificContext; 
 
   class  FermionSrcContext : public antlr4::ParserRuleContext {
   public:
@@ -148,6 +149,8 @@ public:
     RealContext* real(size_t i);
     std::vector<antlr4::tree::TerminalNode *> INT();
     antlr4::tree::TerminalNode* INT(size_t i);
+    std::vector<ScientificContext *> scientific();
+    ScientificContext* scientific(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -181,6 +184,20 @@ public:
   };
 
   CommentContext* comment();
+
+  class  ScientificContext : public antlr4::ParserRuleContext {
+  public:
+    ScientificContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *INT();
+    antlr4::tree::TerminalNode *REAL();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ScientificContext* scientific();
 
 
 private:

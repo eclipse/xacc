@@ -70,6 +70,13 @@ TEST(FermionOperatorTester, checkFromStr2) {
     std::cout << op.toString() << "\n";
 }
 
+TEST(FermionOperatorTester, checkSciNot) {
+    std::string src = "(1.234e-4, 0) 0^ 1^ 0 1";
+    FermionOperator op(src);
+    std::cout << op.toString() << "\n";
+}
+
+
 TEST(FermionOperatorTester, checkMult) {
     //FermionOperator op1("(-0.5,0)  3^ 2^ 0 1 + (0.5,-0)  1^ 0^ 2 3 + (0.5,-0)  0^ 1^ 3 2 + (0.5,0)  2^ 3^ 0 1 + (0.5,0)  3^ 3^ 1 1 + (-0.5,0)  1^ 1^ 3 3 + (-0.5,0)  1^ 0^ 3 2 + (-0.5,0)  2^ 3^ 1 0"), op2("(0.708024, 0)");
     FermionOperator op1("3^ 2^ 3 2"), op2("0^ 3 1^ 2");
