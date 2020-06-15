@@ -61,6 +61,10 @@ private:
   mutable std::vector<double> m_energyAtStep;
   // If a pure analytical run is requested.
   bool m_analytical;
+  // For analytical solver only: the initial state
+  // For accelerator-based simulation, the Ansatz is used to
+  // prepare the initial state.
+  int m_initialState;
 };
 } // namespace algorithm
 } // namespace xacc
