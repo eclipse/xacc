@@ -584,6 +584,13 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       const std::complex<double> energyRaw = arma::cdot(psiUpdate, hMat*psiUpdate);
       std::cout << "Energy = " << energyRaw << "\n";
       m_energyAtStep.emplace_back(energyRaw.real());
+      // First step: add the approximate operator info to the buffer.
+      // Users can use this analytical solver to compute the A operator:
+      // e.g. for deuteron problems, we can recover the UCC ansatz by QITE. 
+      if (i==0)
+      {
+        buffer->addExtraInfo("A-op", updatedAham->toString());
+      }
     }
 
     m_energyAtStep.emplace_back(m_energyAtStep.back());
