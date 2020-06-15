@@ -1254,6 +1254,14 @@ This Algorithm will add ``opt-val`` (``double``) which is the energy value at th
 The results of the algorithm are therefore retrieved via these keys (see snippet below). 
 Also, energy values at each Trotter step are stored in the ``exp-vals`` field (``vector<double>``).
 
+Note: during execution, the following line may be logged to the output console:
+
+.. code:: cpp
+
+   warning: solve(): system seems singular; attempting approx solution
+
+This is completely normal and can be safely ignored.
+
 .. code:: cpp
 
    #include "xacc.hpp"
