@@ -1,5 +1,5 @@
 
-// Generated from PauliOperator.g4 by ANTLR 4.7.2
+// Generated from PauliOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -14,12 +14,13 @@ class  PauliOperatorParser : public antlr4::Parser {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, T__8 = 9, COMMENT = 10, REAL = 11, INT = 12, WS = 13, EOL = 14
+    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, COMMENT = 12, REAL = 13, 
+    INT = 14, WS = 15, EOL = 16
   };
 
   enum {
     RulePauliSrc = 0, RulePlusorminus = 1, RuleTerm = 2, RulePauli = 3, 
-    RuleCoeff = 4, RuleComplex = 5, RuleReal = 6, RuleComment = 7
+    RuleCoeff = 4, RuleComplex = 5, RuleReal = 6, RuleComment = 7, RuleScientific = 8
   };
 
   PauliOperatorParser(antlr4::TokenStream *input);
@@ -39,7 +40,8 @@ public:
   class CoeffContext;
   class ComplexContext;
   class RealContext;
-  class CommentContext; 
+  class CommentContext;
+  class ScientificContext; 
 
   class  PauliSrcContext : public antlr4::ParserRuleContext {
   public:
@@ -119,6 +121,8 @@ public:
     RealContext* real(size_t i);
     std::vector<antlr4::tree::TerminalNode *> INT();
     antlr4::tree::TerminalNode* INT(size_t i);
+    std::vector<ScientificContext *> scientific();
+    ScientificContext* scientific(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -152,6 +156,20 @@ public:
   };
 
   CommentContext* comment();
+
+  class  ScientificContext : public antlr4::ParserRuleContext {
+  public:
+    ScientificContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *INT();
+    antlr4::tree::TerminalNode *REAL();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+   
+  };
+
+  ScientificContext* scientific();
 
 
 private:

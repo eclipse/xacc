@@ -14,7 +14,7 @@ carat : '^';
 
 coeff : complex | real;
 
-complex : '('(real | INT)','(real | INT)')';
+complex : '('(real | INT | scientific)','(real | INT | scientific)')';
 
 real : REAL;
 
@@ -24,6 +24,9 @@ COMMENT : '#' ~[\r\n] * EOL;
 
 /* Real number */
 REAL : ('-') ? INT ? '.' INT;
+
+/* scientific notation */
+scientific : REAL ? ('e'|'E') ? INT;
 
 /* Non-negative integer */
 INT : ('-') ? ('0'..'9') + ;

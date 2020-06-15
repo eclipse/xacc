@@ -22,10 +22,7 @@ coeff
    | real
    ;
 
-
-complex
-   : '(' (real|INT) ',' (real|INT) ')'
-   ;
+complex : '('(real | INT | scientific)','(real | INT | scientific)')';
 
 real
    : REAL
@@ -44,10 +41,11 @@ REAL
    : ('-')? INT? '.' INT
    ;
 
+/* Scientific notation */
+scientific : REAL ? ('e'|'E') ? INT;
+
 /* Non-negative integer */
-INT
-   : ('0'..'9')+
-   ;
+INT : ('-') ? ('0'..'9') + ;
 
 /* Strings include numbers and slashes */
 
