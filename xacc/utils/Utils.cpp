@@ -164,19 +164,80 @@ void trim(std::string &s) {
 }
 XACCLogger::XACCLogger()
     : useColor(!RuntimeOptions::instance()->exists("no-color")),
-      useCout(RuntimeOptions::instance()->exists("use-cout")) {
-  std::string loggerName = "xacc-logger";
-  if (RuntimeOptions::instance()->exists("logger-name")) {
-    loggerName = (*RuntimeOptions::instance())["logger-name"];
+      useCout(RuntimeOptions::instance()->exists("use-cout")),
+      useFile(RuntimeOptions::instance()->exists("use-file")) {
+  // Create a std::out logger instance
+  {
+    std::string loggerName = "xacc-logger";
+    if (RuntimeOptions::instance()->exists("logger-name")) {
+      loggerName = (*RuntimeOptions::instance())["logger-name"];
+    }
+    auto _log = spdlog::get(loggerName);
+    if (_log) {
+      stdOutLogger = _log;
+    } else {
+      stdOutLogger = spdlog::stdout_logger_mt(loggerName);
+    }
+
+    stdOutLogger->set_level(spdlog::level::info);
   }
-  auto _log = spdlog::get(loggerName);
-  if (_log) {
-    logger = _log;
-  } else {
-    logger = spdlog::stdout_logger_mt(loggerName);
+  
+  // Create a file logger instance
+  {
+    std::string loggerName = "xacc-file-logger";
+    auto _log = spdlog::get(loggerName);
+    if (_log) {
+      fileLogger = _log;
+    } else {
+      const std::string DEFAULT_FILE_NAME = "xacc_log";
+      fileLogger = spdlog::basic_logger_mt(loggerName, DEFAULT_FILE_NAME);
+    }
+
+    fileLogger->set_level(spdlog::level::info);
+  }
+}
+
+void XACCLogger::logToFile(bool enable) {
+  // Switching the current setting
+  if (enable != useFile) {
+    // Always dump any enqueued messages before switching.
+    dumpQueue();
+    // Set runtime *useFile* flag, this will redirect 
+    // log message to the appropriate logger.
+    useFile = enable;
+  }
+}
+
+void XACCLogger::setLoggingLevel(int level) {
+  if (level < 0 || level > 2) {
+    // Ignored
+    return;
+  }
+  // Converted the level to the spd-log enum
+  if (level == 0) {
+    // Warning and above
+    getLogger()->set_level(spdlog::level::warn);
   }
 
-  logger->set_level(spdlog::level::info);
+  if (level == 1) {
+    // Info and above
+    getLogger()->set_level(spdlog::level::info);
+  }
+
+  if (level == 2) {
+    // Debug and above
+    getLogger()->set_level(spdlog::level::debug);
+  }
+
+  // Notify subscribers
+  for (const auto& callback : loggingLevelSubscribers) {
+    try {
+      callback(level);
+    }
+    catch (...) {
+      // Do nothing. This is to prevent any rogue subscribers.
+    }
+  }
 }
 
 void XACCLogger::info(const std::string &msg, MessagePredicate predicate) {
@@ -190,10 +251,10 @@ void XACCLogger::info(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;34m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;34m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -210,10 +271,10 @@ void XACCLogger::warning(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;33m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;33m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -230,10 +291,10 @@ void XACCLogger::debug(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;32m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;32m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -244,7 +305,7 @@ void XACCLogger::error(const std::string &msg, MessagePredicate predicate) {
       std::cerr << msg << "\n";
   } else {
     if (predicate() && globalPredicate()) {
-      logger->error("\033[1;31m[XACC Error] " + msg + "\033[0m");
+      getLogger()->error("\033[1;31m[XACC Error] " + msg + "\033[0m");
     }
   }
 }
