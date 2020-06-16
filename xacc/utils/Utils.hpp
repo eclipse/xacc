@@ -167,7 +167,19 @@ protected:
 
   XACCLogger();
   
-  std::shared_ptr<spdlog::logger> getLogger() { return useFile ? fileLogger : stdOutLogger; }
+  std::shared_ptr<spdlog::logger> getLogger() { 
+    static bool fileLoggerUsed = false;
+    if (!fileLoggerUsed && useFile) {
+      createFileLogger();
+      fileLoggerUsed = true;
+    }
+
+    return useFile ? fileLogger : stdOutLogger; 
+  }
+
+  // On-demand create a file logger:
+  // We don't want to create one if not being used.
+  void createFileLogger();
 
 public:
   // Overriding here so we can have a custom constructor
