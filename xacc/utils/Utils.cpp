@@ -270,6 +270,17 @@ void XACCLogger::setLoggingLevel(int level) {
   }
 }
 
+int XACCLogger::getLoggingLevel() {
+  const auto spdLevel = getLogger()->level();
+  switch (spdLevel) {
+  case spdlog::level::trace:
+  case spdlog::level::debug: return 2;
+  case spdlog::level::info: return 1;
+  default:
+    return 0;
+  }
+}
+
 void XACCLogger::info(const std::string &msg, MessagePredicate predicate) {
   if (useCout) {
     if (predicate() && globalPredicate()) {

@@ -119,6 +119,10 @@ void setLoggingLevel(int level) {
   XACCLogger::instance()->setLoggingLevel(level);
 }
 
+int getLoggingLevel() {
+  return XACCLogger::instance()->getLoggingLevel();
+}
+
 void subscribeLoggingLevel(LoggingLevelNotification callback) {
   XACCLogger::instance()->subscribeLoggingLevel(callback);
 }
