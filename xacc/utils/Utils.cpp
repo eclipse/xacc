@@ -18,7 +18,9 @@
 #include <iostream>
 #include <sstream>
 #include <istream>
+#include <iomanip>
 #include <dirent.h>
+#include "xacc_config.hpp"
 
 #ifdef HAS_LIBUNWIND
 #include <libunwind.h>
@@ -60,6 +62,21 @@ bool directoryExists(const std::string path) {
   }
 
   return bExists;
+}
+
+bool makeDirectory(const std::string& path) {
+  int ret = mkdir(path.c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH);
+  return (ret == 0);
+}
+
+std::string getCurrentTimeForFileName() {
+  auto time = std::time(nullptr);
+  std::stringstream ss;
+  // ISO 8601 without timezone information.
+  ss << std::put_time(std::localtime(&time), "%F_%T"); 
+  auto s = ss.str();
+  std::replace(s.begin(), s.end(), ':', '-');
+  return s;
 }
 
 void print_backtrace() {
@@ -181,20 +198,33 @@ XACCLogger::XACCLogger()
 
     stdOutLogger->set_level(spdlog::level::info);
   }
-  
+}
+
+void XACCLogger::createFileLogger() {
   // Create a file logger instance
-  {
-    std::string loggerName = "xacc-file-logger";
-    auto _log = spdlog::get(loggerName);
-    if (_log) {
-      fileLogger = _log;
-    } else {
-      const std::string DEFAULT_FILE_NAME = "xacc_log";
-      fileLogger = spdlog::basic_logger_mt(loggerName, DEFAULT_FILE_NAME);
+  std::string loggerName = "xacc-file-logger";
+  auto _log = spdlog::get(loggerName);
+  if (_log) {
+    fileLogger = _log;
+  } else {
+    const std::string rootPath(XACC_INSTALL_DIR);
+    // We'll put the log file (timestamped) to the "logs" sub-directory:
+    std::string logDir = rootPath + "/logs";
+    if (!directoryExists(logDir)) {
+      if (!makeDirectory(logDir)) {
+        // Cannot make the directory, use the current directory instead.
+        logDir = "";
+      }
     }
 
-    fileLogger->set_level(spdlog::level::info);
+    const std::string DEFAULT_FILE_NAME_PREFIX = "xacc_log_";
+    const std::string DEFAULT_FILE_NAME_POSTFIX = ".txt";
+    const std::string fileName = DEFAULT_FILE_NAME_PREFIX + getCurrentTimeForFileName() + DEFAULT_FILE_NAME_POSTFIX;
+    // Create a file logger using the timestamped filename in the logs folder.
+    fileLogger = spdlog::basic_logger_mt(loggerName, logDir + "/" + fileName);
   }
+
+  fileLogger->set_level(spdlog::level::info);
 }
 
 void XACCLogger::logToFile(bool enable) {
