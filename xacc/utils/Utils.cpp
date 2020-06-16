@@ -310,4 +310,25 @@ void XACCLogger::error(const std::string &msg, MessagePredicate predicate) {
   }
 }
 
+ScopeTimer::ScopeTimer(const std::string& scopeName, bool shouldLog):
+  m_startTime(std::chrono::system_clock::now()),
+  m_shouldLog(shouldLog),
+  m_scopeName(scopeName)
+  {
+    if (m_shouldLog) {
+      XACCLogger::instance()->info("'" + scopeName + "' started.");
+    }
+  }
+
+double ScopeTimer::getDurationMs() const {
+  return static_cast<double>(
+    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - m_startTime).count()/1000.0);
+}
+
+ScopeTimer::~ScopeTimer() {
+  const double elapsedTime = getDurationMs();
+  if (m_shouldLog) {
+    XACCLogger::instance()->info("'" + m_scopeName + "' finished [" + std::to_string(elapsedTime) + " ms].");
+  }
+}
 } // namespace xacc

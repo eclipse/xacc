@@ -21,6 +21,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <chrono>
 
 namespace spdlog {
 class logger;
@@ -232,6 +233,40 @@ template <typename T> std::vector<T> linspace(T a, T b, size_t N) {
     *x = val;
   return xs;
 }
+
+// Util timer to log execution elapsed time of a scope block.
+// Example usage:
+// (1) Time a function body:
+/* 
+void slowFunc {
+  // Use __FUNCTION__ macro to get the function name 
+  // Can use a custom string as well
+  ScopeTimer timer(__FUNCTION__);
+  .... code
+}
+*/
+// The above timer will log when the function starts and ends (with elapsed time).
+// (2) Time a code block, including function calls
+/* 
+ ... irrelevant code
+ // Create a scope block:
+ {
+  ScopeTimer timer("human readable name of this block");
+  .... code
+ }
+  ... irrelevant code
+*/
+// This will log the timing data of that specific code block.
+class ScopeTimer {
+public:
+  ScopeTimer(const std::string& scopeName, bool shouldLog = true);
+  double getDurationMs() const;
+  ~ScopeTimer();
+private:
+  std::chrono::time_point<std::chrono::system_clock> m_startTime;
+  bool m_shouldLog;
+  std::string m_scopeName;
+};
 
 // container helper
 namespace container {
