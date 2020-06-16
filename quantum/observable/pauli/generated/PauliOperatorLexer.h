@@ -1,5 +1,5 @@
 
-// Generated from PauliOperator.g4 by ANTLR 4.7.2
+// Generated from PauliOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -14,7 +14,8 @@ class  PauliOperatorLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, T__8 = 9, COMMENT = 10, REAL = 11, INT = 12, WS = 13, EOL = 14
+    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, COMMENT = 12, REAL = 13, 
+    INT = 14, WS = 15, EOL = 16
   };
 
   PauliOperatorLexer(antlr4::CharStream *input);

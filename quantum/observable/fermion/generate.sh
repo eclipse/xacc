@@ -1,3 +1,3 @@
 #!/bin/bash
 set - o errexit
-java -jar antlr-4.7.2-complete.jar -Dlanguage=Cpp -listener -o generated/ -package fermion FermionOperator.g4
+java -jar antlr-4.8-complete.jar -Dlanguage=Cpp -listener -o generated/ -package fermion FermionOperator.g4
