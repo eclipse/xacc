@@ -184,20 +184,18 @@ XACCLogger::XACCLogger()
       useCout(RuntimeOptions::instance()->exists("use-cout")),
       useFile(RuntimeOptions::instance()->exists("use-file")) {
   // Create a std::out logger instance
-  {
-    std::string loggerName = "xacc-logger";
-    if (RuntimeOptions::instance()->exists("logger-name")) {
-      loggerName = (*RuntimeOptions::instance())["logger-name"];
-    }
-    auto _log = spdlog::get(loggerName);
-    if (_log) {
-      stdOutLogger = _log;
-    } else {
-      stdOutLogger = spdlog::stdout_logger_mt(loggerName);
-    }
-
-    stdOutLogger->set_level(spdlog::level::info);
+  std::string loggerName = "xacc-logger";
+  if (RuntimeOptions::instance()->exists("logger-name")) {
+    loggerName = (*RuntimeOptions::instance())["logger-name"];
   }
+  auto _log = spdlog::get(loggerName);
+  if (_log) {
+    stdOutLogger = _log;
+  } else {
+    stdOutLogger = spdlog::stdout_logger_mt(loggerName);
+  }
+
+  stdOutLogger->set_level(spdlog::level::info);
 }
 
 void XACCLogger::createFileLogger() {
