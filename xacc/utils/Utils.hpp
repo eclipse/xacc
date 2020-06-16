@@ -201,7 +201,8 @@ public:
   // 2: Debug and above
   // Note: this will only take effect when xacc::verbose is set.
   void setLoggingLevel(int level);
-
+  int getLoggingLevel();
+  
   void subscribeLoggingLevel(LoggingLevelNotification onLevelChangeFn) { 
     loggingLevelSubscribers.emplace_back(onLevelChangeFn);
   }
