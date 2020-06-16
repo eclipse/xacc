@@ -177,6 +177,10 @@ protected:
     return useFile ? fileLogger : stdOutLogger; 
   }
 
+  std::shared_ptr<const spdlog::logger> getLogger() const { 
+    return std::const_pointer_cast<spdlog::logger>(getLogger()); 
+  } 
+
   // On-demand create a file logger:
   // We don't want to create one if not being used.
   void createFileLogger();
@@ -201,7 +205,8 @@ public:
   // 2: Debug and above
   // Note: this will only take effect when xacc::verbose is set.
   void setLoggingLevel(int level);
-
+  int getLoggingLevel() const;
+  
   void subscribeLoggingLevel(LoggingLevelNotification onLevelChangeFn) { 
     loggingLevelSubscribers.emplace_back(onLevelChangeFn);
   }
