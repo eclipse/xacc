@@ -26,6 +26,7 @@ complex : '('(real | INT | scientific)','(real | INT | scientific)')';
 
 real
    : REAL
+   | scientific
    ;
 
 comment
