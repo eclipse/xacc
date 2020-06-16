@@ -139,21 +139,34 @@ void tuple_for_each(TupleType &&t, FunctionType f) {
 }
 
 using MessagePredicate = std::function<bool(void)>;
+// Notify subscribers when the logging level was changed.
+// This can be used to control logging level/verbosity of 
+// external libraries (e.g. those used by plugins) to
+// match that of XACC.
+using LoggingLevelNotification = std::function<void(int)>;
 
 class XACCLogger : public Singleton<XACCLogger> {
 
 protected:
-  std::shared_ptr<spdlog::logger> logger;
-
+  std::shared_ptr<spdlog::logger> stdOutLogger;
+  std::shared_ptr<spdlog::logger> fileLogger;
+  
   bool useCout = false;
+  
+  // Should we log to file?
+  bool useFile = false;
 
   bool useColor = true;
 
   MessagePredicate globalPredicate = []() { return true; };
-
+  
+  std::vector<LoggingLevelNotification> loggingLevelSubscribers;
+  
   std::queue<std::string> logQueue;
 
   XACCLogger();
+  
+  std::shared_ptr<spdlog::logger> getLogger() { return useFile ? fileLogger : stdOutLogger; }
 
 public:
   // Overriding here so we can have a custom constructor
@@ -162,6 +175,22 @@ public:
       instance_ = new XACCLogger();
     }
     return instance_;
+  }
+
+  // If enable = true, switch to File logging (if not already logging to file).
+  // If enable = false, stop logging to File if currently is.
+  // This enables dev to scope a section which should log to File.
+  void logToFile(bool enable);
+
+  // Set level for log filtering:
+  // 0: Errors and Warnings only
+  // 1: Info and above
+  // 2: Debug and above
+  // Note: this will only take effect when xacc::verbose is set.
+  void setLoggingLevel(int level);
+
+  void subscribeLoggingLevel(LoggingLevelNotification onLevelChangeFn) { 
+    loggingLevelSubscribers.emplace_back(onLevelChangeFn);
   }
 
   void enqueueLog(const std::string log) { logQueue.push(log); }
