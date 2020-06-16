@@ -465,6 +465,17 @@ TEST(PauliOperatorTester, checkCommutes) {
   EXPECT_TRUE(op.commutes(zz));
   EXPECT_FALSE(PauliOperator({{0, "X"}}).commutes(y));
 }
+
+TEST(PauliOperatorTester, checkSciNot) {
+  PauliOperator op;
+  op.fromString("(1.234e-4, 0) Z0");
+  std::cout << op.toString() << "\n";
+
+  op.fromString("1.234e-4 Z0");
+  std::cout << op.toString() << "\n";
+
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

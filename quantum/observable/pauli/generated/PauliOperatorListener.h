@@ -1,5 +1,5 @@
 
-// Generated from PauliOperator.g4 by ANTLR 4.7.2
+// Generated from PauliOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -39,6 +39,9 @@ public:
 
   virtual void enterComment(PauliOperatorParser::CommentContext *ctx) = 0;
   virtual void exitComment(PauliOperatorParser::CommentContext *ctx) = 0;
+
+  virtual void enterScientific(PauliOperatorParser::ScientificContext *ctx) = 0;
+  virtual void exitScientific(PauliOperatorParser::ScientificContext *ctx) = 0;
 
 
 };

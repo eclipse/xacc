@@ -1,5 +1,5 @@
 
-// Generated from FermionOperator.g4 by ANTLR 4.7.2
+// Generated from FermionOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -47,6 +47,9 @@ public:
 
   virtual void enterComment(FermionOperatorParser::CommentContext * /*ctx*/) override { }
   virtual void exitComment(FermionOperatorParser::CommentContext * /*ctx*/) override { }
+
+  virtual void enterScientific(FermionOperatorParser::ScientificContext * /*ctx*/) override { }
+  virtual void exitScientific(FermionOperatorParser::ScientificContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

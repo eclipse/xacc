@@ -1,5 +1,5 @@
 
-// Generated from FermionOperator.g4 by ANTLR 4.7.2
+// Generated from FermionOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -13,8 +13,8 @@ namespace fermion {
 class  FermionOperatorLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, COMMENT = 7, 
-    REAL = 8, INT = 9, WS = 10, EOL = 11
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, COMMENT = 9, REAL = 10, INT = 11, WS = 12, EOL = 13
   };
 
   FermionOperatorLexer(antlr4::CharStream *input);
