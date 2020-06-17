@@ -15,7 +15,6 @@
 
 #include "Gate.hpp"
 #include "Circuit.hpp"
-#include "xacc.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -86,21 +85,8 @@ public:
     Circuit::addInstruction(instruction);
   }
 
-  bool expand(const HeterogeneousMap &runtimeOptions) override {
-    auto buffer = xacc::getBuffer(bufferName);
-    if ((*buffer)[bitIdx]) {
-      for (auto &i : instructions) {
-        i->enable();
-      }
-    } else {
-      // Note: although sub-instructions are initially disabled,
-      // we need to disable here as well just in case we run multiple shots
-      // and they may be enabled in the previous run.
-      disable();
-    }
-    return true;
-  }
-
+  bool expand(const HeterogeneousMap &runtimeOptions) override;
+  
   void disable() override {
     for (auto &i : instructions) {
       i->disable();

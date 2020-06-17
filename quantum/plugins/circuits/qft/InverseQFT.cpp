@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "InverseQFT.hpp"
 #include <memory>
+#include "xacc_service.hpp"
 
 namespace xacc {
 

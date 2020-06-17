@@ -17,6 +17,7 @@
 
 #include "ObservableTransform.hpp"
 #include "xacc_service.hpp"
+#include <Utils.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -97,7 +98,7 @@ void FermionOperator::clear() { terms.clear(); }
 std::vector<std::shared_ptr<CompositeInstruction>>
 FermionOperator::observe(std::shared_ptr<CompositeInstruction> function) {
     auto transform = xacc::getService<ObservableTransform>("jw");
-    return transform->transform(shared_from_this())->observe(function);
+    return transform->transform(xacc::as_shared_ptr(this))->observe(function);
 }
 
 const std::string FermionOperator::toString() {
