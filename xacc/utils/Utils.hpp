@@ -21,6 +21,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <chrono>
 
 namespace spdlog {
 class logger;
@@ -139,21 +140,46 @@ void tuple_for_each(TupleType &&t, FunctionType f) {
 }
 
 using MessagePredicate = std::function<bool(void)>;
+// Notify subscribers when the logging level was changed.
+// This can be used to control logging level/verbosity of 
+// external libraries (e.g. those used by plugins) to
+// match that of XACC.
+using LoggingLevelNotification = std::function<void(int)>;
 
 class XACCLogger : public Singleton<XACCLogger> {
 
 protected:
-  std::shared_ptr<spdlog::logger> logger;
-
+  std::shared_ptr<spdlog::logger> stdOutLogger;
+  std::shared_ptr<spdlog::logger> fileLogger;
+  
   bool useCout = false;
+  
+  // Should we log to file?
+  bool useFile = false;
 
   bool useColor = true;
 
   MessagePredicate globalPredicate = []() { return true; };
-
+  
+  std::vector<LoggingLevelNotification> loggingLevelSubscribers;
+  
   std::queue<std::string> logQueue;
 
   XACCLogger();
+  
+  std::shared_ptr<spdlog::logger> getLogger() { 
+    static bool fileLoggerUsed = false;
+    if (!fileLoggerUsed && useFile) {
+      createFileLogger();
+      fileLoggerUsed = true;
+    }
+
+    return useFile ? fileLogger : stdOutLogger; 
+  }
+
+  // On-demand create a file logger:
+  // We don't want to create one if not being used.
+  void createFileLogger();
 
 public:
   // Overriding here so we can have a custom constructor
@@ -162,6 +188,23 @@ public:
       instance_ = new XACCLogger();
     }
     return instance_;
+  }
+
+  // If enable = true, switch to File logging (if not already logging to file).
+  // If enable = false, stop logging to File if currently is.
+  // This enables dev to scope a section which should log to File.
+  void logToFile(bool enable);
+
+  // Set level for log filtering:
+  // 0: Errors and Warnings only
+  // 1: Info and above
+  // 2: Debug and above
+  // Note: this will only take effect when xacc::verbose is set.
+  void setLoggingLevel(int level);
+  int getLoggingLevel();
+  
+  void subscribeLoggingLevel(LoggingLevelNotification onLevelChangeFn) { 
+    loggingLevelSubscribers.emplace_back(onLevelChangeFn);
   }
 
   void enqueueLog(const std::string log) { logQueue.push(log); }
@@ -203,6 +246,40 @@ template <typename T> std::vector<T> linspace(T a, T b, size_t N) {
     *x = val;
   return xs;
 }
+
+// Util timer to log execution elapsed time of a scope block.
+// Example usage:
+// (1) Time a function body:
+/* 
+void slowFunc {
+  // Use __FUNCTION__ macro to get the function name 
+  // Can use a custom string as well
+  ScopeTimer timer(__FUNCTION__);
+  .... code
+}
+*/
+// The above timer will log when the function starts and ends (with elapsed time).
+// (2) Time a code block, including function calls
+/* 
+ ... irrelevant code
+ // Create a scope block:
+ {
+  ScopeTimer timer("human readable name of this block");
+  .... code
+ }
+  ... irrelevant code
+*/
+// This will log the timing data of that specific code block.
+class ScopeTimer {
+public:
+  ScopeTimer(const std::string& scopeName, bool shouldLog = true);
+  double getDurationMs() const;
+  ~ScopeTimer();
+private:
+  std::chrono::time_point<std::chrono::system_clock> m_startTime;
+  bool m_shouldLog;
+  std::string m_scopeName;
+};
 
 // container helper
 namespace container {
