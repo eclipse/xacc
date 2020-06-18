@@ -98,6 +98,29 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
   }
 }
+double AerAccelerator::calcExpectationValueZ(
+    const std::vector<std::pair<double, double>> &in_stateVec,
+    const std::vector<std::size_t> &in_bits) {
+  const auto hasEvenParity =
+      [](size_t x, const std::vector<size_t> &in_qubitIndices) -> bool {
+    size_t count = 0;
+    for (const auto &bitIdx : in_qubitIndices) {
+      if (x & (1ULL << bitIdx)) {
+        count++;
+      }
+    }
+    return (count % 2) == 0;
+  };
+
+  double result = 0.0;
+  for (uint64_t i = 0; i < in_stateVec.size(); ++i) {
+    result += (hasEvenParity(i, in_bits) ? 1.0 : -1.0) *
+              std::norm(std::complex<double>(in_stateVec[i].first,
+                                             in_stateVec[i].second));
+  }
+
+  return result;
+}
 
 void AerAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
@@ -137,11 +160,14 @@ void AerAccelerator::execute(
     // remove all measures, don't need them
     auto tmp = xacc::ir::asComposite(program->clone());
     tmp->clear();
+    std::vector<std::size_t> measured_bits;
     InstructionIterator iter(program);
     while (iter.hasNext()) {
       auto next = iter.next();
       if (!next->isComposite() && next->name() != "Measure") {
         tmp->addInstruction(next);
+      } else if (next->name() == "Measure") {
+        measured_bits.push_back(next->bits()[0]);
       }
     }
     auto qobj_str = xacc_to_qobj->translate(tmp);
@@ -159,26 +185,8 @@ void AerAccelerator::execute(
 
     buffer->addExtraInfo("state", state_vector);
 
-    // std::cout << "SV measure:\n";
-    // for (auto& [k,v] : counts) std::cout << k << " : " << v << "\n";
-    
-    // const auto hasEvenParity =
-    //     [](size_t x, const std::vector<size_t> &in_qubitIndices) -> bool {
-    //   size_t count = 0;
-    //   for (const auto &bitIdx : in_qubitIndices) {
-    //     if (x & (1ULL << bitIdx)) {
-    //       count++;
-    //     }
-    //   }
-    //   return (count % 2) == 0;
-    // };
-
-    // double result = 0.0;
-    // for (uint64_t i = 0; i < m_stateVec.size(); ++i) {
-    //   result += (hasEvenParity(i, m_measureBits) ? 1.0 : -1.0) *
-    //             std::norm(std::complex<double>(state_vector[i][0], state_vector[i][1]));
-    // }
-    // buffer->addExtraInfo("exp-val-z", result);
+    auto exp_val = calcExpectationValueZ(state_vector, measured_bits);
+    buffer->addExtraInfo("exp-val-z", exp_val);
   }
 }
 
