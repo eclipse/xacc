@@ -65,7 +65,17 @@ public:
     throw std::bad_function_call();
   }
 
-  const std::string get_algorithm() const { return options.getString(name() + "-optimizer"); }
+  const std::string get_algorithm() const { 
+
+    if(name() == "nlopt" && !options.stringExists(name() + "-optimizer")){
+      return "cobyla";
+    } else if (name() == "mlpack" && !options.stringExists(name() + "-optimizer")){
+      return "adam";
+    } else {
+      return options.getString(name() + "-optimizer"); 
+    }
+    
+  }
 
 };
 } // namespace xacc
