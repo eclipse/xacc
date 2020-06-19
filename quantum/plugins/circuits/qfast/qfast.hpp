@@ -15,6 +15,7 @@
 
 #include "Circuit.hpp"
 #include "IRProvider.hpp"
+#include <Eigen/Dense>
 
 namespace xacc {
 namespace circuits {
@@ -26,6 +27,49 @@ public:
     bool expand(const xacc::HeterogeneousMap& runtimeOptions) override;
     const std::vector<std::string> requiredKeys() override;
     DEFINE_CLONE(QFAST);
+private:
+    // We only perform the decomposition to the fixed
+    // block size of 2 (2-qubit gates).
+    // There is no use for decomposition to larger block sizes
+    // since our instruction set doesn't support those.
+    static constexpr int NATIVE_BLOCK_SIZE = 2;
+    // Represents a generic gate block:
+    // i.e. 4x4 matrix for block size = 2.
+    using BlockMatrix = Eigen::Matrix<std::complex<double>, 1ULL << NATIVE_BLOCK_SIZE, 1ULL << NATIVE_BLOCK_SIZE>;
+    
+    // Topology is a list of qubit pairs which we will apply decomposed gates.
+    using Topology = std::vector<std::pair<size_t, size_t>>;
+    
+    struct Block 
+    {
+        // Qubit indices
+        std::pair<size_t, size_t> qubits;
+        // U matrix
+        BlockMatrix uMat;
+    };
+
+
+    struct PauliReps 
+    {
+        // F and A lists (see Algo. 2 in https://arxiv.org/pdf/2003.04462.pdf)
+        std::vector<double> funcValues;
+        std::vector<double> locValues;
+    };
+
+    // Returns decomposed Blocks
+    std::vector<Block> decompose();
+    // Algorithm #3
+    std::vector<PauliReps> explore();
+    // Algorithm #4
+    std::vector<PauliReps> refine(const std::vector<PauliReps>& in_rawResults);
+    // Algorithm #5
+    void addLayer(std::vector<PauliReps>& io_currentLayers);
+
+    // Gate Instantiation: i.e. KAK
+    std::shared_ptr<CompositeInstruction> genericBlockToGates(const Block& in_genericBlock);
+    
+private:
+    Eigen::MatrixXcd m_targetU;
 };
 
 } // namespace circuits

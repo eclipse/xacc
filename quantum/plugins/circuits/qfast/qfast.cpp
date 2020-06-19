@@ -32,5 +32,30 @@ const std::vector<std::string> QFAST::requiredKeys()
    // TODO
    return {};
 }
+
+std::vector<QFAST::Block> QFAST::decompose()
+{
+    return {};
+}
+
+std::vector<QFAST::PauliReps> QFAST::explore()
+{
+    return {};
+}
+
+std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>& in_rawResults)
+{
+    return {};
+}
+
+void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers)
+{
+}
+    
+std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Block& in_genericBlock)
+{
+    // TODO
+    return nullptr;
+}
 }
 }
