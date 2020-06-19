@@ -48,7 +48,6 @@ private:
         BlockMatrix uMat;
     };
 
-
     struct PauliReps 
     {
         // F and A lists (see Algo. 2 in https://arxiv.org/pdf/2003.04462.pdf)
@@ -68,8 +67,19 @@ private:
     // Gate Instantiation: i.e. KAK
     std::shared_ptr<CompositeInstruction> genericBlockToGates(const Block& in_genericBlock);
     
+    // Pauli Helper:
+    const std::vector<Eigen::MatrixXcd>& getAllPaulis() const { return m_allPaulis; }
+    // Generate the list of all Paulis for a particular order (number of qubits)
+    // and topology (i.e. qubit pairs)
+    // This is the set of matrices that we can use to decompose the target unitary
+    // into two-qubit blocks (constrained by the topology)
+    static std::vector<Eigen::MatrixXcd> generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
 private:
     Eigen::MatrixXcd m_targetU;
+    // All Pauli tensors
+    std::vector<Eigen::MatrixXcd> m_allPaulis;
+    size_t m_nbQubits;
+    Topology m_topology;
 };
 
 } // namespace circuits

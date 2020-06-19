@@ -22,7 +22,9 @@ using namespace xacc;
 
 TEST(QFastTester, checkSimple) 
 {
-   
+    auto tmp = xacc::getService<Instruction>("QFAST");
+    auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+    qfast->expand({ });
 }
 
 
