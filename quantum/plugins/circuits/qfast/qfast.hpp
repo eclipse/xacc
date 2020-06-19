@@ -64,6 +64,8 @@ private:
     // Algorithm #5
     void addLayer(std::vector<PauliReps>& io_currentLayers);
 
+    std::vector<Block> pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const;
+
     // Gate Instantiation: i.e. KAK
     std::shared_ptr<CompositeInstruction> genericBlockToGates(const Block& in_genericBlock);
     
@@ -74,12 +76,21 @@ private:
     // This is the set of matrices that we can use to decompose the target unitary
     // into two-qubit blocks (constrained by the topology)
     static std::vector<Eigen::MatrixXcd> generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
+    // Evaluate cost function for the input unitary against the target unitary
+    double evaluateCostFunc(const Eigen::MatrixXcd in_U) const;
+    
+    // Returns true if the target trace distance can be met.
+    // The depth is determined by the io_repsToOpt vector,
+    // optimization results are updated in-place.
+    bool optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const;
 private:
     Eigen::MatrixXcd m_targetU;
     // All Pauli tensors
     std::vector<Eigen::MatrixXcd> m_allPaulis;
     size_t m_nbQubits;
     Topology m_topology;
+    // Trace/Fidelity distance limit:
+    double m_distanceLimit;
 };
 
 } // namespace circuits

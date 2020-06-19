@@ -88,11 +88,22 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     // !! TEMP CODE !!
     m_nbQubits = 3;
     m_topology = { { 0, 1}, { 1, 2} };
+    // CCNOT gate:
+    m_targetU = Eigen::MatrixXcd::Identity(8, 8);
+    m_targetU.block(6, 6, 2, 2) = X;
+    m_distanceLimit = 0.001;
     // !! TEMP CODE !!
 
     // Generate and cache the Pauli decompose basis:
     m_allPaulis = generateAllPaulis(m_nbQubits, m_topology);
     
+    const auto decomposedResult = decompose();
+    for (const auto& block : decomposedResult)
+    {
+        auto compInst = genericBlockToGates(block);
+        addInstructions(compInst->getInstructions());
+    }
+
     // TODO
     return true;
 }
@@ -105,21 +116,51 @@ const std::vector<std::string> QFAST::requiredKeys()
 
 std::vector<QFAST::Block> QFAST::decompose()
 {
+    const auto exloreResults = explore();
+    const auto refinedResult = refine(exloreResults);
+    
+    return pauliRepsToBlocks(refinedResult);
+}
+
+std::vector<QFAST::Block> QFAST::pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const 
+{
+    // TODO
     return {};
 }
 
 std::vector<QFAST::PauliReps> QFAST::explore()
 {
-    return {};
+    std::vector<QFAST::PauliReps> layers;
+    addLayer(layers);
+    // Coarse limit during exploration:
+    const double EXPLORE_PHASE_TARGET_DISTANCE = 100 * m_distanceLimit;
+    // Infinite loop
+    for (;;)
+    {
+        const bool optResult = optimizeAtDepth(layers, EXPLORE_PHASE_TARGET_DISTANCE);
+        if (optResult)
+        {
+            break;
+        }
+        else
+        {
+            // Add one more layer
+            addLayer(layers);
+        }
+    }
+    
+    return layers;
 }
 
 std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>& in_rawResults)
 {
-    return {};
+    // TODO:
+    return in_rawResults;
 }
 
 void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers)
 {
+    // TODO:
 }
     
 std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Block& in_genericBlock)
@@ -153,6 +194,23 @@ std::vector<Eigen::MatrixXcd> QFAST::generateAllPaulis(size_t in_nbQubits, const
     }
 
     return result;
+}
+
+bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const 
+{
+    // TODO:
+    return false;
+}
+
+
+double QFAST::evaluateCostFunc(const Eigen::MatrixXcd in_U) const
+{
+    assert(in_U.rows() == m_targetU.rows());
+    assert(in_U.cols() == m_targetU.cols());
+    const auto d = in_U.cols();
+    const auto product = in_U.adjoint() * m_targetU;
+    const double traceNorm =  std::norm(product.trace());
+    return std::sqrt(1.0 - traceNorm / (d*d));
 }
 }
 }
