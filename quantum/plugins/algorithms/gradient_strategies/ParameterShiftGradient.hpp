@@ -65,11 +65,10 @@ public:
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit, const std::vector<double> &x) override {
 
     std::stringstream ss;
-    ss << std::setprecision(12) << "Input parameters: \n";
+    ss << std::setprecision(5) << "Input parameters: ";
     for(auto param : x){
       ss << param << " ";
     }
-    ss << "\n";
     xacc::info(ss.str());
     ss.str(std::string());
 
@@ -114,6 +113,7 @@ public:
         }
 
       }
+     
     }
 
     return gradientInstructions;
@@ -136,7 +136,6 @@ public:
       shift = nInstructionsElement[0];
       start = 1;
     }
-
 
     // loop over the remaining number of entries in the gradient vector
     for (int gradTerm = start; gradTerm < dx.size(); gradTerm++){ 
@@ -161,13 +160,11 @@ public:
 
     coefficients.clear();
     nInstructionsElement.clear();
-
     std::stringstream ss;
-    ss << std::setprecision(12) << "Computed gradient: \n";
+    ss << std::setprecision(5) << "Computed gradient: ";
     for(auto param : dx){
       ss << param << " ";
     }
-    ss << "\n\n";
     xacc::info(ss.str());
     ss.str(std::string());
 

@@ -116,9 +116,9 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             fsToExec.push_back(inst);
           }
           xacc::info("Number of instructions for energy calculation: " 
-                      + std::to_string(nInstructionsEnergy) + "\n");
+                      + std::to_string(nInstructionsEnergy));
           xacc::info("Number of instructions for gradient calculation: "
-                      + std::to_string(nInstructionsGradient) + "\n");
+                      + std::to_string(nInstructionsGradient));
 
         }
 
@@ -158,11 +158,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           std::stringstream ss;
-          ss << std::setprecision(12) << "Current Energy: " << energy << "\n";
+          ss << std::setprecision(12) << "Current Energy: " << energy;
           xacc::info(ss.str());
           ss.str(std::string());
 
           // update gradient vector
+          
           gradientStrategy->compute(dx, 
             std::vector<std::shared_ptr<AcceleratorBuffer>>(buffers.begin() + nInstructionsEnergy, buffers.end()));
 

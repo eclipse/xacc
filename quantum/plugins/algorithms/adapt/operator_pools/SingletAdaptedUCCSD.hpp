@@ -10,43 +10,56 @@
  * Contributors:
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_ALGORITHM_OPERATOR_POOLS_HPP_
-#define XACC_ALGORITHM_OPERATOR_POOLS_HPP_
+#ifndef XACC_SINGLET_ADAPTED_UCCSD_POOL_HPP_
+#define XACC_SINGLET_ADAPTED_UCCSD_POOL_HPP_
 
-#include "adapt_vqe.hpp"
+#include "adapt.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Observable.hpp"
 #include "xacc_observable.hpp"
 #include "FermionOperator.hpp"
+#include "OperatorPool.hpp"
+#include "Circuit.hpp"
 #include "ObservableTransform.hpp"
 #include <memory>
+#include <string>
+
+using namespace xacc;
+using namespace xacc::quantum;
 
 namespace xacc{
 namespace algorithm{
 
-class UCCSD : public OperatorPool {
+class SingletAdaptedUCCSD : public OperatorPool {
+
+protected:
+
+  int _nElectrons;
+  std::vector<std::shared_ptr<Observable>> pool;
 
 public:
 
-  UCCSD() = default;
+  SingletAdaptedUCCSD() = default;
 
-  // check if pool exists
-  bool isValidOperatorPool(const std::string &operatorPool) override {
-    if(operatorPool == "UCCSD"){ 
-      return true;
+  bool optionalParameters(const HeterogeneousMap parameters) override {
+
+    if(!parameters.keyExists<int>("n-electrons")){
+      xacc::info("SingletAdaptedUCCSD pool needs number of electrons.");
+      return false;
     }
-    return false;
+
+    _nElectrons = parameters.get<int>("n-electrons");
+
+    return true;
   }
 
   // generate the pool
-  std::vector<std::shared_ptr<Observable>>
-  generate(const int &nQubits, const int &nElectrons) override {
+  std::vector<std::shared_ptr<Observable>> generate(const int &nQubits) override {
 
-    auto _nOccupied = (int)std::ceil(nElectrons / 2.0);
+    auto _nOccupied = (int)std::ceil(_nElectrons / 2.0);
     auto _nVirtual = nQubits / 2 - _nOccupied;
     auto _nOrbs = _nOccupied + _nVirtual;
-    std::vector<std::shared_ptr<Observable>> pool;
 
     // single excitations
     for (int i = 0; i < _nOccupied; i++){
@@ -123,122 +136,44 @@ public:
       }
     }
 
-    return pool;
+    std::vector<std::shared_ptr<Observable>> jwPool;
+    auto jw = xacc::getService<ObservableTransform>("jw");
+
+    for(auto op : pool){
+      jwPool.push_back(jw->transform(op));
+    }
+
+    return jwPool;
+  }
+
+  std::string operatorString(const int index) override {
+
+    return pool[index]->toString();
+
+  }
+
+  std::shared_ptr<CompositeInstruction> 
+  getOperatorInstructions(const int opIdx, const int varIdx) const override {
+
+    // Instruction service for the operator to be added to the ansatz
+    auto gate = std::dynamic_pointer_cast<quantum::Circuit>(
+        xacc::getService<Instruction>("exp_i_theta"));
+
+    // Create instruction for new operator
+    auto jwOp = xacc::getService<ObservableTransform>("jw")->transform(pool[opIdx]);
+    gate->expand(
+        {std::make_pair("pauli", jwOp->toString()),
+        std::make_pair("param_id", "x" + std::to_string(varIdx)),
+        std::make_pair("no-i", true)});
+
+    return gate;
+
   }
 
   const std::string name() const override { return "singlet-adapted-uccsd"; }
   const std::string description() const override { return ""; }
 };
 
-
-class QubitPool : public OperatorPool {
-
-public:
-
-  QubitPool() = default;
-
-  // check if pool exists
-  bool isValidOperatorPool(const std::string &operatorPool) override {
-    if(operatorPool == "qubit-pool"){ 
-      return true;
-    }
-    return false;
-  }
-
-  // generate the pool
-  std::vector<std::shared_ptr<Observable>>
-  generate(const int &nQubits, const int &nElectrons) override {
-
-    // The qubit pool vanishes for strings with an even number of Pauli Y's
-    // and can have at most 4 operators
-    // We loop over the indices for qubits q0-q3 and
-    // {X, Y, X} for each qubit and make sure that we have the appropriate 
-    // number of Y's and only add unique operators, i.e., those which 
-    // survive symmetry operations in the PauliOperator class.
-
-    std::vector<std::shared_ptr<Observable>> pool;
-    std::vector<PauliOperator> pauliOps;
-    std::vector<std::string> label;
-    std::string opStr;
-    PauliOperator op;
-
-    for (int q0 = 0; q0 < nQubits; q0++){
-
-      for (auto op0 : {"X", "Y", "Z"}){
-
-        label.push_back(op0);
-        if (op0 == "Y"){
-          opStr = "Y" + std::to_string(q0);
-          op.fromString("(0,1)" + opStr);
-          pauliOps.push_back(op);
-        }
-
-        for (int q1 = q0 + 1; q1 < nQubits; q1++){
-
-          for (auto op1 : {"X", "Y", "Z"}){
-
-            label.push_back(op1);
-            if (std::count(label.begin(), label.end(), "Y") == 1){
-              opStr = op0 + std::to_string(q0) + op1 + std::to_string(q1);
-              op.fromString("(0,1)" + opStr);
-              if(!(std::find(pauliOps.begin(), pauliOps.end(), op) != pauliOps.end())){
-                pauliOps.push_back(op);
-              }
-
-            }
-
-            for (int q2 = q1 + 1; q2 < nQubits; q2++){
-
-              for (auto op2 : {"X", "Y", "Z"}){
-
-                label.push_back(op2);
-                if (std::count(label.begin(), label.end(), "Y") == 1 || std::count(label.begin(), label.end(), "Y") == 3){
-
-                  opStr = op0 + std::to_string(q0) + op1 + std::to_string(q1) + op2 + std::to_string(q2);
-                  op.fromString("(0,1)" + opStr);
-                  if(!(std::find(pauliOps.begin(), pauliOps.end(), op) != pauliOps.end())){
-                    pauliOps.push_back(op);
-                  }
-                }
-
-                for (int q3 = q2 + 1; q3 < nQubits; q3++){
-
-                  for (auto op3 : {"X", "Y", "Z"}){
-
-                    label.push_back(op3);
-                    if (std::count(label.begin(), label.end(), "Y") == 1 || std::count(label.begin(), label.end(), "Y") == 3){
-
-                      opStr = op0 + std::to_string(q0) + op1 + std::to_string(q1) + op2 + std::to_string(q2) + op3 + std::to_string(q3);
-                      op.fromString("(0,1)" + opStr);
-                      if(!(std::find(pauliOps.begin(), pauliOps.end(), op) != pauliOps.end())){
-                        pauliOps.push_back(op);
-                      }
-
-                    } 
-
-                    label.pop_back();
-                  }
-                }
-                label.pop_back();
-              }
-            }
-            label.pop_back();
-          }
-        }
-        label.pop_back();
-      }
-    }
-
-    for (auto op: pauliOps){
-      pool.push_back(std::dynamic_pointer_cast<Observable>(std::make_shared<PauliOperator>(op)));
-    }
-
-    return pool;
-  }
-
-  const std::string name() const override { return "qubit-pool"; }
-  const std::string description() const override { return ""; }
-};
 
 } // namespace algorithm
 } // namespace xacc

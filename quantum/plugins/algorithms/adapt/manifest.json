@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_adapt",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC ADAPT Algorithm",
+  "bundle.description" : ""
+}

@@ -170,6 +170,7 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
           const std::string paramName = "gamma" + std::to_string(gammaParamCounter++);
           expCirc->addVariable(paramName);
           expCirc->expand({ std::make_pair("pauli", term) });
+          std::cout << expCirc->toString() << "\n";
           qaoaKernel->addVariable(paramName);
           qaoaKernel->addInstructions(expCirc->getInstructions());
       }

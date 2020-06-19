@@ -10,8 +10,11 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "adapt_vqe.hpp"
-#include "operator_pools/pools.hpp"
+#include "adapt.hpp"
+#include "operator_pools/SingletAdaptedUCCSD.hpp"
+#include "operator_pools/QubitPool.hpp"
+#include "operator_pools/SingleQubitQAOA.hpp"
+#include "operator_pools/MultiQubitQAOA.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -23,20 +26,26 @@ using namespace cppmicroservices;
 
 namespace {
 
-class US_ABI_LOCAL ADAPT_VQE_Activator : public BundleActivator {
+class US_ABI_LOCAL ADAPT_Activator : public BundleActivator {
 
 public:
-  ADAPT_VQE_Activator() {}
+  ADAPT_Activator() {}
 
   void Start(BundleContext context) {
-    auto c = std::make_shared<xacc::algorithm::ADAPT_VQE>();
+    auto c = std::make_shared<xacc::algorithm::ADAPT>();
     context.RegisterService<xacc::Algorithm>(c);
 
-    auto uccsd = std::make_shared<xacc::algorithm::UCCSD>();
-    context.RegisterService<xacc::algorithm::OperatorPool>(uccsd);
+    auto uccsd = std::make_shared<xacc::algorithm::SingletAdaptedUCCSD>();
+    context.RegisterService<xacc::OperatorPool>(uccsd);
 
     auto qpool = std::make_shared<xacc::algorithm::QubitPool>();
-    context.RegisterService<xacc::algorithm::OperatorPool>(qpool);
+    context.RegisterService<xacc::OperatorPool>(qpool);
+
+    auto sqaoa = std::make_shared<xacc::algorithm::SingleQubitQAOA>();
+    context.RegisterService<xacc::OperatorPool>(sqaoa);
+
+    auto mqaoa = std::make_shared<xacc::algorithm::MultiQubitQAOA>();
+    context.RegisterService<xacc::OperatorPool>(mqaoa);
 
   }
 
@@ -45,4 +54,4 @@ public:
 
 }
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(ADAPT_VQE_Activator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(ADAPT_Activator)

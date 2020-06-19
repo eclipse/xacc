@@ -11,6 +11,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include <gtest/gtest.h>
+#include <utility>
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -20,17 +21,24 @@
 #include "PauliOperator.hpp"
 #include "xacc_observable.hpp"
 #include "AlgorithmGradientStrategy.hpp"
+#include "OperatorPool.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
 
-TEST(AdaptVQETester, checkSimple) {
+
+
+TEST(AdaptTesterVQE, checkAdaptVQE) {
 
   xacc::set_verbose(true);
-  auto acc = xacc::getAccelerator("qpp");
-  auto buffer = xacc::qalloc(4);
-  auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer","l-bfgs")});
-  auto adapt_vqe = xacc::getService<Algorithm>("adapt-vqe");
+  auto acc_vqe = xacc::getAccelerator("qpp");
+  auto buffer_vqe = xacc::qalloc(4);
+  auto optimizer_vqe = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer", "l-bfgs")});
+  auto adapt_vqe = xacc::getService<xacc::Algorithm>("adapt");
+  int nElectrons = 2;
+  auto pool_vqe = xacc::getService<OperatorPool>("qubit-pool");
+  //pool->optionalParameters({std::make_pair("n-electrons", 2)});
+  auto subAlgo_vqe = "vqe"; 
 
   auto str = std::string("(-0.165606823582,-0)  1^ 2^ 1 2 + (0.120200490713,0)  1^ 0^ 0 1 + "
                           "(-0.0454063328691,-0)  0^ 3^ 1 2 + (0.168335986252,0)  2^ 0^ 0 2 + "
@@ -56,18 +64,18 @@ TEST(AdaptVQETester, checkSimple) {
                           "(-0.120200490713,-0)  0^ 1^ 0 1 + (-0.120200490713,-0)  1^ 0^ 1 0 + (0.7080240981,0)");
 
 
-  auto H = xacc::quantum::getObservable("fermion", str);
+  auto H_vqe = xacc::quantum::getObservable("fermion", str);
 
-  EXPECT_TRUE(adapt_vqe->initialize({std::make_pair("accelerator",acc),
-                                std::make_pair("observable", H),
-                                std::make_pair("optimizer", optimizer),
-                                std::make_pair("pool", "singlet-adapted-uccsd"),
-                                std::make_pair("gradient-strategy", "parameter-shift-gradient"),
-                                std::make_pair("nElectrons", 2)}));
+  EXPECT_TRUE(adapt_vqe->initialize({std::make_pair("accelerator",acc_vqe),
+                                std::make_pair("observable", H_vqe),
+                                std::make_pair("optimizer", optimizer_vqe),
+                                std::make_pair("pool", pool_vqe),
+                                std::make_pair("n-electrons", nElectrons),
+                                std::make_pair("sub-algorithm", subAlgo_vqe)
+                                }));
 
-  adapt_vqe->execute(buffer);
-//   EXPECT_NEAR(-1.13717, buffer->getInformation("opt-val").as<double>(), 1e-4);
-
+  adapt_vqe->execute(buffer_vqe);
+  EXPECT_NEAR(-1.13717, buffer_vqe->getInformation("opt-val").as<double>(), 1e-4);
 }
 
 int main(int argc, char **argv) {
