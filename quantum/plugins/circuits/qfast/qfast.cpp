@@ -91,7 +91,12 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     m_topology = { { 0, 1}, { 1, 2} };
     // CCNOT gate:
     m_targetU = Eigen::MatrixXcd::Identity(8, 8);
-    m_targetU.block(6, 6, 2, 2) = X;
+    m_targetU(6, 6) = 0.0;
+    m_targetU(7, 7) = 0.0;
+    m_targetU(6, 7) = 1.0;
+    m_targetU(7, 6) = 1.0;
+
+    std::cout << "Target U:\n" << m_targetU << "\n";
     m_distanceLimit = 0.001;
     // !! TEMP CODE !!
 
@@ -161,11 +166,12 @@ std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>&
 
 void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers) const
 {
+    std::cout << "Add a layer. Number of layers = " << io_currentLayers.size() + 1 << "\n"; 
     // Add a layer:
     QFAST::PauliReps newLayer;
     const double initialParam = 1.0 / m_allPaulis[0].size();
     newLayer.funcValues.assign(m_allPaulis[0].size(), initialParam);
-    newLayer.locValues.assign(m_topology.size(), 0.0);
+    newLayer.locValues.assign(m_topology.size(), 1.0);
     io_currentLayers.emplace_back(std::move(newLayer));
 }
     
@@ -207,34 +213,64 @@ std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nb
 bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const 
 {
     assert(!io_repsToOpt.empty());
-    // TODO: use gradient-based optimizer (e.g. Adam)
-    // This is currently not possible since we don't know how to calculate the gradients.
-    auto optimizer = xacc::getService<xacc::Optimizer>("nlopt"); 
-    Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
     const size_t nbParamsPerLayer = io_repsToOpt[0].nbParams();
     const size_t nbParams = io_repsToOpt.size() * nbParamsPerLayer;
+    const int maxEval = nbParams * 100;
     
+    std::vector<double> initialParams;
+    for (const auto& layer : io_repsToOpt)
+    {
+        initialParams.insert(initialParams.end(), layer.funcValues.begin(), layer.funcValues.end());
+        initialParams.insert(initialParams.end(), layer.locValues.begin(), layer.locValues.end());
+    }
+    
+    // TODO: use gradient-based optimizer (e.g. Adam)
+    // This is currently not possible since we don't know how to calculate the gradients.
+    auto optimizer = xacc::getOptimizer("nlopt", 
+        xacc::HeterogeneousMap { 
+            std::make_pair("initial-parameters", initialParams),
+            std::make_pair("nlopt-maxeval", maxEval) 
+    });
+
     OptFunction f(
         [&](const std::vector<double>& x, std::vector<double>& grad) 
         {
+            Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
             std::vector<double> params;
             size_t idx = 0;
             for (auto& layer : io_repsToOpt)
             {
                 params.clear();
-                params.assign(x.begin() + idx * nbParams, x.begin() + (idx + 1) * nbParams);
+                params.assign(x.begin() + idx * nbParamsPerLayer, x.begin() + (idx + 1) * nbParamsPerLayer);
                 assert(params.size() == nbParamsPerLayer);
                 layer.updateParams(params);
                 idx++;
                 accumU = accumU * layerToUnitaryMatrix(layer);
             }
 
-            return evaluateCostFunc(accumU);
+            const double costValue = evaluateCostFunc(accumU);
+            return costValue;
         },
         nbParams);
     
-    // TODO:
-    return true;
+    const auto result = optimizer->optimize(f);
+    xacc::info("Final trace distance = " + std::to_string(result.first));
+    
+    // Save the optimal params for these layers.
+    // Hence, this will be the starting point 
+    // when adding a new layer.
+    std::vector<double> optParams;
+    int idx = 0;
+    for (auto& layer : io_repsToOpt)
+    {
+        optParams.clear();
+        optParams.assign(result.second.begin() + idx * nbParamsPerLayer, result.second.begin() + (idx + 1) * nbParamsPerLayer);
+        assert(optParams.size() == nbParamsPerLayer);
+        layer.updateParams(optParams);
+        idx++;
+    }
+
+    return (result.first < in_targetDistance);
 }
 
 
