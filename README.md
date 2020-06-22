@@ -1,9 +1,8 @@
-| Branch | Status |
-|:-------|:-------|
-|master | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) |
-|xacc-devel | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
+![XACC](docs/assets/xacc_full_logo.svg)
 
-![alt text](https://raw.githubusercontent.com/eclipse/xacc/master/docs/assets/xacc-readme.jpg)
+|  master | xacc-devel |
+|:-------|:-------|
+|[![pipeline status](https://code.ornl.gov/qci/xacc/badges/master/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/master) | [![pipeline status](https://code.ornl.gov/qci/xacc/badges/xacc-devel/pipeline.svg)](https://code.ornl.gov/qci/xacc/commits/xacc-devel) |
 
 ## Language and Hardware Independent Quantum Programming Framework
 XACC is an extensible compilation framework for hybrid quantum-classical computing architectures.
@@ -50,7 +49,7 @@ Build from Source
 -----------------
 Full installation details can be followed [here](https://xacc.readthedocs.io/en/latest/install.html).
 
-Ensure that you have installed CMake 3.12+, a C++14 compliant compiler (GCC 6+, Clang 3.4+), and
+Ensure that you have installed CMake 3.12+, a C++17 compliant compiler (GCC 8+, Clang 5+), and
 CURL development headers and libraries with OpenSSL support
 (see [prerequisites](http://xacc.readthedocs.io/en/latest/install.html#pre-requisites)).
 

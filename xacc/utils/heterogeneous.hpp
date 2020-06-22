@@ -150,6 +150,10 @@ public:
     return v.count;
   }
 
+  bool key_exists_any_type(const std::string key) const {
+      return items.count(key);
+  }
+  
   template <typename T> bool keyExists(const std::string key) const {
     if (items.count(key)) {
       // we have the key, make sure it is the right type

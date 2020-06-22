@@ -29,7 +29,8 @@ public:
   qreg() = default;
   qreg(const int n);
   qreg (const qreg& other);
-  qubit operator[](const std::size_t &i);
+  qubit operator[](const std::size_t i);
+  qreg& operator=(const qreg& q);
   AcceleratorBuffer *results();
   std::map<std::string, int> counts();
   double exp_val_z();
@@ -38,6 +39,7 @@ public:
   void addChild(qreg& q);
   void setName(const char *name);
   void setNameAndStore(const char *name);
+  std::string name();
   void store();
   void print();
   double weighted_sum(Observable* obs);

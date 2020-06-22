@@ -35,23 +35,68 @@ void compiler_InitializeXACC(const char *qpu_backend, int shots) {
 
   setAccelerator(qpu_backend, shots);
 }
+auto process_qpu_backend_str = [](const std::string &qpu_backend_str)
+    -> std::pair<std::string, HeterogeneousMap> {
+  bool has_extra_config = qpu_backend_str.find("[") != std::string::npos;
+  auto qpu_name =
+      (has_extra_config)
+          ? qpu_backend_str.substr(0, qpu_backend_str.find_first_of("["))
+          : qpu_backend_str;
+
+  HeterogeneousMap options;
+  if (has_extra_config) {
+    auto first = qpu_backend_str.find_first_of("[");
+    auto second = qpu_backend_str.find_first_of("]");
+    auto qpu_config = qpu_backend_str.substr(first + 1, second - first - 1);
+
+    auto key_values = split(qpu_config, ',');
+    for (auto key_value : key_values) {
+      auto tmp = split(key_value, ':');
+      auto key = tmp[0];
+      auto value = tmp[1];
+
+      // check if int first, then double,
+      // finally just throw it in as a string
+      try {
+        auto i = std::stoi(value);
+        options.insert(key, i);
+      } catch (std::exception &e) {
+        try {
+          auto d = std::stod(value);
+          options.insert(key, d);
+        } catch (std::exception &e) {
+          options.insert(key, value);
+        }
+      }
+    }
+  }
+
+  return std::make_pair(qpu_name, options);
+};
 
 void setAccelerator(const char *qpu_backend) {
+
   if (qpu) {
     if (qpu_backend != qpu->name()) {
-      qpu = xacc::getAccelerator(qpu_backend);
+      const auto [qpu_name, config] = process_qpu_backend_str(qpu_backend);
+      qpu = xacc::getAccelerator(qpu_name, config);
     }
   } else {
-    qpu = xacc::getAccelerator(qpu_backend);
+    const auto [qpu_name, config] = process_qpu_backend_str(qpu_backend);
+    qpu = xacc::getAccelerator(qpu_name, config);
   }
 }
 
 void setAccelerator(const char *qpu_backend, int shots) {
   if (qpu) {
     if (qpu_backend != qpu->name()) {
-      qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)});
+      auto [qpu_name, config] = process_qpu_backend_str(qpu_backend);
+      config.insert("shots", shots);
+      qpu = xacc::getAccelerator(qpu_backend, config);
     }
   } else {
+    auto [qpu_name, config] = process_qpu_backend_str(qpu_backend);
+    config.insert("shots", shots);
     qpu = xacc::getAccelerator(qpu_backend, {std::make_pair("shots", shots)});
   }
 }

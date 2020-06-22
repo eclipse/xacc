@@ -49,6 +49,11 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     paramLetter = parameters.getString("param_id");
   }
 
+  bool no_i = false;
+  if (parameters.keyExists<bool>("no-i")) {
+    no_i = parameters.keyExists<bool>("no-i");
+  }
+
   std::unordered_map<std::string, xacc::quantum::Term> terms;
   if (pauli_or_fermion == "fermion") {
     auto fermionStr = parameters.getString("fermion");
@@ -132,9 +137,15 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
 
     xasm_src = xasm_src + "\n" + basis_front.str() + cnot_front.str();
 
-    xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
-               "], " + std::to_string(std::real(spinInst.coeff())) + " * " +
-               paramLetter + ");\n";
+    if (no_i) {
+      xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
+                 "], " + std::to_string(std::imag(spinInst.coeff())) + " * " +
+                 paramLetter + ");\n";
+    } else {
+      xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
+                 "], " + std::to_string(std::real(spinInst.coeff())) + " * " +
+                 paramLetter + ");\n";
+    }
 
     xasm_src = xasm_src + cnot_back.str() + basis_back.str();
   }

@@ -14,6 +14,8 @@
 
 #include "Circuit.hpp"
 #include "IRProvider.hpp"
+#include "Observable.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace circuits {

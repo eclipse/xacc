@@ -17,6 +17,7 @@
 
 #include "ObservableTransform.hpp"
 #include "xacc_service.hpp"
+#include <Utils.hpp>
 
 namespace xacc {
 namespace quantum {
@@ -24,28 +25,31 @@ namespace quantum {
 FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
   coeff() *= std::get<0>(v);
 
-//   std::cout << "FermionTerm: " << id() << ", " << FermionTerm::id(std::get<1>(v)) << "\n";
+   //std::cout << "FermionTerm: " << id() << ", " << FermionTerm::id(std::get<1>(v)) << "\n";
   auto otherOps = std::get<1>(v);
   for (auto &kv : otherOps) {
     auto site = kv.first;
     auto c_or_a = kv.second;
-    // std::cout << "HELLO: " << site << ", " << std::boolalpha << c_or_a << "\n";
-    Operators o = ops();
+    //std::cout << "\n\nHELLO: " << site << ", " << std::boolalpha << c_or_a << "\n";
+    Operators o = ops();    
     if (!o.empty()) {
-    auto it = std::find_if(o.begin(), o.end(),
+
+      auto it = std::find_if(o.begin(), o.end(),
                            [&](const std::pair<int, bool> &element) {
                              return element.first == site;
                            });
-    // std::cout << it->first << ", " << std::boolalpha << it->second << "\n";
-    if (it->first == site) {
-      if (it->second && c_or_a) {
+      //std::cout << it->first << ", " << std::boolalpha << it->second << "\n";
+      if (it->first == site) {
+        if (it->second == c_or_a) {
         // zero out this FermionTerm
-        ops().clear();
-      }
+          ops().clear();
+        } else {//this adds the adjoint of operators whose sites are already in the product
+          ops().push_back({site, c_or_a});
+        }
 
-    } else {
-      ops().push_back({site, c_or_a});
-    }
+      } else {
+        ops().push_back({site, c_or_a});
+      }
     }
     // This means, we have a op on same qubit in both
   }
@@ -94,7 +98,7 @@ void FermionOperator::clear() { terms.clear(); }
 std::vector<std::shared_ptr<CompositeInstruction>>
 FermionOperator::observe(std::shared_ptr<CompositeInstruction> function) {
     auto transform = xacc::getService<ObservableTransform>("jw");
-    return transform->transform(shared_from_this())->observe(function);
+    return transform->transform(xacc::as_shared_ptr(this))->observe(function);
 }
 
 const std::string FermionOperator::toString() {
@@ -104,6 +108,8 @@ const std::string FermionOperator::toString() {
     s << c << " " << std::get<2>(kv.second) << " ";
     Operators ops = std::get<1>(kv.second);
 
+    // I changed this to get the operators printed in the order they're built
+    /*
     std::vector<int> creations, annhilations;
     for (auto &t : ops) {
       if (t.second) {
@@ -112,18 +118,25 @@ const std::string FermionOperator::toString() {
         annhilations.push_back(t.first);
       }
     }
-
     for (auto &t : creations) {
       s << t << "^" << std::string(" ");
     }
     for (auto &t : annhilations) {
       s << t << std::string(" ");
+    }*/
+
+    for (auto &t : ops) {
+      if (t.second) {
+        s << t.first << "^" << std::string(" ");
+      }
+      else{
+        s << t.first << std::string(" ");
+      }
     }
 
     s << "+ ";
   }
 
-//   std::cout << "tostring " << s.str() << "\n";
   auto r = s.str().substr(0, s.str().size() - 2);
   xacc::trim(r);
   return r;
@@ -205,12 +218,22 @@ FermionOperator::operator*=(const FermionOperator &v) noexcept {
   std::unordered_map<std::string, FermionTerm> newTerms;
   for (auto &kv : terms) {
     for (auto &vkv : v.terms) {
-      auto multTerm = kv.second * vkv.second;
+
+      FermionTerm multTerm;
+      if (kv.first == "I"){
+        multTerm = vkv.second;
+      } else {
+        multTerm = kv.second * vkv.second;
+      }
+
       if (!multTerm.ops().empty()) {
         auto id = multTerm.id();
-
-        if (!newTerms.insert({id, multTerm}).second) {
+        if (!newTerms.insert({id, multTerm}).second && kv.first != "I") {
           newTerms.at(id).coeff() += multTerm.coeff();
+        }
+
+        if (!newTerms.insert({id, multTerm}).second && kv.first == "I") {
+          newTerms.at(id).coeff() = std::get<0>(kv.second) * std::get<0>(vkv.second);
         }
 
         if (std::abs(newTerms.at(id).coeff()) < 1e-12) {
@@ -219,6 +242,7 @@ FermionOperator::operator*=(const FermionOperator &v) noexcept {
       }
     }
   }
+
   terms = newTerms;
   return *this;
 }
@@ -256,6 +280,13 @@ FermionOperator::operator*=(const std::complex<double> v) noexcept {
     std::get<0>(kv.second) *= v;
   }
   return *this;
+}
+
+std::shared_ptr<Observable> FermionOperator::commutator(std::shared_ptr<Observable> op) {
+
+  FermionOperator& A = *std::dynamic_pointer_cast<FermionOperator>(op);
+  std::shared_ptr<FermionOperator> commutatorHA = std::make_shared<FermionOperator>((*this) * A - A * (*this));
+  return commutatorHA;
 }
 
 } // namespace quantum

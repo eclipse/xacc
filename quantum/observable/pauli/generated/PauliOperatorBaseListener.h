@@ -1,5 +1,5 @@
 
-// Generated from PauliOperator.g4 by ANTLR 4.7.2
+// Generated from PauliOperator.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -41,6 +41,9 @@ public:
 
   virtual void enterComment(PauliOperatorParser::CommentContext * /*ctx*/) override { }
   virtual void exitComment(PauliOperatorParser::CommentContext * /*ctx*/) override { }
+
+  virtual void enterScientific(PauliOperatorParser::ScientificContext * /*ctx*/) override { }
+  virtual void exitScientific(PauliOperatorParser::ScientificContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

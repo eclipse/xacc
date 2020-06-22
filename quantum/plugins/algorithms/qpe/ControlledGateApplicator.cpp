@@ -11,6 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "ControlledGateApplicator.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace circuits {

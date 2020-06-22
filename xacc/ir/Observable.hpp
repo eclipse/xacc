@@ -58,6 +58,11 @@ public:
   to_sparse_matrix() {
     return {};
   }
+
+    virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>){
+    return nullptr;
+  }
+  
 };
 
 template Observable *

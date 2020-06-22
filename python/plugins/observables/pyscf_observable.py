@@ -35,6 +35,7 @@ class PySCFObservable(xacc.Observable):
         mol = gto.mole.Mole()
         mol.atom = inputParams['geometry']
         mol.basis = inputParams['basis']
+        mol.build()
         scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
         scf_wfn.conv_tol = 1e-8
         scf_wfn.kernel() # runs RHF calculations

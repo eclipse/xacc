@@ -484,7 +484,7 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
   }
 }
 
-void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) { 
+void XASMListener::exitInstruction(xasmParser::InstructionContext *ctx) {
   auto inst = irProvider->createInstruction(currentInstructionName, currentBits,
                                             currentParameters);
 
@@ -591,7 +591,7 @@ void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
         if (isConstChar) {
           currentOptions.insert(key, valStr.c_str());
         } else {
-          currentOptions.insert(key,valStr);
+          currentOptions.insert(key, valStr);
         }
 
       } else {
@@ -633,6 +633,7 @@ void XASMListener::exitComposite_generator(
   auto composite = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
   for (int i = 0; i < currentParameters.size(); i++) {
     auto p = currentParameters[i];
+
     auto arg = function->getArgument(p.toString());
     int vector_mapping = 0;
 
@@ -648,6 +649,41 @@ void XASMListener::exitComposite_generator(
         // give the instruction a mapping from i to vector idx
         vector_mapping = new_var_to_vector_idx[currentParameters[i].toString()];
 
+      } else if (p.isNumeric()) {
+
+        if (!composite->getArguments().empty()) {
+          // This is a literal. Create an argument and add it
+          auto tmp_arg = composite->getArguments()[1];
+
+          if (tmp_arg->type == "double") {
+            tmp_arg->runtimeValue.insert(INTERNAL_ARGUMENT_VALUE_KEY,
+                                         p.as<double>());
+          } else if (tmp_arg->type == "int") {
+            tmp_arg->runtimeValue.insert(INTERNAL_ARGUMENT_VALUE_KEY,
+                                         p.as<int>());
+          } else {
+            xacc::error(
+                "xasm only support double and int literals in kernel calls.\n");
+          }
+          composite->applyRuntimeArguments();
+        } else {
+          // add an arg for this
+          // this is probably coming from QCOR
+          if (p.which() == 0) {
+            // integer
+            composite->addArgument("__xacc__literal_", "int");
+            auto tmp = composite->getArgument("__xacc__literal_");
+            tmp->runtimeValue.insert(INTERNAL_ARGUMENT_VALUE_KEY,
+                                     p.as<int>());
+          } else {
+            // double
+            composite->addArgument("__xacc__literal_", "double");
+            auto tmp = composite->getArgument("__xacc__literal_");
+            tmp->runtimeValue.insert(INTERNAL_ARGUMENT_VALUE_KEY,
+                                     p.as<double>());
+          }
+        }
+        continue;
       } else {
         // throw an error
         xacc::error(

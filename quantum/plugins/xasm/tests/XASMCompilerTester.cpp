@@ -22,24 +22,49 @@
 
 #include "Circuit.hpp"
 
+TEST (XASMCompilerTester, checkQcorIssue23) {
+auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(R"(__qpu__ void rotate(qbit q, double x) {
+  Rx(q[0], x);
+})");
+
+  auto IR2 = compiler->compile(R"(__qpu__ void check(qbit q) {
+  rotate(q, 2.2);
+})");
+
+ std::cout << IR2->getComposite("check")->toString() << "\n";
+
+}
+TEST(XASMCompilerTester, checkU1) {
+
+  auto compiler = xacc::getCompiler("xasm");
+  auto IR = compiler->compile(R"(__qpu__ void u1_test(qbit q, double x) {
+  U1(q[0], x);
+})");
+
+  auto kernel = IR->getComposites()[0];
+
+  std::cout << "HELLO: " << kernel->toString() << "\n";
+
+  std::cout << kernel->operator()({2.2})->toString() << "\n";
+}
+
 TEST(XASMCompilerTester, checkISwapAndFSim) {
 
   auto compiler = xacc::getCompiler("xasm");
-  auto IR = compiler->compile(R"(__qpu__ void iswap_test(qbit q, double x, double y) {
+  auto IR =
+      compiler->compile(R"(__qpu__ void iswap_test(qbit q, double x, double y) {
   H(q[0]);
   iSwap(q[0], q[1]);
   fSim(q[0], q[1], x, y);
   CX(q[0], q[1]);
 })");
 
-auto kernel = IR->getComposites()[0];
-
+  auto kernel = IR->getComposites()[0];
 
   std::cout << "HELLO: " << kernel->toString() << "\n";
 
-  std::cout << kernel->operator()({2.2,3.3})->toString() << "\n";
-
-
+  std::cout << kernel->operator()({2.2, 3.3})->toString() << "\n";
 }
 
 TEST(XASMCompilerTester, checkTranslate) {

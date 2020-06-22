@@ -181,6 +181,8 @@ namespace quantum {
     void QppAccelerator::initialize(const HeterogeneousMap& params)
     {
         m_visitor = std::make_shared<QppVisitor>();
+        // Default: no shots (unless otherwise specified)
+        m_shots = -1;
         if (params.keyExists<int>("shots"))
         {
             m_shots = params.get<int>("shots");
@@ -210,57 +212,63 @@ namespace quantum {
             m_visitor->finalize();
         };
 
-
-        if (m_shots < 0)
+        // Not possible to simulate shot count by direct sampling,
+        // e.g. must collapse the state vector.
+        if(!shotCountFromFinalStateVec(compositeInstruction))
         {
-            runCircuit(false);
-        }
-        else
-        {
-           // Not possible to simulate shot count by direct sampling,
-           // e.g. must collapse the state vector.
-           if(!shotCountFromFinalStateVec(compositeInstruction))
-           {
+            if (m_shots < 0)
+            {
+                runCircuit(false);
+            }
+            else
+            {
                 for (int i = 0; i < m_shots; ++i)
                 {
                     runCircuit(true);
                 }
-           }
-           else
-           {
-                // Index of measure bits
-                std::vector<size_t> measureBitIdxs;
-                m_visitor->initialize(buffer);
-                // Walk the IR tree, and visit each node
-                InstructionIterator it(compositeInstruction);
-                while (it.hasNext())
+            }
+        }
+        else
+        {
+            // Index of measure bits
+            std::vector<size_t> measureBitIdxs;
+            m_visitor->initialize(buffer);
+            // Walk the IR tree, and visit each node
+            InstructionIterator it(compositeInstruction);
+            while (it.hasNext())
+            {
+                auto nextInst = it.next();
+                if (nextInst->isEnabled())
                 {
-                    auto nextInst = it.next();
-                    if (nextInst->isEnabled())
+                    if (!isMeasureGate(nextInst))
                     {
-                        if (!isMeasureGate(nextInst))
-                        {
-                            nextInst->accept(m_visitor);
-                        }
-                        else
-                        {
-                            // Just collect the indices of measured qubit
-                            measureBitIdxs.emplace_back(nextInst->bits()[0]);
-                        }
+                        nextInst->accept(m_visitor);
+                    }
+                    else
+                    {
+                        // Just collect the indices of measured qubit
+                        measureBitIdxs.emplace_back(nextInst->bits()[0]);
                     }
                 }
-                
-                // Run bit-string simulation
-                if (!measureBitIdxs.empty())
+            }
+            
+            // Run bit-string simulation
+            if (!measureBitIdxs.empty())
+            {
+                const auto& stateVec = m_visitor->getStateVec();
+                if (m_shots < 0)
                 {
-                    const auto& stateVec = m_visitor->getStateVec();
+                    const double expectedValueZ = QppVisitor::calcExpectationValueZ(stateVec, measureBitIdxs);
+                    buffer->addExtraInfo("exp-val-z", expectedValueZ);
+                }
+                else
+                {
                     // Try multi-threaded execution if there are many shots.
                     const bool multiThreadEnabled = (m_shots > 1024);
                     generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, multiThreadEnabled);
                 }
-
-                m_visitor->finalize();
-           }
+            }
+            m_visitor->finalize();
         }
     }
     

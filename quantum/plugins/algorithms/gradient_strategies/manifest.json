@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_gradient_strategies",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Gradient Strategies",
+  "bundle.description" : ""
+}

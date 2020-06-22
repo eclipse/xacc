@@ -32,7 +32,7 @@ public:
   translate(std::shared_ptr<CompositeInstruction> function) override;
 
   const std::string translate(std::shared_ptr<CompositeInstruction> program,
-                              const HeterogeneousMap &options) override;
+                              HeterogeneousMap &options) override;
 
   const std::string name() const override { return "staq"; }
 

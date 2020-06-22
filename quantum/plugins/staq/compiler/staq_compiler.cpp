@@ -217,6 +217,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   transformations::inline_ast(
       *prog, {false, transformations::default_overrides, "anc"});
 
+//   std::cout <<"PROG: " << *prog << "\n";
   // Visit Program to find out how many qreg there are and
   // use that to build up openqasm xacc function prototype
 
@@ -262,7 +263,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     xx << ") {\n" << translate.ss.str() << "}";
     kernel = xx.str();
   }
-  //   std::cout << "\n\nFinal:\n" << kernel << "\n";
+    // std::cout << "\n\nFinal:\n" << kernel << "\n";
   return xasm->compile(kernel, acc);
 }
 
@@ -307,7 +308,7 @@ StaqCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function) {
 
 const std::string
 StaqCompiler::translate(std::shared_ptr<CompositeInstruction> program,
-                        const HeterogeneousMap &options) {
+                        HeterogeneousMap &options) {
   if (options.stringExists("lang-type")) {
     auto langType = options.getString("lang-type");
 
