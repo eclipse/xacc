@@ -36,16 +36,16 @@ public:
     context.RegisterService<xacc::Algorithm>(c);
 
     auto uccsd = std::make_shared<xacc::algorithm::SingletAdaptedUCCSD>();
-    context.RegisterService<xacc::OperatorPool>(uccsd);
+    context.RegisterService<xacc::algorithm::OperatorPool>(uccsd);
 
     auto qpool = std::make_shared<xacc::algorithm::QubitPool>();
-    context.RegisterService<xacc::OperatorPool>(qpool);
+    context.RegisterService<xacc::algorithm::OperatorPool>(qpool);
 
     auto sqaoa = std::make_shared<xacc::algorithm::SingleQubitQAOA>();
-    context.RegisterService<xacc::OperatorPool>(sqaoa);
+    context.RegisterService<xacc::algorithm::OperatorPool>(sqaoa);
 
     auto mqaoa = std::make_shared<xacc::algorithm::MultiQubitQAOA>();
-    context.RegisterService<xacc::OperatorPool>(mqaoa);
+    context.RegisterService<xacc::algorithm::OperatorPool>(mqaoa);
 
   }
 

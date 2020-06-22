@@ -16,12 +16,26 @@
 #include "Algorithm.hpp"
 #include "Observable.hpp"
 #include "PauliOperator.hpp"
-#include "OperatorPool.hpp"
 
 using namespace xacc::quantum;
 
 namespace xacc{
 namespace algorithm{
+
+class OperatorPool : public Identifiable {
+
+public:
+
+  virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
+
+  virtual std::vector<std::shared_ptr<Observable>>
+  generate(const int &nQubits) = 0;
+
+  virtual std::string operatorString(const int index) = 0;
+
+  virtual std::shared_ptr<CompositeInstruction>
+  getOperatorInstructions(const int opIdx, const int varIdx) const = 0;
+};  
 
 class ADAPT : public Algorithm {
 
@@ -36,7 +50,7 @@ protected:
 
   //ADAPT parameters
   int _maxIter = 50; // max # of ADAPT cycles // # of QAOA layers
-  double _gradThreshold = 1.0e-2; // gradient norm threshold
+  double _adaptThreshold = 1.0e-2; // gradient norm threshold
   double _printThreshold = 1.0e-10; // threshold to print commutator
   bool _printOps = false; // set to true to print operators at every iteration
   int _nElectrons; // # of electrons, used for VQE

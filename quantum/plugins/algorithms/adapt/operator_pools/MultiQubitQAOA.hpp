@@ -19,7 +19,6 @@
 #include "xacc_service.hpp"
 #include "Observable.hpp"
 #include "xacc_observable.hpp"
-#include "OperatorPool.hpp"
 #include "Circuit.hpp"
 #include <memory>
 #include <string>

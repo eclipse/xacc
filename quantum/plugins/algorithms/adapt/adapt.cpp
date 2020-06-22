@@ -48,7 +48,7 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
     return false;
   } 
   
-  if (!parameters.pointerLikeExists<OperatorPool>("pool")){
+  if (!parameters.stringExists("pool")){
     xacc::info("Pool was false\n");
     return false;
   }
@@ -61,15 +61,15 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
   optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
   observable = parameters.get<std::shared_ptr<Observable>>("observable");
   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
-  pool = parameters.get<std::shared_ptr<OperatorPool>>("pool");
+  pool = xacc::getService<OperatorPool>(parameters.getString("pool"));
   subAlgo = parameters.getString("sub-algorithm");
 
   if (parameters.keyExists<int>("maxiter")) {
     _maxIter = parameters.get<int>("maxiter");
   } 
 
-  if (parameters.keyExists<double>("threshold")) {
-    _gradThreshold = parameters.get<double>("threshold");
+  if (parameters.keyExists<double>("adapt-threshold")) {
+    _adaptThreshold = parameters.get<double>("adapt-threshold");
   }
 
   if (parameters.keyExists<double>("print-threshold")) {
@@ -78,14 +78,6 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
 
   if (parameters.keyExists<bool>("print-operators")) {
     _printOps = parameters.get<bool>("print-operators");
-  }
-
-  if (parameters.keyExists<std::vector<double>>("checkpoint-parameters")) {
-    checkpointParams= parameters.get<std::vector<double>>("checkpoint-parameters");
-  }
-
-  if (parameters.keyExists<std::vector<int>>("checkpoint-ops")) {
-    checkpointOps = parameters.get<std::vector<int>>("checkpoint-ops");
   }
 
   if (parameters.stringExists("gradient_strategy")) {
@@ -104,6 +96,12 @@ bool ADAPT::initialize(const HeterogeneousMap &parameters) {
      (subAlgo == "vqe" && !parameters.keyExists<int>("n-electrons"))){
 
       xacc::info("VQE requires number of electrons or initial state.");
+  }
+
+  if (parameters.getString("pool") == "singlet-adapted-uccsd" && 
+      parameters.keyExists<int>("n-electrons")){
+
+      pool->optionalParameters({std::make_pair("n-electrons", _nElectrons)});
   }
 
   // Check if Observable is Fermion or Pauli and manipulate accordingly
@@ -285,7 +283,7 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     xacc::info(ss.str());
     ss.str(std::string());
 
-    if (gradientNorm < _gradThreshold) { // ADAPT converged
+    if (gradientNorm < _adaptThreshold) { // ADAPT converged
 
       xacc::info("ADAPT-" + subAlgo + " converged in " + std::to_string(iter) + " iterations.");
       ss << std::setprecision(12) << "ADAPT-" << subAlgo << " energy: " << oldEnergy << " a.u.";
