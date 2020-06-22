@@ -20,6 +20,7 @@ using namespace rapidjson;
 #include "JsonVisitor.hpp"
 #include "IRProvider.hpp"
 #include "IRToGraphVisitor.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace quantum {
