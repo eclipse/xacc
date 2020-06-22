@@ -1498,7 +1498,7 @@ In Python:
     adapt.execute(buffer)
 
 
- ADAPT-QAOA
+ADAPT-QAOA
 
  .. code:: cpp
 
