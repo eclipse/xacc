@@ -15,6 +15,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <unsupported/Eigen/KroneckerProduct>
+#include <unsupported/Eigen/MatrixFunctions>
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -158,9 +159,14 @@ std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>&
     return in_rawResults;
 }
 
-void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers)
+void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers) const
 {
-    // TODO:
+    // Add a layer:
+    QFAST::PauliReps newLayer;
+    const double initialParam = 1.0 / m_allPaulis[0].size();
+    newLayer.funcValues.assign(m_allPaulis[0].size(), initialParam);
+    newLayer.locValues.assign(m_topology.size(), 0.0);
+    io_currentLayers.emplace_back(std::move(newLayer));
 }
     
 std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Block& in_genericBlock)
@@ -169,7 +175,7 @@ std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Bl
     return nullptr;
 }
  
-std::vector<Eigen::MatrixXcd> QFAST::generateAllPaulis(size_t in_nbQubits, const Topology& in_topology)
+std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nbQubits, const Topology& in_topology)
 {
     // Minimum: 3 qubits
     assert(in_nbQubits > 2);
@@ -178,19 +184,21 @@ std::vector<Eigen::MatrixXcd> QFAST::generateAllPaulis(size_t in_nbQubits, const
     // Get all Paulis
     const auto& paulis = getPaulisMap(in_nbQubits);
 
-    std::vector<Eigen::MatrixXcd> result;
+    std::vector<std::vector<Eigen::MatrixXcd>> result;
     
     for (const auto& pair : in_topology)
     {
         const auto bit1 = pair.first;
         const auto bit2 = pair.second;
+        auto& paulisForPair = result.emplace_back(std::vector<Eigen::MatrixXcd>{});
         for (const auto& op1 : SinglePauliOps)
         {
             for (const auto& op2 : SinglePauliOps)
             {
-                result.emplace_back(paulis[computePauliMapIndex(in_nbQubits, { op1, bit1 }, { op2, bit2 })]);
+                paulisForPair.emplace_back(paulis[computePauliMapIndex(in_nbQubits, { op1, bit1 }, { op2, bit2 })]);
             }
         }
+        assert(result.back().size() == 16);
     }
 
     return result;
@@ -198,8 +206,35 @@ std::vector<Eigen::MatrixXcd> QFAST::generateAllPaulis(size_t in_nbQubits, const
 
 bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const 
 {
+    assert(!io_repsToOpt.empty());
+    // TODO: use gradient-based optimizer (e.g. Adam)
+    // This is currently not possible since we don't know how to calculate the gradients.
+    auto optimizer = xacc::getService<xacc::Optimizer>("nlopt"); 
+    Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+    const size_t nbParamsPerLayer = io_repsToOpt[0].nbParams();
+    const size_t nbParams = io_repsToOpt.size() * nbParamsPerLayer;
+    
+    OptFunction f(
+        [&](const std::vector<double>& x, std::vector<double>& grad) 
+        {
+            std::vector<double> params;
+            size_t idx = 0;
+            for (auto& layer : io_repsToOpt)
+            {
+                params.clear();
+                params.assign(x.begin() + idx * nbParams, x.begin() + (idx + 1) * nbParams);
+                assert(params.size() == nbParamsPerLayer);
+                layer.updateParams(params);
+                idx++;
+                accumU = accumU * layerToUnitaryMatrix(layer);
+            }
+
+            return evaluateCostFunc(accumU);
+        },
+        nbParams);
+    
     // TODO:
-    return false;
+    return true;
 }
 
 
@@ -211,6 +246,36 @@ double QFAST::evaluateCostFunc(const Eigen::MatrixXcd in_U) const
     const auto product = in_U.adjoint() * m_targetU;
     const double traceNorm =  std::norm(product.trace());
     return std::sqrt(1.0 - traceNorm / (d*d));
+}
+
+Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer) const
+{
+    std::vector<Eigen::MatrixXcd> gateMatOfPair;
+    for (size_t i = 0; i < m_topology.size(); ++i)
+    {
+        auto& gateMat = gateMatOfPair.emplace_back(Eigen::MatrixXcd::Zero(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+        const auto& paulis = m_allPaulis[i];
+        assert(paulis.size() == in_layer.funcValues.size());
+        for (size_t j = 0; j < paulis.size(); ++j)
+        {
+            gateMat += (in_layer.funcValues[j] * paulis[j]);
+        }
+    }
+        
+
+    Eigen::MatrixXcd hermMat(Eigen::MatrixXcd::Zero(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+
+    assert(in_layer.locValues.size() == m_topology.size());
+
+    for (size_t i = 0; i < m_topology.size(); ++i)
+    {
+        hermMat += in_layer.locValues[i] * gateMatOfPair[i];
+    }
+
+    hermMat = I * hermMat;
+    // Exponential: exp(i*H)
+    Eigen::MatrixXcd result = hermMat.exp();
+    return result;
 }
 }
 }

@@ -53,6 +53,22 @@ private:
         // F and A lists (see Algo. 2 in https://arxiv.org/pdf/2003.04462.pdf)
         std::vector<double> funcValues;
         std::vector<double> locValues;
+        size_t nbParams() const { return funcValues.size() + locValues.size(); }
+        void updateParams(const std::vector<double>& in_params) {
+            assert(in_params.size() == nbParams());
+            size_t idx = 0;
+            for (auto& funcParam : funcValues)
+            {
+                funcParam = in_params[idx];
+                idx++;
+            }
+
+            for (auto& locParam : locValues)
+            {
+                locParam = in_params[idx];
+                idx++;
+            }
+        }
     };
 
     // Returns decomposed Blocks
@@ -62,20 +78,18 @@ private:
     // Algorithm #4
     std::vector<PauliReps> refine(const std::vector<PauliReps>& in_rawResults);
     // Algorithm #5
-    void addLayer(std::vector<PauliReps>& io_currentLayers);
+    void addLayer(std::vector<PauliReps>& io_currentLayers) const;
 
     std::vector<Block> pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const;
 
     // Gate Instantiation: i.e. KAK
     std::shared_ptr<CompositeInstruction> genericBlockToGates(const Block& in_genericBlock);
     
-    // Pauli Helper:
-    const std::vector<Eigen::MatrixXcd>& getAllPaulis() const { return m_allPaulis; }
     // Generate the list of all Paulis for a particular order (number of qubits)
     // and topology (i.e. qubit pairs)
     // This is the set of matrices that we can use to decompose the target unitary
     // into two-qubit blocks (constrained by the topology)
-    static std::vector<Eigen::MatrixXcd> generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
+    static std::vector<std::vector<Eigen::MatrixXcd>>  generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
     // Evaluate cost function for the input unitary against the target unitary
     double evaluateCostFunc(const Eigen::MatrixXcd in_U) const;
     
@@ -83,10 +97,13 @@ private:
     // The depth is determined by the io_repsToOpt vector,
     // optimization results are updated in-place.
     bool optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const;
+
+    // Compute the Pauli Rep. of a layer to unitary matrix
+    Eigen::MatrixXcd layerToUnitaryMatrix(const PauliReps& in_layer) const;
 private:
     Eigen::MatrixXcd m_targetU;
     // All Pauli tensors
-    std::vector<Eigen::MatrixXcd> m_allPaulis;
+    std::vector<std::vector<Eigen::MatrixXcd>> m_allPaulis;
     size_t m_nbQubits;
     Topology m_topology;
     // Trace/Fidelity distance limit:
