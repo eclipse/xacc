@@ -326,25 +326,33 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
  
       // Instantiate gradient class
       std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
-      if(!gradStrategyName.empty() && subAlgo == "vqe"){
+      std::shared_ptr<Optimizer> newOptimizer;
+      if(!gradStrategyName.empty() && subAlgo == "vqe" && optimizer->isGradientBased()){
+
         gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(gradStrategyName);
         gradientStrategy->optionalParameters({std::make_pair("observable", observable),
                                             std::make_pair("commutator", commutators[maxCommutatorIdx]),
                                             std::make_pair("jw", true)
                                             });
         x.insert(x.begin(), 0.0);
-      } else if (!gradStrategyName.empty() && subAlgo == "QAOA") {
+        newOptimizer = xacc::getOptimizer(optimizer->name(),
+                    {std::make_pair(optimizer->name() + "-optimizer", optimizer->get_algorithm()),
+                    std::make_pair("initial-parameters", x)}); 
+
+      } else if (!gradStrategyName.empty() && subAlgo == "QAOA" && optimizer->isGradientBased()) {
+
         gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(gradStrategyName);
         gradientStrategy->optionalParameters({std::make_pair("observable", observable)});
         x.insert(x.begin(), xacc::constants::pi / 2.0);
+        newOptimizer = xacc::getOptimizer(optimizer->name(),
+              {std::make_pair(optimizer->name() + "-optimizer", optimizer->get_algorithm()),
+              std::make_pair("initial-parameters", x)});     
+
       } else {
         gradientStrategy = nullptr;
+        newOptimizer = xacc::getOptimizer(optimizer->name(),
+            {std::make_pair(optimizer->name() + "-optimizer", optimizer->get_algorithm())});      
       }
-
-      std::shared_ptr<Optimizer> newOptimizer;
-      newOptimizer = xacc::getOptimizer(optimizer->name(),
-                    {std::make_pair(optimizer->name() + "-optimizer", optimizer->get_algorithm()),
-                    std::make_pair("initial-parameters", x)});
 
       // Start subAlgo optimization 
       auto sub_opt = xacc::getAlgorithm(
