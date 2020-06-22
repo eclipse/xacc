@@ -18,7 +18,9 @@
 #include <iostream>
 #include <sstream>
 #include <istream>
+#include <iomanip>
 #include <dirent.h>
+#include "xacc_config.hpp"
 
 #ifdef HAS_LIBUNWIND
 #include <libunwind.h>
@@ -60,6 +62,21 @@ bool directoryExists(const std::string path) {
   }
 
   return bExists;
+}
+
+bool makeDirectory(const std::string& path) {
+  int ret = mkdir(path.c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH);
+  return (ret == 0);
+}
+
+std::string getCurrentTimeForFileName() {
+  auto time = std::time(nullptr);
+  std::stringstream ss;
+  // ISO 8601 without timezone information.
+  ss << std::put_time(std::localtime(&time), "%F_%T"); 
+  auto s = ss.str();
+  std::replace(s.begin(), s.end(), ':', '-');
+  return s;
 }
 
 void print_backtrace() {
@@ -164,19 +181,102 @@ void trim(std::string &s) {
 }
 XACCLogger::XACCLogger()
     : useColor(!RuntimeOptions::instance()->exists("no-color")),
-      useCout(RuntimeOptions::instance()->exists("use-cout")) {
+      useCout(RuntimeOptions::instance()->exists("use-cout")),
+      useFile(RuntimeOptions::instance()->exists("use-file")) {
+  // Create a std::out logger instance
   std::string loggerName = "xacc-logger";
   if (RuntimeOptions::instance()->exists("logger-name")) {
     loggerName = (*RuntimeOptions::instance())["logger-name"];
   }
   auto _log = spdlog::get(loggerName);
   if (_log) {
-    logger = _log;
+    stdOutLogger = _log;
   } else {
-    logger = spdlog::stdout_logger_mt(loggerName);
+    stdOutLogger = spdlog::stdout_logger_mt(loggerName);
   }
 
-  logger->set_level(spdlog::level::info);
+  stdOutLogger->set_level(spdlog::level::info);
+}
+
+void XACCLogger::createFileLogger() {
+  // Create a file logger instance
+  std::string loggerName = "xacc-file-logger";
+  auto _log = spdlog::get(loggerName);
+  if (_log) {
+    fileLogger = _log;
+  } else {
+    const std::string rootPath(XACC_INSTALL_DIR);
+    // We'll put the log file (timestamped) to the "logs" sub-directory:
+    std::string logDir = rootPath + "/logs";
+    if (!directoryExists(logDir)) {
+      if (!makeDirectory(logDir)) {
+        // Cannot make the directory, use the current directory instead.
+        logDir = "";
+      }
+    }
+
+    const std::string DEFAULT_FILE_NAME_PREFIX = "xacc_log_";
+    const std::string DEFAULT_FILE_NAME_POSTFIX = ".txt";
+    const std::string fileName = DEFAULT_FILE_NAME_PREFIX + getCurrentTimeForFileName() + DEFAULT_FILE_NAME_POSTFIX;
+    // Create a file logger using the timestamped filename in the logs folder.
+    fileLogger = spdlog::basic_logger_mt(loggerName, logDir + "/" + fileName);
+  }
+
+  fileLogger->set_level(spdlog::level::info);
+}
+
+void XACCLogger::logToFile(bool enable) {
+  // Switching the current setting
+  if (enable != useFile) {
+    // Always dump any enqueued messages before switching.
+    dumpQueue();
+    // Set runtime *useFile* flag, this will redirect 
+    // log message to the appropriate logger.
+    useFile = enable;
+  }
+}
+
+void XACCLogger::setLoggingLevel(int level) {
+  if (level < 0 || level > 2) {
+    // Ignored
+    return;
+  }
+  // Converted the level to the spd-log enum
+  if (level == 0) {
+    // Warning and above
+    getLogger()->set_level(spdlog::level::warn);
+  }
+
+  if (level == 1) {
+    // Info and above
+    getLogger()->set_level(spdlog::level::info);
+  }
+
+  if (level == 2) {
+    // Debug and above
+    getLogger()->set_level(spdlog::level::debug);
+  }
+
+  // Notify subscribers
+  for (const auto& callback : loggingLevelSubscribers) {
+    try {
+      callback(level);
+    }
+    catch (...) {
+      // Do nothing. This is to prevent any rogue subscribers.
+    }
+  }
+}
+
+int XACCLogger::getLoggingLevel() {
+  const auto spdLevel = getLogger()->level();
+  switch (spdLevel) {
+  case spdlog::level::trace:
+  case spdlog::level::debug: return 2;
+  case spdlog::level::info: return 1;
+  default:
+    return 0;
+  }
 }
 
 void XACCLogger::info(const std::string &msg, MessagePredicate predicate) {
@@ -190,10 +290,10 @@ void XACCLogger::info(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;34m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;34m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -210,10 +310,10 @@ void XACCLogger::warning(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;33m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;33m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -230,10 +330,10 @@ void XACCLogger::debug(const std::string &msg, MessagePredicate predicate) {
     }
   } else {
     if (predicate() && globalPredicate()) {
-      if (useColor) {
-        logger->info("\033[1;32m" + msg + "\033[0m");
+      if (useColor & !useFile) {
+        getLogger()->info("\033[1;32m" + msg + "\033[0m");
       } else {
-        logger->info(msg);
+        getLogger()->info(msg);
       }
     }
   }
@@ -244,9 +344,30 @@ void XACCLogger::error(const std::string &msg, MessagePredicate predicate) {
       std::cerr << msg << "\n";
   } else {
     if (predicate() && globalPredicate()) {
-      logger->error("\033[1;31m[XACC Error] " + msg + "\033[0m");
+      getLogger()->error("\033[1;31m[XACC Error] " + msg + "\033[0m");
     }
   }
 }
 
+ScopeTimer::ScopeTimer(const std::string& scopeName, bool shouldLog):
+  m_startTime(std::chrono::system_clock::now()),
+  m_shouldLog(shouldLog),
+  m_scopeName(scopeName)
+  {
+    if (m_shouldLog) {
+      XACCLogger::instance()->info("'" + scopeName + "' started.");
+    }
+  }
+
+double ScopeTimer::getDurationMs() const {
+  return static_cast<double>(
+    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - m_startTime).count()/1000.0);
+}
+
+ScopeTimer::~ScopeTimer() {
+  const double elapsedTime = getDurationMs();
+  if (m_shouldLog) {
+    XACCLogger::instance()->info("'" + m_scopeName + "' finished [" + std::to_string(elapsedTime) + " ms].");
+  }
+}
 } // namespace xacc

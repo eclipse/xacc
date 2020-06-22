@@ -18,7 +18,6 @@
 #include "InstructionIterator.hpp"
 #include "Utils.hpp"
 #include "expression_parsing_util.hpp"
-#include "xacc_service.hpp"
 #include <limits>
 #include <memory>
 #include <stdexcept>

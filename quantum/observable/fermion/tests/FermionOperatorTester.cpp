@@ -71,14 +71,18 @@ TEST(FermionOperatorTester, checkFromStr2) {
 }
 
 TEST(FermionOperatorTester, checkSciNot) {
-    std::string src = "(1.234e-4, 0) 0^ 1^ 0 1";
-    FermionOperator op(src);
-    std::cout << op.toString() << "\n";
+    std::string src = "1.234e-10 0^ 1^ 3 2";
+    FermionOperator op1(src);
+    std::cout << op1.toString() << "\n";
+
+    src = "(1.234e-10,0) 0^ 1^ 3 2";
+    FermionOperator op2(src);
+    std::cout << op2.toString() << "\n";
 }
 
 
 TEST(FermionOperatorTester, checkMult) {
-    //FermionOperator op1("(-0.5,0)  3^ 2^ 0 1 + (0.5,-0)  1^ 0^ 2 3 + (0.5,-0)  0^ 1^ 3 2 + (0.5,0)  2^ 3^ 0 1 + (0.5,0)  3^ 3^ 1 1 + (-0.5,0)  1^ 1^ 3 3 + (-0.5,0)  1^ 0^ 3 2 + (-0.5,0)  2^ 3^ 1 0"), op2("(0.708024, 0)");
+    FermionOperator op3("(-0.5,0)  3^ 2^ 0 1 + (0.5,-0)  1^ 0^ 2 3 + (0.5,-0)  0^ 1^ 3 2 + (0.5,0)  2^ 3^ 0 1 + (0.5,0)  3^ 3^ 1 1 + (-0.5,0)  1^ 1^ 3 3 + (-0.5,0)  1^ 0^ 3 2 + (-0.5,0)  2^ 3^ 1 0"), op4("(0.708024, 0)");
     FermionOperator op1("3^ 2^ 3 2"), op2("0^ 3 1^ 2");
 
     for (auto b : op1.getTerms()){std::cout << "First " << b.second.id() << "\n";}
@@ -98,6 +102,8 @@ TEST(FermionOperatorTester, checkMult) {
     //auto mult = op1.getTerms().second * op2.getTerms().second;
 
     std::cout << "Print op =" << (op1*op2).toString() << "\n\n";
+
+    std::cout << op3.toString() << "\n";
 }
 
 int main(int argc, char** argv) {
