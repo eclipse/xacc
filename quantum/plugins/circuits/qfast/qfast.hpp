@@ -39,7 +39,7 @@ private:
     
     // Topology is a list of qubit pairs which we will apply decomposed gates.
     using Topology = std::vector<std::pair<size_t, size_t>>;
-    
+    using TopologyPaulis = std::vector<std::vector<Eigen::MatrixXcd>>;
     struct Block 
     {
         // Qubit indices
@@ -71,6 +71,19 @@ private:
         }
     };
 
+    // Location model: to convert generic PauliReps into
+    // fixed location (a pair of qubits)
+    struct LocationModel
+    {
+        LocationModel(size_t in_nbQubits);
+        // Returns *fixed* locations
+        std::vector<std::pair<size_t, size_t>> fixLocations(const std::vector<PauliReps>& in_repsToFix) const;
+        size_t nbQubits;
+        Topology locations;
+        std::pair<Topology, Topology> buckets;
+        std::pair<TopologyPaulis, TopologyPaulis> bucketPaulis;
+    };
+
     // Returns decomposed Blocks
     std::vector<Block> decompose();
     // Algorithm #3
@@ -78,7 +91,7 @@ private:
     // Algorithm #4
     std::vector<PauliReps> refine(const std::vector<PauliReps>& in_rawResults);
     // Algorithm #5
-    void addLayer(std::vector<PauliReps>& io_currentLayers) const;
+    void addLayer(std::vector<PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const;
 
     std::vector<Block> pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const;
 
@@ -99,15 +112,16 @@ private:
     bool optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const;
 
     // Compute the Pauli Rep. of a layer to unitary matrix
-    Eigen::MatrixXcd layerToUnitaryMatrix(const PauliReps& in_layer) const;
+    Eigen::MatrixXcd layerToUnitaryMatrix(const PauliReps& in_layer, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const;
 private:
     Eigen::MatrixXcd m_targetU;
     // All Pauli tensors
-    std::vector<std::vector<Eigen::MatrixXcd>> m_allPaulis;
+    // std::vector<std::vector<Eigen::MatrixXcd>> m_allPaulis;
     size_t m_nbQubits;
-    Topology m_topology;
+    // Topology m_topology;
     // Trace/Fidelity distance limit:
     double m_distanceLimit;
+    std::shared_ptr<LocationModel> m_locationModel;
 };
 
 } // namespace circuits

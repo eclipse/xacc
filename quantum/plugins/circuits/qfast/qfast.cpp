@@ -76,6 +76,27 @@ size_t computePauliMapIndex(size_t in_nbQubits, const std::pair<PauliOp, size_t>
     return opToIndx(in_op1) + opToIndx(in_op2);
 }
 
+std::vector<std::pair<size_t, size_t>> qubitPairCombinations(size_t N)
+{
+    std::string bitmask(2, 1);
+    bitmask.resize(N, 0); 
+    std::vector<std::pair<size_t, size_t>> result;
+    do 
+    {
+        std::vector<size_t> bits;
+        for (size_t i = 0; i < N; ++i) 
+        {
+            if (bitmask[i]) 
+            {
+                bits.emplace_back(i); 
+            }
+        }
+        assert(bits.size() == 2);
+        result.emplace_back(std::make_pair(bits[0], bits[1]));
+    } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+    
+    return result;
+}
 }
 
 namespace xacc {
@@ -88,7 +109,7 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
 {
     // !! TEMP CODE !!
     m_nbQubits = 3;
-    m_topology = { { 0, 1}, { 1, 2} };
+    // m_topology = { { 0, 1}, { 1, 2} };
     // CCNOT gate:
     m_targetU = Eigen::MatrixXcd::Identity(8, 8);
     m_targetU(6, 6) = 0.0;
@@ -101,8 +122,8 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     // !! TEMP CODE !!
 
     // Generate and cache the Pauli decompose basis:
-    m_allPaulis = generateAllPaulis(m_nbQubits, m_topology);
-    
+    // m_allPaulis = generateAllPaulis(m_nbQubits, m_topology);
+    m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
     for (const auto& block : decomposedResult)
     {
@@ -137,7 +158,9 @@ std::vector<QFAST::Block> QFAST::pauliRepsToBlocks(const std::vector<PauliReps>&
 std::vector<QFAST::PauliReps> QFAST::explore()
 {
     std::vector<QFAST::PauliReps> layers;
-    addLayer(layers);
+    bool alternativeLayer = false;
+    
+    addLayer(layers, m_locationModel->buckets.first, m_locationModel->bucketPaulis.first);
     // Coarse limit during exploration:
     const double EXPLORE_PHASE_TARGET_DISTANCE = 100 * m_distanceLimit;
     // Infinite loop
@@ -150,8 +173,12 @@ std::vector<QFAST::PauliReps> QFAST::explore()
         }
         else
         {
+            alternativeLayer = !alternativeLayer;
+            const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+            const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+
             // Add one more layer
-            addLayer(layers);
+            addLayer(layers, topology, topologyPauli);
         }
     }
     
@@ -160,18 +187,24 @@ std::vector<QFAST::PauliReps> QFAST::explore()
 
 std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>& in_rawResults)
 {
+    const auto fixedLoc = m_locationModel->fixLocations(in_rawResults);
+
+    
     // TODO:
     return in_rawResults;
 }
 
-void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers) const
+void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const
 {
+    assert(in_layerTopology.size() == in_topologyPaulis.size());
+    assert(!in_layerTopology.empty());
+    
     std::cout << "Add a layer. Number of layers = " << io_currentLayers.size() + 1 << "\n"; 
     // Add a layer:
     QFAST::PauliReps newLayer;
-    const double initialParam = 1.0 / m_allPaulis[0].size();
-    newLayer.funcValues.assign(m_allPaulis[0].size(), initialParam);
-    newLayer.locValues.assign(m_topology.size(), 1.0);
+    const double initialParam = 1.0 / in_topologyPaulis[0].size();
+    newLayer.funcValues.assign(in_topologyPaulis[0].size(), initialParam);
+    newLayer.locValues.assign(in_layerTopology.size(), 1.0);
     io_currentLayers.emplace_back(std::move(newLayer));
 }
     
@@ -185,8 +218,7 @@ std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nb
 {
     // Minimum: 3 qubits
     assert(in_nbQubits > 2);
-    // Must have at least 2 pairs of connected qubits.
-    assert(in_topology.size() > 1);
+    
     // Get all Paulis
     const auto& paulis = getPaulisMap(in_nbQubits);
 
@@ -213,17 +245,18 @@ std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nb
 bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targetDistance) const 
 {
     assert(!io_repsToOpt.empty());
-    const size_t nbParamsPerLayer = io_repsToOpt[0].nbParams();
-    const size_t nbParams = io_repsToOpt.size() * nbParamsPerLayer;
-    const int maxEval = nbParams * 100;
-    
-    std::vector<double> initialParams;
+   
+    int nbParams = 0;
+    std::vector<double> initialParams; 
     for (const auto& layer : io_repsToOpt)
     {
         initialParams.insert(initialParams.end(), layer.funcValues.begin(), layer.funcValues.end());
         initialParams.insert(initialParams.end(), layer.locValues.begin(), layer.locValues.end());
+        nbParams += layer.nbParams();
     }
     
+    const int maxEval = nbParams * 100;
+
     // TODO: use gradient-based optimizer (e.g. Adam)
     // This is currently not possible since we don't know how to calculate the gradients.
     auto optimizer = xacc::getOptimizer("nlopt", 
@@ -238,14 +271,20 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
             Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
             std::vector<double> params;
             size_t idx = 0;
+            bool alternativeLayer = false;
+            size_t paramIdx = 0;
             for (auto& layer : io_repsToOpt)
             {
                 params.clear();
-                params.assign(x.begin() + idx * nbParamsPerLayer, x.begin() + (idx + 1) * nbParamsPerLayer);
-                assert(params.size() == nbParamsPerLayer);
+                params.assign(x.begin() + paramIdx, x.begin() + paramIdx + layer.nbParams());
+                assert(params.size() == layer.nbParams());
+                paramIdx += params.size();
                 layer.updateParams(params);
                 idx++;
-                accumU = accumU * layerToUnitaryMatrix(layer);
+                const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+                const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+                accumU = accumU * layerToUnitaryMatrix(layer, topology, topologyPauli);
+                alternativeLayer = !alternativeLayer;
             }
 
             const double costValue = evaluateCostFunc(accumU);
@@ -261,11 +300,14 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     // when adding a new layer.
     std::vector<double> optParams;
     int idx = 0;
+    size_t paramIdx = 0;
+
     for (auto& layer : io_repsToOpt)
     {
         optParams.clear();
-        optParams.assign(result.second.begin() + idx * nbParamsPerLayer, result.second.begin() + (idx + 1) * nbParamsPerLayer);
-        assert(optParams.size() == nbParamsPerLayer);
+        optParams.assign(result.second.begin() + paramIdx, result.second.begin() + paramIdx + layer.nbParams());
+        assert(optParams.size() == layer.nbParams());
+        paramIdx += layer.nbParams();
         layer.updateParams(optParams);
         idx++;
     }
@@ -284,13 +326,13 @@ double QFAST::evaluateCostFunc(const Eigen::MatrixXcd in_U) const
     return std::sqrt(1.0 - traceNorm / (d*d));
 }
 
-Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer) const
+Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const
 {
     std::vector<Eigen::MatrixXcd> gateMatOfPair;
-    for (size_t i = 0; i < m_topology.size(); ++i)
+    for (size_t i = 0; i < in_layerTopology.size(); ++i)
     {
         auto& gateMat = gateMatOfPair.emplace_back(Eigen::MatrixXcd::Zero(1ULL << m_nbQubits, 1ULL << m_nbQubits));
-        const auto& paulis = m_allPaulis[i];
+        const auto& paulis = in_topologyPaulis[i];
         assert(paulis.size() == in_layer.funcValues.size());
         for (size_t j = 0; j < paulis.size(); ++j)
         {
@@ -301,9 +343,9 @@ Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer) const
 
     Eigen::MatrixXcd hermMat(Eigen::MatrixXcd::Zero(1ULL << m_nbQubits, 1ULL << m_nbQubits));
 
-    assert(in_layer.locValues.size() == m_topology.size());
+    assert(in_layer.locValues.size() == in_layerTopology.size());
 
-    for (size_t i = 0; i < m_topology.size(); ++i)
+    for (size_t i = 0; i < in_layerTopology.size(); ++i)
     {
         hermMat += in_layer.locValues[i] * gateMatOfPair[i];
     }
@@ -313,5 +355,39 @@ Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer) const
     Eigen::MatrixXcd result = hermMat.exp();
     return result;
 }
+
+QFAST::LocationModel::LocationModel(size_t in_nbQubits):
+    nbQubits(in_nbQubits),
+    locations(qubitPairCombinations(in_nbQubits))
+{
+    std::size_t const halfSize = locations.size() / 2;
+    Topology firstHalf(locations.begin(), locations.begin() + halfSize);
+    Topology secondHalf(locations.begin() + halfSize, locations.end());
+    buckets = std::make_pair(firstHalf, secondHalf);
+    bucketPaulis = std::make_pair(generateAllPaulis(nbQubits, buckets.first), generateAllPaulis(nbQubits, buckets.second));
+}
+
+std::vector<std::pair<size_t, size_t>> QFAST::LocationModel::fixLocations(const std::vector<PauliReps>& in_repsToFix) const
+{
+    std::vector<std::pair<size_t, size_t>>  result;
+    bool alternativeLayer = false;
+    
+    for (const auto& layer : in_repsToFix)
+    {
+        const auto& topology = alternativeLayer ? buckets.second : buckets.first;
+        const auto& topologyPauli = alternativeLayer ? bucketPaulis.second : bucketPaulis.first;
+        assert(topology.size() == layer.locValues.size());
+        assert(topologyPauli[0].size() == layer.funcValues.size());
+
+        const auto& locVals = layer.locValues;
+        const auto locIdx = std::distance(locVals.begin(), std::max_element(locVals.begin(), locVals.end()));
+        alternativeLayer = !alternativeLayer;
+        result.emplace_back(topology[locIdx]);
+    }
+
+    return result;
+}
+
+
 }
 }
