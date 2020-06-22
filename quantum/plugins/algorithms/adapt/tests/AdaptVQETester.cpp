@@ -21,7 +21,6 @@
 #include "PauliOperator.hpp"
 #include "xacc_observable.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-#include "OperatorPool.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -36,8 +35,7 @@ TEST(AdaptTesterVQE, checkAdaptVQE) {
   auto optimizer_vqe = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer", "l-bfgs")});
   auto adapt_vqe = xacc::getService<xacc::Algorithm>("adapt");
   int nElectrons = 2;
-  auto pool_vqe = xacc::getService<OperatorPool>("qubit-pool");
-  //pool->optionalParameters({std::make_pair("n-electrons", 2)});
+  auto pool_vqe = "qubit-pool";
   auto subAlgo_vqe = "vqe"; 
 
   auto str = std::string("(-0.165606823582,-0)  1^ 2^ 1 2 + (0.120200490713,0)  1^ 0^ 0 1 + "

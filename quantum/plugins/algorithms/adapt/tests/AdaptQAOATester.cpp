@@ -21,7 +21,6 @@
 #include "PauliOperator.hpp"
 #include "xacc_observable.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-#include "OperatorPool.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -34,7 +33,7 @@ TEST(AdaptTesterQAOA, checkAdaptQAOA) {
   auto buffer_qaoa = xacc::qalloc(4);
   auto optimizer_qaoa = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer", "l-bfgs")});
   auto adapt_qaoa = xacc::getService<xacc::Algorithm>("adapt");
-  auto pool_qaoa = xacc::getService<OperatorPool>("multi-qubit-qaoa");
+  auto pool_qaoa = "multi-qubit-qaoa";
   auto subAlgo_qaoa = "QAOA"; 
 
   auto H_qaoa = xacc::quantum::getObservable(

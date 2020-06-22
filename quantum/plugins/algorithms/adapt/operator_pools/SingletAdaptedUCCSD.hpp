@@ -19,7 +19,6 @@
 #include "Observable.hpp"
 #include "xacc_observable.hpp"
 #include "FermionOperator.hpp"
-#include "OperatorPool.hpp"
 #include "Circuit.hpp"
 #include "ObservableTransform.hpp"
 #include <memory>
