@@ -12,4 +12,4 @@
 # *******************************************************************************/
 
 add_xacc_test(AerAccelerator)
-target_link_libraries(AerAcceleratorTester xacc)
+target_link_libraries(AerAcceleratorTester xacc xacc-quantum-gate)

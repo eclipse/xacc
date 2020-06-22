@@ -111,6 +111,22 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
   XACCLogger::instance()->dumpQueue();
 }
 
+void logToFile(bool enable) {
+  XACCLogger::instance()->logToFile(enable);
+}
+
+void setLoggingLevel(int level) {
+  XACCLogger::instance()->setLoggingLevel(level);
+}
+
+int getLoggingLevel() {
+  return XACCLogger::instance()->getLoggingLevel();
+}
+
+void subscribeLoggingLevel(LoggingLevelNotification callback) {
+  XACCLogger::instance()->subscribeLoggingLevel(callback);
+}
+
 void info(const std::string &msg, MessagePredicate predicate) {
   if (verbose) XACCLogger::instance()->info(msg, predicate);
 }

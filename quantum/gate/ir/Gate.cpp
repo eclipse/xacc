@@ -29,7 +29,7 @@ Gate::Gate(std::string name, std::vector<std::size_t> qubts,
     : gateName(name), qbits(qubts), parameters(params) {}
 Gate::Gate(const Gate &inst)
     : gateName(inst.gateName), qbits(inst.qbits), parameters(inst.parameters),
-      arguments(inst.arguments), enabled(inst.enabled) {}
+      arguments(inst.arguments), enabled(inst.enabled), buffer_names(inst.buffer_names) {}
 
 const std::string Gate::name() const { return gateName; }
 const std::string Gate::description() const {

@@ -11,7 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #pragma once
-
+#include "xacc.hpp"
 #include "AllGateVisitor.hpp"
 using namespace xacc::quantum;
 
