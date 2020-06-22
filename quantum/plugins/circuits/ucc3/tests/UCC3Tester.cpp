@@ -13,6 +13,7 @@
 #include "xacc.hpp"
 #include <gtest/gtest.h>
 #include "Circuit.hpp"
+#include "xacc_service.hpp"
 
 using namespace xacc;
 

@@ -26,13 +26,16 @@ RUN apt-get update && \
                        python3-pip \
                        libblas-dev liblapack-dev \
                        libcurl4-openssl-dev libssl-dev \
-                       vim gcc g++ gfortran \
+                       vim gcc-8 g++-8 gfortran-8 \
                        wget \
                        xz-utils && python3 -m pip install --upgrade pip --user \
                        && python3 -m pip install setuptools \
                        && python3 -m pip install python-language-server flake8 autopep8 \
                                 cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib \
     && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 50 \
+    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 50 \
 
 #Install node and yarn
 #From: https://github.com/nodejs/docker-node/blob/6b8d86d6ad59e0d1e7a94cec2e909cad137a028f/8/Dockerfile

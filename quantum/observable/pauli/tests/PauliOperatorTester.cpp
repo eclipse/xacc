@@ -469,7 +469,9 @@ TEST(PauliOperatorTester, checkCommutes) {
 TEST(PauliOperatorTester, checkSciNot) {
   PauliOperator op;
   op.fromString("(1.234e-4, 0) Z0");
+  std::cout << op.toString() << "\n";
 
+  op.fromString("1.234e-4 Z0");
   std::cout << op.toString() << "\n";
 
 }

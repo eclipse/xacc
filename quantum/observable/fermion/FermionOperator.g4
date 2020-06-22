@@ -12,11 +12,11 @@ op : INT carat?;
 
 carat : '^';
 
-coeff : complex | real;
+coeff : complex | real ;
 
 complex : '('(real | INT | scientific)','(real | INT | scientific)')';
 
-real : REAL;
+real : REAL | scientific;
 
 comment : COMMENT;
 
