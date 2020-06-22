@@ -77,6 +77,21 @@ public:
     
   }
 
+  const bool isGradientBased() const {
+
+    if(name() == "nlopt" && !options.stringExists(name() + "-optimizer")){
+      return false;
+    }
+
+    if(options.getString(name() + "-optimizer") == "cobyla" ||
+      options.getString(name() + "-optimizer") == "nelder-mead") {
+        return false;
+    }
+
+    return true;
+
+  }
+
 };
 } // namespace xacc
 #endif

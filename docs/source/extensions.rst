@@ -1338,8 +1338,8 @@ In Python:
 
 ADAPT
 ++++
-The Quantum Imaginary Time Evolution (QITE) Algorithm requires the following input information:
-(`Motta et al. (2020) <https://arxiv.org/pdf/1901.07653.pdf>`_)
+The Adaptive Derivative Assembled Problem Tailored (ADAPT) Algorithm requires the following input information:
+(`Grismley et al. (2018) <https://arxiv.org/pdf/1812.11173.pdf>`_, `Tang et al. (2019) <https://arxiv.org/pdf/1911.10205.pdf>`_, `Zhu et al. (2020) <https://arxiv.org/pdf/2005.10258.pdf>`_)
 
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
 |  Algorithm Parameter   |                  Parameter Description                          |             type                     |
