@@ -1,5 +1,6 @@
 import xacc,sys, numpy as np
 
+xacc.set_verbose(True)
 # Get access to the desired QPU and
 # allocate some qubits to run on
 qpu = xacc.getAccelerator('qpp')
@@ -27,14 +28,15 @@ nbTotalParams = nbParamsPerStep * nbSteps
 initParams = np.random.rand(nbTotalParams)
 
 # The optimizer: nlopt
-opt = xacc.getOptimizer('nlopt', { 'initial-parameters': initParams })
+opt = xacc.getOptimizer('nlopt', { 'initial-parameters': initParams , 'nlopt-optimizer':'l-bfgs'} )
 
 # Create the QAOA algorithm
 qaoa = xacc.getAlgorithm('QAOA', {
                         'accelerator': qpu,
                         'observable': ham,
                         'optimizer': opt,
-                        'steps': nbSteps
+                        'steps': nbSteps,
+                        'gradient_strategy': 'parameter-shift-gradient'
                         })
 
 result = qaoa.execute(buffer)
