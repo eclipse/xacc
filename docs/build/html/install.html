@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,27 +11,29 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Basics" href="basics.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> XACC
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> XACC
           
 
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -108,6 +110,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -146,7 +149,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Installation</li>
     
@@ -177,8 +180,11 @@ headers and libraries.</p>
 <div class="section" id="quick-start-with-docker">
 <h2>Quick-Start with Docker<a class="headerlink" href="#quick-start-with-docker" title="Permalink to this headline">¶</a></h2>
 <p>To get up and running quickly and avoid installing the prerequisites you can
-pull the <code class="docutils literal notranslate"><span class="pre">xacc/dev</span></code> Docker image (see <a class="reference external" href="https://xacc.readthedocs.io/en/latest/developers.html#quick-start-with-docker">here</a> for instructions).
-Once you have the IDE up and running, you can skip down to <a class="reference external" href="https://xacc.readthedocs.io/en/latest/install.html#build-xacc">cloning XACC</a>.</p>
+pull the <code class="docutils literal notranslate"><span class="pre">xacc/xacc</span></code> Docker image
+(see <a class="reference external" href="https://xacc.readthedocs.io/en/latest/developers.html#quick-start-with-docker">here</a> for instructions).
+This image provides an Ubuntu 18.04 container that serves up an Eclipse Theia IDE. XACC is already
+built and ready to go. Moreover, there are several variants: <code class="docutils literal notranslate"><span class="pre">xacc/xacc-tnqvm-exatn</span></code>, and <code class="docutils literal notranslate"><span class="pre">xacc/xacc-quac</span></code> to
+name a few.</p>
 </div>
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
@@ -230,10 +236,26 @@ $ sudo python3 -m pip install cmake
 </div>
 <div class="section" id="mac-os-x">
 <h3>Mac OS X<a class="headerlink" href="#mac-os-x" title="Permalink to this headline">¶</a></h3>
-<p>Ensure that you have XCode command utilities installed. A common issue seen is missing
-standard includes like <cite>wchar.h</cite> and others. See <a class="reference external" href="https://stackoverflow.com/a/52530212">here</a>
-for proper XCode install and configuring to address these types of issues. Here we assume you
-have Homebrew installed.</p>
+<p>On Mac OS X, we recommend our users install GCC 8 via Homebrew instead of relying
+on XCode command line tools installation and the default Apple Clang compilers</p>
+<p>Too often we see our users on Mac with issues regarding missing standard includes like <cite>wchar.h</cite> and others.
+This is ultimately due to an improper install of XCode (see <a class="reference external" href="https://stackoverflow.com/a/52530212">here</a>).
+If you do not see these issues with Apple Clang, feel free to use it, XACC will build fine. But if you
+do see these issues, the easiest thing to do is to use Homebrew GCC 8.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ brew install gcc@8
+$ <span class="nb">export</span> <span class="nv">CC</span><span class="o">=</span>gcc-8
+$ <span class="nb">export</span> <span class="nv">CXX</span><span class="o">=</span>g++-8
+</pre></div>
+</div>
+<p>Note these last exports are very important. You could also run CMake (see below) with these
+variables set</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nv">CC</span><span class="o">=</span>gcc-8 <span class="nv">CXX</span><span class="o">=</span>g++-8 cmake ..
+</pre></div>
+</div>
+<p>You will need to make sure to do this for all plugins / projects that build off of XACC.
+You will see errors if you accidentally build other projects leveraging XACC (like tnqvm)
+with compilers different than what was used to build XACC.</p>
+<p>You will also need the following 3rd party dependencies</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ brew install python3 openssl curl
 </pre></div>
 </div>
@@ -293,11 +315,19 @@ $ make -j<span class="k">$(</span>nproc --all<span class="k">)</span> install
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Alex McCaskey
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -308,7 +338,6 @@ $ make -j<span class="k">$(</span>nproc --all<span class="k">)</span> install
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
