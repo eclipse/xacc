@@ -9,6 +9,7 @@ namespace {
 constexpr int DEFAULT_NUMBER_STEPS = 10000;
 const std::complex<double> I(0.0, 1.0);
 
+using namespace xacc;
 class RungeKutta
 {
 public:
@@ -102,6 +103,7 @@ Matrix kron(const Matrix& in_mat1, const Matrix& in_mat2)
 }
 }
 
+namespace xacc {
 Matrix GOAT_PulseOptim::constructMatrixFromPauliString(const std::string& in_pauliString, int in_dimension)
 {
     auto hamiltonianOps = std::static_pointer_cast<xacc::quantum::PauliOperator>(xacc::quantum::getObservable("pauli", in_pauliString));
@@ -446,8 +448,6 @@ void GOAT_PulseOptim::MLPackGradientStepper::optimize(xacc::OptFunction* io_prob
 
     optimizer->optimize(*io_problem);
 }
-
-namespace xacc {
 
 // ============= GOAT ==========================
 // - Required: { "dimension" : int } : system dimension (number of qubits)
