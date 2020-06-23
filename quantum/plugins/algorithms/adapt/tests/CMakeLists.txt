@@ -13,3 +13,5 @@
 include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(AdaptVQE)
 target_link_libraries(AdaptVQETester xacc xacc-pauli xacc-quantum-gate) 
+add_xacc_test(AdaptQAOA)
+target_link_libraries(AdaptQAOATester xacc xacc-pauli xacc-quantum-gate) 
