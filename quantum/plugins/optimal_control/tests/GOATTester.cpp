@@ -4,6 +4,7 @@
 #include "GOAT.hpp"
 #include "exprtk.hpp"
 
+using namespace xacc;
 using symbol_table_t = exprtk::symbol_table<double>;
 using expression_t = exprtk::expression<double>;
 using parser_t = exprtk::parser<double>;
