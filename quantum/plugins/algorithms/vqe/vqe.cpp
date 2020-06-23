@@ -14,6 +14,7 @@
 
 #include "Observable.hpp"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 #include <memory>
 #include <iomanip>
@@ -49,8 +50,21 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
   // if gradient is provided
   if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
       "gradient_strategy")){
-    gradientStrategy = parameters.getPointerLike<AlgorithmGradientStrategy>(
+    gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>(
       "gradient_strategy");
+  }
+
+  if (parameters.stringExists("gradient_strategy") && 
+      !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
+       optimizer->isGradientBased()){
+    gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
+    gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(observable))});
+  }
+
+  if ((parameters.stringExists("gradient_strategy") || 
+      parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy")) &&
+      !optimizer->isGradientBased()){
+    xacc::warning("Chosen optimizer does not support gradients. Using default.");
   }
 
   return true;
