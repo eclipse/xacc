@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include "OptimalControl.hpp"
 
+namespace xacc {
 struct GrapeConfigs
 {
     // targetU: Target unitary evolution operator.
@@ -41,7 +42,6 @@ private:
     std::vector<Eigen::MatrixXcd> m_uMats; 
 };
 
-namespace xacc {
 // Public GRAPE pulse optimization interface
 class PulseOptimGRAPE : public Optimizer
 {   
