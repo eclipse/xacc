@@ -3,10 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-XACC Documentation
-==================
+.. image:: ../assets/xacc_full_logo.svg
 
-.. image:: ../assets/xacc-readme.jpg
 
 Overview
 ---------

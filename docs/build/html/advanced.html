@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,27 +11,29 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Developers" href="developers.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> XACC
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> XACC
           
 
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -92,6 +94,15 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#acceleratorbuffer-execution-data">AcceleratorBuffer Execution Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#error-mitigation">Error Mitigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pulse-level-programming">Pulse-level Programming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pulse-level-results-in-acceleratorbuffer">Pulse-level results in AcceleratorBuffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lab-frame-vs-rotating-frame">Lab-frame vs. Rotating frame</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initial-population-qubit-decay">Initial Population &amp; Qubit Decay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#higher-dimensional-systems">Higher-dimensional systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pulse-level-ir-transformation">Pulse-level IR Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enable-mpi">Enable MPI</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers.html">Developers</a></li>
@@ -100,6 +111,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,7 +150,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Advanced</li>
     
@@ -167,6 +179,196 @@
 <div class="section" id="error-mitigation">
 <h2>Error Mitigation<a class="headerlink" href="#error-mitigation" title="Permalink to this headline">¶</a></h2>
 </div>
+<div class="section" id="pulse-level-programming">
+<h2>Pulse-level Programming<a class="headerlink" href="#pulse-level-programming" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pulse-level-results-in-acceleratorbuffer">
+<h3>Pulse-level results in AcceleratorBuffer<a class="headerlink" href="#pulse-level-results-in-acceleratorbuffer" title="Permalink to this headline">¶</a></h3>
+<p>By default, if using the QuaC simulator backend, the following information is embedded into the Accelerator Buffer
+at the end of the simulation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;O&gt;</span></code>: expectation value of the number/occupation operator (<code class="docutils literal notranslate"><span class="pre">n</span></code>) on each qubit sub-system. This is an array of floating-point numbers, one entry for each qubit.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DensityMatrixDiags</span></code>: diagonal elements of the density matrix at the end of the simulation (length = <code class="docutils literal notranslate"><span class="pre">dim^n</span></code>, <code class="docutils literal notranslate"><span class="pre">dim</span></code> is the dimension of sub-systems (2 for qubits, 3 for qutrits, etc.) and <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of sub-systems)</p></li>
+</ul>
+</div></blockquote>
+<p>To optimize the execution speed, we don’t record time-stepping data by default when integrating the master equation.
+This can be enabled manually by specifying a <code class="docutils literal notranslate"><span class="pre">logging-period</span></code> parameter when requesting the QuaC simulator as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qpu</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s1">&#39;QuaC&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;system-model&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="s1">&#39;logging-period&#39;</span><span class="p">:</span> <span class="mf">0.1</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p>Once requested, time-stepping data will be saved as a CSV file whose path is recorded in the Accelerator Buffer’s <code class="docutils literal notranslate"><span class="pre">csvFile</span></code> field.
+The following data is recorded for each logging period: current time, signals on channels, expectation values of the number operator and Pauli operators on each qubit sub-system.</p>
+<p>Users can load the data, e.g. for plotting purposes, as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">csvFile</span> <span class="o">=</span> <span class="n">qubitReg</span><span class="p">[</span><span class="s1">&#39;csvFile&#39;</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">csvFile</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># Each field can then be referred to by name</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+<span class="n">expectationX0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;X0&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lab-frame-vs-rotating-frame">
+<h3>Lab-frame vs. Rotating frame<a class="headerlink" href="#lab-frame-vs-rotating-frame" title="Permalink to this headline">¶</a></h3>
+<p>Qubit (two-level) systems always have a ground-to-excited state transition frequency which corresponds to rotation around the z-axis of the excited state.
+Hence, driving signals are often mixed with a local-oscillator at the frequency in order to be in resonance with that transition.</p>
+<p>In QuaC, this is done by setting the loFregs_dChannels array of the <code class="docutils literal notranslate"><span class="pre">BackendChannelConfigs</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">channelConfigs</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">BackendChannelConfigs</span><span class="p">()</span>
+<span class="n">channelConfigs</span><span class="o">.</span><span class="n">loFregs_dChannels</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.98</span><span class="p">,</span> <span class="mf">4.34</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The QuaC accelerator will mix pulse instructions assigned on each channel with its corresponding LO signals at the specified frequency.</p>
+<p>This is the most accurate form of simulation. However, it often requires a very fine time-stepping procedure due to the oscillatory nature of the modulated signals.
+Users can opt for a simplified simulation setting whereby the system dynamics are specified in the rotating frame which is rotating at that transition frequency.</p>
+<p>This can be done by:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Setting the transition frequency variable in the Hamiltonian JSON to zero.</p></li>
+<li><p>Setting the LO frequency to zero.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="initial-population-qubit-decay">
+<h3>Initial Population &amp; Qubit Decay<a class="headerlink" href="#initial-population-qubit-decay" title="Permalink to this headline">¶</a></h3>
+<p>By default, all qubits are initialized in the ground state.
+This can be changed by using the <code class="docutils literal notranslate"><span class="pre">setQubitInitialPopulation</span></code> function
+(first parameter is the qubit index and second parameter is the initial value of the number operator).</p>
+<p>Similarly, qubit decay rate can be specified by proving a T1 value via the <code class="docutils literal notranslate"><span class="pre">setQubitT1</span></code> function which corresponds to a Linbladian decay rate of 1/T1 in the master equation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">createPulseModel</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">setQubitInitialPopulation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">setQubitT1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="higher-dimensional-systems">
+<h3>Higher-dimensional systems<a class="headerlink" href="#higher-dimensional-systems" title="Permalink to this headline">¶</a></h3>
+<p>Higher-dimensional systems are also supported by QuaC.
+The sub-system dimensions can be specified in the <code class="docutils literal notranslate"><span class="pre">qub</span></code> field of the Hamiltonian JSON.</p>
+<p>For example, to model transmon qubits as three-level systems (e.g. to investigate qubit leakage),
+one can use the following Hamiltonian JSON.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hamiltonianJson</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Two-qutrit Hamiltonian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;h_latex&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;h_str&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;w_0*O0&quot;</span><span class="p">,</span> <span class="s2">&quot;w_1*O1&quot;</span><span class="p">,</span> <span class="s2">&quot;d*O0*(O0-I0)&quot;</span><span class="p">,</span> <span class="s2">&quot;d*O1*(O1-I1)&quot;</span><span class="p">,</span> <span class="s2">&quot;J*(SP0*SM1 + SM0*SP1)&quot;</span><span class="p">,</span> <span class="s2">&quot;O*(SM0 + SP0)||D0&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;osc&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;qub&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;vars&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;w_0&quot;</span><span class="p">:</span> <span class="mf">5.114</span><span class="p">,</span>
+        <span class="s2">&quot;w_1&quot;</span><span class="p">:</span> <span class="mf">4.914</span><span class="p">,</span>
+        <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.33</span><span class="p">,</span>
+        <span class="s2">&quot;J&quot;</span><span class="p">:</span> <span class="mf">0.004</span><span class="p">,</span>
+        <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="mf">0.060</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A few limitations of using non-qubit systems:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The shot-count distribution (binary bit strings) simulation is not supported. Users have access to the list of diagonal elements of the density matrix embedded in the Accelerator Buffer which contains the state distribution.</p></li>
+<li><p>Some automatic IR transformation services are not compatible with non-qubit systems.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="pulse-level-ir-transformation">
+<h3>Pulse-level IR Transformation<a class="headerlink" href="#pulse-level-ir-transformation" title="Permalink to this headline">¶</a></h3>
+<p>Automatic quantum-circuit-to-pulse transformation is a service within the XACC which can be used in conjunction with the QuaC simulator backend to find a pulse program representing arbitrary quantum circuit.</p>
+<p>The XACC pulse-level IR transformation service can be requested by its name, which is <code class="docutils literal notranslate"><span class="pre">quantum-control</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;quantum-control&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In order to transform a quantum circuit (CompositeInstruction) into pulses, the optimizer will need access to an instance of the QuaC simulator backend which has been initialized with the system dynamics.
+Also, users will need to provide optimization options to the IR Transformation service. The available options are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 51%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Parameter Description</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>method</p></td>
+<td><p>Optimization method (‘GOAT’ or ‘GRAPE’)</p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-odd"><td><p>max-time</p></td>
+<td><p>Max time horizon for pulse optimization</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-even"><td><p>dt</p></td>
+<td><p>Sample duration (GRAPE-only)</p></td>
+<td><p>double</p></td>
+</tr>
+<tr class="row-odd"><td><p>control-params</p></td>
+<td><p>Control parameters to optimize (GOAT-only)</p></td>
+<td><p>std::vector&lt;string&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>control-funcs</p></td>
+<td><p>Analytical forms of control functions (GOAT-only)</p></td>
+<td><p>std::vector&lt;string&gt;</p></td>
+</tr>
+<tr class="row-odd"><td><p>initial-parameters</p></td>
+<td><p>Initial values of control parameters (GOAT-only)</p></td>
+<td><p>std::vector&lt;double&gt;</p></td>
+</tr>
+</tbody>
+</table>
+<p>For example, we can transform a quantum circuit into an optimized pulse (Gaussian form) then
+verify the result by simulating with QuaC:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the XASM compiler</span>
+<span class="n">xasmCompiler</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getCompiler</span><span class="p">(</span><span class="s1">&#39;xasm&#39;</span><span class="p">);</span>
+<span class="c1"># Composite to be transform to pulse</span>
+<span class="n">ir</span> <span class="o">=</span> <span class="n">xasmCompiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;__qpu__ void f(qbit q) {</span>
+<span class="s1">    Rx(q[0], 1.57);</span>
+<span class="s1">}&#39;&#39;&#39;</span><span class="p">,</span> <span class="n">qpu</span><span class="p">);</span>
+<span class="n">program</span> <span class="o">=</span> <span class="n">ir</span><span class="o">.</span><span class="n">getComposites</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Run the pulse IRTransformation</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">getIRTransformation</span><span class="p">(</span><span class="s1">&#39;quantum-control&#39;</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="n">qpu</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;GOAT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;control-params&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">],</span>
+    <span class="c1"># Gaussian pulse</span>
+    <span class="s1">&#39;control-funcs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exp(-t^2/(2*sigma^2))&#39;</span><span class="p">],</span>
+    <span class="c1"># Initial params</span>
+    <span class="s1">&#39;initial-parameters&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">8.0</span><span class="p">],</span>
+    <span class="s1">&#39;max-time&#39;</span><span class="p">:</span> <span class="mf">100.0</span>
+<span class="p">})</span>
+
+<span class="c1"># This composite should be a pulse composite now</span>
+<span class="k">print</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+
+<span class="c1"># Run the simulation of the optimized pulse program</span>
+<span class="n">qubitReg</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">.</span><span class="n">qalloc</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">qpu</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qubitReg</span><span class="p">,</span> <span class="n">program</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enable-mpi">
+<h3>Enable MPI<a class="headerlink" href="#enable-mpi" title="Permalink to this headline">¶</a></h3>
+<p>Users can enable MPI multi-processing on QuaC (C++ only) by setting the <code class="docutils literal notranslate"><span class="pre">execution-mode</span></code> option to <code class="docutils literal notranslate"><span class="pre">MPI::&lt;number</span> <span class="pre">of</span> <span class="pre">MPI</span> <span class="pre">processes&gt;</span></code>
+when requesting the QuaC accelerator.</p>
+<p>For example, to request a QuaC accelerator which will run on 4 MPI processes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">quaC</span> <span class="o">=</span> <span class="n">xacc</span><span class="o">::</span><span class="n">getAccelerator</span><span class="p">(</span><span class="s">&quot;QuaC&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_pair</span><span class="p">(</span><span class="s">&quot;execution-mode&quot;</span><span class="p">,</span> <span class="s">&quot;MPI::4&quot;</span><span class="p">)</span> <span class="p">...</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>A few notes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The compiled executable must be started on a single MPI process, i.e. <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">1</span></code> (or <code class="docutils literal notranslate"><span class="pre">-np</span> <span class="pre">1</span></code>). QuaC runtime will spawn additional processes as required.</p></li>
+<li><p>We recommend the Hydra process manager (<code class="docutils literal notranslate"><span class="pre">mpiexec.hydra</span></code>) that is installed with PETSc (<code class="docutils literal notranslate"><span class="pre">--download-mpich</span></code> when <code class="docutils literal notranslate"><span class="pre">configure</span></code> PETSc).</p></li>
+<li><p>MPI multi-processing should only be used for large systems (&gt;5 qubits.) There is no performance gain when using MPI for small systems.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
 </div>
 
 
@@ -189,11 +391,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Alex McCaskey
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -204,7 +414,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
