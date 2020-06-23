@@ -911,6 +911,9 @@ EXCLUDE_PATTERNS      += */nlopt/*
 EXCLUDE_PATTERNS      += */tpls/*
 EXCLUDE_PATTERNS      += */minorminer/*
 EXCLUDE_PATTERNS      += *.py
+EXCLUDE_PATTERNS      += */aer/*
+EXCLUDE_PATTERNS      += */generated/*
+EXCLUDE_PATTERNS      += */LBFGSpp/*
 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
@@ -922,7 +925,20 @@ EXCLUDE_PATTERNS      += *.py
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        =
+EXCLUDE_SYMBOLS        = AER
+EXCLUDE_SYMBOLS        += BV
+EXCLUDE_SYMBOLS        += CHSimulator
+EXCLUDE_SYMBOLS        += Clifford
+EXCLUDE_SYMBOLS        += fermion
+EXCLUDE_SYMBOLS        += LBFGSpp
+EXCLUDE_SYMBOLS        += nlohmann
+EXCLUDE_SYMBOLS        += oqasm
+EXCLUDE_SYMBOLS        += Pauli
+EXCLUDE_SYMBOLS        += pauli
+EXCLUDE_SYMBOLS        += qpp
+EXCLUDE_SYMBOLS       += *Activator
+EXCLUDE_SYMBOLS       += *ErrorListener
+
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
