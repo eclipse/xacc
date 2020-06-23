@@ -5,13 +5,16 @@
 
 namespace xacc {
 namespace circuits {
-class Kak : public xacc::quantum::Circuit 
+// KAK decomposition via *Magic* Bell basis transformation
+// Reference:
+// https://arxiv.org/pdf/quant-ph/0211002.pdf
+class KAK : public xacc::quantum::Circuit 
 {
 public:
-  Kak() : Circuit("kak") {}
+  KAK() : Circuit("kak") {}
   bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
   const std::vector<std::string> requiredKeys() override;
-  DEFINE_CLONE(Kak);
+  DEFINE_CLONE(KAK);
 private:
   // Single qubit gate matrix
   using GateMatrix = Eigen::Matrix<std::complex<double>, 2, 2>;
@@ -37,8 +40,12 @@ private:
     
   KakDecomposition kakDecomposition(const InputMatrix& in_matrix) const;
   using BidiagResult = std::tuple<InputMatrix, std::vector<std::complex<double>>, InputMatrix>;
-  // Finds orthogonal matrices L, R such that L @ in_matrix @ R is diagonal
+  // Finds orthogonal matrices L, R such that L x in_matrix x R is diagonal
   BidiagResult bidiagonalizeUnitary(const InputMatrix& in_matrix) const;
+  // 4x4 factor into kron(A, B) where A and B are 2x2
+  std::tuple<std::complex<double>, GateMatrix, GateMatrix> kronFactor(const InputMatrix& in_matrix) const;
+  // Decompose an input matrix in the *Magic* Bell basis
+  std::pair<GateMatrix, GateMatrix> so4ToMagicSu2s(const InputMatrix& in_matrix) const;
 };
 } // namespace circuits
 } // namespace xacc
