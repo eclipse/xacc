@@ -77,7 +77,7 @@ private:
     {
         LocationModel(size_t in_nbQubits);
         // Returns *fixed* locations
-        std::vector<std::pair<size_t, size_t>> fixLocations(const std::vector<PauliReps>& in_repsToFix) const;
+        std::vector<std::pair<size_t, size_t>> fixLocations(std::vector<PauliReps>& io_repsToFix) const;
         size_t nbQubits;
         Topology locations;
         std::pair<Topology, Topology> buckets;
@@ -89,7 +89,7 @@ private:
     // Algorithm #3
     std::vector<PauliReps> explore();
     // Algorithm #4
-    std::vector<PauliReps> refine(const std::vector<PauliReps>& in_rawResults);
+    std::vector<Block> refine(const std::vector<PauliReps>& in_rawResults);
     // Algorithm #5
     void addLayer(std::vector<PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const;
 
