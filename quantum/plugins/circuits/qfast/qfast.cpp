@@ -146,7 +146,7 @@ std::vector<QFAST::Block> QFAST::decompose()
     const auto exloreResults = explore();
     const auto refinedResult = refine(exloreResults);
     
-    return pauliRepsToBlocks(refinedResult);
+    return refinedResult;
 }
 
 std::vector<QFAST::Block> QFAST::pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const 
@@ -185,13 +185,93 @@ std::vector<QFAST::PauliReps> QFAST::explore()
     return layers;
 }
 
-std::vector<QFAST::PauliReps> QFAST::refine(const std::vector<QFAST::PauliReps>& in_rawResults)
+std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_rawResults)
 {
-    const auto fixedLoc = m_locationModel->fixLocations(in_rawResults);
-
+    xacc::info("[Refine] Number of layers = " + std::to_string(in_rawResults.size()));
+    auto refinedReps = in_rawResults;
+    const auto fixedLoc = m_locationModel->fixLocations(refinedReps);
+    assert(refinedReps.size() == fixedLoc.size());
+    std::vector<double> initialParams; 
+    // Only function params since the location has been fixed
+    for (const auto& layer : refinedReps)
+    {
+        initialParams.insert(initialParams.end(), layer.funcValues.begin(), layer.funcValues.end());
+    }
     
-    // TODO:
-    return in_rawResults;
+    const int nbParams = initialParams.size();
+    const int maxEval = nbParams * 1000;
+
+    // TODO: use gradient-based optimizer (e.g. Adam)
+    // This is currently not possible since we don't know how to calculate the gradients.
+    auto optimizer = xacc::getOptimizer("nlopt", 
+        xacc::HeterogeneousMap { 
+            std::make_pair("initial-parameters", initialParams),
+            std::make_pair("nlopt-maxeval", maxEval) 
+    });
+
+    OptFunction f(
+        [&](const std::vector<double>& x, std::vector<double>& grad) 
+        {
+            Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+            std::vector<double> params;
+            size_t idx = 0;
+            size_t paramIdx = 0;
+            bool alternativeLayer = false;
+            for (auto& layer : refinedReps)
+            {
+                params.clear();
+                params.assign(x.begin() + paramIdx, x.begin() + paramIdx + layer.funcValues.size());
+                assert(params.size() == layer.funcValues.size());
+                paramIdx += params.size();
+                // Added the fixed location values (not being optimized)
+                params.insert(params.end(), layer.locValues.begin(), layer.locValues.end());                
+                layer.updateParams(params);
+                idx++;
+                const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+                const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+                accumU = accumU * layerToUnitaryMatrix(layer, topology, topologyPauli);
+                alternativeLayer = !alternativeLayer;
+            }
+
+            const double costValue = evaluateCostFunc(accumU);
+            return costValue;
+        },
+        nbParams);
+    
+    const auto result = optimizer->optimize(f);
+    xacc::info("[Refine] Final trace distance = " + std::to_string(result.first));
+    std::vector<double> optParams;
+    size_t paramIdx = 0;
+    for (auto& layer : refinedReps)
+    {
+        optParams.clear();
+        optParams.assign(result.second.begin() + paramIdx, result.second.begin() + paramIdx + layer.funcValues.size());
+        assert(optParams.size() == layer.funcValues.size());
+        paramIdx += layer.funcValues.size();
+        layer.funcValues = optParams;
+    }
+
+    std::vector<QFAST::Block> resultBlocks;
+    size_t blockIdx = 0;
+    
+    const auto& subPaulis = getPaulisMap(2);
+    for (const auto& layer : refinedReps)
+    {
+        assert(subPaulis.size() == layer.funcValues.size());
+        Block newBlock;
+        newBlock.qubits = fixedLoc[blockIdx];
+        Eigen::MatrixXcd gateMat = Eigen::MatrixXcd::Zero(4, 4);
+        for (size_t j = 0; j < subPaulis.size(); ++j)
+        {
+            gateMat += (layer.funcValues[j] * subPaulis[j]);
+        }
+        gateMat = I * gateMat;
+        // Exponential: exp(i*H)
+        newBlock.uMat = gateMat.exp();
+        blockIdx++;
+    }
+    
+    return resultBlocks;
 }
 
 void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const
@@ -199,7 +279,7 @@ void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topo
     assert(in_layerTopology.size() == in_topologyPaulis.size());
     assert(!in_layerTopology.empty());
     
-    std::cout << "Add a layer. Number of layers = " << io_currentLayers.size() + 1 << "\n"; 
+    xacc::info("[Explore] Adding a layer. Number of layers = " + std::to_string(io_currentLayers.size() + 1)); 
     // Add a layer:
     QFAST::PauliReps newLayer;
     const double initialParam = 1.0 / in_topologyPaulis[0].size();
@@ -255,7 +335,7 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         nbParams += layer.nbParams();
     }
     
-    const int maxEval = nbParams * 100;
+    const int maxEval = nbParams * 10;
 
     // TODO: use gradient-based optimizer (e.g. Adam)
     // This is currently not possible since we don't know how to calculate the gradients.
@@ -293,7 +373,7 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         nbParams);
     
     const auto result = optimizer->optimize(f);
-    xacc::info("Final trace distance = " + std::to_string(result.first));
+    xacc::info("[Explore] Final trace distance = " + std::to_string(result.first));
     
     // Save the optimal params for these layers.
     // Hence, this will be the starting point 
@@ -367,12 +447,12 @@ QFAST::LocationModel::LocationModel(size_t in_nbQubits):
     bucketPaulis = std::make_pair(generateAllPaulis(nbQubits, buckets.first), generateAllPaulis(nbQubits, buckets.second));
 }
 
-std::vector<std::pair<size_t, size_t>> QFAST::LocationModel::fixLocations(const std::vector<PauliReps>& in_repsToFix) const
+std::vector<std::pair<size_t, size_t>> QFAST::LocationModel::fixLocations(std::vector<PauliReps>& io_repsToFix) const
 {
     std::vector<std::pair<size_t, size_t>>  result;
     bool alternativeLayer = false;
-    
-    for (const auto& layer : in_repsToFix)
+
+    for (auto& layer : io_repsToFix)
     {
         const auto& topology = alternativeLayer ? buckets.second : buckets.first;
         const auto& topologyPauli = alternativeLayer ? bucketPaulis.second : bucketPaulis.first;
@@ -383,11 +463,21 @@ std::vector<std::pair<size_t, size_t>> QFAST::LocationModel::fixLocations(const 
         const auto locIdx = std::distance(locVals.begin(), std::max_element(locVals.begin(), locVals.end()));
         alternativeLayer = !alternativeLayer;
         result.emplace_back(topology[locIdx]);
+
+        for (size_t i = 0; i < layer.locValues.size(); ++i)
+        {
+            if (i == locIdx)
+            {
+                layer.locValues[i] = 1.0;
+            }
+            else
+            {
+                layer.locValues[i] = 0.0;
+            }
+        }
     }
 
     return result;
 }
-
-
 }
 }
