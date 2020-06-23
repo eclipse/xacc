@@ -6,7 +6,8 @@
 // Implement a simple Gate fusion procedure to compute the total unitary matrix for a given circuit (composite instruction)
 using namespace xacc;
 using namespace xacc::quantum;
-
+namespace xacc {
+namespace quantum {
 struct FusionGateItem
 {
     FusionGateItem(const Eigen::MatrixXcd& in_gateMat, const std::vector<size_t>& in_qbits):
@@ -55,3 +56,5 @@ public:
 private:
     std::vector<FusionGateItem> m_gates;
 };
+} // namespace quantum
+} // namespace xacc

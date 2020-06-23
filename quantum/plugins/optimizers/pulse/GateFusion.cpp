@@ -28,7 +28,8 @@ namespace {
         return result;
     }
 }
-
+namespace xacc {
+namespace quantum {
 void GateFuser::initialize(const std::shared_ptr<xacc::CompositeInstruction>& in_program)
 {
     initStaticMat();
@@ -266,3 +267,5 @@ void GateFuser::visit(IfStmt& ifStmt)
 {
     xacc::error("Unsupported!");
 }
+} // namespace quantum
+} // namespace xacc
