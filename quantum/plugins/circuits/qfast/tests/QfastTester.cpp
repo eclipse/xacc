@@ -31,6 +31,7 @@ TEST(QFastTester, checkSimple)
 int main(int argc, char **argv) {
     xacc::Initialize(argc, argv);
     ::testing::InitGoogleTest(&argc, argv);
+    xacc::set_verbose(true);
     auto ret = RUN_ALL_TESTS();
     xacc::Finalize();
     return ret;
