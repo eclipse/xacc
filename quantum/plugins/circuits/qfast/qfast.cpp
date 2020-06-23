@@ -234,6 +234,7 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
             }
 
             const double costValue = evaluateCostFunc(accumU);
+            std::cout << "[Refine] Cost Value = " << costValue << "\n";
             return costValue;
         },
         nbParams);
