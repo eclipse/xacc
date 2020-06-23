@@ -7,7 +7,9 @@ using namespace xacc;
 
 TEST(KakTester, checkSimple) 
 {
-
+  auto tmp = xacc::getService<Instruction>("kak");
+  auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+  kak->expand({ });
 }
 
 int main(int argc, char **argv) {
