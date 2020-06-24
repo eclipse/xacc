@@ -66,6 +66,106 @@ std::vector<std::pair<int, int>> contiguousGroups(int in_length, std::function<b
   }
   return result;
 }
+
+Eigen::MatrixXd blockDiag(const Eigen::MatrixXd& in_first, const Eigen::MatrixXd& in_second)
+{
+  Eigen::MatrixXd bdm = Eigen::MatrixXd::Zero(in_first.rows() + in_second.rows(), in_first.cols() + in_second.cols());
+  bdm.block(0, 0, in_first.rows(), in_first.cols()) = in_first;
+  bdm.block(in_first.rows(), in_first.cols(), in_second.rows(), in_second.cols()) = in_second;
+  return bdm;
+}
+
+bool isSquare(const Eigen::MatrixXcd& in_mat)
+{
+  return in_mat.rows() == in_mat.cols();
+}
+
+bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+{
+  for (int i = 0; i < in_mat.rows(); ++i)
+  {
+    for (int j = 0; j < in_mat.cols(); ++j)
+    {
+      if (i != j)
+      {
+        if (std::abs(in_mat(i,j)) > in_tol)
+        {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, double in_tol = 1e-12)
+{
+  if (in_mat1.rows() == in_mat2.rows() && in_mat1.cols() == in_mat2.cols())
+  {
+    for (int i = 0; i < in_mat1.rows(); ++i)
+    {
+      for (int j = 0; j < in_mat1.cols(); ++j)
+      {
+        if (std::abs(in_mat1(i,j) - in_mat2(i, j)) > in_tol)
+        {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  return false;
+}
+
+bool isHermitian(const Eigen::MatrixXcd& in_mat)
+{
+  if (!isSquare(in_mat))
+  {
+    return false;
+  }
+  return allClose(in_mat, in_mat.adjoint());
+}
+
+bool isUnitary(const Eigen::MatrixXcd& in_mat)
+{
+  if (!isSquare(in_mat))
+  {
+    return false;
+  }
+
+  Eigen::MatrixXcd Id = Eigen::MatrixXcd::Identity(in_mat.rows(), in_mat.cols());
+
+  return allClose(in_mat * in_mat.adjoint(), Id);
+}
+
+bool isOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+{
+  if (!isSquare(in_mat))
+  {
+    return false;
+  }
+
+  // Is real 
+  for (int i = 0; i < in_mat.rows(); ++i)
+  {
+    for (int j = 0; j < in_mat.cols(); ++j)
+    {
+      if (std::abs(in_mat(i,j).imag()) > in_tol)
+      {
+        return false;
+      }
+    }
+  }
+  // its transpose is its inverse
+  return allClose(in_mat.inverse(), in_mat.transpose(), in_tol);
+}
+// Is Orthogonal and determinant == 1
+bool isSpecialOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+{
+  return isOrthogonal(in_mat, in_tol) && (std::abs(std::abs(in_mat.determinant()) - 1.0) < in_tol);
+}
 }
 
 using namespace xacc;
@@ -82,20 +182,22 @@ bool KAK::expand(const HeterogeneousMap &parameters)
 {
   // This is a simple "first-principle" implementation
   // of a Kak decomposition.
-  // !! TEMP CODE !!!
-  
-  // auto result = bidiagonalizeUnitary(mInMagicBasis);
-  // Eigen::MatrixXcd f1 = Eigen::MatrixXcd::Random(2, 2);
-  // Eigen::MatrixXcd f2 = Eigen::MatrixXcd::Random(2, 2);
-  // kronFactor(Eigen::kroneckerProduct(f1, f2));
-  // !! TEMP CODE !!!
+  // TODO: This matrix should be an input
   Eigen::Matrix4cd m;
   m << 1, 1 , 1, 1,
       1, I, -1, -I,
       1, -1, 1, -1,
       1, -I, -1, I;
   m = 0.5 * m;
-  Eigen::MatrixXcd mInMagicBasis = KAK_MAGIC_DAG() * m * KAK_MAGIC();
+  
+  auto result = kakDecomposition(m);
+  return true;
+}
+
+KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
+{
+  assert(isUnitary(in_matrix));
+  Eigen::MatrixXcd mInMagicBasis = KAK_MAGIC_DAG() * in_matrix * KAK_MAGIC();
   auto [left, diag, right] = bidiagonalizeUnitary(mInMagicBasis);
   // Recover pieces.
   auto [a1, a0] = so4ToMagicSu2s(left.transpose());                        
@@ -118,14 +220,7 @@ bool KAK::expand(const HeterogeneousMap &parameters)
   xacc::quantum::PauliOperator zz(z, "Z0Z1");
   auto herm = xx + yy + zz;
   std::cout << "Herm: " << herm.toString();
-
-  return true;
-}
-
-
-
-KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
-{
+  
   KakDecomposition result;
 
   return result;
@@ -134,48 +229,49 @@ KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
 
 KAK::BidiagResult KAK::bidiagonalizeUnitary(const InputMatrix& in_matrix) const
 {
-  // Using SVD: A = U x S x V_dag
-  // => L x A x R = Diag 
-  // => L = U^-1
-  // => R = V_dag^-1
-  Eigen::JacobiSVD<Eigen::MatrixXcd> svd(in_matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
-  const auto U = svd.matrixU();
-  const auto V = svd.matrixV().adjoint();
-  const auto singularValues = svd.singularValues();
-  auto L = U.inverse();
-  auto R = V.inverse();
-  assert(singularValues.size() == 4);
-  auto diag = L * in_matrix * R;
-  std::vector<std::complex<double>> d;
-  for (int i = 0; i < singularValues.size(); ++i)
+  Eigen::Matrix4d realMat;
+  Eigen::Matrix4d imagMat;
+  for (int row = 0; row < in_matrix.rows(); ++row)
   {
-    d.emplace_back(singularValues(i));
-  }
-
-  // Validate:
-  auto testMat = L * in_matrix * R;
-  for (int row = 0; row < testMat.rows(); ++row)
-  {
-    for (int col = 0; col < testMat.cols(); ++col)
+    for (int col = 0; col < in_matrix.cols(); ++col)
     {
-      if (row == col)
-      {
-        assert(std::abs(testMat(row, col) - d[row]) < 1e-6);
-      }
-      else
-      {
-        assert(std::abs(testMat(row, col)) < 1e-6);
-      }
+      realMat(row, col) = in_matrix(row, col).real();
+      imagMat(row, col) = in_matrix(row, col).imag();
+    }
+  }
+  // Assert A X B.T and A.T X B are hermitian
+  assert(isHermitian(realMat * imagMat.transpose()));
+  assert(isHermitian(realMat.transpose() * imagMat));
+
+  auto [left, right] = bidiagonalizeRealMatrixPairWithSymmetricProducts(realMat, imagMat);
+
+  // Convert to special orthogonal w/o breaking diagonalization.
+  if (left.determinant() < 0)
+  {
+    for (int i = 0; i < left.cols(); ++i)
+    {
+      left(0, i) = -left(0, i);
+    }
+  }
+  if (right.determinant() < 0)
+  {
+    for (int i = 0; i < right.rows(); ++i)
+    {
+      right(i, 0) = -right(i, 0);
     }
   }
 
-  std::cout << "L determinant: " << std::abs(L.determinant()) << "\n";
-  std::cout << "R determinant: " << std::abs(R.determinant()) << "\n";
-  std::cout << "L transpose: " << L.transpose() << "\n";
-  std::cout << "L inverse: " << L.inverse() << "\n";
-  std::cout << "R transpose: " << R.transpose() << "\n";
-  std::cout << "R inverse: " << R.inverse() << "\n";
-  return std::make_tuple(L, d, R);
+  auto diag = left * in_matrix * right;
+  // Validate:
+  assert(isDiagonal(diag));
+  
+  std::vector<std::complex<double>> diagVec;
+  for (int i = 0; i < diag.rows(); ++i)
+  {
+    diagVec.emplace_back(diag(i, i));
+  }
+
+  return std::make_tuple(left, diagVec, right);
 }
 
 std::tuple<std::complex<double>, KAK::GateMatrix, KAK::GateMatrix> KAK::kronFactor(const InputMatrix& in_matrix) const
@@ -240,19 +336,22 @@ std::tuple<std::complex<double>, KAK::GateMatrix, KAK::GateMatrix> KAK::kronFact
 
 std::pair<KAK::GateMatrix, KAK::GateMatrix> KAK::so4ToMagicSu2s(const InputMatrix& in_matrix) const
 {
+  assert(isSpecialOrthogonal(in_matrix));
   auto matInMagicBasis = KAK_MAGIC() * in_matrix * KAK_MAGIC_DAG();
   auto [g, f1, f2] = kronFactor(matInMagicBasis);
   return std::make_pair(f1, f2);
 }
 
-// std::pair<KAK::InputMatrix, KAK::InputMatrix> KAK::bidiagonalizeRealMatrixPair(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const
-// {
-
-// }
-
 Eigen::MatrixXd KAK::diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_mat) const
 {
-  // TODO: check symmetric
+  Eigen::MatrixXd zeros = Eigen::MatrixXd::Zero(in_mat.rows(), in_mat.cols()); 
+
+  if (allClose(in_mat, zeros))
+  {
+    return zeros;
+  }
+  
+  assert(isHermitian(in_mat));
   Eigen::EigenSolver<Eigen::MatrixXd> s(in_mat); 
   auto eigVecs = s.eigenvectors();
   Eigen::MatrixXd p = Eigen::MatrixXd::Zero(eigVecs.rows(), eigVecs.cols());
@@ -264,19 +363,28 @@ Eigen::MatrixXd KAK::diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_ma
       assert(std::abs(eigVecs(i, j).imag()) < 1e-12);
     }
   }
-  // TODO: Validate:
-  // P.T x matrix x P is diagonal
+
+  p = p / p.norm(); 
+  // TODO: This doesn't hold:check Eigen to see why???
+  assert(isOrthogonal(p));
+  // An orthogonal matrix P such that PT x matrix x P is diagonal.
+  assert(isDiagonal(p.transpose() * in_mat * p));
   return p;
 }
 
-Eigen::Matrix4d KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::Matrix4d& in_symMat, const Eigen::Matrix4d& in_diagMat) const
+Eigen::MatrixXd KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::MatrixXd& in_symMat, const Eigen::MatrixXd& in_diagMat) const
 {
+  assert(isDiagonal(in_diagMat));
+  assert(isHermitian(in_symMat));
+  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] in_symMat = \n" << in_symMat << "\n";
+  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] in_diagMat = \n" << in_diagMat << "\n";
+
   const auto similarSingular = [&in_diagMat](int i, int j) {
-    return std::abs(in_diagMat(i,j) - in_diagMat(j,i)) < 1e-5;
+    return std::abs(in_diagMat(i,i) - in_diagMat(j,j)) < 1e-5;
   };
 
-  const auto ranges = contiguousGroups(4, similarSingular);
-  Eigen::Matrix4d p = Eigen::Matrix4d::Zero();
+  const auto ranges = contiguousGroups(in_diagMat.rows(), similarSingular);
+  Eigen::MatrixXd p = Eigen::MatrixXd::Zero(in_symMat.rows(), in_symMat.cols());
 
   for (const auto& [start, end]: ranges)
   {
@@ -290,19 +398,116 @@ Eigen::Matrix4d KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eig
         block(i,j) = in_symMat(i + start, j + start);
       }
     }
-
+    std::cout << "Begin = " << start << "; End = " << end << "\n";
+    std::cout << "Block = \n" << block << "\n"; 
     auto blockDiag = diagonalizeRealSymmetricMatrix(block);
+    std::cout << "blockDiag = \n" << blockDiag << "\n"; 
+
     for (int i = 0; i < blockSize; ++i)
     {
       for (int j = 0; j < blockSize; ++j)
       {
-        p(i + start, j + start) = block(i,j);
+        p(i + start, j + start) = blockDiag(i,j);
       }
     }
   }
-  // TODO: add validation
+
+  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] p = \n" << p << "\n";
+  // P.T x symmetric_matrix x P is diagonal
+  assert(isDiagonal(p.transpose() * in_symMat * p));
+  // and P.T x diagonal_matrix x P = diagonal_matrix
+  assert(allClose(p.transpose() * in_diagMat * p, in_diagMat));
+
   return p;
 }
 
+std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWithSymmetricProducts(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const
+{
+  std::cout << "bidiagonalizeRealMatrixPairWithSymmetricProducts\n";
+  std::cout << "in_mat1: \n" << in_mat1 << "\n";
+  std::cout << "in_mat2: \n" << in_mat2 << "\n";
+
+  const auto svd = [](const Eigen::MatrixXd& in_mat) -> std::tuple<Eigen::MatrixXd, Eigen::VectorXd, Eigen::MatrixXd> {
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(in_mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    return std::make_tuple(svd.matrixU(), svd.singularValues(), svd.matrixV().adjoint());
+  };
+  // Use SVD to bi-diagonalize the first matrix.
+  auto [base_left, base_diag_vec, base_right] = svd(in_mat1);
+  
+  std::cout << "base_left: \n" << base_left << "\n"; 
+  std::cout << "base_diag_vec: \n" << base_diag_vec << "\n"; 
+  std::cout << "base_right: \n" << base_right << "\n"; 
+  
+  
+  Eigen::MatrixXd base_diag = Eigen::MatrixXd::Zero(base_diag_vec.size(), base_diag_vec.size());
+  for (int i = 0; i < base_diag_vec.size(); ++i)
+  {
+    base_diag(i, i) = base_diag_vec(i);
+  }
+
+  std::cout << "in_mat1: \n" << in_mat1 << "\n";
+  std::cout << "in_mat2: \n" << in_mat2 << "\n";
+
+  // Determine where we switch between diagonalization-fixup strategies.
+  const auto dim = base_diag.rows();
+  auto rank = dim;
+  while (rank > 0 && std::abs(base_diag(rank - 1, rank - 1) < 1e-5))
+  {
+    rank--;
+  } 
+  std::cout << "Rank = " << rank << "; Dim = " << dim << "\n";
+  Eigen::MatrixXd base_diag_trim = Eigen::MatrixXd::Zero(rank, rank);
+  for (int i = 0; i < rank; ++i)
+  {
+    for (int j = 0; j < rank; ++j)
+    {
+      base_diag_trim(i, j) = base_diag(i, j);
+    }
+  }
+
+  std::cout << "base_diag_trim: \n" << base_diag_trim << "\n";
+
+
+  // Try diagonalizing the second matrix with the same factors as the first.
+  auto semi_corrected = base_left.transpose() * in_mat2 * base_right.transpose();
+  std::cout << "semi_corrected: \n" << semi_corrected << "\n";
+  // Fix up the part of the second matrix's diagonalization that's matched
+  // against non-zero diagonal entries in the first matrix's diagonalization
+  // by performing simultaneous diagonalization.
+  Eigen::MatrixXd overlap = Eigen::MatrixXd::Zero(rank, rank);
+  for (int i = 0; i < rank; ++i)
+  {
+    for (int j = 0; j < rank; ++j)
+    {
+      overlap(i, j) = semi_corrected(i, j);
+    }
+  }
+  std::cout << "overlap: \n" << overlap << "\n";
+
+  auto overlap_adjust = diagonalizeRealSymmetricAndSortedDiagonalMatrices(overlap, base_diag_trim);
+  // Fix up the part of the second matrix's diagonalization that's matched
+  // against zeros in the first matrix's diagonalization by performing an SVD.
+  const auto extraSize = dim - rank;
+  Eigen::MatrixXd extra(extraSize, extraSize);
+  for (int i = 0; i < extraSize; ++i)
+  {
+    for (int j = 0; j < extraSize; ++j)
+    {
+      extra(i, j) = semi_corrected(i + rank, j + rank);
+    }
+  } 
+  
+  static const auto emptySvdResult = std::make_tuple(Eigen::MatrixXd::Zero(0,0), Eigen::VectorXd::Zero(0), Eigen::MatrixXd::Zero(0,0));
+  auto [extra_left_adjust, extra_diag, extra_right_adjust] = (dim > rank) ? svd(extra): emptySvdResult;
+  // Merge the fixup factors into the initial diagonalization.
+  auto left_adjust = blockDiag(overlap_adjust, extra_left_adjust);
+  auto right_adjust = blockDiag(overlap_adjust.transpose(), extra_right_adjust);
+  auto left = left_adjust.transpose() * base_left.transpose();
+  auto right = base_right.transpose() * right_adjust.transpose(); 
+  // L x mat1 x R and L x mat2 x R are diagonal matrices.
+  assert(isDiagonal(left * in_mat1 * right));
+  assert(isDiagonal(left * in_mat2 * right));
+  return std::make_pair(left, right);
+}
 } // namespace circuits
 } // namespace xacc
