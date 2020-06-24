@@ -42,10 +42,18 @@ private:
   using BidiagResult = std::tuple<InputMatrix, std::vector<std::complex<double>>, InputMatrix>;
   // Finds orthogonal matrices L, R such that L x in_matrix x R is diagonal
   BidiagResult bidiagonalizeUnitary(const InputMatrix& in_matrix) const;
+  // Joint diagonalize two symmetric real matrices
+  // std::pair<InputMatrix, InputMatrix> bidiagonalizeRealMatrixPair(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const;
   // 4x4 factor into kron(A, B) where A and B are 2x2
   std::tuple<std::complex<double>, GateMatrix, GateMatrix> kronFactor(const InputMatrix& in_matrix) const;
   // Decompose an input matrix in the *Magic* Bell basis
   std::pair<GateMatrix, GateMatrix> so4ToMagicSu2s(const InputMatrix& in_matrix) const;
+  // Returns an orthogonal matrix that diagonalizes the given matrix
+  Eigen::MatrixXd diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_mat) const;
+  // Returns an orthogonal matrix P such that 
+  // P.T xsymmetric_matrix x P is diagonal
+  // and P.T @ diagonal_matrix @ P = diagonal_matrix
+  Eigen::Matrix4d diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::Matrix4d& in_symMat, const Eigen::Matrix4d& in_diagMat) const;
 };
 } // namespace circuits
 } // namespace xacc
