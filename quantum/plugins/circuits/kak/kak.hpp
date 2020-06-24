@@ -51,9 +51,12 @@ private:
   // Returns an orthogonal matrix that diagonalizes the given matrix
   Eigen::MatrixXd diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_mat) const;
   // Returns an orthogonal matrix P such that 
-  // P.T xsymmetric_matrix x P is diagonal
-  // and P.T @ diagonal_matrix @ P = diagonal_matrix
-  Eigen::Matrix4d diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::Matrix4d& in_symMat, const Eigen::Matrix4d& in_diagMat) const;
+  // P^-1 x symmetric_matrix x P is diagonal
+  // and P^-1 @ diagonal_matrix @ P = diagonal_matrix
+  Eigen::MatrixXd diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::MatrixXd& in_symMat, const Eigen::MatrixXd& in_diagMat) const;
+  // Finds orthogonal matrices that diagonalize both in_mat1 and in_mat2
+  std::pair<Eigen::Matrix4d, Eigen::Matrix4d> bidiagonalizeRealMatrixPairWithSymmetricProducts(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const;
+
 };
 } // namespace circuits
 } // namespace xacc
