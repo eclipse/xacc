@@ -86,7 +86,7 @@ the time between the samples (dt), and the frequency of the driving envelope (ty
     channelConfig.loFregs_dChannels = [5.0353]
 
 XACC currently supports several pre-installed pulse declarations:
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
 |   Pulse Type           |           Parameters    |      Parameter Description                  |       type                     |
 +========================+=========================+=============================================+================================+
@@ -213,9 +213,11 @@ in time will be marginal. The fidelity here is calculated against a user-provide
 
 .. code:: python
 
+    # This line should replace the previous provider.createComposite('pulse') call
+    prog = provider.createComposite('pulse_qpt')
+
     # Create the Quantum Process Tomography Algorithm
-    # This line should replace the xacc.getAccelerator() call
-    qpt = xacc.getAlgorithm('qpt', {'circuit': compositeInst, 'accelerator': quaC, 'optimize-circuit': False})
+    qpt = xacc.getAlgorithm('qpt', {'circuit': prog, 'accelerator': qpu, 'optimize-circuit': False})
 
     # Allocate qubit and execute
     q = xacc.qalloc(1)
@@ -227,6 +229,34 @@ in time will be marginal. The fidelity here is calculated against a user-provide
                     0., 0., 0., 0.,
                     0., 0., 0., 0.]
     fidelity = qpt.calculate('fidelity', q, {'chi-theoretical-real': chi_real_vec})
+
+Case 4A: Quantum Process Tomography from the Gate-Level:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of calcualting the target process matrix by hand, we can instead leverage XACC's 
+Pulse-Level IR Transformation to convert a user-provided gate into its corresponding chi-matrix.
+
+.. code:: python
+
+    # Define the number of shots
+    NB_SHOTS = 10000
+
+    # Get Quantum Process Tomography Algo
+    qpt = xacc.getAlgorithm('qpt')
+
+    # Compute Theoretical Chi Matrix
+    q = xacc.qalloc(1)
+    qpu = xacc.getAccelerator('q', {'shots': NB_SHOTS})
+    compiler = xacc.getCompiler('xasm')
+    ir = compiler.compile('''__qpu__ void f(qbit q) {X(q[0]);}''', None)
+    qppCompositeInstr = ir.getComposites()[0]
+    qpt.initialize({'circuit': qppCompositeInstr, 'accelerator': qpu})
+
+    # Execute the algorithm and return real and imaginary parts of process matrix
+    qpt.execute(q)
+    chi_real_vec = q["chi-real"]
+    chi_imag_vec = q["chi-imag"]
+    
 
 
 Optimizing Controls for Quantum Systems
