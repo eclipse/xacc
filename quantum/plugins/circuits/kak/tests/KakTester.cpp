@@ -7,23 +7,30 @@
 using namespace xacc;
 namespace {
 constexpr std::complex<double> I { 0.0, 1.0 };
+
+Eigen::Matrix4cd generateRandomUnitary()
+{
+  // Using QR decomposition to generate a random unitary
+  Eigen::Matrix4cd mat = Eigen::Matrix4cd::Random();
+  auto QR = mat.householderQr();
+  Eigen::Matrix4cd qMat = QR.householderQ() * Eigen::Matrix4cd::Identity();
+  return qMat;
+}
 }
 
 TEST(KakTester, checkSimple) 
 {
-  // Unitary matrix
-  Eigen::Matrix4cd m;
-  m << 1, 1 , 1, 1,
-      1, I, -1, -I,
-      1, -1, 1, -1,
-      1, -I, -1, I;
-  m = 0.5 * m;
-  
-  auto tmp = xacc::getService<Instruction>("kak");
-  auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
-  kak->expand({ 
-    std::make_pair("unitary", m)
-  });
+  const int nbTests = 100;
+  for (int i = 0; i < nbTests; ++i)
+  {
+    auto unitaryMat = generateRandomUnitary();
+    auto tmp = xacc::getService<Instruction>("kak");
+    auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+    const bool expandOk = kak->expand({ 
+      std::make_pair("unitary", unitaryMat)
+    });
+    EXPECT_TRUE(expandOk);
+  }
 }
 
 int main(int argc, char **argv) {
