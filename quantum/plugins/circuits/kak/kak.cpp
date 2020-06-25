@@ -212,10 +212,14 @@ bool KAK::expand(const HeterogeneousMap& parameters)
   }
   
   auto result = kakDecomposition(unitary);
+  if (!result.has_value())
+  {
+    return false;
+  }
   return true;
 }
 
-KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
+std::optional<KAK::KakDecomposition> KAK::kakDecomposition(const InputMatrix& in_matrix) const
 {
   assert(isUnitary(in_matrix));
   Eigen::MatrixXcd mInMagicBasis = KAK_MAGIC_DAG() * in_matrix * KAK_MAGIC();
@@ -263,8 +267,12 @@ KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
   herm = I*herm;
   Eigen::MatrixXcd unitary = herm.exp();
   auto total = g * after * unitary * before;
-  std::cout << "Total U:\n" << total << "\n";
-  assert(allClose(total, in_matrix));
+  const bool validateMatrix = allClose(total, in_matrix);  
+  // Failed to validate
+  if (!validateMatrix)
+  {
+    return std::nullopt;
+  }
 
   KakDecomposition result;
 
@@ -365,9 +373,6 @@ std::tuple<std::complex<double>, KAK::GateMatrix, KAK::GateMatrix> KAK::kronFact
 
   // Validate:
   auto testMat = g * Eigen::kroneckerProduct(f1, f2);
-  std::cout << "Input: \n" << in_matrix << "\n";
-  std::cout << "Validate: \n" << testMat << "\n";
-
   for (int row = 0; row < in_matrix.rows(); ++row)
   {
     for (int col = 0; col < in_matrix.cols(); ++col)
@@ -410,9 +415,6 @@ Eigen::MatrixXd KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eig
 {
   assert(isDiagonal(in_diagMat));
   assert(isHermitian(in_symMat));
-  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] in_symMat = \n" << in_symMat << "\n";
-  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] in_diagMat = \n" << in_diagMat << "\n";
-
   const auto similarSingular = [&in_diagMat](int i, int j) {
     return std::abs(in_diagMat(i,i) - in_diagMat(j,j)) < 1e-5;
   };
@@ -432,10 +434,7 @@ Eigen::MatrixXd KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eig
         block(i,j) = in_symMat(i + start, j + start);
       }
     }
-    std::cout << "Begin = " << start << "; End = " << end << "\n";
-    std::cout << "Block = \n" << block << "\n"; 
     auto blockDiag = diagonalizeRealSymmetricMatrix(block);
-    std::cout << "blockDiag = \n" << blockDiag << "\n"; 
 
     for (int i = 0; i < blockSize; ++i)
     {
@@ -446,7 +445,6 @@ Eigen::MatrixXd KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eig
     }
   }
 
-  std::cout << "[diagonalizeRealSymmetricAndSortedDiagonalMatrices] p = \n" << p << "\n";
   // P.T x symmetric_matrix x P is diagonal
   assert(isDiagonal(p.transpose() * in_symMat * p));
   // and P.T x diagonal_matrix x P = diagonal_matrix
@@ -457,57 +455,38 @@ Eigen::MatrixXd KAK::diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eig
 
 std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWithSymmetricProducts(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const
 {
-  std::cout << "bidiagonalizeRealMatrixPairWithSymmetricProducts\n";
-  std::cout << "in_mat1: \n" << in_mat1 << "\n";
-  std::cout << "in_mat2: \n" << in_mat2 << "\n";
-
   const auto svd = [](const Eigen::MatrixXd& in_mat) -> std::tuple<Eigen::MatrixXd, Eigen::VectorXd, Eigen::MatrixXd> {
     Eigen::JacobiSVD<Eigen::MatrixXd> svd(in_mat, Eigen::ComputeThinU | Eigen::ComputeThinV);
     return std::make_tuple(svd.matrixU(), svd.singularValues(), svd.matrixV().adjoint());
   };
   // Use SVD to bi-diagonalize the first matrix.
-  auto [base_left, base_diag_vec, base_right] = svd(in_mat1);
+  auto [baseLeft, baseDiagVec, baseRight] = svd(in_mat1);
   
-  std::cout << "base_left: \n" << base_left << "\n"; 
-  std::cout << "base_diag_vec: \n" << base_diag_vec << "\n"; 
-  std::cout << "base_right: \n" << base_right << "\n"; 
-  
-  
-  Eigen::MatrixXd base_diag = Eigen::MatrixXd::Zero(base_diag_vec.size(), base_diag_vec.size());
-  for (int i = 0; i < base_diag_vec.size(); ++i)
+  Eigen::MatrixXd baseDiag = Eigen::MatrixXd::Zero(baseDiagVec.size(), baseDiagVec.size());
+  for (int i = 0; i < baseDiagVec.size(); ++i)
   {
-    base_diag(i, i) = base_diag_vec(i);
+    baseDiag(i, i) = baseDiagVec(i);
   }
 
-  std::cout << "in_mat1: \n" << in_mat1 << "\n";
-  std::cout << "in_mat2: \n" << in_mat2 << "\n";
-
   // Determine where we switch between diagonalization-fixup strategies.
-  const auto dim = base_diag.rows();
+  const auto dim = baseDiag.rows();
   auto rank = dim;
-  while (rank > 0 && std::abs(base_diag(rank - 1, rank - 1) < 1e-5))
+  while (rank > 0 && std::abs(baseDiag(rank - 1, rank - 1) < 1e-5))
   {
     rank--;
   } 
-  std::cout << "Rank = " << rank << "; Dim = " << dim << "\n";
-  Eigen::MatrixXd base_diag_trim = Eigen::MatrixXd::Zero(rank, rank);
+  Eigen::MatrixXd baseDiagTrim = Eigen::MatrixXd::Zero(rank, rank);
   for (int i = 0; i < rank; ++i)
   {
     for (int j = 0; j < rank; ++j)
     {
-      base_diag_trim(i, j) = base_diag(i, j);
+      baseDiagTrim(i, j) = baseDiag(i, j);
     }
   }
 
-  std::cout << "base_diag_trim: \n" << base_diag_trim << "\n";
-
-
   // Try diagonalizing the second matrix with the same factors as the first.
-  auto semi_corrected = base_left.transpose() * in_mat2 * base_right.transpose();
-  std::cout << "semi_corrected: \n" << semi_corrected << "\n";
-  // Fix up the part of the second matrix's diagonalization that's matched
-  // against non-zero diagonal entries in the first matrix's diagonalization
-  // by performing simultaneous diagonalization.
+  auto semi_corrected = baseLeft.transpose() * in_mat2 * baseRight.transpose();
+  
   Eigen::MatrixXd overlap = Eigen::MatrixXd::Zero(rank, rank);
   for (int i = 0; i < rank; ++i)
   {
@@ -516,11 +495,9 @@ std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWith
       overlap(i, j) = semi_corrected(i, j);
     }
   }
-  std::cout << "overlap: \n" << overlap << "\n";
 
-  auto overlap_adjust = diagonalizeRealSymmetricAndSortedDiagonalMatrices(overlap, base_diag_trim);
-  // Fix up the part of the second matrix's diagonalization that's matched
-  // against zeros in the first matrix's diagonalization by performing an SVD.
+  auto overlapAdjust = diagonalizeRealSymmetricAndSortedDiagonalMatrices(overlap, baseDiagTrim);
+  
   const auto extraSize = dim - rank;
   Eigen::MatrixXd extra(extraSize, extraSize);
   for (int i = 0; i < extraSize; ++i)
@@ -532,12 +509,12 @@ std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWith
   } 
   
   static const auto emptySvdResult = std::make_tuple(Eigen::MatrixXd::Zero(0,0), Eigen::VectorXd::Zero(0), Eigen::MatrixXd::Zero(0,0));
-  auto [extra_left_adjust, extra_diag, extra_right_adjust] = (dim > rank) ? svd(extra): emptySvdResult;
-  // Merge the fixup factors into the initial diagonalization.
-  auto left_adjust = blockDiag(overlap_adjust, extra_left_adjust);
-  auto right_adjust = blockDiag(overlap_adjust.transpose(), extra_right_adjust);
-  auto left = left_adjust.transpose() * base_left.transpose();
-  auto right = base_right.transpose() * right_adjust.transpose(); 
+  auto [extraLeftAdjust, extraDiag, extraRightAdjust] = (dim > rank) ? svd(extra): emptySvdResult;
+  
+  auto leftAdjust = blockDiag(overlapAdjust, extraLeftAdjust);
+  auto rightAdjust = blockDiag(overlapAdjust.transpose(), extraRightAdjust);
+  auto left = leftAdjust.transpose() * baseLeft.transpose();
+  auto right = baseRight.transpose() * rightAdjust.transpose(); 
   // L x mat1 x R and L x mat2 x R are diagonal matrices.
   assert(isDiagonal(left * in_mat1 * right));
   assert(isDiagonal(left * in_mat2 * right));

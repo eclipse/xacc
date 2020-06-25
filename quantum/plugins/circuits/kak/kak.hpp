@@ -2,6 +2,7 @@
 
 #include "Circuit.hpp"
 #include <Eigen/Dense>
+#include <optional>
 
 namespace xacc {
 namespace circuits {
@@ -38,12 +39,11 @@ private:
     std::complex<double> z;
   };
     
-  KakDecomposition kakDecomposition(const InputMatrix& in_matrix) const;
+  std::optional<KakDecomposition> kakDecomposition(const InputMatrix& in_matrix) const;
   using BidiagResult = std::tuple<InputMatrix, std::vector<std::complex<double>>, InputMatrix>;
   // Finds orthogonal matrices L, R such that L x in_matrix x R is diagonal
   BidiagResult bidiagonalizeUnitary(const InputMatrix& in_matrix) const;
   // Joint diagonalize two symmetric real matrices
-  // std::pair<InputMatrix, InputMatrix> bidiagonalizeRealMatrixPair(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const;
   // 4x4 factor into kron(A, B) where A and B are 2x2
   std::tuple<std::complex<double>, GateMatrix, GateMatrix> kronFactor(const InputMatrix& in_matrix) const;
   // Decompose an input matrix in the *Magic* Bell basis
@@ -56,7 +56,6 @@ private:
   Eigen::MatrixXd diagonalizeRealSymmetricAndSortedDiagonalMatrices(const Eigen::MatrixXd& in_symMat, const Eigen::MatrixXd& in_diagMat) const;
   // Finds orthogonal matrices that diagonalize both in_mat1 and in_mat2
   std::pair<Eigen::Matrix4d, Eigen::Matrix4d> bidiagonalizeRealMatrixPairWithSymmetricProducts(const Eigen::Matrix4d& in_mat1, const Eigen::Matrix4d& in_mat2) const;
-
 };
 } // namespace circuits
 } // namespace xacc
