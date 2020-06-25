@@ -39,7 +39,7 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse ${CMAKE_SOURCE_DIR}/tpls/eigen ${CMAKE_SOURCE_DIR}/tpls/exprtk ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+target_include_directories(${LIBRARY_NAME} PUBLIC simple pulse ${CMAKE_SOURCE_DIR}/tpls/eigen ${CMAKE_SOURCE_DIR}/tpls/exprtk)
 target_link_libraries(${LIBRARY_NAME} xacc xacc-quantum-gate)
 
 if(APPLE)

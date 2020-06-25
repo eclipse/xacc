@@ -39,8 +39,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
                                     compiler/generated
                                     accelerator/json
                                     ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
-                                    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                    ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                    ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include)
                                     #${CMAKE_SOURCE_DIR}/tpls/exprtk
                                     
   target_link_libraries(${LIBRARY_NAME}
