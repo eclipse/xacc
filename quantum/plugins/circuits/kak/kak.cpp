@@ -3,6 +3,7 @@
 #include <Eigen/Eigenvalues>
 #include <unsupported/Eigen/KroneckerProduct>
 #include "PauliOperator.hpp"
+#include <armadillo>
 
 namespace {
 constexpr std::complex<double> I { 0.0, 1.0 };
@@ -343,29 +344,18 @@ std::pair<KAK::GateMatrix, KAK::GateMatrix> KAK::so4ToMagicSu2s(const InputMatri
 }
 
 Eigen::MatrixXd KAK::diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_mat) const
-{
-  Eigen::MatrixXd zeros = Eigen::MatrixXd::Zero(in_mat.rows(), in_mat.cols()); 
-
-  if (allClose(in_mat, zeros))
-  {
-    return zeros;
-  }
-  
+{ 
   assert(isHermitian(in_mat));
-  Eigen::EigenSolver<Eigen::MatrixXd> s(in_mat); 
-  auto eigVecs = s.eigenvectors();
-  Eigen::MatrixXd p = Eigen::MatrixXd::Zero(eigVecs.rows(), eigVecs.cols());
-  for (int i = 0; i < eigVecs.rows(); ++i)
-  {
-    for (int j = 0; j < eigVecs.cols(); ++j)
-    {
-      p(i,j) = eigVecs(i, j).real();
-      assert(std::abs(eigVecs(i, j).imag()) < 1e-12);
-    }
-  }
-
-  p = p / p.norm(); 
-  // TODO: This doesn't hold:check Eigen to see why???
+  // IMPORTANT: Eigen doesn't support eigenvalues/eigenvectors calculation *PROPERLY*
+  // i.e. w.r.t. to standard BLAS (such as LAPACK)
+  // Hence, we *MUST* use Armadillo.
+  arma::mat inputMat(in_mat.data(), in_mat.rows(), in_mat.cols());
+  arma::vec eigval;
+  arma::mat eigvec;
+  eig_sym(eigval, eigvec, inputMat);
+  // Copy result to Eigen
+  Eigen::MatrixXd p = Eigen::Map<Eigen::MatrixXd>(eigvec.memptr(), eigvec.n_rows, eigvec.n_cols);
+  // Orthogonal basis (Hermitian/symmetric matrix)  
   assert(isOrthogonal(p));
   // An orthogonal matrix P such that PT x matrix x P is diagonal.
   assert(isDiagonal(p.transpose() * in_mat * p));
