@@ -37,6 +37,8 @@ private:
     std::complex<double> x;
     std::complex<double> y;
     std::complex<double> z;
+    // Generates gate sequence:
+    std::shared_ptr<CompositeInstruction> toGates(size_t in_bit1, size_t in_bit2) const;
   };
     
   std::optional<KakDecomposition> kakDecomposition(const InputMatrix& in_matrix) const;
