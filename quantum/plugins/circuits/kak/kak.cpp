@@ -235,7 +235,7 @@ bool KAK::expand(const HeterogeneousMap& parameters)
   }
 
   auto composite = result->toGates(bits[0], bits[1]);
-
+  addInstructions(composite->getInstructions());
   return true;
 }
 
@@ -312,6 +312,10 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
   // where a,b,c,d are real numbers.
   const auto singleQubitGateDecompose = [](const GateMatrix& matrix) -> std::tuple<double, double, double, double> {
+    if (allClose(matrix, GateMatrix::Identity()))
+    {
+      return std::make_tuple(0.0, 0.0, 0.0, 0.0);
+    }
     const auto checkParams = [&matrix](double a, double bHalf, double cHalf, double dHalf) {
       GateMatrix U;
       U << std::exp(I*(a-bHalf-dHalf))*std::cos(cHalf),
@@ -425,6 +429,7 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
           break;
         }
       }
+      assert(found);
     }
         
     // Final check:
@@ -444,11 +449,6 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
     composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
     composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
-    if (a != 0.0)
-    {
-      composite->addInstruction(gateRegistry->createInstruction("U1", { in_bitIdx }, { a }));
-
-    }
 
     // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
     const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
@@ -464,13 +464,41 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     return composite; 
   };
 
-  auto a0Comp = singleQubitGateGen(a0, in_bit1);
-  auto a1Comp = singleQubitGateGen(a1, in_bit2);
-  auto b0Comp = singleQubitGateGen(b0, in_bit1);
-  auto b1Comp = singleQubitGateGen(b1, in_bit2);
-  
+  const auto generateInteractionComposite = [&gateRegistry](size_t bit1, size_t bit2, std::complex<double> x, std::complex<double> y, std::complex<double> z) {
+    std::stringstream ss;
+    ss << x << " X" << bit1 << "X" << bit2 << " + ";
+    ss << y << " Y" << bit1 << "Y" << bit2 << " + ";
+    ss << z << " Z" << bit1 << "Z" << bit2;
+    const std::string pauliString = ss.str();
+    auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
+    const bool expandOk = expCirc->expand({ std::make_pair("pauli", pauliString) });
+    assert(expandOk);
+    auto evaled = expCirc->operator()({ 1.0 });
+    std::cout << "Pauli: " << pauliString << "\n";
+    std::cout << "===============================\n";
+    std::cout << evaled->toString() << "\n";
+    std::cout << "===============================\n";
 
-  return nullptr;
+    return evaled;
+  };
+
+  auto a0Comp = singleQubitGateGen(a0, in_bit2);
+  auto a1Comp = singleQubitGateGen(a1, in_bit1);
+  auto b0Comp = singleQubitGateGen(b0, in_bit2);
+  auto b1Comp = singleQubitGateGen(b1, in_bit1);
+  auto interactionComp = generateInteractionComposite(in_bit1, in_bit2, x, y, z);
+  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
+  // U = g x (Gate A1 Gate A0) x exp(i(xXX + yYY + zZZ))x(Gate b1 Gate b0)
+  // Before:
+  composite->addInstructions(b0Comp->getInstructions());
+  composite->addInstructions(b1Comp->getInstructions());
+  // Interaction:
+  composite->addInstructions(interactionComp->getInstructions());
+  // After:
+  composite->addInstructions(a0Comp->getInstructions());
+  composite->addInstructions(a1Comp->getInstructions());
+  // Ignore global phase
+  return composite;
 }
 
 KAK::BidiagResult KAK::bidiagonalizeUnitary(const InputMatrix& in_matrix) const
