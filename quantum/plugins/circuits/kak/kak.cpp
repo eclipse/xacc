@@ -1,7 +1,9 @@
 #include "kak.hpp"
 #include "IRProvider.hpp"
+#include "xacc.hpp"
 #include <Eigen/Eigenvalues>
 #include <unsupported/Eigen/KroneckerProduct>
+#include <unsupported/Eigen/MatrixFunctions>
 #include "PauliOperator.hpp"
 #include <armadillo>
 
@@ -179,19 +181,37 @@ const std::vector<std::string> KAK::requiredKeys()
   return { "qubits", "unitary" };
 }
 
-bool KAK::expand(const HeterogeneousMap &parameters) 
+bool KAK::expand(const HeterogeneousMap& parameters) 
 {
-  // This is a simple "first-principle" implementation
-  // of a Kak decomposition.
-  // TODO: This matrix should be an input
-  Eigen::Matrix4cd m;
-  m << 1, 1 , 1, 1,
-      1, I, -1, -I,
-      1, -1, 1, -1,
-      1, -I, -1, I;
-  m = 0.5 * m;
+  Eigen::Matrix4cd unitary;
+  if (parameters.keyExists<Eigen::Matrix4cd>("unitary"))
+  {
+    unitary = parameters.get<Eigen::Matrix4cd>("unitary");
+  }
+  else if (parameters.keyExists<std::vector<std::complex<double>>>("unitary"))
+  {
+    auto matAsVec = parameters.get<std::vector<std::complex<double>>>("unitary");
+    // Correct size: 4 x 4
+    if (matAsVec.size() == 16)
+    {
+      for (int row = 0; row < 4; ++row)
+      {
+        for (int col = 0; col < 4; ++col)
+        {
+          // Expect row-by-row layout
+          unitary(row, col) = matAsVec[4*row + col];
+        }
+      }
+    }
+  }
   
-  auto result = kakDecomposition(m);
+  if (!isUnitary(unitary))
+  {
+    xacc::error("Input matrix is not a unitary matrix");
+    return false;
+  }
+  
+  auto result = kakDecomposition(unitary);
   return true;
 }
 
@@ -203,12 +223,18 @@ KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
   // Recover pieces.
   auto [a1, a0] = so4ToMagicSu2s(left.transpose());                        
   auto [b1, b0] = so4ToMagicSu2s(right.transpose());
+  assert(isUnitary(a0));
+  assert(isUnitary(a1));
+  assert(isUnitary(b0));
+  assert(isUnitary(b1));
+
   Eigen::Vector4cd angles;
   for (size_t i = 0; i < 4; ++i)
   {
     angles(i) = std::arg(diag[i]);
   }
   auto factors = KAK_GAMMA() * angles;
+  
   // Get factors:
   const auto w = factors(0);
   const auto x = factors(1);
@@ -219,9 +245,27 @@ KAK::KakDecomposition KAK::kakDecomposition(const InputMatrix& in_matrix) const
   xacc::quantum::PauliOperator xx(x, "X0X1");
   xacc::quantum::PauliOperator yy(y, "Y0Y1");
   xacc::quantum::PauliOperator zz(z, "Z0Z1");
-  auto herm = xx + yy + zz;
-  std::cout << "Herm: " << herm.toString();
+  // auto herm = xx + yy; 
+  // std::cout << "Herm: " << herm.toString() << "\n";
   
+  auto before = Eigen::kroneckerProduct(b1, b0);
+  auto after = Eigen::kroneckerProduct(a1, a0);
+  Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
+  Eigen::MatrixXcd Y { Eigen::MatrixXcd::Zero(2, 2)};       
+  Eigen::MatrixXcd Z { Eigen::MatrixXcd::Zero(2, 2)}; 
+  X << 0, 1, 1, 0;
+  Y << 0, -I, I, 0;
+  Z << 1, 0, 0, -1;
+  auto XX = Eigen::kroneckerProduct(X, X);
+  auto YY = Eigen::kroneckerProduct(Y, Y);
+  auto ZZ = Eigen::kroneckerProduct(Z, Z);
+  Eigen::MatrixXcd herm = x*XX + y*YY + z*ZZ;
+  herm = I*herm;
+  Eigen::MatrixXcd unitary = herm.exp();
+  auto total = g * after * unitary * before;
+  std::cout << "Total U:\n" << total << "\n";
+  assert(allClose(total, in_matrix));
+
   KakDecomposition result;
 
   return result;
