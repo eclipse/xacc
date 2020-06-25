@@ -38,7 +38,7 @@ void qreg::store() {
 }
 int qreg::size() { return buffer->size(); }
 void qreg::addChild(qreg &q) {
-  for (auto &child : buffer->getChildren()) {
+  for (auto &child : q.buffer->getChildren()) {
     results()->appendChild(child->name(), child);
   }
 }
