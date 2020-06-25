@@ -18,8 +18,8 @@ scratch development directory:
    $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc-quac
 
 
-Now navigate to ``localhost:3000`` in your web browser. This will open
-the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
+Now navigate to ``localhost:3000`` in your web browser. This will open the 
+Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
 
 Basics of Manipulating Quantum Systems in XACC
 ----------------------------------------------
@@ -115,7 +115,8 @@ XACC currently supports several pre-installed pulse declarations:
 
 which may be called as follows:
 
-.. code:: python  
+.. code:: python 
+
     channelConfigs.addOrReplacePulse('square', xacc.SquarePulse(nSamples))
     # channelConfigs.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
     # etc.
@@ -123,6 +124,7 @@ which may be called as follows:
 Alternatively, one may define a custom pulse (here just using a DC pulse with amplitude of 1) as:
 
 .. code:: python
+
     pulseData = np.ones(nbSamples)
     pulseName = 'custom'
     xacc.addPulse(pulseName, pulseData)
@@ -131,6 +133,7 @@ Now we allocate the amount of qubits needed for the program, create the program 
 and set the channel to drive it on:
 
 .. code:: python
+
     # Allocate qubits:
     q = xacc.qalloc(1)
     # Create the quantum program that contains the custom pulse
@@ -144,6 +147,7 @@ and set the channel to drive it on:
 Finally, we instruct the program on what measurement we'd like it to make and execute the program:
 
 .. code:: python 
+
     # Measure Q0 (using the number of shots that were specified above)
     prog.addInstruction(xacc.gate.create("Measure", [0]))
     qpu.execute(q, prog)
@@ -157,21 +161,24 @@ and the number of qubits in your system, there are different ways to return the 
 Case 1: Returning the probability of the |1> state for a single qubit:
 
 .. code:: python 
+
     fidelity = q.computeMeasurementProbability('1')
 
 Case 2: Returning the probability of the |1> and |2> state for a single qutrit:
 
 .. code:: python
+
     fidelity = q['DensityMatrixDiags'][1]
     leakage = q['DensityMatrixDiags'][2]
 
-Case 3: Fidelity Calculation using Denisty Matrices
+Case 3: Fidelity Calculation using Density Matrices
 
 In this case, we can provide a target density matrix for the system (both the real and imaginary part)
 and calculate the fidelity against that metric. Here we outline a fidelity calculation for an X-Gate on a 
 2-qubit system. 
 
 .. code:: python  
+
     # Expected density matrix: rho = |10><10| for an X gate on the first qubit. 
     expectedDmReal = np.array([
         0, 0, 0, 0,
@@ -227,6 +234,7 @@ An alternative method of defining the Hamiltonian is shown here for a 2-qubit sy
 We start by defining the Hamiltonian as a string instead of a variable:
 
 .. code:: python
+
     """
     {
         "description": "Two-qubit Hamiltonian",
@@ -250,6 +258,7 @@ We start by defining the Hamiltonian as a string instead of a variable:
 
 Then, it is automatically passed to the chosen QuaC backend upon calling:
 .. code:: python
+
     qpu = xacc.getAccelerator('QuaC:Default2Q')
 
 
