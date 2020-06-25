@@ -18,6 +18,28 @@
 using namespace ens;
 
 namespace xacc {
+const bool MLPACKOptimizer::isGradientBased() const {
+
+  std::string mlpack_opt_name = "adam";
+  if (options.stringExists("mlpack-optimizer")) {
+    mlpack_opt_name = options.getString("mlpack-optimizer");
+  }
+
+  std::vector<std::string> non_grad{"cmaes", "spsa"};
+  if (xacc::container::contains(non_grad, mlpack_opt_name)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+const std::string MLPACKOptimizer::get_algorithm() const {
+  std::string mlpack_opt_name = "adam";
+  if (options.stringExists("mlpack-optimizer")) {
+    mlpack_opt_name = options.getString("mlpack-optimizer");
+  }
+  return mlpack_opt_name;
+}
 
 OptResult MLPACKOptimizer::optimize(OptFunction &function) {
 
