@@ -307,7 +307,7 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
 {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
-  // An arbitrary one qubit gate matrix can be writen as
+  // An arbitrary one qubit gate matrix can be written as
   // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
   //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
   // where a,b,c,d are real numbers.
@@ -465,21 +465,36 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   };
 
   const auto generateInteractionComposite = [&gateRegistry](size_t bit1, size_t bit2, std::complex<double> x, std::complex<double> y, std::complex<double> z) {
+    const double xAngle = -2.0*x.real() + M_PI_2;
+    const double yAngle = -2.0*y.real() + M_PI_2;
+    const double zAngle = -2.0*z.real() + M_PI_2;
+    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { xAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit2 }, { yAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit2 }, { zAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+    
     std::stringstream ss;
     ss << x << " X" << bit1 << "X" << bit2 << " + ";
     ss << y << " Y" << bit1 << "Y" << bit2 << " + ";
     ss << z << " Z" << bit1 << "Z" << bit2;
     const std::string pauliString = ss.str();
-    auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
-    const bool expandOk = expCirc->expand({ std::make_pair("pauli", pauliString) });
-    assert(expandOk);
-    auto evaled = expCirc->operator()({ 1.0 });
     std::cout << "Pauli: " << pauliString << "\n";
     std::cout << "===============================\n";
-    std::cout << evaled->toString() << "\n";
+    std::cout << composite->toString() << "\n";
     std::cout << "===============================\n";
 
-    return evaled;
+    return composite;
   };
 
   auto a0Comp = singleQubitGateGen(a0, in_bit2);
