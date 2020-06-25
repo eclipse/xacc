@@ -86,6 +86,7 @@ the time between the samples (dt), and the frequency of the driving envelope (ty
     channelConfig.loFregs_dChannels = [5.0353]
 
 XACC currently supports several pre-installed pulse declarations:
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
 |   Pulse Type           |                  Parameters                                     |             type                     |
 +========================+=================================================================+======================================+
