@@ -154,17 +154,20 @@ Finally, we instruct the program on what measurement we'd like it to make and ex
 
 
 Returning the Fidelity
-----------------------
+++++++++++++++++++++++
+
 Depending on the backend that you're targetting, the gate operation you're attempting to do, 
 and the number of qubits in your system, there are different ways to return the fidelity.
 
 Case 1: Returning the probability of the |1> state for a single qubit:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python 
 
     fidelity = q.computeMeasurementProbability('1')
 
-Case 2: Returning the probability of the |1> and |2> state for a single qutrit:
+Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -172,9 +175,10 @@ Case 2: Returning the probability of the |1> and |2> state for a single qutrit:
     leakage = q['DensityMatrixDiags'][2]
 
 Case 3: Fidelity Calculation using Density Matrices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this case, we can provide a target density matrix for the system (both the real and imaginary part)
-and calculate the fidelity against that metric. Here we outline a fidelity calculation for an X-Gate on a 
+and calculate the fidelity against that matrix. Here we outline the fidelity calculation for an X-Gate on a 
 2-qubit system. 
 
 .. code:: python  
@@ -201,6 +205,7 @@ and calculate the fidelity against that metric. Here we outline a fidelity calcu
     print("\nFidelity: {}".format(fidelity))
 
 Case 4: Quantum Process Tomography:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The final method is to run XACC's Quantum Process Tomography algorithm on the system. In simulation, 
 this method will take more time than the others listed above, but on actual hardware the difference 
@@ -257,6 +262,7 @@ We start by defining the Hamiltonian as a string instead of a variable:
     """
 
 Then, it is automatically passed to the chosen QuaC backend upon calling:
+
 .. code:: python
 
     qpu = xacc.getAccelerator('QuaC:Default2Q')
