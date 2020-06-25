@@ -14,6 +14,7 @@
 #define XACC_SINGLET_ADAPTED_UCCSD_POOL_HPP_
 
 #include "adapt.hpp"
+#include "OperatorPool.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Observable.hpp"
@@ -28,7 +29,8 @@ using namespace xacc;
 using namespace xacc::quantum;
 
 namespace xacc{
-namespace algorithm{
+// namespace algorithm{
+namespace quantum{
 
 class SingletAdaptedUCCSD : public OperatorPool {
 
