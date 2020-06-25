@@ -238,6 +238,8 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
 
 .. code:: python
 
+    prog = provider.createComposite('pulse_qpt')
+
     # Define the number of shots
     NB_SHOTS = 10000
 
@@ -248,6 +250,7 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
     q = xacc.qalloc(1)
     qpu = xacc.getAccelerator('q', {'shots': NB_SHOTS})
     compiler = xacc.getCompiler('xasm')
+    # Getting IR for an X gate
     ir = compiler.compile('''__qpu__ void f(qbit q) {X(q[0]);}''', None)
     qppCompositeInstr = ir.getComposites()[0]
     qpt.initialize({'circuit': qppCompositeInstr, 'accelerator': qpu})
