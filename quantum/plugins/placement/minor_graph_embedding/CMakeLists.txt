@@ -11,8 +11,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
                            PUBLIC ${CMAKE_SOURCE_DIR}/tpls/pybind11/include
-                                  ${PYTHON_INCLUDE_DIR}
-                                  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                  ${PYTHON_INCLUDE_DIR})
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc xacc-quantum-annealing
                              )

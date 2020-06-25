@@ -44,8 +44,7 @@ target_include_directories(${LIBRARY_NAME}
                                   tpls/legacy-sapi-clients/c-client/include
                                   tpls/legacy-sapi-clients/remote/include
                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
-                                  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                  ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src)
 
 
 target_link_libraries(${LIBRARY_NAME}

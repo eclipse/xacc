@@ -13,8 +13,7 @@ target_include_directories(${LIBRARY_NAME}
                              PUBLIC .
                                     ./accelerator
                                     ./accelerator/src/include
-                                    ${CMAKE_SOURCE_DIR}/tpls/eigen
-                                    ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                    ${CMAKE_SOURCE_DIR}/tpls/eigen)
 target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate

@@ -33,8 +33,7 @@ target_include_directories(${LIBRARY_NAME}
                                   compiler/generated
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
                                   ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                  ${CMAKE_SOURCE_DIR}/tpls/exprtk
-                                  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                  ${CMAKE_SOURCE_DIR}/tpls/exprtk)
 target_link_libraries(${LIBRARY_NAME}
                       PUBLIC xacc
                              xacc-quantum-gate

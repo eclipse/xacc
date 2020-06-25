@@ -12,8 +12,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                              PUBLIC .
                                     ./accelerator
-                                    ./accelerator/src/include
-                                    ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+                                    ./accelerator/src/include)
 
 find_package(OpenCL)
 if (OpenCL_FOUND)
