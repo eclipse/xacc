@@ -86,7 +86,7 @@ the time between the samples (dt), and the frequency of the driving envelope (ty
     channelConfig.loFregs_dChannels = [5.0353]
 
 XACC currently supports several pre-installed pulse declarations:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
 |   Pulse Type           |           Parameters    |      Parameter Description                  |       type                     |
 +========================+=========================+=============================================+================================+
@@ -154,20 +154,20 @@ Finally, we instruct the program on what measurement we'd like it to make and ex
 
 
 Returning the Fidelity
-++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~
 
 Depending on the backend that you're targetting, the gate operation you're attempting to do, 
 and the number of qubits in your system, there are different ways to return the fidelity.
 
 Case 1: Returning the probability of the |1> state for a single qubit:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code:: python 
 
     fidelity = q.computeMeasurementProbability('1')
 
 Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code:: python
 
@@ -175,7 +175,7 @@ Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
     leakage = q['DensityMatrixDiags'][2]
 
 Case 3: Fidelity Calculation using Density Matrices
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 In this case, we can provide a target density matrix for the system (both the real and imaginary part)
 and calculate the fidelity against that matrix. Here we outline the fidelity calculation for an X-Gate on a 
@@ -205,7 +205,7 @@ and calculate the fidelity against that matrix. Here we outline the fidelity cal
     print("\nFidelity: {}".format(fidelity))
 
 Case 4: Quantum Process Tomography:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++++
 
 The final method is to run XACC's Quantum Process Tomography algorithm on the system. In simulation, 
 this method will take more time than the others listed above, but on actual hardware the difference 
@@ -231,7 +231,7 @@ in time will be marginal. The fidelity here is calculated against a user-provide
     fidelity = qpt.calculate('fidelity', q, {'chi-theoretical-real': chi_real_vec})
 
 Case 4A: Quantum Process Tomography from the Gate-Level:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Instead of calcualting the target process matrix by hand, we can instead leverage XACC's 
 Pulse-Level IR Transformation to convert a user-provided gate into its corresponding chi-matrix.
