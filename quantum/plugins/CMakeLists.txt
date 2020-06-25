@@ -25,6 +25,9 @@ add_subdirectory(xasm)
 add_subdirectory(qpp)
 add_subdirectory(staq)
 
+file(GLOB HEADERS utils/*.hpp)
+target_include_directories(xacc PUBLIC utils)
+
 find_library(QRACK_LIBRARY NAMES qrack)
 if (QRACK_LIBRARY)
     message("-- Found Qrack library (find_library(QRACK_LIBRARY NAMES qrack))")

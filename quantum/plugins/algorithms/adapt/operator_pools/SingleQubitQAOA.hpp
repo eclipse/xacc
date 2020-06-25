@@ -14,6 +14,7 @@
 #define XACC_SINGLE_QUBIT_QAOA_POOL_HPP_
 
 #include "adapt.hpp"
+#include "OperatorPool.hpp"
 #include "variant.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -25,7 +26,8 @@
 using namespace xacc;
 
 namespace xacc{
-namespace algorithm{
+// namespace algorithm{
+namespace quantum{
 
 class SingleQubitQAOA : public OperatorPool {
 
