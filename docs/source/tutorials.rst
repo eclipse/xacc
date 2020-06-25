@@ -1,0 +1,266 @@
+Pulse Control Tutorial
+=============================
+Here we describe how users can easily leverage XACC with the 
+QuaC Open-Pulse Simulator to conduct optimal control experiments.
+We currently support the following control algorithms:
+GRAPE [1], CRAB [2], Krotov [3], GOAT [4], and DRAG [5] with near-term plans of supporting Deep Reinforcement Learning
+and GRAFS [6].
+
+Quick Start with Docker
+-----------------------
+We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC and QuaC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on ``localhost:3000``. To use this image run the following from some
+scratch development directory:
+
+.. code:: bash
+
+   $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc-quac
+
+
+Now navigate to ``localhost:3000`` in your web browser. This will open
+the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
+
+Basics of Manipulating Quantum Systems in XACC
+----------------------------------------------
+We will begin by showing how to define a quantum system in XACC, and subsqequently demonstrate how to manipulate the system. 
+The `next section <https://xacc.readthedocs.io/en/latest/tutorials.html#Optimizing-Controls-for-Quantum-Systems>`_
+will cover optimizing controls for the system through the use of XACC's Quantum Control algorithms. 
+
+Make sure to run the following imports:
+
+.. code:: python
+
+    import xacc
+    import sys, os, json, numpy as np 
+    from pathlib import Path
+    sys.path.insert(1, str(Path.home()) + '/.xacc')
+
+Each file then begins by defining the Hamiltonian of the system in jSON format:
+
+.. code:: python
+
+    hamiltonianJson = {
+        "description": "One-qutrit Hamiltonian.",
+        "h_latex": "",
+        "h_str": ["(w - 0.5*alpha)*O0", "0.5*alpha*O0*O0", "O*(SM0 + SP0)||D0"],
+        "osc": {},
+        "qub": {
+            "0": 3
+        },
+        "vars": {
+            "w": 31.63772297724,
+            "alpha": -1.47969,
+            "O": 0.0314
+        }
+    }
+
+with the above being an example of a single qutrit system. For more information on formatting the Hamiltonian, 
+see `Advanced/Pulse-level Programming <https://xacc.readthedocs.io/en/latest/advanced.html>`_ . Alternatively, 
+in the QuaC/xacc_examples/python folder, there are several example files outlining definitions for one-qubit, 
+one-qutrit, two-qubit, and two-qutrit Hamiltonians that users can plug-and-play with. 
+
+Next, a pulse model must be instantiated and the Hamiltonian is passed to the module by calling:
+
+.. code:: python
+
+    model = xacc.createPulseModel()
+    loadResult = model.loadHamiltonianJson(json.dumps(hamiltonianJson))
+    qpu = xacc.getAccelerator('QuaC', {'system-model': model.name()})
+    channelConfig = xacc.BackendChannelConfigs()
+
+
+See `Tutorials/Alternative Hamiltonian Declaration <https://xacc.readthedocs.io/en/latest/tutorials.html#Alternative-Hamiltonian-Declaration>`_
+for an alternative method of defining the Hamiltonian and passing it to the backend.
+
+Let’s now define some of the parameters of the pulse, beginning with the total pulse time in nanoseconds, the number of samples, 
+the time between the samples (dt), and the frequency of the driving envelope (typically chosen to be on resonance with the qubit):
+
+.. code:: python
+
+    T = 100
+    nbSamples = 100
+    # dt (time between data samples)
+    channelConfig.dt = nbSamples / T 
+    # Drive at resonance: 31.63772297724/(2pi)    
+    channelConfig.loFregs_dChannels = [5.0353]
+
+XACC currently supports several pre-installed pulse declarations:
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|   Pulse Type           |                  Parameters                                     |             type                     |
++========================+=================================================================+======================================+
+|   SquarePulse          | nbSamples                                                       | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|   GaussianPulse        | nbSamples                                                       | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | sigma                                                           | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|   GaussianSquare       | duration                                                        | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | amplitude                                                       | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | sigma                                                           | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | width                                                           | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|   DragPulse            | duration                                                        | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | amplitude                                                       | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | sigma                                                           | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|                        | beta                                                            | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+which may be called as follows:
+
+.. code:: python  
+    channelConfigs.addOrReplacePulse('square', xacc.SquarePulse(nSamples))
+    # channelConfigs.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
+    # etc.
+
+Alternatively, one may define a custom pulse (here just using a DC pulse with amplitude of 1) as:
+
+.. code:: python
+    pulseData = np.ones(nbSamples)
+    pulseName = 'custom'
+    xacc.addPulse(pulseName, pulseData)
+
+Now we allocate the amount of qubits needed for the program, create the program containing the pulse,
+and set the channel to drive it on:
+
+.. code:: python
+    # Allocate qubits:
+    q = xacc.qalloc(1)
+    # Create the quantum program that contains the custom pulse
+    # and the drive channel (D0) is set on the instruction
+    provider = xacc.getIRProvider('quantum')
+    prog = provider.createComposite('pulse')
+    customPulse = provider.createInstruction(pulseName, [0])
+    customPulse.setChannel('d0')
+    prog.addInstruction(customPulse)
+
+Finally, we instruct the program on what measurement we'd like it to make and execute the program:
+
+.. code:: python 
+    # Measure Q0 (using the number of shots that were specified above)
+    prog.addInstruction(xacc.gate.create("Measure", [0]))
+    qpu.execute(q, prog)
+
+
+Returning the Fidelity
+----------------------
+Depending on the backend that you're targetting, the gate operation you're attempting to do, 
+and the number of qubits in your system, there are different ways to return the fidelity.
+
+Case 1: Returning the probability of the |1> state for a single qubit:
+
+.. code:: python 
+    fidelity = q.computeMeasurementProbability('1')
+
+Case 2: Returning the probability of the |1> and |2> state for a single qutrit:
+
+.. code:: python
+    fidelity = q['DensityMatrixDiags'][1]
+    leakage = q['DensityMatrixDiags'][2]
+
+Case 3: Fidelity Calculation using Denisty Matrices
+
+In this case, we can provide a target density matrix for the system (both the real and imaginary part)
+and calculate the fidelity against that metric. Here we outline a fidelity calculation for an X-Gate on a 
+2-qubit system. 
+
+.. code:: python  
+    # Expected density matrix: rho = |10><10| for an X gate on the first qubit. 
+    expectedDmReal = np.array([
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 0
+    ], dtype = np.float64)
+    
+    expectedDmImag = np.zeros(16)
+    
+    # Add target density matrix info to the buffer before execution          
+    q.addExtraInfo("target-dm-real", expectedDmReal)
+    q.addExtraInfo("target-dm-imag", expectedDmImag)
+
+    # Execute the program
+    qpu.execute(q, prog)
+
+    # Return the fidelity 
+    fidelity = qReg["fidelity"]
+    print("\nFidelity: {}".format(fidelity))
+
+Case 4: Quantum Process Tomography:
+
+The final method is to run XACC's Quantum Process Tomography algorithm on the system. In simulation, 
+this method will take more time than the others listed above, but on actual hardware the difference 
+in time will be marginal. The fidelity here is calculated against a user-provided target process matrix.
+
+.. code:: python
+
+    # Create the Quantum Process Tomography Algorithm
+    # This line should replace the xacc.getAccelerator() call
+    qpt = xacc.getAlgorithm('qpt', {'circuit': compositeInst, 'accelerator': quaC, 'optimize-circuit': False})
+
+    # Allocate qubit and execute
+    q = xacc.qalloc(1)
+    qpt.execute(q)
+
+    # Target chi matrix (X-gate)
+    chi_real_vec = [0., 0., 0., 0., 
+                    0., 2., 0., 0., 
+                    0., 0., 0., 0.,
+                    0., 0., 0., 0.]
+    fidelity = qpt.calculate('fidelity', q, {'chi-theoretical-real': chi_real_vec})
+
+
+Optimizing Controls for Quantum Systems
+---------------------------------------
+
+
+Alternative Hamiltonian Declaration
+-----------------------------------
+An alternative method of defining the Hamiltonian is shown here for a 2-qubit system. 
+We start by defining the Hamiltonian as a string instead of a variable:
+
+.. code:: python
+    """
+    {
+        "description": "Two-qubit Hamiltonian",
+        "h_str": ["_SUM[i,0,1,wq{i}*O{i}]", "_SUM[i,0,1,delta{i}*O{i}*(O{i}-I{i})]", "_SUM[i,0,1,omegad{i}*X{i}||D{i}]", "omegad1*X0||U0", "omegad0*X1||U1", "jq0q1*Sp0*Sm1", "jq0q1*Sm0*Sp1"],
+        "osc": {},
+        "qub": {
+            "0": 2,
+            "1": 2
+        },
+        "vars": {
+            "wq0": 30.518812656662774, 
+            "wq1": 31.238229295532093,
+            "delta0": -2.011875935,
+            "delta1": -2.008734343,
+            "omegad0": -1.703999855,
+            "omegad1": -1.703999855,
+            "jq0q1": 0.011749557 
+        }
+    }
+    """
+
+Then, it is automatically passed to the chosen QuaC backend upon calling:
+.. code:: python
+    qpu = xacc.getAccelerator('QuaC:Default2Q')
+
+
+
+[1] `Data-driven gradient algorithm for high-precision quantum control <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.042122>`_
+
+[2] `Chopped random-basis quantum optimization <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.84.022326>`_
+
+[3] `Control of Photochemical Branching: Novel Procedures for Finding Optimal Pulses and Global Upper Bounds <https://link.springer.com/chapter/10.1007/978-1-4899-2326-4_24>`_
+
+[4] `Tunable, Flexible, and Efficient Optimization of Control Pulses for Practical Qubits <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.150401>`_
+
+[5] `Simple Pulses for Elimination of Leakage in Weakly Nonlinear Qubits <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.103.110501>`_ 
+
+[6] `Quantum optimal control via gradient ascent in function space and the time-bandwidth quantum speed limit <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.062346>`_

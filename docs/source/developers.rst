@@ -15,6 +15,7 @@ scratch development directory:
 
    $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
 
+
 Now navigate to ``localhost:3000`` in your web browser. This will open
 the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
 

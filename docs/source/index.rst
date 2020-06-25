@@ -54,6 +54,10 @@ XACC is developed and maintained by:
 * `Ryan Sand <rsand3642@gmail.com>`_
 * `Charles Zhao <czhao39@gmail.com>`_
 * `Jay Billings <billingsjj@ornl.gov>`_
+* `Thien Nguyen <nguyentm@ornl.gov>`_ 
+* `Daniel Chaves-Claudino <claudinodc@ornl.gov>`_
+* `Tyler Kharazi <kharazitd@ornl.gov>`_ 
+* `Anthony Santana <santanaam@ornl.gov>`_
 
 Questions, Bug Reporting, and Issue Tracking
 ---------------------------------------------
