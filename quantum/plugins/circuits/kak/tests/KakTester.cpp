@@ -82,6 +82,53 @@ TEST(KakTester, checkCNOT)
   runTestCase(true, false);
   runTestCase(true, true);
 }
+
+TEST(KakTester, checkTomographyCNOT)
+{
+  auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 4096) });
+  auto buffer = xacc::qalloc(2);
+  Eigen::Matrix4cd cnotMat;
+  cnotMat << 1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1,
+            0, 0, 1, 0;
+  
+  auto tmp = xacc::getService<Instruction>("kak");
+  auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+  const bool expandOk = kak->expand({ 
+    std::make_pair("unitary", cnotMat)
+  });
+  EXPECT_TRUE(expandOk);
+
+  auto qpt = xacc::getService<Algorithm>("qpt");
+  EXPECT_TRUE(qpt->initialize({ 
+    std::make_pair("circuit", std::static_pointer_cast<CompositeInstruction>(kak)), 
+    std::make_pair("accelerator", acc)}));
+  qpt->execute(buffer);
+
+  const std::vector<double> true_cx_chi {
+    1., 0., 0., 1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,
+    1., 1., 0., 0., -1., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 1., 1.,
+    0., 0., -1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., -1., 0., 0., -1., -1., 0., 0., 1., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0., 0., 0.};
+  const double fidelity = qpt->calculate("fidelity", buffer, {
+    std::make_pair("chi-theoretical-real", true_cx_chi) });
+
+  std::cout << "Fidelity: " <<  fidelity << "\n";
+  EXPECT_NEAR(1.0, fidelity, 0.1);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
