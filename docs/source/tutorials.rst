@@ -64,8 +64,9 @@ Each file then begins by defining the Hamiltonian of the system in jSON format:
 
 with the above being an example of a single qutrit system. For more information on formatting the Hamiltonian, 
 see `Advanced/Pulse-level Programming <https://xacc.readthedocs.io/en/latest/advanced.html>`_ . Alternatively, 
-in the QuaC/xacc_examples/python folder, there are several example files outlining definitions for one-qubit, 
-one-qutrit, two-qubit, and two-qutrit Hamiltonians that users can plug-and-play with. 
+in `QuaC/xacc_examples/python <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration/xacc_examples/python>`_, 
+there are several example files outlining definitions for one-qubit, one-qutrit, two-qubit, 
+and two-qutrit Hamiltonians that users can plug-and-play with. 
 
 Next, a pulse model must be instantiated and the Hamiltonian is passed to the module by calling:
 
@@ -128,7 +129,7 @@ which may be called as follows:
     # channelConfigs.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
     # etc.
 
-Alternatively, one may define a custom pulse (here just using a DC pulse with amplitude of 1) as:
+Alternatively, one may define a custom pulse in numpy array format:
 
 .. code:: python
 
@@ -155,26 +156,26 @@ Finally, we instruct the program on what measurement we'd like it to make and ex
 
 .. code:: python 
 
-    # Measure Q0 (using the number of shots that were specified above)
+    # Measure Q0
     prog.addInstruction(xacc.gate.create("Measure", [0]))
     qpu.execute(q, prog)
 
 
 Returning the Fidelity
-~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++
 
 Depending on the backend that you're targetting, the gate operation you're attempting to do, 
 and the number of qubits in your system, there are different ways to return the fidelity.
 
 Case 1: Returning the probability of the |1> state for a single qubit:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python 
 
     fidelity = q.computeMeasurementProbability('1')
 
 Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -182,7 +183,7 @@ Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
     leakage = q['DensityMatrixDiags'][2]
 
 Case 3: Fidelity Calculation using Density Matrices
-+++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this case, we can provide a target density matrix for the system (both the real and imaginary part)
 and calculate the fidelity against that matrix. Here we outline the fidelity calculation for an X-Gate on a 
@@ -208,11 +209,11 @@ and calculate the fidelity against that matrix. Here we outline the fidelity cal
     qpu.execute(q, prog)
 
     # Return the fidelity 
-    fidelity = qReg["fidelity"]
+    fidelity = q["fidelity"]
     print("\nFidelity: {}".format(fidelity))
 
 Case 4: Quantum Process Tomography:
-+++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The final method is to run XACC's Quantum Process Tomography algorithm on the system. In simulation, 
 this method will take more time than the others listed above, but on actual hardware the difference 
@@ -238,7 +239,7 @@ in time will be marginal. The fidelity here is calculated against a user-provide
     fidelity = qpt.calculate('fidelity', q, {'chi-theoretical-real': chi_real_vec})
 
 Case 4A: Quantum Process Tomography from the Gate-Level:
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instead of calcualting the target process matrix by hand, we can instead leverage XACC's 
 Pulse-Level IR Transformation to convert a user-provided gate into its corresponding chi-matrix.
@@ -267,13 +268,13 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
 
 
 Optimizing Controls for Quantum Systems
----------------------------------------
++++++++++++++++++++++++++++++++++++++++
 
 
 Alternative Hamiltonian Declaration
------------------------------------
-An alternative method of defining the Hamiltonian is shown here for a 2-qubit system. 
-We start by defining the Hamiltonian as a string instead of a variable:
++++++++++++++++++++++++++++++++++++
+
+Currently, XACC provides a default two-qubit backend represented by the following Hamiltonian:
 
 .. code:: python
 
@@ -298,11 +299,15 @@ We start by defining the Hamiltonian as a string instead of a variable:
     }
     """
 
-Then, it is automatically passed to the chosen QuaC backend upon calling:
+Accessing this backend is as simple as:
 
 .. code:: python
 
     qpu = xacc.getAccelerator('QuaC:Default2Q')
+
+Additionally, this backend comes with the following pre-calibrated pulses:
+
+
 
 
 
