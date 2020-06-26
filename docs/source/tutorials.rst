@@ -275,11 +275,11 @@ There are two simple ways to implement XACC's Quantum Control algorithms into yo
 Method 1: Optimize Pulse given Gate-Level Operation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using XACC's IR Transformation similarly to in ` Returning the Fidelity/Case 4A 
+Using XACC's IR Transformation similarly to in `Returning the Fidelity/Case 4A 
 <https://xacc.readthedocs.io/en/latest/tutorials.html#case-4a-quantum-process-tomography-from-the-gate-level>`_, 
 users can pass a Gate-Level instruction to the backend, and return an optimized pulse with the algorithm of their 
-choosing. The following is a short snippet of a CNOT on a two-qubit system. For the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
-<https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_ :
+choosing. The following is a short snippet of a CNOT on a two-qubit system (for the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
+<https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_).
 
 .. code::python
 
