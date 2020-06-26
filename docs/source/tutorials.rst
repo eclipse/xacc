@@ -40,6 +40,9 @@ Make sure to run the following imports:
 
     import xacc
     import sys, os, json, numpy as np 
+    
+    # Alternative to the following two lines is to run 
+    # from the IDE terminal: export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
     from pathlib import Path
     sys.path.insert(1, str(Path.home()) + '/.xacc')
 
@@ -302,6 +305,7 @@ choosing. The following is a short snippet of using GRAPE to construct a CNOT on
     qpu.execute(q, program)
     print(q)
 
+After calling qpu.execute(), the `program` variable is no longer a gate, but is now the optimized pulse.
 Similarly, here is how to optimize an X-gate on a single qubit using GOAT:
 
 .. code:: python
@@ -311,7 +315,7 @@ Similarly, here is how to optimize an X-gate on a single qubit using GOAT:
 
     # Get the XASM compiler
     xasmCompiler = xacc.getCompiler('xasm');
-    
+
     # Composite to be transform to pulse
     ir = xasmCompiler.compile('''__qpu__ void f(qbit q) {Rx(q[0], 1.57);}''', qpu);
     program = ir.getComposites()[0]

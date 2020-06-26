@@ -5,6 +5,8 @@
 
 .. image:: ../assets/xacc_full_logo.svg
 
+\
+\
 
 Overview
 ---------
