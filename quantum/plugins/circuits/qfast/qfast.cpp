@@ -24,6 +24,14 @@ Eigen::MatrixXcd Z { Eigen::MatrixXcd::Zero(2, 2)};
 Eigen::MatrixXcd Id { Eigen::MatrixXcd::Identity(2, 2)};  
 
 constexpr std::complex<double> I { 0.0, 1.0 };
+
+int getTempId()
+{
+  static int tempIdCounter = 0;
+  tempIdCounter++;
+  return tempIdCounter;
+}
+
 const std::vector<Eigen::MatrixXcd>& getPaulisMap(int n)
 {
     static std::vector<std::vector<Eigen::MatrixXcd>> cachedMap;
@@ -121,8 +129,6 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     m_distanceLimit = 0.001;
     // !! TEMP CODE !!
 
-    // Generate and cache the Pauli decompose basis:
-    // m_allPaulis = generateAllPaulis(m_nbQubits, m_topology);
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
     for (const auto& block : decomposedResult)
@@ -131,7 +137,6 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
         addInstructions(compInst->getInstructions());
     }
 
-    // TODO
     return true;
 }
 
@@ -147,12 +152,6 @@ std::vector<QFAST::Block> QFAST::decompose()
     const auto refinedResult = refine(exloreResults);
     
     return refinedResult;
-}
-
-std::vector<QFAST::Block> QFAST::pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const 
-{
-    // TODO
-    return {};
 }
 
 std::vector<QFAST::PauliReps> QFAST::explore()
@@ -291,8 +290,17 @@ void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topo
     
 std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Block& in_genericBlock)
 {
-    // TODO
-    return nullptr;
+    // Use KAK to decompose block matrix (4x4) to gates:
+    auto gateRegistry = xacc::getService<IRProvider>("quantum");
+    auto kak = std::dynamic_pointer_cast<quantum::Circuit>(xacc::getService<Instruction>("kak"));
+    const bool expandOk = kak->expand({ 
+        std::make_pair("unitary", in_genericBlock.uMat),
+        std::make_pair("qubits", std::vector<int> { 
+            static_cast<int>(in_genericBlock.qubits.first), 
+            static_cast<int>(in_genericBlock.qubits.second) })
+    });
+    assert(expandOk);    
+    return kak;
 }
  
 std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nbQubits, const Topology& in_topology)
