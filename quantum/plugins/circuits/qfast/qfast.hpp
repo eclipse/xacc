@@ -92,9 +92,6 @@ private:
     std::vector<Block> refine(const std::vector<PauliReps>& in_rawResults);
     // Algorithm #5
     void addLayer(std::vector<PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const;
-
-    std::vector<Block> pauliRepsToBlocks(const std::vector<PauliReps>& in_pauliRep) const;
-
     // Gate Instantiation: i.e. KAK
     std::shared_ptr<CompositeInstruction> genericBlockToGates(const Block& in_genericBlock);
     
@@ -115,10 +112,7 @@ private:
     Eigen::MatrixXcd layerToUnitaryMatrix(const PauliReps& in_layer, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const;
 private:
     Eigen::MatrixXcd m_targetU;
-    // All Pauli tensors
-    // std::vector<std::vector<Eigen::MatrixXcd>> m_allPaulis;
     size_t m_nbQubits;
-    // Topology m_topology;
     // Trace/Fidelity distance limit:
     double m_distanceLimit;
     std::shared_ptr<LocationModel> m_locationModel;
