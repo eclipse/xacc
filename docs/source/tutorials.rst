@@ -241,7 +241,7 @@ in time will be marginal. The fidelity here is calculated against a user-provide
 Case 4A: Quantum Process Tomography from the Gate-Level:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instead of calcualting the target process matrix by hand, we can instead leverage XACC's 
+Instead of calcualting the target process matrix by hand, we can leverage XACC's 
 Pulse-Level IR Transformation to convert a user-provided gate into its corresponding chi-matrix.
 
 .. code:: python
@@ -307,7 +307,17 @@ Accessing this backend is as simple as:
 
 Additionally, this backend comes with the following pre-calibrated pulses:
 
-
++------------------------+-------------------------+---------------------------------------------+
+|   Pulse Type           |   Gate Operation        |      Description                            |
++========================+=========================+=============================================+
+|   Single Qubit         | X-Gate                  | pi/2 rotation over X-axis on Q0 or Q1       |
++------------------------+-------------------------+---------------------------------------------+
+|                        | H-Gate                  | Hadamard Gate on Q0 or Q1                   | 
++------------------------+-------------------------+---------------------------------------------+
+|                        | U3-Gate                 | U3 Operation on Q0 or Q1                    | 
++------------------------+-------------------------+---------------------------------------------+
+|   Double Qubit         | CNOT                    | CNOT with U3 gates to correct local rotation errors | 
++------------------------+-------------------------+---------------------------------------------+
 
 
 
