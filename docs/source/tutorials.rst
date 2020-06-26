@@ -270,6 +270,46 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
 Optimizing Controls for Quantum Systems
 +++++++++++++++++++++++++++++++++++++++
 
+There are two simple ways to implement XACC's Quantum Control algorithms into your experiments.
+
+Method 1: Optimize Pulse given Gate-Level Operation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using XACC's IR Transformation similarly to in ` Returning the Fidelity/Case 4A 
+<https://xacc.readthedocs.io/en/latest/tutorials.html#case-4a-quantum-process-tomography-from-the-gate-level>`_, 
+users can pass a Gate-Level instruction to the backend, and return an optimized pulse with the algorithm of their 
+choosing. The following is a short snippet of a CNOT on a two-qubit system. For the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
+<https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_ :
+
+.. code::python
+
+    # Assuming users have already defined the Hamiltonian, pulse system model, 
+    # qpu = xacc.getAccelerator(), and the channelConfigs parameters
+
+    # Get the XASM compiler
+    xasmCompiler = xacc.getCompiler('xasm');
+
+    # Composite to be transform to pulse
+    ir = xasmCompiler.compile('''__qpu__ void f(qbit q) {
+        CNOT(q[0], q[1]);
+    }''', qpu);
+    program = ir.getComposites()[0]
+
+    # Run the pulse IRTransformation 
+    optimizer = xacc.getIRTransformation('quantum-control')
+    optimizer.apply(program, qpu, {
+        'method': 'GRAPE',
+        'max-time': T,
+        'dt': channelConfigs.dt
+    })
+
+    # Run the simulation of the optimized pulse program
+    q = xacc.qalloc(2)
+    qpu.execute(q, program)
+    print(q)
+
+    
+
 
 Alternative Hamiltonian Declaration
 +++++++++++++++++++++++++++++++++++
