@@ -10,6 +10,12 @@
 
 namespace {
 constexpr std::complex<double> I { 0.0, 1.0 };
+int getTempId()
+{
+  static int tempIdCounter = 0;
+  tempIdCounter++;
+  return tempIdCounter;
+}
 
 // Define some special matrices
 const Eigen::MatrixXcd& KAK_MAGIC() 
@@ -290,27 +296,19 @@ std::optional<KAK::KakDecomposition> KAK::kakDecomposition(const InputMatrix& in
     angles(i) = std::arg(diag[i]);
   }
   auto factors = KAK_GAMMA() * angles;
-  
-  // Get factors:
-  const auto w = factors(0);
-  const auto x = factors(1);
-  const auto y = factors(2);
-  const auto z = factors(3);
-  const auto g = std::exp(I * w);
-  
   KakDecomposition result;
   {
-    result.g = g;
+    result.g = std::exp(I * factors(0));
     result.a0 = a0;
     result.a1 = a1;
     result.b0 = b0;
     result.b1 = b1;
-    result.x = x.real();
-    assert(std::abs(x.imag()) < 1e-12);
-    result.y = y.real();
-    assert(std::abs(y.imag()) < 1e-12);
-    result.z = z.real();
-    assert(std::abs(z.imag()) < 1e-12);
+    result.x = factors(1).real();
+    assert(std::abs(factors(1).imag()) < 1e-12);
+    result.y = factors(2).real();
+    assert(std::abs(factors(2).imag()) < 1e-12);
+    result.z = factors(3).real();
+    assert(std::abs(factors(3).imag()) < 1e-12);
   }
 
   const bool validateMatrix = allClose(result.toMat(), in_matrix);  
@@ -489,7 +487,7 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     // where a,b,c,d are real numbers.
     // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
     auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
-    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
+    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
     composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
     composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
     composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
@@ -509,25 +507,26 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   };
 
   const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
-    const double xAngle = - M_PI * (x * -2 / M_PI + 0.5);
-    const double yAngle = - M_PI * (y * -2 / M_PI + 0.5);
-    const double zAngle = - M_PI * (z * -2 / M_PI + 0.5);
-    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+    const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
+    const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
+    const double zAngle = M_PI * (z * -2 / M_PI + 0.5);
+    auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
+    
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
     composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -xAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { -yAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { zAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { -zAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+
     const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
       const auto H = []() {
         GateMatrix result;
@@ -564,13 +563,13 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(-xAngle));
-      totalU *= Eigen::kroneckerProduct(Ry(-yAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+      totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
       totalU *= Eigen::kroneckerProduct(IdMat, H());
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(IdMat, H());
       totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
-      totalU *= Eigen::kroneckerProduct(Rz(-zAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(H(), IdMat);      
@@ -604,8 +603,8 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   auto a1Comp = singleQubitGateGen(a1, in_bit1);
   auto b0Comp = singleQubitGateGen(b0, in_bit2);
   auto b1Comp = singleQubitGateGen(b1, in_bit1);
-  auto interactionComp = generateInteractionComposite(in_bit1, in_bit2, x, y, z);
-  auto totalComposite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
+  auto interactionComp = generateInteractionComposite(in_bit2, in_bit1, x, y, z);
+  auto totalComposite = gateRegistry->createComposite("__TEMP__KAK_COMPOSITE__" + std::to_string(getTempId()));
   // U = g x (Gate A1 Gate A0) x exp(i(xXX + yYY + zZZ))x(Gate b1 Gate b0)
   // Before:
   totalComposite->addInstructions(b0Comp->getInstructions());
@@ -824,14 +823,14 @@ std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWith
   }
 
   // Try diagonalizing the second matrix with the same factors as the first.
-  auto semi_corrected = baseLeft.transpose() * in_mat2 * baseRight.transpose();
+  auto semiCorrected = baseLeft.transpose() * in_mat2 * baseRight.transpose();
   
   Eigen::MatrixXd overlap = Eigen::MatrixXd::Zero(rank, rank);
   for (int i = 0; i < rank; ++i)
   {
     for (int j = 0; j < rank; ++j)
     {
-      overlap(i, j) = semi_corrected(i, j);
+      overlap(i, j) = semiCorrected(i, j);
     }
   }
 
@@ -843,7 +842,7 @@ std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWith
   {
     for (int j = 0; j < extraSize; ++j)
     {
-      extra(i, j) = semi_corrected(i + rank, j + rank);
+      extra(i, j) = semiCorrected(i + rank, j + rank);
     }
   } 
   
@@ -910,7 +909,7 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
     right[1] = s * right[1];
   };
 
-  const auto canonical_shift = [&](int k) {
+  const auto canonicalShift = [&](int k) {
     while (v[k] <= -M_PI_4)
     {
       shift(k, +1);
@@ -936,9 +935,9 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
     }
   };
 
-  canonical_shift(0);
-  canonical_shift(1);
-  canonical_shift(2);
+  canonicalShift(0);
+  canonicalShift(1);
+  canonicalShift(2);
   sort();
 
   if (v[0] < 0)
@@ -949,7 +948,7 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
   {
     negate(1, 2);
   }
-  canonical_shift(2);
+  canonicalShift(2);
 
   if ((v[0] > M_PI_4 - 1e-12) && (v[2] < 0))
   {
