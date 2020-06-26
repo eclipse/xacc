@@ -509,24 +509,24 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   };
 
   const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
-    const double xAngle = -2.0*x + M_PI_2;
-    const double yAngle = -2.0*y + M_PI_2;
-    const double zAngle = -2.0*z + M_PI_2;
+    const double xAngle = - M_PI * (x * -2 / M_PI + 0.5);
+    const double yAngle = - M_PI * (y * -2 / M_PI + 0.5);
+    const double zAngle = - M_PI * (z * -2 / M_PI + 0.5);
     auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { xAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit2 }, { yAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
     composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit2 }, { zAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -xAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { -yAngle }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { -zAngle }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
     
     const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
       const auto H = []() {
@@ -560,17 +560,17 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
       
       Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
       Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(M_PI_2));
+      totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
-      totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(IdMat, Rx(-xAngle));
+      totalU *= Eigen::kroneckerProduct(Ry(-yAngle), IdMat);
       totalU *= Eigen::kroneckerProduct(IdMat, H());
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(IdMat, H());
-      totalU *= Eigen::kroneckerProduct(Rx(-M_PI_2), IdMat);
-      totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
+      totalU *= Eigen::kroneckerProduct(Rz(-zAngle), IdMat);
       totalU *= Eigen::kroneckerProduct(H(), IdMat);
       totalU *= CZ();
       totalU *= Eigen::kroneckerProduct(H(), IdMat);      
@@ -593,24 +593,10 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
 
       const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
       totalU = globalFactor * totalU;
-      std::cout << "Factored Total U:\n" << totalU << "\n";
-      std::cout << "Target mat:\n" << in_target << "\n";
+      return allClose(totalU, in_target);
     };
-
-    if (isCanonicalized(x, y, z))
-    {
-      std::stringstream ss;
-      ss << x << " X" << bit1 << "X" << bit2 << " + ";
-      ss << y << " Y" << bit1 << "Y" << bit2 << " + ";
-      ss << z << " Z" << bit1 << "Z" << bit2;
-      const std::string pauliString = ss.str();
-      std::cout << "Pauli: " << pauliString << "\n";
-      std::cout << "===============================\n";
-      std::cout << composite->toString() << "\n";
-      std::cout << "===============================\n";
-      validateGateSequence(interactionMatrixExp(x, y, z));
-    }
     
+    assert(validateGateSequence(interactionMatrixExp(x, y, z)));
     return composite;
   };
 
@@ -619,18 +605,18 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
   auto b0Comp = singleQubitGateGen(b0, in_bit2);
   auto b1Comp = singleQubitGateGen(b1, in_bit1);
   auto interactionComp = generateInteractionComposite(in_bit1, in_bit2, x, y, z);
-  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
+  auto totalComposite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
   // U = g x (Gate A1 Gate A0) x exp(i(xXX + yYY + zZZ))x(Gate b1 Gate b0)
   // Before:
-  composite->addInstructions(b0Comp->getInstructions());
-  composite->addInstructions(b1Comp->getInstructions());
+  totalComposite->addInstructions(b0Comp->getInstructions());
+  totalComposite->addInstructions(b1Comp->getInstructions());
   // Interaction:
-  composite->addInstructions(interactionComp->getInstructions());
+  totalComposite->addInstructions(interactionComp->getInstructions());
   // After:
-  composite->addInstructions(a0Comp->getInstructions());
-  composite->addInstructions(a1Comp->getInstructions());
+  totalComposite->addInstructions(a0Comp->getInstructions());
+  totalComposite->addInstructions(a1Comp->getInstructions());
   // Ignore global phase
-  return composite;
+  return totalComposite;
 }
 
 KAK::BidiagResult KAK::bidiagonalizeUnitary(const InputMatrix& in_matrix) const
