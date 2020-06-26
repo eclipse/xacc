@@ -34,14 +34,17 @@ private:
     GateMatrix b1;
     GateMatrix a0;
     GateMatrix a1;
-    std::complex<double> x;
-    std::complex<double> y;
-    std::complex<double> z;
+    double x;
+    double y;
+    double z;
     // Generates gate sequence:
     std::shared_ptr<CompositeInstruction> toGates(size_t in_bit1, size_t in_bit2) const;
+    Eigen::MatrixXcd toMat() const;
   };
     
   std::optional<KakDecomposition> kakDecomposition(const InputMatrix& in_matrix) const;
+  // Returns a canonicalized interaction plus before and after corrections.
+  KakDecomposition canonicalizeInteraction(double x, double y, double z) const;
   using BidiagResult = std::tuple<InputMatrix, std::vector<std::complex<double>>, InputMatrix>;
   // Finds orthogonal matrices L, R such that L x in_matrix x R is diagonal
   BidiagResult bidiagonalizeUnitary(const InputMatrix& in_matrix) const;
