@@ -281,7 +281,7 @@ users can pass a Gate-Level instruction to the backend, and return an optimized 
 choosing. The following is a short snippet of a CNOT on a two-qubit system (for the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
 <https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_).
 
-.. code::python
+.. code:: python
 
     # Assuming users have already defined the Hamiltonian, pulse system model, 
     # qpu = xacc.getAccelerator(), and the channelConfigs parameters
