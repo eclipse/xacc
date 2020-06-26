@@ -270,9 +270,9 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
 Optimizing Controls for Quantum Systems
 +++++++++++++++++++++++++++++++++++++++
 
-Using XACC's IR Transformation similarly to in `Returning the Fidelity/Case 4A 
+Using XACC's IR Transformation, similarly to in `Returning the Fidelity/Case 4A 
 <https://xacc.readthedocs.io/en/latest/tutorials.html#case-4a-quantum-process-tomography-from-the-gate-level>`_, 
-users can pass a Gate-Level instruction to the backend, and return an optimized pulse with the algorithm of their 
+users can pass a Gate-Level instruction to the backend and return an optimized pulse with the algorithm of their 
 choosing. The following is a short snippet of using GRAPE to construct a CNOT on a two-qubit system 
 (for the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
 <https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_).
@@ -311,6 +311,7 @@ Similarly, here is how to optimize an X-gate on a single qubit using GOAT:
 
     # Get the XASM compiler
     xasmCompiler = xacc.getCompiler('xasm');
+    
     # Composite to be transform to pulse
     ir = xasmCompiler.compile('''__qpu__ void f(qbit q) {Rx(q[0], 1.57);}''', qpu);
     program = ir.getComposites()[0]
