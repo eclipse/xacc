@@ -1,6 +1,7 @@
 Tutorials 
 =========
 
+\
 
 Pulse Control Tutorial
 ----------------------
@@ -82,7 +83,7 @@ Next, a pulse model must be instantiated and the Hamiltonian is passed to the mo
 
 
 See `Tutorials/Alternative Hamiltonian Declaration <https://xacc.readthedocs.io/en/latest/tutorials.html#Alternative-Hamiltonian-Declaration>`_
-for an alternative method of defining the Hamiltonian and passing it to the backend.
+for declaring a Hamiltonian through default backends.
 
 Let’s now define some of the parameters of the pulse, beginning with the total pulse time in nanoseconds, the number of samples, 
 the time between the samples (dt), and the frequency of the driving envelope (typically chosen to be on resonance with the qubit):
@@ -384,7 +385,8 @@ Additionally, this backend comes with the following pre-calibrated pulses:
 |   Double Qubit         | CNOT                    | CNOT with U3 gates to correct local rotation errors | 
 +------------------------+-------------------------+-----------------------------------------------------+
 
-
+\
+\
 
 [1] `Data-driven gradient algorithm for high-precision quantum control <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.042122>`_
 
