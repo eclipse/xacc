@@ -1,5 +1,10 @@
+Tutorial 
+========
+
+
 Pulse Control Tutorial
-=============================
+----------------------
+
 Here we describe how users can easily leverage XACC with the 
 QuaC Open-Pulse Simulator to conduct optimal control experiments.
 We currently support the following control algorithms:
@@ -7,7 +12,8 @@ GRAPE [1], CRAB [2], Krotov [3], GOAT [4], and DRAG [5] with near-term plans of 
 and GRAFS [6].
 
 Quick Start with Docker
------------------------
+++++++++++++++++++++++++
+
 We have put together a docker image based on Ubuntu 18.04 that has all required
 dependencies for building XACC and QuaC. Moreover, we have set this image up to serve an
 Eclipse Theia IDE on ``localhost:3000``. To use this image run the following from some
@@ -22,7 +28,8 @@ Now navigate to ``localhost:3000`` in your web browser. This will open the
 Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
 
 Basics of Manipulating Quantum Systems in XACC
-----------------------------------------------
+++++++++++++++++++++++++++++++++++++++++++++++
+
 We will begin by showing how to define a quantum system in XACC, and subsqequently demonstrate how to manipulate the system. 
 The `next section <https://xacc.readthedocs.io/en/latest/tutorials.html#Optimizing-Controls-for-Quantum-Systems>`_
 will cover optimizing controls for the system through the use of XACC's Quantum Control algorithms. 
@@ -240,15 +247,12 @@ Pulse-Level IR Transformation to convert a user-provided gate into its correspon
 
     prog = provider.createComposite('pulse_qpt')
 
-    # Define the number of shots
-    NB_SHOTS = 10000
-
     # Get Quantum Process Tomography Algo
     qpt = xacc.getAlgorithm('qpt')
 
     # Compute Theoretical Chi Matrix
     q = xacc.qalloc(1)
-    qpu = xacc.getAccelerator('q', {'shots': NB_SHOTS})
+    qpu = xacc.getAccelerator('q', {'shots': 10000})
     compiler = xacc.getCompiler('xasm')
     # Getting IR for an X gate
     ir = compiler.compile('''__qpu__ void f(qbit q) {X(q[0]);}''', None)
