@@ -170,6 +170,38 @@ bool isSpecialOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
 {
   return isOrthogonal(in_mat, in_tol) && (std::abs(std::abs(in_mat.determinant()) - 1.0) < in_tol);
 }
+
+bool isCanonicalized(double x, double y, double z)
+{
+  // 0 ≤ abs(z) ≤ y ≤ x ≤ pi/4
+  // if x = pi/4, z >= 0
+  if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4)
+  {
+    if (std::abs(x - M_PI_4) < 1e-12)
+    {
+      return (z >= 0);
+    }
+    return true;
+  }
+  return false;
+}
+// Compute exp(i(x XX + y YY + z ZZ)) matrix
+Eigen::Matrix4cd interactionMatrixExp(double x, double y, double z)
+{
+  Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
+  Eigen::MatrixXcd Y { Eigen::MatrixXcd::Zero(2, 2)};       
+  Eigen::MatrixXcd Z { Eigen::MatrixXcd::Zero(2, 2)}; 
+  X << 0, 1, 1, 0;
+  Y << 0, -I, I, 0;
+  Z << 1, 0, 0, -1;
+  auto XX = Eigen::kroneckerProduct(X, X);
+  auto YY = Eigen::kroneckerProduct(Y, Y);
+  auto ZZ = Eigen::kroneckerProduct(Z, Z);
+  Eigen::MatrixXcd herm = x*XX + y*YY + z*ZZ;
+  herm = I*herm;
+  Eigen::MatrixXcd unitary = herm.exp();
+  return unitary;
+}
 }
 
 using namespace xacc;
@@ -266,28 +298,6 @@ std::optional<KAK::KakDecomposition> KAK::kakDecomposition(const InputMatrix& in
   const auto z = factors(3);
   const auto g = std::exp(I * w);
   
-  auto before = Eigen::kroneckerProduct(b1, b0);
-  auto after = Eigen::kroneckerProduct(a1, a0);
-  Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
-  Eigen::MatrixXcd Y { Eigen::MatrixXcd::Zero(2, 2)};       
-  Eigen::MatrixXcd Z { Eigen::MatrixXcd::Zero(2, 2)}; 
-  X << 0, 1, 1, 0;
-  Y << 0, -I, I, 0;
-  Z << 1, 0, 0, -1;
-  auto XX = Eigen::kroneckerProduct(X, X);
-  auto YY = Eigen::kroneckerProduct(Y, Y);
-  auto ZZ = Eigen::kroneckerProduct(Z, Z);
-  Eigen::MatrixXcd herm = x*XX + y*YY + z*ZZ;
-  herm = I*herm;
-  Eigen::MatrixXcd unitary = herm.exp();
-  auto total = g * after * unitary * before;
-  const bool validateMatrix = allClose(total, in_matrix);  
-  // Failed to validate
-  if (!validateMatrix)
-  {
-    return std::nullopt;
-  }
-
   KakDecomposition result;
   {
     result.g = g;
@@ -295,12 +305,46 @@ std::optional<KAK::KakDecomposition> KAK::kakDecomposition(const InputMatrix& in
     result.a1 = a1;
     result.b0 = b0;
     result.b1 = b1;
-    result.x = x;
-    result.y = y;
-    result.z = z;
+    result.x = x.real();
+    assert(std::abs(x.imag()) < 1e-12);
+    result.y = y.real();
+    assert(std::abs(y.imag()) < 1e-12);
+    result.z = z.real();
+    assert(std::abs(z.imag()) < 1e-12);
   }
 
+  const bool validateMatrix = allClose(result.toMat(), in_matrix);  
+  // Failed to validate
+  if (!validateMatrix)
+  {
+    return std::nullopt;
+  }
+
+  auto canonicalizedInteraction = canonicalizeInteraction(result.x, result.y, result.z);
+
+  // Combine the single-qubit blocks:
+  result.b1 = canonicalizedInteraction.b1 * result.b1;
+  result.b0 = canonicalizedInteraction.b0 * result.b0;
+  result.a1 = result.a1 * canonicalizedInteraction.a1;
+  result.a0 = result.a0 * canonicalizedInteraction.a0;
+  result.g = result.g * canonicalizedInteraction.g;
+  result.x = canonicalizedInteraction.x;
+  result.y = canonicalizedInteraction.y;
+  result.z = canonicalizedInteraction.z;
+
+  assert(isCanonicalized(result.x, result.y, result.z));
+  assert(allClose(result.toMat(), in_matrix));
+
   return result;
+}
+
+Eigen::MatrixXcd KAK::KakDecomposition::toMat() const
+{
+  auto before = Eigen::kroneckerProduct(b1, b0);
+  auto after = Eigen::kroneckerProduct(a1, a0);
+  Eigen::MatrixXcd unitary = interactionMatrixExp(x, y, z);
+  auto total = g * after * unitary * before;
+  return total;
 }
 
 std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_bit1, size_t in_bit2) const
@@ -464,10 +508,10 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     return composite; 
   };
 
-  const auto generateInteractionComposite = [&gateRegistry](size_t bit1, size_t bit2, std::complex<double> x, std::complex<double> y, std::complex<double> z) {
-    const double xAngle = -2.0*x.real() + M_PI_2;
-    const double yAngle = -2.0*y.real() + M_PI_2;
-    const double zAngle = -2.0*z.real() + M_PI_2;
+  const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
+    const double xAngle = -2.0*x + M_PI_2;
+    const double yAngle = -2.0*y + M_PI_2;
+    const double zAngle = -2.0*z + M_PI_2;
     auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__");
     composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
@@ -484,16 +528,89 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
     composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
     
-    std::stringstream ss;
-    ss << x << " X" << bit1 << "X" << bit2 << " + ";
-    ss << y << " Y" << bit1 << "Y" << bit2 << " + ";
-    ss << z << " Z" << bit1 << "Z" << bit2;
-    const std::string pauliString = ss.str();
-    std::cout << "Pauli: " << pauliString << "\n";
-    std::cout << "===============================\n";
-    std::cout << composite->toString() << "\n";
-    std::cout << "===============================\n";
+    const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+      const auto H = []() {
+        GateMatrix result;
+        result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+        return result;
+      };
+      const auto Rx = [](double angle) {
+        GateMatrix result;
+        result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+        return result;
+      };
+      const auto Ry = [](double angle) {
+        GateMatrix result;
+        result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+        return result;
+      };
+      const auto Rz = [](double angle) {
+        GateMatrix result;
+        result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+        return result;
+      };
+      const auto CZ = []() {
+        Eigen::Matrix4cd cz;
+        cz << 1, 0, 0, 0, 
+              0, 1, 0, 0,
+              0, 0, 1, 0,
+              0, 0, 0, -1;
+        return cz;
+      };
+      
+      Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+      Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+      totalU *= Eigen::kroneckerProduct(IdMat, Rx(M_PI_2));
+      totalU *= Eigen::kroneckerProduct(H(), IdMat);
+      totalU *= CZ();
+      totalU *= Eigen::kroneckerProduct(H(), IdMat);
+      totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+      totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(IdMat, H());
+      totalU *= CZ();
+      totalU *= Eigen::kroneckerProduct(IdMat, H());
+      totalU *= Eigen::kroneckerProduct(Rx(-M_PI_2), IdMat);
+      totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
+      totalU *= Eigen::kroneckerProduct(H(), IdMat);
+      totalU *= CZ();
+      totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+      // Find index of the largest element:
+      size_t colIdx = 0;
+      size_t rowIdx = 0;
+      double maxVal = std::abs(totalU(0,0));
+      for (size_t i = 0; i < totalU.rows(); ++i)
+      {
+        for (size_t j = 0; j < totalU.cols(); ++j)
+        {
+          if (std::abs(totalU(i,j)) > maxVal)
+          {
+            maxVal = std::abs(totalU(i,j));
+            colIdx = j;
+            rowIdx = i;
+          }
+        }
+      }
 
+      const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+      totalU = globalFactor * totalU;
+      std::cout << "Factored Total U:\n" << totalU << "\n";
+      std::cout << "Target mat:\n" << in_target << "\n";
+    };
+
+    if (isCanonicalized(x, y, z))
+    {
+      std::stringstream ss;
+      ss << x << " X" << bit1 << "X" << bit2 << " + ";
+      ss << y << " Y" << bit1 << "Y" << bit2 << " + ";
+      ss << z << " Z" << bit1 << "Z" << bit2;
+      const std::string pauliString = ss.str();
+      std::cout << "Pauli: " << pauliString << "\n";
+      std::cout << "===============================\n";
+      std::cout << composite->toString() << "\n";
+      std::cout << "===============================\n";
+      validateGateSequence(interactionMatrixExp(x, y, z));
+    }
+    
     return composite;
   };
 
@@ -755,6 +872,121 @@ std::pair<Eigen::Matrix4d, Eigen::Matrix4d> KAK::bidiagonalizeRealMatrixPairWith
   assert(isDiagonal(left * in_mat1 * right));
   assert(isDiagonal(left * in_mat2 * right));
   return std::make_pair(left, right);
+}
+
+KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z) const
+{
+  // Accumulated global phase.
+  std::complex<double> phase = 1.0; 
+  //Per-qubit left factors.
+  std::vector<GateMatrix> left { GateMatrix::Identity(), GateMatrix::Identity() };  
+  // Per-qubit right factors.
+  std::vector<GateMatrix> right { GateMatrix::Identity(), GateMatrix::Identity() }; 
+  // Remaining XX/YY/ZZ interaction vector.
+  std::vector<double> v { x, y, z };  
+
+  std::vector<GateMatrix> flippers {
+    (GateMatrix() << 0, I, I, 0).finished(),
+    (GateMatrix() << 0, 1, -1, 0).finished(),
+    (GateMatrix() << I, 0, 0, -I).finished()
+  };
+
+  std::vector<GateMatrix> swappers {
+    (GateMatrix() << I*M_SQRT1_2, M_SQRT1_2, -M_SQRT1_2, -I*M_SQRT1_2).finished(),
+    (GateMatrix() << I*M_SQRT1_2, I*M_SQRT1_2, I*M_SQRT1_2, -I*M_SQRT1_2).finished(),
+    (GateMatrix() << 0, I*M_SQRT1_2 + M_SQRT1_2, I*M_SQRT1_2 - M_SQRT1_2, 0).finished()
+  };
+
+  const auto shift = [&](int k, int step) {
+    v[k] += step * M_PI_2;
+    phase *= std::pow(I, step);
+    const auto expFact = step % 4;
+    const GateMatrix mat = flippers[k].array().pow(expFact); 
+    right[0] = mat * right[0];
+    right[1] = mat * right[1];
+  };
+
+  const auto negate = [&](int k1, int k2) {
+    v[k1] *= -1;
+    v[k2] *= -1;
+    phase *= -1;
+    const auto& s = flippers[3 - k1 - k2]; 
+    left[1] = left[1] * s;
+    right[1] = s * right[1];
+  };
+
+  const auto swap = [&](int k1, int k2) {
+    std::iter_swap(v.begin() + k1, v.begin() + k2);
+    const auto& s = swappers[3 - k1 - k2]; 
+    left[0] = left[0] * s;
+    left[1] = left[1] * s;
+    right[0] = s * right[0];
+    right[1] = s * right[1];
+  };
+
+  const auto canonical_shift = [&](int k) {
+    while (v[k] <= -M_PI_4)
+    {
+      shift(k, +1);
+    }
+    while (v[k] > M_PI_4)
+    {
+      shift(k, -1);
+    }
+  };
+
+  const auto sort = [&](){
+    if (std::abs(v[0]) < std::abs(v[1]))
+    {
+      swap(0, 1);
+    }
+    if (std::abs(v[1]) < std::abs(v[2]))
+    {
+      swap(1, 2);
+    }
+    if (std::abs(v[0]) < std::abs(v[1]))
+    {
+      swap(0, 1);
+    }
+  };
+
+  canonical_shift(0);
+  canonical_shift(1);
+  canonical_shift(2);
+  sort();
+
+  if (v[0] < 0)
+  {
+    negate(0, 2);
+  }
+  if (v[1] < 0)
+  {
+    negate(1, 2);
+  }
+  canonical_shift(2);
+
+  if ((v[0] > M_PI_4 - 1e-12) && (v[2] < 0))
+  {
+    shift(0, -1);
+    negate(0, 2);
+  }
+      
+  assert(isCanonicalized(v[0], v[1], v[2]));
+  
+  KakDecomposition result;
+  {
+    result.g = phase;
+    result.a0 = left[1];
+    result.a1 = left[0];
+    result.b0 = right[1];
+    result.b1 = right[0];
+    result.x = v[0];
+    result.y = v[1];
+    result.z = v[2];
+  }
+
+  assert(allClose(result.toMat(), interactionMatrixExp(x, y, z)));
+  return result;
 }
 } // namespace circuits
 } // namespace xacc
