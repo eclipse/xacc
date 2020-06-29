@@ -14,6 +14,7 @@
 #include "InstructionIterator.hpp"
 #include "IRProvider.hpp"
 #include "CLIParser.hpp"
+#include <memory>
 #include <signal.h>
 #include <cstdlib>
 #include <fstream>
@@ -39,11 +40,11 @@ int argc = 0;
 char **argv = NULL;
 std::map<std::string, std::shared_ptr<CompositeInstruction>>
     compilation_database{};
-std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers {};
+std::map<std::string, std::shared_ptr<AcceleratorBuffer>> allocated_buffers{};
 
 std::string rootPathString = "";
 
-void set_verbose(bool v) {verbose=v;}
+void set_verbose(bool v) { verbose = v; }
 
 int getArgc() { return argc; }
 char **getArgv() { return argv; }
@@ -111,34 +112,33 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
   XACCLogger::instance()->dumpQueue();
 }
 
-void logToFile(bool enable) {
-  XACCLogger::instance()->logToFile(enable);
-}
+void logToFile(bool enable) { XACCLogger::instance()->logToFile(enable); }
 
 void setLoggingLevel(int level) {
   XACCLogger::instance()->setLoggingLevel(level);
 }
 
-int getLoggingLevel() {
-  return XACCLogger::instance()->getLoggingLevel();
-}
+int getLoggingLevel() { return XACCLogger::instance()->getLoggingLevel(); }
 
 void subscribeLoggingLevel(LoggingLevelNotification callback) {
   XACCLogger::instance()->subscribeLoggingLevel(callback);
 }
 
 void info(const std::string &msg, MessagePredicate predicate) {
-  if (verbose) XACCLogger::instance()->info(msg, predicate);
+  if (verbose)
+    XACCLogger::instance()->info(msg, predicate);
 }
 
 void warning(const std::string &msg, MessagePredicate predicate) {
-  if (verbose) XACCLogger::instance()->warning(msg, predicate);
+  if (verbose)
+    XACCLogger::instance()->warning(msg, predicate);
 }
 
 void debug(const std::string &msg, MessagePredicate predicate) {
-  #ifdef _XACC_DEBUG
-  if (verbose) XACCLogger::instance()->debug(msg, predicate);
-  #endif
+#ifdef _XACC_DEBUG
+  if (verbose)
+    XACCLogger::instance()->debug(msg, predicate);
+#endif
 }
 
 void error(const std::string &msg, MessagePredicate predicate) {
@@ -171,30 +171,33 @@ qbit qalloc() {
 }
 
 void storeBuffer(std::shared_ptr<AcceleratorBuffer> buffer) {
-    auto name = buffer->name();
-    if (allocated_buffers.count(name)) {
-        // error("Invalid buffer name to store: " + name);
-        allocated_buffers[name] = buffer;
-    } else {
+  auto name = buffer->name();
+  if (allocated_buffers.count(name)) {
+    // error("Invalid buffer name to store: " + name);
+    allocated_buffers[name] = buffer;
+  } else {
     allocated_buffers.insert({name, buffer});
-    }
+  }
 }
 
-void storeBuffer(const std::string name, std::shared_ptr<AcceleratorBuffer> buffer) {
-    if (allocated_buffers.count(name)) {
-        error("Invalid buffer name to store: " + name);
-    }
-    buffer->setName(name);
-    allocated_buffers.insert({name, buffer});
+void storeBuffer(const std::string name,
+                 std::shared_ptr<AcceleratorBuffer> buffer) {
+  if (allocated_buffers.count(name)) {
+    error("Invalid buffer name to store: " + name);
+  }
+  buffer->setName(name);
+  allocated_buffers.insert({name, buffer});
 }
 
 std::shared_ptr<AcceleratorBuffer> getBuffer(const std::string &name) {
-    if (!allocated_buffers.count(name)) {
-        error("Invalid buffer name: " + name);
-    }
-    return allocated_buffers[name];
+  if (!allocated_buffers.count(name)) {
+    error("Invalid buffer name: " + name);
+  }
+  return allocated_buffers[name];
 }
-bool hasBuffer(const std::string& name) {return allocated_buffers.count(name);}
+bool hasBuffer(const std::string &name) {
+  return allocated_buffers.count(name);
+}
 
 void addCommandLineOption(const std::string &optionName,
                           const std::string &optionDescription) {
@@ -242,16 +245,30 @@ void setAccelerator(const std::string &acceleratorName) {
   setOption("accelerator", acceleratorName);
 }
 
-std::shared_ptr<Accelerator> getAcceleratorDecorator(const std::string& decorator, std::shared_ptr<Accelerator> acc, const HeterogeneousMap& params) {
- std::shared_ptr<AcceleratorDecorator> accd;
+std::shared_ptr<Accelerator>
+getAcceleratorDecorator(const std::string &decorator,
+                        std::shared_ptr<Accelerator> acc,
+                        const HeterogeneousMap &params) {
+  std::shared_ptr<AcceleratorDecorator> accd;
   if (xacc::hasService<AcceleratorDecorator>(decorator)) {
     accd = xacc::getService<AcceleratorDecorator>(decorator, false);
   } else if (xacc::hasContributedService<AcceleratorDecorator>(decorator)) {
     accd = xacc::getContributedService<AcceleratorDecorator>(decorator, false);
   }
 
+  // It may have been stored as an Accelerator
+  if (xacc::hasService<Accelerator>(decorator)) {
+    auto tmp_accd = xacc::getService<Accelerator>(decorator, false);
+
+    // accd will be null if can't cast
+    accd = std::dynamic_pointer_cast<AcceleratorDecorator>(tmp_accd);
+  } else if (xacc::hasContributedService<Accelerator>(decorator)) {
+    auto tmp_accd = xacc::getContributedService<Accelerator>(decorator, false);
+    accd = std::dynamic_pointer_cast<AcceleratorDecorator>(tmp_accd);
+  }
+
   if (!accd) {
-      xacc::error("Cannot find AcceleratorDecorator with name " + decorator);
+    xacc::error("Cannot find AcceleratorDecorator with name " + decorator);
   }
 
   accd->setDecorated(acc);
@@ -374,7 +391,8 @@ bool hasAccelerator(const std::string &name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-  return xacc::hasService<Accelerator>(name) || xacc::hasContributedService<Accelerator>(name);
+  return xacc::hasService<Accelerator>(name) ||
+         xacc::hasContributedService<Accelerator>(name);
 }
 
 std::shared_ptr<Compiler> getCompiler(const std::string &name) {
@@ -432,7 +450,7 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
   }
-   std::shared_ptr<Optimizer> t;
+  std::shared_ptr<Optimizer> t;
   if (xacc::hasService<Optimizer>(name)) {
     t = xacc::getService<Optimizer>(name, false);
   } else if (xacc::hasContributedService<Optimizer>(name)) {
@@ -440,7 +458,7 @@ std::shared_ptr<Optimizer> getOptimizer(const std::string name) {
   }
 
   if (!t) {
-      xacc::error("Invalid Optimizer name, not in service registry - " + name);
+    xacc::error("Invalid Optimizer name, not in service registry - " + name);
   }
   return t;
 }
@@ -498,8 +516,7 @@ bool hasCompiler(const std::string &name) {
   return xacc::hasService<Compiler>(name);
 }
 
-std::shared_ptr<IRTransformation>
-getIRTransformation(const std::string &name) {
+std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name) {
   if (!xacc::xaccFrameworkInitialized) {
     error("XACC not initialized before use. Please execute "
           "xacc::Initialize() before using API.");
@@ -707,53 +724,59 @@ void qasm(const std::string &qasmString) {
     appendCompiled(k, true);
 }
 namespace ir {
-    std::shared_ptr<CompositeInstruction> asComposite(std::shared_ptr<Instruction> inst) {
-        auto comp = std::dynamic_pointer_cast<CompositeInstruction>(inst);
-        if(!comp) {
-            error("Invalid conversion of Instruction to CompositeInstruction.");
-        }
-        return comp;
-    }
-    std::shared_ptr<Instruction> asInstruction(std::shared_ptr<CompositeInstruction> comp) {
-        auto inst = std::dynamic_pointer_cast<Instruction>(comp);
-        if(!inst) {
-            error("Invalid conversion of CompositeInstruction to Instruction.");
-        }
-        return inst;
-    }
+std::shared_ptr<CompositeInstruction>
+asComposite(std::shared_ptr<Instruction> inst) {
+  auto comp = std::dynamic_pointer_cast<CompositeInstruction>(inst);
+  if (!comp) {
+    error("Invalid conversion of Instruction to CompositeInstruction.");
+  }
+  return comp;
 }
+std::shared_ptr<Instruction>
+asInstruction(std::shared_ptr<CompositeInstruction> comp) {
+  auto inst = std::dynamic_pointer_cast<Instruction>(comp);
+  if (!inst) {
+    error("Invalid conversion of CompositeInstruction to Instruction.");
+  }
+  return inst;
+}
+} // namespace ir
 
 namespace external {
-  void load_external_language_plugins() {
-      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
-      for (auto& loader : loaders) {
-          if (!loader->load()) {
-              xacc::warning("[xacc::external] Warning, could not load " + loader->name() + " external language plugin.");
-          }
-      }
-  }
-void unload_external_language_plugins() {
-      auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
-      for (auto& loader : loaders) {
-          if(!loader->unload()) {
-              xacc::warning("[xacc::external] Warning (maybe an error), could not unload " + loader->name() + " external language plugin.");
-          }
-      }
+void load_external_language_plugins() {
+  auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+  for (auto &loader : loaders) {
+    if (!loader->load()) {
+      xacc::warning("[xacc::external] Warning, could not load " +
+                    loader->name() + " external language plugin.");
+    }
   }
 }
+void unload_external_language_plugins() {
+  auto loaders = xacc::getServices<ExternalLanguagePluginLoader>();
+  for (auto &loader : loaders) {
+    if (!loader->unload()) {
+      xacc::warning(
+          "[xacc::external] Warning (maybe an error), could not unload " +
+          loader->name() + " external language plugin.");
+    }
+  }
+}
+} // namespace external
 
 void Finalize() {
   XACCLogger::instance()->dumpQueue();
   if (xaccFrameworkInitialized) {
     // Execute tearDown() for all registered TearDown services.
     auto tearDowns = xacc::getServices<TearDown>();
-    debug("Tearing down " + std::to_string(tearDowns.size()) + " registered TearDown services..");
-    for (auto& td : tearDowns) {
+    debug("Tearing down " + std::to_string(tearDowns.size()) +
+          " registered TearDown services..");
+    for (auto &td : tearDowns) {
       try {
         td->tearDown();
-      }
-      catch (int exception) {
-        xacc::error("Error while tearing down a service. Code: " + std::to_string(exception));
+      } catch (int exception) {
+        xacc::error("Error while tearing down a service. Code: " +
+                    std::to_string(exception));
       }
     }
 

@@ -50,12 +50,18 @@ void bind_accelerator(py::module &m) {
            "")
       .def("getConnectivity", &xacc::Accelerator::getConnectivity, "")
       .def("configurationKeys", &xacc::Accelerator::configurationKeys, "")
-      .def("contributeInstructions", &xacc::Accelerator::contributeInstructions, "");
+      .def("contributeInstructions", &xacc::Accelerator::contributeInstructions,
+           "");
 
   py::class_<xacc::AcceleratorDecorator, xacc::Accelerator,
-             std::shared_ptr<xacc::AcceleratorDecorator>>
+             std::shared_ptr<xacc::AcceleratorDecorator>,
+             PyAcceleratorDecorator>
       accd(m, "AcceleratorDecorator", "");
+  accd.def(py::init<>());
   accd.def("setDecorated", &xacc::AcceleratorDecorator::setDecorated, "");
+  accd.def_property("decoratedAccelerator",
+                    &xacc::AcceleratorDecorator::getDecorated,
+                    &xacc::AcceleratorDecorator::setDecorated);
 
   // Expose the AcceleratorBuffer
   py::class_<xacc::AcceleratorBuffer, std::shared_ptr<xacc::AcceleratorBuffer>>(

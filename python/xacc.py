@@ -288,7 +288,7 @@ class PyServiceRegistry(object):
         self.registry = {}
 
     def initialize(self):
-        serviceList = ['decorator_algorithm_service', 'benchmark', 'algorithm',
+        serviceList = ['decorator_algorithm_service', 'benchmark', 'algorithm', 'accelerator_decorator',
                        'accelerator', 'compiler', 'rbm_expectation_strategy',
                        'irtransformation', 'observable', 'optimizer']
         xaccLocation = os.path.dirname(os.path.realpath(__file__))
@@ -328,6 +328,10 @@ class PyServiceRegistry(object):
         if 'algorithm' in self.registry:
             for aName, a in self.registry['algorithm'].items():
                 debug("[xacc-py] Contributing "+aName+" Algorithm")
+                contributeService(aName, a)
+        if 'accelerator_decorator' in self.registry:
+            for aName, a in self.registry['accelerator_decorator'].items():
+                debug("[xacc-py] Contributing "+aName+" Accelerator Decorator")
                 contributeService(aName, a)
 
     def get_algorithm_services(self, serviceType):
