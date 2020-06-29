@@ -115,20 +115,25 @@ QFAST::QFAST():
 
 bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions) 
 {
-    // !! TEMP CODE !!
-    m_nbQubits = 3;
-    // m_topology = { { 0, 1}, { 1, 2} };
-    // CCNOT gate:
-    m_targetU = Eigen::MatrixXcd::Identity(8, 8);
-    m_targetU(6, 6) = 0.0;
-    m_targetU(7, 7) = 0.0;
-    m_targetU(6, 7) = 1.0;
-    m_targetU(7, 6) = 1.0;
-
+    Eigen::MatrixXcd unitary;
+    if (runtimeOptions.keyExists<Eigen::MatrixXcd>("unitary"))
+    {
+        unitary = runtimeOptions.get<Eigen::MatrixXcd>("unitary");
+    }
+    const auto nbQubits = [](size_t unitaryDim) {
+        unsigned int ret = 0;
+        while (unitaryDim > 1) 
+        {
+            unitaryDim >>= 1;
+            ret++;
+        }
+    
+        return ret;
+    };
+    m_nbQubits = nbQubits(unitary.rows());
+    m_targetU = unitary;
     std::cout << "Target U:\n" << m_targetU << "\n";
-    m_distanceLimit = 0.001;
-    // !! TEMP CODE !!
-
+    m_distanceLimit = 0.01;
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
     for (const auto& block : decomposedResult)
@@ -142,8 +147,7 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
 
 const std::vector<std::string> QFAST::requiredKeys()
 {
-   // TODO
-   return {};
+   return { "unitary" };
 }
 
 std::vector<QFAST::Block> QFAST::decompose()
@@ -161,7 +165,7 @@ std::vector<QFAST::PauliReps> QFAST::explore()
     
     addLayer(layers, m_locationModel->buckets.first, m_locationModel->bucketPaulis.first);
     // Coarse limit during exploration:
-    const double EXPLORE_PHASE_TARGET_DISTANCE = 100 * m_distanceLimit;
+    const double EXPLORE_PHASE_TARGET_DISTANCE = std::min(0.1, 100 * m_distanceLimit);
     // Infinite loop
     for (;;)
     {
@@ -344,7 +348,7 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         nbParams += layer.nbParams();
     }
     
-    const int maxEval = nbParams * 10;
+    const int maxEval = nbParams * 15;
 
     // TODO: use gradient-based optimizer (e.g. Adam)
     // This is currently not possible since we don't know how to calculate the gradients.
