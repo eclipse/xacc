@@ -16,6 +16,7 @@
 #include "xacc_service.hpp"
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <numeric>
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -104,6 +105,26 @@ std::vector<std::pair<size_t, size_t>> qubitPairCombinations(size_t N)
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
     
     return result;
+}
+
+bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, double in_tol = 1e-12)
+{
+  if (in_mat1.rows() == in_mat2.rows() && in_mat1.cols() == in_mat2.cols())
+  {
+    for (int i = 0; i < in_mat1.rows(); ++i)
+    {
+      for (int j = 0; j < in_mat1.cols(); ++j)
+      {
+        if (std::abs(in_mat1(i,j) - in_mat2(i, j)) > in_tol)
+        {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  return false;
 }
 }
 
@@ -299,9 +320,25 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
         layer.funcValues = optParams;
     }
 
+    // Double check trace distance:
+    std::vector<Eigen::MatrixXcd> layerMat;
+    {
+        Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+        bool alternativeLayer = false;
+        for (auto& layer : refinedReps)
+        {
+            const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+            const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+            layerMat.emplace_back(layerToUnitaryMatrix(layer, topology, topologyPauli));
+            accumU = accumU * layerMat.back();
+            alternativeLayer = !alternativeLayer;
+        }
+
+        assert(evaluateCostFunc(accumU) <= m_distanceLimit);
+    }
+   
     std::vector<QFAST::Block> resultBlocks;
     size_t blockIdx = 0;
-    
     for (const auto& layer : refinedReps)
     {
         const std::pair<size_t, size_t> mapBits = (fixedLoc[blockIdx].first < fixedLoc[blockIdx].second) ? 
@@ -319,8 +356,9 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
         gateMat = I * gateMat;
         // Exponential: exp(i*H)
         newBlock.uMat = gateMat.exp();
-        blockIdx++;
         resultBlocks.emplace_back(newBlock);
+        assert(allClose(layerMat[blockIdx], newBlock.toFullMat(m_nbQubits)));
+        blockIdx++;
     }
     
     return resultBlocks;
@@ -552,6 +590,53 @@ std::vector<std::pair<size_t, size_t>> QFAST::LocationModel::fixLocations(std::v
     }
 
     return result;
+}
+
+Eigen::MatrixXcd  QFAST::Block::toFullMat(size_t in_totalDim) const
+{
+    assert(in_totalDim > qubits.first && in_totalDim > qubits.second);
+    const auto matSize = 1ULL << in_totalDim;
+    Eigen::MatrixXcd resultMat = Eigen::MatrixXcd::Identity(matSize, matSize);
+    // Qubit index list (0->(dim-1))
+    std::vector<size_t> index_list(in_totalDim);
+    std::iota(index_list.begin(), index_list.end(), 0);
+    const std::vector<size_t> idx { in_totalDim - qubits.second - 1, in_totalDim - qubits.first - 1 };    			      
+    for (size_t k = 0; k < matSize; ++k)
+    { 
+        std::vector<std::complex<double>> oldColumn(matSize);
+        for (size_t i = 0; i < matSize; ++i)
+        {
+            oldColumn[i] = resultMat(i, k);
+        }
+
+        for (size_t i = 0; i < matSize; ++i)
+        {
+            size_t local_i = 0;
+            for (size_t l = 0; l < idx.size(); ++l)
+            {
+                local_i |= ((i >> idx[l]) & 1) << l;
+            }
+                
+            std::complex<double> res = 0.;
+            for (size_t j = 0; j < (1ULL<<idx.size()); ++j)
+            {
+                size_t locIdx = i;
+                for (size_t l = 0; l < idx.size(); ++l)
+                {
+                    if (((j >> l)&1) != ((i >> idx[l])&1))
+                    {
+                        locIdx ^= (1ULL << idx[l]);
+                    }
+                }
+                    
+                res += oldColumn[locIdx] * uMat(local_i, j);
+            }
+
+            resultMat(i, k) = res;
+        }
+    }
+
+    return resultMat;
 }
 }
 }
