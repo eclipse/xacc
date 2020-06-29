@@ -113,8 +113,11 @@ private:
 private:
     Eigen::MatrixXcd m_targetU;
     size_t m_nbQubits;
+    size_t m_initialDepth;
     // Trace/Fidelity distance limit:
     double m_distanceLimit;
+    // Explore phase distance limit:
+    double m_exploreTraceDistanceLimit;
     std::shared_ptr<LocationModel> m_locationModel;
 };
 
