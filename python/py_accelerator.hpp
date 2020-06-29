@@ -22,10 +22,11 @@
 #include <pybind11/pybind11.h>
 
 #include "xacc.hpp"
+#include "AcceleratorDecorator.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
-using Connectivity = std::vector<std::pair<int,int>>;
+using Connectivity = std::vector<std::pair<int, int>>;
 
 class PyAccelerator : public xacc::Accelerator {
 public:
@@ -68,10 +69,44 @@ public:
                            configurationKeys)
   }
 
-  void contributeInstructions(const std::string& custom_json_config) override {
-    PYBIND11_OVERLOAD(void, xacc::Accelerator, contributeInstructions, custom_json_config);
+  void contributeInstructions(const std::string &custom_json_config) override {
+    PYBIND11_OVERLOAD(void, xacc::Accelerator, contributeInstructions,
+                      custom_json_config);
   }
-
 };
 
-void bind_accelerator(py::module& m);
+class PyAcceleratorDecorator : public xacc::AcceleratorDecorator {
+public:
+  /* Inherit the constructors */
+  using AcceleratorDecorator::AcceleratorDecorator;
+  const std::string name() const override {
+    PYBIND11_OVERLOAD_PURE(const std::string, xacc::AcceleratorDecorator, name);
+  }
+  const std::string description() const override { return ""; }
+  void initialize(const HeterogeneousMap &params = {}) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::AcceleratorDecorator, initialize,
+                           params);
+  }
+  void execute(std::shared_ptr<xacc::AcceleratorBuffer> buf,
+               std::shared_ptr<xacc::CompositeInstruction> f) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::AcceleratorDecorator, execute, buf, f);
+  }
+
+  void execute(std::shared_ptr<AcceleratorBuffer> buffer,
+               const std::vector<std::shared_ptr<CompositeInstruction>>
+                   functions) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::AcceleratorDecorator, execute, buffer,
+                           functions);
+  }
+
+  void updateConfiguration(const HeterogeneousMap &config) override {
+    PYBIND11_OVERLOAD_PURE(void, xacc::AcceleratorDecorator,
+                           updateConfiguration, config);
+  }
+  const std::vector<std::string> configurationKeys() override {
+    PYBIND11_OVERLOAD_PURE(std::vector<std::string>, xacc::AcceleratorDecorator,
+                           configurationKeys)
+  }
+};
+
+void bind_accelerator(py::module &m);

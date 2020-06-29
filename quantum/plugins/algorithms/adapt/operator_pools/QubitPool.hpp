@@ -14,6 +14,7 @@
 #define XACC_QUBIT_POOL_HPP_
 
 #include "adapt.hpp"
+#include "OperatorPool.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Observable.hpp"
@@ -24,7 +25,8 @@
 using namespace xacc;
 
 namespace xacc{
-namespace algorithm{
+// namespace algorithm{
+namespace quantum{
 
 class QubitPool : public OperatorPool {
 

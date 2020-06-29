@@ -73,8 +73,22 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
       externalAnsatz = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
     }
 
-    if (parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy")){
-      gradientStrategy = parameters.getPointerLike<AlgorithmGradientStrategy>("gradient_strategy");
+    if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
+        "gradient_strategy")){
+      gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>("gradient_strategy");
+    }
+
+    if (parameters.stringExists("gradient_strategy") && 
+        !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
+        m_optimizer->isGradientBased()){
+      gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
+      gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(m_costHamObs))});
+    }
+
+    if ((parameters.stringExists("gradient_strategy") || 
+        parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy")) &&
+        !m_optimizer->isGradientBased()){
+      xacc::warning("Chosen optimizer does not support gradients. Using default.");
     }
 
     return initializeOk;

@@ -16,26 +16,12 @@
 #include "Algorithm.hpp"
 #include "Observable.hpp"
 #include "PauliOperator.hpp"
+#include "OperatorPool.hpp"
 
 using namespace xacc::quantum;
 
 namespace xacc{
 namespace algorithm{
-
-class OperatorPool : public Identifiable {
-
-public:
-
-  virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
-
-  virtual std::vector<std::shared_ptr<Observable>>
-  generate(const int &nQubits) = 0;
-
-  virtual std::string operatorString(const int index) = 0;
-
-  virtual std::shared_ptr<CompositeInstruction>
-  getOperatorInstructions(const int opIdx, const int varIdx) const = 0;
-};  
 
 class ADAPT : public Algorithm {
 
