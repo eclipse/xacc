@@ -132,7 +132,10 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     };
     m_nbQubits = nbQubits(unitary.rows());
     m_targetU = unitary;
-    std::cout << "Target U:\n" << m_targetU << "\n";
+    std::stringstream ss;
+    ss << "Target U:\n" << m_targetU;
+    xacc::info(ss.str());
+
     m_distanceLimit = 0.01;
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
@@ -141,7 +144,6 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
         auto compInst = genericBlockToGates(block);
         addInstructions(compInst->getInstructions());
     }
-
     return true;
 }
 
@@ -209,7 +211,8 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     auto optimizer = xacc::getOptimizer("nlopt", 
         xacc::HeterogeneousMap { 
             std::make_pair("initial-parameters", initialParams),
-            std::make_pair("nlopt-maxeval", maxEval) 
+            std::make_pair("nlopt-maxeval", maxEval),
+            std::make_pair("nlopt-stopval", m_distanceLimit) 
     });
 
     OptFunction f(
@@ -237,7 +240,6 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
             }
 
             const double costValue = evaluateCostFunc(accumU);
-            std::cout << "[Refine] Cost Value = " << costValue << "\n";
             return costValue;
         },
         nbParams);
@@ -273,6 +275,7 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
         // Exponential: exp(i*H)
         newBlock.uMat = gateMat.exp();
         blockIdx++;
+        resultBlocks.emplace_back(newBlock);
     }
     
     return resultBlocks;
@@ -288,7 +291,11 @@ void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topo
     QFAST::PauliReps newLayer;
     const double initialParam = 1.0 / in_topologyPaulis[0].size();
     newLayer.funcValues.assign(in_topologyPaulis[0].size(), initialParam);
-    newLayer.locValues.assign(in_layerTopology.size(), 1.0);
+    // Random:
+    for (int i = 0; i < in_layerTopology.size(); ++i)
+    {
+        newLayer.locValues.emplace_back(static_cast<double>(rand())/static_cast<double>(RAND_MAX));
+    }
     io_currentLayers.emplace_back(std::move(newLayer));
 }
     
@@ -348,14 +355,15 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         nbParams += layer.nbParams();
     }
     
-    const int maxEval = nbParams * 15;
+    const int maxEval = nbParams * 100;
 
     // TODO: use gradient-based optimizer (e.g. Adam)
     // This is currently not possible since we don't know how to calculate the gradients.
     auto optimizer = xacc::getOptimizer("nlopt", 
         xacc::HeterogeneousMap { 
             std::make_pair("initial-parameters", initialParams),
-            std::make_pair("nlopt-maxeval", maxEval) 
+            std::make_pair("nlopt-maxeval", maxEval),
+            std::make_pair("nlopt-stopval", in_targetDistance)  
     });
 
     OptFunction f(
@@ -373,6 +381,15 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
                 assert(params.size() == layer.nbParams());
                 paramIdx += params.size();
                 layer.updateParams(params);
+                
+                const auto maxLocIdx = std::distance(layer.locValues.begin(), std::max_element(layer.locValues.begin(), layer.locValues.end()));
+                // This is a non-differentiable implementation.
+                // This can be converted to a pseudo-differentable using exp functions.
+                for(int i = 0; i < layer.locValues.size(); ++i)
+                {
+                    layer.locValues[i] = (i == maxLocIdx) ? 1.0 : 0.0;
+                }
+                
                 idx++;
                 const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
                 const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
