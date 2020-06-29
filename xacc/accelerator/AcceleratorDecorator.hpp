@@ -32,6 +32,9 @@ public:
   void setDecorated(std::shared_ptr<Accelerator> a) {
     decoratedAccelerator = a;
   }
+  std::shared_ptr<Accelerator> getDecorated() {
+      return decoratedAccelerator;
+  }
 
   void initialize(const HeterogeneousMap &params = {}) override {
     decoratedAccelerator->initialize(params);

@@ -5,9 +5,8 @@
 
 .. image:: ../assets/xacc_full_logo.svg
 
-
-Overview
----------
+\
+\
 
 XACC is an extensible compilation framework for hybrid quantum-classical
 computing architectures. It provides extensible language frontend and hardware

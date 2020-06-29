@@ -112,22 +112,19 @@ PYBIND11_MODULE(_pyxacc, m) {
       },
       "Set a number of options at once.");
   m.def("getAcceleratorDecorator",
-        [](const std::string name, std::shared_ptr<Accelerator> acc) {
-          auto accd = xacc::getService<AcceleratorDecorator>(name);
-          accd->setDecorated(acc);
+        [](const std::string name, std::shared_ptr<Accelerator> acc) -> std::shared_ptr<Accelerator> {
+          auto accd = xacc::getAcceleratorDecorator(name,acc);
           return accd;
         });
   m.def("getAcceleratorDecorator",
         [](const std::string name, std::shared_ptr<Accelerator> acc,
-           const PyHeterogeneousMap &options) {
-          auto accd = xacc::getService<AcceleratorDecorator>(name);
-          accd->setDecorated(acc);
+           const PyHeterogeneousMap &options) -> std::shared_ptr<Accelerator> {
           HeterogeneousMap m;
           for (auto &item : options) {
             PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
             mpark::visit(vis, item.second);
           }
-          accd->initialize(m);
+          auto accd = xacc::getAcceleratorDecorator(name,acc, m);
           return accd;
         });
   m.def("asComposite", &xacc::ir::asComposite, "");
