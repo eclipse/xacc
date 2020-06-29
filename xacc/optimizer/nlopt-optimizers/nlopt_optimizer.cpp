@@ -75,6 +75,12 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   _opt.set_maxeval(maxeval);
   _opt.set_ftol_rel(tol);
 
+  if (options.keyExists<double>("nlopt-stopval")) {
+    const double stopVal = options.get<double>("nlopt-stopval");
+    xacc::info("[NLOpt] function stopval set to " + std::to_string(stopVal));
+    _opt.set_stopval(stopVal);
+  }
+
   if (dim != x.size()) {
       xacc::error("Invalid optimization configuration: function dim == " + std::to_string(dim) + ", param_size == " + std::to_string(x.size()));
   }
