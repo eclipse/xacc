@@ -25,6 +25,28 @@ double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
   return e->f(x, grad);
 }
 
+const std::string NLOptimizer::get_algorithm() const {
+  std::string nlopt_opt_name = "cobyla";
+  if (options.stringExists("nlopt-optimizer")) {
+    nlopt_opt_name = options.getString("nlopt-optimizer");
+  }
+  return nlopt_opt_name;
+}
+
+const bool NLOptimizer::isGradientBased() const {
+
+  std::string nlopt_opt_name = "cobyla";
+  if (options.stringExists("nlopt-optimizer")) {
+    nlopt_opt_name = options.getString("nlopt-optimizer");
+  }
+
+  if (nlopt_opt_name == "l-bfgs") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 OptResult NLOptimizer::optimize(OptFunction &function) {
 
   auto dim = function.dimensions();
@@ -53,7 +75,8 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
-    xacc::info("[NLOpt] max function evaluations set to " + std::to_string(maxeval));
+    xacc::info("[NLOpt] max function evaluations set to " +
+               std::to_string(maxeval));
   }
 
   std::vector<double> x(dim);
@@ -82,7 +105,9 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   }
 
   if (dim != x.size()) {
-      xacc::error("Invalid optimization configuration: function dim == " + std::to_string(dim) + ", param_size == " + std::to_string(x.size()));
+    xacc::error("Invalid optimization configuration: function dim == " +
+                std::to_string(dim) +
+                ", param_size == " + std::to_string(x.size()));
   }
   double optF;
   nlopt::result r;

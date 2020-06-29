@@ -68,6 +68,8 @@ class MLPACKOptimizer : public Optimizer {
 public:
   MLPACKOptimizer() = default;
   OptResult optimize(OptFunction &function) override;
+  const bool isGradientBased() const override;
+  const std::string get_algorithm() const override;
 
   const std::string name() const override { return "mlpack"; }
   const std::string description() const override { return ""; }

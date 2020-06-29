@@ -33,7 +33,7 @@ private:
     Observable* m_refHamObs;
     Accelerator* m_qpu;
     Optimizer* m_optimizer;
-    AlgorithmGradientStrategy * gradientStrategy;
+    std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     int m_nbSteps;
 };

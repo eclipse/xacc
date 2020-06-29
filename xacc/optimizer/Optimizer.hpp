@@ -65,32 +65,9 @@ public:
     throw std::bad_function_call();
   }
 
-  const std::string get_algorithm() const { 
+  virtual const std::string get_algorithm() const {return "";}
 
-    if(name() == "nlopt" && !options.stringExists(name() + "-optimizer")){
-      return "cobyla";
-    } else if (name() == "mlpack" && !options.stringExists(name() + "-optimizer")){
-      return "adam";
-    } else {
-      return options.getString(name() + "-optimizer"); 
-    }
-    
-  }
-
-  const bool isGradientBased() const {
-
-    if(name() == "nlopt" && !options.stringExists(name() + "-optimizer")){
-      return false;
-    }
-
-    if(options.getString(name() + "-optimizer") == "cobyla" ||
-      options.getString(name() + "-optimizer") == "nelder-mead") {
-        return false;
-    }
-
-    return true;
-
-  }
+  virtual const bool isGradientBased() const {return false;}
 
 };
 } // namespace xacc
