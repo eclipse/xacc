@@ -135,8 +135,46 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     std::stringstream ss;
     ss << "Target U:\n" << m_targetU;
     xacc::info(ss.str());
-
+    // Default trace distance limit = 0.01 (99% fidelity).
     m_distanceLimit = 0.01;
+    if (runtimeOptions.keyExists<double>("trace-distance"))
+    {
+        m_distanceLimit = runtimeOptions.get<double>("trace-distance");
+        if (m_distanceLimit < 1e-9 || m_distanceLimit >= 1.0)
+        {
+            xacc::error("Invalid trace distance setting.");
+            return false;
+        }
+    }
+
+    m_initialDepth = 1;
+    if (runtimeOptions.keyExists<int>("initial-depth"))
+    {
+        m_initialDepth = runtimeOptions.get<int>("initial-depth");
+        if (m_initialDepth < 1)
+        {
+            xacc::error("Invalid initial-depth setting.");
+            return false;
+        }
+    }   
+
+    // Default explore phase trace distance limit:
+    m_exploreTraceDistanceLimit = std::min(0.1, 100 * m_distanceLimit);
+    if (runtimeOptions.keyExists<double>("explore-trace-distance"))
+    {
+        m_exploreTraceDistanceLimit = runtimeOptions.get<double>("explore-trace-distance");
+        if (m_exploreTraceDistanceLimit < 1e-9 || m_exploreTraceDistanceLimit >= 1.0)
+        {
+            xacc::error("Invalid 'explore-trace-distance' setting.");
+            return false;
+        }
+
+        if (m_distanceLimit > m_exploreTraceDistanceLimit)
+        {
+            m_distanceLimit = m_exploreTraceDistanceLimit;
+        }
+    }
+
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
     for (const auto& block : decomposedResult)
@@ -165,25 +203,29 @@ std::vector<QFAST::PauliReps> QFAST::explore()
     std::vector<QFAST::PauliReps> layers;
     bool alternativeLayer = false;
     
-    addLayer(layers, m_locationModel->buckets.first, m_locationModel->bucketPaulis.first);
-    // Coarse limit during exploration:
-    const double EXPLORE_PHASE_TARGET_DISTANCE = std::min(0.1, 100 * m_distanceLimit);
+    for (int i = 0; i < m_initialDepth; ++i)
+    {
+        const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+        const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+        addLayer(layers, topology, topologyPauli);
+        alternativeLayer = !alternativeLayer;
+    }
+   
     // Infinite loop
     for (;;)
     {
-        const bool optResult = optimizeAtDepth(layers, EXPLORE_PHASE_TARGET_DISTANCE);
+        const bool optResult = optimizeAtDepth(layers, m_exploreTraceDistanceLimit);
         if (optResult)
         {
             break;
         }
         else
         {
-            alternativeLayer = !alternativeLayer;
             const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
             const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
-
             // Add one more layer
             addLayer(layers, topology, topologyPauli);
+            alternativeLayer = !alternativeLayer;
         }
     }
     
@@ -260,9 +302,12 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     std::vector<QFAST::Block> resultBlocks;
     size_t blockIdx = 0;
     
-    const auto& subPaulis = getPaulisMap(2);
     for (const auto& layer : refinedReps)
     {
+        const std::pair<size_t, size_t> mapBits = (fixedLoc[blockIdx].first < fixedLoc[blockIdx].second) ? 
+            std::make_pair(0, 1) : 
+            std::make_pair(1, 0);
+        const auto subPaulis = generateAllPaulis(2, { mapBits })[0];        
         assert(subPaulis.size() == layer.funcValues.size());
         Block newBlock;
         newBlock.qubits = fixedLoc[blockIdx];
@@ -316,8 +361,7 @@ std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Bl
  
 std::vector<std::vector<Eigen::MatrixXcd>> QFAST::generateAllPaulis(size_t in_nbQubits, const Topology& in_topology)
 {
-    // Minimum: 3 qubits
-    assert(in_nbQubits > 2);
+    assert(in_nbQubits >= 2);
     
     // Get all Paulis
     const auto& paulis = getPaulisMap(in_nbQubits);
