@@ -35,7 +35,7 @@ TEST(QFastTester, checkSimple)
   });
   EXPECT_TRUE(expandOk);
   
-  auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 1024)});
+  auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 8192)});
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   auto xGate0 = gateRegistry->createInstruction("X", { 0 });
   auto xGate1 = gateRegistry->createInstruction("X", { 1 });
@@ -62,16 +62,38 @@ TEST(QFastTester, checkSimple)
       composite->addInstruction(xGate2);
     }
 
+    std::string inputBitString;
+    inputBitString.append(in_bit0 ? "1" : "0");
+    inputBitString.append(in_bit1 ? "1" : "0");
+    inputBitString.append(in_bit2 ? "1" : "0");
+
     composite->addInstructions(qfast->getInstructions());
     // Mesurement:
     composite->addInstructions({ measureGate0, measureGate1, measureGate2 });
 
     auto buffer = xacc::qalloc(3);
     acc->execute(buffer, composite);
+    std::cout << "Input bitstring: " << inputBitString << "\n";
     buffer->print();
+    // CCNOT gate:
+    const auto expectedBitString = [&inputBitString]() -> std::string {
+      // If both control bits are 1's
+      if (inputBitString == "110")
+      {
+        return "111";
+      }
+      if (inputBitString == "111")
+      {
+        return "110";
+      }
+      // Otherwise, no changes
+      return inputBitString;
+    }();
+    // Check bit string
+    EXPECT_NEAR(buffer->computeMeasurementProbability(expectedBitString), 1.0, 0.1);
   };
 
-  // 3 bits
+  // 3 bits: run all test cases
   for (int i = 0; i < (1 << 3); ++i)
   {
     runTestCase(i & 0x001, i & 0x002, i & 0x004);

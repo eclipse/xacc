@@ -198,11 +198,13 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
 
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     const auto decomposedResult = decompose();
-    for (const auto& block : decomposedResult)
-    {
-        auto compInst = genericBlockToGates(block);
+    
+    for (auto iter = decomposedResult.rbegin(); iter != decomposedResult.rend(); ++iter) 
+    { 
+        auto compInst = genericBlockToGates(*iter);
         addInstructions(compInst->getInstructions());
-    }
+    } 
+
     return true;
 }
 
