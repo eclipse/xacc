@@ -46,6 +46,9 @@ private:
         std::pair<size_t, size_t> qubits;
         // U matrix
         BlockMatrix uMat;
+        // Convert this local block (acting on two qubits)
+        // to the full matrix representation (total system).
+        Eigen::MatrixXcd toFullMat(size_t in_totalDim) const;
     };
 
     struct PauliReps 
