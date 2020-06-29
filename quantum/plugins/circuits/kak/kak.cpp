@@ -6,7 +6,6 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
 #include "PauliOperator.hpp"
-#include <armadillo>
 
 namespace {
 constexpr std::complex<double> I { 0.0, 1.0 };
@@ -733,15 +732,8 @@ std::pair<KAK::GateMatrix, KAK::GateMatrix> KAK::so4ToMagicSu2s(const InputMatri
 Eigen::MatrixXd KAK::diagonalizeRealSymmetricMatrix(const Eigen::MatrixXd& in_mat) const
 { 
   assert(isHermitian(in_mat));
-  // IMPORTANT: Eigen doesn't support eigenvalues/eigenvectors calculation *PROPERLY*
-  // i.e. w.r.t. to standard BLAS (such as LAPACK)
-  // Hence, we *MUST* use Armadillo.
-  arma::mat inputMat(in_mat.data(), in_mat.rows(), in_mat.cols());
-  arma::vec eigval;
-  arma::mat eigvec;
-  eig_sym(eigval, eigvec, inputMat);
-  // Copy result to Eigen
-  Eigen::MatrixXd p = Eigen::Map<Eigen::MatrixXd>(eigvec.memptr(), eigvec.n_rows, eigvec.n_cols);
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(in_mat);
+  Eigen::MatrixXd p = solver.eigenvectors();
   // Orthogonal basis (Hermitian/symmetric matrix)  
   assert(isOrthogonal(p));
   // An orthogonal matrix P such that PT x matrix x P is diagonal.
