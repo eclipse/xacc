@@ -17,14 +17,23 @@
 #include "Optimizer.hpp"
 #include "xacc_observable.hpp"
 #include "xacc_service.hpp"
-
+#include <Eigen/Dense>
 using namespace xacc;
 
 TEST(QFastTester, checkSimple) 
 {
     auto tmp = xacc::getService<Instruction>("QFAST");
     auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
-    qfast->expand({ });
+    Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
+    ccnotMat(6, 6) = 0.0;
+    ccnotMat(7, 7) = 0.0;
+    ccnotMat(6, 7) = 1.0;
+    ccnotMat(7, 6) = 1.0;
+    
+    const bool expandOk = qfast->expand({ 
+      std::make_pair("unitary", ccnotMat)
+    });
+    EXPECT_TRUE(expandOk);
 }
 
 
