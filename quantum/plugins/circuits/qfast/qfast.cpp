@@ -396,6 +396,11 @@ std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Bl
             static_cast<int>(in_genericBlock.qubits.second) })
     });
     
+    std::stringstream ssInfo;
+    ssInfo << "[Decompose] Bit1: " << in_genericBlock.qubits.first << "; Bit2: " << in_genericBlock.qubits.second << "\n";
+    ssInfo << "[Decompose] Matrix: \n" << in_genericBlock.uMat << "\n";
+    xacc::info(ssInfo.str());
+
     if (!expandOk)
     {
         std::stringstream ss;
