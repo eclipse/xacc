@@ -108,14 +108,10 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   try {
     r = _opt.optimize(x, optF);
   } catch (std::exception &e) {
-    std::cout << "[nlopt warning] " << e.what() << ", result code = " << r
-              << "\n";
+    xacc::error("NLOpt failed with error code = " + std::to_string(r) + ", " +
+                std::string(e.what()));
   }
 
-  if (r < 0) {
-    xacc::XACCLogger::instance()->error("NLOpt failed with error code = " +
-                                        std::to_string(r));
-  }
   return OptResult{optF, x};
 }
 
