@@ -124,14 +124,46 @@ XACC currently supports several pre-installed pulse declarations:
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
 |                        | beta                    | Correction amplitude                        | double                         |
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+ 
+|   SlepianPulse         | alpha vector (weights)  | Weights for all k-orders of Slepians        | array                          |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | nbSamples               | Number of samples in the pulse              | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | in_bW                   | Half-bandwith of Slepian sequences          | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | in_K                    | Max number of orders to use                 | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+ 
 
 which may be called as follows:
 
 .. code:: python 
 
-    channelConfigs.addOrReplacePulse('square', xacc.SquarePulse(nSamples))
-    # channelConfigs.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
+    channelConfig.addOrReplacePulse('square', xacc.SquarePulse(nbSamples))
+    # channelConfig.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
     # etc.
+
+XACC currently supports the use of Discrete Prolate Spheroidal Sequences [7], or Slepians, for creating
+time and bandwidth limited discrete pulses. First applied directly to qubit control
+in [6], these show promise at creating accurate and smooth controls in the NISQ era. 
+
+.. code:: python
+
+    # Typically want more samples here to maintain precision
+    nbSamples = 500
+
+    # Half-bandwidth \in (0.0, 0.5]
+    in_bW = 0.02
+
+    # Maximum number of Slepian orders to use 
+    # Typically (2 * nbSamples * W) -- remember to make it an integer
+    in_K = int(2 * nbSamples * in_bW)
+
+    # Weight vector of length in_K as array. Just using one's
+    # as an example, but for optimal control purposes, this vector
+    # is the array that we seek to optimize.
+    alpha_vector = np.ones(in_K)
+
+    channelConfig.addOrReplacePulse('slepian', xacc.SlepianPulse(alpha_vector, nbSamples, in_bW, in_K))
+
 
 Alternatively, one may define a custom pulse in numpy array format:
 
@@ -399,3 +431,5 @@ Additionally, this backend comes with the following pre-calibrated pulses:
 [5] `Simple Pulses for Elimination of Leakage in Weakly Nonlinear Qubits <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.103.110501>`_ 
 
 [6] `Quantum optimal control via gradient ascent in function space and the time-bandwidth quantum speed limit <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.062346>`_
+
+[7] `Prolate spheroidal wave functions, fourier analysis, and uncertainty — V: the discrete case <https://ieeexplore.ieee.org/document/6771595?arnumber=6771595&tag=1>`_
