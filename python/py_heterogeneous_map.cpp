@@ -47,6 +47,11 @@ void bind_heterogeneous_map(py::module &m) {
                const std::string, const std::shared_ptr<Optimizer> &)) &
                xacc::HeterogeneousMap::insert,
            "")
+     .def("insert",
+           (void (xacc::HeterogeneousMap::*)(
+               const std::string, const Eigen::MatrixXcd&)) &
+               xacc::HeterogeneousMap::insert,
+           "")
       .def(
           "__getitem__",
           [](HeterogeneousMap &m,
@@ -71,6 +76,8 @@ void bind_heterogeneous_map(py::module &m) {
               return m.get<std::shared_ptr<Optimizer>>(key);
             } else if (m.keyExists<std::vector<std::string>>(key)) {
               return m.get<std::vector<std::string>>(key);
+            } else if (m.keyExists<Eigen::MatrixXcd>(key)) {
+              return m.get<Eigen::MatrixXcd>(key);
             } else {
               xacc::error("Invalid key for heterogeneous map");
               return 0;
@@ -87,7 +94,8 @@ void bind_heterogeneous_map(py::module &m) {
                    m.keyExists<std::vector<int>>(key) ||
                    m.keyExists<std::vector<std::string>>(key) ||
                    m.keyExists<std::shared_ptr<Observable>>(key) ||
-                   m.keyExists<std::shared_ptr<Optimizer>>(key);
+                   m.keyExists<std::shared_ptr<Optimizer>>(key) ||
+                   m.keyExists<std::shared_ptr<Eigen::MatrixXcd>>(key);
           },
           "");
 
@@ -114,5 +122,7 @@ void bind_heterogeneous_map(py::module &m) {
       .def(py::init<std::shared_ptr<xacc::Observable>>(),
            "Construct as an Observable.")
       .def(py::init<std::shared_ptr<xacc::Optimizer>>(),
-           "Construct as an Optimizer.");
+           "Construct as an Optimizer.")
+      .def(py::init<Eigen::MatrixXcd>(),
+           "Construct as an Eigen matrix.");
 }
