@@ -75,6 +75,7 @@ You can ask questions by creating a new issue with the question tag.
    extensions
    advanced
    developers
+   tutorials
 
 Publications
 ------------

@@ -1,376 +1,435 @@
-XACC Tutorials
-==============
-Here we aggregate a number of examples that demonstrate how to use the XACC
-framework for the programming, compilation, and execution of quantum programs on
-available quantum computers.
+Tutorials 
+=========
 
-XACC Python JIT
----------------
-The XACC Python bindings provide a simple and intuitive mechanism for
-programming XACC kernels through a single-source, co-processor programming model.
-This mechanism enables users to write quantum code once and easily switch amongst
-available quantum computing hardware. This provides a Just-in-Time compilation workflow,
-i.e. these XACC Pythonic quantum kernels are compiled at runtime.
+\
 
-Simple Teleportation Kernel
-+++++++++++++++++++++++++++
-An illustrative example of the utility of the XACC Python JIT mechanism is the simple
-quantum state teleportation code. Here we write the kernel once and can switch the
-execution context amongst IBM, Rigetti, and a variety of simulators by simply updating
-the ``xacc.qpu`` accelerator key. See below
+Pulse Control Tutorial
+----------------------
 
-.. code::
+Here we describe how users can easily leverage XACC with the 
+QuaC Open-Pulse Simulator to conduct optimal control experiments.
+We currently support the following control algorithms:
+GRAPE [1], CRAB [2], Krotov [3], GOAT [4], and DRAG [5] with near-term plans of supporting Deep Reinforcement Learning
+and GRAFS [6].
 
-   import xacc
+Quick Start with Docker
+++++++++++++++++++++++++
 
-   # Initialize the framework
-   xacc.Initialize()
+We have put together a docker image based on Ubuntu 18.04 that has all required
+dependencies for building XACC and QuaC. Moreover, we have set this image up to serve an
+Eclipse Theia IDE on ``localhost:3000``. To use this image run the following from some
+scratch development directory:
 
-   # Get the desired QPU and
-   # allocate some qubits
-   qpu = xacc.getAccelerator('ibm') # or rigetti, tnqvm, etc.
-   qubits = qpu.createBuffer('q',3)
+.. code:: bash
 
-   # Define the XACC Kernel
-   @xacc.qpu(accelerator=qpu)
-   def teleport(buffer):
-      X(0)
-      H(1)
-      CNOT(1,2)
-      CNOT(0,1)
-      CNOT(1,2)
-      CNOT(2,0)
-      Measure(2, 0)
+   $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc-quac
 
-   teleport(qubits)
 
-   # Display the results
-   print(qubits)
+Now navigate to ``localhost:3000`` in your web browser. This will open the 
+Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
 
-   # Finalize the framework
-   xacc.Finalize()
+Basics of Manipulating Quantum Systems in XACC
+++++++++++++++++++++++++++++++++++++++++++++++
 
-Here we initialize the framework (must be done before using the XACC API), and then
-get reference to the Accelerator we want to execute on. We then allocate 3 qubits
-(represented as an ``AcceleratorBuffer`` instance)
-with the ``Accelerator::createBuffer`` command (akin to ``malloc`` for C). We define
-the quantum teleportation code using the ``PyXACCCompiler`` language and annotate it
-with the ``xacc.qpu`` decorator and indicate which Accelerator we'd like to execute
-on. Execution of this code on the IBM QPU is then affected by simply calling this Python
-function. The results of the execution are stored on the users allocated ``AcceleratorBuffer``.
-Finally we cleanup the framework with the ``xacc.Finalize()`` call.
+We will begin by showing how to define a quantum system in XACC, and subsqequently demonstrate how to manipulate the system. 
+The `next section <https://xacc.readthedocs.io/en/latest/tutorials.html#Optimizing-Controls-for-Quantum-Systems>`_
+will cover optimizing controls for the system through the use of XACC's Quantum Control algorithms. 
 
-``xacc()`` Instruction and IRGenerators
-+++++++++++++++++++++++++++++++++++++++
-XACC exposes an extensible interface for the generation of ``IR`` instances based
-on simple input parameters (this differentiates it from ``Compilers`` which also
-generate ``IR`` but do so given kernel source code). This interface is called
-the ``IRGenerator`` and it exposes a ``generate`` method that takes as input
-a set of ``InstructionParameters`` (these are essentially a ``variant`` type on
-``int``, ``float``, ``double``, ``string``, and ``complex<double>``).
+Make sure to run the following imports:
 
-The ``IRGenerator`` comes in handy when one wants to program complex quantum programs
-that may contain many instructions. They provide a mechanism for easily generating
-these programs based on simple input parameters. An example would be the generation of
-a quantum fourier transform. It would be easier to declare in a kernel that you would
-like to operate a QFT on a subset of qubits than to write out the individual gates that
-make up the QFT. Instead one could simply say 'operate a QFT on these qubits', and the
-XACC IRGenerator mechanism would produce this sub-circuit (The XACC framework does
-provide ``QFT`` and ``InverseQFT`` ``IRGenerators``).
+.. code:: python
 
-The XACC Python PyXACCCompiler language provides an instruction that lets users
-express this ``IRGenerator`` generation step on a single line of quantum code. To do so,
-in addition to standard gates and ``qmi`` instructions, this language defines an
-``xacc()`` instruction that takes as its first input the name of the IRGenerator
-to be used in building up the quantum kernel, followed by any key-value pair arguments.
-Here's an example of generating a hardware-efficient ansatz used in a variational
-quantum eigensolver routine
+    import xacc
+    import sys, os, json, numpy as np 
+    
+    # Alternative to the following two lines is to run 
+    # from the IDE terminal: export PYTHONPATH=$PYTHONPATH:$HOME/.xacc
+    from pathlib import Path
+    sys.path.insert(1, str(Path.home()) + '/.xacc')
 
-.. code::
+Each file then begins by defining the Hamiltonian of the system in jSON format:
 
-   @xacc.qpu(accelerator=ibm)
-   def hwe(buffer, *args):
-      xacc(hwe, layers=2, n_qubits=2, connectivity='[[0,1]]')
+.. code:: python
 
-This would generate the following circuit
-
-.. code::
-
-   Ry(t0) q0
-   Rz(t1) q0
-   Ry(t2) q1
-   Rz(t3) q1
-   CNOT q0,q1
-   Ry(t4) q0
-   Rz(t5) q0
-   Ry(t6) q1
-   Rz(t7) q1
-   CNOT q0,q1
-
-.. note::
-
-   The ``xacc.qpu`` decorate provides a mechanism for querying
-   information about the circuit at runtime. One could get the
-   number of runtime parameters, and the IR Function itself with the following
-   .. code::
-
-      print(hwe.nParameters())
-      print(hwe.getFunction().toString('q'))
-
-   So executing a function with unknown number of parameters can be
-   accomplished like this
-   .. code::
-
-      init = np.random.uniform(low=-np.pi,high=np.pi, size=(hwe.nParameters(),))
-      hwe(buffer, *init)
-
-This ``xacc()`` instruction can be used with any available ``IRGenerator`` present
-in the XACC framework.
-
-D-Wave Python JIT
-+++++++++++++++++
-We can similarly use this Python JIT mechanism for writing and executing D-Wave
-code. The ``PyXACCCompiler`` language exposes a ``qmi`` instruction that takes
-the indices of the qubits for which we are defining a bias or coupler (qubit indices equal,
-we have a bias, qubit indices not equal we have a coupler). And of course these
-biases and couplers can be runtime parameters. See below for an example.
-
-.. code::
-
-   import xacc
-
-   xacc.Initialize()
-
-   # Get access to D-Wave QPU and
-   # allocate some qubits
-   dwave = xacc.getAccelerator('dwave')
-   qubits = dwave.createBuffer('q')
-
-   # Define the function we'd like to
-   # off-load to the QPU, here
-   # we're using a the QMI low-level language
-   @xacc.qpu(accelerator=dwave)
-   def f(buffer, h, j):
-      qmi(0,0,h)
-      qmi(1,1,h)
-      qmi(0,1,j)
-
-   # Execute on D-Wave
-   f(qubits, 1., 2.)
-
-   # Print the buffer, this displays
-   # solutions and energies
-   print(qubits)
-
-   xacc.Finalize()
-
-Or, if we have an ``IRGenerator`` for a D-Wave problem, we could use the ``xacc()``
-instruction. Imagine we have an ``IRGenerator`` implemented that takes an integer ``N``
-and creates a D-Wave IR instance that factors ``N`` into its constituent primes.
-Our code would look like this
-
-.. code::
-
-   import xacc
-
-   xacc.Initialize()
-
-   # Get access to D-Wave QPU and
-   # allocate some qubits
-   dwave = xacc.getAccelerator('dwave')
-   buffer = dwave.createBuffer('q')
-
-   # Define the function we'd like to
-   # off-load to the QPU, here
-   # we're using a parameterized Factoring
-   # IR Generator
-   @xacc.qpu(accelerator='dwave')
-   def factor15(buffer):
-      xacc(dwave-factoring, n=15)
-
-   # Factor 15 on the D-Wave
-   factor15(buffer)
-
-   # We have solutions as 0s and 1s
-   # decode that into our factors
-   xacc.analyzeBuffer(buffer)
-
-   # Print the factors
-   factors = buffer.getInformation('analysis-results')
-   xacc.info('Factors = ' + str(factors))
-
-   xacc.Finalize()
-
-Note here that we leveraged an XACC API function called ``xacc.analyzeBuffer``. All
-``IRGenerators`` expose a second method called ``analyzeResults`` that takes as input
-the ``AcceleratorBuffer`` and parses the resultant bit strings back up to the problem
-scope, which in this case is the prime factors we are seeking. The ``xacc.analyzeBuffer``
-provides a convenience method for executing the correct ``IRGenerator::analyzeResults``
-method.
-
-AcceleratorBuffer Usage
------------------------
-The ``AcceleratorBuffer`` makes up the glue between host-side code and ``Accelerator``
-results. It abstracts the concept of a register of qubits that can be measured, and stores
-information about the number of qubits in the register and observed measurement bit strings
-and counts. This information is then readily available to the creator of the ``AcceleratorBuffer``
-and can be used to get higher-level problem result information.
-
-The ``AcceleratorBuffer`` keeps track of what we call ``ExtraInfo``, which is a
-``variant`` type that can be of type ``int``, ``double``, ``std::string``, ``std::vector<int>``,
-``std::vector<double>``, ``std::vector<std::string>``, or ``std::map<int, std::vector<int>>``.
-The ``AcceleratorBuffer`` keeps reference to a map of ``std::string`` to ``ExtraInfo`` which
-enables it to keep track of problem-specific information such as ``vqe-energy``, ``vqe-angles``,
-``vqe-nQPU-calls`` (for the problem-specific case of VQE). But really, this mechanism can
-store any kind of string key to ExtraInfo value (a great example is storing a minor graph embedding
-for a D-Wave compilation/execution as a map of ints to vector<int>).
-
-Furthermore, the ``AcceleratorBuffer`` can have children, and each child is an ``AcceleratorBuffer``
-with associated ``ExtraInfo`` information. This is great for algorithms like VQE where
-one may allocate a single register of qubits to operate on at the top-level, but many
-executions are actually executed for the various Pauli Hamiltonian terms.
-
-Let's look at a simple example of using the AcceleratorBuffer and accessing its data. Imagine
-we had the following code running on the Local IBM C++ Simulator
-
-.. code::
-
-   import xacc
-   import numpy as np
-
-   xacc.Initialize()
-
-   qpu = xacc.getAccelerator('local-ibm')
-   buffer = qpu.createBuffer('q',2)
-
-   @xacc.qpu(accelerator=qpu)
-   def foo(buffer, theta):
-      X(0)
-      Ry(theta, 1)
-      CNOT(1, 0)
-      Measure(0,0)
-
-   # Execute the code on the QPU
-   foo(buffer, -1.1415936)
-   print(foo.nParameters())
-
-   # Check into the results
-   print('Buffer as Json: ', buffer)
-   print('Expectation Value wrt Z: ', buffer.getExpectationValueZ())
-   print('Measurement Counts: ', buffer.getMeasurementCounts())
-
-   xacc.Finalize()
-
-This will output the following
-
-.. code::
-
-   Buffer as Json:  {
-    "AcceleratorBuffer": {
-        "name": "q",
-        "size": 2,
-        "Information": {},
-        "Measurements": {
-            "00": 288,
-            "01": 736
+    hamiltonianJson = {
+        "description": "One-qutrit Hamiltonian.",
+        "h_latex": "",
+        "h_str": ["(w - 0.5*alpha)*O0", "0.5*alpha*O0*O0", "O*(SM0 + SP0)||D0"],
+        "osc": {},
+        "qub": {
+            "0": 3
+        },
+        "vars": {
+            "w": 31.63772297724,
+            "alpha": -1.47969,
+            "O": 0.0314
         }
-     }
-   }
-   Expectation Value wrt Z:  -0.4375
-   Measurement Counts:  {'00': 288, '01': 736}
+    }
 
-Note that this ``AcceleratorBuffer`` instance has been populated with measurement
-bit strings and their counts. This is a very simple example, so there is no
-extra information involved in this calculation,
-but we can compute the expectation value with respect to the Z operator.
+with the above being an example of a single qutrit system. For more information on formatting the Hamiltonian, 
+see `Advanced/Pulse-level Programming <https://xacc.readthedocs.io/en/latest/advanced.html>`_ . Alternatively, 
+in `QuaC/xacc_examples/python <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration/xacc_examples/python>`_, 
+there are several example files outlining definitions for one-qubit, one-qutrit, two-qubit, 
+and two-qutrit Hamiltonians that users can plug-and-play with. 
 
-For a more complex example that does include extra information, let us consider the
-above D-Wave Factoring code that leverages the ``dwave-factoring`` ``IRGenerator``.
-Running this code and printing the buffer produces the following
+Next, a pulse model must be instantiated and the Hamiltonian is passed to the module by calling:
 
-.. code::
+.. code:: python
 
-   {
-       "AcceleratorBuffer": {
-           "name": "q",
-           "size": 2048,
-           "Information": {
-               "active-vars": [
-                   1944,
-                   1946,
-                   1947,
-                   1948,
-                   1949,
-                   1951
-               ],
-               "analysis-results": [
-                   3,
-                   5
-               ],
-               "embedding": {
-                   "0": [
-                       1948,
-                       1947
-                   ],
-                   "1": [
-                       1949
-                   ],
-                   "2": [
-                       1946,
-                       1951
-                   ],
-                   "3": [
-                       1944
-                   ]
-               },
-               "energies": [
-                   -999.75
-               ],
-               "execution-time": 0.023982,
-               "ir-generator": "dwave-factoring",
-               "num-occurrences": [
-                   100
-               ]
-           },
-           "Measurements": {
-               "010001": 100
-           }
-       }
-   }
+    model = xacc.createPulseModel()
+    loadResult = model.loadHamiltonianJson(json.dumps(hamiltonianJson))
+    qpu = xacc.getAccelerator('QuaC', {'system-model': model.name()})
+    channelConfig = xacc.BackendChannelConfigs()
 
-Notice the execution workflow has populated the ``AcceleratorBuffer`` with multiple
-extra information entries: the active-vars, embedding, energies, execution time,
-ir-generator used, and measurement counts. Furthermore, invoking the ``xacc.analyzeBuffer``
-function mapped the bit strings back to problem-specific results, namely 3 and 5,
-and added it to the buffer under the analysis-results key.
 
-One can query this information with the ``getInformation`` method
+See `Tutorials/Alternative Hamiltonian Declaration <https://xacc.readthedocs.io/en/latest/tutorials.html#Alternative-Hamiltonian-Declaration>`_
+for declaring a Hamiltonian through default backends.
 
-.. code::
+Let’s now define some of the parameters of the pulse, beginning with the total pulse time in nanoseconds, the number of samples, 
+the time between the samples (dt), and the frequency of the driving envelope (typically chosen to be on resonance with the qubit):
 
-   print('Embedding: ', buffer.getInformation('embedding'))
-   print('Active-Vars: ', buffer.getInformation('active-vars'))
-   print('Energies: ', buffer.getInformation('energies'))
-   print('IRGenerator: ', buffer.getInformation('ir-generator'))
+.. code:: python
 
-to produce
+    T = 100
+    nbSamples = 100
+    # dt (time between data samples)
+    channelConfig.dt = nbSamples / T 
+    # Drive at resonance: 31.63772297724/(2pi)    
+    channelConfig.loFregs_dChannels = [5.0353]
 
-.. code::
+XACC currently supports several pre-installed pulse declarations:
 
-   Embedding:  {0: [1948, 1947], 1: [1949], 2: [1946, 1951], 3: [1944]}
-   Active-Vars:  [1944, 1946, 1947, 1948, 1949, 1951]
-   Energies:  [-999.75]
-   IRGenerator:  dwave-factoring
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|   Pulse Type           |           Parameters    |      Parameter Description                  |       type                     |
++========================+=========================+=============================================+================================+
+|   SquarePulse          | nbSamples               | Number of samples in the pulse              | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|   GaussianPulse        | nbSamples               | Number of samples in the pulse              | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | sigma                   | Standard deviation of Gaussian distribution | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|   GaussianSquare       | duration                | Total pulse duration                        | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | amplitude               | Min/max amplitude of pulse                  | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | sigma                   | Standard deviation of Gaussian distribution | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | width                   | Width of pulse peak/trough                  | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|   DragPulse            | duration                | Total pulse duration                        | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | amplitude               | Amplitude of driving envelope               | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | sigma                   | Standard deviation of Gaussian distribution | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | beta                    | Correction amplitude                        | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+ 
+|   SlepianPulse         | alpha vector (weights)  | Weights for all k-orders of Slepians        | array                          |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | nbSamples               | Number of samples in the pulse              | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | in_bW                   | Half-bandwith of Slepian sequences          | double                         |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+
+|                        | in_K                    | Max number of orders to use                 | int                            |
++------------------------+-------------------------+---------------------------------------------+--------------------------------+ 
 
-To see a further complex example that uses ``AcceleratorBuffer`` children, see
-`XACC-VQE <apps.html#python-jit-vqe-decorator>`_.
+which may be called as follows:
 
-Also note that the ``AcceleratorBuffer`` can be persisted to file and loaded
-from file.
+.. code:: python 
 
-.. code::
+    channelConfig.addOrReplacePulse('square', xacc.SquarePulse(nbSamples))
+    # channelConfig.addOrReplacePulse('gaussian', xacc.GaussianPulse(nSamples, sigma = 0.1))
+    # etc.
 
-   bufferStr = str(buffer)
-   ... write to file
-   ... load from file, get loadedStr
-   newBuff = xacc.loadBuffer(loadedStr)
+XACC currently supports the use of Discrete Prolate Spheroidal Sequences [7], or Slepians, for creating
+time and bandwidth limited discrete pulses. First applied directly to qubit control
+in [6], these show promise at creating accurate and smooth controls in the NISQ era. 
+
+.. code:: python
+
+    # Typically want more samples here to maintain precision
+    nbSamples = 500
+
+    # Half-bandwidth \in (0.0, 0.5]
+    in_bW = 0.02
+
+    # Maximum number of Slepian orders to use 
+    # Typically (2 * nbSamples * W) -- remember to make it an integer
+    in_K = int(2 * nbSamples * in_bW)
+
+    # Weight vector of length in_K as array. Just using one's
+    # as an example, but for optimal control purposes, this vector
+    # is the array that we seek to optimize.
+    alpha_vector = np.ones(in_K)
+
+    channelConfig.addOrReplacePulse('slepian', xacc.SlepianPulse(alpha_vector, nbSamples, in_bW, in_K))
+
+
+Alternatively, one may define a custom pulse in numpy array format:
+
+.. code:: python
+
+    pulseData = np.ones(nbSamples)
+    pulseName = 'custom'
+    xacc.addPulse(pulseName, pulseData)
+
+Now we allocate the amount of qubits needed for the program, create the program containing the pulse,
+and set the channel to drive it on:
+
+.. code:: python
+
+    # Allocate qubits:
+    q = xacc.qalloc(1)
+    # Create the quantum program that contains the custom pulse
+    # and the drive channel (D0) is set on the instruction
+    provider = xacc.getIRProvider('quantum')
+    prog = provider.createComposite('pulse')
+    customPulse = provider.createInstruction(pulseName, [0])
+    customPulse.setChannel('d0')
+    prog.addInstruction(customPulse)
+
+Finally, we instruct the program on what measurement we'd like it to make and execute the program:
+
+.. code:: python 
+
+    # Measure Q0
+    prog.addInstruction(xacc.gate.create("Measure", [0]))
+    qpu.execute(q, prog)
+
+
+Returning the Fidelity
+++++++++++++++++++++++
+
+Depending on the backend that you're targetting, the gate operation you're attempting to do, 
+and the number of qubits in your system, there are different ways to return the fidelity.
+
+Case 1: Returning the probability of the |1> state for a single qubit:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python 
+
+    fidelity = q.computeMeasurementProbability('1')
+
+Case 2: Returning the probability of the |1> and |2> states for a single qutrit:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    fidelity = q['DensityMatrixDiags'][1]
+    leakage = q['DensityMatrixDiags'][2]
+
+Case 3: Fidelity Calculation using Density Matrices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this case, we can provide a target density matrix for the system (both the real and imaginary part)
+and calculate the fidelity against that matrix. Here we outline the fidelity calculation for an X-Gate on a 
+2-qubit system. 
+
+.. code:: python  
+
+    # Expected density matrix: rho = |10><10| for an X gate on the first qubit. 
+    expectedDmReal = np.array([
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 0
+    ], dtype = np.float64)
+    
+    expectedDmImag = np.zeros(16)
+    
+    # Add target density matrix info to the buffer before execution          
+    q.addExtraInfo("target-dm-real", expectedDmReal)
+    q.addExtraInfo("target-dm-imag", expectedDmImag)
+
+    # Execute the program
+    qpu.execute(q, prog)
+
+    # Return the fidelity 
+    fidelity = q["fidelity"]
+    print("\nFidelity: {}".format(fidelity))
+
+Case 4: Quantum Process Tomography:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The final method is to run XACC's Quantum Process Tomography algorithm on the system. In simulation, 
+this method will take more time than the others listed above, but on actual hardware the difference 
+in time will be marginal. The fidelity here is calculated against a user-provided target process matrix.
+
+.. code:: python
+
+    # This line should replace the previous provider.createComposite('pulse') call
+    prog = provider.createComposite('pulse_qpt')
+
+    # Create the Quantum Process Tomography Algorithm
+    qpt = xacc.getAlgorithm('qpt', {'circuit': prog, 'accelerator': qpu, 'optimize-circuit': False})
+
+    # Allocate qubit and execute
+    q = xacc.qalloc(1)
+    qpt.execute(q)
+
+    # Target chi matrix (X-gate)
+    chi_real_vec = [0., 0., 0., 0., 
+                    0., 2., 0., 0., 
+                    0., 0., 0., 0.,
+                    0., 0., 0., 0.]
+    fidelity = qpt.calculate('fidelity', q, {'chi-theoretical-real': chi_real_vec})
+
+Case 4A: Quantum Process Tomography from the Gate-Level:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of calcualting the target process matrix by hand, we can leverage XACC's 
+Pulse-Level IR Transformation to convert a user-provided gate into its corresponding chi-matrix.
+
+.. code:: python
+
+    prog = provider.createComposite('pulse_qpt')
+
+    # Get Quantum Process Tomography Algo
+    qpt = xacc.getAlgorithm('qpt')
+
+    # Compute Theoretical Chi Matrix
+    q = xacc.qalloc(1)
+    qpu = xacc.getAccelerator('q', {'shots': 10000})
+    compiler = xacc.getCompiler('xasm')
+    # Getting IR for an X gate
+    ir = compiler.compile('''__qpu__ void f(qbit q) {X(q[0]);}''', None)
+    qppCompositeInstr = ir.getComposites()[0]
+    qpt.initialize({'circuit': qppCompositeInstr, 'accelerator': qpu})
+
+    # Execute the algorithm and return real and imaginary parts of process matrix
+    qpt.execute(q)
+    chi_real_vec = q["chi-real"]
+    chi_imag_vec = q["chi-imag"]
+    
+
+
+Optimizing Controls for Quantum Systems
++++++++++++++++++++++++++++++++++++++++
+
+Using XACC's IR Transformation, similarly to in `Returning the Fidelity/Case 4A 
+<https://xacc.readthedocs.io/en/latest/tutorials.html#case-4a-quantum-process-tomography-from-the-gate-level>`_, 
+users can pass a Gate-Level instruction to the backend and return an optimized pulse with the algorithm of their 
+choosing. The following is a short snippet of using GRAPE to construct a CNOT on a two-qubit system 
+(for the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
+<https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_).
+
+.. code:: python
+
+    # Assuming users have already defined the Hamiltonian, pulse system model, 
+    # qpu = xacc.getAccelerator(), and the channelConfigs parameters
+
+    # Get the XASM compiler
+    xasmCompiler = xacc.getCompiler('xasm');
+
+    # Composite to be transformed to pulse
+    ir = xasmCompiler.compile('''__qpu__ void f(qbit q) {CNOT(q[0], q[1]);}''', qpu);
+    program = ir.getComposites()[0]
+
+    # Run the pulse IRTransformation 
+    optimizer = xacc.getIRTransformation('quantum-control')
+    optimizer.apply(program, qpu, {
+        'method': 'GRAPE',
+        'max-time': T,
+        'dt': channelConfigs.dt
+    })
+
+    # Run the simulation of the optimized pulse program
+    q = xacc.qalloc(2)
+    qpu.execute(q, program)
+    print(q)
+
+After calling qpu.execute(), the `program` variable is no longer a gate, but is now the optimized pulse.
+Similarly, here is how to optimize an X-gate on a single qubit using GOAT:
+
+.. code:: python
+
+    # Assuming users have already defined the Hamiltonian, pulse system model, 
+    # qpu = xacc.getAccelerator(), and the channelConfigs parameters
+
+    # Get the XASM compiler
+    xasmCompiler = xacc.getCompiler('xasm');
+
+    # Composite to be transform to pulse
+    ir = xasmCompiler.compile('''__qpu__ void f(qbit q) {Rx(q[0], 1.57);}''', qpu);
+    program = ir.getComposites()[0]
+
+    # Run the pulse IRTransformation 
+    optimizer = xacc.getIRTransformation('quantum-control')
+    optimizer.apply(program, qpu, {
+        'method': 'GOAT',
+        'control-params': ['sigma'],
+        # Gaussian pulse
+        'control-funcs': ['exp(-t^2/(2*sigma^2))'],
+        # Initial params
+        'initial-parameters': [8.0],
+        'max-time': 100.0
+    })
+
+See `Advanced/Pulse-evel Programming/Pulse-level IR Transformation <https://xacc.readthedocs.io/en/latest/advanced.html#pulse-level-ir-transformation>`_ 
+for a more comprehensive list of each optimization method and its corresponding parameters.
+
+
+Alternative Hamiltonian Declaration
++++++++++++++++++++++++++++++++++++
+
+Currently, XACC provides a default two-qubit backend represented by the following Hamiltonian:
+
+.. code:: python
+
+    """
+    {
+        "description": "Two-qubit Hamiltonian",
+        "h_str": ["_SUM[i,0,1,wq{i}*O{i}]", "_SUM[i,0,1,delta{i}*O{i}*(O{i}-I{i})]", "_SUM[i,0,1,omegad{i}*X{i}||D{i}]", "omegad1*X0||U0", "omegad0*X1||U1", "jq0q1*Sp0*Sm1", "jq0q1*Sm0*Sp1"],
+        "osc": {},
+        "qub": {
+            "0": 2,
+            "1": 2
+        },
+        "vars": {
+            "wq0": 30.518812656662774, 
+            "wq1": 31.238229295532093,
+            "delta0": -2.011875935,
+            "delta1": -2.008734343,
+            "omegad0": -1.703999855,
+            "omegad1": -1.703999855,
+            "jq0q1": 0.011749557 
+        }
+    }
+    """
+
+Accessing this backend is as simple as:
+
+.. code:: python
+
+    qpu = xacc.getAccelerator('QuaC:Default2Q')
+
+Additionally, this backend comes with the following pre-calibrated pulses:
+
++------------------------+-------------------------+-----------------------------------------------------+
+|   Pulse Type           |   Gate Operation        |      Description                                    |
++========================+=========================+=====================================================+
+|   Single Qubit         | X-Gate                  | pi/2 rotation over X-axis on Q0 or Q1               |
++------------------------+-------------------------+-----------------------------------------------------+
+|                        | H-Gate                  | Hadamard Gate on Q0 or Q1                           | 
++------------------------+-------------------------+-----------------------------------------------------+
+|                        | U3-Gate                 | U3 Operation on Q0 or Q1                            | 
++------------------------+-------------------------+-----------------------------------------------------+
+|   Double Qubit         | CNOT                    | CNOT with U3 gates to correct local rotation errors | 
++------------------------+-------------------------+-----------------------------------------------------+
+
+\
+\
+
+[1] `Data-driven gradient algorithm for high-precision quantum control <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.042122>`_
+
+[2] `Chopped random-basis quantum optimization <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.84.022326>`_
+
+[3] `Control of Photochemical Branching: Novel Procedures for Finding Optimal Pulses and Global Upper Bounds <https://link.springer.com/chapter/10.1007/978-1-4899-2326-4_24>`_
+
+[4] `Tunable, Flexible, and Efficient Optimization of Control Pulses for Practical Qubits <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.150401>`_
+
+[5] `Simple Pulses for Elimination of Leakage in Weakly Nonlinear Qubits <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.103.110501>`_ 
+
+[6] `Quantum optimal control via gradient ascent in function space and the time-bandwidth quantum speed limit <https://journals.aps.org/pra/abstract/10.1103/PhysRevA.97.062346>`_
+
+[7] `Prolate spheroidal wave functions, fourier analysis, and uncertainty — V: the discrete case <https://ieeexplore.ieee.org/document/6771595?arnumber=6771595&tag=1>`_
