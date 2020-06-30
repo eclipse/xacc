@@ -89,7 +89,7 @@ bool isSquare(const Eigen::MatrixXcd& in_mat)
   return in_mat.rows() == in_mat.cols();
 }
 
-bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 {
   for (int i = 0; i < in_mat.rows(); ++i)
   {
@@ -108,7 +108,7 @@ bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
   return true;
 }
 
-bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, double in_tol = 1e-12)
+bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, double in_tol = 1e-9)
 {
   if (in_mat1.rows() == in_mat2.rows() && in_mat1.cols() == in_mat2.cols())
   {
@@ -149,7 +149,7 @@ bool isUnitary(const Eigen::MatrixXcd& in_mat)
   return allClose(in_mat * in_mat.adjoint(), Id);
 }
 
-bool isOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+bool isOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 {
   if (!isSquare(in_mat))
   {
@@ -171,7 +171,7 @@ bool isOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
   return allClose(in_mat.inverse(), in_mat.transpose(), in_tol);
 }
 // Is Orthogonal and determinant == 1
-bool isSpecialOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-12)
+bool isSpecialOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 {
   return isOrthogonal(in_mat, in_tol) && (std::abs(std::abs(in_mat.determinant()) - 1.0) < in_tol);
 }
@@ -182,7 +182,7 @@ bool isCanonicalized(double x, double y, double z)
   // if x = pi/4, z >= 0
   if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4)
   {
-    if (std::abs(x - M_PI_4) < 1e-12)
+    if (std::abs(x - M_PI_4) < 1e-9)
     {
       return (z >= 0);
     }
@@ -303,11 +303,11 @@ std::optional<KAK::KakDecomposition> KAK::kakDecomposition(const InputMatrix& in
     result.b0 = b0;
     result.b1 = b1;
     result.x = factors(1).real();
-    assert(std::abs(factors(1).imag()) < 1e-12);
+    assert(std::abs(factors(1).imag()) < 1e-9);
     result.y = factors(2).real();
-    assert(std::abs(factors(2).imag()) < 1e-12);
+    assert(std::abs(factors(2).imag()) < 1e-9);
     result.z = factors(3).real();
-    assert(std::abs(factors(3).imag()) < 1e-12);
+    assert(std::abs(factors(3).imag()) < 1e-9);
   }
 
   const bool validateMatrix = allClose(result.toMat(), in_matrix);  
@@ -368,7 +368,7 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
     };
     
     double a, bHalf, cHalf, dHalf;
-    const double TOLERANCE = 1e-12;
+    const double TOLERANCE = 1e-9;
     if (std::abs(matrix(0, 1)) < TOLERANCE)
     {
       auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
@@ -709,14 +709,8 @@ std::tuple<std::complex<double>, KAK::GateMatrix, KAK::GateMatrix> KAK::kronFact
   }
 
   // Validate:
-  auto testMat = g * Eigen::kroneckerProduct(f1, f2);
-  for (int row = 0; row < in_matrix.rows(); ++row)
-  {
-    for (int col = 0; col < in_matrix.cols(); ++col)
-    {
-      assert(std::abs(testMat(row, col) - in_matrix(row, col)) < 1e-6);
-    }
-  }
+  Eigen::Matrix4cd testMat = g * Eigen::kroneckerProduct(f1, f2);
+  assert(allClose(testMat, in_matrix));
 
   return std::make_tuple(g, f1, f2);
 }
@@ -942,7 +936,7 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
   }
   canonicalShift(2);
 
-  if ((v[0] > M_PI_4 - 1e-12) && (v[2] < 0))
+  if ((v[0] > M_PI_4 - 1e-9) && (v[2] < 0))
   {
     shift(0, -1);
     negate(0, 2);
