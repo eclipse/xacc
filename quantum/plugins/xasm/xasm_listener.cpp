@@ -23,6 +23,7 @@
 
 using namespace xasm;
 
+auto debug_predicate = xacc::MessagePredicate([]() {return xacc::getLoggingLevel() > 3;});
 namespace xacc {
 void XASMListener::for_stmt_update_inst_args(Instruction *inst) {
   auto parameters = inst->getParameters();
@@ -379,7 +380,7 @@ void XASMListener::exitIfstmt(xasmParser::IfstmtContext *ctx) {
 void XASMListener::enterInstruction(xasmParser::InstructionContext *ctx) {
   currentInstructionName = ctx->inst_name->ID()->getText();
   xacc::debug("[XasmCompiler] Current Instruction Name: " +
-              currentInstructionName);
+              currentInstructionName, debug_predicate);
 }
 void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
   auto nBits = ctx->bufferIndex().size();
@@ -392,7 +393,7 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
     // we assume it is a parameter
     if (!functionBufferNames.empty() &&
         !xacc::container::contains(functionBufferNames, name)) {
-      xacc::debug("[XasmCompiler] Found parameter in buffer list. " + name);
+      xacc::debug("[XasmCompiler] Found parameter in buffer list. " + name,debug_predicate);
 
       // FIXME HANDLE things like x[i] or x[i+1]
       auto newVar = name + ctx->bufferIndex(i)->idx->getText();
@@ -428,7 +429,7 @@ void XASMListener::enterBufferList(xasmParser::BufferListContext *ctx) {
       return;
     }
 
-    xacc::debug("[XasmCompiler] Adding buffer name " + name);
+    xacc::debug("[XasmCompiler] Adding buffer name " + name,debug_predicate);
 
     currentBufferNames.push_back(name);
     if (ctx->bufferIndex(i)->idx->INT() != nullptr) {
@@ -467,15 +468,15 @@ void XASMListener::enterParamList(xasmParser::ParamListContext *ctx) {
       currentParameters.push_back(newVar);
     } else {
 
-      xacc::debug("[XasmCompiler] Parameter was " + param->getText());
+      xacc::debug("[XasmCompiler] Parameter was " + param->getText(),debug_predicate);
       // This could be like just a string, or an expression like pi/2
       double value;
       if (parsingUtil->isConstant(param->getText(), value)) {
         xacc::debug("[XasmCompiler] Parameter added is " +
-                    std::to_string(value));
+                    std::to_string(value),debug_predicate);
         currentParameters.emplace_back(value);
       } else {
-        xacc::debug("[XasmCompiler] Parameter added is " + param->getText());
+        xacc::debug("[XasmCompiler] Parameter added is " + param->getText(),debug_predicate);
         InstructionParameter p(param->getText());
         p.storeOriginalExpression();
         currentParameters.push_back(p);
@@ -562,7 +563,7 @@ void XASMListener::enterComposite_generator(
     xasmParser::Composite_generatorContext *ctx) {
   currentCompositeName = ctx->composite_name->getText();
   xacc::debug("[XasmCompiler] Creating composite with name " +
-              currentCompositeName);
+              currentCompositeName,debug_predicate);
 }
 
 void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
@@ -574,7 +575,7 @@ void XASMListener::enterOptionsType(xasmParser::OptionsTypeContext *ctx) {
     auto valStr = ctx->value->getText();
 
     key.erase(remove(key.begin(), key.end(), '\"'), key.end());
-    xacc::debug("Entered Options Type with key/value = " + key + "," + valStr);
+    xacc::debug("Entered Options Type with key/value = " + key + "," + valStr,debug_predicate);
 
     double value;
     if (parsingUtil->isConstant(valStr, value)) {
@@ -701,7 +702,7 @@ void XASMListener::exitComposite_generator(
 
   if (!composite->expand(currentOptions)) {
     xacc::debug("[XasmCompiler] Could not expand composite " +
-                currentCompositeName);
+                currentCompositeName,debug_predicate);
   }
 
   composite->setBufferNames({ctx->buffer_name->getText()});
