@@ -395,7 +395,14 @@ std::shared_ptr<CompositeInstruction> QFAST::genericBlockToGates(const QFAST::Bl
             static_cast<int>(in_genericBlock.qubits.first), 
             static_cast<int>(in_genericBlock.qubits.second) })
     });
-    assert(expandOk);    
+    
+    if (!expandOk)
+    {
+        std::stringstream ss;
+        ss << "Failed to decompose unitary matrix: \n"  << in_genericBlock.uMat;
+        xacc::error(ss.str());
+    } 
+
     return kak;
 }
  
