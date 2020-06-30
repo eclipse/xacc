@@ -17,6 +17,7 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <numeric>
+#include <random>
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -377,9 +378,13 @@ void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topo
     const double initialParam = 1.0 / in_topologyPaulis[0].size();
     newLayer.funcValues.assign(in_topologyPaulis[0].size(), initialParam);
     // Random:
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
     for (int i = 0; i < in_layerTopology.size(); ++i)
     {
-        newLayer.locValues.emplace_back(static_cast<double>(rand())/static_cast<double>(RAND_MAX));
+        newLayer.locValues.emplace_back(dist(mt));
     }
     io_currentLayers.emplace_back(std::move(newLayer));
 }
