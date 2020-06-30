@@ -124,7 +124,7 @@ XACC currently supports several pre-installed pulse declarations:
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
 |                        | beta                    | Correction amplitude                        | double                         |
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+ 
-|   SlepianPulse         | alpha vector (weights)  | Weights for all k-orders of Slepians        | array                          |
+|   SlepianPulse         | alpha_vector            | Weights for all k-orders of Slepians        | array                          |
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
 |                        | nbSamples               | Number of samples in the pulse              | int                            |
 +------------------------+-------------------------+---------------------------------------------+--------------------------------+
@@ -309,7 +309,7 @@ Optimizing Controls for Quantum Systems
 Using XACC's IR Transformation, similarly to in `Returning the Fidelity/Case 4A 
 <https://xacc.readthedocs.io/en/latest/tutorials.html#case-4a-quantum-process-tomography-from-the-gate-level>`_, 
 users can pass a Gate-Level instruction to the backend and return an optimized pulse with the algorithm of their 
-choosing. The following is a short snippet of using GRAPE to construct a CNOT on a two-qubit system 
+choosing. The following is a short code snippet using GRAPE to construct a CNOT on a two-qubit system 
 (for the full example, see `QuaC/xacc_examples/python/ir_transform_grape_cnot 
 <https://github.com/ORNL-QCI/QuaC/blob/xacc-integration/xacc_examples/python/ir_transform_grape_cnot.py>`_).
 
@@ -417,6 +417,8 @@ Additionally, this backend comes with the following pre-calibrated pulses:
 |   Double Qubit         | CNOT                    | CNOT with U3 gates to correct local rotation errors | 
 +------------------------+-------------------------+-----------------------------------------------------+
 
+\
+\
 \
 \
 
