@@ -84,13 +84,25 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixXd& in_first, const Eigen::MatrixXd
   return bdm;
 }
 
-bool isSquare(const Eigen::MatrixXcd& in_mat)
+inline bool isSquare(const Eigen::MatrixXcd& in_mat)
 {
   return in_mat.rows() == in_mat.cols();
 }
 
+// If the matrix is finite: no NaN elements
+template<typename Derived>
+inline bool isFinite(const Eigen::MatrixBase<Derived>& x)
+{
+  return ((x - x).array() == (x - x).array()).all();
+}
+
 bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 {
+  if (!isFinite(in_mat))
+  {
+    return false;
+  }
+
   for (int i = 0; i < in_mat.rows(); ++i)
   {
     for (int j = 0; j < in_mat.cols(); ++j)
@@ -110,6 +122,11 @@ bool isDiagonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 
 bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, double in_tol = 1e-9)
 {
+  if (!isFinite(in_mat1) || !isFinite(in_mat2))
+  {
+    return false;
+  }
+
   if (in_mat1.rows() == in_mat2.rows() && in_mat1.cols() == in_mat2.cols())
   {
     for (int i = 0; i < in_mat1.rows(); ++i)
@@ -130,7 +147,7 @@ bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, 
 
 bool isHermitian(const Eigen::MatrixXcd& in_mat)
 {
-  if (!isSquare(in_mat))
+  if (!isSquare(in_mat) || !isFinite(in_mat))
   {
     return false;
   }
@@ -139,7 +156,7 @@ bool isHermitian(const Eigen::MatrixXcd& in_mat)
 
 bool isUnitary(const Eigen::MatrixXcd& in_mat)
 {
-  if (!isSquare(in_mat))
+  if (!isSquare(in_mat) || !isFinite(in_mat))
   {
     return false;
   }
@@ -151,7 +168,7 @@ bool isUnitary(const Eigen::MatrixXcd& in_mat)
 
 bool isOrthogonal(const Eigen::MatrixXcd& in_mat, double in_tol = 1e-9)
 {
-  if (!isSquare(in_mat))
+  if (!isSquare(in_mat) || !isFinite(in_mat))
   {
     return false;
   }
@@ -871,7 +888,7 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
   const auto shift = [&](int k, int step) {
     v[k] += step * M_PI_2;
     phase *= std::pow(I, step);
-    const auto expFact = step % 4;
+    const auto expFact = ((step % 4) + 4) % 4;
     const GateMatrix mat = flippers[k].array().pow(expFact); 
     right[0] = mat * right[0];
     right[1] = mat * right[1];
