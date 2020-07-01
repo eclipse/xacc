@@ -466,7 +466,7 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3Shots)
         std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
                     "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
 
-    auto optimizer = xacc::getOptimizer("nlopt");
+    auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 100)});
 
     // JIT map Quil QASM Ansatz to IR
     xacc::qasm(R"(
@@ -487,6 +487,7 @@ TEST(QppAcceleratorTester, testDeuteronVqeH3Shots)
                     std::make_pair("accelerator", accelerator),
                     std::make_pair("optimizer", optimizer)});
 
+    xacc::set_verbose(true);
     // Allocate some qubits and execute
     auto buffer = xacc::qalloc(3);
     vqe->execute(buffer);
