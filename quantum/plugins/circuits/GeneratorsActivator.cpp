@@ -20,7 +20,8 @@
 #include "ucc1.hpp"
 #include "ucc3.hpp"
 #include "aswap.hpp"
-
+#include "qfast.hpp"
+#include "kak.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -41,6 +42,8 @@ public:
     auto u1 = std::make_shared<xacc::circuits::UCC1>();
     auto u3 = std::make_shared<xacc::circuits::UCC3>();
     auto aswap = std::make_shared<xacc::circuits::ASWAP>();
+    auto qfast = std::make_shared<xacc::circuits::QFAST>();
+    auto kak = std::make_shared<xacc::circuits::KAK>();
 
     context.RegisterService<xacc::Instruction>(hwe);
     context.RegisterService<xacc::Instruction>(expit);
@@ -51,7 +54,8 @@ public:
     context.RegisterService<xacc::Instruction>(u1);
     context.RegisterService<xacc::Instruction>(u3);
     context.RegisterService<xacc::Instruction>(aswap);
-
+    context.RegisterService<xacc::Instruction>(qfast);
+    context.RegisterService<xacc::Instruction>(kak);
   }
 
   void Stop(BundleContext context) {}

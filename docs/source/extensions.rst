@@ -1789,3 +1789,59 @@ Example:
     // Expected result: -1.74886
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
    }
+
+
+QFAST Circuit Synthesis
++++++++++++++++++++++++
+The ``QFAST`` circuit generator generates a quantum circuit for an arbitary unitary matrix.
+(See `Ed Younis, et al. <https://arxiv.org/pdf/2003.04462.pdf>`_)
+
+The ``QFAST`` circuit generator only requires the ``unitary`` input information. 
+Optionally, we can provide additional configurations as listed below.
+
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                     |
++========================+========================================================================+======================================+
+|  unitary               | The unitary matrix.                                                    | Eigen::MatrixXcd/numpy 2-D array     |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  trace-distance        | The target trace distance of the Hilbert-Schmidt inner produc          | double (default = 0.01)              |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+| explore-trace-distance | The `stopping-condition` trace distance for the Explore phase.         | double (default = 0.1)               |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  initial-depth         | The initial number of circuit layers.                                  | int (default = 1)                    |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+
+
+Example:
+
+In Cpp,
+
+.. code:: cpp
+
+  auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(xacc::getService<Instruction>("QFAST"));
+  Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
+  ccnotMat(6, 6) = 0.0;
+  ccnotMat(7, 7) = 0.0;
+  ccnotMat(6, 7) = 1.0;
+  ccnotMat(7, 6) = 1.0;
+  
+  const bool expandOk = qfast->expand({ 
+    std::make_pair("unitary", ccnotMat)
+  });
+
+In Python,
+
+.. code:: python
+
+   import xacc, numpy as np
+
+   # CCNOT matrix:
+   # This takes a 2-D numpy array.
+   ccnotMat = np.identity(8, dtype = np.cdouble)
+   ccnotMat[6][6] = 0.0
+   ccnotMat[7][7] = 0.0
+   ccnotMat[6][7] = 1.0
+   ccnotMat[7][6] = 1.0
+
+   composite = xacc.createCompositeInstruction('QFAST', { 'unitary' : ccnotMat })
+   print(composite)
