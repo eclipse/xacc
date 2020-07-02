@@ -29,10 +29,13 @@ std::shared_ptr<Observable> getObservable(const std::string type,
     return representation.empty()
                ? std::make_shared<FermionOperator>()
                : std::make_shared<FermionOperator>(representation);
+  } else if (xacc::hasService<Observable>(type)) {
+    auto obs = xacc::getService<Observable>(type);
+    return obs;
   } else {
     if (xacc::hasContributedService<Observable>(type)) {
-        auto obs = xacc::getContributedService<Observable>(type);
-        return obs;
+      auto obs = xacc::getContributedService<Observable>(type);
+      return obs;
     }
     xacc::error("[xacc::getObservable()] Invalid observable type: " + type);
     return std::make_shared<PauliOperator>();
