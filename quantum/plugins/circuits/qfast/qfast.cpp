@@ -19,6 +19,7 @@
 #include <numeric>
 #include <random>
 #include "json.hpp"
+#include "xacc_config.hpp"
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -128,6 +129,11 @@ bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, 
   }
   return false;
 }
+bool makeDirectory(const std::string& in_path) 
+{
+    int ret = mkdir(in_path.c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH);
+    return (ret == 0);
+}
 }
 
 namespace xacc {
@@ -158,24 +164,24 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     std::stringstream ss;
     ss << "Target U:\n" << m_targetU;
     xacc::info(ss.str());
-    // Check if we have a cache option:
-    bool useCache = false;
-    if (runtimeOptions.stringExists("cache-file"))
+    // Default cache file:
+    std::string qfastCacheFileName = "qfast.cache";
+    const std::string rootPath(XACC_INSTALL_DIR);
+    const std::string cacheDir = rootPath + "/tmp";
+    if (!directoryExists(cacheDir) && !makeDirectory(cacheDir)) 
     {
-        const auto cacheFile = runtimeOptions.getString("cache-file");
-        std::ifstream infile(cacheFile);
-        useCache = true;
-        // File exist:
-        if (infile.good())
-        {
-            // TODO:
-            std::string str((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+        xacc::warning("Failed to initialize QFAST cache directory. No cache look-up.");
+    }
+    
+    // If user specified another file
+    if (runtimeOptions.stringExists("cache-file-name"))
+    {
+        qfastCacheFileName = runtimeOptions.getString("cache-file-name");
+    }
 
-        }
-        else
-        {
-            // TODO:
-        }   
+    if (!m_cache.initialize(cacheDir + "/" + qfastCacheFileName))
+    {
+        xacc::warning("Failed to initialize QFAST cache. No cache look-up.");
     }
 
     // Default trace distance limit = 0.01 (99% fidelity).
@@ -219,8 +225,29 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     }
 
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
-    const auto decomposedResult = decompose();
     
+    const auto cacheLookupResult = m_cache.getCache(m_targetU);
+
+    const auto decomposedResult = cacheLookupResult.empty() ? 
+                                    // No cache, run decompose:
+                                    decompose() :
+                                    // cache found, just use it.
+                                    cacheLookupResult;
+    
+    // Cache the decomposed results,
+    // if it was not found (i.e. decomposed in the previous step)
+    if (cacheLookupResult.empty())
+    {
+        if (m_cache.addCacheEntry(m_targetU, decomposedResult))
+        {
+            xacc::info("Caching the QFAST result to file succeeded.");
+        }
+        else
+        {
+            xacc::info("Caching the QFAST result to file FAILED.");
+        }
+    }
+
     for (auto iter = decomposedResult.rbegin(); iter != decomposedResult.rend(); ++iter) 
     { 
         auto compInst = genericBlockToGates(*iter);
@@ -547,15 +574,19 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     return (result.first < in_targetDistance);
 }
 
-
-double QFAST::evaluateCostFunc(const Eigen::MatrixXcd in_U) const
+double QFAST::computeTraceDistance(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2)
 {
-    assert(in_U.rows() == m_targetU.rows());
-    assert(in_U.cols() == m_targetU.cols());
-    const auto d = in_U.cols();
-    const auto product = in_U.adjoint() * m_targetU;
+    assert(in_mat1.rows() == in_mat2.rows());
+    assert(in_mat1.cols() == in_mat2.cols());
+    const auto d = in_mat1.cols();
+    const auto product = in_mat1.adjoint() * in_mat2;
     const double traceNorm =  std::norm(product.trace());
     return std::sqrt(1.0 - traceNorm / (d*d));
+}
+
+double QFAST::evaluateCostFunc(const Eigen::MatrixXcd& in_U) const
+{
+    return computeTraceDistance(in_U, m_targetU);
 }
 
 Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const
@@ -681,27 +712,87 @@ Eigen::MatrixXcd  QFAST::Block::toFullMat(size_t in_totalDim) const
 
 bool QFAST::DecomposedResultCache::initialize(const std::string& in_filePath)
 {
-    // TODO: 
+    fileName = in_filePath;
+    if (!fileExists(in_filePath))
+    {
+        // Creates the file (empty)
+        FILE* hFile = fopen(fileName.c_str(), "w");
+        if (hFile == NULL) 
+        {
+           return false;
+        }
+        fclose(hFile);
+        
+        // Nothing in the cache.
+        return true;
+    }
+
+    // Has the file -> read
+    std::ifstream fileStream(in_filePath);
+    std::string fileString;
+    fileStream.seekg(0, std::ios::end);   
+    fileString.reserve(fileStream.tellg());
+    fileStream.seekg(0, std::ios::beg);
+    fileString.assign((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+    
+    if (!fileString.empty() && !fromJsonString(fileString))
+    {
+        cache.clear();
+        xacc::warning("Failed to parse cache file " + in_filePath);
+        return false;
+    }
+
+    xacc::info("Successfully load " + std::to_string(cache.size()) + " entries from cache file.");
     return true;
 }
         
 bool QFAST::DecomposedResultCache::addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync)
 {
-    // TODO:
+    // Must add new entries only
+    assert(getCache(in_unitary).empty());
+    CacheEntry newEntry;
+    newEntry.uMat = in_unitary;
+    newEntry.blocks = in_decomposedBlocks;
+    cache.emplace_back(std::move(newEntry));
+    // Write to file
+    if (in_shouldSync && fileExists(fileName))
+    {
+        const std::string newCacheContent = toJson();
+        // Open file to write
+        FILE* hFile = fopen(fileName.c_str(), "w");
+        // Failed to open file for writing.
+        if (hFile == NULL) 
+        {
+           xacc::warning("Failed to open file to write QFAST cache.");
+           return false;
+        }
+        fputs(newCacheContent.c_str(), hFile);
+        fclose(hFile);
+    }
+    
     return true;
 }
         
-bool QFAST::DecomposedResultCache::hasCache(const Eigen::MatrixXcd& in_unitary) const
-{
-    // TODO:
-    return false;
-}
-        
-     
 std::vector<QFAST::Block> QFAST::DecomposedResultCache::getCache(const Eigen::MatrixXcd& in_unitary) const
 {
-    assert(hasCache(in_unitary));
-    // TODO: 
+    // Note: for now, we do a linear search here since this is a local cache,
+    // hence we don't expect it to have more than a handful of cached results.
+    // TODO: if we are to implement a global database, we may need to implement
+    // some form of hashing machanism.    
+    // Tolerance for matching    
+    constexpr double TRACE_DISTANCE_TOLERANCE = 1e-5;
+    for (const auto& entry : cache)
+    {
+        // Dimension matched
+        if (entry.uMat.size() == in_unitary.size())
+        {
+            if (QFAST::computeTraceDistance(entry.uMat, in_unitary) < TRACE_DISTANCE_TOLERANCE)  
+            {
+                xacc::info("Found cache entry!");
+                return entry.blocks;
+            }          
+        }
+    }
     return {};
 }
 

@@ -69,11 +69,8 @@ private:
         // If in_shouldSync, this will also update the cache file.
         bool addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync = true);
         
-        // Returns true if this unitary has a cached result.
-        bool hasCache(const Eigen::MatrixXcd& in_unitary) const;
-        
-        // Returns the cached result.
-        // Assert that this hasCache() is true.   
+        // Returns the cached result if found.
+        // If not found, returns an empty vector.  
         std::vector<Block> getCache(const Eigen::MatrixXcd& in_unitary) const;
         
         // Json serialization:
@@ -90,6 +87,7 @@ private:
             bool fromJsonString(const std::string& in_jsonString);
         };
         std::vector<CacheEntry> cache;
+        std::string fileName;
     };
 
     struct PauliReps 
@@ -144,8 +142,11 @@ private:
     // This is the set of matrices that we can use to decompose the target unitary
     // into two-qubit blocks (constrained by the topology)
     static std::vector<std::vector<Eigen::MatrixXcd>>  generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
+    
+    // Computes the Hilbert-Smith trace distance between two matrix 
+    static double computeTraceDistance(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2);
     // Evaluate cost function for the input unitary against the target unitary
-    double evaluateCostFunc(const Eigen::MatrixXcd in_U) const;
+    double evaluateCostFunc(const Eigen::MatrixXcd& in_U) const;
     
     // Returns true if the target trace distance can be met.
     // The depth is determined by the io_repsToOpt vector,
@@ -163,6 +164,7 @@ private:
     // Explore phase distance limit:
     double m_exploreTraceDistanceLimit;
     std::shared_ptr<LocationModel> m_locationModel;
+    DecomposedResultCache m_cache;
 };
 
 } // namespace circuits
