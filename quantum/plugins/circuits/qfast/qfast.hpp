@@ -49,6 +49,47 @@ private:
         // Convert this local block (acting on two qubits)
         // to the full matrix representation (total system).
         Eigen::MatrixXcd toFullMat(size_t in_totalDim) const;
+        // Json serialization:
+        std::string toJson() const; 
+        bool fromJsonString(const std::string& in_jsonString);
+    };
+
+    // We cache the decomposition (in terms of smaller blocks)
+    // rather than the final quantum circuit because:
+    // (1) In case we want to change the final instantiation step,
+    // e.g. changing the gate set,
+    // this cache can be reused directly.
+    // (2) The instantiation is just direct linear algebra calculation
+    // and hence is super fast.  
+    struct DecomposedResultCache
+    {
+        // Initialize this cache with a file.
+        bool initialize(const std::string& in_filePath);
+        // Add a QFAST decomposed result to the cache.
+        // If in_shouldSync, this will also update the cache file.
+        bool addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync = true);
+        
+        // Returns true if this unitary has a cached result.
+        bool hasCache(const Eigen::MatrixXcd& in_unitary) const;
+        
+        // Returns the cached result.
+        // Assert that this hasCache() is true.   
+        std::vector<Block> getCache(const Eigen::MatrixXcd& in_unitary) const;
+        
+        // Json serialization:
+        std::string toJson() const; 
+    private:
+        bool fromJsonString(const std::string& in_jsonString);
+    
+    private:
+        struct CacheEntry
+        {
+            Eigen::MatrixXcd uMat;
+            std::vector<Block> blocks;
+            std::string toJson() const; 
+            bool fromJsonString(const std::string& in_jsonString);
+        };
+        std::vector<CacheEntry> cache;
     };
 
     struct PauliReps 
