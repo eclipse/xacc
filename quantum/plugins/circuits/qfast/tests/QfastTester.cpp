@@ -22,19 +22,6 @@ using namespace xacc;
 
 TEST(QFastTester, checkSimple) 
 {
-  auto tmp = xacc::getService<Instruction>("QFAST");
-  auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
-  Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
-  ccnotMat(6, 6) = 0.0;
-  ccnotMat(7, 7) = 0.0;
-  ccnotMat(6, 7) = 1.0;
-  ccnotMat(7, 6) = 1.0;
-  
-  const bool expandOk = qfast->expand({ 
-    std::make_pair("unitary", ccnotMat)
-  });
-  EXPECT_TRUE(expandOk);
-  
   auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 8192)});
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   auto xGate0 = gateRegistry->createInstruction("X", { 0 });
@@ -45,6 +32,23 @@ TEST(QFastTester, checkSimple)
   auto measureGate2 = gateRegistry->createInstruction("Measure", { 2 });
 
   const auto runTestCase = [&](bool in_bit0, bool in_bit1, bool in_bit2) {
+    // We repeatedly expand this using QFAST to validate
+    // the caching mechanism.
+    // i.e. only the first run needs decomposition,
+    // later runs will be a direct cache-hit.
+    auto tmp = xacc::getService<Instruction>("QFAST");
+    auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+    Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
+    ccnotMat(6, 6) = 0.0;
+    ccnotMat(7, 7) = 0.0;
+    ccnotMat(6, 7) = 1.0;
+    ccnotMat(7, 6) = 1.0;
+  
+    const bool expandOk = qfast->expand({ 
+      std::make_pair("unitary", ccnotMat)
+    });
+    EXPECT_TRUE(expandOk);
+    
     static int counter = 0;
     auto composite = gateRegistry->createComposite("__TEMP_COMPOSITE__" + std::to_string(counter));
     counter++;
