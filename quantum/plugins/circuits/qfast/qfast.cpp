@@ -18,6 +18,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <numeric>
 #include <random>
+#include "json.hpp"
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -157,6 +158,26 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     std::stringstream ss;
     ss << "Target U:\n" << m_targetU;
     xacc::info(ss.str());
+    // Check if we have a cache option:
+    bool useCache = false;
+    if (runtimeOptions.stringExists("cache-file"))
+    {
+        const auto cacheFile = runtimeOptions.getString("cache-file");
+        std::ifstream infile(cacheFile);
+        useCache = true;
+        // File exist:
+        if (infile.good())
+        {
+            // TODO:
+            std::string str((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+
+        }
+        else
+        {
+            // TODO:
+        }   
+    }
+
     // Default trace distance limit = 0.01 (99% fidelity).
     m_distanceLimit = 0.01;
     if (runtimeOptions.keyExists<double>("trace-distance"))
@@ -656,6 +677,193 @@ Eigen::MatrixXcd  QFAST::Block::toFullMat(size_t in_totalDim) const
     }
 
     return resultMat;
+}
+
+bool QFAST::DecomposedResultCache::initialize(const std::string& in_filePath)
+{
+    // TODO: 
+    return true;
+}
+        
+bool QFAST::DecomposedResultCache::addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync)
+{
+    // TODO:
+    return true;
+}
+        
+bool QFAST::DecomposedResultCache::hasCache(const Eigen::MatrixXcd& in_unitary) const
+{
+    // TODO:
+    return false;
+}
+        
+     
+std::vector<QFAST::Block> QFAST::DecomposedResultCache::getCache(const Eigen::MatrixXcd& in_unitary) const
+{
+    assert(hasCache(in_unitary));
+    // TODO: 
+    return {};
+}
+
+std::string QFAST::Block::toJson() const 
+{
+    std::vector<double> realElems;
+    std::vector<double> imagElems;
+    realElems.reserve(16);
+    imagElems.reserve(16);
+
+    for (int i = 0; i < uMat.rows(); ++i)
+    {
+        for (int j = 0; j < uMat.cols(); ++j)
+        {
+            realElems.emplace_back(uMat(i, j).real());
+            imagElems.emplace_back(uMat(i, j).imag()); 
+        }
+    }
+    nlohmann::json j;
+    j["u-real"] = realElems;
+    j["u-imag"] = imagElems;
+    j["bit1"] = qubits.first;
+    j["bit2"] = qubits.second;
+
+    return j.dump();
+}
+
+bool QFAST::Block::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto realElems = j["u-real"].get<std::vector<double>>();
+    const auto imagElems = j["u-imag"].get<std::vector<double>>();
+    const auto bit1 = j["bit1"].get<size_t>();
+    const auto bit2 = j["bit2"].get<size_t>();   
+
+    if (realElems.size() == 16 && imagElems.size() == 16 && bit1 != bit2)
+    {
+        uMat = BlockMatrix::Zero();
+        for (int i = 0; i < uMat.rows(); ++i)
+        {
+            for (int j = 0; j < uMat.cols(); ++j)
+            {
+                uMat(i, j) = std::complex<double> { realElems[i * uMat.rows() + j], imagElems[i * uMat.rows() + j] };
+            }
+        }
+        
+        qubits = std::make_pair(bit1, bit2);
+        return true;
+    }     
+    return false;
+}
+
+std::string QFAST::DecomposedResultCache::CacheEntry::toJson() const 
+{
+    std::vector<double> realElems;
+    std::vector<double> imagElems;
+    realElems.reserve(uMat.size());
+    imagElems.reserve(uMat.size());
+
+    for (int i = 0; i < uMat.rows(); ++i)
+    {
+        for (int j = 0; j < uMat.cols(); ++j)
+        {
+            realElems.emplace_back(uMat(i, j).real());
+            imagElems.emplace_back(uMat(i, j).imag()); 
+        }
+    }
+
+    std::vector<std::string> blockJson;
+    for (const auto& block: blocks)
+    {
+        blockJson.emplace_back(block.toJson());
+    }
+
+    nlohmann::json j;
+    j["u-real"] = realElems;
+    j["u-imag"] = imagElems;
+    j["blocks"] = blockJson;
+
+    return j.dump();
+}
+
+bool QFAST::DecomposedResultCache::CacheEntry::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto realElems = j["u-real"].get<std::vector<double>>();
+    const auto imagElems = j["u-imag"].get<std::vector<double>>();
+    const auto blockJsons = j["blocks"].get<std::vector<std::string>>();
+
+    if (realElems.size() == imagElems.size())
+    {
+        const auto nbQubits = [](size_t unitaryLength) {
+            unsigned int ret = 0;
+            while (unitaryLength > 1) 
+            {
+                unitaryLength >>= 1;
+                ret++;
+            }
+        
+            return ret / 2;
+        }(realElems.size());
+        
+        uMat = Eigen::MatrixXcd::Zero(1ULL << nbQubits, 1ULL << nbQubits);
+        for (int i = 0; i < uMat.rows(); ++i)
+        {
+            for (int j = 0; j < uMat.cols(); ++j)
+            {
+                uMat(i, j) = std::complex<double> { realElems[i * uMat.rows() + j], imagElems[i * uMat.rows() + j] };
+            }
+        }
+
+        for (const auto& blockJson: blockJsons)
+        {
+            Block newBlock;
+            if (newBlock.fromJsonString(blockJson))
+            {
+                blocks.emplace_back(newBlock);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }     
+
+    return false;    
+}
+
+std::string QFAST::DecomposedResultCache::toJson() const 
+{
+    std::vector<std::string> cacheJson;
+    for (const auto& entry: cache)
+    {
+        cacheJson.emplace_back(entry.toJson());
+    }
+
+    nlohmann::json j;
+    j["cache"] = cacheJson;
+
+    return j.dump();
+}
+
+bool QFAST::DecomposedResultCache::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto cacheJsons = j["cache"].get<std::vector<std::string>>();
+    for (const auto& entryJson: cacheJsons)
+    {
+        CacheEntry newEntry;
+        if (newEntry.fromJsonString(entryJson))
+        {
+            cache.emplace_back(newEntry);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
 }
 }
