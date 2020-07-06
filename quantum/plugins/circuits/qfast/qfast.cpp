@@ -135,6 +135,20 @@ bool makeDirectory(const std::string& in_path)
     int ret = mkdir(in_path.c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH);
     return (ret == 0);
 }
+// In-place softmax function 
+template <typename Iter>
+void softmax(Iter iterBegin, Iter iterEnd)
+{
+    using ValueType = typename std::iterator_traits<Iter>::value_type;
+    static_assert(std::is_floating_point<ValueType>::value, "Softmax function only applicable for floating types");
+    const auto maxElement { *std::max_element(iterBegin, iterEnd) };
+    std::transform(iterBegin, iterEnd, iterBegin, [&](const ValueType x) { 
+        // Use a very large factor to make this *one-hot*
+        return std::exp(100.0 * (x - maxElement)); 
+    });
+    const ValueType expTol = std::accumulate(iterBegin, iterEnd, 0.0);
+    std::transform(iterBegin, iterEnd, iterBegin, std::bind2nd(std::divides<ValueType>(), expTol));  
+}
 }
 
 namespace xacc {
@@ -330,13 +344,7 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     RefineDiffFunctor diffFunctor(this, refinedReps, nbParams);
     Eigen::NumericalDiff<RefineDiffFunctor> numDiff(diffFunctor);    
     
-    auto optimizer = m_optimizer ? m_optimizer : 
-        xacc::getOptimizer("nlopt", 
-            xacc::HeterogeneousMap { 
-                std::make_pair("initial-parameters", initialParams),
-                std::make_pair("nlopt-maxeval", maxEval),
-                std::make_pair("nlopt-stopval", m_distanceLimit) 
-        });
+    auto optimizer = m_optimizer ? m_optimizer : xacc::getOptimizer("nlopt");
 
     const bool needGrads = optimizer->isGradientBased();    
     
@@ -374,7 +382,7 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
             numDiff(inputParams, outVal);
             const double costValue = outVal(0);
             // If grads are needed, compute them.
-            if(needGrads)
+            if (needGrads)
             {
                 Eigen::MatrixXd gradients(1, x.size());
                 numDiff.df(inputParams, gradients);
@@ -571,18 +579,32 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     
     const int maxEval = nbParams * 100;
 
-    // TODO: use gradient-based optimizer (e.g. Adam)
-    // This is currently not possible since we don't know how to calculate the gradients.
-    auto optimizer = xacc::getOptimizer("nlopt", 
-        xacc::HeterogeneousMap { 
-            std::make_pair("initial-parameters", initialParams),
-            std::make_pair("nlopt-maxeval", maxEval),
-            std::make_pair("nlopt-stopval", in_targetDistance)  
-    });
+    auto optimizer = m_optimizer ? m_optimizer : xacc::getOptimizer("nlopt");
+    const bool needGrads = optimizer->isGradientBased();    
+    
+    // Handle optimizer specific configurations.
+    // e.g. they may use different key names.
+    optimizer->appendOption("initial-parameters", initialParams);
+    if (optimizer->name() == "nlopt") 
+    {
+        optimizer->appendOption("nlopt-maxeval", maxEval);
+        optimizer->appendOption("nlopt-stopval", in_targetDistance);
+    }
 
-    const bool needGrads = optimizer->isGradientBased();
+    if (optimizer->name() == "mlpack") 
+    {
+        optimizer->appendOption("mlpack-max-iter", maxEval);
+        optimizer->appendOption("mlpack-step-size", 0.01);
+        optimizer->appendOption("mlpack-tolerance", in_targetDistance/100.0);
+    }
+    
+    if (needGrads)
+    {
+        xacc::info("[Explore] A gradient-based optimizer was selected. Gradients will be computed.");
+    }
+
     ExploreDiffFunctor diffFunctor(this, io_repsToOpt, nbParams);
-    Eigen::NumericalDiff<ExploreDiffFunctor> numDiff(diffFunctor);  
+    Eigen::NumericalDiff<ExploreDiffFunctor, Eigen::NumericalDiffMode::Central> numDiff(diffFunctor);  
     
     OptFunction f(
         [&](const std::vector<double>& x, std::vector<double>& grad) 
@@ -593,10 +615,19 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
             numDiff(inputParams, outVal);
             const double costValue = outVal(0);
             
+            // If grads are needed, compute them.
             if (needGrads)
             {
-                // TODO
+                Eigen::MatrixXd gradients(1, x.size());
+                numDiff.df(inputParams, gradients);
+                assert(gradients.rows() == 1 && gradients.cols() == x.size());
+                grad.clear();
+                for (int i = 0; i < x.size(); ++i)
+                {
+                    grad.emplace_back(gradients(0, i));
+                }
             }
+
             return costValue;
         },
         nbParams);
@@ -643,15 +674,8 @@ int QFAST::ExploreDiffFunctor::operator()(const InputType& in_x, ValueType& out_
         assert(params.size() == layer.nbParams());
         paramIdx += params.size();
         layer.updateParams(params);
-        // TODO: use a *differentiable* impl here, e.g. SOFTMAX
-        const auto maxLocIdx = std::distance(layer.locValues.begin(), std::max_element(layer.locValues.begin(), layer.locValues.end()));
-        // This is a non-differentiable implementation.
-        // This can be converted to a pseudo-differentable using exp functions.
-        for(int i = 0; i < layer.locValues.size(); ++i)
-        {
-            layer.locValues[i] = (i == maxLocIdx) ? 1.0 : 0.0;
-        }
-        
+        // Softmax location parameters:
+        softmax(layer.locValues.begin(), layer.locValues.end());
         idx++;
         const auto& topology = alternativeLayer ? locationModel->buckets.second : locationModel->buckets.first;
         const auto& topologyPauli = alternativeLayer ? locationModel->bucketPaulis.second : locationModel->bucketPaulis.first;
