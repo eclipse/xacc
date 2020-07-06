@@ -151,6 +151,28 @@ private:
         int values() const { return m_values; }
     };
 
+    // Differentiation Functor for the *EXPLORE* stage,
+    // i.e. where we have fixed the gate location.
+    struct ExploreDiffFunctor: public Functor<double>
+    {
+        ExploreDiffFunctor(const QFAST* const parent, const std::vector<QFAST::PauliReps>& in_genericLayers, int in_nbInputs, int in_nbValues = 1):
+            Functor(in_nbInputs, in_nbValues),
+            m_parent(parent),
+            m_layerConfigs(in_genericLayers)
+        {}
+
+        // Compute the cost function given the input
+        int operator()(const InputType& in_x, ValueType& out_fvec) const;
+
+    private:
+        // The QFAST algorithm parent.
+        const QFAST* m_parent;
+        // The layer configuration to explore.
+        // Note: these layers haven't been fixed, 
+        // i.e. locations are opt params.
+        std::vector<QFAST::PauliReps> m_layerConfigs;
+    };
+
     // Differentiation Functor for the REFINE stage,
     // i.e. where we have fixed the gate location.
     struct RefineDiffFunctor: public Functor<double>
