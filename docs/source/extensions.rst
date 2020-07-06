@@ -1811,6 +1811,9 @@ Optionally, we can provide additional configurations as listed below.
 |  initial-depth         | The initial number of circuit layers.                                  | int (default = 1)                    |
 +------------------------+------------------------------------------------------------------------+--------------------------------------+
 
+By default, after each unitary matrix decomposition, the QFAST plugin will save the result (in terms of smaller block matrices) into a cache file located at ``$XACC_INSTALL_DIR/tmp``. If a cache entry is found, the QFAST plugin will re-use the result automatically.
+
+Users can modify the cache filename via the configuration key ``cache-file-name``.
 
 Example:
 
