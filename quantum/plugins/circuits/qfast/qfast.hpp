@@ -152,7 +152,7 @@ private:
     };
 
     // Differentiation Functor for the *EXPLORE* stage,
-    // i.e. where we have fixed the gate location.
+    // i.e. where we have *not* fixed the gate location.
     struct ExploreDiffFunctor: public Functor<double>
     {
         ExploreDiffFunctor(const QFAST* const parent, const std::vector<QFAST::PauliReps>& in_genericLayers, int in_nbInputs, int in_nbValues = 1):
