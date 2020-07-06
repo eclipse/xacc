@@ -22,6 +22,15 @@ using namespace xacc;
 
 TEST(QFastTester, checkSimple) 
 {
+  srand(time(0));
+  // Pick 0 or 1
+  const int randPick = rand() % 2;
+  const std::string optimizerName = (randPick == 0) ? "nlopt" : "mlpack";
+  // Randomly pick an optimizer:
+  // To save test time, we don't want to run many long tests.
+  auto optimizer = xacc::getOptimizer(optimizerName);
+  std::cout << "Use '" << optimizer->name() << "' optimizer\n";
+
   auto acc = xacc::getAccelerator("qpp", { std::make_pair("shots", 8192)});
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   auto xGate0 = gateRegistry->createInstruction("X", { 0 });
@@ -45,7 +54,8 @@ TEST(QFastTester, checkSimple)
     ccnotMat(7, 6) = 1.0;
   
     const bool expandOk = qfast->expand({ 
-      std::make_pair("unitary", ccnotMat)
+      std::make_pair("unitary", ccnotMat),
+      std::make_pair("optimizer", optimizer)
     });
     EXPECT_TRUE(expandOk);
     

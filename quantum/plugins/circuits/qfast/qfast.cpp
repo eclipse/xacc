@@ -149,6 +149,26 @@ void softmax(Iter iterBegin, Iter iterEnd)
     const ValueType expTol = std::accumulate(iterBegin, iterEnd, 0.0);
     std::transform(iterBegin, iterEnd, iterBegin, std::bind2nd(std::divides<ValueType>(), expTol));  
 }
+
+// Returns true if the vector is approx. *one-hot*.
+template <typename Iter>
+bool isOneHotEncoded(Iter iterBegin, Iter iterEnd, double in_tol = 0.01)
+{
+    using ValueType = typename std::iterator_traits<Iter>::value_type;
+    const ValueType total = std::accumulate(iterBegin, iterEnd, 0.0);
+    assert(std::abs(total - 1.0) < 1e-6);
+    const auto maxElement { *std::max_element(iterBegin, iterEnd) };
+    const auto minElement { *std::min_element(iterBegin, iterEnd) };
+    if (maxElement == minElement)
+    {
+        return std::abs(maxElement - 1.0) < in_tol;
+    }
+    else
+    {
+        return std::abs(maxElement - 1.0) < in_tol && std::abs(minElement) < in_tol;
+    }
+    return false;
+}
 }
 
 namespace xacc {
@@ -676,6 +696,10 @@ int QFAST::ExploreDiffFunctor::operator()(const InputType& in_x, ValueType& out_
         layer.updateParams(params);
         // Softmax location parameters:
         softmax(layer.locValues.begin(), layer.locValues.end());
+        if (!isOneHotEncoded(layer.locValues.begin(), layer.locValues.end()))
+        {
+            softmax(layer.locValues.begin(), layer.locValues.end());
+        }
         idx++;
         const auto& topology = alternativeLayer ? locationModel->buckets.second : locationModel->buckets.first;
         const auto& topologyPauli = alternativeLayer ? locationModel->bucketPaulis.second : locationModel->bucketPaulis.first;
