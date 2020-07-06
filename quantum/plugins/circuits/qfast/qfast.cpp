@@ -18,6 +18,8 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <numeric>
 #include <random>
+#include "json.hpp"
+#include "xacc_config.hpp"
 
 namespace {
 Eigen::MatrixXcd X { Eigen::MatrixXcd::Zero(2, 2)};      
@@ -127,6 +129,11 @@ bool allClose(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2, 
   }
   return false;
 }
+bool makeDirectory(const std::string& in_path) 
+{
+    int ret = mkdir(in_path.c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH);
+    return (ret == 0);
+}
 }
 
 namespace xacc {
@@ -157,6 +164,26 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     std::stringstream ss;
     ss << "Target U:\n" << m_targetU;
     xacc::info(ss.str());
+    // Default cache file:
+    std::string qfastCacheFileName = "qfast.cache";
+    const std::string rootPath(XACC_INSTALL_DIR);
+    const std::string cacheDir = rootPath + "/tmp";
+    if (!directoryExists(cacheDir) && !makeDirectory(cacheDir)) 
+    {
+        xacc::warning("Failed to initialize QFAST cache directory. No cache look-up.");
+    }
+    
+    // If user specified another file
+    if (runtimeOptions.stringExists("cache-file-name"))
+    {
+        qfastCacheFileName = runtimeOptions.getString("cache-file-name");
+    }
+
+    if (!m_cache.initialize(cacheDir + "/" + qfastCacheFileName))
+    {
+        xacc::warning("Failed to initialize QFAST cache. No cache look-up.");
+    }
+
     // Default trace distance limit = 0.01 (99% fidelity).
     m_distanceLimit = 0.01;
     if (runtimeOptions.keyExists<double>("trace-distance"))
@@ -198,8 +225,29 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
     }
 
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
-    const auto decomposedResult = decompose();
     
+    const auto cacheLookupResult = m_cache.getCache(m_targetU);
+
+    const auto decomposedResult = cacheLookupResult.empty() ? 
+                                    // No cache, run decompose:
+                                    decompose() :
+                                    // cache found, just use it.
+                                    cacheLookupResult;
+    
+    // Cache the decomposed results,
+    // if it was not found (i.e. decomposed in the previous step)
+    if (cacheLookupResult.empty())
+    {
+        if (m_cache.addCacheEntry(m_targetU, decomposedResult))
+        {
+            xacc::info("Caching the QFAST result to file succeeded.");
+        }
+        else
+        {
+            xacc::info("Caching the QFAST result to file FAILED.");
+        }
+    }
+
     for (auto iter = decomposedResult.rbegin(); iter != decomposedResult.rend(); ++iter) 
     { 
         auto compInst = genericBlockToGates(*iter);
@@ -526,15 +574,19 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     return (result.first < in_targetDistance);
 }
 
-
-double QFAST::evaluateCostFunc(const Eigen::MatrixXcd in_U) const
+double QFAST::computeTraceDistance(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2)
 {
-    assert(in_U.rows() == m_targetU.rows());
-    assert(in_U.cols() == m_targetU.cols());
-    const auto d = in_U.cols();
-    const auto product = in_U.adjoint() * m_targetU;
+    assert(in_mat1.rows() == in_mat2.rows());
+    assert(in_mat1.cols() == in_mat2.cols());
+    const auto d = in_mat1.cols();
+    const auto product = in_mat1.adjoint() * in_mat2;
     const double traceNorm =  std::norm(product.trace());
     return std::sqrt(1.0 - traceNorm / (d*d));
+}
+
+double QFAST::evaluateCostFunc(const Eigen::MatrixXcd& in_U) const
+{
+    return computeTraceDistance(in_U, m_targetU);
 }
 
 Eigen::MatrixXcd QFAST::layerToUnitaryMatrix(const PauliReps& in_layer, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const
@@ -656,6 +708,253 @@ Eigen::MatrixXcd  QFAST::Block::toFullMat(size_t in_totalDim) const
     }
 
     return resultMat;
+}
+
+bool QFAST::DecomposedResultCache::initialize(const std::string& in_filePath)
+{
+    fileName = in_filePath;
+    if (!fileExists(in_filePath))
+    {
+        // Creates the file (empty)
+        FILE* hFile = fopen(fileName.c_str(), "w");
+        if (hFile == NULL) 
+        {
+           return false;
+        }
+        fclose(hFile);
+        
+        // Nothing in the cache.
+        return true;
+    }
+
+    // Has the file -> read
+    std::ifstream fileStream(in_filePath);
+    std::string fileString;
+    fileStream.seekg(0, std::ios::end);   
+    fileString.reserve(fileStream.tellg());
+    fileStream.seekg(0, std::ios::beg);
+    fileString.assign((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+    
+    if (!fileString.empty() && !fromJsonString(fileString))
+    {
+        cache.clear();
+        xacc::warning("Failed to parse cache file " + in_filePath);
+        return false;
+    }
+
+    xacc::info("Successfully load " + std::to_string(cache.size()) + " entries from cache file.");
+    return true;
+}
+        
+bool QFAST::DecomposedResultCache::addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync)
+{
+    // Must add new entries only
+    assert(getCache(in_unitary).empty());
+    CacheEntry newEntry;
+    newEntry.uMat = in_unitary;
+    newEntry.blocks = in_decomposedBlocks;
+    cache.emplace_back(std::move(newEntry));
+    // Write to file
+    if (in_shouldSync && fileExists(fileName))
+    {
+        const std::string newCacheContent = toJson();
+        // Open file to write
+        FILE* hFile = fopen(fileName.c_str(), "w");
+        // Failed to open file for writing.
+        if (hFile == NULL) 
+        {
+           xacc::warning("Failed to open file to write QFAST cache.");
+           return false;
+        }
+        fputs(newCacheContent.c_str(), hFile);
+        fclose(hFile);
+    }
+    
+    return true;
+}
+        
+std::vector<QFAST::Block> QFAST::DecomposedResultCache::getCache(const Eigen::MatrixXcd& in_unitary) const
+{
+    // Note: for now, we do a linear search here since this is a local cache,
+    // hence we don't expect it to have more than a handful of cached results.
+    // TODO: if we are to implement a global database, we may need to implement
+    // some form of hashing machanism.    
+    // Tolerance for matching    
+    constexpr double TRACE_DISTANCE_TOLERANCE = 1e-5;
+    for (const auto& entry : cache)
+    {
+        // Dimension matched
+        if (entry.uMat.size() == in_unitary.size())
+        {
+            if (QFAST::computeTraceDistance(entry.uMat, in_unitary) < TRACE_DISTANCE_TOLERANCE)  
+            {
+                xacc::info("Found cache entry!");
+                return entry.blocks;
+            }          
+        }
+    }
+    return {};
+}
+
+std::string QFAST::Block::toJson() const 
+{
+    std::vector<double> realElems;
+    std::vector<double> imagElems;
+    realElems.reserve(16);
+    imagElems.reserve(16);
+
+    for (int i = 0; i < uMat.rows(); ++i)
+    {
+        for (int j = 0; j < uMat.cols(); ++j)
+        {
+            realElems.emplace_back(uMat(i, j).real());
+            imagElems.emplace_back(uMat(i, j).imag()); 
+        }
+    }
+    nlohmann::json j;
+    j["u-real"] = realElems;
+    j["u-imag"] = imagElems;
+    j["bit1"] = qubits.first;
+    j["bit2"] = qubits.second;
+
+    return j.dump();
+}
+
+bool QFAST::Block::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto realElems = j["u-real"].get<std::vector<double>>();
+    const auto imagElems = j["u-imag"].get<std::vector<double>>();
+    const auto bit1 = j["bit1"].get<size_t>();
+    const auto bit2 = j["bit2"].get<size_t>();   
+
+    if (realElems.size() == 16 && imagElems.size() == 16 && bit1 != bit2)
+    {
+        uMat = BlockMatrix::Zero();
+        for (int i = 0; i < uMat.rows(); ++i)
+        {
+            for (int j = 0; j < uMat.cols(); ++j)
+            {
+                uMat(i, j) = std::complex<double> { realElems[i * uMat.rows() + j], imagElems[i * uMat.rows() + j] };
+            }
+        }
+        
+        qubits = std::make_pair(bit1, bit2);
+        return true;
+    }     
+    return false;
+}
+
+std::string QFAST::DecomposedResultCache::CacheEntry::toJson() const 
+{
+    std::vector<double> realElems;
+    std::vector<double> imagElems;
+    realElems.reserve(uMat.size());
+    imagElems.reserve(uMat.size());
+
+    for (int i = 0; i < uMat.rows(); ++i)
+    {
+        for (int j = 0; j < uMat.cols(); ++j)
+        {
+            realElems.emplace_back(uMat(i, j).real());
+            imagElems.emplace_back(uMat(i, j).imag()); 
+        }
+    }
+
+    std::vector<std::string> blockJson;
+    for (const auto& block: blocks)
+    {
+        blockJson.emplace_back(block.toJson());
+    }
+
+    nlohmann::json j;
+    j["u-real"] = realElems;
+    j["u-imag"] = imagElems;
+    j["blocks"] = blockJson;
+
+    return j.dump();
+}
+
+bool QFAST::DecomposedResultCache::CacheEntry::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto realElems = j["u-real"].get<std::vector<double>>();
+    const auto imagElems = j["u-imag"].get<std::vector<double>>();
+    const auto blockJsons = j["blocks"].get<std::vector<std::string>>();
+
+    if (realElems.size() == imagElems.size())
+    {
+        const auto nbQubits = [](size_t unitaryLength) {
+            unsigned int ret = 0;
+            while (unitaryLength > 1) 
+            {
+                unitaryLength >>= 1;
+                ret++;
+            }
+        
+            return ret / 2;
+        }(realElems.size());
+        
+        uMat = Eigen::MatrixXcd::Zero(1ULL << nbQubits, 1ULL << nbQubits);
+        for (int i = 0; i < uMat.rows(); ++i)
+        {
+            for (int j = 0; j < uMat.cols(); ++j)
+            {
+                uMat(i, j) = std::complex<double> { realElems[i * uMat.rows() + j], imagElems[i * uMat.rows() + j] };
+            }
+        }
+
+        for (const auto& blockJson: blockJsons)
+        {
+            Block newBlock;
+            if (newBlock.fromJsonString(blockJson))
+            {
+                blocks.emplace_back(newBlock);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }     
+
+    return false;    
+}
+
+std::string QFAST::DecomposedResultCache::toJson() const 
+{
+    std::vector<std::string> cacheJson;
+    for (const auto& entry: cache)
+    {
+        cacheJson.emplace_back(entry.toJson());
+    }
+
+    nlohmann::json j;
+    j["cache"] = cacheJson;
+
+    return j.dump();
+}
+
+bool QFAST::DecomposedResultCache::fromJsonString(const std::string& in_jsonString)
+{
+    auto j = nlohmann::json::parse(in_jsonString);
+    const auto cacheJsons = j["cache"].get<std::vector<std::string>>();
+    for (const auto& entryJson: cacheJsons)
+    {
+        CacheEntry newEntry;
+        if (newEntry.fromJsonString(entryJson))
+        {
+            cache.emplace_back(newEntry);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
 }
 }
