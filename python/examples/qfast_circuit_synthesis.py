@@ -10,6 +10,12 @@ ccnotMat[7][7] = 0.0
 ccnotMat[6][7] = 1.0
 ccnotMat[7][6] = 1.0
 
-composite = xacc.createCompositeInstruction('QFAST', { 'unitary' : ccnotMat })
+# Get the MLPack Optimizer, default is Adam
+optimizer = xacc.getOptimizer('mlpack')
+composite = xacc.createCompositeInstruction('QFAST', { 
+    'unitary' : ccnotMat,
+    'optimizer': optimizer 
+})
+
 print(composite)
 

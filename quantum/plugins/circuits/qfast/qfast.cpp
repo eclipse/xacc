@@ -225,6 +225,12 @@ bool QFAST::expand(const xacc::HeterogeneousMap& runtimeOptions)
         }
     }
 
+    m_optimizer.reset();
+    if (runtimeOptions.pointerLikeExists<Optimizer>("optimizer"))
+    {
+        m_optimizer = xacc::as_shared_ptr(runtimeOptions.getPointerLike<Optimizer>("optimizer"));
+    }
+
     m_locationModel = std::make_shared<LocationModel>(m_nbQubits);
     
     const auto cacheLookupResult = m_cache.getCache(m_targetU);
@@ -323,23 +329,43 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
 
     RefineDiffFunctor diffFunctor(this, refinedReps, nbParams);
     Eigen::NumericalDiff<RefineDiffFunctor> numDiff(diffFunctor);    
-    // TODO: use gradient-based optimizer (e.g. Adam)
-    // This is currently not possible since we don't know how to calculate the gradients.
-    // auto optimizer = xacc::getOptimizer("nlopt", 
-    //     xacc::HeterogeneousMap { 
-    //         std::make_pair("initial-parameters", initialParams),
-    //         std::make_pair("nlopt-maxeval", maxEval),
-    //         std::make_pair("nlopt-stopval", m_distanceLimit) 
-    // });
-
-    auto optimizer = xacc::getOptimizer("mlpack", 
-        xacc::HeterogeneousMap { 
-            std::make_pair("initial-parameters", initialParams),
-            std::make_pair("mlpack-max-iter ", maxEval)
-    });
-    // TODO: set this according to the Optimizer.
-    const bool needGrads = true;    
     
+    
+    auto optimizer = m_optimizer ? m_optimizer : 
+        xacc::getOptimizer("nlopt", 
+            xacc::HeterogeneousMap { 
+                std::make_pair("initial-parameters", initialParams),
+                std::make_pair("nlopt-maxeval", maxEval),
+                std::make_pair("nlopt-stopval", m_distanceLimit) 
+        });
+
+    const bool needGrads = optimizer->isGradientBased();    
+    
+    // Handle optimizer specific configurations.
+    // e.g. they may use different key names.
+    optimizer->appendOption("initial-parameters", initialParams);
+    if (optimizer->name() == "nlopt") 
+    {
+        optimizer->appendOption("nlopt-maxeval", maxEval);
+        optimizer->appendOption("nlopt-stopval", m_distanceLimit);
+    }
+
+    if (optimizer->name() == "mlpack") 
+    {
+        optimizer->appendOption("mlpack-max-iter", maxEval);
+        // This is a *refine* optimization,
+        // hence the step size must be small.
+        optimizer->appendOption("mlpack-step-size", 0.001);
+        // Set the tolerance so that it will terminate when the
+        // trace distance is sufficiently converged.
+        optimizer->appendOption("mlpack-tolerance", m_distanceLimit/20.0);
+    }
+    
+    if (needGrads)
+    {
+        xacc::info("[Refine] A gradient-based optimizer was selected. Gradients will be computed.");
+    }
+
     OptFunction f(
         [&](const std::vector<double>& x, std::vector<double>& grad) 
         {
