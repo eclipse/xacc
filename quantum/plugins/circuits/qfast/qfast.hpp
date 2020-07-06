@@ -18,6 +18,7 @@
 #include <Eigen/Dense>
 
 namespace xacc {
+class Optimizer;    
 namespace circuits {
 
 class QFAST : public xacc::quantum::Circuit 
@@ -210,7 +211,7 @@ private:
     double m_exploreTraceDistanceLimit;
     std::shared_ptr<LocationModel> m_locationModel;
     DecomposedResultCache m_cache;
+    std::shared_ptr<Optimizer> m_optimizer;
 };
-
 } // namespace circuits
 } // namespace xacc
