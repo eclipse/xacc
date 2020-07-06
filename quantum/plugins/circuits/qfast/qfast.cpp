@@ -330,7 +330,6 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     RefineDiffFunctor diffFunctor(this, refinedReps, nbParams);
     Eigen::NumericalDiff<RefineDiffFunctor> numDiff(diffFunctor);    
     
-    
     auto optimizer = m_optimizer ? m_optimizer : 
         xacc::getOptimizer("nlopt", 
             xacc::HeterogeneousMap { 
@@ -581,38 +580,23 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
             std::make_pair("nlopt-stopval", in_targetDistance)  
     });
 
+    const bool needGrads = optimizer->isGradientBased();
+    ExploreDiffFunctor diffFunctor(this, io_repsToOpt, nbParams);
+    Eigen::NumericalDiff<ExploreDiffFunctor> numDiff(diffFunctor);  
+    
     OptFunction f(
         [&](const std::vector<double>& x, std::vector<double>& grad) 
         {
-            Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
-            std::vector<double> params;
-            size_t idx = 0;
-            bool alternativeLayer = false;
-            size_t paramIdx = 0;
-            for (auto& layer : io_repsToOpt)
+            const Eigen::VectorXd inputParams = Eigen::Map<const Eigen::VectorXd>(x.data(), x.size());
+            // Just 1 output:
+            Eigen::VectorXd outVal(1);
+            numDiff(inputParams, outVal);
+            const double costValue = outVal(0);
+            
+            if (needGrads)
             {
-                params.clear();
-                params.assign(x.begin() + paramIdx, x.begin() + paramIdx + layer.nbParams());
-                assert(params.size() == layer.nbParams());
-                paramIdx += params.size();
-                layer.updateParams(params);
-                
-                const auto maxLocIdx = std::distance(layer.locValues.begin(), std::max_element(layer.locValues.begin(), layer.locValues.end()));
-                // This is a non-differentiable implementation.
-                // This can be converted to a pseudo-differentable using exp functions.
-                for(int i = 0; i < layer.locValues.size(); ++i)
-                {
-                    layer.locValues[i] = (i == maxLocIdx) ? 1.0 : 0.0;
-                }
-                
-                idx++;
-                const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
-                const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
-                accumU = accumU * layerToUnitaryMatrix(layer, topology, topologyPauli);
-                alternativeLayer = !alternativeLayer;
+                // TODO
             }
-
-            const double costValue = evaluateCostFunc(accumU);
             return costValue;
         },
         nbParams);
@@ -638,6 +622,46 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     }
 
     return (result.first < in_targetDistance);
+}
+
+int QFAST::ExploreDiffFunctor::operator()(const InputType& in_x, ValueType& out_fvec) const
+{
+    // Should only have one output value.
+    assert(values() == 1);
+    const auto nbQubits = m_parent->m_nbQubits;
+    const auto& locationModel = m_parent->m_locationModel;
+    Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << nbQubits, 1ULL << nbQubits));
+    std::vector<double> params;
+    size_t idx = 0;
+    bool alternativeLayer = false;
+    size_t paramIdx = 0;
+    auto repsToOpt = m_layerConfigs;
+    for (auto& layer : repsToOpt)
+    {
+        params.clear();
+        params.assign(in_x.begin() + paramIdx, in_x.begin() + paramIdx + layer.nbParams());
+        assert(params.size() == layer.nbParams());
+        paramIdx += params.size();
+        layer.updateParams(params);
+        // TODO: use a *differentiable* impl here, e.g. SOFTMAX
+        const auto maxLocIdx = std::distance(layer.locValues.begin(), std::max_element(layer.locValues.begin(), layer.locValues.end()));
+        // This is a non-differentiable implementation.
+        // This can be converted to a pseudo-differentable using exp functions.
+        for(int i = 0; i < layer.locValues.size(); ++i)
+        {
+            layer.locValues[i] = (i == maxLocIdx) ? 1.0 : 0.0;
+        }
+        
+        idx++;
+        const auto& topology = alternativeLayer ? locationModel->buckets.second : locationModel->buckets.first;
+        const auto& topologyPauli = alternativeLayer ? locationModel->bucketPaulis.second : locationModel->bucketPaulis.first;
+        accumU = accumU * m_parent->layerToUnitaryMatrix(layer, topology, topologyPauli);
+        alternativeLayer = !alternativeLayer;
+    }
+
+    const double costValue = m_parent->evaluateCostFunc(accumU);
+    out_fvec[0] = costValue;
+    return 0;
 }
 
 double QFAST::computeTraceDistance(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2)
