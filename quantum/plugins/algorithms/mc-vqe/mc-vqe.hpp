@@ -17,6 +17,7 @@
 #include "xacc_service.hpp"
 #include <Eigen/Dense>
 #include <chrono>
+#include "AlgorithmGradientStrategy.hpp"
 
 namespace xacc {
 namespace algorithm {
@@ -25,6 +26,7 @@ protected:
   Optimizer * optimizer;
   Accelerator * accelerator;
   HeterogeneousMap parameters;
+  std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
 
   //MC-VQE stuff
   int nChromophores; // number of chromophores
@@ -32,7 +34,7 @@ protected:
   Eigen::MatrixXd CISGateAngles;// state preparation angles
   std::shared_ptr<Observable> observable; // AIEM Hamiltonian
   int nStates; // # number of CIS states = nChromophores + 1
-  const int nParamsEntangler = 4;// # of parameters in a single entangler
+  const int NPARAMSENTANGLER = 4;// # of parameters in a single entangler
   const double ANGSTROM2BOHR = 1.8897161646320724; // angstrom to bohr
   const double DEBYE2AU = 0.393430307; // D to a.u.
   std::string dataPath; // path to file with quantum chemistry data
@@ -49,6 +51,10 @@ protected:
   // and the gates for state preparation
   void preProcessing();
 
+  // controls the level of printing
+  int logLevel = 1;
+  bool tnqvmLog = false;
+  void logControl(const std::string message, const int level) const; 
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
