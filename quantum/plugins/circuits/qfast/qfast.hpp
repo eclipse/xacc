@@ -49,6 +49,45 @@ private:
         // Convert this local block (acting on two qubits)
         // to the full matrix representation (total system).
         Eigen::MatrixXcd toFullMat(size_t in_totalDim) const;
+        // Json serialization:
+        std::string toJson() const; 
+        bool fromJsonString(const std::string& in_jsonString);
+    };
+
+    // We cache the decomposition (in terms of smaller blocks)
+    // rather than the final quantum circuit because:
+    // (1) In case we want to change the final instantiation step,
+    // e.g. changing the gate set,
+    // this cache can be reused directly.
+    // (2) The instantiation is just direct linear algebra calculation
+    // and hence is super fast.  
+    struct DecomposedResultCache
+    {
+        // Initialize this cache with a file.
+        bool initialize(const std::string& in_filePath);
+        // Add a QFAST decomposed result to the cache.
+        // If in_shouldSync, this will also update the cache file.
+        bool addCacheEntry(const Eigen::MatrixXcd& in_unitary, const std::vector<Block>& in_decomposedBlocks, bool in_shouldSync = true);
+        
+        // Returns the cached result if found.
+        // If not found, returns an empty vector.  
+        std::vector<Block> getCache(const Eigen::MatrixXcd& in_unitary) const;
+        
+        // Json serialization:
+        std::string toJson() const; 
+    private:
+        bool fromJsonString(const std::string& in_jsonString);
+    
+    private:
+        struct CacheEntry
+        {
+            Eigen::MatrixXcd uMat;
+            std::vector<Block> blocks;
+            std::string toJson() const; 
+            bool fromJsonString(const std::string& in_jsonString);
+        };
+        std::vector<CacheEntry> cache;
+        std::string fileName;
     };
 
     struct PauliReps 
@@ -103,8 +142,11 @@ private:
     // This is the set of matrices that we can use to decompose the target unitary
     // into two-qubit blocks (constrained by the topology)
     static std::vector<std::vector<Eigen::MatrixXcd>>  generateAllPaulis(size_t in_nbQubits, const Topology& in_topology);
+    
+    // Computes the Hilbert-Smith trace distance between two matrix 
+    static double computeTraceDistance(const Eigen::MatrixXcd& in_mat1, const Eigen::MatrixXcd& in_mat2);
     // Evaluate cost function for the input unitary against the target unitary
-    double evaluateCostFunc(const Eigen::MatrixXcd in_U) const;
+    double evaluateCostFunc(const Eigen::MatrixXcd& in_U) const;
     
     // Returns true if the target trace distance can be met.
     // The depth is determined by the io_repsToOpt vector,
@@ -122,6 +164,7 @@ private:
     // Explore phase distance limit:
     double m_exploreTraceDistanceLimit;
     std::shared_ptr<LocationModel> m_locationModel;
+    DecomposedResultCache m_cache;
 };
 
 } // namespace circuits
