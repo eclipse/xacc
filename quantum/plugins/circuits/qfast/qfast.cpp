@@ -16,6 +16,7 @@
 #include "xacc_service.hpp"
 #include <unsupported/Eigen/KroneckerProduct>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <unsupported/Eigen/NumericalDiff>
 #include <numeric>
 #include <random>
 #include "json.hpp"
@@ -320,40 +321,45 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     const int nbParams = initialParams.size();
     const int maxEval = nbParams * 1000;
 
+    RefineDiffFunctor diffFunctor(this, refinedReps, nbParams);
+    Eigen::NumericalDiff<RefineDiffFunctor> numDiff(diffFunctor);    
     // TODO: use gradient-based optimizer (e.g. Adam)
     // This is currently not possible since we don't know how to calculate the gradients.
-    auto optimizer = xacc::getOptimizer("nlopt", 
+    // auto optimizer = xacc::getOptimizer("nlopt", 
+    //     xacc::HeterogeneousMap { 
+    //         std::make_pair("initial-parameters", initialParams),
+    //         std::make_pair("nlopt-maxeval", maxEval),
+    //         std::make_pair("nlopt-stopval", m_distanceLimit) 
+    // });
+
+    auto optimizer = xacc::getOptimizer("mlpack", 
         xacc::HeterogeneousMap { 
             std::make_pair("initial-parameters", initialParams),
-            std::make_pair("nlopt-maxeval", maxEval),
-            std::make_pair("nlopt-stopval", m_distanceLimit) 
+            std::make_pair("mlpack-max-iter ", maxEval)
     });
-
+    // TODO: set this according to the Optimizer.
+    const bool needGrads = true;    
+    
     OptFunction f(
         [&](const std::vector<double>& x, std::vector<double>& grad) 
         {
-            Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
-            std::vector<double> params;
-            size_t idx = 0;
-            size_t paramIdx = 0;
-            bool alternativeLayer = false;
-            for (auto& layer : refinedReps)
+            const Eigen::VectorXd inputParams = Eigen::Map<const Eigen::VectorXd>(x.data(), x.size());
+            // Just 1 output:
+            Eigen::VectorXd outVal(1);
+            numDiff(inputParams, outVal);
+            const double costValue = outVal(0);
+            // If grads are needed, compute them.
+            if(needGrads)
             {
-                params.clear();
-                params.assign(x.begin() + paramIdx, x.begin() + paramIdx + layer.funcValues.size());
-                assert(params.size() == layer.funcValues.size());
-                paramIdx += params.size();
-                // Added the fixed location values (not being optimized)
-                params.insert(params.end(), layer.locValues.begin(), layer.locValues.end());                
-                layer.updateParams(params);
-                idx++;
-                const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
-                const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
-                accumU = accumU * layerToUnitaryMatrix(layer, topology, topologyPauli);
-                alternativeLayer = !alternativeLayer;
+                Eigen::MatrixXd gradients(1, x.size());
+                numDiff.df(inputParams, gradients);
+                assert(gradients.rows() == 1 && gradients.cols() == x.size());
+                grad.clear();
+                for (int i = 0; i < x.size(); ++i)
+                {
+                    grad.emplace_back(gradients(0, i));
+                }
             }
-
-            const double costValue = evaluateCostFunc(accumU);
             return costValue;
         },
         nbParams);
@@ -413,6 +419,40 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     }
     
     return resultBlocks;
+}
+
+int QFAST::RefineDiffFunctor::operator()(const InputType& in_x, ValueType& out_fvec) const
+{
+    // Should only have one output value.
+    assert(values() == 1);
+    const auto nbQubits = m_parent->m_nbQubits;
+    const auto& locationModel = m_parent->m_locationModel;
+
+    Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << nbQubits, 1ULL << nbQubits));
+    std::vector<double> params;
+    size_t idx = 0;
+    size_t paramIdx = 0;
+    bool alternativeLayer = false;
+    auto optLayers = m_layerConfigs;
+    for (auto& layer : optLayers)
+    {
+        params.clear();
+        params.assign(in_x.begin() + paramIdx, in_x.begin() + paramIdx + layer.funcValues.size());
+        assert(params.size() == layer.funcValues.size());
+        paramIdx += params.size();
+        // Added the fixed location values (not being optimized)
+        params.insert(params.end(), layer.locValues.begin(), layer.locValues.end());                
+        layer.updateParams(params);
+        idx++;
+        auto& topology = alternativeLayer ? locationModel->buckets.second : locationModel->buckets.first;
+        auto& topologyPauli = alternativeLayer ? locationModel->bucketPaulis.second : locationModel->bucketPaulis.first;
+        accumU = accumU * m_parent->layerToUnitaryMatrix(layer, topology, topologyPauli);
+        alternativeLayer = !alternativeLayer;
+    }
+
+    const double costValue = m_parent->evaluateCostFunc(accumU);    
+    out_fvec[0] = costValue;
+    return 0;
 }
 
 void QFAST::addLayer(std::vector<QFAST::PauliReps>& io_currentLayers, const Topology& in_layerTopology, const TopologyPaulis& in_topologyPaulis) const

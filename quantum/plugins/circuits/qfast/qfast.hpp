@@ -126,6 +126,51 @@ private:
         std::pair<TopologyPaulis, TopologyPaulis> bucketPaulis;
     };
 
+    // Base functor for Auto-diff
+    template<typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
+    struct Functor
+    {
+        typedef _Scalar Scalar;
+        enum 
+        {
+            InputsAtCompileTime = NX,
+            ValuesAtCompileTime = NY
+        };
+        
+        typedef Eigen::Matrix<Scalar,InputsAtCompileTime,1> InputType;
+        typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
+        typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
+        
+        int m_inputs, m_values;
+        
+        Functor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
+        Functor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
+        
+        int inputs() const { return m_inputs; }
+        int values() const { return m_values; }
+    };
+
+    // Differentiation Functor for the REFINE stage,
+    // i.e. where we have fixed the gate location.
+    struct RefineDiffFunctor: public Functor<double>
+    {
+        RefineDiffFunctor(const QFAST* const parent, const std::vector<QFAST::PauliReps>& in_fixedLayers, int in_nbInputs, int in_nbValues = 1):
+            Functor(in_nbInputs, in_nbValues),
+            m_parent(parent),
+            m_layerConfigs(in_fixedLayers)
+        {}
+
+        // Compute the cost function given the input
+        int operator()(const InputType& in_x, ValueType& out_fvec) const;
+
+    private:
+        // The QFAST algorithm parent.
+        const QFAST* m_parent;
+        // The layer configuration to refine:
+        // i.e. fixed locations, just need to optimize the Pauli coefficients.
+        std::vector<QFAST::PauliReps> m_layerConfigs;
+    };
+
     // Returns decomposed Blocks
     std::vector<Block> decompose();
     // Algorithm #3
