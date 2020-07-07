@@ -673,7 +673,29 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         idx++;
     }
 
-    return (result.first < in_targetDistance);
+    // Try to fix the location params here
+    // and validate the target explore distance has been meet.
+    // This is to catch the cases whereby soft-max failed to localize the location parameters,
+    // e.g. the optimizer generated two location parameters that are exactly the same.
+    m_locationModel->fixLocations(io_repsToOpt);
+    bool alternativeLayer = false;
+    Eigen::MatrixXcd accumU(Eigen::MatrixXcd::Identity(1ULL << m_nbQubits, 1ULL << m_nbQubits));
+
+    for (const auto& layer : io_repsToOpt)
+    {
+        const auto& topology = alternativeLayer ? m_locationModel->buckets.second : m_locationModel->buckets.first;
+        const auto& topologyPauli = alternativeLayer ? m_locationModel->bucketPaulis.second : m_locationModel->bucketPaulis.first;
+        accumU = accumU * layerToUnitaryMatrix(layer, topology, topologyPauli);
+        alternativeLayer = !alternativeLayer;
+    }
+
+    // Use the actual cost function after fixing the location 
+    // as the criteria to terminate the `explore` phase.
+    // Note: The optimizer may find a lower cost function when
+    // allowing a linear combination of multiple locations.
+    // We have used *soft-max* to prevent most of that
+    // unless the optimizer created two identical location parameters at a layer.    
+    return (evaluateCostFunc(accumU) < in_targetDistance);
 }
 
 int QFAST::ExploreDiffFunctor::operator()(const InputType& in_x, ValueType& out_fvec) const
