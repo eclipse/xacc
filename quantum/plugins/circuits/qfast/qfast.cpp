@@ -144,30 +144,10 @@ void softmax(Iter iterBegin, Iter iterEnd)
     const auto maxElement { *std::max_element(iterBegin, iterEnd) };
     std::transform(iterBegin, iterEnd, iterBegin, [&](const ValueType x) { 
         // Use a very large factor to make this *one-hot*
-        return std::exp(100.0 * (x - maxElement)); 
+        return std::exp(500.0 * (x - maxElement)); 
     });
     const ValueType expTol = std::accumulate(iterBegin, iterEnd, 0.0);
     std::transform(iterBegin, iterEnd, iterBegin, std::bind2nd(std::divides<ValueType>(), expTol));  
-}
-
-// Returns true if the vector is approx. *one-hot*.
-template <typename Iter>
-bool isOneHotEncoded(Iter iterBegin, Iter iterEnd, double in_tol = 0.01)
-{
-    using ValueType = typename std::iterator_traits<Iter>::value_type;
-    const ValueType total = std::accumulate(iterBegin, iterEnd, 0.0);
-    assert(std::abs(total - 1.0) < 1e-6);
-    const auto maxElement { *std::max_element(iterBegin, iterEnd) };
-    const auto minElement { *std::min_element(iterBegin, iterEnd) };
-    if (maxElement == minElement)
-    {
-        return std::abs(maxElement - 1.0) < in_tol;
-    }
-    else
-    {
-        return std::abs(maxElement - 1.0) < in_tol && std::abs(minElement) < in_tol;
-    }
-    return false;
 }
 }
 
@@ -375,6 +355,8 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
     {
         optimizer->appendOption("nlopt-maxeval", maxEval);
         optimizer->appendOption("nlopt-stopval", m_distanceLimit);
+        optimizer->appendOption("nlopt-lower-bounds", std::vector<double>(nbParams, -M_PI));
+        optimizer->appendOption("nlopt-upper-bounds", std::vector<double>(nbParams, M_PI));
     }
 
     if (optimizer->name() == "mlpack") 
@@ -605,10 +587,29 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
     // Handle optimizer specific configurations.
     // e.g. they may use different key names.
     optimizer->appendOption("initial-parameters", initialParams);
+    std::vector<double> lowerBounds;
+    std::vector<double> upperBounds;
+    for (const auto& layer : io_repsToOpt)
+    {
+        for (int i = 0; i < layer.funcValues.size(); ++i)
+        {
+            lowerBounds.emplace_back(-M_PI);
+            upperBounds.emplace_back(M_PI);
+        }
+        for (int i = 0; i < layer.locValues.size(); ++i)
+        {
+            lowerBounds.emplace_back(0.0);
+            upperBounds.emplace_back(1.0);
+        }
+    }
+    assert(lowerBounds.size() == nbParams && upperBounds.size() == nbParams);
+
     if (optimizer->name() == "nlopt") 
     {
         optimizer->appendOption("nlopt-maxeval", maxEval);
         optimizer->appendOption("nlopt-stopval", in_targetDistance);
+        optimizer->appendOption("nlopt-lower-bounds", lowerBounds);
+        optimizer->appendOption("nlopt-upper-bounds", upperBounds);
     }
 
     if (optimizer->name() == "mlpack") 
@@ -696,10 +697,6 @@ int QFAST::ExploreDiffFunctor::operator()(const InputType& in_x, ValueType& out_
         layer.updateParams(params);
         // Softmax location parameters:
         softmax(layer.locValues.begin(), layer.locValues.end());
-        if (!isOneHotEncoded(layer.locValues.begin(), layer.locValues.end()))
-        {
-            softmax(layer.locValues.begin(), layer.locValues.end());
-        }
         idx++;
         const auto& topology = alternativeLayer ? locationModel->buckets.second : locationModel->buckets.first;
         const auto& topologyPauli = alternativeLayer ? locationModel->bucketPaulis.second : locationModel->bucketPaulis.first;
