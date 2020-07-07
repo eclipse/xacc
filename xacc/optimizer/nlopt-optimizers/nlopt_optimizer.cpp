@@ -93,8 +93,20 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   nlopt::opt _opt(algo, dim);
   _opt.set_min_objective(c_wrapper, d);
-  _opt.set_lower_bounds(std::vector<double>(dim, -3.1415926));
-  _opt.set_upper_bounds(std::vector<double>(dim, 3.1415926));
+  // Default lower bounds
+  std::vector<double> lowerBounds(dim, -3.1415926);
+  if (options.keyExists<std::vector<double>>("nlopt-lower-bounds")) {
+    lowerBounds = options.get<std::vector<double>>("nlopt-lower-bounds");
+  }
+
+  // Default upper bounds
+  std::vector<double> upperBounds(dim, 3.1415926);
+  if (options.keyExists<std::vector<double>>("nlopt-upper-bounds")) {
+    upperBounds = options.get<std::vector<double>>("nlopt-upper-bounds");
+  }
+
+  _opt.set_lower_bounds(lowerBounds);
+  _opt.set_upper_bounds(upperBounds);
   _opt.set_maxeval(maxeval);
   _opt.set_ftol_rel(tol);
 
