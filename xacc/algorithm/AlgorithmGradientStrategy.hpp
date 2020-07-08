@@ -15,9 +15,11 @@
 #define XACC_ALGORITHM_GRADIENT_STRATEGY_HPP_
 
 #include "Identifiable.hpp"
-
+#include "heterogeneous.hpp"
 namespace xacc {
-
+// Forward declare:
+class CompositeInstruction;
+class AcceleratorBuffer;
 class AlgorithmGradientStrategy : public Identifiable {
 
 protected:
