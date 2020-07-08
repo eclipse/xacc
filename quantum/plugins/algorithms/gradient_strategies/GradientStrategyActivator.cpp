@@ -15,6 +15,7 @@
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
+#include "QuantumNaturalGradient.hpp"
 
 #include <memory>
 
@@ -31,7 +32,7 @@ public:
 
     auto ps = std::make_shared<xacc::algorithm::ParameterShiftGradient>();
     context.RegisterService<xacc::AlgorithmGradientStrategy>(ps);
-
+    context.RegisterService<xacc::AlgorithmGradientStrategy>(std::make_shared<xacc::algorithm::QuantumNaturalGradient>());
   }
 
   void Stop(BundleContext /*context*/) {}
