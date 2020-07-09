@@ -21,41 +21,38 @@ namespace xacc {
 class AlgorithmGradientStrategy : public Identifiable {
 
 protected:
-
-  std::vector<int> nInstructionsElement; // # of instructions for each element in gradient vector
+  std::vector<int> nInstructionsElement; // # of instructions for each element
+                                         // in gradient vector
   std::vector<double> coefficients; // coefficient that multiplies Pauli term
 
 public:
-
   // Finite differences need <H(x)>, so we need to know if it's numerical
-  virtual bool isNumerical() const = 0 ;
+  virtual bool isNumerical() const = 0;
 
   // Pass expectation value of observable if it is numerical
-  virtual void passObsExpValue(const double expValue) {
+  virtual void setFunctionValue(const double expValue) {
     XACCLogger::instance()->error(
-        "AlgorithmGradientStrategy::passObsExpValue(double) not implemented for " +
+        "AlgorithmGradientStrategy::passEvaledCostFxn(double) not implemented "
+        "for " +
         name());
     exit(0);
     return;
   }
 
-  // Pass parameters to a specific gradient implementation
-  virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
-
-  // Pass Observable to compute gradients of
-  // Moved this out of optionalParameters because it's not optional
-  virtual void passObservable(const std::shared_ptr<Observable> observable) = 0; 
+  // Pass parameters to initialize specific gradient implementation
+  virtual bool initialize(const HeterogeneousMap parameters) = 0;
 
   // Generate circuits to enable gradient computation
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) = 0;
 
-  // Compute the gradient vector given a vector of AcceleratorBuffers with executed circuits
-  virtual void compute(std::vector<double> &dx, 
-                       std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
-
+  // Compute the gradient vector given a vector of AcceleratorBuffers with
+  // executed circuits
+  virtual void
+  compute(std::vector<double> &dx,
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
 };
 
-} 
+} // namespace xacc
 #endif
