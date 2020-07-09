@@ -38,7 +38,8 @@ struct ParametrizedCircuitLayer
 class QuantumNaturalGradient : public AlgorithmGradientStrategy
 {
 public:
-    virtual bool optionalParameters(const xacc::HeterogeneousMap in_parameters) override;
+    virtual bool isNumerical() const override { return true; }
+    virtual bool initialize(const xacc::HeterogeneousMap in_parameters) override;
     virtual std::vector<std::shared_ptr<xacc::CompositeInstruction>> getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
     virtual void compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<xacc::AcceleratorBuffer>> in_results) override;
     virtual const std::string name() const override { return "quantum-natural-gradient"; }

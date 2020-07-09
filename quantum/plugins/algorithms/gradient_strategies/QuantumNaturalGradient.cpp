@@ -40,7 +40,7 @@ std::optional<xacc::quantum::PauliOperator> getGenerator(const InstPtr& in_inst)
 }
 namespace xacc {
 namespace algorithm {
-bool QuantumNaturalGradient::optionalParameters(const HeterogeneousMap in_parameters)
+bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
 {
     // TODO: 
     return true;
