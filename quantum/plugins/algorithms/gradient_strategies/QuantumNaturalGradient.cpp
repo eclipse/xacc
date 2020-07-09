@@ -42,14 +42,49 @@ namespace xacc {
 namespace algorithm {
 bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
 {
-    // TODO: 
+    m_gradientStrategy.reset();
+    // User can provide a regular gradient strategy.
+    // Note: this natural gradient requires a base gradient strategy.
+    if (in_parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient-strategy"))
+    {
+        m_gradientStrategy = xacc::as_shared_ptr(in_parameters.getPointerLike<AlgorithmGradientStrategy>("gradient-strategy"));
+    }
+
+    // No base gradient strategy provided.
+    // Must have observable specified.
+    if (!m_gradientStrategy)
+    {
+        if (in_parameters.pointerLikeExists<Observable>("observable"))
+        {
+            auto observable = xacc::as_shared_ptr(in_parameters.getPointerLike<Observable>("observable"));
+            // Create a default gradient strategy based on the observable.
+            m_gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("central-difference-gradient");
+            m_gradientStrategy->initialize({ std::make_pair("observable", observable)});
+        }
+        else
+        {
+            xacc::error("'observable' must be provided if no 'gradient-strategy' specified.");
+            return false;
+        }
+    }
+
     return true;
 }
 
 std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGradientExecutions(std::shared_ptr<CompositeInstruction> in_circuit, const std::vector<double>& in_x) 
 {
-    // TODO:
-    return { in_circuit };
+    auto baseGradientKernels = m_gradientStrategy->getGradientExecutions(in_circuit, in_x);
+
+    // Layering the circuit:
+    auto layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
+
+    for (const auto& layer : layers)
+    {
+        auto metricTensorKernels = constructMetricTensorSubCircuit(layer);
+        baseGradientKernels.insert(baseGradientKernels.end(), metricTensorKernels.begin(), metricTensorKernels.end());
+    }
+
+    return baseGradientKernels;
 }
 
 void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<AcceleratorBuffer>> in_results)
