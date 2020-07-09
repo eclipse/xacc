@@ -12,10 +12,29 @@
  *******************************************************************************/
 #pragma once
 #include "AlgorithmGradientStrategy.hpp"
+#include "CompositeInstruction.hpp"
+#include "PauliOperator.hpp"
+
 using namespace xacc;
 
 namespace xacc {
 namespace algorithm {
+// Represents a parametrized circuit layer:
+// we push the layer boundary as far as possible (greedy)
+struct ParametrizedCircuitLayer
+{
+    // Gates that precede the layer
+    std::vector<InstPtr> preOps; 
+    // Parametrized operators in the layer
+    std::vector<InstPtr> ops;
+    // Corresponding optimization parameter indices
+    std::vector<size_t> paramInds;
+    // Gates that succeed the layer
+    std::vector<InstPtr> postOps;
+    // Partition the circuit into layers.
+    static std::vector<ParametrizedCircuitLayer> toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit);
+};
+
 class QuantumNaturalGradient : public AlgorithmGradientStrategy
 {
 public:
