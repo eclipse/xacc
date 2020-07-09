@@ -56,6 +56,16 @@ void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<st
     // TODO
 }
 
+std::vector<std::shared_ptr<xacc::CompositeInstruction>> QuantumNaturalGradient::constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer) const
+{
+    // We need to observe all the generators of parametrized gates plus products of them.
+    std::vector<xacc::quantum::PauliOperator> KiTerms;
+    std::vector<xacc::quantum::PauliOperator> KiKjTerms;
+
+    // TODO:
+    return {};
+}
+
 std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit)
 {
     const auto variables = in_circuit->getVariables();
@@ -73,7 +83,14 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
         const auto& inst = in_circuit->getInstruction(instIdx);
         if (!inst->isParameterized())
         {
-            currentLayer.ops.emplace_back(inst);
+            if (currentLayer.ops.empty())
+            {
+                currentLayer.preOps.emplace_back(inst);
+            }
+            else
+            {
+                currentLayer.postOps.emplace_back(inst);
+            }
         }
         else
         {
@@ -87,7 +104,7 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
                 const auto bitIdx = inst->bits()[0];
                 // This qubit line was already acted upon in this layer by a parametrized gate.
                 // Hence, start a new layer.
-                if (xacc::container::contains(qubitsInLayer, bitIdx))
+                if (!currentLayer.postOps.empty() || xacc::container::contains(qubitsInLayer, bitIdx))
                 {
                     assert(!currentLayer.ops.empty() && !currentLayer.paramInds.empty());
                     layers.emplace_back(std::move(currentLayer));
@@ -99,7 +116,14 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
             } 
             else
             {
-                currentLayer.ops.emplace_back(inst);
+                if (currentLayer.ops.empty())
+                {
+                    currentLayer.preOps.emplace_back(inst);
+                }
+                else
+                {
+                    currentLayer.postOps.emplace_back(inst);
+                }       
             }
         }
     }
@@ -107,6 +131,9 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
     assert(!currentLayer.ops.empty() && !currentLayer.paramInds.empty());
     layers.emplace_back(std::move(currentLayer));
     
+    // Need to make a copy to do two rounds:
+    auto layersCopied = layers;
+
     // Add pre-ops and post-ops:
     for (size_t i = 1; i < layers.size(); ++i)
     {
@@ -114,9 +141,12 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
         auto& thisLayerPreOps = layers[i].preOps;
         const auto& previousLayerOps = layers[i - 1].ops;
         const auto& previousLayerPreOps = layers[i - 1].preOps;
-        // This layer pre-ops is the previous layer pre-ops plus its ops.
-        thisLayerPreOps = previousLayerPreOps;
-        thisLayerPreOps.insert(thisLayerPreOps.end(), previousLayerOps.begin(), previousLayerOps.end());
+        const auto& previousLayerPostOps = layers[i - 1].postOps;
+
+        // Insert pre-ops, ops, and *raw* post-ops of the previous layer to the begining
+        thisLayerPreOps.insert(thisLayerPreOps.begin(), previousLayerPostOps.begin(), previousLayerPostOps.end());
+        thisLayerPreOps.insert(thisLayerPreOps.begin(), previousLayerOps.begin(), previousLayerOps.end());
+        thisLayerPreOps.insert(thisLayerPreOps.begin(), previousLayerPreOps.begin(), previousLayerPreOps.end());
     }
 
     for (int i = layers.size() - 2; i >= 0; --i)
@@ -125,8 +155,12 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
         auto& thisLayerPostOps = layers[i].postOps;
         const auto& nextLayerOps = layers[i + 1].ops;
         const auto& nextLayerPostOps = layers[i + 1].postOps;
-        // This layer post-ops is the next layer ops plus its post-ops.
-        thisLayerPostOps = nextLayerOps;
+        // Get the original pre-ops
+        const auto& nextLayerPreOps = layersCopied[i + 1].preOps;
+
+        // Insert next layer pre-ops, ops and its post op
+        thisLayerPostOps.insert(thisLayerPostOps.end(), nextLayerPreOps.begin(), nextLayerPreOps.end());
+        thisLayerPostOps.insert(thisLayerPostOps.end(), nextLayerOps.begin(), nextLayerOps.end());
         thisLayerPostOps.insert(thisLayerPostOps.end(), nextLayerPostOps.begin(), nextLayerPostOps.end());
     }
 
@@ -134,9 +168,9 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
     for (const auto& layer: layers)
     {
         assert(layer.preOps.size() + layer.ops.size() + layer.postOps.size() == in_circuit->nInstructions());
-        assert(!layer.paramInds.empty());
+        assert(!layer.paramInds.empty() && !layer.ops.empty());
     }
-    
+
     return layers;
 }    
 }

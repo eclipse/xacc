@@ -35,7 +35,9 @@ TEST(QuantumNatualGradientTester, checkLayers)
         auto program = ir->getComposite("ansatz1");
         auto layers = ParametrizedCircuitLayer::toParametrizedLayers(program);
         EXPECT_EQ(layers.size(), 1);
-        EXPECT_EQ(layers[0].ops.size(), program->nInstructions());
+        EXPECT_EQ(layers[0].ops.size(), 1);
+        EXPECT_EQ(layers[0].preOps.size(), 1);
+        EXPECT_EQ(layers[0].postOps.size(), 3);
         EXPECT_EQ(layers[0].paramInds.size(), 1);
         EXPECT_EQ(layers[0].paramInds[0], 0);
     }
@@ -62,8 +64,8 @@ TEST(QuantumNatualGradientTester, checkLayers)
         auto program = ir->getComposite("ansatz2");
         auto layers = ParametrizedCircuitLayer::toParametrizedLayers(program);
         EXPECT_EQ(layers.size(), 2);
-        EXPECT_EQ(layers[0].ops.size(), 7);
-        EXPECT_EQ(layers[1].ops.size(), 4);
+        EXPECT_EQ(layers[0].ops.size(), 2);
+        EXPECT_EQ(layers[1].ops.size(), 2);
         EXPECT_EQ(layers[0].paramInds.size(), 2);
         EXPECT_EQ(layers[1].paramInds.size(), 2);
         // Direct compare (via stringtify) the layered circuit vs. the original
@@ -73,9 +75,21 @@ TEST(QuantumNatualGradientTester, checkLayers)
         reconstructedKernel->addVariable("t1");
         reconstructedKernel->addVariable("t2");
         reconstructedKernel->addVariable("t3");
+        
+        // Test layer 1
+        reconstructedKernel->addInstructions(layers[0].preOps);
         reconstructedKernel->addInstructions(layers[0].ops);
-        reconstructedKernel->addInstructions(layers[1].ops);
+        reconstructedKernel->addInstructions(layers[0].postOps);
         EXPECT_EQ(reconstructedKernel->toString(), program->toString());
+        EXPECT_EQ(layers[0].preOps.size(), 3);
+
+        // Test layer 2
+        reconstructedKernel->clear();
+        reconstructedKernel->addInstructions(layers[1].preOps);
+        reconstructedKernel->addInstructions(layers[1].ops);
+        reconstructedKernel->addInstructions(layers[1].postOps);
+        EXPECT_EQ(reconstructedKernel->toString(), program->toString());
+        EXPECT_EQ(layers[1].preOps.size(), 7);
     }
 }
 
