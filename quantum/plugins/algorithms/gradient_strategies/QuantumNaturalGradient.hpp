@@ -35,19 +35,22 @@ struct ParametrizedCircuitLayer
     static std::vector<ParametrizedCircuitLayer> toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit);
 };
 
+using ObservedKernels = std::vector<std::shared_ptr<xacc::CompositeInstruction>>;
 class QuantumNaturalGradient : public AlgorithmGradientStrategy
 {
 public:
     virtual bool isNumerical() const override { return true; }
     virtual bool initialize(const xacc::HeterogeneousMap in_parameters) override;
-    virtual std::vector<std::shared_ptr<xacc::CompositeInstruction>> getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
+    virtual ObservedKernels getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
     virtual void compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<xacc::AcceleratorBuffer>> in_results) override;
     virtual const std::string name() const override { return "quantum-natural-gradient"; }
     virtual const std::string description() const override { return ""; }
 
 private:
     // Constructs circuits to observe Fubini-Study metric tensor elements.
-    std::vector<std::shared_ptr<xacc::CompositeInstruction>> constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer) const; 
+    ObservedKernels constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
+                                                    const std::vector<std::string>& in_varNames, 
+                                                    const std::vector<double>& in_varVals) const; 
 
 private:
     // The *regular* gradient strategy service whose gradients will

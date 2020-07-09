@@ -77,10 +77,16 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
 
     // Layering the circuit:
     auto layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
+    std::vector<std::string> paramNames;
+    assert(in_circuit->getVariables().size() == in_x.size());
+    for (const auto& param : in_circuit->getVariables())
+    {
+        paramNames.emplace_back(param);
+    }
 
     for (const auto& layer : layers)
     {
-        auto metricTensorKernels = constructMetricTensorSubCircuit(layer);
+        auto metricTensorKernels = constructMetricTensorSubCircuit(layer, paramNames, in_x);
         baseGradientKernels.insert(baseGradientKernels.end(), metricTensorKernels.begin(), metricTensorKernels.end());
     }
 
@@ -92,8 +98,11 @@ void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<st
     // TODO
 }
 
-std::vector<std::shared_ptr<xacc::CompositeInstruction>> QuantumNaturalGradient::constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer) const
+ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
+                                                    const std::vector<std::string>& in_varNames, 
+                                                    const std::vector<double>& in_varVals) const
 {
+    assert(in_varNames.size() == in_varVals.size());
     // We need to observe all the generators of parametrized gates plus products of them.
     std::vector<xacc::quantum::PauliOperator> KiTerms;
     std::vector<xacc::quantum::PauliOperator> KiKjTerms;
@@ -117,21 +126,42 @@ std::vector<std::shared_ptr<xacc::CompositeInstruction>> QuantumNaturalGradient:
 
     auto gateRegistry = xacc::getService<IRProvider>("quantum");
     auto circuitToObs = gateRegistry->createComposite("__LAYER__COMPOSITE__");
-    circuitToObs->addInstructions(in_layer.preOps);
-
     std::vector<std::shared_ptr<xacc::CompositeInstruction>> obsComp;
+    std::vector<double> resolvedParams;
+    for (const auto& op : in_layer.preOps)
+    {
+        if (op->isParameterized() && op->getParameter(0).isVariable())
+        {
+            const auto varName = op->getParameter(0).as<std::string>();
+            circuitToObs->addVariable(varName);
+            const auto iter = std::find(in_varNames.begin(), in_varNames.end(), varName); 
+            assert(iter != in_varNames.end());
+            const size_t idx = std::distance(iter, in_varNames.begin());
+            resolvedParams.emplace_back(in_varVals[idx]);
+        }
+    }
+
+    circuitToObs->addInstructions(in_layer.preOps);
+    // Resolves the pre-ops now that we have passed that layer.
+    auto resolvedCirc = resolvedParams.empty() ? circuitToObs :  circuitToObs->operator()(resolvedParams);
+
     for (auto& term : KiTerms)
     {
-        auto obsKernels = term.observe(circuitToObs);
+        auto obsKernels = term.observe(resolvedCirc);
         assert(obsKernels.size() == 1);
         obsComp.emplace_back(obsKernels[0]);
+        // DEBUG:
+        std::cout << "Observable: " << term.toString() << "\n";
+        std::cout << obsKernels[0]->toString() << "\n";
     }
 
     for (auto& term : KiKjTerms)
     {
-        auto obsKernels = term.observe(circuitToObs);
+        auto obsKernels = term.observe(resolvedCirc);
         assert(obsKernels.size() == 1);
         obsComp.emplace_back(obsKernels[0]);
+        std::cout << "Observable: " << term.toString() << "\n";
+        std::cout << obsKernels[0]->toString() << "\n";
     }
 
     return obsComp;
