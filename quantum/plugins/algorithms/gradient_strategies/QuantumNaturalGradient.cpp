@@ -13,6 +13,7 @@
 
 #include "QuantumNaturalGradient.hpp"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 #include <cassert>
 
 using namespace xacc;
@@ -62,8 +63,43 @@ std::vector<std::shared_ptr<xacc::CompositeInstruction>> QuantumNaturalGradient:
     std::vector<xacc::quantum::PauliOperator> KiTerms;
     std::vector<xacc::quantum::PauliOperator> KiKjTerms;
 
-    // TODO:
-    return {};
+    for (const auto& parOp: in_layer.ops)
+    {
+        auto opGenerator = getGenerator(parOp);
+        assert(opGenerator.has_value());
+        KiTerms.emplace_back(opGenerator.value());
+    }
+
+    for (const auto& genOp1 : KiTerms)
+    {
+        for (const auto& genOp2 : KiTerms)
+        {
+            auto kikjOp = genOp1 * genOp2;
+            assert(kikjOp.nTerms() == 1);
+            KiKjTerms.emplace_back(kikjOp);
+        }
+    }
+
+    auto gateRegistry = xacc::getService<IRProvider>("quantum");
+    auto circuitToObs = gateRegistry->createComposite("__LAYER__COMPOSITE__");
+    circuitToObs->addInstructions(in_layer.preOps);
+
+    std::vector<std::shared_ptr<xacc::CompositeInstruction>> obsComp;
+    for (auto& term : KiTerms)
+    {
+        auto obsKernels = term.observe(circuitToObs);
+        assert(obsKernels.size() == 1);
+        obsComp.emplace_back(obsKernels[0]);
+    }
+
+    for (auto& term : KiKjTerms)
+    {
+        auto obsKernels = term.observe(circuitToObs);
+        assert(obsKernels.size() == 1);
+        obsComp.emplace_back(obsKernels[0]);
+    }
+
+    return obsComp;
 }
 
 std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit)
