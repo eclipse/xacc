@@ -10,14 +10,13 @@
  * Contributors:
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_PARAMETER_SHIFT_GRADIENT_HPP_
-#define XACC_PARAMETER_SHIFT_GRADIENT_HPP_
+#ifndef XACC_CENTRAL_DIFFERENCE_GRADIENT_HPP_
+#define XACC_CENTRAL_DIFFERENCE_GRADIENT_HPP_
 
 #include "CompositeInstruction.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-#include <complex>
 #include <iomanip>
 
 using namespace xacc;
@@ -25,36 +24,46 @@ using namespace xacc;
 namespace xacc {
 namespace algorithm {
 
-class ParameterShiftGradient : public AlgorithmGradientStrategy {
+class CentralDifferenceGradient : public AlgorithmGradientStrategy {
 
 protected:
 
-  std::shared_ptr<Observable> obs, commutator; // Hamiltonian (or any) observable
+  std::shared_ptr<Observable> obs; // Hamiltonian (or any) observable
+  double step = 1.0e-7;
+  double obsExpValue;
 
 public:
 
-  // passes commutator for ADAPT-VQE
+  // Set this to true to get energy, but see comment on passObsExpValue below
+  bool isNumerical() const override {
+    return true;
+  }
+
+  // We won't use it for now, but this may come in handy if we need the Hessian
+  void passObsExpValue(const double expValue) override {
+    obsExpValue = expValue;
+    return;
+  }
+
+  // Change step size if need be
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
-    // this is specific to ADAPT-VQE
-    if (parameters.keyExists<std::shared_ptr<Observable>>("commutator")){
-      commutator = parameters.get<std::shared_ptr<Observable>>("commutator");
-    }
-
+    if (parameters.keyExists<double>("step")){
+      step = parameters.get<double>("step");
+    } 
     return true;
 
   }
 
-  // Not numerical
-  bool isNumerical() const override {
-    return false;
-  }
-
+  // Get observable to compute gradients of
   void passObservable(const std::shared_ptr<Observable> observable) override {
     obs = observable;
     return;
   }
 
+
+  // Get the circuit instructions necessary to compute gradients
+  // This is very similar to ParameterShift
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
@@ -68,38 +77,21 @@ public:
     ss.str(std::string());
 
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
-
-    // The gradient of the operator added in the current ADAPT-VQE cycle
-    // is simply its commutator with the Hamiltonian. This improves convergence
-    // over parameter shift
-    
-    int start = 0;
-    if(commutator){
-      auto kernels = commutator->observe(circuit);
-
-      for (auto &f : kernels) {
-        auto evaled = f->operator()(x);
-        coefficients.push_back(std::real(f->getCoefficient()));
-        gradientInstructions.push_back(evaled);
-      }
-      nInstructionsElement.push_back(kernels.size());
-      start = 1;
-    }
-
-    for (int op = start; op < x.size(); op++){// loop over the remainder of operators
+    for (int op = 0; op < x.size(); op++){ // loop over operators
       for (double sign : {1.0, -1.0}){ // change sign 
 
-        // parameter shift and observe
+        // shift the parameter by step and observe
         auto tmpX = x;
-        tmpX[op] += sign * xacc::constants::pi / 2.0;
+        tmpX[op] += sign * step;
         auto kernels = obs->observe(circuit);
 
-        // loop over parameter-shifted circuit instructions
+        // loop over circuit instructions
         // and gather coefficients/instructions
         for (auto &f : kernels) {
           auto evaled = f->operator()(tmpX);
           coefficients.push_back(std::real(f->getCoefficient()));
           gradientInstructions.push_back(evaled);
+          //std::cout << evaled->toString() << "\n";
         }
 
         // the number of instructions for a given element of x is the same
@@ -109,33 +101,19 @@ public:
         }
 
       }
-     
-    }
+        
+      }
 
     return gradientInstructions;
 
   }
 
-  void compute(std::vector<double> &dx,
-              std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
+  // Compute gradients from executed instructions
+  void compute(std::vector<double> &dx, std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
 
-    // if commutator is provided
-    int shift = 0, start = 0;
-    if(commutator){
-      double gradElement = 0.0;
-      for (int instElement = 0; instElement < nInstructionsElement[0]; instElement++){
-        auto expval = std::real(results[instElement]->getExpectationValueZ());
-        gradElement += expval * coefficients[instElement];
-      }
-      dx[0] = -gradElement / 2.0;
-
-      // shift the indices of the loop below accordingly
-      shift = nInstructionsElement[0];
-      start = 1;
-    }
-
-    // loop over the remaining number of entries in the gradient vector
-    for (int gradTerm = start; gradTerm < dx.size(); gradTerm++){ 
+    int shift = 0;
+    // loop over the terms in the gradient vector
+    for (int gradTerm = 0; gradTerm < dx.size(); gradTerm++){ 
 
       double plusGradElement = 0.0; // <+>
       double minusGradElement = 0.0; // <->
@@ -147,10 +125,11 @@ public:
         auto minus_expval = std::real(results[instElement + nInstructionsElement[gradTerm] + shift]->getExpectationValueZ());
         plusGradElement += plus_expval * coefficients[instElement + shift];
         minusGradElement += minus_expval * coefficients[instElement + nInstructionsElement[gradTerm] + shift];
+
       }
 
-      // gradient is (<+> - <->)/2
-      dx[gradTerm] = -std::real(plusGradElement - minusGradElement) / 2.0;
+      // gradient is (<+> - <->) / 2 *step
+      dx[gradTerm] = std::real(plusGradElement - minusGradElement) / (2.0 * step);
       shift += 2 * nInstructionsElement[gradTerm];
     }
 
@@ -167,7 +146,7 @@ public:
     return;
   }
 
-  const std::string name() const override { return "parameter-shift-gradient"; }
+  const std::string name() const override { return "central-difference-gradient"; }
   const std::string description() const override { return ""; }
 
 };

@@ -52,13 +52,14 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
       "gradient_strategy")){
     gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>(
       "gradient_strategy");
+    gradientStrategy->passObservable(xacc::as_shared_ptr(observable));
   }
 
   if (parameters.stringExists("gradient_strategy") && 
       !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
        optimizer->isGradientBased()){
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
-    gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(observable))});
+    gradientStrategy->passObservable(xacc::as_shared_ptr(observable));
   }
 
   if ((parameters.stringExists("gradient_strategy") || 
@@ -176,8 +177,15 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           xacc::info(ss.str());
           ss.str(std::string());
 
+           // If gradientStrategy is numerical, pass the energy
+           // We subtract the identityCoeff from the energy
+           // instead of passing the energy because the gradients 
+           // only take the coefficients of parameterized instructions
+            if(gradientStrategy->isNumerical()){
+              gradientStrategy->passObsExpValue(energy - identityCoeff);
+            }   
+
           // update gradient vector
-          
           gradientStrategy->compute(dx, 
             std::vector<std::shared_ptr<AcceleratorBuffer>>(buffers.begin() + nInstructionsEnergy, buffers.end()));
 
@@ -223,7 +231,6 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   for (auto &f : kernels) {
     kernelNames.push_back(f->name());
     std::complex<double> coeff = f->getCoefficient();
-            // std::cout << f->name() << "\n" << f->toString() <<"\n";
 
     int nFunctionInstructions = 0;
     if (f->getInstruction(0)->isComposite()) {

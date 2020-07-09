@@ -297,7 +297,7 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       xacc::info(ss.str());
       ss.str(std::string());
 
-      xacc::info("Final ADAPT- " + subAlgo + " circuit\n" + ansatzInstructions->toString());
+      xacc::info("Final ADAPT-" + subAlgo + " circuit\n" + ansatzInstructions->toString());
 
       return; 
 
@@ -331,8 +331,7 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
         gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(gradStrategyName);
         gradientStrategy->optionalParameters({std::make_pair("observable", observable),
-                                            std::make_pair("commutator", commutators[maxCommutatorIdx]),
-                                            std::make_pair("jw", true)
+                                            std::make_pair("commutator", commutators[maxCommutatorIdx])
                                             });
         x.insert(x.begin(), 0.0);
         newOptimizer = xacc::getOptimizer(optimizer->name(),
