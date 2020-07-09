@@ -106,6 +106,37 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
 
     assert(!currentLayer.ops.empty() && !currentLayer.paramInds.empty());
     layers.emplace_back(std::move(currentLayer));
+    
+    // Add pre-ops and post-ops:
+    for (size_t i = 1; i < layers.size(); ++i)
+    {
+        // Pre-ops:
+        auto& thisLayerPreOps = layers[i].preOps;
+        const auto& previousLayerOps = layers[i - 1].ops;
+        const auto& previousLayerPreOps = layers[i - 1].preOps;
+        // This layer pre-ops is the previous layer pre-ops plus its ops.
+        thisLayerPreOps = previousLayerPreOps;
+        thisLayerPreOps.insert(thisLayerPreOps.end(), previousLayerOps.begin(), previousLayerOps.end());
+    }
+
+    for (int i = layers.size() - 2; i >= 0; --i)
+    {
+        // Post-ops:
+        auto& thisLayerPostOps = layers[i].postOps;
+        const auto& nextLayerOps = layers[i + 1].ops;
+        const auto& nextLayerPostOps = layers[i + 1].postOps;
+        // This layer post-ops is the next layer ops plus its post-ops.
+        thisLayerPostOps = nextLayerOps;
+        thisLayerPostOps.insert(thisLayerPostOps.end(), nextLayerPostOps.begin(), nextLayerPostOps.end());
+    }
+
+    // Verify:
+    for (const auto& layer: layers)
+    {
+        assert(layer.preOps.size() + layer.ops.size() + layer.postOps.size() == in_circuit->nInstructions());
+        assert(!layer.paramInds.empty());
+    }
+    
     return layers;
 }    
 }
