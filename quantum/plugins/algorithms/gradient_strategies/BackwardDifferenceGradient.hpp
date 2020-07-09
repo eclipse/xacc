@@ -29,21 +29,23 @@ class BackwardDifferenceGradient : public AlgorithmGradientStrategy {
 protected:
 
   std::shared_ptr<Observable> obs; // Hamiltonian (or any) observable
-  double step = 1.0e-7;
-  double obsExpValue;
+  double step = 1.0e-7; // step size
+  double obsExpValue; // <H> expectation value of the observable
 
 public:
 
+  // this is a numerical gradient
   bool isNumerical() const override {
     return true;
   }
 
+  // Pass the expectation value of the observable
   void passObsExpValue(double expValue) override {
     obsExpValue = expValue;
     return;
   }
 
-  // passes the Hamiltonian and current ansatz operators to the gradient class
+  // Change step size if need be
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (parameters.keyExists<double>("step")) {
@@ -53,11 +55,13 @@ public:
 
   }
 
+  // Get observable to compute gradients of
   void passObservable(const std::shared_ptr<Observable> observable) override {
     obs = observable;
     return;
   }
 
+ // Get the circuit instructions necessary to compute gradients
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
@@ -94,6 +98,7 @@ public:
 
   }
 
+ // Compute gradients from executed instructions
   void compute(std::vector<double> &dx, std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
 
     int shift = 0;
