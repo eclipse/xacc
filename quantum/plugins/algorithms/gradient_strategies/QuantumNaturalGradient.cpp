@@ -66,7 +66,7 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
 
     // Assemble parametrized circuit layer:
     std::vector<ParametrizedCircuitLayer> layers; 
-    auto& currentLayer = layers.emplace_back();
+    ParametrizedCircuitLayer currentLayer;
     std::set<size_t> qubitsInLayer;
     for (size_t instIdx = 0; instIdx < in_circuit->nInstructions(); ++instIdx)
     {
@@ -77,7 +77,7 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
         }
         else
         {
-            const auto& instParam = inst->getParameters()[0];
+            const auto& instParam = inst->getParameter(0);
             if (instParam.isVariable())
             {
                 const auto varName = instParam.as<std::string>();
@@ -90,10 +90,9 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
                 if (xacc::container::contains(qubitsInLayer, bitIdx))
                 {
                     assert(!currentLayer.ops.empty() && !currentLayer.paramInds.empty());
-                    auto& currentLayer = layers.emplace_back();
+                    layers.emplace_back(std::move(currentLayer));
                     qubitsInLayer.clear();
                 }
-
                 currentLayer.ops.emplace_back(inst);
                 currentLayer.paramInds.emplace_back(std::distance(iter, variables.begin()));
                 qubitsInLayer.emplace(bitIdx);
@@ -105,6 +104,8 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
         }
     }
 
+    assert(!currentLayer.ops.empty() && !currentLayer.paramInds.empty());
+    layers.emplace_back(std::move(currentLayer));
     return layers;
 }    
 }
