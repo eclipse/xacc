@@ -17,7 +17,6 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
-#include <complex>
 #include <iomanip>
 
 using namespace xacc;
@@ -50,11 +49,13 @@ public:
     return false;
   }
 
+  // Get observable to compute gradients of
   void passObservable(const std::shared_ptr<Observable> observable) override {
     obs = observable;
     return;
   }
 
+  // Get the circuit instructions necessary to compute gradients
   std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
@@ -116,6 +117,7 @@ public:
 
   }
 
+  // Compute gradients from executed instructions
   void compute(std::vector<double> &dx,
               std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
 

@@ -29,8 +29,8 @@ class CentralDifferenceGradient : public AlgorithmGradientStrategy {
 protected:
 
   std::shared_ptr<Observable> obs; // Hamiltonian (or any) observable
-  double step = 1.0e-7;
-  double obsExpValue;
+  double step = 1.0e-7; // step size
+  double obsExpValue; // <H> expectation value of the observable
 
 public:
 
