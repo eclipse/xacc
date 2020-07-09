@@ -38,11 +38,20 @@ struct ParametrizedCircuitLayer
 class QuantumNaturalGradient : public AlgorithmGradientStrategy
 {
 public:
-virtual bool optionalParameters(const xacc::HeterogeneousMap in_parameters) override;
-virtual std::vector<std::shared_ptr<xacc::CompositeInstruction>> getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
-virtual void compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<xacc::AcceleratorBuffer>> in_results) override;
-virtual const std::string name() const override { return "quantum-natural-gradient"; }
-virtual const std::string description() const override { return ""; }
+    virtual bool optionalParameters(const xacc::HeterogeneousMap in_parameters) override;
+    virtual std::vector<std::shared_ptr<xacc::CompositeInstruction>> getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
+    virtual void compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<xacc::AcceleratorBuffer>> in_results) override;
+    virtual const std::string name() const override { return "quantum-natural-gradient"; }
+    virtual const std::string description() const override { return ""; }
+
+private:
+    // Constructs circuits to observe Fubini-Study metric tensor elements.
+    std::vector<std::shared_ptr<xacc::CompositeInstruction>> constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer) const; 
+
+private:
+    // The *regular* gradient strategy service whose gradients will
+    // be 'modified' via this QNG metric tensor.
+    std::shared_ptr<AlgorithmGradientStrategy> m_gradientStrategy;
 };
 }
 }
