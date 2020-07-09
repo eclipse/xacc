@@ -27,15 +27,33 @@ protected:
 
 public:
 
+  // Finite differences need <H(x)>, so we need to know if it's numerical
+  virtual bool isNumerical() const = 0 ;
+
+  // Pass expectation value of observable if it is numerical
+  virtual void passObsExpValue(const double expValue) {
+    XACCLogger::instance()->error(
+        "AlgorithmGradientStrategy::passObsExpValue(double) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+
   // Pass parameters to a specific gradient implementation
   virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
 
+  // Pass Observable to compute gradients of
+  // Moved this out of optionalParameters because it's not optional
+  virtual void passObservable(const std::shared_ptr<Observable> observable) = 0; 
+
   // Generate circuits to enable gradient computation
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
-  getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit, const std::vector<double> &x) = 0;
+  getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
+                        const std::vector<double> &x) = 0;
 
   // Compute the gradient vector given a vector of AcceleratorBuffers with executed circuits
-  virtual void compute(std::vector<double> &dx, std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
+  virtual void compute(std::vector<double> &dx, 
+                       std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
 
 };
 

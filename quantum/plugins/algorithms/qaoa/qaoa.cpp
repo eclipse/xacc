@@ -76,13 +76,14 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
     if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
         "gradient_strategy")){
       gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>("gradient_strategy");
+      gradientStrategy->passObservable(xacc::as_shared_ptr(m_costHamObs));
     }
 
     if (parameters.stringExists("gradient_strategy") && 
         !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
         m_optimizer->isGradientBased()){
       gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
-      gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(m_costHamObs))});
+      gradientStrategy->passObservable(xacc::as_shared_ptr(m_costHamObs));
     }
 
     if ((parameters.stringExists("gradient_strategy") || 
@@ -203,6 +204,14 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
               ss << std::setprecision(12) << "Current Energy: " << energy;
               xacc::info(ss.str());
               ss.str(std::string());
+
+           // If gradientStrategy is numerical, pass the energy
+           // We subtract the identityCoeff from the energy
+           // instead of passing the energy because the gradients 
+           // only take the coefficients of parameterized instructions
+            if(gradientStrategy->isNumerical()){
+              gradientStrategy->passObsExpValue(energy - identityCoeff);
+            }             
 
               // update gradient vector
               gradientStrategy->compute(dx, 
