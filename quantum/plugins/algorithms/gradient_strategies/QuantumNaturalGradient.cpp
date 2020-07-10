@@ -23,16 +23,15 @@ std::optional<xacc::quantum::PauliOperator> getGenerator(const InstPtr& in_inst)
 {
     if (in_inst->name() == "Rx")
     {
-        return xacc::quantum::PauliOperator(0.5, "X" + std::to_string(in_inst->bits()[0]));
+        return xacc::quantum::PauliOperator({{ in_inst->bits()[0], "X" }}, 0.5);
     }
     if (in_inst->name() == "Ry")
     {
-        return xacc::quantum::PauliOperator(0.5, "Y" + std::to_string(in_inst->bits()[0]));
-
+        return xacc::quantum::PauliOperator({{ in_inst->bits()[0], "Y" }}, 0.5);
     }
     if (in_inst->name() == "Rz")
     {
-        return xacc::quantum::PauliOperator(0.5, "Z" + std::to_string(in_inst->bits()[0]));
+        return xacc::quantum::PauliOperator({{ in_inst->bits()[0], "Z" }}, 0.5);
     }
 
     return std::nullopt;
