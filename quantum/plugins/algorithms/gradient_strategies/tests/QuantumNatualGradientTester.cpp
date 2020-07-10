@@ -122,6 +122,48 @@ TEST(QuantumNatualGradientTester, checkCircuitGen)
     EXPECT_TRUE(qng->initialize({std::make_pair("observable", observable)}));
     const std::vector<double> params(4, 0.0);
     auto kernels = qng->getGradientExecutions(program, params);
+    EXPECT_EQ(kernels.size(), 20);
+} 
+
+TEST(QuantumNatualGradientTester, checkVQE)
+{
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto ir = xasmCompiler->compile(R"(__qpu__ void ansatz4(qbit q, double t0, double t1, double t2, double t3) {
+        // State-prep 
+        Ry(q[0], pi/4);
+        Ry(q[1], pi/3);
+        Ry(q[2], pi/2);
+        // Parametrized gates (layer 1)
+        Rz(q[0], t0);
+        Rz(q[1], t1);
+        CX(q[0], q[1]);
+        CX(q[1], q[2]);
+        // Parametrized gates (layer 2)
+        Ry(q[1], t2);
+        Rx(q[2], t3);
+        CX(q[0], q[1]);
+        CX(q[1], q[2]);
+    })", nullptr);
+
+    auto program = ir->getComposite("ansatz4");
+    std::shared_ptr<Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+    observable->fromString("Y0");
+
+    auto qng = xacc::getService<AlgorithmGradientStrategy>("quantum-natural-gradient");
+    EXPECT_TRUE(qng->initialize({std::make_pair("observable", observable)}));
+    const std::vector<double> params(4, 0.0);
+    auto kernels = qng->getGradientExecutions(program, params);
+
+    auto optimizer = xacc::getOptimizer("mlpack");
+    auto vqe = xacc::getService<Algorithm>("vqe");
+    auto acc = xacc::getAccelerator("qpp");
+    EXPECT_TRUE(vqe->initialize({std::make_pair("ansatz", program),
+                                std::make_pair("accelerator", acc),
+                                std::make_pair("observable", observable),
+                                std::make_pair("optimizer", optimizer),
+                                std::make_pair("gradient_strategy", "quantum-natural-gradient")}));
+    auto buffer = xacc::qalloc(4);
+    vqe->execute(buffer);
 } 
 
 int main(int argc, char **argv) 

@@ -14,6 +14,7 @@
 #include "AlgorithmGradientStrategy.hpp"
 #include "CompositeInstruction.hpp"
 #include "PauliOperator.hpp"
+#include <armadillo>
 
 using namespace xacc;
 
@@ -43,6 +44,7 @@ public:
     virtual bool initialize(const xacc::HeterogeneousMap in_parameters) override;
     virtual ObservedKernels getGradientExecutions(std::shared_ptr<xacc::CompositeInstruction> in_circuit, const std::vector<double>& in_x) override;
     virtual void compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<xacc::AcceleratorBuffer>> in_results) override;
+    virtual void setFunctionValue(const double expValue) override { m_gradientStrategy->setFunctionValue(expValue); }
     virtual const std::string name() const override { return "quantum-natural-gradient"; }
     virtual const std::string description() const override { return ""; }
 
@@ -51,11 +53,15 @@ private:
     ObservedKernels constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
                                                     const std::vector<std::string>& in_varNames, 
                                                     const std::vector<double>& in_varVals) const; 
+    arma::dmat constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const;
 
 private:
     // The *regular* gradient strategy service whose gradients will
     // be 'modified' via this QNG metric tensor.
     std::shared_ptr<AlgorithmGradientStrategy> m_gradientStrategy;
+    // Cache the circuit layer structure to reconstruct metric tensor.
+    std::vector<ParametrizedCircuitLayer> m_layers;
+    size_t m_nbMetricTensorKernels;
 };
 }
 }

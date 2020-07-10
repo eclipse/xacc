@@ -42,6 +42,8 @@ namespace algorithm {
 bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
 {
     m_gradientStrategy.reset();
+    m_layers.clear();
+    m_nbMetricTensorKernels = 0;
     // User can provide a regular gradient strategy.
     // Note: this natural gradient requires a base gradient strategy.
     if (in_parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient-strategy"))
@@ -75,7 +77,7 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
     auto baseGradientKernels = m_gradientStrategy->getGradientExecutions(in_circuit, in_x);
 
     // Layering the circuit:
-    auto layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
+    m_layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
     std::vector<std::string> paramNames;
     assert(in_circuit->getVariables().size() == in_x.size());
     for (const auto& param : in_circuit->getVariables())
@@ -83,9 +85,10 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
         paramNames.emplace_back(param);
     }
 
-    for (const auto& layer : layers)
+    for (const auto& layer : m_layers)
     {
         auto metricTensorKernels = constructMetricTensorSubCircuit(layer, paramNames, in_x);
+        m_nbMetricTensorKernels += metricTensorKernels.size();
         baseGradientKernels.insert(baseGradientKernels.end(), metricTensorKernels.begin(), metricTensorKernels.end());
     }
 
@@ -94,7 +97,21 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
 
 void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<std::shared_ptr<AcceleratorBuffer>> in_results)
 {
-    // TODO
+    assert(m_nbMetricTensorKernels > 0 && in_results.size() > m_nbMetricTensorKernels);
+    const auto iterPos = in_results.begin() + (in_results.size() - m_nbMetricTensorKernels);
+    // Split the results: regular gradient results + metric tensor results.
+    std::vector<std::shared_ptr<AcceleratorBuffer>> baseResults;
+    baseResults.assign(in_results.begin(), iterPos);
+    std::vector<std::shared_ptr<AcceleratorBuffer>> metricTensorResults;
+    metricTensorResults.assign(iterPos, in_results.end());
+    std::vector<double> rawDx = out_dx;
+    // Calculate the raw gradients (using a regular gradient strategy)
+    m_gradientStrategy->compute(rawDx, baseResults);
+    // Solve the natural gradient equation:
+    const auto gMat = constructMetricTensorMatrix(metricTensorResults);
+    arma::dvec gradients(rawDx); 
+    arma::dvec newGrads = arma::solve(gMat, gradients);
+    out_dx = arma::conv_to<std::vector<double>>::from(newGrads); 
 }
 
 ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
@@ -149,9 +166,6 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
         auto obsKernels = term.observe(resolvedCirc);
         assert(obsKernels.size() == 1);
         obsComp.emplace_back(obsKernels[0]);
-        // DEBUG:
-        std::cout << "Observable: " << term.toString() << "\n";
-        std::cout << obsKernels[0]->toString() << "\n";
     }
 
     for (auto& term : KiKjTerms)
@@ -159,11 +173,20 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
         auto obsKernels = term.observe(resolvedCirc);
         assert(obsKernels.size() == 1);
         obsComp.emplace_back(obsKernels[0]);
-        std::cout << "Observable: " << term.toString() << "\n";
-        std::cout << obsKernels[0]->toString() << "\n";
     }
 
+    const size_t NUM_KI_TERMS = in_layer.paramInds.size();
+    const size_t NUM_KIKJ_TERMS = in_layer.paramInds.size() * in_layer.paramInds.size();
+    // Validate the expected count.
+    assert(obsComp.size() == NUM_KI_TERMS + NUM_KIKJ_TERMS);
     return obsComp;
+}
+
+arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const
+{
+    // TODO:
+    arma::dmat gMat(1, 1, arma::fill::zeros);
+    return gMat;
 }
 
 std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit)
@@ -272,6 +295,6 @@ std::vector<ParametrizedCircuitLayer> ParametrizedCircuitLayer::toParametrizedLa
     }
 
     return layers;
-}    
+} 
 }
 }
