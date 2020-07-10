@@ -34,7 +34,7 @@ public:
   // Pass expectation value of observable if it is numerical
   virtual void setFunctionValue(const double expValue) {
     XACCLogger::instance()->error(
-        "AlgorithmGradientStrategy::passEvaledCostFxn(double) not implemented "
+        "AlgorithmGradientStrategy::setFunctionValue(double) not implemented "
         "for " +
         name());
     exit(0);
