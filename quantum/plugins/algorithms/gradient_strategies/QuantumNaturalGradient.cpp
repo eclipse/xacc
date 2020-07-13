@@ -103,7 +103,7 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
             if (!isIdentityTerm(layer.kiTerms[i]))
             {
                 metricTensorKernels.emplace_back(kernels[kernelIdx]);
-                m_metricTermToIdx.emplace(layer.kiTerms[i].toString(), metricTensorKernels.size());
+                m_metricTermToIdx.emplace(layer.kiTerms[i].toString(), metricTensorKernels.size() - 1);
             }
             kernelIdx++;
         }        
@@ -183,7 +183,8 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(Parametr
             circuitToObs->addVariable(varName);
             const auto iter = std::find(in_varNames.begin(), in_varNames.end(), varName); 
             assert(iter != in_varNames.end());
-            const size_t idx = std::distance(iter, in_varNames.begin());
+            const size_t idx = std::distance(in_varNames.begin(), iter);
+            assert(idx < in_varVals.size());
             resolvedParams.emplace_back(in_varVals[idx]);
         }
     }

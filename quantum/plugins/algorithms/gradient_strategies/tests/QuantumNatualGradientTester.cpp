@@ -174,6 +174,37 @@ TEST(QuantumNatualGradientTester, checkVQE)
     EXPECT_NEAR(finalCostValue, -0.6, 0.1);
 } 
 
+// Numerical tests
+TEST(QuantumNatualGradientTester, testSingleQubitRotations)
+{
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto ir = xasmCompiler->compile(R"(__qpu__ void testRotation(qbit q, double t0, double t1) {
+        Rx(q[0], t0);
+        Ry(q[0], t1);
+    })", nullptr);
+
+    auto program = ir->getComposite("testRotation");
+    std::shared_ptr<Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+    observable->fromString("Z0");    
+    auto qng = xacc::getService<AlgorithmGradientStrategy>("quantum-natural-gradient");
+    EXPECT_TRUE(qng->initialize({std::make_pair("observable", observable)}));
+    const std::vector<double> params { 0.11, 0.12 };
+    auto optimizer = xacc::getOptimizer("mlpack", { std::make_pair("initial-parameters", params) });
+    auto vqe = xacc::getService<Algorithm>("vqe");
+    auto acc = xacc::getAccelerator("qpp");
+    EXPECT_TRUE(vqe->initialize({std::make_pair("ansatz", program),
+                                std::make_pair("accelerator", acc),
+                                std::make_pair("observable", observable),
+                                std::make_pair("optimizer", optimizer),
+                                std::make_pair("gradient_strategy", "quantum-natural-gradient")}));
+    auto buffer = xacc::qalloc(1);
+    vqe->execute(buffer);
+    const double finalCostValue = (*buffer)["opt-val"].as<double>();
+    std::cout << "Energy = " << finalCostValue << "\n";
+    // TODO: we have analytical results for this, we need a way to test this.  
+    EXPECT_NEAR(finalCostValue, -1.0, 0.1);
+} 
+
 int main(int argc, char **argv) 
 {
     xacc::Initialize(argc, argv);
