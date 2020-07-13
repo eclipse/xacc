@@ -140,6 +140,8 @@ void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<st
     const auto gMat = constructMetricTensorMatrix(metricTensorResults);
     arma::dvec gradients(rawDx); 
     arma::dvec newGrads = arma::solve(gMat, gradients);
+    // std::cout << "Regular gradients:\n" << gradients << "\n";
+    // std::cout << "Natural gradients:\n" << newGrads << "\n";
     out_dx = arma::conv_to<std::vector<double>>::from(newGrads); 
 }
 
@@ -252,7 +254,6 @@ arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector
             }
         }
 
-        std::cout << "Block matrix: \n" << blockMat << "\n";
         for (size_t i = 0; i < nbParamsInBlock; ++i)
         {
             for(size_t j = 0; j < nbParamsInBlock; ++j)
@@ -263,8 +264,6 @@ arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector
 
         blockIdx += nbParamsInBlock;
     }
-
-    std::cout << "Metric tensor matrix: \n" << gMat << "\n";
 
     return gMat;
 }

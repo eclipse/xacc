@@ -101,7 +101,7 @@ TEST(QuantumNatualGradientTester, checkCircuitGen)
         // State-prep 
         Ry(q[0], pi/4);
         Ry(q[1], pi/3);
-        Ry(q[2], pi/2);
+        Ry(q[2], pi/7);
         // Parametrized gates (layer 1)
         Rz(q[0], t0);
         Rz(q[1], t1);
@@ -135,7 +135,7 @@ TEST(QuantumNatualGradientTester, checkVQE)
         // State-prep 
         Ry(q[0], pi/4);
         Ry(q[1], pi/3);
-        Ry(q[2], pi/2);
+        Ry(q[2], pi/7);
         // Parametrized gates (layer 1)
         Rz(q[0], t0);
         Rz(q[1], t1);
@@ -167,6 +167,11 @@ TEST(QuantumNatualGradientTester, checkVQE)
                                 std::make_pair("gradient_strategy", "quantum-natural-gradient")}));
     auto buffer = xacc::qalloc(4);
     vqe->execute(buffer);
+    const double finalCostValue = (*buffer)["opt-val"].as<double>();
+    std::cout << "Energy = " << finalCostValue << "\n";
+    // Check this plot: ~ -0.6
+    // https://pennylane.ai/qml/demos/tutorial_quantum_natural_gradient.html#quantum-natural-gradient-optimization
+    EXPECT_NEAR(finalCostValue, -0.6, 0.1);
 } 
 
 int main(int argc, char **argv) 
