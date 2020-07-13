@@ -79,6 +79,7 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
     m_nbMetricTensorKernels = 0;
     // Layering the circuit:
     m_layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
+    m_nbParams = in_x.size();
     std::vector<std::string> paramNames;
     assert(in_circuit->getVariables().size() == in_x.size());
     for (const auto& param : in_circuit->getVariables())
@@ -213,10 +214,58 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(Parametr
     return obsComp;
 }
 
-arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const
+arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results)
 {   
-    // TODO:
-    arma::dmat gMat(4, 4, arma::fill::zeros);
+    arma::dmat gMat(m_nbParams, m_nbParams, arma::fill::zeros);
+    size_t blockIdx = 0;
+    for (auto& layer : m_layers)
+    {
+        const auto nbParamsInBlock = layer.paramInds.size();
+        // Constructs the block diagonal matrices
+        arma::dmat blockMat(nbParamsInBlock, nbParamsInBlock, arma::fill::zeros);
+
+        for (size_t i = 0; i < nbParamsInBlock; ++i)
+        {
+            for(size_t j = 0; j < nbParamsInBlock; ++j)
+            {
+                // Entry = <KiKj> - <Ki><Kj>
+                // second_order_ev[i, j] - first_order_ev[i] * first_order_ev[j]
+                auto firstOrderTerm1 = layer.kiTerms[i];
+                const double factor1 = firstOrderTerm1.coefficient().real();
+                auto firstOrderTerm2 = layer.kiTerms[j];
+                const double factor2 = firstOrderTerm2.coefficient().real();
+                auto secondOrderTerm = layer.kiTerms[i] * layer.kiTerms[j];
+                
+                const auto getExpectationForTerm = [&](xacc::quantum::PauliOperator& in_pauli){
+                    if (m_metricTermToIdx.find(in_pauli.toString()) == m_metricTermToIdx.end())
+                    {
+                        return 1.0;
+                    }
+                    return in_results[m_metricTermToIdx[in_pauli.toString()]]->getExpectationValueZ();
+                };
+
+                const double firstOrderTerm1Exp = getExpectationForTerm(firstOrderTerm1);
+                const double firstOrderTerm2Exp = getExpectationForTerm(firstOrderTerm2);
+                const double secondOrderTermExp = getExpectationForTerm(secondOrderTerm);
+                const double value = factor1*factor2*(secondOrderTermExp - firstOrderTerm1Exp * firstOrderTerm2Exp);
+                blockMat(i,j) = value;
+            }
+        }
+
+        std::cout << "Block matrix: \n" << blockMat << "\n";
+        for (size_t i = 0; i < nbParamsInBlock; ++i)
+        {
+            for(size_t j = 0; j < nbParamsInBlock; ++j)
+            {
+                gMat(blockIdx + i, blockIdx + j) =  blockMat(i,j);
+            }
+        }
+
+        blockIdx += nbParamsInBlock;
+    }
+
+    std::cout << "Metric tensor matrix: \n" << gMat << "\n";
+
     return gMat;
 }
 
