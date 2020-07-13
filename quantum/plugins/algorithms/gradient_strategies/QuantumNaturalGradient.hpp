@@ -56,7 +56,7 @@ private:
     ObservedKernels constructMetricTensorSubCircuit(ParametrizedCircuitLayer& io_layer, 
                                                     const std::vector<std::string>& in_varNames, 
                                                     const std::vector<double>& in_varVals) const; 
-    arma::dmat constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const;
+    arma::dmat constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results);
 
 private:
     // The *regular* gradient strategy service whose gradients will
@@ -67,6 +67,7 @@ private:
     size_t m_nbMetricTensorKernels;
     // Keeps track of the term and the index in the kernel sequence.
     std::unordered_map<std::string, size_t> m_metricTermToIdx;
+    size_t m_nbParams;
 };
 }
 }
