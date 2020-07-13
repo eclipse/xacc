@@ -44,6 +44,7 @@ bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
     m_gradientStrategy.reset();
     m_layers.clear();
     m_nbMetricTensorKernels = 0;
+    m_metricTermToIdx.clear();
     // User can provide a regular gradient strategy.
     // Note: this natural gradient requires a base gradient strategy.
     if (in_parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient-strategy"))
@@ -75,7 +76,7 @@ bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
 std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGradientExecutions(std::shared_ptr<CompositeInstruction> in_circuit, const std::vector<double>& in_x) 
 {
     auto baseGradientKernels = m_gradientStrategy->getGradientExecutions(in_circuit, in_x);
-
+    m_nbMetricTensorKernels = 0;
     // Layering the circuit:
     m_layers = ParametrizedCircuitLayer::toParametrizedLayers(in_circuit);
     std::vector<std::string> paramNames;
@@ -85,13 +86,40 @@ std::vector<std::shared_ptr<CompositeInstruction>> QuantumNaturalGradient::getGr
         paramNames.emplace_back(param);
     }
 
-    for (const auto& layer : m_layers)
+    std::vector<std::shared_ptr<CompositeInstruction>>  metricTensorKernels;
+    for (auto& layer : m_layers)
     {
-        auto metricTensorKernels = constructMetricTensorSubCircuit(layer, paramNames, in_x);
-        m_nbMetricTensorKernels += metricTensorKernels.size();
-        baseGradientKernels.insert(baseGradientKernels.end(), metricTensorKernels.begin(), metricTensorKernels.end());
+        auto kernels = constructMetricTensorSubCircuit(layer, paramNames, in_x);
+        
+        // Insert *non-identity* kernels only
+        size_t kernelIdx = 0;
+        const auto isIdentityTerm = [](xacc::quantum::PauliOperator& in_pauli){
+            return in_pauli.getNonIdentitySubTerms().size() == 0;
+        };
+        
+        for (size_t i = 0; i < layer.kiTerms.size(); ++i)
+        {
+            if (!isIdentityTerm(layer.kiTerms[i]))
+            {
+                metricTensorKernels.emplace_back(kernels[kernelIdx]);
+                m_metricTermToIdx.emplace(layer.kiTerms[i].toString(), metricTensorKernels.size());
+            }
+            kernelIdx++;
+        }        
+        
+        for (size_t i = 0; i < layer.kikjTerms.size(); ++i)
+        {
+            if (!isIdentityTerm(layer.kikjTerms[i]))
+            {
+                metricTensorKernels.emplace_back(kernels[kernelIdx]);
+                m_metricTermToIdx.emplace(layer.kikjTerms[i].toString(), metricTensorKernels.size());
+            }
+            kernelIdx++;
+        }  
     }
 
+    m_nbMetricTensorKernels = metricTensorKernels.size();
+    baseGradientKernels.insert(baseGradientKernels.end(), metricTensorKernels.begin(), metricTensorKernels.end());
     return baseGradientKernels;
 }
 
@@ -114,7 +142,7 @@ void QuantumNaturalGradient::compute(std::vector<double>& out_dx, std::vector<st
     out_dx = arma::conv_to<std::vector<double>>::from(newGrads); 
 }
 
-ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
+ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(ParametrizedCircuitLayer& io_layer, 
                                                     const std::vector<std::string>& in_varNames, 
                                                     const std::vector<double>& in_varVals) const
 {
@@ -123,7 +151,7 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
     std::vector<xacc::quantum::PauliOperator> KiTerms;
     std::vector<xacc::quantum::PauliOperator> KiKjTerms;
 
-    for (const auto& parOp: in_layer.ops)
+    for (const auto& parOp: io_layer.ops)
     {
         auto opGenerator = getGenerator(parOp);
         assert(opGenerator.has_value());
@@ -144,7 +172,7 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
     auto circuitToObs = gateRegistry->createComposite("__LAYER__COMPOSITE__");
     std::vector<std::shared_ptr<xacc::CompositeInstruction>> obsComp;
     std::vector<double> resolvedParams;
-    for (const auto& op : in_layer.preOps)
+    for (const auto& op : io_layer.preOps)
     {
         if (op->isParameterized() && op->getParameter(0).isVariable())
         {
@@ -157,12 +185,15 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
         }
     }
 
-    circuitToObs->addInstructions(in_layer.preOps);
+    circuitToObs->addInstructions(io_layer.preOps);
     // Resolves the pre-ops now that we have passed that layer.
     auto resolvedCirc = resolvedParams.empty() ? circuitToObs :  circuitToObs->operator()(resolvedParams);
 
+    io_layer.kiTerms = KiTerms;
+    io_layer.kikjTerms = KiKjTerms;
+    
     for (auto& term : KiTerms)
-    {
+    {   
         auto obsKernels = term.observe(resolvedCirc);
         assert(obsKernels.size() == 1);
         obsComp.emplace_back(obsKernels[0]);
@@ -175,17 +206,17 @@ ObservedKernels QuantumNaturalGradient::constructMetricTensorSubCircuit(const Pa
         obsComp.emplace_back(obsKernels[0]);
     }
 
-    const size_t NUM_KI_TERMS = in_layer.paramInds.size();
-    const size_t NUM_KIKJ_TERMS = in_layer.paramInds.size() * in_layer.paramInds.size();
+    const size_t NUM_KI_TERMS = io_layer.paramInds.size();
+    const size_t NUM_KIKJ_TERMS = io_layer.paramInds.size() * io_layer.paramInds.size();
     // Validate the expected count.
     assert(obsComp.size() == NUM_KI_TERMS + NUM_KIKJ_TERMS);
     return obsComp;
 }
 
 arma::dmat QuantumNaturalGradient::constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const
-{
+{   
     // TODO:
-    arma::dmat gMat(1, 1, arma::fill::zeros);
+    arma::dmat gMat(4, 4, arma::fill::zeros);
     return gMat;
 }
 
