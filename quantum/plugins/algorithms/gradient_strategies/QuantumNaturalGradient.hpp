@@ -32,6 +32,9 @@ struct ParametrizedCircuitLayer
     std::vector<size_t> paramInds;
     // Gates that succeed the layer
     std::vector<InstPtr> postOps;
+    // Tensor matrix terms:
+    std::vector<xacc::quantum::PauliOperator> kiTerms;
+    std::vector<xacc::quantum::PauliOperator> kikjTerms;
     // Partition the circuit into layers.
     static std::vector<ParametrizedCircuitLayer> toParametrizedLayers(const std::shared_ptr<xacc::CompositeInstruction>& in_circuit);
 };
@@ -50,7 +53,7 @@ public:
 
 private:
     // Constructs circuits to observe Fubini-Study metric tensor elements.
-    ObservedKernels constructMetricTensorSubCircuit(const ParametrizedCircuitLayer& in_layer, 
+    ObservedKernels constructMetricTensorSubCircuit(ParametrizedCircuitLayer& io_layer, 
                                                     const std::vector<std::string>& in_varNames, 
                                                     const std::vector<double>& in_varVals) const; 
     arma::dmat constructMetricTensorMatrix(const std::vector<std::shared_ptr<xacc::AcceleratorBuffer>>& in_results) const;
@@ -62,6 +65,8 @@ private:
     // Cache the circuit layer structure to reconstruct metric tensor.
     std::vector<ParametrizedCircuitLayer> m_layers;
     size_t m_nbMetricTensorKernels;
+    // Keeps track of the term and the index in the kernel sequence.
+    std::unordered_map<std::string, size_t> m_metricTermToIdx;
 };
 }
 }

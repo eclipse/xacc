@@ -122,7 +122,10 @@ TEST(QuantumNatualGradientTester, checkCircuitGen)
     EXPECT_TRUE(qng->initialize({std::make_pair("observable", observable)}));
     const std::vector<double> params(4, 0.0);
     auto kernels = qng->getGradientExecutions(program, params);
-    EXPECT_EQ(kernels.size(), 20);
+    // Ki = 4
+    // KiKj = 4*4 = 16
+    // out of 16 KiKj terms, 4 KiKi terms are identity terms, hence no circuits.
+    EXPECT_EQ(kernels.size(), 20 - 4);
 } 
 
 TEST(QuantumNatualGradientTester, checkVQE)
@@ -151,7 +154,7 @@ TEST(QuantumNatualGradientTester, checkVQE)
 
     auto qng = xacc::getService<AlgorithmGradientStrategy>("quantum-natural-gradient");
     EXPECT_TRUE(qng->initialize({std::make_pair("observable", observable)}));
-    const std::vector<double> params(4, 0.0);
+    const std::vector<double> params { 0.432, -0.123, 0.543, 0.233 };
     auto kernels = qng->getGradientExecutions(program, params);
 
     auto optimizer = xacc::getOptimizer("mlpack");
