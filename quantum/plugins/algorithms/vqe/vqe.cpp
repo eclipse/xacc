@@ -90,6 +90,8 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   }
 
   auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
+  // Cache of energy values during iterations.
+  std::vector<double> energies;
 
   // Here we just need to make a lambda kernel
   // to optimize that makes calls to the targeted QPU.
@@ -215,6 +217,8 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           ss << "," << x[i];
         ss << ") = " << std::setprecision(12) << energy;
         xacc::info(ss.str());
+        // Saves the energy value.
+        energies.emplace_back(energy);
         return energy;
       },
       kernel->nVariables());
@@ -223,6 +227,8 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
+  // Adds energies so that users can examine the convergence.
+  buffer->addExtraInfo("params-energy", ExtraInfo(energies));
   return;
 }
 

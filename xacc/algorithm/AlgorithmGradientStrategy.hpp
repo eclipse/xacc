@@ -15,9 +15,11 @@
 #define XACC_ALGORITHM_GRADIENT_STRATEGY_HPP_
 
 #include "Identifiable.hpp"
-
+#include "heterogeneous.hpp"
 namespace xacc {
-
+// Forward declare:
+class CompositeInstruction;
+class AcceleratorBuffer;
 class AlgorithmGradientStrategy : public Identifiable {
 
 protected:
@@ -32,7 +34,7 @@ public:
   // Pass expectation value of observable if it is numerical
   virtual void setFunctionValue(const double expValue) {
     XACCLogger::instance()->error(
-        "AlgorithmGradientStrategy::passEvaledCostFxn(double) not implemented "
+        "AlgorithmGradientStrategy::setFunctionValue(double) not implemented "
         "for " +
         name());
     exit(0);
