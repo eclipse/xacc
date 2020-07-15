@@ -225,6 +225,89 @@ Eigen::Matrix4cd interactionMatrixExp(double x, double y, double z)
   return unitary;
 }
 
+// Simplify the Z-Y-Z decomposition:
+// i.e. combining rotations and removing trivial rotation
+std::shared_ptr<xacc::CompositeInstruction> simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter, size_t bitIdx)
+{
+  auto zExpBefore = zAngleBefore / M_PI - 0.5;
+  auto  middleExp = yAngle / M_PI;
+  std::string  middlePauli = "Rx";
+  auto  zExpAfter = zAngleAfter / M_PI + 0.5;
+  
+  // Helper functions:
+  const auto isNearZeroMod = [](double a, double period) -> bool {
+    const auto halfPeriod = period / 2;
+    const double TOL = 1e-8;
+    return std::abs(fmod(a + halfPeriod, period) - halfPeriod) <  TOL;
+  };
+    
+  const auto toQuarterTurns = [](double in_exp) -> int {
+    return static_cast<int>(round(2 * in_exp)) % 4;
+  }; 
+
+  const auto isCliffordRotation = [&](double in_exp) -> bool {
+    return isNearZeroMod(in_exp, 0.5);
+  };
+
+  const auto isQuarterTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) % 2 == 1);
+  };
+
+  const auto isHalfTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 2);
+  };
+
+  const auto isNoTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 0);
+  };
+
+  // Clean up angles
+  if (isCliffordRotation(zExpBefore)) 
+  {
+    if ((isQuarterTurn(zExpBefore) || isQuarterTurn(zExpAfter)) != (isHalfTurn(middleExp) && isNoTurn(zExpBefore-zExpAfter)))
+    {
+      zExpBefore += 0.5;
+      zExpAfter -= 0.5;
+      middlePauli = "Ry";
+    }
+    if (isHalfTurn(zExpBefore) || isHalfTurn(zExpAfter))
+    {
+      zExpBefore -= 1;
+      zExpAfter += 1;
+      middleExp = -middleExp;
+    }    
+  }
+  if (isNoTurn(middleExp))
+  {
+    zExpBefore += zExpAfter;
+    zExpAfter = 0;
+  }  
+  else if (isHalfTurn(middleExp))
+  {
+    zExpAfter -= zExpBefore;
+    zExpBefore = 0;
+  }
+  
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");   
+  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
+  
+  if (!isNoTurn(zExpBefore))
+  {
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bitIdx }, { zExpBefore * M_PI }));
+  }
+  if (!isNoTurn(middleExp))
+  {
+    composite->addInstruction(gateRegistry->createInstruction(middlePauli, { bitIdx }, { middleExp * M_PI }));
+  }
+  if (!isNoTurn(zExpAfter))
+  {
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bitIdx }, { zExpAfter * M_PI }));
+  }
+
+  return composite;
+}
+
+
 std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matrix2cd& in_mat, size_t in_bitIdx) 
 {
   using GateMatrix = Eigen::Matrix2cd;
