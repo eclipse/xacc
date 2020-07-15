@@ -8,6 +8,7 @@
 TEST(GateMergingTester, checkSingleQubitSimple) 
 {
     auto c = xacc::getService<xacc::Compiler>("xasm");
+    // This is identity: H-X-H is equal to Z => Z-Z = I
     auto f = c->compile(R"(__qpu__ void test1(qbit q) {
         Z(q[0]);
         H(q[0]);
@@ -17,6 +18,8 @@ TEST(GateMergingTester, checkSingleQubitSimple)
 
     auto opt = xacc::getService<xacc::IRTransformation>("single-qubit-gate-merging");
     opt->apply(f, nullptr);
+    // No instruction after optimization
+    EXPECT_EQ(f->nInstructions(), 0);
 }
 
 TEST(GateMergingTester, checkSingleQubitStopAtTwoQubitGate) 
@@ -32,6 +35,12 @@ TEST(GateMergingTester, checkSingleQubitStopAtTwoQubitGate)
 
     auto opt = xacc::getService<xacc::IRTransformation>("single-qubit-gate-merging");
     opt->apply(f, nullptr);
+    // Becomes: Z (Rz(pi)) - CNOT - H
+    EXPECT_EQ(f->nInstructions(), 3);
+    EXPECT_EQ(f->getInstruction(0)->name(), "Rz");
+    EXPECT_NEAR(f->getInstruction(0)->getParameter(0).as<double>(), M_PI, 1e-6);
+    EXPECT_EQ(f->getInstruction(1)->name(), "CNOT");
+    EXPECT_EQ(f->getInstruction(2)->name(), "H");
 }
 
 int main(int argc, char **argv) {

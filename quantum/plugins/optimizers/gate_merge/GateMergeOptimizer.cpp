@@ -32,15 +32,35 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
             auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
             fuser->initialize(tmpKernel);
             const Eigen::Matrix2cd uMat = fuser->calcFusedGate(1);
-            std::cout << "Unitary matrix: \n" << uMat << "\n";
             auto zyz = std::dynamic_pointer_cast<quantum::Circuit>(xacc::getService<Instruction>("z-y-z"));
             const bool expandOk = zyz->expand({ 
                 std::make_pair("unitary", uMat)
             });
-            
-            assert(zyz->nInstructions() == 3);
-            std::cout << "Decomposed: \n" << zyz->toString() << "\n";
-            // TODO: further optimize this sequence: remove trivial rotation (0, 2*pi, etc.)
+
+            // Optimized decomposed sequence:
+            const auto nbInstructionsAfter = zyz->nInstructions();
+            // A simplified sequence was found.
+            if (nbInstructionsAfter < sequence.size())
+            {
+                // Rewrite:
+                const size_t bitIdx = program->getInstruction(sequence[0])->bits()[0];
+                // Disable to remove:
+                const auto programLengthBefore = program->nInstructions();
+                for (const auto& instIdx: sequence)
+                {
+                    auto instrPtr = program->getInstruction(instIdx);
+                    instrPtr->disable();
+                }
+                program->removeDisabled();
+                const auto locationToInsert = sequence[0];
+                for (auto& newInst: zyz->getInstructions())
+                {
+                    newInst->setBits({bitIdx});
+                    program->insertInstruction(locationToInsert, newInst->clone());
+                }
+                const auto programLengthAfter = program->nInstructions();
+                assert(programLengthAfter < programLengthBefore);
+            }
         }
     }
 }
