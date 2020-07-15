@@ -1,10 +1,13 @@
-#include "GateMergeOptimizer.hpp"
 #include <cassert>
+#include "GateMergeOptimizer.hpp"
+#include "GateFusion.hpp"
+#include "xacc_service.hpp"
 
 namespace xacc {
 namespace quantum {
 void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap &options)
 {
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     std::set<size_t> processInstIdx;
     for (size_t instIdx = 0; instIdx < program->nInstructions(); ++instIdx)
     {
@@ -16,12 +19,28 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                 assert(!xacc::container::contains(processInstIdx, instIdx));
                 processInstIdx.emplace(instIdx);
             }
+            auto tmpKernel = gateRegistry->createComposite("__TMP__");
+            for (const auto& instIdx: sequence)
+            {
+                auto instrPtr = program->getInstruction(instIdx)->clone();
+                assert(instrPtr->bits().size() == 1);
+                // Remap to bit 0 for fusing
+                instrPtr->setBits({ 0 });
+                tmpKernel->addInstruction(instrPtr);
+            }
+
+            auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
+            fuser->initialize(tmpKernel);
+            const Eigen::Matrix2cd uMat = fuser->calcFusedGate(1);
+            std::cout << "Unitary matrix: \n" << uMat << "\n";
+            auto zyz = std::dynamic_pointer_cast<quantum::Circuit>(xacc::getService<Instruction>("z-y-z"));
+            const bool expandOk = zyz->expand({ 
+                std::make_pair("unitary", uMat)
+            });
             
-            // std::cout << "Found sequence:\n";
-            // for (const auto& idx : sequence)
-            // {
-            //     std::cout << program->getInstruction(idx)->toString() << "\n";
-            // }
+            assert(zyz->nInstructions() == 3);
+            std::cout << "Decomposed: \n" << zyz->toString() << "\n";
+            // TODO: further optimize this sequence: remove trivial rotation (0, 2*pi, etc.)
         }
     }
 }

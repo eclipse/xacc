@@ -44,6 +44,7 @@ public:
     auto aswap = std::make_shared<xacc::circuits::ASWAP>();
     auto qfast = std::make_shared<xacc::circuits::QFAST>();
     auto kak = std::make_shared<xacc::circuits::KAK>();
+    auto zyz = std::make_shared<xacc::circuits::ZYZ>();
 
     context.RegisterService<xacc::Instruction>(hwe);
     context.RegisterService<xacc::Instruction>(expit);
@@ -56,6 +57,7 @@ public:
     context.RegisterService<xacc::Instruction>(aswap);
     context.RegisterService<xacc::Instruction>(qfast);
     context.RegisterService<xacc::Instruction>(kak);
+    context.RegisterService<xacc::Instruction>(zyz);
   }
 
   void Stop(BundleContext context) {}
