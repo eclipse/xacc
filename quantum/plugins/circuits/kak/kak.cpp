@@ -224,6 +224,167 @@ Eigen::Matrix4cd interactionMatrixExp(double x, double y, double z)
   Eigen::MatrixXcd unitary = herm.exp();
   return unitary;
 }
+
+std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matrix2cd& in_mat, size_t in_bitIdx) 
+{
+  using GateMatrix = Eigen::Matrix2cd;
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+
+  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
+  // An arbitrary one qubit gate matrix can be written as
+  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
+  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
+  // where a,b,c,d are real numbers.
+  const auto singleQubitGateDecompose = [](const Eigen::Matrix2cd& matrix) -> std::tuple<double, double, double, double> {
+    if (allClose(matrix, GateMatrix::Identity()))
+    {
+      return std::make_tuple(0.0, 0.0, 0.0, 0.0);
+    }
+    const auto checkParams = [&matrix](double a, double bHalf, double cHalf, double dHalf) {
+      GateMatrix U;
+      U << std::exp(I*(a-bHalf-dHalf))*std::cos(cHalf),
+          -std::exp(I*(a-bHalf+dHalf))*std::sin(cHalf),
+          std::exp(I*(a+bHalf-dHalf))*std::sin(cHalf),
+          std::exp(I*(a+bHalf+dHalf))*std::cos(cHalf);
+
+      return allClose(U, matrix);    
+    };
+    
+    double a, bHalf, cHalf, dHalf;
+    const double TOLERANCE = 1e-9;
+    if (std::abs(matrix(0, 1)) < TOLERANCE)
+    {
+      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      auto dHalf = 0.0;  
+      auto b = std::arg(matrix(1, 1))-std::arg(matrix(0, 0));
+      std::vector<double> possibleBhalf { fmod(b/2.0, 2 * M_PI), fmod(b/2.0 + M_PI, 2.0 * M_PI) };
+      std::vector<double> possibleChalf { 0.0, M_PI };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          bHalf = possibleBhalf[i];
+          cHalf = possibleChalf[j];
+          if (checkParams(a, bHalf, cHalf, dHalf))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }
+    else if (std::abs(matrix(0, 0)) < TOLERANCE)
+    {
+      auto two_a = fmod(std::arg(-matrix(0, 1)*matrix(1, 0)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      dHalf = 0;  
+      auto b = std::arg(matrix(1, 0))-std::arg(matrix(0, 1)) + M_PI;
+      std::vector<double> possibleBhalf { fmod(b/2., 2*M_PI), fmod(b/2.+M_PI, 2*M_PI) };
+      std::vector<double> possibleChalf { M_PI/2., 3./2.*M_PI };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          bHalf = possibleBhalf[i];
+          cHalf = possibleChalf[j];
+          if (checkParams(a, bHalf, cHalf, dHalf))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }     
+    else
+    {
+      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      auto two_d = 2.*std::arg(matrix(0, 1))-2.*std::arg(matrix(0, 0));
+      std::vector<double> possibleDhalf { fmod(two_d/4., 2*M_PI),
+                        fmod(two_d/4.+M_PI/2., 2*M_PI),
+                        fmod(two_d/4.+M_PI, 2*M_PI),
+                        fmod(two_d/4.+3./2.*M_PI, 2*M_PI) };
+      auto two_b = 2.*std::arg(matrix(1, 0))-2.*std::arg(matrix(0, 0));
+      std::vector<double> possibleBhalf { fmod(two_b/4., 2*M_PI),
+                        fmod(two_b/4.+M_PI/2., 2*M_PI),
+                        fmod(two_b/4.+M_PI, 2*M_PI),
+                        fmod(two_b/4.+3./2.*M_PI, 2*M_PI) };
+      auto tmp = std::acos(std::abs(matrix(1, 1)));
+      std::vector<double> possibleChalf { fmod(tmp, 2*M_PI),
+                        fmod(tmp+M_PI, 2*M_PI),
+                        fmod(-1.*tmp, 2*M_PI),
+                        fmod(-1.*tmp+M_PI, 2*M_PI) };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          for (int k = 0; k < possibleDhalf.size(); ++k)
+          {
+            bHalf = possibleBhalf[i];
+            cHalf = possibleChalf[j];
+            dHalf = possibleDhalf[k];
+            if (checkParams(a, bHalf, cHalf, dHalf))
+            {
+              found = true;
+              break;
+            }
+          }
+          if (found)
+          {
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }
+        
+    // Final check:
+    assert(checkParams(a, bHalf, cHalf, dHalf));    
+    return std::make_tuple(a, bHalf, cHalf, dHalf);
+  };
+  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
+  // An arbitrary one qubit gate matrix can be writen as
+  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
+  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
+  // where a,b,c,d are real numbers.
+  // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
+  auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
+  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
+  composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
+  composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
+  composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
+
+  // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
+  const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
+    GateMatrix Rz_b, Ry_c, Rz_d;
+    Rz_b << std::exp(-I*b/2.0), 0, 0, std::exp(I*b/2.0);
+    Rz_d << std::exp(-I*d/2.0), 0, 0, std::exp(I*d/2.0);
+    Ry_c << std::cos(c/2), -std::sin(c/2), std::sin(c/2), std::cos(c/2);
+    auto mat = std::exp(I*a)*Rz_b*Ry_c*Rz_d;
+    return allClose(in_mat, mat);
+  };
+
+  assert(validate(in_mat, a, 2*bHalf, 2*cHalf, 2*dHalf));
+  return composite; 
+}
 }
 
 using namespace xacc;
@@ -364,164 +525,6 @@ Eigen::MatrixXcd KAK::KakDecomposition::toMat() const
 std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_bit1, size_t in_bit2) const
 {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
-  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
-  // An arbitrary one qubit gate matrix can be written as
-  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
-  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
-  // where a,b,c,d are real numbers.
-  const auto singleQubitGateDecompose = [](const GateMatrix& matrix) -> std::tuple<double, double, double, double> {
-    if (allClose(matrix, GateMatrix::Identity()))
-    {
-      return std::make_tuple(0.0, 0.0, 0.0, 0.0);
-    }
-    const auto checkParams = [&matrix](double a, double bHalf, double cHalf, double dHalf) {
-      GateMatrix U;
-      U << std::exp(I*(a-bHalf-dHalf))*std::cos(cHalf),
-          -std::exp(I*(a-bHalf+dHalf))*std::sin(cHalf),
-          std::exp(I*(a+bHalf-dHalf))*std::sin(cHalf),
-          std::exp(I*(a+bHalf+dHalf))*std::cos(cHalf);
-
-      return allClose(U, matrix);    
-    };
-    
-    double a, bHalf, cHalf, dHalf;
-    const double TOLERANCE = 1e-9;
-    if (std::abs(matrix(0, 1)) < TOLERANCE)
-    {
-      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      auto dHalf = 0.0;  
-      auto b = std::arg(matrix(1, 1))-std::arg(matrix(0, 0));
-      std::vector<double> possibleBhalf { fmod(b/2.0, 2 * M_PI), fmod(b/2.0 + M_PI, 2.0 * M_PI) };
-      std::vector<double> possibleChalf { 0.0, M_PI };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
-        {
-          bHalf = possibleBhalf[i];
-          cHalf = possibleChalf[j];
-          if (checkParams(a, bHalf, cHalf, dHalf))
-          {
-            found = true;
-            break;
-          }
-        }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }
-    else if (std::abs(matrix(0, 0)) < TOLERANCE)
-    {
-      auto two_a = fmod(std::arg(-matrix(0, 1)*matrix(1, 0)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      dHalf = 0;  
-      auto b = std::arg(matrix(1, 0))-std::arg(matrix(0, 1)) + M_PI;
-      std::vector<double> possibleBhalf { fmod(b/2., 2*M_PI), fmod(b/2.+M_PI, 2*M_PI) };
-      std::vector<double> possibleChalf { M_PI/2., 3./2.*M_PI };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
-        {
-          bHalf = possibleBhalf[i];
-          cHalf = possibleChalf[j];
-          if (checkParams(a, bHalf, cHalf, dHalf))
-          {
-            found = true;
-            break;
-          }
-        }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }     
-    else
-    {
-      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      auto two_d = 2.*std::arg(matrix(0, 1))-2.*std::arg(matrix(0, 0));
-      std::vector<double> possibleDhalf { fmod(two_d/4., 2*M_PI),
-                        fmod(two_d/4.+M_PI/2., 2*M_PI),
-                        fmod(two_d/4.+M_PI, 2*M_PI),
-                        fmod(two_d/4.+3./2.*M_PI, 2*M_PI) };
-      auto two_b = 2.*std::arg(matrix(1, 0))-2.*std::arg(matrix(0, 0));
-      std::vector<double> possibleBhalf { fmod(two_b/4., 2*M_PI),
-                        fmod(two_b/4.+M_PI/2., 2*M_PI),
-                        fmod(two_b/4.+M_PI, 2*M_PI),
-                        fmod(two_b/4.+3./2.*M_PI, 2*M_PI) };
-      auto tmp = std::acos(std::abs(matrix(1, 1)));
-      std::vector<double> possibleChalf { fmod(tmp, 2*M_PI),
-                        fmod(tmp+M_PI, 2*M_PI),
-                        fmod(-1.*tmp, 2*M_PI),
-                        fmod(-1.*tmp+M_PI, 2*M_PI) };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
-        {
-          for (int k = 0; k < possibleDhalf.size(); ++k)
-          {
-            bHalf = possibleBhalf[i];
-            cHalf = possibleChalf[j];
-            dHalf = possibleDhalf[k];
-            if (checkParams(a, bHalf, cHalf, dHalf))
-            {
-              found = true;
-              break;
-            }
-          }
-          if (found)
-          {
-            break;
-          }
-        }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }
-        
-    // Final check:
-    assert(checkParams(a, bHalf, cHalf, dHalf));    
-    return std::make_tuple(a, bHalf, cHalf, dHalf);
-  };
-  
-  const auto singleQubitGateGen = [&](const GateMatrix& in_mat, size_t in_bitIdx) {
-    // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
-    // An arbitrary one qubit gate matrix can be writen as
-    // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
-    //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
-    // where a,b,c,d are real numbers.
-    // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
-    auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
-    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
-
-    // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
-    const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
-      GateMatrix Rz_b, Ry_c, Rz_d;
-      Rz_b << std::exp(-I*b/2.0), 0, 0, std::exp(I*b/2.0);
-      Rz_d << std::exp(-I*d/2.0), 0, 0, std::exp(I*d/2.0);
-      Ry_c << std::cos(c/2), -std::sin(c/2), std::sin(c/2), std::cos(c/2);
-      auto mat = std::exp(I*a)*Rz_b*Ry_c*Rz_d;
-      return allClose(in_mat, mat);
-    };
-
-    assert(validate(in_mat, a, 2*bHalf, 2*cHalf, 2*dHalf));
-    return composite; 
-  };
-
   const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
     const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
     const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
@@ -975,6 +978,24 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
 
   assert(allClose(result.toMat(), interactionMatrixExp(x, y, z)));
   return result;
+}
+bool ZYZ::expand(const xacc::HeterogeneousMap& runtimeOptions) 
+{
+  Eigen::Matrix2cd unitary;
+  if (runtimeOptions.keyExists<Eigen::Matrix2cd>("unitary"))
+  {
+    unitary = runtimeOptions.get<Eigen::Matrix2cd>("unitary");
+  }
+  else
+  {
+    xacc::error("unitary matrix is required.");
+    return false;
+  }
+
+  assert(isUnitary(unitary));
+  auto decomposed = singleQubitGateGen(unitary, 0);
+  addInstructions(decomposed->getInstructions());
+  return true;
 }
 } // namespace circuits
 } // namespace xacc
