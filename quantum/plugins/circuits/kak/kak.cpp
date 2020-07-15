@@ -450,11 +450,6 @@ std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matr
   // where a,b,c,d are real numbers.
   // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
   auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
-  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
-  composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
-  composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
-  composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
-
   // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
   const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
     GateMatrix Rz_b, Ry_c, Rz_d;
@@ -464,8 +459,74 @@ std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matr
     auto mat = std::exp(I*a)*Rz_b*Ry_c*Rz_d;
     return allClose(in_mat, mat);
   };
-
+  // Validate the *raw* decomposition
   assert(validate(in_mat, a, 2*bHalf, 2*cHalf, 2*dHalf));
+  
+  // Simplify/optimize the sequence:
+  auto composite = simplifySingleQubitSeq(2 * dHalf, 2 * cHalf, 2 * bHalf, in_bitIdx);
+
+  // Validate the *simplified* sequence
+  const auto validateSimplifiedSequence = [](const std::shared_ptr<xacc::CompositeInstruction>& in_composite, const GateMatrix& in_mat) {
+    const auto Rx = [](double angle) {
+      GateMatrix result;
+      result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+      return result;
+    };
+    const auto Ry = [](double angle) {
+      GateMatrix result;
+      result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+      return result;
+    };
+    const auto Rz = [](double angle) {
+      GateMatrix result;
+      result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+      return result;
+    };
+
+    GateMatrix totalU = GateMatrix::Identity();
+    for (size_t i = 0; i < in_composite->nInstructions(); ++i)
+    {
+      auto inst = in_composite->getInstruction(i);
+      assert(inst->name() == "Rx" || inst->name() == "Ry" || inst->name() == "Rz");
+      const auto angle = inst->getParameter(0).as<double>();
+      if (inst->name() == "Rx")
+      {
+        totalU =  Rx(angle) * totalU;
+      }
+      if (inst->name() == "Ry")
+      {
+        totalU = Ry(angle) * totalU;
+      }
+      if (inst->name() == "Rz")
+      {
+        totalU = Rz(angle) * totalU;
+      }
+    }
+
+    // Normalize the upto global phase:
+    // Find index of the largest element:
+    size_t colIdx = 0;
+    size_t rowIdx = 0;
+    double maxVal = std::abs(totalU(0,0));
+    for (size_t i = 0; i < totalU.rows(); ++i)
+    {
+      for (size_t j = 0; j < totalU.cols(); ++j)
+      {
+        if (std::abs(totalU(i,j)) > maxVal)
+        {
+          maxVal = std::abs(totalU(i,j));
+          colIdx = j;
+          rowIdx = i;
+        }
+      }
+    }
+
+    const std::complex<double> globalFactor = in_mat(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+    totalU = globalFactor * totalU;
+    return allClose(in_mat, totalU);
+  };
+
+  assert(validateSimplifiedSequence(composite, in_mat));
   return composite; 
 }
 }
