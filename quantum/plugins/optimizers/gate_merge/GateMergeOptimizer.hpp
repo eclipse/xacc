@@ -15,7 +15,7 @@ public:
     const std::string name() const override { return "single-qubit-gate-merging"; }
     const std::string description() const override { return ""; }
 private: 
-    std::vector<size_t> findSingleQubitGateSequence(const std::shared_ptr<CompositeInstruction> in_program, size_t in_startIdx, size_t in_lengthLimit, const std::set<size_t>& in_processedInstIdx) const;
+    std::vector<size_t> findSingleQubitGateSequence(const std::shared_ptr<CompositeInstruction> in_program, size_t in_startIdx, size_t in_lengthLimit) const;
 };
 
 // Try to merge a block containing single and two-qubit gates
