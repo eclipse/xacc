@@ -8,17 +8,11 @@ namespace quantum {
 void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap &options)
 {
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-    std::set<size_t> processInstIdx;
     for (size_t instIdx = 0; instIdx < program->nInstructions(); ++instIdx)
     {
-        const auto sequence = findSingleQubitGateSequence(program, instIdx, 2, processInstIdx);
+        const auto sequence = findSingleQubitGateSequence(program, instIdx, 2);
         if (!sequence.empty()) 
         {
-            for (const auto& instIdx: sequence)
-            {
-                assert(!xacc::container::contains(processInstIdx, instIdx));
-                processInstIdx.emplace(instIdx);
-            }
             auto tmpKernel = gateRegistry->createComposite("__TMP__");
             for (const auto& instIdx: sequence)
             {
@@ -65,76 +59,50 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
     }
 }
 
-std::vector<size_t> MergeSingleQubitGatesOptimizer::findSingleQubitGateSequence(const std::shared_ptr<CompositeInstruction> in_program, size_t in_startIdx, size_t in_lengthLimit, const std::set<size_t>& in_processedInstIdx) const
+std::vector<size_t> MergeSingleQubitGatesOptimizer::findSingleQubitGateSequence(const std::shared_ptr<CompositeInstruction> in_program, size_t in_startIdx, size_t in_lengthLimit) const
 {
     const auto nbInstructions = in_program->nInstructions();
     std::unordered_map<size_t, std::vector<size_t>> qubitToSequence;
-    
-    for (size_t instIdx = in_startIdx; instIdx < nbInstructions; ++instIdx)
+    assert(in_startIdx < nbInstructions);
+    auto firstInst = in_program->getInstruction(in_startIdx);
+    // Not a single-qubit gate.
+    if (firstInst->bits().size() > 1 || firstInst->name() == "Measure")
+    {
+        return {};
+    }
+
+    const size_t bitIdx = firstInst->bits()[0];
+    std::vector<size_t> gateSequence;
+    gateSequence.emplace_back(in_startIdx);
+
+    const auto returnSeq = [&](const std::vector<size_t>& in_seq) -> std::vector<size_t> {
+        return (in_seq.size() >= in_lengthLimit) ? in_seq : std::vector<size_t>{};
+    };
+
+    for (size_t instIdx = in_startIdx + 1; instIdx < nbInstructions; ++instIdx)
     {
         auto instPtr = in_program->getInstruction(instIdx);
-        if (instPtr->bits().size() > 1)
+        // Matching bitIdx
+        if (instPtr->bits().size() == 1 && instPtr->bits()[0] == bitIdx)
         {
-            // Two-qubit gate: clear the sequence of all qubit operands.
-            // Returns if any sequence meets the length.
-            auto& seq1 = qubitToSequence[instPtr->bits()[0]];
-            auto& seq2 = qubitToSequence[instPtr->bits()[1]];
-            // Returns if a sequence has been accumulated.
-            if (seq1.size() >= in_lengthLimit || seq2.size() >= in_lengthLimit)
+            if (instPtr->name() != "Measure")
             {
-                if (seq1.size() >= in_lengthLimit && seq2.size() >= in_lengthLimit)
-                {
-                    assert(seq1[0] != seq2[0]);
-                    return (seq1[0] < seq2[0]) ?  seq1 : seq2;
-                }
-                
-                return (seq1.size() >= in_lengthLimit) ? seq1 :  seq2;
+                gateSequence.emplace_back(instIdx);
             }
-
-            seq1.clear();
-            seq2.clear();
-        }
-        else
-        {
-            if (instPtr->name() == "Measure")
+            else 
             {
-                if (qubitToSequence[instPtr->bits()[0]].size() >= in_lengthLimit)
-                {
-                    return qubitToSequence[instPtr->bits()[0]];
-                }
-                qubitToSequence[instPtr->bits()[0]].clear();
-            }
-            else
-            {
-                // If this single-qubit gate has not been covered before.
-                if (!xacc::container::contains(in_processedInstIdx, instIdx))
-                {
-                    // Single-qubit gate: accumulate the sequence.
-                    auto& currentSeq = qubitToSequence[instPtr->bits()[0]];
-                    currentSeq.emplace_back(instIdx);
-                }
+                return returnSeq(gateSequence);
             }
         }
-    }
-    
-    // Handle multiple un-terminated long sequence.
-    size_t minInstIdx = in_program->nInstructions();
-    for (const auto& [qIdx, seq]: qubitToSequence)
-    {
-        if (seq.size() >= in_lengthLimit)
+        // If this is a two-qubit gate that involves this qubit wire,
+        // terminate the scan and return.
+        else if (instPtr->bits().size() == 2 && xacc::container::contains(instPtr->bits(), bitIdx))
         {
-            minInstIdx = (seq[0] < minInstIdx) ? seq[0] : minInstIdx;
+            return returnSeq(gateSequence);
         }
-    }
-
-    for (const auto& [qIdx, seq]: qubitToSequence)
-    {
-        if (seq.size() >= in_lengthLimit && seq[0] == minInstIdx)
-        {
-            return seq;
-        }
-    }
-    return {};
+    }  
+    // Reach the end of the circuit:  
+    return returnSeq(gateSequence);    
 }
 }
 }
