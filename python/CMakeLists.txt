@@ -23,7 +23,13 @@ if(APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif(APPLE)
 
-add_library(_pyxacc SHARED xacc-py.cpp py_heterogeneous_map.cpp py_ir.cpp py_accelerator.cpp py_compiler.cpp py_algorithm.cpp py_optimizer.cpp py_observable.cpp)
+add_library(_pyxacc SHARED xacc-py.cpp 
+                            py_heterogeneous_map.cpp 
+                            py_ir.cpp py_accelerator.cpp 
+                            py_compiler.cpp py_algorithm.cpp 
+                            py_optimizer.cpp py_observable.cpp 
+                            ${CMAKE_SOURCE_DIR}/quantum/python/xacc-quantum-py.cpp)
+target_include_directories(_pyxacc PUBLIC ${CMAKE_SOURCE_DIR}/quantum/python ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion)
 

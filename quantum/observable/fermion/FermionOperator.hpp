@@ -83,24 +83,14 @@ public:
   }
 
   static const std::string id(const Operators &ops) {
-    std::vector<int> creations, annhilations;
-    for (auto &t : ops) {
-      if (t.second) {
-        creations.push_back(t.first);
-      } else {
-        annhilations.push_back(t.first);
-      }
-    }
-
-    // std::sort(creations.rbegin(), creations.rend());
-    // std::sort(annhilations.rbegin(), annhilations.rend());
 
     std::stringstream s;
-    for (auto &t : creations) {
-      s << t << "^" << std::string(" ");
-    }
-    for (auto &t : annhilations) {
-      s << t << std::string(" ");
+    for (auto &t : ops) {
+      if (t.second) {
+        s << t.first << "^" << std::string(" ");
+      } else {
+        s << t.first << std::string(" ");
+      }
     }
 
     if (s.str().empty()) {
@@ -111,25 +101,14 @@ public:
   }
 
   const std::string id() {
-    std::vector<int> creations, annhilations;
-    for (auto &t : ops()) {
-      if (t.second) {
-        creations.push_back(t.first);
-      } else {
-        annhilations.push_back(t.first);
-      }
-    }
-
-    // std::sort(creations.rbegin(), creations.rend());
-    // std::sort(annhilations.rbegin(), annhilations.rend());
 
     std::stringstream s;
-    for (auto &t : creations) {
-      s << t << "^" << std::string(" ");
-    }
-
-    for (auto &t : annhilations) {
-      s << t << std::string(" ");
+    for (auto &t : ops()) {
+      if (t.second) {
+        s << t.first << "^" << std::string(" ");
+      } else {
+        s << t.first << std::string(" ");
+      }
     }
 
     if (s.str().empty()) {
@@ -200,12 +179,14 @@ public:
   const std::string description() const override {
       return "";
   }
-void fromOptions(const HeterogeneousMap& options) override {
+  void fromOptions(const HeterogeneousMap& options) override {
       return;
   }
 
   std::shared_ptr<Observable>
   commutator(std::shared_ptr<Observable> obs) override;
+
+  FermionOperator hermitianConjugate() const;
 
 };
 

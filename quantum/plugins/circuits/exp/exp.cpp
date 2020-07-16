@@ -49,11 +49,6 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     paramLetter = parameters.getString("param_id");
   }
 
-  bool no_i = false;
-  if (parameters.keyExists<bool>("no-i")) {
-    no_i = parameters.keyExists<bool>("no-i");
-  }
-
   std::unordered_map<std::string, xacc::quantum::Term> terms;
   if (pauli_or_fermion == "fermion") {
     auto fermionStr = parameters.getString("fermion");
@@ -143,15 +138,19 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
 
     xasm_src = xasm_src + "\n" + basis_front.str() + cnot_front.str();
 
-    if (no_i) {
-      xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
-                 "], " + std::to_string(std::imag(spinInst.coeff())) + " * " +
-                 paramLetter + ");\n";
+    // Since the coefficient here is either purely imaginary
+    // or purely real, I did away with the no-i boolean and
+    // added this if here. 
+    double coeff;
+    if (std::real(spinInst.coeff()) != 0.0) {
+      coeff = std::real(spinInst.coeff());
     } else {
-      xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
-                 "], " + std::to_string(std::real(spinInst.coeff())) + " * " +
-                 paramLetter + ");\n";
+      coeff = std::imag(spinInst.coeff());
     }
+
+    xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
+                "], " + std::to_string(coeff) + " * " +
+                paramLetter + ");\n";
 
     xasm_src = xasm_src + cnot_back.str() + basis_back.str();
   }

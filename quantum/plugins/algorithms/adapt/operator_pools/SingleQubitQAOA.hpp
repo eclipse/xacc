@@ -98,8 +98,7 @@ public:
     // Create instruction for new operator
     mixerInstructions->expand(
         {std::make_pair("pauli", pool[opIdx]->toString()),
-        std::make_pair("param_id", "x" + std::to_string(varIdx))
-        });
+        std::make_pair("param_id", "x" + std::to_string(varIdx))});
 
     return mixerInstructions;
 
