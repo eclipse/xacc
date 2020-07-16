@@ -43,6 +43,31 @@ TEST(GateMergingTester, checkSingleQubitStopAtTwoQubitGate)
     EXPECT_EQ(f->getInstruction(2)->name(), "H");
 }
 
+TEST(GateMergingTester, checkMixing) 
+{
+    auto c = xacc::getService<xacc::Compiler>("xasm");
+    auto f = c->compile(R"(__qpu__ void test2(qbit q) {
+        H(q[1]);
+        CNOT(q[1], q[0]);
+        H(q[0]);
+        H(q[1]);
+        X(q[0]);
+        // Not involved
+        CNOT(q[2], q[3]);
+        X(q[1]);
+        H(q[0]);
+        H(q[1]);
+        CNOT(q[0], q[2]);
+        Z(q[1]);
+    })")->getComposites()[0];
+
+    auto opt = xacc::getService<xacc::IRTransformation>("single-qubit-gate-merging");
+    opt->apply(f, nullptr);
+    std::cout << "HOWDY:\n" << f->toString() << "\n";
+    EXPECT_EQ(f->nInstructions(), 5);
+}
+
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
