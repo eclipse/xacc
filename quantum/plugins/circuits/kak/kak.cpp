@@ -670,96 +670,135 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
 {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
   const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
-    const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
-    const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
-    const double zAngle = M_PI * (z * -2 / M_PI + 0.5);
-    auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
-    
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { zAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
-
-    const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
-      const auto H = []() {
-        GateMatrix result;
-        result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
-        return result;
-      };
-      const auto Rx = [](double angle) {
-        GateMatrix result;
-        result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
-        return result;
-      };
-      const auto Ry = [](double angle) {
-        GateMatrix result;
-        result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
-        return result;
-      };
-      const auto Rz = [](double angle) {
-        GateMatrix result;
-        result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
-        return result;
-      };
-      const auto CZ = []() {
-        Eigen::Matrix4cd cz;
-        cz << 1, 0, 0, 0, 
-              0, 1, 0, 0,
-              0, 0, 1, 0,
-              0, 0, 0, -1;
-        return cz;
-      };
+    const double TOL = 1e-8;
+    // Full decomposition is required
+    if (std::abs(z) >= TOL)
+    {
+      const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
+      const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
+      const double zAngle = M_PI * (z * -2 / M_PI + 0.5);
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
       
-      Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
-      Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
-      totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, H());
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(IdMat, H());
-      totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
-      totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);      
-      // Find index of the largest element:
-      size_t colIdx = 0;
-      size_t rowIdx = 0;
-      double maxVal = std::abs(totalU(0,0));
-      for (size_t i = 0; i < totalU.rows(); ++i)
-      {
-        for (size_t j = 0; j < totalU.cols(); ++j)
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { zAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, H());
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(IdMat, H());
+        totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
+        totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
         {
-          if (std::abs(totalU(i,j)) > maxVal)
+          for (size_t j = 0; j < totalU.cols(); ++j)
           {
-            maxVal = std::abs(totalU(i,j));
-            colIdx = j;
-            rowIdx = i;
+            if (std::abs(totalU(i,j)) > maxVal)
+            {
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
+            }
           }
         }
-      }
 
-      const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
-      totalU = globalFactor * totalU;
-      return allClose(totalU, in_target);
-    };
-    
-    assert(validateGateSequence(interactionMatrixExp(x, y, z)));
-    return composite;
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
+      return composite;
+    }
+    // ZZ interaction is near zero: only XX and YY
+    else if (y >= TOL)
+    {
+      const double xAngle = -2 * x;
+      const double yAngle = -2 * y;
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));  
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+
+      // TODO: add validation
+      return composite;
+    }
+    // only XX is significant
+    else 
+    {
+      const double xAngle = -2 * x;
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      
+      // TODO: add validation
+      return composite; 
+    }
   };
 
   auto a0Comp = singleQubitGateGen(a0, in_bit2);
