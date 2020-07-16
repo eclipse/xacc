@@ -3,7 +3,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "IRTransformation.hpp"
-
+#include "GateFusion.hpp"
 
 TEST(GateMergingTester, checkSingleQubitSimple) 
 {
@@ -67,6 +67,88 @@ TEST(GateMergingTester, checkMixing)
     EXPECT_EQ(f->nInstructions(), 5);
 }
 
+TEST(GateMergingTester, checkTwoQubitSimple) 
+{
+    auto c = xacc::getService<xacc::Compiler>("xasm");
+    auto f = c->compile(R"(__qpu__ void test3(qbit q) {
+        H(q[0]);
+        Z(q[2]);
+        CNOT(q[2], q[1]);
+        H(q[2]);
+        T(q[1]);
+        X(q[0]);
+        CNOT(q[1], q[2]);
+        H(q[2]);
+        Y(q[1]);
+        CNOT(q[3], q[4]);
+        X(q[2]);
+        X(q[1]);
+        CNOT(q[2], q[1]);
+        H(q[2]);
+        T(q[1]);
+        X(q[0]);
+        CNOT(q[1], q[2]);
+        H(q[2]);
+        Y(q[1]);
+        CNOT(q[3], q[4]);
+        X(q[2]);
+        X(q[1]);
+        CNOT(q[1], q[0]);
+        H(q[0]);
+        H(q[1]);
+    })")->getComposites()[0];
+
+    auto opt = xacc::getService<xacc::IRTransformation>("two-qubit-block-merging");
+    const auto nbInstBefore = f->nInstructions();
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    auto circuitCopy = gateRegistry->createComposite("__COPY__");
+    for (size_t i = 0; i < f->nInstructions(); ++i)
+    {
+        circuitCopy->addInstruction(f->getInstruction(i)->clone());
+    }
+    opt->apply(f, nullptr);
+    const auto nbInstAfter = f->nInstructions();
+    std::cout << "Before: " << nbInstBefore << "; After: " <<  nbInstAfter << "\n";
+    std::cout << "HOWDY:\n" << f->toString() << "\n";
+    EXPECT_TRUE(nbInstAfter < nbInstBefore);
+    EXPECT_TRUE(circuitCopy->nInstructions() == nbInstBefore);
+    std::cout << "HOWDY:\n" << circuitCopy->toString() << "\n";
+
+    // Validate using gate fusion:
+    auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
+    fuser->initialize(circuitCopy);
+    const Eigen::MatrixXcd uMatOriginal = fuser->calcFusedGate(5);
+    fuser->initialize(f);
+    const Eigen::MatrixXcd uMatAfter = fuser->calcFusedGate(5);
+    // Compensate any global phase differences.
+    // Find index of the largest element:
+    size_t colIdx = 0;
+    size_t rowIdx = 0;
+    double maxVal = std::abs(uMatAfter(0,0));
+    for (size_t i = 0; i < uMatAfter.rows(); ++i)
+    {
+        for (size_t j = 0; j < uMatAfter.cols(); ++j)
+        {
+            if (std::abs(uMatAfter(i,j)) > maxVal)
+            {
+                maxVal = std::abs(uMatAfter(i,j));
+                colIdx = j;
+                rowIdx = i;
+            }
+        }
+    }
+
+    const std::complex<double> globalFactor = uMatOriginal(rowIdx, colIdx) / uMatAfter(rowIdx, colIdx);
+    auto uMatAfterFixedPhase = globalFactor * uMatAfter;
+    for (size_t i = 0; i < uMatAfter.rows(); ++i)
+    {
+        for (size_t j = 0; j < uMatAfter.cols(); ++j)
+        {
+            EXPECT_NEAR(uMatAfterFixedPhase(i, j).real(), uMatOriginal(i, j).real(), 1e-9);
+            EXPECT_NEAR(uMatAfterFixedPhase(i, j).imag(), uMatOriginal(i, j).imag(), 1e-9);
+        }
+    }
+}
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
