@@ -1,7 +1,8 @@
 import unittest as test
 import sys
 import xacc
-from xaccvqe import PauliOperator
+
+PauliOperator = xacc.quantum.PauliOperator
 
 class TestDecoratorAPI(test.TestCase):
 
