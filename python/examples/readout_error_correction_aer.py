@@ -1,5 +1,4 @@
 import xacc, numpy as np
-from xacc import PauliOperator
 
 nAngles = 10
 

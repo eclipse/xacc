@@ -95,13 +95,16 @@ void bind_observable(py::module &m) {
             t = xacc::getService<Observable>(type, false);
           } else if (xacc::hasContributedService<Observable>(type)) {
             t = xacc::getContributedService<Observable>(type, false);
+          } else if (type == "fermion") {
+            t = std::make_shared<FermionOperator>();
+          } else if (type == "pauli"){
+            t = std::make_shared<PauliOperator>();
           }
 
           if (!t) {
               xacc::error("Invalid Observable type name " + type + ", can't find in service registry.");
           }
-          HeterogeneousMap m;
-          t->fromOptions(m);
+
           return t;
         });
 }

@@ -44,20 +44,20 @@ public:
   CustomPool() = default;
 
   // pass a single FermionOperator, likely a sum of operators
-  void setOperators(const FermionOperator op) {
+  void setOperators(const FermionOperator op) override {
     pool = {std::dynamic_pointer_cast<Observable>(std::make_shared<FermionOperator>(op))};
     return;
   }
 
   // pass a single PauliOperator, likely a sum of operators
-  void setOperators(const PauliOperator op) {
+  void setOperators(const PauliOperator op) override {
     pool = {std::dynamic_pointer_cast<Observable>(std::make_shared<PauliOperator>(op))};
     return;
   }
 
   // pass a sum of Pauli/FermionOperators as shared_ptr<Observable>
   // from getObservable
-  void setOperators(const std::shared_ptr<Observable> op) {
+  void setOperators(const std::shared_ptr<Observable> op) override {
 
     std::shared_ptr<Observable> obs;
     if (op->toString().find("^") != std::string::npos) {
@@ -90,14 +90,14 @@ public:
   }
 
   // pass a vector of FermionOperator, likely a sum of operators
-  void setOperators(const std::vector<FermionOperator> ops) {
+  void setOperators(const std::vector<FermionOperator> ops) override {
     for (auto op : ops) {
       pool.push_back(std::dynamic_pointer_cast<Observable>((std::make_shared<FermionOperator>(op))));
     } 
   }
 
   // pass a vector of PauliOperator, likely a sum of operators
-  void setOperators(const std::vector<PauliOperator> ops) {
+  void setOperators(const std::vector<PauliOperator> ops) override {
     for (auto op : ops) {
       pool.push_back(std::dynamic_pointer_cast<Observable>((std::make_shared<PauliOperator>(op))));
     } 
