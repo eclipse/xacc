@@ -126,6 +126,7 @@ if(Python_FOUND)
  if(${Python_VERSION} VERSION_GREATER_EQUAL 3.0.0)
    message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}. Building XACC Python API with ${Python_INCLUDE_DIRS}${ColorReset}")
    add_subdirectory(python)
+   add_subdirectory(${CMAKE_SOURCE_DIR}/quantum/python)
    # Double check we have module ipopo installed, contributes pelix
    execute_process(COMMAND ${Python_EXECUTABLE} -c "import pelix" RESULT_VARIABLE PELIX_EXISTS)
    if (PELIX_EXISTS EQUAL "1")
