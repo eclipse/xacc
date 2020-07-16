@@ -29,10 +29,14 @@ class MergeTwoQubitBlockOptimizer : public IRTransformation
 public:
     virtual void apply(std::shared_ptr<CompositeInstruction> program,
                      const std::shared_ptr<Accelerator> accelerator,
-                     const HeterogeneousMap &options = {}) override { /* TODO */ };
+                     const HeterogeneousMap &options = {}) override;
     virtual const IRTransformationType type() const override { return IRTransformationType::Optimization; }
     const std::string name() const override { return "two-qubit-block-merging"; }
     const std::string description() const override { return ""; }
+
+private:
+    // Finds the sequence of gates (from the start index) which forms a two-qubit block (with no connections to outside the block)
+    std::vector<size_t> findGateSequence(const std::shared_ptr<CompositeInstruction> in_program, size_t in_startIdx, size_t in_lengthLimit, std::pair<size_t, size_t>& out_qubitPair) const;    
 };
 }
 }
