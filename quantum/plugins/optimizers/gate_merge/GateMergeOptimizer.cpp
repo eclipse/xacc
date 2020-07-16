@@ -46,12 +46,24 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                     instrPtr->disable();
                 }
                 program->removeDisabled();
-                const auto locationToInsert = sequence[0];
-                for (auto& newInst: zyz->getInstructions())
+                if (program->nInstructions() == sequence[0])
                 {
-                    newInst->setBits({bitIdx});
-                    program->insertInstruction(locationToInsert, newInst->clone());
+                    for (auto& newInst: zyz->getInstructions())
+                    {
+                        newInst->setBits({bitIdx});
+                        program->addInstruction(newInst->clone());
+                    }
                 }
+                else
+                {
+                    const auto locationToInsert = sequence[0];
+                    for (auto& newInst: zyz->getInstructions())
+                    {
+                        newInst->setBits({bitIdx});
+                        program->insertInstruction(locationToInsert, newInst->clone());
+                    }
+                }
+                
                 const auto programLengthAfter = program->nInstructions();
                 assert(programLengthAfter < programLengthBefore);
             }
@@ -196,13 +208,25 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                     instrPtr->disable();
                 }
                 program->removeDisabled();
-
-                const auto locationToInsert = sequence[0];
-                for (auto& newInst: kak->getInstructions())
+                if (program->nInstructions() == sequence[0])
                 {
-                    newInst->setBits(remapBits(newInst->bits()));
-                    program->insertInstruction(locationToInsert, newInst->clone());
+                    for (auto& newInst: kak->getInstructions())
+                    {
+                        newInst->setBits(remapBits(newInst->bits()));
+                        program->addInstruction(newInst->clone());
+                    }
                 }
+                else
+                {
+                    const auto locationToInsert = sequence[0];
+                    for (auto& newInst: kak->getInstructions())
+                    {
+                        newInst->setBits(remapBits(newInst->bits()));
+                        program->insertInstruction(locationToInsert, newInst->clone());
+                    }
+                }
+                // Jump forward since we don't want to re-analyze this block.
+                instIdx += nbInstructionsAfter;
                 const auto programLengthAfter = program->nInstructions();
                 assert(programLengthAfter < programLengthBefore);
             }
