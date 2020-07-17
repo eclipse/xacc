@@ -33,11 +33,25 @@ void test_set_ptr(xacc::HeterogeneousMap &map) {
   map.insert("hello-world", simple_kernel);
 }
 
+TEST(HeterogeneousMapTester, checkBetterConstruction) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto f = provider->createComposite("f", {});
+  xacc::HeterogeneousMap m{
+      {"key1", 2.2}, {"key2", "hello"}, {"custom_composite", f}};
+  std::cout << m.get<double>("key1") << "\n";
+  std::cout << m.getString("key2") << "\n";
+  EXPECT_EQ(2.2, m.get<double>("key1"));
+  EXPECT_EQ("hello", m.getString("key2"));
+  EXPECT_EQ("f", m.get<std::shared_ptr<xacc::CompositeInstruction>>("custom_composite")->name());
+}
+
 TEST(HeterogeneousMapTester, checkSetValueFromFunctionRef) {
-    xacc::HeterogeneousMap m;
-    m.insert("hello-world", nullptr);
-    test_set_ptr(m);
-    std::cout << m.get<std::shared_ptr<xacc::CompositeInstruction>>("hello-world")->toString() << "\n";
+  xacc::HeterogeneousMap m;
+  m.insert("hello-world", nullptr);
+  test_set_ptr(m);
+  std::cout << m.get<std::shared_ptr<xacc::CompositeInstruction>>("hello-world")
+                   ->toString()
+            << "\n";
 }
 
 TEST(HeterogeneousMapTester, checkSimple) {

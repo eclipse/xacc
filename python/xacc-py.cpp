@@ -23,6 +23,7 @@
 #include "py_algorithm.hpp"
 #include "py_optimizer.hpp"
 #include "py_observable.hpp"
+#include "xacc-quantum-py.hpp"
 
 namespace py = pybind11;
 using namespace xacc;
@@ -40,6 +41,7 @@ PYBIND11_MODULE(_pyxacc, m) {
   bind_algorithm(m);
   bind_optimizer(m);
   bind_observable(m);
+  bind_quantum(m);
 
   // Expose XACC API functions
   m.def("Initialize", (void (*)(std::vector<std::string>)) & xacc::Initialize,
