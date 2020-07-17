@@ -217,7 +217,7 @@ void XACCLogger::createFileLogger() {
 
     const std::string DEFAULT_FILE_NAME_PREFIX = "xacc_log_";
     const std::string DEFAULT_FILE_NAME_POSTFIX = ".txt";
-    const std::string fileName = DEFAULT_FILE_NAME_PREFIX + getCurrentTimeForFileName() + DEFAULT_FILE_NAME_POSTFIX;
+    const std::string fileName = logFileNamePrefix + "_" + DEFAULT_FILE_NAME_PREFIX + getCurrentTimeForFileName() + DEFAULT_FILE_NAME_POSTFIX;
     // Create a file logger using the timestamped filename in the logs folder.
     fileLogger = spdlog::basic_logger_mt(loggerName, logDir + "/" + fileName);
   }
@@ -225,7 +225,7 @@ void XACCLogger::createFileLogger() {
   fileLogger->set_level(spdlog::level::info);
 }
 
-void XACCLogger::logToFile(bool enable) {
+void XACCLogger::logToFile(bool enable, const std::string& fileNamePrefix) {
   // Switching the current setting
   if (enable != useFile) {
     // Always dump any enqueued messages before switching.
@@ -234,6 +234,7 @@ void XACCLogger::logToFile(bool enable) {
     // log message to the appropriate logger.
     useFile = enable;
   }
+  logFileNamePrefix = fileNamePrefix;
 }
 
 void XACCLogger::setLoggingLevel(int level) {
