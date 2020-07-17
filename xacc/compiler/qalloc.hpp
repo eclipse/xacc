@@ -24,7 +24,8 @@ using qubit = std::pair<std::string, std::size_t>;
 class qreg {
 protected:
   AcceleratorBuffer *buffer;
-
+  bool been_named_and_stored = false;
+  
 public:
   qreg() = default;
   qreg(const int n);
@@ -48,9 +49,8 @@ public:
 } // namespace internal_compiler
 } // namespace xacc
 
-xacc::internal_compiler::qreg qalloc(const int n) {
-  return xacc::internal_compiler::qreg(n);
-}
+xacc::internal_compiler::qreg qalloc(const int n);
+
 
 // __qpu__ indicates this functions is for the QCOR Clang Syntax Handler
 // and annotated with quantum for the LLVM IR CodeGen
