@@ -164,6 +164,9 @@ protected:
   std::vector<LoggingLevelNotification> loggingLevelSubscribers;
   
   std::queue<std::string> logQueue;
+  
+  // Custom filename prefix (if logging to file)
+  std::string logFileNamePrefix;
 
   XACCLogger();
   
@@ -193,7 +196,8 @@ public:
   // If enable = true, switch to File logging (if not already logging to file).
   // If enable = false, stop logging to File if currently is.
   // This enables dev to scope a section which should log to File.
-  void logToFile(bool enable);
+  // Optionally, a prefix can be specified to customize log file.
+  void logToFile(bool enable, const std::string& fileNamePrefix = "");
 
   // Set level for log filtering:
   // 0: Errors and Warnings only
