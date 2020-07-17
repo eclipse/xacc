@@ -95,7 +95,7 @@ void addCommandLineOptions(const std::string &category,
 void addCommandLineOptions(const std::map<std::string, std::string> &options);
 
 void setGlobalLoggerPredicate(MessagePredicate predicate);
-void logToFile(bool enable);
+void logToFile(bool enable, const std::string &fileNamePrefix = "");
 void setLoggingLevel(int level);
 int getLoggingLevel();
 void subscribeLoggingLevel(LoggingLevelNotification callback);
