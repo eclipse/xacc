@@ -8,7 +8,9 @@ template <typename T> struct empty_delete {
   void operator()(T *const) const {}
 };
 qreg::qreg(const int n) { buffer = xacc::qalloc(n).get(); }
-qreg::qreg(const qreg &other) : buffer(other.buffer) {}
+qreg::qreg(const qreg &other)
+    : buffer(other.buffer), been_named_and_stored(other.been_named_and_stored) {
+}
 
 qubit qreg::operator[](const std::size_t i) {
   return std::make_pair(buffer->name(), i);
@@ -28,8 +30,11 @@ double qreg::exp_val_z() { return buffer->getExpectationValueZ(); }
 void qreg::reset() { buffer->resetBuffer(); }
 void qreg::setName(const char *name) { buffer->setName(name); }
 void qreg::setNameAndStore(const char *name) {
-  setName(name);
-  store();
+  if (!been_named_and_stored) {
+    setName(name);
+    store();
+    been_named_and_stored = true;
+  }
 }
 void qreg::store() {
   auto buffer_as_shared = std::shared_ptr<AcceleratorBuffer>(
@@ -85,3 +90,7 @@ double qreg::weighted_sum(Observable *obs) {
 
 } // namespace internal_compiler
 } // namespace xacc
+
+xacc::internal_compiler::qreg qalloc(const int n) {
+  return xacc::internal_compiler::qreg(n);
+}

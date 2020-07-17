@@ -15,6 +15,7 @@
 #include "operator_pools/QubitPool.hpp"
 #include "operator_pools/SingleQubitQAOA.hpp"
 #include "operator_pools/MultiQubitQAOA.hpp"
+#include "operator_pools/CustomPool.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -46,6 +47,9 @@ public:
 
     auto mqaoa = std::make_shared<xacc::quantum::MultiQubitQAOA>();
     context.RegisterService<xacc::quantum::OperatorPool>(mqaoa);
+
+    auto custom = std::make_shared<xacc::quantum::CustomPool>();
+    context.RegisterService<xacc::quantum::OperatorPool>(custom);
 
   }
 
