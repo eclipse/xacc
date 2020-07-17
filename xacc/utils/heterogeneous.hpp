@@ -13,6 +13,7 @@
 #ifndef XACC_HETEROGENEOUS_HPP_
 #define XACC_HETEROGENEOUS_HPP_
 
+#include <initializer_list>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -71,6 +72,14 @@ public:
     loop_pairs(list...);
   }
 
+  // Better constructor, just provide key values without std::make_pair()
+  HeterogeneousMap(
+      std::initializer_list<std::pair<std::string, std::any>> &&list) {
+    for (auto &l : list) {
+      insert(l.first, l.second);
+    }
+  }
+
   template <typename... Ts> void print(std::ostream &os) const {
     _internal_print_visitor<Ts...> v(os);
     visit(v);
@@ -88,8 +97,8 @@ public:
     try {
       return std::any_cast<T>(items.at(key));
     } catch (std::exception &e) {
-      XACCLogger::instance()->error("HeterogeneousMap::get() error - Invalid type or key (" + key +
-                                    ").");
+      XACCLogger::instance()->error(
+          "HeterogeneousMap::get() error - Invalid type or key (" + key + ").");
     }
     return T();
   }
@@ -151,9 +160,9 @@ public:
   }
 
   bool key_exists_any_type(const std::string key) const {
-      return items.count(key);
+    return items.count(key);
   }
-  
+
   template <typename T> bool keyExists(const std::string key) const {
     if (items.count(key)) {
       // we have the key, make sure it is the right type
