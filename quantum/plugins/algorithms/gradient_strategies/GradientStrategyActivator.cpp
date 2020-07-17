@@ -11,10 +11,14 @@
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
 #include "ParameterShiftGradient.hpp"
+#include "CentralDifferenceGradient.hpp"
+#include "ForwardDifferenceGradient.hpp"
+#include "BackwardDifferenceGradient.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
+#include "QuantumNaturalGradient.hpp"
 
 #include <memory>
 
@@ -31,6 +35,17 @@ public:
 
     auto ps = std::make_shared<xacc::algorithm::ParameterShiftGradient>();
     context.RegisterService<xacc::AlgorithmGradientStrategy>(ps);
+    
+    auto cd = std::make_shared<xacc::algorithm::CentralDifferenceGradient>();
+    context.RegisterService<xacc::AlgorithmGradientStrategy>(cd);
+
+    auto fd = std::make_shared<xacc::algorithm::ForwardDifferenceGradient>();
+    context.RegisterService<xacc::AlgorithmGradientStrategy>(fd);
+
+    auto bd = std::make_shared<xacc::algorithm::BackwardDifferenceGradient>();
+    context.RegisterService<xacc::AlgorithmGradientStrategy>(bd);
+
+    context.RegisterService<xacc::AlgorithmGradientStrategy>(std::make_shared<xacc::algorithm::QuantumNaturalGradient>());
 
   }
 
