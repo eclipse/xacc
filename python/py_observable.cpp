@@ -43,47 +43,6 @@ void bind_observable(py::module &m) {
                xacc::Observable::fromString,
            "");
 
-  py::class_<Term>(m, "Term").def("coeff", &Term::coeff).def("ops", &Term::ops);
-  py::class_<PauliOperator, xacc::Observable, std::shared_ptr<PauliOperator>>(
-      m, "PauliOperator")
-      .def(py::init<>())
-      .def(py::init<std::complex<double>>())
-      .def(py::init<double>())
-      .def(py::init<std::string>())
-      .def(py::init<std::map<int, std::string>>())
-      .def(py::init<std::map<int, std::string>, double>())
-      .def(py::init<std::map<int, std::string>, std::complex<double>>())
-      .def(py::init<std::map<int, std::string>, std::string>())
-      .def(py::init<std::map<int, std::string>, std::complex<double>,
-                    std::string>())
-      .def(py::self + py::self)
-      .def(py::self += py::self)
-      .def(py::self *= py::self)
-      .def(py::self *= double())
-      .def(py::self * py::self)
-      .def(py::self *= std::complex<double>())
-      .def(py::self -= py::self)
-      .def(py::self - py::self)
-      .def("__eq__", &PauliOperator::operator==)
-      .def("__repr__", &PauliOperator::toString)
-      .def("eval", &PauliOperator::eval)
-      .def("toBinaryVectors", &PauliOperator::toBinaryVectors)
-      .def("toXACCIR", &PauliOperator::toXACCIR)
-      .def("fromXACCIR", &PauliOperator::fromXACCIR)
-      .def("fromString", &PauliOperator::fromString)
-      .def("nTerms", &PauliOperator::nTerms)
-      .def("isClose", &PauliOperator::isClose)
-      .def("commutes", &PauliOperator::commutes)
-      .def("__len__", &PauliOperator::nTerms)
-      .def("nQubits", &PauliOperator::nQubits)
-      .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
-      .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
-      .def(
-          "__iter__",
-          [](PauliOperator &op) {
-            return py::make_iterator(op.begin(), op.end());
-          },
-          py::keep_alive<0, 1>());
   m.def("getObservable",
         [](const std::string &type,
            const std::string representation) -> std::shared_ptr<Observable> {
@@ -136,13 +95,16 @@ void bind_observable(py::module &m) {
             t = xacc::getService<Observable>(type, false);
           } else if (xacc::hasContributedService<Observable>(type)) {
             t = xacc::getContributedService<Observable>(type, false);
+          } else if (type == "fermion") {
+            t = std::make_shared<FermionOperator>();
+          } else if (type == "pauli"){
+            t = std::make_shared<PauliOperator>();
           }
 
           if (!t) {
               xacc::error("Invalid Observable type name " + type + ", can't find in service registry.");
           }
-          HeterogeneousMap m;
-          t->fromOptions(m);
+
           return t;
         });
 }

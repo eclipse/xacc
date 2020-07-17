@@ -107,33 +107,8 @@ const std::string FermionOperator::toString() {
     std::complex<double> c = std::get<0>(kv.second);
     s << c << " " << std::get<2>(kv.second) << " ";
     Operators ops = std::get<1>(kv.second);
-
-    // I changed this to get the operators printed in the order they're built
-    /*
-    std::vector<int> creations, annhilations;
-    for (auto &t : ops) {
-      if (t.second) {
-        creations.push_back(t.first);
-      } else {
-        annhilations.push_back(t.first);
-      }
-    }
-    for (auto &t : creations) {
-      s << t << "^" << std::string(" ");
-    }
-    for (auto &t : annhilations) {
-      s << t << std::string(" ");
-    }*/
-
-    for (auto &t : ops) {
-      if (t.second) {
-        s << t.first << "^" << std::string(" ");
-      }
-      else{
-        s << t.first << std::string(" ");
-      }
-    }
-
+    // id now corresponds to the operator string, we can just use it
+    s << kv.first;
     s << "+ ";
   }
 
@@ -288,6 +263,35 @@ std::shared_ptr<Observable> FermionOperator::commutator(std::shared_ptr<Observab
   std::shared_ptr<FermionOperator> commutatorHA = std::make_shared<FermionOperator>((*this) * A - A * (*this));
   return commutatorHA;
 }
+
+// We obtain the hermitian conjugate of FermionOperator
+// by walking back on a string of FermionTerm and changing the boolean
+FermionOperator FermionOperator::hermitianConjugate() const {
+
+  FermionOperator conjugate;
+
+  for (auto &kv : terms) {
+
+    auto c = std::get<0>(kv.second);
+    Operators ops = std::get<1>(kv.second), hcOps;
+    for (int i = ops.size() - 1; i >= 0; i--) {
+
+      if (ops[i].second) {
+        hcOps.push_back({ops[i].first, 0});
+      } else {
+        hcOps.push_back({ops[i].first, 1});
+      }
+
+    }
+
+    conjugate += FermionOperator(hcOps, std::conj(c));
+
+  }
+
+  return conjugate;
+
+}
+
 
 } // namespace quantum
 } // namespace xacc

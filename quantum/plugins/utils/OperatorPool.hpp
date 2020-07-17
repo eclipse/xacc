@@ -13,6 +13,8 @@
 #ifndef XACC_ALGORITHM_OPERATOR_POOL_HPP_
 #define XACC_ALGORITHM_OPERATOR_POOL_HPP_
 #include "Identifiable.hpp"
+#include "PauliOperator.hpp"
+#include "FermionOperator.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -20,6 +22,48 @@ namespace quantum {
 class OperatorPool : public Identifiable {
 
 public:
+
+  // These are methods for custom pool
+  virtual void setOperators(const FermionOperator op) {
+    XACCLogger::instance()->error(
+        "OperatorPool::setOperators(FermionOperator) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+
+  virtual void setOperators(const PauliOperator op) {
+    XACCLogger::instance()->error(
+        "OperatorPool::setOperators(PauliOperator) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+
+  virtual void setOperators(const std::shared_ptr<Observable> op) {
+    XACCLogger::instance()->error(
+        "OperatorPool::setOperators(shared_ptr<Observable>) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+
+  virtual void setOperators(const std::vector<FermionOperator> op) {
+    XACCLogger::instance()->error(
+        "OperatorPool::setOperators(vector<FermionOperator>) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+
+  virtual void setOperators(const std::vector<PauliOperator> op) {
+    XACCLogger::instance()->error(
+        "OperatorPool::setOperators(vector<PauliOperator>) not implemented for " +
+        name());
+    exit(0);
+    return;
+  }
+  // end of custom pool methods
 
   virtual bool optionalParameters(const HeterogeneousMap parameters) = 0;
 
