@@ -307,7 +307,7 @@ double QITE::calcCurrentEnergy(int in_nbQubits) const
   return energy;
 }
 
-std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
+std::pair<double, std::shared_ptr<Observable>> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
 {
   const auto pauliOps = generatePauliPermutation(in_buffer->size());
 
@@ -409,7 +409,7 @@ std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuff
   // which emulate the imaginary time evolution of the original observable.
   std::shared_ptr<Observable> updatedAham = std::make_shared<xacc::quantum::PauliOperator>();
   updatedAham->fromString(aObsStr);
-  return updatedAham; 
+  return std::make_pair(std::sqrt(c), updatedAham); 
 }
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
@@ -431,7 +431,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       // Propagates the state via Trotter steps:
       auto kernel = constructPropagateCircuit();
       // Optimizes/calculates next A ops
-      auto nextAOps = calcAOps(buffer, kernel, hamOp);
+      auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
       m_approxOps.emplace_back(nextAOps); 
       m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
     }
@@ -610,7 +610,49 @@ std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffe
 
 void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
-  // TODO
+  std::vector<double> normAtStep;
+	std::vector<double> lanczosEnergy;
+  // Run on hardware/simulator using quantum gates/measure
+  // Initial energy
+  m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+  // Initial norm
+  normAtStep.emplace_back(1.0);
+  auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
+  for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
+  {
+    *hamOp = *hamOp + *(std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm));
+  }
+
+  // Time stepping:
+  for (int i = 0; i < m_nbSteps; ++i)
+  {
+    // Propagates the state via Trotter steps:
+    auto kernel = constructPropagateCircuit();
+    // Optimizes/calculates next A ops
+    auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
+    m_approxOps.emplace_back(nextAOps); 
+    m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+    normAtStep.emplace_back(normVal * normAtStep.back());
+		// Even steps:
+    if ((i % 2) == 0)
+    {
+      lanczosEnergy.emplace_back(calcQlanczosEnergy());
+    }
+  }
+
+  assert(m_energyAtStep.size() == m_nbSteps + 1);
+  // Last QLanczos energy value
+  buffer->addExtraInfo("opt-val", ExtraInfo(lanczosEnergy.back()));
+  // Also returns the full list of energy values 
+  // at each QLanczos step.
+  buffer->addExtraInfo("exp-vals", ExtraInfo(lanczosEnergy));
 }
+
+double QLanczos::calcQlanczosEnergy() const
+{
+  // TODO
+  return 0.0;
+}
+
 } // namespace algorithm
 } // namespace xacc
