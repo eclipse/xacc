@@ -1296,6 +1296,22 @@ bool ZYZ::expand(const xacc::HeterogeneousMap& runtimeOptions)
   {
     unitary = runtimeOptions.get<Eigen::Matrix2cd>("unitary");
   }
+  else if (runtimeOptions.keyExists<std::vector<std::complex<double>>>("unitary"))
+  {
+    auto matAsVec = runtimeOptions.get<std::vector<std::complex<double>>>("unitary");
+    // Correct size: 2 x 2
+    if (matAsVec.size() == 4)
+    {
+      for (int row = 0; row < 2; ++row)
+      {
+        for (int col = 0; col < 2; ++col)
+        {
+          // Expect row-by-row layout
+          unitary(row, col) = matAsVec[2*row + col];
+        }
+      }
+    }
+  }
   else
   {
     xacc::error("unitary matrix is required.");
