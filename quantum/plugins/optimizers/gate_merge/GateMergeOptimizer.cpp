@@ -261,6 +261,7 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
             
             // Optimized decomposed sequence:
             const auto nbInstructionsAfter = kak->nInstructions();
+            uMat.transposeInPlace();
             // A simplified sequence was found.
             if (nbInstructionsAfter < sequence.size() && compareMatIgnoreGlobalPhase(uMat, calcUopt(kak)))
             {
