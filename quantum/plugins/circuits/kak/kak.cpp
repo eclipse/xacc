@@ -197,9 +197,10 @@ bool isCanonicalized(double x, double y, double z)
 {
   // 0 ≤ abs(z) ≤ y ≤ x ≤ pi/4
   // if x = pi/4, z >= 0
-  if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4)
+  const double TOL = 1e-9;
+  if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4 + TOL)
   {
-    if (std::abs(x - M_PI_4) < 1e-9)
+    if (std::abs(x - M_PI_4) < TOL)
     {
       return (z >= 0);
     }
@@ -782,7 +783,72 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
       composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
       composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
 
-      // TODO: add validation
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(M_PI_2));
+
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
+        {
+          for (size_t j = 0; j < totalU.cols(); ++j)
+          {
+            if (std::abs(totalU(i,j)) > maxVal)
+            {
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
       return composite;
     }
     // only XX is significant
@@ -796,7 +862,68 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
       composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
       composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
       
-      // TODO: add validation
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
+        {
+          for (size_t j = 0; j < totalU.cols(); ++j)
+          {
+            if (std::abs(totalU(i,j)) > maxVal)
+            {
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
       return composite; 
     }
   };

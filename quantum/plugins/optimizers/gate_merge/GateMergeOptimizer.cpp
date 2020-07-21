@@ -3,6 +3,53 @@
 #include "GateFusion.hpp"
 #include "xacc_service.hpp"
 
+namespace {
+bool compareMatIgnoreGlobalPhase(const Eigen::Matrix4cd& in_a, const Eigen::Matrix4cd& in_b)
+{
+    const auto flipKronOrder = [](const Eigen::Matrix4cd& in_mat){
+        Eigen::Matrix4cd result = Eigen::Matrix4cd::Zero();
+        const std::vector<size_t> order { 0, 2, 1, 3 };
+        for (size_t i = 0; i < in_mat.rows(); ++i)
+        {
+            for (size_t j = 0; j < in_mat.cols(); ++j)
+            {
+                result(order[i], order[j]) = in_mat(i, j);
+            }
+        }
+        return result;
+    };
+    
+    const auto bFixed = flipKronOrder(in_b);
+
+    // Find index of the largest element to normalize global phase.
+    size_t colIdx = 0;
+    size_t rowIdx = 0;
+    double maxVal = std::abs(in_a(0,0));
+    for (size_t i = 0; i < in_a.rows(); ++i)
+    {
+        for (size_t j = 0; j < in_a.cols(); ++j)
+        {
+            if (std::abs(in_a(i,j)) > maxVal)
+            {
+                maxVal = std::abs(in_a(i,j));
+                colIdx = j;
+                rowIdx = i;
+            }
+        }
+    }
+
+    const double TOL = 1e-6;
+    if (std::abs(std::abs(in_a(rowIdx, colIdx)) - std::abs(bFixed(rowIdx, colIdx))) > TOL)
+    {
+        return false;
+    }
+
+    const std::complex<double> globalFactor = in_a(rowIdx, colIdx) / bFixed(rowIdx, colIdx);
+    auto bFixedPhase = globalFactor * bFixed;
+    const auto diff = (bFixedPhase - in_a).norm();
+    return std::abs(diff) < TOL;
+}
+}
 namespace xacc {
 namespace quantum {
 void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap &options)
@@ -141,11 +188,11 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                     assert(qubitPair.first  != qubitPair.second);
                     if (qubitPair.first < qubitPair.second)
                     {
-                        return (bit == qubitPair.first) ? 0 : 1;
+                        return (bit == qubitPair.first) ? 1 : 0;
                     }
                     else
                     {
-                        return (bit == qubitPair.first) ? 1 : 0;
+                        return (bit == qubitPair.first) ? 0 : 1;
                     }
                 }; 
 
@@ -194,11 +241,17 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                 std::make_pair("unitary", uMat)
             });
             assert(expandOk);
-
+            
+            const auto calcUopt = [](const std::shared_ptr<CompositeInstruction> composite) {
+                auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
+                fuser->initialize(composite);
+                return fuser->calcFusedGate(2);
+            };
+            
             // Optimized decomposed sequence:
             const auto nbInstructionsAfter = kak->nInstructions();
             // A simplified sequence was found.
-            if (nbInstructionsAfter < sequence.size())
+            if (nbInstructionsAfter < sequence.size() && compareMatIgnoreGlobalPhase(uMat, calcUopt(kak)))
             {
                 // Disable to remove:
                 const auto programLengthBefore = program->nInstructions();
