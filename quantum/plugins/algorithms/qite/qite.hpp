@@ -66,5 +66,15 @@ private:
   // prepare the initial state.
   int m_initialState;
 };
+
+// QLanczos Algorithm: extends QITE and 
+// typically provides better energy convergence.
+class QLanczos : public QITE {
+public:
+  const std::string name() const override { return "QLanczos"; }
+  const std::string description() const override { return ""; }
+  void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
+  DEFINE_ALGORITHM_CLONE(QLanczos)
+};
 } // namespace algorithm
 } // namespace xacc
