@@ -607,5 +607,10 @@ std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffe
   xacc::error("This method is unsupported!");
   return {};
 }
+
+void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
+{
+  // TODO
+}
 } // namespace algorithm
 } // namespace xacc
