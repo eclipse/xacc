@@ -372,7 +372,7 @@ public:
   CZ(std::size_t srcqbit, std::size_t tgtqbit)
       : CZ(std::vector<std::size_t>{srcqbit, tgtqbit}) {}
 
-  const int nRequiredBits() const override { return 1; }
+  const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CZ)
   DEFINE_VISITABLE()

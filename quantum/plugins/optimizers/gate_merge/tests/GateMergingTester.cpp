@@ -72,32 +72,40 @@ TEST(GateMergingTester, checkTwoQubitSimple)
     auto c = xacc::getService<xacc::Compiler>("xasm");
     auto f = c->compile(R"(__qpu__ void test3(qbit q) {
         H(q[0]);
-        Z(q[2]);
-        CNOT(q[2], q[1]);
-        H(q[2]);
-        T(q[1]);
-        X(q[0]);
-        CNOT(q[1], q[2]);
-        H(q[2]);
+        H(q[1]);
+        Rz(q[0], 1.234);
         Y(q[1]);
-        CNOT(q[3], q[4]);
-        X(q[2]);
-        X(q[1]);
-        CNOT(q[2], q[1]);
-        H(q[2]);
-        T(q[1]);
+        T(q[0]);
+        Z(q[1]);
+        H(q[0]);
+        H(q[1]);
+        S(q[0]);
+        H(q[1]);
         X(q[0]);
-        CNOT(q[1], q[2]);
-        H(q[2]);
-        Y(q[1]);
-        CNOT(q[3], q[4]);
-        X(q[2]);
-        X(q[1]);
+        Z(q[1]);
         CNOT(q[1], q[0]);
         H(q[0]);
         H(q[1]);
+        CPhase(q[0], q[1], 1.123);
+        H(q[0]);
+        T(q[1]);
+        X(q[0]);
+        CNOT(q[0], q[1]);
+        T(q[0]);
+        //H(q[2]);
+        Rx(q[0], 1.234);
+        Ry(q[1], -2.456);
+        H(q[1]);
+        Rz(q[0], 3.124);
+        H(q[0]);
+        H(q[1]);
+        Y(q[0]);
+        H(q[0]);
+        H(q[1]);
+        T(q[0]);
+        X(q[1]);
     })")->getComposites()[0];
-
+   
     auto opt = xacc::getService<xacc::IRTransformation>("two-qubit-block-merging");
     const auto nbInstBefore = f->nInstructions();
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
@@ -107,19 +115,15 @@ TEST(GateMergingTester, checkTwoQubitSimple)
         circuitCopy->addInstruction(f->getInstruction(i)->clone());
     }
     opt->apply(f, nullptr);
-    const auto nbInstAfter = f->nInstructions();
-    std::cout << "Before: " << nbInstBefore << "; After: " <<  nbInstAfter << "\n";
     std::cout << "HOWDY:\n" << f->toString() << "\n";
-    EXPECT_TRUE(nbInstAfter < nbInstBefore);
-    EXPECT_TRUE(circuitCopy->nInstructions() == nbInstBefore);
-    std::cout << "HOWDY:\n" << circuitCopy->toString() << "\n";
-
+    const auto nbInstAfter = f->nInstructions();
+    EXPECT_TRUE(nbInstAfter < nbInstBefore); 
     // Validate using gate fusion:
     auto fuser = xacc::getService<xacc::quantum::GateFuser>("default");
     fuser->initialize(circuitCopy);
-    const Eigen::MatrixXcd uMatOriginal = fuser->calcFusedGate(5);
+    const Eigen::MatrixXcd uMatOriginal = fuser->calcFusedGate(2);
     fuser->initialize(f);
-    const Eigen::MatrixXcd uMatAfter = fuser->calcFusedGate(5);
+    const Eigen::MatrixXcd uMatAfter = fuser->calcFusedGate(2);
     // Compensate any global phase differences.
     // Find index of the largest element:
     size_t colIdx = 0;
