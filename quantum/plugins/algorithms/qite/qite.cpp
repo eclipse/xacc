@@ -685,7 +685,76 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
     j++;
   }
   
-  // TODO
+  const auto matFieldSampling = [](const arma::mat& in_H, const arma::mat& in_S, const std::vector<size_t> in_indexVec) {
+    arma::mat H(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
+    arma::mat S(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
+    assert(in_S.n_cols == in_H.n_cols && in_S.n_rows == in_H.n_rows);
+    for (size_t i = 0; i < in_indexVec.size(); ++i)
+    {
+      for (size_t j = 0; j < in_indexVec.size(); ++j)
+      {
+        if (xacc::container::contains(in_indexVec, i) && xacc::container::contains(in_indexVec, j))
+        {
+          S(i, j) = in_S(in_indexVec[i], in_indexVec[j]);
+          H(i, j) = in_H(in_indexVec[i], in_indexVec[j]);
+        }
+      }
+    }
+
+    return std::make_pair(H, S);
+  };
+  
+  // Regularize/stabilize H and S matrices with s and epsilon stabilization parameters.
+  // Returns the stabilized (H, S) matrices.
+  const auto regularizeMatrices = [&](double s, double eps) -> std::pair<arma::mat, arma::mat> {
+    std::vector<size_t> indexVec { 0 };
+    size_t ii = 0;
+    size_t jj = 0;
+    while (ii < H.n_rows && jj < (H.n_rows - 1))
+    {
+      for(jj = ii + 1; jj < H.n_rows; ++jj)
+      {
+        if(S(ii, jj) < s)
+        {
+          indexVec.emplace_back(jj);
+          break;
+        }
+      }
+      
+      ii = indexVec.back();
+    }
+
+    indexVec.emplace_back(H.n_rows);
+    auto [Hnew, Snew] = matFieldSampling(H, S, indexVec);
+    arma::vec sigma;
+    arma::mat V;
+    arma::eig_sym(sigma, V, Snew);
+    std::vector<size_t> indexVecEig;
+    for (size_t i = 0; i < sigma.n_elem; ++i)
+    {
+      if (sigma[i] > eps)
+      {
+        indexVecEig.emplace_back(i);
+      }
+    }
+
+    auto Snew2 = V.t() * Snew * V;
+    auto Hnew2 = V.t() * Hnew * V ;
+
+    auto [Hnew3, Snew3] = matFieldSampling(Hnew2, Snew2, indexVecEig);
+    return std::make_pair(Hnew3, Snew3);
+  };
+
+  // Stabilization parameters:
+  // TODO: enables as heterogenous params
+  const double s = 0.75;
+  const double epsilon = 1e-12;
+  auto [Hreg, Sreg] = regularizeMatrices(s, epsilon);
+
+  // TODO: solving the *generalized* eigenvalues: Hx = ESx
+  // to compute the Lanczos energy E
+
+  // TODO: returns the smallest eigenvalue from the previous step.
   return 0.0;
 }
 
