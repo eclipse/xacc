@@ -40,9 +40,16 @@ TEST(QLanczosTester, checkSimple)
   std::cout << "Final Energy: " << finalEnergy << "\n";
   // Fig (2.e) of https://www.nature.com/articles/s41567-019-0704-4
   // Minimal Energy = -1
-  // EXPECT_NEAR(finalEnergy, -1.0, 1e-3);
-  // const std::vector<double> energyValues = (*buffer)["exp-vals"].as<std::vector<double>>();
-  // EXPECT_EQ(energyValues.size(), nbSteps + 1);
+  EXPECT_NEAR(finalEnergy, -1.0, 1e-3);
+  const std::vector<double> energyValues = (*buffer)["exp-vals"].as<std::vector<double>>();
+  // Even steps only
+  EXPECT_LT(energyValues.size(), (nbSteps + 1) / 2 + 1);
+  // Should converge must faster (after 2 Lanczos steps)
+  // see Fig. 2(e)
+  for (int i = 1; i < energyValues.size(); ++i)
+  {
+    EXPECT_LT(energyValues[i], 0.9);
+  }
 }
 
 int main(int argc, char **argv) {

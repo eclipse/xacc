@@ -314,7 +314,7 @@ double QITE::calcCurrentEnergy(int in_nbQubits) const
     auto expval = buffers[i]->getExpectationValueZ();
     energy += expval * coefficients[i];
   }
-  std::cout << "Energy = " << energy << "\n";
+  xacc::info("Energy = " + std::to_string(energy));
   return energy;
 }
 
@@ -660,8 +660,8 @@ void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 }
 
 double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const 
-{
-  const std::vector<size_t> lanczosSteps = arange(1UL, m_energyAtStep.size() + 2, 2UL);
+{ 
+  const std::vector<size_t> lanczosSteps = arange(1UL, m_energyAtStep.size() + 1, 2UL);
   const auto n = lanczosSteps.size();
   // H and S matrices (Eq. 60)
   arma::mat H(n, n, arma::fill::zeros);
@@ -684,19 +684,21 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
     }
     j++;
   }
-  
+
   const auto matFieldSampling = [](const arma::mat& in_H, const arma::mat& in_S, const std::vector<size_t> in_indexVec) {
     arma::mat H(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
     arma::mat S(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
     assert(in_S.n_cols == in_H.n_cols && in_S.n_rows == in_H.n_rows);
-    for (size_t i = 0; i < in_indexVec.size(); ++i)
+    for (size_t i = 0; i < in_H.n_rows; ++i)
     {
-      for (size_t j = 0; j < in_indexVec.size(); ++j)
+      for (size_t j = 0; j < in_H.n_cols; ++j)
       {
         if (xacc::container::contains(in_indexVec, i) && xacc::container::contains(in_indexVec, j))
         {
-          S(i, j) = in_S(in_indexVec[i], in_indexVec[j]);
-          H(i, j) = in_H(in_indexVec[i], in_indexVec[j]);
+          const size_t rowIdx = std::distance(in_indexVec.begin(), std::find(in_indexVec.begin(), in_indexVec.end(), i));
+          const size_t colIdx = std::distance(in_indexVec.begin(), std::find(in_indexVec.begin(), in_indexVec.end(), j));
+          S(rowIdx, colIdx) = in_S(i, j);
+          H(rowIdx, colIdx) = in_H(i, j);
         }
       }
     }
@@ -723,13 +725,17 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
       
       ii = indexVec.back();
     }
+    if (!xacc::container::contains(indexVec, H.n_rows - 1))
+    {
+      indexVec.emplace_back(H.n_rows - 1);
+    }
 
-    indexVec.emplace_back(H.n_rows);
     auto [Hnew, Snew] = matFieldSampling(H, S, indexVec);
     arma::vec sigma;
     arma::mat V;
     arma::eig_sym(sigma, V, Snew);
     std::vector<size_t> indexVecEig;
+    
     for (size_t i = 0; i < sigma.n_elem; ++i)
     {
       if (sigma[i] > eps)
@@ -737,10 +743,8 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
         indexVecEig.emplace_back(i);
       }
     }
-
     auto Snew2 = V.t() * Snew * V;
     auto Hnew2 = V.t() * Hnew * V ;
-
     auto [Hnew3, Snew3] = matFieldSampling(Hnew2, Snew2, indexVecEig);
     return std::make_pair(Hnew3, Snew3);
   };
@@ -750,13 +754,21 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
   const double s = 0.75;
   const double epsilon = 1e-12;
   auto [Hreg, Sreg] = regularizeMatrices(s, epsilon);
+  
   arma::cx_vec eigval;
   arma::cx_mat eigvec;
+  // Solves the generalized eigen val
   arma::eig_pair(eigval, eigvec, Hreg, Sreg);
-  
-  std::cout << "Eigen values:\n" << eigval << "\n";
-  // TODO: returns the smallest eigenvalue from the previous step.
-  return eigval(0).real();
+  std::vector<double> energies;
+  for (size_t i = 0; i < eigval.n_elem; ++i)
+  {
+    // Energy values should be real
+    assert(std::abs(eigval(i).imag()) < 1e-9);
+    energies.emplace_back(eigval(i).real());
+  }
+  std::sort(energies.begin(), energies.end());
+  // Returns the smallest eigenvalue from the previous step.
+  return energies.front();
 }
 
 } // namespace algorithm
