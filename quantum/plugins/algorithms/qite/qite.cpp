@@ -750,12 +750,13 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
   const double s = 0.75;
   const double epsilon = 1e-12;
   auto [Hreg, Sreg] = regularizeMatrices(s, epsilon);
-
-  // TODO: solving the *generalized* eigenvalues: Hx = ESx
-  // to compute the Lanczos energy E
-
+  arma::cx_vec eigval;
+  arma::cx_mat eigvec;
+  arma::eig_pair(eigval, eigvec, Hreg, Sreg);
+  
+  std::cout << "Eigen values:\n" << eigval << "\n";
   // TODO: returns the smallest eigenvalue from the previous step.
-  return 0.0;
+  return eigval(0).real();
 }
 
 } // namespace algorithm

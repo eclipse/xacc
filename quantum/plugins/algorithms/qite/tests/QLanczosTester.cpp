@@ -14,10 +14,35 @@
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "PauliOperator.hpp"
 
 TEST(QLanczosTester, checkSimple) 
 {
-  // TODO
+  auto qLanczos = xacc::getService<xacc::Algorithm>("QLanczos");
+  std::shared_ptr<xacc::Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
+  observable->fromString("0.7071067811865475 X0 + 0.7071067811865475 Z0");
+  auto acc = xacc::getAccelerator("qpp");
+  const int nbSteps = 25;
+  const double stepSize = 0.1;
+
+  const bool initOk =  qLanczos->initialize({
+    std::make_pair("accelerator", acc),
+    std::make_pair("steps", nbSteps),
+    std::make_pair("observable", observable),
+    std::make_pair("step-size", stepSize)
+  });
+
+  EXPECT_TRUE(initOk);
+  
+  auto buffer = xacc::qalloc(1);
+  qLanczos->execute(buffer);
+  const double finalEnergy = (*buffer)["opt-val"].as<double>();
+  std::cout << "Final Energy: " << finalEnergy << "\n";
+  // Fig (2.e) of https://www.nature.com/articles/s41567-019-0704-4
+  // Minimal Energy = -1
+  // EXPECT_NEAR(finalEnergy, -1.0, 1e-3);
+  // const std::vector<double> energyValues = (*buffer)["exp-vals"].as<std::vector<double>>();
+  // EXPECT_EQ(energyValues.size(), nbSteps + 1);
 }
 
 int main(int argc, char **argv) {
