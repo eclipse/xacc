@@ -77,7 +77,7 @@ public:
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   DEFINE_ALGORITHM_CLONE(QLanczos)
 private:
-  double calcQlanczosEnergy() const;
+  double calcQlanczosEnergy(const std::vector<double>& normVec) const;
 };
 } // namespace algorithm
 } // namespace xacc
