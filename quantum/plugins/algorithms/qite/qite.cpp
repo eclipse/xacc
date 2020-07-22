@@ -134,6 +134,17 @@ arma::cx_mat createSMatrix(const std::vector<std::string>& in_pauliOps, const st
   }
   return S_Mat;
 }
+
+template<typename T>
+std::vector<T> arange(T start, T stop, T step = 1) 
+{
+  std::vector<T> values;
+  for (T value = start; value < stop; value += step)
+  {
+    values.emplace_back(value);
+  }
+  return values;
+}
 }
 
 using namespace xacc;
@@ -611,45 +622,69 @@ std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffe
 void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
   std::vector<double> normAtStep;
-	std::vector<double> lanczosEnergy;
+  std::vector<double> lanczosEnergy;
   // Run on hardware/simulator using quantum gates/measure
   // Initial energy
   m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
   // Initial norm
   normAtStep.emplace_back(1.0);
   auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
-  for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
+  for (const auto& hamTerm : m_observable->getNonIdentitySubTerms()) 
   {
     *hamOp = *hamOp + *(std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm));
   }
 
   // Time stepping:
-  for (int i = 0; i < m_nbSteps; ++i)
+  for (int i = 0; i < m_nbSteps; ++i) 
   {
     // Propagates the state via Trotter steps:
     auto kernel = constructPropagateCircuit();
     // Optimizes/calculates next A ops
     auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
-    m_approxOps.emplace_back(nextAOps); 
+    m_approxOps.emplace_back(nextAOps);
     m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
     normAtStep.emplace_back(normVal * normAtStep.back());
-		// Even steps:
-    if ((i % 2) == 0)
+    // Even steps:
+    if ((i % 2) == 0) 
     {
-      lanczosEnergy.emplace_back(calcQlanczosEnergy());
+      lanczosEnergy.emplace_back(calcQlanczosEnergy(normAtStep));
     }
   }
 
   assert(m_energyAtStep.size() == m_nbSteps + 1);
   // Last QLanczos energy value
   buffer->addExtraInfo("opt-val", ExtraInfo(lanczosEnergy.back()));
-  // Also returns the full list of energy values 
+  // Also returns the full list of energy values
   // at each QLanczos step.
   buffer->addExtraInfo("exp-vals", ExtraInfo(lanczosEnergy));
 }
 
-double QLanczos::calcQlanczosEnergy() const
+double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const 
 {
+  const std::vector<size_t> lanczosSteps = arange(1UL, m_energyAtStep.size() + 2, 2UL);
+  const auto n = lanczosSteps.size();
+  // H and S matrices (Eq. 60)
+  arma::mat H(n, n, arma::fill::zeros);
+  arma::mat S(n, n, arma::fill::zeros);
+  int j = 0;
+  int k = 0;
+  // Iterate over l and l'
+  for (const auto& l : lanczosSteps)
+  {
+    int k = 0;
+    for (const auto& lp : lanczosSteps)
+    {
+      // Defining 2r = l + l'   
+      const auto r = (l + lp) / 2;
+      // Eq. 61
+      S(j, k) = normVec[r] * normVec[r]/(normVec[l] * normVec[lp]);
+      // Eq. 62
+      H(j, k) = m_energyAtStep[r] * S(j, k);
+      k++;
+    }
+    j++;
+  }
+  
   // TODO
   return 0.0;
 }
