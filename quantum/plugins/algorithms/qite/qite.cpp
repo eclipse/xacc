@@ -756,6 +756,18 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
     }
 
     auto [Hnew, Snew] = matFieldSampling(H, S, indexVec);
+    
+    // Handles an edge case where Hnew and Snew are just single-element matrices;
+    // just returns those matrices.
+    if (indexVec.size() == 1)
+    {
+      assert(Hnew.n_elem == 1 && Snew.n_elem == 1);
+      // Just returns these matrices,
+      // no need to regularize any further.
+      return std::make_pair(Hnew, Snew);
+    }
+    
+    // Truncates eigenvalues if less than epsilon
     arma::vec sigma;
     arma::mat V;
     arma::eig_sym(sigma, V, Snew);
@@ -768,8 +780,16 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
         indexVecEig.emplace_back(i);
       }
     }
-    auto Snew2 = V.t() * Snew * V;
-    auto Hnew2 = V.t() * Hnew * V ;
+
+    const auto eigenTransform = [](const arma::mat& in_mat, const arma::mat& in_eigenMat){
+      // Performs V_T * Matrix * V;
+      // where V is the eigenvector matrix.
+      arma::mat result = in_eigenMat.t() * in_mat;
+      result = result * in_eigenMat;
+      return result;
+    };
+    const arma::mat Snew2 = eigenTransform(Snew, V);
+    const arma::mat Hnew2 = eigenTransform(Hnew, V);
     auto [Hnew3, Snew3] = matFieldSampling(Hnew2, Snew2, indexVecEig);
     return std::make_pair(Hnew3, Snew3);
   };
