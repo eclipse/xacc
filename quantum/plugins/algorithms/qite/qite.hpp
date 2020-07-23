@@ -72,12 +72,17 @@ protected:
 // typically provides better energy convergence.
 class QLanczos : public QITE {
 public:
+  bool initialize(const HeterogeneousMap &parameters) override;
   const std::string name() const override { return "QLanczos"; }
   const std::string description() const override { return ""; }
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   DEFINE_ALGORITHM_CLONE(QLanczos)
 private:
   double calcQlanczosEnergy(const std::vector<double>& normVec) const;
+private:
+  // Regularize parameters:
+  double m_sLim;
+  double m_epsLim;
 };
 } // namespace algorithm
 } // namespace xacc

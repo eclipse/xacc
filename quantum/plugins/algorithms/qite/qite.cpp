@@ -619,6 +619,31 @@ std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffe
   return {};
 }
 
+bool QLanczos::initialize(const HeterogeneousMap& parameters) 
+{
+  // Calls the base (QITE) initialization
+  if (QITE::initialize(parameters))
+  {
+    // Gets some QLanczos-specific parameters if provided:
+    // Default params:
+    m_sLim = 0.75;
+    m_epsLim = 1e-12;
+    if (parameters.keyExists<double>("s-param"))
+    {
+      m_sLim = parameters.get<double>("s-param");
+    }
+    if (parameters.keyExists<double>("epsilon-param"))
+    {
+      m_epsLim = parameters.get<double>("epsilon-param");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+
 void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
   std::vector<double> normAtStep;
@@ -749,11 +774,7 @@ double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const
     return std::make_pair(Hnew3, Snew3);
   };
 
-  // Stabilization parameters:
-  // TODO: enables as heterogenous params
-  const double s = 0.75;
-  const double epsilon = 1e-12;
-  auto [Hreg, Sreg] = regularizeMatrices(s, epsilon);
+  auto [Hreg, Sreg] = regularizeMatrices(m_sLim, m_epsLim);
   
   arma::cx_vec eigval;
   arma::cx_mat eigvec;
