@@ -1,4 +1,4 @@
-# Simple 1-qubit demonstration of the Quatum Imaginary Time Evolution algorithm
+# Simple 1-qubit demonstration of the Quatum Imaginary Time Evolution/QLanczos algorithm
 # Reference: https://www.nature.com/articles/s41567-019-0704-4
 # Target H = 1/sqrt(2)(X + Z)
 # Expected minimum value: -1.0
@@ -11,9 +11,6 @@ qpu = xacc.getAccelerator('qpp')
 
 # Construct the Hamiltonian as an XACC PauliOperator
 ham = xacc.getObservable('pauli', '0.70710678118 X0 + 0.70710678118 Z0')
-
-# We just need 1 qubit
-buffer = xacc.qalloc(1)
 
 # See Fig. 2 (e) of https://www.nature.com/articles/s41567-019-0704-4
 # Horizontal axis: 0 -> 2.5
@@ -30,13 +27,27 @@ qite = xacc.getAlgorithm('qite', {
                         'step-size': stepSize,
                         'steps': nbSteps
                         })
+# We just need 1 qubit
+qiteBuffer = xacc.qalloc(1)
+qiteResult = qite.execute(qiteBuffer)
 
-result = qite.execute(buffer)
+# Create the QLanczos algorithm
+qLanczos = xacc.getAlgorithm('QLanczos', {
+                        'accelerator': qpu,
+                        'observable': ham,
+                        'step-size': stepSize,
+                        'steps': nbSteps
+                        })
+qLanczosBuffer = xacc.qalloc(1)
+qLanczosResult = qLanczos.execute(qLanczosBuffer)
 
-# Expected result: ~ -1
-print('Min energy value = ', buffer.getInformation('opt-val'))
-E = buffer.getInformation('exp-vals')
+# Plot the energies
+qiteEnergies = qiteBuffer.getInformation('exp-vals')
+qLanczosEnergies = qLanczosBuffer.getInformation('exp-vals')
+
 # Reproduce Fig. 2(e) of https://www.nature.com/articles/s41567-019-0704-4
-plt.plot(np.arange(0, nbSteps + 1) * stepSize, E, 'ro', label = 'XACC QITE')
+plt.plot(np.arange(0, nbSteps + 1) * stepSize, qiteEnergies, 'ro-', label = 'QITE')
+plt.plot(np.arange(0, (nbSteps + 1)//2) * 2 * stepSize, qLanczosEnergies, 'k*-', label = 'QLanczos')
+plt.legend()
 plt.grid()
 plt.show()
