@@ -27,7 +27,7 @@ public:
   const std::string name() const override { return "qite"; }
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(QITE)
-private:
+protected:
   // Construct the Trotter propagate circuit up to current time step.
   std::shared_ptr<CompositeInstruction> constructPropagateCircuit() const;
   // Calculate the current energy, i.e.
@@ -39,9 +39,10 @@ private:
   // in_kernel: the kernel to evolve the system to this time step
   // in_hmTerm: the H term to be approximate by the A term 
   // i.e. emulate the imaginary time evolution of that H term.
-  std::shared_ptr<Observable> calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const;
+  // Returns the norm (as a double) and the A operator (Pauli observable)
+  std::pair<double, std::shared_ptr<Observable>> calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const;
 
-private:
+protected:
   // Number of Trotter steps
   int m_nbSteps;
   // dBeta, i.e. step size
@@ -65,6 +66,23 @@ private:
   // For accelerator-based simulation, the Ansatz is used to
   // prepare the initial state.
   int m_initialState;
+};
+
+// QLanczos Algorithm: extends QITE and 
+// typically provides better energy convergence.
+class QLanczos : public QITE {
+public:
+  bool initialize(const HeterogeneousMap &parameters) override;
+  const std::string name() const override { return "QLanczos"; }
+  const std::string description() const override { return ""; }
+  void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
+  DEFINE_ALGORITHM_CLONE(QLanczos)
+private:
+  double calcQlanczosEnergy(const std::vector<double>& normVec) const;
+private:
+  // Regularize parameters:
+  double m_sLim;
+  double m_epsLim;
 };
 } // namespace algorithm
 } // namespace xacc
