@@ -1,0 +1,2 @@
+add_xacc_test(GateMerging)
+target_link_libraries(GateMergingTester xacc-quantum-gate xacc-circuit-optimizers)
