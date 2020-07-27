@@ -13,3 +13,6 @@
 include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(QITE)
 target_link_libraries(QITETester xacc xacc-pauli)
+
+add_xacc_test(QLanczos)
+target_link_libraries(QLanczosTester xacc xacc-pauli)

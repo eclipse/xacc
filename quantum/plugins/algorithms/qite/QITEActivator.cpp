@@ -33,8 +33,10 @@ public:
   /**
    */
   void Start(BundleContext context) {
-    auto c = std::make_shared<xacc::algorithm::QITE>();
-    context.RegisterService<xacc::Algorithm>(c);
+    auto qite = std::make_shared<xacc::algorithm::QITE>();
+    context.RegisterService<xacc::Algorithm>(qite);
+    auto qlanczos  = std::make_shared<xacc::algorithm::QLanczos>();
+    context.RegisterService<xacc::Algorithm>(qlanczos);
   }
 
   /**
