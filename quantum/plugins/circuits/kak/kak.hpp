@@ -6,6 +6,18 @@
 
 namespace xacc {
 namespace circuits {
+// Use Z-Y-Z decomposition of Nielsen and Chuang (Theorem 4.1).
+// An arbitrary one qubit gate matrix can be writen as
+// U = exp(j*a) Rz(b) Ry(c) Rz(d).
+class ZYZ : public xacc::quantum::Circuit 
+{
+public:
+  ZYZ() : Circuit("z-y-z") {}
+  bool expand(const xacc::HeterogeneousMap &runtimeOptions) override;
+  const std::vector<std::string> requiredKeys() override { return { "unitary" }; }
+  DEFINE_CLONE(ZYZ);
+};
+
 // KAK decomposition via *Magic* Bell basis transformation
 // Reference:
 // https://arxiv.org/pdf/quant-ph/0211002.pdf

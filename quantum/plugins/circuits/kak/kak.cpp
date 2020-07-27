@@ -197,9 +197,10 @@ bool isCanonicalized(double x, double y, double z)
 {
   // 0 ≤ abs(z) ≤ y ≤ x ≤ pi/4
   // if x = pi/4, z >= 0
-  if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4)
+  const double TOL = 1e-9;
+  if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4 + TOL)
   {
-    if (std::abs(x - M_PI_4) < 1e-9)
+    if (std::abs(x - M_PI_4) < TOL)
     {
       return (z >= 0);
     }
@@ -223,6 +224,311 @@ Eigen::Matrix4cd interactionMatrixExp(double x, double y, double z)
   herm = I*herm;
   Eigen::MatrixXcd unitary = herm.exp();
   return unitary;
+}
+
+// Simplify the Z-Y-Z decomposition:
+// i.e. combining rotations and removing trivial rotation
+std::shared_ptr<xacc::CompositeInstruction> simplifySingleQubitSeq(double zAngleBefore, double yAngle, double zAngleAfter, size_t bitIdx)
+{
+  auto zExpBefore = zAngleBefore / M_PI - 0.5;
+  auto  middleExp = yAngle / M_PI;
+  std::string  middlePauli = "Rx";
+  auto  zExpAfter = zAngleAfter / M_PI + 0.5;
+  
+  // Helper functions:
+  const auto isNearZeroMod = [](double a, double period) -> bool {
+    const auto halfPeriod = period / 2;
+    const double TOL = 1e-8;
+    return std::abs(fmod(a + halfPeriod, period) - halfPeriod) <  TOL;
+  };
+    
+  const auto toQuarterTurns = [](double in_exp) -> int {
+    return static_cast<int>(round(2 * in_exp)) % 4;
+  }; 
+
+  const auto isCliffordRotation = [&](double in_exp) -> bool {
+    return isNearZeroMod(in_exp, 0.5);
+  };
+
+  const auto isQuarterTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) % 2 == 1);
+  };
+
+  const auto isHalfTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 2);
+  };
+
+  const auto isNoTurn = [&](double in_exp) -> bool {
+    return (isCliffordRotation(in_exp) && toQuarterTurns(in_exp) == 0);
+  };
+
+  // Clean up angles
+  if (isCliffordRotation(zExpBefore)) 
+  {
+    if ((isQuarterTurn(zExpBefore) || isQuarterTurn(zExpAfter)) != (isHalfTurn(middleExp) && isNoTurn(zExpBefore-zExpAfter)))
+    {
+      zExpBefore += 0.5;
+      zExpAfter -= 0.5;
+      middlePauli = "Ry";
+    }
+    if (isHalfTurn(zExpBefore) || isHalfTurn(zExpAfter))
+    {
+      zExpBefore -= 1;
+      zExpAfter += 1;
+      middleExp = -middleExp;
+    }    
+  }
+  if (isNoTurn(middleExp))
+  {
+    zExpBefore += zExpAfter;
+    zExpAfter = 0;
+  }  
+  else if (isHalfTurn(middleExp))
+  {
+    zExpAfter -= zExpBefore;
+    zExpBefore = 0;
+  }
+  
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");   
+  auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
+  
+  if (!isNoTurn(zExpBefore))
+  {
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bitIdx }, { zExpBefore * M_PI }));
+  }
+  if (!isNoTurn(middleExp))
+  {
+    composite->addInstruction(gateRegistry->createInstruction(middlePauli, { bitIdx }, { middleExp * M_PI }));
+  }
+  if (!isNoTurn(zExpAfter))
+  {
+    composite->addInstruction(gateRegistry->createInstruction("Rz", { bitIdx }, { zExpAfter * M_PI }));
+  }
+
+  return composite;
+}
+
+
+std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matrix2cd& in_mat, size_t in_bitIdx) 
+{
+  using GateMatrix = Eigen::Matrix2cd;
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+
+  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
+  // An arbitrary one qubit gate matrix can be written as
+  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
+  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
+  // where a,b,c,d are real numbers.
+  const auto singleQubitGateDecompose = [](const Eigen::Matrix2cd& matrix) -> std::tuple<double, double, double, double> {
+    if (allClose(matrix, GateMatrix::Identity()))
+    {
+      return std::make_tuple(0.0, 0.0, 0.0, 0.0);
+    }
+    const auto checkParams = [&matrix](double a, double bHalf, double cHalf, double dHalf) {
+      GateMatrix U;
+      U << std::exp(I*(a-bHalf-dHalf))*std::cos(cHalf),
+          -std::exp(I*(a-bHalf+dHalf))*std::sin(cHalf),
+          std::exp(I*(a+bHalf-dHalf))*std::sin(cHalf),
+          std::exp(I*(a+bHalf+dHalf))*std::cos(cHalf);
+
+      return allClose(U, matrix);    
+    };
+    
+    double a, bHalf, cHalf, dHalf;
+    const double TOLERANCE = 1e-9;
+    if (std::abs(matrix(0, 1)) < TOLERANCE)
+    {
+      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      auto dHalf = 0.0;  
+      auto b = std::arg(matrix(1, 1))-std::arg(matrix(0, 0));
+      std::vector<double> possibleBhalf { fmod(b/2.0, 2 * M_PI), fmod(b/2.0 + M_PI, 2.0 * M_PI) };
+      std::vector<double> possibleChalf { 0.0, M_PI };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          bHalf = possibleBhalf[i];
+          cHalf = possibleChalf[j];
+          if (checkParams(a, bHalf, cHalf, dHalf))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }
+    else if (std::abs(matrix(0, 0)) < TOLERANCE)
+    {
+      auto two_a = fmod(std::arg(-matrix(0, 1)*matrix(1, 0)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      dHalf = 0;  
+      auto b = std::arg(matrix(1, 0))-std::arg(matrix(0, 1)) + M_PI;
+      std::vector<double> possibleBhalf { fmod(b/2., 2*M_PI), fmod(b/2.+M_PI, 2*M_PI) };
+      std::vector<double> possibleChalf { M_PI/2., 3./2.*M_PI };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          bHalf = possibleBhalf[i];
+          cHalf = possibleChalf[j];
+          if (checkParams(a, bHalf, cHalf, dHalf))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }     
+    else
+    {
+      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
+      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
+      auto two_d = 2.*std::arg(matrix(0, 1))-2.*std::arg(matrix(0, 0));
+      std::vector<double> possibleDhalf { fmod(two_d/4., 2*M_PI),
+                        fmod(two_d/4.+M_PI/2., 2*M_PI),
+                        fmod(two_d/4.+M_PI, 2*M_PI),
+                        fmod(two_d/4.+3./2.*M_PI, 2*M_PI) };
+      auto two_b = 2.*std::arg(matrix(1, 0))-2.*std::arg(matrix(0, 0));
+      std::vector<double> possibleBhalf { fmod(two_b/4., 2*M_PI),
+                        fmod(two_b/4.+M_PI/2., 2*M_PI),
+                        fmod(two_b/4.+M_PI, 2*M_PI),
+                        fmod(two_b/4.+3./2.*M_PI, 2*M_PI) };
+      auto tmp = std::acos(std::abs(matrix(1, 1)));
+      std::vector<double> possibleChalf { fmod(tmp, 2*M_PI),
+                        fmod(tmp+M_PI, 2*M_PI),
+                        fmod(-1.*tmp, 2*M_PI),
+                        fmod(-1.*tmp+M_PI, 2*M_PI) };
+      bool found = false;
+      for (int i = 0; i < possibleBhalf.size(); ++i)
+      {
+        for (int j = 0; j < possibleChalf.size(); ++j)
+        {
+          for (int k = 0; k < possibleDhalf.size(); ++k)
+          {
+            bHalf = possibleBhalf[i];
+            cHalf = possibleChalf[j];
+            dHalf = possibleDhalf[k];
+            if (checkParams(a, bHalf, cHalf, dHalf))
+            {
+              found = true;
+              break;
+            }
+          }
+          if (found)
+          {
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+      assert(found);
+    }
+        
+    // Final check:
+    assert(checkParams(a, bHalf, cHalf, dHalf));    
+    return std::make_tuple(a, bHalf, cHalf, dHalf);
+  };
+  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
+  // An arbitrary one qubit gate matrix can be writen as
+  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
+  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
+  // where a,b,c,d are real numbers.
+  // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
+  auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
+  // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
+  const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
+    GateMatrix Rz_b, Ry_c, Rz_d;
+    Rz_b << std::exp(-I*b/2.0), 0, 0, std::exp(I*b/2.0);
+    Rz_d << std::exp(-I*d/2.0), 0, 0, std::exp(I*d/2.0);
+    Ry_c << std::cos(c/2), -std::sin(c/2), std::sin(c/2), std::cos(c/2);
+    auto mat = std::exp(I*a)*Rz_b*Ry_c*Rz_d;
+    return allClose(in_mat, mat);
+  };
+  // Validate the *raw* decomposition
+  assert(validate(in_mat, a, 2*bHalf, 2*cHalf, 2*dHalf));
+  
+  // Simplify/optimize the sequence:
+  auto composite = simplifySingleQubitSeq(2 * dHalf, 2 * cHalf, 2 * bHalf, in_bitIdx);
+
+  // Validate the *simplified* sequence
+  const auto validateSimplifiedSequence = [](const std::shared_ptr<xacc::CompositeInstruction>& in_composite, const GateMatrix& in_mat) {
+    const auto Rx = [](double angle) {
+      GateMatrix result;
+      result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+      return result;
+    };
+    const auto Ry = [](double angle) {
+      GateMatrix result;
+      result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+      return result;
+    };
+    const auto Rz = [](double angle) {
+      GateMatrix result;
+      result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+      return result;
+    };
+
+    GateMatrix totalU = GateMatrix::Identity();
+    for (size_t i = 0; i < in_composite->nInstructions(); ++i)
+    {
+      auto inst = in_composite->getInstruction(i);
+      assert(inst->name() == "Rx" || inst->name() == "Ry" || inst->name() == "Rz");
+      const auto angle = inst->getParameter(0).as<double>();
+      if (inst->name() == "Rx")
+      {
+        totalU =  Rx(angle) * totalU;
+      }
+      if (inst->name() == "Ry")
+      {
+        totalU = Ry(angle) * totalU;
+      }
+      if (inst->name() == "Rz")
+      {
+        totalU = Rz(angle) * totalU;
+      }
+    }
+
+    // Normalize the upto global phase:
+    // Find index of the largest element:
+    size_t colIdx = 0;
+    size_t rowIdx = 0;
+    double maxVal = std::abs(totalU(0,0));
+    for (size_t i = 0; i < totalU.rows(); ++i)
+    {
+      for (size_t j = 0; j < totalU.cols(); ++j)
+      {
+        if (std::abs(totalU(i,j)) > maxVal)
+        {
+          maxVal = std::abs(totalU(i,j));
+          colIdx = j;
+          rowIdx = i;
+        }
+      }
+    }
+
+    const std::complex<double> globalFactor = in_mat(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+    totalU = globalFactor * totalU;
+    return allClose(in_mat, totalU);
+  };
+
+  assert(validateSimplifiedSequence(composite, in_mat));
+  return composite; 
 }
 }
 
@@ -364,255 +670,262 @@ Eigen::MatrixXcd KAK::KakDecomposition::toMat() const
 std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_bit1, size_t in_bit2) const
 {
   auto gateRegistry = xacc::getService<IRProvider>("quantum");
-  // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
-  // An arbitrary one qubit gate matrix can be written as
-  // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
-  //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
-  // where a,b,c,d are real numbers.
-  const auto singleQubitGateDecompose = [](const GateMatrix& matrix) -> std::tuple<double, double, double, double> {
-    if (allClose(matrix, GateMatrix::Identity()))
+  const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
+    const double TOL = 1e-8;
+    // Full decomposition is required
+    if (std::abs(z) >= TOL)
     {
-      return std::make_tuple(0.0, 0.0, 0.0, 0.0);
-    }
-    const auto checkParams = [&matrix](double a, double bHalf, double cHalf, double dHalf) {
-      GateMatrix U;
-      U << std::exp(I*(a-bHalf-dHalf))*std::cos(cHalf),
-          -std::exp(I*(a-bHalf+dHalf))*std::sin(cHalf),
-          std::exp(I*(a+bHalf-dHalf))*std::sin(cHalf),
-          std::exp(I*(a+bHalf+dHalf))*std::cos(cHalf);
+      const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
+      const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
+      const double zAngle = M_PI * (z * -2 / M_PI + 0.5);
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
+      
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { zAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
 
-      return allClose(U, matrix);    
-    };
-    
-    double a, bHalf, cHalf, dHalf;
-    const double TOLERANCE = 1e-9;
-    if (std::abs(matrix(0, 1)) < TOLERANCE)
-    {
-      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      auto dHalf = 0.0;  
-      auto b = std::arg(matrix(1, 1))-std::arg(matrix(0, 0));
-      std::vector<double> possibleBhalf { fmod(b/2.0, 2 * M_PI), fmod(b/2.0 + M_PI, 2.0 * M_PI) };
-      std::vector<double> possibleChalf { 0.0, M_PI };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, H());
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(IdMat, H());
+        totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
+        totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
         {
-          bHalf = possibleBhalf[i];
-          cHalf = possibleChalf[j];
-          if (checkParams(a, bHalf, cHalf, dHalf))
+          for (size_t j = 0; j < totalU.cols(); ++j)
           {
-            found = true;
-            break;
-          }
-        }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }
-    else if (std::abs(matrix(0, 0)) < TOLERANCE)
-    {
-      auto two_a = fmod(std::arg(-matrix(0, 1)*matrix(1, 0)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      dHalf = 0;  
-      auto b = std::arg(matrix(1, 0))-std::arg(matrix(0, 1)) + M_PI;
-      std::vector<double> possibleBhalf { fmod(b/2., 2*M_PI), fmod(b/2.+M_PI, 2*M_PI) };
-      std::vector<double> possibleChalf { M_PI/2., 3./2.*M_PI };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
-        {
-          bHalf = possibleBhalf[i];
-          cHalf = possibleChalf[j];
-          if (checkParams(a, bHalf, cHalf, dHalf))
-          {
-            found = true;
-            break;
-          }
-        }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }     
-    else
-    {
-      auto two_a = fmod(std::arg(matrix(0, 0)*matrix(1, 1)), 2*M_PI);
-      a = (std::abs(two_a) < TOLERANCE || std::abs(two_a) > 2*M_PI-TOLERANCE) ? 0 : two_a/2.0;
-      auto two_d = 2.*std::arg(matrix(0, 1))-2.*std::arg(matrix(0, 0));
-      std::vector<double> possibleDhalf { fmod(two_d/4., 2*M_PI),
-                        fmod(two_d/4.+M_PI/2., 2*M_PI),
-                        fmod(two_d/4.+M_PI, 2*M_PI),
-                        fmod(two_d/4.+3./2.*M_PI, 2*M_PI) };
-      auto two_b = 2.*std::arg(matrix(1, 0))-2.*std::arg(matrix(0, 0));
-      std::vector<double> possibleBhalf { fmod(two_b/4., 2*M_PI),
-                        fmod(two_b/4.+M_PI/2., 2*M_PI),
-                        fmod(two_b/4.+M_PI, 2*M_PI),
-                        fmod(two_b/4.+3./2.*M_PI, 2*M_PI) };
-      auto tmp = std::acos(std::abs(matrix(1, 1)));
-      std::vector<double> possibleChalf { fmod(tmp, 2*M_PI),
-                        fmod(tmp+M_PI, 2*M_PI),
-                        fmod(-1.*tmp, 2*M_PI),
-                        fmod(-1.*tmp+M_PI, 2*M_PI) };
-      bool found = false;
-      for (int i = 0; i < possibleBhalf.size(); ++i)
-      {
-        for (int j = 0; j < possibleChalf.size(); ++j)
-        {
-          for (int k = 0; k < possibleDhalf.size(); ++k)
-          {
-            bHalf = possibleBhalf[i];
-            cHalf = possibleChalf[j];
-            dHalf = possibleDhalf[k];
-            if (checkParams(a, bHalf, cHalf, dHalf))
+            if (std::abs(totalU(i,j)) > maxVal)
             {
-              found = true;
-              break;
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
             }
           }
-          if (found)
-          {
-            break;
-          }
         }
-        if (found)
-        {
-          break;
-        }
-      }
-      assert(found);
-    }
-        
-    // Final check:
-    assert(checkParams(a, bHalf, cHalf, dHalf));    
-    return std::make_tuple(a, bHalf, cHalf, dHalf);
-  };
-  
-  const auto singleQubitGateGen = [&](const GateMatrix& in_mat, size_t in_bitIdx) {
-    // Use Z-Y decomposition of Nielsen and Chuang (Theorem 4.1).
-    // An arbitrary one qubit gate matrix can be writen as
-    // U = [ exp(j*(a-b/2-d/2))*cos(c/2), -exp(j*(a-b/2+d/2))*sin(c/2)
-    //       exp(j*(a+b/2-d/2))*sin(c/2), exp(j*(a+b/2+d/2))*cos(c/2)]
-    // where a,b,c,d are real numbers.
-    // Then U = exp(j*a) Rz(b) Ry(c) Rz(d).
-    auto [a, bHalf, cHalf, dHalf] = singleQubitGateDecompose(in_mat);
-    auto composite = gateRegistry->createComposite("__TEMP__COMPOSITE__" + std::to_string(getTempId()));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * dHalf }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { in_bitIdx }, { 2 * cHalf }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { in_bitIdx }, { 2 * bHalf }));
 
-    // Validate U = exp(j*a) Rz(b) Ry(c) Rz(d).
-    const auto validate = [](const GateMatrix& in_mat, double a, double b, double c, double d) {
-      GateMatrix Rz_b, Ry_c, Rz_d;
-      Rz_b << std::exp(-I*b/2.0), 0, 0, std::exp(I*b/2.0);
-      Rz_d << std::exp(-I*d/2.0), 0, 0, std::exp(I*d/2.0);
-      Ry_c << std::cos(c/2), -std::sin(c/2), std::sin(c/2), std::cos(c/2);
-      auto mat = std::exp(I*a)*Rz_b*Ry_c*Rz_d;
-      return allClose(in_mat, mat);
-    };
-
-    assert(validate(in_mat, a, 2*bHalf, 2*cHalf, 2*dHalf));
-    return composite; 
-  };
-
-  const auto generateInteractionComposite = [&](size_t bit1, size_t bit2, double x, double y, double z) {
-    const double xAngle = M_PI * (x * -2 / M_PI + 0.5);
-    const double yAngle = M_PI * (y * -2 / M_PI + 0.5);
-    const double zAngle = M_PI * (z * -2 / M_PI + 0.5);
-    auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
-    
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rz", { bit1 }, { zAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
-    composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
-    composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
-
-    const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
-      const auto H = []() {
-        GateMatrix result;
-        result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
-        return result;
-      };
-      const auto Rx = [](double angle) {
-        GateMatrix result;
-        result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
-        return result;
-      };
-      const auto Ry = [](double angle) {
-        GateMatrix result;
-        result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
-        return result;
-      };
-      const auto Rz = [](double angle) {
-        GateMatrix result;
-        result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
-        return result;
-      };
-      const auto CZ = []() {
-        Eigen::Matrix4cd cz;
-        cz << 1, 0, 0, 0, 
-              0, 1, 0, 0,
-              0, 0, 1, 0,
-              0, 0, 0, -1;
-        return cz;
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
       };
       
-      Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
-      Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
-      totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
-      totalU *= Eigen::kroneckerProduct(IdMat, H());
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(IdMat, H());
-      totalU *= Eigen::kroneckerProduct(Rx(M_PI_2), IdMat);
-      totalU *= Eigen::kroneckerProduct(Rz(zAngle), IdMat);
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);
-      totalU *= CZ();
-      totalU *= Eigen::kroneckerProduct(H(), IdMat);      
-      // Find index of the largest element:
-      size_t colIdx = 0;
-      size_t rowIdx = 0;
-      double maxVal = std::abs(totalU(0,0));
-      for (size_t i = 0; i < totalU.rows(); ++i)
-      {
-        for (size_t j = 0; j < totalU.cols(); ++j)
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
+      return composite;
+    }
+    // ZZ interaction is near zero: only XX and YY
+    else if (y >= TOL)
+    {
+      const double xAngle = -2 * x;
+      const double yAngle = -2 * y;
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));  
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Ry", { bit1 }, { yAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { -M_PI_2 }));
+
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(-M_PI_2));
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= Eigen::kroneckerProduct(Ry(yAngle), IdMat);
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(M_PI_2));
+
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
         {
-          if (std::abs(totalU(i,j)) > maxVal)
+          for (size_t j = 0; j < totalU.cols(); ++j)
           {
-            maxVal = std::abs(totalU(i,j));
-            colIdx = j;
-            rowIdx = i;
+            if (std::abs(totalU(i,j)) > maxVal)
+            {
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
+            }
           }
         }
-      }
 
-      const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
-      totalU = globalFactor * totalU;
-      return allClose(totalU, in_target);
-    };
-    
-    assert(validateGateSequence(interactionMatrixExp(x, y, z)));
-    return composite;
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
+      return composite;
+    }
+    // only XX is significant
+    else 
+    {
+      const double xAngle = -2 * x;
+      auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { xAngle }));
+      composite->addInstruction(gateRegistry->createInstruction("CZ", { bit1, bit2 }));
+      composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
+      
+      const auto validateGateSequence = [&](const Eigen::Matrix4cd& in_target){
+        const auto H = []() {
+          GateMatrix result;
+          result << 1.0/std::sqrt(2), 1.0/std::sqrt(2), 1.0/std::sqrt(2), -1.0/std::sqrt(2);
+          return result;
+        };
+        const auto Rx = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2.0), -I*std::sin(angle/2.0), -I*std::sin(angle/2.0), std::cos(angle/2.0);
+          return result;
+        };
+        const auto Ry = [](double angle) {
+          GateMatrix result;
+          result << std::cos(angle/2), -std::sin(angle/2), std::sin(angle/2), std::cos(angle/2);
+          return result;
+        };
+        const auto Rz = [](double angle) {
+          GateMatrix result;
+          result << std::exp(-I*angle/2.0), 0, 0, std::exp(I*angle/2.0);
+          return result;
+        };
+        const auto CZ = []() {
+          Eigen::Matrix4cd cz;
+          cz << 1, 0, 0, 0, 
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1;
+          return cz;
+        };
+        
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        Eigen::Matrix4cd totalU = Eigen::Matrix4cd::Identity();
+        
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(IdMat, Rx(xAngle));
+        totalU *= CZ();
+        totalU *= Eigen::kroneckerProduct(H(), IdMat);      
+
+        // Find index of the largest element:
+        size_t colIdx = 0;
+        size_t rowIdx = 0;
+        double maxVal = std::abs(totalU(0,0));
+        for (size_t i = 0; i < totalU.rows(); ++i)
+        {
+          for (size_t j = 0; j < totalU.cols(); ++j)
+          {
+            if (std::abs(totalU(i,j)) > maxVal)
+            {
+              maxVal = std::abs(totalU(i,j));
+              colIdx = j;
+              rowIdx = i;
+            }
+          }
+        }
+
+        const std::complex<double> globalFactor = in_target(rowIdx, colIdx) / totalU(rowIdx, colIdx);
+        totalU = globalFactor * totalU;
+        return allClose(totalU, in_target);
+      };
+      
+      assert(validateGateSequence(interactionMatrixExp(x, y, z)));
+      return composite; 
+    }
   };
 
   auto a0Comp = singleQubitGateGen(a0, in_bit2);
@@ -975,6 +1288,40 @@ KAK::KakDecomposition KAK::canonicalizeInteraction(double x, double y, double z)
 
   assert(allClose(result.toMat(), interactionMatrixExp(x, y, z)));
   return result;
+}
+bool ZYZ::expand(const xacc::HeterogeneousMap& runtimeOptions) 
+{
+  Eigen::Matrix2cd unitary;
+  if (runtimeOptions.keyExists<Eigen::Matrix2cd>("unitary"))
+  {
+    unitary = runtimeOptions.get<Eigen::Matrix2cd>("unitary");
+  }
+  else if (runtimeOptions.keyExists<std::vector<std::complex<double>>>("unitary"))
+  {
+    auto matAsVec = runtimeOptions.get<std::vector<std::complex<double>>>("unitary");
+    // Correct size: 2 x 2
+    if (matAsVec.size() == 4)
+    {
+      for (int row = 0; row < 2; ++row)
+      {
+        for (int col = 0; col < 2; ++col)
+        {
+          // Expect row-by-row layout
+          unitary(row, col) = matAsVec[2*row + col];
+        }
+      }
+    }
+  }
+  else
+  {
+    xacc::error("unitary matrix is required.");
+    return false;
+  }
+
+  assert(isUnitary(unitary));
+  auto decomposed = singleQubitGateGen(unitary, 0);
+  addInstructions(decomposed->getInstructions());
+  return true;
 }
 } // namespace circuits
 } // namespace xacc
