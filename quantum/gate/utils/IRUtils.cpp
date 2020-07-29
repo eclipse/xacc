@@ -34,8 +34,29 @@ getBaseLength(const std::shared_ptr<xacc::CompositeInstruction> &in_composite) {
     }
   }
   return length;
-};
+}
 
+bool compareInst(xacc::InstPtr in_a, xacc::InstPtr in_b) {
+  if (!in_a || !in_b) {
+    return false;
+  }
+  // We should only compare elementary instructions.
+  assert(!in_a->isComposite() && !in_b->isComposite());
+  assert(in_a->isEnabled() && in_b->isEnabled());
+  return (in_a->name() == in_b->name()) && (in_a->bits() == in_b->bits()) &&
+         (in_a->getParameters() == in_b->getParameters());
+}
+// Helper to pop the instruction stack (so that we can walk both trees
+// simultaneously)
+xacc::InstPtr getNextInstruction(xacc::InstructionIterator &iter) {
+  while (iter.hasNext()) {
+    auto nextInst = iter.next();
+    if (nextInst->isEnabled() && !nextInst->isComposite()) {
+      return nextInst;
+    }
+  }
+  return nullptr;
+}
 } // namespace
 namespace xacc {
 namespace quantum {
@@ -80,31 +101,8 @@ ObservedAnsatz ObservedAnsatz::fromObservedComposites(
          InstructionIterator &out_Iter) {
         assert(getBaseLength(in_base) <= getBaseLength(in_toTest));
         bool result = true;
-
         InstructionIterator baseIt(in_base);
         InstructionIterator otherIter(in_toTest);
-        // Helper to pop the instruction stack (so that we can walk both trees
-        // simultaneously)
-        const auto getNextInstruction =
-            [](InstructionIterator &iter) -> InstPtr {
-          while (iter.hasNext()) {
-            auto nextInst = iter.next();
-            if (nextInst->isEnabled() && !nextInst->isComposite()) {
-              return nextInst;
-            }
-          }
-          return nullptr;
-        };
-
-        const auto compareInst = [](InstPtr in_a, InstPtr in_b) -> bool {
-          if (!in_a || !in_b) {
-            return false;
-          }
-          // We should only compare elementary instructions.
-          assert(!in_a->isComposite() && !in_b->isComposite());
-          assert(in_a->isEnabled() && in_b->isEnabled());
-          return in_a->toString() == in_b->toString();
-        };
         while (baseIt.hasNext()) {
           auto nextInst = baseIt.next();
           if (nextInst->isEnabled() && !nextInst->isComposite()) {
@@ -193,6 +191,46 @@ ObservedAnsatz ObservedAnsatz::fromObservedComposites(
   result.m_obsCircuits = in_composites;
   return result;
 }
+bool ObservedAnsatz::validate(
+    const std::vector<std::shared_ptr<CompositeInstruction>> &in_composites)
+    const {
+  if (m_obsCircuits.size() != in_composites.size()) {
+    return false;
+  }
+  auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
 
+  for (int i = 0; i < m_obsCircuits.size(); ++i) {
+    auto obsCirc = m_obsCircuits[i];
+
+    std::shared_ptr<xacc::CompositeInstruction> combinedComp =
+        gateRegistry->createComposite("__RECOVERED__" + std::to_string(i));
+    for (int idx = 0; idx < m_baseAnsatz->nInstructions(); ++idx) {
+      combinedComp->addInstruction(m_baseAnsatz->getInstruction(idx)->clone());
+    }
+    for (int idx = 0; idx < obsCirc->nInstructions(); ++idx) {
+      combinedComp->addInstruction(obsCirc->getInstruction(idx)->clone());
+    }
+    auto originalCirc = in_composites[i];
+    // Compare two composites:
+    InstructionIterator origIter(originalCirc);
+    InstructionIterator otherIter(combinedComp);
+    while (origIter.hasNext()) {
+      auto nextInst = origIter.next();
+      if (nextInst->isEnabled() && !nextInst->isComposite()) {
+        // Pop the other iter as well
+        auto otherInstr = getNextInstruction(otherIter);
+        if (!compareInst(nextInst, otherInstr)) {
+          return false;
+        }
+      }
+    }
+    assert(!origIter.hasNext());
+    if (otherIter.hasNext()) {
+      // The other composite contains extra instructions.
+      return false;
+    }
+  }
+  return true;
+}
 } // namespace quantum
 } // namespace xacc

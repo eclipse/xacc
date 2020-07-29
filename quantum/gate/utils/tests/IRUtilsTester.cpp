@@ -6,6 +6,7 @@
 #include <random>
 #include <iterator>
 #include "IRUtils.hpp"
+#include "xacc_observable.hpp"
 
 using namespace xacc::quantum;
 
@@ -61,24 +62,57 @@ TEST(IRUtilsTester, checkSimple) {
     std::cout << "HOWDY: \n" << circ->toString() << "\n";
   }
   auto result = ObservedAnsatz::fromObservedComposites(testCircs);
-  
+
   EXPECT_EQ(result.getBase()->nInstructions(), base->nInstructions());
   EXPECT_EQ(result.getBase()->toString(), base->toString());
-  for (int i = 0; i < result.getObservedSubCircuits().size(); ++i) {
-    auto circ = result.getObservedSubCircuits()[i];
-    // All circuits have one extra gate and a Measure
-    EXPECT_EQ(circ->nInstructions(), 2);
-    std::shared_ptr<xacc::CompositeInstruction> newComp =
-        gateRegistry->createComposite("__RECOVERED__" + std::to_string(i));
-    for (int idx = 0; idx < result.getBase()->nInstructions(); ++idx) {
-      newComp->addInstruction(result.getBase()->getInstruction(idx)->clone());
-    }
-    for (int idx = 0; idx < circ->nInstructions(); ++idx) {
-      newComp->addInstruction(circ->getInstruction(idx)->clone());
-    }
-    auto originalCirc = testCircs[i];
-    // The recovered: base + obs sub-circuit matches the original 
-    EXPECT_EQ(newComp->toString(), originalCirc->toString());
+  EXPECT_TRUE(result.validate(testCircs));
+}
+
+TEST(IRUtilsTester, checkObservable) {
+  {
+    auto H_N_2 = xacc::quantum::getObservable(
+        "pauli", std::string("5.907 - 2.1433 X0X1 "
+                             "- 2.1433 Y0Y1"
+                             "+ .21829 Z0 - 6.125 Z1"));
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+    auto evaled = ansatz->operator()({1.2345});
+    const auto fsToExe = H_N_2->observe(evaled);
+    auto result = ObservedAnsatz::fromObservedComposites(fsToExe);
+    EXPECT_EQ(result.getBase()->toString(), evaled->toString());
+    EXPECT_TRUE(result.validate(fsToExe));
+  }
+
+  {
+    auto H_N_3 = xacc::quantum::getObservable(
+        "pauli",
+        std::string(
+            "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+            "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz_h3
+        .parameters t0, t1
+        .qbit q
+        X(q[0]);
+        exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
+        exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz_h3");
+    auto evaled = ansatz->operator()({1.2345, 6.789});
+    const auto fsToExe = H_N_3->observe(evaled);
+    auto result = ObservedAnsatz::fromObservedComposites(fsToExe);
+    EXPECT_EQ(result.getBase()->toString(), evaled->toString());
+    EXPECT_TRUE(result.validate(fsToExe));
   }
 }
 

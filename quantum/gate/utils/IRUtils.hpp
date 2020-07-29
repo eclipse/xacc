@@ -30,6 +30,9 @@ public:
   getObservedSubCircuits() const {
     return m_obsCircuits;
   }
+  // Helper for users to verify that the decomposition indeed valid
+  bool validate(const std::vector<std::shared_ptr<CompositeInstruction>>
+                    &in_composites) const;
 
 private:
   std::shared_ptr<CompositeInstruction> m_baseAnsatz;
