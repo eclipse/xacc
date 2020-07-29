@@ -50,7 +50,8 @@ bool XASMCompiler::canParse(const std::string &src) {
   CommonTokenStream tokens(&lexer);
   xasmParser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new XASMThrowExceptionErrorListener());
+  XASMThrowExceptionErrorListener el;
+  parser.addErrorListener(&el);
 
   try {
     tree::ParseTree *tree = parser.xaccsrc();
@@ -68,7 +69,8 @@ std::shared_ptr<IR> XASMCompiler::compile(const std::string &src,
   CommonTokenStream tokens(&lexer);
   xasmParser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new XASMErrorListener());
+  XASMErrorListener el;
+  parser.addErrorListener(&el);
 
   auto ir = xacc::getService<IRProvider>("quantum")->createIR();
 
@@ -99,7 +101,8 @@ XASMCompiler::getKernelBufferNames(const std::string &src) {
   CommonTokenStream tokens(&lexer);
   xasmParser parser(&tokens);
   parser.removeErrorListeners();
-  parser.addErrorListener(new XASMErrorListener());
+  XASMErrorListener el;
+  parser.addErrorListener(&el);
 
   auto ir = xacc::getService<IRProvider>("quantum")->createIR();
 
