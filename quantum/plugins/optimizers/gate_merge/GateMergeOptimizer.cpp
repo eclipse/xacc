@@ -109,11 +109,12 @@ void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction>
                 }
                 else
                 {
-                    const auto locationToInsert = sequence[0];
+                    auto locationToInsert = sequence[0];
                     for (auto& newInst: zyz->getInstructions())
                     {
                         newInst->setBits({bitIdx});
                         program->insertInstruction(locationToInsert, newInst->clone());
+                        locationToInsert++;
                     }
                 }
                 
@@ -283,11 +284,12 @@ void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> pr
                 }
                 else
                 {
-                    const auto locationToInsert = sequence[0];
+                    auto locationToInsert = sequence[0];
                     for (auto& newInst: kak->getInstructions())
                     {
                         newInst->setBits(remapBits(newInst->bits()));
                         program->insertInstruction(locationToInsert, newInst->clone());
+                        locationToInsert++;
                     }
                 }
                 // Jump forward since we don't want to re-analyze this block.
