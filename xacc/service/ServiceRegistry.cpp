@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "ServiceRegistry.hpp"
 #include "xacc_config.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 
@@ -69,7 +70,11 @@ void ServiceRegistry::initialize(const std::string rootPath) {
     // bad practice.
     auto bundles = context.GetBundles();
     for (auto b : bundles) {
-      b.Start();
+      try {
+        b.Start();
+      } catch (std::exception &e) {
+          xacc::error("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
+      }
     }
 
     initialized = true;
