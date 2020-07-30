@@ -67,7 +67,7 @@ else()
 endif()
 
 set(BUILD_SHARED_LIBS FALSE)
-set(BOOST_LIBS_OPTIONAL graph mpi CACHE STRING "" FORCE)
+set(BOOST_LIBS_OPTIONAL graph CACHE STRING "" FORCE)
 add_subdirectory(boost-cmake)
 
 install (DIRECTORY armadillo DESTINATION ${CMAKE_INSTALL_PREFIX}/include/)
