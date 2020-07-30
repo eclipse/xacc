@@ -3,15 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-XACC Documentation
-==================
+.. image:: ../assets/xacc_full_logo.svg
 
-.. image:: ../assets/xacc-readme.jpg
+\
+\
 
-Overview
----------
 
-XACC is an extensible compilation framework for hybrid quantum-classical
+XACC (pronounced as it's spelled) is an extensible compilation framework for hybrid quantum-classical
 computing architectures. It provides extensible language frontend and hardware
 backend compilation components glued together via a novel, polymorphic quantum intermediate
 representation. XACC currently supports quantum-classical programming and enables
@@ -56,6 +54,10 @@ XACC is developed and maintained by:
 * `Ryan Sand <rsand3642@gmail.com>`_
 * `Charles Zhao <czhao39@gmail.com>`_
 * `Jay Billings <billingsjj@ornl.gov>`_
+* `Thien Nguyen <nguyentm@ornl.gov>`_ 
+* `Daniel Chaves-Claudino <claudinodc@ornl.gov>`_
+* `Tyler Kharazi <kharazitd@ornl.gov>`_ 
+* `Anthony Santana <santanaam@ornl.gov>`_
 
 Questions, Bug Reporting, and Issue Tracking
 ---------------------------------------------
@@ -73,6 +75,7 @@ You can ask questions by creating a new issue with the question tag.
    extensions
    advanced
    developers
+   tutorials
 
 Publications
 ------------

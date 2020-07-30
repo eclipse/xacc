@@ -58,7 +58,7 @@ using PyHeterogeneousMapTypes =
                   std::vector<double>, std::vector<int>, std::complex<double>, std::vector<std::complex<double>>,
                   std::shared_ptr<CompositeInstruction>,
                   std::shared_ptr<Instruction>, std::shared_ptr<Accelerator>,
-                  std::shared_ptr<Observable>, std::shared_ptr<Optimizer>>;
+                  std::shared_ptr<Observable>, std::shared_ptr<Optimizer>, Eigen::MatrixXcd>;
 using PyHeterogeneousMap = std::map<std::string, PyHeterogeneousMapTypes>;
 
 // Visitor used to map PyHeterogeneousMap to HeterogeneousMap
@@ -81,7 +81,8 @@ class HeterogeneousMap2PyHeterogeneousMap
           std::vector<double>, std::vector<int>, std::complex<double>, std::vector<std::complex<double>>,
           std::shared_ptr<CompositeInstruction>, std::shared_ptr<Instruction>,
           std::shared_ptr<Accelerator>, std::shared_ptr<Observable>,
-          std::shared_ptr<Optimizer>> {
+          std::shared_ptr<Optimizer>,
+          Eigen::MatrixXcd> {
 private:
   PyHeterogeneousMap &pymap;
 

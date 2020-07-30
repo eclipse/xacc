@@ -13,41 +13,10 @@ scratch development directory:
 
 .. code:: bash
 
-   $ docker run -it --init -p 3000:3000 -v "$(pwd):/home/project:cached" xacc/dev
+   $ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
 
 Now navigate to ``localhost:3000`` in your web browser. This will open
-the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```
-(or ``cmd + ``` on a Mac). Use the terminal to clone XACC and start
-building.
-
-Quick Start for ORNL Developers
--------------------------------
-For ORNL employees (or those with valid ORNL credentials) we have put together
-a base Ubuntu 16.04 VM image that can be used with the `CADES Cloud Computing
-infrastructure <https://cades.ornl.gov/service-suite/cades-cloud/>`_. CADES provides a
-form of cloud computing whereby users can spin up VMs of varying sizes (n cpus, RAM, etc)
-via a user-friendly web interface. Once created, users can SSH into it and begin working. Our base
-Ubuntu VM comes with all XACC prerequisites and the Eclipse Theia IDE installed.
-
-If you would like to leverage this service, please request an account by following the instructions
-`here <https://support.cades.ornl.gov/user-documentation/_book/quick-starts/launch-vm-quick-start.html>`_.
-Once you have an account, email `mccaskeyaj@ornl.gov <mccaskeyaj@ornl.gov>`_ and request access to the base XACC image.
-
-Once your VM is created, you need to open up port 3000 in order to use Theia. To do so, go to the CADES web dashboard
-and click Access and Security. On the default security group click Manage Rules. At the top, click Add Rule, leave everything
-as it is by default, but add ``3000`` to the port entry. Now just click Add Rule.
-
-Continue to read through the support `site <https://support.cades.ornl.gov/user-documentation/_book/openstack/access-vm/access-vm.html>`_
-to see information about SSHing into your newly created VM. Once logged into the VM, run the following to launch Theia
-
-.. code:: bash
-
-   $ cd dev
-   $ yarn theia start --hostname 0.0.0.0 --port 3000
-
-Launch this in the background if you wish to leave the current SSH session but still want Theia running on
-your VM. Now navigate to your instances IP address at port 3000 in your web browser (``https://128.232.33.87:3000`` for example).
-You should see the Theia web IDE. Now build XACC according to the instructions `here <https://xacc.readthedocs.io/en/latest/install.html#build-xacc>`_.
+the Theia IDE and you are good to go. Open a terminal with ``ctrl + ```.
 
 Writing a Plugin in C++
 -----------------------

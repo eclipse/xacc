@@ -65,7 +65,9 @@ public:
     throw std::bad_function_call();
   }
 
-  const std::string get_algorithm() const { return options.getString(name() + "-optimizer"); }
+  virtual const std::string get_algorithm() const {return "";}
+
+  virtual const bool isGradientBased() const {return false;}
 
 };
 } // namespace xacc

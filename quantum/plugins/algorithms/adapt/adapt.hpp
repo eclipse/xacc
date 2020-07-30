@@ -10,56 +10,52 @@
  * Contributors:
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_ALGORITHM_ADAPT_VQE_HPP_
-#define XACC_ALGORITHM_ADAPT_VQE_HPP_
+#ifndef XACC_ALGORITHM_ADAPT_HPP_
+#define XACC_ALGORITHM_ADAPT_HPP_
 
 #include "Algorithm.hpp"
 #include "Observable.hpp"
 #include "PauliOperator.hpp"
+#include "OperatorPool.hpp"
 
 using namespace xacc::quantum;
 
 namespace xacc{
 namespace algorithm{
 
-class OperatorPool : public Identifiable {
+class ADAPT : public Algorithm {
 
-public:
-  virtual bool isValidOperatorPool(const std::string &operatorPool) = 0;
-
-  virtual std::vector<std::shared_ptr<Observable>>
-  generate(const int &nQubits, const int &nElectrons) = 0;
-
-};
-
-class ADAPT_VQE : public Algorithm {
 protected:
   std::shared_ptr<Observable> observable;
   std::shared_ptr<Optimizer> optimizer;
   std::shared_ptr<Accelerator> accelerator;
+  std::shared_ptr<OperatorPool> pool; 
+  std::shared_ptr<CompositeInstruction> initialState; 
+  std::string subAlgo; // sub-algorithm, either VQE or QAOA
   HeterogeneousMap _parameters;
 
-  //ADAPT-VQE parameters
-  int nElectrons; // # of electrons
-  std::string pool; // operator pool
-  int _maxIter = 50; // max # of ADAPT-VQE cycles
-  double _gradThreshold = 1.0e-2; // gradient norm threshold
+  //ADAPT parameters
+  int _maxIter = 50; // max # of ADAPT cycles // # of QAOA layers
+  double _adaptThreshold = 1.0e-2; // gradient norm threshold
   double _printThreshold = 1.0e-10; // threshold to print commutator
   bool _printOps = false; // set to true to print operators at every iteration
+  int _nElectrons; // # of electrons, used for VQE
 
   std::vector<int> checkpointOps; // indices of operators to construct initial ansatz
   std::vector<double> checkpointParams; // initial parameters for initial ansatz
-  std::string gradStrategyName; // name of class to compute gradient for VQE optimization
+  // name of class to compute gradient for optimization
+  // defaults to parameter shift
+  std::string gradStrategyName = "parameter-shift-gradient"; 
 
 public:
 
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
-  const std::string name() const override { return "adapt-vqe"; }
+  const std::string name() const override { return "adapt"; }
   const std::string description() const override { return ""; }
 
-  DEFINE_ALGORITHM_CLONE(ADAPT_VQE)
+  DEFINE_ALGORITHM_CLONE(ADAPT)
 
 };
 

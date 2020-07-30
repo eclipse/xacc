@@ -27,6 +27,8 @@ struct ExtraNLOptData {
 class NLOptimizer : public Optimizer {
 public:
   OptResult optimize(OptFunction &function) override;
+  const bool isGradientBased() const override;
+  virtual const std::string get_algorithm() const;
 
   const std::string name() const override { return "nlopt"; }
   const std::string description() const override { return ""; }

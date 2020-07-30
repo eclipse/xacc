@@ -10,7 +10,7 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-set(LIBRARY_NAME xacc-algorithm-adapt_vqe)
+set(LIBRARY_NAME xacc-algorithm-adapt)
 
 file(GLOB SRC *.cpp)
 
@@ -21,11 +21,12 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC .)
+  PUBLIC .
+  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices PRIVATE xacc-quantum-gate)
 
-set(_bundle_name xacc_algorithm_adapt_vqe)
+set(_bundle_name xacc_algorithm_adapt)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS
                                  US_BUNDLE_NAME=${_bundle_name}
@@ -51,7 +52,7 @@ else()
 endif()
 
 if(XACC_BUILD_TESTS)
-  add_subdirectory(tests)
+  #add_subdirectory(tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

@@ -14,6 +14,7 @@
 
 #include "Observable.hpp"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 #include <memory>
 #include <iomanip>
@@ -49,8 +50,21 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
   // if gradient is provided
   if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
       "gradient_strategy")){
-    gradientStrategy = parameters.getPointerLike<AlgorithmGradientStrategy>(
+    gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>(
       "gradient_strategy");
+  }
+
+  if (parameters.stringExists("gradient_strategy") && 
+      !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
+       optimizer->isGradientBased()){
+    gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
+    gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(observable))});
+  }
+
+  if ((parameters.stringExists("gradient_strategy") || 
+      parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy")) &&
+      !optimizer->isGradientBased()){
+    xacc::warning("Chosen optimizer does not support gradients. Using default.");
   }
 
   return true;
@@ -116,9 +130,9 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             fsToExec.push_back(inst);
           }
           xacc::info("Number of instructions for energy calculation: " 
-                      + std::to_string(nInstructionsEnergy) + "\n");
+                      + std::to_string(nInstructionsEnergy));
           xacc::info("Number of instructions for gradient calculation: "
-                      + std::to_string(nInstructionsGradient) + "\n");
+                      + std::to_string(nInstructionsGradient));
 
         }
 
@@ -158,11 +172,12 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           std::stringstream ss;
-          ss << std::setprecision(12) << "Current Energy: " << energy << "\n";
+          ss << std::setprecision(12) << "Current Energy: " << energy;
           xacc::info(ss.str());
           ss.str(std::string());
 
           // update gradient vector
+          
           gradientStrategy->compute(dx, 
             std::vector<std::shared_ptr<AcceleratorBuffer>>(buffers.begin() + nInstructionsEnergy, buffers.end()));
 

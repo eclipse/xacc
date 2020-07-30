@@ -29,6 +29,7 @@ namespace {
     }
 }
 
+namespace xacc {
 GrapePulseOptim::GrapePulseOptim(const GrapeConfigs& in_configs):
     m_configs(in_configs)
 {
@@ -130,8 +131,6 @@ std::vector<std::vector<double>> GrapePulseOptim::evaluate()
         
     return newPulses;
 }
-
-namespace xacc {
 
 // ============= GRAPE ==========================
 // - Required: { "dimension" : int } : system dimension (number of qubits)

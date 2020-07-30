@@ -85,6 +85,12 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
         terms.push_back({kv.first, kv.second});
       }
     }
+
+    // this is required when the operator has scalar terms
+    if(terms.size() == 0){
+      continue;
+    }
+
     // The largest qubit index is on the last term
     int largestQbitIdx = terms[terms.size() - 1].first;
 

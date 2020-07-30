@@ -25,6 +25,28 @@ double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
   return e->f(x, grad);
 }
 
+const std::string NLOptimizer::get_algorithm() const {
+  std::string nlopt_opt_name = "cobyla";
+  if (options.stringExists("nlopt-optimizer")) {
+    nlopt_opt_name = options.getString("nlopt-optimizer");
+  }
+  return nlopt_opt_name;
+}
+
+const bool NLOptimizer::isGradientBased() const {
+
+  std::string nlopt_opt_name = "cobyla";
+  if (options.stringExists("nlopt-optimizer")) {
+    nlopt_opt_name = options.getString("nlopt-optimizer");
+  }
+
+  if (nlopt_opt_name == "l-bfgs") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 OptResult NLOptimizer::optimize(OptFunction &function) {
 
   auto dim = function.dimensions();
@@ -53,7 +75,8 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
-    xacc::info("[NLOpt] max function evaluations set to " + std::to_string(maxeval));
+    xacc::info("[NLOpt] max function evaluations set to " +
+               std::to_string(maxeval));
   }
 
   std::vector<double> x(dim);
@@ -70,27 +93,43 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 
   nlopt::opt _opt(algo, dim);
   _opt.set_min_objective(c_wrapper, d);
-  _opt.set_lower_bounds(std::vector<double>(dim, -3.1415926));
-  _opt.set_upper_bounds(std::vector<double>(dim, 3.1415926));
+  // Default lower bounds
+  std::vector<double> lowerBounds(dim, -3.1415926);
+  if (options.keyExists<std::vector<double>>("nlopt-lower-bounds")) {
+    lowerBounds = options.get<std::vector<double>>("nlopt-lower-bounds");
+  }
+
+  // Default upper bounds
+  std::vector<double> upperBounds(dim, 3.1415926);
+  if (options.keyExists<std::vector<double>>("nlopt-upper-bounds")) {
+    upperBounds = options.get<std::vector<double>>("nlopt-upper-bounds");
+  }
+
+  _opt.set_lower_bounds(lowerBounds);
+  _opt.set_upper_bounds(upperBounds);
   _opt.set_maxeval(maxeval);
   _opt.set_ftol_rel(tol);
 
+  if (options.keyExists<double>("nlopt-stopval")) {
+    const double stopVal = options.get<double>("nlopt-stopval");
+    xacc::info("[NLOpt] function stopval set to " + std::to_string(stopVal));
+    _opt.set_stopval(stopVal);
+  }
+
   if (dim != x.size()) {
-      xacc::error("Invalid optimization configuration: function dim == " + std::to_string(dim) + ", param_size == " + std::to_string(x.size()));
+    xacc::error("Invalid optimization configuration: function dim == " +
+                std::to_string(dim) +
+                ", param_size == " + std::to_string(x.size()));
   }
   double optF;
   nlopt::result r;
   try {
     r = _opt.optimize(x, optF);
   } catch (std::exception &e) {
-    std::cout << "[nlopt warning] " << e.what() << ", result code = " << r
-              << "\n";
+    xacc::error("NLOpt failed with error code = " + std::to_string(r) + ", " +
+                std::string(e.what()));
   }
 
-  if (r < 0) {
-    xacc::XACCLogger::instance()->error("NLOpt failed with error code = " +
-                                        std::to_string(r));
-  }
   return OptResult{optF, x};
 }
 

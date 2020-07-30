@@ -1336,6 +1336,254 @@ In Python:
    plt.show()
 
 
+ADAPT
+++++
+The Adaptive Derivative Assembled Problem Tailored (ADAPT) Algorithm requires the following input information:
+(`Grismley et al. (2018) <https://arxiv.org/pdf/1812.11173.pdf>`_, `Tang et al. (2019) <https://arxiv.org/pdf/1911.10205.pdf>`_, `Zhu et al. (2020) <https://arxiv.org/pdf/2005.10258.pdf>`_)
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator represents the Hamiltonian               | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    optimizer           | The classical optimizer to use                                  | std::shared_ptr<Optimizer>           |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    pool                | Pool of operators to construct adaptive ansatz                  | std::string                          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    sub-algorithm       | Algorithm called by ADAPT (VQE or QAOA)                         | std::string                          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+Optionally, users can provide these parameters:
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    initial-state       | State preparation circuit.                                      | std::shared_ptr<CompositeInstruction>|
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    n-electrons         | Required parameter for VQE, unless initial-state is provided    | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    maxiter             | Maximum number of ADAPT cycles/number of layers in QAOA         | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    print-threshold     | Value above which commutators are printed (Default 1.0e-10)     | double                               |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    adapt-threshold     | Stops ADAPT when norm of gradient vector falls below this value | double                               |
+|                        | (Default 1.0e-2)                                                |                                      |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+ADAPT-VQE
+
+.. code:: cpp
+
+    #include "xacc.hpp"
+    #include "xacc_observable.hpp"
+    #include "xacc_service.hpp"
+
+    int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+
+      // Get reference to the Accelerator
+      // specified by --accelerator argument
+      auto accelerator = xacc::getAccelerator("qpp");
+
+      // Get reference to the Optimizer
+      // specified by --optimizer argument
+      auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer", "l-bfgs")});
+
+      // Allocate 4 qubits in the buffer
+      auto buffer = xacc::qalloc(4);
+
+      // Instantiate ADAPT algorithm
+      auto adapt = xacc::getService<xacc::Algorithm>("adapt");
+
+      // Number of electrons
+      int nElectrons = 2;
+
+      // Specify the operator pool
+      auto pool = "qubit-pool";
+
+      // Specify the sub algorithm
+      auto subAlgo_vqe = "vqe"; 
+
+      // This is the H2 Hamiltonian in a fermionic basis
+      auto str = std::string("(-0.165606823582,-0)  1^ 2^ 1 2 + (0.120200490713,0)  1^ 0^ 0 1 + "
+                              "(-0.0454063328691,-0)  0^ 3^ 1 2 + (0.168335986252,0)  2^ 0^ 0 2 + "
+                              "(0.0454063328691,0)  1^ 2^ 3 0 + (0.168335986252,0)  0^ 2^ 2 0 + "
+                              "(0.165606823582,0)  0^ 3^ 3 0 + (-0.0454063328691,-0)  3^ 0^ 2 1 + "
+                              "(-0.0454063328691,-0)  1^ 3^ 0 2 + (-0.0454063328691,-0)  3^ 1^ 2 0 + "
+                              "(0.165606823582,0)  1^ 2^ 2 1 + (-0.165606823582,-0)  0^ 3^ 0 3 + "
+                              "(-0.479677813134,-0)  3^ 3 + (-0.0454063328691,-0)  1^ 2^ 0 3 + "
+                              "(-0.174072892497,-0)  1^ 3^ 1 3 + (-0.0454063328691,-0)  0^ 2^ 1 3 + "
+                              "(0.120200490713,0)  0^ 1^ 1 0 + (0.0454063328691,0)  0^ 2^ 3 1 + "
+                              "(0.174072892497,0)  1^ 3^ 3 1 + (0.165606823582,0)  2^ 1^ 1 2 + "
+                              "(-0.0454063328691,-0)  2^ 1^ 3 0 + (-0.120200490713,-0)  2^ 3^ 2 3 + "
+                              "(0.120200490713,0)  2^ 3^ 3 2 + (-0.168335986252,-0)  0^ 2^ 0 2 + "
+                              "(0.120200490713,0)  3^ 2^ 2 3 + (-0.120200490713,-0)  3^ 2^ 3 2 + "
+                              "(0.0454063328691,0)  1^ 3^ 2 0 + (-1.2488468038,-0)  0^ 0 + "
+                              "(0.0454063328691,0)  3^ 1^ 0 2 + (-0.168335986252,-0)  2^ 0^ 2 0 + "
+                              "(0.165606823582,0)  3^ 0^ 0 3 + (-0.0454063328691,-0)  2^ 0^ 3 1 + "
+                              "(0.0454063328691,0)  2^ 0^ 1 3 + (-1.2488468038,-0)  2^ 2 + "
+                              "(0.0454063328691,0)  2^ 1^ 0 3 + (0.174072892497,0)  3^ 1^ 1 3 + "
+                              "(-0.479677813134,-0)  1^ 1 + (-0.174072892497,-0)  3^ 1^ 3 1 + "
+                              "(0.0454063328691,0)  3^ 0^ 1 2 + (-0.165606823582,-0)  3^ 0^ 3 0 + "
+                              "(0.0454063328691,0)  0^ 3^ 2 1 + (-0.165606823582,-0)  2^ 1^ 2 1 + "
+                              "(-0.120200490713,-0)  0^ 1^ 0 1 + (-0.120200490713,-0)  1^ 0^ 1 0 + (0.7080240981,0)");
+
+
+      // Create Observable from Hamiltonian string
+      auto H = xacc::quantum::getObservable("fermion", str);
+
+      // Pass parameters to ADAPT algorithm
+      adapt->initialize({std::make_pair("accelerator", accelerator),
+                                    std::make_pair("observable", H),
+                                    std::make_pair("optimizer", optimizer),
+                                    std::make_pair("pool", pool),
+                                    std::make_pair("n-electrons", nElectrons),
+                                    std::make_pair("sub-algorithm", subAlgo_vqe)
+                                    });
+
+      // Execute ADAPT-VQE
+      adapt->execute(buffer);
+
+      xacc::Finalize();
+      return 0;
+    }
+
+In Python:
+
+.. code:: python
+
+    import xacc
+
+    qpu = xacc.getAccelerator('qpp')
+    optimizer = xacc.getOptimizer('nlopt',{'nlopt-optimizer':'l-bfgs'})
+    buffer = xacc.qalloc(4)
+
+    opstr = '''
+    (-0.165606823582,-0)  1^ 2^ 1 2 + (0.120200490713,0)  1^ 0^ 0 1 + 
+    (-0.0454063328691,-0)  0^ 3^ 1 2 + (0.168335986252,0)  2^ 0^ 0 2 + 
+    (0.0454063328691,0)  1^ 2^ 3 0 + (0.168335986252,0)  0^ 2^ 2 0 + 
+    (0.165606823582,0)  0^ 3^ 3 0 + (-0.0454063328691,-0)  3^ 0^ 2 1 + 
+    (-0.0454063328691,-0)  1^ 3^ 0 2 + (-0.0454063328691,-0)  3^ 1^ 2 0 + 
+    (0.165606823582,0)  1^ 2^ 2 1 + (-0.165606823582,-0)  0^ 3^ 0 3 + 
+    (-0.479677813134,-0)  3^ 3 + (-0.0454063328691,-0)  1^ 2^ 0 3 + 
+    (-0.174072892497,-0)  1^ 3^ 1 3 + (-0.0454063328691,-0)  0^ 2^ 1 3 + 
+    (0.120200490713,0)  0^ 1^ 1 0 + (0.0454063328691,0)  0^ 2^ 3 1 + 
+    (0.174072892497,0)  1^ 3^ 3 1 + (0.165606823582,0)  2^ 1^ 1 2 + 
+    (-0.0454063328691,-0)  2^ 1^ 3 0 + (-0.120200490713,-0)  2^ 3^ 2 3 + 
+    (0.120200490713,0)  2^ 3^ 3 2 + (-0.168335986252,-0)  0^ 2^ 0 2 + 
+    (0.120200490713,0)  3^ 2^ 2 3 + (-0.120200490713,-0)  3^ 2^ 3 2 + 
+    (0.0454063328691,0)  1^ 3^ 2 0 + (-1.2488468038,-0)  0^ 0 + 
+    (0.0454063328691,0)  3^ 1^ 0 2 + (-0.168335986252,-0)  2^ 0^ 2 0 + 
+    (0.165606823582,0)  3^ 0^ 0 3 + (-0.0454063328691,-0)  2^ 0^ 3 1 + 
+    (0.0454063328691,0)  2^ 0^ 1 3 + (-1.2488468038,-0)  2^ 2 + 
+    (0.0454063328691,0)  2^ 1^ 0 3 + (0.174072892497,0)  3^ 1^ 1 3 + 
+    (-0.479677813134,-0)  1^ 1 + (-0.174072892497,-0)  3^ 1^ 3 1 + 
+    (0.0454063328691,0)  3^ 0^ 1 2 + (-0.165606823582,-0)  3^ 0^ 3 0 + 
+    (0.0454063328691,0)  0^ 3^ 2 1 + (-0.165606823582,-0)  2^ 1^ 2 1 + 
+    (-0.120200490713,-0)  0^ 1^ 0 1 + (-0.120200490713,-0)  1^ 0^ 1 0 + (0.7080240981,0)
+    '''
+
+    H = xacc.getObservable('fermion', opstr)
+
+    adapt = xacc.getAlgorithm('adapt', {'accelerator': qpu,
+                                      'optimizer': optimizer,
+                                      'observable': H,
+                                      'n-electrons': 2,
+                                      'maxiter': 2,
+                                      'sub-algorithm': 'vqe',
+                                      'pool': 'qubit-pool'})
+
+    adapt.execute(buffer)
+
+
+ADAPT-QAOA
+
+ .. code:: cpp
+
+    #include "xacc.hpp"
+    #include "xacc_observable.hpp"
+    #include "xacc_service.hpp"
+
+    int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+
+      // Get reference to the Accelerator
+      // specified by --accelerator argument
+      auto accelerator = xacc::getAccelerator("qpp");
+
+      // Get reference to the Optimizer
+      // specified by --optimizer argument
+      auto optimizer = xacc::getOptimizer("nlopt", {std::make_pair("nlopt-optimizer", "l-bfgs")});
+
+      // Allocate 4 qubits in the buffer
+      auto buffer = xacc::qalloc(4);
+
+      // Instantiate ADAPT algorithm
+      auto adapt = xacc::getService<xacc::Algorithm>("adapt");
+
+      // Specify the operator pool
+      auto pool = "multi-qubit-qaoa";
+
+      // Specify the sub algorithm
+      auto subAlgo_qaoa = "QAOA"; 
+
+      // Number of layers
+      auto nLayers = 2;
+
+      // This is the cost Hamiltonian 
+      auto H = xacc::quantum::getObservable(
+          "pauli", std::string("-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3"));
+
+      // Pass parameters to ADAPT algorithm
+      adapt->initialize({std::make_pair("accelerator", accelerator),
+                                    std::make_pair("observable", H),
+                                    std::make_pair("optimizer", optimizer),
+                                    std::make_pair("pool", pool),
+                                    std::make_pair("maxiter", nLayers),
+                                    std::make_pair("sub-algorithm", subAlgo_qaoa)
+                                    });
+
+      // Execute ADAPT-QAOA
+      adapt->execute(buffer);
+
+      xacc::Finalize();
+      return 0;
+    }
+
+In Python:
+
+.. code:: python
+
+    import xacc
+      
+    accelerator = xacc.getAccelerator("qpp")
+
+    buffer = xacc.qalloc(4)
+
+    optimizer = xacc.getOptimizer('nlopt',{'nlopt-optimizer':'l-bfgs'})
+
+    pool = "multi-qubit-qaoa"
+
+    nLayers = 2
+
+    subAlgo_qaoa = "QAOA"
+
+    H = xacc.getObservable('pauli', '-5.0 - 0.5 Z0 - 1.0 Z2 + 0.5 Z3 + 1.0 Z0 Z1 + 2.0 Z0 Z2 + 0.5 Z1 Z2 + 2.5 Z2 Z3')
+    
+    adapt = xacc.getAlgorithm('adapt', {
+                            'accelerator': accelerator,
+                            'observable': H,
+                            'optimizer': optimizer,
+                            'pool': pool,
+                            'maxiter': nLayers,
+                            'sub-algorithm': subAlgo_qaoa
+                            })
+
+    adapt.execute(buffer)
+
+
 Accelerator Decorators
 ----------------------
 ROErrorDecorator
@@ -1541,3 +1789,62 @@ Example:
     // Expected result: -1.74886
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
    }
+
+
+QFAST Circuit Synthesis
++++++++++++++++++++++++
+The ``QFAST`` circuit generator generates a quantum circuit for an arbitary unitary matrix.
+(See `Ed Younis, et al. <https://arxiv.org/pdf/2003.04462.pdf>`_)
+
+The ``QFAST`` circuit generator only requires the ``unitary`` input information. 
+Optionally, we can provide additional configurations as listed below.
+
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                                 |             type                     |
++========================+========================================================================+======================================+
+|  unitary               | The unitary matrix.                                                    | Eigen::MatrixXcd/numpy 2-D array     |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  trace-distance        | The target trace distance of the Hilbert-Schmidt inner produc          | double (default = 0.01)              |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+| explore-trace-distance | The `stopping-condition` trace distance for the Explore phase.         | double (default = 0.1)               |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+|  initial-depth         | The initial number of circuit layers.                                  | int (default = 1)                    |
++------------------------+------------------------------------------------------------------------+--------------------------------------+
+
+By default, after each unitary matrix decomposition, the QFAST plugin will save the result (in terms of smaller block matrices) into a cache file located at ``$XACC_INSTALL_DIR/tmp``. If a cache entry is found, the QFAST plugin will re-use the result automatically.
+
+Users can modify the cache filename via the configuration key ``cache-file-name``.
+
+Example:
+
+In Cpp,
+
+.. code:: cpp
+
+  auto qfast = std::dynamic_pointer_cast<quantum::Circuit>(xacc::getService<Instruction>("QFAST"));
+  Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
+  ccnotMat(6, 6) = 0.0;
+  ccnotMat(7, 7) = 0.0;
+  ccnotMat(6, 7) = 1.0;
+  ccnotMat(7, 6) = 1.0;
+  
+  const bool expandOk = qfast->expand({ 
+    std::make_pair("unitary", ccnotMat)
+  });
+
+In Python,
+
+.. code:: python
+
+   import xacc, numpy as np
+
+   # CCNOT matrix:
+   # This takes a 2-D numpy array.
+   ccnotMat = np.identity(8, dtype = np.cdouble)
+   ccnotMat[6][6] = 0.0
+   ccnotMat[7][7] = 0.0
+   ccnotMat[6][7] = 1.0
+   ccnotMat[7][6] = 1.0
+
+   composite = xacc.createCompositeInstruction('QFAST', { 'unitary' : ccnotMat })
+   print(composite)

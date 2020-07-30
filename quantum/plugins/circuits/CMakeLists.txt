@@ -21,6 +21,8 @@ file(GLOB SRC hwe/hwe.cpp
               ucc1/ucc1.cpp
               ucc3/ucc3.cpp
               aswap/aswap.cpp
+              qfast/qfast.cpp
+              kak/kak.cpp
               GeneratorsActivator.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
@@ -30,7 +32,8 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC . range exp hwe qft uccsd ucc1 ucc3 aswap)
+  PUBLIC . range exp hwe qft uccsd ucc1 ucc3 aswap qfast kak
+  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-pauli xacc-fermion)
 
@@ -69,6 +72,8 @@ if(XACC_BUILD_TESTS)
   add_subdirectory(ucc1/tests)
   add_subdirectory(ucc3/tests)
   add_subdirectory(aswap/tests)
+  add_subdirectory(qfast/tests)
+  add_subdirectory(kak/tests)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)

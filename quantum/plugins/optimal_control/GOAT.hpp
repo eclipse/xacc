@@ -6,6 +6,7 @@
 #include "exprtk.hpp"
 #include "OptimalControl.hpp"
 
+namespace xacc {
 using symbol_table_t = exprtk::symbol_table<double>;
 using expression_t = exprtk::expression<double>;
 using parser_t = exprtk::parser<double>;
@@ -121,7 +122,6 @@ private:
     OptimizationResult m_resultCache;
 };
 
-namespace xacc {
 // Public GOAT pulse optimization interface
 class PulseOptimGOAT : public Optimizer
 {   

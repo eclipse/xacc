@@ -11,7 +11,7 @@
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
 add_subdirectory(mc-vqe)
-add_subdirectory(adapt_vqe)
+add_subdirectory(adapt)
 add_subdirectory(vqe)
 add_subdirectory(rdm)
 add_subdirectory(ml)

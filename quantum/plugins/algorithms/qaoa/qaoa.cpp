@@ -11,6 +11,8 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "qaoa.hpp"
+#include "AlgorithmGradientStrategy.hpp"
+#include "CompositeInstruction.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "xacc_observable.hpp"
@@ -66,6 +68,29 @@ bool QAOA::initialize(const HeterogeneousMap& parameters)
         }
     }
 
+    // we need this for ADAPT-QAOA (Daniel)
+    if (parameters.pointerLikeExists<CompositeInstruction>("ansatz")){
+      externalAnsatz = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
+    }
+
+    if (parameters.pointerLikeExists<AlgorithmGradientStrategy>(
+        "gradient_strategy")){
+      gradientStrategy = parameters.get<std::shared_ptr<AlgorithmGradientStrategy>>("gradient_strategy");
+    }
+
+    if (parameters.stringExists("gradient_strategy") && 
+        !parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy") &&
+        m_optimizer->isGradientBased()){
+      gradientStrategy = xacc::getService<AlgorithmGradientStrategy>(parameters.getString("gradient_strategy"));
+      gradientStrategy->optionalParameters({std::make_pair("observable", xacc::as_shared_ptr(m_costHamObs))});
+    }
+
+    if ((parameters.stringExists("gradient_strategy") || 
+        parameters.pointerLikeExists<AlgorithmGradientStrategy>("gradient_strategy")) &&
+        !m_optimizer->isGradientBased()){
+      xacc::warning("Chosen optimizer does not support gradients. Using default.");
+    }
+
     return initializeOk;
 }
 
@@ -77,13 +102,20 @@ const std::vector<std::string> QAOA::requiredParameters() const
 void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
 {
     const int nbQubits = buffer->size();
-    auto kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
-    kernel->expand({
-        std::make_pair("nbQubits", nbQubits),
-        std::make_pair("nbSteps", m_nbSteps),
-        std::make_pair("cost-ham", m_costHamObs),
-        std::make_pair("ref-ham", m_refHamObs)
-    });
+
+    // we need this for ADAPT-QAOA (Daniel)
+    std::shared_ptr<CompositeInstruction> kernel;
+    if(externalAnsatz){
+      kernel = externalAnsatz;
+    } else {
+      kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
+      kernel->expand({
+          std::make_pair("nbQubits", nbQubits),
+          std::make_pair("nbSteps", m_nbSteps),
+          std::make_pair("cost-ham", m_costHamObs),
+          std::make_pair("ref-ham", m_refHamObs)
+      });
+    }
 
     // Observe the cost Hamiltonian:
     auto kernels = m_costHamObs->observe(kernel);
@@ -97,6 +129,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
             std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
             double identityCoeff = 0.0;
+            int nInstructionsEnergy = 0, nInstructionsGradient = 0;
             for (auto& f : kernels) 
             {
                 kernelNames.push_back(f->name());
@@ -124,6 +157,23 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
                 }
             }
 
+            // enables gradients (Daniel)
+            if (gradientStrategy){
+
+              auto gradFsToExec = gradientStrategy->getGradientExecutions(kernel, x);
+              // Add gradient instructions to be sent to the qpu
+              nInstructionsEnergy = fsToExec.size();
+              nInstructionsGradient = gradFsToExec.size();
+              for (auto inst: gradFsToExec){
+                fsToExec.push_back(inst);
+              }
+              xacc::info("Number of instructions for energy calculation: " 
+                          + std::to_string(nInstructionsEnergy));
+              xacc::info("Number of instructions for gradient calculation: "
+                          + std::to_string(nInstructionsGradient));
+
+            }
+
             auto tmpBuffer = xacc::qalloc(buffer->size());
             m_qpu->execute(tmpBuffer, fsToExec);
             auto buffers = tmpBuffer->getChildren();
@@ -137,8 +187,9 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
             idBuffer->addExtraInfo("exp-val-z", 1.0);
             buffer->appendChild("I", idBuffer);
 
-            for (int i = 0; i < buffers.size(); i++) 
-            {
+            if (gradientStrategy){ // gradient-based optimization
+
+              for (int i = 0; i < nInstructionsEnergy; i++) {// compute energy
                 auto expval = buffers[i]->getExpectationValueZ();
                 energy += expval * coefficients[i];
                 buffers[i]->addExtraInfo("coefficient", coefficients[i]);
@@ -146,6 +197,29 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
                 buffers[i]->addExtraInfo("exp-val-z", expval);
                 buffers[i]->addExtraInfo("parameters", x);
                 buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+              }
+
+              std::stringstream ss;
+              ss << std::setprecision(12) << "Current Energy: " << energy;
+              xacc::info(ss.str());
+              ss.str(std::string());
+
+              // update gradient vector
+              gradientStrategy->compute(dx, 
+                std::vector<std::shared_ptr<AcceleratorBuffer>>(buffers.begin() + nInstructionsEnergy, buffers.end()));
+
+            } else {// normal QAOA run
+
+              for (int i = 0; i < buffers.size(); i++) 
+              {
+                  auto expval = buffers[i]->getExpectationValueZ();
+                  energy += expval * coefficients[i];
+                  buffers[i]->addExtraInfo("coefficient", coefficients[i]);
+                  buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
+                  buffers[i]->addExtraInfo("exp-val-z", expval);
+                  buffers[i]->addExtraInfo("parameters", x);
+                  buffer->appendChild(fsToExec[i]->name(), buffers[i]);
+              }
             }
             
             std::stringstream ss;
@@ -175,13 +249,18 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
 std::vector<double> QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<double>& x) 
 {
     const int nbQubits = buffer->size();
-    auto kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
-    kernel->expand({
-        std::make_pair("nbQubits", nbQubits),
-        std::make_pair("nbSteps", m_nbSteps),
-        std::make_pair("cost-ham", m_costHamObs),
-        std::make_pair("ref-ham", m_refHamObs)
-    });
+    std::shared_ptr<CompositeInstruction> kernel;
+    if(externalAnsatz){
+      kernel = externalAnsatz;
+    } else {
+      kernel = std::dynamic_pointer_cast<CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
+      kernel->expand({
+          std::make_pair("nbQubits", nbQubits),
+          std::make_pair("nbSteps", m_nbSteps),
+          std::make_pair("cost-ham", m_costHamObs),
+          std::make_pair("ref-ham", m_refHamObs)
+      });
+    }
 
     // Observe the cost Hamiltonian:
     auto kernels = m_costHamObs->observe(kernel);

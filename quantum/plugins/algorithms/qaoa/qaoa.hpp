@@ -13,6 +13,8 @@
 #pragma once
 
 #include "Algorithm.hpp"
+#include "AlgorithmGradientStrategy.hpp"
+#include "CompositeInstruction.hpp"
 
 namespace xacc {
 namespace algorithm {
@@ -31,6 +33,8 @@ private:
     Observable* m_refHamObs;
     Accelerator* m_qpu;
     Optimizer* m_optimizer;
+    std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
+    std::shared_ptr<CompositeInstruction> externalAnsatz;
     int m_nbSteps;
 };
 } // namespace algorithm

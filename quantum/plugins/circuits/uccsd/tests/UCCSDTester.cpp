@@ -19,17 +19,41 @@ using namespace xacc;
 
 TEST(UCCSDTester,checkUCCSD) {
 
-	xacc::Initialize();
- auto tmp = xacc::getService<Instruction>("uccsd");//std::make_shared<QFT>();
+  auto tmp = xacc::getService<Instruction>("uccsd");//std::make_shared<QFT>();
   auto uccsd = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
 	EXPECT_TRUE(uccsd->expand({std::make_pair("ne", 2), std::make_pair("nq", 4)}));
 
 	std::cout << uccsd->toString() << "\n";
-	xacc::Finalize();
+
+}
+
+TEST(UCCSDTester,checkSingletAdaptedUCCSD) {
+
+  auto tmp = xacc::getService<Instruction>("uccsd");//std::make_shared<QFT>();
+  auto uccsd = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
+	EXPECT_TRUE(uccsd->expand({std::make_pair("ne", 2), std::make_pair("nq", 4),
+              std::make_pair("pool","singlet-adapted-uccsd")}));
+
+	std::cout << uccsd->toString() << "\n";
+	
+}
+
+TEST(UCCSDTester,checkQubitPool) {
+
+  auto tmp = xacc::getService<Instruction>("uccsd");//std::make_shared<QFT>();
+  auto uccsd = std::dynamic_pointer_cast<CompositeInstruction>(tmp);
+	EXPECT_TRUE(uccsd->expand({std::make_pair("ne", 2), std::make_pair("nq", 4),
+              std::make_pair("pool","qubit-pool")}));
+
+	std::cout << uccsd->toString() << "\n";
+	
 }
 
 
 int main(int argc, char** argv) {
+    xacc::Initialize();
    ::testing::InitGoogleTest(&argc, argv);
-   return RUN_ALL_TESTS();
+   auto ret = RUN_ALL_TESTS();
+   xacc::Finalize();
+   return ret;
 }

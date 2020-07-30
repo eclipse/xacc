@@ -25,7 +25,7 @@ protected:
   CompositeInstruction * kernel;
   Accelerator * accelerator;
   std::vector<double> initial_params;
-  AlgorithmGradientStrategy * gradientStrategy; 
+  std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
 
   HeterogeneousMap parameters;
 
