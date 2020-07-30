@@ -251,6 +251,14 @@ void ControlledU::visit(U& u)
     visit(rz2);
 }
 
+void ControlledU::visit(U1& u1)
+{
+    // cU1 == CPhase
+    const auto targetIdx = u1.bits()[0];
+    auto angle = u1.getParameter(0);
+    m_composite->addInstruction(m_gateProvider->createInstruction("CPhase", { m_ctrlIdx, targetIdx }, { angle }));
+}
+
 void ControlledU::visit(CY& cy) 
 {
     // controlled-Y = Sdg(target) - CX - S(target)
