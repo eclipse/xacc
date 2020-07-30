@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_hpc_virt_decorator",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC HPC Virtualization Decorator",
+  "bundle.description" : "This bundle provides the HPC Virtualization Accelerator Decorator."
+}

@@ -38,8 +38,6 @@ usFunctionEmbedResources(TARGET ${LIBRARY_NAME}
     manifest.json
   )
 
-  message(STATUS "HELLO ${PYTHON_LIB_NAME}")
-
 target_include_directories(${LIBRARY_NAME} PRIVATE . ${CMAKE_SOURCE_DIR}/tpls/pybind11/include ${CMAKE_BINARY_DIR})
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc Python::Python)
 

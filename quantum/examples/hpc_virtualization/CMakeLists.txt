@@ -10,7 +10,5 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(base_api)
-add_subdirectory(qasm)
-add_subdirectory(qst-publication)
-add_subdirectory(hpc_virtualization)
+add_executable(tnqvm_hpc_virt tnqvm_hpc_virtualization.cpp)
+target_link_libraries(tnqvm_hpc_virt PRIVATE xacc xacc-quantum-gate)
