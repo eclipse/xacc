@@ -38,3 +38,7 @@ target_link_libraries(qaoa_qubo PRIVATE xacc xacc-quantum-gate)
 
 add_executable(quantum_phase_estimation quantum_phase_estimation.cpp)
 target_link_libraries(quantum_phase_estimation PRIVATE xacc xacc-quantum-gate)
+
+add_executable(phase_estimation_qasm phase_estimation_10q.cpp)
+target_link_libraries(phase_estimation_qasm PRIVATE xacc xacc-quantum-gate)
+target_compile_definitions(phase_estimation_qasm PRIVATE QASM_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")

@@ -372,7 +372,7 @@ public:
   CZ(std::size_t srcqbit, std::size_t tgtqbit)
       : CZ(std::vector<std::size_t>{srcqbit, tgtqbit}) {}
 
-  const int nRequiredBits() const override { return 1; }
+  const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CZ)
   DEFINE_VISITABLE()
@@ -482,14 +482,14 @@ public:
       : Gate("CRZ",
              std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
 
-  CRZ(std::size_t qbit, double theta)
-      : Gate("CRZ", std::vector<std::size_t>{qbit},
+  CRZ(std::size_t src_qbit, std::size_t tgt_qbit,  double theta)
+      : Gate("CRZ", std::vector<std::size_t>{src_qbit, tgt_qbit},
              std::vector<InstructionParameter>{InstructionParameter(theta)}) {}
 
   CRZ(std::vector<std::size_t> qbits)
       : Gate("CRZ", qbits,
              std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
-  const int nRequiredBits() const override { return 1; }
+  const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CRZ)
   DEFINE_VISITABLE()

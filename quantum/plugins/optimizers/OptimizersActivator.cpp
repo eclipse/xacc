@@ -12,12 +12,12 @@
  *******************************************************************************/
 #include "CircuitOptimizer.hpp"
 #include "default_placement.hpp"
+#include "GateMergeOptimizer.hpp"
 #include "PulseTransform.hpp"
 #include "GateFusion.hpp" 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
-
 #include <memory>
 #include <set>
 
@@ -45,6 +45,8 @@ public:
 
         context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::PulseTransform>());
 		context.RegisterService<GateFuser>(std::make_shared<GateFuser>());
+		context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::MergeSingleQubitGatesOptimizer>());
+		context.RegisterService<xacc::IRTransformation>(std::make_shared<xacc::quantum::MergeTwoQubitBlockOptimizer>());
 	}
 
 	/**

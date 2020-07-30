@@ -18,8 +18,6 @@
 #include "xacc_service.hpp"
 #include "AlgorithmGradientStrategy.hpp"
 #include <iomanip>
-#include <sstream>
-#include <string>
 
 using namespace xacc;
 
@@ -29,44 +27,38 @@ namespace algorithm {
 class ParameterShiftGradient : public AlgorithmGradientStrategy {
 
 protected:
-
-  std::shared_ptr<Observable> H, commutator; // Hamiltonian (or any) observable
-  double factor = 0.5;
+  std::shared_ptr<Observable> obs,
+      commutator; // Hamiltonian (or any) observable
 
 public:
+  bool initialize(const HeterogeneousMap parameters) override {
 
-  // passes the Hamiltonian and current ansatz operators to the gradient class
-  bool optionalParameters(const HeterogeneousMap parameters) override {
-
-    if (!parameters.keyExists<std::shared_ptr<Observable>>("observable")){
-      xacc::info("Parameter shift gradient requires observable.\n"); 
+    if (!parameters.keyExists<std::shared_ptr<Observable>>("observable")) {
+      xacc::error("Gradient strategy needs observable");
       return false;
     }
 
+    obs = parameters.get<std::shared_ptr<Observable>>("observable");
+
     // this is specific to ADAPT-VQE
-    if (parameters.keyExists<std::shared_ptr<Observable>>("commutator")){
+    if (parameters.keyExists<std::shared_ptr<Observable>>("commutator")) {
       commutator = parameters.get<std::shared_ptr<Observable>>("commutator");
     }
 
-    // this is needed because JW already adds a 0.5 factor
-    if (parameters.keyExists<bool>("jw")){
-      if(parameters.get<bool>("jw")){
-        factor = 1.0;
-      }
-    }
-
-    H = parameters.get<std::shared_ptr<Observable>>("observable");
-
     return true;
-
   }
 
+  // Not numerical
+  bool isNumerical() const override { return false; }
+
+  // Get the circuit instructions necessary to compute gradients
   std::vector<std::shared_ptr<CompositeInstruction>>
-  getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit, const std::vector<double> &x) override {
+  getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
+                        const std::vector<double> &x) override {
 
     std::stringstream ss;
     ss << std::setprecision(5) << "Input parameters: ";
-    for(auto param : x){
+    for (auto param : x) {
       ss << param << " ";
     }
     xacc::info(ss.str());
@@ -77,8 +69,9 @@ public:
     // The gradient of the operator added in the current ADAPT-VQE cycle
     // is simply its commutator with the Hamiltonian. This improves convergence
     // over parameter shift
+
     int start = 0;
-    if(commutator){
+    if (commutator) {
       auto kernels = commutator->observe(circuit);
 
       for (auto &f : kernels) {
@@ -90,13 +83,14 @@ public:
       start = 1;
     }
 
-    for (int op = start; op < x.size(); op++){// loop over the remainder of operators
-      for (double sign : {1.0, -1.0}){ // change sign 
+    for (int op = start; op < x.size();
+         op++) {                        // loop over the remainder of operators
+      for (double sign : {1.0, -1.0}) { // change sign
 
         // parameter shift and observe
         auto tmpX = x;
-        tmpX[op] += sign * xacc::constants::pi * factor;
-        auto kernels = H->observe(circuit);
+        tmpX[op] += sign * xacc::constants::pi / 2.0;
+        auto kernels = obs->observe(circuit);
 
         // loop over parameter-shifted circuit instructions
         // and gather coefficients/instructions
@@ -108,25 +102,26 @@ public:
 
         // the number of instructions for a given element of x is the same
         // regardless of the parameter sign, so we need only one of this
-        if(sign == 1.0){
+        if (sign == 1.0) {
           nInstructionsElement.push_back(kernels.size());
         }
-
       }
-     
     }
 
     return gradientInstructions;
-
   }
 
-  void compute(std::vector<double> &dx, std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
+  // Compute gradients from executed instructions
+  void
+  compute(std::vector<double> &dx,
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
 
     // if commutator is provided
     int shift = 0, start = 0;
-    if(commutator){
+    if (commutator) {
       double gradElement = 0.0;
-      for (int instElement = 0; instElement < nInstructionsElement[0]; instElement++){
+      for (int instElement = 0; instElement < nInstructionsElement[0];
+           instElement++) {
         auto expval = std::real(results[instElement]->getExpectationValueZ());
         gradElement += expval * coefficients[instElement];
       }
@@ -138,19 +133,24 @@ public:
     }
 
     // loop over the remaining number of entries in the gradient vector
-    for (int gradTerm = start; gradTerm < dx.size(); gradTerm++){ 
+    for (int gradTerm = start; gradTerm < dx.size(); gradTerm++) {
 
-      double plusGradElement = 0.0; // <+>
+      double plusGradElement = 0.0;  // <+>
       double minusGradElement = 0.0; // <->
 
       // loop over instructions for a given term, compute <+> and <->
-      for (int instElement = 0; instElement < nInstructionsElement[gradTerm]; instElement++) {
+      for (int instElement = 0; instElement < nInstructionsElement[gradTerm];
+           instElement++) {
 
-        auto plus_expval = std::real(results[instElement + shift]->getExpectationValueZ());
-        auto minus_expval = std::real(results[instElement + nInstructionsElement[gradTerm] + shift]->getExpectationValueZ());
+        auto plus_expval =
+            std::real(results[instElement + shift]->getExpectationValueZ());
+        auto minus_expval = std::real(
+            results[instElement + nInstructionsElement[gradTerm] + shift]
+                ->getExpectationValueZ());
         plusGradElement += plus_expval * coefficients[instElement + shift];
-        minusGradElement += minus_expval * coefficients[instElement + nInstructionsElement[gradTerm] + shift];
-
+        minusGradElement +=
+            minus_expval *
+            coefficients[instElement + nInstructionsElement[gradTerm] + shift];
       }
 
       // gradient is (<+> - <->)/2
@@ -162,7 +162,7 @@ public:
     nInstructionsElement.clear();
     std::stringstream ss;
     ss << std::setprecision(5) << "Computed gradient: ";
-    for(auto param : dx){
+    for (auto param : dx) {
       ss << param << " ";
     }
     xacc::info(ss.str());
@@ -173,11 +173,9 @@ public:
 
   const std::string name() const override { return "parameter-shift-gradient"; }
   const std::string description() const override { return ""; }
-
 };
 
-
-}
-}
+} // namespace algorithm
+} // namespace xacc
 
 #endif

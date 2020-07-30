@@ -14,16 +14,23 @@ add_subdirectory(compiler)
 add_subdirectory(plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-include_directories(.)
-include_directories(${Python_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=native -D_GNU_SOURCE -fPIC -fwrapv")
 if(APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif(APPLE)
 
-add_library(_pyxacc SHARED xacc-py.cpp py_heterogeneous_map.cpp py_ir.cpp py_accelerator.cpp py_compiler.cpp py_algorithm.cpp py_optimizer.cpp py_observable.cpp)
+add_library(_pyxacc SHARED xacc-py.cpp 
+                            py_heterogeneous_map.cpp 
+                            py_ir.cpp py_accelerator.cpp 
+                            py_compiler.cpp py_algorithm.cpp 
+                            py_optimizer.cpp py_observable.cpp 
+                            ${CMAKE_SOURCE_DIR}/quantum/python/xacc-quantum-py.cpp)
+target_include_directories(_pyxacc PUBLIC .
+                                          ${Python_INCLUDE_DIRS}
+                                          ${CMAKE_SOURCE_DIR}/tpls/pybind11/include
+                                          ${CMAKE_SOURCE_DIR}/quantum/python
+                                          ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
 set_target_properties(_pyxacc PROPERTIES PREFIX "")
 target_link_libraries(_pyxacc PUBLIC xacc xacc-pauli xacc-fermion)
 

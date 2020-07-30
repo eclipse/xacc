@@ -134,6 +134,17 @@ arma::cx_mat createSMatrix(const std::vector<std::string>& in_pauliOps, const st
   }
   return S_Mat;
 }
+
+template<typename T>
+std::vector<T> arange(T start, T stop, T step = 1) 
+{
+  std::vector<T> values;
+  for (T value = start; value < stop; value += step)
+  {
+    values.emplace_back(value);
+  }
+  return values;
+}
 }
 
 using namespace xacc;
@@ -303,11 +314,11 @@ double QITE::calcCurrentEnergy(int in_nbQubits) const
     auto expval = buffers[i]->getExpectationValueZ();
     energy += expval * coefficients[i];
   }
-  std::cout << "Energy = " << energy << "\n";
+  xacc::info("Energy = " + std::to_string(energy));
   return energy;
 }
 
-std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
+std::pair<double, std::shared_ptr<Observable>> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
 {
   const auto pauliOps = generatePauliPermutation(in_buffer->size());
 
@@ -409,7 +420,7 @@ std::shared_ptr<Observable> QITE::calcAOps(const std::shared_ptr<AcceleratorBuff
   // which emulate the imaginary time evolution of the original observable.
   std::shared_ptr<Observable> updatedAham = std::make_shared<xacc::quantum::PauliOperator>();
   updatedAham->fromString(aObsStr);
-  return updatedAham; 
+  return std::make_pair(std::sqrt(c), updatedAham); 
 }
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
@@ -431,7 +442,7 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       // Propagates the state via Trotter steps:
       auto kernel = constructPropagateCircuit();
       // Optimizes/calculates next A ops
-      auto nextAOps = calcAOps(buffer, kernel, hamOp);
+      auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
       m_approxOps.emplace_back(nextAOps); 
       m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
     }
@@ -607,5 +618,199 @@ std::vector<double> QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffe
   xacc::error("This method is unsupported!");
   return {};
 }
+
+bool QLanczos::initialize(const HeterogeneousMap& parameters) 
+{
+  // Calls the base (QITE) initialization
+  if (QITE::initialize(parameters))
+  {
+    // Gets some QLanczos-specific parameters if provided:
+    // Default params:
+    m_sLim = 0.75;
+    m_epsLim = 1e-12;
+    if (parameters.keyExists<double>("s-param"))
+    {
+      m_sLim = parameters.get<double>("s-param");
+    }
+    if (parameters.keyExists<double>("epsilon-param"))
+    {
+      m_epsLim = parameters.get<double>("epsilon-param");
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+
+void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
+{
+  std::vector<double> normAtStep;
+  std::vector<double> lanczosEnergy;
+  // Run on hardware/simulator using quantum gates/measure
+  // Initial energy
+  m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+  // Initial norm
+  normAtStep.emplace_back(1.0);
+  auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
+  for (const auto& hamTerm : m_observable->getNonIdentitySubTerms()) 
+  {
+    *hamOp = *hamOp + *(std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm));
+  }
+
+  // Time stepping:
+  for (int i = 0; i < m_nbSteps; ++i) 
+  {
+    // Propagates the state via Trotter steps:
+    auto kernel = constructPropagateCircuit();
+    // Optimizes/calculates next A ops
+    auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
+    m_approxOps.emplace_back(nextAOps);
+    m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
+    normAtStep.emplace_back(normVal * normAtStep.back());
+    // Even steps:
+    if ((i % 2) == 0) 
+    {
+      lanczosEnergy.emplace_back(calcQlanczosEnergy(normAtStep));
+    }
+  }
+
+  assert(m_energyAtStep.size() == m_nbSteps + 1);
+  // Last QLanczos energy value
+  buffer->addExtraInfo("opt-val", ExtraInfo(lanczosEnergy.back()));
+  // Also returns the full list of energy values
+  // at each QLanczos step.
+  buffer->addExtraInfo("exp-vals", ExtraInfo(lanczosEnergy));
+}
+
+double QLanczos::calcQlanczosEnergy(const std::vector<double>& normVec) const 
+{ 
+  const std::vector<size_t> lanczosSteps = arange(1UL, m_energyAtStep.size() + 1, 2UL);
+  const auto n = lanczosSteps.size();
+  // H and S matrices (Eq. 60)
+  arma::mat H(n, n, arma::fill::zeros);
+  arma::mat S(n, n, arma::fill::zeros);
+  int j = 0;
+  int k = 0;
+  // Iterate over l and l'
+  for (const auto& l : lanczosSteps)
+  {
+    int k = 0;
+    for (const auto& lp : lanczosSteps)
+    {
+      // Defining 2r = l + l'   
+      const auto r = (l + lp) / 2;
+      // Eq. 61
+      S(j, k) = normVec[r] * normVec[r]/(normVec[l] * normVec[lp]);
+      // Eq. 62
+      H(j, k) = m_energyAtStep[r] * S(j, k);
+      k++;
+    }
+    j++;
+  }
+
+  const auto matFieldSampling = [](const arma::mat& in_H, const arma::mat& in_S, const std::vector<size_t> in_indexVec) {
+    arma::mat H(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
+    arma::mat S(in_indexVec.size(), in_indexVec.size(), arma::fill::zeros);
+    assert(in_S.n_cols == in_H.n_cols && in_S.n_rows == in_H.n_rows);
+    for (size_t i = 0; i < in_H.n_rows; ++i)
+    {
+      for (size_t j = 0; j < in_H.n_cols; ++j)
+      {
+        if (xacc::container::contains(in_indexVec, i) && xacc::container::contains(in_indexVec, j))
+        {
+          const size_t rowIdx = std::distance(in_indexVec.begin(), std::find(in_indexVec.begin(), in_indexVec.end(), i));
+          const size_t colIdx = std::distance(in_indexVec.begin(), std::find(in_indexVec.begin(), in_indexVec.end(), j));
+          S(rowIdx, colIdx) = in_S(i, j);
+          H(rowIdx, colIdx) = in_H(i, j);
+        }
+      }
+    }
+
+    return std::make_pair(H, S);
+  };
+  
+  // Regularize/stabilize H and S matrices with s and epsilon stabilization parameters.
+  // Returns the stabilized (H, S) matrices.
+  const auto regularizeMatrices = [&](double s, double eps) -> std::pair<arma::mat, arma::mat> {
+    std::vector<size_t> indexVec { 0 };
+    size_t ii = 0;
+    size_t jj = 0;
+    while (ii < H.n_rows && jj < (H.n_rows - 1))
+    {
+      for(jj = ii + 1; jj < H.n_rows; ++jj)
+      {
+        if(S(ii, jj) < s)
+        {
+          indexVec.emplace_back(jj);
+          break;
+        }
+      }
+      
+      ii = indexVec.back();
+    }
+    if (!xacc::container::contains(indexVec, H.n_rows - 1))
+    {
+      indexVec.emplace_back(H.n_rows - 1);
+    }
+
+    auto [Hnew, Snew] = matFieldSampling(H, S, indexVec);
+    
+    // Handles an edge case where Hnew and Snew are just single-element matrices;
+    // just returns those matrices.
+    if (indexVec.size() == 1)
+    {
+      assert(Hnew.n_elem == 1 && Snew.n_elem == 1);
+      // Just returns these matrices,
+      // no need to regularize any further.
+      return std::make_pair(Hnew, Snew);
+    }
+    
+    // Truncates eigenvalues if less than epsilon
+    arma::vec sigma;
+    arma::mat V;
+    arma::eig_sym(sigma, V, Snew);
+    std::vector<size_t> indexVecEig;
+    
+    for (size_t i = 0; i < sigma.n_elem; ++i)
+    {
+      if (sigma[i] > eps)
+      {
+        indexVecEig.emplace_back(i);
+      }
+    }
+
+    const auto eigenTransform = [](const arma::mat& in_mat, const arma::mat& in_eigenMat){
+      // Performs V_T * Matrix * V;
+      // where V is the eigenvector matrix.
+      arma::mat result = in_eigenMat.t() * in_mat;
+      result = result * in_eigenMat;
+      return result;
+    };
+    const arma::mat Snew2 = eigenTransform(Snew, V);
+    const arma::mat Hnew2 = eigenTransform(Hnew, V);
+    auto [Hnew3, Snew3] = matFieldSampling(Hnew2, Snew2, indexVecEig);
+    return std::make_pair(Hnew3, Snew3);
+  };
+
+  auto [Hreg, Sreg] = regularizeMatrices(m_sLim, m_epsLim);
+  
+  arma::cx_vec eigval;
+  arma::cx_mat eigvec;
+  // Solves the generalized eigen val
+  arma::eig_pair(eigval, eigvec, Hreg, Sreg);
+  std::vector<double> energies;
+  for (size_t i = 0; i < eigval.n_elem; ++i)
+  {
+    // Energy values should be real
+    assert(std::abs(eigval(i).imag()) < 1e-9);
+    energies.emplace_back(eigval(i).real());
+  }
+  std::sort(energies.begin(), energies.end());
+  // Returns the smallest eigenvalue from the previous step.
+  return energies.front();
+}
+
 } // namespace algorithm
 } // namespace xacc
