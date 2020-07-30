@@ -13,3 +13,5 @@
 include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(Qpe)
 target_link_libraries(QpeTester xacc xacc-quantum-gate)
+add_xacc_test(ControlledGate)
+target_link_libraries(ControlledGateTester xacc xacc-quantum-gate)

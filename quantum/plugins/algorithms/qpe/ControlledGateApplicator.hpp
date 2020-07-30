@@ -48,6 +48,7 @@ public:
     void visit(Tdg& tdg) override;
     void visit(CPhase& cphase) override;
     void visit(U& u) override;
+    void visit(U1& u1) override;
     // Nothing to do
     void visit(Identity& i) override {}
     // These are unsupported.
