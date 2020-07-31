@@ -18,6 +18,8 @@
 #include <boost/mpi.hpp>
 #include <boost/mpi/collectives/all_gather.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <mpi.h>
 
 namespace xacc {
