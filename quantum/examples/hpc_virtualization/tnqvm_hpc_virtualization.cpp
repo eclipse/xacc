@@ -68,5 +68,6 @@ CNOT(q[1],q[0]);
                              : true;
   if (print_predicate)
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
-  xacc::Finalize();  
+
+  xacc::Finalize();
 }
