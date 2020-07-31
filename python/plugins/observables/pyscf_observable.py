@@ -30,12 +30,18 @@ class PySCFObservable(xacc.Observable):
         return self.asPauli.__iter__()
 
     def fromOptions(self, inputParams):
-        import numpy as np
+        import numpy as np, sys, io, os
         from pyscf import gto, scf, dft, tddft
+        from pyscf.lib import logger
+
         mol = gto.mole.Mole()
+        sys.argv = ['']
         mol.atom = inputParams['geometry']
         mol.basis = inputParams['basis']
-        mol.build()
+        if 'verbose' in inputParams and inputParams['verbose']:
+            mol.build()
+        else:
+            mol.build(verbose=logger.QUIET)
         scf_wfn = scf.RHF(mol) # needs to be changed for open-shells
         scf_wfn.conv_tol = 1e-8
         scf_wfn.kernel() # runs RHF calculations
