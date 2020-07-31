@@ -112,7 +112,9 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
   XACCLogger::instance()->dumpQueue();
 }
 
-void logToFile(bool enable, const std::string &fileNamePrefix) { XACCLogger::instance()->logToFile(enable, fileNamePrefix); }
+void logToFile(bool enable, const std::string &fileNamePrefix) {
+  XACCLogger::instance()->logToFile(enable, fileNamePrefix);
+}
 
 void setLoggingLevel(int level) {
   XACCLogger::instance()->setLoggingLevel(level);
@@ -771,13 +773,25 @@ void Finalize() {
     auto tearDowns = xacc::getServices<TearDown>();
     debug("Tearing down " + std::to_string(tearDowns.size()) +
           " registered TearDown services..");
+    std::vector<std::shared_ptr<TearDown>> frameworkTearDowns;
     for (auto &td : tearDowns) {
       try {
-        td->tearDown();
+        // If this is XACC HPC TearDown,
+        // add it to the list of XACC internal TearDown services to be executed
+        // after all plugins' TearDowns.
+        if (td->name() == "xacc-hpc-virt") {
+          frameworkTearDowns.emplace_back(td);
+        } else {
+          td->tearDown();
+        }
       } catch (int exception) {
         xacc::error("Error while tearing down a service. Code: " +
                     std::to_string(exception));
       }
+    }
+    // Runs XACC internal TearDowns
+    for (auto &td : frameworkTearDowns) {
+      td->tearDown();
     }
 
     xacc::xaccFrameworkInitialized = false;
