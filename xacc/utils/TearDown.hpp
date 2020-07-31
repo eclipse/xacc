@@ -13,14 +13,15 @@
  *******************************************************************************/
 
 #pragma once
-
-// TearDown interface: all registered TearDown services 
+#include <string>
+// TearDown interface: all registered TearDown services
 // will have its tearDown() method called once xacc is about to Finalize().
-// Contributing services (e.g. plugins) can use this to clean up any global resources
-// that they instantiated.
+// Contributing services (e.g. plugins) can use this to clean up any global
+// resources that they instantiated.
 namespace xacc {
 class TearDown {
 public:
-    virtual void tearDown() = 0;
+  virtual void tearDown() = 0;
+  virtual std::string name() const { return ""; }
 };
-} //namespace
+} // namespace xacc

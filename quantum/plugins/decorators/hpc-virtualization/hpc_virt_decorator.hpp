@@ -71,6 +71,7 @@ private:
 class HPCVirtTearDown : public xacc::TearDown {
 public:
   virtual void tearDown() override;
+  virtual std::string name() const override { return "xacc-hpc-virt"; }
 };
 } // namespace quantum
 } // namespace xacc
