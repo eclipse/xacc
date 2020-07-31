@@ -151,10 +151,10 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         auto buffers = tmpBuffer->getChildren();
 
         auto tmp_buffer_extra_info = tmpBuffer->getInformation();
-        for (auto& [k, v] : tmp_buffer_extra_info) {
-            buffer->addExtraInfo(k, v);
+        for (auto &[k, v] : tmp_buffer_extra_info) {
+          buffer->addExtraInfo(k, v);
         }
-        
+
         double energy = identityCoeff;
         auto idBuffer = xacc::qalloc(buffer->size());
         idBuffer->addExtraInfo("coefficient", identityCoeff);
@@ -274,7 +274,11 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto tmpBuffer = xacc::qalloc(buffer->size());
   accelerator->execute(tmpBuffer, fsToExec);
   auto buffers = tmpBuffer->getChildren();
-
+  auto tmp_buffer_extra_info = tmpBuffer->getInformation();
+  for (auto &[k, v] : tmp_buffer_extra_info) {
+    buffer->addExtraInfo(k, v);
+  }
+  
   double energy = identityCoeff;
   auto idBuffer = xacc::qalloc(buffer->size());
   idBuffer->addExtraInfo("coefficient", identityCoeff);
