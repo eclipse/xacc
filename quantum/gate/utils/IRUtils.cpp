@@ -166,7 +166,9 @@ ObservedAnsatz ObservedAnsatz::fromObservedComposites(
         auto comp = in_composites[i];
         auto iter = matchedIters[i];
         auto newComp =
-            gateRegistry->createComposite("__OBSERVED__" + comp->name());
+            // IMPORTANT: the sub-circuit must keep the same name as the
+            // composite since downstream mapping depends on this.
+            gateRegistry->createComposite(comp->name());
         // Add the remaining instructions
         while (iter.hasNext()) {
 

@@ -75,7 +75,13 @@ void HPCVirtDecorator::execute(
   // Get the rank and size in the original communicator
   int world_rank = world.rank(), world_size = world.size();
 
-  if (world_size <= n_virtual_qpus) {
+  if (world_size < n_virtual_qpus) {
+    // The number of MPI processes is less than the number of requested virtual
+    // QPUs, just execute as if there is only one virtual QPU and give the QPU
+    // the whole MPI_COMM_WORLD.
+    void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)world);
+    decoratedAccelerator->updateConfiguration(
+        {{"mpi-communicator", qpu_comm_ptr}});
     // just execute
     decoratedAccelerator->execute(buffer, functions);
     return;
