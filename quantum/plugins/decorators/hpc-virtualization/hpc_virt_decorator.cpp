@@ -29,6 +29,14 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
   decoratedAccelerator->initialize(params);
 
   if (params.keyExists<int>("n-virtual-qpus")) {
+    if (qpuComm && n_virtual_qpus != params.get<int>("n-virtual-qpus")) {
+      // We don't support changing the number of virtual QPU's
+      // i.e. between xacc::Initialize and xacc::Finalize,
+      // we must use an HPCVirtDecorator with a consistent number of virtual
+      // QPU's.
+      xacc::error(
+          "Dynamically changing the number of virtual QPU's is not supported.");
+    }
     n_virtual_qpus = params.get<int>("n-virtual-qpus");
   }
 
@@ -80,6 +88,9 @@ void HPCVirtDecorator::execute(
     // QPUs, just execute as if there is only one virtual QPU and give the QPU
     // the whole MPI_COMM_WORLD.
     void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)world);
+    if (!qpuComm) {
+      qpuComm = std::make_shared<boost::mpi::communicator>(world);
+    }
     decoratedAccelerator->updateConfiguration(
         {{"mpi-communicator", qpu_comm_ptr}});
     // just execute
@@ -92,8 +103,12 @@ void HPCVirtDecorator::execute(
 
   // Split the communicator based on the color and use the
   // original rank for ordering
-  auto qpu_comm = world.split(color, world_rank);
-
+  if (!qpuComm) {
+    // Splits MPI_COMM_WORLD into sub-communicators if not already.
+    qpuComm = std::make_shared<boost::mpi::communicator>(world.split(color, world_rank));
+  }
+  auto qpu_comm = *qpuComm;
+  
   // current rank now has a color to indicate which sub-comm it belongs to
   // Give that sub communicator to the accelerator
   void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)qpu_comm);
