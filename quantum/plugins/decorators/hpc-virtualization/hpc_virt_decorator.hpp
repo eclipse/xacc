@@ -15,7 +15,12 @@
 
 #include "AcceleratorDecorator.hpp"
 #include "TearDown.hpp"
-
+namespace boost {
+namespace mpi {
+// Forward declaration
+class communicator;
+} // namespace mpi
+} // namespace boost
 namespace xacc {
 
 namespace quantum {
@@ -25,7 +30,8 @@ protected:
   std::string roErrorFile = "";
 
   int n_virtual_qpus = 1;
-
+  // The MPI communitor for each QPU.
+  std::shared_ptr<boost::mpi::communicator> qpuComm;
 public:
   void initialize(const HeterogeneousMap &params = {}) override;
 

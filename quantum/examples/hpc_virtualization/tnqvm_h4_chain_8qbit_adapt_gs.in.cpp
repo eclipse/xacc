@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 
   // Get reference to the Accelerator
   auto accelerator =
-      xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn-mps"}});
+      xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn"}});
 
   // Decorate the accelerator with HPC Virtualization.
   // This decorator assumes the provided number of input QPUs
