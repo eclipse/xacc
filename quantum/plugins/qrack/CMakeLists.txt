@@ -9,8 +9,12 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
+# Need to get include dir if this is installed in non-standard path
+get_filename_component(QRACK_LIB_PARENT_DIR ${QRACK_LIBRARY} DIRECTORY)
+get_filename_component(QRACK_ROOT_DIR ${QRACK_LIB_PARENT_DIR} DIRECTORY)
+
 target_include_directories(${LIBRARY_NAME}
-                             PUBLIC .
+                             PUBLIC . ${QRACK_ROOT_DIR}/include
                                     ./accelerator
                                     ./accelerator/src/include)
 
@@ -19,14 +23,14 @@ if (OpenCL_FOUND)
     target_link_libraries(${LIBRARY_NAME}
                             PUBLIC xacc
                                    xacc-quantum-gate
-                                   qrack
+                                   ${QRACK_LIBRARY}
                                    OpenCL
                         )
 else()
     target_link_libraries(${LIBRARY_NAME}
                             PUBLIC xacc
                                    xacc-quantum-gate
-                                   qrack
+                                   ${QRACK_LIBRARY}
                         )
 endif()
 
