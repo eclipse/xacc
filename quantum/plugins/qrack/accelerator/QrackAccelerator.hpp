@@ -36,6 +36,7 @@ private:
     int m_shots = -1;
     bool m_use_opencl = true;
     bool m_use_qunit = true;
+    bool m_use_opencl_multi = false;
     int m_device_id = -1;
     bool m_do_normalize = true;
     double m_zero_threshold = min_norm;

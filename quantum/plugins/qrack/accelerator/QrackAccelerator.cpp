@@ -40,6 +40,11 @@ namespace quantum {
             m_use_qunit = params.get<bool>("use_qunit");
         }
 
+        if (params.keyExists<bool>("use_opencl_multi"))
+        {
+            m_use_opencl_multi = params.get<bool>("use_opencl_multi");
+        }
+
         if (params.keyExists<int>("device_id"))
         {
             m_device_id = params.get<int>("device_id");
@@ -101,7 +106,7 @@ namespace quantum {
         }
 
         const auto runCircuit = [&](int shots){
-            m_visitor->initialize(buffer, shots, m_use_opencl, m_use_qunit, m_device_id, m_do_normalize, m_zero_threshold);
+            m_visitor->initialize(buffer, shots, m_use_opencl, m_use_qunit, m_use_opencl_multi, m_device_id, m_do_normalize, m_zero_threshold);
 
             // Walk the IR tree, and visit each node
             InstructionIterator it(compositeInstruction);
