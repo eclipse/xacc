@@ -85,8 +85,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     // Get all backend information
     response = get(IBM_API_URL, getBackendPath + currentApiToken);
-    auto j = json::parse("{\"backends\":" + response + "}");
-    from_json(j, backends_root);
+    backends_root = json::parse("{\"backends\":" + response + "}");
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
     // Get current backend properties
@@ -95,12 +94,11 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
                           {std::make_pair("version", "1"),
                            std::make_pair("access_token", currentApiToken)});
 
-      xacc::ibm_properties::Properties props;
-      auto j = json::parse(response);
-      from_json(j, props);
+      auto props = json::parse(response);
       backendProperties.insert({backend, props});
-      for (auto &b : backends_root.get_backends()) {
-        if (b.get_name() == backend) {
+      for (auto &b : backends_root["backends"]) {
+        if (b.count("backend_name") &&
+            b["backend_name"].get<std::string>() == backend) {
           availableBackends.insert(std::make_pair(backend, b));
         }
       }
@@ -110,6 +108,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
               IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
               {std::make_pair("version", "1"),
                std::make_pair("access_token", currentApiToken)});
+
     }
     initialized = true;
   }
@@ -123,7 +122,7 @@ void IBMAccelerator::execute(
 
 std::string QasmQObjGenerator::getQObjJsonStr(
     std::vector<std::shared_ptr<CompositeInstruction>> circuits,
-    const int &shots, const xacc::ibm_backend::Backend &backend,
+    const int &shots, const nlohmann::json &backend,
     const std::string getBackendPropsResponse,
     std::vector<std::pair<int, int>> &connectivity) {
 
@@ -140,7 +139,7 @@ std::string QasmQObjGenerator::getQObjJsonStr(
   for (auto &kernel : circuits) {
 
     auto visitor = std::make_shared<QObjectExperimentVisitor>(
-        kernel->name(), backend.get_specific_configuration().get_n_qubits());
+        kernel->name(), backend["n_qubits"].get<int>());
 
     InstructionIterator it(kernel);
     int memSlots = 0;
@@ -189,7 +188,7 @@ std::string QasmQObjGenerator::getQObjJsonStr(
   config.set_memory_slots(maxMemSlots);
   config.set_meas_return("avg");
   config.set_memory_slot_size(100);
-  config.set_n_qubits(backend.get_specific_configuration().get_n_qubits());
+  config.set_n_qubits(backend["n_qubits"].get<int>());
 
   // Add the experiments and config
   qobj.set_experiments(experiments);
@@ -197,11 +196,11 @@ std::string QasmQObjGenerator::getQObjJsonStr(
 
   // Set the Backend
   xacc::ibm::Backend bkend;
-  bkend.set_name(backend.get_name());
+  bkend.set_name(backend["backend_name"].get<std::string>());
 
   xacc::ibm::QObjectHeader qobjHeader;
   qobjHeader.set_backend_version("1.0.0");
-  qobjHeader.set_backend_name(backend.get_name());
+  qobjHeader.set_backend_name(backend["backend_name"].get<std::string>());
   qobj.set_header(qobjHeader);
 
   // Create the JSON String to send
@@ -213,7 +212,7 @@ std::string QasmQObjGenerator::getQObjJsonStr(
 
 std::string PulseQObjGenerator::getQObjJsonStr(
     std::vector<std::shared_ptr<CompositeInstruction>> circuits,
-    const int &shots, const xacc::ibm_backend::Backend &backend,
+    const int &shots, const nlohmann::json &backend,
     const std::string getBackendPropsResponse,
     std::vector<std::pair<int, int>> &connectivity) {
 
@@ -223,7 +222,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   qobj.set_schema_version("1.1.0");
   qobj.set_type("PULSE");
   xacc::ibm_pulse::QObjectHeader h;
-  h.set_backend_name(backend.get_name());
+  h.set_backend_name(backend["backend_name"].get<std::string>());
   h.set_backend_version("1.2.1");
   qobj.set_header(h);
 
@@ -234,9 +233,9 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
   for (auto &kernel : circuits) {
 
-    // Schedule the pulses 
+    // Schedule the pulses
     scheduler->schedule(kernel);
-    
+
     auto visitor = std::make_shared<OpenPulseVisitor>();
 
     InstructionIterator it(kernel);
@@ -250,7 +249,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
 
     xacc::ibm_pulse::ExperimentHeader hh;
     hh.set_name(kernel->name());
-    hh.set_memory_slots(backend.get_specific_configuration().get_n_qubits());
+    hh.set_memory_slots(backend["n_qubits"].get<int>());
 
     xacc::ibm_pulse::Experiment experiment;
     experiment.set_instructions(visitor->instructions);
@@ -274,7 +273,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   }
   config.set_pulse_library(pulses);
   config.set_meas_level(2);
-  config.set_memory_slots(backend.get_specific_configuration().get_n_qubits());
+  config.set_memory_slots(backend["n_qubits"].get<int>());
   config.set_meas_return("avg");
   config.set_rep_time(1000);
   config.set_memory_slot_size(100);
@@ -282,16 +281,16 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   config.set_shots(shots);
   config.set_max_credits(10);
 
-  auto j = json::parse(getBackendPropsResponse);
+  // auto j = json::parse(getBackendPropsResponse);
   // set meas lo and qubit lo
   std::vector<double> meas_lo_freq, qubit_lo_freq;
   std::vector<std::vector<double>> meas_lo_range =
-      *backend.get_specific_configuration().get_meas_lo_range();
+      backend["meas_lo_range"].get<std::vector<std::vector<double>>>();
   for (auto &pair : meas_lo_range) {
     meas_lo_freq.push_back((pair[0] + pair[1]) / 2.);
   }
   std::vector<std::vector<double>> qubit_lo_range =
-      *backend.get_specific_configuration().get_qubit_lo_range();
+      backend["qubit_lo_range"].get<std::vector<std::vector<double>>>();
   for (auto &pair : qubit_lo_range) {
     qubit_lo_freq.push_back((pair[0] + pair[1]) / 2.);
   }
@@ -303,7 +302,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   root.set_q_object(qobj);
 
   xacc::ibm_pulse::Backend b;
-  b.set_name(backend.get_name());
+  b.set_name(backend["backend_name"].get<std::string>());
 
   root.set_backend(b);
   root.set_shots(shots);
@@ -528,20 +527,18 @@ std::vector<std::pair<int, int>> IBMAccelerator::getConnectivity() {
     xacc::error(backend + " is not available.");
   }
 
-  auto backend__ = availableBackends[backend];
-  //   auto graph = std::make_shared<AcceleratorGraph>(backend.nQubits);
   std::vector<std::pair<int, int>> graph;
-  auto couplers = backend__.get_specific_configuration().get_coupling_map();
-  auto nq = backend__.get_specific_configuration().get_n_qubits();
 
-  if (!couplers->empty()) {
-    for (int i = 0; i < couplers->size(); i++) {
-      //   graph->addEdge(es.first, es.second);
-      auto first = couplers->operator[](i)[0];
-      auto second = couplers->operator[](i)[1];
+  auto backend__ = availableBackends[backend];
+  if (backend__.count("coupling_map") && !backend__["coupling_map"].empty()) {
+    auto couplers = backend__["coupling_map"];
+    for (auto coupler : couplers) {
+      auto first = coupler[0].get<int>();
+      auto second = coupler[1].get<int>();
       graph.push_back({first, second});
     }
   } else {
+    auto nq = backend__["n_qubits"].get<int>();
     for (int i = 0; i < nq; i++) {
       for (int j = 0; j < nq; j++) {
         if (i < j) {
@@ -611,27 +608,28 @@ HeterogeneousMap IBMAccelerator::getProperties() {
 
   if (backendProperties.count(backend)) {
     auto props = backendProperties[backend];
-    json jj;
-    to_json(jj, props);
-    m.insert("total-json", jj.dump());
-    auto qubit_props = props.get_qubits();
+
+    m.insert("total-json", props.dump());
+    auto qubit_props = props["qubits"];
+
     std::vector<double> p01s, p10s;
+
     for (auto &qp : qubit_props) {
       for (auto &q : qp) {
-        if (q.get_name() == xacc::ibm_properties::Name::PROB_MEAS0_PREP1) {
-          p01s.push_back(q.get_value());
-        } else if (q.get_name() ==
-                   xacc::ibm_properties::Name::PROB_MEAS1_PREP0) {
-          p10s.push_back(q.get_value());
+        if (q["name"].get<std::string>() == "prob_meas0_prep1") {
+          p01s.push_back(q["value"].get<double>());
+        } else if (q["name"].get<std::string>() == "prob_meas1_prep0") {
         }
+        p10s.push_back(q["value"].get<double>());
       }
     }
+
     m.insert("p01s", p01s);
     m.insert("p10s", p10s);
   }
 
   return m;
-}
+} // namespace quantum
 
 void IBMAccelerator::contributeInstructions(
     const std::string &custom_json_config) {

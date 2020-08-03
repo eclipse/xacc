@@ -40,8 +40,6 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
     n_virtual_qpus = params.get<int>("n-virtual-qpus");
   }
 
-  if (!boost::mpi::environment::initialized()) {
-  }
 }
 
 void HPCVirtDecorator::updateConfiguration(const HeterogeneousMap &config) {
