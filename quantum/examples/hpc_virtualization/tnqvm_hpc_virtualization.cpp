@@ -57,17 +57,20 @@ CNOT(q[1],q[0]);
                                         {"observable", H_N_2},
                                         {"accelerator", accelerator},
                                         {"optimizer", optimizer}});
-
   // Allocate some qubits and execute
   auto buffer = xacc::qalloc(2);
+  xacc::ScopeTimer timer("mpi_timing", false);
   vqe->execute(buffer);
+  auto run_time = timer.getDurationMs();
 
   // Print the result
   auto print_predicate = buffer->hasExtraInfoKey("rank")
                              ? ((*buffer)["rank"].as<int>() == 0)
                              : true;
-  if (print_predicate)
+  if (print_predicate) {
     std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+    std::cout << "Runtime: " << run_time << " ms.\n";
+  }
 
   xacc::Finalize();
 }

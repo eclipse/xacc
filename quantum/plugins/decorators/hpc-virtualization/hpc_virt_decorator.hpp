@@ -27,7 +27,6 @@ namespace quantum {
 
 class HPCVirtDecorator : public AcceleratorDecorator {
 protected:
-  std::string roErrorFile = "";
 
   int n_virtual_qpus = 1;
   // The MPI communitor for each QPU.

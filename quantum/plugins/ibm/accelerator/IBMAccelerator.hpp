@@ -30,7 +30,7 @@ class QObjGenerator : public Identifiable {
 public:
   virtual std::string
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
-                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
                  std::vector<std::pair<int, int>> &connectivity) = 0;
 };
@@ -39,7 +39,7 @@ class QasmQObjGenerator : public QObjGenerator {
 public:
   std::string
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
-                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
                  std::vector<std::pair<int, int>> &connectivity) override;
   const std::string name() const override { return "qasm"; }
@@ -50,7 +50,7 @@ class PulseQObjGenerator : public QObjGenerator {
 public:
   std::string
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
-                 const int &shots, const xacc::ibm_backend::Backend &backend,
+                 const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
                  std::vector<std::pair<int, int>> &connectivity) override;
   const std::string name() const override { return "pulse"; }
@@ -122,7 +122,7 @@ public:
   contributeInstructions(const std::string &custom_json_config = "") override;
 
   const std::string getSignature() override {
-    return "ibm" + chosenBackend.get_name();
+    return "ibm:" + chosenBackend["backend_name"].get<std::string>();
   }
 
   std::vector<std::pair<int, int>> getConnectivity() override;
@@ -178,11 +178,11 @@ private:
   bool jobIsRunning = false;
   std::string currentJobId = "";
 
-  std::map<std::string, xacc::ibm_backend::Backend> availableBackends;
-  xacc::ibm_backend::Backend chosenBackend;
+  std::map<std::string, nlohmann::json> availableBackends;
+  nlohmann::json chosenBackend;
   bool initialized = false;
-  xacc::ibm_backend::Backends backends_root;
-  std::map<std::string, xacc::ibm_properties::Properties> backendProperties;
+  nlohmann::json backends_root;
+  std::map<std::string, nlohmann::json> backendProperties;
   std::string getBackendPropsResponse = "{}";
   std::string defaults_response = "{}";
   
