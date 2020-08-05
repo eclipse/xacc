@@ -17,6 +17,7 @@
 #include "parser/parser.hpp"
 #include "ast/traversal.hpp"
 #include <map>
+#include <iomanip>
 
 #include "AllGateVisitor.hpp"
 
@@ -78,7 +79,9 @@ public:
   }
   void visit(UGate &u) override {
     ss << "U(" << u.arg().var() << "[" << u.arg().offset().value() << "], "
-       << u.theta().constant_eval().value() << ", "
+       // This is used internally for source-source translation,
+       // hence we don't want to lose any precision.
+       << std::fixed << std::setprecision(16) << u.theta().constant_eval().value() << ", "
        << u.phi().constant_eval().value() << ", "
        << u.lambda().constant_eval().value() << ");\n";
   }
@@ -97,7 +100,7 @@ public:
     }
 
     if (g.num_cargs() > 0) {
-      ss << ", " << g.carg(0).constant_eval().value();
+      ss << std::fixed << std::setprecision(16) << ", " << g.carg(0).constant_eval().value();
       for (int i = 1; i < g.num_cargs(); i++) {
         ss << ", " << g.carg(i).constant_eval().value() << "\n";
       }
