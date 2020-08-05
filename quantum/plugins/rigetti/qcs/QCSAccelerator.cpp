@@ -155,11 +155,11 @@ void QCSAccelerator::execute(
   zmq::context_t context;
   zmq::socket_t qpu_socket(context, zmq::socket_type::dealer);
 
-  qpu_socket.set(zmq::sockopt::curve_publickey, client_public);
-  qpu_socket.set(zmq::sockopt::curve_secretkey, client_secret);
-  qpu_socket.set(zmq::sockopt::curve_serverkey, server_public);
+  qpu_socket.setsockopt(ZMQ_CURVE_PUBLICKEY, client_public);
+  qpu_socket.setsockopt(ZMQ_CURVE_SECRETKEY, client_secret);
+  qpu_socket.setsockopt(ZMQ_CURVE_SERVERKEY, server_public);
   qpu_socket.connect(qpu_endpoint);
-  qpu_socket.set(zmq::sockopt::linger, 0);
+  qpu_socket.setsockopt(ZMQ_LINGER, 0);
 
   auto get_uuid =
       []() {
