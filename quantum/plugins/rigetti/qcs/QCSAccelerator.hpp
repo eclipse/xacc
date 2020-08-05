@@ -122,16 +122,19 @@ protected:
 
   void getSocketURLs() {
     if (!xacc::directoryExists(std::getenv("HOME") + std::string("/.qcs"))) {
-      xacc::error("[QCS] $HOME/.qcs directory does not exists.");
+      xacc::warning("[QCS] $HOME/.qcs directory does not exists.");
+      return;
     }
 
     if (!xacc::fileExists(std::getenv("HOME") + std::string("/.qcs_config"))) {
-      xacc::error("[QCS] $HOME/.qcs_config file does not exist.");
+      xacc::warning("[QCS] $HOME/.qcs_config file does not exist.");
+      return;
     }
 
     if (!xacc::fileExists(std::getenv("HOME") +
                           std::string("/.qcs/user_auth_token"))) {
-      xacc::error("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+      xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+      return;
     }
     std::ifstream stream(std::getenv("HOME") +
                          std::string("/.qcs/user_auth_token"));
