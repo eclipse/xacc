@@ -92,6 +92,16 @@ TEST(Staq_RotationFoldingTester, checkSimple) {
   EXPECT_EQ("CNOT", program->getInstruction(2)->name());
   EXPECT_EQ(1, program->getInstruction(2)->bits()[0]);
   EXPECT_EQ(0, program->getInstruction(2)->bits()[1]);
+
+  program = compiler->compile(R"(__qpu__ void test_rz_merge_float(qreg q) {
+     Rz(q[0], 0.000000025);
+     Rz(q[0], 0.000000025);
+  })")->getComposite("test_rz_merge_float");
+  irt->apply(program, nullptr);
+
+  EXPECT_EQ(1, program->nInstructions());
+  EXPECT_EQ("Rz", program->getInstruction(0)->name());
+  EXPECT_NEAR(0.00000005, program->getInstruction(0)->getParameter(0).as<double>(), 1e-12);
 }
 
 
