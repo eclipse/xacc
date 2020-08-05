@@ -220,6 +220,24 @@ TEST(StaqCompilerTester, checkCirq) {
   auto c = compiler->translate(hello, {std::make_pair("lang-type", "cirq")});
   std::cout << "CIRQ: " << c << "\n";
 }
+
+TEST(StaqCompilerTester, checkFloatingPointFormat) {
+  auto compiler = xacc::getCompiler("staq");
+  // Checks that floating point params don't get
+  // converted to scientific form during translation.
+  auto IR = compiler->compile(R"(OPENQASM 2.0;
+                      include "qelib1.inc";
+                      qreg q[2];
+                      creg c[2];
+                      rx(0.00000025) q[0];
+                      measure q -> c;
+                      )");
+  auto hello = IR->getComposites()[0];
+  auto rxInst = hello->getInstruction(0);
+  // We must not lose any precision.
+  EXPECT_NEAR(rxInst->getParameter(0).as<double>(), 2.5e-07, 1e-12);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
