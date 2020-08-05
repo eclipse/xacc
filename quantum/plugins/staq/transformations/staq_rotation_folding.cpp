@@ -41,6 +41,11 @@ void RotationFolding::apply(std::shared_ptr<CompositeInstruction> program,
   // map prog back to staq src string and
   // compile to ir
   std::stringstream ss;
+  // Staq has a *bug* whereby it cannot parse floating point parameters in
+  // scientific notation form, yet happily 'pretty_print' parameters in that
+  // form => cannot recompile itself.
+  // Hence, we need to set the fixed format here to work around that.
+  ss << std::fixed << std::setprecision(16);
   prog->pretty_print(ss);
   auto ir = staq->compile(ss.str());
 
