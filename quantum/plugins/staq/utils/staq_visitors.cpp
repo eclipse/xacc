@@ -33,15 +33,15 @@ void XACCToStaqOpenQasm::visit(CNOT &cx) {
      << "[" << cx.bits()[0] << "], " << (cx.getBufferNames().empty() ? "q" : cx.getBufferName(1)) << "[" << cx.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Rz &rz) {
-  ss << "rz(" << xacc::InstructionParameterToDouble(rz.getParameter(0)) << ") " << (rz.getBufferNames().empty() ? "q" : rz.getBufferName(0))
+  ss << "rz(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(rz.getParameter(0)) << ") " << (rz.getBufferNames().empty() ? "q" : rz.getBufferName(0))
      << rz.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(Ry &ry) {
-  ss << "ry(" << xacc::InstructionParameterToDouble(ry.getParameter(0)) << ") " << (ry.getBufferNames().empty() ? "q" : ry.getBufferName(0))
+  ss << "ry(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(ry.getParameter(0)) << ") " << (ry.getBufferNames().empty() ? "q" : ry.getBufferName(0))
      << ry.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(Rx &rx) {
-  ss << "rx(" << xacc::InstructionParameterToDouble(rx.getParameter(0)) << ") " << (rx.getBufferNames().empty() ? "q" : rx.getBufferName(0))
+  ss << "rx(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(rx.getParameter(0)) << ") " << (rx.getBufferNames().empty() ? "q" : rx.getBufferName(0))
      << rx.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(X &x) {
@@ -69,7 +69,7 @@ void XACCToStaqOpenQasm::visit(Swap &s) {
      << "[" << s.bits()[0] << "], " << (s.getBufferNames().empty() ? "q" : s.getBufferName(1)) << "[" << s.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(CRZ &crz) {
-  ss << "crz(" << xacc::InstructionParameterToDouble(crz.getParameter(0)) << ") " << (crz.getBufferNames().empty() ? "q" : crz.getBufferName(0))
+  ss << "crz(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(crz.getParameter(0)) << ") " << (crz.getBufferNames().empty() ? "q" : crz.getBufferName(0))
      << "[" << crz.bits()[0] << "], " << (crz.getBufferNames().empty() ? "q" : crz.getBufferName(1)) << "[" << crz.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(CH &ch) {
@@ -93,7 +93,7 @@ void XACCToStaqOpenQasm::visit(Tdg &tdg) {
      << tdg.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(CPhase &cphase) {
-  ss << "cu1(" << xacc::InstructionParameterToDouble(cphase.getParameter(0)) << ") " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(0))
+  ss << "cu1(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(cphase.getParameter(0)) << ") " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(0))
      << "[" << cphase.bits()[0] << "], " << (cphase.getBufferNames().empty() ? "q" : cphase.getBufferName(1)) << "[" << cphase.bits()[1] << "];\n";
 }
 void XACCToStaqOpenQasm::visit(Measure &m) {
@@ -101,7 +101,7 @@ void XACCToStaqOpenQasm::visit(Measure &m) {
 }
 void XACCToStaqOpenQasm::visit(Identity &i) {}
 void XACCToStaqOpenQasm::visit(U &u) {
-    ss << "u3(" << xacc::InstructionParameterToDouble(u.getParameter(0)) << "," << xacc::InstructionParameterToDouble(u.getParameter(1)) << "," <<xacc::InstructionParameterToDouble(u.getParameter(2)) << ") " << (u.getBufferNames().empty() ? "q" : u.getBufferName(0)) << u.bits() << ";\n";
+    ss << "u3(" << std::fixed << std::setprecision(16) << xacc::InstructionParameterToDouble(u.getParameter(0)) << "," << xacc::InstructionParameterToDouble(u.getParameter(1)) << "," <<xacc::InstructionParameterToDouble(u.getParameter(2)) << ") " << (u.getBufferNames().empty() ? "q" : u.getBufferName(0)) << u.bits() << ";\n";
 }
 void XACCToStaqOpenQasm::visit(IfStmt &ifStmt) {}
 } // namespace internal_staq
