@@ -211,7 +211,7 @@ void XACCLogger::createFileLogger() {
     if (!directoryExists(logDir)) {
       if (!makeDirectory(logDir)) {
         // Cannot make the directory, use the current directory instead.
-        logDir = "";
+        logDir = ".";
       }
     }
 
