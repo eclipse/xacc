@@ -152,6 +152,9 @@ namespace xacc {
 namespace algorithm {
 bool QITE::initialize(const HeterogeneousMap &parameters) 
 {
+  static std::stringstream nullStream;
+  // Prevents Armadillo from writing expected 'approx. solution' warnings.
+  arma::set_cerr_stream(nullStream);
   bool initializeOk = true;
   if (!parameters.pointerLikeExists<Accelerator>("accelerator")) 
   {
