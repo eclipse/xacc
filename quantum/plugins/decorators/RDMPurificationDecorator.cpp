@@ -27,7 +27,7 @@ using T2 = Eigen::Tensor<double, 2>;
 using T4 = Eigen::Tensor<double, 4>;
 using T0 = Eigen::Tensor<double, 0>;
 
-void RDMPurificationDecorator::initialize(const HeterogeneousMap& params) {
+void RDMPurificationDecorator::initialize(const HeterogeneousMap &params) {
   if (!params.keyExists<std::shared_ptr<Observable>>("fermion-observable") &&
       !std::dynamic_pointer_cast<quantum::FermionOperator>(
           params.get<std::shared_ptr<Observable>>("fermion-observable"))) {
@@ -36,8 +36,8 @@ void RDMPurificationDecorator::initialize(const HeterogeneousMap& params) {
         "initialization input for the RDM Purification Decorator.");
   }
 
-  fermionObservable = params.get<std::shared_ptr<Observable>>(
-      "fermion-observable");
+  fermionObservable =
+      params.get<std::shared_ptr<Observable>>("fermion-observable");
 }
 
 void RDMPurificationDecorator::execute(
@@ -51,8 +51,7 @@ void RDMPurificationDecorator::execute(
   return;
 }
 
-void
-RDMPurificationDecorator::execute(
+void RDMPurificationDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
 
@@ -62,8 +61,8 @@ RDMPurificationDecorator::execute(
   }
 
   // Here I expect the ansatz to be functions[0]->getInstruction(0);
-  auto ansatz =
-      std::dynamic_pointer_cast<CompositeInstruction>(functions[0]->getInstruction(0));
+  auto ansatz = std::dynamic_pointer_cast<CompositeInstruction>(
+      functions[0]->getInstruction(0));
   if (!ansatz)
     xacc::error("RDMPurificationDecorator - Ansatz was null.");
 
@@ -119,7 +118,8 @@ RDMPurificationDecorator::execute(
   double energy = enuc;
 
   auto rdmGen = xacc::getAlgorithm(
-      "rdm", {std::make_pair("accelerator", decoratedAccelerator), std::make_pair("ansatz", ansatz)});
+      "rdm", {std::make_pair("accelerator", decoratedAccelerator),
+              std::make_pair("ansatz", ansatz)});
   rdmGen->execute(buffer);
   buffers = buffer->getChildren();
 
@@ -136,8 +136,8 @@ RDMPurificationDecorator::execute(
   auto pqtmp = realpq.data();
   std::vector<double> hpq_vec(pqtmp, pqtmp + hpq.size());
 
-//   //   auto rho_pq = generator.rho_pq;
-//   //   T4 rho_pqrs = generator.rho_pqrs;
+  //   //   auto rho_pq = generator.rho_pq;
+  //   //   T4 rho_pqrs = generator.rho_pqrs;
   Eigen::Tensor<double, 4> realt = rho_pqrs.real();
   auto real = realt.data();
   std::vector<double> rho_pqrs_data(real, real + rho_pqrs.size());
@@ -275,13 +275,14 @@ RDMPurificationDecorator::execute(
 
   xacc::info("Purified energy " + std::to_string(energy));
 
-//   auto ir = xacc::getIRProvider("quantum")->createIR();
-//   for (auto k : functions) {std::cout << k->toString() << "\n\n";  ir->addComposite(k);}
+  //   auto ir = xacc::getIRProvider("quantum")->createIR();
+  //   for (auto k : functions) {std::cout << k->toString() << "\n\n";
+  //   ir->addComposite(k);}
 
-//   xacc::quantum::PauliOperator op;
-//   op.fromXACCIR(ir);
+  //   xacc::quantum::PauliOperator op;
+  //   op.fromXACCIR(ir);
 
-//   std::cout << "HAM: " << op.toString() << "\n";
+  //   std::cout << "HAM: " << op.toString() << "\n";
   for (auto &b : buffers) {
     b->addExtraInfo("purified-energy", ExtraInfo(energy));
     b->addExtraInfo("non-purified-energy", ExtraInfo(bad_energy));
@@ -294,8 +295,9 @@ RDMPurificationDecorator::execute(
   buffers[0]->addExtraInfo("hpqrs", ExtraInfo(hpqrs_vec));
   buffers[0]->addExtraInfo("hpq", ExtraInfo(hpq_vec));
 
+  buffer->addExtraInfo("__internal__decorator_aggregate_vqe__", energy);
   return;
 }
 
-} // namespace vqe
+} // namespace quantum
 } // namespace xacc
