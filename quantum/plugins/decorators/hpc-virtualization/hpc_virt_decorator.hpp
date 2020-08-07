@@ -31,6 +31,8 @@ protected:
   int n_virtual_qpus = 1;
   // The MPI communitor for each QPU.
   std::shared_ptr<boost::mpi::communicator> qpuComm;
+
+
 public:
   void initialize(const HeterogeneousMap &params = {}) override;
 
