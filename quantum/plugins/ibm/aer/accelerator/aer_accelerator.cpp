@@ -48,6 +48,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
   noise_model.clear();
   m_simtype = "qasm";
+  connectivity.clear();
 
   xacc_to_qobj = xacc::getCompiler("qobj");
   if (params.keyExists<int>("shots")) {
@@ -69,7 +70,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
     auto props = ibm->getProperties().get<std::string>("total-json");
     auto props_json = nlohmann::json::parse(props);
-
+    connectivity = ibm->getConnectivity();
     // nlohmann::json errors_json;
     std::vector<nlohmann::json> elements;
     std::size_t qbit = 0;
