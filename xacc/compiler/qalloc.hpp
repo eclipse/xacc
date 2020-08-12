@@ -14,6 +14,7 @@
 #define XACC_QALLOC_HPP_
 
 #include <map>
+#include <string>
 
 namespace xacc {
 class AcceleratorBuffer;

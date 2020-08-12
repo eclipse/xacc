@@ -41,6 +41,30 @@ TEST(AerAcceleratorTester, checkSimple) {
   buffer->print(std::cout);
 }
 
+TEST(AerAcceleratorTester, checkBell) {
+  auto accelerator =
+      xacc::getAccelerator("aer", {std::make_pair("shots", 2048)});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  // Tests circuit that has non-continuous use of qubits.
+  auto ir = xasmCompiler->compile(R"(__qpu__ void bell1(qbit q) {
+      H(q[0]);
+      CX(q[0], q[4]);
+      Measure(q[0]);
+      Measure(q[4]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("bell1");
+
+  auto buffer = xacc::qalloc(5);
+  accelerator->execute(buffer, program);
+
+  buffer->print(std::cout);
+  // The bitstring result maps back to a two-qubit basis since we only measure two of them.
+  EXPECT_NEAR(buffer->computeMeasurementProbability("00"), 0.5, 0.1);
+  EXPECT_NEAR(buffer->computeMeasurementProbability("11"), 0.5, 0.1);
+}
+
 TEST(AerAcceleratorTester, checkDeuteron) {
   auto accelerator =
       xacc::getAccelerator("aer", {std::make_pair("sim-type", "statevector")});
