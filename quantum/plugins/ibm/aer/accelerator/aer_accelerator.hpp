@@ -37,7 +37,8 @@ public:
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::vector<std::shared_ptr<CompositeInstruction>>
                    compositeInstructions) override;
-
+  std::vector<std::pair<int, int>> getConnectivity() override { return connectivity; }
+  
 private:
   static double calcExpectationValueZ(
       const std::vector<std::pair<double, double>> &in_stateVec,
@@ -47,6 +48,7 @@ private:
   int m_shots = 1024;
   std::string m_simtype = "qasm";
   nlohmann::json noise_model;
+  std::vector<std::pair<int, int>> connectivity;
 };
 } // namespace quantum
 } // namespace xacc
