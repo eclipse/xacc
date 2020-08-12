@@ -107,9 +107,11 @@ QObjectCompiler::translate(std::shared_ptr<xacc::CompositeInstruction> function)
   std::vector<xacc::ibm::Experiment> experiments;
 
   auto uniqueBits = function->uniqueBits();
-
+  // The number of qubits required for an experiment is the number of *physical* qubits,
+  // i.e. the max index of qubit used in the circuit.  
+  auto nbRequiredBits = function->nPhysicalBits();
   auto visitor =
-      std::make_shared<QObjectExperimentVisitor>(function->name(), uniqueBits.size());
+      std::make_shared<QObjectExperimentVisitor>(function->name(), nbRequiredBits);
 
   InstructionIterator it(function);
   int memSlots = 0;
