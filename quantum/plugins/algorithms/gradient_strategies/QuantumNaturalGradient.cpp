@@ -60,7 +60,7 @@ bool QuantumNaturalGradient::initialize(const HeterogeneousMap in_parameters)
         {
             auto observable = xacc::as_shared_ptr(in_parameters.getPointerLike<Observable>("observable"));
             // Create a default gradient strategy based on the observable.
-            m_gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("central-difference-gradient");
+            m_gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("central");
             m_gradientStrategy->initialize({ std::make_pair("observable", observable)});
         }
         else

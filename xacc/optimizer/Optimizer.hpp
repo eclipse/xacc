@@ -34,7 +34,8 @@ protected:
   int _dim = 0;
 
 public:
-
+  OptFunction() = default;
+  
   // Standard constructor, takes function that takes params as
   // first arg and gradient as second arg
   OptFunction(OptimizerFunctor f, const int d) : _function(f), _dim(d) {}
@@ -65,9 +66,8 @@ public:
     throw std::bad_function_call();
   }
 
-  virtual const std::string get_algorithm() const {return "";}
-
-  virtual const bool isGradientBased() const {return false;}
+  virtual const std::string get_algorithm() const { return ""; }
+  virtual const bool isGradientBased() const { return false; }
 
 };
 } // namespace xacc

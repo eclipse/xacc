@@ -124,7 +124,7 @@ TEST(QITETester, checkDeuteuronH2Analytical)
   EXPECT_TRUE(check1 && check2);
 }
 
-
+/*
 TEST(QITETester, checkDeuteuronH3) 
 {
   auto qite = xacc::getService<xacc::Algorithm>("qite");
@@ -152,7 +152,7 @@ TEST(QITETester, checkDeuteuronH3)
   const double finalEnergy = (*buffer)["opt-val"].as<double>();
   std::cout << "Final Energy: " << finalEnergy << "\n";
   EXPECT_NEAR(finalEnergy, -2.04482, 0.01);
-}
+}*/
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);

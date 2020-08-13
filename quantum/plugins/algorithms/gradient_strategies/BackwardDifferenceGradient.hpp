@@ -30,6 +30,8 @@ protected:
   std::shared_ptr<Observable> obs; // Hamiltonian (or any) observable
   double step = 1.0e-7;            // step size
   double obsExpValue;              // <H> expectation value of the observable
+  std::function<std::shared_ptr<CompositeInstruction>(std::vector<double>)>
+      kernel_evaluator;
 
 public:
   // this is a numerical gradient
@@ -54,7 +56,13 @@ public:
     if (parameters.keyExists<double>("step")) {
       step = parameters.get<double>("step");
     }
-
+    if (parameters.keyExists<std::function<
+            std::shared_ptr<CompositeInstruction>(std::vector<double>)>>(
+            "kernel-evaluator")) {
+      kernel_evaluator =
+          parameters.get<std::function<std::shared_ptr<CompositeInstruction>(
+              std::vector<double>)>>("kernel-evaluator");
+    }
     return true;
   }
 
@@ -63,13 +71,13 @@ public:
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
 
-    std::stringstream ss;
-    ss << std::setprecision(5) << "Input parameters: ";
-    for (auto param : x) {
-      ss << param << " ";
-    }
-    xacc::info(ss.str());
-    ss.str(std::string());
+    // std::stringstream ss;
+    // ss << std::setprecision(5) << "Input parameters: ";
+    // for (auto param : x) {
+    //   ss << param << " ";
+    // }
+    // xacc::info(ss.str());
+    // ss.str(std::string());
 
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
     for (int op = 0; op < x.size(); op++) { // loop over operators
@@ -77,14 +85,24 @@ public:
       // shift the parameter by step and observe
       auto tmpX = x;
       tmpX[op] -= step;
-      auto kernels = obs->observe(circuit);
+      std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+      if (kernel_evaluator) {
+        auto evaled_base = kernel_evaluator(tmpX);
+        kernels = obs->observe(evaled_base);
+        for (auto &f : kernels) {
+          coefficients.push_back(std::real(f->getCoefficient()));
+          gradientInstructions.push_back(f);
+        }
+      } else {
+        kernels = obs->observe(circuit);
 
-      // loop over circuit instructions
-      // and gather coefficients/instructions
-      for (auto &f : kernels) {
-        auto evaled = f->operator()(tmpX);
-        coefficients.push_back(std::real(f->getCoefficient()));
-        gradientInstructions.push_back(evaled);
+        // loop over circuit instructions
+        // and gather coefficients/instructions
+        for (auto &f : kernels) {
+          auto evaled = f->operator()(tmpX);
+          coefficients.push_back(std::real(f->getCoefficient()));
+          gradientInstructions.push_back(evaled);
+        }
       }
 
       nInstructionsElement.push_back(kernels.size());
@@ -132,7 +150,7 @@ public:
   }
 
   const std::string name() const override {
-    return "backward-difference-gradient";
+    return "backward";
   }
   const std::string description() const override { return ""; }
 };

@@ -14,6 +14,7 @@
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "xacc_observable.hpp"
 #include "Observable.hpp"
 #include "Algorithm.hpp"
 #include "AlgorithmGradientStrategy.hpp"
@@ -38,7 +39,7 @@ TEST(GradientStrategiesTester, checkParameterShift) {
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
   auto parameterShift =
-      xacc::getService<AlgorithmGradientStrategy>("parameter-shift-gradient");
+      xacc::getService<AlgorithmGradientStrategy>("parameter-shift");
   parameterShift->initialize({std::make_pair("observable", observable)});
   auto gradientInstructions =
       parameterShift->getGradientExecutions(ansatz, {0.0});
@@ -46,7 +47,7 @@ TEST(GradientStrategiesTester, checkParameterShift) {
 
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_NEAR(dx[0], -1.0, 1e-4);
+  EXPECT_NEAR(dx[0], 1.0, 1e-4);
 }
 
 TEST(GradientStrategiesTester, checkCentralDifference) {
@@ -64,7 +65,7 @@ TEST(GradientStrategiesTester, checkCentralDifference) {
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
   auto centralDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "central-difference-gradient");
+      "central");
   centralDifference->initialize({std::make_pair("observable", observable2)});
   auto gradientInstructions =
       centralDifference->getGradientExecutions(ansatz2, {0.0});
@@ -90,7 +91,7 @@ TEST(GradientStrategiesTester, checkForwardDifference) {
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
   auto forwardDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "forward-difference-gradient");
+      "forward");
   forwardDifference->initialize({std::make_pair("observable", observable3)});
   auto gradientInstructions =
       forwardDifference->getGradientExecutions(ansatz3, {0.0});
@@ -116,7 +117,7 @@ TEST(GradientStrategiesTester, checkBackwardDifference) {
       "Ry", std::vector<std::size_t>{0}, {InstructionParameter("x0")}));
 
   auto backwardDifference = xacc::getService<AlgorithmGradientStrategy>(
-      "backward-difference-gradient");
+      "backward");
   backwardDifference->initialize({std::make_pair("observable", observable4)});
   auto gradientInstructions =
       backwardDifference->getGradientExecutions(ansatz4, {0.0});
@@ -125,6 +126,48 @@ TEST(GradientStrategiesTester, checkBackwardDifference) {
   std::vector<double> dx(1);
   backwardDifference->compute(dx, buffer4->getChildren());
   EXPECT_NEAR(dx[0], 1.0, 1e-4);
+}
+
+TEST(GradientStrategiesTester, checkDeuteronVQE) {
+    // Use Qpp accelerator
+    auto accelerator = xacc::getAccelerator("qpp");
+    EXPECT_EQ(accelerator->name(), "qpp");
+
+    // Create the N=2 deuteron Hamiltonian
+    auto H_N_2 = xacc::quantum::getObservable(
+        "pauli", std::string("5.907 - 2.1433 X0X1 "
+                            "- 2.1433 Y0Y1"
+                            "+ .21829 Z0 - 6.125 Z1"));
+
+    auto optimizer = xacc::getOptimizer("nlopt", {{"nlopt-optimizer", "l-bfgs"}});
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+    
+    // Get the VQE Algorithm and initialize it
+    auto vqe = xacc::getAlgorithm("vqe");
+    vqe->initialize({{"ansatz", ansatz},
+                    {"observable", H_N_2},
+                    {"accelerator", accelerator},
+                    {"optimizer", optimizer},
+                    {"gradient_strategy", "parameter-shift"}});
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    xacc::set_verbose(true);
+    vqe->execute(buffer);
+
+    // Expected result: -1.74886
+    EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
+
 }
 
 int main(int argc, char **argv) {
