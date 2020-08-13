@@ -154,7 +154,7 @@ public:
       }
 
       // gradient is (<+> - <->)/2
-      dx[gradTerm] = -std::real(plusGradElement - minusGradElement) / 2.0;
+      dx[gradTerm] = std::real(plusGradElement - minusGradElement) / 2.0;
       shift += 2 * nInstructionsElement[gradTerm];
     }
 

@@ -19,6 +19,7 @@
 #include "AlgorithmGradientStrategy.hpp"
 #include "PauliOperator.hpp"
 #include "Optimizer.hpp"
+#include "xacc_observable.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -46,7 +47,7 @@ TEST(GradientStrategiesTester, checkParameterShift) {
 
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_NEAR(dx[0], -1.0, 1e-4);
+  EXPECT_NEAR(dx[0], 1.0, 1e-4);
 }
 
 TEST(GradientStrategiesTester, checkCentralDifference) {
@@ -125,6 +126,41 @@ TEST(GradientStrategiesTester, checkBackwardDifference) {
   std::vector<double> dx(1);
   backwardDifference->compute(dx, buffer4->getChildren());
   EXPECT_NEAR(dx[0], 1.0, 1e-4);
+}
+
+TEST(GradientStrategiesTester, checkDeuteronVQE) {
+    // Use Qpp accelerator
+    auto accelerator = xacc::getAccelerator("qpp");
+    EXPECT_EQ(accelerator->name(), "qpp");
+    // Create the N=2 deuteron Hamiltonian
+    auto H_N_2 = xacc::quantum::getObservable(
+        "pauli", std::string("5.907 - 2.1433 X0X1 "
+                            "- 2.1433 Y0Y1"
+                            "+ .21829 Z0 - 6.125 Z1"));
+    auto optimizer = xacc::getOptimizer("nlopt", {{"nlopt-optimizer", "l-bfgs"}});
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+    // Get the VQE Algorithm and initialize it
+    auto vqe = xacc::getAlgorithm("vqe");
+    vqe->initialize({{"ansatz", ansatz},
+                    {"observable", H_N_2},
+                    {"accelerator", accelerator},
+                    {"optimizer", optimizer},
+                    {"gradient_strategy", "parameter-shift-gradient"}});
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    xacc::set_verbose(true);
+    vqe->execute(buffer);
+    // Expected result: -1.74886
+    EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
 }
 
 int main(int argc, char **argv) {
