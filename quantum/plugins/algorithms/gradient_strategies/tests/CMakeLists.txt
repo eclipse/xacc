@@ -12,7 +12,7 @@
 # *******************************************************************************/
 include_directories(${CMAKE_BINARY_DIR})
 add_xacc_test(GradientStrategies)
-target_link_libraries(GradientStrategiesTester xacc xacc-pauli) 
+target_link_libraries(GradientStrategiesTester xacc xacc-quantum-gate xacc-pauli) 
 
 add_xacc_test(QuantumNatualGradient)
 target_link_libraries(QuantumNatualGradientTester xacc xacc-pauli xacc-gradient-strategies) 

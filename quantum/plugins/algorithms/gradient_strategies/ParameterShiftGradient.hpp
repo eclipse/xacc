@@ -29,6 +29,8 @@ class ParameterShiftGradient : public AlgorithmGradientStrategy {
 protected:
   std::shared_ptr<Observable> obs,
       commutator; // Hamiltonian (or any) observable
+  std::function<std::shared_ptr<CompositeInstruction>(std::vector<double>)>
+      kernel_evaluator;
 
 public:
   bool initialize(const HeterogeneousMap parameters) override {
@@ -45,6 +47,13 @@ public:
       commutator = parameters.get<std::shared_ptr<Observable>>("commutator");
     }
 
+    if (parameters.keyExists<std::function<
+            std::shared_ptr<CompositeInstruction>(std::vector<double>)>>(
+            "kernel-evaluator")) {
+      kernel_evaluator =
+          parameters.get<std::function<std::shared_ptr<CompositeInstruction>(
+              std::vector<double>)>>("kernel-evaluator");
+    }
     return true;
   }
 
@@ -56,13 +65,13 @@ public:
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
 
-    std::stringstream ss;
-    ss << std::setprecision(5) << "Input parameters: ";
-    for (auto param : x) {
-      ss << param << " ";
-    }
-    xacc::info(ss.str());
-    ss.str(std::string());
+    // std::stringstream ss;
+    // ss << std::setprecision(5) << "Input parameters: ";
+    // for (auto param : x) {
+    //   ss << param << " ";
+    // }
+    // xacc::info(ss.str());
+    // ss.str(std::string());
 
     std::vector<std::shared_ptr<CompositeInstruction>> gradientInstructions;
 
@@ -72,13 +81,26 @@ public:
 
     int start = 0;
     if (commutator) {
-      auto kernels = commutator->observe(circuit);
+      std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+      if (kernel_evaluator) {
+        auto evaled_base = kernel_evaluator(x);
+        kernels = obs->observe(evaled_base);
+        for (auto &f : kernels) {
+          coefficients.push_back(std::real(f->getCoefficient()));
+          gradientInstructions.push_back(f);
+        }
+      } else {
+        kernels = obs->observe(circuit);
 
-      for (auto &f : kernels) {
-        auto evaled = f->operator()(x);
-        coefficients.push_back(std::real(f->getCoefficient()));
-        gradientInstructions.push_back(evaled);
+        // loop over circuit instructions
+        // and gather coefficients/instructions
+        for (auto &f : kernels) {
+          auto evaled = f->operator()(x);
+          coefficients.push_back(std::real(f->getCoefficient()));
+          gradientInstructions.push_back(evaled);
+        }
       }
+
       nInstructionsElement.push_back(kernels.size());
       start = 1;
     }
@@ -90,14 +112,25 @@ public:
         // parameter shift and observe
         auto tmpX = x;
         tmpX[op] += sign * xacc::constants::pi / 2.0;
-        auto kernels = obs->observe(circuit);
 
-        // loop over parameter-shifted circuit instructions
-        // and gather coefficients/instructions
-        for (auto &f : kernels) {
-          auto evaled = f->operator()(tmpX);
-          coefficients.push_back(std::real(f->getCoefficient()));
-          gradientInstructions.push_back(evaled);
+        std::vector<std::shared_ptr<CompositeInstruction>> kernels;
+        if (kernel_evaluator) {
+          auto evaled_base = kernel_evaluator(tmpX);
+          kernels = obs->observe(evaled_base);
+          for (auto &f : kernels) {
+            coefficients.push_back(std::real(f->getCoefficient()));
+            gradientInstructions.push_back(f);
+          }
+        } else {
+          kernels = obs->observe(circuit);
+
+          // loop over circuit instructions
+          // and gather coefficients/instructions
+          for (auto &f : kernels) {
+            auto evaled = f->operator()(tmpX);
+            coefficients.push_back(std::real(f->getCoefficient()));
+            gradientInstructions.push_back(evaled);
+          }
         }
 
         // the number of instructions for a given element of x is the same
@@ -154,7 +187,7 @@ public:
       }
 
       // gradient is (<+> - <->)/2
-      dx[gradTerm] = -std::real(plusGradElement - minusGradElement) / 2.0;
+      dx[gradTerm] = std::real(plusGradElement - minusGradElement) / 2.0;
       shift += 2 * nInstructionsElement[gradTerm];
     }
 
@@ -171,7 +204,7 @@ public:
     return;
   }
 
-  const std::string name() const override { return "parameter-shift-gradient"; }
+  const std::string name() const override { return "parameter-shift"; }
   const std::string description() const override { return ""; }
 };
 
