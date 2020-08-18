@@ -64,8 +64,9 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
       IBM_CREDENTIALS_PATH =
           "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
       getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
-      getBackendPropertiesPath =
-          "/api/Network/" + hub + "/devices/" + backend + "/properties";
+      getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
+                                 "/Projects/" + project + "/devices/" +
+                                 backend + "/properties";
     } else {
       xacc::error(
           "We do not currently support running on the open IBM devices.");
@@ -108,7 +109,6 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
               IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
               {std::make_pair("version", "1"),
                std::make_pair("access_token", currentApiToken)});
-
     }
     initialized = true;
   }
