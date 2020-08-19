@@ -11,7 +11,7 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "aer_accelerator.hpp"
-
+#include "aer_noise_model.hpp"
 #include "CommonGates.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
 #include "InstructionIterator.hpp"
