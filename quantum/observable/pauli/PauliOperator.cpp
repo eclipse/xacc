@@ -86,23 +86,22 @@ std::vector<SparseTriplet> PauliOperator::to_sparse_matrix() {
       }
     }
 
-    
     auto sp_matrix = kron_ops(sparse_mats);
     sp_matrix *= coeff;
     total += sp_matrix;
   }
 
-//   arma::vec eigval;
-//   arma::mat eigvec;
+  //   arma::vec eigval;
+  //   arma::mat eigvec;
 
-//   arma::sp_mat test(total.n_rows, total.n_cols);
-//   for (auto i = total.begin(); i != total.end(); ++i) {
-//     test(i.row(), i.col()) = (*i).real();
-//   }
+  //   arma::sp_mat test(total.n_rows, total.n_cols);
+  //   for (auto i = total.begin(); i != total.end(); ++i) {
+  //     test(i.row(), i.col()) = (*i).real();
+  //   }
 
-//   arma::eigs_sym(eigval, eigvec, test, 1);
+  //   arma::eigs_sym(eigval, eigvec, test, 1);
 
-//   std::cout << "EIGS:\n" << eigval << "\n";
+  //   std::cout << "EIGS:\n" << eigval << "\n";
 
   std::vector<SparseTriplet> trips;
   for (auto iter = total.begin(); iter != total.end(); ++iter) {
@@ -187,6 +186,15 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
   int counter = 0;
   auto pi = xacc::constants::pi;
 
+  // If the incoming function has instructions that have 
+  // their buffer_names set, then we need to set the 
+  // new measurement instructions buffer names to be the same. 
+  // Here we assume that all instructions have the same buffer name
+  std::string buf_name = "";
+  if (!function->getInstruction(0)->getBufferNames().empty()) {
+    buf_name = function->getInstruction(0)->getBufferNames()[0];
+  }
+
   // Populate GateQIR now...
   for (auto &inst : terms) {
 
@@ -224,6 +232,7 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       auto gateName = terms[i].second;
       auto meas = gateRegistry->createInstruction("Measure",
                                                   std::vector<std::size_t>{tt});
+      if (!buf_name.empty()) meas->setBufferNames({buf_name});
       xacc::InstructionParameter classicalIdx(qbit);
       meas->setParameter(0, classicalIdx);
       measurements.push_back(meas);
@@ -231,10 +240,12 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
       if (gateName == "X") {
         auto hadamard =
             gateRegistry->createInstruction("H", std::vector<std::size_t>{tt});
+        if (!buf_name.empty()) hadamard->setBufferNames({buf_name});
         gateFunction->addInstruction(hadamard);
       } else if (gateName == "Y") {
         auto rx =
             gateRegistry->createInstruction("Rx", std::vector<std::size_t>{tt});
+        if (!buf_name.empty()) rx->setBufferNames({buf_name});
         InstructionParameter p(pi / 2.0);
         rx->setParameter(0, p);
         gateFunction->addInstruction(rx);
@@ -760,12 +771,13 @@ void PauliOperator::fromXACCIR(std::shared_ptr<IR> ir) {
   }
 }
 
-std::shared_ptr<Observable> PauliOperator::commutator(std::shared_ptr<Observable> op) {
+std::shared_ptr<Observable>
+PauliOperator::commutator(std::shared_ptr<Observable> op) {
 
-  PauliOperator& A = *std::dynamic_pointer_cast<PauliOperator>(op);
-  std::shared_ptr<PauliOperator> commutatorHA =  std::make_shared<PauliOperator>((*this) * A - A * (*this));
+  PauliOperator &A = *std::dynamic_pointer_cast<PauliOperator>(op);
+  std::shared_ptr<PauliOperator> commutatorHA =
+      std::make_shared<PauliOperator>((*this) * A - A * (*this));
   return commutatorHA;
-
 }
 
 } // namespace quantum

@@ -158,7 +158,7 @@ void error(const std::string &msg, MessagePredicate predicate) {
 qbit qalloc(const int n) {
   qbit q(n);
   std::stringstream ss;
-  ss << q;
+  ss << "qreg_"<<q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
@@ -166,7 +166,7 @@ qbit qalloc(const int n) {
 qbit qalloc() {
   qbit q;
   std::stringstream ss;
-  ss << q;
+  ss << "qreg_"<<q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
