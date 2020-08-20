@@ -384,27 +384,62 @@ double IbmqNoiseModel::averageGateFidelity(
 std::vector<KrausOp>
 IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
   std::vector<KrausOp> krausOps;
+  const auto computeAdKrausOp = [](double in_probAD, size_t in_bit) {
+    // TODO: add dephasing calculation
+    const double adElem = std::cos(std::asin(std::sqrt(in_probAD)));
+    KrausOp newOp;
+    newOp.qubit = in_bit;
+    const std::vector<std::vector<std::complex<double>>> cmats{
+        {1., 0., 0., adElem},
+        {0., 0., 0., 0.},
+        {0., 0., in_probAD, 0.},
+        {adElem, 0., 0., 1.0 - in_probAD}};
+    newOp.mats = cmats;
+    return newOp;
+  };
+
   if (gate.bits().size() == 1 && gate.name() != "Measure") {
+    // Amplitude damping + dephasing
     const auto adAmpl = calculateAmplitudeDamping(gate);
     if (!adAmpl.empty()) {
       const double probAD = adAmpl[0];
-      // TODO: add dephasing calculation
-      const double adElem = std::cos(std::asin(std::sqrt(probAD)));
+      // Add relaxation kraus
+      krausOps.emplace_back(computeAdKrausOp(probAD, gate.bits()[0]));
+    }
+
+    // Depolarization
+    const auto dpAmpl = calculateDepolarizing(gate, adAmpl);
+    if (!dpAmpl.empty()) {
+      const double probDP = dpAmpl[0];
+      const std::vector<std::vector<std::complex<double>>> cmats{
+          {1.0 - probDP / 2.0, 0., 0., 1.0 - probDP},
+          {0., probDP / 2.0, 0., 0.},
+          {0., 0., probDP / 2.0, 0.},
+          {1.0 - probDP, 0., 0., 1.0 - probDP / 2.0}};
       KrausOp newOp;
       newOp.qubit = gate.bits()[0];
-      const std::vector<std::vector<std::complex<double>>> cmats{
-          {1., 0., 0., adElem},
-          {0., 0., 0., 0.},
-          {0., 0., probAD, 0.},
-          {adElem, 0., 0., 1.0 - probAD}};
       newOp.mats = cmats;
+      // Add depolarization kraus
       krausOps.emplace_back(std::move(newOp));
+    }
+  }
+  // For two-qubit gates, we currently only support
+  // amplitude damping on both qubits (scaled by gate time).
+  // We don't have ability to handle multi-qubit depolarization 
+  // in TNQVM yet.
+  if (gate.bits().size() == 2) {
+    const auto adAmpl = calculateAmplitudeDamping(gate);
+    if (adAmpl.size() == 2) {
+      // Add relaxation kraus for both qubits
+      krausOps.emplace_back(computeAdKrausOp(adAmpl[0], gate.bits()[0]));
+      krausOps.emplace_back(computeAdKrausOp(adAmpl[1], gate.bits()[1]));
     }
   }
   return krausOps;
 }
 
 std::string IbmqNoiseModel::toJson() const {
+  // !!! IMPORTANT !!! This function is *WIP*
   // Aer noise model Json
   nlohmann::json noiseModel;
   std::vector<nlohmann::json> noiseElements;
@@ -428,7 +463,9 @@ std::string IbmqNoiseModel::toJson() const {
     nlohmann::json instruction;
     instruction["name"] = "kraus";
     instruction["qubits"] = std::vector<std::size_t>{0};
-    // TODO: use actual Kraus values.
+    // NOTE: use actual Kraus values.
+    // This is incomplete, to use this JSON with AER,
+    // we need construct and verify the Kraus data.
     instruction["params"] =
         std::vector<std::vector<std::vector<std::complex<double>>>>{
             {{1., 0.}, {0., 1.}},
