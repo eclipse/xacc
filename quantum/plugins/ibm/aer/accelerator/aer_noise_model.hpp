@@ -12,7 +12,7 @@ public:
     return "Backend noise model based on IBMQ backend specifications.";
   }
   void initialize(const HeterogeneousMap &params) override;
-  std::string toJson() const override { return ""; }
+  std::string toJson() const override;
   RoErrors readoutError(size_t qubitIdx) const override {
     // If this noise model has not been initialized with a backend, give zero ro
     // errors.
@@ -21,9 +21,22 @@ public:
   std::vector<RoErrors> readoutErrors() const override { return m_roErrors; }
 
   std::vector<KrausOp>
-  gateError(const xacc::quantum::Gate &gate) const override {
-    return {};
-  }
+  gateError(xacc::quantum::Gate &gate) const override; 
+
+private:
+  // Gets the name of the equivalent universal gate.
+  // e.g. an Rz <=> u1; H <==> u2, etc.
+  std::string getUniversalGateEquiv(xacc::quantum::Gate &in_gate) const;
+  // Helper methods to generate noise Kraus Ops
+  std::vector<double>
+  calculateAmplitudeDamping(xacc::quantum::Gate &in_gate) const;
+  std::vector<double>
+  calculateDepolarizing(xacc::quantum::Gate &in_gate,
+                        const std::vector<double> &in_amplitudeDamping) const;
+  // Compute the gate fidelity given the amplitude damping noise:
+  double
+  averageGateFidelity(xacc::quantum::Gate &in_gate,
+                      const std::vector<double> &in_amplitudeDamping) const;
 
 private:
   // Parsed parameters needed for noise model construction.

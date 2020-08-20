@@ -44,6 +44,6 @@ public:
   // Any probabilistic gate-based noise representations must be converted to
   // the equivalent Kraus operators.
   virtual std::vector<KrausOp>
-  gateError(const xacc::quantum::Gate &gate) const = 0;
+  gateError(xacc::quantum::Gate &gate) const = 0;
 };
 } // namespace xacc
