@@ -210,10 +210,19 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
   m_gateErrors.clear();
   m_gateDurations.clear();
   m_roErrors.clear();
-  if (params.stringExists("backend")) {
-    auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
-    auto props = ibm->getProperties().get<std::string>("total-json");
-    auto backEndJson = nlohmann::json::parse(props);
+  // Note: we support both remote backend JSON and cache JSON string.
+  // So that we can test this with offline JSON.
+  if (params.stringExists("backend") || params.stringExists("backend-json")) {
+    const auto backendJsonStr = [&]() {
+      if (params.stringExists("backend")) {
+        auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
+        auto props = ibm->getProperties().get<std::string>("total-json");
+        return props;
+      }
+      return params.getString("backend-json");
+    }();
+
+    auto backEndJson = nlohmann::json::parse(backendJsonStr);
     // Parse qubit data:
     auto qubitsData = backEndJson["qubits"];
     size_t nbQubit = 0;
