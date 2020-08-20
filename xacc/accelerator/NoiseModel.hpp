@@ -20,7 +20,7 @@ namespace quantum {
 class Gate;
 } // namespace quantum
 
-// Readout error: pair of prep0meas1 and prep1meas0
+// Readout error: pair of meas0Prep1, meas1Prep0
 using RoErrors = std::pair<double, double>;
 
 struct KrausOp {
