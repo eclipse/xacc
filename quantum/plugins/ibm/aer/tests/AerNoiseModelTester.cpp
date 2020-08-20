@@ -16,8 +16,6 @@ TEST(AerNoiseModelTester, checkSimple) {
     EXPECT_GT(meas1Prep0, 0.0);
     EXPECT_LT(meas1Prep0, 0.1);
   }
-
-  std::cout << "HOWDY: \n" << noiseModel->toJson() << "\n";
 }
 
 int main(int argc, char **argv) {
