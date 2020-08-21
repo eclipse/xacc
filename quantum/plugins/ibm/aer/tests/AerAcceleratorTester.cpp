@@ -218,6 +218,62 @@ MEASURE 1 [1]
   }
 }
 
+TEST(AerAcceleratorTester, checkNoiseJson) {
+  // Single-qubit noise model Json (IBMQ armonk)
+  const std::string noiseModelJson =
+      R"({"errors": [{"type": "qerror", "operations": ["id"], "instructions": [[{"name": "kraus", "qubits": [0], "params": [[[[-0.9999288015600207, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.999543331186472, 0.0]]], [[[-0.011590063902425698, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.01159453356984534, 0.0]]], [[[0.0, 0.0], [0.0, 0.0]], [[0.0028394065361603033, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.027905122682909723, 0.0]], [[0.0, 0.0], [0.0, 0.0]]]]}]], "probabilities": [1.0], "gate_qubits": [[0]]}, {"type": "qerror", "operations": ["u2"], "instructions": [[{"name": "kraus", "qubits": [0], "params": [[[[-0.9999288015600207, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.999543331186472, 0.0]]], [[[-0.011590063902425698, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.01159453356984534, 0.0]]], [[[0.0, 0.0], [0.0, 0.0]], [[0.0028394065361603033, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.027905122682909723, 0.0]], [[0.0, 0.0], [0.0, 0.0]]]]}]], "probabilities": [1.0], "gate_qubits": [[0]]}, {"type": "qerror", "operations": ["u3"], "instructions": [[{"name": "kraus", "qubits": [0], "params": [[[[-0.9998576313895062, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.9990866804895971, 0.0]]], [[[-0.016385345211158933, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.016397989055664672, 0.0]]], [[[0.0, 0.0], [0.0, 0.0]], [[0.0040295675297832316, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.039457709300053316, 0.0]], [[0.0, 0.0], [0.0, 0.0]]]]}]], "probabilities": [1.0], "gate_qubits": [[0]]}, {"type": "roerror", "operations": ["measure"], "probabilities": [[0.9534, 0.046599999999999975], [0.057, 0.943]], "gate_qubits": [[0]]}], "x90_gates": []})";
+
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", noiseModelJson}, {"shots", 8192}});
+
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program1 = xasmCompiler
+                      ->compile(R"(__qpu__ void testRo(qbit q) {
+        Measure(q[0]);
+      })",
+                                accelerator)
+                      ->getComposite("testRo");
+  auto program2 = xasmCompiler
+                      ->compile(R"(__qpu__ void testRbH(qbit q) {
+        // Randomized benchmarking
+        for (int i = 0; i < 100; i++) {
+            H(q[0]);
+        }
+        Measure(q[0]);
+      })",
+                                accelerator)
+                      ->getComposite("testRbH");
+  auto program3 = xasmCompiler
+                      ->compile(R"(__qpu__ void testRbX(qbit q) {
+        // Randomized benchmarking
+        for (int i = 0; i < 100; i++) {
+            X(q[0]);
+        }
+        Measure(q[0]);
+      })",
+                                accelerator)
+                      ->getComposite("testRbX");
+
+  // Readout error test:
+  auto buffer1 = xacc::qalloc(1);
+  accelerator->execute(buffer1, program1);
+  // Randomized benchmarking of Hadamard gate
+  auto buffer2 = xacc::qalloc(1);
+  accelerator->execute(buffer2, program2);
+  // Randomized benchmarking of X gate
+  auto buffer3 = xacc::qalloc(1);
+  accelerator->execute(buffer3, program3);
+  // Check readout error:
+  EXPECT_NEAR(buffer1->computeMeasurementProbability("1"), 0.046599999999999975,
+              1e-2);
+  // More errors due to gates (not perfectly cancelled)
+  EXPECT_GT(buffer2->computeMeasurementProbability("1"),
+            buffer1->computeMeasurementProbability("1"));
+  // X gate is longer than H gate.
+  EXPECT_GT(buffer3->computeMeasurementProbability("1"),
+            buffer2->computeMeasurementProbability("1"));
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
