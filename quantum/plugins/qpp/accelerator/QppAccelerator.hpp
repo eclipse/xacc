@@ -13,6 +13,7 @@
 #pragma one
 #include "xacc.hpp"
 #include "QppVisitor.hpp"
+#include "NoiseModel.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -35,5 +36,15 @@ private:
     // Number of 'shots' if random sampling simulation is enabled.
     // -1 means disabled (no shots, just expectation value)
     int m_shots = -1;
+};
+
+class DefaultNoiseModelUtils : public NoiseModelUtils 
+{
+public:
+    // Identifiable interface impls
+    virtual const std::string name() const override { return "default"; }
+    virtual const std::string description() const override { return "Default noise model utils."; }
+    virtual NoiseModelUtils::cMat krausToChoi(const std::vector<NoiseModelUtils::cMat>& in_krausMats) const override;
+    virtual std::vector<NoiseModelUtils::cMat> choiToKraus(const NoiseModelUtils::cMat& in_choiMat) const override;
 };
 }}

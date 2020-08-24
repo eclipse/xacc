@@ -25,7 +25,7 @@ using RoErrors = std::pair<double, double>;
 
 struct KrausOp {
   size_t qubit;
-  // Kraus matrix
+  // Choi matrix
   std::vector<std::vector<std::complex<double>>> mats;
 };
 
@@ -45,5 +45,14 @@ public:
   // the equivalent Kraus operators.
   virtual std::vector<KrausOp>
   gateError(xacc::quantum::Gate &gate) const = 0;
+};
+
+// Utils to convert b/w different noise channel representations.
+// The default implementation to be contributed elsewhere.
+class NoiseModelUtils : public Identifiable {
+public:
+  using cMat = std::vector<std::vector<std::complex<double>>>;
+  virtual cMat krausToChoi(const std::vector<cMat> &in_krausMats) const = 0;
+  virtual std::vector<cMat> choiToKraus(const cMat &in_choiMat) const = 0;
 };
 } // namespace xacc

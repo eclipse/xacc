@@ -26,6 +26,7 @@
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 #include <bitset>
 
@@ -466,29 +467,39 @@ std::string IbmqNoiseModel::toJson() const {
     noiseElements.push_back(element);
   }
 
+  const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
   // Add Kraus noise:
+  // (1) Single-qubit gate noise:
   // Note: we must add noise ops for u2, u3, and cx gates:
   for (size_t qIdx = 0; qIdx < roErrors.size(); ++qIdx) {
-    nlohmann::json instruction;
-    instruction["name"] = "kraus";
-    instruction["qubits"] = std::vector<std::size_t>{0};
-    // NOTE: use actual Kraus values.
-    // This is incomplete, to use this JSON with AER,
-    // we need construct and verify the Kraus data.
-    instruction["params"] =
-        std::vector<std::vector<std::vector<std::complex<double>>>>{
-            {{1., 0.}, {0., 1.}},
-            {{0., 0.}, {0., 0.}},
-            {{0., 0.}, {0., 0.}},
-            {{1., 0.}, {0., 1.}}};
-    const std::vector<std::vector<nlohmann::json>> krausOps{{instruction}};
-    nlohmann::json element;
-    element["type"] = "qerror";
-    element["operations"] = std::vector<std::string>{"u3"};
-    element["probabilities"] = std::vector<double>{1.0};
-    element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
-    element["instructions"] = krausOps;
-    noiseElements.push_back(element);
+    // For mapping purposes:
+    // U2 == Hadamard gate
+    // U3 == X gate
+    Hadamard gateU2({qIdx});
+    X gateU3({qIdx});
+    const std::unordered_map<std::string, xacc::quantum::Gate*> gateMap {
+      {"u2", &gateU2}, {"u3", &gateU3}
+    };
+
+    for (const auto &[gateName, gate] : gateMap) {
+      const auto errorChannels = gateError(*gate);
+      nlohmann::json element;
+      element["type"] = "qerror";
+      element["operations"] = std::vector<std::string>{gateName};
+      element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
+      std::vector<nlohmann::json>krausOps;
+      for (const auto &error : errorChannels) {
+        const auto krausOpMats = noiseUtils->choiToKraus(error.mats);
+        nlohmann::json instruction;
+        instruction["name"] = "kraus";
+        instruction["qubits"] = std::vector<std::size_t>{0};
+        instruction["params"] = krausOpMats;
+        krausOps.emplace_back(instruction);
+      }
+      element["instructions"] = std::vector<std::vector<nlohmann::json>> { krausOps };
+      element["probabilities"] = std::vector<double>(krausOps.size(), 1.0);
+      noiseElements.push_back(element);
+    }
   }
 
   noiseModel["errors"] = noiseElements;
