@@ -46,5 +46,6 @@ public:
     virtual const std::string description() const override { return "Default noise model utils."; }
     virtual NoiseModelUtils::cMat krausToChoi(const std::vector<NoiseModelUtils::cMat>& in_krausMats) const override;
     virtual std::vector<NoiseModelUtils::cMat> choiToKraus(const NoiseModelUtils::cMat& in_choiMat) const override;
+    virtual NoiseModelUtils::cMat combineChannelOps(const std::vector<NoiseModelUtils::cMat> &in_choiMats) const override;
 };
 }}

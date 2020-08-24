@@ -331,4 +331,18 @@ namespace quantum {
         }
         return resultKraus;
     }
+
+    NoiseModelUtils::cMat DefaultNoiseModelUtils::combineChannelOps(const std::vector<NoiseModelUtils::cMat> &in_choiMats) const 
+    {
+        assert(!in_choiMats.empty());
+        auto choiSum = convertToEigenMat(in_choiMats[0]);
+        for (size_t i = 1; i < in_choiMats.size(); ++i)
+        {
+            const auto nextOp = convertToEigenMat(in_choiMats[i]);
+            choiSum = choiSum + nextOp;
+        }
+        const double normalized = std::abs((choiSum(0,0) + choiSum(1,1) + choiSum(2,2) + choiSum(3,3)).real()/2.0);
+        choiSum = (1/normalized)*choiSum;
+        return convertToStdMat(choiSum);
+    }
 }}
