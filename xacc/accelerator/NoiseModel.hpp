@@ -54,5 +54,8 @@ public:
   using cMat = std::vector<std::vector<std::complex<double>>>;
   virtual cMat krausToChoi(const std::vector<cMat> &in_krausMats) const = 0;
   virtual std::vector<cMat> choiToKraus(const cMat &in_choiMat) const = 0;
+  // Combine Choi matrices acting on a single channel:
+  virtual cMat
+  combineChannelOps(const std::vector<cMat> &in_choiMats) const = 0;
 };
 } // namespace xacc
