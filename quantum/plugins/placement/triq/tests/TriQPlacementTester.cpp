@@ -8,15 +8,31 @@ using namespace xacc;
 
 TEST(TriQPlacementTester, checkSimple) {
   auto irt = xacc::getIRTransformation("triQ");
-  auto compiler = xacc::getCompiler("xasm");
-  auto program = compiler
-                     ->compile(R"(__qpu__ void test(qreg q) {
-      T(q[0]);
-      T(q[0]);
-      CNOT(q[0], q[1]);
-      X(q[1]);
-  })")
-                     ->getComposite("test");
+  auto compiler = xacc::getCompiler("staq");
+  auto q = xacc::qalloc(5);
+  q->setName("q");
+  xacc::storeBuffer(q);
+  auto IR = compiler->compile(R"(__qpu__ void f(qreg q) {
+                    OPENQASM 2.0;
+                    include "qelib1.inc";
+                    creg c[16];
+                    cx q[2],q[1];
+                    cx q[1],q[2];
+                    cx q[3],q[2];
+                    cx q[2],q[3];
+                    cx q[4],q[3];
+                    cx q[3],q[4];
+                    h q[0];
+                    t q[4];
+                    t q[3];
+                    t q[0];
+                    cx q[3],q[4];
+                    cx q[0],q[3];
+                    cx q[4],q[0];
+                    tdg q[3];
+                    })");
+
+  auto program = IR->getComposites()[0];
 
   irt->apply(program, nullptr);
 }
