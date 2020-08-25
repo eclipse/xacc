@@ -13,6 +13,7 @@
 #include "triq_placement.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "circuit.hpp"
 
 namespace xacc {
 namespace quantum {
