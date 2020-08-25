@@ -1,7 +1,7 @@
 set(LIBRARY_NAME xacc-triq-placement)
 
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+file (GLOB SRC *.cpp ${CMAKE_SOURCE_DIR}/tpls/triq/src/*.cpp)
 
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
 usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)

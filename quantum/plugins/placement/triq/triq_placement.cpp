@@ -21,8 +21,31 @@ namespace quantum {
 void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
                           const std::shared_ptr<Accelerator> acc,
                           const HeterogeneousMap &options) {
+  // Step 1: make sure the circuit is in OpenQASM dialect,
+  // i.e. using the Staq compiler to translate.
 
-  // TODO:
+  // Step 2: construct TriQ's Circuit
+  Circuit triqCirc;
+  const auto nbQubits = function->nLogicalBits();
+  for (size_t i = 0; i < nbQubits; i++) {
+    triqCirc.qubits.push_back(new ProgQubit(i));
+  }
+  // Assuming the circuit has been flattened (after Staq translation)
+  for (size_t instIdx = 0; instIdx < function->nInstructions(); ++instIdx) {
+    auto xaccInst = function->getInstruction(instIdx);
+    const std::string gateName = xaccInst->name();
+    Gate *pG = Gate::create_new_gate(gateName);
+    pG->id = instIdx;
+    const auto nqVars = xaccInst->bits().size();
+    assert(nqVars == pG->nvars);
+
+    for (int j = 0; j < pG->nvars; j++) {
+      pG->vars.push_back(triqCirc.qubits[xaccInst->bits()[j]]);
+    }
+    triqCirc.gates.push_back(pG);
+  }
+  // DEBUG:
+  triqCirc.print_gates();
 }
 } // namespace quantum
 } // namespace xacc
