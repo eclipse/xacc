@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_triq_placement",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC TriQ Placement Plugin",
+  "bundle.description" : "This bundle provides plugins to map logical to physical bits."
+}

@@ -1,0 +1,2 @@
+add_xacc_test(TriQPlacement)
+target_link_libraries(TriQPlacementTester xacc)

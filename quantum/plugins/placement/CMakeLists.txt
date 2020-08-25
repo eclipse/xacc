@@ -1,1 +1,2 @@
 add_subdirectory(minor_graph_embedding)
+add_subdirectory(triq)
