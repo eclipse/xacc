@@ -1,6 +1,6 @@
-from xacc/deploy-base
-workdir /home/dev
-run cd /home/dev && apt-get update && apt-get install -y uuid-dev pkg-config \
+FROM xacc/deploy-base
+WORKDIR /home/dev
+RUN cd /home/dev && apt-get update && apt-get --no-install-recommends -yq install uuid-dev pkg-config \
     && git clone https://github.com/zeromq/libzmq \
     && cd libzmq/ && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq \
@@ -25,7 +25,7 @@ run cd /home/dev && apt-get update && apt-get install -y uuid-dev pkg-config \
     && npm install && npm link
 
 # Theia application
-workdir /home/dev
+WORKDIR /home/dev
 ARG version=latest
 ADD $version.package.json ./package.json
 

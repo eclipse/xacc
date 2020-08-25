@@ -3,7 +3,7 @@ FROM buildpack-deps:disco
 ENV LANG=en_US.UTF-8
 ### base ###
 RUN yes | unminimize \
-    && apt-get install -yq \
+    && apt-get --no-install-recommends -yq install \
         asciidoctor \
         bash-completion \
         build-essential \
@@ -24,7 +24,7 @@ RUN yes | unminimize \
 
 ### Git ###
     && add-apt-repository -y ppa:git-core/ppa \
-    && apt-get install -yq git \
+    && apt-get --no-install-recommends -yq install git \
     && rm -rf /var/lib/apt/lists/* \
 
 ### Gitpod user ###
@@ -52,7 +52,7 @@ USER root
 RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
     && echo "deb http://apt.llvm.org/disco/ llvm-toolchain-disco main" >> /etc/apt/sources.list.d/llvm.list \
     && apt-get update \
-    && apt-get install -yq \
+    && apt-get --no-install-recommends -yq install \
         clang-format \
         clang-tidy \
         # clang-tools \ # breaks the build atm
@@ -68,7 +68,7 @@ RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
     && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
     && make -j8 install && cd ../.. && rm -rf psi4
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y texlive-latex-recommended texlive-latex-extra dvipng \
+RUN apt-get update && apt-get --no-install-recommends -yq install texlive-latex-recommended texlive-latex-extra dvipng \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
 
 USER gitpod

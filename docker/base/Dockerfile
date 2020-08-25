@@ -1,5 +1,5 @@
-from ubuntu:18.04
-run rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get install -y gcc g++ cmake git libssl-dev \
+FROM ubuntu:18.04
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get --no-install-recommends -yq install gcc g++ cmake git libssl-dev \
       python3 libpython3-dev python3-pip vim exuberant-ctags gdb gfortran libblas-dev liblapack-dev pkg-config wget \
     && rm -rf /var/lib/apt/lists/* \
     && git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \ 
@@ -12,4 +12,4 @@ run rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get instal
     && echo "let g:cpp_class_decl_highlight = 1\nlet g:cpp_experimental_simple_template_highlight = 1\n" >> ~/.vimrc && cat ~/.vimrc && vim +PluginInstall +qall \
     && cd ~/.vim/bundle/YouCompleteMe && python3 install.py --clang-completer \
     && vim +PluginInstall +qall
-workdir /projects
+WORKDIR /projects
