@@ -9,9 +9,9 @@ usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
-target_include_directories(${LIBRARY_NAME} PUBLIC .)
+target_include_directories(${LIBRARY_NAME} PUBLIC . ${Z3_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/triq/src)
 target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc 
+                      PUBLIC xacc Boost::graph ${Z3_LIBRARY}
                              )
 
 set(_bundle_name xacc_triq_placement)
