@@ -26,6 +26,7 @@
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 #include <bitset>
 
@@ -212,6 +213,7 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
   m_gateErrors.clear();
   m_gateDurations.clear();
   m_roErrors.clear();
+  m_connectivity.clear();
   // Note: we support both remote backend JSON and cache JSON string.
   // So that we can test this with offline JSON.
   if (params.stringExists("backend") || params.stringExists("backend-json")) {
@@ -219,6 +221,7 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
       if (params.stringExists("backend")) {
         auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
         auto props = ibm->getProperties().get<std::string>("total-json");
+        m_connectivity = ibm->getConnectivity();
         return props;
       }
       return params.getString("backend-json");
@@ -332,32 +335,46 @@ IbmqNoiseModel::getUniversalGateEquiv(xacc::quantum::Gate &in_gate) const {
   return "id_" + std::to_string(in_gate.bits()[0]);
 }
 
-std::vector<double>
-IbmqNoiseModel::calculateAmplitudeDamping(xacc::quantum::Gate &in_gate) const {
+// Return gate time, T1, T2
+std::tuple<double, double, double>
+IbmqNoiseModel::relaxationParams(xacc::quantum::Gate &in_gate,
+                                 size_t in_qubitIdx) const {
   const std::string universalGateName = getUniversalGateEquiv(in_gate);
   const auto gateDurationIter = m_gateDurations.find(universalGateName);
   assert(gateDurationIter != m_gateDurations.end());
   const double gateDuration = gateDurationIter->second;
-  std::vector<double> amplitudeDamping;
-  for (const auto &qubitIdx : in_gate.bits()) {
-    const double qubitT1 = m_qubitT1[qubitIdx];
-    const double dampingRate = 1.0 / qubitT1;
-    const double resetProb = 1.0 * std::exp(-gateDuration * dampingRate);
-    amplitudeDamping.emplace_back(1.0 - resetProb);
-  }
-  return amplitudeDamping;
+  const double qubitT1 = m_qubitT1[in_qubitIdx];
+  const double qubitT2 = m_qubitT2[in_qubitIdx];
+  return std::make_tuple(gateDuration, qubitT1, qubitT2);
+}
+
+std::vector<std::vector<std::complex<double>>>
+IbmqNoiseModel::thermalRelaxationChoiMat(double in_gateTime, double in_T1,
+                                         double in_T2) const {
+  const double rate1 = 1.0 / in_T1;
+  const double pReset = 1.0 - std::exp(-in_gateTime * rate1);
+
+  const double rate2 = 1.0 / in_T2;
+  const double expT2 = std::exp(-in_gateTime * rate2);
+  const double p0 = 1.0;
+  const double p1 = 0.0;
+  return {{1 - p1 * pReset, 0, 0, expT2},
+          {0, p1 * pReset, 0, 0},
+          {0, 0, p0 * pReset, 0},
+          {expT2, 0, 0, 1 - p0 * pReset}};
 }
 
 std::vector<double> IbmqNoiseModel::calculateDepolarizing(
     xacc::quantum::Gate &in_gate,
-    const std::vector<double> &in_amplitudeDamping) const {
+    const std::vector<std::vector<std::complex<double>>> &in_relaxationError)
+    const {
   //  Compute the depolarizing channel error parameter in the
   //  presence of T1/T2 thermal relaxation.
   //  Hence we have that the depolarizing error probability
   //  for the composed depolarization channel is
   //  p = dim * (F(E_relax) - F) / (dim * F(E_relax) - 1)
   const double averageThermalError =
-      1.0 - averageGateFidelity(in_gate, in_amplitudeDamping);
+      1.0 - averageGateFidelity(in_gate, in_relaxationError);
   const std::string universalGateName = getUniversalGateEquiv(in_gate);
   // Retrieve the error rate:
   const auto gateErrorIter = m_gateErrors.find(universalGateName);
@@ -377,14 +394,16 @@ std::vector<double> IbmqNoiseModel::calculateDepolarizing(
 
 double IbmqNoiseModel::averageGateFidelity(
     xacc::quantum::Gate &in_gate,
-    const std::vector<double> &in_amplitudeDamping) const {
+    const std::vector<std::vector<std::complex<double>>> &in_relaxationError)
+    const {
   // We only handle single-qubit gates for now.
-  if (in_gate.bits().size() == 1 && in_amplitudeDamping.size() == 1) {
+  if (in_gate.bits().size() == 1 && in_relaxationError.size() == 4) {
     // Note: this is based on the simplified amplitude-damping channel
     const double processFidelity =
-        (std::cos(std::asin(std::sqrt(in_amplitudeDamping[0]))) * 2.0 + 2.0 -
-         in_amplitudeDamping[0]) /
+        (in_relaxationError[0][0].real() + in_relaxationError[0][3].real() +
+         in_relaxationError[3][0].real() + in_relaxationError[3][3].real()) /
         4.0;
+
     assert(processFidelity <= 1.0);
     const double averageFidelity = (4.0 * processFidelity + 1.0) / 5.0;
     return averageFidelity;
@@ -395,62 +414,51 @@ double IbmqNoiseModel::averageGateFidelity(
 std::vector<KrausOp>
 IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
   std::vector<KrausOp> krausOps;
-  const auto computeAdKrausOp = [](double in_probAD, size_t in_bit) {
-    // TODO: add dephasing calculation
-    const double adElem = std::cos(std::asin(std::sqrt(in_probAD)));
-    KrausOp newOp;
-    newOp.qubit = in_bit;
-    const std::vector<std::vector<std::complex<double>>> cmats{
-        {1., 0., 0., adElem},
-        {0., 0., 0., 0.},
-        {0., 0., in_probAD, 0.},
-        {adElem, 0., 0., 1.0 - in_probAD}};
-    newOp.mats = cmats;
-    return newOp;
-  };
-
   if (gate.bits().size() == 1 && gate.name() != "Measure") {
     // Amplitude damping + dephasing
-    const auto adAmpl = calculateAmplitudeDamping(gate);
-    if (!adAmpl.empty()) {
-      const double probAD = adAmpl[0];
-      // Add relaxation kraus
-      krausOps.emplace_back(computeAdKrausOp(probAD, gate.bits()[0]));
-    }
+    const auto [gateDuration, qubitT1, qubitT2] =
+        relaxationParams(gate, gate.bits()[0]);
+    const auto relaxationError =
+        thermalRelaxationChoiMat(gateDuration, qubitT1, qubitT2);
 
     // Depolarization
-    const auto dpAmpl = calculateDepolarizing(gate, adAmpl);
+    const auto dpAmpl = calculateDepolarizing(gate, relaxationError);
     if (!dpAmpl.empty()) {
       const double probDP = dpAmpl[0];
-      const std::vector<std::vector<std::complex<double>>> cmats{
+      const std::vector<std::vector<std::complex<double>>> depolError{
           {1.0 - probDP / 2.0, 0., 0., 1.0 - probDP},
           {0., probDP / 2.0, 0., 0.},
           {0., 0., probDP / 2.0, 0.},
           {1.0 - probDP, 0., 0., 1.0 - probDP / 2.0}};
+      const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
       KrausOp newOp;
       newOp.qubit = gate.bits()[0];
-      newOp.mats = cmats;
+      newOp.mats = noiseUtils->combineChannelOps({relaxationError, depolError});
       // Add depolarization kraus
       krausOps.emplace_back(std::move(newOp));
     }
   }
   // For two-qubit gates, we currently only support
   // amplitude damping on both qubits (scaled by gate time).
-  // We don't have ability to handle multi-qubit depolarization 
+  // We don't have ability to handle multi-qubit depolarization
   // in TNQVM yet.
   if (gate.bits().size() == 2) {
-    const auto adAmpl = calculateAmplitudeDamping(gate);
-    if (adAmpl.size() == 2) {
-      // Add relaxation kraus for both qubits
-      krausOps.emplace_back(computeAdKrausOp(adAmpl[0], gate.bits()[0]));
-      krausOps.emplace_back(computeAdKrausOp(adAmpl[1], gate.bits()[1]));
+
+    for (const auto &qubitIdx : gate.bits()) {
+      const auto [gateDuration, qubitT1, qubitT2] =
+          relaxationParams(gate, qubitIdx);
+      const auto relaxationError =
+          thermalRelaxationChoiMat(gateDuration, qubitT1, qubitT2);
+      KrausOp relaxErrorOp;
+      relaxErrorOp.qubit = gate.bits()[0];
+      relaxErrorOp.mats = relaxationError;
+      krausOps.emplace_back(std::move(relaxErrorOp));
     }
   }
   return krausOps;
 }
 
 std::string IbmqNoiseModel::toJson() const {
-  // !!! IMPORTANT !!! This function is *WIP*
   // Aer noise model Json
   nlohmann::json noiseModel;
   std::vector<nlohmann::json> noiseElements;
@@ -468,29 +476,74 @@ std::string IbmqNoiseModel::toJson() const {
     noiseElements.push_back(element);
   }
 
+  const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
   // Add Kraus noise:
+  // (1) Single-qubit gate noise:
   // Note: we must add noise ops for u2, u3, and cx gates:
   for (size_t qIdx = 0; qIdx < roErrors.size(); ++qIdx) {
-    nlohmann::json instruction;
-    instruction["name"] = "kraus";
-    instruction["qubits"] = std::vector<std::size_t>{0};
-    // NOTE: use actual Kraus values.
-    // This is incomplete, to use this JSON with AER,
-    // we need construct and verify the Kraus data.
-    instruction["params"] =
-        std::vector<std::vector<std::vector<std::complex<double>>>>{
-            {{1., 0.}, {0., 1.}},
-            {{0., 0.}, {0., 0.}},
-            {{0., 0.}, {0., 0.}},
-            {{1., 0.}, {0., 1.}}};
-    const std::vector<std::vector<nlohmann::json>> krausOps{{instruction}};
-    nlohmann::json element;
-    element["type"] = "qerror";
-    element["operations"] = std::vector<std::string>{"u3"};
-    element["probabilities"] = std::vector<double>{1.0};
-    element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
-    element["instructions"] = krausOps;
-    noiseElements.push_back(element);
+    // For mapping purposes:
+    // U2 == Hadamard gate
+    // U3 == X gate
+    Hadamard gateU2({qIdx});
+    X gateU3({qIdx});
+    const std::unordered_map<std::string, xacc::quantum::Gate *> gateMap{
+        {"u2", &gateU2}, {"u3", &gateU3}};
+
+    for (const auto &[gateName, gate] : gateMap) {
+      const auto errorChannels = gateError(*gate);
+      nlohmann::json element;
+      element["type"] = "qerror";
+      element["operations"] = std::vector<std::string>{gateName};
+      element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
+      std::vector<nlohmann::json> krausOps;
+      for (const auto &error : errorChannels) {
+        const auto krausOpMats = noiseUtils->choiToKraus(error.mats);
+        nlohmann::json instruction;
+        instruction["name"] = "kraus";
+        instruction["qubits"] = std::vector<std::size_t>{0};
+        instruction["params"] = krausOpMats;
+        krausOps.emplace_back(instruction);
+      }
+      element["instructions"] =
+          std::vector<std::vector<nlohmann::json>>{krausOps};
+      element["probabilities"] = std::vector<double>{1.0};
+      noiseElements.push_back(element);
+    }
+  }
+
+  // (2) Two-qubit gate noise:
+  for (const auto &[qubit1, qubit2] : m_connectivity) {
+    // We need to add noise for both CNOT directions
+    // Note: the duration of them can be different,
+    // hence the noise channels.
+    CNOT cx1(std::vector<std::size_t>{(size_t)qubit1, (size_t)qubit2});
+    CNOT cx2(std::vector<std::size_t>{(size_t)qubit2, (size_t)qubit1});
+    const std::vector<xacc::quantum::Gate *> cxGates{&cx1, &cx2};
+    for (const auto &cx : cxGates) {
+      const auto errorChannels = gateError(*cx);
+      assert(errorChannels.size() == 2);
+      nlohmann::json element;
+      element["type"] = "qerror";
+      element["operations"] =
+          std::vector<std::string>{getUniversalGateEquiv(*cx)};
+      element["gate_qubits"] =
+          std::vector<std::vector<std::size_t>>{cx->bits()};
+      std::vector<nlohmann::json> krausOps;
+      size_t noiseBitIdx = 0;
+      for (const auto &error : errorChannels) {
+        const auto krausOpMats = noiseUtils->choiToKraus(error.mats);
+        nlohmann::json instruction;
+        instruction["name"] = "kraus";
+        instruction["qubits"] = std::vector<std::size_t>{noiseBitIdx++};
+        instruction["params"] = krausOpMats;
+        krausOps.emplace_back(instruction);
+      }
+      assert(krausOps.size() == 2);
+      element["instructions"] =
+          std::vector<std::vector<nlohmann::json>>{krausOps};
+      element["probabilities"] = std::vector<double>{1.0};
+      noiseElements.push_back(element);
+    }
   }
 
   noiseModel["errors"] = noiseElements;
