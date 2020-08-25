@@ -29,8 +29,8 @@ RUN apt-get update && \
                        vim gcc-8 g++-8 gfortran-8 \
                        wget \
                        xz-utils && python3 -m pip install --upgrade pip --user \
-                       && python3 -m pip install setuptools \
-                       && python3 -m pip install python-language-server flake8 autopep8 \
+                       && python3 -m pip install --no-cache-dir setuptools \
+                       && python3 -m pip install --no-cache-dir python-language-server flake8 autopep8 \
                                 cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib \
     && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50 \
