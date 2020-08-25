@@ -1,27 +1,27 @@
 from xacc/deploy-base
 workdir /home/dev
 run cd /home/dev && apt-get update && apt-get install -y uuid-dev pkg-config \
-    && git clone https://github.com/zeromq/libzmq \
+    && git clone --depth 1 https://github.com/zeromq/libzmq \
     && cd libzmq/ && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq \
     && make -j$(nproc) install \
     && cd ../.. \
-    && git clone https://github.com/zeromq/cppzmq \
+    && git clone --depth 1 https://github.com/zeromq/cppzmq \
     && cd cppzmq/ && mkdir build && cd build/ \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq -DCMAKE_PREFIX_PATH=~/.zmq \
     && make -j$(nproc) install \
     && cd ../.. \
-    && git clone -b c_master https://github.com/msgpack/msgpack-c/ \
+    && git clone --depth 1 -b c_master https://github.com/msgpack/msgpack-c/ \
     && cd msgpack-c/ && mkdir build && cd build \
     && cmake .. -DCMAKE_INSTALL_PREFIX=~/.zmq \
     && make -j$(nproc) install \
     && cd ../.. \
-    && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+    && git clone --depth 1 --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     && cmake .. \
     && make -j$(nproc) install \
-    && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
+    && cd ../../ && git clone --depth 1 https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install && cd ../.. \
-    && git clone https://github.com/rigetti/qcs-cli && cd qcs-cli \
+    && git clone --depth 1 https://github.com/rigetti/qcs-cli && cd qcs-cli \
     && npm install && npm link
 
 # Theia application

@@ -117,13 +117,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* \
 
 
-    #&& cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+    #&& cd /home/dev && git clone --depth 1 --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     #&& cmake .. -DXACC_BUILD_TESTS=TRUE -DXACC_BUILD_EXAMPLES=TRUE \
     #&& make -j18 install \
-    #&& cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
+    #&& cd ../../ && git clone --depth 1 https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     #&& cmake .. -DXACC_DIR=~/.xacc && make -j18 install \
 
-    && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
+    && git clone --depth 1 https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
     && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
     && make -j8 install && cd ../.. && rm -rf psi4 
 

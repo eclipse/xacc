@@ -2,7 +2,7 @@ from ubuntu:18.04
 run rm /bin/sh && ln -s /bin/bash /bin/sh && apt-get -y update && apt-get install -y gcc g++ cmake git libssl-dev \
       python3 libpython3-dev python3-pip vim exuberant-ctags gdb gfortran libblas-dev liblapack-dev pkg-config wget \
     && rm -rf /var/lib/apt/lists/* \
-    && git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \ 
+    && git clone --depth 1 https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \ 
     && echo "set nocompatible\nfiletype off\nset encoding=utf-8\nset rtp+=~/.vim/bundle/Vundle.vim\ncall vundle#begin()" >> ~/.vimrc \ 
     && echo "Plugin 'VundleVim/Vundle.vim'\nPlugin 'Valloric/YouCompleteMe'" >> ~/.vimrc \
     && echo "Plugin 'majutsushi/tagbar'\nPlugin 'scrooloose/nerdtree'" >> ~/.vimrc \ 

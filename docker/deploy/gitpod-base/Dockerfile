@@ -64,7 +64,7 @@ RUN curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
 
     && python3 -m pip install --upgrade pip && python3 -m pip install pint pydantic matplotlib qiskit scipy numpy pyquil cmake virtualenv pipenv pylint rope flake8 mypy autopep8 pep8 pylama pydocstyle bandit notebook python-language-server[all]==0.25.0 \
     && sudo rm -rf /tmp/* \
-    && git clone https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
+    && git clone --depth 1 https://github.com/psi4/psi4 && cd psi4 && mkdir build && cd build \
     && cmake .. -DPYTHON_EXECUTABLE=$(which python3) -DCMAKE_INSTALL_PREFIX=$(python3 -m site --user-site)/psi4 \
     && make -j8 install && cd ../.. && rm -rf psi4
 ENV DEBIAN_FRONTEND noninteractive
