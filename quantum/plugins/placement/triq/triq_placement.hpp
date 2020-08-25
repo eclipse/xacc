@@ -18,6 +18,9 @@
 #include "InstructionIterator.hpp"
 
 using namespace xacc;
+// Forward declarations
+class Circuit;
+class Machine;
 
 namespace xacc {
 namespace quantum {
@@ -34,7 +37,9 @@ public:
   }
   const std::string name() const override { return "triQ"; }
   const std::string description() const override { return ""; }
+private:
+  // Returns the QASM source string after placement
+  std::string runTriQ(Circuit* program, Machine* machine, int algorithmSelector) const;
 };
-
 } // namespace quantum
 } // namespace xacc

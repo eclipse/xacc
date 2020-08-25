@@ -21,7 +21,11 @@ public:
   std::vector<RoErrors> readoutErrors() const override { return m_roErrors; }
 
   std::vector<KrausOp>
-  gateError(xacc::quantum::Gate &gate) const override; 
+  gateError(xacc::quantum::Gate &gate) const override;
+  size_t nQubits() const override { return m_nbQubits; }
+  std::vector<double> averageSingleQubitGateFidelity() const override;
+  std::vector<std::tuple<size_t, size_t, double>>
+  averageTwoQubitGateFidelity() const override;
 
 private:
   // Gets the name of the equivalent universal gate.

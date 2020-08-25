@@ -14,6 +14,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "circuit.hpp"
+#include "BackendMachine.hpp"
 
 namespace {
 std::string xaccGateToTriqGate(const std::string &in_xaccGateName) {
@@ -101,10 +102,8 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     const auto gateId = nodeId - 1;
     assert(gateId < triqCirc.gates.size());
     auto neighborNodeIds = graphView->getNeighborList(nodeId);
-    for (const auto& neighborNodeId : neighborNodeIds)
-    {
-      if (neighborNodeId < graphView->order() - 1)
-      {
+    for (const auto &neighborNodeId : neighborNodeIds) {
+      if (neighborNodeId < graphView->order() - 1) {
         auto nextNode = graphView->getVertexProperties(neighborNodeId);
         const auto nextGateId = nextNode.get<std::size_t>("id") - 1;
         assert(nextGateId < triqCirc.gates.size());
