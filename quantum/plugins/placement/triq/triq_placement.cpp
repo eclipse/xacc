@@ -41,6 +41,35 @@ namespace quantum {
 void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
                           const std::shared_ptr<Accelerator> acc,
                           const HeterogeneousMap &options) {
+  // Default option:
+  auto compileAlgo = CompileAlgorithm::CompileOpt;
+  if (options.stringExists("compile-algorithm")) {
+    const auto selectedAlgo = options.getString("compile-algorithm");
+    if (selectedAlgo == "CompileOpt") {
+      compileAlgo = CompileAlgorithm::CompileOpt;
+    } else if (selectedAlgo == "CompileDijkstra") {
+      compileAlgo = CompileAlgorithm::CompileDijkstra;
+    } else if (selectedAlgo == "CompileRevSwaps") {
+      compileAlgo = CompileAlgorithm::CompileRevSwaps;
+    }
+  }
+
+  std::string backendName;
+  if (options.stringExists("backend")) {
+    backendName = options.getString("backend");
+  }
+  // Enable offline testing via JSON loading as well
+  std::string backendNameJson;
+  if (options.stringExists("backend-json")) {
+    backendNameJson = options.getString("backend-json");
+  }
+
+  if (backendName.empty() && backendNameJson.empty()) {
+    // Nothing we can do.
+    xacc::warning("No backend information was provided. Skipped!");
+    return;
+  }
+
   // Step 1: make sure the circuit is in OpenQASM dialect,
   // i.e. using the Staq compiler to translate.
 
