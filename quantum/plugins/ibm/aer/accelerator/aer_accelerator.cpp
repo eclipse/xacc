@@ -98,6 +98,8 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     // noise_model["x90_gates"] = std::vecto
 
     std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
+  } else if (params.stringExists("noise-model")) {
+    noise_model = nlohmann::json::parse(params.getString("noise-model"));
   }
 }
 double AerAccelerator::calcExpectationValueZ(
