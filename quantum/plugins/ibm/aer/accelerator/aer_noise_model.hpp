@@ -20,23 +20,28 @@ public:
   }
   std::vector<RoErrors> readoutErrors() const override { return m_roErrors; }
 
-  std::vector<KrausOp>
-  gateError(xacc::quantum::Gate &gate) const override; 
+  std::vector<KrausOp> gateError(xacc::quantum::Gate &gate) const override;
 
 private:
   // Gets the name of the equivalent universal gate.
   // e.g. an Rz <=> u1; H <==> u2, etc.
   std::string getUniversalGateEquiv(xacc::quantum::Gate &in_gate) const;
-  // Helper methods to generate noise Kraus Ops
-  std::vector<double>
-  calculateAmplitudeDamping(xacc::quantum::Gate &in_gate) const;
+  std::tuple<double, double, double>
+  relaxationParams(xacc::quantum::Gate &in_gate, size_t in_qubitIdx) const;
   std::vector<double>
   calculateDepolarizing(xacc::quantum::Gate &in_gate,
-                        const std::vector<double> &in_amplitudeDamping) const;
+                        const std::vector<std::vector<std::complex<double>>>
+                            &in_relaxationError) const;
   // Compute the gate fidelity given the amplitude damping noise:
-  double
-  averageGateFidelity(xacc::quantum::Gate &in_gate,
-                      const std::vector<double> &in_amplitudeDamping) const;
+  double averageGateFidelity(
+      xacc::quantum::Gate &in_gate,
+      const std::vector<std::vector<std::complex<double>>> &in_relaxationError) const;
+
+  // Helper to construct the Choi matrix represents overall thermal relaxation:
+  // i.e. amplitude damping + dephasing.
+  std::vector<std::vector<std::complex<double>>>
+  thermalRelaxationChoiMat(double in_gateTime, double in_T1,
+                           double in_T2) const;
 
 private:
   // Parsed parameters needed for noise model construction.
@@ -46,6 +51,7 @@ private:
   std::unordered_map<std::string, double> m_gateErrors;
   std::unordered_map<std::string, double> m_gateDurations;
   std::vector<std::pair<double, double>> m_roErrors;
+  std::vector<std::pair<int, int>> m_connectivity;
 };
 } // namespace quantum
 } // namespace xacc
