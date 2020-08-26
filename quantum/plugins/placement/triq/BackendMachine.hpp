@@ -3,7 +3,8 @@
 namespace xacc {
 class NoiseModel;
 // Override TriQ's Machine class
-class BackendMachine : Machine {
+class BackendMachine : public Machine {
+public:
   BackendMachine(const NoiseModel &backendNoiseModel);
 };
 } // namespace xacc

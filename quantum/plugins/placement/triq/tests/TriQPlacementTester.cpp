@@ -9,6 +9,7 @@ using namespace xacc;
 TEST(TriQPlacementTester, checkSimple) {
   auto irt = xacc::getIRTransformation("triQ");
   auto compiler = xacc::getCompiler("staq");
+  auto accelerator = xacc::getAccelerator("ibm:ibmqx2");
   auto q = xacc::qalloc(5);
   q->setName("q");
   xacc::storeBuffer(q);
@@ -34,7 +35,7 @@ TEST(TriQPlacementTester, checkSimple) {
 
   auto program = IR->getComposites()[0];
 
-  irt->apply(program, nullptr);
+  irt->apply(program, accelerator);
 }
 
 int main(int argc, char **argv) {

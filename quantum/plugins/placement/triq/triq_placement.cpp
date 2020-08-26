@@ -15,7 +15,7 @@
 #include "xacc_service.hpp"
 #include "circuit.hpp"
 #include "BackendMachine.hpp"
-
+#include "NoiseModel.hpp"
 namespace {
 std::string xaccGateToTriqGate(const std::string &in_xaccGateName) {
   if (in_xaccGateName == "Measure") {
@@ -60,12 +60,15 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     backendName = options.getString("backend");
   }
   // Enable offline testing via JSON loading as well
-  std::string backendNameJson;
+  std::string backendJson;
   if (options.stringExists("backend-json")) {
-    backendNameJson = options.getString("backend-json");
+    backendJson = options.getString("backend-json");
+  } else if (acc && acc->getProperties().stringExists("total-json")) {
+    // If this is a remote IBM Accelerator, grab the backend JSON automatically.
+    backendJson = acc->getProperties().getString("total-json");
   }
 
-  if (backendName.empty() && backendNameJson.empty()) {
+  if (backendName.empty() && backendJson.empty()) {
     // Nothing we can do.
     xacc::warning("No backend information was provided. Skipped!");
     return;
@@ -84,7 +87,7 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   for (size_t instIdx = 0; instIdx < function->nInstructions(); ++instIdx) {
     auto xaccInst = function->getInstruction(instIdx);
     const std::string gateName = xaccInst->name();
-    Gate *pG = Gate::create_new_gate(xaccGateToTriqGate(gateName));
+    ::Gate *pG = ::Gate::create_new_gate(xaccGateToTriqGate(gateName));
     pG->id = instIdx;
     // Make sure the expected number of qubits matched for each gate
     assert(xaccInst->bits().size() == pG->nvars);
@@ -116,6 +119,15 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   }
   // DEBUG:
   triqCirc.print_gates();
+  auto backendNoiseModel = xacc::getService<xacc::NoiseModel>("IBM");
+  if (!backendName.empty()) {
+    backendNoiseModel->initialize({{"backend", backendName}});
+  } else {
+    backendNoiseModel->initialize({{"backend-json", backendJson}});
+  }
+
+  BackendMachine backendModel(*backendNoiseModel);
+  const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
 }
 } // namespace quantum
 } // namespace xacc
