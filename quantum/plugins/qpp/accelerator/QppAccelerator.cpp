@@ -173,6 +173,35 @@ namespace {
         // this Composite can be simulated by random sampling from the state vec.
         return measureAtTheEnd;
     }
+
+    Eigen::MatrixXcd convertToEigenMat(const NoiseModelUtils::cMat& in_stdMat)
+    {
+        Eigen::MatrixXcd result =  Eigen::MatrixXcd::Zero(in_stdMat.size(), in_stdMat.size());
+        for (size_t row = 0; row < in_stdMat.size(); ++row)
+        {
+            for (size_t col = 0; col < in_stdMat.size(); ++col)
+            {
+                result(row, col) = in_stdMat[row][col];
+            }
+        }
+        return result;
+    }
+
+    NoiseModelUtils::cMat convertToStdMat(const Eigen::MatrixXcd& in_eigenMat)
+    {
+        const size_t dim = in_eigenMat.rows();
+        NoiseModelUtils::cMat result;
+        for (size_t row = 0; row < dim; ++row)
+        {
+            std::vector<std::complex<double>> rowVec;
+            for (size_t col = 0; col < dim; ++col)
+            {
+                rowVec.emplace_back(in_eigenMat(row, col)); 
+            }
+            result.emplace_back(rowVec);
+        }
+        return result;
+    }
 }
 
 namespace xacc {
@@ -280,5 +309,40 @@ namespace quantum {
             execute(tmpBuffer, f);
             buffer->appendChild(f->name(), tmpBuffer);
         }
+    }
+
+    NoiseModelUtils::cMat DefaultNoiseModelUtils::krausToChoi(const std::vector<NoiseModelUtils::cMat>& in_krausMats) const
+    {
+        std::vector<Eigen::MatrixXcd> krausMats;
+        for (const auto& mat : in_krausMats)
+        {
+            krausMats.emplace_back(convertToEigenMat(mat));
+        }
+        return convertToStdMat(qpp::kraus2choi(krausMats));
+    }
+
+    std::vector<NoiseModelUtils::cMat> DefaultNoiseModelUtils::choiToKraus(const NoiseModelUtils::cMat& in_choiMat) const
+    {
+        std::vector<NoiseModelUtils::cMat> resultKraus;
+        const auto krausMats = qpp::choi2kraus(convertToEigenMat(in_choiMat));
+        for (const auto& mat : krausMats)
+        {
+            resultKraus.emplace_back(convertToStdMat(mat));
+        }
+        return resultKraus;
+    }
+
+    NoiseModelUtils::cMat DefaultNoiseModelUtils::combineChannelOps(const std::vector<NoiseModelUtils::cMat> &in_choiMats) const 
+    {
+        assert(!in_choiMats.empty());
+        auto choiSum = convertToEigenMat(in_choiMats[0]);
+        for (size_t i = 1; i < in_choiMats.size(); ++i)
+        {
+            const auto nextOp = convertToEigenMat(in_choiMats[i]);
+            choiSum = choiSum + nextOp;
+        }
+        const double normalized = std::abs((choiSum(0,0) + choiSum(1,1) + choiSum(2,2) + choiSum(3,3)).real()/2.0);
+        choiSum = (1/normalized)*choiSum;
+        return convertToStdMat(choiSum);
     }
 }}
