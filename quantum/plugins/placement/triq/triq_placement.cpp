@@ -13,9 +13,17 @@
 #include "triq_placement.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "headers.hpp"
 #include "circuit.hpp"
+#include "mapper.hpp"
+#include "machine.hpp"
+#include "pattern.hpp"
+#include "backtrack.hpp"
+#include "targetter.hpp"
+#include "optimize_1q.hpp"
 #include "BackendMachine.hpp"
 #include "NoiseModel.hpp"
+
 namespace {
 std::string xaccGateToTriqGate(const std::string &in_xaccGateName) {
   if (in_xaccGateName == "Measure") {
@@ -73,9 +81,14 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     xacc::warning("No backend information was provided. Skipped!");
     return;
   }
-
   // Step 1: make sure the circuit is in OpenQASM dialect,
   // i.e. using the Staq compiler to translate.
+  auto staq = xacc::getCompiler("staq");
+  const auto openQASMSrc = staq->translate(function);
+  // std::cout << "Before placement: \n" << openQASMSrc << "\n";
+  auto ir = staq->compile(openQASMSrc);
+  function->clear();
+  function->addInstructions(ir->getComposites()[0]->getInstructions());
 
   // Step 2: construct TriQ's Circuit
   Circuit triqCirc;
@@ -118,7 +131,7 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
     }
   }
   // DEBUG:
-  triqCirc.print_gates();
+  // triqCirc.print_gates();
   auto backendNoiseModel = xacc::getService<xacc::NoiseModel>("IBM");
   if (!backendName.empty()) {
     backendNoiseModel->initialize({{"backend", backendName}});
@@ -127,13 +140,71 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   }
 
   BackendMachine backendModel(*backendNoiseModel);
+  // Step 3: Run TriQ (placement + optimize) for this backend
   const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
+  // DEBUG:
+  // std::cout << "After placement: \n" << resultQasm << "\n";
+  // Step 4: Reconstruct the Composite
+  auto newIr = staq->compile(resultQasm);
+  function->clear();
+  function->addInstructions(newIr->getComposites()[0]->getInstructions());
 }
 
 std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
                                    int algorithmSelector) const {
-  // TODO:
-  return "";
+  ::Mapper pMapper(&machine, &program);
+  pMapper.set_config(MapSum, VarUnique);
+  pMapper.config.approx_factor = 1.001;
+  pMapper.map_with_z3();
+  pMapper.print_stats();
+  const ::CompileAlgorithm selectedAlgo = static_cast<::CompileAlgorithm>(algorithmSelector);
+  auto torder = program.topological_ordering();
+  program.enforce_topological_ordering(torder);
+  auto bsol = [&](){
+    int cx_count = 0;
+    for (auto &gi : program.gates) {
+      if (gi->nvars == 2) {
+        cx_count++;
+      }
+    }
+    if (cx_count < 20) {
+      ::Backtrack B(&program, &machine);
+      B.init(&pMapper.qubit_map, torder);
+      B.solve(B.root, 1);
+      if (selectedAlgo == CompileOpt) {
+        return B.get_solution(1);
+      } else {
+        return B.get_solution(0);
+      }
+    } else {
+      BacktrackFiniteLookahead B(&program, &machine, *torder, pMapper.qubit_map, 10);
+      return B.solve();
+    }
+  }();
+  
+  program.add_scheduling_dependency(torder, bsol);
+  auto torder_new = program.topological_ordering();
+  XaccTargetter Tgen(&machine, &program, &pMapper.qubit_map, torder_new, bsol);
+  auto C_trans = Tgen.map_and_insert_swap_operations();
+  OptimizeSingleQubitOps sq_opt(C_trans);
+  auto C_1q_opt = sq_opt.test_optimize();
+  char fnTemplate[] = "/tmp/CircuitXXXXXX";
+  mkstemp(fnTemplate);
+  const std::string outFilename(fnTemplate);
+  Tgen.print_code(C_1q_opt, outFilename);
+  if (C_trans) {
+    delete C_trans;
+  }
+  if (C_1q_opt) {
+    delete C_1q_opt;
+  }
+  delete torder;
+  // Load the output QASM:
+  std::ifstream outFile(outFilename);
+  std::string optSrc((std::istreambuf_iterator<char>(outFile)), std::istreambuf_iterator<char>());
+  // Delete the temporary file
+  remove(outFilename.c_str());  
+  return optSrc;
 }
 } // namespace quantum
 } // namespace xacc

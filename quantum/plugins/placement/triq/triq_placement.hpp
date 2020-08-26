@@ -31,7 +31,7 @@ public:
   TriQPlacement() {}
   void apply(std::shared_ptr<CompositeInstruction> program,
              const std::shared_ptr<Accelerator> acc,
-             const HeterogeneousMap &optioins = {}) override;
+             const HeterogeneousMap &options = {}) override;
   const IRTransformationType type() const override {
     return IRTransformationType::Placement;
   }
