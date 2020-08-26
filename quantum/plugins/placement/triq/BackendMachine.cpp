@@ -1,24 +1,85 @@
 #include "BackendMachine.hpp"
 #include "NoiseModel.hpp"
 
+namespace {
+// Returns the temp. file name
+template<typename RowIterFn>
+std::string createConfigFile(size_t in_nbRows, RowIterFn rowIter) {
+  std::stringstream ss;
+  ss << in_nbRows << "\n";
+  for (size_t i = 0; i < in_nbRows; ++i)
+  {
+    ss << rowIter(i) << "\n";
+  } 
+  char fnTemplate[] = "/tmp/ConfigXXXXXX";
+  mkstemp(fnTemplate);
+  const std::string configFilename(fnTemplate);
+  std::ofstream inFile(configFilename);
+  inFile << ss.str();
+  return configFilename;
+}
+}
+
 namespace xacc {
 BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   // Generates the three config files the initialize the base class:
   const size_t nbQubits = backendNoiseModel.nQubits();
+  nQ = nbQubits;
   for (size_t i = 0; i < nbQubits; ++i) {
     qubits.push_back(new HwQubit(i));
   }
 
   // Query fidelity information:
-  const auto singleQubitErrors = backendNoiseModel.averageSingleQubitGateFidelity();
-  const auto twoQubitErrors = backendNoiseModel.averageTwoQubitGateFidelity();
   const auto roErrors = backendNoiseModel.readoutErrors();
-  // Write to temp. files
-  // TODO: construct the three temporary files for single-qubit, readoutm and
-  // two-qubit fidelity based on the noise model data.
-  
-  std::string sFileName, mFileName, tFileName;
-  
+  const auto mFileName = createConfigFile(roErrors.size(), [&roErrors](size_t in_idx) {
+    std::stringstream ss;
+    const auto [meas0Prep1, meas1Prep0] = roErrors[in_idx];
+    const double avgRoFidelity = 0.5 * ((1.0 - meas0Prep1) + (1.0 - meas1Prep0));
+    ss << in_idx << " " << avgRoFidelity;
+    return ss.str();
+  });
+
+  const auto singleQubitFidelity = backendNoiseModel.averageSingleQubitGateFidelity();
+  const auto sFileName = createConfigFile(singleQubitFidelity.size(), [&singleQubitFidelity](size_t in_idx) {
+    std::stringstream ss;
+    ss << in_idx << " " << singleQubitFidelity[in_idx];
+    return ss.str();
+  });
+
+  const auto twoQubitFidelity = backendNoiseModel.averageTwoQubitGateFidelity();
+  // TriQ expects single fidelity for a pair of qubits;
+  // IBM provides fidelity for both cx_0_1 and cx_1_0
+  // hence we need to average them.
+  const auto twoQubitFidelityAvg = [&]() {
+    std::vector<std::pair<size_t, size_t>> processedPairs;
+    std::vector<std::tuple<size_t, size_t, double>> avgData;
+    for (const auto &[q1, q2, fidelity] : twoQubitFidelity) {
+      if (!xacc::container::contains(processedPairs, std::make_pair(q1, q2))) {
+        assert(
+            !xacc::container::contains(processedPairs, std::make_pair(q2, q1)));
+        const double fid1 = fidelity;
+        const auto iter =
+            std::find_if(twoQubitFidelity.begin(), twoQubitFidelity.end(),
+                      [&](const auto &fidTuple) {
+                        return (std::get<0>(fidTuple) == q2) &&
+                               (std::get<1>(fidTuple) == q1);
+                      });
+        assert(iter != twoQubitFidelity.end());
+        const double fid2 = std::get<2>(*iter);
+        avgData.emplace_back(std::make_tuple(q1, q2, (fid1 + fid2) / 2.0));
+        processedPairs.emplace_back(std::make_pair(q1, q2));
+        processedPairs.emplace_back(std::make_pair(q2, q1));
+      }
+    }
+    return avgData;
+  }();
+  assert(twoQubitFidelityAvg.size() * 2 == twoQubitFidelity.size());
+  const auto tFileName = createConfigFile(twoQubitFidelityAvg.size(), [&twoQubitFidelityAvg](size_t in_idx) {
+    std::stringstream ss;
+    const auto [q1, q2, fidelity] = twoQubitFidelityAvg[in_idx];
+    ss << q1 << " " << q2 << " " << fidelity;
+    return ss.str();
+  });  
   // Load to TriQ Machine model
   read_s_reliability(sFileName);
   read_m_reliability(mFileName);
@@ -26,6 +87,11 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   compute_swap_paths();
   print_swap_paths();
   compute_swap_info();
+
+  // Clean-up the temporary files.
+  remove(sFileName.c_str());
+  remove(mFileName.c_str()); 
+  remove(tFileName.c_str());       
 }
 
 } // namespace xacc
