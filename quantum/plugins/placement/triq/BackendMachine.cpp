@@ -94,4 +94,53 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   remove(tFileName.c_str());       
 }
 
+void XaccTargetter::print_header(std::ofstream &out_file) {
+  const auto nbQubits = M->nQ;
+  out_file << "OPENQASM 2.0;\n";
+  out_file << "include \"qelib1.inc\";\n";
+  out_file << "qreg q[" << nbQubits << "];\n";
+  out_file << "creg c[" << nbQubits << "];\n";
+}
+
+void XaccTargetter::print_one_qubit_gate(::Gate *g, std::ofstream &out_file,
+                                         int is_last_gate) {
+  int qid = g->vars[0]->id;
+  if (typeid(*g) == typeid(MeasZ)) {
+    return;
+  }
+  if (typeid(*g) == typeid(U1) && g->lambda == 0) {
+    return;
+  }
+  const auto gate_name = gate_print_ibm[typeid(*g)];
+  out_file << gate_name;
+  if (typeid(*g) == typeid(U1)) {
+    out_file << setprecision(15) << "(" << g->lambda << ")";
+  } else if (typeid(*g) == typeid(U2)) {
+    out_file << setprecision(15) << "(" << g->phi << "," << g->lambda << ")";
+  } else if (typeid(*g) == typeid(U3)) {
+    out_file << setprecision(15) << "(" << g->theta << "," << g->phi << ","
+             << g->lambda << ")";
+  }
+  out_file << " ";
+  std::stringstream var_name;
+  var_name << "q";
+  var_name << "[";
+  var_name << qid;
+  var_name << "]";
+  out_file << var_name.str() << ";\n";
+}
+
+void XaccTargetter::print_two_qubit_gate(::Gate *g, std::ofstream &out_file,
+                                         int is_last_gate) {
+  const auto gate_name = gate_print_ibm[typeid(*g)];
+  out_file << gate_name << " q[" << g->vars[0]->id << "]" << "," << "q[" << g->vars[1]->id << "]" << ";\n";
+}
+
+void XaccTargetter::print_measure_ops(std::ofstream &out_file) {
+  for (const auto &[q, hwq] : final_map) {
+    out_file << "measure "
+             << "q[" << hwq << "] -> c[" << q->id << "];\n";
+  }
+}
+void XaccTargetter::print_footer(std::ofstream &out_file) {}
 } // namespace xacc
