@@ -129,5 +129,11 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   BackendMachine backendModel(*backendNoiseModel);
   const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
 }
+
+std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
+                                   int algorithmSelector) const {
+  // TODO:
+  return "";
+}
 } // namespace quantum
 } // namespace xacc
