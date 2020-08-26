@@ -1,10 +1,10 @@
 from xacc/deploy-base
 workdir /home/dev
 
-run cd /home/dev && git clone --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
+run cd /home/dev && git clone --depth 1 --recursive https://github.com/eclipse/xacc && cd xacc && mkdir build && cd build \
     && cmake .. -DXACC_BUILD_EXAMPLES=TRUE \
     && make -j$(nproc) install \
-    && cd ../../ && git clone https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
+    && cd ../../ && git clone --depth 1 https://github.com/ornl-qci/tnqvm && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j$(nproc) install 
 
 # Theia application

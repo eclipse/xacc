@@ -1,6 +1,6 @@
 from xacc/xacc
 workdir /home/dev
-run git clone --recursive https://github.com/ornl-qci/exatn && cd exatn && mkdir build && cd build \
+run git clone --depth 1 --recursive https://github.com/ornl-qci/exatn && cd exatn && mkdir build && cd build \
      && cmake .. -DCMAKE_BUILD_TYPE=Release -DEXATN_BUILD_TESTS=TRUE -DPYTHON_INCLUDE_DIR=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['platinclude'])") \
            -DBLAS_LIB=ATLAS -DBLAS_PATH=/usr/lib/x86_64-linux-gnu \
      && make -j$(nproc) install \

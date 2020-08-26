@@ -5,7 +5,7 @@ copy --from=0 /xacc/build/quantum /quantum
 copy --from=0 /xacc/python/examples /pyexamples
 add .ibm_config /root/
 run python3 -m pip install pydantic --user \
-    && git clone https://github.com/ornl-qci/tnqvm \
+    && git clone --depth 1 https://github.com/ornl-qci/tnqvm \
     && cd tnqvm && mkdir build && cd build \
     && cmake .. -DXACC_DIR=~/.xacc && make -j12 install \
     && cd ../../ \
