@@ -8,8 +8,15 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   for (size_t i = 0; i < nbQubits; ++i) {
     qubits.push_back(new HwQubit(i));
   }
+
+  // Query fidelity information:
+  const auto singleQubitErrors = backendNoiseModel.averageSingleQubitGateFidelity();
+  const auto twoQubitErrors = backendNoiseModel.averageTwoQubitGateFidelity();
+  const auto roErrors = backendNoiseModel.readoutErrors();
+  // Write to temp. files
   // TODO: construct the three temporary files for single-qubit, readoutm and
   // two-qubit fidelity based on the noise model data.
+  
   std::string sFileName, mFileName, tFileName;
   
   // Load to TriQ Machine model
