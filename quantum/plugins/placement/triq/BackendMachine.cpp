@@ -80,13 +80,18 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
     ss << q1 << " " << q2 << " " << fidelity;
     return ss.str();
   });  
-  // Load to TriQ Machine model
-  read_s_reliability(sFileName);
-  read_m_reliability(mFileName);
-  read_t_reliability(tFileName);
-  compute_swap_paths();
-  print_swap_paths();
-  compute_swap_info();
+  {
+    auto origBuf = std::cout.rdbuf();
+    std::cout.rdbuf(NULL);
+    // Load to TriQ Machine model
+    read_s_reliability(sFileName);
+    read_m_reliability(mFileName);
+    read_t_reliability(tFileName);
+    compute_swap_paths();
+    print_swap_paths();
+    compute_swap_info();
+    std::cout.rdbuf(origBuf);
+  }
 
   // Clean-up the temporary files.
   remove(sFileName.c_str());

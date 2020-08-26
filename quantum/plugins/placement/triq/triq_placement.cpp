@@ -141,7 +141,11 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
 
   BackendMachine backendModel(*backendNoiseModel);
   // Step 3: Run TriQ (placement + optimize) for this backend
+  // TriQ outputs a lot to std::cout, hence we need to bypass its logs. 
+  auto origBuf = std::cout.rdbuf();
+  std::cout.rdbuf(NULL);
   const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
+  std::cout.rdbuf(origBuf);
   // DEBUG:
   // std::cout << "After placement: \n" << resultQasm << "\n";
   // Step 4: Reconstruct the Composite
