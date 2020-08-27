@@ -1,5 +1,6 @@
 #include "BackendMachine.hpp"
 #include "NoiseModel.hpp"
+#include "xacc.hpp"
 
 namespace {
 // Returns the temp. file name
