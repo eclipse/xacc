@@ -16,6 +16,9 @@ else()
   find_library(Z3_LIBRARY z3)
 endif()
 
+# The minimum Z3 version is 4.8
+set(Z3_FIND_VERSION "4.8.0")
+
 # If library found, check the version
 if (Z3_INCLUDE_DIR AND Z3_LIBRARY AND Z3_FIND_VERSION)
 
@@ -57,6 +60,7 @@ if (Z3_INCLUDE_DIR AND Z3_LIBRARY AND Z3_FIND_VERSION)
     # Output is of the form: major.minor.build_number.revision
     if("${VERSION_TEST_RUN_OUTPUT}" MATCHES "([0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*)")
       set(Z3_VERSION "${CMAKE_MATCH_1}")
+      message(STATUS "Found Z3 Version ${Z3_VERSION}")
       if ("${Z3_VERSION}" VERSION_LESS "${Z3_FIND_VERSION}")
     	unset(Z3_INCLUDE_DIR CACHE)
     	unset(Z3_LIBRARY CACHE)
