@@ -3,22 +3,23 @@
 
 namespace {
 // Returns the temp. file name
-template<typename RowIterFn>
+template <typename RowIterFn>
 std::string createConfigFile(size_t in_nbRows, RowIterFn rowIter) {
   std::stringstream ss;
   ss << in_nbRows << "\n";
-  for (size_t i = 0; i < in_nbRows; ++i)
-  {
+  for (size_t i = 0; i < in_nbRows; ++i) {
     ss << rowIter(i) << "\n";
-  } 
+  }
   char fnTemplate[] = "/tmp/ConfigXXXXXX";
-  mkstemp(fnTemplate);
+  if (mkstemp(fnTemplate) == -1) {
+    xacc::error("Failed to create a temporary file.");
+  }
   const std::string configFilename(fnTemplate);
   std::ofstream inFile(configFilename);
   inFile << ss.str();
   return configFilename;
 }
-}
+} // namespace
 
 namespace xacc {
 BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
@@ -31,20 +32,24 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
 
   // Query fidelity information:
   const auto roErrors = backendNoiseModel.readoutErrors();
-  const auto mFileName = createConfigFile(roErrors.size(), [&roErrors](size_t in_idx) {
-    std::stringstream ss;
-    const auto [meas0Prep1, meas1Prep0] = roErrors[in_idx];
-    const double avgRoFidelity = 0.5 * ((1.0 - meas0Prep1) + (1.0 - meas1Prep0));
-    ss << in_idx << " " << avgRoFidelity;
-    return ss.str();
-  });
+  const auto mFileName =
+      createConfigFile(roErrors.size(), [&roErrors](size_t in_idx) {
+        std::stringstream ss;
+        const auto [meas0Prep1, meas1Prep0] = roErrors[in_idx];
+        const double avgRoFidelity =
+            0.5 * ((1.0 - meas0Prep1) + (1.0 - meas1Prep0));
+        ss << in_idx << " " << avgRoFidelity;
+        return ss.str();
+      });
 
-  const auto singleQubitFidelity = backendNoiseModel.averageSingleQubitGateFidelity();
-  const auto sFileName = createConfigFile(singleQubitFidelity.size(), [&singleQubitFidelity](size_t in_idx) {
-    std::stringstream ss;
-    ss << in_idx << " " << singleQubitFidelity[in_idx];
-    return ss.str();
-  });
+  const auto singleQubitFidelity =
+      backendNoiseModel.averageSingleQubitGateFidelity();
+  const auto sFileName = createConfigFile(
+      singleQubitFidelity.size(), [&singleQubitFidelity](size_t in_idx) {
+        std::stringstream ss;
+        ss << in_idx << " " << singleQubitFidelity[in_idx];
+        return ss.str();
+      });
 
   const auto twoQubitFidelity = backendNoiseModel.averageTwoQubitGateFidelity();
   // TriQ expects single fidelity for a pair of qubits;
@@ -60,10 +65,10 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
         const double fid1 = fidelity;
         const auto iter =
             std::find_if(twoQubitFidelity.begin(), twoQubitFidelity.end(),
-                      [&](const auto &fidTuple) {
-                        return (std::get<0>(fidTuple) == q2) &&
-                               (std::get<1>(fidTuple) == q1);
-                      });
+                         [&](const auto &fidTuple) {
+                           return (std::get<0>(fidTuple) == q2) &&
+                                  (std::get<1>(fidTuple) == q1);
+                         });
         assert(iter != twoQubitFidelity.end());
         const double fid2 = std::get<2>(*iter);
         avgData.emplace_back(std::make_tuple(q1, q2, (fid1 + fid2) / 2.0));
@@ -74,12 +79,13 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
     return avgData;
   }();
   assert(twoQubitFidelityAvg.size() * 2 == twoQubitFidelity.size());
-  const auto tFileName = createConfigFile(twoQubitFidelityAvg.size(), [&twoQubitFidelityAvg](size_t in_idx) {
-    std::stringstream ss;
-    const auto [q1, q2, fidelity] = twoQubitFidelityAvg[in_idx];
-    ss << q1 << " " << q2 << " " << fidelity;
-    return ss.str();
-  });  
+  const auto tFileName = createConfigFile(
+      twoQubitFidelityAvg.size(), [&twoQubitFidelityAvg](size_t in_idx) {
+        std::stringstream ss;
+        const auto [q1, q2, fidelity] = twoQubitFidelityAvg[in_idx];
+        ss << q1 << " " << q2 << " " << fidelity;
+        return ss.str();
+      });
   {
     auto origBuf = std::cout.rdbuf();
     std::cout.rdbuf(NULL);
@@ -95,8 +101,8 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
 
   // Clean-up the temporary files.
   remove(sFileName.c_str());
-  remove(mFileName.c_str()); 
-  remove(tFileName.c_str());       
+  remove(mFileName.c_str());
+  remove(tFileName.c_str());
 }
 
 void XaccTargetter::print_header(std::ofstream &out_file) {
@@ -138,7 +144,10 @@ void XaccTargetter::print_one_qubit_gate(::Gate *g, std::ofstream &out_file,
 void XaccTargetter::print_two_qubit_gate(::Gate *g, std::ofstream &out_file,
                                          int is_last_gate) {
   const auto gate_name = gate_print_ibm[typeid(*g)];
-  out_file << gate_name << " q[" << g->vars[0]->id << "]" << "," << "q[" << g->vars[1]->id << "]" << ";\n";
+  out_file << gate_name << " q[" << g->vars[0]->id << "]"
+           << ","
+           << "q[" << g->vars[1]->id << "]"
+           << ";\n";
 }
 
 void XaccTargetter::print_measure_ops(std::ofstream &out_file) {
