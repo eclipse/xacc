@@ -196,7 +196,9 @@ std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
   // OptimizeSingleQubitOps sq_opt(C_trans);
   // auto C_1q_opt = sq_opt.test_optimize();
   char fnTemplate[] = "/tmp/CircuitXXXXXX";
-  mkstemp(fnTemplate);
+  if (mkstemp(fnTemplate) == -1) {
+    xacc::error("Failed to create a temporary file.");
+  }
   const std::string outFilename(fnTemplate);
   Tgen.print_code(C_trans, outFilename);
   
