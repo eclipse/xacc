@@ -190,17 +190,18 @@ std::string TriQPlacement::runTriQ(Circuit &program, Machine &machine,
   auto torder_new = program.topological_ordering();
   XaccTargetter Tgen(&machine, &program, &pMapper.qubit_map, torder_new, bsol);
   auto C_trans = Tgen.map_and_insert_swap_operations();
-  OptimizeSingleQubitOps sq_opt(C_trans);
-  auto C_1q_opt = sq_opt.test_optimize();
+  // We don't need to run single-qubit merge optimization here,
+  // we have a separate pass for this and the TriQ implementation
+  // is not very stable (crash)
+  // OptimizeSingleQubitOps sq_opt(C_trans);
+  // auto C_1q_opt = sq_opt.test_optimize();
   char fnTemplate[] = "/tmp/CircuitXXXXXX";
   mkstemp(fnTemplate);
   const std::string outFilename(fnTemplate);
-  Tgen.print_code(C_1q_opt, outFilename);
+  Tgen.print_code(C_trans, outFilename);
+  
   if (C_trans) {
     delete C_trans;
-  }
-  if (C_1q_opt) {
-    delete C_1q_opt;
   }
   delete torder;
   // Load the output QASM:
