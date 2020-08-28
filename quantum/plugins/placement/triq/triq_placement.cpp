@@ -113,15 +113,13 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   auto graphView = function->toGraph();
   for (size_t i = 1; i < graphView->order() - 1; ++i) {
     auto node = graphView->getVertexProperties(i);
-    const auto nodeName = node.getString("name");
-    const auto nodeId = node.get<std::size_t>("id");
+    const auto nodeId = i;
     const auto gateId = nodeId - 1;
     assert(gateId < triqCirc.gates.size());
     auto neighborNodeIds = graphView->getNeighborList(nodeId);
     for (const auto &neighborNodeId : neighborNodeIds) {
       if (neighborNodeId < graphView->order() - 1) {
-        auto nextNode = graphView->getVertexProperties(neighborNodeId);
-        const auto nextGateId = nextNode.get<std::size_t>("id") - 1;
+        const auto nextGateId = neighborNodeId - 1;
         assert(nextGateId < triqCirc.gates.size());
         assert(gateId != nextGateId);
         // Add DAG connection information
