@@ -23,3 +23,6 @@ target_link_libraries(QObjectCompilerTester CppMicroServices)
 
 #add_xacc_test(IBMAccelerator)
 #target_link_libraries(IBMAcceleratorTester xacc-ibm)
+
+add_xacc_test(IBMPulseRemote)
+target_link_libraries(IBMPulseRemoteTester xacc-quantum-gate)
