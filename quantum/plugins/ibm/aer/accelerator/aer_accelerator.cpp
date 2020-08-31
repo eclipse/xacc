@@ -47,6 +47,7 @@ std::string hex_string_to_binary_string(std::string hex) {
 
 void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
+  m_options = params;
   noise_model.clear();
   m_simtype = "qasm";
   connectivity.clear();
@@ -97,7 +98,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     noise_model["errors"] = elements;
     // noise_model["x90_gates"] = std::vecto
 
-    std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
+    // std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
   } else if (params.stringExists("noise-model")) {
     noise_model = nlohmann::json::parse(params.getString("noise-model"));
   }

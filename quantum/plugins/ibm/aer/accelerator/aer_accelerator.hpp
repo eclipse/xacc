@@ -27,7 +27,15 @@ public:
   // Accelerator interface impls
   void initialize(const HeterogeneousMap &params = {}) override;
   void updateConfiguration(const HeterogeneousMap &config) override {
-    initialize(config);
+    if (config.keyExists<int>("shots")) {
+        m_shots = config.get<int>("shots");
+        m_options.insert("shots", m_shots);
+    }
+    if (config.stringExists("backend")) {
+        m_options.insert("backend", config.getString("backend"));
+        // backend changed so reinit
+        initialize(m_options);
+    }
   };
   const std::vector<std::string> configurationKeys() override { return {}; }
   BitOrder getBitOrder() override { return BitOrder::MSB; }
@@ -49,6 +57,7 @@ private:
   std::string m_simtype = "qasm";
   nlohmann::json noise_model;
   std::vector<std::pair<int, int>> connectivity;
+  HeterogeneousMap m_options;
 };
 } // namespace quantum
 } // namespace xacc

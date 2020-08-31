@@ -191,7 +191,8 @@ PauliOperator::observe(std::shared_ptr<CompositeInstruction> function) {
   // new measurement instructions buffer names to be the same. 
   // Here we assume that all instructions have the same buffer name
   std::string buf_name = "";
-  if (!function->getInstruction(0)->getBufferNames().empty()) {
+
+  if (function->nInstructions() > 0 && !function->getInstruction(0)->getBufferNames().empty()) {
     buf_name = function->getInstruction(0)->getBufferNames()[0];
   }
 
