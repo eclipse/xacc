@@ -12,15 +12,11 @@
  *******************************************************************************/
 #include "OpenPulseVisitor.hpp"
 #include "xacc.hpp"
-// TODO:
-// Currently, we map all single-qubit gates to U3 pulse composites.
-// Need to optimize and use U2 and U1 pulse composites for corresponding cases:
-// e.g. H -> U2; S, Sdg, T, Tdg, Rz -> U1
-
 namespace {
 std::shared_ptr<xacc::CompositeInstruction>
-constructU3CmdDefComposite(size_t qIdx) {
-  const auto cmdDefName = "pulse::u3_" + std::to_string(qIdx);
+constructUCmdDefComposite(size_t qIdx, const std::string &uGateType) {
+
+  const auto cmdDefName = "pulse::" + uGateType + "_" + std::to_string(qIdx);
   // If we have a pulse cmd-def defined for U3:
   if (xacc::hasContributedService<xacc::Instruction>(cmdDefName)) {
     return xacc::ir::asComposite(
@@ -44,9 +40,9 @@ void PulseMappingVisitor::visit(Hadamard &h) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // H = U2(0, pi) = U3(pi/2, 0, pi)
-    const auto asU3 = constructU3CmdDefComposite(h.bits()[0]);
+    const auto asU2 = constructUCmdDefComposite(h.bits()[0], "u2");
     auto hCmdDef =
-        (*asU3)({M_PI/ 2.0, 0.0, M_PI});
+        (*asU2)({0.0, M_PI});
     pulseComposite->addInstruction(hCmdDef);
   }
 }
@@ -67,8 +63,8 @@ void PulseMappingVisitor::visit(Rz &rz) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // Rz(theta) = U1(theta) = U3(0, 0, theta)
-    const auto asU3 = constructU3CmdDefComposite(rz.bits()[0]);
-    auto rzCmdDef = (*asU3)({0.0, 0.0, rz.getParameter(0).as<double>()});
+    const auto asU1 = constructUCmdDefComposite(rz.bits()[0], "u1");
+    auto rzCmdDef = (*asU1)({rz.getParameter(0).as<double>()});
     pulseComposite->addInstruction(rzCmdDef);
   }
 }
@@ -81,7 +77,7 @@ void PulseMappingVisitor::visit(Ry &ry) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // Ry(theta) = U3(theta, 0, 0)
-    const auto asU3 = constructU3CmdDefComposite(ry.bits()[0]);
+    const auto asU3 = constructUCmdDefComposite(ry.bits()[0], "u3");
     auto ryCmdDef = (*asU3)({ry.getParameter(0).as<double>(), 0.0, 0.0});
     pulseComposite->addInstruction(ryCmdDef);
   }
@@ -95,7 +91,7 @@ void PulseMappingVisitor::visit(Rx &rx) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // Rx(theta) = U3(theta, -pi/2, pi/2)
-    const auto asU3 = constructU3CmdDefComposite(rx.bits()[0]);
+    const auto asU3 = constructUCmdDefComposite(rx.bits()[0], "u3");
     auto rxCmdDef =
         (*asU3)({rx.getParameter(0).as<double>(), -M_PI/ 2.0,
                  M_PI/ 2.0});
@@ -111,7 +107,7 @@ void PulseMappingVisitor::visit(X &x) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // X = U3(pi, 0, pi)
-    const auto asU3 = constructU3CmdDefComposite(x.bits()[0]);
+    const auto asU3 = constructUCmdDefComposite(x.bits()[0], "u3");
     auto xCmdDef = (*asU3)({M_PI, 0.0, M_PI});
     pulseComposite->addInstruction(xCmdDef);
   }
@@ -125,7 +121,7 @@ void PulseMappingVisitor::visit(Y &y) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // Y = U3(pi, pi/2, pi/2)
-    const auto asU3 = constructU3CmdDefComposite(y.bits()[0]);
+    const auto asU3 = constructUCmdDefComposite(y.bits()[0], "u3");
     auto yCmdDef = (*asU3)({M_PI, M_PI/ 2.0,
                             M_PI/ 2.0});
     pulseComposite->addInstruction(yCmdDef);
@@ -140,8 +136,8 @@ void PulseMappingVisitor::visit(Z &z) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // Z = U1(pi) = U3(0, 0, pi)
-    const auto asU3 = constructU3CmdDefComposite(z.bits()[0]);
-    auto zCmdDef = (*asU3)({0.0, 0.0, M_PI});
+    const auto asU1 = constructUCmdDefComposite(z.bits()[0], "u1");
+    auto zCmdDef = (*asU1)({M_PI});
     pulseComposite->addInstruction(zCmdDef);
   }
 }
@@ -177,12 +173,12 @@ void PulseMappingVisitor::visit(Swap &s) {
 }
 
 void PulseMappingVisitor::visit(CRZ &crz) {
-  // CRZ(theta)(a,b) = U3(0, 0, theta/2)(b); CX(a,b); U3(0, 0, -theta/2)(b);
+  // CRZ(theta)(a,b) = U1(theta/2)(b); CX(a,b); U3(-theta/2)(b);
   // CX(a,b);
   const double theta = crz.getParameter(0).as<double>();
   {
-    const auto asU3 = constructU3CmdDefComposite(crz.bits()[1]);
-    auto cmdDef = (*asU3)({0.0, 0.0, theta / 2.0});
+    const auto asU1 = constructUCmdDefComposite(crz.bits()[1], "u1");
+    auto cmdDef = (*asU1)({theta / 2.0});
     pulseComposite->addInstruction(cmdDef);
   }
   {
@@ -190,8 +186,8 @@ void PulseMappingVisitor::visit(CRZ &crz) {
     visit(*cx);
   }
   {
-    const auto asU3 = constructU3CmdDefComposite(crz.bits()[1]);
-    auto cmdDef = (*asU3)({0.0, 0.0, -theta / 2.0});
+    const auto asU1 = constructUCmdDefComposite(crz.bits()[1], "u1");
+    auto cmdDef = (*asU1)({-theta / 2.0});
     pulseComposite->addInstruction(cmdDef);
   }
   {
@@ -240,8 +236,8 @@ void PulseMappingVisitor::visit(S &s) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // S = U1(pi/2) = U3(0,0,pi/2)
-    const auto asU3 = constructU3CmdDefComposite(s.bits()[0]);
-    auto sCmdDef = (*asU3)({0.0, 0.0, M_PI/ 2.0});
+    const auto asU1 = constructUCmdDefComposite(s.bits()[0], "u1");
+    auto sCmdDef = (*asU1)({M_PI/ 2.0});
     pulseComposite->addInstruction(sCmdDef);
   }
 }
@@ -254,8 +250,8 @@ void PulseMappingVisitor::visit(Sdg &sdg) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // S-dagger = U1(-pi/2) = U3(0,0,-pi/2)
-    const auto asU3 = constructU3CmdDefComposite(sdg.bits()[0]);
-    auto sdgCmdDef = (*asU3)({0.0, 0.0, -M_PI/ 2.0});
+    const auto asU1 = constructUCmdDefComposite(sdg.bits()[0], "u1");
+    auto sdgCmdDef = (*asU1)({-M_PI/ 2.0});
     pulseComposite->addInstruction(sdgCmdDef);
   }
 }
@@ -268,8 +264,8 @@ void PulseMappingVisitor::visit(T &t) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // T = U1(pi/4) = U3(0,0,pi/4)
-    const auto asU3 = constructU3CmdDefComposite(t.bits()[0]);
-    auto tCmdDef = (*asU3)({0.0, 0.0, M_PI/ 4.0});
+    const auto asU1 = constructUCmdDefComposite(t.bits()[0], "u1");
+    auto tCmdDef = (*asU1)({M_PI/ 4.0});
     pulseComposite->addInstruction(tCmdDef);
   }
 }
@@ -282,8 +278,8 @@ void PulseMappingVisitor::visit(Tdg &tdg) {
     pulseComposite->addInstruction(pulseInst);
   } else {
     // T-dagger = U1(-pi/4) = U3(0,0,-pi/4)
-    const auto asU3 = constructU3CmdDefComposite(tdg.bits()[0]);
-    auto tdgCmdDef = (*asU3)({0.0, 0.0, -M_PI/ 4.0});
+    const auto asU1 = constructUCmdDefComposite(tdg.bits()[0], "u1");
+    auto tdgCmdDef = (*asU1)({-M_PI/ 4.0});
     pulseComposite->addInstruction(tdgCmdDef);
   }
 }
@@ -297,7 +293,7 @@ void PulseMappingVisitor::visit(Identity &i) {
 }
 
 void PulseMappingVisitor::visit(U &u) {
-  const auto asU3 = constructU3CmdDefComposite(u.bits()[0]);
+  const auto asU3 = constructUCmdDefComposite(u.bits()[0], "u3");
   // Just pass the params to the cmddef.
   std::vector<double> params;
   for (const auto &param : u.getParameters()) {
