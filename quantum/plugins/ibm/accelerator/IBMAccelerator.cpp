@@ -295,10 +295,8 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   config.set_memory_slots(backend["n_qubits"].get<int>());
   // For now, we always use measurement level 2 (qubit 0/1 measurement)
   // We can support level 1 if required (IQ measurement values)
-  // TODO: Debug "Internal Error" in IBM if using level 2.
-  // FWIW, Level 1 is working fine.
-  config.set_meas_level(1); // Possible values: 1 (IQ raw values); 2 (digital values)
-  config.set_meas_return("single"); // Possible values: "avg", "single"
+  config.set_meas_level(2); // Possible values: 1 (IQ raw values); 2 (digital values)
+  config.set_meas_return("avg"); // Possible values: "avg", "single"
   config.set_rep_time(1000);
   config.set_memory_slot_size(100);
   config.set_memory(false);
@@ -735,8 +733,26 @@ void IBMAccelerator::contributeInstructions(
         if (inst_name == "parametric_pulse") {
           auto pulseParams = (*seq_iter)["parameters"];
           const std::string pulseShape = (*seq_iter)["pulse_shape"].get<std::string>();
+          if (pulseParams.find("amp") != pulseParams.end()) {
+            // Handle a potential *IBM* bug whereby it has *Internal Error
+            // (9999)* when the amplitude vector contains a zero (0) entry. It
+            // is expecting a "0.0" not a "0".
+            // We need to explicitly cast this as a vector<double>
+            // so that nlohmann will serialize accordingly.
+            std::vector<double> ampVec =
+                pulseParams["amp"].get<std::vector<double>>();
+            const double EPS = 1e-24;
+            for (auto &ampVal : ampVec) {
+              if (std::abs(ampVal) < EPS) {
+                ampVal = 0.0;
+              }
+            }
+            pulseParams["amp"] = ampVec;
+          }
+
           const std::string paramJson = pulseParams.dump();
-          inst->setPulseParams({{"pulse_shape", pulseShape}, {"parameters_json", paramJson}});
+          inst->setPulseParams(
+              {{"pulse_shape", pulseShape}, {"parameters_json", paramJson}});
         }
         if ((*seq_iter).find("phase") != (*seq_iter).end()) {
           // we have phase too
