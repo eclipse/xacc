@@ -94,7 +94,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
       auto response = get(IBM_API_URL, getBackendPropertiesPath, {},
                           {std::make_pair("version", "1"),
                            std::make_pair("access_token", currentApiToken)});
-
+      xacc::info("Backend property:\n" +  response);
       auto props = json::parse(response);
       backendProperties.insert({backend, props});
       for (auto &b : backends_root["backends"]) {
@@ -218,7 +218,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     const int &shots, const nlohmann::json &backend,
     const std::string getBackendPropsResponse,
     std::vector<std::pair<int, int>> &connectivity) {
-
+  xacc::info("Backend Info: \n" + backend.dump());
   xacc::ibm_pulse::PulseQObject root;
   xacc::ibm_pulse::QObject qobj;
   qobj.set_qobj_id("xacc-qobj-id");
@@ -226,9 +226,14 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   qobj.set_type("PULSE");
   xacc::ibm_pulse::QObjectHeader h;
   h.set_backend_name(backend["backend_name"].get<std::string>());
-  h.set_backend_version("1.2.1");
+  h.set_backend_version(backend["backend_version"].get<std::string>());
   qobj.set_header(h);
-
+  const bool pulseSupported = backend["open_pulse"].get<bool>();
+  if (!pulseSupported) {
+    xacc::error("Backend named '" + h.get_backend_name() +
+                "' doesn't support OpenPulse.");
+    return "";
+  }
   auto scheduler = xacc::getService<Scheduler>("pulse");
   std::vector<xacc::ibm_pulse::Experiment> experiments;
   // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
@@ -285,15 +290,16 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     pulses.push_back(kv.second);
   }
   config.set_pulse_library(pulses);
-  config.set_meas_level(2);
+  config.set_meas_level(1);
   config.set_memory_slots(backend["n_qubits"].get<int>());
-  config.set_meas_return("avg");
+  config.set_meas_return("single");
   config.set_rep_time(1000);
   config.set_memory_slot_size(100);
   config.set_memory(false);
   config.set_shots(shots);
-  config.set_max_credits(10);
-  config.set_parametric_pulses({ "gaussian", "gaussian_square", "drag", "constant" });
+  // The list of intrinsic parametric pulses supported by the backend.
+  config.set_parametric_pulses(
+      backend["parametric_pulses"].get<std::vector<std::string>>());
 
   // auto j = json::parse(getBackendPropsResponse);
   // set meas lo and qubit lo
