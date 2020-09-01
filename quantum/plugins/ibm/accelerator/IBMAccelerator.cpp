@@ -104,6 +104,8 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
         }
       }
 
+      chosenBackend = availableBackends[backend];
+
       defaults_response =
           get(IBM_API_URL,
               IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
