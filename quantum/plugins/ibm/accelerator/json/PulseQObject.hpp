@@ -99,6 +99,7 @@ private:
   int64_t shots;
   int64_t memory_slot_size;
   bool memory;
+  std::vector<std::string> parametric_pulses;
 
 public:
   const int64_t &get_meas_level() const { return meas_level; }
@@ -156,6 +157,13 @@ public:
   const bool &get_memory() const { return memory; }
   bool &get_mutable_memory() { return memory; }
   void set_memory(const bool &value) { this->memory = value; }
+
+  void set_parametric_pulses(const std::vector<std::string> &pulseShapeList) {
+    this->parametric_pulses = pulseShapeList;
+  }
+  std::vector<std::string> get_parametric_pulses() const {
+    return parametric_pulses;
+  }
 };
 
 class ExperimentHeader {
@@ -190,7 +198,8 @@ private:
   std::vector<int64_t> memory_slot;
   int64_t duration;
   std::vector<int64_t> qubits;
-
+  std::string pulse_shape;
+  json pulse_params;
 public:
   std::string get_ch() const { return ch; }
   void set_ch(std::string value) { this->ch = value; }
@@ -216,6 +225,14 @@ public:
 
   std::vector<int64_t> get_qubits() const { return qubits; }
   void set_qubits(std::vector<int64_t> value) { this->qubits = value; }
+
+  std::string get_pulse_shape() const { return pulse_shape; }
+  void set_pulse_shape(const std::string &value) { this->pulse_shape = value; }
+
+  json get_pulse_params() const { return pulse_params; }
+  void set_pulse_params(const std::string &jsonStr) {
+    this->pulse_params = json::parse(jsonStr);
+  }
 };
 
 class Experiment {
@@ -409,6 +426,7 @@ inline void to_json(json &j, const xacc::ibm_pulse::Config &x) {
   j["shots"] = x.get_shots();
   j["memory_slot_size"] = x.get_memory_slot_size();
   j["memory"] = x.get_memory();
+  j["parametric_pulses"] = x.get_parametric_pulses();
 }
 
 inline void from_json(const json &j, xacc::ibm_pulse::ExperimentHeader &x) {
@@ -448,6 +466,10 @@ inline void to_json(json &j, const xacc::ibm_pulse::Instruction &x) {
     j["qubits"] = x.get_qubits();
   } else {
     j["ch"] = x.get_ch();
+  }
+  if (x.get_name() == "parametric_pulse") {
+    j["pulse_shape"] = x.get_pulse_shape();
+    j["parameters"] = x.get_pulse_params();
   }
 }
 

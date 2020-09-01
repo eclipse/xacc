@@ -110,6 +110,10 @@ public:
     if (config.keyExists<bool>("http-verbose")) {
       restClient->setVerbose(config.get<bool>("http-verbose"));
     }
+    // Specify a mode: "qasm" or "pulse"
+    if (config.stringExists("mode")) {
+      mode = config.getString("mode");
+    }
   }
 
   const std::vector<std::string> configurationKeys() override {
@@ -185,7 +189,7 @@ private:
   std::map<std::string, nlohmann::json> backendProperties;
   std::string getBackendPropsResponse = "{}";
   std::string defaults_response = "{}";
-  
+  std::string mode = "qasm";
   std::string post(const std::string &_url, const std::string &path,
                    const std::string &postStr,
                    std::map<std::string, std::string> headers = {});

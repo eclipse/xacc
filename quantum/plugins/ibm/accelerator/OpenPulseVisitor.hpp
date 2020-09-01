@@ -17,7 +17,7 @@
 #include "AllGateVisitor.hpp"
 #include "Pulse.hpp"
 #include "json.hpp"
-
+#include "xacc_service.hpp"
 #include "PulseQObject.hpp"
 
 using nlohmann::json;
@@ -25,8 +25,73 @@ using nlohmann::json;
 namespace xacc {
 namespace quantum {
 
-class OpenPulseVisitor: public BaseInstructionVisitor,
-                       public InstructionVisitor<xacc::quantum::Pulse> {
+class PulseMappingVisitor : public AllGateVisitor, public InstructionVisitor<xacc::quantum::Pulse> {
+public:
+  std::shared_ptr<CompositeInstruction> pulseComposite;
+  PulseMappingVisitor() {
+    auto provider = xacc::getIRProvider("quantum");
+    pulseComposite = provider->createComposite("PulseComposite");
+  }
+  // Gate visit
+  void visit(Hadamard &h) override {}
+  void visit(CNOT &cnot) override {}
+  void visit(Rz &rz) override {}
+  void visit(Ry &ry) override {}
+  void visit(Rx &rx) override {}
+  void visit(X &x) override {}
+  void visit(Y &y) override {}
+  void visit(Z &z) override {}
+  void visit(CY &cy) override {}
+  void visit(CZ &cz) override {}
+  void visit(Swap &s) override {}
+  void visit(CRZ &crz) override {}
+  void visit(CH &ch) override {}
+  void visit(S &s) override {}
+  void visit(Sdg &sdg) override {}
+  void visit(T &t) override {}
+  void visit(Tdg &tdg) override {}
+  void visit(CPhase &cphase) override {}
+  void visit(Measure &measure) override {
+    const auto commandDef = constructPulseCommandDef(measure);
+    if (xacc::hasContributedService<xacc::Instruction>(commandDef)) {
+      auto pulseInst =
+          xacc::getContributedService<xacc::Instruction>(commandDef);
+      pulseComposite->addInstruction(pulseInst);
+    }
+    else {
+        std::cout << "Don't have " << commandDef << "\n";
+    }
+  }
+  void visit(Identity &i) override {}
+  void visit(U &u) override {}
+  void visit(Pulse &pulse) override { pulseComposite->addInstruction(pulse.clone()); }
+
+private:
+  std::string constructPulseCommandDef(xacc::quantum::Gate &in_gate) {
+    const auto getGateCommandDefName =
+        [](xacc::quantum::Gate &in_gate) -> std::string {
+      std::string gateName = in_gate.name();
+      std::transform(gateName.begin(), gateName.end(), gateName.begin(),
+                     [](unsigned char c) { return std::tolower(c); });
+      if (gateName == "cnot") {
+        return "cx";
+      } else {
+        return gateName;
+      }
+    };
+
+    std::string result = "pulse::" + getGateCommandDefName(in_gate);
+
+    for (const auto &qIdx : in_gate.bits()) {
+      result += ("_" + std::to_string(qIdx));
+    }
+
+    return result;
+  }
+};
+
+class OpenPulseVisitor : public BaseInstructionVisitor,
+                           public InstructionVisitor<xacc::quantum::Pulse> {
 protected:
 
 	constexpr static double pi = 3.1415926;
@@ -58,7 +123,7 @@ public:
         inst.set_phase(i.getParameter(0).as<double>());
         inst.set_t0(i.start());
 
-        std::vector<std::string> builtIns {"fc", "acquire"};
+        std::vector<std::string> builtIns {"fc", "acquire", "parametric_pulse"};
         if (std::find(builtIns.begin(), builtIns.end(), i.name()) == std::end(builtIns)) {
             // add to default libr
             xacc::ibm_pulse::PulseLibrary lib;
@@ -80,6 +145,12 @@ public:
 
         }
 
+        if (i.name() == "parametric_pulse") {
+          auto pulseParameters = i.getPulseParams();
+          inst.set_pulse_shape(pulseParameters.getString("pulse_shape"));
+          inst.set_pulse_params(pulseParameters.getString("parameters_json"));
+        }
+
         instructions.push_back(inst);
 
 	}
@@ -87,8 +158,6 @@ public:
 
 	virtual ~OpenPulseVisitor() {}
 };
-
-
 }
 }
 #endif
