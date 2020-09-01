@@ -127,7 +127,8 @@ std::string QasmQObjGenerator::getQObjJsonStr(
     std::vector<std::shared_ptr<CompositeInstruction>> circuits,
     const int &shots, const nlohmann::json &backend,
     const std::string getBackendPropsResponse,
-    std::vector<std::pair<int, int>> &connectivity) {
+    std::vector<std::pair<int, int>> &connectivity,
+    const nlohmann::json &backendDefaults) {
 
   // Create a QObj
   xacc::ibm::QObject qobj;
@@ -217,7 +218,8 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     std::vector<std::shared_ptr<CompositeInstruction>> circuits,
     const int &shots, const nlohmann::json &backend,
     const std::string getBackendPropsResponse,
-    std::vector<std::pair<int, int>> &connectivity) {
+    std::vector<std::pair<int, int>> &connectivity,
+    const nlohmann::json &backendDefaults) {
   xacc::info("Backend Info: \n" + backend.dump());
   xacc::ibm_pulse::PulseQObject root;
   xacc::ibm_pulse::QObject qobj;
@@ -290,9 +292,11 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     pulses.push_back(kv.second);
   }
   config.set_pulse_library(pulses);
-  config.set_meas_level(1);
   config.set_memory_slots(backend["n_qubits"].get<int>());
-  config.set_meas_return("single");
+  // For now, we always use measurement level 2 (qubit 0/1 measurement)
+  // We can support level 1 if required (IQ measurement values)
+  config.set_meas_level(2); // Possible values: 1 (IQ raw values); 2 (digital values)
+  config.set_meas_return("avg"); // Possible values: "avg", "single"
   config.set_rep_time(1000);
   config.set_memory_slot_size(100);
   config.set_memory(false);
@@ -302,20 +306,12 @@ std::string PulseQObjGenerator::getQObjJsonStr(
       backend["parametric_pulses"].get<std::vector<std::string>>());
 
   // auto j = json::parse(getBackendPropsResponse);
-  // set meas lo and qubit lo
-  std::vector<double> meas_lo_freq, qubit_lo_freq;
-  std::vector<std::vector<double>> meas_lo_range =
-      backend["meas_lo_range"].get<std::vector<std::vector<double>>>();
-  for (auto &pair : meas_lo_range) {
-    meas_lo_freq.push_back((pair[0] + pair[1]) / 2.);
-  }
-  std::vector<std::vector<double>> qubit_lo_range =
-      backend["qubit_lo_range"].get<std::vector<std::vector<double>>>();
-  for (auto &pair : qubit_lo_range) {
-    qubit_lo_freq.push_back((pair[0] + pair[1]) / 2.);
-  }
-  config.set_meas_lo_freq(meas_lo_freq);
-  config.set_qubit_lo_freq(qubit_lo_freq);
+  // Set meas lo and qubit lo
+  // We always use the frequency estimates provided by the backend defaults.
+  // This will guarantee best on-resonance drive.
+  // TODO: we can support changing the drive freq. if necessary from higher-level.
+  config.set_meas_lo_freq(backendDefaults["meas_freq_est"].get<std::vector<double>>());
+  config.set_qubit_lo_freq(backendDefaults["qubit_freq_est"].get<std::vector<double>>());
 
   qobj.set_config(config);
 
@@ -365,7 +361,7 @@ void IBMAccelerator::execute(
 
   // Generate the QObject JSON
   auto jsonStr = qobjGen->getQObjJsonStr(circuits, shots, chosenBackend,
-                                         getBackendPropsResponse, connectivity);
+                                         getBackendPropsResponse, connectivity, json::parse(defaults_response));
 
   xacc::info("qobj: " + jsonStr);
 
