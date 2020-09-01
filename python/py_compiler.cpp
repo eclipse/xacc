@@ -50,5 +50,16 @@ void bind_compiler(py::module &m) {
             }
             return c.translate(prog, m);
           },
+          "")
+      .def(
+          "setExtraOptions",
+          [](xacc::Compiler &c, const PyHeterogeneousMap &opts) {
+            HeterogeneousMap m;
+            for (auto &item : opts) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            c.setExtraOptions(m);
+          },
           "");
 }
