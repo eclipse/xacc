@@ -95,7 +95,7 @@ private:
   std::string meas_return;
   std::vector<double> qubit_lo_freq;
   int64_t rep_time;
-  int64_t max_credits;
+  std::optional<int64_t> max_credits;
   int64_t shots;
   int64_t memory_slot_size;
   bool memory;
@@ -140,8 +140,8 @@ public:
   int64_t &get_mutable_rep_time() { return rep_time; }
   void set_rep_time(const int64_t &value) { this->rep_time = value; }
 
-  const int64_t &get_max_credits() const { return max_credits; }
-  int64_t &get_mutable_max_credits() { return max_credits; }
+  const std::optional<int64_t> &get_max_credits() const { return max_credits; }
+  std::optional<int64_t> &get_mutable_max_credits() { return max_credits; }
   void set_max_credits(const int64_t &value) { this->max_credits = value; }
 
   const int64_t &get_shots() const { return shots; }
@@ -422,7 +422,9 @@ inline void to_json(json &j, const xacc::ibm_pulse::Config &x) {
   j["meas_return"] = x.get_meas_return();
   j["qubit_lo_freq"] = x.get_qubit_lo_freq();
   j["rep_time"] = x.get_rep_time();
-  j["max_credits"] = x.get_max_credits();
+  if (x.get_max_credits().has_value()) {
+    j["max_credits"] = x.get_max_credits().value();
+  }
   j["shots"] = x.get_shots();
   j["memory_slot_size"] = x.get_memory_slot_size();
   j["memory"] = x.get_memory();
