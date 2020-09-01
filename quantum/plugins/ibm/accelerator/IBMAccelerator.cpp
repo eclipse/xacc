@@ -252,7 +252,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
       }
     }
     kernel = pulseMapper->pulseComposite;
-    std::cout << "After map: \n" << kernel->toString() << "\n";
+    xacc::info("Pulse-level kernel: \n" + kernel->toString());
     // Schedule the pulses
     scheduler->schedule(kernel);
 
@@ -657,7 +657,6 @@ HeterogeneousMap IBMAccelerator::getProperties() {
 
 void IBMAccelerator::contributeInstructions(
     const std::string &custom_json_config) {
-  std::cout << "IBMAccelerator::contributeInstructions\n";
   auto provider = xacc::getIRProvider("quantum");
   json j;
   if (custom_json_config.empty()) {
@@ -673,7 +672,7 @@ void IBMAccelerator::contributeInstructions(
   for (auto pulse_iter = pulse_library.begin();
        pulse_iter != pulse_library.end(); ++pulse_iter) {
     auto pulse_name = (*pulse_iter)["name"].get<std::string>();
-    std::cout << counter << ", Pulse: " << pulse_name << "\n";
+    // std::cout << counter << ", Pulse: " << pulse_name << "\n";
     auto samples =
         (*pulse_iter)["samples"].get<std::vector<std::vector<double>>>();
 
@@ -721,7 +720,7 @@ void IBMAccelerator::contributeInstructions(
          ++seq_iter) {
       auto inst_name = (*seq_iter)["name"].get<std::string>();
       auto inst = xacc::getContributedService<Instruction>(inst_name);
-      std::cout << "inst_name = " << inst_name << "\n";
+      // std::cout << "inst_name = " << inst_name << "\n";
       if (inst_name != "acquire") {
         auto channel = (*seq_iter)["ch"].get<std::string>();
         auto t0 = (*seq_iter)["t0"].get<int>();
@@ -786,7 +785,7 @@ void IBMAccelerator::contributeInstructions(
     }
     cmd_def->setBits(qbits);
 
-    std::cout << "contributing " << tmpName << "\n";
+    xacc::info("Contributing " + tmpName + " pulse composite.");
     xacc::contributeService(tmpName, cmd_def);
   }
   // }
