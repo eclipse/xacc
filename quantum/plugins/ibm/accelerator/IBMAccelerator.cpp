@@ -353,7 +353,12 @@ void IBMAccelerator::execute(
     // if we need to use pulse mode, contribute the pulse library of the
     // backend (if any)
     if (!defaults_response.empty()) {
-      contributeInstructions();
+      // Make sure we only contribute pulse cmd-def once
+      static bool contributed;
+      if (!contributed) {
+        contributed = true;
+        contributeInstructions();
+      }
     }
   }
   // Get the correct QObject Generator
