@@ -187,6 +187,12 @@ void storeBuffer(const std::string name,
   if (allocated_buffers.count(name)) {
     error("Invalid buffer name to store: " + name);
   }
+  // if this buffer is in here already before we 
+  // set its new name, we should remove it from the allocation
+  if (allocated_buffers.count(buffer->name())) {
+      allocated_buffers.erase(buffer->name());
+  }
+  
   buffer->setName(name);
   allocated_buffers.insert({name, buffer});
 }

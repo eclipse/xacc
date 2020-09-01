@@ -47,6 +47,7 @@ std::string hex_string_to_binary_string(std::string hex) {
 
 void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
+  m_options = params;
   noise_model.clear();
   m_simtype = "qasm";
   connectivity.clear();
@@ -97,7 +98,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     noise_model["errors"] = elements;
     // noise_model["x90_gates"] = std::vecto
 
-    std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
+    // std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
   } else if (params.stringExists("noise-model")) {
     noise_model = nlohmann::json::parse(params.getString("noise-model"));
   }
@@ -548,6 +549,38 @@ std::string IbmqNoiseModel::toJson() const {
 
   noiseModel["errors"] = noiseElements;
   return noiseModel.dump(6);
+}
+
+std::vector<double> IbmqNoiseModel::averageSingleQubitGateFidelity() const {
+  std::vector<double> result;
+  // Use U3 gate fidelity:
+  for (size_t qId = 0; qId < m_nbQubits; ++qId) {
+    const std::string gateName = "u3_" + std::to_string(qId);
+    const auto gateErrorIter = m_gateErrors.find(gateName);
+    const double gateError =
+        (gateErrorIter == m_gateErrors.end()) ? 0.0 : gateErrorIter->second;
+    result.emplace_back(1.0 - gateError);
+  }
+  return result;
+}
+
+std::vector<std::tuple<size_t, size_t, double>>
+IbmqNoiseModel::averageTwoQubitGateFidelity() const {
+  std::vector<std::tuple<size_t, size_t, double>> result;
+  for (const auto &[gateName, gateError] : m_gateErrors) {
+    if (gateName.rfind("cx", 0) == 0) {
+      // CNOT gate:
+      const std::size_t pos = gateName.find("_");
+      const std::string firstArg = gateName.substr(2, pos - 2);
+      const std::string secondArg = gateName.substr(pos + 1);
+      const auto firstBit = std::atoi(firstArg.c_str());
+      const auto secondBit = std::atoi(secondArg.c_str());
+      result.emplace_back(
+          std::make_tuple(firstBit, secondBit, 1.0 - gateError));
+    }
+  }
+
+  return result;
 }
 } // namespace quantum
 } // namespace xacc
