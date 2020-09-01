@@ -25,7 +25,8 @@ file(GLOB SRC
           compiler/OQASMCompiler.cpp
           compiler/QObjectCompiler.cpp
           compiler/OQASMToXACCListener.cpp
-          compiler/generated/*.cpp)
+          compiler/generated/*.cpp
+          accelerator/OpenPulseVisitor.cpp)
 
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
