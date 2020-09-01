@@ -109,6 +109,7 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
               IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
               {std::make_pair("version", "1"),
                std::make_pair("access_token", currentApiToken)});
+      xacc::info("Backend default:\n" +  defaults_response);
     }
     initialized = true;
   }
@@ -189,7 +190,7 @@ std::string QasmQObjGenerator::getQObjJsonStr(
   config.set_meas_return("avg");
   config.set_memory_slot_size(100);
   config.set_n_qubits(backend["n_qubits"].get<int>());
-
+  
   // Add the experiments and config
   qobj.set_experiments(experiments);
   qobj.set_config(config);
@@ -227,12 +228,22 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   qobj.set_header(h);
 
   auto scheduler = xacc::getService<Scheduler>("pulse");
-
   std::vector<xacc::ibm_pulse::Experiment> experiments;
   // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
   std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
   for (auto &kernel : circuits) {
-
+    auto pulseMapper = std::make_shared<PulseMappingVisitor>();
+    {
+      InstructionIterator it(kernel);
+      while (it.hasNext()) {
+        auto nextInst = it.next();
+        if (nextInst->isEnabled()) {
+          nextInst->accept(pulseMapper);
+        }
+      }
+    }
+    kernel = pulseMapper->pulseComposite;
+    std::cout << "After map: \n" << kernel->toString() << "\n";
     // Schedule the pulses
     scheduler->schedule(kernel);
 
@@ -280,6 +291,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   config.set_memory(false);
   config.set_shots(shots);
   config.set_max_credits(10);
+  config.set_parametric_pulses({ "gaussian", "gaussian_square", "drag", "constant" });
 
   // auto j = json::parse(getBackendPropsResponse);
   // set meas lo and qubit lo
@@ -324,14 +336,22 @@ void IBMAccelerator::execute(
   // Figure out if these circuits are pulse-level
   // We assume all circuits in the list are
   // either pulse or qasm
-  std::string qobj_type = "qasm";
+  std::string qobj_type = mode;
   for (auto &c : circuits) {
+    // If there is an analog instruction (pulse),
+    // always use 'pulse' mode.
     if (c->isAnalog()) {
       qobj_type = "pulse";
       break;
     }
   }
-
+  if (qobj_type == "pulse") {
+    // if we need to use pulse mode, contribute the pulse library of the
+    // backend (if any)
+    if (!defaults_response.empty()) {
+      contributeInstructions();
+    }
+  }
   // Get the correct QObject Generator
   auto qobjGen = xacc::getService<QObjGenerator>(qobj_type);
 
@@ -633,6 +653,7 @@ HeterogeneousMap IBMAccelerator::getProperties() {
 
 void IBMAccelerator::contributeInstructions(
     const std::string &custom_json_config) {
+  std::cout << "IBMAccelerator::contributeInstructions\n";
   auto provider = xacc::getIRProvider("quantum");
   json j;
   if (custom_json_config.empty()) {
@@ -648,7 +669,7 @@ void IBMAccelerator::contributeInstructions(
   for (auto pulse_iter = pulse_library.begin();
        pulse_iter != pulse_library.end(); ++pulse_iter) {
     auto pulse_name = (*pulse_iter)["name"].get<std::string>();
-    // std::cout << counter << ", Pulse: " << pulse_name << "\n";
+    std::cout << counter << ", Pulse: " << pulse_name << "\n";
     auto samples =
         (*pulse_iter)["samples"].get<std::vector<std::vector<double>>>();
 
@@ -665,17 +686,17 @@ void IBMAccelerator::contributeInstructions(
   auto aq = std::make_shared<Pulse>("acquire");
   xacc::contributeService("acquire", aq);
 
+  // Add "parametric_pulse"
+  auto parametricPulse = std::make_shared<Pulse>("parametric_pulse");
+  xacc::contributeService("parametric_pulse", parametricPulse);
+  
   for (auto cmd_def_iter = cmd_defs.begin(); cmd_def_iter != cmd_defs.end();
        ++cmd_def_iter) {
     auto cmd_def_name = (*cmd_def_iter)["name"].get<std::string>();
     auto qbits = (*cmd_def_iter)["qubits"].get<std::vector<std::size_t>>();
 
     std::string tmpName;
-    if (cmd_def_name == "measure") {
-      tmpName = "pulse::" + cmd_def_name;
-    } else {
-      tmpName = "pulse::" + cmd_def_name + "_" + std::to_string(qbits[0]);
-    }
+    tmpName = "pulse::" + cmd_def_name + "_" + std::to_string(qbits[0]);
 
     if (qbits.size() == 2) {
       tmpName += "_" + std::to_string(qbits[1]);
@@ -696,7 +717,7 @@ void IBMAccelerator::contributeInstructions(
          ++seq_iter) {
       auto inst_name = (*seq_iter)["name"].get<std::string>();
       auto inst = xacc::getContributedService<Instruction>(inst_name);
-
+      std::cout << "inst_name = " << inst_name << "\n";
       if (inst_name != "acquire") {
         auto channel = (*seq_iter)["ch"].get<std::string>();
         auto t0 = (*seq_iter)["t0"].get<int>();
@@ -704,6 +725,13 @@ void IBMAccelerator::contributeInstructions(
         inst->setChannel(channel);
         inst->setStart(t0);
 
+        // Handle parametric pulse
+        if (inst_name == "parametric_pulse") {
+          auto pulseParams = (*seq_iter)["parameters"];
+          const std::string pulseShape = (*seq_iter)["pulse_shape"].get<std::string>();
+          const std::string paramJson = pulseParams.dump();
+          inst->setPulseParams({{"pulse_shape", pulseShape}, {"parameters_json", paramJson}});
+        }
         if ((*seq_iter).find("phase") != (*seq_iter).end()) {
           // we have phase too
           auto p = (*seq_iter)["phase"];
@@ -724,6 +752,13 @@ void IBMAccelerator::contributeInstructions(
             inst->setParameter(0, phase);
           }
         }
+      }
+      else
+      {
+        // Acquire instruction
+        const int duration = (*seq_iter)["duration"].get<int>();
+        inst->setDuration(duration);
+        inst->setBits(qbits);
       }
       cmd_def->addInstruction(inst);
     }

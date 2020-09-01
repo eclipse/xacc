@@ -8,20 +8,22 @@
 
 TEST(IBMPulseRemoteTester, checkPulseInst) {
     xacc::set_verbose(true);
-    auto acc = xacc::getAccelerator("ibm:ibmq_armonk");
+    auto acc = xacc::getAccelerator("ibm:ibmq_armonk", { {"mode", "pulse"}});
     auto buffer = xacc::qalloc(1);
     auto provider = xacc::getService<xacc::IRProvider>("quantum");
     auto f = provider->createComposite("tmp");
-    const size_t nbSamples = 100;
-    const std::vector<std::vector<double>> samples(nbSamples, { 1.0 });
+    const size_t nbSamples = 64;
+    const std::vector<std::vector<double>> samples(nbSamples, { 0.5, 0.5 });
     auto pulse = std::make_shared<xacc::quantum::Pulse>("square", "d0");
     pulse->setSamples(samples);
     xacc::contributeService("square", pulse);
-    
+    auto m = provider->createInstruction("Measure", {0});
     
     auto pulseInst = provider->createInstruction("square", {0});
 
-    f->addInstruction(pulseInst);
+    // f->addInstruction(pulseInst);
+    f->addInstruction(m);
+
 
     acc->execute(buffer, f);
     buffer->print();
