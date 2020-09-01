@@ -295,8 +295,10 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   config.set_memory_slots(backend["n_qubits"].get<int>());
   // For now, we always use measurement level 2 (qubit 0/1 measurement)
   // We can support level 1 if required (IQ measurement values)
-  config.set_meas_level(2); // Possible values: 1 (IQ raw values); 2 (digital values)
-  config.set_meas_return("avg"); // Possible values: "avg", "single"
+  // TODO: Debug "Internal Error" in IBM if using level 2.
+  // FWIW, Level 1 is working fine.
+  config.set_meas_level(1); // Possible values: 1 (IQ raw values); 2 (digital values)
+  config.set_meas_return("single"); // Possible values: "avg", "single"
   config.set_rep_time(1000);
   config.set_memory_slot_size(100);
   config.set_memory(false);
