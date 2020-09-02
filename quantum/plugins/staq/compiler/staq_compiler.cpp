@@ -74,8 +74,8 @@ bool StaqCompiler::canParse(const std::string &src) {
     for (auto &l : lines) {
       xacc::trim(l);
       if (l.find("measure") != std::string::npos) {
-          // don't add measures
-          continue;
+        // don't add measures
+        continue;
       }
       tmp += l + "\n";
       if (l.find("include") != std::string::npos) {
@@ -89,7 +89,7 @@ bool StaqCompiler::canParse(const std::string &src) {
     _src = tmp;
     if (!addedNames) {
       for (auto &b : bufferNames) {
-          auto size = std::numeric_limits<int>::max();
+        auto size = std::numeric_limits<int>::max();
         _src = "qreg " + b + "[" + std::to_string(size) + "];\n" + _src;
       }
     }
@@ -116,7 +116,7 @@ bool StaqCompiler::canParse(const std::string &src) {
     _src = "OPENQASM 2.0;\n" + _src;
   }
 
-    // std::cout << " HELLO:\n" << _src << "\n";
+  // std::cout << " HELLO:\n" << _src << "\n";
   using namespace staq;
 
   try {
@@ -196,7 +196,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   transformations::desugar(*prog);
   transformations::synthesize_oracles(*prog);
 
-  optimization::simplify(*prog);
+  if (run_staq_optimize) optimization::simplify(*prog);
 
   // at this point we have to find out if we have any ancilla
   // registers
@@ -217,7 +217,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
   transformations::inline_ast(
       *prog, {false, transformations::default_overrides, "anc"});
 
-//   std::cout <<"PROG: " << *prog << "\n";
+  //   std::cout <<"PROG: " << *prog << "\n";
   // Visit Program to find out how many qreg there are and
   // use that to build up openqasm xacc function prototype
 
@@ -263,7 +263,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     xx << ") {\n" << translate.ss.str() << "}";
     kernel = xx.str();
   }
-    // std::cout << "\n\nFinal:\n" << kernel << "\n";
+  // std::cout << "\n\nFinal:\n" << kernel << "\n";
   return xasm->compile(kernel, acc);
 }
 

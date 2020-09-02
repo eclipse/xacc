@@ -100,7 +100,16 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
     // std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
   } else if (params.stringExists("noise-model")) {
-    noise_model = nlohmann::json::parse(params.getString("noise-model"));
+    std::string noise_model_str = params.getString("noise-model");
+    // Check if this is a file name
+    std::ifstream test(noise_model_str);
+    if (test) {
+      std::string str((std::istreambuf_iterator<char>(test)),
+                      std::istreambuf_iterator<char>());
+      noise_model = nlohmann::json::parse(str);
+    } else {
+      noise_model = nlohmann::json::parse(params.getString("noise-model"));
+    }
   }
 }
 double AerAccelerator::calcExpectationValueZ(

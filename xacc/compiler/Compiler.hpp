@@ -27,6 +27,9 @@ public:
   virtual std::shared_ptr<IR> compile(const std::string &src,
                                       std::shared_ptr<Accelerator> acc) = 0;
   virtual std::shared_ptr<IR> compile(const std::string &src) = 0;
+  virtual void setExtraOptions(const HeterogeneousMap options) {
+      return;
+  }
   
   virtual const std::string get_statement_terminator() {
       return ";";
