@@ -32,7 +32,8 @@ public:
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
                  const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
-                 std::vector<std::pair<int, int>> &connectivity) = 0;
+                 std::vector<std::pair<int, int>> &connectivity,
+                 const nlohmann::json &backendDefaults) = 0;
 };
 
 class QasmQObjGenerator : public QObjGenerator {
@@ -41,7 +42,8 @@ public:
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
                  const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
-                 std::vector<std::pair<int, int>> &connectivity) override;
+                 std::vector<std::pair<int, int>> &connectivity,
+                 const nlohmann::json &backendDefaults) override;
   const std::string name() const override { return "qasm"; }
   const std::string description() const override { return ""; }
 };
@@ -52,7 +54,8 @@ public:
   getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
                  const int &shots, const nlohmann::json &backend,
                  const std::string getBackendPropsResponse,
-                 std::vector<std::pair<int, int>> &connectivity) override;
+                 std::vector<std::pair<int, int>> &connectivity,
+                 const nlohmann::json &backendDefaults) override;
   const std::string name() const override { return "pulse"; }
   const std::string description() const override { return ""; }
 };
@@ -109,6 +112,10 @@ public:
     }
     if (config.keyExists<bool>("http-verbose")) {
       restClient->setVerbose(config.get<bool>("http-verbose"));
+    }
+    // Specify a mode: "qasm" or "pulse"
+    if (config.stringExists("mode")) {
+      mode = config.getString("mode");
     }
   }
 
@@ -185,7 +192,7 @@ private:
   std::map<std::string, nlohmann::json> backendProperties;
   std::string getBackendPropsResponse = "{}";
   std::string defaults_response = "{}";
-  
+  std::string mode = "qasm";
   std::string post(const std::string &_url, const std::string &path,
                    const std::string &postStr,
                    std::map<std::string, std::string> headers = {});
