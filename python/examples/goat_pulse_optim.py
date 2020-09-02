@@ -31,6 +31,8 @@ optimizer = xacc.getOptimizer("quantum-control", {
     # Math expression of the pulse envelop (since GOAT is an analytical method)
     "control-funcs": [ "amp*exp(-(t - 300.0)^2/(2*sigma^2))" ],
     # The list of Hamiltonian terms that are modulated by the control functions
+    # Note: this amplitude value is *estimated* from running experiments
+    # on the armonk device. This can be changed due to backend calibration.
     "control-H" : [ "0.03329289102 X0" ],
     # Initial params
     "initial-parameters": initParams,
