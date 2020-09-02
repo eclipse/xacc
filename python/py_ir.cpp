@@ -155,8 +155,13 @@ void bind_ir(py::module &m) {
           [](IRProvider &p, const std::string name,
              std::vector<std::size_t> bits,
              std::vector<InstructionParameter> parameters,
-             const HeterogeneousMap &analog_options) {
-            return p.createInstruction(name, bits, parameters, analog_options);
+             const PyHeterogeneousMap &analog_options) {
+            HeterogeneousMap m;
+            for (auto &item : analog_options) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return p.createInstruction(name, bits, parameters, m);
           },
           "Return the kernels in this IR")
       .def(
