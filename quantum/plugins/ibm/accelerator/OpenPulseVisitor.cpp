@@ -285,7 +285,38 @@ void PulseMappingVisitor::visit(Tdg &tdg) {
 }
 
 void PulseMappingVisitor::visit(CPhase &cphase) {
-  // TODO
+  // Ref:
+  // gate cu1(lambda) a, b {
+  //   u1(lambda / 2) a;
+  //   cx a, b;
+  //   u1(-lambda / 2) b;
+  //   cx a, b;
+  //   u1(lambda / 2) b;
+  // }
+  const double lambda = cphase.getParameter(0).as<double>();
+  {
+    const auto asU1 = constructUCmdDefComposite(cphase.bits()[0], "u1");
+    auto cmdDef = (*asU1)({lambda / 2.0});
+    pulseComposite->addInstruction(cmdDef);
+  }
+  {
+    auto cx = std::make_shared<CNOT>(cphase.bits());
+    visit(*cx);
+  }
+  {
+    const auto asU1 = constructUCmdDefComposite(cphase.bits()[1], "u1");
+    auto cmdDef = (*asU1)({-lambda / 2.0});
+    pulseComposite->addInstruction(cmdDef);
+  }
+  {
+    auto cx = std::make_shared<CNOT>(cphase.bits());
+    visit(*cx);
+  }
+  {
+    const auto asU1 = constructUCmdDefComposite(cphase.bits()[1], "u1");
+    auto cmdDef = (*asU1)({lambda / 2.0});
+    pulseComposite->addInstruction(cmdDef);
+  }
 }
 
 void PulseMappingVisitor::visit(Identity &i) {
