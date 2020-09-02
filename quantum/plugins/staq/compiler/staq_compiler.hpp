@@ -19,6 +19,8 @@ namespace xacc {
 
 class StaqCompiler : public xacc::Compiler {
 
+protected:
+  bool run_staq_optimize = true;
 public:
   StaqCompiler();
 
@@ -26,7 +28,12 @@ public:
                                     std::shared_ptr<Accelerator> acc) override;
 
   std::shared_ptr<xacc::IR> compile(const std::string &src) override;
-  bool canParse(const std::string& src) override;
+  void setExtraOptions(const HeterogeneousMap options) override {
+    if (options.keyExists<bool>("no-optimize") && options.get<bool>("no-optimize")) {
+        run_staq_optimize = false;
+    }
+  }
+  bool canParse(const std::string &src) override;
 
   const std::string
   translate(std::shared_ptr<CompositeInstruction> function) override;
