@@ -43,7 +43,12 @@ optimizer = xacc.getOptimizer("quantum-control", {
 # which, in this case, only contains a single 'sigma' param.
 finalFidelityError, paramValues = optimizer.optimize()
 dt = 0.2222222222222222
-nbSamples = (int)(600.0/dt)
+
+# Note: IBMQ requires the sample array length to be a multiple of 16.
+def get_closest_multiple_of_16(num):
+    return int(num + 8 ) - (int(num + 8 ) % 16)
+nbSamples = get_closest_multiple_of_16((int)(600.0/dt))
+
 # Construct the pulse from optimal params:
 goatPulse = np.zeros(nbSamples)
 for i in range(nbSamples):
@@ -66,6 +71,7 @@ qpu = xacc.getAccelerator("ibm:ibmq_armonk")
 buffer = xacc.qalloc(1)
 qpu.execute(buffer, program)
 
+# We should get a 50-50 distribution.
 print(buffer)
 
 
