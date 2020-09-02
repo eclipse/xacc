@@ -23,3 +23,8 @@ target_link_libraries(QObjectCompilerTester CppMicroServices)
 
 #add_xacc_test(IBMAccelerator)
 #target_link_libraries(IBMAcceleratorTester xacc-ibm)
+
+# Enable this test if you have remote access to IBMQ
+# i.e. the .ibm_config file is valid. 
+# add_xacc_test(IBMPulseRemote)
+# target_link_libraries(IBMPulseRemoteTester xacc-quantum-gate)

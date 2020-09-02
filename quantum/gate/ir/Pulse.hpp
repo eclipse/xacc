@@ -32,7 +32,7 @@ protected:
   std::size_t _duration = 0;
 
   std::vector<std::vector<double>> samples = {};
-
+  HeterogeneousMap pulseParameters;
 public:
   Pulse();
   Pulse(std::string name);
@@ -63,6 +63,10 @@ public:
     _duration = samples.size();
   }
   std::vector<std::vector<double>> getSamples() override { return samples; }
+  void setPulseParams(const HeterogeneousMap &in_pulseParams) override {
+    pulseParameters = in_pulseParams;
+  }
+  HeterogeneousMap getPulseParams() override { return pulseParameters; }
 
   const std::string name() const override;
   const std::string description() const override;
@@ -109,6 +113,7 @@ public:
     inst->setSamples(samples);
     inst->setStart(t0);
     inst->setDuration(_duration);
+    inst->setPulseParams(pulseParameters);
     return inst;
   }
 };
