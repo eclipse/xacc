@@ -59,6 +59,13 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
   const auto twoQubitFidelityAvg = [&]() {
     std::vector<std::pair<size_t, size_t>> processedPairs;
     std::vector<std::tuple<size_t, size_t, double>> avgData;
+    // TriQ will have convergence problems when there are pairs
+    // with super-low fidelity or missing some connectivity links
+    // i.e. create an incomplete connectivity graph.
+    // To work around this, we just assign the minimum fidelity for those links.
+    // This is not ideal, but it should be as good as placement based on
+    // connectivity graph only without fidelity information.
+    double minFid = 1.0;
     for (const auto &[q1, q2, fidelity] : twoQubitFidelity) {
       if (!xacc::container::contains(processedPairs, std::make_pair(q1, q2))) {
         assert(
@@ -72,24 +79,42 @@ BackendMachine::BackendMachine(const NoiseModel &backendNoiseModel) {
                          });
         assert(iter != twoQubitFidelity.end());
         const double fid2 = std::get<2>(*iter);
-        avgData.emplace_back(std::make_tuple(q1, q2, (fid1 + fid2) / 2.0));
+        const double avdFid = (fid1 + fid2) / 2.0;
+        // Non-zero fidelity values: we use those to compute the min fidelity.
+        if (avdFid > 0.01) {
+          minFid = (avdFid < minFid) ? avdFid : minFid;
+        }
+        avgData.emplace_back(std::make_tuple(q1, q2, avdFid));
         processedPairs.emplace_back(std::make_pair(q1, q2));
         processedPairs.emplace_back(std::make_pair(q2, q1));
+      }
+    }
+    for (auto &[q1, q2, fidVal] : avgData) {
+      if (fidVal < minFid) {
+        // Hack for now: scale those zero fidelity values to a value smaller
+        // than the min fidelity of other valid gates.
+        constexpr double FACTOR = 0.8;
+        fidVal = minFid * FACTOR;
       }
     }
     return avgData;
   }();
   assert(twoQubitFidelityAvg.size() * 2 == twoQubitFidelity.size());
+  xacc::info("Two-qubit fidelity data: ");
   const auto tFileName = createConfigFile(
       twoQubitFidelityAvg.size(), [&twoQubitFidelityAvg](size_t in_idx) {
         std::stringstream ss;
         const auto [q1, q2, fidelity] = twoQubitFidelityAvg[in_idx];
         ss << q1 << " " << q2 << " " << fidelity;
+        xacc::info("CX " + ss.str());
         return ss.str();
       });
   {
+    std::cout << std::flush;
     auto origBuf = std::cout.rdbuf();
-    std::cout.rdbuf(NULL);
+    if (!xacc::verbose) {
+      std::cout.rdbuf(NULL);
+    }
     // Load to TriQ Machine model
     read_s_reliability(sFileName);
     read_m_reliability(mFileName);
