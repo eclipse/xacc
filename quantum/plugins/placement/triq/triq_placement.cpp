@@ -140,8 +140,11 @@ void TriQPlacement::apply(std::shared_ptr<CompositeInstruction> function,
   BackendMachine backendModel(*backendNoiseModel);
   // Step 3: Run TriQ (placement + optimize) for this backend
   // TriQ outputs a lot to std::cout, hence we need to bypass its logs. 
+  std::cout << std::flush;
   auto origBuf = std::cout.rdbuf();
-  std::cout.rdbuf(NULL);
+  if (!xacc::verbose) {
+    std::cout.rdbuf(NULL);
+  }
   const auto resultQasm = runTriQ(triqCirc, backendModel, compileAlgo);
   std::cout.rdbuf(origBuf);
   // DEBUG:
