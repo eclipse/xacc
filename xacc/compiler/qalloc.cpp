@@ -38,6 +38,11 @@ qubit qreg::operator[](const std::size_t i) {
 //   buffer = q.buffer;
 //   return *this;
 // }
+bool qreg::cReg(std::size_t i) {
+  xacc::AcceleratorBuffer buffer = *results();
+  // Throw if this qubit hasn't been measured.
+  return buffer[i];
+}
 
 AcceleratorBuffer *qreg::results() { return buffer.get(); }
 std::map<std::string, int> qreg::counts() {
