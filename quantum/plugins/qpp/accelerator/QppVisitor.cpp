@@ -51,6 +51,7 @@ namespace quantum {
         m_dims = std::move(dims);
         m_measureBits.clear();
         m_shotsMode = shotsMode;
+        m_initialized = true;
     }
 
     void QppVisitor::finalize()
@@ -61,6 +62,7 @@ namespace quantum {
             m_bitString.clear();
         }
         m_stateVec.resize(0);
+        m_initialized = false;
     }
 
     qpp::idx QppVisitor::xaccIdxToQppIdx(size_t in_idx) const

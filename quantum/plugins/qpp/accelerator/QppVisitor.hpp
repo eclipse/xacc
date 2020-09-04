@@ -60,6 +60,7 @@ public:
   // Gate-by-gate API
   void applyGate(Gate& in_gate);
   bool measure(size_t in_bit);
+  bool isInitialized() const { return m_initialized; }
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
 private:
@@ -71,5 +72,6 @@ private:
   // Otherwise, it will only compute the expectation value.
   bool m_shotsMode;
   std::string m_bitString;
+  bool m_initialized = false;
 };
 }}
