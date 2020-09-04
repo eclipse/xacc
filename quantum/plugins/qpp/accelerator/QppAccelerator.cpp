@@ -320,8 +320,7 @@ namespace quantum {
         if (inst->name() == "Measure")
         {
             const auto measRes = m_visitor->measure(inst->bits()[0]);
-            buffer->clearMeasurements();
-            buffer->appendMeasurement(measRes ? "1" : "0");
+            buffer->measure(inst->bits()[0], (measRes ? 1 : 0));
         }
         else
         {
