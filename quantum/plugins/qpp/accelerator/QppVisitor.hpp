@@ -56,6 +56,10 @@ public:
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
   static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
+
+  // Gate-by-gate API
+  void applyGate(Gate& in_gate);
+  bool measure(size_t in_bit);
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
 private:
