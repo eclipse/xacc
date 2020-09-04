@@ -47,6 +47,8 @@ public:
   void store();
   void print();
   double weighted_sum(Observable *obs);
+  // Access classical measurement bit.
+  bool cReg(std::size_t i);
 };
 
 } // namespace internal_compiler
