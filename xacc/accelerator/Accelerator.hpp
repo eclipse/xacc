@@ -95,7 +95,12 @@ public:
   }
 
   virtual bool isRemote() { return false; }
-
+  // Gate-by-gate application (with a persistent underlying quantum state)
+  virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer,
+                     std::shared_ptr<Instruction> inst) {
+    throw std::logic_error("Accelerator '" + name() +
+                           "' doesn't support single gate application.");
+  }
   virtual ~Accelerator() {}
 };
 

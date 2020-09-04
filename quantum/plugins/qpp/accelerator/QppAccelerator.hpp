@@ -31,6 +31,8 @@ public:
     virtual BitOrder getBitOrder() override {return BitOrder::LSB;}
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction) override;
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
+    virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) override;
+
 private:
     std::shared_ptr<QppVisitor> m_visitor;
     // Number of 'shots' if random sampling simulation is enabled.
