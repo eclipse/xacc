@@ -23,7 +23,7 @@ std::string qreg::random_string(std::size_t length) {
 
 qreg::qreg(const int n) {
   buffer = xacc::qalloc(n);
-  auto name = "qreg_"+random_string(5);
+  auto name = "qreg_" + random_string(5);
   xacc::storeBuffer(name, buffer);
 }
 
@@ -39,7 +39,7 @@ qubit qreg::operator[](const std::size_t i) {
 //   return *this;
 // }
 bool qreg::cReg(std::size_t i) {
-  xacc::AcceleratorBuffer buffer = *results();
+  xacc::AcceleratorBuffer &buffer = *results();
   // Throw if this qubit hasn't been measured.
   return buffer[i];
 }
@@ -60,9 +60,7 @@ void qreg::setNameAndStore(const char *name) {
     been_named_and_stored = true;
   }
 }
-void qreg::store() {
-  xacc::storeBuffer(buffer);
-}
+void qreg::store() { xacc::storeBuffer(buffer); }
 int qreg::size() { return buffer->size(); }
 void qreg::addChild(qreg &q) {
   for (auto &child : q.buffer->getChildren()) {

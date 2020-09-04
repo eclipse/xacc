@@ -313,6 +313,10 @@ namespace quantum {
 
     void QppAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 
     {
+        if (!m_visitor->isInitialized()) {
+            m_visitor->initialize(buffer);
+        }
+        
         if (inst->isComposite() || inst->isAnalog())
         {
             xacc::error("Only gates are allowed.");
