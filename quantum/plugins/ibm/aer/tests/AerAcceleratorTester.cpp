@@ -60,7 +60,8 @@ TEST(AerAcceleratorTester, checkBell) {
   accelerator->execute(buffer, program);
 
   buffer->print(std::cout);
-  // The bitstring result maps back to a two-qubit basis since we only measure two of them.
+  // The bitstring result maps back to a two-qubit basis since we only measure
+  // two of them.
   EXPECT_NEAR(buffer->computeMeasurementProbability("00"), 0.5, 0.1);
   EXPECT_NEAR(buffer->computeMeasurementProbability("11"), 0.5, 0.1);
 }
@@ -272,6 +273,29 @@ TEST(AerAcceleratorTester, checkNoiseJson) {
   // X gate is longer than H gate.
   EXPECT_GT(buffer3->computeMeasurementProbability("1"),
             buffer2->computeMeasurementProbability("1"));
+}
+
+TEST(AerAcceleratorTester, checkApply) {
+  auto accelerator = xacc::getAccelerator("aer");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
+      H(q[0]);
+      CX(q[0], q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("bell");
+
+  auto buffer = xacc::qalloc(2);
+  for (size_t i = 0; i < program->nInstructions(); ++i) {
+    auto curInst = program->getInstruction(i);
+    accelerator->apply(buffer, curInst);
+  }
+  const bool resultQ0 = (*buffer)[0];
+  const bool resultQ1 = (*buffer)[1];
+  EXPECT_EQ(resultQ0, resultQ1);
 }
 
 int main(int argc, char **argv) {
