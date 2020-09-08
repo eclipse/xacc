@@ -25,11 +25,13 @@ qreg::qreg(const int n) {
   buffer = xacc::qalloc(n);
   auto name = "qreg_" + random_string(5);
   xacc::storeBuffer(name, buffer);
+  cReg classicalReg(buffer);
+  creg = classicalReg;
 }
 
 qreg::qreg(const qreg &other)
-    : buffer(other.buffer), been_named_and_stored(other.been_named_and_stored) {
-}
+    : buffer(other.buffer), been_named_and_stored(other.been_named_and_stored),
+      creg(buffer) {}
 
 qubit qreg::operator[](const std::size_t i) {
   return std::make_pair(buffer->name(), i);
@@ -38,10 +40,10 @@ qubit qreg::operator[](const std::size_t i) {
 //   buffer = q.buffer;
 //   return *this;
 // }
-bool qreg::cReg(std::size_t i) {
-  xacc::AcceleratorBuffer &buffer = *results();
+cReg::cReg(std::shared_ptr<AcceleratorBuffer> in_buffer) : buffer(in_buffer) {}
+bool cReg::operator[](std::size_t i) {
   // Throw if this qubit hasn't been measured.
-  return buffer[i];
+  return (*buffer)[i];
 }
 
 AcceleratorBuffer *qreg::results() { return buffer.get(); }
