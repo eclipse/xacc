@@ -311,6 +311,29 @@ namespace quantum {
         }
     }
 
+    void QppAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 
+    {
+        if (!m_visitor->isInitialized()) {
+            m_visitor->initialize(buffer);
+        }
+        
+        if (inst->isComposite() || inst->isAnalog())
+        {
+            xacc::error("Only gates are allowed.");
+        }
+        if (inst->name() == "Measure")
+        {
+            const auto measRes = m_visitor->measure(inst->bits()[0]);
+            buffer->measure(inst->bits()[0], (measRes ? 1 : 0));
+        }
+        else
+        {
+            auto gateCast = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+            assert(gateCast);
+            m_visitor->applyGate(*gateCast);
+        }
+    }
+
     NoiseModelUtils::cMat DefaultNoiseModelUtils::krausToChoi(const std::vector<NoiseModelUtils::cMat>& in_krausMats) const
     {
         std::vector<Eigen::MatrixXcd> krausMats;

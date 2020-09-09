@@ -22,7 +22,19 @@ class AcceleratorBuffer;
 class Observable;
 namespace internal_compiler {
 using qubit = std::pair<std::string, std::size_t>;
+class qreg;
+// Classical register associated with a qubit register to store single-shot
+// measurement results. i.e. after Measure(q[0]) => q.creg[0] will contain the
+// boolean (true/false) result of the measurement.
+class cReg {
+public:
+  cReg() = default;
+  cReg(std::shared_ptr<AcceleratorBuffer> in_buffer);
+  bool operator[](std::size_t i);
 
+private:
+  std::shared_ptr<AcceleratorBuffer> buffer;
+};
 class qreg {
 private:
   std::string random_string(std::size_t length);
@@ -47,8 +59,11 @@ public:
   void store();
   void print();
   double weighted_sum(Observable *obs);
+  // Public member var to simplify the single measurement syntax:
+  // i.e. we can access the single measurement results via the syntax:
+  // q.creg[i] vs. (*q.results())[i]
+  cReg creg;
 };
-
 } // namespace internal_compiler
 } // namespace xacc
 

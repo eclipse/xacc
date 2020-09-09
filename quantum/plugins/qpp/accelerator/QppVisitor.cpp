@@ -51,6 +51,7 @@ namespace quantum {
         m_dims = std::move(dims);
         m_measureBits.clear();
         m_shotsMode = shotsMode;
+        m_initialized = true;
     }
 
     void QppVisitor::finalize()
@@ -60,6 +61,8 @@ namespace quantum {
             m_buffer->appendMeasurement(m_bitString);
             m_bitString.clear();
         }
+        m_stateVec.resize(0);
+        m_initialized = false;
     }
 
     qpp::idx QppVisitor::xaccIdxToQppIdx(size_t in_idx) const
@@ -304,5 +307,41 @@ namespace quantum {
         {
             std::cout << "If statement expanded to: " << ifStmt.toString() << "\n";
         }
+    }
+    
+    void QppVisitor::applyGate(Gate& in_gate) 
+    {
+        if (in_gate.name() == "Measure")
+        {
+            xacc::error("Only unitary gates are allowed.");
+        }
+        in_gate.accept(this);
+    }
+
+    bool QppVisitor::measure(size_t in_bit) 
+    {
+        const auto qubitIdx = xaccIdxToQppIdx(in_bit);
+        const auto measured = qpp::measure(m_stateVec, qpp::Gates::get_instance().Id2, { qubitIdx }, 2,  false);
+        const auto& measProbs = std::get<qpp::PROB>(measured);
+        const auto& postMeasStates = std::get<qpp::ST>(measured);
+        const auto randomSelectedResult = std::get<qpp::RES>(measured);
+
+        assert(measProbs.size() == 2 && postMeasStates.size() == 2 && randomSelectedResult < 2);
+       
+        if (xacc::verbose)
+        {
+            std::cout << ">> Probability of all results: ";
+            std::cout << qpp::disp(measProbs, ", ") << "\n";
+            std::cout << ">> Measurement result is: " << randomSelectedResult << "\n";
+        }
+
+        const auto& collapsedState = postMeasStates[randomSelectedResult];
+        m_stateVec = Eigen::Map<const qpp::ket>(collapsedState.data(), collapsedState.size());
+        if (xacc::verbose)
+        {
+            std::cout << ">> State after measurement: " << qpp::disp(m_stateVec, ", ") << "\n";
+        }
+        // 0 -> False; 1 -> True
+        return (randomSelectedResult == 1);
     }
 }}

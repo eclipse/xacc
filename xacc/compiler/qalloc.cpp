@@ -23,13 +23,15 @@ std::string qreg::random_string(std::size_t length) {
 
 qreg::qreg(const int n) {
   buffer = xacc::qalloc(n);
-  auto name = "qreg_"+random_string(5);
+  auto name = "qreg_" + random_string(5);
   xacc::storeBuffer(name, buffer);
+  cReg classicalReg(buffer);
+  creg = classicalReg;
 }
 
 qreg::qreg(const qreg &other)
-    : buffer(other.buffer), been_named_and_stored(other.been_named_and_stored) {
-}
+    : buffer(other.buffer), been_named_and_stored(other.been_named_and_stored),
+      creg(buffer) {}
 
 qubit qreg::operator[](const std::size_t i) {
   return std::make_pair(buffer->name(), i);
@@ -38,6 +40,11 @@ qubit qreg::operator[](const std::size_t i) {
 //   buffer = q.buffer;
 //   return *this;
 // }
+cReg::cReg(std::shared_ptr<AcceleratorBuffer> in_buffer) : buffer(in_buffer) {}
+bool cReg::operator[](std::size_t i) {
+  // Throw if this qubit hasn't been measured.
+  return (*buffer)[i];
+}
 
 AcceleratorBuffer *qreg::results() { return buffer.get(); }
 std::map<std::string, int> qreg::counts() {
@@ -55,9 +62,7 @@ void qreg::setNameAndStore(const char *name) {
     been_named_and_stored = true;
   }
 }
-void qreg::store() {
-  xacc::storeBuffer(buffer);
-}
+void qreg::store() { xacc::storeBuffer(buffer); }
 int qreg::size() { return buffer->size(); }
 void qreg::addChild(qreg &q) {
   for (auto &child : q.buffer->getChildren()) {
