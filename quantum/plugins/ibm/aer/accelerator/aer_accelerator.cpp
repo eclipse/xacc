@@ -111,6 +111,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
       noise_model = nlohmann::json::parse(params.getString("noise-model"));
     }
   }
+  initialized = true;
 }
 double AerAccelerator::calcExpectationValueZ(
     const std::vector<std::pair<double, double>> &in_stateVec,
@@ -213,6 +214,49 @@ void AerAccelerator::execute(
         std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
     execute(tmpBuffer, f);
     buffer->appendChild(f->name(), tmpBuffer);
+  }
+}
+
+void AerAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
+                           std::shared_ptr<Instruction> inst) {
+  static AER::Statevector::State<QV::QubitVector<double>> stateVec;
+  static auto provider = xacc::getIRProvider("quantum");
+  static AER::RngEngine rng(time(NULL));
+
+  if (!noiseModelObj) {
+    noiseModelObj = std::make_shared<AER::Noise::NoiseModel>(noise_model);
+    stateVec.initialize_qreg(buffer->size());
+  }
+  if (inst->isComposite() || inst->isAnalog()) {
+    xacc::error("Only gates are allowed.");
+  }
+
+  auto tempComp = provider->createComposite("tmp");
+  tempComp->addInstruction(inst);
+  auto qobj_str = xacc_to_qobj->translate(tempComp);
+  auto qObjJson = nlohmann::json::parse(qobj_str)["qObject"];
+  AER::Qobj qobj(qObjJson);
+  assert(qobj.circuits.size() == 1);
+  auto circ = qobj.circuits[0];
+  
+  // Output data container
+  AER::ExperimentData data;
+  data.add_metadata("method", stateVec.name());
+  data.add_metadata("measure_sampling", false);
+  auto noiseCirc = noiseModelObj->sample_noise(circ, rng);
+  stateVec.initialize_creg(circ.num_memory, circ.num_registers);
+  stateVec.apply_ops(noiseCirc.ops, data, rng);
+  stateVec.add_creg_to_data(data);
+  // If it was a Measure op:
+  if (inst->name() == "Measure") {
+    xacc::info("Experiment data: \n" + data.json().dump() + "\n");
+    auto countData = data.json()["counts"].get<std::map<std::string, int>>();
+    // In this mode, we only measure 1 qubit for 1 shot
+    assert(countData.size() == 1);
+    int zeroCount = countData.find("0x0") == countData.end() ? 0 : 1;
+    int oneCount = countData.find("0x1") == countData.end() ? 0 : 1;
+    assert((zeroCount + oneCount) == 1);
+    buffer->measure(inst->bits()[0], (oneCount > 0 ? 1 : 0));
   }
 }
 

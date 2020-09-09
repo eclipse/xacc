@@ -13,6 +13,13 @@
 #pragma one
 #include "xacc.hpp"
 #include <nlohmann/json.hpp>
+
+namespace AER {
+namespace Noise {
+class NoiseModel;
+}
+} // namespace AER
+
 namespace xacc {
 namespace quantum {
 
@@ -45,8 +52,14 @@ public:
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::vector<std::shared_ptr<CompositeInstruction>>
                    compositeInstructions) override;
-  std::vector<std::pair<int, int>> getConnectivity() override { return connectivity; }
-  
+  std::vector<std::pair<int, int>> getConnectivity() override {
+    return connectivity;
+  }
+
+  void apply(std::shared_ptr<AcceleratorBuffer> buffer,
+             std::shared_ptr<Instruction> inst) override;
+  bool isInitialized() const { return initialized; }
+
 private:
   static double calcExpectationValueZ(
       const std::vector<std::pair<double, double>> &in_stateVec,
@@ -58,6 +71,8 @@ private:
   nlohmann::json noise_model;
   std::vector<std::pair<int, int>> connectivity;
   HeterogeneousMap m_options;
+  bool initialized = false;
+  std::shared_ptr<AER::Noise::NoiseModel> noiseModelObj;
 };
 } // namespace quantum
 } // namespace xacc

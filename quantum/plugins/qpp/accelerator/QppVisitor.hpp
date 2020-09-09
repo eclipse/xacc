@@ -56,6 +56,11 @@ public:
   virtual std::shared_ptr<QppVisitor> clone() { return std::make_shared<QppVisitor>(); }
   const KetVectorType& getStateVec() const { return m_stateVec; }
   static double calcExpectationValueZ(const KetVectorType& in_stateVec, const std::vector<qpp::idx>& in_bits);
+
+  // Gate-by-gate API
+  void applyGate(Gate& in_gate);
+  bool measure(size_t in_bit);
+  bool isInitialized() const { return m_initialized; }
 private:
   qpp::idx xaccIdxToQppIdx(size_t in_idx) const;
 private:
@@ -67,5 +72,6 @@ private:
   // Otherwise, it will only compute the expectation value.
   bool m_shotsMode;
   std::string m_bitString;
+  bool m_initialized = false;
 };
 }}
