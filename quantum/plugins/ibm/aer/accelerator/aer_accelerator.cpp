@@ -45,6 +45,10 @@ std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
 }
 
+HeterogeneousMap AerAccelerator::getProperties() {
+  return physical_backend_properties;
+}
+
 void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
   m_options = params;
@@ -70,7 +74,8 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
   if (params.stringExists("backend")) {
     auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
-    auto props = ibm->getProperties().get<std::string>("total-json");
+    physical_backend_properties = ibm->getProperties();
+    auto props = physical_backend_properties.get<std::string>("total-json");
     auto props_json = nlohmann::json::parse(props);
     connectivity = ibm->getConnectivity();
     // nlohmann::json errors_json;
@@ -238,7 +243,7 @@ void AerAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
   AER::Qobj qobj(qObjJson);
   assert(qobj.circuits.size() == 1);
   auto circ = qobj.circuits[0];
-  
+
   // Output data container
   AER::ExperimentData data;
   data.add_metadata("method", stateVec.name());
