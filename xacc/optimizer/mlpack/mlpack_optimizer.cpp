@@ -102,7 +102,14 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
       beta2 = options.get<double>("mlpack-beta2");
     }
 
-    Adam optimizer(stepSize, 1, beta1, beta2, eps, maxiter, tol, false, false);
+    // Adam's exactObjective property (default = false)
+    bool exactObjective = false;
+    if (options.keyExists<bool>("adam-exact-objective")) {
+      exactObjective = options.get<bool>("adam-exact-objective");
+    }
+
+    Adam optimizer(stepSize, 1, beta1, beta2, eps, maxiter, tol, false, false,
+                   exactObjective);
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "spsa") {
     SPSA optimizer(0.1, 0.102, 0.16, 0.3, 100000, 1e-5);
