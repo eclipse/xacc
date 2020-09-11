@@ -17,5 +17,21 @@ bool IfStmt::expand(const HeterogeneousMap &runtimeOptions) {
   }
   return true;
 }
+
+const std::string IfStmt::toString() {
+    std::stringstream retStr;
+    retStr << "if (" << bufferName << "[" << bitIdx <<  "]) {\n";
+
+    for (auto i : instructions) {
+      if (i->isComposite() &&
+          !std::dynamic_pointer_cast<CompositeInstruction>(i)->hasChildren()) {
+        retStr << " " << i->name() << "()\n";
+      } else {
+        retStr << " " << i->toString() << "\n";
+      }
+    }
+    retStr << "}\n";
+    return retStr.str();
+  }
 } // namespace quantum
 } // namespace xacc
