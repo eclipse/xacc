@@ -24,9 +24,8 @@ TEST(QFastTester, checkSimple)
 {
   srand(time(0));
   // Pick 0 or 1
-  // const int randPick = rand() % 2;
-  // const std::string optimizerName = (randPick == 0) ? "nlopt" : "mlpack";
-  const std::string optimizerName = "mlpack";
+  const int randPick = rand() % 2;
+  const std::string optimizerName = (randPick == 0) ? "nlopt" : "mlpack";
   
   // Randomly pick an optimizer:
   // To save test time, we don't want to run many long tests.
