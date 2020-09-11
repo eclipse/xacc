@@ -292,9 +292,9 @@ public:
 struct Bfunc {
   Bfunc(int64_t in_regId, const std::string &in_hexMask,
         const std::string &in_relation = "==",
-        const std::string &in_val = "0x1")
+        const std::string &in_val = "")
       : registerId(in_regId), hex_mask(in_hexMask), relation(in_relation),
-        hex_val(in_val) {}
+        hex_val(in_val.empty() ? in_hexMask : in_val) {}
   int64_t registerId;
   std::string hex_mask;
   std::string relation;
@@ -333,6 +333,11 @@ public:
     const auto result = registerId;
     ++registerId;
     return result;
+  }
+
+  void reset() {
+    memoryToRegister.clear();
+    registerId = 0;
   }
 };
 

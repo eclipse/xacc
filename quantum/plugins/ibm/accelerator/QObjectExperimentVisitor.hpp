@@ -50,6 +50,7 @@ public:
       qubit2MemorySlot.insert({b, counter});
       counter++;
     }
+    xacc::ibm::RegisterAllocator::getInstance()->reset();
   }
 
   const std::string toString() override {
