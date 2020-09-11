@@ -31,6 +31,7 @@ protected:
   std::string experimentName;
   int nTotalQubits = 0;
   std::vector<int> usedMemorySlots;
+  std::optional<int64_t> conditionalRegId;
 
 public:
   int maxMemorySlots = 0;
@@ -63,7 +64,7 @@ public:
     //   std::to_string(experiment.get_instructions().size()));
     if (experiment.get_instructions().empty()) {
 
-    //   maxMemorySlots++;
+      //   maxMemorySlots++;
 
       // construct config and header, add
       ExperimentHeader header;
@@ -101,12 +102,18 @@ public:
     return experiment;
   }
 
+  void setConditional(xacc::ibm::Instruction &io_inst) {
+    if (conditionalRegId.has_value()) {
+      io_inst.set_condition_reg_id(conditionalRegId.value());
+    }
+  }
+
   void visit(Hadamard &h) override {
     xacc::ibm::Instruction inst;
     inst.get_mutable_qubits().push_back(h.bits()[0]);
     inst.get_mutable_name() = "u2";
     inst.set_params({0.0, pi});
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -179,7 +186,7 @@ public:
     inst.get_mutable_qubits().push_back(cn.bits()[0]);
     inst.get_mutable_qubits().push_back(cn.bits()[1]);
     inst.get_mutable_name() = "cx";
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -192,6 +199,7 @@ public:
     inst.get_mutable_name() = "u3";
     inst.set_params({pi, 0.0, pi});
 
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -202,6 +210,7 @@ public:
     inst.get_mutable_name() = "u3";
     inst.set_params({pi, pi / 2.0, pi});
 
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -212,6 +221,7 @@ public:
     inst.get_mutable_name() = "u1";
     inst.set_params({pi});
 
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -223,7 +233,7 @@ public:
     inst.set_params({u.getParameter(0).as<double>(),
                      u.getParameter(1).as<double>(),
                      u.getParameter(2).as<double>()});
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -239,14 +249,12 @@ public:
     inst.get_mutable_qubits().push_back(m.bits()[0]);
     inst.get_mutable_name() = "measure";
     inst.set_memory({maxMemorySlots});
-
     instructions.push_back(inst);
 
     // if (classicalBit > maxMemorySlots) {
-      maxMemorySlots++;// = qubit2MemorySlot[m.bits()[0]];
+    maxMemorySlots++; // = qubit2MemorySlot[m.bits()[0]];
     // }
   }
-
 
   void visit(Rx &rx) override {
     xacc::ibm::Instruction inst;
@@ -254,7 +262,7 @@ public:
     inst.get_mutable_name() = "u3";
     inst.set_params(
         {rx.getParameter(0).as<double>(), -1.0 * pi / 2.0, pi / 2.0});
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -263,7 +271,7 @@ public:
     inst.get_mutable_qubits().push_back(ry.bits()[0]);
     inst.get_mutable_name() = "u3";
     inst.set_params({ry.getParameter(0).as<double>(), 0.0, 0.0});
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -272,7 +280,7 @@ public:
     inst.get_mutable_qubits().push_back(rz.bits()[0]);
     inst.get_mutable_name() = "u1";
     inst.set_params({rz.getParameter(0).as<double>()});
-
+    setConditional(inst);
     instructions.push_back(inst);
   }
 
@@ -289,6 +297,20 @@ public:
     visit(u1_2);
     visit(cx2);
     visit(u1_3);
+  }
+
+  void visit(IfStmt &ifStmt) override {
+    const auto cregId = ifStmt.bits()[0];
+    auto bfuncInst = xacc::ibm::Instruction::createConditionalInst(cregId);
+    const auto regId = bfuncInst.get_bFunc()->registerId;
+    instructions.push_back(bfuncInst);
+    // All the instructions that are scoped inside this block must have a
+    // `condition` field points to this register Id.
+    conditionalRegId = regId;
+    for (auto &i : ifStmt.getInstructions()) {
+      i->accept(this);
+    }
+    conditionalRegId.reset();
   }
 
   /**
