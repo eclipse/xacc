@@ -298,6 +298,40 @@ TEST(AerAcceleratorTester, checkApply) {
   EXPECT_EQ(resultQ0, resultQ1);
 }
 
+TEST(AerAcceleratorTester, checkConditional) {
+  auto accelerator = xacc::getAccelerator("aer");
+  xacc::set_verbose(true);
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void conditionalCirc(qbit q) {
+      X(q[0]);
+      Measure(q[0]);
+      Measure(q[1]);
+      // Should apply
+      if (q[0]) {
+        X(q[2]);
+      }
+      // Not apply
+      if (q[1]) {
+        X(q[3]);
+      }
+      // Apply
+      X(q[4]);
+      Measure(q[2]);
+      Measure(q[3]);
+      Measure(q[4]);
+    })",
+                                  accelerator);
+
+  auto program = ir->getComposite("conditionalCirc");
+
+  auto buffer = xacc::qalloc(5);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  // Expected: q0 = 1, q1 = 0, q2 = 1, q3 = 0, q4 = 1
+  EXPECT_EQ(buffer->computeMeasurementProbability("10101"), 1.0);
+  xacc::set_verbose(false);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
