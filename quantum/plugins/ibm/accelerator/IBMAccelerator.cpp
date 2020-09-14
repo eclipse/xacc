@@ -70,8 +70,19 @@ std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
     }
   }
 
-  if (!acquireInsts.empty()) {
-    result.emplace_back(acquireInsts.front());
+  std::vector<int64_t> acquiredBits;
+  for (const auto& aqInst: acquireInsts) {
+    assert(aqInst.get_qubits().size() == 1);
+    if (!xacc::container::contains(acquiredBits, aqInst.get_qubits()[0])) {
+      acquiredBits.emplace_back(aqInst.get_qubits()[0]);
+    }
+  }
+
+  if (!acquiredBits.empty()) {
+    auto mergedAcquire = acquireInsts.front();
+    mergedAcquire.set_qubits(acquiredBits);
+    mergedAcquire.set_memory_slot(acquiredBits);
+    result.emplace_back(mergedAcquire);
   }
 
   return result;
@@ -738,8 +749,12 @@ void IBMAccelerator::contributeInstructions(
     std::string tmpName;
     tmpName = "pulse::" + cmd_def_name + "_" + std::to_string(qbits[0]);
 
-    if (qbits.size() == 2) {
-      tmpName += "_" + std::to_string(qbits[1]);
+    // Note: some pulse lib contains a special pulse composite a *measure all*
+    // instruction, i.e. the list of qubits contains more than 2 qubits.
+    if (qbits.size() >= 2) {
+      for (size_t qIdx = 1; qIdx < qbits.size(); ++qIdx) {
+        tmpName += "_" + std::to_string(qbits[qIdx]);
+      }
     }
     auto cmd_def = provider->createComposite(tmpName);
 
@@ -815,12 +830,8 @@ void IBMAccelerator::contributeInstructions(
       {
         // Acquire instruction
         const int duration = (*seq_iter)["duration"].get<int>();
-        const auto qubits = (*seq_iter)["qubits"].get<std::vector<size_t>>();
         inst->setDuration(duration);
-        // The acquire instruction usually lists all qubits.
-        inst->setBits(qubits);
-        // Also, we assume each qubit is associated with a memory slot with the
-        // same index.
+        inst->setBits(qbits);
       }
       cmd_def->addInstruction(inst);
     }
