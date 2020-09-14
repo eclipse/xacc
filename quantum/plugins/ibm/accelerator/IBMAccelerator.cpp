@@ -46,6 +46,37 @@ std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
 }
 
+std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
+    const std::vector<xacc::ibm_pulse::Instruction> &in_originalPulseSchedule) {
+  std::vector<xacc::ibm_pulse::Instruction> result;
+  std::vector<xacc::ibm_pulse::Instruction> acquireInsts;
+  // Align stimulus measure pulses and combine acquire instructions.
+  // IBM can only handle 1 acquire instruction at the momemt.
+  std::optional<int> firstMeasureT0;
+  for (const auto &ibmInst : in_originalPulseSchedule) {
+    if (ibmInst.get_name() != "acquire") {
+      if (!ibmInst.get_ch().empty() && ibmInst.get_ch()[0] == 'm') {
+        if (!firstMeasureT0.has_value()) {
+          firstMeasureT0 = ibmInst.get_t0();
+        }
+        auto alignedMeasPulse = ibmInst;
+        alignedMeasPulse.set_t0(firstMeasureT0.value());
+        result.emplace_back(alignedMeasPulse);
+      } else {
+        result.emplace_back(ibmInst);
+      }
+    } else {
+      acquireInsts.emplace_back(ibmInst);
+    }
+  }
+
+  if (!acquireInsts.empty()) {
+    result.emplace_back(acquireInsts.front());
+  }
+
+  return result;
+}
+
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
   if (!initialized) {
     std::string apiKey = "";
@@ -224,7 +255,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   xacc::ibm_pulse::PulseQObject root;
   xacc::ibm_pulse::QObject qobj;
   qobj.set_qobj_id("xacc-qobj-id");
-  qobj.set_schema_version("1.1.0");
+  qobj.set_schema_version("1.2.0");
   qobj.set_type("PULSE");
   xacc::ibm_pulse::QObjectHeader h;
   h.set_backend_name(backend["backend_name"].get<std::string>());
@@ -272,7 +303,8 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     hh.set_memory_slots(backend["n_qubits"].get<int>());
 
     xacc::ibm_pulse::Experiment experiment;
-    experiment.set_instructions(visitor->instructions);
+    experiment.set_instructions(
+        alignMeasurePulseInstructions(visitor->instructions));
     experiment.set_header(hh);
     experiments.push_back(experiment);
 
