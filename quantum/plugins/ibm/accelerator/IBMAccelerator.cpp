@@ -783,8 +783,12 @@ void IBMAccelerator::contributeInstructions(
       {
         // Acquire instruction
         const int duration = (*seq_iter)["duration"].get<int>();
+        const auto qubits = (*seq_iter)["qubits"].get<std::vector<size_t>>();
         inst->setDuration(duration);
-        inst->setBits(qbits);
+        // The acquire instruction usually lists all qubits.
+        inst->setBits(qubits);
+        // Also, we assume each qubit is associated with a memory slot with the
+        // same index.
       }
       cmd_def->addInstruction(inst);
     }
