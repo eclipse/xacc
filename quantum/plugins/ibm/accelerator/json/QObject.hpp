@@ -289,16 +289,88 @@ public:
   }
 };
 
+struct Bfunc {
+  Bfunc(int64_t in_regId, const std::string &in_hexMask,
+        const std::string &in_relation = "==",
+        const std::string &in_val = "")
+      : registerId(in_regId), hex_mask(in_hexMask), relation(in_relation),
+        hex_val(in_val.empty() ? in_hexMask : in_val) {}
+  int64_t registerId;
+  std::string hex_mask;
+  std::string relation;
+  std::string hex_val;
+};
+
+class RegisterAllocator {
+  static inline RegisterAllocator *instance = nullptr;
+  std::unordered_map<int64_t, int64_t> memoryToRegister;
+  int64_t registerId;
+
+  RegisterAllocator() { registerId = 0; }
+
+public:
+  static RegisterAllocator *getInstance() {
+    if (!instance) {
+      instance = new RegisterAllocator;
+    }
+    return instance;
+  }
+
+  std::optional<int64_t> getRegisterId(int64_t in_memoryId) {
+    if (memoryToRegister.find(in_memoryId) != memoryToRegister.end()) {
+      return memoryToRegister[in_memoryId];
+    }
+    return std::nullopt;
+  }
+
+  int64_t mapMemory(int64_t in_memoryId) {
+    memoryToRegister[in_memoryId] = registerId;
+    registerId++;
+    return memoryToRegister[in_memoryId];
+  }
+
+  int64_t getNextRegister() {
+    const auto result = registerId;
+    ++registerId;
+    return result;
+  }
+
+  void reset() {
+    memoryToRegister.clear();
+    registerId = 0;
+  }
+};
+
 class Instruction {
 public:
   Instruction() = default;
   virtual ~Instruction() = default;
+  // Construct a binary function instruction
+  // Returns the Bfunc instruction and the register Id to condition the
+  // sub-circuit.
+  static Instruction createConditionalInst(int64_t memoryId) {
+    // Map the memory Id to a register:
+    const auto measRegisterId =
+        RegisterAllocator::getInstance()->mapMemory(memoryId);
+    const int64_t maskVal = 1ULL << measRegisterId;
+    const std::string hexMaskStr = "0x" + std::to_string(maskVal);
+    const int64_t resultRegisterId =
+        RegisterAllocator::getInstance()->getNextRegister();
+    Bfunc bFuncObj(resultRegisterId, hexMaskStr);
+    Instruction newInst;
+    newInst.bfunc = bFuncObj;
+    return newInst;
+  }
 
 private:
   std::vector<int64_t> qubits;
   std::string name;
   std::vector<double> params;
   std::vector<int64_t> memory;
+  // Conditional on a register value
+  std::optional<int64_t> conditional;
+  // If this is a Bfunc to compute a register value
+  std::optional<Bfunc> bfunc;
 
 public:
   const std::vector<int64_t> &get_qubits() const { return qubits; }
@@ -314,6 +386,13 @@ public:
 
   std::vector<int64_t> get_memory() const { return memory; }
   void set_memory(std::vector<int64_t> value) { this->memory = value; }
+
+  std::optional<Bfunc> get_bFunc() const { return bfunc; }
+  void set_bFunc(Bfunc value) { this->bfunc = value; }
+  bool isBfuc() const { return get_bFunc().has_value(); }
+
+  std::optional<int64_t> get_condition_reg_id() const { return conditional; }
+  void set_condition_reg_id(int64_t value) { this->conditional = value; }
 };
 
 class Experiment {
@@ -698,6 +777,15 @@ inline void from_json(const json &j, xacc::ibm::Instruction &x) {
 
 inline void to_json(json &j, const xacc::ibm::Instruction &x) {
   j = json::object();
+  if (x.isBfuc()) {
+    j["name"] = "bfunc";
+    j["register"] = x.get_bFunc()->registerId;
+    j["mask"] = x.get_bFunc()->hex_mask;
+    j["relation"] = x.get_bFunc()->relation;
+    j["val"] = x.get_bFunc()->hex_val;
+    return;
+  }
+
   j["qubits"] = x.get_qubits();
   j["name"] = x.get_name();
   if (!x.get_params().empty()) {
@@ -705,6 +793,20 @@ inline void to_json(json &j, const xacc::ibm::Instruction &x) {
   }
   if (!x.get_memory().empty()) {
     j["memory"] = x.get_memory();
+    // Technically, we only use one memory slot in each Measure Op:
+    if (x.get_memory().size() == 1) {
+      const auto memoryId = x.get_memory()[0];
+      const auto measRegisterId =
+          xacc::ibm::RegisterAllocator::getInstance()->getRegisterId(memoryId);
+      if (measRegisterId.has_value()) {
+        std::vector<int64_t> registerIds;
+        registerIds.emplace_back(measRegisterId.value());
+        j["register"] = registerIds;
+      }
+    }
+  }
+  if (x.get_condition_reg_id().has_value()) {
+    j["conditional"] = x.get_condition_reg_id().value();
   }
 }
 

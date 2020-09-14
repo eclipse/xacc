@@ -93,6 +93,7 @@ public:
     }
   }
 
+  const std::string toString() override; 
   DEFINE_CLONE(IfStmt)
   DEFINE_VISITABLE()
 };

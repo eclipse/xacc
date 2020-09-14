@@ -152,7 +152,7 @@ void AerAccelerator::execute(
     nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
     j["config"]["shots"] = m_shots;
     j["config"]["noise_model"] = noise_model;
-
+    xacc::info("Qobj:\n" + j.dump(2));
     auto results_json = nlohmann::json::parse(
         AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
 

@@ -368,6 +368,11 @@ std::vector<QFAST::Block> QFAST::refine(const std::vector<QFAST::PauliReps>& in_
         // Set the tolerance so that it will terminate when the
         // trace distance is sufficiently converged.
         optimizer->appendOption("mlpack-tolerance", m_distanceLimit/20.0);
+        
+        if (optimizer->get_algorithm() == "adam")
+        {
+            optimizer->appendOption("adam-exact-objective", true);
+        }
     }
     
     if (needGrads)
@@ -617,6 +622,10 @@ bool QFAST::optimizeAtDepth(std::vector<PauliReps>& io_repsToOpt, double in_targ
         optimizer->appendOption("mlpack-max-iter", maxEval);
         optimizer->appendOption("mlpack-step-size", 0.01);
         optimizer->appendOption("mlpack-tolerance", in_targetDistance/100.0);
+        if (optimizer->get_algorithm() == "adam")
+        {
+            optimizer->appendOption("adam-exact-objective", true);
+        }
     }
     
     if (needGrads)

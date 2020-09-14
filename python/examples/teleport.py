@@ -1,6 +1,6 @@
 import xacc 
 
-qpu = xacc.getAccelerator('qpp', {'shots':100})
+qpu = xacc.getAccelerator('aer', {'shots':1024})
 
 xacc.qasm('''
 .compiler xasm
