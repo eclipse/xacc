@@ -298,6 +298,164 @@ TEST(AerAcceleratorTester, checkApply) {
   EXPECT_EQ(resultQ0, resultQ1);
 }
 
+TEST(AerAcceleratorTester, checkConditional) {
+  auto accelerator = xacc::getAccelerator("aer");
+  xacc::set_verbose(true);
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  {
+    auto ir = xasmCompiler->compile(R"(__qpu__ void conditionalCirc(qbit q) {
+      X(q[0]);
+      Measure(q[0]);
+      Measure(q[1]);
+      // Should apply
+      if (q[0]) {
+        X(q[2]);
+      }
+      // Not apply
+      if (q[1]) {
+        X(q[3]);
+      }
+      // Apply
+      X(q[4]);
+      Measure(q[2]);
+      Measure(q[3]);
+      Measure(q[4]);
+    })",
+                                    accelerator);
+
+    auto program = ir->getComposite("conditionalCirc");
+
+    auto buffer = xacc::qalloc(5);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // Expected: q0 = 1, q1 = 0, q2 = 1, q3 = 0, q4 = 1
+    EXPECT_EQ(buffer->computeMeasurementProbability("10101"), 1.0);
+  }
+  {
+    // Check Teleport
+    auto ir = xasmCompiler->compile(R"(__qpu__ void teleportOneState(qbit q) {
+      // State to be transported
+      X(q[0]);
+      // Bell channel setup
+      H(q[1]);
+      CX(q[1], q[2]);
+      // Alice Bell measurement
+      CX(q[0], q[1]);
+      H(q[0]);
+      Measure(q[0]);
+      Measure(q[1]);
+      // Correction
+      if (q[0])
+      {
+        Z(q[2]);
+      }
+      if (q[1])
+      {
+        X(q[2]);
+      }
+      // Measure teleported qubit
+      Measure(q[2]);
+    })",
+                                    accelerator);
+
+    auto program = ir->getComposite("teleportOneState");
+    auto buffer = xacc::qalloc(3);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    for (const auto &bitStr : buffer->getMeasurements()) {
+      EXPECT_EQ(bitStr.length(), 3);
+      // q[2] (MSB) must be '1' (teleported)
+      EXPECT_EQ(bitStr[0], '1');
+    }
+  }
+
+  {
+    // Check Teleport
+    auto ir = xasmCompiler->compile(R"(__qpu__ void teleportZeroState(qbit q) {
+      // Bell channel setup
+      H(q[1]);
+      CX(q[1], q[2]);
+      // Alice Bell measurement
+      CX(q[0], q[1]);
+      H(q[0]);
+      Measure(q[0]);
+      Measure(q[1]);
+      // Correction
+      if (q[0])
+      {
+        Z(q[2]);
+      }
+      if (q[1])
+      {
+        X(q[2]);
+      }
+      // Measure teleported qubit
+      Measure(q[2]);
+    })",
+                                    accelerator);
+
+    auto program = ir->getComposite("teleportZeroState");
+    auto buffer = xacc::qalloc(3);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    for (const auto &bitStr : buffer->getMeasurements()) {
+      EXPECT_EQ(bitStr.length(), 3);
+      // q[2] (MSB) must be '0' (teleported)
+      EXPECT_EQ(bitStr[0], '0');
+    }
+  }
+
+  {
+    // Check Teleport (50-50)
+    auto ir = xasmCompiler->compile(
+        R"(__qpu__ void teleportSuperpositionState(qbit q) {
+      // State to be transported
+      // superposition of 0 and 1
+      H(q[0]);
+      // Bell channel setup
+      H(q[1]);
+      CX(q[1], q[2]);
+      // Alice Bell measurement
+      CX(q[0], q[1]);
+      H(q[0]);
+      Measure(q[0]);
+      Measure(q[1]);
+      // Correction
+      if (q[0])
+      {
+        Z(q[2]);
+      }
+      if (q[1])
+      {
+        X(q[2]);
+      }
+      // Measure teleported qubit
+      Measure(q[2]);
+    })",
+        accelerator);
+
+    auto program = ir->getComposite("teleportSuperpositionState");
+    auto buffer = xacc::qalloc(3);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    double zeroProb = 0.0;
+    double oneProb = 0.0;
+    for (const auto &bitStr : buffer->getMeasurements()) {
+      EXPECT_EQ(bitStr.length(), 3);
+      // q[2] (MSB) is the teleported qubit
+      if (bitStr[0] == '0') {
+        zeroProb += buffer->computeMeasurementProbability(bitStr);
+      } else {
+        oneProb += buffer->computeMeasurementProbability(bitStr);
+      }
+    }
+    EXPECT_NEAR(zeroProb, 0.5, 0.1);
+    EXPECT_NEAR(oneProb, 0.5, 0.1);
+  }
+
+  xacc::set_verbose(false);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
