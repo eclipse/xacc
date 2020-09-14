@@ -804,6 +804,9 @@ void IBMAccelerator::contributeInstructions(
           const std::string paramJson = pulseParams.dump();
           inst->setPulseParams(
               {{"pulse_shape", pulseShape}, {"parameters_json", paramJson}});
+          
+          const int parametricPulseDuration = pulseParams["duration"].get<int>();
+          inst->setDuration(parametricPulseDuration);
         }
         if ((*seq_iter).find("phase") != (*seq_iter).end()) {
           // we have phase too
@@ -836,6 +839,20 @@ void IBMAccelerator::contributeInstructions(
       cmd_def->addInstruction(inst);
     }
     cmd_def->setBits(qbits);
+    // The sequence data in the cmd-def JSON is out-of-order in terms of t0,
+    // i.e. it seems to be sorted by 'channel name'.
+    // It may cause trouble later when assemble pulses by these cmd-defs and
+    // submit an out-of-order pulse sequence .
+    // Hence, we sort the pulse by t0 here.
+    if (cmd_def->nInstructions() > 1) {
+      auto instructionList = cmd_def->getInstructions();
+      std::sort(instructionList.begin(), instructionList.end(),
+                [](const auto &lhs, const auto &rhs) {
+                  return lhs->start() < rhs->start();
+                });
+      cmd_def->clear();
+      cmd_def->addInstructions(instructionList);
+    }
 
     xacc::info("Contributing " + tmpName + " pulse composite.");
     xacc::contributeService(tmpName, cmd_def);
