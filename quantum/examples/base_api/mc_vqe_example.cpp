@@ -7,8 +7,10 @@ int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
 
   //xacc::set_verbose(true);
-  //xacc::logToFile(true);
+  xacc::logToFile(true);
   //xacc::setLoggingLevel(2);
+
+  int n_chromophores = std::stoi(argv[2]);
 
   const char *data = R"foo(0
 Ground state energy: -2263.263771754
@@ -160,47 +162,24 @@ Transition dipole moment: 1.5656,2.8158,-0.0976
   datafile.close();
   std::string path = "./datafile.txt";
   auto optimizer =
-      xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 50)});
+      xacc::getOptimizer("nlopt", {std::make_pair("nlopt-maxeval", 2)});
 
-
-  std::cout << "TNQVM + ITensor\n\n";
-  auto itensor = xacc::getAccelerator("tnqvm",
-  {std::make_pair("tnqvm-visitor","itensor-mps"),
-                                                std::make_pair("timer",true)});
-  auto buffer1 = xacc::qalloc(4);
-  auto mc_vqe1 = xacc::getAlgorithm("mc-vqe");
-  mc_vqe1->initialize({std::make_pair("accelerator",itensor),
-                      std::make_pair("optimizer",optimizer),
-                      std::make_pair("data-path",path),
-                      std::make_pair("cyclic",true),
-                      std::make_pair("log-level",2),
-                      std::make_pair("tnqvm-log",false),
-                      std::make_pair("nChromophores", 4)});
-  mc_vqe1->execute(buffer1);
-  auto params = (*buffer1)["opt-params"].as<std::vector<double>>();
-
-  auto buffer2 = xacc::qalloc(4);
-  auto p = mc_vqe1->execute(buffer2, params);
- 
- for(auto i : p) {
-   std::cout << i << "\n";
- }
-
-  /*
-  std::cout << "\n\nTNQVM + exaTN\n\n";
+  // ExaTN visitor
   auto exatn =
       xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor", "exatn"),
-                                     std::make_pair("timer", true)});
-  auto buffer2 = xacc::qalloc(4);
+                                     std::make_pair("vqe-mode", true)});
+  auto buffer2 = xacc::qalloc(n_chromophores);
   auto mc_vqe2 = xacc::getAlgorithm("mc-vqe");
+
   mc_vqe2->initialize(
       {std::make_pair("accelerator", exatn),
        std::make_pair("optimizer", optimizer),
        std::make_pair("data-path", path), std::make_pair("cyclic", true),
        std::make_pair("log-level", 2), std::make_pair("tnqvm-log", true),
-       std::make_pair("nChromophores", 4)});
+       std::make_pair("nChromophores", n_chromophores)});
   mc_vqe2->execute(buffer2);
-*/
+
+
   ///
   xacc::Finalize();
 
