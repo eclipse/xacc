@@ -13,3 +13,4 @@
 add_subdirectory(base_api)
 add_subdirectory(qasm)
 add_subdirectory(qst-publication)
+add_subdirectory(hpc_virtualization)

@@ -54,6 +54,7 @@ file(GLOB PYDECORATORS benchmark/chemistry/*.py benchmark/qpt/*.py
                        plugins/cirq/*.py
                        plugins/qiskit/*.py
                        plugins/observables/*.py
+                       plugins/mitiq/*.py
                        plugins/pyzx/*.py
                        plugins/optimizers/*.py)
 install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)

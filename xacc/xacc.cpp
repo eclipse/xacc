@@ -112,7 +112,9 @@ void setGlobalLoggerPredicate(MessagePredicate predicate) {
   XACCLogger::instance()->dumpQueue();
 }
 
-void logToFile(bool enable, const std::string &fileNamePrefix) { XACCLogger::instance()->logToFile(enable, fileNamePrefix); }
+void logToFile(bool enable, const std::string &fileNamePrefix) {
+  XACCLogger::instance()->logToFile(enable, fileNamePrefix);
+}
 
 void setLoggingLevel(int level) {
   XACCLogger::instance()->setLoggingLevel(level);
@@ -156,7 +158,7 @@ void error(const std::string &msg, MessagePredicate predicate) {
 qbit qalloc(const int n) {
   qbit q(n);
   std::stringstream ss;
-  ss << q;
+  ss << "qreg_"<<q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
@@ -164,7 +166,7 @@ qbit qalloc(const int n) {
 qbit qalloc() {
   qbit q;
   std::stringstream ss;
-  ss << q;
+  ss << "qreg_"<<q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
@@ -185,6 +187,12 @@ void storeBuffer(const std::string name,
   if (allocated_buffers.count(name)) {
     error("Invalid buffer name to store: " + name);
   }
+  // if this buffer is in here already before we 
+  // set its new name, we should remove it from the allocation
+  if (allocated_buffers.count(buffer->name())) {
+      allocated_buffers.erase(buffer->name());
+  }
+  
   buffer->setName(name);
   allocated_buffers.insert({name, buffer});
 }
@@ -771,13 +779,25 @@ void Finalize() {
     auto tearDowns = xacc::getServices<TearDown>();
     debug("Tearing down " + std::to_string(tearDowns.size()) +
           " registered TearDown services..");
+    std::vector<std::shared_ptr<TearDown>> frameworkTearDowns;
     for (auto &td : tearDowns) {
       try {
-        td->tearDown();
+        // If this is XACC HPC TearDown,
+        // add it to the list of XACC internal TearDown services to be executed
+        // after all plugins' TearDowns.
+        if (td->name() == "xacc-hpc-virt") {
+          frameworkTearDowns.emplace_back(td);
+        } else {
+          td->tearDown();
+        }
       } catch (int exception) {
         xacc::error("Error while tearing down a service. Code: " +
                     std::to_string(exception));
       }
+    }
+    // Runs XACC internal TearDowns
+    for (auto &td : frameworkTearDowns) {
+      td->tearDown();
     }
 
     xacc::xaccFrameworkInitialized = false;

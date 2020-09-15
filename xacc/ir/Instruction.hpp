@@ -165,6 +165,8 @@ public:
     return;
   }
   virtual std::vector<std::vector<double>> getSamples() { return {}; }
+  virtual void setPulseParams(const HeterogeneousMap &in_pulseParams) {}
+  virtual HeterogeneousMap getPulseParams() { return {}; }
 
   // The following accomodate conditional instructions
   virtual bool isEnabled() { return true; }

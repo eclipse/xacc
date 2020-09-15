@@ -21,6 +21,7 @@
 #include "CompositeInstruction.hpp"
 #include "xacc_service.hpp"
 #include "xacc.hpp"
+#include "Pulse.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -46,7 +47,8 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(const std::str
 std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
     const std::string name, std::vector<std::size_t> bits,
     std::vector<InstructionParameter> parameters, const HeterogeneousMap& analog_options) {
-
+  // We allow create a new Analog/Pulse instruction even if it wasn't registered/contributed
+  const bool isAnalogInst = analog_options.size() > 0;
   std::string iName = name;
   if (name == "CX") {
       iName = "CNOT";
@@ -62,7 +64,15 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
   } else if (xacc::hasCompiled(iName)) {
     inst = xacc::getCompiled(iName);
   } else {
+    // Gate instructions must be contributed before use.
+    if (!isAnalogInst) {
       xacc::error("Invalid instruction name - " + iName);
+    }
+  }
+
+  // We want to create an analog instruction which hasn't been registered.
+  if (!inst && isAnalogInst) {
+    inst = std::make_shared<Pulse>("pulse::" + iName);
   }
 
   if (!inst->isComposite() || inst->name() == "ifstmt") {
@@ -74,15 +84,42 @@ std::shared_ptr<Instruction> QuantumIRProvider::createInstruction(
     }
   }
 
+  // Set other analog options:
   if (inst->isAnalog()) {
-      if (analog_options.stringExists("channel")) {
-          inst->setChannel(analog_options.getString("channel"));
-      } else if (analog_options.stringExists("ch")) {
-          inst->setChannel(analog_options.getString("ch"));
-      } else if (analog_options.keyExists<int>("duration")) {
-          inst->setDuration(analog_options.get<int>("duration"));
-      }
+    // Channel info: key = "channel" or "ch"
+    if (analog_options.stringExists("channel")) {
+      inst->setChannel(analog_options.getString("channel"));
+    } else if (analog_options.stringExists("ch")) {
+      inst->setChannel(analog_options.getString("ch"));
+    }
 
+    if (analog_options.keyExists<std::vector<std::complex<double>>>(
+            "samples")) {
+      const auto complexSamples =
+          analog_options.get<std::vector<std::complex<double>>>("samples");
+      std::vector<std::vector<double>> sampleVec;
+      sampleVec.reserve(complexSamples.size());
+      for (const auto &sample : complexSamples) {
+        sampleVec.emplace_back(
+            std::vector<double>{sample.real(), sample.imag()});
+      }
+      inst->setSamples(sampleVec);
+    }
+
+    if (analog_options.keyExists<std::vector<double>>("samples")) {
+      const auto complexSamples =
+          analog_options.get<std::vector<double>>("samples");
+      std::vector<std::vector<double>> sampleVec;
+      sampleVec.reserve(complexSamples.size());
+      for (const auto &sample : complexSamples) {
+        sampleVec.emplace_back(std::vector<double>{sample, 0.0});
+      }
+      inst->setSamples(sampleVec);
+    }
+
+    if (analog_options.keyExists<int>("duration")) {
+      inst->setDuration(analog_options.get<int>("duration"));
+    }
   }
 
   return inst;

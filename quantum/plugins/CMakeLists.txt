@@ -35,3 +35,4 @@ endif()
 
 add_subdirectory(optimal_control)
 
+install (FILES utils/OperatorPool.hpp DESTINATION include/quantum/gate)

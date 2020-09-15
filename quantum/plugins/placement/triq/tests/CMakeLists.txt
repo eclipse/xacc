@@ -1,0 +1,3 @@
+add_xacc_test(TriQPlacement)
+target_link_libraries(TriQPlacementTester xacc)
+target_compile_definitions(TriQPlacementTester PRIVATE RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")

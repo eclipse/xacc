@@ -19,7 +19,7 @@
 
 namespace xacc {
 namespace quantum {
-    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, int device_id, bool doNormalize, double zero_threshold)
+    void QrackVisitor::initialize(std::shared_ptr<AcceleratorBuffer> buffer, int shots, bool use_opencl, bool use_qunit, bool use_opencl_multi, int device_id, bool doNormalize, double zero_threshold)
     {
         m_buffer = std::move(buffer);
         m_measureBits.clear();
@@ -27,7 +27,7 @@ namespace quantum {
         m_shotsMode = shots > 1;
 
         Qrack::QInterfaceEngine qIType2 = use_opencl ? Qrack::QINTERFACE_OPTIMAL : Qrack::QINTERFACE_CPU;
-        Qrack::QInterfaceEngine qIType1 = use_qunit ? Qrack::QINTERFACE_QUNIT : qIType2;
+        Qrack::QInterfaceEngine qIType1 = use_qunit ? (use_opencl_multi ? Qrack::QINTERFACE_QUNIT_MULTI : Qrack::QINTERFACE_QUNIT) : qIType2;
 
         m_qReg = MAKE_ENGINE(m_buffer->size(), 0);
     }

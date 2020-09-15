@@ -24,6 +24,7 @@ public:
   void Start(BundleContext context) {
     auto acc = std::make_shared<xacc::quantum::QppAccelerator>();
     context.RegisterService<xacc::Accelerator>(acc);
+    context.RegisterService<xacc::NoiseModelUtils>(std::make_shared<xacc::quantum::DefaultNoiseModelUtils>());
   }
 
   void Stop(BundleContext context) {}

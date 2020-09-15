@@ -12,6 +12,7 @@
 # *******************************************************************************/
 set(LIBRARY_NAME xacc-algorithm-rotoselect)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-return-type")
 file(GLOB SRC *.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)

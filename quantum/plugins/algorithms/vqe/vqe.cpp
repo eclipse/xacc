@@ -13,8 +13,10 @@
 #include "vqe.hpp"
 
 #include "Observable.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "AcceleratorDecorator.hpp"
 
 #include <memory>
 #include <iomanip>
@@ -120,6 +122,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
               fsToExec.push_back(f);
             } else {
               auto evaled = f->operator()(x);
+              evaled->setCoefficient(f->getCoefficient());
               fsToExec.push_back(evaled);
             }
             coefficients.push_back(std::real(coeff));
@@ -150,7 +153,18 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         accelerator->execute(tmpBuffer, fsToExec);
         auto buffers = tmpBuffer->getChildren();
 
+        auto tmp_buffer_extra_info = tmpBuffer->getInformation();
+        for (auto &[k, v] : tmp_buffer_extra_info) {
+          buffer->addExtraInfo(k, v);
+        }
+
+        // Compute the Energy. We can do this manually,
+        // or we may have a case where a accelerator decorator
+        // posts the energy automatically at a given key
+        // on the buffer extra info.
         double energy = identityCoeff;
+
+        // Create buffer child for the Identity term
         auto idBuffer = xacc::qalloc(buffer->size());
         idBuffer->addExtraInfo("coefficient", identityCoeff);
         idBuffer->setName("I");
@@ -161,19 +175,27 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           idBuffer->addExtraInfo("ro-fixed-exp-val-z", 1.0);
         buffer->appendChild("I", idBuffer);
 
-        if (buffers[0]->hasExtraInfoKey(
-                "purified-energy")) { // FIXME Hack for now...
-          energy = buffers[0]->getInformation("purified-energy").as<double>();
+        bool got_aggregate = false;
+        std::string aggregate_key = "__internal__decorator_aggregate_vqe__";
+        if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+                xacc::as_shared_ptr(accelerator)) &&
+            buffer->hasExtraInfoKey(aggregate_key)) {
+          // This is a decorator that has an aggregate value
+          auto aggregate_value = (*buffer)[aggregate_key].as<double>();
+          energy += aggregate_value;
           for (auto &b : buffers) {
             b->addExtraInfo("parameters", initial_params);
             buffer->appendChild(b->name(), b);
           }
+          got_aggregate = true;
+        }
 
-        } else if (gradientStrategy) { // gradient-based optimization
+        if (gradientStrategy) { // gradient-based optimization
 
           for (int i = 0; i < nInstructionsEnergy; i++) { // compute energy
             auto expval = buffers[i]->getExpectationValueZ();
-            energy += expval * coefficients[i];
+            if (!got_aggregate)
+              energy += expval * coefficients[i];
             buffers[i]->addExtraInfo("coefficient", coefficients[i]);
             buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
             buffers[i]->addExtraInfo("exp-val-z", expval);
@@ -199,13 +221,17 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
               dx, std::vector<std::shared_ptr<AcceleratorBuffer>>(
                       buffers.begin() + nInstructionsEnergy, buffers.end()));
 
-        } else { // normal VQE run
-          for (int i = 0; i < buffers.size(); i++) {
+        } else if (!got_aggregate) {
+          for (int i = 0; i < fsToExec.size(); i++) {
             auto expval = buffers[i]->getExpectationValueZ();
             energy += expval * coefficients[i];
+          }
+
+          for (int i = 0; i < fsToExec.size(); i++) {
             buffers[i]->addExtraInfo("coefficient", coefficients[i]);
             buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-            buffers[i]->addExtraInfo("exp-val-z", expval);
+            buffers[i]->addExtraInfo("exp-val-z",
+                                     buffers[i]->getExpectationValueZ());
             buffers[i]->addExtraInfo("parameters", x);
             buffer->appendChild(fsToExec[i]->name(), buffers[i]);
           }
@@ -269,8 +295,18 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto tmpBuffer = xacc::qalloc(buffer->size());
   accelerator->execute(tmpBuffer, fsToExec);
   auto buffers = tmpBuffer->getChildren();
+  auto tmp_buffer_extra_info = tmpBuffer->getInformation();
+  for (auto &[k, v] : tmp_buffer_extra_info) {
+    buffer->addExtraInfo(k, v);
+  }
 
+  // Compute the Energy. We can do this manually,
+  // or we may have a case where a accelerator decorator
+  // posts the energy automatically at a given key
+  // on the buffer extra info.
   double energy = identityCoeff;
+
+  // Create buffer child for the Identity term
   auto idBuffer = xacc::qalloc(buffer->size());
   idBuffer->addExtraInfo("coefficient", identityCoeff);
   idBuffer->setName("I");
@@ -281,19 +317,29 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     idBuffer->addExtraInfo("ro-fixed-exp-val-z", 1.0);
   buffer->appendChild("I", idBuffer);
 
-  if (buffers[0]->hasExtraInfoKey("purified-energy")) { // FIXME Hack for now...
-    energy = buffers[0]->getInformation("purified-energy").as<double>();
+  std::string aggregate_key = "__internal__decorator_aggregate_vqe__";
+  if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+          xacc::as_shared_ptr(accelerator)) &&
+      buffer->hasExtraInfoKey(aggregate_key)) {
+    // This is a decorator that has an aggregate value
+    auto aggregate_value = (*buffer)[aggregate_key].as<double>();
+    energy += aggregate_value;
     for (auto &b : buffers) {
       b->addExtraInfo("parameters", initial_params);
       buffer->appendChild(b->name(), b);
     }
-  } else {
-    for (int i = 0; i < buffers.size(); i++) {
+  }
+
+  else {
+    for (int i = 0; i < fsToExec.size(); i++) { // compute energy
       auto expval = buffers[i]->getExpectationValueZ();
       energy += expval * coefficients[i];
+    }
+
+    for (int i = 0; i < fsToExec.size(); i++) {
       buffers[i]->addExtraInfo("coefficient", coefficients[i]);
       buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
-      buffers[i]->addExtraInfo("exp-val-z", expval);
+      buffers[i]->addExtraInfo("exp-val-z", buffers[i]->getExpectationValueZ());
       buffers[i]->addExtraInfo("parameters", x);
       buffer->appendChild(fsToExec[i]->name(), buffers[i]);
     }
