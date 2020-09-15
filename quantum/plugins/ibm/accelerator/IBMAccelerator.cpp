@@ -32,7 +32,7 @@
 
 #include <regex>
 #include <thread>
-
+#include <cassert>
 namespace xacc {
 namespace quantum {
 const std::string IBMAccelerator::IBM_AUTH_URL =
@@ -85,6 +85,55 @@ std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
     result.emplace_back(mergedAcquire);
   }
 
+  return result;
+}
+
+std::vector<xacc::ibm_pulse::Instruction> orderFrameChangeInsts(
+    const std::vector<xacc::ibm_pulse::Instruction> &in_originalPulseSchedule) {
+  std::vector<xacc::ibm_pulse::Instruction> result;
+  std::vector<xacc::ibm_pulse::Instruction> fcInsts;
+  
+  const auto sortFcInst = [](std::vector<xacc::ibm_pulse::Instruction>& io_inst){
+    for (size_t i = 1; i< io_inst.size(); ++i) {
+      assert(io_inst[i].get_t0() == io_inst[0].get_t0());
+    }
+    std::sort(io_inst.begin(), io_inst.end(),
+              [](const auto &lhs, const auto &rhs) {
+                return lhs.get_ch() < rhs.get_ch();
+              });
+  };
+
+  for (const auto &ibmInst : in_originalPulseSchedule) {
+    if (ibmInst.get_name() == "fc") {
+      if (fcInsts.empty()) {
+        fcInsts.emplace_back(ibmInst);
+      }
+      else {
+        if (ibmInst.get_t0() == fcInsts.back().get_t0()) {
+          fcInsts.emplace_back(ibmInst);
+        }
+        else {
+          // Sort the list and add
+          sortFcInst(fcInsts);
+          for (auto& fcInst: fcInsts) {
+            result.emplace_back(fcInst);
+          }
+          fcInsts.clear();
+          fcInsts.emplace_back(ibmInst);
+        }
+      }
+    } else {
+      if (!fcInsts.empty()) {
+        sortFcInst(fcInsts);
+        for (auto &fcInst : fcInsts) {
+          result.emplace_back(fcInst);
+        }
+        fcInsts.clear();
+      }
+      result.emplace_back(ibmInst);
+    }
+  }
+  assert(result.size() == in_originalPulseSchedule.size());
   return result;
 }
 
@@ -314,8 +363,8 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     hh.set_memory_slots(backend["n_qubits"].get<int>());
 
     xacc::ibm_pulse::Experiment experiment;
-    experiment.set_instructions(
-        alignMeasurePulseInstructions(visitor->instructions));
+    experiment.set_instructions(alignMeasurePulseInstructions(
+        orderFrameChangeInsts(visitor->instructions)));
     experiment.set_header(hh);
     experiments.push_back(experiment);
 
@@ -848,6 +897,12 @@ void IBMAccelerator::contributeInstructions(
       auto instructionList = cmd_def->getInstructions();
       std::sort(instructionList.begin(), instructionList.end(),
                 [](const auto &lhs, const auto &rhs) {
+                  if (lhs->start() == rhs->start()) {
+                    if (lhs->duration() == rhs->duration()) {
+                      return lhs->channel() < rhs->channel();
+                    }
+                    return lhs->duration() < rhs->duration();
+                  }
                   return lhs->start() < rhs->start();
                 });
       cmd_def->clear();
