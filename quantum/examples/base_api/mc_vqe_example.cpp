@@ -167,7 +167,8 @@ Transition dipole moment: 1.5656,2.8158,-0.0976
   // ExaTN visitor
   auto exatn =
       xacc::getAccelerator("tnqvm", {std::make_pair("tnqvm-visitor", "exatn"),
-                                     std::make_pair("vqe-mode", true)});
+                                     std::make_pair("vqe-mode", true),
+                                     std::make_pair("exatn-buffer-size-gb", 2)});
   auto buffer2 = xacc::qalloc(n_chromophores);
   auto mc_vqe2 = xacc::getAlgorithm("mc-vqe");
 
