@@ -69,10 +69,11 @@ void HPCVirtDecorator::execute(
   // their quantum execution across the node sub-groups.
 
   using namespace boost;
-  int initialized;
+  int initialized, provided;
   MPI_Initialized(&initialized);
   if (!initialized) {
-    MPI_Init(&xacc::argc, &xacc::argv);
+    //MPI_Init(&xacc::argc, &xacc::argv);
+    MPI_Init_thread(&xacc::argc, &xacc::argv, MPI_THREAD_MULTIPLE, &provided);
   }
 
   mpi::communicator world;
