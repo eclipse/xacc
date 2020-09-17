@@ -23,6 +23,9 @@
 namespace xacc {
 namespace algorithm {
 Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
+  std::cout << "Graph:\n";
+  in_graph->write(std::cout);
+  
   std::stringstream pauliStr; 
   // Construct the MAX-CUT Hamiltonian based on graph edges
   for (int i = 0; i < in_graph->order(); ++i) {
