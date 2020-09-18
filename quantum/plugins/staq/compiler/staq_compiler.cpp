@@ -190,11 +190,10 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     _src = "OPENQASM 2.0;\n" + _src;
   }
 
-  //   std::cout << " HELLO:\n" << _src << "\n";
   using namespace staq;
   ast::ptr<ast::Program> prog;
   try {
-    prog = parser::parse_string(src);
+    prog = parser::parse_string(_src);
     transformations::desugar(*prog);
     transformations::synthesize_oracles(*prog);
   } catch (std::exception &e) {
