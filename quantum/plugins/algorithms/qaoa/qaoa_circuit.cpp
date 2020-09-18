@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "qaoa_circuit.hpp"
 #include "PauliOperator.hpp"
+#include "xacc.hpp"
 
 namespace {
   // Null if not an Observable-like type 
@@ -84,8 +85,21 @@ bool QAOA::expand(const xacc::HeterogeneousMap& runtimeOptions)
   }
 
   parseObservables(costHam, refHam);
+
+  // Default is Extended Parameterized Scheme (more params, less depth)
+  bool extendedParameterizedScheme = true;
+  if (runtimeOptions.stringExists("parameter-scheme")) 
+  {
+    const std::string schemeName = runtimeOptions.getString("parameter-scheme");
+    if (schemeName == "Standard") 
+    {
+      xacc::info("Using QAOA Standard parameterization scheme.");
+      extendedParameterizedScheme = false;
+    }
+  }
+
   // Expand to a parametric kernel
-  auto kernel = constructParameterizedKernel();
+  auto kernel = constructParameterizedKernel(extendedParameterizedScheme);
   clear();
   variables = kernel->getVariables();
   for (int instId = 0; instId < kernel->nInstructions(); ++instId)
@@ -147,7 +161,7 @@ void QAOA::parseObservables(Observable* costHam, Observable* refHam)
   }
 }
 
-std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
+std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel(bool extendedMode) const
 {   
   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
   auto qaoaKernel = gateRegistry->createComposite("qaoaKernel");
@@ -164,15 +178,32 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
 
   for (size_t i = 0; i < m_nbSteps; ++i)
   {
-      for (const auto& term : m_costHam)
+      if (extendedMode) 
       {
+        for (const auto& term : m_costHam)
+        {
           auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
           const std::string paramName = "gamma" + std::to_string(gammaParamCounter++);
           expCirc->addVariable(paramName);
           expCirc->expand({ std::make_pair("pauli", term) });
           qaoaKernel->addVariable(paramName);
           qaoaKernel->addInstructions(expCirc->getInstructions());
+        }
       }
+      else 
+      {
+        // Group all terms into 1 parameter
+        const std::string paramName = "gamma" + std::to_string(i);
+        qaoaKernel->addVariable(paramName);
+        for (const auto& term : m_costHam)
+        {
+          auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
+          expCirc->addVariable(paramName);
+          expCirc->expand({ std::make_pair("pauli", term) });
+          qaoaKernel->addInstructions(expCirc->getInstructions());
+        }
+      }
+      
 
       // Beta params:
       // If no drive/reference Hamiltonian is given,
@@ -186,17 +217,36 @@ std::shared_ptr<CompositeInstruction> QAOA::constructParameterizedKernel() const
           }
       }
 
-      for (const auto& term : refHamTerms)
+      if (extendedMode) 
       {
-          auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
-          const std::string paramName = "beta" + std::to_string(betaParamCounter++);
+        for (const auto &term : refHamTerms) 
+        {
+          auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(
+              xacc::getService<Instruction>("exp_i_theta"));
+          const std::string paramName =
+              "beta" + std::to_string(betaParamCounter++);
           expCirc->addVariable(paramName);
-          expCirc->expand({ std::make_pair("pauli", term) });
+          expCirc->expand({std::make_pair("pauli", term)});
           qaoaKernel->addVariable(paramName);
           qaoaKernel->addInstructions(expCirc->getInstructions());
+        }
+      }
+      else 
+      {
+        // Group all paramters:
+        const std::string paramName = "beta" + std::to_string(i);
+        qaoaKernel->addVariable(paramName);
+        for (const auto &term : refHamTerms) 
+        {
+          auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(
+              xacc::getService<Instruction>("exp_i_theta"));
+          expCirc->addVariable(paramName);
+          expCirc->expand({std::make_pair("pauli", term)});
+          qaoaKernel->addInstructions(expCirc->getInstructions());
+        }
       }
   }
-  // std::cout << "Kernel: \n" << qaoaKernel->toString() << "\n";
+  xacc::info("QAOA Kernel: \n" + qaoaKernel->toString() + "\n");
   return qaoaKernel;
 }
 

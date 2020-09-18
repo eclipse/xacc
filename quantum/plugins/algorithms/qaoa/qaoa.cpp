@@ -22,6 +22,30 @@
 
 namespace xacc {
 namespace algorithm {
+Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
+  if (xacc::verbose) {
+    std::cout << "Graph:\n";
+    in_graph->write(std::cout);
+  }
+  std::stringstream pauliStr; 
+  // Construct the MAX-CUT Hamiltonian based on graph edges
+  for (int i = 0; i < in_graph->order(); ++i) {
+    auto neighbors = in_graph->getNeighborList(i);
+    for (const auto& neighborId : neighbors) {
+      pauliStr << "1.0 Z" << i << "Z" << neighborId << " + ";
+    }
+  }
+
+  std::string hamStr = pauliStr.str();
+  if (!hamStr.empty()) {
+    // Remove the trailing + sign
+    hamStr.resize(hamStr.size () - 3);
+  }
+  std::cout << "Graph Hamiltonian: " << hamStr << "\n";
+  static auto graphHam = xacc::quantum::getObservable("pauli", hamStr);
+  return graphHam.get();
+}
+
 bool QAOA::initialize(const HeterogeneousMap &parameters) {
   bool initializeOk = true;
   // Hyper-parameters for QAOA:
@@ -44,14 +68,26 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
     m_nbSteps = parameters.get<int>("steps");
   }
 
-  // (4) Cost Hamiltonian
+  // (4) Cost Hamiltonian or a graph to construct the max-cut cost Hamiltonian
+  // from.
+  bool graphInput = false;
   if (!parameters.pointerLikeExists<Observable>("observable")) {
-    std::cout << "'observable' is required.\n";
-    initializeOk = false;
+    if (parameters.pointerLikeExists<Graph>("graph")) {
+      graphInput = true;
+    }
+    else {
+      std::cout << "'observable' or 'graph' is required.\n";
+      initializeOk = false;
+    }
+  }
+  // Default is Extended ParameterizedMode (less steps, more params) 
+  m_parameterizedMode = "Extended";
+  if (parameters.stringExists("parameter-scheme")) {
+    m_parameterizedMode = parameters.getString("parameter-scheme"); 
   }
 
   if (initializeOk) {
-    m_costHamObs = parameters.getPointerLike<Observable>("observable");
+    m_costHamObs = graphInput ? constructMaxCutHam(parameters.getPointerLike<Graph>("graph")) : parameters.getPointerLike<Observable>("observable");
     m_qpu = parameters.getPointerLike<Accelerator>("accelerator");
     m_optimizer = parameters.getPointerLike<Optimizer>("optimizer");
     // Optional ref-hamiltonian
@@ -112,7 +148,8 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     kernel->expand({std::make_pair("nbQubits", nbQubits),
                     std::make_pair("nbSteps", m_nbSteps),
                     std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs)});
+                    std::make_pair("ref-ham", m_refHamObs),
+                    std::make_pair("parameter-scheme", m_parameterizedMode)});
   }
 
   // Observe the cost Hamiltonian:
@@ -235,7 +272,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
         }
         ss << ") = " << std::setprecision(12) << energy;
-        std::cout << ss.str() << '\n';
+        xacc::info(ss.str());
         return energy;
       },
       kernel->nVariables());
@@ -258,7 +295,8 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     kernel->expand({std::make_pair("nbQubits", nbQubits),
                     std::make_pair("nbSteps", m_nbSteps),
                     std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs)});
+                    std::make_pair("ref-ham", m_refHamObs),
+                    std::make_pair("parameter-scheme", m_parameterizedMode)});
   }
 
   // Observe the cost Hamiltonian:

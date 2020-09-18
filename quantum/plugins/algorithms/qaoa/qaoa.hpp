@@ -29,6 +29,8 @@ public:
     const std::string description() const override { return ""; }
     DEFINE_ALGORITHM_CLONE(QAOA)
 private:
+    Observable* constructMaxCutHam(xacc::Graph* in_graph) const;
+private:
     Observable* m_costHamObs;
     Observable* m_refHamObs;
     Accelerator* m_qpu;
@@ -36,6 +38,7 @@ private:
     std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     int m_nbSteps;
+    std::string m_parameterizedMode;
 };
 } // namespace algorithm
 } // namespace xacc

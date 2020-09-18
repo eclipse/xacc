@@ -106,7 +106,7 @@ class UndirectedVertexPropertiesWriter {
 public:
   UndirectedBoostGraph();
   UndirectedBoostGraph(const int numberOfVertices);
-
+  UndirectedBoostGraph(const UndirectedGraphType &in_graph);
   void addEdge(const int srcIndex, const int tgtIndex,
                const double edgeWeight) override;
   void addEdge(const int srcIndex, const int tgtIndex) override;
@@ -158,6 +158,8 @@ public:
   std::shared_ptr<Graph> clone() override {
       return std::make_shared<UndirectedBoostGraph>();
   }
+  std::shared_ptr<Graph> gen_random_graph(int nbNodes,
+                                          double edgeProb) const override;
 };
 
 } // namespace xacc

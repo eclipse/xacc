@@ -83,6 +83,7 @@ class DirectedVertexPropertiesWriter {
 public:
   DirectedBoostGraph();
   DirectedBoostGraph(const int numberOfVertices);
+  DirectedBoostGraph(const DirectedGraphType &in_graph);
 
   void addEdge(const int srcIndex, const int tgtIndex,
                const double edgeWeight) override;
@@ -136,7 +137,8 @@ public:
   std::shared_ptr<Graph> clone() override {
       return std::make_shared<DirectedBoostGraph>();
   }
-
+  std::shared_ptr<Graph> gen_random_graph(int nbNodes,
+                                          double edgeProb) const override;
 };
 
 } // namespace xacc
