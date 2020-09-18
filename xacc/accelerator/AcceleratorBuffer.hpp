@@ -128,6 +128,8 @@ protected:
   std::map<std::size_t, bool> single_measurements;
 
 public:
+  enum BitOrder {LSB, MSB};
+
   AcceleratorBuffer() {}
   AcceleratorBuffer(const int N);
   AcceleratorBuffer(const std::string &str, const int N);
@@ -208,6 +210,10 @@ public:
   }
 
   void reset_single_measurements() { single_measurements.clear(); }
+
+  std::string
+  single_measurements_to_bitstring(BitOrder bitOrder = BitOrder::MSB,
+                                   bool shouldClear = true);
 
   void setName(const std::string n) { bufferId = n; }
 
