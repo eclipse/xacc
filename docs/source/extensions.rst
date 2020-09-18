@@ -985,6 +985,9 @@ The QAOA Algorithm requires the following input information:
 |    steps               | The number of timesteps. Corresponds to 'p' in the literature.  | int                                  |
 |                        | This is optional, default = 1 if not provided.                  |                                      |
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    parameter-scheme    | The QAOA parameterization scheme ('Extended' or 'Standard').    | string                               |
+|                        | This is optional, default = 'Extended' if not provided.         |                                      |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
 
 This Algorithm will add ``opt-val`` (``double``) and ``opt-params`` (``std::vector<double>``) to the provided ``AcceleratorBuffer``.
 The results of the algorithm are therefore retrieved via these keys (see snippet below). Note you can

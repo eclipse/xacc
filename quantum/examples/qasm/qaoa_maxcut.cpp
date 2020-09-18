@@ -29,7 +29,9 @@ int main(int argc, char **argv) {
                         std::make_pair("optimizer", optimizer),
                         std::make_pair("graph", graph),
                         // number of time steps (p) param
-                        std::make_pair("steps", nbSteps)});
+                        std::make_pair("steps", nbSteps),
+                        // "Standard" or "Extended"
+                        std::make_pair("parameter-scheme", "Standard")});
   qaoa->execute(buffer);
   std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
 }

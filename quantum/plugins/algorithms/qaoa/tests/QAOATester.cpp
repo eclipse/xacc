@@ -50,6 +50,32 @@ TEST(QAOATester, checkSimple)
   // EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.74886);
 }
 
+TEST(QAOATester, checkStandardParamterizedScheme) 
+{
+  auto acc = xacc::getAccelerator("qpp");
+  auto buffer = xacc::qalloc(2);
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  auto qaoa = xacc::getService<Algorithm>("QAOA");
+  // Create deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+  EXPECT_TRUE(
+    qaoa->initialize({
+                        std::make_pair("accelerator", acc),
+                        std::make_pair("optimizer", optimizer),
+                        std::make_pair("observable", H_N_2),
+                        // number of time steps (p) param
+                        std::make_pair("steps", 4),
+                        std::make_pair("parameter-scheme", "Standard")
+                      }));
+  qaoa->execute(buffer);
+  std::cout << "Opt-val = " << (*buffer)["opt-val"].as<double>() << "\n";
+  // EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.74886);
+}
+
 int main(int argc, char **argv) 
 {
   xacc::Initialize(argc, argv);

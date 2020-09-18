@@ -23,9 +23,10 @@
 namespace xacc {
 namespace algorithm {
 Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
-  std::cout << "Graph:\n";
-  in_graph->write(std::cout);
-  
+  if (xacc::verbose) {
+    std::cout << "Graph:\n";
+    in_graph->write(std::cout);
+  }
   std::stringstream pauliStr; 
   // Construct the MAX-CUT Hamiltonian based on graph edges
   for (int i = 0; i < in_graph->order(); ++i) {
@@ -78,6 +79,11 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
       std::cout << "'observable' or 'graph' is required.\n";
       initializeOk = false;
     }
+  }
+  // Default is Extended ParameterizedMode (less steps, more params) 
+  m_parameterizedMode = "Extended";
+  if (parameters.stringExists("parameter-scheme")) {
+    m_parameterizedMode = parameters.getString("parameter-scheme"); 
   }
 
   if (initializeOk) {
@@ -142,7 +148,8 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     kernel->expand({std::make_pair("nbQubits", nbQubits),
                     std::make_pair("nbSteps", m_nbSteps),
                     std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs)});
+                    std::make_pair("ref-ham", m_refHamObs),
+                    std::make_pair("parameter-scheme", m_parameterizedMode)});
   }
 
   // Observe the cost Hamiltonian:
@@ -265,7 +272,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
         }
         ss << ") = " << std::setprecision(12) << energy;
-        std::cout << ss.str() << '\n';
+        xacc::info(ss.str());
         return energy;
       },
       kernel->nVariables());
@@ -288,7 +295,8 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     kernel->expand({std::make_pair("nbQubits", nbQubits),
                     std::make_pair("nbSteps", m_nbSteps),
                     std::make_pair("cost-ham", m_costHamObs),
-                    std::make_pair("ref-ham", m_refHamObs)});
+                    std::make_pair("ref-ham", m_refHamObs),
+                    std::make_pair("parameter-scheme", m_parameterizedMode)});
   }
 
   // Observe the cost Hamiltonian:

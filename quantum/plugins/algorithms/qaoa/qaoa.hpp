@@ -38,6 +38,7 @@ private:
     std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     int m_nbSteps;
+    std::string m_parameterizedMode;
 };
 } // namespace algorithm
 } // namespace xacc
