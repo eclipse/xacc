@@ -45,6 +45,10 @@ std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
 }
 
+HeterogeneousMap AerAccelerator::getProperties() {
+  return physical_backend_properties;
+}
+
 void AerAccelerator::initialize(const HeterogeneousMap &params) {
 
   m_options = params;
@@ -69,36 +73,10 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
 
   if (params.stringExists("backend")) {
-    auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
-    auto props = ibm->getProperties().get<std::string>("total-json");
-    auto props_json = nlohmann::json::parse(props);
-    connectivity = ibm->getConnectivity();
-    // nlohmann::json errors_json;
-    std::vector<nlohmann::json> elements;
-    std::size_t qbit = 0;
-    for (auto it = props_json["qubits"].begin();
-         it != props_json["qubits"].end(); ++it) {
-
-      std::vector<double> value{(*(it->begin() + 5))["value"].get<double>(),
-                                (*(it->begin() + 4))["value"].get<double>()};
-      std::vector<std::vector<double>> probs{{1 - value[0], value[0]},
-                                             {value[1], 1 - value[1]}};
-
-      nlohmann::json element;
-      element["type"] = "roerror";
-      element["operations"] = std::vector<std::string>{"measure"};
-      element["probabilities"] = probs;
-      element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qbit}};
-
-      elements.push_back(element);
-
-      qbit++;
-    }
-
-    noise_model["errors"] = elements;
-    // noise_model["x90_gates"] = std::vecto
-
-    // std::cout << "NoiseModelJson:\n" << noise_model.dump(4) << "\n";
+      auto ibm_noise_model = xacc::getService<NoiseModel>("IBM");
+      ibm_noise_model->initialize(params);
+      auto json_str = ibm_noise_model->toJson();
+      noise_model = nlohmann::json::parse(json_str);
   } else if (params.stringExists("noise-model")) {
     std::string noise_model_str = params.getString("noise-model");
     // Check if this is a file name
@@ -147,7 +125,9 @@ void AerAccelerator::execute(
     nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
     j["config"]["shots"] = m_shots;
     j["config"]["noise_model"] = noise_model;
-    xacc::info("Qobj:\n" + j.dump(2));
+
+    // xacc::set_verbose(true);
+    // xacc::info("Shots Qobj:\n" + j.dump(2));
     auto results_json = nlohmann::json::parse(
         AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
 
@@ -188,10 +168,17 @@ void AerAccelerator::execute(
     auto qobj_str = xacc_to_qobj->translate(tmp);
 
     nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
+    j["config"]["noise_model"] = noise_model;
+    // xacc::info("StateVec Qobj:\n" + j.dump(2));
 
     auto results_json = nlohmann::json::parse(
         AER::controller_execute_json<AER::Simulator::StatevectorController>(
             j.dump()));
+
+    if (results_json["status"].get<std::string>().find("ERROR") != std::string::npos) {
+        std::cout << results_json["status"].get<std::string>() << "\n";
+        xacc::error("Aer Error: " + results_json["status"].get<std::string>());
+    }
 
     auto results = *results_json["results"].begin();
 
@@ -238,7 +225,7 @@ void AerAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer,
   AER::Qobj qobj(qObjJson);
   assert(qobj.circuits.size() == 1);
   auto circ = qobj.circuits[0];
-  
+
   // Output data container
   AER::ExperimentData data;
   data.add_metadata("method", stateVec.name());

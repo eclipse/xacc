@@ -190,13 +190,21 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     _src = "OPENQASM 2.0;\n" + _src;
   }
 
-  //   std::cout << " HELLO:\n" << _src << "\n";
   using namespace staq;
-  auto prog = parser::parse_string(_src);
-  transformations::desugar(*prog);
-  transformations::synthesize_oracles(*prog);
+  ast::ptr<ast::Program> prog;
+  try {
+    prog = parser::parse_string(_src);
+    transformations::desugar(*prog);
+    transformations::synthesize_oracles(*prog);
+  } catch (std::exception &e) {
+    std::stringstream ss;
+    ss << e.what();
+    ss << "\nXACC Error in Staq Compiler, here was the src:\n" << src << "\n";
+    xacc::error(ss.str());
+  }
 
-  if (run_staq_optimize) optimization::simplify(*prog);
+  if (run_staq_optimize)
+    optimization::simplify(*prog);
 
   // at this point we have to find out if we have any ancilla
   // registers
