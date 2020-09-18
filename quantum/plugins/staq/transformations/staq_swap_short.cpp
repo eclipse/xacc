@@ -36,7 +36,6 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
     return;
   }
 
-
   // First get total number of qubits on device
   std::set<int> qbitIdxs;
   auto connectivity = qpu->getConnectivity();
@@ -62,12 +61,21 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   auto staq = xacc::getCompiler("staq");
   auto src = staq->translate(program);
 
+  //   std::cout << "HELLO WORLD:\n" << src << "\n";
   // parse that to get staq ast
-  auto prog = parser::parse_string(src);
+  ast::ptr<ast::Program> prog;
+  try {
+    prog = parser::parse_string(src);
+  } catch (std::exception &e) {
+    std::stringstream ss;
+    ss << e.what();
+    ss << "\nXACC Error in Staq Swap Short, here was the src:\n" << src << "\n";
+    xacc::error(ss.str());
+  }
 
-  mapping::Device device(qpu->getSignature(), nQubits,
-                         adj); 
-  
+
+  mapping::Device device(qpu->getSignature(), nQubits, adj);
+
   // map qreg_NAME -> q
   auto layout = mapping::compute_basic_layout(device, *prog);
   mapping::apply_layout(layout, device, *prog);
@@ -80,7 +88,9 @@ void SwapShort::apply(std::shared_ptr<CompositeInstruction> program,
   prog->pretty_print(ss);
   src = ss.str();
 
+  // std::cout << "AGAIN\n" << src << "\n";
   auto ir = staq->compile(src);
+  //   std::cout << "PASSED HERE\n";
 
   // reset the program and add optimized instructions
   program->clear();

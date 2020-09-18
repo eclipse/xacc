@@ -163,6 +163,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         // posts the energy automatically at a given key
         // on the buffer extra info.
         double energy = identityCoeff;
+        double variance = 0.0;
 
         // Create buffer child for the Identity term
         auto idBuffer = xacc::qalloc(buffer->size());
@@ -194,12 +195,27 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
           for (int i = 0; i < nInstructionsEnergy; i++) { // compute energy
             auto expval = buffers[i]->getExpectationValueZ();
-            if (!got_aggregate)
+            if (!got_aggregate) {
               energy += expval * coefficients[i];
+              if (!buffers[i]->getMeasurementCounts().empty()) {
+                auto paulvar = 1. - expval * expval;
+                buffers[i]->addExtraInfo("pauli-variance", paulvar);
+                variance += coefficients[i] * coefficients[i] * paulvar;
+              }
+            }
             buffers[i]->addExtraInfo("coefficient", coefficients[i]);
             buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
             buffers[i]->addExtraInfo("exp-val-z", expval);
             buffers[i]->addExtraInfo("parameters", x);
+            if (!buffers[i]->getMeasurementCounts().empty()) {
+              int n_shots = 0;
+              for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
+                n_shots += v;
+              }
+
+              buffers[i]->addExtraInfo("energy-standard-deviation",
+                                       std::sqrt(variance / n_shots));
+            }
             buffer->appendChild(fsToExec[i]->name(), buffers[i]);
           }
 
@@ -225,6 +241,11 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           for (int i = 0; i < fsToExec.size(); i++) {
             auto expval = buffers[i]->getExpectationValueZ();
             energy += expval * coefficients[i];
+            if (!buffers[i]->getMeasurementCounts().empty()) {
+              auto paulvar = 1. - expval * expval;
+              buffers[i]->addExtraInfo("pauli-variance", paulvar);
+              variance += coefficients[i] * coefficients[i] * paulvar;
+            }
           }
 
           for (int i = 0; i < fsToExec.size(); i++) {
@@ -233,6 +254,16 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             buffers[i]->addExtraInfo("exp-val-z",
                                      buffers[i]->getExpectationValueZ());
             buffers[i]->addExtraInfo("parameters", x);
+
+            if (!buffers[i]->getMeasurementCounts().empty()) {
+              int n_shots = 0;
+              for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
+                n_shots += v;
+              }
+
+              buffers[i]->addExtraInfo("energy-standard-deviation",
+                                       std::sqrt(variance / n_shots));
+            }
             buffer->appendChild(fsToExec[i]->name(), buffers[i]);
           }
         }
@@ -305,6 +336,7 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   // posts the energy automatically at a given key
   // on the buffer extra info.
   double energy = identityCoeff;
+  double variance = 0.0;
 
   // Create buffer child for the Identity term
   auto idBuffer = xacc::qalloc(buffer->size());
@@ -334,6 +366,11 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     for (int i = 0; i < fsToExec.size(); i++) { // compute energy
       auto expval = buffers[i]->getExpectationValueZ();
       energy += expval * coefficients[i];
+      if (!buffers[i]->getMeasurementCounts().empty()) {
+        auto paulvar = 1. - expval * expval;
+        buffers[i]->addExtraInfo("pauli-variance", paulvar);
+        variance += coefficients[i] * coefficients[i] * paulvar;
+      }
     }
 
     for (int i = 0; i < fsToExec.size(); i++) {
@@ -341,6 +378,15 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
       buffers[i]->addExtraInfo("kernel", fsToExec[i]->name());
       buffers[i]->addExtraInfo("exp-val-z", buffers[i]->getExpectationValueZ());
       buffers[i]->addExtraInfo("parameters", x);
+      if (!buffers[i]->getMeasurementCounts().empty()) {
+        int n_shots = 0;
+        for (auto [k, v] : buffers[i]->getMeasurementCounts()) {
+          n_shots += v;
+        }
+
+        buffers[i]->addExtraInfo("energy-standard-deviation",
+                                 std::sqrt(variance / n_shots));
+      }
       buffer->appendChild(fsToExec[i]->name(), buffers[i]);
     }
   }
