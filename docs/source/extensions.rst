@@ -476,7 +476,7 @@ The list of visitors and their descriptions are:
 .. code:: cpp
 
    auto qpu = xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn"}});
-   
+
 
 For the `exatn` simulator, there are additional options that users can set during initialization:
 
@@ -510,6 +510,30 @@ For the `exatn` simulator, there are additional options that users can set durin
 |                             | If not provided, by default, ExaTN will use `MPI_COMM_WORLD`.          |             |                          |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 
+For the `exatn-mps` simulator, there are additional options that users can set during initialization:
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+| svd-cutoff                  | SVD cut-off limit.                                                     |    double   | numeric_limits::min      |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| max-bond-dim                | Max bond dimension to keep.                                            |    int      | no limit                 |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| mpi-communicator            | The MPI communicator to initialize ExaTN runtime with.                 |    void*    | <unused>                 |
+|                             | If not provided, by default, ExaTN will use `MPI_COMM_WORLD`.          |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
+For the `exatn-pmps` simulator, there are additional options that users can set during initialization:
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+| backend-json                | Backend configuration JSON to estimate the noise model from.           |    string   | None                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| backend                     | Name of the IBMQ backend to query the backend configuration.           |    string   | None                     |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
+If either `backend-json` or `backend` is provided, the `exatn-pmps` simulator will simulate the backend noise associated with each quantum gate.
 
 QuaC
 ++++
