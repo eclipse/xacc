@@ -451,6 +451,66 @@ You can also use this simulator from C++, just make sure you load the Python ext
    xacc::external::unload_external_language_plugins();
    xacc::Finalize();
 
+TNQVM
++++++
+`TNQVM <https://github.com/ORNL-QCI/tnqvm>`_ provides an Accelerator implementation that leverages tensor network theory to simulate quantum circuits.
+
+TNQVM implements a few tensor-based quantum circuit simulators that can be specified by the `tnqvm-visitor` configuration key.
+The list of visitors and their descriptions are:
+
++--------------------+------------------------------------------------------------------------+
+|   `tnqvm-visitor`  |                  Description                                           |    
++====================+========================================================================+
+|    `itensor-mps`   | MPS simulator based on itensor library.                                | 
++--------------------+------------------------------------------------------------------------+
+|    `exatn`         | Full tensor contraction simulator based on ExaTN library.              |  
+|                    | Tensor element type (`float` or `double`) can also specified           |    
+|                    | after a '`:`' separator,                                               |
+|                    | e.g., `exatn:double` (default) or `exatn:float`                        |    
++--------------------+------------------------------------------------------------------------+
+|    `exatn-mps`     | MPS simulator based on ExaTN library.                                  |    
++--------------------+------------------------------------------------------------------------+
+|    `exatn-pmps`    | Purified-MPS (density matrix) simulator based on ExaTN library.        |   
++--------------------+------------------------------------------------------------------------+
+
+.. code:: cpp
+
+   auto qpu = xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn"}});
+   
+
+For the `exatn` simulator, there are additional options that users can set during initialization:
+
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+|  Initialization Parameter   |                  Parameter Description                                 |    type     |         default          |
++=============================+========================================================================+=============+==========================+
+| exatn-buffer-size-gb        | ExaTN's host memory buffer size (in GB)                                |    int      | 8 (GB)                   |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| exatn-contract-seq-optimizer| ExaTN's contraction sequence optimizer to use.                         |    string   | metis                    |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| calc-contract-cost-flops    | Estimate the Flops and Memory requirements only (no tensor contraction)|    bool     | false                    |
+|                             | If true, the following info will be added to the AcceleratorBuffer:    |             |                          |
+|                             | - `contract-flops`: Flops count.                                       |             |                          |
+|                             | - `max-node-bytes`: Max intermediate tensor size in memory.            |             |                          |
+|                             | - `optimizer-elapsed-time-ms`: optimization walltime.                  |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| bitstring                   | If provided, the output amplitude/partial state vector associated with | vector<int> | <unused>                 |
+|                             | that `bitstring` will be computed.                                     |             |                          |
+|                             | The length of the input `bitstring` must match the number of qubits.   |             |                          |
+|                             | Non-projected bits (partial state vector) are indicated by `-1` values.|             |                          |
+|                             | Returned values in the AcceleratorBuffer:                              |             |                          |
+|                             | - `amplitude-real`/`amplitude-real-vec`: Real part of the result.      |             |                          |
+|                             | - `amplitude-imag`/`amplitude-imag-vec`: Imaginary part of the result. |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| contract-with-conjugate     | If true, we append the conjugate of the input circuit.                 |    bool     | false                    |
+|                             | This is used to validate internal tensor contraction.                  |             |                          |
+|                             | `contract-with-conjugate-result` key in the AcceleratorBuffer will be  |             |                          |
+|                             | set to `true` if the validation is successful.                         |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| mpi-communicator            | The MPI communicator to initialize ExaTN runtime with.                 |    void*    | <unused>                 |
+|                             | If not provided, by default, ExaTN will use `MPI_COMM_WORLD`.          |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+
+
 QuaC
 ++++
 The `QuaC <https://github.com/ORNL-QCI/QuaC/tree/xacc-integration>`_ accelerator is a pulse-level accelerator (simulation only) that can execute quantum circuits at both gate and pulse (analog) level.
