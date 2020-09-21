@@ -41,7 +41,8 @@ Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
     // Remove the trailing + sign
     hamStr.resize(hamStr.size () - 3);
   }
-  std::cout << "Graph Hamiltonian: " << hamStr << "\n";
+
+  xacc::info("Graph Hamiltonian: " + hamStr);
   static auto graphHam = xacc::quantum::getObservable("pauli", hamStr);
   return graphHam.get();
 }
@@ -71,9 +72,11 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
   // (4) Cost Hamiltonian or a graph to construct the max-cut cost Hamiltonian
   // from.
   bool graphInput = false;
+  m_maxcutProblem = false;
   if (!parameters.pointerLikeExists<Observable>("observable")) {
     if (parameters.pointerLikeExists<Graph>("graph")) {
       graphInput = true;
+      m_maxcutProblem = true;
     }
     else {
       std::cout << "'observable' or 'graph' is required.\n";
@@ -278,7 +281,14 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       kernel->nVariables());
 
   auto result = m_optimizer->optimize(f);
-  buffer->addExtraInfo("opt-val", ExtraInfo(result.first));
+  // Reports the final cost:
+  // If the input is a graph (MAXCUT problem), shift and scale the value to
+  // match the common convention.
+  const double finalCost =
+      m_maxcutProblem ? (-0.5 * result.first +
+                         0.5 * (m_costHamObs->getNonIdentitySubTerms().size()))
+                      : result.first;  
+  buffer->addExtraInfo("opt-val", ExtraInfo(finalCost));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
 }
 

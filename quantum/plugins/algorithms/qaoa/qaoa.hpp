@@ -39,6 +39,7 @@ private:
     std::shared_ptr<CompositeInstruction> externalAnsatz;
     int m_nbSteps;
     std::string m_parameterizedMode;
+    bool m_maxcutProblem;
 };
 } // namespace algorithm
 } // namespace xacc
