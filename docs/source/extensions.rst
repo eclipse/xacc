@@ -488,17 +488,25 @@ For the `exatn` simulator, there are additional options that users can set durin
 | exatn-contract-seq-optimizer| ExaTN's contraction sequence optimizer to use.                         |    string   | metis                    |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 | calc-contract-cost-flops    | Estimate the Flops and Memory requirements only (no tensor contraction)|    bool     | false                    |
+|                             |                                                                        |             |                          |
 |                             | If true, the following info will be added to the AcceleratorBuffer:    |             |                          |
+|                             |                                                                        |             |                          |
 |                             | - `contract-flops`: Flops count.                                       |             |                          |
+|                             |                                                                        |             |                          |
 |                             | - `max-node-bytes`: Max intermediate tensor size in memory.            |             |                          |
+|                             |                                                                        |             |                          |
 |                             | - `optimizer-elapsed-time-ms`: optimization walltime.                  |             |                          |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 | bitstring                   | If provided, the output amplitude/partial state vector associated with | vector<int> | <unused>                 |
 |                             | that `bitstring` will be computed.                                     |             |                          |
+|                             |                                                                        |             |                          |
 |                             | The length of the input `bitstring` must match the number of qubits.   |             |                          |
 |                             | Non-projected bits (partial state vector) are indicated by `-1` values.|             |                          |
+|                             |                                                                        |             |                          |
 |                             | Returned values in the AcceleratorBuffer:                              |             |                          |
+|                             |                                                                        |             |                          |
 |                             | - `amplitude-real`/`amplitude-real-vec`: Real part of the result.      |             |                          |
+|                             |                                                                        |             |                          |
 |                             | - `amplitude-imag`/`amplitude-imag-vec`: Imaginary part of the result. |             |                          |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 | contract-with-conjugate     | If true, we append the conjugate of the input circuit.                 |    bool     | false                    |
