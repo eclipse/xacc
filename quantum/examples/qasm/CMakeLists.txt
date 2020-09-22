@@ -43,5 +43,5 @@ add_executable(phase_estimation_qasm phase_estimation_10q.cpp)
 target_link_libraries(phase_estimation_qasm PRIVATE xacc xacc-quantum-gate)
 target_compile_definitions(phase_estimation_qasm PRIVATE QASM_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
-add_executable(qaoa_maxcut qaoa_maxcut.cpp)
-target_link_libraries(qaoa_maxcut PRIVATE xacc xacc-quantum-gate)
+add_executable(qaoa_maxcut_qpp qaoa_maxcut_qpp.cpp)
+target_link_libraries(qaoa_maxcut_qpp PRIVATE xacc xacc-quantum-gate)
