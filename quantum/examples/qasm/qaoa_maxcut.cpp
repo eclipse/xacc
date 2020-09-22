@@ -16,22 +16,32 @@
 
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
-  // Use the Qpp simulator as the accelerator
-  auto acc = xacc::getAccelerator("qpp");
-  const size_t nbNodes = 8;
+  //xacc::set_verbose(true);
+  //xacc::logToFile(true);
+  //xacc::setLoggingLevel(2);
+
+  //auto acc = xacc::getAccelerator("qpp");
+  auto acc = xacc::getAccelerator("tnqvm",{
+              std::make_pair("tnqvm-visitor", "exatn:float"),
+              std::make_pair("exatn-buffer-size-gb", 6)
+             });
+  const size_t nbNodes = 24;
   const int nbSteps = 1;
   auto buffer = xacc::qalloc(nbNodes);
-  auto optimizer = xacc::getOptimizer("nlopt");
+  auto optimizer = xacc::getOptimizer("nlopt",{{"nlopt-maxeval",1}});
   auto qaoa = xacc::getService<xacc::Algorithm>("QAOA");
-  auto graph = xacc::getService<xacc::Graph>("boost-digraph")->gen_random_graph(nbNodes, 3.0 / nbNodes); 
-  const bool initOk =
-      qaoa->initialize({std::make_pair("accelerator", acc),
-                        std::make_pair("optimizer", optimizer),
-                        std::make_pair("graph", graph),
-                        // number of time steps (p) param
-                        std::make_pair("steps", nbSteps),
-                        // "Standard" or "Extended"
-                        std::make_pair("parameter-scheme", "Standard")});
+  auto graph = xacc::getService<xacc::Graph>("boost-digraph")->gen_random_graph(nbNodes, 3.0 / nbNodes);
+  const bool initOk = qaoa->initialize({std::make_pair("accelerator", acc),
+                       std::make_pair("optimizer", optimizer),
+                       std::make_pair("graph", graph),
+                       // number of time steps (p) param
+                       std::make_pair("steps", nbSteps),
+                       // "Standard" or "Extended"
+                       std::make_pair("parameter-scheme", "Standard")
+                      });
   qaoa->execute(buffer);
   std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
+
+  xacc::Finalize();
+  return 0;
 }
