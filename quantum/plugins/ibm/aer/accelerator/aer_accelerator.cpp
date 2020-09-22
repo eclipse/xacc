@@ -73,10 +73,12 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
 
   if (params.stringExists("backend")) {
-      auto ibm_noise_model = xacc::getService<NoiseModel>("IBM");
-      ibm_noise_model->initialize(params);
-      auto json_str = ibm_noise_model->toJson();
-      noise_model = nlohmann::json::parse(json_str);
+    auto ibm_noise_model = xacc::getService<NoiseModel>("IBM");
+    ibm_noise_model->initialize(params);
+    auto json_str = ibm_noise_model->toJson();
+    noise_model = nlohmann::json::parse(json_str);
+    auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
+    physical_backend_properties = ibm->getProperties();
   } else if (params.stringExists("noise-model")) {
     std::string noise_model_str = params.getString("noise-model");
     // Check if this is a file name
@@ -88,6 +90,24 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     } else {
       noise_model = nlohmann::json::parse(params.getString("noise-model"));
     }
+    
+    // need this for ro error decorator
+    std::vector<double> p01s, p10s;
+    auto errors = noise_model["errors"];
+    for (auto error : errors) {
+      if (error["operations"].get<std::vector<std::string>>() ==
+          std::vector<std::string>{"measure"}) {
+        auto probs =
+            error["probabilities"].get<std::vector<std::vector<double>>>();
+        auto meas1prep0 = probs[0][1];
+        auto meas0prep1 = probs[1][0];
+        p01s.push_back(meas0prep1);
+        p10s.push_back(meas1prep0);
+      }
+    }
+    physical_backend_properties.insert("p01s", p01s);
+    physical_backend_properties.insert("p10s", p10s);
+
   }
   initialized = true;
 }
@@ -175,9 +195,10 @@ void AerAccelerator::execute(
         AER::controller_execute_json<AER::Simulator::StatevectorController>(
             j.dump()));
 
-    if (results_json["status"].get<std::string>().find("ERROR") != std::string::npos) {
-        std::cout << results_json["status"].get<std::string>() << "\n";
-        xacc::error("Aer Error: " + results_json["status"].get<std::string>());
+    if (results_json["status"].get<std::string>().find("ERROR") !=
+        std::string::npos) {
+      std::cout << results_json["status"].get<std::string>() << "\n";
+      xacc::error("Aer Error: " + results_json["status"].get<std::string>());
     }
 
     auto results = *results_json["results"].begin();
