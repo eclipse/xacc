@@ -21,11 +21,11 @@ namespace xacc {
 
 class Graph : public Identifiable, public Cloneable<Graph> {
 public:
-
   virtual std::shared_ptr<Graph> clone() = 0;
-
+  virtual std::shared_ptr<Graph> gen_random_graph(int nbNodes,
+                                                  double edgeProb) const = 0;
   virtual void addEdge(const int srcIndex, const int tgtIndex,
-               const double edgeWeight) = 0;
+                       const double edgeWeight) = 0;
   virtual void addEdge(const int srcIndex, const int tgtIndex) = 0;
   virtual void removeEdge(const int srcIndex, const int tgtIndex) = 0;
 

@@ -32,9 +32,7 @@ public:
   void setDecorated(std::shared_ptr<Accelerator> a) {
     decoratedAccelerator = a;
   }
-  std::shared_ptr<Accelerator> getDecorated() {
-      return decoratedAccelerator;
-  }
+  std::shared_ptr<Accelerator> getDecorated() { return decoratedAccelerator; }
 
   void initialize(const HeterogeneousMap &params = {}) override {
     decoratedAccelerator->initialize(params);
@@ -43,12 +41,15 @@ public:
     decoratedAccelerator->updateConfiguration(config);
   }
 
-  HeterogeneousMap getProperties() override{
-      return decoratedAccelerator->getProperties();
+  std::vector<std::pair<int, int>> getConnectivity() override {
+    return decoratedAccelerator->getConnectivity();
+  }
+  HeterogeneousMap getProperties() override {
+    return decoratedAccelerator->getProperties();
   }
 
   const std::string getSignature() override {
-      return name() + "," + decoratedAccelerator->getSignature();
+    return name() + "," + decoratedAccelerator->getSignature();
   }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,

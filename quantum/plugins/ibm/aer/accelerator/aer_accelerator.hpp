@@ -30,6 +30,7 @@ public:
   const std::string description() const override {
     return "XACC Simulation Accelerator based on aer library.";
   }
+  HeterogeneousMap getProperties() override;
 
   // Accelerator interface impls
   void initialize(const HeterogeneousMap &params = {}) override;
@@ -73,6 +74,8 @@ private:
   HeterogeneousMap m_options;
   bool initialized = false;
   std::shared_ptr<AER::Noise::NoiseModel> noiseModelObj;
+  HeterogeneousMap physical_backend_properties;
+
 };
 } // namespace quantum
 } // namespace xacc
