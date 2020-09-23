@@ -19,9 +19,9 @@ If you don’t, you need to [register](https://dev.eclipse.org/site_login/create
 
   * Login to the [projects portal](https://projects.eclipse.org/), select “My Account”, and then the “Eclipse ECA” tab.
 
-* Add your GitHub ID in your Eclipse Foundation account. Find this option in the "Account Settings" tab.
+* Add your GitHub ID in your Eclipse Foundation account. Find this option in the "Personal Information" tab under "Edit Your Account".
 
-* "Sign-off" your commits
+* "Sign-off" your commits!
 
 Every commit you make in your patch or pull request MUST be "signed off".
 

@@ -31,9 +31,6 @@ bool DDCL::initialize(const HeterogeneousMap &parameters) {
   if (!parameters.keyExists<std::shared_ptr<CompositeInstruction>>("ansatz")) {
     std::cout << "Ansatz was false\n";
     return false;
-  } else if (!parameters.keyExists<std::shared_ptr<Optimizer>>("optimizer")) {
-    std::cout << "Opt was false\n";
-    return false;
   } else if (!parameters.keyExists<std::shared_ptr<Accelerator>>(
                  "accelerator")) {
     std::cout << "Acc was false\n";
@@ -44,7 +41,9 @@ bool DDCL::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
+  if (parameters.pointerLikeExists<Optimizer>("optimizer")) {
+    optimizer = parameters.get<std::shared_ptr<Optimizer>>("optimizer");
+  }
   kernel = parameters.get<std::shared_ptr<CompositeInstruction>>("ansatz");
   accelerator = parameters.get<std::shared_ptr<Accelerator>>("accelerator");
   target_dist = parameters.get<std::vector<double>>("target_dist");
@@ -68,6 +67,9 @@ const std::vector<std::string> DDCL::requiredParameters() const {
 
 void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
+  if (!optimizer) {
+    xacc::error("DDCL: No Optimizer provided.");
+  }
   auto provider = xacc::getIRProvider("quantum");
 
   // Here we just need to make a lambda kernel
@@ -132,7 +134,8 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
         // Compute and return the loss, this gives us the
         // distribution of the loss circuit too
-        auto loss_and_qdist = lossStrategy->compute(counts, target_dist, _parameters);
+        auto loss_and_qdist =
+            lossStrategy->compute(counts, target_dist, _parameters);
         auto loss = loss_and_qdist.first;
         auto qdist = loss_and_qdist.second;
 
@@ -170,9 +173,9 @@ void DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     struct tm *timenow;
     time_t now = time(NULL);
     timenow = localtime(&now);
-    strftime(filename, sizeof(filename), "_%Y-%m-%d_%Hh%Mm%Ss",
-             timenow);
-    std::string time_str = ".ddcl_"+kernel->name()+std::string(filename)+".ab";
+    strftime(filename, sizeof(filename), "_%Y-%m-%d_%Hh%Mm%Ss", timenow);
+    std::string time_str =
+        ".ddcl_" + kernel->name() + std::string(filename) + ".ab";
     std::ofstream out(time_str);
     buffer->print(out);
     out.close();
@@ -186,7 +189,12 @@ DDCL::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto provider = xacc::getIRProvider("quantum");
 
   // Evaluate and add measurements to all qubits
-  auto evaled = kernel->operator()(x);
+  std::shared_ptr<CompositeInstruction> evaled;
+  if (x.empty()) {
+    evaled = kernel;
+  } else {
+    evaled = kernel->operator()(x);
+  }
   std::set<std::size_t> uniqueBits;
   InstructionIterator iter(evaled);
   while (iter.hasNext()) {

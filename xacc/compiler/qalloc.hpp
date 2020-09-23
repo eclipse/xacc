@@ -59,11 +59,14 @@ public:
   void store();
   void print();
   double weighted_sum(Observable *obs);
+  void write_file(const std::string& file_name);
+  friend std::ostream& operator<<(std::ostream& os, qreg& q);
   // Public member var to simplify the single measurement syntax:
   // i.e. we can access the single measurement results via the syntax:
   // q.creg[i] vs. (*q.results())[i]
   cReg creg;
 };
+std::ostream& operator<<(std::ostream& os, qreg& q);
 } // namespace internal_compiler
 } // namespace xacc
 

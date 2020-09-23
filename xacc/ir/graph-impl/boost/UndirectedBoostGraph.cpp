@@ -18,6 +18,9 @@
 #include <regex>
 
 #include "xacc.hpp"
+#include <boost/graph/erdos_renyi_generator.hpp>
+#include <boost/random/linear_congruential.hpp>
+
 using namespace boost;
 
 namespace xacc {
@@ -30,8 +33,11 @@ UndirectedBoostGraph::UndirectedBoostGraph(const int numberOfVertices) {
   _graph = std::make_shared<u_adj_list>(numberOfVertices);
 }
 
+UndirectedBoostGraph::UndirectedBoostGraph(const UndirectedGraphType &in_graph)
+    : _graph(in_graph) {}
+
 void UndirectedBoostGraph::addEdge(const int srcIndex, const int tgtIndex,
-                                 const double edgeWeight) {
+                                   const double edgeWeight) {
   auto edgeBoolPair = add_edge(vertex(srcIndex, *_graph.get()),
                                vertex(tgtIndex, *_graph.get()), *_graph.get());
   if (!edgeBoolPair.second) {
@@ -276,5 +282,15 @@ void UndirectedBoostGraph::computeShortestPath(int startIndex,
 const int UndirectedBoostGraph::depth() {
     XACCLogger::instance()->error("Cannot compute depth on unUndirected graph.");
     return 0;
+}
+
+std::shared_ptr<Graph>
+UndirectedBoostGraph::gen_random_graph(int nbNodes, double edgeProb) const {
+  // Erdos-Renyi graph generator
+  using ERGen = boost::erdos_renyi_iterator<boost::minstd_rand, u_adj_list>;
+  boost::minstd_rand gen;
+  auto randGraph = std::make_shared<u_adj_list>(ERGen(gen, nbNodes, edgeProb),
+                                                ERGen(), nbNodes);
+  return std::make_shared<UndirectedBoostGraph>(randGraph);
 }
 } // namespace xacc
