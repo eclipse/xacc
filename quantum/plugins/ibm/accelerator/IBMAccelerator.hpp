@@ -20,6 +20,7 @@
 #include <type_traits>
 #include "Backends.hpp"
 #include "Properties.hpp"
+#include "IRTransformation.hpp"
 
 using namespace xacc;
 
@@ -205,6 +206,21 @@ private:
                   std::map<std::string, std::string> extraParams = {});
 };
 
+// IBM Pulse Transformation (gate-pulse lowering)
+class IBMPulseTransform : public IRTransformation {
+public:
+  IBMPulseTransform() {}
+  void apply(std::shared_ptr<CompositeInstruction> program,
+             const std::shared_ptr<Accelerator> accelerator,
+             const HeterogeneousMap &options = {}) override;
+
+  const IRTransformationType type() const override {
+    return IRTransformationType::Optimization;
+  }
+
+  const std::string name() const override { return "ibm-pulse"; }
+  const std::string description() const override { return ""; }
+};
 } // namespace quantum
 } // namespace xacc
 

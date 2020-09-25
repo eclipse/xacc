@@ -732,6 +732,9 @@ HeterogeneousMap IBMAccelerator::getProperties() {
     auto props = backendProperties[backend];
 
     m.insert("total-json", props.dump());
+    m.insert("config-json", chosenBackend.dump());
+    m.insert("defaults-json", defaults_response);
+
     auto qubit_props = props["qubits"];
 
     std::vector<double> p01s, p10s;
@@ -1117,6 +1120,28 @@ IBMAccelerator::get(const std::string &_url, const std::string &path,
   }
 
   return getResponse;
+}
+
+void IBMPulseTransform::apply(std::shared_ptr<CompositeInstruction> program,
+                              const std::shared_ptr<Accelerator> accelerator,
+                              const HeterogeneousMap &options) {
+
+  auto scheduler = xacc::getService<Scheduler>("pulse");
+  auto pulseMapper = std::make_shared<PulseMappingVisitor>();
+  {
+    InstructionIterator it(program);
+    while (it.hasNext()) {
+      auto nextInst = it.next();
+      if (nextInst->isEnabled()) {
+        nextInst->accept(pulseMapper);
+      }
+    }
+  }
+  auto loweredKernel = pulseMapper->pulseComposite;
+  xacc::info("Pulse-level kernel: \n" + loweredKernel->toString());
+  // Schedule the pulses
+  scheduler->schedule(loweredKernel);
+  program = loweredKernel;
 }
 } // namespace quantum
 } // namespace xacc
