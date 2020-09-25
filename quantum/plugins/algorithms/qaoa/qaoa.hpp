@@ -40,6 +40,7 @@ private:
     int m_nbSteps;
     std::string m_parameterizedMode;
     bool m_maxcutProblem;
+    bool m_maximize = false;
 };
 } // namespace algorithm
 } // namespace xacc
