@@ -50,8 +50,61 @@ TEST(QAOATester, checkSimple)
   // EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.74886);
 }
 
-int main(int argc, char **argv) 
+TEST(QAOATester, checkStandardParamterizedScheme) 
 {
+  auto acc = xacc::getAccelerator("qpp");
+  auto buffer = xacc::qalloc(2);
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  auto qaoa = xacc::getService<Algorithm>("QAOA");
+  // Create deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+  EXPECT_TRUE(
+    qaoa->initialize({
+                        std::make_pair("accelerator", acc),
+                        std::make_pair("optimizer", optimizer),
+                        std::make_pair("observable", H_N_2),
+                        // number of time steps (p) param
+                        std::make_pair("steps", 4),
+                        std::make_pair("parameter-scheme", "Standard")
+                      }));
+  qaoa->execute(buffer);
+  std::cout << "Opt-val = " << (*buffer)["opt-val"].as<double>() << "\n";
+  // EXPECT_LT((*buffer)["opt-val"].as<double>(), -1.74886);
+}
+
+TEST(QAOATester, checkMaxCut) {
+  auto acc = xacc::getAccelerator("qpp");
+  auto buffer = xacc::qalloc(3);
+  xacc::set_verbose(true);
+  auto optimizer = xacc::getOptimizer("nlopt");
+  auto qaoa = xacc::getService<Algorithm>("QAOA");
+  auto graph = xacc::getService<xacc::Graph>("boost-digraph");
+
+  // Triangle graph
+  for (int i = 0; i < 3; i++) {
+    graph->addVertex();
+  }
+  graph->addEdge(0, 1);
+  graph->addEdge(0, 2);
+  graph->addEdge(1, 2);
+
+  const bool initOk = qaoa->initialize(
+      {std::make_pair("accelerator", acc),
+       std::make_pair("optimizer", optimizer), std::make_pair("graph", graph),
+       // number of time steps (p) param
+       std::make_pair("steps", 1),
+       // "Standard" or "Extended"
+       std::make_pair("parameter-scheme", "Standard")});
+  qaoa->execute(buffer);
+  std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
+}
+
+int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
   auto ret = RUN_ALL_TESTS();

@@ -49,8 +49,9 @@ void ROErrorDecorator::execute(
     }
   } else {
     if (!xacc::fileExists(roErrorFile)) {
-      xacc::info("Cannot find readout erro file (key 'file'). Skipping ReadoutError "
-                 "correction.");
+      xacc::info(
+          "Cannot find readout erro file (key 'file'). Skipping ReadoutError "
+          "correction.");
       return;
     }
 
@@ -81,16 +82,22 @@ void ROErrorDecorator::execute(
 
   auto supports = [](std::shared_ptr<CompositeInstruction> f) {
     std::set<int> supportSet;
+    std::map<int, int> support_to_creg_map;
+    int creg_count = 0;
     InstructionIterator it(f);
     while (it.hasNext()) {
       auto nextInst = it.next();
       if (nextInst->name() == "Measure") {
         auto bits = nextInst->bits();
-        for (auto &b : bits)
+        supportSet.insert(bits[0]);
+        support_to_creg_map.insert({bits[0], creg_count});
+        creg_count++;
+        for (auto &b : bits) {
           supportSet.insert(b);
+        }
       }
     }
-    return supportSet;
+    return std::make_pair(supportSet, support_to_creg_map);
   };
 
   // Get the number of shots first
@@ -107,15 +114,25 @@ void ROErrorDecorator::execute(
     auto prod = 1.0;
     std::string bitString = kv.first;
     auto count = kv.second;
-    for (auto j : supports(function)) {
-      prod *= (std::pow(-1, (int)(bitString[buffer->size() - j - 1] - '0')) -
-               piminus[j]) /
-              (1.0 - piplus[j]);
+    auto [_supports, supports_to_creg_map] = supports(function);
+    for (auto j : _supports) {
+      prod *=
+          (std::pow(
+               -1,
+               (int)(bitString[buffer->size() - supports_to_creg_map[j] - 1] -
+                     '0')) -
+           piminus[j]) /
+          (1.0 - piplus[j]);
     }
 
     fixedExp += ((double)count / (double)nShots) * prod;
   }
-
+  if (fixedExp > 1.0) {
+    fixedExp = 1.0;
+  }
+  if (fixedExp < -1.0) {
+    fixedExp = -1.0;
+  }
   buffer->addExtraInfo("ro-fixed-exp-val-z", ExtraInfo(fixedExp));
 
   return;
@@ -127,7 +144,8 @@ void ROErrorDecorator::execute(
 
   std::vector<std::shared_ptr<AcceleratorBuffer>> buffers;
   std::map<std::string, std::shared_ptr<CompositeInstruction>> nameToFunction;
-  std::map<std::string, std::set<int>> supportSets;
+  std::map<std::string, std::pair<std::set<int>, std::map<int, int>>>
+      supportSets;
 
   if (decoratedAccelerator) {
     decoratedAccelerator->execute(buffer, functions);
@@ -138,17 +156,22 @@ void ROErrorDecorator::execute(
 
   auto supports = [](std::shared_ptr<CompositeInstruction> f) {
     std::set<int> supportSet;
+    std::map<int, int> support_to_creg_map;
+    int creg_count = 0;
     InstructionIterator it(f);
     while (it.hasNext()) {
       auto nextInst = it.next();
       if (nextInst->name() == "Measure") {
         auto bits = nextInst->bits();
+        supportSet.insert(bits[0]);
+        support_to_creg_map.insert({bits[0], creg_count});
+        creg_count++;
         for (auto &b : bits) {
           supportSet.insert(b);
         }
       }
     }
-    return supportSet;
+    return std::make_pair(supportSet, support_to_creg_map);
   };
 
   for (auto &f : functions) {
@@ -167,14 +190,16 @@ void ROErrorDecorator::execute(
     auto p01s = properties.get<std::vector<double>>("p01s");
     auto p10s = properties.get<std::vector<double>>("p10s");
     for (int i = 0; i < p01s.size(); i++) {
+
       piplus.insert({i, p01s[i] + p10s[i]});
       piminus.insert({i, p01s[i] - p10s[i]});
     }
   } else {
 
     if (!xacc::fileExists(roErrorFile)) {
-      xacc::info("Cannot find readout error file (key 'file'). Skipping ReadoutError "
-                 "correction.");
+      xacc::info(
+          "Cannot find readout error file (key 'file'). Skipping ReadoutError "
+          "correction.");
       return;
     }
     // Get RO error probs
@@ -218,7 +243,7 @@ void ROErrorDecorator::execute(
     auto counts = b->getMeasurementCounts();
     auto functionName = b->name();
     auto f = nameToFunction[functionName];
-    auto fSupports = supportSets[functionName];
+    auto [fSupports, support_to_creg_map] = supportSets[functionName];
     auto exp_val = b->getExpectationValueZ();
     auto fixedExp = 0.0;
     for (auto &kv : counts) {
@@ -227,8 +252,10 @@ void ROErrorDecorator::execute(
       auto count = kv.second;
       for (auto &j : fSupports) {
         auto denom = (1.0 - piplus[j]);
-        auto numerator =
-            (bitString[bitString.length() - 1 - j] == '1' ? -1 : 1) -
+        double numerator =
+            (bitString[bitString.length() - 1 - support_to_creg_map[j]] == '1'
+                 ? -1
+                 : 1) -
             piminus[j];
         prod *= (numerator / denom);
       }

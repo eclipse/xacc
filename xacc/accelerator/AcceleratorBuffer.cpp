@@ -343,6 +343,29 @@ bool AcceleratorBuffer::operator[](const std::size_t &i) {
   return single_measurements[i];
 }
 
+std::string
+AcceleratorBuffer::single_measurements_to_bitstring(BitOrder bitOrder,
+                                                    bool shouldClear) {
+  std::string bitString;
+  // single_measurements is an *ordered* map
+  if (bitOrder == BitOrder::LSB) {
+    for (auto iter = single_measurements.begin();
+         iter != single_measurements.end(); ++iter) {
+      bitString.append(iter->second ? "1" : "0");
+    }
+  } else {
+    for (auto iter = single_measurements.rbegin();
+         iter != single_measurements.rend(); ++iter) {
+      bitString.append(iter->second ? "1" : "0");
+    }
+  }
+
+  if (shouldClear) {
+    single_measurements.clear();
+  }
+  return bitString;
+}
+
 double
 AcceleratorBuffer::computeMeasurementProbability(const std::string &bitStr) {
   return (double)bitStringToCounts[bitStr] /

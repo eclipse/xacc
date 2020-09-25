@@ -54,6 +54,12 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   double tol = 1e-6;
   int maxeval = 1000;
 
+  bool maximize = false;
+  if (options.keyExists<bool>("maximize")) {
+      xacc::info("Turning on maximize!");
+    maximize = options.get<bool>("maximize");
+  }
+
   if (options.stringExists("nlopt-optimizer")) {
     auto optimizerAlgo = options.getString("nlopt-optimizer");
     if (optimizerAlgo == "cobyla") {
@@ -92,7 +98,11 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   auto d = reinterpret_cast<void *>(&data);
 
   nlopt::opt _opt(algo, dim);
-  _opt.set_min_objective(c_wrapper, d);
+  if (maximize) {
+    _opt.set_max_objective(c_wrapper, d);
+  } else {
+    _opt.set_min_objective(c_wrapper, d);
+  }
   // Default lower bounds
   std::vector<double> lowerBounds(dim, -3.1415926);
   if (options.keyExists<std::vector<double>>("nlopt-lower-bounds")) {

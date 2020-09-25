@@ -16,6 +16,8 @@
 #include "Utils.hpp"
 #include <utility>
 #include <regex>
+#include <boost/graph/erdos_renyi_generator.hpp>
+#include <boost/random/linear_congruential.hpp>
 
 using namespace boost;
 
@@ -28,6 +30,9 @@ DirectedBoostGraph::DirectedBoostGraph() {
 DirectedBoostGraph::DirectedBoostGraph(const int numberOfVertices) {
   _graph = std::make_shared<d_adj_list>(numberOfVertices);
 }
+
+DirectedBoostGraph::DirectedBoostGraph(const DirectedGraphType &in_graph)
+    : _graph(in_graph) {}
 
 void DirectedBoostGraph::addEdge(const int srcIndex, const int tgtIndex,
                                  const double edgeWeight) {
@@ -313,5 +318,15 @@ const int DirectedBoostGraph::depth() {
 
 
   return -1 * (*std::min_element(d.begin(), d.end())) - 1;
+}
+
+std::shared_ptr<Graph>
+DirectedBoostGraph::gen_random_graph(int nbNodes, double edgeProb) const {
+  // Erdos-Renyi graph generator
+  using ERGen = boost::erdos_renyi_iterator<boost::minstd_rand, d_adj_list>;
+  boost::minstd_rand gen;
+  auto randGraph = std::make_shared<d_adj_list>(ERGen(gen, nbNodes, edgeProb),
+                                                ERGen(), nbNodes);
+  return std::make_shared<DirectedBoostGraph>(randGraph);
 }
 } // namespace xacc

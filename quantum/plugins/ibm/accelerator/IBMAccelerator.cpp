@@ -151,17 +151,19 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     // We should have backend set by now
 
-    if (!hub.empty()) {
-      IBM_CREDENTIALS_PATH =
-          "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
-      getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
-      getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
-                                 "/Projects/" + project + "/devices/" +
-                                 backend + "/properties";
-    } else {
-      xacc::error(
-          "We do not currently support running on the open IBM devices.");
+    if (hub.empty() && group.empty() && project.empty()) {
+      // Fallback to public API credentials
+      hub = "ibm-q";
+      group = "open";
+      project = "main";
     }
+
+    IBM_CREDENTIALS_PATH =
+        "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
+    getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
+    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
+                               "/Projects/" + project + "/devices/" +
+                               backend + "/properties";
 
     // Post apiKey to get temp api key
     tokenParam += apiKey + "\"}";
@@ -181,29 +183,28 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
     // Get current backend properties
-    if (backend != DEFAULT_IBM_BACKEND) {
-      auto response = get(IBM_API_URL, getBackendPropertiesPath, {},
-                          {std::make_pair("version", "1"),
-                           std::make_pair("access_token", currentApiToken)});
-      xacc::info("Backend property:\n" +  response);
-      auto props = json::parse(response);
-      backendProperties.insert({backend, props});
-      for (auto &b : backends_root["backends"]) {
-        if (b.count("backend_name") &&
-            b["backend_name"].get<std::string>() == backend) {
-          availableBackends.insert(std::make_pair(backend, b));
-        }
+    auto backend_props_response = get(IBM_API_URL, getBackendPropertiesPath, {},
+                                      {std::make_pair("version", "1"),
+                                       std::make_pair("access_token", currentApiToken)});
+    xacc::info("Backend property:\n" +  backend_props_response);
+    auto props = json::parse(backend_props_response);
+    backendProperties.insert({backend, props});
+    for (auto &b : backends_root["backends"]) {
+      if (b.count("backend_name") &&
+          b["backend_name"].get<std::string>() == backend) {
+        availableBackends.insert(std::make_pair(backend, b));
       }
-
-      chosenBackend = availableBackends[backend];
-
-      defaults_response =
-          get(IBM_API_URL,
-              IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
-              {std::make_pair("version", "1"),
-               std::make_pair("access_token", currentApiToken)});
-      xacc::info("Backend default:\n" +  defaults_response);
     }
+
+    chosenBackend = availableBackends[backend];
+
+    defaults_response =
+        get(IBM_API_URL,
+            IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
+            {std::make_pair("version", "1"),
+             std::make_pair("access_token", currentApiToken)});
+    xacc::info("Backend default:\n" +  defaults_response);
+
     initialized = true;
   }
 }
