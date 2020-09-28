@@ -221,8 +221,9 @@ namespace quantum {
                 xacc::error("Invalid 'shots' parameter.");
             }
         }
-        // Backward compatibility: not enable VQE mode by default. 
-        m_vqeMode = false;
+        // Enable VQE mode by default if not using shots.
+        // Note: in VQE mode, only expectation values are computed.
+        m_vqeMode = (m_shots < 1);
         if (params.keyExists<bool>("vqe-mode"))
         {
             m_vqeMode = params.get<bool>("vqe-mode");
@@ -334,7 +335,7 @@ namespace quantum {
             // Basis-change + measures
             auto obsCircuits = kernelDecomposed.getObservedSubCircuits();
             // Walk the base IR tree, and visit each node
-            InstructionIterator it(kernelDecomposed.getBase());
+            InstructionIterator it(baseKernel);
             while (it.hasNext()) 
             {
                 auto nextInst = it.next();
