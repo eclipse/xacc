@@ -263,7 +263,7 @@ std::shared_ptr<CompositeInstruction> QITE::constructPropagateCircuit() const
       auto expCirc = std::dynamic_pointer_cast<xacc::quantum::Circuit>(xacc::getService<Instruction>("exp_i_theta"));
       const bool expandOk = expCirc->expand({ std::make_pair("pauli", pauliStr) });
       assert(expandOk);
-      auto evaled = expCirc->operator()({ m_dBeta });
+      auto evaled = expCirc->operator()({ 0.5*m_dBeta });
       propagateKernel->addInstructions(evaled->getInstructions());
     }
   }
