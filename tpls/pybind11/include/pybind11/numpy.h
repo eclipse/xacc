@@ -35,11 +35,14 @@
    upon the library user. */
 static_assert(sizeof(ssize_t) == sizeof(Py_intptr_t), "ssize_t != Py_intptr_t");
 
-NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
+PYBIND11_NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
 
 class array; // Forward declaration
 
-NAMESPACE_BEGIN(detail)
+PYBIND11_NAMESPACE_BEGIN(detail)
+
+template <> struct handle_type_name<array> { static constexpr auto name = _("numpy.ndarray"); };
+
 template <typename type, typename SFINAE = void> struct npy_format_descriptor;
 
 struct PyArrayDescr_Proxy {
@@ -178,8 +181,9 @@ struct npy_api {
     unsigned int (*PyArray_GetNDArrayCFeatureVersion_)();
     PyObject *(*PyArray_DescrFromType_)(int);
     PyObject *(*PyArray_NewFromDescr_)
-        (PyTypeObject *, PyObject *, int, Py_intptr_t *,
-         Py_intptr_t *, void *, int, PyObject *);
+        (PyTypeObject *, PyObject *, int, Py_intptr_t const *,
+         Py_intptr_t const *, void *, int, PyObject *);
+    // Unused. Not removed because that affects ABI of the class.
     PyObject *(*PyArray_DescrNewFromType_)(int);
     int (*PyArray_CopyInto_)(PyObject *, PyObject *);
     PyObject *(*PyArray_NewCopy_)(PyObject *, int);
@@ -190,9 +194,10 @@ struct npy_api {
     PyObject *(*PyArray_FromAny_) (PyObject *, PyObject *, int, int, int, PyObject *);
     int (*PyArray_DescrConverter_) (PyObject *, PyObject **);
     bool (*PyArray_EquivTypes_) (PyObject *, PyObject *);
-    int (*PyArray_GetArrayParamsFromObject_)(PyObject *, PyObject *, char, PyObject **, int *,
-                                             Py_ssize_t *, PyObject **, PyObject *);
+    int (*PyArray_GetArrayParamsFromObject_)(PyObject *, PyObject *, unsigned char, PyObject **, int *,
+                                             Py_intptr_t *, PyObject **, PyObject *);
     PyObject *(*PyArray_Squeeze_)(PyObject *);
+    // Unused. Not removed because that affects ABI of the class.
     int (*PyArray_SetBaseObject_)(PyObject *, PyObject *);
     PyObject* (*PyArray_Resize_)(PyObject*, PyArray_Dims*, int, int);
 private:
@@ -208,7 +213,7 @@ private:
         API_PyArray_CopyInto = 82,
         API_PyArray_NewCopy = 85,
         API_PyArray_NewFromDescr = 94,
-        API_PyArray_DescrNewFromType = 9,
+        API_PyArray_DescrNewFromType = 96,
         API_PyArray_DescrConverter = 174,
         API_PyArray_EquivTypes = 182,
         API_PyArray_GetArrayParamsFromObject = 278,
@@ -217,7 +222,7 @@ private:
     };
 
     static npy_api lookup() {
-        module m = module::import("numpy.core.multiarray");
+        module_ m = module::import("numpy.core.multiarray");
         auto c = m.attr("_ARRAY_API");
 #if PY_MAJOR_VERSION >= 3
         void **api_ptr = (void **) PyCapsule_GetPointer(c.ptr(), NULL);
@@ -276,7 +281,7 @@ template <typename T> struct is_complex : std::false_type { };
 template <typename T> struct is_complex<std::complex<T>> : std::true_type { };
 
 template <typename T> struct array_info_scalar {
-    typedef T type;
+    using type = T;
     static constexpr bool is_array = false;
     static constexpr bool is_empty = false;
     static constexpr auto extents = _("");
@@ -439,7 +444,7 @@ struct type_caster<unchecked_reference<T, Dim>> {
 template <typename T, ssize_t Dim>
 struct type_caster<unchecked_mutable_reference<T, Dim>> : type_caster<unchecked_reference<T, Dim>> {};
 
-NAMESPACE_END(detail)
+PYBIND11_NAMESPACE_END(detail)
 
 class dtype : public object {
 public:
@@ -545,7 +550,7 @@ public:
         forcecast = detail::npy_api::NPY_ARRAY_FORCECAST_
     };
 
-    array() : array({{0}}, static_cast<const double *>(nullptr)) {}
+    array() : array(0, static_cast<const double *>(nullptr)) {}
 
     using ShapeContainer = detail::any_container<ssize_t>;
     using StridesContainer = detail::any_container<ssize_t>;
@@ -606,8 +611,8 @@ public:
     template <typename T>
     explicit array(ssize_t count, const T *ptr, handle base = handle()) : array({count}, {}, ptr, base) { }
 
-    explicit array(const buffer_info &info)
-    : array(pybind11::dtype(info), info.shape, info.strides, info.ptr) { }
+    explicit array(const buffer_info &info, handle base = handle())
+    : array(pybind11::dtype(info), info.shape, info.strides, info.ptr, base) { }
 
     /// Array descriptor (dtype)
     pybind11::dtype dtype() const {
@@ -853,7 +858,7 @@ public:
         if (!m_ptr) throw error_already_set();
     }
 
-    explicit array_t(const buffer_info& info) : array(info) { }
+    explicit array_t(const buffer_info& info, handle base = handle()) : array(info, base) { }
 
     array_t(ShapeContainer shape, StridesContainer strides, const T *ptr = nullptr, handle base = handle())
         : array(std::move(shape), std::move(strides), ptr, base) { }
@@ -863,7 +868,7 @@ public:
                 ExtraFlags & f_style ? f_strides(*shape, itemsize()) : c_strides(*shape, itemsize()),
                 ptr, base) { }
 
-    explicit array_t(size_t count, const T *ptr = nullptr, handle base = handle())
+    explicit array_t(ssize_t count, const T *ptr = nullptr, handle base = handle())
         : array({count}, {}, ptr, base) { }
 
     constexpr ssize_t itemsize() const {
@@ -929,7 +934,8 @@ public:
     static bool check_(handle h) {
         const auto &api = detail::npy_api::get();
         return api.PyArray_Check_(h.ptr())
-               && api.PyArray_EquivTypes_(detail::array_proxy(h.ptr())->descr, dtype::of<T>().ptr());
+               && api.PyArray_EquivTypes_(detail::array_proxy(h.ptr())->descr, dtype::of<T>().ptr())
+               && detail::check_flags(h.ptr(), ExtraFlags & (array::c_style | array::f_style));
     }
 
 protected:
@@ -976,7 +982,7 @@ struct format_descriptor<T, detail::enable_if_t<detail::array_info<T>::is_array>
     }
 };
 
-NAMESPACE_BEGIN(detail)
+PYBIND11_NAMESPACE_BEGIN(detail)
 template <typename T, int ExtraFlags>
 struct pyobject_caster<array_t<T, ExtraFlags>> {
     using type = array_t<T, ExtraFlags>;
@@ -1007,14 +1013,14 @@ struct npy_format_descriptor_name;
 template <typename T>
 struct npy_format_descriptor_name<T, enable_if_t<std::is_integral<T>::value>> {
     static constexpr auto name = _<std::is_same<T, bool>::value>(
-        _("bool"), _<std::is_signed<T>::value>("int", "uint") + _<sizeof(T)*8>()
+        _("bool"), _<std::is_signed<T>::value>("numpy.int", "numpy.uint") + _<sizeof(T)*8>()
     );
 };
 
 template <typename T>
 struct npy_format_descriptor_name<T, enable_if_t<std::is_floating_point<T>::value>> {
     static constexpr auto name = _<std::is_same<T, float>::value || std::is_same<T, double>::value>(
-        _("float") + _<sizeof(T)*8>(), _("longdouble")
+        _("numpy.float") + _<sizeof(T)*8>(), _("numpy.longdouble")
     );
 };
 
@@ -1022,7 +1028,7 @@ template <typename T>
 struct npy_format_descriptor_name<T, enable_if_t<is_complex<T>::value>> {
     static constexpr auto name = _<std::is_same<typename T::value_type, float>::value
                                    || std::is_same<typename T::value_type, double>::value>(
-        _("complex") + _<sizeof(typename T::value_type)*16>(), _("longcomplex")
+        _("numpy.complex") + _<sizeof(typename T::value_type)*16>(), _("numpy.longcomplex")
     );
 };
 
@@ -1218,7 +1224,7 @@ private:
 #define PYBIND11_MAP_NEXT0(test, next, ...) next PYBIND11_MAP_OUT
 #define PYBIND11_MAP_NEXT1(test, next) PYBIND11_MAP_NEXT0 (test, next, 0)
 #define PYBIND11_MAP_NEXT(test, next)  PYBIND11_MAP_NEXT1 (PYBIND11_MAP_GET_END test, next)
-#ifdef _MSC_VER // MSVC is not as eager to expand macros, hence this workaround
+#if defined(_MSC_VER) && !defined(__clang__) // MSVC is not as eager to expand macros, hence this workaround
 #define PYBIND11_MAP_LIST_NEXT1(test, next) \
     PYBIND11_EVAL0 (PYBIND11_MAP_NEXT0 (test, PYBIND11_MAP_COMMA next, 0))
 #else
@@ -1240,7 +1246,7 @@ private:
         (::std::vector<::pybind11::detail::field_descriptor> \
          {PYBIND11_MAP_LIST (PYBIND11_FIELD_DESCRIPTOR, Type, __VA_ARGS__)})
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 #define PYBIND11_MAP2_LIST_NEXT1(test, next) \
     PYBIND11_EVAL0 (PYBIND11_MAP_NEXT0 (test, PYBIND11_MAP_COMMA next, 0))
 #else
@@ -1290,7 +1296,7 @@ public:
         m_strides.back() = static_cast<value_type>(strides.back());
         for (size_type i = m_strides.size() - 1; i != 0; --i) {
             size_type j = i - 1;
-            value_type s = static_cast<value_type>(shape[i]);
+            auto s = static_cast<value_type>(shape[i]);
             m_strides[j] = strides[j] + m_strides[i] - strides[i] * s;
         }
     }
@@ -1478,7 +1484,14 @@ struct vectorize_arg {
 
 template <typename Func, typename Return, typename... Args>
 struct vectorize_helper {
+
+// NVCC for some reason breaks if NVectorized is private
+#ifdef __CUDACC__
+public:
+#else
 private:
+#endif
+
     static constexpr size_t N = sizeof...(Args);
     static constexpr size_t NVectorized = constexpr_sum(vectorize_arg<Args>::vectorize...);
     static_assert(NVectorized >= 1,
@@ -1526,7 +1539,7 @@ private:
         ssize_t nd = 0;
         std::vector<ssize_t> shape(0);
         auto trivial = broadcast(buffers, nd, shape);
-        size_t ndim = (size_t) nd;
+        auto ndim = (size_t) nd;
 
         size_t size = std::accumulate(shape.begin(), shape.end(), (size_t) 1, std::multiplies<size_t>());
 
@@ -1605,7 +1618,7 @@ template <typename T, int Flags> struct handle_type_name<array_t<T, Flags>> {
     static constexpr auto name = _("numpy.ndarray[") + npy_format_descriptor<T>::name + _("]");
 };
 
-NAMESPACE_END(detail)
+PYBIND11_NAMESPACE_END(detail)
 
 // Vanilla pointer vectorizer:
 template <typename Return, typename... Args>
@@ -1635,7 +1648,7 @@ Helper vectorize(Return (Class::*f)(Args...) const) {
     return Helper(std::mem_fn(f));
 }
 
-NAMESPACE_END(PYBIND11_NAMESPACE)
+PYBIND11_NAMESPACE_END(PYBIND11_NAMESPACE)
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
