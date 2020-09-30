@@ -44,10 +44,11 @@ Observable *QAOA::constructMaxCutHam(xacc::Graph *in_graph) const {
 
   xacc::info("Graph Hamiltonian: " + hamStr);
   static auto graphHam = xacc::quantum::getObservable("pauli", hamStr);
-  auto els = graphHam->to_sparse_matrix();
-  for (auto el : els) {
-      std::cout << el.row() << ", " << el.col() << ", " << el.coeff() << "\n";
-  }
+  // DEBUG: Print the graph Hamiltonian matrix
+  // auto els = graphHam->to_sparse_matrix();
+  // for (auto el : els) {
+  //     std::cout << el.row() << ", " << el.col() << ", " << el.coeff() << "\n";
+  // }
   return graphHam.get();
 }
 
