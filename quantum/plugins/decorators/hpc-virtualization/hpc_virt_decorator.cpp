@@ -22,6 +22,7 @@
 
 #include <mpi.h>
 
+using namespace boost;
 namespace xacc {
 namespace quantum {
 
@@ -39,6 +40,21 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
     }
     n_virtual_qpus = params.get<int>("n-virtual-qpus");
   }
+
+  // Initialize MPI together with decorator initialization
+  int initialized, threadSupport;
+  MPI_Initialized(&initialized);
+  if (!initialized) {
+    MPI_Init_thread(&xacc::argc, &xacc::argv, MPI_THREAD_MULTIPLE, &threadSupport);
+  }
+
+  xacc::info("Thread support = " + std::to_string(threadSupport));
+  if (threadSupport == MPI_THREAD_MULTIPLE) {
+    xacc::info("Running with MPI_THREAD_MULTIPLE support.");
+  } else {
+    xacc::warning("Threading support lesser than MPI_THREAD_MULTIPLE.");
+  }
+
 }
 
 void HPCVirtDecorator::updateConfiguration(const HeterogeneousMap &config) {
@@ -68,14 +84,6 @@ void HPCVirtDecorator::execute(
   // we wish to evaluate the <O> for each by partitioning
   // their quantum execution across the node sub-groups.
 
-  using namespace boost;
-  int initialized, provided;
-  MPI_Initialized(&initialized);
-  if (!initialized) {
-    //MPI_Init(&xacc::argc, &xacc::argv);
-    MPI_Init_thread(&xacc::argc, &xacc::argv, MPI_THREAD_MULTIPLE, &provided);
-  }
-
   mpi::communicator world;
 
   // Get the rank and size in the original communicator
@@ -85,6 +93,7 @@ void HPCVirtDecorator::execute(
     // The number of MPI processes is less than the number of requested virtual
     // QPUs, just execute as if there is only one virtual QPU and give the QPU
     // the whole MPI_COMM_WORLD.
+    xacc::warning("MPI rank < Number of virtual QPUs. Will perform serial execution " + std::to_string(world_size) + "x times.");
     void *qpu_comm_ptr = reinterpret_cast<void *>((MPI_Comm)world);
     if (!qpuComm) {
       qpuComm = std::make_shared<boost::mpi::communicator>(world);
@@ -94,6 +103,8 @@ void HPCVirtDecorator::execute(
     // just execute
     decoratedAccelerator->execute(buffer, functions);
     return;
+  } else {
+    xacc::info("Number of MPI ranks allow parallel execution.");
   }
 
   // Get the color for this rank
