@@ -15,7 +15,7 @@ set(LIBRARY_NAME xacc-py-plugin-loader)
 get_filename_component(PYTHON_LIB_NAME ${Python_LIBRARIES} NAME)
 configure_file(py_plugin_loader.in.cpp
                ${CMAKE_BINARY_DIR}/python/plugins/py_plugin_loader.cpp)
-
+message(STATUS " PYTHON: ${PYTHON_LIB_NAME}")
 file (GLOB SRC ${CMAKE_BINARY_DIR}/python/plugins/py_plugin_loader.cpp py_plugin_loader_activator.cpp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
@@ -50,3 +50,5 @@ else()
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
+
+add_subdirectory(mitiq)

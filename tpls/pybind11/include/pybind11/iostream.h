@@ -17,8 +17,8 @@
 #include <memory>
 #include <iostream>
 
-NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
-NAMESPACE_BEGIN(detail)
+PYBIND11_NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
+PYBIND11_NAMESPACE_BEGIN(detail)
 
 // Buffer that writes to Python instead of C++
 class pythonbuf : public std::streambuf {
@@ -30,7 +30,7 @@ private:
     object pywrite;
     object pyflush;
 
-    int overflow(int c) {
+    int overflow(int c) override {
         if (!traits_type::eq_int_type(c, traits_type::eof())) {
             *pptr() = traits_type::to_char_type(c);
             pbump(1);
@@ -38,7 +38,10 @@ private:
         return sync() == 0 ? traits_type::not_eof(c) : traits_type::eof();
     }
 
-    int sync() {
+    // This function must be non-virtual to be called in a destructor. If the
+    // rare MSVC test failure shows up with this version, then this should be
+    // simplified to a fully qualified call.
+    int _sync() {
         if (pbase() != pptr()) {
             // This subtraction cannot be negative, so dropping the sign
             str line(pbase(), static_cast<size_t>(pptr() - pbase()));
@@ -54,6 +57,10 @@ private:
         return 0;
     }
 
+    int sync() override {
+        return _sync();
+    }
+
 public:
 
     pythonbuf(object pyostream, size_t buffer_size = 1024)
@@ -67,12 +74,12 @@ public:
     pythonbuf(pythonbuf&&) = default;
 
     /// Sync before destroy
-    ~pythonbuf() {
-        sync();
+    ~pythonbuf() override {
+        _sync();
     }
 };
 
-NAMESPACE_END(detail)
+PYBIND11_NAMESPACE_END(detail)
 
 
 /** \rst
@@ -144,7 +151,7 @@ public:
 };
 
 
-NAMESPACE_BEGIN(detail)
+PYBIND11_NAMESPACE_BEGIN(detail)
 
 // Class to redirect output as a context manager. C++ backend.
 class OstreamRedirect {
@@ -170,7 +177,7 @@ public:
     }
 };
 
-NAMESPACE_END(detail)
+PYBIND11_NAMESPACE_END(detail)
 
 /** \rst
     This is a helper function to add a C++ redirect context manager to Python
@@ -206,4 +213,4 @@ inline class_<detail::OstreamRedirect> add_ostream_redirect(module m, std::strin
         .def("__exit__", [](detail::OstreamRedirect &self_, args) { self_.exit(); });
 }
 
-NAMESPACE_END(PYBIND11_NAMESPACE)
+PYBIND11_NAMESPACE_END(PYBIND11_NAMESPACE)
