@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_mitiq_zne",
+  "bundle.activator" : true,
+  "bundle.name" : "Mitiq ZNE Decorator",
+  "bundle.description" : ""
+}

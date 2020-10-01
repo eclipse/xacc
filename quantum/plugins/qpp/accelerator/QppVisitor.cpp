@@ -344,4 +344,33 @@ namespace quantum {
         // 0 -> False; 1 -> True
         return (randomSelectedResult == 1);
     }
+
+    double QppVisitor::getExpectationValueZ(std::shared_ptr<CompositeInstruction> in_composite) 
+    {
+        auto cachedStateVec = m_stateVec;
+        std::vector<size_t> measureBitIdxs;
+
+        InstructionIterator it(in_composite);
+        while (it.hasNext()) 
+        {
+            auto nextInst = it.next();
+            if (nextInst->isEnabled() && !nextInst->isComposite()) 
+            {
+                if (nextInst->name() == "Measure") 
+                {
+                    measureBitIdxs.emplace_back(nextInst->bits()[0]);
+                }
+                else
+                {
+                    // Apply change-of-basis gates (if any)
+                    nextInst->accept(this);
+                }
+            }
+        }
+        
+        const double result = calcExpectationValueZ(m_stateVec, measureBitIdxs);
+        // Restore the state vector
+        m_stateVec = cachedStateVec;
+        return result;
+    }
 }}

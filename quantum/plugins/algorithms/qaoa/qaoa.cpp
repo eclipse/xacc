@@ -22,16 +22,16 @@
 
 namespace xacc {
 namespace algorithm {
-Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
+Observable *QAOA::constructMaxCutHam(xacc::Graph *in_graph) const {
   if (xacc::verbose) {
     std::cout << "Graph:\n";
     in_graph->write(std::cout);
   }
-  std::stringstream pauliStr; 
+  std::stringstream pauliStr;
   // Construct the MAX-CUT Hamiltonian based on graph edges
   for (int i = 0; i < in_graph->order(); ++i) {
     auto neighbors = in_graph->getNeighborList(i);
-    for (const auto& neighborId : neighbors) {
+    for (const auto &neighborId : neighbors) {
       pauliStr << "1.0 Z" << i << "Z" << neighborId << " + ";
     }
   }
@@ -39,11 +39,16 @@ Observable* QAOA::constructMaxCutHam(xacc::Graph* in_graph) const {
   std::string hamStr = pauliStr.str();
   if (!hamStr.empty()) {
     // Remove the trailing + sign
-    hamStr.resize(hamStr.size () - 3);
+    hamStr.resize(hamStr.size() - 3);
   }
 
   xacc::info("Graph Hamiltonian: " + hamStr);
   static auto graphHam = xacc::quantum::getObservable("pauli", hamStr);
+  // DEBUG: Print the graph Hamiltonian matrix
+  // auto els = graphHam->to_sparse_matrix();
+  // for (auto el : els) {
+  //     std::cout << el.row() << ", " << el.col() << ", " << el.coeff() << "\n";
+  // }
   return graphHam.get();
 }
 
@@ -77,20 +82,22 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
     if (parameters.pointerLikeExists<Graph>("graph")) {
       graphInput = true;
       m_maxcutProblem = true;
-    }
-    else {
+    } else {
       std::cout << "'observable' or 'graph' is required.\n";
       initializeOk = false;
     }
   }
-  // Default is Extended ParameterizedMode (less steps, more params) 
+  // Default is Extended ParameterizedMode (less steps, more params)
   m_parameterizedMode = "Extended";
   if (parameters.stringExists("parameter-scheme")) {
-    m_parameterizedMode = parameters.getString("parameter-scheme"); 
+    m_parameterizedMode = parameters.getString("parameter-scheme");
   }
 
   if (initializeOk) {
-    m_costHamObs = graphInput ? constructMaxCutHam(parameters.getPointerLike<Graph>("graph")) : parameters.getPointerLike<Observable>("observable");
+    m_costHamObs =
+        graphInput
+            ? constructMaxCutHam(parameters.getPointerLike<Graph>("graph"))
+            : parameters.getPointerLike<Observable>("observable");
     m_qpu = parameters.getPointerLike<Accelerator>("accelerator");
     m_optimizer = parameters.getPointerLike<Optimizer>("optimizer");
     // Optional ref-hamiltonian
@@ -131,6 +138,9 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
         "Chosen optimizer does not support gradients. Using default.");
   }
 
+  if (parameters.keyExists<bool>("maximize")) {
+      m_maximize = parameters.get<bool>("maximize");
+  }
   return initializeOk;
 }
 
@@ -261,7 +271,7 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
             buffer->appendChild(fsToExec[i]->name(), buffers[i]);
           }
         }
-
+   
         std::stringstream ss;
         iterCount++;
         ss << "Iter " << iterCount << ": E("
@@ -276,6 +286,8 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         }
         ss << ") = " << std::setprecision(12) << energy;
         xacc::info(ss.str());
+        
+        if (m_maximize) energy *= -1.0;
         return energy;
       },
       kernel->nVariables());
@@ -284,10 +296,12 @@ void QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   // Reports the final cost:
   // If the input is a graph (MAXCUT problem), shift and scale the value to
   // match the common convention.
-  const double finalCost =
+  double finalCost =
       m_maxcutProblem ? (-0.5 * result.first +
                          0.5 * (m_costHamObs->getNonIdentitySubTerms().size()))
-                      : result.first;  
+                      : result.first;
+  if (m_maximize) finalCost *= -1.0;
+
   buffer->addExtraInfo("opt-val", ExtraInfo(finalCost));
   buffer->addExtraInfo("opt-params", ExtraInfo(result.second));
 }
@@ -359,7 +373,11 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     buffer->appendChild(fsToExec[i]->name(), buffers[i]);
   }
 
-  return {energy};
+  const double finalCost =
+      m_maxcutProblem ? (-0.5 * energy +
+                         0.5 * (m_costHamObs->getNonIdentitySubTerms().size()))
+                      : energy;
+  return {finalCost};
 }
 
 } // namespace algorithm
