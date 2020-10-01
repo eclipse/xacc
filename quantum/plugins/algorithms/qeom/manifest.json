@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_algorithm_qeom",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC qEOM Algorithm",
+  "bundle.description" : ""
+}
