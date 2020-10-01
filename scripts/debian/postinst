@@ -4,4 +4,5 @@ set +x
 
 python3 -m pip install --user ipopo cmake
 echo "export PYTHONPATH=$PYTHONPATH:/usr/local/xacc" >> $HOME/.bashrc 
+echo "export PATH=$PATH:/usr/local/xacc/bin" >> $HOME/.bashrc 
 source $HOME/.bashrc
