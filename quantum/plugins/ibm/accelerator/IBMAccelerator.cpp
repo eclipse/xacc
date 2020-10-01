@@ -332,24 +332,16 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   std::vector<xacc::ibm_pulse::Experiment> experiments;
   // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
   std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
-  for (auto &kernel : circuits) {
-    auto pulseMapper = std::make_shared<PulseMappingVisitor>();
-    {
-      InstructionIterator it(kernel);
-      while (it.hasNext()) {
-        auto nextInst = it.next();
-        if (nextInst->isEnabled()) {
-          nextInst->accept(pulseMapper);
-        }
-      }
-    }
-    kernel = pulseMapper->pulseComposite;
-    xacc::info("Pulse-level kernel: \n" + kernel->toString());
-    // Schedule the pulses
-    scheduler->schedule(kernel);
-
+  
+  // Using the Pulse instruction assembler: lower gate->pulse + schedule. 
+  auto ibmPulseAssembler = xacc::getService<IRTransformation>("ibm-pulse");
+  for (auto &gateKernel : circuits) {
+    auto kernel = xacc::ir::asComposite(gateKernel->clone());
+    // Assemble pulse composite from the input kernel.
+    ibmPulseAssembler->apply(kernel, nullptr);
+    
+    // Construct the Pulse QObj
     auto visitor = std::make_shared<OpenPulseVisitor>();
-
     InstructionIterator it(kernel);
     int memSlots = 0;
     while (it.hasNext()) {
@@ -1141,7 +1133,8 @@ void IBMPulseTransform::apply(std::shared_ptr<CompositeInstruction> program,
   xacc::info("Pulse-level kernel: \n" + loweredKernel->toString());
   // Schedule the pulses
   scheduler->schedule(loweredKernel);
-  program = loweredKernel;
+  program->clear();
+  program->addInstructions(loweredKernel->getInstructions());
 }
 } // namespace quantum
 } // namespace xacc
