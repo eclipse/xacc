@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set +x 
+
+python3 -m pip install --user ipopo cmake
+echo "export PYTHONPATH=$PYTHONPATH:$HOME/.bashrc" >> $HOME/.bashrc 
+source $HOME/.bashrc
