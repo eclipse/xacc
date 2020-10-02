@@ -192,11 +192,46 @@ set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/scripts/debian/posti
 if (${XACC_CPACK_DEB_PLATFORM} STREQUAL "bionic")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "gcc-8, g++-8, libblas-dev, liblapack-dev, python3, python3-pip, libpython3-dev, libcurl4-openssl-dev, libssl-dev")
 elseif(${XACC_CPACK_DEB_PLATFORM} STREQUAL "focal")
- set(CPACK_DEBIAN_PACKAGE_DEPENDS "gcc-9, g++-9, libblas-dev, liblapack-dev, python3, python3-pip, libpython3-dev, libcurl4-openssl-dev, libssl-dev")
+ set(CPACK_DEBIAN_PACKAGE_DEPENDS "gcc-10, g++-10, libblas-dev, liblapack-dev, python3, python3-pip, libpython3-dev, libcurl4-openssl-dev, libssl-dev")
 endif()
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_SECTION "base")
 set(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+ 
+include(CPack)
+endif()
+
+if (XACC_CPACK_RPM_PLATFORM)
+message(STATUS "CPack RPM Build Enabled.") 
+set(CPACK_SET_DESTDIR "on")
+set(CPACK_PACKAGING_INSTALL_PREFIX "/tmp")
+set(CPACK_GENERATOR "RPM")
+
+set(CPACK_COMPONENTS_ALL DIST DEVEL)
+set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
+set(CPACK_COMPONENTS_IGNORE_GROUPS 1)
+SET(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+set(CPACK_RPM_DIST_POST_INSTALL_SCRIPT_FILE ${CMAKE_SOURCE_DIR}/scripts/debian/postinst)
+
+set(MAJOR_VERSION 1)
+set(MINOR_VERSION 0)
+set(PATCH_VERSION 0)
+
+set(CPACK_PACKAGE_DESCRIPTION "xacc quantum programming framework")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "xacc provides a service-oriented architecture enabling the programming, compilation, and execution of quantum code on quantum co-processors.")
+set(CPACK_PACKAGE_VENDOR "ORNL")
+set(CPACK_PACKAGE_CONTACT "mccaskeyaj@ornl.gov")
+set(CPACK_PACKAGE_VERSION_MAJOR "${MAJOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_MINOR "${MINOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PATCH_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
+
+#dependencies for this service menu
+if (${XACC_CPACK_RPM_PLATFORM} STREQUAL "fedora31")
+set(CPACK_RPM_PACKAGE_REQUIRES "gcc-c++, gcc-gfortran, blas-devel, lapack-devel, git, python3-devel, libcurl-devel, openssl-devel")
+elseif(${XACC_CPACK_RPM_PLATFORM} STREQUAL "focal")
+endif()
  
 include(CPack)
 endif()
