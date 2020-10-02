@@ -29,6 +29,7 @@
 #include "xacc_service.hpp"
 
 #include <bitset>
+#include "QObjGenerator.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -62,7 +63,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
   if (params.stringExists("sim-type")) {
     if (!xacc::container::contains(
-            std::vector<std::string>{"qasm", "statevector"},
+            std::vector<std::string>{"qasm", "statevector", "pulse"},
             params.getString("sim-type"))) {
       xacc::warning("[Aer] warning, invalid sim-type (" +
                     params.getString("sim-type") +
@@ -79,6 +80,10 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     noise_model = nlohmann::json::parse(json_str);
     auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
     physical_backend_properties = ibm->getProperties();
+    if (m_simtype == "pulse") {
+      // If pulse mode, must contribute pulse cmd-def.
+      ibm->contributeInstructions();
+    }
   } else if (params.stringExists("noise-model")) {
     std::string noise_model_str = params.getString("noise-model");
     // Check if this is a file name
@@ -170,6 +175,28 @@ void AerAccelerator::execute(
 
       buffer->appendMeasurement(actual, nOccurrences);
     }
+  } else if (m_simtype == "pulse") {
+    // Get the correct QObject Generator
+    auto qobjGen = xacc::getService<QObjGenerator>("pulse");
+    auto chosenBackend = nlohmann::json::parse(physical_backend_properties.getString("config-json"));
+    // std::cout << "Chosen backend:\n" << chosenBackend.dump() << "\n";
+    // Unused
+    const std::string getBackendPropsResponse = "{}";
+    auto defaults_response = nlohmann::json::parse(physical_backend_properties.getString("defaults-json"));
+    
+    // std::cout << "Defaults:\n" << defaults_response.dump() << "\n";
+    auto ibmPulseAssembler = xacc::getService<IRTransformation>("ibm-pulse");
+    auto kernel = xacc::ir::asComposite(program->clone());
+    // Assemble pulse composite from the input kernel.
+    ibmPulseAssembler->apply(kernel, nullptr);
+    // std::cout << "Pulse kernel:\n" << kernel->toString() << "\n";
+    
+    // Generate the QObject JSON
+    auto jsonStr = qobjGen->getQObjJsonStr({kernel}, m_shots, chosenBackend,
+                                           getBackendPropsResponse,
+                                           connectivity, defaults_response);
+
+    std::cout << "qobj: \n" << jsonStr << "\n";
   } else {
     // statevector
     // remove all measures, don't need them
