@@ -37,6 +37,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
   target_include_directories(${LIBRARY_NAME}
                              PUBLIC accelerator
                                     compiler
+                                    common
                                     compiler/generated
                                     accelerator/json
                                     ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
