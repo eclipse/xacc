@@ -58,6 +58,17 @@ int main(int argc, char **argv) {
   
   // Simulate:
   accelerator->execute(buffer, f);
+  std::cout << "First experiment:\n";
   buffer->print();
+
+  // Run gate-pulse simulation.
+  // Also, this will test Python interpreter lifetime.
+  auto x0 = provider->createInstruction("X", {0});
+  auto f2 = provider->createComposite("tmp2");
+  f2->addInstructions({x0, m0, m1, m2, m3, m4});
+  auto buffer2 = xacc::qalloc(5);
+  accelerator->execute(buffer2, f2);
+  std::cout << "Second experiment:\n";
+  buffer2->print();
   xacc::Finalize();
 }
