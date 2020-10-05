@@ -60,6 +60,8 @@ public:
     context.RegisterService<quantum::QObjGenerator>(qasm_qobj_gen);
     context.RegisterService<quantum::QObjGenerator>(pulse_qobj_gen);
 
+    auto pulse_transform = std::make_shared<xacc::quantum::IBMPulseTransform>();
+    context.RegisterService<xacc::IRTransformation>(pulse_transform);
   }
 
   /**

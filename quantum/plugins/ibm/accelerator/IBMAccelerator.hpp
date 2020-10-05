@@ -20,22 +20,13 @@
 #include <type_traits>
 #include "Backends.hpp"
 #include "Properties.hpp"
+#include "IRTransformation.hpp"
+#include "QObjGenerator.hpp"
 
 using namespace xacc;
 
 namespace xacc {
 namespace quantum {
-
-class QObjGenerator : public Identifiable {
-public:
-  virtual std::string
-  getQObjJsonStr(std::vector<std::shared_ptr<CompositeInstruction>> composites,
-                 const int &shots, const nlohmann::json &backend,
-                 const std::string getBackendPropsResponse,
-                 std::vector<std::pair<int, int>> &connectivity,
-                 const nlohmann::json &backendDefaults) = 0;
-};
-
 class QasmQObjGenerator : public QObjGenerator {
 public:
   std::string
@@ -205,6 +196,21 @@ private:
                   std::map<std::string, std::string> extraParams = {});
 };
 
+// IBM Pulse Transformation (gate-pulse lowering)
+class IBMPulseTransform : public IRTransformation {
+public:
+  IBMPulseTransform() {}
+  void apply(std::shared_ptr<CompositeInstruction> program,
+             const std::shared_ptr<Accelerator> accelerator,
+             const HeterogeneousMap &options = {}) override;
+
+  const IRTransformationType type() const override {
+    return IRTransformationType::Optimization;
+  }
+
+  const std::string name() const override { return "ibm-pulse"; }
+  const std::string description() const override { return ""; }
+};
 } // namespace quantum
 } // namespace xacc
 
