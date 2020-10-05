@@ -14,9 +14,9 @@
 add_xacc_test(AerAccelerator)
 target_link_libraries(AerAcceleratorTester xacc xacc-quantum-gate)
 
-# Note: This test must be disabled since the CI machine doesn't have IBMQ access.
+# Note: These tests must be disabled since the CI machine doesn't have IBMQ access.
 # add_xacc_test(AerNoiseModel)
 # target_link_libraries(AerNoiseModelTester xacc xacc-quantum-gate)
 
-add_xacc_test(AerAcceleratorPulse)
-target_link_libraries(AerAcceleratorPulseTester xacc xacc-quantum-gate)
+# add_xacc_test(AerAcceleratorPulse)
+# target_link_libraries(AerAcceleratorPulseTester xacc xacc-quantum-gate)

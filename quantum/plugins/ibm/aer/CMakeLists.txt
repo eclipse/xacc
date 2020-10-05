@@ -1,5 +1,7 @@
 set(LIBRARY_NAME xacc-aer)
 
+add_subdirectory(py-aer)
+
 file(GLOB SRC
           accelerator/aer_accelerator.cpp)
 
@@ -16,6 +18,7 @@ target_include_directories(${LIBRARY_NAME}
 target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate
+                               xacc-py-aer-adapter
                         )
 
 set(_bundle_name xacc_aer)

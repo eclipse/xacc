@@ -17,17 +17,19 @@
 
 TEST(AerAcceleratorPulseTester, checkSimple) {
   auto accelerator =
-      xacc::getAccelerator("aer:ibmq_armonk", {{"sim-type", "pulse"}});
+      xacc::getAccelerator("aer:ibmq_rome", {{"sim-type", "pulse"}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto ir = xasmCompiler->compile(R"(__qpu__ void test(qbit q) {
-      H(q[0]);
-      Measure(q[0]);
+      X(q[4]);
+      X(q[2]);
+      Measure(q[2]);
+      Measure(q[4]);
     })",
                                   accelerator);
 
   auto program = ir->getComposite("test");
 
-  auto buffer = xacc::qalloc(1);
+  auto buffer = xacc::qalloc(5);
   accelerator->execute(buffer, program);
 
   buffer->print();
