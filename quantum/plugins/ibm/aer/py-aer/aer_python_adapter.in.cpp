@@ -5,6 +5,8 @@
 #ifdef XACC_QISKIT_FOUND
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
+#include <dlfcn.h>
+#include "xacc_config.hpp"
 #endif
 
 namespace xacc {
@@ -14,7 +16,18 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
                         const std::vector<int> &uChanLoRefs,
                         const std::string &qObjJson) {
 #ifdef XACC_QISKIT_FOUND
-  pybind11::scoped_interpreter guard{};
+  static bool PythonInit = false;
+  if (!PythonInit) {
+    if (!XACC_IS_APPLE) {
+      // If not MacOs, preload Python lib to the address space.
+      // Note: we don't need to dlclose, just need to load the lib to prevent
+      // linking issue on Linux.
+      auto libPythonPreload =
+          dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
+    }
+    pybind11::initialize_interpreter();
+    PythonInit = true;
+  }
   auto py_src = R"#(
 import json, warnings
 import numpy as np
