@@ -15,22 +15,21 @@
 #include "xacc_observable.hpp"
 #include "xacc_service.hpp"
 #include "Circuit.hpp"
+#include "PauliOperator.hpp"
 
 // run this with
-// $ mpirun -n N h4_chain_8qbit_hpc_virt --n-virtual-qpus M --n-hydrogens H
-// where N is the number of MPI ranks, M is number of qpus,
-// and H is number of hydrogens in the chain
+// <MPI variables> srun -n X -N Y ./path/to/chain_hpc_virt --n-virtual-qpus <n_qpus> --n-hydrogens <n_h> --n-terms <n_terms> --accelerator <acc>
 
 int main(int argc, char **argv) {
   // Initialize 
+  xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
   xacc::logToFile(true);
   xacc::setLoggingLevel(2);
-  xacc::Initialize(argc, argv);
 
   // Process the input arguments
   std::vector<std::string> arguments(argv + 1, argv + argc);
-  int n_virt_qpus, n_hydrogen;
+  int n_virt_qpus, n_hydrogen, n_terms = 0, n_cycles = 2;
   std::string acc;
   for (int i = 0; i < arguments.size(); i++) {
     if (arguments[i] == "--n-virtual-qpus") {
@@ -42,6 +41,12 @@ int main(int argc, char **argv) {
     if (arguments[i] == "--n-hydrogens") {
       n_hydrogen = std::stoi(arguments[i + 1]);
     }
+    if (arguments[i] == "--n-terms") {
+      n_terms = std::stoi(arguments[i + 1]);
+    }
+    if (arguments[i] == "--n-cycles") {
+      n_cycles = std::stoi(arguments[i + 1]);
+    }
   }
 
   // Read in hamiltonian
@@ -50,6 +55,18 @@ int main(int argc, char **argv) {
   sss << hfile.rdbuf();
   auto H = xacc::quantum::getObservable("pauli", sss.str());
   
+  if (n_terms > H->getSubTerms().size()) {
+    xacc::error("--n-terms needs to be less than " + std::to_string(H->getSubTerms().size()));
+  } else if (n_terms != 0) {
+    auto terms = H->getSubTerms();
+    xacc::quantum::PauliOperator reducedH;
+    for (int i = 0; i < n_terms; i++) {
+      reducedH += *std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(terms[i]);
+    }
+    H->fromString(reducedH.toString());
+    //H = xacc::quantum::getObservable("pauli", reducedH.toString());
+  }
+
   // Get reference to the Accelerator
   std::shared_ptr<xacc::Accelerator> accelerator;
   if (acc == "tnqvm") {
@@ -80,7 +97,7 @@ int main(int argc, char **argv) {
 
   double energy = 0.0;
 
-  for(int i = 0; i < 2; i++){
+  for(int i = 0; i < n_cycles; i++){
     auto q = xacc::qalloc(2 * n_hydrogen);
     xacc::ScopeTimer timer("mpi_timing", false);
     energy = vqe->execute(q, {})[0];
