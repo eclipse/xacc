@@ -27,7 +27,6 @@ protected:
 public:
 
   void initialize(const HeterogeneousMap &params = {}) override {
-    decoratedAccelerator->initialize(params);
     if (params.stringExists("file")) {
         roErrorFile = params.getString("file");
     }

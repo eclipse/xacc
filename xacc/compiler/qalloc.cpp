@@ -9,6 +9,16 @@ template <typename T> struct empty_delete {
   void operator()(T *const) const {}
 };
 
+std::ostream &operator<<(std::ostream &os, qreg &q) {
+  q.results()->print(os);
+  return os;
+}
+void qreg::write_file(const std::string &file_name) {
+    std::ofstream os(file_name);
+    os << *this;
+    return;
+}
+
 std::string qreg::random_string(std::size_t length) {
   auto randchar = []() -> char {
     const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -23,7 +33,7 @@ std::string qreg::random_string(std::size_t length) {
 
 qreg::qreg(const int n) {
   buffer = xacc::qalloc(n);
-  auto name = "qreg_" + random_string(5);
+  auto name = "qrg_" + random_string(5);
   xacc::storeBuffer(name, buffer);
   cReg classicalReg(buffer);
   creg = classicalReg;

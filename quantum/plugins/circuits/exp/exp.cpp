@@ -149,7 +149,7 @@ bool Exp::expand(const HeterogeneousMap &parameters) {
     }
 
     xasm_src = xasm_src + "Rz(q[" + std::to_string(qidxs[qidxs.size() - 1]) +
-                "], " + std::to_string(coeff) + " * " +
+                "], " + std::to_string(2.*coeff) + " * " +
                 paramLetter + ");\n";
 
     xasm_src = xasm_src + cnot_back.str() + basis_back.str();

@@ -38,6 +38,7 @@ private:
     // Number of 'shots' if random sampling simulation is enabled.
     // -1 means disabled (no shots, just expectation value)
     int m_shots = -1;
+    bool m_vqeMode;
 };
 
 class DefaultNoiseModelUtils : public NoiseModelUtils 

@@ -13,6 +13,7 @@
 #include "QppAccelerator.hpp"
 #include <thread>
 #include <mutex>
+#include "IRUtils.hpp"
 
 namespace {
     inline bool isMeasureGate(const xacc::InstPtr& in_instr)
@@ -220,6 +221,17 @@ namespace quantum {
                 xacc::error("Invalid 'shots' parameter.");
             }
         }
+        // Enable VQE mode by default if not using shots.
+        // Note: in VQE mode, only expectation values are computed.
+        m_vqeMode = (m_shots < 1);
+        if (params.keyExists<bool>("vqe-mode"))
+        {
+            m_vqeMode = params.get<bool>("vqe-mode");
+            if (m_vqeMode)
+            {
+                xacc::info("Enable VQE Mode.");
+            }
+        }
     }
 
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
@@ -303,11 +315,46 @@ namespace quantum {
     
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)
     {
-        for (auto& f : compositeInstructions)
+        if (!m_vqeMode || compositeInstructions.size() <= 1) 
         {
-            auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
-            execute(tmpBuffer, f);
-            buffer->appendChild(f->name(), tmpBuffer);
+            for (auto& f : compositeInstructions)
+            {
+                auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
+                execute(tmpBuffer, f);
+                buffer->appendChild(f->name(), tmpBuffer);
+            }
+        }
+        else 
+        {
+            auto kernelDecomposed = ObservedAnsatz::fromObservedComposites(compositeInstructions);
+            // Always validate kernel decomposition in DEBUG
+            assert(kernelDecomposed.validate(compositeInstructions));
+            m_visitor->initialize(buffer);            
+            // Base kernel:
+            auto baseKernel = kernelDecomposed.getBase();
+            // Basis-change + measures
+            auto obsCircuits = kernelDecomposed.getObservedSubCircuits();
+            // Walk the base IR tree, and visit each node
+            InstructionIterator it(baseKernel);
+            while (it.hasNext()) 
+            {
+                auto nextInst = it.next();
+                if (nextInst->isEnabled() && !nextInst->isComposite()) 
+                {
+                    nextInst->accept(m_visitor);
+                }
+            }
+
+            // Now we have a wavefunction that represents execution of the ansatz.
+            // Run the observable sub-circuits (change of basis + measurements)
+            for (int i = 0; i < obsCircuits.size(); ++i) 
+            {
+                auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(obsCircuits[i]->name(), buffer->size());
+                const double e = m_visitor->getExpectationValueZ(obsCircuits[i]);
+                tmpBuffer->addExtraInfo("exp-val-z", e);
+                buffer->appendChild(obsCircuits[i]->name(), tmpBuffer);
+            }
+            m_visitor->finalize();
         }
     }
 

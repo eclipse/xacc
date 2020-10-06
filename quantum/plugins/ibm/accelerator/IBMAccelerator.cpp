@@ -32,7 +32,7 @@
 
 #include <regex>
 #include <thread>
-
+#include <cassert>
 namespace xacc {
 namespace quantum {
 const std::string IBMAccelerator::IBM_AUTH_URL =
@@ -44,6 +44,97 @@ const std::string IBMAccelerator::IBM_LOGIN_PATH = "/api/users/loginWithToken";
 
 std::string hex_string_to_binary_string(std::string hex) {
   return integral_to_binary_string((int)strtol(hex.c_str(), NULL, 0));
+}
+
+std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
+    const std::vector<xacc::ibm_pulse::Instruction> &in_originalPulseSchedule) {
+  std::vector<xacc::ibm_pulse::Instruction> result;
+  std::vector<xacc::ibm_pulse::Instruction> acquireInsts;
+  // Align stimulus measure pulses and combine acquire instructions.
+  // IBM can only handle 1 acquire instruction at the momemt.
+  std::optional<int> firstMeasureT0;
+  for (const auto &ibmInst : in_originalPulseSchedule) {
+    if (ibmInst.get_name() != "acquire") {
+      if (!ibmInst.get_ch().empty() && ibmInst.get_ch()[0] == 'm') {
+        if (!firstMeasureT0.has_value()) {
+          firstMeasureT0 = ibmInst.get_t0();
+        }
+        auto alignedMeasPulse = ibmInst;
+        alignedMeasPulse.set_t0(firstMeasureT0.value());
+        result.emplace_back(alignedMeasPulse);
+      } else {
+        result.emplace_back(ibmInst);
+      }
+    } else {
+      acquireInsts.emplace_back(ibmInst);
+    }
+  }
+
+  std::vector<int64_t> acquiredBits;
+  for (const auto& aqInst: acquireInsts) {
+    assert(aqInst.get_qubits().size() == 1);
+    if (!xacc::container::contains(acquiredBits, aqInst.get_qubits()[0])) {
+      acquiredBits.emplace_back(aqInst.get_qubits()[0]);
+    }
+  }
+
+  if (!acquiredBits.empty()) {
+    auto mergedAcquire = acquireInsts.front();
+    mergedAcquire.set_qubits(acquiredBits);
+    mergedAcquire.set_memory_slot(acquiredBits);
+    result.emplace_back(mergedAcquire);
+  }
+
+  return result;
+}
+
+std::vector<xacc::ibm_pulse::Instruction> orderFrameChangeInsts(
+    const std::vector<xacc::ibm_pulse::Instruction> &in_originalPulseSchedule) {
+  std::vector<xacc::ibm_pulse::Instruction> result;
+  std::vector<xacc::ibm_pulse::Instruction> fcInsts;
+  
+  const auto sortFcInst = [](std::vector<xacc::ibm_pulse::Instruction>& io_inst){
+    for (size_t i = 1; i< io_inst.size(); ++i) {
+      assert(io_inst[i].get_t0() == io_inst[0].get_t0());
+    }
+    std::sort(io_inst.begin(), io_inst.end(),
+              [](const auto &lhs, const auto &rhs) {
+                return lhs.get_ch() < rhs.get_ch();
+              });
+  };
+
+  for (const auto &ibmInst : in_originalPulseSchedule) {
+    if (ibmInst.get_name() == "fc") {
+      if (fcInsts.empty()) {
+        fcInsts.emplace_back(ibmInst);
+      }
+      else {
+        if (ibmInst.get_t0() == fcInsts.back().get_t0()) {
+          fcInsts.emplace_back(ibmInst);
+        }
+        else {
+          // Sort the list and add
+          sortFcInst(fcInsts);
+          for (auto& fcInst: fcInsts) {
+            result.emplace_back(fcInst);
+          }
+          fcInsts.clear();
+          fcInsts.emplace_back(ibmInst);
+        }
+      }
+    } else {
+      if (!fcInsts.empty()) {
+        sortFcInst(fcInsts);
+        for (auto &fcInst : fcInsts) {
+          result.emplace_back(fcInst);
+        }
+        fcInsts.clear();
+      }
+      result.emplace_back(ibmInst);
+    }
+  }
+  assert(result.size() == in_originalPulseSchedule.size());
+  return result;
 }
 
 void IBMAccelerator::initialize(const HeterogeneousMap &params) {
@@ -60,17 +151,19 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
 
     // We should have backend set by now
 
-    if (!hub.empty()) {
-      IBM_CREDENTIALS_PATH =
-          "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
-      getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
-      getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
-                                 "/Projects/" + project + "/devices/" +
-                                 backend + "/properties";
-    } else {
-      xacc::error(
-          "We do not currently support running on the open IBM devices.");
+    if (hub.empty() && group.empty() && project.empty()) {
+      // Fallback to public API credentials
+      hub = "ibm-q";
+      group = "open";
+      project = "main";
     }
+
+    IBM_CREDENTIALS_PATH =
+        "/api/Network/" + hub + "/Groups/" + group + "/Projects/" + project;
+    getBackendPath = IBM_CREDENTIALS_PATH + "/devices?access_token=";
+    getBackendPropertiesPath = "/api/Network/" + hub + "/Groups/" + group +
+                               "/Projects/" + project + "/devices/" +
+                               backend + "/properties";
 
     // Post apiKey to get temp api key
     tokenParam += apiKey + "\"}";
@@ -90,29 +183,28 @@ void IBMAccelerator::initialize(const HeterogeneousMap &params) {
     getBackendPropsResponse = "{\"backends\":" + response + "}";
 
     // Get current backend properties
-    if (backend != DEFAULT_IBM_BACKEND) {
-      auto response = get(IBM_API_URL, getBackendPropertiesPath, {},
-                          {std::make_pair("version", "1"),
-                           std::make_pair("access_token", currentApiToken)});
-      xacc::info("Backend property:\n" +  response);
-      auto props = json::parse(response);
-      backendProperties.insert({backend, props});
-      for (auto &b : backends_root["backends"]) {
-        if (b.count("backend_name") &&
-            b["backend_name"].get<std::string>() == backend) {
-          availableBackends.insert(std::make_pair(backend, b));
-        }
+    auto backend_props_response = get(IBM_API_URL, getBackendPropertiesPath, {},
+                                      {std::make_pair("version", "1"),
+                                       std::make_pair("access_token", currentApiToken)});
+    xacc::info("Backend property:\n" +  backend_props_response);
+    auto props = json::parse(backend_props_response);
+    backendProperties.insert({backend, props});
+    for (auto &b : backends_root["backends"]) {
+      if (b.count("backend_name") &&
+          b["backend_name"].get<std::string>() == backend) {
+        availableBackends.insert(std::make_pair(backend, b));
       }
-
-      chosenBackend = availableBackends[backend];
-
-      defaults_response =
-          get(IBM_API_URL,
-              IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
-              {std::make_pair("version", "1"),
-               std::make_pair("access_token", currentApiToken)});
-      xacc::info("Backend default:\n" +  defaults_response);
     }
+
+    chosenBackend = availableBackends[backend];
+
+    defaults_response =
+        get(IBM_API_URL,
+            IBM_CREDENTIALS_PATH + "/devices/" + backend + "/defaults", {},
+            {std::make_pair("version", "1"),
+             std::make_pair("access_token", currentApiToken)});
+    xacc::info("Backend default:\n" +  defaults_response);
+
     initialized = true;
   }
 }
@@ -224,7 +316,7 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   xacc::ibm_pulse::PulseQObject root;
   xacc::ibm_pulse::QObject qobj;
   qobj.set_qobj_id("xacc-qobj-id");
-  qobj.set_schema_version("1.1.0");
+  qobj.set_schema_version("1.2.0");
   qobj.set_type("PULSE");
   xacc::ibm_pulse::QObjectHeader h;
   h.set_backend_name(backend["backend_name"].get<std::string>());
@@ -240,24 +332,16 @@ std::string PulseQObjGenerator::getQObjJsonStr(
   std::vector<xacc::ibm_pulse::Experiment> experiments;
   // std::vector<xacc::ibm_pulse::PulseLibrary> all_pulses;
   std::map<std::string, xacc::ibm_pulse::PulseLibrary> all_pulses;
-  for (auto &kernel : circuits) {
-    auto pulseMapper = std::make_shared<PulseMappingVisitor>();
-    {
-      InstructionIterator it(kernel);
-      while (it.hasNext()) {
-        auto nextInst = it.next();
-        if (nextInst->isEnabled()) {
-          nextInst->accept(pulseMapper);
-        }
-      }
-    }
-    kernel = pulseMapper->pulseComposite;
-    xacc::info("Pulse-level kernel: \n" + kernel->toString());
-    // Schedule the pulses
-    scheduler->schedule(kernel);
-
+  
+  // Using the Pulse instruction assembler: lower gate->pulse + schedule. 
+  auto ibmPulseAssembler = xacc::getService<IRTransformation>("ibm-pulse");
+  for (auto &gateKernel : circuits) {
+    auto kernel = xacc::ir::asComposite(gateKernel->clone());
+    // Assemble pulse composite from the input kernel.
+    ibmPulseAssembler->apply(kernel, nullptr);
+    
+    // Construct the Pulse QObj
     auto visitor = std::make_shared<OpenPulseVisitor>();
-
     InstructionIterator it(kernel);
     int memSlots = 0;
     while (it.hasNext()) {
@@ -272,7 +356,8 @@ std::string PulseQObjGenerator::getQObjJsonStr(
     hh.set_memory_slots(backend["n_qubits"].get<int>());
 
     xacc::ibm_pulse::Experiment experiment;
-    experiment.set_instructions(visitor->instructions);
+    experiment.set_instructions(alignMeasurePulseInstructions(
+        orderFrameChangeInsts(visitor->instructions)));
     experiment.set_header(hh);
     experiments.push_back(experiment);
 
@@ -639,6 +724,9 @@ HeterogeneousMap IBMAccelerator::getProperties() {
     auto props = backendProperties[backend];
 
     m.insert("total-json", props.dump());
+    m.insert("config-json", chosenBackend.dump());
+    m.insert("defaults-json", defaults_response);
+
     auto qubit_props = props["qubits"];
 
     std::vector<double> p01s, p10s;
@@ -706,8 +794,12 @@ void IBMAccelerator::contributeInstructions(
     std::string tmpName;
     tmpName = "pulse::" + cmd_def_name + "_" + std::to_string(qbits[0]);
 
-    if (qbits.size() == 2) {
-      tmpName += "_" + std::to_string(qbits[1]);
+    // Note: some pulse lib contains a special pulse composite a *measure all*
+    // instruction, i.e. the list of qubits contains more than 2 qubits.
+    if (qbits.size() >= 2) {
+      for (size_t qIdx = 1; qIdx < qbits.size(); ++qIdx) {
+        tmpName += "_" + std::to_string(qbits[qIdx]);
+      }
     }
     auto cmd_def = provider->createComposite(tmpName);
 
@@ -757,6 +849,9 @@ void IBMAccelerator::contributeInstructions(
           const std::string paramJson = pulseParams.dump();
           inst->setPulseParams(
               {{"pulse_shape", pulseShape}, {"parameters_json", paramJson}});
+          
+          const int parametricPulseDuration = pulseParams["duration"].get<int>();
+          inst->setDuration(parametricPulseDuration);
         }
         if ((*seq_iter).find("phase") != (*seq_iter).end()) {
           // we have phase too
@@ -789,6 +884,26 @@ void IBMAccelerator::contributeInstructions(
       cmd_def->addInstruction(inst);
     }
     cmd_def->setBits(qbits);
+    // The sequence data in the cmd-def JSON is out-of-order in terms of t0,
+    // i.e. it seems to be sorted by 'channel name'.
+    // It may cause trouble later when assemble pulses by these cmd-defs and
+    // submit an out-of-order pulse sequence .
+    // Hence, we sort the pulse by t0 here.
+    if (cmd_def->nInstructions() > 1) {
+      auto instructionList = cmd_def->getInstructions();
+      std::sort(instructionList.begin(), instructionList.end(),
+                [](const auto &lhs, const auto &rhs) {
+                  if (lhs->start() == rhs->start()) {
+                    if (lhs->duration() == rhs->duration()) {
+                      return lhs->channel() < rhs->channel();
+                    }
+                    return lhs->duration() < rhs->duration();
+                  }
+                  return lhs->start() < rhs->start();
+                });
+      cmd_def->clear();
+      cmd_def->addInstructions(instructionList);
+    }
 
     xacc::info("Contributing " + tmpName + " pulse composite.");
     xacc::contributeService(tmpName, cmd_def);
@@ -997,6 +1112,29 @@ IBMAccelerator::get(const std::string &_url, const std::string &path,
   }
 
   return getResponse;
+}
+
+void IBMPulseTransform::apply(std::shared_ptr<CompositeInstruction> program,
+                              const std::shared_ptr<Accelerator> accelerator,
+                              const HeterogeneousMap &options) {
+
+  auto scheduler = xacc::getService<Scheduler>("pulse");
+  auto pulseMapper = std::make_shared<PulseMappingVisitor>();
+  {
+    InstructionIterator it(program);
+    while (it.hasNext()) {
+      auto nextInst = it.next();
+      if (nextInst->isEnabled()) {
+        nextInst->accept(pulseMapper);
+      }
+    }
+  }
+  auto loweredKernel = pulseMapper->pulseComposite;
+  xacc::info("Pulse-level kernel: \n" + loweredKernel->toString());
+  // Schedule the pulses
+  scheduler->schedule(loweredKernel);
+  program->clear();
+  program->addInstructions(loweredKernel->getInstructions());
 }
 } // namespace quantum
 } // namespace xacc

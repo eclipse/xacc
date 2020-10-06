@@ -37,9 +37,22 @@ bool ControlledU::expand(const xacc::HeterogeneousMap& runtimeOptions)
         xacc::empty_delete<CompositeInstruction>());
     auto ctrlU = applyControl(uComposite, ctrlIdx);
 
+    std::string buffer_name = "";
+    if (runtimeOptions.stringExists("control-buffer")) {
+        buffer_name = runtimeOptions.getString("control-buffer");
+    }
+
     for (int instId = 0; instId < ctrlU->nInstructions(); ++instId)
     {
-        addInstruction(ctrlU->getInstruction(instId)->clone());
+        auto inst = ctrlU->getInstruction(instId)->clone();
+        if (!buffer_name.empty()) {
+            std::vector<std::string> bnames;
+            for (auto& bit : inst->bits()) {
+                bnames.push_back(buffer_name);
+            }
+            inst->setBufferNames(bnames);
+        }
+        addInstruction(inst);
     }
     return true;
 }

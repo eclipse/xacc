@@ -33,7 +33,7 @@ public:
     DEFINE_CLONE(QAOA);
 
 private:
-    std::shared_ptr<CompositeInstruction> constructParameterizedKernel() const;
+    std::shared_ptr<CompositeInstruction> constructParameterizedKernel(bool extendedMode = true) const;
     void parseObservables(Observable* costHam, Observable* refHam);
 private:
     size_t m_nbQubits;
