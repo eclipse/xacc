@@ -13,51 +13,69 @@
 #include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_observable.hpp"
+#include "xacc_service.hpp"
+#include "Circuit.hpp"
+#include "PauliOperator.hpp"
 
 // run this with
-// $ mpirun -n N h4_chain_8qbit_hpc_virt --n-virtual-qpus M --n-hydrogens H
-// where N is the number of MPI ranks, M is number of qpus,
-// and H is number of hydrogens in the chain
+// <MPI variables> srun -n X -N Y ./path/to/chain_hpc_virt --n-virtual-qpus <n_qpus> --n-hydrogens <n_h> --n-terms <n_terms> --accelerator <acc>
 
 int main(int argc, char **argv) {
-  // Initialize and load the python plugins
+  // Initialize 
   xacc::Initialize(argc, argv);
-  xacc::external::load_external_language_plugins();
-  std::string observable_generator = "pyscf";
+  xacc::set_verbose(true);
+  xacc::logToFile(true);
+  xacc::setLoggingLevel(2);
 
   // Process the input arguments
   std::vector<std::string> arguments(argv + 1, argv + argc);
-  auto n_virt_qpus = 2;
-  auto n_hydrogens = 4;
+  int n_virt_qpus, n_hydrogen, n_terms = 0, n_cycles = 2;
+  std::string acc;
   for (int i = 0; i < arguments.size(); i++) {
     if (arguments[i] == "--n-virtual-qpus") {
       n_virt_qpus = std::stoi(arguments[i + 1]);
     }
+    if (arguments[i] == "--accelerator") {
+      acc = arguments[i + 1];
+    }
     if (arguments[i] == "--n-hydrogens") {
-      n_hydrogens = std::stoi(arguments[i + 1]);
+      n_hydrogen = std::stoi(arguments[i + 1]);
     }
-    if (arguments[i] == "--observable-generator") {
-      observable_generator = arguments[i + 1];
+    if (arguments[i] == "--n-terms") {
+      n_terms = std::stoi(arguments[i + 1]);
+    }
+    if (arguments[i] == "--n-cycles") {
+      n_cycles = std::stoi(arguments[i + 1]);
     }
   }
 
-  // Create the Hydrogen chain geometry
-  std::stringstream geom_ss;
-  if (observable_generator == "psi4")
-    geom_ss << "0 1\n";
-  for (int i = 0; i < n_hydrogens; i++) {
-    geom_ss << "H 0.0 0.0 " << (double)i << "\n";
+  // Read in hamiltonian
+  std::ifstream hfile("@CMAKE_SOURCE_DIR@/quantum/examples/hpc_virtualization/h" + std::to_string(n_hydrogen) + ".txt");
+  std::stringstream sss;
+  sss << hfile.rdbuf();
+  auto H = xacc::quantum::getObservable("pauli", sss.str());
+  
+  if (n_terms > H->getSubTerms().size()) {
+    xacc::error("--n-terms needs to be less than " + std::to_string(H->getSubTerms().size()));
+  } else if (n_terms != 0) {
+    auto terms = H->getSubTerms();
+    xacc::quantum::PauliOperator reducedH;
+    for (int i = 0; i < n_terms; i++) {
+      reducedH += *std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(terms[i]);
+    }
+    H->fromString(reducedH.toString());
+    //H = xacc::quantum::getObservable("pauli", reducedH.toString());
   }
-  if (observable_generator == "psi4")
-    geom_ss << "symmetry c1\n";
-
-  // Create the Observable
-  auto H4 = xacc::quantum::getObservable(
-      observable_generator, {{"basis", "sto-3g"}, {"geometry", geom_ss.str()}});
 
   // Get reference to the Accelerator
-  auto accelerator =
-      xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn"}});
+  std::shared_ptr<xacc::Accelerator> accelerator;
+  if (acc == "tnqvm") {
+    accelerator = xacc::getAccelerator("tnqvm", {{"tnqvm-visitor", "exatn"}});
+  } else if (acc == "qpp") {
+    accelerator = xacc::getAccelerator("qpp");
+  } else if (acc == "aer") {
+    accelerator = xacc::getAccelerator("aer");
+  }
 
   // Decorate the accelerator with HPC Virtualization.
   // This decorator assumes the provided number of input QPUs
@@ -67,42 +85,31 @@ int main(int argc, char **argv) {
   accelerator = xacc::getAcceleratorDecorator(
       "hpc-virtualization", accelerator, {{"n-virtual-qpus", n_virt_qpus}});
 
-  // Read the ground state circuit source code
-  std::ifstream inFile;
-  inFile.open("@CMAKE_SOURCE_DIR@/quantum/examples/hpc_virtualization/h4.qasm");
-  std::stringstream strStream;
-  strStream << inFile.rdbuf();
-  const std::string kernelName = "h4_adapt_gs";
-  std::string h4SrcStr = strStream.str();
-  std::stringstream ss;
-  ss << ".compiler staq\n.circuit h4_ansatz\n.qbit q\n" << h4SrcStr;
-
-  // Create some qubits and compile the quantum code
-  auto q = xacc::qalloc(8);
-  q->setName("q");
-  xacc::storeBuffer(q);
-  xacc::qasm(ss.str());
-  auto ansatz = xacc::getCompiled("h4_ansatz");
+  auto ansatz = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<xacc::Instruction>("uccsd"));
+  ansatz->expand({{"ne", n_hydrogen}, {"nq", 2 * n_hydrogen}});
+  std::vector<double> zeros(ansatz->nVariables(), 0.0);
+  auto evaled = ansatz->operator()(zeros);
 
   // Get the VQE Algorithm and initialize it
   auto vqe = xacc::getAlgorithm(
       "vqe",
-      {{"ansatz", ansatz}, {"observable", H4}, {"accelerator", accelerator}});
+      {{"ansatz", evaled}, {"observable", H}, {"accelerator", accelerator}});
 
-  // Allocate some qubits and execute
   double energy = 0.0;
 
-  xacc::ScopeTimer timer("mpi_timing", false);
-  energy = vqe->execute(q, {})[0];
-  auto run_time = timer.getDurationMs();
+  for(int i = 0; i < n_cycles; i++){
+    auto q = xacc::qalloc(2 * n_hydrogen);
+    xacc::ScopeTimer timer("mpi_timing", false);
+    energy = vqe->execute(q, {})[0];
+    auto run_time = timer.getDurationMs();
 
-  // Print the result
-  if (q->hasExtraInfoKey("rank") ? ((*q)["rank"].as<int>() == 0) : true) {
-    std::cout << "Energy: " << energy << " Hartree\n";
-    std::cout << "Runtime: " << run_time << " ms.\n";
+    // Print the result
+    if (q->hasExtraInfoKey("rank") ? ((*q)["rank"].as<int>() == 0) : true) {
+      std::cout << "Energy: " << energy << " Hartree\n";
+      std::cout << "Runtime: " << run_time << " ms.\n";
+    }
   }
 
-  // Finalize and unload the python plugins
-  xacc::external::unload_external_language_plugins();
+  // Finalize
   xacc::Finalize();
 }
