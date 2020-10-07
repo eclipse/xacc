@@ -141,6 +141,7 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
   if (parameters.keyExists<bool>("maximize")) {
       m_maximize = parameters.get<bool>("maximize");
   }
+
   return initializeOk;
 }
 
@@ -313,6 +314,8 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   std::shared_ptr<CompositeInstruction> kernel;
   if (externalAnsatz) {
     kernel = externalAnsatz;
+  } else if (m_single_exec_kernel) {
+    kernel = m_single_exec_kernel;
   } else {
     kernel = std::dynamic_pointer_cast<CompositeInstruction>(
         xacc::getService<Instruction>("qaoa"));
@@ -321,6 +324,8 @@ QAOA::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
                     std::make_pair("cost-ham", m_costHamObs),
                     std::make_pair("ref-ham", m_refHamObs),
                     std::make_pair("parameter-scheme", m_parameterizedMode)});
+    // save this kernel for future calls to execute
+    m_single_exec_kernel = kernel;
   }
 
   // Observe the cost Hamiltonian:
