@@ -20,6 +20,7 @@ add_subdirectory(qaoa)
 add_subdirectory(qpe)
 add_subdirectory(gradient_strategies)
 add_subdirectory(qite)
+add_subdirectory(cmx)
 
 file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py
                        ${CMAKE_CURRENT_SOURCE_DIR}/ml/ddcl/python/*.py)
