@@ -35,22 +35,21 @@ protected:
   int order;
   // String to identify the CMX instance
   std::string expansion;
+  // Currently implemented expansions
+  std::vector<std::string> expansions{"PDS", "Cioslowski", "Knowles"};
 
   // Wrapper to compute <H^n> using VQE::execute()
   double expValue(const std::shared_ptr<Observable> observable,
                     const std::shared_ptr<AcceleratorBuffer> buffer) const;
 
   // Compute energy from PDS CMX
-  double PDS(const std::vector<double> moments,
-             const std::shared_ptr<AcceleratorBuffer> buffer) const;
+  double PDS(const std::vector<double> moments) const;
 
   // Compute energy from Cioslowski's original CMX
-  double Cioslowski(const std::vector<double> moments,
-                    const std::shared_ptr<AcceleratorBuffer> buffer) const;
+  double Cioslowski(const std::vector<double> moments) const;
 
   // Compute energy from Knowles' generalized Pade approximants CMX
-  double Knowles(const std::vector<double> moments,
-                 const std::shared_ptr<AcceleratorBuffer> buffer) const;
+  double Knowles(const std::vector<double> moments) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;

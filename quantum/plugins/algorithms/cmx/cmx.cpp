@@ -12,6 +12,7 @@
  ******************************************************************************/
 #include "cmx.hpp"
 #include "ObservableTransform.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "PauliOperator.hpp"
@@ -43,18 +44,25 @@ bool CMX::initialize(const HeterogeneousMap &parameters) {
   }
 
   if (!parameters.stringExists("expansion-type")) {
-    xacc::error("Expansion type order was false. Choose CioslowSi, "
-                "Knowles, or PDS.");
+    xacc::error("Expansion type was false.");
     return false;
   }
 
+  // Map H to qubits
   auto jw = xacc::getService<ObservableTransform>("jw");
   observable = jw->transform(
       xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable")));
+
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   order = parameters.get<int>("cmx-order");
-  expansion = parameters.getString("expansion-type");
 
+  // Check if expansoon is valid
+  expansion = parameters.getString("expansion-type");
+  if (!xacc::container::contains(expansions, expansion)) {
+    xacc::error(expansion + " is not a valid expansion. Choose Cioslowski, "
+                "Knowles, or PDS.");
+  }
+  
   // use initial state if provided, otherwise prepare HF state
   // to prepare HF, we need the number of electrons
   if (parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
@@ -100,8 +108,18 @@ void CMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     momentOperator *= H;
   }
 
-  auto energy = PDS(moments, buffer);
+  // compute ground state energy with the chosen CMX
+  double energy;
+  if (expansion == "pds") {
+    energy = PDS(moments);
+  } else if (expansion == "Cioslowski") {
+    energy = Cioslowski(moments);
+  } else if (expansion == "Knowles") {
+    energy = Knowles(moments);
+  }
 
+  // add energy to the buffer
+  buffer->addExtraInfo("opt-val", energy);
   return;
 }
 
@@ -117,8 +135,7 @@ double CMX::expValue(const std::shared_ptr<Observable> moment,
 
 // Compute energy from CMX in J. Phys. A: Math. Gen. 17, 625 (1984)
 // and Int. J. Mod. Phys. B 9, 2899 (1995)
-double CMX::PDS(const std::vector<double> moments,
-                const std::shared_ptr<AcceleratorBuffer> buffer) const {
+double CMX::PDS(const std::vector<double> moments) const {
 
   Eigen::MatrixXd M(order, order);
   Eigen::VectorXd b(order);
@@ -165,8 +182,7 @@ double CMX::PDS(const std::vector<double> moments,
 }
 
 // Compute energy from CMX in Phys. Rev. Lett, 58, 83 (1987)
-double CMX::Cioslowski(const std::vector<double> moments,
-                       const std::shared_ptr<AcceleratorBuffer> buffer) const {
+double CMX::Cioslowski(const std::vector<double> moments) const {
 
   // compute connected moments
   std::vector<double> I;
@@ -205,8 +221,7 @@ double CMX::Cioslowski(const std::vector<double> moments,
 }
 
 // Compute energy from CMX in Chem. Phys. Lett., 143, p.512 (1987)
-double CMX::Knowles(const std::vector<double> moments,
-                    const std::shared_ptr<AcceleratorBuffer> buffer) const {
+double CMX::Knowles(const std::vector<double> moments) const {
 
   // compute connected moments I_k Eq. 3
   std::vector<double> I;
