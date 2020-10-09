@@ -11,6 +11,7 @@
  *   Daniel Claudino - initial API and implementation
  ******************************************************************************/
 #include "cmx.hpp"
+#include "CompositeInstruction.hpp"
 #include "ObservableTransform.hpp"
 #include "Utils.hpp"
 #include "xacc.hpp"
@@ -19,9 +20,12 @@
 
 #include <Eigen/Dense>
 #include <boost/math/special_functions/binomial.hpp>
+#include <complex>
+#include <memory>
 
 using namespace xacc;
 using namespace xacc::quantum;
+using namespace boost::math;
 
 namespace xacc {
 namespace algorithm {
@@ -48,56 +52,37 @@ bool CMX::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
+  if (!parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
+    xacc::error("Ansatz was false.");
+    return false;
+  }
+
+  accelerator = parameters.getPointerLike<Accelerator>("accelerator");
+  order = parameters.get<int>("cmx-order");
+  kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
+
   // Map H to qubits
   auto jw = xacc::getService<ObservableTransform>("jw");
   observable = jw->transform(
       xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable")));
 
-  accelerator = parameters.getPointerLike<Accelerator>("accelerator");
-  order = parameters.get<int>("cmx-order");
-
-  // Check if expansoon is valid
+  // Check if expansion type is valid
   expansion = parameters.getString("expansion-type");
   if (!xacc::container::contains(expansions, expansion)) {
     xacc::error(expansion + " is not a valid expansion. Choose Cioslowski, "
-                "Knowles, or PDS.");
-  }
-  
-  // use initial state if provided, otherwise prepare HF state
-  // to prepare HF, we need the number of electrons
-  if (parameters.pointerLikeExists<CompositeInstruction>("ansatz")) {
-    kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
-  } else {
-
-    if (parameters.keyExists<int>("n-electrons")) {
-
-      auto nElectrons = parameters.get<int>("n-electrons");
-      auto provider = xacc::getIRProvider("quantum");
-      std::size_t j;
-      for (int i = 0; i < nElectrons / 2; i++) {
-        j = (std::size_t)i;
-        kernel->addInstruction(provider->createInstruction("X", {j}));
-        j = (std::size_t)(i + observable->nBits() / 2);
-        kernel->addInstruction(provider->createInstruction("X", {j}));
-      }
-
-    } else {
-
-      xacc::error("Need n-electrons to prepare HF state.");
-      return false;
-    }
+                            "Knowles, or PDS.");
   }
 
   return true;
 }
 
 const std::vector<std::string> CMX::requiredParameters() const {
-  return {"observable", "accelerator", "cmx-order", "expansion-type"};
+  return {"observable", "accelerator", "cmx-order", "expansion-type", "ansatz"};
 }
 
 void CMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
-  // compute moments of the Hamiltonian <H^n>
+  // compute moments of the Hamiltonian: <H^n>
   auto H = *std::dynamic_pointer_cast<PauliOperator>(observable);
   auto momentOperator = H;
   std::vector<double> moments;
@@ -110,7 +95,7 @@ void CMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   // compute ground state energy with the chosen CMX
   double energy;
-  if (expansion == "pds") {
+  if (expansion == "PDS") {
     energy = PDS(moments);
   } else if (expansion == "Cioslowski") {
     energy = Cioslowski(moments);
@@ -123,6 +108,7 @@ void CMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   return;
 }
 
+// This is just a wrapper to compute <H^n> with VQE::execute(q, {})
 double CMX::expValue(const std::shared_ptr<Observable> moment,
                      const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
@@ -133,7 +119,8 @@ double CMX::expValue(const std::shared_ptr<Observable> moment,
   return vqe->execute(q, {})[0];
 }
 
-// Compute energy from CMX in J. Phys. A: Math. Gen. 17, 625 (1984)
+// Compute energy from CMX
+// J. Phys. A: Math. Gen. 17, 625 (1984)
 // and Int. J. Mod. Phys. B 9, 2899 (1995)
 double CMX::PDS(const std::vector<double> moments) const {
 
@@ -142,37 +129,39 @@ double CMX::PDS(const std::vector<double> moments) const {
 
   // Compute matrix elements
   for (int i = 0; i < order; i++) {
-    b(i) = moments[2 * order - i - 1];
+    b(i) = moments[2 * order - i - 2];
     for (int j = i; j < order; j++) {
-      M(i, j) = moments[2 * order - (i + j) - 1];
+      if (i + j == 2 * (order - 1)) {
+        M(i, j) = 1.0;
+      } else {
+        M(i, j) = moments[2 * order - (i + j) - 3];
+      }
       M(j, i) = M(i, j);
     }
   }
 
-  // Solve linear system
-  Eigen::VectorXd a = M.colPivHouseholderQr().solve(b);
+  // Solve linear system Ma = -b
+  Eigen::VectorXd a = M.colPivHouseholderQr().solve(-b).transpose();
 
-  // Find roots by computing the matrix corresponding to the
-  // polynomial and diagonalizing it
-  auto degree = b.size() - 1;
-  Eigen::MatrixXd companionMatrix(degree, degree);
+  // Energy spectrum is given by roots of the polynomial
+  // P_n(x) = \sum_0^n a_i x^(n - i)
+  // Find roots by computing the companion matrix of P_n(x)
+  // and diagonalizing it
+  //
+  // companionMatrix = |0    ... a_(n - 1)|
+  //                   |I_n  ...    a_0   |
+  //
+  Eigen::MatrixXd companionMatrix = Eigen::MatrixXd::Zero(order, order);
+  companionMatrix.bottomLeftCorner(order - 1, order - 1) =
+      Eigen::MatrixXd::Identity(order - 1, order - 1);
   for (int i = 0; i < order; i++) {
-    for (int j = 0; j < order; j++) {
-
-      if (i == j + 1) {
-        companionMatrix(i, j) = 1.0;
-      }
-
-      if (j == degree - 1) {
-        companionMatrix(i, j) = -b(i) / b(order);
-      }
-    }
+    companionMatrix(i, order - 1) = -a(order - i - 1);
   }
 
   // get roots from eigenvalues
   // and return lowest energy eigenvalue
   Eigen::EigenSolver<Eigen::MatrixXd> es(companionMatrix);
-  std::vector<double> spectrum;
+  std::vector<double> spectrum(order);
   std::transform(es.eigenvalues().begin(), es.eigenvalues().end(),
                  spectrum.begin(),
                  [](std::complex<double> c) { return std::real(c); });
@@ -185,23 +174,27 @@ double CMX::PDS(const std::vector<double> moments) const {
 double CMX::Cioslowski(const std::vector<double> moments) const {
 
   // compute connected moments
-  std::vector<double> I;
-  for (int k = 0; k < moments.size(); k++) {
-    I[k] = moments[k];
-    for (int i = 0; i < k - 2; k++) {
-      I[k] -= boost::math::binomial_coefficient<double>(k, i) * I[i + 1] *
-              moments[k - i];
+  std::vector<double> I(moments);
+  for (int k = 1; k < moments.size(); k++) {
+    for (int i = 0; i < k; i++) {
+      I[k] -= binomial_coefficient<double>(k, i) * I[i] * moments[k - i - 1];
     }
   }
 
-  // recursion to compute S
+  // recursion formula to compute S
+  // S(k, i + 1) = S(k, 1) * S(k + 2, i) - S(k + 1, i)^2
   std::function<double(const int, const int, const std::vector<double>)> S;
   S = [&S](const int k, const int i, const std::vector<double> I) {
     if (i == 0) {
+
       return 1.0;
+
     } else if (i == 1) {
+
       return I[k];
+
     } else {
+
       return S(k, 1, I) * S(k + 2, i - 1, I) -
              S(k + 1, i - 1, I) * S(k + 1, i - 1, I);
     }
@@ -209,12 +202,12 @@ double CMX::Cioslowski(const std::vector<double> moments) const {
 
   // compute energy
   auto energy = I[0];
-  double previous = 1.0;
-  for (int K = 2; K < order; K++) {
-    energy -= previous * std::pow(S(2, K - 1, I), 2) /
-              (std::pow(S(2, K - 2, I), 2) * S(3, K - 1, I));
-    previous = std::pow(S(2, K - 1, I), 2) /
-               (std::pow(S(2, K - 2, I), 2) * S(3, K - 1, I));
+  double previous = 1.0, current;
+  for (int K = 1; K < order; K++) {
+    current =
+        std::pow(S(1, K, I), 2) / (std::pow(S(1, K - 1, I), 2) * S(2, K, I));
+    energy -= previous * current;
+    previous = current;
   }
 
   return energy;
@@ -223,28 +216,41 @@ double CMX::Cioslowski(const std::vector<double> moments) const {
 // Compute energy from CMX in Chem. Phys. Lett., 143, p.512 (1987)
 double CMX::Knowles(const std::vector<double> moments) const {
 
-  // compute connected moments I_k Eq. 3
-  std::vector<double> I;
-  for (int k = 0; k < moments.size(); k++) {
-    I[k] = moments[k];
-    for (int i = 0; i < k - 2; k++) {
-      I[k] -= boost::math::binomial_coefficient<double>(k, i) * I[i + 1] *
-              moments[k - i];
+  // compute connected moments
+  std::vector<double> I(moments);
+  for (int k = 1; k < moments.size(); k++) {
+    for (int i = 0; i < k; i++) {
+      I[k] -= binomial_coefficient<double>(k, i) * I[i] * moments[k - i - 1];
     }
   }
 
+  // The correlation energy is b^T * M * b
+  //
+  //      |  I_2  | 
+  // b =  |  I_3  |
+  //      |  ...  |
+  //      |I_(m+1)|
+  //
+  //      | I_3  I_4 ... I_(m+2)  |
+  // M =  | I_4                   |
+  //      | ...                   |
+  //      | I_(m+2) ...  I_(2m+1) |
+  //
   Eigen::MatrixXd M(order - 1, order - 1);
   Eigen::VectorXd b(order - 1);
 
   // Compute matrix elements
-  for (int i = 0; i < order; i++) {
+  for (int i = 0; i < order - 1; i++) {
     b(i) = I[i + 1];
-    for (int j = i; j < order; j++) {
+    for (int j = i; j < order - 1; j++) {
       M(i, j) = I[i + j + 2];
+      M(j, i) = M(i, j);
     }
   }
 
-  return b.transpose() * M * b;
+  // Add <H>> and return
+  auto energy = I[0] - b.transpose() * M.inverse() * b;
+  return energy;
 }
 
 } // namespace algorithm
