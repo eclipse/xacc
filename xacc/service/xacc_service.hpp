@@ -27,6 +27,8 @@ void ServiceAPI_Finalize();
 void contributeService(const std::string name, ContributableService& service);
 void contributeService(const std::string name, ContributableService&& service);
 
+void addPluginSearchPath(const std::string path);
+
 template <class Service>
 std::shared_ptr<Service> getService(const std::string &serviceName, bool failIfNotFound = true) {
   if (!xacc::serviceAPIInitialized) {
