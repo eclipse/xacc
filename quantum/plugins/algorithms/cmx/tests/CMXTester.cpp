@@ -22,8 +22,7 @@ using namespace xacc::quantum;
 
 TEST(CMXTester, checkSimple) {
 
-  std::string str = "(0.2976,0) + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1";
-  auto H = xacc::quantum::getObservable("pauli", str);
+  auto H = xacc::quantum::getObservable("pauli", std::string("0.2976 + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1"));
 
   auto acc = xacc::getAccelerator("qpp");
   auto cmx = xacc::getService<xacc::Algorithm>("cmx");

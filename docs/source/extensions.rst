@@ -1694,11 +1694,11 @@ The Connected Moments eXpansion (CMX) Algorithm requires the following input inf
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
 |    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
-|    ansatz              | State preparation circuit.                                      | std::shared_ptr<CompositeInstruction>|
+|    ansatz              | State preparation circuit                                       | std::shared_ptr<CompositeInstruction>|
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
-|    cmx-order           | The order of the leading term in the CMX.                       | int                                  |
+|    cmx-order           | The order of the leading term in the CMX                        | int                                  |
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
-|    expansion-type       | Expansion type (Cioslowski, Knowles, PDS)                      | std::string                          |
+|    expansion-type      | Expansion type (Cioslowski, Knowles, PDS)                       | std::string                          |
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
 
  .. code:: cpp
@@ -1716,7 +1716,7 @@ The Connected Moments eXpansion (CMX) Algorithm requires the following input inf
 
       // Get reference to the Hamiltonian
       // specified by the --observable argument
-      auto H = xacc::quantum::getObservable("pauli", std::string("(0.2976,0) + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1"));
+      auto H = xacc::quantum::getObservable("pauli", std::string("0.2976 + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1"));
 
       // Specify the expansion type
       auto expansion = "Cioslowski";
@@ -1754,31 +1754,31 @@ In Python:
 
 .. code:: python
 
-    import xacc
-      
-    accelerator = xacc.getAccelerator("qpp")
-
-    H = xacc.getObservable('pauli', '(0.2976,0) + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1')
-
-    expansion = 'Cioslowski'
-
-    order = 2
-
-    provider = xacc.getIRProvider('quantum')
-    ansatz = provider.createComposite('initial-state')
-    circuit.addInstruction(provider.createInstruction(X, [0]))    
+  import xacc
     
-    buffer = xacc.qalloc(2)
-    
-    cmx = xacc.getAlgorithm('cmx', {
-                            'accelerator': accelerator,
-                            'observable': H,
-                            'ansatz': ansatz,
-                            'cmx-order': order,
-                            'expansion-type': expansion
-                            })
+  accelerator = xacc.getAccelerator("qpp")
 
-    cmx.execute(buffer)
+  H = xacc.getObservable('pauli', '0.2976 + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1')
+
+  expansion = 'Cioslowski'
+
+  order = 2
+
+  provider = xacc.getIRProvider('quantum')
+  ansatz = provider.createComposite('initial-state')
+  ansatz.addInstruction(provider.createInstruction('X', [0]))
+
+  buffer = xacc.qalloc(2)
+
+  cmx = xacc.getAlgorithm('cmx', {
+                          'accelerator': accelerator,
+                          'observable': H,
+                          'ansatz': ansatz,
+                          'cmx-order': order,
+                          'expansion-type': expansion
+                          })
+
+  cmx.execute(buffer)
 
 Accelerator Decorators
 ----------------------

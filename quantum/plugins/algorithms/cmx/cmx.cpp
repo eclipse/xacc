@@ -248,7 +248,7 @@ double CMX::Knowles(const std::vector<double> moments) const {
     }
   }
 
-  // Add <H>> and return
+  // Add <H> and return
   auto energy = I[0] - b.transpose() * M.inverse() * b;
   return energy;
 }
