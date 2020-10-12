@@ -1,6 +1,0 @@
-{
-  "bundle.symbolic_name" : "xacc_algorithm_cmx",
-  "bundle.activator" : true,
-  "bundle.name" : "XACC CMX Algorithm",
-  "bundle.description" : ""
-}
