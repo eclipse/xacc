@@ -1682,9 +1682,9 @@ In Python:
     adapt.execute(buffer)
 
 
-CMX
+QCMX
 ++++
-The Connected Moments eXpansion (CMX) Algorithm requires the following input information:
+The Quantum Connected Moments eXpansion (QCMX) Algorithm requires the following input information:
 (`Kowalski, K. and Peng, Bo. (2018) <https://arxiv.org/pdf/2009.05709>`_)
 
 +------------------------+-----------------------------------------------------------------+--------------------------------------+
@@ -1721,7 +1721,7 @@ The Connected Moments eXpansion (CMX) Algorithm requires the following input inf
       // Specify the expansion type
       auto expansion = "Cioslowski";
 
-      // Specify the expansion order
+      // Specify the CMX expansion order
       auto order = 2;
 
       // Create reference to the initial state
@@ -1733,18 +1733,18 @@ The Connected Moments eXpansion (CMX) Algorithm requires the following input inf
       // Allocate 2 qubits in the buffer
       auto buffer = xacc::qalloc(2);
 
-      // Instantiate the CMX algorithm
-      auto cmx = xacc::getService<xacc::Algorithm>("cmx");
+      // Instantiate the QCMX algorithm
+      auto qcmx = xacc::getService<xacc::Algorithm>("qcmx");
 
-      // Pass parameters to CMX algorithm
-      cmx->initialize({{"accelerator",accelerator}, 
+      // Pass parameters to QCMX algorithm
+      qcmx->initialize({{"accelerator",accelerator}, 
                       {"observable", H},
                       {"ansatz", ansatz},
                       {"cmx-order", order}, 
                       {"expansion-type", expansion}});
 
-      // Execute CMX
-      cmx->execute(buffer);
+      // Execute QCMX
+      qcmx->execute(buffer);
 
       xacc::Finalize();
       return 0;
@@ -1770,7 +1770,7 @@ In Python:
 
   buffer = xacc.qalloc(2)
 
-  cmx = xacc.getAlgorithm('cmx', {
+  qcmx = xacc.getAlgorithm('qcmx', {
                           'accelerator': accelerator,
                           'observable': H,
                           'ansatz': ansatz,
@@ -1778,7 +1778,7 @@ In Python:
                           'expansion-type': expansion
                           })
 
-  cmx.execute(buffer)
+  qcmx.execute(buffer)
 
 Accelerator Decorators
 ----------------------
