@@ -56,6 +56,8 @@ protected:
   std::string rootPathStr = "";
 
   std::map<std::string, ContributableService> runtimeContributed;
+ 
+  std::vector<std::string> extra_search_paths;
 
 public:
   ServiceRegistry() : framework(FrameworkFactory().NewFramework()) {}
@@ -69,6 +71,10 @@ public:
         b.Stop();
       }
     }
+  }
+
+  void appendSearchPath(const std::string path) {
+      extra_search_paths.push_back(path);
   }
 
   void contributeService(const std::string name,

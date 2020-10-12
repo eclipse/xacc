@@ -23,6 +23,10 @@ bool serviceAPIInitialized = false;
 std::shared_ptr<ServiceRegistry> serviceRegistry =
     std::make_shared<ServiceRegistry>();
 
+void addPluginSearchPath(const std::string path) {
+    serviceRegistry->appendSearchPath(path);
+}
+
 void ServiceAPI_Initialize(int argc, char **argv) {
   if (!serviceAPIInitialized) {
     std::string rootPath = std::string(XACC_INSTALL_DIR);
