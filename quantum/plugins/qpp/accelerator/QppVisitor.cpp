@@ -38,6 +38,19 @@ namespace {
         
         return gateMat; 
     }
+
+    qpp::cmat u3GateMat(double in_theta, double in_phi, double in_lambda) 
+    {
+      qpp::cmat gateMat(2, 2);
+      gateMat << std::cos(in_theta / 2.0),
+          -std::exp(std::complex<double>(0, in_lambda)) *
+              std::sin(in_theta / 2.0),
+          std::exp(std::complex<double>(0, in_phi)) * std::sin(in_theta / 2.0),
+          std::exp(std::complex<double>(0, in_phi + in_lambda)) *
+              std::cos(in_theta / 2.0);
+
+      return gateMat;
+    }
 }
 
 namespace xacc {
@@ -233,8 +246,7 @@ namespace quantum {
         const auto theta = InstructionParameterToDouble(u.getParameter(0));
         const auto phi = InstructionParameterToDouble(u.getParameter(1));
         const auto lambda = InstructionParameterToDouble(u.getParameter(2));
-        const auto uMat =  qpp::Gates::get_instance().RZ(lambda) * qpp::Gates::get_instance().RY(phi) * qpp::Gates::get_instance().RZ(theta);
-        m_stateVec = qpp::apply(m_stateVec, uMat, { qubitIdx });
+        m_stateVec = qpp::apply(m_stateVec, u3GateMat(theta, phi, lambda), { qubitIdx });
     }
 
     void QppVisitor::visit(iSwap& in_iSwapGate) 
