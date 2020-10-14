@@ -139,23 +139,40 @@ void ControlledU::visit(CNOT& cnot)
     const auto ctrlIdx2 = m_ctrlIdx;
     // Target qubit
     const auto targetIdx = cnot.bits()[1];
+
+    // gate ccx a,b,c (see qelib1.inc)
+    // Maps qubit indices:
+    const auto a = m_ctrlIdx;
+    const auto b = ctrlIdx1;
+    const auto c = targetIdx;
+    //     h c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { c }));
+
+    //     cx b,c; tdg c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { b, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { c }));    
     
-    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));    
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx2 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
+    //     cx a,c; t c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { c })); 
+
+    //     cx b,c; tdg c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { b, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { c }));  
+    
+    //     cx a,c; t b; t c; h c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { b })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { c })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { c })); 
+
+    //     cx a,b; t a; tdg b;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, b }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { a })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { b })); 
+
+    //     cx a,b;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, b }));
 }
 
 void ControlledU::visit(Rx& rx) 
