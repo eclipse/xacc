@@ -17,13 +17,11 @@
 #include "PauliOperator.hpp"
 
 #include <Eigen/Dense>
-#include <boost/math/special_functions/binomial.hpp>
 #include <complex>
 #include <memory>
 
 using namespace xacc;
 using namespace xacc::quantum;
-using namespace boost::math;
 
 namespace xacc {
 namespace algorithm {
@@ -108,7 +106,7 @@ void QCMX::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
 // This is just a wrapper to compute <H^n> with VQE::execute(q, {})
 double QCMX::expValue(const std::shared_ptr<Observable> moment,
-                     const std::shared_ptr<AcceleratorBuffer> buffer) const {
+                      const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
   auto q = xacc::qalloc(buffer->size());
   auto vqe = xacc::getAlgorithm("vqe", {{"observable", moment},
@@ -172,10 +170,13 @@ double QCMX::PDS(const std::vector<double> moments) const {
 double QCMX::Cioslowski(const std::vector<double> moments) const {
 
   // compute connected moments
+  // binomial coefficients (k choose i) given by:
+  // (k, i) = 1 / ((k + 1) * std::beta(k - i + 1, i + 1)
   std::vector<double> I(moments);
   for (int k = 1; k < moments.size(); k++) {
     for (int i = 0; i < k; i++) {
-      I[k] -= binomial_coefficient<double>(k, i) * I[i] * moments[k - i - 1];
+      I[k] -= 1 / ((k + 1) * std::beta(k - i + 1, i + 1)) * I[i] *
+              moments[k - i - 1];
     }
   }
 
@@ -218,13 +219,14 @@ double QCMX::Knowles(const std::vector<double> moments) const {
   std::vector<double> I(moments);
   for (int k = 1; k < moments.size(); k++) {
     for (int i = 0; i < k; i++) {
-      I[k] -= binomial_coefficient<double>(k, i) * I[i] * moments[k - i - 1];
+      I[k] -= 1 / ((k + 1) * std::beta(k - i + 1, i + 1)) * I[i] *
+              moments[k - i - 1];
     }
   }
 
   // The correlation energy is b^T * M * b
   //
-  //      |  I_2  | 
+  //      |  I_2  |
   // b =  |  I_3  |
   //      |  ...  |
   //      |I_(m+1)|
