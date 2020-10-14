@@ -2,7 +2,7 @@ import xacc,sys, numpy as np
 
 # Get access to the desired QPU and
 # allocate some qubits to run on
-qpu = xacc.getAccelerator('tnqvm')
+qpu = xacc.getAccelerator('qpp')
 buffer = xacc.qalloc(2)
 
 # Construct the Hamiltonian as an XACC-VQE PauliOperator
