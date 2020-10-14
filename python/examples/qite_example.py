@@ -51,3 +51,7 @@ plt.plot(np.arange(0, (nbSteps + 1)//2) * 2 * stepSize, qLanczosEnergies, 'k*-',
 plt.legend()
 plt.grid()
 plt.show()
+
+# QITE circuit to evolve the state in *imaginary* time.
+# qiteCircuit = qiteBuffer.getInformation('qasm')
+# print(qiteCircuit)
