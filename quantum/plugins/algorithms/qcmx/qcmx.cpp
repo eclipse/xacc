@@ -57,10 +57,16 @@ bool QCMX::initialize(const HeterogeneousMap &parameters) {
   order = parameters.get<int>("cmx-order");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
 
-  // Map H to qubits
-  auto jw = xacc::getService<ObservableTransform>("jw");
-  observable = jw->transform(
-      xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable")));
+  // check if Observable needs JW
+  if (std::dynamic_pointer_cast<PauliOperator>(xacc::as_shared_ptr(
+          parameters.getPointerLike<Observable>("observable")))) {
+    observable = xacc::as_shared_ptr(
+        parameters.getPointerLike<Observable>("observable"));
+  } else {
+    auto jw = xacc::getService<ObservableTransform>("jw");
+    observable = jw->transform(xacc::as_shared_ptr(
+        parameters.getPointerLike<Observable>("observable")));
+  }
 
   // Check if expansion type is valid
   expansion = parameters.getString("expansion-type");
