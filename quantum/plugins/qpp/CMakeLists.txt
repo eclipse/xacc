@@ -33,6 +33,12 @@ usfunctionembedresources(TARGET
                          FILES
                          manifest.json)
 
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC WITH_OPENMP_)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()
+                         
 if(APPLE)
   set_target_properties(${LIBRARY_NAME}
                         PROPERTIES INSTALL_RPATH "@loader_path/../lib")
