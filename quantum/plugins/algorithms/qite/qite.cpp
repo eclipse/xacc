@@ -455,6 +455,13 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     // Also returns the full list of energy values 
     // at each Trotter step.
     buffer->addExtraInfo("exp-vals", ExtraInfo(m_energyAtStep));
+
+    // Final kernel:
+    auto kernel = constructPropagateCircuit();
+    auto staq = xacc::getCompiler("staq");
+    const auto openQASMSrc = staq->translate(kernel);
+    // Returns the QITE circuit as a QASM string:
+    buffer->addExtraInfo("qasm", ExtraInfo(openQASMSrc));
   }
   else
   {
