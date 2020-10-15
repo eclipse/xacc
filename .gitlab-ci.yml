@@ -22,6 +22,17 @@ docker build_master:
   - git config remote.aideqc.url >&- || git remote add -t master aideqc https://amccaskey:$AIDEQC_ACCESS_TOKEN@github.com/aide-qc/xacc
   - git push -f aideqc HEAD:master
   - git remote remove aideqc
+  - git clone https://github.com/aide-qc/homebrew-deploy && cd homebrew-deploy 
+  - git clone --depth=1 --recursive https://github.com/eclipse/xacc
+  - tar -czvf xacc-1.0.0.tar.gz xacc
+  - jfrog bt u --override --publish xacc-1.0.0.tar.gz amccaskey/qci-homebrew-bintray/xacc-source/xacc-1.0.0
+  - export src_sha=$(sha256sum xacc-1.0.0.tar.gz | cut -d " " -f 1)
+  - sed -i "0,/sha256 \".*\"/s//sha256 \"$src_sha\" /" Formula/xacc.rb
+  - git add Formula/xacc.rb
+  - git commit -m "updating sha256 for xacc homebrew formula"
+  - git config remote.aideqchbdeploy.url >&- || git remote add -t master aideqchbdeploy https://amccaskey:$AIDEQC_ACCESS_TOKEN@github.com/aide-qc/homebrew-deploy
+  - git push -f aideqchbdeploy HEAD:master
+  - git remote remove aideqchbdeploy
 
 docker run_docker_deploy:
   stage: deploy
@@ -32,20 +43,12 @@ docker run_docker_deploy:
   - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
   - docker push xacc/xacc
 
-docker run_docker_xacc_quac_deploy:
+docker run_brew_bottle:
   stage: deploy
-  only: 
+  only:
    - schedules
   script:
-  - cd docker/deploy/dev_quac && docker build -t xacc/xacc-quac . --no-cache
-  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
-  - docker push xacc/xacc-quac
-
-docker run_docker_xacc_qcs_deploy:
-  stage: deploy
-  only: 
-   - schedules
-  script:
-  - cd docker/deploy/dev_qcs && docker build -t xacc/xacc-qcs . --no-cache
-  - echo "$REGISTRY_PASSWORD" | docker login -u xacc --password-stdin
-  - docker push xacc/xacc-qcs
+  - git clone https://github.com/aide-qc/homebrew-deploy
+  - cd homebrew-deploy/scripts/linux-x86_64/xacc
+  - docker build --build-arg AIDEQC_ACCESS_TOKEN=$AIDEQC_ACCESS_TOKEN --build-arg JFROG_API_KEY=$JFROG_API_KEY -t xacc/brew-linux . 
+  
