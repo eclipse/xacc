@@ -139,28 +139,44 @@ void ControlledU::visit(CNOT& cnot)
     const auto ctrlIdx2 = m_ctrlIdx;
     // Target qubit
     const auto targetIdx = cnot.bits()[1];
+
+    // gate ccx a,b,c (see qelib1.inc)
+    // Maps qubit indices:
+    const auto a = m_ctrlIdx;
+    const auto b = ctrlIdx1;
+    const auto c = targetIdx;
+    //     h c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { c }));
+
+    //     cx b,c; tdg c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { b, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { c }));    
     
-    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));    
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx1, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("H", { targetIdx }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("T", { ctrlIdx2 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { ctrlIdx1 }));
-    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { ctrlIdx2, ctrlIdx1 }));
+    //     cx a,c; t c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { c })); 
+
+    //     cx b,c; tdg c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { b, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { c }));  
+    
+    //     cx a,c; t b; t c; h c;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, c }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { b })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { c })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("H", { c })); 
+
+    //     cx a,b; t a; tdg b;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, b }));
+    m_composite->addInstruction(m_gateProvider->createInstruction("T", { a })); 
+    m_composite->addInstruction(m_gateProvider->createInstruction("Tdg", { b })); 
+
+    //     cx a,b;
+    m_composite->addInstruction(m_gateProvider->createInstruction("CX", { a, b }));
 }
 
 void ControlledU::visit(Rx& rx) 
 {
-    // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (rx.bits()[0] == m_ctrlIdx)
     {
         xacc::error("Control bit must be different from target qubit(s).");
@@ -169,16 +185,14 @@ void ControlledU::visit(Rx& rx)
     {
         const auto targetIdx = rx.bits()[0];
         const auto angle = InstructionParameterToDouble(rx.getParameter(0));
-        m_composite->addInstruction(m_gateProvider->createInstruction("Rx", { targetIdx }, { angle/ 2.0 }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("CX", { m_ctrlIdx, targetIdx }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("Rx", { targetIdx }, { -angle/ 2.0 }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("CX", { m_ctrlIdx, targetIdx }));
+        // Rx(angle) = u3(angle,-pi/2,pi/2)
+        auto rxAsU3 = U(targetIdx, angle, -M_PI_2, M_PI_2);
+        visit(rxAsU3);
     }
 }
 
 void ControlledU::visit(Ry& ry) 
 {
-    // CRn(theta) = Rn(theta/2) - CX - Rn(-theta/2) - CX
     if (ry.bits()[0] == m_ctrlIdx)
     {
         xacc::error("Control bit must be different from target qubit(s).");
@@ -187,10 +201,9 @@ void ControlledU::visit(Ry& ry)
     {
         const auto targetIdx = ry.bits()[0];
         const auto angle = InstructionParameterToDouble(ry.getParameter(0));
-        m_composite->addInstruction(m_gateProvider->createInstruction("Ry", { targetIdx }, { angle/ 2.0 }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("CX", { m_ctrlIdx, targetIdx }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("Ry", { targetIdx }, { -angle/ 2.0 }));
-        m_composite->addInstruction(m_gateProvider->createInstruction("CX", { m_ctrlIdx, targetIdx }));
+        //  Ry(theta)  ==  u3(theta,0,0)
+        auto ryAsU3 = U(targetIdx, angle, 0.0, 0.0);
+        visit(ryAsU3);
     }
 }
 
@@ -251,17 +264,28 @@ void ControlledU::visit(Swap& s)
 
 void ControlledU::visit(U& u) 
 {
-    // U(theta, phi, lambda) := Rz(phi)Ry(theta)Rz(lambda)
-    const auto theta = InstructionParameterToDouble(u.getParameter(0));
-    const auto phi = InstructionParameterToDouble(u.getParameter(1));
-    const auto lambda = InstructionParameterToDouble(u.getParameter(2));
-    Ry ry1(u.bits()[0], theta);
-    Rz rz1(u.bits()[0], lambda);
-    Rz rz2(u.bits()[0], phi);
-    // Revisit these gates: Rn -> CRn
-    visit(rz1);
-    visit(ry1);
-    visit(rz2);
+    // controlled-U
+    // gate cu3(theta, phi, lambda) c, t {
+    //   u1((lambda - phi) / 2) t;
+    //   cx c, t;
+    //   u3(-theta / 2, 0, -(phi + lambda) / 2) t;
+    //   cx c, t;
+    //   u3(theta / 2, phi, 0) t;
+    // }
+    const auto targetIdx = u.bits()[0];
+    const double theta = InstructionParameterToDouble(u.getParameter(0));
+    const double phi = InstructionParameterToDouble(u.getParameter(1));
+    const double lambda = InstructionParameterToDouble(u.getParameter(2));
+    m_composite->addInstruction(m_gateProvider->createInstruction(
+        "Rz", {targetIdx}, {(lambda - phi) / 2}));
+    m_composite->addInstruction(
+        m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(m_gateProvider->createInstruction(
+        "U", {targetIdx}, {-theta / 2, 0.0, -(phi + lambda) / 2}));
+    m_composite->addInstruction(
+        m_gateProvider->createInstruction("CX", {m_ctrlIdx, targetIdx}));
+    m_composite->addInstruction(m_gateProvider->createInstruction(
+        "U", {targetIdx}, {theta / 2, phi, 0.0}));
 }
 
 void ControlledU::visit(U1& u1)
