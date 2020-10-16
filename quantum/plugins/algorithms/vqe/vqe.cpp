@@ -315,6 +315,13 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
         fsToExec.push_back(f);
       } else {
         auto evaled = f->operator()(x);
+        // Need to add this if x != {}
+        // so that the HPCVirtDecorator can 
+        // access the coefficients to compute the energy
+        if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+          xacc::as_shared_ptr(accelerator))) {
+          evaled->setCoefficient(coeff);
+        }
         fsToExec.push_back(evaled);
       }
       coefficients.push_back(std::real(coeff));
