@@ -35,6 +35,60 @@ void bind_accelerator(py::module &m) {
                const std::shared_ptr<CompositeInstruction>)) &
                xacc::Accelerator::execute,
            "Execute the Function with the given AcceleratorBuffer.")
+      .def(
+          "execute",
+          [](xacc::Accelerator &qpu, std::shared_ptr<AcceleratorBuffer> buffer,
+             py::object &circuit) {
+            auto mapper = [&](py::object &functor, const char *compiler_name,
+                              bool exec = true) {
+              auto src = functor().cast<std::string>();
+              auto compiler = xacc::getCompiler(compiler_name);
+              auto composite = compiler->compile(src)->getComposites()[0];
+              if (exec)
+                qpu.execute(buffer, composite);
+
+              return composite;
+            };
+            if (py::isinstance<py::list>(circuit)) {
+              std::vector<std::shared_ptr<CompositeInstruction>> programs;
+              auto circuit_list = py::cast<py::list>(circuit);
+              for (int i = 0; i < circuit_list.size(); i++) {
+                auto _circ = circuit_list[i];
+                if (py::hasattr(_circ, "qasm")) {
+                  py::object functor = _circ.attr("qasm");
+                  auto composite = mapper(functor, "staq", false);
+                  programs.push_back(composite);
+                } else if (py::hasattr(_circ, "out")) {
+                  // this is probably a pyquil program
+                  py::object functor = _circ.attr("out");
+                  auto composite = mapper(functor, "quilc");
+                  programs.push_back(composite);
+                }
+              }
+
+              qpu.execute(buffer, programs);
+              return;
+            } else {
+              if (py::hasattr(circuit, "qasm")) {
+                // this is a qiskit circuit
+                py::object functor = circuit.attr("qasm");
+                mapper(functor, "staq");
+                return;
+              } else if (py::hasattr(circuit, "out")) {
+                // this is probably a pyquil program
+                py::object functor = circuit.attr("out");
+                mapper(functor, "quilc");
+                return;
+              }
+
+              xacc::error("\n\nXACC does not understand the provided pythonic "
+                          "circuit type.\n"
+                          "Make sure you pass an xacc::CompositeInstruction, "
+                          "qiskit.QuantumCircuit, or pyquil.Program.");
+              return;
+            }
+          },
+          "")
       .def("execute",
            (void (xacc::Accelerator::*)(
                std::shared_ptr<AcceleratorBuffer>,

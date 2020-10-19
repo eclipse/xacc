@@ -83,7 +83,7 @@ circuit: (TAB circuitInstr NEWLINE)* TAB circuitInstr;
 // F. Measurement
 
 measure: MEASURE qubit addr?;
-addr: LBRACKET classicalBit RBRACKET;
+addr: IDENTIFIER? LBRACKET classicalBit RBRACKET;
 classicalBit: INT+;
 
 // G. Program control
