@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 
   // Get reference to the Accelerator
   auto accelerator =
-      xacc::getAccelerator("local-ibm", {std::make_pair("shots", 5000),
+      xacc::getAccelerator("qpp", {std::make_pair("shots", 5000),
                                          std::make_pair("cx-p-depol", .3)});
 
   // Allocate some qubits
