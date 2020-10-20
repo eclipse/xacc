@@ -1,0 +1,10 @@
+{
+    "graph": "graph_input_example.txt",
+    "xacc":{
+        "accelerator": "qpp",
+        "optimizer": "nlopt"
+    },
+    "qaoa-params":{
+        "p": "2"
+    }
+}
