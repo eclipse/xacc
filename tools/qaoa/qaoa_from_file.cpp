@@ -40,6 +40,7 @@ class qaoa_from_file {
         // Function takes a JSON configuration file as input and sets all parameters according to file
         void read_json() {
             json configs = json::parse(m_config_file);
+            std::cout << configs << std::endl;
             m_graph_file = configs["graph"].get<std::string>();
             m_acc_name = configs["xacc"]["accelerator"];
             m_opt_name = configs["xacc"]["optimizer"];

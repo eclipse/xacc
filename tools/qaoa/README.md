@@ -1,5 +1,11 @@
 # Using QAOA command line interface
-Navigate to tools/qaoa/examples for reference on formatting the graph files, as well as the json configuration files. If you'd prefer to run the algorithm without a json file, this may be done as:
+After building and compiling XACC, set your path as follows
+```bash
+    export PATH=$PATH:$HOME/.xacc/bin
+```
+
+
+Navigate to tools/qaoa/examples for reference on formatting the graph files, as well as the json configuration files. If you'd prefer to run the algorithm without a json file, this may now be done as:
 
 ```bash
     ./xacc-qaoa -i graph_input_file.txt
