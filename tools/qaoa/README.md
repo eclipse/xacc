@@ -1,21 +1,22 @@
-# Quick Start with Docker
+# Using QAOA command line interface
+Navigate to tools/qaoa/examples for reference on formatting the graph files, as well as the json configuration files. If you'd prefer to run the algorithm without a json file, this may be done as:
 
 ```bash
-$ docker run --security-opt seccomp=unconfined --init -it -p 3000:3000 xacc/xacc
+    ./xacc-qaoa -i graph_input_file.txt
 ```
-Navigate in your browser to localhost:3000, open a terminal in the new IDE and 
-follow the instructions in 'Build these examples'.
 
-# Build XACC
-
-Check out the instructions at [here](https://github.com/eclipse/xacc#build-from-source). 
-
-# Build these examples
+Additional flags may be added as:
 
 ```bash
-$ git clone https://code.ornl.gov/qci/xacc-qaoa-example
-$ cd xacc-qaoa-example && mkdir build && cd build
-$ cmake .. 
-$ make 
-$ ./qaoa_maxcut_from_graph
+    ./xacc-qaoa -i graph_input_file.txt -p 1 -qpu qpp -opt nlopt 
 ```
+
+where -p is the number of qaoa steps, -qpu is the simulator/backend, and -opt is the optimizer. The values passed above are the same as the default used when the user doesn't specify. 
+
+If you'd prefer to pass in a json config file, this may be done as:
+
+```bash
+    ./xacc-qaoa -c qaoa_config_example.json
+```
+
+The example json configuration file outlines all of the parameters that users may control at this time, but future plans include control over the graphs to run, being able to pass multiple graph files, and more. 
