@@ -5,6 +5,6 @@
         "optimizer": "nlopt"
     },
     "qaoa-params":{
-        "p": "2"
+        "p": 2
     }
 }

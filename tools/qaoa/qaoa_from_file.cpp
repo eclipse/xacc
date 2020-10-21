@@ -39,18 +39,14 @@ class qaoa_from_file {
 
         // Function takes a JSON configuration file as input and sets all parameters according to file
         void read_json() {
-            
-            std::cout << m_config_file << std::endl;
-            json configs = json::parse(m_config_file);      
-            std::cout << configs.dump(4) << "\n";  
-            // m_graph_file = configs["graph"].get<std::string>();
-            // m_acc_name = configs["xacc"]["accelerator"];
-            // m_opt_name = configs["xacc"]["optimizer"];
-            // m_steps = configs["qaoa-params"]["p"].get<int>();
+            std::ifstream t(m_config_file);
+            std::string config_str((std::istreambuf_iterator<char>(t)),
+                        std::istreambuf_iterator<char>());
+            json configs = json::parse(config_str); 
             m_graph_file = configs["graph"].get<std::string>();
-            m_acc_name = configs["accelerator"];
-            m_opt_name = configs["optimizer"];
-            m_steps = configs["p"].get<int>();
+            m_acc_name = configs["xacc"]["accelerator"];
+            m_opt_name = configs["xacc"]["optimizer"];
+            m_steps = configs["qaoa-params"]["p"];//.get<int>();
         }
 
         // Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
@@ -165,14 +161,18 @@ class qaoa_from_file {
                 std::cout << real << ", " << imag << "\n";
             }
 
-            // TODO: 'qaoa_output' + str(nbOrders) + str(nbSteps) + '.txt
             std::stringstream ss;
-            // << nbOrders
-            ss << "qaoa_output_"  << "_" << m_steps << ".txt";
+            ss << "qaoa_output_n" << H.nBits() << "_p" << m_steps << ".txt";
             std::ofstream file(ss.str());
-            //file.open ("qaoa_output.txt", std::ios::out | std::ios::in);
-            file << buffer << std::endl;
-            file.close();
+            file << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
+            file << "Opt vals: ";
+            for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
+                file << param << " ";
+            }
+            file << "\n";
+            file << "\n";
+
+            buffer->print(file);
         } 
 };
 
