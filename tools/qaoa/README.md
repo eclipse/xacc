@@ -31,10 +31,10 @@ Navigate to tools/qaoa/examples for reference on formatting the graph files, as 
 Additional flags may be added:
 
 ```bash
-    xacc-qaoa -i graph_input_file.txt -p 1 -qpu qpp -opt nlopt 
+    xacc-qaoa -i graph_input_example.txt -o false -p 1 -qpu qpp -opt nlopt 
 ```
 
-where -p is the number of qaoa steps, -qpu is the simulator/backend, and -opt is the optimizer. The values passed above are the same as the default used when the user doesn't specify. 
+where -p is the number of qaoa steps, -o flags to return an output file or not, -qpu is the simulator/backend, and -opt is the optimizer. The values passed above are the same as the default used when the user doesn't specify. 
 
 If you'd prefer to pass in a json configuration file, this may be done as:
 

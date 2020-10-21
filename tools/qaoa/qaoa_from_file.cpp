@@ -32,6 +32,7 @@ class qaoa_from_file {
     protected:
         std::string m_config_file;
         std::string m_graph_file;
+        std::string m_out_file;
         std::string m_acc_name;
         std::string m_opt_name;
         std::string m_in_config;
@@ -44,6 +45,7 @@ class qaoa_from_file {
                         std::istreambuf_iterator<char>());
             json configs = json::parse(config_str); 
             m_graph_file = configs["graph"].get<std::string>();
+            m_out_file = configs["outputfile"];
             m_acc_name = configs["xacc"]["accelerator"];
             m_opt_name = configs["xacc"]["optimizer"];
             m_steps = configs["qaoa-params"]["p"];//.get<int>();
@@ -86,7 +88,7 @@ class qaoa_from_file {
         }
 
     public:
-        qaoa_from_file(const std::string& configFile, const std::string& graphFile, const std::string& optName, const std::string& accName, const std::string& inConfig, const int& nbSteps) : m_config_file(configFile), m_graph_file(graphFile), m_opt_name(optName), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps) {}
+        qaoa_from_file(const std::string& configFile, const std::string& graphFile, const std::string& outFile, const std::string& optName, const std::string& accName, const std::string& inConfig, const int& nbSteps) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_opt_name(optName), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps) {}
         
         void execute() {
 
@@ -161,6 +163,7 @@ class qaoa_from_file {
                 std::cout << real << ", " << imag << "\n";
             }
 
+        if (m_out_file == "true"){
             std::stringstream ss;
             ss << "qaoa_output_n" << H.nBits() << "_p" << m_steps << ".txt";
             std::ofstream file(ss.str());
@@ -171,9 +174,9 @@ class qaoa_from_file {
             }
             file << "\n";
             file << "\n";
-
             buffer->print(file);
-        } 
+        }
+    } 
 };
 
 int main(int argc, char **argv)
@@ -185,6 +188,7 @@ int main(int argc, char **argv)
     std::string graphFile = "temp";
     std::string configFile = "temp";
     std::string inConfig = "false";
+    std::string outFile = "false";
 
     std::vector<std::string> arguments(argv + 1, argv + argc);
     for (int i = 0; i < arguments.size(); i++) {
@@ -195,6 +199,9 @@ int main(int argc, char **argv)
         }
         if (arguments[i] == "-i") {
            graphFile = arguments[i+1];
+        }   
+        if (arguments[i] == "-o") {
+           outFile = arguments[i+1];
         }   
         if (arguments[i] == "-p") {
             nbSteps = std::stoi(arguments[i+1]);
@@ -209,7 +216,7 @@ int main(int argc, char **argv)
     xacc::Initialize(argc, argv);
 
     // Instantiate class
-    qaoa_from_file QAOA(configFile, graphFile, optName, accName, inConfig, nbSteps);
+    qaoa_from_file QAOA(configFile, graphFile, outFile, optName, accName, inConfig, nbSteps);
 
     // Execute the QAOA algorithm and return results
     QAOA.execute();
