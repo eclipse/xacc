@@ -1,0 +1,7 @@
+R"(
+{
+    "graph": "graph_input_example.txt",
+    "optimizer": "nlopt",
+    "p": "2",
+    "accelerator": "qpp"
+})"

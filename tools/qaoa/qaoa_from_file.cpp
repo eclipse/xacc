@@ -39,12 +39,18 @@ class qaoa_from_file {
 
         // Function takes a JSON configuration file as input and sets all parameters according to file
         void read_json() {
-            json configs = json::parse(m_config_file);
-            std::cout << configs << std::endl;
+            
+            std::cout << m_config_file << std::endl;
+            json configs = json::parse(m_config_file);      
+            std::cout << configs.dump(4) << "\n";  
+            // m_graph_file = configs["graph"].get<std::string>();
+            // m_acc_name = configs["xacc"]["accelerator"];
+            // m_opt_name = configs["xacc"]["optimizer"];
+            // m_steps = configs["qaoa-params"]["p"].get<int>();
             m_graph_file = configs["graph"].get<std::string>();
-            m_acc_name = configs["xacc"]["accelerator"];
-            m_opt_name = configs["xacc"]["optimizer"];
-            m_steps = configs["qaoa-params"]["p"].get<int>();
+            m_acc_name = configs["accelerator"];
+            m_opt_name = configs["optimizer"];
+            m_steps = configs["p"].get<int>();
         }
 
         // Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
