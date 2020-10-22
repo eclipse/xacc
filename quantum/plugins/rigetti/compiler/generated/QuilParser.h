@@ -1,5 +1,5 @@
 
-// Generated from Quil.g4 by ANTLR 4.7.2
+// Generated from Quil.g4 by ANTLR 4.8
 
 #pragma once
 
@@ -524,6 +524,7 @@ public:
     antlr4::tree::TerminalNode *LBRACKET();
     ClassicalBitContext *classicalBit();
     antlr4::tree::TerminalNode *RBRACKET();
+    antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
