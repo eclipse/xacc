@@ -27,6 +27,15 @@ namespace {
 
         return result;
     }
+    
+    // Reverse the list of qubit index:
+    // Note: the convention in Controlled-gate, e.g. CNOT, is having [ctrl, target] qubit list,
+    // but that is the reverse of the bit index for regular matrix representation.
+    std::vector<size_t> reverseBitIdx(const std::vector<size_t>& in_origBit) {
+        auto copy = in_origBit;
+        std::reverse(copy.begin(), copy.end());
+        return copy;
+    }
 }
 namespace xacc {
 namespace quantum {
@@ -127,7 +136,7 @@ void GateFuser::visit(CNOT& cnot)
                0, 1, 0, 0,
                0, 0, 0, 1,
                0, 0, 1, 0;
-    m_gates.emplace_back(cnotMat, cnot.bits());
+    m_gates.emplace_back(cnotMat, reverseBitIdx(cnot.bits()));
 }
 
 void GateFuser::visit(Rx& rx) 
@@ -200,14 +209,14 @@ void GateFuser::visit(CY& cy)
                 0, 1, 0, 0,
                 0, 0, 0, -I,
                 0, 0, I, 0;
-    m_gates.emplace_back(cyMat, cy.bits());
+    m_gates.emplace_back(cyMat, reverseBitIdx(cy.bits()));
 }
 
 void GateFuser::visit(CZ& cz) 
 {
     Eigen::MatrixXcd czMat{ Eigen::MatrixXcd::Identity(4, 4) };
     czMat(3, 3) = -1;
-    m_gates.emplace_back(czMat, cz.bits());
+    m_gates.emplace_back(czMat, reverseBitIdx(cz.bits()));
 }
 
 void GateFuser::visit(CRZ& crz) 
@@ -220,7 +229,7 @@ void GateFuser::visit(CRZ& crz)
             0, 1, 0, 0,
             0, 0, rzMat(0, 0), rzMat(0, 1),
             0, 0, rzMat(1, 0), rzMat(1, 1);
-    m_gates.emplace_back(crzMat, crz.bits());
+    m_gates.emplace_back(crzMat, reverseBitIdx(crz.bits()));
 }
 
 void GateFuser::visit(CH& ch) 
@@ -230,7 +239,7 @@ void GateFuser::visit(CH& ch)
                 0, 1, 0, 0,
                 0, 0, 1 / std::sqrt(2.), 1 / std::sqrt(2.), 
                 0, 0, 1 / std::sqrt(2.), -1 / std::sqrt(2.);
-    m_gates.emplace_back(chMat, ch.bits());
+    m_gates.emplace_back(chMat, reverseBitIdx(ch.bits()));
 }
 
 void GateFuser::visit(Swap& s) 
@@ -249,7 +258,7 @@ void GateFuser::visit(CPhase& cphase)
     const double angle = InstructionParameterToDouble(cphase.getParameter(0));
     const std::complex<double> val = std::exp(I*angle);
     cphaseMat(3, 3) = val;
-    m_gates.emplace_back(cphaseMat, cphase.bits());
+    m_gates.emplace_back(cphaseMat, reverseBitIdx(cphase.bits()));
 }
 
 void GateFuser::visit(Measure& measure) 
