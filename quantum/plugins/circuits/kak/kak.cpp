@@ -524,7 +524,7 @@ std::shared_ptr<xacc::CompositeInstruction> singleQubitGateGen(const Eigen::Matr
 
     const std::complex<double> globalFactor = in_mat(rowIdx, colIdx) / totalU(rowIdx, colIdx);
     totalU = globalFactor * totalU;
-    return allClose(in_mat, totalU);
+    return allClose(in_mat, totalU, 1e-6);
   };
 
   assert(validateSimplifiedSequence(composite, in_mat));
