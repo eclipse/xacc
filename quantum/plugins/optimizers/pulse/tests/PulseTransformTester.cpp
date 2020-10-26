@@ -2,6 +2,8 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "GateFusion.hpp"
+#include <unsupported/Eigen/KroneckerProduct>
+
 namespace {
     const std::complex<double> I(0.0, 1.0);
 }
@@ -54,21 +56,34 @@ TEST(PulseTransformTester, checkSimple)
         fuser->initialize(program);
         auto result = fuser->calcFusedGate(2);
         std::cout << result << "\n";
-        
-        Eigen::MatrixXcd matHkronI { Eigen::MatrixXcd::Zero(4, 4) }; 
-        matHkronI <<    1, 1, 0, 0,
-                        1, -1, 0, 0,
-                        0, 0, 1, 1,
-                        0, 0, 1, -1;
-        matHkronI *= (1 / std::sqrt(2.));           
-        Eigen::MatrixXcd cnotMat{ Eigen::MatrixXcd::Zero(4, 4) };
+        Eigen::Matrix2cd IdMat = Eigen::Matrix2cd::Identity();
+        const auto H = []() {
+          Eigen::Matrix2cd result;
+          result << 1.0 / std::sqrt(2), 1.0 / std::sqrt(2), 1.0 / std::sqrt(2),
+              -1.0 / std::sqrt(2);
+          return result;
+        };
+        Eigen::Matrix4cd matHkronI = Eigen::kroneckerProduct(H(), IdMat);       
+        Eigen::Matrix4cd cnotMat;
         cnotMat <<  1, 0, 0, 0,
                     0, 1, 0, 0,
                     0, 0, 0, 1,
                     0, 0, 1, 0;
+       
+        const auto flipKronOrder = [](const Eigen::Matrix4cd &in_mat) {
+          Eigen::Matrix4cd result = Eigen::Matrix4cd::Zero();
+          const std::vector<size_t> order{0, 2, 1, 3};
+          for (size_t i = 0; i < in_mat.rows(); ++i) {
+            for (size_t j = 0; j < in_mat.cols(); ++j) {
+              result(order[i], order[j]) = in_mat(i, j);
+            }
+          }
+          return result;
+        };
+
         // Note: gate application and matrix multiplication is in reverse order
         // i.e. cnot after h means cnot * H
-        const auto expectResult = cnotMat * matHkronI;
+        const auto expectResult =  flipKronOrder(cnotMat * matHkronI);
         std::cout << "Expected result: \n " << expectResult << "\n";
         // Compare the result matrix vs. expected.
         const auto diff = (result - expectResult).norm();
@@ -86,11 +101,11 @@ TEST(PulseTransformTester, checkSimple)
         fuser->initialize(program);
         auto result = fuser->calcFusedGate(3);
         // Expected location (row, column) that has an element 1.0
-        // Q0 is the control, hence it is a map 4(100)->5(101), 6->7 and vice versa
+        // Q0 is the control, hence it is a map 1 (001)->5(101), 3 (011) -> 7 (111) and vice versa
         std::vector<std::pair<size_t, size_t>> expectedLoc {
-            {0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 5}, { 5, 4}, {6, 7}, {7, 6}
+            {0, 0}, {4, 4}, {2, 2}, {6, 6}, {1, 5}, { 5, 1}, {3, 7}, {7, 3}
         };
-        // std::cout << result << "\n";
+        std::cout << result << "\n";
         for (const auto& loc : expectedLoc)
         {
             // These entries are 1.0

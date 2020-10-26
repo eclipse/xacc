@@ -772,7 +772,7 @@ std::shared_ptr<CompositeInstruction> KAK::KakDecomposition::toGates(size_t in_b
       const double xAngle = -2 * x;
       const double yAngle = -2 * y;
       auto composite = gateRegistry->createComposite("__TEMP__INTERACTION_COMPOSITE__" + std::to_string(getTempId()));  
-      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit1 }, { M_PI_2 }));
+      composite->addInstruction(gateRegistry->createInstruction("Rx", { bit2 }, { M_PI_2 }));
       composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
       composite->addInstruction(gateRegistry->createInstruction("CZ", { bit2, bit1 }));
       composite->addInstruction(gateRegistry->createInstruction("H", { bit1 }));
