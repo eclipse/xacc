@@ -1,7 +1,7 @@
 import xacc
 
 # Get the QPU and allocate a single qubit
-qpu = xacc.getAccelerator('local-ibm')
+qpu = xacc.getAccelerator('qpp')
 qbits = xacc.qalloc(2)
 
 # Get the MLPack Optimizer, default is Adam

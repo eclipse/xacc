@@ -243,7 +243,7 @@ initialization and finalization.
 
      // Get reference to the Accelerator
      auto accelerator =
-       xacc::getAccelerator("local-ibm", {std::make_pair("shots", 5000)});
+       xacc::getAccelerator("qpp", {std::make_pair("shots", 5000)});
 
      // Allocate some qubits
      auto buffer = xacc::qalloc(2);
@@ -271,7 +271,7 @@ in Python
 
    import xacc
 
-   accelerator = xacc.getAccelerator('local-ibm', {'shots':5000})
+   accelerator = xacc.getAccelerator('qpp', {'shots':5000})
    buffer = xacc.qalloc(2)
    xasm = xacc.getCompiler('xasm')
    ir = xasm.compile('''__qpu__ void bell(qbit q) {
