@@ -14,6 +14,7 @@
 #include "Utils.hpp"
 #include <iostream>
 #include "xacc.hpp"
+#include "xacc_plugin.hpp"
 
 using namespace ens;
 
@@ -190,3 +191,5 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
 }
 
 } // namespace xacc
+
+REGISTER_OPTIMIZER(xacc::MLPACKOptimizer)

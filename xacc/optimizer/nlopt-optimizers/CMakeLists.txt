@@ -13,7 +13,7 @@ add_subdirectory(nlopt)
 
 set(LIBRARY_NAME xacc-optimizer-nlopt)
 
-file(GLOB SRC *.cpp)
+file(GLOB SRC nlopt_optimizer.cpp)
 
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)

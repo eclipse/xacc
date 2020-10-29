@@ -17,6 +17,8 @@
 #include <iostream>
 using namespace std::placeholders;
 
+#include "xacc_plugin.hpp"
+
 namespace xacc {
 
 double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
@@ -144,3 +146,6 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 }
 
 } // namespace xacc
+
+
+REGISTER_OPTIMIZER(xacc::NLOptimizer)
