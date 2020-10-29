@@ -18,7 +18,7 @@ ADD settings.json /home/dev/.theia/
 
 #Common deps
 RUN apt-get update && \
-    apt-get --no-install-recommends -y install build-essential \
+    apt-get --no-install-recommends -yq install build-essential \
                        curl \
                        git \
                        python python3 \
@@ -32,7 +32,7 @@ RUN apt-get update && \
                        && python3 -m pip install setuptools \
                        && python3 -m pip install python-language-server flake8 autopep8 \
                                 cmake ipopo pint numpy scipy pydantic qiskit pylint pyquil cirq matplotlib \
-    && apt-get install -y gpg && rm -rf /var/lib/apt/lists/* \
+    && apt-get --no-install-recommends -yq install gpg && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 50 \
     && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 50 \
     && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 50 \
@@ -107,7 +107,7 @@ RUN apt-get update && \
     && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
-    apt-get install --no-install-recommends -y \
+    apt-get --no-install-recommends -yq install --no-install-recommends -y \
                        clang-tools-11 \
                        clangd-11 \
                        clang-tidy-11 \
