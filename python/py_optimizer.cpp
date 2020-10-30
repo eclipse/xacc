@@ -19,6 +19,7 @@ void bind_optimizer(py::module &m) {
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
       .def(py::init<>(), "")
+      .def("name", &xacc::Optimizer::name, "")
       .def(
           "optimize",
           [&](xacc::Optimizer &o, py::function &f,
@@ -56,7 +57,13 @@ void bind_optimizer(py::module &m) {
             }
             OptFunction opt(
                 [&](const std::vector<double> &x, std::vector<double> &grad) {
-                  return f.attr("__call__")(x).cast<double>();
+                  if (grad.empty()) {
+                    return f.attr("__call__")(x).cast<double>();
+                  } else {
+                  auto result = f.attr("__call__")(x, grad).cast<std::pair<double, std::vector<double>>>();
+                  grad = result.second;
+                  return result.first;
+                  }
                 },
                 f.attr("dimensions")().cast<int>());
             return o.optimize(opt);
