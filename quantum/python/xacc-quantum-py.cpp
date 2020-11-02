@@ -51,6 +51,10 @@ void bind_quantum(py::module &m) {
            [](const PauliOperator &op, double idCoeff) { return op + idCoeff; })
       .def("__radd__",
            [](const PauliOperator &op, double idCoeff) { return op + idCoeff; })
+      .def("__sub__",
+           [](const PauliOperator &op, double idCoeff) { return op - idCoeff; })
+      .def("__rsub__",
+           [](const PauliOperator &op, double idCoeff) { return idCoeff - op; })
       .def(py::self * py::self)
       .def(py::self *= std::complex<double>())
       .def(py::self * std::complex<double>())
@@ -71,6 +75,7 @@ void bind_quantum(py::module &m) {
       .def("nQubits", &PauliOperator::nQubits)
       .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
       .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
+      .def("getNonIdentitySubTerms", &PauliOperator::getNonIdentitySubTerms)
       .def(
           "__iter__",
           [](PauliOperator &op) {
