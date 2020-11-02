@@ -45,6 +45,10 @@ class OptFunction {
                             std::vector<double> &dx) {
     return _function(x, dx);
   }
+  virtual double operator()(const std::vector<double> &&x) {
+    std::vector<double> dx;
+    return _function(x, dx);
+  }
 };
 
 class Optimizer : public xacc::Identifiable {
