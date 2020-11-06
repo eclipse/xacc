@@ -24,6 +24,7 @@ add_subdirectory(placement)
 add_subdirectory(xasm)
 add_subdirectory(qpp)
 add_subdirectory(staq)
+add_subdirectory(observable_transforms)
 
 find_library(QRACK_LIBRARY NAMES qrack)
 if (QRACK_LIBRARY)

@@ -50,6 +50,13 @@ TEST(FermionOperatorTester, checkDanielBug) {
     std::cout << op.toString() << "\n";
 }
 
+TEST(FermionOperatorTester, checkBug) {
+  auto str = R"((-0.479678,-0) 1^ 1 + (0.708024,0) + (0.0454063,0) 0^ 3^ 2 1)";
+  FermionOperator op(str);
+  std::cout << op.toString() << "\n";
+  EXPECT_EQ(op.toString(), str);
+}
+
 TEST(FermionOperatorTester,checkSimple) {
 
   FermionOperator op(Operators{{3,1},{2,0}}, 2.2);
