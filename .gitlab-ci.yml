@@ -50,5 +50,5 @@ docker run_brew_bottle:
   script:
   - git clone https://github.com/aide-qc/homebrew-deploy
   - cd homebrew-deploy/scripts/linux-x86_64/xacc
-  - docker build --build-arg AIDEQC_ACCESS_TOKEN=$AIDEQC_ACCESS_TOKEN --build-arg JFROG_API_KEY=$JFROG_API_KEY -t xacc/brew-linux . 
+  - docker build --build-arg AIDEQC_ACCESS_TOKEN=$AIDEQC_ACCESS_TOKEN --build-arg JFROG_API_KEY=$JFROG_API_KEY -t xacc/brew-linux . --no-cache
   
