@@ -235,6 +235,60 @@ TEST(QsimAcceleratorTester, testVqeMode)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-3);
 }
 
+TEST(QsimAcceleratorTester, testConditional)
+{
+    const int nbTests = 100;
+    auto accelerator =  xacc::getAccelerator("qsim", { { "shots", nbTests } });
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto ir = xasmCompiler->compile(R"(__qpu__ void teleport(qbit q) {
+        // State preparation (Bob)
+        // Rotate an arbitrary angle
+        Rx(q[0], -0.123);
+        // Bell channel setup
+        H(q[1]);
+        CX(q[1], q[2]);
+        // Alice Bell measurement
+        CX(q[0], q[1]);
+        H(q[0]);
+        Measure(q[0]);
+        Measure(q[1]);
+        // Correction
+        if (q[0])
+        {
+            Z(q[2]);
+        }
+        if (q[1])
+        {
+            X(q[2]);
+        }
+        // Rotate back (-theta) on the teleported qubit
+        Rx(q[2], 0.123);
+        // Measure teleported qubit
+        // This should always be zero (perfect teleportation)
+        Measure(q[2]);
+    })", accelerator);
+
+    auto program = ir->getComposite("teleport");
+    // Allocate some qubits
+    auto buffer = xacc::qalloc(3);
+    // Create a classical buffer to store measurement results (for conditional)
+    buffer->setName("q");
+    xacc::storeBuffer(buffer);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    int resultCount = 0;
+
+    for (const auto& bitStrToCount : buffer->getMeasurementCounts())
+    {
+        const std::string& bitString = bitStrToCount.first;
+        // MSB bit must be zero (teleported)
+        EXPECT_TRUE(bitString.front() == '0');
+        resultCount += bitStrToCount.second;
+    }
+
+    EXPECT_EQ(resultCount, nbTests);
+}
+
 int main(int argc, char **argv) 
 {
   xacc::Initialize();

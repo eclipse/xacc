@@ -203,7 +203,31 @@ void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const s
     else {
         // Must execute the circuit 'shots' times.
         // (measure gates in the middle, if statements, etc.)
-        // TODO: 
+        xacc::info("Provided circuit has intermediate measurements.");
+        assert(m_shots > 0);
+        for (size_t i = 0; i < m_shots; ++i)
+        {
+            const std::string tempBufferName = buffer->name() + "__" + std::to_string(i);
+            auto temp_buffer = std::make_shared<xacc::AcceleratorBuffer>(tempBufferName, buffer->size());
+            xacc::storeBuffer(temp_buffer);
+            InstructionIterator it(compositeInstruction);
+            while (it.hasNext())
+            {
+                auto nextInst = it.next();
+                if (nextInst->isEnabled() && !nextInst->isComposite())
+                {
+                    apply(temp_buffer, nextInst);
+                }
+                if (nextInst->name() == "ifstmt")
+                {
+                    auto ifStmtCast = std::dynamic_pointer_cast<IfStmt>(nextInst);
+                    InstructionParameter ifBufferName(tempBufferName);
+                    ifStmtCast->setParameter(0, ifBufferName);
+                    ifStmtCast->expand({});
+                }
+            }
+            buffer->appendMeasurement(temp_buffer->single_measurements_to_bitstring());
+        }
     }
 }
 
@@ -308,8 +332,57 @@ double QsimAccelerator::getExpectationValueZ(std::shared_ptr<CompositeInstructio
     }
 }
 
+// Sync. (FTQC) gate application.
 void QsimAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 
 {
+    static std::shared_ptr<AcceleratorBuffer> current_buffer;
+    static std::unique_ptr<QsimCircuitVisitor> visitor;
+    static StateSpace stateSpace(m_qsimParam.num_threads);
+    static std::optional<State> current_state;
+    xacc::info("Apply: " + inst->toString());
+    if (!current_buffer || (current_buffer->name() != buffer->name())) 
+    {
+        current_buffer = buffer;
+        visitor = std::make_unique<QsimCircuitVisitor>(buffer->size());
+        current_state = stateSpace.Create(buffer->size());
+        stateSpace.SetStateZero(*current_state);
+    }
+    
+    assert(!inst->isComposite());
+    inst->accept(visitor.get());
+    if (isMeasureGate(inst))
+    {
+        auto qsimCirc = visitor->getQsimCircuit();
+        auto scratch = stateSpace.Create(current_state->num_qubits());
+        // copy from src to scratch.
+        const bool copyOk = stateSpace.Copy(*current_state, scratch);
+        assert(copyOk);
+        std::vector<StateSpace::MeasurementResult> meas_results;
+        // std::cout << "Before: \n";
+        // PrintAmplitudes(scratch.num_qubits(), stateSpace, scratch);
+        m_qsimParam.seed = time(NULL);
+        const bool runOk = Runner::Run(m_qsimParam, qsimCirc, scratch, meas_results);
+        assert(runOk);
+        if (meas_results.size() == 1 && meas_results[0].bitstring.size() == 1)
+        {
+            const auto bitResult = meas_results[0].bitstring[0];
+            assert(bitResult == 0 || bitResult == 1);
+            buffer->measure(inst->bits()[0], bitResult);         
+        }
+        else 
+        {
+            xacc::error("Unexpected measurement results encountered.");
+        }
+        
+        // std::cout << "After: \n";
+        // PrintAmplitudes(scratch.num_qubits(), stateSpace, scratch);
+
+        // Update the state:
+        stateSpace.Copy(scratch, *current_state);
+
+        // Make new visitor, i.e. clear the circuit.
+        visitor = std::make_unique<QsimCircuitVisitor>(buffer->size());
+    }
 }
 }}
 
