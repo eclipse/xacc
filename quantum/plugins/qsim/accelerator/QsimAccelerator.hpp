@@ -178,6 +178,6 @@ public:
     virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) override;
 private:
     Runner::Parameter m_qsimParam;
-    size_t m_shots;
+    int m_shots;
 };
 }}
