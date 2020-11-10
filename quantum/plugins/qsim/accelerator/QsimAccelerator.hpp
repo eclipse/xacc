@@ -177,7 +177,9 @@ public:
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
     virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) override;
 private:
+    double getExpectationValueZ(std::shared_ptr<CompositeInstruction> compositeInstruction, const StateSpace& stateSpace,  const State& state) const;
     Runner::Parameter m_qsimParam;
     int m_shots;
+    bool m_vqeMode;
 };
 }}

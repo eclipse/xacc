@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "QsimAccelerator.hpp"
 #include "xacc_plugin.hpp"
+#include "IRUtils.hpp"
 #include <cassert>
 
 namespace {
@@ -124,6 +125,17 @@ void QsimAccelerator::initialize(const HeterogeneousMap& params)
     {
         m_qsimParam.num_threads = params.get<int>("threads");
     } 
+    // Enable VQE mode by default if not using shots.
+    // Note: in VQE mode, only expectation values are computed.
+    m_vqeMode = (m_shots < 1);
+    if (params.keyExists<bool>("vqe-mode"))
+    {
+        m_vqeMode = params.get<bool>("vqe-mode");
+        if (m_vqeMode)
+        {
+            xacc::info("Enable VQE Mode.");
+        }
+    }
 }
 
 void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
@@ -197,7 +209,103 @@ void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const s
 
 void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)
 {
-    
+    if (!m_vqeMode || compositeInstructions.size() <= 1) 
+    {
+        // Cannot run VQE mode, just run each composite independently.
+        for (auto& f : compositeInstructions)
+        {
+            auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size());
+            execute(tmpBuffer, f);
+            buffer->appendChild(f->name(), tmpBuffer);
+        }
+    }
+    else 
+    {
+        xacc::info("Running VQE mode");
+        auto kernelDecomposed = ObservedAnsatz::fromObservedComposites(compositeInstructions);
+        // Always validate kernel decomposition in DEBUG
+        assert(kernelDecomposed.validate(compositeInstructions));
+        QsimCircuitVisitor visitor(buffer->size());
+        // Base kernel:
+        auto baseKernel = kernelDecomposed.getBase();
+        // Basis-change + measures
+        auto obsCircuits = kernelDecomposed.getObservedSubCircuits();
+        // Walk the base IR tree, and visit each node
+        InstructionIterator it(baseKernel);
+        while (it.hasNext()) 
+        {
+            auto nextInst = it.next();
+            if (nextInst->isEnabled() && !nextInst->isComposite()) 
+            {
+                nextInst->accept(&visitor);
+            }
+        }
+
+
+        // Run the base circuit:
+        auto circuit = visitor.getQsimCircuit();
+        StateSpace stateSpace(m_qsimParam.num_threads);
+        State state = stateSpace.Create(circuit.num_qubits);
+        stateSpace.SetStateZero(state);
+        
+        const bool runOk = Runner::Run(m_qsimParam, circuit, state);
+        assert(runOk);
+        
+        // Now we have a wavefunction that represents execution of the ansatz.
+        // Run the observable sub-circuits (change of basis + measurements)
+        for (int i = 0; i < obsCircuits.size(); ++i) 
+        {
+            auto tmpBuffer = std::make_shared<xacc::AcceleratorBuffer>(obsCircuits[i]->name(), buffer->size());
+            const double e = getExpectationValueZ(obsCircuits[i], stateSpace, state);
+            tmpBuffer->addExtraInfo("exp-val-z", e);
+            buffer->appendChild(obsCircuits[i]->name(), tmpBuffer);
+        }
+    }
+}
+
+double QsimAccelerator::getExpectationValueZ(std::shared_ptr<CompositeInstruction> compositeInstruction, const StateSpace& stateSpace,  const State& state) const
+{
+    // Construct Qsim circuit:
+    QsimCircuitVisitor visitor(state.num_qubits());
+    std::vector<size_t> measureBitIdxs;
+    // Walk the IR tree, and visit each node
+    InstructionIterator it(compositeInstruction);
+    while (it.hasNext())
+    {
+        auto nextInst = it.next();
+        if (nextInst->isEnabled())
+        {
+            if (!isMeasureGate(nextInst))
+            {
+                nextInst->accept(&visitor);
+            }
+            else
+            {
+                // Just collect the indices of measured qubit
+                measureBitIdxs.emplace_back(nextInst->bits()[0]);
+            }
+        }
+    }
+
+    auto circuit = visitor.getQsimCircuit();
+    if (!circuit.gates.empty()) 
+    {
+        auto scratch = stateSpace.Create(state.num_qubits());
+        // copy from src to scratch.
+        const bool copyOk = stateSpace.Copy(state, scratch);
+        assert(copyOk);
+        auto fused_circuit = qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>().FuseGates(circuit.num_qubits, circuit.gates);
+        xacc::quantum::QsimAccelerator::Simulator sim(m_qsimParam.num_threads);
+        for (const auto& fused_gate : fused_circuit) 
+        {
+            qsim::ApplyFusedGate(sim, fused_gate, scratch);
+        }
+        return computeExpValZ(m_qsimParam.num_threads, measureBitIdxs, stateSpace, scratch);
+    }
+    else
+    {
+        return computeExpValZ(m_qsimParam.num_threads, measureBitIdxs, stateSpace, state);
+    }
 }
 
 void QsimAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 

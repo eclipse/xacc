@@ -12,4 +12,4 @@
 # *******************************************************************************/
 
 add_xacc_test(QsimAccelerator)
-target_link_libraries(QsimAcceleratorTester xacc)
+target_link_libraries(QsimAcceleratorTester xacc xacc-quantum-gate)
