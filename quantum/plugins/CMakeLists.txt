@@ -35,5 +35,6 @@ else()
 endif()
 
 add_subdirectory(optimal_control)
+add_subdirectory(qsim)
 
 install (FILES utils/OperatorPool.hpp DESTINATION include/quantum/gate)
