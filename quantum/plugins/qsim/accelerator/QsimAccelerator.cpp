@@ -11,17 +11,188 @@
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
 #include "QsimAccelerator.hpp"
+#include "xacc_plugin.hpp"
+#include <cassert>
+
+namespace {
+inline bool isMeasureGate(const xacc::InstPtr& in_instr)
+{
+    return (in_instr->name() == "Measure");
+}
+
+bool shotCountFromFinalStateVec(const std::shared_ptr<xacc::CompositeInstruction>& in_composite)
+{
+    xacc::InstructionIterator it(in_composite);
+    bool measureAtTheEnd = true;
+    bool measureEncountered = false;
+
+    while (it.hasNext())
+    {
+        auto nextInst = it.next();
+        if (nextInst->isEnabled())
+        {
+            if (isMeasureGate(nextInst))
+            {
+                // Flag that we have seen a Measure gate.
+                measureEncountered = true;
+            }
+
+            // We have seen a Measure gate but this one is not another Measure gate.
+            if (measureEncountered && !isMeasureGate(nextInst))
+            {
+                measureAtTheEnd = false;
+            }
+        }
+    }
+
+    // If Measure gates are at the very end,
+    // this Composite can be simulated by random sampling from the state vec.
+    return measureAtTheEnd;
+}
+
+// For debug:
+template <typename StateSpace, typename State>
+void PrintAmplitudes(unsigned num_qubits, const StateSpace& state_space, const State& state) 
+{
+  static constexpr char const* bits[8] = {
+    "000", "001", "010", "011", "100", "101", "110", "111",
+  };
+
+  uint64_t size = std::min(uint64_t{8}, uint64_t{1} << num_qubits);
+  unsigned s = 3 - std::min(unsigned{3}, num_qubits);
+
+  for (uint64_t i = 0; i < size; ++i) {
+    auto a = state_space.GetAmpl(state, i);
+    qsim::IO::messagef("%s:%16.8g%16.8g%16.8g\n",
+                       bits[i] + s, std::real(a), std::imag(a), std::norm(a));
+  }
+}
+
+// Compute exp-val-z
+// 1. Copy state onto scratch
+// 2. Evolve scratch forward with Z terms
+// 3. Compute < state | scratch >
+template <typename StateSpace, typename State>
+double computeExpValZ(size_t num_threads, const std::vector<size_t>& meas_bits, const StateSpace& state_space, const State& state) 
+{
+    auto scratch = state_space.Create(state.num_qubits());
+    // copy from src to scratch.
+    const bool copyOk = state_space.Copy(state, scratch);
+    assert(copyOk);
+    qsim::Circuit<qsim::GateQSim<float>> meas_circuit;
+    meas_circuit.num_qubits = state.num_qubits();
+    size_t time = 0;
+    for (const auto& bit: meas_bits) 
+    {
+      meas_circuit.gates.emplace_back(qsim::GateZ<float>::Create(time++, bit));
+    }
+
+    auto fused_circuit = qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>().FuseGates(meas_circuit.num_qubits, meas_circuit.gates);
+    xacc::quantum::QsimAccelerator::Simulator sim(num_threads);
+    for (const auto& fused_gate : fused_circuit) 
+    {
+      qsim::ApplyFusedGate(sim, fused_gate, scratch);
+    }
+    return state_space.RealInnerProduct(state, scratch);
+}
+}
 
 namespace xacc {
 namespace quantum {
 void QsimAccelerator::initialize(const HeterogeneousMap& params)
 {
-    
+    m_qsimParam.seed = 1;
+    m_qsimParam.num_threads = 1;
+    m_qsimParam.verbosity = xacc::verbose ? 1 : 0;
+    m_shots = -1;
+    if (params.keyExists<int>("shots"))
+    {
+        m_shots = params.get<int>("shots");
+        if (m_shots < 1)
+        {
+            xacc::error("Invalid 'shots' parameter.");
+        }
+    }   
+
+    // Set Qsim runner params:
+    if (params.keyExists<int>("seed"))
+    {
+        m_qsimParam.seed = params.get<int>("seed");
+    } 
+
+    if (params.keyExists<int>("threads"))
+    {
+        m_qsimParam.num_threads = params.get<int>("threads");
+    } 
 }
 
 void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)
-{
-   
+{   
+    const bool qsimSimulateSamples = m_shots > 0;
+    const bool areAllMeasurementsTerminal = shotCountFromFinalStateVec(compositeInstruction);
+    
+    if (!qsimSimulateSamples || areAllMeasurementsTerminal) {
+        // Construct Qsim circuit:
+        QsimCircuitVisitor visitor(buffer->size());
+        std::vector<size_t> measureBitIdxs;
+        // Walk the IR tree, and visit each node
+        InstructionIterator it(compositeInstruction);
+        while (it.hasNext())
+        {
+            auto nextInst = it.next();
+            if (nextInst->isEnabled())
+            {
+                if (!isMeasureGate(nextInst))
+                {
+                    nextInst->accept(&visitor);
+                }
+                else
+                {
+                    // Just collect the indices of measured qubit
+                    measureBitIdxs.emplace_back(nextInst->bits()[0]);
+                }
+            }
+        }
+
+        auto circuit = visitor.getQsimCircuit();
+        StateSpace stateSpace(m_qsimParam.num_threads);
+        State state = stateSpace.Create(circuit.num_qubits);
+        stateSpace.SetStateZero(state);
+        
+        if (Runner::Run(m_qsimParam, circuit, state)) 
+        {
+            PrintAmplitudes(circuit.num_qubits, stateSpace, state);
+            if (qsimSimulateSamples) 
+            {
+                // Generate bit strings
+                xacc::info("Provided circuit has no intermediate measurements. Sampling repeatedly from final state vector.");
+                const auto samples = stateSpace.Sample(state, m_shots, m_qsimParam.seed);
+                for (const auto& sample: samples) {
+                    std::string bitString;
+                    for (const auto& bit: measureBitIdxs) {
+                        const auto bit_mask = 1ULL << bit;
+                        bitString.push_back((sample & bit_mask) == bit_mask ? '1' : '0');
+                    }
+                    buffer->appendMeasurement(bitString);
+                }
+            }
+            else 
+            {
+                const double expectedValueZ = computeExpValZ(m_qsimParam.num_threads, measureBitIdxs, stateSpace, state);
+                // Just add exp-val-z info
+                buffer->addExtraInfo("exp-val-z", expectedValueZ);
+            }
+        }
+        else 
+        {
+            xacc::error("Failed to run the circuit.");
+        }
+    }
+    else {
+        // Must execute the circuit 'shots' times.
+        // (measure gates in the middle, if statements, etc.)
+        // TODO: 
+    }
 }
 
 void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions)
@@ -32,7 +203,8 @@ void QsimAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const s
 void QsimAccelerator::apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) 
 {
 }
-
-#define REGISTER_ACCELERATOR(QsimAccelerator)
 }}
+
+REGISTER_ACCELERATOR(xacc::quantum::QsimAccelerator)
+
 

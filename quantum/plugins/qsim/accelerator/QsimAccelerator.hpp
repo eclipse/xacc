@@ -16,6 +16,11 @@
 // Qsim:
 #include "circuit.h"
 #include "gates_qsim.h"
+#include "formux.h"
+#include "fuser_basic.h"
+#include "run_qsim.h"
+#include "simmux.h"
+#include "io_file.h"
 
 namespace xacc {
 namespace quantum {
@@ -153,6 +158,12 @@ private:
 
 class QsimAccelerator : public Accelerator {
 public:
+    // Qsim type: 
+    using Simulator = qsim::Simulator<qsim::For>;
+    using StateSpace = Simulator::StateSpace;
+    using State = StateSpace::State;
+    using Runner = qsim::QSimRunner<qsim::IO, qsim::BasicGateFuser<qsim::IO, qsim::GateQSim<float>>, Simulator>;
+
     // Identifiable interface impls
     virtual const std::string name() const override { return "qsim"; }
     virtual const std::string description() const override { return "XACC Simulation Accelerator based on qsim library."; }
@@ -165,5 +176,8 @@ public:
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction) override;
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
     virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) override;
+private:
+    Runner::Parameter m_qsimParam;
+    size_t m_shots;
 };
 }}
