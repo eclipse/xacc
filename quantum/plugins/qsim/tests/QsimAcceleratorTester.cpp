@@ -18,86 +18,90 @@
 #include "xacc_observable.hpp"
 
 namespace {
-    template <typename T>
-    std::vector<T> linspace(T a, T b, size_t N)
-    {
-        T h = (b - a) / static_cast<T>(N - 1);
-        std::vector<T> xs(N);
-        typename std::vector<T>::iterator x;
-        T val;
-        for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
-        {
-            *x = val;
-        }
-        return xs;
-    }
+template <typename T> std::vector<T> linspace(T a, T b, size_t N) {
+  T h = (b - a) / static_cast<T>(N - 1);
+  std::vector<T> xs(N);
+  typename std::vector<T>::iterator x;
+  T val;
+  for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h) {
+    *x = val;
+  }
+  return xs;
 }
+} // namespace
 
-TEST(QsimAcceleratorTester, testExpVal)
-{
-    auto accelerator = xacc::getAccelerator("qsim");
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto program1 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+TEST(QsimAcceleratorTester, testExpVal) {
+  auto accelerator = xacc::getAccelerator("qsim");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program1 = xasmCompiler
+                      ->compile(R"(__qpu__ void test1(qbit q) {
       H(q[0]);
       Measure(q[0]);
-    })", accelerator)->getComposites()[0];
-    auto program2 = xasmCompiler->compile(R"(__qpu__ void test2(qbit q) {
+    })",
+                                accelerator)
+                      ->getComposites()[0];
+  auto program2 = xasmCompiler
+                      ->compile(R"(__qpu__ void test2(qbit q) {
       X(q[0]);
       Measure(q[0]);
-    })", accelerator)->getComposites()[0];
+    })",
+                                accelerator)
+                      ->getComposites()[0];
 
-    auto program3 = xasmCompiler->compile(R"(__qpu__ void test3(qbit q) {
+  auto program3 = xasmCompiler
+                      ->compile(R"(__qpu__ void test3(qbit q) {
       X(q[0]);
       X(q[0]);
       Measure(q[0]);
-    })", accelerator)->getComposites()[0];
+    })",
+                                accelerator)
+                      ->getComposites()[0];
 
-    auto buffer1 = xacc::qalloc(1);
-    accelerator->execute(buffer1, program1);
-    EXPECT_EQ(buffer1->getMeasurementCounts().size(), 0);
-    EXPECT_NEAR(buffer1->getExpectationValueZ(), 0.0, 1e-9);
+  auto buffer1 = xacc::qalloc(1);
+  accelerator->execute(buffer1, program1);
+  EXPECT_EQ(buffer1->getMeasurementCounts().size(), 0);
+  EXPECT_NEAR(buffer1->getExpectationValueZ(), 0.0, 1e-9);
 
-    auto buffer2 = xacc::qalloc(1);
-    accelerator->execute(buffer2, program2);
-    EXPECT_EQ(buffer2->getMeasurementCounts().size(), 0);
-    EXPECT_NEAR(buffer2->getExpectationValueZ(), -1.0, 1e-9);    
-    
-    auto buffer3 = xacc::qalloc(1);
-    accelerator->execute(buffer3, program3);
-    EXPECT_EQ(buffer3->getMeasurementCounts().size(), 0);
-    EXPECT_NEAR(buffer3->getExpectationValueZ(), 1.0, 1e-9);  
+  auto buffer2 = xacc::qalloc(1);
+  accelerator->execute(buffer2, program2);
+  EXPECT_EQ(buffer2->getMeasurementCounts().size(), 0);
+  EXPECT_NEAR(buffer2->getExpectationValueZ(), -1.0, 1e-9);
+
+  auto buffer3 = xacc::qalloc(1);
+  accelerator->execute(buffer3, program3);
+  EXPECT_EQ(buffer3->getMeasurementCounts().size(), 0);
+  EXPECT_NEAR(buffer3->getExpectationValueZ(), 1.0, 1e-9);
 }
 
-TEST(QsimAcceleratorTester, testBell)
-{
-    auto accelerator = xacc::getAccelerator("qsim", {{"shots", 1024}});
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
+TEST(QsimAcceleratorTester, testBell) {
+  auto accelerator = xacc::getAccelerator("qsim", {{"shots", 1024}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void bell(qbit q) {
       H(q[0]);
       CX(q[0], q[1]);
       CX(q[1], q[2]);
       Measure(q[0]);
       Measure(q[1]);
       Measure(q[2]);
-    })", accelerator);
+    })",
+                                  accelerator);
 
-    auto program = ir->getComposite("bell");
-    auto buffer = xacc::qalloc(3);
-    accelerator->execute(buffer, program);
-    EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
-    auto prob0 = buffer->computeMeasurementProbability("000");
-    auto prob1 = buffer->computeMeasurementProbability("111");
-    buffer->print();
-    EXPECT_NEAR(prob0 + prob1, 1.0, 1e-9);  
-    EXPECT_NEAR(prob0, 0.5, 0.2);  
-    EXPECT_NEAR(prob1, 0.5, 0.2);  
+  auto program = ir->getComposite("bell");
+  auto buffer = xacc::qalloc(3);
+  accelerator->execute(buffer, program);
+  EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
+  auto prob0 = buffer->computeMeasurementProbability("000");
+  auto prob1 = buffer->computeMeasurementProbability("111");
+  buffer->print();
+  EXPECT_NEAR(prob0 + prob1, 1.0, 1e-9);
+  EXPECT_NEAR(prob0, 0.5, 0.2);
+  EXPECT_NEAR(prob1, 0.5, 0.2);
 }
 
-TEST(QsimAcceleratorTester, testDeuteron)
-{
-    auto accelerator = xacc::getAccelerator("qsim");
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto ir = xasmCompiler->compile(R"(__qpu__ void ansatz(qbit q, double t) {
+TEST(QsimAcceleratorTester, testDeuteron) {
+  auto accelerator = xacc::getAccelerator("qsim");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void ansatz(qbit q, double t) {
       X(q[0]);
       Ry(q[1], t);
       CX(q[1], q[0]);
@@ -105,52 +109,36 @@ TEST(QsimAcceleratorTester, testDeuteron)
       H(q[1]);
       Measure(q[0]);
       Measure(q[1]);
-    })", accelerator);
+    })",
+                                  accelerator);
 
-    auto program = ir->getComposite("ansatz");
-    // Expected results from deuteron_2qbit_xasm_X0X1
-    const std::vector<double> expectedResults {
-        0.0,
-        -0.324699,
-        -0.614213,
-        -0.837166,
-        -0.9694,
-        -0.996584,
-        -0.915773,
-        -0.735724,
-        -0.475947,
-        -0.164595,
-        0.164595,
-        0.475947,
-        0.735724,
-        0.915773,
-        0.996584,
-        0.9694,
-        0.837166,
-        0.614213,
-        0.324699,
-        0.0
-    };
+  auto program = ir->getComposite("ansatz");
+  // Expected results from deuteron_2qbit_xasm_X0X1
+  const std::vector<double> expectedResults{
+      0.0,       -0.324699, -0.614213, -0.837166, -0.9694,
+      -0.996584, -0.915773, -0.735724, -0.475947, -0.164595,
+      0.164595,  0.475947,  0.735724,  0.915773,  0.996584,
+      0.9694,    0.837166,  0.614213,  0.324699,  0.0};
 
-    const auto angles = linspace(-xacc::constants::pi, xacc::constants::pi, 20);
-    for (size_t i = 0; i < angles.size(); ++i)
-    {
-        auto buffer = xacc::qalloc(2);
-        auto evaled = program->operator()({ angles[i] });
-        accelerator->execute(buffer, evaled);
-        std::cout << "Angle = " << angles[i] << "; result = " << buffer->getExpectationValueZ() << " vs. " << expectedResults[i] << "\n";
-        EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResults[i], 1e-6);
-    }
+  const auto angles = linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    std::cout << "Angle = " << angles[i]
+              << "; result = " << buffer->getExpectationValueZ() << " vs. "
+              << expectedResults[i] << "\n";
+    EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResults[i], 1e-6);
+  }
 }
 
-TEST(QsimAcceleratorTester, testISwap)
-{
-    // Get reference to the Accelerator
-    xacc::set_verbose(false);
-    const int nbShots = 100;
-    auto accelerator =  xacc::getAccelerator("qsim", { {"shots", nbShots} });
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto ir = xasmCompiler->compile(R"(__qpu__ void testISwap(qbit q) {
+TEST(QsimAcceleratorTester, testISwap) {
+  // Get reference to the Accelerator
+  xacc::set_verbose(false);
+  const int nbShots = 100;
+  auto accelerator = xacc::getAccelerator("qsim", {{"shots", nbShots}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void testISwap(qbit q) {
         X(q[0]);
         iSwap(q[0], q[3]);
         Measure(q[0]);
@@ -158,58 +146,60 @@ TEST(QsimAcceleratorTester, testISwap)
         Measure(q[2]);
         Measure(q[3]);
         Measure(q[4]);
-    })", accelerator);
+    })",
+                                  accelerator);
 
-    auto program = ir->getComposite("testISwap");
-    // Allocate some qubits (5)
-    auto buffer = xacc::qalloc(5);
-    accelerator->execute(buffer, program);
-    // 10000 => i00010 after iswap
-    buffer->print();
-    EXPECT_EQ(buffer->getMeasurementCounts()["00010"], nbShots);
+  auto program = ir->getComposite("testISwap");
+  // Allocate some qubits (5)
+  auto buffer = xacc::qalloc(5);
+  accelerator->execute(buffer, program);
+  // 10000 => i00010 after iswap
+  buffer->print();
+  EXPECT_EQ(buffer->getMeasurementCounts()["00010"], nbShots);
 }
 
-TEST(QsimAcceleratorTester, testFsim)
-{
-    // Get reference to the Accelerator
-    const int nbShots = 1000;
-    auto accelerator =  xacc::getAccelerator("qsim", { {"shots", nbShots} });
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto ir = xasmCompiler->compile(R"(__qpu__ void testFsim(qbit q, double x, double y) {
+TEST(QsimAcceleratorTester, testFsim) {
+  // Get reference to the Accelerator
+  const int nbShots = 1000;
+  auto accelerator = xacc::getAccelerator("qsim", {{"shots", nbShots}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(
+      R"(__qpu__ void testFsim(qbit q, double x, double y) {
         X(q[0]);
         fSim(q[0], q[2], x, y);
         Measure(q[0]);
         Measure(q[2]);
-    })", accelerator);
+    })",
+      accelerator);
 
-    auto program = ir->getComposites()[0]; 
-    const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 10);
+  auto program = ir->getComposites()[0];
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 10);
 
-    for (const auto& a : angles) 
-    {
-        auto buffer = xacc::qalloc(3);
-        auto evaled = program->operator()({ a, 0.0 });
-        accelerator->execute(buffer, evaled);
-        const auto expectedProb = std::sin(a) * std::sin(a);
-        std::cout << "Angle = " << a << "\n";
-        buffer->print();
-        // fSim mixes 01 and 10 states w.r.t. the theta angle.
-        EXPECT_NEAR(buffer->computeMeasurementProbability("01"), expectedProb, 0.1);
-        EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb, 0.1);
-    }
+  for (const auto &a : angles) {
+    auto buffer = xacc::qalloc(3);
+    auto evaled = program->operator()({a, 0.0});
+    accelerator->execute(buffer, evaled);
+    const auto expectedProb = std::sin(a) * std::sin(a);
+    std::cout << "Angle = " << a << "\n";
+    buffer->print();
+    // fSim mixes 01 and 10 states w.r.t. the theta angle.
+    EXPECT_NEAR(buffer->computeMeasurementProbability("01"), expectedProb, 0.1);
+    EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb,
+                0.1);
+  }
 }
 
-TEST(QsimAcceleratorTester, testVqeMode)
-{
-    auto accelerator = xacc::getAccelerator("qsim");
-    // Create the N=2 deuteron Hamiltonian
-    auto H_N_2 = xacc::quantum::getObservable(
-        "pauli", std::string("5.907 - 2.1433 X0X1 "
-                            "- 2.1433 Y0Y1"
-                            "+ .21829 Z0 - 6.125 Z1"));
+TEST(QsimAcceleratorTester, testVqeMode) {
+  auto accelerator = xacc::getAccelerator("qsim");
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
 
-    auto optimizer = xacc::getOptimizer("nlopt");
-    xacc::qasm(R"(
+  auto optimizer = xacc::getOptimizer("nlopt");
+  xacc::qasm(R"(
         .compiler xasm
         .circuit deuteron_ansatz
         .parameters theta
@@ -218,29 +208,28 @@ TEST(QsimAcceleratorTester, testVqeMode)
         Ry(q[1], theta);
         CNOT(q[1],q[0]);
     )");
-    auto ansatz = xacc::getCompiled("deuteron_ansatz");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
 
-    // Get the VQE Algorithm and initialize it
-    auto vqe = xacc::getAlgorithm("vqe");
-    vqe->initialize({std::make_pair("ansatz", ansatz),
-                    std::make_pair("observable", H_N_2),
-                    std::make_pair("accelerator", accelerator),
-                    std::make_pair("optimizer", optimizer)});
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_2),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
 
-    // Allocate some qubits and execute
-    auto buffer = xacc::qalloc(2);
-    vqe->execute(buffer);
-    std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
-    // Expected result: -1.74886 
-    EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-3);
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  vqe->execute(buffer);
+  std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-3);
 }
 
-TEST(QsimAcceleratorTester, testConditional)
-{
-    const int nbTests = 100;
-    auto accelerator =  xacc::getAccelerator("qsim", { { "shots", nbTests } });
-    auto xasmCompiler = xacc::getCompiler("xasm");
-    auto ir = xasmCompiler->compile(R"(__qpu__ void teleport(qbit q) {
+TEST(QsimAcceleratorTester, testConditional) {
+  const int nbTests = 100;
+  auto accelerator = xacc::getAccelerator("qsim", {{"shots", nbTests}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void teleport(qbit q) {
         // State preparation (Bob)
         // Rotate an arbitrary angle
         Rx(q[0], -0.123);
@@ -266,31 +255,30 @@ TEST(QsimAcceleratorTester, testConditional)
         // Measure teleported qubit
         // This should always be zero (perfect teleportation)
         Measure(q[2]);
-    })", accelerator);
+    })",
+                                  accelerator);
 
-    auto program = ir->getComposite("teleport");
-    // Allocate some qubits
-    auto buffer = xacc::qalloc(3);
-    // Create a classical buffer to store measurement results (for conditional)
-    buffer->setName("q");
-    xacc::storeBuffer(buffer);
-    accelerator->execute(buffer, program);
-    buffer->print();
-    int resultCount = 0;
+  auto program = ir->getComposite("teleport");
+  // Allocate some qubits
+  auto buffer = xacc::qalloc(3);
+  // Create a classical buffer to store measurement results (for conditional)
+  buffer->setName("q");
+  xacc::storeBuffer(buffer);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  int resultCount = 0;
 
-    for (const auto& bitStrToCount : buffer->getMeasurementCounts())
-    {
-        const std::string& bitString = bitStrToCount.first;
-        // MSB bit must be zero (teleported)
-        EXPECT_TRUE(bitString.front() == '0');
-        resultCount += bitStrToCount.second;
-    }
+  for (const auto &bitStrToCount : buffer->getMeasurementCounts()) {
+    const std::string &bitString = bitStrToCount.first;
+    // MSB bit must be zero (teleported)
+    EXPECT_TRUE(bitString.front() == '0');
+    resultCount += bitStrToCount.second;
+  }
 
-    EXPECT_EQ(resultCount, nbTests);
+  EXPECT_EQ(resultCount, nbTests);
 }
 
-int main(int argc, char **argv) 
-{
+int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);
   const auto result = RUN_ALL_TESTS();

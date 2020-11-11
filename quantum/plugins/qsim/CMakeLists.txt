@@ -16,6 +16,15 @@ target_link_libraries(${LIBRARY_NAME}
                                xacc-quantum-gate
                         )
 
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC _OPENMP)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+endif()
+
 set(_bundle_name xacc_qsim)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS
