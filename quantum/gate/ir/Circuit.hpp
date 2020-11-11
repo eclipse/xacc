@@ -224,6 +224,21 @@ public:
     for (auto &i : insts)
       addInstruction(i);
   }
+
+  void addInstructions(const std::vector<InstPtr> &&insts,
+                       bool shouldValidate = true) override {
+    if (shouldValidate) {
+      for (auto &i : insts) {
+        addInstruction(i);
+      }
+    } else {
+      // Bypass instruction validation, append all the instructions directly.
+      instructions.insert(instructions.end(),
+                          std::make_move_iterator(insts.begin()),
+                          std::make_move_iterator(insts.end()));
+    }
+  }
+
   void clear() override { instructions.clear(); }
 
   bool hasChildren() const override { return !instructions.empty(); }

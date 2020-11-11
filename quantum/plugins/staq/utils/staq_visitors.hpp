@@ -18,7 +18,8 @@
 #include "ast/traversal.hpp"
 #include <map>
 #include <iomanip>
-
+#include "xacc.hpp"
+#include "xacc_service.hpp"
 #include "AllGateVisitor.hpp"
 
 using namespace staq::ast;
@@ -108,6 +109,94 @@ public:
 
     ss << ");\n";
   }
+};
+
+// Staq AST to XACC IR
+class StaqToIr : public staq::ast::Visitor {
+public:
+  StaqToIr(const std::string &in_kernelName)
+      : m_kernelName(in_kernelName), m_provider(xacc::getIRProvider("quantum")) {}
+  void visit(VarAccess &) override {}
+  // Expressions
+  void visit(BExpr &) override {}
+  void visit(UExpr &) override {}
+  void visit(PiExpr &) override {}
+  void visit(IntExpr &) override {}
+  void visit(RealExpr &r) override {}
+  void visit(VarExpr &v) override {}
+  void visit(ResetStmt &) override {}
+  void visit(IfStmt &) override {}
+  void visit(BarrierGate &) override {}
+  void visit(GateDecl &) override {}
+  void visit(OracleDecl &) override {}
+  void visit(RegisterDecl &) override {}
+  void visit(AncillaDecl &) override {}
+  void visit(Program &prog) override {
+    // Program body
+    m_runtimeInsts.clear();
+    m_runtimeInsts.reserve(prog.body().size());
+    prog.foreach_stmt([this](auto &stmt) { stmt.accept(*this); });
+  }
+
+  void visit(MeasureStmt &m) override {
+    m_runtimeInsts.emplace_back(
+        std::make_shared<xacc::quantum::Measure>(m.q_arg().offset().value()));
+  }
+
+  void visit(UGate &u) override {
+    m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::U>(
+        u.arg().offset().value(), u.theta().constant_eval().value(),
+        u.phi().constant_eval().value(), u.lambda().constant_eval().value()));
+  }
+
+  void visit(CNOTGate &cx) override {
+    m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::CNOT>(
+        cx.ctrl().offset().value(), cx.tgt().offset().value()));
+  }
+
+  void visit(DeclaredGate &g) override {
+    auto xacc_name = staq_to_xacc.at(g.name());
+    // Handle common gates:
+    if (xacc_name == "Rx") {
+      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Rx>(
+          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
+    } else if (xacc_name == "Ry") {
+      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Ry>(
+          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
+    } else if (xacc_name == "Rz") {
+      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Rz>(
+          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
+    } else {
+      // Otherwise, just do generic construction
+      std::vector<std::size_t> gate_bits;
+      std::vector<InstructionParameter> gate_params;
+      for (int i = 0; i < g.num_qargs(); i++) {
+        gate_bits.emplace_back(g.qarg(i).offset().value());
+      }
+      for (int i = 0; i < g.num_cargs(); i++) {
+        gate_params.emplace_back(g.carg(i).constant_eval().value());
+      }
+
+      m_runtimeInsts.emplace_back(
+          m_provider->createInstruction(xacc_name, gate_bits, gate_params));
+    }
+  }
+
+  std::shared_ptr<IR> getIr() {
+    auto composite =
+        xacc::getService<IRProvider>("quantum")->createComposite(m_kernelName);
+    // Since the instructions were *compiled* by staq (valid AST),
+    // hence, we skip all validation.
+    composite->addInstructions(std::move(m_runtimeInsts), false);
+    auto ir = xacc::getService<IRProvider>("quantum")->createIR();
+    ir->addComposite(composite);
+    return ir;
+  }
+
+private:
+  std::vector<InstPtr> m_runtimeInsts;
+  std::shared_ptr<IRProvider> m_provider;
+  std::string m_kernelName;
 };
 
 using namespace xacc::quantum;
