@@ -34,6 +34,59 @@ static const std::map<std::string, std::string> staq_to_xacc{
     {"rz", "Rz"}, {"cz", "CZ"},   {"cy", "CY"},     {"swap", "Swap"},
     {"ch", "CH"}, {"crz", "CRZ"}, {"cu1", "CPhase"}};
 
+using IRConstructor = std::function<InstPtr(DeclaredGate&)>;
+using StaqIRCtorMap = std::unordered_map<std::string, IRConstructor>;
+static const StaqIRCtorMap staq_to_xacc_ir_ctor{
+    {"x",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::X>(gate.qarg(0).offset().value());
+     }},
+    {"y",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Y>(gate.qarg(0).offset().value());
+     }},
+    {"z",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Z>(gate.qarg(0).offset().value());
+     }},
+    {"h",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Hadamard>(
+           gate.qarg(0).offset().value());
+     }},
+    {"s",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::S>(gate.qarg(0).offset().value());
+     }},
+    {"sdg",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Sdg>(
+           gate.qarg(0).offset().value());
+     }},
+    {"t",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::T>(gate.qarg(0).offset().value());
+     }},
+    {"tdg",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Tdg>(
+           gate.qarg(0).offset().value());
+     }},
+    {"rx",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Rx>(
+           gate.qarg(0).offset().value(), gate.carg(0).constant_eval().value());
+     }},
+    {"ry",
+     [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Ry>(
+           gate.qarg(0).offset().value(), gate.carg(0).constant_eval().value());
+     }},
+    {"rz", [](DeclaredGate &gate) {
+       return std::make_shared<xacc::quantum::Rz>(
+           gate.qarg(0).offset().value(), gate.carg(0).constant_eval().value());
+     }}};
+
 class CountQregs : public staq::ast::Traverse {
 public:
   std::vector<std::string> qregs;
@@ -155,18 +208,13 @@ public:
   }
 
   void visit(DeclaredGate &g) override {
-    auto xacc_name = staq_to_xacc.at(g.name());
     // Handle common gates:
-    if (xacc_name == "Rx") {
-      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Rx>(
-          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
-    } else if (xacc_name == "Ry") {
-      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Ry>(
-          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
-    } else if (xacc_name == "Rz") {
-      m_runtimeInsts.emplace_back(std::make_shared<xacc::quantum::Rz>(
-          g.qarg(0).offset().value(), g.carg(0).constant_eval().value()));
+    auto funcIter = staq_to_xacc_ir_ctor.find(g.name());
+    if (funcIter != staq_to_xacc_ir_ctor.end()) {
+      const auto &ctorFunc = funcIter->second;
+      m_runtimeInsts.emplace_back(ctorFunc(g));
     } else {
+      auto xacc_name = staq_to_xacc.at(g.name());
       // Otherwise, just do generic construction
       std::vector<std::size_t> gate_bits;
       std::vector<InstructionParameter> gate_params;

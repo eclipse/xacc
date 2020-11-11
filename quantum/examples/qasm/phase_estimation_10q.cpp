@@ -14,10 +14,11 @@ int main(int argc, char **argv) {
     const std::string qasmSrcStr = strStream.str();
    
     // Compile:
+    xacc::ScopeTimer timer("compile", false);
     auto IR = compiler->compile(qasmSrcStr);
     auto program = IR->getComposites()[0];
     std::cout << "Number of instructions: " << program->nInstructions() << "\n";
-    
+    std::cout << "Elapsed time: " << timer.getDurationMs() << " ms.\n";
     // Allocate some qubits and execute:
     auto buffer = xacc::qalloc(10);
     accelerator->execute(buffer, program);
