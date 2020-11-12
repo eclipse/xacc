@@ -250,7 +250,7 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
     }
 
     // Direct translation
-    internal_staq::StaqToIr translate(name);
+    internal_staq::StaqToIr translate(name, countQreq.qregs[0]);
     translate.visit(*prog);
     return translate.getIr();
   }

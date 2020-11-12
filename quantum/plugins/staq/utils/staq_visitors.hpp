@@ -167,8 +167,8 @@ public:
 // Staq AST to XACC IR
 class StaqToIr : public staq::ast::Visitor {
 public:
-  StaqToIr(const std::string &in_kernelName)
-      : m_kernelName(in_kernelName), m_provider(xacc::getIRProvider("quantum")) {}
+  StaqToIr(const std::string &in_kernelName, const std::string &in_regName)
+      : m_kernelName(in_kernelName), m_regName(in_regName), m_provider(xacc::getIRProvider("quantum")) {}
   void visit(VarAccess &) override {}
   // Expressions
   void visit(BExpr &) override {}
@@ -233,6 +233,11 @@ public:
   std::shared_ptr<IR> getIr() {
     auto composite =
         xacc::getService<IRProvider>("quantum")->createComposite(m_kernelName);
+    composite->setBufferNames({m_regName});
+    for (auto &gate: m_runtimeInsts) {
+      std::vector regNames(gate->bits().size(), m_regName);
+      gate->setBufferNames(regNames);
+    }
     // Since the instructions were *compiled* by staq (valid AST),
     // hence, we skip all validation.
     composite->addInstructions(std::move(m_runtimeInsts), false);
@@ -245,6 +250,7 @@ private:
   std::vector<InstPtr> m_runtimeInsts;
   std::shared_ptr<IRProvider> m_provider;
   std::string m_kernelName;
+  std::string m_regName;
 };
 
 using namespace xacc::quantum;
