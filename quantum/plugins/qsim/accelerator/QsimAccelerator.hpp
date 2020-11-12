@@ -130,7 +130,7 @@ public:
   }
 
   void visit(Tdg &tdg) override {
-    auto tGate = qsim::GateS<fp_type>::Create(m_time++, tdg.bits()[0]);
+    auto tGate = qsim::GateT<fp_type>::Create(m_time++, tdg.bits()[0]);
     qsim::MatrixDagger(unsigned{1} << tGate.qubits.size(), tGate.matrix);
     m_circuit.gates.emplace_back(std::move(tGate));
   }
