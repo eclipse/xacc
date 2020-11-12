@@ -22,6 +22,9 @@ namespace xacc {
 const bool MLPACKOptimizer::isGradientBased() const {
 
   std::string mlpack_opt_name = "adam";
+  if (options.stringExists("algorithm")) {
+    mlpack_opt_name = options.getString("algorithm");
+  }
   if (options.stringExists("mlpack-optimizer")) {
     mlpack_opt_name = options.getString("mlpack-optimizer");
   }
@@ -36,6 +39,9 @@ const bool MLPACKOptimizer::isGradientBased() const {
 
 const std::string MLPACKOptimizer::get_algorithm() const {
   std::string mlpack_opt_name = "adam";
+  if (options.stringExists("algorithm")) {
+    mlpack_opt_name = options.getString("algorithm");
+  }
   if (options.stringExists("mlpack-optimizer")) {
     mlpack_opt_name = options.getString("mlpack-optimizer");
   }
@@ -59,31 +65,50 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
 
   // Figure out what the desired optimizer is
   std::string mlpack_opt_name = "adam";
+  if (options.stringExists("algorithm")) {
+    mlpack_opt_name = options.getString("algorithm");
+  }
   if (options.stringExists("mlpack-optimizer")) {
     mlpack_opt_name = options.getString("mlpack-optimizer");
   }
   // step size
   double stepSize = 0.5;
+  if (options.keyExists<double>("step-size")) {
+    stepSize = options.get<double>("step-size");
+  }
   if (options.keyExists<double>("mlpack-step-size")) {
     stepSize = options.get<double>("mlpack-step-size");
   }
 
   // eps
   double eps = 1e-8;
+  if (options.keyExists<double>("eps")) {
+    eps = options.get<double>("eps");
+  }
   if (options.keyExists<double>("mlpack-eps")) {
     eps = options.get<double>("mlpack-eps");
   }
   // max iter
   int maxiter = 500000;
+  if (options.keyExists<int>("maxeval")) {
+    maxiter = options.get<int>("maxeval");
+  }
   if (options.keyExists<int>("mlpack-max-iter")) {
     maxiter = options.get<int>("mlpack-max-iter");
   }
   // tolerance
   double tol = 1e-4;
+  if (options.keyExists<double>("tolerance")) {
+    tol = options.get<double>("tolerance");
+  }
   if (options.keyExists<double>("mlpack-tolerance")) {
     tol = options.get<double>("mlpack-tolerance");
   }
+
   double momentum = 0.05;
+  if (options.keyExists<double>("momentum")) {
+    momentum = options.get<double>("momentum");
+  }
   if (options.keyExists<double>("mlpack-momentum")) {
     momentum = options.get<double>("mlpack-momentum");
   }
@@ -94,11 +119,17 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
 
     // beta1
     double beta1 = 0.7;
+    if (options.keyExists<double>("beta1")) {
+      beta1 = options.get<double>("beta1");
+    }
     if (options.keyExists<double>("mlpack-beta1")) {
       beta1 = options.get<double>("mlpack-beta1");
     }
     // beta2
     double beta2 = 0.999;
+    if (options.keyExists<double>("beta2")) {
+      beta2 = options.get<double>("beta2");
+    }
     if (options.keyExists<double>("mlpack-beta2")) {
       beta2 = options.get<double>("mlpack-beta2");
     }
@@ -129,6 +160,9 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
   } else if (mlpack_opt_name == "adadelta") {
     // rho
     double rho = 0.95;
+    if (options.keyExists<double>("rho")) {
+      rho = options.get<double>("rho");
+    }
     if (options.keyExists<double>("mlpack-rho")) {
       rho = options.get<double>("mlpack-rho");
     }
@@ -138,11 +172,22 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
 #ifdef HAS_LAPACK
     int lambda = 0;
     double upper = 10., lower = -10.;
+    if (options.keyExists<int>("cmaes-lambda")) {
+      lambda = options.get<int>("cmaes-lambda");
+    }
     if (options.keyExists<int>("mlpack-cmaes-lambda")) {
       lambda = options.get<int>("mlpack-cmaes-lambda");
     }
+
+    if (options.keyExists<double>("cmaes-upper-bound")) {
+      upper = options.get<double>("cmaes-upper-bound");
+    }
     if (options.keyExists<double>("mlpack-cmaes-upper-bound")) {
       upper = options.get<double>("mlpack-cmaes-upper-bound");
+    }
+
+    if (options.keyExists<double>("cmaes-lower-bound")) {
+      lower = options.get<double>("cmaes-lower-bound");
     }
     if (options.keyExists<double>("mlpack-cmaes-lower-bound")) {
       lower = options.get<double>("mlpack-cmaes-lower-bound");
@@ -176,6 +221,9 @@ OptResult MLPACKOptimizer::optimize(OptFunction &function) {
     results = optimizer.Optimize(f, coordinates);
   } else if (mlpack_opt_name == "rms-prop") {
     double alpha = 0.99;
+    if (options.keyExists<double>("alpha")) {
+      alpha = options.get<double>("alpha");
+    }
     if (options.keyExists<double>("mlpack-alpha")) {
       alpha = options.get<double>("mlpack-alpha");
     }
