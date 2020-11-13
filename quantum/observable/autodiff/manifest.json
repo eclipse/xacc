@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_autodiff",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Autodiff Plugin",
+  "bundle.description" : ""
+}
