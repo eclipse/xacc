@@ -28,6 +28,8 @@ MatrixXcdual kroneckerProduct(MatrixXcdual &lhs, MatrixXcdual &rhs) {
   return result;
 }
 
+enum class Rot { X, Y, Z };
+
 class AutodiffCircuitVisitor : public AllGateVisitor {
 public:
   AutodiffCircuitVisitor(
@@ -57,7 +59,30 @@ public:
     m_circuitMat = fullMat * m_circuitMat;
   }
 
-  void visit(Rz &rz) override {}
+  void visit(Rz &rz) override {
+    const bool isVariationalGate = rz.getParameter(0).isVariable();
+    // IMPORTANT: we can only handle direct variable usage here,
+    // i.e. we don't allow expressions of variables here.
+    if (isVariationalGate) {
+      InstructionParameter p = rz.getParameter(0);
+      const std::string varName = p.toString();
+      const auto iter = m_varMap.find(varName);
+      if (iter != m_varMap.end()) {
+        MatrixXcdual fullMat =
+            singleParametricQubitGateExpand(iter->second, Rot::Z, rz.bits()[0]);
+        m_circuitMat = fullMat * m_circuitMat;
+      } else {
+        xacc::error("Unknown variable named '" + varName + "' encountered.");
+      }
+    } else {
+      // Non-parametrized gate, i.e. the angle is fixed, not a variable.
+      autodiff::dual theta = InstructionParameterToDouble(rz.getParameter(0));
+      MatrixXcdual fullMat =
+          singleParametricQubitGateExpand(theta, Rot::Z, rz.bits()[0]);
+      m_circuitMat = fullMat * m_circuitMat;
+    }
+  }
+
   void visit(Ry &ry) override {
     const bool isVariationalGate = ry.getParameter(0).isVariable();
     // IMPORTANT: we can only handle direct variable usage here,
@@ -67,21 +92,45 @@ public:
       const std::string varName = p.toString();
       const auto iter = m_varMap.find(varName);
       if (iter != m_varMap.end()) {
-        autodiff::dual var = iter->second;
-        std::cout << varName << " = " << var << "\n";
-        MatrixXcdual ryMat = cos(var / 2) * MatrixXcdual::Identity(2, 2) -
-                             I * sin(var / 2) * Y_Mat;
-        // std::cout << "Mat:\n" << ryMat << "\n";
-        const size_t bitLoc = ry.bits()[0];
-        MatrixXcdual fullMat = singleQubitGateExpand(ryMat, bitLoc);
+        MatrixXcdual fullMat =
+            singleParametricQubitGateExpand(iter->second, Rot::Y, ry.bits()[0]);
         m_circuitMat = fullMat * m_circuitMat;
-      }
-      else {
+      } else {
         xacc::error("Unknown variable named '" + varName + "' encountered.");
       }
+    } else {
+      // Non-parametrized gate, i.e. the angle is fixed, not a variable.
+      autodiff::dual theta = InstructionParameterToDouble(ry.getParameter(0));
+      MatrixXcdual fullMat =
+          singleParametricQubitGateExpand(theta, Rot::Y, ry.bits()[0]);
+      m_circuitMat = fullMat * m_circuitMat;
     }
   }
-  void visit(Rx &rx) override {}
+  
+  void visit(Rx &rx) override {
+    const bool isVariationalGate = rx.getParameter(0).isVariable();
+    // IMPORTANT: we can only handle direct variable usage here,
+    // i.e. we don't allow expressions of variables here.
+    if (isVariationalGate) {
+      InstructionParameter p = rx.getParameter(0);
+      const std::string varName = p.toString();
+      const auto iter = m_varMap.find(varName);
+      if (iter != m_varMap.end()) {
+        MatrixXcdual fullMat =
+            singleParametricQubitGateExpand(iter->second, Rot::X, rx.bits()[0]);
+        m_circuitMat = fullMat * m_circuitMat;
+      } else {
+        xacc::error("Unknown variable named '" + varName + "' encountered.");
+      }
+    } else {
+      // Non-parametrized gate, i.e. the angle is fixed, not a variable.
+      autodiff::dual theta = InstructionParameterToDouble(rx.getParameter(0));
+      MatrixXcdual fullMat =
+          singleParametricQubitGateExpand(theta, Rot::X, rx.bits()[0]);
+      m_circuitMat = fullMat * m_circuitMat;
+    }
+  }
+
   void visit(X &x) override {
     const size_t bitLoc = x.bits()[0];
     MatrixXcdual fullMat = singleQubitGateExpand(X_Mat, bitLoc);
@@ -127,6 +176,31 @@ public:
       MatrixXcdual lhsKron = kroneckerProduct(lhs, in_gateMat);
       return kroneckerProduct(lhsKron, rhs);
     }
+  }
+
+  MatrixXcdual singleParametricQubitGateExpand(autodiff::dual in_var, Rot in_rotType, size_t in_bitLoc) const {
+    MatrixXcdual gateMat = [&]() {
+      switch (in_rotType) {
+      case Rot::X: {
+        MatrixXcdual rxMat = cos(in_var / 2) * MatrixXcdual::Identity(2, 2) -
+                             I * sin(in_var / 2) * X_Mat;
+        return rxMat;
+      }
+      case Rot::Y: {
+        MatrixXcdual ryMat = cos(in_var / 2) * MatrixXcdual::Identity(2, 2) -
+                             I * sin(in_var / 2) * Y_Mat;
+        return ryMat;
+      }
+      case Rot::Z: {
+        MatrixXcdual rzMat = cos(in_var / 2) * MatrixXcdual::Identity(2, 2) -
+                             I * sin(in_var / 2) * Z_Mat;
+        return rzMat;
+      }
+      default:
+        __builtin_unreachable();
+      }
+    }();
+    return singleQubitGateExpand(gateMat, in_bitLoc);
   }
 
   MatrixXcdual twoQubitGateExpand(MatrixXcdual &in_gateMat, size_t in_bit1,
@@ -194,16 +268,21 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
   // std::cout << "Circuit: \n" << CompositeInstruction->toString() << "\n";
   // std::cout << "Number of arguments = " << CompositeInstruction->nVariables()
   //           << "\n";
-  
-  // TODO: Handle generic case (more than one variable)
-  auto f = [&](autodiff::dual xDual) -> cxdual {
+
+  auto f = [&](std::vector<autodiff::dual> &vars) -> cxdual {
     std::unordered_map<std::string, autodiff::dual> varMap;
-    for (const auto &varName : CompositeInstruction->getVariables()) {
-      varMap.emplace(varName, xDual);
-    }    
+    if (CompositeInstruction->getVariables().size() != vars.size()) {
+      xacc::error("The number of Composite parameters doesn't match the input "
+                  "vector size.");
+    }
+
+    for (size_t i = 0; i < vars.size(); ++i) {
+      varMap.emplace(CompositeInstruction->getVariables()[i], vars[i]);
+    }
+
     AutodiffCircuitVisitor visitor(m_nbQubits, varMap);
     InstructionIterator iter(CompositeInstruction);
-    
+
     while (iter.hasNext()) {
       auto inst = iter.next();
       if (!inst->isComposite() && inst->isEnabled()) {
@@ -226,13 +305,22 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
     return exp_val;
   };
 
-  autodiff::dual argVar = x[0];
-  auto test = f(argVar);
-  std::cout << "Exp-val: " << test << "\n";
-  cxdual dudx = autodiff::derivative(f, autodiff::wrt(argVar), autodiff::forward::at(argVar));  
-  std::cout << "dudx: " << dudx << "\n";
-  // TODO
-  return std::make_pair(test.val.real(), std::vector<double> { dudx.val.real() });
+  std::vector<autodiff::dual> argVars;
+  for (const auto &varVal : x) {
+    argVars.emplace_back(varVal);
+  }
+
+  auto fVal = f(argVars);
+  std::cout << "Exp-val: " << fVal << "\n";
+  std::vector<double> gradients;
+  for (auto &var : argVars) {
+    cxdual dudx = autodiff::derivative(f, autodiff::wrt(var),
+                                       autodiff::forward::at(argVars));
+    std::cout << "dudx: " << dudx << "\n";
+    gradients.emplace_back(dudx.val.real());
+  }
+
+  return std::make_pair(fVal.val.real(), gradients);
 }
 } // namespace quantum
 } // namespace xacc
