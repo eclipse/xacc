@@ -183,17 +183,17 @@ void Autodiff::fromObservable(std::shared_ptr<Observable> obs) {
   const auto dim = 1ULL << m_nbQubits;
   m_obsMat = MatrixXcdual::Zero(dim, dim);
   for (auto &triplet : obs->to_sparse_matrix()) {
-    m_obsMat(triplet.row(), triplet.row()) = triplet.coeff();
+    m_obsMat(triplet.row(), triplet.col()) = triplet.coeff();
   }
 }
 
 Differentiable::Result
 Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
                      const std::vector<double> &x) {
-  std::cout << "Observable: \n" << m_obsMat << "\n";
-  std::cout << "Circuit: \n" << CompositeInstruction->toString() << "\n";
-  std::cout << "Number of arguments = " << CompositeInstruction->nVariables()
-            << "\n";
+  // std::cout << "Observable: \n" << m_obsMat << "\n";
+  // std::cout << "Circuit: \n" << CompositeInstruction->toString() << "\n";
+  // std::cout << "Number of arguments = " << CompositeInstruction->nVariables()
+  //           << "\n";
   
   // TODO: Handle generic case (more than one variable)
   auto f = [&](autodiff::dual xDual) -> cxdual {
@@ -211,7 +211,10 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
       }
     }
     MatrixXcdual circMat = visitor.getMat();
+    // std::cout << "Circ Mat:\n" << circMat << "\n";
     VectorXcdual finalState = circMat.col(0);
+    // std::cout << "Final state:\n" << finalState << "\n";
+
     VectorXcdual ket = m_obsMat * finalState;
     VectorXcdual bra = VectorXcdual::Zero(finalState.size());
     for (int i = 0; i < finalState.size(); ++i) {
