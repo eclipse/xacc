@@ -13,7 +13,16 @@ MatrixXcdual X_Mat { MatrixXcdual::Zero(2, 2)};
 MatrixXcdual Y_Mat { MatrixXcdual::Zero(2, 2)};       
 MatrixXcdual Z_Mat { MatrixXcdual::Zero(2, 2)};  
 MatrixXcdual Id_Mat { MatrixXcdual::Identity(2, 2)};  
+MatrixXcdual H_Mat { MatrixXcdual::Zero(2, 2)};      
+MatrixXcdual T_Mat { MatrixXcdual::Zero(2, 2)};      
+MatrixXcdual Tdg_Mat { MatrixXcdual::Zero(2, 2)};      
+MatrixXcdual S_Mat { MatrixXcdual::Zero(2, 2)};      
+MatrixXcdual Sdg_Mat { MatrixXcdual::Zero(2, 2)};
 MatrixXcdual CX_Mat { MatrixXcdual::Zero(4, 4)};  
+MatrixXcdual CY_Mat { MatrixXcdual::Zero(4, 4)};  
+MatrixXcdual CZ_Mat { MatrixXcdual::Zero(4, 4)};  
+MatrixXcdual CH_Mat { MatrixXcdual::Zero(4, 4)};  
+MatrixXcdual Swap_Mat { MatrixXcdual::Zero(4, 4)};  
 
 constexpr std::complex<double> I { 0.0, 1.0 };
 
@@ -43,16 +52,31 @@ public:
       X_Mat << 0.0, 1.0, 1.0, 0.0;
       Y_Mat << 0.0, -I, I, 0.0;
       Z_Mat << 1.0, 0.0, 0.0, -1.0;
-      CX_Mat << 1.0, 0.0, 0.0, 0.0,
-               0.0, 1.0, 0.0, 0.0,
-               0.0, 0.0, 0.0, 1.0,
-               0.0, 0.0, 1.0, 0.0;
+      H_Mat << 1.0 / std::sqrt(2.0), 1.0 / std::sqrt(2.0), 1.0 / std::sqrt(2.0),
+          -1.0 / std::sqrt(2.0);
+      T_Mat << 1.0, 0.0, 0.0, std::exp(I * M_PI / 4.0);
+      Tdg_Mat << 1.0, 0.0, 0.0, std::exp(-I * M_PI / 4.0);
+      S_Mat << 1.0, 0.0, 0.0, I;
+      Sdg_Mat << 1.0, 0.0, 0.0, -I;
+      CX_Mat << 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+          0.0, 1.0, 0.0;
+      CY_Mat << 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -I, 0.0,
+          0.0, I, 0.0;
+      CZ_Mat << 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+          0.0, 0.0, -1.0;
+      CH_Mat << 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+          1.0 / std::sqrt(2.0), 1.0 / std::sqrt(2.0), 0.0, 0.0,
+          1.0 / std::sqrt(2.0), -1.0 / std::sqrt(2.0);
+      Swap_Mat << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+          0.0, 0.0, 0.0, 1.0;
       static_gate_init = true;
     }
   }
   // Gate visitor Impl
-  void visit(Hadamard &h) override {}
-  
+  void visit(Hadamard &h) override {
+    m_circuitMat = singleQubitGateExpand(H_Mat, h.bits()[0]) * m_circuitMat;
+  }
+
   void visit(CNOT &cnot) override {
     MatrixXcdual fullMat =
         twoQubitGateExpand(CX_Mat, cnot.bits()[0], cnot.bits()[1]);
@@ -106,7 +130,7 @@ public:
       m_circuitMat = fullMat * m_circuitMat;
     }
   }
-  
+
   void visit(Rx &rx) override {
     const bool isVariationalGate = rx.getParameter(0).isVariable();
     // IMPORTANT: we can only handle direct variable usage here,
@@ -132,25 +156,54 @@ public:
   }
 
   void visit(X &x) override {
-    const size_t bitLoc = x.bits()[0];
-    MatrixXcdual fullMat = singleQubitGateExpand(X_Mat, bitLoc);
+    m_circuitMat = singleQubitGateExpand(X_Mat, x.bits()[0]) * m_circuitMat;
+  }
+
+  void visit(Y &y) override {
+    m_circuitMat = singleQubitGateExpand(Y_Mat, y.bits()[0]) * m_circuitMat;
+  }
+  void visit(Z &z) override {
+    m_circuitMat = singleQubitGateExpand(Z_Mat, z.bits()[0]) * m_circuitMat;
+  }
+  void visit(CY &cy) override {
+    MatrixXcdual fullMat =
+        twoQubitGateExpand(CY_Mat, cy.bits()[0], cy.bits()[1]);
     m_circuitMat = fullMat * m_circuitMat;
   }
-  void visit(Y &y) override {}
-  void visit(Z &z) override {}
-  void visit(CY &cy) override {}
-  void visit(CZ &cz) override {}
-  void visit(Swap &s) override {}
+  void visit(CZ &cz) override {
+    MatrixXcdual fullMat =
+        twoQubitGateExpand(CZ_Mat, cz.bits()[0], cz.bits()[1]);
+    m_circuitMat = fullMat * m_circuitMat;
+  }
+  void visit(Swap &s) override {
+    MatrixXcdual fullMat =
+        twoQubitGateExpand(Swap_Mat, s.bits()[0], s.bits()[1]);
+    m_circuitMat = fullMat * m_circuitMat;
+  }
   void visit(CRZ &crz) override {}
-  void visit(CH &ch) override {}
-  void visit(S &s) override {}
-  void visit(Sdg &sdg) override {}
-  void visit(T &t) override {}
-  void visit(Tdg &tdg) override {}
+  void visit(CH &ch) override {
+    MatrixXcdual fullMat =
+        twoQubitGateExpand(CH_Mat, ch.bits()[0], ch.bits()[1]);
+    m_circuitMat = fullMat * m_circuitMat;
+  }
+  void visit(S &s) override {
+    m_circuitMat = singleQubitGateExpand(S_Mat, s.bits()[0]) * m_circuitMat;
+  }
+  void visit(Sdg &sdg) override {
+    m_circuitMat = singleQubitGateExpand(Sdg_Mat, sdg.bits()[0]) * m_circuitMat;
+  }
+  void visit(T &t) override {
+    m_circuitMat = singleQubitGateExpand(T_Mat, t.bits()[0]) * m_circuitMat;
+  }
+  void visit(Tdg &tdg) override {
+    m_circuitMat = singleQubitGateExpand(Tdg_Mat, tdg.bits()[0]) * m_circuitMat;
+  }
   void visit(CPhase &cphase) override {}
   void visit(Measure &measure) override {}
   void visit(Identity &i) override {}
-  void visit(U &u) override {}
+  void visit(U &u) override {
+    xacc::error("We don't support Autodiff U3 gate.");
+  }
   void visit(IfStmt &ifStmt) override {}
   // Identifiable Impl
   const std::string name() const override { return ""; }
