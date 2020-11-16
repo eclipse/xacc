@@ -26,7 +26,7 @@ using namespace xacc::quantum;
 
 TEST(GradientStrategiesTester, checkParameterShift) {
   auto accelerator = xacc::getAccelerator("qpp");
-  auto buffer = xacc::qalloc(2);
+  auto buffer = xacc::qalloc(1);
 
   std::shared_ptr<Observable> observable =
       std::make_shared<xacc::quantum::PauliOperator>();
@@ -47,12 +47,12 @@ TEST(GradientStrategiesTester, checkParameterShift) {
 
   std::vector<double> dx(1);
   parameterShift->compute(dx, buffer->getChildren());
-  EXPECT_NEAR(dx[0], 1.0, 1e-4);
+  EXPECT_NEAR(dx[0], std::sqrt(2), 1e-4);
 }
 
 TEST(GradientStrategiesTester, checkCentralDifference) {
   auto accelerator2 = xacc::getAccelerator("qpp");
-  auto buffer2 = xacc::qalloc(2);
+  auto buffer2 = xacc::qalloc(1);
 
   std::shared_ptr<Observable> observable2 =
       std::make_shared<xacc::quantum::PauliOperator>();
@@ -78,7 +78,7 @@ TEST(GradientStrategiesTester, checkCentralDifference) {
 
 TEST(GradientStrategiesTester, checkForwardDifference) {
   auto accelerator3 = xacc::getAccelerator("qpp");
-  auto buffer3 = xacc::qalloc(2);
+  auto buffer3 = xacc::qalloc(1);
 
   std::shared_ptr<Observable> observable3 =
       std::make_shared<xacc::quantum::PauliOperator>();
@@ -104,7 +104,7 @@ TEST(GradientStrategiesTester, checkForwardDifference) {
 
 TEST(GradientStrategiesTester, checkBackwardDifference) {
   auto accelerator4 = xacc::getAccelerator("qpp");
-  auto buffer4 = xacc::qalloc(2);
+  auto buffer4 = xacc::qalloc(1);
 
   std::shared_ptr<Observable> observable4 =
       std::make_shared<xacc::quantum::PauliOperator>();

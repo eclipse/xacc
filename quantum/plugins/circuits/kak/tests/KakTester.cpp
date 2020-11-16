@@ -18,6 +18,20 @@ Eigen::Matrix4cd generateRandomUnitary()
 }
 }
 
+TEST(KakTester, checkEdgeCase) 
+{
+  Eigen::Matrix4cd unitaryMat;
+  unitaryMat << 1, 0, 0, 0, 
+                0, 2.67948963e-08, -1, 0, 
+                0, 1, 2.67948965e-08, 0, 
+                0, 0, 0, 1;
+  auto tmp = xacc::getService<Instruction>("kak");
+  auto kak = std::dynamic_pointer_cast<quantum::Circuit>(tmp);
+  const bool expandOk = kak->expand({std::make_pair("unitary", unitaryMat)});
+  std::cout << kak->toString() << "\n";
+  EXPECT_TRUE(expandOk);
+}
+
 TEST(KakTester, checkSimple) 
 {
   const int nbTests = 1000;

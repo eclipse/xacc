@@ -82,7 +82,10 @@ inline bool isFinite(const Eigen::MatrixBase<Derived> &x) {
   return ((x - x).array() == (x - x).array()).all();
 }
 
-bool isDiagonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
+// Default tolerace for validation
+constexpr double TOLERANCE = 1e-6;
+
+bool isDiagonal(const Eigen::MatrixXcd &in_mat, double in_tol = TOLERANCE) {
   if (!isFinite(in_mat)) {
     return false;
   }
@@ -101,7 +104,7 @@ bool isDiagonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
 }
 
 bool allClose(const Eigen::MatrixXcd &in_mat1, const Eigen::MatrixXcd &in_mat2,
-              double in_tol = 1e-9) {
+              double in_tol = TOLERANCE) {
   if (!isFinite(in_mat1) || !isFinite(in_mat2)) {
     return false;
   }
@@ -138,7 +141,7 @@ bool isUnitary(const Eigen::MatrixXcd &in_mat) {
   return allClose(in_mat * in_mat.adjoint(), Id);
 }
 
-bool isOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
+bool isOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = TOLERANCE) {
   if (!isSquare(in_mat) || !isFinite(in_mat)) {
     return false;
   }
@@ -155,7 +158,7 @@ bool isOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
   return allClose(in_mat.inverse(), in_mat.transpose(), in_tol);
 }
 // Is Orthogonal and determinant == 1
-bool isSpecialOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
+bool isSpecialOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = TOLERANCE) {
   return isOrthogonal(in_mat, in_tol) &&
          (std::abs(std::abs(in_mat.determinant()) - 1.0) < in_tol);
 }
@@ -163,7 +166,7 @@ bool isSpecialOrthogonal(const Eigen::MatrixXcd &in_mat, double in_tol = 1e-9) {
 bool isCanonicalized(double x, double y, double z) {
   // 0 ≤ abs(z) ≤ y ≤ x ≤ pi/4
   // if x = pi/4, z >= 0
-  const double TOL = 1e-9;
+  const double TOL = TOLERANCE;
   if (std::abs(z) >= 0 && y >= std::abs(z) && x >= y && x <= M_PI_4 + TOL) {
     if (std::abs(x - M_PI_4) < TOL) {
       return (z >= 0);
@@ -476,7 +479,7 @@ singleQubitGateGen(const Eigen::Matrix2cd &in_mat, size_t in_bitIdx) {
         const std::complex<double> globalFactor =
             in_mat(rowIdx, colIdx) / totalU(rowIdx, colIdx);
         totalU = globalFactor * totalU;
-        return allClose(in_mat, totalU, 1e-6);
+        return allClose(in_mat, totalU, TOLERANCE);
       };
 
   assert(validateSimplifiedSequence(composite, in_mat));
