@@ -77,7 +77,8 @@ bool VQE::initialize(const HeterogeneousMap &parameters) {
         "Chosen optimizer does not support gradients. Using default.");
   }
 
-  if (optimizer->isGradientBased() && gradientStrategy == nullptr) {
+  if (optimizer && optimizer->isGradientBased() &&
+      gradientStrategy == nullptr) {
     // No gradient strategy was provided, just use autodiff.
     gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
     gradientStrategy->initialize({{"observable", observable}});
