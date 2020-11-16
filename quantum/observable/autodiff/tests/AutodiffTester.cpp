@@ -101,21 +101,68 @@ CNOT 1 0
   autodiff->fromObservable(H_N_2);
   const double initialParam = 0.0;
   const int nbIterms = 200;
-  // gradient-descent step size 
+  // gradient-descent step size
   const double stepSize = 0.01;
   double grad = 0.0;
   double currentParam = initialParam;
   double energy = 0.0;
   for (int i = 0; i < nbIterms; ++i) {
-    currentParam =  currentParam - stepSize * grad;
-    const std::vector<double> newParams { currentParam };
+    currentParam = currentParam - stepSize * grad;
+    const std::vector<double> newParams{currentParam};
     auto result = autodiff->derivative(ansatz, newParams);
     energy = result.first;
     grad = result.second[0];
   }
-  
+
   EXPECT_NEAR(currentParam, 0.594, 1e-3);
   EXPECT_NEAR(energy, -1.74886, 1e-3);
+}
+
+// Test a more complicated case:
+TEST(AutodiffTester, checkGradientH3) {
+  // Create the N=3 deuteron Hamiltonian
+  auto H_N_3 = xacc::quantum::getObservable(
+      "pauli",
+      std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                  "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+  // JIT map Quil QASM Ansatz to IR
+  xacc::qasm(R"(
+.compiler xasm
+.circuit ansatz_h3
+.parameters t0, t1
+.qbit q
+X(q[0]);
+exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
+exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+)");
+  auto ansatz = xacc::getCompiled("ansatz_h3");
+  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  autodiff->fromObservable(H_N_3);
+  const std::vector<double> initialParams{0.0, 0.0};
+  const int nbIterms = 200;
+  // gradient-descent step size
+  const double stepSize = 0.01;
+  std::vector<double> grad{0.0, 0.0};
+  auto currentParams = initialParams;
+  double energy = 0.0;
+  for (int i = 0; i < nbIterms; ++i) {
+    for (int paramId = 0; paramId < 2; ++paramId) {
+      currentParams[paramId] =
+          currentParams[paramId] - stepSize * grad[paramId];
+    }
+    auto result = autodiff->derivative(ansatz, currentParams);
+    energy = result.first;
+    grad = result.second;
+    EXPECT_EQ(grad.size(), 2);
+    std::cout << "Energy: " << energy << "; Grads = ";
+    for (const auto &g : grad) {
+      std::cout << g << " ";
+    }
+    std::cout << "\n";
+  }
+
+  EXPECT_NEAR(energy, -2.04482, 1e-3);
 }
 
 int main(int argc, char **argv) {

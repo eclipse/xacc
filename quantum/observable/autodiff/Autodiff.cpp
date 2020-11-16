@@ -9,22 +9,22 @@ namespace {
 using namespace xacc;
 using namespace xacc::quantum;
 using namespace autodiff;
-MatrixXcdual X_Mat { MatrixXcdual::Zero(2, 2)};      
-MatrixXcdual Y_Mat { MatrixXcdual::Zero(2, 2)};       
-MatrixXcdual Z_Mat { MatrixXcdual::Zero(2, 2)};  
-MatrixXcdual Id_Mat { MatrixXcdual::Identity(2, 2)};  
-MatrixXcdual H_Mat { MatrixXcdual::Zero(2, 2)};      
-MatrixXcdual T_Mat { MatrixXcdual::Zero(2, 2)};      
-MatrixXcdual Tdg_Mat { MatrixXcdual::Zero(2, 2)};      
-MatrixXcdual S_Mat { MatrixXcdual::Zero(2, 2)};      
-MatrixXcdual Sdg_Mat { MatrixXcdual::Zero(2, 2)};
-MatrixXcdual CX_Mat { MatrixXcdual::Zero(4, 4)};  
-MatrixXcdual CY_Mat { MatrixXcdual::Zero(4, 4)};  
-MatrixXcdual CZ_Mat { MatrixXcdual::Zero(4, 4)};  
-MatrixXcdual CH_Mat { MatrixXcdual::Zero(4, 4)};  
-MatrixXcdual Swap_Mat { MatrixXcdual::Zero(4, 4)};  
+MatrixXcdual X_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual Y_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual Z_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual Id_Mat{MatrixXcdual::Identity(2, 2)};
+MatrixXcdual H_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual T_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual Tdg_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual S_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual Sdg_Mat{MatrixXcdual::Zero(2, 2)};
+MatrixXcdual CX_Mat{MatrixXcdual::Zero(4, 4)};
+MatrixXcdual CY_Mat{MatrixXcdual::Zero(4, 4)};
+MatrixXcdual CZ_Mat{MatrixXcdual::Zero(4, 4)};
+MatrixXcdual CH_Mat{MatrixXcdual::Zero(4, 4)};
+MatrixXcdual Swap_Mat{MatrixXcdual::Zero(4, 4)};
 
-constexpr std::complex<double> I { 0.0, 1.0 };
+constexpr std::complex<double> I{0.0, 1.0};
 using namespace std::complex_literals;
 
 MatrixXcdual kroneckerProduct(MatrixXcdual &lhs, MatrixXcdual &rhs) {
@@ -53,23 +53,31 @@ public:
       X_Mat << 0.0 + 0.0i, 1.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i;
       Y_Mat << 0.0 + 0.0i, -I, I, 0.0 + 0.0i;
       Z_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, -1.0 + 0.0i;
-      H_Mat << 1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i,
-          -1.0 / std::sqrt(2.0) + 0.0i;
+      H_Mat << 1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i,
+          1.0 / std::sqrt(2.0) + 0.0i, -1.0 / std::sqrt(2.0) + 0.0i;
       T_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, std::exp(I * M_PI / 4.0);
       Tdg_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, std::exp(-I * M_PI / 4.0);
       S_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, I;
       Sdg_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, -I;
-      CX_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i;
-      CY_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, -I, 0.0 + 0.0i,
-          0.0 + 0.0i, I, 0.0 + 0.0i;
-      CZ_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 0.0 + 0.0i, -1.0 + 0.0i;
-      CH_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 / std::sqrt(2.0) + 0.0i, -1.0 / std::sqrt(2.0) + 0.0i;
-      Swap_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i;
+      CX_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i,
+          0.0 + 0.0i;
+      CY_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          0.0 + 0.0i, -I, 0.0 + 0.0i, 0.0 + 0.0i, I, 0.0 + 0.0i;
+      CZ_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          -1.0 + 0.0i;
+      CH_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, 0.0 + 0.0i,
+          0.0 + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, -1.0 / std::sqrt(2.0) + 0.0i;
+      Swap_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i,
+          0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
+          1.0 + 0.0i;
       static_gate_init = true;
     }
   }
@@ -90,11 +98,11 @@ public:
     // i.e. we don't allow expressions of variables here.
     if (isVariationalGate) {
       InstructionParameter p = rz.getParameter(0);
-      const std::string varName = p.toString();
+      const auto [coeff, varName] = parseVarString(p.toString());
       const auto iter = m_varMap.find(varName);
       if (iter != m_varMap.end()) {
-        MatrixXcdual fullMat =
-            singleParametricQubitGateExpand(iter->second, Rot::Z, rz.bits()[0]);
+        MatrixXcdual fullMat = singleParametricQubitGateExpand(
+            coeff * iter->second, Rot::Z, rz.bits()[0]);
         m_circuitMat = fullMat * m_circuitMat;
       } else {
         xacc::error("Unknown variable named '" + varName + "' encountered.");
@@ -114,11 +122,11 @@ public:
     // i.e. we don't allow expressions of variables here.
     if (isVariationalGate) {
       InstructionParameter p = ry.getParameter(0);
-      const std::string varName = p.toString();
+      const auto [coeff, varName] = parseVarString(p.toString());
       const auto iter = m_varMap.find(varName);
       if (iter != m_varMap.end()) {
-        MatrixXcdual fullMat =
-            singleParametricQubitGateExpand(iter->second, Rot::Y, ry.bits()[0]);
+        MatrixXcdual fullMat = singleParametricQubitGateExpand(
+            coeff * iter->second, Rot::Y, ry.bits()[0]);
         m_circuitMat = fullMat * m_circuitMat;
       } else {
         xacc::error("Unknown variable named '" + varName + "' encountered.");
@@ -138,11 +146,11 @@ public:
     // i.e. we don't allow expressions of variables here.
     if (isVariationalGate) {
       InstructionParameter p = rx.getParameter(0);
-      const std::string varName = p.toString();
+      const auto [coeff, varName] = parseVarString(p.toString());
       const auto iter = m_varMap.find(varName);
       if (iter != m_varMap.end()) {
-        MatrixXcdual fullMat =
-            singleParametricQubitGateExpand(iter->second, Rot::X, rx.bits()[0]);
+        MatrixXcdual fullMat = singleParametricQubitGateExpand(
+            coeff * iter->second, Rot::X, rx.bits()[0]);
         m_circuitMat = fullMat * m_circuitMat;
       } else {
         xacc::error("Unknown variable named '" + varName + "' encountered.");
@@ -210,7 +218,8 @@ public:
   const std::string name() const override { return ""; }
   const std::string description() const override { return ""; }
   MatrixXcdual getMat() const { return m_circuitMat; }
-  MatrixXcdual singleQubitGateExpand(MatrixXcdual& in_gateMat, size_t in_loc) const {
+  MatrixXcdual singleQubitGateExpand(MatrixXcdual &in_gateMat,
+                                     size_t in_loc) const {
     if (m_nbQubit == 1) {
       return in_gateMat;
     }
@@ -232,23 +241,31 @@ public:
     }
   }
 
-  MatrixXcdual singleParametricQubitGateExpand(autodiff::dual in_var, Rot in_rotType, size_t in_bitLoc) const {
+  MatrixXcdual singleParametricQubitGateExpand(autodiff::dual in_var,
+                                               Rot in_rotType,
+                                               size_t in_bitLoc) const {
     static const cxdual I_dual = I;
     MatrixXcdual gateMat = [&]() {
       switch (in_rotType) {
       case Rot::X: {
-        MatrixXcdual rxMat = static_cast<cxdual>(cos(in_var / 2)) * MatrixXcdual::Identity(2, 2) -
-                             I_dual*static_cast<cxdual>(sin(in_var / 2)) * X_Mat;
+        MatrixXcdual rxMat =
+            static_cast<cxdual>(cos(in_var / 2)) *
+                MatrixXcdual::Identity(2, 2) -
+            I_dual * static_cast<cxdual>(sin(in_var / 2)) * X_Mat;
         return rxMat;
       }
       case Rot::Y: {
-        MatrixXcdual ryMat = static_cast<cxdual>(cos(in_var / 2)) * MatrixXcdual::Identity(2, 2) -
-                             I_dual*static_cast<cxdual>(sin(in_var / 2)) * Y_Mat;
+        MatrixXcdual ryMat =
+            static_cast<cxdual>(cos(in_var / 2)) *
+                MatrixXcdual::Identity(2, 2) -
+            I_dual * static_cast<cxdual>(sin(in_var / 2)) * Y_Mat;
         return ryMat;
       }
       case Rot::Z: {
-        MatrixXcdual rzMat = static_cast<cxdual>(cos(in_var / 2)) * MatrixXcdual::Identity(2, 2) -
-                             I_dual*static_cast<cxdual>(sin(in_var / 2)) * Z_Mat;
+        MatrixXcdual rzMat =
+            static_cast<cxdual>(cos(in_var / 2)) *
+                MatrixXcdual::Identity(2, 2) -
+            I_dual * static_cast<cxdual>(sin(in_var / 2)) * Z_Mat;
         return rzMat;
       }
       default:
@@ -296,6 +313,18 @@ public:
     }
 
     return resultMat;
+  }
+
+  std::pair<double, std::string>
+  parseVarString(const std::string &in_varStr) const {
+    // Handle special case: const double * var name
+    // This is generated by our exp_i_theta circuit.
+    const auto mulPos = in_varStr.find("*");
+    if (mulPos != std::string::npos) {
+      const double coeff = std::stod(in_varStr.substr(0, mulPos));
+      return std::make_pair(coeff, in_varStr.substr(mulPos + 1));
+    }
+    return std::make_pair(1.0, in_varStr);
   }
 
 private:
@@ -370,7 +399,7 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
   std::vector<double> gradients;
   for (auto &var : argVars) {
     auto dudx = autodiff::derivative(f, autodiff::wrt(var),
-                                       autodiff::forward::at(argVars));
+                                     autodiff::forward::at(argVars));
     // std::cout << "dudx: " << dudx << "\n";
     gradients.emplace_back(dudx);
   }
