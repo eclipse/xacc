@@ -3,6 +3,7 @@
 #include "xacc_service.hpp"
 #include "xacc_observable.hpp"
 #include "Autodiff.hpp"
+#include <random>
 
 TEST(AutodiffTester, checkExpValCalc) {
   auto H_N_2 = xacc::quantum::getObservable(
@@ -166,6 +167,83 @@ exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
   }
 
   EXPECT_NEAR(energy, -2.04482, 1e-3);
+}
+
+TEST(AutodiffTester, testVqeDefaultGradient) {
+  // Use Qpp accelerator
+  auto accelerator = xacc::getAccelerator("qpp");
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+
+  // Use a gradient-based optimizer
+  auto optimizer = xacc::getOptimizer("mlpack");
+  EXPECT_TRUE(optimizer->isGradientBased());
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz_h2
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz_h2");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({{"ansatz", ansatz},
+                   {"observable", H_N_2},
+                   {"accelerator", accelerator},
+                   {"optimizer", optimizer}});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  vqe->execute(buffer);
+  std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 0.1);
+}
+
+TEST(AutodiffTester, checkQaoaMaxCutGradient) {
+  auto acc = xacc::getAccelerator("qpp");
+  auto buffer = xacc::qalloc(3);
+  const int nbParams = 2;
+  std::vector<double> initialParams;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(-2.0, 2.0);
+  // Init random parameters
+  for (int i = 0; i < nbParams; ++i) {
+    initialParams.emplace_back(dis(gen));
+  }
+
+  auto optimizer =
+      xacc::getOptimizer("mlpack", {{"initial-parameters", initialParams}});
+  EXPECT_TRUE(optimizer->isGradientBased());
+  auto qaoa = xacc::getAlgorithm("QAOA");
+  auto graph = xacc::getService<xacc::Graph>("boost-digraph");
+
+  // Triangle graph
+  for (int i = 0; i < 3; i++) {
+    graph->addVertex();
+  }
+  graph->addEdge(0, 1);
+  graph->addEdge(0, 2);
+  graph->addEdge(1, 2);
+
+  const bool initOk = qaoa->initialize({{"accelerator", acc},
+                                        {"optimizer", optimizer},
+                                        {"graph", graph},
+                                        // number of time steps (p) param
+                                        {"steps", 1},
+                                        // "Standard" or "Extended"
+                                        {"parameter-scheme", "Standard"}});
+  qaoa->execute(buffer);
+  std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
 }
 
 int main(int argc, char **argv) {

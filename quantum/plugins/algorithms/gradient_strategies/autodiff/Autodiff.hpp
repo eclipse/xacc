@@ -16,53 +16,46 @@ typedef Eigen::Matrix<cxdual, -1, -1, 0> MatrixXcdual;
 
 namespace xacc {
 namespace quantum {
-// An interface to support Autodiff of a *variational* circuit w.r.t. an
-// observable operator.
-// i.e. compute the gradient/derivative of the expectation value w.r.t. each
-// variational parameter in the CompositeInstruction.
-class Differentiable {
-public:
-  virtual void fromObservable(std::shared_ptr<Observable> obs) = 0;
-  // If optional_out_fn_val is provided, function value will also be evaluated.
-  virtual std::vector<double>
-  derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
-             const std::vector<double> &x,
-             double *optional_out_fn_val = nullptr) = 0;
-};
-
-class Autodiff : public Differentiable, public AlgorithmGradientStrategy {
+class Autodiff : public AlgorithmGradientStrategy {
 public:
   const std::string name() const override { return "autodiff"; }
   const std::string description() const override { return ""; }
-  void fromObservable(std::shared_ptr<Observable> obs) override;
+  void fromObservable(std::shared_ptr<Observable> obs);
   std::vector<double>
   derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
              const std::vector<double> &x,
-             double *optional_out_fn_val = nullptr) override;
+             double *optional_out_fn_val = nullptr);
 
   // AlgorithmGradientStrategy implementation:
   virtual bool isNumerical() const override { return true; }
-  virtual bool isAnalytical() const override { return true; }
+  virtual void setFunctionValue(const double expValue) {}
   // Pass parameters to initialize specific gradient implementation
   virtual bool initialize(const HeterogeneousMap parameters) override;
   // Generate circuits to enable gradient computation
   virtual std::vector<std::shared_ptr<CompositeInstruction>>
   getGradientExecutions(std::shared_ptr<CompositeInstruction> circuit,
                         const std::vector<double> &x) override {
+    // Cache the kernel and current params.
+    m_varKernel = circuit;
+    m_currentParams = x;
+    // Returns an empty vector -> no circuits will be appended.
     return {};
   }
   virtual void
   compute(std::vector<double> &dx,
-          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {}
-  virtual std::vector<double>
-  gradient(std::shared_ptr<CompositeInstruction> circuit,
-           const std::vector<double> &x) override {
-    return derivative(circuit, x);
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
+    // The list must be empty, i.e. no evaluation.
+    assert(results.empty());
+    dx = derivative(m_varKernel, m_currentParams);
+    m_varKernel.reset();
+    m_currentParams.clear();
   }
 
 private:
   MatrixXcdual m_obsMat;
   size_t m_nbQubits;
+  std::shared_ptr<CompositeInstruction> m_varKernel;
+  std::vector<double> m_currentParams;
 };
 } // namespace quantum
 } // namespace xacc
