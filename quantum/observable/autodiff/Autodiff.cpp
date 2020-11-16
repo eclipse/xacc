@@ -345,9 +345,10 @@ void Autodiff::fromObservable(std::shared_ptr<Observable> obs) {
   }
 }
 
-Differentiable::Result
+std::vector<double>
 Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
-                     const std::vector<double> &x) {
+                     const std::vector<double> &x,
+                     double *optional_out_fn_val) {
   // std::cout << "Observable: \n" << m_obsMat << "\n";
   // std::cout << "Circuit: \n" << CompositeInstruction->toString() << "\n";
   // std::cout << "Number of arguments = " << CompositeInstruction->nVariables()
@@ -394,7 +395,11 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
     argVars.emplace_back(varVal);
   }
 
-  auto fVal = f(argVars);
+  // If requested, evaluate the func:
+  if (optional_out_fn_val) {
+    *optional_out_fn_val = f(argVars).val;
+  }
+
   // std::cout << "Exp-val: " << fVal << "\n";
   std::vector<double> gradients;
   for (auto &var : argVars) {
@@ -404,7 +409,7 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
     gradients.emplace_back(dudx);
   }
 
-  return std::make_pair(fVal.val, gradients);
+  return gradients;
 }
 } // namespace quantum
 } // namespace xacc

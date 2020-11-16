@@ -32,10 +32,11 @@ CNOT 1 0
   for (const auto &angle : xacc::linspace(-M_PI, M_PI, 20)) {
     const std::vector<double> params{angle};
     // Autodiff:
-    auto result = autodiff->derivative(ansatz, params);
+    double adEnergy = 0.0;
+    auto grad = autodiff->derivative(ansatz, params, &adEnergy);
     // VQE:
     auto energy = vqe->execute(buffer, params);
-    EXPECT_NEAR(energy[0], result.first, 1e-3);
+    EXPECT_NEAR(energy[0], adEnergy, 1e-3);
   }
 }
 
@@ -71,12 +72,13 @@ CNOT 1 0
     for (const auto &angle2 : xacc::linspace(-M_PI, M_PI, 6)) {
       const std::vector<double> params{angle1, angle2};
       // Autodiff:
-      auto result = autodiff->derivative(ansatz, params);
+      double adEnergy = 0.0;
+      auto grad = autodiff->derivative(ansatz, params, &adEnergy);
       // VQE:
       auto energy = vqe->execute(buffer, params);
-      std::cout << "(" << angle1 << ", " << angle2 << "): " << result.first
+      std::cout << "(" << angle1 << ", " << angle2 << "): " << adEnergy
                 << " vs " << energy[0] << "\n";
-      EXPECT_NEAR(energy[0], result.first, 1e-3);
+      EXPECT_NEAR(energy[0], adEnergy, 1e-3);
     }
   }
 }
@@ -109,13 +111,15 @@ CNOT 1 0
   for (int i = 0; i < nbIterms; ++i) {
     currentParam = currentParam - stepSize * grad;
     const std::vector<double> newParams{currentParam};
-    auto result = autodiff->derivative(ansatz, newParams);
-    energy = result.first;
-    grad = result.second[0];
+    auto grads = autodiff->derivative(ansatz, newParams);
+    EXPECT_EQ(grads.size(), 1);
+    grad = grads[0];
   }
 
   EXPECT_NEAR(currentParam, 0.594, 1e-3);
-  EXPECT_NEAR(energy, -1.74886, 1e-3);
+  double adEnergy;
+  autodiff->derivative(ansatz, {currentParam}, &adEnergy);
+  EXPECT_NEAR(adEnergy, -1.74886, 1e-3);
 }
 
 // Test a more complicated case:
@@ -151,9 +155,7 @@ exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
       currentParams[paramId] =
           currentParams[paramId] - stepSize * grad[paramId];
     }
-    auto result = autodiff->derivative(ansatz, currentParams);
-    energy = result.first;
-    grad = result.second;
+    grad = autodiff->derivative(ansatz, currentParams, &energy);
     EXPECT_EQ(grad.size(), 2);
     std::cout << "Energy: " << energy << "; Grads = ";
     for (const auto &g : grad) {

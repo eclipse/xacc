@@ -71,11 +71,12 @@ public:
 // variational parameter in the CompositeInstruction.
 class Differentiable : public Identifiable {
 public:
-  using Result = std::pair<double, std::vector<double>>;
   virtual void fromObservable(std::shared_ptr<Observable> obs) = 0;
-  virtual Result
+  // If optional_out_fn_val is provided, function value will also be evaluated.
+  virtual std::vector<double>
   derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
-             const std::vector<double> &x) = 0;
+             const std::vector<double> &x,
+             double *optional_out_fn_val = nullptr) = 0;
 };
 
 template Observable *

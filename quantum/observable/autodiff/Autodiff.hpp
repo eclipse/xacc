@@ -20,8 +20,10 @@ public:
   const std::string name() const override { return "autodiff"; }
   const std::string description() const override { return ""; }
   void fromObservable(std::shared_ptr<Observable> obs) override;
-  Differentiable::Result derivative(
-      std::shared_ptr<CompositeInstruction> CompositeInstruction, const std::vector<double> &x) override;
+  std::vector<double>
+  derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+             const std::vector<double> &x,
+             double *optional_out_fn_val = nullptr) override;
 
 private:
   MatrixXcdual m_obsMat;
