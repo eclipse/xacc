@@ -9,7 +9,7 @@ template <typename T> struct isArithmetic<std::complex<T>> : std::true_type {};
 } // namespace autodiff::forward::traits
 
 // Custom Eigen Matrix and Vector type for autodiff Dual type.
-using cxdual = autodiff::forward::Dual<std::complex<double>, std::complex<double>>;
+using cxdual = std::complex<autodiff::dual>;
 typedef Eigen::Matrix<cxdual, -1, 1, 0> VectorXcdual;
 typedef Eigen::Matrix<cxdual, -1, -1, 0> MatrixXcdual;
 
