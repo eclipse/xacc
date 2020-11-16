@@ -65,20 +65,6 @@ public:
   
 };
 
-// An interface to support Autodiff of a *variational* circuit w.r.t. an
-// observable operator.
-// i.e. compute the gradient/derivative of the expectation value w.r.t. each
-// variational parameter in the CompositeInstruction.
-class Differentiable : public Identifiable {
-public:
-  virtual void fromObservable(std::shared_ptr<Observable> obs) = 0;
-  // If optional_out_fn_val is provided, function value will also be evaluated.
-  virtual std::vector<double>
-  derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
-             const std::vector<double> &x,
-             double *optional_out_fn_val = nullptr) = 0;
-};
-
 template Observable *
 HeterogeneousMap::getPointerLike<Observable>(const std::string key) const;
 template bool

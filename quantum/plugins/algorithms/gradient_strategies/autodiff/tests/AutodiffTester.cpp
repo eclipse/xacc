@@ -2,6 +2,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "xacc_observable.hpp"
+#include "Autodiff.hpp"
 
 TEST(AutodiffTester, checkExpValCalc) {
   auto H_N_2 = xacc::quantum::getObservable(
@@ -18,7 +19,7 @@ Ry(theta) 1
 CNOT 1 0
 )");
   auto ansatz = xacc::getCompiled("deuteron_ansatz");
-  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  auto autodiff = std::make_shared<xacc::quantum::Autodiff>();
   autodiff->fromObservable(H_N_2);
   // Use VQE to compute the expectation:
   auto vqe = xacc::getService<xacc::Algorithm>("vqe");
@@ -57,7 +58,7 @@ Rx(theta1) 0
 CNOT 1 0
 )");
   auto ansatz = xacc::getCompiled("test1");
-  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  auto autodiff = std::make_shared<xacc::quantum::Autodiff>();
   autodiff->fromObservable(H_N_2);
   // Use VQE to compute the expectation:
   auto vqe = xacc::getService<xacc::Algorithm>("vqe");
@@ -99,7 +100,7 @@ Ry(theta) 1
 CNOT 1 0
 )");
   auto ansatz = xacc::getCompiled("ansatz");
-  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  auto autodiff = std::make_shared<xacc::quantum::Autodiff>();
   autodiff->fromObservable(H_N_2);
   const double initialParam = 0.0;
   const int nbIterms = 200;
@@ -141,7 +142,7 @@ exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
 exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
 )");
   auto ansatz = xacc::getCompiled("ansatz_h3");
-  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  auto autodiff = std::make_shared<xacc::quantum::Autodiff>();
   autodiff->fromObservable(H_N_3);
   const std::vector<double> initialParams{0.0, 0.0};
   const int nbIterms = 200;

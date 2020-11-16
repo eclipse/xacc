@@ -345,6 +345,16 @@ void Autodiff::fromObservable(std::shared_ptr<Observable> obs) {
   }
 }
 
+bool Autodiff::initialize(const HeterogeneousMap parameters) {
+  if (!parameters.pointerLikeExists<Observable>("observable")) {
+    std::cout << "'observable' is required.\n";
+    return false;
+  }
+  auto obs = parameters.getPointerLike<Observable>("observable");
+  fromObservable(xacc::as_shared_ptr(obs));
+  return true;
+}
+
 std::vector<double>
 Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
                      const std::vector<double> &x,
@@ -414,4 +424,4 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
 } // namespace quantum
 } // namespace xacc
 
-REGISTER_PLUGIN(xacc::quantum::Autodiff, xacc::Differentiable)
+REGISTER_PLUGIN(xacc::quantum::Autodiff, xacc::AlgorithmGradientStrategy)

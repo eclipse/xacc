@@ -31,6 +31,9 @@ public:
   // Finite differences need <H(x)>, so we need to know if it's numerical
   virtual bool isNumerical() const = 0;
 
+  // If this is a local *analytical* gradient calculator:
+  virtual bool isAnalytical() const { return false; }
+  
   // Pass expectation value of observable if it is numerical
   virtual void setFunctionValue(const double expValue) {
     XACCLogger::instance()->error(
@@ -54,6 +57,19 @@ public:
   virtual void
   compute(std::vector<double> &dx,
           std::vector<std::shared_ptr<AcceleratorBuffer>> results) = 0;
+  
+  // Analytically compute the gradients
+  virtual std::vector<double>
+  gradient(std::shared_ptr<CompositeInstruction> circuit,
+           const std::vector<double> &x) {
+    XACCLogger::instance()->error(
+        "AlgorithmGradientStrategy::gradient not implemented "
+        "for " +
+        name() +
+        ".\nThis is only available for analytical AlgorithmGradientStrategy.");
+    exit(0);
+    return {};
+  }
 };
 
 } // namespace xacc
