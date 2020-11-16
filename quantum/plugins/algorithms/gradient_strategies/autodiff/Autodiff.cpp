@@ -25,7 +25,11 @@ MatrixXcdual CH_Mat{MatrixXcdual::Zero(4, 4)};
 MatrixXcdual Swap_Mat{MatrixXcdual::Zero(4, 4)};
 
 constexpr std::complex<double> I{0.0, 1.0};
-using namespace std::complex_literals;
+// Note: cannot use std::complex_literal 
+// because https://gcc.gnu.org/onlinedocs/gcc/Complex.html#Complex
+inline constexpr std::complex<double> operator"" _i(long double x) noexcept {
+  return {0., static_cast<double>(x)};
+}
 
 MatrixXcdual kroneckerProduct(MatrixXcdual &lhs, MatrixXcdual &rhs) {
   MatrixXcdual result(lhs.rows() * rhs.rows(), lhs.cols() * rhs.cols());
@@ -50,34 +54,34 @@ public:
     m_circuitMat =
         MatrixXcdual::Identity(1ULL << in_nbQubits, 1ULL << in_nbQubits);
     if (!static_gate_init) {
-      X_Mat << 0.0 + 0.0i, 1.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i;
-      Y_Mat << 0.0 + 0.0i, -I, I, 0.0 + 0.0i;
-      Z_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, -1.0 + 0.0i;
-      H_Mat << 1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i,
-          1.0 / std::sqrt(2.0) + 0.0i, -1.0 / std::sqrt(2.0) + 0.0i;
-      T_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, std::exp(I * M_PI / 4.0);
-      Tdg_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, std::exp(-I * M_PI / 4.0);
-      S_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, I;
-      Sdg_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, -I;
-      CX_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i,
-          0.0 + 0.0i;
-      CY_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, -I, 0.0 + 0.0i, 0.0 + 0.0i, I, 0.0 + 0.0i;
-      CZ_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          -1.0 + 0.0i;
-      CH_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 / std::sqrt(2.0) + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 1.0 / std::sqrt(2.0) + 0.0i, -1.0 / std::sqrt(2.0) + 0.0i;
-      Swap_Mat << 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          0.0 + 0.0i, 1.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 1.0 + 0.0i,
-          0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i, 0.0 + 0.0i,
-          1.0 + 0.0i;
+      X_Mat << 0.0 + 0.0_i, 1.0 + 0.0_i, 1.0 + 0.0_i, 0.0 + 0.0_i;
+      Y_Mat << 0.0 + 0.0_i, -I, I, 0.0 + 0.0_i;
+      Z_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, -1.0 + 0.0_i;
+      H_Mat << 1.0 / std::sqrt(2.0) + 0.0_i, 1.0 / std::sqrt(2.0) + 0.0_i,
+          1.0 / std::sqrt(2.0) + 0.0_i, -1.0 / std::sqrt(2.0) + 0.0_i;
+      T_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, std::exp(I * M_PI / 4.0);
+      Tdg_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, std::exp(-I * M_PI / 4.0);
+      S_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, I;
+      Sdg_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, -I;
+      CX_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          0.0 + 0.0_i, 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 1.0 + 0.0_i,
+          0.0 + 0.0_i;
+      CY_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          0.0 + 0.0_i, -I, 0.0 + 0.0_i, 0.0 + 0.0_i, I, 0.0 + 0.0_i;
+      CZ_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          -1.0 + 0.0_i;
+      CH_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 / std::sqrt(2.0) + 0.0_i, 1.0 / std::sqrt(2.0) + 0.0_i, 0.0 + 0.0_i,
+          0.0 + 0.0_i, 1.0 / std::sqrt(2.0) + 0.0_i, -1.0 / std::sqrt(2.0) + 0.0_i;
+      Swap_Mat << 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          0.0 + 0.0_i, 1.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 1.0 + 0.0_i,
+          0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i, 0.0 + 0.0_i,
+          1.0 + 0.0_i;
       static_gate_init = true;
     }
   }
@@ -296,7 +300,7 @@ public:
           local_i |= ((i >> idx[l]) & 1) << l;
         }
 
-        cxdual res = 0.0i;
+        cxdual res = 0.0_i;
         for (size_t j = 0; j < (1ULL << idx.size()); ++j) {
           size_t locIdx = i;
           for (size_t l = 0; l < idx.size(); ++l) {
