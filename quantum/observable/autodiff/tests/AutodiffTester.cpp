@@ -81,6 +81,43 @@ CNOT 1 0
   }
 }
 
+// Test a simple gradient-descent using autodiff gradient value:
+TEST(AutodiffTester, checkGradient) {
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+  // JIT map Quil QASM Ansatz to IR
+  xacc::qasm(R"(
+.compiler quil
+.circuit ansatz
+.parameters theta
+X 0
+Ry(theta) 1
+CNOT 1 0
+)");
+  auto ansatz = xacc::getCompiled("ansatz");
+  auto autodiff = xacc::getService<xacc::Differentiable>("autodiff");
+  autodiff->fromObservable(H_N_2);
+  const double initialParam = 0.0;
+  const int nbIterms = 200;
+  // gradient-descent step size 
+  const double stepSize = 0.01;
+  double grad = 0.0;
+  double currentParam = initialParam;
+  double energy = 0.0;
+  for (int i = 0; i < nbIterms; ++i) {
+    currentParam =  currentParam - stepSize * grad;
+    const std::vector<double> newParams { currentParam };
+    auto result = autodiff->derivative(ansatz, newParams);
+    energy = result.first;
+    grad = result.second[0];
+  }
+  
+  EXPECT_NEAR(currentParam, 0.594, 1e-3);
+  EXPECT_NEAR(energy, -1.74886, 1e-3);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

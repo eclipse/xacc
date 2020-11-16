@@ -364,12 +364,12 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
   }
 
   auto fVal = f(argVars);
-  std::cout << "Exp-val: " << fVal << "\n";
+  // std::cout << "Exp-val: " << fVal << "\n";
   std::vector<double> gradients;
   for (auto &var : argVars) {
     cxdual dudx = autodiff::derivative(f, autodiff::wrt(var),
                                        autodiff::forward::at(argVars));
-    std::cout << "dudx: " << dudx << "\n";
+    // std::cout << "dudx: " << dudx << "\n";
     gradients.emplace_back(dudx.val.real());
   }
 
