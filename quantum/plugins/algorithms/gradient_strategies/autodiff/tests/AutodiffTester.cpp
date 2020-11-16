@@ -243,7 +243,7 @@ TEST(AutodiffTester, checkQaoaMaxCutGradient) {
                                         {"parameter-scheme", "Standard"}});
   qaoa->execute(buffer);
   std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
-  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 1e-3);
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 0.1);
 }
 
 int main(int argc, char **argv) {
