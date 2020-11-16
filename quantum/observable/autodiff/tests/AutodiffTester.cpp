@@ -76,7 +76,7 @@ CNOT 1 0
       auto energy = vqe->execute(buffer, params);
       std::cout << "(" << angle1 << ", " << angle2 << "): " << result.first
                 << " vs " << energy[0] << "\n";
-      // EXPECT_NEAR(energy[0], result.first, 1e-3);
+      EXPECT_NEAR(energy[0], result.first, 1e-3);
     }
   }
 }

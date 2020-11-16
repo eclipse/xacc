@@ -350,7 +350,7 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
     VectorXcdual ket = m_obsMat * finalState;
     VectorXcdual bra = VectorXcdual::Zero(finalState.size());
     for (int i = 0; i < finalState.size(); ++i) {
-      bra[i] = conj(finalState[i]);
+      bra[i] = conj(finalState[i].val);
     }
     // std::cout << "Mat:\n" << circMat << "\n";
     // std::cout << "Final state:\n" << finalState << "\n";
