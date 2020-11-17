@@ -56,12 +56,11 @@ void qaoa_from_file::read_json() {
     m_acc_name = configs["xacc"]["accelerator"].get<std::string>();
     m_opt_name = configs["xacc"]["optimizer"].get<std::string>();
     // Commenting these out because I'm temporarily hard coding
-    // them (Line 140)
+    // them (Lines 132-150)
     // m_opt_algo = configs["optimizer-params"]["algorithm"];
     // m_step_size = configs["optimizer-params"]["stepsize"];
     // m_max_iters = configs["optimizer-params"]["maxiters"];
     m_steps = configs["qaoa-params"]["p"].get<int>();
-    std::cout << "made it 4\n";
 }
 
 // Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
@@ -153,6 +152,8 @@ void qaoa_from_file::execute() {
     auto gradient = xacc::getService<xacc::AlgorithmGradientStrategy>("central");
     gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
 
+    // m_options = {{"nlopt-optimizer", "l-bfgs"}, {"nlopt-maxeval", 15}, {"maximize", true}, {"initial-parameters", random_vector(-2., 2., 2*m_steps)}}; 
+
     auto optimizer = xacc::getOptimizer(m_opt_name, m_options);
 
     // turn on verbose output
@@ -168,7 +169,6 @@ void qaoa_from_file::execute() {
     // Allocate necessary amount of qubits and execute
     auto buffer = xacc::qalloc(H.nBits());
     qaoa->execute(buffer);
-
 
     // Print out results to terminal
     std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
@@ -218,7 +218,7 @@ void qaoa_from_file::execute() {
         // Writing expectation value and optimal parameters to file
         std::stringstream sst;
         // Provide path to directory /
-        sst << dirName << "/QAOA_dat.txt";
+        sst << dirName.str() << "/QAOA_dat.txt";
         std::ofstream file(sst.str());
         file << (*buffer)["opt-val"].as<double>() << "              ";
         for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
@@ -226,7 +226,7 @@ void qaoa_from_file::execute() {
         }
 
         std::stringstream sv;
-        sv << dirName << "/statevector.txt";
+        sv << dirName.str() << "/statevector.txt";
         std::ofstream statefile(sv.str());
         for (auto [real, imag] : state_vector) {
             statefile << real << "    ";

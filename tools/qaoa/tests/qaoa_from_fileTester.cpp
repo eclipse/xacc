@@ -56,7 +56,6 @@ TEST(qaoa_from_file_tester, checkSimple) {
     ss << configs;
     configs = ss.str();
     auto config = json::parse(configs);
-    // std::cout << config.dump() << std::endl;
     qaoa_from_file QAOA(config);
     QAOA.execute();
 }
