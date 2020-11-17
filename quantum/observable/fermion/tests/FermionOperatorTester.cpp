@@ -50,6 +50,13 @@ TEST(FermionOperatorTester, checkDanielBug) {
     std::cout << op.toString() << "\n";
 }
 
+TEST(FermionOperatorTester, checkAnotherBug) {
+  FermionOperator ad1(xacc::quantum::Operators{{1, true}});
+  FermionOperator a0(xacc::quantum::Operators{{0, false}});
+  auto t = ad1 * a0;
+  std::cout << "HELLO: " <<  t.toString() << "\n";
+}
+
 TEST(FermionOperatorTester, checkBug) {
   auto str = R"((-0.479678,-0) 1^ 1 + (0.708024,0) + (0.0454063,0) 0^ 3^ 2 1)";
   FermionOperator op(str);

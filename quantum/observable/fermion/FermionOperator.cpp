@@ -24,33 +24,23 @@ namespace quantum {
 
 FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
   coeff() *= std::get<0>(v);
-
-  // std::cout << "FermionTerm: " << id() << ", " <<
-  // FermionTerm::id(std::get<1>(v)) << "\n";
   auto otherOps = std::get<1>(v);
   for (auto &kv : otherOps) {
     auto site = kv.first;
     auto c_or_a = kv.second;
-    // std::cout << "\n\nHELLO: " << site << ", " << std::boolalpha << c_or_a <<
-    // "\n";
     Operators o = ops();
-    if (!o.empty()) {
-      auto it = std::find_if(o.begin(), o.end(),
-                             [&](const std::pair<int, bool> &element) {
-                               return element.first == site;
-                             });
-      // std::cout << it->first << ", " << std::boolalpha << it->second << "\n";
-      if (it->first == site) {
-        if (it->second == c_or_a) {
-          // zero out this FermionTerm
+    for (auto oo : o ) {
+      if (oo.first == site) {
+        if (oo.second == c_or_a) {
           ops().clear();
-        } else {  // this adds the adjoint of operators whose sites are already
-                  // in the product
+        } else {
           ops().push_back({site, c_or_a});
         }
-
-      } else {
+        break;
+      }
+      else {
         ops().push_back({site, c_or_a});
+        break;
       }
     }
     // This means, we have a op on same qubit in both
