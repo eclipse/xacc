@@ -11,5 +11,7 @@
 #   Anthony Santana - initial API and implementation
 # *******************************************************************************/
 
-add_subdirectory(qaoa)
-
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/tools/qaoa)
+add_xacc_test(qaoa_from_file)
+target_link_libraries(qaoa_from_fileTester xacc xacc-quantum-gate xacc-pauli xacc-qaoa-helper)

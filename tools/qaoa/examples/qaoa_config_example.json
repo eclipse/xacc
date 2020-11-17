@@ -1,11 +1,17 @@
 {
     "graph": "graph_input_example.txt",
-    "outputfile": "true",
+    "outputfile": true,
     "xacc":{
         "accelerator": "qpp",
         "optimizer": "nlopt"
     },
+    "optimizer-params":{
+        "nlopt-optimizer": "l-bfgs",
+        "nlopt-ftol": 0.01,
+        "nlopt-maxeval": 15,
+        "maximize": true
+    },
     "qaoa-params":{
-        "p": 2
+        "p": 1
     }
 }

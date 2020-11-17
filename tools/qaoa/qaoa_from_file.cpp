@@ -1,20 +1,23 @@
-#include <string>
-#include <fstream>
-#include <streambuf>
-#include <random>
-#include "PauliOperator.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "xacc_observable.hpp"
-#include "AlgorithmGradientStrategy.hpp"
-#include "json.hpp"
+/*******************************************************************************
+ * Copyright (c) 2020 UT-Battelle, LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompanies this
+ * distribution. The Eclipse Public License is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the Eclipse Distribution
+ *License is available at https://eclipse.org/org/documents/edl-v10.php
+ *
+ * Contributors:
+ * Anthony Santana, Alexander J. McCaskey - initial API and implementation
+ ******************************************************************************/
 
-using json = nlohmann::json;
-
+#include "qaoa_from_file.hpp"
 
 // TODO:
-// 1. Run multiple BFGS loops and return the best answer (with different starting points)
-// 2. Specify how many or submit a list of which graphs you actually want to run
+// 1. Give access via config file to max number of LBFGS iterations and convergence
+//    tolerance
+// 2. Run multiple BFGS loops and return the best answer (with different starting points)
+// 3. Specify how many or submit a list of which graphs you actually want to run
 
 // Generate random vector 
 auto random_vector(const double l_range, const double r_range, const std::size_t size) {
@@ -28,196 +31,209 @@ auto random_vector(const double l_range, const double r_range, const std::size_t
     return vec;
 }
 
-class qaoa_from_file {
-    protected:
-        std::string m_config_file;
-        std::string m_graph_file;
-        std::string m_out_file;
-        std::string m_acc_name;
-        std::string m_opt_name;
-        std::string m_in_config;
-        int m_steps;
-
-        // Function takes a JSON configuration file as input and sets all parameters according to file
-        void read_json() {
-            std::ifstream t(m_config_file);
-            std::string config_str((std::istreambuf_iterator<char>(t)),
-                        std::istreambuf_iterator<char>());
-            json configs = json::parse(config_str); 
-            m_graph_file = configs["graph"].get<std::string>();
-            m_out_file = configs["outputfile"];
-            m_acc_name = configs["xacc"]["accelerator"];
-            m_opt_name = configs["xacc"]["optimizer"];
-            m_steps = configs["qaoa-params"]["p"];//.get<int>();
-        }
-
-        // Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
-        void read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H) {
-            std::ifstream H_file(graphFile);
-            std::string str((std::istreambuf_iterator<char>(H_file)),
-                                  std::istreambuf_iterator<char>());
-
-            int nbOrder = 0;
-            int i = 0;
-            std::vector<std::pair<int,int>> edges;
-            auto lines = xacc::split(str, '\n');
-            for (auto line : lines) {
-                if (line.find("Graph") != std::string::npos) {
-                    auto elements = xacc::split(line, ' ');
-                    auto order_str = elements.back();
-                    nbOrder = std::stoi(order_str.substr(0,order_str.length()-1));
-                } else {
-                    if (nbOrder == 0) {
-                        xacc::error("Invalid graph file syntax.");
-                    }
-                    int j_counter = i+1;
-                    for(int j = 0; j < line.length(); j++){
-                        if (line[j] == '1') {
-                            // Outputting edge pairs to terminal for verification:
-                            std::cout << "Edge at: " << i << ", " << j_counter << "\n";
-                            edges.push_back(std::make_pair(i,j_counter));
-                        }
-                        j_counter++;
-                    }
-                    i++;
-                }
-            }
-            for (auto [vi, vj] : edges) {
-                H += 0.5 * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{vi, "Z"}, {vj, "Z"}}));
-            }
-        }
-
-    public:
-        qaoa_from_file(const std::string& configFile, const std::string& graphFile, const std::string& outFile, const std::string& optName, const std::string& accName, const std::string& inConfig, const int& nbSteps) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_opt_name(optName), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps) {}
-        
-        void execute() {
-
-            if (m_in_config == "true"){
-                read_json();
-            }
-
-            // Define the graph from H_file
-            xacc::quantum::PauliOperator H;
-            read_hamiltonian(m_graph_file, H);
-            std::cout << H.toString() << "\n";
-            xacc::Observable* obs = &H;
-
-            // Target the user-specified backend
-            auto acc = xacc::getAccelerator(m_acc_name);
-
-            if (m_opt_name != "nlopt")
-            {
-                std::cout << "Optimization currently only supports nlopt.\n";
-            }
-
-            // Define the gradient for L-BFGS
-            auto gradient = xacc::getService<xacc::AlgorithmGradientStrategy>("central");
-            gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
-
-            // Get the L-BFGS Optimizer from NLOPT
-            auto optimizer = xacc::getOptimizer(m_opt_name, 
-                                    {{"nlopt-optimizer", "l-bfgs"}, {"maximize", true},{"initial-parameters", random_vector(-2., 2., 2*m_steps)}});
-
-            // turn on verbose output
-            xacc::set_verbose(true);
-
-            // Initialize QAOA
-            auto qaoa = xacc::getAlgorithm("QAOA", {{"accelerator", acc},
-                                                    {"optimizer", optimizer},
-                                                    {"observable", obs},
-                                                    {"steps", m_steps},
-                                                    {"gradient_strategy", gradient},
-                                                    {"parameter-scheme", "Standard"}});
-
-            // Allocate some qubits and execute
-            auto buffer = xacc::qalloc(H.nBits());
-            qaoa->execute(buffer);
-
-            // Print out the results (will eventually take more args to be able to print out)
-            std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
-            std::cout << "Opt vals: ";
-            for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
-                std::cout << param << " ";
-            }
-            std::cout << "\n";
-
-            // Compute and return the State Vector
-            auto state_vector_calc = 
-                xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
-            auto qaoa_statevector =
-                xacc::getAlgorithm("QAOA", {{"accelerator", state_vector_calc},
-                                            {"observable", obs},
-                                            {"optimizer", optimizer},
-                                            {"steps", m_steps},
-                                            {"parameter-scheme", "Standard"}});
-            auto state_vector_buffer = xacc::qalloc(H.nBits());
-            // turn off verbose output
-            xacc::set_verbose(false);
-            auto result = qaoa_statevector->execute(
-                                        state_vector_buffer,
-                                        (*buffer)["opt-params"].as<std::vector<double>>())[0];
-            auto state_vector = (*state_vector_buffer->getChildren()[1])["state"]
-                                    .as<std::vector<std::pair<double, double>>>();
-            std::cout << "\n" << "STATE VECTOR: [REAL, IM] " << "\n";
-            for (auto [real, imag] : state_vector) {
-                std::cout << real << ", " << imag << "\n";
-            }
-
-        if (m_out_file == "true"){
-            std::stringstream ss;
-            ss << "qaoa_output_n" << H.nBits() << "_p" << m_steps << ".txt";
-            std::ofstream file(ss.str());
-            file << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
-            file << "Opt vals: ";
-            for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
-                file << param << " ";
-            }
-            file << "\n";
-            file << "\n";
-            buffer->print(file);
-        }
-    } 
-};
-
-int main(int argc, char **argv)
+// Function returns the time in format: YYYY-MM-DD.HH.MM.SS
+std::string get_timestamp()
 {
-    // Default settings if user doesn't specify:
-    int nbSteps = 1; 
-    std::string accName = "qpp";
-    std::string optName = "nlopt";
-    std::string graphFile = "temp";
-    std::string configFile = "temp";
-    std::string inConfig = "false";
-    std::string outFile = "false";
+    auto now = std::time(nullptr);
+    char buf[sizeof("YYYY-MM-DD  HH:MM:SS")];
+    auto time = std::string(buf,buf + std::strftime(buf,sizeof(buf),"%F  %T",std::gmtime(&now)));
+    time.insert(11, ".");
+    std::replace(time.begin(), time.end(), ':', '.');
+    time.erase(remove(time.begin(), time.end(), ' '), time.end());
+    return time;
+}
 
-    std::vector<std::string> arguments(argv + 1, argv + argc);
-    for (int i = 0; i < arguments.size(); i++) {
-        if (arguments[i] == "-c"){
-            configFile = arguments[i+1];
-            inConfig = "true";
-            break;
-        }
-        if (arguments[i] == "-i") {
-           graphFile = arguments[i+1];
-        }   
-        if (arguments[i] == "-o") {
-           outFile = arguments[i+1];
-        }   
-        if (arguments[i] == "-p") {
-            nbSteps = std::stoi(arguments[i+1]);
-        }
-        if (arguments[i] == "-qpu") {
-            accName = arguments[i+1];
-        }
-        if (arguments[i] == "-opt") {
-            optName = arguments[i+1];
+// Function takes a JSON configuration file as input and sets all parameters according to file
+void qaoa_from_file::read_json() {
+    if (configs.empty()) {
+        std::ifstream t(m_config_file);
+        std::string config_str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());\
+        configs = json::parse(config_str); 
+    }
+    m_graph_file = configs["graph"]; //.get<std::string>();
+    m_out_file = configs["outputfile"].get<bool>();
+    m_acc_name = configs["xacc"]["accelerator"].get<std::string>();
+    m_opt_name = configs["xacc"]["optimizer"].get<std::string>();
+    // Commenting these out because I'm temporarily hard coding
+    // them (Line 140)
+    // m_opt_algo = configs["optimizer-params"]["algorithm"];
+    // m_step_size = configs["optimizer-params"]["stepsize"];
+    // m_max_iters = configs["optimizer-params"]["maxiters"];
+    m_steps = configs["qaoa-params"]["p"].get<int>();
+    std::cout << "made it 4\n";
+}
+
+// Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
+void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H) {
+    std::ifstream H_file(graphFile);
+    std::string str((std::istreambuf_iterator<char>(H_file)),
+                            std::istreambuf_iterator<char>());
+
+    int nbOrder = 0;
+    int i = 0;
+    std::vector<std::pair<int,int>> edges;
+    auto lines = xacc::split(str, '\n');
+    for (auto line : lines) {
+        if (line.find("Graph") != std::string::npos) {
+            auto elements = xacc::split(line, ' ');
+            auto order_str = elements.back();
+            nbOrder = std::stoi(order_str.substr(0,order_str.length()-1));
+        } else {
+            if (nbOrder == 0) {
+                xacc::error("Invalid graph file syntax.");
+            }
+            int j_counter = i+1;
+            for(int j = 0; j < line.length(); j++){
+                if (line[j] == '1') {
+                    // Outputting edge pairs to terminal for verification:
+                    std::cout << "Edge at: " << i << ", " << j_counter << "\n";
+                    edges.push_back(std::make_pair(i,j_counter));
+                }
+                j_counter++;
+            }
+            i++;
         }
     }
-    xacc::Initialize(argc, argv);
-
-    // Instantiate class
-    qaoa_from_file QAOA(configFile, graphFile, outFile, optName, accName, inConfig, nbSteps);
-
-    // Execute the QAOA algorithm and return results
-    QAOA.execute();
+    for (auto [vi, vj] : edges) {
+        H += 0.5 * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{vi, "Z"}, {vj, "Z"}}));
+    }
 }
+        
+
+void qaoa_from_file::execute() {
+
+    if (m_in_config == true){
+        read_json();
+    }
+
+    // Define the graph from H_file
+    xacc::quantum::PauliOperator H;
+    read_hamiltonian(m_graph_file, H);
+    std::cout << H.toString() << "\n";
+    xacc::Observable* obs = &H;
+
+    // Target the user-specified backend
+    auto acc = xacc::getAccelerator(m_acc_name);
+
+    // Temporarily reading in "NAME-OPTION" instead of creating them agnostically
+    auto optimizerParams = configs["optimizer-params"];
+    xacc::HeterogeneousMap m_options;
+    std::vector<std::string> keys;
+    if (m_opt_name == "nlopt"){
+        // TODO: Add to optimizer section of JSON: "initialize": random, or eventually
+        // Fourier, warm starts, etc.
+        m_options.insert("initial-parameters", random_vector(-2., 2., 2*m_steps));
+        keys = {"nlopt-ftol", "nlopt-maxeval", "nlopt-optimizer", "maximize"};
+    } else {
+        std::cout << "Using minimization from " << m_opt_name << ". Adjust output results accordingly.\n";
+        keys = {"mlpack-step-size", "mlpack-max-iter", "mlpack-optimizer"};
+    }
+
+    if (optimizerParams.count(keys[0])) {
+        float val = optimizerParams[keys[0]].get<float>();
+        m_options.insert(keys[0], val);
+    }
+    if (optimizerParams.count(keys[1])) {
+        int val = optimizerParams[keys[1]].get<int>();
+        m_options.insert(keys[1], val);
+    }
+    if (optimizerParams.count(keys[2])) {
+        std::string val = optimizerParams[keys[2]].get<std::string>();
+        m_options.insert(keys[2], val);
+    }
+    if (m_opt_name == "nlopt"){
+        if (optimizerParams.count(keys[3])) {
+            bool val = optimizerParams[keys[3]].get<bool>();
+            m_options.insert(keys[3], val);
+        } 
+    }
+    
+    // Define the gradient
+    auto gradient = xacc::getService<xacc::AlgorithmGradientStrategy>("central");
+    gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
+
+    auto optimizer = xacc::getOptimizer(m_opt_name, m_options);
+
+    // turn on verbose output
+    xacc::set_verbose(true);
+    // Initialize QAOA
+    auto qaoa = xacc::getAlgorithm("QAOA", {{"accelerator", acc},
+                                            {"optimizer", optimizer},
+                                            {"observable", obs},
+                                            {"steps", m_steps},
+                                            {"gradient_strategy", gradient},
+                                            {"parameter-scheme", "Standard"}});
+
+    // Allocate necessary amount of qubits and execute
+    auto buffer = xacc::qalloc(H.nBits());
+    qaoa->execute(buffer);
+
+
+    // Print out results to terminal
+    std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
+    std::cout << "Opt vals: ";
+    for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
+        std::cout << param << " ";
+    }
+    std::cout << "\n";
+
+    // Compute and return the State Vector
+    auto state_vector_calc = 
+        xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
+    auto qaoa_statevector =  xacc::getAlgorithm("QAOA", {{"accelerator", state_vector_calc},
+                                                        {"observable", obs},
+                                                        {"optimizer", optimizer},
+                                                        {"steps", m_steps},
+                                                        {"parameter-scheme", "Standard"}});
+       
+    auto state_vector_buffer = xacc::qalloc(H.nBits());
+    
+    // turn off verbose output
+    xacc::set_verbose(false);
+    auto result = qaoa_statevector->execute(
+                                state_vector_buffer,
+                                (*buffer)["opt-params"].as<std::vector<double>>())[0];
+    auto state_vector = (*state_vector_buffer->getChildren()[1])["state"]
+                            .as<std::vector<std::pair<double, double>>>();
+    std::cout << "\n" << "STATE VECTOR: [REAL, IM] " << "\n";
+    for (auto [real, imag] : state_vector) {
+        std::cout << real << ", " << imag << "\n";
+    }
+
+    // Flag to return output files or not
+    if (m_out_file == true){
+
+        // Create a directory based on input config file name and 
+        // the current date (YYYY-MM-DD.HH.SS) to hold output files
+        std::stringstream dirName;
+        if (m_config_file.empty()){
+            dirName << get_timestamp();
+        } else {
+            dirName << m_config_file << get_timestamp();
+        }
+        // Create directory with read/write/search permissions
+        mkdir(dirName.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH);
+
+        // Writing expectation value and optimal parameters to file
+        std::stringstream sst;
+        // Provide path to directory /
+        sst << dirName << "/QAOA_dat.txt";
+        std::ofstream file(sst.str());
+        file << (*buffer)["opt-val"].as<double>() << "              ";
+        for (auto param : (*buffer)["opt-params"].as<std::vector<double>>()) {
+            file << param << "   ";
+        }
+
+        std::stringstream sv;
+        sv << dirName << "/statevector.txt";
+        std::ofstream statefile(sv.str());
+        for (auto [real, imag] : state_vector) {
+            statefile << real << "    ";
+        }
+        statefile << "\n";
+        for (auto [real, imag] : state_vector) {
+            statefile << imag << "    ";
+        }
+    }
+} 
