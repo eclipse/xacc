@@ -1,0 +1,2 @@
+add_xacc_test(QlmAccelerator)
+target_link_libraries(QlmAcceleratorTester xacc xacc-quantum-gate)

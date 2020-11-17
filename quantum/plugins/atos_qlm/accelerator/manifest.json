@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_qlm",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Atos QLM Simulation Accelerator",
+  "bundle.description" : "This bundle provides a qlm Accelerator for Gate Model QC."
+}
