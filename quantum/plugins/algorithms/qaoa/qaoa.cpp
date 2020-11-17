@@ -142,6 +142,14 @@ bool QAOA::initialize(const HeterogeneousMap &parameters) {
       m_maximize = parameters.get<bool>("maximize");
   }
 
+  if (m_optimizer && m_optimizer->isGradientBased() &&
+      gradientStrategy == nullptr) {
+    // No gradient strategy was provided, just use autodiff.
+    gradientStrategy = xacc::getService<AlgorithmGradientStrategy>("autodiff");
+    gradientStrategy->initialize(
+        {{"observable", xacc::as_shared_ptr(m_costHamObs)}});
+  }
+
   return initializeOk;
 }
 
