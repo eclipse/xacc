@@ -43,7 +43,7 @@ REAL
    ;
 
 /* Scientific notation */
-scientific : REAL ? ('e'|'E') ? INT;
+scientific : (REAL | INT) ? ('e'|'E') ? INT;
 
 /* Non-negative integer */
 INT : ('-') ? ('0'..'9') + ;
