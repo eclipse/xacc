@@ -81,6 +81,7 @@ pybind11::object getAqasmGate(const std::string& in_xaccGateName) {
     gateNameToGate.emplace("H", aqasm.attr("H"));
     gateNameToGate.emplace("T", aqasm.attr("T"));
     gateNameToGate.emplace("S", aqasm.attr("S"));
+    gateNameToGate.emplace("PH", aqasm.attr("PH"));
     // Two-qubit gates:
     gateNameToGate.emplace("CNOT", aqasm.attr("CNOT")); 
     gateNameToGate.emplace("Swap", aqasm.attr("SWAP")); 
@@ -163,24 +164,66 @@ void QlmCircuitVisitor::visit(S &s) {
   m_aqasmProgram.attr("apply")(s_gate, m_qreg[pybind11::int_(s.bits()[0])]);
 }
 
-void QlmCircuitVisitor::visit(Sdg &sdg) {}
+void QlmCircuitVisitor::visit(Sdg &sdg) {
+  auto s_gate = getAqasmGate("S");
+  auto sdg_gate = s_gate.attr("dag")();
+  m_aqasmProgram.attr("apply")(sdg_gate, m_qreg[pybind11::int_(sdg.bits()[0])]);
+}
 
 void QlmCircuitVisitor::visit(T &t) {
   auto t_gate = getAqasmGate(t.name());
   m_aqasmProgram.attr("apply")(t_gate, m_qreg[pybind11::int_(t.bits()[0])]);
 }
 
-void QlmCircuitVisitor::visit(Tdg &tdg) {}
+void QlmCircuitVisitor::visit(Tdg &tdg) {
+  auto t_gate = getAqasmGate("T");
+  auto tdg_gate = t_gate.attr("dag")();
+  m_aqasmProgram.attr("apply")(tdg_gate, m_qreg[pybind11::int_(tdg.bits()[0])]);
+}
 
-void QlmCircuitVisitor::visit(CY &cy) {}
-void QlmCircuitVisitor::visit(CZ &cz) {}
-void QlmCircuitVisitor::visit(Swap &s) {}
-void QlmCircuitVisitor::visit(CRZ &crz) {}
-void QlmCircuitVisitor::visit(CH &ch) {}
+void QlmCircuitVisitor::visit(CY &cy) {
+  auto y_gate = getAqasmGate("Y");
+  auto cy_gate = y_gate.attr("ctrl")();
+  m_aqasmProgram.attr("apply")(cy_gate, m_qreg[pybind11::int_(cy.bits()[0])], m_qreg[pybind11::int_(cy.bits()[1])]);
+}
 
-void QlmCircuitVisitor::visit(CPhase &cphase) {}
+void QlmCircuitVisitor::visit(CZ &cz) {
+  auto cz_gate = getAqasmGate(cz.name());
+  m_aqasmProgram.attr("apply")(cz_gate, m_qreg[pybind11::int_(cz.bits()[0])], m_qreg[pybind11::int_(cz.bits()[1])]);
+}
+
+void QlmCircuitVisitor::visit(Swap &s) {
+  auto swap_gate = getAqasmGate(s.name());
+  m_aqasmProgram.attr("apply")(swap_gate, m_qreg[pybind11::int_(s.bits()[0])], m_qreg[pybind11::int_(s.bits()[1])]);
+}
+
+void QlmCircuitVisitor::visit(CRZ &crz) {
+  auto rz_gate = getAqasmGate("Rz");
+  const double theta = InstructionParameterToDouble(crz.getParameter(0));
+  auto crz_gate = rz_gate(theta).attr("ctrl")();
+  m_aqasmProgram.attr("apply")(crz_gate, m_qreg[pybind11::int_(crz.bits()[0])], m_qreg[pybind11::int_(crz.bits()[1])]);
+}
+
+void QlmCircuitVisitor::visit(CH &ch) {
+  auto h_gate = getAqasmGate("H");
+  auto ch_gate = h_gate.attr("ctrl")();
+  m_aqasmProgram.attr("apply")(ch_gate, m_qreg[pybind11::int_(ch.bits()[0])], m_qreg[pybind11::int_(ch.bits()[1])]);
+}
+
+void QlmCircuitVisitor::visit(CPhase &cphase) {
+  auto ph_gate = getAqasmGate("PH");
+  const double theta = InstructionParameterToDouble(cphase.getParameter(0));
+  auto cp_gate = ph_gate(theta).attr("ctrl")();
+  m_aqasmProgram.attr("apply")(cp_gate, m_qreg[pybind11::int_(cphase.bits()[0])], m_qreg[pybind11::int_(cphase.bits()[1])]);
+}
+
 void QlmCircuitVisitor::visit(U &u) {}
-void QlmCircuitVisitor::visit(iSwap &in_iSwapGate) {}
+
+void QlmCircuitVisitor::visit(iSwap &in_iSwapGate) {
+  auto iswap_gate = getAqasmGate(in_iSwapGate.name());
+  m_aqasmProgram.attr("apply")(iswap_gate, m_qreg[pybind11::int_(in_iSwapGate.bits()[0])], m_qreg[pybind11::int_(in_iSwapGate.bits()[1])]);
+}
+
 void QlmCircuitVisitor::visit(fSim &in_fsimGate) {}
 void QlmCircuitVisitor::visit(Measure &measure) {}
 
