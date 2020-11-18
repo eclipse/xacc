@@ -118,6 +118,61 @@ TEST(QlmAcceleratorTester, testControlGate) {
   }
 }
 
+TEST(QlmAcceleratorTester, testU3Gate) {
+  // Test U3(theta,−pi/2, pi/2) = RX(theta)
+  auto accelerator = xacc::getAccelerator("atos-qlm");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                      ->compile(R"(__qpu__ void rotationU3(qbit q, double theta) {
+      U(q[0], theta, -pi/2, pi/2);
+      Measure(q[0]);
+    })",
+                                accelerator)
+                      ->getComposites()[0];
+
+  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(1);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    const double expectedResult = 1.0 - 2.0 * std::sin(angles[i]/2.0) * std::sin(angles[i]/2.0);
+    std::cout << "Angle = " << angles[i]
+              << "; result = " << buffer->getExpectationValueZ() << " vs expected = " << expectedResult << "\n";
+    EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 1e-6);
+  }
+}
+
+TEST(QlmAcceleratorTester, testFsim) {
+  // Get reference to the Accelerator
+  const int nbShots = 1024;
+  auto accelerator = xacc::getAccelerator("atos-qlm", {{"shots", nbShots}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(
+      R"(__qpu__ void testFsim(qbit q, double x, double y) {
+        X(q[0]);
+        fSim(q[0], q[1], x, y);
+        Measure(q[0]);
+        Measure(q[1]);
+    })",
+      accelerator);
+
+  auto program = ir->getComposites()[0];
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 10);
+
+  for (const auto &a : angles) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = program->operator()({a, 0.0});
+    accelerator->execute(buffer, evaled);
+    const auto expectedProb = std::sin(a) * std::sin(a);
+    // std::cout << "Angle = " << a << ", expected = " << expectedProb << "\n";
+    // buffer->print();
+    // fSim mixes 01 and 10 states w.r.t. the theta angle.
+    EXPECT_NEAR(buffer->computeMeasurementProbability("01"), expectedProb, 0.1);
+    EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb, 0.1);
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

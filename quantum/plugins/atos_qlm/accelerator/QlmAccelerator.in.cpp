@@ -14,6 +14,7 @@
 #include "xacc_plugin.hpp"
 #include <cassert>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include <dlfcn.h>
 #include "xacc_config.hpp"
 using namespace pybind11::literals;
@@ -88,7 +89,7 @@ pybind11::object getAqasmGate(const std::string& in_xaccGateName) {
     gateNameToGate.emplace("CZ", aqasm.attr("CSIGN")); 
     gateNameToGate.emplace("iSwap", aqasm.attr("ISWAP"));
     // Fall-back
-    gateNameToGate.emplace("", aqasm.attr("CustomGate"));
+    gateNameToGate.emplace("CustomGate", aqasm.attr("CustomGate"));
   }
 
   const auto gateObjIter = gateNameToGate.find(in_xaccGateName);
@@ -96,8 +97,36 @@ pybind11::object getAqasmGate(const std::string& in_xaccGateName) {
     return gateObjIter->second;
   } 
   else {
-    return gateNameToGate[""];
+    return gateNameToGate["CustomGate"];
   }
+}
+
+pybind11::array_t<std::complex<double>> fSimGateMat(double in_theta, double in_phi) {
+  pybind11::array_t<std::complex<double>> gateMat({ 4, 4 });
+  auto r = gateMat.mutable_unchecked<2>(); 
+  for (int i = 0; i < 4; ++i) {
+    for(int j = 0; j < 4; ++j) {
+      r(i, j) = 0.0;
+    }
+  }
+
+  r(0, 0) = 1.0;
+  r(1, 1) = std::cos(in_theta);
+  r(1, 2) = std::complex<double>(0, -std::sin(in_theta));
+  r(2, 1) = std::complex<double>(0, -std::sin(in_theta));
+  r(2, 2) = std::cos(in_theta);
+  r(3, 3) = std::exp(std::complex<double>(0, -in_phi));
+  return gateMat; 
+}
+
+pybind11::array_t<std::complex<double>> u3GateMat(double in_theta, double in_phi, double in_lambda) {
+  pybind11::array_t<std::complex<double>> gateMat({ 2, 2 });
+  auto r = gateMat.mutable_unchecked<2>();
+  r(0, 0) = std::cos(in_theta / 2.0);
+  r(0, 1) = -std::exp(std::complex<double>(0, in_lambda)) * std::sin(in_theta / 2.0);
+  r(1, 0) = std::exp(std::complex<double>(0, in_phi)) * std::sin(in_theta / 2.0);
+  r(1, 1) = std::exp(std::complex<double>(0, in_phi + in_lambda)) * std::cos(in_theta / 2.0);
+  return gateMat;
 }
 } // namespace
 
@@ -217,14 +246,28 @@ void QlmCircuitVisitor::visit(CPhase &cphase) {
   m_aqasmProgram.attr("apply")(cp_gate, m_qreg[pybind11::int_(cphase.bits()[0])], m_qreg[pybind11::int_(cphase.bits()[1])]);
 }
 
-void QlmCircuitVisitor::visit(U &u) {}
+void QlmCircuitVisitor::visit(U &u) {
+  auto c_gate = getAqasmGate("CustomGate");
+  const auto theta = InstructionParameterToDouble(u.getParameter(0));
+  const auto phi = InstructionParameterToDouble(u.getParameter(1));
+  const auto lambda = InstructionParameterToDouble(u.getParameter(2));
+  auto u3_gate = c_gate(u3GateMat(theta, phi, lambda));
+  m_aqasmProgram.attr("apply")(u3_gate, m_qreg[pybind11::int_(u.bits()[0])]);
+}
 
 void QlmCircuitVisitor::visit(iSwap &in_iSwapGate) {
   auto iswap_gate = getAqasmGate(in_iSwapGate.name());
   m_aqasmProgram.attr("apply")(iswap_gate, m_qreg[pybind11::int_(in_iSwapGate.bits()[0])], m_qreg[pybind11::int_(in_iSwapGate.bits()[1])]);
 }
 
-void QlmCircuitVisitor::visit(fSim &in_fsimGate) {}
+void QlmCircuitVisitor::visit(fSim &in_fsimGate) {
+  const auto theta = InstructionParameterToDouble(in_fsimGate.getParameter(0));
+  const auto phi = InstructionParameterToDouble(in_fsimGate.getParameter(1));
+  auto c_gate = getAqasmGate("CustomGate");
+  auto fsim_gate = c_gate(fSimGateMat(theta, phi));
+  m_aqasmProgram.attr("apply")(fsim_gate, m_qreg[pybind11::int_(in_fsimGate.bits()[0])], m_qreg[pybind11::int_(in_fsimGate.bits()[1])]);
+}
+
 void QlmCircuitVisitor::visit(Measure &measure) {}
 
 void QlmAccelerator::initialize(const HeterogeneousMap &params) {
