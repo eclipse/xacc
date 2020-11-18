@@ -474,6 +474,9 @@ TEST(PauliOperatorTester, checkSciNot) {
   op.fromString("1.234e-4 Z0");
   std::cout << op.toString() << "\n";
 
+  op.fromString("5e-11 Z0");
+  std::cout << (1.0e11 * op).toString() << "\n";
+
 }
 
 int main(int argc, char **argv) {
