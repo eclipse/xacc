@@ -2,7 +2,8 @@
 
 set +x 
 
-python3 -m pip install --user ipopo cmake
-echo "export PYTHONPATH=$PYTHONPATH:/usr/local/xacc" >> $HOME/.bashrc 
-echo "export PATH=$PATH:/usr/local/xacc/bin" >> $HOME/.bashrc 
-source $HOME/.bashrc
+python3 -m pip install ipopo cmake
+echo ""
+echo ""
+echo "To use the XACC/QCOR Python API, please run the following (and add to your .bashrc or .bash_profile)"
+echo "export PYTHONPATH=$PYTHONPATH:$(brew --prefix xacc):$(brew --prefix qcor)"
