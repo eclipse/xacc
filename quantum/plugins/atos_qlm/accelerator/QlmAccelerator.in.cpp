@@ -296,9 +296,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
   m_qlmQpuServer = qpuMod.attr("get_qpu_server")();
 }
 
-void QlmAccelerator::execute(
-    std::shared_ptr<AcceleratorBuffer> buffer,
-    const std::shared_ptr<CompositeInstruction> compositeInstruction) {
+pybind11::object QlmAccelerator::constructQlmJob(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<CompositeInstruction> compositeInstruction) const {
   QlmCircuitVisitor visitor(buffer->size());
   // Walk the IR tree, and visit each node
   InstructionIterator it(compositeInstruction);
@@ -316,12 +314,21 @@ void QlmAccelerator::execute(
   // exportAqasm(visitor.getProgram(), "test.aqasm");
   // Shots:
   auto circ = to_circ(visitor.getProgram());
-
+  auto job = to_job(circ);
   if (m_shots > 0 || measureBitIdxs.empty()) {
-    auto job = to_job(circ);
     job.attr("nbshots") = m_shots;
     job.attr("type") = getJobType(JobType::Sample);
-    auto result = m_qlmQpuServer.attr("submit")(job);
+  }
+  else {
+    // Exp-val calc.
+    job.attr("observable") = exp_val_z_obs(buffer->size(), measureBitIdxs);
+    job.attr("type") = getJobType(JobType::Observable);
+  }
+  return job;
+}
+
+void QlmAccelerator::persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer, pybind11::object& result) const {
+  if (result.attr("value").is_none()) {
     auto iter = pybind11::iter(result);
     while (iter != pybind11::iterator::sentinel()){
       auto sampleData = *iter;
@@ -332,23 +339,46 @@ void QlmAccelerator::execute(
       buffer->appendMeasurement(bitStr, count);
       ++iter;
     }
-  }
+  } 
   else {
-    // Exp-val calc.
-    auto job = to_job(circ);
-    job.attr("observable") = exp_val_z_obs(buffer->size(), measureBitIdxs);
-    job.attr("type") = getJobType(JobType::Observable);
-    auto result = m_qlmQpuServer.attr("submit")(job);
     auto expVal = result.attr("value").cast<double>();
-    //std::cout << "Exp-val = " << expVal << "\n";
     buffer->addExtraInfo("exp-val-z", expVal);
   }
 }
 
 void QlmAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
+    const std::shared_ptr<CompositeInstruction> compositeInstruction) {
+  auto qlmJob = constructQlmJob(buffer, compositeInstruction);
+  auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+  persistResultToBuffer(buffer, result);
+}
+
+void QlmAccelerator::execute(
+    std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>>
         compositeInstructions) {
+  std::vector<std::shared_ptr<AcceleratorBuffer>> childBuffers;
+  std::vector<pybind11::object> batch;
+  for (auto &f : compositeInstructions) {
+    childBuffers.emplace_back(std::make_shared<xacc::AcceleratorBuffer>(f->name(), buffer->size()));
+    batch.emplace_back(constructQlmJob(buffer, f));
+  }
+
+  // Submit the whole batch:
+  auto batchResult = m_qlmQpuServer.attr("submit")(batch);
+  // pybind11::print(result);
+  auto iter = pybind11::iter(batchResult);
+  int childBufferIndex = 0;
+  while (iter != pybind11::iterator::sentinel()) {
+    auto result = (*iter).cast<pybind11::object>();
+    persistResultToBuffer(childBuffers[childBufferIndex++], result);
+    ++iter;
+  }
+  assert(childBufferIndex == childBuffers.size());
+  for (auto& childBuffer : childBuffers) {
+    buffer->appendChild(childBuffer->name(), childBuffer);
+  }
 }
 } // namespace quantum
 } // namespace xacc

@@ -80,6 +80,10 @@ public:
   virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer,
                      std::shared_ptr<Instruction> inst) override {};
 private:
+  pybind11::object constructQlmJob(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<CompositeInstruction> compositeInstruction) const;
+  void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer, pybind11::object& result) const;
+
+private:
   int m_shots;
   pybind11::object m_qlmQpuServer;
 };
