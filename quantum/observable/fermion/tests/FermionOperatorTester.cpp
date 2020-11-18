@@ -116,6 +116,10 @@ TEST(FermionOperatorTester, checkSciNot) {
     src = "(1.234e-10,0) 0^ 1^ 3 2";
     FermionOperator op2(src);
     std::cout << op2.toString() << "\n";
+
+    src = "(1e-10,0) 0^ 1^ 3 2";
+    FermionOperator op3(src);
+    std::cout << op3.toString() << "\n";
 }
 
 

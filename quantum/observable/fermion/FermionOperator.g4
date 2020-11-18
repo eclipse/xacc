@@ -26,7 +26,7 @@ COMMENT : '#' ~[\r\n] * EOL;
 REAL : ('-') ? INT ? '.' INT;
 
 /* scientific notation */
-scientific : REAL ? ('e'|'E') ? INT;
+scientific : (REAL | INT) ? ('e'|'E') ? INT;
 
 /* Non-negative integer */
 INT : ('-') ? ('0'..'9') + ;
