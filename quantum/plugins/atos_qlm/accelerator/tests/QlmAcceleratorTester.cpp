@@ -92,6 +92,32 @@ TEST(QlmAcceleratorTester, testParametricGate) {
   }
 }
 
+TEST(QlmAcceleratorTester, testControlGate) {
+  auto accelerator = xacc::getAccelerator("atos-qlm");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                      ->compile(R"(__qpu__ void rotationControl(qbit q, double theta) {
+      X(q[0]);
+      H(q[1]);
+      CRZ(q[0], q[1], theta);
+      H(q[1]);
+      Measure(q[1]);
+    })",
+                                accelerator)
+                      ->getComposites()[0];
+
+  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    const double expectedResult = 1.0 - 2.0 * std::sin(angles[i]/2.0) * std::sin(angles[i]/2.0);
+    std::cout << "Angle = " << angles[i]
+              << "; result = " << buffer->getExpectationValueZ() << " vs expected = " << expectedResult << "\n";
+    EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 1e-6);
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);
