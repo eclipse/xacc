@@ -27,7 +27,7 @@ const std::string src =
 
 TEST(DDCLTester, checkJSSimpleGradientFree) {
   if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm");
+    auto acc = xacc::getAccelerator("aer");
     auto buffer = xacc::qalloc(1);
 
     auto simple = xacc::getCompiled("f");
@@ -54,7 +54,7 @@ TEST(DDCLTester, checkJSSimpleGradientFree) {
 
 TEST(DDCLTester, checkMMDSimpleGradientFree) {
   if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm");
+    auto acc = xacc::getAccelerator("aer");
     auto buffer = xacc::qalloc(1);
 
     auto simple = xacc::getCompiled("f");
@@ -81,7 +81,7 @@ TEST(DDCLTester, checkMMDSimpleGradientFree) {
 
 TEST(DDCLTester, checkJSSimpleWithGradient) {
   if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm");
+    auto acc = xacc::getAccelerator("aer");
     auto buffer = xacc::qalloc(1);
 
     auto simple = xacc::getCompiled("f");
@@ -111,7 +111,7 @@ TEST(DDCLTester, checkJSSimpleWithGradient) {
 
 TEST(DDCLTester, checkMMDSimpleWithGradient) {
   if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm");
+    auto acc = xacc::getAccelerator("aer");
     auto buffer = xacc::qalloc(1);
 
     auto simple = xacc::getCompiled("f");
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   int ret = 0;
   if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm");
+    auto acc = xacc::getAccelerator("aer");
     auto compiler = xacc::getCompiler("xasm");
     auto ir = compiler->compile(src, acc);
     ::testing::InitGoogleTest(&argc, argv);

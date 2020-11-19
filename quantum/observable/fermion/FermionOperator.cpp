@@ -12,43 +12,35 @@
  *******************************************************************************/
 #include "FermionOperator.hpp"
 
-#include "FermionOperatorLexer.h"
-#include "FermionListenerImpl.hpp"
+#include <Utils.hpp>
 
+#include "FermionListenerImpl.hpp"
+#include "FermionOperatorLexer.h"
 #include "ObservableTransform.hpp"
 #include "xacc_service.hpp"
-#include <Utils.hpp>
 
 namespace xacc {
 namespace quantum {
 
 FermionTerm &FermionTerm::operator*=(const FermionTerm &v) noexcept {
   coeff() *= std::get<0>(v);
-
-   //std::cout << "FermionTerm: " << id() << ", " << FermionTerm::id(std::get<1>(v)) << "\n";
   auto otherOps = std::get<1>(v);
   for (auto &kv : otherOps) {
     auto site = kv.first;
     auto c_or_a = kv.second;
-    //std::cout << "\n\nHELLO: " << site << ", " << std::boolalpha << c_or_a << "\n";
-    Operators o = ops();    
-    if (!o.empty()) {
-
-      auto it = std::find_if(o.begin(), o.end(),
-                           [&](const std::pair<int, bool> &element) {
-                             return element.first == site;
-                           });
-      //std::cout << it->first << ", " << std::boolalpha << it->second << "\n";
-      if (it->first == site) {
-        if (it->second == c_or_a) {
-        // zero out this FermionTerm
+    Operators o = ops();
+    for (auto oo : o ) {
+      if (oo.first == site) {
+        if (oo.second == c_or_a) {
           ops().clear();
-        } else {//this adds the adjoint of operators whose sites are already in the product
+        } else {
           ops().push_back({site, c_or_a});
         }
-
-      } else {
+        break;
+      }
+      else {
         ops().push_back({site, c_or_a});
+        break;
       }
     }
     // This means, we have a op on same qubit in both
@@ -85,30 +77,30 @@ FermionOperator::FermionOperator(Operators operators,
 FermionOperator::FermionOperator(Operators operators, double coeff)
     : FermionOperator(operators, std::complex<double>(coeff, 0)) {}
 
-
-FermionOperator::FermionOperator(Operators operators, double coeff, std::string var)
-    {
-          terms.emplace(std::piecewise_construct,
-                std::forward_as_tuple(FermionTerm::id(operators)),
-                std::forward_as_tuple(std::complex<double>(coeff,0.0), operators, var));
-    }
+FermionOperator::FermionOperator(Operators operators, double coeff,
+                                 std::string var) {
+  terms.emplace(
+      std::piecewise_construct,
+      std::forward_as_tuple(FermionTerm::id(operators)),
+      std::forward_as_tuple(std::complex<double>(coeff, 0.0), operators, var));
+}
 
 void FermionOperator::clear() { terms.clear(); }
 
-std::vector<std::shared_ptr<CompositeInstruction>>
-FermionOperator::observe(std::shared_ptr<CompositeInstruction> function) {
-    auto transform = xacc::getService<ObservableTransform>("jw");
-    return transform->transform(xacc::as_shared_ptr(this))->observe(function);
+std::vector<std::shared_ptr<CompositeInstruction>> FermionOperator::observe(
+    std::shared_ptr<CompositeInstruction> function) {
+  auto transform = xacc::getService<ObservableTransform>("jw");
+  return transform->transform(xacc::as_shared_ptr(this))->observe(function);
 }
 
 const std::string FermionOperator::toString() {
   std::stringstream s;
   for (auto &kv : terms) {
     std::complex<double> c = std::get<0>(kv.second);
-    s << c << " " << std::get<2>(kv.second) << " ";
-    Operators ops = std::get<1>(kv.second);
-    // id now corresponds to the operator string, we can just use it
-    s << kv.first;
+    s << c << " ";
+    if (kv.first != "I") {
+      s << kv.first;
+    }
     s << "+ ";
   }
 
@@ -118,7 +110,6 @@ const std::string FermionOperator::toString() {
 }
 
 void FermionOperator::fromString(const std::string str) {
-
   using namespace antlr4;
   using namespace fermion;
 
@@ -144,8 +135,7 @@ void FermionOperator::fromString(const std::string str) {
 }
 const int FermionOperator::nBits() {
   auto maxInt = 0;
-  if (terms.empty())
-    return 0;
+  if (terms.empty()) return 0;
 
   for (auto &kv : terms) {
     auto ops = kv.second.ops();
@@ -156,13 +146,12 @@ const int FermionOperator::nBits() {
     }
   }
   return maxInt + 1;
- }
+}
 
-FermionOperator &
-FermionOperator::operator+=(const FermionOperator &v) noexcept {
+FermionOperator &FermionOperator::operator+=(
+    const FermionOperator &v) noexcept {
   FermionOperator vv = v;
   for (auto &kv : v.terms) {
-
     auto termId = kv.first;
     auto otherTerm = kv.second;
 
@@ -177,25 +166,23 @@ FermionOperator::operator+=(const FermionOperator &v) noexcept {
     }
   }
 
-//   std::cout << "result: " << toString() << "\n";
+  //   std::cout << "result: " << toString() << "\n";
 
   return *this;
 }
 
-FermionOperator &
-FermionOperator::operator-=(const FermionOperator &v) noexcept {
+FermionOperator &FermionOperator::operator-=(
+    const FermionOperator &v) noexcept {
   return operator+=(-1.0 * v);
 }
 
-FermionOperator &
-FermionOperator::operator*=(const FermionOperator &v) noexcept {
-
+FermionOperator &FermionOperator::operator*=(
+    const FermionOperator &v) noexcept {
   std::unordered_map<std::string, FermionTerm> newTerms;
   for (auto &kv : terms) {
     for (auto &vkv : v.terms) {
-
       FermionTerm multTerm;
-      if (kv.first == "I"){
+      if (kv.first == "I") {
         multTerm = vkv.second;
       } else {
         multTerm = kv.second * vkv.second;
@@ -208,7 +195,8 @@ FermionOperator::operator*=(const FermionOperator &v) noexcept {
         }
 
         if (!newTerms.insert({id, multTerm}).second && kv.first == "I") {
-          newTerms.at(id).coeff() = std::get<0>(kv.second) * std::get<0>(vkv.second);
+          newTerms.at(id).coeff() =
+              std::get<0>(kv.second) * std::get<0>(vkv.second);
         }
 
         if (std::abs(newTerms.at(id).coeff()) < 1e-12) {
@@ -230,7 +218,6 @@ bool FermionOperator::operator==(const FermionOperator &v) noexcept {
   for (auto &kv : terms) {
     bool found = false;
     for (auto &vkv : v.terms) {
-
       if (kv.second.operator==(vkv.second)) {
         found = true;
         break;
@@ -249,52 +236,46 @@ FermionOperator &FermionOperator::operator*=(const double v) noexcept {
   return operator*=(std::complex<double>(v, 0));
 }
 
-FermionOperator &
-FermionOperator::operator*=(const std::complex<double> v) noexcept {
+FermionOperator &FermionOperator::operator*=(
+    const std::complex<double> v) noexcept {
   for (auto &kv : terms) {
     std::get<0>(kv.second) *= v;
   }
   return *this;
 }
 
-std::shared_ptr<Observable> FermionOperator::commutator(std::shared_ptr<Observable> op) {
-
-  FermionOperator& A = *std::dynamic_pointer_cast<FermionOperator>(op);
-  std::shared_ptr<FermionOperator> commutatorHA = std::make_shared<FermionOperator>((*this) * A - A * (*this));
+std::shared_ptr<Observable> FermionOperator::commutator(
+    std::shared_ptr<Observable> op) {
+  FermionOperator &A = *std::dynamic_pointer_cast<FermionOperator>(op);
+  std::shared_ptr<FermionOperator> commutatorHA =
+      std::make_shared<FermionOperator>((*this) * A - A * (*this));
   return commutatorHA;
 }
 
 // We obtain the hermitian conjugate of FermionOperator
 // by walking back on a string of FermionTerm and changing the boolean
 FermionOperator FermionOperator::hermitianConjugate() const {
-
   FermionOperator conjugate;
 
   for (auto &kv : terms) {
-
     auto c = std::get<0>(kv.second);
     Operators ops = std::get<1>(kv.second), hcOps;
     for (int i = ops.size() - 1; i >= 0; i--) {
-
       if (ops[i].second) {
         hcOps.push_back({ops[i].first, 0});
       } else {
         hcOps.push_back({ops[i].first, 1});
       }
-
     }
 
     conjugate += FermionOperator(hcOps, std::conj(c));
-
   }
 
   return conjugate;
-
 }
 
-
-} // namespace quantum
-} // namespace xacc
+}  // namespace quantum
+}  // namespace xacc
 
 bool operator==(const xacc::quantum::FermionOperator &lhs,
                 const xacc::quantum::FermionOperator &rhs) {
@@ -304,7 +285,6 @@ bool operator==(const xacc::quantum::FermionOperator &lhs,
   for (auto &kv : lhs.getTerms()) {
     bool found = false;
     for (auto &vkv : rhs.getTerms()) {
-
       if (kv.second.operator==(vkv.second)) {
         found = true;
         break;

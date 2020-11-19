@@ -50,6 +50,20 @@ TEST(FermionOperatorTester, checkDanielBug) {
     std::cout << op.toString() << "\n";
 }
 
+TEST(FermionOperatorTester, checkAnotherBug) {
+  FermionOperator ad1(xacc::quantum::Operators{{1, true}});
+  FermionOperator a0(xacc::quantum::Operators{{0, false}});
+  auto t = ad1 * a0;
+  std::cout << "HELLO: " <<  t.toString() << "\n";
+}
+
+TEST(FermionOperatorTester, checkBug) {
+  auto str = R"((-0.479678,-0) 1^ 1 + (0.708024,0) + (0.0454063,0) 0^ 3^ 2 1)";
+  FermionOperator op(str);
+  std::cout << op.toString() << "\n";
+  EXPECT_EQ(op.toString(), str);
+}
+
 TEST(FermionOperatorTester,checkSimple) {
 
   FermionOperator op(Operators{{3,1},{2,0}}, 2.2);
@@ -102,6 +116,10 @@ TEST(FermionOperatorTester, checkSciNot) {
     src = "(1.234e-10,0) 0^ 1^ 3 2";
     FermionOperator op2(src);
     std::cout << op2.toString() << "\n";
+
+    src = "(1e-10,0) 0^ 1^ 3 2";
+    FermionOperator op3(src);
+    std::cout << op3.toString() << "\n";
 }
 
 

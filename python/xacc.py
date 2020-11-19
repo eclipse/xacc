@@ -91,7 +91,6 @@ def parse_args(args):
 
     return opts
 
-
 def initialize():
     xaccHome = os.environ['HOME']+'/.xacc'
     if not os.path.exists(xaccHome):
@@ -461,6 +460,11 @@ def main(argv=None):
 
     if not opts.benchmark == None:
         benchmark_from_cmd_line(opts)
+
+if '__internal__add__plugin__path' in sys.argv:
+    idx = sys.argv.index('__internal__add__plugin__path')
+    extra_plugin_path = sys.argv[idx+1]
+    appendPluginPath(extra_plugin_path)
 
 initialize()
 

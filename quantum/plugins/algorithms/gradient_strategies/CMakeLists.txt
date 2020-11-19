@@ -62,3 +62,7 @@ if(XACC_BUILD_TESTS)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
+
+# Since Autodiff gradient strategy has extra dependency, 
+# build it separately.
+add_subdirectory(autodiff)

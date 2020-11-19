@@ -22,3 +22,6 @@
 [submodule "tpls/triq"]
 	path = tpls/triq
 	url = https://github.com/ORNL-QCI/TriQ.git
+[submodule "tpls/qsim"]
+	path = tpls/qsim
+	url = https://github.com/ORNL-QCI/qsim.git

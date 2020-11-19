@@ -4,7 +4,7 @@ int main(int argc, char **argv) {
 
   // Get reference to the Accelerator
   auto qpu =
-      xacc::getAccelerator("local-ibm");
+      xacc::getAccelerator("qpp");
 
   auto opt =
             xacc::getOptimizer("mlpack");

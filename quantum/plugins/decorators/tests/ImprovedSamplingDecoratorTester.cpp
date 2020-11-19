@@ -22,8 +22,8 @@ TEST(ImprovedSamplingDecoratorTester, checkSimple) {
   int shots = 8192;
   int nExecs = 4;
 
-  if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm", {std::make_pair("shots",shots)});
+  if (xacc::hasAccelerator("qpp")) {
+    auto acc = xacc::getAccelerator("qpp", {std::make_pair("shots",shots)});
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getService<xacc::Compiler>("xasm");
@@ -57,8 +57,8 @@ TEST(ImprovedSamplingDecoratorTester, checkMultiple) {
   int shots = 8192;
   int nExecs = 2;
 
-  if (xacc::hasAccelerator("local-ibm")) {
-    auto acc = xacc::getAccelerator("local-ibm",{std::make_pair("shots",shots)});
+  if (xacc::hasAccelerator("qpp")) {
+    auto acc = xacc::getAccelerator("qpp",{std::make_pair("shots",shots)});
     auto buffer = xacc::qalloc(2);
 
     auto compiler = xacc::getService<xacc::Compiler>("xasm");

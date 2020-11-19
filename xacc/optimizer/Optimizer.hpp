@@ -16,10 +16,10 @@
 #include <functional>
 #include <vector>
 
-#include "heterogeneous.hpp"
-#include "Identifiable.hpp"
-#include "CompositeInstruction.hpp"
 #include "AcceleratorBuffer.hpp"
+#include "CompositeInstruction.hpp"
+#include "Identifiable.hpp"
+#include "heterogeneous.hpp"
 
 namespace xacc {
 
@@ -27,15 +27,16 @@ using OptimizerFunctor =
     std::function<double(const std::vector<double> &, std::vector<double> &)>;
 using OptResult = std::pair<double, std::vector<double>>;
 
-using OptFunctionPtr = double(*)(const std::vector<double> &, std::vector<double> &, void*);
+using OptFunctionPtr = double (*)(const std::vector<double> &,
+                                  std::vector<double> &, void *);
 class OptFunction {
-protected:
+ protected:
   OptimizerFunctor _function;
   int _dim = 0;
 
-public:
+ public:
   OptFunction() = default;
-  
+
   // Standard constructor, takes function that takes params as
   // first arg and gradient as second arg
   OptFunction(OptimizerFunctor f, const int d) : _function(f), _dim(d) {}
@@ -44,31 +45,37 @@ public:
                             std::vector<double> &dx) {
     return _function(x, dx);
   }
+  virtual double operator()(const std::vector<double> &&x) {
+    std::vector<double> dx;
+    return _function(x, dx);
+  }
 };
 
 class Optimizer : public xacc::Identifiable {
-protected:
+ protected:
   HeterogeneousMap options;
 
-public:
-  template <typename T> void appendOption(const std::string key, T &&value) {
+ public:
+  template <typename T>
+  void appendOption(const std::string key, T &&value) {
     options.insert(key, value);
   }
   virtual void setOptions(const HeterogeneousMap &opts) { options = opts; }
 
   virtual OptResult optimize(OptFunction &function) = 0;
 
-  // No Opt function optimization: used by fully-customized Optimizer implementations
-  // which don't need user-supplied opt function.
+  // No Opt function optimization: used by fully-customized Optimizer
+  // implementations which don't need user-supplied opt function.
   virtual OptResult optimize() {
-    // Derived sub-classes must provide concrete impl, 
+    // Derived sub-classes must provide concrete impl,
     // otherwise, it's illegal to call optimize() w/o any OptFunction.
     throw std::bad_function_call();
   }
 
   virtual const std::string get_algorithm() const { return ""; }
   virtual const bool isGradientBased() const { return false; }
-
 };
-} // namespace xacc
+}  // namespace xacc
+
+
 #endif

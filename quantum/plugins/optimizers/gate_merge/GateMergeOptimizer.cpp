@@ -49,12 +49,28 @@ bool compareMatIgnoreGlobalPhase(const Eigen::Matrix4cd& in_a, const Eigen::Matr
     const auto diff = (bFixedPhase - in_a).norm();
     return std::abs(diff) < TOL;
 }
+void flattenComposite(std::shared_ptr<CompositeInstruction> io_composite) 
+{
+  std::vector<xacc::InstPtr> flatten;
+  InstructionIterator iter(io_composite);
+  while (iter.hasNext()) 
+  {
+    auto inst = iter.next();
+    if (!inst->isComposite()) 
+    {
+      flatten.emplace_back(inst->clone());
+    }
+  }
+  io_composite->clear();
+  io_composite->addInstructions(flatten);
+}
 }
 namespace xacc {
 namespace quantum {
 void MergeSingleQubitGatesOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap &options)
 {
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    flattenComposite(program);
     for (size_t instIdx = 0; instIdx < program->nInstructions(); ++instIdx)
     {
         const auto sequence = findSingleQubitGateSequence(program, instIdx, 2);
@@ -173,7 +189,7 @@ std::vector<size_t> MergeSingleQubitGatesOptimizer::findSingleQubitGateSequence(
 void MergeTwoQubitBlockOptimizer::apply(std::shared_ptr<CompositeInstruction> program, const std::shared_ptr<Accelerator> accelerator, const HeterogeneousMap& options)
 {
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-
+    flattenComposite(program);
     // No need to optimize block with less than 6 gates
     // since the KAK decomposition will result in at least 5 gate.
     const size_t MIN_SIZE = 6;

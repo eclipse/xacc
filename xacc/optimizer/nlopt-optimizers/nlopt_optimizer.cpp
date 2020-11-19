@@ -17,6 +17,8 @@
 #include <iostream>
 using namespace std::placeholders;
 
+#include "xacc_plugin.hpp"
+
 namespace xacc {
 
 double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
@@ -26,21 +28,27 @@ double c_wrapper(const std::vector<double> &x, std::vector<double> &grad,
 }
 
 const std::string NLOptimizer::get_algorithm() const {
-  std::string nlopt_opt_name = "cobyla";
-  if (options.stringExists("nlopt-optimizer")) {
-    nlopt_opt_name = options.getString("nlopt-optimizer");
+  std::string optimizerAlgo = "cobyla";
+  if (options.stringExists("algorithm")) {
+    optimizerAlgo = options.getString("algorithm");
   }
-  return nlopt_opt_name;
+  if (options.stringExists("nlopt-optimizer")) {
+    optimizerAlgo = options.getString("nlopt-optimizer");
+  }
+  return optimizerAlgo;
 }
 
 const bool NLOptimizer::isGradientBased() const {
 
-  std::string nlopt_opt_name = "cobyla";
+  std::string optimizerAlgo = "cobyla";
+  if (options.stringExists("algorithm")) {
+    optimizerAlgo = options.getString("algorithm");
+  }
   if (options.stringExists("nlopt-optimizer")) {
-    nlopt_opt_name = options.getString("nlopt-optimizer");
+    optimizerAlgo = options.getString("nlopt-optimizer");
   }
 
-  if (nlopt_opt_name == "l-bfgs") {
+  if (optimizerAlgo == "l-bfgs") {
     return true;
   } else {
     return false;
@@ -60,8 +68,15 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     maximize = options.get<bool>("maximize");
   }
 
+  std::string optimizerAlgo;
+  if (options.stringExists("algorithm")) {
+    optimizerAlgo = options.getString("algorithm");
+  }
   if (options.stringExists("nlopt-optimizer")) {
-    auto optimizerAlgo = options.getString("nlopt-optimizer");
+    optimizerAlgo = options.getString("nlopt-optimizer");
+  }
+
+  if (options.stringExists("nlopt-optimizer") || options.stringExists("algorithm")) {
     if (optimizerAlgo == "cobyla") {
       algo = nlopt::algorithm::LN_COBYLA;
     } else if (optimizerAlgo == "nelder-mead") {
@@ -74,11 +89,20 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
     }
   }
 
+  if (options.keyExists<double>("ftol")) {
+    tol = options.get<double>("ftol");
+    xacc::info("[NLOpt] function tolerance set to " + std::to_string(tol));
+  }
   if (options.keyExists<double>("nlopt-ftol")) {
     tol = options.get<double>("nlopt-ftol");
     xacc::info("[NLOpt] function tolerance set to " + std::to_string(tol));
   }
 
+  if (options.keyExists<int>("maxeval")) {
+    maxeval = options.get<int>("maxeval");
+    xacc::info("[NLOpt] max function evaluations set to " +
+               std::to_string(maxeval));
+  }
   if (options.keyExists<int>("nlopt-maxeval")) {
     maxeval = options.get<int>("nlopt-maxeval");
     xacc::info("[NLOpt] max function evaluations set to " +
@@ -105,12 +129,18 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   }
   // Default lower bounds
   std::vector<double> lowerBounds(dim, -3.1415926);
+  if (options.keyExists<std::vector<double>>("lower-bounds")) {
+    lowerBounds = options.get<std::vector<double>>("lower-bounds");
+  }
   if (options.keyExists<std::vector<double>>("nlopt-lower-bounds")) {
     lowerBounds = options.get<std::vector<double>>("nlopt-lower-bounds");
   }
 
   // Default upper bounds
   std::vector<double> upperBounds(dim, 3.1415926);
+  if (options.keyExists<std::vector<double>>("upper-bounds")) {
+    upperBounds = options.get<std::vector<double>>("upper-bounds");
+  }
   if (options.keyExists<std::vector<double>>("nlopt-upper-bounds")) {
     upperBounds = options.get<std::vector<double>>("nlopt-upper-bounds");
   }
@@ -120,6 +150,11 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
   _opt.set_maxeval(maxeval);
   _opt.set_ftol_rel(tol);
 
+  if (options.keyExists<double>("stopval")) {
+    const double stopVal = options.get<double>("stopval");
+    xacc::info("[NLOpt] function stopval set to " + std::to_string(stopVal));
+    _opt.set_stopval(stopVal);
+  }
   if (options.keyExists<double>("nlopt-stopval")) {
     const double stopVal = options.get<double>("nlopt-stopval");
     xacc::info("[NLOpt] function stopval set to " + std::to_string(stopVal));
@@ -144,3 +179,6 @@ OptResult NLOptimizer::optimize(OptFunction &function) {
 }
 
 } // namespace xacc
+
+
+REGISTER_OPTIMIZER(xacc::NLOptimizer)

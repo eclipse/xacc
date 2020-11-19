@@ -24,6 +24,7 @@ add_subdirectory(placement)
 add_subdirectory(xasm)
 add_subdirectory(qpp)
 add_subdirectory(staq)
+add_subdirectory(observable_transforms)
 
 find_library(QRACK_LIBRARY NAMES qrack)
 if (QRACK_LIBRARY)
@@ -34,5 +35,6 @@ else()
 endif()
 
 add_subdirectory(optimal_control)
+add_subdirectory(qsim)
 
 install (FILES utils/OperatorPool.hpp DESTINATION include/quantum/gate)

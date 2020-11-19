@@ -54,6 +54,7 @@ PYBIND11_MODULE(_pyxacc, m) {
         "arguments to pass.");
   m.def("PyInitialize", &xacc::PyInitialize,
         "Initialize the framework from Python.");
+  m.def("appendPluginPath", &xacc::addPluginSearchPath, "");
   m.def(
       "getAccelerator",
       [](const std::string &name, const PyHeterogeneousMap &p = {}) {

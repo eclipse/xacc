@@ -1,7 +1,7 @@
 import xacc
 
 # Get the QPU and allocate a single qubit
-qpu = xacc.getAccelerator('local-ibm')
+qpu = xacc.getAccelerator('qpp')
 qbits = xacc.qalloc(1)
 
 @xacc.qpu(algo='ddcl', accelerator=qpu, optimizer='mlpack', target_dist=[.5,.5], loss='js', gradient='js-parameter-shift')

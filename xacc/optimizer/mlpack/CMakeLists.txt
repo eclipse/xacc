@@ -3,8 +3,7 @@ set(LIBRARY_NAME xacc-mlpack)
 
 file(GLOB
      SRC
-     mlpack_optimizer.cpp
-     mlpack_activator.cpp)
+     mlpack_optimizer.cpp)
 
 usfunctiongetresourcesource(TARGET
                             ${LIBRARY_NAME}
