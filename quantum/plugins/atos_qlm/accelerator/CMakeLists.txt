@@ -40,8 +40,17 @@ else()
   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
 endif()
 
-if(XACC_BUILD_TESTS)
-  add_subdirectory(tests)
+if(Python_FOUND)
+  # Check if we have QAT (Atos QLM library) installed
+  execute_process(COMMAND ${Python_EXECUTABLE} -c "import qat" RESULT_VARIABLE QAT_EXISTS)
+  if (QAT_EXISTS EQUAL "1")
+    message(STATUS "${BoldYellow}QAT not found. Atos QLM Accelerator will not work.${ColorReset}")
+  else()
+    # We always build the accelerator, but only test if the QAT library is installed (on the QLM server).
+    if(XACC_BUILD_TESTS)
+      add_subdirectory(tests)
+    endif()
+  endif()
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
