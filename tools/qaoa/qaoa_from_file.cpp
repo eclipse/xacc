@@ -14,10 +14,11 @@
 #include "qaoa_from_file.hpp"
 
 // TODO:
-// 1. Give access via config file to max number of LBFGS iterations and convergence
-//    tolerance
+// 1. Set a method for defaulting optimizer when user runs with command line configs
 // 2. Run multiple BFGS loops and return the best answer (with different starting points)
 // 3. Specify how many or submit a list of which graphs you actually want to run
+// 4. Add to optimizer section of JSON: "initialize": random, or eventually
+// Fourier, warm starts, etc.
 
 // Generate random vector 
 auto random_vector(const double l_range, const double r_range, const std::size_t size) {
@@ -32,8 +33,7 @@ auto random_vector(const double l_range, const double r_range, const std::size_t
 }
 
 // Function returns the time in format: YYYY-MM-DD.HH.MM.SS
-std::string get_timestamp()
-{
+std::string get_timestamp() {
     auto now = std::time(nullptr);
     char buf[sizeof("YYYY-MM-DD  HH:MM:SS")];
     auto time = std::string(buf,buf + std::strftime(buf,sizeof(buf),"%F  %T",std::gmtime(&now)));
@@ -55,11 +55,6 @@ void qaoa_from_file::read_json() {
     m_out_file = configs["outputfile"].get<bool>();
     m_acc_name = configs["xacc"]["accelerator"].get<std::string>();
     m_opt_name = configs["xacc"]["optimizer"].get<std::string>();
-    // Commenting these out because I'm temporarily hard coding
-    // them (Lines 132-150)
-    // m_opt_algo = configs["optimizer-params"]["algorithm"];
-    // m_step_size = configs["optimizer-params"]["stepsize"];
-    // m_max_iters = configs["optimizer-params"]["maxiters"];
     m_steps = configs["qaoa-params"]["p"].get<int>();
 }
 
@@ -101,7 +96,6 @@ void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantu
         
 
 void qaoa_from_file::execute() {
-
     if (m_in_config == true){
         read_json();
     }
@@ -120,8 +114,6 @@ void qaoa_from_file::execute() {
     xacc::HeterogeneousMap m_options;
     std::vector<std::string> keys;
     if (m_opt_name == "nlopt"){
-        // TODO: Add to optimizer section of JSON: "initialize": random, or eventually
-        // Fourier, warm starts, etc.
         m_options.insert("initial-parameters", random_vector(-2., 2., 2*m_steps));
         keys = {"ftol", "maxeval", "optimizer", "maximize"};
     } else {
@@ -133,19 +125,20 @@ void qaoa_from_file::execute() {
         std::stringstream key;
         key << m_opt_name << "-" << keys[0];
         float val = optimizerParams[keys[0]].get<float>();
-        m_options.insert(keys[0], val);
+        m_options.insert(key.str(), val);
     }
     if (optimizerParams.count(keys[1])) {
         std::stringstream key;
         key << m_opt_name << "-" << keys[1];
         int val = optimizerParams[keys[1]].get<int>();
-        m_options.insert(keys[1], val);
+        m_options.insert(key.str(), val);
     }
     if (optimizerParams.count(keys[2])) {
         std::stringstream key;
         key << m_opt_name << "-" << keys[2];
         std::string val = optimizerParams[keys[2]].get<std::string>();
-        m_options.insert(keys[2], val);
+        std::cout << "key: " << key.str() << " val: " << val;
+        m_options.insert(key.str(), val);
     }
     if (m_opt_name == "nlopt"){
         if (optimizerParams.count(keys[3])) {
@@ -222,7 +215,6 @@ void qaoa_from_file::execute() {
 
         // Writing expectation value and optimal parameters to file
         std::stringstream sst;
-        // Provide path to directory /
         sst << dirName.str() << "/QAOA_dat.txt";
         std::ofstream file(sst.str());
         file << (*buffer)["opt-val"].as<double>() << "              ";

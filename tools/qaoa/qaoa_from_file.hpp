@@ -30,16 +30,14 @@ using json = nlohmann::json;
 class qaoa_from_file {
 
     protected:
-        std::string m_config_file;
-        std::string m_graph_file;
-        bool m_out_file;
-        std::string m_opt_name;
-        std::string m_acc_name;
-        bool m_in_config;
         int m_steps;
-        std::string m_opt_algo;
-        float m_step_size;
-        int m_max_iters;
+        std::string m_acc_name;
+        std::string m_opt_name;
+        std::string m_graph_file;
+        std::string m_config_file;
+        bool m_in_config;
+        bool m_out_file;
+        
         json configs;
 
         void read_json();
@@ -50,7 +48,7 @@ class qaoa_from_file {
             m_in_config = true;
         }
 
-        qaoa_from_file(const std::string& configFile, const std::string& graphFile, bool outFile, const std::string& optName, const std::string& accName, bool inConfig, const int& nbSteps, const std::string& optAlgo, float stepSize, const int& maxIters) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_opt_name(optName), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps), m_opt_algo(optAlgo), m_step_size(stepSize), m_max_iters(maxIters) {}
+        qaoa_from_file(const std::string& configFile, const std::string& graphFile, bool outFile, const std::string& optName, const std::string& accName, bool inConfig, const int& nbSteps) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_opt_name(optName), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps) {}
 
         void execute();
 
