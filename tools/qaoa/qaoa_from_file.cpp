@@ -227,7 +227,9 @@ void qaoa_from_file::execute() {
         if (m_config_file.empty()){
             dirName << get_timestamp();
         } else {
-            dirName << m_config_file << get_timestamp();
+            size_t lastindex = m_config_file.find_last_of("."); 
+            std::string filename = m_config_file.substr(0, lastindex); 
+            dirName << filename << get_timestamp();
         }
         mkdir(dirName.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH);
 

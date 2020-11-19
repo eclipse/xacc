@@ -31,7 +31,6 @@
 #include <regex>
 using json = nlohmann::json;
 
-// TODO: Write a test for command line as well
 
 TEST(qaoa_from_file_tester, checkSimple) {
 
@@ -40,7 +39,7 @@ TEST(qaoa_from_file_tester, checkSimple) {
     std::string configs = R"(/examples/graph_input_example.txt",
         "outputfile": true,
         "xacc":{
-            "accelerator": "qpp",
+            "accelerator": "aer",
             "optimizer": "mlpack"
         },
         "optimizer-params":{

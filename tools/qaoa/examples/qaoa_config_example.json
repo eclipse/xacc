@@ -1,6 +1,6 @@
 {
     "graph": "graph_input_example.txt",
-    "outputfile": false,
+    "outputfile": true,
     "xacc":{
         "accelerator": "tnqvm",
         "optimizer": "nlopt"
