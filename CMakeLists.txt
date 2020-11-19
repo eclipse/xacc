@@ -39,6 +39,11 @@ if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
             message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
         endif()
     endif()
+
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD WORKING_DIRECTORY "${local_dir}"
+                            OUTPUT_VARIABLE XACC_BUILD_VERSION ERROR_QUIET
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message( STATUS "XACC GIT hash: ${XACC_BUILD_VERSION}")
 endif()
 
 if(NOT EXISTS "${CMAKE_SOURCE_DIR}/tpls/cppmicroservices/CMakeLists.txt"
