@@ -22,7 +22,7 @@ set your path from the terminal:
     export PATH=$PATH:$HOME/.xacc/bin
 ```
 
-Navigate to tools/qaoa/examples for reference on formatting the graph files, as well as the json configuration files. If you'd prefer to run the algorithm without a json file, this may now be done as:
+Navigate to tools/qaoa/examples for reference on formatting the graph files, as well as the json configuration files. If you'd prefer to run the algorithm without a json file, this may be done as:
 
 ```bash
     xacc-qaoa -i graph_input_file.txt
@@ -42,4 +42,4 @@ If you'd prefer to pass in a json configuration file, this may be done as:
     xacc-qaoa -c qaoa_config_example.json
 ```
 
-The example json configuration file outlines all of the parameters that users may control at this time, but only a graph file is required. Future plans include control over the graphs to run and being able to pass multiple graph files in.
+The example json configuration file outlines all of the parameters that users may control at this time. 

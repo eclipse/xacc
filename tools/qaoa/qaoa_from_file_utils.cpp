@@ -17,12 +17,15 @@ int main(int argc, char **argv)
 {
     // Default settings if user doesn't specify:
     int nbSteps = 1; 
+    int maxIters = 15;
     std::string accName = "qpp";
     std::string optName = "nlopt";
+    std::string optAlgo = "l-bfgs";
     std::string graphFile = "temp";
     std::string configFile = "temp";
     bool inConfig = false;
     bool outFile = false;
+    float stepSize = 0.1;
 
     std::vector<std::string> arguments(argv + 1, argv + argc);
     for (int i = 0; i < arguments.size(); i++) {
@@ -50,7 +53,7 @@ int main(int argc, char **argv)
     xacc::Initialize(argc, argv);
 
     // Instantiate class
-    qaoa_from_file QAOA(configFile, graphFile, outFile, optName, accName, inConfig, nbSteps); //, optAlgo, stepSize, maxIters);
+    qaoa_from_file QAOA(configFile, graphFile, outFile, optName, optAlgo, accName, inConfig, nbSteps, stepSize, maxIters);
 
     // Execute the QAOA algorithm and return results
     QAOA.execute();

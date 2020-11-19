@@ -14,7 +14,8 @@
 #include "qaoa_from_file.hpp"
 
 // TODO:
-// 1. Set a method for defaulting optimizer when user runs with command line configs
+// 1. Fix the defaults when reading in a paired down config file
+// 2. Set a method for defaulting optimizer when user runs with command line configs
 // 2. Run multiple BFGS loops and return the best answer (with different starting points)
 // 3. Specify how many or submit a list of which graphs you actually want to run
 // 4. Add to optimizer section of JSON: "initialize": random, or eventually
@@ -52,10 +53,14 @@ void qaoa_from_file::read_json() {
         configs = json::parse(config_str); 
     }
     m_graph_file = configs["graph"]; //.get<std::string>();
-    m_out_file = configs["outputfile"].get<bool>();
-    m_acc_name = configs["xacc"]["accelerator"].get<std::string>();
-    m_opt_name = configs["xacc"]["optimizer"].get<std::string>();
-    m_steps = configs["qaoa-params"]["p"].get<int>();
+    m_out_file = configs.count("outputfile") ? configs["outputfile"].get<bool>() : false;
+    m_acc_name = configs.count("accelerator") ? configs["xacc"]["accelerator"].get<std::string>(): "qpp";
+    m_opt_name = configs["xacc"].count("optimizer") ? configs["xacc"]["optimizer"].get<std::string>() : "nlopt";
+    m_opt_algo = 
+        configs["optimizer-params"].count("algorithm") ? configs["optimizer-params"]["algorithm"].get<std::string>() : "l-bfgs";
+    m_step_size = 
+        configs["optimizer-params"].count("stepsize") ? configs["optimizer-params"]["stepsize"].get<float>() : 0.1;
+    m_steps = configs["qaoa-params"].count("p") ? configs["qaoa-params"]["p"].get<int>() : 1;
 }
 
 // Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
@@ -114,31 +119,41 @@ void qaoa_from_file::execute() {
     xacc::HeterogeneousMap m_options;
     std::vector<std::string> keys;
     if (m_opt_name == "nlopt"){
-        m_options.insert("initial-parameters", random_vector(-2., 2., 2*m_steps));
-        keys = {"ftol", "maxeval", "optimizer", "maximize"};
+        keys = {"ftol", "maxeval", "algorithm", "maximize"};
     } else {
         std::cout << "Using minimization from " << m_opt_name << ". Adjust output results accordingly.\n";
-        keys = {"step-size", "max-iter", "optimizer"};
+        keys = {"step-size", "max-iter", "algorithm"};
     }
+    m_options.insert("initial-parameters", random_vector(-2., 2., 2*m_steps));
 
     if (optimizerParams.count(keys[0])) {
         std::stringstream key;
         key << m_opt_name << "-" << keys[0];
-        float val = optimizerParams[keys[0]].get<float>();
-        m_options.insert(key.str(), val);
+        m_options.insert(key.str(), m_step_size);
+    } else {
+        std::stringstream key;
+        key << m_opt_name << "-" << keys[0];
+        m_options.insert(key.str(), m_step_size);
     }
     if (optimizerParams.count(keys[1])) {
         std::stringstream key;
         key << m_opt_name << "-" << keys[1];
         int val = optimizerParams[keys[1]].get<int>();
         m_options.insert(key.str(), val);
+    } else {
+        std::stringstream key;
+        key << m_opt_name << "-" << keys[1];
+        m_options.insert(key.str(), m_max_iters);
     }
     if (optimizerParams.count(keys[2])) {
         std::stringstream key;
-        key << m_opt_name << "-" << keys[2];
+        key << m_opt_name << "-optimizer";
         std::string val = optimizerParams[keys[2]].get<std::string>();
-        std::cout << "key: " << key.str() << " val: " << val;
         m_options.insert(key.str(), val);
+    } else {
+        std::stringstream key;
+        key << m_opt_name << "-optimizer";
+        m_options.insert(key.str(), m_opt_algo);
     }
     if (m_opt_name == "nlopt"){
         if (optimizerParams.count(keys[3])) {
@@ -150,8 +165,6 @@ void qaoa_from_file::execute() {
     // Define the gradient
     auto gradient = xacc::getService<xacc::AlgorithmGradientStrategy>("central");
     gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
-
-    // m_options = {{"nlopt-optimizer", "l-bfgs"}, {"nlopt-maxeval", 15}, {"maximize", true}, {"initial-parameters", random_vector(-2., 2., 2*m_steps)}}; 
 
     auto optimizer = xacc::getOptimizer(m_opt_name, m_options);
 

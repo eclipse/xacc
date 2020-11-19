@@ -44,12 +44,12 @@ TEST(qaoa_from_file_tester, checkSimple) {
             "optimizer": "mlpack"
         },
         "optimizer-params":{
-            "optimizer": "adagrad",
+            "algorithm": "adagrad",
             "step-size": 0.1,
             "max-iter": 30
         },
         "qaoa-params":{
-            "p": 2
+            "p": 1
         }
     })";
 

@@ -1,14 +1,8 @@
 {
     "graph": "graph_input_example.txt",
-    "outputfile": false,
     "xacc":{
-        "accelerator": "tnqvm",
-        "optimizer": "nlopt"
     },
     "optimizer-params":{
-        "algorithm": "l-bfgs",
-        "ftol": 0.1,
-        "maxeval": 15,
         "maximize": true
     },
     "qaoa-params":{
