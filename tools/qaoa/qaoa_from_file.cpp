@@ -14,11 +14,9 @@
 #include "qaoa_from_file.hpp"
 
 // TODO:
-// 1. Fix the defaults when reading in a paired down config file
-// 2. Set a method for defaulting optimizer when user runs with command line configs
-// 2. Run multiple BFGS loops and return the best answer (with different starting points)
-// 3. Specify how many or submit a list of which graphs you actually want to run
-// 4. Add to optimizer section of JSON: "initialize": random, or eventually
+// 1. Run multiple BFGS loops and return the best answer (with different starting points)
+// 2. Specify how many or submit a list of which graphs you actually want to run
+// 3. Add to optimizer section of JSON: "initialize": random, or eventually
 // Fourier, warm starts, etc.
 
 // Generate random vector 
@@ -109,7 +107,9 @@ xacc::HeterogeneousMap qaoa_from_file::set_optimizer() {
         if (optimizerParams.count(keys[3])) {
             bool val = optimizerParams[keys[3]].get<bool>();
             m_options.insert(keys[3], val);
-        } 
+        } else {
+            m_options.insert("maximize", true);
+        }
     }
     return m_options;
 }
