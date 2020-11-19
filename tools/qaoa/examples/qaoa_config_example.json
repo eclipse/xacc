@@ -6,9 +6,9 @@
         "optimizer": "nlopt"
     },
     "optimizer-params":{
-        "nlopt-optimizer": "l-bfgs",
-        "nlopt-ftol": 0.0001,
-        "nlopt-maxeval": 50,
+        "optimizer": "l-bfgs",
+        "ftol": 0.1,
+        "maxeval": 50,
         "maximize": true
     },
     "qaoa-params":{

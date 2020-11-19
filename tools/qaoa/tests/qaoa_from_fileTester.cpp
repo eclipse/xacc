@@ -44,9 +44,9 @@ TEST(qaoa_from_file_tester, checkSimple) {
             "optimizer": "mlpack"
         },
         "optimizer-params":{
-            "mlpack-optimizer": "adagrad",
-            "mlpack-step-size": 0.1,
-            "mlpack-max-iter": 30
+            "optimizer": "adagrad",
+            "step-size": 0.1,
+            "max-iter": 30
         },
         "qaoa-params":{
             "p": 2

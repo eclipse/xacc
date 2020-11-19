@@ -123,21 +123,27 @@ void qaoa_from_file::execute() {
         // TODO: Add to optimizer section of JSON: "initialize": random, or eventually
         // Fourier, warm starts, etc.
         m_options.insert("initial-parameters", random_vector(-2., 2., 2*m_steps));
-        keys = {"nlopt-ftol", "nlopt-maxeval", "nlopt-optimizer", "maximize"};
+        keys = {"ftol", "maxeval", "optimizer", "maximize"};
     } else {
         std::cout << "Using minimization from " << m_opt_name << ". Adjust output results accordingly.\n";
-        keys = {"mlpack-step-size", "mlpack-max-iter", "mlpack-optimizer"};
+        keys = {"step-size", "max-iter", "optimizer"};
     }
 
     if (optimizerParams.count(keys[0])) {
+        std::stringstream key;
+        key << m_opt_name << "-" << keys[0];
         float val = optimizerParams[keys[0]].get<float>();
         m_options.insert(keys[0], val);
     }
     if (optimizerParams.count(keys[1])) {
+        std::stringstream key;
+        key << m_opt_name << "-" << keys[1];
         int val = optimizerParams[keys[1]].get<int>();
         m_options.insert(keys[1], val);
     }
     if (optimizerParams.count(keys[2])) {
+        std::stringstream key;
+        key << m_opt_name << "-" << keys[2];
         std::string val = optimizerParams[keys[2]].get<std::string>();
         m_options.insert(keys[2], val);
     }
@@ -181,7 +187,7 @@ void qaoa_from_file::execute() {
     // Compute and return the State Vector
     auto state_vector_calc = 
         xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
-    auto qaoa_statevector =  xacc::getAlgorithm("QAOA", {{"accelerator", state_vector_calc},
+    auto qaoa_statevector = xacc::getAlgorithm("QAOA", {{"accelerator", state_vector_calc},
                                                         {"observable", obs},
                                                         {"optimizer", optimizer},
                                                         {"steps", m_steps},
@@ -212,7 +218,6 @@ void qaoa_from_file::execute() {
         } else {
             dirName << m_config_file << get_timestamp();
         }
-        // Create directory with read/write/search permissions
         mkdir(dirName.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH);
 
         // Writing expectation value and optimal parameters to file
@@ -225,6 +230,9 @@ void qaoa_from_file::execute() {
             file << param << "   ";
         }
 
+        // Writing state vector to file in format:
+        // Line 1: real components
+        // Line 2: imaginary components
         std::stringstream sv;
         sv << dirName.str() << "/statevector.txt";
         std::ofstream statefile(sv.str());
