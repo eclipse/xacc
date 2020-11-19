@@ -45,6 +45,7 @@ class qaoa_from_file {
 
         void read_json();
         void read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H);
+        xacc::HeterogeneousMap set_optimizer();
 
     public:
         qaoa_from_file(json& c) : configs(c) {

@@ -63,58 +63,8 @@ void qaoa_from_file::read_json() {
     m_steps = configs["qaoa-params"].count("p") ? configs["qaoa-params"]["p"].get<int>() : 1;
 }
 
-// Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
-void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H) {
-    std::ifstream H_file(graphFile);
-    std::string str((std::istreambuf_iterator<char>(H_file)),
-                            std::istreambuf_iterator<char>());
 
-    int nbOrder = 0;
-    int i = 0;
-    std::vector<std::pair<int,int>> edges;
-    auto lines = xacc::split(str, '\n');
-    for (auto line : lines) {
-        if (line.find("Graph") != std::string::npos) {
-            auto elements = xacc::split(line, ' ');
-            auto order_str = elements.back();
-            nbOrder = std::stoi(order_str.substr(0,order_str.length()-1));
-        } else {
-            if (nbOrder == 0) {
-                xacc::error("Invalid graph file syntax.");
-            }
-            int j_counter = i+1;
-            for(int j = 0; j < line.length(); j++){
-                if (line[j] == '1') {
-                    // Outputting edge pairs to terminal for verification:
-                    std::cout << "Edge at: " << i << ", " << j_counter << "\n";
-                    edges.push_back(std::make_pair(i,j_counter));
-                }
-                j_counter++;
-            }
-            i++;
-        }
-    }
-    for (auto [vi, vj] : edges) {
-        H += 0.5 * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{vi, "Z"}, {vj, "Z"}}));
-    }
-}
-        
-
-void qaoa_from_file::execute() {
-    if (m_in_config == true){
-        read_json();
-    }
-
-    // Define the graph from H_file
-    xacc::quantum::PauliOperator H;
-    read_hamiltonian(m_graph_file, H);
-    std::cout << H.toString() << "\n";
-    xacc::Observable* obs = &H;
-
-    // Target the user-specified backend
-    auto acc = xacc::getAccelerator(m_acc_name);
-
-    // Temporarily reading in "NAME-OPTION" instead of creating them agnostically
+xacc::HeterogeneousMap qaoa_from_file::set_optimizer() {
     auto optimizerParams = configs["optimizer-params"];
     xacc::HeterogeneousMap m_options;
     std::vector<std::string> keys;
@@ -161,11 +111,67 @@ void qaoa_from_file::execute() {
             m_options.insert(keys[3], val);
         } 
     }
+    return m_options;
+}
+
+
+// Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
+void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H) {
+    std::ifstream H_file(graphFile);
+    std::string str((std::istreambuf_iterator<char>(H_file)),
+                            std::istreambuf_iterator<char>());
+
+    int nbOrder = 0;
+    int i = 0;
+    std::vector<std::pair<int,int>> edges;
+    auto lines = xacc::split(str, '\n');
+    for (auto line : lines) {
+        if (line.find("Graph") != std::string::npos) {
+            auto elements = xacc::split(line, ' ');
+            auto order_str = elements.back();
+            nbOrder = std::stoi(order_str.substr(0,order_str.length()-1));
+        } else {
+            if (nbOrder == 0) {
+                xacc::error("Invalid graph file syntax.");
+            }
+            int j_counter = i+1;
+            for(int j = 0; j < line.length(); j++){
+                if (line[j] == '1') {
+                    // Outputting edge pairs to terminal for verification:
+                    std::cout << "Edge at: " << i << ", " << j_counter << "\n";
+                    edges.push_back(std::make_pair(i,j_counter));
+                }
+                j_counter++;
+            }
+            i++;
+        }
+    }
+    for (auto [vi, vj] : edges) {
+        H += 0.5 * (xacc::quantum::PauliOperator(1.) - xacc::quantum::PauliOperator({{vi, "Z"}, {vj, "Z"}}));
+    }
+}
+
+
+void qaoa_from_file::execute() {
+    if (m_in_config == true){
+        read_json();
+    }
+
+    // Define the graph from H_file
+    xacc::quantum::PauliOperator H;
+    read_hamiltonian(m_graph_file, H);
+    std::cout << H.toString() << "\n";
+    xacc::Observable* obs = &H;
+
+    // Target the user-specified backend
+    auto acc = xacc::getAccelerator(m_acc_name);
     
     // Define the gradient
     auto gradient = xacc::getService<xacc::AlgorithmGradientStrategy>("central");
     gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
 
+    // Configuring the optimizer parameters and calling optimizer
+    xacc::HeterogeneousMap m_options = set_optimizer();
     auto optimizer = xacc::getOptimizer(m_opt_name, m_options);
 
     // turn on verbose output
@@ -215,7 +221,6 @@ void qaoa_from_file::execute() {
 
     // Flag to return output files or not
     if (m_out_file == true){
-
         // Create a directory based on input config file name and 
         // the current date (YYYY-MM-DD.HH.SS) to hold output files
         std::stringstream dirName;
