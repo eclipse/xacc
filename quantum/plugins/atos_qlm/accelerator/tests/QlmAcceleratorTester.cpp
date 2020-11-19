@@ -73,21 +73,24 @@ TEST(QlmAcceleratorTester, testParametricGate) {
   auto accelerator = xacc::getAccelerator("atos-qlm");
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
-                      ->compile(R"(__qpu__ void rotation(qbit q, double theta) {
+                     ->compile(R"(__qpu__ void rotation(qbit q, double theta) {
       Rx(q[0], theta);
       Measure(q[0]);
     })",
-                                accelerator)
-                      ->getComposites()[0];
+                               accelerator)
+                     ->getComposites()[0];
 
-  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
   for (size_t i = 0; i < angles.size(); ++i) {
     auto buffer = xacc::qalloc(1);
     auto evaled = program->operator()({angles[i]});
     accelerator->execute(buffer, evaled);
-    const double expectedResult = 1.0 - 2.0 * std::sin(angles[i]/2.0) * std::sin(angles[i]/2.0);
+    const double expectedResult =
+        1.0 - 2.0 * std::sin(angles[i] / 2.0) * std::sin(angles[i] / 2.0);
     std::cout << "Angle = " << angles[i]
-              << "; result = " << buffer->getExpectationValueZ() << " vs expected = " << expectedResult << "\n";
+              << "; result = " << buffer->getExpectationValueZ()
+              << " vs expected = " << expectedResult << "\n";
     EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 1e-6);
   }
 }
@@ -95,25 +98,29 @@ TEST(QlmAcceleratorTester, testParametricGate) {
 TEST(QlmAcceleratorTester, testControlGate) {
   auto accelerator = xacc::getAccelerator("atos-qlm");
   auto xasmCompiler = xacc::getCompiler("xasm");
-  auto program = xasmCompiler
-                      ->compile(R"(__qpu__ void rotationControl(qbit q, double theta) {
+  auto program =
+      xasmCompiler
+          ->compile(R"(__qpu__ void rotationControl(qbit q, double theta) {
       X(q[0]);
       H(q[1]);
       CRZ(q[0], q[1], theta);
       H(q[1]);
       Measure(q[1]);
     })",
-                                accelerator)
-                      ->getComposites()[0];
+                    accelerator)
+          ->getComposites()[0];
 
-  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
   for (size_t i = 0; i < angles.size(); ++i) {
     auto buffer = xacc::qalloc(2);
     auto evaled = program->operator()({angles[i]});
     accelerator->execute(buffer, evaled);
-    const double expectedResult = 1.0 - 2.0 * std::sin(angles[i]/2.0) * std::sin(angles[i]/2.0);
+    const double expectedResult =
+        1.0 - 2.0 * std::sin(angles[i] / 2.0) * std::sin(angles[i] / 2.0);
     std::cout << "Angle = " << angles[i]
-              << "; result = " << buffer->getExpectationValueZ() << " vs expected = " << expectedResult << "\n";
+              << "; result = " << buffer->getExpectationValueZ()
+              << " vs expected = " << expectedResult << "\n";
     EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 1e-6);
   }
 }
@@ -122,22 +129,26 @@ TEST(QlmAcceleratorTester, testU3Gate) {
   // Test U3(theta,−pi/2, pi/2) = RX(theta)
   auto accelerator = xacc::getAccelerator("atos-qlm");
   auto xasmCompiler = xacc::getCompiler("xasm");
-  auto program = xasmCompiler
-                      ->compile(R"(__qpu__ void rotationU3(qbit q, double theta) {
+  auto program =
+      xasmCompiler
+          ->compile(R"(__qpu__ void rotationU3(qbit q, double theta) {
       U(q[0], theta, -pi/2, pi/2);
       Measure(q[0]);
     })",
-                                accelerator)
-                      ->getComposites()[0];
+                    accelerator)
+          ->getComposites()[0];
 
-  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
   for (size_t i = 0; i < angles.size(); ++i) {
     auto buffer = xacc::qalloc(1);
     auto evaled = program->operator()({angles[i]});
     accelerator->execute(buffer, evaled);
-    const double expectedResult = 1.0 - 2.0 * std::sin(angles[i]/2.0) * std::sin(angles[i]/2.0);
+    const double expectedResult =
+        1.0 - 2.0 * std::sin(angles[i] / 2.0) * std::sin(angles[i] / 2.0);
     std::cout << "Angle = " << angles[i]
-              << "; result = " << buffer->getExpectationValueZ() << " vs expected = " << expectedResult << "\n";
+              << "; result = " << buffer->getExpectationValueZ()
+              << " vs expected = " << expectedResult << "\n";
     EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 1e-6);
   }
 }
@@ -169,7 +180,8 @@ TEST(QlmAcceleratorTester, testFsim) {
     // buffer->print();
     // fSim mixes 01 and 10 states w.r.t. the theta angle.
     EXPECT_NEAR(buffer->computeMeasurementProbability("01"), expectedProb, 0.1);
-    EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb, 0.1);
+    EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 1.0 - expectedProb,
+                0.1);
   }
 }
 

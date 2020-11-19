@@ -23,7 +23,7 @@ public:
   void visit(Hadamard &h) override;
   void visit(CNOT &cnot) override;
   void visit(Rz &rz) override;
-  void visit(Ry &ry) override; 
+  void visit(Ry &ry) override;
   void visit(Rx &rx) override;
   void visit(X &x) override;
   void visit(Y &y) override;
@@ -44,8 +44,9 @@ public:
   void visit(fSim &in_fsimGate) override;
   void visit(IfStmt &ifStmt) override {}
   void visit(Measure &measure) override;
-  pybind11::object& getProgram() { return m_aqasmProgram; }
-private: 
+  pybind11::object &getProgram() { return m_aqasmProgram; }
+
+private:
   pybind11::object createProgram();
   size_t m_nbQubit;
   pybind11::module m_aqasm;
@@ -78,10 +79,14 @@ public:
                        const std::vector<std::shared_ptr<CompositeInstruction>>
                            compositeInstructions) override;
   virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer,
-                     std::shared_ptr<Instruction> inst) override {};
+                     std::shared_ptr<Instruction> inst) override{};
+
 private:
-  pybind11::object constructQlmJob(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<CompositeInstruction> compositeInstruction) const;
-  void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer, pybind11::object& result) const;
+  pybind11::object constructQlmJob(
+      std::shared_ptr<AcceleratorBuffer> buffer,
+      std::shared_ptr<CompositeInstruction> compositeInstruction) const;
+  void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer,
+                             pybind11::object &result) const;
 
 private:
   int m_shots;
