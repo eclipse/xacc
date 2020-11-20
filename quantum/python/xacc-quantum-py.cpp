@@ -76,6 +76,15 @@ void bind_quantum(py::module &m) {
       .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
       .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
       .def("getNonIdentitySubTerms", &PauliOperator::getNonIdentitySubTerms)
+      .def("to_numpy", [](PauliOperator& op) {
+           auto mat_el = op.to_sparse_matrix();
+           auto size = std::pow(2, op.nBits());
+           Eigen::MatrixXcd mat = Eigen::MatrixXcd::Zero(size, size);
+           for (auto el : mat_el) {
+                mat(el.row(), el.col()) = el.coeff();
+           }
+           return mat;
+      })
       .def(
           "__iter__",
           [](PauliOperator &op) {
