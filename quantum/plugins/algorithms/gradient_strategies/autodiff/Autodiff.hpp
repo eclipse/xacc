@@ -25,6 +25,12 @@ public:
   derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
              const std::vector<double> &x,
              double *optional_out_fn_val = nullptr);
+  
+  // Static helper to evaluate the derivatives and optionally the function value.
+  static std::vector<double>
+  computeDerivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+                    const MatrixXcdual &obsMat, const std::vector<double> &x,
+                    size_t nbQubits, double *optional_out_fn_val = nullptr);
 
   // AlgorithmGradientStrategy implementation:
   virtual bool isNumerical() const override { return true; }
@@ -43,19 +49,17 @@ public:
   }
   virtual void
   compute(std::vector<double> &dx,
-          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override {
-    // The list must be empty, i.e. no evaluation.
-    assert(results.empty());
-    dx = derivative(m_varKernel, m_currentParams);
-    m_varKernel.reset();
-    m_currentParams.clear();
-  }
+          std::vector<std::shared_ptr<AcceleratorBuffer>> results) override;
 
 private:
   MatrixXcdual m_obsMat;
   size_t m_nbQubits;
   std::shared_ptr<CompositeInstruction> m_varKernel;
   std::vector<double> m_currentParams;
+  // Support for QCOR kernel evaluator
+  std::function<std::shared_ptr<CompositeInstruction>(std::vector<double>)> kernel_evaluator;
+  // Step size if using kernel_evaluator (black-box Composite)
+  double m_stepSize = 1e-5;
 };
 } // namespace quantum
 } // namespace xacc
