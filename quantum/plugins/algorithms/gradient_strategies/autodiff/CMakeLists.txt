@@ -12,6 +12,12 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME} PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/autodiff ${CMAKE_SOURCE_DIR}/tpls/eigen)
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate)
 
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC WITH_OPENMP_)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 set(_bundle_name xacc_autodiff_gradient)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES
