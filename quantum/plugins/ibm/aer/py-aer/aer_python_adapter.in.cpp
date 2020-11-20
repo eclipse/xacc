@@ -1,13 +1,10 @@
 #include "aer_python_adapter.hpp"
 #include <iostream>
 #include <numeric>
-
-#ifdef XACC_QISKIT_FOUND
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 #include <dlfcn.h>
 #include "xacc_config.hpp"
-#endif
 
 namespace xacc {
 namespace aer {
@@ -15,7 +12,6 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
                         const std::vector<double> &freqEst,
                         const std::vector<int> &uChanLoRefs,
                         const std::string &qObjJson) {
-#ifdef XACC_QISKIT_FOUND
   static bool PythonInit = false;
   if (!PythonInit) {
     if (!XACC_IS_APPLE) {
@@ -86,6 +82,16 @@ for hex_val in hex_to_count:
     hex_to_count[hex_val] = int(hex_to_count[hex_val])
 count_json = json.dumps(hex_to_count)
 )#";
+  // Check if Qiskit present.
+  try {
+    pybind11::module::import("qiskit");
+  } catch (std::exception &e) {
+    std::cerr << e.what() << '\n';
+    std::cerr << "Qiskit is not installed. Please install Qiskit to use the "
+                 "Aer Pulse simulator.\n";
+    throw;
+  }
+
   // Set variables:
   auto locals = pybind11::dict();
   locals["ham_json"] = hamJsonStr;
@@ -101,12 +107,6 @@ count_json = json.dumps(hex_to_count)
   pybind11::exec(py_src, pybind11::globals(), locals);
   const auto result = locals["count_json"].cast<std::string>();
   return result;
-#else
-  throw std::runtime_error(
-      "Qiskit was not installed. Please install Qiskit and recompile XACC to "
-      "use the Aer Pulse Simulator plugin.");
-  return "";
-#endif
 }
 } // namespace aer
 } // namespace xacc
