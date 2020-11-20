@@ -11,15 +11,15 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 if(Python_FOUND)
     message(STATUS "${BoldGreen}Found Python version ${Python_VERSION}.${ColorReset}")
-   # Check if we have Qiskit installed
-   execute_process(COMMAND ${Python_EXECUTABLE} -c "import qiskit; print('Qiskit: ', qiskit.__version__)" RESULT_VARIABLE QISKIT_EXISTS)
-   if (QISKIT_EXISTS EQUAL "1")
-      message(STATUS "${BoldYellow}Qiskit not found. Aer Pulse Simulator is disabled.${ColorReset}")
-    else()
-        message(STATUS "${BoldGreen}Found Qiskit.${ColorReset}")
-        target_include_directories(${LIBRARY_NAME} PUBLIC . ${Python_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/pybind11/include ${CMAKE_BINARY_DIR})
-        target_link_libraries(${LIBRARY_NAME} PRIVATE Python::Python)
-        target_compile_definitions(${LIBRARY_NAME} PUBLIC XACC_QISKIT_FOUND)
+    # Always install the Aer Pulse Python Adapter when having Python.
+    # Users may need to do `pip install qiskit` if they don't have Qiskit yet.
+    target_include_directories(${LIBRARY_NAME} PUBLIC . ${Python_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/pybind11/include ${CMAKE_BINARY_DIR})
+    target_link_libraries(${LIBRARY_NAME} PRIVATE Python::Python)
+   
+    # Check if we have Qiskit installed 
+    execute_process(COMMAND ${Python_EXECUTABLE} -c "import qiskit; print('Qiskit: ', qiskit.__version__)" RESULT_VARIABLE QISKIT_EXISTS)
+    if (QISKIT_EXISTS EQUAL "1")
+      message(STATUS "${BoldYellow}Qiskit not found. To use the Aer Pulse Simulator, please install Qiskit.${ColorReset}")
     endif()
 else()
     message(STATUS "${BoldYellow}Python interpreter or development headers not found. Aer Pulse Simulator is disabled.${ColorReset}")
