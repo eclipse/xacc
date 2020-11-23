@@ -158,7 +158,7 @@ void error(const std::string &msg, MessagePredicate predicate) {
 qbit qalloc(const int n) {
   qbit q(n);
   std::stringstream ss;
-  ss << "qreg_"<<q;
+  ss << "qreg_" << q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
@@ -166,7 +166,7 @@ qbit qalloc(const int n) {
 qbit qalloc() {
   qbit q;
   std::stringstream ss;
-  ss << "qreg_"<<q;
+  ss << "qreg_" << q;
   q->setName(ss.str());
   allocated_buffers.insert({ss.str(), q});
   return q;
@@ -187,12 +187,12 @@ void storeBuffer(const std::string name,
   if (allocated_buffers.count(name)) {
     error("Invalid buffer name to store: " + name);
   }
-  // if this buffer is in here already before we 
+  // if this buffer is in here already before we
   // set its new name, we should remove it from the allocation
   if (allocated_buffers.count(buffer->name())) {
-      allocated_buffers.erase(buffer->name());
+    allocated_buffers.erase(buffer->name());
   }
-  
+
   buffer->setName(name);
   allocated_buffers.insert({name, buffer});
 }
@@ -730,6 +730,18 @@ void qasm(const std::string &qasmString) {
 
   for (auto &k : ir->getComposites())
     appendCompiled(k, true);
+}
+
+std::shared_ptr<CompositeInstruction>
+createComposite(const std::string &name, HeterogeneousMap &&options) {
+  auto comp = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
+      xacc::getService<xacc::Instruction>(name));
+  const bool success = comp->expand(options);
+  if (!success) {
+    xacc::error("Error in creating " + name +
+                " composite instruction. Perhaps invalid parameter set.");
+  }
+  return comp;
 }
 namespace ir {
 std::shared_ptr<CompositeInstruction>

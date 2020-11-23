@@ -232,6 +232,10 @@ namespace quantum {
                 xacc::info("Enable VQE Mode.");
             }
         }
+
+        if (params.keyExists<std::vector<std::pair<int,int>>>("connectivity")) {
+            m_connectivity = params.get<std::vector<std::pair<int,int>>>("connectivity");
+        }
     }
 
     void QppAccelerator::execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction)

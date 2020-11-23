@@ -45,3 +45,6 @@ target_compile_definitions(phase_estimation_qasm PRIVATE QASM_SOURCE_DIR="${CMAK
 
 add_executable(qaoa_maxcut_qpp qaoa_maxcut_qpp.cpp)
 target_link_libraries(qaoa_maxcut_qpp PRIVATE xacc xacc-quantum-gate)
+
+add_executable(qaoa_placement qaoa_placement.cpp)
+target_link_libraries(qaoa_placement PRIVATE xacc xacc-quantum-gate)
