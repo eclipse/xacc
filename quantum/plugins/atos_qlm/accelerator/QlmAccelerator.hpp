@@ -16,6 +16,8 @@
 #include <pybind11/embed.h>
 
 namespace xacc {
+class NoiseModel;
+
 namespace quantum {
 class QlmCircuitVisitor : public AllGateVisitor {
 public:
@@ -91,6 +93,7 @@ private:
 private:
   int m_shots;
   pybind11::object m_qlmQpuServer;
+  std::shared_ptr<NoiseModel> m_noiseModel;
 };
 } // namespace quantum
 } // namespace xacc
