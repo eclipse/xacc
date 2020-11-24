@@ -14,7 +14,7 @@
 #define XACC_XACC_INTERNAL_COMPILER_HPP_
 
 #include <vector>
-#include <memory> 
+#include <memory>
 
 namespace xacc {
 class CompositeInstruction;
@@ -28,7 +28,8 @@ extern bool __execute;
 
 enum OptLevel { DEFAULT, LEVEL1, LEVEL2, LEVEL3 };
 
-void compiler_InitializeXACC(const char *qpu_backend = "qpp");
+void compiler_InitializeXACC(const char *qpu_backend = "qpp",
+                             const std::vector<std::string> cmd_line_args = {});
 void compiler_InitializeXACC(const char *qpu_backend, int shots);
 
 void setAccelerator(const char *qpu_backend);
@@ -40,21 +41,25 @@ void __set_verbose(bool verbose);
 // Map kernel source string representing a single
 // kernel function to a single CompositeInstruction (src to IR)
 std::shared_ptr<CompositeInstruction> compile(const char *compiler_name,
-                              const char *kernel_src);
+                                              const char *kernel_src);
 
 std::shared_ptr<CompositeInstruction> getLastCompiled();
 std::shared_ptr<CompositeInstruction> getCompiled(const char *kernel_name);
 
 // Run quantum compilation routines on IR
-void optimize(std::shared_ptr<CompositeInstruction> program, const OptLevel opt = DEFAULT);
+void optimize(std::shared_ptr<CompositeInstruction> program,
+              const OptLevel opt = DEFAULT);
 
 // Execute on the specified QPU, persisting results to
 // the provided buffer.
-void execute(AcceleratorBuffer *buffer, std::vector<std::shared_ptr<CompositeInstruction>> programs);
-void execute(AcceleratorBuffer *buffer, std::shared_ptr<CompositeInstruction> program,
+void execute(AcceleratorBuffer *buffer,
+             std::vector<std::shared_ptr<CompositeInstruction>> programs);
+void execute(AcceleratorBuffer *buffer,
+             std::shared_ptr<CompositeInstruction> program,
              double *parameters = nullptr);
 void execute(AcceleratorBuffer **buffers, const int nBuffers,
-             std::shared_ptr<CompositeInstruction> program, double *parameters = nullptr);
+             std::shared_ptr<CompositeInstruction> program,
+             double *parameters = nullptr);
 } // namespace internal_compiler
 } // namespace xacc
 
