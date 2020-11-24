@@ -321,11 +321,129 @@ double QITE::calcCurrentEnergy(int in_nbQubits) const
   return energy;
 }
 
+double QITE::calculate(const std::string &calculation_task,
+                       const std::shared_ptr<AcceleratorBuffer> buffer,
+                       const HeterogeneousMap &extra_data) {
+  // Calculate A-ops
+  if (calculation_task == "approximate-ops") {
+    if (!extra_data.keyExists<std::vector<std::string>>("pauli-ops") ||
+        !extra_data.keyExists<std::vector<double>>("pauli-ops-exp-val")) {
+      xacc::error("[QITE::calculate] Cannot calculate approximate-ops without "
+                  "'pauli-ops' and 'pauli-ops-exp-val' vectors.");
+    }
+
+    const auto pauliOps = extra_data.get<std::vector<std::string>>("pauli-ops");
+    const auto sigmaExpectation =
+        extra_data.get<std::vector<double>>("pauli-ops-exp-val");
+    if (pauliOps.size() != sigmaExpectation.size()) {
+      xacc::error("[QITE::calculate]: 'pauli-ops' and 'pauli-ops-exp-val' "
+                  "vectors must have the same length.");
+    }
+
+    auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
+    for (const auto &hamTerm : m_observable->getNonIdentitySubTerms()) {
+      *hamOp =
+          *hamOp +
+          *(std::dynamic_pointer_cast<xacc::quantum::PauliOperator>(hamTerm));
+    }
+    auto [normVal, nextAOps] =
+        internalCalcAOps(pauliOps, sigmaExpectation, hamOp);
+    buffer->addExtraInfo("Aops-str", nextAOps->toString());
+    return normVal;
+  }
+  return 0.0;
+}
+
+std::pair<double, std::shared_ptr<Observable>>
+QITE::internalCalcAOps(const std::vector<std::string> &pauliOps,
+                       const std::vector<double> &sigmaExpectation,
+                       std::shared_ptr<Observable> in_hmTerm) const {
+  // Calculate S matrix and b vector
+  // i.e. set up the linear equation Sa = b
+  const auto sMatDim = pauliOps.size();
+  arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
+  arma::cx_vec b_Vec(sMatDim, arma::fill::zeros);
+
+  const auto calcSmatEntry = [&](const std::vector<double> &in_tomoExp,
+                                 int in_row,
+                                 int in_col) -> std::complex<double> {
+    // Map the tomography expectation to the S matrix
+    // S(i, j) = <psi|sigma_dagger(i)sigma(j)|psi>
+    // sigma_dagger(i)sigma(j) will produce another Pauli operator with an
+    // additional coefficient. e.g. sigma_x * sigma_y = i*sigma_z
+    const auto leftOp = "1.0 " + pauliOps[in_row];
+    const auto rightOp = "1.0 " + pauliOps[in_col];
+    xacc::quantum::PauliOperator left(leftOp);
+    xacc::quantum::PauliOperator right(rightOp);
+    auto product = left * right;
+    const auto index = findMatchingPauliIndex(pauliOps, product.toString());
+    return in_tomoExp[index] * product.coefficient();
+  };
+
+  // S matrix:
+  for (int i = 0; i < sMatDim; ++i) {
+    for (int j = 0; j < sMatDim; ++j) {
+      const auto entry = calcSmatEntry(sigmaExpectation, i, j);
+      S_Mat(i, j) = std::abs(entry) > 1e-12 ? entry : 0.0;
+    }
+  }
+
+  // b vector:
+  const auto obsProjCoeffs = observableToVec(in_hmTerm, pauliOps);
+
+  // Calculate c: Eq. 3 in https://arxiv.org/pdf/1901.07653.pdf
+  double c = 1.0;
+  for (int i = 0; i < obsProjCoeffs.size(); ++i) {
+    c -= 2.0 * m_dBeta * obsProjCoeffs[i] * sigmaExpectation[i];
+  }
+
+  for (int i = 0; i < sMatDim; ++i) {
+    std::complex<double> b =
+        (sigmaExpectation[i] / std::sqrt(c) - sigmaExpectation[i]) / m_dBeta;
+    for (int j = 0; j < obsProjCoeffs.size(); ++j) {
+      // The expectation of the pauli product of the Hamiltonian term
+      // and the sweeping pauli term.
+      const auto expectVal = calcSmatEntry(sigmaExpectation, i, j);
+      b -= obsProjCoeffs[j] * expectVal / std::sqrt(c);
+    }
+    b = I * b - I * std::conj(b);
+    // Set b_Vec
+    b_Vec(i) = std::abs(b) > 1e-12 ? b : 0.0;
+  }
+
+  auto lhs = S_Mat + S_Mat.st();
+  auto rhs = -b_Vec;
+  arma::cx_vec a_Vec = arma::solve(lhs, rhs);
+
+  // Now, we have the decomposition of A observable in the basis of
+  // all possible Pauli combinations.
+  assert(a_Vec.n_elem == pauliOps.size());
+  const std::string aObsStr = [&]() {
+    std::stringstream s;
+    s.precision(12);
+    s << std::fixed << a_Vec(0);
+
+    for (int i = 1; i < pauliOps.size(); ++i) {
+      s << " + " << (-2.0 * a_Vec(i)) << " " << pauliOps[i];
+    }
+
+    return s.str();
+  }();
+
+  // Compute the approximate A observable/Hamiltonian.
+  // This operator will drive the exp_i_theta evolution
+  // which emulate the imaginary time evolution of the original observable.
+  std::shared_ptr<Observable> updatedAham =
+      std::make_shared<xacc::quantum::PauliOperator>();
+  updatedAham->fromString(aObsStr);
+  return std::make_pair(std::sqrt(c), updatedAham);
+}
+
 std::pair<double, std::shared_ptr<Observable>> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
 {
   const auto pauliOps = generatePauliPermutation(in_buffer->size());
 
-  // Step 1: Observe the kernels using the various Pauli
+  // Observe the kernels using the various Pauli
   // operators to calculate S and b.
   std::vector<double> sigmaExpectation(pauliOps.size());
   sigmaExpectation[0] = 1.0;
@@ -342,88 +460,7 @@ std::pair<double, std::shared_ptr<Observable>> QITE::calcAOps(const std::shared_
     const auto expval = tmpBuffer->getExpectationValueZ();
     sigmaExpectation[i] = expval;
   }
-
-  // Step 2: Calculate S matrix and b vector
-  // i.e. set up the linear equation Sa = b
-  const auto sMatDim = pauliOps.size();
-  arma::cx_mat S_Mat(sMatDim, sMatDim, arma::fill::zeros);
-  arma::cx_vec b_Vec(sMatDim, arma::fill::zeros); 
-  
-  const auto calcSmatEntry = [&](const std::vector<double>& in_tomoExp, int in_row, int in_col) -> std::complex<double> {
-    // Map the tomography expectation to the S matrix
-    // S(i, j) = <psi|sigma_dagger(i)sigma(j)|psi>
-    // sigma_dagger(i)sigma(j) will produce another Pauli operator with an additional coefficient.
-    // e.g. sigma_x * sigma_y = i*sigma_z
-    const auto leftOp = "1.0 " + pauliOps[in_row];
-    const auto rightOp = "1.0 " + pauliOps[in_col];
-    xacc::quantum::PauliOperator left(leftOp);
-    xacc::quantum::PauliOperator right(rightOp);
-    auto product = left * right;
-    const auto index = findMatchingPauliIndex(pauliOps, product.toString());
-    return in_tomoExp[index]*product.coefficient();
-  };
-
-  // S matrix:
-  for (int i = 0; i < sMatDim; ++i)
-  {
-    for (int j = 0; j < sMatDim; ++j)
-    {
-      const auto entry = calcSmatEntry(sigmaExpectation, i, j);
-      S_Mat(i, j) = std::abs(entry) > 1e-12 ? entry : 0.0;
-    }
-  }
-
-  // b vector:
-  const auto obsProjCoeffs = observableToVec(in_hmTerm, pauliOps);
-
-  // Calculate c: Eq. 3 in https://arxiv.org/pdf/1901.07653.pdf
-  double c = 1.0;
-  for (int i = 0; i < obsProjCoeffs.size(); ++i)
-  {
-    c -= 2.0 * m_dBeta * obsProjCoeffs[i] * sigmaExpectation[i];
-  }
-  
-  for (int i = 0; i < sMatDim; ++i)
-  {
-    std::complex<double> b = (sigmaExpectation[i]/ std::sqrt(c) - sigmaExpectation[i])/ m_dBeta;
-    for (int j = 0; j < obsProjCoeffs.size(); ++j)
-    {
-      // The expectation of the pauli product of the Hamiltonian term
-      // and the sweeping pauli term.
-      const auto expectVal = calcSmatEntry(sigmaExpectation, i, j);
-      b -= obsProjCoeffs[j] * expectVal / std::sqrt(c);
-    }
-    b = I*b - I*std::conj(b);
-    // Set b_Vec
-    b_Vec(i) = std::abs(b) > 1e-12 ? b : 0.0;
-  }
-  
-  auto lhs = S_Mat + S_Mat.st();
-  auto rhs = -b_Vec;
-  arma::cx_vec a_Vec = arma::solve(lhs, rhs);
-
-  // Now, we have the decomposition of A observable in the basis of
-  // all possible Pauli combinations.
-  assert(a_Vec.n_elem == pauliOps.size());
-  const std::string aObsStr = [&](){
-    std::stringstream s;
-    s.precision(12);
-    s << std::fixed << a_Vec(0);
-    
-    for (int i = 1; i < pauliOps.size(); ++i)
-    {
-      s << " + " << (-2.0 * a_Vec(i)) << " " << pauliOps[i];
-    }
-
-    return s.str();
-  }(); 
-
-  // Step 3: compute the approximate A observable/Hamiltonian.
-  // This operator will drive the exp_i_theta evolution
-  // which emulate the imaginary time evolution of the original observable.
-  std::shared_ptr<Observable> updatedAham = std::make_shared<xacc::quantum::PauliOperator>();
-  updatedAham->fromString(aObsStr);
-  return std::make_pair(std::sqrt(c), updatedAham); 
+  return internalCalcAOps(pauliOps, sigmaExpectation, in_hmTerm);
 }
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
