@@ -10,21 +10,16 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-set(LIBRARY_NAME xacc-circuits)
+set(LIBRARY_NAME xacc-py-qsearch)
 
-file(GLOB SRC hwe/hwe.cpp
-              range/range.cpp
-              exp/exp.cpp
-              qft/QFT.cpp
-              qft/InverseQFT.cpp
-              uccsd/uccsd.cpp
-              ucc1/ucc1.cpp
-              ucc3/ucc3.cpp
-              aswap/aswap.cpp
-              qfast/qfast.cpp
-              kak/kak.cpp
-              GeneratorsActivator.cpp)
+find_package(Python COMPONENTS Interpreter Development)
+get_filename_component(PYTHON_LIB_NAME ${Python_LIBRARIES} NAME)
 
+configure_file(py_qsearch.in.cpp
+               ${CMAKE_BINARY_DIR}/quantum/plugins/circuits/py-qsearch/py_qsearch.cpp)
+file(GLOB SRC ${CMAKE_BINARY_DIR}/quantum/plugins/circuits/py-qsearch/py_qsearch.cpp)
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -O2 -g -pipe -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wformat -fexceptions --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=native -D_GNU_SOURCE -fPIC -fwrapv")
 usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT SRC)
 usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 
@@ -32,12 +27,11 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(
   ${LIBRARY_NAME}
-  PUBLIC . range exp hwe qft uccsd ucc1 ucc3 aswap qfast kak
-  ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+  PUBLIC . ${Python_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/pybind11/include)
 
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc PRIVATE xacc-quantum-gate xacc-pauli xacc-fermion)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate Python::Python)
 
-set(_bundle_name xacc_generators)
+set(_bundle_name xacc_py_qsearch)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS
                                  US_BUNDLE_NAME=${_bundle_name}
@@ -60,22 +54,18 @@ if(APPLE)
 else()
   set_target_properties(${LIBRARY_NAME}
                         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib")
-  set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
+  set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-rdynamic -shared")
 endif()
 
-if(XACC_BUILD_TESTS)
-  add_subdirectory(hwe/tests)
-  add_subdirectory(exp/tests)
-  add_subdirectory(range/tests)
-  add_subdirectory(qft/tests)
-  add_subdirectory(uccsd/tests)
-  add_subdirectory(ucc1/tests)
-  add_subdirectory(ucc3/tests)
-  add_subdirectory(aswap/tests)
-  add_subdirectory(qfast/tests)
-  add_subdirectory(kak/tests)
+if(Python_FOUND)
+  execute_process(COMMAND ${Python_EXECUTABLE} -c "import qsearch" RESULT_VARIABLE QSEARCH_EXISTS)
+  if (QSEARCH_EXISTS EQUAL "1")
+    message(STATUS "${BoldYellow}QSearch not found. py-qsearch Synthesis not available until you install it.${ColorReset}")
+  else()
+    if(XACC_BUILD_TESTS)
+      add_subdirectory(tests)
+    endif()
+  endif()
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
-
-add_subdirectory(py-qsearch)
