@@ -418,6 +418,17 @@ std::vector<std::pair<int, int>> QlmAccelerator::getConnectivity() {
 pybind11::object QlmAccelerator::constructQlmJob(
     std::shared_ptr<AcceleratorBuffer> buffer,
     std::shared_ptr<CompositeInstruction> compositeInstruction) const {
+  if (m_noiseModel) {
+    // If having a noise model, use Staq to translate the Composite 
+    // to OpenQASM so that two-qubit gates are translated to CX -> can map to noise data.
+    auto compiler = xacc::getCompiler("staq");
+    auto circuit_src = compiler->translate(compositeInstruction);
+    auto recompile = compiler->compile(circuit_src)->getComposites()[0];
+    // std::cout << "HOWDY: \n" << recompile->toString() << "\n";
+    compositeInstruction->clear();
+    compositeInstruction->addInstructions(recompile->getInstructions());
+  }
+
   QlmCircuitVisitor visitor(buffer->size());
   // Walk the IR tree, and visit each node
   InstructionIterator it(compositeInstruction);

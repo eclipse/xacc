@@ -119,6 +119,26 @@ TEST(QlmNoisyAcceleratorTester, testConnectivity) {
   EXPECT_EQ(connectivity.size(), 6);
 }
 
+TEST(QlmNoisyAcceleratorTester, testNonNativeGate) {
+  auto accelerator = xacc::getAccelerator("atos-qlm:ibmq_casablanca");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void testCh(qbit q) {
+      X(q[0]);
+      CH(q[0], q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                               accelerator)
+                     ->getComposites()[0];
+
+  auto buffer = xacc::qalloc(2);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  EXPECT_NEAR(buffer->computeMeasurementProbability("10"), 0.5, 0.2);
+  EXPECT_NEAR(buffer->computeMeasurementProbability("11"), 0.5, 0.2);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);
