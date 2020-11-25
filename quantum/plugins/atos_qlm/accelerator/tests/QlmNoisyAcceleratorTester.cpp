@@ -27,6 +27,25 @@ TEST(QlmNoisyAcceleratorTester, testBell) {
   EXPECT_NEAR(buffer1->computeMeasurementProbability("11"), 0.5, 0.1);
 }
 
+TEST(QlmNoisyAcceleratorTester, testReadout) {
+  auto accelerator = xacc::getAccelerator("atos-qlm:ibmq_casablanca", {{"shots", 1024}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                      ->compile(R"(__qpu__ void test(qbit q) {
+      X(q[0]);
+      Measure(q[1]);
+      Measure(q[0]);
+    })",
+                                accelerator)
+                      ->getComposites()[0];
+
+  auto buffer = xacc::qalloc(3);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  // Majority is `01`
+  EXPECT_NEAR(buffer->computeMeasurementProbability("01"), 1.0, 0.2);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

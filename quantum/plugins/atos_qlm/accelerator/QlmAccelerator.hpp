@@ -88,7 +88,8 @@ private:
       std::shared_ptr<AcceleratorBuffer> buffer,
       std::shared_ptr<CompositeInstruction> compositeInstruction) const;
   void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer,
-                             pybind11::object &result) const;
+                             pybind11::object &result,
+                             pybind11::object &job) const;
 
 private:
   int m_shots;

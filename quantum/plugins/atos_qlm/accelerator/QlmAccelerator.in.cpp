@@ -20,6 +20,7 @@
 #include "xacc_config.hpp"
 #include "xacc_service.hpp"
 #include "NoiseModel.hpp"
+#include <random>
 
 using namespace pybind11::literals;
 
@@ -402,6 +403,11 @@ pybind11::object QlmAccelerator::constructQlmJob(
   if (m_shots > 0 || measureBitIdxs.empty()) {
     job.attr("nbshots") = m_shots;
     job.attr("type") = getJobType(JobType::Sample);
+    // If there is no measure gate, default is to measure all.
+    // Otherwise, specify the qubits to be measured.
+    if (!measureBitIdxs.empty()) {
+      job.attr("qubits") = measureBitIdxs;
+    }
   } else {
     // Exp-val calc.
     job.attr("observable") = exp_val_z_obs(buffer->size(), measureBitIdxs);
@@ -411,7 +417,46 @@ pybind11::object QlmAccelerator::constructQlmJob(
 }
 
 void QlmAccelerator::persistResultToBuffer(
-    std::shared_ptr<AcceleratorBuffer> buffer, pybind11::object &result) const {
+    std::shared_ptr<AcceleratorBuffer> buffer, pybind11::object &result,
+    pybind11::object &job) const {
+  static auto randomProbFunc =
+      std::bind(std::uniform_real_distribution<double>(0, 1),
+                std::mt19937(std::chrono::high_resolution_clock::now()
+                                 .time_since_epoch()
+                                 .count()));
+  // Apply readout error sampling on the result:
+  // Note: we handle this separately here since it seems like the QLM API
+  // doesn't have a way to specify per-qubit error rate.
+  const auto applyReadoutError = [&](const std::string &bitString, int count,
+                                     const NoiseModel &in_noiseModel) {
+    std::vector<int> measureQubits;
+    try {
+      measureQubits = job.attr("qubits").cast<std::vector<int>>();
+    } catch (...) {
+      measureQubits.clear();
+      for (int i = 0; i < bitString.size(); ++i) {
+        measureQubits.emplace_back(i);
+      }
+    }
+    assert(measureQubits.size() == bitString.size());
+
+    for (int i = 0; i < count; ++i) {
+      std::string newBitString;
+      for (int j = 0; j < measureQubits.size(); ++j) {
+        auto qubitIdx = measureQubits[j];
+        const bool bit = (bitString[j] == '1');
+        const auto roErrorProb = randomProbFunc();
+        const auto [meas0Prep1, meas1Prep0] =
+            in_noiseModel.readoutError(qubitIdx);
+        const double flipProb = bit ? meas0Prep1 : meas1Prep0;
+        const bool measBit = (roErrorProb < flipProb) ? !bit : bit;
+        newBitString.push_back(measBit ? '1' : '0');
+      }
+      assert(newBitString.size() == bitString.size());
+      buffer->appendMeasurement(newBitString);
+    }
+  };
+
   if (result.attr("value").is_none()) {
     auto iter = pybind11::iter(result);
     while (iter != pybind11::iterator::sentinel()) {
@@ -420,7 +465,11 @@ void QlmAccelerator::persistResultToBuffer(
       bitStr = bitStr.substr(1, bitStr.size() - 2);
       auto bitStrProb = sampleData.attr("probability").cast<double>();
       int count = std::round(bitStrProb * m_shots);
-      buffer->appendMeasurement(bitStr, count);
+      if (m_noiseModel) {
+        applyReadoutError(bitStr, count, *m_noiseModel);
+      } else {
+        buffer->appendMeasurement(bitStr, count);
+      }
       ++iter;
     }
   } else {
@@ -434,7 +483,7 @@ void QlmAccelerator::execute(
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
   auto qlmJob = constructQlmJob(buffer, compositeInstruction);
   auto result = m_qlmQpuServer.attr("submit")(qlmJob);
-  persistResultToBuffer(buffer, result);
+  persistResultToBuffer(buffer, result, qlmJob);
 }
 
 void QlmAccelerator::execute(
@@ -456,8 +505,9 @@ void QlmAccelerator::execute(
   int childBufferIndex = 0;
   while (iter != pybind11::iterator::sentinel()) {
     auto result = (*iter).cast<pybind11::object>();
-    persistResultToBuffer(childBuffers[childBufferIndex++], result);
+    persistResultToBuffer(childBuffers[childBufferIndex], result, batch[childBufferIndex]);
     ++iter;
+    ++childBufferIndex;
   }
   assert(childBufferIndex == childBuffers.size());
   for (auto &childBuffer : childBuffers) {
