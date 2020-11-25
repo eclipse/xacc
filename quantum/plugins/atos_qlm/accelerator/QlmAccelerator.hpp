@@ -73,6 +73,9 @@ public:
   virtual const std::vector<std::string> configurationKeys() override {
     return {};
   }
+  
+  virtual std::vector<std::pair<int, int>> getConnectivity() override;
+
   virtual BitOrder getBitOrder() override { return BitOrder::MSB; }
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<CompositeInstruction>

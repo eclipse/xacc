@@ -394,6 +394,27 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
   }
 }
 
+std::vector<std::pair<int, int>> QlmAccelerator::getConnectivity() {
+  if (m_noiseModel) {
+    // There is a hardware model, i.e. IBM backend.
+    // Note: the noise model has noise data for both directions of the pair,
+    // hence, we use set to return non-directional coupling map.
+    std::set<std::pair<int, int>> couplingMap;
+    auto twoQubitPairs = m_noiseModel->averageTwoQubitGateFidelity();
+    for (const auto &[q1, q2, err] : twoQubitPairs) {
+      if (q1 < q2) {
+        couplingMap.emplace(q1, q2);
+      } else {
+        couplingMap.emplace(q2, q1);
+      }
+    }
+    std::vector<std::pair<int, int>> result(couplingMap.begin(),
+                                            couplingMap.end());
+    return result;
+  }
+  return {};
+}
+
 pybind11::object QlmAccelerator::constructQlmJob(
     std::shared_ptr<AcceleratorBuffer> buffer,
     std::shared_ptr<CompositeInstruction> compositeInstruction) const {
