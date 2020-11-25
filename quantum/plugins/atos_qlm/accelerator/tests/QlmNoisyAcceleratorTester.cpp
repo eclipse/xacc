@@ -46,6 +46,33 @@ TEST(QlmNoisyAcceleratorTester, testReadout) {
   EXPECT_NEAR(buffer->computeMeasurementProbability("01"), 1.0, 0.2);
 }
 
+TEST(QlmAcceleratorTester, testParametricGate) {
+  auto accelerator =
+      xacc::getAccelerator("atos-qlm:ibmq_casablanca");
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void rotation(qbit q, double theta) {
+      Rx(q[0], theta);
+      Measure(q[0]);
+    })",
+                               accelerator)
+                     ->getComposites()[0];
+
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(1);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    const double expectedResult =
+        1.0 - 2.0 * std::sin(angles[i] / 2.0) * std::sin(angles[i] / 2.0);
+    std::cout << "Angle = " << angles[i]
+              << "; result = " << buffer->getExpectationValueZ()
+              << " vs expected = " << expectedResult << "\n";
+    EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResult, 0.25);
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

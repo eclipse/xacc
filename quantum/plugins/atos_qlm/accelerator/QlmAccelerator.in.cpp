@@ -357,14 +357,24 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     pybind11::dict gates_noise;
     for (const auto &[aqasmGate, errorRate] : QLM_GATE_ERRORS) {
       // std::cout << aqasmGate << ": " << errorRate << "\n";
-      gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
-          [errorRate, aqasmGate](pybind11::kwargs kwarg) {
-            auto make_depolarizing_channel =
-                pybind11::module::import("qat.quops.quantum_channels")
-                    .attr("make_depolarizing_channel");
-            const int arity = (aqasmGate == "CNOT") ? 2 : 1;
-            return make_depolarizing_channel(errorRate, arity);
-          });
+      if (aqasmGate == "RX" || aqasmGate == "RY" || aqasmGate == "RZ") {
+        gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
+            [errorRate, aqasmGate](double theta, pybind11::kwargs kwarg) {
+              auto make_depolarizing_channel =
+                  pybind11::module::import("qat.quops.quantum_channels")
+                      .attr("make_depolarizing_channel");
+              return make_depolarizing_channel(errorRate, 1);
+            });
+      } else {
+        gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
+            [errorRate, aqasmGate](pybind11::kwargs kwarg) {
+              auto make_depolarizing_channel =
+                  pybind11::module::import("qat.quops.quantum_channels")
+                      .attr("make_depolarizing_channel");
+              const int arity = (aqasmGate == "CNOT") ? 2 : 1;
+              return make_depolarizing_channel(errorRate, arity);
+            });
+      }
     }
 
     auto gates_spec = gatesSpecification();
@@ -372,6 +382,11 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     // Noisy simulator:
     auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
     m_qlmQpuServer = noisyQProc(hw_model);
+    // For noisy sim, we must run QLM in shots mode:
+    constexpr int DEFAULT_NUM_SHOTS = 1024;
+    if (m_shots < 0) {
+      m_shots = DEFAULT_NUM_SHOTS;
+    }
   } else {
     // No noise:
     auto qpuMod = pybind11::module::import("qat.linalg.qpu");
