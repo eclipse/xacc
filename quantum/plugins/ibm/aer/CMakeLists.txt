@@ -41,7 +41,6 @@ if(APPLE)
   set_target_properties(${LIBRARY_NAME}
                         PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-  find_package(LAPACK)
   if(LAPACK_FOUND)
    target_link_libraries(${LIBRARY_NAME} PRIVATE ${LAPACK_LIBRARIES})
   else()

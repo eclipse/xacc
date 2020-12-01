@@ -19,7 +19,11 @@ usfunctionembedresources(TARGET ${LIBRARY_NAME}
                          FILES manifest.json)
 
 # Link library with XACC
-target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate lapack)
+target_link_libraries(${LIBRARY_NAME} PUBLIC xacc xacc-quantum-gate)
+# and with LAPACK
+if(LAPACK_FOUND)
+  target_link_libraries(${LIBRARY_NAME} PRIVATE ${LAPACK_LIBRARIES})
+endif()
 
 # Configure RPATH
 if(APPLE)

@@ -123,6 +123,9 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "DEBUG")
   add_compile_definitions(_XACC_DEBUG)
 ENDIF()
 
+# Find LAPACK (optional) 
+find_package(LAPACK)
+
 add_subdirectory(xacc)
 add_subdirectory(quantum)
 

@@ -20,7 +20,6 @@ target_include_directories(${LIBRARY_NAME}
                            PUBLIC . ${CMAKE_SOURCE_DIR}/tpls/ensmallen
                                   ${CMAKE_SOURCE_DIR}/tpls/armadillo)
 
-find_package(LAPACK)
 if(LAPACK_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_LAPACK")
   target_link_libraries(${LIBRARY_NAME} PUBLIC xacc ${LAPACK_LIBRARIES})
