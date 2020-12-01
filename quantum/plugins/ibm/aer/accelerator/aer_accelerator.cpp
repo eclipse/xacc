@@ -547,6 +547,12 @@ double IbmqNoiseModel::averageGateFidelity(
   return 1.0;
 }
 
+double IbmqNoiseModel::gateErrorProb(xacc::quantum::Gate &gate) const {
+  const auto universalGateName = getUniversalGateEquiv(gate);
+  const auto gateErrorIter = m_gateErrors.find(universalGateName);
+  return (gateErrorIter == m_gateErrors.end()) ? 0.0 : gateErrorIter->second;
+}
+
 std::vector<KrausOp>
 IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
   std::vector<KrausOp> krausOps;

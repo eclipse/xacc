@@ -471,7 +471,7 @@ public:
       : CH(std::vector<std::size_t>{sqbit, tqbit}) {}
 
   const std::string description() const override { return ""; }
-  const int nRequiredBits() const override { return 1; }
+  const int nRequiredBits() const override { return 2; }
 
   DEFINE_CLONE(CH)
   DEFINE_VISITABLE()

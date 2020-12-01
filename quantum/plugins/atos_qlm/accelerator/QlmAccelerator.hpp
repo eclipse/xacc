@@ -16,6 +16,8 @@
 #include <pybind11/embed.h>
 
 namespace xacc {
+class NoiseModel;
+
 namespace quantum {
 class QlmCircuitVisitor : public AllGateVisitor {
 public:
@@ -71,6 +73,9 @@ public:
   virtual const std::vector<std::string> configurationKeys() override {
     return {};
   }
+  
+  virtual std::vector<std::pair<int, int>> getConnectivity() override;
+
   virtual BitOrder getBitOrder() override { return BitOrder::MSB; }
   virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                        const std::shared_ptr<CompositeInstruction>
@@ -86,11 +91,13 @@ private:
       std::shared_ptr<AcceleratorBuffer> buffer,
       std::shared_ptr<CompositeInstruction> compositeInstruction) const;
   void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer,
-                             pybind11::object &result) const;
+                             pybind11::object &result,
+                             pybind11::object &job) const;
 
 private:
   int m_shots;
   pybind11::object m_qlmQpuServer;
+  std::shared_ptr<NoiseModel> m_noiseModel;
 };
 } // namespace quantum
 } // namespace xacc
