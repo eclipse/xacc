@@ -71,6 +71,19 @@ OptResult ScikitQuantOptimizer::optimize(OptFunction &function) {
     bounds.push_back({-xacc::constants::pi, xacc::constants::pi});
   }
 
+  if (options.keyExists<std::vector<std::vector<double>>>("bounds")) {
+    bounds.clear();
+    auto new_bounds = options.get<std::vector<std::vector<double>>>("bounds");
+    if (dim != new_bounds.size()) {
+      xacc::error("SKQuant Error - Invalid number of bounds dim != bounds.size()");
+    }
+    bounds = new_bounds;
+  }
+
+  std::cout << "Bounds:\n";
+  for (auto & b : bounds) {
+    std::cout << b[0] << ", " << b[1] << "\n";
+  }
   locals["in_bounds"] = bounds;
 
   int budget = 100;
@@ -84,6 +97,22 @@ OptResult ScikitQuantOptimizer::optimize(OptFunction &function) {
     method = options.getString("method");
   }
   locals["method"] = method;
+
+  if (options.keyExists<int>("maxmp")) {
+    locals["maxmp"] = options.get<int>("maxmp");
+  }
+
+  if (options.keyExists<int>("minfcall")) {
+    locals["minfcall"] = options.get<int>("minfcall");
+  }
+  
+  if (options.keyExists<int>("maxfail")) {
+    locals["maxfail"] = options.get<int>("maxfail");
+  }
+
+  if (options.keyExists<int>("verbose")) {
+    locals["verbose"] = options.get<int>("verbose");
+  }
 
   if (dim == 1) {
     std::function<double(const double)> wrapper([&](const double x) {
@@ -106,7 +135,18 @@ from skquant.opt import minimize
 x0 = np.array(locals()['x'])
 bounds = np.array(locals()['in_bounds'], dtype=float)
 budget = locals()['budget']
-result, _ = minimize(locals()['obj_func'], x0, bounds, budget, method=locals()['method'])
+
+opts = {}
+if 'maxmp' in locals():
+    opts['maxmp'] = locals()['maxmp']
+if 'minfcall' in locals():
+    opts['minfcall'] = locals()['maxmp']
+if 'maxfail' in locals():
+    opts['maxfail'] = locals()['maxmp']
+if 'verbose' in locals():
+    opts['verbose'] = locals()['verbose']
+
+result, _ = minimize(locals()['obj_func'], x0, bounds, budget, method=locals()['method'], options=opts)
 opt_val = result.optval
 opt_params = result.optpar
   )#";

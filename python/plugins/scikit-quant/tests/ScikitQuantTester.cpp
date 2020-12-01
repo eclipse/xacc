@@ -80,7 +80,7 @@ TEST(ScikitQuantTester, checkRosenbrock) {
 
   EXPECT_EQ(2, f.dimensions());
   
-  optimizer->setOptions({{"budget", 10}});
+  optimizer->setOptions({{"budget", 10}});//, {"bounds", std::vector<std::vector<double>>{{-.5,.5},{-.5,.5}}}});
   auto result = optimizer->optimize(f);
 
   EXPECT_NEAR(result.first, 1.0, 1e-4);
@@ -88,6 +88,35 @@ TEST(ScikitQuantTester, checkRosenbrock) {
   EXPECT_NEAR(result.second[1], 0.0, 1e-4);
 
 }
+
+// TEST(ScikitQuantTester, checkSnobFitTest) {
+//   auto optimizer = xacc::getService<xacc::Optimizer>("skquant");
+
+//   xacc::OptFunction f(
+//       [](const std::vector<double> &x, std::vector<double> &grad) {
+//         double fv = x[0]*x[0] + x[1]*x[1];
+//         fv *= 1. + 0.1*std::sin(10.*(x[0]+x[1]));
+//         return fv;
+//       }, 2);
+
+//   EXPECT_EQ(2, f.dimensions());
+  
+//   optimizer->setOptions({{"budget", 40}, {"maxmp", 8}, {"initial-parameters", std::vector<double>{.5,.5}}, {"method", "snobfit"}, {"bounds", std::vector<std::vector<double>>{{-1.,1.},{-1.,1.}}}});
+//   auto [optval, optpar] = optimizer->optimize(f);
+
+//   std::cout << "HELLO: " << optval << "\n";
+//     std::cout << "HELLO: " << optpar[0] << "\n";
+//   std::cout << "HELLO: " << optpar[1] << "\n";
+
+//   std::cout << (optpar[0] + optpar[1]) << "\n";
+//   std::cout << (-.00112 - .00078) << "\n";
+
+//   //EXPECT_NEAR(result.first, 1.0, 1e-4);
+//   //EXPECT_NEAR(result.second[0], 0.0, 1e-4);
+//   //EXPECT_NEAR(result.second[1], 0.0, 1e-4);
+
+// }
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);
