@@ -26,7 +26,7 @@ class PyQsearch : public xacc::quantum::Circuit {
 protected:
   bool initialized = false;
   std::shared_ptr<py::scoped_interpreter> guard;
-  void *libpython_handle;
+  void *libpython_handle = nullptr;
 public:
   PyQsearch() : Circuit("qsearch") {}
   void initialize();

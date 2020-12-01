@@ -25,7 +25,7 @@ namespace python {
 class MitiqZNE : public AcceleratorDecorator {
 protected:
   std::unique_ptr<py::scoped_interpreter> guard;
-  void * libpython_handle;
+  void * libpython_handle = nullptr;
   py::module xacc;
   py::module qiskit;
   py::module mitiq;

@@ -26,7 +26,7 @@ class ScikitQuantOptimizer : public Optimizer {
 protected: 
   void initialize();
   std::unique_ptr<py::scoped_interpreter> guard;
-  void * libpython_handle;
+  void * libpython_handle = nullptr;
   bool initialized = false;
   
 public:
