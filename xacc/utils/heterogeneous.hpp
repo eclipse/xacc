@@ -184,6 +184,13 @@ public:
     visit_impl(visitor, typename std::decay_t<T>::types{});
   }
 
+  // Merge another map to this.
+  void merge(const HeterogeneousMap &_other) {
+    for (const auto &[key, item] : _other.items) {
+      items[key] = item;
+    }
+  }
+
 private:
   std::map<std::string, std::any> items;
 
