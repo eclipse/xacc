@@ -517,6 +517,9 @@ For the `exatn` simulator, there are additional options that users can set durin
 | mpi-communicator            | The MPI communicator to initialize ExaTN runtime with.                 |    void*    | <unused>                 |
 |                             | If not provided, by default, ExaTN will use `MPI_COMM_WORLD`.          |             |                          |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| exp-val-by-conjugate        | If true, the expectation value of *large* circuits (exceed memory      |    bool     | false                    |
+|                             | limit) is computed by closing the tensor network with its conjugate.   |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 
 For the `exatn-mps` simulator, there are additional options that users can set during initialization:
 
