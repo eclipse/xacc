@@ -79,11 +79,6 @@ OptResult ScikitQuantOptimizer::optimize(OptFunction &function) {
     }
     bounds = new_bounds;
   }
-
-  std::cout << "Bounds:\n";
-  for (auto & b : bounds) {
-    std::cout << b[0] << ", " << b[1] << "\n";
-  }
   locals["in_bounds"] = bounds;
 
   int budget = 100;
@@ -145,7 +140,6 @@ if 'maxfail' in locals():
     opts['maxfail'] = locals()['maxmp']
 if 'verbose' in locals():
     opts['verbose'] = locals()['verbose']
-
 result, _ = minimize(locals()['obj_func'], x0, bounds, budget, method=locals()['method'], options=opts)
 opt_val = result.optval
 opt_params = result.optpar
