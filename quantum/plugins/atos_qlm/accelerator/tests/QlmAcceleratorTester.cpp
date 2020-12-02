@@ -221,6 +221,66 @@ TEST(QsimAcceleratorTester, testVqe) {
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-3);
 }
 
+TEST(QlmAcceleratorTester, testOtherSim) {
+  const std::vector<std::string> simToTest{"Feynman", "MPS", "Bdd"};
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void bellTest(qbit q) {
+      H(q[0]);
+      CX(q[0], q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                               nullptr)
+                     ->getComposites()[0];
+
+  for (const auto& simType: simToTest) {
+    auto accelerator = xacc::getAccelerator("atos-qlm", {{"sim-type", simType}, {"shots", 1024}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program);
+    EXPECT_EQ(buffer->getMeasurementCounts().size(), 2);
+    buffer->print();
+    EXPECT_NEAR(buffer->computeMeasurementProbability("00"), 0.5, 0.1);
+    EXPECT_NEAR(buffer->computeMeasurementProbability("11"), 0.5, 0.1);
+  }
+}
+
+TEST(QlmAcceleratorTester, testOtherSimExpVal) {
+  const std::vector<std::string> simToTest{"Feynman", "MPS", "Bdd"};
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto ir = xasmCompiler->compile(R"(__qpu__ void ansatz(qbit q, double t) {
+      X(q[0]);
+      Ry(q[1], t);
+      CX(q[1], q[0]);
+      H(q[0]);
+      H(q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                                  nullptr);
+  auto program = ir->getComposite("ansatz");
+  // Expected results from deuteron_2qbit_xasm_X0X1
+  const std::vector<double> expectedResults{
+      0.0,       -0.324699, -0.614213, -0.837166, -0.9694,
+      -0.996584, -0.915773, -0.735724, -0.475947, -0.164595,
+      0.164595,  0.475947,  0.735724,  0.915773,  0.996584,
+      0.9694,    0.837166,  0.614213,  0.324699,  0.0};
+
+  const auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (const auto& simType: simToTest) {
+    auto accelerator = xacc::getAccelerator("atos-qlm", {{"sim-type", simType}});
+    for (size_t i = 0; i < angles.size(); ++i) {
+      auto buffer = xacc::qalloc(2);
+      auto evaled = program->operator()({angles[i]});
+      accelerator->execute(buffer, evaled);
+      std::cout << "Angle = " << angles[i]
+                << "; result = " << buffer->getExpectationValueZ() << " vs. "
+                << expectedResults[i] << "\n";
+      EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResults[i], 0.1);
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

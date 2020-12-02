@@ -389,8 +389,42 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     }
   } else {
     // No noise:
-    auto qpuMod = pybind11::module::import("qat.linalg.qpu");
-    m_qlmQpuServer = qpuMod.attr("get_qpu_server")();
+    // There are 4 types of simulator:
+    // (1) LinAlg
+    // (2) MPS
+    // (3) Feynman
+    // (4) BDD (Quantum Multi-valued Decision Diagrams)
+    // Default is LinAlg, which is the most versatile (consistent perf. in most cases)
+    // User can switch between them using the "sim-type" option:
+    static const std::unordered_map<std::string, pybind11::object> SIM_REGISTRY{
+        {"LinAlg", pybind11::module::import("qat.qpus").attr("LinAlg")},
+        {"MPS", pybind11::module::import("qat.qpus").attr("MPS")},
+        {"Feynman", pybind11::module::import("qat.qpus").attr("Feynman")},
+        {"Bdd", pybind11::module::import("qat.qpus").attr("Bdd")},
+    };
+
+    // Default:
+    std::string simType = "LinAlg";
+    if (params.stringExists("sim-type")) {
+      simType = params.getString("sim-type");
+    }
+
+    const auto iter = SIM_REGISTRY.find(simType);
+    if (iter == SIM_REGISTRY.end()) {
+      xacc::error("The requested sim-type of '" + simType + "' is invalid.");
+    }
+
+    m_qlmQpuServer = (iter->second)();
+
+    // Important notes: Feynman and BDD don't support Observable mode,
+    // hence, must use shots.
+    if (simType == "Feynman" || simType == "Bdd") {
+      // No shots was specified.
+      constexpr int DEFAULT_NUM_SHOTS = 1024;
+      if (m_shots < 0) {
+        m_shots = DEFAULT_NUM_SHOTS;
+      }
+    }
   }
 }
 
