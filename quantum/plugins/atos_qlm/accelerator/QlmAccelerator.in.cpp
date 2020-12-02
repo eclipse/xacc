@@ -396,11 +396,60 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     // (4) BDD (Quantum Multi-valued Decision Diagrams)
     // Default is LinAlg, which is the most versatile (consistent perf. in most cases)
     // User can switch between them using the "sim-type" option:
-    static const std::unordered_map<std::string, pybind11::object> SIM_REGISTRY{
-        {"LinAlg", pybind11::module::import("qat.qpus").attr("LinAlg")},
-        {"MPS", pybind11::module::import("qat.qpus").attr("MPS")},
-        {"Feynman", pybind11::module::import("qat.qpus").attr("Feynman")},
-        {"Bdd", pybind11::module::import("qat.qpus").attr("Bdd")},
+    using SimFactory =
+        std::function<pybind11::object(const HeterogeneousMap &)>;
+    const SimFactory createMpsSim = [](const HeterogeneousMap &configs) {
+      auto simClass = pybind11::module::import("qat.qpus").attr("MPS");
+      // Default MPS settings:
+      // lnnize=True, no_merge=False, threshold=None, n_trunc=None
+      // Supported users-options (that we exposed to XACC):
+      // mps-threshold: specify threshold below which Schmidt coefficients are
+      // truncated. 
+      // max-bond: specify maximum number of non-zero Schmidt
+      // coefficients.
+      std::optional<double> threshold;
+      if (configs.keyExists<double>("mps-threshold")) {
+        threshold = configs.get<double>("mps-threshold");
+      }
+
+      std::optional<double> n_trunc;
+      if (configs.keyExists<int>("max-bond")) {
+        n_trunc = configs.get<int>("max-bond");
+      }
+
+      auto kwargs = pybind11::dict("lnnize"_a=true, "no_merge"_a=false, "threshold"_a=threshold, "n_trunc"_a=n_trunc);
+      return simClass(kwargs);
+    };
+
+    const SimFactory createFeynmanSim = [](const HeterogeneousMap &configs) {
+      // Support changing number of threads:
+      int nbThreads = 1;
+      if (configs.keyExists<int>("threads")) {
+        nbThreads = configs.get<int>("threads");
+      }
+      auto simClass = pybind11::module::import("qat.qpus").attr("Feynman");
+      return simClass(nbThreads);
+    };
+
+    const SimFactory createBddSim = [](const HeterogeneousMap &configs) {
+      // Support changing number of threads:
+      int nbThreads = 1;
+      if (configs.keyExists<int>("threads")) {
+        nbThreads = configs.get<int>("threads");
+      }
+      auto simClass = pybind11::module::import("qat.qpus").attr("Bdd");
+      return simClass(nbThreads);
+    };
+
+    static const std::unordered_map<std::string, SimFactory> SIM_REGISTRY{
+        // LinAlg doesn't have any extra runtime params
+        {"LinAlg",
+         [](const HeterogeneousMap &configs) {
+           return pybind11::module::import("qat.qpus").attr("LinAlg")();
+         }},
+        {"MPS", createMpsSim},
+        {"Feynman", createFeynmanSim},
+        {"Bdd", createBddSim},
     };
 
     // Default:
@@ -414,7 +463,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       xacc::error("The requested sim-type of '" + simType + "' is invalid.");
     }
 
-    m_qlmQpuServer = (iter->second)();
+    m_qlmQpuServer = (iter->second)(params);
 
     // Important notes: Feynman and BDD don't support Observable mode,
     // hence, must use shots.
