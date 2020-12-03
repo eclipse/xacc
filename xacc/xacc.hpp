@@ -182,7 +182,7 @@ void appendCache(const std::string fileName, const std::string key, T &&param,
   // Check if file exists
   if (xacc::fileExists(rootPathStr + "/" + fileName)) {
     auto existingCache = getCache(fileName, subdirectory);
-    existingCache.insert(key, param); 
+    existingCache.insert(key, param);
 
     appendCache(fileName, existingCache, subdirectory);
   } else {
@@ -243,6 +243,9 @@ void appendCache(const std::string fileName, const std::string key, T &param,
 }
 
 std::shared_ptr<IRTransformation> getIRTransformation(const std::string &name);
+
+std::shared_ptr<CompositeInstruction>
+createComposite(const std::string &name, HeterogeneousMap &&options);
 
 const std::string
 translate(std::shared_ptr<CompositeInstruction> CompositeInstruction,

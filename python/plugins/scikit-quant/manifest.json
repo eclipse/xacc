@@ -1,0 +1,7 @@
+{
+    "bundle.symbolic_name" : "xacc_scikit_quant",
+    "bundle.activator" : true,
+    "bundle.name" : "Scikit Quant Optimizers",
+    "bundle.description" : ""
+  }
+  

@@ -10,44 +10,32 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "mlpack_optimizer.hpp"
+#pragma once
 
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#include <type_traits>
+#include <utility>
 
-#include <memory>
-#include <set>
+#include "Optimizer.hpp"
+#include <pybind11/embed.h>
 
-using namespace cppmicroservices;
+namespace py = pybind11;
 
-namespace {
+namespace xacc {
 
-/**
- */
-class US_ABI_LOCAL MLPACKActivator: public BundleActivator {
-
+class ScikitQuantOptimizer : public Optimizer {
+protected: 
+  void initialize();
+  std::unique_ptr<py::scoped_interpreter> guard;
+  void * libpython_handle = nullptr;
+  bool initialized = false;
+  
 public:
+  OptResult optimize(OptFunction &function) override;
+  const bool isGradientBased() const override;
+  virtual const std::string get_algorithm() const;
 
-	MLPACKActivator() {
-	}
-
-	/**
-	 */
-	void Start(BundleContext context) {
-		auto c = std::make_shared<xacc::MLPACKOptimizer>();
-
-		context.RegisterService<xacc::Optimizer>(c);
-
-	}
-
-	/**
-	 */
-	void Stop(BundleContext /*context*/) {
-	}
-
+  const std::string name() const override { return "skquant"; }
+  const std::string description() const override { return ""; }
+  ~ScikitQuantOptimizer();
 };
-
-}
-
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(MLPACKActivator)
+} // namespace xacc

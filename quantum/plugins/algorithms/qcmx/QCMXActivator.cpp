@@ -10,7 +10,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
-#include "nlopt_optimizer.hpp"
+#include "qcmx.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -25,29 +25,23 @@ namespace {
 
 /**
  */
-class US_ABI_LOCAL NLOptActivator: public BundleActivator {
+class US_ABI_LOCAL QCMXActivator : public BundleActivator {
 
 public:
+  QCMXActivator() {}
 
-	NLOptActivator() {
-	}
+  /**
+   */
+  void Start(BundleContext context) {
+    auto c = std::make_shared<xacc::algorithm::QCMX>();
+    context.RegisterService<xacc::Algorithm>(c);
+  }
 
-	/**
-	 */
-	void Start(BundleContext context) {
-		auto c = std::make_shared<xacc::NLOptimizer>();
-
-		context.RegisterService<xacc::Optimizer>(c);
-
-	}
-
-	/**
-	 */
-	void Stop(BundleContext /*context*/) {
-	}
-
+  /**
+   */
+  void Stop(BundleContext /*context*/) {}
 };
 
-}
+} // namespace
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(NLOptActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(QCMXActivator)

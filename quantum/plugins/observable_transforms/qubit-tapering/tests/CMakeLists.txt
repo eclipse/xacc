@@ -1,0 +1,2 @@
+add_xacc_test(QubitTapering)
+target_link_libraries(QubitTaperingTester xacc xacc-quantum-gate)

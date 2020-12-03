@@ -15,6 +15,11 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
+namespace {
+  // CU1 decompose: 5 instructions
+  constexpr int CU1_DECOMP_N_INSTS = 5;
+}
+
 TEST(StaqCompilerTester, checkCphase) {
 
   auto src = R"#(
@@ -34,9 +39,10 @@ measure q[2] -> c[2];)#";
 
   auto hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
-
-
+  const int expectedNinsts = 7 + CU1_DECOMP_N_INSTS;
+  EXPECT_EQ(hello->nInstructions(), expectedNinsts);
 }
+
 TEST(StaqCompilerTester, checkSimple) {
   auto compiler = xacc::getCompiler("staq");
   auto IR = compiler->compile(R"(
@@ -50,7 +56,8 @@ TEST(StaqCompilerTester, checkSimple) {
 
   auto hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
-
+  EXPECT_EQ(hello->nInstructions(), 5);
+  
   auto q = xacc::qalloc(2);
   q->setName("q");
   xacc::storeBuffer(q);
@@ -67,6 +74,7 @@ TEST(StaqCompilerTester, checkSimple) {
 
   hello = IR->getComposites()[0];
   std::cout << "HELLO:\n" << hello->toString() << "\n";
+  EXPECT_EQ(hello->nInstructions(), 5);
 }
 
 TEST(StaqCompilerTester, checkCanParse) {

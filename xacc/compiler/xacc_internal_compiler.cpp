@@ -15,9 +15,10 @@ bool __execute = true;
 std::vector<HeterogeneousMap> current_runtime_arguments = {};
 
 void __set_verbose(bool v) { xacc::set_verbose(v); }
-void compiler_InitializeXACC(const char *qpu_backend) {
+void compiler_InitializeXACC(const char *qpu_backend,
+                             const std::vector<std::string> cmd_line_args) {
   if (!xacc::isInitialized()) {
-    xacc::Initialize();
+    xacc::Initialize(cmd_line_args);
     xacc::external::load_external_language_plugins();
     auto at_exit = []() { xacc::Finalize(); };
     atexit(at_exit);

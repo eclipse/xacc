@@ -72,16 +72,22 @@ std::shared_ptr<IR> Quilc::compile(const std::string &src,
   auto get_images_json = json::parse(get_images.text);
   bool found_quilc = false;
   for (auto &image : get_images_json) {
-    auto repo_tag = image["RepoTags"][0].get<std::string>();
-    if (repo_tag.find("rigetti/quilc") != std::string::npos) {
-      found_quilc = true;
-      break;
+    if (!image.empty()) {
+      auto repo_tag = image["RepoTags"][0].get<std::string>();
+      if (repo_tag.find("rigetti/quilc") != std::string::npos) {
+        found_quilc = true;
+        break;
+      }
     }
   }
 
   if (!found_quilc) {
-    xacc::error("Could not find rigetti/quilc docker image. Please pull the "
-                "image before using the quilc compiler.");
+    xacc::error(
+        "\n\nThe quilc xacc::Compiler uses the rigetti/quilc docker image.\n"
+        "Unable to find rigetti/quilc docker image.\nMake sure you have docker "
+        "installed and pull the "
+        "image before\nusing the quilc compiler.\n\n  docker pull "
+        "rigetti/quilc\n");
   }
 
   // preprocess src string, can be xacc-like or just standard quil
@@ -196,11 +202,11 @@ std::shared_ptr<IR> Quilc::compile(const std::string &src,
                 cprHeaders, cpr::Verbose(verbose));
   //   std::cout << "\n\nexecStartR.status_code :" << execStart.status_code
   //             << std::endl;
-//   std::cout << "execStartR.text :\n" << execStart.text << std::endl;
+  //   std::cout << "execStartR.text :\n" << execStart.text << std::endl;
 
   auto result_quil = execStart.text.substr(8, execStart.text.length());
 
-//   std::cout << "RESULTQUIL:\n" << result_quil << "\n";
+  //   std::cout << "RESULTQUIL:\n" << result_quil << "\n";
   // stop the container, --rm will also delete it
   cpr::Url stopUrl{"http:/v1.35/containers/" + container_id + "/stop"};
 
@@ -234,7 +240,7 @@ std::shared_ptr<IR> Quilc::compile(const std::string &src,
 
   auto simple_quil = xacc::getCompiler("quil");
 
-//   std::cout << "processed:\n" << processed_quil << "\n";
+  //   std::cout << "processed:\n" << processed_quil << "\n";
   if (src.find("__qpu__") != std::string::npos) {
     auto prototype = src.substr(0, src.find_first_of("{"));
     auto new_src = prototype + "{\n" + processed_quil + "}";

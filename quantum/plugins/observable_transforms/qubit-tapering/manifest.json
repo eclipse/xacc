@@ -1,0 +1,6 @@
+{
+    "bundle.symbolic_name" : "xacc_qubit_tapering",
+    "bundle.activator" : true,
+    "bundle.name" : "Qubit Tapering",
+    "bundle.description" : "This plugin implements Qubit Tapering via Z2 symmetries."
+  }

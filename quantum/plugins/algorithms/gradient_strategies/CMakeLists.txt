@@ -49,7 +49,6 @@ else()
                         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib")
   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
   # Armadillo solver (QNG strategy) needs LAPACK
-  find_package(LAPACK)
   if(LAPACK_FOUND)
    target_link_libraries(${LIBRARY_NAME} PRIVATE ${LAPACK_LIBRARIES})
   else()
@@ -62,3 +61,7 @@ if(XACC_BUILD_TESTS)
 endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
+
+# Since Autodiff gradient strategy has extra dependency, 
+# build it separately.
+add_subdirectory(autodiff)

@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
 
   // Get reference to the Accelerator
-  auto accelerator = xacc::getAccelerator("local-ibm");
+  auto accelerator = xacc::getAccelerator("qpp");
 
   // Allocate some qubits
   auto buffer = xacc::qalloc(2);

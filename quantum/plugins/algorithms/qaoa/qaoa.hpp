@@ -37,6 +37,7 @@ private:
     Optimizer* m_optimizer;
     std::shared_ptr<AlgorithmGradientStrategy> gradientStrategy;
     std::shared_ptr<CompositeInstruction> externalAnsatz;
+    std::shared_ptr<CompositeInstruction> m_single_exec_kernel;
     int m_nbSteps;
     std::string m_parameterizedMode;
     bool m_maxcutProblem;

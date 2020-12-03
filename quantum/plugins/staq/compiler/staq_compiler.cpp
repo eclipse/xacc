@@ -226,9 +226,37 @@ std::shared_ptr<IR> StaqCompiler::compile(const std::string &src,
       *prog, {false, transformations::default_overrides, "anc"});
 
   //   std::cout <<"PROG: " << *prog << "\n";
-  // Visit Program to find out how many qreg there are and
-  // use that to build up openqasm xacc function prototype
+  
+  // Determine the number of qreqs
+  internal_staq::CountQregs countQreq;
+  dynamic_cast<ast::Traverse &>(countQreq).visit(*prog);
+  const auto nbQreqs = countQreq.qregs.size() + ancillas.ancillas.size();
+  // Direct Staq's AST -> XACC's IR translation:
+  // This can only be used (reliably) for simple QASM source,
+  // that uses a single qreg (we can use simple qubit indexing to construct IR)
+  // Note: we don't handle *embedded* QASM source in this direct translate mode.
+  if (!isXaccKernel && nbQreqs == 1) {
+    // Create a temporary kernel name:
+    std::string name = "tmp";
+    if (xacc::hasCompiled(name)) {
+      int counter = 0;
+      while (true) {
+        name = "tmp" + std::to_string(counter);
+        if (!xacc::hasCompiled(name)) {
+          break;
+        }
+        counter++;
+      }
+    }
 
+    // Direct translation
+    internal_staq::StaqToIr translate(name, countQreq.qregs[0]);
+    translate.visit(*prog);
+    return translate.getIr();
+  }
+
+  // Otherwise, translate Staq's AST to XASM source string
+  // then recompile.
   internal_staq::StaqToXasm translate;
   translate.visit(*prog);
 

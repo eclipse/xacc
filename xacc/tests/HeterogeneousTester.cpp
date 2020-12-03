@@ -145,6 +145,34 @@ TEST(HeterogeneousMapTester, checkVQE) {
 
   vqe->initialize(options);
 }
+
+TEST(HeterogeneousMapTester, checkMerge) {
+  xacc::HeterogeneousMap c;
+  c.insert("intkey", 1);
+  c.insert("intkey2", 2);
+  c.insert("doublekey", 2.2);
+  c.insert("variable", std::string("t0"));
+  const auto cSizeBefore = c.size();
+  xacc::HeterogeneousMap otherMap;
+  // Update a key
+  otherMap.insert("intkey", 3);
+  // Add some other keys
+  otherMap.insert("variable1", std::string("t1"));
+  const auto otherSize = otherMap.size();
+  // Merge:
+  c.merge(otherMap);
+  // There is one key updated:
+  EXPECT_EQ(c.size(), cSizeBefore + otherSize - 1);
+  // Check map content:
+  EXPECT_EQ(c.get<int>("intkey"), 3);
+  EXPECT_EQ(c.get<int>("intkey2"), 2);
+  EXPECT_EQ(c.get<double>("doublekey"), 2.2);
+  EXPECT_EQ(c.getString("variable"), "t0");
+  EXPECT_EQ(c.getString("variable1"), "t1");
+  print_visitor v;
+  c.visit(v);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
   ::testing::InitGoogleTest(&argc, argv);

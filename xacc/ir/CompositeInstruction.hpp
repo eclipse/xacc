@@ -176,7 +176,7 @@ public:
   virtual void addInstruction(InstPtr instruction) = 0;
   virtual void addInstructions(std::vector<InstPtr> &instruction) = 0;
   virtual void addInstructions(const std::vector<InstPtr> &instruction) = 0;
-  virtual void addInstructions(const std::vector<InstPtr> &&insts) {
+  virtual void addInstructions(const std::vector<InstPtr> &&insts, bool shouldValidate = true) {
     addInstructions(insts);
   }
 

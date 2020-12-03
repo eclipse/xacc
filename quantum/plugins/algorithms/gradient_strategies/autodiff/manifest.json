@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "xacc_autodiff_gradient",
+  "bundle.activator" : true,
+  "bundle.name" : "XACC Autodiff Plugin",
+  "bundle.description" : ""
+}

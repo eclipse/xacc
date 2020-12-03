@@ -30,6 +30,9 @@ void ServiceRegistry::initialize(const std::string rootPath) {
 
     std::string libDir = rootPath + std::string("/lib");
     std::string pluginDir = rootPath + std::string("/plugins");
+    
+    extra_search_paths.push_back(pluginDir);
+
     rootPathStr = rootPath;
 
     // Load quantum-gate and quantum-aqc
@@ -47,16 +50,19 @@ void ServiceRegistry::initialize(const std::string rootPath) {
     }
 
     // Load plugins
-    DIR *dir2;
-    struct dirent *ent2;
-    if ((dir2 = opendir(pluginDir.c_str())) != NULL) {
-      /* print all the files and directories within directory */
-      while ((ent2 = readdir(dir2)) != NULL) {
-        if (std::string(ent2->d_name).find("lib") != std::string::npos) {
-          context.InstallBundles(pluginDir + "/" + std::string(ent2->d_name));
+    for (auto& path : extra_search_paths) {
+      DIR *dir2;
+      struct dirent *ent2;
+      if ((dir2 = opendir(path.c_str())) != NULL) {
+        /* print all the files and directories within directory */
+        while ((ent2 = readdir(dir2)) != NULL) {
+          if (std::string(ent2->d_name).find("lib") != std::string::npos) {
+            //   std::cout << "INSTALLING: " << path << "/" << std::string(ent2->d_name) << "\n";
+            context.InstallBundles(path + "/" + std::string(ent2->d_name));
+          }
         }
+        closedir(dir2);
       }
-      closedir(dir2);
     }
 
     // XACCLogger::instance()->enqueueLog(
@@ -73,7 +79,7 @@ void ServiceRegistry::initialize(const std::string rootPath) {
       try {
         b.Start();
       } catch (std::exception &e) {
-          xacc::error("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
+        xacc::error("Could not load " + b.GetSymbolicName() + ", error message: " + e.what());
       }
     }
 

@@ -20,8 +20,8 @@ public:
   }
   std::vector<RoErrors> readoutErrors() const override { return m_roErrors; }
 
-  std::vector<KrausOp>
-  gateError(xacc::quantum::Gate &gate) const override;
+  std::vector<KrausOp> gateError(xacc::quantum::Gate &gate) const override;
+  double gateErrorProb(xacc::quantum::Gate &gate) const override;
   size_t nQubits() const override { return m_nbQubits; }
   std::vector<double> averageSingleQubitGateFidelity() const override;
   std::vector<std::tuple<size_t, size_t, double>>

@@ -517,6 +517,9 @@ For the `exatn` simulator, there are additional options that users can set durin
 | mpi-communicator            | The MPI communicator to initialize ExaTN runtime with.                 |    void*    | <unused>                 |
 |                             | If not provided, by default, ExaTN will use `MPI_COMM_WORLD`.          |             |                          |
 +-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
+| exp-val-by-conjugate        | If true, the expectation value of *large* circuits (exceed memory      |    bool     | false                    |
+|                             | limit) is computed by closing the tensor network with its conjugate.   |             |                          |
++-----------------------------+------------------------------------------------------------------------+-------------+--------------------------+
 
 For the `exatn-mps` simulator, there are additional options that users can set during initialization:
 
@@ -1681,6 +1684,104 @@ In Python:
 
     adapt.execute(buffer)
 
+
+QCMX
+++++
+The Quantum Connected Moments eXpansion (QCMX) Algorithm requires the following input information:
+(`Kowalski, K. and Peng, Bo. (2018) <https://arxiv.org/pdf/2009.05709>`_)
+
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|  Algorithm Parameter   |                  Parameter Description                          |             type                     |
++========================+=================================================================+======================================+
+|    observable          | The hermitian operator represents the Hamiltonian               | std::shared_ptr<Observable>          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    accelerator         | The Accelerator backend to target                               | std::shared_ptr<Accelerator>         |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    ansatz              | State preparation circuit                                       | std::shared_ptr<CompositeInstruction>|
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    cmx-order           | The order of the leading term in the CMX                        | int                                  |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+|    expansion-type      | Expansion type (Cioslowski, Knowles, PDS)                       | std::string                          |
++------------------------+-----------------------------------------------------------------+--------------------------------------+
+
+ .. code:: cpp
+
+    #include "xacc.hpp"
+    #include "xacc_observable.hpp"
+    #include "xacc_service.hpp"
+
+    int main(int argc, char **argv) {
+      xacc::Initialize(argc, argv);
+
+      // Get reference to the Accelerator
+      // specified by --accelerator argument
+      auto accelerator = xacc::getAccelerator("qpp");
+
+      // Get reference to the Hamiltonian
+      // specified by the --observable argument
+      auto H = xacc::quantum::getObservable("pauli", std::string("0.2976 + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1"));
+
+      // Specify the expansion type
+      auto expansion = "Cioslowski";
+
+      // Specify the CMX expansion order
+      auto order = 2;
+
+      // Create reference to the initial state
+      // specified by the --ansatz argument
+      auto provider = xacc::getService<xacc::IRProvider>("quantum");
+      auto ansatz = provider->createComposite("initial-state");
+      ansatz->addInstruction(provider->createInstruction("X", {(size_t)0}));
+
+      // Allocate 2 qubits in the buffer
+      auto buffer = xacc::qalloc(2);
+
+      // Instantiate the QCMX algorithm
+      auto qcmx = xacc::getService<xacc::Algorithm>("qcmx");
+
+      // Pass parameters to QCMX algorithm
+      qcmx->initialize({{"accelerator",accelerator}, 
+                      {"observable", H},
+                      {"ansatz", ansatz},
+                      {"cmx-order", order}, 
+                      {"expansion-type", expansion}});
+
+      // Execute QCMX
+      qcmx->execute(buffer);
+
+      xacc::Finalize();
+      return 0;
+    }
+
+In Python:
+
+.. code:: python
+
+  import xacc
+    
+  accelerator = xacc.getAccelerator("qpp")
+
+  H = xacc.getObservable('pauli', '0.2976 + 0.3593 Z0 - 0.4826 Z1 + 0.5818 Z0 Z1 + 0.0896 X0 X1 + 0.0896 Y0 Y1')
+
+  expansion = 'Cioslowski'
+
+  order = 2
+
+  provider = xacc.getIRProvider('quantum')
+  ansatz = provider.createComposite('initial-state')
+  ansatz.addInstruction(provider.createInstruction('X', [0]))
+
+  buffer = xacc.qalloc(2)
+
+  qcmx = xacc.getAlgorithm('qcmx', {
+                          'accelerator': accelerator,
+                          'observable': H,
+                          'ansatz': ansatz,
+                          'cmx-order': order,
+                          'expansion-type': expansion
+                          })
+
+  qcmx.execute(buffer)
 
 Accelerator Decorators
 ----------------------

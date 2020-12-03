@@ -29,6 +29,37 @@
 #include <complex>
 #include <any>
 
+namespace __internal {
+union Storage {
+  void *_M_ptr;
+  std::aligned_storage<sizeof(_M_ptr), alignof(void *)>::type _M_buffer;
+};
+typedef void (*funcPtr)(void);
+
+template <typename T> T force_cast(std::any in_any) {
+  static_assert(sizeof(std::any) == sizeof(funcPtr) + sizeof(Storage));
+  void *storageLoc = (void *)((std::uintptr_t)&in_any + sizeof(funcPtr));
+  Storage &storage = *reinterpret_cast<Storage *>(storageLoc);
+  constexpr bool fit =
+      (sizeof(T) <= sizeof(Storage)) && (alignof(T) <= alignof(Storage));
+  if (fit) {
+    auto val = reinterpret_cast<T *>(&(storage._M_buffer));
+    return *val;
+  } else {
+    auto val = reinterpret_cast<T *>(storage._M_ptr);
+    return *val;
+  }
+}
+} // namespace __internal
+
+// If this is a GNU compiler
+#if defined(__GNUC__) || defined(__GNUG__)
+// We need to fix for < 7.5, < 8.4, and < 9.2
+#if (( __GNUC__ == 7 && __GNUC_MINOR__ < 5 ) || ( __GNUC__ == 8 && __GNUC_MINOR__ < 4 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 2 ))
+#define APPLY_RTTI_ANY_CAST_FIX
+#endif
+#endif
+
 namespace xacc {
 
 class HeterogeneousMap;
@@ -97,6 +128,15 @@ public:
     try {
       return std::any_cast<T>(items.at(key));
     } catch (std::exception &e) {
+#ifdef APPLY_RTTI_ANY_CAST_FIX
+      if (keyExists<T>(key)) {
+        // Make sure that the assumption about std::any layout is correct
+        if (sizeof(std::any) ==
+            (sizeof(__internal::funcPtr) + sizeof(__internal::Storage))) {
+          return __internal::force_cast<T>(items.at(key));
+        }
+      }
+#endif
       XACCLogger::instance()->error(
           "HeterogeneousMap::get() error - Invalid type or key (" + key + ").");
     }
@@ -169,7 +209,11 @@ public:
       try {
         std::any_cast<T>(items.at(key));
       } catch (std::exception &e) {
+#ifdef APPLY_RTTI_ANY_CAST_FIX
+        return items.at(key).type() == typeid(T);
+#else
         return false;
+#endif
       }
       return true;
     }
@@ -182,6 +226,13 @@ public:
 
   template <class T> void visit(T &&visitor) const {
     visit_impl(visitor, typename std::decay_t<T>::types{});
+  }
+
+  // Merge another map to this.
+  void merge(const HeterogeneousMap &_other) {
+    for (const auto &[key, item] : _other.items) {
+      items[key] = item;
+    }
   }
 
 private:

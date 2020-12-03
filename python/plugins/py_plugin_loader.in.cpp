@@ -28,7 +28,9 @@ bool PythonPluginLoader::load() {
     py::module sys = py::module::import("xacc");
     sys.attr("loaded_from_cpp_dont_finalize") = true;
   } catch(std::exception& e) {
-    std::cout << "Could not import " << e.what() << "\n";
+    std::stringstream s;
+    s << "Could not import xacc python module, errors was = " << e.what() << ". Will not enable external python plugins.";
+    xacc::warning(s.str());
     return false;
   }
 

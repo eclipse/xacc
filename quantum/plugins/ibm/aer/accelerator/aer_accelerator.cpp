@@ -29,6 +29,8 @@
 #include "xacc_service.hpp"
 
 #include <bitset>
+#include "QObjGenerator.hpp"
+#include "py-aer/aer_python_adapter.hpp"
 
 namespace xacc {
 namespace quantum {
@@ -62,7 +64,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
   if (params.stringExists("sim-type")) {
     if (!xacc::container::contains(
-            std::vector<std::string>{"qasm", "statevector"},
+            std::vector<std::string>{"qasm", "statevector", "pulse"},
             params.getString("sim-type"))) {
       xacc::warning("[Aer] warning, invalid sim-type (" +
                     params.getString("sim-type") +
@@ -79,6 +81,10 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
     noise_model = nlohmann::json::parse(json_str);
     auto ibm = xacc::getAccelerator("ibm:" + params.getString("backend"));
     physical_backend_properties = ibm->getProperties();
+    if (m_simtype == "pulse") {
+      // If pulse mode, must contribute pulse cmd-def.
+      ibm->contributeInstructions();
+    }
   } else if (params.stringExists("noise-model")) {
     std::string noise_model_str = params.getString("noise-model");
     // Check if this is a file name
@@ -167,6 +173,74 @@ void AerAccelerator::execute(
         actual += "0";
       for (int i = 0; i < nMeasures; i++)
         actual[actual.length() - 1 - i] = bitStr[bitStr.length() - i - 1];
+
+      buffer->appendMeasurement(actual, nOccurrences);
+    }
+  } else if (m_simtype == "pulse") {
+    // Get the correct QObject Generator
+    auto qobjGen = xacc::getService<QObjGenerator>("pulse");
+    auto chosenBackend = nlohmann::json::parse(physical_backend_properties.getString("config-json"));
+    // Unused
+    const std::string getBackendPropsResponse = "{}";
+    auto defaults_response = nlohmann::json::parse(physical_backend_properties.getString("defaults-json"));
+    auto ibmPulseAssembler = xacc::getService<IRTransformation>("ibm-pulse");
+    auto kernel = xacc::ir::asComposite(program->clone());
+    
+    // Remove measures, add measure all (at the end)
+    kernel->clear();
+    InstructionIterator iter(program);
+    std::vector<size_t> measured_bits;
+    while (iter.hasNext()) {
+      auto next = iter.next();
+      if (!next->isComposite() && next->name() != "Measure") {
+        kernel->addInstruction(next);
+      } else if (next->name() == "Measure") {
+        measured_bits.push_back(next->bits()[0]);
+      }
+    }
+
+    auto provider = xacc::getIRProvider("quantum");
+    for (size_t qId = 0; qId < buffer->size(); ++qId) {
+      kernel->addInstruction(provider->createInstruction("Measure", qId));
+    }
+
+    // Assemble pulse composite from the input kernel.
+    ibmPulseAssembler->apply(kernel, nullptr);    
+    // Generate the QObject JSON
+    auto qobjJsonStr = qobjGen->getQObjJsonStr({kernel}, m_shots, chosenBackend,
+                                           getBackendPropsResponse,
+                                           connectivity, defaults_response);
+    xacc::info("Qobj:\n" + qobjJsonStr);
+    auto hamiltonianJson = chosenBackend["hamiltonian"];
+    // Remove unrelated fields (could contain problematic characters)
+    hamiltonianJson.erase("description");
+    hamiltonianJson.erase("h_latex"); 
+    xacc::info("Hamiltonian Json:\n" + hamiltonianJson.dump());
+    const auto dt = chosenBackend["dt"].get<double>();
+    const auto qubitFreqEst = defaults_response["qubit_freq_est"].get<std::vector<double>>();
+    const auto uLoFreqs = chosenBackend["u_channel_lo"];
+    std::vector<int> uLoRefs;
+    for (auto loIter = uLoFreqs.begin(); loIter != uLoFreqs.end(); ++loIter) {
+      auto uLoConfig = *((*loIter).begin());
+      uLoRefs.emplace_back(uLoConfig["q"].get<int>());
+    }
+    // Run the simulation via Python
+    const std::string resultJson =
+        xacc::aer::runPulseSim(hamiltonianJson.dump(), dt, qubitFreqEst, uLoRefs, qobjJsonStr);
+    auto count_json =
+        nlohmann::json::parse(resultJson).get<std::map<std::string, int>>();
+    for (const auto &[hexStr, nOccurrences] : count_json) {
+      auto bitStr = hex_string_to_binary_string(hexStr);
+      // Process bitStr to be an n-Measure string in msb
+      std::string actual = "";
+      const auto nMeasures = measured_bits.size();
+      for (int i = 0; i < nMeasures; i++) {
+        actual += "0";
+      }
+
+      for (int i = 0; i < nMeasures; i++) {
+        actual[actual.length() - 1 - i] = bitStr[bitStr.length() - measured_bits[i] - 1];
+      }
 
       buffer->appendMeasurement(actual, nOccurrences);
     }
@@ -471,6 +545,12 @@ double IbmqNoiseModel::averageGateFidelity(
     return averageFidelity;
   }
   return 1.0;
+}
+
+double IbmqNoiseModel::gateErrorProb(xacc::quantum::Gate &gate) const {
+  const auto universalGateName = getUniversalGateEquiv(gate);
+  const auto gateErrorIter = m_gateErrors.find(universalGateName);
+  return (gateErrorIter == m_gateErrors.end()) ? 0.0 : gateErrorIter->second;
 }
 
 std::vector<KrausOp>

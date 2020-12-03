@@ -1,5 +1,7 @@
 set(LIBRARY_NAME xacc-aer)
 
+add_subdirectory(py-aer)
+
 file(GLOB SRC
           accelerator/aer_accelerator.cpp)
 
@@ -11,10 +13,12 @@ add_library(${LIBRARY_NAME} SHARED ${SRC})
 target_include_directories(${LIBRARY_NAME}
                              PUBLIC .
                                     accelerator
-                                    src)
+                                    src
+                                    ../common)
 target_link_libraries(${LIBRARY_NAME}
                         PUBLIC xacc
                                xacc-quantum-gate
+                               xacc-py-aer-adapter
                         )
 
 set(_bundle_name xacc_aer)
@@ -37,7 +41,6 @@ if(APPLE)
   set_target_properties(${LIBRARY_NAME}
                         PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 else()
-  find_package(LAPACK)
   if(LAPACK_FOUND)
    target_link_libraries(${LIBRARY_NAME} PRIVATE ${LAPACK_LIBRARIES})
   else()

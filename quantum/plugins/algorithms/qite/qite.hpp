@@ -24,6 +24,9 @@ public:
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
                const std::vector<double> &parameters) override;
+  double calculate(const std::string &calculation_task,
+                   const std::shared_ptr<AcceleratorBuffer> buffer,
+                   const HeterogeneousMap &extra_data = {}) override;
   const std::string name() const override { return "qite"; }
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(QITE)
@@ -41,6 +44,9 @@ protected:
   // i.e. emulate the imaginary time evolution of that H term.
   // Returns the norm (as a double) and the A operator (Pauli observable)
   std::pair<double, std::shared_ptr<Observable>> calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const;
+  // Internal helper function:
+  std::pair<double, std::shared_ptr<Observable>>
+  internalCalcAOps(const std::vector<std::string> &pauliOps, const std::vector<double> &sigmaExpectation, std::shared_ptr<Observable> in_hmTerm) const;
 
 protected:
   // Number of Trotter steps
