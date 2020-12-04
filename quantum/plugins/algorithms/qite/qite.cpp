@@ -272,50 +272,15 @@ std::shared_ptr<CompositeInstruction> QITE::constructPropagateCircuit() const
   return propagateKernel;
 }
 
-double QITE::calcCurrentEnergy(int in_nbQubits) const
-{
-  // Trotter kernel up to this point
-  auto propagateKernel = constructPropagateCircuit();
-  auto kernels = m_observable->observe(propagateKernel);
-  std::vector<double> coefficients;
-  std::vector<std::string> kernelNames;
-  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
-
-  double identityCoeff = 0.0;
-  for (auto &f : kernels) 
-  {
-    kernelNames.push_back(f->name());
-    std::complex<double> coeff = f->getCoefficient();
-    int nFunctionInstructions = 0;
-    if (f->nInstructions() > 0 && f->getInstruction(0)->isComposite()) 
-    {
-      nFunctionInstructions = propagateKernel->nInstructions() + f->nInstructions() - 1;
-    } 
-    else 
-    {
-      nFunctionInstructions = f->nInstructions();
-    }
-
-    if (nFunctionInstructions > propagateKernel->nInstructions()) 
-    {
-      fsToExec.push_back(f);
-      coefficients.push_back(std::real(coeff));
-    } 
-    else 
-    {
-      identityCoeff += std::real(coeff);
-    }
-  }
-
-  auto tmpBuffer = xacc::qalloc(in_nbQubits);
-  m_accelerator->execute(tmpBuffer, fsToExec);
-  auto buffers = tmpBuffer->getChildren();
-
-  double energy = identityCoeff;
-  for (int i = 0; i < buffers.size(); ++i) 
-  {
-    auto expval = buffers[i]->getExpectationValueZ();
-    energy += expval * coefficients[i];
+double
+QITE::calcCurrentEnergy(int in_nbQubits, double in_identityCoeff,
+                        const std::vector<double> &in_coefficients,
+                        const std::vector<std::shared_ptr<AcceleratorBuffer>>
+                            &in_resultBuffers) const {
+  double energy = in_identityCoeff;
+  for (int i = 0; i < in_resultBuffers.size(); ++i) {
+    auto expval = in_resultBuffers[i]->getExpectationValueZ();
+    energy += expval * in_coefficients[i];
   }
   xacc::info("Energy = " + std::to_string(energy));
   return energy;
@@ -439,28 +404,90 @@ QITE::internalCalcAOps(const std::vector<std::string> &pauliOps,
   return std::make_pair(std::sqrt(c), updatedAham);
 }
 
-std::pair<double, std::shared_ptr<Observable>> QITE::calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const
-{
-  const auto pauliOps = generatePauliPermutation(in_buffer->size());
+std::tuple<double, double, std::shared_ptr<Observable>>
+QITE::calcQiteEvolve(const std::shared_ptr<AcceleratorBuffer> &in_buffer,
+                     std::shared_ptr<CompositeInstruction> in_kernel,
+                     std::shared_ptr<Observable> in_hmTerm,
+                     bool energyOnly) const {
+  std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+  // First, create the sub-circuits to evaluate current energy values:
+  auto kernels = m_observable->observe(in_kernel);
+  std::vector<double> coefficients;
+  std::vector<std::string> kernelNames;
+  double identityCoeff = 0.0;
+  for (auto &f : kernels) {
+    kernelNames.push_back(f->name());
+    std::complex<double> coeff = f->getCoefficient();
+    int nFunctionInstructions = 0;
+    if (f->nInstructions() > 0 && f->getInstruction(0)->isComposite()) {
+      nFunctionInstructions =
+          in_kernel->nInstructions() + f->nInstructions() - 1;
+    } else {
+      nFunctionInstructions = f->nInstructions();
+    }
+
+    if (nFunctionInstructions > in_kernel->nInstructions()) {
+      fsToExec.push_back(f);
+      coefficients.push_back(std::real(coeff));
+    } else {
+      identityCoeff += std::real(coeff);
+    }
+  }
+  // Cache the number of kernels for energy evaluation:
+  const size_t nbEnergyKernels = fsToExec.size();
+  // If we only need to evaluate the energy: no need any Pauli operators.
+  const auto pauliOps = energyOnly
+                            ? std::vector<std::string>{""}
+                            : generatePauliPermutation(in_buffer->size());
 
   // Observe the kernels using the various Pauli
   // operators to calculate S and b.
-  std::vector<double> sigmaExpectation(pauliOps.size());
-  sigmaExpectation[0] = 1.0;
-  for (int i = 1; i < pauliOps.size(); ++i)
-  {
-    std::shared_ptr<Observable> tomoObservable = std::make_shared<xacc::quantum::PauliOperator>();
+  std::vector<double> sigmaExpectation;
+  // Identity observable:
+  sigmaExpectation.emplace_back(1.0);
+  for (int i = 1; i < pauliOps.size(); ++i) {
+    std::shared_ptr<Observable> tomoObservable =
+        std::make_shared<xacc::quantum::PauliOperator>();
     const std::string pauliObsStr = "1.0 " + pauliOps[i];
     tomoObservable->fromString(pauliObsStr);
     assert(tomoObservable->getSubTerms().size() == 1);
     assert(tomoObservable->getNonIdentitySubTerms().size() == 1);
     auto obsKernel = tomoObservable->observe(in_kernel).front();
-    auto tmpBuffer = xacc::qalloc(in_buffer->size());
-    m_accelerator->execute(tmpBuffer, obsKernel);
-    const auto expval = tmpBuffer->getExpectationValueZ();
-    sigmaExpectation[i] = expval;
+    // Add tomography kernels:
+    fsToExec.emplace_back(obsKernel);
   }
-  return internalCalcAOps(pauliOps, sigmaExpectation, in_hmTerm);
+
+  // Execute all kernels:
+  auto tmpBuffer = xacc::qalloc(in_buffer->size());
+  m_accelerator->execute(tmpBuffer, fsToExec);
+  // Get child buffers:
+  auto childBuffers = tmpBuffer->getChildren();
+  std::vector<std::shared_ptr<AcceleratorBuffer>> energyBuffers;
+  // Get energy buffers:
+  std::copy_n(childBuffers.begin(), nbEnergyKernels,
+              std::back_inserter(energyBuffers));
+  assert(energyBuffers.size() == nbEnergyKernels);
+
+  // Get tomography buffers:
+  std::vector<std::shared_ptr<AcceleratorBuffer>> tommoBuffers;
+  std::copy_n(childBuffers.begin() + nbEnergyKernels, pauliOps.size() - 1,
+              std::back_inserter(tommoBuffers));
+
+  // Process buffer results:
+  const double currentEnergy = calcCurrentEnergy(
+      in_buffer->size(), identityCoeff, coefficients, energyBuffers);
+  if (energyOnly) {
+    assert(childBuffers.size() == nbEnergyKernels);
+    return std::make_tuple(currentEnergy, 0.0, nullptr);
+  }
+
+  for (auto &childBuffer : tommoBuffers) {
+    const auto expval = childBuffer->getExpectationValueZ();
+    sigmaExpectation.emplace_back(expval);
+  }
+  assert(sigmaExpectation.size() == pauliOps.size());
+  auto [norm, Aops] = internalCalcAOps(pauliOps, sigmaExpectation, in_hmTerm);
+  return std::make_tuple(currentEnergy, norm, Aops);
 }
 
 void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const 
@@ -468,8 +495,6 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
   if(!m_analytical)
   {
     // Run on hardware/simulator using quantum gates/measure
-    // Initial energy
-    m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
     auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
     for (const auto& hamTerm : m_observable->getNonIdentitySubTerms())
     {
@@ -482,10 +507,17 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
       // Propagates the state via Trotter steps:
       auto kernel = constructPropagateCircuit();
       // Optimizes/calculates next A ops
-      auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
+      auto [energyVal, normVal, nextAOps] = calcQiteEvolve(buffer, kernel, hamOp);
+      // The energy at this step (before adding the newly calculated A-op)
+      m_energyAtStep.emplace_back(energyVal);
       m_approxOps.emplace_back(nextAOps); 
-      m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
     }
+
+    // We need to execute an extra call to evaluate the end energy:
+    auto finalKernel = constructPropagateCircuit();
+    auto [energyVal, normVal, nextAOps] = calcQiteEvolve(buffer, finalKernel, hamOp, true);
+    assert(nextAOps == nullptr);
+    m_energyAtStep.emplace_back(energyVal);
     assert(m_energyAtStep.size() == m_nbSteps + 1);
     // Last energy value
     buffer->addExtraInfo("opt-val", ExtraInfo(m_energyAtStep.back()));
@@ -494,9 +526,8 @@ void QITE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
     buffer->addExtraInfo("exp-vals", ExtraInfo(m_energyAtStep));
 
     // Final kernel:
-    auto kernel = constructPropagateCircuit();
     auto staq = xacc::getCompiler("staq");
-    const auto openQASMSrc = staq->translate(kernel);
+    const auto openQASMSrc = staq->translate(finalKernel);
     // Returns the QITE circuit as a QASM string:
     buffer->addExtraInfo("qasm", ExtraInfo(openQASMSrc));
   }
@@ -696,8 +727,6 @@ void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
   std::vector<double> normAtStep;
   std::vector<double> lanczosEnergy;
   // Run on hardware/simulator using quantum gates/measure
-  // Initial energy
-  m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
   // Initial norm
   normAtStep.emplace_back(1.0);
   auto hamOp = std::make_shared<xacc::quantum::PauliOperator>();
@@ -707,23 +736,27 @@ void QLanczos::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const
   }
 
   // Time stepping:
-  for (int i = 0; i < m_nbSteps; ++i) 
-  {
+  for (int i = 0; i < m_nbSteps; ++i) {
     // Propagates the state via Trotter steps:
     auto kernel = constructPropagateCircuit();
     // Optimizes/calculates next A ops
-    auto [normVal, nextAOps] = calcAOps(buffer, kernel, hamOp);
+    auto [energyVal, normVal, nextAOps] = calcQiteEvolve(buffer, kernel, hamOp);
     m_approxOps.emplace_back(nextAOps);
-    m_energyAtStep.emplace_back(calcCurrentEnergy(buffer->size()));
-    normAtStep.emplace_back(normVal * normAtStep.back());
-    // Even steps:
-    if ((i % 2) == 0) 
-    {
+    m_energyAtStep.emplace_back(energyVal);
+    // Odd steps (back processing):
+    if ((i % 2) == 1) {
       lanczosEnergy.emplace_back(calcQlanczosEnergy(normAtStep));
     }
+    normAtStep.emplace_back(normVal * normAtStep.back());
   }
-
+  auto finalKernel = constructPropagateCircuit();
+  auto [energyVal, normVal, nextAOps] =
+      calcQiteEvolve(buffer, finalKernel, hamOp, true);
+  assert(nextAOps == nullptr);
+  m_energyAtStep.emplace_back(energyVal);
   assert(m_energyAtStep.size() == m_nbSteps + 1);
+  lanczosEnergy.emplace_back(calcQlanczosEnergy(normAtStep));
+
   // Last QLanczos energy value
   buffer->addExtraInfo("opt-val", ExtraInfo(lanczosEnergy.back()));
   // Also returns the full list of energy values
