@@ -24,32 +24,24 @@
 
 #include "Algorithm.hpp"
 #include "xacc.hpp"
-#include "xacc_service.hpp"
 
 namespace xacc {
 namespace algorithm {
 class qEOM : public Algorithm {
 protected:
-  Observable *observable;
-  Optimizer *optimizer;
+  std::shared_ptr<Observable> observable;
   CompositeInstruction *kernel;
   Accelerator *accelerator;
   HeterogeneousMap parameters;
+  std::vector<std::shared_ptr<Observable>> operators;
 
   double VQEWrapper(const std::shared_ptr<AcceleratorBuffer> buffer,
-                    const std::vector<double> &parameters,
                     const std::shared_ptr<Observable> obs) const;
-
-  std::vector<double> EOM(const std::shared_ptr<AcceleratorBuffer> buffer,
-                          std::vector<double> x) const;
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;
-
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
-  std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-                              const std::vector<double> &parameters) override;
 
   const std::string name() const override { return "qeom"; }
   const std::string description() const override { return ""; }

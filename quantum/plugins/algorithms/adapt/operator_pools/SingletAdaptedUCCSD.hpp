@@ -51,6 +51,7 @@ public:
     }
 
     _nElectrons = parameters.get<int>("n-electrons");
+    if (!pool.empty()) pool.clear();
 
     return true;
   }

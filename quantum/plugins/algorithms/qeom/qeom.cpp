@@ -12,13 +12,13 @@
  ******************************************************************************/
 #include "qeom.hpp"
 
-#include "Accelerator.hpp"
-#include "Observable.hpp"
+#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "OperatorPool.hpp"
 #include "PauliOperator.hpp"
-#include <memory>
+#include "FermionOperator.hpp"
+#include "ObservableTransform.hpp"
+#include "xacc_observable.hpp"
 #include <iomanip>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
@@ -45,66 +45,69 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
     return false;
   }
 
-  observable = parameters.getPointerLike<Observable>("observable");
-  if (parameters.pointerLikeExists<Optimizer>("optimizer")) {
-    optimizer = parameters.getPointerLike<Optimizer>("optimizer");
+  if (!parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
+          "operators")) {
+    xacc::error("Excitation operators was false");
+    return false;
   }
+
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
+  operators =
+      parameters.get<std::vector<std::shared_ptr<Observable>>>("operators");
+
+  observable =
+      xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
+  if (observable->toString().find("^") != std::string::npos) {
+
+    auto jw = xacc::getService<ObservableTransform>("jw");
+    if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
+      observable = jw->transform(observable);
+    } else {
+      auto fermionObservable =
+          xacc::quantum::getObservable("fermion", observable->toString());
+      observable = jw->transform(
+          std::dynamic_pointer_cast<Observable>(fermionObservable));
+    }
+
+    // observable is PauliOperator, but does not cast down to it
+    // Not sure about the likelihood of this happening, but want to cover all
+    // bases
+  } else if (observable->toString().find("X") != std::string::npos ||
+             observable->toString().find("Y") != std::string::npos ||
+             observable->toString().find("Z") != std::string::npos &&
+                 !std::dynamic_pointer_cast<PauliOperator>(observable)) {
+
+    auto pauliObservable =
+        xacc::quantum::getObservable("pauli", observable->toString());
+    observable = std::dynamic_pointer_cast<Observable>(pauliObservable);
+  }
+
 
   return true;
 }
 
 const std::vector<std::string> qEOM::requiredParameters() const {
-  return {"observable", "optimizer", "accelerator", "ansatz"};
+  return {"observable", "accelerator", "ansatz", "operators"};
 }
 
 void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
 
-  // call vqe here
-  auto vqe =
-      xacc::getAlgorithm("vqe", {{"optimizer", xacc::as_shared_ptr(optimizer)},
-                                 {"observable", observable},
-                                 {"ansatz", kernel},
-                                 {"accelerator", accelerator}});
-
-  vqe->execute(buffer);
-  auto x = (*buffer)["opt-params"].as<std::vector<double>>();
-  auto spectrum = EOM(buffer, x);
-
-  return;
-}
-
-std::vector<double>
-qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
-              const std::vector<double> &x) {
-
-  // auto spectrum = {};//qEOM(buffer, x);
-  return {0.0}; // spectrum;
-}
-
-// this is where the actual qEOM takes place
-std::vector<double> qEOM::EOM(const std::shared_ptr<AcceleratorBuffer> buffer,
-                              std::vector<double> x) const {
-
-  auto pool = xacc::getService<OperatorPool>("singlet-adapted-uccsd");
-  auto operators = pool->generate(buffer->size());
   int nOperators = operators.size();
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(nOperators, nOperators);
   Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(nOperators, nOperators);
   Eigen::MatrixXd V = Eigen::MatrixXd::Zero(nOperators, nOperators);
   Eigen::MatrixXd W = Eigen::MatrixXd::Zero(nOperators, nOperators);
-  Eigen::MatrixXd MQ =
-      Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
-  Eigen::MatrixXd VW =
-      Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
+  Eigen::MatrixXd MQ = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
+  Eigen::MatrixXd VW = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
 
   // this lambda computes
   // [A, H, B] = 1/2 x ([[A,H],B] + [A,[H,B]])
   auto doubleCommutator = [&](std::shared_ptr<Observable> A,
                               std::shared_ptr<Observable> B) {
     // [A,H]
-    auto AH = A->commutator(xacc::as_shared_ptr(observable));
+  
+    auto AH = A->commutator(observable);
     // [[A,H],B]
     auto AH_B = *std::dynamic_pointer_cast<PauliOperator>(AH->commutator(B));
     // [H,B]
@@ -112,10 +115,14 @@ std::vector<double> qEOM::EOM(const std::shared_ptr<AcceleratorBuffer> buffer,
     // [A,[H,B]]
     auto A_HB = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(HB));
 
-    auto sum = 0.5 * (AH_B + A_HB);
-
+/*
+    auto AH_B = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(observable)->commutator(B));
+    auto A_HB = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(observable->commutator(B)));
+    //auto sum = 0.5 * (2*X*H*Y + 2*Y*H*X - Y*X*H - H*X*Y - H*Y*X - X*Y*H);
+*/
+auto ret = 0.5 * (AH_B + A_HB);
     return std::dynamic_pointer_cast<Observable>(
-        std::make_shared<PauliOperator>(sum));
+        std::make_shared<PauliOperator>(ret));
   };
 
   // loop over bra
@@ -136,36 +143,38 @@ std::vector<double> qEOM::EOM(const std::shared_ptr<AcceleratorBuffer> buffer,
       auto ketConj = std::dynamic_pointer_cast<Observable>(
           std::make_shared<PauliOperator>(tmp_ketConj));
 
-      // Observables to compute the qEOM matrix elements
-      auto MOp = doubleCommutator(bra, ket);
-      M(mu, nu) = VQEWrapper(buffer, x, MOp);
+      // qEOM matrix elements
+      std::cout << "LEFT\n" << bra->toString() << "\n";
+      std::cout << "RIGHT\n" << ket->toString() << "\n";
+      std::cout << doubleCommutator(bra, ket)->toString() << "\n\n";
+      M(mu, nu) = VQEWrapper(buffer, doubleCommutator(bra, ket));
+      Q(mu, nu) = -VQEWrapper(buffer, doubleCommutator(bra, ketConj));
+      V(mu, nu) = VQEWrapper(buffer, bra->commutator(ket));
+      W(mu, nu) = -VQEWrapper(buffer, bra->commutator(ketConj));
 
-      auto QOp = doubleCommutator(bra, ketConj);
-      Q(mu, nu) = -VQEWrapper(buffer, x, QOp);
-
-      auto VOp = bra->commutator(ket);
-      V(mu, nu) = VQEWrapper(buffer, x, VOp);
-
-      auto WOp = bra->commutator(ketConj);
-      W(mu, nu) = -VQEWrapper(buffer, x, WOp);
     }
   }
 
-  // LHS matrix composed of M and Q
+  std::cout << "Computed matrix elements\n";
+  // LHS matrix
   // | M  Q  |
-  // | Q^ M^ |git lo
+  // | Q^ M^ |
   MQ.topLeftCorner(nOperators, nOperators) = M;
   MQ.topRightCorner(nOperators, nOperators) = Q;
   MQ.bottomLeftCorner(nOperators, nOperators) = Q.adjoint();
   MQ.bottomRightCorner(nOperators, nOperators) = M.adjoint();
 
-  // RHS matrix composed of V and W
+  // RHS matrix
   // |  V   W  |
   // | -W^ -V^ |
   VW.topLeftCorner(nOperators, nOperators) = V;
   VW.topRightCorner(nOperators, nOperators) = W;
   VW.bottomLeftCorner(nOperators, nOperators) = -W.adjoint();
   VW.bottomRightCorner(nOperators, nOperators) = -V.adjoint();
+  std::cout << M << "\n";
+  std::cout << Q << "\n";
+  std::cout << V << "\n";
+  std::cout << V << "\n";
 
   // Compute eigenvalues
   Eigen::GeneralizedEigenSolver<Eigen::MatrixXd> ges;
@@ -173,19 +182,16 @@ std::vector<double> qEOM::EOM(const std::shared_ptr<AcceleratorBuffer> buffer,
   auto spectrum = ges.eigenvalues();
   std::cout << spectrum.transpose() << "\n";
 
-  return {};
+  return;
 }
 
 double qEOM::VQEWrapper(const std::shared_ptr<AcceleratorBuffer> buffer,
-                        const std::vector<double> &x,
                         const std::shared_ptr<Observable> obs) const {
-
-  auto vqe = xacc::getAlgorithm("vqe", {{"optimizer", optimizer},
-                                        {"observable", obs},
-                                        {"ansatz", kernel},
-                                        {"accelerator", accelerator}});
+  auto vqe = xacc::getAlgorithm(
+      "vqe",
+      {{"observable", obs}, {"ansatz", kernel}, {"accelerator", accelerator}});
   auto tmpBuffer = xacc::qalloc(buffer->size());
-  return vqe->execute(tmpBuffer, x)[0];
+  return vqe->execute(tmpBuffer, {})[0];
 }
 
 } // namespace algorithm
