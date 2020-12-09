@@ -1,6 +1,7 @@
 #include "NoiseModel.hpp"
 #include "xacc_plugin.hpp"
 #include "json.hpp"
+#include "xacc.hpp"
 
 namespace xacc {
 class JsonNoiseModel : public NoiseModel {
@@ -12,7 +13,23 @@ public:
            "JSON input file.";
   }
 
-  virtual void initialize(const HeterogeneousMap &params) override {}
+  virtual void initialize(const HeterogeneousMap &params) override {
+    if (params.stringExists("noise-model")) {
+      std::string noise_model_str = params.getString("noise-model");
+      // Check if this is a file name
+      std::ifstream test(noise_model_str);
+      if (test) {
+        std::string str((std::istreambuf_iterator<char>(test)),
+                        std::istreambuf_iterator<char>());
+        m_noiseModel = nlohmann::json::parse(str);
+      } else {
+        m_noiseModel = nlohmann::json::parse(params.getString("noise-model"));
+      }
+    }
+
+    // Debug:
+    std::cout << "HOWDY: \n" << m_noiseModel.dump() << "\n";
+  }
   virtual std::string toJson() const override { return ""; }
   virtual RoErrors readoutError(size_t qubitIdx) const override { return {}; }
   virtual std::vector<RoErrors> readoutErrors() const override { return {}; }
@@ -32,6 +49,9 @@ public:
   averageTwoQubitGateFidelity() const override {
     return {};
   }
+
+private:
+  nlohmann::json m_noiseModel;
 };
 } // namespace xacc
 
