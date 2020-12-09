@@ -3,6 +3,7 @@
 #include "json.hpp"
 #include "xacc.hpp"
 #include <Eigen/Dense>
+#include "CommonGates.hpp"
 
 namespace {
 constexpr double NUM_TOL = 1e-9;
@@ -38,6 +39,37 @@ bool validateKrausCPTP(const std::vector<Eigen::MatrixXcd> &mats,
     cptp = cptp + mat.adjoint() * mat;
   }
   return isIdentity(cptp, threshold);
+}
+
+using cMat = std::vector<std::vector<std::complex<double>>>;
+using cMatPair = std::vector<std::vector<std::pair<double, double>>>;
+
+cMat convertToStdMat(const Eigen::MatrixXcd &in_eigenMat) {
+  const size_t dim = in_eigenMat.rows();
+  cMat result;
+  for (size_t row = 0; row < dim; ++row) {
+    std::vector<std::complex<double>> rowVec;
+    for (size_t col = 0; col < dim; ++col) {
+      rowVec.emplace_back(in_eigenMat(row, col));
+    }
+    result.emplace_back(rowVec);
+  }
+  return result;
+}
+
+cMatPair convertToMatOfPairs(const cMat &in_mat) {
+  cMatPair result;
+  const size_t dim = in_mat.size();
+  for (size_t row = 0; row < dim; ++row) {
+    std::vector<std::pair<double, double>> rowVec;
+    const auto &cRowVec = in_mat[row];
+    for (size_t col = 0; col < dim; ++col) {
+      const auto elem = cRowVec[col];
+      rowVec.emplace_back(elem.real(), elem.imag());
+    }
+    result.emplace_back(rowVec);
+  }
+  return result;
 }
 } // namespace
 
@@ -90,6 +122,10 @@ public:
       const auto register_location =
           noise_info["register_location"].get<std::vector<std::string>>();
       const auto gateKey = createGateLookupKey(gate_name, register_location);
+      for (const auto &qLabel : register_location) {
+        m_qubitLabels.emplace(qLabel);
+      }
+
       std::cout << "Process: " << gateKey << "\n";
       auto noise_kraus_ops = noise_info["noise_kraus_ops"];
       std::vector<NoiseKrausOp> noise_ops;
@@ -141,12 +177,77 @@ public:
     }
   }
 
-  virtual std::string toJson() const override { return ""; }
+  virtual std::string toJson() const override {
+    // Convert to IBM noise model Json
+    nlohmann::json noiseModel;
+    std::vector<nlohmann::json> noiseElements;
+    // TODO: adds RO errors
+    // Add Kraus noise:
+    // Note: we must add noise ops for u2, u3, and cx gates:
+    // (1) Single-qubit gate noise:
+    for (const auto &qbitLabel : m_qubitLabels) {
+      // To convert to IBM, the qubit label must be integers.
+      const size_t qIdx = std::stoi(qbitLabel);
+      // For mapping purposes:
+      // U2 == Hadamard gate
+      // U3 == X gate
+      xacc::quantum::Hadamard gateU2({qIdx});
+      xacc::quantum::X gateU3({qIdx});
+      const std::unordered_map<std::string, xacc::quantum::Gate *> gateMap{
+          {"u2", &gateU2}, {"u3", &gateU3}};
+
+      for (const auto &[gateName, gate] : gateMap) {        
+        const auto errorChannels = gateError(*gate);
+        nlohmann::json element;
+        element["type"] = "qerror";
+        element["operations"] = std::vector<std::string>{gateName};
+        element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
+        std::vector<nlohmann::json> krausOps;
+        std::vector<cMatPair> kraus_list;
+        for (const auto &error : errorChannels) {
+          kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+        }
+        nlohmann::json instruction;
+        instruction["name"] = "kraus";
+        instruction["qubits"] = std::vector<std::size_t>{0};
+        instruction["params"] = kraus_list;
+        krausOps.emplace_back(instruction);
+        element["instructions"] =
+            std::vector<std::vector<nlohmann::json>>{krausOps};
+        element["probabilities"] = std::vector<double>{1.0};
+        noiseElements.push_back(element);
+      }
+    }
+
+    noiseModel["errors"] = noiseElements;
+    return noiseModel.dump(6);
+  }
+
   virtual RoErrors readoutError(size_t qubitIdx) const override { return {}; }
   virtual std::vector<RoErrors> readoutErrors() const override { return {}; }
   virtual std::vector<KrausOp>
   gateError(xacc::quantum::Gate &gate) const override {
-    return {};
+    std::string gateKey = gate.name() + "_" + std::to_string(gate.bits()[0]);
+    if (gate.bits().size() > 1) {
+      for (int i = 1; i < gate.bits().size(); ++i) {
+        gateKey += ("_" + std::to_string(gate.bits()[i]));
+      }
+    }
+    const auto iter = m_gateNoise.find(gateKey);
+    if (iter == m_gateNoise.end()) {
+      xacc::error("Failed to find noise configuration for gate " + gate.toString());
+    }
+    const auto noiseOps = iter->second;
+    std::vector<KrausOp> result;
+    for (const auto& op: noiseOps) {
+      KrausOp newOp;
+      // TODO: extend to multi-qubit ops
+      newOp.qubit = std::stoi(op.bit_locs[0]);
+      newOp.mats = convertToStdMat(op.matrix);
+      result.emplace_back(std::move(newOp));
+    }
+    
+    return result;
   }
   virtual double gateErrorProb(xacc::quantum::Gate &gate) const override {
     return 0.0;
@@ -176,6 +277,7 @@ private:
   nlohmann::json m_noiseModel;
   BitOrder m_bitOrder;
   std::unordered_map<std::string, std::vector<NoiseKrausOp>> m_gateNoise;
+  std::set<std::string> m_qubitLabels;
 };
 } // namespace xacc
 
