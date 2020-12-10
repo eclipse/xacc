@@ -107,6 +107,10 @@ public:
             inst.set_duration(i.duration());
         }
 
+        if (i.name() == "delay") {
+            inst.set_duration(i.duration());
+        }
+
         if (i.channel()[0] == 'm') {
             // this is a measure channel
 
