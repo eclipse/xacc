@@ -15,7 +15,7 @@ TEST(JsonNoiseModelTester, checkSimple) {
   const std::string ibmNoiseJson = noiseModel->toJson();
   std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
   auto accelerator = xacc::getAccelerator(
-      "aer", {{"noise-model", ibmNoiseJson}, {"shots", 8192}});
+      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
   // auto accelerator = xacc::getAccelerator("aer", {{"shots", 8192}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
@@ -28,6 +28,10 @@ TEST(JsonNoiseModelTester, checkSimple) {
   auto buffer = xacc::qalloc(1);
   accelerator->execute(buffer, program);
   buffer->print();
+  auto densityMatrix = (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+  EXPECT_EQ(densityMatrix.size(), 4);
+  // Check trace
+  EXPECT_NEAR(densityMatrix[0].first + densityMatrix[3].first, 1.0, 1e-6);
 }
 
 int main(int argc, char **argv) {
