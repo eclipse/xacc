@@ -78,9 +78,9 @@ class JsonNoiseModel : public NoiseModel {
 public:
   enum class BitOrder { MSB, LSB };
 
-  struct NoiseKrausOp {
+  struct KrausChannel {
     std::vector<std::string> bit_locs;
-    Eigen::MatrixXcd matrix;
+    std::vector<Eigen::MatrixXcd> matrix;
   };
 
   // Identifiable interface impls
@@ -127,52 +127,53 @@ public:
       }
 
       std::cout << "Process: " << gateKey << "\n";
-      auto noise_kraus_ops = noise_info["noise_kraus_ops"];
-      std::vector<NoiseKrausOp> noise_ops;
-      std::vector<Eigen::MatrixXcd>  kraus_mats;
-      for (auto kraus_iter = noise_kraus_ops.begin();
-           kraus_iter != noise_kraus_ops.end(); ++kraus_iter) {
-        NoiseKrausOp newOp;
-        auto kraus_op = *kraus_iter;
-        if (kraus_op.find("total_count") != kraus_op.end()) {
+      auto noise_channels = noise_info["noise_channels"];
+      std::vector<KrausChannel> noise_ops;
+      for (auto channel_iter = noise_channels.begin();
+           channel_iter != noise_channels.end(); ++channel_iter) {
+        KrausChannel newOp;
+        auto channel = *channel_iter;
+        if (channel.find("noise_qubits") != channel.end()) {
           newOp.bit_locs =
-              kraus_op["total_count"].get<std::vector<std::string>>();
+              channel["noise_qubits"].get<std::vector<std::string>>();
         } else {
           newOp.bit_locs = register_location;
         }
 
-        const auto op_mat =
-            kraus_op["matrix"]
-                .get<std::vector<std::vector<std::pair<double, double>>>>();
-        const auto nbRows = op_mat.size();
-        if (nbRows != (1ULL << newOp.bit_locs.size())) {
-          xacc::error("Kraus operator matrix dimension doesn't match the "
-                      "number of qubits.");
-        }
-
-        Eigen::MatrixXcd mat = Eigen::MatrixXcd::Zero(nbRows, nbRows);
-        for (int row = 0; row < nbRows; ++row) {
-          const auto &rowVec = op_mat[row];
-          if (rowVec.size() != nbRows) {
-            xacc::error("Kraus operator matrix must be square.");
+        const auto op_mats =
+            channel["matrix"]
+                .get<std::vector<std::vector<std::vector<std::pair<double, double>>>>>();
+        for (const auto &op_mat : op_mats) {
+          const auto nbRows = op_mat.size();
+          if (nbRows != (1ULL << newOp.bit_locs.size())) {
+            xacc::error("Kraus operator matrix dimension doesn't match the "
+                        "number of qubits.");
           }
 
-          for (int col = 0; col < rowVec.size(); ++col) {
-            auto elemPair = rowVec[col];
-            mat(row, col) =
-                std::complex<double>{elemPair.first, elemPair.second};
+          Eigen::MatrixXcd mat = Eigen::MatrixXcd::Zero(nbRows, nbRows);
+          for (int row = 0; row < nbRows; ++row) {
+            const auto &rowVec = op_mat[row];
+            if (rowVec.size() != nbRows) {
+              xacc::error("Kraus operator matrix must be square.");
+            }
+
+            for (int col = 0; col < rowVec.size(); ++col) {
+              auto elemPair = rowVec[col];
+              mat(row, col) =
+                  std::complex<double>{elemPair.first, elemPair.second};
+            }
           }
+
+          newOp.matrix.emplace_back(mat);
         }
-        newOp.matrix = mat;
+
+        if (!validateKrausCPTP(newOp.matrix)) {
+          xacc::error("The list of Kraus operators for gate " + gateKey +
+                      " don't satisfy the CPTP condition.");
+        }
         noise_ops.emplace_back(newOp);
-        kraus_mats.emplace_back(mat);
-        std::cout << "Parsed Kraus op:\n" << mat << "\n";
       }
 
-      if (!validateKrausCPTP(kraus_mats)) {
-        xacc::error("The list of Kraus operators for gate " + gateKey +
-                    " don't satisfy the CPTP condition.");
-      }
       m_gateNoise.emplace(gateKey, noise_ops);
     }
   }
@@ -198,24 +199,27 @@ public:
 
       for (const auto &[gateName, gate] : gateMap) {        
         const auto errorChannels = gateError(*gate);
-        nlohmann::json element;
-        element["type"] = "qerror";
-        element["operations"] = std::vector<std::string>{gateName};
-        element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
-        std::vector<nlohmann::json> krausOps;
-        std::vector<cMatPair> kraus_list;
-        for (const auto &error : errorChannels) {
-          kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+        if (!errorChannels.empty()) {
+          nlohmann::json element;
+          element["type"] = "qerror";
+          element["operations"] = std::vector<std::string>{gateName};
+          element["gate_qubits"] =
+              std::vector<std::vector<std::size_t>>{{qIdx}};
+          std::vector<nlohmann::json> krausOps;
+          std::vector<cMatPair> kraus_list;
+          for (const auto &error : errorChannels) {
+            kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+          }
+          nlohmann::json instruction;
+          instruction["name"] = "kraus";
+          instruction["qubits"] = std::vector<std::size_t>{0};
+          instruction["params"] = kraus_list;
+          krausOps.emplace_back(instruction);
+          element["instructions"] =
+              std::vector<std::vector<nlohmann::json>>{krausOps};
+          element["probabilities"] = std::vector<double>{1.0};
+          noiseElements.push_back(element);
         }
-        nlohmann::json instruction;
-        instruction["name"] = "kraus";
-        instruction["qubits"] = std::vector<std::size_t>{0};
-        instruction["params"] = kraus_list;
-        krausOps.emplace_back(instruction);
-        element["instructions"] =
-            std::vector<std::vector<nlohmann::json>>{krausOps};
-        element["probabilities"] = std::vector<double>{1.0};
-        noiseElements.push_back(element);
       }
     }
 
@@ -234,21 +238,27 @@ public:
       }
     }
     const auto iter = m_gateNoise.find(gateKey);
+    // Cannot find the noise info:
     if (iter == m_gateNoise.end()) {
-      xacc::error("Failed to find noise configuration for gate " + gate.toString());
+      std::cout << "Failed to find noise configuration for gate " << gate.toString() << "\n";
+      // Just assume no noise.
+      return {};
     }
-    const auto noiseOps = iter->second;
+
+    const auto noiseChans = iter->second;
     std::vector<KrausOp> result;
-    for (const auto& op: noiseOps) {
-      KrausOp newOp;
-      // TODO: extend to multi-qubit ops
-      newOp.qubit = std::stoi(op.bit_locs[0]);
-      newOp.mats = convertToStdMat(op.matrix);
-      result.emplace_back(std::move(newOp));
+    for (const auto &chan : noiseChans) {
+      for (const auto &op : chan.matrix) {
+        KrausOp newOp;
+        // TODO: extend to multi-qubit ops
+        newOp.qubit = std::stoi(chan.bit_locs[0]);
+        newOp.mats = convertToStdMat(op);
+        result.emplace_back(std::move(newOp));
+      }
     }
-    
     return result;
   }
+
   virtual double gateErrorProb(xacc::quantum::Gate &gate) const override {
     return 0.0;
   }
@@ -276,7 +286,7 @@ private:
 private:
   nlohmann::json m_noiseModel;
   BitOrder m_bitOrder;
-  std::unordered_map<std::string, std::vector<NoiseKrausOp>> m_gateNoise;
+  std::unordered_map<std::string, std::vector<KrausChannel>> m_gateNoise;
   std::set<std::string> m_qubitLabels;
 };
 } // namespace xacc

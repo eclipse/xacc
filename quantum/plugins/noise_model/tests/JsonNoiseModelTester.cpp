@@ -6,7 +6,7 @@
 namespace {
 // A sample Json for testing
 const std::string test_json =
-    R"({"gate_noise": [{"gate_name": "H", "register_location": ["0"], "noise_kraus_ops": [{"matrix": [[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]], "noise_qubits": ["0"]}]}, {"gate_name": "X", "register_location": ["0"], "noise_kraus_ops": [{"matrix": [[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], "noise_qubits": ["0"]}, {"matrix": [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]], "noise_qubits": ["0"]}]}], "bit_order": "MSB"})";
+    R"({"gate_noise": [{"gate_name": "X", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
 } // namespace
 
 TEST(JsonNoiseModelTester, checkSimple) {
@@ -32,6 +32,18 @@ TEST(JsonNoiseModelTester, checkSimple) {
   EXPECT_EQ(densityMatrix.size(), 4);
   // Check trace
   EXPECT_NEAR(densityMatrix[0].first + densityMatrix[3].first, 1.0, 1e-6);
+  // Expected result:
+  // 0.00666667+0.j 0.        +0.j
+  // 0.        +0.j 0.99333333+0.j
+  // Check real part
+  EXPECT_NEAR(densityMatrix[0].first, 0.00666667, 1e-6);
+  EXPECT_NEAR(densityMatrix[1].first, 0.0, 1e-6);
+  EXPECT_NEAR(densityMatrix[2].first, 0.0, 1e-6);
+  EXPECT_NEAR(densityMatrix[3].first, 0.99333333, 1e-6);
+  // Check imag part
+  for (const auto &[real, imag] : densityMatrix) {
+    EXPECT_NEAR(imag, 0.0, 1e-6);
+  }
 }
 
 int main(int argc, char **argv) {
