@@ -80,7 +80,9 @@ result = backend_sim.run(pulse_qobj, system_model=system_model).result().to_dict
 hex_to_count = result["results"][0]["data"]["counts"]
 for hex_val in hex_to_count:
     hex_to_count[hex_val] = int(hex_to_count[hex_val])
-count_json = json.dumps(hex_to_count)
+state_vec = result["results"][0]["data"]["statevector"]
+result_data = {"counts": hex_to_count, "statevector": state_vec }
+result_json = json.dumps(result_data)
 )#";
   // Check if Qiskit present.
   try {
@@ -105,7 +107,7 @@ count_json = json.dumps(hex_to_count)
   locals["qobj_json"] = qObjJson;
   // Run the simulator:
   pybind11::exec(py_src, pybind11::globals(), locals);
-  const auto result = locals["count_json"].cast<std::string>();
+  const auto result = locals["result_json"].cast<std::string>();
   return result;
 }
 } // namespace aer
