@@ -97,7 +97,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
                 "valid Optimizer.");
   }
 
-  auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
+  //auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   // Cache of energy values during iterations.
   std::vector<double> energies;
 
@@ -108,6 +108,11 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::vector<double> coefficients;
         std::vector<std::string> kernelNames;
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
+
+        // call CompositeInstruction::operator()()
+        auto evaled = kernel->operator()(x);
+        // observe
+        auto kernels = observable->observe(evaled);
 
         double identityCoeff = 0.0;
         int nInstructionsEnergy = 0, nInstructionsGradient = 0;
@@ -124,13 +129,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           }
 
           if (nFunctionInstructions > kernel->nInstructions()) {
-            if (x.empty()) {
-              fsToExec.push_back(f);
-            } else {
-              auto evaled = f->operator()(x);
-              evaled->setCoefficient(f->getCoefficient());
-              fsToExec.push_back(evaled);
-            }
+            fsToExec.push_back(f);
             coefficients.push_back(std::real(coeff));
           } else {
             identityCoeff += std::real(coeff);
@@ -299,12 +298,13 @@ std::vector<double>
 VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
              const std::vector<double> &x) {
 
-  auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   std::vector<double> coefficients;
   std::vector<std::string> kernelNames;
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
   double identityCoeff = 0.0;
+  auto evaled = xacc::as_shared_ptr(kernel)->operator()(x);
+  auto kernels = observable->observe(evaled);
   for (auto &f : kernels) {
     kernelNames.push_back(f->name());
     std::complex<double> coeff = f->getCoefficient();
@@ -317,18 +317,10 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
     }
 
     if (nFunctionInstructions > kernel->nInstructions()) {
-      if (x.empty()) {
-        fsToExec.push_back(f);
-      } else {
-        auto evaled = f->operator()(x);
-        // Need to add this if x != {}
-        // so that the HPCVirtDecorator can 
-        // access the coefficients to compute the energy
-        if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
-          xacc::as_shared_ptr(accelerator))) {
-          evaled->setCoefficient(coeff);
-        }
-        fsToExec.push_back(evaled);
+      fsToExec.push_back(f);
+      if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
+        xacc::as_shared_ptr(accelerator))) {
+        f->setCoefficient(coeff);
       }
       coefficients.push_back(std::real(coeff));
     } else {
