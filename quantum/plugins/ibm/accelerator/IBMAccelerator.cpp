@@ -806,6 +806,8 @@ void IBMAccelerator::contributeInstructions(
   xacc::contributeService("fc", fc);
   auto aq = std::make_shared<Pulse>("acquire");
   xacc::contributeService("acquire", aq);
+  auto dl = std::make_shared<Pulse>("delay");
+  xacc::contributeService("delay", dl);
 
   // Add "parametric_pulse"
   auto parametricPulse = std::make_shared<Pulse>("parametric_pulse");
