@@ -21,7 +21,14 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
       auto libPythonPreload =
           dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
     }
-    pybind11::initialize_interpreter();
+    try {
+      // This is implemented as a free-function,
+      // hence just try to start an interpreter,
+      // and ignore if the interpreter has been started.
+      pybind11::initialize_interpreter();
+    } catch (std::exception &e) {
+      // std::cout << e.what();
+    }
     PythonInit = true;
   }
   auto py_src = R"#(

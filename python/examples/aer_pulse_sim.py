@@ -3,6 +3,7 @@
 
 import xacc, sys, numpy as np
 
+# Helper to create a centered Gaussian pulse:
 def gaussianCalc(in_time, in_amp, in_center, in_sigma):
     return in_amp*np.exp(-(in_time - in_center)**2/ 2.0 / (in_sigma**2.0))
 
@@ -38,6 +39,12 @@ qpu = xacc.getAccelerator("aer:ibmq_bogota", {"sim-type": "pulse"})
 buffer = xacc.qalloc(5)
 qpu.execute(buffer, program)
 
-print(buffer)
+# print(buffer)
+
+# Aer simulator will also return the state vector:
+# Note: it looks like the state-vector is in the qutrit space...
+# and the leaked state |2> is measured as 0.
+state_vec = buffer.getInformation("state")
+print(len(state_vec))
 
 
