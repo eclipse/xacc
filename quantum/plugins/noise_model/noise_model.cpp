@@ -125,6 +125,24 @@ public:
       for (const auto &qLabel : register_location) {
         m_qubitLabels.emplace(qLabel);
       }
+      
+      if (register_location.empty() || register_location.size() > 2) {
+        // We only support up to 2-q gate at the moment.
+        xacc::error("Invalid data in 'register_location'.");
+      }
+
+      if (register_location.size() == 2) {
+        const auto firstQ = std::stoi(register_location[0]);
+        const auto secondQ = std::stoi(register_location[1]);
+        if (firstQ == secondQ) {
+          xacc::error("register_location must contain different qubits.");
+        }
+        if (firstQ < secondQ) {
+          m_connectivity.emplace(firstQ, secondQ);
+        } else {
+          m_connectivity.emplace(secondQ, firstQ);
+        }
+      }
 
       std::cout << "Process: " << gateKey << "\n";
       auto noise_channels = noise_info["noise_channels"];
@@ -223,6 +241,42 @@ public:
       }
     }
 
+    // (2) Two-qubit gates, i.e. CNOT,
+    // since we're generating IBM JSON.
+    for (const auto &[q1, q2] : m_connectivity) {
+      xacc::quantum::CNOT gateCX1(q1, q2);
+      xacc::quantum::CNOT gateCX2(q2, q1);
+      std::vector<xacc::quantum::CNOT> gatePair{gateCX1, gateCX2};
+      for (auto &gate : gatePair) {
+        const auto errorChannels = gateError(gate);
+        if (!errorChannels.empty()) {
+          nlohmann::json element;
+          element["type"] = "qerror";
+          element["operations"] = std::vector<std::string>{"cx"};
+          element["gate_qubits"] =
+              std::vector<std::vector<std::size_t>>{gate.bits()};
+          std::vector<nlohmann::json> krausOps;
+          std::vector<cMatPair> kraus_list;
+          for (const auto &error : errorChannels) {
+            kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+          }
+          nlohmann::json instruction;
+          instruction["name"] = "kraus";
+          if (m_bitOrder == BitOrder::MSB) {
+            instruction["qubits"] = std::vector<std::size_t>{0, 1};
+          } else {
+            instruction["qubits"] = std::vector<std::size_t>{1, 0};
+          }
+          instruction["params"] = kraus_list;
+          krausOps.emplace_back(instruction);
+          element["instructions"] =
+              std::vector<std::vector<nlohmann::json>>{krausOps};
+          element["probabilities"] = std::vector<double>{1.0};
+          noiseElements.push_back(element);
+        }
+      }
+    }
+
     noiseModel["errors"] = noiseElements;
     return noiseModel.dump(6);
   }
@@ -288,6 +342,8 @@ private:
   BitOrder m_bitOrder;
   std::unordered_map<std::string, std::vector<KrausChannel>> m_gateNoise;
   std::set<std::string> m_qubitLabels;
+  // Track pairs of qubits that have 2-q noise channels.
+  std::set<std::pair<int, int>> m_connectivity;
 };
 } // namespace xacc
 
