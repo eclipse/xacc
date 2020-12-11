@@ -17,6 +17,10 @@ const std::string msb_noise_model =
     R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0], [0.0, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
 const std::string lsb_noise_model =
     R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "LSB"})";
+// Noise model that only has readout errors for validation:
+// P(1|0) = 0.1; P(0|1) = 0.2
+const std::string ro_error_noise_model =
+    R"({"gate_noise": [], "bit_order": "MSB", "readout_errors": [{"register_location": "0", "prob_meas0_prep1": 0.2, "prob_meas1_prep0": 0.1}]})";
 } // namespace
 
 TEST(JsonNoiseModelTester, checkSimple) {
@@ -184,6 +188,45 @@ TEST(JsonNoiseModelTester, checkBitOrderingMeasure) {
     // No effect on Q1 (in this noise model)
     EXPECT_EQ(buffer->getMeasurements().size(), 1);
     EXPECT_EQ(buffer->getMeasurementCounts()["0"], 8192);
+  }
+}
+
+TEST(JsonNoiseModelTester, checkRoError) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", ro_error_noise_model}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"shots", 8192}});
+  {
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testId(qbit q) {
+        Measure(q[0]);
+      })",
+                                 nullptr)
+                       ->getComposites()[0];
+
+    auto buffer = xacc::qalloc(1);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // P(1|0) = 0.1
+    EXPECT_NEAR(buffer->computeMeasurementProbability("1"), 0.1, 0.05);
+  }
+  {
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testFlip(qbit q) {
+        X(q[0]);
+        Measure(q[0]);
+      })",
+                                 nullptr)
+                       ->getComposites()[0];
+
+    auto buffer = xacc::qalloc(1);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // P(0|1) = 0.2
+    EXPECT_NEAR(buffer->computeMeasurementProbability("0"), 0.2, 0.05);
   }
 }
 
