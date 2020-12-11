@@ -77,8 +77,6 @@ cMatPair convertToMatOfPairs(const cMat &in_mat) {
 namespace xacc {
 class JsonNoiseModel : public NoiseModel, public Cloneable<NoiseModel> {
 public:
-  enum class BitOrder { MSB, LSB };
-
   struct KrausChannel {
     std::vector<std::string> bit_locs;
     std::vector<Eigen::MatrixXcd> matrix;
@@ -94,7 +92,7 @@ public:
   std::shared_ptr<NoiseModel> clone() override {
     return std::make_shared<JsonNoiseModel>();
   }
-  
+
   virtual void initialize(const HeterogeneousMap &params) override {
     if (params.stringExists("noise-model")) {
       std::string noise_model_str = params.getString("noise-model");
@@ -113,9 +111,9 @@ public:
     std::cout << "HOWDY: \n" << m_noiseModel.dump() << "\n";
     const auto bit_order = m_noiseModel["bit_order"].get<std::string>();
     if (bit_order == "MSB") {
-      m_bitOrder = BitOrder::MSB;
+      m_bitOrder = KrausMatBitOrder::MSB;
     } else if (bit_order == "LSB") {
-      m_bitOrder = BitOrder::LSB;
+      m_bitOrder = KrausMatBitOrder::LSB;
     } else {
       xacc::error("Unknown value: " + bit_order);
     }
@@ -130,7 +128,7 @@ public:
       for (const auto &qLabel : register_location) {
         m_qubitLabels.emplace(qLabel);
       }
-      
+
       if (register_location.empty() || register_location.size() > 2) {
         // We only support up to 2-q gate at the moment.
         xacc::error("Invalid data in 'register_location'.");
@@ -165,7 +163,8 @@ public:
 
         const auto op_mats =
             channel["matrix"]
-                .get<std::vector<std::vector<std::vector<std::pair<double, double>>>>>();
+                .get<std::vector<
+                    std::vector<std::vector<std::pair<double, double>>>>>();
         for (const auto &op_mat : op_mats) {
           const auto nbRows = op_mat.size();
           if (nbRows != (1ULL << newOp.bit_locs.size())) {
@@ -220,9 +219,9 @@ public:
       const std::unordered_map<std::string, xacc::quantum::Gate *> gateMap{
           {"u2", &gateU2}, {"u3", &gateU3}};
 
-      for (const auto &[gateName, gate] : gateMap) {        
-        const auto errorChannels = gateError(*gate);
-        if (!errorChannels.empty()) {
+      for (const auto &[gateName, gate] : gateMap) {
+        const auto errorChannels = getNoiseChannels(*gate);
+        for (auto &errorChannel : errorChannels) {
           nlohmann::json element;
           element["type"] = "qerror";
           element["operations"] = std::vector<std::string>{gateName};
@@ -230,12 +229,18 @@ public:
               std::vector<std::vector<std::size_t>>{{qIdx}};
           std::vector<nlohmann::json> krausOps;
           std::vector<cMatPair> kraus_list;
-          for (const auto &error : errorChannels) {
-            kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+          for (const auto &error : errorChannel.mats) {
+            kraus_list.emplace_back(convertToMatOfPairs(error));
           }
           nlohmann::json instruction;
           instruction["name"] = "kraus";
-          instruction["qubits"] = std::vector<std::size_t>{qIdx};
+          if (m_bitOrder == KrausMatBitOrder::MSB) {
+            instruction["qubits"] = errorChannel.noise_qubits;
+          } else {
+            auto bitsRev = errorChannel.noise_qubits;
+            std::reverse(bitsRev.begin(), bitsRev.end());
+            instruction["qubits"] = bitsRev;
+          }
           instruction["params"] = kraus_list;
           krausOps.emplace_back(instruction);
           element["instructions"] =
@@ -253,8 +258,8 @@ public:
       xacc::quantum::CNOT gateCX2(q2, q1);
       std::vector<xacc::quantum::CNOT> gatePair{gateCX1, gateCX2};
       for (auto &gate : gatePair) {
-        const auto errorChannels = gateError(gate);
-        if (!errorChannels.empty()) {
+        const auto errorChannels = getNoiseChannels(gate);
+        for (auto &errorChannel : errorChannels) {
           nlohmann::json element;
           element["type"] = "qerror";
           element["operations"] = std::vector<std::string>{"cx"};
@@ -262,15 +267,15 @@ public:
               std::vector<std::vector<std::size_t>>{gate.bits()};
           std::vector<nlohmann::json> krausOps;
           std::vector<cMatPair> kraus_list;
-          for (const auto &error : errorChannels) {
-            kraus_list.emplace_back(convertToMatOfPairs(error.mats));
+          for (const auto &error : errorChannel.mats) {
+            kraus_list.emplace_back(convertToMatOfPairs(error));
           }
           nlohmann::json instruction;
           instruction["name"] = "kraus";
-          if (m_bitOrder == BitOrder::MSB) {
-            instruction["qubits"] = gate.bits();
+          if (m_bitOrder == KrausMatBitOrder::MSB) {
+            instruction["qubits"] = errorChannel.noise_qubits;
           } else {
-            auto bitsRev = gate.bits();
+            auto bitsRev = errorChannel.noise_qubits;
             std::reverse(bitsRev.begin(), bitsRev.end());
             instruction["qubits"] = bitsRev;
           }
@@ -290,8 +295,16 @@ public:
 
   virtual RoErrors readoutError(size_t qubitIdx) const override { return {}; }
   virtual std::vector<RoErrors> readoutErrors() const override { return {}; }
+
   virtual std::vector<KrausOp>
   gateError(xacc::quantum::Gate &gate) const override {
+    // To be removed!
+    xacc::error("!!!Deprecated!!! Do not use!");
+    return {};
+  }
+
+  virtual std::vector<NoiseChannelKraus>
+  getNoiseChannels(xacc::quantum::Gate &gate) const {
     std::string gateKey = gate.name() + "_" + std::to_string(gate.bits()[0]);
     if (gate.bits().size() > 1) {
       for (int i = 1; i < gate.bits().size(); ++i) {
@@ -301,21 +314,24 @@ public:
     const auto iter = m_gateNoise.find(gateKey);
     // Cannot find the noise info:
     if (iter == m_gateNoise.end()) {
-      std::cout << "Failed to find noise configuration for gate " << gate.toString() << "\n";
+      std::cout << "Failed to find noise configuration for gate "
+                << gate.toString() << "\n";
       // Just assume no noise.
       return {};
     }
 
     const auto noiseChans = iter->second;
-    std::vector<KrausOp> result;
+    std::vector<NoiseChannelKraus> result;
     for (const auto &chan : noiseChans) {
-      for (const auto &op : chan.matrix) {
-        KrausOp newOp;
-        // TODO: extend to multi-qubit ops
-        newOp.qubit = std::stoi(chan.bit_locs[0]);
-        newOp.mats = convertToStdMat(op);
-        result.emplace_back(std::move(newOp));
+      std::vector<size_t> bits;
+      for (const auto &regLabel : chan.bit_locs) {
+        bits.emplace_back(std::stoi(regLabel));
       }
+      decltype(NoiseChannelKraus::mats) krausMats;
+      for (const auto &op : chan.matrix) {
+        krausMats.emplace_back(convertToStdMat(op));
+      }
+      result.emplace_back(NoiseChannelKraus(bits, krausMats, m_bitOrder));
     }
     return result;
   }
@@ -346,7 +362,7 @@ private:
 
 private:
   nlohmann::json m_noiseModel;
-  BitOrder m_bitOrder;
+  KrausMatBitOrder m_bitOrder;
   std::unordered_map<std::string, std::vector<KrausChannel>> m_gateNoise;
   std::set<std::string> m_qubitLabels;
   // Track pairs of qubits that have 2-q noise channels.
