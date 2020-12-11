@@ -12,18 +12,19 @@
  ******************************************************************************/
 #include "qeom.hpp"
 
-#include "Utils.hpp"
+//#include "Utils.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "xacc_plugin.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
 #include "ObservableTransform.hpp"
 #include "xacc_observable.hpp"
-#include <iomanip>
+//#include <iomanip>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include <iostream>
-#include <memory>
+//#include <iostream>
+//#include <memory>
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -251,3 +252,5 @@ void qEOM::singlesDoublesOperators(const int nOccupied, const int nVirtual) {
 
 } // namespace algorithm
 } // namespace xacc
+
+REGISTER_ALGORITHM(xacc::algorithm::qEOM)
