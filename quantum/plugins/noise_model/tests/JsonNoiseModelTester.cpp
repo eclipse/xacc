@@ -5,46 +5,81 @@
 
 namespace {
 // A sample Json for testing
-const std::string test_json =
+// Single-qubit depolarizing:
+const std::string depol_json =
     R"({"gate_noise": [{"gate_name": "X", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
-// Two-qubit noise channel (on a CNOT gate) in MSB and LSB order convention (matrix representation)
-const std::string msb_noise_model = R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0], [0.0, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
-const std::string lsb_noise_model = R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "LSB"})";
+// Single-qubit amplitude damping (25% rate):
+const std::string ad_json =
+    R"({"gate_noise": [{"gate_name": "X", "register_location": ["0"], "noise_channels": [{"matrix": [[[[1.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.8660254037844386, 0.0]]], [[[0.0, 0.0], [0.5, 0.0]], [[0.0, 0.0], [0.0, 0.0]]]]}]}], "bit_order": "MSB"})";
+// Two-qubit noise channel (on a CNOT gate) in MSB and LSB order convention
+// (matrix representation)
+const std::string msb_noise_model =
+    R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0], [0.0, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
+const std::string lsb_noise_model =
+    R"({"gate_noise": [{"gate_name": "CNOT", "register_location": ["0", "1"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.05773502691896258], [0.0, 0.0], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.05773502691896258, 0.0], [0.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.05773502691896258, 0.0], [-0.0, 0.0]], [[0.0, 0.0], [0.0, 0.0], [-0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "LSB"})";
 } // namespace
 
 TEST(JsonNoiseModelTester, checkSimple) {
-  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
-  noiseModel->initialize({{"noise-model", test_json}});
-  const std::string ibmNoiseJson = noiseModel->toJson();
-  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
-  auto accelerator = xacc::getAccelerator(
-      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
-  auto xasmCompiler = xacc::getCompiler("xasm");
-  auto program = xasmCompiler
-                     ->compile(R"(__qpu__ void testX(qbit q) {
+  // Check depolarizing channels
+  {
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", depol_json}});
+    const std::string ibmNoiseJson = noiseModel->toJson();
+    std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+    auto accelerator = xacc::getAccelerator(
+        "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testX(qbit q) {
         X(q[0]);
         Measure(q[0]);
       })",
-                               accelerator)
-                     ->getComposite("testX");
-  auto buffer = xacc::qalloc(1);
-  accelerator->execute(buffer, program);
-  buffer->print();
-  auto densityMatrix = (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
-  EXPECT_EQ(densityMatrix.size(), 4);
-  // Check trace
-  EXPECT_NEAR(densityMatrix[0].first + densityMatrix[3].first, 1.0, 1e-6);
-  // Expected result:
-  // 0.00666667+0.j 0.        +0.j
-  // 0.        +0.j 0.99333333+0.j
-  // Check real part
-  EXPECT_NEAR(densityMatrix[0].first, 0.00666667, 1e-6);
-  EXPECT_NEAR(densityMatrix[1].first, 0.0, 1e-6);
-  EXPECT_NEAR(densityMatrix[2].first, 0.0, 1e-6);
-  EXPECT_NEAR(densityMatrix[3].first, 0.99333333, 1e-6);
-  // Check imag part
-  for (const auto &[real, imag] : densityMatrix) {
-    EXPECT_NEAR(imag, 0.0, 1e-6);
+                                 accelerator)
+                       ->getComposite("testX");
+    auto buffer = xacc::qalloc(1);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    auto densityMatrix = (*buffer)["density_matrix"]
+                             .as<std::vector<std::pair<double, double>>>();
+    EXPECT_EQ(densityMatrix.size(), 4);
+    // Check trace
+    EXPECT_NEAR(densityMatrix[0].first + densityMatrix[3].first, 1.0, 1e-6);
+    // Expected result:
+    // 0.00666667+0.j 0.        +0.j
+    // 0.        +0.j 0.99333333+0.j
+    // Check real part
+    EXPECT_NEAR(densityMatrix[0].first, 0.00666667, 1e-6);
+    EXPECT_NEAR(densityMatrix[1].first, 0.0, 1e-6);
+    EXPECT_NEAR(densityMatrix[2].first, 0.0, 1e-6);
+    EXPECT_NEAR(densityMatrix[3].first, 0.99333333, 1e-6);
+    // Check imag part
+    for (const auto &[real, imag] : densityMatrix) {
+      EXPECT_NEAR(imag, 0.0, 1e-6);
+    }
+  }
+
+  // Check amplitude damping channels
+  {
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", ad_json}});
+    const std::string ibmNoiseJson = noiseModel->toJson();
+    std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+    auto accelerator =
+        xacc::getAccelerator("aer", {{"noise-model", ibmNoiseJson}});
+    auto xasmCompiler = xacc::getCompiler("xasm");
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testX_ad(qbit q) {
+        X(q[0]);
+        Measure(q[0]);
+      })",
+                                 accelerator)
+                       ->getComposites()[0];
+    auto buffer = xacc::qalloc(1);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // Verify the distribution (25% amplitude damping)
+    EXPECT_NEAR(buffer->computeMeasurementProbability("0"), 0.25, 0.1);
+    EXPECT_NEAR(buffer->computeMeasurementProbability("1"), 0.75, 0.1);
   }
 }
 
@@ -85,9 +120,8 @@ TEST(JsonNoiseModelTester, checkBitOrdering) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
     densityMatrix_lsb = (*buffer)["density_matrix"]
-                             .as<std::vector<std::pair<double, double>>>();
+                            .as<std::vector<std::pair<double, double>>>();
   }
-
 
   // Check:
   EXPECT_EQ(densityMatrix_lsb.size(), 16);
