@@ -64,7 +64,7 @@ void AerAccelerator::initialize(const HeterogeneousMap &params) {
   }
   if (params.stringExists("sim-type")) {
     if (!xacc::container::contains(
-            std::vector<std::string>{"qasm", "statevector", "pulse"},
+            std::vector<std::string>{"qasm", "statevector", "pulse", "density_matrix"},
             params.getString("sim-type"))) {
       xacc::warning("[Aer] warning, invalid sim-type (" +
                     params.getString("sim-type") +
@@ -227,8 +227,8 @@ void AerAccelerator::execute(
     // Run the simulation via Python
     const std::string resultJson =
         xacc::aer::runPulseSim(hamiltonianJson.dump(), dt, qubitFreqEst, uLoRefs, qobjJsonStr);
-    auto count_json =
-        nlohmann::json::parse(resultJson).get<std::map<std::string, int>>();
+    auto result_json = nlohmann::json::parse(resultJson);
+    auto count_json = result_json["counts"].get<std::map<std::string, int>>();
     for (const auto &[hexStr, nOccurrences] : count_json) {
       auto bitStr = hex_string_to_binary_string(hexStr);
       // Process bitStr to be an n-Measure string in msb
@@ -244,7 +244,49 @@ void AerAccelerator::execute(
 
       buffer->appendMeasurement(actual, nOccurrences);
     }
-  } else {
+
+    auto state_vector = result_json["statevector"].get<std::vector<std::pair<double, double>>>();
+    buffer->addExtraInfo("state", state_vector);
+  } else if (m_simtype == "density_matrix") {
+    // remove all measures, don't need them
+    auto tmp = xacc::ir::asComposite(program->clone());
+    tmp->clear();
+    std::vector<std::size_t> measured_bits;
+    InstructionIterator iter(program);
+    while (iter.hasNext()) {
+      auto next = iter.next();
+      if (!next->isComposite() && next->name() != "Measure") {
+        tmp->addInstruction(next);
+      } else if (next->name() == "Measure") {
+        measured_bits.push_back(next->bits()[0]);
+      }
+    }
+    auto qobj_str = xacc_to_qobj->translate(tmp);
+    nlohmann::json j = nlohmann::json::parse(qobj_str)["qObject"];
+    j["config"]["noise_model"] = noise_model;
+    j["config"]["method"] = "density_matrix";
+    auto snapshotInst = nlohmann::json::object();
+    snapshotInst["label"] = "dm_snapshot";
+    snapshotInst["name"] = "snapshot";
+    snapshotInst["snapshot_type"] = "density_matrix";
+    auto& exprJson = *(j["experiments"].begin());
+    exprJson["instructions"].push_back(snapshotInst);
+    std::cout << "Qobj:\n" << j.dump(2);
+    auto results_json = nlohmann::json::parse(
+        AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
+    std::cout << "Result:\n" << results_json.dump() << "\n";
+    auto results = *results_json["results"].begin();
+    auto dm_mat =
+        (*(results["data"]["snapshots"]["density_matrix"]["dm_snapshot"]
+               .begin()))["value"]
+            .get<std::vector<std::vector<std::pair<double, double>>>>();
+    std::vector<std::pair<double, double>> flattenDm;
+    for (const auto &row : dm_mat) {
+      flattenDm.insert(flattenDm.end(), row.begin(), row.end());
+    }
+    buffer->addExtraInfo("density_matrix", flattenDm);
+  }
+  else {
     // statevector
     // remove all measures, don't need them
     auto tmp = xacc::ir::asComposite(program->clone());
