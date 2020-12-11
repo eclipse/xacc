@@ -4,6 +4,7 @@
 #include "xacc.hpp"
 #include <Eigen/Dense>
 #include "CommonGates.hpp"
+#include "Cloneable.hpp"
 
 namespace {
 constexpr double NUM_TOL = 1e-9;
@@ -74,7 +75,7 @@ cMatPair convertToMatOfPairs(const cMat &in_mat) {
 } // namespace
 
 namespace xacc {
-class JsonNoiseModel : public NoiseModel {
+class JsonNoiseModel : public NoiseModel, public Cloneable<NoiseModel> {
 public:
   enum class BitOrder { MSB, LSB };
 
@@ -90,6 +91,10 @@ public:
            "JSON input file.";
   }
 
+  std::shared_ptr<NoiseModel> clone() override {
+    return std::make_shared<JsonNoiseModel>();
+  }
+  
   virtual void initialize(const HeterogeneousMap &params) override {
     if (params.stringExists("noise-model")) {
       std::string noise_model_str = params.getString("noise-model");
@@ -230,7 +235,7 @@ public:
           }
           nlohmann::json instruction;
           instruction["name"] = "kraus";
-          instruction["qubits"] = std::vector<std::size_t>{0};
+          instruction["qubits"] = std::vector<std::size_t>{qIdx};
           instruction["params"] = kraus_list;
           krausOps.emplace_back(instruction);
           element["instructions"] =
@@ -263,9 +268,11 @@ public:
           nlohmann::json instruction;
           instruction["name"] = "kraus";
           if (m_bitOrder == BitOrder::MSB) {
-            instruction["qubits"] = std::vector<std::size_t>{0, 1};
+            instruction["qubits"] = gate.bits();
           } else {
-            instruction["qubits"] = std::vector<std::size_t>{1, 0};
+            auto bitsRev = gate.bits();
+            std::reverse(bitsRev.begin(), bitsRev.end());
+            instruction["qubits"] = bitsRev;
           }
           instruction["params"] = kraus_list;
           krausOps.emplace_back(instruction);

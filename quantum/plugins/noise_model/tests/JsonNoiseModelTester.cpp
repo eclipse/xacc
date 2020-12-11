@@ -19,7 +19,6 @@ TEST(JsonNoiseModelTester, checkSimple) {
   std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
   auto accelerator = xacc::getAccelerator(
       "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
-  // auto accelerator = xacc::getAccelerator("aer", {{"shots", 8192}});
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void testX(qbit q) {
@@ -49,14 +48,7 @@ TEST(JsonNoiseModelTester, checkSimple) {
   }
 }
 
-TEST(JsonNoiseModelTester, checkMsb) {
-  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
-  noiseModel->initialize({{"noise-model", msb_noise_model}});
-  const std::string ibmNoiseJson = noiseModel->toJson();
-  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
-  auto accelerator = xacc::getAccelerator(
-      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
-  // auto accelerator = xacc::getAccelerator("aer", {{"shots", 8192}});
+TEST(JsonNoiseModelTester, checkBitOrdering) {
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void testCX(qbit q) {
@@ -64,19 +56,100 @@ TEST(JsonNoiseModelTester, checkMsb) {
         Measure(q[0]);
         Measure(q[1]);
       })",
-                               accelerator)
+                               nullptr)
                      ->getComposites()[0];
-  auto buffer = xacc::qalloc(2);
-  accelerator->execute(buffer, program);
-  auto densityMatrix =
-      (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+
+  std::vector<std::pair<double, double>> densityMatrix_msb, densityMatrix_lsb;
+  // Check MSB:
+  {
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", msb_noise_model}});
+    const std::string ibmNoiseJson = noiseModel->toJson();
+    std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+    auto accelerator = xacc::getAccelerator(
+        "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program);
+    densityMatrix_msb = (*buffer)["density_matrix"]
+                            .as<std::vector<std::pair<double, double>>>();
+  }
+
+  // Check LSB:
+  {
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", lsb_noise_model}});
+    auto accelerator =
+        xacc::getAccelerator("aer", {{"noise-model", noiseModel->toJson()},
+                                     {"sim-type", "density_matrix"}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program);
+    densityMatrix_lsb = (*buffer)["density_matrix"]
+                             .as<std::vector<std::pair<double, double>>>();
+  }
+
+
+  // Check:
+  EXPECT_EQ(densityMatrix_lsb.size(), 16);
+  EXPECT_EQ(densityMatrix_msb.size(), 16);
+  for (int i = 0; i < 16; ++i) {
+    EXPECT_NEAR(densityMatrix_lsb[i].first, densityMatrix_msb[i].first, 1e-6);
+    EXPECT_NEAR(densityMatrix_lsb[i].second, densityMatrix_msb[i].second, 1e-6);
+  }
+
   for (int row = 0; row < 4; ++row) {
     for (int col = 0; col < 4; ++col) {
       const int idx = row * 4 + col;
-      std::cout << "(" << densityMatrix[idx].first << ", "
-                << densityMatrix[idx].second << ") ";
+      std::cout << "(" << densityMatrix_msb[idx].first << ", "
+                << densityMatrix_msb[idx].second << ") ";
     }
     std::cout << "\n";
+  }
+}
+
+TEST(JsonNoiseModelTester, checkBitOrderingMeasure) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  {
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testCX_Q0(qbit q) {
+        CX(q[0], q[1]);
+        Measure(q[0]);
+      })",
+                                 nullptr)
+                       ->getComposites()[0];
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", msb_noise_model}});
+    const std::string ibmNoiseJson = noiseModel->toJson();
+    auto accelerator = xacc::getAccelerator(
+        "aer", {{"noise-model", ibmNoiseJson}, {"shots", 8192}});
+
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // We have depolarization on Q0.
+    EXPECT_EQ(buffer->getMeasurements().size(), 2);
+    EXPECT_TRUE(buffer->getMeasurementCounts()["1"] > 0);
+  }
+  {
+    auto program = xasmCompiler
+                       ->compile(R"(__qpu__ void testCX_Q1(qbit q) {
+        CX(q[0], q[1]);
+        Measure(q[1]);
+      })",
+                                 nullptr)
+                       ->getComposites()[0];
+    auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+    noiseModel->initialize({{"noise-model", msb_noise_model}});
+    const std::string ibmNoiseJson = noiseModel->toJson();
+    auto accelerator = xacc::getAccelerator(
+        "aer", {{"noise-model", ibmNoiseJson}, {"shots", 8192}});
+
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program);
+    buffer->print();
+    // No effect on Q1 (in this noise model)
+    EXPECT_EQ(buffer->getMeasurements().size(), 1);
+    EXPECT_EQ(buffer->getMeasurementCounts()["0"], 8192);
   }
 }
 
