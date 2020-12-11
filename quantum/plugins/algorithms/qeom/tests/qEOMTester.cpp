@@ -60,7 +60,7 @@ TEST(qEOMTester, checkqEOM) {
 
   auto pool = xacc::getService<OperatorPool>("singlet-adapted-uccsd");
   pool->optionalParameters({{"n-electrons", 2}});
-  auto xd = pool->generate(buffer->size());
+  pool->generate(buffer->size());
   auto ansatz = xacc::getIRProvider("quantum")->createComposite("ansatz");
   ansatz->addInstruction(
       xacc::getIRProvider("quantum")->createInstruction("X", {0}));
