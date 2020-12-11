@@ -15,4 +15,4 @@ add_xacc_test(qEOM)
 target_include_directories(
  qEOMTester
   PUBLIC . ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
-target_link_libraries(qEOMTester xacc xacc-pauli xacc-quantum-gate)
+target_link_libraries(qEOMTester xacc xacc-pauli xacc-quantum-gate xacc-fermion)

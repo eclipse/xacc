@@ -22,6 +22,8 @@
 #include <iomanip>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
+#include <iostream>
+#include <memory>
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -46,20 +48,33 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
   }
 
   if (!parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
-          "operators")) {
-    xacc::error("Excitation operators was false");
+          "operators") &&
+      (!parameters.keyExists<int>("n-occupied") &&
+       !parameters.keyExists<int>("n-virtual"))) {
+    xacc::error("qEOM needs either excitation operators or the number of "
+                "occupied and virtual orbitals");
     return false;
   }
 
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
-  operators =
-      parameters.get<std::vector<std::shared_ptr<Observable>>>("operators");
+
+  if (parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
+          "operators")) {
+    operators =
+        parameters.get<std::vector<std::shared_ptr<Observable>>>("operators");
+  }
+
+  if (parameters.keyExists<int>("n-occupied")) {
+    xacc::info("Using single and double excitation operators");
+    auto nOccupied = parameters.get<int>("n-occupied");
+    auto nVirtual = parameters.get<int>("n-virtual");
+    singlesDoublesOperators(nOccupied, nVirtual);
+  }
 
   observable =
       xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
   if (observable->toString().find("^") != std::string::npos) {
-
     auto jw = xacc::getService<ObservableTransform>("jw");
     if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
       observable = jw->transform(observable);
@@ -70,25 +85,20 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
           std::dynamic_pointer_cast<Observable>(fermionObservable));
     }
 
-    // observable is PauliOperator, but does not cast down to it
-    // Not sure about the likelihood of this happening, but want to cover all
-    // bases
   } else if (observable->toString().find("X") != std::string::npos ||
              observable->toString().find("Y") != std::string::npos ||
              observable->toString().find("Z") != std::string::npos &&
                  !std::dynamic_pointer_cast<PauliOperator>(observable)) {
-
     auto pauliObservable =
         xacc::quantum::getObservable("pauli", observable->toString());
     observable = std::dynamic_pointer_cast<Observable>(pauliObservable);
   }
 
-
   return true;
 }
 
 const std::vector<std::string> qEOM::requiredParameters() const {
-  return {"observable", "accelerator", "ansatz", "operators"};
+  return {"observable", "accelerator", "ansatz"};
 }
 
 void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
@@ -98,15 +108,12 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
   Eigen::MatrixXd Q = Eigen::MatrixXd::Zero(nOperators, nOperators);
   Eigen::MatrixXd V = Eigen::MatrixXd::Zero(nOperators, nOperators);
   Eigen::MatrixXd W = Eigen::MatrixXd::Zero(nOperators, nOperators);
-  Eigen::MatrixXd MQ = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
-  Eigen::MatrixXd VW = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
 
   // this lambda computes
   // [A, H, B] = 1/2 x ([[A,H],B] + [A,[H,B]])
   auto doubleCommutator = [&](std::shared_ptr<Observable> A,
                               std::shared_ptr<Observable> B) {
     // [A,H]
-  
     auto AH = A->commutator(observable);
     // [[A,H],B]
     auto AH_B = *std::dynamic_pointer_cast<PauliOperator>(AH->commutator(B));
@@ -115,47 +122,47 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
     // [A,[H,B]]
     auto A_HB = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(HB));
 
-/*
-    auto AH_B = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(observable)->commutator(B));
-    auto A_HB = *std::dynamic_pointer_cast<PauliOperator>(A->commutator(observable->commutator(B)));
-    //auto sum = 0.5 * (2*X*H*Y + 2*Y*H*X - Y*X*H - H*X*Y - H*Y*X - X*Y*H);
-*/
-auto ret = 0.5 * (AH_B + A_HB);
+    // 1/2 x ([[A,H],B] + [A,[H,B]])
+    auto ret = 0.5 * (AH_B + A_HB);
     return std::dynamic_pointer_cast<Observable>(
         std::make_shared<PauliOperator>(ret));
   };
 
+  // Here we loop over operators on the left and on the right,
+  // which I loosely refer to as bra and ket
   // loop over bra
-  for (int mu = 0; mu < nOperators; mu++) {
+  for (int i = 0; i < nOperators; i++) {
 
-    auto tmp_bra = (*std::dynamic_pointer_cast<PauliOperator>(operators[mu]))
+    auto tmp_bra = (*std::dynamic_pointer_cast<PauliOperator>(operators[i]))
                        .hermitianConjugate();
     auto bra = std::dynamic_pointer_cast<Observable>(
         std::make_shared<PauliOperator>(tmp_bra));
 
     // loop over ket
-    for (int nu = 0; nu < nOperators; nu++) {
+    for (int j = i; j < nOperators; j++) {
 
-      auto ket = operators[nu];
+      auto ket = operators[j];
       auto tmp_ketConj =
-          (*std::dynamic_pointer_cast<PauliOperator>(operators[nu]))
+          (*std::dynamic_pointer_cast<PauliOperator>(operators[j]))
               .hermitianConjugate();
       auto ketConj = std::dynamic_pointer_cast<Observable>(
           std::make_shared<PauliOperator>(tmp_ketConj));
 
       // qEOM matrix elements
-      std::cout << "LEFT\n" << bra->toString() << "\n";
-      std::cout << "RIGHT\n" << ket->toString() << "\n";
-      std::cout << doubleCommutator(bra, ket)->toString() << "\n\n";
-      M(mu, nu) = VQEWrapper(buffer, doubleCommutator(bra, ket));
-      Q(mu, nu) = -VQEWrapper(buffer, doubleCommutator(bra, ketConj));
-      V(mu, nu) = VQEWrapper(buffer, bra->commutator(ket));
-      W(mu, nu) = -VQEWrapper(buffer, bra->commutator(ketConj));
+      M(i, j) = VQEWrapper(doubleCommutator(bra, ket));
+      Q(i, j) = -VQEWrapper(doubleCommutator(bra, ketConj));
+      V(i, j) = VQEWrapper(bra->commutator(ket));
+      W(i, j) = -VQEWrapper(bra->commutator(ketConj));
 
+      M(j, i) = M(i, j);
+      Q(j, i) = Q(i, j);
+      V(j, i) = V(i, j);
+      W(j, i) = W(i, j);
     }
   }
 
-  std::cout << "Computed matrix elements\n";
+  Eigen::MatrixXd MQ = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
+  Eigen::MatrixXd VW = Eigen::MatrixXd::Zero(2 * nOperators, 2 * nOperators);
   // LHS matrix
   // | M  Q  |
   // | Q^ M^ |
@@ -165,33 +172,81 @@ auto ret = 0.5 * (AH_B + A_HB);
   MQ.bottomRightCorner(nOperators, nOperators) = M.adjoint();
 
   // RHS matrix
-  // |  V   W  |
-  // | -W^ -V^ |
+  // |  V    W  |
+  // | -V^  -W^ |
   VW.topLeftCorner(nOperators, nOperators) = V;
   VW.topRightCorner(nOperators, nOperators) = W;
   VW.bottomLeftCorner(nOperators, nOperators) = -W.adjoint();
   VW.bottomRightCorner(nOperators, nOperators) = -V.adjoint();
-  std::cout << M << "\n";
-  std::cout << Q << "\n";
-  std::cout << V << "\n";
-  std::cout << V << "\n";
 
   // Compute eigenvalues
+  // | M  Q  | |X| = E |  V    W  | |X|
+  // | Q^ M^ | |Y|     | -V^  -W^ | |Y|
   Eigen::GeneralizedEigenSolver<Eigen::MatrixXd> ges;
   ges.compute(MQ, VW);
-  auto spectrum = ges.eigenvalues();
-  std::cout << spectrum.transpose() << "\n";
+  std::vector<double> excitationEnergies;
+  for (auto e : ges.eigenvalues()) {
+    if (std::real(e) >= 0.0) {
+      excitationEnergies.push_back(std::real(e));
+    }
+  }
+  std::sort(excitationEnergies.begin(), excitationEnergies.end());
+  buffer->addExtraInfo("excitation-energies", excitationEnergies);
 
   return;
 }
 
-double qEOM::VQEWrapper(const std::shared_ptr<AcceleratorBuffer> buffer,
-                        const std::shared_ptr<Observable> obs) const {
+double qEOM::VQEWrapper(const std::shared_ptr<Observable> obs) const {
   auto vqe = xacc::getAlgorithm(
       "vqe",
       {{"observable", obs}, {"ansatz", kernel}, {"accelerator", accelerator}});
-  auto tmpBuffer = xacc::qalloc(buffer->size());
+  auto tmpBuffer = xacc::qalloc(observable->nBits());
   return vqe->execute(tmpBuffer, {})[0];
+}
+
+void qEOM::singlesDoublesOperators(const int nOccupied, const int nVirtual) {
+
+  std::shared_ptr<Observable> fermiOp;
+  auto jw = xacc::getService<ObservableTransform>("jw");
+  auto nOrbitals = nOccupied + nVirtual;
+
+  // singles
+  for (int i = 0; i < nOccupied; i++) {
+    int ia = i;
+    int ib = i + nOrbitals;
+    for (int a = 0; a < nVirtual; a++) {
+      int aa = a + nOccupied;
+      int ab = a + nOccupied + nOrbitals;
+
+      fermiOp = std::make_shared<FermionOperator>(
+          FermionOperator({{aa, 1}, {ia, 0}}, 4.0));
+      operators.push_back(jw->transform(fermiOp));
+
+      fermiOp = std::make_shared<FermionOperator>(
+          FermionOperator({{ab, 1}, {ib, 0}}, 4.0));
+      operators.push_back(jw->transform(fermiOp));
+
+    }
+  }
+
+  // double excitations
+  for (int i = 0; i < nOccupied; i++) {
+    int ia = i;
+    for (int j = i; j < nOccupied; j++) {
+      int jb = j + nOrbitals;
+      for (int a = 0; a < nVirtual; a++) {
+        int aa = a + nOccupied;
+        for (int b = a; b < nVirtual; b++) {
+          int bb = b + nOccupied + nOrbitals;
+
+          fermiOp = std::make_shared<FermionOperator>(
+              FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 16.0));
+          operators.push_back(jw->transform(fermiOp));
+
+        }
+      }
+    }
+  }
 }
 
 } // namespace algorithm

@@ -14,10 +14,10 @@
 // This implements the quantum Equation of Motion (qEOM) algorithm
 // as in arXiv:1910.12890
 //
-// This algorithm works by first optimizing a given ansatz with VQE
-// (can be easily used with ADAPT-VQE). The optimized ansatz is
-// then used to compute the matrix elements in the EOM equation.
-// This is solved with a generalized eigenvalue solver.
+// This algorithm works assumes an optimized ansatz, which is
+// used to compute the matrix elements in the EOM equations.
+// This becomes a generalized eigenvalue problem, from which we
+// extract only the real and positive eigenvalues (positive excitation energies)
 
 #ifndef XACC_ALGORITHM_QEOM_HPP_
 #define XACC_ALGORITHM_QEOM_HPP_
@@ -35,8 +35,9 @@ protected:
   HeterogeneousMap parameters;
   std::vector<std::shared_ptr<Observable>> operators;
 
-  double VQEWrapper(const std::shared_ptr<AcceleratorBuffer> buffer,
-                    const std::shared_ptr<Observable> obs) const;
+  double VQEWrapper(const std::shared_ptr<Observable> obs) const;
+
+  void singlesDoublesOperators(const int nOccupied, const int nVirtual);
 
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
