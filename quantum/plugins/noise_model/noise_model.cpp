@@ -335,17 +335,24 @@ public:
     }
     return result;
   }
-
+  
+  // Query Fidelity information:
+  virtual size_t nQubits() const override { return m_qubitLabels.size(); }
+  
+  // These methods are used for TriQ placement.
+  // We don't support them in this noise model impl.
   virtual double gateErrorProb(xacc::quantum::Gate &gate) const override {
     return 0.0;
   }
-  // Query Fidelity information:
-  virtual size_t nQubits() const override { return 0; }
+
   virtual std::vector<double> averageSingleQubitGateFidelity() const override {
+    xacc::error("Unsupported");
     return {};
   }
+  
   virtual std::vector<std::tuple<size_t, size_t, double>>
   averageTwoQubitGateFidelity() const override {
+    xacc::error("Unsupported");
     return {};
   }
 
