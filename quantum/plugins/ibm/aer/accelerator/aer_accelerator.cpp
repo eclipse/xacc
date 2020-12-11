@@ -227,8 +227,8 @@ void AerAccelerator::execute(
     // Run the simulation via Python
     const std::string resultJson =
         xacc::aer::runPulseSim(hamiltonianJson.dump(), dt, qubitFreqEst, uLoRefs, qobjJsonStr);
-    auto count_json =
-        nlohmann::json::parse(resultJson).get<std::map<std::string, int>>();
+    auto result_json = nlohmann::json::parse(resultJson);
+    auto count_json = result_json["counts"].get<std::map<std::string, int>>();
     for (const auto &[hexStr, nOccurrences] : count_json) {
       auto bitStr = hex_string_to_binary_string(hexStr);
       // Process bitStr to be an n-Measure string in msb
@@ -244,6 +244,9 @@ void AerAccelerator::execute(
 
       buffer->appendMeasurement(actual, nOccurrences);
     }
+
+    auto state_vector = result_json["statevector"].get<std::vector<std::pair<double, double>>>();
+    buffer->addExtraInfo("state", state_vector);
   } else if (m_simtype == "density_matrix") {
     // remove all measures, don't need them
     auto tmp = xacc::ir::asComposite(program->clone());

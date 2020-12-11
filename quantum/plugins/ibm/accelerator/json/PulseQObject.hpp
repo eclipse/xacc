@@ -473,6 +473,10 @@ inline void to_json(json &j, const xacc::ibm_pulse::Instruction &x) {
     j["pulse_shape"] = x.get_pulse_shape();
     j["parameters"] = x.get_pulse_params();
   }
+
+  if (x.get_name() == "delay") {
+    j["duration"] = x.get_duration();
+  }
 }
 
 inline void from_json(const json &j, xacc::ibm_pulse::Experiment &x) {
