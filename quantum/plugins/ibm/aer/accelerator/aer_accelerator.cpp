@@ -406,6 +406,8 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
     }();
 
     auto backEndJson = nlohmann::json::parse(backendJsonStr);
+    // Cache the backend properties JSON.
+    m_backendPropertiesJson = backendJsonStr;
     // Parse qubit data:
     auto qubitsData = backEndJson["qubits"];
     size_t nbQubit = 0;
@@ -643,6 +645,16 @@ IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
 }
 
 std::string IbmqNoiseModel::toJson() const {
+  // First, check if Qiskit is available,
+  // try to use Qiskit util if possible.
+  const std::string noiseModelJson =
+      xacc::aer::noiseModelFromBackendProperties(m_backendPropertiesJson);
+  if (!noiseModelJson.empty()) {
+    xacc::info("Qiskit generated noise model:\n" + noiseModelJson);
+    return noiseModelJson;
+  }
+  
+  // No Qiskit, create the noise model by ourselves from the backend properties.
   // Aer noise model Json
   nlohmann::json noiseModel;
   std::vector<nlohmann::json> noiseElements;
