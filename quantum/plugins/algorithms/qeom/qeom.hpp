@@ -37,8 +37,6 @@ protected:
 
   double VQEWrapper(const std::shared_ptr<Observable> obs) const;
 
-  void singlesDoublesOperators(const int nOccupied, const int nVirtual);
-
 public:
   bool initialize(const HeterogeneousMap &parameters) override;
   const std::vector<std::string> requiredParameters() const override;

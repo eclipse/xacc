@@ -47,7 +47,7 @@ TEST(FermionOperatorTester, checkDanielBug) {
 
     FermionOperator op(str);
 
-    std::cout << op.toString() << "\n";
+    std::cout << op.toString() << "\n"  << op.nBits() << "\n";
 }
 
 TEST(FermionOperatorTester, checkAnotherBug) {
@@ -157,6 +157,16 @@ TEST(FermionOperatorTester, checkHermitianConjugate) {
     std::cout << "Hermitian conjugate" << "\t" << opHC.toString() << "\n";
 
 }
+
+TEST(FermionOperatorTester, checkNormalize) {
+    std::string src = "1^ 0 + (0,1)2^ 3";
+    FermionOperator op(src);
+    std::cout << op.toString() << "\n";
+    op.normalize();
+    std::cout << op.toString() << "\n";
+
+}
+
 
 int main(int argc, char** argv) {
     xacc::Initialize(argc,argv);

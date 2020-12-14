@@ -12,7 +12,7 @@
  ******************************************************************************/
 #include "qeom.hpp"
 
-//#include "Utils.hpp"
+#include "Observable.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "xacc_plugin.hpp"
@@ -20,11 +20,10 @@
 #include "FermionOperator.hpp"
 #include "ObservableTransform.hpp"
 #include "xacc_observable.hpp"
-//#include <iomanip>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-//#include <iostream>
-//#include <memory>
+#include <memory>
+#include "OperatorPool.hpp"
 
 using namespace xacc;
 using namespace xacc::quantum;
@@ -49,16 +48,16 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
   }
 
   if (!parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
-          "operators") &&
-      (!parameters.keyExists<int>("n-occupied") &&
-       !parameters.keyExists<int>("n-virtual"))) {
+          "operators") && !parameters.keyExists<int>("n-electrons")) {
     xacc::error("qEOM needs either excitation operators or the number of "
-                "occupied and virtual orbitals");
+                "electrons");
     return false;
   }
 
   accelerator = parameters.getPointerLike<Accelerator>("accelerator");
   kernel = parameters.getPointerLike<CompositeInstruction>("ansatz");
+  observable =
+      xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
 
   if (parameters.keyExists<std::vector<std::shared_ptr<Observable>>>(
           "operators")) {
@@ -66,17 +65,31 @@ bool qEOM::initialize(const HeterogeneousMap &parameters) {
         parameters.get<std::vector<std::shared_ptr<Observable>>>("operators");
   }
 
-  if (parameters.keyExists<int>("n-occupied")) {
-    xacc::info("Using single and double excitation operators");
-    auto nOccupied = parameters.get<int>("n-occupied");
-    auto nVirtual = parameters.get<int>("n-virtual");
-    singlesDoublesOperators(nOccupied, nVirtual);
+  auto jw = xacc::getService<ObservableTransform>("jw");
+  // if no vector<Observable> was given
+  if (parameters.keyExists<int>("n-electrons")) {
+    auto nOrbitals = observable->nBits();
+    auto nOccupied = parameters.get<int>("n-electrons");
+    auto nVirtual = nOrbitals - nOccupied;
+  
+    std::shared_ptr<OperatorPool> pool;
+    // check if the name for a pool was given
+    // if not, default to singles and doubles
+    if (parameters.stringExists("pool")) {
+      pool = xacc::getService<OperatorPool>(parameters.getString("pool"));
+    } else {
+      xacc::info("Using single and double excitation operators");
+      pool = xacc::getService<OperatorPool>("singles-doubles-pool");
+    }
+
+    pool->optionalParameters({{"n-electrons", nOccupied}});
+    for (auto &op : pool->getExcitationOperators(nOrbitals)) {
+      operators.push_back(jw->transform(op));
+    }
   }
 
-  observable =
-      xacc::as_shared_ptr(parameters.getPointerLike<Observable>("observable"));
   if (observable->toString().find("^") != std::string::npos) {
-    auto jw = xacc::getService<ObservableTransform>("jw");
+    
     if (std::dynamic_pointer_cast<FermionOperator>(observable)) {
       observable = jw->transform(observable);
     } else {
@@ -150,15 +163,30 @@ void qEOM::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
           std::make_shared<PauliOperator>(tmp_ketConj));
 
       // qEOM matrix elements
-      M(i, j) = VQEWrapper(doubleCommutator(bra, ket));
-      Q(i, j) = -VQEWrapper(doubleCommutator(bra, ketConj));
-      V(i, j) = VQEWrapper(bra->commutator(ket));
-      W(i, j) = -VQEWrapper(bra->commutator(ketConj));
+      auto M_MatOperator = doubleCommutator(bra, ket);
+      if (!M_MatOperator->getSubTerms().empty()) {
+        M(i, j) = VQEWrapper(M_MatOperator);
+        M(j, i) = M(i, j);
+      }
 
-      M(j, i) = M(i, j);
-      Q(j, i) = Q(i, j);
-      V(j, i) = V(i, j);
-      W(j, i) = W(i, j);
+      auto Q_MatOperator = doubleCommutator(bra, ketConj);      
+      if (!Q_MatOperator->getSubTerms().empty()) {
+        Q(i, j) = VQEWrapper(Q_MatOperator);
+        Q(j, i) = Q(i, j);
+      }
+
+      auto V_MatOperator = bra->commutator(ket);      
+      if (!V_MatOperator->getSubTerms().empty()) {
+        V(i, j) = VQEWrapper(V_MatOperator);
+        V(j, i) = V(i, j);
+      }
+
+      auto W_MatOperator = bra->commutator(ketConj);      
+      if (!W_MatOperator->getSubTerms().empty()) {
+        W(i, j) = VQEWrapper(W_MatOperator);
+        W(j, i) = W(i, j);
+      }
+
     }
   }
 
@@ -203,51 +231,6 @@ double qEOM::VQEWrapper(const std::shared_ptr<Observable> obs) const {
       {{"observable", obs}, {"ansatz", kernel}, {"accelerator", accelerator}});
   auto tmpBuffer = xacc::qalloc(observable->nBits());
   return vqe->execute(tmpBuffer, {})[0];
-}
-
-void qEOM::singlesDoublesOperators(const int nOccupied, const int nVirtual) {
-
-  std::shared_ptr<Observable> fermiOp;
-  auto jw = xacc::getService<ObservableTransform>("jw");
-  auto nOrbitals = nOccupied + nVirtual;
-
-  // singles
-  for (int i = 0; i < nOccupied; i++) {
-    int ia = i;
-    int ib = i + nOrbitals;
-    for (int a = 0; a < nVirtual; a++) {
-      int aa = a + nOccupied;
-      int ab = a + nOccupied + nOrbitals;
-
-      fermiOp = std::make_shared<FermionOperator>(
-          FermionOperator({{aa, 1}, {ia, 0}}, 4.0));
-      operators.push_back(jw->transform(fermiOp));
-
-      fermiOp = std::make_shared<FermionOperator>(
-          FermionOperator({{ab, 1}, {ib, 0}}, 4.0));
-      operators.push_back(jw->transform(fermiOp));
-
-    }
-  }
-
-  // double excitations
-  for (int i = 0; i < nOccupied; i++) {
-    int ia = i;
-    for (int j = i; j < nOccupied; j++) {
-      int jb = j + nOrbitals;
-      for (int a = 0; a < nVirtual; a++) {
-        int aa = a + nOccupied;
-        for (int b = a; b < nVirtual; b++) {
-          int bb = b + nOccupied + nOrbitals;
-
-          fermiOp = std::make_shared<FermionOperator>(
-              FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 16.0));
-          operators.push_back(jw->transform(fermiOp));
-
-        }
-      }
-    }
-  }
 }
 
 } // namespace algorithm

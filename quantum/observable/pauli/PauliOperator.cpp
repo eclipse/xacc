@@ -12,6 +12,7 @@
  *******************************************************************************/
 #include "PauliOperator.hpp"
 #include "IRProvider.hpp"
+#include <cmath>
 #include <regex>
 #include <set>
 #include <iostream>
@@ -793,6 +794,21 @@ PauliOperator PauliOperator::hermitianConjugate() const {
                                std::conj(std::get<0>(kv.second)));
   }
   return conjugate;
+}
+
+void PauliOperator::normalize() {
+
+  double norm = 0.0;
+  for (auto &kv : terms) {
+    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
+  }
+  norm = std::sqrt(norm);
+
+  for (auto &kv : terms) {
+    std::get<0>(kv.second) = std::get<0>(kv.second) / norm;
+  }
+
+  return;
 }
 
 } // namespace quantum

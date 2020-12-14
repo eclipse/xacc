@@ -1797,14 +1797,12 @@ The Quantum Equation of Motion (QEOM) Algorithm requires the following input inf
 +------------------------+------------------------------------------------------+------------------------------------------+
 |    ansatz              | State preparation circuit                            | std::shared_ptr<CompositeInstruction>    |
 +------------------------+------------------------------------------------------+------------------------------------------+
-|    n-occupied          | The number of occupied orbitals                      | int                                      |
-+------------------------+------------------------------------------------------+------------------------------------------+
-|    n-virtual           | The number of virtual orbitals                       | int                                      |
+|    n-electrons         | The number of electrons                              | int                                      |
 +------------------------+------------------------------------------------------+------------------------------------------+
 |    operators           | Excitation operators                                 | std::vector<std::shared_ptr<Observable>> |
 +------------------------+------------------------------------------------------+------------------------------------------+
 
-Please note that the algorithm requires either both ``n-occupied`` and ``n-virtual`` or ``operators``. In the former case, it will default to single and double excitation operators. 
+Please note that the algorithm requires either ``n-electrons`` or ``operators``. In the former case, it will default to single and double excitation operators. 
 
  .. code:: cpp
 
@@ -1875,8 +1873,7 @@ Please note that the algorithm requires either both ``n-occupied`` and ``n-virtu
       qeom->initialize({{"accelerator",accelerator}, 
                       {"observable", H},
                       {"ansatz", kernel},
-                      {"n-occupied", 1}, 
-                      {"n-virtual", 1}});
+                      {"n-electrons", 2}});
 
       // Execute QEOM
       qeom->execute(buffer);
@@ -1937,8 +1934,7 @@ In Python:
                           'accelerator': accelerator,
                           'observable': H,
                           'ansatz': kernel,
-                          'n-occupied': 1,
-                          'n-virtual': 1
+                          'n-electrons': 2,
                           })
 
   qeom.execute(buffer)

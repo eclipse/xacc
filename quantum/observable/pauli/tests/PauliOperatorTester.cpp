@@ -479,6 +479,17 @@ TEST(PauliOperatorTester, checkSciNot) {
 
 }
 
+
+TEST(PauliOperatorTester, checkNormalize) {
+  PauliOperator op;
+  op.fromString("(0, -1) Z0 + (0, 2) X0");
+  std::cout << op.toString() << "\n";
+
+  op.normalize();
+  std::cout << op.toString() << "\n";
+
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

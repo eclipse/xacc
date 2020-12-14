@@ -59,9 +59,11 @@ public:
     return {};
   }
 
-    virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>){
+   virtual std::shared_ptr<Observable> commutator(std::shared_ptr<Observable>){
     return nullptr;
   }
+
+  virtual void normalize() { return; }
   
 };
 

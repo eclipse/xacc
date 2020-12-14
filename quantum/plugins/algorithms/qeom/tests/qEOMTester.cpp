@@ -76,8 +76,7 @@ TEST(qEOMTester, checkqEOM) {
   EXPECT_TRUE(qeom->initialize({
       {"accelerator", acc},
       {"observable", H},
-      {"n-occupied", 1},
-      {"n-virtual", 1},
+      {"n-electrons", 2},
       {"ansatz", kernel},
   }));
   qeom->execute(buffer);

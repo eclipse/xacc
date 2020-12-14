@@ -10,8 +10,8 @@
  * Contributors:
  *   Daniel Claudino - initial API and implementation
  *******************************************************************************/
-#ifndef XACC_SINGLET_ADAPTED_UCCSD_POOL_HPP_
-#define XACC_SINGLET_ADAPTED_UCCSD_POOL_HPP_
+#ifndef XACC_SINGLES_DOUBLES_POOL_HPP_
+#define XACC_SINGLES_DOUBLES_POOL_HPP_
 
 #include "adapt.hpp"
 #include "OperatorPool.hpp"
@@ -29,22 +29,21 @@ using namespace xacc;
 using namespace xacc::quantum;
 
 namespace xacc {
-// namespace algorithm{
 namespace quantum {
 
-class SingletAdaptedUCCSD : public OperatorPool {
+class SinglesDoublesPool : public OperatorPool {
 
 protected:
   int _nElectrons;
   std::vector<std::shared_ptr<Observable>> pool, operators;
 
 public:
-  SingletAdaptedUCCSD() = default;
+  SinglesDoublesPool() = default;
 
   bool optionalParameters(const HeterogeneousMap parameters) override {
 
     if (!parameters.keyExists<int>("n-electrons")) {
-      xacc::info("SingletAdaptedUCCSD pool needs number of electrons.");
+      xacc::info("UCCSD pool needs number of electrons.");
       return false;
     }
 
@@ -61,8 +60,8 @@ public:
     auto _nVirtual = nQubits / 2 - _nOccupied;
     auto _nOrbs = _nOccupied + _nVirtual;
 
-    FermionOperator fermiOp;
-    // single excitations
+    std::shared_ptr<Observable> fermiOp;
+    // singles
     for (int i = 0; i < _nOccupied; i++) {
       int ia = i;
       int ib = i + _nOrbs;
@@ -70,50 +69,28 @@ public:
         int aa = a + _nOccupied;
         int ab = a + _nOccupied + _nOrbs;
 
-        // spin-adapted singles
-        fermiOp = FermionOperator({{aa, 1}, {ia, 0}}, 1.0);
-        fermiOp += FermionOperator({{ab, 1}, {ib, 0}}, 1.0);
-        operators.push_back(std::make_shared<FermionOperator>(fermiOp));
+        operators.push_back(std::make_shared<FermionOperator>(
+            FermionOperator({{aa, 1}, {ia, 0}}, 4.0)));
+
+        operators.push_back(std::make_shared<FermionOperator>(
+            FermionOperator({{ab, 1}, {ib, 0}}, 4.0)));
+
       }
     }
 
     // double excitations
     for (int i = 0; i < _nOccupied; i++) {
       int ia = i;
-      int ib = i + _nOrbs;
       for (int j = i; j < _nOccupied; j++) {
-        int ja = j;
         int jb = j + _nOrbs;
         for (int a = 0; a < _nVirtual; a++) {
           int aa = a + _nOccupied;
-          int ab = a + _nOccupied + _nOrbs;
           for (int b = a; b < _nVirtual; b++) {
-            int ba = b + _nOccupied;
             int bb = b + _nOccupied + _nOrbs;
 
-            fermiOp = FermionOperator({{aa, 1}, {ia, 0}, {ba, 1}, {ja, 0}},
-                                      2.0 / std::sqrt(3.0));
-            fermiOp += FermionOperator({{ab, 1}, {ib, 0}, {bb, 1}, {jb, 0}},
-                                       2.0 / std::sqrt(3.0));
-            fermiOp += FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}},
-                                       1.0 / std::sqrt(3.0));
-            fermiOp += FermionOperator({{ab, 1}, {ib, 0}, {ba, 1}, {ja, 0}},
-                                       1.0 / std::sqrt(3.0));
-            fermiOp += FermionOperator({{aa, 1}, {ib, 0}, {bb, 1}, {ja, 0}},
-                                       1.0 / std::sqrt(3.0));
-            fermiOp += FermionOperator({{ab, 1}, {ia, 0}, {ba, 1}, {jb, 0}},
-                                       1.0 / std::sqrt(3.0));
-            operators.push_back(std::make_shared<FermionOperator>(fermiOp));
+            operators.push_back(std::make_shared<FermionOperator>(
+                FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 16.0)));
 
-            fermiOp =
-                FermionOperator({{aa, 1}, {ia, 0}, {bb, 1}, {jb, 0}}, 1.0);
-            fermiOp +=
-                FermionOperator({{ab, 1}, {ib, 0}, {ba, 1}, {ja, 0}}, 1.0);
-            fermiOp +=
-                FermionOperator({{aa, 1}, {ib, 0}, {bb, 1}, {ja, 0}}, -1.0);
-            fermiOp +=
-                FermionOperator({{ab, 1}, {ia, 0}, {ba, 1}, {jb, 0}}, -1.0);
-            operators.push_back(std::make_shared<FermionOperator>(fermiOp));
           }
         }
       }
@@ -129,7 +106,6 @@ public:
     auto ops = getExcitationOperators(nQubits);
     auto jw = xacc::getService<ObservableTransform>("jw");
     for (auto &op : ops) {
-
       auto tmp = *std::dynamic_pointer_cast<FermionOperator>(op);
       tmp -= tmp.hermitianConjugate();
       tmp.normalize();
@@ -140,7 +116,7 @@ public:
 
   std::string operatorString(const int index) override {
 
-    return pool[index]->toString();
+    return operators[index]->toString();
   }
 
   std::shared_ptr<CompositeInstruction>
@@ -157,7 +133,7 @@ public:
     return gate;
   }
 
-  const std::string name() const override { return "singlet-adapted-uccsd"; }
+  const std::string name() const override { return "singles-doubles-pool"; }
   const std::string description() const override { return ""; }
 };
 
