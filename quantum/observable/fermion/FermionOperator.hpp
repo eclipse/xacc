@@ -188,6 +188,8 @@ public:
 
   FermionOperator hermitianConjugate() const;
 
+  void normalize() override;
+
 };
 
 } // namespace quantum

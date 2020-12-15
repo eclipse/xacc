@@ -10,19 +10,9 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-add_subdirectory(adapt)
-add_subdirectory(vqe)
-add_subdirectory(rdm)
-add_subdirectory(ml)
-add_subdirectory(rotoselect)
-add_subdirectory(qpt)
-add_subdirectory(qaoa)
-add_subdirectory(qpe)
-add_subdirectory(gradient_strategies)
-add_subdirectory(qite)
-add_subdirectory(qcmx)
-add_subdirectory(qeom)
-
-file(GLOB PYDECORATORS ${CMAKE_CURRENT_SOURCE_DIR}/vqe/python/*.py
-                       ${CMAKE_CURRENT_SOURCE_DIR}/ml/ddcl/python/*.py)
-install(FILES ${PYDECORATORS} DESTINATION ${CMAKE_INSTALL_PREFIX}/py-plugins)
+include_directories(${CMAKE_BINARY_DIR})
+add_xacc_test(qEOM)
+target_include_directories(
+ qEOMTester
+  PUBLIC . ${CMAKE_SOURCE_DIR}/quantum/plugins/utils)
+target_link_libraries(qEOMTester xacc xacc-pauli xacc-quantum-gate xacc-fermion)
