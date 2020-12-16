@@ -45,6 +45,9 @@ public:
   // the equivalent Kraus operators.
   virtual std::vector<KrausOp>
   gateError(xacc::quantum::Gate &gate) const = 0;
+  // Get gate error probability:
+  virtual double
+  gateErrorProb(xacc::quantum::Gate &gate) const = 0;
   // Query Fidelity information:
   virtual size_t nQubits() const = 0;
   virtual std::vector<double> averageSingleQubitGateFidelity() const = 0;

@@ -32,13 +32,17 @@ public:
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::shared_ptr<CompositeInstruction> compositeInstruction) override;
     virtual void execute(std::shared_ptr<AcceleratorBuffer> buffer, const std::vector<std::shared_ptr<CompositeInstruction>> compositeInstructions) override;
     virtual void apply(std::shared_ptr<AcceleratorBuffer> buffer, std::shared_ptr<Instruction> inst) override;
-
+    std::vector<std::pair<int, int>> getConnectivity() override {
+        return m_connectivity;
+    }
+    
 private:
     std::shared_ptr<QppVisitor> m_visitor;
     // Number of 'shots' if random sampling simulation is enabled.
     // -1 means disabled (no shots, just expectation value)
     int m_shots = -1;
     bool m_vqeMode;
+    std::vector<std::pair<int,int>> m_connectivity;
 };
 
 class DefaultNoiseModelUtils : public NoiseModelUtils 

@@ -1,13 +1,10 @@
 #include "aer_python_adapter.hpp"
 #include <iostream>
 #include <numeric>
-
-#ifdef XACC_QISKIT_FOUND
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 #include <dlfcn.h>
 #include "xacc_config.hpp"
-#endif
 
 namespace xacc {
 namespace aer {
@@ -15,7 +12,6 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
                         const std::vector<double> &freqEst,
                         const std::vector<int> &uChanLoRefs,
                         const std::string &qObjJson) {
-#ifdef XACC_QISKIT_FOUND
   static bool PythonInit = false;
   if (!PythonInit) {
     if (!XACC_IS_APPLE) {
@@ -25,7 +21,14 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
       auto libPythonPreload =
           dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
     }
-    pybind11::initialize_interpreter();
+    try {
+      // This is implemented as a free-function,
+      // hence just try to start an interpreter,
+      // and ignore if the interpreter has been started.
+      pybind11::initialize_interpreter();
+    } catch (std::exception &e) {
+      // std::cout << e.what();
+    }
     PythonInit = true;
   }
   auto py_src = R"#(
@@ -84,8 +87,20 @@ result = backend_sim.run(pulse_qobj, system_model=system_model).result().to_dict
 hex_to_count = result["results"][0]["data"]["counts"]
 for hex_val in hex_to_count:
     hex_to_count[hex_val] = int(hex_to_count[hex_val])
-count_json = json.dumps(hex_to_count)
+state_vec = result["results"][0]["data"]["statevector"]
+result_data = {"counts": hex_to_count, "statevector": state_vec }
+result_json = json.dumps(result_data)
 )#";
+  // Check if Qiskit present.
+  try {
+    pybind11::module::import("qiskit");
+  } catch (std::exception &e) {
+    std::cerr << e.what() << '\n';
+    std::cerr << "Qiskit is not installed. Please install Qiskit to use the "
+                 "Aer Pulse simulator.\n";
+    throw;
+  }
+
   // Set variables:
   auto locals = pybind11::dict();
   locals["ham_json"] = hamJsonStr;
@@ -99,14 +114,8 @@ count_json = json.dumps(hex_to_count)
   locals["qobj_json"] = qObjJson;
   // Run the simulator:
   pybind11::exec(py_src, pybind11::globals(), locals);
-  const auto result = locals["count_json"].cast<std::string>();
+  const auto result = locals["result_json"].cast<std::string>();
   return result;
-#else
-  throw std::runtime_error(
-      "Qiskit was not installed. Please install Qiskit and recompile XACC to "
-      "use the Aer Pulse Simulator plugin.");
-  return "";
-#endif
 }
 } // namespace aer
 } // namespace xacc

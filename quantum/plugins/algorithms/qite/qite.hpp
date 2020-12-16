@@ -24,6 +24,9 @@ public:
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override;
   std::vector<double> execute(const std::shared_ptr<AcceleratorBuffer> buffer,
                const std::vector<double> &parameters) override;
+  double calculate(const std::string &calculation_task,
+                   const std::shared_ptr<AcceleratorBuffer> buffer,
+                   const HeterogeneousMap &extra_data = {}) override;
   const std::string name() const override { return "qite"; }
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(QITE)
@@ -32,15 +35,21 @@ protected:
   std::shared_ptr<CompositeInstruction> constructPropagateCircuit() const;
   // Calculate the current energy, i.e.
   // the value of the observable at the current Trotter step.
-  double calcCurrentEnergy(int in_nbQubits) const;
+  double calcCurrentEnergy(int in_nbQubits, double in_identityCoeff,
+                           const std::vector<double> &in_coefficients,
+                           const std::vector<std::shared_ptr<AcceleratorBuffer>>
+                               &in_resultBuffers) const;
 
-  // Calculate approximate A operator observable at the current Trotter step.
+  // Calculate the current energy value and approximate A operator observable at the current Trotter step.
   // Params:
   // in_kernel: the kernel to evolve the system to this time step
   // in_hmTerm: the H term to be approximate by the A term 
   // i.e. emulate the imaginary time evolution of that H term.
-  // Returns the norm (as a double) and the A operator (Pauli observable)
-  std::pair<double, std::shared_ptr<Observable>> calcAOps(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm) const;
+  // Returns energy value (double), the norm (as a double) and the A operator (Pauli observable)
+  std::tuple<double, double, std::shared_ptr<Observable>> calcQiteEvolve(const std::shared_ptr<AcceleratorBuffer>& in_buffer, std::shared_ptr<CompositeInstruction> in_kernel, std::shared_ptr<Observable> in_hmTerm, bool energyOnly = false) const;
+  // Internal helper function:
+  std::pair<double, std::shared_ptr<Observable>>
+  internalCalcAOps(const std::vector<std::string> &pauliOps, const std::vector<double> &sigmaExpectation, std::shared_ptr<Observable> in_hmTerm) const;
 
 protected:
   // Number of Trotter steps

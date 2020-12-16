@@ -1,0 +1,7 @@
+{
+    "bundle.symbolic_name" : "xacc_py_qsearch",
+    "bundle.activator" : true,
+    "bundle.name" : "Bindings for Python QSearch Synthesis",
+    "bundle.description" : ""
+  }
+  

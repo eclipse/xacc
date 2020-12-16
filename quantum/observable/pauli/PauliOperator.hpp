@@ -342,6 +342,10 @@ public:
   
   std::shared_ptr<Observable>
   commutator(std::shared_ptr<Observable> obs) override;
+
+  PauliOperator hermitianConjugate() const;
+
+  void normalize() override;
 };
 } // namespace quantum
 

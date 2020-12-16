@@ -356,14 +356,23 @@ bool Autodiff::initialize(const HeterogeneousMap parameters) {
   }
   auto obs = parameters.getPointerLike<Observable>("observable");
   fromObservable(xacc::as_shared_ptr(obs));
+  if (parameters.keyExists<std::function<std::shared_ptr<CompositeInstruction>(
+          std::vector<double>)>>("kernel-evaluator")) {
+    kernel_evaluator =
+        parameters.get<std::function<std::shared_ptr<CompositeInstruction>(
+            std::vector<double>)>>("kernel-evaluator");
+    if (parameters.keyExists<double>("step")) {
+      m_stepSize = parameters.get<double>("step");
+    }
+  }
   return true;
 }
 
-std::vector<double>
-Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
-                     const std::vector<double> &x,
-                     double *optional_out_fn_val) {
-  // std::cout << "Observable: \n" << m_obsMat << "\n";
+std::vector<double> Autodiff::computeDerivative(
+    std::shared_ptr<CompositeInstruction> CompositeInstruction,
+    const MatrixXcdual &obsMat, const std::vector<double> &x, size_t nbQubits,
+    double *optional_out_fn_val) {
+  // std::cout << "Observable: \n" << obsMat << "\n";
   // std::cout << "Circuit: \n" << CompositeInstruction->toString() << "\n";
   // std::cout << "Number of arguments = " << CompositeInstruction->nVariables()
   //           << "\n";
@@ -379,7 +388,7 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
       varMap.emplace(CompositeInstruction->getVariables()[i], vars[i]);
     }
 
-    AutodiffCircuitVisitor visitor(m_nbQubits, varMap);
+    AutodiffCircuitVisitor visitor(nbQubits, varMap);
     InstructionIterator iter(CompositeInstruction);
 
     while (iter.hasNext()) {
@@ -393,7 +402,7 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
     VectorXcdual finalState = circMat.col(0);
     // std::cout << "Final state:\n" << finalState << "\n";
 
-    VectorXcdual ket = m_obsMat * finalState;
+    VectorXcdual ket = obsMat * finalState;
     VectorXcdual bra = VectorXcdual::Zero(finalState.size());
     for (int i = 0; i < finalState.size(); ++i) {
       bra[i] = conj(finalState[i]);
@@ -424,6 +433,67 @@ Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
   }
 
   return gradients;
+}
+
+std::vector<double>
+Autodiff::derivative(std::shared_ptr<CompositeInstruction> CompositeInstruction,
+                     const std::vector<double> &x,
+                     double *optional_out_fn_val) {
+  return computeDerivative(CompositeInstruction, m_obsMat, x, m_nbQubits, optional_out_fn_val);
+}
+
+void Autodiff::compute(
+    std::vector<double> &dx,
+    std::vector<std::shared_ptr<AcceleratorBuffer>> results) {
+  // The list must be empty, i.e. no remote evaluation.
+  assert(results.empty());
+  if (kernel_evaluator) {
+    // Black-box kernel evaluator functor:
+    // Performs finite differences gradient
+    std::vector<double> valuesPlus(m_currentParams.size());
+    std::vector<double> valuesMinus(m_currentParams.size());
+#ifdef WITH_OPENMP_
+#pragma omp parallel for collapse(2)
+#endif // WITH_OPENMP_
+    for (int i = 0; i < m_currentParams.size(); ++i) {
+      for (int j = 0; j < 2; ++j) {
+        if (j == 0) {
+          // Plus
+          auto newParameters = m_currentParams;
+          newParameters[i] = newParameters[i] + m_stepSize;
+          auto kernel = kernel_evaluator(newParameters);
+          assert(kernel->getVariables().size() == 0);
+          double funcVal = 0.0;
+          computeDerivative(kernel, m_obsMat, {} /* no params */, m_nbQubits,
+                            &funcVal);
+          valuesPlus[i] = funcVal;
+        } else {
+          // Minus
+          auto newParameters = m_currentParams;
+          newParameters[i] = newParameters[i] - m_stepSize;
+          auto kernel = kernel_evaluator(newParameters);
+          assert(kernel->getVariables().size() == 0);
+          double funcVal = 0.0;
+          computeDerivative(kernel, m_obsMat, {} /* no params */, m_nbQubits,
+                            &funcVal);
+          valuesMinus[i] = funcVal;
+        }
+      }
+    }
+
+    assert(valuesMinus.size() == m_currentParams.size() &&
+           valuesPlus.size() == m_currentParams.size());
+    dx.clear();
+    for (int i = 0; i < m_currentParams.size(); ++i) {
+      dx.emplace_back((valuesPlus[i] - valuesMinus[i]) / (2.0 * m_stepSize));
+    }
+  } else {
+    // Variational composite, perform analytical autodiff.
+    dx = derivative(m_varKernel, m_currentParams);
+  }
+
+  m_varKernel.reset();
+  m_currentParams.clear();
 }
 } // namespace quantum
 } // namespace xacc

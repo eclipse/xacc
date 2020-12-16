@@ -18,9 +18,9 @@ endif()
 configure_file("${CMAKE_SOURCE_DIR}/cmake/xacc_config.hpp.in"
                "${CMAKE_BINARY_DIR}/xacc_config.hpp")
 install(FILES "${CMAKE_BINARY_DIR}/xacc_config.hpp" DESTINATION include/xacc)
-configure_file("${CMAKE_SOURCE_DIR}/xacc/version.in"
-               "${CMAKE_BINARY_DIR}/xacc/version")
-install(FILES "${CMAKE_BINARY_DIR}/xacc/version" DESTINATION include/xacc)
+configure_file("${CMAKE_SOURCE_DIR}/xacc/xacc_version.in"
+               "${CMAKE_BINARY_DIR}/xacc/xacc_version")
+install(FILES "${CMAKE_BINARY_DIR}/xacc/xacc_version" DESTINATION include/xacc)
      
 find_package(Libunwind)
 

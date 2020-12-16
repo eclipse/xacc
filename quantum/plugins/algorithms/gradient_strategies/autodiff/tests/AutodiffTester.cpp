@@ -246,6 +246,60 @@ TEST(AutodiffTester, checkQaoaMaxCutGradient) {
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), 2.0, 0.1);
 }
 
+TEST(AutodiffTester, checkGradientKernelEvaluator) {
+  // Create the N=3 deuteron Hamiltonian
+  auto H_N_3 = xacc::quantum::getObservable(
+      "pauli",
+      std::string("5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1 + "
+                  "9.625 - 9.625 Z2 - 3.91 X1 X2 - 3.91 Y1 Y2"));
+
+  // JIT map Quil QASM Ansatz to IR
+  xacc::qasm(R"(
+.compiler xasm
+.circuit ansatz_h3_test
+.parameters t0, t1
+.qbit q
+X(q[0]);
+exp_i_theta(q, t0, {{"pauli", "X0 Y1 - Y0 X1"}});
+exp_i_theta(q, t1, {{"pauli", "X0 Z1 Y2 - X2 Z1 Y0"}});
+)");
+  auto ansatz = xacc::getCompiled("ansatz_h3_test");
+  // Create a kernel evaluator
+  std::function<std::shared_ptr<xacc::CompositeInstruction>(
+      std::vector<double>)>
+      kernel_evaluator =
+          [&](std::vector<double> x) { return ansatz->operator()(x); };
+
+  auto autodiff = std::make_shared<xacc::quantum::Autodiff>();
+  autodiff->initialize(
+      {{"observable", H_N_3}, {"kernel-evaluator", kernel_evaluator}});
+
+  const std::vector<double> initialParams{0.0, 0.0};
+  const int nbIterms = 100;
+  // gradient-descent step size
+  const double stepSize = 0.01;
+  std::vector<double> grad{0.0, 0.0};
+  auto currentParams = initialParams;
+  double energy = 0.0;
+  for (int i = 0; i < nbIterms; ++i) {
+    for (int paramId = 0; paramId < 2; ++paramId) {
+      currentParams[paramId] =
+          currentParams[paramId] - stepSize * grad[paramId];
+    }
+    autodiff->getGradientExecutions(kernel_evaluator(currentParams), currentParams);
+    autodiff->compute(grad, {});
+    EXPECT_EQ(grad.size(), 2);
+    autodiff->derivative(kernel_evaluator(currentParams), {}, &energy);
+    std::cout << "Energy: " << energy << "; Grads = ";
+    for (const auto &g : grad) {
+      std::cout << g << " ";
+    }
+    std::cout << "\n";
+  }
+  std::cout << "Energy: " << energy << "\n";
+  EXPECT_NEAR(energy, -2.044, 0.1);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   ::testing::InitGoogleTest(&argc, argv);

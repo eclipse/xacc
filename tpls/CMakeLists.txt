@@ -12,7 +12,7 @@
 # *******************************************************************************/
 set(BUILD_SHARED_LIBS TRUE)
 if(APPLE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPATH_MAX=4096")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPATH_MAX=4096 -Wno-deprecated-copy")
 endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0.0")
