@@ -110,6 +110,18 @@ pybind11::object getAqasmGate(const std::string &in_xaccGateName) {
   }
 }
 
+std::string getXasmGate(const std::string &in_aqasmGateName) {
+  // TODO: adding more gates
+  static std::unordered_map<std::string, std::string> aqasmToXasm{
+      {"H", "H"}, {"X", "X"}, {"Y", "Y"}, {"Z", "Z"}};
+
+  const auto iter = aqasmToXasm.find(in_aqasmGateName);
+  if (iter != aqasmToXasm.end()) {
+    return iter->second;
+  }
+  return "";
+}
+
 pybind11::array_t<std::complex<double>> fSimGateMat(double in_theta,
                                                     double in_phi) {
   pybind11::array_t<std::complex<double>> gateMat({4, 4});
@@ -318,12 +330,45 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     }
   }
 
-  // Handle IBM backend noisy simulation:
-  // IMPORTANT NOTES: I don't see the API for specifying gate noise *per-qubit*
-  // yet, hence, we just use the noise value of qubit 0. i.e. Hadamard on q[0],
-  // q[1], etc. are treated the same (using the noise value of q[0]).
+  // Handle noisy simulation:
   m_noiseModel.reset();
-  if (params.stringExists("backend")) {
+  // First, check direct noise model input:
+  if (params.pointerLikeExists<xacc::NoiseModel>("noise-model")) {
+    m_noiseModel = xacc::as_shared_ptr(
+        params.getPointerLike<xacc::NoiseModel>("noise-model"));
+    // QAT gateset generator
+    auto predef_generator =
+        pybind11::module::import("qat.core.circuit_builder.matrix_util")
+            .attr("get_predef_generator");
+    auto QuantumChannelKraus =
+        pybind11::module::import("qat.quops.quantum_channels")
+            .attr("QuantumChannelKraus");
+    const auto nbQubits = m_noiseModel->nQubits();
+    auto aqasmGates = predef_generator().attr("keys")();
+    auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
+    pybind11::dict all_gates_noise;
+    for (const auto &aqasmGateName : aqasmGates) {
+      const auto gateName = aqasmGateName.cast<std::string>();
+      const auto xaccEquiv = getXasmGate(gateName);
+      if (!xaccEquiv.empty()) {
+        pybind11::dict gates_noise;
+        for (size_t qId = 0; qId < nbQubits; ++qId) {
+          auto inst = gateRegistry->createInstruction(xaccEquiv, qId);
+          auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+          const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
+          if (!errorChannels.empty()) {        
+            gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
+            [errorChannels, QuantumChannelKraus](pybind11::kwargs kwarg) {
+              auto ops = errorChannels[0].mats;
+              auto krausChannel = QuantumChannelKraus(ops);
+              return krausChannel;
+            });
+          }
+        }
+        all_gates_noise[gateName.c_str()] = gates_noise;
+      }
+    }
+  } else if (params.stringExists("backend")) {
     m_noiseModel = xacc::getService<NoiseModel>("IBM");
     m_noiseModel->initialize(params);
     auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
