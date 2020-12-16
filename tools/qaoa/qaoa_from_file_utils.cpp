@@ -23,8 +23,10 @@ int main(int argc, char **argv)
     std::string optAlgo = "l-bfgs";
     std::string graphFile = "temp";
     std::string configFile = "temp";
+    std::string connectFile = "temp";
     bool inConfig = false;
     bool outFile = false;
+    bool verbose = true;
     float stepSize = 0.1;
 
     std::vector<std::string> arguments(argv + 1, argv + argc);
@@ -53,7 +55,7 @@ int main(int argc, char **argv)
     xacc::Initialize(argc, argv);
 
     // Instantiate class
-    qaoa_from_file QAOA(configFile, graphFile, outFile, optName, optAlgo, accName, inConfig, nbSteps, stepSize, maxIters);
+    qaoa_from_file QAOA(configFile, graphFile, connectFile, outFile, optName, optAlgo, accName, inConfig, nbSteps, stepSize, maxIters, verbose);
 
     // Execute the QAOA algorithm and return results
     QAOA.execute();

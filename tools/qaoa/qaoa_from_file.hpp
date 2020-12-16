@@ -37,22 +37,25 @@ class qaoa_from_file {
         std::string m_opt_algo;
         std::string m_graph_file;
         std::string m_config_file;
+        std::string m_connect_file;
         bool m_in_config;
         bool m_out_file;
+        bool m_verbose;
         float m_step_size;
         
         json configs;
 
         void read_json();
         void read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H);
-        xacc::HeterogeneousMap set_optimizer();
+        xacc::HeterogeneousMap get_optimizer_params();
+        std::vector<std::pair<int, int>> set_connectivity(const std::string& connectFile);
 
     public:
         qaoa_from_file(json& c) : configs(c) {
             m_in_config = true;
         }
 
-        qaoa_from_file(const std::string& configFile, const std::string& graphFile, bool outFile, const std::string& optName, const std::string& optAlgo, const std::string& accName, bool inConfig, const int& nbSteps, const float& stepSize, const int& maxIters) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_opt_name(optName), m_opt_algo(optAlgo), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps), m_step_size(stepSize), m_max_iters(maxIters) {}
+        qaoa_from_file(const std::string& configFile, const std::string& graphFile, const std::string& connectFile, bool outFile, const std::string& optName, const std::string& optAlgo, const std::string& accName, bool inConfig, const int& nbSteps, const float& stepSize, const int& maxIters, bool verbose) : m_config_file(configFile), m_graph_file(graphFile), m_out_file(outFile), m_connect_file(connectFile), m_opt_name(optName), m_opt_algo(optAlgo), m_acc_name(accName), m_in_config(inConfig), m_steps(nbSteps), m_step_size(stepSize), m_max_iters(maxIters), m_verbose(verbose) {}
 
         void execute();
 

@@ -19,7 +19,7 @@
 // 3. Add to optimizer section of JSON: "initialize": random, or eventually
 // Fourier, warm starts, etc.
 
-// Generate random vector 
+// Function to generate random vector for optimizer initialization
 auto random_vector(const double l_range, const double r_range, const std::size_t size) {
     // Generate a random initial parameter set
     std::random_device rnd_device;
@@ -32,6 +32,7 @@ auto random_vector(const double l_range, const double r_range, const std::size_t
 }
 
 // Function returns the time in format: YYYY-MM-DD.HH.MM.SS
+// for output file directory's name
 std::string get_timestamp() {
     auto now = std::time(nullptr);
     char buf[sizeof("YYYY-MM-DD  HH:MM:SS")];
@@ -51,9 +52,11 @@ void qaoa_from_file::read_json() {
         configs = json::parse(config_str); 
     }
     m_graph_file = configs["graph"]; //.get<std::string>();
+    m_connect_file = configs["connection"]; //.get<std::string>();
     m_out_file = configs.count("outputfile") ? configs["outputfile"].get<bool>() : false;
-    m_acc_name = configs.count("accelerator") ? configs["xacc"]["accelerator"].get<std::string>(): "qpp";
+    m_acc_name = configs.count("accelerator") ? configs["xacc"]["accelerator"].get<std::string>() : "qpp";
     m_opt_name = configs["xacc"].count("optimizer") ? configs["xacc"]["optimizer"].get<std::string>() : "nlopt";
+    m_verbose = configs["xacc"].count("verbose") ? configs["xacc"]["verbose"].get<bool>() : true;
     m_opt_algo = 
         configs["optimizer-params"].count("algorithm") ? configs["optimizer-params"]["algorithm"].get<std::string>() : "l-bfgs";
     m_step_size = 
@@ -61,8 +64,11 @@ void qaoa_from_file::read_json() {
     m_steps = configs["qaoa-params"].count("p") ? configs["qaoa-params"]["p"].get<int>() : 1;
 }
 
-
-xacc::HeterogeneousMap qaoa_from_file::set_optimizer() {
+// TODO: Test removing the prepending of m_opt_name to each of the 
+// input options
+// Function sets all of the optimizer parameters according to the
+// users input file
+xacc::HeterogeneousMap qaoa_from_file::get_optimizer_params() {
     auto optimizerParams = configs["optimizer-params"];
     xacc::HeterogeneousMap m_options;
     std::vector<std::string> keys;
@@ -115,7 +121,7 @@ xacc::HeterogeneousMap qaoa_from_file::set_optimizer() {
 }
 
 
-// Function takes a graph file, or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
+// Function takes a graph file (upper adjacency matrix), or file of Pauli Observables, as an input and outputs the corresponding Hamiltonian
 void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantum::PauliOperator& H) {
     std::ifstream H_file(graphFile);
     std::string str((std::istreambuf_iterator<char>(H_file)),
@@ -138,7 +144,7 @@ void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantu
             for(int j = 0; j < line.length(); j++){
                 if (line[j] == '1') {
                     // Outputting edge pairs to terminal for verification:
-                    std::cout << "Edge at: " << i << ", " << j_counter << "\n";
+                    // std::cout << "Edge at: " << i << ", " << j_counter << "\n";
                     edges.push_back(std::make_pair(i,j_counter));
                 }
                 j_counter++;
@@ -151,8 +157,33 @@ void qaoa_from_file::read_hamiltonian(const std::string& graphFile, xacc::quantu
     }
 }
 
+// Function takes a graph file of the qpu's connectivity as an input and outputs
+// the corresponding edge pairs
+std::vector<std::pair<int, int>> qaoa_from_file::set_connectivity(const std::string& connectFile) {
+    std::ifstream C_file(connectFile);
+    std::string str((std::istreambuf_iterator<char>(C_file)),
+                            std::istreambuf_iterator<char>());
+    std::vector<std::pair<int, int>> edges;
+    auto lines = xacc::split(str, '\n');
+    int i = 0;
+    for (auto line: lines) {
+        int j_counter = i+1;
+        for (int j=0; j < line.length(); j++){
+            if (line[j] == '1'){
+                // Outputting edge pairs to terminal for verification:
+                // std::cout << "Edge at: " << i << ", " << j_counter << "\n";
+                edges.push_back(std::make_pair(i, j_counter));
+            }
+            j_counter++;
+        }
+        i++;
+    }
+    return edges;
+}
+
 
 void qaoa_from_file::execute() {
+    // TODO: change to .empty()
     if (m_in_config == true){
         read_json();
     }
@@ -163,6 +194,10 @@ void qaoa_from_file::execute() {
     std::cout << H.toString() << "\n";
     xacc::Observable* obs = &H;
 
+    // Read in the QPU connectivity
+    // std::vector<std::pair<int, int>> connectivity = set_connectivity(m_connect_file);
+    // auto acc = xacc::getAccelerator(m_acc_name, {{"connectivity", connectivity}});
+
     // Target the user-specified backend
     auto acc = xacc::getAccelerator(m_acc_name);
     
@@ -171,12 +206,13 @@ void qaoa_from_file::execute() {
     gradient->initialize({{"step", .1}, {"observable", xacc::as_shared_ptr(obs)}});
 
     // Configuring the optimizer parameters and calling optimizer
-    xacc::HeterogeneousMap m_options = set_optimizer();
+    xacc::HeterogeneousMap m_options = get_optimizer_params();
     auto optimizer = xacc::getOptimizer(m_opt_name, m_options);
 
     // turn on verbose output
-    xacc::set_verbose(true);
+    xacc::set_verbose(m_verbose);
     // Initialize QAOA
+    // int nloops 
     auto qaoa = xacc::getAlgorithm("QAOA", {{"accelerator", acc},
                                             {"optimizer", optimizer},
                                             {"observable", obs},
@@ -186,6 +222,7 @@ void qaoa_from_file::execute() {
 
     // Allocate necessary amount of qubits and execute
     auto buffer = xacc::qalloc(H.nBits());
+
     qaoa->execute(buffer);
 
     // Print out results to terminal

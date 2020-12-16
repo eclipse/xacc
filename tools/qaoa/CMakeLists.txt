@@ -32,7 +32,6 @@ endif()
 add_executable(xacc-qaoa qaoa_from_file_utils.cpp)
 target_link_libraries(xacc-qaoa PUBLIC xacc-qaoa-helper)
 
-
 if(APPLE)
   set_target_properties(xacc-qaoa
                         PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")

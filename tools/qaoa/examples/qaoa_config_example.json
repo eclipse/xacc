@@ -1,9 +1,11 @@
 {
     "graph": "graph_input_example.txt",
+    "connection": "connection_example.txt",
     "outputfile": true,
     "xacc":{
-        "accelerator": "tnqvm",
-        "optimizer": "nlopt"
+        "accelerator": "aer",
+        "optimizer": "nlopt",
+        "verbose": true
     },
     "optimizer-params":{
         "algorithm": "l-bfgs",
@@ -12,6 +14,6 @@
         "maximize": true
     },
     "qaoa-params":{
-        "p": 1
+        "p": 5
     }
 }

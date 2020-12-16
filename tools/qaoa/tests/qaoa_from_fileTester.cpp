@@ -40,7 +40,8 @@ TEST(qaoa_from_file_tester, checkSimple) {
         "outputfile": true,
         "xacc":{
             "accelerator": "aer",
-            "optimizer": "mlpack"
+            "optimizer": "mlpack",
+            "verbose": true
         },
         "optimizer-params":{
             "algorithm": "adagrad",
