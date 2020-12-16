@@ -154,6 +154,19 @@ u3GateMat(double in_theta, double in_phi, double in_lambda) {
             std::cos(in_theta / 2.0);
   return gateMat;
 }
+
+pybind11::array_t<std::complex<double>>
+matToNumpy(const std::vector<std::vector<std::complex<double>>> &in_mat) {
+  pybind11::array_t<std::complex<double>> gateMat(
+      {in_mat.size(), in_mat.size()});
+  auto r = gateMat.mutable_unchecked<2>();
+  for (int i = 0; i < in_mat.size(); ++i) {
+    for (int j = 0; j < in_mat.size(); ++j) {
+      r(i, j) = in_mat[i][j];
+    }
+  }
+  return gateMat;
+}
 } // namespace
 
 namespace xacc {
@@ -357,17 +370,35 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
           auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
           const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
           if (!errorChannels.empty()) {        
+            std::cout << "Gate " << gate->toString() << "\n";
             gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
             [errorChannels, QuantumChannelKraus](pybind11::kwargs kwarg) {
-              auto ops = errorChannels[0].mats;
-              auto krausChannel = QuantumChannelKraus(ops);
+              std::cout << "Getting noise channel info\n";
+              std::vector<pybind11::array_t<std::complex<double>>> kraus_mats;
+              for (const auto& op: errorChannels[0].mats) {
+                kraus_mats.emplace_back(matToNumpy(op));
+              }
+              auto krausChannel = QuantumChannelKraus(kraus_mats);
+              pybind11::print(krausChannel);
               return krausChannel;
             });
           }
         }
-        all_gates_noise[gateName.c_str()] = gates_noise;
+        if (gates_noise.size() > 0) {
+          all_gates_noise[gateName.c_str()] = gates_noise;
+        }
       }
     }
+
+    pybind11::print(all_gates_noise);
+    auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
+    auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
+    auto gatesSpecification = qlmHardwareMod.attr("DefaultGatesSpecification");
+    auto gates_spec = gatesSpecification();
+    auto hw_model = hardwareModel(gates_spec, all_gates_noise);
+    // Noisy simulator:
+    auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
+    m_qlmQpuServer = noisyQProc(hw_model);
   } else if (params.stringExists("backend")) {
     m_noiseModel = xacc::getService<NoiseModel>("IBM");
     m_noiseModel->initialize(params);
