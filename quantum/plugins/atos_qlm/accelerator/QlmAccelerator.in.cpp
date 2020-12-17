@@ -399,9 +399,56 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
 
         // Two-qubit gate noise:
         if (gateArity == 2) {
-          // TODO:
-        }
+          for (size_t qId1 = 0; qId1 < nbQubits; ++qId1) {
+            for (size_t qId2 = 0; qId2 < nbQubits; ++qId2) {
+              if (qId1 != qId2) {
+                auto inst =
+                    gateRegistry->createInstruction(xaccEquiv, {qId1, qId2});
+                auto gate =
+                    std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+                const auto errorChannels =
+                    m_noiseModel->getNoiseChannels(*gate);
+                if (!errorChannels.empty()) {
+                  // Bit order:
+                  std::vector<pybind11::array_t<std::complex<double>>>
+                      kraus_mats;
+                  if (errorChannels[0].bit_order == KrausMatBitOrder::LSB) {
+                    for (const auto &op : errorChannels[0].mats) {
+                      kraus_mats.emplace_back(matToNumpy(op));
+                    }
+                  } else {
+                    std::vector<pybind11::array_t<std::complex<double>>>
+                        kraus_mats;
+                    // Flip Kron product order
+                    const auto flipKronOrder =
+                        [](const std::vector<std::vector<std::complex<double>>>
+                               &in_mat) {
+                          assert(in_mat.size() == 4);
+                          auto result = in_mat;
+                          const std::vector<size_t> order{0, 2, 1, 3};
+                          for (size_t i = 0; i < 4; ++i) {
+                            for (size_t j = 0; j < 4; ++j) {
+                              result[order[i]][order[j]] = in_mat[i][j];
+                            }
+                          }
+                          return result;
+                        };
+                    for (const auto &op : errorChannels[0].mats) {
+                      kraus_mats.emplace_back(matToNumpy(flipKronOrder(op)));
+                    }
+                  }
 
+                  auto krausChannel = QuantumChannelKraus(kraus_mats);
+                  all_gates_noise[gateName.c_str()] = pybind11::cpp_function(
+                      [krausChannel](pybind11::kwargs kwarg) {
+                        pybind11::print(krausChannel);
+                        return krausChannel;
+                      });
+                }
+              }
+            }
+          }
+        }
         if (gates_noise.size() > 0) {
           all_gates_noise[gateName.c_str()] = gates_noise;
         }
