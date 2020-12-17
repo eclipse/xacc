@@ -104,6 +104,7 @@ TEST(QlmNoiseModelTester, checkBitOrdering) {
 
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
+    buffer->print();
     densityMatrix_msb = (*buffer)["density_matrix"]
                             .as<std::vector<std::pair<double, double>>>();
   }
@@ -115,6 +116,7 @@ TEST(QlmNoiseModelTester, checkBitOrdering) {
     auto accelerator =
         xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
     auto buffer = xacc::qalloc(2);
+    buffer->print();
     accelerator->execute(buffer, program);
     densityMatrix_lsb = (*buffer)["density_matrix"]
                             .as<std::vector<std::pair<double, double>>>();
@@ -191,12 +193,13 @@ TEST(QlmNoiseModelTester, checkRoError) {
   {
     auto program = xasmCompiler
                        ->compile(R"(__qpu__ void testId(qbit q) {
+        CX(q[0], q[1]);
         Measure(q[0]);
       })",
                                  nullptr)
                        ->getComposites()[0];
 
-    auto buffer = xacc::qalloc(1);
+    auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
     buffer->print();
     // P(1|0) = 0.1

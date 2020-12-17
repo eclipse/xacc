@@ -380,17 +380,17 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
             auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
             const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
             if (!errorChannels.empty()) {
-              std::cout << "Gate " << gate->toString() << "\n";
+              // std::cout << "Gate " << gate->toString() << "\n";
               gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
                   [errorChannels, QuantumChannelKraus](pybind11::kwargs kwarg) {
-                    std::cout << "Getting noise channel info\n";
+                    // std::cout << "Getting noise channel info\n";
                     std::vector<pybind11::array_t<std::complex<double>>>
                         kraus_mats;
                     for (const auto &op : errorChannels[0].mats) {
                       kraus_mats.emplace_back(matToNumpy(op));
                     }
                     auto krausChannel = QuantumChannelKraus(kraus_mats);
-                    pybind11::print(krausChannel);
+                    // pybind11::print(krausChannel);
                     return krausChannel;
                   });
             }
@@ -409,6 +409,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                 const auto errorChannels =
                     m_noiseModel->getNoiseChannels(*gate);
                 if (!errorChannels.empty()) {
+                  // std::cout << "Has noise: " << gate->toString() << "\n";
                   // Bit order:
                   std::vector<pybind11::array_t<std::complex<double>>>
                       kraus_mats;
@@ -417,8 +418,6 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                       kraus_mats.emplace_back(matToNumpy(op));
                     }
                   } else {
-                    std::vector<pybind11::array_t<std::complex<double>>>
-                        kraus_mats;
                     // Flip Kron product order
                     const auto flipKronOrder =
                         [](const std::vector<std::vector<std::complex<double>>>
@@ -437,13 +436,16 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                       kraus_mats.emplace_back(matToNumpy(flipKronOrder(op)));
                     }
                   }
-
-                  auto krausChannel = QuantumChannelKraus(kraus_mats);
-                  all_gates_noise[gateName.c_str()] = pybind11::cpp_function(
-                      [krausChannel](pybind11::kwargs kwarg) {
-                        pybind11::print(krausChannel);
-                        return krausChannel;
-                      });
+                  if (kraus_mats.size() > 0) {
+                    // std::cout << "Kraus mats:\n";
+                    // pybind11::print(kraus_mats);
+                    auto krausChannel = QuantumChannelKraus(kraus_mats);
+                    all_gates_noise[gateName.c_str()] = pybind11::cpp_function(
+                        [krausChannel](pybind11::kwargs kwarg) {
+                          // pybind11::print(krausChannel);
+                          return krausChannel;
+                        });
+                  }
                 }
               }
             }
@@ -455,7 +457,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       }
     }
 
-    pybind11::print(all_gates_noise);
+    // pybind11::print(all_gates_noise);
     auto qlmHardwareMod = pybind11::module::import("qat.hardware.default");
     auto hardwareModel = qlmHardwareMod.attr("HardwareModel");
     auto gatesSpecification = qlmHardwareMod.attr("DefaultGatesSpecification");
@@ -775,14 +777,14 @@ void QlmAccelerator::persistResultToBuffer(
 void QlmAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
-  
   // No shots, retrieve the density matrix
   if (m_noiseModel && m_shots < 0) {
     auto compute_density_matrix =
         pybind11::module::import("qat.noisy").attr("compute_density_matrix");
     auto circ = constructQlmCirc(buffer, compositeInstruction);
     pybind11::array_t<std::complex<double>> rho = compute_density_matrix(circ, m_qlmQpuServer);
-    pybind11::print(rho);
+    // std::cout << "Density matrix:\n";
+    // pybind11::print(rho);
     auto rho_mat = rho.unchecked<2>(); 
     // Flatten density matrix
     std::vector<std::pair<double, double>> dm_mat;
@@ -794,7 +796,9 @@ void QlmAccelerator::execute(
     buffer->addExtraInfo("density_matrix", dm_mat);
   } else {
     auto qlmJob = constructQlmJob(buffer, compositeInstruction);
+    // pybind11::print(qlmJob);
     auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+    // pybind11::print(result);
     persistResultToBuffer(buffer, result, qlmJob);
   }
 }
