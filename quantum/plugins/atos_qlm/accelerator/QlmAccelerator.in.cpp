@@ -639,6 +639,29 @@ std::vector<std::pair<int, int>> QlmAccelerator::getConnectivity() {
   return {};
 }
 
+pybind11::object QlmAccelerator::constructQlmCirc(
+    std::shared_ptr<AcceleratorBuffer> buffer,
+    std::shared_ptr<CompositeInstruction> compositeInstruction) const {
+  QlmCircuitVisitor visitor(buffer->size());
+  // Walk the IR tree, and visit each node
+  InstructionIterator it(compositeInstruction);
+  std::vector<size_t> measureBitIdxs;
+  while (it.hasNext()) {
+    auto nextInst = it.next();
+    if (nextInst->isEnabled()) {
+      nextInst->accept(&visitor);
+    }
+    if (isMeasureGate(nextInst)) {
+      measureBitIdxs.emplace_back(nextInst->bits()[0]);
+    }
+  }
+  // Debug:
+  // exportAqasm(visitor.getProgram(), "test.aqasm");
+  // Shots:
+  auto circ = to_circ(visitor.getProgram());
+  return circ;
+}
+
 pybind11::object QlmAccelerator::constructQlmJob(
     std::shared_ptr<AcceleratorBuffer> buffer,
     std::shared_ptr<CompositeInstruction> compositeInstruction) const {
@@ -752,9 +775,28 @@ void QlmAccelerator::persistResultToBuffer(
 void QlmAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> compositeInstruction) {
-  auto qlmJob = constructQlmJob(buffer, compositeInstruction);
-  auto result = m_qlmQpuServer.attr("submit")(qlmJob);
-  persistResultToBuffer(buffer, result, qlmJob);
+  
+  // No shots, retrieve the density matrix
+  if (m_noiseModel && m_shots < 0) {
+    auto compute_density_matrix =
+        pybind11::module::import("qat.noisy").attr("compute_density_matrix");
+    auto circ = constructQlmCirc(buffer, compositeInstruction);
+    pybind11::array_t<std::complex<double>> rho = compute_density_matrix(circ, m_qlmQpuServer);
+    pybind11::print(rho);
+    auto rho_mat = rho.unchecked<2>(); 
+    // Flatten density matrix
+    std::vector<std::pair<double, double>> dm_mat;
+    for (pybind11::ssize_t i = 0; i < rho_mat.shape(0); ++i) {
+      for (pybind11::ssize_t j = 0; j < rho_mat.shape(1); ++j) {
+        dm_mat.emplace_back(std::make_pair(rho_mat(i, j).real(), rho_mat(i, j).imag()));
+      }
+    }
+    buffer->addExtraInfo("density_matrix", dm_mat);
+  } else {
+    auto qlmJob = constructQlmJob(buffer, compositeInstruction);
+    auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+    persistResultToBuffer(buffer, result, qlmJob);
+  }
 }
 
 void QlmAccelerator::execute(

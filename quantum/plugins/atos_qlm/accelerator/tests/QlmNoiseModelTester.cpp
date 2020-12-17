@@ -29,7 +29,7 @@ TEST(QlmNoiseModelTester, checkSimple) {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", depol_json}});
     auto accelerator = xacc::getAccelerator(
-        "atos-qlm", {{"noise-model", noiseModel}, {"sim-type", "density_matrix"}});
+        "atos-qlm", {{"noise-model", noiseModel}});
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto program = xasmCompiler
                        ->compile(R"(__qpu__ void testX(qbit q) {
@@ -65,7 +65,7 @@ TEST(QlmNoiseModelTester, checkSimple) {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", ad_json}});
     auto accelerator =
-        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
+        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}, {"shots", 1024}});
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto program = xasmCompiler
                        ->compile(R"(__qpu__ void testX_ad(qbit q) {
@@ -100,7 +100,7 @@ TEST(QlmNoiseModelTester, checkBitOrdering) {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", msb_noise_model}});
     auto accelerator = xacc::getAccelerator(
-        "atos-qlm", {{"noise-model", noiseModel}, {"sim-type", "density_matrix"}});
+        "atos-qlm", {{"noise-model", noiseModel}});
 
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
@@ -113,8 +113,7 @@ TEST(QlmNoiseModelTester, checkBitOrdering) {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", lsb_noise_model}});
     auto accelerator =
-        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel},
-                                     {"sim-type", "density_matrix"}});
+        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
     densityMatrix_lsb = (*buffer)["density_matrix"]
