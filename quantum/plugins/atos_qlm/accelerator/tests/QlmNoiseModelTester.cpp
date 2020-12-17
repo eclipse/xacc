@@ -21,6 +21,9 @@ const std::string lsb_noise_model =
 // P(1|0) = 0.1; P(0|1) = 0.2
 const std::string ro_error_noise_model =
     R"({"gate_noise": [], "bit_order": "MSB", "readout_errors": [{"register_location": "0", "prob_meas0_prep1": 0.2, "prob_meas1_prep0": 0.1}]})";
+const std::string depol_json_rx =
+    R"({"gate_noise": [{"gate_name": "Rx", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.99498743710662, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.99498743710662, 0.0]]], [[[0.0, 0.0], [0.05773502691896258, 0.0]], [[0.05773502691896258, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.05773502691896258]], [[0.0, 0.05773502691896258], [0.0, 0.0]]], [[[0.05773502691896258, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.05773502691896258, 0.0]]]]}]}], "bit_order": "MSB"})";
+// Single-qubit
 } // namespace
 
 TEST(QlmNoiseModelTester, checkSimple) {
@@ -28,8 +31,8 @@ TEST(QlmNoiseModelTester, checkSimple) {
   {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", depol_json}});
-    auto accelerator = xacc::getAccelerator(
-        "atos-qlm", {{"noise-model", noiseModel}});
+    auto accelerator =
+        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto program = xasmCompiler
                        ->compile(R"(__qpu__ void testX(qbit q) {
@@ -64,8 +67,8 @@ TEST(QlmNoiseModelTester, checkSimple) {
   {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", ad_json}});
-    auto accelerator =
-        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}, {"shots", 1024}});
+    auto accelerator = xacc::getAccelerator(
+        "atos-qlm", {{"noise-model", noiseModel}, {"shots", 1024}});
     auto xasmCompiler = xacc::getCompiler("xasm");
     auto program = xasmCompiler
                        ->compile(R"(__qpu__ void testX_ad(qbit q) {
@@ -99,8 +102,8 @@ TEST(QlmNoiseModelTester, checkBitOrdering) {
   {
     auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
     noiseModel->initialize({{"noise-model", msb_noise_model}});
-    auto accelerator = xacc::getAccelerator(
-        "atos-qlm", {{"noise-model", noiseModel}});
+    auto accelerator =
+        xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
 
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program);
@@ -219,6 +222,42 @@ TEST(QlmNoiseModelTester, checkRoError) {
     buffer->print();
     // P(0|1) = 0.2
     EXPECT_NEAR(buffer->computeMeasurementProbability("0"), 0.2, 0.05);
+  }
+}
+
+TEST(QlmNoiseModelTester, checkRxGate) {
+  // Check depolarizing channels
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", depol_json_rx}});
+  auto accelerator =
+      xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void testRX(qbit q) {
+        Rx(q[0], 3.14159265359);
+        Measure(q[0]);
+      })",
+                               accelerator)
+                     ->getComposites()[0];
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  auto densityMatrix =
+      (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+  EXPECT_EQ(densityMatrix.size(), 4);
+  // Check trace
+  EXPECT_NEAR(densityMatrix[0].first + densityMatrix[3].first, 1.0, 1e-6);
+  // Expected result:
+  // 0.00666667+0.j 0.        +0.j
+  // 0.        +0.j 0.99333333+0.j
+  // Check real part
+  EXPECT_NEAR(densityMatrix[0].first, 0.00666667, 1e-6);
+  EXPECT_NEAR(densityMatrix[1].first, 0.0, 1e-6);
+  EXPECT_NEAR(densityMatrix[2].first, 0.0, 1e-6);
+  EXPECT_NEAR(densityMatrix[3].first, 0.99333333, 1e-6);
+  // Check imag part
+  for (const auto &[real, imag] : densityMatrix) {
+    EXPECT_NEAR(imag, 0.0, 1e-6);
   }
 }
 

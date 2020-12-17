@@ -360,7 +360,9 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
   if (params.pointerLikeExists<xacc::NoiseModel>("noise-model")) {
     m_noiseModel = xacc::as_shared_ptr(
         params.getPointerLike<xacc::NoiseModel>("noise-model"));
-    // QAT gateset generator
+    // QAT gateset generator:
+    // Note: this predef only contains *static* gates,
+    // i.e. not include Rx, Ry, Rz
     auto predef_generator =
         pybind11::module::import("qat.core.circuit_builder.matrix_util")
             .attr("get_predef_generator");
@@ -371,6 +373,41 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     auto aqasmGates = predef_generator().attr("keys")();
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     pybind11::dict all_gates_noise;
+    // Hanle parametric (Rx, Ry, Rz) gates:
+    for (const auto &gateName : {"Rx", "Ry", "Rz"}) {
+      pybind11::dict gates_noise;
+      for (size_t qId = 0; qId < nbQubits; ++qId) {
+        auto inst = gateRegistry->createInstruction(gateName, qId);
+        auto gate = std::dynamic_pointer_cast<xacc::quantum::Gate>(inst);
+        const auto errorChannels = m_noiseModel->getNoiseChannels(*gate);
+        if (!errorChannels.empty()) {
+          // std::cout << "Gate " << gate->toString() << "\n";
+          gates_noise[pybind11::int_(qId)] = pybind11::cpp_function(
+              [errorChannels, QuantumChannelKraus](double theta, pybind11::kwargs kwarg) {
+                // std::cout << "Getting noise channel info\n";
+                std::vector<pybind11::array_t<std::complex<double>>> kraus_mats;
+                for (const auto &channel : errorChannels) {
+                  for (const auto &op : channel.mats) {
+                    kraus_mats.emplace_back(matToNumpy(op));
+                  }
+                }
+
+                auto krausChannel = QuantumChannelKraus(kraus_mats);
+                // pybind11::print(krausChannel);
+                return krausChannel;
+              });
+        }
+      }
+
+      if (gates_noise.size() > 0) {
+        std::string aqasmGateName = gateName;
+        std::transform(aqasmGateName.begin(), aqasmGateName.end(),
+                       aqasmGateName.begin(), ::toupper);
+        all_gates_noise[aqasmGateName.c_str()] = gates_noise;
+      }
+    }
+
+    // Static prefef gate:
     for (const auto &aqasmGateName : aqasmGates) {
       const auto gateName = aqasmGateName.cast<std::string>();
       const auto [xaccEquiv, gateArity] = getXasmGate(gateName);
@@ -548,8 +585,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     // (2) MPS
     // (3) Feynman
     // (4) BDD (Quantum Multi-valued Decision Diagrams)
-    // Default is LinAlg, which is the most versatile (consistent perf. in most
-    // cases) User can switch between them using the "sim-type" option:
+    // Default is LinAlg, which is the most versatile (consistent perf. in
+    // most cases) User can switch between them using the "sim-type" option:
     using SimFactory =
         std::function<pybind11::object(const HeterogeneousMap &)>;
     const SimFactory createMpsSim = [](const HeterogeneousMap &configs) {
