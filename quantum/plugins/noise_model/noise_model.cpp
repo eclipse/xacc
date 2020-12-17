@@ -148,7 +148,7 @@ public:
           }
         }
 
-        std::cout << "Process: " << gateKey << "\n";
+        // std::cout << "Process: " << gateKey << "\n";
         auto noise_channels = noise_info["noise_channels"];
         std::vector<KrausChannel> noise_ops;
         for (auto channel_iter = noise_channels.begin();
