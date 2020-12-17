@@ -111,17 +111,17 @@ pybind11::object getAqasmGate(const std::string &in_xaccGateName) {
 }
 
 // Gate name and arity
-std::pair<std::string, size_t> getXasmGate(const std::string &in_aqasmGateName) {
-  static std::unordered_map<std::string, std::pair<std::string, size_t>> aqasmToXasm{
-      {"H", std::make_pair("H", 1)},
-      {"X", std::make_pair("X", 1)},
-      {"Y", std::make_pair("Y", 1)},
-      {"Z", std::make_pair("Z", 1)},
-      {"CNOT", std::make_pair("CNOT", 2)},
-      {"CSIGN", std::make_pair("CZ", 2)},
-      {"ISWAP", std::make_pair("iSwap", 2)},
-      {"SWAP", std::make_pair("Swap", 2)}
-  };
+std::pair<std::string, size_t>
+getXasmGate(const std::string &in_aqasmGateName) {
+  static std::unordered_map<std::string, std::pair<std::string, size_t>>
+      aqasmToXasm{{"H", std::make_pair("H", 1)},
+                  {"X", std::make_pair("X", 1)},
+                  {"Y", std::make_pair("Y", 1)},
+                  {"Z", std::make_pair("Z", 1)},
+                  {"CNOT", std::make_pair("CNOT", 2)},
+                  {"CSIGN", std::make_pair("CZ", 2)},
+                  {"ISWAP", std::make_pair("iSwap", 2)},
+                  {"SWAP", std::make_pair("Swap", 2)}};
 
   const auto iter = aqasmToXasm.find(in_aqasmGateName);
   if (iter != aqasmToXasm.end()) {
@@ -340,7 +340,10 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       auto libPythonPreload =
           dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
     }
-    pybind11::initialize_interpreter();
+    try {
+      pybind11::initialize_interpreter();
+    } catch (...) {
+    }
     PythonInit = true;
   }
   m_shots = -1;
@@ -386,9 +389,12 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                     // std::cout << "Getting noise channel info\n";
                     std::vector<pybind11::array_t<std::complex<double>>>
                         kraus_mats;
-                    for (const auto &op : errorChannels[0].mats) {
-                      kraus_mats.emplace_back(matToNumpy(op));
+                    for (const auto &channel : errorChannels) {
+                      for (const auto &op : channel.mats) {
+                        kraus_mats.emplace_back(matToNumpy(op));
+                      }
                     }
+
                     auto krausChannel = QuantumChannelKraus(kraus_mats);
                     // pybind11::print(krausChannel);
                     return krausChannel;
@@ -414,8 +420,10 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                   std::vector<pybind11::array_t<std::complex<double>>>
                       kraus_mats;
                   if (errorChannels[0].bit_order == KrausMatBitOrder::LSB) {
-                    for (const auto &op : errorChannels[0].mats) {
-                      kraus_mats.emplace_back(matToNumpy(op));
+                    for (const auto &channel : errorChannels) {
+                      for (const auto &op : channel.mats) {
+                        kraus_mats.emplace_back(matToNumpy(op));
+                      }
                     }
                   } else {
                     // Flip Kron product order
@@ -432,8 +440,11 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
                           }
                           return result;
                         };
-                    for (const auto &op : errorChannels[0].mats) {
-                      kraus_mats.emplace_back(matToNumpy(flipKronOrder(op)));
+
+                    for (const auto &channel : errorChannels) {
+                      for (const auto &op : channel.mats) {
+                        kraus_mats.emplace_back(matToNumpy(flipKronOrder(op)));
+                      }
                     }
                   }
                   if (kraus_mats.size() > 0) {
@@ -537,8 +548,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     // (2) MPS
     // (3) Feynman
     // (4) BDD (Quantum Multi-valued Decision Diagrams)
-    // Default is LinAlg, which is the most versatile (consistent perf. in most cases)
-    // User can switch between them using the "sim-type" option:
+    // Default is LinAlg, which is the most versatile (consistent perf. in most
+    // cases) User can switch between them using the "sim-type" option:
     using SimFactory =
         std::function<pybind11::object(const HeterogeneousMap &)>;
     const SimFactory createMpsSim = [](const HeterogeneousMap &configs) {
@@ -547,7 +558,7 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
       // lnnize=True, no_merge=False, threshold=None, n_trunc=None
       // Supported users-options (that we exposed to XACC):
       // mps-threshold: specify threshold below which Schmidt coefficients are
-      // truncated. 
+      // truncated.
       // max-bond: specify maximum number of non-zero Schmidt
       // coefficients.
       std::optional<double> threshold;
@@ -560,7 +571,9 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
         n_trunc = configs.get<int>("max-bond");
       }
 
-      auto kwargs = pybind11::dict("lnnize"_a=true, "no_merge"_a=false, "threshold"_a=threshold, "n_trunc"_a=n_trunc);
+      auto kwargs =
+          pybind11::dict("lnnize"_a = true, "no_merge"_a = false,
+                         "threshold"_a = threshold, "n_trunc"_a = n_trunc);
       return simClass(kwargs);
     };
 
@@ -668,8 +681,9 @@ pybind11::object QlmAccelerator::constructQlmJob(
     std::shared_ptr<AcceleratorBuffer> buffer,
     std::shared_ptr<CompositeInstruction> compositeInstruction) const {
   if (m_noiseModel) {
-    // If having a noise model, use Staq to translate the Composite 
-    // to OpenQASM so that two-qubit gates are translated to CX -> can map to noise data.
+    // If having a noise model, use Staq to translate the Composite
+    // to OpenQASM so that two-qubit gates are translated to CX -> can map to
+    // noise data.
     auto compiler = xacc::getCompiler("staq");
     auto circuit_src = compiler->translate(compositeInstruction);
     auto recompile = compiler->compile(circuit_src)->getComposites()[0];
@@ -782,15 +796,17 @@ void QlmAccelerator::execute(
     auto compute_density_matrix =
         pybind11::module::import("qat.noisy").attr("compute_density_matrix");
     auto circ = constructQlmCirc(buffer, compositeInstruction);
-    pybind11::array_t<std::complex<double>> rho = compute_density_matrix(circ, m_qlmQpuServer);
+    pybind11::array_t<std::complex<double>> rho =
+        compute_density_matrix(circ, m_qlmQpuServer);
     // std::cout << "Density matrix:\n";
     // pybind11::print(rho);
-    auto rho_mat = rho.unchecked<2>(); 
+    auto rho_mat = rho.unchecked<2>();
     // Flatten density matrix
     std::vector<std::pair<double, double>> dm_mat;
     for (pybind11::ssize_t i = 0; i < rho_mat.shape(0); ++i) {
       for (pybind11::ssize_t j = 0; j < rho_mat.shape(1); ++j) {
-        dm_mat.emplace_back(std::make_pair(rho_mat(i, j).real(), rho_mat(i, j).imag()));
+        dm_mat.emplace_back(
+            std::make_pair(rho_mat(i, j).real(), rho_mat(i, j).imag()));
       }
     }
     buffer->addExtraInfo("density_matrix", dm_mat);
@@ -822,7 +838,8 @@ void QlmAccelerator::execute(
   int childBufferIndex = 0;
   while (iter != pybind11::iterator::sentinel()) {
     auto result = (*iter).cast<pybind11::object>();
-    persistResultToBuffer(childBuffers[childBufferIndex], result, batch[childBufferIndex]);
+    persistResultToBuffer(childBuffers[childBufferIndex], result,
+                          batch[childBufferIndex]);
     ++iter;
     ++childBufferIndex;
   }
