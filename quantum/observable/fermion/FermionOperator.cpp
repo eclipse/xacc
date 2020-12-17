@@ -274,6 +274,22 @@ FermionOperator FermionOperator::hermitianConjugate() const {
   return conjugate;
 }
 
+void FermionOperator::normalize() {
+
+  double norm = 0.0;
+
+  for (auto &kv : terms) {
+    norm += std::pow(std::norm(std::get<0>(kv.second)), 2);
+  }
+  norm = std::sqrt(norm);
+
+  for (auto &kv : terms) {
+    std::get<0>(kv.second) = std::get<0>(kv.second) / norm;
+  }
+
+  return;
+}
+
 }  // namespace quantum
 }  // namespace xacc
 

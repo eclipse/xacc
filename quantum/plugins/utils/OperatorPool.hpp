@@ -15,6 +15,7 @@
 #include "Identifiable.hpp"
 #include "PauliOperator.hpp"
 #include "FermionOperator.hpp"
+#include <memory>
 
 namespace xacc {
 namespace quantum {
@@ -22,7 +23,6 @@ namespace quantum {
 class OperatorPool : public Identifiable {
 
 public:
-
   // These are methods for custom pool
   virtual void setOperators(const FermionOperator op) {
     XACCLogger::instance()->error(
@@ -41,25 +41,25 @@ public:
   }
 
   virtual void setOperators(const std::shared_ptr<Observable> op) {
-    XACCLogger::instance()->error(
-        "OperatorPool::setOperators(shared_ptr<Observable>) not implemented for " +
-        name());
+    XACCLogger::instance()->error("OperatorPool::setOperators(shared_ptr<"
+                                  "Observable>) not implemented for " +
+                                  name());
     exit(0);
     return;
   }
 
   virtual void setOperators(const std::vector<FermionOperator> op) {
-    XACCLogger::instance()->error(
-        "OperatorPool::setOperators(vector<FermionOperator>) not implemented for " +
-        name());
+    XACCLogger::instance()->error("OperatorPool::setOperators(vector<"
+                                  "FermionOperator>) not implemented for " +
+                                  name());
     exit(0);
     return;
   }
 
   virtual void setOperators(const std::vector<PauliOperator> op) {
-    XACCLogger::instance()->error(
-        "OperatorPool::setOperators(vector<PauliOperator>) not implemented for " +
-        name());
+    XACCLogger::instance()->error("OperatorPool::setOperators(vector<"
+                                  "PauliOperator>) not implemented for " +
+                                  name());
     exit(0);
     return;
   }
@@ -74,6 +74,15 @@ public:
 
   virtual std::shared_ptr<CompositeInstruction>
   getOperatorInstructions(const int opIdx, const int varIdx) const = 0;
+
+  virtual std::vector<std::shared_ptr<Observable>>
+  getExcitationOperators(const int &nQubits) {
+    XACCLogger::instance()->error("OperatorPool::getExcitationOperators(int)"
+                                  "not implemented for " +
+                                  name());
+    exit(0);
+    return {};
+  }
 };
 
 } // namespace quantum
