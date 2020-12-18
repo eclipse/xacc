@@ -317,6 +317,9 @@ void ADAPT::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
       xacc::info("Final ADAPT-" + subAlgo + " circuit\n" +
                  ansatzInstructions->toString());
 
+      // Add the ansatz to the compilation database for later retrieval
+      xacc::appendCompiled(ansatzInstructions, true);
+      buffer->addExtraInfo("final-ansatz", ExtraInfo(ansatzInstructions->name()));
       return;
 
     } else if (iter < _maxIter) { // Add operator and reoptimize
