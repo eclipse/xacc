@@ -318,10 +318,6 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
 
     if (nFunctionInstructions > kernel->nInstructions()) {
       fsToExec.push_back(f);
-      if (std::dynamic_pointer_cast<xacc::AcceleratorDecorator>(
-        xacc::as_shared_ptr(accelerator))) {
-        f->setCoefficient(coeff);
-      }
       coefficients.push_back(std::real(coeff));
     } else {
       identityCoeff += std::real(coeff);
