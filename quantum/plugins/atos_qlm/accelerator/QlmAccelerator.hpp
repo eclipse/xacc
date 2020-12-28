@@ -90,6 +90,9 @@ private:
   pybind11::object constructQlmJob(
       std::shared_ptr<AcceleratorBuffer> buffer,
       std::shared_ptr<CompositeInstruction> compositeInstruction) const;
+  pybind11::object constructQlmCirc(
+      std::shared_ptr<AcceleratorBuffer> buffer,
+      std::shared_ptr<CompositeInstruction> compositeInstruction) const;
   void persistResultToBuffer(std::shared_ptr<AcceleratorBuffer> buffer,
                              pybind11::object &result,
                              pybind11::object &job) const;

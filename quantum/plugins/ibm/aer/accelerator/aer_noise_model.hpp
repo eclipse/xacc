@@ -57,6 +57,7 @@ private:
   std::unordered_map<std::string, double> m_gateDurations;
   std::vector<std::pair<double, double>> m_roErrors;
   std::vector<std::pair<int, int>> m_connectivity;
+  std::string m_backendPropertiesJson;
 };
 } // namespace quantum
 } // namespace xacc
