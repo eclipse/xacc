@@ -620,9 +620,9 @@ double IbmqNoiseModel::gateErrorProb(xacc::quantum::Gate &gate) const {
   return (gateErrorIter == m_gateErrors.end()) ? 0.0 : gateErrorIter->second;
 }
 
-std::vector<KrausOp>
-IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
-  std::vector<KrausOp> krausOps;
+std::vector<NoiseChannelKraus>
+IbmqNoiseModel::getNoiseChannels(xacc::quantum::Gate &gate) const {
+  std::vector<NoiseChannelKraus> krausOps;
   if (gate.bits().size() == 1 && gate.name() != "Measure") {
     // Amplitude damping + dephasing
     const auto [gateDuration, qubitT1, qubitT2] =
@@ -634,17 +634,13 @@ IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
     const auto dpAmpl = calculateDepolarizing(gate, relaxationError);
     if (!dpAmpl.empty()) {
       const double probDP = dpAmpl[0];
-      const std::vector<std::vector<std::complex<double>>> depolError{
-          {1.0 - probDP / 2.0, 0., 0., 1.0 - probDP},
-          {0., probDP / 2.0, 0., 0.},
-          {0., 0., probDP / 2.0, 0.},
-          {1.0 - probDP, 0., 0., 1.0 - probDP / 2.0}};
+      const std::vector<std::vector<std::vector<std::complex<double>>>> depolError{
+          {{1.0 - probDP / 2.0, 0.}, {0., 1.0 - probDP}},
+          {{0., probDP / 2.0}, {0., 0.}},
+          {{0., 0.}, {probDP / 2.0, 0.}},
+          {{1.0 - probDP, 0.}, {0., 1.0 - probDP / 2.0}}};
       const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
-      KrausOp newOp;
-      newOp.qubit = gate.bits()[0];
-      newOp.mats = noiseUtils->combineChannelOps({relaxationError, depolError});
-      // Add depolarization kraus
-      krausOps.emplace_back(std::move(newOp));
+      krausOps.emplace_back(NoiseChannelKraus(gate.bits(), depolError, KrausMatBitOrder::MSB));
     }
   }
   // For two-qubit gates, we currently only support
@@ -658,10 +654,8 @@ IbmqNoiseModel::gateError(xacc::quantum::Gate &gate) const {
           relaxationParams(gate, qubitIdx);
       const auto relaxationError =
           thermalRelaxationChoiMat(gateDuration, qubitT1, qubitT2);
-      KrausOp relaxErrorOp;
-      relaxErrorOp.qubit = gate.bits()[0];
-      relaxErrorOp.mats = relaxationError;
-      krausOps.emplace_back(std::move(relaxErrorOp));
+      const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
+      krausOps.emplace_back(NoiseChannelKraus(gate.bits(), noiseUtils->choiToKraus(relaxationError), KrausMatBitOrder::MSB));
     }
   }
   return krausOps;
@@ -709,14 +703,14 @@ std::string IbmqNoiseModel::toJson() const {
         {"u2", &gateU2}, {"u3", &gateU3}};
 
     for (const auto &[gateName, gate] : gateMap) {
-      const auto errorChannels = gateError(*gate);
+      const auto errorChannels = getNoiseChannels(*gate);
       nlohmann::json element;
       element["type"] = "qerror";
       element["operations"] = std::vector<std::string>{gateName};
       element["gate_qubits"] = std::vector<std::vector<std::size_t>>{{qIdx}};
       std::vector<nlohmann::json> krausOps;
       for (const auto &error : errorChannels) {
-        const auto krausOpMats = noiseUtils->choiToKraus(error.mats);
+        const auto krausOpMats = error.mats;
         nlohmann::json instruction;
         instruction["name"] = "kraus";
         instruction["qubits"] = std::vector<std::size_t>{0};
@@ -739,7 +733,7 @@ std::string IbmqNoiseModel::toJson() const {
     CNOT cx2(std::vector<std::size_t>{(size_t)qubit2, (size_t)qubit1});
     const std::vector<xacc::quantum::Gate *> cxGates{&cx1, &cx2};
     for (const auto &cx : cxGates) {
-      const auto errorChannels = gateError(*cx);
+      const auto errorChannels = getNoiseChannels(*cx);
       assert(errorChannels.size() == 2);
       nlohmann::json element;
       element["type"] = "qerror";
@@ -750,7 +744,7 @@ std::string IbmqNoiseModel::toJson() const {
       std::vector<nlohmann::json> krausOps;
       size_t noiseBitIdx = 0;
       for (const auto &error : errorChannels) {
-        const auto krausOpMats = noiseUtils->choiToKraus(error.mats);
+        const auto krausOpMats = error.mats;
         nlohmann::json instruction;
         instruction["name"] = "kraus";
         instruction["qubits"] = std::vector<std::size_t>{noiseBitIdx++};

@@ -27,17 +27,6 @@ using RoErrors = std::pair<double, double>;
 // The LSB, MSB bit-order that Kraus matrices are defined in.
 enum class KrausMatBitOrder { LSB, MSB };
 
-// !!!Deprecated!!!
-// To be removed: this was developed to target TNQVM's noisy simulator,
-// hence was limited to single-qubit channels...
-// We'll eventually remove this.
-struct KrausOp {
-  size_t qubit;
-  // Choi matrix
-  std::vector<std::vector<std::complex<double>>> mats;
-};
-
-
 // Represent a generic noise channel in terms of
 // Kraus operator matrices to be applied *post-operation*.
 // The list of matrices always satisfies CPTP condition.
@@ -68,21 +57,6 @@ public:
   // Readout errors:
   virtual RoErrors readoutError(size_t qubitIdx) const = 0;
   virtual std::vector<RoErrors> readoutErrors() const = 0;
-  
-  // !!! DEPRECATED !!!!
-  // --- This API to be removed----
-  // Need to update TNQVM to *not* use this anymore.
-  // Gate errors:
-  // Returns a list of Kraus operators represent quantum noise processes
-  // associated with a quantum gate.
-  // Note: we use Kraus operators to capture generic noise processes.
-  // Any probabilistic gate-based noise representations must be converted to
-  // the equivalent Kraus operators.
-  virtual std::vector<KrausOp> gateError(xacc::quantum::Gate &gate) const {
-    return {};
-  }
-  // !!! END - DEPRECATED !!!!
-
   // Returns a list of noise channels (in terms of Kraus matrices)
   // for an XACC gate.
   virtual std::vector<NoiseChannelKraus>

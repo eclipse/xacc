@@ -342,13 +342,6 @@ public:
     return result;
   }
 
-  virtual std::vector<KrausOp>
-  gateError(xacc::quantum::Gate &gate) const override {
-    // To be removed!
-    xacc::error("!!!Deprecated!!! Do not use!");
-    return {};
-  }
-
   virtual std::vector<NoiseChannelKraus>
   getNoiseChannels(xacc::quantum::Gate &gate) const {
     std::string gateKey = gate.name() + "_" + std::to_string(gate.bits()[0]);
