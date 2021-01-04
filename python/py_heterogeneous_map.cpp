@@ -78,6 +78,9 @@ void bind_heterogeneous_map(py::module &m) {
               return m.get<std::vector<std::string>>(key);
             } else if (m.keyExists<Eigen::MatrixXcd>(key)) {
               return m.get<Eigen::MatrixXcd>(key);
+            } else if (m.pointerLikeExists<CompositeInstruction>(key)) {
+              return xacc::as_shared_ptr(
+                  m.getPointerLike<CompositeInstruction>(key));
             } else {
               xacc::error("Invalid key for heterogeneous map");
               return 0;
@@ -95,7 +98,8 @@ void bind_heterogeneous_map(py::module &m) {
                    m.keyExists<std::vector<std::string>>(key) ||
                    m.keyExists<std::shared_ptr<Observable>>(key) ||
                    m.keyExists<std::shared_ptr<Optimizer>>(key) ||
-                   m.keyExists<std::shared_ptr<Eigen::MatrixXcd>>(key);
+                   m.keyExists<std::shared_ptr<Eigen::MatrixXcd>>(key) ||
+                   m.pointerLikeExists<CompositeInstruction>(key);
           },
           "");
 
