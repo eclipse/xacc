@@ -472,6 +472,20 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
                   : paramObj["value"].get<double>();
           const bool insertOk =
               m_gateDurations.insert({gateName, gateLength}).second;
+          if (gateName.rfind("sx", 0) == 0) {
+            // This device properties were specified in the { rz, sx, cx } basis.
+            // We add equivalent data for { u1, u2, u3 } basis set as well.
+            // For every sx gate, add equiv. data for u1, u2, u3 gates.
+            // Note: some of our noisy simulators don't split a gate into multiple sx gates,
+            // hence, they cannot simulate noise at that level.
+            const std::string qubitOperandSuffix = gateName.substr(2);
+            const std::string u1GateName = "u1" + qubitOperandSuffix;
+            const std::string u2GateName = "u2" + qubitOperandSuffix;
+            const std::string u3GateName = "u3" + qubitOperandSuffix;
+            m_gateDurations.insert({u1GateName, 0.0});
+            m_gateDurations.insert({u2GateName, gateLength});
+            m_gateDurations.insert({u3GateName, 2.0 * gateLength});
+          }
           // Must not contain duplicates.
           assert(insertOk);
         }
@@ -483,6 +497,15 @@ void IbmqNoiseModel::initialize(const HeterogeneousMap &params) {
                   .second;
           // Must not contain duplicates.
           assert(insertOk);
+          if (gateName.rfind("sx", 0) == 0) {
+            const std::string qubitOperandSuffix = gateName.substr(2);
+            const std::string u1GateName = "u1" + qubitOperandSuffix;
+            const std::string u2GateName = "u2" + qubitOperandSuffix;
+            const std::string u3GateName = "u3" + qubitOperandSuffix;
+            m_gateErrors.insert({u1GateName, 0.0});
+            m_gateErrors.insert({u2GateName, paramObj["value"].get<double>()});
+            m_gateErrors.insert({u3GateName, 2.0 * paramObj["value"].get<double>()});
+          }
         }
       }
     }
