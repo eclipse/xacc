@@ -527,7 +527,7 @@ IbmqNoiseModel::getUniversalGateEquiv(xacc::quantum::Gate &in_gate) const {
     // If cannot find the gate, just treat that as a noiseless u1 op.
     const std::string universalGateName =
         (iter == SINGLE_QUBIT_GATE_MAP.end()) ? "u1" : iter->second;
-    return universalGateName + "_" + std::to_string(in_gate.bits()[0]);
+    return universalGateName + std::to_string(in_gate.bits()[0]);
   }
 
   if (in_gate.bits().size() == 2) {
@@ -535,7 +535,7 @@ IbmqNoiseModel::getUniversalGateEquiv(xacc::quantum::Gate &in_gate) const {
            std::to_string(in_gate.bits()[1]);
   }
 
-  return "id_" + std::to_string(in_gate.bits()[0]);
+  return "id" + std::to_string(in_gate.bits()[0]);
 }
 
 // Return gate time, T1, T2
