@@ -267,13 +267,19 @@ std::string QasmQObjGenerator::getQObjJsonStr(
   qobj.set_type("QASM");
   qobj.set_header(QObjectHeader());
 
+  const auto basis_gates =
+      backend["basis_gates"].get<std::vector<std::string>>();
+  // If the gate set has "u3" -> old gateset.
+  const auto gateSet = (xacc::container::contains(basis_gates, "u3"))
+                           ? QObjectExperimentVisitor::GateSet::U_CX
+                           : QObjectExperimentVisitor::GateSet::RZ_SX_CX;
   // Create the Experiments
   std::vector<xacc::ibm::Experiment> experiments;
   int maxMemSlots = 0;
   for (auto &kernel : circuits) {
 
     auto visitor = std::make_shared<QObjectExperimentVisitor>(
-        kernel->name(), backend["n_qubits"].get<int>());
+        kernel->name(), backend["n_qubits"].get<int>(), gateSet);
 
     InstructionIterator it(kernel);
     int memSlots = 0;
