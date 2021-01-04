@@ -43,7 +43,8 @@ public:
     return "Map XACC IR to QObject.";
   }
 
-  // Temporary fix to handle new {rz, sx, x, cx} gate set
+  // IBM gate set: either { u1, u2, u3, cx} or {rz, sx, x, cx}
+  // XACC Composite is decomposed into this gate set when generating the QObject.
   enum class GateSet { U_CX, RZ_SX_CX };
   GateSet gateSet;
   QObjectExperimentVisitor(const std::string expName, const int nQubits,
@@ -99,18 +100,29 @@ public:
       experiment.set_config(config);
       experiment.set_header(header);
       //   xacc::info("Adding insts " + std::to_string(instructions.to))
+      
+      // Note: the experiment was constructed in terms of { u1, u2, u3, cx} gate set.
       // U + CX gate set
       if (gateSet == GateSet::U_CX) {
+        // Use the instructions as is
         experiment.set_instructions(instructions);
       } else if (gateSet == GateSet::RZ_SX_CX) {
+        // Convert the u1, u2, u3 to {rz, sx} gates,
+        // keeping all others (cx, measure, etc.)
         std::vector<xacc::ibm::Instruction> new_instructions;
         for (const auto &inst : instructions) {
           if (inst.get_name() == "u1") {
+            // u1 is rz
             auto newInst = inst;
             newInst.get_mutable_name() = "rz";
             new_instructions.emplace_back(newInst);
           } else if (inst.get_name() == "u2") {
-            // Copy the instruction and only update the name + params
+            // Copy the instruction and only update the name + params.
+            // This is to make sure information about Bfunc (conditional) etc.
+            // is copied to the decomposed gate sequence.
+            
+            // Note: this decomposition is adapted from Qiskit Terra,
+            // see qiskit/circuit/library/standard_gates/equivalence_library.py
             const auto u2_params = inst.get_params();
             assert(u2_params.size() == 2);
             const double phi = u2_params[0];
@@ -178,6 +190,7 @@ public:
               new_instructions.emplace_back(newInst);
             }
           } else {
+            // Other instructions, e.g. cx, just append.
             new_instructions.emplace_back(inst);
           }
         }
