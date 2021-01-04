@@ -1,0 +1,2 @@
+add_xacc_test(JsonNoiseModel)
+target_link_libraries(JsonNoiseModelTester xacc xacc-quantum-gate)

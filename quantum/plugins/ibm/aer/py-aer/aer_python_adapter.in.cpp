@@ -6,12 +6,8 @@
 #include <dlfcn.h>
 #include "xacc_config.hpp"
 
-namespace xacc {
-namespace aer {
-std::string runPulseSim(const std::string &hamJsonStr, double dt,
-                        const std::vector<double> &freqEst,
-                        const std::vector<int> &uChanLoRefs,
-                        const std::string &qObjJson) {
+namespace {
+void initPython() {
   static bool PythonInit = false;
   if (!PythonInit) {
     if (!XACC_IS_APPLE) {
@@ -31,6 +27,16 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
     }
     PythonInit = true;
   }
+}
+} // namespace
+
+namespace xacc {
+namespace aer {
+std::string runPulseSim(const std::string &hamJsonStr, double dt,
+                        const std::vector<double> &freqEst,
+                        const std::vector<int> &uChanLoRefs,
+                        const std::string &qObjJson) {
+  initPython();
   auto py_src = R"#(
 import json, warnings
 import numpy as np
@@ -116,6 +122,40 @@ result_json = json.dumps(result_data)
   pybind11::exec(py_src, pybind11::globals(), locals);
   const auto result = locals["result_json"].cast<std::string>();
   return result;
+}
+
+std::string
+noiseModelFromBackendProperties(const std::string &backendPropertiesJson) {
+  initPython();
+  // Check if Qiskit present.
+  try {
+    pybind11::module::import("qiskit");
+  } catch (std::exception &e) {
+    // No Qiskit can be found, returns an empty string:
+    // i.e. not able to use Qiskit to create the noise model...
+    return "";
+  }
+
+  auto py_src = R"#(
+import json 
+from qiskit.providers.models import BackendProperties
+from qiskit.providers.aer.noise import NoiseModel
+backend_properties = json.loads(locals()["properties_json"])    
+properties = BackendProperties.from_dict(backend_properties)
+noise_model = NoiseModel.from_backend(properties)
+noise_model_json = json.dumps(noise_model.to_dict(True)) 
+)#";
+
+  // Set variables:
+  auto locals = pybind11::dict();
+  locals["properties_json"] = backendPropertiesJson;
+  try {
+    pybind11::exec(py_src, pybind11::globals(), locals);
+    const auto result = locals["noise_model_json"].cast<std::string>();
+    return result;
+  } catch (...) {
+    return "";
+  }
 }
 } // namespace aer
 } // namespace xacc
