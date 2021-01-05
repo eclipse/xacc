@@ -623,6 +623,7 @@ double IbmqNoiseModel::gateErrorProb(xacc::quantum::Gate &gate) const {
 std::vector<NoiseChannelKraus>
 IbmqNoiseModel::getNoiseChannels(xacc::quantum::Gate &gate) const {
   std::vector<NoiseChannelKraus> krausOps;
+  const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
   if (gate.bits().size() == 1 && gate.name() != "Measure") {
     // Amplitude damping + dephasing
     const auto [gateDuration, qubitT1, qubitT2] =
@@ -634,13 +635,13 @@ IbmqNoiseModel::getNoiseChannels(xacc::quantum::Gate &gate) const {
     const auto dpAmpl = calculateDepolarizing(gate, relaxationError);
     if (!dpAmpl.empty()) {
       const double probDP = dpAmpl[0];
-      const std::vector<std::vector<std::vector<std::complex<double>>>> depolError{
-          {{1.0 - probDP / 2.0, 0.}, {0., 1.0 - probDP}},
-          {{0., probDP / 2.0}, {0., 0.}},
-          {{0., 0.}, {probDP / 2.0, 0.}},
-          {{1.0 - probDP, 0.}, {0., 1.0 - probDP / 2.0}}};
+      const std::vector<std::vector<std::complex<double>>> depolErrorChoi{
+          {1.0 - probDP / 2.0, 0., 0., 1.0 - probDP},
+          {0., probDP / 2.0, 0., 0.},
+          {0., 0., probDP / 2.0, 0.},
+          {1.0 - probDP, 0., 0., 1.0 - probDP / 2.0}};
       const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
-      krausOps.emplace_back(NoiseChannelKraus(gate.bits(), depolError, KrausMatBitOrder::MSB));
+      krausOps.emplace_back(NoiseChannelKraus(gate.bits(), noiseUtils->choiToKraus(depolErrorChoi), KrausMatBitOrder::MSB));
     }
   }
   // For two-qubit gates, we currently only support
@@ -654,8 +655,7 @@ IbmqNoiseModel::getNoiseChannels(xacc::quantum::Gate &gate) const {
           relaxationParams(gate, qubitIdx);
       const auto relaxationError =
           thermalRelaxationChoiMat(gateDuration, qubitT1, qubitT2);
-      const auto noiseUtils = xacc::getService<NoiseModelUtils>("default");
-      krausOps.emplace_back(NoiseChannelKraus(gate.bits(), noiseUtils->choiToKraus(relaxationError), KrausMatBitOrder::MSB));
+      krausOps.emplace_back(NoiseChannelKraus({qubitIdx}, noiseUtils->choiToKraus(relaxationError), KrausMatBitOrder::MSB));
     }
   }
   return krausOps;
