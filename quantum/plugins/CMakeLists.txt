@@ -37,5 +37,6 @@ endif()
 add_subdirectory(optimal_control)
 add_subdirectory(qsim)
 add_subdirectory(atos_qlm)
+add_subdirectory(noise_model)
 
 install (FILES utils/OperatorPool.hpp DESTINATION include/quantum/gate)
