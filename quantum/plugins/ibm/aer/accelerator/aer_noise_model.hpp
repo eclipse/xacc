@@ -18,9 +18,9 @@ public:
     // errors.
     return m_roErrors.empty() ? std::make_pair(0.0, 0.0) : m_roErrors[qubitIdx];
   }
+  virtual std::vector<NoiseChannelKraus>
+  getNoiseChannels(xacc::quantum::Gate &gate) const override;
   std::vector<RoErrors> readoutErrors() const override { return m_roErrors; }
-
-  std::vector<KrausOp> gateError(xacc::quantum::Gate &gate) const override;
   double gateErrorProb(xacc::quantum::Gate &gate) const override;
   size_t nQubits() const override { return m_nbQubits; }
   std::vector<double> averageSingleQubitGateFidelity() const override;
