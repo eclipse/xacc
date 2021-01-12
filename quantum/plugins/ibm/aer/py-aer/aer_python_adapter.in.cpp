@@ -58,9 +58,9 @@ for u_chan_ref in locals()["u_channel_lo_ref"]:
 system_model = PulseSystemModel(hamiltonian=ham_model,
                                 u_channel_lo=u_channel_lo,
                                 subsystem_list=locals()["subsystem_list"],
-                                dt=locals()["dt"],
-                                qubit_freq_est=locals()["qubit_freq_est"])
+                                dt=locals()["dt"])
 backend_sim = PulseSimulator()
+backend_sim.defaults().qubit_freq_est = locals()["qubit_freq_est"]
 qobjDict = json.loads(locals()["qobj_json"])
 pulseQobj = qobj.PulseQobj.from_dict(qobjDict)
 converter = QobjToInstructionConverter(pulseQobj.config.pulse_library)
