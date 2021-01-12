@@ -97,7 +97,7 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
                 "valid Optimizer.");
   }
 
-  //auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
+  // auto kernels = observable->observe(xacc::as_shared_ptr(kernel));
   // Cache of energy values during iterations.
   std::vector<double> energies;
 
@@ -110,7 +110,9 @@ void VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer) const {
         std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
         // call CompositeInstruction::operator()()
-        auto evaled = kernel->operator()(x);
+        auto tmp_x = x;
+        std::reverse(tmp_x.begin(), tmp_x.end());
+        auto evaled = kernel->operator()(tmp_x);
         // observe
         auto kernels = observable->observe(evaled);
 
@@ -303,7 +305,9 @@ VQE::execute(const std::shared_ptr<AcceleratorBuffer> buffer,
   std::vector<std::shared_ptr<CompositeInstruction>> fsToExec;
 
   double identityCoeff = 0.0;
-  auto evaled = xacc::as_shared_ptr(kernel)->operator()(x);
+  auto tmp_x = x;
+  std::reverse(tmp_x.begin(), tmp_x.end());
+  auto evaled = xacc::as_shared_ptr(kernel)->operator()(tmp_x);
   auto kernels = observable->observe(evaled);
   for (auto &f : kernels) {
     kernelNames.push_back(f->name());
