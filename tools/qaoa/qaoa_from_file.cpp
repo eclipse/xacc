@@ -225,6 +225,8 @@ void qaoa_from_file::execute() {
 
     qaoa->execute(buffer);
 
+    // (buffer){"blank-operator"}
+
     // Print out results to terminal
     std::cout << "Min Val: " << (*buffer)["opt-val"].as<double>() << "\n";
     std::cout << "Opt vals: ";

@@ -1,0 +1,6 @@
+{
+  "bundle.symbolic_name" : "dmsimcpu_accelerator",
+  "bundle.activator" : true,
+  "bundle.name" : "DM-Sim Simulation Accelerator",
+  "bundle.description" : "This bundle provides a DM-Sim Accelerator for Gate Model QC on CPU's."
+}

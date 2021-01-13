@@ -3,7 +3,7 @@
     "connection": "connection_example.txt",
     "outputfile": true,
     "xacc":{
-        "accelerator": "aer",
+        "accelerator": "tnqvm",
         "optimizer": "nlopt",
         "verbose": true
     },
