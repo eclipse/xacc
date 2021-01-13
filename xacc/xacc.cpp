@@ -433,7 +433,7 @@ std::shared_ptr<Algorithm> getAlgorithm(const std::string name) {
       a = xacc::getContributedService<Algorithm>(name);
 
     } else {
-      error("Invalid Compiler. Could not find " + name +
+      error("Invalid Algorithm. Could not find " + name +
             " in Service Registry.");
     }
   }

@@ -856,7 +856,7 @@ void IBMAccelerator::contributeInstructions(
 
     if (cmd_def_name == "u3") {
       cmd_def->addVariables({"P0", "P1", "P2"});
-    } else if (cmd_def_name == "u1") {
+    } else if ((cmd_def_name == "u1") || (cmd_def_name == "rz")) {
       cmd_def->addVariables({"P0"});
     } else if (cmd_def_name == "u2") {
       cmd_def->addVariables({"P0", "P1"});

@@ -70,6 +70,8 @@ set(BUILD_SHARED_LIBS FALSE)
 set(BOOST_LIBS_OPTIONAL graph mpi CACHE STRING "" FORCE)
 add_subdirectory(boost-cmake)
 
+install(DIRECTORY staq DESTINATION ${CMAKE_INSTALL_PREFIX}/include) 
+
 install (DIRECTORY armadillo DESTINATION ${CMAKE_INSTALL_PREFIX}/include/)
 # Compiler-specific C++11 activation (FROM ANTLR4).
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
