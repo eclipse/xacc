@@ -6,4 +6,4 @@ python3 -m pip install ipopo cmake
 echo ""
 echo ""
 echo "To use the XACC/QCOR Python API, please run the following (and add to your .bashrc or .bash_profile)"
-echo "export PYTHONPATH=$PYTHONPATH:/usr/local/xacc"
+echo "export PYTHONPATH=$PYTHONPATH:/usr/local/aideqc/qcor"
