@@ -174,7 +174,14 @@ void bind_quantum(py::module &m) {
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
       .def(py::init<>(), "")
-      .def("initialize", &AlgorithmGradientStrategy::initialize)
+      .def("initialize", [](AlgorithmGradientStrategy &a, PyHeterogeneousMap &params) {
+            HeterogeneousMap m;
+            for (auto &item : params) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return a.initialize(m);
+          })
       .def("isNumerical", &AlgorithmGradientStrategy::isNumerical)
       .def("setFunctionValue", &AlgorithmGradientStrategy::setFunctionValue)
       .def("getGradientExecutions",
