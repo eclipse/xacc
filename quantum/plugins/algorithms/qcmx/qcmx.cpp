@@ -23,6 +23,13 @@
 using namespace xacc;
 using namespace xacc::quantum;
 
+#ifdef _XACC_NO_STD_BETA
+#include "boost/math/special_functions/beta.hpp"
+namespace std {
+double beta(double x, double y) { return boost::math::beta(x, y); }
+} // namespace std
+#endif
+
 namespace xacc {
 namespace algorithm {
 

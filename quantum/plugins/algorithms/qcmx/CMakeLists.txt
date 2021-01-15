@@ -25,6 +25,16 @@ target_include_directories(
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices PRIVATE xacc-pauli)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  include(CheckSymbolExists)
+  # Check for function std::beta
+  check_cxx_symbol_exists(std::beta "cmath" HAVE_STD_BETA)
+  if (NOT HAVE_STD_BETA)
+    add_compile_definitions(_XACC_NO_STD_BETA)
+    target_include_directories(${LIBRARY_NAME} PRIVATE ${BOOST_SOURCE})
+  endif()
+endif()
+
 set(_bundle_name xacc_algorithm_qcmx)
 set_target_properties(${LIBRARY_NAME}
                       PROPERTIES COMPILE_DEFINITIONS

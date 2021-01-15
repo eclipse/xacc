@@ -29,6 +29,17 @@
 #include <complex>
 #include <any>
 
+// If this is a GNU compiler
+#if defined(__GNUC__) || defined(__GNUG__)
+// We need to fix for < 7.5, < 8.4, and < 9.2
+#if (( __GNUC__ == 7 && __GNUC_MINOR__ < 5 ) || ( __GNUC__ == 8 && __GNUC_MINOR__ < 4 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 2 ))
+#define APPLY_RTTI_ANY_CAST_FIX
+#endif
+#endif
+
+// Wrap the force_cast fixes in conditional block, seems like
+// Clang may try to instantiate force_cast<T> even if no one uses it.
+#ifdef APPLY_RTTI_ANY_CAST_FIX
 namespace __internal {
 union Storage {
   void *_M_ptr;
@@ -51,13 +62,6 @@ template <typename T> T force_cast(std::any in_any) {
   }
 }
 } // namespace __internal
-
-// If this is a GNU compiler
-#if defined(__GNUC__) || defined(__GNUG__)
-// We need to fix for < 7.5, < 8.4, and < 9.2
-#if (( __GNUC__ == 7 && __GNUC_MINOR__ < 5 ) || ( __GNUC__ == 8 && __GNUC_MINOR__ < 4 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 2 ))
-#define APPLY_RTTI_ANY_CAST_FIX
-#endif
 #endif
 
 namespace xacc {

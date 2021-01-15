@@ -12,7 +12,10 @@
 # *******************************************************************************/
 set(BUILD_SHARED_LIBS TRUE)
 if(APPLE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPATH_MAX=4096 -Wno-deprecated-copy")
+    # Apple Clang doesn't have this Wno-deprecated-copy flag
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPATH_MAX=4096 -Wno-deprecated-copy")
+    endif()
 endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0.0")
