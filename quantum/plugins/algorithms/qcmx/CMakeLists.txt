@@ -24,8 +24,7 @@ target_include_directories(
   PUBLIC .)
 
 target_link_libraries(${LIBRARY_NAME} PUBLIC xacc CppMicroServices PRIVATE xacc-pauli)
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
   include(CheckSymbolExists)
   # Check for function std::beta
   check_cxx_symbol_exists(std::beta "cmath" HAVE_STD_BETA)
