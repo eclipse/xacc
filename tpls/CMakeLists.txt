@@ -62,6 +62,13 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/tpls/cpr/opt/googletest/include/gtest" DESTINATION include/gtest )
 if (APPLE)
+   set(GTEST_LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/") 
+   set_target_properties(gtest PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${GTEST_LIB_OUTPUT_DIR}
+                                          LIBRARY_OUTPUT_DIRECTORY_DEBUG ${GTEST_LIB_OUTPUT_DIR}
+                                          LIBRARY_OUTPUT_DIRECTORY_RELEASE ${GTEST_LIB_OUTPUT_DIR})
+   set_target_properties(gtest_main PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${GTEST_LIB_OUTPUT_DIR}
+                                               LIBRARY_OUTPUT_DIRECTORY_DEBUG ${GTEST_LIB_OUTPUT_DIR}
+                                               LIBRARY_OUTPUT_DIRECTORY_RELEASE ${GTEST_LIB_OUTPUT_DIR})
    install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest.dylib DESTINATION lib)
    install(FILES ${CMAKE_BINARY_DIR}/tpls/cpr/opt/googletest/libgtest_main.dylib DESTINATION lib)
 else()
