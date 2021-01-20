@@ -75,6 +75,8 @@ set_target_properties(antlr4_shared
                                  SOVERSION ${ANTLR_VERSION}
                                  OUTPUT_NAME antlr4-runtime
                                  LIBRARY_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR}
+                                 LIBRARY_OUTPUT_DIRECTORY_DEBUG ${LIB_OUTPUT_DIR}
+                                 LIBRARY_OUTPUT_DIRECTORY_RELEASE ${LIB_OUTPUT_DIR}
                                  # TODO: test in windows. DLL is treated as runtime.
                                  # see https://cmake.org/cmake/help/v3.0/prop_tgt/LIBRARY_OUTPUT_DIRECTORY.html
                                  RUNTIME_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR}

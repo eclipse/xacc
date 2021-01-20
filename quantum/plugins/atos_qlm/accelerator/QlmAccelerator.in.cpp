@@ -546,7 +546,9 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     }();
 
     pybind11::dict gates_noise;
-    for (const auto &[aqasmGate, errorRate] : QLM_GATE_ERRORS) {
+    for (const auto &iter : QLM_GATE_ERRORS) {
+      auto aqasmGate = iter.first;
+      auto errorRate = iter.second;
       // std::cout << aqasmGate << ": " << errorRate << "\n";
       if (aqasmGate == "RX" || aqasmGate == "RY" || aqasmGate == "RZ") {
         gates_noise[aqasmGate.c_str()] = pybind11::cpp_function(
