@@ -101,6 +101,21 @@ public:
     throw std::logic_error("Accelerator '" + name() +
                            "' doesn't support single gate application.");
   }
+
+  // Custom execution-related information (specific to each Acc implementation)
+  virtual HeterogeneousMap getExecutionInfo() const { return {}; }
+
+  // Retrieve a particular execution-related information.
+  template <typename T> T getExecutionInfo(const std::string &key) {
+    if (!getExecutionInfo().keyExists<T>(key)) {
+      XACCLogger::instance()->error(
+          "getExecutionInfo() error - Invalid information key (" + key + ").");
+    } else {
+      return getExecutionInfo().get<T>(key);
+    }
+    return T();
+  }
+
   virtual ~Accelerator() {}
 };
 
