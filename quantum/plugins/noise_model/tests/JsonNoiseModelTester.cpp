@@ -21,6 +21,11 @@ const std::string lsb_noise_model =
 // P(1|0) = 0.1; P(0|1) = 0.2
 const std::string ro_error_noise_model =
     R"({"gate_noise": [], "bit_order": "MSB", "readout_errors": [{"register_location": "0", "prob_meas0_prep1": 0.2, "prob_meas1_prep0": 0.1}]})";
+
+// Noise model JSON that have multiple qubits.
+// Testing to IBM JSON conversion whereby the noise qubit indexing is relative.
+const std::string depol_json_2q =
+    R"({"gate_noise": [{"gate_name": "H", "register_location": ["0"], "noise_channels": [{"matrix": [[[[0.999499874937461, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.999499874937461, 0.0]]], [[[0.0, 0.0], [0.018257418583505537, 0.0]], [[0.018257418583505537, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.018257418583505537]], [[0.0, 0.018257418583505537], [0.0, 0.0]]], [[[0.018257418583505537, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.018257418583505537, 0.0]]]]}]}, {"gate_name": "H", "register_location": ["1"], "noise_channels": [{"matrix": [[[[0.999499874937461, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.999499874937461, 0.0]]], [[[0.0, 0.0], [0.018257418583505537, 0.0]], [[0.018257418583505537, 0.0], [0.0, 0.0]]], [[[0.0, 0.0], [0.0, -0.018257418583505537]], [[0.0, 0.018257418583505537], [0.0, 0.0]]], [[[0.018257418583505537, 0.0], [0.0, 0.0]], [[0.0, 0.0], [-0.018257418583505537, 0.0]]]]}]}], "bit_order": "MSB"})";
 } // namespace
 
 TEST(JsonNoiseModelTester, checkSimple) {
@@ -228,6 +233,31 @@ TEST(JsonNoiseModelTester, checkRoError) {
     // P(0|1) = 0.2
     EXPECT_NEAR(buffer->computeMeasurementProbability("0"), 0.2, 0.05);
   }
+}
+
+TEST(JsonNoiseModelTester, checkIbmNoiseJsonIndexing) {
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", depol_json_2q}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void testHadamard2q(qbit q) {
+        H(q[0]);
+        H(q[1]);
+        Measure(q[0]);
+        Measure(q[1]);
+      })",
+                               accelerator)
+                     ->getComposite("testHadamard2q");
+  auto buffer = xacc::qalloc(1);
+  accelerator->execute(buffer, program);
+  buffer->print();
+  auto densityMatrix =
+      (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
+  EXPECT_EQ(densityMatrix.size(), 16);
 }
 
 int main(int argc, char **argv) {
