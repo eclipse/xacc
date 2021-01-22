@@ -253,14 +253,8 @@ public:
           }
           nlohmann::json instruction;
           instruction["name"] = "kraus";
-          if (m_bitOrder == KrausMatBitOrder::MSB) {
-            instruction["qubits"] = errorChannel.noise_qubits;
-          } else {
-            auto bitsRev = errorChannel.noise_qubits;
-            std::reverse(bitsRev.begin(), bitsRev.end());
-            instruction["qubits"] = bitsRev;
-          }
           instruction["params"] = kraus_list;
+          instruction["qubits"] = std::vector<int> {0};
           krausOps.emplace_back(instruction);
           element["instructions"] =
               std::vector<std::vector<nlohmann::json>>{krausOps};
@@ -292,12 +286,11 @@ public:
           nlohmann::json instruction;
           instruction["name"] = "kraus";
           if (m_bitOrder == KrausMatBitOrder::MSB) {
-            instruction["qubits"] = errorChannel.noise_qubits;
+            instruction["qubits"] = std::vector<int> {0 , 1};
           } else {
-            auto bitsRev = errorChannel.noise_qubits;
-            std::reverse(bitsRev.begin(), bitsRev.end());
-            instruction["qubits"] = bitsRev;
+            instruction["qubits"] = std::vector<int> {1 , 0};
           }
+
           instruction["params"] = kraus_list;
           krausOps.emplace_back(instruction);
           element["instructions"] =

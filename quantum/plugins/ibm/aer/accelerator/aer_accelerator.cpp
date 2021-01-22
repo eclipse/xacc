@@ -141,6 +141,32 @@ double AerAccelerator::calcExpectationValueZ(
   return result;
 }
 
+double AerAccelerator::calcExpectationValueZFromDensityMatrix(
+    const std::vector<std::vector<std::pair<double, double>>> &in_densityMat,
+    const std::vector<std::size_t> &in_bits) {
+  const auto hasEvenParity =
+      [](size_t x, const std::vector<size_t> &in_qubitIndices) -> bool {
+    size_t count = 0;
+    for (const auto &bitIdx : in_qubitIndices) {
+      if (x & (1ULL << bitIdx)) {
+        count++;
+      }
+    }
+    return (count % 2) == 0;
+  };
+
+  double result = 0.0;
+  for (uint64_t i = 0; i < in_densityMat.size(); ++i) {
+    const auto &diag_elem = in_densityMat[i][i];
+    // The diag. elements of the DM should be real.
+    assert(std::abs(diag_elem.second) < 1e-3);
+    // When using DM elements, don't need the square-norm.
+    result += ((hasEvenParity(i, in_bits) ? 1.0 : -1.0) * diag_elem.first);
+  }
+
+  return result;
+}
+
 void AerAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> program) {
@@ -271,10 +297,10 @@ void AerAccelerator::execute(
     snapshotInst["snapshot_type"] = "density_matrix";
     auto& exprJson = *(j["experiments"].begin());
     exprJson["instructions"].push_back(snapshotInst);
-    std::cout << "Qobj:\n" << j.dump(2);
+    // std::cout << "Qobj:\n" << j.dump(2);
     auto results_json = nlohmann::json::parse(
         AER::controller_execute_json<AER::Simulator::QasmController>(j.dump()));
-    std::cout << "Result:\n" << results_json.dump() << "\n";
+    // std::cout << "Result:\n" << results_json.dump() << "\n";
     auto results = *results_json["results"].begin();
     auto dm_mat =
         (*(results["data"]["snapshots"]["density_matrix"]["dm_snapshot"]
@@ -285,6 +311,8 @@ void AerAccelerator::execute(
       flattenDm.insert(flattenDm.end(), row.begin(), row.end());
     }
     buffer->addExtraInfo("density_matrix", flattenDm);
+    auto exp_val = calcExpectationValueZFromDensityMatrix(dm_mat, measured_bits);
+    buffer->addExtraInfo("exp-val-z", exp_val);
   }
   else {
     // statevector
