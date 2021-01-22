@@ -2,6 +2,9 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "NoiseModel.hpp"
+#include "Optimizer.hpp"
+#include "Algorithm.hpp"
+#include "xacc_observable.hpp"
 
 namespace {
 // A sample Json for testing
@@ -259,6 +262,83 @@ TEST(QlmNoiseModelTester, checkRxGate) {
   for (const auto &[real, imag] : densityMatrix) {
     EXPECT_NEAR(imag, 0.0, 1e-6);
   }
+}
+
+// Test observable mode:
+TEST(QlmNoiseModelTester, testObs) {
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", msb_noise_model}});
+  auto accelerator =
+      xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+        H(q[0]);
+        H(q[1]);
+        Measure(q[0]);
+        Measure(q[1]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+  // Expected results from deuteron_2qbit_xasm_X0X1
+  const std::vector<double> expectedResults{
+      0.0,       -0.324699, -0.614213, -0.837166, -0.9694,
+      -0.996584, -0.915773, -0.735724, -0.475947, -0.164595,
+      0.164595,  0.475947,  0.735724,  0.915773,  0.996584,
+      0.9694,    0.837166,  0.614213,  0.324699,  0.0};
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = ansatz->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    std::cout << "Angle = " << angles[i]
+              << "; result = " << buffer->getExpectationValueZ() << " vs. "
+              << expectedResults[i] << "\n";
+    EXPECT_NEAR(buffer->getExpectationValueZ(), expectedResults[i], 0.25);
+  }
+}
+
+TEST(QlmNoiseModelTester, testVqe) {
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", msb_noise_model}});
+  auto accelerator =
+      xacc::getAccelerator("atos-qlm", {{"noise-model", noiseModel}});
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+  // Set a relaxed `ftol` due to noise
+  auto optimizer = xacc::getOptimizer("nlopt", {{"nlopt-ftol", 0.01}});
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_2),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  vqe->execute(buffer);
+  std::cout << "Energy: " << (*buffer)["opt-val"].as<double>() << "\n";
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 0.5);
 }
 
 int main(int argc, char **argv) {

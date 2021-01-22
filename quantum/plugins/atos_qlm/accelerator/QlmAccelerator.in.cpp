@@ -513,7 +513,8 @@ void QlmAccelerator::initialize(const HeterogeneousMap &params) {
     auto hw_model = hardwareModel(gates_spec, all_gates_noise);
     // Noisy simulator:
     auto noisyQProc = pybind11::module::import("qat.qpus").attr("NoisyQProc");
-    m_qlmQpuServer = noisyQProc(hw_model);
+    // Note: we use deterministic-vectorized to be able to compute the exp-val from OBS-job.
+    m_qlmQpuServer = noisyQProc(hw_model, "deterministic-vectorized");
   } else if (params.stringExists("backend")) {
     m_noiseModel = xacc::getService<NoiseModel>("IBM");
     m_noiseModel->initialize(params);
@@ -834,6 +835,9 @@ void QlmAccelerator::execute(
   if (m_noiseModel && m_shots < 0) {
     auto compute_density_matrix =
         pybind11::module::import("qat.noisy").attr("compute_density_matrix");
+    auto qlmJob = constructQlmJob(buffer, compositeInstruction);
+    auto result = m_qlmQpuServer.attr("submit")(qlmJob);
+    persistResultToBuffer(buffer, result, qlmJob);
     auto circ = constructQlmCirc(buffer, compositeInstruction);
     pybind11::array_t<std::complex<double>> rho =
         compute_density_matrix(circ, m_qlmQpuServer);
