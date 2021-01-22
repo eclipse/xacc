@@ -2,6 +2,8 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "NoiseModel.hpp"
+#include "PauliOperator.hpp"
+#include "xacc_observable.hpp"
 
 namespace {
 // A sample Json for testing
@@ -258,6 +260,92 @@ TEST(JsonNoiseModelTester, checkIbmNoiseJsonIndexing) {
   auto densityMatrix =
       (*buffer)["density_matrix"].as<std::vector<std::pair<double, double>>>();
   EXPECT_EQ(densityMatrix.size(), 16);
+}
+
+// Test that when doing noisy simulation w/ Aer using density matrix,
+// the result is consistent (no sampling involved)
+TEST(JsonNoiseModelTester, testVqeModeWithDensityMatrixSim) {
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", depol_json_2q}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+  auto xasmCompiler = xacc::getCompiler("xasm");
+
+  auto ir =
+      xasmCompiler->compile(R"(__qpu__ void ansatz_temp(qbit q, double t) {
+      X(q[0]);
+      Ry(q[1], t);
+      CX(q[1], q[0]);
+      H(q[0]);
+      H(q[1]);
+      Measure(q[0]);
+      Measure(q[1]);
+    })",
+                            accelerator);
+
+  auto program = ir->getComposite("ansatz_temp");
+  // Data for first run:
+  std::vector<double> firstRuns;
+  const auto angles =
+      xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    firstRuns.emplace_back(buffer->getExpectationValueZ());
+  }
+
+  // Run a second-time, the exp-val must be consistent...
+  for (size_t i = 0; i < angles.size(); ++i) {
+    auto buffer = xacc::qalloc(2);
+    auto evaled = program->operator()({angles[i]});
+    accelerator->execute(buffer, evaled);
+    EXPECT_NEAR(buffer->getExpectationValueZ(), firstRuns[i], 1e-9);
+  }
+}
+
+// Make sure the exp-val calc. is correct by running VQE opt.
+TEST(JsonNoiseModelTester, testVqe) {
+  auto noiseModel = xacc::getService<xacc::NoiseModel>("json");
+  noiseModel->initialize({{"noise-model", depol_json_2q}});
+  const std::string ibmNoiseJson = noiseModel->toJson();
+  std::cout << "IBM Equiv: \n" << ibmNoiseJson << "\n";
+  auto accelerator = xacc::getAccelerator(
+      "aer", {{"noise-model", ibmNoiseJson}, {"sim-type", "density_matrix"}});
+
+  // Create the N=2 deuteron Hamiltonian
+  auto H_N_2 = xacc::quantum::getObservable(
+      "pauli", std::string("5.907 - 2.1433 X0X1 "
+                           "- 2.1433 Y0Y1"
+                           "+ .21829 Z0 - 6.125 Z1"));
+
+  auto optimizer = xacc::getOptimizer("nlopt");
+  xacc::qasm(R"(
+        .compiler xasm
+        .circuit deuteron_ansatz
+        .parameters theta
+        .qbit q
+        X(q[0]);
+        Ry(q[1], theta);
+        CNOT(q[1],q[0]);
+    )");
+  auto ansatz = xacc::getCompiled("deuteron_ansatz");
+
+  // Get the VQE Algorithm and initialize it
+  auto vqe = xacc::getAlgorithm("vqe");
+  vqe->initialize({std::make_pair("ansatz", ansatz),
+                   std::make_pair("observable", H_N_2),
+                   std::make_pair("accelerator", accelerator),
+                   std::make_pair("optimizer", optimizer)});
+
+  // Allocate some qubits and execute
+  auto buffer = xacc::qalloc(2);
+  vqe->execute(buffer);
+
+  // Expected result: -1.74886
+  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 0.1);
 }
 
 int main(int argc, char **argv) {
