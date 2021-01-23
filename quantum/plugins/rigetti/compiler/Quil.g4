@@ -1,235 +1,271 @@
 grammar Quil;
 
-/* This part of the grammar is particular to XACC */
-/***********************************************************************/
-xaccsrc: xacckernel;
-
-xacckernel:
-	'__qpu__' 'void' kernelname = id '(' typedparam (
-		',' typedparam
-	)* ')' '{' quil '}';
-
-typedparam: type ('&' | '*')? variable_param_name;
-variable_param_name: id;
-
-type:
-	'int'
-	| id ('<' id (',' id)? '>')?
-	| id '::' id ('<' id (',' id)? '>')?
-	| 'std::shared_ptr<' type '>';
-
-id: IDENTIFIER;
-
-kernelcall:
-	kernelname = IDENTIFIER '(' IDENTIFIER? (',' IDENTIFIER)* ')';
-/***********************************************************************/
-
 ////////////////////
-// PARSER //////////////////
+// PARSER
+////////////////////
 
-quil: allInstr? (NEWLINE+ allInstr)* NEWLINE*;
+quil                : allInstr? ( NEWLINE+ allInstr )* NEWLINE* EOF ;
 
-allInstr: defGate | defCircuit | instr | kernelcall;
+allInstr            : defGate
+                    | defGateAsPauli
+                    | defCircuit
+                    | instr
+                    ;
 
-instr:
-	gate
-	| measure
-	| defLabel
-	| halt
-	| jump
-	| jumpWhen
-	| jumpUnless
-	| resetState
-	| wait
-	| classicalUnary
-	| classicalBinary
-	| nop
-	| include
-	| pragma;
+instr               : gate
+                    | measure
+                    | defLabel
+                    | halt
+                    | jump
+                    | jumpWhen
+                    | jumpUnless
+                    | resetState
+                    | wait
+                    | classicalUnary
+                    | classicalBinary
+                    | classicalComparison
+                    | load
+                    | store
+                    | nop
+                    | include
+                    | pragma
+                    | memoryDescriptor
+                    ;
 
 // C. Static and Parametric Gates
 
-gate: name (LPAREN param (COMMA param)* RPAREN)? qubit+;
+gate                : modifier* name ( LPAREN param ( COMMA param )* RPAREN )? qubit+ ;
 
-name: IDENTIFIER;
-qubit: INT;
+name                : IDENTIFIER ;
+qubit               : INT ;
 
-param: expression;
+param               : expression ;
+
+modifier            : CONTROLLED
+                    | DAGGER
+                    | FORKED ;
 
 // D. Gate Definitions
 
-defGate:
-	DEFGATE name (LPAREN variable (COMMA variable)* RPAREN)? COLON NEWLINE matrix;
+defGate             : DEFGATE name (( LPAREN variable ( COMMA variable )* RPAREN ) | ( AS gatetype ))? COLON NEWLINE matrix ;
+defGateAsPauli      : DEFGATE name ( LPAREN variable ( COMMA variable )* RPAREN )? qubitVariable+ AS PAULISUM COLON NEWLINE pauliTerms ;
 
-variable: PERCENTAGE IDENTIFIER;
+variable            : PERCENTAGE IDENTIFIER ;
+gatetype            : MATRIX
+                    | PERMUTATION ;
 
-matrix: (matrixRow NEWLINE)* matrixRow;
-matrixRow: TAB expression (COMMA expression)*;
+matrix              : ( matrixRow NEWLINE )* matrixRow ;
+matrixRow           : TAB expression ( COMMA expression )* ;
+
+pauliTerms          : ( pauliTerm NEWLINE )* pauliTerm;
+pauliTerm           : TAB IDENTIFIER LPAREN expression RPAREN qubitVariable+ ;
 
 // E. Circuits
 
-defCircuit:
-	DEFCIRCUIT name (LPAREN variable (COMMA variable)* RPAREN)? qubitVariable* COLON NEWLINE circuit
-		;
+defCircuit          : DEFCIRCUIT name ( LPAREN variable ( COMMA variable )* RPAREN )? qubitVariable* COLON NEWLINE circuit ;
 
-qubitVariable: IDENTIFIER;
+qubitVariable       : IDENTIFIER ;
 
-circuitQubit: qubit | qubitVariable;
-circuitGate:
-	name (LPAREN param (COMMA param)* RPAREN)? circuitQubit+;
-circuitInstr: circuitGate | instr;
-circuit: (TAB circuitInstr NEWLINE)* TAB circuitInstr;
+circuitQubit        : qubit | qubitVariable ;
+circuitGate         : name ( LPAREN param ( COMMA param )* RPAREN )? circuitQubit+ ;
+circuitMeasure      : MEASURE circuitQubit addr? ;
+circuitResetState   : RESET circuitQubit? ;
+circuitInstr        : circuitGate | circuitMeasure | circuitResetState | instr ;
+circuit             : ( TAB circuitInstr NEWLINE )* TAB circuitInstr ;
 
 // F. Measurement
 
-measure: MEASURE qubit addr?;
-addr: IDENTIFIER? LBRACKET classicalBit RBRACKET;
-classicalBit: INT+;
+measure             : MEASURE qubit addr? ;
+addr                : IDENTIFIER | ( IDENTIFIER? LBRACKET INT RBRACKET );
 
 // G. Program control
 
-defLabel: LABEL label;
-label: AT IDENTIFIER;
-halt: HALT;
-jump: JUMP label;
-jumpWhen: JUMPWHEN label addr;
-jumpUnless: JUMPUNLESS label addr;
+defLabel            : LABEL label ;
+label               : AT IDENTIFIER ;
+halt                : HALT ;
+jump                : JUMP label ;
+jumpWhen            : JUMPWHEN label addr ;
+jumpUnless          : JUMPUNLESS label addr ;
 
 // H. Zeroing the Quantum State
 
-resetState:
-	RESET; // NB: cannot be named "reset" due to conflict with Antlr implementation
+resetState          : RESET qubit? ; // NB: cannot be named "reset" due to conflict with Antlr implementation
 
 // I. Classical/Quantum Synchronization
 
-wait: WAIT;
+wait                : WAIT ;
 
 // J. Classical Instructions
 
-classicalUnary: (TRUE | FALSE | NOT) addr;
-classicalBinary: (AND | OR | MOVE | EXCHANGE) addr addr;
+memoryDescriptor    : DECLARE IDENTIFIER IDENTIFIER ( LBRACKET INT RBRACKET )? ( SHARING IDENTIFIER ( offsetDescriptor )* )? ;
+offsetDescriptor    : OFFSET INT IDENTIFIER ;
+
+classicalUnary      : ( NEG | NOT | TRUE | FALSE ) addr ;
+classicalBinary     : logicalBinaryOp | arithmeticBinaryOp | move | exchange | convert ;
+logicalBinaryOp     : ( AND | OR | IOR | XOR ) addr ( addr | INT ) ;
+arithmeticBinaryOp  : ( ADD | SUB | MUL | DIV ) addr ( addr | number ) ;
+move                : MOVE addr ( addr | number );
+exchange            : EXCHANGE addr addr ;
+convert             : CONVERT addr addr ;
+load                : LOAD addr IDENTIFIER addr ;
+store               : STORE IDENTIFIER addr ( addr | number );
+classicalComparison : ( EQ | GT | GE | LT | LE ) addr addr ( addr | number );
 
 // K. The No-Operation Instruction
 
-nop: NOP;
+nop                 : NOP ;
 
 // L. File Inclusion
 
-include: INCLUDE STRING;
+include             : INCLUDE STRING ;
 
 // M. Pragma Support
 
-pragma: PRAGMA IDENTIFIER pragma_name* STRING?;
-pragma_name: IDENTIFIER | INT;
+pragma              : PRAGMA IDENTIFIER pragma_name* STRING? ;
+pragma_name         : IDENTIFIER | INT ;
 
 // Expressions (in order of precedence)
 
-expression:
-	LPAREN expression RPAREN						# parenthesisExp
-	| sign expression								# signedExp
-	| <assoc = right> expression POWER expression	# powerExp
-	| expression (TIMES | DIVIDE) expression		# mulDivExp
-	| expression (PLUS | MINUS) expression			# addSubExp
-    | expression LBRACKET expression RBRACKET       # variablewithbracket
-	| function LPAREN expression RPAREN				# functionExp
-	| segment										# segmentExp
-	| number										# numberExp
-	| variable										# variableExp
-	| IDENTIFIER									# identifierExp ; // An XACC parameter
+expression          : LPAREN expression RPAREN                  #parenthesisExp
+                    | sign expression                           #signedExp
+                    | <assoc=right> expression POWER expression #powerExp
+                    | expression ( TIMES | DIVIDE ) expression  #mulDivExp
+                    | expression ( PLUS | MINUS ) expression    #addSubExp
+                    | function LPAREN expression RPAREN         #functionExp
+                    | number                                    #numberExp
+                    | variable                                  #variableExp
+                    | addr                                      #addrExp
+                    ;
 
-segment: LBRACKET INT MINUS INT RBRACKET;
-function: SIN | COS | SQRT | EXP | CIS;
-sign: PLUS | MINUS;
+function            : SIN | COS | SQRT | EXP | CIS ;
+sign                : PLUS | MINUS ;
 
-// Numbers We suffix -N onto these names so they don't conflict with already defined Python types
+// Numbers
+// We suffix -N onto these names so they don't conflict with already defined Python types
 
-number: realN | imaginaryN | I | PI;
-imaginaryN: realN I;
-realN: FLOAT | INT;
+number              : MINUS? ( realN | imaginaryN | I | PI ) ;
+imaginaryN          : realN I ;
+realN               : FLOAT | INT ;
 
 ////////////////////
-// LEXER //////////////////
+// LEXER
+////////////////////
 
 // Keywords
 
-DEFGATE: 'DEFGATE';
-DEFCIRCUIT: 'DEFCIRCUIT';
-MEASURE: 'MEASURE';
+DEFGATE             : 'DEFGATE' ;
+DEFCIRCUIT          : 'DEFCIRCUIT' ;
+MEASURE             : 'MEASURE' ;
 
-LABEL: 'LABEL';
-HALT: 'HALT';
-JUMP: 'JUMP';
-JUMPWHEN: 'JUMP-WHEN';
-JUMPUNLESS: 'JUMP-UNLESS';
+LABEL               : 'LABEL' ;
+HALT                : 'HALT' ;
+JUMP                : 'JUMP' ;
+JUMPWHEN            : 'JUMP-WHEN' ;
+JUMPUNLESS          : 'JUMP-UNLESS' ;
 
-RESET: 'RESET';
-WAIT: 'WAIT';
-NOP: 'NOP';
-INCLUDE: 'INCLUDE';
-PRAGMA: 'PRAGMA';
+RESET               : 'RESET' ;
+WAIT                : 'WAIT' ;
+NOP                 : 'NOP' ;
+INCLUDE             : 'INCLUDE' ;
+PRAGMA              : 'PRAGMA' ;
 
-FALSE: 'FALSE';
-TRUE: 'TRUE';
-NOT: 'NOT';
-AND: 'AND';
-OR: 'OR';
-MOVE: 'MOVE';
-EXCHANGE: 'EXCHANGE';
+DECLARE             : 'DECLARE' ;
+SHARING             : 'SHARING' ;
+OFFSET              : 'OFFSET' ;
 
-PI: 'pi';
-I: 'i';
+AS                  : 'AS' ;
+MATRIX              : 'MATRIX' ;
+PERMUTATION         : 'PERMUTATION' ;
+PAULISUM            : 'PAULI-SUM';
 
-SIN: 'sin';
-COS: 'cos';
-SQRT: 'sqrt';
-EXP: 'exp';
-CIS: 'cis';
+NEG                 : 'NEG' ;
+NOT                 : 'NOT' ;
+TRUE                : 'TRUE' ; // Deprecated
+FALSE               : 'FALSE' ; // Deprecated
+
+AND                 : 'AND' ;
+IOR                 : 'IOR' ;
+XOR                 : 'XOR' ;
+OR                  : 'OR' ;   // Deprecated
+
+ADD                 : 'ADD' ;
+SUB                 : 'SUB' ;
+MUL                 : 'MUL' ;
+DIV                 : 'DIV' ;
+
+MOVE                : 'MOVE' ;
+EXCHANGE            : 'EXCHANGE' ;
+CONVERT             : 'CONVERT' ;
+
+EQ                  : 'EQ';
+GT                  : 'GT';
+GE                  : 'GE';
+LT                  : 'LT';
+LE                  : 'LE';
+
+LOAD                : 'LOAD' ;
+STORE               : 'STORE' ;
+
+PI                  : 'pi' ;
+I                   : 'i' ;
+
+SIN                 : 'SIN' ;
+COS                 : 'COS' ;
+SQRT                : 'SQRT' ;
+EXP                 : 'EXP' ;
+CIS                 : 'CIS' ;
 
 // Operators
 
-PLUS: '+';
-MINUS: '-'; // Also serves as range in expressions like [8-71]
-TIMES: '*';
-DIVIDE: '/';
-POWER: '^';
+PLUS                : '+' ;
+MINUS               : '-' ;
+TIMES               : '*' ;
+DIVIDE              : '/' ;
+POWER               : '^' ;
+
+// Modifiers
+
+CONTROLLED          : 'CONTROLLED' ;
+DAGGER              : 'DAGGER' ;
+FORKED              : 'FORKED' ;
 
 // Identifiers
 
-IDENTIFIER: [A-Za-z_] [A-Za-z0-9\-_]*;
+IDENTIFIER          : ( ( [A-Za-z_] ) | ( [A-Za-z_] [A-Za-z0-9\-_]* [A-Za-z0-9_] ) ) ;
 
 // Numbers
 
-INT: [0-9]+;
-FLOAT: [0-9]+ ('.' [0-9]+)? (('e' | 'E') ('+' | '-')? [0-9]+)?;
+INT                 : [0-9]+ ;
+FLOAT               : [0-9]+ ( '.' [0-9]+ )? ( ( 'e'|'E' ) ( '+' | '-' )? [0-9]+ )? ;
 
 // String
 
-STRING: '"' ~('\n' | '\r')* '"';
+STRING              : '"' ~( '\n' | '\r' )* '"';
 
 // Punctuation
 
-PERIOD: '.';
-COMMA: ',';
-LPAREN: '(';
-RPAREN: ')';
-LBRACKET: '[';
-RBRACKET: ']';
-COLON: ':';
-PERCENTAGE: '%';
-AT: '@';
-QUOTE: '"';
-UNDERSCORE: '_';
+PERIOD              : '.' ;
+COMMA               : ',' ;
+LPAREN              : '(' ;
+RPAREN              : ')' ;
+LBRACKET            : '[' ;
+RBRACKET            : ']' ;
+COLON               : ':' ;
+PERCENTAGE          : '%' ;
+AT                  : '@' ;
+QUOTE               : '"' ;
+UNDERSCORE          : '_' ;
 
 // Whitespace
 
-TAB: '    ';
-NEWLINE: ('\r'? '\n' | '\r')+;
+TAB                 : '    ' ;
+NEWLINE             : (' ' | '\t' )* ( '\r'? '\n' | '\r' )+ ;
 
 // Skips
 
-COMMENT: '#' ~('\n' | '\r')* -> skip;
-SPACE: ' ' -> skip;
+COMMENT             : (' ' | '\t' )* '#' ~( '\n' | '\r' )* -> skip ;
+SPACE               : ' ' -> skip ;
 
 // Error
 
-INVALID: .;
+INVALID             : . ;

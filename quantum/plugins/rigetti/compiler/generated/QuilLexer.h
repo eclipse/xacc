@@ -1,5 +1,5 @@
 
-// Generated from Quil.g4 by ANTLR 4.8
+// Generated from Quil.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -13,19 +13,22 @@ namespace quil {
 class  QuilLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, T__8 = 9, T__9 = 10, DEFGATE = 11, DEFCIRCUIT = 12, MEASURE = 13, 
-    LABEL = 14, HALT = 15, JUMP = 16, JUMPWHEN = 17, JUMPUNLESS = 18, RESET = 19, 
-    WAIT = 20, NOP = 21, INCLUDE = 22, PRAGMA = 23, FALSE = 24, TRUE = 25, 
-    NOT = 26, AND = 27, OR = 28, MOVE = 29, EXCHANGE = 30, PI = 31, I = 32, 
-    SIN = 33, COS = 34, SQRT = 35, EXP = 36, CIS = 37, PLUS = 38, MINUS = 39, 
-    TIMES = 40, DIVIDE = 41, POWER = 42, IDENTIFIER = 43, INT = 44, FLOAT = 45, 
-    STRING = 46, PERIOD = 47, COMMA = 48, LPAREN = 49, RPAREN = 50, LBRACKET = 51, 
-    RBRACKET = 52, COLON = 53, PERCENTAGE = 54, AT = 55, QUOTE = 56, UNDERSCORE = 57, 
-    TAB = 58, NEWLINE = 59, COMMENT = 60, SPACE = 61, INVALID = 62
+    DEFGATE = 1, DEFCIRCUIT = 2, MEASURE = 3, LABEL = 4, HALT = 5, JUMP = 6, 
+    JUMPWHEN = 7, JUMPUNLESS = 8, RESET = 9, WAIT = 10, NOP = 11, INCLUDE = 12, 
+    PRAGMA = 13, DECLARE = 14, SHARING = 15, OFFSET = 16, AS = 17, MATRIX = 18, 
+    PERMUTATION = 19, PAULISUM = 20, NEG = 21, NOT = 22, TRUE = 23, FALSE = 24, 
+    AND = 25, IOR = 26, XOR = 27, OR = 28, ADD = 29, SUB = 30, MUL = 31, 
+    DIV = 32, MOVE = 33, EXCHANGE = 34, CONVERT = 35, EQ = 36, GT = 37, 
+    GE = 38, LT = 39, LE = 40, LOAD = 41, STORE = 42, PI = 43, I = 44, SIN = 45, 
+    COS = 46, SQRT = 47, EXP = 48, CIS = 49, PLUS = 50, MINUS = 51, TIMES = 52, 
+    DIVIDE = 53, POWER = 54, CONTROLLED = 55, DAGGER = 56, FORKED = 57, 
+    IDENTIFIER = 58, INT = 59, FLOAT = 60, STRING = 61, PERIOD = 62, COMMA = 63, 
+    LPAREN = 64, RPAREN = 65, LBRACKET = 66, RBRACKET = 67, COLON = 68, 
+    PERCENTAGE = 69, AT = 70, QUOTE = 71, UNDERSCORE = 72, TAB = 73, NEWLINE = 74, 
+    COMMENT = 75, SPACE = 76, INVALID = 77
   };
 
-  QuilLexer(antlr4::CharStream *input);
+  explicit QuilLexer(antlr4::CharStream *input);
   ~QuilLexer();
 
   virtual std::string getGrammarFileName() const override;

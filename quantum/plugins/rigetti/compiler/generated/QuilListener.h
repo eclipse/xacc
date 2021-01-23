@@ -1,5 +1,5 @@
 
-// Generated from Quil.g4 by ANTLR 4.8
+// Generated from Quil.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -15,27 +15,6 @@ namespace quil {
  */
 class  QuilListener : public antlr4::tree::ParseTreeListener {
 public:
-
-  virtual void enterXaccsrc(QuilParser::XaccsrcContext *ctx) = 0;
-  virtual void exitXaccsrc(QuilParser::XaccsrcContext *ctx) = 0;
-
-  virtual void enterXacckernel(QuilParser::XacckernelContext *ctx) = 0;
-  virtual void exitXacckernel(QuilParser::XacckernelContext *ctx) = 0;
-
-  virtual void enterTypedparam(QuilParser::TypedparamContext *ctx) = 0;
-  virtual void exitTypedparam(QuilParser::TypedparamContext *ctx) = 0;
-
-  virtual void enterVariable_param_name(QuilParser::Variable_param_nameContext *ctx) = 0;
-  virtual void exitVariable_param_name(QuilParser::Variable_param_nameContext *ctx) = 0;
-
-  virtual void enterType(QuilParser::TypeContext *ctx) = 0;
-  virtual void exitType(QuilParser::TypeContext *ctx) = 0;
-
-  virtual void enterId(QuilParser::IdContext *ctx) = 0;
-  virtual void exitId(QuilParser::IdContext *ctx) = 0;
-
-  virtual void enterKernelcall(QuilParser::KernelcallContext *ctx) = 0;
-  virtual void exitKernelcall(QuilParser::KernelcallContext *ctx) = 0;
 
   virtual void enterQuil(QuilParser::QuilContext *ctx) = 0;
   virtual void exitQuil(QuilParser::QuilContext *ctx) = 0;
@@ -58,17 +37,32 @@ public:
   virtual void enterParam(QuilParser::ParamContext *ctx) = 0;
   virtual void exitParam(QuilParser::ParamContext *ctx) = 0;
 
+  virtual void enterModifier(QuilParser::ModifierContext *ctx) = 0;
+  virtual void exitModifier(QuilParser::ModifierContext *ctx) = 0;
+
   virtual void enterDefGate(QuilParser::DefGateContext *ctx) = 0;
   virtual void exitDefGate(QuilParser::DefGateContext *ctx) = 0;
 
+  virtual void enterDefGateAsPauli(QuilParser::DefGateAsPauliContext *ctx) = 0;
+  virtual void exitDefGateAsPauli(QuilParser::DefGateAsPauliContext *ctx) = 0;
+
   virtual void enterVariable(QuilParser::VariableContext *ctx) = 0;
   virtual void exitVariable(QuilParser::VariableContext *ctx) = 0;
+
+  virtual void enterGatetype(QuilParser::GatetypeContext *ctx) = 0;
+  virtual void exitGatetype(QuilParser::GatetypeContext *ctx) = 0;
 
   virtual void enterMatrix(QuilParser::MatrixContext *ctx) = 0;
   virtual void exitMatrix(QuilParser::MatrixContext *ctx) = 0;
 
   virtual void enterMatrixRow(QuilParser::MatrixRowContext *ctx) = 0;
   virtual void exitMatrixRow(QuilParser::MatrixRowContext *ctx) = 0;
+
+  virtual void enterPauliTerms(QuilParser::PauliTermsContext *ctx) = 0;
+  virtual void exitPauliTerms(QuilParser::PauliTermsContext *ctx) = 0;
+
+  virtual void enterPauliTerm(QuilParser::PauliTermContext *ctx) = 0;
+  virtual void exitPauliTerm(QuilParser::PauliTermContext *ctx) = 0;
 
   virtual void enterDefCircuit(QuilParser::DefCircuitContext *ctx) = 0;
   virtual void exitDefCircuit(QuilParser::DefCircuitContext *ctx) = 0;
@@ -82,6 +76,12 @@ public:
   virtual void enterCircuitGate(QuilParser::CircuitGateContext *ctx) = 0;
   virtual void exitCircuitGate(QuilParser::CircuitGateContext *ctx) = 0;
 
+  virtual void enterCircuitMeasure(QuilParser::CircuitMeasureContext *ctx) = 0;
+  virtual void exitCircuitMeasure(QuilParser::CircuitMeasureContext *ctx) = 0;
+
+  virtual void enterCircuitResetState(QuilParser::CircuitResetStateContext *ctx) = 0;
+  virtual void exitCircuitResetState(QuilParser::CircuitResetStateContext *ctx) = 0;
+
   virtual void enterCircuitInstr(QuilParser::CircuitInstrContext *ctx) = 0;
   virtual void exitCircuitInstr(QuilParser::CircuitInstrContext *ctx) = 0;
 
@@ -93,9 +93,6 @@ public:
 
   virtual void enterAddr(QuilParser::AddrContext *ctx) = 0;
   virtual void exitAddr(QuilParser::AddrContext *ctx) = 0;
-
-  virtual void enterClassicalBit(QuilParser::ClassicalBitContext *ctx) = 0;
-  virtual void exitClassicalBit(QuilParser::ClassicalBitContext *ctx) = 0;
 
   virtual void enterDefLabel(QuilParser::DefLabelContext *ctx) = 0;
   virtual void exitDefLabel(QuilParser::DefLabelContext *ctx) = 0;
@@ -121,11 +118,41 @@ public:
   virtual void enterWait(QuilParser::WaitContext *ctx) = 0;
   virtual void exitWait(QuilParser::WaitContext *ctx) = 0;
 
+  virtual void enterMemoryDescriptor(QuilParser::MemoryDescriptorContext *ctx) = 0;
+  virtual void exitMemoryDescriptor(QuilParser::MemoryDescriptorContext *ctx) = 0;
+
+  virtual void enterOffsetDescriptor(QuilParser::OffsetDescriptorContext *ctx) = 0;
+  virtual void exitOffsetDescriptor(QuilParser::OffsetDescriptorContext *ctx) = 0;
+
   virtual void enterClassicalUnary(QuilParser::ClassicalUnaryContext *ctx) = 0;
   virtual void exitClassicalUnary(QuilParser::ClassicalUnaryContext *ctx) = 0;
 
   virtual void enterClassicalBinary(QuilParser::ClassicalBinaryContext *ctx) = 0;
   virtual void exitClassicalBinary(QuilParser::ClassicalBinaryContext *ctx) = 0;
+
+  virtual void enterLogicalBinaryOp(QuilParser::LogicalBinaryOpContext *ctx) = 0;
+  virtual void exitLogicalBinaryOp(QuilParser::LogicalBinaryOpContext *ctx) = 0;
+
+  virtual void enterArithmeticBinaryOp(QuilParser::ArithmeticBinaryOpContext *ctx) = 0;
+  virtual void exitArithmeticBinaryOp(QuilParser::ArithmeticBinaryOpContext *ctx) = 0;
+
+  virtual void enterMove(QuilParser::MoveContext *ctx) = 0;
+  virtual void exitMove(QuilParser::MoveContext *ctx) = 0;
+
+  virtual void enterExchange(QuilParser::ExchangeContext *ctx) = 0;
+  virtual void exitExchange(QuilParser::ExchangeContext *ctx) = 0;
+
+  virtual void enterConvert(QuilParser::ConvertContext *ctx) = 0;
+  virtual void exitConvert(QuilParser::ConvertContext *ctx) = 0;
+
+  virtual void enterLoad(QuilParser::LoadContext *ctx) = 0;
+  virtual void exitLoad(QuilParser::LoadContext *ctx) = 0;
+
+  virtual void enterStore(QuilParser::StoreContext *ctx) = 0;
+  virtual void exitStore(QuilParser::StoreContext *ctx) = 0;
+
+  virtual void enterClassicalComparison(QuilParser::ClassicalComparisonContext *ctx) = 0;
+  virtual void exitClassicalComparison(QuilParser::ClassicalComparisonContext *ctx) = 0;
 
   virtual void enterNop(QuilParser::NopContext *ctx) = 0;
   virtual void exitNop(QuilParser::NopContext *ctx) = 0;
@@ -138,12 +165,6 @@ public:
 
   virtual void enterPragma_name(QuilParser::Pragma_nameContext *ctx) = 0;
   virtual void exitPragma_name(QuilParser::Pragma_nameContext *ctx) = 0;
-
-  virtual void enterSegmentExp(QuilParser::SegmentExpContext *ctx) = 0;
-  virtual void exitSegmentExp(QuilParser::SegmentExpContext *ctx) = 0;
-
-  virtual void enterIdentifierExp(QuilParser::IdentifierExpContext *ctx) = 0;
-  virtual void exitIdentifierExp(QuilParser::IdentifierExpContext *ctx) = 0;
 
   virtual void enterNumberExp(QuilParser::NumberExpContext *ctx) = 0;
   virtual void exitNumberExp(QuilParser::NumberExpContext *ctx) = 0;
@@ -160,20 +181,17 @@ public:
   virtual void enterVariableExp(QuilParser::VariableExpContext *ctx) = 0;
   virtual void exitVariableExp(QuilParser::VariableExpContext *ctx) = 0;
 
+  virtual void enterAddrExp(QuilParser::AddrExpContext *ctx) = 0;
+  virtual void exitAddrExp(QuilParser::AddrExpContext *ctx) = 0;
+
   virtual void enterSignedExp(QuilParser::SignedExpContext *ctx) = 0;
   virtual void exitSignedExp(QuilParser::SignedExpContext *ctx) = 0;
 
   virtual void enterAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
   virtual void exitAddSubExp(QuilParser::AddSubExpContext *ctx) = 0;
 
-  virtual void enterVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
-  virtual void exitVariablewithbracket(QuilParser::VariablewithbracketContext *ctx) = 0;
-
   virtual void enterFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;
   virtual void exitFunctionExp(QuilParser::FunctionExpContext *ctx) = 0;
-
-  virtual void enterSegment(QuilParser::SegmentContext *ctx) = 0;
-  virtual void exitSegment(QuilParser::SegmentContext *ctx) = 0;
 
   virtual void enterFunction(QuilParser::FunctionContext *ctx) = 0;
   virtual void exitFunction(QuilParser::FunctionContext *ctx) = 0;

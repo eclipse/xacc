@@ -1,5 +1,5 @@
 
-// Generated from Quil.g4 by ANTLR 4.8
+// Generated from Quil.g4 by ANTLR 4.9.1
 
 #pragma once
 
@@ -17,27 +17,6 @@ namespace quil {
  */
 class  QuilBaseListener : public QuilListener {
 public:
-
-  virtual void enterXaccsrc(QuilParser::XaccsrcContext * /*ctx*/) override { }
-  virtual void exitXaccsrc(QuilParser::XaccsrcContext * /*ctx*/) override { }
-
-  virtual void enterXacckernel(QuilParser::XacckernelContext * /*ctx*/) override { }
-  virtual void exitXacckernel(QuilParser::XacckernelContext * /*ctx*/) override { }
-
-  virtual void enterTypedparam(QuilParser::TypedparamContext * /*ctx*/) override { }
-  virtual void exitTypedparam(QuilParser::TypedparamContext * /*ctx*/) override { }
-
-  virtual void enterVariable_param_name(QuilParser::Variable_param_nameContext * /*ctx*/) override { }
-  virtual void exitVariable_param_name(QuilParser::Variable_param_nameContext * /*ctx*/) override { }
-
-  virtual void enterType(QuilParser::TypeContext * /*ctx*/) override { }
-  virtual void exitType(QuilParser::TypeContext * /*ctx*/) override { }
-
-  virtual void enterId(QuilParser::IdContext * /*ctx*/) override { }
-  virtual void exitId(QuilParser::IdContext * /*ctx*/) override { }
-
-  virtual void enterKernelcall(QuilParser::KernelcallContext * /*ctx*/) override { }
-  virtual void exitKernelcall(QuilParser::KernelcallContext * /*ctx*/) override { }
 
   virtual void enterQuil(QuilParser::QuilContext * /*ctx*/) override { }
   virtual void exitQuil(QuilParser::QuilContext * /*ctx*/) override { }
@@ -60,17 +39,32 @@ public:
   virtual void enterParam(QuilParser::ParamContext * /*ctx*/) override { }
   virtual void exitParam(QuilParser::ParamContext * /*ctx*/) override { }
 
+  virtual void enterModifier(QuilParser::ModifierContext * /*ctx*/) override { }
+  virtual void exitModifier(QuilParser::ModifierContext * /*ctx*/) override { }
+
   virtual void enterDefGate(QuilParser::DefGateContext * /*ctx*/) override { }
   virtual void exitDefGate(QuilParser::DefGateContext * /*ctx*/) override { }
 
+  virtual void enterDefGateAsPauli(QuilParser::DefGateAsPauliContext * /*ctx*/) override { }
+  virtual void exitDefGateAsPauli(QuilParser::DefGateAsPauliContext * /*ctx*/) override { }
+
   virtual void enterVariable(QuilParser::VariableContext * /*ctx*/) override { }
   virtual void exitVariable(QuilParser::VariableContext * /*ctx*/) override { }
+
+  virtual void enterGatetype(QuilParser::GatetypeContext * /*ctx*/) override { }
+  virtual void exitGatetype(QuilParser::GatetypeContext * /*ctx*/) override { }
 
   virtual void enterMatrix(QuilParser::MatrixContext * /*ctx*/) override { }
   virtual void exitMatrix(QuilParser::MatrixContext * /*ctx*/) override { }
 
   virtual void enterMatrixRow(QuilParser::MatrixRowContext * /*ctx*/) override { }
   virtual void exitMatrixRow(QuilParser::MatrixRowContext * /*ctx*/) override { }
+
+  virtual void enterPauliTerms(QuilParser::PauliTermsContext * /*ctx*/) override { }
+  virtual void exitPauliTerms(QuilParser::PauliTermsContext * /*ctx*/) override { }
+
+  virtual void enterPauliTerm(QuilParser::PauliTermContext * /*ctx*/) override { }
+  virtual void exitPauliTerm(QuilParser::PauliTermContext * /*ctx*/) override { }
 
   virtual void enterDefCircuit(QuilParser::DefCircuitContext * /*ctx*/) override { }
   virtual void exitDefCircuit(QuilParser::DefCircuitContext * /*ctx*/) override { }
@@ -84,6 +78,12 @@ public:
   virtual void enterCircuitGate(QuilParser::CircuitGateContext * /*ctx*/) override { }
   virtual void exitCircuitGate(QuilParser::CircuitGateContext * /*ctx*/) override { }
 
+  virtual void enterCircuitMeasure(QuilParser::CircuitMeasureContext * /*ctx*/) override { }
+  virtual void exitCircuitMeasure(QuilParser::CircuitMeasureContext * /*ctx*/) override { }
+
+  virtual void enterCircuitResetState(QuilParser::CircuitResetStateContext * /*ctx*/) override { }
+  virtual void exitCircuitResetState(QuilParser::CircuitResetStateContext * /*ctx*/) override { }
+
   virtual void enterCircuitInstr(QuilParser::CircuitInstrContext * /*ctx*/) override { }
   virtual void exitCircuitInstr(QuilParser::CircuitInstrContext * /*ctx*/) override { }
 
@@ -95,9 +95,6 @@ public:
 
   virtual void enterAddr(QuilParser::AddrContext * /*ctx*/) override { }
   virtual void exitAddr(QuilParser::AddrContext * /*ctx*/) override { }
-
-  virtual void enterClassicalBit(QuilParser::ClassicalBitContext * /*ctx*/) override { }
-  virtual void exitClassicalBit(QuilParser::ClassicalBitContext * /*ctx*/) override { }
 
   virtual void enterDefLabel(QuilParser::DefLabelContext * /*ctx*/) override { }
   virtual void exitDefLabel(QuilParser::DefLabelContext * /*ctx*/) override { }
@@ -123,11 +120,41 @@ public:
   virtual void enterWait(QuilParser::WaitContext * /*ctx*/) override { }
   virtual void exitWait(QuilParser::WaitContext * /*ctx*/) override { }
 
+  virtual void enterMemoryDescriptor(QuilParser::MemoryDescriptorContext * /*ctx*/) override { }
+  virtual void exitMemoryDescriptor(QuilParser::MemoryDescriptorContext * /*ctx*/) override { }
+
+  virtual void enterOffsetDescriptor(QuilParser::OffsetDescriptorContext * /*ctx*/) override { }
+  virtual void exitOffsetDescriptor(QuilParser::OffsetDescriptorContext * /*ctx*/) override { }
+
   virtual void enterClassicalUnary(QuilParser::ClassicalUnaryContext * /*ctx*/) override { }
   virtual void exitClassicalUnary(QuilParser::ClassicalUnaryContext * /*ctx*/) override { }
 
   virtual void enterClassicalBinary(QuilParser::ClassicalBinaryContext * /*ctx*/) override { }
   virtual void exitClassicalBinary(QuilParser::ClassicalBinaryContext * /*ctx*/) override { }
+
+  virtual void enterLogicalBinaryOp(QuilParser::LogicalBinaryOpContext * /*ctx*/) override { }
+  virtual void exitLogicalBinaryOp(QuilParser::LogicalBinaryOpContext * /*ctx*/) override { }
+
+  virtual void enterArithmeticBinaryOp(QuilParser::ArithmeticBinaryOpContext * /*ctx*/) override { }
+  virtual void exitArithmeticBinaryOp(QuilParser::ArithmeticBinaryOpContext * /*ctx*/) override { }
+
+  virtual void enterMove(QuilParser::MoveContext * /*ctx*/) override { }
+  virtual void exitMove(QuilParser::MoveContext * /*ctx*/) override { }
+
+  virtual void enterExchange(QuilParser::ExchangeContext * /*ctx*/) override { }
+  virtual void exitExchange(QuilParser::ExchangeContext * /*ctx*/) override { }
+
+  virtual void enterConvert(QuilParser::ConvertContext * /*ctx*/) override { }
+  virtual void exitConvert(QuilParser::ConvertContext * /*ctx*/) override { }
+
+  virtual void enterLoad(QuilParser::LoadContext * /*ctx*/) override { }
+  virtual void exitLoad(QuilParser::LoadContext * /*ctx*/) override { }
+
+  virtual void enterStore(QuilParser::StoreContext * /*ctx*/) override { }
+  virtual void exitStore(QuilParser::StoreContext * /*ctx*/) override { }
+
+  virtual void enterClassicalComparison(QuilParser::ClassicalComparisonContext * /*ctx*/) override { }
+  virtual void exitClassicalComparison(QuilParser::ClassicalComparisonContext * /*ctx*/) override { }
 
   virtual void enterNop(QuilParser::NopContext * /*ctx*/) override { }
   virtual void exitNop(QuilParser::NopContext * /*ctx*/) override { }
@@ -140,12 +167,6 @@ public:
 
   virtual void enterPragma_name(QuilParser::Pragma_nameContext * /*ctx*/) override { }
   virtual void exitPragma_name(QuilParser::Pragma_nameContext * /*ctx*/) override { }
-
-  virtual void enterSegmentExp(QuilParser::SegmentExpContext * /*ctx*/) override { }
-  virtual void exitSegmentExp(QuilParser::SegmentExpContext * /*ctx*/) override { }
-
-  virtual void enterIdentifierExp(QuilParser::IdentifierExpContext * /*ctx*/) override { }
-  virtual void exitIdentifierExp(QuilParser::IdentifierExpContext * /*ctx*/) override { }
 
   virtual void enterNumberExp(QuilParser::NumberExpContext * /*ctx*/) override { }
   virtual void exitNumberExp(QuilParser::NumberExpContext * /*ctx*/) override { }
@@ -162,20 +183,17 @@ public:
   virtual void enterVariableExp(QuilParser::VariableExpContext * /*ctx*/) override { }
   virtual void exitVariableExp(QuilParser::VariableExpContext * /*ctx*/) override { }
 
+  virtual void enterAddrExp(QuilParser::AddrExpContext * /*ctx*/) override { }
+  virtual void exitAddrExp(QuilParser::AddrExpContext * /*ctx*/) override { }
+
   virtual void enterSignedExp(QuilParser::SignedExpContext * /*ctx*/) override { }
   virtual void exitSignedExp(QuilParser::SignedExpContext * /*ctx*/) override { }
 
   virtual void enterAddSubExp(QuilParser::AddSubExpContext * /*ctx*/) override { }
   virtual void exitAddSubExp(QuilParser::AddSubExpContext * /*ctx*/) override { }
 
-  virtual void enterVariablewithbracket(QuilParser::VariablewithbracketContext * /*ctx*/) override { }
-  virtual void exitVariablewithbracket(QuilParser::VariablewithbracketContext * /*ctx*/) override { }
-
   virtual void enterFunctionExp(QuilParser::FunctionExpContext * /*ctx*/) override { }
   virtual void exitFunctionExp(QuilParser::FunctionExpContext * /*ctx*/) override { }
-
-  virtual void enterSegment(QuilParser::SegmentContext * /*ctx*/) override { }
-  virtual void exitSegment(QuilParser::SegmentContext * /*ctx*/) override { }
 
   virtual void enterFunction(QuilParser::FunctionContext * /*ctx*/) override { }
   virtual void exitFunction(QuilParser::FunctionContext * /*ctx*/) override { }
