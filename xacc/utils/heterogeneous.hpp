@@ -21,6 +21,7 @@
 #include <functional>
 #include <iostream>
 #include <experimental/type_traits>
+#include <cstring>
 
 // mpark variant
 #include "variant.hpp"
