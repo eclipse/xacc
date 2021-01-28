@@ -219,17 +219,17 @@ class PauliOperator
       public tao::operators::commutative_multipliable<PauliOperator,
                                                       std::complex<double>> {
 protected:
-  std::unordered_map<std::string, Term> terms;
+  std::map<std::string, Term> terms;
 
 public:
   std::shared_ptr<Observable> clone() override {
     return std::make_shared<PauliOperator>();
   }
 
-  std::unordered_map<std::string, Term>::iterator begin() {
+  std::map<std::string, Term>::iterator begin() {
     return terms.begin();
   }
-  std::unordered_map<std::string, Term>::iterator end() { return terms.end(); }
+  std::map<std::string, Term>::iterator end() { return terms.end(); }
 
   PauliOperator();
   PauliOperator(std::complex<double> c);
@@ -313,7 +313,7 @@ public:
   }
   void clear();
 
-  std::unordered_map<std::string, Term> getTerms() const { return terms; }
+  std::map<std::string, Term> getTerms() const { return terms; }
 
   std::vector<SparseTriplet> getSparseMatrixElements() {return to_sparse_matrix();}
   std::vector<std::complex<double>> toDenseMatrix(const int nQubits);
@@ -342,6 +342,10 @@ public:
   
   std::shared_ptr<Observable>
   commutator(std::shared_ptr<Observable> obs) override;
+
+  PauliOperator hermitianConjugate() const;
+
+  void normalize() override;
 };
 } // namespace quantum
 

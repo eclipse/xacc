@@ -13,6 +13,18 @@
 #pragma one
 #include "xacc.hpp"
 #include "AllGateVisitor.hpp"
+
+// Workaround VirtualBox bug: https://www.virtualbox.org/ticket/15471
+// VirtualBox enables AVX2 flag but not FMA flag in -march=native
+// which is a **bug**, there is no such config.
+// qsim lib's simmux relies on AVX2 flag for simulator selection,
+// hence we just disable AVX support if compiling on VirtualBox.
+#ifdef __AVX2__
+#ifndef __FMA__
+#undef __AVX2__
+#endif
+#endif
+
 // Qsim:
 #include "circuit.h"
 #include "gates_qsim.h"

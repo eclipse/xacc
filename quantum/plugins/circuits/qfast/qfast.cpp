@@ -147,7 +147,7 @@ void softmax(Iter iterBegin, Iter iterEnd)
         return std::exp(500.0 * (x - maxElement)); 
     });
     const ValueType expTol = std::accumulate(iterBegin, iterEnd, 0.0);
-    std::transform(iterBegin, iterEnd, iterBegin, std::bind2nd(std::divides<ValueType>(), expTol));  
+    std::transform(iterBegin, iterEnd, iterBegin, std::bind(std::divides<ValueType>(), std::placeholders::_1, expTol));  
 }
 }
 

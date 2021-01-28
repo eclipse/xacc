@@ -1,0 +1,6 @@
+{
+    "bundle.symbolic_name" : "xacc_json_noise_model",
+    "bundle.activator" : true,
+    "bundle.name" : "Noise Model JSON Input",
+    "bundle.description" : "This plugin provides a way to load noise model as a JSON file."
+  }

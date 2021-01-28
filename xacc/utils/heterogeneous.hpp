@@ -21,6 +21,7 @@
 #include <functional>
 #include <iostream>
 #include <experimental/type_traits>
+#include <cstring>
 
 // mpark variant
 #include "variant.hpp"
@@ -28,6 +29,60 @@
 #include "Utils.hpp"
 #include <complex>
 #include <any>
+
+// If this is a GNU compiler
+#if defined(__GNUC__) || defined(__GNUG__)
+// We need to fix for < 7.5, < 8.4, and < 9.2
+#if (( __GNUC__ == 7 && __GNUC_MINOR__ < 5 ) || ( __GNUC__ == 8 && __GNUC_MINOR__ < 4 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 2 ))
+#define APPLY_RTTI_ANY_CAST_FIX
+#define STD_ANY_ALIGNED_STORAGE_SIZE 1
+#endif
+#endif
+
+// Fix for LLVM libc++: it also has a problem with typeinfo comparison.
+#ifndef APPLY_RTTI_ANY_CAST_FIX
+#ifdef _LIBCPP_VERSION
+#if !defined(_LIBCPP_NO_RTTI)
+#define APPLY_RTTI_ANY_CAST_FIX
+#define STD_ANY_ALIGNED_STORAGE_SIZE 3
+#endif
+#endif
+#endif
+
+// Wrap the force_cast fixes in conditional block, seems like
+// Clang may try to instantiate force_cast<T> even if no one uses it.
+#ifdef APPLY_RTTI_ANY_CAST_FIX
+namespace __internal {
+union Storage {
+  void *_M_ptr;
+  std::aligned_storage<STD_ANY_ALIGNED_STORAGE_SIZE*sizeof(_M_ptr), alignof(void *)>::type _M_buffer;
+};
+typedef void (*funcPtr)(void);
+
+template <typename T> T force_cast(std::any in_any) {
+  static_assert(sizeof(std::any) == sizeof(funcPtr) + sizeof(Storage));
+  void *storageLoc = (void *)((std::uintptr_t)&in_any + sizeof(funcPtr));
+  Storage &storage = *reinterpret_cast<Storage *>(storageLoc);
+  constexpr bool fit =
+      (sizeof(T) <= sizeof(Storage)) && (alignof(T) <= alignof(Storage));
+  if (fit) {
+    auto val = reinterpret_cast<T *>(&(storage._M_buffer));
+    return *val;
+  } else {
+    auto val = reinterpret_cast<T *>(storage._M_ptr);
+    return *val;
+  }
+}
+
+template <typename T> bool isType(std::any in_any) {
+  if ((in_any.type() == typeid(T)) ||
+      (strcmp(in_any.type().name(), typeid(T).name()) == 0)) {
+    return true;
+  }
+  return false;
+}
+} // namespace __internal
+#endif
 
 namespace xacc {
 
@@ -97,6 +152,15 @@ public:
     try {
       return std::any_cast<T>(items.at(key));
     } catch (std::exception &e) {
+#ifdef APPLY_RTTI_ANY_CAST_FIX
+      if (keyExists<T>(key)) {
+        // Make sure that the assumption about std::any layout is correct
+        if (sizeof(std::any) ==
+            (sizeof(__internal::funcPtr) + sizeof(__internal::Storage))) {
+          return __internal::force_cast<T>(items.at(key));
+        }
+      }
+#endif
       XACCLogger::instance()->error(
           "HeterogeneousMap::get() error - Invalid type or key (" + key + ").");
     }
@@ -169,7 +233,11 @@ public:
       try {
         std::any_cast<T>(items.at(key));
       } catch (std::exception &e) {
+#ifdef APPLY_RTTI_ANY_CAST_FIX
+        return __internal::isType<T>(items.at(key));
+#else
         return false;
+#endif
       }
       return true;
     }
@@ -182,6 +250,13 @@ public:
 
   template <class T> void visit(T &&visitor) const {
     visit_impl(visitor, typename std::decay_t<T>::types{});
+  }
+
+  // Merge another map to this.
+  void merge(const HeterogeneousMap &_other) {
+    for (const auto &[key, item] : _other.items) {
+      items[key] = item;
+    }
   }
 
 private:

@@ -76,6 +76,7 @@ void bind_quantum(py::module &m) {
       .def("computeActionOnKet", &PauliOperator::computeActionOnKet)
       .def("computeActionOnBra", &PauliOperator::computeActionOnBra)
       .def("getNonIdentitySubTerms", &PauliOperator::getNonIdentitySubTerms)
+      .def("getIdentitySubTerm", &PauliOperator::getIdentitySubTerm)      
       .def("to_numpy", [](PauliOperator& op) {
            auto mat_el = op.to_sparse_matrix();
            auto size = std::pow(2, op.nBits());
@@ -173,7 +174,14 @@ void bind_quantum(py::module &m) {
       "The Optimizer interface provides optimization routine implementations "
       "for use in algorithms.")
       .def(py::init<>(), "")
-      .def("initialize", &AlgorithmGradientStrategy::initialize)
+      .def("initialize", [](AlgorithmGradientStrategy &a, PyHeterogeneousMap &params) {
+            HeterogeneousMap m;
+            for (auto &item : params) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            return a.initialize(m);
+          })
       .def("isNumerical", &AlgorithmGradientStrategy::isNumerical)
       .def("setFunctionValue", &AlgorithmGradientStrategy::setFunctionValue)
       .def("getGradientExecutions",

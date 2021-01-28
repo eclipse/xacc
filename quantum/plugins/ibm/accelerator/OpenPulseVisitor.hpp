@@ -90,7 +90,7 @@ public:
         inst.set_phase(i.getParameter(0).as<double>());
         inst.set_t0(i.start());
 
-        std::vector<std::string> builtIns {"fc", "acquire", "parametric_pulse"};
+        std::vector<std::string> builtIns {"fc", "acquire", "parametric_pulse", "delay" };
         if (std::find(builtIns.begin(), builtIns.end(), i.name()) == std::end(builtIns)) {
             // add to default libr
             xacc::ibm_pulse::PulseLibrary lib;
@@ -104,6 +104,10 @@ public:
             for (auto& b: i.bits()) bs.push_back(b);
             inst.set_qubits(bs);
             inst.set_memory_slot(bs);
+            inst.set_duration(i.duration());
+        }
+
+        if (i.name() == "delay") {
             inst.set_duration(i.duration());
         }
 

@@ -53,14 +53,32 @@ std::vector<xacc::ibm_pulse::Instruction> alignMeasurePulseInstructions(
   // Align stimulus measure pulses and combine acquire instructions.
   // IBM can only handle 1 acquire instruction at the momemt.
   std::optional<int> firstMeasureT0;
+  // A measurement pulse can contain multiple pulses!!!
+  std::string firstMeasChannel;
+  std::unordered_map<std::string, int> mChannelOffset;
   for (const auto &ibmInst : in_originalPulseSchedule) {
     if (ibmInst.get_name() != "acquire") {
       if (!ibmInst.get_ch().empty() && ibmInst.get_ch()[0] == 'm') {
         if (!firstMeasureT0.has_value()) {
           firstMeasureT0 = ibmInst.get_t0();
+          firstMeasChannel = ibmInst.get_ch();
+          // This is the first one, hence offset = 0
+          mChannelOffset.emplace(ibmInst.get_ch(), 0);
         }
+
+        auto offsetIter = mChannelOffset.find(ibmInst.get_ch());
+        if (offsetIter == mChannelOffset.end()) {
+          const auto offset = ibmInst.get_t0() - firstMeasureT0.value();
+          mChannelOffset.emplace(ibmInst.get_ch(), offset);
+        }
+        const auto t0_offset = mChannelOffset[ibmInst.get_ch()];
         auto alignedMeasPulse = ibmInst;
-        alignedMeasPulse.set_t0(firstMeasureT0.value());
+        // A measure composite is a set of pulses on the meas channel,
+        // we need to shift all of them according to the offset.
+        if (ibmInst.get_ch() != firstMeasChannel) {
+          const auto shiftT0 = ibmInst.get_t0() - t0_offset;
+          alignedMeasPulse.set_t0(shiftT0);
+        }
         result.emplace_back(alignedMeasPulse);
       } else {
         result.emplace_back(ibmInst);
@@ -249,13 +267,19 @@ std::string QasmQObjGenerator::getQObjJsonStr(
   qobj.set_type("QASM");
   qobj.set_header(QObjectHeader());
 
+  const auto basis_gates =
+      backend["basis_gates"].get<std::vector<std::string>>();
+  // If the gate set has "u3" -> old gateset.
+  const auto gateSet = (xacc::container::contains(basis_gates, "u3"))
+                           ? QObjectExperimentVisitor::GateSet::U_CX
+                           : QObjectExperimentVisitor::GateSet::RZ_SX_CX;
   // Create the Experiments
   std::vector<xacc::ibm::Experiment> experiments;
   int maxMemSlots = 0;
   for (auto &kernel : circuits) {
 
     auto visitor = std::make_shared<QObjectExperimentVisitor>(
-        kernel->name(), backend["n_qubits"].get<int>());
+        kernel->name(), backend["n_qubits"].get<int>(), gateSet);
 
     InstructionIterator it(kernel);
     int memSlots = 0;
@@ -806,6 +830,8 @@ void IBMAccelerator::contributeInstructions(
   xacc::contributeService("fc", fc);
   auto aq = std::make_shared<Pulse>("acquire");
   xacc::contributeService("acquire", aq);
+  auto dl = std::make_shared<Pulse>("delay");
+  xacc::contributeService("delay", dl);
 
   // Add "parametric_pulse"
   auto parametricPulse = std::make_shared<Pulse>("parametric_pulse");
@@ -830,7 +856,7 @@ void IBMAccelerator::contributeInstructions(
 
     if (cmd_def_name == "u3") {
       cmd_def->addVariables({"P0", "P1", "P2"});
-    } else if (cmd_def_name == "u1") {
+    } else if ((cmd_def_name == "u1") || (cmd_def_name == "rz")) {
       cmd_def->addVariables({"P0"});
     } else if (cmd_def_name == "u2") {
       cmd_def->addVariables({"P0", "P1"});
@@ -880,6 +906,12 @@ void IBMAccelerator::contributeInstructions(
               pulseParams["duration"].get<int>();
           inst->setDuration(parametricPulseDuration);
         }
+        
+        // Delay pulse has a duration
+        if (inst_name == "delay") {
+          inst->setDuration((*seq_iter)["duration"].get<int>());
+        }
+
         if ((*seq_iter).find("phase") != (*seq_iter).end()) {
           // we have phase too
           auto p = (*seq_iter)["phase"];

@@ -13,6 +13,7 @@
 #pragma once
 #include "Identifiable.hpp"
 #include "heterogeneous.hpp"
+#include <cassert>
 
 namespace xacc {
 namespace quantum {
@@ -23,10 +24,29 @@ class Gate;
 // Readout error: pair of meas0Prep1, meas1Prep0
 using RoErrors = std::pair<double, double>;
 
-struct KrausOp {
-  size_t qubit;
-  // Choi matrix
-  std::vector<std::vector<std::complex<double>>> mats;
+// The LSB, MSB bit-order that Kraus matrices are defined in.
+enum class KrausMatBitOrder { LSB, MSB };
+
+// Represent a generic noise channel in terms of
+// Kraus operator matrices to be applied *post-operation*.
+// The list of matrices always satisfies CPTP condition.
+struct NoiseChannelKraus {
+  using KrausMatType = std::vector<std::vector<std::complex<double>>>;
+  std::vector<size_t> noise_qubits;
+  std::vector<KrausMatType> mats;
+  KrausMatBitOrder bit_order;
+  NoiseChannelKraus(const std::vector<size_t> &in_qubits,
+                    const std::vector<KrausMatType> &in_mats,
+                    KrausMatBitOrder in_bitOrder)
+      : noise_qubits(in_qubits), mats(in_mats), bit_order(in_bitOrder) {
+    const auto expectedDim = 1ULL << in_qubits.size();
+    for (const auto &mat : mats) {
+      assert(mat.size() == expectedDim);
+      for (const auto &row : mat) {
+        assert(row.size() == expectedDim);
+      }
+    }
+  }
 };
 
 class NoiseModel : public Identifiable {
@@ -37,14 +57,15 @@ public:
   // Readout errors:
   virtual RoErrors readoutError(size_t qubitIdx) const = 0;
   virtual std::vector<RoErrors> readoutErrors() const = 0;
-  // Gate errors:
-  // Returns a list of Kraus operators represent quantum noise processes
-  // associated with a quantum gate.
-  // Note: we use Kraus operators to capture generic noise processes.
-  // Any probabilistic gate-based noise representations must be converted to
-  // the equivalent Kraus operators.
-  virtual std::vector<KrausOp>
-  gateError(xacc::quantum::Gate &gate) const = 0;
+  // Returns a list of noise channels (in terms of Kraus matrices)
+  // for an XACC gate.
+  virtual std::vector<NoiseChannelKraus>
+  getNoiseChannels(xacc::quantum::Gate &gate) const {
+    return {};
+  }
+
+  // Get gate error probability:
+  virtual double gateErrorProb(xacc::quantum::Gate &gate) const = 0;
   // Query Fidelity information:
   virtual size_t nQubits() const = 0;
   virtual std::vector<double> averageSingleQubitGateFidelity() const = 0;

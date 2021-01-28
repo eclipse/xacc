@@ -14,8 +14,15 @@
 #define XACC_COMPILER_INSTRUCTIONVISITOR_HPP_
 
 #include <memory>
-
 #include "Identifiable.hpp"
+#include <unordered_map>
+#include <string>
+
+#ifdef _LIBCPP_VERSION
+#if !defined(_LIBCPP_NO_RTTI)
+#define APPLY_RTTI_DYNAMIC_CAST_FIX
+#endif
+#endif
 
 namespace xacc {
 
@@ -48,7 +55,19 @@ public:
 
   virtual const std::string toString() { return ""; }
   virtual std::string& getNativeAssembly() {return native;}
-  void resetNativeAssembly() {native = "";}
+  void resetNativeAssembly() { native = ""; }
+
+  template <typename Derived, typename Base>
+  static ptrdiff_t ComputePointerOffset() {
+    Derived *derivedPtr = (Derived *)1;
+    Base *basePtr = static_cast<Base *>(derivedPtr);
+    return (intptr_t)basePtr - (intptr_t)derivedPtr;
+  }
+  // Map from RTTI typename to pointer offset to the InstructionVisitor<T> in
+  // the memory layout.
+  virtual std::unordered_map<std::string, ptrdiff_t> getVisitorRttiMap() const {
+    return {};
+  }
 };
 
 /**
@@ -111,6 +130,21 @@ protected:
     if (castedVisitor) {
       castedVisitor->visit(visited);
       return;
+    } else {
+#ifdef APPLY_RTTI_DYNAMIC_CAST_FIX
+      // Fallback to the RTTI offset map if available.
+      auto rttiMap = visitor->getVisitorRttiMap();
+      auto iter = rttiMap.find(typeid(T).name());
+      if (iter != rttiMap.end()) {
+        ptrdiff_t offset = iter->second;
+        void *visitorVoid = static_cast<void *>(visitor.get());
+        InstructionVisitor<T> *visitorRecast =
+            reinterpret_cast<InstructionVisitor<T> *>((intptr_t)visitorVoid +
+                                                      offset);
+        visitorRecast->visit(visited);
+        return;
+      }
+#endif
     }
 
     // Fallback to any potential custom visit actions
@@ -130,6 +164,21 @@ protected:
     if (castedVisitor) {
       castedVisitor->visit(visited);
       return;
+    } else {
+#ifdef APPLY_RTTI_DYNAMIC_CAST_FIX
+      // Fallback to the RTTI offset map if available.
+      auto rttiMap = visitor->getVisitorRttiMap();
+      auto iter = rttiMap.find(typeid(T).name());
+      if (iter != rttiMap.end()) {
+        ptrdiff_t offset = iter->second;
+        void *visitorVoid = static_cast<void *>(visitor);
+        InstructionVisitor<T> *visitorRecast =
+            reinterpret_cast<InstructionVisitor<T> *>((intptr_t)visitorVoid +
+                                                      offset);
+        visitorRecast->visit(visited);
+        return;
+      }
+#endif
     }
 
     // Fallback to any potential custom visit actions

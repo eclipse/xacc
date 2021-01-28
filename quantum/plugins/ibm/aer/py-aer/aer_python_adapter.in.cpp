@@ -6,12 +6,8 @@
 #include <dlfcn.h>
 #include "xacc_config.hpp"
 
-namespace xacc {
-namespace aer {
-std::string runPulseSim(const std::string &hamJsonStr, double dt,
-                        const std::vector<double> &freqEst,
-                        const std::vector<int> &uChanLoRefs,
-                        const std::string &qObjJson) {
+namespace {
+void initPython() {
   static bool PythonInit = false;
   if (!PythonInit) {
     if (!XACC_IS_APPLE) {
@@ -21,9 +17,26 @@ std::string runPulseSim(const std::string &hamJsonStr, double dt,
       auto libPythonPreload =
           dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
     }
-    pybind11::initialize_interpreter();
+    try {
+      // This is implemented as a free-function,
+      // hence just try to start an interpreter,
+      // and ignore if the interpreter has been started.
+      pybind11::initialize_interpreter();
+    } catch (std::exception &e) {
+      // std::cout << e.what();
+    }
     PythonInit = true;
   }
+}
+} // namespace
+
+namespace xacc {
+namespace aer {
+std::string runPulseSim(const std::string &hamJsonStr, double dt,
+                        const std::vector<double> &freqEst,
+                        const std::vector<int> &uChanLoRefs,
+                        const std::string &qObjJson) {
+  initPython();
   auto py_src = R"#(
 import json, warnings
 import numpy as np
@@ -45,9 +58,9 @@ for u_chan_ref in locals()["u_channel_lo_ref"]:
 system_model = PulseSystemModel(hamiltonian=ham_model,
                                 u_channel_lo=u_channel_lo,
                                 subsystem_list=locals()["subsystem_list"],
-                                dt=locals()["dt"],
-                                qubit_freq_est=locals()["qubit_freq_est"])
+                                dt=locals()["dt"])
 backend_sim = PulseSimulator()
+backend_sim.defaults().qubit_freq_est = locals()["qubit_freq_est"]
 qobjDict = json.loads(locals()["qobj_json"])
 pulseQobj = qobj.PulseQobj.from_dict(qobjDict)
 converter = QobjToInstructionConverter(pulseQobj.config.pulse_library)
@@ -80,7 +93,9 @@ result = backend_sim.run(pulse_qobj, system_model=system_model).result().to_dict
 hex_to_count = result["results"][0]["data"]["counts"]
 for hex_val in hex_to_count:
     hex_to_count[hex_val] = int(hex_to_count[hex_val])
-count_json = json.dumps(hex_to_count)
+state_vec = result["results"][0]["data"]["statevector"]
+result_data = {"counts": hex_to_count, "statevector": state_vec }
+result_json = json.dumps(result_data)
 )#";
   // Check if Qiskit present.
   try {
@@ -105,8 +120,42 @@ count_json = json.dumps(hex_to_count)
   locals["qobj_json"] = qObjJson;
   // Run the simulator:
   pybind11::exec(py_src, pybind11::globals(), locals);
-  const auto result = locals["count_json"].cast<std::string>();
+  const auto result = locals["result_json"].cast<std::string>();
   return result;
+}
+
+std::string
+noiseModelFromBackendProperties(const std::string &backendPropertiesJson) {
+  initPython();
+  // Check if Qiskit present.
+  try {
+    pybind11::module::import("qiskit");
+  } catch (std::exception &e) {
+    // No Qiskit can be found, returns an empty string:
+    // i.e. not able to use Qiskit to create the noise model...
+    return "";
+  }
+
+  auto py_src = R"#(
+import json 
+from qiskit.providers.models import BackendProperties
+from qiskit.providers.aer.noise import NoiseModel
+backend_properties = json.loads(locals()["properties_json"])    
+properties = BackendProperties.from_dict(backend_properties)
+noise_model = NoiseModel.from_backend(properties)
+noise_model_json = json.dumps(noise_model.to_dict(True)) 
+)#";
+
+  // Set variables:
+  auto locals = pybind11::dict();
+  locals["properties_json"] = backendPropertiesJson;
+  try {
+    pybind11::exec(py_src, pybind11::globals(), locals);
+    const auto result = locals["noise_model_json"].cast<std::string>();
+    return result;
+  } catch (...) {
+    return "";
+  }
 }
 } // namespace aer
 } // namespace xacc

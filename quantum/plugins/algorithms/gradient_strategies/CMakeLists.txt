@@ -49,7 +49,6 @@ else()
                         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib")
   set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-shared")
   # Armadillo solver (QNG strategy) needs LAPACK
-  find_package(LAPACK)
   if(LAPACK_FOUND)
    target_link_libraries(${LIBRARY_NAME} PRIVATE ${LAPACK_LIBRARIES})
   else()

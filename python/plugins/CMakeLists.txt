@@ -52,3 +52,4 @@ endif()
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
 add_subdirectory(mitiq)
+add_subdirectory(scikit-quant)

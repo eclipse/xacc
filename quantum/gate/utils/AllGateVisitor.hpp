@@ -93,6 +93,12 @@ public:
   void visit(CRZ &crz) override {}
   void visit(CH &ch) override {}
   void visit(S &s) override {}
+  void visit(CPhase& cp) override {}
+  
+  void visit(Measure& cp) override {}
+  void visit(Identity& cp) override {}
+  void visit(U& cp) override {}
+
   void visit(Sdg &sdg) override {}
   void visit(T &t) override {}
   void visit(Tdg &tdg) override {}
