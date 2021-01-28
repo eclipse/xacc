@@ -36,6 +36,91 @@ void QCSAccelerator::execute(
   return;
 }
 
+void QCSAccelerator::initialize(const HeterogeneousMap &params) {
+
+  if (params.stringExists("forest_server_url")) {
+    forest_server_url = params.getString("forest_server_url");
+  }
+  if (params.stringExists("engagement_url")) {
+    engagement_url = params.getString("engagement_url");
+  }
+  if (params.stringExists("qpu_compiler_url")) {
+    qpu_compiler_url = params.getString("qpu_compiler_url");
+  }
+
+  if (params.stringExists("auth_token")) {
+    auth_token = params.getString("auth_token");
+  }
+
+  if (params.keyExists<bool>("use_rpcq_auth_config")) {
+    use_rpcq_auth_config = params.get<bool>("use_rpcq_auth_config");
+  }
+
+  if (params.stringExists("backend")) {
+    backend = params.getString("backend");
+
+    auto response = this->get(forest_server_url, "/lattices/" + backend);
+    auto lattice_json = json::parse(response);
+    auto twoq = lattice_json["lattice"]["isa"]["2Q"].get<json::object_t>();
+    for (auto element : twoq) {
+      if (element.second.find("dead") == element.second.end()) {
+        // std::cout << "adding " << element.first << "\n";
+        auto bits = xacc::split(element.first, '-');
+        latticeEdges.push_back(
+            std::make_pair(std::stoi(bits[0]), std::stoi(bits[1])));
+      }
+    }
+  }
+
+  if (!guard && !Py_IsInitialized()) {
+    guard = std::make_shared<py::scoped_interpreter>();
+    //       libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY |
+    //       RTLD_GLOBAL);
+    initialized = true;
+  }
+
+  _internal_init();
+
+  updateConfiguration(params);
+}
+
+void QCSAccelerator::_internal_init() {
+
+  if (auth_token.empty()) {
+    if (!xacc::fileExists(std::getenv("HOME") +
+                          std::string("/.qcs/user_auth_token"))) {
+      xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+    }
+    std::ifstream stream(std::getenv("HOME") +
+                         std::string("/.qcs/user_auth_token"));
+    std::string contents((std::istreambuf_iterator<char>(stream)),
+                         std::istreambuf_iterator<char>());
+    auto auth_json = json::parse(contents);
+    auth_token = auth_json["access_token"].get<std::string>();
+  }
+
+  if (endpoint.empty()) {
+    endpoint = backend;
+  }
+
+  std::string json_data = "{\"endpointId\": \"" + endpoint + "\"}";
+  std::map<std::string, std::string> headers{
+      {"Content-Type", "application/json"},
+      {"Connection", "keep-alive"},
+      {"Content-Length", std::to_string(json_data.length())},
+      {"Authorization", "Bearer " + auth_token}};
+  auto resp = this->post(engagement_url, "/engagements", json_data, headers);
+
+  auto resp_json = json::parse(resp);
+
+  client_public = resp_json["credentials"]["clientPublic"].get<std::string>();
+  client_secret = resp_json["credentials"]["clientSecret"].get<std::string>();
+  server_public = resp_json["credentials"]["serverPublic"].get<std::string>();
+  qpu_endpoint = resp_json["address"];
+  qpu_compiler_endpoint = qpu_compiler_url;
+  user_id = resp_json["userId"].get<std::string>();
+}
+
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> function) {
@@ -60,12 +145,12 @@ void QCSAccelerator::execute(
   auto quilStr = visitor->getQuilString();
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
-  std::cout << "\nQuil Program:\n" << quilStr << "\n";
-    
+  // std::cout << "\nQuil Program:\n" << quilStr << "\n";
+
   json j;
-  j["quilt"] = quilStr;
+  j["quil"] = quilStr;
   j["num_shots"] = shots;
-  j["_type"] = "QuiltBinaryExecutableRequest";
+  j["_type"] = "QuilBinaryExecutableRequest";
   std::string json_data = j.dump();
   std::map<std::string, std::string> headers{
       {"Content-Type", "application/json"},
@@ -73,12 +158,11 @@ void QCSAccelerator::execute(
       {"Accept", "application/octet-stream"},
       {"Content-Length", std::to_string(json_data.length())},
       {"Authorization", "Bearer " + auth_token}};
-
-  auto resp =
-      post(qpu_compiler_endpoint,
-                 "/devices/"+backend+"/native_quilt_to_binary", json_data, headers);
+  auto resp = post(qpu_compiler_endpoint,
+                   "/devices/" + backend + "/native_quil_to_binary", json_data,
+                   headers);
   std::string prog = json::parse(resp)["program"].get<std::string>();
-    
+
   auto locals = py::dict();
   locals["program"] = prog;
   locals["client_public_key"] = py::bytes(client_public);
@@ -86,30 +170,34 @@ void QCSAccelerator::execute(
   locals["server_public_key"] = py::bytes(server_public);
   locals["endpoint"] = qpu_endpoint;
   locals["userId"] = user_id;
-    
+  locals["use_rpcq_auth_config"] = use_rpcq_auth_config;
+
   // Setup the python src.
   auto py_src =
       R"#(from typing import Any, Dict
 import uuid, numpy as np
 from rpcq._client import Client, ClientAuthConfig
 from rpcq.messages import QuiltBinaryExecutableResponse, QPURequest
-from pyquil.api._qpu import decode_buffer
 
-auth = ClientAuthConfig(client_public_key=locals()['client_public_key'],
-                 client_secret_key=locals()['client_secret_key'],
-                 server_public_key=locals()['server_public_key'])
-client = Client(locals()['endpoint'], auth_config=auth)
+client = None
+if locals()['use_rpcq_auth_config']:
+    auth = ClientAuthConfig(client_public_key=locals()['client_public_key'],
+                     client_secret_key=locals()['client_secret_key'],
+                     server_public_key=locals()['server_public_key'])
+    client = Client(locals()['endpoint'], auth_config=auth)
+else: 
+    client = Client(locals()['endpoint'])
+
 request = QPURequest(program=locals()['program'], patch_values={}, id=str(uuid.uuid4()))
-print('calling execute qpu request')
 job_id = client.call('execute_qpu_request', request=request, user=locals()['userId'], priority=1)
 buffers = client.call("get_buffers", job_id, wait=True)
 results = {}
-# original results = {k: decode_buffer(v) for k, v in buffers.items()}
 for k, v in buffers.items():
     buf = np.frombuffer(v["data"], dtype=v["dtype"])
     results[k] = buf.reshape(v["shape"])
 )#";
 
+  // return;
   try {
     py::exec(py_src, py::globals(), locals);
   } catch (std::exception &e) {
@@ -119,8 +207,8 @@ for k, v in buffers.items():
     xacc::error(ss.str());
   }
 
-    auto results = locals["results"];
-    py::print(results);
+  auto results = locals["results"];
+  // py::print("C++ Results:\n",results);
 
   // Decode the results, update AcceleratorBuffer
   ResultsDecoder().decode(buffer, results, qbitIdxs, shots);
@@ -128,25 +216,26 @@ for k, v in buffers.items():
 }
 
 void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
-                            py::object result,
-                            std::set<int> qbitIdxs, int shots) {
+                            py::object result, std::set<int> qbitIdxs,
+                            int shots) {
 
   auto as_dict = result.cast<py::dict>();
-    
+
   Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, as_dict.size() / 2);
   int counter = 0;
   for (auto kv : as_dict) {
-    py::print(kv.first);
-    py::print(kv.second);
-    
-    for (int k = 0; k < shots; k++) {
-      auto bit = kv.second.cast<py::list>()[k].cast<int>(); //.data[k]);
-      std::cout << bit << "\n";
-      bits(k, counter) = bit;
+    //     py::print(kv.first);
+    //     py::print(kv.second);
+    if (kv.first.cast<std::string>().find("unclassified") ==
+        std::string::npos) {
+      for (int k = 0; k < shots; k++) {
+        auto bit = kv.second.cast<py::list>()[k].cast<int>(); //.data[k]);
+        //       std::cout << bit << "\n";
+        bits(k, counter) = bit;
+      }
+      counter++;
     }
-    counter++;
   }
-
   for (int i = 0; i < bits.rows(); i++) {
 
     std::string bitstr = "";
@@ -291,6 +380,7 @@ QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
 
   if (verbose)
     xacc::info("GET at " + remoteUrl + path);
+
   auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,
                     cpr::VerifySsl(false));
 
