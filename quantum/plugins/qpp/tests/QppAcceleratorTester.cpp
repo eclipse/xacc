@@ -538,6 +538,34 @@ TEST(QppAcceleratorTester, testVqeMode)
     EXPECT_NEAR((*buffer)["opt-val"].as<double>(), -1.74886, 1e-4);
 }
 
+TEST(QppAcceleratorTester, testExecutionInfo)
+{
+    auto accelerator = xacc::getAccelerator("qpp");
+    xacc::qasm(R"(
+        .compiler xasm
+        .circuit test_bell_exe
+        .qbit q
+        H(q[0]);
+        CNOT(q[0],q[1]);
+    )");
+    auto bell = xacc::getCompiled("test_bell_exe");
+
+    // Allocate some qubits and execute
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, bell);
+
+    auto exeInfo = accelerator->getExecutionInfo();
+    EXPECT_GT(exeInfo.size(), 0);
+    auto waveFn =
+        accelerator->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
+            xacc::ExecutionInfo::WaveFuncKey);
+    // for (const auto &elem : *waveFn) {
+    //   std::cout << elem << "\n";
+    // }
+    // 2 qubits => 4 elements
+    EXPECT_EQ(waveFn->size(), 4);
+}
+
 int main(int argc, char **argv) {
   xacc::Initialize();
 
