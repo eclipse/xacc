@@ -66,6 +66,10 @@ private:
       const std::vector<std::pair<double, double>> &in_stateVec,
       const std::vector<std::size_t> &in_bits);
 
+  static double calcExpectationValueZFromDensityMatrix(
+      const std::vector<std::vector<std::pair<double, double>>> &in_densityMat,
+      const std::vector<std::size_t> &in_bits);
+
   std::shared_ptr<Compiler> xacc_to_qobj;
   int m_shots = 1024;
   std::string m_simtype = "qasm";
