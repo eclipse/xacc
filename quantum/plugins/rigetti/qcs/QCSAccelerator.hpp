@@ -15,20 +15,20 @@
 
 #include "InstructionIterator.hpp"
 #include "RemoteAccelerator.hpp"
-#include "messages.hpp"
-#include <zmq.hpp>
+
 #include <fstream>
 #include "IRTransformation.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "json.hpp"
 using json = nlohmann::json;
+// #include <zmq.hpp>
+// #include <msgpack.hpp>
+#include <dlfcn.h>
 
-#define RAPIDJSON_HAS_STDSTRING 1
+#include <pybind11/embed.h>
 
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/document.h"
-using namespace rapidjson;
+namespace py = pybind11;
 
 using namespace xacc;
 
@@ -64,7 +64,7 @@ public:
 class ResultsDecoder {
 public:
   void decode(std::shared_ptr<AcceleratorBuffer> buffer,
-              qcs::GetBuffersResponse &results, std::set<int> qbitIdxs,
+              py::object results, std::set<int> qbitIdxs,
               int shots);
 };
 
@@ -91,7 +91,7 @@ class QCSAccelerator : virtual public Accelerator {
 protected:
   std::vector<int> physicalQubits;
   std::vector<std::pair<int, int>> latticeEdges;
-  Document latticeJson;
+//   Document latticeJson;
   std::string backend;
   int shots = 1024;
   std::string qpu_compiler_endpoint;
@@ -104,33 +104,158 @@ protected:
   std::string auth_token = "";
   std::string user_id = "";
 
-  template <typename T>
-  msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, requestType);
-    zmq::message_t msg(sbuf.size());
-    memcpy(msg.data(), sbuf.data(), sbuf.size());
-    // std::cout << msg << "\n";
-    socket.send(msg);
-    zmq::message_t reply;
-    socket.recv(&reply, 0);
-    msgpack::unpacked unpackedData;
-    msgpack::unpack(unpackedData, static_cast<const char *>(reply.data()),
-                    reply.size());
-    return unpackedData;
-  }
+  bool initialized = false;
+  std::shared_ptr<py::scoped_interpreter> guard;
+       
+//   template <typename T>
+//   msgpack::unpacked request(T &requestType, zmq::socket_t &socket) {
+//     msgpack::sbuffer sbuf;
+//     msgpack::pack(sbuf, requestType);
+//     zmq::message_t msg(sbuf.size());
+//     memcpy(msg.data(), sbuf.data(), sbuf.size());
+//     std::cout << msg << "\n";
+// //     socket.send(msg, zmq::send_flags::dontwait);
+// //      std::cout << "\n\nMESSAGE SENT\n\n";
+// //     zmq::message_t reply;
+// //     socket.recv(&reply, 1);
+// //       while(true) {
+// //           socket.recv(&reply, )
+//       std::cout << "HI:\n";
+// //     msgpack::unpacked unpackedData;
+// //     msgpack::unpack(unpackedData, static_cast<const char *>(reply.data()),
+// //                     reply.size());
+      
+      
+//     std::array<zmq::const_buffer, 1> send_msgs = {
+//         zmq::const_buffer(msg.data(), sbuf.size())
+//     };
+//     zmq::send_multipart(socket, send_msgs);
 
-  void getSocketURLs() {
-    if (!xacc::directoryExists(std::getenv("HOME") + std::string("/.qcs"))) {
-      xacc::warning("[QCS] $HOME/.qcs directory does not exists.");
-      return;
-    }
+//        std::cout << "SENT MSG\n";
+      
+// //     zmq::poller_t<int> poller;
+// //     std::vector<zmq::poller_event<int>> events{1};
+// //     int i = 0;
+// //     poller.add(socket, zmq::event_flags::pollin, &i);
+// //     poller.wait_all(events, std::chrono::milliseconds{-1});
+      
+// //       void *poller = zmq_poller_new ();
 
-    if (!xacc::fileExists(std::getenv("HOME") + std::string("/.qcs_config"))) {
-      xacc::warning("[QCS] $HOME/.qcs_config file does not exist.");
-      return;
-    }
+// // zmq_poller_event_t events [1];
+// // /* First item refers to 0MQ socket 'socket' */
+// // zmq_poller_add (poller, socket.handle(), NULL, ZMQ_POLLIN);
+// // /* Second item refers to standard socket 'fd' */
+// // // zmq_poller_add_fd (poller, fd, NULL, ZMQ_POLLIN);
+// // /* Poll for events indefinitely */
+// // // int rc = zmq_poller_wait_all (poller, events, 2, -1);
+// // // assert (rc >= 0);
+// // /* Returned events will be stored in 'events' */
+// // zmq_poller_destroy (&poller);
+      
+//     std::vector<zmq::message_t> recv_msgs;
+//       while(recv_msgs.empty()) {
+//     const auto ret = zmq::recv_multipart(
+//         socket, std::back_inserter(recv_msgs), zmq::recv_flags::dontwait);
+          
+//       }
+//       std::cout << "RECVed " << recv_msgs.size() << "\n";
+//     msgpack::unpacked unpackedData;
+//     msgpack::unpack(unpackedData, static_cast<const char *>(recv_msgs[0].data()),
+//                     recv_msgs[0].size());
+//     return unpackedData;
+//   }
 
+//   void getSocketURLs() {
+//     if (!xacc::directoryExists(std::getenv("HOME") + std::string("/.qcs"))) {
+//       xacc::warning("[QCS] $HOME/.qcs directory does not exists.");
+//       return;
+//     }
+
+//     if (!xacc::fileExists(std::getenv("HOME") + std::string("/.qcs_config"))) {
+//       xacc::warning("[QCS] $HOME/.qcs_config file does not exist.");
+//       return;
+//     }
+
+//     if (!xacc::fileExists(std::getenv("HOME") +
+//                           std::string("/.qcs/user_auth_token"))) {
+//       xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+//       return;
+//     }
+//     std::ifstream stream(std::getenv("HOME") +
+//                          std::string("/.qcs/user_auth_token"));
+//     std::string contents((std::istreambuf_iterator<char>(stream)),
+//                          std::istreambuf_iterator<char>());
+
+//     std::cout << "\ncontents of ~/.qcs/user_auth_token:\n" << contents << "\n";
+//     auto auth_json = json::parse(contents);
+
+//     std::string graph_ql_query =
+//         "\\n          mutation Engage($name: String!) {\\n            "
+//         "engage(input: { lattice: { name: $name }}) {\\n              "
+//         "success\\n              message\\n              engagement {\\n       "
+//         "         type\\n                qpu {\\n                    "
+//         "endpoint\\n                    credentials {\\n                       "
+//         " clientPublic\\n                        clientSecret\\n               "
+//         "         serverPublic\\n                    }\\n                }\\n  "
+//         "              compiler {\\n                    endpoint\\n            "
+//         "    }\\n                expiresAt\\n              }\\n            "
+//         "}\\n          }\\n        ";
+//     std::string json_data = "{\"query\": \"" + graph_ql_query +
+//                             "\", \"variables\": {\"name\": \"" + backend +
+//                             "\"}}";
+//     std::map<std::string, std::string> headers{
+//         {"Content-Type", "application/json"},
+//         {"Connection", "keep-alive"},
+//         {"Accept", "application/octet-stream"},
+//         {"Content-Length", std::to_string(json_data.length())},
+//         {"Authorization",
+//          "Bearer " + auth_json["access_token"].get<std::string>()}};
+//     auth_token = auth_json["access_token"].get<std::string>();
+
+//     auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
+//                            "/graphql", json_data, headers);
+
+//     std::cout << "\npost https://dispatch.services.qcs.rigetti.com/graphql response:\n" << resp << "\n";
+
+//     // this came back
+//     auto resp_json = json::parse(resp);
+//     const auto success = resp_json["data"]["engage"]["success"].get<bool>();
+//     if (!success) {
+//         xacc::error("Could not engage QPU: " + resp_json["data"]["engage"]["message"].get<std::string>());
+//     }
+//     qpu_endpoint = resp_json["data"]["engage"]["engagement"]["qpu"]["endpoint"]
+//                        .get<std::string>();
+//     auto qpu_creds =
+//         resp_json["data"]["engage"]["engagement"]["qpu"]["credentials"];
+//     qpu_compiler_endpoint =
+//         resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"]
+//             .get<std::string>();
+
+//     client_public = qpu_creds["clientPublic"].get<std::string>();
+//     client_secret = qpu_creds["clientSecret"].get<std::string>();
+//     server_public = qpu_creds["serverPublic"].get<std::string>();
+
+//     if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
+//       xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
+//     }
+
+    
+// //     std::ifstream stream2(std::getenv("HOME") + std::string("/.qcs_config"));
+// //     std::string contents2((std::istreambuf_iterator<char>(stream2)),
+// //                           std::istreambuf_iterator<char>());
+// //     auto lines = xacc::split(contents2, '\n');
+// //     for (auto &l : lines) {
+// //       if (l.find("user_id") != std::string::npos) {
+// //         auto id = xacc::split(l, '=')[1];
+// //         xacc::trim(id);
+// //         user_id = id;
+// //         break;
+// //       }
+// //     }
+      
+//   }
+
+    void getSocketURLs() {
     if (!xacc::fileExists(std::getenv("HOME") +
                           std::string("/.qcs/user_auth_token"))) {
       xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
@@ -140,75 +265,54 @@ protected:
                          std::string("/.qcs/user_auth_token"));
     std::string contents((std::istreambuf_iterator<char>(stream)),
                          std::istreambuf_iterator<char>());
-
-    // std::cout << "HELLO2:\n" << contents << "\n";
     auto auth_json = json::parse(contents);
+        
+    std::cout << "HELLO WORLD: " << auth_json["access_token"].get<std::string>() << "\n";
+        
+//         {"nextPageToken":null,"endpoints":[{"id":"3799ef49-e222-48e9-8d62-424872663139","quantumProcessorId":"Aspen-8","address":"10.2.211.10:24172","healthy":false,"mock":true},{"id":"Aspen-8","quantumProcessorId":"Aspen-8","address":"10.2.9.2:50053","healthy":true,"mock":false}]}
+//     std::string json_data = "{\"quantumProcessorId\": \"Aspen-8\"}";
+            
+//     std::string json_data = "{\"endpointId\": \"3799ef49-e222-48e9-8d62-424872663139\"}";
+    std::string json_data = "{\"endpointId\": \"Aspen-8\"}";
 
-    std::string graph_ql_query =
-        "\\n          mutation Engage($name: String!) {\\n            "
-        "engage(input: { lattice: { name: $name }}) {\\n              "
-        "success\\n              message\\n              engagement {\\n       "
-        "         type\\n                qpu {\\n                    "
-        "endpoint\\n                    credentials {\\n                       "
-        " clientPublic\\n                        clientSecret\\n               "
-        "         serverPublic\\n                    }\\n                }\\n  "
-        "              compiler {\\n                    endpoint\\n            "
-        "    }\\n                expiresAt\\n              }\\n            "
-        "}\\n          }\\n        ";
-    std::string json_data = "{\"query\": \"" + graph_ql_query +
-                            "\", \"variables\": {\"name\": \"" + backend +
-                            "\"}}";
     std::map<std::string, std::string> headers{
         {"Content-Type", "application/json"},
         {"Connection", "keep-alive"},
-        {"Accept", "application/octet-stream"},
         {"Content-Length", std::to_string(json_data.length())},
         {"Authorization",
          "Bearer " + auth_json["access_token"].get<std::string>()}};
     auth_token = auth_json["access_token"].get<std::string>();
-
-    // std::cout << json_data.length() << "\n";
-    // std::cout << json_data << "\n";
-    auto resp = this->post("https://dispatch.services.qcs.rigetti.com",
-                           "/graphql", json_data, headers);
-
-    // std::cout << "HELLO:\n" << resp << "\n";
-
-    // this came back
+    std::cout << json_data.length() << "\n";
+    std::cout << json_data << "\n";
+    xacc::set_verbose(true);
+    auto resp = this->post("https://api.qcs.rigetti.com",
+                           "/engagements", json_data, headers);
     auto resp_json = json::parse(resp);
-    qpu_endpoint = resp_json["data"]["engage"]["engagement"]["qpu"]["endpoint"]
-                       .get<std::string>();
-    auto qpu_creds =
-        resp_json["data"]["engage"]["engagement"]["qpu"]["credentials"];
-    qpu_compiler_endpoint =
-        resp_json["data"]["engage"]["engagement"]["compiler"]["endpoint"]
-            .get<std::string>();
-
-    client_public = qpu_creds["clientPublic"].get<std::string>();
-    client_secret = qpu_creds["clientSecret"].get<std::string>();
-    server_public = qpu_creds["serverPublic"].get<std::string>();
-
-    if (qpu_compiler_endpoint.empty() || qpu_endpoint.empty()) {
-      xacc::error("QCS Error: Cannot find qpu_compiler or qpu endpoint.");
-    }
-
-    std::ifstream stream2(std::getenv("HOME") + std::string("/.qcs_config"));
-    std::string contents2((std::istreambuf_iterator<char>(stream2)),
-                          std::istreambuf_iterator<char>());
-    auto lines = xacc::split(contents2, '\n');
-    for (auto &l : lines) {
-      if (l.find("user_id") != std::string::npos) {
-        auto id = xacc::split(l, '=')[1];
-        xacc::trim(id);
-        user_id = id;
-        break;
-      }
-    }
+        std::cout << "HERES THE RESPONSE\n" << resp << "\n";
+    client_public = resp_json["credentials"]["clientPublic"].get<std::string>();
+    client_secret = resp_json["credentials"]["clientSecret"].get<std::string>();
+    server_public = resp_json["credentials"]["serverPublic"].get<std::string>();
+    qpu_endpoint = resp_json["address"];
+        std::cout << "QPU ENDPOINT IS AT " << qpu_endpoint << "\n";
+    qpu_compiler_endpoint = "https://translation.services.qcs.rigetti.com";
+    user_id = resp_json["userId"].get<std::string>();
+//     std::ifstream stream2(std::getenv("HOME") + std::string("/.qcs_config"));
+//     std::string contents2((std::istreambuf_iterator<char>(stream2)),
+//                           std::istreambuf_iterator<char>());
+//     auto lines = xacc::split(contents2, '\n');
+//     for (auto &l : lines) {
+//       if (l.find("user_id") != std::string::npos) {
+//         auto id = xacc::split(l, '=')[1];
+//         xacc::trim(id);
+//         user_id = id;
+//         break;
+//       }
+//     }
   }
-
 public:
   QCSAccelerator()
-      : Accelerator(), restClient(std::make_shared<QCSRestClient>()) {}
+      : Accelerator(), restClient(std::make_shared<QCSRestClient>()) {
+      }
 
   void execute(std::shared_ptr<AcceleratorBuffer> buffer,
                const std::shared_ptr<CompositeInstruction> function) override;
@@ -227,19 +331,28 @@ public:
       Client client;
       auto response = client.get("https://forest-server.qcs.rigetti.com",
                                  "/lattices/" + backend);
+//       std::cout << "RESPONSE HERE:\n" << response << "\n";
+      
+//       latticeJson.Parse(response);
+//       const auto &oneq = latticeJson["lattice"]["isa"]["1Q"];
+//       auto &twoq = latticeJson["lattice"]["isa"]["2Q"];
 
-      latticeJson.Parse(response);
-      const auto &oneq = latticeJson["lattice"]["isa"]["1Q"];
-      auto &twoq = latticeJson["lattice"]["isa"]["2Q"];
-
-      for (auto itr = oneq.MemberBegin(); itr != oneq.MemberEnd(); ++itr) {
-        physicalQubits.push_back(std::stoi(itr->name.GetString()));
-      }
-      for (auto itr = twoq.MemberBegin(); itr != twoq.MemberEnd(); ++itr) {
-        auto connStr = itr->name.GetString();
-        auto split = xacc::split(connStr, '-');
-        latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
-      }
+//       for (auto itr = oneq.MemberBegin(); itr != oneq.MemberEnd(); ++itr) {
+//         physicalQubits.push_back(std::stoi(itr->name.GetString()));
+//       }
+//       for (auto itr = twoq.MemberBegin(); itr != twoq.MemberEnd(); ++itr) {
+//         auto connStr = itr->name.GetString();
+        
+//         auto split = xacc::split(connStr, '-');
+//         latticeEdges.push_back({std::stoi(split[0]), std::stoi(split[1])});
+//       }
+//     }
+    }
+      
+    if (!guard && !Py_IsInitialized()) {
+      guard = std::make_shared<py::scoped_interpreter>();
+//       libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
+      initialized = true;
     }
 
     // Read .forest_config
@@ -247,8 +360,7 @@ public:
 
     updateConfiguration(params);
 
-    auto irt = std::make_shared<MapToPhysical>(latticeEdges);
-    xacc::contributeService("qcs-map-qubits", irt);
+   
   }
 
   const std::string defaultPlacementTransformation() override {

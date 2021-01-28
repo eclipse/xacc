@@ -1,38 +1,37 @@
-# *******************************************************************************
-# Copyright (c) 2019 UT-Battelle, LLC.
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# and Eclipse Distribution License v.10 which accompany this distribution.
-# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
-# and the Eclipse Distribution License is available at
-# https://eclipse.org/org/documents/edl-v10.php
-#
-# Contributors:
-#   Alexander J. McCaskey - initial API and implementation
-# *******************************************************************************/
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+project(xacc_qcs VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
 set(LIBRARY_NAME xacc-rigetti-qcs)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
+find_package(XACC REQUIRED)
+
 file (GLOB_RECURSE HEADERS *.hpp)
-file (GLOB SRC *.cpp)
+file (GLOB SRC QCSAccelerator.cpp)
 
 usFunctionGetResourceSource(TARGET ${LIBRARY_NAME} OUT SRC)
 usFunctionGenerateBundleInit(TARGET ${LIBRARY_NAME} OUT SRC)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+find_package(Python COMPONENTS Interpreter Development)
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-deprecated-declarations")
 
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC . ../accelerator ${UUID_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/tpls/rapidjson/include
-                                  ${CMAKE_SOURCE_DIR}/tpls/eigen $ENV{HOME}/.zmq/include
-                                  )
-set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{HOME}/.zmq")
-find_package(cppzmq)
-
+	PUBLIC ${XACC_ROOT}/include
+           ${XACC_ROOT}/include/eigen 
+           ${XACC_ROOT}/include/pybind11/include 
+           ${Python_INCLUDE_DIRS})
+    
 target_link_libraries(${LIBRARY_NAME}
-                      PUBLIC xacc xacc-quantum-gate xacc-quantum-annealing cppzmq cpr ${UUID_LIBRARIES})
+                      PUBLIC xacc::xacc xacc::quantum_gate Python::Python)
 
 set(_bundle_name xacc_rigetti_qcs)
-
 set_target_properties(${LIBRARY_NAME} PROPERTIES
   # This is required for every bundle
   COMPILE_DEFINITIONS US_BUNDLE_NAME=${_bundle_name}
@@ -59,6 +58,3 @@ endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
-if(XACC_BUILD_TESTS)
-  add_subdirectory(tests)
-endif()
