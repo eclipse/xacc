@@ -1,4 +1,4 @@
-#include "py_qsearch.hpp"
+#include "py_qfactor.hpp"
 #include "xacc.hpp"
 #include <dlfcn.h>
 
@@ -56,16 +56,16 @@ bool isUnitary(const Eigen::MatrixXcd &in_mat) {
   return allClose(in_mat * in_mat.adjoint(), Id);
 }
 
-PyQsearch::~PyQsearch() {
+PyQfactor::~PyQfactor() {
   if (libpython_handle) {
     int i = dlclose(libpython_handle);
     if (i != 0) {
-      std::cout << "error closing python lib in qsearch: " << i << "\n";
+      std::cout << "error closing python lib in qfactor: " << i << "\n";
       std::cout << dlerror() << "\n";
     }
   }
 }
-void PyQsearch::initialize() {
+void PyQfactor::initialize() {
   if (!guard && !Py_IsInitialized()) {
     guard = std::make_shared<py::scoped_interpreter>();
     libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY | RTLD_GLOBAL);
@@ -73,7 +73,7 @@ void PyQsearch::initialize() {
   }
 }
 
-bool PyQsearch::expand(const xacc::HeterogeneousMap &parameters) {
+bool PyQfactor::expand(const xacc::HeterogeneousMap &parameters) {
 
   Eigen::MatrixXcd unitary;
   if (parameters.keyExists<Eigen::MatrixXcd>("unitary")) {
@@ -99,59 +99,80 @@ bool PyQsearch::expand(const xacc::HeterogeneousMap &parameters) {
 
   auto locals = py::dict();
   locals["unitary"] = unitary;
+  
+  // Connectivity information
+  std::vector<std::pair<int, int>> connectivity;
+  if (parameters.keyExists<std::vector<std::pair<int, int>>>("connectivity")) {
+    connectivity = parameters.get<std::vector<std::pair<int, int>>>("connectivity");
+  }
+  // If no connectivity constraints, assume all to all:
+  if (connectivity.empty()) {
+    for (int i = 0; i < n_qubits; ++i) {
+      for (int j = i + 1; j < n_qubits; ++j) {
+        connectivity.emplace_back(std::make_pair(i, j));
+      }
+    }
+  }
 
-  // Lets get a unique hash for the unitary
-  // This will create a unique instance in
-  // the project compilation database
-  std::stringstream ss;
-  ss << unitary;
-  std::hash<std::string> hasher;
-  auto hash = hasher(ss.str());
+  // Unitary gates on two qubits to be optimized.
+  // We only expose decomposition into two-qubit unitaries,
+  // so that these matrix can be decomposed into gates using XACC KAK.
+  std::vector<std::pair<int, int>> layers;
+  if (parameters.keyExists<std::vector<std::pair<int, int>>>("circuit-structure")) {
+    layers = parameters.get<std::vector<std::pair<int, int>>>("circuit-structure");
+  }
 
-  // Create a compile name unique to this matrix
-  std::string compile_name = "__internal_umat";
-  locals["compile-name"] = compile_name + "_" + std::to_string(hash);
-
-  // we'll store this to the $HOME/.xacc_qsearch_db directory
-  std::string internal_project_path =
-      std::string(std::getenv("HOME")) + std::string("/.xacc_qsearch_db");
-  locals["internal_project_path"] = internal_project_path;
-
+  // If the user has fixed the structure.
+  const bool isFixedStructure = !layers.empty();
+  
+  // If not fixed, try an iterative approach:
+  // starting with two layers.
+  // Note: one layer is usually not enough.
+  int n_layers = 2;
+  if (!isFixedStructure) {
+    for (int i = 0; i < n_layers; ++i) {
+      for (const auto &connectedPair : connectivity) {
+        layers.emplace_back(connectedPair);
+      }
+    }
+  }
+  assert(!layers.empty());
+  locals["layers"] = layers;
   // Setup the python src.
   auto py_src =
-      R"#(import qsearch
-from qsearch.assemblers import ASSEMBLER_IBMOPENQASM
-import numpy as np
+      R"#(import numpy as np
+from scipy.stats import unitary_group
+from qfactor import Gate, optimize, get_distance
 umat = locals()['unitary']
-oqasm_src = ''
-compile_name = locals()['compile-name']
-with qsearch.Project(locals()['internal_project_path']) as project:
-    project.add_compilation(compile_name, umat)
-    project.run()
-    oqasm_src = ASSEMBLER_IBMOPENQASM.assemble(project._compilations[compile_name])
+circuit = []
+circuit_layers = locals()['layers']
+for layer in circuit_layers:
+  circuit.append(Gate(unitary_group.rvs(4), layer))
+# Call the optimize function
+ans = optimize(circuit, umat)
+uMats = []
+for uGate in ans:
+  uMats.append(uGate.utry)
+final_distance = get_distance(ans, umat)
   )#";
 
   try {
     py::exec(py_src, py::globals(), locals);
   } catch (std::exception &e) {
     std::stringstream ss;
-    ss << "XACC Py-QSearch Exec Error:\n";
+    ss << "XACC Py-QFactor Exec Error:\n";
     ss << e.what();
     xacc::error(ss.str());
   }
-
-  auto oqasm_src = locals["oqasm_src"].cast<std::string>();
-
-  auto staq = xacc::getCompiler("staq");
-  auto program = staq->compile(oqasm_src)->getComposites()[0];
-
-  for (int i = 0; i < program->nInstructions(); i++) {
-    addInstruction(program->getInstruction(i));
-  }
-
+  
+  const auto resultMats = locals["uMats"];
+  const auto finalTraceDistance = locals["final_distance"];
+  py::print(resultMats);
+  py::print(finalTraceDistance);
+  // Next: construct the circuit from unitary gate matrices...
   return true;
 }
-const std::vector<std::string> PyQsearch::requiredKeys() { return {"unitary"}; }
+const std::vector<std::string> PyQfactor::requiredKeys() { return {"unitary"}; }
 } // namespace circuits
 } // namespace xacc
-REGISTER_PLUGIN(xacc::circuits::PyQsearch, xacc::Instruction)
+REGISTER_PLUGIN(xacc::circuits::PyQfactor, xacc::Instruction)

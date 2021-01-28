@@ -1,0 +1,7 @@
+{
+    "bundle.symbolic_name" : "xacc_py_qfactor",
+    "bundle.activator" : true,
+    "bundle.name" : "Bindings for Python QFactor Synthesis",
+    "bundle.description" : ""
+  }
+  
