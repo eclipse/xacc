@@ -11,106 +11,18 @@
  *   Alexander J. McCaskey - initial API and implementation
  *******************************************************************************/
 #include "QCSAccelerator.hpp"
-#include <algorithm>
 #include "CountGatesOfTypeVisitor.hpp"
 #include "QuilVisitor.hpp"
-
-#include "messages.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "EmbeddingAlgorithm.hpp"
-#include <Eigen/Dense>
 
+#include <Eigen/Dense>
 #include <regex>
 #include <chrono>
-#include <uuid/uuid.h>
-
 #include <cpr/cpr.h>
-#include <zmq.h>
 
 namespace xacc {
 namespace quantum {
-void MapToPhysical::apply(std::shared_ptr<CompositeInstruction> function,
-                          const std::shared_ptr<Accelerator> accelerator,
-                          const HeterogeneousMap &options) {
-  // std::shared_ptr<IR> MapToPhysical::transform(std::shared_ptr<IR> ir) {
-
-  auto edges = accelerator->getConnectivity();
-  auto embeddingAlgorithm = xacc::getService<EmbeddingAlgorithm>("cmr");
-
-  std::map<int, int> physical2Logical, logical2Physical;
-  int counter = 0;
-  std::set<int> nUniqueBits;
-  for (auto &edge : _edges) {
-    nUniqueBits.insert(edge.first);
-    nUniqueBits.insert(edge.second);
-  }
-
-  for (auto &i : nUniqueBits) {
-    physical2Logical.insert({i, counter});
-    logical2Physical.insert({counter, i});
-    counter++;
-  }
-
-  int nBits = nUniqueBits.size();
-
-  auto hardwareGraph = xacc::getService<Graph>("boost-ugraph");
-  for (int i = 0; i < nBits; i++) {
-    HeterogeneousMap m{std::make_pair("bias", 1.0)};
-    hardwareGraph->addVertex(m);
-  }
-  for (auto &edge : _edges) {
-    hardwareGraph->addEdge(physical2Logical[edge.first],
-                           physical2Logical[edge.second]);
-  }
-
-  // hardwareGraph->write(std::cout);
-  //   for (auto &function : ir->getComposites()) {
-  auto logicalGraph = function->toGraph();
-  InstructionIterator it(function);
-  std::set<int> nUniqueProbBits;
-
-  std::vector<std::pair<int, int>> probEdges;
-  while (it.hasNext()) {
-    // Get the next node in the tree
-    auto nextInst = it.next();
-    if (nextInst->isEnabled() && nextInst->bits().size() == 2) {
-      probEdges.push_back({nextInst->bits()[0], nextInst->bits()[1]});
-      nUniqueProbBits.insert(nextInst->bits()[0]);
-      nUniqueProbBits.insert(nextInst->bits()[1]);
-    }
-  }
-
-  auto nProbBits = nUniqueProbBits.size();
-  auto problemGraph = xacc::getService<Graph>("boost-ugraph");
-
-  for (int i = 0; i < nProbBits; i++) {
-    HeterogeneousMap m{std::make_pair("bias", 1.0)};
-    problemGraph->addVertex(m);
-  }
-
-  for (auto &inst : probEdges) {
-    if (!problemGraph->edgeExists(inst.first, inst.second)) {
-      problemGraph->addEdge(inst.first, inst.second, 1.0);
-    }
-  }
-
-  // Compute the minor graph embedding
-  auto embedding = embeddingAlgorithm->embed(problemGraph, hardwareGraph);
-  std::vector<std::size_t> physicalMap;
-  for (auto &kv : embedding) {
-    if (kv.second.size() > 1) {
-      xacc::error("Invalid logical to physical qubit mapping.");
-    }
-    physicalMap.push_back(logical2Physical[kv.second[0]]);
-  }
-
-  // std::sort(physicalMap.begin(), physicalMap.end(), std::less<>());
-  function->mapBits(physicalMap);
-  //   }
-
-  return;
-}
 
 void QCSAccelerator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
@@ -122,6 +34,91 @@ void QCSAccelerator::execute(
     buffer->appendChild(tmpBuffer->name(), tmpBuffer);
   }
   return;
+}
+
+void QCSAccelerator::initialize(const HeterogeneousMap &params) {
+
+  if (params.stringExists("forest_server_url")) {
+    forest_server_url = params.getString("forest_server_url");
+  }
+  if (params.stringExists("engagement_url")) {
+    engagement_url = params.getString("engagement_url");
+  }
+  if (params.stringExists("qpu_compiler_url")) {
+    qpu_compiler_url = params.getString("qpu_compiler_url");
+  }
+
+  if (params.stringExists("auth_token")) {
+    auth_token = params.getString("auth_token");
+  }
+
+  if (params.keyExists<bool>("use_rpcq_auth_config")) {
+    use_rpcq_auth_config = params.get<bool>("use_rpcq_auth_config");
+  }
+
+  if (params.stringExists("backend")) {
+    backend = params.getString("backend");
+
+    auto response = this->get(forest_server_url, "/lattices/" + backend);
+    auto lattice_json = json::parse(response);
+    auto twoq = lattice_json["lattice"]["isa"]["2Q"].get<json::object_t>();
+    for (auto element : twoq) {
+      if (element.second.find("dead") == element.second.end()) {
+        // std::cout << "adding " << element.first << "\n";
+        auto bits = xacc::split(element.first, '-');
+        latticeEdges.push_back(
+            std::make_pair(std::stoi(bits[0]), std::stoi(bits[1])));
+      }
+    }
+  }
+
+  if (!guard && !Py_IsInitialized()) {
+    guard = std::make_shared<py::scoped_interpreter>();
+    //       libpython_handle = dlopen("@PYTHON_LIB_NAME@", RTLD_LAZY |
+    //       RTLD_GLOBAL);
+    initialized = true;
+  }
+
+  _internal_init();
+
+  updateConfiguration(params);
+}
+
+void QCSAccelerator::_internal_init() {
+
+  if (auth_token.empty()) {
+    if (!xacc::fileExists(std::getenv("HOME") +
+                          std::string("/.qcs/user_auth_token"))) {
+      xacc::warning("[QCS] $HOME/.qcs/user_auth_token file does not exist.");
+    }
+    std::ifstream stream(std::getenv("HOME") +
+                         std::string("/.qcs/user_auth_token"));
+    std::string contents((std::istreambuf_iterator<char>(stream)),
+                         std::istreambuf_iterator<char>());
+    auto auth_json = json::parse(contents);
+    auth_token = auth_json["access_token"].get<std::string>();
+  }
+
+  if (endpoint.empty()) {
+    endpoint = backend;
+  }
+
+  std::string json_data = "{\"endpointId\": \"" + endpoint + "\"}";
+  std::map<std::string, std::string> headers{
+      {"Content-Type", "application/json"},
+      {"Connection", "keep-alive"},
+      {"Content-Length", std::to_string(json_data.length())},
+      {"Authorization", "Bearer " + auth_token}};
+  auto resp = this->post(engagement_url, "/engagements", json_data, headers);
+
+  auto resp_json = json::parse(resp);
+
+  client_public = resp_json["credentials"]["clientPublic"].get<std::string>();
+  client_secret = resp_json["credentials"]["clientSecret"].get<std::string>();
+  server_public = resp_json["credentials"]["serverPublic"].get<std::string>();
+  qpu_endpoint = resp_json["address"];
+  qpu_compiler_endpoint = qpu_compiler_url;
+  user_id = resp_json["userId"].get<std::string>();
 }
 
 void QCSAccelerator::execute(
@@ -148,33 +145,12 @@ void QCSAccelerator::execute(
   auto quilStr = visitor->getQuilString();
   quilStr =
       "DECLARE ro BIT[" + std::to_string(buffer->size()) + "]\n" + quilStr;
-
-  // Now we have our quil string, we need to run
-  // the binary executable request.
-
-  zmq::context_t context;
-  zmq::socket_t qpu_socket(context, zmq::socket_type::dealer);
-
-  qpu_socket.setsockopt(ZMQ_CURVE_PUBLICKEY, client_public);
-  qpu_socket.setsockopt(ZMQ_CURVE_SECRETKEY, client_secret);
-  qpu_socket.setsockopt(ZMQ_CURVE_SERVERKEY, server_public);
-  qpu_socket.connect(qpu_endpoint);
-  qpu_socket.setsockopt(ZMQ_LINGER, 0);
-
-  auto get_uuid =
-      []() {
-        uuid_t uuid;
-        uuid_generate_time_safe(uuid);
-        char uuid_str[37];
-        uuid_unparse_lower(uuid, uuid_str);
-        std::string id(uuid_str);
-        return id;
-      };
+  // std::cout << "\nQuil Program:\n" << quilStr << "\n";
 
   json j;
   j["quil"] = quilStr;
   j["num_shots"] = shots;
-  j["_type"] = "BinaryExecutableRequest";
+  j["_type"] = "QuilBinaryExecutableRequest";
   std::string json_data = j.dump();
   std::map<std::string, std::string> headers{
       {"Content-Type", "application/json"},
@@ -182,49 +158,84 @@ void QCSAccelerator::execute(
       {"Accept", "application/octet-stream"},
       {"Content-Length", std::to_string(json_data.length())},
       {"Authorization", "Bearer " + auth_token}};
+  auto resp = post(qpu_compiler_endpoint,
+                   "/devices/" + backend + "/native_quil_to_binary", json_data,
+                   headers);
+  std::string prog = json::parse(resp)["program"].get<std::string>();
 
-  auto resp =
-      post(qpu_compiler_endpoint,
-                 "/devices/Aspen-4/native_quil_to_binary", json_data, headers);
-  auto prog = json::parse(resp)["program"].get<std::string>();
+  auto locals = py::dict();
+  locals["program"] = prog;
+  locals["client_public_key"] = py::bytes(client_public);
+  locals["client_secret_key"] = py::bytes(client_secret);
+  locals["server_public_key"] = py::bytes(server_public);
+  locals["endpoint"] = qpu_endpoint;
+  locals["userId"] = user_id;
+  locals["use_rpcq_auth_config"] = use_rpcq_auth_config;
 
-  // Run execute_qpu_request, get job-id
-  qcs::QPURequest qpuReq(prog, get_uuid());
-  qcs::QPURequestParams qpuParams(qpuReq, user_id);
-  qcs::RPCRequestQPURequest r2(get_uuid(), qpuParams);
-  auto unpackedData2 = request(r2, qpu_socket);
-  std::stringstream ss2;
-  ss2 << unpackedData2.get();
-  auto qpuResponseJson = json::parse(ss2.str());
-  auto waitId = qpuResponseJson["result"].dump();
-  waitId = waitId.substr(1, waitId.length() - 2);
+  // Setup the python src.
+  auto py_src =
+      R"#(from typing import Any, Dict
+import uuid, numpy as np
+from rpcq._client import Client, ClientAuthConfig
+from rpcq.messages import QuiltBinaryExecutableResponse, QPURequest
 
-  // Run get_buffers, convdrt to GetBuffersResponse
-  qcs::GetBuffersRequest getBuffers(waitId);
-  qcs::RPCRequestGetBuffers r3(get_uuid(), getBuffers);
-  auto unpackedData3 = request(r3, qpu_socket);
-  qcs::GetBuffersResponse gbresp;
-  unpackedData3.get().convert(gbresp);
+client = None
+if locals()['use_rpcq_auth_config']:
+    auth = ClientAuthConfig(client_public_key=locals()['client_public_key'],
+                     client_secret_key=locals()['client_secret_key'],
+                     server_public_key=locals()['server_public_key'])
+    client = Client(locals()['endpoint'], auth_config=auth)
+else: 
+    client = Client(locals()['endpoint'])
 
-  // Decode the response, update AcceleratorBuffer
-  ResultsDecoder().decode(buffer, gbresp, qbitIdxs, shots);
+request = QPURequest(program=locals()['program'], patch_values={}, id=str(uuid.uuid4()))
+job_id = client.call('execute_qpu_request', request=request, user=locals()['userId'], priority=1)
+buffers = client.call("get_buffers", job_id, wait=True)
+results = {}
+for k, v in buffers.items():
+    buf = np.frombuffer(v["data"], dtype=v["dtype"])
+    results[k] = buf.reshape(v["shape"])
+)#";
+
+  // return;
+  try {
+    py::exec(py_src, py::globals(), locals);
+  } catch (std::exception &e) {
+    std::stringstream ss;
+    ss << "XACC QCS Exec Error:\n";
+    ss << e.what();
+    xacc::error(ss.str());
+  }
+
+  auto results = locals["results"];
+  // py::print("C++ Results:\n",results);
+
+  // Decode the results, update AcceleratorBuffer
+  ResultsDecoder().decode(buffer, results, qbitIdxs, shots);
   return;
 }
 
 void ResultsDecoder::decode(std::shared_ptr<AcceleratorBuffer> buffer,
-                            qcs::GetBuffersResponse &gbresp,
-                            std::set<int> qbitIdxs, int shots) {
+                            py::object result, std::set<int> qbitIdxs,
+                            int shots) {
 
-  Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, qbitIdxs.size());
+  auto as_dict = result.cast<py::dict>();
+
+  Eigen::MatrixXi bits = Eigen::MatrixXi::Zero(shots, as_dict.size() / 2);
   int counter = 0;
-  for (auto &i : qbitIdxs) {
-    std::string q = "q" + std::to_string(i);
-    for (int k = 0; k < shots; k++) {
-      bits(k, counter) = static_cast<int>(gbresp.result[q].data[k]);
+  for (auto kv : as_dict) {
+    //     py::print(kv.first);
+    //     py::print(kv.second);
+    if (kv.first.cast<std::string>().find("unclassified") ==
+        std::string::npos) {
+      for (int k = 0; k < shots; k++) {
+        auto bit = kv.second.cast<py::list>()[k].cast<int>(); //.data[k]);
+        //       std::cout << bit << "\n";
+        bits(k, counter) = bit;
+      }
+      counter++;
     }
-    counter++;
   }
-
   for (int i = 0; i < bits.rows(); i++) {
 
     std::string bitstr = "";
@@ -369,6 +380,7 @@ QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
 
   if (verbose)
     xacc::info("GET at " + remoteUrl + path);
+
   auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,
                     cpr::VerifySsl(false));
 
@@ -381,3 +393,6 @@ QCSRestClient::get(const std::string &remoteUrl, const std::string &path,
 }
 } // namespace quantum
 } // namespace xacc
+
+#include "xacc_plugin.hpp"
+REGISTER_ACCELERATOR(xacc::quantum::QCSAccelerator)
