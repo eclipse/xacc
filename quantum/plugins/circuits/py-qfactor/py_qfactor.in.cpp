@@ -133,6 +133,9 @@ bool PyQfactor::expand(const xacc::HeterogeneousMap &parameters) {
   // Note: one layer is usually not enough.
   int n_layers = 2;
   if (!isFixedStructure) {
+    if (parameters.keyExists<int>("layers")) {
+      n_layers = parameters.get<int>("layers");
+    }
     for (int i = 0; i < n_layers; ++i) {
       for (const auto &connectedPair : connectivity) {
         layers.emplace_back(connectedPair);
@@ -193,7 +196,7 @@ final_distance = get_distance(ans, umat)
         {{"unitary", gateUnitaryFlatten},
          {"qubits", std::vector<int>{layers[i].first, layers[i].second}}});
     assert(expandOk);
-    std::cout << kak->toString() << "\n";
+    // std::cout << kak->toString() << "\n";
     for (int j = 0; j < kak->nInstructions(); ++j) {
       addInstruction(kak->getInstruction(j)->clone());
     }

@@ -7,16 +7,14 @@
 #include <Eigen/Dense>
 using namespace xacc;
 
-TEST(QfactorTester, checkSimple) {
+TEST(QfactorTester, checkDefault) {
   Eigen::MatrixXcd ccnotMat = Eigen::MatrixXcd::Identity(8, 8);
   ccnotMat(6, 6) = 0.0;
   ccnotMat(7, 7) = 0.0;
   ccnotMat(6, 7) = 1.0;
   ccnotMat(7, 6) = 1.0;
-  const std::vector<std::pair<int, int>> initialCirc{
-      {1, 2}, {0, 2}, {1, 2}, {0, 2}, {0, 1}};
   auto qfactor_circuit =
-      xacc::createComposite("qfactor", {{"unitary", ccnotMat}, {"circuit-structure", initialCirc}});
+      xacc::createComposite("qfactor", {{"unitary", ccnotMat}});
   EXPECT_TRUE(qfactor_circuit->nInstructions() > 0);
   std::cout << "HOWDY:\n" << qfactor_circuit->toString() << "\n";
   auto provider = xacc::getIRProvider("quantum");
