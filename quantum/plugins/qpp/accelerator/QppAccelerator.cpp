@@ -313,6 +313,8 @@ namespace quantum {
                     generateMeasureBitString(buffer, measureBitIdxs, stateVec, m_shots, multiThreadEnabled);
                 }
             }
+            // Note: must save the state-vector before finalizing the visitor.
+            cacheExecutionInfo();
             m_visitor->finalize();
         }
     }
@@ -383,6 +385,18 @@ namespace quantum {
             assert(gateCast);
             m_visitor->applyGate(*gateCast);
         }
+    }
+
+    void QppAccelerator::cacheExecutionInfo() {
+      // Cache the state-vector:
+      // Note: qpp stores wavefunction in Eigen vectors,
+      // hence, maps to std::vector.
+      auto stateVec = m_visitor->getStateVec();
+      ExecutionInfo::WaveFuncType waveFunc(stateVec.data(),
+                                           stateVec.data() + stateVec.size());
+      m_executionInfo = {
+          {ExecutionInfo::WaveFuncKey,
+           std::make_shared<ExecutionInfo::WaveFuncType>(std::move(waveFunc))}};
     }
 
     NoiseModelUtils::cMat DefaultNoiseModelUtils::krausToChoi(const std::vector<NoiseModelUtils::cMat>& in_krausMats) const
