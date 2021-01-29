@@ -56,6 +56,10 @@ void QCSAccelerator::initialize(const HeterogeneousMap &params) {
     use_rpcq_auth_config = params.get<bool>("use_rpcq_auth_config");
   }
 
+  if (params.stringExists("endpoint")) {
+    endpoint = params.getString("endpoint");
+  }
+
   if (params.stringExists("backend")) {
     backend = params.getString("backend");
 
