@@ -17,28 +17,28 @@ TEST(QfactorTester, checkSimple) {
       {1, 2}, {0, 2}, {1, 2}, {0, 2}, {0, 1}};
   auto qfactor_circuit =
       xacc::createComposite("qfactor", {{"unitary", ccnotMat}, {"circuit-structure", initialCirc}});
-  // EXPECT_TRUE(qfactor_circuit->nInstructions() > 0);
+  EXPECT_TRUE(qfactor_circuit->nInstructions() > 0);
+  std::cout << "HOWDY:\n" << qfactor_circuit->toString() << "\n";
+  auto provider = xacc::getIRProvider("quantum");
 
-  // auto provider = xacc::getIRProvider("quantum");
+  for (std::size_t i = 0; i < 3; i++) {
+    qfactor_circuit->addInstruction(
+        provider->createInstruction("Measure", std::vector<std::size_t>{i}));
+  }
 
-  // for (std::size_t i = 0; i < 3; i++) {
-  //   qfactor_circuit->addInstruction(
-  //       provider->createInstruction("Measure", std::vector<std::size_t>{i}));
-  // }
+  for (std::size_t i = 0; i < 3; i++) {
+    qfactor_circuit->insertInstruction(
+        0, provider->createInstruction("X", std::vector<std::size_t>{i}));
+  }
 
-  // for (std::size_t i = 0; i < 3; i++) {
-  //   qfactor_circuit->insertInstruction(
-  //       0, provider->createInstruction("X", std::vector<std::size_t>{i}));
-  // }
+  auto qpp = xacc::getAccelerator("qpp", {{"shots", 1024}});
+  auto buffer = xacc::qalloc(3);
+  qpp->execute(buffer, qfactor_circuit);
+  buffer->print();
 
-  // auto qpp = xacc::getAccelerator("qpp", {{"shots", 1024}});
-  // auto buffer = xacc::qalloc(3);
-  // qpp->execute(buffer, qfactor_circuit);
-  // buffer->print();
+  auto count = buffer->getMeasurementCounts()["110"];
 
-  // auto count = buffer->getMeasurementCounts()["110"];
-
-  // EXPECT_TRUE(count == 1024);
+  EXPECT_TRUE(count == 1024);
 }
 
 int main(int argc, char **argv) {

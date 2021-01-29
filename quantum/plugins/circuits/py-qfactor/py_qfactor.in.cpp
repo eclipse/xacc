@@ -3,7 +3,7 @@
 #include <dlfcn.h>
 
 #include "xacc_plugin.hpp"
-
+#include "xacc_service.hpp"
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/eigen.h>
@@ -99,11 +99,12 @@ bool PyQfactor::expand(const xacc::HeterogeneousMap &parameters) {
 
   auto locals = py::dict();
   locals["unitary"] = unitary;
-  
+
   // Connectivity information
   std::vector<std::pair<int, int>> connectivity;
   if (parameters.keyExists<std::vector<std::pair<int, int>>>("connectivity")) {
-    connectivity = parameters.get<std::vector<std::pair<int, int>>>("connectivity");
+    connectivity =
+        parameters.get<std::vector<std::pair<int, int>>>("connectivity");
   }
   // If no connectivity constraints, assume all to all:
   if (connectivity.empty()) {
@@ -118,13 +119,15 @@ bool PyQfactor::expand(const xacc::HeterogeneousMap &parameters) {
   // We only expose decomposition into two-qubit unitaries,
   // so that these matrix can be decomposed into gates using XACC KAK.
   std::vector<std::pair<int, int>> layers;
-  if (parameters.keyExists<std::vector<std::pair<int, int>>>("circuit-structure")) {
-    layers = parameters.get<std::vector<std::pair<int, int>>>("circuit-structure");
+  if (parameters.keyExists<std::vector<std::pair<int, int>>>(
+          "circuit-structure")) {
+    layers =
+        parameters.get<std::vector<std::pair<int, int>>>("circuit-structure");
   }
 
   // If the user has fixed the structure.
   const bool isFixedStructure = !layers.empty();
-  
+
   // If not fixed, try an iterative approach:
   // starting with two layers.
   // Note: one layer is usually not enough.
@@ -164,12 +167,37 @@ final_distance = get_distance(ans, umat)
     ss << e.what();
     xacc::error(ss.str());
   }
-  
+
   const auto resultMats = locals["uMats"];
-  const auto finalTraceDistance = locals["final_distance"];
-  py::print(resultMats);
-  py::print(finalTraceDistance);
-  // Next: construct the circuit from unitary gate matrices...
+  const auto nbGates = resultMats.attr("__len__")().cast<int>();
+  const auto finalTraceDistance = locals["final_distance"].cast<double>();
+  // std::cout << "Final trace distance = " << finalTraceDistance << "\n";
+  assert(nbGates == layers.size());
+  for (int i = 0; i < nbGates; ++i) {
+    py::array_t<std::complex<double>> gateMat =
+        resultMats.attr("__getitem__")(i);
+    // py::print(gateMat);
+    py::buffer_info buffer = gateMat.request();
+    const size_t nbRows = buffer.shape[0];
+    const size_t nbCols = buffer.shape[1];
+    assert(nbRows = 4);
+    assert(nbCols = 4);
+    std::complex<double> *buffer_ptr = (std::complex<double> *)buffer.ptr;
+    std::vector<std::complex<double>> gateUnitaryFlatten;
+    gateUnitaryFlatten.assign(buffer_ptr, buffer_ptr + nbRows * nbCols);
+    // Use KAK to decompose block matrix (4x4) to gates:
+    auto gateRegistry = xacc::getService<IRProvider>("quantum");
+    auto kak = std::dynamic_pointer_cast<quantum::Circuit>(
+        xacc::getService<Instruction>("kak"));
+    const bool expandOk = kak->expand(
+        {{"unitary", gateUnitaryFlatten},
+         {"qubits", std::vector<int>{layers[i].first, layers[i].second}}});
+    assert(expandOk);
+    std::cout << kak->toString() << "\n";
+    for (int j = 0; j < kak->nInstructions(); ++j) {
+      addInstruction(kak->getInstruction(j)->clone());
+    }
+  }
   return true;
 }
 const std::vector<std::string> PyQfactor::requiredKeys() { return {"unitary"}; }
