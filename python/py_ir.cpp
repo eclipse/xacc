@@ -39,6 +39,8 @@ void bind_ir(py::module &m) {
   py::class_<xacc::ContributableService>(m, "ContributableService", "")
       .def(py::init<std::shared_ptr<Instruction>>(), "");
 
+  py::class_<xacc::BaseInstructionVisitor, std::shared_ptr<xacc::BaseInstructionVisitor>>(m, "BaseInstructionVisitor");
+
   py::class_<xacc::Instruction, std::shared_ptr<xacc::Instruction>>(
       m, "Instruction", "")
       .def("nParameters", &xacc::Instruction::nParameters, "")
@@ -63,7 +65,14 @@ void bind_ir(py::module &m) {
       .def("setSamples", &xacc::Instruction::setSamples, "")
       .def("getSamples", &xacc::Instruction::getSamples, "")
       .def("duration", &xacc::Instruction::duration, "")
-      .def("start", &xacc::Instruction::start, "");
+      .def("start", &xacc::Instruction::start, "")
+      .def ("accept", [](xacc::Instruction& i, std::shared_ptr<xacc::BaseInstructionVisitor> visitor) {
+        i.accept(visitor);
+      })
+      .def ("accept", [](xacc::Instruction& i,xacc::BaseInstructionVisitor& visitor) {
+        i.accept(&visitor);
+      })
+      ;
 
   py::class_<xacc::CompositeInstruction,
              std::shared_ptr<xacc::CompositeInstruction>>(
