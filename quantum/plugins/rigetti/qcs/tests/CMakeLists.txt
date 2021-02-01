@@ -10,7 +10,11 @@
 # Contributors:
 #   Alexander J. McCaskey - initial API and implementation
 # *******************************************************************************/
-include_directories(..)
-include_directories(${CMAKE_SOURCE_DIR}/tpls/eigen)
-add_xacc_test(QCS)
-target_link_libraries(QCSTester xacc)
+
+
+add_test (NAME xacc_qcs_tester
+ COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qcs_integration_test.py ${CMAKE_CURRENT_SOURCE_DIR} 
+ WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_tests_properties(xacc_qcs_tester
+   PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_INSTALL_PREFIX}:$ENV{PYTHONPATH}")

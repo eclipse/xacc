@@ -397,6 +397,24 @@ public:
   DEFINE_VISITABLE()
 };
 
+class XY : public virtual Gate {
+public:
+  XY()
+      : Gate("XY",
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+  XY(std::size_t controlQubit, std::size_t targetQubit, double theta)
+      : Gate("XY", std::vector<std::size_t>{controlQubit, targetQubit},
+             std::vector<InstructionParameter>{InstructionParameter(theta)}) {}
+  XY(std::vector<std::size_t> qbits)
+      : Gate("XY", qbits,
+             std::vector<InstructionParameter>{InstructionParameter(0.0)}) {}
+
+  const int nRequiredBits() const override { return 2; }
+
+  DEFINE_CLONE(XY)
+  DEFINE_VISITABLE()
+};
+
 class S : public Gate {
 public:
   S() : Gate("S") {}

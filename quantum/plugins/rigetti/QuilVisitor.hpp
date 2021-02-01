@@ -159,6 +159,13 @@ public:
     // quilStr += s.str();
   }
 
+  void visit(XY& xy) override {
+    auto angleStr = xy.getParameter(0).toString();
+    std::string ctrl = std::to_string(xy.bits()[0]);
+    std::string tgt = std::to_string(xy.bits()[1]);
+    quilStr += "XY("+angleStr+") " +ctrl + " " + tgt + "\n";
+  }
+
   /**
    * Return the quil string
    */

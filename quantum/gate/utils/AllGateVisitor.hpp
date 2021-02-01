@@ -46,7 +46,8 @@ class AllGateVisitor : public BaseInstructionVisitor,
                        public InstructionVisitor<Tdg>,
                        public InstructionVisitor<U>,
                        public InstructionVisitor<U1>,
-                       public InstructionVisitor<IfStmt> {
+                       public InstructionVisitor<IfStmt>,
+                       public InstructionVisitor<XY> {
 public:
   void visit(Hadamard &h) override {}
   void visit(CNOT &h) override {}
@@ -90,6 +91,7 @@ public:
 
   void visit(fSim &fsim) override {}
   void visit(iSwap &isw) override {}
+  void visit(XY& xy) override {}
   void visit(CRZ &crz) override {}
   void visit(CH &ch) override {}
   void visit(S &s) override {}

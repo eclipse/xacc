@@ -16,7 +16,6 @@ if (APPLE)
 set(ANTLR_LIB ${CMAKE_SOURCE_DIR}/dist/libantlr4-runtime.dylib)
 endif()
 file(GLOB SRC
-          #accelerator/QVMAccelerator.cpp
           RigettiActivator.cpp
           compiler/QuilCompiler.cpp
           compiler/QuilToXACCListener.cpp
@@ -28,7 +27,7 @@ usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT SRC)
 add_library(${LIBRARY_NAME} SHARED ${SRC})
 
 target_include_directories(${LIBRARY_NAME}
-                           PUBLIC accelerator
+                           PUBLIC . accelerator
                                   compiler
                                   compiler/generated
                                   ${CMAKE_SOURCE_DIR}/tpls/antlr/runtime/src
@@ -71,13 +70,5 @@ endif()
 
 install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/plugins)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/qcs/cmake")
-find_package(UUID)
-
-if (UUID_FOUND AND EXISTS $ENV{HOME}/.zmq/include/msgpack.hpp)
-message(
-    STATUS "${BoldGreen}Building QCS Accelerator.${ColorReset}")
- add_subdirectory(qcs)
-endif()
-
+add_subdirectory(qcs)
 add_subdirectory(quilc)

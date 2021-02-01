@@ -24,6 +24,23 @@
 
 namespace xacc {
 
+// Common typedefs and keys for ExecutionInfo:
+// Accelerator sub-types should use these keys and types
+// for ExecutionInformation HetMap for consistency.
+namespace ExecutionInfo {
+// Wavefunction
+const std::string WaveFuncKey = "wave-function";
+// Note: we use shared_ptr to prevent copies of these potentially large vectors.
+using WaveFuncType = std::vector<std::complex<double>>;
+using WaveFuncPtrType = std::shared_ptr<WaveFuncType>;
+
+// Density matrix
+const std::string DmKey = "density-matrix";
+// Row-by-row matrix
+using DensityMatrixType = std::vector<WaveFuncType>;
+using DensityMatrixPtrType = std::shared_ptr<DensityMatrixType>;
+} // namespace ExecutionInfo
+
 // The Accelerator is the primary interface connecting programmers/clients
 // with an available post-Moore's law co-processor (or accelerator, think GPU).
 // Accelerators primarily expose execution functionality, which takes
@@ -66,7 +83,7 @@ public:
 
   // Return the name of an IRTransformation of type Placement that is
   // preferred for this Accelerator
-  virtual const std::string defaultPlacementTransformation() {return "default-placement";}
+  virtual const std::string defaultPlacementTransformation() {return "swap-shortest-path";}
 
   virtual BitOrder getBitOrder() {
       return BitOrder::MSB;
@@ -101,6 +118,21 @@ public:
     throw std::logic_error("Accelerator '" + name() +
                            "' doesn't support single gate application.");
   }
+
+  // Custom execution-related information (specific to each Acc implementation)
+  virtual HeterogeneousMap getExecutionInfo() const { return {}; }
+
+  // Retrieve a particular execution-related information.
+  template <typename T> T getExecutionInfo(const std::string &key) {
+    if (!getExecutionInfo().keyExists<T>(key)) {
+      XACCLogger::instance()->error(
+          "getExecutionInfo() error - Invalid information key (" + key + ").");
+    } else {
+      return getExecutionInfo().get<T>(key);
+    }
+    return T();
+  }
+
   virtual ~Accelerator() {}
 };
 
