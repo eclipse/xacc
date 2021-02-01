@@ -24,10 +24,37 @@ void bind_graph(py::module &m) {
       .def("description", &xacc::Graph::description, "")
       .def("clone", &xacc::Graph::clone, "")
       .def("gen_random_graph", &xacc::Graph::gen_random_graph, "")
-      // .def("addEdge", &xacc::Graph::addEdge, "")
+      .def("addEdge",
+           (void (xacc::Graph::*)(const int, const int, const double)) &
+               xacc::Graph::addEdge,
+           "")
+      .def("addEdge",
+           (void (xacc::Graph::*)(const int, const int)) & xacc::Graph::addEdge,
+           "")
       .def("removeEdge", &xacc::Graph::removeEdge, "")
-      //.def("addVertex", &xacc::Graph::addVertex, "")
-      //.def("setVertexProperties", &xacc::Graph::setVertexProperties, "")
+      .def(
+          "addVertex",
+          [](xacc::Graph &g, const PyHeterogeneousMap &vertex) {
+            HeterogeneousMap m;
+            for (auto &item : vertex) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            g.addVertex(m);
+          },
+          "")
+      .def(
+          "setVertexProperties",
+          [](xacc::Graph &g, const int index,
+             const PyHeterogeneousMap &vertex) {
+            HeterogeneousMap m;
+            for (auto &item : vertex) {
+              PyHeterogeneousMap2HeterogeneousMap vis(m, item.first);
+              mpark::visit(vis, item.second);
+            }
+            g.setVertexProperties(index, m);
+          },
+          "")
       .def("getVertexProperties", &xacc::Graph::getVertexProperties, "")
       .def("setEdgeWeight", &xacc::Graph::setEdgeWeight, "")
       .def("getEdgeWeight", &xacc::Graph::getEdgeWeight, "")
@@ -38,7 +65,15 @@ void bind_graph(py::module &m) {
       .def("order", &xacc::Graph::order, "")
       .def("depth", &xacc::Graph::depth, "")
       .def("getNeighborList", &xacc::Graph::getNeighborList, "")
-      .def("computeShortestPath", &xacc::Graph::computeShortestPath, "");
+      .def("computeShortestPath", &xacc::Graph::computeShortestPath, "")
+      .def(
+          "__str__",
+          [](xacc::Graph &g) {
+            std::stringstream ss;
+            g.write(ss);
+            return ss.str();
+          },
+          "");
 
   m.def("getGraph",
         [](const std::string &name) -> std::shared_ptr<xacc::Graph> {

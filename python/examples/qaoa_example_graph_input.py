@@ -7,6 +7,7 @@ qpu = xacc.getAccelerator('qsim')
 graph = xacc.getGraph("boost-digraph")
 nbNodes = 3
 random_graph = graph.gen_random_graph(nbNodes, 3.0 / nbNodes)
+print(random_graph)
 nbSteps = 1
 buffer = xacc.qalloc(nbNodes)
 opt = xacc.getOptimizer('nlopt')
