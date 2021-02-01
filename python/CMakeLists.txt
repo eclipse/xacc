@@ -24,7 +24,7 @@ add_library(_pyxacc SHARED xacc-py.cpp
                             py_heterogeneous_map.cpp 
                             py_ir.cpp py_accelerator.cpp 
                             py_compiler.cpp py_algorithm.cpp 
-                            py_optimizer.cpp py_observable.cpp 
+                            py_optimizer.cpp py_observable.cpp  py_graph.cpp
                             ${CMAKE_SOURCE_DIR}/quantum/python/xacc-quantum-py.cpp)
 target_include_directories(_pyxacc PUBLIC .
                                           ${Python_INCLUDE_DIRS}
